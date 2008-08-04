@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry exported="true" kind="lib" path="lib/hsqldb.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/mysql-connector-java-5.1.6-bin.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/ojdbc14.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/sqljdbc.jar"/>
+	<classpathentry kind="output" path=""/>
+</classpath>
