@@ -1,0 +1,203 @@
+package org.apache.empire.struts2.websample.web.actiontypes;
+
+import org.apache.empire.commons.Errors;
+import org.apache.empire.data.Record;
+import org.apache.empire.data.bean.BeanClass;
+import org.apache.empire.data.bean.BeanRecordProxy;
+import org.apache.empire.struts2.actionsupport.BeanActionSupport;
+import org.apache.empire.struts2.actionsupport.SessionPersistence;
+import org.apache.empire.struts2.web.WebErrors;
+
+import com.opensymphony.xwork2.interceptor.NoParameters;
+
+
+/**
+ * BeanDetailAction
+ * <p>
+ * This class allows using a JavaBean or Data Transfer Object (DTO) for form data processing.
+ * Metadata for the Beans should be provided using the BeanClass and BeanProperty classes.
+ * </p>
+ * @author Rainer
+ */
+public abstract class BeanDetailAction<T> extends DetailAction
+    implements NoParameters // set this to provide custom parameter handling
+{
+    protected final BeanActionSupport<T> beanSupport;
+    
+    /**
+     * Constructs a BeanDetailAction from a BeanRecordProxy object
+     * @param record the BeanRecordProxy for the bean 
+     * @param persistence persistence level
+     */
+    public BeanDetailAction(BeanRecordProxy<T> record, SessionPersistence persistence)
+    {
+        beanSupport = new BeanActionSupport<T>(this, record, persistence);
+    }
+
+    /**
+     * Constructs a BeanDetailAction from a BeanClass definition
+     * @param beanClass the bean class defining the bean's metadata 
+     * @param persistence persistence level
+     */
+    public BeanDetailAction(BeanClass beanClass, SessionPersistence persistence)
+    {
+        beanSupport = new BeanActionSupport<T>(this, beanClass, persistence);
+    }
+    
+    /**
+     * Returns the Record interface implmentation for the bean.
+     * @return the Record interface implmentation for the bean. 
+     */
+    public Record getRecord() 
+    {
+        return beanSupport.getRecord();
+    }
+
+    @Override
+    public String doCreate() 
+    {
+        T bean = createBean();
+        if (bean==null)
+        {   // Must have an action error set!
+            if (!hasActionError())
+                setActionError(Errors.ObjectNotValid, beanSupport.getRecordPropertyName());
+            return doCancel();
+        }
+        beanSupport.setData(bean);
+        return INPUT;
+    }
+
+    @Override
+    public String doLoad() 
+    {
+        // Read Record
+        Object[] key = beanSupport.getActionParamKey();
+        if (key!=null)
+        {   // Load the bean
+            T bean = loadBean(key);
+            if (bean==null)
+            {   // Must have an action error set!
+                if (!hasActionError())
+                    setActionError(Errors.ItemNotFound, beanSupport.getRecordKeyString());
+                return doCancel();
+            }
+            beanSupport.setData(bean);
+        }
+        // Check if record is valid
+        if (beanSupport.isValid()==false)
+        {
+            setActionError(WebErrors.InvalidFormData);
+            return doCancel();
+        }
+        // Test
+        return INPUT;
+    }
+
+    @Override
+    public String doDelete() 
+    {
+        Object[] key = null;
+        if (beanSupport.hasActionKey(true))
+        {
+            if (beanSupport.getActionParamNewFlag()==false)
+                key = beanSupport.getActionParamKey();
+        }
+        else
+        {   // Get the bean key
+            if (beanSupport.getRecord().isNew()==false)
+                key = beanSupport.getRecordKeyValues();
+        }
+        // Delete the bean
+        if (key!=null && deleteBean(key)==false)
+        {   // An Error has occurred;
+            return doCancel();
+        }
+        // Clear Data
+        beanSupport.setData(null);
+        return RETURN;
+    }
+
+    @Override
+    public String doSave() {
+
+        // bean Support
+        if (beanSupport.isValid()==false)
+        {   // Create new or reload existing item
+            T bean;
+            if (beanSupport.getActionParamNewFlag())
+            {   // crate new Item
+                bean = createBean();
+            }
+            else
+            {   // reload existing item
+                bean = loadBean(beanSupport.getActionParamKey());
+            }
+            if (bean==null)
+            {   // Must have an action error set!
+                if (!hasActionError())
+                    setActionError(Errors.ItemNotFound, beanSupport.getRecordKeyString());
+                return doCancel();
+            }
+            beanSupport.setData(bean);
+        }
+        else if (beanSupport.getRecord().isNew()==false) 
+        {   // Check whether we have the right key
+            if (!beanSupport.checkKey())
+            {   // Record's don't match
+                setActionError(WebErrors.InvalidFormData);
+                return doCancel();
+            }
+        }
+        // LoadFormData 
+        if (beanSupport.loadFormData()==false)
+        {   // Error loading form data
+            return INPUT;
+        }
+        
+        // Save the record
+        boolean isNew = beanSupport.getRecord().isNew();
+        if (saveBean(beanSupport.getData(), isNew)==false)
+        {   // Error saving bean
+            return INPUT;
+        }
+        
+        // Record has been saved successfully
+        // beanSupport.updateSessionKey();
+        beanSupport.setData(null);
+        
+        return RETURN;
+    }
+    
+    // ------- overridables -------
+    
+    /**
+     * Returns the bean for the supplied object key.
+     * If an error occurs the fuction must set an action error and return null.
+     * @return the bean object
+     */
+    protected abstract T createBean();
+    
+    /**
+     * Returns the bean for the supplied object key.
+     * If an error occurs the fuction must set an action error and return null.
+     * @param key the bean's key values
+     * @return the bean object
+     */
+    protected abstract T loadBean(Object[] key);
+    
+    /**
+     * Saves a bean object 
+     * @param bean 
+     * @param isNew true the bean is a newly created object or false otherwise
+     * @return true if the bean has been stored sucessfully or false otherwise
+     */
+    protected abstract boolean saveBean(T bean, boolean isNew);
+    
+    /**
+     * Deletes a bean object
+     * @param bean 
+     * @return true if the bean has been stored sucessfully or false otherwise
+     */
+    protected abstract boolean deleteBean(Object[] key);
+    
+}

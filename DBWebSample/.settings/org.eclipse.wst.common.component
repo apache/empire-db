@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project-modules id="moduleCoreId" project-version="1.5.0">
+<wb-module deploy-name="DBWebSample">
+<wb-resource deploy-path="/" source-path="/WebRoot"/>
+<wb-resource deploy-path="/WEB-INF/classes" source-path="/src"/>
+<dependent-module deploy-path="/WEB-INF/lib" handle="module:/classpath/lib/Struts2.0.8/lib/commons-beanutils-1.7.0.jar">
+<dependency-type>uses</dependency-type>
+</dependent-module>
+<dependent-module deploy-path="/WEB-INF/lib" handle="module:/classpath/lib/Struts2.0.8/lib/commons-collections-2.1.1.jar">
+<dependency-type>uses</dependency-type>
+</dependent-module>
+<dependent-module deploy-path="/WEB-INF/lib" handle="module:/classpath/lib/Struts2.0.8/lib/commons-digester-1.8.jar">
+<dependency-type>uses</dependency-type>
+</dependent-module>
+<dependent-module deploy-path="/WEB-INF/lib" handle="module:/classpath/lib/Struts2.0.8/lib/commons-logging-1.0.4.jar">
+<dependency-type>uses</dependency-type>
+</dependent-module>
+<dependent-module deploy-path="/WEB-INF/lib" handle="module:/classpath/lib/Struts2.0.8/lib/freemarker-2.3.8.jar">
+<dependency-type>uses</dependency-type>
+</dependent-module>
+<dependent-module deploy-path="/WEB-INF/lib" handle="module:/classpath/lib/Struts2.0.8/lib/log4j-1.2.14.jar">
+<dependency-type>uses</dependency-type>
+</dependent-module>
+<dependent-module deploy-path="/WEB-INF/lib" handle="module:/classpath/lib/Struts2.0.8/lib/ognl-2.6.11.jar">
+<dependency-type>uses</dependency-type>
+</dependent-module>
+<dependent-module deploy-path="/WEB-INF/lib" handle="module:/classpath/lib/Struts2.0.8/lib/struts2-codebehind-plugin-2.0.8.jar">
+<dependency-type>uses</dependency-type>
+</dependent-module>
+<dependent-module deploy-path="/WEB-INF/lib" handle="module:/classpath/lib/Struts2.0.8/lib/struts2-core-2.0.8.jar">
+<dependency-type>uses</dependency-type>
+</dependent-module>
+<dependent-module deploy-path="/WEB-INF/lib" handle="module:/classpath/lib/Struts2.0.8/lib/struts2-sitemesh-plugin-2.0.8.jar">
+<dependency-type>uses</dependency-type>
+</dependent-module>
+<dependent-module deploy-path="/WEB-INF/lib" handle="module:/classpath/lib/Struts2.0.8/lib/struts2-tiles-plugin-2.0.8.jar">
+<dependency-type>uses</dependency-type>
+</dependent-module>
+<dependent-module deploy-path="/WEB-INF/lib" handle="module:/classpath/lib/Struts2.0.8/lib/tiles-api-2.0.3.jar">
+<dependency-type>uses</dependency-type>
+</dependent-module>
+<dependent-module deploy-path="/WEB-INF/lib" handle="module:/classpath/lib/Struts2.0.8/lib/tiles-core-2.0.3.jar">
+<dependency-type>uses</dependency-type>
+</dependent-module>
+<dependent-module deploy-path="/WEB-INF/lib" handle="module:/classpath/lib/Struts2.0.8/lib/tiles-jsp-2.0.3.jar">
+<dependency-type>uses</dependency-type>
+</dependent-module>
+<dependent-module deploy-path="/WEB-INF/lib" handle="module:/classpath/lib/Struts2.0.8/lib/xwork-2.0.3.jar">
+<dependency-type>uses</dependency-type>
+</dependent-module>
+<dependent-module deploy-path="/WEB-INF/lib" handle="module:/resource/Empire-db/Empire-db">
+<dependency-type>uses</dependency-type>
+</dependent-module>
+<dependent-module deploy-path="/WEB-INF/lib" handle="module:/resource/Empire-struts2-ext/Empire-struts2-ext">
+<dependency-type>uses</dependency-type>
+</dependent-module>
+<property name="java-output-path" value="build/classes"/>
+<property name="context-root" value="dbwebsample"/>
+</wb-module>
+</project-modules>
