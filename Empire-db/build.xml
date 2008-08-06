@@ -1,0 +1,70 @@
+<project name="empire-db" default="build" basedir=".">
+	<description>Builds empire-db.jar</description>
+	<!-- set properties for this build -->
+	<property name="src.dir" location="src"/>
+	<property name="lib.dir" location="lib"/>
+	<property name="deploy.dir" location="../deploy"/>
+	<property name="this.deploy.dir" location="${deploy.dir}/empire-db"/>
+	<property name="out.dir" location="${this.deploy.dir}/out"/>
+	<property name="jar.file" location="${this.deploy.dir}/empire-db.jar"/>
+	<property name="jar.version.file" location="${this.deploy.dir}/empire-db-2.0.3.jar"/>
+	
+	<!-- 
+		target build
+	 -->
+	<target name="build" depends="clean,compile,jar,dependjars,tidy" />
+	
+	<!-- 
+		target clean
+	 -->
+	<target name="clean" description="delete everything">
+		<delete dir="${this.deploy.dir}"/>
+	</target>
+	<!-- 
+		target compile
+	 -->
+	<target name="compile" description="delete class folder, compiling all source files of the packages">
+		<delete dir="${this.deploy.dir}"/>
+		<mkdir dir="${this.deploy.dir}"/>
+		<mkdir dir="${out.dir}" />
+		
+	    <javac srcdir="${src.dir}" destdir="${out.dir}" listfiles="false" debug="on">
+	    	<classpath>
+	    		<pathelement location="${lib.dir}/commons-beanutils-1.7.0.jar"/>
+	    		<pathelement location="${lib.dir}/commons-collections-2.1.1.jar"/>
+	    		<pathelement location="${lib.dir}/commons-logging-1.0.4.jar"/>	
+	    		<pathelement location="${lib.dir}/log4j-1.2.14.jar"/>	
+			</classpath>
+<!--    	<compilerarg value="-Xlint" /> -->
+		</javac>
+    </target>
+	<!-- 
+		target jar
+	 -->
+	<target name="jar">
+		<jar destfile="${jar.file}" compress="true">
+			<fileset dir="${out.dir}" />
+			<fileset dir="${src.dir}" />
+			<fileset dir="" includes="*.txt" />
+		</jar>
+		<jar destfile="${jar.version.file}" compress="true">
+			<fileset dir="${out.dir}" />
+			<fileset dir="${src.dir}" />
+			<fileset dir="" includes="*.txt" />
+		</jar>
+	</target>
+	<!-- 
+		dependjars
+	 -->
+	<target name="dependjars" description="copy dependancies to deploy dir">
+		<copy todir="${this.deploy.dir}">
+			<fileset dir="${lib.dir}" includes="*.jar"/>				
+		</copy>
+	</target>
+	<!-- 
+		target tidy
+	 -->
+	<target name="tidy" description="delete temp files">
+		<delete dir="${out.dir}"/>
+	</target>
+</project>

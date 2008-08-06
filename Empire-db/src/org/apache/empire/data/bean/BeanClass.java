@@ -1,0 +1,113 @@
+/*
+ * ESTEAM Software GmbH, 02.07.2008
+ */
+package org.apache.empire.data.bean;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import org.apache.empire.data.Column;
+import org.apache.empire.data.DataType;
+
+
+/**
+ * BeanObject
+ * This class defines Metadata for any type of java class.
+ * For each class you want to describe create one Metadata class and derive it from BeanClass.
+ * A metadata defintion consitst primarily of the class name and a list of properties.  
+ * @author Rainer
+ */
+public abstract class BeanClass
+{
+    private String name;
+    private List<BeanProperty> properties = new ArrayList<BeanProperty>();
+    private Column[] keyColumns;
+    
+    protected BeanDomain domain; // internal
+
+    protected BeanClass(String name) 
+    {
+        this.name = name;
+    }
+
+    protected void addProp(BeanProperty prop)
+    {
+        properties.add(prop);
+        prop.beanClass = this;
+    }
+
+    protected final BeanProperty addProp(String propname, DataType dataType, double size, boolean required)
+    {
+        BeanProperty prop = new BeanProperty(propname, dataType, size, required, "text", false);
+        addProp(prop);
+        return prop;
+    }
+
+    protected final BeanProperty addProp(String propname, DataType dataType, double size, boolean required, String controlType)
+    {
+        BeanProperty prop = new BeanProperty(propname, dataType, size, required, controlType, false);
+        addProp(prop);
+        return prop;
+    }
+
+    protected final BeanProperty addProp(String propname, DataType dataType, double size, boolean required, String controlType, boolean readOnly)
+    {
+        BeanProperty prop = new BeanProperty(propname, dataType, size, required, controlType, required);
+        addProp(prop);
+        return prop;
+    }
+
+    /**
+     * Sets the list of key columns.
+     * @param keyColumns the list of key columns.
+     */
+    protected void setKeyColumns(Column[] keyColumns)
+    {
+        this.keyColumns = keyColumns;
+    }
+
+    /**
+     * Sets the key to a single column
+     * @param keyColumn
+     */
+    protected final void setKeyColumn(Column keyColumn)
+    {
+        setKeyColumns(new Column[] { keyColumn });
+    }
+    
+    /**
+     * returns the name of this class
+     * @return the class name
+     */
+    public String getName() 
+    {
+        return name;
+    }
+
+    /**
+     * returns the list of properties for this class.
+     * @return the list of properties for this class.
+     */
+    public List<BeanProperty> getProperties() 
+    {
+        return properties;
+    }
+
+    /**
+     * returns the domain this class belongs to (if any)
+     * @return the domain this class belongs to or null. 
+     */
+    public BeanDomain getDomain()
+    {
+        return domain;
+    }
+
+    /**
+     * returns the list of key columns (if any)
+     * @return the list of key columns or null.
+     */
+    public Column[] getKeyColumns()
+    {
+        return keyColumns;
+    }
+}
