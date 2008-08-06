@@ -1,0 +1,25 @@
+--------------
+Release 2.1.0:
+--------------
+114:	All package names changed to org.apache.empire.
+
+--------------
+Release 2.0.2:
+--------------
+113:	NEW FEATURE: class BeanRecordProxy<T> implements the Record interface of any given JavaBean object.	
+112:	NEW FEATURE: classes BeanDomain, BeanClass and BeanProperty allow metadata defition for JavaBean objects using the Column interface.
+111:	DBDatabaseDriverOracle: new implementation for checkDatabase
+110:	Method getSourceColumn added for data.Column
+109:	DBRecordData: Typ conversion moved to ObjectUtils
+108:	NEW FEATURE: createView implemented for all Database Drivers
+107:	DBView: canUpdateReocrds = Flag for updateable and non-updateable Views;
+
+--------------
+Release 2.0.1:
+--------------
+106:	NEW FEATURE: DBDatabaseDriverMySQL:	Driver for MySQL 5 added.
+105:	NEW FEATURE: DBColumnExpr: Added Support for REVERSE() and INSTR() SQL Functions
+104:	BUGFIX: DBRecord::getFieldValue(): Field Access to invalid DBRecord returned Boolean FALSE instead of null.
+103:	DBDatabaseDriver: Function isSupported() and getPostInsertAutoIncValue() added
+102:	DBColumnExpr: Substring function now excepts column expressions 
+101:	DBSQLScript: New class to replace StringBuilder for DDL Script generation. See also DBDatabase::getCreateDDLScript()

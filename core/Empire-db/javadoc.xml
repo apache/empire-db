@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project default="javadoc">
+	<property name="lib.dir" location="lib"/>
+	<property name="dest.dir" location="../deploy/empire-db-2.0.3/docs"/>
+	<property name="sourcepath" location="src"/>
+<target name="javadoc">
+<javadoc access="public" author="true" destdir="${dest.dir}" doctitle="Empire-db API Specification" nodeprecated="false" nodeprecatedlist="false" noindex="false" nonavbar="false" notree="false" 
+	     packagenames="org.apache.empire.commons,
+					   org.apache.empire.data,
+	                   org.apache.empire.db,
+					   org.apache.empire.db.expr.column,
+					   org.apache.empire.db.expr.compare,
+					   org.apache.empire.db.expr.join,
+	                   org.apache.empire.db.expr.set,
+					   org.apache.empire.db.hsql,
+					   org.apache.empire.db.mysql,
+					   org.apache.empire.db.oracle,
+	                   org.apache.empire.db.sqlserver,
+					   org.apache.empire.xml" 
+	     source="1.5" sourcepath="${sourcepath}" splitindex="true" use="true" version="true">
+	<classpath>
+		<path>
+			<fileset dir="${lib.dir}"/>
+		</path>
+	</classpath>
+</javadoc>
+</target>
+</project>

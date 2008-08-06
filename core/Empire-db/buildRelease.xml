@@ -1,0 +1,151 @@
+<project name="buildRelease" default="build" basedir=".">
+	<description>Builds the download folder</description>
+	<!-- set properties for this build -->
+	<property name="src.dir" location="src"/>
+	<property name="lib.dir" location="lib"/>
+	<property name="deploy.dir" location="../deploy"/>
+	<property name="this.deploy.dir" location="${deploy.dir}/empire-db-2.0.3"/>
+	<property name="out.dir" location="${this.deploy.dir}/out"/>
+	<property name="lib.deploy.dir" location="${this.deploy.dir}/lib" />
+	<property name="src.deploy.dir" location="${this.deploy.dir}/src" />
+	<property name="examples.deploy.dir" location="${this.deploy.dir}/examples" />
+	<property name="jar.version.file" location="${this.deploy.dir}/empire-db-2.0.3.jar"/>
+	
+	<!-- 
+		target build
+	 -->
+	<target name="build" depends="clean,compile,jar,dependjars,copySourceFolder,generateJavadocs,createEclipseExample,miscellaneous,tidy" />
+	
+	<!-- 
+		target clean
+	 -->
+	<target name="clean" description="delete everything">
+		<delete dir="${this.deploy.dir}"/>
+	</target>
+	<!-- 
+		target compile
+	 -->
+	<target name="compile" description="delete class folder, compiling all source files of the packages">
+		<delete dir="${this.deploy.dir}"/>
+		<mkdir dir="${this.deploy.dir}"/>
+		<mkdir dir="${out.dir}" />
+		
+	    <javac srcdir="${src.dir}" destdir="${out.dir}" listfiles="false" debug="on">
+	    	<classpath>
+	    		<path>
+	    			<fileset dir="${lib.dir}"/>
+	    		</path>
+			</classpath>
+		</javac>
+    </target>
+	<!-- 
+		target jar
+	 -->
+	<target name="jar">
+		<jar destfile="${jar.version.file}" compress="true">
+			<fileset dir="${out.dir}" />
+			<fileset dir="${src.dir}" />
+			<fileset dir="" includes="*.txt" />
+		</jar>
+	</target>
+	<!-- 
+		dependjars
+	 -->
+	<target name="dependjars" description="copy dependancies to deploy dir">
+		<mkdir dir="${lib.deploy.dir}"/>
+		<copy todir="${lib.deploy.dir}">
+			<fileset dir="${lib.dir}" includes="*.jar"/>		
+		</copy>
+	</target>
+	
+	<!-- 
+		copySourceFolder
+	 -->
+	 <target name="copySourceFolder" description="copies dependancies to deploy dir">
+		<mkdir dir="${src.deploy.dir}"/>
+		<copy todir="${src.deploy.dir}">
+	 		<fileset dir="${src.dir}" includes="**/*.*" />
+	 	</copy>
+	 </target>
+	 
+	 <!-- 
+		createEclipseExample
+	 -->
+	 <target name="createEclipseExample" description="creates an Eclipse example">
+		<mkdir dir="${examples.deploy.dir}"/>
+	 	<concat destfile="${examples.deploy.dir}/readme.txt">For an Empire-db introcution tutorial see tutorial.pdf in the DBSample subdirecotry.</concat>
+		<copy todir="${examples.deploy.dir}">
+	 		<fileset dir="../" includes="DBSample/**/*.*" >
+	 			<exclude name="**/.settings/**" />
+	 			<exclude name="**/build.xml" />
+	 			<exclude name="**/sqljdbc.jar" />
+	 			<exclude name="**/hsqldb/**" />
+	 		</fileset>
+			<fileset dir="../">
+				<include name="DBSample/classpath_delivery-version"/>
+			</fileset>
+	 	</copy>
+	 	<move file="${examples.deploy.dir}/DBSample/classpath_delivery-version" tofile="${examples.deploy.dir}/DBSample/.classpath" overwrite="true" />
+		<copy todir="${examples.deploy.dir}">
+	 		<fileset dir="../" includes="DBSampleAdv/**/*.*" >
+	 			<exclude name="**/.settings/**" />
+	 			<exclude name="**/build.xml" />
+	 			<exclude name="**/sqljdbc.jar" />
+	 			<exclude name="**/hsqldb/**" />
+	 		</fileset>
+			<fileset dir="../">
+				<include name="DBSampleAdv/classpath_delivery-version"/>
+			</fileset>
+	 	</copy>
+	 	<move file="${examples.deploy.dir}/DBSampleAdv/classpath_delivery-version" tofile="${examples.deploy.dir}/DBSampleAdv/.classpath" overwrite="true" />
+		<copy todir="${examples.deploy.dir}/DBSample/lib">
+			<fileset dir="${this.deploy.dir}/">
+				<include name="*.jar"/>
+			</fileset>
+			<fileset dir="${this.deploy.dir}/lib/">
+				<include name="*.jar"/>
+			</fileset>
+			<fileset dir="../JDBCDrivers/lib/">
+				<include name="hsqldb.jar"/>
+			</fileset>
+		</copy>
+		<copy todir="${examples.deploy.dir}/DBSampleAdv/lib">
+			<fileset dir="${this.deploy.dir}/">
+				<include name="*.jar"/>
+			</fileset>
+			<fileset dir="${this.deploy.dir}/lib/">
+				<include name="*.jar"/>
+			</fileset>
+			<fileset dir="../JDBCDrivers/lib/">
+				<include name="hsqldb.jar"/>
+			</fileset>
+		</copy>
+	 </target>
+	 
+	 <!-- 
+		generate Javadocs
+	 -->
+	 <target name="generateJavadocs" description="generates the javadocs for this project">
+	 	<ant inheritAll="true" antfile="javadoc.xml" />
+	 </target>
+	 
+	 <!-- 
+	 	miscellaneous
+	  -->
+	  <target name="miscellaneous">
+	  	<copy todir="${this.deploy.dir}">
+	  		<fileset dir=".">
+	  			<include name="NOTICE.txt" />
+	  			<include name="LICENSE.txt" />
+	  			<include name="CHANGELOG.txt" />
+	  		</fileset>
+	  	</copy>
+	  </target>
+	  
+	<!-- 
+		target tidy
+	 -->
+	<target name="tidy" description="delete temp files">
+		<delete dir="${out.dir}"/>
+	</target>
+</project>

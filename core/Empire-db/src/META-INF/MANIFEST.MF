@@ -1,0 +1,4 @@
+Manifest-Version: 1.0
+Specification-Title: empire-db
+Specification-Version: 2.1.0b
+Specification-Vendor: ESTEAM Software
