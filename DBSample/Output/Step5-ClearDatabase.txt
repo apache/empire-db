@@ -1,0 +1,6 @@
+*** Step 5: clearDatabase() ***
+
+INFO  [2008/01/08 07:19]: Executing: DELETE FROM EMPLOYEES  at org.apache.empire.db.DBDatabase.executeSQL(DBDatabase.java:938) 
+INFO  [2008/01/08 07:19]: executeSQL affected 3 Records / 0ms  at org.apache.empire.db.DBDatabase.executeSQL(DBDatabase.java:944) 
+INFO  [2008/01/08 07:19]: Executing: DELETE FROM DEPARTMENTS  at org.apache.empire.db.DBDatabase.executeSQL(DBDatabase.java:938) 
+INFO  [2008/01/08 07:19]: executeSQL affected 2 Records / 0ms  at org.apache.empire.db.DBDatabase.executeSQL(DBDatabase.java:944) 

@@ -1,0 +1,29 @@
+*** Step 7: updateEmployee() ***
+
+DEBUG [2008/01/08 07:19]: Executing: SELECT t2.EMPLOYEE_ID, t2.SALUTATION, t2.FIRSTNAME, t2.LASTNAME, t2.DATE_OF_BIRTH, t2.DEPARTMENT_ID, t2.GENDER, t2.PHONE_NUMBER, t2.EMAIL, t2.SALARY, t2.RETIRED, t2.UPDATE_TIMESTAMP
+FROM EMPLOYEES t2
+WHERE t2.EMPLOYEE_ID=31  at org.apache.empire.db.DBDatabase.executeQuery(DBDatabase.java:993) 
+DEBUG [2008/01/08 07:19]: executeQuery successful in 0 ms  at org.apache.empire.db.DBDatabase.executeQuery(DBDatabase.java:1003) 
+
+INFO  [2008/01/08 07:19]: Executing: UPDATE EMPLOYEES
+SET PHONE_NUMBER='+49-7531-457160', UPDATE_TIMESTAMP='2008-01-08 07:19:19.104'
+WHERE EMPLOYEE_ID=31 AND UPDATE_TIMESTAMP='2008-01-08 07:19:19.060'  at org.apache.empire.db.DBDatabase.executeSQL(DBDatabase.java:938) 
+INFO  [2008/01/08 07:19]: executeSQL affected 1 Records / 0ms  at org.apache.empire.db.DBDatabase.executeSQL(DBDatabase.java:944) 
+DEBUG [2008/01/08 07:19]: Executing: SELECT t2.EMPLOYEE_ID, t2.SALUTATION, t2.FIRSTNAME, t2.LASTNAME, t2.DATE_OF_BIRTH, t2.DEPARTMENT_ID, t2.GENDER, t2.PHONE_NUMBER, t2.EMAIL, t2.SALARY, t2.RETIRED, t2.UPDATE_TIMESTAMP
+FROM EMPLOYEES t2
+WHERE t2.EMPLOYEE_ID=32  at org.apache.empire.db.DBDatabase.executeQuery(DBDatabase.java:993) 
+DEBUG [2008/01/08 07:19]: executeQuery successful in 0 ms  at org.apache.empire.db.DBDatabase.executeQuery(DBDatabase.java:1003)
+ 
+INFO  [2008/01/08 07:19]: Executing: UPDATE EMPLOYEES
+SET PHONE_NUMBER='+49-5555-505050', UPDATE_TIMESTAMP='2008-01-08 07:19:19.104'
+WHERE EMPLOYEE_ID=32 AND UPDATE_TIMESTAMP='2008-01-08 07:19:19.073'  at org.apache.empire.db.DBDatabase.executeSQL(DBDatabase.java:938) 
+INFO  [2008/01/08 07:19]: executeSQL affected 1 Records / 0ms  at org.apache.empire.db.DBDatabase.executeSQL(DBDatabase.java:944) 
+DEBUG [2008/01/08 07:19]: Executing: SELECT t2.EMPLOYEE_ID, t2.SALUTATION, t2.FIRSTNAME, t2.LASTNAME, t2.DATE_OF_BIRTH, t2.DEPARTMENT_ID, t2.GENDER, t2.PHONE_NUMBER, t2.EMAIL, t2.SALARY, t2.RETIRED, t2.UPDATE_TIMESTAMP
+FROM EMPLOYEES t2
+WHERE t2.EMPLOYEE_ID=33  at org.apache.empire.db.DBDatabase.executeQuery(DBDatabase.java:993) 
+DEBUG [2008/01/08 07:19]: executeQuery successful in 0 ms  at org.apache.empire.db.DBDatabase.executeQuery(DBDatabase.java:1003) 
+
+INFO  [2008/01/08 07:19]: Executing: UPDATE EMPLOYEES
+SET PHONE_NUMBER='+49-040-125486', UPDATE_TIMESTAMP='2008-01-08 07:19:19.119'
+WHERE EMPLOYEE_ID=33 AND UPDATE_TIMESTAMP='2008-01-08 07:19:19.073'  at org.apache.empire.db.DBDatabase.executeSQL(DBDatabase.java:938) 
+INFO  [2008/01/08 07:19]: executeSQL affected 1 Records / 0ms  at org.apache.empire.db.DBDatabase.executeSQL(DBDatabase.java:944) 
