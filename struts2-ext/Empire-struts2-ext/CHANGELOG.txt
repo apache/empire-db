@@ -1,0 +1,16 @@
+--------------
+Release 1.1.0:
+--------------
+105:	All package names changed to org.apache.empire.
+
+--------------
+Release 1.0.2:
+--------------
+104:    Enum RecordActionSupport.SessionPersistance moved to SessionPersistence. Old enum made Deprecated.  	 	
+103:	New form action support class "BeanActionSupport" which allows form data exchange with JavaBeans. 	
+102:	All Tags dependencies changed from DBColumn to Column and DBRecord to Record.
+
+--------------
+Release 1.0.1:
+--------------
+101:	Support for DBSQLScript (see Empire-db 2.0.1 changelog) added.

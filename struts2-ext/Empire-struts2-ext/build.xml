@@ -1,0 +1,107 @@
+<project name="empire-struts2-ext" default="build" basedir=".">
+	<description>Builds the jar</description>
+	<!-- set properties for this build -->
+	<property name="servletapi.lib.dir" location="../ServletAPI2.4/lib" />
+
+	<property name="src.dir" location="src"/>
+	<property name="lib.dir" location="lib"/>
+	<property name="deploy.dir" location="../deploy"/>
+	<property name="this.deploy.dir" location="${deploy.dir}/empire-struts2-ext"/>
+	<property name="out.dir" location="${this.deploy.dir}/out"/>
+	<property name="jar.file" location="${this.deploy.dir}/empire-struts2-ext.jar"/>
+	<property name="jar.version.file" location="${this.deploy.dir}/empire-struts2-ext-1.0.3.jar"/>
+
+	<property name="empiredb.deploy.dir" location="${deploy.dir}/empire-db"/>
+	<property name="struts.lib.dir" location="../Struts2.0.11/lib" />
+	
+	<!-- 
+		target build
+	 -->
+	<target name="build" depends="clean,compile empire-db,compile,jar,dependjars,tidy" />
+	
+	<!-- 
+		target clean
+	 -->
+	<target name="clean" description="delete everything">
+		<delete dir="${this.deploy.dir}"/>
+	</target>
+
+	<!-- 
+		compile empire-db
+	 -->
+	<target name="compile empire-db" description="compile the dependant project empire-db">
+		<ant inheritAll="false" dir="../Empire-db"/>
+	</target>
+
+	<!-- 
+		target compile
+	 -->
+	<target name="compile" description="delete class folder, compiling all source files of the packages">
+		<delete dir="${this.deploy.dir}"/>
+		<mkdir dir="${this.deploy.dir}"/>
+		<mkdir dir="${out.dir}" />
+		
+	    <javac srcdir="${src.dir}" destdir="${out.dir}" listfiles="false" debug="on">
+	    	<classpath>
+	    		<pathelement location="${servletapi.lib.dir}/servlet-api.jar"/>
+	    		<pathelement location="${servletapi.lib.dir}/jsp-api.jar"/>
+
+	    		<pathelement location="${empiredb.deploy.dir}/empire-db.jar"/>	
+	    		<pathelement location="${empiredb.deploy.dir}/commons-beanutils-1.7.0.jar"/>
+	    		<pathelement location="${empiredb.deploy.dir}/commons-collections-2.1.1.jar"/>
+	    		<pathelement location="${empiredb.deploy.dir}/commons-logging-1.0.4.jar"/>	
+	    		<pathelement location="${empiredb.deploy.dir}/log4j-1.2.14.jar"/>	
+
+	    		<pathelement location="${struts.lib.dir}/commons-beanutils-1.7.0.jar"/>
+	    		<pathelement location="${struts.lib.dir}/commons-collections-3.2.1.jar"/>
+	    		<pathelement location="${struts.lib.dir}/commons-digester-1.8.jar"/>              
+	    		<pathelement location="${struts.lib.dir}/commons-fileupload-1.2.1.jar"/>
+	    		<pathelement location="${struts.lib.dir}/commons-io-1.4.jar"/>
+	    		<pathelement location="${struts.lib.dir}/commons-logging-1.0.4.jar"/>
+	    		<pathelement location="${struts.lib.dir}/freemarker-2.3.8.jar"/>
+	    		<pathelement location="${struts.lib.dir}/ognl-2.6.11.jar"/>                       
+	    		<pathelement location="${struts.lib.dir}/struts2-codebehind-plugin-2.0.11.2.jar"/>
+	    		<pathelement location="${struts.lib.dir}/struts2-core-2.0.11.2.jar"/>                
+	    		<pathelement location="${struts.lib.dir}/struts2-sitemesh-plugin-2.0.11.2.jar"/>
+	    		<pathelement location="${struts.lib.dir}/struts2-tiles-plugin-2.0.11.2.jar"/>        
+	    		<pathelement location="${struts.lib.dir}/tiles-api-2.0.4.jar"/>
+	    		<pathelement location="${struts.lib.dir}/tiles-core-2.0.4.jar"/>                  
+	    		<pathelement location="${struts.lib.dir}/tiles-jsp-2.0.4.jar"/>
+	    		<pathelement location="${struts.lib.dir}/xwork-2.0.5.jar"/>
+	    	</classpath>
+<!--    	<compilerarg value="-Xlint" /> -->
+		</javac>
+    </target>
+	<!-- 
+		target jar
+	 -->
+	<target name="jar">
+		<jar destfile="${jar.file}" compress="true">
+			<fileset dir="${out.dir}" />
+			<fileset dir="${src.dir}" /><!-- includes="META-INF/*.tld" -->
+			<fileset dir="" includes="*.txt" />
+		</jar>
+		<jar destfile="${jar.version.file}" compress="true">
+			<fileset dir="${out.dir}" />
+			<fileset dir="${src.dir}" />
+			<fileset dir="" includes="*.txt" />
+		</jar>
+	</target>
+	<!-- 
+		dependjars
+	 -->
+	<target name="dependjars" description="copy dependancies to deploy dir">
+		<copy todir="${this.deploy.dir}">
+<!--			<fileset dir="${lib.dir}" includes="*.jar"/>				-->
+			<fileset dir="${empiredb.deploy.dir}" includes="*.jar"/>
+			<fileset dir="${struts.lib.dir}" includes="*.jar"/>
+			
+		</copy>
+	</target>
+	<!-- 
+		target tidy
+	 -->
+	<target name="tidy" description="delete temp files">
+		<delete dir="${out.dir}"/>
+	</target>
+</project>
