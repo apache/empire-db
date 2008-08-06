@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<tomcatProjectProperties>
+    <rootDir>/WebRoot</rootDir>
+    <exportSource>false</exportSource>
+    <reloadable>true</reloadable>
+    <redirectLogger>false</redirectLogger>
+    <updateXml>true</updateXml>
+    <warLocation></warLocation>
+    <extraInfo></extraInfo>
+    <webPath>DBWebSample</webPath>
+    <webClassPathEntries>
+        <webClassPathEntry>/DBWebSample/WebRoot/WEB-INF/lib/empire-db-2.0.3.jar</webClassPathEntry>
+        <webClassPathEntry>/DBWebSample/WebRoot/WEB-INF/lib/empire-struts2-ext-1.0.3.jar</webClassPathEntry>
+        <webClassPathEntry>/DBWebSample/WebRoot/WEB-INF/lib/commons-beanutils-1.7.0.jar</webClassPathEntry>
+        <webClassPathEntry>/DBWebSample/WebRoot/WEB-INF/lib/commons-collections-3.2.1.jar</webClassPathEntry>
+        <webClassPathEntry>/DBWebSample/WebRoot/WEB-INF/lib/commons-logging-1.0.4.jar</webClassPathEntry>
+        <webClassPathEntry>/DBWebSample/WebRoot/WEB-INF/lib/hsqldb.jar</webClassPathEntry>
+        <webClassPathEntry>/DBWebSample/WebRoot/WEB-INF/lib/log4j-1.2.14.jar</webClassPathEntry>
+        <webClassPathEntry>/DBWebSample/WebRoot/WEB-INF/lib/ognl-2.6.11.jar</webClassPathEntry>
+        <webClassPathEntry>/DBWebSample/WebRoot/WEB-INF/lib/struts2-core-2.0.11.2.jar</webClassPathEntry>
+        <webClassPathEntry>/DBWebSample/WebRoot/WEB-INF/lib/xwork-2.0.5.jar</webClassPathEntry>
+        <webClassPathEntry>/DBWebSample/build/classes</webClassPathEntry>
+    </webClassPathEntries>
+</tomcatProjectProperties>
