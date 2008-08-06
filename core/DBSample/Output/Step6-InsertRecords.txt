@@ -1,0 +1,41 @@
+*** Step 6: insertDepartment() & insertEmployee() ***
+
+INFO  [2008/01/08 07:19]: Executing: UPDATE Sequences
+SET SeqValue=21, SeqTime=getdate()
+WHERE SeqName='DEP_ID_SEQUENCE' AND SeqTime='2008-01-07 12:25:40.580'  at org.apache.empire.db.DBDatabase.executeSQL(DBDatabase.java:938) 
+
+INFO  [2008/01/08 07:19]: executeSQL affected 1 Records / 0ms  at org.apache.empire.db.DBDatabase.executeSQL(DBDatabase.java:944) 
+INFO  [2008/01/08 07:19]: Executing: INSERT INTO DEPARTMENTS( DEPARTMENT_ID, NAME, BUSINESS_UNIT, UPDATE_TIMESTAMP) VALUES ( 21, 'Development', 'ITTK', '2008-01-08 07:19:19.014')  at org.apache.empire.db.DBDatabase.executeSQL(DBDatabase.java:938) 
+INFO  [2008/01/08 07:19]: executeSQL affected 1 Records / 0ms  at org.apache.empire.db.DBDatabase.executeSQL(DBDatabase.java:944) 
+
+INFO  [2008/01/08 07:19]: Executing: UPDATE Sequences
+SET SeqValue=22, SeqTime=getdate()
+WHERE SeqName='DEP_ID_SEQUENCE' AND SeqTime='2008-01-08 07:19:08.710'  at org.apache.empire.db.DBDatabase.executeSQL(DBDatabase.java:938) 
+
+INFO  [2008/01/08 07:19]: executeSQL affected 1 Records / 0ms  at org.apache.empire.db.DBDatabase.executeSQL(DBDatabase.java:944) 
+INFO  [2008/01/08 07:19]: Executing: INSERT INTO DEPARTMENTS( DEPARTMENT_ID, NAME, BUSINESS_UNIT, UPDATE_TIMESTAMP) VALUES ( 22, 'Sales', 'ITTK', '2008-01-08 07:19:19.059')  at org.apache.empire.db.DBDatabase.executeSQL(DBDatabase.java:938) 
+INFO  [2008/01/08 07:19]: executeSQL affected 1 Records / 0ms  at org.apache.empire.db.DBDatabase.executeSQL(DBDatabase.java:944) 
+
+INFO  [2008/01/08 07:19]: Executing: UPDATE Sequences
+SET SeqValue=31, SeqTime=getdate()
+WHERE SeqName='EMPLOYEE_ID_SEQUENCE' AND SeqTime='2008-01-07 12:25:47.267'  at org.apache.empire.db.DBDatabase.executeSQL(DBDatabase.java:938) 
+
+INFO  [2008/01/08 07:19]: executeSQL affected 1 Records / 0ms  at org.apache.empire.db.DBDatabase.executeSQL(DBDatabase.java:944) 
+INFO  [2008/01/08 07:19]: Executing: INSERT INTO EMPLOYEES( EMPLOYEE_ID, FIRSTNAME, LASTNAME, DEPARTMENT_ID, GENDER, RETIRED, UPDATE_TIMESTAMP) VALUES ( 31, 'Peter', 'Sharp', 21, 'M', 0, '2008-01-08 07:19:19.059')  at org.apache.empire.db.DBDatabase.executeSQL(DBDatabase.java:938) 
+INFO  [2008/01/08 07:19]: executeSQL affected 1 Records / 0ms  at org.apache.empire.db.DBDatabase.executeSQL(DBDatabase.java:944) 
+
+INFO  [2008/01/08 07:19]: Executing: UPDATE Sequences
+SET SeqValue=32, SeqTime=getdate()
+WHERE SeqName='EMPLOYEE_ID_SEQUENCE' AND SeqTime='2008-01-08 07:19:08.727'  at org.apache.empire.db.DBDatabase.executeSQL(DBDatabase.java:938) 
+
+INFO  [2008/01/08 07:19]: executeSQL affected 1 Records / 0ms  at org.apache.empire.db.DBDatabase.executeSQL(DBDatabase.java:944) 
+INFO  [2008/01/08 07:19]: Executing: INSERT INTO EMPLOYEES( EMPLOYEE_ID, FIRSTNAME, LASTNAME, DEPARTMENT_ID, GENDER, RETIRED, UPDATE_TIMESTAMP) VALUES ( 32, 'Fred', 'Bloggs', 21, 'M', 0, '2008-01-08 07:19:19.074')  at org.apache.empire.db.DBDatabase.executeSQL(DBDatabase.java:938) 
+INFO  [2008/01/08 07:19]: executeSQL affected 1 Records / 0ms  at org.apache.empire.db.DBDatabase.executeSQL(DBDatabase.java:944)
+ 
+INFO  [2008/01/08 07:19]: Executing: UPDATE Sequences
+SET SeqValue=33, SeqTime=getdate()
+WHERE SeqName='EMPLOYEE_ID_SEQUENCE' AND SeqTime='2008-01-08 07:19:08.727'  at org.apache.empire.db.DBDatabase.executeSQL(DBDatabase.java:938) 
+
+INFO  [2008/01/08 07:19]: executeSQL affected 1 Records / 15ms  at org.apache.empire.db.DBDatabase.executeSQL(DBDatabase.java:944) 
+INFO  [2008/01/08 07:19]: Executing: INSERT INTO EMPLOYEES( EMPLOYEE_ID, FIRSTNAME, LASTNAME, DEPARTMENT_ID, GENDER, RETIRED, UPDATE_TIMESTAMP) VALUES ( 33, 'Emma', 'White', 22, 'F', 0, '2008-01-08 07:19:19.074')  at org.apache.empire.db.DBDatabase.executeSQL(DBDatabase.java:938) 
+INFO  [2008/01/08 07:19]: executeSQL affected 1 Records / 0ms  at org.apache.empire.db.DBDatabase.executeSQL(DBDatabase.java:944) 
