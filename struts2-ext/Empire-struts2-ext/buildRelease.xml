@@ -1,17 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *  http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+ --> 
 <project name="buildRelease" default="build" basedir=".">
 	<description>Builds EmpireStruts2Ext download folder</description>
 	<!-- set properties for this build -->
 	<property name="src.dir" location="src"/>
 	<property name="lib.dir" location="lib"/>
 	<property name="deploy.dir" location="../deploy"/>
-	<property name="this.deploy.dir" location="${deploy.dir}/empire-struts2-ext-1.0.3"/>
+	<property name="this.deploy.dir" location="${deploy.dir}/empire-struts2-ext-1.0.3-incubating"/>
 	<property name="out.dir" location="${this.deploy.dir}/out"/>
 	<property name="lib.deploy.dir" location="${this.deploy.dir}/lib" />
 	<property name="src.deploy.dir" location="${this.deploy.dir}/src" />
 	<property name="examples.deploy.dir" location="${this.deploy.dir}/examples" />
-	<property name="jar.version.file" location="${this.deploy.dir}/empire-struts2-ext-1.0.3.jar"/>
+	<property name="jar.version.file" location="${this.deploy.dir}/empire-struts2-ext-1.0.3-incubating.jar"/>
 	<property name="servletapi.lib.dir" location="../ServletAPI2.4/lib" />
-	<property name="empiredb.deploy.dir" location="${deploy.dir}/empire-db-2.0.3/lib"/>
+	<property name="empiredb.deploy.dir" location="${deploy.dir}/empire-db-2.0.3-incubating/lib"/>
 	<property name="struts.lib.dir" location="../Struts2.0.11/lib" />
 	
 	<!-- 
@@ -46,7 +67,7 @@
 	    		<pathelement location="${servletapi.lib.dir}/servlet-api.jar"/>
 	    		<pathelement location="${servletapi.lib.dir}/jsp-api.jar"/>
 
-	    		<pathelement location="${deploy.dir}/empire-db-2.0.3/empire-db-2.0.3.jar"/>	
+	    		<pathelement location="${deploy.dir}/empire-db-2.0.3-incubating/empire-db-2.0.3-incubating.jar"/>	
 	    		<pathelement location="${empiredb.deploy.dir}/commons-beanutils-1.7.0.jar"/>
 	    		<pathelement location="${empiredb.deploy.dir}/commons-collections-2.1.1.jar"/>
 	    		<pathelement location="${empiredb.deploy.dir}/commons-logging-1.0.4.jar"/>	
@@ -151,7 +172,7 @@
 	<target name="dependjars" description="copy dependancies to deploy dir">
 		<mkdir dir="${lib.deploy.dir}"/>
 		<copy todir="${lib.deploy.dir}">
-			<fileset dir="${deploy.dir}/empire-db-2.0.3/" includes="*.jar"/>
+			<fileset dir="${deploy.dir}/empire-db-2.0.3-incubating/" includes="*.jar"/>
 			<fileset dir="${empiredb.deploy.dir}" includes="*.jar" />
 			<fileset dir="${struts.lib.dir}" includes="*.jar"/>
 		</copy>
