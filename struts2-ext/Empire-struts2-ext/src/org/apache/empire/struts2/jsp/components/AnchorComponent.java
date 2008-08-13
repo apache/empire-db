@@ -37,7 +37,10 @@ public class AnchorComponent extends Anchor
         String scheme = null;
         boolean includeContext = true;
         boolean encodeResult = true;
-        return this.determineActionURL(actionName, namespace, method, request, response, parameters, scheme, includeContext, encodeResult);
+        boolean forceAddSchemeHostAndPort = false;
+        boolean escapeAmp = true;        
+        return this.determineActionURL(actionName, namespace, method, request, response, parameters, scheme, 
+                                       includeContext, encodeResult, forceAddSchemeHostAndPort, escapeAmp);
     }
     
     @Override

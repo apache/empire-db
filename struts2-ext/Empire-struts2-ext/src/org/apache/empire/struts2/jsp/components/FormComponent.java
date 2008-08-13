@@ -88,7 +88,10 @@ public class FormComponent extends Form
         String scheme = null;
         boolean includeContext = true;
         boolean encodeResult = true;
-        return this.determineActionURL(action, namespace, method, request, response, null, scheme, includeContext, encodeResult);
+        boolean forceAddSchemeHostAndPort = false;
+        boolean escapeAmp = true;        
+        return this.determineActionURL(action, namespace, method, request, response, null, scheme, 
+                                       includeContext, encodeResult, forceAddSchemeHostAndPort, escapeAmp);
     }
 
     public void setReadOnly(boolean readOnly)
