@@ -21,7 +21,7 @@
  --> 
 <project default="javadoc">
 	<property name="lib.dir" location="lib"/>
-	<property name="dest.dir" location="../deploy/empire-db-2.0.3-incubating/docs"/>
+	<property name="dest.dir" location="../deploy/apache-empire-db-2.0.3-incubating/docs"/>
 	<property name="sourcepath" location="src"/>
 <target name="javadoc">
 <javadoc access="public" author="true" destdir="${dest.dir}" doctitle="Empire-db API Specification" nodeprecated="false" nodeprecatedlist="false" noindex="false" nonavbar="false" notree="false" 

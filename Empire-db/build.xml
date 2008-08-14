@@ -52,7 +52,7 @@
 	    <javac srcdir="${src.dir}" destdir="${out.dir}" listfiles="false" debug="on">
 	    	<classpath>
 	    		<pathelement location="${lib.dir}/commons-beanutils-1.7.0.jar"/>
-	    		<pathelement location="${lib.dir}/commons-collections-2.1.1.jar"/>
+	    		<pathelement location="${lib.dir}/commons-collections-3.2.1.jar"/>
 	    		<pathelement location="${lib.dir}/commons-logging-1.0.4.jar"/>	
 	    		<pathelement location="${lib.dir}/log4j-1.2.14.jar"/>	
 			</classpath>
