@@ -9,8 +9,8 @@
     <extraInfo></extraInfo>
     <webPath>DBWebSample</webPath>
     <webClassPathEntries>
-        <webClassPathEntry>/DBWebSample/WebRoot/WEB-INF/lib/empire-db-2.0.3.jar</webClassPathEntry>
-        <webClassPathEntry>/DBWebSample/WebRoot/WEB-INF/lib/empire-struts2-ext-1.0.3.jar</webClassPathEntry>
+        <webClassPathEntry>/DBWebSample/WebRoot/WEB-INF/lib/@empire.db.deploy.jar.name@.jar</webClassPathEntry>
+        <webClassPathEntry>/DBWebSample/WebRoot/WEB-INF/lib/@empire.struts2.ext.deploy.jar.name@.jar</webClassPathEntry>
         <webClassPathEntry>/DBWebSample/WebRoot/WEB-INF/lib/commons-beanutils-1.7.0.jar</webClassPathEntry>
         <webClassPathEntry>/DBWebSample/WebRoot/WEB-INF/lib/commons-collections-3.2.1.jar</webClassPathEntry>
         <webClassPathEntry>/DBWebSample/WebRoot/WEB-INF/lib/commons-logging-1.0.4.jar</webClassPathEntry>

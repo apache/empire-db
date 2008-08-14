@@ -19,32 +19,37 @@
  * under the License.
  */
  --> 
-<project name="buildRelease" default="build" basedir=".">
+<project name="buildEmpireStruts2Ext" default="build" basedir=".">
+    <import file="../Empire-db/buildRelease.xml" />
 	<description>Builds EmpireStruts2Ext download folder</description>
 	<!-- set properties for this build -->
-	<property name="src.dir" location="src"/>
-	<property name="lib.dir" location="lib"/>
-	<property name="deploy.dir" location="../deploy"/>
-	<property name="this.deploy.dir" location="${deploy.dir}/empire-struts2-ext-1.0.3-incubating"/>
-	<property name="out.dir" location="${this.deploy.dir}/out"/>
-	<property name="lib.deploy.dir" location="${this.deploy.dir}/lib" />
-	<property name="src.deploy.dir" location="${this.deploy.dir}/src" />
-	<property name="examples.deploy.dir" location="${this.deploy.dir}/examples" />
-	<property name="jar.version.file" location="${this.deploy.dir}/empire-struts2-ext-1.0.3-incubating.jar"/>
-	<property name="servletapi.lib.dir" location="../ServletAPI2.4/lib" />
-	<property name="empiredb.deploy.dir" location="${deploy.dir}/empire-db-2.0.3-incubating/lib"/>
-	<property name="struts.lib.dir" location="../Struts2.0.11/lib" />
+	<property name="empire.struts2.ext.deploy.jar.name" value="empire-struts2-ext-1.0.3"/>
+	<property name="empire.struts2.ext.deploy.name" value="apache-empire-struts2-ext-1.0.3-incubating"/>
+	
+	<property name="empire.struts2.ext.src.dir" location="src"/>
+	<property name="empire.struts2.ext.lib.dir" location="lib"/>
+	<property name="empire.struts2.ext.deploy.dir" location="../deploy"/>
+	<property name="empire.struts2.ext.this.deploy.dir" location="${empire.struts2.ext.deploy.dir}/${empire.struts2.ext.deploy.name}"/>
+	<property name="empire.struts2.ext.out.dir" location="${empire.struts2.ext.this.deploy.dir}/out"/>
+	<property name="empire.struts2.ext.lib.deploy.dir" location="${empire.struts2.ext.this.deploy.dir}/lib" />
+	<property name="empire.struts2.ext.src.deploy.dir" location="${empire.struts2.ext.this.deploy.dir}/src" />
+	<property name="empire.struts2.ext.examples.deploy.dir" location="${empire.struts2.ext.this.deploy.dir}/examples" />
+	<property name="empire.struts2.ext.jar.version.file" location="${empire.struts2.ext.this.deploy.dir}/${empire.struts2.ext.deploy.jar.name}.jar"/>
+	<property name="empire.struts2.ext.servletapi.lib.dir" location="../ServletAPI2.4/lib" />
+	<property name="empire.struts2.ext.struts.lib.dir" location="../Struts2.0.11/lib" />
 	
 	<!-- 
 		target build
 	 -->
-	<target name="build" depends="clean,compile empire-db,compile,jar,dependjars,createEclipseExample,copySourceFolder,generateJavadocs,miscellaneous,tidy" />
+	<target name="build" depends="clean,compile empire-db,compile,jar,dependjars,createEclipseExample,copySourceFolder,generateJavadocs,miscellaneous,tidy,zip,tar" />
 	
 	<!-- 
 		target clean
 	 -->
 	<target name="clean" description="delete everything">
-		<delete dir="${this.deploy.dir}"/>
+		<delete dir="${empire.struts2.ext.this.deploy.dir}"/>
+		<delete file="${empire.struts2.ext.deploy.name}.zip" />
+		<delete file="${empire.struts2.ext.deploy.name}.tar.gz" />
 	</target>
 	
 	<!-- 
@@ -58,37 +63,37 @@
 		target compile
 	 -->
 	<target name="compile" description="delete class folder, compiling all source files of the packages">
-		<delete dir="${this.deploy.dir}"/>
-		<mkdir dir="${this.deploy.dir}"/>
-		<mkdir dir="${out.dir}" />
+		<delete dir="${empire.struts2.ext.this.deploy.dir}"/>
+		<mkdir dir="${empire.struts2.ext.this.deploy.dir}"/>
+		<mkdir dir="${empire.struts2.ext.out.dir}" />
 		
-	    <javac srcdir="${src.dir}" destdir="${out.dir}" listfiles="false" debug="on">
+	    <javac srcdir="${empire.struts2.ext.src.dir}" destdir="${empire.struts2.ext.out.dir}" listfiles="false" debug="on">
 	    	<classpath>
-	    		<pathelement location="${servletapi.lib.dir}/servlet-api.jar"/>
-	    		<pathelement location="${servletapi.lib.dir}/jsp-api.jar"/>
+	    		<pathelement location="${empire.struts2.ext.servletapi.lib.dir}/servlet-api.jar"/>
+	    		<pathelement location="${empire.struts2.ext.servletapi.lib.dir}/jsp-api.jar"/>
 
-	    		<pathelement location="${deploy.dir}/empire-db-2.0.3-incubating/empire-db-2.0.3-incubating.jar"/>	
+	    		<pathelement location="${empire.struts2.ext.deploy.dir}/${empire.db.deploy.name}/${empire.db.deploy.jar.name}.jar"/>	
 	    		<pathelement location="${empiredb.deploy.dir}/commons-beanutils-1.7.0.jar"/>
-	    		<pathelement location="${empiredb.deploy.dir}/commons-collections-2.1.1.jar"/>
+	    		<pathelement location="${empiredb.deploy.dir}/commons-collections-3.2.1.jar"/>
 	    		<pathelement location="${empiredb.deploy.dir}/commons-logging-1.0.4.jar"/>	
 	    		<pathelement location="${empiredb.deploy.dir}/log4j-1.2.14.jar"/>	
 
-	    		<pathelement location="${struts.lib.dir}/commons-beanutils-1.7.0.jar"/>
-	    		<pathelement location="${struts.lib.dir}/commons-collections-3.2.1.jar"/>
-	    		<pathelement location="${struts.lib.dir}/commons-digester-1.8.jar"/>              
-	    		<pathelement location="${struts.lib.dir}/commons-fileupload-1.2.1.jar"/>
-	    		<pathelement location="${struts.lib.dir}/commons-io-1.4.jar"/>
-	    		<pathelement location="${struts.lib.dir}/commons-logging-1.0.4.jar"/>
-	    		<pathelement location="${struts.lib.dir}/freemarker-2.3.8.jar"/>
-	    		<pathelement location="${struts.lib.dir}/ognl-2.6.11.jar"/>                       
-	    		<pathelement location="${struts.lib.dir}/struts2-codebehind-plugin-2.0.11.2.jar"/>
-	    		<pathelement location="${struts.lib.dir}/struts2-core-2.0.11.2.jar"/>                
-	    		<pathelement location="${struts.lib.dir}/struts2-sitemesh-plugin-2.0.11.2.jar"/>
-	    		<pathelement location="${struts.lib.dir}/struts2-tiles-plugin-2.0.11.2.jar"/>        
-	    		<pathelement location="${struts.lib.dir}/tiles-api-2.0.4.jar"/>
-	    		<pathelement location="${struts.lib.dir}/tiles-core-2.0.4.jar"/>                  
-	    		<pathelement location="${struts.lib.dir}/tiles-jsp-2.0.4.jar"/>
-	    		<pathelement location="${struts.lib.dir}/xwork-2.0.5.jar"/>
+	    		<pathelement location="${empire.struts2.ext.struts.lib.dir}/commons-beanutils-1.7.0.jar"/>
+	    		<pathelement location="${empire.struts2.ext.struts.lib.dir}/commons-collections-3.2.1.jar"/>
+	    		<pathelement location="${empire.struts2.ext.struts.lib.dir}/commons-digester-1.8.jar"/>              
+	    		<pathelement location="${empire.struts2.ext.struts.lib.dir}/commons-fileupload-1.2.1.jar"/>
+	    		<pathelement location="${empire.struts2.ext.struts.lib.dir}/commons-io-1.4.jar"/>
+	    		<pathelement location="${empire.struts2.ext.struts.lib.dir}/commons-logging-1.0.4.jar"/>
+	    		<pathelement location="${empire.struts2.ext.struts.lib.dir}/freemarker-2.3.8.jar"/>
+	    		<pathelement location="${empire.struts2.ext.struts.lib.dir}/ognl-2.6.11.jar"/>                       
+	    		<pathelement location="${empire.struts2.ext.struts.lib.dir}/struts2-codebehind-plugin-2.0.11.2.jar"/>
+	    		<pathelement location="${empire.struts2.ext.struts.lib.dir}/struts2-core-2.0.11.2.jar"/>                
+	    		<pathelement location="${empire.struts2.ext.struts.lib.dir}/struts2-sitemesh-plugin-2.0.11.2.jar"/>
+	    		<pathelement location="${empire.struts2.ext.struts.lib.dir}/struts2-tiles-plugin-2.0.11.2.jar"/>        
+	    		<pathelement location="${empire.struts2.ext.struts.lib.dir}/tiles-api-2.0.4.jar"/>
+	    		<pathelement location="${empire.struts2.ext.struts.lib.dir}/tiles-core-2.0.4.jar"/>                  
+	    		<pathelement location="${empire.struts2.ext.struts.lib.dir}/tiles-jsp-2.0.4.jar"/>
+	    		<pathelement location="${empire.struts2.ext.struts.lib.dir}/xwork-2.0.5.jar"/>
 	    	</classpath>
 <!--    	<compilerarg value="-Xlint" /> -->
 		</javac>
@@ -97,9 +102,9 @@
 		target jar
 	 -->
 	<target name="jar">
-		<jar destfile="${jar.version.file}" compress="true">
-			<fileset dir="${out.dir}" />
-			<fileset dir="${src.dir}" />
+		<jar destfile="${empire.struts2.ext.jar.version.file}" compress="true">
+			<fileset dir="${empire.struts2.ext.out.dir}" />
+			<fileset dir="${empire.struts2.ext.src.dir}" />
 			<fileset dir="" includes="*.txt" />
 		</jar>
 	</target>
@@ -108,9 +113,9 @@
 		copySourceFolder
 	 -->
 	 <target name="copySourceFolder" description="copies dependancies to deploy dir">
-		<mkdir dir="${src.deploy.dir}"/>
-		<copy todir="${src.deploy.dir}">
-	 		<fileset dir="${src.dir}" includes="**/*.*" />
+		<mkdir dir="${empire.struts2.ext.src.deploy.dir}"/>
+		<copy todir="${empire.struts2.ext.src.deploy.dir}">
+	 		<fileset dir="${empire.struts2.ext.src.dir}" includes="**/*.*" />
 	 	</copy>
 	 </target>
 	 
@@ -118,8 +123,8 @@
 		createEclipseExample
 	 -->
 	 <target name="createEclipseExample" description="creates an Eclipse example">
-		<mkdir dir="${examples.deploy.dir}"/>
-		<copy todir="${examples.deploy.dir}">
+		<mkdir dir="${empire.struts2.ext.examples.deploy.dir}"/>
+		<copy todir="${empire.struts2.ext.examples.deploy.dir}">
 	 		<fileset dir="../" includes="DBWebSample/**/*.*" >
 	 			<exclude name="**/build.xml" />
 	 			<exclude name="**/hsqldb/**" />
@@ -130,13 +135,20 @@
 				<include name="DBWebSample/tomcatplugin_delivery-version"/>
 			</fileset>
 	 	</copy>
-	 	<move file="${examples.deploy.dir}/DBWebSample/classpath_delivery-version" tofile="${examples.deploy.dir}/DBWebSample/.classpath" overwrite="true" />
-	 	<move file="${examples.deploy.dir}/DBWebSample/tomcatplugin_delivery-version" tofile="${examples.deploy.dir}/DBWebSample/.tomcatplugin" overwrite="true" />
-		<copy todir="${examples.deploy.dir}/DBWebSample/WebRoot/WEB-INF/lib">
-			<fileset dir="${this.deploy.dir}/">
+	 	<move file="${empire.struts2.ext.examples.deploy.dir}/DBWebSample/classpath_delivery-version" tofile="${empire.struts2.ext.examples.deploy.dir}/DBWebSample/.classpath" overwrite="true" />
+	 	<move file="${empire.struts2.ext.examples.deploy.dir}/DBWebSample/tomcatplugin_delivery-version" tofile="${empire.struts2.ext.examples.deploy.dir}/DBWebSample/.tomcatplugin" overwrite="true" />
+	 	<!-- Replace place holders by actual empire-db and empire-struts-ext deploy jar name -->
+	 	<replace file="${empire.struts2.ext.examples.deploy.dir}/DBWebSample/.classpath" token="@empire.struts2.ext.deploy.jar.name@" value="${empire.struts2.ext.deploy.jar.name}" />
+	 	<replace file="${empire.struts2.ext.examples.deploy.dir}/DBWebSample/.tomcatplugin" token="@empire.struts2.ext.deploy.jar.name@" value="${empire.struts2.ext.deploy.jar.name}" />
+
+	 	<replace file="${empire.struts2.ext.examples.deploy.dir}/DBWebSample/.classpath" token="@empire.db.deploy.jar.name@" value="${empire.db.deploy.jar.name}" />
+	 	<replace file="${empire.struts2.ext.examples.deploy.dir}/DBWebSample/.tomcatplugin" token="@empire.db.deploy.jar.name@" value="${empire.db.deploy.jar.name}" />
+	 	
+	 	<copy todir="${empire.struts2.ext.examples.deploy.dir}/DBWebSample/WebRoot/WEB-INF/lib">
+			<fileset dir="${empire.struts2.ext.this.deploy.dir}/">
 				<include name="*.jar"/>
 			</fileset>
-			<fileset dir="${this.deploy.dir}/lib">
+			<fileset dir="${empire.struts2.ext.this.deploy.dir}/lib">
 				<include name="*.jar"/>
 			</fileset>
 			<fileset dir="../JDBCDrivers/lib/">
@@ -156,25 +168,40 @@
 	 	miscellaneous
 	  -->
 	  <target name="miscellaneous">
-	  	<copy todir="${this.deploy.dir}">
+	  	<copy todir="${empire.struts2.ext.deploy.dir}" file="KEYS" />	  		
+	  	<copy todir="${empire.struts2.ext.this.deploy.dir}">
 	  		<fileset dir=".">
 	  			<include name="NOTICE.txt" />
-	  			<include name="LICENSE.txt" />
+	  			<include name="LICENSE*.txt" />
 	  			<include name="README.txt" />
 	  			<include name="CHANGELOG.txt" />
 	  		</fileset>
 	  	</copy>
 	  </target>
 
-	<!-- 
+	 <!-- 
+	 	generate zip
+	  -->
+	  <target name="zip">
+	  	<zip basedir="${empire.struts2.ext.deploy.dir}" destfile="${empire.struts2.ext.deploy.dir}/${empire.struts2.ext.deploy.name}.zip" includes="${empire.struts2.ext.deploy.name}/**" />
+	  </target>
+	  
+	 <!-- 
+	 	generate tar.gz
+	  -->
+	  <target name="tar">
+	  	<tar basedir="${empire.struts2.ext.deploy.dir}" destfile="${empire.struts2.ext.deploy.dir}/${empire.struts2.ext.deploy.name}.tar.gz" includes="${empire.struts2.ext.deploy.name}/**" compression="gzip"/>
+	  </target>
+
+	  	<!-- 
 		dependjars
 	 -->
 	<target name="dependjars" description="copy dependancies to deploy dir">
-		<mkdir dir="${lib.deploy.dir}"/>
-		<copy todir="${lib.deploy.dir}">
-			<fileset dir="${deploy.dir}/empire-db-2.0.3-incubating/" includes="*.jar"/>
-			<fileset dir="${empiredb.deploy.dir}" includes="*.jar" />
-			<fileset dir="${struts.lib.dir}" includes="*.jar"/>
+		<mkdir dir="${empire.struts2.ext.lib.deploy.dir}"/>
+		<copy todir="${empire.struts2.ext.lib.deploy.dir}">
+			<fileset dir="${empire.struts2.ext.deploy.dir}/${empire.db.deploy.name}/" includes="*.jar"/>
+			<fileset dir="${empire.db.lib.deploy.dir}" includes="*.jar"/>
+			<fileset dir="${empire.struts2.ext.struts.lib.dir}" includes="*.jar" />
 		</copy>
 
 	</target>
@@ -183,6 +210,6 @@
 		target tidy
 	 -->
 	<target name="tidy" description="delete temp files">
-		<delete dir="${out.dir}"/>
+		<delete dir="${empire.struts2.ext.out.dir}"/>
 	</target>
 </project>

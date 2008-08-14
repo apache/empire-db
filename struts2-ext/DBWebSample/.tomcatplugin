@@ -12,7 +12,7 @@
         <webClassPathEntry>/DBWebSample/build/classes</webClassPathEntry>
         <webClassPathEntry>/Empire-db/bin</webClassPathEntry>
         <webClassPathEntry>/Empire-db/lib/commons-beanutils-1.7.0.jar</webClassPathEntry>
-        <webClassPathEntry>/Empire-db/lib/commons-collections-2.1.1.jar</webClassPathEntry>
+        <webClassPathEntry>/Empire-db/lib/commons-collections-3.2.1.jar</webClassPathEntry>
         <webClassPathEntry>/Empire-db/lib/commons-logging-1.0.4.jar</webClassPathEntry>
         <webClassPathEntry>/Empire-db/lib/log4j-1.2.14.jar</webClassPathEntry>
         <webClassPathEntry>/Empire-struts2-ext/bin</webClassPathEntry>

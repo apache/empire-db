@@ -21,7 +21,7 @@
  --> 
 <project default="javadoc" basedir=".">
 	<property name="lib.dir" location="lib"/>
-	<property name="dest.dir" location="../deploy/empire-struts2-ext-1.0.3-incubating/docs"/>
+	<property name="dest.dir" location="../deploy/apache-empire-struts2-ext-1.0.3-incubating/docs"/>
 	<property name="sourcepath" location="src"/>
 	<property name="struts.lib.dir" location="../Struts2.0.8/lib" />
 	<property name="servletapi.lib.dir" location="../ServletAPI2.4/lib" />
@@ -34,12 +34,12 @@
 
 		<pathelement location="${deploy.dir}/empire-db/empire-db-2.0.1.jar"/>	
 		<pathelement location="${empiredb.deploy.dir}/commons-beanutils-1.7.0.jar"/>
-		<pathelement location="${empiredb.deploy.dir}/commons-collections-2.1.1.jar"/>
+		<pathelement location="${empiredb.deploy.dir}/commons-collections-3.2.1.jar"/>
 		<pathelement location="${empiredb.deploy.dir}/commons-logging-1.0.4.jar"/>	
 		<pathelement location="${empiredb.deploy.dir}/log4j-1.2.14.jar"/>	
 
 		<pathelement location="${struts.lib.dir}/commons-beanutils-1.7.0.jar"/>
-		<pathelement location="${struts.lib.dir}/commons-collections-2.1.1.jar"/>
+		<pathelement location="${struts.lib.dir}/commons-collections-3.2.1.jar"/>
 		<pathelement location="${struts.lib.dir}/commons-digester-1.8.jar"/>              
 		<pathelement location="${struts.lib.dir}/commons-logging-1.0.4.jar"/>
 		<pathelement location="${struts.lib.dir}/freemarker-2.3.8.jar"/>
