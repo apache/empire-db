@@ -69,7 +69,7 @@
 
 	    		<pathelement location="${empiredb.deploy.dir}/empire-db.jar"/>	
 	    		<pathelement location="${empiredb.deploy.dir}/commons-beanutils-1.7.0.jar"/>
-	    		<pathelement location="${empiredb.deploy.dir}/commons-collections-2.1.1.jar"/>
+	    		<pathelement location="${empiredb.deploy.dir}/commons-collections-3.2.1.jar"/>
 	    		<pathelement location="${empiredb.deploy.dir}/commons-logging-1.0.4.jar"/>	
 	    		<pathelement location="${empiredb.deploy.dir}/log4j-1.2.14.jar"/>	
 

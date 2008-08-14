@@ -6,7 +6,7 @@
 <dependent-module deploy-path="/WEB-INF/lib" handle="module:/classpath/lib/Struts2.0.8/lib/commons-beanutils-1.7.0.jar">
 <dependency-type>uses</dependency-type>
 </dependent-module>
-<dependent-module deploy-path="/WEB-INF/lib" handle="module:/classpath/lib/Struts2.0.8/lib/commons-collections-2.1.1.jar">
+<dependent-module deploy-path="/WEB-INF/lib" handle="module:/classpath/lib/Struts2.0.8/lib/commons-collections-3.2.1.jar">
 <dependency-type>uses</dependency-type>
 </dependent-module>
 <dependent-module deploy-path="/WEB-INF/lib" handle="module:/classpath/lib/Struts2.0.8/lib/commons-digester-1.8.jar">
