@@ -16,7 +16,7 @@
         <webClassPathEntry>/Empire-db/lib/commons-logging-1.0.4.jar</webClassPathEntry>
         <webClassPathEntry>/Empire-db/lib/log4j-1.2.14.jar</webClassPathEntry>
         <webClassPathEntry>/Empire-struts2-ext/bin</webClassPathEntry>
-        <webClassPathEntry>/JDBCDrivers/lib/hsqldb.jar</webClassPathEntry>
+        <webClassPathEntry>/JDBCDrivers/lib/hsqldb-1.8.0.10.jar</webClassPathEntry>
         <webClassPathEntry>/Struts2.0.11/lib/commons-collections-3.2.1.jar</webClassPathEntry>
         <webClassPathEntry>/Struts2.0.11/lib/commons-digester-1.8.jar</webClassPathEntry>
         <webClassPathEntry>/Struts2.0.11/lib/commons-fileupload-1.2.1.jar</webClassPathEntry>

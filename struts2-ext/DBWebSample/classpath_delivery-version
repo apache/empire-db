@@ -13,6 +13,6 @@
 	<classpathentry kind="lib" path="WebRoot/WEB-INF/lib/xwork-2.0.5.jar"/>
 	<classpathentry kind="lib" path="WebRoot/WEB-INF/lib/struts2-core-2.0.11.2.jar"/>
 	<classpathentry kind="lib" path="WebRoot/WEB-INF/lib/ognl-2.6.11.jar"/>
-	<classpathentry kind="lib" path="WebRoot/WEB-INF/lib/hsqldb.jar"/>
+	<classpathentry kind="lib" path="WebRoot/WEB-INF/lib/hsqldb-1.8.0.10.jar"/>
 	<classpathentry kind="output" path="build/classes"/>
 </classpath>

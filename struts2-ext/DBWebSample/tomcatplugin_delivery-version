@@ -14,7 +14,7 @@
         <webClassPathEntry>/DBWebSample/WebRoot/WEB-INF/lib/commons-beanutils-1.7.0.jar</webClassPathEntry>
         <webClassPathEntry>/DBWebSample/WebRoot/WEB-INF/lib/commons-collections-3.2.1.jar</webClassPathEntry>
         <webClassPathEntry>/DBWebSample/WebRoot/WEB-INF/lib/commons-logging-1.0.4.jar</webClassPathEntry>
-        <webClassPathEntry>/DBWebSample/WebRoot/WEB-INF/lib/hsqldb.jar</webClassPathEntry>
+        <webClassPathEntry>/DBWebSample/WebRoot/WEB-INF/lib/hsqldb-1.8.0.10.jar</webClassPathEntry>
         <webClassPathEntry>/DBWebSample/WebRoot/WEB-INF/lib/log4j-1.2.14.jar</webClassPathEntry>
         <webClassPathEntry>/DBWebSample/WebRoot/WEB-INF/lib/ognl-2.6.11.jar</webClassPathEntry>
         <webClassPathEntry>/DBWebSample/WebRoot/WEB-INF/lib/struts2-core-2.0.11.2.jar</webClassPathEntry>
