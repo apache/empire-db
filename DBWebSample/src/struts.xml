@@ -33,12 +33,12 @@
 	<package name="sample" namespace="" extends="struts-default">
 
         <interceptors>
-			<!-- esteam Interceptors -->
+			<!-- org.apache.empire.struts2 Interceptors -->
 	        <interceptor name="actionBasics" class="org.apache.empire.struts2.interceptors.ActionBasicsInterceptor" >
 	        	<param name="errorAction">login!doError</param>
 	        </interceptor>
 
-			<!-- esteam Interceptors -->
+			<!-- org.apache.empire.struts2 Interceptors -->
 	        <interceptor name="actionAccess" class="org.apache.empire.struts2.interceptors.ActionAccessInterceptor" >
 	        	<param name="loginAction">login!doInit</param>
 	        	<param name="accessDeniedAction">login!doInit</param>
