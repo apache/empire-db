@@ -42,7 +42,7 @@
 		<jdbcClass>com.mysql.jdbc.Driver</jdbcClass>
 		<jdbcURL>jdbc:mysql://localhost</jdbcURL>
 		<jdbcUser>root</jdbcUser>
-		<jdbcPwd>esteam</jdbcPwd>
+		<jdbcPwd>empire-db</jdbcPwd>
 		<schemaName>DBSAMPLE</schemaName>
 	</properties-mysql>
 
@@ -62,7 +62,7 @@
 		<jdbcClass>com.microsoft.sqlserver.jdbc.SQLServerDriver</jdbcClass>
 		<jdbcURL>jdbc:sqlserver://192.168.0.2:1433</jdbcURL>
 		<jdbcUser>sa</jdbcUser>
-		<jdbcPwd>esteam</jdbcPwd>
+		<jdbcPwd>empire-db</jdbcPwd>
 		<schemaName>DBSAMPLE</schemaName>
 	</properties-sqlserver>
 	
