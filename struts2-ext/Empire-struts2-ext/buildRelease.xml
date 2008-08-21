@@ -23,14 +23,16 @@
     <import file="../Empire-db/buildRelease.xml" />
 	<description>Builds EmpireStruts2Ext download folder</description>
 	<!-- set properties for this build -->
-	<property name="empire.struts2.ext.deploy.jar.name" value="empire-struts2-ext-1.0.3"/>
-	<property name="empire.struts2.ext.deploy.name" value="apache-empire-struts2-ext-1.0.3-incubating"/>
+	<property name="empire.struts2.ext.version" value="1.0.3" />
+	<property name="empire.struts2.ext.deploy.jar.name" value="empire-struts2-ext-${empire.struts2.ext.version}"/>
+	<property name="empire.struts2.ext.deploy.name" value="apache-empire-struts2-ext-${empire.struts2.ext.version}-incubating"/>
 	
 	<property name="empire.struts2.ext.src.dir" location="src"/>
 	<property name="empire.struts2.ext.lib.dir" location="lib"/>
 	<property name="empire.struts2.ext.deploy.dir" location="../deploy"/>
 	<property name="empire.struts2.ext.this.deploy.dir" location="${empire.struts2.ext.deploy.dir}/${empire.struts2.ext.deploy.name}"/>
 	<property name="empire.struts2.ext.out.dir" location="${empire.struts2.ext.this.deploy.dir}/out"/>
+	<property name="empire.struts2.ext.out.metaInf.dir" location="${empire.struts2.ext.out.dir}/META-INF" />
 	<property name="empire.struts2.ext.lib.deploy.dir" location="${empire.struts2.ext.this.deploy.dir}/lib" />
 	<property name="empire.struts2.ext.src.deploy.dir" location="${empire.struts2.ext.this.deploy.dir}/src" />
 	<property name="empire.struts2.ext.examples.deploy.dir" location="${empire.struts2.ext.this.deploy.dir}/examples" />
@@ -41,7 +43,7 @@
 	<!-- 
 		target build
 	 -->
-	<target name="build" depends="clean,compile empire-db,compile,jar,dependjars,createEclipseExample,copySourceFolder,generateJavadocs,miscellaneous,tidy,zip,tar" />
+	<target name="build" depends="clean,compile empire-db,compile,copyLicenseToMetaInf,jar,dependjars,createEclipseExample,copySourceFolder,generateJavadocs,miscellaneous,tidy,zip,tar" />
 	
 	<!-- 
 		target clean
@@ -103,9 +105,18 @@
 	 -->
 	<target name="jar">
 		<jar destfile="${empire.struts2.ext.jar.version.file}" compress="true">
+	  		  <manifest>
+			      <attribute name="Extension-Name" value="org.apache.empire.struts2"/>
+			      <attribute name="Specification-Title" value="Apache Empire-Struts2-Extension"/>
+			      <attribute name="Specification-Vendor" value="The Apache Software Foundation"/>
+			      <attribute name="Specification-Version" value="${empire.struts2.ext.version}"/>
+			      <attribute name="Implementation-Vendor-Id" value="org.apache"/>
+			      <attribute name="Implementation-Title" value="org.apache.empire.struts2"/>
+			      <attribute name="Implementation-Vendor" value="The Apache Software Foundation"/>
+			      <attribute name="Implementation-Version" value="${empire.struts2.ext.version}"/> 
+			  </manifest>			
 			<fileset dir="${empire.struts2.ext.out.dir}" />
 			<fileset dir="${empire.struts2.ext.src.dir}" />
-			<fileset dir="" includes="*.txt" />
 		</jar>
 	</target>
 	
@@ -152,7 +163,7 @@
 				<include name="*.jar"/>
 			</fileset>
 			<fileset dir="../JDBCDrivers/lib/">
-				<include name="hsqldb.jar"/>
+				<include name="hsqldb-1.8.0.10.jar"/>
 			</fileset>
 		</copy>
 	 </target>
@@ -165,6 +176,19 @@
 	 </target>
 	 
 	 <!-- 
+	 	copy license
+	  -->
+	  <target name="copyLicenseToMetaInf">
+	  	<copy todir="${empire.struts2.ext.out.metaInf.dir}">
+	  		<fileset dir=".">	  			
+	  			<include name="NOTICE.txt" />
+	  			<include name="LICENSE*.txt" />
+	  			<include name="CHANGELOG.txt" />
+	  		</fileset>
+	  	</copy>
+	  </target>
+
+	  <!-- 
 	 	miscellaneous
 	  -->
 	  <target name="miscellaneous">

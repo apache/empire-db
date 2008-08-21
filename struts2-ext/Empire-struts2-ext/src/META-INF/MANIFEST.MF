@@ -1,4 +1,9 @@
 Manifest-Version: 1.0
-Specification-Title: empire-struts2-ext
-Specification-Version: 1.0.2
-Specification-Vendor: ESTEAM Software
+Extension-Name: org.apache.empire.struts2
+Specification-Title: Apache Empire-Struts2-Extension
+Specification-Vendor: The Apache Software Foundation
+Specification-Version: 1.0.3
+Implementation-Vendor-Id: org.apache
+Implementation-Title: org.apache.empire.struts2
+Implementation-Vendor: The Apache Software Foundation
+Implementation-Version: 1.0.3
