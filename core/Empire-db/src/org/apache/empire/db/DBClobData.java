@@ -24,7 +24,7 @@ import java.io.StringReader;
 /**
  * This class allocates methods to store binary character objects in the database.
  *
- * @author ESTEAM software <A TARGET="esteam" HREF="http://www.esteam.de">www.esteam.de </A>
+ *
  */
 public class DBClobData
 {

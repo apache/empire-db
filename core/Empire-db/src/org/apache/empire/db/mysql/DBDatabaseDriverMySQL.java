@@ -46,7 +46,7 @@ import org.apache.empire.db.DBView;
 /**
  * This class provides support for the MySQL database system.
  * 
- * @author ESTEAM software <A TARGET="esteam" HREF="http://www.esteam.de">www.esteam.de </A>
+ *
  */
 public class DBDatabaseDriverMySQL extends DBDatabaseDriver
 {

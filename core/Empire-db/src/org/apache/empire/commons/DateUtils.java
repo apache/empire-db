@@ -31,7 +31,6 @@ import org.apache.commons.logging.LogFactory;
 /**
  * This class contains common functions for comparing and converting values of type Date. 
  * 
- * @author ESTEAM software <A TARGET="esteam" HREF="http://www.esteam.de">www.esteam.de </A>
  */
 public class DateUtils
 {

@@ -32,7 +32,6 @@ import org.apache.empire.commons.Options;
  * <P>
  * The Record interface is implmented by the class {@link org.apache.empire.db.DBRecord}
  * <P>
- * @author ESTEAM software <A TARGET="esteam" HREF="http://www.esteam.de">www.esteam.de </A>
  */
 public interface Record extends RecordData
 {

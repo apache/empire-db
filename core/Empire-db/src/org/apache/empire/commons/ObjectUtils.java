@@ -32,7 +32,6 @@ import org.apache.commons.logging.LogFactory;
 /**
  * This class contains common functions for comparing and converting values of type Object. 
  * 
- * @author ESTEAM software <A TARGET="esteam" HREF="http://www.esteam.de">www.esteam.de </A>
  */
 public final class ObjectUtils
 {

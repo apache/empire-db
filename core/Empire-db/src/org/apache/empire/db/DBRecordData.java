@@ -38,7 +38,7 @@ import org.w3c.dom.Element;
  * This interface defines for the classes DDRecordSet and DBRecord.
  * <P>
  * 
- * @author ESTEAM software <A TARGET="esteam" HREF="http://www.esteam.de">www.esteam.de</A>
+ *
  */
 public abstract class DBRecordData extends DBObject
 	implements RecordData

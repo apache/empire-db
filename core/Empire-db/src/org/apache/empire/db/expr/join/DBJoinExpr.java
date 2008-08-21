@@ -35,7 +35,7 @@ import org.apache.empire.db.expr.compare.DBCompareExpr;
  * There is no need to explicitly create instances of this class.<BR>
  * Instead use @link {@link org.apache.empire.db.DBCommand#join(DBColumnExpr, DBColumn, DBJoinType)}
  * <P>
- * @author ESTEAM software <A TARGET="esteam" HREF="http://www.esteam.de">www.esteam.de </A>
+ *
  */
 public class DBJoinExpr extends DBExpr
 {

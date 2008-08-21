@@ -28,7 +28,6 @@ import java.text.MessageFormat;
  * Define your own error types in the same way.
  * See @link {@link ErrorType} for futher information.
  * <P>
- * @author ESTEAM software <A TARGET="esteam" HREF="http://www.esteam.de">www.esteam.de </A>
  */
 public class Errors
 {

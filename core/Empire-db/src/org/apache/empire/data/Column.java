@@ -23,7 +23,6 @@ package org.apache.empire.data;
  * <P>
  * This interface inherits from ColumnExpr which provides futher metadata.
  * <P>
- * @author ESTEAM software <A TARGET="esteam" HREF="http://www.esteam.de">www.esteam.de </A>
  */
 public interface Column extends ColumnExpr
 {

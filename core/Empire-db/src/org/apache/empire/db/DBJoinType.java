@@ -22,7 +22,7 @@ package org.apache.empire.db;
  * 
  * DBJoinType contains the possibilities to join two database tables.
  * 
- * @author ESTEAM software <A TARGET="esteam" HREF="http://www.esteam.de">www.esteam.de </A>
+ *
  */
 public enum DBJoinType
 {

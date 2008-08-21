@@ -24,7 +24,6 @@ package org.apache.empire.commons;
  * where the option value us used as the key for the set.<BR>
  * The text should only be used for display purposes e.g. to display a drop-down in a user interface.<BR>
  * <P>
- * @author ESTEAM software <A TARGET="esteam" HREF="http://www.esteam.de">www.esteam.de </A>
  */
 public class OptionEntry
 {

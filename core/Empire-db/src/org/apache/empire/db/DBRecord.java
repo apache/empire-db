@@ -43,7 +43,7 @@ import org.w3c.dom.Element;
  * This class handles one record from a database table.
  * <P>
  * 
- * @author ESTEAM software <A TARGET="esteam" HREF="http://www.esteam.de">www.esteam.de</A>
+ *
  */
 public class DBRecord extends DBRecordData implements Record, Cloneable
 {

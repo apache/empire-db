@@ -36,7 +36,7 @@ import org.w3c.dom.Element;
  * There is no need to explicitly create instances of this class.<BR>
  * Instead use {@link DBDatabase#getValueExpr(String)} or one of it's overloads
  * <P>
- * @author ESTEAM software <A TARGET="esteam" HREF="http://www.esteam.de">www.esteam.de</A>
+ *
  */
 public class DBValueExpr extends DBColumnExpr
 {

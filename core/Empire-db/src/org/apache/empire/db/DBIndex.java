@@ -23,7 +23,7 @@ package org.apache.empire.db;
  * The primary key contains one or more columns.
  * <P>
  * 
- * @author ESTEAM software <A TARGET="esteam" HREF="http://www.esteam.de">www.esteam.de </A>
+ *
  */
 public class DBIndex extends DBObject
 {

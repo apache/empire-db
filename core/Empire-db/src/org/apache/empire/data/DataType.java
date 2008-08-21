@@ -22,7 +22,6 @@ package org.apache.empire.data;
  * DataType is an enumeration of data types that are supported
  * with the empire-db component.
  * 
- * @author ESTEAM software <A TARGET="esteam" HREF="http://www.esteam.de">www.esteam.de </A>
  */
 public enum DataType
 {

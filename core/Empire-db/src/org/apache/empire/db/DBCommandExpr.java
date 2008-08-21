@@ -35,7 +35,7 @@ import org.w3c.dom.Element;
  * There are inner classes to construct different SQL-Commands.
  * <P>
  * 
- * @author ESTEAM software <A TARGET="esteam" HREF="http://www.esteam.de">www.esteam.de</A>
+ *
  */
 public abstract class DBCommandExpr extends DBExpr
 {
@@ -155,7 +155,6 @@ public abstract class DBCommandExpr extends DBExpr
 
     /**
      * This class wrapps a column of sql command in a special command column object. 
-     * @author ESTEAM
      */
     protected static class DBCmdColumn extends DBColumn
     {

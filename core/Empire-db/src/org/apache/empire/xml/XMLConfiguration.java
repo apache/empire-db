@@ -49,7 +49,7 @@ import org.xml.sax.SAXException;
  * This class manages the configuration of a Java Bean by an xml configuration file.
  * It also supports configuration of Log4J.
  * </PRE>
- * @author ESTEAM software <A TARGET="esteam" HREF="http://www.esteam.de">www.esteam.de </A>
+ *
  */
 public class XMLConfiguration extends ErrorObject
 {

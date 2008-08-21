@@ -40,7 +40,7 @@ import org.w3c.dom.NodeList;
  * methods provided are declared static.
  * <P>
  * 
- * @author ESTEAM software <A TARGET="esteam" HREF="http://www.esteam.de">www.esteam.de </A>
+ *
  */
 public class XMLUtil
 {

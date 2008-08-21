@@ -41,7 +41,7 @@ import org.apache.empire.db.expr.column.DBValueExpr;
  * <P>
  * It also provides methods to execute DQL and DML SQL-commands.
  * <P>
- * @author ESTEAM software <A TARGET="esteam" HREF="http://www.esteam.de">www.esteam.de </A>
+ *
  */
 public abstract class DBDatabase extends DBObject
 {

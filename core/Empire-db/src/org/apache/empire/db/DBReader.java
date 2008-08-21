@@ -60,7 +60,7 @@ import org.w3c.dom.Element;
  *  </li> 
  * </ul>
  *
- * @author ESTEAM software <A TARGET="esteam" HREF="http://www.esteam.de">www.esteam.de </A>
+ *
  */
 public class DBReader extends DBRecordData
 {

@@ -38,7 +38,7 @@ import org.apache.empire.data.DataType;
 
 
 /**
- * @author ESTEAM software <A TARGET="esteam" HREF="http://www.esteam.de">www.esteam.de </A>
+ *
  * 
  */
 public abstract class DBDatabaseDriver extends ErrorObject
@@ -458,7 +458,7 @@ public abstract class DBDatabaseDriver extends ErrorObject
                 // System date is special case
                 if (!DBDatabase.SYSDATE.equals(value) && value.toString().length()<=10)
                     return getDateTimeString(value, SQL_DATE_TEMPLATE, SQL_DATE_PATTERN, SQL_CURRENT_DATETIME);
-                // Vollständiges Date-Time Object mit Zeit 
+                // Complete Date-Time Object with time 
                 return getDateTimeString(value, SQL_DATETIME_TEMPLATE, SQL_DATETIME_PATTERN, SQL_CURRENT_DATETIME);
             case TEXT:
             case CHAR:

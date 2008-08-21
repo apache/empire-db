@@ -48,7 +48,7 @@ import org.apache.empire.db.DBView;
  * This class provides support for the Oracle database system.<br>
  * Oracle Version 9 or higher is required.
  * 
- * @author ESTEAM software <A TARGET="esteam" HREF="http://www.esteam.de">www.esteam.de </A>
+ *
  * 
  */
 public class DBDatabaseDriverOracle extends DBDatabaseDriver

@@ -33,7 +33,7 @@ import org.w3c.dom.Element;
  * It consits methods to get and update records from the database
  * <P>
  * 
- * @author ESTEAM software <A TARGET="esteam" HREF="http://www.esteam.de">www.esteam.de </A>
+ *
  */
 public abstract class DBView extends DBRowSet
 {

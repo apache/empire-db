@@ -47,7 +47,7 @@ import org.w3c.dom.NodeList;
  * This class prints out a XML-DOM-Tree to an output stream.
  * <P>
  * 
- * @author ESTEAM software <A TARGET="esteam" HREF="http://www.esteam.de">www.esteam.de </A>
+ *
  */
 public class XMLWriter extends ErrorObject
 {

@@ -22,23 +22,26 @@
 <project name="buildEmpireDb" default="build" basedir=".">
 	<description>Builds the download folder</description>
 	<!-- set properties for this build -->
-	<property name="empire.db.deploy.jar.name" value="empire-db-2.0.3" />
-	<property name="empire.db.deploy.name" value="apache-empire-db-2.0.3-incubating" />
+	<property name="empire.db.version" value="2.0.3" />
+	
+	<property name="empire.db.deploy.jar.name" value="empire-db-${empire.db.version}" />
+	<property name="empire.db.deploy.name" value="apache-empire-db-${empire.db.version}-incubating" />
 	
 	<property name="empire.db.src.dir" location="src"/>
 	<property name="empire.db.lib.dir" location="lib"/>
 	<property name="empire.db.deploy.dir" location="../deploy"/>
 	<property name="empire.db.this.deploy.dir" location="${empire.db.deploy.dir}/${empire.db.deploy.name}"/>
-	<property name="empire.db.out.dir" location="${empire.db.this.deploy.dir}/out"/>
+	<property name="empire.db.out.dir" location="${empire.db.this.deploy.dir}/out"/>	
+	<property name="empire.db.out.metaInf.dir" location="${empire.db.out.dir}/META-INF" />
 	<property name="empire.db.lib.deploy.dir" location="${empire.db.this.deploy.dir}/lib" />
-	<property name="empire.db.src.deploy.dir" location="${empire.db.this.deploy.dir}/src" />
+	<property name="empire.db.src.deploy.dir" location="/src" />
 	<property name="empire.db.examples.deploy.dir" location="${empire.db.this.deploy.dir}/examples" />
 	<property name="empire.db.jar.version.file" location="${empire.db.this.deploy.dir}/${empire.db.deploy.jar.name}.jar"/>
-	
+
 	<!-- 
 		target build
 	 -->
-	<target name="build" depends="clean,compile,jar,dependjars,copySourceFolder,generateJavadocs,createEclipseExample,miscellaneous,tidy,zip,tar" />
+	<target name="build" depends="clean,compile,copyLicenseToMetaInf,jar,dependjars,copySourceFolder,generateJavadocs,createEclipseExample,miscellaneous,tidy,zip,tar" />
 	
 	<!-- 
 		target clean
@@ -69,9 +72,18 @@
 	 -->
 	<target name="jar">
 		<jar destfile="${empire.db.jar.version.file}" compress="true">
-			<fileset dir="${empire.db.out.dir}" />
-			<fileset dir="${empire.db.src.dir}" />
-			<fileset dir="" includes="*.txt" />
+  		  <manifest>
+		      <attribute name="Extension-Name" value="org.apache.empire"/>
+		      <attribute name="Specification-Title" value="Apache Empire-db"/>
+		      <attribute name="Specification-Vendor" value="The Apache Software Foundation"/>
+		      <attribute name="Specification-Version" value="${empire.db.version}"/>
+		      <attribute name="Implementation-Vendor-Id" value="org.apache"/>
+		      <attribute name="Implementation-Title" value="org.apache.empire"/>
+		      <attribute name="Implementation-Vendor" value="The Apache Software Foundation"/>
+		      <attribute name="Implementation-Version" value="${empire.db.version}"/> 
+		  </manifest>			
+  		  <fileset dir="${empire.db.out.dir}" />
+		  <fileset dir="${empire.db.src.dir}" />
 		</jar>
 	</target>
 	<!-- 
@@ -87,7 +99,7 @@
 	<!-- 
 		copySourceFolder
 	 -->
-	 <target name="copySourceFolder" description="copies dependancies to deploy dir">
+	 <target name="copySourceFolder" description="copies sources to deploy dir">
 		<mkdir dir="${empire.db.src.deploy.dir}"/>
 		<copy todir="${empire.db.src.deploy.dir}">
 	 		<fileset dir="${empire.db.src.dir}" includes="**/*.*" />
@@ -136,7 +148,7 @@
 				<include name="*.jar"/>
 			</fileset>
 			<fileset dir="../JDBCDrivers/lib/">
-				<include name="hsqldb.jar"/>
+				<include name="hsqldb-1.8.0.10.jar"/>
 			</fileset>
 		</copy>
 		<copy todir="${empire.db.examples.deploy.dir}/DBSampleAdv/lib">
@@ -147,7 +159,7 @@
 				<include name="*.jar"/>
 			</fileset>
 			<fileset dir="../JDBCDrivers/lib/">
-				<include name="hsqldb.jar"/>
+				<include name="hsqldb-1.8.0.10.jar"/>
 			</fileset>
 		</copy>
 	 </target>
@@ -160,6 +172,19 @@
 	 </target>
 	 
 	 <!-- 
+	 	copy license
+	  -->
+	  <target name="copyLicenseToMetaInf">
+	  	<copy todir="${empire.db.out.metaInf.dir}">
+	  		<fileset dir=".">	  			
+	  			<include name="NOTICE.txt" />
+	  			<include name="LICENSE*.txt" />
+	  			<include name="CHANGELOG.txt" />
+	  		</fileset>
+	  	</copy>
+	  </target>
+
+	<!-- 
 	 	miscellaneous
 	  -->
 	  <target name="miscellaneous">
@@ -169,6 +194,7 @@
 	  			<include name="NOTICE.txt" />
 	  			<include name="LICENSE*.txt" />
 	  			<include name="CHANGELOG.txt" />
+	  			<include name="README.txt" />
 	  		</fileset>
 	  	</copy>
 	  </target>

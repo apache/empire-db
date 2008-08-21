@@ -31,7 +31,6 @@ import org.apache.commons.logging.LogFactory;
  * The MessagePattern is a template containing the error message and placeholders for additional parameters.
  * The MessagePattern must be formated according to the {@link java.text.MessageFormat} rules.
  * <P>
- * @author ESTEAM software <A TARGET="esteam" HREF="http://www.esteam.de">www.esteam.de </A>
  */
 public class ErrorType
 {

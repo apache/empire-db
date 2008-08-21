@@ -36,7 +36,7 @@ import org.w3c.dom.Element;
  * It contains all properties of this columns (e.g. the column width).
  * <P>
  * 
- * @author ESTEAM software <A TARGET="esteam" HREF="http://www.esteam.de">www.esteam.de </A>
+ *
  */
 public class DBTableColumn extends DBColumn
 {

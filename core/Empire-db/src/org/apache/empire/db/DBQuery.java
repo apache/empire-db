@@ -43,7 +43,7 @@ import org.w3c.dom.Element;
  *    query column object for a given column expression in the orignial select clause.</LI> 
  *  <LI>With a key supplied you can have an updateable query that will update several records at once.</LI>
  * </UL>
- * @author ESTEAM software <A TARGET="esteam" HREF="http://www.esteam.de">www.esteam.de </A>
+ *
  */
 public class DBQuery extends DBRowSet
 {

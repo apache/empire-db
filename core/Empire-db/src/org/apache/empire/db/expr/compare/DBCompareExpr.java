@@ -23,7 +23,7 @@ import org.apache.empire.db.DBExpr;
 /**
  * This class is a common base class for all SQL filter constraints classes<br>
  * <P>
- * @author ESTEAM software <A TARGET="esteam" HREF="http://www.esteam.de">www.esteam.de</A>
+ *
  */
 public abstract class DBCompareExpr extends DBExpr
 {

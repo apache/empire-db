@@ -43,7 +43,7 @@ import org.w3c.dom.Element;
  * This class is the base class for building the SQL-Commands
  * <P>
  * 
- * @author ESTEAM software <A TARGET="esteam" HREF="http://www.esteam.de">www.esteam.de </A>
+ *
  */
 public abstract class DBColumnExpr extends DBExpr
     implements ColumnExpr

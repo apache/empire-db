@@ -28,7 +28,7 @@ import org.apache.commons.logging.LogFactory;
 /**
  * This class allocates methods to store binary large objects in the database.
  *
- * @author ESTEAM software <A TARGET="esteam" HREF="http://www.esteam.de">www.esteam.de </A>
+ *
  */
 public class DBBlobData
 {

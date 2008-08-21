@@ -26,7 +26,6 @@ import org.w3c.dom.Element;
 /**
  * This class holds a map of objects which are identified by a case insensitive key string.
  * 
- * @author ESTEAM software <A TARGET="esteam" HREF="http://www.esteam.de">www.esteam.de </A>
  */
 @SuppressWarnings("serial")
 public class Attributes extends LinkedHashMap<String, Object>
