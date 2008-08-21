@@ -25,7 +25,7 @@ import java.util.Set;
  * It handles the insert from a specified key word between two DBCommandExpr objects.
  * <P>
  * 
- * @author ESTEAM software <A TARGET="esteam" HREF="http://www.esteam.de">www.esteam.de</A>
+ *
  */
 public class DBCombinedCmd extends DBCommandExpr
 {

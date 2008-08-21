@@ -24,7 +24,6 @@ import java.util.Iterator;
 /**
  * This class contains common functions for comparing and converting values of type String. 
  * 
- * @author ESTEAM software <A TARGET="esteam" HREF="http://www.esteam.de">www.esteam.de </A>
  */
 public class StringUtils
 {

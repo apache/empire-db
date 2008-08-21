@@ -21,7 +21,6 @@ package org.apache.empire.commons;
 /**
  * This interface allows access to the last error that occured on a object.
  * 
- * @author ESTEAM software <A TARGET="esteam" HREF="http://www.esteam.de">www.esteam.de </A>
  */
 public interface ErrorInfo
 {

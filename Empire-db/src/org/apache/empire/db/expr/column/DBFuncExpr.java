@@ -39,7 +39,7 @@ import org.w3c.dom.Element;
  * {@link DBColumnExpr#max() }, {@link DBColumnExpr#month() }, {@link DBColumnExpr#sum() }, 
  * {@link DBColumnExpr#trim() }, {@link DBColumnExpr#upper() }, {@link DBColumnExpr#year() } 
  * <P>
- * @author ESTEAM software <A TARGET="esteam" HREF="http://www.esteam.de">www.esteam.de </A>
+ *
  */
 public class DBFuncExpr extends DBColumnExpr
 {

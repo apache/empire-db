@@ -30,7 +30,7 @@ import org.apache.empire.db.DBDatabase;
  * This class is used for building up the SQL-Command for the EXISTS syntax.
  * <P>
  * 
- * @author ESTEAM software <A TARGET="esteam" HREF="http://www.esteam.de">www.esteam.de </A>
+ *
  */
 public class DBExistsExpr extends DBCompareExpr
 {

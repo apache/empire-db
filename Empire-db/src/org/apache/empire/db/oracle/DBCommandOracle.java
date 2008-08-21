@@ -28,7 +28,7 @@ import org.apache.empire.db.expr.compare.DBCompareExpr;
 /**
  * This class handles the special features of an oracle database.
  * 
- * @author ESTEAM software <A TARGET="esteam" HREF="http://www.esteam.de">www.esteam.de </A>
+ *
  */
 public class DBCommandOracle extends DBCommand
 {

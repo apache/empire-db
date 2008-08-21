@@ -35,7 +35,6 @@ import org.w3c.dom.Element;
  * The class is implemented as a set of OptionEntry objects 
  * where the entry value is used as the key for the set and thus must be unique.<BR>
  * <P> 
- * @author ESTEAM software <A TARGET="esteam" HREF="http://www.esteam.de">www.esteam.de </A>
  */
 @SuppressWarnings("serial")
 public class Options extends AbstractSet<OptionEntry>

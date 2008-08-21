@@ -21,7 +21,7 @@ package org.apache.empire.db;
 /**
  * This class creates a DBReferene object for a foreing key relation.
  * 
- * @author ESTEAM software <A TARGET="esteam" HREF="http://www.esteam.de">www.esteam.de </A>
+ *
  */
 public class DBRelation extends DBObject
 {

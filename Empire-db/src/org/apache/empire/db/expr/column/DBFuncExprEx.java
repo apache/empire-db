@@ -32,7 +32,7 @@ import org.w3c.dom.Element;
 /**
  * This class is used for performing special SQL functions. 
  * <P>
- * @author ESTEAM software <A TARGET="esteam" HREF="http://www.esteam.de">www.esteam.de </A>
+ *
  */
 public class DBFuncExprEx extends DBColumnExpr
 {

@@ -37,7 +37,7 @@ import org.w3c.dom.Element;
  * @see org.apache.empire.db.DBTableColumn
  * @see org.apache.empire.db.DBView.DBViewColumn
  *
- * @author ESTEAM software <A TARGET="esteam" HREF="http://www.esteam.de">www.esteam.de </A>
+ *
  */
 public abstract class DBColumn extends DBColumnExpr
     implements Column

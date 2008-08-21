@@ -30,7 +30,7 @@ import org.apache.empire.db.DBDatabase;
  * There is no need to explicitly create instances of this class.<BR>
  * Instead use {@link DBCompareExpr#not()}<BR>
  * <P>
- * @author ESTEAM software <A TARGET="esteam" HREF="http://www.esteam.de">www.esteam.de </A>
+ *
  */
 public class DBCompareNotExpr extends DBCompareExpr
 {

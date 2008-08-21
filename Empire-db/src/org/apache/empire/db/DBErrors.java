@@ -24,7 +24,7 @@ import org.apache.empire.commons.ErrorType;
  * This class contains the definition of database specific errors.
  * <P>
  * For more informations see {@link org.apache.empire.commons.Errors}
- * @author ESTEAM software <A TARGET="esteam" HREF="http://www.esteam.de">www.esteam.de </A>
+ *
  */
 public class DBErrors
 {

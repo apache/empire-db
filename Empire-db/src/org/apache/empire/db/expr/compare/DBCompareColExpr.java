@@ -38,7 +38,7 @@ import org.apache.empire.db.DBExpr;
  * {@link DBColumnExpr#isNotBetween(Object, Object) }, {@link DBColumnExpr#isSmallerThan(Object) }, {@link DBColumnExpr#like(Object) }, 
  * {@link DBColumnExpr#like(String, char) }, {@link DBColumnExpr#likeLower(String) }, {@link DBColumnExpr#likeUpper(String) } 
  * 
- * @author ESTEAM software <A TARGET="esteam" HREF="http://www.esteam.de">www.esteam.de </A>
+ *
  */
 public class DBCompareColExpr extends DBCompareExpr
 {

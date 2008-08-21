@@ -36,7 +36,7 @@ import org.apache.empire.db.DBRowSet;
  * you should write: cmd.set( TABLE.NAME.to( "foo" ));
  * <P>
  * 
- * @author ESTEAM software <A TARGET="esteam" HREF="http://www.esteam.de">www.esteam.de</A>
+ *
  */
 public class DBSetExpr extends DBExpr
 {

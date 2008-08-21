@@ -43,7 +43,7 @@ import org.apache.empire.db.expr.column.DBCountExpr;
  * tables, views or querys
  * <P>
  * 
- * @author ESTEAM software <A TARGET="esteam" HREF="http://www.esteam.de">www.esteam.de </A>
+ *
  */
 public abstract class DBRowSet extends DBExpr
 {

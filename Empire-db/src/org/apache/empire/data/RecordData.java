@@ -26,7 +26,6 @@ import java.util.Collection;
  * The Record interface is implmented by the classes {@link org.apache.empire.db.DBReader}
  * and {@link org.apache.empire.db.DBRecord}.
  * <P>
- * @author ESTEAM software <A TARGET="esteam" HREF="http://www.esteam.de">www.esteam.de </A>
  */
 public interface RecordData
 {

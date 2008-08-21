@@ -37,7 +37,6 @@ import org.apache.empire.EmpireException;
  * <P> 
  * This class is thread save so each thread may have it's own error information for a particular object. 
  * <P> 
- * @author ESTEAM software <A TARGET="esteam" HREF="http://www.esteam.de">www.esteam.de </A>
  */
 public abstract class ErrorObject implements ErrorInfo
 {

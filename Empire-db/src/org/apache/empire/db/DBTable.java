@@ -33,7 +33,7 @@ import org.apache.empire.data.DataType;
  * It consits methods to get, add, update and delete records from the database.
  * <P>
  * 
- * @author ESTEAM software <A TARGET="esteam" HREF="http://www.esteam.de">www.esteam.de </A>
+ *
  */
 public class DBTable extends DBRowSet implements Cloneable
 {

@@ -1,4 +1,9 @@
 Manifest-Version: 1.0
-Specification-Title: empire-db
-Specification-Version: 2.1.0b
-Specification-Vendor: ESTEAM Software
+Extension-Name: org.apache.empire
+Specification-Title: Apache Empire-db
+Specification-Vendor: The Apache Software Foundation
+Specification-Version: 2.0.3
+Implementation-Vendor-Id: org.apache
+Implementation-Title: org.apache.empire
+Implementation-Vendor: The Apache Software Foundation
+Implementation-Version: 2.0.3

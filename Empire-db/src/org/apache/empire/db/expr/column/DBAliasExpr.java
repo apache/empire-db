@@ -36,7 +36,6 @@ import org.w3c.dom.*;
  * There is no need to explicitly create instances of this class.<BR>
  * Instead use {@link DBColumnExpr#as(String) }
  * <P>
- * @author ESTEAM software <A TARGET="esteam" HREF="http://www.esteam.de">www.esteam.de </A>
  */
 public class DBAliasExpr extends DBColumnExpr
 {
@@ -160,7 +159,7 @@ public class DBAliasExpr extends DBColumnExpr
      */
     @Override
     public void addSQL(StringBuilder buf, long context)
-    { // Alias anhängen
+    { // Append alias
         if((context & CTX_ALIAS)!=0)
         {   // Add the column expression
             expr.addSQL(buf, context);

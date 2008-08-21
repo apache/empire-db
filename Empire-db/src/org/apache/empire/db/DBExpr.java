@@ -32,7 +32,7 @@ import org.apache.empire.data.DataType;
  * This abstract class is the base class for all database expression classes (e.g. DBAliasExpr or DBCalsExpr)
  * <P>
  * 
- * @author ESTEAM software <A TARGET="esteam" HREF="http://www.esteam.de">www.esteam.de </A>
+ *
  */
 public abstract class DBExpr extends DBObject
 {

@@ -37,7 +37,6 @@ import org.w3c.dom.Element;
  * Instead use {@link DBColumnExpr#plus(Object) }, {@link DBColumnExpr#minus(Object) },
  * {@link DBColumnExpr#multiplyWith(Object) }, {@link DBColumnExpr#divideBy(Object) }
  * <P>
- * @author ESTEAM software <A TARGET="esteam" HREF="http://www.esteam.de">www.esteam.de </A>
  */
 public class DBCalcExpr extends DBColumnExpr
 {

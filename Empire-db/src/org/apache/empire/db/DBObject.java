@@ -31,7 +31,7 @@ import org.apache.empire.commons.ErrorType;
  * Base class for all database related objects.
  * Every object is attached to a DBDatabase object.
  * 
- * @author ESTEAM software <A TARGET="esteam" HREF="http://www.esteam.de">www.esteam.de </A>
+ *
  */
 public abstract class DBObject extends ErrorObject
 {

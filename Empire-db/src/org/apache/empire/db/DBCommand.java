@@ -41,7 +41,7 @@ import org.apache.empire.db.expr.set.DBSetExpr;
  * delete and select.
  * <P>
  * 
- * @author ESTEAM software <A TARGET="esteam" HREF="http://www.esteam.de">www.esteam.de </A>
+ *
  */
 public abstract class DBCommand extends DBCommandExpr
     implements Cloneable
@@ -808,7 +808,7 @@ public abstract class DBCommand extends DBCommandExpr
                 continue;
             }
             if (tables.contains(table) == false && table != null)
-            { // Tabelle hinzufügen
+            { // Add table
                 tables.add(table);
             }
         }
