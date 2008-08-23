@@ -199,6 +199,7 @@
 	  			<include name="LICENSE*.txt" />
 	  			<include name="README.txt" />
 	  			<include name="CHANGELOG.txt" />
+	  			<include name="build.xml" />
 	  		</fileset>
 	  	</copy>
 	  </target>
@@ -226,6 +227,7 @@
 			<fileset dir="${empire.struts2.ext.deploy.dir}/${empire.db.deploy.name}/" includes="*.jar"/>
 			<fileset dir="${empire.db.lib.deploy.dir}" includes="*.jar"/>
 			<fileset dir="${empire.struts2.ext.struts.lib.dir}" includes="*.jar" />
+			<fileset dir="${empire.struts2.ext.servletapi.lib.dir}" includes="*.jar" />
 		</copy>
 
 	</target>

@@ -28,7 +28,7 @@
 	<property name="this.deploy.dir" location="${deploy.dir}/empire-db"/>
 	<property name="out.dir" location="${this.deploy.dir}/out"/>
 	<property name="jar.file" location="${this.deploy.dir}/empire-db.jar"/>
-	<property name="jar.version.file" location="${this.deploy.dir}/empire-db-2.0.3-incubating.jar"/>
+	<property name="jar.version.file" location="${this.deploy.dir}/empire-db-2.0.3.jar"/>
 	
 	<!-- 
 		target build
@@ -63,11 +63,6 @@
 		target jar
 	 -->
 	<target name="jar">
-		<jar destfile="${jar.file}" compress="true">
-			<fileset dir="${out.dir}" />
-			<fileset dir="${src.dir}" />
-			<fileset dir="" includes="*.txt" />
-		</jar>
 		<jar destfile="${jar.version.file}" compress="true">
 			<fileset dir="${out.dir}" />
 			<fileset dir="${src.dir}" />

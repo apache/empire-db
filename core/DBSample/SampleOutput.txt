@@ -1,3 +1,10 @@
+Apache Empire-db
+Copyright 2008 The Apache Software Foundation
+
+This is the console output of the DBSample application. 
+See the file tutorial.pdf for further information.
+-------------------------------------------------------------------------------------------------------------------
+
 log4j:WARN No appenders could be found for logger (org.apache.empire.commons.ErrorType).
 log4j:WARN Please initialize the log4j system properly.
 
