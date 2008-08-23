@@ -11,4 +11,9 @@ to be fully endorsed by the ASF.
 Getting Started
 ===============
 
+For a good introdution to Empire-db please read the tutorial.pdf, that can be found in the root directory.  
+
 This component requires a Java 5 JDK (or higher).
+
+=== Building ===
+If you'd like to build Empire-db please run the ant script "build.xml".

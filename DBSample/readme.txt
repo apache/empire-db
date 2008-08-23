@@ -1,4 +1,7 @@
-In order to run / debug the Empire-db SampleApp please do the following:
+Apache Empire-db
+Copyright 2008 The Apache Software Foundation
+
+In order to run / debug the Empire-db SampleApp from the Eclipse IDE please do the following:
 
 1. In Eclipse IDE use File -> Import -> Existing Projects into Workspace to import the Sample Project
 

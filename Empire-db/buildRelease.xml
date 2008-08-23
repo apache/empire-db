@@ -34,7 +34,7 @@
 	<property name="empire.db.out.dir" location="${empire.db.this.deploy.dir}/out"/>	
 	<property name="empire.db.out.metaInf.dir" location="${empire.db.out.dir}/META-INF" />
 	<property name="empire.db.lib.deploy.dir" location="${empire.db.this.deploy.dir}/lib" />
-	<property name="empire.db.src.deploy.dir" location="/src" />
+	<property name="empire.db.src.deploy.dir" location="${empire.db.this.deploy.dir}/src" />
 	<property name="empire.db.examples.deploy.dir" location="${empire.db.this.deploy.dir}/examples" />
 	<property name="empire.db.jar.version.file" location="${empire.db.this.deploy.dir}/${empire.db.deploy.jar.name}.jar"/>
 
@@ -111,7 +111,7 @@
 	 -->
 	 <target name="createEclipseExample" description="creates an Eclipse example">
 		<mkdir dir="${empire.db.examples.deploy.dir}"/>
-	 	<concat destfile="${empire.db.examples.deploy.dir}/readme.txt">For an Empire-db introcution tutorial see tutorial.pdf in the DBSample subdirecotry.</concat>
+	 	<concat destfile="${empire.db.examples.deploy.dir}/readme.txt">For an Empire-db introcution tutorial see tutorial.pdf in the root direcotry.</concat>
 		<copy todir="${empire.db.examples.deploy.dir}">
 	 		<fileset dir="../" includes="DBSample/**/*.*" >
 	 			<exclude name="**/.settings/**" />
@@ -123,6 +123,7 @@
 				<include name="DBSample/classpath_delivery-version"/>
 			</fileset>
 	 	</copy>
+	 	<move file="${empire.db.examples.deploy.dir}/DBSample/tutorial.pdf" tofile="${empire.db.this.deploy.dir}/tutorial.pdf" overwrite="true" />
 	 	<move file="${empire.db.examples.deploy.dir}/DBSample/classpath_delivery-version" tofile="${empire.db.examples.deploy.dir}/DBSample/.classpath" overwrite="true" />
 		<copy todir="${empire.db.examples.deploy.dir}">
 	 		<fileset dir="../" includes="DBSampleAdv/**/*.*" >
@@ -195,6 +196,7 @@
 	  			<include name="LICENSE*.txt" />
 	  			<include name="CHANGELOG.txt" />
 	  			<include name="README.txt" />
+	  			<include name="build.xml" />
 	  		</fileset>
 	  	</copy>
 	  </target>
