@@ -22,23 +22,22 @@
 <project name="empire-struts2-ext" default="build" basedir=".">
 	<description>Builds the jar</description>
 	<!-- set properties for this build -->
-	<property name="servletapi.lib.dir" location="../ServletAPI2.4/lib" />
 
 	<property name="src.dir" location="src"/>
 	<property name="lib.dir" location="lib"/>
 	<property name="deploy.dir" location="../deploy"/>
 	<property name="this.deploy.dir" location="${deploy.dir}/empire-struts2-ext"/>
 	<property name="out.dir" location="${this.deploy.dir}/out"/>
-	<property name="jar.file" location="${this.deploy.dir}/empire-struts2-ext.jar"/>
-	<property name="jar.version.file" location="${this.deploy.dir}/empire-struts2-ext-1.0.3-incubating.jar"/>
+	<property name="jar.version.file" location="${this.deploy.dir}/empire-struts2-ext-1.0.3.jar"/>
 
-	<property name="empiredb.deploy.dir" location="${deploy.dir}/empire-db"/>
-	<property name="struts.lib.dir" location="../Struts2.0.11/lib" />
+	<property name="servletapi.lib.dir" location="${lib.dir}" />
+	<property name="empiredb.lib.dir" location="${lib.dir}"/>
+	<property name="struts.lib.dir" location="${lib.dir}" />
 	
 	<!-- 
 		target build
 	 -->
-	<target name="build" depends="clean,compile empire-db,compile,jar,dependjars,tidy" />
+	<target name="build" depends="clean,compile,jar,dependjars,tidy" />
 	
 	<!-- 
 		target clean
@@ -67,11 +66,12 @@
 	    		<pathelement location="${servletapi.lib.dir}/servlet-api.jar"/>
 	    		<pathelement location="${servletapi.lib.dir}/jsp-api.jar"/>
 
-	    		<pathelement location="${empiredb.deploy.dir}/empire-db.jar"/>	
-	    		<pathelement location="${empiredb.deploy.dir}/commons-beanutils-1.7.0.jar"/>
-	    		<pathelement location="${empiredb.deploy.dir}/commons-collections-3.2.1.jar"/>
-	    		<pathelement location="${empiredb.deploy.dir}/commons-logging-1.0.4.jar"/>	
-	    		<pathelement location="${empiredb.deploy.dir}/log4j-1.2.14.jar"/>	
+	    		<pathelement location="${empiredb.lib.dir}/empire-db-2.0.3.jar"/>	
+	    		
+	    		<pathelement location="${empiredb.lib.dir}/commons-beanutils-1.7.0.jar"/>
+	    		<pathelement location="${empiredb.lib.dir}/commons-collections-3.2.1.jar"/>
+	    		<pathelement location="${empiredb.lib.dir}/commons-logging-1.0.4.jar"/>	
+	    		<pathelement location="${empiredb.lib.dir}/log4j-1.2.14.jar"/>	
 
 	    		<pathelement location="${struts.lib.dir}/commons-beanutils-1.7.0.jar"/>
 	    		<pathelement location="${struts.lib.dir}/commons-collections-3.2.1.jar"/>
@@ -97,14 +97,9 @@
 		target jar
 	 -->
 	<target name="jar">
-		<jar destfile="${jar.file}" compress="true">
-			<fileset dir="${out.dir}" />
-			<fileset dir="${src.dir}" /><!-- includes="META-INF/*.tld" -->
-			<fileset dir="" includes="*.txt" />
-		</jar>
 		<jar destfile="${jar.version.file}" compress="true">
 			<fileset dir="${out.dir}" />
-			<fileset dir="${src.dir}" />
+			<fileset dir="${src.dir}" /><!-- includes="META-INF/*.tld" -->
 			<fileset dir="" includes="*.txt" />
 		</jar>
 	</target>
@@ -113,10 +108,10 @@
 	 -->
 	<target name="dependjars" description="copy dependancies to deploy dir">
 		<copy todir="${this.deploy.dir}">
-<!--			<fileset dir="${lib.dir}" includes="*.jar"/>				-->
-			<fileset dir="${empiredb.deploy.dir}" includes="*.jar"/>
-			<fileset dir="${struts.lib.dir}" includes="*.jar"/>
-			
+			<fileset dir="${lib.dir}" includes="*.jar">	
+				<exclude name="servlet-api.jar" />
+				<exclude name="jsp-api.jar" />
+			</fileset>
 		</copy>
 	</target>
 	<!-- 
