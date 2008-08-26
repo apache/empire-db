@@ -50,7 +50,9 @@ public abstract class DBColumn extends DBColumnExpr
     protected final DBRowSet   rowset;
     protected final String     name;
     protected String           comment;
-
+    
+    protected boolean          useQuotes = false;
+    
     /**
      * Constructs a DBColumn object and set the specified parameters to this object.
      *
@@ -85,6 +87,14 @@ public abstract class DBColumn extends DBColumnExpr
      */
     public abstract boolean isReadOnly();
 
+    /**
+     * @return Returns true if the column will be surrounded by quotes.
+     */
+    public boolean isUseQuotes()
+    {
+        return useQuotes;
+    }
+
 
     public abstract boolean checkValue(Object value);
 
@@ -118,14 +128,20 @@ public abstract class DBColumn extends DBColumnExpr
      */
     @Override
     public void addSQL(StringBuilder buf, long context)
-    { // Alias verwenden wenn nicht select
-
+    { 
+        // Use alias if no select
         if ((context & CTX_FULLNAME) != 0 && rowset != null)
         { // Fully Qualified Name
             buf.append(rowset.getAlias());
             buf.append(".");
         }
+        // Use Quotes
+        if (useQuotes)
+            buf.append("\"");
         buf.append(name);
+        // Use Quotes
+        if (useQuotes)
+            buf.append("\"");
     }
 
     /**
@@ -246,4 +262,13 @@ public abstract class DBColumn extends DBColumnExpr
         this.comment = comment;
     }
 
+    /**
+     * If set to TRUE, the column will be surronded by quotation marks in the SQL.
+     * 
+     * @param useQuotes flag to set quotes
+     */
+    public void setUseQuotes(boolean useQuotes)
+    {
+        this.useQuotes = useQuotes;
+    }    
 }
