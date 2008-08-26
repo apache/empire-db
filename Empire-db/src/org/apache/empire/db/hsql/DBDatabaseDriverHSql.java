@@ -115,7 +115,7 @@ public class DBDatabaseDriverHSql extends DBDatabaseDriver
             case SQL_NULL_VALUE:        return "null";
             case SQL_RENAME_COLUMN:     return " AS ";
             case SQL_PARAMETER:         return " ? ";
-            case SQL_CONCAT_EXPR:       return " + ";
+            case SQL_CONCAT_EXPR:       return "concat(?, {0})"; // " + " leads to problems if operands are case when statements that return empty string 
             case SQL_RENAME_TABLE:      return " ";
             case SQL_DATABASE_LINK:     return "@";
             // data types
@@ -188,9 +188,25 @@ public class DBDatabaseDriverHSql extends DBDatabaseDriver
             case CHAR:
                 if (format != null)
                 { // Convert using a format string
-                    return "to_char(?, '"+format.toString()+"')";
+                    if (srcType == DataType.INTEGER || srcType == DataType.AUTOINC)
+                    {
+                        log.error("getConvertPhrase: unknown type (" + String.valueOf(destType));
+                        return "?";
+                    }
+                    else
+                    {
+                        return "to_char(?, '"+format.toString()+"')";
+                    }
                 }
                 return "to_char(?)";
+            case INTEGER:
+            {
+                return "convert(?, BIGINT)";
+            }
+            case DECIMAL:
+            {
+                return "convert(?, DECIMAL)";
+            }
             // Unknown Type
             default:
                 log.error("getConvertPhrase: unknown type (" + String.valueOf(destType));
@@ -271,9 +287,9 @@ public class DBDatabaseDriverHSql extends DBDatabaseDriver
             switch (type)
             {
                 case CREATE:
-                    return createRelation((DBRelation) dbo, script);
+                    return alterRelation((DBRelation) dbo, type, script);
                 case DROP:
-                    return dropObject(((DBRelation) dbo).getName(), "CONSTRAINT", script);
+                    return alterRelation((DBRelation) dbo, type, script);
                 default:
                     return error(Errors.NotImplemented, "getDDLCommand."+dbo.getClass().getName()+"."+String.valueOf(type));
             }
@@ -332,7 +348,7 @@ public class DBDatabaseDriverHSql extends DBDatabaseDriver
         Iterator<DBRelation> relations = db.getRelations().iterator();
         while (relations.hasNext())
         {
-            if (!createRelation(relations.next(), script))
+            if (!alterRelation(relations.next(), DBCmdType.CREATE, script))
                 return false;
         }
         // Create Views
@@ -460,10 +476,10 @@ public class DBDatabaseDriverHSql extends DBDatabaseDriver
         switch (c.getDataType())
         {
             case INTEGER:
-                sql.append("INTEGER");
+                sql.append("BIGINT");
                 break;
             case AUTOINC:
-                sql.append("INTEGER");
+                sql.append("BIGINT");
                 break;
             case TEXT:
             { // Check fixed or variable length
@@ -489,7 +505,7 @@ public class DBDatabaseDriverHSql extends DBDatabaseDriver
                 sql.append("DATE");
                 break;
             case DATETIME:
-                sql.append("DATE");
+                sql.append("DATETIME");
                 break;
             case BOOL:
                 sql.append("BOOLEAN");
@@ -510,12 +526,10 @@ public class DBDatabaseDriverHSql extends DBDatabaseDriver
             }
                 break;
             case CLOB:
-                sql.append("CLOB");
+                sql.append("LONGVARCHAR");
                 break;
             case BLOB:
-                sql.append("BLOB");
-                if (c.getSize() > 0)
-                    sql.append(" (" + String.valueOf((long) c.getSize()) + ") ");
+                sql.append("LONGVARBINARY");
                 break;
             case UNKNOWN:
                  log.error("Cannot append column of Data-Type 'UNKNOWN'");
@@ -534,51 +548,75 @@ public class DBDatabaseDriverHSql extends DBDatabaseDriver
     }
 
     /**
-     * Returns true if the relation has been created successfully.
+     * Returns true if the relation has been altered successfully.
      * 
-     * @return true if the relation has been created successfully
+     * @return true if the relation has been altered successfully
      */
-    private boolean createRelation(DBRelation r, DBSQLScript script)
+    private boolean alterRelation(DBRelation r, DBCmdType type, DBSQLScript script)
     {
-        DBTable sourceTable = (DBTable) r.getReferences()[0].getSourceColumn().getRowSet();
-        DBTable targetTable = (DBTable) r.getReferences()[0].getTargetColumn().getRowSet();
+        switch(type)
+        {
+            case CREATE:
+            {
+                DBTable sourceTable = (DBTable) r.getReferences()[0].getSourceColumn().getRowSet();
+                DBTable targetTable = (DBTable) r.getReferences()[0].getTargetColumn().getRowSet();
 
-        StringBuilder sql = new StringBuilder();
-        sql.append("-- creating foreign key constraint ");
-        sql.append(r.getName());
-        sql.append(" --\r\n");
-        sql.append("ALTER TABLE ");
-        sql.append(sourceTable.getFullName());
-        sql.append(" ADD CONSTRAINT ");
-        sql.append(r.getFullName());
-        sql.append(" FOREIGN KEY (");
-        // Source Names
-        boolean addSeparator = false;
-        DBRelation.DBReference[] refs = r.getReferences();
-        for (int i = 0; i < refs.length; i++)
-        {
-            sql.append((addSeparator) ? ", " : "");
-            sql.append(refs[i].getSourceColumn().getName());
-            addSeparator = true;
+                StringBuilder sql = new StringBuilder();
+                sql.append("-- creating foreign key constraint ");
+                sql.append(r.getName());
+                sql.append(" --\r\n");
+                sql.append("ALTER TABLE ");
+                sql.append(sourceTable.getFullName());
+                sql.append(" ADD CONSTRAINT ");
+                sql.append(r.getFullName());
+                sql.append(" FOREIGN KEY (");
+                // Source Names
+                boolean addSeparator = false;
+                DBRelation.DBReference[] refs = r.getReferences();
+                for (int i = 0; i < refs.length; i++)
+                {
+                    sql.append((addSeparator) ? ", " : "");
+                    sql.append(refs[i].getSourceColumn().getName());
+                    addSeparator = true;
+                }
+                // References
+                sql.append(") REFERENCES ");
+                sql.append(targetTable.getFullName());
+                sql.append(" (");
+                // Target Names
+                addSeparator = false;
+                for (int i = 0; i < refs.length; i++)
+                {
+                    sql.append((addSeparator) ? ", " : "");
+                    sql.append(refs[i].getTargetColumn().getName());
+                    addSeparator = true;
+                }
+                // done
+                sql.append(")");
+                if (script.addStmt(sql.toString()) == false)
+                    return false;
+                // done
+                return success();
+                
+            }
+            case DROP:
+            {
+                DBTable sourceTable = (DBTable) r.getReferences()[0].getSourceColumn().getRowSet();
+                StringBuilder sql = new StringBuilder();
+                sql.append("-- dropping constraint ");
+                sql.append(r.getName());
+                sql.append(" --\r\n");
+                sql.append("ALTER TABLE ");
+                sql.append(sourceTable.getFullName());
+                sql.append(" DROP CONSTRAINT ");
+                sql.append(r.getName());
+                // done
+                return script.addStmt(sql.toString());
+            }
+            default:
+                return error(Errors.NotImplemented, "Type not supported ("+String.valueOf(type)+")");
         }
-        // References
-        sql.append(") REFERENCES ");
-        sql.append(targetTable.getFullName());
-        sql.append(" (");
-        // Target Names
-        addSeparator = false;
-        for (int i = 0; i < refs.length; i++)
-        {
-            sql.append((addSeparator) ? ", " : "");
-            sql.append(refs[i].getTargetColumn().getName());
-            addSeparator = true;
-        }
-        // done
-        sql.append(")");
-        if (script.addStmt(sql.toString()) == false)
-            return false;
-        // done
-        return success();
+
     }
 
     /**
@@ -642,7 +680,7 @@ public class DBDatabaseDriverHSql extends DBDatabaseDriver
         {
             if (addSeparator)
                 sql.append(", ");
-            sql.append(c.getName());
+            c.addSQL(sql, DBExpr.CTX_NAME);
             // next
             addSeparator = true;
         }
