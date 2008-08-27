@@ -4,6 +4,7 @@ Copyright 2008 The Apache Software Foundation
 --------------
 Release 1.0.3:
 --------------
+EMPIREDB-5: Added missing ASF headers. See JIRA for further information.
 EMPIREDB-1:	Deprecated warning resolved by adding to additional parameters to call to determineActionURL.
 PRE-105:	All package names changed to org.apache.empire.
 
