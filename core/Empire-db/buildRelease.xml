@@ -181,7 +181,7 @@
 	  	<copy todir="${empire.db.out.metaInf.dir}">
 	  		<fileset dir=".">	  			
 	  			<include name="NOTICE.txt" />
-	  			<include name="LICENSE.txt" />
+	  			<include name="LICENSE*.txt" />
 	  		</fileset>
 	  	</copy>
 	  </target>
