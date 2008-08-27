@@ -4,6 +4,7 @@ Copyright 2008 The Apache Software Foundation
 --------------
 Release 2.0.3:
 --------------
+EMPIREDB-5: Added missing ASF headers. See JIRA for further information.
 EMPIREDB-4: Fixed several DBDatabaseDriverHSql bugs. See JIRA for further information.
 EMPIREDB-3: Added "useQuotes" property to DBColumn.
 PRE-114:	All package names changed to org.apache.empire.
