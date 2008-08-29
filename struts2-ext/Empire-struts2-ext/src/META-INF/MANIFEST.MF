@@ -1,4 +1,0 @@
-Manifest-Version: 1.0
-Specification-Title: empire-struts2-ext
-Specification-Version: 1.0.2
-Specification-Vendor: ESTEAM Software
