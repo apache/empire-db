@@ -188,11 +188,13 @@ public class DBDatabaseDriverMSSQL extends DBDatabaseDriver
         {
             // sql-phrases
             case SQL_NULL_VALUE:              return "null";
-            case SQL_RENAME_COLUMN:           return " AS ";
             case SQL_PARAMETER:               return " ? ";
-            case SQL_CONCAT_EXPR:             return " + ";
             case SQL_RENAME_TABLE:            return " ";
+            case SQL_RENAME_COLUMN:           return " AS ";
             case SQL_DATABASE_LINK:           return "@";
+            case SQL_QUOTES_OPEN:             return "[";
+            case SQL_QUOTES_CLOSE:            return "]";
+            case SQL_CONCAT_EXPR:             return " + ";
             // data types
             case SQL_BOOLEAN_TRUE:            return "1";
             case SQL_BOOLEAN_FALSE:           return "0";
@@ -422,9 +424,9 @@ public class DBDatabaseDriverMSSQL extends DBDatabaseDriver
         sql.append("-- creating table ");
         sql.append(t.getName());
         sql.append(" --\r\n");
-        sql.append("CREATE TABLE [");
-        sql.append(t.getFullName());
-        sql.append("] (");
+        sql.append("CREATE TABLE ");
+        t.addSQL(sql, DBExpr.CTX_FULLNAME);
+        sql.append(" (");
         boolean addSeparator = false;
         Iterator<DBColumn> columns = t.getColumns().iterator();
         while (columns.hasNext())
@@ -440,7 +442,7 @@ public class DBDatabaseDriverMSSQL extends DBDatabaseDriver
         if (pk != null)
         { // add the primary key
             sql.append(",\r\n CONSTRAINT ");
-            sql.append(pk.getName());
+            appendElementName(sql, pk.getName());
             sql.append(" PRIMARY KEY (");
             addSeparator = false;
             // columns
@@ -448,7 +450,7 @@ public class DBDatabaseDriverMSSQL extends DBDatabaseDriver
             for (int i = 0; i < keyColumns.length; i++)
             {
                 sql.append((addSeparator) ? ", " : "");
-                sql.append(keyColumns[i].getName());
+                keyColumns[i].addSQL(sql, DBExpr.CTX_NAME);
                 addSeparator = true;
             }
             sql.append(")");
@@ -468,9 +470,9 @@ public class DBDatabaseDriverMSSQL extends DBDatabaseDriver
             // Cretae Index
             sql.setLength(0);
             sql.append((idx.getType() == DBIndex.UNIQUE) ? "CREATE UNIQUE INDEX " : "CREATE INDEX ");
-            sql.append(idx.getFullName());
+            appendElementName(sql, idx.getName());
             sql.append(" ON ");
-            sql.append(t.getFullName());
+            t.addSQL(sql, DBExpr.CTX_FULLNAME);
             sql.append(" (");
             addSeparator = false;
 
@@ -479,7 +481,7 @@ public class DBDatabaseDriverMSSQL extends DBDatabaseDriver
             for (int i = 0; i < idxColumns.length; i++)
             {
                 sql.append((addSeparator) ? ", " : "");
-                sql.append(idxColumns[i].getName());
+                idxColumns[i].addSQL(sql, DBExpr.CTX_NAME);
                 sql.append("");
                 addSeparator = true;
             }
@@ -500,7 +502,8 @@ public class DBDatabaseDriverMSSQL extends DBDatabaseDriver
      */
     private boolean appendColumnDesc(DBTableColumn c, StringBuilder sql)
     {
-        sql.append(c.getName());
+        // Append name
+        c.addSQL(sql, DBExpr.CTX_NAME);
         sql.append(" ");
         switch (c.getDataType())
         {
@@ -593,9 +596,9 @@ public class DBDatabaseDriverMSSQL extends DBDatabaseDriver
         sql.append(r.getName());
         sql.append(" --\r\n");
         sql.append("ALTER TABLE ");
-        sql.append(sourceTable.getFullName());
+        sourceTable.addSQL(sql, DBExpr.CTX_FULLNAME);
         sql.append(" ADD CONSTRAINT ");
-        sql.append(r.getFullName());
+        appendElementName(sql, r.getName());
         sql.append(" FOREIGN KEY (");
         // Source Names
         boolean addSeparator = false;
@@ -603,19 +606,19 @@ public class DBDatabaseDriverMSSQL extends DBDatabaseDriver
         for (int i = 0; i < refs.length; i++)
         {
             sql.append((addSeparator) ? ", " : "");
-            sql.append(refs[i].getSourceColumn().getName());
+            refs[i].getSourceColumn().addSQL(sql, DBExpr.CTX_NAME);
             addSeparator = true;
         }
         // References
         sql.append(") REFERENCES ");
-        sql.append(targetTable.getFullName());
+        targetTable.addSQL(sql, DBExpr.CTX_FULLNAME);
         sql.append(" (");
         // Target Names
         addSeparator = false;
         for (int i = 0; i < refs.length; i++)
         {
             sql.append((addSeparator) ? ", " : "");
-            sql.append(refs[i].getTargetColumn().getName());
+            refs[i].getTargetColumn().addSQL(sql, DBExpr.CTX_NAME);
             addSeparator = true;
         }
         // done
@@ -637,7 +640,7 @@ public class DBDatabaseDriverMSSQL extends DBDatabaseDriver
     {
         StringBuilder sql = new StringBuilder();
         sql.append("ALTER TABLE ");
-        sql.append(col.getRowSet().getName());
+        col.getRowSet().addSQL(sql, DBExpr.CTX_FULLNAME);
         switch(type)
         {
             case CREATE:
@@ -680,14 +683,15 @@ public class DBDatabaseDriverMSSQL extends DBDatabaseDriver
         // Build String
         StringBuilder sql = new StringBuilder();
         sql.append( "CREATE VIEW ");
-        sql.append( v.getName() );
+        v.addSQL(sql, DBExpr.CTX_FULLNAME);
         sql.append( " (" );
         boolean addSeparator = false;
         for(DBColumn c : v.getColumns())
         {
             if (addSeparator)
                 sql.append(", ");
-            sql.append(c.getName());
+            // Add Column name
+            c.addSQL(sql, DBExpr.CTX_NAME);
             // next
             addSeparator = true;
         }
@@ -711,7 +715,7 @@ public class DBDatabaseDriverMSSQL extends DBDatabaseDriver
         sql.append("DROP ");
         sql.append(objType);
         sql.append(" ");
-        sql.append(name);
+        appendElementName(sql, name);
         return script.addStmt(sql);
     }
 

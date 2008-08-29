@@ -2,6 +2,11 @@ Apache Empire-db
 Copyright 2008 The Apache Software Foundation
 
 --------------
+Release 2.0.4:
+--------------
+EMPIREDB-6:	Support for spaces and dashes in table, view and column names added.
+
+--------------
 Release 2.0.3:
 --------------
 EMPIREDB-5: Added missing ASF headers. See JIRA for further information.
