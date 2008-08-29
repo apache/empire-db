@@ -284,15 +284,23 @@ public abstract class DBDatabase extends DBObject
      */
     public void appendQualifiedName(StringBuilder buf, String name)
     {
+        // Check driver
+        if (driver==null)
+        {   // No driver attached!
+            error(Errors.ObjectNotValid, name);
+            buf.append(name);
+            return;
+        }
         // Schema
-        if (schema != null && driver!=null)
+        if (schema != null)
         { // Add Schema
             buf.append(schema);
             buf.append(".");
         }
-        buf.append(name);
+        // Append the name
+        driver.appendElementName(buf, name);
         // Database Link
-        if (linkName!=null && driver!=null)
+        if (linkName!=null)
         { // Add Schema
             buf.append(driver.getSQLPhrase(DBDatabaseDriver.SQL_DATABASE_LINK));
             buf.append(linkName);

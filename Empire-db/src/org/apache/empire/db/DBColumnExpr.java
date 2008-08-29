@@ -56,6 +56,16 @@ public abstract class DBColumnExpr extends DBExpr
     protected Attributes  attributes = null;
     protected Options     options = null;
     protected String      beanPropertyName = null;
+    
+    /**
+     * returns the Database driver or null if the Expression is not attached to an open database<BR/>
+     * This function is intended for convenience only.
+     */
+    protected final DBDatabaseDriver getDatabaseDriver()
+    {
+        DBDatabase db = getDatabase();
+        return (db!=null) ? db.getDriver() : null;
+    }
 
     /**
      * Returns the data type of this column expression.

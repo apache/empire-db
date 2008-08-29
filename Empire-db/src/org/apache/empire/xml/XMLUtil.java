@@ -366,6 +366,10 @@ public class XMLUtil
     {
         if (parent == null)
             return null; // Fehler
+        // Name must not contain spaces
+        if (name.indexOf(' ')>=0)
+            name = name.replace(' ', '_');
+        // Create Element
         Element child = parent.getOwnerDocument().createElement(name);
         if (value != null)
             setElementText(child, value);

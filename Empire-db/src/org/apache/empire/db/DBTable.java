@@ -278,15 +278,12 @@ public class DBTable extends DBRowSet implements Cloneable
     @Override
     public void addSQL(StringBuilder buf, long context)
     {
-        if ((context & CTX_FULLNAME)!=0 && db!=null)
-        {   // Add Schema
-            db.appendQualifiedName(buf, name);
+        // Append Name
+        if ((context & CTX_NAME|CTX_FULLNAME)!=0)
+        {    // Add Schema
+             db.appendQualifiedName(buf, name);
         }
-        else
-        {   // Simple Name only
-            buf.append(name);
-        }
-        // Tables and Views?
+        // Append Alias
         if ((context & CTX_ALIAS)!=0 && alias!=null)
         {    // append alias
              buf.append(getRenameTablePhrase());

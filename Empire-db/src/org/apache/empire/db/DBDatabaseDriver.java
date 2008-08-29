@@ -45,14 +45,16 @@ public abstract class DBDatabaseDriver extends ErrorObject
 {
     // sql-phrases
     public static final int SQL_NULL_VALUE       = 1;   // Oracle: null
-    public static final int SQL_RENAME_COLUMN    = 2;   // Oracle: AS
-    public static final int SQL_PARAMETER        = 3;   // Oracle: ?
-    public static final int SQL_CONCAT_EXPR      = 4;   // Oracle: ||
-    public static final int SQL_RENAME_TABLE     = 5;   // Oracle: AS
-    public static final int SQL_DATABASE_LINK    = 6;   // Oracle: @
+    public static final int SQL_PARAMETER        = 2;   // Oracle: ?
+    public static final int SQL_RENAME_TABLE     = 3;   // Oracle: AS
+    public static final int SQL_RENAME_COLUMN    = 4;   // Oracle: AS
+    public static final int SQL_DATABASE_LINK    = 5;   // Oracle: @
+    public static final int SQL_QUOTES_OPEN      = 6;   // Oracle: "; MSSQL: [
+    public static final int SQL_QUOTES_CLOSE     = 7;   // Oracle: "; MSSQL: ]
+    public static final int SQL_CONCAT_EXPR      = 8;   // Oracle: ||
     // data types
-    public static final int SQL_BOOLEAN_TRUE     = 10;  // Oracle: "'Y'"      SQL: "1"
-    public static final int SQL_BOOLEAN_FALSE    = 11;  // Oracle: "'N'"      SQL: "0"
+    public static final int SQL_BOOLEAN_TRUE     = 10;  // Oracle: "'Y'"; MSSQL: "1"
+    public static final int SQL_BOOLEAN_FALSE    = 11;  // Oracle: "'N'"; MSSQL: "0"
     public static final int SQL_CURRENT_DATE     = 20;  // Oracle: "sysdate"
     public static final int SQL_DATE_PATTERN     = 21;  // "yyyy.MM.dd"
     public static final int SQL_DATE_TEMPLATE    = 22;  // Oracle: "TO_DATE('{0}', 'YYYY-MM-DD')"
@@ -81,9 +83,9 @@ public abstract class DBDatabaseDriver extends ErrorObject
     public static final int SQL_FUNC_FLOOR       = 123; // Oracle: floor(?)
     public static final int SQL_FUNC_CEILING     = 124; // Oracle: ceil(?)
     // Date
-    public static final int SQL_FUNC_DAY         = 132; // MS SQL month(?)
-    public static final int SQL_FUNC_MONTH       = 133; // MS SQL month(?)
-    public static final int SQL_FUNC_YEAR        = 134; // MS SQL year (?)
+    public static final int SQL_FUNC_DAY         = 132; // MSSQL: month(?)
+    public static final int SQL_FUNC_MONTH       = 133; // MSSQL: month(?)
+    public static final int SQL_FUNC_YEAR        = 134; // MSSQL: year (?)
     // Aggregation
     public static final int SQL_FUNC_SUM         = 140; // Oracle: sum(?)
     public static final int SQL_FUNC_COUNT       = 141; // Oracle: count(?)
@@ -206,6 +208,37 @@ public abstract class DBDatabaseDriver extends ErrorObject
      * @return true if the features is supported or false otherwise
      */
     public abstract boolean isSupported(DBDriverFeature type);
+
+    /**
+     * Checks wether a table or column name needs to be quoted or not<BR/>
+     * By default names containing a "-", "+" or " " require quoting.<BR/>
+     * Overrides this function to add database specific keywords like "user" or "count"  
+     */
+    protected boolean quoteElementName(String name)
+    {
+        // Check for any of the characters - +  and space
+        return (name.indexOf(' ')>0)
+            || (name.indexOf('-')>0)
+            || (name.indexOf('+')>0); 
+    }
+
+    /**
+     * Appends a table, view or column name to an SQL phrase. 
+     * @param sql the StringBuilder containing the SQL phrase.
+     * @param name the name of the object (table, view or column)
+     */
+    public void appendElementName(StringBuilder sql, String name)
+    {
+        // Check whether to use quotes or not
+        boolean useQuotes = quoteElementName(name);
+        if (useQuotes)
+            sql.append(getSQLPhrase(DBDatabaseDriver.SQL_QUOTES_OPEN));
+        // Append Name
+        sql.append(name);
+        // End Quotes
+        if (useQuotes)
+            sql.append(getSQLPhrase(DBDatabaseDriver.SQL_QUOTES_CLOSE));
+    }
     
     /**
      * Returns an sql phrase template for this database system.<br>
