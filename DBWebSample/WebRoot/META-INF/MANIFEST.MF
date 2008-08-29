@@ -1,0 +1,9 @@
+Manifest-Version: 1.0
+Extension-Name: org.apache.empire.struts2.websample
+Specification-Title: Apache Empire-Struts2-Extension web example
+Specification-Vendor: The Apache Software Foundation
+Specification-Version: 1.0
+Implementation-Vendor-Id: org.apache
+Implementation-Title: org.apache.empire.struts2.websample
+Implementation-Vendor: The Apache Software Foundation
+Implementation-Version: 1.0
