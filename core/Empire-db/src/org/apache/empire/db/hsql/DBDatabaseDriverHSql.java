@@ -695,6 +695,17 @@ public class DBDatabaseDriverHSql extends DBDatabaseDriver
     }
     
     /**
+     * Checks wether a table or column name needs to be quoted or not<BR/>
+     * By default names containing a "-", "+" or " " require quoting.<BR/>
+     * Overrides this function to add database specific keywords like "user" or "count"  
+     */
+    @Override
+    protected boolean quoteElementName(String name)
+    {
+        return (name.toUpperCase().equals("COUNT") || super.quoteElementName(name));
+    }
+
+    /**
      * Returns true if the object has been dropped successfully.
      * 
      * @return true if the object has been dropped successfully
@@ -711,7 +722,6 @@ public class DBDatabaseDriverHSql extends DBDatabaseDriver
         appendElementName(sql, name);
         // Done
         return script.addStmt(sql);
-    }
-
+    }    
 }
 
