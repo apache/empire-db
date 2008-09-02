@@ -407,7 +407,6 @@ public final class ObjectUtils
      * Generic conversion function that will convert a list to another list type.
      * @return the new list type
      */
-    @SuppressWarnings("unchecked")
     public static <T> List<T> convert(Class<T> t, Collection<? extends T> source)
         throws ClassCastException
     {
