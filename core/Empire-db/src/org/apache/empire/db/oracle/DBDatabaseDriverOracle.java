@@ -284,7 +284,7 @@ public class DBDatabaseDriverOracle extends DBDatabaseDriver
     { // Use Oracle Sequences
         StringBuilder sql = new StringBuilder(80);
         sql.append("SELECT ");
-        db.appendQualifiedName(sql, seqName);
+        db.appendQualifiedName(sql, seqName, detectQuoteName(seqName));
         sql.append(".NEXTVAL FROM DUAL");
         Object val = db.querySingleValue(sql.toString(), conn);
         if (val == null)
@@ -461,7 +461,7 @@ public class DBDatabaseDriverOracle extends DBDatabaseDriver
         sql.append(c.getFullName());
         sql.append(" --\r\n");
         sql.append("CREATE SEQUENCE ");
-        db.appendQualifiedName(sql, seqName);
+        db.appendQualifiedName(sql, seqName, detectQuoteName(seqName));
         sql.append(" INCREMENT BY 1 START WITH 1 MINVALUE 0 NOCYCLE NOCACHE NOORDER");
         // executeDLL
         return script.addStmt(sql);

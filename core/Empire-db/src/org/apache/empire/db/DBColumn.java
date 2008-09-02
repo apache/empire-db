@@ -50,6 +50,8 @@ public abstract class DBColumn extends DBColumnExpr
     protected final DBRowSet   rowset;
     protected final String     name;
     protected String           comment;
+
+    private Boolean quoteName = null;
     
     /**
      * Constructs a DBColumn object and set the specified parameters to this object.
@@ -126,7 +128,10 @@ public abstract class DBColumn extends DBColumnExpr
         }
         // Append the name
         DBDatabaseDriver driver = getDatabase().getDriver();
-        driver.appendElementName(buf, name);
+        if (quoteName==null)
+            quoteName = driver.detectQuoteName(name);
+        // Append the name
+        driver.appendElementName(buf, name, quoteName.booleanValue());
     }
 
     /**

@@ -110,7 +110,7 @@ public abstract class DBDatabaseDriver extends ErrorObject
                                                                     '/', '.', '-', ',', '+', '*', ')', '(',
                                                                     '\'', '&', '%', '!', ' '
                                                                   };        
-    private static final String[] generalSQLKeywords = new String[] { "count", "user", "on", "off",
+    private static final String[] generalSQLKeywords = new String[] { "user", "group", 
                                                            "table", "column", "view", "index", "constraint", 
                                                            "select", "udpate", "insert", "alter", "delete" };        
     protected final Set<String> reservedSQLKeywords;
@@ -233,12 +233,12 @@ public abstract class DBDatabaseDriver extends ErrorObject
     public abstract boolean isSupported(DBDriverFeature type);
 
     /**
-     * Checks wether a table or column name needs to be quoted or not<BR/>
+     * Detects wether a table or column name needs to be quoted or not<BR/>
      * By default all reserved SQL keywords as well as names 
      * containing a "-", "/", "+" or " " require quoting.<BR/>
      * Overrides this function to add database specific keywords like "user" or "count"  
      */
-    protected boolean quoteElementName(String name)
+    protected boolean detectQuoteName(String name)
     {
         // Check for reserved names
         if (reservedSQLKeywords.contains(name.toLowerCase()))
@@ -264,10 +264,9 @@ public abstract class DBDatabaseDriver extends ErrorObject
      * @param sql the StringBuilder containing the SQL phrase.
      * @param name the name of the object (table, view or column)
      */
-    public void appendElementName(StringBuilder sql, String name)
+    public void appendElementName(StringBuilder sql, String name, boolean useQuotes)
     {
         // Check whether to use quotes or not
-        boolean useQuotes = quoteElementName(name);
         if (useQuotes)
             sql.append(getSQLPhrase(DBDatabaseDriver.SQL_QUOTES_OPEN));
         // Append Name
@@ -275,6 +274,16 @@ public abstract class DBDatabaseDriver extends ErrorObject
         // End Quotes
         if (useQuotes)
             sql.append(getSQLPhrase(DBDatabaseDriver.SQL_QUOTES_CLOSE));
+    }
+
+    /**
+     * Appends a table, view or column name to an SQL phrase. 
+     * @param sql the StringBuilder containing the SQL phrase.
+     * @param name the name of the object (table, view or column)
+     */
+    public final void appendElementName(StringBuilder sql, String name)
+    {
+        appendElementName(sql, name, detectQuoteName(name));
     }
     
     /**

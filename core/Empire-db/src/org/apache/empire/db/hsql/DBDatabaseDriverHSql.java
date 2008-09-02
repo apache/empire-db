@@ -225,7 +225,7 @@ public class DBDatabaseDriverHSql extends DBDatabaseDriver
         StringBuilder sql = new StringBuilder(80);
         sql.append("SELECT ");
         sql.append("NEXT VALUE FOR ");
-        db.appendQualifiedName(sql, seqName);
+        db.appendQualifiedName(sql, seqName, detectQuoteName(seqName));
         sql.append(" FROM INFORMATION_SCHEMA.SYSTEM_SEQUENCES WHERE SEQUENCE_NAME='"+ seqName + "'");
         	
         Object val = db.querySingleValue(sql.toString(), conn);
@@ -379,7 +379,7 @@ public class DBDatabaseDriverHSql extends DBDatabaseDriver
         sql.append(c.toString());
         sql.append(" --\r\n");
         sql.append("CREATE SEQUENCE ");
-        db.appendQualifiedName(sql, seqName);
+        db.appendQualifiedName(sql, seqName, detectQuoteName(seqName));
         sql.append(" START WITH 1");
         // executeDLL
         return script.addStmt(sql);

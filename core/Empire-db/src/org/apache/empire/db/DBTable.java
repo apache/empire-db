@@ -42,6 +42,7 @@ public class DBTable extends DBRowSet implements Cloneable
     private String         alias;
     private List<DBIndex>  indexes       = new ArrayList<DBIndex>();
     private boolean        cascadeDelete = false;
+    private Boolean        quoteName     = null;
 
     /**
      * Construct a new DBTable object set the specified parameters
@@ -280,8 +281,12 @@ public class DBTable extends DBRowSet implements Cloneable
     {
         // Append Name
         if ((context & CTX_NAME|CTX_FULLNAME)!=0)
-        {    // Add Schema
-             db.appendQualifiedName(buf, name);
+        {   // Append the name
+            DBDatabaseDriver driver = getDatabase().getDriver();
+            if (quoteName==null)
+                quoteName = driver.detectQuoteName(name);
+            // append Qualified Name 
+            db.appendQualifiedName(buf, name, quoteName);
         }
         // Append Alias
         if ((context & CTX_ALIAS)!=0 && alias!=null)
