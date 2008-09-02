@@ -27,6 +27,8 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.HashSet;
+import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -101,8 +103,19 @@ public abstract class DBDatabaseDriver extends ErrorObject
     // Logger
     protected static Log log = LogFactory.getLog(DBDatabaseDriver.class);
     
-    // Flag wether or not to set column defaults when crating dll statements
+    // Flag whether or not to set column defaults when crating DDL statements
     protected boolean ddlColumnDefaults = false;
+
+    // Illegal Name Chars and Reserved SQL Keywords
+    private static final char[]   illegalNameChars   = new char[] { '@', '?', '>', '=', '<', ';', ':', 
+                                                                    '/', '.', '-', ',', '+', '*', ')', '(',
+                                                                    '\'', '&', '%', '!'
+                                                                  };        
+    private static final String[] generalSQLKeywords = new String[] { "count", "user", "on", "off",
+                                                           "table", "column", "view", "index", "constraint", 
+                                                           "select", "udpate", "insert", "alter", "delete" };        
+    protected final Set<String> reservedSQLKeywords;
+
     
     // DBSeqTable
     public static class DBSeqTable extends DBTable
@@ -194,6 +207,17 @@ public abstract class DBDatabaseDriver extends ErrorObject
             }
         }
     }
+    
+    /**
+     * Constructor
+     */
+    public DBDatabaseDriver()
+    {
+        // Initialize List of reserved Keywords
+        reservedSQLKeywords = new HashSet<String>(generalSQLKeywords.length);
+        for (int i=0; i<generalSQLKeywords.length; i++)
+             reservedSQLKeywords.add(generalSQLKeywords[i]);
+    }
 
     /**
      * This function creates a DBCommand derived object this database
@@ -211,15 +235,29 @@ public abstract class DBDatabaseDriver extends ErrorObject
 
     /**
      * Checks wether a table or column name needs to be quoted or not<BR/>
-     * By default names containing a "-", "+" or " " require quoting.<BR/>
+     * By default all reserved SQL keywords as well as names 
+     * containing a "-", "/", "+" or " " require quoting.<BR/>
      * Overrides this function to add database specific keywords like "user" or "count"  
      */
     protected boolean quoteElementName(String name)
     {
-        // Check for any of the characters - +  and space
-        return (name.indexOf(' ')>0)
-            || (name.indexOf('-')>0)
-            || (name.indexOf('+')>0); 
+        // Check for reserved names
+        if (reservedSQLKeywords.contains(name.toLowerCase()))
+            return true;
+        // Check for illegalNameChars
+        int len = name.length();
+        for (int i=0; i<len; i++)
+        {   char c = name.charAt(i);
+            for (int j=0; j<illegalNameChars.length; j++)
+            {   char ic = illegalNameChars[j]; 
+                if (c>ic)
+                    break;
+                if (c==ic)
+                    return true;
+            }    
+        }
+        // Quoting not necessary
+        return false;
     }
 
     /**
