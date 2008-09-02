@@ -109,7 +109,7 @@ public abstract class DBDatabaseDriver extends ErrorObject
     // Illegal name chars and reserved SQL keywords
     private static final char[]   illegalNameChars   = new char[] { '@', '?', '>', '=', '<', ';', ':', 
                                                                     '/', '.', '-', ',', '+', '*', ')', '(',
-                                                                    '\'', '&', '%', '!'
+                                                                    '\'', '&', '%', '!', ' '
                                                                   };        
     private static final String[] generalSQLKeywords = new String[] { "count", "user", "on", "off",
                                                            "table", "column", "view", "index", "constraint", 
