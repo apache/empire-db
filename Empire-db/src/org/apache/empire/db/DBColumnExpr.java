@@ -20,7 +20,6 @@ package org.apache.empire.db;
 
 // java
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 
 import org.apache.empire.commons.Attributes;
@@ -34,6 +33,8 @@ import org.apache.empire.db.expr.column.DBAliasExpr;
 import org.apache.empire.db.expr.column.DBCalcExpr;
 import org.apache.empire.db.expr.column.DBCaseExpr;
 import org.apache.empire.db.expr.column.DBConcatExpr;
+import org.apache.empire.db.expr.column.DBConvertExpr;
+import org.apache.empire.db.expr.column.DBDecodeExpr;
 import org.apache.empire.db.expr.column.DBFuncExpr;
 import org.apache.empire.db.expr.column.DBValueExpr;
 import org.apache.empire.db.expr.compare.DBCompareColExpr;
@@ -42,10 +43,8 @@ import org.w3c.dom.Element;
 
 
 /**
- * This class is the base class for building the SQL-Commands
- * <P>
- * 
- *
+ * This class is the base class for all expressions that represent a single value.
+ * It provides a set of factory functions for SQL functions.
  */
 public abstract class DBColumnExpr extends DBExpr
     implements ColumnExpr
@@ -58,16 +57,6 @@ public abstract class DBColumnExpr extends DBExpr
     protected Attributes  attributes = null;
     protected Options     options = null;
     protected String      beanPropertyName = null;
-    
-    /**
-     * returns the Database driver or null if the Expression is not attached to an open database<BR/>
-     * This function is intended for convenience only.
-     */
-    protected final DBDatabaseDriver getDatabaseDriver()
-    {
-        DBDatabase db = getDatabase();
-        return (db!=null) ? db.getDriver() : null;
-    }
 
     /**
      * Returns the data type of this column expression.
@@ -364,9 +353,9 @@ public abstract class DBColumnExpr extends DBExpr
      */
     public DBCompareColExpr like(String value, char escape)
     {
-        DBValueExpr textExpr = new DBValueExpr(getDatabase(), value, DataType.TEXT);
-        return cmp(DBCmpType.LIKE, textExpr.getExprFromPhrase(DBDatabaseDriver.SQL_FUNC_ESCAPE,
-                                                        new Object[] { String.valueOf(escape) }, getUpdateColumn(), false));
+        DBValueExpr  textExpr = new DBValueExpr(getDatabase(), value, DataType.TEXT);
+        DBFuncExpr escapeExpr = new DBFuncExpr(textExpr, DBDatabaseDriver.SQL_FUNC_ESCAPE, new Object[] { String.valueOf(escape) }, getUpdateColumn(), false, DataType.TEXT );
+        return cmp(DBCmpType.LIKE, escapeExpr);
     }
 
     /**
@@ -585,30 +574,18 @@ public abstract class DBColumnExpr extends DBExpr
      * Creates a new DBFuncExpr from a given SQL-PRHASE and
      * optional additional parameters.
      *
-     * @param phrase the enum-id of the phrase (see DBDatabaseDriver.SQL_...)
+     * @param phrase the id of the SQL-phrase
      * @param params the params to replace in the template
      * @param isAggregate indicates whether the Function creates an aggregate
      * @param dataType the resulting data Type
      * @return the new DBCalcExpr object
      */
-    public DBColumnExpr getExprFromPhrase(int phrase, Object[] params, DBColumn updateColumn, boolean isAggregate, DataType dataType)
+    private DBColumnExpr getExprFromPhrase(int phrase, Object[] params, DBColumn updateColumn, boolean isAggregate, DataType dataType)
     {
-        DBDatabaseDriver driver = getDatabase().getDriver();
-        String template = driver.getSQLPhrase(phrase);
-        if (params != null)
-        {
-            for (int i = 0; i < params.length; i++)
-            { // Replace Params
-                // String test  =(params[i] != null) ? params[i].toString() : "";
-                String value = getObjectValue(this, params[i], DBExpr.CTX_DEFAULT, ",");
-                // template = template.replaceAll("\\{" + String.valueOf(i) + "\\}", value);
-                template = StringUtils.replaceAll(template, "{"+ String.valueOf(i) + "}", value);
-            }
-        }
-        return new DBFuncExpr(this, template, updateColumn, isAggregate, dataType);
+        return new DBFuncExpr(this, phrase, params, updateColumn, isAggregate, dataType);
     }
 
-    public DBColumnExpr getExprFromPhrase(int phrase, Object[] params, DBColumn updateColumn, boolean isAggregate)
+    private DBColumnExpr getExprFromPhrase(int phrase, Object[] params, DBColumn updateColumn, boolean isAggregate)
     {
         return getExprFromPhrase(phrase, params, updateColumn, isAggregate, getDataType());
     }
@@ -621,7 +598,7 @@ public abstract class DBColumnExpr extends DBExpr
      */
     public DBColumnExpr parenthesis()
     { 
-        return new DBFuncExpr(this, "(?)", getUpdateColumn(), false, getDataType());
+        return new DBFuncExpr(this, "(?)", null, getUpdateColumn(), false, getDataType());
     }
 
     /**
@@ -948,39 +925,10 @@ public abstract class DBColumnExpr extends DBExpr
      * @return the new DBFuncExpr object
      */
     @SuppressWarnings("unchecked")
-    public DBColumnExpr decode(Map list, Object otherwise)
+    public DBColumnExpr decode(Map valueMap, Object otherwise)
     {
-        DBDatabaseDriver driver = getDatabase().getDriver();
-        StringBuilder inner = new StringBuilder();
-        // Generate parts
-        for (Iterator i = list.keySet().iterator(); i.hasNext();)
-        {
-            Object key = i.next();
-            Object val = list.get(key);
-
-            String part = driver.getSQLPhrase(DBDatabaseDriver.SQL_FUNC_DECODE_PART);
-            // part = part.replaceAll("\\{0\\}", getObjectValue(this, key, DBExpr.CTX_DEFAULT, ""));
-            part = StringUtils.replaceAll(part, "{0}", getObjectValue(this, key, DBExpr.CTX_DEFAULT, ""));
-
-            // part = part.replaceAll("\\{1\\}", getObjectValue(this, val, DBExpr.CTX_DEFAULT, ""));
-            part = StringUtils.replaceAll(part, "{1}", getObjectValue(this, val, DBExpr.CTX_DEFAULT, ""));
-
-            inner.append(driver.getSQLPhrase(DBDatabaseDriver.SQL_FUNC_DECODE_SEP));
-            inner.append(part);
-        }
-        // Generate other
-        if (otherwise != null)
-        { // Else
-            String other = driver.getSQLPhrase(DBDatabaseDriver.SQL_FUNC_DECODE_ELSE);
-
-            // other = other.replaceAll("\\{0\\}", getObjectValue(this, otherwise, DBExpr.CTX_DEFAULT, ""));
-            other = StringUtils.replaceAll(other, "{0}", getObjectValue(this, otherwise, DBExpr.CTX_DEFAULT, ""));
-
-            inner.append(driver.getSQLPhrase(DBDatabaseDriver.SQL_FUNC_DECODE_SEP));
-            inner.append(other);
-        }
-        DBValueExpr param = new DBValueExpr(getDatabase(), inner, DataType.UNKNOWN); 
-        return getExprFromPhrase(DBDatabaseDriver.SQL_FUNC_DECODE, new Object[] { param }, null, false);
+        DataType dataType = DataType.UNKNOWN;
+        return new DBDecodeExpr(this, valueMap, otherwise, dataType);
     }
 
     public final DBColumnExpr decode(Object key1, Object value1, Object otherwise)
@@ -1084,8 +1032,7 @@ public abstract class DBColumnExpr extends DBExpr
      */
     public DBColumnExpr convertTo(DataType dataType, Object format)
     {
-        DBDatabaseDriver driver = getDatabase().getDriver();
-        return new DBFuncExpr(this, driver.getConvertPhrase(dataType, getDataType(), format), getUpdateColumn(), false, dataType);
+        return new DBConvertExpr(this, dataType, format);
     }
 
     /**
