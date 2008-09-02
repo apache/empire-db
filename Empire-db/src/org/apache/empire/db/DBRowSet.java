@@ -275,7 +275,7 @@ public abstract class DBRowSet extends DBExpr
      */
     public DBColumnExpr count()
     {
-        return new DBCountExpr(this, null);
+        return new DBCountExpr(this);
     }
     
     /**

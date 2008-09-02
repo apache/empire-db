@@ -73,7 +73,7 @@ public abstract class DBExpr extends DBObject
      * @param arraySep the separator value
      * @return the new SQL-Command
      */
-    protected String getObjectValue(DBColumnExpr col, Object value, long context, String arraySep)
+    protected String getObjectValue(DataType dataType, Object value, long context, String arraySep)
     {
         // it's an Object
         if (value instanceof DBExpr)
@@ -97,7 +97,7 @@ public abstract class DBExpr extends DBObject
                 if (i > 0 && arraySep != null)
                     buf.append(arraySep);
                 // Append Value
-                buf.append(getObjectValue(col, array[i], context, arraySep));
+                buf.append(getObjectValue(dataType, array[i], context, arraySep));
             }
             return buf.toString();
         } 
@@ -110,7 +110,7 @@ public abstract class DBExpr extends DBObject
                 return String.valueOf(value);
             }
             // Get Value Expression from Driver
-            return driver.getValueString(value, col.getDataType());
+            return driver.getValueString(value, dataType);
         }
     }
     

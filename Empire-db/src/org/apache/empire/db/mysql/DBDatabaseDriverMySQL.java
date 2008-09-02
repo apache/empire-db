@@ -246,7 +246,6 @@ public class DBDatabaseDriverMySQL extends DBDatabaseDriver
             case SQL_FUNC_YEAR:               return "year(?)";
             // Aggregation
             case SQL_FUNC_SUM:                return "sum(?)";
-            case SQL_FUNC_COUNT:              return "count(?)";
             case SQL_FUNC_MAX:                return "max(?)";
             case SQL_FUNC_MIN:                return "min(?)";
             case SQL_FUNC_AVG:                return "avg(?)";

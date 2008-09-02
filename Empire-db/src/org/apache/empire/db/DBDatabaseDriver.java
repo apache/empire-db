@@ -90,7 +90,6 @@ public abstract class DBDatabaseDriver extends ErrorObject
     public static final int SQL_FUNC_YEAR        = 134; // MSSQL: year (?)
     // Aggregation
     public static final int SQL_FUNC_SUM         = 140; // Oracle: sum(?)
-    public static final int SQL_FUNC_COUNT       = 141; // Oracle: count(?)
     public static final int SQL_FUNC_MAX         = 142; // Oracle: max(?)
     public static final int SQL_FUNC_MIN         = 143; // Oracle: min(?)
     public static final int SQL_FUNC_AVG         = 144; // Oracle: avg(?)

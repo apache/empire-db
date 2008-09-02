@@ -154,9 +154,10 @@ public abstract class DBAbstractFuncExpr extends DBColumnExpr
         // Get Template
         if (params != null)
         {   // Replace Params
+            DataType dataType = expr.getDataType();
             for (int i = 0; i < params.length; i++)
             {   // String test  =(params[i] != null) ? params[i].toString() : "";
-                String value = getObjectValue(expr, params[i], CTX_DEFAULT, ",");
+                String value = getObjectValue(dataType, params[i], CTX_DEFAULT, ",");
                 // template = template.replaceAll("\\{" + String.valueOf(i) + "\\}", value);
                 template = StringUtils.replaceAll(template, "{"+ String.valueOf(i) + "}", value);
             }

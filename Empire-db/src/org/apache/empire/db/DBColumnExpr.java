@@ -19,6 +19,7 @@
 package org.apache.empire.db;
 
 // java
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -34,6 +35,7 @@ import org.apache.empire.db.expr.column.DBCalcExpr;
 import org.apache.empire.db.expr.column.DBCaseExpr;
 import org.apache.empire.db.expr.column.DBConcatExpr;
 import org.apache.empire.db.expr.column.DBConvertExpr;
+import org.apache.empire.db.expr.column.DBCountExpr;
 import org.apache.empire.db.expr.column.DBDecodeExpr;
 import org.apache.empire.db.expr.column.DBFuncExpr;
 import org.apache.empire.db.expr.column.DBValueExpr;
@@ -906,28 +908,80 @@ public abstract class DBColumnExpr extends DBExpr
     }
 
     /**
-     * Creates and returns an aggregation function object
-     * which returns the number of rows in a group of rows.
+     * Creates and returns an expresion for the SQL "count()" function
+     * which returns the number of rows in the result set.
      *
      * @return the new DBFuncExpr object
      */
     public DBColumnExpr count()
     {
-        return getExprFromPhrase(DBDatabaseDriver.SQL_FUNC_COUNT, null, null, true);
+        return new DBCountExpr(this, false);
+    }
+
+    /**
+     * Creates and returns an expresion for the SQL "count()" function
+     * which returns the number of unique values in the result set.
+     *
+     * @return the new DBFuncExpr object
+     */
+    public DBColumnExpr countDistinct()
+    {
+        return new DBCountExpr(this, true);
+    }
+    
+    /**
+     * Detects the DataType of a given value.
+     * @param value the value to detect
+     * @return the DataType enum for the value
+     */
+    protected DataType detectDataType(Object value)
+    {
+        if (value instanceof DBColumnExpr)
+            return ((DBColumnExpr)value).getDataType();
+        if (value instanceof String)
+            return DataType.TEXT;
+        if ((value instanceof Integer) || (value instanceof Long))
+            return DataType.INTEGER;
+        if (value instanceof Number)
+            return DataType.DECIMAL;
+        if (value instanceof Boolean)
+            return DataType.BOOL;
+        if (value instanceof Date)
+            return DataType.DATETIME;
+        if (value instanceof Character)
+            return DataType.CHAR;
+        if (value instanceof byte[])
+            return DataType.BLOB;
+        return DataType.UNKNOWN;
     }
 
     /**
      * Creates and returns a sql-expression that compares the current column expression with 
      * a list of values and returns the corresponding alternative value.<BR>
      * 
-     * @param list 
-     * @param otherwise
-     * @return the new DBFuncExpr object
+     * @param valueMap a list of key values pairs used for decoding 
+     * @param otherwise the value to take if no key matches the given expression
+     * @return a DBDecodeExpr object
      */
     @SuppressWarnings("unchecked")
     public DBColumnExpr decode(Map valueMap, Object otherwise)
     {
+        // Detect data type
         DataType dataType = DataType.UNKNOWN;
+        if (otherwise!=null)
+        {
+            dataType = detectDataType(otherwise);
+        }
+        if (dataType==DataType.UNKNOWN)
+        {
+            for (Object v : valueMap.values())
+            {
+                dataType = detectDataType(v);
+                if (dataType!=DataType.UNKNOWN)
+                    break;
+            }
+        }
+        // Create the decode function
         return new DBDecodeExpr(this, valueMap, otherwise, dataType);
     }
 
