@@ -36,7 +36,6 @@ import org.w3c.dom.Element;
  * where the entry value is used as the key for the set and thus must be unique.<BR>
  * <P> 
  */
-@SuppressWarnings("serial")
 public class Options extends AbstractSet<OptionEntry>
 {
     public enum InsertPos
@@ -68,7 +67,7 @@ public class Options extends AbstractSet<OptionEntry>
     {
         // Find an Entry
         if (value instanceof Entry)
-            value = ((Entry) value).getKey();
+            value = ((Entry<?,?>) value).getKey();
         if (value instanceof OptionEntry)
             value = ((OptionEntry) value).getValue();
         // Find it now

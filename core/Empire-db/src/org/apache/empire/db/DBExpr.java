@@ -77,16 +77,16 @@ public abstract class DBExpr extends DBObject
     {
         // it's an Object
         if (value instanceof DBExpr)
-        { // Wert ist Expression
+        { // it's an expression
             StringBuilder buf = new StringBuilder();
             ((DBExpr) value).addSQL(buf, context);
             return buf.toString();
         } 
         else if (value instanceof Collection)
         {
-        	value = ((Collection)value).toArray();
+        	value = ((Collection<?>)value).toArray();
         }
-        // Check wether it is an array
+        // Check whether it is an array
         if (value!=null && value.getClass().isArray())
         {
             StringBuilder buf = new StringBuilder();
@@ -119,6 +119,7 @@ public abstract class DBExpr extends DBObject
      * @param type the data type
      * @return return the java class used for storing values of this dataType 
      */
+    @SuppressWarnings("unchecked")
     public static final Class getValueClass(DataType type)
     {
         switch(type)

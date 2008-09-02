@@ -32,10 +32,12 @@ import org.apache.empire.data.ColumnExpr;
 import org.apache.empire.data.DataType;
 import org.apache.empire.db.expr.column.DBAliasExpr;
 import org.apache.empire.db.expr.column.DBCalcExpr;
+import org.apache.empire.db.expr.column.DBCaseExpr;
 import org.apache.empire.db.expr.column.DBConcatExpr;
 import org.apache.empire.db.expr.column.DBFuncExpr;
 import org.apache.empire.db.expr.column.DBValueExpr;
 import org.apache.empire.db.expr.compare.DBCompareColExpr;
+import org.apache.empire.db.expr.compare.DBCompareExpr;
 import org.w3c.dom.Element;
 
 
@@ -938,7 +940,8 @@ public abstract class DBColumnExpr extends DBExpr
     }
 
     /**
-     * Creates and returns a sql-expression for the replace(...) function.
+     * Creates and returns a sql-expression that compares the current column expression with 
+     * a list of values and returns the corresponding alternative value.<BR>
      * 
      * @param list 
      * @param otherwise
@@ -1017,6 +1020,30 @@ public abstract class DBColumnExpr extends DBExpr
     public final DBColumnExpr decode(Options options)
     {
         return decode(options, null);
+    }
+    
+    /**
+     * Creates and returns a sql-expression for the SQL case-phrase.<BR/>
+     * The result will be in the form:<BR/> 
+     * "case when [compExpr] then [this] else [otherwise] end" 
+     * 
+     * @param compExpr the condition for which the current column expression is returned
+     * @param otherwise the value that is returned if the condition is false
+     * @return a DBCaseExpr representing the SQL case phrase.
+     */
+    public final DBCaseExpr when(DBCompareExpr compExpr, Object otherwise)
+    {
+        DBColumnExpr elseExpr = null;
+        if (otherwise instanceof DBColumnExpr)
+        {   // A column Expression
+            elseExpr = (DBColumnExpr)otherwise; 
+        }
+        else if (otherwise != null)
+        {   // A constant value   
+            elseExpr = new DBValueExpr(getDatabase(), otherwise, getDataType());
+        }
+        // Create DBCaseExpr
+        return new DBCaseExpr(compExpr, this, elseExpr);
     }
 
     // ----------------------------------------------------------

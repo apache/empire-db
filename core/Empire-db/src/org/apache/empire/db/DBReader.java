@@ -846,6 +846,7 @@ public class DBReader extends DBRecordData
     /**
      * copied from org.apache.commons.beanutils.ConstructorUtils since it's private there
      */
+    @SuppressWarnings("unchecked")
     private static Constructor findMatchingAccessibleConstructor(Class clazz, Class[] parameterTypes)
     {
         // See if we can find the method directly

@@ -654,8 +654,8 @@ public class DBRecord extends DBRecordData implements Record, Cloneable
     public final boolean read(DBRowSet table, Object id, Connection conn)
     {
         if (id instanceof Collection)
-        {   // If it's a collectin then convert it to an array
-            return read(table, ((Collection)id).toArray(), conn);
+        {   // If it's a collection then convert it to an array
+            return read(table, ((Collection<?>)id).toArray(), conn);
         }
         // Simple One-Column key
         return read(table, new Object[] { id }, conn);

@@ -215,7 +215,7 @@ public class StringUtils
         // Iterator
         StringBuilder buf = new StringBuilder();
         boolean addSep = false;
-        Iterator i = c.iterator();
+        Iterator<?> i = c.iterator();
         while (i.hasNext())
         {
             if (addSep)
