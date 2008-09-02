@@ -68,7 +68,7 @@ public class DBDatabaseDriverHSql extends DBDatabaseDriver
      */
     public DBDatabaseDriverHSql()
     {
-        // Add "count" to list of reserved Keywords
+        // Add "count" to list of reserved keywords
         reservedSQLKeywords.add("count");
     }
 
