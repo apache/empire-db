@@ -267,10 +267,12 @@ public abstract class DBDatabase extends DBObject
      * 
      * @return the qualified object name
      */
+    @Deprecated
     public String getQualifiedName(String name)
     {
         StringBuilder buf = new StringBuilder();
-        appendQualifiedName(buf, name);
+        boolean quoteName = (driver!=null) ? driver.detectQuoteName(name) : false;
+        appendQualifiedName(buf, name, quoteName);
         return buf.toString();
     }
     
@@ -282,7 +284,7 @@ public abstract class DBDatabase extends DBObject
      * @param buf the string buffer to which to append the qualified object name
      * @param name the object's name
      */
-    public void appendQualifiedName(StringBuilder buf, String name)
+    public void appendQualifiedName(StringBuilder buf, String name, boolean quoteName)
     {
         // Check driver
         if (driver==null)
@@ -298,7 +300,7 @@ public abstract class DBDatabase extends DBObject
             buf.append(".");
         }
         // Append the name
-        driver.appendElementName(buf, name);
+        driver.appendElementName(buf, name, quoteName);
         // Database Link
         if (linkName!=null)
         { // Add Schema

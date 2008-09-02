@@ -165,6 +165,7 @@ public abstract class DBView extends DBRowSet
     private String     name;
     private String     alias;
     private boolean    updateable;  // true if the view is updateable
+    private Boolean    quoteName  = null;
 
     /**
      * Creates a view object for a given view in the database.
@@ -348,19 +349,20 @@ public abstract class DBView extends DBRowSet
     @Override
     public void addSQL(StringBuilder buf, long context)
     {
-        if ((context & CTX_FULLNAME) != 0 && db != null)
-        { // Add Schema
-            db.appendQualifiedName(buf, name);
-        } 
-        else
-        { // Simple Name only
-            buf.append(name);
+        // Append Name
+        if ((context & CTX_NAME|CTX_FULLNAME)!=0)
+        {   // Append the name
+            DBDatabaseDriver driver = getDatabase().getDriver();
+            if (quoteName==null)
+                quoteName = driver.detectQuoteName(name);
+            // append Qualified Name 
+            db.appendQualifiedName(buf, name, quoteName);
         }
-        // Add Alias
-        if ((context & CTX_ALIAS) != 0 && alias != null)
-        { // append alias
-            buf.append(getRenameTablePhrase());
-            buf.append(alias);
+        // Append Alias
+        if ((context & CTX_ALIAS)!=0 && alias!=null)
+        {    // append alias
+             buf.append(getRenameTablePhrase());
+             buf.append(alias);
         }
     }
 
