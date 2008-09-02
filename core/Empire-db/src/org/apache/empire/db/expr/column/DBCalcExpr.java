@@ -147,7 +147,7 @@ public class DBCalcExpr extends DBColumnExpr
         // Zusammenbauen
         expr.addSQL(buf, context);
         buf.append(op);
-        buf.append(getObjectValue(this, value, context, op));
+        buf.append(getObjectValue(getDataType(), value, context, op));
     }
 
     @Override

@@ -139,7 +139,7 @@ public class DBCompareColExpr extends DBCompareExpr
                 break;
         }
         // Value
-        String valsql = getObjectValue(expr, value, context, arraySep);
+        String valsql = getObjectValue(expr.getDataType(), value, context, arraySep);
         if (valsql == null || valsql.equalsIgnoreCase("null"))
         { // Null oder Not Null!
             op = DBCmpType.getNullType(op);
@@ -225,7 +225,7 @@ public class DBCompareColExpr extends DBCompareExpr
         // Value Only ?
         if ((context & CTX_NAME) == 0)
         {
-            String valsql = getObjectValue(expr, value, context, "+");
+            String valsql = getObjectValue(expr.getDataType(), value, context, "+");
             buf.append((valsql != null) ? valsql : "null");
             return;
         }

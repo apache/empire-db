@@ -34,22 +34,34 @@ import org.w3c.dom.Element;
  * This class is used to add the "count" statement to the SQL-Command.
  * <P>
  * There is no need to explicitly create instances of this class.<BR>
- * Instead use {@link DBRowSet#count() }
+ * Instead use {@link DBRowSet#count() or @link DBColumnExpr#count() }
  * <P>
  *
  */
 public class DBCountExpr extends DBColumnExpr
 {
     private final DBRowSet rowset;
-    private final DBColumnExpr expr;
+    private final DBColumnExpr column;
+    private final boolean distinct;
     
     /**
      * Constructs a DBCountExpr.
      */
-    public DBCountExpr(DBRowSet rowset, DBColumnExpr expr)
+    public DBCountExpr(DBRowSet rowset)
     {
         this.rowset = rowset;
-        this.expr = expr;
+        this.column = null;
+        this.distinct = false;
+    }
+    
+    /**
+     * Constructs a DBCountExpr.
+     */
+    public DBCountExpr(DBColumnExpr expr, boolean distinct)
+    {
+        this.rowset = null;
+        this.column = expr;
+        this.distinct = distinct;
     }
 
     /**
@@ -60,6 +72,8 @@ public class DBCountExpr extends DBColumnExpr
     @Override
     public DBDatabase getDatabase()
     {
+        if (column!=null)
+            column.getDatabase();
         return rowset.getDatabase();
     }
 
@@ -113,8 +127,8 @@ public class DBCountExpr extends DBColumnExpr
     @Override
     public void addReferencedColumns(Set<DBColumn> list)
     {
-        if (expr!=null)
-            expr.addReferencedColumns(list);
+        if (column!=null)
+            column.addReferencedColumns(list);
         else
             list.add(rowset.getColumn(0)); // select any column
     }
@@ -126,23 +140,31 @@ public class DBCountExpr extends DBColumnExpr
      * @param context the current SQL-Command context
      */
     @Override
-    public void addSQL(StringBuilder buf, long context)
+    public void addSQL(StringBuilder sql, long context)
     { 
-        buf.append("count(");
-        if (expr!=null)
-            expr.addSQL(buf, context);
+        sql.append("count(");
+        if (column!=null)
+        {   // count(distinct column)
+            if (distinct)
+                sql.append("distinct "); 
+            column.addSQL(sql, context);
+        }
         else
-            buf.append("*");
-        buf.append(")");
+        {   // count(*)
+            sql.append("*");
+        }
+        sql.append(")");
     }
 
-    /** this helper function calls the XMLUtil.addXML(Element, String) method */
+    /** 
+     * this adds the column description to the parent element 
+     */
     @Override
     public Element addXml(Element parent, long flags)
     {   // Add Expression
         Element elem;
-        if (expr!=null)
-        {   elem = expr.addXml(parent, flags);
+        if (column!=null)
+        {   elem = column.addXml(parent, flags);
         }
         else
         {   elem = XMLUtil.addElement(parent, "column");

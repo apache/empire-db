@@ -168,7 +168,6 @@ public class DBDatabaseDriverOracle extends DBDatabaseDriver
             case SQL_FUNC_YEAR:                 return "TO_CHAR(?,'YYYY')";
             // Aggregation
             case SQL_FUNC_SUM:                  return "sum(?)";
-            case SQL_FUNC_COUNT:                return "count(?)";
             case SQL_FUNC_MAX:                  return "max(?)";
             case SQL_FUNC_MIN:                  return "min(?)";
             case SQL_FUNC_AVG:                  return "avg(?)";

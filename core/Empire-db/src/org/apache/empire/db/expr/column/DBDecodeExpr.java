@@ -90,8 +90,8 @@ public class DBDecodeExpr extends DBAbstractFuncExpr
             Object val = valueMap.get(key);
 
             String part = driver.getSQLPhrase(DBDatabaseDriver.SQL_FUNC_DECODE_PART);
-            part = StringUtils.replaceAll(part, "{0}", getObjectValue(expr, key, DBExpr.CTX_DEFAULT, ""));
-            part = StringUtils.replaceAll(part, "{1}", getObjectValue(expr, val, DBExpr.CTX_DEFAULT, ""));
+            part = StringUtils.replaceAll(part, "{0}", getObjectValue(expr.getDataType(), key, DBExpr.CTX_DEFAULT, ""));
+            part = StringUtils.replaceAll(part, "{1}", getObjectValue(this.getDataType(), val, DBExpr.CTX_DEFAULT, ""));
 
             inner.append(driver.getSQLPhrase(DBDatabaseDriver.SQL_FUNC_DECODE_SEP));
             inner.append(part);
@@ -100,7 +100,7 @@ public class DBDecodeExpr extends DBAbstractFuncExpr
         if (elseExpr != null)
         { // Else
             String other = driver.getSQLPhrase(DBDatabaseDriver.SQL_FUNC_DECODE_ELSE);
-            other = StringUtils.replaceAll(other, "{0}", getObjectValue(expr, elseExpr, DBExpr.CTX_DEFAULT, ""));
+            other = StringUtils.replaceAll(other, "{0}", getObjectValue(getDataType(), elseExpr, DBExpr.CTX_DEFAULT, ""));
 
             inner.append(driver.getSQLPhrase(DBDatabaseDriver.SQL_FUNC_DECODE_SEP));
             inner.append(other);

@@ -161,14 +161,14 @@ public class DBConcatExpr extends DBColumnExpr
         {   // Complex Pattern with placeholder ? for this expression and {0} for the value
             buf.append(template.substring(0, sep));
             left.addSQL(buf, context);
-            String value = getObjectValue(this, right, context, ", ");
+            String value = getObjectValue(getDataType(), right, context, ", ");
             buf.append(MessageFormat.format(template.substring(sep + 1), value));
         } 
         else
         {   // Simple Pattern without placeholders
             left.addSQL(buf, context);
             buf.append(template);
-            buf.append(getObjectValue(this, right, context, template));
+            buf.append(getObjectValue(getDataType(), right, context, template));
         }
         
     }
