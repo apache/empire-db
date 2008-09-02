@@ -68,7 +68,8 @@ public class DBDatabaseDriverHSql extends DBDatabaseDriver
      */
     public DBDatabaseDriverHSql()
     {
-        // Default Constructor
+        // Add "count" to list of reserved Keywords
+        reservedSQLKeywords.add("count");
     }
 
     /**
@@ -692,17 +693,6 @@ public class DBDatabaseDriverHSql extends DBDatabaseDriver
         cmd.addSQL( sql, DBExpr.CTX_DEFAULT);
         // done
         return script.addStmt(sql.toString());
-    }
-    
-    /**
-     * Checks wether a table or column name needs to be quoted or not<BR/>
-     * By default names containing a "-", "+" or " " require quoting.<BR/>
-     * Overrides this function to add database specific keywords like "user" or "count"  
-     */
-    @Override
-    protected boolean quoteElementName(String name)
-    {
-        return (name.toUpperCase().equals("COUNT") || super.quoteElementName(name));
     }
 
     /**
