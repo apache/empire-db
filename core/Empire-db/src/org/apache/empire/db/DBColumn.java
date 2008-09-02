@@ -125,7 +125,7 @@ public abstract class DBColumn extends DBColumnExpr
             buf.append(".");
         }
         // Append the name
-        DBDatabaseDriver driver = getDatabaseDriver();
+        DBDatabaseDriver driver = getDatabase().getDriver();
         driver.appendElementName(buf, name);
     }
 

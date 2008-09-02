@@ -19,14 +19,9 @@
 package org.apache.empire.db.expr.column;
 
 // Java
-import java.util.Set;
-
 import org.apache.empire.data.DataType;
 import org.apache.empire.db.DBColumn;
 import org.apache.empire.db.DBColumnExpr;
-import org.apache.empire.db.DBDatabase;
-import org.apache.empire.xml.XMLUtil;
-import org.w3c.dom.Element;
 
 
 /**
@@ -41,164 +36,77 @@ import org.w3c.dom.Element;
  * <P>
  *
  */
-public class DBFuncExpr extends DBColumnExpr
+public class DBFuncExpr extends DBAbstractFuncExpr
 {
-    protected final DBColumnExpr expr;
-    protected final DBColumn     updateColumn; // optional
-
-    protected final String       prefix;
-    protected final String       postfix;
-    protected final boolean      isAggregate;
-    protected final DataType     dataType;
+    protected final int          phrase;
+    protected final Object[]     params;
+    protected String             template;
 
     /**
      * Constructs a new DBFuncExpr object set the specified parameters to this object.
      * Do not use directly - use any of the DBColumnExpr.??? factory functions instead!
      * 
      * The sql function string is built from a string template.
-     * The template string must contain a ? which is a placeholder for the column expression.
+     * The template string is identified by the phrase param and obtained from the driver. 
      * 
      * @param expr the DBColumnExpr object
-     * @param template specifies a template for the expression. The template must contain a ? placeholder for the column expression
+     * @param phrase the SQL-phrase
+     * @param params an array of params which will be replaced in the template
      * @param updateColumn optional update column if any. This parameter may be null
      * @param isAggregate indicates whether the function is an aggregate function (sum, min, max, avg, ...)
      * @param dataType indicates the data type of the function result 
      */
-    public DBFuncExpr(DBColumnExpr expr, String template, DBColumn updateColumn, boolean isAggregate, DataType dataType)
+    public DBFuncExpr(DBColumnExpr expr, int phrase, Object[] params, DBColumn updateColumn, boolean isAggregate, DataType dataType)
     {
-        this.expr = expr;
-        this.dataType = dataType;
-        this.isAggregate = isAggregate;
-        this.updateColumn = updateColumn;
-
-        int sep = template.indexOf("?");
-        if (sep >= 0)
-        {
-            prefix = template.substring(0, sep);
-            postfix = template.substring(sep + 1);
-        } 
-        else
-        {
-            prefix = template;
-            postfix = "";
-        }
+        super(expr, updateColumn, isAggregate, dataType);
+        // Set Phrase and Params
+        this.phrase = phrase;
+        this.params = params;
+        this.template = null;
     }
 
     /**
      * Constructs a new DBFuncExpr object set the specified parameters to this object.
-     * Do not use directly - use any of the DBColumnExpr.??? factory functions instead!
      * 
-     * The function sql string is built from a template string.
+     * The sql function string is built from a string template.
      * The template string must contain a ? which is a placeholder for the column expression.
      * 
      * @param expr the DBColumnExpr object
      * @param template specifies a template for the expression. The template must contain a ? placeholder for the column expression
+     * @param params an array of params which will be replaced in the template
      * @param updateColumn optional update column if any. This parameter may be null
      * @param isAggregate indicates whether the function is an aggregate function (sum, min, max, avg, ...)
+     * @param dataType indicates the data type of the function result 
      */
-    public DBFuncExpr(DBColumnExpr expr, String template, DBColumn updateColumn, boolean isAggregate)
+    public DBFuncExpr(DBColumnExpr expr, String template, Object[] params, DBColumn updateColumn, boolean isAggregate, DataType dataType)
     {
-        this(expr, template, updateColumn, isAggregate, expr.getDataType());
-    }
-
-    /**
-     * Returns the current DBDatabase object.
-     * 
-     * @return the current DBDatabase object
-     */
-    @Override
-    public DBDatabase getDatabase()
-    {
-        return expr.getDatabase();
-    }
-
-    /**
-     * Returns the data type of the DBColumnExpr object.
-     * 
-     * @return the data type
-     */
-    @Override
-    public DataType getDataType()
-    {
-        return this.dataType;
-    }
-
-    /**
-     * Returns the column name.
-     * 
-     * @return the column name
-     */
-    @Override
-    public String getName()
-    {
-        return expr.getName();
-    }
-
-    @Override
-    public Element addXml(Element parent, long flags)
-    {
-        Element elem;
-        if (updateColumn!=null)
-        {   // Update Column
-            elem = updateColumn.addXml(parent, flags);
-        }
-        else
-        {   // Add a column expression for this function
-            elem = XMLUtil.addElement(parent, "column");
-            elem.setAttribute("name", getName());
-            // Add Other Attributes
-            if (attributes!=null)
-                attributes.addXml(elem, flags);
-            // add All Options
-            if (options!=null)
-                options.addXml(elem, flags);
-        }
-        // Done
-        elem.setAttribute("function", getFunctionName());
-        return elem;
+        super(expr, updateColumn, isAggregate, dataType);
+        // Set Phrase and Params
+        this.phrase = 0;
+        this.params = params;
+        this.template = template;
     }
     
-    private String getFunctionName()
-    {
-        String s = prefix.trim();
-        int i=0;
-        for (; i<s.length(); i++)
-            if (s.charAt(i)<'A')
-                break;
-        // return name 
-        return (i>0) ? s.substring(0,i) : postfix.trim();
-    }
-
-    /**
-     * Returns the DBColunm object.
-     * 
-     * @return the DBColunm object
-     */
     @Override
-    public DBColumn getUpdateColumn()
+    protected String getFunctionName()
     {
-        return updateColumn;
-    }
-
-    /**
-     * Returns whether the function is an aggegation function<br>
-     * that combines multiple rows to one result row.
-     * 
-     * @return true if the function is an aggregate or false otherwise
-     */
-    @Override
-    public boolean isAggregate()
-    {
-        return isAggregate || expr.isAggregate();
-    }
-
-    /**
-     * @see org.apache.empire.db.DBExpr#addReferencedColumns(Set)
-     */
-    @Override
-    public void addReferencedColumns(Set<DBColumn> list)
-    {
-        expr.addReferencedColumns(list);
+        // Get the template
+        if (template==null && getDatabaseDriver()!=null)
+            template = getDatabaseDriver().getSQLPhrase(phrase);
+        // Get the first word
+        if (template!=null)
+        {
+            String s = template.trim();
+            int i=0;
+            for (; i<s.length(); i++)
+                if (s.charAt(i)<'A')
+                    break;
+            // return name 
+            if (i>0)
+                return s.substring(0,i);
+        }
+        // default
+        return "func_" + String.valueOf(phrase);
     }
 
     /**
@@ -208,10 +116,13 @@ public class DBFuncExpr extends DBColumnExpr
      * @param context the current SQL-Command context
      */
     @Override
-    public void addSQL(StringBuilder buf, long context)
-    { // Expression
-        buf.append(prefix);
-        expr.addSQL(buf, context & ~CTX_ALIAS );
-        buf.append(postfix);
+    public void addSQL(StringBuilder sql, long context)
+    {
+        // Get the template
+        if (template==null)
+            template = getDatabaseDriver().getSQLPhrase(phrase);
+        // Add SQL
+        super.addSQL(sql, template, params, context);
     }
+    
 }
