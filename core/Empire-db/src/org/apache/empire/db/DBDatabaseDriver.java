@@ -106,7 +106,7 @@ public abstract class DBDatabaseDriver extends ErrorObject
     // Flag whether or not to set column defaults when crating DDL statements
     protected boolean ddlColumnDefaults = false;
 
-    // Illegal Name Chars and Reserved SQL Keywords
+    // Illegal name chars and reserved SQL keywords
     private static final char[]   illegalNameChars   = new char[] { '@', '?', '>', '=', '<', ';', ':', 
                                                                     '/', '.', '-', ',', '+', '*', ')', '(',
                                                                     '\'', '&', '%', '!'
