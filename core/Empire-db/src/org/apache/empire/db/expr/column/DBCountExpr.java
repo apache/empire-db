@@ -73,8 +73,9 @@ public class DBCountExpr extends DBColumnExpr
     public DBDatabase getDatabase()
     {
         if (column!=null)
-            column.getDatabase();
-        return rowset.getDatabase();
+            return column.getDatabase();
+        else
+            return rowset.getDatabase();
     }
 
     /**
