@@ -309,6 +309,12 @@
 	  <type>org.apache.empire.data.Record</type>
     </attribute>
     <attribute>
+      <name>recordProperty</name>
+      <required>false</required>
+	  <rtexprvalue>true</rtexprvalue>
+	  <type>java.lang.String</type>
+    </attribute>
+    <attribute>
       <name>property</name>
       <required>false</required>
 	  <rtexprvalue>true</rtexprvalue>
