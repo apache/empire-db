@@ -205,103 +205,108 @@ public class InputControlTag extends EmpireValueTagSupport // AbstractUITag
 
     // ********* All Setters *********
 
-    public void setColumn(Column column)
+    public final void setColumn(Column column)
     {
         this.column = column;
         super.setColumn(column);
     }
 
-    public void setOptions(Options options)
+    public final void setRecordProperty(String property)
+    {
+        super.setParentProperty(property);
+    }
+
+    public final void setOptions(Options options)
     {
         this.options = options;
     }
 
-    public void setRender(String render)
+    public final void setRender(String render)
     {
         this.render = render;
     }
 
-    public void setDisabledMode(String disabledMode)
+    public final void setDisabledMode(String disabledMode)
     {
         this.disabledMode = disabledMode;
     }
 
-    public void setFormat(String format)
+    public final void setFormat(String format)
     {
         this.format = format;
     }
 
-    public void setDisabled(Object disabled)
+    public final void setDisabled(Object disabled)
     {
         this.disabled = disabled;
     }
 
-    public void setLabel(String label)
+    public final void setLabel(String label)
     {
         this.label = label;
     }
 
-    public void setLabelClass(String labelClass)
+    public final void setLabelClass(String labelClass)
     {
         this.labelClass = labelClass;
     }
 
-    public void setLabelStyle(String labelStyle)
+    public final void setLabelStyle(String labelStyle)
     {
         this.labelStyle = labelStyle;
     }
 
-    public void setName(String name)
+    public final void setName(String name)
     {
         this.name = name;
     }
 
-    public void setRequired(Object required)
+    public final void setRequired(Object required)
     {
         this.required = required;
     }
 
-    public void setTabindex(String tabindex)
+    public final void setTabindex(String tabindex)
     {
         this.tabindex = tabindex;
     }
 
-    public void setHsize(Object hsize)
+    public final void setHsize(Object hsize)
     {
         this.hsize = hsize;
     }
 
-    public void setVsize(Object vsize)
+    public final void setVsize(Object vsize)
     {
         this.vsize = vsize;
     }
 
-    public void setNullValue(Object nullValue)
+    public final void setNullValue(Object nullValue)
     {
         this.nullValue = nullValue;
     }
 
-    public void setOnclick(String onclick)
+    public final void setOnclick(String onclick)
     {
         this.onclick = onclick;
     }
 
-    public void setControlType(String controlType)
+    public final void setControlType(String controlType)
     {
         this.controlType = controlType;
     }
 
-    public void setOnblur(String onblur)
+    public final void setOnblur(String onblur)
     {
         this.onblur = onblur;
     }
 
-    public void setOnchange(String onchange)
+    public final void setOnchange(String onchange)
     {
         this.onchange = onchange;
     }
 
-    public void setOnfocus(String onfocus)
+    public final void setOnfocus(String onfocus)
     {
         this.onfocus = onfocus;
     }

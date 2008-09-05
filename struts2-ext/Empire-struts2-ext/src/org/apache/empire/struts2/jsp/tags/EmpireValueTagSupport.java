@@ -332,6 +332,11 @@ public abstract class EmpireValueTagSupport extends EmpireTagSupport
         this.property = StringUtils.validate(property);
     }
 
+    public final void setParentProperty(String property)
+    {
+        this.parentProperty = StringUtils.validate(property);
+    }
+
     public final void setRecord(RecordData record)
     {
         this.record = record;
