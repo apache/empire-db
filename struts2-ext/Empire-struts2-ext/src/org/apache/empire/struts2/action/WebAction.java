@@ -167,6 +167,10 @@ public abstract class WebAction extends ActionBase
     {
         actionError = null;
         fieldErrors = null;
+        // Remove from Session
+        ActionContext context = ActionContext.getContext();
+        if (context!=null)
+            context.getSession().remove(LAST_ACTION_ERROR_ATTRIBUTE);
     }
 
     /*
