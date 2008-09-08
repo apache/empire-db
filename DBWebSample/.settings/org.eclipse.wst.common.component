@@ -24,28 +24,28 @@
 <dependent-module deploy-path="/WEB-INF/lib" handle="module:/classpath/lib/Struts2.0.8/lib/ognl-2.6.11.jar">
 <dependency-type>uses</dependency-type>
 </dependent-module>
-<dependent-module deploy-path="/WEB-INF/lib" handle="module:/classpath/lib/Struts2.0.8/lib/struts2-codebehind-plugin-2.0.8.jar">
+<dependent-module deploy-path="/WEB-INF/lib" handle="module:/classpath/lib/Struts2.0.8/lib/struts2-codebehind-plugin-2.0.11.2.jar">
 <dependency-type>uses</dependency-type>
 </dependent-module>
-<dependent-module deploy-path="/WEB-INF/lib" handle="module:/classpath/lib/Struts2.0.8/lib/struts2-core-2.0.8.jar">
+<dependent-module deploy-path="/WEB-INF/lib" handle="module:/classpath/lib/Struts2.0.8/lib/struts2-core-2.0.11.2.jar">
 <dependency-type>uses</dependency-type>
 </dependent-module>
-<dependent-module deploy-path="/WEB-INF/lib" handle="module:/classpath/lib/Struts2.0.8/lib/struts2-sitemesh-plugin-2.0.8.jar">
+<dependent-module deploy-path="/WEB-INF/lib" handle="module:/classpath/lib/Struts2.0.8/lib/struts2-sitemesh-plugin-2.0.11.2.jar">
 <dependency-type>uses</dependency-type>
 </dependent-module>
-<dependent-module deploy-path="/WEB-INF/lib" handle="module:/classpath/lib/Struts2.0.8/lib/struts2-tiles-plugin-2.0.8.jar">
+<dependent-module deploy-path="/WEB-INF/lib" handle="module:/classpath/lib/Struts2.0.8/lib/struts2-tiles-plugin-2.0.11.2.jar">
 <dependency-type>uses</dependency-type>
 </dependent-module>
-<dependent-module deploy-path="/WEB-INF/lib" handle="module:/classpath/lib/Struts2.0.8/lib/tiles-api-2.0.3.jar">
+<dependent-module deploy-path="/WEB-INF/lib" handle="module:/classpath/lib/Struts2.0.8/lib/tiles-api-2.0.4.jar">
 <dependency-type>uses</dependency-type>
 </dependent-module>
-<dependent-module deploy-path="/WEB-INF/lib" handle="module:/classpath/lib/Struts2.0.8/lib/tiles-core-2.0.3.jar">
+<dependent-module deploy-path="/WEB-INF/lib" handle="module:/classpath/lib/Struts2.0.8/lib/tiles-core-2.0.4.jar">
 <dependency-type>uses</dependency-type>
 </dependent-module>
-<dependent-module deploy-path="/WEB-INF/lib" handle="module:/classpath/lib/Struts2.0.8/lib/tiles-jsp-2.0.3.jar">
+<dependent-module deploy-path="/WEB-INF/lib" handle="module:/classpath/lib/Struts2.0.8/lib/tiles-jsp-2.0.4.jar">
 <dependency-type>uses</dependency-type>
 </dependent-module>
-<dependent-module deploy-path="/WEB-INF/lib" handle="module:/classpath/lib/Struts2.0.8/lib/xwork-2.0.3.jar">
+<dependent-module deploy-path="/WEB-INF/lib" handle="module:/classpath/lib/Struts2.0.8/lib/xwork-2.0.5.jar">
 <dependency-type>uses</dependency-type>
 </dependent-module>
 <dependent-module deploy-path="/WEB-INF/lib" handle="module:/resource/Empire-db/Empire-db">
