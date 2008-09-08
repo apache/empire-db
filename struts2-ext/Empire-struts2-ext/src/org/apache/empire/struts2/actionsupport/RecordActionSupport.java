@@ -46,7 +46,7 @@ import org.apache.empire.struts2.web.WebErrors;
  * This class provides functions for form data processing for a given Table or View (DBRowSet).<br>   
  * The record object provided with the constructor will be used to obtain further context specific metadata
  * such as field options (getFieldOptions) and field accessibility (isFieldReadOnly).<br>
- * The record object should intitially be invalid and not attached to any Table or View (DBRowSet).
+ * The record object should initially be invalid and not attached to any Table or View (DBRowSet).
  * </p>
  * @author Rainer
  */
@@ -146,6 +146,11 @@ public class RecordActionSupport extends RecordFormActionSupport
     
     // ------- Methods -------
     
+    /**
+     * creates a new record.<BR/>
+     * Depending on the persistence setting the record key or the record data will be stored on the session.
+     * @return true if the record was successfully created or false otherwise
+     */
     public boolean createRecord()
     {
         // initNew
@@ -156,6 +161,11 @@ public class RecordActionSupport extends RecordFormActionSupport
         return success();
     }
     
+    /**
+     * sets all required foreign keys for this record.<BR/>
+     * The foreign key values must be supplied with the request.
+     * @return true if all required foreign keys have been successfully set, or false otherwise
+     */
     public boolean initReferenceColumns()
     {
         // set Reference Values (if provided)
@@ -182,6 +192,10 @@ public class RecordActionSupport extends RecordFormActionSupport
         return (hasError()==false);
     }
     
+    /**
+     * loads the record identified by the supplied key from the database<BR/>
+     * @return true if the record has been successfully reloaded or false otherwise
+     */
     public boolean loadRecord(Object[] recKey)
     {
         // Check Key
@@ -199,24 +213,62 @@ public class RecordActionSupport extends RecordFormActionSupport
         return success();
     }
     
-    public final boolean loadRecord()
+    /**
+     * loads the record either from the supplied item key on the request or from the session.<BR/>
+     * @return true if the record has been successfully reloaded or false otherwise
+     */
+    public boolean loadRecord()
     {   // Load 
         Object[] key = getActionParamKey();
         if (key==null && (persistence==SessionPersistence.Data))
-        {
-            Record rec = getRecordFromSession();
-            if (rec!=null && (rec instanceof DBRecord))
-            {   // Record restored
-                this.record = (DBRecord)rec;
-                return true;
-            }
-            // Record not found
-            return error(Errors.ItemNotFound, rowset.getName());
+        {   // reload session record
+            return reloadRecord();
         }
         // Load Record
         return loadRecord(key);
     }
-
+    
+    /**
+     * reloads the current record from the session.<BR/>
+     * If persistence is set to Key then the key is obtained from the session and the record 
+     * is reloaded from the database. 
+     * @return true if the record has been successfully reloaded or false otherwise
+     */
+    public boolean reloadRecord()
+    {   // Load 
+        switch(persistence)
+        {
+            // Key persistence
+            case Key:
+            {   // Load from session key
+                String stKey = StringUtils.toString(action.getActionObject(getRecordPropertyName()));
+                Object[] key = action.getRecordKeyFromString(stKey);
+                return loadRecord(key);
+            }
+            // Data persistence
+            case Data:
+            {   // get record object from session
+                Record rec = getRecordFromSession();
+                if (rec!=null && (rec instanceof DBRecord))
+                {   // Record restored
+                    this.record = (DBRecord)rec;
+                    return success();
+                }
+                // Record not found
+                return error(Errors.ItemNotFound, rowset.getName());
+            }
+            // Other
+            default:
+                return error(Errors.NotSupported, "");
+        }
+    }
+    
+    /**
+     * deletes the record identified by the supplied key from the database.
+     * @param recKey the record key
+     * @param newRec flag indicating whether it is a new unsaved record.
+     * @return true if the record has been successfully deleted
+     */
     public boolean deleteRecord(Object[] recKey, boolean newRec)
     {
         // Check Key
@@ -225,13 +277,13 @@ public class RecordActionSupport extends RecordFormActionSupport
             return error(DBErrors.RecordInvalidKey, recKey);
         }
         if (newRec)
-        { // Record has not been saved yet!
+        { 	// Record has not been saved yet!
             record.close();
             return success();
         }
         // Delete Record
         if (loadBeforeDelete)
-        {   // Record laden und löschen
+        {   // load record and delete afterwards
             if (record.read(rowset, recKey, action.getConnection()) == false ||
                 record.delete(action.getConnection()) == false)
             {   // error
@@ -239,14 +291,18 @@ public class RecordActionSupport extends RecordFormActionSupport
             }
         }
         else if (rowset.deleteRecord(recKey, action.getConnection()) == false)
-        {   // Rowset error
+        {   // rowset error
             return error(rowset);
         }
-        // Erfolg
+        // Success
         removeFromSession();
         return success();
     }
 
+    /**
+     * deletes the current record database.
+     * @return true if the record has been successfully deleted
+     */
     public final boolean deleteRecord()
     {
         // Get Record Key
@@ -308,7 +364,7 @@ public class RecordActionSupport extends RecordFormActionSupport
     public boolean saveChanges()
     {
         // Record is not valid
-        if (record.isValid() == false)
+        if (record.isValid()==false)
         {   
             log.error("Cannot save changes: record ist not valid");
             return error(Errors.ObjectNotValid, record.getClass().getName());
@@ -356,7 +412,7 @@ public class RecordActionSupport extends RecordFormActionSupport
             return null;
         List<DBIndex> changed = null;
         for (DBIndex idx : avail)
-        {   // Iterate throgh all indexes
+        {   // Iterate through all indexes
             DBColumn[] idxColumns = idx.getColumns();
             for (int i=0; i<idxColumns.length; i++)
             {   // Check if column has changed
@@ -378,14 +434,14 @@ public class RecordActionSupport extends RecordFormActionSupport
         List<DBIndex> changed = findChangedIndexes();
         if (changed==null)
             return null; // No Conflicts
-        // Iterate throgh all changed indexes
+        // Iterate through all changed indexes
         DBColumn[] keyColumns = rowset.getKeyColumns();
         for (DBIndex idx : changed)
         {
             // Select all key columns
             DBCommand cmd = rowset.getDatabase().createCommand();
             cmd.select(keyColumns);
-            // add contraints
+            // add constraints
             boolean allNull = true;
             DBColumn[] idxColumns = idx.getColumns();
             for (int i=0; i<idxColumns.length; i++)
@@ -395,7 +451,7 @@ public class RecordActionSupport extends RecordFormActionSupport
                 if (value!=null)
                     allNull = false;
             }
-            // Check wether all contraints are null
+            // Check whether all constraints are null
             if (allNull)
                 continue; 
             // Exclude current record
@@ -495,7 +551,7 @@ public class RecordActionSupport extends RecordFormActionSupport
             return error(DBErrors.NoPrimaryKey, rowset.getName());
         if (keyValues == null || keyValues.length != keyColumns.length)
             return error(DBErrors.RecordInvalidKey, keyValues, "keyValues");
-        // Get Persistant record
+        // Get Persistent record
         if (persistence==SessionPersistence.Data)
         {   // Get the record from the session
             Record rec = getRecordFromSession();
