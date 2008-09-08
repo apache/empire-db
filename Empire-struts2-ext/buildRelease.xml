@@ -23,7 +23,7 @@
     <import file="../Empire-db/buildRelease.xml" />
 	<description>Builds EmpireStruts2Ext download folder</description>
 	<!-- set properties for this build -->
-	<property name="empire.struts2.ext.version" value="1.0.3" />
+	<property name="empire.struts2.ext.version" value="1.0.4" />
 	<property name="empire.struts2.ext.deploy.jar.name" value="empire-struts2-ext-${empire.struts2.ext.version}"/>
 	<property name="empire.struts2.ext.deploy.name" value="apache-empire-struts2-ext-${empire.struts2.ext.version}-incubating"/>
 	
@@ -117,9 +117,7 @@
 			    <attribute name="Implementation-Version" value="${empire.struts2.ext.version}"/> 
 			  </manifest>			
 			<fileset dir="${empire.struts2.ext.out.dir}" />
-			<fileset dir="${empire.struts2.ext.src.dir}" >
-				<exclude name="build.xml"/>
-			</fileset>			
+			<fileset dir="${empire.struts2.ext.src.dir}" />
 		</jar>
 	</target>
 	
@@ -159,11 +157,9 @@
 	 	<replace file="${empire.struts2.ext.examples.deploy.dir}/DBWebSample/.tomcatplugin" token="@empire.db.deploy.jar.name@" value="${empire.db.deploy.jar.name}" />
 	 	
 	 	<copy todir="${empire.struts2.ext.examples.deploy.dir}/DBWebSample/WebRoot/WEB-INF/lib">
-			<fileset dir="${empire.struts2.ext.this.deploy.dir}/">
-				<include name="*.jar"/>
-			</fileset>
-			<fileset dir="${empire.struts2.ext.this.deploy.dir}/lib">
-				<include name="*.jar"/>
+			<fileset dir="./dist">
+				<include name="copy_lib.bat"/>
+				<include name="copy_lib.sh"/>
 			</fileset>
 			<fileset dir="../JDBCDrivers/lib/">
 				<include name="hsqldb-1.8.0.10.jar"/>
@@ -185,7 +181,7 @@
 	  	<copy todir="${empire.struts2.ext.out.metaInf.dir}">
 	  		<fileset dir=".">	  			
 	  			<include name="NOTICE.txt" />
-	  			<include name="LICENSE.txt" />
+	  			<include name="dist/LICENSE.txt" />
 	  		</fileset>
 	  	</copy>
 	  </target>
@@ -198,9 +194,11 @@
 	  	<copy todir="${empire.struts2.ext.this.deploy.dir}">
 	  		<fileset dir=".">
 	  			<include name="NOTICE.txt" />
-	  			<include name="LICENSE*.txt" />
 	  			<include name="README.txt" />
 	  			<include name="CHANGELOG.txt" />
+	  		</fileset>
+	  		<fileset dir="./dist">
+	  			<include name="LICENSE*.txt" />
 	  			<include name="build.xml" />
 	  		</fileset>
 	  	</copy>
@@ -229,7 +227,10 @@
 			<fileset dir="${empire.struts2.ext.deploy.dir}/${empire.db.deploy.name}/" includes="*.jar"/>
 			<fileset dir="${empire.db.lib.deploy.dir}" includes="*.jar"/>
 			<fileset dir="${empire.struts2.ext.struts.lib.dir}" includes="*.jar" />
-			<fileset dir="${empire.struts2.ext.servletapi.lib.dir}" includes="*.jar" />
+			<!-- fileset dir="${empire.struts2.ext.servletapi.lib.dir}" includes="*.jar" / -->
+			<fileset dir="./dist">
+				<filename name="libinfo.txt"/>
+			</fileset>
 		</copy>
 
 	</target>

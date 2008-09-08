@@ -23,9 +23,9 @@
 	<description>Builds the jar</description>
 	<!-- set properties for this build -->
 
-	<property name="src.dir" location="."/>
-	<property name="lib.dir" location="../lib"/>
-	<property name="deploy.dir" location=".."/>
+	<property name="src.dir" location="./src"/>
+	<property name="lib.dir" location="./lib"/>
+	<property name="deploy.dir" location="."/>
 	<property name="out.dir" location="${deploy.dir}/out"/>
 	<property name="jar.file" location="${deploy.dir}/empire-struts2-ext.jar"/>
 
@@ -63,7 +63,7 @@
 	    		<pathelement location="${servletapi.lib.dir}/servlet-api.jar"/>
 	    		<pathelement location="${servletapi.lib.dir}/jsp-api.jar"/>
 
-	    		<pathelement location="${empiredb.lib.dir}/empire-db-2.0.3.jar"/>	
+	    		<pathelement location="${empiredb.lib.dir}/empire-db-2.0.4.jar"/>	
 	    		
 	    		<pathelement location="${empiredb.lib.dir}/commons-beanutils-1.7.0.jar"/>
 	    		<pathelement location="${empiredb.lib.dir}/commons-collections-3.2.1.jar"/>
