@@ -28,7 +28,6 @@ import org.apache.empire.db.DBColumn;
 import org.apache.empire.db.DBColumnExpr;
 import org.apache.empire.db.DBDatabaseDriver;
 import org.apache.empire.db.DBExpr;
-import org.apache.empire.db.expr.compare.DBCompareExpr;
 
 /**
  * This class is used to decode a set of keys to the corresponding target values.
