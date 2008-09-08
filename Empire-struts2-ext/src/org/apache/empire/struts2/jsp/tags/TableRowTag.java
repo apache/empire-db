@@ -51,7 +51,7 @@ public class TableRowTag extends EmpireTagSupport
     // Common UI
     protected String cssOddClass;
     protected String cssOddStyle;
-    // Overridable column defaults
+    // Overrideable column defaults
     protected ColumnExpr currentColumn;
     protected String currentClass;
     protected String columnClass;
@@ -59,7 +59,7 @@ public class TableRowTag extends EmpireTagSupport
     protected String columnAlign;
     protected String columnWrap;
 
-    // Temporäry Information 
+    // Temporary Information 
     private Object oldRowInfo;
     
     /*

@@ -62,13 +62,13 @@ public class TableHeadRowTag extends EmpireTagSupport
     protected String sortColumnParam;
     protected String sortOrderParam;
     protected String currentClass;
-    // Overridable column defaults
+    // Overrideable column defaults
     protected String columnClass;
     protected String columnStyle;
     protected String columnAlign;
     protected String columnWrap;
 
-    // Temporäry Information 
+    // Temporary Information 
     private Object oldHeadRowInfo;
     
     /*
@@ -105,7 +105,6 @@ public class TableHeadRowTag extends EmpireTagSupport
         log.error("Illegal Method call");
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public int doStartTag() throws JspException
     {
@@ -145,7 +144,6 @@ public class TableHeadRowTag extends EmpireTagSupport
         return EVAL_BODY_INCLUDE;
     }
     
-    @SuppressWarnings("unchecked")
     @Override
     public int doEndTag() throws JspException
     {

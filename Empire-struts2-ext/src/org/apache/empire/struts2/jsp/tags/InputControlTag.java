@@ -131,7 +131,7 @@ public class InputControlTag extends EmpireValueTagSupport // AbstractUITag
         comp.setLabelClass( this.labelClass );
         comp.setLabelStyle( this.labelStyle );
         comp.setRequired( isRequired() ? "true" : "false" );
-        comp.setReadOnly( isReadOnly() ); // berücksichtigt disabled!
+        comp.setReadOnly( isReadOnly() );
         comp.setRenderType(render);
         comp.setDisabledMode(disabledMode);
 

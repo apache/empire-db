@@ -149,9 +149,9 @@ public class PhoneInputControl extends InputControl
         {
             // Landeskennzahl
             lkz = lkz.trim();
-            // replace all '-' with '§'
+            // replace dashes
             if (lkz.indexOf('-') >= 0)
-                lkz = lkz.replace('-', '§');
+                lkz = lkz.replace('-', '$');
             // replace leading '00' with '+'
             if (lkz.startsWith("00"))
             {
@@ -172,9 +172,9 @@ public class PhoneInputControl extends InputControl
         if (okz != null && okz.length() > 0)
         {
             okz = okz.trim();
-            // replace all '-' with '§'
+            // replace all '-' with '$'
             if (okz.indexOf('-') >= 0)
-                okz = okz.replace('-', '§');
+                okz = okz.replace('-', '$');
             // append okz
             buf.append(okz);
         }
