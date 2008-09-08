@@ -4,14 +4,17 @@ Copyright 2008 The Apache Software Foundation
 --------------
 Release 2.0.4:
 --------------
-EMPIREDB-6:	Support for quoting of table, view and column names added.
+EMPIREDB-9	Move build.xml from src directory to root directory. Change distribution scripts to meet apache incubator requirements.  
+EMPIREDB-8	Restrict access to DatabaseDriver object for all subclasses of DBColumnExpr to the addSQL function.  
+EMPIREDB-7	Add support for CASE WHEN expression with new class DBCaseExpr.java  
+EMPIREDB-6	Support for quoting of table, view and column names added.
 
 --------------
 Release 2.0.3:
 --------------
-EMPIREDB-5: Added missing ASF headers. See JIRA for further information.
-EMPIREDB-4: Fixed several DBDatabaseDriverHSql bugs. See JIRA for further information.
-EMPIREDB-3: Added "useQuotes" property to DBColumn.
+EMPIREDB-5	Added missing ASF headers. See JIRA for further information.
+EMPIREDB-4	Fixed several DBDatabaseDriverHSql bugs. See JIRA for further information.
+EMPIREDB-3	Added "useQuotes" property to DBColumn.
 PRE-114:	All package names changed to org.apache.empire.
 
 --------------

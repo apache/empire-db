@@ -22,7 +22,7 @@
 <project name="buildEmpireDb" default="build" basedir=".">
 	<description>Builds the download folder</description>
 	<!-- set properties for this build -->
-	<property name="empire.db.version" value="2.0.3" />
+	<property name="empire.db.version" value="2.0.4" />
 	
 	<property name="empire.db.deploy.jar.name" value="empire-db-${empire.db.version}" />
 	<property name="empire.db.deploy.name" value="apache-empire-db-${empire.db.version}-incubating" />
@@ -194,9 +194,12 @@
 	  	<copy todir="${empire.db.this.deploy.dir}">
 	  		<fileset dir=".">	  			
 	  			<include name="NOTICE.txt" />
-	  			<include name="LICENSE*.txt" />
 	  			<include name="CHANGELOG.txt" />
 	  			<include name="README.txt" />
+	  		</fileset>
+	  		<fileset dir="./dist">	  			
+	  			<include name="LICENSE*.txt" />
+	  			<include name="build.xml" />
 	  		</fileset>
 	  	</copy>
 	  </target>
