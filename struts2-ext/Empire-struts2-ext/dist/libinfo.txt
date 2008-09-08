@@ -1,0 +1,7 @@
+Apache Empire-struts2-ext
+Copyright 2008 The Apache Software Foundation
+
+NOTE: In order to build this release from the source code the following files are required:
+- servlet-api.jar
+- jsp-api.jar
+They can be obtained with the JEE distribution from SUN Microsystems.

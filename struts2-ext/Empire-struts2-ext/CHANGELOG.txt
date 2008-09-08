@@ -2,10 +2,17 @@ Apache Empire-db
 Copyright 2008 The Apache Software Foundation
 
 --------------
+Release 1.0.4:
+--------------
+EMPIREDB-12  Allow reloading of current record from the session. Method reloadRecord added to class RecordActionSupport. 
+EMPIREDB-11  BUGFIX: WebAction.clearActionErrors does not remove error from the session.  
+EMPIREDB-10  Allow setting of record property name with control tag. Attribute recordProperty added to <e:control>  
+
+--------------
 Release 1.0.3:
 --------------
-EMPIREDB-5: Added missing ASF headers. See JIRA for further information.
-EMPIREDB-1:	Deprecated warning resolved by adding to additional parameters to call to determineActionURL.
+EMPIREDB-5	Added missing ASF headers. See JIRA for further information.
+EMPIREDB-1	Deprecated warning resolved by adding to additional parameters to call to determineActionURL.
 PRE-105:	All package names changed to org.apache.empire.
 
 --------------
