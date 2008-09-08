@@ -28,13 +28,14 @@ import org.apache.empire.db.DBColumn;
 import org.apache.empire.db.DBColumnExpr;
 import org.apache.empire.db.DBDatabaseDriver;
 import org.apache.empire.db.DBExpr;
+import org.apache.empire.db.expr.compare.DBCompareExpr;
 
 /**
  * This class is used to decode a set of keys to the corresponding target values.
  * For most drivers this will be performed by the "case ? when A then X else Y end" statement.
  * <P>
  * There is no need to explicitly create instances of this class.<BR>
- * Instead use {@link DBColumnExpr#when() }
+ * Instead use {@link DBColumnExpr#when(DBCompareExpr, Object) }
  * <P>
  * @author doebele
  */
@@ -45,9 +46,10 @@ public class DBDecodeExpr extends DBAbstractFuncExpr
     
     /**
      * Constructs a DBDecodeExpr
-     * @param compExpr the condition to be evaluated
-     * @param expr the expression returned if the condition is true
+     * @param expr the expression to be decoded
+     * @param valueMap a map of keys and values used for decoding
      * @param elseExpr the expression returned if the condition is false (may be null)
+     * @param dataType the target data type
      */
     public DBDecodeExpr(DBColumnExpr expr, Map<?,?> valueMap, Object elseExpr, DataType dataType)
     {

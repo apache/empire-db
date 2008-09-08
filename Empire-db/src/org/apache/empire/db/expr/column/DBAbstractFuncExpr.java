@@ -45,11 +45,7 @@ public abstract class DBAbstractFuncExpr extends DBColumnExpr
      * Constructs a new DBFuncExpr object set the specified parameters to this object.
      * Do not use directly - use any of the DBColumnExpr.??? factory functions instead!
      * 
-     * The sql function string is built from a string template.
-     * The template string must contain a ? which is a placeholder for the column expression.
-     * 
      * @param expr the DBColumnExpr object
-     * @param template specifies a template for the expression. The template must contain a ? placeholder for the column expression
      * @param updateColumn optional update column if any. This parameter may be null
      * @param isAggregate indicates whether the function is an aggregate function (sum, min, max, avg, ...)
      * @param dataType indicates the data type of the function result 
@@ -146,7 +142,12 @@ public abstract class DBAbstractFuncExpr extends DBColumnExpr
     /**
      * Creates the SQL-Command adds a function to the SQL-Command.
      * 
-     * @param buf the SQL-Command
+     * The sql function string is built from a string template.
+     * The template string must contain a ? which is a placeholder for the column expression.
+     * 
+     * @param sql the SQL-Command
+     * @param template the function template string. 
+     * @param params an array of function parameters 
      * @param context the current SQL-Command context
      */
     public final void addSQL(StringBuilder sql, String template, Object[] params, long context)
