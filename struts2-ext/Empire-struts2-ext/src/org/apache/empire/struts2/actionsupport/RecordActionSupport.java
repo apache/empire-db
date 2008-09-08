@@ -250,7 +250,10 @@ public class RecordActionSupport extends RecordFormActionSupport
             {   // get record object from session
                 Record rec = getRecordFromSession();
                 if (rec!=null && (rec instanceof DBRecord))
-                {   // Record restored
+                {   // Check rowset
+                    if (((DBRecord)rec).getRowSet()!=rowset)
+                        return error(Errors.ObjectNotValid, "record");
+                    // Record restored
                     this.record = (DBRecord)rec;
                     return success();
                 }
@@ -259,7 +262,7 @@ public class RecordActionSupport extends RecordFormActionSupport
             }
             // Other
             default:
-                return error(Errors.NotSupported, "");
+                return error(Errors.NotSupported, "reloadRecord[] " + String.valueOf(persistence));
         }
     }
     
