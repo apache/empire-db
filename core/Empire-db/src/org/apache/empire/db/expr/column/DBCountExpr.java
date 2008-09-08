@@ -137,7 +137,7 @@ public class DBCountExpr extends DBColumnExpr
     /**
      * Creates the SQL-Command adds the String "count(*)" to the SQL-Command.
      * 
-     * @param buf the SQL-Command
+     * @param sql the SQL-Command
      * @param context the current SQL-Command context
      */
     @Override

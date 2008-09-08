@@ -32,7 +32,7 @@ import org.w3c.dom.Element;
  * This class is used to add the "case when ?=A then X else Y end" statement to the SQL-Command.
  * <P>
  * There is no need to explicitly create instances of this class.<BR>
- * Instead use {@link DBColumnExpr#when() }
+ * Instead use {@link DBColumnExpr#when(DBCompareExpr, Object) }
  * <P>
  * @author doebele
  */

@@ -112,7 +112,7 @@ public class DBFuncExpr extends DBAbstractFuncExpr
     /**
      * Creates the SQL-Command adds a function to the SQL-Command.
      * 
-     * @param buf the SQL-Command
+     * @param sql the SQL-Command
      * @param context the current SQL-Command context
      */
     @Override

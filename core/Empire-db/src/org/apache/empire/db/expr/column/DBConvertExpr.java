@@ -27,7 +27,7 @@ import org.apache.empire.db.DBDatabaseDriver;
  * This function uses the DBDatabaseDriver.getConvertPhrase function to obtain a conversion template.
  * <P>
  * There is no need to explicitly create instances of this class.<BR>
- * Instead use {@link DBColumnExpr#convertTo() }
+ * Instead use {@link DBColumnExpr#convertTo(DataType) }
  * <P>
  * @author doebele
  */
@@ -37,9 +37,9 @@ public class DBConvertExpr extends DBAbstractFuncExpr
     
     /**
      * Constructs a DBDecodeExpr
-     * @param compExpr the condition to be evaluated
-     * @param expr the expression returned if the condition is true
-     * @param elseExpr the expression returned if the condition is false (may be null)
+     * @param expr the expression to be converted
+     * @param dataType the target data type
+     * @param format optional formatting information
      */
     public DBConvertExpr(DBColumnExpr expr, DataType dataType, Object format)
     {
