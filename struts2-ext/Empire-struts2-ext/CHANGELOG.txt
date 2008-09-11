@@ -4,6 +4,7 @@ Copyright 2008 The Apache Software Foundation
 --------------
 Release 1.0.4:
 --------------
+EMPIREDB-13  column attribute has been added to radioButtonTag and onClick attribute has been added to menuItemTag 
 EMPIREDB-12  Allow reloading of current record from the session. Method reloadRecord added to class RecordActionSupport. 
 EMPIREDB-11  BUGFIX: WebAction.clearActionErrors does not remove error from the session.  
 EMPIREDB-10  Allow setting of record property name with control tag. Attribute recordProperty added to <e:control>  
