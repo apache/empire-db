@@ -1554,6 +1554,12 @@
 	  <type>java.lang.String</type>
     </attribute>
     <attribute>
+      <name>column</name>
+      <required>false</required>
+	  <rtexprvalue>true</rtexprvalue>
+	  <type>org.apache.empire.data.Column</type>
+    </attribute>
+    <attribute>
       <name>record</name>
       <required>false</required>
 	  <rtexprvalue>true</rtexprvalue>
@@ -1818,6 +1824,12 @@
     </attribute>
     <attribute>
       <name>visible</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+	  <type>java.lang.Object</type>
+    </attribute>
+    <attribute>
+      <name>onclick</name>
       <required>false</required>
       <rtexprvalue>true</rtexprvalue>
 	  <type>java.lang.Object</type>

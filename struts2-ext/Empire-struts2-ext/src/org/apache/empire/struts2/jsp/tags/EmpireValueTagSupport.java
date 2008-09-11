@@ -24,6 +24,7 @@ import org.apache.empire.data.ColumnExpr;
 import org.apache.empire.data.Record;
 import org.apache.empire.data.RecordData;
 
+@SuppressWarnings("serial")
 public abstract class EmpireValueTagSupport extends EmpireTagSupport
 {
     public static final String RECORD_ATTRIBUTE    = "record";
@@ -134,6 +135,8 @@ public abstract class EmpireValueTagSupport extends EmpireTagSupport
             return getFullPropertyName(field);
         if (value instanceof ColumnExpr)
             return getColumnPropertyName((ColumnExpr)value);
+        if (column!=null)
+            return getColumnPropertyName(column);
         // Not Name provided 
         log.error("Cannot detect name from value.");
         return "";

@@ -75,6 +75,22 @@ public class ActionPropertySupport
         this.value = value;
     }
     
+    /**
+     * Sets the property value from a request param.
+     * The request must contain a property of that name. 
+     * @return true if the param was supplied with the request or false otherwise
+     */
+    public boolean setFromRequest()
+    {
+        String param = action.getRequestParam(propertyName);
+        if (param==null)
+        {   // Param has not been supplied
+            return false;
+        }
+        setValue(param);
+        return true;
+    }
+    
     public void clear()
     {
         // Remove from session

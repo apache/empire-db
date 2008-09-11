@@ -30,6 +30,7 @@ import org.apache.struts2.views.util.UrlHelper;
 
 import com.opensymphony.xwork2.interceptor.AbstractInterceptor;
 
+@SuppressWarnings("serial")
 public abstract class InterceptorSupport extends AbstractInterceptor
 {
     // Logger
