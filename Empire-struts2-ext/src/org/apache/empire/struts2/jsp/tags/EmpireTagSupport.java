@@ -41,7 +41,7 @@ import com.opensymphony.xwork2.ActionContext;
 import com.opensymphony.xwork2.LocaleProvider;
 import com.opensymphony.xwork2.TextProvider;
 
-
+@SuppressWarnings("serial")
 public abstract class EmpireTagSupport extends ComponentTagSupport
 {
     // Logger
