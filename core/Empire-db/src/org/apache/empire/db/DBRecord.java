@@ -98,6 +98,11 @@ public class DBRecord extends DBRecordData implements Record, Cloneable
                 fields = null;
             onRowSetChanged();
         }
+        else if (fields!=null)
+        {   // clear fields
+            for (int i=0; i<fields.length; i++)
+                fields[i]=null;
+        }
         // Set State
         changeState(state, rowSetData);
     }
