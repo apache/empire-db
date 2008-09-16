@@ -51,6 +51,10 @@ public class DataValueComponent extends ControlComponent
     
     public String getURL(String actionName)
     {
+        // JAVASCRIPT ?
+        if (actionName.startsWith("javascript:"))
+            return actionName;
+        
         String namespace = null;
         String method = null;
         String scheme = null;
