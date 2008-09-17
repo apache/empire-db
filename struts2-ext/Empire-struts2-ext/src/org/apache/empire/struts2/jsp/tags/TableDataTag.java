@@ -29,6 +29,9 @@ import org.apache.empire.struts2.html.HtmlWriter.HtmlTag;
 @SuppressWarnings("serial")
 public class TableDataTag extends DataValueTag
 {
+    // Default Row Info
+    private static final TableRowTag.RowInfo defaultRowInfo = new TableRowTag.RowInfo();
+    
     // Column Properties
     protected String width;
     protected String height;
@@ -102,15 +105,15 @@ public class TableDataTag extends DataValueTag
         // done
         return result;
     }
-
+    
     private TableRowTag.RowInfo getRowInfo()
     {
         Object ri = getPageAttribute(TableRowTag.ROWINFO_ATTRIBUTE, null);
         if (ri instanceof TableRowTag.RowInfo)
             return ((TableRowTag.RowInfo)ri);
         // No current Column Info available
-        log.error("No table row information available! <e:tr> Tag missing?" + getPageName());
-        return new TableRowTag.RowInfo(); 
+        log.debug("No table row information available! <e:tr> Tag missing?" + getPageName());
+        return defaultRowInfo; 
     }
 
     private String getCssClass(TableRowTag.RowInfo ri)
