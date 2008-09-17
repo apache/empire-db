@@ -379,8 +379,9 @@ public abstract class EmpireTagSupport extends ComponentTagSupport
         // find Method separator
         int i = action.indexOf('!');
         if (i < 0)
-        {
-            log.warn("No link action method for for action " + action + " has been supplied! Page = " + getPageName());
+        {   // Check for Javascript
+            if (action.startsWith("javascript:")==false)
+                log.warn("No link action method for for action " + action + " has been supplied! Page = " + getPageName());
         }
         else if (i==0)
         {   // Only Method name given
