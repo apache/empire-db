@@ -158,8 +158,8 @@
 	 	
 	 	<copy todir="${empire.struts2.ext.examples.deploy.dir}/DBWebSample/WebRoot/WEB-INF/lib">
 			<fileset dir="./dist">
-				<include name="copy_lib.bat"/>
-				<include name="copy_lib.sh"/>
+				<include name="copy_jars.bat"/>
+				<include name="copy_jars.sh"/>
 			</fileset>
 			<fileset dir="../JDBCDrivers/lib/">
 				<include name="hsqldb-1.8.0.10.jar"/>
