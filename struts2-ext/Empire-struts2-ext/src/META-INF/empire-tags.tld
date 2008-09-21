@@ -1429,12 +1429,6 @@
 	  <type>java.lang.String</type>
     </attribute>
     <attribute>
-      <name>checked</name>
-      <required>false</required>
-	  <rtexprvalue>true</rtexprvalue>
-	  <type>java.lang.Object</type>
-    </attribute>
-    <attribute>
       <name>check</name>
       <required>false</required>
 	  <rtexprvalue>true</rtexprvalue>
@@ -1536,7 +1530,7 @@
 	  <type>java.lang.String</type>
     </attribute>
     <attribute>
-      <name>checked</name>
+      <name>check</name>
       <required>false</required>
 	  <rtexprvalue>true</rtexprvalue>
 	  <type>java.lang.Object</type>

@@ -132,6 +132,11 @@ public class RadioButtonTag extends EmpireValueTagSupport
     {
         this.checked = checked;
     }
+    
+    public void setCheck(Object checked)
+    {
+        this.checked = checked;
+    }
 
     public void setDisabled(Object disabled)
     {
