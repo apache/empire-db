@@ -117,7 +117,8 @@ public class DataValueTag extends EmpireValueTagSupport
             comp.setAction(action);
             comp.setAlt(getItemValue(alt));
             comp.setAnchorClass(anchorClass);
-            comp.setParam(str(param, getActionItemPropertyName()), getItemValue(item));
+            if (action.startsWith("javascript:")==false)
+                comp.setParam(str(param, getActionItemPropertyName()), getItemValue(item));
         }
         
         // Common UI
