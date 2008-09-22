@@ -227,12 +227,8 @@
 			<fileset dir="${empire.struts2.ext.deploy.dir}/${empire.db.deploy.name}/" includes="*.jar"/>
 			<fileset dir="${empire.db.lib.deploy.dir}" includes="*.jar"/>
 			<fileset dir="${empire.struts2.ext.struts.lib.dir}" includes="*.jar" />
-			<!-- fileset dir="${empire.struts2.ext.servletapi.lib.dir}" includes="*.jar" / -->
-			<fileset dir="./dist">
-				<filename name="libinfo.txt"/>
-			</fileset>
+			<fileset dir="${empire.struts2.ext.servletapi.lib.dir}" includes="*.jar" />
 		</copy>
-
 	</target>
 	
 	<!-- 

@@ -18,5 +18,5 @@
 # * under the License.
 # */
 
+cp ..\..\..\..\..\*.jar .
 cp ..\..\..\..\..\lib\*.jar .
-cp ..\..\..\..\..\lib\libinfo.txt .

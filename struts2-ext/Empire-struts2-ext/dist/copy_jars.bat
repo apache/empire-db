@@ -18,5 +18,5 @@
 @REM  */
 
 ECHO Copy jar files form lib direcotry to this directory
+copy ..\..\..\..\..\*.jar .
 copy ..\..\..\..\..\lib\*.jar .
-copy ..\..\..\..\..\lib\libinfo.txt .
