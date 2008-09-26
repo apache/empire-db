@@ -338,7 +338,7 @@ public class DBRecord extends DBRecordData implements Record, Cloneable
 
     /**
      * Sets the modified state of a column.<BR>
-	 * This will force the field to be updated in the database.
+	 * This will force the field to be updated in the database, if set to TRUE.
      */
     public void setModified(DBColumn column, boolean isModified)
     {
@@ -351,9 +351,25 @@ public class DBRecord extends DBRecordData implements Record, Cloneable
         int index = getFieldIndex(column);
         if (index >= 0)
             modified[index] = isModified;
-        // Set State
+        // Set State to modified, if not already at least modified and isModified is set to true
         if (state < REC_MODIFIED && isModified)
             state = REC_MODIFIED;
+        // Reset state to unmodified, if currently modified and not modified anymore after the change
+        if (state == REC_MODIFIED && !isModified)
+        {
+        	boolean recordNotModified = true;
+            for (int j = 0; j < fields.length; j++)
+            {
+                if (modified[j] == true)
+                {
+                	recordNotModified = false;
+                }
+            }
+            if (recordNotModified)
+            {
+            	state = REC_VALID;
+            }
+        }
     }
     
     /**
