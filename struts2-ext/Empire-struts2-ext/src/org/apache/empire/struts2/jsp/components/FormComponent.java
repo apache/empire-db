@@ -67,6 +67,7 @@ public class FormComponent extends Form
                 formTag.addAttribute("name",     this.name);
                 formTag.addAttribute("onsubmit", this.onsubmit);
                 formTag.addAttribute("action",   getURL(action));
+                formTag.addAttribute("target",   this.target);
                 formTag.addAttribute("method",   this.method);
                 formTag.addAttribute("enctype",  this.enctype);
                 formTag.beginBody(true);
