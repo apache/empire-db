@@ -200,7 +200,7 @@ public class DBDatabaseDriverHSql extends DBDatabaseDriver
                         return "to_char(?, '"+format.toString()+"')";
                     }
                 }
-                return "to_char(?)";
+                return "convert(?, CHAR)";
             case INTEGER:
             {
                 return "convert(?, BIGINT)";
