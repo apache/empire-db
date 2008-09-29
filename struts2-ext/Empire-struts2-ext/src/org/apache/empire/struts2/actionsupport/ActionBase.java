@@ -284,7 +284,7 @@ public abstract class ActionBase
      */
     protected Object[] getRecordKeyFromString(String s)
     {
-        if (s==null)
+        if (s==null || s.equals("*"))
             return null;
         // Count parts
         int count = 1;
