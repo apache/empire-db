@@ -21,6 +21,7 @@ package org.apache.empire.db;
 import java.sql.Connection;
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -743,22 +744,22 @@ public abstract class DBRowSet extends DBExpr
      * Deletes all records which are referenced by a particular relation.
      * <P>
      * @param refs the reference columns belonging to the releation
-     * @param key the key of the parent element
+     * @param parentKey the key of the parent element
      * @param conn a valid connection
      * @return true if all records could be deleted or false otherwise
      */
-    protected boolean deleteReferenceRecords(DBReference[] refs, Object[] key, Connection conn)
+    protected boolean deleteReferenceRecords(DBReference[] refs, Object[] parentKey, Connection conn)
     {
         // Key length and reference length must match
-        if (refs.length!=key.length)
+        if (refs.length!=parentKey.length)
             return error(DBErrors.RecordInvalidKey);
         // Rowset
         DBColumn[] keyColumns = getKeyColumns();
         if (keyColumns==null || keyColumns.length==0)
         {   // No Primary Key
             DBCommand cmd = db.createCommand();
-            for (int i=0; i<key.length; i++)
-                cmd.where(refs[i].getSourceColumn().is(key[i]));
+            for (int i=0; i<parentKey.length; i++)
+                cmd.where(refs[i].getSourceColumn().is(parentKey[i]));
             if (db.executeSQL(cmd.getDelete((DBTable)this), conn)<0)
                 return error(db);
         }
@@ -766,12 +767,15 @@ public abstract class DBRowSet extends DBExpr
         {   // Query all keys
             DBCommand cmd = db.createCommand();
             cmd.select(keyColumns);
-            for (int i=0; i<key.length; i++)
-                cmd.where(refs[i].getSourceColumn().is(key[i]));
+            for (int i=0; i<parentKey.length; i++)
+            {
+                cmd.where(refs[i].getSourceColumn().is(parentKey[i]));
+                cmd.orderBy(keyColumns[i], true);
+            }
             // Query all keys
             List<Object[]> recKeys = db.queryObjectList(cmd.getSelect(), conn);
             for (Object[] recKey : recKeys)
-            {   // Delete Record
+            {   
                 log.info("Deleting Record " + StringUtils.valueOf(recKey) + " from table " + getName());
                 if (deleteRecord(recKey, conn)==false)
                     return false;
