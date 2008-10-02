@@ -1,0 +1,227 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *  http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+ --> 
+<project name="buildEmpireDb" default="build" basedir=".">
+	<description>Builds the download folder</description>
+	<!-- set properties for this build -->
+	<property name="empire.db.version" value="2.0.4" />
+	
+	<property name="empire.db.deploy.jar.name" value="empire-db-${empire.db.version}" />
+	<property name="empire.db.deploy.name" value="apache-empire-db-${empire.db.version}-incubating" />
+	
+	<property name="empire.db.src.dir" location="src"/>
+	<property name="empire.db.lib.dir" location="lib"/>
+	<property name="empire.db.deploy.dir" location="../deploy"/>
+	<property name="empire.db.this.deploy.dir" location="${empire.db.deploy.dir}/${empire.db.deploy.name}"/>
+	<property name="empire.db.out.dir" location="${empire.db.this.deploy.dir}/out"/>	
+	<property name="empire.db.out.metaInf.dir" location="${empire.db.out.dir}/META-INF" />
+	<property name="empire.db.lib.deploy.dir" location="${empire.db.this.deploy.dir}/lib" />
+	<property name="empire.db.src.deploy.dir" location="${empire.db.this.deploy.dir}/src" />
+	<property name="empire.db.examples.deploy.dir" location="${empire.db.this.deploy.dir}/examples" />
+	<property name="empire.db.jar.version.file" location="${empire.db.this.deploy.dir}/${empire.db.deploy.jar.name}.jar"/>
+
+	<!-- 
+		target build
+	 -->
+	<target name="build" depends="clean,compile,copyLicenseToMetaInf,jar,dependjars,copySourceFolder,generateJavadocs,createEclipseExample,miscellaneous,tidy,zip,tar" />
+	
+	<!-- 
+		target clean
+	 -->
+	<target name="clean" description="delete everything">
+		<delete dir="${empire.db.this.deploy.dir}"/>
+		<delete file="${empire.db.deploy.name}.zip" />
+		<delete file="${empire.db.deploy.name}.tar.gz" />
+	</target>
+	<!-- 
+		target compile
+	 -->
+	<target name="compile" description="delete class folder, compiling all source files of the packages">
+		<delete dir="${empire.db.this.deploy.dir}"/>
+		<mkdir dir="${empire.db.this.deploy.dir}"/>
+		<mkdir dir="${empire.db.out.dir}" />
+		
+	    <javac srcdir="${empire.db.src.dir}" destdir="${empire.db.out.dir}" listfiles="false" debug="on">
+	    	<classpath>
+	    		<path>
+	    			<fileset dir="${empire.db.lib.dir}"/>
+	    		</path>
+			</classpath>
+		</javac>
+    </target>
+	<!-- 
+		target jar
+	 -->
+	<target name="jar">
+		<jar destfile="${empire.db.jar.version.file}" compress="true">
+			<manifest>
+				<attribute name="Extension-Name" value="org.apache.empire"/>
+				<attribute name="Specification-Title" value="Apache Empire-db"/>
+				<attribute name="Specification-Vendor" value="The Apache Software Foundation"/>
+				<attribute name="Specification-Version" value="${empire.db.version}"/>
+				<attribute name="Implementation-Vendor-Id" value="org.apache"/>
+				<attribute name="Implementation-Title" value="org.apache.empire"/>
+				<attribute name="Implementation-Vendor" value="The Apache Software Foundation"/>
+				<attribute name="Implementation-Version" value="${empire.db.version}"/> 
+			</manifest>			
+			<fileset dir="${empire.db.out.dir}" />
+			<fileset dir="${empire.db.src.dir}" >
+				<exclude name="build.xml"/>
+			</fileset>			
+		</jar>
+	</target>
+	<!-- 
+		dependjars
+	 -->
+	<target name="dependjars" description="copy dependancies to deploy dir">
+		<mkdir dir="${empire.db.lib.deploy.dir}"/>
+		<copy todir="${empire.db.lib.deploy.dir}">
+			<fileset dir="${empire.db.lib.dir}" includes="*.jar"/>		
+		</copy>
+	</target>
+	
+	<!-- 
+		copySourceFolder
+	 -->
+	 <target name="copySourceFolder" description="copies sources to deploy dir">
+		<mkdir dir="${empire.db.src.deploy.dir}"/>
+		<copy todir="${empire.db.src.deploy.dir}">
+	 		<fileset dir="${empire.db.src.dir}" includes="**/*.*" />
+	 	</copy>
+	 </target>
+	 
+	 <!-- 
+		createEclipseExample
+	 -->
+	 <target name="createEclipseExample" description="creates an Eclipse example">
+		<mkdir dir="${empire.db.examples.deploy.dir}"/>
+	 	<concat destfile="${empire.db.examples.deploy.dir}/readme.txt">For an Empire-db introcution tutorial see tutorial.pdf in the root direcotry.</concat>
+		<copy todir="${empire.db.examples.deploy.dir}">
+	 		<fileset dir="../" includes="DBSample/**/*.*" >
+	 			<exclude name="**/.settings/**" />
+	 			<exclude name="**/build.xml" />
+	 			<exclude name="**/sqljdbc.jar" />
+	 			<exclude name="**/hsqldb/**" />
+	 		</fileset>
+			<fileset dir="../">
+				<include name="DBSample/classpath_delivery-version"/>
+			</fileset>
+	 	</copy>
+	 	<move file="${empire.db.examples.deploy.dir}/DBSample/tutorial.pdf" tofile="${empire.db.this.deploy.dir}/tutorial.pdf" overwrite="true" />
+	 	<move file="${empire.db.examples.deploy.dir}/DBSample/classpath_delivery-version" tofile="${empire.db.examples.deploy.dir}/DBSample/.classpath" overwrite="true" />
+		<copy todir="${empire.db.examples.deploy.dir}">
+	 		<fileset dir="../" includes="DBSampleAdv/**/*.*" >
+	 			<exclude name="**/.settings/**" />
+	 			<exclude name="**/build.xml" />
+	 			<exclude name="**/sqljdbc.jar" />
+	 			<exclude name="**/hsqldb/**" />
+	 		</fileset>
+			<fileset dir="../">
+				<include name="DBSampleAdv/classpath_delivery-version"/>
+			</fileset>
+	 	</copy>
+	 	<move file="${empire.db.examples.deploy.dir}/DBSampleAdv/classpath_delivery-version" tofile="${empire.db.examples.deploy.dir}/DBSampleAdv/.classpath" overwrite="true" />
+	 	<!-- Replace place holders by actual empire-db deploy jar name -->
+	 	<replace file="${empire.db.examples.deploy.dir}/DBSample/.classpath" token="@empire.db.deploy.jar.name@"  value="${empire.db.deploy.jar.name}" />
+	 	<replace file="${empire.db.examples.deploy.dir}/DBSampleAdv/.classpath" token="@empire.db.deploy.jar.name@" value="${empire.db.deploy.jar.name}" />
+	 	
+		<copy todir="${empire.db.examples.deploy.dir}/DBSample/lib">
+			<fileset dir="${empire.db.this.deploy.dir}/">
+				<include name="*.jar"/>
+			</fileset>
+			<fileset dir="${empire.db.this.deploy.dir}/lib/">
+				<include name="*.jar"/>
+			</fileset>
+			<fileset dir="../JDBCDrivers/lib/">
+				<include name="hsqldb-1.8.0.10.jar"/>
+			</fileset>
+		</copy>
+		<copy todir="${empire.db.examples.deploy.dir}/DBSampleAdv/lib">
+			<fileset dir="${empire.db.this.deploy.dir}/">
+				<include name="*.jar"/>
+			</fileset>
+			<fileset dir="${empire.db.this.deploy.dir}/lib/">
+				<include name="*.jar"/>
+			</fileset>
+			<fileset dir="../JDBCDrivers/lib/">
+				<include name="hsqldb-1.8.0.10.jar"/>
+			</fileset>
+		</copy>
+	 </target>
+	 
+	 <!-- 
+		generate Javadocs
+	 -->
+	 <target name="generateJavadocs" description="generates the javadocs for this project">
+	 	<ant inheritAll="true" antfile="javadoc.xml" />
+	 </target>
+	 
+	 <!-- 
+	 	copy license
+	  -->
+	  <target name="copyLicenseToMetaInf">
+	  	<copy todir="${empire.db.out.metaInf.dir}">
+	  		<fileset dir=".">	  			
+	  			<include name="NOTICE.txt" />
+	  			<include name="LICENSE*.txt" />
+	  		</fileset>
+	  	</copy>
+	  </target>
+
+	<!-- 
+	 	miscellaneous
+	  -->
+	  <target name="miscellaneous">
+	  	<copy todir="${empire.db.deploy.dir}" file="KEYS" />	  		
+	  	<copy todir="${empire.db.this.deploy.dir}">
+	  		<fileset dir=".">	  			
+	  			<include name="NOTICE.txt" />
+	  			<include name="CHANGELOG.txt" />
+	  			<include name="README.txt" />
+	  		</fileset>
+	  		<fileset dir="./dist">	  			
+	  			<include name="LICENSE*.txt" />
+	  			<include name="build.xml" />
+	  		</fileset>
+	  	</copy>
+	  </target>
+	  
+	 <!-- 
+	 	generate zip
+	  -->
+	  <target name="zip">
+	  	<zip basedir="${empire.db.deploy.dir}" destfile="${empire.db.deploy.dir}/${empire.db.deploy.name}.zip" includes="${empire.db.deploy.name}/**" />
+	  </target>
+	  
+	 <!-- 
+	 	generate tar.gz
+	  -->
+	  <target name="tar">
+	  	<tar basedir="${empire.db.deploy.dir}" destfile="${empire.db.deploy.dir}/${empire.db.deploy.name}.tar.gz" includes="${empire.db.deploy.name}/**" compression="gzip"/>
+	  </target>
+
+	<!-- 
+		target tidy
+	 -->
+	<target name="tidy" description="delete temp files">
+		<delete dir="${empire.db.out.dir}"/>
+	</target>
+</project>
