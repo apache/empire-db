@@ -302,7 +302,7 @@ public class DBTableColumn extends DBColumn
             case TEXT:
             case CHAR:
                 if (value!=null && value.toString().length() > size)
-                    return error(DBErrors.FieldValueTooLong, getName());
+                    return error(DBErrors.FieldValueTooLong, getName(), (int)size);
                 break;
                 
             default:
