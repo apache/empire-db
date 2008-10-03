@@ -101,8 +101,6 @@ public class TextAreaInputControl extends InputControl
     @Override
     public void renderInput(HtmlWriter writer, ControlInfo ci)
     {
-        // <textarea rows="35" name="richtext" cols="120">
-
         HtmlTag input = writer.startTag("textarea");
         input.addAttribute("id",    ci.getId());
         input.addAttribute("class", ci.getCssClass());
@@ -114,10 +112,10 @@ public class TextAreaInputControl extends InputControl
         // maxlength
         if (ci.getDisabled()==false)
         {   // Get Max Length
-            int maxLength = (int)ci.getColumn().getSize();
             String checklength = getFormatOption(ci, "maxlength:");
-            if (StringUtils.isValid(checklength) && maxLength>0)
+            if (StringUtils.isValid(checklength))
             {   // Do lengthcheck via onKeyPress and onKeyUp Events
+                int maxLength = (int)ci.getColumn().getSize();
                 checklength = StringUtils.replace(checklength, "{0}", String.valueOf(maxLength)); 
                 input.addAttribute("onkeypress", checklength);
                 input.addAttribute("onkeyup",    checklength);
