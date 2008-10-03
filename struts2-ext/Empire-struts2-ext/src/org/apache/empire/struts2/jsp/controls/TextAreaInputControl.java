@@ -111,6 +111,18 @@ public class TextAreaInputControl extends InputControl
         input.addAttribute("disabled", ci.getDisabled());
         input.addAttribute("rows",  Math.max(ci.getVSize(), 2));
         input.addAttribute("cols",  Math.max(ci.getHSize(), 1));
+        // maxlength
+        if (ci.getDisabled()==false)
+        {   // Get Max Length
+            int maxLength = (int)ci.getColumn().getSize();
+            String checklength = getFormatOption(ci, "maxlength:");
+            if (StringUtils.isValid(checklength) && maxLength>0)
+            {   // Do lengthcheck via onKeyPress and onKeyUp Events
+                checklength = StringUtils.replace(checklength, "{0}", String.valueOf(maxLength)); 
+                input.addAttribute("onkeypress", checklength);
+                input.addAttribute("onkeyup",    checklength);
+            }   
+        }
         // Event Attributes
         input.addAttribute("onclick",   ci.getOnclick());
         input.addAttribute("onchange",  ci.getOnchange());
