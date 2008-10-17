@@ -18,6 +18,7 @@
  */
 package org.apache.empire.data.bean;
 
+import org.apache.empire.commons.Attributes;
 import org.apache.empire.commons.Options;
 import org.apache.empire.data.Column;
 import org.apache.empire.data.DataType;
@@ -37,6 +38,7 @@ public class BeanProperty implements Column
     private boolean  readOnly;    // optional
     private String   title;       // optional
     private Options  options;     // optional
+    private Attributes attributes;// optional
     
     protected BeanClass beanClass;  // internal;
     
@@ -51,22 +53,48 @@ public class BeanProperty implements Column
         this.controlType = controlType;
         this.readOnly = readOnly;
     }
+    
+    public BeanProperty(String name, DataType dataType, double size, boolean required)
+    {
+        this(name, dataType, size, required, "text", false);
+    }
 
+    /**
+     * Returns the name of the property.
+     * @return the property name
+     */
     public String getName()
     {
         return name;
     }
 
+    /**
+     * Returns the data type of the bean property.
+     * @see org.apache.empire.data.DataType
+     *
+     * @return the property data type
+     */
     public DataType getDataType()
     {
         return dataType;
     }
-
+    
+    /**
+     * Returns the value of a column attribute.
+     * Column attributes are used to provide metadata for a property.
+     * 
+     * @param name the attribute name
+     * @return value of the attribute if it exists or null otherwise
+     */
     public Object getAttribute(String name)
     {
-        return null;
+        return (attributes!=null) ? attributes.get(name) : null;
     }
 
+    /**
+     * Returns the title attribute.
+     * @return the column title
+     */
     public String getTitle()
     {
         if (title==null)
@@ -74,21 +102,44 @@ public class BeanProperty implements Column
         return title;
     }
 
+    /**
+     * Returns the list of options for this column
+     * containing all allowed field values.
+     * 
+     * @return the list of options
+     */
     public Options getOptions()
     {
         return options;
     }
 
+    /**
+     * Returns the columns control type.
+     * The control type is a client specific name for the type of input control 
+     * that should be used to display and edit values for this column. 
+     * 
+     * @return the columns control type
+     */
     public String getControlType()
     {
         return controlType;
     }
 
+    /**
+     * Gets the Java bean property name.
+     * This function should return the same string as getName()
+     * @return the name of the bean property 
+     */
     public String getBeanPropertyName()
     {
         return name;
     }
 
+    /**
+     * Returns the column 
+     * This function should return the same string as getName()
+     * @return the name of the bean property 
+     */
     public Column getSourceColumn()
     {
         return this;
@@ -137,6 +188,13 @@ public class BeanProperty implements Column
     public void setTitle(String title)
     {
         this.title = title;
+    }
+
+    public void setAttribute(String name, Object value)
+    {
+        if (attributes== null)
+            attributes = new Attributes();
+        attributes.set(name, value);
     }
 
 }
