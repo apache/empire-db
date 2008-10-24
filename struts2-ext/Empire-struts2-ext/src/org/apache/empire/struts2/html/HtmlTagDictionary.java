@@ -86,6 +86,8 @@ public abstract class HtmlTagDictionary
     public abstract String InputControlClass();
     public abstract String InputReadOnlyClass();
     public abstract String InputReadOnlyDataWrapperTag();
+    
+    public abstract String InputDefaultClass(String type, boolean disabled);
 
     // ------- Anchor -------
     public abstract String AnchorDisabledTag();

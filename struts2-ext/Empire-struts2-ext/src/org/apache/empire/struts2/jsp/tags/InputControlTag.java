@@ -26,6 +26,7 @@ import org.apache.empire.commons.Options;
 import org.apache.empire.commons.StringUtils;
 import org.apache.empire.data.Column;
 import org.apache.empire.data.Record;
+import org.apache.empire.struts2.html.HtmlTagDictionary;
 import org.apache.empire.struts2.jsp.components.InputControlComponent;
 import org.apache.empire.struts2.jsp.controls.InputControl;
 import org.apache.empire.struts2.jsp.controls.InputControlManager;
@@ -99,6 +100,12 @@ public class InputControlTag extends EmpireValueTagSupport // AbstractUITag
         // Detect control type and readOnly state
         if (controlType==null)
             controlType = getControlType();
+        // Default Class
+        if (cssClass==null)
+        {
+            HtmlTagDictionary dic = HtmlTagDictionary.getInstance();
+            cssClass = dic.InputDefaultClass(controlType, isReadOnly());             
+        }
         // Create
         InputControl control = InputControlManager.getControl(controlType);
         if (control == null)
@@ -109,7 +116,7 @@ public class InputControlTag extends EmpireValueTagSupport // AbstractUITag
 
     @Override
     protected void populateParams()
-    {
+    {       
         super.populateParams();
         
         if (disabledMode==null)

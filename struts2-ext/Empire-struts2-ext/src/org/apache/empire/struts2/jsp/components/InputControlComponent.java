@@ -97,7 +97,6 @@ public class InputControlComponent extends ControlComponent implements InputCont
     protected void render(HtmlWriter writer, String body, InputControl control)
     {
         HtmlTagDictionary dic = HtmlTagDictionary.getInstance();
-        
         // Check Render Type
         if (renderType==RenderType.HIDDEN)
         {   // Render Hidden input
@@ -176,7 +175,8 @@ public class InputControlComponent extends ControlComponent implements InputCont
                 }
                 else
                 {   // Render Input as Control
-                    wrapCtrl.addAttribute("class", dic.InputControlClass());
+                    String wrapClass = (getDisabled() ? dic.InputReadOnlyClass() : dic.InputControlClass());   
+                    wrapCtrl.addAttribute("class", wrapClass);
                     wrapCtrl.beginBody();
                     control.renderInput(writer, this);
                 }

@@ -151,6 +151,12 @@ public class DefaultHtmlTagDictionary extends HtmlTagDictionary
         return null; // e.g. "<div class=\"clearBoth\"><!-- ? --></div>"
     }
 
+    @Override 
+    public String InputDefaultClass(String type, boolean disabled)
+    {
+        return null;
+    }
+    
     // ------- Anchor -------
     
     @Override
