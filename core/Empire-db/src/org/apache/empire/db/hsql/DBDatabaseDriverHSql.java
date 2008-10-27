@@ -209,6 +209,10 @@ public class DBDatabaseDriverHSql extends DBDatabaseDriver
             {
                 return "convert(?, DECIMAL)";
             }
+            case DOUBLE:
+            {
+                return "convert(?, DOUBLE)";
+            }
             // Unknown Type
             default:
                 log.error("getConvertPhrase: unknown type (" + String.valueOf(destType));
