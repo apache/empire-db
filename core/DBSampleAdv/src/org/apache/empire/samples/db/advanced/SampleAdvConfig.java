@@ -40,7 +40,7 @@ public class SampleAdvConfig extends XMLConfiguration
 
     private String jdbcPwd = "";
 
-    private String schemaName = "DBSAMPLE";
+    private String schemaName = "DBSAMPLEADV";
 
     /**
      * Initialize the configuration.
