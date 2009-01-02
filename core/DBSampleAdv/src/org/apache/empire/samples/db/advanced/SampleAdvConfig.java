@@ -36,7 +36,7 @@ public class SampleAdvConfig extends XMLConfiguration
 
     private String jdbcURL = "jdbc:hsqldb:file:hsqldb/sample;shutdown=true";
 
-    private String jdbcUser = "jdbc:hsqldb:file:hsqldb/sample;shutdown=true";
+    private String jdbcUser = "sa";
 
     private String jdbcPwd = "";
 
