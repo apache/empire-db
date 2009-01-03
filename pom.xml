@@ -129,6 +129,11 @@
 			    <artifactId>jsp-api</artifactId>
 			    <version>2.0</version>
 			</dependency> 
+			<dependency>
+			    <groupId>junit</groupId>
+			    <artifactId>junit</artifactId>
+			    <version>4.5</version>
+			</dependency> 
 		</dependencies>
 	</dependencyManagement>
 	<dependencies>
@@ -142,6 +147,11 @@
 			<artifactId>log4j</artifactId>
 			<optional>true</optional>
 		</dependency>
+		<dependency>
+                        <groupId>junit</groupId>
+                        <artifactId>junit</artifactId>
+                        <scope>test</scope>
+                </dependency>
 	</dependencies>
 
 	<build>
