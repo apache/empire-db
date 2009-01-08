@@ -33,6 +33,7 @@ import org.apache.empire.commons.ObjectUtils;
 import org.apache.empire.commons.Options;
 import org.apache.empire.data.Column;
 import org.apache.empire.data.ColumnExpr;
+import org.apache.empire.data.DataType;
 import org.apache.empire.data.Record;
 
 
@@ -150,7 +151,11 @@ public class BeanRecordProxy<T> extends ErrorObject implements Record
 
     public boolean isFieldReadOnly(Column column)
     {
-        return ObjectUtils.contains(keyColumns, column);
+    	if (isNew()==false && ObjectUtils.contains(keyColumns, column))
+    		return true;
+    	if (column.getDataType()==DataType.AUTOINC)
+    		return true;
+        return column.isReadOnly();
     }
 
     public boolean isFieldVisible(Column column)

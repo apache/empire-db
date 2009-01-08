@@ -45,6 +45,12 @@ public abstract class BeanClass
         this.name = name;
     }
 
+    protected BeanClass(String name, BeanDomain dom) 
+    {
+        this(name);
+        dom.addClass(this);
+    }
+
     protected void addProp(BeanProperty prop)
     {
         properties.add(prop);
@@ -67,7 +73,7 @@ public abstract class BeanClass
 
     protected final BeanProperty addProp(String propname, DataType dataType, double size, boolean required, String controlType, boolean readOnly)
     {
-        BeanProperty prop = new BeanProperty(propname, dataType, size, required, controlType, required);
+        BeanProperty prop = new BeanProperty(propname, dataType, size, required, controlType, readOnly);
         addProp(prop);
         return prop;
     }
