@@ -60,10 +60,10 @@
 			<includes>
 				<include>*.xml</include>
 				<include>empire-db/**</include>
-				<include>empire-db-example/**</include>
-				<include>empire-db-example-advanced/**</include>
+				<include>empire-db-examples/empire-db-example/**</include>
+				<include>empire-db-examples/empire-db-example-advanced/**</include>
 				<include>empire-db-struts2/**</include>
-				<include>empire-db-example-struts2/**</include>
+				<include>empire-db-examples/empire-db-example-struts2/**</include>
 			</includes>
 			<excludes>
 				<exclude>**/empire-db/target/**</exclude>
@@ -92,9 +92,9 @@
 		<moduleSet>
 			<includes>
 				<include>org.apache.empire-db:empire-db</include>
+				<include>org.apache.empire-db:empire-db-struts2</include>
 				<include>org.apache.empire-db:empire-db-example</include>
 				<include>org.apache.empire-db:empire-db-example-advanced</include>
-    			<include>org.apache.empire-db:empire-db-struts2</include>
     			<include>org.apache.empire-db:empire-db-example-struts2</include>
 			</includes>
 			<binaries>

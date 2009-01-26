@@ -19,14 +19,13 @@
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<groupId>org.apache.empire-db</groupId>
-		<artifactId>empire-db-parent</artifactId>
+		<artifactId>empire-db-examples</artifactId>
 		<version>2.0.5-SNAPSHOT</version>
 		<relativePath>../pom.xml</relativePath>
 	</parent>
 	<groupId>org.apache.empire-db</groupId>
-	<artifactId>empire-db-example-struts2</artifactId>
-	<packaging>war</packaging>
-	<name>Empire-db Struts2 Example</name>
+	<artifactId>empire-db-example</artifactId>
+	<name>Empire-db Example</name>
 	<description>Examples showing the use of empire-db.</description>
 	<version>2.0.5-SNAPSHOT</version>
 	<url>http://maven.apache.org</url>
@@ -35,46 +34,28 @@
 			<groupId>org.apache.empire-db</groupId>
 			<artifactId>empire-db</artifactId>
 		</dependency>
+		<!-- This dependency should be declared as runtime but the exec plugin is broken atm... -->
 		<dependency>
-			<groupId>org.apache.empire-db</groupId>
-			<artifactId>empire-db-struts2</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>hsqldb</groupId>
-			<artifactId>hsqldb</artifactId>
-		</dependency>
+		    <groupId>hsqldb</groupId>
+		    <artifactId>hsqldb</artifactId>
+		</dependency> 
 	</dependencies>
 	<build>
 		<plugins>
 			<plugin>
-				<groupId>org.mortbay.jetty</groupId>
-				<artifactId>maven-jetty-plugin</artifactId>
-				<version>6.1.10</version>
-				<configuration>
-					<scanIntervalSeconds>10</scanIntervalSeconds>
-					<stopKey>foo</stopKey>
-					<stopPort>9999</stopPort>
-				</configuration>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>exec-maven-plugin</artifactId>
+				<version>1.1</version>
 				<executions>
-					<!-- <execution>
-						<id>start-jetty</id>
-						<phase>pre-integration-test</phase>
-						<goals>
-							<goal>run</goal>
-						</goals>
-						<configuration>
-							<scanIntervalSeconds>0</scanIntervalSeconds>
-							<daemon>true</daemon>
-						</configuration>
-					</execution>
 					<execution>
-						<id>stop-jetty</id>
-						<phase>post-integration-test</phase>
 						<goals>
-							<goal>stop</goal>
+							<goal>java</goal>
 						</goals>
-					</execution>-->
+					</execution>
 				</executions>
+				<configuration>
+					<mainClass>org.apache.empire.samples.db.SampleApp</mainClass>		
+				</configuration>
 			</plugin>
 		</plugins>
 	</build>
