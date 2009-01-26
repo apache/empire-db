@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+   Licensed to the Apache Software Foundation (ASF) under one or more
+   contributor license agreements.	See the NOTICE file distributed with
+   this work for additional information regarding copyright ownership.
+   The ASF licenses this file to You under the Apache License, Version 2.0
+   (the "License"); you may not use this file except in compliance with
+   the License.	 You may obtain a copy of the License at
+
+		http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.
+-->
+<assembly>
+	<id>kitchensink</id>
+	<formats>
+		<format>tar.gz</format>
+		<format>zip</format>
+	</formats>
+	<includeBaseDirectory>true</includeBaseDirectory>
+	<fileSets>
+		<fileSet>
+			<directory>archetypes</directory>
+			<outputDirectory>src/archetypes</outputDirectory>
+			<useDefaultExcludes>true</useDefaultExcludes>
+			<excludes>
+				<exclude>**/quickstart/target/**</exclude>
+				<exclude>**/.classpath/**</exclude>
+				<exclude>**/.project/**</exclude>
+				<exclude>**/.settings/**</exclude>
+				<exclude>**/.amateras/**</exclude>
+				<exclude>**/.tomcatplugin/**</exclude>
+			</excludes>
+		</fileSet>
+		<fileSet>
+			<directory>target/site/apidocs</directory>
+			<outputDirectory>apidocs</outputDirectory>
+		</fileSet>
+		<fileSet>
+			<directory>testing</directory>
+			<outputDirectory>src/testing</outputDirectory>
+			<useDefaultExcludes>true</useDefaultExcludes>
+			<excludes>
+				<exclude>target/**</exclude>
+				<exclude>**/.classpath/**</exclude>
+				<exclude>**/.project/**</exclude>
+				<exclude>**/.settings/**</exclude>
+				<exclude>**/.amateras/**</exclude>
+				<exclude>**/.tomcatplugin/**</exclude>
+			</excludes>
+		</fileSet>
+		<fileSet>
+			<directory>${basedir}</directory>
+			<outputDirectory>src</outputDirectory>
+			<useDefaultExcludes>true</useDefaultExcludes>
+			<includes>
+				<include>*.xml</include>
+				<include>empire-db/**</include>
+				<include>empire-db-example/**</include>
+				<include>empire-db-example-advanced/**</include>
+				<include>empire-db-struts2/**</include>
+				<include>empire-db-example-struts2/**</include>
+			</includes>
+			<excludes>
+				<exclude>**/empire-db/target/**</exclude>
+				<exclude>**/empire-db-*/target/**</exclude>
+				<exclude>**/.classpath/**</exclude>
+				<exclude>**/.project/**</exclude>
+				<exclude>**/.settings/**</exclude>
+				<exclude>**/.amateras/**</exclude>
+				<exclude>**/.tomcatplugin/**</exclude>
+			</excludes>
+		</fileSet>
+		<fileSet>
+			<directory>${basedir}</directory>
+			<outputDirectory/>
+			<useDefaultExcludes>true</useDefaultExcludes>
+			<includes>
+				<include>LICENSE</include>
+				<include>NOTICE</include>
+				<include>README</include>
+				<include>CHANGELOG-1.4</include>
+				<include>licenses/**</include>
+			</includes>
+		</fileSet>
+	</fileSets>
+	<moduleSets>
+		<moduleSet>
+			<includes>
+				<include>org.apache.empire-db:empire-db</include>
+				<include>org.apache.empire-db:empire-db-example</include>
+				<include>org.apache.empire-db:empire-db-example-advanced</include>
+    			<include>org.apache.empire-db:empire-db-struts2</include>
+    			<include>org.apache.empire-db:empire-db-example-struts2</include>
+			</includes>
+			<binaries>
+				<outputDirectory>lib</outputDirectory>
+				<unpack>false</unpack>
+				<includeDependencies>false</includeDependencies>
+			</binaries>
+		</moduleSet>
+	</moduleSets>
+</assembly>

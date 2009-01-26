@@ -31,9 +31,14 @@
 			<modules>
 				<module>empire-db</module>
 				<module>empire-db-example</module>
+				<module>empire-db-example-advanced</module>
+    			<module>empire-db-struts2</module>
+    			<module>empire-db-example-struts2</module>
 			</modules>
 		</profile>
 	</profiles>
+	
+	
 	<url>http://incubator.apache.org/empire-db/${project.artifactId}</url>
 	<organization>
 		<name>Apache Software Foundation</name>
@@ -158,10 +163,28 @@
 		<pluginManagement>
 			<plugins>
 				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-assembly-plugin</artifactId>
+					<version>2.2-beta-2</version>
+					<configuration>
+						<appendAssemblyId>false</appendAssemblyId>
+						<tarLongFileMode>gnu</tarLongFileMode>
+						<outputDirectory>target/dist</outputDirectory>
+						<descriptors>
+							<descriptor>empire-assembly-all.xml</descriptor>
+						</descriptors>
+						<finalName>empire-db-${project.version}</finalName>
+					</configuration>
+				</plugin>
+				<plugin>
+					<inherited>true</inherited>
+					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-compiler-plugin</artifactId>
 					<configuration>
 						<source>1.5</source>
 						<target>1.5</target>
+						<optimise>true</optimise>
+						<debug>true</debug>
 					</configuration>
 				</plugin>
 			</plugins>
@@ -179,9 +202,8 @@
 			</plugin>
 		</plugins>
 	</reporting>
-  <modules>
-    <module>empire-db-example-advanced</module>
-    <module>empire-db-struts2</module>
-    <module>empire-db-example-struts2</module>
-  </modules>
+
+	
+	
+
 </project>
