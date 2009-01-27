@@ -72,7 +72,7 @@
 			<archive>http://mail-archives.apache.org/mod_mbox/incubator-empire-db-dev/</archive>
 		</mailingList>
 		<mailingList>
-			<name>Wicket commit List</name>
+			<name>Empire-db commit List</name>
 			<subscribe>empire-db-commits-subscribe@incubator.apache.org</subscribe>
 			<unsubscribe>empire-db-commits-unsubscribe@incubator.apache.org</unsubscribe>
 			<archive>http://mail-archives.apache.org/mod_mbox/incubator-empire-db-commits/</archive>
