@@ -60,8 +60,8 @@ public final class ObjectUtils
     // Logger
     private static final Log log = LogFactory.getLog(ObjectUtils.class);
 
-    private static SimpleDateFormat dateFormat   = new SimpleDateFormat("yyyy-MM-dd");
-    private static SimpleDateFormat timeFormat   = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+    private static final String DATE_FORMAT = "yyyy-MM-dd";
+	private static final String DATETIME_FORMAT = "yyyy-MM-dd hh:mm:ss";
 
     private ObjectUtils()
     {
@@ -212,6 +212,7 @@ public final class ObjectUtils
      * <P>
      * If the object value supplied is null or if conversion is not possible then defValue is returned.
      * @param v the object value to convert
+     * @param defValue the default value
      * @return the Long value of o or defValue
      */
     public static double getDouble(Object v, double defValue)
@@ -319,9 +320,9 @@ public final class ObjectUtils
         try
         {   String str = v.toString();
             if (str.length() > 10)
-                return timeFormat.parse(str);
+                return new SimpleDateFormat(DATETIME_FORMAT).parse(str);
             else
-                return dateFormat.parse(str);
+                return new SimpleDateFormat(DATE_FORMAT).parse(str);
         } catch (Exception e)
         {
             log.error("Cannot convert value to date!", e);
@@ -340,7 +341,10 @@ public final class ObjectUtils
      */
     public static String formatDate(Date date, boolean withTime)
     {
-        return (withTime) ? timeFormat.format(date) : dateFormat.format(date);
+    	if(withTime)
+    		return new SimpleDateFormat(DATETIME_FORMAT).format(date);
+    	else
+    		return new SimpleDateFormat(DATE_FORMAT).format(date);
     }
     
     /**
@@ -348,6 +352,7 @@ public final class ObjectUtils
      * @param c the value type to convert to
      * @param v the object to convert
      * @return the Date value of o or null
+     * @throws ClassCastException 
      */
     @SuppressWarnings("unchecked")
     public static <T> T convert(Class<T> c, Object v)
@@ -405,7 +410,10 @@ public final class ObjectUtils
     
     /**
      * Generic conversion function that will convert a list to another list type.
+     * @param t the type class
+     * @param source the source collection
      * @return the new list type
+     * @throws ClassCastException 
      */
     public static <T> List<T> convert(Class<T> t, Collection<? extends T> source)
         throws ClassCastException
