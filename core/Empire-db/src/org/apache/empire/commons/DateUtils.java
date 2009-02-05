@@ -75,6 +75,7 @@ public class DateUtils
 
     /**
      * Returns the current date without time
+     * @return the date
      */
     public static Date getDateNow()
     {
@@ -83,6 +84,7 @@ public class DateUtils
 
     /**
      * Returns the current date and time
+     * @return the date
      */
     public static Date getTimeNow()
     {

@@ -73,7 +73,9 @@ public class Errors
     }
     
     /**
-     *  Gets an error Message from an object implementing the error info interface.
+     * Gets an error Message from an object implementing the error info interface.
+     * @param info the ErrorInfo to get the message for
+     * @return the message string for this info
      */
     public static String getErrorMessage(ErrorInfo info)
     {

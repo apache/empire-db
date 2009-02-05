@@ -136,6 +136,7 @@ public class StringUtils
      * Converts an array of objects to a string.
      * 
      * @param array array of objects
+     * @param separator the separator to put between the object strings
      * @return returns a String
      */
     public static String arrayToString(Object[] array, String separator)
@@ -206,6 +207,7 @@ public class StringUtils
      * Converts an collection of objects to a string.
      * 
      * @param c the collection to add
+     * @param separator the separator to put between the object strings
      * @return returns a String
      */
     public static String collectionToString(Collection<? extends Object> c, String separator)
