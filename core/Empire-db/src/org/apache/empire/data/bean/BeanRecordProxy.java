@@ -40,6 +40,9 @@ import org.apache.empire.data.Record;
 /**
  * BeanRecordProxy
  * This class defines proxy that allows any POJO to behave like a record object.
+ *  
+ * @param <T> the type of the class proxied by this {@code BeanRecordProxy}
+ * 
  * @author Rainer
  */
 public class BeanRecordProxy<T> extends ErrorObject implements Record

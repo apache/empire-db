@@ -116,6 +116,7 @@ public final class ObjectUtils
     
     /**
      * Checks whether a preferred value is valid and returns an alternative value if not.
+     * @param <T> the type of the values
      * @param preferred the preferred return value
      * @param alternative the alternative return value used if the preferred value is null 
      * @return the preferred value if it is not null or the alternative value otherwise

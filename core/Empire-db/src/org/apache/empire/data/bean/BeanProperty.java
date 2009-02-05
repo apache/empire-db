@@ -166,7 +166,8 @@ public class BeanProperty implements Column
 
     /**
      * returns the bean class of this property.
-     * May be NULL if BeanProperty is used 'stand alone'
+     * 
+     * @return the BeanClass or <code>null</code> if BeanProperty is used 'stand alone'
      */
     public BeanClass getBeanClass()
     {
