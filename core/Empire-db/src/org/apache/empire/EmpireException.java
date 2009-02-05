@@ -23,10 +23,8 @@ import org.apache.empire.commons.ErrorType;
 
 /**
  * This exception type is used for all empire errors.<br>
- * Exceptions will only be thrown if exceptions are enabled in the ErrorObject.<BR>
- * @see ErrorObject#setExceptionsEnabled(boolean)<BR>
- * <P>
- * @param errorObject the object that caused the error
+ * Exceptions will only be thrown if exceptions are enabled in the ErrorObject.
+ * @see ErrorObject#setExceptionsEnabled(boolean)
  */
 public final class EmpireException extends RuntimeException
 {
@@ -54,8 +52,8 @@ public final class EmpireException extends RuntimeException
     }
 
     /**
-     * The type of error that occurred<BR>
-     * @see org.apache.empire.commons.Errors<BR>
+     * The type of error that occurred
+     * @see org.apache.empire.commons.Errors
      * @return the type of error
      */
     public ErrorType getErrorType()
