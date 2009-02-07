@@ -404,7 +404,7 @@ public class ObjectUtilsTest
 
 	/**
 	 * Test method for
-	 * {@link org.apache.empire.commons.ObjectUtils#contains(T[], java.lang.Object)}
+	 * {@link org.apache.empire.commons.ObjectUtils#contains(Object[], Object)}
 	 * .
 	 */
 	@Test
