@@ -45,6 +45,36 @@
 		<jdbcPwd>empire-db</jdbcPwd>
 		<schemaName>DBSAMPLE</schemaName>
 	</properties-mysql>
+	
+	<properties-postgresql>
+		<!-- JDBC properties for a PostreSQL Database connection -->
+		<!-- Required jar file: postgresql-8.3-603.jdbc4.jar -->
+		<jdbcClass>org.postgresql.Driver</jdbcClass>
+		<jdbcURL>jdbc:postgresql://localhost</jdbcURL>
+		<jdbcUser>postgres</jdbcUser>
+		<jdbcPwd>postgres</jdbcPwd>
+		<schemaName>DBSAMPLE</schemaName>
+	</properties-postgresql>
+	
+	<properties-h2>
+		<!-- JDBC properties for a H2 Database connection -->
+		<!-- Required jar file: h2-1.1.107.jar -->
+		<jdbcClass>org.h2.Driver</jdbcClass>
+		<jdbcURL>jdbc:h2:~/h2test/DBSAMPLE</jdbcURL>
+		<jdbcUser>sa</jdbcUser>
+		<jdbcPwd></jdbcPwd>
+		<schemaName>DBSAMPLE</schemaName>
+	</properties-h2>
+	
+	<properties-derby>
+		<!-- JDBC properties for a Derby Database connection -->
+		<!-- Required jar file: derby-10.4.2.0.jar -->
+		<jdbcClass>org.apache.derby.jdbc.EmbeddedDriver</jdbcClass>
+		<jdbcURL>jdbc:derby:DBSAMPLE;create=true</jdbcURL>
+		<jdbcUser></jdbcUser>
+		<jdbcPwd></jdbcPwd>
+		<schemaName>DBSAMPLE</schemaName>
+	</properties-derby>
 
 	<properties-oracle>
 		<!-- JDBC properties for an Oracle Database connection -->
