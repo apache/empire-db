@@ -34,12 +34,11 @@ import org.apache.commons.logging.LogFactory;
  */
 public class ErrorType
 {
-    // Logger
     private static final Log log = LogFactory.getLog(ErrorType.class);
 
-    private String key;
-    private String msgPattern;
-    private int    numParams;
+    private final String key;
+    private final String msgPattern;
+    private final int    numParams;
 
     /**
      * Defines an error type.
@@ -52,15 +51,16 @@ public class ErrorType
         this.key = errorKey;
         this.msgPattern = msgPattern;
         // Count number of params
-        numParams = 0;
+        int numParamCount = 0;
         while(true)
         {
-            String placeholder = "{" + String.valueOf(numParams) + "}";
+            String placeholder = "{" + String.valueOf(numParamCount) + "}";
             if (msgPattern.indexOf(placeholder)<0)
                 break;
             // Param found
-            numParams++;    
+            numParamCount++;    
         }
+        this.numParams = numParamCount;
         // Write error definition to log
         log.info("Error defined: " + key + "=" + msgPattern);
     }
