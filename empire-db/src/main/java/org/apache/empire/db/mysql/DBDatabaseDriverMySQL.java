@@ -148,7 +148,7 @@ public class DBDatabaseDriverMySQL extends DBDatabaseDriver
         try
         {   // Set Database
             if (StringUtils.isValid(databaseName))
-                executeSQL("USE " + databaseName, null, conn);
+                executeSQL("USE " + databaseName, null, conn, null);
             // Sequence Table
             if (useSequenceTable && db.getTable(sequenceTableName)==null)
                 new DBSeqTable(sequenceTableName, db);
@@ -292,7 +292,7 @@ public class DBDatabaseDriverMySQL extends DBDatabaseDriver
      */
     @Override
     public Object getNextSequenceValue(DBDatabase db, String seqName, int minValue, Connection conn)
-    {   //Use Oracle Sequences
+    {   
         if (useSequenceTable)
         {   // Use a sequence Table to generate Sequences
             DBTable t = db.getTable(sequenceTableName);
@@ -302,12 +302,6 @@ public class DBDatabaseDriverMySQL extends DBDatabaseDriver
         {   // Post Detection
             return null;
         }
-    }
-    
-    @Override
-    public Object getPostInsertAutoIncValue(DBDatabase db, Connection conn)
-    {
-        return db.querySingleInt("SELECT LAST_INSERT_ID()", conn);
     }
 
     /**

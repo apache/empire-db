@@ -47,6 +47,25 @@ import org.apache.empire.db.expr.column.DBCountExpr;
  */
 public abstract class DBRowSet extends DBExpr
 {
+    /**
+     * This class is used to set the auto generated key of a record if the database does not support sequences.
+     * It is used with the executeSQL function and only required for insert statements
+     */
+    private static class DBSetGenKey implements DBDatabaseDriver.DBSetGenKeys
+    {
+        private Object[] fields;
+        private int index; 
+        public DBSetGenKey(Object[] fields, int index)
+        {
+            this.fields = fields;
+            this.index = index;
+        }
+        public void set(Object value)
+        {
+            fields[index]=value;
+        }
+    }
+    
     // Logger
     @SuppressWarnings("hiding")
     protected static Log log = LogFactory.getLog(DBRowSet.class);
@@ -559,13 +578,13 @@ public abstract class DBRowSet extends DBExpr
         // Get the new Timestamp
         String name = getName();
         Timestamp timestamp = (timestampColumn!=null) ? db.getUpdateTimestamp(conn) : null;
+        DBDatabaseDriver.DBSetGenKeys setGenKey = null;
         // Get the fields and the flags
         Object[] fields = rec.getFields();
         // Build SQL-Statement
         DBCommand cmd = db.createCommand();
         String sql = null;
         int setCount = 0;
-        int autoIncFieldIndex = -1; // for post insert auto increment processing
         switch (rec.getState())
         {
             case DBRecord.REC_MODIFIED:
@@ -622,7 +641,7 @@ public abstract class DBRowSet extends DBExpr
                     { // Set Autoinc value if not already done
                         if (db.getDriver().isSupported(DBDriverFeature.SEQUENCES)==false)
                         {  // Post Dectect Autoinc Value
-                           autoIncFieldIndex = i;
+                           setGenKey = new DBSetGenKey(fields, i);
                            continue;
                         }
                         // Get Next Sequence value
@@ -663,7 +682,7 @@ public abstract class DBRowSet extends DBExpr
             return success();
         }
         // Perform action
-        int affected = db.executeSQL(sql, cmd.getCmdParams(), conn);
+        int affected = db.executeSQL(sql, cmd.getCmdParams(), conn, setGenKey);
         if (affected < 0)
         { // Update Failed
             return error(db);
@@ -675,13 +694,6 @@ public abstract class DBRowSet extends DBExpr
         else if (affected > 1)
         { // Multiple Records affected
             return error(DBErrors.RecordUpdateInvalid, name);
-        }
-        // Post Insert Autoincrement processing
-        if (autoIncFieldIndex>=0 && fields[autoIncFieldIndex]==null)
-        {   // Driver must supply the value
-            fields[autoIncFieldIndex]=db.getDriver().getPostInsertAutoIncValue(db, conn);
-            if (fields[autoIncFieldIndex]==null)
-                return error(db.getDriver());
         }
         // Correct Timestamp
         if (timestampColumn != null)

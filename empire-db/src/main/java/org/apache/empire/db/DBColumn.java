@@ -45,6 +45,8 @@ public abstract class DBColumn extends DBColumnExpr
     // Predefined column attributes
     public static final String DBCOLATTR_MANDATORY = "mandatory";
     public static final String DBCOLATTR_READONLY  = "readonly";
+    public static final String DBCOLATTR_MINVALUE  = "minValue";
+    public static final String DBCOLATTR_MAXVALUE  = "maxValue";
 
     // basic data
     protected final DBRowSet   rowset;

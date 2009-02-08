@@ -115,8 +115,18 @@ public abstract class DBDatabaseDriver extends ErrorObject
                                                            "select", "udpate", "insert", "alter", "delete" };        
     protected final Set<String> reservedSQLKeywords;
 
+    /**
+     * This interface is used to set the auto generated keys when executing insert statements.
+     */
+    public interface DBSetGenKeys
+    {
+        void set(Object value);
+    }
     
-    // DBSeqTable
+    /**
+     * This class is used to emulate sequences by using a sequence table.
+     * It is used with the executeSQL function and only required for insert statements
+     */
     public static class DBSeqTable extends DBTable
     {
         public DBColumn C_SEQNAME;
@@ -319,20 +329,6 @@ public abstract class DBDatabaseDriver extends ErrorObject
     public abstract Object getNextSequenceValue(DBDatabase db, String SeqName, int minValue, Connection conn);
 
     /**
-     * Returns the value of an AutoIncrement field for the last inserted record.<BR>
-     * This function is only used for databases that do not support sequences.<BR>
-     * Hence getNextSequenceValue() must return 'null'
-     * @param db the database
-     * @param conn a valid database connection
-     * @return the id of the last inserted record null if this feature is not supported
-     */
-    public Object getPostInsertAutoIncValue(DBDatabase db, Connection conn)
-    {
-        error(Errors.NotSupported);
-        return null; 
-    }
-    
-    /**
      * Prepares an sql statement by setting the supplied objects as parameters.
      * 
      * @param pstmt the prepared statement
@@ -414,26 +410,41 @@ public abstract class DBDatabaseDriver extends ErrorObject
      * @param sqlCmd the SQL-Command
      * @param sqlParams array of sql command parameters used for prepared statements (Optional).
      * @param conn a valid connection to the database.
+     * @param seqValue allows to set the auto generated key of a record (INSERT statements only)
      * @return the row count for insert, update or delete or 0 for SQL statements that return nothing
      */
-    public int executeSQL(String sqlCmd, Object[] sqlParams, Connection conn)
+    public int executeSQL(String sqlCmd, Object[] sqlParams, Connection conn, DBSetGenKeys genKeys)
         throws SQLException
     {   // Execute the Statement
         Statement stmt = null;
         try
         {
+            int count = 0;
+            int retGenKeys = (genKeys!=null) ? Statement.RETURN_GENERATED_KEYS 
+                                             : Statement.NO_GENERATED_KEYS;
             if (sqlParams!=null)
-            {
-                PreparedStatement pstmt = conn.prepareStatement(sqlCmd);
-	            stmt = pstmt;
+            {   // Use a prepared statement
+                PreparedStatement pstmt = conn.prepareStatement(sqlCmd, retGenKeys);
 	            prepareStatement(pstmt, sqlParams);
-                return pstmt.executeUpdate(); 
+	            count = pstmt.executeUpdate(); 
             }
             else
             {   // Execute a simple statement
                 stmt = conn.createStatement();
-                return stmt.executeUpdate(sqlCmd);
+                count = stmt.executeUpdate(sqlCmd, retGenKeys);
             }
+            // Retrieve any auto-generated keys
+            if (genKeys!=null)
+            {   // Return Keys
+                ResultSet rs = stmt.getGeneratedKeys();
+                try {
+                    while(rs.next())
+                        genKeys.set(rs.getObject(1));
+                } finally {
+                    rs.close();
+                }
+            }
+            return count;
         } finally
         { // Close
             close(stmt);

@@ -24,6 +24,7 @@ import java.util.GregorianCalendar;
 import java.util.Iterator;
 
 import org.apache.empire.commons.Errors;
+import org.apache.empire.commons.ObjectUtils;
 import org.apache.empire.commons.StringUtils;
 import org.apache.empire.data.DataType;
 import org.apache.empire.db.DBCmdType;
@@ -66,6 +67,9 @@ public class DBDatabaseDriverMSSQL extends DBDatabaseDriver
     private String databaseName = null;
     private String objectOwner = "dbo";
     private String sequenceTableName = "Sequences";
+    // Sequence treatment
+    // When set to 'false' (default) MySQL's autoincrement feature is used.
+    private boolean useSequenceTable = false;
     
     /**
      * Constructor for the MSSQL database driver.<br>
@@ -93,6 +97,26 @@ public class DBDatabaseDriverMSSQL extends DBDatabaseDriver
     public void setObjectOwner(String objectOwner)
     {
         this.objectOwner = objectOwner;
+    }
+
+    /**
+     * returns whether a sequence table is used for record identiy management.<br>
+     * Default is false. In this case the AutoIncrement feature of MySQL is used.
+     * @return true if a sequence table is used instead of identity columns.
+     */
+    public boolean isUseSequenceTable()
+    {
+        return useSequenceTable;
+    }
+
+    /**
+     * If set to true a special table is used for sequence number generation.<br>
+     * Otherwise the AutoIncrement feature of MySQL is used identiy fields. 
+     * @param useSequenceTable true to use a sequence table or false otherwise.
+     */
+    public void setUseSequenceTable(boolean useSequenceTable)
+    {
+        this.useSequenceTable = useSequenceTable;
     }
 
     /**
@@ -125,11 +149,11 @@ public class DBDatabaseDriverMSSQL extends DBDatabaseDriver
         try
         {   // Set Database
             if (StringUtils.isValid(databaseName))
-                executeSQL("USE " + databaseName, null, conn);
+                executeSQL("USE " + databaseName, null, conn, null);
             // Set Dateformat
-            executeSQL("SET DATEFORMAT ymd", null, conn);
+            executeSQL("SET DATEFORMAT ymd", null, conn, null);
             // Sequence Table
-            if (db.getTable(sequenceTableName)==null)
+            if (useSequenceTable && db.getTable(sequenceTableName)==null)
                 new DBSeqTable(sequenceTableName, db);
             // Check Schema
             String schema = db.getSchema();
@@ -171,7 +195,7 @@ public class DBDatabaseDriverMSSQL extends DBDatabaseDriver
         switch (type)
         {   // return support info 
             case CREATE_SCHEMA: return true;
-            case SEQUENCES:     return true;    
+            case SEQUENCES:     return useSequenceTable;    
         }
         return false;
     }
@@ -282,9 +306,16 @@ public class DBDatabaseDriverMSSQL extends DBDatabaseDriver
      */
     @Override
     public Object getNextSequenceValue(DBDatabase db, String seqName, int minValue, Connection conn)
-    { 	//Use Oracle Sequences
-        DBTable t = db.getTable(sequenceTableName);
-        return ((DBSeqTable)t).getNextValue(seqName, minValue, conn);
+    { 	
+        if (useSequenceTable)
+        {   // Use a sequence Table to generate Sequences
+            DBTable t = db.getTable(sequenceTableName);
+            return ((DBSeqTable)t).getNextValue(seqName, minValue, conn);
+        }
+        else
+        {   // Post Detection
+            return null;
+        }
     }
 
     /**
@@ -511,6 +542,14 @@ public class DBDatabaseDriverMSSQL extends DBDatabaseDriver
                 break;
             case AUTOINC:
                 sql.append("[int]");
+                if (useSequenceTable==false)
+                {   // Make this column the identity column
+                    int minValue = ObjectUtils.getInteger(c.getAttribute(DBColumn.DBCOLATTR_MINVALUE), 1);
+                    sql.append(" IDENTITY(");
+                    sql.append(String.valueOf(minValue));
+                    sql.append(", 1) NOT NULL");
+                    return true;
+                }
                 break;
             case TEXT:
             { // Check fixed or variable length

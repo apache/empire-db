@@ -948,7 +948,7 @@ public abstract class DBDatabase extends DBObject
      * @param conn a valid connection to the database.
      * @return the row count for insert, update or delete or 0 for SQL statements that return nothing
      */
-    public int executeSQL(String sqlCmd, Object[] sqlParams, Connection conn)
+    public int executeSQL(String sqlCmd, Object[] sqlParams, Connection conn, DBDatabaseDriver.DBSetGenKeys setGenKeys)
     {
         try 
         {
@@ -960,7 +960,7 @@ public abstract class DBDatabase extends DBObject
                 log.info("Executing: " + sqlCmd);
             // execute SQL
             long start = System.currentTimeMillis();
-            int affected = driver.executeSQL(sqlCmd, sqlParams, conn);
+            int affected = driver.executeSQL(sqlCmd, sqlParams, conn, setGenKeys);
             // Log
             if (log.isInfoEnabled())
 	            log.info("executeSQL affected " + String.valueOf(affected) + " Records / " + (System.currentTimeMillis() - start) + "ms");
@@ -980,6 +980,11 @@ public abstract class DBDatabase extends DBObject
 	    }    
     }
 
+    public final int executeSQL(String sqlCmd, Object[] sqlParams, Connection conn)
+    {
+        return executeSQL(sqlCmd, sqlParams, conn, null); 
+    }
+    
     /**
      * Executes an update, insert or delete SQL-Statement.<BR>
      * We recommend to use a DBCommand object in order to build the sqlCmd.<BR>
