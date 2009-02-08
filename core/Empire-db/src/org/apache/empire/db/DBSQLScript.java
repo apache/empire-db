@@ -110,7 +110,7 @@ public class DBSQLScript extends ErrorObject implements Iterable<String>
             try {
                 // Execute Statement
                 log.debug("Executing: " + stmt);
-                driver.executeSQL(stmt, null, conn);
+                driver.executeSQL(stmt, null, conn, null);
             } catch(SQLException e) {
                 // SQLException
                 log.error(e.toString(), e);
