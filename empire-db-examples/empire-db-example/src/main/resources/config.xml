@@ -67,7 +67,7 @@
 	</properties-h2>
 	
 	<properties-derby>
-		<!-- JDBC properties for a H2 Database connection -->
+		<!-- JDBC properties for a Derby Database connection -->
 		<!-- Required jar file: derby-10.4.2.0.jar -->
 		<jdbcClass>org.apache.derby.jdbc.EmbeddedDriver</jdbcClass>
 		<jdbcURL>jdbc:derby:DBSAMPLE;create=true</jdbcURL>
