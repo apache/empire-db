@@ -52,9 +52,9 @@
 	</licenses>
 	<scm>
 		<!-- TODO correct when using trunk -->
-		<connection>scm:svn:http://svn.apache.org/repos/asf/incubator/empire-db/branches/maven</connection>
-		<developerConnection>scm:svn:https://svn.apache.org/repos/asf/incubator/empire-db/branches/maven</developerConnection>
-		<url>http://svn.apache.org/viewvc/incubator/empire-db/branches/maven</url>
+		<connection>scm:svn:http://svn.apache.org/repos/asf/incubator/empire-db/trunk</connection>
+		<developerConnection>scm:svn:https://svn.apache.org/repos/asf/incubator/empire-db/trunk</developerConnection>
+		<url>http://svn.apache.org/viewvc/incubator/empire-db/trunk</url>
 	</scm>
 	<mailingLists>
 		<mailingList>
