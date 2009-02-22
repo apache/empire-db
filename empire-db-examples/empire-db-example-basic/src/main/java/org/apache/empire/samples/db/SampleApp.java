@@ -30,9 +30,12 @@ import org.apache.empire.db.DBDatabaseDriver;
 import org.apache.empire.db.DBReader;
 import org.apache.empire.db.DBRecord;
 import org.apache.empire.db.DBSQLScript;
+import org.apache.empire.db.derby.DBDatabaseDriverDerby;
+import org.apache.empire.db.h2.DBDatabaseDriverH2;
 import org.apache.empire.db.hsql.DBDatabaseDriverHSql;
 import org.apache.empire.db.mysql.DBDatabaseDriverMySQL;
 import org.apache.empire.db.oracle.DBDatabaseDriverOracle;
+import org.apache.empire.db.postgresql.DBDatabaseDriverPostgreSQL;
 import org.apache.empire.db.sqlserver.DBDatabaseDriverMSSQL;
 import org.apache.empire.xml.XMLWriter;
 import org.w3c.dom.Document;
@@ -58,6 +61,7 @@ public class SampleApp
 	 * This is the entry point of the Empire-DB Sample Application
 	 * Please check the config.xml configuration file for Database and Connection settings.
      * </PRE>
+	 * @param args arguments
 	 */
 	public static void main(String[] args)
     {
