@@ -35,6 +35,31 @@
     			<module>empire-db-struts2</module>
 			</modules>
 		</profile>
+		<profile>
+			<id>CI</id>
+			<activation>
+				<activeByDefault>false</activeByDefault>
+			</activation>
+			<modules>
+				<module>empire-db</module>
+				<module>empire-db-examples</module>
+    			<module>empire-db-struts2</module>
+			</modules>
+			<distributionManagement>
+				<site>
+					<id>people.apache.org.site</id>
+					<name>Empire-db Maven Site</name>
+					<url>scp://people.apache.org/home/francisdb/public_html/empire-db/site</url>
+				</site>
+
+				<snapshotRepository>
+					<id>people.apache.org.repo</id>
+					<name>Empire-db Snapshot Repo</name>
+					<url>scp://people.apache.org/home/francisdb/public_html/empire-db/repo</url>
+					<uniqueVersion>false</uniqueVersion>
+				</snapshotRepository>
+			</distributionManagement>
+		</profile>
 	</profiles>
 	
 	
@@ -161,6 +186,18 @@
 	</dependencies>
 
 	<build>
+		<extensions>
+			<!-- <extension>
+				<groupId>org.apache.maven.wagon</groupId>
+				<artifactId>wagon-ssh-external</artifactId>
+				<version>1.0-beta-4</version>
+			</extension>
+			<extension>
+				<groupId>org.apache.maven.wagon</groupId>
+				<artifactId>wagon-ssh</artifactId>
+				<version>1.0-beta-2</version>
+			</extension>-->
+		</extensions>
 		<pluginManagement>
 			<plugins>
 				<plugin>
