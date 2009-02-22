@@ -42,7 +42,8 @@
 			</activation>
 			<modules>
 				<module>empire-db</module>
-				<module>empire-db-examples</module>
+				<!-- no need to upload these to our snapshot repo -->
+				<!-- <module>empire-db-examples</module> -->
     			<module>empire-db-struts2</module>
 			</modules>
 			<distributionManagement>
@@ -214,18 +215,6 @@
 	</dependencies>
 
 	<build>
-		<extensions>
-			<!-- <extension>
-				<groupId>org.apache.maven.wagon</groupId>
-				<artifactId>wagon-ssh-external</artifactId>
-				<version>1.0-beta-4</version>
-			</extension>
-			<extension>
-				<groupId>org.apache.maven.wagon</groupId>
-				<artifactId>wagon-ssh</artifactId>
-				<version>1.0-beta-2</version>
-			</extension>-->
-		</extensions>
 		<pluginManagement>
 			<plugins>
 				<plugin>
