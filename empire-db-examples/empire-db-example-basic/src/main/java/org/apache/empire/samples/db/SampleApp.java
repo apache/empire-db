@@ -206,6 +206,26 @@ public class SampleApp
             DBDatabaseDriverHSql driver = new DBDatabaseDriverHSql();
             // Set Driver specific properties (if any)
             return driver;
+        }else if (provider.equalsIgnoreCase("postgresql"))
+        {
+            DBDatabaseDriverPostgreSQL driver = new DBDatabaseDriverPostgreSQL();
+            // Set Driver specific properties (if any)
+            driver.setDatabaseName(config.getSchemaName());
+            return driver;
+        }
+        else if (provider.equalsIgnoreCase("h2"))
+        {
+            DBDatabaseDriverH2 driver = new DBDatabaseDriverH2();
+            // Set Driver specific properties (if any)
+            driver.setDatabaseName(config.getSchemaName());
+            return driver;
+        }
+        else if (provider.equalsIgnoreCase("derby"))
+        {
+            DBDatabaseDriverDerby driver = new DBDatabaseDriverDerby();
+            // Set Driver specific properties (if any)
+            driver.setDatabaseName(config.getSchemaName());
+            return driver;
         }
         else
         {   // Unknown Provider
@@ -357,9 +377,12 @@ public class SampleApp
         // e.g. substr(PHONE_NUMBER, length(PHONE_NUMBER)-instr(reverse(PHONE_NUMBER), '-')+2) AS PHONE_EXTENSION
         // Hint: Since the reverse() function is not supported by HSQLDB there is special treatment for HSQL
         DBColumnExpr PHONE_LAST_DASH;
-        if ( db.getDriver() instanceof DBDatabaseDriverHSql )
+        if ( db.getDriver() instanceof DBDatabaseDriverHSql 
+        		|| db.getDriver() instanceof DBDatabaseDriverPostgreSQL
+        		|| db.getDriver() instanceof DBDatabaseDriverDerby
+        		|| db.getDriver() instanceof DBDatabaseDriverH2)
              PHONE_LAST_DASH = EMP.PHONE_NUMBER.indexOf("-", EMP.PHONE_NUMBER.indexOf("-").plus(1)).plus(1); // HSQLDB only
-        else PHONE_LAST_DASH = EMP.PHONE_NUMBER.length().minus(EMP.PHONE_NUMBER.reverse().indexOf("-")).plus(2); 
+        else PHONE_LAST_DASH = EMP.PHONE_NUMBER.length().minus(EMP.PHONE_NUMBER.reverse().indexOf("-")).plus(2);  
         DBColumnExpr PHONE_EXT_NUMBER = EMP.PHONE_NUMBER.substring(PHONE_LAST_DASH).as("PHONE_EXTENSION");
         
         // DBColumnExpr genderExpr = cmd.select(EMP.GENDER.decode(EMP.GENDER.getOptions()).as(EMP.GENDER.getName()));
