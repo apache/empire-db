@@ -420,21 +420,23 @@ public abstract class DBDatabaseDriver extends ErrorObject
         try
         {
             int count = 0;
-            int retGenKeys = (genKeys!=null) ? Statement.RETURN_GENERATED_KEYS 
-                                             : Statement.NO_GENERATED_KEYS;
             if (sqlParams!=null)
             {   // Use a prepared statement
-                PreparedStatement pstmt = conn.prepareStatement(sqlCmd, retGenKeys);
+                PreparedStatement pstmt = (genKeys!=null) 
+                    ? conn.prepareStatement(sqlCmd, Statement.RETURN_GENERATED_KEYS)
+                    : conn.prepareStatement(sqlCmd);
 	            prepareStatement(pstmt, sqlParams);
 	            count = pstmt.executeUpdate(); 
             }
             else
             {   // Execute a simple statement
                 stmt = conn.createStatement();
-                count = stmt.executeUpdate(sqlCmd, retGenKeys);
+                count = (genKeys!=null)
+                    ? stmt.executeUpdate(sqlCmd, Statement.RETURN_GENERATED_KEYS)
+                    : stmt.executeUpdate(sqlCmd);
             }
             // Retrieve any auto-generated keys
-            if (genKeys!=null)
+            if (genKeys!=null && count>0)
             {   // Return Keys
                 ResultSet rs = stmt.getGeneratedKeys();
                 try {
@@ -444,6 +446,7 @@ public abstract class DBDatabaseDriver extends ErrorObject
                     rs.close();
                 }
             }
+            // done
             return count;
         } finally
         { // Close
