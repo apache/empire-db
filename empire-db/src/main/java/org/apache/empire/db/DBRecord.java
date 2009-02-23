@@ -40,9 +40,8 @@ import org.w3c.dom.Element;
 
 
 /**
- * This class handles one record from a database table.
- * <P>
  * 
+ * This class handles one record from a database table. 
  *
  */
 public class DBRecord extends DBRecordData implements Record, Cloneable
@@ -53,9 +52,7 @@ public class DBRecord extends DBRecordData implements Record, Cloneable
     public static final int REC_MODIFIED = 2;
     public static final int REC_NEW      = 3;
 
-    // Logger
-    @SuppressWarnings("hiding")
-    protected static Log    log          = LogFactory.getLog(DBRecord.class);
+    protected static final Log    log          = LogFactory.getLog(DBRecord.class);
 
     // This is the record data
     private int             state;
@@ -282,6 +279,9 @@ public class DBRecord extends DBRecordData implements Record, Cloneable
 
     /**
      * Returns the DBColumn for the field at the given index.
+     * 
+     * @param index the field index 
+     * 
      * @return the index value
      */
     public DBColumn getDBColumn(int index)
@@ -311,6 +311,9 @@ public class DBRecord extends DBRecordData implements Record, Cloneable
     
     /**
      * Returns true if the field was modified.
+     * 
+     * @param index the field index
+     *  
      * @return true if the field was modified
      */
     public boolean wasModified(int index)
@@ -339,6 +342,9 @@ public class DBRecord extends DBRecordData implements Record, Cloneable
     /**
      * Sets the modified state of a column.<BR>
 	 * This will force the field to be updated in the database, if set to TRUE.
+	 * 
+     * @param column the column
+     * @param isModified modified or not
      */
     public void setModified(DBColumn column, boolean isModified)
     {
@@ -419,6 +425,9 @@ public class DBRecord extends DBRecordData implements Record, Cloneable
     /**
      * Returns whether a field value is provided i.e. the value is not DBRowSet.NO_VALUE<BR>
      * This function is only useful in cases where records are partically loaded.<BR>
+     * 
+     * @param index the filed index
+     *  
      * @return true if a valid value is supplied for the given field or false if value is {@link ObjectUtils#NO_VALUE}  
      */
     public boolean isValueValid(int index)
@@ -437,6 +446,10 @@ public class DBRecord extends DBRecordData implements Record, Cloneable
 
     /**
      * Gets the possbile Options for a field in the context of the current record.
+     * 
+     * @param column the database field column
+     *  
+     * @return the field options 
      */
     public Options getFieldOptions(DBColumn column)
     {
@@ -537,6 +550,10 @@ public class DBRecord extends DBRecordData implements Record, Cloneable
     
     /**
      * returns whether a field is read only or not
+     * 
+     * @param column the database column 
+     * 
+     * @return true if the field is read only
      */
     public boolean isFieldReadOnly(DBColumn column)
     {
@@ -600,6 +617,9 @@ public class DBRecord extends DBRecordData implements Record, Cloneable
     }
 
     /**
+     * @param table 
+     * @param conn 
+     * @return true on succes
      * @deprecated use {@link DBRecord#create(DBRowSet, Connection)}
      */
     @Deprecated
@@ -609,6 +629,8 @@ public class DBRecord extends DBRecordData implements Record, Cloneable
     }
 
     /**
+     * @param table 
+     * @return true on succes
      * @deprecated use {@link DBRecord#create(DBRowSet)}
      */
     @Deprecated
@@ -833,7 +855,12 @@ public class DBRecord extends DBRecordData implements Record, Cloneable
     }
 
     /**
-     * Initialisieren the field with the values (NO_VALUE) of the vector 'field'.
+     * Set the record default value for the fields with 
+     * the value {@link ObjectUtils.NoValue}
+     * 
+     * @param conn the sql connection
+     *  
+     * @return the number of fields set to default
      */
     public int fillMissingDefaults(Connection conn)
     {

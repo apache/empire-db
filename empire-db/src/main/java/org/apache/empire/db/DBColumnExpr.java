@@ -172,6 +172,8 @@ public abstract class DBColumnExpr extends DBExpr
 
     /**
      * Sets the title attribute.
+     * 
+     * @param title the column title
      */
     public final void setTitle(String title)
     { 
@@ -179,11 +181,11 @@ public abstract class DBColumnExpr extends DBExpr
     }
 
     /**
-     * Returns the columns control type.
+     * Returns the column control type.
      * The control type is a client specific name for the type of input control 
      * that should be used to display and edit values for this column. 
      * 
-     * @return the columns control type
+     * @return the column control type
      */
     public final String getControlType()
     { 
@@ -192,7 +194,9 @@ public abstract class DBColumnExpr extends DBExpr
     }
 
     /**
-     * Sets the title attribute.
+     * Sets the controlType attribute.
+     * 
+     * @param controlType the column control type
      */
     public final void setControlType(String controlType)
     { 
@@ -351,6 +355,7 @@ public abstract class DBColumnExpr extends DBExpr
      * Creates and returns a new comparison object for the SQL "like" operator. 
      *
      * @param value the Object value
+     * @param escape the escape character
      * @return the new DBCompareColExpr object
      */
     public DBCompareColExpr like(String value, char escape)
@@ -632,6 +637,7 @@ public abstract class DBColumnExpr extends DBExpr
      * Creates and returns a sql-expression for the substring(...) function.
      * 
      * @param pos the position number of the string
+     * 
      * @return the new DBFuncExpr object
      */
     public DBColumnExpr substring(DBExpr pos)
@@ -641,6 +647,10 @@ public abstract class DBColumnExpr extends DBExpr
 
     /**
      * Overloaded. @see substring(DBExpr pos)
+     * 
+     * @param pos the position number of the string
+     * 
+     * @return the new DBFuncExpr object
      */
     public DBColumnExpr substring(int pos)
     {
@@ -652,6 +662,7 @@ public abstract class DBColumnExpr extends DBExpr
      * 
      * @param pos the position number of the string
      * @param count the length of the substring
+     * 
      * @return the new DBFuncExpr object
      */
     public DBColumnExpr substring(DBExpr pos, DBExpr count)
@@ -661,6 +672,11 @@ public abstract class DBColumnExpr extends DBExpr
 
     /**
      * Overloaded. @see substring(DBExpr pos, DBExpr count)
+     * 
+     * @param pos the position number of the string
+     * @param count the length of the substring
+     * 
+     * @return the new DBFuncExpr object
      */
     public DBColumnExpr substring(DBExpr pos, int count)
     {
@@ -669,6 +685,11 @@ public abstract class DBColumnExpr extends DBExpr
 
     /**
      * Overloaded. @see substring(DBExpr pos, DBExpr count)
+     * 
+     * @param pos the position number of the string
+     * @param count the length of the substring
+     * 
+     * @return the new DBFuncExpr object
      */
     public DBColumnExpr substring(int pos, DBExpr count)
     {
@@ -677,6 +698,11 @@ public abstract class DBColumnExpr extends DBExpr
 
     /**
      * Overloaded. @see substring(DBExpr pos, DBExpr count)
+     * 
+     * @param pos the position number of the string
+     * @param count the length of the substring
+     * 
+     * @return the new DBFuncExpr object
      */
     public DBColumnExpr substring(int pos, int count)
     {
@@ -770,6 +796,8 @@ public abstract class DBColumnExpr extends DBExpr
 
     /**
      * Creates and returns a sql-expression that returns the position of a string in the current column expression.
+     * 
+     * @param str the string to find the position of
      *
      * @return the new DBFuncExpr object
      */
@@ -780,6 +808,9 @@ public abstract class DBColumnExpr extends DBExpr
 
     /**
      * Creates and returns a sql-expression that returns the position of a string in the current column expression.
+     * 
+     * @param str the string to find the position of
+     * @param fromPos the start position for the search
      *
      * @return the new DBFuncExpr object
      */
@@ -790,6 +821,11 @@ public abstract class DBColumnExpr extends DBExpr
 
     /**
      * Overloaded. @see indexOf(Object str, DBExpr fromPos) 
+     * 
+     * @param str the string to find the position of
+     * @param fromPos the start position for the search
+     * 
+     * @return the new DBFuncExpr object
      */
     public DBColumnExpr indexOf(Object str, int fromPos)
     {

@@ -206,6 +206,8 @@ public class DBTable extends DBRowSet implements Cloneable
      * Sets the primary keys.
      * 
      * @param columns a array with one or more DBColumn objects
+     * 
+     * @return true on succes
      */
     public boolean setPrimaryKey(DBColumn[] columns)
     {
@@ -232,6 +234,9 @@ public class DBTable extends DBRowSet implements Cloneable
 
     /**
      * Adds two columns to the primary key list.
+     * 
+     * @param col1 the first column 
+     * @param col2 the second column
      */
     public final void setPrimaryKey(DBColumn col1, DBColumn col2)
     {
@@ -240,6 +245,10 @@ public class DBTable extends DBRowSet implements Cloneable
 
     /**
      * Adds three columns to the primary key list.
+     * 
+     * @param col1 the first column
+     * @param col2 the second column
+     * @param col3 the third column
      */
     public final void setPrimaryKey(DBColumn col1, DBColumn col2, DBColumn col3)
     {
@@ -248,6 +257,12 @@ public class DBTable extends DBRowSet implements Cloneable
 
     /**
      * Adds an index.
+     * 
+     * @param indexName the index name
+     * @param unique is this a unique index
+     * @param indexColumns the columns indexed by this index
+     * 
+     * @return true on succes
      */
     public boolean addIndex(String indexName, boolean unique, DBColumn[] indexColumns)
     {
@@ -262,6 +277,8 @@ public class DBTable extends DBRowSet implements Cloneable
      * Adds a timestamp column to the table used for optimistic locking.
      * 
      * @param columnName the column name
+     * 
+     * @return the timestamp table column object
      */
     public DBTableColumn addTimestampColumn(String columnName)
     {
@@ -302,6 +319,7 @@ public class DBTable extends DBRowSet implements Cloneable
      * 
      * @param rec the DBRecord object. contains all fields and the field properties
      * @param conn a valid connection to the database.
+     * 
      * @return true if successful
      */
     @Override
@@ -324,7 +342,9 @@ public class DBTable extends DBRowSet implements Cloneable
     }
 
     /**
-     *  Returns true if cascaded deletes are enabled or false otherwise.
+     * Returns true if cascaded deletes are enabled or false otherwise.
+     *  
+     * @return true if cascade deletes are enabled
      */
     public boolean isCascadeDelete()
     {
@@ -332,7 +352,9 @@ public class DBTable extends DBRowSet implements Cloneable
     }
 
     /**
-     *  Sets true if delete records will.
+     * Sets true if delete records will.
+     *  
+     * @param cascadeDelete use cascade deletes or not
      */
     public void setCascadeDelete(boolean cascadeDelete)
     {

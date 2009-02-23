@@ -135,6 +135,9 @@ public abstract class DBDatabaseDriver extends ErrorObject
 
         /**
          * Constructor
+         * 
+         * @param tableName the table name
+         * @param db the database object
          */
         public DBSeqTable(String tableName, DBDatabase db)
         {
@@ -271,8 +274,10 @@ public abstract class DBDatabaseDriver extends ErrorObject
 
     /**
      * Appends a table, view or column name to an SQL phrase. 
+     * 
      * @param sql the StringBuilder containing the SQL phrase.
      * @param name the name of the object (table, view or column)
+     * @param useQuotes use quotes or not
      */
     public void appendElementName(StringBuilder sql, String name, boolean useQuotes)
     {
@@ -380,7 +385,10 @@ public abstract class DBDatabaseDriver extends ErrorObject
      * @param rset the sql Resultset with the current data row
      * @param columnIndex one based column Index of the desired column
      * @param dataType the required data type
+     * 
      * @return the value of the Column 
+     * 
+     * @throws SQLException if a database access error occurs
      */
     public Object getResultValue(ResultSet rset, int columnIndex, DataType dataType)
         throws SQLException
@@ -410,8 +418,11 @@ public abstract class DBDatabaseDriver extends ErrorObject
      * @param sqlCmd the SQL-Command
      * @param sqlParams array of sql command parameters used for prepared statements (Optional).
      * @param conn a valid connection to the database.
-     * @param seqValue allows to set the auto generated key of a record (INSERT statements only)
+     * @param genKeys allows to set the auto generated key of a record (INSERT statements only)
+     * 
      * @return the row count for insert, update or delete or 0 for SQL statements that return nothing
+     * 
+     * @throws SQLException if a database access error occurs
      */
     public int executeSQL(String sqlCmd, Object[] sqlParams, Connection conn, DBSetGenKeys genKeys)
         throws SQLException
@@ -602,6 +613,12 @@ public abstract class DBDatabaseDriver extends ErrorObject
 
     /**
      * Checks the database whether or not it is consistent with the description.
+     * 
+     * @param db the database
+     * @param owner the owner
+     * @param conn the connection
+     * 
+     * @return true if it is consistent with the description
      */
     public boolean checkDatabase(DBDatabase db, String owner, Connection conn)
     {
@@ -610,6 +627,12 @@ public abstract class DBDatabaseDriver extends ErrorObject
     
     /**
      * gets an SQL command for creating, modifying or deleting objects in the database (tables, columns, constraints, etc.)
+     * 
+     * @param type the command type 
+     * @param dbo the databse object
+     * @param script the script to complete
+     * 
+     * @return true on succes 
      */
     public boolean getDDLScript(DBCmdType type, DBObject dbo, DBSQLScript script)
     {
@@ -636,6 +659,8 @@ public abstract class DBDatabaseDriver extends ErrorObject
     /**
      * Returns a timestamp that is used for record updates.
      * 
+     * @param conn the connection that might be used 
+     * 
      * @return the current date and time.
      */
     public java.sql.Timestamp getUpdateTimestamp(Connection conn)
@@ -645,7 +670,9 @@ public abstract class DBDatabaseDriver extends ErrorObject
         return new java.sql.Timestamp(date.getTime());
     }
 
-    /** this helper function doubles up single quotes for SQL */
+    /** 
+     * this helper function doubles up single quotes for SQL 
+     */
     protected void appendTextValue(StringBuilder buf, String value)
     {
         if (value.indexOf('\'') >= 0)

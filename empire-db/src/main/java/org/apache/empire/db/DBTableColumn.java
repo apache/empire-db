@@ -49,6 +49,7 @@ public class DBTableColumn extends DBColumn
     /**
      * Constructs a DBTableColumn object set the specified parameters to this object.
      * 
+     * @param table the table object to add the column to, set to null if you don't want it added to a table
      * @param type the type of the column e.g. integer, text, date
      * @param name the column name
      * @param size the column width
@@ -318,6 +319,7 @@ public class DBTableColumn extends DBColumn
      * Creates a foreign key relation for this column.
      * 
      * @param target the referenced primary key column
+     * @return the reference object
      */
     public DBRelation.DBReference referenceOn(DBTableColumn target)
     {

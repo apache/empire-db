@@ -128,6 +128,11 @@ public abstract class DBDatabase extends DBObject
      * Sets the database driver for this database. <br>
      * ------ DO NOT CALL DIRECTLY! ------- <br>
      * This function is called internally by DBDatabaseDriver:openDatabase()
+     * 
+     * @param driver the databae driver
+     * @param conn the connection
+     * 
+     * @return true on succes
      */
     public boolean open(DBDatabaseDriver driver, Connection conn)
     {
@@ -145,7 +150,9 @@ public abstract class DBDatabase extends DBObject
     /**
      * closes this database object by detaching it from the driver
      * this is a shortcut for calling
-     *  getDriver().closeDatabase(db, conn) 
+     *  getDriver().closeDatabase(db, conn)
+     *   
+     * @param conn the connection to close
      */
     public void close(Connection conn)
     {
@@ -163,6 +170,8 @@ public abstract class DBDatabase extends DBObject
      * to create, alter or delete other database objects<BR>
      * <P>
      * @param driver The driver for which to create a DDL Script
+     * @param script the script object that will be completed
+     * 
      * @return the DLL script for creating the entire database schema
      */
     public synchronized boolean getCreateDDLScript(DBDatabaseDriver driver, DBSQLScript script)
@@ -210,6 +219,10 @@ public abstract class DBDatabase extends DBObject
 
     /**
      * Sets the schema for SQL statements.
+     * 
+     * @param schema the schema to set
+     * 
+     * @return true on succes
      */
     public boolean setSchema(String schema)
     {   // Database must not be open so far
@@ -249,6 +262,8 @@ public abstract class DBDatabase extends DBObject
      * Sets the name of the database link used to identify objects.
      * 
      * @param linkName the database link name
+     * 
+     * @return true on succes
      */
     public boolean setLinkName(String linkName)
     {   // Database must not be open so far
@@ -283,6 +298,7 @@ public abstract class DBDatabase extends DBObject
      * 
      * @param buf the string buffer to which to append the qualified object name
      * @param name the object's name
+     * @param quoteName use quotes or not
      */
     public void appendQualifiedName(StringBuilder buf, String name, boolean quoteName)
     {
@@ -469,7 +485,9 @@ public abstract class DBDatabase extends DBObject
     /**
      * Adds a foreign key relation to the database.
      * 
+     * @param name the relation name
      * @param references a list of source and target column pairs
+     * 
      * @return true if the relations was successfully created.
      */
     public boolean addReleation(String name, DBRelation.DBReference[] references)
@@ -580,6 +598,7 @@ public abstract class DBDatabase extends DBObject
     /**
      * Returns a timestamp that is used for record updates.
      * 
+     * @param conn the connection
      * @return the current date and time.
      */
     public java.sql.Timestamp getUpdateTimestamp(Connection conn)
@@ -606,8 +625,9 @@ public abstract class DBDatabase extends DBObject
      * 
      * @param sqlCmd the SQL-Command
      * @param conn a valid connection to the database.
-     * @exception java.sql.SQLException if a database access error occurs
-     * @return the first column in the current row as a Java object
+     * 
+     * @return the first column in the current row as a Java object 
+     *         or <code>null</code> if there was no value 
      */
 
     public Object querySingleValue(String sqlCmd, Connection conn)
@@ -684,7 +704,9 @@ public abstract class DBDatabase extends DBObject
      * Returns the value of the first row/column of a sql-query as a long.
      * 
      * @param sqlCmd the SQL statement
+     * @param defVal the default value
      * @param conn a valid connection to the database.
+     * 
      * @return the result as a long value, if no result the long value 0
      */
     public long querySingleLong(String sqlCmd, long defVal, Connection conn)
@@ -709,7 +731,9 @@ public abstract class DBDatabase extends DBObject
      * Returns the value of the first row/column of a sql-query as a double.
      * 
      * @param sqlCmd the SQL statement
+     * @param defVal the default value
      * @param conn a valid connection to the database.
+     * 
      * @return the result as a long value, if no result the long value 0
      */
     public double querySingleDouble(String sqlCmd, double defVal, Connection conn)
@@ -723,6 +747,7 @@ public abstract class DBDatabase extends DBObject
      * 
      * @param sqlCmd the SQL statement
      * @param conn a valid connection to the database.
+     * 
      * @return the result as a long value, if no result the long value 0
      */
     public final double querySingleDouble(String sqlCmd, Connection conn)
@@ -946,6 +971,7 @@ public abstract class DBDatabase extends DBObject
      * @param sqlCmd the SQL-Command
      * @param sqlParams a list of objects to replace sql parameters
      * @param conn a valid connection to the database.
+     * @param setGenKeys object to set the generated keys for
      * @return the row count for insert, update or delete or 0 for SQL statements that return nothing
      */
     public int executeSQL(String sqlCmd, Object[] sqlParams, Connection conn, DBDatabaseDriver.DBSetGenKeys setGenKeys)
@@ -1044,9 +1070,9 @@ public abstract class DBDatabase extends DBObject
      * Makes all changes made since the previous commit/rollback
      * permanent and releases any database locks currently held by the
      * Connection.
-     * <P>
+     * 
      * @param conn a valid database connection
-     * @exception java.sql.SQLException if a database access error occurs
+     * 
      * @return true if successful
      */
     public boolean commit(Connection conn)
@@ -1071,7 +1097,7 @@ public abstract class DBDatabase extends DBObject
      * Connection.
      * <P>
      * @param conn a valid database connection
-     * @exception java.sql.SQLException if a database access error occurs
+     * 
      * @return true if successful
      */
     public boolean rollback(Connection conn)
@@ -1115,7 +1141,6 @@ public abstract class DBDatabase extends DBObject
      * Use it instead of rset.close() and stmt.close()<BR> 
      * <P>
      * @param rset a ResultSet object
-     * @exception java.sql.SQLException if a database access error occurs
      */
     public void closeResultSet(ResultSet rset)
     {
