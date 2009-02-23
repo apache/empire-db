@@ -218,9 +218,9 @@ public class DateUtilsTest
 	{
 		Calendar cal = simpleCalendar();
 		String formatted = DateUtils.formatTime(cal.getTime(), Locale.FRANCE, true);
-		assertEquals("16:05:06", formatted);
+		assertEquals("04:05:06", formatted);
 		formatted = DateUtils.formatTime(cal.getTime(), Locale.FRANCE, false);
-		assertEquals("16:05", formatted);
+		assertEquals("04:05", formatted);
 	}
 
 	/**
@@ -297,7 +297,7 @@ public class DateUtilsTest
 		cal.set(Calendar.YEAR, 1);
 		cal.set(Calendar.MONTH, 2);
 		cal.set(Calendar.DAY_OF_MONTH, 3);
-		cal.set(Calendar.HOUR, 4);
+		cal.set(Calendar.HOUR_OF_DAY, 4);
 		cal.set(Calendar.MINUTE, 5);
 		cal.set(Calendar.SECOND, 6);
 		cal.set(Calendar.MILLISECOND, 7);
