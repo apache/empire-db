@@ -5,7 +5,6 @@ package org.apache.empire.commons;
 
 import static org.junit.Assert.*;
 
-import java.util.Calendar;
 import java.util.Random;
 
 import javax.xml.parsers.DocumentBuilder;

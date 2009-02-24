@@ -424,7 +424,7 @@ public class DBDatabaseDriverDerby extends DBDatabaseDriver
         {
             DBTableColumn c = (DBTableColumn) columns.next();
             sql.append((addSeparator) ? ",\r\n   " : "\r\n   ");
-            if (appendColumnDesc(c, sql)==false)
+            if (appendColumnDesc(c, sql, false)==false)
                 continue; // Ignore and continue;
             addSeparator = true;
         }
@@ -496,11 +496,15 @@ public class DBDatabaseDriverDerby extends DBDatabaseDriver
      * @param sql the sql builder object
      * @return true if the column was successfully appended or false otherwise
      */
-    private boolean appendColumnDesc(DBTableColumn c, StringBuilder sql)
+    private boolean appendColumnDesc(DBTableColumn c, StringBuilder sql, boolean alter)
     {
         // Append name
         c.addSQL(sql, DBExpr.CTX_NAME);
-        sql.append(" ");
+        if(alter){
+        	sql.append(" SET DATA TYPE ");
+        }else{
+        	sql.append(" ");
+        }
         switch (c.getDataType())
         {
             case INTEGER:
@@ -656,11 +660,11 @@ public class DBDatabaseDriverDerby extends DBDatabaseDriver
         {
             case CREATE:
                 sql.append(" ADD ");
-                appendColumnDesc(col, sql);
+                appendColumnDesc(col, sql, false);
                 break;
             case ALTER:
-                sql.append(" MODIFY ");
-                appendColumnDesc(col, sql);
+                sql.append(" ALTER ");
+                appendColumnDesc(col, sql, true);
                 break;
             case DROP:
                 sql.append(" DROP COLUMN ");
