@@ -436,6 +436,7 @@ public abstract class DBDatabaseDriver extends ErrorObject
                 PreparedStatement pstmt = (genKeys!=null) 
                     ? conn.prepareStatement(sqlCmd, Statement.RETURN_GENERATED_KEYS)
                     : conn.prepareStatement(sqlCmd);
+    	        stmt = pstmt;
 	            prepareStatement(pstmt, sqlParams);
 	            count = pstmt.executeUpdate(); 
             }
@@ -460,7 +461,7 @@ public abstract class DBDatabaseDriver extends ErrorObject
             // done
             return count;
         } finally
-        { // Close
+        {
             close(stmt);
         }
     }
