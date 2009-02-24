@@ -34,7 +34,7 @@ import org.apache.empire.db.DBExpr;
  * For most drivers this will be performed by the "case ? when A then X else Y end" statement.
  * <P>
  * There is no need to explicitly create instances of this class.<BR>
- * Instead use {@link DBColumnExpr#when(DBCompareExpr, Object) }
+ * Instead use {@link DBColumnExpr#when(org.apache.empire.db.expr.compare.DBCompareExpr, Object) }
  * <P>
  * @author doebele
  */

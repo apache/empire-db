@@ -23,38 +23,43 @@ import org.apache.empire.db.DBExpr;
 /**
  * This class is a common base class for all SQL filter constraints classes<br>
  * <P>
- *
+ * 
  */
 public abstract class DBCompareExpr extends DBExpr
 {
-  public abstract boolean isMutuallyExclusive(DBCompareExpr other);
+	public abstract boolean isMutuallyExclusive(DBCompareExpr other);
 
-  /**
-   * Creates a new DBCompareORExpr object.
-   */
-  public DBCompareExpr and(DBCompareExpr expr)
-  {
-      // " AND "
-      return new DBCompareAndOrExpr(this, expr, false);
-  }
+	/**
+	 * Creates a new DBCompareAndOrExpr object.
+	 * 
+	 * @param expr the right part of the AND expression
+	 * @return the and compare expression
+	 */
+	public DBCompareExpr and(DBCompareExpr expr)
+	{
+		// " AND "
+		return new DBCompareAndOrExpr(this, expr, false);
+	}
 
-  /**
-   * Create a new DBCompareORExpr object.
-   */
-  public DBCompareExpr or(DBCompareExpr expr)
-  {
-      // " OR "
-      return new DBCompareAndOrExpr(this, expr, true);
-  }
-  
-  /**
-   * Creates a sql-expression for the not() function.
-   * 
-   * @return the new DBCompareColExpr object
-   */
-  public DBCompareExpr not()
-  {
-      return new DBCompareNotExpr(this);
-  }
-  
+	/**
+	 * Create a new DBCompareAndOrExpr object.
+	 * @param expr the right part of the OR expression
+	 * @return the or compare expression
+	 */
+	public DBCompareExpr or(DBCompareExpr expr)
+	{
+		// " OR "
+		return new DBCompareAndOrExpr(this, expr, true);
+	}
+
+	/**
+	 * Creates a sql-expression for the not() function.
+	 * 
+	 * @return the new DBCompareColExpr object
+	 */
+	public DBCompareExpr not()
+	{
+		return new DBCompareNotExpr(this);
+	}
+
 }

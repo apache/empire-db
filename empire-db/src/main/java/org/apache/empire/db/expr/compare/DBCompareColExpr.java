@@ -71,13 +71,17 @@ public class DBCompareColExpr extends DBCompareExpr
         return expr.getDatabase();
     }
 
-    /** returns the DBColumnExpr object */
+    /** 
+     * Gets the DBColumnExpr object 
+     * @return the DBColumnExpr object 
+     */
     public DBColumnExpr getColumnExpr()
     {
         return expr;
     }
 
     /**
+     * Gets the comparison operator
      * @return the comparison operator
      */
     public DBCmpType getCmpop()
@@ -86,6 +90,7 @@ public class DBCompareColExpr extends DBCompareExpr
     }
 
     /**
+     * Gets the value to compare the column expression with
      * @return the value to compare the column expression with
      */
     public Object getValue()

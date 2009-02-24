@@ -39,7 +39,11 @@ public class DBCompareAndOrExpr extends DBCompareExpr
     protected final boolean       or;
 
     /**
-     * Constructs a DBCompareColExpr object set the specified parameters to this object.
+     * Constructs a DBCompareColExpr object
+     * 
+     * @param left the left side of the expression
+     * @param right the right side of the expression
+     * @param or true for OR operation, false for AND
      */
     public DBCompareAndOrExpr(DBCompareExpr left, DBCompareExpr right, boolean or)
     {

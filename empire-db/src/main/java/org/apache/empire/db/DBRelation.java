@@ -53,7 +53,11 @@ public class DBRelation extends DBObject
     private DBReference[] references;
 
     /**
-     * Creates a DBReferene object for a foreing key relation.
+     * Creates a DBRelation object for a foreing key relation.
+     * 
+     * @param db the database object
+     * @param name the name
+     * @param references the references for this relation
      */
 	public DBRelation(DBDatabase db, String name, DBReference[] references)
 	{

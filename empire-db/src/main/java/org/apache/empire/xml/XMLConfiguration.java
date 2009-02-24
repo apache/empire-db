@@ -62,6 +62,12 @@ public class XMLConfiguration extends ErrorObject
 
     /**
      * Initialize the configuration.
+     * 
+     * @param filename the file
+     * @param fromResource will read from the classpath if true
+     * @param initLogging set to true to set up logging
+     * 
+     * @return true on succes
      */
     public boolean init(String filename, boolean fromResource, boolean initLogging)
     {

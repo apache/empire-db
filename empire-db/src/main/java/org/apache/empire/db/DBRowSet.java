@@ -80,6 +80,7 @@ public abstract class DBRowSet extends DBExpr
 
     /**
      * Constructs a DBRecord object set the current database object.
+     * @param db the database object
      */
     public DBRowSet(DBDatabase db)
     {
@@ -141,6 +142,8 @@ public abstract class DBRowSet extends DBExpr
     /**
      * Gets the index of a particular column expression.
      * <P>
+     * @param column column the DBColumn to get the index for
+     * 
      * @return the position of a column expression
      */
     public int getColumnIndex(DBColumn column)
@@ -151,6 +154,8 @@ public abstract class DBRowSet extends DBExpr
     /**
      * Gets the index of a particular column expression.
      * <P>
+     * @param column the Column to get the index for
+     * 
      * @return the position of a column expression
      */
     public final int getColumnIndex(Column column)
@@ -160,6 +165,8 @@ public abstract class DBRowSet extends DBExpr
 
     /**
      * Returns a DBColumn object by a specified index value.
+     * 
+     * @param iColumn the index to get the DBColumn for
      * 
      * @return the index value
      */

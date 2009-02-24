@@ -431,6 +431,8 @@ public class XMLUtil
      * @param parent the Element to which to append the child
      * @param name the (tag) name of the new child
      * @param value the text value of the new element. (can be null!)
+     * @param pos the inserted element will be placed before this element
+     * 
      * @return the new child element
      */
     static public Element insertElement(Node parent, String name, String value, Element pos)
@@ -454,8 +456,11 @@ public class XMLUtil
      * Inserts a new child element to a parent.
      * 
      * @param parent the Element to which to append the child
+     * @param prefix 
      * @param name the (tag) name of the new child
      * @param value the text value of the new element. (can be null!)
+     * @param pos pos the inserted element will be placed before this element
+     * 
      * @return the new child element
      */
     static public Element insertElementNS(Node parent, String prefix, String name, String value, Element pos)

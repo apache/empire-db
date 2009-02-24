@@ -37,7 +37,9 @@ public class DBCompareNotExpr extends DBCompareExpr
     public final DBCompareExpr expr;
 
     /**
-     * constructs a DBCompareColExpr object set the specified parameters to this object
+     * Constructs a DBCompareColExpr object
+     * 
+     * @param expr the compare expression to negate
      */
     public DBCompareNotExpr(DBCompareExpr expr)
     {

@@ -172,6 +172,10 @@ public class XMLWriter extends ErrorObject
      * Creates a XML Writer object.
      * 
      * @param outStream the output stream
+     * @param charsetEncoding The name of a supported
+     *         {@link java.nio.charset.Charset </code>charset<code>}
+     * 
+     * @throws UnsupportedEncodingException If the named encoding is not supported
      */
     public XMLWriter(OutputStream outStream, String charsetEncoding)
                                             throws UnsupportedEncodingException

@@ -46,6 +46,8 @@ public abstract class DBCommandExpr extends DBExpr
 
         /**
          * Creates a new DBCmdQueryObject
+         * @param cmd the command expression
+         * @param colList 
          */
         public DBCmdQuery(DBCommandExpr cmd, DBColumnExpr[] colList)
         { // Set the column expressions

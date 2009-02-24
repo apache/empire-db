@@ -202,8 +202,8 @@ public abstract class DBCommand extends DBCommandExpr
      * This helper function adds two DBColumnExpr objects
      * to the Vector: 'select'
      * 
-     * @param expr1 the first DBColumnExpr object
-     * @param expr2 the second DBColumnExpr object
+     * @param expr1 the first DBColumnExpr to select
+     * @param expr2 the second DBColumnExpr to select
      */
     public void select(DBColumnExpr expr1, DBColumnExpr expr2)
     {
@@ -213,6 +213,10 @@ public abstract class DBCommand extends DBCommandExpr
 
     /**
      * This helper function adds three DBColumnExpr objects to the Vector: 'select'.
+     * 
+     * @param expr1 the first DBColumnExpr to select
+     * @param expr2 the second DBColumnExpr to select
+     * @param expr3 the third DBColumnExpr to select
      */
     public void select(DBColumnExpr expr1, DBColumnExpr expr2, DBColumnExpr expr3)
     {
@@ -223,6 +227,11 @@ public abstract class DBCommand extends DBCommandExpr
 
     /**
      * This helper function adds four DBColumnExpr objects to the Vector: 'select'.
+     * 
+     * @param expr1 the first DBColumnExpr to select
+     * @param expr2 the second DBColumnExpr to select
+     * @param expr3 the third DBColumnExpr to select
+     * @param expr4 the fourth DBColumnExpr to select
      */
     public void select(DBColumnExpr expr1, DBColumnExpr expr2, DBColumnExpr expr3, DBColumnExpr expr4)
     {
@@ -235,6 +244,12 @@ public abstract class DBCommand extends DBCommandExpr
     /**
      * This helper function adds five DBColumnExpr objects
      * to the Vector: 'select'.
+     * 
+     * @param expr1 the first DBColumnExpr to select
+     * @param expr2 the second DBColumnExpr to select
+     * @param expr3 the third DBColumnExpr to select
+     * @param expr4 the fourth DBColumnExpr to select
+     * @param expr5 the fifth DBColumnExpr to select
      */
     public void select(DBColumnExpr expr1, DBColumnExpr expr2, DBColumnExpr expr3, DBColumnExpr expr4, DBColumnExpr expr5)
     {
@@ -248,6 +263,8 @@ public abstract class DBCommand extends DBCommandExpr
     /**
      * This helper function adds an array of DBColumnExpr
      * objects to list of select-columns.
+     * 
+     * @param exprList an array of DBColumnExpr's to select
      */
     public void select(DBColumnExpr[] exprList)
     {
@@ -259,6 +276,8 @@ public abstract class DBCommand extends DBCommandExpr
 
     /**
      * Adds a list of column expression to the select clause
+     * 
+     * @param columns the column expressions to add
      */
     public void select(Collection<DBColumnExpr> columns)
     {
@@ -268,6 +287,8 @@ public abstract class DBCommand extends DBCommandExpr
 
     /**
      * Adds a list of column expression to the select clause
+     * 
+     * @param columns the column expressions to add
      */
     public void select(List<DBColumn> columns)
     {
@@ -361,6 +382,11 @@ public abstract class DBCommand extends DBCommandExpr
 
     /**
      * Sets a object to in the list of Parameters.
+     * 
+     * @param index the parameter index
+     * @param item the parameter value
+     * 
+     * @return true on succes
      */
     public boolean setCmdParam(int index, Object item)
     {
@@ -379,6 +405,8 @@ public abstract class DBCommand extends DBCommandExpr
     /**
      * Adds an object to in the list of Parameters
      * and returns a parameter object.
+     * 
+     * @param item the parameter value 
      */
     public DBCmdParameter addCmdParam(Object item)
     {

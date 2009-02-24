@@ -55,6 +55,7 @@ public class DBDatabaseDriverHSql extends DBDatabaseDriver
 	public static class DBCommandHSql extends DBCommand
 	{
 	    /**
+	     * @param db the database
 	     * @see org.apache.empire.db.DBCommand
 	     */
 	    public DBCommandHSql(DBDatabase db)
