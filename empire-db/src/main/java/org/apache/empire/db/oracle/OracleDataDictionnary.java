@@ -142,7 +142,7 @@ public class OracleDataDictionnary {
         return false;
     }
     
-    /**
+    /*
      * Checks a DBTableColumn definition. The set attributes must fint to the overgiven db attributes.
      * 
      * @param col Column to check
