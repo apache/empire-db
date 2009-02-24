@@ -77,6 +77,7 @@ public class SampleApp
 
 			// STEP 1: Get a JDBC Connection
 			System.out.println("*** Step 1: getJDBCConnection() ***");
+			
 			Connection conn = getJDBCConnection();
 
 			// STEP 2: Choose a driver
@@ -93,7 +94,16 @@ public class SampleApp
 			} catch(Exception e) {
                 // STEP 4: Create Database
                 System.out.println("*** Step 4: createDDL() ***");
+                // postgre does not support DDL in transaction
+                if(db.getDriver() instanceof DBDatabaseDriverPostgreSQL)
+                {
+                	conn.setAutoCommit(true);
+                }
                 createDatabase(driver, conn);
+                if(db.getDriver() instanceof DBDatabaseDriverPostgreSQL)
+                {
+                	conn.setAutoCommit(false);
+                }
                 // Open again
                 if (db.isOpen()==false)
                     db.open(driver, conn);
@@ -165,7 +175,7 @@ public class SampleApp
 			logger.info("Connected successfully");
 			// set the AutoCommit to false this session. You must commit
 			// explicitly now
-			conn.setAutoCommit(false);
+			conn.setAutoCommit(true);
 			logger.info("AutoCommit is " + conn.getAutoCommit());
 
 		} catch (Exception e)
@@ -392,7 +402,14 @@ public class SampleApp
         // DBColumnExpr genderExpr = cmd.select(EMP.GENDER.decode(EMP.GENDER.getOptions()).as(EMP.GENDER.getName()));
 		// Select requried columns
 		cmd.select(EMP.EMPLOYEE_ID, EMPLOYEE_FULLNAME);
-		cmd.select(EMP.GENDER, EMP.PHONE_NUMBER, PHONE_EXT_NUMBER);
+		if(db.getDriver() instanceof DBDatabaseDriverPostgreSQL)
+		{
+			// postgresql does not support the substring expression
+			cmd.select(EMP.GENDER, EMP.PHONE_NUMBER);
+		}else{
+			cmd.select(EMP.GENDER, EMP.PHONE_NUMBER, PHONE_EXT_NUMBER);
+			
+		}
 		cmd.select(DEP.NAME.as("DEPARTMENT"));
 		cmd.select(DEP.BUSINESS_UNIT);
 		cmd.join(EMP.DEPARTMENT_ID, DEP.DEPARTMENT_ID);
