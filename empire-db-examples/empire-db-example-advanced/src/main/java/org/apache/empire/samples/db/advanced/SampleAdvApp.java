@@ -37,9 +37,12 @@ import org.apache.empire.db.DBReader;
 import org.apache.empire.db.DBRecord;
 import org.apache.empire.db.DBSQLScript;
 import org.apache.empire.db.DBTableColumn;
+import org.apache.empire.db.derby.DBDatabaseDriverDerby;
+import org.apache.empire.db.h2.DBDatabaseDriverH2;
 import org.apache.empire.db.hsql.DBDatabaseDriverHSql;
 import org.apache.empire.db.mysql.DBDatabaseDriverMySQL;
 import org.apache.empire.db.oracle.DBDatabaseDriverOracle;
+import org.apache.empire.db.postgresql.DBDatabaseDriverPostgreSQL;
 import org.apache.empire.db.sqlserver.DBDatabaseDriverMSSQL;
 
 
@@ -61,6 +64,7 @@ public class SampleAdvApp
      * This is the entry point of the Empire-DB Sample Application
      * Please check the config.xml configuration file for Database and Connection settings.
      * </PRE>
+     * @param args command line arguments
      */
     public static void main(String[] args)
     {
@@ -93,7 +97,16 @@ public class SampleAdvApp
             } catch(Exception e) {
                 // STEP 4: Create Database
                 System.out.println("*** Step 4: createDDL() ***");
+                // postgre does not support DDL in transaction
+                if(db.getDriver() instanceof DBDatabaseDriverPostgreSQL)
+                {
+                	conn.setAutoCommit(true);
+                }
                 createDatabase(driver, conn);
+                if(db.getDriver() instanceof DBDatabaseDriverPostgreSQL)
+                {
+                	conn.setAutoCommit(false);
+                }
                 // Open again
                 if (db.isOpen()==false)
                     db.open(driver, conn);
@@ -237,6 +250,27 @@ public class SampleAdvApp
         {
             DBDatabaseDriverHSql driver = new DBDatabaseDriverHSql();
             // Set Driver specific properties (if any)
+            return driver;
+        }
+        else if (provider.equalsIgnoreCase("postgresql"))
+        {
+            DBDatabaseDriverPostgreSQL driver = new DBDatabaseDriverPostgreSQL();
+            // Set Driver specific properties (if any)
+            driver.setDatabaseName(config.getSchemaName());
+            return driver;
+        }
+        else if (provider.equalsIgnoreCase("h2"))
+        {
+            DBDatabaseDriverH2 driver = new DBDatabaseDriverH2();
+            // Set Driver specific properties (if any)
+            driver.setDatabaseName(config.getSchemaName());
+            return driver;
+        }
+        else if (provider.equalsIgnoreCase("derby"))
+        {
+            DBDatabaseDriverDerby driver = new DBDatabaseDriverDerby();
+            // Set Driver specific properties (if any)
+            driver.setDatabaseName(config.getSchemaName());
             return driver;
         }
         else

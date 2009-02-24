@@ -220,7 +220,8 @@ public class SampleApp
             DBDatabaseDriverHSql driver = new DBDatabaseDriverHSql();
             // Set Driver specific properties (if any)
             return driver;
-        }else if (provider.equalsIgnoreCase("postgresql"))
+        }
+        else if (provider.equalsIgnoreCase("postgresql"))
         {
             DBDatabaseDriverPostgreSQL driver = new DBDatabaseDriverPostgreSQL();
             // Set Driver specific properties (if any)
@@ -404,7 +405,7 @@ public class SampleApp
 		cmd.select(EMP.EMPLOYEE_ID, EMPLOYEE_FULLNAME);
 		if(db.getDriver() instanceof DBDatabaseDriverPostgreSQL)
 		{
-			// postgresql does not support the substring expression
+			// postgres does not support the substring expression
 			cmd.select(EMP.GENDER, EMP.PHONE_NUMBER);
 		}else{
 			cmd.select(EMP.GENDER, EMP.PHONE_NUMBER, PHONE_EXT_NUMBER);

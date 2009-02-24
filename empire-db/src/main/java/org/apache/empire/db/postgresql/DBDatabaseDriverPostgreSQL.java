@@ -44,7 +44,6 @@ import org.apache.empire.db.DBSQLScript;
 import org.apache.empire.db.DBTable;
 import org.apache.empire.db.DBTableColumn;
 import org.apache.empire.db.DBView;
-import org.apache.empire.db.DBDatabaseDriver.DBSetGenKeys;
 
 
 /**
@@ -243,42 +242,44 @@ public class DBDatabaseDriverPostgreSQL extends DBDatabaseDriver
     }
     
     @Override
-    public int executeSQL(String sqlCmd, Object[] sqlParams, Connection conn, DBSetGenKeys genKeys)
-    throws SQLException
-{   // Execute the Statement
-    Statement stmt = null;
-    try
-    {
-        int count = 0;
-        if (sqlParams!=null)
-        {   // Use a prepared statement
-            PreparedStatement pstmt = conn.prepareStatement(sqlCmd);
-            prepareStatement(pstmt, sqlParams);
-            count = pstmt.executeUpdate(); 
-        }
-        else
-        {   // Execute a simple statement
-            stmt = conn.createStatement();
-            count = stmt.executeUpdate(sqlCmd);
-        }
-        
-        // Retrieve any auto-generated keys
-        if (genKeys!=null)
-        {   // Return Keys
-            ResultSet rs = stmt.getGeneratedKeys();
-            try {
-                while(rs.next())
-                    genKeys.set(rs.getObject(1));
-            } finally {
-                rs.close();
-            }
-        }
-        return count;
-    } finally
-    { // Close
-        close(stmt);
-    }
-}
+	public int executeSQL(String sqlCmd, Object[] sqlParams, Connection conn, DBSetGenKeys genKeys) throws SQLException
+	{
+    	// TODO remove as is defined in parent?
+		Statement stmt = null;
+		try
+		{
+			int count = 0;
+			if (sqlParams != null)
+			{ // Use a prepared statement
+				PreparedStatement pstmt = conn.prepareStatement(sqlCmd);
+				prepareStatement(pstmt, sqlParams);
+				count = pstmt.executeUpdate();
+			} else
+			{ // Execute a simple statement
+				stmt = conn.createStatement();
+				count = stmt.executeUpdate(sqlCmd);
+			}
+
+			// Retrieve any auto-generated keys
+			if (genKeys != null)
+			{
+				// Return Keys
+				ResultSet rs = stmt.getGeneratedKeys();
+				try
+				{
+					while (rs.next())
+						genKeys.set(rs.getObject(1));
+				} finally
+				{
+					rs.close();
+				}
+			}
+			return count;
+		} finally
+		{
+			close(stmt);
+		}
+	}
     
     
     
@@ -460,7 +461,7 @@ public class DBDatabaseDriverPostgreSQL extends DBDatabaseDriver
         {
             DBTableColumn c = (DBTableColumn) columns.next();
             sql.append((addSeparator) ? ",\r\n   " : "\r\n   ");
-            if (appendColumnDesc(c, sql)==false)
+            if (appendColumnDesc(c, sql, false)==false)
                 continue; // Ignore and continue;
             addSeparator = true;
         }
@@ -530,13 +531,21 @@ public class DBDatabaseDriverPostgreSQL extends DBDatabaseDriver
      * Appends a table column defintion to a ddl statement
      * @param c the column which description to append
      * @param sql the sql builder object
+     * @param alter is this for an alter statement
+     * 
      * @return true if the column was successfully appended or false otherwise
      */
-    private boolean appendColumnDesc(DBTableColumn c, StringBuilder sql)
+    private boolean appendColumnDesc(DBTableColumn c, StringBuilder sql, boolean alter)
     {
         // Append name
         c.addSQL(sql, DBExpr.CTX_NAME);
-        sql.append(" ");
+        if(alter)
+        {
+        	sql.append(" TYPE ");
+        }else
+        {
+        	sql.append(" ");
+        }
         switch (c.getDataType())
         {
             case INTEGER:
@@ -674,7 +683,7 @@ public class DBDatabaseDriverPostgreSQL extends DBDatabaseDriver
         // done
         return success();
     }
-
+    
     /**
      * Creates an alter table dll statement for adding, modifiying or droping a column.
      * @param col the column which to add, modify or drop
@@ -691,11 +700,11 @@ public class DBDatabaseDriverPostgreSQL extends DBDatabaseDriver
         {
             case CREATE:
                 sql.append(" ADD ");
-                appendColumnDesc(col, sql);
+                appendColumnDesc(col, sql, false);
                 break;
             case ALTER:
-                sql.append(" MODIFY ");
-                appendColumnDesc(col, sql);
+                sql.append(" ALTER COLUMN ");
+                appendColumnDesc(col, sql, true);
                 break;
             case DROP:
                 sql.append(" DROP COLUMN ");
@@ -705,6 +714,8 @@ public class DBDatabaseDriverPostgreSQL extends DBDatabaseDriver
         // done
         return script.addStmt(sql);
     }
+    
+    
 
     /**
      * Returns true if the view has been created successfully.

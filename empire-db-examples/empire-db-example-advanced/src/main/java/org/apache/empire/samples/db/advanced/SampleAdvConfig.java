@@ -44,6 +44,10 @@ public class SampleAdvConfig extends XMLConfiguration
 
     /**
      * Initialize the configuration.
+     * 
+     * @param filename the file to load 
+     * 
+     * @return true on succes 
      */
     public boolean init(String filename)
     {
