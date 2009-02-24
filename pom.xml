@@ -23,6 +23,9 @@
 	<version>2.0.5-SNAPSHOT</version>
 	<name>Empire-db Parent</name>
 	<description>Apache Empire-db is an Open Source relational data persistence component which allows database vendor independent dynamic query definition as well as safe and simple data retrieval and updating. Compared to most other solutions like e.g. Hibernate, TopLink, iBATIS or JPA implementations, Empire-db takes a considerably different approach, with a special focus on compile-time safety, reduced redundancies and improved developer productivity.</description>
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+	</properties>
 	<profiles>
 		<profile>
 			<id>all</id>
@@ -215,6 +218,7 @@
 	</dependencies>
 
 	<build>
+	
 		<pluginManagement>
 			<plugins>
 				<plugin>
