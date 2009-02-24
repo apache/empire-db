@@ -20,6 +20,7 @@ package org.apache.empire.commons;
 
 import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.Map;
 
 import org.w3c.dom.Element;
 
@@ -72,11 +73,9 @@ public class Attributes extends LinkedHashMap<String, Object>
     public void addXml(Element element, long flags)
     {
         // add All Options
-        Iterator<String> i = keySet().iterator();
-        while (i.hasNext())
-        {
-            String key = i.next();
-            element.setAttribute(key, String.valueOf(get(key)));
-        }
+    	for(Map.Entry<String,Object> entry:entrySet())
+    	{
+    		element.setAttribute(entry.getKey(), String.valueOf(entry.getValue()));
+    	}
     }
 }
