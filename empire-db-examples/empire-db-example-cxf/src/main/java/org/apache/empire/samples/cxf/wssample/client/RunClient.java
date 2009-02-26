@@ -19,11 +19,19 @@
 
 package org.apache.empire.samples.cxf.wssample.client;
 
+import javax.swing.SwingUtilities;
+
 import org.apache.empire.samples.cxf.wssample.server.ServerControl;
 
 public class RunClient {
 
 	public static void main(String[] args) {
-		new ClientGUI(new EmployeeManagementProxy(ServerControl.serviceAddress));
+	    final EmployeeManagementProxy proxy = new EmployeeManagementProxy(ServerControl.serviceAddress);
+		SwingUtilities.invokeLater(new Runnable()
+        {
+			public void run() {
+				new ClientGUI(proxy);
+			}
+		});
 	}
 }

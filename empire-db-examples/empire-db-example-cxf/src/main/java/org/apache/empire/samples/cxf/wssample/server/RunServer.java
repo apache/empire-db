@@ -20,24 +20,35 @@
 package org.apache.empire.samples.cxf.wssample.server;
 
 import javax.swing.JOptionPane;
+import javax.swing.SwingUtilities;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-public class RunServer {
-	public static void main(String[] args)
+public class RunServer
+{
+    
+    public static void main(String[] args)
     {
-    	Log log = LogFactory.getLog(EmployeeManagementService.class);
-    	
+        Log log = LogFactory.getLog(EmployeeManagementService.class);
+
         try
         {
-            new ServerGUI(new ServerControl());
+            final ServerControl control = new ServerControl();
+            SwingUtilities.invokeLater(new Runnable()
+            {
+                public void run()
+                {
+                    new ServerGUI(control);
+                }
+            });
 
         } catch (Throwable t)
         {
             t.printStackTrace();
             log.error(t);
-            JOptionPane.showMessageDialog(null, "Please have a look at the logfile.", "A Error occurred!", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(null, "Please have a look at the logfile.", "A Error occurred!",
+                                          JOptionPane.ERROR_MESSAGE);
         }
     }
 }
