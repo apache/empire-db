@@ -32,5 +32,6 @@
 		<module>empire-db-example-advanced</module>
 		<module>empire-db-example-struts2</module>
 		<module>empire-db-example-cxf</module>
+		<module>empire-db-example-struts2-cxf</module>
 	</modules>
 </project>

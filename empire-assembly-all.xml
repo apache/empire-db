@@ -65,6 +65,7 @@
 				<include>empire-db-struts2/**</include>
 				<include>empire-db-examples/empire-db-example-struts2/**</include>
 				<include>empire-db-examples/empire-db-example-cxf/**</include>
+				<include>empire-db-examples/empire-db-example-struts2-cxf/**</include>
 			</includes>
 			<excludes>
 				<exclude>**/empire-db/target/**</exclude>
@@ -98,6 +99,7 @@
 				<include>org.apache.empire-db:empire-db-example-advanced</include>
     			<include>org.apache.empire-db:empire-db-example-struts2</include>
     			<include>org.apache.empire-db:empire-db-example-cxf</include>
+    			<include>org.apache.empire-db:empire-db-example-struts2-cxf</include>
 			</includes>
 			<binaries>
 				<outputDirectory>lib</outputDirectory>
