@@ -199,101 +199,29 @@ public abstract class DBCommand extends DBCommandExpr
     }
 
     /**
-     * This helper function adds two DBColumnExpr objects
-     * to the Vector: 'select'
+     * Adds a list of columns to the select phrase of an sql statement.
      * 
-     * @param expr1 the first DBColumnExpr to select
-     * @param expr2 the second DBColumnExpr to select
+     * @param exprs an vararg of DBColumnExpr's to select
      */
-    public void select(DBColumnExpr expr1, DBColumnExpr expr2)
+    public void select(DBColumnExpr... exprs)
     {
-        select(expr1);
-        select(expr2);
-    }
-
-    /**
-     * This helper function adds three DBColumnExpr objects to the Vector: 'select'.
-     * 
-     * @param expr1 the first DBColumnExpr to select
-     * @param expr2 the second DBColumnExpr to select
-     * @param expr3 the third DBColumnExpr to select
-     */
-    public void select(DBColumnExpr expr1, DBColumnExpr expr2, DBColumnExpr expr3)
-    {
-        select(expr1);
-        select(expr2);
-        select(expr3);
-    }
-
-    /**
-     * This helper function adds four DBColumnExpr objects to the Vector: 'select'.
-     * 
-     * @param expr1 the first DBColumnExpr to select
-     * @param expr2 the second DBColumnExpr to select
-     * @param expr3 the third DBColumnExpr to select
-     * @param expr4 the fourth DBColumnExpr to select
-     */
-    public void select(DBColumnExpr expr1, DBColumnExpr expr2, DBColumnExpr expr3, DBColumnExpr expr4)
-    {
-        select(expr1);
-        select(expr2);
-        select(expr3);
-        select(expr4);
-    }
-
-    /**
-     * This helper function adds five DBColumnExpr objects
-     * to the Vector: 'select'.
-     * 
-     * @param expr1 the first DBColumnExpr to select
-     * @param expr2 the second DBColumnExpr to select
-     * @param expr3 the third DBColumnExpr to select
-     * @param expr4 the fourth DBColumnExpr to select
-     * @param expr5 the fifth DBColumnExpr to select
-     */
-    public void select(DBColumnExpr expr1, DBColumnExpr expr2, DBColumnExpr expr3, DBColumnExpr expr4, DBColumnExpr expr5)
-    {
-        select(expr1);
-        select(expr2);
-        select(expr3);
-        select(expr4);
-        select(expr5);
-    }
-
-    /**
-     * This helper function adds an array of DBColumnExpr
-     * objects to list of select-columns.
-     * 
-     * @param exprList an array of DBColumnExpr's to select
-     */
-    public void select(DBColumnExpr[] exprList)
-    {
-        for (int i=0; i<exprList.length; i++)
+        for (DBColumnExpr expr : exprs)
         {
-            select(exprList[i]);
+            select(expr);
         }
     }
 
     /**
-     * Adds a list of column expression to the select clause
+     * Adds a list of columns to the select phrase of an sql statement.
      * 
      * @param columns the column expressions to add
      */
-    public void select(Collection<DBColumnExpr> columns)
+    public void select(Collection<? extends DBColumnExpr> columns)
     {
         for (DBColumnExpr expr : columns)
+        {
             select(expr);
-    }
-
-    /**
-     * Adds a list of column expression to the select clause
-     * 
-     * @param columns the column expressions to add
-     */
-    public void select(List<DBColumn> columns)
-    {
-        for (int i = 0; i < columns.size(); i++)
-            select(columns.get(i));
+        }
     }
     
     private boolean useCmdParam(DBColumn col)
@@ -602,24 +530,6 @@ public abstract class DBCommand extends DBCommandExpr
     }
 
     /**
-     * Adds a list columns to the group by phrase of an sql statement.
-     * 
-     * @param exprList array of columns by which to group the rows
-     */
-    public void groupBy(DBColumnExpr[] exprList)
-    {
-        if (groupBy == null)
-            groupBy = new ArrayList<DBColumnExpr>();
-        // group by
-        for (int i=0; i<exprList.length; i++)
-        {
-        	DBColumnExpr expr = exprList[i];
-        	if (expr.isAggregate()==false && groupBy.contains(expr)==false)
-                groupBy.add(expr);
-        }
-    }
-
-    /**
      * Adds a column to the group by phrase of an sql statement.
      * 
      * @param expr the DBCompareExpr object
@@ -636,24 +546,18 @@ public abstract class DBCommand extends DBCommandExpr
     }
 
     /**
-     * Adds two columns to the group by phrase of an sql statement.
+     * Adds a list of columns to the group by phrase of an sql statement.
+     * 
+     * @param exprs vararg of columns by which to group the rows
      */
-    // groupBy
-    public void groupBy(DBColumnExpr expr1, DBColumnExpr expr2)
+    public void groupBy(DBColumnExpr...exprs)
     {
-        groupBy(expr1);
-        groupBy(expr2);
-    }
-
-    /**
-     * Adds three columns to the group by phrase of an sql statement.
-     */
-    // groupBy
-    public void groupBy(DBColumnExpr expr1, DBColumnExpr expr2, DBColumnExpr expr3)
-    {
-        groupBy(expr1);
-        groupBy(expr2);
-        groupBy(expr3);
+        if (groupBy == null)
+            groupBy = new ArrayList<DBColumnExpr>();
+        for(DBColumnExpr expr:exprs){
+            if (expr.isAggregate()==false && groupBy.contains(expr)==false)
+                groupBy.add(expr);
+        }
     }
 
     /**
@@ -686,9 +590,9 @@ public abstract class DBCommand extends DBCommandExpr
     }
     
     /**
-     * Returns a array of all DBColumnExpr object of the Vector: 'select'.
+     * Returns a array of all select DBColumnExpr for this command 
      * 
-     * @return a array of all DBColumnExpr object of the Vector: 'select'
+     * @return a array of all DBColumnExpr objects or <code>null</code> if there are no selects
      */
     @Override
     public DBColumnExpr[] getSelectExprList()
