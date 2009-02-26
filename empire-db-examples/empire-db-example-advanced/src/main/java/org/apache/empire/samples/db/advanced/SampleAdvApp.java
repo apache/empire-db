@@ -24,6 +24,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.logging.Logger;
 
+import org.apache.empire.EmpireException;
 import org.apache.empire.commons.DateUtils;
 import org.apache.empire.commons.ErrorObject;
 import org.apache.empire.commons.Options;
@@ -169,10 +170,24 @@ public class SampleAdvApp
                 querySample(conn, idPers2);
             }
             // STEP 11: ddlSample
-            if (true) {
-                System.out.println("*** ddlSample: shows how to add a column at runtime and update a record with the added column ***");
-                ddlSample(conn, idPers2);                
-            }
+			if (true) {
+				System.out.println("*** ddlSample: shows how to add a column at runtime and update a record with the added column ***");
+				if (db.getDriver() instanceof DBDatabaseDriverH2) {
+					logger.info("As H2 does not support changing a table with a view defined we remove the view");
+					System.out.println("*** drop EMPLOYEE_INFO_VIEW ***");
+					DBSQLScript script = new DBSQLScript();
+					db.getDriver().getDDLScript(DBCmdType.DROP, db.V_EMPLOYEE_INFO, script);
+					script.run(db.getDriver(), conn, false);
+				}
+				ddlSample(conn, idPers2);
+				if (db.getDriver() instanceof DBDatabaseDriverH2) {
+					logger.info("And put back the view");
+					System.out.println("*** create EMPLOYEE_INFO_VIEW ***");
+					DBSQLScript script = new DBSQLScript();
+					db.getDriver().getDDLScript(DBCmdType.CREATE, db.V_EMPLOYEE_INFO, script);
+					script.run(db.getDriver(), conn, false);
+				}
+			}
 
             // Done
             System.out.println("DB Sample finished successfully.");

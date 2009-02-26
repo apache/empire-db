@@ -23,7 +23,7 @@
 
 	<properties>
 		<!-- provider name must match the property-section containing the connection data -->
-		<databaseProvider>hsqldb</databaseProvider>
+		<databaseProvider>derby</databaseProvider>
 	</properties>
 
 	<properties-hsqldb>
@@ -80,7 +80,7 @@
 		<!-- JDBC properties for a H2 Database connection -->
 		<!-- Required jar file: h2-1.1.107.jar -->
 		<jdbcClass>org.h2.Driver</jdbcClass>
-		<jdbcURL>jdbc:h2:~/h2test/DBSAMPLE</jdbcURL>
+		<jdbcURL>jdbc:h2:h2/DBSAMPLE</jdbcURL>
 		<jdbcUser>sa</jdbcUser>
 		<jdbcPwd></jdbcPwd>
 		<schemaName>DBSAMPLEADV</schemaName>
@@ -90,7 +90,7 @@
 		<!-- JDBC properties for a Derby Database connection -->
 		<!-- Required jar file: derby-10.4.2.0.jar -->
 		<jdbcClass>org.apache.derby.jdbc.EmbeddedDriver</jdbcClass>
-		<jdbcURL>jdbc:derby:DBSAMPLE;create=true</jdbcURL>
+		<jdbcURL>jdbc:derby:derby/DBSAMPLE;create=true</jdbcURL>
 		<jdbcUser></jdbcUser>
 		<jdbcPwd></jdbcPwd>
 		<schemaName>DBSAMPLEADV</schemaName>
@@ -131,7 +131,7 @@
 
 		<!-- Set this level to "debug" to log all DDL-Statements -->		
 		<logger name="org.apache.empire.db.DBSQLScript" additivity="false">
-			<level value="info"/>
+			<level value="debug"/>
 			<appender-ref ref="default"/>
 		</logger>
 		

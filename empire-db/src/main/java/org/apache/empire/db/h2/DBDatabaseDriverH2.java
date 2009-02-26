@@ -654,7 +654,7 @@ public class DBDatabaseDriverH2 extends DBDatabaseDriver
                 appendColumnDesc(col, sql);
                 break;
             case ALTER:
-                sql.append(" MODIFY ");
+                sql.append(" ALTER ");
                 appendColumnDesc(col, sql);
                 break;
             case DROP:
