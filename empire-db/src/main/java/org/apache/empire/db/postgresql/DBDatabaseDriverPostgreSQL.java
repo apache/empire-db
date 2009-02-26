@@ -254,6 +254,7 @@ public class DBDatabaseDriverPostgreSQL extends DBDatabaseDriver
 				PreparedStatement pstmt = conn.prepareStatement(sqlCmd);
 				prepareStatement(pstmt, sqlParams);
 				count = pstmt.executeUpdate();
+				stmt = pstmt;
 			} else
 			{ // Execute a simple statement
 				stmt = conn.createStatement();
