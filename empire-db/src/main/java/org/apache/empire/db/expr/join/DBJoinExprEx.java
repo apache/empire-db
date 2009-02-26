@@ -51,7 +51,11 @@ public class DBJoinExprEx extends DBJoinExpr
     }
     
     /**
-     * Constructor
+     * Constructs a new DBJoinExprEx
+     * 
+     * @param rset the rowset
+     * @param cmp the compare expression
+     * @param joinType the join type
      */
     public DBJoinExprEx(DBRowSet rset, DBCompareExpr cmp, DBJoinType joinType)
     {

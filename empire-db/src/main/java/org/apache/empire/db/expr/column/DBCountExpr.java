@@ -46,6 +46,8 @@ public class DBCountExpr extends DBColumnExpr
     
     /**
      * Constructs a DBCountExpr.
+     * 
+     * @param rowset the rowset
      */
     public DBCountExpr(DBRowSet rowset)
     {
@@ -56,6 +58,9 @@ public class DBCountExpr extends DBColumnExpr
     
     /**
      * Constructs a DBCountExpr.
+     * 
+     * @param expr the column
+     * @param distinct set true for distinct count
      */
     public DBCountExpr(DBColumnExpr expr, boolean distinct)
     {

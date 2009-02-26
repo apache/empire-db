@@ -129,6 +129,8 @@ public class DBJoinExpr extends DBExpr
 
     /**
      * This function adds an additional constraint to the join.
+     * 
+     * @param expr the compare expression
      */
     public void where(DBCompareExpr expr)
     { // Set Compare Expression
@@ -137,6 +139,11 @@ public class DBJoinExpr extends DBExpr
 
     /**
      * This function adds an additional constraint to the join.
+     * 
+     * @param c1 the first column
+     * @param c2 the second column
+     * 
+     * @return the compare expression
      */
     public DBCompareExpr and(DBColumnExpr c1, DBColumnExpr c2)
     { // Set Compare Expression

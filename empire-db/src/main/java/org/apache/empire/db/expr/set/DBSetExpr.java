@@ -45,6 +45,9 @@ public class DBSetExpr extends DBExpr
 
     /**
      * Constructs a new DBSetExpr object. Sets the specified parameters to this object.
+     * 
+     * @param expr the column
+     * @param value the value
      */
     public DBSetExpr(DBColumn expr, Object value)
     {

@@ -46,6 +46,9 @@ public class DBConcatExpr extends DBColumnExpr
 
     /**
      * Constructs a new DBConcatExpr object set the specified parameters to this object.
+     * 
+     * @param left the left column for this concatenation
+     * @param right the right column for this concatenation
      */
     public DBConcatExpr(DBColumnExpr left, Object right)
     {

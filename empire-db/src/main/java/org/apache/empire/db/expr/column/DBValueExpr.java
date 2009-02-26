@@ -46,7 +46,11 @@ public class DBValueExpr extends DBColumnExpr
     public final DBColumnExpr column;
 
     /**
-     * Constructs a new DBValueExpr object set the specified parameters to this object.
+     * Constructs a new DBValueExpr object.
+     * 
+     * @param db the database
+     * @param value the value for this constant
+     * @param type the data type for this constant
      */
     public DBValueExpr(DBDatabase db, Object value, DataType type)
     {
