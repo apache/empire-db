@@ -61,6 +61,7 @@
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-eclipse-plugin</artifactId>
 				<configuration>
+					<m2eclipse>true</m2eclipse>
 					<downloadSources>true</downloadSources>
 					<wtpversion>1.5</wtpversion>
 				</configuration>
