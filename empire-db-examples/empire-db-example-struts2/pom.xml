@@ -46,6 +46,18 @@
 	</dependencies>
 	<build>
 		<plugins>
+		
+			<!-- WTP-Eclipse-Projekt -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-eclipse-plugin</artifactId>
+				<configuration>
+					<m2eclipse>true</m2eclipse>	<!-- Fixes m2eclipse plugin bug -->
+					<downloadSources>true</downloadSources>
+					<wtpversion>1.5</wtpversion>
+				</configuration>
+			</plugin>
+
 			<plugin>
 				<groupId>org.mortbay.jetty</groupId>
 				<artifactId>maven-jetty-plugin</artifactId>
