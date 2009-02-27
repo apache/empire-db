@@ -56,7 +56,7 @@
 
 	<build>
 		<plugins>
-			<!-- WTP-Eclipse-Projekt -->
+			<!-- WTP-Eclipse-Projekt 
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-eclipse-plugin</artifactId>
@@ -65,7 +65,7 @@
 					<downloadSources>true</downloadSources>
 					<wtpversion>1.5</wtpversion>
 				</configuration>
-			</plugin>
+			</plugin>	-->
 
 			<plugin>
 				<groupId>org.mortbay.jetty</groupId>
