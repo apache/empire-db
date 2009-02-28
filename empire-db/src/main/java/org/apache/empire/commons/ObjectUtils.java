@@ -374,8 +374,7 @@ public final class ObjectUtils
         return c.cast(v);
     }
 
-    @SuppressWarnings("unchecked")
-    public static final boolean isAssignmentCompatible(Class target, Class source)
+    public static boolean isAssignmentCompatible(Class<?> target, Class<?> source)
     {
         // try plain assignment
         if (target.isAssignableFrom(source))
@@ -399,7 +398,7 @@ public final class ObjectUtils
                 return true;
         }
         // Assume all numeric types can be converted to target class
-        Class numberClass = Number.class;
+        Class<Number> numberClass = Number.class;
         if (numberClass.isAssignableFrom(target) &&
             numberClass.isAssignableFrom(source))
         {   // Both are numeric

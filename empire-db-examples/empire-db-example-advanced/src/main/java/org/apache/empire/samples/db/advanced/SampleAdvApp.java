@@ -24,7 +24,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.logging.Logger;
 
-import org.apache.empire.EmpireException;
 import org.apache.empire.commons.DateUtils;
 import org.apache.empire.commons.ErrorObject;
 import org.apache.empire.commons.Options;
@@ -144,50 +143,45 @@ public class SampleAdvApp
             db.commit(conn);
 
             // STEP 7: read from Employee_Info_View
-            if (true) {
-                System.out.println("*** read from EMPLOYEE_INFO_VIEW ***");
-                DBCommand cmd = db.createCommand();
-                cmd.select (db.V_EMPLOYEE_INFO.getColumns());
-                cmd.orderBy(db.V_EMPLOYEE_INFO.C_NAME_AND_DEP);
-                printQueryResults(cmd, conn);
-            }
+            System.out.println("*** read from EMPLOYEE_INFO_VIEW ***");
+            DBCommand cmd = db.createCommand();
+            cmd.select (db.V_EMPLOYEE_INFO.getColumns());
+            cmd.orderBy(db.V_EMPLOYEE_INFO.C_NAME_AND_DEP);
+            printQueryResults(cmd, conn);
+
             // STEP 8: bulkReadRecords
-            if (true) {
-                System.out.println("*** bulkReadRecords: reads employee records into a hashmap, reads employee from hashmap and updates employee ***");
-                HashMap<Integer, DBRecord> employeeMap = bulkReadRecords(conn);
-                DBRecord rec = employeeMap.get(idPers2);
-                rec.setValue(db.T_EMPLOYEES.C_SALUTATION, "Mr.");
-                rec.update(conn);
-            }
+            System.out.println("*** bulkReadRecords: reads employee records into a hashmap, reads employee from hashmap and updates employee ***");
+            HashMap<Integer, DBRecord> employeeMap = bulkReadRecords(conn);
+            DBRecord rec = employeeMap.get(idPers2);
+            rec.setValue(db.T_EMPLOYEES.C_SALUTATION, "Mr.");
+            rec.update(conn);
+
             // STEP 9: bulkProcessRecords
-            if (true) {
-                System.out.println("*** bulkProcessRecords: creates a checksum for every employee in the employees table ***");
-                bulkProcessRecords(conn);
-            }
+            System.out.println("*** bulkProcessRecords: creates a checksum for every employee in the employees table ***");
+            bulkProcessRecords(conn);
+
             // STEP 10: querySample
-            if (true) {
-                System.out.println("*** querySample: shows how to use DBQuery class for subqueries and multi table records ***");
-                querySample(conn, idPers2);
-            }
+            System.out.println("*** querySample: shows how to use DBQuery class for subqueries and multi table records ***");
+            querySample(conn, idPers2);
+
             // STEP 11: ddlSample
-			if (true) {
-				System.out.println("*** ddlSample: shows how to add a column at runtime and update a record with the added column ***");
-				if (db.getDriver() instanceof DBDatabaseDriverH2) {
-					logger.info("As H2 does not support changing a table with a view defined we remove the view");
-					System.out.println("*** drop EMPLOYEE_INFO_VIEW ***");
-					DBSQLScript script = new DBSQLScript();
-					db.getDriver().getDDLScript(DBCmdType.DROP, db.V_EMPLOYEE_INFO, script);
-					script.run(db.getDriver(), conn, false);
-				}
-				ddlSample(conn, idPers2);
-				if (db.getDriver() instanceof DBDatabaseDriverH2) {
-					logger.info("And put back the view");
-					System.out.println("*** create EMPLOYEE_INFO_VIEW ***");
-					DBSQLScript script = new DBSQLScript();
-					db.getDriver().getDDLScript(DBCmdType.CREATE, db.V_EMPLOYEE_INFO, script);
-					script.run(db.getDriver(), conn, false);
-				}
-			}
+            System.out.println("*** ddlSample: shows how to add a column at runtime and update a record with the added column ***");
+            if (db.getDriver() instanceof DBDatabaseDriverH2) {
+            	logger.info("As H2 does not support changing a table with a view defined we remove the view");
+            	System.out.println("*** drop EMPLOYEE_INFO_VIEW ***");
+            	DBSQLScript script = new DBSQLScript();
+            	db.getDriver().getDDLScript(DBCmdType.DROP, db.V_EMPLOYEE_INFO, script);
+            	script.run(db.getDriver(), conn, false);
+            }
+            ddlSample(conn, idPers2);
+            if (db.getDriver() instanceof DBDatabaseDriverH2) {
+            	logger.info("And put back the view");
+            	System.out.println("*** create EMPLOYEE_INFO_VIEW ***");
+            	DBSQLScript script = new DBSQLScript();
+            	db.getDriver().getDDLScript(DBCmdType.CREATE, db.V_EMPLOYEE_INFO, script);
+            	script.run(db.getDriver(), conn, false);
+            }
+
 
             // Done
             System.out.println("DB Sample finished successfully.");
