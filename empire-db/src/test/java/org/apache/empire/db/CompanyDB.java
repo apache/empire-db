@@ -30,7 +30,7 @@ import org.apache.empire.db.DBTableColumn;
  * This is the basic database for testing
  *
  */
-public class TestDB extends DBDatabase
+public class CompanyDB extends DBDatabase
 {
     /**
      * This class represents the definition of the Departments table.
@@ -117,11 +117,11 @@ public class TestDB extends DBDatabase
     public final Employees    EMPLOYEE   = new Employees(this);
 
     /**
-     * Constructor of the TestDB data model description
+     * Constructor of the CompanyDB data model description
      *
      * Put all foreigen key realtions here.
      */
-    public TestDB()
+    public CompanyDB()
     {
         // Define Foreign-Key Relations
         addRelation( EMPLOYEE.DEPARTMENT_ID.referenceOn( DEPARTMENT.ID ));

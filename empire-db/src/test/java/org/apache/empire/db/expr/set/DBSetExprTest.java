@@ -8,7 +8,7 @@ import java.util.Set;
 import org.apache.empire.db.DBColumn;
 import org.apache.empire.db.DBExpr;
 import org.apache.empire.db.MockDriver;
-import org.apache.empire.db.TestDB;
+import org.apache.empire.db.CompanyDB;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -16,11 +16,11 @@ public class DBSetExprTest
 {
     
     private DBSetExpr expr;
-    private TestDB testDB;
+    private CompanyDB testDB;
     
     @Before
     public void setup(){
-        testDB = new TestDB();
+        testDB = new CompanyDB();
         testDB.open(new MockDriver(), null);
         expr = new DBSetExpr(testDB.EMPLOYEE.FIRSTNAME, "JUnit");
     }

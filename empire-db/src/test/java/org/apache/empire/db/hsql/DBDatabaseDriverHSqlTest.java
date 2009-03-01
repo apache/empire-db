@@ -12,7 +12,7 @@ import org.apache.empire.db.DBDatabaseDriver;
 import org.apache.empire.db.DBRecord;
 import org.apache.empire.db.DBSQLScript;
 import org.apache.empire.db.DBTools;
-import org.apache.empire.db.TestDB;
+import org.apache.empire.db.CompanyDB;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
@@ -21,7 +21,7 @@ import org.junit.Test;
 
 public class DBDatabaseDriverHSqlTest
 {
-    public static TestDB db;
+    public static CompanyDB db;
     public static Connection conn;
     
     @BeforeClass
@@ -32,7 +32,7 @@ public class DBDatabaseDriverHSqlTest
                                            "sa",                     // username
                                            "");                      // password
         DBDatabaseDriver driver = new DBDatabaseDriverHSql();
-        db = new TestDB();
+        db = new CompanyDB();
         db.open(driver, conn);
         DBSQLScript script = new DBSQLScript();
         db.getCreateDDLScript(db.getDriver(), script);
