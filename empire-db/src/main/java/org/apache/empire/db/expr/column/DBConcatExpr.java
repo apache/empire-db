@@ -56,11 +56,6 @@ public class DBConcatExpr extends DBColumnExpr
         this.right = right;
     }
 
-    /**
-     * Returns the current DBDatabase object.
-     * 
-     * @return the current DBDatabase object
-     */
     @Override
     public DBDatabase getDatabase()
     {
@@ -68,9 +63,9 @@ public class DBConcatExpr extends DBColumnExpr
     }
 
     /**
-     * Returns the data type: DT_TEXT.
+     * Returns the data type: {@link DataType#TEXT}
      * 
-     * @return the data type: DT_TEXT
+     * @return {@link DataType#TEXT}
      */
     @Override
     public DataType getDataType()
@@ -78,11 +73,6 @@ public class DBConcatExpr extends DBColumnExpr
         return DataType.TEXT;
     }
 
-    /**
-     * This helper function returns expression name.
-     * 
-     * @return the expression name
-     */
     @Override
     public String getName()
     { // Get the expression name
@@ -95,7 +85,6 @@ public class DBConcatExpr extends DBColumnExpr
         return name;
     }
 
-    /** This helper function calls the DBColumnExpr.addXML(Element, long) method. */
     @Override
     public Element addXml(Element parent, long flags)
     {
@@ -112,11 +101,6 @@ public class DBConcatExpr extends DBColumnExpr
         return elem;
     }
 
-    /**
-     * returns null
-     * 
-     * @return null
-     */
     @Override
     public DBColumn getUpdateColumn()
     {

@@ -50,6 +50,7 @@ public class Options extends AbstractSet<OptionEntry>
     public Options()
     {
         // Default constructor
+        // TODO clean up this class as it is quite messy (add vs set, object vs key, ...)
     }
     
     public Options(Options other)
@@ -60,7 +61,9 @@ public class Options extends AbstractSet<OptionEntry>
     public Options(OptionEntry [] entries)
     {
         for (int i=0; i<entries.length; i++)
+        {
             this.add(entries[i]);
+        }
     }
 
     protected int getIndex(Object value)
@@ -98,11 +101,25 @@ public class Options extends AbstractSet<OptionEntry>
         return (i >= 0 ? list.get(i).getText() : EMPTY_STRING);
     }
 
+    /**
+     * Gets the value of the entry at index i
+     * 
+     * @param i the index
+     * 
+     * @return the value or <code>null</code> if not found 
+     */
     public Object getValueAt(int i)
     {
         return (i>=0 && i<list.size() ? list.get(i).getValue() : null);
     }
 
+    /**
+     * Gets the text of the entry at index i
+     * 
+     * @param i the index
+     * 
+     * @return the text or an empty String if not found 
+     */
     public String getTextAt(int i)
     {
         return (i>=0 && i<list.size() ? list.get(i).getText() : EMPTY_STRING);
@@ -116,6 +133,13 @@ public class Options extends AbstractSet<OptionEntry>
         return set;
     }
 
+    /**
+     * Sets or Adds an option at a certain position
+     * 
+     * @param value the value object
+     * @param text the text
+     * @param pos the position, see {@link InsertPos}
+     */
     public void set(Object value, String text, InsertPos pos)
     {
         if (text == null)
@@ -142,20 +166,35 @@ public class Options extends AbstractSet<OptionEntry>
         }
     }
 
+    /**
+     * Sets or adds Adds an option at the bottom
+     * 
+     * @param value the value object
+     * @param text the text
+     */
     public void set(Object value, String text)
     {
         set(value, text, InsertPos.Bottom);
     }
 
+    /**
+     * Adds an object, the check for an existing can be skipped for
+     * performance issues (not recommended!)
+     * 
+     * @param value the value
+     * @param text the text
+     * @param noCheck set to true to skip testing for an existing key (handle with care!)
+     */
     public void add(Object value, String text, boolean noCheck)
     {
         if (noCheck)
-        { // fast add to list, without check for existing key
-            // handle with care!
+        { 
             list.add(createOptionEntry(value, text));
         } 
         else
+        {
             set(value, text);
+        }
     }
 
     @Override
@@ -181,12 +220,6 @@ public class Options extends AbstractSet<OptionEntry>
 
     @Override
     public boolean contains(Object object)
-    {
-        // Check if exits
-        return (getIndex(object) >= 0);
-    }
-
-    public boolean containsValue(Object object)
     {
         // Check if exits
         return (getIndex(object) >= 0);
@@ -228,12 +261,16 @@ public class Options extends AbstractSet<OptionEntry>
         return list.toArray();
     }
 
+    /**
+     * Adds all these options to the xml element
+     * 
+     * @param element the element to add the option tags to
+     * @param flags not used for now
+     */
     public void addXml(Element element, long flags)
-    { // add All Options
-        Iterator<OptionEntry> i = iterator();
-        while (i.hasNext())
-        {
-            OptionEntry e = i.next();
+    { 
+        // add All Options
+        for(OptionEntry e:list){
             String value = String.valueOf(e.getValue());
             // Create Option Element
             Element opt = XMLUtil.addElement(element, "option", e.getText());

@@ -40,7 +40,7 @@ public class StringUtilsTest
 	@Test
 	public void testToStringObject()
 	{
-		assertEquals(null,StringUtils.toString(null));
+		assertEquals(null,StringUtils.toString((Object)null));
 		assertEquals("test",StringUtils.toString("test"));
 		assertEquals(Boolean.FALSE.toString(),StringUtils.toString(Boolean.FALSE));
 	}
