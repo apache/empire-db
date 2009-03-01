@@ -23,7 +23,7 @@
 
 	<properties>
 		<!-- provider name must match the property-section containing the connection data -->
-		<databaseProvider>derby</databaseProvider>
+		<databaseProvider>hsqldb</databaseProvider>
 	</properties>
 
 	<properties-hsqldb>
