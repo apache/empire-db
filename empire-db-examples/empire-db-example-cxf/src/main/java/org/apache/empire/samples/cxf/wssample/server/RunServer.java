@@ -28,21 +28,22 @@ import org.apache.commons.logging.LogFactory;
 public class RunServer
 {
     
+    private static final Log log = LogFactory.getLog(RunServer.class);
+
     public static void main(String[] args)
     {
-        Log log = LogFactory.getLog(EmployeeManagementService.class);
-
         try
         {
             final ServerControl control = new ServerControl();
-            SwingUtilities.invokeLater(new Runnable()
+            SwingUtilities.invokeAndWait(new Runnable()
             {
                 public void run()
                 {
-                    new ServerGUI(control);
+                    ServerGUI gui = new ServerGUI(control);
+                    gui.setVisible(true);
                 }
             });
-
+            control.start();
         } catch (Throwable t)
         {
             t.printStackTrace();

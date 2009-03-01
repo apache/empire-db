@@ -36,6 +36,10 @@ public class SampleConfig extends XMLConfiguration {
 
 	/**
 	 * Initialize the configuration
+	 * 
+	 * @param filename the file
+	 * 
+	 * @return true on succes
 	 */
 	public boolean init(String filename) {
 		// Read the properties file

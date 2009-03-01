@@ -187,6 +187,8 @@ public class ClientGUI extends JFrame {
 
 	/**
 	 * This is the default constructor
+	 * 
+	 * @param prxy the proxy
 	 */
 	public ClientGUI(EmployeeManagementProxy prxy) {
 		super();
@@ -204,13 +206,13 @@ public class ClientGUI extends JFrame {
 	/**
 	 * This method initializes this
 	 * 
-	 * @return void
 	 */
 	private void initialize() {
 		this.setSize(529, 299);
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		this.setContentPane(getJContentPane());
 		this.setTitle("Employee Management Client");
+		this.setLocationRelativeTo(null);
 	}
 
 	/**

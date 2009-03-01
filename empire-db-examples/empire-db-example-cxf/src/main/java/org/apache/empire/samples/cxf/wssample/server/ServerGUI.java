@@ -50,6 +50,7 @@ public class ServerGUI extends JFrame
     
     /**
      * This is the default constructor
+     * @param sControl the server control
      */
     public ServerGUI(ServerControl sControl)
     {
@@ -57,8 +58,6 @@ public class ServerGUI extends JFrame
         _sControl = sControl;
         initialize();
         initTextAreaLogger();
-        _sControl.start();
-        this.setVisible(true);
     }
     
     private void initTextAreaLogger()
@@ -85,16 +84,17 @@ public class ServerGUI extends JFrame
     /**
      * This method initializes this
      * 
-     * @return void
      */
     private void initialize()
     {
-        this.setSize(495, 285);
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         this.setContentPane(getJContentPane());
         this.setTitle("Employee Management Server Control");
+        this.pack();
+        this.setLocationRelativeTo(null);
         this.addWindowListener(new java.awt.event.WindowAdapter() {   
-        	public void windowClosing(java.awt.event.WindowEvent e) {    
+        	@Override
+			public void windowClosing(java.awt.event.WindowEvent e) {    
         		_sControl.stop();
         	}
         });
@@ -111,7 +111,6 @@ public class ServerGUI extends JFrame
         {
             jContentPane = new JPanel();
             jContentPane.setLayout(new BorderLayout());
-            jContentPane.setSize(new Dimension(505, 241));
             jContentPane.add(getPnlButtons(), BorderLayout.SOUTH);
             jContentPane.add(getScroller(), BorderLayout.CENTER);
         }
@@ -214,6 +213,7 @@ public class ServerGUI extends JFrame
         if (scroller == null)
         {
             scroller = new JScrollPane();
+            scroller.setPreferredSize(new Dimension(500, 250));
             scroller.setViewportView(getJEditorPane());
         }
         return scroller;

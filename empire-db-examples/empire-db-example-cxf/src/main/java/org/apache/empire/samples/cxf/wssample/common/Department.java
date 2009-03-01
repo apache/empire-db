@@ -73,7 +73,8 @@ public class Department {
 		return updateTimestamp;
 	}
 	
-	public String toString()
+	@Override
+    public String toString()
 	{
 		return name;
 	}

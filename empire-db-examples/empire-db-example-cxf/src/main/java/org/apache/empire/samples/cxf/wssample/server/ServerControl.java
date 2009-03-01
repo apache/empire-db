@@ -40,18 +40,20 @@ import org.apache.empire.samples.cxf.wssample.server.db.SampleDB;
 
 public class ServerControl
 {
-
+    private static final Log                   log            = LogFactory.getLog(EmployeeManagementService.class);
+    
+    public static final String                   serviceName    = "employeeManagement";
+    public static final String                   serviceAddress = "http://localhost:8081/" + serviceName;
+    
     private SampleDB                       db             = null;
     private Connection                     conn           = null;
     private SampleConfig                   config         = null;
     private DBDatabaseDriver               driver         = null;
-    protected static Log                   log            = LogFactory.getLog(EmployeeManagementService.class);
 
-    public static String                   serviceName    = "employeeManagement";
-    public static String                   serviceAddress = "http://localhost:8081/" + serviceName;
+
     private String                         configPath     = "config.xml";
     private org.apache.cxf.endpoint.Server endpoint       = null;
-    JaxWsServerFactoryBean svrFactory = null;
+    private JaxWsServerFactoryBean svrFactory = null;
 
     public ServerControl()
     {
