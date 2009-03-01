@@ -228,34 +228,34 @@ public class StringUtils
         return buf.toString();
     }
     
+    /**
+     * Checks if a string is empty
+     * 
+     * @param s the String to check
+     * 
+     * @return true if s is empty or <code>null</code>
+     */
     public static boolean isEmpty(String s)
     {
-        return (s==null || s.trim().length()==0);
+        return (s==null || s.trim().length() == 0);
     }
     
+    /**
+     * Checks if a string is not null or empty
+     * 
+     * @param s the string to validate
+     * 
+     * @return true if valid
+     */
     public static boolean isValid(String s)
     {
-        return (s!=null && s.trim().length()>0);
-    }
-
-    public static boolean isEmail(String s)
-    {
-        int indexOfAtChar = s.indexOf("@");
-        if (indexOfAtChar > 0)
-        {
-            int indexOfDotChar = s.indexOf(".", indexOfAtChar);
-            if (indexOfDotChar > 0)
-            {
-                return true;
-            }
-            return false;
-        }
-        return false;
+        return (s != null && s.trim().length() > 0);
     }
     
     /**
      * Validates a given string. If the string is empty then null is returned. 
-     * Otherwise the trimmed string is returned. 
+     * Otherwise the trimmed string is returned.
+     * 
      * @param s the string to validate
      * @return the string or null if s was empty.
      */
@@ -270,7 +270,7 @@ public class StringUtils
     }
     
     /**
-     * Replaces all occances of first character in a string by a string.
+     * Replaces all occurences of find in source by replace.
      * 
      * @param source the original String.
      * @param find the String to be replaced
@@ -312,9 +312,9 @@ public class StringUtils
     {
         if (source == null)
             return null;
-        if (find == null)
+        if (find == null || "".equals(find))
         {
-            find = "";
+            return source;
         }
         if (replace == null)
         {
@@ -356,40 +356,5 @@ public class StringUtils
 
         return buffer.toString();
     }
-
-    public static String replaceBRbyLF(String s)
-    {
-        return replaceAll(replaceAll(s, "<br/>", "\n\n"), "<br />", "\n\n");
-    }
-
-    public static String trimAll(String orig)
-    {
-        if (orig == null)
-            return null;
-        String str = orig.trim();
-        StringBuilder strBuf = new StringBuilder(str.length());
-        boolean hasSpace = false;
-        for (int i = 0, j = 0; i < str.length(); i++)
-        {
-            if (str.charAt(i) == ' ')
-            {
-                if (!hasSpace)
-                {
-                    strBuf.append(' ');
-                    hasSpace = true;
-                }
-            } 
-            else
-            {
-                j = str.indexOf(' ', i);
-                if (j == -1)
-                    j = str.length();
-                strBuf.append(str.substring(i, j));
-                hasSpace = false;
-                i = j - 1;
-            }
-        }
-
-        return strBuf.toString();
-    }
+    
 }

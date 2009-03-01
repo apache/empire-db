@@ -28,8 +28,20 @@ package org.apache.empire.db;
 public class DBIndex extends DBObject
 {
     // Index Types
+    // TODO convert to an enum?
+    /**
+     * SQL Standard index
+     */
     public static final int STANDARD   = 0;
+    
+    /**
+     * SQL Unique index
+     */
     public static final int UNIQUE     = 1;
+    
+    /**
+     * SQL Primary key index
+     */
     public static final int PRIMARYKEY = 2;
 
     private String          name;
@@ -88,7 +100,9 @@ public class DBIndex extends DBObject
     }
     
     /**
-     * Returns the primary key type (only PRIMARYKEY).
+     * Returns the index type.
+     * 
+     * @return the type of this index ({@link #PRIMARYKEY}, {@link #UNIQUE}, {@link #STANDARD}) 
      */
     public int getType()
     {
@@ -96,7 +110,11 @@ public class DBIndex extends DBObject
     }
 
     /**
-     * Returns true if a specified DBColumn object exits in the internal DBColumn vector.
+     * Checks if this index contains the column col  
+     * 
+     * @param col the column
+     * 
+     * @return true if this index contains this column
      */
     public boolean contains(DBColumn col)
     {
@@ -108,6 +126,10 @@ public class DBIndex extends DBObject
 
     /**
      * Gets the position of a specified DBColumn object.
+     * 
+     * @param col the column 
+     * 
+     * @return the position or -1 if the column was not found
      */
     public int getColumnPos(DBColumn col)
     {

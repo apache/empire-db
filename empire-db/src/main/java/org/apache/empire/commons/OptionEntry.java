@@ -41,9 +41,15 @@ public class OptionEntry
         return value;
     }
 
+    /**
+     * Gets the value as string
+     * 
+     * @return the string representation of the value or an empty string if the value is <code>null</code>
+     */
     public String getValueString()
-    {   // Convenience Function   
-        return (value!=null ? String.valueOf(value) : "");
+    {
+        // Convenience Function
+        return (value != null ? String.valueOf(value) : "");
     }
     
     public String getText()

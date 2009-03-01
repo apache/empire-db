@@ -114,7 +114,7 @@ public class StringUtilsTest
 	@Test
 	public void testStringToArray()
 	{
-		// TODO see if we want to always return empty arrays instead od nulls
+		// TODO see if we want to always return empty arrays instead of nulls
 		assertArrayEquals(null, StringUtils.stringToArray(null , null));
 		assertArrayEquals(null, StringUtils.stringToArray("first null second" , null));
 		assertArrayEquals(null, StringUtils.stringToArray(null , "/"));
@@ -148,7 +148,6 @@ public class StringUtilsTest
 	@Test
 	public void testIsEmpty()
 	{
-		// TODO add javadoc to this method
 		assertTrue(StringUtils.isEmpty(null));
 		assertTrue(StringUtils.isEmpty(""));
 		assertTrue(StringUtils.isEmpty("\t\r\n"));
@@ -158,25 +157,10 @@ public class StringUtilsTest
 	@Test
 	public void testIsValid()
 	{
-		// TODO add javadoc to this method
-		// TODO change implementation to ! isEmpty()
 		assertFalse(StringUtils.isValid(null));
 		assertFalse(StringUtils.isValid(""));
 		assertFalse(StringUtils.isValid("\t\r\n"));
 		assertTrue(StringUtils.isValid(" test "));
-	}
-
-	@Test
-	public void testIsEmail()
-	{
-		// TODO add javadoc to this method + add possible nullpointer info or fix
-		// assertFalse(StringUtils.isEmail(null));
-		assertFalse(StringUtils.isEmail(""));
-		assertFalse(StringUtils.isEmail("@"));
-		assertTrue(StringUtils.isEmail("f@f.f"));
-		// FIXME these should return false (use regex?)
-		assertTrue(StringUtils.isEmail(" @. "));
-		assertTrue(StringUtils.isEmail("user@site@site.com"));
 	}
 
 	@Test
@@ -191,12 +175,12 @@ public class StringUtilsTest
 	@Test
 	public void testReplace()
 	{
-		// TODO fix javadoc spelling
 		assertEquals(null, StringUtils.replace(null, null, null));
 		assertEquals("", StringUtils.replace("", null, null));
 		assertEquals("test null test", StringUtils.replace("test null test", null, ""));
 		assertEquals("test  test", StringUtils.replace("test a test", "a", null));
 		assertEquals("test test", StringUtils.replace("test test", "", "oops"));
+		assertEquals("test test", StringUtils.replaceAll("test test", null, "oops"));
 		assertEquals("testoopsoopstest", StringUtils.replace("test  test", " ", "oops"));
 		assertEquals("1-two-3", StringUtils.replace("1 2 3", " 2 ", "-two-"));
 	}
@@ -204,37 +188,15 @@ public class StringUtilsTest
 	@Test
 	public void testReplaceAll()
 	{
-		// TODO what is the difference with the other replace method???
+		// TODO what is the difference with the other replace method, merge???
 		assertEquals(null, StringUtils.replaceAll(null, null, null));
 		assertEquals("", StringUtils.replaceAll("", null, null));
 		assertEquals("test null test", StringUtils.replaceAll("test null test", null, ""));
 		assertEquals("test  test", StringUtils.replaceAll("test a test", "a", null));
-		// FIXME this causes a OutOfMemoryError: Java heap space
-		// assertEquals("test test", StringUtils.replaceAll("test test", "", "oops"));
+		assertEquals("test test", StringUtils.replaceAll("test test", "", "oops"));
+		assertEquals("test test", StringUtils.replaceAll("test test", null, "oops"));
 		assertEquals("testoopsoopstest", StringUtils.replaceAll("test  test", " ", "oops"));
 		assertEquals("1-two-3", StringUtils.replaceAll("1 2 3", " 2 ", "-two-"));
-	}
-
-	@Test
-	public void testReplaceBRbyLF()
-	{
-		// TODO add javadoc and specify that only xhtml br's are supported
-		// indicate a doule lf is added
-		assertEquals(null, StringUtils.replaceBRbyLF(null));
-		assertEquals("", StringUtils.replaceBRbyLF(""));
-		assertEquals(" <br> ", StringUtils.replaceBRbyLF(" <br> "));
-		assertEquals(" \n\n ", StringUtils.replaceBRbyLF(" <br /> "));
-		assertEquals(" \n\n ", StringUtils.replaceBRbyLF(" <br/> "));
-		assertEquals(" \n\n \n\n\n", StringUtils.replaceBRbyLF(" <br/> <br />\n"));
-	}
-
-	@Test
-	public void testTrimAll()
-	{
-		// TODO add javadoc to this method, what does this method do??
-		assertEquals(null, StringUtils.trimAll(null));
-		assertEquals("", StringUtils.trimAll(" \t \r \n "));
-		assertEquals("a\r \t b", StringUtils.trimAll(" \t a\r \t b \n "));
 	}
 
 }

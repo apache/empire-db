@@ -350,10 +350,14 @@ public final class ObjectUtils
     
     /**
      * Generic conversion function that will convert a object to another value type.
-     * @param c the value type to convert to
+     * 
+     * @param <T> the type to convert to
+     * @param c the class type to convert to
      * @param v the object to convert
+     * 
      * @return the Date value of o or null
-     * @throws ClassCastException 
+     * 
+     * @throws ClassCastException if the object is not null and is not assignable to the type T.
      */
     @SuppressWarnings("unchecked")
     public static <T> T convert(Class<T> c, Object v)
@@ -410,13 +414,14 @@ public final class ObjectUtils
     
     /**
      * Generic conversion function that will convert a list to another list type.
+     * 
+     * @param <T> the type of elements
      * @param t the type class
      * @param source the source collection
+     * 
      * @return the new list type
-     * @throws ClassCastException 
      */
     public static <T> List<T> convert(Class<T> t, Collection<? extends T> source)
-        throws ClassCastException
     {
         List<T> target = new ArrayList<T>();
         target.addAll(source);
@@ -446,8 +451,11 @@ public final class ObjectUtils
     
     /**
      * returns wheter or not a array contains a certain item
+     * 
+     * @param <T> the ype of the objects in the array
      * @param array the array to search
      * @param item the item to search for
+     * 
      * @return true if the array contains the item or false otherwise
      */
     public static <T> boolean contains(T[] array, T item)

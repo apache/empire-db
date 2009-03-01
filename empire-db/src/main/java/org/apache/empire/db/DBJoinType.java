@@ -26,17 +26,32 @@ package org.apache.empire.db;
  */
 public enum DBJoinType
 {
+    /**
+     * SQL Left join
+     */
     LEFT,   //   =-1,
+    
+    /**
+     * SQL Inner join
+     */
     INNER,  //   = 0,
+    
+    /**
+     * SQL Right join
+     */
     RIGHT;  //   = 1
     
     public static DBJoinType reversed(DBJoinType type)
     {
         switch(type)
         {
-            case LEFT:  return RIGHT;
-            case RIGHT: return LEFT;
-            default:    return type; // no change
+            case LEFT:  
+                return RIGHT;
+            case RIGHT: 
+                return LEFT;
+            default:    
+                // no change
+                return type; 
         }
     }
 }

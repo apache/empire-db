@@ -46,12 +46,16 @@ import org.w3c.dom.Element;
  */
 public class DBRecord extends DBRecordData implements Record, Cloneable
 {
+    /*
+     * TODO convert to an enum?
+     */
     public static final int REC_INVALID  = -1;
     public static final int REC_EMTPY    = 0;
     public static final int REC_VALID    = 1;
     public static final int REC_MODIFIED = 2;
     public static final int REC_NEW      = 3;
 
+    @SuppressWarnings("hiding")
     protected static final Log    log          = LogFactory.getLog(DBRecord.class);
 
     // This is the record data

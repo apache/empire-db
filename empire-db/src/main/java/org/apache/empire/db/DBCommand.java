@@ -335,6 +335,8 @@ public abstract class DBCommand extends DBCommandExpr
      * and returns a parameter object.
      * 
      * @param item the parameter value 
+     * 
+     * @return the parameter object 
      */
     public DBCmdParameter addCmdParam(Object item)
     {
@@ -372,7 +374,9 @@ public abstract class DBCommand extends DBCommandExpr
      * 
      * @param left the left join value
      * @param right the right join
-     * @param joinType type of join (INNER, LEFT, RIGHT)
+     * @param joinType type of join ({@link DBJoinType#INNER}, {@link DBJoinType#LEFT}, {@link DBJoinType#RIGHT})
+     * 
+     * @return the join expression 
      */
     public DBJoinExpr join(DBColumnExpr left, DBColumn right, DBJoinType joinType)
     {
@@ -386,6 +390,8 @@ public abstract class DBCommand extends DBCommandExpr
      * 
      * @param left the left join value
      * @param right the right join
+     * 
+     * @return the join expresion 
      */
     public DBJoinExpr join(DBColumnExpr left, DBColumn right)
     {
@@ -395,9 +401,11 @@ public abstract class DBCommand extends DBCommandExpr
     /**
      * Adds a join based on a compare expression to the command.
      * 
-     * @param rowset table of view which to join
+     * @param rowset table or view to join
      * @param cmp the compare expression with wich to join the table
-     * @param joinType type of join (INNER, LEFT, RIGHT)
+     * @param joinType type of join ({@link DBJoinType#INNER}, {@link DBJoinType#LEFT}, {@link DBJoinType#RIGHT})
+     * 
+     * @return the join expresion 
      */
     public DBJoinExpr join(DBRowSet rowset, DBCompareExpr cmp, DBJoinType joinType)
     {
@@ -411,6 +419,8 @@ public abstract class DBCommand extends DBCommandExpr
      * 
      * @param rowset table of view which to join
      * @param cmp the compare expression with wich to join the table
+     * 
+     * @return the join expresion 
      */
     public DBJoinExpr join(DBRowSet rowset, DBCompareExpr cmp)
     {
@@ -434,6 +444,8 @@ public abstract class DBCommand extends DBCommandExpr
     /**
      * Returns true if the command has a join on the given
      * table or false otherwise.
+     * 
+     * @param rowset rowset table or view to join
      * 
      * @return true if the command has a join on the given table or false otherwise
      */
@@ -855,6 +867,8 @@ public abstract class DBCommand extends DBCommandExpr
     
     /**
      * Creates the delete SQL-Command.
+     * 
+     * @param table the table object 
      * 
      * @return the delete SQL-Command
      */

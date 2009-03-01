@@ -376,7 +376,11 @@ public class DBReader extends DBRecordData
         }
     }
 
-    /** returns null true if the Rowset is not null, and otherwise false */
+    /** 
+     * Checks if the rowset is open
+     *  
+     * @return true if the rowset is open
+     */
     public boolean isOpen()
     {
         return (rset != null);
@@ -485,6 +489,8 @@ public class DBReader extends DBRecordData
 
     /**
      * Moves the cursor down the given number of rows.
+     * 
+     * @param count the number of rows to skip 
      * 
      * @return true if the reader is on a valid record or false otherwise
      */
@@ -619,6 +625,12 @@ public class DBReader extends DBRecordData
     /**
      * Returns the result of a query as a list of objects resticted
      * to a maximum number of objects (unless maxCount is -1).
+     * 
+     * @param c the class type of the objects in the list
+     * @param maxCount the maximum number of objects
+     * @param <T> the type of the objects in the list
+     * 
+     * @return the list of <T>
      */
     @SuppressWarnings("unchecked")
     public <T> ArrayList<T> getBeanList(Class<T> c, int maxCount)
@@ -681,6 +693,11 @@ public class DBReader extends DBRecordData
 
     /**
      * Returns the result of a query as a list of objects.
+     * 
+     * @param c the class type of the objects in the list
+     * @param <T> the type of the objects in the list
+     * 
+     * @return the list of <T>
      */
     public <T> ArrayList<T> getBeanList(Class<T> c)
     {

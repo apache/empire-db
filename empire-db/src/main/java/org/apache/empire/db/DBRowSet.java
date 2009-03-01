@@ -180,6 +180,8 @@ public abstract class DBRowSet extends DBExpr
     /**
      * Gets the column Expression with a particular name.
      * 
+     * @param name the name of the column to look for 
+     * 
      * @return the column Expression at position
      */
     public DBColumn getColumn(String name)
@@ -197,6 +199,8 @@ public abstract class DBRowSet extends DBExpr
      * Checks whether a column is read only or writable.
      * Only the timestamp column is read only by default.
      * The primary is read only if the column is of type.
+     * 
+     * @param col the column object 
      * 
      * @return a new DBCountExpr object
      */

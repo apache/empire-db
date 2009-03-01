@@ -785,8 +785,11 @@ public abstract class DBDatabase extends DBObject
      * Returns a one dimensional array from an sql query.
      * The array is filled with the values of the first column.
      * 
+     * @param c the class type for the list 
+     * @param <T> the type for th list
      * @param sqlCmd the SQL statement
      * @param conn a valid connection to the database.
+     * 
      * @return a list of the values of the first column of an sql query 
      */
     public <T> List<T> querySimpleList(Class<T> c, String sqlCmd, Connection conn)

@@ -36,7 +36,6 @@ public class OptionEntryTest
 	@Test
 	public void testGetValueString()
 	{
-		// TODO add javadoc to this method
 		OptionEntry entry = new OptionEntry(Boolean.TRUE, "junit");
 		assertEquals("true", entry.getValueString());
 		entry = new OptionEntry(null, "junit");

@@ -163,7 +163,10 @@ public abstract class DBCommandExpr extends DBExpr
         private DBColumnExpr expr;
 
         /**
-         * Constructs a new DBCmdColumn object set the specified parameters to this object
+         * Constructs a new DBCmdColumn object
+         * 
+         * @param query the row set
+         * @param expr the column
          */
         public DBCmdColumn(DBRowSet query, DBColumnExpr expr)
         { // call base
@@ -277,11 +280,14 @@ public abstract class DBCommandExpr extends DBExpr
     protected static class DBOrderByInfo extends DBExpr
     {
         public DBColumnExpr expr;
-        public boolean      desc;
+        public boolean desc;
 
         /**
          * Construct a new DBOrderByInfo object set the specified
          * parameters to this object.
+         * 
+         * @param expr the column 
+         * @param desc set true for descending or false for ascending
          */
         public DBOrderByInfo(DBColumnExpr expr, boolean desc)
         {
@@ -289,15 +295,17 @@ public abstract class DBCommandExpr extends DBExpr
             this.desc = desc;
         }
 
-        /** Returns the current database object */
+        /** 
+         * Returns the current database object 
+         */
         @Override
         public DBDatabase getDatabase()
         {
             return expr.getDatabase();
         }
 
-        /**
-         * @see org.apache.empire.db.DBExpr#addColumns(List)
+        /*
+         * @see org.apache.empire.db.DBExpr#addReferencedColumns(Set)
          */
         @Override
         public void addReferencedColumns(Set<DBColumn> list)
@@ -313,10 +321,14 @@ public abstract class DBCommandExpr extends DBExpr
          */
         @Override
         public void addSQL(StringBuilder buf, long context)
-        { // Set SQL-Order By
+        { 
+            // Set SQL-Order By
             expr.addSQL(buf, context);
+            // only need to add DESC as default is ASC
             if (desc)
+            {
                 buf.append(" DESC");
+            }
         }
     }
 
@@ -444,7 +456,7 @@ public abstract class DBCommandExpr extends DBExpr
     }
 
     /**
-     * Creates a new DBOrderByInfo object and add it to the Vector 'orderBy'.
+     * Adds an order by with ascending or descending order
      * 
      * @param expr the DBColumnExpr object
      * @param desc if true, the results from select statement will sort top down
@@ -458,9 +470,9 @@ public abstract class DBCommandExpr extends DBExpr
     }
 
     /**
-     * This helper function calls the method orderBy(DBColumnExpr, boolean)
-     * and sets the second parameter to false,creates a new
-     * DBOrderByInfo object and adds it to the Vector 'orderBy'.
+     * Adds an order by with ascending order
+     * 
+     * @param expr the column 
      * 
      * @see org.apache.empire.db.DBCommandExpr#orderBy(DBColumnExpr, boolean)
      */
@@ -508,6 +520,9 @@ public abstract class DBCommandExpr extends DBExpr
      * Create the insert into SQL-Command which copies
      * data from a select statement to a destination table.
      * 
+     * @param table the table 
+     * @param columns the columns
+     * 
      * @return the insert into SQL-Command
      */
     public final String getInsertInto(DBTable table, List<DBColumnExpr> columns)
@@ -518,6 +533,8 @@ public abstract class DBCommandExpr extends DBExpr
     /**
      * Create the insert into SQL-Command which copies
      * data from a select statement to a destination table.
+     * 
+     * @param table the table 
      * 
      * @return the insert into SQL-Command
      */
