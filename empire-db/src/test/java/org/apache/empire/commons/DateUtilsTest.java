@@ -93,12 +93,13 @@ public class DateUtilsTest
 		Date pastDate = DateUtils.addDate(date, -1, -2, -3);
 		Calendar past = Calendar.getInstance();
 		past.setTime(pastDate);
-		past.add(Calendar.YEAR, 1);
-		past.add(Calendar.MONTH, 2);
-		past.add(Calendar.DAY_OF_MONTH, 3);
-		assertEquals(now.get(Calendar.YEAR), past.get(Calendar.YEAR));
-		assertEquals(now.get(Calendar.MONTH), past.get(Calendar.MONTH));
-		assertEquals(now.get(Calendar.DAY_OF_MONTH), past.get(Calendar.DAY_OF_MONTH));
+		Calendar copy = (Calendar) now.clone();
+		copy.add(Calendar.YEAR, -1);
+		copy.add(Calendar.MONTH, -2);
+		copy.add(Calendar.DAY_OF_MONTH, -3);
+		assertEquals(past.get(Calendar.YEAR), copy.get(Calendar.YEAR));
+		assertEquals(past.get(Calendar.MONTH), copy.get(Calendar.MONTH));
+		assertEquals(past.get(Calendar.DAY_OF_MONTH), copy.get(Calendar.DAY_OF_MONTH));
 	}
 
 	/**
