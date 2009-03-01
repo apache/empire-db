@@ -18,9 +18,6 @@
  */
 package org.apache.empire.commons;
 
-import java.util.Collection;
-import java.util.Iterator;
-
 /**
  * This class contains common functions for comparing and converting values of type String. 
  * 
@@ -155,77 +152,7 @@ public class StringUtils
             return buf.toString();
         }
         // Only one member
-        return array[0].toString();
-    }
-
-    /**
-     * Converts a string to an array of objects.
-     * 
-     * @param string the source string to parse
-     * @param separator the separator string by which the parts are separated
-     * @return returns a String
-     */
-    public static String[] stringToArray(String string, String separator)
-    {
-        if (string == null || isEmpty(separator))
-            return null; // Empty
-        // Count the items first
-        int sepLength = separator.length();
-        int count = 0;
-        int pos = -1;
-        while ((pos=string.indexOf(separator, pos+sepLength))>=0)
-                count++;
-        // Alloc an array
-        String[] array = new String[count+1];
-        if (count>0)
-        {
-            int beg = 0;
-            for (int i=0; true; i++)
-            {
-                int end = string.indexOf(separator, beg);
-                if (end>beg)
-                {   // Add Item
-                    array[i] = string.substring(beg, end);
-                    beg = end + sepLength;
-                }
-                else
-                {   // Last Item
-                    array[i] = string.substring(beg);
-                    break;
-                }
-            }
-        }
-        else
-        {
-            array[0] = string;
-        }
-        // Only one member
-        return array;
-    }
-
-    /**
-     * Converts an collection of objects to a string.
-     * 
-     * @param c the collection to add
-     * @param separator the separator to put between the object strings
-     * @return returns a String
-     */
-    public static String collectionToString(Collection<? extends Object> c, String separator)
-    {
-        if (c == null || c.size()==0)
-            return null; // Empty
-        // Iterator
-        StringBuilder buf = new StringBuilder();
-        boolean addSep = false;
-        Iterator<?> i = c.iterator();
-        while (i.hasNext())
-        {
-            if (addSep)
-                buf.append(separator);
-            buf.append(valueOf(i.next()));
-            addSep = true;
-        }
-        return buf.toString();
+        return String.valueOf(array[0]);
     }
     
     /**

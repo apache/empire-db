@@ -87,8 +87,10 @@ public final class ObjectUtils
     
     /**
      * Compares two objects for equality 
+     * 
      * @param o1 the first object
      * @param o2 the second object
+     * 
      * @return true if both objects are equal or false otherwise
      */
     public static boolean compareEqual(Object o1, Object o2)

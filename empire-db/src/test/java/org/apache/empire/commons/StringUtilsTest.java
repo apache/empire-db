@@ -20,10 +20,6 @@ package org.apache.empire.commons;
 
 import static org.junit.Assert.*;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
 import org.junit.Test;
 
 public class StringUtilsTest
@@ -103,46 +99,12 @@ public class StringUtilsTest
 		assertEquals(null, StringUtils.arrayToString(null , null));
 		assertEquals(null, StringUtils.arrayToString(null , "/"));
 		assertEquals(null, StringUtils.arrayToString(new String[]{} , ""));
+		assertEquals("test", StringUtils.arrayToString(new String[]{"test"} , "|"));
 		assertEquals("12312.3", StringUtils.arrayToString(new Number[]{Integer.valueOf("123"), Double.valueOf("12.3")} , ""));
 		assertEquals("firstnullsecondnullthird", StringUtils.arrayToString(new String[]{"first", "second", "third"} , null));
 		assertEquals(" first \t second \t third ", StringUtils.arrayToString(new String[]{" first ", " second ", " third "} , "\t"));
 		assertEquals("null/null", StringUtils.arrayToString(new String[]{null, null} , "/"));
-		// FIXME see what this should return + implement (throws nullpointer now)
-		// assertEquals("null", StringUtils.arrayToString(new String[]{null} , "/"));
-	}
-
-	@Test
-	public void testStringToArray()
-	{
-		// TODO see if we want to always return empty arrays instead of nulls
-		assertArrayEquals(null, StringUtils.stringToArray(null , null));
-		assertArrayEquals(null, StringUtils.stringToArray("first null second" , null));
-		assertArrayEquals(null, StringUtils.stringToArray(null , "/"));
-		assertArrayEquals(new String[]{"test"}, StringUtils.stringToArray("test" , "/"));
-		assertArrayEquals(new String[]{"test "," test2"}, StringUtils.stringToArray("test and test2" , "and"));
-		// FIXME this is returning strange results !!!
-		//assertArrayEquals(new String[]{"","","",""}, StringUtils.stringToArray("///" , "/"));
-	}
-
-	@Test
-	public void testCollectionToString()
-	{
-		assertEquals(null, StringUtils.collectionToString(null , null));
-		assertEquals(null, StringUtils.collectionToString(null , "/"));
-		assertEquals(null, StringUtils.collectionToString(Collections.emptySet() , null));
-		List<String> test = new ArrayList<String>();
-		Collections.addAll(test, "first","second","third");
-		assertEquals("firstsecondthird", StringUtils.collectionToString(test , ""));
-		assertEquals("firstnullsecondnullthird", StringUtils.collectionToString(test , null));
-		assertEquals("first \t second \t third", StringUtils.collectionToString(test , " \t "));
-		test.clear();
-		Collections.addAll(test, "first", null, "third");
-		// TODO should null be converted to string null as with the arry method?
-		assertEquals("first//third", StringUtils.collectionToString(test , "/"));
-		test.clear();
-		Collections.addAll(null);
-		// FIXME see what this should return + implement (throws nullpointer now)
-		// assertEquals("null", StringUtils.arrayToString(new String[]{null} , "/"));
+		assertEquals("null", StringUtils.arrayToString(new String[]{null} , "/"));
 	}
 
 	@Test

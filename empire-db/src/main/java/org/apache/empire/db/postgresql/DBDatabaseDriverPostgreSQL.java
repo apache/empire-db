@@ -19,10 +19,6 @@
 package org.apache.empire.db.postgresql;
 
 import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.GregorianCalendar;
 import java.util.Iterator;
 
@@ -227,7 +223,8 @@ public class DBDatabaseDriverPostgreSQL extends DBDatabaseDriver
      */
     @Override
     public Object getNextSequenceValue(DBDatabase db, String seqName, int minValue, Connection conn)
-    { // Use Oracle Sequences
+    { 
+        // Use PostgreSQL Sequences
         StringBuilder sql = new StringBuilder(80);
         sql.append("SELECT nextval('");
         db.appendQualifiedName(sql, seqName, detectQuoteName(seqName));
@@ -237,54 +234,9 @@ public class DBDatabaseDriverPostgreSQL extends DBDatabaseDriver
         { // Error!
             log.error("getNextSequenceValue: Invalid sequence value for sequence " + seqName);
         }
-        // Done
         return val;
     }
     
-    @Override
-	public int executeSQL(String sqlCmd, Object[] sqlParams, Connection conn, DBSetGenKeys genKeys) throws SQLException
-	{
-    	// TODO remove as is defined in parent?
-		Statement stmt = null;
-		try
-		{
-			int count = 0;
-			if (sqlParams != null)
-			{ // Use a prepared statement
-				PreparedStatement pstmt = conn.prepareStatement(sqlCmd);
-				prepareStatement(pstmt, sqlParams);
-				count = pstmt.executeUpdate();
-				stmt = pstmt;
-			} else
-			{ // Execute a simple statement
-				stmt = conn.createStatement();
-				count = stmt.executeUpdate(sqlCmd);
-			}
-
-			// Retrieve any auto-generated keys
-			if (genKeys != null)
-			{
-				// Return Keys
-				ResultSet rs = stmt.getGeneratedKeys();
-				try
-				{
-					while (rs.next())
-						genKeys.set(rs.getObject(1));
-				} finally
-				{
-					rs.close();
-				}
-			}
-			return count;
-		} finally
-		{
-			close(stmt);
-		}
-	}
-    
-    
-    
-
     /**
      * @see DBDatabaseDriver#getDDLScript(DBCmdType, DBObject, DBSQLScript)  
      */

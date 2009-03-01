@@ -61,7 +61,6 @@ public class ObjectUtilsTest
 	@Test
 	public void testCompareEqual()
 	{
-		// TODO check if this is the wanted result
 		assertTrue(ObjectUtils.compareEqual(null, null));
 		
 		Object object = new Object();

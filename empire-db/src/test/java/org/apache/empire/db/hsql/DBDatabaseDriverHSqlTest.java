@@ -14,7 +14,6 @@ import org.apache.empire.db.DBSQLScript;
 import org.apache.empire.db.DBTools;
 import org.apache.empire.db.CompanyDB;
 import org.junit.AfterClass;
-import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
