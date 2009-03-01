@@ -52,7 +52,7 @@ import org.w3c.dom.NodeList;
 public class XMLWriter extends ErrorObject
 {
     // Logger
-    protected static Log   log                  = LogFactory.getLog(XMLWriter.class);
+    protected static final Log   log                  = LogFactory.getLog(XMLWriter.class);
 
     /** Print writer. */
     protected PrintWriter  out;

@@ -216,7 +216,7 @@ public class DBReader extends DBRecordData
 
     // Logger
     @SuppressWarnings("hiding")
-    protected static Log   log               = LogFactory.getLog(DBReader.class);
+    protected static final Log   log               = LogFactory.getLog(DBReader.class);
     
     /**
      * Support for finding code errors where a DBRecordSet is opened but not closed
