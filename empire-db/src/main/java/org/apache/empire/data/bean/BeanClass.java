@@ -34,8 +34,8 @@ import org.apache.empire.data.DataType;
  */
 public abstract class BeanClass
 {
-    private String name;
-    private List<BeanProperty> properties = new ArrayList<BeanProperty>();
+    private final String name;
+    private final List<BeanProperty> properties = new ArrayList<BeanProperty>();
     private Column[] keyColumns;
     
     protected BeanDomain domain; // internal

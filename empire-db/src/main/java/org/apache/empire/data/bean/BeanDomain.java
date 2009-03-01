@@ -31,8 +31,8 @@ import java.util.List;
  */
 public abstract class BeanDomain
 {
-    private String name;
-    private List<BeanClass> classes = new ArrayList<BeanClass>();
+    private final String name;
+    private final List<BeanClass> classes = new ArrayList<BeanClass>();
     
     protected BeanDomain(String name)
     {

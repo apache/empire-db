@@ -47,7 +47,7 @@ import org.apache.empire.data.Record;
  */
 public class BeanRecordProxy<T> extends ErrorObject implements Record
 {
-    protected static Log log = LogFactory.getLog(BeanRecordProxy.class);
+    protected static final Log log = LogFactory.getLog(BeanRecordProxy.class);
     
     private List<Column> columns;
     private Column[] keyColumns;
