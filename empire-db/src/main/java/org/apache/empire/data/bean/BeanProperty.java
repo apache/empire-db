@@ -30,10 +30,11 @@ import org.apache.empire.data.DataType;
  */
 public class BeanProperty implements Column
 {
-    private String   name;        // required
-    private DataType dataType;    // required
-    private double   size;        // required
-    private boolean  required;    // required
+    private final String   name;
+    private final DataType dataType;
+    private final double   size;
+    private final boolean  required;
+    
     private String   controlType; // optional (default is 'text')
     private boolean  readOnly;    // optional
     private String   title;       // optional
