@@ -44,7 +44,7 @@ public abstract class DBRecordData extends DBObject
 	implements RecordData
 {
     // Logger
-    protected static Log log = LogFactory.getLog(DBRecordData.class);
+    protected static final Log log = LogFactory.getLog(DBRecordData.class);
     
     // Field Info
     public abstract int     getFieldCount();

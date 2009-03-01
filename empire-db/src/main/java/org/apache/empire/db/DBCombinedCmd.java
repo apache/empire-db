@@ -17,7 +17,7 @@
  * under the License.
  */
 package org.apache.empire.db;
-// java
+
 import java.util.Set;
 
 /**
@@ -120,16 +120,10 @@ public class DBCombinedCmd extends DBCommandExpr
       }
       return success();
    }
-  /**
-   * This helper function adds the DBColumnExpr objects to the Vector: 'orderBy'.
-   * 
-   * @param expr the first DBColumnExpr object
-   * @param desc an boolean value
-   */
+
    @Override
    public void orderBy(DBColumnExpr expr, boolean desc)
    {
-      // set statement
       super.orderBy(getCmdColumn(expr), desc);
    }
 

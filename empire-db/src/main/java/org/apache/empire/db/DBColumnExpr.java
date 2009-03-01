@@ -215,7 +215,7 @@ public abstract class DBColumnExpr extends DBExpr
     
     /**
      * Gets the Java bean property name for this column
-     * i.e. EMPLOYEE_ID   = employeeId
+     * i.e. ID   = employeeId
      *      DATE_OF_BIRTH = dateOfBirth
      *      
      * @return the name of the bean property used to get and set values 

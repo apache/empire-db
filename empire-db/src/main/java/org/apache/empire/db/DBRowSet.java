@@ -68,7 +68,7 @@ public abstract class DBRowSet extends DBExpr
     
     // Logger
     @SuppressWarnings("hiding")
-    protected static Log log = LogFactory.getLog(DBRowSet.class);
+    protected static final Log log = LogFactory.getLog(DBRowSet.class);
     // Members
     protected final DBDatabase db;
     protected String        comment           = null;

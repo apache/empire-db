@@ -33,14 +33,17 @@ import org.apache.empire.db.DBView;
 
 public class OracleDataDictionnary {
     
+    /**
+     * Immutable culumn info helper class
+     */
     private class ColumnInfo {
 
-        private String dataType;
-        private int charLength;
-        private int dataLength;
-        private int dataPrecision;
-        private int dataScale;
-        private String nullable;
+        private final String dataType;
+        private final int charLength;
+        private final int dataLength;
+        private final int dataPrecision;
+        private final int dataScale;
+        private final String nullable;
         
         public ColumnInfo(String dataType, int charLength, int dataLength, int dataPrecision, int dataScale, String nullable)
         {
@@ -85,8 +88,10 @@ public class OracleDataDictionnary {
 
     }
     
-    protected static Log log = LogFactory.getLog(OracleDataDictionnary.class);
-    HashMap<String, HashMap<String, ColumnInfo>> dictionnary = new HashMap<String, HashMap<String, ColumnInfo>>();
+    protected static final Log log = LogFactory.getLog(OracleDataDictionnary.class);
+    
+    private final HashMap<String, HashMap<String, ColumnInfo>> dictionnary = new HashMap<String, HashMap<String, ColumnInfo>>();
+    
     private Map<String, DataType[]> dataTypeMapping    = null;
 
     /**

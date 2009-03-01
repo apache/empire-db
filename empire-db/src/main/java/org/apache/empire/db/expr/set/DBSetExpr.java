@@ -27,7 +27,7 @@ import org.apache.empire.db.DBRowSet;
 
 
 /**
- * This class is used for building a set expression of an SQL update statement.
+ * This class is used for building a set expression of a SQL update statement.
  * <P>
  * There is no need to explicitly create instances of this class.<BR>
  * Instead use {@link DBColumn#to(Object)} factory method.
@@ -44,7 +44,7 @@ public class DBSetExpr extends DBExpr
     public Object         value;
 
     /**
-     * Constructs a new DBSetExpr object. Sets the specified parameters to this object.
+     * Constructs a new DBSetExpr object.
      * 
      * @param expr the column
      * @param value the value
@@ -67,9 +67,9 @@ public class DBSetExpr extends DBExpr
     }
 
     /**
-     * Returns the current DBDatabase object.
+     * Returns the current Table object.
      * 
-     * @return the current DBDatabase object
+     * @return the current DBRowSet object
      */
     public DBRowSet getTable()
     {
@@ -101,9 +101,6 @@ public class DBSetExpr extends DBExpr
         this.value = value;
     }
 
-    /**
-     * @see org.apache.empire.db.DBExpr#addReferencedColumns(Set)
-     */
     @Override
     public void addReferencedColumns(Set<DBColumn> list)
     {

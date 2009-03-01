@@ -46,8 +46,8 @@ public abstract class DBExpr extends DBObject
     public static final long CTX_ALIAS         = 8;  // Rename expression
     public static final long CTX_NOPARENTHESES = 16; // No Parentheses
     
-    // Logger
-    protected static Log log = LogFactory.getLog(DBExpr.class);
+    
+    protected static final Log log = LogFactory.getLog(DBExpr.class);
     
     /**
      * Used to build the SQL command. SQL for this expression must be appended to StringBuilder.

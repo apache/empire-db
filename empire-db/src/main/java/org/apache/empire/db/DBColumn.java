@@ -42,10 +42,26 @@ import org.w3c.dom.Element;
 public abstract class DBColumn extends DBColumnExpr
     implements Column
 {
-    // Predefined column attributes
+    // Predefined column attributes 
+
+    /**
+     * Mandatory column (Boolean)
+     */
     public static final String DBCOLATTR_MANDATORY = "mandatory";
+    
+    /**
+     * Read only column (Boolean)
+     */
     public static final String DBCOLATTR_READONLY  = "readonly";
+    
+    /**
+     * Minimum value (Integer)
+     */
     public static final String DBCOLATTR_MINVALUE  = "minValue";
+    
+    /**
+     * Maximum value (Integer)
+     */
     public static final String DBCOLATTR_MAXVALUE  = "maxValue";
 
     // basic data

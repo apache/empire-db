@@ -20,7 +20,6 @@ package org.apache.empire.db;
 
 import static org.junit.Assert.*;
 
-import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -67,48 +66,7 @@ public class DBCommandTest
 		
 	}
 	
-	private class MockDriver extends DBDatabaseDriver{
-
-        @Override
-        public DBCommand createCommand(DBDatabase db)
-        {
-            return new MockCommand(db);
-        }
-
-        @Override
-        public String getConvertPhrase(DataType destType, DataType srcType, Object format)
-        {
-            return null;
-        }
-
-        @Override
-        public Object getNextSequenceValue(DBDatabase db, String SeqName, int minValue, Connection conn)
-        {
-            return null;
-        }
-
-        @Override
-        public String getSQLPhrase(int phrase)
-        {
-            return null;
-        }
-
-        @Override
-        public boolean isSupported(DBDriverFeature type)
-        {
-            return false;
-        }
-	    
-	}
 	
-	private class MockCommand extends DBCommand{
-
-        protected MockCommand(DBDatabase db)
-        {
-            super(db);
-        }
-	    
-	}
 	
 	private class MockDBColumn extends DBColumn{
 

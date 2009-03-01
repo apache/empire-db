@@ -100,7 +100,7 @@ public abstract class DBDatabaseDriver extends ErrorObject
     public static final int SQL_FUNC_DECODE_ELSE = 153; // Oracle: "{0}"           SQL: "else {0}"
 
     // Logger
-    protected static Log log = LogFactory.getLog(DBDatabaseDriver.class);
+    protected static final Log log = LogFactory.getLog(DBDatabaseDriver.class);
     
     // Flag whether or not to set column defaults when crating DDL statements
     protected boolean ddlColumnDefaults = false;

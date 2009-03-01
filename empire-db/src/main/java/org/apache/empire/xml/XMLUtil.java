@@ -44,7 +44,7 @@ import org.w3c.dom.NodeList;
  */
 public class XMLUtil
 {
-    protected static Log log = LogFactory.getLog(XMLUtil.class);
+    protected static final Log log = LogFactory.getLog(XMLUtil.class);
     
     /**
      * DocumentBuilder that is aware of namespaces. This is necessary for parsing xsl files.
