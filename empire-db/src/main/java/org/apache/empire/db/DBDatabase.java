@@ -125,9 +125,8 @@ public abstract class DBDatabase extends DBObject
     }
 
     /**
-     * Sets the database driver for this database. <br>
-     * ------ DO NOT CALL DIRECTLY! ------- <br>
-     * This function is called internally by {@link DBDatabaseDriver#openDatabase(DBDatabase, Connection)}
+     * Sets the database driver for this database. This will
+     * set up the connection for use.<br>
      * 
      * @param driver the databae driver
      * @param conn the connection
