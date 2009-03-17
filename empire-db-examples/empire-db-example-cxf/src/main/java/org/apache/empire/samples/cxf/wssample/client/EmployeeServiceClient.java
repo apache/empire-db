@@ -79,5 +79,9 @@ public class EmployeeServiceClient
     {
         return service.searchEmmployee(id, firstName, lastName, department);
     }
-
+    
+    public boolean ping()
+    {
+        return service.ping();
+    }
 }

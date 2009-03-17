@@ -152,4 +152,8 @@ public class EmployeeServiceImpl implements EmployeeService
         return (read && fill ? emp : null);
     }
 
+    public boolean ping()
+    {
+        return true;
+    }
 }

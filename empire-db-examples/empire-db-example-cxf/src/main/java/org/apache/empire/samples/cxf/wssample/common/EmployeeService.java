@@ -33,7 +33,6 @@ import javax.xml.ws.Holder;
 
 public interface EmployeeService
 {
-
     @WebMethod(operationName = "searchEmmployee")
     @WebResult(name = "searchResponse")
     public List<Employee> searchEmmployee(@WebParam(name = "id", mode = Mode.IN) Integer id,
@@ -60,4 +59,9 @@ public interface EmployeeService
     @WebMethod(operationName = "getDepartments")
     @WebResult(name = "allDepartments")
     public List<Department> getDepartments();
+    
+    @WebMethod(operationName = "ping")
+    @WebResult(name = "pingResponse")
+    public boolean ping();
+    
 }
