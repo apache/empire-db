@@ -18,7 +18,7 @@
  */
 package org.apache.empire.struts2.websample.web.actions;
 
-import org.apache.empire.samples.cxf.wssample.client.EmployeeManagementProxy;
+import org.apache.empire.samples.cxf.wssample.client.EmployeeServiceClient;
 import org.apache.empire.samples.cxf.wssample.common.Employee;
 import org.apache.empire.struts2.actionsupport.SessionPersistence;
 import org.apache.empire.struts2.websample.web.SampleApplication;
@@ -37,7 +37,7 @@ import org.apache.empire.struts2.websample.ws.records.EmployeeRecord;
  */
 public class EmployeeDetailAction extends BeanDetailAction<Employee>
 {
-    private EmployeeManagementProxy proxy = SampleApplication.getInstance().getWebServiceProxy();
+    private EmployeeServiceClient proxy = SampleApplication.getInstance().getEmployeeServiceClient();
 
     // ------- Action Construction -------
 

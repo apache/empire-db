@@ -23,7 +23,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.empire.samples.cxf.wssample.client.EmployeeManagementProxy;
+import org.apache.empire.samples.cxf.wssample.client.EmployeeServiceClient;
 import org.apache.empire.struts2.web.EmpireStrutsDispatcher;
 import org.apache.empire.struts2.web.WebRequest;
 
@@ -36,7 +36,6 @@ public class SampleRequest implements WebRequest
     private HttpServletRequest  httpRequest;
     private HttpServletResponse httpResponse;
     private SampleSession       session;
-    private EmployeeManagementProxy          ws;  // Connection for this request
     
     public static SampleRequest getInstance()
     {
@@ -60,24 +59,6 @@ public class SampleRequest implements WebRequest
 
     public void exit(int exitCode)
     {
-    	//TODO: how to roll back on webservice?
-        // Cleanup
-        if (ws!=null)
-        {   // Commit or rollback connection depending on the exit code
-            if (exitCode>=0)
-            {   // 0 or positive exitCode indicates success
-                log.debug("Request ended sucessfully. Committing database changes.");
-                //getApplication().getDatabase().commit(connection);
-            }
-            else 
-            {   // negative exitCode indicates an error
-                log.warn("Request ended with errors. Database changes will be rolled back.");
-                //getApplication().getDatabase().rollback(connection);
-            }
-            // Release Connection
-            getApplication().releaseEmployeeProxy(ws);
-            ws= null;
-        }
         // Release objects
         this.httpRequest = null;
         this.httpResponse = null;
@@ -93,16 +74,6 @@ public class SampleRequest implements WebRequest
     public SampleApplication getApplication()
     {
         return session.getApplication();
-    }
-
-    // Get Connection
-    public EmployeeManagementProxy getEmployeeManagementProxy()
-    {
-        // Get a Connection for the Connection Pool 
-        if (ws==null)
-        	ws= getApplication().getWebServiceProxy();
-        // return connection
-        return ws;
     }
     
     public HttpServletRequest getHttpRequest()

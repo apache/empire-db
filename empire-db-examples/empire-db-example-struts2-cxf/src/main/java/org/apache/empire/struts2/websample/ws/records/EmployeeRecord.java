@@ -58,7 +58,7 @@ public class EmployeeRecord extends SampleRecord<Employee>
     public static Options getDepartments(SampleContext context)
     {
     	Options opts = new Options();
-    	List<Department> _deps = context.getWebserviceProxy().getDepartments();
+    	List<Department> _deps = context.getEmployeeServiceClient().getDepartments();
     	for(Department d: _deps)
     	{
     		opts.add(new OptionEntry(d.getDepartmentId(),d.getName()));

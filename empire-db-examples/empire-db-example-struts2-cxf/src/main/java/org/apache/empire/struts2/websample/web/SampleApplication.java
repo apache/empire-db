@@ -22,7 +22,7 @@ import javax.servlet.ServletContext;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.empire.samples.cxf.wssample.client.EmployeeManagementProxy;
+import org.apache.empire.samples.cxf.wssample.client.EmployeeServiceClient;
 import org.apache.empire.struts2.actionsupport.TextProviderActionSupport;
 import org.apache.empire.struts2.html.HtmlTagDictionary;
 import org.apache.empire.struts2.web.WebApplication;
@@ -43,7 +43,7 @@ public class SampleApplication implements WebApplication {
 	private SampleBeanDomain beanDomain = new SampleBeanDomain();
 	private SampleConfig config = new SampleConfig();
 	
-	private EmployeeManagementProxy ws = new EmployeeManagementProxy(config
+	private EmployeeServiceClient ws = new EmployeeServiceClient(config
 			.getServiceAddress());
 
 	public void init(ServletContext servletContext) {
@@ -69,7 +69,7 @@ public class SampleApplication implements WebApplication {
 
 			// Get a Webservice Connection
 			log.info("*** testing Webservice Connection ***");
-			ws = initWebServiceProxy();
+			ws = initEmployeeServiceClient();
 
 			// Disable Message caching
 			TextProviderActionSupport.setCachingEnabled(false);
@@ -89,20 +89,14 @@ public class SampleApplication implements WebApplication {
 		return beanDomain;
 	}
 
-	public EmployeeManagementProxy getWebServiceProxy() {
+	public EmployeeServiceClient getEmployeeServiceClient() {
 		return ws;
 	}
 
-	public void releaseEmployeeProxy(EmployeeManagementProxy ws) {
-		// Return Connection to Connection Pool
-	}
-
-	private EmployeeManagementProxy initWebServiceProxy() {
+	private EmployeeServiceClient initEmployeeServiceClient() {
 		String addr = config.getServiceAddress();
 		try {
-			EmployeeManagementProxy emp = new EmployeeManagementProxy(addr);
-			String info = emp.test();
-			log.info(info);
+			EmployeeServiceClient emp = new EmployeeServiceClient(addr);
 			return emp;
 		} catch (Throwable e) {
 			log.error("Failed to connect directly to '" + addr + "'");

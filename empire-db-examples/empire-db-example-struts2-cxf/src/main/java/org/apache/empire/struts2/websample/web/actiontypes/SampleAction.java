@@ -22,7 +22,7 @@ import java.util.Locale;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.empire.samples.cxf.wssample.client.EmployeeManagementProxy;
+import org.apache.empire.samples.cxf.wssample.client.EmployeeServiceClient;
 import org.apache.empire.struts2.action.WebAction;
 import org.apache.empire.struts2.websample.common.Errors;
 import org.apache.empire.struts2.websample.web.SampleApplication;
@@ -33,7 +33,7 @@ public abstract class SampleAction extends WebAction
 {
     // Logger
     protected static Log log = LogFactory.getLog(SampleAction.class);
-    private EmployeeManagementProxy proxy = SampleApplication.getInstance().getWebServiceProxy();
+    private EmployeeServiceClient service = null;
 
     public SampleAction()
     {
@@ -63,44 +63,41 @@ public abstract class SampleAction extends WebAction
     }
 
     // Application getters
-    public SampleApplication getApplication()
+    protected SampleApplication getApplication()
     {
         return getRequest().getApplication();
     }
 
-    public SampleSession getSession()
+    protected SampleSession getSession()
     {
         return getRequest().getSession();
     }
 
-    public boolean checkWebService()
+    protected boolean checkWebService()
     {
-        try
-        {
-            proxy.test();
+        if (isServiceAvailable())
             return true;
-        } catch (Exception e)
-        {
-            setActionError(Errors.WebServiceNotAvailable);
-            return false;
-        }
+        // Serv
+        setActionError(Errors.WebServiceNotAvailable);
+        return false;
     }
     
-    public boolean isWebServiceAV()
+    protected boolean isServiceAvailable()
     {
         try
         {
-            proxy.test();
-            return true;
+            return getEmployeeServiceClient().ping();
         } catch (Exception e)
         {
             return false;
         }
     }
     
-    public EmployeeManagementProxy getWSProxy()
+    protected EmployeeServiceClient getEmployeeServiceClient()
     {
-        return proxy;
+        if (service==null)
+            service= SampleApplication.getInstance().getEmployeeServiceClient();
+        return service;
     }
 
 }

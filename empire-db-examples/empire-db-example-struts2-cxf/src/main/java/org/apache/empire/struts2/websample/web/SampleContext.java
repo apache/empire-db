@@ -18,7 +18,7 @@
  */
 package org.apache.empire.struts2.websample.web;
 
-import org.apache.empire.samples.cxf.wssample.client.EmployeeManagementProxy;
+import org.apache.empire.samples.cxf.wssample.client.EmployeeServiceClient;
 import org.apache.empire.struts2.websample.ws.SampleBeanDomain;
 
 public class SampleContext
@@ -27,7 +27,6 @@ public class SampleContext
     /*
      * This is just a very simple implementation of a "context" object.
      * You may add user specific information here.
-     * 
      */
     
     public SampleBeanDomain getBeanDomain()
@@ -35,8 +34,8 @@ public class SampleContext
         return SampleApplication.getInstance().getBeanDomain();
     }
 
-    public EmployeeManagementProxy getWebserviceProxy()
+    public EmployeeServiceClient getEmployeeServiceClient()
     {
-        return SampleApplication.getInstance().getWebServiceProxy();
+        return SampleApplication.getInstance().getEmployeeServiceClient();
     }
 }

@@ -148,7 +148,7 @@ public class EmployeeListAction extends SampleAction
         // check webservice availability!
         if (checkWebService())
         {
-            employeeBeanList = getWSProxy().searchEmployee(si.getEmployeeId(), si.getFirstName(), si.getLastName(),
+            employeeBeanList = getEmployeeServiceClient().searchEmployee(si.getEmployeeId(), si.getFirstName(), si.getLastName(),
                                                            si.getDepartmentId());
             return LIST;
         } else
@@ -158,7 +158,7 @@ public class EmployeeListAction extends SampleAction
 
     public Options getDepartments()
     {
-        if (!isWebServiceAV())
+        if (!isServiceAvailable())
             return new Options(); // Webservice is note not available ... so do nothing
 
         if (departments == null)
