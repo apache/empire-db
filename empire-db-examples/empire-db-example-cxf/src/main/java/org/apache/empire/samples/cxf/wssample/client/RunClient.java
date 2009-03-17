@@ -26,7 +26,7 @@ import org.apache.empire.samples.cxf.wssample.server.ServerControl;
 public class RunClient {
 
 	public static void main(String[] args) {
-	    final EmployeeManagementProxy proxy = new EmployeeManagementProxy(ServerControl.serviceAddress);
+	    final EmployeeServiceClient proxy = new EmployeeServiceClient(ServerControl.serviceAddress);
 		SwingUtilities.invokeLater(new Runnable()
         {
 			public void run() {

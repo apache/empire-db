@@ -31,7 +31,7 @@ import javax.xml.ws.Holder;
 //specifies the the attribute wsdl:portType
 @WebService(name = "employeeManagement")
 
-public interface EmployeeManagementInterface
+public interface EmployeeService
 {
 
     @WebMethod(operationName = "searchEmmployee")
@@ -56,10 +56,6 @@ public interface EmployeeManagementInterface
     @WebMethod(operationName = "deleteEmmployee")
     @WebResult(name = "deleteResponse")
     public boolean deleteEmmployee(@WebParam(name = "id", mode = Mode.IN) int id);
-
-    @WebMethod(operationName = "test")
-    @WebResult(name = "testResponse")
-    public String test();
 
     @WebMethod(operationName = "getDepartments")
     @WebResult(name = "allDepartments")

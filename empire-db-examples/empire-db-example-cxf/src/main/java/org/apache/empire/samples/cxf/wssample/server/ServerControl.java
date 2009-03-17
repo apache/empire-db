@@ -35,12 +35,12 @@ import org.apache.empire.db.hsql.DBDatabaseDriverHSql;
 import org.apache.empire.db.mysql.DBDatabaseDriverMySQL;
 import org.apache.empire.db.oracle.DBDatabaseDriverOracle;
 import org.apache.empire.db.sqlserver.DBDatabaseDriverMSSQL;
-import org.apache.empire.samples.cxf.wssample.common.EmployeeManagementInterface;
+import org.apache.empire.samples.cxf.wssample.common.EmployeeService;
 import org.apache.empire.samples.cxf.wssample.server.db.SampleDB;
 
 public class ServerControl
 {
-    private static final Log                   log            = LogFactory.getLog(EmployeeManagementService.class);
+    private static final Log                   log            = LogFactory.getLog(EmployeeServiceImpl.class);
     
     public static final String                   serviceName    = "employeeManagement";
     public static final String                   serviceAddress = "http://localhost:8081/" + serviceName;
@@ -135,14 +135,14 @@ public class ServerControl
     private void initWS()
     {
         // create new instance of the service implmentation
-        EmployeeManagementInterface impl = new EmployeeManagementService(db, conn);
+        EmployeeService impl = new EmployeeServiceImpl(db, conn);
 
         // construct/configure factory to create our specific service
         svrFactory = new JaxWsServerFactoryBean();
         //svrFactory.getInInterceptors().add(new LoggingInInterceptor());
         //svrFactory.getOutInterceptors().add(new LoggingOutInterceptor());
         // specify our implementation class
-        svrFactory.setServiceClass(EmployeeManagementInterface.class);
+        svrFactory.setServiceClass(EmployeeService.class);
         // specify the address
         svrFactory.setAddress(serviceAddress);
         // set the instance to be used

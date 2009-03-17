@@ -28,50 +28,43 @@ import org.apache.cxf.interceptor.LoggingOutInterceptor;
 import org.apache.cxf.jaxws.JaxWsProxyFactoryBean;
 import org.apache.empire.samples.cxf.wssample.common.Department;
 import org.apache.empire.samples.cxf.wssample.common.Employee;
-import org.apache.empire.samples.cxf.wssample.common.EmployeeManagementInterface;
+import org.apache.empire.samples.cxf.wssample.common.EmployeeService;
 
 // The access to WebService.
-public class EmployeeManagementProxy
+public class EmployeeServiceClient
 {
-    private EmployeeManagementInterface proxy = null;
-    private String                      serviceAddress;
+    private EmployeeService service = null;
 
-    public EmployeeManagementProxy(String serviceAddress)
-    {
-        this.serviceAddress = serviceAddress;
-        init();
-    }
-
-    private void init()
+    public EmployeeServiceClient(String serviceAddress)
     {
         JaxWsProxyFactoryBean factory = new JaxWsProxyFactoryBean();
         factory.getInInterceptors().add(new LoggingInInterceptor());
         factory.getOutInterceptors().add(new LoggingOutInterceptor());
-        factory.setServiceClass(EmployeeManagementInterface.class);
+        factory.setServiceClass(EmployeeService.class);
         factory.setAddress(serviceAddress);
-        this.proxy = (EmployeeManagementInterface) factory.create();
+        this.service = (EmployeeService) factory.create();
     }
 
     public Employee createEmmployee()
     {
-        return proxy.createEmmployee();
+        return service.createEmmployee();
     }
 
     public List<Department> getDepartments()
     {
-        return proxy.getDepartments();
+        return service.getDepartments();
     }
 
     public Employee getEmmployee(int id)
     {
-        return proxy.getEmmployee(id);
+        return service.getEmmployee(id);
     }
 
     public boolean saveEmployee(Employee e)
     {
         // Employee is here a INOUT parameter, and therfore has to be placed in a Holder.
         Holder<Employee> holder = new Holder<Employee>(e);
-        boolean retVal = proxy.saveEmmployee(holder);
+        boolean retVal = service.saveEmmployee(holder);
         // In order to retrieve changes made by the webservice we copy the content to our local variable.
         e.set(holder.value);
         return retVal;
@@ -79,17 +72,12 @@ public class EmployeeManagementProxy
 
     public boolean deleteEmployee(int id)
     {
-        return proxy.deleteEmmployee(id);
+        return service.deleteEmmployee(id);
     }
 
     public List<Employee> searchEmployee(Integer id, String firstName, String lastName, Integer department)
     {
-        return proxy.searchEmmployee(id, firstName, lastName, department);
-    }
-
-    public String test()
-    {
-        return proxy.test();
+        return service.searchEmmployee(id, firstName, lastName, department);
     }
 
 }

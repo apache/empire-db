@@ -20,7 +20,6 @@
 package org.apache.empire.samples.cxf.wssample.server;
 
 import java.sql.Connection;
-import java.util.Date;
 import java.util.List;
 
 import javax.jws.WebService;
@@ -31,16 +30,16 @@ import org.apache.empire.db.DBRecord;
 import org.apache.empire.db.expr.compare.DBCompareExpr;
 import org.apache.empire.samples.cxf.wssample.common.Department;
 import org.apache.empire.samples.cxf.wssample.common.Employee;
-import org.apache.empire.samples.cxf.wssample.common.EmployeeManagementInterface;
+import org.apache.empire.samples.cxf.wssample.common.EmployeeService;
 import org.apache.empire.samples.cxf.wssample.server.db.SampleDB;
 import org.apache.empire.samples.cxf.wssample.server.db.SampleDB.Departments;
 import org.apache.empire.samples.cxf.wssample.server.db.SampleDB.Employees;
 
-@WebService(endpointInterface = "org.apache.empire.samples.cxf.wssample.common.EmployeeManagementInterface",
-            portName = "EmployeeManagementPort",
-            serviceName = "EmployeeManagementService")
+@WebService(endpointInterface = "org.apache.empire.samples.cxf.wssample.common.EmployeeService",
+            portName = "EmployeeServicePort",
+            serviceName = "EmployeeService")
             
-public class EmployeeManagementService implements EmployeeManagementInterface
+public class EmployeeServiceImpl implements EmployeeService
 {
 
     private SampleDB    db    = null;
@@ -48,7 +47,7 @@ public class EmployeeManagementService implements EmployeeManagementInterface
     private Employees   T_EMP = null;
     private Connection  conn  = null;
 
-    public EmployeeManagementService(SampleDB db, Connection conn)
+    public EmployeeServiceImpl(SampleDB db, Connection conn)
     {
         this.conn = conn;
         this.db = db;
@@ -111,12 +110,6 @@ public class EmployeeManagementService implements EmployeeManagementInterface
         reader.open(cmd, conn);
         List<Employee> lst = reader.getBeanList(Employee.class);
         return lst;
-    }
-
-    public String test()
-    {
-        String answer = (new Date()).toString() + " SERVER TEST RESPONSE";
-        return answer;
     }
 
     public List<Department> getDepartments()

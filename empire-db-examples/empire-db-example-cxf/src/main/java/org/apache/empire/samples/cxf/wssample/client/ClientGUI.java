@@ -43,7 +43,7 @@ public class ClientGUI extends JFrame {
 	private JPanel jContentPane = null;
 	private JButton _btnSearch = null;
 	private JTextField _txtSearchValue = null;
-	private EmployeeManagementProxy proxy = null;
+	private EmployeeServiceClient proxy = null;
 	private JList _searchResult = null;
 	private EmployeeListModel _employeeListModel = null;
 	private ClientGUI me;
@@ -190,7 +190,7 @@ public class ClientGUI extends JFrame {
 	 * 
 	 * @param prxy the proxy
 	 */
-	public ClientGUI(EmployeeManagementProxy prxy) {
+	public ClientGUI(EmployeeServiceClient prxy) {
 		super();
 		proxy = prxy;
 		try {
