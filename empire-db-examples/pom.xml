@@ -26,7 +26,6 @@
 	<artifactId>empire-db-examples</artifactId>
 	<packaging>pom</packaging>
 	<name>Empire-db Examples</name>
-	<version>2.0.5-SNAPSHOT</version>
 	<modules>
 		<module>empire-db-example-basic</module>
 		<module>empire-db-example-advanced</module>

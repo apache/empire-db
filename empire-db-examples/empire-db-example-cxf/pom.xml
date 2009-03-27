@@ -25,7 +25,6 @@
 	<groupId>org.apache.empire-db</groupId>
 	<artifactId>empire-db-example-cxf</artifactId>
 	<name>Empire-db CXF Example</name>
-	<version>2.0.5-SNAPSHOT</version>
 	<description>Example showing the use of empire-db wrapped in a webservice</description>
 
 	<dependencies>

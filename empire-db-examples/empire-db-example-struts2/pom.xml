@@ -28,8 +28,6 @@
 	<packaging>war</packaging>
 	<name>Empire-db Struts2 Example</name>
 	<description>Examples showing the use of empire-db.</description>
-	<version>2.0.5-SNAPSHOT</version>
-	<url>http://maven.apache.org</url>
 	<dependencies>
 		<dependency>
 			<groupId>org.apache.empire-db</groupId>

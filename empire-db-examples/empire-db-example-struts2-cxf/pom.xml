@@ -27,7 +27,6 @@
 	<artifactId>empire-db-example-struts2-cxf</artifactId>
 	<packaging>war</packaging>
 	<name>Empire-db Struts2/CXF Example</name>
-	<version>2.0.5-SNAPSHOT</version>
 	<description>Examples showing the use of empire-db.</description>
 
 	<dependencies>
