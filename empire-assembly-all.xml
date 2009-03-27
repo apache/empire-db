@@ -82,11 +82,11 @@
 			<outputDirectory/>
 			<useDefaultExcludes>true</useDefaultExcludes>
 			<includes>
-				<include>LICENSE</include>
-				<include>NOTICE</include>
-				<include>README</include>
-				<include>CHANGELOG-1.4</include>
-				<include>licenses/**</include>
+				<include>LICENSE.txt</include>
+				<include>NOTICE.txt</include>
+				<include>README.txt</include>
+				<!-- <include>CHANGELOG-1.4</include> -->
+				<!-- <include>licenses/**</include> -->
 			</includes>
 		</fileSet>
 	</fileSets>
