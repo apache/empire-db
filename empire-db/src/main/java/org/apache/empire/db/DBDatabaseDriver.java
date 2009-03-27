@@ -227,8 +227,9 @@ public abstract class DBDatabaseDriver extends ErrorObject
     {
         // Initialize List of reserved Keywords
         reservedSQLKeywords = new HashSet<String>(generalSQLKeywords.length);
-        for (int i=0; i<generalSQLKeywords.length; i++)
-             reservedSQLKeywords.add(generalSQLKeywords[i]);
+        for (String keyWord:generalSQLKeywords){
+             reservedSQLKeywords.add(keyWord);
+        }
     }
 
     /**

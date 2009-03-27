@@ -459,7 +459,7 @@ public abstract class DBDatabase extends DBObject
         // Create Relation Name
         String name = table.substring(0, Math.min(table.length(), 14)) + "_" + col1.substring(0, Math.min(col1.length(), 12))
         			  + "_FK";
-        return addReleation(name, new DBRelation.DBReference[] { reference });
+        return addRelation(name, new DBRelation.DBReference[] { reference });
     }
 
     /**
@@ -478,7 +478,7 @@ public abstract class DBDatabase extends DBObject
         String name = table.substring(0, Math.min(table.length(), 9))
                     + "_" + col1.substring(0, Math.min(col1.length(), 9))
                     + "_" + col2.substring(0, Math.min(col2.length(), 9)) + "_FK";
-        return addReleation(name, new DBRelation.DBReference[] { ref1, ref2 });
+        return addRelation(name, new DBRelation.DBReference[] { ref1, ref2 });
     }
 
     /**
@@ -489,7 +489,7 @@ public abstract class DBDatabase extends DBObject
      * 
      * @return true if the relations was successfully created.
      */
-    public boolean addReleation(String name, DBRelation.DBReference[] references)
+    public boolean addRelation(String name, DBRelation.DBReference[] references)
     {
         // Add a Relation
         DBRelation relation = new DBRelation(this, name, references);
