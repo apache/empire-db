@@ -16,42 +16,17 @@
    limitations under the License.
 -->
 <assembly>
-	<id>kitchensink</id>
+	<id></id>
 	<formats>
 		<format>tar.gz</format>
 		<format>zip</format>
 	</formats>
 	<includeBaseDirectory>true</includeBaseDirectory>
 	<fileSets>
-		<fileSet>
-			<directory>archetypes</directory>
-			<outputDirectory>src/archetypes</outputDirectory>
-			<useDefaultExcludes>true</useDefaultExcludes>
-			<excludes>
-				<exclude>**/quickstart/target/**</exclude>
-				<exclude>**/.classpath/**</exclude>
-				<exclude>**/.project/**</exclude>
-				<exclude>**/.settings/**</exclude>
-				<exclude>**/.amateras/**</exclude>
-				<exclude>**/.tomcatplugin/**</exclude>
-			</excludes>
-		</fileSet>
+		<!-- TODO see how to get this working -->
 		<fileSet>
 			<directory>target/site/apidocs</directory>
 			<outputDirectory>apidocs</outputDirectory>
-		</fileSet>
-		<fileSet>
-			<directory>testing</directory>
-			<outputDirectory>src/testing</outputDirectory>
-			<useDefaultExcludes>true</useDefaultExcludes>
-			<excludes>
-				<exclude>target/**</exclude>
-				<exclude>**/.classpath/**</exclude>
-				<exclude>**/.project/**</exclude>
-				<exclude>**/.settings/**</exclude>
-				<exclude>**/.amateras/**</exclude>
-				<exclude>**/.tomcatplugin/**</exclude>
-			</excludes>
 		</fileSet>
 		<fileSet>
 			<directory>${basedir}</directory>
@@ -60,12 +35,8 @@
 			<includes>
 				<include>*.xml</include>
 				<include>empire-db/**</include>
-				<include>empire-db-examples/empire-db-example/**</include>
-				<include>empire-db-examples/empire-db-example-advanced/**</include>
 				<include>empire-db-struts2/**</include>
-				<include>empire-db-examples/empire-db-example-struts2/**</include>
-				<include>empire-db-examples/empire-db-example-cxf/**</include>
-				<include>empire-db-examples/empire-db-example-struts2-cxf/**</include>
+				<include>empire-db-examples/**</include>
 			</includes>
 			<excludes>
 				<exclude>**/empire-db/target/**</exclude>
@@ -75,6 +46,8 @@
 				<exclude>**/.settings/**</exclude>
 				<exclude>**/.amateras/**</exclude>
 				<exclude>**/.tomcatplugin/**</exclude>
+				<exclude>**/.tomcatplugin/**</exclude>
+				<exclude>empire-db-examples/tutorial.pdf</exclude>
 			</excludes>
 		</fileSet>
 		<fileSet>
@@ -89,17 +62,19 @@
 				<!-- <include>licenses/**</include> -->
 			</includes>
 		</fileSet>
+		<fileSet>
+			<directory>empire-db-examples</directory>
+			<outputDirectory/>
+			<includes>
+				<include>tutorial.pdf</include>
+			</includes>
+		</fileSet>
 	</fileSets>
 	<moduleSets>
 		<moduleSet>
 			<includes>
 				<include>org.apache.empire-db:empire-db</include>
 				<include>org.apache.empire-db:empire-db-struts2</include>
-				<include>org.apache.empire-db:empire-db-example</include>
-				<include>org.apache.empire-db:empire-db-example-advanced</include>
-    			<include>org.apache.empire-db:empire-db-example-struts2</include>
-    			<include>org.apache.empire-db:empire-db-example-cxf</include>
-    			<include>org.apache.empire-db:empire-db-example-struts2-cxf</include>
 			</includes>
 			<binaries>
 				<outputDirectory>lib</outputDirectory>

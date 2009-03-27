@@ -226,13 +226,13 @@
 					<artifactId>maven-assembly-plugin</artifactId>
 					<version>2.2-beta-2</version>
 					<configuration>
-						<appendAssemblyId>false</appendAssemblyId>
+						<appendAssemblyId>true</appendAssemblyId>
 						<tarLongFileMode>gnu</tarLongFileMode>
 						<outputDirectory>target/dist</outputDirectory>
 						<descriptors>
 							<descriptor>empire-assembly-all.xml</descriptor>
 						</descriptors>
-						<finalName>empire-db-${project.version}</finalName>
+						<finalName>apache-empire-db-${project.version}</finalName>
 					</configuration>
 				</plugin>
 				<plugin>
