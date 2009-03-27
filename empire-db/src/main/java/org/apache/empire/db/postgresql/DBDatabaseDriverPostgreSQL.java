@@ -22,6 +22,8 @@ import java.sql.Connection;
 import java.util.GregorianCalendar;
 import java.util.Iterator;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.empire.commons.Errors;
 import org.apache.empire.commons.StringUtils;
 import org.apache.empire.data.DataType;
@@ -49,6 +51,8 @@ import org.apache.empire.db.DBView;
  */
 public class DBDatabaseDriverPostgreSQL extends DBDatabaseDriver
 {
+    private static final Log log = LogFactory.getLog(DBDatabaseDriverPostgreSQL.class);
+    
     /**
      * Defines the PostgreSQL command type.
      */ 
@@ -60,15 +64,121 @@ public class DBDatabaseDriverPostgreSQL extends DBDatabaseDriver
         }
     }
     
-    // Properties
-    private String databaseName = null;
+    private String databaseName;
     
     /**
      * Constructor for the PostgreSQL database driver.<br>
      */
     public DBDatabaseDriverPostgreSQL()
     {
-        // Default Constructor
+        setReservedKeywords();
+    }
+    
+    private void addReservedKeyWord(final String keyWord){
+        boolean added = reservedSQLKeywords.add(keyWord.toLowerCase());
+        if(!added){
+            log.debug("Existing keyWord added: " + keyWord);
+        }
+    }
+    
+    private void setReservedKeywords(){
+        // list of reserved keywords
+        // http://www.postgresql.org/docs/current/static/sql-keywords-appendix.html
+        addReservedKeyWord("ALL".toLowerCase());
+        addReservedKeyWord("ANALYSE".toLowerCase());
+        addReservedKeyWord("ANALYZE".toLowerCase());
+        addReservedKeyWord("AND".toLowerCase());
+        addReservedKeyWord("ANY".toLowerCase());
+        addReservedKeyWord("ARRAY".toLowerCase());
+        addReservedKeyWord("AS".toLowerCase());
+        addReservedKeyWord("ASC".toLowerCase());
+        addReservedKeyWord("ASYMMETRIC".toLowerCase());
+        addReservedKeyWord("AUTHORIZATION".toLowerCase());
+        addReservedKeyWord("BETWEEN".toLowerCase());
+        addReservedKeyWord("BINARY".toLowerCase());
+        addReservedKeyWord("BOTH".toLowerCase());
+        addReservedKeyWord("CASE".toLowerCase());
+        addReservedKeyWord("CAST".toLowerCase());
+        addReservedKeyWord("CHECK".toLowerCase());
+        addReservedKeyWord("COLLATE".toLowerCase());
+        //addReservedKeyWord("COLUMN".toLowerCase());
+        //addReservedKeyWord("CONSTRAINT".toLowerCase());
+        addReservedKeyWord("CREATE".toLowerCase());
+        addReservedKeyWord("CROSS".toLowerCase());
+        addReservedKeyWord("CURRENT_DATE".toLowerCase());
+        addReservedKeyWord("CURRENT_ROLE".toLowerCase());
+        addReservedKeyWord("CURRENT_TIME".toLowerCase());
+        addReservedKeyWord("CURRENT_TIMESTAMP".toLowerCase());
+        addReservedKeyWord("CURRENT_USER".toLowerCase());
+        addReservedKeyWord("DEFAULT".toLowerCase());
+        addReservedKeyWord("DEFERRABLE".toLowerCase());
+        addReservedKeyWord("DESC".toLowerCase());
+        addReservedKeyWord("DISTINCT".toLowerCase());
+        addReservedKeyWord("DO".toLowerCase());
+        addReservedKeyWord("ELSE".toLowerCase());
+        addReservedKeyWord("END".toLowerCase());
+        addReservedKeyWord("EXCEPT".toLowerCase());
+        addReservedKeyWord("FALSE".toLowerCase());
+        addReservedKeyWord("FOR".toLowerCase());
+        addReservedKeyWord("FOREIGN".toLowerCase());
+        addReservedKeyWord("FREEZE".toLowerCase());
+        addReservedKeyWord("FROM".toLowerCase());
+        addReservedKeyWord("FULL".toLowerCase());
+        addReservedKeyWord("GRANT".toLowerCase());
+        //addReservedKeyWord("GROUP".toLowerCase());
+        addReservedKeyWord("HAVING".toLowerCase());
+        addReservedKeyWord("ILIKE".toLowerCase());
+        addReservedKeyWord("IN".toLowerCase());
+        addReservedKeyWord("INITIALLY".toLowerCase());
+        addReservedKeyWord("INNER".toLowerCase());
+        addReservedKeyWord("INTERSECT".toLowerCase());
+        addReservedKeyWord("INTO".toLowerCase());
+        addReservedKeyWord("IS".toLowerCase());
+        addReservedKeyWord("ISNULL".toLowerCase());
+        addReservedKeyWord("JOIN".toLowerCase());
+        addReservedKeyWord("LEADING".toLowerCase());
+        addReservedKeyWord("LEFT".toLowerCase());
+        addReservedKeyWord("LIKE".toLowerCase());
+        addReservedKeyWord("LIMIT".toLowerCase());
+        addReservedKeyWord("LOCALTIME".toLowerCase());
+        addReservedKeyWord("LOCALTIMESTAMP".toLowerCase());
+        addReservedKeyWord("NATURAL".toLowerCase());
+        addReservedKeyWord("NEW".toLowerCase());
+        addReservedKeyWord("NOT".toLowerCase());
+        addReservedKeyWord("NOTNULL".toLowerCase());
+        addReservedKeyWord("NULL".toLowerCase());
+        addReservedKeyWord("OFF".toLowerCase());
+        addReservedKeyWord("OFFSET".toLowerCase());
+        addReservedKeyWord("OLD".toLowerCase());
+        addReservedKeyWord("ON".toLowerCase());
+        addReservedKeyWord("ONLY".toLowerCase());
+        addReservedKeyWord("OR".toLowerCase());
+        addReservedKeyWord("ORDER".toLowerCase());
+        addReservedKeyWord("OUTER".toLowerCase());
+        addReservedKeyWord("OVERLAPS".toLowerCase());
+        addReservedKeyWord("PLACING".toLowerCase());
+        addReservedKeyWord("PRIMARY".toLowerCase());
+        addReservedKeyWord("REFERENCES".toLowerCase());
+        addReservedKeyWord("RETURNING".toLowerCase());
+        addReservedKeyWord("RIGHT".toLowerCase());
+        //addReservedKeyWord("SELECT".toLowerCase());
+        addReservedKeyWord("SESSION_USER".toLowerCase());
+        addReservedKeyWord("SIMILAR".toLowerCase());
+        addReservedKeyWord("SOME".toLowerCase());
+        addReservedKeyWord("SYMMETRIC".toLowerCase());
+        //addReservedKeyWord("TABLE".toLowerCase());
+        addReservedKeyWord("THEN".toLowerCase());
+        addReservedKeyWord("TO".toLowerCase());
+        addReservedKeyWord("TRAILING".toLowerCase());
+        addReservedKeyWord("TRUE".toLowerCase());
+        addReservedKeyWord("UNION".toLowerCase());
+        addReservedKeyWord("UNIQUE".toLowerCase());
+        //addReservedKeyWord("USER".toLowerCase());
+        addReservedKeyWord("USING".toLowerCase());
+        addReservedKeyWord("VERBOSE".toLowerCase());
+        addReservedKeyWord("WHEN".toLowerCase());
+        addReservedKeyWord("WHERE".toLowerCase());
+        addReservedKeyWord("WITH".toLowerCase()); 
     }
 
     /**
@@ -209,7 +319,7 @@ public class DBDatabaseDriverPostgreSQL extends DBDatabaseDriver
            case TEXT:
                 return "CAST(? AS CHAR)";
            case BLOB:
-                return "CAST(? AS BLOB)";
+                return "CAST(? AS bytea)";
            // Unknown Type                                       
            default:
                 log.error("getConvertPhrase: unknown type (" + String.valueOf(destType));
@@ -569,9 +679,7 @@ public class DBDatabaseDriverPostgreSQL extends DBDatabaseDriver
                 sql.append("LONGTEXT");
                 break;
             case BLOB:
-                sql.append("BLOB");
-                if (c.getSize() > 0)
-                    sql.append(" (" + String.valueOf((long) c.getSize()) + ") ");
+                sql.append("bytea");
                 break;
             case UNKNOWN:
                  log.error("Cannot append column of Data-Type 'UNKNOWN'");
