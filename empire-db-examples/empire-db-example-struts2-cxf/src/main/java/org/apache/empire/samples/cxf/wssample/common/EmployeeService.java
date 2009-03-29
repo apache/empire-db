@@ -29,7 +29,7 @@ import javax.jws.WebParam.Mode;
 import javax.xml.ws.Holder;
 
 //specifies the the attribute wsdl:portType
-@WebService(name = "employeeManagement")
+@WebService(name = "employeeService")
 
 public interface EmployeeService
 {

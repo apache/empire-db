@@ -40,10 +40,10 @@ import org.apache.empire.samples.cxf.wssample.server.db.SampleDB;
 
 public class ServerControl
 {
-    private static final Log                   log            = LogFactory.getLog(EmployeeServiceImpl.class);
+    private static final Log               log            = LogFactory.getLog(EmployeeServiceImpl.class);
     
-    public static final String                   serviceName    = "employeeManagement";
-    public static final String                   serviceAddress = "http://localhost:8081/" + serviceName;
+    public static final String             serviceName    = "employeeService";
+    public static final String             serviceAddress = "http://localhost:8081/" + serviceName;
     
     private SampleDB                       db             = null;
     private Connection                     conn           = null;
