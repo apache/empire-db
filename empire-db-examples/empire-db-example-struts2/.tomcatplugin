@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<tomcatProjectProperties>
+    <rootDir>/src/main/webapp</rootDir>
+    <exportSource>false</exportSource>
+    <reloadable>true</reloadable>
+    <redirectLogger>false</redirectLogger>
+    <updateXml>true</updateXml>
+    <warLocation></warLocation>
+    <extraInfo></extraInfo>
+    <webPath>empire-web</webPath>
+    <webClassPathEntries>
+        <webClassPathEntry>/empire-db-example-struts2/target/classes</webClassPathEntry>
+        <webClassPathEntry>/empire-db-struts2/target/classes</webClassPathEntry>
+        <webClassPathEntry>/empire-db/target/classes</webClassPathEntry>
+        <webClassPathEntry>D:/DevTools/Maven/repo/com/opensymphony/xwork/2.0.4/xwork-2.0.4.jar</webClassPathEntry>
+        <webClassPathEntry>D:/DevTools/Maven/repo/commons-beanutils/commons-beanutils/1.7.0/commons-beanutils-1.7.0.jar</webClassPathEntry>
+        <webClassPathEntry>D:/DevTools/Maven/repo/commons-collections/commons-collections/3.2.1/commons-collections-3.2.1.jar</webClassPathEntry>
+        <webClassPathEntry>D:/DevTools/Maven/repo/commons-logging/commons-logging/1.0.4/commons-logging-1.0.4.jar</webClassPathEntry>
+        <webClassPathEntry>D:/DevTools/Maven/repo/freemarker/freemarker/2.3.8/freemarker-2.3.8.jar</webClassPathEntry>
+        <webClassPathEntry>D:/DevTools/Maven/repo/hsqldb/hsqldb/1.8.0.7/hsqldb-1.8.0.7.jar</webClassPathEntry>
+        <webClassPathEntry>D:/DevTools/Maven/repo/junit/junit/4.5/junit-4.5.jar</webClassPathEntry>
+        <webClassPathEntry>D:/DevTools/Maven/repo/log4j/log4j/1.2.14/log4j-1.2.14.jar</webClassPathEntry>
+        <webClassPathEntry>D:/DevTools/Maven/repo/opensymphony/ognl/2.6.11/ognl-2.6.11.jar</webClassPathEntry>
+        <webClassPathEntry>D:/DevTools/Maven/repo/org/apache/struts/struts2-core/2.0.11/struts2-core-2.0.11.jar</webClassPathEntry>
+    </webClassPathEntries>
+</tomcatProjectProperties>
