@@ -20,7 +20,6 @@
 		<artifactId>empire-db-examples</artifactId>
 		<groupId>org.apache.empire-db</groupId>
 		<version>2.0.5-incubating-SNAPSHOT</version>
-		<relativePath>../pom.xml</relativePath>
 	</parent>
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.apache.empire-db</groupId>

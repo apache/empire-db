@@ -22,7 +22,6 @@
 		<artifactId>empire-db-parent</artifactId>
 		<groupId>org.apache.empire-db</groupId>
 		<version>2.0.5-incubating-SNAPSHOT</version>
-		<relativePath>../pom.xml</relativePath>
 	</parent>
 	<groupId>org.apache.empire-db</groupId>
 	<artifactId>empire-db</artifactId>
