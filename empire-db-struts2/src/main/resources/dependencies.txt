@@ -1,0 +1,24 @@
+Apache Empire-db
+Copyright 2008 The Apache Software Foundation
+
+empire-struts2-ext dependency info
+----------------------------------
+
+The following dependencies are required to build empire-struts2-ext:
+
+From Apache Empire-db:
+- empire-db.jar
+
+From Apache Commons / Logging:
+- commons-beanutils-1.7.0.jar
+- commons-collections-3.2.1.jar
+- commons-logging-1.0.4.jar
+- log4j-1.2.14.jar
+
+From Sun JEE:
+- servlet-api.jar
+- jsp-api.jar   
+
+From Apache Struts2:
+- struts2-core-2.0.x.jar
+- xwork-2.0.5.jar 
