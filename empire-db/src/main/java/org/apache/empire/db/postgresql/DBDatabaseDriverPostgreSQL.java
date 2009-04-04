@@ -320,6 +320,8 @@ public class DBDatabaseDriverPostgreSQL extends DBDatabaseDriver
                 return "CAST(? AS CHAR)";
            case BLOB:
                 return "CAST(? AS bytea)";
+           case CLOB:
+                return "CAST(? AS TEXT)";
            // Unknown Type                                       
            default:
                 log.error("getConvertPhrase: unknown type (" + String.valueOf(destType));
@@ -676,7 +678,7 @@ public class DBDatabaseDriverPostgreSQL extends DBDatabaseDriver
             }
                 break;
             case CLOB:
-                sql.append("LONGTEXT");
+                sql.append("TEXT");
                 break;
             case BLOB:
                 sql.append("bytea");
