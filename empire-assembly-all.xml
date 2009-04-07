@@ -33,7 +33,7 @@
 			<outputDirectory>src</outputDirectory>
 			<useDefaultExcludes>true</useDefaultExcludes>
 			<includes>
-				<include>*.xml</include>
+				<include>pom.xml</include>
 				<include>empire-db/**</include>
 				<include>empire-db-struts2/**</include>
 				<include>empire-db-examples/**</include>
