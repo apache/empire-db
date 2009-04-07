@@ -46,7 +46,6 @@
 				<exclude>**/.settings/**</exclude>
 				<exclude>**/.amateras/**</exclude>
 				<exclude>**/.tomcatplugin/**</exclude>
-				<exclude>**/.tomcatplugin/**</exclude>
 				<exclude>empire-db-examples/tutorial.pdf</exclude>
 			</excludes>
 		</fileSet>
