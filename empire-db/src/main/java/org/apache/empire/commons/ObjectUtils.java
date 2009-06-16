@@ -152,7 +152,7 @@ public final class ObjectUtils
             return Integer.parseInt(str);
         } catch (Exception e)
         {
-            log.error(e.getMessage(), e);
+        	log.warn(String.format("Cannot convert value [%s] to int!", v));
             return defValue;
         }
     }
@@ -193,7 +193,7 @@ public final class ObjectUtils
             return Long.parseLong(str);
         } catch (Exception e)
         {
-            log.error(e.getMessage(), e);
+        	log.warn(String.format("Cannot convert value [%s] to long!", v));
             return defValue;
         }
     }
@@ -232,7 +232,7 @@ public final class ObjectUtils
             return Double.parseDouble(val);
         } catch (Exception e)
         {
-            log.error("Cannot convert value to double!", e);
+            log.warn(String.format("Cannot convert value [%s] to double!", v));
             return defValue;
         }
     }
