@@ -1,18 +1,20 @@
 package org.apache.empire.db.hsql;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.Date;
 
+import org.apache.empire.db.CompanyDB;
 import org.apache.empire.db.DBCmdType;
 import org.apache.empire.db.DBDatabaseDriver;
 import org.apache.empire.db.DBRecord;
 import org.apache.empire.db.DBSQLScript;
 import org.apache.empire.db.DBTools;
-import org.apache.empire.db.CompanyDB;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -27,7 +29,7 @@ public class DBDatabaseDriverHSqlTest
     public static void setup() throws ClassNotFoundException, SQLException{
         Class.forName("org.hsqldb.jdbcDriver");
         conn = DriverManager.getConnection("jdbc:hsqldb:"
-                                           + "junit/",    // filenames
+                                           + "target/hsqldb-unit-test/",    // filenames
                                            "sa",                     // username
                                            "");                      // password
         DBDatabaseDriver driver = new DBDatabaseDriverHSql();
