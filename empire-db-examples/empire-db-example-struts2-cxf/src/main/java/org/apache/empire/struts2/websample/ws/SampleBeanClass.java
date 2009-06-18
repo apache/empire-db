@@ -52,7 +52,10 @@ public class SampleBeanClass extends BeanClass
         if(type==DataType.BOOL)
         	prop.setControlType("checkbox");
         else if("".equals(type))
+        {
+        	// FIXME this case never happens, using equals between String and enum
         	prop.setControlType("text");
+        }
 
         // Add Column
         super.addProp(prop);
