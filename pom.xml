@@ -288,6 +288,7 @@
 	</dependencies>
 
 	<build>
+		<defaultGoal>install</defaultGoal>
 		<plugins>
 			<plugin>
 	            <groupId>com.google.code.maven-license-plugin</groupId>
