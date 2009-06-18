@@ -35,6 +35,7 @@ public class CalendarInfo
     // Logger
     protected static Log log = LogFactory.getLog(ControlComponent.class);
 
+    // FIXME SimpleDateFormat is not thread safe, do not keep it in static context
     protected static final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMdd");
     
     public static String formatDate(Date date)
