@@ -57,15 +57,14 @@
 	</dependencies>
 	<build>
 		<plugins>
-
-			<!--
-				WTP-Eclipse-Projekt <plugin>
+			<!-- WTP-Eclipse-Projekt --> 
+			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-eclipse-plugin</artifactId> <configuration>
 				<m2eclipse>true</m2eclipse> <downloadSources>true</downloadSources>
-				<wtpversion>1.5</wtpversion> </configuration> </plugin>
-			-->
-
+				<wtpversion>1.5</wtpversion> </configuration> 
+			</plugin>
+			
 			<plugin>
 				<groupId>org.mortbay.jetty</groupId>
 				<artifactId>maven-jetty-plugin</artifactId>
