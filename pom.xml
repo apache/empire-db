@@ -100,8 +100,7 @@
 			<!-- 
 				modules parent and parent are defined not to process their
 				submodules: their release profile is empty. This way we can
-				define which projects to release with a Wicket release from
-				the parent. 
+				define which projects to release with a release from the parent. 
 			-->
 			<modules>
 				<module>empire-db</module>
