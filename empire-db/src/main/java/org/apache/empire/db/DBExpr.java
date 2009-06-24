@@ -82,7 +82,7 @@ public abstract class DBExpr extends DBObject
             ((DBExpr) value).addSQL(buf, context);
             return buf.toString();
         } 
-        else if (value instanceof Collection)
+        else if (value instanceof Collection<?>)
         {
         	value = ((Collection<?>)value).toArray();
         }

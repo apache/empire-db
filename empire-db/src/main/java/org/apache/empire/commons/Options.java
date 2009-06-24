@@ -69,7 +69,7 @@ public class Options extends AbstractSet<OptionEntry>
     protected int getIndex(Object value)
     {
         // Find an Entry
-        if (value instanceof Entry)
+        if (value instanceof Entry<?,?>)
             value = ((Entry<?,?>) value).getKey();
         if (value instanceof OptionEntry)
             value = ((OptionEntry) value).getValue();

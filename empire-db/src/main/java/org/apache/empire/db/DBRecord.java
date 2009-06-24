@@ -139,10 +139,7 @@ public class DBRecord extends DBRecordData implements Record, Cloneable
         init(null, REC_INVALID, null);
     }
     
-    /**
-     * 
-     * @see java.lang.Object#clone()
-     */
+    /** {@inheritDoc} */
     @Override
     public DBRecord clone()
     {
@@ -700,7 +697,7 @@ public class DBRecord extends DBRecordData implements Record, Cloneable
      */
     public final boolean read(DBRowSet table, Object id, Connection conn)
     {
-        if (id instanceof Collection)
+        if (id instanceof Collection<?>)
         {   // If it's a collection then convert it to an array
             return read(table, ((Collection<?>)id).toArray(), conn);
         }
