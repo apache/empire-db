@@ -30,9 +30,11 @@
 	<version>2.0.5-incubating-SNAPSHOT</version>
 	<name>Empire-db Parent</name>
 	<description>Apache Empire-db is an Open Source relational data persistence component which allows database vendor independent dynamic query definition as well as safe and simple data retrieval and updating. Compared to most other solutions like e.g. Hibernate, TopLink, iBATIS or JPA implementations, Empire-db takes a considerably different approach, with a special focus on compile-time safety, reduced redundancies and improved developer productivity.</description>
+	
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 	</properties>
+	
 	<profiles>
 		<profile>
 			<id>all</id>
@@ -52,24 +54,9 @@
 			</activation>
 			<modules>
 				<module>empire-db</module>
-				<!-- no need to upload these to our snapshot repo -->
-				<!-- <module>empire-db-examples</module> -->
+				<module>empire-db-examples</module>
     			<module>empire-db-struts2</module>
 			</modules>
-			<distributionManagement>
-				<site>
-					<id>people.apache.org.site</id>
-					<name>Empire-db Maven Site</name>
-					<url>scp://people.apache.org/home/francisdb/public_html/empire-db/site</url>
-				</site>
-
-				<snapshotRepository>
-					<id>people.apache.org.repo</id>
-					<name>Empire-db Snapshot Repo</name>
-					<url>scp://people.apache.org/home/francisdb/public_html/empire-db/repo</url>
-					<uniqueVersion>false</uniqueVersion>
-				</snapshotRepository>
-			</distributionManagement>
 			<build>
 				<plugins>
 					<plugin>
@@ -98,73 +85,6 @@
 					</plugin>
 				</plugins>
 			</build>
-		</profile>
-		<profile>
-			<id>release</id>
-			<activation>
-				<activeByDefault>false</activeByDefault>
-			</activation>
-			<!-- 
-				modules parent and parent are defined not to process their
-				submodules: their release profile is empty. This way we can
-				define which projects to release with a release from the parent. 
-			-->
-			<modules>
-				<module>empire-db</module>
-				<module>empire-db-examples</module>
-    			<module>empire-db-struts2</module>
-			</modules>
-			<build>
-				<plugins>
-					<plugin>
-						<groupId>org.apache.maven.plugins</groupId>
-						<artifactId>maven-assembly-plugin</artifactId>
-						<inherited>true</inherited>
-					</plugin>
-					<plugin>
-						<groupId>org.apache.maven.plugins</groupId>
-						<artifactId>maven-gpg-plugin</artifactId>
-						<inherited>true</inherited>
-					</plugin>
-					<plugin>
-						<artifactId>maven-remote-resources-plugin</artifactId>
-						<inherited>true</inherited>
-					</plugin>
-					<plugin>
-						<groupId>org.apache.maven.plugins</groupId>
-						<artifactId>maven-javadoc-plugin</artifactId>
-						<inherited>true</inherited>
-						<configuration>
-							<aggregate>true</aggregate>
-						</configuration>
-					</plugin>
-					<plugin>
-						<groupId>org.apache.maven.plugins</groupId>
-						<artifactId>maven-source-plugin</artifactId>
-						<inherited>true</inherited>
-					</plugin>
-					<plugin>
-						<groupId>org.apache.maven.plugins</groupId>
-						<artifactId>maven-surefire-plugin</artifactId>
-						<inherited>true</inherited>
-					</plugin>
-					<plugin>
-						<groupId>org.apache.felix</groupId>
-						<artifactId>maven-bundle-plugin</artifactId>
-						<inherited>true</inherited>
-					</plugin>
-				</plugins>
-			</build>
-			<distributionManagement>
-				<site>
-					<id>local</id>
-					<url>file:target/site</url>
-				</site>
-				<repository>
-					<id>local</id>
-					<url>file:target/m2-repo</url>
-				</repository>
-			</distributionManagement>
 		</profile>
 	</profiles>
 	
@@ -411,7 +331,13 @@
 		</plugins>
 	</reporting>
 
-	
+	<distributionManagement>
+		<site>
+			<id>people.apache.org.site</id>
+			<name>Empire-db Maven Site</name>
+			<url>scp://people.apache.org/home/francisdb/public_html/empire-db/site</url>
+		</site>
+	</distributionManagement>
 	
 
 </project>
