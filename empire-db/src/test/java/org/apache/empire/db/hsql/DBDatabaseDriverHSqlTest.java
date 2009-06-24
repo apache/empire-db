@@ -81,8 +81,8 @@ public class DBDatabaseDriverHSqlTest
         dep.update(conn);
         
         Date date = dep.getDateTime(db.DEPARTMENT.UPDATE_TIMESTAMP);
-        assertNotNull(date);
-        assertTrue(dep.getInt(db.DEPARTMENT.ID) > 0);
+        assertNotNull("Date is null", date);
+        assertTrue("No departments", dep.getInt(db.DEPARTMENT.ID) > 0);
         
         
         DBRecord emp = new DBRecord();
@@ -94,8 +94,8 @@ public class DBDatabaseDriverHSqlTest
         emp.update(conn);
         
         date = emp.getDateTime(db.EMPLOYEE.UPDATE_TIMESTAMP);
-        assertNotNull(date);
-        assertTrue(emp.getInt(db.EMPLOYEE.ID) > 0);
+        assertNotNull("Date is null", date);
+        assertTrue("Employee id O or less", emp.getInt(db.EMPLOYEE.ID) > 0);
 
         int id = emp.getInt(db.EMPLOYEE.ID);
         
