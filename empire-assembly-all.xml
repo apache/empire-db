@@ -57,7 +57,7 @@
 				<include>LICENSE.txt</include>
 				<include>NOTICE.txt</include>
 				<include>README.txt</include>
-				<!-- <include>CHANGELOG-1.4</include> -->
+				<include>CHANGELOG.txt</include>
 				<!-- <include>licenses/**</include> -->
 			</includes>
 		</fileSet>

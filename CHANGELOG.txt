@@ -1,39 +1,83 @@
 Apache Empire-db
 Copyright 2008 The Apache Software Foundation
 
+The issues are categorized as follows:
+[{C=Core}|{S=Struts Extensions}|{E=Examples}|{O=Other}
+/{N=New Feature}|{B=Bug fix}|{I=Improvement}]
+
+For more Information about a particular issue please visit
+https://issues.apache.org/jira/browse/EMPIREDB
+
+--------------
+Release 2.0.5:
+--------------
+Major new features:
+- Maven project management
+- New database handlers for Apache Derby, H2, PostgreSQL
+- New Examples showing WebService integration using Apache CXF
+
+Issues resolved:
+EMPIREDB-37 - [C/N]: PostgreSQL "BLOB" type not exist but is possible to create a "bytea" column 
+EMPIREDB-36 - [E/N]: New WebServices integration example using Apache CXF 
+EMPIREDB-34 - [C/I]: Add support for stmt.executeUpdate with Statement.RETURN_GENERATED_KEYS instead of getPostInsertAutoIncValue() 
+EMPIREDB-33 - [S/B]: BeanRecordProxy isFieldReadOnly wrong for new records 
+EMPIREDB-32 - [C/N]: Unit tests 
+EMPIREDB-31 - [E/B]: Advanced sample throws SQLException (wrong db user) 
+EMPIREDB-30 - [C/N]: Support for PostgeSQL 
+EMPIREDB-29 - [O/N]: Switch to Maven project management 
+EMPIREDB-28 - [E/B]: SampleConfig in the demo application has invalid user 
+EMPIREDB-27 - [C/B]: HSQLDB driver doesn't support conversion of value to DOUBLE 
+EMPIREDB-26 - [S/I]: Extend HTMLTagDictionary to allow default cssClass for all input types 
+EMPIREDB-25 - [C/I]: Implement getAttribute and setAttribute on BeanProperty class 
+EMPIREDB-24 - [S/I]: Allow textarea to handle keypress and keyup events in order to check the maximum length of input 
+EMPIREDB-23 - [C/B]: Maximum size is not passed to error message handler for DBErrors.FieldValueTooLong in DBTableColumn::checkValue 
+EMPIREDB-22 - [C/B]: deleteReferenceRecords() does not sort the depending records by id 
+EMPIREDB-21 - [S/I]: Allow empty record item parameter: The function getRecordKeyFromString should return null if the item string consists of the new item flag only. 
+EMPIREDB-20 - [C/B]: Convert to char doesn't work for hsqldb 
+EMPIREDB-19 - [S/B]: The form tag's "target" attribute is not rendered in HTML code 
+EMPIREDB-18 - [C/B]: DBRecord.setModified(column, isModified) doesn't set the record state back from modified to valid 
+EMPIREDB-17 - [S/B]: Checked attribute does not work on radio button tag. 
+EMPIREDB-16 - [S/I]: Tag library definition does not allow java expressions for the cssClass attribute 
+EMPIREDB-15 - [C/B]: Record fields are not cleared properly by createRecord. 
+EMPIREDB-14 - [S/I]: Allow javascript code on anchors 
+
 --------------
 Release 2.0.4:
 --------------
-EMPIREDB-9	Move build.xml from src directory to root directory. Change distribution scripts to meet apache incubator requirements.  
-EMPIREDB-8	Restrict access to DatabaseDriver object for all subclasses of DBColumnExpr to the addSQL function.  
-EMPIREDB-7	Add support for CASE WHEN expression with new class DBCaseExpr.java  
-EMPIREDB-6	Support for quoting of table, view and column names added.
+EMPIREDB-13 - [S/I]: Add column attribute to radioButtonTag and onClick attribute to menuItemTag 
+EMPIREDB-12 - [S/I]: Allow reloading of current record from the session 
+EMPIREDB-11 - [S/I]: WebAction.clearActionErrors does not remove Error from the session 
+EMPIREDB-10 - [S/I]: Allow setting of record property name with control tag 
+EMPIREDB-09 - [O/I]: Move build.xml from src directory to root directory. Change distribution scripts to meet apache incubator requirements.  
+EMPIREDB-08 - [C/I]: Restrict access to DatabaseDriver object for all subclasses of DBColumnExpr to the addSQL function.  
+EMPIREDB-07 - [C/I]: Add support for CASE WHEN expression with new class DBCaseExpr.java  
+EMPIREDB-06 - [C/I]: Support for quoting of table, view and column names added.
 
 --------------
 Release 2.0.3:
 --------------
-EMPIREDB-5	Added missing ASF headers. See JIRA for further information.
-EMPIREDB-4	Fixed several DBDatabaseDriverHSql bugs. See JIRA for further information.
-EMPIREDB-3	Added "useQuotes" property to DBColumn.
-PRE-114:	All package names changed to org.apache.empire.
+EMPIREDB-5 - Added missing ASF headers. See JIRA for further information.
+EMPIREDB-4 - Fixed several DBDatabaseDriverHSql bugs. See JIRA for further information.
+EMPIREDB-3 - Added "useQuotes" property to DBColumn.
+PRE-114: - All package names changed to org.apache.empire.
 
 --------------
 Release 2.0.2:
 --------------
-PRE-113:	NEW FEATURE: class BeanRecordProxy<T> implements the Record interface of any given JavaBean object.	
-PRE-112:	NEW FEATURE: classes BeanDomain, BeanClass and BeanProperty allow metadata defition for JavaBean objects using the Column interface.
-PRE-111:	DBDatabaseDriverOracle: new implementation for checkDatabase
-PRE-110:	Method getSourceColumn added for data.Column
-PRE-109:	DBRecordData: Typ conversion moved to ObjectUtils
-PRE-108:	NEW FEATURE: createView implemented for all Database Drivers
-PRE-107:	DBView: canUpdateReocrds = Flag for updateable and non-updateable Views;
+PRE-113: - NEW FEATURE: class BeanRecordProxy<T> implements the Record interface of any given JavaBean object.	
+PRE-112: - NEW FEATURE: classes BeanDomain, BeanClass and BeanProperty allow metadata defition for JavaBean objects using the Column interface.
+PRE-111: - DBDatabaseDriverOracle: new implementation for checkDatabase
+PRE-110: - Method getSourceColumn added for data.Column
+PRE-109: - DBRecordData: Type conversion moved to ObjectUtils
+PRE-108: - NEW FEATURE: createView implemented for all Database Drivers
+PRE-107: - DBView: canUpdateReocrds = Flag for updateable and non-updateable Views;
 
 --------------
 Release 2.0.1:
 --------------
-PRE-106:	NEW FEATURE: DBDatabaseDriverMySQL:	Driver for MySQL 5 added.
-PRE-105:	NEW FEATURE: DBColumnExpr: Added Support for REVERSE() and INSTR() SQL Functions
-PRE-104:	BUGFIX: DBRecord::getFieldValue(): Field Access to invalid DBRecord returned Boolean FALSE instead of null.
-PRE-103:	DBDatabaseDriver: Function isSupported() and getPostInsertAutoIncValue() added
-PRE-102:	DBColumnExpr: Substring function now excepts column expressions 
-PRE-101:	DBSQLScript: New class to replace StringBuilder for DDL Script generation. See also DBDatabase::getCreateDDLScript()
+PRE-106: - NEW FEATURE: DBDatabaseDriverMySQL:	Driver for MySQL 5 added.
+PRE-105: - NEW FEATURE: DBColumnExpr: Added Support for REVERSE() and INSTR() SQL Functions
+PRE-104: - BUGFIX: DBRecord::getFieldValue(): Field Access to invalid DBRecord returned Boolean FALSE instead of null.
+PRE-103: - DBDatabaseDriver: Function isSupported() and getPostInsertAutoIncValue() added
+PRE-102: - DBColumnExpr: Substring function now excepts column expressions 
+PRE-101: - DBSQLScript: New class to replace StringBuilder for DDL Script generation. See also DBDatabase::getCreateDDLScript()
