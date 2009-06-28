@@ -28,7 +28,7 @@
 		<!-- JDBC properties for a HSQLDB Database connection -->
 		<!-- Required jar file: hsqldb.jar -->
 		<jdbcClass>org.hsqldb.jdbcDriver</jdbcClass>
-		<jdbcURL>jdbc:hsqldb:file:../../../work/hsqldb/sample;shutdown=true</jdbcURL>
+		<jdbcURL>jdbc:hsqldb:file:hsqldb/sample;shutdown=true</jdbcURL>
 		<jdbcUser>sa</jdbcUser>
 		<jdbcPwd></jdbcPwd>
 		<schemaName>DBSAMPLE</schemaName>
