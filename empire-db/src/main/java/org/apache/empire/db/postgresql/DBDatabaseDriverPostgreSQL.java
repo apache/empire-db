@@ -307,23 +307,20 @@ public class DBDatabaseDriverPostgreSQL extends DBDatabaseDriver
     @Override
     public String getConvertPhrase(DataType destType, DataType srcType, Object format)
     {
-        switch(destType)
+        switch (destType)
         {
-           case BOOL:      return "CAST(? AS UNSIGNED)";
-           case INTEGER:   return "CAST(? AS SIGNED)";
-           case DECIMAL:   return "CAST(? AS DECIMAL)";
-           case DOUBLE:    return "CAST(? AS DECIMAL)";
-           case DATE:      return "CAST(? AS DATE)";
-           case DATETIME:  return "CAST(? AS DATETIME)";
-           // Convert to text
-           case TEXT:
-                return "CAST(? AS CHAR)";
-           case BLOB:
-                return "CAST(? AS bytea)";
-           case CLOB:
-                return "CAST(? AS TEXT)";
-           // Unknown Type                                       
-           default:
+            case BOOL:     return "CAST(? AS BOOL)";
+            case INTEGER:  return "CAST(? AS INTEGER)";
+            case DECIMAL:  return "CAST(? AS DECIMAL)";
+            case DOUBLE:   return "CAST(? AS DECIMAL)";
+            case DATE:     return "CAST(? AS DATE)";
+            case DATETIME: return "CAST(? AS TIMESTAMP)";
+                // Convert to text
+            case TEXT:     return "CAST(? AS CHAR)";
+            case BLOB:     return "CAST(? AS bytea)";
+            case CLOB:     return "CAST(? AS TEXT)";
+                // Unknown Type
+            default:
                 log.error("getConvertPhrase: unknown type (" + String.valueOf(destType));
                 return "?";
         }
