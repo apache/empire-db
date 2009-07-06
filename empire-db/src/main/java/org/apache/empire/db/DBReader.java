@@ -24,6 +24,7 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -623,17 +624,17 @@ public class DBReader extends DBRecordData
     }
 
     /**
-     * Returns the result of a query as a list of objects resticted
+     * Returns the result of a query as a list of objects restricted
      * to a maximum number of objects (unless maxCount is -1).
      * 
-     * @param c the class type of the objects in the list
+     * @param c the collection to add the objects to
+     * @param t the class type of the objects in the list
      * @param maxCount the maximum number of objects
-     * @param <T> the type of the objects in the list
      * 
      * @return the list of <T>
      */
     @SuppressWarnings("unchecked")
-    public <T> ArrayList<T> getBeanList(Class<T> c, int maxCount)
+    public <C extends Collection<T>, T> C getBeanList(C c, Class<T> t, int maxCount)
     {
         // Check Recordset
         if (rset == null)
@@ -649,11 +650,10 @@ public class DBReader extends DBRecordData
             for (int i = 0; i < colList.length; i++)
                 paramTypes[i] = DBExpr.getValueClass(colList[i].getDataType()); 
             // Find Constructor
-            Constructor ctor = findMatchingAccessibleConstructor(c, paramTypes);
+            Constructor ctor = findMatchingAccessibleConstructor(t, paramTypes);
             Object[] args = (ctor!=null) ? new Object[getFieldCount()] : null; 
             
             // Create a list of beans
-            ArrayList<T> list = new ArrayList<T>();
             while (moveNext() && maxCount != 0)
             { // Create bean an init
                 if (ctor!=null)
@@ -661,21 +661,21 @@ public class DBReader extends DBRecordData
                     for (int i = 0; i < getFieldCount(); i++)
                         args[i] = getValue(i);
                     T bean = (T)ctor.newInstance(args);
-                    list.add(bean);
+                    c.add(bean);
                 }
                 else
                 {   // Use Property Setters
-                    T bean = c.newInstance();
+                    T bean = t.newInstance();
                     if (getBeanProperties(bean)==false)
                         return null;
-                    list.add(bean);
+                    c.add(bean);
                 }
                 // Decrease count
                 if (maxCount > 0)
                     maxCount--;
             }
             // done
-            return list;
+            return c;
         } catch (InvocationTargetException e)
         {
             error(e);
@@ -690,20 +690,30 @@ public class DBReader extends DBRecordData
             return null;
         }
     }
-
+    
     /**
      * Returns the result of a query as a list of objects.
      * 
-     * @param c the class type of the objects in the list
-     * @param <T> the type of the objects in the list
+     * @param t the class type of the objects in the list
+     * @param maxCount the maximum number of objects
      * 
      * @return the list of <T>
      */
-    public <T> ArrayList<T> getBeanList(Class<T> c)
-    {
-        return getBeanList(c, -1);
+    public final <T> ArrayList<T> getBeanList(Class<T> t, int maxItems) {
+        return getBeanList(new ArrayList<T>(), t, maxItems);
     }
-
+    
+    /**
+     * Returns the result of a query as a list of objects.
+     * 
+     * @param t the class type of the objects in the list
+     * 
+     * @return the list of <T>
+     */
+    public final <T> ArrayList<T> getBeanList(Class<T> t) {
+        return getBeanList(t, -1);
+    }
+    
     /**
      * Moves the cursor down one row from its current position.
      * 
