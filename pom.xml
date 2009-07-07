@@ -331,13 +331,6 @@
 	</reporting>
 
 	<distributionManagement>
-		<!-- Apache parent pom does not define non unique snapshot versions -->
-		<snapshotRepository>
-			<id>apache.snapshots.https</id>
-			<name>${distMgmtSnapshotsName}</name>
-			<url>${distMgmtSnapshotsUrl}</url>
-			<uniqueVersion>false</uniqueVersion>
-		</snapshotRepository>
 		<site>
 			<id>people.apache.org.site</id>
 			<name>Empire-db Maven Site</name>
