@@ -54,7 +54,6 @@
 			</activation>
 			<modules>
 				<module>empire-db</module>
-				<module>empire-db-examples</module>
     			<module>empire-db-struts2</module>
 			</modules>
 			<build>
