@@ -56,6 +56,11 @@
 			</modules>
 			<build>
 				<plugins>
+					<!-- check the headers -->
+					<plugin>
+			            <groupId>com.google.code.maven-license-plugin</groupId>
+			            <artifactId>maven-license-plugin</artifactId>
+			        </plugin>
 					<plugin>
 					  <groupId>org.apache.maven.plugins</groupId>
 					  <artifactId>maven-source-plugin</artifactId>
@@ -213,36 +218,6 @@
 	<build>
 		<defaultGoal>install</defaultGoal>
 		<plugins>
-			<plugin>
-	            <groupId>com.google.code.maven-license-plugin</groupId>
-	            <artifactId>maven-license-plugin</artifactId>
-	            <version>1.4.0</version>
-	            <configuration>
-	                <basedir>${basedir}</basedir>
-	                <header>old/header.txt</header>
-	                <!--<header>${basedir}/src/etc/header.txt</header>-->
-	                <quiet>false</quiet>
-	                <failIfMissing>true</failIfMissing>
-	                <aggregate>false</aggregate>
-	                <includes>
-	                    <include>src/**</include>
-	                    <include>**/test/**</include>
-	                </includes>
-	                <mapping>
-	                    <jwc>XML_STYLE</jwc>
-	                    <application>XML_STYLE</application>
-	                    <myFileExtension>JAVADOC_STYLE</myFileExtension>
-	                </mapping>
-	                <encoding>UTF-8</encoding>
-	            </configuration>
-	            <executions>
-	                <execution>
-	                    <goals>
-	                        <goal>check</goal>
-	                    </goals>
-	                </execution>
-	            </executions>
-	        </plugin>
         </plugins>
 		<pluginManagement>
 			<plugins>
@@ -271,6 +246,36 @@
 						<debug>true</debug>
 					</configuration>
 				</plugin>
+				<plugin>
+		            <groupId>com.google.code.maven-license-plugin</groupId>
+		            <artifactId>maven-license-plugin</artifactId>
+		            <version>1.4.0</version>
+		            <configuration>
+		                <basedir>${basedir}</basedir>
+		                <header>old/header.txt</header>
+		                <!--<header>${basedir}/src/etc/header.txt</header>-->
+		                <quiet>false</quiet>
+		                <failIfMissing>true</failIfMissing>
+		                <aggregate>false</aggregate>
+		                <includes>
+		                    <include>src/**</include>
+		                    <include>**/test/**</include>
+		                </includes>
+		                <mapping>
+		                    <jwc>XML_STYLE</jwc>
+		                    <application>XML_STYLE</application>
+		                    <myFileExtension>JAVADOC_STYLE</myFileExtension>
+		                </mapping>
+		                <encoding>UTF-8</encoding>
+		            </configuration>
+		            <executions>
+		                <execution>
+		                    <goals>
+		                        <goal>check</goal>
+		                    </goals>
+		                </execution>
+		            </executions>
+		        </plugin>
 			</plugins>
 		</pluginManagement>
 	</build>
