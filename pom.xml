@@ -43,18 +43,16 @@
 			</activation>
 			<modules>
 				<module>empire-db</module>
-				<module>empire-db-examples</module>
     			<module>empire-db-struts2</module>
+    			<module>empire-db-examples</module>
 			</modules>
 		</profile>
 		<profile>
 			<id>CI</id>
-			<activation>
-				<activeByDefault>false</activeByDefault>
-			</activation>
 			<modules>
 				<module>empire-db</module>
     			<module>empire-db-struts2</module>
+    			<module>empire-db-examples</module>
 			</modules>
 			<build>
 				<plugins>
