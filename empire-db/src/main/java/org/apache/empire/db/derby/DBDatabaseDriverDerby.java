@@ -573,12 +573,18 @@ public class DBDatabaseDriverDerby extends DBDatabaseDriver
             }
                 break;
             case CLOB:
-                sql.append("LONGTEXT");
+                sql.append("CLOB");
+                if (c.getSize() > 0)
+                {
+                    sql.append("(" + String.valueOf((long) c.getSize()) + ") ");
+                }
                 break;
             case BLOB:
                 sql.append("BLOB");
                 if (c.getSize() > 0)
-                    sql.append(" (" + String.valueOf((long) c.getSize()) + ") ");
+                {
+                    sql.append("(" + String.valueOf((long) c.getSize()) + ") ");
+                }
                 break;
             case UNKNOWN:
                  log.error("Cannot append column of Data-Type 'UNKNOWN'");
@@ -586,7 +592,8 @@ public class DBDatabaseDriverDerby extends DBDatabaseDriver
         }
         // Default Value
         if (isDDLColumnDefaults() && c.getDataType()!=DataType.AUTOINC && c.getDefaultValue()!=null)
-        {   sql.append(" DEFAULT ");
+        {   
+            sql.append(" DEFAULT ");
             sql.append(getValueString(c.getDefaultValue(), c.getDataType()));
         }
         // Nullable
