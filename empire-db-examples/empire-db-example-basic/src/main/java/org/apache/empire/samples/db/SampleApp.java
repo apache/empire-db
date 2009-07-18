@@ -82,7 +82,7 @@ public class SampleApp
 
 			// STEP 2: Choose a driver
 			System.out.println("*** Step 2: getDatabaseProvider() ***");
-			DBDatabaseDriver driver = getDatabaseDriver(config.getDatabaseProvider());
+			DBDatabaseDriver driver = getDatabaseDriver(config.getDatabaseProvider(), conn);
 
             // STEP 3: Open Database (and create if not existing)
             System.out.println("*** Step 3: openDatabase() ***");
@@ -193,7 +193,7 @@ public class SampleApp
      * Valid Providers are "oracle", "sqlserver" and "hsqldb".
      * </PRE>
      */
-    private static DBDatabaseDriver getDatabaseDriver(String provider)
+    private static DBDatabaseDriver getDatabaseDriver(String provider, Connection conn)
     {
         if (provider.equalsIgnoreCase("mysql"))
         {
@@ -226,6 +226,8 @@ public class SampleApp
             DBDatabaseDriverPostgreSQL driver = new DBDatabaseDriverPostgreSQL();
             // Set Driver specific properties (if any)
             driver.setDatabaseName(config.getSchemaName());
+            // Create the reverse function that is needed by this sample
+            driver.createReverseFunction(conn);
             return driver;
         }
         else if (provider.equalsIgnoreCase("h2"))
@@ -393,7 +395,6 @@ public class SampleApp
         // Hint: Since the reverse() function is not supported by HSQLDB there is special treatment for HSQL
         DBColumnExpr PHONE_LAST_DASH;
         if ( db.getDriver() instanceof DBDatabaseDriverHSql 
-        		|| db.getDriver() instanceof DBDatabaseDriverPostgreSQL
         		|| db.getDriver() instanceof DBDatabaseDriverDerby
         		|| db.getDriver() instanceof DBDatabaseDriverH2)
              PHONE_LAST_DASH = EMP.PHONE_NUMBER.indexOf("-", EMP.PHONE_NUMBER.indexOf("-").plus(1)).plus(1); // HSQLDB only

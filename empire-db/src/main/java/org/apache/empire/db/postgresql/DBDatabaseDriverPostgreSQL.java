@@ -19,6 +19,7 @@
 package org.apache.empire.db.postgresql;
 
 import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.GregorianCalendar;
 import java.util.Iterator;
 
@@ -52,6 +53,25 @@ import org.apache.empire.db.DBView;
 public class DBDatabaseDriverPostgreSQL extends DBDatabaseDriver
 {
     private static final Log log = LogFactory.getLog(DBDatabaseDriverPostgreSQL.class);
+    
+    private static final String CREATE_REVERSE_FUNCTION =
+        "CREATE OR REPLACE FUNCTION reverse(TEXT) RETURNS TEXT AS '\n" +
+        "DECLARE\n" +
+        "   original ALIAS FOR $1;\n" +
+        "   reversed TEXT := \'\';\n" +
+        "   onechar  VARCHAR;\n" +
+        "   mypos    INTEGER;\n" +
+        "BEGIN\n" +
+        "   SELECT LENGTH(original) INTO mypos;\n" + 
+        "   LOOP\n" +
+        "      EXIT WHEN mypos < 1;\n" +
+        "      SELECT substring(original FROM mypos FOR 1) INTO onechar;\n" +
+        "      reversed := reversed || onechar;\n" +
+        "      mypos := mypos -1;\n" +
+        "   END LOOP;\n" +
+        "   RETURN reversed;\n" +
+        "END\n" +
+        "' LANGUAGE plpgsql IMMUTABLE RETURNS NULL ON NULL INPUT";    
     
     /**
      * Defines the PostgreSQL command type.
@@ -200,7 +220,27 @@ public class DBDatabaseDriverPostgreSQL extends DBDatabaseDriver
     {
         this.databaseName = databaseName;
     }
-
+    
+    /**
+     * Creates the reverse function in postgre sql that returns the reverse of a string value.
+     * The reverse function may be helpful in SQL to analyse a text field from its end.
+     * This function must be called manually by the application depending on whether it needs to use this function or not.<br/>
+     * The current implementation does not check, whether the reverse function already exists.
+     * If the functions exists it will be replaced and true is returned.
+     * @param conn a valid database connection
+     * @return true if the reverse function was created sucessfully or false otherwise
+     */
+    public boolean createReverseFunction(Connection conn)
+    {
+        try {
+            log.info("Creating reverse function: " + CREATE_REVERSE_FUNCTION);
+            return (executeSQL(CREATE_REVERSE_FUNCTION, null, conn, null)>=0);
+        } catch(SQLException e) {
+            log.error("Unable to create reverse function!", e);
+            return error(e);
+        }
+    }
+    
     /**
      * Creates a new PostgreSQL command object.
      * 
@@ -264,9 +304,9 @@ public class DBDatabaseDriverPostgreSQL extends DBDatabaseDriver
             case SQL_FUNC_SUBSTRING:          return "substring(?, {0})";
             case SQL_FUNC_SUBSTRINGEX:        return "substring(?, {0}, {1})";
             case SQL_FUNC_REPLACE:            return "replace(?, {0}, {1})";
-            case SQL_FUNC_REVERSE:            return "reverse_not_available_in_pgsql(?)";//"reverse(?)";
+            case SQL_FUNC_REVERSE:            return "reverse(?)"; // In order to use this function createReverseFunction() must be called first!
             case SQL_FUNC_STRINDEX:           return "strpos(?, {0})"; 
-            case SQL_FUNC_STRINDEXFROM:       return "strindexfrom_not_available_in_pgsql({0}, ?, {1})";//"locate({0}, ?, {1})"; 
+            case SQL_FUNC_STRINDEXFROM:       return "strindexfrom_not_available_in_pgsql({0}, ?, {1})"; // "locate({0}, ?, {1})"; 
             case SQL_FUNC_LENGTH:             return "length(?)";
             case SQL_FUNC_UPPER:              return "upper(?)";
             case SQL_FUNC_LOWER:              return "lcase(?)";
@@ -835,5 +875,5 @@ public class DBDatabaseDriverPostgreSQL extends DBDatabaseDriver
         appendElementName(sql, name);
         return script.addStmt(sql);
     }
-
+    
 }
