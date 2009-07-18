@@ -15,8 +15,13 @@ Major new features:
 - Maven project management
 - New database handlers for Apache Derby, H2, PostgreSQL
 - New Examples showing WebService integration using Apache CXF
+- Empire-DB Struts2-Extentions' dependencies updated from Struts 2.0.11 to Struts 2.1.6 
 
 Issues resolved:
+EMPIREDB-45 - [S/I]: Update struts extentions to accomodate latest struts release  
+EMPIREDB-44 - [C/B]: error using apache derby and CLOB datatype  
+EMPIREDB-42 - [C/I]: Extend DBReader to provide query results in a hash set  
+EMPIREDB-40 - [C/B]: Postgresql cast problem 
 EMPIREDB-37 - [C/N]: PostgreSQL "BLOB" type not exist but is possible to create a "bytea" column 
 EMPIREDB-36 - [E/N]: New WebServices integration example using Apache CXF 
 EMPIREDB-34 - [C/I]: Add support for stmt.executeUpdate with Statement.RETURN_GENERATED_KEYS instead of getPostInsertAutoIncValue() 
