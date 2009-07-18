@@ -94,7 +94,7 @@ public class LinkTag extends EmpireTagSupport // AbstractRemoteCallUITag
         anchor.setAction(action);
         anchor.setText(getString(text));
         anchor.setDisabled(getBoolean(disabled, false));
-        anchor.setTargets(target);
+        anchor.setTarget(target);
         anchor.setOnclick(onclick);
     }
 

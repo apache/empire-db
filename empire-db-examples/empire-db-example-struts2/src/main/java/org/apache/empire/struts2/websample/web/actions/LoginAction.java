@@ -121,9 +121,19 @@ public class LoginAction extends Action
      * Implementation of Parameterizable
      */
      
-    private Map<String, Object> actionConfigParams = null;
+     /*
+      * UPGRADE-struts 2.1.6
+      * CHANGE: changed "Map<String, Object>" to "Map<String, String>"
+      * Reason: The interface com.opensymphony.xwork2.config.entities.Parameterizable changed
+      */
+    private Map<String, String> actionConfigParams = null;
     
-    public void addParam(String name, Object value)
+    /*
+     * UPGRADE-struts 2.1.6
+     * CHANGE: changed "String Object" to "String value"
+     * Reason: The interface com.opensymphony.xwork2.config.entities.Parameterizable changed
+     */
+    public void addParam(String name, String value)
     {
         actionConfigParams.put(name, value);
     }
@@ -133,7 +143,12 @@ public class LoginAction extends Action
         return actionConfigParams;
     }
 
-    public void setParams(Map<String, Object> actionConfigParams)
+    /*
+     * UPGRADE-struts 2.1.6
+     * CHANGE: changed "Map<String, Object>" to "Map<String, String>"
+     * Reason: The interface com.opensymphony.xwork2.config.entities.Parameterizable changed
+     */
+    public void setParams(Map<String, String> actionConfigParams)
     {
         this.actionConfigParams = actionConfigParams; 
     }

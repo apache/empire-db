@@ -60,9 +60,15 @@
     <e:control column="<%= EMP.C_RETIRED %>" />
 	<e:control column="<%= EMP.C_UPDATE_TIMESTAMP %>" />
 
+	
 	<%-- 
     <s:submit value="%{getText('button.label.submit')}"/>
-    <s:submit value="%{getText('button.label.cancel')}" name="redirect-action:employeeDetail!doCancel"/>
+    <!--
+		* UPGRADE-struts 2.1.6
+		* CHANGE: changed "redirect-action" to "redirectAction"
+   		* Reason: The types are now written in "camelCase"
+	-->
+    <s:submit value="%{getText('button.label.cancel')}" name="redirectAction:employeeDetail!doCancel"/>
     --%>
 	
 	<tr style="padding-top:20px">

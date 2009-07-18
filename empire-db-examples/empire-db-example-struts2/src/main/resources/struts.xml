@@ -61,9 +61,14 @@
 	    <!-- Static Params Interceptor -->
 		<action name="login" class="org.apache.empire.struts2.websample.web.actions.LoginAction" method="doInit">
 			<result name="input">/jsp/login.jsp</result>
-			<result name="success" type="redirect-action">employeeList!doInit</result>
+			<!--
+				* UPGRADE-struts 2.1.6
+				* CHANGE: changed "redirect-action" to "redirectAction"
+     			* Reason: The types are now written in "camelCase"
+			-->
+			<result name="success" type="redirectAction">employeeList!doInit</result>
 		</action>
-
+		
 		<action name="employeeList" class="org.apache.empire.struts2.websample.web.actions.EmployeeListAction" method="doInit">
 			<result name="search">/jsp/employeeSearch.jsp</result>
 			<result name="list">/jsp/employeeList.jsp</result>
@@ -71,7 +76,12 @@
 
 		<action name="employeeDetail" class="org.apache.empire.struts2.websample.web.actions.EmployeeDetailAction" method="doLoad">
 			<result name="input">/jsp/employeeDetails.jsp</result>
-			<result name="return" type="redirect-action">employeeList!doList</result>
+			<!--
+				* UPGRADE-struts 2.1.6
+				* CHANGE: changed "redirect-action" to "redirectAction"
+     			* Reason: The types are now written in "camelCase"
+			-->
+			<result name="return" type="redirectAction">employeeList!doList</result>
 		</action>
 
 	</package>

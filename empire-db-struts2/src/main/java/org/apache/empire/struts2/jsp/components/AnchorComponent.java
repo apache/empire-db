@@ -40,6 +40,12 @@ public class AnchorComponent extends Anchor
     
     private String  action;
     private String  text;
+    /*
+     * EMPIREDB-45 
+     * CHANGE: attribute "target" added
+     * Reason: the Attribute no longer exists in org.apache.struts2.components.Anchor 
+     */
+    private String  target;
     private boolean disabled = false;
     private String  disabledTag = null;
 
@@ -98,7 +104,7 @@ public class AnchorComponent extends Anchor
                 HtmlTag a = htmlWriter.startTag("a");
                 a.addAttribute("id",       this.getId());
                 a.addAttribute("href",     url);
-                a.addAttribute("target",   this.targets);
+				a.addAttribute("target",   this.target);
                 a.addAttribute("class",    this.cssClass);
                 a.addAttribute("style",    this.cssStyle);
                 a.addAttribute("onclick",  this.onclick);
@@ -149,5 +155,15 @@ public class AnchorComponent extends Anchor
     public void setDisabledTag(String disabledTag)
     {
         this.disabledTag = disabledTag;
+    }
+
+    public String getTarget()
+    {
+        return target;
+    }
+
+    public void setTarget(String target)
+    {
+        this.target = target;
     }
 }

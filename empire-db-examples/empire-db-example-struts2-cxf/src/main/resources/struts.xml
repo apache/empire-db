@@ -61,7 +61,7 @@
 	    <!-- Static Params Interceptor -->
 		<action name="login" class="org.apache.empire.struts2.websample.web.actions.LoginAction" method="doInit">
 			<result name="input">/jsp/login.jsp</result>
-			<result name="success" type="redirect-action">employeeList!doInit</result>
+			<result name="success" type="redirectAction">employeeList!doInit</result>
 		</action>
 
 		<action name="employeeList" class="org.apache.empire.struts2.websample.web.actions.EmployeeListAction" method="doInit">
@@ -71,7 +71,7 @@
 
 		<action name="employeeDetail" class="org.apache.empire.struts2.websample.web.actions.EmployeeDetailAction" method="doLoad">
 			<result name="input">/jsp/employeeDetails.jsp</result>
-			<result name="return" type="redirect-action">employeeList!doList</result>
+			<result name="return" type="redirectAction">employeeList!doList</result>
 		</action>
 
 	</package>

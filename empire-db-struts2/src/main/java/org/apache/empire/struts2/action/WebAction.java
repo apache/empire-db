@@ -316,6 +316,15 @@ public abstract class WebAction extends ActionBase
 
     // ------- Text Provider -------
     
+    /*
+     * UPGRADE-struts 2.1.6
+     * CHANGE: added method "hasKey(String key)"
+     * Reason: The interface com.opensymphony.xwork2.config.entities.Parameterizable changed
+     */
+    public boolean hasKey(String key) {
+    	return textProvider.hasKey(key);
+    }
+    
     public String getText(String aTextName) {
         return textProvider.getText(aTextName);
     }

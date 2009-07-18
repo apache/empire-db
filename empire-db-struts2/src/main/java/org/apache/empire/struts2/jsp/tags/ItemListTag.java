@@ -127,7 +127,12 @@ public class ItemListTag extends IteratorTag
                 if (currentValue!=null)
                 {
                     stack.push(currentValue);
-                    String id = getId();
+				    /*
+				     * UPGRADE-struts 2.1.6
+				     * CHANGE: changed "getId()" to "getVar()"
+				     * Reason: The Funktion no longer exists.
+				     */
+                    String id = getVar();
 
                     if ((id != null))
                     {
