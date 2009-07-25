@@ -192,7 +192,7 @@ public class DBDatabaseDriverDerby extends DBDatabaseDriver
             case SQL_CURRENT_DATE:            return "CURRENT_DATE()";
             case SQL_DATE_PATTERN:            return "yyyy-MM-dd";
             case SQL_DATE_TEMPLATE:           return "'{0}'";
-            case SQL_CURRENT_DATETIME:        return "NOW()";
+            case SQL_CURRENT_DATETIME:        return "CURRENT_TIMESTAMP";
             case SQL_DATETIME_PATTERN:        return "yyyy-MM-dd HH:mm:ss";
             case SQL_DATETIME_TEMPLATE:       return "'{0}'";
             // functions
