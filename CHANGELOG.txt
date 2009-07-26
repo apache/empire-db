@@ -22,6 +22,7 @@ EMPIREDB-46 - [C/B]: datetime-phrase issue in DBDatabaseDriverDerby
 EMPIREDB-45 - [S/I]: Update struts extentions to accomodate latest struts release  
 EMPIREDB-44 - [C/B]: error using apache derby and CLOB datatype  
 EMPIREDB-42 - [C/I]: Extend DBReader to provide query results in a hash set  
+EMPIREDB-41 - [C/I]: Deal with databases differences regarding SQL reverse function
 EMPIREDB-40 - [C/B]: Postgresql cast problem 
 EMPIREDB-37 - [C/N]: PostgreSQL "BLOB" type not exist but is possible to create a "bytea" column 
 EMPIREDB-36 - [E/N]: New WebServices integration example using Apache CXF 
