@@ -49,6 +49,7 @@
 			</modules>
 		</profile>
 		<profile>
+			<!-- Hudson profile -->
 			<id>CI</id>
 			<modules>
 				<module>empire-db</module>
@@ -62,6 +63,18 @@
 			            <groupId>com.google.code.maven-license-plugin</groupId>
 			            <artifactId>maven-license-plugin</artifactId>
 			        </plugin>
+			      	<plugin>
+				        <groupId>org.codehaus.mojo</groupId>
+				        <artifactId>rat-maven-plugin</artifactId>
+				        <executions>
+				          <execution>
+				            <phase>verify</phase>
+				            <goals>
+				              <goal>check</goal>
+				            </goals>
+				          </execution>
+				        </executions>
+				    </plugin>
 					<plugin>
 					  <groupId>org.apache.maven.plugins</groupId>
 					  <artifactId>maven-source-plugin</artifactId>
@@ -89,6 +102,27 @@
 				</plugins>
 			</build>
 		</profile>
+		<profile>
+			<!-- Part of the release profile, rest in apache parent pom -->
+	      <id>release</id>
+	      <build>
+	        <plugins>
+	          <plugin>
+	            <groupId>org.codehaus.mojo</groupId>
+	            <artifactId>rat-maven-plugin</artifactId>
+	            <version>1.0-alpha-3</version>
+	            <executions>
+	              <execution>
+	                <phase>verify</phase>
+	                <goals>
+	                  <goal>check</goal>
+	                </goals>
+	              </execution>
+	            </executions>
+	          </plugin>
+	        </plugins>
+	      </build>
+	    </profile>
 	</profiles>
 	
 	
@@ -221,6 +255,11 @@
         </plugins>
 		<pluginManagement>
 			<plugins>
+				<!-- Release Audit Tool mvn rat:check -->
+			    <plugin>
+			      	<groupId>org.codehaus.mojo</groupId>
+			       	<artifactId>rat-maven-plugin</artifactId>
+			  	</plugin>
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-assembly-plugin</artifactId>
@@ -281,6 +320,10 @@
 	</build>
 	<reporting>
 		<plugins>
+			<plugin>
+		        <groupId>org.codehaus.mojo</groupId>
+		        <artifactId>rat-maven-plugin</artifactId>
+		    </plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-site-plugin</artifactId>
