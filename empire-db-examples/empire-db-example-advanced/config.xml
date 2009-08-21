@@ -23,7 +23,7 @@
 
 	<properties>
 		<!-- provider name must match the property-section containing the connection data -->
-		<databaseProvider>postgresql</databaseProvider>
+		<databaseProvider>hsqldb</databaseProvider>
 	</properties>
 
 	<properties-hsqldb>
@@ -119,7 +119,7 @@
 		</logger>
 	
 		<logger name="org.apache.empire.db" additivity="false">
-			<level value="debug"/>
+			<level value="warn"/>
 			<appender-ref ref="default"/>
 		</logger>
 
