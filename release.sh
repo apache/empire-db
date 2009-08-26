@@ -65,6 +65,9 @@ echo "Package and assemble the release"
 # mvn5 -ff -Dgpg.passphrase="$passphrase" -Prelease deploy javadoc:aggregate assembly:attached $1
 mvn5 -ff -Dgpg.passphrase="$passphrase" clean install javadoc:aggregate assembly:attached $1
 
+echo "Generating rat report"
+mvn5 rat:check -Drat.excludeSubprojects=false
+
 filename=`ls target/dist/apache-empire*gz`
 md5sum $filename > $filename.md5
 sha1sum $filename > $filename.sha
@@ -78,3 +81,5 @@ sha1sum $filename > $filename.sha
 # gpg --print-md MD5 $filename > $filename.md5
 # gpg --print-md SHA1 $filename > $filename.sha
 echo "$passphrase" | gpg --passphrase-fd 0 --armor --output $filename.asc --detach-sig $filename
+
+echo "Distribution build completed in target/dist"
