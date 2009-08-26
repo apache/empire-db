@@ -1,8 +1,8 @@
 pub   1024D/AE5BC905 2008-08-13
-uid                  J�rg Reiher (CODE SIGNING KEY) <reiher@apache.org>
-sig 3        AE5BC905 2008-08-13  J�rg Reiher (CODE SIGNING KEY) <reiher@apache.org>
+uid                  Jörg Reiher (CODE SIGNING KEY) <reiher@apache.org>
+sig 3        AE5BC905 2008-08-13  Jörg Reiher (CODE SIGNING KEY) <reiher@apache.org>
 sub   1024g/72B89B1E 2008-08-13
-sig          AE5BC905 2008-08-13  J�rg Reiher (CODE SIGNING KEY) <reiher@apache.org>
+sig          AE5BC905 2008-08-13  Jörg Reiher (CODE SIGNING KEY) <reiher@apache.org>
 
 -----BEGIN PGP PUBLIC KEY BLOCK-----
 Version: GnuPG v1.4.7 (MingW32)

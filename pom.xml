@@ -30,9 +30,13 @@
 	<version>2.0.5-incubating</version>
 	<name>Empire-db Parent</name>
 	<description>Apache Empire-db is an Open Source relational data persistence component which allows database vendor independent dynamic query definition as well as safe and simple data retrieval and updating. Compared to most other solutions like e.g. Hibernate, TopLink, iBATIS or JPA implementations, Empire-db takes a considerably different approach, with a special focus on compile-time safety, reduced redundancies and improved developer productivity.</description>
+	<inceptionYear>2008</inceptionYear>
 	
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+		<maven.compile.source>1.5</maven.compile.source>
+		<maven.compile.target>1.5</maven.compile.target>
 	</properties>
 	
 	<profiles>
@@ -48,6 +52,7 @@
 			</modules>
 		</profile>
 		<profile>
+			<!-- Hudson profile -->
 			<id>CI</id>
 			<modules>
 				<module>empire-db</module>
@@ -61,6 +66,18 @@
 			            <groupId>com.google.code.maven-license-plugin</groupId>
 			            <artifactId>maven-license-plugin</artifactId>
 			        </plugin>
+			      	<plugin>
+				        <groupId>org.codehaus.mojo</groupId>
+				        <artifactId>rat-maven-plugin</artifactId>
+				        <executions>
+				          <execution>
+				            <phase>verify</phase>
+				            <goals>
+				              <goal>check</goal>
+				            </goals>
+				          </execution>
+				        </executions>
+				    </plugin>
 					<plugin>
 					  <groupId>org.apache.maven.plugins</groupId>
 					  <artifactId>maven-source-plugin</artifactId>
@@ -88,6 +105,27 @@
 				</plugins>
 			</build>
 		</profile>
+		<profile>
+			<!-- Part of the release profile, rest in apache parent pom -->
+	      <id>release</id>
+	      <build>
+	        <plugins>
+	          <plugin>
+	            <groupId>org.codehaus.mojo</groupId>
+	            <artifactId>rat-maven-plugin</artifactId>
+	            <version>1.0-alpha-3</version>
+	            <executions>
+	              <execution>
+	                <phase>verify</phase>
+	                <goals>
+	                  <goal>check</goal>
+	                </goals>
+	              </execution>
+	            </executions>
+	          </plugin>
+	        </plugins>
+	      </build>
+	    </profile>
 	</profiles>
 	
 	
@@ -104,7 +142,6 @@
 		</license>
 	</licenses>
 	<scm>
-		<!-- TODO correct when using trunk -->
 		<connection>scm:svn:http://svn.apache.org/repos/asf/incubator/empire-db/tags/empire-db-parent-2.0.5-incubating</connection>
 		<developerConnection>scm:svn:https://svn.apache.org/repos/asf/incubator/empire-db/tags/empire-db-parent-2.0.5-incubating</developerConnection>
 		<url>http://svn.apache.org/viewvc/incubator/empire-db/tags/empire-db-parent-2.0.5-incubating</url>
@@ -141,11 +178,13 @@
 				<groupId>org.apache.empire-db</groupId>
 				<artifactId>empire-db</artifactId>
 				<version>${project.version}</version>
+				<type>jar</type>
 			</dependency>
 			<dependency>
 				<groupId>org.apache.empire-db</groupId>
 				<artifactId>empire-db-struts2</artifactId>
 				<version>${project.version}</version>
+				<type>jar</type>
 			</dependency>
 			<dependency>
 				<groupId>commons-logging</groupId>
@@ -221,6 +260,18 @@
         </plugins>
 		<pluginManagement>
 			<plugins>
+				<!-- Release Audit Tool mvn rat:check -->
+			    <plugin>
+			      	<groupId>org.codehaus.mojo</groupId>
+			       	<artifactId>rat-maven-plugin</artifactId>
+			       	<version>1.0-alpha-3</version>
+			       	<configuration>
+			       		<excludes>
+			       			<exclude>old/**</exclude>
+			       			<exclude>dependencies.txt</exclude>
+			       		</excludes>
+			       	</configuration>
+			  	</plugin>
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-assembly-plugin</artifactId>
@@ -240,10 +291,23 @@
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-compiler-plugin</artifactId>
 					<configuration>
-						<source>1.5</source>
-						<target>1.5</target>
+						<source>${maven.compile.source}</source>
+						<target>${maven.compile.target}</target>
 						<optimise>true</optimise>
 						<debug>true</debug>
+					</configuration>
+				</plugin>
+				<plugin>
+					<inherited>true</inherited>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-jar-plugin</artifactId>
+					<configuration>
+						<archive>
+							<manifestEntries>
+								<X-Compile-Source-JDK>${maven.compile.source}</X-Compile-Source-JDK>
+								<X-Compile-Target-JDK>${maven.compile.target}</X-Compile-Target-JDK>
+							</manifestEntries>
+						</archive>
 					</configuration>
 				</plugin>
 				<plugin>
@@ -281,6 +345,10 @@
 	</build>
 	<reporting>
 		<plugins>
+			<plugin>
+		        <groupId>org.codehaus.mojo</groupId>
+		        <artifactId>rat-maven-plugin</artifactId>
+		    </plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-site-plugin</artifactId>

@@ -34,6 +34,7 @@
 			<useDefaultExcludes>true</useDefaultExcludes>
 			<includes>
 				<include>pom.xml</include>
+				<include>empire-assembly-all.xml</include>
 				<include>empire-db/**</include>
 				<include>empire-db-struts2/**</include>
 				<include>empire-db-examples/**</include>
@@ -58,6 +59,7 @@
 				<include>NOTICE.txt</include>
 				<include>README.txt</include>
 				<include>CHANGELOG.txt</include>
+				<include>DISCLAIMER.txt</include>
 				<!-- <include>licenses/**</include> -->
 			</includes>
 		</fileSet>
