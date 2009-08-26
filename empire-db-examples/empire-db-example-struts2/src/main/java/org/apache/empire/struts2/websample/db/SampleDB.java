@@ -35,7 +35,7 @@ public class SampleDB extends DBDatabase
     }
     
     /**
-     * Tabellendefinition für Departments
+     * This class represents the definition of the Departments table.
      */
     public static class Departments extends SampleTable
     {
@@ -45,7 +45,6 @@ public class SampleDB extends DBDatabase
         public final DBTableColumn C_BUSINESS_UNIT;
         public final DBTableColumn C_UPDATE_TIMESTAMP;
 
-        // Konstruktor für Tabelle
         public Departments(DBDatabase db)
         {
             super("DEPARTMENTS", db);
@@ -67,7 +66,7 @@ public class SampleDB extends DBDatabase
     }   
 
     /**
-     * Tabellendefinition für Persons
+     * This class represents the definition of the Employees table.
      */
     public static class Employees extends SampleTable
     {
@@ -83,7 +82,6 @@ public class SampleDB extends DBDatabase
         public final DBTableColumn C_RETIRED;
         public final DBTableColumn C_UPDATE_TIMESTAMP;
 
-        // Konstruktor für Tabelle
         public Employees(DBDatabase db)
         {
             super("EMPLOYEES", db);
