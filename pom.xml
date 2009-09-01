@@ -267,7 +267,6 @@
 			       	<version>1.0-alpha-3</version>
 			       	<configuration>
 			       		<excludes>
-			       			<exclude>old/**</exclude>
 			       			<exclude>dependencies.txt</exclude>
 			       		</excludes>
 			       	</configuration>
@@ -316,7 +315,7 @@
 		            <version>1.4.0</version>
 		            <configuration>
 		                <basedir>${basedir}</basedir>
-		                <header>old/header.txt</header>
+		                <header>tools/header.txt</header>
 		                <!--<header>${basedir}/src/etc/header.txt</header>-->
 		                <quiet>false</quiet>
 		                <failIfMissing>true</failIfMissing>
