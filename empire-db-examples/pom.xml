@@ -25,7 +25,7 @@
 	<groupId>org.apache.empire-db</groupId>
 	<artifactId>empire-db-examples</artifactId>
 	<packaging>pom</packaging>
-	<name>Empire-db Examples</name>
+	<name>Apache Empire-db Examples</name>
 	<modules>
 		<module>empire-db-example-basic</module>
 		<module>empire-db-example-advanced</module>

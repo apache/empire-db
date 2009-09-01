@@ -23,7 +23,7 @@
 	</parent>
 	<groupId>org.apache.empire-db</groupId>
 	<artifactId>empire-db-example-advanced</artifactId>
-	<name>Empire-db Advanced Example</name>
+	<name>Apache Empire-db Advanced Example</name>
 	<description>Examples showing the use of empire-db.</description>
 	<dependencies>
 		<dependency>

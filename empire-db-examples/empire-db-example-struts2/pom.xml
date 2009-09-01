@@ -24,7 +24,7 @@
 	<groupId>org.apache.empire-db</groupId>
 	<artifactId>empire-db-example-struts2</artifactId>
 	<packaging>war</packaging>
-	<name>Empire-db Struts2 Example</name>
+	<name>Apache Empire-db Struts2 Example</name>
 	<description>Examples showing the use of empire-db.</description>
 	<dependencies>
 		<dependency>

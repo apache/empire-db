@@ -25,7 +25,7 @@
 	<groupId>org.apache.empire-db</groupId>
 	<artifactId>empire-db</artifactId>
 	<packaging>jar</packaging>
-	<name>Empire-db Core</name>
+	<name>Apache Empire-db Core</name>
 	<dependencies>
 		<dependency>
 			<groupId>commons-beanutils</groupId>
