@@ -22,6 +22,7 @@ import java.sql.Connection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.empire.commons.Errors;
 import org.apache.empire.commons.ObjectUtils;
@@ -137,7 +138,7 @@ public class DBQuery extends DBRowSet
         }
     }
 
-    private static int        queryCount   = 1;
+    private static AtomicInteger queryCount = new AtomicInteger(0);
 
     protected DBCommand       cmd;
     protected DBColumn[]      keyColumns = null;
@@ -166,8 +167,7 @@ public class DBQuery extends DBRowSet
         // Set the key Column
         this.keyColumns = keyColumns;
         // set alias
-        this.alias = "q" + String.valueOf(queryCount);
-        queryCount++;
+        this.alias = "q" + String.valueOf(queryCount.incrementAndGet());
     }
 
     /**

@@ -23,6 +23,7 @@ import java.lang.reflect.Field;
 import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.empire.commons.Errors;
 import org.apache.empire.data.DataType;
@@ -37,7 +38,7 @@ import org.apache.empire.data.DataType;
  */
 public class DBTable extends DBRowSet implements Cloneable
 {
-    private static int     tableCount    = 1;
+    private static AtomicInteger tableCount  = new AtomicInteger(0);
     private final String   name;
     private String         alias;
     private List<DBIndex>  indexes       = new ArrayList<DBIndex>();
@@ -56,8 +57,7 @@ public class DBTable extends DBRowSet implements Cloneable
         super(db);
         // init
         this.name = name;
-        this.alias = "t" + String.valueOf(tableCount);
-        tableCount++;
+        this.alias = "t" + String.valueOf(tableCount.incrementAndGet());
         // Add Table to Database
         if (db != null)
             db.addTable(this);
@@ -126,8 +126,7 @@ public class DBTable extends DBRowSet implements Cloneable
                 }
             }
             // set new alias
-            clone.alias = "t" + String.valueOf(tableCount);
-            tableCount++;
+            clone.alias = "t" + String.valueOf(tableCount.incrementAndGet());
             // done
             log.info("clone: Table " + name + " cloned! Alias old=" + alias + " new=" + clone.alias);
             return clone;

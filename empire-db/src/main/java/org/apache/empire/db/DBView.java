@@ -19,6 +19,7 @@
 package org.apache.empire.db;
 
 import java.sql.Connection;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.empire.commons.Errors;
 import org.apache.empire.commons.Options;
@@ -160,7 +161,7 @@ public abstract class DBView extends DBRowSet
 
     }
 
-    private static int viewCount = 1;
+    private static AtomicInteger viewCount = new AtomicInteger(0);
 
     private String     name;
     private String     alias;
@@ -182,9 +183,8 @@ public abstract class DBView extends DBRowSet
             db.addView(this);
         // Set Name and Alias
         this.name = name;
-        this.alias = "v" + String.valueOf(viewCount);
+        this.alias = "v" + String.valueOf(viewCount.incrementAndGet());
         this.updateable = isUpdateable;
-        viewCount++;
     }
 
     /**
