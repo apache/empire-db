@@ -60,13 +60,13 @@ done
 echo "Clean all projects"
 mvn5 clean -Pall
 
+echo "Generating rat report"
+mvn5 rat:check -Drat.excludeSubprojects=false
+
 # package and assemble the release
 echo "Package and assemble the release"
 # mvn5 -ff -Dgpg.passphrase="$passphrase" -Prelease deploy javadoc:aggregate assembly:attached $1
 mvn5 -ff -Dgpg.passphrase="$passphrase" clean install javadoc:aggregate assembly:attached $1
-
-echo "Generating rat report"
-mvn5 rat:check -Drat.excludeSubprojects=false
 
 filename=`ls target/dist/apache-empire*gz`
 md5sum $filename > $filename.md5
