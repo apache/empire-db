@@ -34,7 +34,7 @@ public class SampleBeanDomain extends BeanDomain
     }
     
     /**
-     * Tabellendefinition für Departments
+     * Table definition for Departments
      */
     public static class Departments extends SampleBeanClass
     {
@@ -44,7 +44,6 @@ public class SampleBeanDomain extends BeanDomain
         public final BeanProperty C_BUSINESS_UNIT;
         public final BeanProperty C_UPDATE_TIMESTAMP;
 
-        // Konstruktor für Tabelle
         public Departments(BeanDomain dom)
         {
             super("DEPARTMENTS", dom);
@@ -65,7 +64,7 @@ public class SampleBeanDomain extends BeanDomain
     }   
 
     /**
-     * Tabellendefinition für Persons
+     * Table definition for Persons
      */
     public static class Employees extends SampleBeanClass
     {
@@ -81,7 +80,7 @@ public class SampleBeanDomain extends BeanDomain
         public final BeanProperty C_RETIRED;
         public final BeanProperty C_UPDATE_TIMESTAMP;
 
-        // Konstruktor für Tabelle
+        // Konstruktor fï¿½r Tabelle
         public Employees(BeanDomain dom)
         {
             super("EMPLOYEES", dom);
@@ -112,9 +111,6 @@ public class SampleBeanDomain extends BeanDomain
     public final Departments  T_DEPARTMENTS = new Departments(this);
     public final Employees    T_EMPLOYEES   = new Employees(this);
     
-    /**
-     * Konstruktor SampleDB
-     */
     public SampleBeanDomain()
     {
     	super("");
