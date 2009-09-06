@@ -18,6 +18,7 @@ Major new features:
 - Empire-DB Struts2-Extentions' dependencies updated from Struts 2.0.11 to Struts 2.1.6 
 
 Issues resolved:
+EMPIREDB-49 - [C/B]: The generation of table, view and query aliases now uses thread-safe counters  
 EMPIREDB-46 - [C/B]: datetime-phrase issue in DBDatabaseDriverDerby
 EMPIREDB-45 - [S/I]: Update struts extentions to accomodate latest struts release  
 EMPIREDB-44 - [C/B]: error using apache derby and CLOB datatype  
