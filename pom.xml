@@ -27,7 +27,7 @@
 	<groupId>org.apache.empire-db</groupId>
 	<artifactId>empire-db-parent</artifactId>
 	<packaging>pom</packaging>
-	<version>2.0.6-incubating-SNAPSHOT</version>
+	<version>2.0.5-incubating-SNAPSHOT</version>
 	<name>Apache Empire-db Parent</name>
 	<description>Apache Empire-db is an Open Source relational data persistence component which allows database vendor independent dynamic query definition as well as safe and simple data retrieval and updating. Compared to most other solutions like e.g. Hibernate, TopLink, iBATIS or JPA implementations, Empire-db takes a considerably different approach, with a special focus on compile-time safety, reduced redundancies and improved developer productivity.</description>
 	<inceptionYear>2008</inceptionYear>
