@@ -1,5 +1,5 @@
 Apache Empire-db
-Copyright 2008 The Apache Software Foundation
+Copyright 2008-2009 The Apache Software Foundation
 
 empire-struts2-ext dependency info
 ----------------------------------
