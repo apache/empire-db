@@ -60,9 +60,6 @@ done
 echo "Clean all projects"
 mvn5 clean -Pall
 
-echo "Generating rat report"
-mvn5 rat:check -Drat.excludeSubprojects=false
-
 # package and assemble the release
 echo "Package and assemble the release"
 # mvn5 -ff -Dgpg.passphrase="$passphrase" -Prelease deploy javadoc:aggregate assembly:attached $1
@@ -81,5 +78,8 @@ sha1sum $filename > $filename.sha
 # gpg --print-md MD5 $filename > $filename.md5
 # gpg --print-md SHA1 $filename > $filename.sha
 echo "$passphrase" | gpg --passphrase-fd 0 --armor --output $filename.asc --detach-sig $filename
+
+echo "Generating rat report in target/dist"
+mvn5 rat:check -Drat.excludeSubprojects=false -Drat.outputFile=target/dist/rat.txt -N
 
 echo "Distribution build completed in target/dist"

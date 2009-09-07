@@ -289,7 +289,13 @@
 			       	<version>1.0-alpha-3</version>
 			       	<configuration>
 			       		<excludes>
-			       			<exclude>dependencies.txt</exclude>
+			       			<!-- This might be to generic -->
+			       			<exclude>**/target/**</exclude>
+			      			<exclude>**/dependencies.txt</exclude>
+			       			<exclude>**/.settings/**</exclude>
+			       			<exclude>**/.project</exclude>
+			       			<exclude>**/.classpath</exclude>
+			       			<exclude>**/.tomcatplugin</exclude>
 			       		</excludes>
 			       	</configuration>
 			  	</plugin>
