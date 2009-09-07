@@ -37,6 +37,7 @@
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 		<maven.compile.source>1.5</maven.compile.source>
 		<maven.compile.target>1.5</maven.compile.target>
+		<disclaimer.dir>{project.basedir}</disclaimer.dir>
 	</properties>
 	
 	<profiles>
@@ -47,8 +48,8 @@
 			</activation>
 			<modules>
 				<module>empire-db</module>
-    				<module>empire-db-struts2</module>
-    				<module>empire-db-examples</module>
+				<module>empire-db-struts2</module>
+				<module>empire-db-examples</module>
 			</modules>
 		</profile>
 		<profile>
@@ -256,8 +257,28 @@
 
 	<build>
 		<defaultGoal>install</defaultGoal>
+	
 		<plugins>
+		 	<plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-remote-resources-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>process</goal>
+                        </goals>
+                        <configuration>
+                            <resourceBundles>
+                                <resourceBundle>org.apache:apache-jar-resource-bundle:1.4</resourceBundle>
+                                <!-- add the DISCLAIMER -->
+                                <resourceBundle>org.apache:apache-incubator-disclaimer-resource-bundle:1.1</resourceBundle>
+                            </resourceBundles>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
         </plugins>
+        
 		<pluginManagement>
 			<plugins>
 				<!-- Release Audit Tool mvn rat:check -->
