@@ -33,4 +33,17 @@
 		<module>empire-db-example-cxf</module>
 		<module>empire-db-example-struts2-cxf</module>
 	</modules>
+	<build>
+		<pluginManagement>
+			<plugins>
+				<plugin>
+					<!-- skip deployment for all examples -->
+	               <artifactId>maven-deploy-plugin</artifactId>
+	               <configuration>
+	                 <skip>true</skip>
+	              </configuration>
+	            </plugin>
+            </plugins>
+		</pluginManagement>
+	</build>
 </project>
