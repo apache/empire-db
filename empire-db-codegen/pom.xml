@@ -45,12 +45,11 @@
 		    <artifactId>hsqldb</artifactId>
 		    <!-- <scope>runtime</scope> -->
 		</dependency>
-		<!-- other 
+		<!-- other --> 
 		<dependency>
 		    <groupId>ojdbc</groupId>
 		    <artifactId>ojdbc</artifactId>
 		    <version>14</version>
 		</dependency>
-		 -->		
 	</dependencies>
 </project>
