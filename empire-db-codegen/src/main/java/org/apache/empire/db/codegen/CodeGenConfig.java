@@ -30,6 +30,25 @@ public class CodeGenConfig extends XMLConfiguration
 
     private String jdbcPwd = "";
 
+    /**
+     * Initialize the configuration.
+     * 
+     * @param filename the file to read
+     * 
+     * @return true on succes
+     */
+    public boolean init(String filename)
+    {
+        // Read the properties file
+        if (super.init(filename, false, true) == false)
+            return false;
+        // Done
+        if (readProperties(this, "properties")==false)
+            return false;
+        // Reader Provider Properties
+        return true;
+    }
+    
     public String getJdbcClass()
     {
         return jdbcClass;

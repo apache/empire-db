@@ -21,6 +21,7 @@ package org.apache.empire.db.codegen;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.DriverManager;
+import java.sql.ResultSet;
 import java.util.logging.Logger;
 
 import org.apache.empire.commons.ErrorObject;
@@ -44,7 +45,7 @@ public class CodeGen
         try
         {
             // Init Configuration
-            config.init((args.length > 0 ? args[0] : "config.xml" ), false, true);
+            config.init((args.length > 0 ? args[0] : "config.xml" ));
 
             // Enable Exceptions
             ErrorObject.setExceptionsEnabled(true);
@@ -57,6 +58,11 @@ public class CodeGen
             
             // Process Metadata
             // ....
+            ResultSet rs = dmd.getCatalogs();
+            while (rs.next()) {
+                System.out.println(rs.getString(1));
+            }
+            rs.close();
             
         } catch(Exception e) {
             // Error
