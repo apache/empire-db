@@ -27,6 +27,18 @@
 		<jdbcURL>jdbc:oracle:thin:@192.168.0.2:1521:ora10</jdbcURL>
 		<jdbcUser>DBSAMPLE</jdbcUser>
 		<jdbcPwd>DBSAMPLE</jdbcPwd>
+		
+		<!-- generation options -->
+		<packageName>org.foo.db</packageName>
+		<dbClassName>MyDB</dbClassName>
+		<tableBaseName>MyTable</tableBaseName>
+		<viewBaseName>MyView</viewBaseName>
+		<recordBaseName>MyRecord</recordBaseName>
+		<tableClassPrefix>T</tableClassPrefix>
+		<viewClassPrefix>V</viewClassPrefix>
+		<nestTables>True</nestTables>
+		<nestViews>False</nestViews>
+		<createRecordProperties>True</createRecordProperties>
 	</properties>
 	
 	<log4j:configuration xmlns:log4j="http://jakarta.apache.org/log4j/">

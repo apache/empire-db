@@ -24,11 +24,14 @@ import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.util.logging.Logger;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.empire.commons.ErrorObject;
+import org.apache.empire.db.DBDatabase;
 
 public class CodeGen
 {
-    public static Logger logger = Logger.getLogger(CodeGen.class.getName());
+    private static final Log log = LogFactory.getLog(CodeGen.class);
 
     private static CodeGenConfig config = new CodeGenConfig();
 
@@ -52,6 +55,19 @@ public class CodeGen
 
             // Get a JDBC Connection
             conn = getJDBCConnection();
+            
+            // List options
+            log.info("Database connection successful. Config options are:");
+            log.info("PackageName="+config.getPackageName());
+            log.info("DbClassName="+config.getDbClassName());
+            log.info("TableBaseName="+config.getTableBaseName());
+            log.info("ViewBaseName="+config.getViewBaseName());
+            log.info("RecordBaseName="+config.getRecordBaseName());
+            log.info("TableClassPrefix="+config.getTableClassPrefix());
+            log.info("ViewClassPrefi="+config.getViewClassPrefix());
+            log.info("NestTable="+config.isNestTables());
+            log.info("NestViews="+config.isNestViews());
+            log.info("CreateRecordPropertie="+config.isCreateRecordProperties());
             
             // Get Metadata
             DatabaseMetaData dmd = conn.getMetaData();
@@ -86,22 +102,21 @@ public class CodeGen
     {
         // Establish a new database connection
         Connection conn = null;
-        logger.info("Connecting to Database'" + config.getJdbcURL() + "' / User=" + config.getJdbcUser());
+        log.info("Connecting to Database'" + config.getJdbcURL() + "' / User=" + config.getJdbcUser());
         try
         {
             // Connect to the databse
             Class.forName(config.getJdbcClass()).newInstance();
             conn = DriverManager.getConnection(config.getJdbcURL(), config.getJdbcUser(), config.getJdbcPwd());
-            logger.info("Connected successfully");
+            log.info("Connected successfully");
             // set the AutoCommit to false this session. You must commit
             // explicitly now
             conn.setAutoCommit(true);
-            logger.info("AutoCommit is " + conn.getAutoCommit());
+            log.info("AutoCommit is " + conn.getAutoCommit());
 
         } catch (Exception e)
         {
-            logger.severe("Failed to connect directly to '" + config.getJdbcURL() + "' / User=" + config.getJdbcUser());
-            logger.severe(e.toString());
+            log.fatal("Failed to connect directly to '" + config.getJdbcURL() + "' / User=" + config.getJdbcUser(), e);
             throw new RuntimeException(e);
         }
         return conn;
@@ -112,12 +127,11 @@ public class CodeGen
      */
     private static void close(Connection conn)
     {
-        logger.info("Closing database connection");
+        log.info("Closing database connection");
         try {
             conn.close();
         } catch (Exception e) {
-            logger.severe("Error closing connection");
-            logger.severe(e.toString());
+            log.fatal("Error closing connection", e);
         }
     }
     
