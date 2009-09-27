@@ -22,12 +22,10 @@ import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
-import java.util.logging.Logger;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.empire.commons.ErrorObject;
-import org.apache.empire.db.DBDatabase;
 
 public class CodeGen
 {
