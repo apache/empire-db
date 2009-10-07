@@ -231,7 +231,7 @@ public class DBDatabaseDriverHSql extends DBDatabaseDriver
         sql.append("SELECT ");
         sql.append("NEXT VALUE FOR ");
         db.appendQualifiedName(sql, seqName, detectQuoteName(seqName));
-        sql.append(" FROM INFORMATION_SCHEMA.SYSTEM_SEQUENCES WHERE SEQUENCE_NAME='"+ seqName + "'");
+        sql.append(" FROM INFORMATION_SCHEMA.SYSTEM_SEQUENCES WHERE SEQUENCE_NAME='"+ seqName.toUpperCase() + "'");
         	
         Object val = db.querySingleValue(sql.toString(), conn);
         if (val == null)
