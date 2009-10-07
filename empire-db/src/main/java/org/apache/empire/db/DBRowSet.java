@@ -433,12 +433,14 @@ public abstract class DBRowSet extends DBExpr
                     fields[i] = ObjectUtils.NO_VALUE;
             	}
             	else
-            	{
+            	{   // Get Field value
                     fields[i] = recData.getValue(rdi);
+                    // Check for error
+                    if (fields[i]==null && recData.hasError())
+                        return error(recData);
             	}
-                
             } catch (Exception e)
-            {
+            {   // Unknown exception
                 log.error("initRecord exception: " + e.toString());
                 rec.close();
                 return error(e);

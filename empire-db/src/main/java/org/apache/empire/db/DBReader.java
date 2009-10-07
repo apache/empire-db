@@ -362,17 +362,18 @@ public class DBReader extends DBRecordData
     {
         if (index < 0 || index >= colList.length)
         { // Index out of range
-            log.error("Index out of range: " + index);
+            error(Errors.OutOfRange, index);
             return null;
         }
         try
         { // Get Value from Resultset
+            clearError();
             DataType dataType = colList[index].getDataType();
             return db.driver.getResultValue(rset, index + 1, dataType);
 
         } catch (Exception e)
-        {
-            log.error("getValue exception", e);
+        { // Operation failed
+            error(e);
             return null;
         }
     }
