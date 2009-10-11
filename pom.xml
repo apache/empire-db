@@ -58,77 +58,77 @@
 			<id>CI</id>
 			<modules>
 				<module>empire-db</module>
-    			<module>empire-db-struts2</module>
-    			<module>empire-db-codegen</module>
-    			<module>empire-db-examples</module>
+				<module>empire-db-struts2</module>
+				<module>empire-db-codegen</module>
+				<module>empire-db-examples</module>
 			</modules>
 			<build>
 				<plugins>
 					<!-- check the headers -->
 					<plugin>
-			            <groupId>com.google.code.maven-license-plugin</groupId>
-			            <artifactId>maven-license-plugin</artifactId>
-			        </plugin>
-			      	<plugin>
-				        <groupId>org.codehaus.mojo</groupId>
-				        <artifactId>rat-maven-plugin</artifactId>
-				        <executions>
-				          <execution>
-				            <phase>verify</phase>
-				            <goals>
-				              <goal>check</goal>
-				            </goals>
-				          </execution>
-				        </executions>
-				    </plugin>
-					<plugin>
-					  <groupId>org.apache.maven.plugins</groupId>
-					  <artifactId>maven-source-plugin</artifactId>
-					  <executions>
-					    <execution>
-					      <id>attach-sources</id>
-					      <goals>
-					        <goal>jar</goal>
-					      </goals>
-					    </execution>
-					  </executions>
+						<groupId>com.google.code.maven-license-plugin</groupId>
+						<artifactId>maven-license-plugin</artifactId>
 					</plugin>
 					<plugin>
-					  <groupId>org.apache.maven.plugins</groupId>
-					  <artifactId>maven-javadoc-plugin</artifactId>
-					  <executions>
-					    <execution>
-					      <id>attach-javadocs</id>
-					      <goals>
-					        <goal>jar</goal>
-					      </goals>
-					    </execution>
-					  </executions>
+						<groupId>org.codehaus.mojo</groupId>
+						<artifactId>rat-maven-plugin</artifactId>
+						<executions>
+							<execution>
+								<phase>verify</phase>
+								<goals>
+									<goal>check</goal>
+								</goals>
+							</execution>
+						</executions>
+					</plugin>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-source-plugin</artifactId>
+						<executions>
+							<execution>
+								<id>attach-sources</id>
+								<goals>
+									<goal>jar</goal>
+								</goals>
+							</execution>
+						</executions>
+					</plugin>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-javadoc-plugin</artifactId>
+						<executions>
+							<execution>
+								<id>attach-javadocs</id>
+								<goals>
+									<goal>jar</goal>
+								</goals>
+							</execution>
+						</executions>
 					</plugin>
 				</plugins>
 			</build>
 		</profile>
 		<profile>
 			<!-- Part of the release profile, rest in apache parent pom -->
-	      <id>release</id>
-	      <build>
-	        <plugins>
-	          <plugin>
-	            <groupId>org.codehaus.mojo</groupId>
-	            <artifactId>rat-maven-plugin</artifactId>
-	            <version>1.0-alpha-3</version>
-	            <executions>
-	              <execution>
-	                <phase>verify</phase>
-	                <goals>
-	                  <goal>check</goal>
-	                </goals>
-	              </execution>
-	            </executions>
-	          </plugin>
-	        </plugins>
-	      </build>
-	    </profile>
+			<id>release</id>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.codehaus.mojo</groupId>
+						<artifactId>rat-maven-plugin</artifactId>
+						<version>1.0-alpha-3</version>
+						<executions>
+							<execution>
+								<phase>verify</phase>
+								<goals>
+									<goal>check</goal>
+								</goals>
+							</execution>
+						</executions>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
 	</profiles>
 	
 	
@@ -210,31 +210,31 @@
 				<version>3.2.1</version>
 			</dependency>
 			<dependency>
-			    <groupId>hsqldb</groupId>
-			    <artifactId>hsqldb</artifactId>
-			    <version>1.8.0.7</version>
+				<groupId>hsqldb</groupId>
+				<artifactId>hsqldb</artifactId>
+				<version>1.8.0.7</version>
 			</dependency>
 			<dependency>
-			    <groupId>org.apache.struts</groupId>
-			    <artifactId>struts2-core</artifactId>
-			    <version>2.1.6</version>
+				<groupId>org.apache.struts</groupId>
+				<artifactId>struts2-core</artifactId>
+				<version>2.1.6</version>
 			</dependency> 
 			<dependency>
-			    <groupId>javax.servlet</groupId>
-			    <artifactId>servlet-api</artifactId>
-			    <version>2.4</version>
-			    <scope>provided</scope>
+				<groupId>javax.servlet</groupId>
+				<artifactId>servlet-api</artifactId>
+				<version>2.4</version>
+				<scope>provided</scope>
 			</dependency>
 			<dependency>
-			    <groupId>javax.servlet.jsp</groupId>
-			    <artifactId>jsp-api</artifactId>
-			    <version>2.0</version>
-			    <scope>provided</scope>
+				<groupId>javax.servlet.jsp</groupId>
+				<artifactId>jsp-api</artifactId>
+				<version>2.0</version>
+				<scope>provided</scope>
 			</dependency> 
 			<dependency>
-			    <groupId>junit</groupId>
-			    <artifactId>junit</artifactId>
-			    <version>4.6</version>
+				<groupId>junit</groupId>
+				<artifactId>junit</artifactId>
+				<version>4.6</version>
 			</dependency> 
 		</dependencies>
 	</dependencyManagement>
