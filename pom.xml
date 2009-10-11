@@ -49,6 +49,7 @@
 			<modules>
 				<module>empire-db</module>
 				<module>empire-db-struts2</module>
+				<module>empire-db-codegen</module>
 				<module>empire-db-examples</module>
 			</modules>
 		</profile>
@@ -57,8 +58,9 @@
 			<id>CI</id>
 			<modules>
 				<module>empire-db</module>
-    				<module>empire-db-struts2</module>
-    				<module>empire-db-examples</module>
+    			<module>empire-db-struts2</module>
+    			<module>empire-db-codegen</module>
+    			<module>empire-db-examples</module>
 			</modules>
 			<build>
 				<plugins>
