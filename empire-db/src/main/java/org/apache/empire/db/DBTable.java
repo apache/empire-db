@@ -90,7 +90,6 @@ public class DBTable extends DBRowSet implements Cloneable
      * 
      * @return this cloned Object
      */
-    @SuppressWarnings("unchecked")
     @Override
     public Object clone()
     {
@@ -98,8 +97,8 @@ public class DBTable extends DBRowSet implements Cloneable
         {
             DBTable clone = (DBTable) super.clone();
             // clone all columns
-            Class colClass = columns.get(0).getClass();
-            Class colBase = colClass.getSuperclass();
+            Class<?> colClass = columns.get(0).getClass();
+            Class<?> colBase = colClass.getSuperclass();
             clone.columns = new ArrayList<DBColumn>();
             Field[] fields = getClass().getDeclaredFields();
             for (int i = 0; i < columns.size(); i++)
@@ -109,7 +108,7 @@ public class DBTable extends DBRowSet implements Cloneable
                 // Replace all references for oldCol to newCol
                 for (int j = 0; j < fields.length; j++)
                 { // Find a class of Type DBColumn or DBTableColumn
-                    Class type = fields[j].getType();
+                    Class<?> type = fields[j].getType();
                     if (type == colClass || type == colBase)
                     {
                         try
