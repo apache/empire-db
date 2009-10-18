@@ -105,11 +105,24 @@
 							</execution>
 						</executions>
 					</plugin>
+					<!-- enable enforcer for java 1.5 -->
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-enforcer-plugin</artifactId>
+						<executions>
+							<execution>
+								<id>enforce-versions</id>
+								<goals>
+									<goal>enforce</goal>
+								</goals>
+							</execution>
+						</executions>
+					</plugin>
 				</plugins>
 			</build>
 		</profile>
 		<profile>
-			<!-- Part of the release profile, rest in apache parent pom -->
+			<!-- Part of the release profile, merged with release profile defined in apache parent pom -->
 			<id>release</id>
 			<build>
 				<plugins>
@@ -122,6 +135,19 @@
 								<phase>verify</phase>
 								<goals>
 									<goal>check</goal>
+								</goals>
+							</execution>
+						</executions>
+					</plugin>
+					<!-- enable enforcer for java 1.5 -->
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-enforcer-plugin</artifactId>
+						<executions>
+							<execution>
+								<id>enforce-versions</id>
+								<goals>
+									<goal>enforce</goal>
 								</goals>
 							</execution>
 						</executions>
@@ -377,6 +403,19 @@
 		                </execution>
 		            </executions>
 		        </plugin>
+		        <!-- When enforcer enabled this will make sure we compile using java 1.5 -->
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-enforcer-plugin</artifactId>
+					<version>1.0-beta-1</version>
+					<configuration>
+						<rules>
+							<requireJavaVersion>
+								<version>[1.5]</version>
+							</requireJavaVersion>
+						</rules>
+					</configuration>
+				</plugin>
 			</plugins>
 		</pluginManagement>
 	</build>
