@@ -519,7 +519,9 @@ public class DBDatabaseDriverHSql extends DBDatabaseDriver
                 sql.append("BOOLEAN");
                 break;
             case DOUBLE:
-                sql.append("FLOAT(80)");
+                // http://hsqldb.org/doc/guide/ch02.html
+                // FLOAT, DOUBLE and REAL are saved as java doubles
+                sql.append("FLOAT");
                 break;
             case DECIMAL:
             {
