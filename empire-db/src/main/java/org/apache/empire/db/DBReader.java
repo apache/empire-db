@@ -696,7 +696,7 @@ public class DBReader extends DBRecordData
      * Returns the result of a query as a list of objects.
      * 
      * @param t the class type of the objects in the list
-     * @param maxCount the maximum number of objects
+     * @param maxItems the maximum number of objects
      * 
      * @return the list of <T>
      */
