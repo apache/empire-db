@@ -50,7 +50,7 @@ public class EmployeeRecord extends SampleRecord<Employee>
     	}
     	else
     	{
-    		opts=super.getFieldOptions(column);;
+    		opts = super.getFieldOptions(column);
     	}
     	return opts;
     }
