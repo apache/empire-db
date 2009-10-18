@@ -20,8 +20,8 @@ package org.apache.empire.db;
 
 import java.sql.Connection;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.empire.commons.Errors;
@@ -413,13 +413,14 @@ public class DBQuery extends DBRowSet
         }
         // the commands
         Object[] keys = (Object[]) rec.getRowSetData();
-        Iterator<DBRowSet> tables = updCmds.keySet().iterator();
-        while (tables.hasNext())
+        DBRowSet table;
+        DBCommand upd;
+        for(Entry<DBRowSet,DBCommand> entry:updCmds.entrySet())
         {
             int i = 0;
             // Iterate through options
-            DBRowSet table = tables.next();
-            DBCommand upd = updCmds.get(table);
+            table = entry.getKey();
+            upd = entry.getValue();
             // Is there something to update
             if (upd.set == null)
                 continue; // nothing to do for this table!

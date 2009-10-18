@@ -18,8 +18,8 @@
  */
 package org.apache.empire.xml;
 
-import java.util.Iterator;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -139,12 +139,9 @@ public class XMLUtil
         if (root == null)
             return false;
         // Add Namespace attributes
-        Iterator<String> i = nsMap.keySet().iterator();
-        while (i.hasNext())
+        for(Entry<String, String> entry:nsMap.entrySet())
         {
-            String key = i.next();
-            String val = nsMap.get(key);
-            root.setAttribute("xmlns:" + key, val);
+            root.setAttribute("xmlns:" + entry.getKey(), entry.getValue());
         }
         return true;
     }
