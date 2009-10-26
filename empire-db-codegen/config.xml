@@ -27,13 +27,18 @@
 		<jdbcURL>jdbc:oracle:thin:@192.168.0.2:1521:ora10</jdbcURL>
 		<jdbcUser>DBSAMPLE</jdbcUser>
 		<jdbcPwd>DBSAMPLE</jdbcPwd>
+
+		<!-- Schema options -->
+		<dbSchema>DBSAMPLE</dbSchema>
+		<timestampColumn></timestampColumn>
 		
 		<!-- generation options -->
-		<packageName>org.foo.db</packageName>
-		<dbClassName>MyDB</dbClassName>
-		<tableBaseName>MyTable</tableBaseName>
-		<viewBaseName>MyView</viewBaseName>
-		<recordBaseName>MyRecord</recordBaseName>
+		<targetFolder>target/generated/dbsample</targetFolder>
+		<packageName>org.apache.empire.db.samples.dbsample</packageName>
+		<dbClassName>SampleDB</dbClassName>
+		<tableBaseName>SampleTable</tableBaseName>
+		<viewBaseName>SampleView</viewBaseName>
+		<recordBaseName>SampleRecord</recordBaseName>
 		<tableClassPrefix>T</tableClassPrefix>
 		<viewClassPrefix>V</viewClassPrefix>
 		<nestTables>True</nestTables>

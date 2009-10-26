@@ -1,0 +1,21 @@
+package ${recordPackage};
+
+import org.apache.empire.db.DBRecord;
+import ${tablePackageName}.${database.baseTableClassName};
+
+//import ${basePackageName}.${database.className};
+
+public abstract class BaseRecord<T extends ${database.baseTableClassName}> extends DBRecord {
+	public BaseRecord(T table) {
+		super.init(table, DBRecord.REC_EMTPY, null);
+	}
+
+	/**
+	 * Returns the table this record is based upon.
+	 * @return The table this record is based upon.
+	 */
+	@SuppressWarnings("unchecked")
+	public T getDbTable() {
+		return (T)super.getRowSet();
+	}
+}

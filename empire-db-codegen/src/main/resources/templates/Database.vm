@@ -1,0 +1,105 @@
+package $basePackageName;
+
+import java.sql.Connection;
+
+import java.util.List;
+import java.util.ArrayList;
+
+import org.apache.empire.db.DBCommand;
+import org.apache.empire.db.DBDatabase;
+import org.apache.empire.db.DBReader;
+import org.apache.empire.db.DBRecord;
+
+import $basePackageName.$tableSubPackage.*;
+
+public class $database.className extends DBDatabase {
+#foreach($table in $database.tables)
+	public final $table.className T_$table.tableName = new ${table.className}(this);
+#end
+	
+	/**
+	 * Returns the instance of the database.
+	 * @return
+	 */
+	public static $database.className get() {
+		if (instance == null) {
+			instance = new GamesDatabase();
+		}
+		return instance;
+	}
+	
+	/**
+	 * Default constructor for the $database.className.  Relationship between the
+	 * tables that make up the database are specified here. 
+	 */
+	private ${database.className}() {
+		// FK relationships
+#foreach($table in $database.tables)
+#foreach($fkCol in $table.fkCols)
+		super.addRelation(T_${table.tableName}.${fkCol.name}.referenceOn(T_${fkCol.fkTableName}.${table.pkColName}));
+#end
+#end
+	}
+	
+	/**
+	 * Convenience method that returns a single DB record based on a given 
+	 * command (i.e. query).  Only use this method for queries that should only
+	 * return a single value. 
+	 * @param <T> The DB record type.
+	 * @param recordType The DB record class.
+	 * @param command The command (or query) to execute.
+	 * @return 
+	 */
+	public <T extends DBRecord> T findRecord(Class<T> recordType, 
+			DBCommand command, Connection conn) {
+		DBReader reader = new DBReader();
+		T record = null;
+		try {
+			if (reader.getRecordData(command, conn)) {
+				record = recordType.newInstance();
+				reader.initRecord(record.getRowSet(), record);
+			}
+		} catch (InstantiationException e) {
+			throw new RuntimeException(e);
+		} catch (IllegalAccessException e) {
+			throw new RuntimeException(e);
+		}
+		finally {
+			reader.close();
+		}	
+		return record;
+	}
+	
+	/**
+	 * Convenience method that returns a list of DB records based on a given 
+	 * command (i.e. query).
+	 * @param <T> The DB record type.
+	 * @param recordType The DB record class.
+	 * @param command The command (or query) to execute.
+	 * @return 
+	 */
+	public <T extends DBRecord> List<T> findRecords(Class<T> recordType, 
+			DBCommand command, Connection conn) {
+		List<T> records = new ArrayList<T>();
+		DBReader reader = new DBReader();
+		try {
+			reader.open(command, conn);
+			while (reader.moveNext()) {
+				T record = recordType.newInstance();
+				reader.initRecord(record.getRowSet(), record);
+				records.add(record);
+			}
+		} catch (InstantiationException e) {
+			throw new RuntimeException(e);
+		} catch (IllegalAccessException e) {
+			throw new RuntimeException(e);
+		}
+		finally {
+			reader.close();
+		}
+		return records;
+	}
+		
+	private static $database.className instance;
+	private static final long serialVersionUID = 1L;
+}

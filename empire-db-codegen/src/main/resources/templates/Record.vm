@@ -1,0 +1,72 @@
+package ${recordPackage};
+
+#if ($table.hasBigDecimalField())
+import java.math.BigDecimal;
+#end
+import java.util.Date;
+
+import ${basePackageName}.${database.className};
+import ${tablePackageName}.${table.className};
+
+/**
+ * Auto-generated class that represents one record (or row) of data from a
+ * database table.  One of these is generated for each table or view in the
+ * database.  The interface defines getters for auto-generated data (e.g. 
+ * primary key, time stamp field for optimistic locking).  It generates both
+ * getter and setter method for all other columns in the table, with the 
+ * exception of foreign key references.
+ *
+ * This class provides protected method that subclasses should use to provide
+ * access to related records.
+ */
+public class ${table.recordClassName} extends BaseRecord<${table.className}> {
+	public ${table.recordClassName}() {
+		super(${database.className}.get().T_${table.tableName});
+	}
+	
+	// Primary key getter
+	public Integer ${table.pkCol.javaAccessorName}() {
+		return (Integer)super.getValue(getDbTable().${table.pkCol.name});
+	}
+	
+	// Access methods for simple attributes
+#foreach($col in $table.simpleCols)
+	public ${col.javaTypeString} ${col.javaAccessorName}() {
+		${col.originalJavaTypeString} ${col.javaName} = (${col.originalJavaTypeString})super.getValue(getDbTable().${col.name});
+		return ${col.returnExpression};
+	}
+	public void ${col.javaMutatorName}(${col.javaTypeString} ${col.javaName}) {
+		super.setValue(getDbTable().${col.name}, ${col.setExpression});
+	}
+#end
+
+	// Optimistic locking getter
+	public ${table.lockingCol.javaTypeString} ${table.lockingCol.javaAccessorName}() {
+		return (${table.lockingCol.javaTypeString})super.getValue(getDbTable().${table.lockingCol.name});		
+	}
+	
+	@Override
+    public boolean equals(Object object) {  
+        if (object == this)  
+            return true;  
+        if ((object == null) || !(object instanceof ${table.recordClassName}))  
+            return false;  
+   
+        final ${table.recordClassName} a = (${table.recordClassName})object;  
+   
+        if (${table.pkCol.javaAccessorName}() != null && a.${table.pkCol.javaAccessorName}() != null) {  
+            return ${table.pkCol.javaAccessorName}().equals(a.${table.pkCol.javaAccessorName}());  
+        }  
+        return false;  
+    }
+    
+    // FK references
+    #foreach($col in $table.fkCols)
+	public Integer ${col.javaAccessorName}() {
+		return (Integer)super.getValue(getDbTable().${col.name});
+	}
+	public void ${col.javaMutatorName}(Integer ${col.javaName}) {
+		super.setValue(getDbTable().${col.name}, ${col.javaName});
+	}
+    #end
+}

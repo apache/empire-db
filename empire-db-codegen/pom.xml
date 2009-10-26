@@ -32,7 +32,8 @@
 		<dependency>
 		    <groupId>org.apache.empire-db</groupId>
 		    <artifactId>empire-db</artifactId>
-		</dependency> 
+		</dependency>
+		 
 		<dependency>
 			<groupId>org.apache.velocity</groupId>
 			<artifactId>velocity</artifactId>
@@ -45,12 +46,14 @@
 		    <artifactId>hsqldb</artifactId>
 		    <!-- <scope>runtime</scope> -->
 		</dependency>
-		<!-- other  
+
+		<!-- 
 		<dependency>
 		    <groupId>ojdbc</groupId>
 		    <artifactId>ojdbc</artifactId>
 		    <version>14</version>
 		</dependency>
 		-->
+		
 	</dependencies>
 </project>

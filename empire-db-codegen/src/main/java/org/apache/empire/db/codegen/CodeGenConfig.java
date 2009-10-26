@@ -32,6 +32,19 @@ public class CodeGenConfig extends XMLConfiguration
     
     // generation options
     /**
+     * name of the database schema (may be null)
+     */
+    private String dbSchema = null;
+    /**
+     * Name of the timestamp column used for optimistic locking (may be null)
+     */
+    private String timestampColumn = null; // e.g. "UPDATE_TIMESTAMP";
+
+    /**
+     * name of the target folder
+     */
+    private String targetFolder = "target/generated/db";
+    /**
      * name of the target package
      */
     private String packageName = "org.foo.db";
@@ -154,6 +167,36 @@ public class CodeGenConfig extends XMLConfiguration
     }
     
     // ------- generation options -------
+
+    public String getDbSchema()
+    {
+        return dbSchema;
+    }
+
+    public void setDbSchema(String dbSchema)
+    {
+        this.dbSchema = dbSchema;
+    }
+
+    public String getTimestampColumn()
+    {
+        return timestampColumn;
+    }
+
+    public void setTimestampColumn(String timestampColumn)
+    {
+        this.timestampColumn = timestampColumn;
+    }
+
+    public String getTargetFolder()
+    {
+        return targetFolder;
+    }
+
+    public void setTargetFolder(String targetFolder)
+    {
+        this.targetFolder = targetFolder;
+    }
     
     public String getPackageName()
     {

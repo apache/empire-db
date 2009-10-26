@@ -1,0 +1,51 @@
+package $tablePackageName;
+
+import org.apache.empire.data.DataType;
+import org.apache.empire.db.DBDatabase;
+import org.apache.empire.db.DBTableColumn;
+
+public class ${table.className} extends ${db.baseTableClassName} {
+	// Primary key column
+	public final DBTableColumn ${table.pkCol.name};
+	
+	// Regular attributes
+#foreach ($col in $table.simpleCols)
+	public final DBTableColumn ${col.name};
+#end
+	
+	// Optimistic locking attribute
+	public final DBTableColumn ${table.lockingCol.name};
+	
+	// Foreign key columns
+#foreach ($col in $table.fkCols)
+	public final DBTableColumn ${col.name};
+#end
+	
+	public ${table.className}(DBDatabase db) {
+		super("${table.tableName}", db);
+		
+		// Primary key column
+		${table.pkCol.name} = super.addColumn("${table.pkCol.name}", DataType.AUTOINC, 0, true);
+		
+		// Regular attributes
+#foreach ($col in $table.simpleCols)
+		${col.name} = super.addColumn("${col.name}", DataType.${col.empireType}, ${col.colSize}, ${col.required}, ${col.defaultValue});
+#end
+
+		// Optimistic locking attribute
+		${table.lockingCol.name} = super.addColumn("${table.lockingCol.name}", DataType.DATETIME, 0, false);
+		
+		// Foreign key columns
+#foreach ($col in $table.fkCols)
+		${col.name} = super.addColumn("${col.name}", DataType.INTEGER, 0, ${col.required});
+#end		
+		// Primary key
+		super.setPrimaryKey(${table.pkCol.name});
+		
+		// Optimistic locking column
+		super.setTimestampColumn(${table.lockingCol.name});
+		
+		// Set cascade delete
+		super.setCascadeDelete(true);		
+	}
+}
