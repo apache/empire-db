@@ -35,9 +35,16 @@
 			<groupId>commons-collections</groupId>
 			<artifactId>commons-collections</artifactId>
 		</dependency>
+		<!-- TEST -->
 		<dependency>
 		    <groupId>hsqldb</groupId>
 		    <artifactId>hsqldb</artifactId>
+		    <scope>test</scope>
+		</dependency> 
+		<dependency>
+		    <groupId>commons-io</groupId>
+		    <artifactId>commons-io</artifactId>
+		    <version>1.4</version>
 		    <scope>test</scope>
 		</dependency> 
 	</dependencies>
