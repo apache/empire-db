@@ -49,15 +49,13 @@ public class DBDatabaseDriverHSqlTest
     public static Connection conn;
     
     @BeforeClass
-    public static void setup() throws ClassNotFoundException, SQLException, IOException{
+    public static void setup() throws ClassNotFoundException, SQLException, IOException
+    {
         // clean up possible previous test files
         FileUtils.deleteDirectory(new File(PATH));
         
         Class.forName("org.hsqldb.jdbcDriver");
-        conn = DriverManager.getConnection("jdbc:hsqldb:"
-                                           + PATH,    // filenames
-                                           "sa",                     // username
-                                           "");                      // password
+        conn = DriverManager.getConnection("jdbc:hsqldb:" + PATH, "sa", "");
         DBDatabaseDriver driver = new DBDatabaseDriverHSql();
         db = new CompanyDB();
         db.open(driver, conn);
@@ -69,13 +67,17 @@ public class DBDatabaseDriverHSqlTest
     }
     
     @AfterClass
-    public static void shutdown() throws SQLException, IOException{
-        try{
+    public static void shutdown() throws SQLException, IOException
+    {
+        try
+        {
             DBSQLScript script = new DBSQLScript();
             db.getDriver().getDDLScript(DBCmdType.DROP, db.EMPLOYEE, script);
             db.getDriver().getDDLScript(DBCmdType.DROP, db.DEPARTMENT, script);
             script.run(db.getDriver(), conn, true);
-        }finally{
+        }
+        finally
+        {
             DBTools.close(conn);
             // clean up
             FileUtils.deleteDirectory(new File(PATH));
@@ -84,7 +86,8 @@ public class DBDatabaseDriverHSqlTest
     }
     
     @Test
-    public void test(){
+    public void test()
+    {
         DBRecord dep = new DBRecord();
         dep.create(db.DEPARTMENT);
         dep.setValue(db.DEPARTMENT.NAME, "junit");
