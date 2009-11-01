@@ -16,14 +16,14 @@
  * specific language governing permissions and limitations
  * under the License.
  *#
-package ${recordPackage};
+package ${recordPackageName};
 
 #if ($table.hasBigDecimalField())
 import java.math.BigDecimal;
 #end
-import java.util.Date;
 
-import ${basePackageName}.${database.className};
+import ${basePackageName}.${dbClassName};
+import ${recordPackageName}.${baseRecordClassName};
 import ${tablePackageName}.${table.className};
 
 /**
@@ -37,54 +37,23 @@ import ${tablePackageName}.${table.className};
  * This class provides protected method that subclasses should use to provide
  * access to related records.
  */
-public class ${table.recordClassName} extends BaseRecord<${table.className}> {
+public class ${table.recordClassName} extends ${baseRecordClassName}<${table.className}> {
 	public ${table.recordClassName}() {
-		super(${database.className}.get().T_${table.tableName});
+		super(${dbClassName}.get().T_${table.tableName});
 	}
 	
-	// Primary key getter
-	public Integer ${table.pkCol.javaAccessorName}() {
-		return (Integer)super.getValue(getDbTable().${table.pkCol.name});
-	}
-	
-	// Access methods for simple attributes
-#foreach($col in $table.simpleCols)
+#if($createRecordProperties == true)
+	// Access methods for all attributes
+#foreach($col in $table.columns)
 	public ${col.javaTypeString} ${col.javaAccessorName}() {
-		${col.originalJavaTypeString} ${col.javaName} = (${col.originalJavaTypeString})super.getValue(getDbTable().${col.name});
+		${col.originalJavaTypeString} ${col.javaName} = (${col.originalJavaTypeString})super.getValue(getDbTable().C_${col.name});
 		return ${col.returnExpression};
 	}
 	public void ${col.javaMutatorName}(${col.javaTypeString} ${col.javaName}) {
-		super.setValue(getDbTable().${col.name}, ${col.setExpression});
+		super.setValue(getDbTable().C_${col.name}, ${col.setExpression});
 	}
 #end
+#end
 
-	// Optimistic locking getter
-	public ${table.lockingCol.javaTypeString} ${table.lockingCol.javaAccessorName}() {
-		return (${table.lockingCol.javaTypeString})super.getValue(getDbTable().${table.lockingCol.name});		
-	}
-	
-	@Override
-    public boolean equals(Object object) {  
-        if (object == this)  
-            return true;  
-        if ((object == null) || !(object instanceof ${table.recordClassName}))  
-            return false;  
-   
-        final ${table.recordClassName} a = (${table.recordClassName})object;  
-   
-        if (${table.pkCol.javaAccessorName}() != null && a.${table.pkCol.javaAccessorName}() != null) {  
-            return ${table.pkCol.javaAccessorName}().equals(a.${table.pkCol.javaAccessorName}());  
-        }  
-        return false;  
-    }
-    
-    // FK references
-    #foreach($col in $table.fkCols)
-	public Integer ${col.javaAccessorName}() {
-		return (Integer)super.getValue(getDbTable().${col.name});
-	}
-	public void ${col.javaMutatorName}(Integer ${col.javaName}) {
-		super.setValue(getDbTable().${col.name}, ${col.javaName});
-	}
-    #end
+
 }

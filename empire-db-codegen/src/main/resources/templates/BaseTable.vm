@@ -21,8 +21,8 @@ package $tablePackageName;
 import org.apache.empire.db.DBDatabase;
 import org.apache.empire.db.DBTable;
 
-public class ${db.baseTableClassName} extends DBTable {
-	public ${db.baseTableClassName}(String name, DBDatabase db) {
+public class ${baseTableClassName} extends DBTable {
+	public ${baseTableClassName}(String name, DBDatabase db) {
 		super(name, db);
 	}
 }

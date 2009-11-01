@@ -32,9 +32,19 @@ public class CodeGenConfig extends XMLConfiguration
     
     // generation options
     /**
+     * name of the database catalog (may be null)
+     */
+    private String dbCatalog = null;
+    
+    /**
      * name of the database schema (may be null)
      */
     private String dbSchema = null;
+    
+    /**
+     * name of the table pattern (may be null)
+     */
+    private String dbTablePattern = null;
     /**
      * Name of the timestamp column used for optimistic locking (may be null)
      */
@@ -168,15 +178,36 @@ public class CodeGenConfig extends XMLConfiguration
     
     // ------- generation options -------
 
+    public String getDbCatalog()
+    {
+        return dbCatalog;
+    }
+    
+    public void setDbCatalog(String dbCatalog)
+    {
+        this.dbCatalog=dbCatalog;
+    }
+    
     public String getDbSchema()
     {
         return dbSchema;
     }
-
+    
     public void setDbSchema(String dbSchema)
     {
         this.dbSchema = dbSchema;
     }
+    
+    public String getDbTablePattern()
+    {
+        return dbTablePattern;
+    }
+
+    public void setDbTablePattern(String dbTablePattern)
+    {
+        this.dbTablePattern = dbTablePattern;
+    }
+    
 
     public String getTimestampColumn()
     {

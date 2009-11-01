@@ -16,15 +16,14 @@
  * specific language governing permissions and limitations
  * under the License.
  *#
-package ${recordPackage};
+package ${recordPackageName};
 
 import org.apache.empire.db.DBRecord;
-import ${tablePackageName}.${database.baseTableClassName};
+import ${tablePackageName}.${baseTableClassName};
 
-//import ${basePackageName}.${database.className};
 
-public abstract class BaseRecord<T extends ${database.baseTableClassName}> extends DBRecord {
-	public BaseRecord(T table) {
+public abstract class ${baseRecordClassName}<T extends ${baseTableClassName}> extends DBRecord {
+	public ${baseRecordClassName}(T table) {
 		super.init(table, DBRecord.REC_EMTPY, null);
 	}
 

@@ -30,7 +30,11 @@ import org.apache.empire.db.DBRecord;
 
 import $basePackageName.$tableSubPackage.*;
 
-public class $database.className extends DBDatabase {
+public class $dbClassName extends DBDatabase {
+
+	private static $dbClassName instance;
+	private static final long serialVersionUID = 1L;
+
 #foreach($table in $database.tables)
 	public final $table.className T_$table.tableName = new ${table.className}(this);
 #end
@@ -39,24 +43,17 @@ public class $database.className extends DBDatabase {
 	 * Returns the instance of the database.
 	 * @return
 	 */
-	public static $database.className get() {
+	public static $dbClassName get() {
 		if (instance == null) {
-			instance = new GamesDatabase();
+			instance = new ${dbClassName}();
 		}
 		return instance;
 	}
 	
 	/**
-	 * Default constructor for the $database.className.  Relationship between the
-	 * tables that make up the database are specified here. 
+	 * Default constructor for the $dbClassName.
 	 */
-	private ${database.className}() {
-		// FK relationships
-#foreach($table in $database.tables)
-#foreach($fkCol in $table.fkCols)
-		super.addRelation(T_${table.tableName}.${fkCol.name}.referenceOn(T_${fkCol.fkTableName}.${table.pkColName}));
-#end
-#end
+	private ${dbClassName}() {
 	}
 	
 	/**
@@ -117,7 +114,4 @@ public class $database.className extends DBDatabase {
 		}
 		return records;
 	}
-		
-	private static $database.className instance;
-	private static final long serialVersionUID = 1L;
 }

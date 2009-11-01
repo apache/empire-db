@@ -29,8 +29,10 @@
 		<jdbcPwd>DBSAMPLE</jdbcPwd>
 
 		<!-- Schema options -->
+		<dbCatalog></dbCatalog>
 		<dbSchema>DBSAMPLE</dbSchema>
-		<timestampColumn></timestampColumn>
+		<dbTablePattern></dbTablePattern>
+		<timestampColumn>CREATIONDATE</timestampColumn>
 		
 		<!-- generation options -->
 		<targetFolder>target/generated/dbsample</targetFolder>
@@ -43,7 +45,7 @@
 		<viewClassPrefix>V</viewClassPrefix>
 		<nestTables>True</nestTables>
 		<nestViews>False</nestViews>
-		<createRecordProperties>True</createRecordProperties>
+		<createRecordProperties>true</createRecordProperties>
 	</properties>
 	
 	<log4j:configuration xmlns:log4j="http://jakarta.apache.org/log4j/">
