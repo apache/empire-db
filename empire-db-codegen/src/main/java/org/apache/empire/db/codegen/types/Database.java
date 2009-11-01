@@ -27,22 +27,23 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.empire.db.codegen.util.DBUtil;
 
 public class Database {
-	private DatabaseMetaData metaData;
+    private static final Log log = LogFactory.getLog(Database.class);
+
+    private DatabaseMetaData metaData;
 	private String catalogName;
 	private String schemaPattern;
 	private String tablePattern;
 	private Connection con;
-	private Log log;
 
 	private Map<String, Table> tableMap = new HashMap<String, Table>();
 
-	public Database(Connection con, Log log, String schemaPattern,
+	public Database(Connection con, String schemaPattern,
 			String catalogName, String tablePattern) {
 
-		this.log = log;
 		this.con = con;
 		this.schemaPattern = schemaPattern;
 		this.catalogName = catalogName;
@@ -69,9 +70,14 @@ public class Database {
 					new String[] { "TABLE" });
 			while (tables.next()) {
 				String tableName = tables.getString("TABLE_NAME");
-				System.out.println("TABLE:\t" + tableName);
-				Table table = new Table(tableName, lockColName, schemaPattern, catalogName,
-						dbMeta, log);
+				// Ignore system tables containing a '$' symbol (required for Oracle!)
+				if (tableName.indexOf('$')>=0) {
+	                log.info("Ignoring system table " + tableName);
+	                continue;
+				}
+				// end system table exclusion
+				log.info("Adding table " + tableName);
+				Table table = new Table(tableName, lockColName, schemaPattern, catalogName, dbMeta);
 				this.tableMap.put(tableName.toUpperCase(), table);
 			}
 		} catch (SQLException e) {

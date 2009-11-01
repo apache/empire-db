@@ -22,11 +22,15 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Types;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.empire.data.DataType;
 import org.apache.empire.db.codegen.util.StringUtils;
 
 public class Column {
-	private String name;
+    private static final Log log = LogFactory.getLog(Database.class);
+
+    private String name;
 	private int sqlType;
 	private int colSize; // max length if string, precision is numeric
 	private int decimalDigits; // max decimal digits allowed (real numbers)
@@ -145,76 +149,75 @@ public class Column {
 		this.javaName = StringUtils.deriveAttributeName(this.name);
 		DataType empireType = DataType.UNKNOWN;
 		switch (this.sqlType) {
-		case Types.INTEGER:
-		case Types.SMALLINT:
-		case Types.TINYINT:
-		case Types.BIGINT:
-			empireType = DataType.INTEGER;
-			empireTypeString = "DataType.INTEGER";
-			javaTypeString = "Long";
-			break;
-		case Types.VARCHAR:
-			empireType = DataType.TEXT;
-			empireTypeString = "DataType.TEXT";
-			javaTypeString = "String";
-			break;
-		case Types.DATE:
-			empireType = DataType.DATE;
-			empireTypeString = "DataType.DATE";
-			javaTypeString = "Date";
-			break;
-		case Types.TIMESTAMP:
-		case Types.TIME:
-			empireType = DataType.DATETIME;
-			empireTypeString = "DataType.DATETIME";
-			javaTypeString = "Date";
-			break;
-		case Types.CHAR:
-			empireType = DataType.CHAR;
-			empireTypeString = "DataType.CHAR";
-			javaTypeString = "String";
-			break;
-		case Types.DOUBLE:
-		case Types.FLOAT:
-		case Types.REAL:
-			empireType = DataType.DOUBLE;
-			empireTypeString = "DataType.DOUBLE";
-			javaTypeString = "Double";
-			break;
-		case Types.DECIMAL:
-		case Types.NUMERIC:
-			empireType = DataType.DECIMAL;
-			empireTypeString = "DataType.DECIMAL";
-			javaTypeString = "BigDecimal";
-			break;
-		case Types.BIT:
-		case Types.BOOLEAN:
-			empireType = DataType.BOOL;
-			empireTypeString = "DataType.BOOL";
-			javaTypeString = "Boolean";
-			break;
-		case Types.CLOB:
-		case Types.LONGVARCHAR:
-			empireType = DataType.CLOB;
-			empireTypeString = "DataType.CLOB";
-			javaTypeString = "String";
-			break;
-		case Types.BINARY:
-		case Types.VARBINARY:
-		case Types.LONGVARBINARY:
-		case Types.BLOB:
-			empireType = DataType.BLOB;
-			empireTypeString = "DataType.BLOB";
-			javaTypeString = "Byte[]";
-			break;
-		default:
-			empireType = DataType.UNKNOWN;
-			empireTypeString = "DataType.UNKNOWN";
-			javaTypeString = "Byte[]";
-			System.out.println("SQL column type " + this.sqlType
-					+ " not supported.");
+    		case Types.INTEGER:
+    		case Types.SMALLINT:
+    		case Types.TINYINT:
+    		case Types.BIGINT:
+    			empireType = DataType.INTEGER;
+    			empireTypeString = "DataType.INTEGER";
+    			javaTypeString = "Long";
+    			break;
+    		case Types.VARCHAR:
+    			empireType = DataType.TEXT;
+    			empireTypeString = "DataType.TEXT";
+    			javaTypeString = "String";
+    			break;
+    		case Types.DATE:
+    			empireType = DataType.DATE;
+    			empireTypeString = "DataType.DATE";
+    			javaTypeString = "Date";
+    			break;
+    		case Types.TIMESTAMP:
+    		case Types.TIME:
+    			empireType = DataType.DATETIME;
+    			empireTypeString = "DataType.DATETIME";
+    			javaTypeString = "Date";
+    			break;
+    		case Types.CHAR:
+    			empireType = DataType.CHAR;
+    			empireTypeString = "DataType.CHAR";
+    			javaTypeString = "String";
+    			break;
+    		case Types.DOUBLE:
+    		case Types.FLOAT:
+    		case Types.REAL:
+    			empireType = DataType.DOUBLE;
+    			empireTypeString = "DataType.DOUBLE";
+    			javaTypeString = "Double";
+    			break;
+    		case Types.DECIMAL:
+    		case Types.NUMERIC:
+    			empireType = DataType.DECIMAL;
+    			empireTypeString = "DataType.DECIMAL";
+    			javaTypeString = "BigDecimal";
+    			break;
+    		case Types.BIT:
+    		case Types.BOOLEAN:
+    			empireType = DataType.BOOL;
+    			empireTypeString = "DataType.BOOL";
+    			javaTypeString = "Boolean";
+    			break;
+    		case Types.CLOB:
+    		case Types.LONGVARCHAR:
+    			empireType = DataType.CLOB;
+    			empireTypeString = "DataType.CLOB";
+    			javaTypeString = "String";
+    			break;
+    		case Types.BINARY:
+    		case Types.VARBINARY:
+    		case Types.LONGVARBINARY:
+    		case Types.BLOB:
+    			empireType = DataType.BLOB;
+    			empireTypeString = "DataType.BLOB";
+    			javaTypeString = "Byte[]";
+    			break;
+    		default:
+    			empireType = DataType.UNKNOWN;
+    			empireTypeString = "DataType.UNKNOWN";
+    			javaTypeString = "Byte[]";
+    			log.warn("SQL column type " + this.sqlType + " not supported.");
 		}
-
+		log.info("Mapping date type " + String.valueOf(this.sqlType) + " to " + empireType);
 		return empireType;
 	}
 

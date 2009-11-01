@@ -27,24 +27,25 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.empire.data.DataType;
 import org.apache.empire.db.codegen.util.DBUtil;
 import org.apache.empire.db.codegen.util.StringUtils;
 
 public class Table {
-	private String tableName;
+    private static final Log log = LogFactory.getLog(Database.class);
+
+    private String tableName;
 	private List<String> pkCols;
 	private List<Column> columns;
 	private Column lockCol;
-	private Log log;
 	private String lockColName;
 
 	private Map<String, Column> columnMap = new HashMap<String, Column>();
 
 	public Table(String tableName,String lockColName, String schemaPattern, String catalogName,
-			DatabaseMetaData dbMeta, Log log) {
+			DatabaseMetaData dbMeta) {
 		this.tableName = tableName.toUpperCase();
-		this.log = log;
 		this.lockColName=lockColName;
 		this.createColumns(dbMeta, schemaPattern, catalogName);
 	}

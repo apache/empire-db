@@ -200,7 +200,7 @@ public class CodeGen {
 		String dbTablePattern = config.getDbTablePattern();
 		dbTablePattern=dbTablePattern==""?dbTablePattern:null;
 
-		Database db = new Database(conn, log, dbSchema, dbCatalog, dbTablePattern);
+		Database db = new Database(conn, dbSchema, dbCatalog, dbTablePattern);
 		db.populateTableMetaData(dbLockingCol);
 		
 		// Prepare directories for generated source files
