@@ -22,6 +22,7 @@
 		<groupId>org.apache</groupId>
 		<artifactId>apache</artifactId>
 		<version>6</version>
+		<!-- TODO switch to apache parent 7 (see mail) -->
 	</parent>
 	
 	<groupId>org.apache.empire-db</groupId>
@@ -416,6 +417,11 @@
 						</rules>
 					</configuration>
 				</plugin>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-eclipse-plugin</artifactId>
+					<version>2.7</version>
+				</plugin>
 			</plugins>
 		</pluginManagement>
 	</build>
@@ -424,6 +430,7 @@
 			<plugin>
 		        <groupId>org.codehaus.mojo</groupId>
 		        <artifactId>rat-maven-plugin</artifactId>
+		        <version>1.0-alpha-3</version>
 		    </plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
@@ -451,10 +458,12 @@
 			<plugin>
 				<groupId>org.codehaus.mojo</groupId>
 				<artifactId>jdepend-maven-plugin</artifactId>
+				<version>2.0-beta-2</version>
 			</plugin>
 			<plugin>
 				<groupId>org.codehaus.mojo</groupId>
 				<artifactId>cobertura-maven-plugin</artifactId>
+				<version>2.3</version>
 				<configuration>
 					<formats>
 						<format>html</format>
@@ -465,14 +474,17 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-jxr-plugin</artifactId>
+				<version>2.1</version>
 			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-javadoc-plugin</artifactId>
+				<version>2.6.1</version>
 			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-changelog-plugin</artifactId>
+				<version>2.1</version>
 			</plugin>
 		</plugins>
 	</reporting>
