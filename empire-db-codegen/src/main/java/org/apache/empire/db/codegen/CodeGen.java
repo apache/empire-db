@@ -27,9 +27,9 @@ import java.sql.DriverManager;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.empire.commons.ErrorObject;
 import org.apache.empire.db.DBDatabase;
 import org.apache.empire.db.DBTable;
+import org.apache.empire.db.codegen.util.DBUtil;
 import org.apache.empire.db.codegen.util.FileUtils;
 import org.apache.empire.db.codegen.util.ParserUtil;
 import org.apache.velocity.Template;
@@ -43,19 +43,22 @@ import org.apache.velocity.exception.ResourceNotFoundException;
  * database schema. It uses the Empire DB open-source framework to build a java
  * persistence layer for an application. The Apache Velocity template engine is
  * used to create the output interfaces and classes.
- * 
+ * <p>
  * The Empire DB framework doesn't try to hide the underlying database and data
  * model but instead embraces its power by modeling it within java. The result
  * is a persistence layer that uses a more "object-oriented, type safe" SQL to
  * access persistent data.
- * 
- * NOTE: THIS VERSION HAS SEVERE RESTRICTIONS: 1. Only tables are currently
- * modeled (we'll add views to a later version). 2. Table indexes are not yet
- * modeled (exception is primary key). Again, this will be added to later
- * editions. 3. It is assumed that each table has a single INTEGER
- * auto-generated primary key column that has the same name for all tables. 4.
- * It is assumed that each table has a single TIMESTAMP optimistic locking
- * column that has the same name for all tables.
+ * <p>
+ * NOTE: THIS VERSION HAS SEVERE RESTRICTIONS:
+ * <ol>
+ * <li> Only tables are currently modeled (we'll add views to a later version).</li> 
+ * <li> Table indexes are not yet modeled (exception is primary key). Again, 
+ * this will be added to later editions.</li>  
+ * <li> It is assumed that each table has a single INTEGER auto-generated primary
+ * key column that has the same name for all tables. </li> 
+ * <li> It is assumed that each table has a single TIMESTAMP optimistic locking
+ * column that has the same name for all tables.</li> 
+ * </ol>
  */
 
 public class CodeGen {
@@ -69,8 +72,11 @@ public class CodeGen {
 	public static final String BASE_RECORD_TEMPLATE = "BaseRecord.vm";
 	public static final String RECORD_TEMPLATE = "Record.vm";
 
+	// Services
+	private final ParserUtil pUtil;
+	
 	// Properties
-	private CodeGenConfig config;
+	private final CodeGenConfig config;
 	private File baseDir;
 	private File tableDir;
 	private File recordDir;
@@ -78,80 +84,46 @@ public class CodeGen {
 	/**
 	 * Constructor
 	 */
-	public CodeGen() {
+	public CodeGen(CodeGenConfig config) {
 		try {
 			Velocity.init();
 		} catch (Exception e) {
 			log.fatal(e);
 			throw new RuntimeException(e);
 		}
+		this.pUtil = new ParserUtil(config);
+		this.config = config;
 	}
 
 	/**
-	 * <PRE>
-	 * This is the entry point of the Empire-DB Sample Application
-	 * Please check the config.xml configuration file for Database and Connection settings.
-	 * </PRE>
-	 * 
-	 * @param args
-	 *            arguments
+	 * Generates the code according to the provided configuration file
+	 * @param config
 	 */
-	public static void main(String[] args) {
+	public void generate(){
+
 		Connection conn = null;
-		try {
-			// Init Configuration
-			CodeGenConfig config = new CodeGenConfig();
-			config.init((args.length > 0 ? args[0] : "config.xml"));
-
-			// Enable Exceptions
-			ErrorObject.setExceptionsEnabled(true);
-
+		try {			
 			// Get a JDBC Connection
-			conn = getJDBCConnection(config);
-
-			// List options
-			log.info("Database connection successful. Config options are:");
-			log.info("SchemaName=" + String.valueOf(config.getDbSchema()));
-			log.info("TimestampColumn="
-					+ String.valueOf(config.getTimestampColumn()));
-			log.info("TargetFolder=" + config.getTargetFolder());
-			log.info("PackageName=" + config.getPackageName());
-			log.info("DbClassName=" + config.getDbClassName());
-			log.info("TableBaseName=" + config.getTableBaseName());
-			log.info("ViewBaseName=" + config.getViewBaseName());
-			log.info("RecordBaseName=" + config.getRecordBaseName());
-			log.info("TableClassPrefix=" + config.getTableClassPrefix());
-			log.info("ViewClassPrefi=" + config.getViewClassPrefix());
-			log.info("NestTable=" + config.isNestTables());
-			log.info("NestViews=" + config.isNestViews());
-			log.info("CreateRecordProperties="
-					+ config.isCreateRecordProperties());
-
-			if (config.getTableClassPrefix() == null)
-				config.setTableClassPrefix("");
-
-			if (config.getTableClassSuffix() == null)
-				config.setTableClassSuffix("");
-
-			CodeGen codeGen = new CodeGen();
-			// create the database in the memory
-			DBDatabase db = codeGen.parseDataModel(conn, config);
-
+			conn = getJDBCConnection();
+			
+			// create the database in memory
+			DBDatabase db = parseDataModel(conn);
+			
 			// create the source-code for that database
-			codeGen.generateCodeFiles(db, config);
-
+			generateCodeFiles(db);
+			
 			log.info("Code generation completed sucessfully!");
-
-		} catch (Exception e) {
-			// Error
+		} 
+		catch (Exception e) 
+		{
 			log.error(e.getMessage(), e);
-		} finally {
-			// done
-			if (conn != null)
-				close(conn);
+		} 
+		finally 
+		{
+			DBUtil.close(conn, log);
 		}
 	}
-
+	
 	/**
 	 * <PRE>
 	 * Opens and returns a JDBC-Connection.
@@ -159,7 +131,7 @@ public class CodeGen {
 	 * Please use the config.xml file to change connection params.
 	 * </PRE>
 	 */
-	private static Connection getJDBCConnection(CodeGenConfig config) {
+	private Connection getJDBCConnection() {
 		// Establish a new database connection
 		Connection conn = null;
 		log.info("Connecting to Database'" + config.getJdbcURL() + "' / User="
@@ -183,27 +155,13 @@ public class CodeGen {
 		return conn;
 	}
 
-	/**
-	 * Closes a JDBC-Connection.
-	 */
-	private static void close(Connection conn) {
-		log.info("Closing database connection");
-		try {
-			conn.close();
-		} catch (Exception e) {
-			log.fatal("Error closing connection", e);
-		}
-	}
-
-	public DBDatabase parseDataModel(Connection conn, CodeGenConfig config) {
-		this.config = config;
+	public DBDatabase parseDataModel(Connection conn) {
 		CodeGenParser cgp = new CodeGenParser(conn, config);
 		DBDatabase memoryDB = cgp.getDb();
 		return memoryDB;
 	}
 
-	public void generateCodeFiles(DBDatabase db, CodeGenConfig config) {
-		this.config = config;
+	public void generateCodeFiles(DBDatabase db) {
 
 		// Prepare directories for generated source files
 		this.initDirectories(config.getTargetFolder(), config.getPackageName());
@@ -217,7 +175,8 @@ public class CodeGen {
 		// Create base record class
 		this.createBaseRecordClass(db);
 		// Create table classes, record interfaces and record classes
-		for (DBTable table : db.getTables()) {
+		for (DBTable table : db.getTables()) 
+		{
 			this.createTableClass(db, table);
 			this.createRecordClass(db, table);
 		}
@@ -250,7 +209,6 @@ public class CodeGen {
 	}
 
 	private void createDatabaseClass(DBDatabase db) {
-		ParserUtil pUtil = new ParserUtil(config);
 		File file = new File(baseDir, config.getDbClassName() + ".java");
 		VelocityContext context = new VelocityContext();
 		context.put("parser", pUtil);
@@ -271,7 +229,6 @@ public class CodeGen {
 	}
 
 	private void createTableClass(DBDatabase db, DBTable table) {
-		ParserUtil pUtil = new ParserUtil(config);
 		File file = new File(tableDir, pUtil.getTableClassName(table.getName())
 				+ ".java");
 		VelocityContext context = new VelocityContext();
@@ -296,7 +253,6 @@ public class CodeGen {
 	}
 
 	private void createRecordClass(DBDatabase db, DBTable table) {
-		ParserUtil pUtil = new ParserUtil(config);
 		File file = new File(recordDir, pUtil.getRecordClassName(table
 				.getName())
 				+ ".java");

@@ -18,6 +18,7 @@
  */
 package org.apache.empire.db.codegen.util;
 
+import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
@@ -32,7 +33,7 @@ public final class DBUtil {
 	}
 	
 	/**
-	 * Closes a sql resultset and logs exceptions
+	 * Closes a sql resultset and logs exceptions.
 	 * 
 	 * @param rs the resultset to close
 	 * @param log the logger instance to use for logging
@@ -45,8 +46,22 @@ public final class DBUtil {
 				rs.close();
 			b = true;
 		} catch (SQLException e) {
-			log.error("The resultset could not bel closed!", e);
+			log.error("The resultset could not be closed!", e);
 		}
 		return b;
+	}
+	
+	/**
+	 * Closes a JDBC-Connection and logs exceptions.
+	 */
+	public static void close(Connection conn, Log log) {
+		if(conn != null){
+			log.info("Closing database connection");
+			try {
+				conn.close();
+			} catch (Exception e) {
+				log.fatal("Error closing connection", e);
+			}
+		}
 	}
 }

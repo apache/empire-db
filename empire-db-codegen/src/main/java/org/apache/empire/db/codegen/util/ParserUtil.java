@@ -16,7 +16,6 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
 package org.apache.empire.db.codegen.util;
 
 import org.apache.commons.logging.Log;
@@ -32,9 +31,10 @@ import org.apache.empire.db.codegen.CodeGenConfig;
  */
 public class ParserUtil {
 
-	private CodeGenConfig config;
 	private static final Log log = LogFactory.getLog(ParserUtil.class);
 
+	private CodeGenConfig config;
+	
 	public ParserUtil(CodeGenConfig config) {
 
 		this.config = config;
