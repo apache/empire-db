@@ -30,7 +30,6 @@ import org.apache.empire.db.codegen.CodeGenConfig;
 /**
  * This class is used by the velocity templates.
  */
-
 public class ParserUtil {
 
 	private CodeGenConfig config;
@@ -78,10 +77,11 @@ public class ParserUtil {
 	 * uses this information to generate the neccessary import expression.
 	 */
 	public boolean hasBigDecimalField(DBTable t) {
-		for (DBColumn c : t.getColumns())
+		
+		for (DBColumn c : t.getColumns()){
 			if (getJavaType(c).equalsIgnoreCase("BigDecimal"))
 				return true;
-
+		}
 		return false;
 	}
 
@@ -92,9 +92,10 @@ public class ParserUtil {
 	public boolean hasDateField(DBTable t) {
 
 		for (DBColumn c : t.getColumns())
+		{
 			if (getJavaType(c).equalsIgnoreCase("Date"))
 				return true;
-
+		}
 		return false;
 	}
 
@@ -169,7 +170,8 @@ public class ParserUtil {
 		StringBuilder sb = new StringBuilder();
 		sb.append(Character.toUpperCase(name.charAt(0)));
 		boolean upperCase = false;
-		for (int i = 1; i < name.length(); i++) {
+		for (int i = 1; i < name.length(); i++) 
+		{
 			char c = name.charAt(i);
 			if (c == '_') {
 				upperCase = true;

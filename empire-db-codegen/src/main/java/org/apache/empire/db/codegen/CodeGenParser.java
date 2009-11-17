@@ -103,7 +103,7 @@ public class CodeGenParser {
 		} catch (SQLException e) {
 			throw new RuntimeException(e);
 		} finally {
-			DBUtil.closeResultSet(tables, log);
+			DBUtil.close(tables, log);
 		}
 	}
 
@@ -137,7 +137,7 @@ public class CodeGenParser {
 		} catch (SQLException e) {
 			throw new RuntimeException(e);
 		} finally {
-			DBUtil.closeResultSet(rs, log);
+			DBUtil.close(rs, log);
 		}
 	}
 
@@ -158,7 +158,7 @@ public class CodeGenParser {
 		} catch (SQLException e) {
 			throw new RuntimeException(e);
 		} finally {
-			DBUtil.closeResultSet(rs, log);
+			DBUtil.close(rs, log);
 		}
 		return cols;
 	}

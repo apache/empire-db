@@ -23,8 +23,22 @@ import java.sql.SQLException;
 
 import org.apache.commons.logging.Log;
 
-public class DBUtil {
-	public static boolean closeResultSet(ResultSet rs, Log log) {
+
+public final class DBUtil {
+	
+	private DBUtil()
+	{
+		// Utility class
+	}
+	
+	/**
+	 * Closes a sql resultset and logs exceptions
+	 * 
+	 * @param rs the resultset to close
+	 * @param log the logger instance to use for logging
+	 * @return true on succes
+	 */
+	public static boolean close(ResultSet rs, Log log) {
 		boolean b = false;
 		try {
 			if(rs!=null)

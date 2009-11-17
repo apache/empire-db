@@ -317,19 +317,21 @@ public class CodeGen {
 
 	private static void writeFile(File file, String templatePath,
 			VelocityContext context) {
+		Writer writer = null;
 		try {
 			Template template = Velocity.getTemplate(templatePath);
-			Writer writer = new FileWriter(file);
+			writer = new FileWriter(file);
 			template.merge(context, writer);
-			writer.close();
 		} catch (IOException e) {
-			e.printStackTrace();
+			log.error(e.getMessage(), e);
 		} catch (ResourceNotFoundException e) {
-			e.printStackTrace();
+			log.error(e.getMessage(), e);
 		} catch (ParseErrorException e) {
-			e.printStackTrace();
+			log.error(e.getMessage(), e);
 		} catch (Exception e) {
-			e.printStackTrace();
+			log.error(e.getMessage(), e);
+		} finally {
+			FileUtils.close(writer);
 		}
 
 	}
