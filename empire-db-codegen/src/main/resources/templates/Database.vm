@@ -36,7 +36,8 @@ public class $dbClassName extends DBDatabase {
 	private static final long serialVersionUID = 1L;
 
 #foreach($table in $database.tables)
-	public final $table.className T_$table.tableName = new ${table.className}(this);
+	#set($tblClass=$parser.getTableClassName($table.name))
+	public final $tblClass T_${table.name} = new $tblClass(this);
 #end
 	
 	/**

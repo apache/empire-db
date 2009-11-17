@@ -42,6 +42,7 @@
 		<viewBaseName>SampleView</viewBaseName>
 		<recordBaseName>SampleRecord</recordBaseName>
 		<tableClassPrefix>T</tableClassPrefix>
+		<tableClassSuffix>Table</tableClassSuffix>
 		<viewClassPrefix>V</viewClassPrefix>
 		<nestTables>True</nestTables>
 		<nestViews>False</nestViews>

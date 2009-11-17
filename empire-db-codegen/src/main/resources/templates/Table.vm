@@ -26,7 +26,7 @@ import org.apache.empire.db.DBTableColumn;
 
 import $basePackageName.${dbClassName};
 
-public class ${table.className} extends ${baseTableClassName} {
+public class $parser.getTableClassName($table.name) extends ${baseTableClassName} {
 	// Primary key column
 	private List<DBTableColumn> keyColumns= new ArrayList<DBTableColumn>();
 	
@@ -35,26 +35,24 @@ public class ${table.className} extends ${baseTableClassName} {
 	public final DBTableColumn C_${col.name};
 #end
 	
-	public ${table.className}(${dbClassName} db) {
-		super("${table.tableName}", db);
+	public $parser.getTableClassName($table.name)(${dbClassName} db) {
+		super("$parser.getTableClassName($table.name)", db);
 		
 		// all columns
 #foreach ($col in $table.columns)
-		C_${col.name} = super.addColumn("${col.name}", DataType.${col.empireType}, ${col.colSize}, ${col.required}, ${col.defaultValue});
+		C_${col.name} = super.addColumn("${col.name}", DataType.${parser.getDataType($col)}, ${col.size}, ${col.isRequired()}, ${parser.getDefaultValue($col)});
 #end
 
 
 		// configure primary columns
-#foreach ($col in $table.columns)
-#if($col.primaryColumn == true)
+#foreach ($col in $table.keyColumns)
     	keyColumns.add(C_${col.name});
-#end
 #end
 		super.setPrimaryKey((DBTableColumn[]) keyColumns.toArray());
 		
 		// Optimistic locking column
-#if($table.hasLockColumn == true)
-		super.setTimestampColumn(C_${table.lockColumn.name});
+#if($parser.hasLockingColumn($table) == true)
+		super.setTimestampColumn(C_${table.getTimestampColumn().name});
 #else
 		/*no locking column specified*/
 #end

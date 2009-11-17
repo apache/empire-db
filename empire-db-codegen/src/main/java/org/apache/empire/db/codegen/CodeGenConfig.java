@@ -92,6 +92,19 @@ public class CodeGenConfig extends XMLConfiguration
      * Where XX is the prefix.
      */
     private String tableClassPrefix = "T";
+    
+    /**
+     * Suffix used for generating table class names.<br/> 
+     * The Table name is appended before the suffix starting with captial letter followed by lower case letters.<br/>
+     * Occurrence an of underscore indicates a new word which will again start with a capital letter.<br/>
+     * e.g.<br/>
+     * <ul>
+     *  <li>Table "names" -> Class "NamesTable"</li>
+     *  <li>Table "flight_bookings" -> Class "FlightBookingsTable"</li>
+     * </ul>
+     * Where "Table" is the suffix.
+     */
+    private String tableClassSuffix = "Table";
     /**
      * Prefix used for generating view class names.<br/> 
      * The Table name is appended after the prefix starting with captial letter followed by lower case letters.<br/>
@@ -287,6 +300,16 @@ public class CodeGenConfig extends XMLConfiguration
     public void setTableClassPrefix(String tableClassPrefix)
     {
         this.tableClassPrefix = tableClassPrefix;
+    }
+    
+    public String getTableClassSuffix()
+    {
+        return tableClassSuffix;
+    }
+
+    public void setTableClassSuffix(String tableClassSuffix)
+    {
+        this.tableClassSuffix = tableClassSuffix;
     }
 
     public String getViewClassPrefix()

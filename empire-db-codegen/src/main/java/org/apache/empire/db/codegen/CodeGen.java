@@ -28,9 +28,10 @@ import java.sql.DriverManager;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.empire.commons.ErrorObject;
-import org.apache.empire.db.codegen.types.Database;
-import org.apache.empire.db.codegen.types.Table;
+import org.apache.empire.db.DBDatabase;
+import org.apache.empire.db.DBTable;
 import org.apache.empire.db.codegen.util.FileUtils;
+import org.apache.empire.db.codegen.util.ParserUtil;
 import org.apache.velocity.Template;
 import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.Velocity;
@@ -126,8 +127,18 @@ public class CodeGen {
 			log.info("CreateRecordProperties="
 					+ config.isCreateRecordProperties());
 
+			if (config.getTableClassPrefix() == null)
+				config.setTableClassPrefix("");
+
+			if (config.getTableClassSuffix() == null)
+				config.setTableClassSuffix("");
+
 			CodeGen codeGen = new CodeGen();
-			codeGen.generateCode(conn, config);
+			// create the database in the memory
+			DBDatabase db = codeGen.parseDataModel(conn, config);
+
+			// create the source-code for that database
+			codeGen.generateCodeFiles(db, config);
 
 			log.info("Code generation completed sucessfully!");
 
@@ -184,27 +195,18 @@ public class CodeGen {
 		}
 	}
 
-	/**
-	 * Generates the source code for the persistence layer.
-	 */
-	public void generateCode(Connection conn, CodeGenConfig config) {
-
+	public DBDatabase parseDataModel(Connection conn, CodeGenConfig config) {
 		this.config = config;
-		String packageName = config.getPackageName();
-		String targetFolder = config.getTargetFolder();
-		String dbLockingCol = config.getTimestampColumn();
-		
-		// passing an empty string my
-		String dbCatalog = config.getDbCatalog();
-		String dbSchema = config.getDbSchema();
-		String dbTablePattern = config.getDbTablePattern();
-		dbTablePattern=dbTablePattern==""?dbTablePattern:null;
+		CodeGenParser cgp = new CodeGenParser(conn, config);
+		DBDatabase memoryDB = cgp.getDb();
+		return memoryDB;
+	}
 
-		Database db = new Database(conn, dbSchema, dbCatalog, dbTablePattern);
-		db.populateTableMetaData(dbLockingCol);
-		
+	public void generateCodeFiles(DBDatabase db, CodeGenConfig config) {
+		this.config = config;
+
 		// Prepare directories for generated source files
-		this.initDirectories(targetFolder, packageName);
+		this.initDirectories(config.getTargetFolder(), config.getPackageName());
 
 		// Create the DB class
 		this.createDatabaseClass(db);
@@ -214,9 +216,8 @@ public class CodeGen {
 
 		// Create base record class
 		this.createBaseRecordClass(db);
-
 		// Create table classes, record interfaces and record classes
-		for (Table table : db.getTables()) {
+		for (DBTable table : db.getTables()) {
 			this.createTableClass(db, table);
 			this.createRecordClass(db, table);
 		}
@@ -248,9 +249,12 @@ public class CodeGen {
 		this.recordDir.mkdir();
 	}
 
-	private void createDatabaseClass(Database db) {
+	private void createDatabaseClass(DBDatabase db) {
+		ParserUtil pUtil = new ParserUtil(config);
 		File file = new File(baseDir, config.getDbClassName() + ".java");
 		VelocityContext context = new VelocityContext();
+		context.put("parser", pUtil);
+		context.put("tableClassSuffix", config.getTableClassSuffix());
 		context.put("basePackageName", config.getPackageName());
 		context.put("dbClassName", config.getDbClassName());
 		context.put("tableSubPackage", "tables");
@@ -258,7 +262,7 @@ public class CodeGen {
 		writeFile(file, TEMPLATE_PATH + "/" + DATABASE_TEMPLATE, context);
 	}
 
-	private void createBaseTableClass(Database db) {
+	private void createBaseTableClass(DBDatabase db) {
 		File file = new File(tableDir, config.getTableBaseName() + ".java");
 		VelocityContext context = new VelocityContext();
 		context.put("tablePackageName", config.getPackageName() + ".tables");
@@ -266,9 +270,12 @@ public class CodeGen {
 		writeFile(file, TEMPLATE_PATH + "/" + BASE_TABLE_TEMPLATE, context);
 	}
 
-	private void createTableClass(Database db, Table table) {
-		File file = new File(tableDir, table.getClassName() + ".java");
+	private void createTableClass(DBDatabase db, DBTable table) {
+		ParserUtil pUtil = new ParserUtil(config);
+		File file = new File(tableDir, pUtil.getTableClassName(table.getName())
+				+ ".java");
 		VelocityContext context = new VelocityContext();
+		context.put("parser", pUtil);
 		context.put("basePackageName", config.getPackageName());
 		context.put("tablePackageName", config.getPackageName() + ".tables");
 		context.put("baseTableClassName", config.getTableBaseName());
@@ -277,7 +284,7 @@ public class CodeGen {
 		writeFile(file, TEMPLATE_PATH + "/" + TABLE_TEMPLATE, context);
 	}
 
-	private void createBaseRecordClass(Database db) {
+	private void createBaseRecordClass(DBDatabase db) {
 		File file = new File(recordDir, config.getRecordBaseName() + ".java");
 		VelocityContext context = new VelocityContext();
 		context.put("baseRecordClassName", config.getRecordBaseName());
@@ -288,16 +295,22 @@ public class CodeGen {
 		writeFile(file, TEMPLATE_PATH + "/" + BASE_RECORD_TEMPLATE, context);
 	}
 
-	private void createRecordClass(Database db, Table table) {
-		File file = new File(recordDir, table.getRecordClassName() + ".java");
+	private void createRecordClass(DBDatabase db, DBTable table) {
+		ParserUtil pUtil = new ParserUtil(config);
+		File file = new File(recordDir, pUtil.getRecordClassName(table
+				.getName())
+				+ ".java");
 		VelocityContext context = new VelocityContext();
+		context.put("parser", pUtil);
 		context.put("basePackageName", config.getPackageName());
 		context.put("tablePackageName", config.getPackageName() + ".tables");
 		context.put("recordPackageName", config.getPackageName() + ".records");
 		context.put("baseRecordClassName", config.getRecordBaseName());
 		context.put("dbClassName", config.getDbClassName());
-		context.put("createRecordProperties", config.isCreateRecordProperties());
-		
+		context
+				.put("createRecordProperties", config
+						.isCreateRecordProperties());
+
 		context.put("table", table);
 		writeFile(file, TEMPLATE_PATH + "/" + RECORD_TEMPLATE, context);
 	}

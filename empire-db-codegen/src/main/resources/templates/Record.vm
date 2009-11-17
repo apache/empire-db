@@ -18,13 +18,17 @@
  *#
 package ${recordPackageName};
 
-#if ($table.hasBigDecimalField())
+#if ($parser.hasBigDecimalField($table))
 import java.math.BigDecimal;
+#end
+
+#if ($parser.hasDateField($table))
+import java.util.Date;
 #end
 
 import ${basePackageName}.${dbClassName};
 import ${recordPackageName}.${baseRecordClassName};
-import ${tablePackageName}.${table.className};
+import ${tablePackageName}.$parser.getTableClassName($table.name);
 
 /**
  * Auto-generated class that represents one record (or row) of data from a
@@ -37,20 +41,20 @@ import ${tablePackageName}.${table.className};
  * This class provides protected method that subclasses should use to provide
  * access to related records.
  */
-public class ${table.recordClassName} extends ${baseRecordClassName}<${table.className}> {
-	public ${table.recordClassName}() {
-		super(${dbClassName}.get().T_${table.tableName});
+public class $parser.getRecordClassName($table.name) extends ${baseRecordClassName}<$parser.getTableClassName($table.name)> {
+	public $parser.getRecordClassName($table.name)() {
+		super(${dbClassName}.get().T_${table.name});
 	}
 	
 #if($createRecordProperties == true)
 	// Access methods for all attributes
 #foreach($col in $table.columns)
-	public ${col.javaTypeString} ${col.javaAccessorName}() {
-		${col.originalJavaTypeString} ${col.javaName} = (${col.originalJavaTypeString})super.getValue(getDbTable().C_${col.name});
-		return ${col.returnExpression};
+
+	public $parser.getJavaType($col) $parser.getAccessorName($col)() {
+		return ($parser.getJavaType($col))super.getValue(getDbTable().C_${col.name});
 	}
-	public void ${col.javaMutatorName}(${col.javaTypeString} ${col.javaName}) {
-		super.setValue(getDbTable().C_${col.name}, ${col.setExpression});
+	public void $parser.getMutatorName($col)($parser.getJavaType($col) val) {
+		super.setValue(getDbTable().C_${col.name}, val);
 	}
 #end
 #end
