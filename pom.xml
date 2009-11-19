@@ -67,7 +67,7 @@
 				<plugins>
 					<!-- check the headers -->
 					<plugin>
-						<groupId>com.google.code.maven-license-plugin</groupId>
+						<groupId>com.mycila.maven-license-plugin</groupId>
 						<artifactId>maven-license-plugin</artifactId>
 					</plugin>
 					<plugin>
@@ -385,9 +385,9 @@
 					</configuration>
 				</plugin>
 				<plugin>
-		            <groupId>com.google.code.maven-license-plugin</groupId>
+		            <groupId>com.mycila.maven-license-plugin</groupId>
 		            <artifactId>maven-license-plugin</artifactId>
-		            <version>1.4.0</version>
+		            <version>1.5.0</version>
 		            <configuration>
 		                <basedir>${basedir}</basedir>
 		                <header>tools/header.txt</header>
@@ -397,13 +397,8 @@
 		                <aggregate>false</aggregate>
 		                <includes>
 		                    <include>src/**</include>
-		                    <include>**/test/**</include>
+		                    <include>**/*.xml</include>
 		                </includes>
-		                <mapping>
-		                    <jwc>XML_STYLE</jwc>
-		                    <application>XML_STYLE</application>
-		                    <myFileExtension>JAVADOC_STYLE</myFileExtension>
-		                </mapping>
 		                <encoding>UTF-8</encoding>
 		            </configuration>
 		            <executions>
