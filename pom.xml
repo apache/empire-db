@@ -335,6 +335,7 @@
 			       			<exclude>**/.project</exclude>
 			       			<exclude>**/.classpath</exclude>
 			       			<exclude>**/.tomcatplugin</exclude>
+			       			<!-- FIXME In fact these logs should be removed after testing -->
 			       			<exclude>**/*.log</exclude>
 			       		</excludes>
 			       	</configuration>
