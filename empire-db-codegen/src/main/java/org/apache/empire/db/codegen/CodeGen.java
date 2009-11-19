@@ -36,7 +36,7 @@ import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.Velocity;
 import org.apache.velocity.exception.ParseErrorException;
 import org.apache.velocity.exception.ResourceNotFoundException;
-import org.apache.velocity.runtime.RuntimeConstants;
+import org.apache.velocity.runtime.log.CommonsLogLogChute;
 
 /**
  * This is the entry class for generating the java persistence model based on a
@@ -85,9 +85,9 @@ public class CodeGen {
 	 * Constructor
 	 */
 	public CodeGen(CodeGenConfig config) {
-		Velocity.setProperty(RuntimeConstants.RUNTIME_LOG_LOGSYSTEM_CLASS,
-        	"org.apache.velocity.runtime.log.SimpleLog4JLogSystem" );
-		Velocity.setProperty("runtime.log.logsystem.log4j.category", "org.apache.velocity");
+		// we have to keep this in sync with our logging system
+		// http://velocity.apache.org/engine/releases/velocity-1.5/developer-guide.html#simpleexampleofacustomlogger
+		Velocity.setProperty(Velocity.RUNTIME_LOG_LOGSYSTEM, new CommonsLogLogChute() );
 		try {
 			Velocity.init();
 		} catch (Exception e) {
