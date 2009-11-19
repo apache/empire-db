@@ -335,6 +335,7 @@
 			       			<exclude>**/.project</exclude>
 			       			<exclude>**/.classpath</exclude>
 			       			<exclude>**/.tomcatplugin</exclude>
+			       			<exclude>**/*.log</exclude>
 			       		</excludes>
 			       	</configuration>
 			  	</plugin>
