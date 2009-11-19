@@ -16,11 +16,11 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
 package org.apache.empire.db.codegen;
 
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
+import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Types;
@@ -48,6 +48,7 @@ public class CodeGenParser {
 	}
 
 	private static final Log log = LogFactory.getLog(CodeGenParser.class);
+	
 	private DatabaseMetaData dbMeta;
 	private Connection con;
 	private CodeGenConfig config;
@@ -56,28 +57,73 @@ public class CodeGenParser {
 	/**
 	 * create a empty in memory Database and populates it
 	 */
-	public CodeGenParser(Connection conn, CodeGenConfig config) {
-
-		this.con = conn;
-		this.db = new InMemoryDatabase();
-		this.config = config;
-		try {
-			this.dbMeta = con.getMetaData();
-			populateDatabase();
-		} catch (SQLException e) {
-			throw new RuntimeException("Unable to read database metadata!", e);
-		}
+	public CodeGenParser(CodeGenConfig config) {
+	    this.config = config;
 	}
 
 	/**
 	 * returns the populated DBDatabase
 	 */
-	public DBDatabase getDb() {
+	public DBDatabase loadDbModel() {
+	    this.db = new InMemoryDatabase();
+	    try {           
+            // Get a JDBC Connection
+            con = getJDBCConnection(config);
+            
+            // create the database in memory
+
+            this.dbMeta = con.getMetaData();
+            populateDatabase();
+                        
+        } 
+        catch (SQLException e) 
+        {
+            throw new RuntimeException("Unable to read database metadata!", e);
+        }
+        catch (Exception e) 
+        {
+            log.error(e.getMessage(), e);
+        } 
+        finally 
+        {
+            DBUtil.close(con, log);
+        }
 		return db;
 	}
 
 	// ----------- private members
 
+	   /**
+     * <PRE>
+     * Opens and returns a JDBC-Connection.
+     * JDBC url, user and password for the connection are obained from the SampleConfig bean
+     * Please use the config.xml file to change connection params.
+     * </PRE>
+     */
+    private Connection getJDBCConnection(CodeGenConfig config) {
+        // Establish a new database connection
+        Connection conn = null;
+        log.info("Connecting to Database'" + config.getJdbcURL() + "' / User="
+                + config.getJdbcUser());
+        try {
+            // Connect to the databse
+            Class.forName(config.getJdbcClass()).newInstance();
+            conn = DriverManager.getConnection(config.getJdbcURL(), config
+                    .getJdbcUser(), config.getJdbcPwd());
+            log.info("Connected successfully");
+            // set the AutoCommit to false this session. You must commit
+            // explicitly now
+            conn.setAutoCommit(true);
+            log.info("AutoCommit is " + conn.getAutoCommit());
+
+        } catch (Exception e) {
+            log.fatal("Failed to connect directly to '" + config.getJdbcURL()
+                    + "' / User=" + config.getJdbcUser(), e);
+            throw new RuntimeException(e);
+        }
+        return conn;
+    }
+	
 	/**
 	 * queries the metadata of the database for tables and populates the
 	 * database with those

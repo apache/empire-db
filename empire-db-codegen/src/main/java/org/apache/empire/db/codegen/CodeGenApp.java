@@ -21,6 +21,7 @@ package org.apache.empire.db.codegen;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.empire.commons.ErrorObject;
+import org.apache.empire.db.DBDatabase;
 
 /**
  * Console code generator application, takes the config file as first argument.
@@ -55,8 +56,15 @@ public class CodeGenApp {
 		// log all options
 		listOptions(config);
 		
+		// read the database model
+		CodeGenParser parser = new CodeGenParser(config);
+		DBDatabase db = parser.loadDbModel();
+		
+		// create the source-code for that database
 		CodeGen codeGen = new CodeGen(config);
-		codeGen.generate();
+		codeGen.generateCodeFiles(db);
+		
+		log.info("Code generation completed sucessfully!");
 	}
 	
 	/**
@@ -98,4 +106,6 @@ public class CodeGenApp {
 		log.info("NestViews=" + config.isNestViews());
 		log.info("CreateRecordProperties=" + config.isCreateRecordProperties());
 	}
+	
+
 }

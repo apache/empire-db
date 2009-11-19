@@ -22,14 +22,13 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
-import java.sql.Connection;
-import java.sql.DriverManager;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.empire.db.DBDatabase;
 import org.apache.empire.db.DBTable;
-import org.apache.empire.db.codegen.util.DBUtil;
 import org.apache.empire.db.codegen.util.FileUtils;
 import org.apache.empire.db.codegen.util.ParserUtil;
 import org.apache.velocity.Template;
@@ -96,90 +95,30 @@ public class CodeGen {
 	}
 
 	/**
-	 * Generates the code according to the provided configuration file
-	 * @param config
+	 * Generates the java code files for the database
+	 * @param db the DBDatabase to generate files for
 	 */
-	public void generate(){
-
-		Connection conn = null;
-		try {			
-			// Get a JDBC Connection
-			conn = getJDBCConnection();
-			
-			// create the database in memory
-			DBDatabase db = parseDataModel(conn);
-			
-			// create the source-code for that database
-			generateCodeFiles(db);
-			
-			log.info("Code generation completed sucessfully!");
-		} 
-		catch (Exception e) 
-		{
-			log.error(e.getMessage(), e);
-		} 
-		finally 
-		{
-			DBUtil.close(conn, log);
-		}
-	}
-	
-	/**
-	 * <PRE>
-	 * Opens and returns a JDBC-Connection.
-	 * JDBC url, user and password for the connection are obained from the SampleConfig bean
-	 * Please use the config.xml file to change connection params.
-	 * </PRE>
-	 */
-	private Connection getJDBCConnection() {
-		// Establish a new database connection
-		Connection conn = null;
-		log.info("Connecting to Database'" + config.getJdbcURL() + "' / User="
-				+ config.getJdbcUser());
-		try {
-			// Connect to the databse
-			Class.forName(config.getJdbcClass()).newInstance();
-			conn = DriverManager.getConnection(config.getJdbcURL(), config
-					.getJdbcUser(), config.getJdbcPwd());
-			log.info("Connected successfully");
-			// set the AutoCommit to false this session. You must commit
-			// explicitly now
-			conn.setAutoCommit(true);
-			log.info("AutoCommit is " + conn.getAutoCommit());
-
-		} catch (Exception e) {
-			log.fatal("Failed to connect directly to '" + config.getJdbcURL()
-					+ "' / User=" + config.getJdbcUser(), e);
-			throw new RuntimeException(e);
-		}
-		return conn;
-	}
-
-	public DBDatabase parseDataModel(Connection conn) {
-		CodeGenParser cgp = new CodeGenParser(conn, config);
-		DBDatabase memoryDB = cgp.getDb();
-		return memoryDB;
-	}
-
-	public void generateCodeFiles(DBDatabase db) {
+	public List<File> generateCodeFiles(DBDatabase db) {
+	    List<File> generatedFiles = new ArrayList<File>();
 
 		// Prepare directories for generated source files
 		this.initDirectories(config.getTargetFolder(), config.getPackageName());
 
 		// Create the DB class
-		this.createDatabaseClass(db);
+		generatedFiles.add(this.createDatabaseClass(db));
 
 		// Create base table class
-		this.createBaseTableClass(db);
+		generatedFiles.add(this.createBaseTableClass(db));
 
 		// Create base record class
-		this.createBaseRecordClass(db);
+		generatedFiles.add(this.createBaseRecordClass(db));
 		// Create table classes, record interfaces and record classes
 		for (DBTable table : db.getTables()) 
 		{
-			this.createTableClass(db, table);
-			this.createRecordClass(db, table);
+		    generatedFiles.add(this.createTableClass(db, table));
+		    generatedFiles.add(this.createRecordClass(db, table));
 		}
+		return generatedFiles;
 	}
 
 	private void initDirectories(String srcLocation, String packageName) {
@@ -208,7 +147,7 @@ public class CodeGen {
 		this.recordDir.mkdir();
 	}
 
-	private void createDatabaseClass(DBDatabase db) {
+	private File createDatabaseClass(DBDatabase db) {
 		File file = new File(baseDir, config.getDbClassName() + ".java");
 		VelocityContext context = new VelocityContext();
 		context.put("parser", pUtil);
@@ -218,17 +157,19 @@ public class CodeGen {
 		context.put("tableSubPackage", "tables");
 		context.put("database", db);
 		writeFile(file, TEMPLATE_PATH + "/" + DATABASE_TEMPLATE, context);
+		return file;
 	}
 
-	private void createBaseTableClass(DBDatabase db) {
+	private File createBaseTableClass(DBDatabase db) {
 		File file = new File(tableDir, config.getTableBaseName() + ".java");
 		VelocityContext context = new VelocityContext();
 		context.put("tablePackageName", config.getPackageName() + ".tables");
 		context.put("baseTableClassName", config.getTableBaseName());
 		writeFile(file, TEMPLATE_PATH + "/" + BASE_TABLE_TEMPLATE, context);
+		return file;
 	}
 
-	private void createTableClass(DBDatabase db, DBTable table) {
+	private File createTableClass(DBDatabase db, DBTable table) {
 		File file = new File(tableDir, pUtil.getTableClassName(table.getName())
 				+ ".java");
 		VelocityContext context = new VelocityContext();
@@ -239,9 +180,10 @@ public class CodeGen {
 		context.put("dbClassName", config.getDbClassName());
 		context.put("table", table);
 		writeFile(file, TEMPLATE_PATH + "/" + TABLE_TEMPLATE, context);
+		return file;
 	}
 
-	private void createBaseRecordClass(DBDatabase db) {
+	private File createBaseRecordClass(DBDatabase db) {
 		File file = new File(recordDir, config.getRecordBaseName() + ".java");
 		VelocityContext context = new VelocityContext();
 		context.put("baseRecordClassName", config.getRecordBaseName());
@@ -250,9 +192,10 @@ public class CodeGen {
 		context.put("recordPackageName", config.getPackageName() + ".records");
 		context.put("baseTableClassName", config.getTableBaseName());
 		writeFile(file, TEMPLATE_PATH + "/" + BASE_RECORD_TEMPLATE, context);
+		return file;
 	}
 
-	private void createRecordClass(DBDatabase db, DBTable table) {
+	private File createRecordClass(DBDatabase db, DBTable table) {
 		File file = new File(recordDir, pUtil.getRecordClassName(table
 				.getName())
 				+ ".java");
@@ -269,6 +212,7 @@ public class CodeGen {
 
 		context.put("table", table);
 		writeFile(file, TEMPLATE_PATH + "/" + RECORD_TEMPLATE, context);
+		return file;
 	}
 
 	private static void writeFile(File file, String templatePath,
