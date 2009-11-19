@@ -107,7 +107,7 @@
 						</executions>
 					</plugin>
 					<!-- enable enforcer for java 1.5 -->
-					<!-- plugin>
+					<plugin>
 						<groupId>org.apache.maven.plugins</groupId>
 						<artifactId>maven-enforcer-plugin</artifactId>
 						<executions>
@@ -118,7 +118,7 @@
 								</goals>
 							</execution>
 						</executions>
-					</plugin-->
+					</plugin>
 				</plugins>
 			</build>
 		</profile>
