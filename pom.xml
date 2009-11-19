@@ -107,7 +107,7 @@
 						</executions>
 					</plugin>
 					<!-- enable enforcer for java 1.5 -->
-					<plugin>
+					<!-- plugin>
 						<groupId>org.apache.maven.plugins</groupId>
 						<artifactId>maven-enforcer-plugin</artifactId>
 						<executions>
@@ -118,7 +118,7 @@
 								</goals>
 							</execution>
 						</executions>
-					</plugin>
+					</plugin-->
 				</plugins>
 			</build>
 		</profile>
@@ -335,8 +335,6 @@
 			       			<exclude>**/.project</exclude>
 			       			<exclude>**/.classpath</exclude>
 			       			<exclude>**/.tomcatplugin</exclude>
-			       			<!-- FIXME In fact these logs should be removed after testing -->
-			       			<exclude>**/*.log</exclude>
 			       		</excludes>
 			       	</configuration>
 			  	</plugin>
@@ -500,6 +498,7 @@
 		<site>
 			<id>people.apache.org.site</id>
 			<name>Empire-db Maven Site</name>
+			<!-- FIXME find a place for this -->
 			<url>scp://people.apache.org/home/francisdb/public_html/empire-db/site</url>
 		</site>
 	</distributionManagement>
