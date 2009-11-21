@@ -48,7 +48,7 @@ import org.apache.empire.db.sqlserver.DBDatabaseDriverMSSQL;
 
 public class SampleAdvApp 
 {
-    public static Logger logger = Logger.getLogger(SampleAdvApp.class.getName());
+    private static final Logger logger = Logger.getLogger(SampleAdvApp.class.getName());
 
     private static final SampleAdvDB db = new SampleAdvDB();
 

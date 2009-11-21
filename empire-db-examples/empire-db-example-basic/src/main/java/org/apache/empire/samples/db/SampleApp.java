@@ -43,7 +43,7 @@ import org.w3c.dom.Document;
 
 public class SampleApp 
 {
-	public static Logger logger = Logger.getLogger(SampleApp.class.getName());
+	private static final Logger logger = Logger.getLogger(SampleApp.class.getName());
 
 	private static final SampleDB db = new SampleDB();
 

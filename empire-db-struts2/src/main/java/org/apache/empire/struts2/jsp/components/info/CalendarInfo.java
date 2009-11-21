@@ -35,16 +35,17 @@ public class CalendarInfo
     // Logger
     protected static Log log = LogFactory.getLog(ControlComponent.class);
 
-    // FIXME SimpleDateFormat is not thread safe, do not keep it in static context
-    protected static final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMdd");
+    private static final String DATE_FORMAT = "yyyyMMdd";
     
     public static String formatDate(Date date)
     {
+    	SimpleDateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
         return dateFormat.format(date);
     }
     
     public static Date parseDate(String date)
     {
+    	SimpleDateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
         if (date==null || date.length()!=dateFormat.toPattern().length())
         {   // Error: Invalid Date supplied. Using Today
             log.error("Invalid date format: " + String.valueOf(date));
