@@ -42,6 +42,8 @@ public class CodeGenApp {
 	 *            arguments
 	 */
 	public static void main(String[] args) {
+	    ErrorObject.setExceptionsEnabled(true);
+	    // Start code generator
 		CodeGenApp app = new CodeGenApp();
 		app.start((args.length > 0 ? args[0] : DEFAULT_CONFIG_FILE));
 	}	
@@ -61,7 +63,7 @@ public class CodeGenApp {
 		DBDatabase db = parser.loadDbModel();
 		
 		// create the source-code for that database
-		CodeGen codeGen = new CodeGen(config);
+		CodeGenWriter codeGen = new CodeGenWriter(config);
 		codeGen.generateCodeFiles(db);
 		
 		log.info("Code generation completed sucessfully!");

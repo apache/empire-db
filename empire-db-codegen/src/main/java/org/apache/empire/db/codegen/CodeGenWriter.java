@@ -36,6 +36,7 @@ import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.Velocity;
 import org.apache.velocity.exception.ParseErrorException;
 import org.apache.velocity.exception.ResourceNotFoundException;
+import org.apache.velocity.runtime.RuntimeConstants;
 import org.apache.velocity.runtime.log.CommonsLogLogChute;
 
 /**
@@ -61,8 +62,8 @@ import org.apache.velocity.runtime.log.CommonsLogLogChute;
  * </ol>
  */
 
-public class CodeGen {
-	private static final Log log = LogFactory.getLog(CodeGen.class);
+public class CodeGenWriter {
+	private static final Log log = LogFactory.getLog(CodeGenWriter.class);
 
 	// Templates
 	public static final String TEMPLATE_PATH = "src/main/resources/templates/";
@@ -84,10 +85,10 @@ public class CodeGen {
 	/**
 	 * Constructor
 	 */
-	public CodeGen(CodeGenConfig config) {
+	public CodeGenWriter(CodeGenConfig config) {
 		// we have to keep this in sync with our logging system
 		// http://velocity.apache.org/engine/releases/velocity-1.5/developer-guide.html#simpleexampleofacustomlogger
-		Velocity.setProperty(Velocity.RUNTIME_LOG_LOGSYSTEM, new CommonsLogLogChute() );
+		Velocity.setProperty(RuntimeConstants.RUNTIME_LOG_LOGSYSTEM, new CommonsLogLogChute() );
 		try {
 			Velocity.init();
 		} catch (Exception e) {

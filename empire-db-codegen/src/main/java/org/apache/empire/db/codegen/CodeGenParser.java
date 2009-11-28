@@ -29,6 +29,8 @@ import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.empire.commons.ErrorObject;
+import org.apache.empire.commons.Errors;
 import org.apache.empire.data.DataType;
 import org.apache.empire.db.DBColumn;
 import org.apache.empire.db.DBDatabase;
@@ -42,7 +44,7 @@ import org.apache.empire.db.codegen.util.DBUtil;
  * 
  * @author Benjamin Venditti
  */
-public class CodeGenParser {
+public class CodeGenParser extends ErrorObject {
 
 	public static class InMemoryDatabase extends DBDatabase {
 	}
@@ -131,9 +133,14 @@ public class CodeGenParser {
 	private void populateDatabase() {
 		ResultSet tables = null;
 		try {
-			tables = dbMeta.getTables(config.getDbCatalog(), config
-					.getDbSchema(), config.getDbTablePattern(),
+		    // Get table metadata
+		    tables = dbMeta.getTables(
+		            config.getDbCatalog(), 
+		            config.getDbSchema(), 
+		            config.getDbTablePattern(),
 					new String[] { "TABLE" });
+		    // Add all tables
+            int count = 0;
 			while (tables.next()) {
 				String tableName = tables.getString("TABLE_NAME");
 				// Ignore system tables containing a '$' symbol (required for
@@ -145,9 +152,18 @@ public class CodeGenParser {
 				// end system table exclusion
 				log.info("Adding table " + tableName);
 				addTable(tableName);
+				count++;
+			}
+			// Count added
+			if (count==0) {
+			    // getTables returned no result
+			    String info = "catalog="+config.getDbCatalog(); 
+                info += "/ schema="+config.getDbSchema(); 
+                info += "/ pattern="+config.getDbTablePattern(); 
+			    log.warn("DatabaseMetaData.getTables() returned no tables! Please check parameters: "+info);
 			}
 		} catch (SQLException e) {
-			throw new RuntimeException(e);
+			error(e);
 		} finally {
 			DBUtil.close(tables, log);
 		}
@@ -162,26 +178,29 @@ public class CodeGenParser {
 		List<String> pkCols = this.findPkColumns(name);
 		String lockColName = config.getTimestampColumn();
 		DBColumn[] keys = new DBColumn[pkCols.size()];
-		int i = 0;
 		ResultSet rs = null;
 		try {
 			rs = dbMeta.getColumns(config.getDbCatalog(), config.getDbSchema(),
 					name, null);
+	        int i=0;
 			while (rs.next()) {
 				DBTableColumn c = addColumn(t, rs);
 				// check if it is a KeyColumn
-				if (pkCols.contains(c.getName()))
+				if (pkCols.contains(c.getName().toUpperCase()))
 					keys[i++] = c;
 
 				// check if it is the Timestamp/Locking Column
-				if (lockColName != null
-						&& c.getName().toUpperCase().equals(
-								lockColName.toUpperCase()))
+				if (lockColName!=null && c.getName().equalsIgnoreCase(lockColName))
 					t.setTimestampColumn(c);
 			}
-			t.setPrimaryKey(keys);
+	        // Check whether all key columns have been set
+	        for (i=0; i<keys.length; i++)
+	            if (keys[i]==null)
+	                error(Errors.ItemNotFound, pkCols.get(i));
+			// Set Primary Key
+	        t.setPrimaryKey(keys);
 		} catch (SQLException e) {
-			throw new RuntimeException(e);
+			error(e);
 		} finally {
 			DBUtil.close(rs, log);
 		}

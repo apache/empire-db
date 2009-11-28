@@ -25,6 +25,12 @@
 		<jdbcURL>jdbc:oracle:thin:@192.168.0.2:1521:ora10</jdbcURL>
 		<jdbcUser>DBSAMPLE</jdbcUser>
 		<jdbcPwd>DBSAMPLE</jdbcPwd>
+		<!-- 
+		<jdbcClass>com.microsoft.sqlserver.jdbc.SQLServerDriver</jdbcClass>
+		<jdbcURL>jdbc:sqlserver://localhost:1433</jdbcURL>
+		<jdbcUser>empire-db</jdbcUser>
+		<jdbcPwd>empire-db</jdbcPwd>
+		-->
 
 		<!-- Schema options -->
 		<dbCatalog></dbCatalog>
