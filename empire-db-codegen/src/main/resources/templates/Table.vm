@@ -16,6 +16,8 @@
  * specific language governing permissions and limitations
  * under the License.
  *#
+
+#if($nestTables == false)
 package $tablePackageName;
 
 import java.util.ArrayList;
@@ -23,10 +25,10 @@ import java.util.List;
 
 import org.apache.empire.data.DataType;
 import org.apache.empire.db.DBTableColumn;
-
 import $basePackageName.${dbClassName};
+#end
 
-public class $parser.getTableClassName($table.name) extends ${baseTableClassName} {
+public #if($nestTables == true)static#end  class $parser.getTableClassName($table.name) extends ${baseTableClassName} {
 	// Primary key column
 	private List<DBTableColumn> keyColumns= new ArrayList<DBTableColumn>();
 	

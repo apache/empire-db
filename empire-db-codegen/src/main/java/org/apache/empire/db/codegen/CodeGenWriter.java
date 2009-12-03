@@ -52,13 +52,13 @@ import org.apache.velocity.runtime.log.CommonsLogLogChute;
  * <p>
  * NOTE: THIS VERSION HAS SEVERE RESTRICTIONS:
  * <ol>
- * <li> Only tables are currently modeled (we'll add views to a later version).</li> 
- * <li> Table indexes are not yet modeled (exception is primary key). Again, 
- * this will be added to later editions.</li>  
- * <li> It is assumed that each table has a single INTEGER auto-generated primary
- * key column that has the same name for all tables. </li> 
- * <li> It is assumed that each table has a single TIMESTAMP optimistic locking
- * column that has the same name for all tables.</li> 
+ * <li>Only tables are currently modeled (we'll add views to a later version).</li>
+ * <li>Table indexes are not yet modeled (exception is primary key). Again, this
+ * will be added to later editions.</li>
+ * <li>It is assumed that each table has a single INTEGER auto-generated primary
+ * key column that has the same name for all tables.</li>
+ * <li>It is assumed that each table has a single TIMESTAMP optimistic locking
+ * column that has the same name for all tables.</li>
  * </ol>
  */
 
@@ -75,7 +75,7 @@ public class CodeGenWriter {
 
 	// Services
 	private final ParserUtil pUtil;
-	
+
 	// Properties
 	private final CodeGenConfig config;
 	private File baseDir;
@@ -88,7 +88,8 @@ public class CodeGenWriter {
 	public CodeGenWriter(CodeGenConfig config) {
 		// we have to keep this in sync with our logging system
 		// http://velocity.apache.org/engine/releases/velocity-1.5/developer-guide.html#simpleexampleofacustomlogger
-		Velocity.setProperty(RuntimeConstants.RUNTIME_LOG_LOGSYSTEM, new CommonsLogLogChute() );
+		Velocity.setProperty(RuntimeConstants.RUNTIME_LOG_LOGSYSTEM,
+				new CommonsLogLogChute());
 		try {
 			Velocity.init();
 		} catch (Exception e) {
@@ -101,10 +102,12 @@ public class CodeGenWriter {
 
 	/**
 	 * Generates the java code files for the database
-	 * @param db the DBDatabase to generate files for
+	 * 
+	 * @param db
+	 *            the DBDatabase to generate files for
 	 */
 	public List<File> generateCodeFiles(DBDatabase db) {
-	    List<File> generatedFiles = new ArrayList<File>();
+		List<File> generatedFiles = new ArrayList<File>();
 
 		// Prepare directories for generated source files
 		this.initDirectories(config.getTargetFolder(), config.getPackageName());
@@ -118,10 +121,12 @@ public class CodeGenWriter {
 		// Create base record class
 		generatedFiles.add(this.createBaseRecordClass(db));
 		// Create table classes, record interfaces and record classes
-		for (DBTable table : db.getTables()) 
-		{
-		    generatedFiles.add(this.createTableClass(db, table));
-		    generatedFiles.add(this.createRecordClass(db, table));
+		for (DBTable table : db.getTables()) {
+			if (!config.isNestTables()) {
+				// if table nesting is disabled, create separate table classes 
+				generatedFiles.add(this.createTableClass(db, table));
+			}
+			generatedFiles.add(this.createRecordClass(db, table));
 		}
 		return generatedFiles;
 	}
@@ -161,6 +166,9 @@ public class CodeGenWriter {
 		context.put("dbClassName", config.getDbClassName());
 		context.put("tableSubPackage", "tables");
 		context.put("database", db);
+		context.put("nestTables", config.isNestTables());
+		context.put("baseTableClassName", config.getTableBaseName());
+
 		writeFile(file, TEMPLATE_PATH + "/" + DATABASE_TEMPLATE, context);
 		return file;
 	}
@@ -183,6 +191,7 @@ public class CodeGenWriter {
 		context.put("tablePackageName", config.getPackageName() + ".tables");
 		context.put("baseTableClassName", config.getTableBaseName());
 		context.put("dbClassName", config.getDbClassName());
+		context.put("nestTables", config.isNestTables());
 		context.put("table", table);
 		writeFile(file, TEMPLATE_PATH + "/" + TABLE_TEMPLATE, context);
 		return file;
@@ -201,13 +210,15 @@ public class CodeGenWriter {
 	}
 
 	private File createRecordClass(DBDatabase db, DBTable table) {
-		File file = new File(recordDir, pUtil.getRecordClassName(table
-				.getName())
-				+ ".java");
+		File file = new File(recordDir, pUtil.getRecordClassName(table.getName()) + ".java");
 		VelocityContext context = new VelocityContext();
 		context.put("parser", pUtil);
 		context.put("basePackageName", config.getPackageName());
-		context.put("tablePackageName", config.getPackageName() + ".tables");
+		// If the tables shall be nested within the database classe, their include path for the records needs to be changed
+		if (config.isNestTables())
+			context.put("tablePackageName", config.getPackageName() + "." + config.getDbClassName());
+		else
+			context.put("tablePackageName", config.getPackageName() + ".tables");
 		context.put("recordPackageName", config.getPackageName() + ".records");
 		context.put("baseRecordClassName", config.getRecordBaseName());
 		context.put("dbClassName", config.getDbClassName());
