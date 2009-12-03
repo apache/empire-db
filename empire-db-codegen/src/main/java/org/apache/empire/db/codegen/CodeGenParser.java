@@ -54,7 +54,6 @@ public class CodeGenParser extends ErrorObject {
 	private DatabaseMetaData dbMeta;
 	private Connection con;
 	private CodeGenConfig config;
-	private DBDatabase db;
 
 	/**
 	 * create a empty in memory Database and populates it
@@ -67,72 +66,49 @@ public class CodeGenParser extends ErrorObject {
 	 * returns the populated DBDatabase
 	 */
 	public DBDatabase loadDbModel() {
-	    this.db = new InMemoryDatabase();
+		DBDatabase db = new InMemoryDatabase();
 	    try {           
-            // Get a JDBC Connection
-            con = getJDBCConnection(config);
-            
-            // create the database in memory
-
-            this.dbMeta = con.getMetaData();
-            populateDatabase();
-                        
+            con = openJDBCConnection(config);
+            populateDatabase(db);
         } 
         catch (SQLException e) 
         {
-            throw new RuntimeException("Unable to read database metadata!", e);
+            throw new RuntimeException("Unable to read database metadata: " + e.getMessage(), e);
         }
-        catch (Exception e) 
-        {
-            log.error(e.getMessage(), e);
-        } 
         finally 
         {
             DBUtil.close(con, log);
         }
-		return db;
+        return db;
 	}
 
-	// ----------- private members
-
-	   /**
-     * <PRE>
+	/**
      * Opens and returns a JDBC-Connection.
      * JDBC url, user and password for the connection are obained from the SampleConfig bean
      * Please use the config.xml file to change connection params.
-     * </PRE>
      */
-    private Connection getJDBCConnection(CodeGenConfig config) {
-        // Establish a new database connection
+    private Connection openJDBCConnection(CodeGenConfig config) throws SQLException{
+        log.info("Connecting to Database'" + config.getJdbcURL() + "' / User=" + config.getJdbcUser());
         Connection conn = null;
-        log.info("Connecting to Database'" + config.getJdbcURL() + "' / User="
-                + config.getJdbcUser());
         try {
-            // Connect to the databse
             Class.forName(config.getJdbcClass()).newInstance();
-            conn = DriverManager.getConnection(config.getJdbcURL(), config
-                    .getJdbcUser(), config.getJdbcPwd());
-            log.info("Connected successfully");
-            // set the AutoCommit to false this session. You must commit
-            // explicitly now
-            conn.setAutoCommit(true);
-            log.info("AutoCommit is " + conn.getAutoCommit());
-
-        } catch (Exception e) {
-            log.fatal("Failed to connect directly to '" + config.getJdbcURL()
-                    + "' / User=" + config.getJdbcUser(), e);
-            throw new RuntimeException(e);
+        }catch(Exception ex){
+        	throw new SQLException("Could not load database driver: " + config.getJdbcClass());
         }
+        conn = DriverManager.getConnection(config.getJdbcURL(), config.getJdbcUser(), config.getJdbcPwd());
+        log.info("Connected successfully");
         return conn;
     }
 	
 	/**
-	 * queries the metadata of the database for tables and populates the
+	 * Queries the metadata of the database for tables and populates the
 	 * database with those
+	 * @throws SQLException 
 	 */
-	private void populateDatabase() {
+	private void populateDatabase(DBDatabase db) throws SQLException {
 		ResultSet tables = null;
-		try {
+		try{
+            this.dbMeta = con.getMetaData();
 		    // Get table metadata
 		    tables = dbMeta.getTables(
 		            config.getDbCatalog(), 
@@ -140,30 +116,27 @@ public class CodeGenParser extends ErrorObject {
 		            config.getDbTablePattern(),
 					new String[] { "TABLE" });
 		    // Add all tables
-            int count = 0;
+            int tableCount = 0;
 			while (tables.next()) {
 				String tableName = tables.getString("TABLE_NAME");
-				// Ignore system tables containing a '$' symbol (required for
-				// Oracle!)
+				// Ignore system tables containing a '$' symbol (required for Oracle!)
 				if (tableName.indexOf('$') >= 0) {
 					log.info("Ignoring system table " + tableName);
 					continue;
 				}
-				// end system table exclusion
-				log.info("Adding table " + tableName);
-				addTable(tableName);
-				count++;
+				log.info("TABLE: " + tableName);
+				DBTable table = new DBTable(tableName, db);
+				populateTable(table);
+				tableCount++;
 			}
-			// Count added
-			if (count==0) {
+
+			if (tableCount==0) {
 			    // getTables returned no result
 			    String info = "catalog="+config.getDbCatalog(); 
                 info += "/ schema="+config.getDbSchema(); 
                 info += "/ pattern="+config.getDbTablePattern(); 
 			    log.warn("DatabaseMetaData.getTables() returned no tables! Please check parameters: "+info);
 			}
-		} catch (SQLException e) {
-			error(e);
 		} finally {
 			DBUtil.close(tables, log);
 		}
@@ -172,23 +145,23 @@ public class CodeGenParser extends ErrorObject {
 	/**
 	 * queries the metadata for columns of a specific table and populates the
 	 * table with that information
+	 * @throws SQLException 
 	 */
-	private void addTable(String name) {
-		DBTable t = new DBTable(name.toUpperCase(), db);
-		List<String> pkCols = this.findPkColumns(name);
+	private void populateTable(DBTable t) throws SQLException {
+		List<String> pkCols = this.findPkColumns(t.getName());
 		String lockColName = config.getTimestampColumn();
 		DBColumn[] keys = new DBColumn[pkCols.size()];
 		ResultSet rs = null;
 		try {
 			rs = dbMeta.getColumns(config.getDbCatalog(), config.getDbSchema(),
-					name, null);
+					t.getName(), null);
 	        int i=0;
 			while (rs.next()) {
 				DBTableColumn c = addColumn(t, rs);
 				// check if it is a KeyColumn
-				if (pkCols.contains(c.getName().toUpperCase()))
+				if (pkCols.contains(c.getName()))
 					keys[i++] = c;
-
+				
 				// check if it is the Timestamp/Locking Column
 				if (lockColName!=null && c.getName().equalsIgnoreCase(lockColName))
 					t.setTimestampColumn(c);
@@ -197,10 +170,9 @@ public class CodeGenParser extends ErrorObject {
 	        for (i=0; i<keys.length; i++)
 	            if (keys[i]==null)
 	                error(Errors.ItemNotFound, pkCols.get(i));
-			// Set Primary Key
-	        t.setPrimaryKey(keys);
-		} catch (SQLException e) {
-			error(e);
+	        if(keys.length > 0){
+	        	t.setPrimaryKey(keys);
+	        }
 		} finally {
 			DBUtil.close(rs, log);
 		}
@@ -209,19 +181,17 @@ public class CodeGenParser extends ErrorObject {
 	/**
 	 * Returns a list of column names that define the primarykey of the given
 	 * table.
+	 * @throws SQLException 
 	 */
-	private List<String> findPkColumns(String tableName) {
+	private List<String> findPkColumns(String tableName) throws SQLException {
 		List<String> cols = new ArrayList<String>();
 		ResultSet rs = null;
 		try {
 			rs = dbMeta.getPrimaryKeys(config.getDbCatalog(), config
 					.getDbSchema(), tableName);
 			while (rs.next()) {
-				cols.add(rs.getString("COLUMN_NAME").toUpperCase());
+				cols.add(rs.getString("COLUMN_NAME"));
 			}
-
-		} catch (SQLException e) {
-			throw new RuntimeException(e);
 		} finally {
 			DBUtil.close(rs, log);
 		}
@@ -242,7 +212,7 @@ public class CodeGenParser extends ErrorObject {
 		if (rs.getString("IS_NULLABLE").equalsIgnoreCase("NO"))
 			required = true;
 
-		log.info("\tCOLUMN:\t" + name);
+		log.info("\tCOLUMN:\t" + name + " ("+empireType+")");
 		return t.addColumn(name, empireType, colSize, required, defaultValue);
 	}
 
@@ -298,7 +268,7 @@ public class CodeGenParser extends ErrorObject {
 			empireType = DataType.UNKNOWN;
 			log.warn("SQL column type " + sqlType + " not supported.");
 		}
-		log.info("Mapping date type " + String.valueOf(sqlType) + " to "
+		log.debug("Mapping date type " + String.valueOf(sqlType) + " to "
 				+ empireType);
 		return empireType;
 	}
