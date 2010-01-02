@@ -21,7 +21,7 @@
 	<parent>
 		<groupId>org.apache</groupId>
 		<artifactId>apache</artifactId>
-		<version>6</version>
+		<version>7</version>
 		<!-- TODO switch to apache parent 7 (see mail) -->
 	</parent>
 	
