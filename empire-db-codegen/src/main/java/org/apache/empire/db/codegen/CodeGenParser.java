@@ -33,9 +33,12 @@ import org.apache.empire.commons.ErrorObject;
 import org.apache.empire.commons.Errors;
 import org.apache.empire.data.DataType;
 import org.apache.empire.db.DBColumn;
+import org.apache.empire.db.DBCommandExpr;
 import org.apache.empire.db.DBDatabase;
 import org.apache.empire.db.DBTable;
 import org.apache.empire.db.DBTableColumn;
+import org.apache.empire.db.DBView;
+import org.apache.empire.db.DBView.DBViewColumn;
 import org.apache.empire.db.codegen.util.DBUtil;
 
 /**
@@ -47,6 +50,22 @@ import org.apache.empire.db.codegen.util.DBUtil;
 public class CodeGenParser extends ErrorObject {
 
 	public static class InMemoryDatabase extends DBDatabase {
+	}
+	
+	public static class InMemoryView extends DBView {
+		public InMemoryView(String name, DBDatabase db) {
+			super(name, db);
+		}
+		
+		public DBViewColumn addCol(String columnName,DataType dataType)
+		{
+			return addColumn(columnName, dataType);
+		}
+		
+		@Override
+		public DBCommandExpr createCommand() {
+			return null;
+		}
 	}
 
 	private static final Log log = LogFactory.getLog(CodeGenParser.class);
@@ -101,21 +120,29 @@ public class CodeGenParser extends ErrorObject {
     }
 	
 	/**
-	 * Queries the metadata of the database for tables and populates the
+	 * Queries the metadata of the database for tables and vies and populates the
 	 * database with those
 	 * @throws SQLException 
 	 */
 	private void populateDatabase(DBDatabase db) throws SQLException {
 		ResultSet tables = null;
+		ResultSet views = null;
 		try{
             this.dbMeta = con.getMetaData();
 		    // Get table metadata
-		    tables = dbMeta.getTables(
+            tables = dbMeta.getTables(
 		            config.getDbCatalog(), 
 		            config.getDbSchema(), 
 		            config.getDbTablePattern(),
 					new String[] { "TABLE" });
-		    // Add all tables
+            // Get view metadata
+            views = dbMeta.getTables(
+		            config.getDbCatalog(), 
+		            config.getDbSchema(), 
+		            config.getDbTablePattern(),
+					new String[] { "VIEW" });
+            
+         // Add all tables
             int tableCount = 0;
 			while (tables.next()) {
 				String tableName = tables.getString("TABLE_NAME");
@@ -128,6 +155,21 @@ public class CodeGenParser extends ErrorObject {
 				DBTable table = new DBTable(tableName, db);
 				populateTable(table);
 				tableCount++;
+			}
+			
+			// Add all views
+            int viewCount = 0;
+			while (views.next()) {
+				String viewName = views.getString("TABLE_NAME");
+				// Ignore system tables containing a '$' symbol (required for Oracle!)
+				if (viewName.indexOf('$') >= 0) {
+					log.info("Ignoring system table " + viewName);
+					continue;
+				}
+				log.info("VIEW: " + viewName);
+				InMemoryView view = new InMemoryView(viewName, db);
+				populateView(view);
+				viewCount++;
 			}
 
 			if (tableCount==0) {
@@ -177,6 +219,24 @@ public class CodeGenParser extends ErrorObject {
 			DBUtil.close(rs, log);
 		}
 	}
+	
+	/**
+	 * queries the metadata for columns of a specific table and populates the
+	 * table with that information
+	 * @throws SQLException 
+	 */
+	private void populateView(InMemoryView v) throws SQLException {
+		ResultSet rs = null;
+		try {
+			rs = dbMeta.getColumns(config.getDbCatalog(), config.getDbSchema(),
+					v.getName(), null);
+			while (rs.next()) {
+				addColumn(v, rs);
+			}
+		} finally {
+			DBUtil.close(rs, log);
+		}
+	}
 
 	/**
 	 * Returns a list of column names that define the primarykey of the given
@@ -211,9 +271,22 @@ public class CodeGenParser extends ErrorObject {
 		String defaultValue = rs.getString("COLUMN_DEF");
 		if (rs.getString("IS_NULLABLE").equalsIgnoreCase("NO"))
 			required = true;
-
+		
 		log.info("\tCOLUMN:\t" + name + " ("+empireType+")");
 		return t.addColumn(name, empireType, colSize, required, defaultValue);
+	}
+	
+	/**
+	 * Adds DBColumn object to the given DBTable. The DBColumn is created from
+	 * the given ResultSet
+	 */
+	private DBViewColumn addColumn(InMemoryView v, ResultSet rs)
+			throws SQLException {
+		String name = rs.getString("COLUMN_NAME");
+		DataType empireType = getEmpireDataType(rs.getInt("DATA_TYPE"));
+		
+		log.info("\tCOLUMN:\t" + name + " ("+empireType+")");
+		return v.addCol(name, empireType);
 	}
 
 	/**

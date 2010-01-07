@@ -42,10 +42,26 @@ import org.apache.commons.logging.LogFactory;
 public class FileUtils {
 	
 	private static final Log log =  LogFactory.getLog(FileUtils.class);
-	
+	public static final String SEPARATOR =  System.getProperty("file.separator");
 	private FileUtils()
 	{
 		// Utility class
+	}
+	
+	/**
+	 * Creates a directory structure due to a java package name within the specified folder.
+	 * @param target,	the target folder
+	 * @param pack,		the java package name
+	 */
+	public static File getFileFromPackage(File target, String pack) {
+		StringBuilder sb = new StringBuilder();
+		sb.append(target.getAbsolutePath()).append(SEPARATOR);
+		sb.append(pack.replace(".", SEPARATOR));
+		File f = new File(sb.toString());
+		if (!f.exists()) {
+			f.mkdirs();
+		}
+		return f;
 	}
 	
 	/**

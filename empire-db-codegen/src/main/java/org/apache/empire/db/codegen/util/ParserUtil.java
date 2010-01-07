@@ -49,6 +49,14 @@ public class ParserUtil {
 	}
 
 	/**
+	 * Returns the java table class name for a given view name.
+	 */
+	public String getViewClassName(String viewName) {
+		return config.getViewClassPrefix() + javaClassName(viewName)
+		+ config.getTableClassSuffix();
+	}
+	
+	/**
 	 * Returns the java record class name for a given table name.
 	 */
 	public String getRecordClassName(String tableName) {
@@ -70,6 +78,14 @@ public class ParserUtil {
 	public String getMutatorName(DBColumn c) {
 
 		return deriveMutatorName(c.getName());
+	}
+	
+	/**
+	 * Returns the attribute name for a given DBColumn
+	 */
+	public String getAttributeName(DBColumn c) {
+
+		return deriveAttributeName(c.getName());
 	}
 
 	/**
@@ -194,6 +210,7 @@ public class ParserUtil {
 	 * @return
 	 */
 	private static String deriveAccessorName(String attribute, boolean isBoolean) {
+		attribute = deriveAttributeName(attribute);
 		StringBuilder sb = new StringBuilder();
 		if (isBoolean)
 			sb.append("is");
@@ -211,11 +228,22 @@ public class ParserUtil {
 	 * @return
 	 */
 	private static String deriveMutatorName(String attribute) {
+		attribute = deriveAttributeName(attribute);
 		StringBuilder sb = new StringBuilder();
 		sb.append("set");
 		sb.append(Character.toUpperCase(attribute.charAt(0)));
 		sb.append(attribute.substring(1));
 		return sb.toString();
+	}
+	
+	/**
+	 * Derives the attribute name based on the column name.
+	 * 
+	 * @param attribute
+	 * @return
+	 */
+	private static String deriveAttributeName(String column) {
+		return column.replace(' ', '_');
 	}
 
 }

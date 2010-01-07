@@ -29,6 +29,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.empire.db.DBDatabase;
 import org.apache.empire.db.DBTable;
+import org.apache.empire.db.DBView;
 import org.apache.empire.db.codegen.util.FileUtils;
 import org.apache.empire.db.codegen.util.ParserUtil;
 import org.apache.velocity.Template;
@@ -70,6 +71,8 @@ public class CodeGenWriter {
 	public static final String DATABASE_TEMPLATE = "Database.vm";
 	public static final String BASE_TABLE_TEMPLATE = "BaseTable.vm";
 	public static final String TABLE_TEMPLATE = "Table.vm";
+	public static final String BASE_VIEW_TEMPLATE = "BaseView.vm";
+	public static final String VIEW_TEMPLATE = "View.vm";
 	public static final String BASE_RECORD_TEMPLATE = "BaseRecord.vm";
 	public static final String RECORD_TEMPLATE = "Record.vm";
 
@@ -81,6 +84,7 @@ public class CodeGenWriter {
 	private File baseDir;
 	private File tableDir;
 	private File recordDir;
+	private File viewDir;
 
 	/**
 	 * Constructor
@@ -110,13 +114,16 @@ public class CodeGenWriter {
 		List<File> generatedFiles = new ArrayList<File>();
 
 		// Prepare directories for generated source files
-		this.initDirectories(config.getTargetFolder(), config.getPackageName());
+		this.initDirectories(config);
 
 		// Create the DB class
 		generatedFiles.add(this.createDatabaseClass(db));
 
 		// Create base table class
 		generatedFiles.add(this.createBaseTableClass(db));
+		
+		// Create base view class
+		generatedFiles.add(this.createBaseViewClass(db));
 
 		// Create base record class
 		generatedFiles.add(this.createBaseRecordClass(db));
@@ -128,33 +135,39 @@ public class CodeGenWriter {
 			}
 			generatedFiles.add(this.createRecordClass(db, table));
 		}
+		
+		// Create view classes
+		for (DBView view : db.getViews()) {
+			if (!config.isNestViews()) {
+				// if table nesting is disabled, create separate table classes 
+				generatedFiles.add(this.createViewClass(db, view));
+			}
+		}
 		return generatedFiles;
 	}
 
-	private void initDirectories(String srcLocation, String packageName) {
+	
+	private void initDirectories(CodeGenConfig config) {
 		// Create the directory structure for the generated source code.
-		File baseDir = new File(srcLocation);
-		if (!baseDir.exists()) {
-			baseDir.mkdirs();
+		File targetDir = new File(config.getTargetFolder());
+		if (!targetDir.exists()) {
+			targetDir.mkdirs();
 		}
-		StringBuilder sb = new StringBuilder();
-		sb.append(srcLocation).append("/");
-		sb.append(packageName.replaceAll("\\.", "/"));
-		this.baseDir = new File(sb.toString());
-		if (!this.baseDir.exists()) {
-			this.baseDir.mkdirs();
-		}
+
+		// Create the base package directory
+		this.baseDir = FileUtils.getFileFromPackage(targetDir, config.getPackageName());
 
 		// Clean out the directory so old code is wiped out.
 		FileUtils.cleanDirectory(this.baseDir);
 
 		// Create the table package directory
-		this.tableDir = new File(this.baseDir, "tables");
-		this.tableDir.mkdir();
+		this.tableDir = FileUtils.getFileFromPackage(targetDir, config.getTablePackageName());
 
 		// Create the record package directory
-		this.recordDir = new File(this.baseDir, "records");
-		this.recordDir.mkdir();
+		this.recordDir = FileUtils.getFileFromPackage(targetDir, config.getRecordPackageName());
+		
+		// Create the record package directory
+		this.viewDir = FileUtils.getFileFromPackage(targetDir, config.getViewPackageName());
 	}
 
 	private File createDatabaseClass(DBDatabase db) {
@@ -164,10 +177,13 @@ public class CodeGenWriter {
 		context.put("tableClassSuffix", config.getTableClassSuffix());
 		context.put("basePackageName", config.getPackageName());
 		context.put("dbClassName", config.getDbClassName());
-		context.put("tableSubPackage", "tables");
+		context.put("tablePackageName", config.getTablePackageName());
+		context.put("viewPackageName", config.getViewPackageName());
 		context.put("database", db);
 		context.put("nestTables", config.isNestTables());
 		context.put("baseTableClassName", config.getTableBaseName());
+		context.put("nestViews", config.isNestViews());
+		context.put("baseViewClassName", config.getViewBaseName());
 
 		writeFile(file, TEMPLATE_PATH + "/" + DATABASE_TEMPLATE, context);
 		return file;
@@ -176,7 +192,7 @@ public class CodeGenWriter {
 	private File createBaseTableClass(DBDatabase db) {
 		File file = new File(tableDir, config.getTableBaseName() + ".java");
 		VelocityContext context = new VelocityContext();
-		context.put("tablePackageName", config.getPackageName() + ".tables");
+		context.put("tablePackageName", config.getTablePackageName());
 		context.put("baseTableClassName", config.getTableBaseName());
 		writeFile(file, TEMPLATE_PATH + "/" + BASE_TABLE_TEMPLATE, context);
 		return file;
@@ -188,12 +204,36 @@ public class CodeGenWriter {
 		VelocityContext context = new VelocityContext();
 		context.put("parser", pUtil);
 		context.put("basePackageName", config.getPackageName());
-		context.put("tablePackageName", config.getPackageName() + ".tables");
+		context.put("tablePackageName", config.getTablePackageName());
 		context.put("baseTableClassName", config.getTableBaseName());
 		context.put("dbClassName", config.getDbClassName());
 		context.put("nestTables", config.isNestTables());
 		context.put("table", table);
 		writeFile(file, TEMPLATE_PATH + "/" + TABLE_TEMPLATE, context);
+		return file;
+	}
+	
+	private File createBaseViewClass(DBDatabase db) {
+		File file = new File(viewDir, config.getViewBaseName() + ".java");
+		VelocityContext context = new VelocityContext();
+		context.put("viewPackageName", config.getViewPackageName());
+		context.put("baseViewClassName", config.getViewBaseName());
+		writeFile(file, TEMPLATE_PATH + "/" + BASE_VIEW_TEMPLATE, context);
+		return file;
+	}
+
+	private File createViewClass(DBDatabase db, DBView view) {
+		File file = new File(viewDir, pUtil.getViewClassName(view.getName())
+				+ ".java");
+		VelocityContext context = new VelocityContext();
+		context.put("parser", pUtil);
+		context.put("basePackageName", config.getPackageName());
+		context.put("viewPackageName", config.getViewPackageName());
+		context.put("baseViewClassName", config.getViewBaseName());
+		context.put("dbClassName", config.getDbClassName());
+		context.put("nestViews", config.isNestViews());
+		context.put("view", view);
+		writeFile(file, TEMPLATE_PATH + "/" + VIEW_TEMPLATE, context);
 		return file;
 	}
 
@@ -202,8 +242,8 @@ public class CodeGenWriter {
 		VelocityContext context = new VelocityContext();
 		context.put("baseRecordClassName", config.getRecordBaseName());
 		context.put("basePackageName", config.getPackageName());
-		context.put("tablePackageName", config.getPackageName() + ".tables");
-		context.put("recordPackageName", config.getPackageName() + ".records");
+		context.put("tablePackageName", config.getTablePackageName());
+		context.put("recordPackageName", config.getRecordPackageName());
 		context.put("baseTableClassName", config.getTableBaseName());
 		writeFile(file, TEMPLATE_PATH + "/" + BASE_RECORD_TEMPLATE, context);
 		return file;
@@ -218,8 +258,8 @@ public class CodeGenWriter {
 		if (config.isNestTables())
 			context.put("tablePackageName", config.getPackageName() + "." + config.getDbClassName());
 		else
-			context.put("tablePackageName", config.getPackageName() + ".tables");
-		context.put("recordPackageName", config.getPackageName() + ".records");
+			context.put("tablePackageName", config.getTablePackageName());
+		context.put("recordPackageName", config.getRecordPackageName());
 		context.put("baseRecordClassName", config.getRecordBaseName());
 		context.put("dbClassName", config.getDbClassName());
 		context

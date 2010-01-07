@@ -51,10 +51,10 @@ public class $parser.getRecordClassName($table.name) extends ${baseRecordClassNa
 #foreach($col in $table.columns)
 
 	public $parser.getJavaType($col) $parser.getAccessorName($col)() {
-		return ($parser.getJavaType($col))super.getValue(getDbTable().C_${col.name});
+		return ($parser.getJavaType($col))super.getValue(getDbTable().C_${parser.getAttributeName($col)});
 	}
 	public void $parser.getMutatorName($col)($parser.getJavaType($col) val) {
-		super.setValue(getDbTable().C_${col.name}, val);
+		super.setValue(getDbTable().C_${parser.getAttributeName($col)}, val);
 	}
 #end
 #end

@@ -41,12 +41,21 @@
 		</dependency>
 
 		<!--  Databases -->
+		<!-- hsql -->
 		<dependency>
 		    <groupId>hsqldb</groupId>
 		    <artifactId>hsqldb</artifactId>
 		    <!-- <scope>runtime</scope> -->
 		</dependency>
 
+		<!-- mysql -->
+		<dependency>
+		    <groupId>mysql</groupId>
+		    <artifactId>mysql-connector-java</artifactId>
+		    <version>5.1.1</version>
+		</dependency>
+		
+		
 		<!-- ojdbc 
 		<dependency>
 		    <groupId>ojdbc</groupId>

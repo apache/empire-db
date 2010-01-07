@@ -27,12 +27,16 @@ import org.apache.empire.db.DBCommand;
 import org.apache.empire.db.DBDatabase;
 import org.apache.empire.db.DBReader;
 import org.apache.empire.db.DBRecord;
-#if($nestTables == true)
+
+#if($nestTables == true || $nestViews == true)
 import org.apache.empire.data.DataType;
+#end
+#if($nestTables == true)
 import org.apache.empire.db.DBTableColumn;
 #end
 
-import $basePackageName.$tableSubPackage.*;
+import $tablePackageName.*;
+import $viewPackageName.*;
 
 public class $dbClassName extends DBDatabase {
 
@@ -42,6 +46,11 @@ public class $dbClassName extends DBDatabase {
 #foreach($table in $database.tables)
 	#set($tblClass=$parser.getTableClassName($table.name))
 	public final $tblClass T_${table.name} = new $tblClass(this);
+#end
+
+#foreach($view in $database.views)
+	#set($viewClass=$parser.getViewClassName($view.name))
+	public final $viewClass V_${view.name} = new $viewClass(this);
 #end
 	
 	/**
@@ -123,6 +132,12 @@ public class $dbClassName extends DBDatabase {
 	#if($nestTables == true)
 		#foreach ($table in $database.tables)
 			#parse( "src/main/resources/templates/Table.vm" )
+		#end
+	#end
+
+	#if($nestViews == true)
+		#foreach ($view in $database.views)
+			#parse( "src/main/resources/templates/View.vm" )
 		#end
 	#end
 	

@@ -1,0 +1,42 @@
+#*
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *  http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ *#
+
+#if($nestViews == false)
+package $viewPackageName;
+
+import org.apache.empire.data.DataType;
+import $basePackageName.${dbClassName};
+#end
+
+public #if($nestViews == true)static#end  class $parser.getViewClassName($view.name) extends ${baseViewClassName} {
+	
+	// Regular attributes
+#foreach ($col in $view.columns)
+	public final DBViewColumn C_${parser.getAttributeName($col)};
+#end
+	
+	public $parser.getViewClassName($view.name)(${dbClassName} db) {
+		super("$parser.getViewClassName($view.name)", db);
+		
+		// all columns
+#foreach ($col in $view.columns)
+		C_${parser.getAttributeName($col)} = super.addColumn("${col.name}", DataType.${col.getDataType()});
+#end		
+	}
+}

@@ -41,6 +41,9 @@
 		<!-- generation options -->
 		<targetFolder>target/generated/dbsample</targetFolder>
 		<packageName>org.apache.empire.db.samples.dbsample</packageName>
+		<tablePackageName>org.apache.empire.db.samples.dbsample.tables</tablePackageName>
+		<viewPackageName>org.apache.empire.db.samples.dbsample.views</viewPackageName>
+		<recordPackageName>org.apache.empire.db.samples.dbsample.records</recordPackageName>
 		<dbClassName>SampleDB</dbClassName>
 		<tableBaseName>SampleTable</tableBaseName>
 		<viewBaseName>SampleView</viewBaseName>
@@ -48,6 +51,7 @@
 		<tableClassPrefix>T</tableClassPrefix>
 		<tableClassSuffix>Table</tableClassSuffix>
 		<viewClassPrefix>V</viewClassPrefix>
+		<viewClassSuffix>View</viewClassSuffix>
 		<nestTables>True</nestTables>
 		<nestViews>False</nestViews>
 		<createRecordProperties>true</createRecordProperties>
