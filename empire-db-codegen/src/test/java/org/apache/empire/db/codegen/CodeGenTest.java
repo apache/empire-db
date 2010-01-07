@@ -48,7 +48,7 @@ public class CodeGenTest
         };
         
         List<File> files = codeGen.generateCodeFiles(db);
-        assertEquals(3, files.size());
+        assertEquals(4, files.size());
         for(File file:files){
         	System.out.println(file);
         }
