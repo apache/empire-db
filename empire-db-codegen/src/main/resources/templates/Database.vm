@@ -131,13 +131,13 @@ public class $dbClassName extends DBDatabase {
 	
 	#if($nestTables == true)
 		#foreach ($table in $database.tables)
-			#parse( "src/main/resources/templates/Table.vm" )
+			#parse( "$templateFolder/Table.vm" )
 		#end
 	#end
 
 	#if($nestViews == true)
 		#foreach ($view in $database.views)
-			#parse( "src/main/resources/templates/View.vm" )
+			#parse( "$templateFolder/View.vm" )
 		#end
 	#end
 	

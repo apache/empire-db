@@ -18,10 +18,14 @@
  */
 package org.apache.empire.db.codegen.util;
 
+import java.lang.reflect.Method;
+import java.util.HashSet;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.empire.data.DataType;
 import org.apache.empire.db.DBColumn;
+import org.apache.empire.db.DBRecord;
 import org.apache.empire.db.DBTable;
 import org.apache.empire.db.DBTableColumn;
 import org.apache.empire.db.codegen.CodeGenConfig;
@@ -35,9 +39,25 @@ public class ParserUtil {
 
 	private CodeGenConfig config;
 	
+	private static HashSet<String> dbrecMethodNames;
+	
 	public ParserUtil(CodeGenConfig config) {
 
 		this.config = config;
+	}
+	
+	public static HashSet<String> getDBRecordMethodNames(){
+		// some g/setters like getState() can conflict with DBRecord
+		// methods. To check for conflicts, we'll need to know
+		// the method names.
+		if(dbrecMethodNames == null){
+			Method[] dbrecMethods = DBRecord.class.getMethods();
+			dbrecMethodNames = new HashSet<String>(dbrecMethods.length);
+			for(Method method : dbrecMethods){
+				dbrecMethodNames.add(method.getName());
+			}
+		}
+		return dbrecMethodNames;
 	}
 
 	/**
@@ -53,7 +73,7 @@ public class ParserUtil {
 	 */
 	public String getViewClassName(String viewName) {
 		return config.getViewClassPrefix() + javaClassName(viewName)
-		+ config.getTableClassSuffix();
+		+ config.getViewClassSuffix();
 	}
 	
 	/**
@@ -77,7 +97,7 @@ public class ParserUtil {
 	 */
 	public String getMutatorName(DBColumn c) {
 
-		return deriveMutatorName(c.getName());
+		return deriveMutatorName(c.getName(), getJavaType(c).equalsIgnoreCase("Boolean"));
 	}
 	
 	/**
@@ -128,6 +148,16 @@ public class ParserUtil {
 	 */
 	public String getJavaType(DBColumn c) {
 		DataType type = getDataType(c);
+		// We added the attribute of original datatype to AUTOINC columns
+		// in CodeGenParser.addColumn(). Now we need to use it so that
+		// the g/setters deal with the right Java type.
+		
+		// If the original data type was not set as an attribute for some
+		// reason this will just fall through to the bottom and
+		// return "Byte[]", so no problem.
+		if (type.equals(DataType.AUTOINC) && null != c.getAttribute("AutoIncDataType"))
+			type = (DataType)c.getAttribute("AutoIncDataType");
+		
 		if (type.equals(DataType.INTEGER))
 			return "Long";
 		else if (type.equals(DataType.TEXT))
@@ -185,6 +215,12 @@ public class ParserUtil {
 	private static String javaClassName(String name) {
 		StringBuilder sb = new StringBuilder();
 		sb.append(Character.toUpperCase(name.charAt(0)));
+		// Tables might already be camel case. Let's skip this if no '_' anywhere.
+		if(name.substring(1).indexOf('_') <= 0) {
+			if(name.length() > 1)
+				sb.append(name.substring(1));
+			return sb.toString();
+		}
 		boolean upperCase = false;
 		for (int i = 1; i < name.length(); i++) 
 		{
@@ -210,14 +246,32 @@ public class ParserUtil {
 	 * @return
 	 */
 	private static String deriveAccessorName(String attribute, boolean isBoolean) {
+		return deriveRecordMethodName(attribute, isBoolean, true);
+	}
+	
+	// We need to alter both getter and setter if the method name will
+	// conflict with existing methods DBRecord. This will check both
+	// so that getter and setter have matching suffixes if one or 
+	// the other conflicts with an existing method.
+	private static String deriveRecordMethodName(String attribute, boolean isBoolean, boolean isGetter) {
 		attribute = deriveAttributeName(attribute);
 		StringBuilder sb = new StringBuilder();
-		if (isBoolean)
-			sb.append("is");
-		else
-			sb.append("get");
 		sb.append(Character.toUpperCase(attribute.charAt(0)));
 		sb.append(attribute.substring(1));
+		
+		StringBuilder sbGet = new StringBuilder();
+		if (isBoolean)
+			sbGet.append("is");
+		else
+			sbGet.append("get");
+		sbGet.append(sb);
+		
+		StringBuilder sbSet = new StringBuilder("set");
+		sbSet.append(sb);
+		sb = isGetter ? sbGet : sbSet;
+		HashSet<String> names = getDBRecordMethodNames();
+		if(names.contains(sbGet.toString()) || names.contains(sbSet.toString()))
+			sb.append("Column"); // Any change will resolve the conflict.
 		return sb.toString();
 	}
 
@@ -227,13 +281,8 @@ public class ParserUtil {
 	 * @param attribute
 	 * @return
 	 */
-	private static String deriveMutatorName(String attribute) {
-		attribute = deriveAttributeName(attribute);
-		StringBuilder sb = new StringBuilder();
-		sb.append("set");
-		sb.append(Character.toUpperCase(attribute.charAt(0)));
-		sb.append(attribute.substring(1));
-		return sb.toString();
+	private static String deriveMutatorName(String attribute, boolean isBoolean) {
+		return deriveRecordMethodName(attribute, isBoolean, false);
 	}
 	
 	/**

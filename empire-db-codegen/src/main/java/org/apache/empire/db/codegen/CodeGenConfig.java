@@ -53,6 +53,12 @@ public class CodeGenConfig extends XMLConfiguration {
 	 * name of the target folder
 	 */
 	private String targetFolder = "target/generated/db";
+	
+	/**
+	 * name of the template folder
+	 */
+	private String templateFolder = "src/main/resources/templates";	
+	
 	/**
 	 * name of the target package
 	 */
@@ -261,7 +267,15 @@ public class CodeGenConfig extends XMLConfiguration {
 	public void setTargetFolder(String targetFolder) {
 		this.targetFolder = targetFolder;
 	}
+	
+	public String getTemplateFolder() {
+		return templateFolder;
+	}
 
+	public void setTemplateFolder(String templateFolder) {
+		this.templateFolder = templateFolder;
+	}
+	
 	public String getPackageName() {
 		return packageName;
 	}

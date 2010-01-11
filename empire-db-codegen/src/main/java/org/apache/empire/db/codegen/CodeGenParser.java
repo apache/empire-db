@@ -22,6 +22,7 @@ import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Types;
 import java.util.ArrayList;
@@ -126,58 +127,51 @@ public class CodeGenParser extends ErrorObject {
 	 */
 	private void populateDatabase(DBDatabase db) throws SQLException {
 		ResultSet tables = null;
-		ResultSet views = null;
 		try{
             this.dbMeta = con.getMetaData();
-		    // Get table metadata
-            tables = dbMeta.getTables(
-		            config.getDbCatalog(), 
-		            config.getDbSchema(), 
-		            config.getDbTablePattern(),
-					new String[] { "TABLE" });
-            // Get view metadata
-            views = dbMeta.getTables(
-		            config.getDbCatalog(), 
-		            config.getDbSchema(), 
-		            config.getDbTablePattern(),
-					new String[] { "VIEW" });
+            String[] tablePatterns = {null}; // Could be null, so start that way.
+			if(config.getDbTablePattern() != null)
+				tablePatterns = config.getDbTablePattern().split(","); // Support a comma separated list of table patterns (i.e. specify a list of table names in the config file).
             
-         // Add all tables
-            int tableCount = 0;
-			while (tables.next()) {
-				String tableName = tables.getString("TABLE_NAME");
-				// Ignore system tables containing a '$' symbol (required for Oracle!)
-				if (tableName.indexOf('$') >= 0) {
-					log.info("Ignoring system table " + tableName);
-					continue;
-				}
-				log.info("TABLE: " + tableName);
-				DBTable table = new DBTable(tableName, db);
-				populateTable(table);
-				tableCount++;
-			}
-			
-			// Add all views
+            int tableCount = 0; // Moved to be outside table pattern loop.
             int viewCount = 0;
-			while (views.next()) {
-				String viewName = views.getString("TABLE_NAME");
-				// Ignore system tables containing a '$' symbol (required for Oracle!)
-				if (viewName.indexOf('$') >= 0) {
-					log.info("Ignoring system table " + viewName);
-					continue;
+            for(String pattern : tablePatterns){
+            
+			    // Get table metadata
+	            tables = dbMeta.getTables(
+			            config.getDbCatalog(), 
+			            config.getDbSchema(), 
+			            pattern.trim(),
+						new String[] { "TABLE", "VIEW" });
+	            
+	            // Add all tables and views 
+				while (tables.next()) {
+					String tableName = tables.getString("TABLE_NAME");
+					String tableType = tables.getString("TABLE_TYPE");
+					// Ignore system tables containing a '$' symbol (required for Oracle!)
+					if (tableName.indexOf('$') >= 0) {
+						log.info("Ignoring system table " + tableName);
+						continue;
+					}
+					log.info(tableType + ": " + tableName);
+					if(tableType.equalsIgnoreCase("VIEW")){
+						InMemoryView view = new InMemoryView(tableName, db);
+						populateView(view);
+						viewCount++;
+					} else {
+						DBTable table = new DBTable(tableName, db);
+						populateTable(table);
+						tableCount++;
+					}
 				}
-				log.info("VIEW: " + viewName);
-				InMemoryView view = new InMemoryView(viewName, db);
-				populateView(view);
-				viewCount++;
-			}
+            }
 
-			if (tableCount==0) {
+			if (tableCount==0 && viewCount==0) {
 			    // getTables returned no result
 			    String info = "catalog="+config.getDbCatalog(); 
                 info += "/ schema="+config.getDbSchema(); 
                 info += "/ pattern="+config.getDbTablePattern(); 
-			    log.warn("DatabaseMetaData.getTables() returned no tables! Please check parameters: "+info);
+			    log.warn("DatabaseMetaData.getTables() returned no tables or views! Please check parameters: "+info);
 			}
 		} finally {
 			DBUtil.close(tables, log);
@@ -272,8 +266,46 @@ public class CodeGenParser extends ErrorObject {
 		if (rs.getString("IS_NULLABLE").equalsIgnoreCase("NO"))
 			required = true;
 		
+		// The following is a hack for MySQL which currently gets sent a string "CURRENT_TIMESTAMP" from the Empire-db driver for MySQL.
+		// This will avoid the driver problem because CURRENT_TIMESTAMP in the db will just do the current datetime.
+		// Essentially, Empire-db needs the concept of default values of one type that get mapped to another.
+		// In this case, MySQL "CURRENT_TIMESTAMP" for Types.TIMESTAMP needs to emit from the Empire-db driver the null value and not "CURRENT_TIMESTAMP".
+		if(rs.getInt("DATA_TYPE") == Types.TIMESTAMP && defaultValue != null && defaultValue.equals("CURRENT_TIMESTAMP")){
+			required = false; // It is in fact not required even though MySQL schema is required because it has a default value. Generally, should Empire-db emit (required && defaultValue != null) to truly determine if a column is required?
+			defaultValue = null; // If null (and required per schema?) MySQL will apply internal default value.
+		}
+		
+		// AUTOINC indicator is not in java.sql.Types but rather meta data from DatabaseMetaData.getColumns()
+		// getEmpireDataType() above is not enough to support AUTOINC as it will only return DataType.INTEGER
+		DataType originalType = empireType;
+		ResultSetMetaData metaData = rs.getMetaData();
+		int colCount = metaData.getColumnCount();
+		String colName;
+		for (int i = 1; i <= colCount; i++) {
+			colName = metaData.getColumnName(i);
+			// MySQL matches on IS_AUTOINCREMENT column.
+			// SQL Server matches on TYPE_NAME column with identity somewhere in the string value.
+			if ((colName.equalsIgnoreCase("IS_AUTOINCREMENT") && rs.getString(i).equalsIgnoreCase("YES")) ||
+					(colName.equals("TYPE_NAME") && rs.getString(i).matches(".*(?i:identity).*"))){
+				empireType = DataType.AUTOINC;
+				
+			}
+		}
+		
+		// Move from the return statement below so we can add
+		// some AUTOINC meta data to the column to be used by
+		// the ParserUtil and ultimately the template.
 		log.info("\tCOLUMN:\t" + name + " ("+empireType+")");
-		return t.addColumn(name, empireType, colSize, required, defaultValue);
+		DBTableColumn col = t.addColumn(name, empireType, colSize, required, defaultValue);
+		
+		// We still need to know the base data type for this AUTOINC
+		// because the Record g/setters need to know this, right?
+		// So, let's add it as meta data every time the column is AUTOINC
+		// and reference it in the template.
+		if(empireType.equals(DataType.AUTOINC))
+			col.setAttribute("AutoIncDataType", originalType);
+		return col;
+		
 	}
 	
 	/**

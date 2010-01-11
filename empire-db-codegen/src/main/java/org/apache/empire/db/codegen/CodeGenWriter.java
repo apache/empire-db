@@ -67,7 +67,6 @@ public class CodeGenWriter {
 	private static final Log log = LogFactory.getLog(CodeGenWriter.class);
 
 	// Templates
-	public static final String TEMPLATE_PATH = "src/main/resources/templates/";
 	public static final String DATABASE_TEMPLATE = "Database.vm";
 	public static final String BASE_TABLE_TEMPLATE = "BaseTable.vm";
 	public static final String TABLE_TEMPLATE = "Table.vm";
@@ -183,9 +182,10 @@ public class CodeGenWriter {
 		context.put("nestTables", config.isNestTables());
 		context.put("baseTableClassName", config.getTableBaseName());
 		context.put("nestViews", config.isNestViews());
+		context.put("templateFolder", config.getTemplateFolder());
 		context.put("baseViewClassName", config.getViewBaseName());
 
-		writeFile(file, TEMPLATE_PATH + "/" + DATABASE_TEMPLATE, context);
+		writeFile(file, config.getTemplateFolder() + "/" + DATABASE_TEMPLATE, context);
 		return file;
 	}
 
@@ -194,7 +194,7 @@ public class CodeGenWriter {
 		VelocityContext context = new VelocityContext();
 		context.put("tablePackageName", config.getTablePackageName());
 		context.put("baseTableClassName", config.getTableBaseName());
-		writeFile(file, TEMPLATE_PATH + "/" + BASE_TABLE_TEMPLATE, context);
+		writeFile(file, config.getTemplateFolder() + "/" + BASE_TABLE_TEMPLATE, context);
 		return file;
 	}
 
@@ -209,7 +209,7 @@ public class CodeGenWriter {
 		context.put("dbClassName", config.getDbClassName());
 		context.put("nestTables", config.isNestTables());
 		context.put("table", table);
-		writeFile(file, TEMPLATE_PATH + "/" + TABLE_TEMPLATE, context);
+		writeFile(file, config.getTemplateFolder() + "/" + TABLE_TEMPLATE, context);
 		return file;
 	}
 	
@@ -218,7 +218,7 @@ public class CodeGenWriter {
 		VelocityContext context = new VelocityContext();
 		context.put("viewPackageName", config.getViewPackageName());
 		context.put("baseViewClassName", config.getViewBaseName());
-		writeFile(file, TEMPLATE_PATH + "/" + BASE_VIEW_TEMPLATE, context);
+		writeFile(file, config.getTemplateFolder() + "/" + BASE_VIEW_TEMPLATE, context);
 		return file;
 	}
 
@@ -233,7 +233,7 @@ public class CodeGenWriter {
 		context.put("dbClassName", config.getDbClassName());
 		context.put("nestViews", config.isNestViews());
 		context.put("view", view);
-		writeFile(file, TEMPLATE_PATH + "/" + VIEW_TEMPLATE, context);
+		writeFile(file, config.getTemplateFolder() + "/" + VIEW_TEMPLATE, context);
 		return file;
 	}
 
@@ -245,7 +245,7 @@ public class CodeGenWriter {
 		context.put("tablePackageName", config.getTablePackageName());
 		context.put("recordPackageName", config.getRecordPackageName());
 		context.put("baseTableClassName", config.getTableBaseName());
-		writeFile(file, TEMPLATE_PATH + "/" + BASE_RECORD_TEMPLATE, context);
+		writeFile(file, config.getTemplateFolder() + "/" + BASE_RECORD_TEMPLATE, context);
 		return file;
 	}
 
@@ -267,7 +267,7 @@ public class CodeGenWriter {
 						.isCreateRecordProperties());
 
 		context.put("table", table);
-		writeFile(file, TEMPLATE_PATH + "/" + RECORD_TEMPLATE, context);
+		writeFile(file, config.getTemplateFolder() + "/" + RECORD_TEMPLATE, context);
 		return file;
 	}
 
