@@ -141,7 +141,7 @@ public class CodeGenParser extends ErrorObject {
 	            tables = dbMeta.getTables(
 			            config.getDbCatalog(), 
 			            config.getDbSchema(), 
-			            pattern.trim(),
+			            pattern == null ? pattern: pattern.trim(),
 						new String[] { "TABLE", "VIEW" });
 	            
 	            // Add all tables and views 
