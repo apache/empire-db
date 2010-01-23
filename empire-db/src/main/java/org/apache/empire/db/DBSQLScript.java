@@ -38,9 +38,11 @@ public class DBSQLScript extends ErrorObject implements Iterable<String>
 {
     // Logger
     private static final Log log = LogFactory.getLog(DBSQLScript.class);
-    
-    private ArrayList<String> sqlCmdList = new ArrayList<String>();
-    private static final String COMMAND_SEPARATOR = ";\r\n\r\n";
+    private static final String DEFAULT_COMMAND_SEPARATOR = ";\r\n\r\n";
+
+    // Properties
+    protected String COMMAND_SEPARATOR = DEFAULT_COMMAND_SEPARATOR; 
+    protected ArrayList<String> sqlCmdList = new ArrayList<String>();
     
     /**
      * Adds a statement to the script.

@@ -514,7 +514,7 @@ public class DBQuery extends DBRowSet
     /**
      * Adds join restrictions to the supplied command object.
      */
-    private boolean addJoinRestriction(DBCommand upd, DBColumn updCol, DBColumn keyCol, DBColumn[] keyColumns, DBRecord rec)
+    protected boolean addJoinRestriction(DBCommand upd, DBColumn updCol, DBColumn keyCol, DBColumn[] keyColumns, DBRecord rec)
     {   // Find key for forein field
         Object rowsetData = rec.getRowSetData();
         for (int i = 0; i < keyColumns.length; i++)

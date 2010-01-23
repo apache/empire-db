@@ -470,7 +470,7 @@ public class DBDatabaseDriverPostgreSQL extends DBDatabaseDriver
     /*
      * return the sql for creating a Database
      */
-    private boolean createDatabase(DBDatabase db, DBSQLScript script)
+    protected boolean createDatabase(DBDatabase db, DBSQLScript script)
     {    	
         // Create all Sequences
         Iterator<DBTable> seqtabs = db.getTables().iterator();
@@ -513,7 +513,7 @@ public class DBDatabaseDriverPostgreSQL extends DBDatabaseDriver
         return true;
     }
     
-    private String createSequenceName(DBTableColumn c){
+    protected String createSequenceName(DBTableColumn c){
     	 Object defValue = c.getDefaultValue();
          return (defValue != null) ? defValue.toString() : c.toString();
     }
@@ -523,7 +523,7 @@ public class DBDatabaseDriverPostgreSQL extends DBDatabaseDriver
      * 
      * @return true if the sequence has been created successfully
      */
-    private boolean createSequence(DBDatabase db, DBTableColumn c, DBSQLScript script)
+    protected boolean createSequence(DBDatabase db, DBTableColumn c, DBSQLScript script)
     {
     	String seqName = createSequenceName(c);
         // createSQL
@@ -548,7 +548,7 @@ public class DBDatabaseDriverPostgreSQL extends DBDatabaseDriver
      * 
      * @return true if the table has been created successfully
      */
-    private boolean createTable(DBTable t, DBSQLScript script)
+    protected boolean createTable(DBTable t, DBSQLScript script)
     {
         StringBuilder sql = new StringBuilder();
         sql.append("-- creating table ");
@@ -637,7 +637,7 @@ public class DBDatabaseDriverPostgreSQL extends DBDatabaseDriver
      * 
      * @return true if the column was successfully appended or false otherwise
      */
-    private boolean appendColumnDesc(DBTableColumn c, StringBuilder sql, boolean alter)
+    protected boolean appendColumnDesc(DBTableColumn c, StringBuilder sql, boolean alter)
     {
         // Append name
         c.addSQL(sql, DBExpr.CTX_NAME);
@@ -741,7 +741,7 @@ public class DBDatabaseDriverPostgreSQL extends DBDatabaseDriver
      * 
      * @return true if the relation has been created successfully
      */
-    private boolean createRelation(DBRelation r, DBSQLScript script)
+    protected boolean createRelation(DBRelation r, DBSQLScript script)
     {
         DBTable sourceTable = (DBTable) r.getReferences()[0].getSourceColumn().getRowSet();
         DBTable targetTable = (DBTable) r.getReferences()[0].getTargetColumn().getRowSet();
@@ -791,7 +791,7 @@ public class DBDatabaseDriverPostgreSQL extends DBDatabaseDriver
      * @param buf buffer to which to append the sql statement to
      * @return true if the statement was successfully appended to the buffer
      */
-    private boolean alterTable(DBTableColumn col, DBCmdType type, DBSQLScript script)
+    protected boolean alterTable(DBTableColumn col, DBCmdType type, DBSQLScript script)
     {
         StringBuilder sql = new StringBuilder();
         sql.append("ALTER TABLE ");
@@ -822,7 +822,7 @@ public class DBDatabaseDriverPostgreSQL extends DBDatabaseDriver
      * 
      * @return true if the view has been created successfully
      */
-    private boolean createView(DBView v, DBSQLScript script)
+    protected boolean createView(DBView v, DBSQLScript script)
     {
         // Create the Command
         DBCommandExpr cmd = v.createCommand();
@@ -863,7 +863,7 @@ public class DBDatabaseDriverPostgreSQL extends DBDatabaseDriver
      * 
      * @return true if the object has been dropped successfully
      */
-    private boolean dropObject(String name, String objType, DBSQLScript script)
+    protected boolean dropObject(String name, String objType, DBSQLScript script)
     {
         if (name == null || name.length() == 0)
             return error(Errors.InvalidArg, name, "name");

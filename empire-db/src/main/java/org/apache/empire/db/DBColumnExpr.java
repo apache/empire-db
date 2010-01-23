@@ -587,12 +587,12 @@ public abstract class DBColumnExpr extends DBExpr
      * @param dataType the resulting data Type
      * @return the new DBCalcExpr object
      */
-    private DBColumnExpr getExprFromPhrase(int phrase, Object[] params, DBColumn updateColumn, boolean isAggregate, DataType dataType)
+    protected DBColumnExpr getExprFromPhrase(int phrase, Object[] params, DBColumn updateColumn, boolean isAggregate, DataType dataType)
     {
         return new DBFuncExpr(this, phrase, params, updateColumn, isAggregate, dataType);
     }
 
-    private DBColumnExpr getExprFromPhrase(int phrase, Object[] params, DBColumn updateColumn, boolean isAggregate)
+    protected DBColumnExpr getExprFromPhrase(int phrase, Object[] params, DBColumn updateColumn, boolean isAggregate)
     {
         return getExprFromPhrase(phrase, params, updateColumn, isAggregate, getDataType());
     }
@@ -1140,7 +1140,7 @@ public abstract class DBColumnExpr extends DBExpr
 
     // get object Array from List
     private Object listToArray(Object value)
-    {   // Check wether value is a list
+    {   // Check whether value is a list
         /*
         if (value != null && value instanceof java.util.List)
         { // Convert List to array

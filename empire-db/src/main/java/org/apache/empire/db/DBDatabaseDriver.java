@@ -106,11 +106,11 @@ public abstract class DBDatabaseDriver extends ErrorObject
     protected boolean ddlColumnDefaults = false;
 
     // Illegal name chars and reserved SQL keywords
-    private static final char[]   illegalNameChars   = new char[] { '@', '?', '>', '=', '<', ';', ':', 
+    protected static final char[]   illegalNameChars   = new char[] { '@', '?', '>', '=', '<', ';', ':', 
                                                                     '/', '.', '-', ',', '+', '*', ')', '(',
                                                                     '\'', '&', '%', '!', ' '
                                                                   };        
-    private static final String[] generalSQLKeywords = new String[] { "user", "group", 
+    protected static final String[] generalSQLKeywords = new String[] { "user", "group", 
                                                            "table", "column", "view", "index", "constraint", 
                                                            "select", "udpate", "insert", "alter", "delete" };        
     protected final Set<String> reservedSQLKeywords;

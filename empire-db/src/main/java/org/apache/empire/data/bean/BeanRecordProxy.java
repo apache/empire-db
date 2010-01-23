@@ -49,11 +49,11 @@ public class BeanRecordProxy<T> extends ErrorObject implements Record
 {
     protected static final Log log = LogFactory.getLog(BeanRecordProxy.class);
     
-    private List<Column> columns;
-    private Column[] keyColumns;
-    private boolean[] modified;
+    protected List<Column> columns;
+    protected Column[] keyColumns;
+    protected boolean[] modified;
 
-    private T data;
+    protected T data;
 
     public BeanRecordProxy(T data, List<Column> columns, Column[] keyColumns)
     {
@@ -318,9 +318,9 @@ public class BeanRecordProxy<T> extends ErrorObject implements Record
         return setBeanValues(bean, null);
     }
 
-    // --------------- private ------------------
+    // --------------- protected ------------------
     
-    private Object getBeanPropertyValue(Object bean, ColumnExpr column)
+    protected Object getBeanPropertyValue(Object bean, ColumnExpr column)
     {
         // Check Params
         if (column==null)
@@ -330,7 +330,7 @@ public class BeanRecordProxy<T> extends ErrorObject implements Record
         return getBeanPropertyValue(bean, column.getBeanPropertyName()); 
     }
 
-    private Object getBeanPropertyValue(Object bean, String property)
+    protected Object getBeanPropertyValue(Object bean, String property)
     {
         // Check Params
         if (bean==null || property==null)
@@ -358,7 +358,7 @@ public class BeanRecordProxy<T> extends ErrorObject implements Record
         }
     }
 
-    private boolean setBeanPropertyValue(Object bean, Column column, Object value)
+    protected boolean setBeanPropertyValue(Object bean, Column column, Object value)
     {
         // Check Params
         if (bean==null || column==null)

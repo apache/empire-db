@@ -48,7 +48,7 @@ public abstract class DBCommand extends DBCommandExpr
 {
     public static final class DBCmdParameter extends DBExpr
     {
-        private DBCommand cmd;
+        protected DBCommand cmd;
         protected int index; 
         
         protected DBCmdParameter(DBCommand cmd, int index)
@@ -224,13 +224,13 @@ public abstract class DBCommand extends DBCommandExpr
         }
     }
     
-    private boolean useCmdParam(DBColumn col)
+    protected boolean useCmdParam(DBColumn col)
     {
         DataType dt = col.getDataType();
         return ( dt==DataType.BLOB || dt==DataType.CLOB );
     }
     
-    private Object getCmdParamValue(DBColumn col, Object value)
+    protected Object getCmdParamValue(DBColumn col, Object value)
     {        
         switch (col.getDataType())
         {
@@ -294,7 +294,7 @@ public abstract class DBCommand extends DBCommandExpr
      * @param column
      * @return
      */
-    private boolean hasSetExprOn(DBColumn column)
+    protected boolean hasSetExprOn(DBColumn column)
     {
         if (set==null)
             return false;
@@ -701,7 +701,7 @@ public abstract class DBCommand extends DBCommandExpr
      * @param expr the DBCompareExpr object
      * @param expr the DBCompareExpr object
      */
-    private void setCompare(List<DBCompareExpr> list, DBCompareExpr expr)
+    protected void setCompare(List<DBCompareExpr> list, DBCompareExpr expr)
     { // adds a comparison to the where or having list
         for (int i = 0; i < list.size(); i++)
         { // check expression

@@ -361,7 +361,7 @@ public class DBDatabaseDriverH2 extends DBDatabaseDriver
     /*
      * return the sql for creating a Database
      */
-    private boolean createDatabase(DBDatabase db, DBSQLScript script, boolean createSchema)
+    protected boolean createDatabase(DBDatabase db, DBSQLScript script, boolean createSchema)
     {
 //        // User Master to create Database
 //        if (createSchema)
@@ -406,7 +406,7 @@ public class DBDatabaseDriverH2 extends DBDatabaseDriver
      * 
      * @return true if the table has been created successfully
      */
-    private boolean createTable(DBTable t, DBSQLScript script)
+    protected boolean createTable(DBTable t, DBSQLScript script)
     {
         StringBuilder sql = new StringBuilder();
         sql.append("-- creating table ");
@@ -493,7 +493,7 @@ public class DBDatabaseDriverH2 extends DBDatabaseDriver
      * @param sql the sql builder object
      * @return true if the column was successfully appended or false otherwise
      */
-    private boolean appendColumnDesc(DBTableColumn c, StringBuilder sql)
+    protected boolean appendColumnDesc(DBTableColumn c, StringBuilder sql)
     {
         // Append name
         c.addSQL(sql, DBExpr.CTX_NAME);
@@ -592,7 +592,7 @@ public class DBDatabaseDriverH2 extends DBDatabaseDriver
      * 
      * @return true if the relation has been created successfully
      */
-    private boolean createRelation(DBRelation r, DBSQLScript script)
+    protected boolean createRelation(DBRelation r, DBSQLScript script)
     {
         DBTable sourceTable = (DBTable) r.getReferences()[0].getSourceColumn().getRowSet();
         DBTable targetTable = (DBTable) r.getReferences()[0].getTargetColumn().getRowSet();
@@ -642,7 +642,7 @@ public class DBDatabaseDriverH2 extends DBDatabaseDriver
      * @param buf buffer to which to append the sql statement to
      * @return true if the statement was successfully appended to the buffer
      */
-    private boolean alterTable(DBTableColumn col, DBCmdType type, DBSQLScript script)
+    protected boolean alterTable(DBTableColumn col, DBCmdType type, DBSQLScript script)
     {
         StringBuilder sql = new StringBuilder();
         sql.append("ALTER TABLE ");
@@ -671,7 +671,7 @@ public class DBDatabaseDriverH2 extends DBDatabaseDriver
      * 
      * @return true if the view has been created successfully
      */
-    private boolean createView(DBView v, DBSQLScript script)
+    protected boolean createView(DBView v, DBSQLScript script)
     {
         // Create the Command
         DBCommandExpr cmd = v.createCommand();
@@ -712,7 +712,7 @@ public class DBDatabaseDriverH2 extends DBDatabaseDriver
      * 
      * @return true if the object has been dropped successfully
      */
-    private boolean dropObject(String name, String objType, DBSQLScript script)
+    protected boolean dropObject(String name, String objType, DBSQLScript script)
     {
         if (name == null || name.length() == 0)
             return error(Errors.InvalidArg, name, "name");
