@@ -88,9 +88,9 @@
 		<!-- JDBC properties for a Microsoft SQL-Server Database connection -->
 		<!-- Required jar file: sqljdbc.jar -->
 		<jdbcClass>com.microsoft.sqlserver.jdbc.SQLServerDriver</jdbcClass>
-		<jdbcURL>jdbc:sqlserver://localhost:1433</jdbcURL>
-		<jdbcUser>empire-db</jdbcUser>
-		<jdbcPwd>empire-db</jdbcPwd>
+		<jdbcURL>jdbc:sqlserver://esteams2:1433</jdbcURL>
+		<jdbcUser>sa</jdbcUser>
+		<jdbcPwd>esteam</jdbcPwd>
 		<schemaName>DBSAMPLE</schemaName>
 	</properties-sqlserver>
 	

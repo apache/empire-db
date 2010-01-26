@@ -20,6 +20,7 @@ package org.apache.empire.struts2.websample.db;
 
 import org.apache.empire.commons.Options;
 import org.apache.empire.data.DataType;
+import org.apache.empire.data.DataMode;
 import org.apache.empire.db.DBColumn;
 import org.apache.empire.db.DBDatabase;
 import org.apache.empire.db.DBTableColumn;
@@ -49,11 +50,11 @@ public class SampleDB extends DBDatabase
         {
             super("DEPARTMENTS", db);
             // ID
-            C_DEPARTMENT_ID   = addColumn("DEPARTMENT_ID",    DataType.AUTOINC,       0, true, "DEP_ID_SEQUENCE");
-            C_NAME            = addColumn("NAME",             DataType.TEXT,         80, true);
-            C_HEAD            = addColumn("HEAD",             DataType.TEXT,         80, false);
-            C_BUSINESS_UNIT   = addColumn("BUSINESS_UNIT",    DataType.TEXT,          4, true, "ITTK");
-            C_UPDATE_TIMESTAMP= addColumn("UPDATE_TIMESTAMP", DataType.DATETIME,      0, true);
+            C_DEPARTMENT_ID   = addColumn("DEPARTMENT_ID",    DataType.AUTOINC,       0, DataMode.NotNull, "DEP_ID_SEQUENCE");
+            C_NAME            = addColumn("NAME",             DataType.TEXT,         80, DataMode.NotNull);
+            C_HEAD            = addColumn("HEAD",             DataType.TEXT,         80, DataMode.Nullable);
+            C_BUSINESS_UNIT   = addColumn("BUSINESS_UNIT",    DataType.TEXT,          4, DataMode.NotNull, "ITTK");
+            C_UPDATE_TIMESTAMP= addColumn("UPDATE_TIMESTAMP", DataType.DATETIME,      0, DataMode.NotNull);
         
             // Primary Key
             setPrimaryKey(C_DEPARTMENT_ID);
@@ -86,17 +87,17 @@ public class SampleDB extends DBDatabase
         {
             super("EMPLOYEES", db);
             // ID
-            C_EMPLOYEE_ID     = addColumn("EMPLOYEE_ID",      DataType.AUTOINC,      0, true, "EMPLOYEE_ID_SEQUENCE");
-            C_SALUTATION      = addColumn("SALUTATION",       DataType.TEXT,        20, false);
-            C_FIRSTNAME       = addColumn("FIRSTNAME",        DataType.TEXT,        40, true);
-            C_LASTNAME        = addColumn("LASTNAME",         DataType.TEXT,        40, true);
-            C_DATE_OF_BIRTH   = addColumn("DATE_OF_BIRTH",    DataType.DATE,         0, false);
-            C_DEPARTMENT_ID   = addColumn("DEPARTMENT_ID",    DataType.INTEGER,      0, true);
-            C_GENDER          = addColumn("GENDER",           DataType.TEXT,         1, false);
-            C_PHONE_NUMBER    = addColumn("PHONE_NUMBER",     DataType.TEXT,        40, false);
-            C_EMAIL           = addColumn("EMAIL",            DataType.TEXT,        80, false);
-            C_RETIRED         = addColumn("RETIRED",          DataType.BOOL,         0, true, false);
-            C_UPDATE_TIMESTAMP= addColumn("UPDATE_TIMESTAMP", DataType.DATETIME,     0, true);
+            C_EMPLOYEE_ID     = addColumn("EMPLOYEE_ID",      DataType.AUTOINC,      0, DataMode.NotNull, "EMPLOYEE_ID_SEQUENCE");
+            C_SALUTATION      = addColumn("SALUTATION",       DataType.TEXT,        20, DataMode.Nullable);
+            C_FIRSTNAME       = addColumn("FIRSTNAME",        DataType.TEXT,        40, DataMode.NotNull);
+            C_LASTNAME        = addColumn("LASTNAME",         DataType.TEXT,        40, DataMode.NotNull);
+            C_DATE_OF_BIRTH   = addColumn("DATE_OF_BIRTH",    DataType.DATE,         0, DataMode.Nullable);
+            C_DEPARTMENT_ID   = addColumn("DEPARTMENT_ID",    DataType.INTEGER,      0, DataMode.NotNull);
+            C_GENDER          = addColumn("GENDER",           DataType.TEXT,         1, DataMode.Nullable);
+            C_PHONE_NUMBER    = addColumn("PHONE_NUMBER",     DataType.TEXT,        40, DataMode.Nullable);
+            C_EMAIL           = addColumn("EMAIL",            DataType.TEXT,        80, DataMode.Nullable);
+            C_RETIRED         = addColumn("RETIRED",          DataType.BOOL,         0, DataMode.NotNull, false);
+            C_UPDATE_TIMESTAMP= addColumn("UPDATE_TIMESTAMP", DataType.DATETIME,     0, DataMode.NotNull);
         
             // Primary Key
             setPrimaryKey(C_EMPLOYEE_ID);
@@ -119,12 +120,12 @@ public class SampleDB extends DBDatabase
         }    
     }   
 
-    // Tabellen
+    // Declare all Tables
     public final Departments  T_DEPARTMENTS = new Departments(this);
     public final Employees    T_EMPLOYEES   = new Employees(this);
     
     /**
-     * Konstruktor SampleDB
+     * Constructor SampleDB
      */
     public SampleDB()
     {

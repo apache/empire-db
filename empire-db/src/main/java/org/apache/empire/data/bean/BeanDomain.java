@@ -26,7 +26,7 @@ import java.util.List;
  * This class defines Metadata for a domain of java classes.
  * Create a new class for your domain metadata and derive it from BeanDomain.
  * Then create a BeanClass subclass (preferably as a nested class) for each of your domain objects.
- * A metadata defintion consitst primarily of the domain name and a list of classes.  
+ * A metadata definition consists primarily of the domain name and a list of classes.  
  * @author Rainer
  */
 public abstract class BeanDomain

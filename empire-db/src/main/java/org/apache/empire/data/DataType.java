@@ -71,7 +71,7 @@ public enum DataType
     DECIMAL, //      = 8;
     
     /**
-     * Boolean field (emulated if not supported by dbms as number or char)
+     * Boolean field (emulated if not supported by DBMS as number or char)
      */
     BOOL, //         = 9;
     
@@ -84,4 +84,9 @@ public enum DataType
      * Binary data
      */
     BLOB, //         = 11;
+    
+    /**
+     * Unique Identifier (non-numeric, treated like text) 
+     */
+    UNIQUEID, //     = 12;
 }

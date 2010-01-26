@@ -23,13 +23,14 @@ import java.util.List;
 
 import org.apache.empire.data.Column;
 import org.apache.empire.data.DataType;
+import org.apache.empire.data.DataMode;
 
 
 /**
  * BeanObject
  * This class defines Metadata for any type of java class.
  * For each class you want to describe create one Metadata class and derive it from BeanClass.
- * A metadata defintion consitst primarily of the class name and a list of properties.  
+ * A metadata definition consists primarily of the class name and a list of properties.  
  * @author Rainer
  */
 public abstract class BeanClass
@@ -57,6 +58,21 @@ public abstract class BeanClass
         prop.beanClass = this;
     }
 
+    protected final BeanProperty addProp(String propname, DataType dataType, double size, DataMode dataMode)
+    {
+        BeanProperty prop = new BeanProperty(propname, dataType, size, dataMode, "text");
+        addProp(prop);
+        return prop;
+    }
+
+    protected final BeanProperty addProp(String propname, DataType dataType, double size, DataMode dataMode, String controlType)
+    {
+        BeanProperty prop = new BeanProperty(propname, dataType, size, dataMode, controlType);
+        addProp(prop);
+        return prop;
+    }
+
+    @Deprecated
     protected final BeanProperty addProp(String propname, DataType dataType, double size, boolean required)
     {
         BeanProperty prop = new BeanProperty(propname, dataType, size, required, "text", false);
@@ -64,6 +80,7 @@ public abstract class BeanClass
         return prop;
     }
 
+    @Deprecated
     protected final BeanProperty addProp(String propname, DataType dataType, double size, boolean required, String controlType)
     {
         BeanProperty prop = new BeanProperty(propname, dataType, size, required, controlType, false);
@@ -71,6 +88,7 @@ public abstract class BeanClass
         return prop;
     }
 
+    @Deprecated
     protected final BeanProperty addProp(String propname, DataType dataType, double size, boolean required, String controlType, boolean readOnly)
     {
         BeanProperty prop = new BeanProperty(propname, dataType, size, required, controlType, readOnly);

@@ -32,11 +32,13 @@ import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.empire.commons.DateUtils;
 import org.apache.empire.commons.ErrorObject;
 import org.apache.empire.commons.Errors;
 import org.apache.empire.commons.ObjectUtils;
 import org.apache.empire.commons.StringUtils;
 import org.apache.empire.data.DataType;
+import org.apache.empire.data.DataMode;
 
 
 /**
@@ -143,14 +145,14 @@ public abstract class DBDatabaseDriver extends ErrorObject
         {
             super(tableName, db);
             // Add all Colums
-            C_SEQNAME   = addColumn("SeqName",  DataType.TEXT,      40, true);
-            C_SEQVALUE  = addColumn("SeqValue", DataType.INTEGER,    0, true);
-            C_TIMESTAMP = addColumn("SeqTime",  DataType.DATETIME,   0, true);
+            C_SEQNAME   = addColumn("SeqName",  DataType.TEXT,      40, DataMode.NotNull);
+            C_SEQVALUE  = addColumn("SeqValue", DataType.INTEGER,    0, DataMode.NotNull);
+            C_TIMESTAMP = addColumn("SeqTime",  DataType.DATETIME,   0, DataMode.NotNull);
             // Primary Key
             setPrimaryKey(new DBColumn[] { C_SEQNAME });
         }
 
-        // Overridables
+        // Overrideable
         public Object getNextValue(String SeqName, long minValue, Connection conn)
         {
             DBDatabaseDriver driver = db.getDriver();
@@ -187,11 +189,11 @@ public abstract class DBDatabaseDriver extends ErrorObject
                     else
                     { // Close Reader
                         db.closeResultSet(rs);
-                        // neu angelegen!
+                        // sequence does not exist
                         seqValue = minValue;
                         log.warn("warn: Sequence '" + SeqName
                                        + "' does not exist! Creating sequence with start-value of " + seqValue);
-                        // Add a new Sequence
+                        // create a new sequence entry
                         cmd.clear();
                         cmd.set(C_SEQNAME.to(SeqName));
                         cmd.set(C_SEQVALUE.to(seqValue));
@@ -199,7 +201,7 @@ public abstract class DBDatabaseDriver extends ErrorObject
                         if (db.executeSQL(cmd.getInsert(), null, conn) < 1)
                             seqValue = 0; // Try again
                     }
-                    // concurreny problem?
+                    // check for concurrency problem
                     if (seqValue == 0)
                         log.warn("Failed to increment sequence '" + SeqName + "'. Trying again!");
                     // close
@@ -333,6 +335,38 @@ public abstract class DBDatabaseDriver extends ErrorObject
      * @return a new unique sequence value or null if an error occurred
      */
     public abstract Object getNextSequenceValue(DBDatabase db, String SeqName, int minValue, Connection conn);
+
+    /**
+     * Returns an auto-generated value for a particular column
+     * 
+     * @param db the database
+     * @param column the column for which a value is required
+     * @param conn a valid database connection
+     * @return the auto-generated value
+     */
+    public Object getColumnAutoValue(DBDatabase db, DBTableColumn column, Connection conn)
+    {
+        // Supports sequences?
+        DataType type = column.getDataType();
+        if (type == DataType.AUTOINC)
+        {   // Use a numeric sequence
+            if (isSupported(DBDriverFeature.SEQUENCES)==false)
+                return null; // Create Later
+            // Detect the Sequence Name
+            Object defValue= column.getDefaultValue();
+            String SeqName = (defValue != null) ? defValue.toString() : this.toString();
+            return db.getNextSequenceValue(SeqName, conn);
+        }
+        // Set database systems time and date
+        if ((type==DataType.DATE || type==DataType.DATETIME))
+        {   // Get database system's date and time
+            Date ts = db.getUpdateTimestamp(conn);
+            return (type==DataType.DATE ? DateUtils.getDateOnly(ts) : ts);
+        }
+        // Other types
+        error(Errors.NotSupported, "getColumnAutoValue() for "+String.valueOf(type));
+        return null;
+    }
 
     /**
      * Prepares an sql statement by setting the supplied objects as parameters.
@@ -495,7 +529,7 @@ public abstract class DBDatabaseDriver extends ErrorObject
             throw e;
         }
     }
-
+    
     // close
     protected void close(Statement stmt)
     {
@@ -569,6 +603,7 @@ public abstract class DBDatabaseDriver extends ErrorObject
             case TEXT:
             case CHAR:
             case CLOB:
+            case UNIQUEID:
             {   // Text value
                 StringBuilder valBuf = new StringBuilder();
                 valBuf.append("'");

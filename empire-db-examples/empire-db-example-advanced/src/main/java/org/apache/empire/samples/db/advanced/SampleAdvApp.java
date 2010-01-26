@@ -28,6 +28,7 @@ import org.apache.empire.commons.DateUtils;
 import org.apache.empire.commons.ErrorObject;
 import org.apache.empire.commons.Options;
 import org.apache.empire.data.DataType;
+import org.apache.empire.data.DataMode;
 import org.apache.empire.db.DBCmdType;
 import org.apache.empire.db.DBColumnExpr;
 import org.apache.empire.db.DBCommand;
@@ -416,7 +417,7 @@ public class SampleAdvApp
         DBCommand cmd = db.createCommand();
         // Define shortcuts for tables used - not necessary but convenient
         SampleAdvDB.Employees EMP = T_EMP;
-        // Select requried columns
+        // Select required columns
         cmd.select(T_EMP.getColumns());
         // Set Constraints
         cmd.where(T_EMP.C_RETIRED.is(false));
@@ -470,7 +471,7 @@ public class SampleAdvApp
     {
         // Define the query
         DBCommand cmd = db.createCommand();
-        // Select requried columns
+        // Select required columns
         cmd.select(T_EMP.getColumns());
         // Set Constraints
         cmd.where(T_EMP.C_RETIRED.is(false));
@@ -511,7 +512,7 @@ public class SampleAdvApp
         db.getDriver().setDDLColumnDefaults(true);
 
         // First, add a new column to the Table object
-        DBTableColumn C_FOO = db.T_EMPLOYEES.addColumn("FOO", DataType.TEXT, 20, false);
+        DBTableColumn C_FOO = db.T_EMPLOYEES.addColumn("FOO", DataType.TEXT, 20, DataMode.Nullable);
 
         // Now create the corresponding DDL statement 
         System.out.println("Creating new column named FOO as varchar(20) for the EMPLOYEES table:");
@@ -546,7 +547,7 @@ public class SampleAdvApp
     }
 
     /**
-     * This function demostrates the use of the DBQuery object.<BR>
+     * This function demonstrates the use of the DBQuery object.<BR>
      * First a DBQuery is used to define a subquery that gets the latest employee department history record.<BR>
      * This subquery is then used inside another query to list all employees with the current department.<BR>
      * <P>
@@ -568,7 +569,7 @@ public class SampleAdvApp
 
         // Define the query
         DBCommand cmd = db.createCommand();
-        // Select requried columns
+        // Select required columns
         cmd.select(T_EMP.C_EMPLOYEE_ID, T_EMP.C_FULLNAME);
         cmd.select(T_EMP.C_GENDER, T_EMP.C_PHONE_NUMBER);
         cmd.select(T_DEP.C_DEPARTMENT_ID, T_DEP.C_NAME, T_DEP.C_BUSINESS_UNIT);
@@ -595,7 +596,7 @@ public class SampleAdvApp
         rec.setValue(T_EMP.C_PHONE_NUMBER, "0815-4711");
         rec.setValue(T_DEP.C_BUSINESS_UNIT, "AUTO");
         rec.update(conn);
-        // Sucessfully updated
+        // Successfully updated
         System.out.println("The employee has been sucessfully updated");
     }    
 

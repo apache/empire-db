@@ -386,7 +386,6 @@ public class XMLWriter extends ErrorObject
      * @param attrs the unsorted list of attributes
      * @return the sorted list of attributes
      */
-    @SuppressWarnings("null")
     protected Attr[] sortAttributes(NamedNodeMap attrs)
     {
 
@@ -431,7 +430,6 @@ public class XMLWriter extends ErrorObject
         return normalize(s, canonical);
     }
 
-    @SuppressWarnings({ "fallthrough", "null" })
     static public String normalize(String s, boolean canonical)
     {
         StringBuilder str = new StringBuilder();

@@ -45,7 +45,7 @@ public abstract class Action extends WebAction
         // Constructor
     }
 
-    // Login requried for this action
+    // Login required for this action
     @Override
     public boolean loginRequired()
     {

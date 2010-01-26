@@ -420,6 +420,11 @@ public class SampleApp
         cmd.orderBy(EMP.LASTNAME);
         cmd.orderBy(EMP.FIRSTNAME);
 
+        cmd.where(EMP.DEPARTMENT_ID.is("Some Strange Value"));
+        cmd.where(EMP.SALARY.is("Some Weird Value"));
+        cmd.where(EMP.EMPLOYEE_ID.is("Some Strange Value"));
+        System.out.print(cmd.getSelect());
+        
 		// Query Records and print output
 		DBReader reader = new DBReader();
 		try

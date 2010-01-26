@@ -64,7 +64,7 @@ public class LoginAction extends Action
         // Constructor
     }
 
-    // Login requried for this action
+    // Login required for this action
     @Override
     public boolean loginRequired()
     {
