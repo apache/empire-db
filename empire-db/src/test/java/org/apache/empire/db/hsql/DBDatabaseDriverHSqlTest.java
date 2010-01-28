@@ -63,11 +63,10 @@ public class DBDatabaseDriverHSqlTest
         db.getCreateDDLScript(db.getDriver(), script);
         script.run(db.getDriver(), conn, false);
         
-        
     }
     
     @AfterClass
-    public static void shutdown() throws SQLException, IOException
+    public static void shutdown() throws SQLException
     {
         try
         {
@@ -80,7 +79,11 @@ public class DBDatabaseDriverHSqlTest
         {
             DBTools.close(conn);
             // clean up
-            FileUtils.deleteDirectory(new File(PATH));
+            try {
+                FileUtils.deleteDirectory(new File(PATH));
+            } catch (IOException e) {
+                // ingore
+            }
         }
 
     }
