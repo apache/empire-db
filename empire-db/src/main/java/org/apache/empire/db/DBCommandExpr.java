@@ -27,6 +27,7 @@ import java.util.Set;
 import org.apache.empire.commons.Errors;
 import org.apache.empire.commons.Options;
 import org.apache.empire.data.DataType;
+import org.apache.empire.db.expr.order.DBOrderByExpr;
 import org.w3c.dom.Element;
 
 
@@ -286,64 +287,9 @@ public abstract class DBCommandExpr extends DBExpr
 
     }
 
-    protected static class DBOrderByInfo extends DBExpr
-    {
-        public DBColumnExpr expr;
-        public boolean desc;
-
-        /**
-         * Construct a new DBOrderByInfo object set the specified
-         * parameters to this object.
-         * 
-         * @param expr the column 
-         * @param desc set true for descending or false for ascending
-         */
-        public DBOrderByInfo(DBColumnExpr expr, boolean desc)
-        {
-            this.expr = expr;
-            this.desc = desc;
-        }
-
-        /** 
-         * Returns the current database object 
-         */
-        @Override
-        public DBDatabase getDatabase()
-        {
-            return expr.getDatabase();
-        }
-
-        /*
-         * @see org.apache.empire.db.DBExpr#addReferencedColumns(Set)
-         */
-        @Override
-        public void addReferencedColumns(Set<DBColumn> list)
-        {
-            expr.addReferencedColumns(list);
-        }
-
-        /**
-         * Creates the SQL-Command set "DESC" command after the order by statement.
-         * 
-         * @param buf the SQL-Command
-         * @param context the current SQL-Command context
-         */
-        @Override
-        public void addSQL(StringBuilder buf, long context)
-        { 
-            // Set SQL-Order By
-            expr.addSQL(buf, context);
-            // only need to add DESC as default is ASC
-            if (desc)
-            {
-                buf.append(" DESC");
-            }
-        }
-    }
-
     // Members
     protected DBCmdQuery          cmdQuery = null;
-    protected List<DBOrderByInfo> orderBy  = null;
+    protected List<DBOrderByExpr> orderBy  = null;
 
     /** Constructs an empty DBCommandExpr object */
     public DBCommandExpr()
@@ -365,7 +311,7 @@ public abstract class DBCommandExpr extends DBExpr
         { // Check Owner
             DBCmdColumn c = (DBCmdColumn) col;
             if (c.getRowSet() == cmdQuery)
-                return col; // it's aready a command column
+                return col; // it's already a command column
             // extract the expression
             col = c.expr;
         }
@@ -448,7 +394,7 @@ public abstract class DBCommandExpr extends DBExpr
      * Constructs a new DBCombinedCmd object with this object,
      * the key word= "INTERSECT" and the selected DBCommandExpr.
      * 
-     * @param other the secend DBCommandExpr
+     * @param other the second DBCommandExpr
      * @return the new DBCombinedCmd object
      */
     public DBCommandExpr intersect(DBCommandExpr other)
@@ -465,29 +411,45 @@ public abstract class DBCommandExpr extends DBExpr
     }
 
     /**
+     * Adds an order by expression the command
+     * 
+     * @param exprs vararg of orderBy expressions
+     * 
+     * @see org.apache.empire.db.DBCommandExpr#orderBy(DBColumnExpr, boolean)
+     */
+    public void orderBy(DBOrderByExpr... exprs)
+    {
+        if (orderBy == null)
+            orderBy = new ArrayList<DBOrderByExpr>();
+        // Add order by expression
+        for (DBOrderByExpr expr : exprs)
+        {
+            orderBy.add(expr);
+        }
+    }
+
+    /**
+     * Adds a list of columns to the orderBy clause in ascending order
+     * 
+     * @param exprs vararg of column expressions
+     */
+    public final void orderBy(DBColumnExpr... exprs)
+    {
+        for (DBColumnExpr expr : exprs)
+        {
+            orderBy(new DBOrderByExpr(expr, false));
+        }
+    }
+
+    /**
      * Adds an order by with ascending or descending order
      * 
      * @param expr the DBColumnExpr object
      * @param desc if true, the results from select statement will sort top down
      */
-    public void orderBy(DBColumnExpr expr, boolean desc)
+    public final void orderBy(DBColumnExpr expr, boolean desc)
     {
-        if (orderBy == null)
-            orderBy = new ArrayList<DBOrderByInfo>();
-        // Add order by excpression
-        orderBy.add(new DBOrderByInfo(expr, desc));
-    }
-
-    /**
-     * Adds an order by with ascending order
-     * 
-     * @param expr the column 
-     * 
-     * @see org.apache.empire.db.DBCommandExpr#orderBy(DBColumnExpr, boolean)
-     */
-    public void orderBy(DBColumnExpr expr)
-    {
-        orderBy(expr, false);
+        orderBy(new DBOrderByExpr(expr, desc));
     }
 
     /**

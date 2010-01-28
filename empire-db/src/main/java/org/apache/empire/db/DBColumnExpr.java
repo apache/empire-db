@@ -41,6 +41,7 @@ import org.apache.empire.db.expr.column.DBFuncExpr;
 import org.apache.empire.db.expr.column.DBValueExpr;
 import org.apache.empire.db.expr.compare.DBCompareColExpr;
 import org.apache.empire.db.expr.compare.DBCompareExpr;
+import org.apache.empire.db.expr.order.DBOrderByExpr;
 import org.w3c.dom.Element;
 
 
@@ -1137,6 +1138,25 @@ public abstract class DBColumnExpr extends DBExpr
         return convertTo(dataType, null);
     }
 
+    /**
+     * creates a new DBOrderByExpr for ascending order 
+     * <P>
+     * @return the new DBOrderByExpr object for ascending order
+     */
+    public DBOrderByExpr asc()
+    {
+        return new DBOrderByExpr(this, false);
+    }
+
+    /**
+     * creates a new DBOrderByExpr for descending order 
+     * <P>
+     * @return the new DBOrderByExpr object for descending order
+     */
+    public DBOrderByExpr desc()
+    {
+        return new DBOrderByExpr(this, true);
+    }
 
     // get object Array from List
     private Object listToArray(Object value)

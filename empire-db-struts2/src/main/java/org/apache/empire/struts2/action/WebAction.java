@@ -44,7 +44,6 @@ import org.apache.empire.struts2.web.WebRequest;
 import org.apache.struts2.views.util.UrlHelper;
 
 import com.opensymphony.xwork2.ActionContext;
-import com.opensymphony.xwork2.LocaleProvider;
 import com.opensymphony.xwork2.TextProvider;
 import com.opensymphony.xwork2.util.ValueStack;
 
@@ -54,8 +53,7 @@ import com.opensymphony.xwork2.util.ValueStack;
  * It implements necessary interfaces for parameter-, translation- and error-handling.<BR>
  */
 public abstract class WebAction extends ActionBase
-    implements Disposable, ExceptionAware, ActionAccessValidator, ActionItemProperty,
-               RequestParamProvider, ActionErrorProvider, TextProvider, LocaleProvider
+    implements Disposable, ExceptionAware, ActionAccessValidator, ActionErrorProvider, TextProvider
     // implements Action, Validateable, ValidationAware, ValidationAware, TextProvider, LocaleProvider, Serializable
 {   
     // Logger

@@ -18,7 +18,10 @@
  */
 package org.apache.empire.db;
 
+import java.util.ArrayList;
 import java.util.Set;
+
+import org.apache.empire.db.expr.order.DBOrderByExpr;
 
 /**
  * This class is used for building up a partition of a SQL-Command.
@@ -29,17 +32,17 @@ import java.util.Set;
  */
 public class DBCombinedCmd extends DBCommandExpr
 {
-   // Memebers
-   private DBCommandExpr left;
-   private DBCommandExpr right;
-   private String        keyWord;
+   // Members
+   protected DBCommandExpr left;
+   protected DBCommandExpr right;
+   protected String        keyWord;
 
   /**
    * Constructs a new DBFuncExpr object and
    * sets the specified parameters to this object.
    * 
    * @param left the first DBCommandExpr object
-   * @param keyWord the key word between the wo DBCommandExpr objects
+   * @param keyWord the key word between the two DBCommandExpr objects
    * @param right the second DBCommandExpr object
    */
    public DBCombinedCmd(DBCommandExpr left, String keyWord, DBCommandExpr right)
@@ -122,9 +125,16 @@ public class DBCombinedCmd extends DBCommandExpr
    }
 
    @Override
-   public void orderBy(DBColumnExpr expr, boolean desc)
+   public void orderBy(DBOrderByExpr... exprs)
    {
-      super.orderBy(getCmdColumn(expr), desc);
+      if (orderBy == null)
+          orderBy = new ArrayList<DBOrderByExpr>();
+      // Add order by expression
+      for (DBOrderByExpr obe : exprs)
+      {
+          DBColumnExpr c = getCmdColumn(obe.expr);
+          orderBy.add(new DBOrderByExpr(c, obe.desc));
+      }
    }
 
 

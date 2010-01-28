@@ -542,22 +542,6 @@ public abstract class DBCommand extends DBCommandExpr
     }
 
     /**
-     * Adds a column to the group by phrase of an sql statement.
-     * 
-     * @param expr the DBCompareExpr object
-     */
-    // groupBy
-    public void groupBy(DBColumnExpr expr)
-    {
-        if (expr.isAggregate())
-            return;
-        if (groupBy == null)
-            groupBy = new ArrayList<DBColumnExpr>();
-        // group by
-        groupBy.add(expr);
-    }
-
-    /**
      * Adds a list of columns to the group by phrase of an sql statement.
      * 
      * @param exprs vararg of columns by which to group the rows

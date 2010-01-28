@@ -155,7 +155,6 @@ public abstract class ListActionSupport extends ErrorObject
     public void setSortColumn(String column)
     {
         // sort column
-        @SuppressWarnings("hiding")
         ListSortInfo lsi = getListSortInfo();
         if (column!=null && column.equalsIgnoreCase(lsi.sortColumn))
         {
