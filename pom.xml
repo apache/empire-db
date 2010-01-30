@@ -22,7 +22,6 @@
 		<groupId>org.apache</groupId>
 		<artifactId>apache</artifactId>
 		<version>7</version>
-		<!-- TODO switch to apache parent 7 (see mail) -->
 	</parent>
 	
 	<groupId>org.apache.empire-db</groupId>
@@ -51,6 +50,7 @@
 				<module>empire-db</module>
 				<module>empire-db-struts2</module>
 				<module>empire-db-codegen</module>
+				<module>empire-db-maven-plugin</module>
 				<module>empire-db-examples</module>
 			</modules>
 		</profile>
@@ -61,6 +61,7 @@
 				<module>empire-db</module>
 				<module>empire-db-struts2</module>
 				<module>empire-db-codegen</module>
+				<module>empire-db-maven-plugin</module>
 				<module>empire-db-examples</module>
 			</modules>
 			<build>
@@ -217,6 +218,12 @@
 				<type>jar</type>
 			</dependency>
 			<dependency>
+				<groupId>org.apache.empire-db</groupId>
+				<artifactId>empire-db-codegen</artifactId>
+				<version>${project.version}</version>
+				<type>jar</type>
+			</dependency>
+			<dependency>
 				<groupId>commons-logging</groupId>
 				<artifactId>commons-logging</artifactId>
 				<version>1.0.4</version>
@@ -239,7 +246,7 @@
 			<dependency>
 				<groupId>hsqldb</groupId>
 				<artifactId>hsqldb</artifactId>
-				<version>1.8.0.7</version>
+				<version>1.8.0.10</version>
 			</dependency>
 			<dependency>
 				<groupId>org.apache.struts</groupId>
@@ -261,12 +268,12 @@
 			<dependency>
 				<groupId>junit</groupId>
 				<artifactId>junit</artifactId>
-				<version>4.6</version>
+				<version>4.7</version>
 			</dependency> 
 			<dependency>
 				<groupId>org.mockito</groupId>
 				<artifactId>mockito-core</artifactId>
-				<version>1.8.0</version>
+				<version>1.8.2</version>
 			</dependency> 
 		</dependencies>
 	</dependencyManagement>

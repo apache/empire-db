@@ -66,7 +66,7 @@ public class CodeGenApp {
 		CodeGenWriter codeGen = new CodeGenWriter(config);
 		codeGen.generateCodeFiles(db);
 		
-		log.info("Code generation completed sucessfully!");
+		log.info("Code generation completed successfully!");
 	}
 	
 	/**
