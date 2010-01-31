@@ -57,7 +57,7 @@ public class CodeGenConfig extends XMLConfiguration {
 	/**
 	 * name of the template folder
 	 */
-	private String templateFolder = "src/main/resources/templates";	
+	private String templateFolder;	
 	
 	/**
 	 * name of the target package

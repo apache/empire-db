@@ -18,6 +18,7 @@
  */
 package org.apache.empire.db.examples.codegen;
 
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import java.io.File;
@@ -32,6 +33,12 @@ public class ValidatePluginRunTest {
 		File file = new File("target/generated-sources/empiredb");
 		assertTrue("No sources generated", file.exists());
 		// TODO add extra validation for the real generated sources
+	}
+	
+	@Test
+	public void testGeneratedClass() throws ClassNotFoundException{
+		Class<?> cls = Class.forName("org.apache.empire.db.example.MyDB");
+		assertNotNull("Could not load generated class.", cls);
 	}
 
 }

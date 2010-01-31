@@ -22,8 +22,6 @@ import org.apache.empire.db.DBCommandExpr;
 import org.apache.empire.db.DBDatabase;
 import org.apache.empire.db.DBView;
 
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
-
 public class ${baseViewClassName} extends DBView {
 	public ${baseViewClassName}(String name, DBDatabase db) {
 		super(name, db);
@@ -33,6 +31,6 @@ public class ${baseViewClassName} extends DBView {
     public DBCommandExpr createCommand()
     {
     	// TODO not IMPLEMENTED
-        throw new NotImplementedException();
+        throw new UnsupportedOperationException("Not iplemented");
     }
 }

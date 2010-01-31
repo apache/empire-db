@@ -33,7 +33,6 @@ public class CodeGenApp {
 	
 	private static final String DEFAULT_CONFIG_FILE = "config.xml";
 	
-	
 	/**
 	 * This is the entry point of the Code generator Sample Application.
 	 * Please check the config.xml configuration file for Database and Connection settings.

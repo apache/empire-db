@@ -179,6 +179,7 @@ public class CodeGenWriter {
 	private File createDatabaseClass(DBDatabase db) {
 		File file = new File(baseDir, config.getDbClassName() + ".java");
 		VelocityContext context = new VelocityContext();
+		// TODO fall back to getPackageName() is the other names are not set
 		context.put("parser", parserUtil);
 		context.put("tableClassSuffix", config.getTableClassSuffix());
 		context.put("basePackageName", config.getPackageName());

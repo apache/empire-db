@@ -29,7 +29,7 @@ import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.project.MavenProject;
 
 /**
- * Codegen goal
+ * Generates code by reading an existing database schema
  * 
  * @goal codegen
  * 
@@ -42,6 +42,14 @@ public class CodeGenMojo extends AbstractMojo {
 	 * @readonly
 	 */
 	private MavenProject project;
+	
+	/**
+	 * Codegen configuration file, if the file is provided, only that file
+	 * is used to configure code generation
+	 * 
+	 * @parameter expression="${empiredb.configFile}"
+	 */
+	private File configFile;
 
 	/**
 	 * Location of the generated sources.
@@ -82,17 +90,37 @@ public class CodeGenMojo extends AbstractMojo {
 	 * @parameter expression="${empiredb.jdbcPwd}"
 	 */
 	private String jdbcPwd;
+	
+	/**
+	 * Code generator template directory, if not set the default templates
+	 * are loaded from the classpath
+	 * 
+	 * @parameter expression="${empiredb.templateDirectory}"
+	 */
+	private String templateDirectory;
+	
+	/**
+	 * The package for the generated sources
+	 * 
+	 * @parameter expression="${empiredb.packageName}"
+	 */
+	private String packageName;
 
 	public void execute() throws MojoExecutionException {
-
+		
 		CodeGenConfig config = new CodeGenConfig();
-		config.setJdbcURL(jdbcURL);
-		config.setJdbcClass(jdbcClass);
-		config.setJdbcUser(jdbcUser);
-		config.setJdbcPwd(jdbcPwd);
-		config.setTargetFolder(targetDirectory.getAbsolutePath());
-		// load templates from the classpath
-		config.setTemplateFolder(null);
+		if(configFile != null){
+			getLog().info("Loading configuration file: " + configFile);
+			config.init(configFile.getAbsolutePath());
+		}else{
+			config.setJdbcURL(jdbcURL);
+			config.setJdbcClass(jdbcClass);
+			config.setJdbcUser(jdbcUser);
+			config.setJdbcPwd(jdbcPwd);
+			config.setTargetFolder(targetDirectory.getAbsolutePath());
+			config.setTemplateFolder(templateDirectory);
+			config.setPackageName(packageName);
+		}
 		
 		getLog().info("Generating code for " + jdbcURL + " ...");
 		
