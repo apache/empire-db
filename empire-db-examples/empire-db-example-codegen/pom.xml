@@ -54,4 +54,11 @@
 		</plugins>
 	</build>
 	
+	<dependencies>
+		<dependency>
+			<groupId>org.apache.empire-db</groupId>
+			<artifactId>empire-db</artifactId>
+		</dependency>
+	</dependencies>
+	
 </project>

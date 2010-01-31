@@ -35,10 +35,12 @@ import org.apache.empire.db.codegen.util.ParserUtil;
 import org.apache.velocity.Template;
 import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.Velocity;
+import org.apache.velocity.app.VelocityEngine;
 import org.apache.velocity.exception.ParseErrorException;
 import org.apache.velocity.exception.ResourceNotFoundException;
 import org.apache.velocity.runtime.RuntimeConstants;
 import org.apache.velocity.runtime.log.CommonsLogLogChute;
+import org.apache.velocity.runtime.resource.loader.ClasspathResourceLoader;
 
 /**
  * This is the entry class for generating the java persistence model based on a
@@ -76,7 +78,7 @@ public class CodeGenWriter {
 	public static final String RECORD_TEMPLATE = "Record.vm";
 
 	// Services
-	private final ParserUtil pUtil;
+	private final ParserUtil parserUtil;
 
 	// Properties
 	private final CodeGenConfig config;
@@ -89,18 +91,23 @@ public class CodeGenWriter {
 	 * Constructor
 	 */
 	public CodeGenWriter(CodeGenConfig config) {
+		this.parserUtil = new ParserUtil(config);
+		this.config = config;
 		// we have to keep this in sync with our logging system
 		// http://velocity.apache.org/engine/releases/velocity-1.5/developer-guide.html#simpleexampleofacustomlogger
 		Velocity.setProperty(RuntimeConstants.RUNTIME_LOG_LOGSYSTEM,
 				new CommonsLogLogChute());
+		if(useClasspathTemplates()){
+			Velocity.setProperty(RuntimeConstants.RESOURCE_LOADER, "classpath");
+			Velocity.setProperty("classpath." + VelocityEngine.RESOURCE_LOADER + ".class", ClasspathResourceLoader.class.getName());
+		} 
+		
 		try {
 			Velocity.init();
 		} catch (Exception e) {
 			log.fatal(e);
 			throw new RuntimeException(e);
 		}
-		this.pUtil = new ParserUtil(config);
-		this.config = config;
 	}
 
 	/**
@@ -172,7 +179,7 @@ public class CodeGenWriter {
 	private File createDatabaseClass(DBDatabase db) {
 		File file = new File(baseDir, config.getDbClassName() + ".java");
 		VelocityContext context = new VelocityContext();
-		context.put("parser", pUtil);
+		context.put("parser", parserUtil);
 		context.put("tableClassSuffix", config.getTableClassSuffix());
 		context.put("basePackageName", config.getPackageName());
 		context.put("dbClassName", config.getDbClassName());
@@ -185,7 +192,7 @@ public class CodeGenWriter {
 		context.put("templateFolder", config.getTemplateFolder());
 		context.put("baseViewClassName", config.getViewBaseName());
 
-		writeFile(file, config.getTemplateFolder() + "/" + DATABASE_TEMPLATE, context);
+		writeFile(file, DATABASE_TEMPLATE, context);
 		return file;
 	}
 
@@ -194,22 +201,22 @@ public class CodeGenWriter {
 		VelocityContext context = new VelocityContext();
 		context.put("tablePackageName", config.getTablePackageName());
 		context.put("baseTableClassName", config.getTableBaseName());
-		writeFile(file, config.getTemplateFolder() + "/" + BASE_TABLE_TEMPLATE, context);
+		writeFile(file, BASE_TABLE_TEMPLATE, context);
 		return file;
 	}
 
 	private File createTableClass(DBDatabase db, DBTable table) {
-		File file = new File(tableDir, pUtil.getTableClassName(table.getName())
+		File file = new File(tableDir, parserUtil.getTableClassName(table.getName())
 				+ ".java");
 		VelocityContext context = new VelocityContext();
-		context.put("parser", pUtil);
+		context.put("parser", parserUtil);
 		context.put("basePackageName", config.getPackageName());
 		context.put("tablePackageName", config.getTablePackageName());
 		context.put("baseTableClassName", config.getTableBaseName());
 		context.put("dbClassName", config.getDbClassName());
 		context.put("nestTables", config.isNestTables());
 		context.put("table", table);
-		writeFile(file, config.getTemplateFolder() + "/" + TABLE_TEMPLATE, context);
+		writeFile(file, TABLE_TEMPLATE, context);
 		return file;
 	}
 	
@@ -218,22 +225,22 @@ public class CodeGenWriter {
 		VelocityContext context = new VelocityContext();
 		context.put("viewPackageName", config.getViewPackageName());
 		context.put("baseViewClassName", config.getViewBaseName());
-		writeFile(file, config.getTemplateFolder() + "/" + BASE_VIEW_TEMPLATE, context);
+		writeFile(file, BASE_VIEW_TEMPLATE, context);
 		return file;
 	}
 
 	private File createViewClass(DBDatabase db, DBView view) {
-		File file = new File(viewDir, pUtil.getViewClassName(view.getName())
+		File file = new File(viewDir, parserUtil.getViewClassName(view.getName())
 				+ ".java");
 		VelocityContext context = new VelocityContext();
-		context.put("parser", pUtil);
+		context.put("parser", parserUtil);
 		context.put("basePackageName", config.getPackageName());
 		context.put("viewPackageName", config.getViewPackageName());
 		context.put("baseViewClassName", config.getViewBaseName());
 		context.put("dbClassName", config.getDbClassName());
 		context.put("nestViews", config.isNestViews());
 		context.put("view", view);
-		writeFile(file, config.getTemplateFolder() + "/" + VIEW_TEMPLATE, context);
+		writeFile(file, VIEW_TEMPLATE, context);
 		return file;
 	}
 
@@ -245,14 +252,14 @@ public class CodeGenWriter {
 		context.put("tablePackageName", config.getTablePackageName());
 		context.put("recordPackageName", config.getRecordPackageName());
 		context.put("baseTableClassName", config.getTableBaseName());
-		writeFile(file, config.getTemplateFolder() + "/" + BASE_RECORD_TEMPLATE, context);
+		writeFile(file, BASE_RECORD_TEMPLATE, context);
 		return file;
 	}
 
 	private File createRecordClass(DBDatabase db, DBTable table) {
-		File file = new File(recordDir, pUtil.getRecordClassName(table.getName()) + ".java");
+		File file = new File(recordDir, parserUtil.getRecordClassName(table.getName()) + ".java");
 		VelocityContext context = new VelocityContext();
-		context.put("parser", pUtil);
+		context.put("parser", parserUtil);
 		context.put("basePackageName", config.getPackageName());
 		// If the tables shall be nested within the database classe, their include path for the records needs to be changed
 		if (config.isNestTables())
@@ -267,17 +274,32 @@ public class CodeGenWriter {
 						.isCreateRecordProperties());
 
 		context.put("table", table);
-		writeFile(file, config.getTemplateFolder() + "/" + RECORD_TEMPLATE, context);
+		writeFile(file, RECORD_TEMPLATE, context);
 		return file;
 	}
+	
+	private boolean useClasspathTemplates(){
+		return config.getTemplateFolder() == null;
+	}
+	
+	private String templatePathFor(final String template){
+		String path;
+		if(useClasspathTemplates()){
+			path = "templates/" + template;
+		}else{
+			path = config.getTemplateFolder() + "/" + template;
+		}
+		return path;
+	}
 
-	private static void writeFile(File file, String templatePath,
+	private void writeFile(File file, String template,
 			VelocityContext context) {
+		String templatePath = templatePathFor(template);
 		Writer writer = null;
 		try {
-			Template template = Velocity.getTemplate(templatePath);
+			Template velocityTemplate = Velocity.getTemplate(templatePath);
 			writer = new FileWriter(file);
-			template.merge(context, writer);
+			velocityTemplate.merge(context, writer);
 		} catch (IOException e) {
 			log.error(e.getMessage(), e);
 		} catch (ResourceNotFoundException e) {

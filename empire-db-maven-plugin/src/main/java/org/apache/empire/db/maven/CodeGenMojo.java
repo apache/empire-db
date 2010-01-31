@@ -91,6 +91,8 @@ public class CodeGenMojo extends AbstractMojo {
 		config.setJdbcUser(jdbcUser);
 		config.setJdbcPwd(jdbcPwd);
 		config.setTargetFolder(targetDirectory.getAbsolutePath());
+		// load templates from the classpath
+		config.setTemplateFolder(null);
 		
 		getLog().info("Generating code for " + jdbcURL + " ...");
 		
