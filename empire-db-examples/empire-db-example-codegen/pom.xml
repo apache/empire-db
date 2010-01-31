@@ -35,7 +35,7 @@
 				<configuration>
 					<goalPrefix>empiredb</goalPrefix>
 					<jdbcClass>org.hsqldb.jdbcDriver</jdbcClass>
-					<jdbcURL>jdbc:hsqldb:file:hsqldb/sample;shutdown=true</jdbcURL>
+					<jdbcURL>jdbc:hsqldb:file:target/hsqldb/sample;shutdown=true</jdbcURL>
 					<jdbcUser>sa</jdbcUser>
 					<jdbcPwd></jdbcPwd>
 				</configuration>
