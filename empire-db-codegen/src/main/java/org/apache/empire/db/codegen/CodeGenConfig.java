@@ -21,13 +21,13 @@ package org.apache.empire.db.codegen;
 import org.apache.empire.xml.XMLConfiguration;
 
 public class CodeGenConfig extends XMLConfiguration {
-	private String jdbcClass = "org.hsqldb.jdbcDriver";
+	private String jdbcClass;
 
-	private String jdbcURL = "jdbc:hsqldb:file:hsqldb/sample;shutdown=true";
+	private String jdbcURL;
 
-	private String jdbcUser = "sa";
+	private String jdbcUser;
 
-	private String jdbcPwd = "";
+	private String jdbcPwd;
 
 	// generation options
 	/**
@@ -46,8 +46,9 @@ public class CodeGenConfig extends XMLConfiguration {
 	private String dbTablePattern = null;
 	/**
 	 * Name of the timestamp column used for optimistic locking (may be null)
+	 * e.g. "UPDATE_TIMESTAMP";
 	 */
-	private String timestampColumn = null; // e.g. "UPDATE_TIMESTAMP";
+	private String timestampColumn = null;
 
 	/**
 	 * name of the target folder
@@ -67,33 +68,36 @@ public class CodeGenConfig extends XMLConfiguration {
 	/**
 	 * name of the table target package
 	 */
-	private String tablePackageName = "org.foo.db.tables";
+	private String tablePackageName;
 	
 	/**
 	 * name of the record target package
 	 */
-	private String recordPackageName = "org.foo.db.records";
+	private String recordPackageName;
 	
 	/**
 	 * name of the view target package
 	 */
-	private String viewPackageName = "org.foo.db.views";
+	private String viewPackageName;
 
 	/**
 	 * Target name of the generated database class. This class extends
 	 * DBDatabase.
 	 */
 	private String dbClassName = "MyDB";
+	
 	/**
 	 * Target name of the generated table class. This class extends DBTable and
 	 * is the base class for all generated individual table classes.
 	 */
 	private String tableBaseName = "MyTable";
+	
 	/**
 	 * Target name of the generated view class. This class extends DBView and is
 	 * the base class for all generated individual view classes.
 	 */
 	private String viewBaseName = "MyView";
+	
 	/**
 	 * Target name of the generated record class. This is a template class that
 	 * extends DBRecord as follows:<br/>
@@ -105,6 +109,7 @@ public class CodeGenConfig extends XMLConfiguration {
 	 * <br/>
 	 */
 	private String recordBaseName = "MyRecord";
+	
 	/**
 	 * Prefix used for generating table class names.<br/>
 	 * The Table name is appended after the prefix starting with captial letter
@@ -134,6 +139,7 @@ public class CodeGenConfig extends XMLConfiguration {
 	 * Where "Table" is the suffix.
 	 */
 	private String tableClassSuffix = "Table";
+	
 	/**
 	 * Prefix used for generating view class names.<br/>
 	 * The Table name is appended after the prefix starting with captial letter
@@ -164,11 +170,13 @@ public class CodeGenConfig extends XMLConfiguration {
 	 * if FALSE table classes should be declared as top level classes.
 	 */
 	private boolean nestTables;
+	
 	/**
 	 * if TRUE view classes should be declared as inner classes of DBDatabase.<br/>
 	 * if FALSE view classes should be declared as top level classes.
 	 */
 	private boolean nestViews;
+	
 	/**
 	 * if TRUE record classes should have a getter and setter for each field.<br/>
 	 * Otherwiese getters / setters are omitted.
@@ -285,21 +293,21 @@ public class CodeGenConfig extends XMLConfiguration {
 	}
 	
 	public String getTablePackageName() {
-		return tablePackageName;
+		return fallback(tablePackageName, "tables");
 	}
 
 	public void setTablePackageName(String tablePackageName) {
 		this.tablePackageName = tablePackageName;
 	}
 	public String getRecordPackageName() {
-		return recordPackageName;
+		return fallback(recordPackageName, "records");
 	}
 
 	public void setRecordPackageName(String recordPackageName) {
 		this.recordPackageName = recordPackageName;
 	}
 	public String getViewPackageName() {
-		return viewPackageName;
+		return fallback(viewPackageName, "views");
 	}
 
 	public void setViewPackageName(String viewPackageName) {
@@ -394,4 +402,11 @@ public class CodeGenConfig extends XMLConfiguration {
 		this.createRecordProperties = createRecordProperties;
 	}
 
+	private String fallback(String packageName, String defaultSubpackage){
+		String pkg = packageName;
+		if( packageName == null && this.packageName != null){
+			pkg = this.packageName + "." + defaultSubpackage;
+		}
+		return pkg;
+	}
 }
