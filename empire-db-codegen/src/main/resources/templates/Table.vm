@@ -16,7 +16,6 @@
  * specific language governing permissions and limitations
  * under the License.
  *#
-
 #if($nestTables == false)
 package $tablePackageName;
 
@@ -28,9 +27,9 @@ import org.apache.empire.db.DBTableColumn;
 import $basePackageName.${dbClassName};
 #end
 
-public #if($nestTables == true)static#end  class $parser.getTableClassName($table.name) extends ${baseTableClassName} {
+public #if($nestTables == true)static#end class $parser.getTableClassName($table.name) extends ${baseTableClassName} {
 	// Primary key column
-	private List<DBTableColumn> keyColumns= new ArrayList<DBTableColumn>();
+	private List<DBTableColumn> keyColumns = new ArrayList<DBTableColumn>();
 	
 	// Regular attributes
 #foreach ($col in $table.columns)
@@ -38,11 +37,11 @@ public #if($nestTables == true)static#end  class $parser.getTableClassName($tabl
 #end
 	
 	public $parser.getTableClassName($table.name)(${dbClassName} db) {
-		super("$parser.getTableClassName($table.name)", db);
+		super("$table.name", db);
 		
 		// all columns
 #foreach ($col in $table.columns)
-		C_${parser.getAttributeName($col)} = super.addColumn("${col.name}", DataType.${parser.getDataType($col)}, ${col.size}, ${col.isRequired()}, ${parser.getDefaultValue($col)});
+		C_${parser.getAttributeName($col)} = addColumn("${col.name}", DataType.${parser.getDataType($col)}, ${col.size}, ${col.isRequired()}, ${parser.getDefaultValue($col)});
 #end
 
 
@@ -50,16 +49,16 @@ public #if($nestTables == true)static#end  class $parser.getTableClassName($tabl
 #foreach ($col in $table.keyColumns)
     	keyColumns.add(C_${col.name});
 #end
-		super.setPrimaryKey((DBTableColumn[]) keyColumns.toArray());
+		setPrimaryKey(keyColumns.toArray(new DBTableColumn[keyColumns.size()]));
 		
 		// Optimistic locking column
 #if($parser.hasLockingColumn($table) == true)
-		super.setTimestampColumn(C_${parser.getAttributeName($table.getTimestampColumn())});
+		setTimestampColumn(C_${parser.getAttributeName($table.getTimestampColumn())});
 #else
 		/*no locking column specified*/
 #end
 
 		// Set cascade delete
-		super.setCascadeDelete(true);		
+		setCascadeDelete(true);		
 	}
 }

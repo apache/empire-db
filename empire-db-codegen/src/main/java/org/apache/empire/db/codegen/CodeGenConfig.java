@@ -90,13 +90,13 @@ public class CodeGenConfig extends XMLConfiguration {
 	 * Target name of the generated table class. This class extends DBTable and
 	 * is the base class for all generated individual table classes.
 	 */
-	private String tableBaseName = "MyTable";
+	private String tableBaseName = "BaseTable";
 	
 	/**
 	 * Target name of the generated view class. This class extends DBView and is
 	 * the base class for all generated individual view classes.
 	 */
-	private String viewBaseName = "MyView";
+	private String viewBaseName = "BaseView";
 	
 	/**
 	 * Target name of the generated record class. This is a template class that

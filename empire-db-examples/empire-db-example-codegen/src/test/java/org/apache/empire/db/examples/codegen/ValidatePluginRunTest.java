@@ -18,27 +18,90 @@
  */
 package org.apache.empire.db.examples.codegen;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import java.io.File;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
+import java.sql.Statement;
 
+import org.apache.empire.db.DBCommand;
+import org.apache.empire.db.DBDatabaseDriver;
+import org.apache.empire.db.DBReader;
+import org.apache.empire.db.example.MyDB;
+import org.apache.empire.db.example.tables.TEMPLOYEESTable;
+import org.apache.empire.db.hsql.DBDatabaseDriverHSql;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
-
 public class ValidatePluginRunTest {
-	
+
+	private static Connection conn = null;
+
+	@BeforeClass
+	public static void openConnection() throws Exception {
+		Class.forName("org.hsqldb.jdbcDriver").newInstance();
+		conn = DriverManager.getConnection("jdbc:hsqldb:file:src/test/resources/hsqldb/sample;shutdown=true", "sa", "");
+	}
+
+	@AfterClass
+	public static void closeConnection() throws Exception {
+		if (conn != null) {
+			try {
+				Statement st = conn.createStatement();
+				// properly shutdown hsqldb
+				st.execute("SHUTDOWN");
+			} catch (SQLException ex) {
+				ex.printStackTrace();
+			}
+			conn.close();
+		}
+	}
+
 	@Test
-	public void testTargetFolder(){
+	public void testTargetFolder() {
 		File file = new File("target/generated-sources/empiredb");
 		assertTrue("No sources generated", file.exists());
 		// TODO add extra validation for the real generated sources
 	}
-	
+
 	@Test
-	public void testGeneratedClass() throws ClassNotFoundException{
+	public void testGeneratedClass() throws ClassNotFoundException {
 		Class<?> cls = Class.forName("org.apache.empire.db.example.MyDB");
 		assertNotNull("Could not load generated class.", cls);
+	}
+
+	@Test
+	public void useGeneratedCode() throws Exception {
+
+		MyDB db = MyDB.get();
+		TEMPLOYEESTable EMP = db.T_EMPLOYEES;
+
+		DBDatabaseDriver driver = new DBDatabaseDriverHSql();
+		db.open(driver, conn);
+		DBCommand cmd = db.createCommand();
+		cmd.select(EMP.C_EMPLOYEE_ID, EMP.C_FIRSTNAME);
+
+		int rowCount = 0;
+		DBReader reader = new DBReader();
+		try {
+			System.err.println(cmd.getSelect());
+			boolean succes = reader.open(cmd, conn);
+			assertTrue(db.getErrorMessage(), succes);
+			while (reader.moveNext()) {
+				rowCount++;
+				System.out.println(reader.getString(EMP.C_EMPLOYEE_ID) + "\t" + reader.getString(EMP.C_FIRSTNAME));
+			}
+		} finally {
+			reader.close();
+		}
+		
+		assertEquals("We expect 3 rows", 3, rowCount);
+
 	}
 
 }

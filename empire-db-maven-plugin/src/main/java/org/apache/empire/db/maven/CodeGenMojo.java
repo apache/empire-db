@@ -24,6 +24,10 @@ import org.apache.empire.db.DBDatabase;
 import org.apache.empire.db.codegen.CodeGenConfig;
 import org.apache.empire.db.codegen.CodeGenParser;
 import org.apache.empire.db.codegen.CodeGenWriter;
+import org.apache.log4j.AppenderSkeleton;
+import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
+import org.apache.log4j.spi.LoggingEvent;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.project.MavenProject;
@@ -36,7 +40,7 @@ import org.apache.maven.project.MavenProject;
  * @phase generate-sources
  */
 public class CodeGenMojo extends AbstractMojo {
-	
+
 	/**
 	 * @parameter expression="${project}" 
 	 * @readonly
@@ -108,6 +112,8 @@ public class CodeGenMojo extends AbstractMojo {
 
 	public void execute() throws MojoExecutionException {
 		
+		setupLogging();
+		
 		CodeGenConfig config = new CodeGenConfig();
 		if(configFile != null){
 			getLog().info("Loading configuration file: " + configFile);
@@ -121,6 +127,8 @@ public class CodeGenMojo extends AbstractMojo {
 			config.setTemplateFolder(templateDirectory);
 			config.setPackageName(packageName);
 		}
+		
+		//config.setExceptionsEnabled(true);
 		
 		getLog().info("Generating code for " + jdbcURL + " ...");
 		
@@ -138,5 +146,44 @@ public class CodeGenMojo extends AbstractMojo {
 		project.addCompileSourceRoot(targetDirectory.getAbsolutePath());
 		
 	}
+
+	private void setupLogging() {
+		Logger logger = Logger.getRootLogger();
+		logger.addAppender(new MavenAppender(this));
+	}
 	
+	/**
+	 * Forwards Log4j logging to maven logging
+	 * 
+	 */
+	private static final class MavenAppender extends AppenderSkeleton {
+		
+		private final AbstractMojo mojo;
+		
+		public MavenAppender(final AbstractMojo mojo) {
+			this.mojo = mojo;
+		}
+		
+		@Override
+		public boolean requiresLayout() {
+			return false;
+		}
+
+		@Override
+		public void close() {
+			// nothing to do here
+		}
+
+		@Override
+		protected void append(LoggingEvent event) {
+			if(Level.INFO.equals(event.getLevel())){
+				mojo.getLog().info(String.valueOf(event.getMessage()));
+			}else if(Level.ERROR.equals(event.getLevel())){
+				// TODO support throwables?
+				mojo.getLog().error(String.valueOf(event.getMessage()));
+			}else if(Level.WARN.equals(event.getLevel())){
+				mojo.getLog().warn(String.valueOf(event.getMessage()));
+			}
+		}
+	}
 }

@@ -298,6 +298,7 @@ public class CodeGenWriter {
 		String templatePath = templatePathFor(template);
 		Writer writer = null;
 		try {
+			log.info("Writing " + file);
 			Template velocityTemplate = Velocity.getTemplate(templatePath);
 			writer = new FileWriter(file);
 			velocityTemplate.merge(context, writer);

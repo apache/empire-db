@@ -589,6 +589,7 @@ public abstract class DBDatabase extends DBObject
      */
     public DBCommand createCommand()
     {
+        // TODO whouldn't it be better to throw an exception here?
         if (checkOpen()==false)
             return null;
         return driver.createCommand(this);

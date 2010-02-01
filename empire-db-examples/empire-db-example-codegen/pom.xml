@@ -35,7 +35,7 @@
 				<configuration>
 					<goalPrefix>empiredb</goalPrefix>
 					<jdbcClass>org.hsqldb.jdbcDriver</jdbcClass>
-					<jdbcURL>jdbc:hsqldb:file:target/hsqldb/sample;shutdown=true</jdbcURL>
+					<jdbcURL>jdbc:hsqldb:file:${project.basedir}/src/test/resources/hsqldb/sample;shutdown=true</jdbcURL>
 					<jdbcUser>sa</jdbcUser>
 					<jdbcPwd></jdbcPwd>
 					<packageName>org.apache.empire.db.example</packageName>
@@ -60,6 +60,10 @@
 			<groupId>org.apache.empire-db</groupId>
 			<artifactId>empire-db</artifactId>
 		</dependency>
+		<dependency>
+		    <groupId>hsqldb</groupId>
+		    <artifactId>hsqldb</artifactId>
+		</dependency> 
 	</dependencies>
 	
 </project>
