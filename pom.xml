@@ -342,6 +342,9 @@
 			       			<exclude>**/.project</exclude>
 			       			<exclude>**/.classpath</exclude>
 			       			<exclude>**/.tomcatplugin</exclude>
+			       			<!-- TODO should we try to add header in there? -->
+			       			<exclude>**/hsqldb/*.properties</exclude>
+			       			<exclude>**/hsqldb/*.script</exclude>
 			       		</excludes>
 			       	</configuration>
 			  	</plugin>
