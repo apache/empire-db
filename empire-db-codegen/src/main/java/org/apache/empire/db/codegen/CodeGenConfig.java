@@ -108,7 +108,7 @@ public class CodeGenConfig extends XMLConfiguration {
 	 * 
 	 * <br/>
 	 */
-	private String recordBaseName = "MyRecord";
+	private String recordBaseName = "BaseRecord";
 	
 	/**
 	 * Prefix used for generating table class names.<br/>
@@ -123,7 +123,7 @@ public class CodeGenConfig extends XMLConfiguration {
 	 * </ul>
 	 * Where XX is the prefix.
 	 */
-	private String tableClassPrefix = "T";
+	private String tableClassPrefix = "";
 
 	/**
 	 * Suffix used for generating table class names.<br/>
@@ -138,7 +138,7 @@ public class CodeGenConfig extends XMLConfiguration {
 	 * </ul>
 	 * Where "Table" is the suffix.
 	 */
-	private String tableClassSuffix = "Table";
+	private String tableClassSuffix = "";
 	
 	/**
 	 * Prefix used for generating view class names.<br/>
@@ -148,7 +148,7 @@ public class CodeGenConfig extends XMLConfiguration {
 	 * with a capital letter.<br/>
 	 * See naming of table classes above.
 	 */
-	private String viewClassPrefix = "V";
+	private String viewClassPrefix = "";
 	
 	/**
 	 * Suffix used for generating view class names.<br/>
@@ -163,7 +163,7 @@ public class CodeGenConfig extends XMLConfiguration {
 	 * </ul>
 	 * Where "View" is the suffix.
 	 */
-	private String viewClassSuffix = "Table";
+	private String viewClassSuffix = "";
 
 	/**
 	 * if TRUE table classes should be declared as inner classes of DBDatabase.<br/>

@@ -45,12 +45,12 @@ public class $dbClassName extends DBDatabase {
 
 #foreach($table in $database.tables)
 	#set($tblClass=$parser.getTableClassName($table.name))
-	public final $tblClass T_${table.name} = new $tblClass(this);
+	public final $tblClass ${table.name} = new $tblClass(this);
 #end
 
 #foreach($view in $database.views)
 	#set($viewClass=$parser.getViewClassName($view.name))
-	public final $viewClass V_${view.name} = new $viewClass(this);
+	public final $viewClass ${view.name} = new $viewClass(this);
 #end
 	
 	/**
@@ -68,65 +68,6 @@ public class $dbClassName extends DBDatabase {
 	 * Default constructor for the $dbClassName.
 	 */
 	private ${dbClassName}() {
-	}
-	
-	/**
-	 * Convenience method that returns a single DB record based on a given 
-	 * command (i.e. query).  Only use this method for queries that should only
-	 * return a single value. 
-	 * @param <T> The DB record type.
-	 * @param recordType The DB record class.
-	 * @param command The command (or query) to execute.
-	 * @return 
-	 */
-	public <T extends DBRecord> T findRecord(Class<T> recordType, 
-			DBCommand command, Connection conn) {
-		DBReader reader = new DBReader();
-		T record = null;
-		try {
-			if (reader.getRecordData(command, conn)) {
-				record = recordType.newInstance();
-				reader.initRecord(record.getRowSet(), record);
-			}
-		} catch (InstantiationException e) {
-			throw new RuntimeException(e);
-		} catch (IllegalAccessException e) {
-			throw new RuntimeException(e);
-		}
-		finally {
-			reader.close();
-		}	
-		return record;
-	}
-	
-	/**
-	 * Convenience method that returns a list of DB records based on a given 
-	 * command (i.e. query).
-	 * @param <T> The DB record type.
-	 * @param recordType The DB record class.
-	 * @param command The command (or query) to execute.
-	 * @return 
-	 */
-	public <T extends DBRecord> List<T> findRecords(Class<T> recordType, 
-			DBCommand command, Connection conn) {
-		List<T> records = new ArrayList<T>();
-		DBReader reader = new DBReader();
-		try {
-			reader.open(command, conn);
-			while (reader.moveNext()) {
-				T record = recordType.newInstance();
-				reader.initRecord(record.getRowSet(), record);
-				records.add(record);
-			}
-		} catch (InstantiationException e) {
-			throw new RuntimeException(e);
-		} catch (IllegalAccessException e) {
-			throw new RuntimeException(e);
-		}
-		finally {
-			reader.close();
-		}
-		return records;
 	}
 	
 	#if($nestTables == true)

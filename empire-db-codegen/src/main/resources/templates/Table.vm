@@ -33,7 +33,7 @@ public #if($nestTables == true)static#end class $parser.getTableClassName($table
 	
 	// Regular attributes
 #foreach ($col in $table.columns)
-	public final DBTableColumn C_${parser.getAttributeName($col)};
+	public final DBTableColumn ${parser.getAttributeName($col)};
 #end
 	
 	public $parser.getTableClassName($table.name)(${dbClassName} db) {
@@ -41,19 +41,19 @@ public #if($nestTables == true)static#end class $parser.getTableClassName($table
 		
 		// all columns
 #foreach ($col in $table.columns)
-		C_${parser.getAttributeName($col)} = addColumn("${col.name}", DataType.${parser.getDataType($col)}, ${col.size}, ${col.isRequired()}, ${parser.getDefaultValue($col)});
+		${parser.getAttributeName($col)} = addColumn("${col.name}", DataType.${parser.getDataType($col)}, ${col.size}, ${col.isRequired()}, ${parser.getDefaultValue($col)});
 #end
 
 
 		// configure primary columns
 #foreach ($col in $table.keyColumns)
-    	keyColumns.add(C_${col.name});
+    	keyColumns.add(${col.name});
 #end
 		setPrimaryKey(keyColumns.toArray(new DBTableColumn[keyColumns.size()]));
 		
 		// Optimistic locking column
 #if($parser.hasLockingColumn($table) == true)
-		setTimestampColumn(C_${parser.getAttributeName($table.getTimestampColumn())});
+		setTimestampColumn(${parser.getAttributeName($table.getTimestampColumn())});
 #else
 		/*no locking column specified*/
 #end

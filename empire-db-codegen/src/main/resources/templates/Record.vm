@@ -43,7 +43,7 @@ import ${tablePackageName}.$parser.getTableClassName($table.name);
  */
 public class $parser.getRecordClassName($table.name) extends ${baseRecordClassName}<$parser.getTableClassName($table.name)> {
 	public $parser.getRecordClassName($table.name)() {
-		super(${dbClassName}.get().T_${table.name});
+		super(${dbClassName}.get().${table.name});
 	}
 	
 #if($createRecordProperties == true)
@@ -51,10 +51,10 @@ public class $parser.getRecordClassName($table.name) extends ${baseRecordClassNa
 #foreach($col in $table.columns)
 
 	public $parser.getJavaType($col) $parser.getAccessorName($col)() {
-		return ($parser.getJavaType($col))super.getValue(getDbTable().C_${parser.getAttributeName($col)});
+		return ($parser.getJavaType($col))super.getValue(getDbTable().${parser.getAttributeName($col)});
 	}
 	public void $parser.getMutatorName($col)($parser.getJavaType($col) val) {
-		super.setValue(getDbTable().C_${parser.getAttributeName($col)}, val);
+		super.setValue(getDbTable().${parser.getAttributeName($col)}, val);
 	}
 #end
 #end
