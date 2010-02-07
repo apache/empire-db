@@ -207,8 +207,8 @@ public class DBDatabaseDriverMySQL extends DBDatabaseDriver
             case SQL_RENAME_TABLE:            return " ";
             case SQL_RENAME_COLUMN:           return " AS ";
             case SQL_DATABASE_LINK:           return "@";
-            case SQL_QUOTES_OPEN:             return "\"";
-            case SQL_QUOTES_CLOSE:            return "\"";
+            case SQL_QUOTES_OPEN:             return "`";
+            case SQL_QUOTES_CLOSE:            return "`";
             case SQL_CONCAT_EXPR:             return "concat(?, {0})";
             // data types
             case SQL_BOOLEAN_TRUE:            return "1";
