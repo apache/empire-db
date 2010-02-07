@@ -72,8 +72,9 @@
 						<artifactId>maven-license-plugin</artifactId>
 					</plugin>
 					<plugin>
-						<groupId>org.codehaus.mojo</groupId>
-						<artifactId>rat-maven-plugin</artifactId>
+				      	<groupId>org.apache.rat</groupId>
+        				<artifactId>apache-rat-plugin</artifactId>
+        				<inherited>false</inherited>
 						<executions>
 							<execution>
 								<phase>verify</phase>
@@ -107,7 +108,7 @@
 							</execution>
 						</executions>
 					</plugin>
-					<!-- enable enforcer for java 1.5 -->
+					<!-- enable enforcer for java 1.5 --><!--
 					<plugin>
 						<groupId>org.apache.maven.plugins</groupId>
 						<artifactId>maven-enforcer-plugin</artifactId>
@@ -120,7 +121,7 @@
 							</execution>
 						</executions>
 					</plugin>
-				</plugins>
+				--></plugins>
 			</build>
 		</profile>
 		<profile>
@@ -129,9 +130,9 @@
 			<build>
 				<plugins>
 					<plugin>
-						<groupId>org.codehaus.mojo</groupId>
-						<artifactId>rat-maven-plugin</artifactId>
-						<version>1.0-alpha-3</version>
+			      		<groupId>org.apache.rat</groupId>
+        				<artifactId>apache-rat-plugin</artifactId>
+        				<inherited>false</inherited>
 						<executions>
 							<execution>
 								<phase>verify</phase>
@@ -330,9 +331,9 @@
 			<plugins>
 				<!-- Release Audit Tool mvn rat:check -->
 			    <plugin>
-			      	<groupId>org.codehaus.mojo</groupId>
-			       	<artifactId>rat-maven-plugin</artifactId>
-			       	<version>1.0-alpha-3</version>
+			      	<groupId>org.apache.rat</groupId>
+        			<artifactId>apache-rat-plugin</artifactId>
+			       	<version>0.6</version>
 			       	<configuration>
 			       		<excludes>
 			       			<!-- This might be to generic -->
@@ -342,10 +343,10 @@
 			       			<exclude>**/.project</exclude>
 			       			<exclude>**/.classpath</exclude>
 			       			<exclude>**/.tomcatplugin</exclude>
-			       			<!-- TODO should we try to add header in there? -->
-			       			<exclude>**/hsqldb/*.properties</exclude>
-			       			<exclude>**/hsqldb/*.script</exclude>
+			       			<!-- should the sample databases be created in target? -->
+			       			<exclude>**/hsqldb/sample.*</exclude>
 			       		</excludes>
+			       		<excludeSubProjects>false</excludeSubProjects>
 			       	</configuration>
 			  	</plugin>
 			  	<plugin>
@@ -443,9 +444,9 @@
 	<reporting>
 		<plugins>
 			<plugin>
-		        <groupId>org.codehaus.mojo</groupId>
-		        <artifactId>rat-maven-plugin</artifactId>
-		        <version>1.0-alpha-3</version>
+			    <groupId>org.apache.rat</groupId>
+        		<artifactId>apache-rat-plugin</artifactId>
+		        <version>0.6</version>
 		    </plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
