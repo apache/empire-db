@@ -404,7 +404,7 @@ public class CodeGenConfig extends XMLConfiguration {
 
 	private String fallback(String packageName, String defaultSubpackage){
 		String pkg = packageName;
-		if( packageName == null && this.packageName != null){
+		if( pkg == null && this.packageName != null){
 			pkg = this.packageName + "." + defaultSubpackage;
 		}
 		return pkg;
