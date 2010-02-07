@@ -36,7 +36,8 @@ import org.apache.maven.project.MavenProject;
  * Generates code by reading an existing database schema
  * 
  * @goal codegen
- * 
+ * @description Empire-DB Code generation
+ * @requiresDependencyResolution runtime
  * @phase generate-sources
  */
 public class CodeGenMojo extends AbstractMojo {
@@ -110,15 +111,19 @@ public class CodeGenMojo extends AbstractMojo {
 	 */
 	private String packageName;
 
-	public void execute() throws MojoExecutionException {
+	public void execute() throws MojoExecutionException 
+	{
 		
 		setupLogging();
 		
 		CodeGenConfig config = new CodeGenConfig();
-		if(configFile != null){
+		if(configFile != null)
+		{
 			getLog().info("Loading configuration file: " + configFile);
 			config.init(configFile.getAbsolutePath());
-		}else{
+		}
+		else
+		{
 			config.setJdbcURL(jdbcURL);
 			config.setJdbcClass(jdbcClass);
 			config.setJdbcUser(jdbcUser);
@@ -141,13 +146,15 @@ public class CodeGenMojo extends AbstractMojo {
 		getLog().info("Code successfully generated in: " + targetDirectory);
 		
 		// we want the generate sources to be available in the project itself
-		// TODO see if this is correct by loking at other codegen plugins
-		// TODO add some code in the test project that uses the generated code
-		project.addCompileSourceRoot(targetDirectory.getAbsolutePath());
+		if (project != null && targetDirectory != null && targetDirectory.exists()) 
+		{
+			project.addCompileSourceRoot(targetDirectory.getAbsolutePath());
+		}
 		
 	}
 
-	private void setupLogging() {
+	private void setupLogging() 
+	{
 		Logger logger = Logger.getRootLogger();
 		logger.addAppender(new MavenAppender(this));
 	}
@@ -156,32 +163,42 @@ public class CodeGenMojo extends AbstractMojo {
 	 * Forwards Log4j logging to maven logging
 	 * 
 	 */
-	private static final class MavenAppender extends AppenderSkeleton {
+	private static final class MavenAppender extends AppenderSkeleton 
+	{
 		
 		private final AbstractMojo mojo;
 		
-		public MavenAppender(final AbstractMojo mojo) {
+		public MavenAppender(final AbstractMojo mojo) 
+		{
 			this.mojo = mojo;
 		}
 		
 		@Override
-		public boolean requiresLayout() {
+		public boolean requiresLayout() 
+		{
 			return false;
 		}
 
 		@Override
-		public void close() {
+		public void close() 
+		{
 			// nothing to do here
 		}
 
 		@Override
-		protected void append(LoggingEvent event) {
-			if(Level.INFO.equals(event.getLevel())){
+		protected void append(LoggingEvent event) 
+		{
+			if(Level.INFO.equals(event.getLevel()))
+			{
 				mojo.getLog().info(String.valueOf(event.getMessage()));
-			}else if(Level.ERROR.equals(event.getLevel())){
+			}
+			else if(Level.ERROR.equals(event.getLevel()))
+			{
 				// TODO support throwables?
 				mojo.getLog().error(String.valueOf(event.getMessage()));
-			}else if(Level.WARN.equals(event.getLevel())){
+			}
+			else if(Level.WARN.equals(event.getLevel()))
+			{
 				mojo.getLog().warn(String.valueOf(event.getMessage()));
 			}
 		}
