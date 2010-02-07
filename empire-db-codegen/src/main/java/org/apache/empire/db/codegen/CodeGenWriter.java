@@ -31,7 +31,6 @@ import org.apache.empire.db.DBDatabase;
 import org.apache.empire.db.DBTable;
 import org.apache.empire.db.DBView;
 import org.apache.empire.db.codegen.util.FileUtils;
-import org.apache.empire.db.codegen.util.ParserUtil;
 import org.apache.velocity.Template;
 import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.Velocity;
@@ -78,7 +77,7 @@ public class CodeGenWriter {
 	public static final String RECORD_TEMPLATE = "Record.vm";
 
 	// Services
-	private final ParserUtil parserUtil;
+	private final WriterService writerService;
 
 	// Properties
 	private final CodeGenConfig config;
@@ -91,7 +90,7 @@ public class CodeGenWriter {
 	 * Constructor
 	 */
 	public CodeGenWriter(CodeGenConfig config) {
-		this.parserUtil = new ParserUtil(config);
+		this.writerService = new WriterService(config);
 		this.config = config;
 		// we have to keep this in sync with our logging system
 		// http://velocity.apache.org/engine/releases/velocity-1.5/developer-guide.html#simpleexampleofacustomlogger
@@ -180,7 +179,7 @@ public class CodeGenWriter {
 		File file = new File(baseDir, config.getDbClassName() + ".java");
 		VelocityContext context = new VelocityContext();
 		// TODO fall back to getPackageName() is the other names are not set
-		context.put("parser", parserUtil);
+		context.put("parser", writerService);
 		context.put("tableClassSuffix", config.getTableClassSuffix());
 		context.put("basePackageName", config.getPackageName());
 		context.put("dbClassName", config.getDbClassName());
@@ -207,10 +206,10 @@ public class CodeGenWriter {
 	}
 
 	private File createTableClass(DBDatabase db, DBTable table) {
-		File file = new File(tableDir, parserUtil.getTableClassName(table.getName())
+		File file = new File(tableDir, writerService.getTableClassName(table.getName())
 				+ ".java");
 		VelocityContext context = new VelocityContext();
-		context.put("parser", parserUtil);
+		context.put("parser", writerService);
 		context.put("basePackageName", config.getPackageName());
 		context.put("tablePackageName", config.getTablePackageName());
 		context.put("baseTableClassName", config.getTableBaseName());
@@ -231,10 +230,10 @@ public class CodeGenWriter {
 	}
 
 	private File createViewClass(DBDatabase db, DBView view) {
-		File file = new File(viewDir, parserUtil.getViewClassName(view.getName())
+		File file = new File(viewDir, writerService.getViewClassName(view.getName())
 				+ ".java");
 		VelocityContext context = new VelocityContext();
-		context.put("parser", parserUtil);
+		context.put("parser", writerService);
 		context.put("basePackageName", config.getPackageName());
 		context.put("viewPackageName", config.getViewPackageName());
 		context.put("baseViewClassName", config.getViewBaseName());
@@ -258,9 +257,9 @@ public class CodeGenWriter {
 	}
 
 	private File createRecordClass(DBDatabase db, DBTable table) {
-		File file = new File(recordDir, parserUtil.getRecordClassName(table.getName()) + ".java");
+		File file = new File(recordDir, writerService.getRecordClassName(table.getName()) + ".java");
 		VelocityContext context = new VelocityContext();
-		context.put("parser", parserUtil);
+		context.put("parser", writerService);
 		context.put("basePackageName", config.getPackageName());
 		// If the tables shall be nested within the database classe, their include path for the records needs to be changed
 		if (config.isNestTables())

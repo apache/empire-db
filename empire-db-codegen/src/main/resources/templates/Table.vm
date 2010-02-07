@@ -28,7 +28,7 @@ import $basePackageName.${dbClassName};
 #end
 
 public #if($nestTables == true)static#end class $parser.getTableClassName($table.name) extends ${baseTableClassName} {
-	// Primary key column
+
 	private List<DBTableColumn> keyColumns = new ArrayList<DBTableColumn>();
 	
 	// Regular attributes
