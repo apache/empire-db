@@ -22,75 +22,37 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
-import java.io.File;
-import java.io.IOException;
 import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
 import java.util.Date;
 
-import org.apache.commons.io.FileUtils;
+import org.apache.empire.HsqldbResource;
 import org.apache.empire.db.CompanyDB;
 import org.apache.empire.db.DBCmdType;
 import org.apache.empire.db.DBDatabaseDriver;
 import org.apache.empire.db.DBRecord;
 import org.apache.empire.db.DBSQLScript;
-import org.apache.empire.db.DBTools;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
+import org.junit.Rule;
 import org.junit.Test;
 
 
 public class DBDatabaseDriverHSqlTest
-{
-    private static final String PATH = "target/hsqldb-unit-test/";
-    
-    public static CompanyDB db;
-    public static Connection conn;
-    
-    @BeforeClass
-    public static void setup() throws ClassNotFoundException, SQLException, IOException
-    {
-        // clean up possible previous test files
-        FileUtils.deleteDirectory(new File(PATH));
-        
-        Class.forName("org.hsqldb.jdbcDriver");
-        conn = DriverManager.getConnection("jdbc:hsqldb:" + PATH, "sa", "");
-        DBDatabaseDriver driver = new DBDatabaseDriverHSql();
-        db = new CompanyDB();
-        db.open(driver, conn);
-        DBSQLScript script = new DBSQLScript();
-        db.getCreateDDLScript(db.getDriver(), script);
-        script.run(db.getDriver(), conn, false);
-        
-    }
-    
-    @AfterClass
-    public static void shutdown() throws SQLException
-    {
-        try
-        {
-            DBSQLScript script = new DBSQLScript();
-            db.getDriver().getDDLScript(DBCmdType.DROP, db.EMPLOYEE, script);
-            db.getDriver().getDDLScript(DBCmdType.DROP, db.DEPARTMENT, script);
-            script.run(db.getDriver(), conn, true);
-        }
-        finally
-        {
-            DBTools.close(conn);
-            // clean up
-            try {
-                FileUtils.deleteDirectory(new File(PATH));
-            } catch (IOException e) {
-                // ingore
-            }
-        }
-
-    }
+{;
+ 
+    @Rule
+    public HsqldbResource hsqldb = new HsqldbResource();
     
     @Test
     public void test()
     {
+        Connection conn = hsqldb.getConnection();
+     
+        DBDatabaseDriver driver = new DBDatabaseDriverHSql();
+        CompanyDB db = new CompanyDB();
+        db.open(driver, hsqldb.getConnection());
+        DBSQLScript script = new DBSQLScript();
+        db.getCreateDDLScript(db.getDriver(), script);
+        script.run(db.getDriver(), hsqldb.getConnection(), false);
+        
         DBRecord dep = new DBRecord();
         dep.create(db.DEPARTMENT);
         dep.setValue(db.DEPARTMENT.NAME, "junit");
@@ -127,5 +89,10 @@ public class DBDatabaseDriverHSqlTest
         emp.read(db.EMPLOYEE, id, conn);
         
         assertEquals("123456", emp.getString(db.EMPLOYEE.PHONE_NUMBER));
+        
+        script = new DBSQLScript();
+        db.getDriver().getDDLScript(DBCmdType.DROP, db.EMPLOYEE, script);
+        db.getDriver().getDDLScript(DBCmdType.DROP, db.DEPARTMENT, script);
+        script.run(db.getDriver(), conn, true);
     }
 }
