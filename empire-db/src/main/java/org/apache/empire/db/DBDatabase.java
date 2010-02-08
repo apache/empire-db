@@ -23,6 +23,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import org.apache.commons.logging.Log;
@@ -585,12 +586,11 @@ public abstract class DBDatabase extends DBObject
     /**
      * Creates a new Command object for this database
      * 
-     * @return the command obejct.
+     * @return the command object.
      */
     public DBCommand createCommand()
     {
-        // TODO whouldn't it be better to throw an exception here?
-        if (checkOpen()==false)
+        if (checkOpen()==false) 
             return null;
         return driver.createCommand(this);
     }
@@ -782,27 +782,23 @@ public abstract class DBDatabase extends DBObject
     }
     
     /**
-     * Returns a one dimensional array from an sql query.
-     * The array is filled with the values of the first column.
+     * Adds the first column of a query result to a collection.
      * 
      * @param c the class type for the list 
-     * @param <T> the type for th list
+     * @param <T> the type for the list
      * @param sqlCmd the SQL statement
      * @param conn a valid connection to the database.
      * 
-     * @return a list of the values of the first column of an sql query 
+     * @return the number of elements that have been added to the collection or -1 if an error occurred 
      */
-    public <T> List<T> querySimpleList(Class<T> c, String sqlCmd, Connection conn)
-    {   // Execute the  Statement
+    public <T> int querySimpleList(Class<T> c, String sqlCmd, Connection conn, Collection<T> result)
+    {   // Check status
         if (checkOpen()==false)
-            return null;
-        // Debug
+            return -1;
+        // Start query
         ResultSet rs = null;
         try
-        {	// Check Open
-            if (checkOpen()==false)
-                return null;
-            // Debug
+        {   // Log performance
             long start = System.currentTimeMillis();
             if (log.isInfoEnabled())
                 log.info("executing: " + sqlCmd);
@@ -811,36 +807,56 @@ public abstract class DBDatabase extends DBObject
             if (rs == null)
             { // Error
                 error(driver);
-                return null;
+                return -1;
             }
             // Check Result
-            List<T> result = new ArrayList<T>();
+            int count=0;
             while (rs.next())
             {
                 T item = ObjectUtils.convert(c, rs.getObject(1));
                 result.add(item);
+                count++;
             }
             // No Value
             if (log.isInfoEnabled())
-                log.info("querySimpleList retured "+String.valueOf(result.size())+" items. Query completed in " + String.valueOf(System.currentTimeMillis() - start) + " ms");
+                log.info("querySimpleList retured "+String.valueOf(count)+" items. Query completed in " + String.valueOf(System.currentTimeMillis() - start) + " ms");
             clearError();
-            return result;
+            return count;
         } catch (ClassCastException e) 
         {   
             log.error("querySingleValue cast exception: ", e);
             error(Errors.Exception, e);
-            return null;
+            return -1;
         } catch (SQLException e) 
         {
             log.error("querySimpleList exception: ", e);
             error(DBErrors.QueryFailed, e);
-            return null;
+            return -1;
         } finally
         { // Cleanup
             closeResultSet(rs);
         }
     }
 
+    /**
+     * Returns a one dimensional array from an sql query.
+     * The array is filled with the values of the first column.
+     * 
+     * @param c the class type for the list 
+     * @param <T> the type for the list
+     * @param sqlCmd the SQL statement
+     * @param conn a valid connection to the database.
+     * 
+     * @return a list of the values of the first column of an sql query 
+     */
+    public <T> List<T> querySimpleList(Class<T> c, String sqlCmd, Connection conn)
+    {   // Execute the  Statement
+        List<T> result = new ArrayList<T>();
+        if (querySimpleList(c, sqlCmd, conn, result)<0)
+            return null;
+        return result;
+    }
+    
     /**
      * Returns a one dimensional array from an sql query.
      * The array is filled with the values of the first column.
@@ -856,7 +872,7 @@ public abstract class DBDatabase extends DBObject
     
     /**
      * Returns a list of key value pairs from an sql query.
-     * The opton list is filled with the values of the first and second column.
+     * The option list is filled with the values of the first and second column.
      * 
      * @param sqlCmd the SQL statement
      * @param conn a valid connection to the database.
@@ -912,24 +928,23 @@ public abstract class DBDatabase extends DBObject
     }
 
     /**
-     * Returns a list Object-Arrays holding the result of a query.
-     * This function should only be used for small lists.
+     * Adds the result of a query to a given collection.<br/>
+     * The individual rows will be added as an array of objects (object[])
+     * <p>This function should only be used for small lists.
+     * Otherwise a DBReader should be used!</p>
      * 
      * @param sqlCmd the SQL statement
      * @param conn a valid connection to the database.
      * @return a list of object arrays 
      */
-    public List<Object[]> queryObjectList(String sqlCmd, Connection conn)
-    {   // Execute the  Statement
+    public int queryObjectList(String sqlCmd, Connection conn, Collection<Object[]> result)
+    {   // Check status
         if (checkOpen()==false)
-            return null;
-        // Debug
+            return -1;
+        // Perform query
         ResultSet rs = null;
         try
-        {   // Check Open
-            if (checkOpen()==false)
-                return null;
-            // Debug
+        {   // Log performance
             long start = System.currentTimeMillis();
             if (log.isInfoEnabled())
                 log.info("executing: " + sqlCmd);
@@ -938,11 +953,11 @@ public abstract class DBDatabase extends DBObject
             if (rs == null)
             { // Error
                 error(driver);
-                return null;
+                return -1;
             }
             // Read List
-            int colCount = rs.getMetaData().getColumnCount(); 
-            List<Object[]> result = new ArrayList<Object[]>();
+            int colCount = rs.getMetaData().getColumnCount();
+            int count = 0;
             while (rs.next())
             {
                 Object[] item = new Object[colCount];
@@ -951,20 +966,37 @@ public abstract class DBDatabase extends DBObject
                     item[i] = rs.getObject(i+1);
                 }
                 result.add(item);
+                count++;
             }
             // No Value
             if (log.isInfoEnabled())
-                log.info("queryObjectList retured "+String.valueOf(result.size())+" items. Query completed in " + String.valueOf(System.currentTimeMillis() - start) + " ms");
+                log.info("queryObjectList retured "+String.valueOf(count)+" items. Query completed in " + String.valueOf(System.currentTimeMillis() - start) + " ms");
             clearError();
-            return result;
+            return count;
         } catch (SQLException e) 
         {
             error(DBErrors.QueryFailed, e);
-            return null;
+            return -1;
         } finally
         { // Cleanup
             closeResultSet(rs);
         }
+    } 
+
+    /**
+     * Returns the result of a query as a list Object-Arrays 
+     * This function should only be used for small lists.
+     * 
+     * @param sqlCmd the SQL statement
+     * @param conn a valid connection to the database.
+     * @return a list of object arrays 
+     */
+    public List<Object[]> queryObjectList(String sqlCmd, Connection conn)
+    {   // Execute the  Statement
+        List<Object[]> result = new ArrayList<Object[]>();
+        if (queryObjectList(sqlCmd, conn, result)<0)
+            return null; // error
+        return result;
     }
     
     /**
