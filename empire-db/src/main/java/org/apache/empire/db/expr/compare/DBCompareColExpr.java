@@ -126,7 +126,7 @@ public class DBCompareColExpr extends DBCompareExpr
      * @param context the comparative context e.g. (CMP_EQUAL, CMP_SMALLER)
      */
     public void addCompareExpr(StringBuilder buf, long context)
-    { // Zusammenbauen
+    {   // Assemble expression
         String arraySep = "+";
         DBCmpType op = cmpop;
         switch (op)
@@ -149,7 +149,7 @@ public class DBCompareColExpr extends DBCompareExpr
         { // Null oder Not Null!
             op = DBCmpType.getNullType(op);
         }
-        // Zusammenbauen
+        // Add comparison operator and value
         switch (op)
         {
             case EQUAL:
@@ -202,8 +202,6 @@ public class DBCompareColExpr extends DBCompareExpr
                 buf.append(")");
                 valsql = null;
                 break;
-            // Wer hat das gemacht?
-            //   case LIKE_UPPER: buf.append(" LIKE upper(");buf.append(valsql);buf.append(")");valsql=null;break;
             default:
                 // NONE
                 buf.append(" ");

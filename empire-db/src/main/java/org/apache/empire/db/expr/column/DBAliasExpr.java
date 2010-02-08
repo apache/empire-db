@@ -56,7 +56,7 @@ public class DBAliasExpr extends DBColumnExpr
         else
             this.expr = expr;
         // Set alias name
-        this.alias = alias.toUpperCase();
+        this.alias = alias; // .toUpperCase() Why?;
     }
 
     /**
