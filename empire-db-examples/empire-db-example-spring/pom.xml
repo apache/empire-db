@@ -17,35 +17,28 @@
   specific language governing permissions and limitations
   under the License.
 -->
-<project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"
-         xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-    <modelVersion>4.0.0</modelVersion>
-    <parent>
-        <artifactId>empire-db-examples</artifactId>
-        <groupId>org.apache.empire-db</groupId>
-        <version>2.0.6-incubating-SNAPSHOT</version>
-    </parent>
-    <groupId>org.apache.empire-db</groupId>
-    <artifactId>empire-db-example-spring</artifactId>
-    <name>Apache Empire-db Spring Example</name>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>org.apache.empire-db</groupId>
+		<artifactId>empire-db-examples</artifactId>
+		<version>2.0.6-incubating-SNAPSHOT</version>
+	</parent>
+	<groupId>org.apache.empire-db</groupId>
+	<artifactId>empire-db-example-spring</artifactId>
+	<name>Apache Empire-db Spring Example</name>
+	<description>Examples showing the use of empire-db with Spring.</description>
 
     <properties>
         <spring.version>3.0.0.M3</spring.version>
     </properties>
 
-    <dependencies>
-        <dependency>
-            <groupId>org.apache.empire-db</groupId>
-            <artifactId>empire-db-example-basic</artifactId>
-            <version>2.0.6-incubating-SNAPSHOT</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.empire-db</groupId>
-            <artifactId>empire-db</artifactId>
-            <version>2.0.6-incubating-SNAPSHOT</version>
-        </dependency>
-
+	<dependencies>
+		<dependency>
+			<groupId>org.apache.empire-db</groupId>
+			<artifactId>empire-db</artifactId>
+		</dependency>
+		<!-- Spring -->
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-context</artifactId>
@@ -71,8 +64,50 @@
             <artifactId>commons-dbcp</artifactId>
             <version>1.2.2</version>
         </dependency>
-    </dependencies>
-    
+		
+		<!-- This dependency should be declared as runtime but the exec plugin is broken atm... -->
+		<dependency>
+		    <groupId>hsqldb</groupId>
+		    <artifactId>hsqldb</artifactId>
+		    <!-- <scope>runtime</scope> -->
+		</dependency> 
+		<dependency>
+		    <groupId>postgresql</groupId>
+		    <artifactId>postgresql</artifactId>
+		    <version>8.3-603.jdbc3</version>
+		    <!-- <scope>runtime</scope> -->
+		</dependency> 
+		<dependency>
+		    <groupId>com.h2database</groupId>
+		    <artifactId>h2</artifactId>
+		    <version>1.1.107</version>
+		    <!-- <scope>runtime</scope> -->
+		</dependency> 
+		<dependency>
+		    <groupId>org.apache.derby</groupId>
+		    <artifactId>derby</artifactId>
+		    <version>10.4.2.0</version>
+		    <!-- <scope>runtime</scope> -->
+		</dependency> 
+
+		<!-- ojdbc 
+		<dependency>
+		    <groupId>ojdbc</groupId>
+		    <artifactId>ojdbc</artifactId>
+		    <version>14</version>
+		</dependency>
+		-->
+
+		<!-- msssql 
+		<dependency>
+		    <groupId>microsoft</groupId>
+		    <artifactId>sqljdbc</artifactId>
+		    <version>1.0</version>
+		</dependency>
+		-->
+		
+	</dependencies>
+
     <!-- better would be to add this repository in your settings.xml -->
     <repositories>
     	<repository>
@@ -81,4 +116,18 @@
 		    <url>http://s3.amazonaws.com/maven.springframework.org/milestone</url>
 		</repository>
     </repositories>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>exec-maven-plugin</artifactId>
+				<version>1.1.1</version>
+				<configuration>
+					<!-- <classpathScope>runtime</classpathScope> -->
+					<mainClass>org.apache.empire.samples.spring.SampleSpringApp</mainClass>		
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
 </project>

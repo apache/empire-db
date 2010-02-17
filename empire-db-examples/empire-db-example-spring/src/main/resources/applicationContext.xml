@@ -62,7 +62,7 @@
         <constructor-arg value="${empire.driver}"/>
         <constructor-arg value="${empire.schemaname}"/>
     </bean>
-    <bean id="sampleDatabase" class="org.apache.empire.samples.db.SampleDB">
+    <bean id="sampleDatabase" class="org.apache.empire.samples.spring.db.SampleDB">
     </bean>
 
     <!-- application dao/services -->
