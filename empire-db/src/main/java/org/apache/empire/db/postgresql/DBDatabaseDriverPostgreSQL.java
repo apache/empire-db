@@ -52,6 +52,7 @@ import org.apache.empire.db.DBView;
  */
 public class DBDatabaseDriverPostgreSQL extends DBDatabaseDriver
 {
+    @SuppressWarnings("hiding")
     private static final Log log = LogFactory.getLog(DBDatabaseDriverPostgreSQL.class);
     
     private static final String CREATE_REVERSE_FUNCTION =
@@ -719,6 +720,10 @@ public class DBDatabaseDriverPostgreSQL extends DBDatabaseDriver
                 break;
             case BLOB:
                 sql.append("bytea");
+                break;
+            case UNIQUEID:
+                // emulate using java.util.UUID
+                sql.append("CHAR(36)");
                 break;
             case UNKNOWN:
                  log.error("Cannot append column of Data-Type 'UNKNOWN'");

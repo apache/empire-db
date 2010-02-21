@@ -586,6 +586,10 @@ public class DBDatabaseDriverDerby extends DBDatabaseDriver
                     sql.append("(" + String.valueOf((long) c.getSize()) + ") ");
                 }
                 break;
+            case UNIQUEID:
+                // emulate using java.util.UUID
+                sql.append("CHAR(36)");
+                break;
             case UNKNOWN:
                  log.error("Cannot append column of Data-Type 'UNKNOWN'");
                  return false;

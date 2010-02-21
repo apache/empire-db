@@ -29,6 +29,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.UUID;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -357,8 +358,11 @@ public abstract class DBDatabaseDriver extends ErrorObject
             String SeqName = (defValue != null) ? defValue.toString() : this.toString();
             return db.getNextSequenceValue(SeqName, conn);
         }
-        // Set database systems time and date
-        if ((type==DataType.DATE || type==DataType.DATETIME))
+        else if (type== DataType.UNIQUEID)
+        {   // emulate using java.util.UUID
+            return UUID.randomUUID();
+        }
+        else if ((type==DataType.DATE || type==DataType.DATETIME))
         {   // Get database system's date and time
             Date ts = db.getUpdateTimestamp(conn);
             return (type==DataType.DATE ? DateUtils.getDateOnly(ts) : ts);

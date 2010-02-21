@@ -541,6 +541,10 @@ public class DBDatabaseDriverHSql extends DBDatabaseDriver
             case BLOB:
                 sql.append("LONGVARBINARY");
                 break;
+            case UNIQUEID:
+                // emulate using java.util.UUID
+                sql.append("CHAR(36)");
+                break;
             case UNKNOWN:
                  log.error("Cannot append column of Data-Type 'UNKNOWN'");
                  return false;
