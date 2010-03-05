@@ -68,7 +68,8 @@ public class DBDatabaseDriverMySQL extends DBDatabaseDriver
     // When set to 'false' (default) MySQL's autoincrement feature is used.
     private boolean useSequenceTable = false;
     private String sequenceTableName = "Sequences";
-    
+    private String engine; // The database engine to use when creating new tables
+
     /**
      * Constructor for the MySQL database driver.<br>
      */
@@ -97,6 +98,24 @@ public class DBDatabaseDriverMySQL extends DBDatabaseDriver
         this.databaseName = databaseName;
     }
 
+    /**
+     * Get the table engine that is used when creating new tables
+     * @return the table engine
+     */
+    public String getEngine()
+    {
+        return engine;
+    }
+
+    /**
+     * Set the table engine that is used when creating new tables
+     * @param engine the table engine
+     */
+    public void setEngine(String engine)
+    {
+        this.engine = engine;
+    }
+    
     /**
      * returns whether a sequence table is used for record identiy management.<br>
      * Default is false. In this case the AutoIncrement feature of MySQL is used.
@@ -469,6 +488,12 @@ public class DBDatabaseDriverMySQL extends DBDatabaseDriver
             sql.append(")");
         }
         sql.append(")");
+        // Engine
+        if (StringUtils.isValid(engine)) 
+        {   // Set the table engine
+            sql.append(" ENGINE = ");
+            sql.append(engine);
+        }
         // Comment?
         String comment = t.getComment();
         if (StringUtils.isValid(comment))
