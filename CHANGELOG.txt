@@ -1,5 +1,5 @@
 Apache Empire-db
-Copyright 2008-2009 The Apache Software Foundation
+Copyright 2008-2010 The Apache Software Foundation
 
 The issues are categorized as follows:
 [{C=Core}|{S=Struts Extensions}|{E=Examples}|{O=Other}
@@ -7,6 +7,27 @@ The issues are categorized as follows:
 
 For more Information about a particular issue please visit
 https://issues.apache.org/jira/browse/EMPIREDB
+
+--------------
+Release 2.0.6:
+--------------
+Major new features:
+- Code-Generator allows generation of Data Model code files for existing databases 
+- Maven plugin for DB-Code-Generator  
+- New example to demonstrate interoperability between Empire-db and Spring 
+
+Issues resolved:
+EMPIREDB-73 - [C/N]:  Spring interoperability example provided by Eike Kettner     
+EMPIREDB-72 - [C/I]:  Change various private modifiers to protected to allow overrides     
+EMPIREDB-71 - [C/I]:  New enumeration DataMode for column classification as a replacement for the required flag        
+EMPIREDB-70 - [C/B]:  Corrected MySQL indentifier quote     
+EMPIREDB-67 - [C/I]:  Allow selection of (Mysql) Database Engine     
+EMPIREDB-64 - [C/N]:  CodeGenerator Maven Plugin     
+EMPIREDB-63 - [C/I]:  Provide overloads for DBDatabase.queryObjectList() and querySimpleList() to allow using other collection types.     
+EMPIREDB-59 - [C/B]:  HSQL double has hard-coded illegal precision (FLOAT(80)) for HSQL 1.8     
+EMPIREDB-57 - [C/B]:  HSQLDB driver fails to retrieve next sequence value for lower case sequence name     
+EMPIREDB-56 - [C/B]:  getValue Function on DBReader does not fail on errors.     
+EMPIREDB-52 - [C/N]:  CodeGenerator module for generating database definition code files from existing databases       
 
 --------------
 Release 2.0.5:
