@@ -126,7 +126,7 @@
 		</profile>
 		<profile>
 			<!-- Part of the release profile, merged with release profile defined in apache parent pom -->
-			<id>release</id>
+			<id>apache-release</id>
 			<build>
 				<plugins>
 					<plugin>
@@ -325,6 +325,12 @@
                     </execution>
                 </executions>
             </plugin>
+            <plugin>
+            	<!-- add osgi manifests -->
+				<groupId>org.apache.felix</groupId>
+				<artifactId>maven-bundle-plugin</artifactId>
+				<inherited>true</inherited>
+			</plugin>
         </plugins>
         
 		<pluginManagement>
@@ -437,6 +443,45 @@
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-eclipse-plugin</artifactId>
 					<version>2.7</version>
+				</plugin>
+				<plugin>
+					<groupId>org.apache.felix</groupId>
+					<artifactId>maven-bundle-plugin</artifactId>
+					<version>2.0.1</version>
+					<executions>
+						<execution>
+							<id>bundle-manifest</id>
+							<phase>process-classes</phase>
+							<goals>
+								<goal>manifest</goal>
+							</goals>
+							<configuration>
+								<instructions>
+									<Import-Package>org.apache.empire*</Import-Package>
+									<DynamicImport-Package>*</DynamicImport-Package>
+									<_nouses>true</_nouses>
+								</instructions>
+							</configuration>
+						</execution>
+					</executions>
+				</plugin>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-jar-plugin</artifactId>
+					<version>2.3</version>
+					<configuration>
+						<useDefaultManifestFile>true</useDefaultManifestFile>
+					</configuration>
+					<executions>
+						<execution>
+							<goals>
+								<goal>test-jar</goal>
+							</goals>
+							<configuration>
+								<useDefaultManifestFile>false</useDefaultManifestFile>
+							</configuration>
+						</execution>
+					</executions>
 				</plugin>
 			</plugins>
 		</pluginManagement>
