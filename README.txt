@@ -1,12 +1,10 @@
-New Features in Release 2.0.5:
-==============================
+About
+=====
 
-Empire-db Release 2.0.5 has the following major new features
-- Maven project management
-- New database handlers for Apache Derby, H2, PostgreSQL
-- New Examples showing WebService integration using Apache CXF
+Apache Empire-db is a lightweight data access and persistence component for
+relational databases based on JDBC.
 
-For more details see the file CHANGELOG.txt or visit the Empire-db website at
+For release details see the file CHANGELOG.txt or visit the Empire-db website at
 http://incubator.apache.org/empire-db
 
 
