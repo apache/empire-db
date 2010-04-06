@@ -32,6 +32,14 @@
 	<description>Apache Empire-db is an Open Source relational data persistence component which allows database vendor independent dynamic query definition as well as safe and simple data retrieval and updating. Compared to most other solutions like e.g. Hibernate, TopLink, iBATIS or JPA implementations, Empire-db takes a considerably different approach, with a special focus on compile-time safety, reduced redundancies and improved developer productivity.</description>
 	<inceptionYear>2008</inceptionYear>
 	
+	<modules>
+		<module>empire-db</module>
+		<module>empire-db-struts2</module>
+		<module>empire-db-codegen</module>
+		<module>empire-db-maven-plugin</module>
+		<module>empire-db-examples</module>
+	</modules>
+	
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
@@ -42,28 +50,8 @@
 	
 	<profiles>
 		<profile>
-			<id>all</id>
-			<activation>
-				<activeByDefault>true</activeByDefault>
-			</activation>
-			<modules>
-				<module>empire-db</module>
-				<module>empire-db-struts2</module>
-				<module>empire-db-codegen</module>
-				<module>empire-db-maven-plugin</module>
-				<module>empire-db-examples</module>
-			</modules>
-		</profile>
-		<profile>
 			<!-- Hudson profile -->
 			<id>CI</id>
-			<modules>
-				<module>empire-db</module>
-				<module>empire-db-struts2</module>
-				<module>empire-db-codegen</module>
-				<module>empire-db-maven-plugin</module>
-				<module>empire-db-examples</module>
-			</modules>
 			<build>
 				<plugins>
 					<!-- check the headers -->
@@ -125,8 +113,8 @@
 			</build>
 		</profile>
 		<profile>
-			<!-- Our own release profile, not the same as apache-release as defined in the apache parent pom -->
-			<id>release</id>
+			<!-- Part of the release profile, merged with release profile defined in apache parent pom -->
+			<id>apache-release</id>
 			<build>
 				<plugins>
 					<plugin>
@@ -366,15 +354,25 @@
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-assembly-plugin</artifactId>
-					<configuration>
-						<appendAssemblyId>true</appendAssemblyId>
-						<tarLongFileMode>gnu</tarLongFileMode>
-						<outputDirectory>target/dist</outputDirectory>
-						<descriptors>
-							<descriptor>empire-assembly-all.xml</descriptor>
-						</descriptors>
-						<finalName>apache-empire-db-${project.version}</finalName>
-					</configuration>
+					<executions>
+						<execution>
+							<id>binary-release-assembly</id>
+							<phase>package</phase>
+							<goals>
+								<goal>single</goal>
+							</goals>
+							<configuration>
+								<runOnlyAtExecutionRoot>true</runOnlyAtExecutionRoot>
+								<descriptors>
+									<descriptor>empire-assembly-all.xml</descriptor>
+								</descriptors>
+								<tarLongFileFormat>gnu</tarLongFileFormat>
+								<outputDirectory>target/dist</outputDirectory>
+								<finalName>apache-empire-db-${project.version}</finalName>
+								<appendAssemblyId>true</appendAssemblyId>
+							</configuration>
+						</execution>
+					</executions>
 				</plugin>
 				<plugin>
 					<inherited>true</inherited>
