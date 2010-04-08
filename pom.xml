@@ -334,6 +334,7 @@
 			       	<configuration>
 			       		<excludes>
 			       			<!-- This might be to generic -->
+			       			<exclude>release.properties</exclude>
 			       			<exclude>**/target/**</exclude>
 			      			<exclude>**/dependencies.txt</exclude>
 			       			<exclude>**/.settings/**</exclude>
