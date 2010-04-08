@@ -333,7 +333,7 @@
 			       	<version>0.6</version>
 			       	<configuration>
 			       		<excludes>
-			       			<!-- This might be to generic -->
+			       			<!-- This might be to generic  -->
 			       			<exclude>release.properties</exclude>
 			       			<exclude>**/target/**</exclude>
 			      			<exclude>**/dependencies.txt</exclude>
