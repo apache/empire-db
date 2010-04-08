@@ -115,6 +115,9 @@
 		<profile>
 			<!-- Part of the release profile, merged with release profile defined in apache parent pom -->
 			<id>apache-release</id>
+			<modules>
+				<module>empire-db-dist</module>
+			</modules>
 			<build>
 				<plugins>
 					<plugin>
@@ -351,29 +354,6 @@
 			  			<autoVersionSubmodules>true</autoVersionSubmodules>
 			  		</configuration>
 			  	</plugin>
-				<plugin>
-					<groupId>org.apache.maven.plugins</groupId>
-					<artifactId>maven-assembly-plugin</artifactId>
-					<executions>
-						<execution>
-							<id>binary-release-assembly</id>
-							<phase>package</phase>
-							<goals>
-								<goal>single</goal>
-							</goals>
-							<configuration>
-								<runOnlyAtExecutionRoot>true</runOnlyAtExecutionRoot>
-								<descriptors>
-									<descriptor>empire-assembly-all.xml</descriptor>
-								</descriptors>
-								<tarLongFileFormat>gnu</tarLongFileFormat>
-								<outputDirectory>target/dist</outputDirectory>
-								<finalName>apache-empire-db-${project.version}</finalName>
-								<appendAssemblyId>true</appendAssemblyId>
-							</configuration>
-						</execution>
-					</executions>
-				</plugin>
 				<plugin>
 					<inherited>true</inherited>
 					<groupId>org.apache.maven.plugins</groupId>

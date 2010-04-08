@@ -21,17 +21,18 @@
 	<id></id>
 	<formats>
 		<format>tar.gz</format>
+		<format>tar.bz2</format>
 		<format>zip</format>
 	</formats>
 	<includeBaseDirectory>true</includeBaseDirectory>
 	<fileSets>
 		<!-- TODO see how to get this working -->
 		<fileSet>
-			<directory>target/site/apidocs</directory>
+			<directory>${basedir}/../target/site/apidocs</directory>
 			<outputDirectory>apidocs</outputDirectory>
 		</fileSet>
 		<fileSet>
-			<directory>${basedir}</directory>
+			<directory>${basedir}/..</directory>
 			<outputDirectory>src</outputDirectory>
 			<useDefaultExcludes>true</useDefaultExcludes>
 			<includes>
@@ -40,6 +41,8 @@
 				<include>empire-db/**</include>
 				<include>empire-db-struts2/**</include>
 				<include>empire-db-examples/**</include>
+				<include>empire-db-maven-plugin/**</include>
+				<include>empire-db-codegen/**</include>
 			</includes>
 			<excludes>
 				<exclude>**/empire-db/target/**</exclude>
@@ -53,7 +56,7 @@
 			</excludes>
 		</fileSet>
 		<fileSet>
-			<directory>${basedir}</directory>
+			<directory>${basedir}/..</directory>
 			<outputDirectory/>
 			<useDefaultExcludes>true</useDefaultExcludes>
 			<includes>
@@ -66,13 +69,13 @@
 			</includes>
 		</fileSet>
 		<fileSet>
-			<directory>empire-db-examples</directory>
+			<directory>${basedir}/../empire-db-examples</directory>
 			<outputDirectory/>
 			<includes>
 				<include>tutorial.pdf</include>
 			</includes>
 		</fileSet>
-	</fileSets>
+	</fileSets><!--
 	<moduleSets>
 		<moduleSet>
 			<includes>
@@ -86,4 +89,13 @@
 			</binaries>
 		</moduleSet>
 	</moduleSets>
+	--><dependencySets>
+        <dependencySet>
+            <outputDirectory>lib</outputDirectory>
+            <includes>
+                <include>org.apache.empire-db:empire-db</include>
+                <include>org.apache.empire-db:empire-db-struts2</include>
+            </includes>
+        </dependencySet>
+    </dependencySets>
 </assembly>
