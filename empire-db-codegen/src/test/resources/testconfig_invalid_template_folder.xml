@@ -34,6 +34,7 @@
 		<timestampColumn>CREATIONDATE</timestampColumn>
 		
 		<!-- generation options -->
+		<templateFolder>i/do/not/exist</templateFolder>
 		<targetFolder>target/generated/dbsample</targetFolder>
 		<packageName>org.apache.empire.db.samples.dbsample</packageName>
 		<dbClassName>SampleDB</dbClassName>

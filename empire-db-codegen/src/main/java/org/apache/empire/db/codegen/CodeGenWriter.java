@@ -33,7 +33,6 @@ import org.apache.empire.db.DBView;
 import org.apache.empire.db.codegen.util.FileUtils;
 import org.apache.velocity.Template;
 import org.apache.velocity.VelocityContext;
-import org.apache.velocity.app.Velocity;
 import org.apache.velocity.app.VelocityEngine;
 import org.apache.velocity.exception.ParseErrorException;
 import org.apache.velocity.exception.ResourceNotFoundException;
@@ -78,7 +77,8 @@ public class CodeGenWriter {
 
 	// Services
 	private final WriterService writerService;
-
+	private final VelocityEngine engine;
+	
 	// Properties
 	private final CodeGenConfig config;
 	private File baseDir;
@@ -92,17 +92,23 @@ public class CodeGenWriter {
 	public CodeGenWriter(CodeGenConfig config) {
 		this.writerService = new WriterService(config);
 		this.config = config;
+		this.engine = new VelocityEngine();
 		// we have to keep this in sync with our logging system
 		// http://velocity.apache.org/engine/releases/velocity-1.5/developer-guide.html#simpleexampleofacustomlogger
-		Velocity.setProperty(RuntimeConstants.RUNTIME_LOG_LOGSYSTEM,
+		engine.setProperty(RuntimeConstants.RUNTIME_LOG_LOGSYSTEM,
 				new CommonsLogLogChute());
 		if(useClasspathTemplates()){
-			Velocity.setProperty(RuntimeConstants.RESOURCE_LOADER, "classpath");
-			Velocity.setProperty("classpath." + VelocityEngine.RESOURCE_LOADER + ".class", ClasspathResourceLoader.class.getName());
-		} 
+			engine.setProperty(RuntimeConstants.RESOURCE_LOADER, "classpath");
+			engine.setProperty("classpath." + VelocityEngine.RESOURCE_LOADER + ".class", ClasspathResourceLoader.class.getName());
+		}else{
+			File templateFolder = new File(config.getTemplateFolder());
+			if(!templateFolder.canRead()){
+				throw new RuntimeException("Provided template folder missing or not readable: " + config.getTemplateFolder());
+			}
+		}
 		
 		try {
-			Velocity.init();
+			engine.init();
 		} catch (Exception e) {
 			log.fatal(e);
 			throw new RuntimeException(e);
@@ -298,7 +304,7 @@ public class CodeGenWriter {
 		Writer writer = null;
 		try {
 			log.info("Writing " + file);
-			Template velocityTemplate = Velocity.getTemplate(templatePath);
+			Template velocityTemplate = engine.getTemplate(templatePath);
 			writer = new FileWriter(file);
 			velocityTemplate.merge(context, writer);
 		} catch (IOException e) {
