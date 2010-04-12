@@ -97,9 +97,10 @@ public class CodeGenWriter {
 		// http://velocity.apache.org/engine/releases/velocity-1.5/developer-guide.html#simpleexampleofacustomlogger
 		engine.setProperty(RuntimeConstants.RUNTIME_LOG_LOGSYSTEM,
 				new CommonsLogLogChute());
-		if(useClasspathTemplates()){
+		if(config.getTemplateFolder() == null){
 			engine.setProperty(RuntimeConstants.RESOURCE_LOADER, "classpath");
 			engine.setProperty("classpath." + VelocityEngine.RESOURCE_LOADER + ".class", ClasspathResourceLoader.class.getName());
+			config.setTemplateFolder("templates");
 		}else{
 			File templateFolder = new File(config.getTemplateFolder());
 			if(!templateFolder.canRead()){
@@ -283,24 +284,10 @@ public class CodeGenWriter {
 		writeFile(file, RECORD_TEMPLATE, context);
 		return file;
 	}
-	
-	private boolean useClasspathTemplates(){
-		return config.getTemplateFolder() == null;
-	}
-	
-	private String templatePathFor(final String template){
-		String path;
-		if(useClasspathTemplates()){
-			path = "templates/" + template;
-		}else{
-			path = config.getTemplateFolder() + "/" + template;
-		}
-		return path;
-	}
 
 	private void writeFile(File file, String template,
 			VelocityContext context) {
-		String templatePath = templatePathFor(template);
+		String templatePath = config.getTemplateFolder()+ System.getProperty("file.separator") +template;
 		Writer writer = null;
 		try {
 			log.info("Writing " + file);
