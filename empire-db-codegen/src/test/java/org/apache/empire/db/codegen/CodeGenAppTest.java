@@ -22,6 +22,7 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 
 import org.apache.empire.db.codegen.util.FileUtils;
@@ -51,6 +52,32 @@ public class CodeGenAppTest {
 		// expected files
 		File expected = new File("target/generated/dbsample/org/apache/empire/db/samples/dbsample/SampleDB.java");
 		assertTrue("missing generated code", expected.exists());
+	}
+	
+	@Test
+	public void testMainDefaultTemplateFolderNested() {
+		String[] args = new String[]{"src/test/resources/testconfig_default_template_folder_nested.xml"};
+		CodeGenApp.main(args);
+		File expectedFile = new File("target/generated/dbsample/org/apache/empire/db/samples/dbsample/SampleDB.java");
+		
+		// the string to be expected within the DB class file
+		String expectedContent = "addColumn(";
+		
+		
+		// this variable will hold the file's whole content
+		String fileContent="";
+		try{
+			FileInputStream fis = new FileInputStream(expectedFile);
+			byte[] buff=new byte[fis.available()];
+			fis.read(buff);
+			fileContent=new String(buff);
+			fis.close();
+		}
+		// IO Exception can be ignored here
+		catch(IOException e){}
+		
+		// we expect that there is at least one nested table is within the DB class that has at leas one column.
+		assertTrue("missing generated code for nested table classes", fileContent.contains(expectedContent));
 	}
 	
 	@Test

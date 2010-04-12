@@ -29,7 +29,7 @@
 		
 		<!-- Schema options -->
 		<dbCatalog></dbCatalog>
-		<dbSchema>DBSAMPLE</dbSchema>
+		<dbSchema></dbSchema>
 		<dbTablePattern></dbTablePattern>
 		<timestampColumn>CREATIONDATE</timestampColumn>
 		
