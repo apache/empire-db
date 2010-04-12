@@ -18,6 +18,7 @@ Major new features:
 - Provided jars are now OSGi compatible
 
 Issues resolved:
+EMPIREDB-76 - [C/B]:  Erroneous translation of DataType.DOUBLE for postgres
 EMPIREDB-73 - [C/N]:  Spring interoperability example provided by Eike Kettner     
 EMPIREDB-72 - [C/I]:  Change various private modifiers to protected to allow overrides     
 EMPIREDB-71 - [C/I]:  New enumeration DataMode for column classification as a replacement for the required flag        
