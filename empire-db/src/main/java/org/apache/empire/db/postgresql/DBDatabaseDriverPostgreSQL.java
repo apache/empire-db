@@ -353,7 +353,7 @@ public class DBDatabaseDriverPostgreSQL extends DBDatabaseDriver
             case BOOL:     return "CAST(? AS BOOL)";
             case INTEGER:  return "CAST(? AS INTEGER)";
             case DECIMAL:  return "CAST(? AS DECIMAL)";
-            case DOUBLE:   return "CAST(? AS DECIMAL)";
+            case DOUBLE:   return "CAST(? AS DOUBLE PRECISION)";
             case DATE:     return "CAST(? AS DATE)";
             case DATETIME: return "CAST(? AS TIMESTAMP)";
                 // Convert to text
@@ -632,6 +632,8 @@ public class DBDatabaseDriverPostgreSQL extends DBDatabaseDriver
     
     /**
      * Appends a table column definition to a ddl statement
+     * http://www.postgresql.org/docs/8.3/static/datatype.html
+     * 
      * @param c the column which description to append
      * @param sql the sql builder object
      * @param alter is this for an alter statement
@@ -701,7 +703,7 @@ public class DBDatabaseDriverPostgreSQL extends DBDatabaseDriver
                 sql.append("BOOLEAN");
                 break;
             case DOUBLE:
-                sql.append("DOUBLE");
+                sql.append("DOUBLE PRECISION");
                 break;
             case DECIMAL:
             { // Decimal
@@ -719,7 +721,7 @@ public class DBDatabaseDriverPostgreSQL extends DBDatabaseDriver
                 sql.append("TEXT");
                 break;
             case BLOB:
-                sql.append("bytea");
+                sql.append("BYTEA");
                 break;
             case UNIQUEID:
                 // emulate using java.util.UUID
