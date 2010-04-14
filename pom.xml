@@ -54,7 +54,7 @@
 			<id>CI</id>
 			<build>
 				<plugins>
-					<!-- check the headers -->
+					<!-- check the apache headers -->
 					<plugin>
 						<groupId>com.mycila.maven-license-plugin</groupId>
 						<artifactId>maven-license-plugin</artifactId>
