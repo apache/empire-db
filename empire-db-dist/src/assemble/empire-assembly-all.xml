@@ -26,11 +26,6 @@
 	</formats>
 	<includeBaseDirectory>true</includeBaseDirectory>
 	<fileSets>
-		<!-- TODO see how to get this working -->
-		<fileSet>
-			<directory>${basedir}/../target/site/apidocs</directory>
-			<outputDirectory>apidocs</outputDirectory>
-		</fileSet>
 		<fileSet>
 			<directory>${basedir}/..</directory>
 			<outputDirectory>src</outputDirectory>
@@ -89,12 +84,23 @@
 			</binaries>
 		</moduleSet>
 	</moduleSets>
-	--><dependencySets>
-        <dependencySet>
-            <outputDirectory>lib</outputDirectory>
+	-->
+	<dependencySets>
+		<dependencySet>
+			<outputDirectory>doc</outputDirectory>
+			<!-- <unpack>true</unpack> -->
+			<useStrictFiltering>true</useStrictFiltering>
+			<includes>
+				<include>org.apache.empire-db:empire-db:*:javadoc</include>
+				<include>org.apache.empire-db:empire-db-struts2:*:javadoc</include>
+			</includes>
+		</dependencySet>
+		<dependencySet>
+            <outputDirectory>bin</outputDirectory>
+            <useStrictFiltering>true</useStrictFiltering>
             <includes>
-                <include>org.apache.empire-db:empire-db</include>
-                <include>org.apache.empire-db:empire-db-struts2</include>
+                <include>org.apache.empire-db:empire-db:jar</include>
+                <include>org.apache.empire-db:empire-db-struts2:jar</include>
             </includes>
         </dependencySet>
     </dependencySets>

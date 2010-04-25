@@ -74,6 +74,18 @@
 			<groupId>org.apache.empire-db</groupId>
 			<artifactId>empire-db-struts2</artifactId>
 		</dependency>
+		<dependency>
+			<groupId>org.apache.empire-db</groupId>
+			<artifactId>empire-db</artifactId>
+			<version>${project.version}</version>
+			<classifier>javadoc</classifier>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.empire-db</groupId>
+			<artifactId>empire-db-struts2</artifactId>
+			<version>${project.version}</version>
+			<classifier>javadoc</classifier>
+		</dependency>
 	</dependencies>
 
 </project>
