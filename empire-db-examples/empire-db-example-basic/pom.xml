@@ -54,22 +54,25 @@
 		    <version>10.4.2.0</version>
 		    <!-- <scope>runtime</scope> -->
 		</dependency> 
+		<dependency>
+		    <groupId>mysql</groupId>
+		    <artifactId>mysql-connector-java</artifactId>
+		    <version>5.1.6</version>
+		</dependency>
 
-		<!-- ojdbc 
+		<!-- ojdbc --> 
 		<dependency>
 		    <groupId>ojdbc</groupId>
 		    <artifactId>ojdbc</artifactId>
 		    <version>14</version>
 		</dependency>
-		-->
-
-		<!-- msssql 
+		
+		<!-- msssql --> 
 		<dependency>
 		    <groupId>microsoft</groupId>
 		    <artifactId>sqljdbc</artifactId>
 		    <version>1.0</version>
 		</dependency>
-		-->
 		
 	</dependencies>
 	<build>

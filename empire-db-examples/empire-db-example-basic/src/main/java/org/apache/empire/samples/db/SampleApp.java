@@ -27,6 +27,7 @@ import org.apache.empire.commons.ErrorObject;
 import org.apache.empire.db.DBColumnExpr;
 import org.apache.empire.db.DBCommand;
 import org.apache.empire.db.DBDatabaseDriver;
+import org.apache.empire.db.DBDriverFeature;
 import org.apache.empire.db.DBReader;
 import org.apache.empire.db.DBRecord;
 import org.apache.empire.db.DBSQLScript;
@@ -169,13 +170,13 @@ public class SampleApp
 		logger.info("Connecting to Database'" + config.getJdbcURL() + "' / User=" + config.getJdbcUser());
 		try
         {
-            // Connect to the databse
+            // Connect to the database
 			Class.forName(config.getJdbcClass()).newInstance();
 			conn = DriverManager.getConnection(config.getJdbcURL(), config.getJdbcUser(), config.getJdbcPwd());
 			logger.info("Connected successfully");
-			// set the AutoCommit to false this session. You must commit
-			// explicitly now
-			conn.setAutoCommit(true);
+			// set the AutoCommit to false for this connection. 
+			// commit must be called explicitly! 
+			conn.setAutoCommit(false);
 			logger.info("AutoCommit is " + conn.getAutoCommit());
 
 		} catch (Exception e)
@@ -418,6 +419,10 @@ public class SampleApp
         // Set constraints and order
         cmd.where(EMP.LASTNAME.length().isGreaterThan(0));
         cmd.orderBy(EMP.LASTNAME, EMP.FIRSTNAME);
+
+        cmd.limitRows(20);
+        if (db.getDriver().isSupported(DBDriverFeature.QUERY_SKIP_ROWS))
+            cmd.skipRows(1);
         
 		// Query Records and print output
 		DBReader reader = new DBReader();

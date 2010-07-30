@@ -21,7 +21,7 @@
 
 	<properties>
 		<!-- provider name must match the property-section containing the connection data -->
-		<databaseProvider>hsqldb</databaseProvider>
+		<databaseProvider>sqlserver</databaseProvider>
 	</properties>
 
 	<properties-hsqldb>
@@ -40,7 +40,7 @@
 		<jdbcClass>com.mysql.jdbc.Driver</jdbcClass>
 		<jdbcURL>jdbc:mysql://localhost</jdbcURL>
 		<jdbcUser>root</jdbcUser>
-		<jdbcPwd>empire-db</jdbcPwd>
+		<jdbcPwd>esteam</jdbcPwd>
 		<schemaName>DBSAMPLE</schemaName>
 	</properties-mysql>
 	
