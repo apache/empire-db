@@ -160,8 +160,10 @@ public class DBDatabaseDriverH2 extends DBDatabaseDriver
         {   // return support info 
             case CREATE_SCHEMA: return true;
             case SEQUENCES:     return useSequenceTable;    
+            default:
+                // All other features are not supported by default
+                return false;
         }
-        return false;
     }
     
     /**

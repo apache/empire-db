@@ -557,10 +557,35 @@ public abstract class DBCommand extends DBCommandExpr
     }
 
     /**
-     * Returns true if the command has constaints or false if not.
+     * set the maximum number of rows to return when executing a query command
+     * A negative value will remove the limit.
      * 
-     * @return true if constraints have been set on the command
+     * @return true if the database supports a limit or false otherwise
      */
+    public boolean limitRows(int numRows)
+    {
+        return error(Errors.NotSupported, "limitRows");
+    }
+
+    /**
+     * sets the offset of the first row to return when executing a query command.
+     * A negative value will remove the offset.
+     * 
+     * @return true if the database supports an offset or false otherwise
+     */
+    public boolean skipRows(int numRows)
+    {
+        return error(Errors.NotSupported, "skipRows");
+    }
+    
+    /**
+     * Clears a limit or offset set by calling limit() or offset()
+     */
+    public void clearLimit()
+    {
+        // Nothing to do!
+    }
+    
     public boolean hasSelectExpr()
     {
         return (select!=null && select.size()>0);
@@ -674,6 +699,7 @@ public abstract class DBCommand extends DBCommandExpr
         clearHaving();
         clearGroupBy();
         clearOrderBy();
+        clearLimit();
         cmdParams = null;
     }
 

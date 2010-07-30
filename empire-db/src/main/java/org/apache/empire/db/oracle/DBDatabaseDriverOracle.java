@@ -94,9 +94,11 @@ public class DBDatabaseDriverOracle extends DBDatabaseDriver
         switch (type)
         {   // return support info 
             case CREATE_SCHEMA: return false;
-            case SEQUENCES:     return true;    
+            case SEQUENCES:     return true;
+            default:
+                // All other features are not supported by default
+                return false;
         }
-        return false;
     }
 
     /**

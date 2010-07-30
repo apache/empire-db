@@ -26,5 +26,7 @@ package org.apache.empire.db;
 public enum DBDriverFeature {
     // Support Flags used by DBDatabaseDriver::isSupported()
     CREATE_SCHEMA,
-    SEQUENCES,    
+    SEQUENCES,
+    QUERY_LIMIT_ROWS,
+    QUERY_SKIP_ROWS
 }

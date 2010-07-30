@@ -55,9 +55,52 @@ public class DBDatabaseDriverMySQL extends DBDatabaseDriver
      */ 
     public static class DBCommandMySQL extends DBCommand
     {
+        protected int limit = -1;
+        protected int skip  = -1;
+        
         public DBCommandMySQL(DBDatabase db)
         {
             super(db);
+        }
+        
+        @Override
+        public boolean limitRows(int numRows)
+        {
+            limit = numRows;
+            return success();
+        }
+
+        @Override
+        public boolean skipRows(int numRows)
+        {
+            skip = numRows;
+            return success();
+        }
+         
+        @Override
+        public void clearLimit()
+        {
+            limit = -1;
+            skip  = -1;
+        }
+        
+        @Override
+        public boolean getSelect(StringBuilder buf)
+        {   // call base class
+            if (super.getSelect(buf)==false)
+                return false;
+            // add limit and offset
+            if (limit>=0)
+            {   buf.append("\r\nLIMIT ");
+                buf.append(String.valueOf(limit));
+                // Offset
+                if (skip>=0) 
+                {   buf.append(" OFFSET ");
+                    buf.append(String.valueOf(skip));
+                }    
+            }
+            // done
+            return success();
         }
     }
     
@@ -204,10 +247,14 @@ public class DBDatabaseDriverMySQL extends DBDatabaseDriver
     {
         switch (type)
         {   // return support info 
-            case CREATE_SCHEMA: return true;
-            case SEQUENCES:     return useSequenceTable;    
+            case CREATE_SCHEMA:     return true;
+            case SEQUENCES:         return useSequenceTable;
+            case QUERY_LIMIT_ROWS:  return true;
+            case QUERY_SKIP_ROWS:   return true;
+            default:
+                // All other features are not supported by default
+                return false;
         }
-        return false;
     }
     
     /**

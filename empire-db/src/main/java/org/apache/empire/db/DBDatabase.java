@@ -1113,11 +1113,12 @@ public abstract class DBDatabase extends DBObject
     public boolean commit(Connection conn)
     {
         try
-        {   // Check arguement
+        {   // Check argument
             if (conn==null)
                 return error(Errors.InvalidArg, null, "conn");
             // Commit
-            conn.commit();
+            if (conn.getAutoCommit()==false)
+                conn.commit();
             return true;
         } catch (SQLException sqle) 
         { 
@@ -1144,7 +1145,7 @@ public abstract class DBDatabase extends DBObject
             // Rollback
             log.info("Database rollback issued!");
             conn.rollback();
-            return true;
+            return success();
         } catch (SQLException sqle) 
         {
             return error(sqle);

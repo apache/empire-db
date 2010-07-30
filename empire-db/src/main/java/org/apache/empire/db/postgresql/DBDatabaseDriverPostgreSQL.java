@@ -268,8 +268,10 @@ public class DBDatabaseDriverPostgreSQL extends DBDatabaseDriver
         {   // return support info 
             case CREATE_SCHEMA: return true;
             case SEQUENCES:     return true;    
+            default:
+                // All other features are not supported by default
+                return false;
         }
-        return false;
     }
     
     /**

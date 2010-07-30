@@ -57,10 +57,43 @@ public class DBDatabaseDriverMSSQL extends DBDatabaseDriver
      */ 
     public static class DBCommandMSSQL extends DBCommand
     {
-    	public DBCommandMSSQL(DBDatabase db)
+        protected int limit = -1;
+
+        public DBCommandMSSQL(DBDatabase db)
     	{
     		super(db);
     	}
+        
+        @Override
+        public boolean limitRows(int numRows)
+        {
+            limit = numRows;
+            return success();
+        }
+         
+        @Override
+        public void clearLimit()
+        {
+            limit = -1;
+        }
+        
+        @Override
+        protected void addSelect(StringBuilder buf)
+        {   
+            // Prepares statement
+            buf.append("SELECT ");
+            if (selectDistinct)
+                buf.append("DISTINCT ");
+            // Add limit
+            if (limit>=0)
+            {   // Limit
+                buf.append("TOP ");
+                buf.append(String.valueOf(limit));
+                buf.append(" ");
+            }
+            // Add Select Expressions
+            addListExpr(buf, select, CTX_ALL, ", ");
+        }
     }
 	
     // Properties
@@ -194,10 +227,14 @@ public class DBDatabaseDriverMSSQL extends DBDatabaseDriver
     {
         switch (type)
         {   // return support info 
-            case CREATE_SCHEMA: return true;
-            case SEQUENCES:     return useSequenceTable;    
+            case CREATE_SCHEMA:     return true;
+            case SEQUENCES:         return useSequenceTable;    
+            case QUERY_LIMIT_ROWS:  return true;
+            case QUERY_SKIP_ROWS:   return false;
+            default:
+                // All other features are not supported by default
+                return false;
         }
-        return false;
     }
 
     /**
