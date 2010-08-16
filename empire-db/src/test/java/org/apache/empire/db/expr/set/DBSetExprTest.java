@@ -29,6 +29,7 @@ import org.apache.empire.db.DBColumn;
 import org.apache.empire.db.DBExpr;
 import org.apache.empire.db.MockDriver;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 public class DBSetExprTest
@@ -58,6 +59,16 @@ public class DBSetExprTest
         assertEquals("", builder.toString());
         expr.addSQL(builder, DBExpr.CTX_DEFAULT);
         assertEquals("FIRSTNAME='JUnit'", builder.toString());
+    }
+    
+    @Test
+    @Ignore("This fails for now, needs fix for non-oracle dbs")
+    public void testAddSQLEmptyString()
+    {
+        StringBuilder builder = new StringBuilder();
+        DBSetExpr setExpr = new DBSetExpr(testDB.EMPLOYEE.FIRSTNAME, "");
+        setExpr.addSQL(builder, DBExpr.CTX_DEFAULT);
+        assertEquals("FIRSTNAME=''", builder.toString());
     }
 
     @Test
