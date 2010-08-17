@@ -26,10 +26,10 @@ import java.util.Set;
 
 import org.apache.empire.db.CompanyDB;
 import org.apache.empire.db.DBColumn;
+import org.apache.empire.db.DBDatabase;
 import org.apache.empire.db.DBExpr;
 import org.apache.empire.db.MockDriver;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
 public class DBSetExprTest
@@ -62,11 +62,20 @@ public class DBSetExprTest
     }
     
     @Test
-    @Ignore("This fails for now, needs fix for non-oracle dbs")
     public void testAddSQLEmptyString()
     {
         StringBuilder builder = new StringBuilder();
         DBSetExpr setExpr = new DBSetExpr(testDB.EMPLOYEE.FIRSTNAME, "");
+        setExpr.addSQL(builder, DBExpr.CTX_DEFAULT);
+        // Empire-DB by default sees '' as null
+        assertEquals("FIRSTNAME=null", builder.toString());
+    }
+    
+    @Test
+    public void testAddSQLEmptyStringConstant()
+    {
+        StringBuilder builder = new StringBuilder();
+        DBSetExpr setExpr = new DBSetExpr(testDB.EMPLOYEE.FIRSTNAME, DBDatabase.EMPTY_STRING);
         setExpr.addSQL(builder, DBExpr.CTX_DEFAULT);
         assertEquals("FIRSTNAME=''", builder.toString());
     }
