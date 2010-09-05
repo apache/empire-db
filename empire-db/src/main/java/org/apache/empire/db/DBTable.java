@@ -26,8 +26,8 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.empire.commons.Errors;
-import org.apache.empire.data.DataType;
 import org.apache.empire.data.DataMode;
+import org.apache.empire.data.DataType;
 
 
 /**
@@ -87,21 +87,41 @@ public class DBTable extends DBRowSet implements Cloneable
     }
 
     /**
-     * Clones this object.
+     * Clones this table and assigns a new table alias.
+     * This second instance of the same table can be used for self-joins.
+     * <pre>
+     * This method requires that all declared column fields are NOT declared final.</p>
+     * i.e. instead of:
      * 
-     * @return this cloned Object
+     *      public final DBTableColumn MYCOL;
+     * 
+     * columns must be declared:
+     * 
+     *      public DBTableColumn MYCOL;
+     *
+     * A runtime exception for the CloneNotSupported will be thrown if references cannot be adjusted.
+     *
+     * Alternatively a second table instance may be created manually like this:
+     *      
+     *      public final MyTable MYTABLE1 = new MyTable();
+     *      public final MyTable MYTABLE2 = new MyTable();
+     *
+     *      ...
+     *      cmd.join(MYTABLE1.ID, MYTABLE2.PARENTID); // self-join
+     *      ...
+     * <pre>
+     * @return a table clone with new table alias
      */
     @Override
     public Object clone()
     {
-        try
-        {
+        try {
             DBTable clone = (DBTable) super.clone();
             // clone all columns
             Class<?> colClass = columns.get(0).getClass();
             Class<?> colBase = colClass.getSuperclass();
             clone.columns = new ArrayList<DBColumn>();
-            Field[] fields = getClass().getDeclaredFields();
+            Field[] fields = getClass().getFields();
             for (int i = 0; i < columns.size(); i++)
             {
                 DBTableColumn srcCol = (DBTableColumn) columns.get(i);
@@ -113,14 +133,17 @@ public class DBTable extends DBRowSet implements Cloneable
                     if (type == colClass || type == colBase)
                     {
                         try
-                        {
-                            // Check if the field points to the old Value
+                        {   // Check if the field points to the old Value
                             if (fields[j].get(clone) == srcCol)
-                                fields[j].set(clone, newCol);
-                        } catch (Exception e)
-                        {
+                              fields[j].set(clone, newCol);
+                        } catch (Exception e)  {
                             // IllegalAccessException or IllegalArgumentException
-                            log.error("clone: Cannot clone table-member: " + fields[j].getName() + "-->" + e.getMessage());
+                            String fieldName = fields[j].getName();
+                            log.error("Cannot adjust declared table field: " + fieldName + ". Reason is: " + e.getMessage());
+                            // throw CloneNotSupportedException
+                            CloneNotSupportedException cnse = new CloneNotSupportedException("Unable to replace field reference for field " + fieldName);
+                            cnse.initCause(e);
+                            throw cnse;
                         }
                     }
                 }
@@ -130,9 +153,11 @@ public class DBTable extends DBRowSet implements Cloneable
             // done
             log.info("clone: Table " + name + " cloned! Alias old=" + alias + " new=" + clone.alias);
             return clone;
-        } catch (CloneNotSupportedException e)
-        {
-            return null;
+
+        } catch (CloneNotSupportedException e) {
+            // unable to clone table
+            log.error("Unable to clone table " + getName());
+            throw new RuntimeException(e);
         }
     }
 
