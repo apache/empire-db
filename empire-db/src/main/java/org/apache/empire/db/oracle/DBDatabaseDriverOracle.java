@@ -60,6 +60,7 @@ public class DBDatabaseDriverOracle extends DBDatabaseDriver
         NUMBER      // as NUMBER(1) with 1 for true and 0 for false
     }
     
+    private boolean oracle8Compatibilty = false;
     private BooleanType booleanType = BooleanType.NUMBER;
 
     /**
@@ -165,9 +166,9 @@ public class DBDatabaseDriverOracle extends DBDatabaseDriver
             case SQL_FUNC_CEILING:              return "ceil(?)";
             case SQL_FUNC_FLOOR:                return "floor(?)";
             // Date
-            case SQL_FUNC_DAY:                  return "TO_CHAR(?,'DD')";
-            case SQL_FUNC_MONTH:                return "TO_CHAR(?,'MM')";
-            case SQL_FUNC_YEAR:                 return "TO_CHAR(?,'YYYY')";
+            case SQL_FUNC_DAY:                  return oracle8Compatibilty ? "TO_CHAR(?,'DD')"   : "extract(day from ?)";
+            case SQL_FUNC_MONTH:                return oracle8Compatibilty ? "TO_CHAR(?,'MM')"   : "extract(month from ?)";
+            case SQL_FUNC_YEAR:                 return oracle8Compatibilty ? "TO_CHAR(?,'YYYY')" : "extract(year from ?)";
             // Aggregation
             case SQL_FUNC_SUM:                  return "sum(?)";
             case SQL_FUNC_MAX:                  return "max(?)";
