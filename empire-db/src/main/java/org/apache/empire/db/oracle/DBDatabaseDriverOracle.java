@@ -61,6 +61,7 @@ public class DBDatabaseDriverOracle extends DBDatabaseDriver
     }
     
     private boolean oracle8Compatibilty = false;
+
     private BooleanType booleanType = BooleanType.NUMBER;
 
     /**
@@ -71,6 +72,16 @@ public class DBDatabaseDriverOracle extends DBDatabaseDriver
     {
         // Info
         log.info("DBDatabaseDriverOracle created. Boolean Type is " + String.valueOf(booleanType));
+    }
+
+    public boolean isOracle8Compatibilty()
+    {
+        return oracle8Compatibilty;
+    }
+
+    public void setOracle8Compatibilty(boolean oracle8Compatibilty)
+    {
+        this.oracle8Compatibilty = oracle8Compatibilty;
     }
 
     public BooleanType getBooleanType()
@@ -166,9 +177,9 @@ public class DBDatabaseDriverOracle extends DBDatabaseDriver
             case SQL_FUNC_CEILING:              return "ceil(?)";
             case SQL_FUNC_FLOOR:                return "floor(?)";
             // Date
-            case SQL_FUNC_DAY:                  return oracle8Compatibilty ? "TO_CHAR(?,'DD')"   : "extract(day from ?)";
-            case SQL_FUNC_MONTH:                return oracle8Compatibilty ? "TO_CHAR(?,'MM')"   : "extract(month from ?)";
-            case SQL_FUNC_YEAR:                 return oracle8Compatibilty ? "TO_CHAR(?,'YYYY')" : "extract(year from ?)";
+            case SQL_FUNC_DAY:                  return oracle8Compatibilty ? "to_number(to_char(?,'DD'))"   : "extract(day from ?)";
+            case SQL_FUNC_MONTH:                return oracle8Compatibilty ? "to_number(to_char(?,'MM'))"   : "extract(month from ?)";
+            case SQL_FUNC_YEAR:                 return oracle8Compatibilty ? "to_number(to_char(?,'YYYY'))" : "extract(year from ?)";
             // Aggregation
             case SQL_FUNC_SUM:                  return "sum(?)";
             case SQL_FUNC_MAX:                  return "max(?)";
