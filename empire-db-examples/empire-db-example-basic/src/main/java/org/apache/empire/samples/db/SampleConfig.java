@@ -23,7 +23,7 @@ import org.apache.empire.xml.XMLConfiguration;
 /**
  * <PRE>
  * The SampleConfig class provides access to configuration settings.
- * The configruation will be read from a xml configuration file (usually config.xml) 
+ * The configuration will be read from a xml configuration file (usually config.xml) 
  * Thus the default values here will be overridden. 
  * </PRE>
  */

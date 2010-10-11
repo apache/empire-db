@@ -38,8 +38,8 @@ import org.apache.empire.commons.ErrorObject;
 import org.apache.empire.commons.Errors;
 import org.apache.empire.commons.ObjectUtils;
 import org.apache.empire.commons.StringUtils;
-import org.apache.empire.data.DataType;
 import org.apache.empire.data.DataMode;
+import org.apache.empire.data.DataType;
 
 
 /**
@@ -587,7 +587,7 @@ public abstract class DBDatabaseDriver extends ErrorObject
      * @param type the sql data type of the supplied value
      * @return the sql string representing this value
      */
-    public String getValueString(Object value, DataType type)
+    public final String getValueString(Object value, DataType type)
     { 
         if (ObjectUtils.isEmpty(value))
         {

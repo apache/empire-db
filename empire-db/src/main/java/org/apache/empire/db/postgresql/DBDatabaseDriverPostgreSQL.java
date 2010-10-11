@@ -598,7 +598,7 @@ public class DBDatabaseDriverPostgreSQL extends DBDatabaseDriver
         // Create the table
         if (script.addStmt(sql) == false)
             return false;
-        // Create other Indizes (except primary key)
+        // Create other Indexes (except primary key)
         Iterator<DBIndex> indexes = t.getIndexes().iterator();
         while (indexes.hasNext())
         {

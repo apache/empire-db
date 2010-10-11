@@ -39,7 +39,7 @@ import org.apache.empire.db.expr.column.DBCountExpr;
 
 /**
  * This class is the base class for all the DBTable,
- * CBView and DBQuery classes this class contains all the columns of the
+ * DBView and DBQuery classes this class contains all the columns of the
  * tables, views or queries
  * <P>
  * 

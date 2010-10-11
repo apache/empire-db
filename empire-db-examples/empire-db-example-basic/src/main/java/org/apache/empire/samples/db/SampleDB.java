@@ -30,7 +30,7 @@ import org.apache.empire.db.DBTableColumn;
  * <PRE>
  * This file contains the definition of the data model in Java.
  * The SampleDB data model consists of two tables and a foreign key relation.
- * The tables are defined as nested classes here, but you may put the in separate files if you want.
+ * The tables are defined as nested classes here, but you may put them in separate files if you want to.
  *
  * PLEASE NOTE THE NAMING CONVENTION:
  * Since all tables, views and columns are declared as "final" constants they are all in upper case.
@@ -67,7 +67,7 @@ public class SampleDB extends DBDatabase
             // Primary Key
             setPrimaryKey(DEPARTMENT_ID);
             // Set other Indexes
-            addIndex("DEARTMENT_NAME_IDX", true, new DBColumn[] { NAME });
+            addIndex("DEPARTMENT_NAME_IDX", true, new DBColumn[] { NAME });
             // Set timestamp column for save updates
             setTimestampColumn(UPDATE_TIMESTAMP);
         }

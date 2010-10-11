@@ -189,10 +189,7 @@ public class SampleApp
 	}
 
     /**
-     * <PRE>
      * Returns the correspondig DatabaseDriver for a given database provider / vendor
-     * Valid Providers are "oracle", "sqlserver" and "hsqldb".
-     * </PRE>
      */
     private static DBDatabaseDriver getDatabaseDriver(String provider, Connection conn)
     {
@@ -277,10 +274,10 @@ public class SampleApp
 	 */
 	private static void createDatabase(DBDatabaseDriver driver, Connection conn)
     {
-		// create DLL for Database Definition
+		// create DDL for Database Definition
 	    DBSQLScript script = new DBSQLScript();
 		db.getCreateDDLScript(driver, script);
-		// Show DLL Statement
+		// Show DDL Statement
 		System.out.println(script.toString());
 		// Execute Script
 		script.run(driver, conn, false);

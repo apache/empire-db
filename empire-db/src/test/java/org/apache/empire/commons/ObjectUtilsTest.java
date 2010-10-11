@@ -294,7 +294,7 @@ public class ObjectUtilsTest
 	 * .
 	 */
 	@Test
-	@Ignore("fix multitreaded stuff")
+	@Ignore("fix multithreaded stuff")
 	public void testGetDateObjectLocale()
 	{
 		fail("Not yet implemented");
@@ -305,7 +305,7 @@ public class ObjectUtilsTest
 	 * {@link org.apache.empire.commons.ObjectUtils#getDate(java.lang.Object)}.
 	 */
 	@Test
-	@Ignore("fix multitreaded stuff")
+	@Ignore("fix multithreaded stuff")
 	public void testGetDateObject()
 	{
 		fail("Not yet implemented");
@@ -317,7 +317,7 @@ public class ObjectUtilsTest
 	 * .
 	 */
 	@Test
-	@Ignore("fix multitreaded stuff")
+	@Ignore("fix multithreaded stuff")
 	public void testFormatDate()
 	{
 		fail("Not yet implemented");

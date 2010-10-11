@@ -421,7 +421,7 @@ public abstract class DBDatabase extends DBObject
     }
 
     /**
-     * Returns the tables which has been defined in the database.
+     * Returns the tables which have been defined in the database.
      * 
      * @return db tables.
      */
@@ -451,7 +451,7 @@ public abstract class DBDatabase extends DBObject
      * Adds a foreign key relation to the database.
      * <P>
      * @param reference a reference for a source and target column pair
-     * @return true if the relations was successfully created.
+     * @return true if the relations were successfully created.
      */
     public final boolean addRelation(DBRelation.DBReference reference)
     {
@@ -468,7 +468,7 @@ public abstract class DBDatabase extends DBObject
      * 
      * @param ref1 a reference for a source and target column pair
      * @param ref2 a reference for a source and target column pair
-     * @return true if the relations was successfully created.
+     * @return true if the relations were successfully created.
      */
     public final boolean addRelation(DBRelation.DBReference ref1, DBRelation.DBReference ref2)
     {
@@ -488,7 +488,7 @@ public abstract class DBDatabase extends DBObject
      * @param name the relation name
      * @param references a list of source and target column pairs
      * 
-     * @return true if the relations was successfully created.
+     * @return true if the relations were successfully created.
      */
     public boolean addRelation(String name, DBRelation.DBReference[] references)
     {
@@ -508,9 +508,9 @@ public abstract class DBDatabase extends DBObject
     }
 
     /**
-     * Returns the tables which has been defined in the database.
+     * Returns the relations which have been defined in the database.
      * 
-     * @return db tables.
+     * @return db relations.
      */
     public List<DBRelation> getRelations()
     {
@@ -537,9 +537,9 @@ public abstract class DBDatabase extends DBObject
     }
 
     /**
-     * Returns the tables which has been defined in the database.
+     * Returns the views which have been defined in the database.
      * 
-     * @return db tables.
+     * @return db views.
      */
     public List<DBView> getViews()
     {

@@ -37,11 +37,8 @@ import org.apache.empire.db.expr.set.DBSetExpr;
 
 /**
  * This abstract class handles the creation of the SQL-Commands. 
- * There are methods to create SQL-Commandos, like update, insert,
+ * There are methods to create SQL-Commands, like update, insert,
  * delete and select.
- * <P>
- * 
- *
  */
 public abstract class DBCommand extends DBCommandExpr
     implements Cloneable
@@ -212,7 +209,7 @@ public abstract class DBCommand extends DBCommandExpr
     }
 
     /**
-     * Adds a list of columns to the select phrase of an sql statement.
+     * Adds a collection of columns to the select phrase of an sql statement.
      * 
      * @param columns the column expressions to add
      */
