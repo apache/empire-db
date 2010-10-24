@@ -40,6 +40,10 @@
             <artifactId>struts2-portlet-plugin</artifactId>
         </dependency>
 		<dependency>
+		    <groupId>javassist</groupId>
+		    <artifactId>javassist</artifactId>
+		</dependency>
+		<dependency>
 		    <groupId>javax.servlet</groupId>
 		    <artifactId>servlet-api</artifactId>
 		</dependency> 
