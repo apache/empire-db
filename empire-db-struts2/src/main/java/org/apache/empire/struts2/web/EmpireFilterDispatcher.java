@@ -34,7 +34,8 @@ public class EmpireFilterDispatcher extends FilterDispatcher
         // Default Constructor
     }
 
-    @Override
+    @SuppressWarnings("rawtypes")
+	@Override
     protected Dispatcher createDispatcher(FilterConfig filterConfig)
     {
         Map<String, String> params = new HashMap<String, String>();

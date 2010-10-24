@@ -25,8 +25,7 @@ import org.apache.empire.data.Column;
 import org.apache.empire.struts2.html.HtmlTagDictionary;
 import org.apache.empire.struts2.html.HtmlWriter;
 import org.apache.empire.struts2.html.HtmlWriter.HtmlTag;
-
-import com.opensymphony.xwork2.util.TextUtils;
+import org.apache.commons.lang.xwork.StringEscapeUtils;
 
 
 public class TextAreaInputControl extends InputControl
@@ -128,7 +127,7 @@ public class TextAreaInputControl extends InputControl
         input.addAttribute("onblur",    ci.getOnblur());
         // Body
         String value = StringUtils.toString(ci.getValue());
-        value = TextUtils.htmlEncode(value);
+        value = StringEscapeUtils.escapeHtml(value);
         input.beginBody(value);
         // End
         input.endTag();

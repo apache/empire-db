@@ -18,35 +18,33 @@
  */
 package org.apache.empire.struts2.web;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 public class DefaultWebRequest implements WebRequest
 {    
-    private HttpServletRequest  httpRequest;
-    private HttpServletResponse httpResponse; 
+    private RequestContext  request;
+    private ResponseContext response; 
     
-    public boolean init(HttpServletRequest request, HttpServletResponse response, Object session)
+    public boolean init(RequestContext request, ResponseContext response, Object session)
     {
-        this.httpRequest = request;
-        this.httpResponse = response;
+        this.request = request;
+        this.response = response;
         return true;
     }
 
     /**
      * @see WebRequest#getHttpRequest()
      */
-    public HttpServletRequest getHttpRequest()
+    public RequestContext getRequestContext()
     {
-        return httpRequest;
+        return request;
     }
 
     /**
      * @see WebRequest#getHttpResponse()
      */
-    public HttpServletResponse getHttpResponse()
+    public ResponseContext getResponseContext()
     {
-        return httpResponse;
+        return response;
     }
     
     /**

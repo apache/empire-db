@@ -29,6 +29,10 @@ import javax.servlet.http.HttpSession;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.empire.struts2.action.Disposable;
+import org.apache.empire.struts2.web.servlet.ServletContextWrapper;
+import org.apache.empire.struts2.web.servlet.ServletRequestWrapper;
+import org.apache.empire.struts2.web.servlet.ServletResponseWrapper;
+import org.apache.empire.struts2.web.servlet.ServletSessionWrapper;
 import org.apache.struts2.dispatcher.Dispatcher;
 import org.apache.struts2.dispatcher.mapper.ActionMapping;
 
@@ -37,8 +41,6 @@ public class EmpireStrutsDispatcher extends Dispatcher
 {
     // Logger
     protected static Log log = LogFactory.getLog(EmpireStrutsDispatcher.class);
-
-    private static final ThreadLocal<Object> currentRequest = new ThreadLocal<Object>();
 
     public final String APPLICATION_CLASS = "ApplicationClass";
     public final String SESSION_CLASS     = "SessionClass";
@@ -50,9 +52,13 @@ public class EmpireStrutsDispatcher extends Dispatcher
     private boolean logRequestWarning = true;
     
     // Accessor for Current Request
+    /**
+     * @deprecated use EmpireThreadManager.getCurrentRequest() instead.
+     */
+    @Deprecated
     public static Object getCurrentRequest()
     {
-        return currentRequest.get();
+        return EmpireThreadManager.getCurrentRequest();
     }
     
     public EmpireStrutsDispatcher(ServletContext servletContext, Map<String, String> initParams)
@@ -95,7 +101,8 @@ public class EmpireStrutsDispatcher extends Dispatcher
             // Call Default
             if (continueProcessing)
             {
-                log.debug("calling Struts for request processing");
+                if (log.isDebugEnabled())
+	            	log.debug("starting servlet service request");
                 super.serviceAction(request, response, context, mapping);
             }
           
@@ -105,20 +112,12 @@ public class EmpireStrutsDispatcher extends Dispatcher
 
         } finally {
             // cleanup
-            log.debug("cleanung up request");
+            if (log.isDebugEnabled())
+	            log.debug("cleanung up request");
             // Dispose action first
             int exitCode = disposeAction(request);
             // Call Exit on Request
-            Object reqObj = currentRequest.get();
-            if (reqObj!=null)
-            {
-                if (reqObj instanceof WebRequest)
-                {
-                    ((WebRequest)reqObj).exit(exitCode);
-                }
-                // Clear Thread local
-                currentRequest.set( null );
-            }
+            EmpireThreadManager.exit(exitCode);
         }
     }
 
@@ -157,7 +156,7 @@ public class EmpireStrutsDispatcher extends Dispatcher
                 log.warn("Cannot dispose action. Action does not implement the Disposible interface)");
             }
             // Cleanup the "action" Attribute on the HttpServletRequest
-            request.setAttribute("action", null);
+            request.removeAttribute("action");
         }
         else
         {
@@ -167,7 +166,8 @@ public class EmpireStrutsDispatcher extends Dispatcher
         return exitCode;
     }
     
-    private Object createObject(String className)
+    @SuppressWarnings("rawtypes")
+	private Object createObject(String className)
         throws ClassNotFoundException, IllegalAccessException, InstantiationException
     {
         // Create Instance for Object  
@@ -184,7 +184,7 @@ public class EmpireStrutsDispatcher extends Dispatcher
                 Object app = createObject( appClassName );
                 if (app instanceof WebApplication)
                 {
-                    ((WebApplication)app).init( servletContext );
+                    ((WebApplication)app).init( new ServletContextWrapper( servletContext ));
                 }
                 else
                     log.warn("Application object does not implement IWebApplication!");
@@ -208,7 +208,7 @@ public class EmpireStrutsDispatcher extends Dispatcher
                 // Call init() if Session Object implements IWebSession 
                 if (session instanceof WebSession)
                 {
-                    ((WebSession)session).init( httpSession, applObj );
+                    ((WebSession)session).init( new ServletSessionWrapper(httpSession), applObj );
                 }
                 else
                     log.warn("Session object does not implement IWebSession!");
@@ -231,11 +231,13 @@ public class EmpireStrutsDispatcher extends Dispatcher
                 // Create Request
                 reqObj = createObject( requestClassName );
                 // Store Request in Thread Local variable
-                currentRequest.set( reqObj );
+                EmpireThreadManager.setCurrentRequest( reqObj );
                 // Call init() if Request Object implements IWebRequest 
                 if (reqObj instanceof WebRequest)
                 {
-                    return ((WebRequest)reqObj).init( request, response, sessObj );
+                	RequestContext req = new ServletRequestWrapper(request);
+                	ResponseContext res = new ServletResponseWrapper(response);
+                    return ((WebRequest)reqObj).init( req, res, sessObj );
                 }
                 else if (logRequestWarning)
                 {

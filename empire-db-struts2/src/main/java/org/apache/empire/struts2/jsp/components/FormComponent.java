@@ -23,6 +23,7 @@ import java.io.Writer;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.lang.xwork.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.empire.struts2.html.HtmlWriter;
@@ -62,9 +63,10 @@ public class FormComponent extends Form
             // render form Tag?
             if (readOnly==false)
             {
+                urlRenderer.renderFormUrl(this);
                 formTag = htmlWriter.startTag("form");
-                formTag.addAttribute("id",       this.getId());
-                formTag.addAttribute("name",     this.name);
+                formTag.addAttribute("id",       getId());
+                formTag.addAttribute("name",     getName());
                 formTag.addAttribute("onsubmit", this.onsubmit);
                 formTag.addAttribute("action",   getURL(action));
                 formTag.addAttribute("target",   this.target);
@@ -100,17 +102,29 @@ public class FormComponent extends Form
         }
     }
 
+    @Override
+    public String getId()
+    {
+        if (StringUtils.isEmpty(id)==false)
+        	return id;
+        // Check for id Attribute	
+    	Object p = getParameters().get("id");
+        return (p!=null) ? p.toString() : null;
+    }
+
+    public String getName()
+    {
+        if (StringUtils.isEmpty(name)==false)
+        	return name;
+        // Check for id Attribute	
+    	Object p = getParameters().get("name");
+        return (p!=null) ? p.toString() : null;
+    }
+
     private String getURL(String action)
     {
-        String namespace = null;
-        String method = null;
-        String scheme = null;
-        boolean includeContext = true;
-        boolean encodeResult = true;
-        boolean forceAddSchemeHostAndPort = false;
-        boolean escapeAmp = true;        
-        return this.determineActionURL(action, namespace, method, request, response, null, scheme, 
-                                       includeContext, encodeResult, forceAddSchemeHostAndPort, escapeAmp);
+        Object url = getParameters().get("action");
+        return String.valueOf(url);
     }
 
     public void setReadOnly(boolean readOnly)

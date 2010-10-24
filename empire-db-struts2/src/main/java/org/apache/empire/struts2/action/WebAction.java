@@ -38,10 +38,10 @@ import org.apache.empire.struts2.actionsupport.ActionBase;
 import org.apache.empire.struts2.actionsupport.ActionError;
 import org.apache.empire.struts2.actionsupport.ActionPropertySupport;
 import org.apache.empire.struts2.actionsupport.TextProviderActionSupport;
-import org.apache.empire.struts2.web.EmpireStrutsDispatcher;
+import org.apache.empire.struts2.web.EmpireThreadManager;
+import org.apache.empire.struts2.web.UrlHelperEx;
 import org.apache.empire.struts2.web.WebErrors;
 import org.apache.empire.struts2.web.WebRequest;
-import org.apache.struts2.views.util.UrlHelper;
 
 import com.opensymphony.xwork2.ActionContext;
 import com.opensymphony.xwork2.TextProvider;
@@ -63,6 +63,8 @@ public abstract class WebAction extends ActionBase
     // Default Name for Item param
     public static String DEFAULT_ITEM_PROPERTY_NAME = "item";
 
+    public static String PORTLET_ACTION_RESULT = "struts.portlet.actionResult";
+    
     private final transient TextProvider textProvider = TextProviderActionSupport.getInstance(getClass(), this); // new TextProviderFactory().createInstance(getClass(), this);
 
     private ActionPropertySupport itemProperty = new ActionPropertySupport(this, DEFAULT_ITEM_PROPERTY_NAME, true);
@@ -502,9 +504,15 @@ public abstract class WebAction extends ActionBase
 
     // ------- URL generator -------
 
+    /**
+     * returns the url for an action.
+     * Waring: The following function may only use in a Servlet environment.
+     * @deprecated
+     */
+    @Deprecated
     public String getActionURL(String action, Map parameters)
     {
-        Object request = EmpireStrutsDispatcher.getCurrentRequest();
+        Object request = EmpireThreadManager.getCurrentRequest();
         if ((request instanceof WebRequest)==false)
         {
             log.error("cannot determine action URL. Request object does not implement WebRequest");
@@ -517,7 +525,18 @@ public abstract class WebAction extends ActionBase
         if (uri.indexOf('.')<0)
             uri += ".action";
         // now build the url
-        return UrlHelper.buildUrl(uri, webRequest.getHttpRequest(), webRequest.getHttpResponse(), parameters, null, true, true);
+        return UrlHelperEx.buildUrl(uri, webRequest.getRequestContext(), webRequest.getResponseContext(), parameters, null, true, true);
+    }
+    
+    // ----------- Portlet --------------
+    
+    public String renderPortlet()
+    {
+    	Map<String, Object> sessionMap = ActionContext.getContext().getSession();
+    	Object result = sessionMap.get(PORTLET_ACTION_RESULT);
+    	if (log.isDebugEnabled())
+	    	log.debug("Processing portlet render result with result=" + result);
+    	return result.toString();
     }
     
 }

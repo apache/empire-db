@@ -18,6 +18,8 @@
  */
 package org.apache.empire.struts2.jsp.components;
 
+import java.io.StringWriter;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -26,7 +28,11 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.empire.struts2.html.HtmlWriter;
 import org.apache.empire.struts2.html.HtmlWriter.HtmlTag;
 import org.apache.empire.struts2.jsp.controls.InputControl;
+import org.apache.struts2.components.ComponentUrlProvider;
+import org.apache.struts2.components.UrlProvider;
+import org.apache.struts2.components.UrlRenderer;
 
+import com.opensymphony.xwork2.inject.Inject;
 import com.opensymphony.xwork2.util.ValueStack;
 
 
@@ -36,11 +42,14 @@ public class DataValueComponent extends ControlComponent
     @SuppressWarnings("hiding")
     protected static Log log = LogFactory.getLog(DataValueComponent.class);
 
+    protected UrlRenderer urlRenderer;
+
     // the wrapper Tag
     private String htmlTag;
     
     // Link
     private String action;
+    private String urlType;
     private Object alt; // for the <a title="xxx" tag (alternative text)
     private String anchorClass;
     
@@ -49,12 +58,27 @@ public class DataValueComponent extends ControlComponent
         super(control, stack, req, res);
     }
     
-    public String getURL(String actionName)
+    public String getURL()
     {
         // JAVASCRIPT ?
-        if (actionName.startsWith("javascript:"))
-            return actionName;
+        if (action.startsWith("javascript:"))
+            return action;
+
+        // Init URL Provider
+        UrlProvider urlProvider = new ComponentUrlProvider(this, parameters);
+        urlProvider.setHttpServletRequest(request);
+        urlProvider.setHttpServletResponse(response);
+        urlProvider.setUrlRenderer(urlRenderer);
+    	urlProvider.setPortletUrlType(urlType);
+        urlProvider.setAction(action);
+        // render URL
+        StringWriter sw = new StringWriter();
+        urlRenderer.beforeRenderUrl(urlProvider);
+        urlRenderer.renderUrl(sw, urlProvider);
+        String url = sw.toString();
+        return url;
         
+        /*
         String namespace = null;
         String method = null;
         String scheme = null;
@@ -62,9 +86,16 @@ public class DataValueComponent extends ControlComponent
         boolean encodeResult = true;
         boolean forceAddSchemeHostAndPort = false;
         boolean escapeAmp = true;        
-        return this.determineActionURL(actionName, namespace, method, request, response, parameters, scheme, 
+        return this.determineActionURL(action, namespace, method, request, response, parameters, scheme, 
                                        includeContext, encodeResult, forceAddSchemeHostAndPort, escapeAmp);
+        */
     }
+
+    @Inject
+	public void setUrlRenderer(UrlRenderer urlRenderer) 
+    {	// urlProvider.setUrlRenderer(urlRenderer);
+        this.urlRenderer = urlRenderer;
+	}
     
     @SuppressWarnings("unchecked")
     public void setParam(String key, String value)
@@ -90,7 +121,7 @@ public class DataValueComponent extends ControlComponent
         HtmlTag anchor = null;
         if (action!=null)
         {
-            String url = getURL(action);
+            String url = getURL();
             // print href
             anchor = hw.startTag("a");
             anchor.addAttribute("href", url);
@@ -122,6 +153,11 @@ public class DataValueComponent extends ControlComponent
     public void setAction(String action)
     {
         this.action = action;
+    }
+    
+    public void setUrlType(String urlType)
+    {
+    	this.urlType = urlType;
     }
 
     public void setAnchorClass(String anchorClass)

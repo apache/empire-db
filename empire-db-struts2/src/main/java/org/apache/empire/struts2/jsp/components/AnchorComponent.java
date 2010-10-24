@@ -18,6 +18,7 @@
  */
 package org.apache.empire.struts2.jsp.components;
 
+import java.io.StringWriter;
 import java.io.Writer;
 
 import javax.servlet.http.HttpServletRequest;
@@ -38,7 +39,6 @@ public class AnchorComponent extends Anchor
     // Logger
     protected static Log log = LogFactory.getLog(AnchorComponent.class);
     
-    private String  action;
     private String  text;
     /*
      * EMPIREDB-45 
@@ -54,8 +54,17 @@ public class AnchorComponent extends Anchor
         super(stack, req, res);
     }
     
-    public String getUrl(String actionName)
+    public String getUrl()
     {
+        /*
+         * build url 
+         * see super.evaluateExtraParams()
+         */
+        StringWriter sw = new StringWriter();
+        urlRenderer.beforeRenderUrl(urlProvider);
+        urlRenderer.renderUrl(sw, urlProvider);
+        return sw.toString();
+    	/*
         String namespace = null;
         String method = null;
         String scheme = null;
@@ -65,6 +74,7 @@ public class AnchorComponent extends Anchor
         boolean escapeAmp = true;        
         return this.determineActionURL(actionName, namespace, method, request, response, parameters, scheme, 
                                        includeContext, encodeResult, forceAddSchemeHostAndPort, escapeAmp);
+        */
     }
     
     @Override
@@ -74,12 +84,12 @@ public class AnchorComponent extends Anchor
         return true; 
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public boolean start(Writer writer)
     {
-        // return super.start(writer);
-        // evaluateParams(); // We need to call this!
+        // super.start(writer);
+        // evaluateParams();
+        this.processingTagBody = true;
         return true;
     }
 
@@ -99,7 +109,7 @@ public class AnchorComponent extends Anchor
             // The Anchors
             if (disabled==false)
             {
-                String url = getUrl(action);
+                String url = getUrl();
 
                 HtmlTag a = htmlWriter.startTag("a");
                 a.addAttribute("id",       this.getId());
@@ -137,9 +147,10 @@ public class AnchorComponent extends Anchor
         }
     }
     
-    public void setAction(String action)
+    public void setUrlType(String urlType)
     {
-        this.action = action;
+    	if (urlType!=null)
+	    	urlProvider.setPortletUrlType(urlType);
     }
 
     public void setText(String text)

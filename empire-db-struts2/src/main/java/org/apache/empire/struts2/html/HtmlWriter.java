@@ -24,7 +24,7 @@ import java.io.Writer;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.empire.commons.StringUtils;
-import org.apache.struts2.views.util.TextUtil;
+import org.apache.commons.lang.xwork.StringEscapeUtils;
 
 
 public class HtmlWriter
@@ -75,7 +75,7 @@ public class HtmlWriter
             // Get String value
             String strValue = StringUtils.valueOf(value);
             if (escapeHtml)
-                strValue = TextUtil.escapeHTML(strValue);
+                strValue = StringEscapeUtils.escapeHtml(strValue);
             // Add Attribute
             w.print(" ");
             w.print(attrib);
@@ -92,7 +92,7 @@ public class HtmlWriter
             if (strValue==null || strValue.length()==0)
                 return; // Ingore Emtpy Strings
             if (escapeHtml)
-                strValue = TextUtil.escapeHTML(strValue);
+                strValue = StringEscapeUtils.escapeHtml(strValue);
             w.print(" ");
             w.print(attrib);
             w.print("=\"");

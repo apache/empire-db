@@ -18,6 +18,7 @@
  */
 package org.apache.empire.struts2.jsp.components;
 
+import java.io.StringWriter;
 import java.io.Writer;
 import java.util.Map;
 
@@ -32,8 +33,12 @@ import org.apache.empire.struts2.html.HtmlWriter;
 import org.apache.empire.struts2.html.HtmlWriter.HtmlTag;
 import org.apache.empire.struts2.jsp.components.info.CalendarInfo;
 import org.apache.empire.struts2.jsp.components.info.CalendarInfo.CalendarDayInfo;
+import org.apache.struts2.components.ComponentUrlProvider;
 import org.apache.struts2.components.UIBean;
+import org.apache.struts2.components.UrlProvider;
+import org.apache.struts2.components.UrlRenderer;
 
+import com.opensymphony.xwork2.inject.Inject;
 import com.opensymphony.xwork2.util.ValueStack;
 
 
@@ -42,6 +47,8 @@ public class CalendarComponent extends UIBean
     // Logger
     protected static Log log                 = LogFactory.getLog(ControlComponent.class);
 
+    protected UrlRenderer urlRenderer;
+    
     private CalendarInfo calendarInfo        = null;
     private String       selectDateAction    = null;
     private String       selectWeekdayAction = null;
@@ -256,9 +263,28 @@ public class CalendarComponent extends UIBean
         link.endTag();
     }
 
-    public String getUrl(String actionName, Map params)
+    public String getUrl(String actionName, Map<String, Object> params)
     {
-        String namespace = null;
+        // JAVASCRIPT ?
+        if (actionName.startsWith("javascript:"))
+            return actionName;
+
+        // Init URL Provider
+        UrlProvider urlProvider = new ComponentUrlProvider(this, params);
+        urlProvider.setHttpServletRequest(request);
+        urlProvider.setHttpServletResponse(response);
+        urlProvider.setUrlRenderer(urlRenderer);
+    	// urlProvider.setPortletUrlType(urlType);
+        urlProvider.setAction(actionName);
+        // render URL
+        StringWriter sw = new StringWriter();
+        urlRenderer.beforeRenderUrl(urlProvider);
+        urlRenderer.renderUrl(sw, urlProvider);
+        String url = sw.toString();
+        return url;
+    	
+        /*
+    	String namespace = null;
         String method = null;
         String scheme = null;
         boolean includeContext = true;
@@ -267,9 +293,16 @@ public class CalendarComponent extends UIBean
         boolean escapeAmp = true;        
         return this.determineActionURL(actionName, namespace, method, request, response, params, scheme, 
                                        includeContext, encodeResult, forceAddSchemeHostAndPort, escapeAmp);
+        */
     }
 
     // ------- Property setters -------
+
+    @Inject
+	public void setUrlRenderer(UrlRenderer urlRenderer) 
+    {	// urlProvider.setUrlRenderer(urlRenderer);
+        this.urlRenderer = urlRenderer;
+	}
 
     public void setCalendarInfo(CalendarInfo calendarInfo)
     {

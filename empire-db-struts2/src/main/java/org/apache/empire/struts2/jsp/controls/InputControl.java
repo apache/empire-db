@@ -31,7 +31,7 @@ import org.apache.empire.struts2.action.RequestParamProvider;
 import org.apache.empire.struts2.html.HtmlTagDictionary;
 import org.apache.empire.struts2.html.HtmlWriter;
 import org.apache.empire.struts2.html.HtmlWriter.HtmlTag;
-import org.apache.struts2.views.util.TextUtil;
+import org.apache.commons.lang.xwork.StringEscapeUtils;
 
 
 public abstract class InputControl
@@ -319,7 +319,7 @@ public abstract class InputControl
         if (hasFormatOption(vi, "noencode"))
             return s;
         // Encode Html
-        return TextUtil.escapeHTML(s, false);
+        return StringEscapeUtils.escapeHtml(s);
     }
 
     /**

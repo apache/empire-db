@@ -44,7 +44,8 @@ public class DataValueTag extends EmpireValueTagSupport
     protected String       tag;
     // Link attributes
     protected String       action;
-    protected Object       alt;
+    protected String       urlType;
+	protected Object       alt;
     protected Object       item; 
     protected String       param; 
     protected String       anchorClass;
@@ -66,6 +67,7 @@ public class DataValueTag extends EmpireValueTagSupport
         tag = null;
         // Link attributes
         action = null;
+        urlType = null;
         alt = null;
         item = null; 
         param = null;
@@ -115,6 +117,7 @@ public class DataValueTag extends EmpireValueTagSupport
         if (action!=null)
         {
             comp.setAction(action);
+            comp.setUrlType(urlType);
             comp.setAlt(getItemValue(alt));
             comp.setAnchorClass(anchorClass);
             if (action.startsWith("javascript:")==false)
@@ -159,6 +162,11 @@ public class DataValueTag extends EmpireValueTagSupport
     {
         this.action = action;
     }
+
+    public void setUrlType(String urlType) 
+    {
+		this.urlType = urlType;
+	}
 
     public void setItem(Object item)
     {

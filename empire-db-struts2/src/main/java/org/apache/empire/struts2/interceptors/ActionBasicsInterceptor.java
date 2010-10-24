@@ -18,6 +18,8 @@
  */
 package org.apache.empire.struts2.interceptors;
 
+import javax.servlet.http.HttpServletRequest;
+
 import org.apache.empire.struts2.action.Disposable;
 import org.apache.empire.struts2.action.ExceptionAware;
 import org.apache.struts2.ServletActionContext;
@@ -29,6 +31,8 @@ import com.opensymphony.xwork2.ActionProxy;
 @SuppressWarnings("serial")
 public class ActionBasicsInterceptor extends InterceptorSupport
 {
+	public final String RENDER_ACTION_RESULT = "RENDER_ACTION_RESULT";
+	
     private String errorAction = null;
 
     public void setErrorAction(String errorAction)
@@ -41,20 +45,23 @@ public class ActionBasicsInterceptor extends InterceptorSupport
     {
         // Set the action object to the HttpRequest
         Object action = invocation.getAction();
+        String result = null;
         // Call base
         try {
             // Log Info
             if (log.isInfoEnabled())
                 log.info("Processing action " + action.getClass().getName() + " for uri= " + ServletActionContext.getRequest().getRequestURI());
-            // Store action on Request
-            ServletActionContext.getRequest().setAttribute("action", action);
+            // Set Action and initialize
+            HttpServletRequest req = ServletActionContext.getRequest();
+            req.setAttribute("action", action);
             // Check Disposible interface and call init
             if (action instanceof Disposable)         
             {
                ((Disposable)action).init(); 
             }
             // Invoke Action
-            return invocation.invoke();
+            result = invocation.invoke();           
+            return result; 
             
         } catch (Exception e) {
             // catch everything here and forward exception
@@ -62,7 +69,7 @@ public class ActionBasicsInterceptor extends InterceptorSupport
             log.error("An exception occurred while processing the action " + proxy.getActionName() + "!" + proxy.getMethod(), e);
             if (action instanceof ExceptionAware)
             {   // Let action handle it
-                String result = ((ExceptionAware)action).handleException(e, proxy.getMethod());
+                result = ((ExceptionAware)action).handleException(e, proxy.getMethod());
                 if (result!=null && result.length()>0)
                     return result;
             }
@@ -72,6 +79,28 @@ public class ActionBasicsInterceptor extends InterceptorSupport
             // Forward the action
             throw(e); 
         }
+        /*
+        finally {
+        	// Detect DirectRenderPortlet
+        	if (PortletActionContext.isEvent())
+        	{
+        		Map sessionMap = invocation.getInvocationContext().getSession();
+                if (sessionMap.containsKey(PortletActionConstants.RENDER_DIRECT_LOCATION)) 
+                {   // Save current action for rendering
+            		ActionResponse res = PortletActionContext.getActionResponse();
+        			// View is rendered outside an action...uh oh...
+                    String namespace = invocation.getProxy().getNamespace();
+                    if (namespace != null && namespace.length() > 0 && !namespace.endsWith("/")) {
+                        namespace += "/";
+                        
+                    }
+                    String actionName = ActionContext.getContext().getActionInvocation().getProxy().getActionName();
+                    res.setRenderParameter(PortletActionConstants.ACTION_PARAM, namespace + actionName +"!portletRender");
+                    sessionMap.put(RENDER_ACTION_RESULT, result);
+        			sessionMap.remove(PortletActionConstants.RENDER_DIRECT_LOCATION);
+                }   
+        	}
+        }
+        */        
     }
-
 }

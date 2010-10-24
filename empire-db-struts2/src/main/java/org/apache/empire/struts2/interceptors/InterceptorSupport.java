@@ -20,12 +20,17 @@ package org.apache.empire.struts2.interceptors;
 
 import java.io.IOException;
 
+import javax.portlet.ActionResponse;
+import javax.portlet.PortletRequest;
+import javax.portlet.PortletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.struts2.ServletActionContext;
+import org.apache.struts2.portlet.servlet.PortletServletRequest;
+import org.apache.struts2.portlet.servlet.PortletServletResponse;
 import org.apache.struts2.views.util.UrlHelper;
 
 import com.opensymphony.xwork2.interceptor.AbstractInterceptor;
@@ -42,6 +47,14 @@ public abstract class InterceptorSupport extends AbstractInterceptor
         throws IOException
     {   
         HttpServletRequest req = ServletActionContext.getRequest();
+        if (req instanceof PortletServletRequest)
+        	 return redirectPortletRequest(((PortletServletRequest)req).getPortletRequest(), target, appendSourceUri);
+        else return redirectServletRequest(req, target, appendSourceUri); 
+    }    
+
+    private String redirectServletRequest(HttpServletRequest req, String target, boolean appendSourceUri)
+	    throws IOException
+    {
         // Create rediect URL
         StringBuffer url = new StringBuffer();
         if (target.indexOf('/')<0)
@@ -73,4 +86,37 @@ public abstract class InterceptorSupport extends AbstractInterceptor
         return NONE; 
     }
 
+    private String redirectPortletRequest(PortletRequest req, String target, boolean appendSourceUri)
+	    throws IOException
+    {
+        // Create rediect URL
+        StringBuffer url = new StringBuffer();
+        if (target.indexOf('/')<0)
+        {
+            url.append(req.getContextPath());
+            url.append('/');
+        }
+        // The Target
+        url.append(target);
+        // Add .action
+        if (target.indexOf('?')<0 && target.indexOf('.')<0)
+        {
+            url.append(".action");
+        }
+        // Redirect
+        HttpServletResponse servletResponse = ServletActionContext.getResponse();
+        PortletResponse portletResponse = ((PortletServletResponse)servletResponse).getPortletResponse();
+        if (portletResponse instanceof ActionResponse)
+        {
+            ActionResponse actionResponse = (ActionResponse)portletResponse;
+            String redirectURL = actionResponse.encodeURL(url.toString());
+            actionResponse.sendRedirect( redirectURL );
+        }
+        else
+        {
+        	log.error("Unable to redirect the portlet RenderRequest to " + url.toString());
+        }
+        return NONE; 
+    }
+    
 }

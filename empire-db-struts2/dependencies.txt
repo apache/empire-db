@@ -1,5 +1,5 @@
 Apache Empire-db
-Copyright 2008-2009 The Apache Software Foundation
+Copyright 2008-2010 The Apache Software Foundation
 
 empire-struts2-ext dependency info
 ----------------------------------
@@ -13,12 +13,15 @@ From Apache Commons / Logging:
 - commons-beanutils-1.7.0.jar
 - commons-collections-3.2.1.jar
 - commons-logging-1.0.4.jar
+- commons-fileupload-1.2.1.jar
 - log4j-1.2.14.jar
 
 From Sun JEE:
-- servlet-api.jar
-- jsp-api.jar   
+- servlet-api-2.4.jar
+- portlet-api-1.0.jar
+- jsp-api-2.0.jar   
 
 From Apache Struts2:
-- struts2-core-2.0.x.jar
-- xwork-2.0.5.jar 
+- struts2-core-2.2.1.jar
+- struts2-portlet-plugin-2.2.1.jar
+- xwork-core-2.2.1.jar 

@@ -33,7 +33,8 @@ public class LinkTag extends EmpireTagSupport // AbstractRemoteCallUITag
 {
     // LinkTag
     protected String action;
-    protected Object item;
+    protected String urlType;
+	protected Object item;
     protected String text;
     protected Object disabled;
     protected String target;
@@ -54,6 +55,7 @@ public class LinkTag extends EmpireTagSupport // AbstractRemoteCallUITag
     {
         // LinkTag
         action = null;
+        urlType = null;
         item = null;
         text = null;
         disabled = null;
@@ -92,6 +94,7 @@ public class LinkTag extends EmpireTagSupport // AbstractRemoteCallUITag
         }
         // get Href
         anchor.setAction(action);
+        anchor.setUrlType(urlType);
         anchor.setText(getString(text));
         anchor.setDisabled(getBoolean(disabled, false));
         anchor.setTarget(target);
@@ -132,6 +135,11 @@ public class LinkTag extends EmpireTagSupport // AbstractRemoteCallUITag
     {
         this.action = action;
     }
+
+	public void setUrlType(String urlType) 
+	{
+		this.urlType = urlType;
+	}
 
     public void setItem(Object item)
     {

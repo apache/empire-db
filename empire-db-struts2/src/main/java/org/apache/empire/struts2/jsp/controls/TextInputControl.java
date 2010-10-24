@@ -33,7 +33,7 @@ import org.apache.empire.data.DataType;
 import org.apache.empire.struts2.html.HtmlWriter;
 import org.apache.empire.struts2.html.HtmlWriter.HtmlTag;
 import org.apache.empire.struts2.web.WebErrors;
-import org.apache.struts2.views.util.TextUtil;
+import org.apache.commons.lang.xwork.StringEscapeUtils;
 
 
 public class TextInputControl extends InputControl
@@ -122,7 +122,7 @@ public class TextInputControl extends InputControl
             if (hasFormatOption(vi, "noencode"))
                 return s;
             // Encoded text
-            return TextUtil.escapeHTML(s);
+            return StringEscapeUtils.escapeHtml(s);
         }
         if (dataType == DataType.INTEGER || dataType == DataType.AUTOINC)
         { // Integer
@@ -148,7 +148,7 @@ public class TextInputControl extends InputControl
          *  }
          */
         // Convert to String
-        return TextUtil.escapeHTML(String.valueOf(value));
+        return StringEscapeUtils.escapeHtml(String.valueOf(value));
     }
 
     protected String formatValue(ValueInfo vi, boolean appendUnit)

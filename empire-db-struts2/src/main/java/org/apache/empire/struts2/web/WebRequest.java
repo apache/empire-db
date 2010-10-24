@@ -18,9 +18,6 @@
  */
 package org.apache.empire.struts2.web;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 public interface WebRequest
 {    
     /**
@@ -38,19 +35,19 @@ public interface WebRequest
      * 
      * @return true if the request should continue processing or false otherwise
      */
-    boolean init(HttpServletRequest request, HttpServletResponse response, Object session);
+    boolean init(RequestContext request, ResponseContext response, Object session);
 
     /**
      * returns the current HttpRequestObject
      * @return the httpServletRequest
      */
-    public HttpServletRequest getHttpRequest();
+    public RequestContext getRequestContext();
 
     /**
      * returns the current HttpResponseObject
      * @return the httpServletResponse
      */
-    public HttpServletResponse getHttpResponse();
+    public ResponseContext getResponseContext();
     
     /**
      * This function is called from the EmpireStrutsDispatcher when a request ends
