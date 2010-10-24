@@ -29,7 +29,6 @@ import org.apache.empire.struts2.websample.web.actiontypes.SampleAction;
 
 import com.opensymphony.xwork2.config.entities.Parameterizable;
 
-@SuppressWarnings("serial")
 public class LoginAction extends SampleAction implements Parameterizable // StaticParametersInterceptor
 {
     // Login Targets
@@ -187,7 +186,8 @@ public class LoginAction extends SampleAction implements Parameterizable // Stat
      * CHANGE: added method "asKey(String key)"
      * Reason: The interface com.opensymphony.xwork2.config.entities.Parameterizable changed
      */
-    public boolean hasKey(String key) {
+    @Override
+	public boolean hasKey(String key) {
     	return this.actionConfigParams.containsKey(key);
     }
 

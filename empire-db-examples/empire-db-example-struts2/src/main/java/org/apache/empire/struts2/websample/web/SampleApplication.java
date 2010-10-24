@@ -21,8 +21,6 @@ package org.apache.empire.struts2.websample.web;
 import java.sql.Connection;
 import java.sql.DriverManager;
 
-import javax.servlet.ServletContext;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.empire.commons.StringUtils;
@@ -36,6 +34,7 @@ import org.apache.empire.db.oracle.DBDatabaseDriverOracle;
 import org.apache.empire.db.sqlserver.DBDatabaseDriverMSSQL;
 import org.apache.empire.struts2.actionsupport.TextProviderActionSupport;
 import org.apache.empire.struts2.html.HtmlTagDictionary;
+import org.apache.empire.struts2.web.AppContext;
 import org.apache.empire.struts2.web.WebApplication;
 import org.apache.empire.struts2.websample.db.SampleDB;
 
@@ -58,7 +57,7 @@ public class SampleApplication implements WebApplication {
 
 	private Connection conn = null;
 
-	public void init(ServletContext servletContext) {
+	public void init(AppContext servletContext) {
 		try {
 			
 			// Application
@@ -130,12 +129,12 @@ public class SampleApplication implements WebApplication {
 	/*
 	 * getJDBCConnection
 	 */
-	private Connection getJDBCConnection(ServletContext servletContext) {
+	private Connection getJDBCConnection(AppContext appContext) {
 		// Establish a new database connection
 		Connection conn = null;
 		String jdbcURL = config.getJdbcURL();
 		if (jdbcURL.indexOf("file:")>0)
-			jdbcURL = StringUtils.replace(jdbcURL, "file:", "file:"+servletContext.getRealPath("/"));
+			jdbcURL = StringUtils.replace(jdbcURL, "file:", "file:"+appContext.getRealPath("/"));
 		// Connect
 		log.info("Connecting to Database'" + jdbcURL + "' / User=" + config.getJdbcUser());
 		try { // Connect to the databse

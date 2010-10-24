@@ -17,9 +17,9 @@
   specific language governing permissions and limitations
   under the License.
  --> 
-<!DOCTYPE struts PUBLIC 
-	"-//Apache Software Foundation//DTD Struts Configuration 2.0//EN"
-	"http://struts.apache.org/dtds/struts-2.0.dtd">
+<!DOCTYPE struts PUBLIC
+    "-//Apache Software Foundation//DTD Struts Configuration 2.1.7//EN"
+    "http://struts.apache.org/dtds/struts-2.1.7.dtd">
 <struts>
 
     <!-- 

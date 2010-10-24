@@ -32,7 +32,8 @@ import org.apache.empire.struts2.websample.web.SampleSession;
 public abstract class SampleAction extends WebAction
 {
     // Logger
-    protected static Log log = LogFactory.getLog(SampleAction.class);
+    @SuppressWarnings("hiding")
+	protected static Log log = LogFactory.getLog(SampleAction.class);
     private EmployeeServiceClient service = null;
 
     public SampleAction()

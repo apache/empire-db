@@ -31,8 +31,6 @@ import org.apache.empire.struts2.actionsupport.ReaderListActionSupport;
 import org.apache.empire.struts2.websample.db.SampleDB;
 import org.apache.empire.struts2.websample.web.actiontypes.Action;
 
-
-@SuppressWarnings("serial")
 /**
  * EmployeeListAction
  * <p>

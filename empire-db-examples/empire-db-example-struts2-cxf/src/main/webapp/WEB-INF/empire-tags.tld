@@ -21,7 +21,7 @@
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
   xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee http://java.sun.com/xml/ns/j2ee/web-jsptaglibrary_2_0.xsd" 
   version="2.0"> 
-  <tlib-version>1.0</tlib-version>
+  <tlib-version>1.1</tlib-version>
   <short-name>e</short-name> 
   <uri>/empire-tags</uri>
   <!-- Float Clear Tag -->
@@ -44,7 +44,7 @@
     <attribute>
       <name>cssClass</name>
       <required>false</required>
-      <rtexprvalue>false</rtexprvalue>
+      <rtexprvalue>true</rtexprvalue>
 	  <type>java.lang.String</type>
     </attribute>
     <attribute>
@@ -61,7 +61,7 @@
     <attribute>
       <name>cssClass</name>
       <required>false</required>
-      <rtexprvalue>false</rtexprvalue>
+      <rtexprvalue>true</rtexprvalue>
 	  <type>java.lang.String</type>
     </attribute>
     <attribute>
@@ -96,7 +96,7 @@
     <attribute>
       <name>cssClass</name>
       <required>false</required>
-      <rtexprvalue>false</rtexprvalue>
+      <rtexprvalue>true</rtexprvalue>
 	  <type>java.lang.String</type>
     </attribute>
     <attribute>
@@ -208,7 +208,7 @@
     <attribute>
       <name>cssClass</name>
       <required>false</required>
-      <rtexprvalue>false</rtexprvalue>
+      <rtexprvalue>true</rtexprvalue>
 	  <type>java.lang.String</type>
     </attribute>
     <attribute>
@@ -274,7 +274,7 @@
     <attribute>
       <name>cssClass</name>
       <required>false</required>
-      <rtexprvalue>false</rtexprvalue>
+      <rtexprvalue>true</rtexprvalue>
 	  <type>java.lang.String</type>
     </attribute>
     <attribute>
@@ -305,6 +305,12 @@
       <required>false</required>
 	  <rtexprvalue>true</rtexprvalue>
 	  <type>org.apache.empire.data.Record</type>
+    </attribute>
+    <attribute>
+      <name>recordProperty</name>
+      <required>false</required>
+	  <rtexprvalue>true</rtexprvalue>
+	  <type>java.lang.String</type>
     </attribute>
     <attribute>
       <name>property</name>
@@ -435,7 +441,7 @@
     <attribute>
       <name>cssClass</name>
       <required>false</required>
-      <rtexprvalue>false</rtexprvalue>
+      <rtexprvalue>true</rtexprvalue>
 	  <type>java.lang.String</type>
     </attribute>
     <attribute>
@@ -470,13 +476,13 @@
     <attribute>
       <name>default</name>
       <required>false</required>
-      <rtexprvalue>false</rtexprvalue>
+      <rtexprvalue>true</rtexprvalue>
 	  <type>java.lang.String</type>
     </attribute>
     <attribute>
       <name>cssClass</name>
       <required>false</required>
-      <rtexprvalue>false</rtexprvalue>
+      <rtexprvalue>true</rtexprvalue>
 	  <type>java.lang.String</type>
     </attribute>
     <attribute>
@@ -592,7 +598,7 @@
     <attribute>
       <name>cssClass</name>
       <required>false</required>
-      <rtexprvalue>false</rtexprvalue>
+      <rtexprvalue>true</rtexprvalue>
 	  <type>java.lang.String</type>
     </attribute>
     <attribute>
@@ -604,13 +610,13 @@
     <attribute>
       <name>cssOddClass</name>
       <required>false</required>
-      <rtexprvalue>false</rtexprvalue>
+      <rtexprvalue>true</rtexprvalue>
 	  <type>java.lang.String</type>
     </attribute>
     <attribute>
       <name>cssOddStyle</name>
       <required>false</required>
-      <rtexprvalue>false</rtexprvalue>
+      <rtexprvalue>true</rtexprvalue>
 	  <type>java.lang.String</type>
     </attribute>
     <attribute>
@@ -622,19 +628,19 @@
     <attribute>
       <name>currentClass</name>
       <required>false</required>
-      <rtexprvalue>false</rtexprvalue>
+      <rtexprvalue>true</rtexprvalue>
 	  <type>java.lang.String</type>
     </attribute>
     <attribute>
       <name>columnClass</name>
       <required>false</required>
-      <rtexprvalue>false</rtexprvalue>
+      <rtexprvalue>true</rtexprvalue>
 	  <type>java.lang.String</type>
     </attribute>
     <attribute>
       <name>columnStyle</name>
       <required>false</required>
-      <rtexprvalue>false</rtexprvalue>
+      <rtexprvalue>true</rtexprvalue>
 	  <type>java.lang.String</type>
     </attribute>
     <attribute>
@@ -727,6 +733,11 @@
 	  <type>java.lang.String</type>
     </attribute>
     <attribute>
+      <name>urlType</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+    </attribute>
+    <attribute>
       <name>item</name>
       <required>false</required>
 	  <rtexprvalue>true</rtexprvalue>
@@ -805,7 +816,7 @@
     <attribute>
       <name>cssClass</name>
       <required>false</required>
-      <rtexprvalue>false</rtexprvalue>
+      <rtexprvalue>true</rtexprvalue>
 	  <type>java.lang.String</type>
     </attribute>
     <attribute>
@@ -852,7 +863,7 @@
     <attribute>
       <name>currentClass</name>
       <required>false</required>
-      <rtexprvalue>false</rtexprvalue>
+      <rtexprvalue>true</rtexprvalue>
 	  <type>java.lang.String</type>
     </attribute>
     <attribute>
@@ -870,13 +881,13 @@
     <attribute>
       <name>columnClass</name>
       <required>false</required>
-      <rtexprvalue>false</rtexprvalue>
+      <rtexprvalue>true</rtexprvalue>
 	  <type>java.lang.String</type>
     </attribute>
     <attribute>
       <name>columnStyle</name>
       <required>false</required>
-      <rtexprvalue>false</rtexprvalue>
+      <rtexprvalue>true</rtexprvalue>
 	  <type>java.lang.String</type>
     </attribute>
     <attribute>
@@ -894,7 +905,7 @@
     <attribute>
       <name>cssClass</name>
       <required>false</required>
-      <rtexprvalue>false</rtexprvalue>
+      <rtexprvalue>true</rtexprvalue>
 	  <type>java.lang.String</type>
     </attribute>
     <attribute>
@@ -1004,7 +1015,7 @@
     <attribute>
       <name>cssClass</name>
       <required>false</required>
-      <rtexprvalue>false</rtexprvalue>
+      <rtexprvalue>true</rtexprvalue>
 	  <type>java.lang.String</type>
     </attribute>
     <attribute>
@@ -1091,6 +1102,11 @@
 	  <type>java.lang.String</type>
     </attribute>
     <attribute>
+      <name>urlType</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+    </attribute>
+    <attribute>
       <name>item</name>
       <required>false</required>
 	  <rtexprvalue>true</rtexprvalue>
@@ -1135,7 +1151,7 @@
     <attribute>
       <name>cssClass</name>
       <required>false</required>
-      <rtexprvalue>false</rtexprvalue>
+      <rtexprvalue>true</rtexprvalue>
 	  <type>java.lang.String</type>
     </attribute>
     <attribute>
@@ -1158,6 +1174,11 @@
     <attribute>
       <name>action</name>
       <required>true</required>
+      <rtexprvalue>true</rtexprvalue>
+    </attribute>
+    <attribute>
+      <name>urlType</name>
+      <required>false</required>
       <rtexprvalue>true</rtexprvalue>
     </attribute>
     <attribute>
@@ -1191,7 +1212,7 @@
     <attribute>
       <name>cssClass</name>
       <required>false</required>
-      <rtexprvalue>false</rtexprvalue>
+      <rtexprvalue>true</rtexprvalue>
 	  <type>java.lang.String</type>
     </attribute>
     <attribute>
@@ -1252,6 +1273,11 @@
       <rtexprvalue>true</rtexprvalue>
     </attribute>
     <attribute>
+      <name>urlType</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+    </attribute>
+    <attribute>
       <name>item</name>
       <required>false</required>
       <rtexprvalue>true</rtexprvalue>
@@ -1282,7 +1308,7 @@
     <attribute>
       <name>cssClass</name>
       <required>false</required>
-      <rtexprvalue>false</rtexprvalue>
+      <rtexprvalue>true</rtexprvalue>
 	  <type>java.lang.String</type>
     </attribute>
     <attribute>
@@ -1394,7 +1420,7 @@
     <attribute>
       <name>cssClass</name>
       <required>false</required>
-      <rtexprvalue>false</rtexprvalue>
+      <rtexprvalue>true</rtexprvalue>
 	  <type>java.lang.String</type>
     </attribute>
     <attribute>
@@ -1419,12 +1445,6 @@
       <required>false</required>
 	  <rtexprvalue>true</rtexprvalue>
 	  <type>java.lang.String</type>
-    </attribute>
-    <attribute>
-      <name>checked</name>
-      <required>false</required>
-	  <rtexprvalue>true</rtexprvalue>
-	  <type>java.lang.Object</type>
     </attribute>
     <attribute>
       <name>check</name>
@@ -1501,7 +1521,7 @@
     <attribute>
       <name>cssClass</name>
       <required>false</required>
-      <rtexprvalue>false</rtexprvalue>
+      <rtexprvalue>true</rtexprvalue>
 	  <type>java.lang.String</type>
     </attribute>
     <attribute>
@@ -1528,7 +1548,7 @@
 	  <type>java.lang.String</type>
     </attribute>
     <attribute>
-      <name>checked</name>
+      <name>check</name>
       <required>false</required>
 	  <rtexprvalue>true</rtexprvalue>
 	  <type>java.lang.Object</type>
@@ -1544,6 +1564,12 @@
       <required>false</required>
 	  <rtexprvalue>true</rtexprvalue>
 	  <type>java.lang.String</type>
+    </attribute>
+    <attribute>
+      <name>column</name>
+      <required>false</required>
+	  <rtexprvalue>true</rtexprvalue>
+	  <type>org.apache.empire.data.Column</type>
     </attribute>
     <attribute>
       <name>record</name>
@@ -1596,7 +1622,7 @@
     <attribute>
       <name>cssClass</name>
       <required>false</required>
-      <rtexprvalue>false</rtexprvalue>
+      <rtexprvalue>true</rtexprvalue>
 	  <type>java.lang.String</type>
     </attribute>
     <attribute>
@@ -1643,13 +1669,13 @@
     <attribute>
       <name>linkClass</name>
       <required>false</required>
-      <rtexprvalue>false</rtexprvalue>
+      <rtexprvalue>true</rtexprvalue>
 	  <type>java.lang.String</type>
     </attribute>
     <attribute>
       <name>cssClass</name>
       <required>false</required>
-      <rtexprvalue>false</rtexprvalue>
+      <rtexprvalue>true</rtexprvalue>
 	  <type>java.lang.String</type>
     </attribute>
     <attribute>
@@ -1690,7 +1716,7 @@
     <attribute>
       <name>cssClass</name>
       <required>false</required>
-      <rtexprvalue>false</rtexprvalue>
+      <rtexprvalue>true</rtexprvalue>
 	  <type>java.lang.String</type>
     </attribute>
     <attribute>
@@ -1749,7 +1775,7 @@
     <attribute>
       <name>cssClass</name>
       <required>false</required>
-      <rtexprvalue>false</rtexprvalue>
+      <rtexprvalue>true</rtexprvalue>
 	  <type>java.lang.String</type>
     </attribute>
     <attribute>
@@ -1772,6 +1798,11 @@
     <attribute>
       <name>action</name>
       <required>true</required>
+      <rtexprvalue>true</rtexprvalue>
+    </attribute>
+    <attribute>
+      <name>urlType</name>
+      <required>false</required>
       <rtexprvalue>true</rtexprvalue>
     </attribute>
     <attribute>
@@ -1815,9 +1846,15 @@
 	  <type>java.lang.Object</type>
     </attribute>
     <attribute>
+      <name>onclick</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+	  <type>java.lang.Object</type>
+    </attribute>
+    <attribute>
       <name>cssClass</name>
       <required>false</required>
-      <rtexprvalue>false</rtexprvalue>
+      <rtexprvalue>true</rtexprvalue>
 	  <type>java.lang.String</type>
     </attribute>
     <attribute>
@@ -1984,7 +2021,7 @@
     <attribute>
       <name>cssClass</name>
       <required>false</required>
-      <rtexprvalue>false</rtexprvalue>
+      <rtexprvalue>true</rtexprvalue>
 	  <type>java.lang.String</type>
     </attribute>
     <attribute>

@@ -31,8 +31,6 @@ import org.apache.empire.struts2.websample.web.SampleRequest;
 import org.apache.empire.struts2.websample.web.SampleSession;
 import org.apache.empire.struts2.websample.web.SampleUser;
 
-
-@SuppressWarnings("serial")
 public abstract class Action extends WebAction
     implements SampleContext
 {

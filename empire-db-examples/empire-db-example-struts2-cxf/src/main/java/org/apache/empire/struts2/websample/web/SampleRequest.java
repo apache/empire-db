@@ -18,12 +18,11 @@
  */
 package org.apache.empire.struts2.websample.web;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.empire.struts2.web.EmpireStrutsDispatcher;
+import org.apache.empire.struts2.web.EmpireThreadManager;
+import org.apache.empire.struts2.web.RequestContext;
+import org.apache.empire.struts2.web.ResponseContext;
 import org.apache.empire.struts2.web.WebRequest;
 
 
@@ -32,19 +31,19 @@ public class SampleRequest implements WebRequest
     // Logger
     protected static Log log = LogFactory.getLog(SampleRequest.class);
 
-    private HttpServletRequest  httpRequest;
-    private HttpServletResponse httpResponse;
-    private SampleSession       session;
+    private RequestContext  requestContext;
+    private ResponseContext	responseContext;
+    private SampleSession   session;
     
     public static SampleRequest getInstance()
     {
-        return (SampleRequest)EmpireStrutsDispatcher.getCurrentRequest();        
+        return (SampleRequest)EmpireThreadManager.getCurrentRequest();        
     }
     
-    public boolean init(HttpServletRequest request, HttpServletResponse response, Object session)
+    public boolean init(RequestContext request, ResponseContext response, Object session)
     {
-        this.httpRequest = request;
-        this.httpResponse = response;
+        this.requestContext = request;
+        this.responseContext = response;
         // Set Internal objects
         this.session = (SampleSession)session;
         if (this.session==null)
@@ -59,8 +58,8 @@ public class SampleRequest implements WebRequest
     public void exit(int exitCode)
     {
         // Release objects
-        this.httpRequest = null;
-        this.httpResponse = null;
+        this.requestContext = null;
+        this.responseContext = null;
     }
 
     // Get Session
@@ -75,14 +74,16 @@ public class SampleRequest implements WebRequest
         return session.getApplication();
     }
     
-    public HttpServletRequest getHttpRequest()
+    // Get Request Context
+    public RequestContext getRequestContext()
     {
-        return httpRequest;
+        return requestContext;
     }
 
-    public HttpServletResponse getHttpResponse()
+    // Get Response Context
+    public ResponseContext getResponseContext()
     {
-        return httpResponse;
+        return responseContext;
     }
     
 }

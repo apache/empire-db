@@ -102,7 +102,7 @@ public class EmployeeListAction extends SampleAction
 
     public EmployeeListAction()
     {
-
+    	// Empty
     }
 
     // ------- Action Properties -------

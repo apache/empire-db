@@ -18,13 +18,12 @@
  */
 package org.apache.empire.struts2.websample.web;
 
-import javax.servlet.ServletContext;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.empire.samples.cxf.wssample.client.EmployeeServiceClient;
 import org.apache.empire.struts2.actionsupport.TextProviderActionSupport;
 import org.apache.empire.struts2.html.HtmlTagDictionary;
+import org.apache.empire.struts2.web.AppContext;
 import org.apache.empire.struts2.web.WebApplication;
 import org.apache.empire.struts2.websample.ws.SampleBeanDomain;
 
@@ -46,7 +45,7 @@ public class SampleApplication implements WebApplication {
 	private EmployeeServiceClient ws = new EmployeeServiceClient(config
 			.getServiceAddress());
 
-	public void init(ServletContext servletContext) {
+	public void init(AppContext appContext) {
 		try {
 
 			// Application
@@ -59,13 +58,13 @@ public class SampleApplication implements WebApplication {
 			// register all controls
 			// InputControlManager.registerControl("myType", new
 			// MyTypeInputControl());
-			config.init(servletContext.getRealPath("WEB-INF/config.xml"));
+			config.init(appContext.getRealPath("WEB-INF/config.xml"));
 
 			// Set Html Dictionary
 			HtmlTagDictionary.set(new SampleHtmlTagDictionary());
 
 			// Set Database to Servlet Context
-			servletContext.setAttribute("db", beanDomain);
+			appContext.setAttribute("db", beanDomain);
 
 			// Get a Webservice Connection
 			log.info("*** testing Webservice Connection ***");

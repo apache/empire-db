@@ -20,12 +20,10 @@ package org.apache.empire.struts2.websample.web;
 
 import java.util.HashMap;
 
-import javax.servlet.http.HttpSession;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.empire.struts2.web.SessionContext;
 import org.apache.empire.struts2.web.WebSession;
-
 
 public class SampleSession implements WebSession
 {
@@ -38,7 +36,7 @@ public class SampleSession implements WebSession
     public HashMap<String, Object> objectMap = new HashMap<String, Object>();
     
     // Init Session
-    public void init(HttpSession session, Object application)
+    public void init(SessionContext session, Object application)
     {
         this.application = (SampleApplication) application;
         if (this.application==null)

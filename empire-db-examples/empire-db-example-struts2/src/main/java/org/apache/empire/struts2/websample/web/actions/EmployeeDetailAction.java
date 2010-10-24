@@ -26,8 +26,6 @@ import org.apache.empire.struts2.websample.db.records.EmployeeRecord;
 import org.apache.empire.struts2.websample.web.actiontypes.DetailAction;
 import org.apache.struts2.interceptor.NoParameters;
 
-
-@SuppressWarnings("serial")
 /**
  * EmployeeDetailAction
  * <p>

@@ -26,8 +26,6 @@ import org.apache.empire.struts2.websample.web.actiontypes.Action;
 
 import com.opensymphony.xwork2.config.entities.Parameterizable;
 
-
-@SuppressWarnings("serial")
 public class LoginAction extends Action
         implements Parameterizable // StaticParametersInterceptor
 {
@@ -138,7 +136,7 @@ public class LoginAction extends Action
         actionConfigParams.put(name, value);
     }
 
-    public Map getParams()
+    public Map<String, String> getParams()
     {
         return actionConfigParams;
     }

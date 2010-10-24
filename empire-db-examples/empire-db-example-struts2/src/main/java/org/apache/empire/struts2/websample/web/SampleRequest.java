@@ -20,12 +20,11 @@ package org.apache.empire.struts2.websample.web;
 
 import java.sql.Connection;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.empire.struts2.web.EmpireStrutsDispatcher;
+import org.apache.empire.struts2.web.EmpireThreadManager;
+import org.apache.empire.struts2.web.RequestContext;
+import org.apache.empire.struts2.web.ResponseContext;
 import org.apache.empire.struts2.web.WebRequest;
 
 
@@ -34,20 +33,20 @@ public class SampleRequest implements WebRequest
     // Logger
     protected static Log log = LogFactory.getLog(SampleRequest.class);
 
-    private HttpServletRequest  httpRequest;
-    private HttpServletResponse httpResponse;
+    private RequestContext  			externalRequest;
+    private ResponseContext 			externalResponse;
     private SampleSession       session;
     private Connection          connection;  // Connection for this request
     
     public static SampleRequest getInstance()
     {
-        return (SampleRequest)EmpireStrutsDispatcher.getCurrentRequest();        
+        return (SampleRequest)EmpireThreadManager.getCurrentRequest();        
     }
     
-    public boolean init(HttpServletRequest request, HttpServletResponse response, Object session)
+    public boolean init(RequestContext request, ResponseContext response, Object session)
     {
-        this.httpRequest = request;
-        this.httpResponse = response;
+        this.externalRequest = request;
+        this.externalResponse = response;
         // Set Internal objects
         this.session = (SampleSession)session;
         if (this.session==null)
@@ -79,8 +78,8 @@ public class SampleRequest implements WebRequest
             connection= null;
         }
         // Release objects
-        this.httpRequest = null;
-        this.httpResponse = null;
+        this.externalRequest = null;
+        this.externalResponse = null;
     }
 
     // Get Session
@@ -105,14 +104,14 @@ public class SampleRequest implements WebRequest
         return connection;
     }
     
-    public HttpServletRequest getHttpRequest()
+    public RequestContext getRequestContext()
     {
-        return httpRequest;
+        return externalRequest;
     }
 
-    public HttpServletResponse getHttpResponse()
+    public ResponseContext getResponseContext()
     {
-        return httpResponse;
+        return externalResponse;
     }
     
 }
