@@ -20,7 +20,10 @@
 <!DOCTYPE struts PUBLIC
     "-//Apache Software Foundation//DTD Struts Configuration 2.1.7//EN"
     "http://struts.apache.org/dtds/struts-2.1.7.dtd">
+
 <struts>
+
+	<include file="struts-empire.xml"></include>
 
     <!-- 
     <constant name="struts.devMode" value="true" />
@@ -28,44 +31,15 @@
      -->
 
 	<!-- Configuration for the default package. -->
-	<package name="sample" namespace="" extends="struts-default">
+	<package name="sample" namespace="" extends="empire-default">
 
-        <interceptors>
-			<!-- org.apache.empire.struts2 Interceptors -->
-	        <interceptor name="actionBasics" class="org.apache.empire.struts2.interceptors.ActionBasicsInterceptor" >
-	        	<param name="errorAction">login!doError</param>
-	        </interceptor>
+	    <!-- Action Mappings -->
+		<action name="error" class="org.apache.empire.struts2.websample.web.actions.LoginAction" method="doInit">
+			<result name="input">/jsp/login.jsp</result>
+		</action>
 
-			<!-- org.apache.empire.struts2 Interceptors -->
-	        <interceptor name="actionAccess" class="org.apache.empire.struts2.interceptors.ActionAccessInterceptor" >
-	        	<param name="loginAction">login!doInit</param>
-	        	<param name="accessDeniedAction">login!doInit</param>
-	        </interceptor>
-	
-	        <!-- Basic stack -->
-	        <interceptor-stack name="sampleStack">
-	            <interceptor-ref name="actionBasics"/>
-	            <interceptor-ref name="actionAccess"/>
-	            <!-- interceptor-ref name="servlet-config"/ -->
-	            <!-- interceptor-ref name="prepare"/ -->
-	            <!-- interceptor-ref name="checkbox"/ -->
-	            <interceptor-ref name="params"/> 
-	            <!-- interceptor-ref name="conversionError"/ -->
-	        </interceptor-stack>
-	
-        </interceptors>
-
-		<!-- Default interceptor stack. -->
-		<default-interceptor-ref name="sampleStack"/>
-
-	    <!-- Static Params Interceptor -->
 		<action name="login" class="org.apache.empire.struts2.websample.web.actions.LoginAction" method="doInit">
 			<result name="input">/jsp/login.jsp</result>
-			<!--
-				* UPGRADE-struts 2.1.6
-				* CHANGE: changed "redirect-action" to "redirectAction"
-     			* Reason: The types are now written in "camelCase"
-			-->
 			<result name="success" type="redirectAction">employeeList!doInit</result>
 		</action>
 		
@@ -76,11 +50,6 @@
 
 		<action name="employeeDetail" class="org.apache.empire.struts2.websample.web.actions.EmployeeDetailAction" method="doLoad">
 			<result name="input">/jsp/employeeDetails.jsp</result>
-			<!--
-				* UPGRADE-struts 2.1.6
-				* CHANGE: changed "redirect-action" to "redirectAction"
-     			* Reason: The types are now written in "camelCase"
-			-->
 			<result name="return" type="redirectAction">employeeList!doList</result>
 		</action>
 

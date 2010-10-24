@@ -25,15 +25,21 @@
     
 <struts>
 
-	<!-- empire-default -->
-	<package name="empire-default" extends="struts-default">
-		<interceptors>
+	<!-- empire-portlet-default -->
+	<package name="empire-portlet-default" extends="struts-portlet-default">
 
+		<!-- Result Types -->
+		<result-types>
+			<result-type name="dispatcher" class="org.apache.empire.struts2.web.EmpirePortletResult" default="true"/>
+			<result-type name="redirect" class="org.apache.empire.struts2.web.EmpirePortletResult"/>
+		</result-types>
+
+		<!-- Interceptors -->
+        <interceptors>
 			<!-- org.apache.empire.struts2 Interceptors -->
 	        <interceptor name="actionBasics" class="org.apache.empire.struts2.interceptors.ActionBasicsInterceptor" >
 	        	<param name="errorAction">error</param>
 	        </interceptor>
-
 			<!-- org.apache.empire.struts2 Interceptors -->
 	        <interceptor name="actionAccess" class="org.apache.empire.struts2.interceptors.ActionAccessInterceptor" >
 	        	<param name="loginAction">login</param>
@@ -41,12 +47,14 @@
 	        	<param name="accessDeniedAction">login!doAccessDenied</param>
 	        	 -->
 	        </interceptor>
-
-			<!-- Empire Default Stack -->
-			<interceptor-stack name="empireDefaultStack">
+	        <!-- Basic stack -->
+	        <interceptor-stack name="empirePortletStack" >
 				<!-- Empire-Interceptors -->
 				<interceptor-ref name="actionBasics"/>
 				<interceptor-ref name="actionAccess"/>
+	            <!-- Portlet-Interceptors -->
+				<interceptor-ref name="portletState"/>
+	            <interceptor-ref name="portletAware"/>
 				<!-- Struts-Interceptors -->
 				<!-- 
 				<interceptor-ref name="exception"/>
@@ -78,16 +86,16 @@
 				    <param name="excludeMethods">input,back,cancel,browse</param>
 				</interceptor-ref>
 				 -->
-			</interceptor-stack>
+	        </interceptor-stack>
 
 	        <!-- File upload stack -->
             <interceptor-stack name="fileUploadStack">
                 <interceptor-ref name="fileUpload"/>
-                <interceptor-ref name="empireDefaultStack"/>
+                <interceptor-ref name="empirePortletStack"/>
             </interceptor-stack>
-		</interceptors>
+        </interceptors>
 
-		<!-- set default stack -->
-		<default-interceptor-ref name="empireDefaultStack"/>
+		<!-- Default interceptor stack. --> 
+		<default-interceptor-ref name="empirePortletStack"/>
 	</package>
 </struts>
