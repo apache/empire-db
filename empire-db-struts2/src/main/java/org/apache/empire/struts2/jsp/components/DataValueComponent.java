@@ -40,7 +40,7 @@ public class DataValueComponent extends ControlComponent
 {
     // Logger
     @SuppressWarnings("hiding")
-    protected static Log log = LogFactory.getLog(DataValueComponent.class);
+	protected static Log log = LogFactory.getLog(DataValueComponent.class);
 
     protected UrlRenderer urlRenderer;
 

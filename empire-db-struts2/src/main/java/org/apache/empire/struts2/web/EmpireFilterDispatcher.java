@@ -27,6 +27,7 @@ import javax.servlet.FilterConfig;
 import org.apache.struts2.dispatcher.Dispatcher;
 import org.apache.struts2.dispatcher.FilterDispatcher;
 
+@SuppressWarnings("deprecation")
 public class EmpireFilterDispatcher extends FilterDispatcher
 {
     public EmpireFilterDispatcher()

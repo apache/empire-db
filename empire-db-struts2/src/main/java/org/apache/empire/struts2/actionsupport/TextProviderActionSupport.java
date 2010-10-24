@@ -80,7 +80,7 @@ public class TextProviderActionSupport extends TextProviderSupport
     
     // ------- Overrides -------
     @Override
-    public String getText(String key, String defaultValue, List args)
+    public String getText(String key, String defaultValue, List<Object> args)
     {
         if(key==null)
         {

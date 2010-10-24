@@ -132,12 +132,12 @@ public abstract class ListActionSupport extends ErrorObject
         public boolean sortDescending;
     }
     
-    private ListSortInfo lsi = null;
+    private ListSortInfo listSortInfo = null;
     protected ListSortInfo getListSortInfo()
     {
-        if (lsi== null)
-            lsi = (ListSortInfo)action.getActionBean(ListSortInfo.class, true, propertyName);
-        return lsi;
+        if (listSortInfo== null)
+        	listSortInfo = (ListSortInfo)action.getActionBean(ListSortInfo.class, true, propertyName);
+        return listSortInfo;
     }
     
     // ------- ListSortInfo -------

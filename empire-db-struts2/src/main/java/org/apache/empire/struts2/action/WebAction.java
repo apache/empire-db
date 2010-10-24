@@ -198,7 +198,6 @@ public abstract class WebAction extends ActionBase
         return getText(msgKey, args);
     }
     
-    @SuppressWarnings("unchecked")
     protected void setActionError(ErrorInfo error)
     {
         // Check error param
@@ -298,7 +297,6 @@ public abstract class WebAction extends ActionBase
         return StringUtils.toString(msg);
     }
     
-    @SuppressWarnings("unchecked")
     protected void setActionMessage(String message)
     {   // put Message on session
         if (message.startsWith("!"))
@@ -337,7 +335,7 @@ public abstract class WebAction extends ActionBase
         return textProvider.getText(aTextName, defaultValue, obj);
     }
 
-    public String getText(String aTextName, List args) {
+    public String getText(String aTextName, List<Object> args) {
         return textProvider.getText(aTextName, args);
     }
 
@@ -345,7 +343,7 @@ public abstract class WebAction extends ActionBase
         return textProvider.getText(key, args);
     }
 
-    public String getText(String aTextName, String defaultValue, List args) {
+    public String getText(String aTextName, String defaultValue, List<Object> args) {
         return textProvider.getText(aTextName, defaultValue, args);
     }
 
@@ -353,7 +351,7 @@ public abstract class WebAction extends ActionBase
         return textProvider.getText(key, defaultValue, args);
     }
 
-    public String getText(String key, String defaultValue, List args, ValueStack stack) {
+    public String getText(String key, String defaultValue, List<Object> args, ValueStack stack) {
         return textProvider.getText(key, defaultValue, args, stack);
     }
 

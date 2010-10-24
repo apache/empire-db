@@ -72,7 +72,6 @@ public class FormSubmitTag extends EmpireTagSupport
         log.error("Illegar mehtod call.");
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public int doStartTag() throws JspException
     {
@@ -97,7 +96,6 @@ public class FormSubmitTag extends EmpireTagSupport
         return EVAL_BODY_INCLUDE;
     }
     
-    @SuppressWarnings("unchecked")
     @Override
     public int doEndTag() throws JspException
     {

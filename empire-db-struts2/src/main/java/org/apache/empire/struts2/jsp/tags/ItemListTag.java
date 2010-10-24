@@ -95,7 +95,6 @@ public class ItemListTag extends IteratorTag
             srcObject = null;
         }
 
-        @SuppressWarnings("unchecked")
         @Override
         public boolean start(Writer writer)
         {
@@ -164,7 +163,6 @@ public class ItemListTag extends IteratorTag
             return false;
         }
 
-        @SuppressWarnings("unchecked")
         @Override
         public boolean end(Writer writer, String body)
         {

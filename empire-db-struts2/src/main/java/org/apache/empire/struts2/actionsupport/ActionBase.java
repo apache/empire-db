@@ -76,7 +76,6 @@ public abstract class ActionBase
         return context.getSession().get(key);
     }
     
-    @SuppressWarnings("unchecked")
     protected void putActionObject(String name, Object item)
     {   // Put object
         ActionContext context = ActionContext.getContext();
@@ -123,7 +122,6 @@ public abstract class ActionBase
         return proxy.getActionName()+ "." + ownerProperty + "." + objClass.getName();
     }
     
-    @SuppressWarnings("unchecked")
     public Object getActionBean(Class objClass, boolean create, String ownerProperty)
     {
         if (objClass==null)
@@ -151,7 +149,6 @@ public abstract class ActionBase
         return getActionBean(objClass, create, null);
     }
     
-    @SuppressWarnings("unchecked")
     public void putActionBean(Object obj, String ownerProperty)
     {
         if (obj==null || obj instanceof String || obj.getClass().isPrimitive() || obj.getClass().isArray())
@@ -171,7 +168,6 @@ public abstract class ActionBase
         putActionBean(obj, null);
     }
     
-    @SuppressWarnings("unchecked")
     public void removeActionBean(Class objClass, String propertyName)
     {
         if (objClass==null)

@@ -96,7 +96,7 @@ public class ActionErrorsTag extends EmpireTagSupport
         boolean hasActionError = (lastActionError!=null && lastActionError.hasError());
         boolean hasFieldErrors = (fieldErrors!=null && fieldErrors.size()>0); 
 
-        // Check wether we have an error to render
+        // Check whether we have an error to render
         if (hasActionError==false && hasFieldErrors==false)
         {   // No Errors, nothing to render
             return;
