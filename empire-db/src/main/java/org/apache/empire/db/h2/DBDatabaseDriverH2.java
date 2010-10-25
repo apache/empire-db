@@ -645,7 +645,7 @@ public class DBDatabaseDriverH2 extends DBDatabaseDriver
      * Creates an alter table dll statement for adding, modifiying or droping a column.
      * @param col the column which to add, modify or drop
      * @param type the type of operation to perform
-     * @param buf buffer to which to append the sql statement to
+     * @param script to which to append the sql statement to
      * @return true if the statement was successfully appended to the buffer
      */
     protected boolean alterTable(DBTableColumn col, DBCmdType type, DBSQLScript script)

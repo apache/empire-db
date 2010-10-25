@@ -856,7 +856,7 @@ public class DBRecord extends DBRecordData implements Record, Cloneable
 
     /**
      * Set the record default value for the fields with 
-     * the value {@link ObjectUtils.NoValue}
+     * the value {@link ObjectUtils#NO_VALUE}
      * 
      * @param conn the sql connection
      *  

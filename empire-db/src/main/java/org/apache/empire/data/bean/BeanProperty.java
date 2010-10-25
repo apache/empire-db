@@ -21,8 +21,8 @@ package org.apache.empire.data.bean;
 import org.apache.empire.commons.Attributes;
 import org.apache.empire.commons.Options;
 import org.apache.empire.data.Column;
-import org.apache.empire.data.DataType;
 import org.apache.empire.data.DataMode;
+import org.apache.empire.data.DataType;
 
 /**
  * BeanObject
@@ -83,8 +83,6 @@ public class BeanProperty implements Column
      * @param dataType
      * @param size
      * @param required
-     * @param controlType
-     * @param readOnly
      */
     @Deprecated
     public BeanProperty(String name, DataType dataType, double size, boolean required)

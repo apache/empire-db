@@ -213,7 +213,7 @@ public abstract class BeanDetailAction<T> extends DetailAction
     
     /**
      * Deletes a bean object
-     * @param bean 
+     * @param key 
      * @return true if the bean has been stored sucessfully or false otherwise
      */
     protected abstract boolean deleteBean(Object[] key);

@@ -60,7 +60,7 @@ public abstract class DBAbstractFuncExpr extends DBColumnExpr
 
     /**
      * returns the name of the function
-     * @return
+     * @return the function name
      */
     protected abstract String getFunctionName();
     

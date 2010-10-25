@@ -67,7 +67,7 @@ public abstract class DBExpr extends DBObject
     /**
      * Returns the sql representation of a value.
      * 
-     * @param col the DBColumnExpr object
+     * @param dataType the DataType
      * @param value an DBExpr object, array or a basis data type(e.g. int, String)
      * @param context the context of the DBColumnExpr object
      * @param arraySep the separator value

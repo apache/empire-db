@@ -287,9 +287,9 @@ public abstract class DBCommand extends DBCommandExpr
     }
 
     /**
-     * checks whether a column is in the list of set expressions
+     * Checks whether a column is in the list of set expressions
      * @param column
-     * @return
+     * @return <code>true</code> if there is a set expression 
      */
     protected boolean hasSetExprOn(DBColumn column)
     {
@@ -705,7 +705,6 @@ public abstract class DBCommand extends DBCommandExpr
      * of the Vector 'where' or 'having'.
      * 
      * @param list the Vector 'where' or 'having'
-     * @param expr the DBCompareExpr object
      * @param expr the DBCompareExpr object
      */
     protected void setCompare(List<DBCompareExpr> list, DBCompareExpr expr)
