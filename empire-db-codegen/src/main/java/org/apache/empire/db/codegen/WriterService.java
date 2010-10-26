@@ -294,7 +294,22 @@ public class WriterService {
 		attribute = deriveAttributeName(attribute);
 		StringBuilder attributeName = new StringBuilder();
 		attributeName.append(Character.toUpperCase(attribute.charAt(0)));
-		attributeName.append(attribute.substring(1));
+		
+		// convert the method's name to CamelCase
+		boolean nextCharacterUppercase = false;
+		for (int i = 1; i < attribute.length(); i++) 
+		{
+			char c = attribute.charAt(i);
+			if (c == '_') {
+				nextCharacterUppercase = true;
+				continue;
+			}
+			if (nextCharacterUppercase)
+				attributeName.append(Character.toUpperCase(c));
+			else
+				attributeName.append(Character.toLowerCase(c));
+			nextCharacterUppercase = false;
+		}
 		
 		StringBuilder sbGet = new StringBuilder(getGetterPrefix(type));
 		sbGet.append(attributeName);
