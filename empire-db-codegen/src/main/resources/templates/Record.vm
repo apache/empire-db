@@ -50,10 +50,10 @@ public class $parser.getRecordClassName($table.name) extends ${baseRecordClassNa
 	// Access methods for all attributes
 #foreach($col in $table.columns)
 
-	public $parser.getJavaType($col) $parser.getAccessorName($col)() {
-		return ($parser.getJavaType($col))super.getValue(getDbTable().${parser.getAttributeName($col)});
+	public $parser.getJavaType($col).getName() $parser.getAccessorName($col)() {
+		return ($parser.getJavaType($col).getName())super.getValue(getDbTable().${parser.getAttributeName($col)});
 	}
-	public void $parser.getMutatorName($col)($parser.getJavaType($col) val) {
+	public void $parser.getMutatorName($col)($parser.getJavaType($col).getName() val) {
 		super.setValue(getDbTable().${parser.getAttributeName($col)}, val);
 	}
 #end
