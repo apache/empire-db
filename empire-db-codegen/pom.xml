@@ -45,7 +45,7 @@
 		<dependency>
 		    <groupId>hsqldb</groupId>
 		    <artifactId>hsqldb</artifactId>
-		    <!-- <scope>runtime</scope> -->
+		    <scope>test</scope>
 		</dependency>
 
 		<!-- mysql -->

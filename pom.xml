@@ -231,11 +231,6 @@
 				<version>1.7.0</version>
 			</dependency>
 			<dependency>
-				<groupId>commons-collections</groupId>
-				<artifactId>commons-collections</artifactId>
-				<version>3.2.1</version>
-			</dependency>
-			<dependency>
 				<groupId>hsqldb</groupId>
 				<artifactId>hsqldb</artifactId>
 				<version>1.8.0.10</version>
@@ -249,12 +244,12 @@
 				<groupId>org.apache.struts</groupId>
 				<artifactId>struts2-portlet-plugin</artifactId>
 				<version>2.2.1</version>
-			</dependency> 
-			<dependency>
-			    <groupId>javassist</groupId>
-			    <artifactId>javassist</artifactId>
-			    <version>3.8.0.GA</version>
 			</dependency>
+			<dependency>
+	            <groupId>org.apache.struts.xwork</groupId>
+	            <artifactId>xwork-core</artifactId>
+	            <version>2.2.1</version>
+	        </dependency>
 			<dependency>
 				<groupId>javax.servlet</groupId>
 				<artifactId>servlet-api</artifactId>

@@ -215,7 +215,8 @@ public class SampleApplication implements WebApplication {
         script.run(driver, conn, false);
         db.commit(conn);
         // Open again
-        if (!db.isOpen() && !db.open(driver, conn)){
+        if (!db.isOpen() && !db.open(driver, conn))
+        {
             throw new RuntimeException(driver.getErrorMessage());
         }
 		// Insert Sample Departments
