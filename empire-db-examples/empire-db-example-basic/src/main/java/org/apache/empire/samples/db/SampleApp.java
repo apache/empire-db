@@ -36,6 +36,7 @@ import org.apache.empire.db.h2.DBDatabaseDriverH2;
 import org.apache.empire.db.hsql.DBDatabaseDriverHSql;
 import org.apache.empire.db.mysql.DBDatabaseDriverMySQL;
 import org.apache.empire.db.oracle.DBDatabaseDriverOracle;
+import org.apache.empire.db.oracle.OracleRowNumExpr;
 import org.apache.empire.db.postgresql.DBDatabaseDriverPostgreSQL;
 import org.apache.empire.db.sqlserver.DBDatabaseDriverMSSQL;
 import org.apache.empire.xml.XMLWriter;
@@ -417,9 +418,15 @@ public class SampleApp
         cmd.where(EMP.LASTNAME.length().isGreaterThan(0));
         cmd.orderBy(EMP.LASTNAME, EMP.FIRSTNAME);
 
-        cmd.limitRows(20);
-        if (db.getDriver().isSupported(DBDriverFeature.QUERY_SKIP_ROWS))
-            cmd.skipRows(1);
+        /*
+        // Example for limitRows() and skipRows()
+        if (db.getDriver().isSupported(DBDriverFeature.QUERY_LIMIT_ROWS))
+        {	// set maximum number of rows
+        	cmd.limitRows(20);
+            if (db.getDriver().isSupported(DBDriverFeature.QUERY_SKIP_ROWS))
+                cmd.skipRows(1);
+        }
+        */
         
 		// Query Records and print output
 		DBReader reader = new DBReader();

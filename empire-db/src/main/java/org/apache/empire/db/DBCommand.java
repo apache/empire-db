@@ -470,7 +470,7 @@ public abstract class DBCommand extends DBCommandExpr
     {
         if (where == null)
             where = new ArrayList<DBCompareExpr>();
-        setCompare(where, expr);
+        setConstraint(where, expr);
     }
 
     /**
@@ -496,6 +496,17 @@ public abstract class DBCommand extends DBCommandExpr
         }
         return null;
     }
+    
+    /**
+     * removes a constraint on a particular column from the where clause
+     * @param col the column expression for which to remove the constraint
+     */
+    public void removeWhereConstraintOn(DBColumnExpr col)
+    {
+        if (where == null)
+        	return;
+        removeConstraintOn(where, col);
+    }
 
     /**
      * Returns a copy of the defined joins.
@@ -513,7 +524,6 @@ public abstract class DBCommand extends DBCommandExpr
 
     /**
      * Adds a list of constraints to the command.
-     * 
      * @param constraints list of constraints
      */
     public void addWhereConstraints(List<DBCompareExpr> constraints)
@@ -526,16 +536,25 @@ public abstract class DBCommand extends DBCommandExpr
     }
 
     /**
-     * Sets a having contraint.
-     * 
+     * adds a constraint to the having clause.
      * @param expr the DBCompareExpr object
      */
-    // having
     public void having(DBCompareExpr expr)
     {
         if (having == null)
             having = new ArrayList<DBCompareExpr>();
-        setCompare(having, expr);
+        setConstraint(having, expr);
+    }
+    
+    /**
+     * removes a constraint on a particular column from the where clause
+     * @param col the column expression for which to remove the constraint
+     */
+    public void removeHavingConstraintOn(DBColumnExpr col)
+    {
+        if (having == null)
+        	return;
+        removeConstraintOn(having, col);
     }
 
     /**
@@ -701,13 +720,11 @@ public abstract class DBCommand extends DBCommandExpr
     }
 
     /**
-     * Compares the DBCompareExpr object with the Elements
-     * of the Vector 'where' or 'having'.
-     * 
-     * @param list the Vector 'where' or 'having'
+     * adds a constraint to the 'where' or 'having' collections 
+     * @param list the 'where' or 'having' list
      * @param expr the DBCompareExpr object
      */
-    protected void setCompare(List<DBCompareExpr> list, DBCompareExpr expr)
+    protected void setConstraint(List<DBCompareExpr> list, DBCompareExpr expr)
     { // adds a comparison to the where or having list
         for (int i = 0; i < list.size(); i++)
         { // check expression
@@ -718,9 +735,32 @@ public abstract class DBCommand extends DBCommandExpr
             list.set(i, expr);
             return;
         }
-        // neue expression, or possible another expression
-        // for the same column when allowMultiple == true
+        // add expression
         list.add(expr);
+    }
+    
+    /**
+     * removes a constraint on a particular column to the 'where' or 'having' collections 
+     * @param list the 'where' or 'having' list
+     * @param col the column expression for which to remove the constraint
+     */
+    protected void removeConstraintOn(List<DBCompareExpr> list, DBColumnExpr col)
+    {
+        if (list == null)
+        	return;
+        for(DBCompareExpr cmp : list)
+        {	// Check whether it is a compare column expr.
+            if (!(cmp instanceof DBCompareColExpr))
+            	continue;
+            // Compare columns
+            DBColumnExpr c = ((DBCompareColExpr)cmp).getColumnExpr();
+            DBColumn udc = c.getUpdateColumn();
+            if (c.equals(col) || (udc!=null && udc.equals(col.getUpdateColumn())))
+            {	// found the column
+            	list.remove(cmp);
+            	return;
+            }
+        }
     }
 
     /**

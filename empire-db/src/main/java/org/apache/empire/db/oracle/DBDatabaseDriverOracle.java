@@ -47,9 +47,6 @@ import org.apache.empire.db.DBView;
 /**
  * This class provides support for the Oracle database system.<br>
  * Oracle Version 9 or higher is required.
- * 
- *
- * 
  */
 public class DBDatabaseDriverOracle extends DBDatabaseDriver
 {
@@ -105,8 +102,10 @@ public class DBDatabaseDriverOracle extends DBDatabaseDriver
     {
         switch (type)
         {   // return support info 
-            case CREATE_SCHEMA: return false;
-            case SEQUENCES:     return true;
+            case CREATE_SCHEMA: 	return false;
+            case SEQUENCES:     	return true;
+            case QUERY_LIMIT_ROWS:  return true;
+            case QUERY_SKIP_ROWS:   return false;
             default:
                 // All other features are not supported by default
                 return false;

@@ -454,7 +454,7 @@ public class DBQuery extends DBRowSet
                 { // Check whether
                     DBCompareColExpr cmpExpr = (DBCompareColExpr) cmp;
                     DBColumn col = cmpExpr.getColumnExpr().getUpdateColumn();
-                    if (col.getRowSet() == table)
+                    if (col!=null && col.getRowSet() == table)
                         upd.where(cmp);
                 } 
                 else

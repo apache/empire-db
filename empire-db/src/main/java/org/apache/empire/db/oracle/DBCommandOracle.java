@@ -37,6 +37,7 @@ public class DBCommandOracle extends DBCommand
     protected DBCompareExpr startWith  = null;
     // optimizerHint
     protected String        optimizerHint  = null;
+    protected OracleRowNumExpr	rowNumExpr = null;
 
     /**
      * Constructs an oracle command object.
@@ -88,6 +89,25 @@ public class DBCommandOracle extends DBCommand
     public void startWith(DBCompareExpr expr)
     {
         this.startWith = expr;
+    }
+    
+    @Override
+    public boolean limitRows(int numRows)
+    {
+    	if (rowNumExpr==null)
+    		rowNumExpr = new OracleRowNumExpr(getDatabase());
+    	// Add the constraint
+    	where(rowNumExpr.isLessOrEqual(numRows));
+        return success();
+    }
+     
+    @Override
+    public void clearLimit()
+    {
+    	if (rowNumExpr!=null)
+    		removeWhereConstraintOn(rowNumExpr);
+    	// constraint removed
+    	rowNumExpr = null;
     }
 
     /**
