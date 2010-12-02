@@ -27,7 +27,6 @@ import org.apache.empire.commons.ErrorObject;
 import org.apache.empire.db.DBColumnExpr;
 import org.apache.empire.db.DBCommand;
 import org.apache.empire.db.DBDatabaseDriver;
-import org.apache.empire.db.DBDriverFeature;
 import org.apache.empire.db.DBReader;
 import org.apache.empire.db.DBRecord;
 import org.apache.empire.db.DBSQLScript;
@@ -36,7 +35,6 @@ import org.apache.empire.db.h2.DBDatabaseDriverH2;
 import org.apache.empire.db.hsql.DBDatabaseDriverHSql;
 import org.apache.empire.db.mysql.DBDatabaseDriverMySQL;
 import org.apache.empire.db.oracle.DBDatabaseDriverOracle;
-import org.apache.empire.db.oracle.OracleRowNumExpr;
 import org.apache.empire.db.postgresql.DBDatabaseDriverPostgreSQL;
 import org.apache.empire.db.sqlserver.DBDatabaseDriverMSSQL;
 import org.apache.empire.xml.XMLWriter;
@@ -89,7 +87,9 @@ public class SampleApp
             // STEP 3: Open Database (and create if not existing)
             System.out.println("*** Step 3: openDatabase() ***");
 			try {
-			    db.open(driver, conn);
+			    // Open the database
+                db.open(driver, conn);
+                // Check whether database exists
 			    databaseExists(conn);
                 System.out.println("*** Database already exists. Skipping Step4 ***");
                 

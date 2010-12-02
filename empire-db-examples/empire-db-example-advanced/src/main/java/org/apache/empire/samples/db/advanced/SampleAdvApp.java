@@ -27,8 +27,8 @@ import java.util.logging.Logger;
 import org.apache.empire.commons.DateUtils;
 import org.apache.empire.commons.ErrorObject;
 import org.apache.empire.commons.Options;
-import org.apache.empire.data.DataType;
 import org.apache.empire.data.DataMode;
+import org.apache.empire.data.DataType;
 import org.apache.empire.db.DBCmdType;
 import org.apache.empire.db.DBColumnExpr;
 import org.apache.empire.db.DBCommand;
@@ -38,6 +38,7 @@ import org.apache.empire.db.DBReader;
 import org.apache.empire.db.DBRecord;
 import org.apache.empire.db.DBSQLScript;
 import org.apache.empire.db.DBTableColumn;
+import org.apache.empire.db.DBCommand.DBCommandParam;
 import org.apache.empire.db.derby.DBDatabaseDriverDerby;
 import org.apache.empire.db.h2.DBDatabaseDriverH2;
 import org.apache.empire.db.hsql.DBDatabaseDriverHSql;
@@ -45,6 +46,7 @@ import org.apache.empire.db.mysql.DBDatabaseDriverMySQL;
 import org.apache.empire.db.oracle.DBDatabaseDriverOracle;
 import org.apache.empire.db.postgresql.DBDatabaseDriverPostgreSQL;
 import org.apache.empire.db.sqlserver.DBDatabaseDriverMSSQL;
+import org.apache.empire.samples.db.advanced.SampleAdvDB.EmployeeInfoView;
 
 
 public class SampleAdvApp 
@@ -91,7 +93,12 @@ public class SampleAdvApp
             // STEP 3: Open Database (and create if not existing)
             System.out.println("*** Step 3: openDatabase() ***");
             try {
+                // Enable the use of prepared statements for update and insert commands as well as for read operations on a DBRecord.
+                // Note: For custom SQL commands parameters must be explicitly declared using cmd.addCmdParam();   
+                db.setPreparedStatementsEnabled(true);
+                // Open the database
                 db.open(driver, conn);
+                // Check whether database exists
                 databaseExists(conn);
                 System.out.println("*** Database already exists. Skipping Step4 ***");
                 
@@ -120,52 +127,62 @@ public class SampleAdvApp
             // STEP 6: Insert Records
             // Insert Departments
             System.out.println("*** Step 6: inserting departments, employees and employee_department_history records ***");
-            int idDevDep = insertDepartment(conn, "Development", "ITTK");
+            int idDevDep  = insertDepartment(conn, "Development", "ITTK");
             int idProdDep = insertDepartment(conn, "Production", "ITTK");
-            int idSalDep = insertDepartment(conn, "Sales", "ITTK");
+            int idSalDep  = insertDepartment(conn, "Sales", "ITTK");
 
             // Insert Employees
-            int idPers1 = insertEmployee(conn, "Peter", "Sharp", "M");
-            int idPers2 = insertEmployee(conn, "Fred", "Bloggs", "M");
-            int idPers3 = insertEmployee(conn, "Emma", "White", "F");
+            int idEmp1 = insertEmployee(conn, "Peter", "Sharp", "M");
+            int idEmp2 = insertEmployee(conn, "Fred", "Bloggs", "M");
+            int idEmp3 = insertEmployee(conn, "Emma", "White", "F");
             
-            insertEmpDepHistory(conn, idPers1,  idDevDep,  DateUtils.getDate(2005, 11,  1));            
-            insertEmpDepHistory(conn, idPers1,  idProdDep, DateUtils.getDate(2006,  8,  1));           
-            insertEmpDepHistory(conn, idPers1,  idSalDep,  DateUtils.getDate(2007,  4, 15));           
+            insertEmpDepHistory(conn, idEmp1,  idDevDep,  DateUtils.getDate(2007, 11,  1));            
+            insertEmpDepHistory(conn, idEmp1,  idProdDep, DateUtils.getDate(2008,  8,  1));           
+            insertEmpDepHistory(conn, idEmp1,  idSalDep,  DateUtils.getDate(2009,  4, 15));           
 
-            insertEmpDepHistory(conn, idPers2,  idSalDep,  DateUtils.getDate(2004,  2,  1));            
-            insertEmpDepHistory(conn, idPers2,  idDevDep,  DateUtils.getDate(2006, 10, 15));           
+            insertEmpDepHistory(conn, idEmp2,  idSalDep,  DateUtils.getDate(2006,  2,  1));            
+            insertEmpDepHistory(conn, idEmp2,  idDevDep,  DateUtils.getDate(2008, 10, 15));           
 
-            insertEmpDepHistory(conn, idPers3,  idDevDep,  DateUtils.getDate(2004,  8, 15));            
-            insertEmpDepHistory(conn, idPers3,  idSalDep,  DateUtils.getDate(2005,  7,  1));           
-            insertEmpDepHistory(conn, idPers3,  idProdDep, DateUtils.getDate(2006,  6, 15));           
+            insertEmpDepHistory(conn, idEmp3,  idDevDep,  DateUtils.getDate(2006,  8, 15));            
+            insertEmpDepHistory(conn, idEmp3,  idSalDep,  DateUtils.getDate(2007,  7,  1));           
+            insertEmpDepHistory(conn, idEmp3,  idProdDep, DateUtils.getDate(2008,  6, 15));           
             
             // commit
             db.commit(conn);
 
             // STEP 7: read from Employee_Info_View
+            System.out.println("--------------------------------------------------------");
             System.out.println("*** read from EMPLOYEE_INFO_VIEW ***");
             DBCommand cmd = db.createCommand();
             cmd.select (db.V_EMPLOYEE_INFO.getColumns());
             cmd.orderBy(db.V_EMPLOYEE_INFO.C_NAME_AND_DEP);
             printQueryResults(cmd, conn);
 
-            // STEP 8: bulkReadRecords
+            // STEP 8: prepared Statement sample
+            System.out.println("--------------------------------------------------------");
+            System.out.println("*** commandParamsSample: shows how to use command parameters for the generation of prepared statements ***");
+            commandParamsSample(conn, idProdDep, idDevDep);
+
+            // STEP 9: bulkReadRecords
+            System.out.println("--------------------------------------------------------");
             System.out.println("*** bulkReadRecords: reads employee records into a hashmap, reads employee from hashmap and updates employee ***");
             HashMap<Integer, DBRecord> employeeMap = bulkReadRecords(conn);
-            DBRecord rec = employeeMap.get(idPers2);
+            DBRecord rec = employeeMap.get(idEmp2);
             rec.setValue(db.T_EMPLOYEES.C_SALUTATION, "Mr.");
             rec.update(conn);
 
-            // STEP 9: bulkProcessRecords
+            // STEP 10: bulkProcessRecords
+            System.out.println("--------------------------------------------------------");
             System.out.println("*** bulkProcessRecords: creates a checksum for every employee in the employees table ***");
             bulkProcessRecords(conn);
 
-            // STEP 10: querySample
+            // STEP 11: querySample
+            System.out.println("--------------------------------------------------------");
             System.out.println("*** querySample: shows how to use DBQuery class for subqueries and multi table records ***");
-            querySample(conn, idPers2);
+            querySample(conn, idEmp2);
 
-            // STEP 11: ddlSample
+            // STEP 12: ddlSample
+            System.out.println("--------------------------------------------------------");
             System.out.println("*** ddlSample: shows how to add a column at runtime and update a record with the added column ***");
             if (db.getDriver() instanceof DBDatabaseDriverH2) {
             	logger.info("As H2 does not support changing a table with a view defined we remove the view");
@@ -174,7 +191,7 @@ public class SampleAdvApp
             	db.getDriver().getDDLScript(DBCmdType.DROP, db.V_EMPLOYEE_INFO, script);
             	script.run(db.getDriver(), conn, false);
             }
-            ddlSample(conn, idPers2);
+            ddlSample(conn, idEmp2);
             if (db.getDriver() instanceof DBDatabaseDriverH2) {
             	logger.info("And put back the view");
             	System.out.println("*** create EMPLOYEE_INFO_VIEW ***");
@@ -183,8 +200,8 @@ public class SampleAdvApp
             	script.run(db.getDriver(), conn, false);
             }
 
-
             // Done
+            System.out.println("--------------------------------------------------------");
             System.out.println("DB Sample finished successfully.");
 
         } catch (Exception e)
@@ -210,7 +227,7 @@ public class SampleAdvApp
         logger.info("Connecting to Database'" + config.getJdbcURL() + "' / User=" + config.getJdbcUser());
         try
         {
-            // Connect to the databse
+            // Connect to the database
             Class.forName(config.getJdbcClass()).newInstance();
             conn = DriverManager.getConnection(config.getJdbcURL(), config.getJdbcUser(), config.getJdbcPwd());
             logger.info("Connected successfully");
@@ -230,7 +247,7 @@ public class SampleAdvApp
 
     /**
      * <PRE>
-     * Returns the correspondig DatabaseDriver for a given database provider / vendor
+     * Returns the corresponding DatabaseDriver for a given database provider / vendor
      * Valid Providers are "oracle", "sqlserver" and "hsqldb".
      * </PRE>
      */
@@ -299,7 +316,7 @@ public class SampleAdvApp
      */
     private static boolean databaseExists(Connection conn)
     {
-        // Check wether DB exists
+        // Check whether DB exists
         DBCommand cmd = db.createCommand();
         cmd.select(T_DEP.count());
         // Check using "select count(*) from DEPARTMENTS"
@@ -404,6 +421,56 @@ public class SampleAdvApp
         }
     }
 
+    /* This procedure demonstrates the use of command parameter for prepared statements */
+    private static void commandParamsSample(Connection conn, int idProdDep, int idDevDep)
+    {
+        // create a command
+        DBCommand cmd = db.createCommand();
+        // Create cmd parameters
+        DBCommandParam genderParam = cmd.addCmdParam(); // Gender ('M' or 'F')
+        DBCommandParam curDepParam = cmd.addCmdParam(); // Current Department
+        // Define the query
+        cmd.select(T_EMP.C_FULLNAME);
+        cmd.join  (T_EMP.C_EMPLOYEE_ID, db.V_EMPLOYEE_INFO.C_EMPLOYEE_ID);
+        cmd.where (T_EMP.C_GENDER.is(genderParam));
+        cmd.where (db.V_EMPLOYEE_INFO.C_CURRENT_DEP_ID.is(curDepParam));
+
+        System.out.println("Perfoming two queries using a the same command with different parameter values.");
+        
+        DBReader r = new DBReader();
+        try {
+            // Query all females currently working in the Production department
+            System.out.println("1. Query all females currently working in the production department");
+            // Set command parameter values
+            genderParam.setValue('F'); // set gender to female
+            curDepParam.setValue(idProdDep); // set department id to production department
+            // Open reader using a prepared statement (due to command parameters!)
+            r.open(cmd, conn);
+            // print all results
+            System.out.println("Females working in the production department are:");
+            while (r.moveNext())
+                System.out.println("    " + r.getString(T_EMP.C_FULLNAME));
+            r.close();   
+
+            // Second query
+            // Now query all males currently working in the development department
+            System.out.println("2. Query all males currently working in the development department");
+            // Set command parameter values
+            genderParam.setValue('M'); // set gender to female
+            curDepParam.setValue(idDevDep); // set department id to production department
+            // Open reader using a prepared statement (due to command parameters!)
+            r.open(cmd, conn);
+            // print all results
+            System.out.println("Males currently working in the development department are:");
+            while (r.moveNext())
+                System.out.println("    " + r.getString(T_EMP.C_FULLNAME));
+
+        } finally {
+            r.close();
+        }
+        
+    }
+
     /**
      * This function performs a query to select non-retired employees,<BR>
      * then it calculates a checksum for every record<BR>
@@ -466,7 +533,7 @@ public class SampleAdvApp
         }
         return sum;    
     }
-    
+	
     private static HashMap<Integer, DBRecord> bulkReadRecords(Connection conn)
     {
         // Define the query

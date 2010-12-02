@@ -123,7 +123,11 @@
 
 		<!-- Set this level to "debug" to log all SQL-Statements -->		
 		<logger name="org.apache.empire.db.DBDatabase" additivity="false">
-			<level value="info"/>
+			<level value="debug"/>
+			<appender-ref ref="default"/>
+		</logger>
+		<logger name="org.apache.empire.db.DBDatabaseDriver" additivity="false">
+			<level value="debug"/>
 			<appender-ref ref="default"/>
 		</logger>
 
