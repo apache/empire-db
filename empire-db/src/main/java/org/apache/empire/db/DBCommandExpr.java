@@ -303,6 +303,8 @@ public abstract class DBCommandExpr extends DBExpr
     public abstract boolean getSelect(StringBuilder buf);
 
     public abstract DBColumnExpr[] getSelectExprList();
+    
+    public abstract Object[] getCmdParams();
 
     public DBColumnExpr getCmdColumn(DBColumnExpr col)
     {

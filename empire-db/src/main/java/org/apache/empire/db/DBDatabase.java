@@ -80,6 +80,13 @@ public abstract class DBDatabase extends DBObject
     protected List<DBRelation> relations = new ArrayList<DBRelation>();
     protected List<DBView>     views     = new ArrayList<DBView>();
     protected DBDatabaseDriver driver    = null;
+    
+    /**   
+     * Property that indicates whether to always use usePreparedStatements (Default is false!)
+     * Note: This will only apply for update and insert commands as well as for read operations on a DBRecord.
+     * For custom SQL commands parameters must be explicitly declared using cmd.addCmdParam();   
+     */
+    private boolean preparedStatementsEnabled = false;
 
     /**
      * Constructs a new DBDatabase object set the variable 'schema' = null.
@@ -123,6 +130,29 @@ public abstract class DBDatabase extends DBObject
     public DBDatabaseDriver getDriver()
     {
         return driver;
+    }
+    
+    /**
+     * return whether prepared statements are preferred over normal statements (Default is false)
+     * Note: This will only apply for update and insert commands as well as for read operations on a DBRecord.
+     * For custom SQL commands parameters must be explicitly declared using cmd.addCmdParam();   
+     * @return true if prepared Statements are enabled or false if not
+     */
+    public boolean isPreparedStatementsEnabled()
+    {
+        return preparedStatementsEnabled;
+    }
+
+    /**
+     * enables or disables the use of prepared statements for update and insert commands as well as for read operations on a DBRecord.
+     * Note: For custom SQL commands parameters must be explicitly declared using cmd.addCmdParam();   
+     * @param preparedStatementsEnabled
+     */
+    public void setPreparedStatementsEnabled(boolean preparedStatementsEnabled)
+    {
+        this.preparedStatementsEnabled = preparedStatementsEnabled;
+        // log prepared statement 
+        log.info("PreparedStatementsEnabled is " + String.valueOf(preparedStatementsEnabled));
     }
 
     /**

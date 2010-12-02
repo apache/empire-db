@@ -406,14 +406,14 @@ public class DBReader extends DBRecordData
     {
         if (isOpen())
             close();
-        // SQL Commanand
+        // SQL Command
         String sqlCmd = cmd.getSelect();
-        // Create Statement and connection
+        // Create Statement
         db = cmd.getDatabase();
-        rset = db.executeQuery(sqlCmd, null, scrollable, conn);
+        rset = db.executeQuery(sqlCmd, cmd.getCmdParams(), scrollable, conn);
         if (rset==null)
             return error(db);
-        // sucessfully opened
+        // successfully opened
         colList = cmd.getSelectExprList();
         addOpenResultSet();
         return success();

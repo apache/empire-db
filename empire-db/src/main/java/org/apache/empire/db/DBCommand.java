@@ -43,12 +43,12 @@ import org.apache.empire.db.expr.set.DBSetExpr;
 public abstract class DBCommand extends DBCommandExpr
     implements Cloneable
 {
-    public static final class DBCmdParameter extends DBExpr
+    public static final class DBCommandParam extends DBExpr
     {
         protected DBCommand cmd;
         protected int index; 
         
-        protected DBCmdParameter(DBCommand cmd, int index)
+        protected DBCommandParam(DBCommand cmd, int index)
         {
             this.cmd   = cmd;
             this.index = index;
@@ -95,7 +95,7 @@ public abstract class DBCommand extends DBCommandExpr
     protected List<DBCompareExpr>    where          = null;
     protected List<DBCompareExpr>    having         = null;
     protected List<DBColumnExpr>     groupBy        = null;
-    // Params for prepared Statements
+    // Parameters for prepared Statements
     protected Vector<Object>         cmdParams      = null;
     // Database
     private DBDatabase               db;
@@ -223,6 +223,9 @@ public abstract class DBCommand extends DBCommandExpr
     
     protected boolean useCmdParam(DBColumn col)
     {
+        if (db.isPreparedStatementsEnabled())
+            return true;
+        // Only use a command param if column is of type BLOB or CLOB
         DataType dt = col.getDataType();
         return ( dt==DataType.BLOB || dt==DataType.CLOB );
     }
@@ -267,9 +270,9 @@ public abstract class DBCommand extends DBCommandExpr
             if (chk.column.equals(expr.column))
             { // Overwrite existing value
                 if (useCmdParam(expr.column) && (expr.value instanceof DBExpr) == false
-                    && chk.value instanceof DBCmdParameter)
+                    && chk.value instanceof DBCommandParam)
                 { // replace parameter
-                    int index = ((DBCmdParameter) chk.value).index;
+                    int index = ((DBCommandParam) chk.value).index;
                     this.setCmdParam(index, getCmdParamValue(expr.column, expr.value));
                 } 
                 else
@@ -328,25 +331,36 @@ public abstract class DBCommand extends DBCommandExpr
     }
 
     /**
-     * Adds an object to in the list of Parameters
-     * and returns a parameter object.
+     * Adds an command parameter which will be used in a prepared statement.
+     * The command parameter returned may be used to alter the value.
      * 
-     * @param item the parameter value 
+     * @param value the initial parameter value 
      * 
-     * @return the parameter object 
+     * @return the command parameter object 
      */
-    public DBCmdParameter addCmdParam(Object item)
+    public DBCommandParam addCmdParam(Object value)
     {
         if (cmdParams==null)
             cmdParams= new Vector<Object>();
         // Adds the parameter 
         int index = cmdParams.size(); 
-        if (cmdParams.add(item)==false)
+        if (cmdParams.add(value)==false)
             return null; // unknown error
         // Creates a Parameter expression
-        return new DBCmdParameter(this, index);
+        return new DBCommandParam(this, index);
     }
-    
+
+    /**
+     * Adds an command parameter which will be used in a prepared statement.
+     * The initial value of the command parameter is null but can be modified using the setValue method.
+     *  
+     * @return the command parameter object
+     */
+    public final DBCommandParam addCmdParam()
+    {
+        return addCmdParam(null);
+    }
+
     /**
      * Adds a join to the list of join expressions.
      * 
@@ -817,9 +831,9 @@ public abstract class DBCommand extends DBCommandExpr
     
     /**
      * Returns the list of parameter values for a prepared statement.
-     * 
      * @return the list of parameter values for a prepared statement 
      */
+    @Override
     public Object[] getCmdParams()
     {
         if (cmdParams==null)

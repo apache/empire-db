@@ -43,8 +43,8 @@ import org.apache.empire.data.DataType;
 
 
 /**
- *
- * 
+ * The DBDatabaseDriver class is an abstract base class for all database drivers.
+ * Its purpose is to handle everything that is - or might be - database vendor specific. 
  */
 public abstract class DBDatabaseDriver extends ErrorObject
 {
@@ -244,13 +244,13 @@ public abstract class DBDatabaseDriver extends ErrorObject
 
     /**
      * Returns whether or not a particular feature is supported by this driver
-     * @param type type of requrested feature. @see DBDriverFeature
+     * @param type type of requested feature. @see DBDriverFeature
      * @return true if the features is supported or false otherwise
      */
     public abstract boolean isSupported(DBDriverFeature type);
 
     /**
-     * Detects wether a table or column name needs to be quoted or not<BR/>
+     * Detects whether a table or column name needs to be quoted or not<BR/>
      * By default all reserved SQL keywords as well as names 
      * containing a "-", "/", "+" or " " require quoting.<BR/>
      * Overrides this function to add database specific keywords like "user" or "count"  
@@ -331,7 +331,7 @@ public abstract class DBDatabaseDriver extends ErrorObject
      * 
      * @param db the database
      * @param SeqName the name of the sequence
-     * @param minValue the minmum value of the sequence
+     * @param minValue the minimum value of the sequence
      * @param conn a valid database connection
      * @return a new unique sequence value or null if an error occurred
      */
@@ -388,16 +388,25 @@ public abstract class DBDatabaseDriver extends ErrorObject
                 // handling for blobs
                 DBBlobData blobData = (DBBlobData)sqlParams[i];
                 pstmt.setBinaryStream(i + 1, blobData.getInputStream(), blobData.getLength());
+                // log
+                if (log.isDebugEnabled())
+                    log.debug("Setting statement param " + String.valueOf(i) + " to BLOB data");
             }
             else if(sqlParams[i] instanceof DBClobData)
             {
                 // handling for clobs
                 DBClobData clobData = (DBClobData)sqlParams[i];
                 pstmt.setCharacterStream(i + 1, clobData.getReader(), clobData.getLength());
+                // log
+                if (log.isDebugEnabled())
+                    log.debug("Setting statement param " + String.valueOf(i) + " to CLOB data");
             }
             else
-            {
+            {   // simple parameter value 
                 pstmt.setObject(i + 1, sqlParams[i]);
+                // log
+                if (log.isDebugEnabled())
+                    log.debug("Setting statement param " + String.valueOf(i) + " to '" + String.valueOf(sqlParams[i])+ "'");
             }
         }
 	}
@@ -415,10 +424,10 @@ public abstract class DBDatabaseDriver extends ErrorObject
     
     /**
      * <P>
-     * Reads a sinlge column value from the given JDBC ResultSet and returns a value object of desired data type.<BR> 
+     * Reads a single column value from the given JDBC ResultSet and returns a value object of desired data type.<BR> 
      * See {@link DBExpr#getValueClass(DataType)} for java class type mapping.
      * <P>
-     * This gives the driver the oportunity to change the value
+     * This gives the driver the opportunity to change the value
      * i.e. to simulate missing data types with other types.
      * <P>
      * @param rset the sql Resultset with the current data row

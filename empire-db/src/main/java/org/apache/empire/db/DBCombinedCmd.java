@@ -91,6 +91,30 @@ public class DBCombinedCmd extends DBCommandExpr
       // DebugMsg(2, "Check: getSelectExprList() for DBCombinedCmd");
       return left.getSelectExprList();
    }
+   
+   /**
+    * Returns the list of parameter values for a prepared statement.
+    * @return the list of parameter values for a prepared statement 
+    */
+   @Override
+   public Object[] getCmdParams()
+   {
+       Object[] leftParams  = left.getCmdParams();
+       Object[] rightParams = right.getCmdParams();
+       // Check
+       if (leftParams==null)
+           return rightParams;
+       if (rightParams==null)
+           return leftParams;
+       // Put them all together
+       Object[] allParams = new Object[leftParams.length+rightParams.length];
+       for (int i=0; i<leftParams.length; i++)
+           allParams[i]=leftParams[i];
+       for (int i=0; i<rightParams.length; i++)
+           allParams[leftParams.length+i]=rightParams[i];
+       // return Params
+       return allParams;
+   }
 
   /**
    * Creates the SQL-Command.
