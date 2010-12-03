@@ -445,12 +445,13 @@ public class DBTable extends DBRowSet implements Cloneable
         
         // Build SQL-Statement
         DBCommand cmd = db.createCommand();
-        for (int i = 0; i < key.length; i++)
-            cmd.where(keyColumns[i].is(key[i]));
+        // Set key constraints
+        if (!setKeyConstraints(cmd, key))
+        	return false;
 
         // Perform delete
         String sqlCmd = cmd.getDelete(this);
-        int affected  = db.executeSQL(sqlCmd, null, conn);
+        int affected  = db.executeSQL(sqlCmd, cmd.getCmdParamValues(), conn);
         if (affected < 0)
         { // Delete Failed
             return error(db);

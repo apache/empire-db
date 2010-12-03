@@ -26,6 +26,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.Vector;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.empire.EmpireException;
 import org.apache.empire.commons.Errors;
 import org.apache.empire.data.DataType;
@@ -105,6 +107,11 @@ public abstract class DBCommand extends DBCommandExpr
             return cmd.getDatabase();
         }
         
+        public DataType getDataType()
+        {
+        	return type;
+        }
+        
         public Object getValue()
         {
             return value;
@@ -115,7 +122,10 @@ public abstract class DBCommand extends DBCommandExpr
             this.value = getCmdParamValue(value);
         }
     }
-    
+
+    // Logger
+    @SuppressWarnings("hiding")
+    protected static final Log log = LogFactory.getLog(DBCommand.class);
     // Distinct Select
     protected boolean                selectDistinct = false;
     // Lists
@@ -141,11 +151,18 @@ public abstract class DBCommand extends DBCommandExpr
         this.db = db;
     }
 
+    /**
+     * internally used to reset the command param usage count.
+     * Note: Only one thread my generate an SQL statement 
+     */
     private void resetParamUsage()
     {
         paramUsageCount = 0;
     }
     
+    /**
+     * internally used to reorder the command params to match their order of occurance
+     */
     private synchronized void notifyParamUsage(DBCommandParam param)
     {
         int index = cmdParams.indexOf(param);
@@ -162,6 +179,32 @@ public abstract class DBCommand extends DBCommandExpr
         }
         paramUsageCount++;
     }
+
+    /**
+     * internally used to remove the command param used in a constraint
+     */
+   	private void removeCommandParam(DBCompareColExpr cmp) 
+   	{
+        if (cmdParams!=null && (cmp.getValue() instanceof DBCommandParam))
+   			cmdParams.remove(cmp.getValue());
+   	}
+
+    /**
+     * internally used to remove all command params used in a list of constraints
+     */
+   	private void removeAllCommandParams(List<DBCompareExpr> list)
+    {
+        if (cmdParams == null)
+        	return;
+        for(DBCompareExpr cmp : list)
+        {	// Check whether it is a compare column expr.
+            if (!(cmp instanceof DBCompareColExpr))
+            	continue;
+            // Check the value is a DBCommandParam
+        	removeCommandParam((DBCompareColExpr)cmp);
+        }
+    }
+   	
     
     /**
      * Creates a clone of this class.
@@ -376,26 +419,11 @@ public abstract class DBCommand extends DBCommandExpr
      * Adds an command parameter which will be used in a prepared statement.
      * The initial value of the command parameter is null but can be modified using the setValue method.
      *  
-     * @param colExpr the column expression for which to create the parameter
-     * 
-     * @return the command parameter object 
+     * @return the command parameter object
      */
-    public final DBCommandParam addCmdParam(DBColumnExpr colExpr)
+    public final DBCommandParam addCmdParam(Object value)
     {
-        return addCmdParam(colExpr.getDataType(), null);
-    }
-    
-    /**
-     * Adds an command parameter which will be used in a prepared statement.
-     * The initial value of the command parameter is null but can be modified using the setValue method.
-     *  
-     * @param type the data type of the parameter
-     * 
-     * @return the command parameter object 
-     */
-    public final DBCommandParam addCmdParam(DataType type)
-    {
-        return addCmdParam(type, null);
+        return addCmdParam(DataType.UNKNOWN, value);
     }
 
     /**
@@ -746,6 +774,7 @@ public abstract class DBCommand extends DBCommandExpr
      */
     public void clearWhere()
     {
+    	removeAllCommandParams(where);
         where = null;
     }
 
@@ -754,6 +783,7 @@ public abstract class DBCommand extends DBCommandExpr
      */
     public void clearHaving()
     {
+    	removeAllCommandParams(having);
         having = null;
     }
 
@@ -770,6 +800,7 @@ public abstract class DBCommand extends DBCommandExpr
      */
     public void clear()
     {
+        cmdParams = null;
         clearSelectDistinct();
         clearSelect();
         clearSet();
@@ -779,7 +810,7 @@ public abstract class DBCommand extends DBCommandExpr
         clearGroupBy();
         clearOrderBy();
         clearLimit();
-        cmdParams = null;
+        resetParamUsage();
     }
 
     /**
@@ -794,6 +825,9 @@ public abstract class DBCommand extends DBCommandExpr
         	DBCompareExpr other = list.get(i);
             if (expr.isMutuallyExclusive(other)==false)
                 continue;
+            // Check if we replace a DBCommandParam
+            if (other instanceof DBCompareColExpr)
+            	removeCommandParam((DBCompareColExpr)other);
             // columns match
             list.set(i, expr);
             return;
@@ -819,13 +853,15 @@ public abstract class DBCommand extends DBCommandExpr
             DBColumnExpr c = ((DBCompareColExpr)cmp).getColumnExpr();
             DBColumn udc = c.getUpdateColumn();
             if (c.equals(col) || (udc!=null && udc.equals(col.getUpdateColumn())))
-            {	// found the column
+            {   // Check if we replace a DBCommandParam
+            	removeCommandParam((DBCompareColExpr)cmp);
+            	// remove the constraint
             	list.remove(cmp);
             	return;
             }
         }
     }
-
+    
     /**
      * Gets a list of all tables referenced by the query.
      *  
@@ -887,7 +923,11 @@ public abstract class DBCommand extends DBCommandExpr
     {
         if (cmdParams==null || cmdParams.size()==0)
             return null;
-        // return Params
+        // Check whether all parameters have been used
+        if (paramUsageCount>0 && paramUsageCount!=cmdParams.size())
+	        log.warn("DBCommand parameter count ("+String.valueOf(cmdParams.size())
+	        	   + ") does not match parameter use count ("+String.valueOf(paramUsageCount)+")");
+        // Create result array
         Object[] values = new Object[cmdParams.size()];
         for (int i=0; i<values.length; i++)
             values[i]=cmdParams.get(i).getValue();

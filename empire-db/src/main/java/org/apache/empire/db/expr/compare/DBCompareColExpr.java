@@ -100,7 +100,7 @@ public class DBCompareColExpr extends DBCompareExpr
 
     /**
      * The value to compare the column expression with
-     * @param value the comparision value 
+     * @param value the comparison value 
      */
     public void setValue(Object value)
     {
@@ -238,7 +238,7 @@ public class DBCompareColExpr extends DBCompareExpr
     }
 
     /**
-     * Returns wheter the constraint should replace another one or not.
+     * Returns whether the constraint should replace another one or not.
      * 
      * @return true it the constraints are mutually exclusive or false otherwise
      */

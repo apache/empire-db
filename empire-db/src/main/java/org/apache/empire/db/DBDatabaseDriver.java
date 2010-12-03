@@ -391,7 +391,7 @@ public abstract class DBDatabaseDriver extends ErrorObject
                 pstmt.setBinaryStream(i + 1, blobData.getInputStream(), blobData.getLength());
                 // log
                 if (log.isDebugEnabled())
-                    log.debug("Setting statement param " + String.valueOf(i) + " to BLOB data");
+                    log.debug("Statement param " + String.valueOf(i+1) + " set to BLOB data");
             }
             else if(value instanceof DBClobData)
             {
@@ -400,14 +400,14 @@ public abstract class DBDatabaseDriver extends ErrorObject
                 pstmt.setCharacterStream(i + 1, clobData.getReader(), clobData.getLength());
                 // log
                 if (log.isDebugEnabled())
-                    log.debug("Setting statement param " + String.valueOf(i) + " to CLOB data");
+                    log.debug("Statement param " + String.valueOf(i+1) + " set to CLOB data");
             }
             else
             {   // simple parameter value 
                 pstmt.setObject(i + 1, value);
                 // log
                 if (log.isDebugEnabled())
-                    log.debug("Setting statement param " + String.valueOf(i) + " to '" + String.valueOf(value)+ "'");
+                    log.debug("Statement param " + String.valueOf(i+1) + " set to '" + String.valueOf(value)+ "'");
             }
         }
 	}

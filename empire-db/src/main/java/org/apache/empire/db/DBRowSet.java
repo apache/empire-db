@@ -493,6 +493,32 @@ public abstract class DBRowSet extends DBExpr
     }
     
     /**
+     * Set the constraints for a single record from a supplied key 
+     * @param cmd the command to which to add the constraints
+     * @param key the record key
+     * @return true if the constraints have been successfully set or false otherwise
+     */
+    protected boolean setKeyConstraints(DBCommand cmd, Object[] key)
+    {
+        // Check Primary key
+        if (primaryKey == null ) 
+            return error(DBErrors.NoPrimaryKey, getName()); // Invalid Argument
+        // Check Columns
+        DBColumn[] keyColumns = primaryKey.getColumns();
+        if (key == null || key.length != keyColumns.length)
+            return error(DBErrors.RecordInvalidKey, key); // Invalid Argument
+        // Add the key constraints
+        for (int i = 0; i < key.length; i++)
+        {   // Set key column constraint
+            Object value = key[i];
+            if (db.isPreparedStatementsEnabled())
+                value = cmd.addCmdParam(keyColumns[i], value);
+            cmd.where(keyColumns[i].is(value));
+        }    
+        return true;
+    }
+    
+    /**
      * Reads the record with the given primary key from the database.
      * <P>
      * @param rec the DBRecord object which will hold the record data
@@ -505,23 +531,12 @@ public abstract class DBRowSet extends DBExpr
         // Check Arguments
         if (conn == null || rec == null)
             return error(Errors.InvalidArg, null, "conn|rec");
-        // Check Primary key
-        if (primaryKey == null ) 
-            return error(DBErrors.NoPrimaryKey, getName()); // Invalid Argument
-        // Check Columns
-        DBColumn[] keyColumns = primaryKey.getColumns();
-        if (key == null || key.length != keyColumns.length)
-            return error(DBErrors.RecordInvalidKey, key); // Invalid Argument
         // Select
         DBCommand cmd = db.createCommand();
         cmd.select(columns);
-        for (int i = 0; i < key.length; i++)
-        {   // Set key column constraint
-            Object value = key[i];
-            if (db.isPreparedStatementsEnabled())
-                value = cmd.addCmdParam(keyColumns[i], value);
-            cmd.where(keyColumns[i].is(value));
-        }    
+        // Set key constraints
+        if (!setKeyConstraints(cmd, key))
+        	return false;
         // Read Record
         if (!readRecord(rec, cmd, conn))
         {   // Record not found
@@ -546,18 +561,12 @@ public abstract class DBRowSet extends DBExpr
         // Check Arguments
         if (conn == null)
             return error(Errors.InvalidArg, conn, "conn");
-        // Check Primary key
-        if (primaryKey == null ) 
-            return error(DBErrors.NoPrimaryKey, getName()); // Invalid Argument
-        // Check Columns
-        DBColumn[] keyColumns = primaryKey.getColumns();
-        if (key == null || key.length != keyColumns.length)
-            return error(DBErrors.RecordInvalidKey, key); // Invalid Argument
         // Select
         DBCommand cmd = db.createCommand();
         cmd.select(count());
-        for (int i = 0; i < key.length; i++)
-            cmd.where(keyColumns[i].is(key[i]));
+        // Set key constraints
+        if (!setKeyConstraints(cmd, key))
+        	return false;
         // check exits
         return (db.querySingleInt(cmd.getSelect(), conn)==1);
     }

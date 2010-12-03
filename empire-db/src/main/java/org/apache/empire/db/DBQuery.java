@@ -28,6 +28,7 @@ import org.apache.empire.commons.Errors;
 import org.apache.empire.commons.ObjectUtils;
 import org.apache.empire.commons.Options;
 import org.apache.empire.data.DataType;
+import org.apache.empire.db.DBCommand.DBCommandParam;
 import org.apache.empire.db.expr.compare.DBCompareColExpr;
 import org.apache.empire.db.expr.compare.DBCompareExpr;
 import org.apache.empire.db.expr.join.DBJoinExpr;
@@ -456,14 +457,23 @@ public class DBQuery extends DBRowSet
             {
                 DBCompareExpr cmp = cmd.where.get(i);
                 if (cmp instanceof DBCompareColExpr)
-                { // Check whether
+                { 	// Check whether constraint belongs to update table
                     DBCompareColExpr cmpExpr = (DBCompareColExpr) cmp;
                     DBColumn col = cmpExpr.getColumnExpr().getUpdateColumn();
                     if (col!=null && col.getRowSet() == table)
+                    {	// add the constraint
+                    	if (cmpExpr.getValue() instanceof DBCommandParam)
+                    	{	// Create a new command param
+                    		DBColumnExpr colExpr = cmpExpr.getColumnExpr();
+                    		DBCommandParam param =(DBCommandParam)cmpExpr.getValue(); 
+                    		DBCommandParam value = upd.addCmdParam(colExpr, param.getValue());
+                    		cmp = new DBCompareColExpr(colExpr, cmpExpr.getCmpop(), value);
+                    	}
                         upd.where(cmp);
+                    }    
                 } 
                 else
-                { // other constraints are not supported
+                {	// other constraints are not supported
                     return error(Errors.NotSupported, "updateRecord");
                 }
             }
