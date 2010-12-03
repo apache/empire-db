@@ -97,10 +97,10 @@ public class DBCombinedCmd extends DBCommandExpr
     * @return the list of parameter values for a prepared statement 
     */
    @Override
-   public Object[] getCmdParams()
+   public Object[] getCmdParamValues()
    {
-       Object[] leftParams  = left.getCmdParams();
-       Object[] rightParams = right.getCmdParams();
+       Object[] leftParams  = left.getCmdParamValues();
+       Object[] rightParams = right.getCmdParamValues();
        // Check
        if (leftParams==null)
            return rightParams;

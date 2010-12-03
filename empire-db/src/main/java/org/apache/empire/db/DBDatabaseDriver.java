@@ -383,19 +383,20 @@ public abstract class DBDatabaseDriver extends ErrorObject
 	{
         for (int i=0; i<sqlParams.length; i++)
         {
-            if(sqlParams[i] instanceof DBBlobData)
+            Object value = sqlParams[i];
+            if (value instanceof DBBlobData)
             {
                 // handling for blobs
-                DBBlobData blobData = (DBBlobData)sqlParams[i];
+                DBBlobData blobData = (DBBlobData)value;
                 pstmt.setBinaryStream(i + 1, blobData.getInputStream(), blobData.getLength());
                 // log
                 if (log.isDebugEnabled())
                     log.debug("Setting statement param " + String.valueOf(i) + " to BLOB data");
             }
-            else if(sqlParams[i] instanceof DBClobData)
+            else if(value instanceof DBClobData)
             {
                 // handling for clobs
-                DBClobData clobData = (DBClobData)sqlParams[i];
+                DBClobData clobData = (DBClobData)value;
                 pstmt.setCharacterStream(i + 1, clobData.getReader(), clobData.getLength());
                 // log
                 if (log.isDebugEnabled())
@@ -403,10 +404,10 @@ public abstract class DBDatabaseDriver extends ErrorObject
             }
             else
             {   // simple parameter value 
-                pstmt.setObject(i + 1, sqlParams[i]);
+                pstmt.setObject(i + 1, value);
                 // log
                 if (log.isDebugEnabled())
-                    log.debug("Setting statement param " + String.valueOf(i) + " to '" + String.valueOf(sqlParams[i])+ "'");
+                    log.debug("Setting statement param " + String.valueOf(i) + " to '" + String.valueOf(value)+ "'");
             }
         }
 	}

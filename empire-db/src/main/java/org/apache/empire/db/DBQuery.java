@@ -355,7 +355,12 @@ public class DBQuery extends DBRowSet
             return error(DBErrors.RecordInvalidKey, key);
         // Select
         for (int i = 0; i < keyColumns.length; i++)
-            cmd.where(keyColumns[i].is(key[i]));
+        {   // Set key column constraint
+            Object value = key[i];
+            if (db.isPreparedStatementsEnabled())
+                value = cmd.addCmdParam(keyColumns[i], value);
+            cmd.where(keyColumns[i].is(value));
+        }    
         // Read Record
         if (!readRecord(rec, cmd, conn))
         { // Record not found
@@ -464,8 +469,15 @@ public class DBQuery extends DBRowSet
             }
             // Add Restrictions
             for (i = 0; i < keyColumns.length; i++)
+            {
                 if (keyColumns[i].getRowSet() == table)
-                    upd.where(keyColumns[i].is(keys[i]));
+                {   // Set key column constraint
+                    Object value = keys[i];
+                    if (db.isPreparedStatementsEnabled())
+                        value = upd.addCmdParam(keyColumns[i], value);
+                    upd.where(keyColumns[i].is(value));
+                }
+            }    
 
             // Set Update Timestamp
             int timestampIndex = -1;
@@ -479,7 +491,11 @@ public class DBQuery extends DBRowSet
                     timestampValue = db.getUpdateTimestamp(conn); 
                     Object lastTS = fields[timestampIndex];
                     if (ObjectUtils.isEmpty(lastTS)==false)
+                    {   // set timestamp constraint
+                        if (db.isPreparedStatementsEnabled())
+                            lastTS = upd.addCmdParam(tsColumn, lastTS);
                         upd.where(tsColumn.is(lastTS));
+                    }    
                     // Set new Timestamp
                     upd.set(tsColumn.to(timestampValue));
                 }
@@ -490,7 +506,7 @@ public class DBQuery extends DBRowSet
             }
             
             // Execute SQL
-            int affected = db.executeSQL(upd.getUpdate(), upd.getCmdParams(), conn);
+            int affected = db.executeSQL(upd.getUpdate(), upd.getCmdParamValues(), conn);
             if (affected <= 0)
             {   // Error
                 if (affected == 0)
@@ -524,7 +540,7 @@ public class DBQuery extends DBRowSet
      * Adds join restrictions to the supplied command object.
      */
     protected boolean addJoinRestriction(DBCommand upd, DBColumn updCol, DBColumn keyCol, DBColumn[] keyColumns, DBRecord rec)
-    {   // Find key for forein field
+    {   // Find key for foreign field
         Object rowsetData = rec.getRowSetData();
         for (int i = 0; i < keyColumns.length; i++)
             if (keyColumns[i]==keyCol && rowsetData!=null)
@@ -532,7 +548,7 @@ public class DBQuery extends DBRowSet
                 upd.where(updCol.is(((Object[]) rowsetData)[i]));
                 return true;
             }
-        // Not found, what about the reocrd
+        // Not found, what about the record
         int index = this.getColumnIndex(updCol);
         if (index<0)
             index = this.getColumnIndex(keyCol);

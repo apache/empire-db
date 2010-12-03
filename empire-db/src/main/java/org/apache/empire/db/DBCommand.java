@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.Vector;
 
+import org.apache.empire.EmpireException;
 import org.apache.empire.commons.Errors;
 import org.apache.empire.data.DataType;
 import org.apache.empire.db.expr.compare.DBCompareColExpr;
@@ -46,18 +47,47 @@ public abstract class DBCommand extends DBCommandExpr
     public static final class DBCommandParam extends DBExpr
     {
         protected DBCommand cmd;
-        protected int index; 
+        protected DataType  type;
+        protected Object    value;
         
-        protected DBCommandParam(DBCommand cmd, int index)
+        protected DBCommandParam(DBCommand cmd, DataType type, Object value)
         {
-            this.cmd   = cmd;
-            this.index = index;
+            this.cmd = cmd;
+            this.type = type;
+            this.value = getCmdParamValue(value);
+        }
+        
+        protected Object getCmdParamValue(Object value)
+        {        
+            switch (type)
+            {
+                case BLOB:
+                    if (value == null)
+                        return null;
+                    if (value instanceof DBBlobData)
+                        return value;
+                    if (value instanceof byte[])
+                        return new DBBlobData((byte[])value);
+                    // create a blob data
+                    return new DBBlobData(value.toString());
+                case CLOB:
+                    if (value == null)
+                        return null;
+                    if (value instanceof DBClobData)
+                        return value;
+                    // create a clob data
+                    return new DBClobData(value.toString());
+                default:
+                    return value;
+            }
         }
         
         @Override
         public void addSQL(StringBuilder buf, long context)
         {
             buf.append("?"); //$NON-NLS-1$
+            // Move to current usage position
+            cmd.notifyParamUsage(this);
         }
         
         /**
@@ -77,12 +107,12 @@ public abstract class DBCommand extends DBCommandExpr
         
         public Object getValue()
         {
-            return cmd.cmdParams.get(index);
+            return value;
         }
         
         public void setValue(Object value)
         {
-            cmd.cmdParams.set(index, value);
+            this.value = getCmdParamValue(value);
         }
     }
     
@@ -96,7 +126,8 @@ public abstract class DBCommand extends DBCommandExpr
     protected List<DBCompareExpr>    having         = null;
     protected List<DBColumnExpr>     groupBy        = null;
     // Parameters for prepared Statements
-    protected Vector<Object>         cmdParams      = null;
+    protected Vector<DBCommandParam> cmdParams      = null;
+    protected int                    paramUsageCount= 0;
     // Database
     private DBDatabase               db;
 
@@ -110,6 +141,28 @@ public abstract class DBCommand extends DBCommandExpr
         this.db = db;
     }
 
+    private void resetParamUsage()
+    {
+        paramUsageCount = 0;
+    }
+    
+    private synchronized void notifyParamUsage(DBCommandParam param)
+    {
+        int index = cmdParams.indexOf(param);
+        if (index < paramUsageCount)
+        {   // Error: parameter probably used twice in statement!
+            String msg = "A parameter may only be used once in a command.";
+            error(Errors.Internal, msg);
+            throw new EmpireException(this);
+        }
+        if (index > paramUsageCount)
+        {   // Correct parameter order
+            cmdParams.remove(index);
+            cmdParams.insertElementAt(param, paramUsageCount);
+        }
+        paramUsageCount++;
+    }
+    
     /**
      * Creates a clone of this class.
      */
@@ -229,31 +282,6 @@ public abstract class DBCommand extends DBCommandExpr
         DataType dt = col.getDataType();
         return ( dt==DataType.BLOB || dt==DataType.CLOB );
     }
-    
-    protected Object getCmdParamValue(DBColumn col, Object value)
-    {        
-        switch (col.getDataType())
-        {
-            case BLOB:
-                if (value == null)
-                    return null;
-                if (value instanceof DBBlobData)
-                    return value;
-                if (value instanceof byte[])
-                	return new DBBlobData((byte[])value);
-                // create a blob data
-                return new DBBlobData(value.toString());
-            case CLOB:
-                if (value == null)
-                    return null;
-                if (value instanceof DBClobData)
-                    return value;
-                // create a clob data
-                return new DBClobData(value.toString());
-            default:
-                return value;
-        }
-    }
 
     /**
      * Inserts DBSetExpr objects to the Vector 'set'.
@@ -271,9 +299,10 @@ public abstract class DBCommand extends DBCommandExpr
             { // Overwrite existing value
                 if (useCmdParam(expr.column) && (expr.value instanceof DBExpr) == false
                     && chk.value instanceof DBCommandParam)
-                { // replace parameter
-                    int index = ((DBCommandParam) chk.value).index;
-                    this.setCmdParam(index, getCmdParamValue(expr.column, expr.value));
+                {   // replace parameter value
+                    // int index = ((DBCommandParam) chk.value).index;
+                    // this.setCmdParam(index, getCmdParamValue(expr.column, expr.value));
+                    ((DBCommandParam)chk.value).setValue(expr.value);
                 } 
                 else
                 { // replace value
@@ -284,7 +313,7 @@ public abstract class DBCommand extends DBCommandExpr
         }
         // Replace with parameter 
         if (useCmdParam(expr.column) && (expr.value instanceof DBExpr)==false)
-            expr.value = addCmdParam(getCmdParamValue(expr.column, expr.value));
+            expr.value = addCmdParam(expr.column.getDataType(), expr.value);
         // new Value!
         set.add(expr);
     }
@@ -309,45 +338,64 @@ public abstract class DBCommand extends DBCommandExpr
     }
 
     /**
-     * Sets a object to in the list of Parameters.
-     * 
-     * @param index the parameter index
-     * @param item the parameter value
-     * 
-     * @return true on succes
-     */
-    public boolean setCmdParam(int index, Object item)
-    {
-        if (index<0 || index>999)
-            return error(Errors.InvalidArg, index, "index");
-        if (cmdParams==null)
-            cmdParams= new Vector<Object>();
-        if (index>=cmdParams.size())
-        {	// extend the parameter list
-            cmdParams.setSize(index+1);
-        }
-        cmdParams.set(index, item);
-        return success();
-    }
-
-    /**
      * Adds an command parameter which will be used in a prepared statement.
      * The command parameter returned may be used to alter the value.
      * 
+     * @param type the data type of the parameter
      * @param value the initial parameter value 
      * 
      * @return the command parameter object 
      */
-    public DBCommandParam addCmdParam(Object value)
+    public DBCommandParam addCmdParam(DataType type, Object value)
     {
         if (cmdParams==null)
-            cmdParams= new Vector<Object>();
+            cmdParams= new Vector<DBCommandParam>();
         // Adds the parameter 
-        int index = cmdParams.size(); 
-        if (cmdParams.add(value)==false)
+        DBCommandParam param = new DBCommandParam(this, type, value);
+        if (cmdParams.add(param)==false)
             return null; // unknown error
         // Creates a Parameter expression
-        return new DBCommandParam(this, index);
+        return param;
+    }
+
+    /**
+     * Adds an command parameter which will be used in a prepared statement.
+     * The initial value of the command parameter is null but can be modified using the setValue method.
+     *  
+     * @param colExpr the column expression for which to create the parameter
+     * @param value the initial parameter value 
+     * 
+     * @return the command parameter object 
+     */
+    public final DBCommandParam addCmdParam(DBColumnExpr colExpr, Object value)
+    {
+        return addCmdParam(colExpr.getDataType(), value);
+    }
+
+    /**
+     * Adds an command parameter which will be used in a prepared statement.
+     * The initial value of the command parameter is null but can be modified using the setValue method.
+     *  
+     * @param colExpr the column expression for which to create the parameter
+     * 
+     * @return the command parameter object 
+     */
+    public final DBCommandParam addCmdParam(DBColumnExpr colExpr)
+    {
+        return addCmdParam(colExpr.getDataType(), null);
+    }
+    
+    /**
+     * Adds an command parameter which will be used in a prepared statement.
+     * The initial value of the command parameter is null but can be modified using the setValue method.
+     *  
+     * @param type the data type of the parameter
+     * 
+     * @return the command parameter object 
+     */
+    public final DBCommandParam addCmdParam(DataType type)
+    {
+        return addCmdParam(type, null);
     }
 
     /**
@@ -358,7 +406,7 @@ public abstract class DBCommand extends DBCommandExpr
      */
     public final DBCommandParam addCmdParam()
     {
-        return addCmdParam(null);
+        return addCmdParam(DataType.UNKNOWN, null);
     }
 
     /**
@@ -622,8 +670,9 @@ public abstract class DBCommand extends DBCommandExpr
     }
     
     @Override
-    public boolean getSelect(StringBuilder buf)
+    public synchronized boolean getSelect(StringBuilder buf)
     {
+        resetParamUsage();
         if (select == null)
             return error(Errors.ObjectNotValid, getClass().getName()); // invalid!
         // Prepares statement
@@ -834,12 +883,16 @@ public abstract class DBCommand extends DBCommandExpr
      * @return the list of parameter values for a prepared statement 
      */
     @Override
-    public Object[] getCmdParams()
+    public Object[] getCmdParamValues()
     {
-        if (cmdParams==null)
+        if (cmdParams==null || cmdParams.size()==0)
             return null;
         // return Params
-        return cmdParams.toArray();
+        Object[] values = new Object[cmdParams.size()];
+        for (int i=0; i<values.length; i++)
+            values[i]=cmdParams.get(i).getValue();
+        // values
+        return values;
     }
 
     /**
@@ -847,8 +900,9 @@ public abstract class DBCommand extends DBCommandExpr
      * 
      * @return the update SQL-Command
      */
-    public String getUpdate()
+    public synchronized String getUpdate()
     {
+        resetParamUsage();
         if (set == null)
             return null;
         StringBuilder buf = new StringBuilder("UPDATE ");
@@ -874,8 +928,9 @@ public abstract class DBCommand extends DBCommandExpr
      * @return the insert SQL-Command
      */
     // get Insert
-    public String getInsert()
+    public synchronized String getInsert()
     {
+        resetParamUsage();
         if (set==null || set.get(0)==null)
             return null;
         StringBuilder buf = new StringBuilder("INSERT INTO ");
@@ -932,8 +987,9 @@ public abstract class DBCommand extends DBCommandExpr
      * 
      * @return the delete SQL-Command
      */
-    public String getDelete(DBTable table)
+    public synchronized String getDelete(DBTable table)
     {
+        resetParamUsage();
         StringBuilder buf = new StringBuilder("DELETE FROM ");
         table.addSQL(buf, CTX_FULLNAME);
         // Set Expressions

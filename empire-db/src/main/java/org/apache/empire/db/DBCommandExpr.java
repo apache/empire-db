@@ -294,7 +294,7 @@ public abstract class DBCommandExpr extends DBExpr
     /** Constructs an empty DBCommandExpr object */
     public DBCommandExpr()
     {
-        // Default Construtor
+        // Default Constructor
     }
 
     // get Select SQL
@@ -304,7 +304,7 @@ public abstract class DBCommandExpr extends DBExpr
 
     public abstract DBColumnExpr[] getSelectExprList();
     
-    public abstract Object[] getCmdParams();
+    public abstract Object[] getCmdParamValues();
 
     public DBColumnExpr getCmdColumn(DBColumnExpr col)
     {

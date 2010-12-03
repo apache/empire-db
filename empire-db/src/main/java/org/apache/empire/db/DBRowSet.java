@@ -516,7 +516,12 @@ public abstract class DBRowSet extends DBExpr
         DBCommand cmd = db.createCommand();
         cmd.select(columns);
         for (int i = 0; i < key.length; i++)
-            cmd.where(keyColumns[i].is(key[i]));
+        {   // Set key column constraint
+            Object value = key[i];
+            if (db.isPreparedStatementsEnabled())
+                value = cmd.addCmdParam(keyColumns[i], value);
+            cmd.where(keyColumns[i].is(value));
+        }    
         // Read Record
         if (!readRecord(rec, cmd, conn))
         {   // Record not found
@@ -618,14 +623,22 @@ public abstract class DBRowSet extends DBExpr
                         { // Requires a primary key
                             log.warn("updateRecord: " + name + " primary has been modified!");
                         }
+                        // set pk constraint
+                        if (db.isPreparedStatementsEnabled())
+                            value = cmd.addCmdParam(col, value);
                         cmd.where(col.is(value));
                     } 
                     else if (timestampColumn == col)
-                    { // Check the update Time Stamp
-                    	if (empty==false)
+                    {   // Check the update-timestamp
+                    	if (empty==false) 
+                    	{   // set timestamp constraint
+                            if (db.isPreparedStatementsEnabled())
+                                value = cmd.addCmdParam(col, value);
 	                        cmd.where(col.is(value));
-                    	else if (log.isDebugEnabled())
+                    	}    
+                    	else if (log.isDebugEnabled()) {
                     		log.debug("updateRecord has no value for timestamp column. Concurrent changes will not be detected.");
+                    	}	
                         cmd.set(col.to(timestamp));
                     } 
                     else if (modified && value!=ObjectUtils.NO_VALUE)
@@ -698,7 +711,7 @@ public abstract class DBRowSet extends DBExpr
             return success();
         }
         // Perform action
-        int affected = db.executeSQL(sql, cmd.getCmdParams(), conn, setGenKey);
+        int affected = db.executeSQL(sql, cmd.getCmdParamValues(), conn, setGenKey);
         if (affected < 0)
         { // Update Failed
             return error(db);
