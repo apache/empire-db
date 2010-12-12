@@ -35,8 +35,7 @@ import org.junit.Rule;
 import org.junit.Test;
 
 
-public class DBDatabaseDriverHSqlTest
-{;
+public class DBDatabaseDriverHSqlTest{
  
     @Rule
     public HsqldbResource hsqldb = new HsqldbResource();
