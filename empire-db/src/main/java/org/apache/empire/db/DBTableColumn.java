@@ -276,7 +276,7 @@ public class DBTableColumn extends DBColumn
     {
         // Check for NULL
         if (isRequired() && (value == null || value.toString().length() < 1))
-            return error(DBErrors.FieldNotNull, getTitle());
+            return error(DBErrors.FieldNotNull, getName());
         // Is value valid
         switch (type)
         {
@@ -292,7 +292,7 @@ public class DBTableColumn extends DBColumn
                         // OK
                     } catch (ParseException e)
                     {   // Error
-                        log.error("checkValue exception: " + e.toString() + " column=" + getTitle() + " value=" + String.valueOf(value));
+                        log.error("checkValue exception: " + e.toString() + " column=" + getName() + " value=" + String.valueOf(value));
                         return error(DBErrors.FieldInvalidDateFormat, getName());
                     }
                 }    
@@ -309,7 +309,7 @@ public class DBTableColumn extends DBColumn
                         // thows NumberFormatException if not a number!
                     } catch (NumberFormatException nfe)
                     {
-                        log.error("checkValue exception: " + nfe.toString() + " column=" + getTitle() + " value=" + String.valueOf(value));
+                        log.error("checkValue exception: " + nfe.toString() + " column=" + getName() + " value=" + String.valueOf(value));
                         return error(DBErrors.FieldNotNumeric, getName());
                     }
                 }
@@ -325,7 +325,7 @@ public class DBTableColumn extends DBColumn
                         // throws NumberFormatException if not an integer!
                     } catch (NumberFormatException nfe)
                     {
-                        log.error("checkValue exception: " + nfe.toString() + " column=" + getTitle() + " value=" + String.valueOf(value));
+                        log.error("checkValue exception: " + nfe.toString() + " column=" + getName() + " value=" + String.valueOf(value));
                         return error(DBErrors.FieldNotNumeric, getName());
                     }
                 }
