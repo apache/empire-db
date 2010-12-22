@@ -700,11 +700,11 @@ public abstract class DBRowSet extends DBExpr
                     }
                     else if (primaryKey!=null && primaryKey.contains(col))
                     {   // All primary key fields must be supplied
-                        return error(DBErrors.FieldNotNull, col.getTitle());
+                        return error(DBErrors.FieldNotNull, col.getName());
                     }
                     else if (col.isRequired())
                     {   // Error Column is required!
-                        return error(DBErrors.FieldNotNull, col.getTitle());
+                        return error(DBErrors.FieldNotNull, col.getName());
                     }
                 }
                 sql = cmd.getInsert();
