@@ -512,7 +512,7 @@ public abstract class DBRowSet extends DBExpr
         {   // Set key column constraint
             Object value = key[i];
             if (db.isPreparedStatementsEnabled())
-                value = cmd.addCmdParam(keyColumns[i], value);
+                value = cmd.addParam(keyColumns[i], value);
             cmd.where(keyColumns[i].is(value));
         }    
         return true;
@@ -634,7 +634,7 @@ public abstract class DBRowSet extends DBExpr
                         }
                         // set pk constraint
                         if (db.isPreparedStatementsEnabled())
-                            value = cmd.addCmdParam(col, value);
+                            value = cmd.addParam(col, value);
                         cmd.where(col.is(value));
                     } 
                     else if (timestampColumn == col)
@@ -642,7 +642,7 @@ public abstract class DBRowSet extends DBExpr
                     	if (empty==false) 
                     	{   // set timestamp constraint
                             if (db.isPreparedStatementsEnabled())
-                                value = cmd.addCmdParam(col, value);
+                                value = cmd.addParam(col, value);
 	                        cmd.where(col.is(value));
                     	}    
                     	else if (log.isDebugEnabled()) {
@@ -720,7 +720,7 @@ public abstract class DBRowSet extends DBExpr
             return success();
         }
         // Perform action
-        int affected = db.executeSQL(sql, cmd.getCmdParamValues(), conn, setGenKey);
+        int affected = db.executeSQL(sql, cmd.getParamValues(), conn, setGenKey);
         if (affected < 0)
         { // Update Failed
             return error(db);

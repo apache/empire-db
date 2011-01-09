@@ -97,10 +97,10 @@ public class DBCombinedCmd extends DBCommandExpr
     * @return the list of parameter values for a prepared statement 
     */
    @Override
-   public Object[] getCmdParamValues()
+   public Object[] getParamValues()
    {
-       Object[] leftParams  = left.getCmdParamValues();
-       Object[] rightParams = right.getCmdParamValues();
+       Object[] leftParams  = left.getParamValues();
+       Object[] rightParams = right.getParamValues();
        // Check
        if (leftParams==null)
            return rightParams;
@@ -160,7 +160,6 @@ public class DBCombinedCmd extends DBCommandExpr
           orderBy.add(new DBOrderByExpr(c, obe.desc));
       }
    }
-
 
 }
 

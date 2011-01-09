@@ -426,8 +426,8 @@ public class SampleAdvApp
         // create a command
         DBCommand cmd = db.createCommand();
         // Create cmd parameters
-        DBCommandParam curDepParam = cmd.addCmdParam(); // Current Department
-        DBCommandParam genderParam = cmd.addCmdParam(); // Gender ('M' or 'F')
+        DBCommandParam curDepParam = cmd.addParam(); // Current Department
+        DBCommandParam genderParam = cmd.addParam(); // Gender ('M' or 'F')
         // Define the query
         cmd.select(T_EMP.C_FULLNAME);
         cmd.join  (T_EMP.C_EMPLOYEE_ID, db.V_EMPLOYEE_INFO.C_EMPLOYEE_ID);

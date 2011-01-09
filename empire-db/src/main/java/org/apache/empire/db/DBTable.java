@@ -178,7 +178,7 @@ public class DBTable extends DBRowSet implements Cloneable
     }
 
     /**
-     * Creates a new DBTableColumn object and add it to this object.
+     * Creates a new DBTableColumn object and adds it to the column collection.
      * 
      * @param columnName the column name
      * @param type the type of the column e.g. integer, text, date
@@ -193,7 +193,7 @@ public class DBTable extends DBRowSet implements Cloneable
     }
 
     /**
-     * Creates a new DBTableColumn object and add it to this object.
+     * Creates a new DBTableColumn object and adds it to the column collection.
      * 
      * @param columnName the column name
      * @param type the type of the column e.g. integer, text, date
@@ -207,7 +207,8 @@ public class DBTable extends DBRowSet implements Cloneable
     }
 
     /**
-     * deprecated use DBTableColumn addColumn(String columnName, DataType type, double size, DataMode dataMode, Object defValue) instead
+     * Creates a new DBTableColumn object and adds it to the column collection.
+     * Instead of the data mode enum, a boolean flag is used to indicate whether the column is required or optional.
      * 
      * @param columnName the column name
      * @param type the type of the column e.g. integer, text, date
@@ -216,15 +217,15 @@ public class DBTable extends DBRowSet implements Cloneable
      * @param defValue a Object object
      * @return the created DBTableColumn object
      */
-    // @Deprecated
-    @SuppressWarnings("deprecation")
     public final DBTableColumn addColumn(String columnName, DataType type, double size, boolean required, Object defValue)
     { 
-        return new DBTableColumn(this, type, columnName, size, required, defValue);
+        DataMode dm = (required ? DataMode.NotNull : DataMode.Nullable);
+        return new DBTableColumn(this, type, columnName, size, dm, defValue);
     }
 
     /**
-     * deprecated use DBTableColumn addColumn(String columnName, DataType type, double size, DataMode dataMode) instead
+     * Creates a new DBTableColumn object and adds it to the column collection.
+     * Instead of the data mode enum, a boolean flag is used to indicate whether the column is required or optional. 
      * 
      * @param columnName the column name
      * @param type the type of the column e.g. integer, text, date
@@ -232,11 +233,10 @@ public class DBTable extends DBRowSet implements Cloneable
      * @param required true if not null column
      * @return the created DBTableColumn object
      */
-    // @Deprecated
-    @SuppressWarnings("deprecation")
     public final DBTableColumn addColumn(String columnName, DataType type, double size, boolean required)
     { 
-        return new DBTableColumn(this, type, columnName, size, required, null);
+        DataMode dm = (required ? DataMode.NotNull : DataMode.Nullable);
+        return new DBTableColumn(this, type, columnName, size, dm, null);
     }
 
     /**
@@ -451,7 +451,7 @@ public class DBTable extends DBRowSet implements Cloneable
 
         // Perform delete
         String sqlCmd = cmd.getDelete(this);
-        int affected  = db.executeSQL(sqlCmd, cmd.getCmdParamValues(), conn);
+        int affected  = db.executeSQL(sqlCmd, cmd.getParamValues(), conn);
         if (affected < 0)
         { // Delete Failed
             return error(db);

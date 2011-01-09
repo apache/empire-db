@@ -80,22 +80,6 @@ public class DBTableColumn extends DBColumn
     }
 
     /**
-     * @deprecated use DBTableColumn(DBTable table, DataType type, String name, double size, DataMode dataMode, Object defValue) instead 
-     * 
-     * @param table the table object to add the column to, set to null if you don't want it added to a table
-     * @param type the type of the column e.g. integer, text, date
-     * @param name the column name
-     * @param size the column width
-     * @param required true if not null column
-     * @param defValue the object value
-     */
-    @Deprecated
-    public DBTableColumn(DBTable table, DataType type, String name, double size, boolean required, Object defValue)
-    {
-        this(table, type, name, size, (required ? DataMode.NotNull : DataMode.Nullable), defValue);
-    }
-
-    /**
      * Clone Constructor - use clone()
      */
     protected DBTableColumn(DBTable newTable, DBTableColumn other)

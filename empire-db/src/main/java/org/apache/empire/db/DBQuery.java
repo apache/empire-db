@@ -359,7 +359,7 @@ public class DBQuery extends DBRowSet
         {   // Set key column constraint
             Object value = key[i];
             if (db.isPreparedStatementsEnabled())
-                value = cmd.addCmdParam(keyColumns[i], value);
+                value = cmd.addParam(keyColumns[i], value);
             cmd.where(keyColumns[i].is(value));
         }    
         // Read Record
@@ -466,7 +466,7 @@ public class DBQuery extends DBRowSet
                     	{	// Create a new command param
                     		DBColumnExpr colExpr = cmpExpr.getColumnExpr();
                     		DBCommandParam param =(DBCommandParam)cmpExpr.getValue(); 
-                    		DBCommandParam value = upd.addCmdParam(colExpr, param.getValue());
+                    		DBCommandParam value = upd.addParam(colExpr, param.getValue());
                     		cmp = new DBCompareColExpr(colExpr, cmpExpr.getCmpop(), value);
                     	}
                         upd.where(cmp);
@@ -484,7 +484,7 @@ public class DBQuery extends DBRowSet
                 {   // Set key column constraint
                     Object value = keys[i];
                     if (db.isPreparedStatementsEnabled())
-                        value = upd.addCmdParam(keyColumns[i], value);
+                        value = upd.addParam(keyColumns[i], value);
                     upd.where(keyColumns[i].is(value));
                 }
             }    
@@ -503,7 +503,7 @@ public class DBQuery extends DBRowSet
                     if (ObjectUtils.isEmpty(lastTS)==false)
                     {   // set timestamp constraint
                         if (db.isPreparedStatementsEnabled())
-                            lastTS = upd.addCmdParam(tsColumn, lastTS);
+                            lastTS = upd.addParam(tsColumn, lastTS);
                         upd.where(tsColumn.is(lastTS));
                     }    
                     // Set new Timestamp
@@ -516,7 +516,7 @@ public class DBQuery extends DBRowSet
             }
             
             // Execute SQL
-            int affected = db.executeSQL(upd.getUpdate(), upd.getCmdParamValues(), conn);
+            int affected = db.executeSQL(upd.getUpdate(), upd.getParamValues(), conn);
             if (affected <= 0)
             {   // Error
                 if (affected == 0)

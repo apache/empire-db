@@ -410,7 +410,7 @@ public class DBReader extends DBRecordData
         String sqlCmd = cmd.getSelect();
         // Create Statement
         db = cmd.getDatabase();
-        rset = db.executeQuery(sqlCmd, cmd.getCmdParamValues(), scrollable, conn);
+        rset = db.executeQuery(sqlCmd, cmd.getParamValues(), scrollable, conn);
         if (rset==null)
             return error(db);
         // successfully opened

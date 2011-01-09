@@ -356,7 +356,7 @@ public abstract class DBCommand extends DBCommandExpr
         }
         // Replace with parameter 
         if (useCmdParam(expr.column) && (expr.value instanceof DBExpr)==false)
-            expr.value = addCmdParam(expr.column.getDataType(), expr.value);
+            expr.value = addParam(expr.column.getDataType(), expr.value);
         // new Value!
         set.add(expr);
     }
@@ -389,7 +389,7 @@ public abstract class DBCommand extends DBCommandExpr
      * 
      * @return the command parameter object 
      */
-    public DBCommandParam addCmdParam(DataType type, Object value)
+    public DBCommandParam addParam(DataType type, Object value)
     {
         if (cmdParams==null)
             cmdParams= new Vector<DBCommandParam>();
@@ -410,9 +410,9 @@ public abstract class DBCommand extends DBCommandExpr
      * 
      * @return the command parameter object 
      */
-    public final DBCommandParam addCmdParam(DBColumnExpr colExpr, Object value)
+    public final DBCommandParam addParam(DBColumnExpr colExpr, Object value)
     {
-        return addCmdParam(colExpr.getDataType(), value);
+        return addParam(colExpr.getDataType(), value);
     }
 
     /**
@@ -421,9 +421,9 @@ public abstract class DBCommand extends DBCommandExpr
      *  
      * @return the command parameter object
      */
-    public final DBCommandParam addCmdParam(Object value)
+    public final DBCommandParam addParam(Object value)
     {
-        return addCmdParam(DataType.UNKNOWN, value);
+        return addParam(DataType.UNKNOWN, value);
     }
 
     /**
@@ -432,9 +432,9 @@ public abstract class DBCommand extends DBCommandExpr
      *  
      * @return the command parameter object
      */
-    public final DBCommandParam addCmdParam()
+    public final DBCommandParam addParam()
     {
-        return addCmdParam(DataType.UNKNOWN, null);
+        return addParam(DataType.UNKNOWN, null);
     }
 
     /**
@@ -915,11 +915,12 @@ public abstract class DBCommand extends DBCommandExpr
     } 
     
     /**
-     * Returns the list of parameter values for a prepared statement.
-     * @return the list of parameter values for a prepared statement 
+     * Returns an array of parameter values for a prepared statement.
+     * To ensure that all values are in the order of their occurrence, getSelect() should be called first.
+     * @return an array of parameter values for a prepared statement 
      */
     @Override
-    public Object[] getCmdParamValues()
+    public Object[] getParamValues()
     {
         if (cmdParams==null || cmdParams.size()==0)
             return null;

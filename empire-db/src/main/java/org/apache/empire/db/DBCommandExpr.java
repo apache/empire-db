@@ -304,9 +304,17 @@ public abstract class DBCommandExpr extends DBExpr
 
     public abstract DBColumnExpr[] getSelectExprList();
     
-    public abstract Object[] getCmdParamValues();
+    /**
+     * returns an array holding all parameter values in the order of their occurrence.
+     * To ensure the correct order, getSelect() should be called first.
+     * @return an array of command parameter values 
+     */
+    public abstract Object[] getParamValues();
 
-    public DBColumnExpr getCmdColumn(DBColumnExpr col)
+    /**
+     * returns column expression that is specific for to this command and detached from its source.
+     */
+    protected DBColumnExpr getCmdColumn(DBColumnExpr col)
     {
         // Check the Instance of col
         if ((col instanceof DBCmdColumn))
@@ -322,14 +330,6 @@ public abstract class DBCommandExpr extends DBExpr
             cmdQuery = new DBCmdQuery(this, getSelectExprList());
         // create a command column
         return new DBCmdColumn(cmdQuery, col);
-    }
-
-    public DBColumnExpr getCmdColumn(int i)
-    {
-        DBColumnExpr[] list = getSelectExprList();
-        if (i >= list.length)
-            return null;
-        return getCmdColumn(list[i]);
     }
 
     /**
@@ -357,7 +357,7 @@ public abstract class DBCommandExpr extends DBExpr
     protected void addListExpr(StringBuilder buf, List<? extends DBExpr> list, long context, String separator)
     {
         for (int i = 0; i < list.size(); i++)
-        { // Selectfelder zusammenbauen
+        {   // assemble select columns
             if (i > 0)
                 buf.append(separator);
             list.get(i).addSQL(buf, context);

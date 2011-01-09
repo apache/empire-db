@@ -63,7 +63,7 @@ public class PreparedStatementTest{
         // Define the query
         DBCommand cmd = db.createCommand();
         // Create parameters
-        DBCommandParam empIdParam  = cmd.addCmdParam(null);
+        DBCommandParam empIdParam  = cmd.addParam(null);
         // the previous line could be shorter
         // DBCommandParam empIdParam  = cmd.addCmdParam(id);
         // create statement
@@ -72,7 +72,7 @@ public class PreparedStatementTest{
         // set param value
         empIdParam.setValue(id);
         // check command
-        assertNotNull(cmd.getCmdParamValues());
+        assertNotNull(cmd.getParamValues());
         assertTrue(cmd.getSelect().indexOf('?') > 0);
 
         DBReader r = new DBReader();
