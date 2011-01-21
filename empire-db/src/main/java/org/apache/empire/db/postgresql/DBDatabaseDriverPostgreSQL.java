@@ -18,11 +18,6 @@
  */
 package org.apache.empire.db.postgresql;
 
-import java.sql.Connection;
-import java.sql.SQLException;
-import java.util.GregorianCalendar;
-import java.util.Iterator;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.empire.commons.Errors;
@@ -43,6 +38,11 @@ import org.apache.empire.db.DBSQLScript;
 import org.apache.empire.db.DBTable;
 import org.apache.empire.db.DBTableColumn;
 import org.apache.empire.db.DBView;
+
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.util.GregorianCalendar;
+import java.util.Iterator;
 
 
 /**
@@ -657,24 +657,33 @@ public class DBDatabaseDriverPostgreSQL extends DBDatabaseDriver
         {
             case INTEGER:
             { // Integer type
-                sql.append("INT");
-                int size = (int)c.getSize();
-                if (size>0)
-                {   // Set Integer length
-                    sql.append("(");
-                    sql.append(String.valueOf(size));
-                    sql.append(")");
+                int size = (int) c.getSize();
+                if (size >= 8) {
+                    sql.append("BIGINT");
+                } else {
+                    sql.append("INT");
                 }
+//                if (size>0)
+//                {   // Set Integer length
+//                    sql.append("(");
+//                    sql.append(String.valueOf(size));
+//                    sql.append(")");
+//                }
                 break;
-            }    
+            }
             case AUTOINC:
             { // Auto increment
-                sql.append("INT");
-                
-                //String seqName = createSequenceName(c);                
+                int size = (int) c.getSize();
+                if (size >= 8) {
+                    sql.append("BIGSERIAL");
+                } else {
+                    sql.append("SERIAL");
+                }
+
+                //String seqName = createSequenceName(c);
                 //sql.append(" DEFAULT nextval('"+seqName+"')");
                 break;
-            }    
+            }
             case TEXT:
             { // Check fixed or variable length
                 int size = Math.abs((int) c.getSize());
@@ -730,7 +739,7 @@ public class DBDatabaseDriverPostgreSQL extends DBDatabaseDriver
                 sql.append("CHAR(36)");
                 break;
             case UNKNOWN:
-                 log.error("Cannot append column of Data-Type 'UNKNOWN'");
+                 //log.error("Cannot append column of Data-Type 'UNKNOWN'");
                  return false;
         }
         // Default Value

@@ -18,10 +18,6 @@
  */
 package org.apache.empire.db.derby;
 
-import java.sql.Connection;
-import java.util.GregorianCalendar;
-import java.util.Iterator;
-
 import org.apache.empire.commons.Errors;
 import org.apache.empire.commons.StringUtils;
 import org.apache.empire.data.DataType;
@@ -41,6 +37,10 @@ import org.apache.empire.db.DBTable;
 import org.apache.empire.db.DBTableColumn;
 import org.apache.empire.db.DBView;
 import org.apache.empire.db.oracle.DBDatabaseDriverOracle.BooleanType;
+
+import java.sql.Connection;
+import java.util.GregorianCalendar;
+import java.util.Iterator;
 
 
 /**
@@ -509,23 +509,32 @@ public class DBDatabaseDriverDerby extends DBDatabaseDriver
         {
             case INTEGER:
             { // Integer type
-                sql.append("INT");
                 int size = (int)c.getSize();
-                if (size>0)
-                {   // Set Integer length
-                    sql.append("(");
-                    sql.append(String.valueOf(size));
-                    sql.append(")");
+                if (size >= 8) {
+                    sql.append("BIGINT");
+                } else {
+                    sql.append("INT");
                 }
+//                if (size>0)
+//                {   // Set Integer length
+//                    sql.append("(");
+//                    sql.append(String.valueOf(size));
+//                    sql.append(")");
+//                }
                 break;
-            }    
+            }
             case AUTOINC:
             { // Auto increment
-                sql.append("INT");
-                if (useSequenceTable==false)
+                int size = (int)c.getSize();
+                if (size >= 8) {
+                    sql.append("BIGINT");
+                } else {
+                    sql.append("INT");
+                }
+                if (!isUseSequenceTable())
                     sql.append(" GENERATED ALWAYS AS IDENTITY");
                 break;
-            }    
+            }
             case TEXT:
             { // Check fixed or variable length
                 int size = Math.abs((int) c.getSize());
@@ -553,9 +562,10 @@ public class DBDatabaseDriverDerby extends DBDatabaseDriver
                 sql.append("TIMESTAMP");
                 break;
             case BOOL:
-            	if ( booleanType==BooleanType.CHAR )
-                    sql.append("CHAR(1)");
-                else sql.append("SMALLINT");
+//            	if ( booleanType== DBDatabaseDriverOracle.BooleanType.CHAR ) <- this looks weird to me :), i commented it out since it is always false for derby
+//                    sql.append("CHAR(1)");
+//                else
+                sql.append("SMALLINT");
                 break;
             case DOUBLE:
                 sql.append("DOUBLE");
