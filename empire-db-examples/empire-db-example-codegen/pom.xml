@@ -62,6 +62,14 @@
 		    <artifactId>hsqldb</artifactId>
 		    <version>1.8.0.10</version>
 		</dependency> 
+		
+		<!-- test scope -->
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<version>4.8.2</version>
+			<scope>test</scope>
+		</dependency>
 	</dependencies>
 	
 </project>
