@@ -38,11 +38,6 @@
 			<groupId>org.apache.empire-db</groupId>
 			<artifactId>empire-db</artifactId>
 		</dependency>
-		<dependency>
-			<groupId>org.apache.empire-db</groupId>
-			<artifactId>empire-db-config</artifactId>
-		</dependency>
-		
 		<!-- Spring -->
         <dependency>
             <groupId>org.springframework</groupId>

@@ -33,10 +33,6 @@
 		    <groupId>org.apache.empire-db</groupId>
 		    <artifactId>empire-db</artifactId>
 		</dependency>
-		<dependency>
-			<groupId>org.apache.empire-db</groupId>
-			<artifactId>empire-db-config</artifactId>
-		</dependency>
 		 
 		<dependency>
 			<groupId>org.apache.velocity</groupId>

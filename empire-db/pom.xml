@@ -35,7 +35,13 @@
 			<groupId>commons-collections</groupId>
 			<artifactId>commons-collections</artifactId>
 		</dependency>-->
-
+		<!-- TODO we should get rid of this dependency -->
+		<dependency>
+			<groupId>log4j</groupId>
+			<artifactId>log4j</artifactId>
+			<!-- <scope>runtime</scope>-->
+			<!-- <optional>true</optional> -->
+		</dependency>
 		<!-- TEST -->
 		<dependency>
 		    <groupId>hsqldb</groupId>

@@ -35,7 +35,6 @@
 				<include>empire-assembly-all.xml</include>
 				<include>empire-db/**</include>
 				<include>empire-db-struts2/**</include>
-				<include>empire-db-config/**</include>
 				<include>empire-db-examples/**</include>
 				<include>empire-db-maven-plugin/**</include>
 				<include>empire-db-codegen/**</include>
@@ -94,7 +93,6 @@
 			<includes>
 				<include>org.apache.empire-db:empire-db:*:javadoc</include>
 				<include>org.apache.empire-db:empire-db-struts2:*:javadoc</include>
-				<include>org.apache.empire-db:empire-db-config:*:javadoc</include>
 			</includes>
 		</dependencySet>
 		<dependencySet>
@@ -103,7 +101,6 @@
             <includes>
                 <include>org.apache.empire-db:empire-db:jar</include>
                 <include>org.apache.empire-db:empire-db-struts2:jar</include>
-                <include>org.apache.empire-db:empire-db-config:jar</include>
             </includes>
         </dependencySet>
     </dependencySets>
