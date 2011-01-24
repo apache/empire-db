@@ -33,6 +33,14 @@
 		    <groupId>org.apache.empire-db</groupId>
 		    <artifactId>empire-db</artifactId>
 		</dependency>
+		
+		<!-- TODO should we get rid of this dependency? -->
+		<dependency>
+			<groupId>log4j</groupId>
+			<artifactId>log4j</artifactId>
+			<!-- <scope>runtime</scope>-->
+			<!-- <optional>true</optional> -->
+		</dependency>
 		 
 	</dependencies>
 </project>

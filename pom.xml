@@ -198,6 +198,7 @@
 	</issueManagement>
 	<dependencyManagement>
 		<dependencies>
+			<!-- our own project dependencies -->
 			<dependency>
 				<groupId>org.apache.empire-db</groupId>
 				<artifactId>empire-db</artifactId>
@@ -216,6 +217,14 @@
 				<version>${project.version}</version>
 				<type>jar</type>
 			</dependency>
+			<dependency>
+				<groupId>org.apache.empire-db</groupId>
+				<artifactId>empire-db-config</artifactId>
+				<version>${project.version}</version>
+				<type>jar</type>
+			</dependency>
+			
+			<!-- external dependencies -->
 			<dependency>
 				<groupId>commons-logging</groupId>
 				<artifactId>commons-logging</artifactId>
