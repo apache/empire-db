@@ -18,8 +18,8 @@
  */
 package org.apache.empire.db.postgresql;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.empire.commons.Errors;
 import org.apache.empire.commons.StringUtils;
 import org.apache.empire.data.DataType;
@@ -53,7 +53,7 @@ import java.util.Iterator;
 public class DBDatabaseDriverPostgreSQL extends DBDatabaseDriver
 {
     @SuppressWarnings("hiding")
-    private static final Log log = LogFactory.getLog(DBDatabaseDriverPostgreSQL.class);
+    private static final Logger log = LoggerFactory.getLogger(DBDatabaseDriverPostgreSQL.class);
     
     private static final String CREATE_REVERSE_FUNCTION =
         "CREATE OR REPLACE FUNCTION reverse(TEXT) RETURNS TEXT AS '\n" +

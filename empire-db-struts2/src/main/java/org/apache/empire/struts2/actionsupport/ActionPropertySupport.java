@@ -18,15 +18,15 @@
  */
 package org.apache.empire.struts2.actionsupport;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.empire.commons.StringUtils;
 
 
 public class ActionPropertySupport
 {
     // Logger
-    protected static Log log = LogFactory.getLog(ActionPropertySupport.class);
+    protected static Logger log = LoggerFactory.getLogger(ActionPropertySupport.class);
 
     private ActionBase action;
     private String propertyName;

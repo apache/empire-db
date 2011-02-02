@@ -28,8 +28,8 @@ import javax.servlet.jsp.JspException;
 
 import org.apache.commons.beanutils.BeanUtilsBean;
 import org.apache.commons.beanutils.PropertyUtilsBean;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.empire.commons.StringUtils;
 import org.apache.empire.struts2.action.ActionItemProperty;
 import org.apache.empire.struts2.html.HtmlWriter.HtmlTag;
@@ -45,7 +45,7 @@ import com.opensymphony.xwork2.TextProvider;
 public abstract class EmpireTagSupport extends ComponentTagSupport
 {
     // Logger
-    protected static Log log = LogFactory.getLog(EmpireTagSupport.class);
+    protected static Logger log = LoggerFactory.getLogger(EmpireTagSupport.class);
 
     protected boolean    autoResetParams = true;
 
@@ -147,7 +147,7 @@ public abstract class EmpireTagSupport extends ComponentTagSupport
         try {
             return ActionContext.getContext().getActionInvocation().getAction();
         } catch (Exception e) {
-            log.fatal("Unable to detect Action. Action Invocation not available!");
+            log.error("Unable to detect Action. Action Invocation not available!");
             return "";
         }
     }
@@ -157,7 +157,7 @@ public abstract class EmpireTagSupport extends ComponentTagSupport
         try {
             return ActionContext.getContext().getActionInvocation().getProxy().getActionName();
         } catch (Exception e) {
-            log.fatal("Unable to detect Action name. Action Invocation Proxy not available!");
+            log.error("Unable to detect Action name. Action Invocation Proxy not available!");
             return "";
         }
     }

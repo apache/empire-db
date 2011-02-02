@@ -18,8 +18,8 @@
  */
 package org.apache.empire.struts2.interceptors;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.empire.struts2.action.ActionAccessValidator;
 
 import com.opensymphony.xwork2.ActionInvocation;
@@ -31,7 +31,7 @@ public class ActionAccessInterceptor extends InterceptorSupport
 {
     // Logger
     @SuppressWarnings("hiding")
-    protected static Log log = LogFactory.getLog(ActionAccessInterceptor.class);
+    protected static Logger log = LoggerFactory.getLogger(ActionAccessInterceptor.class);
 
     private String loginAction = null;
     

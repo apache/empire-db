@@ -18,8 +18,8 @@
  */
 package org.apache.empire.struts2.actionsupport;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.empire.commons.ErrorObject;
 import org.apache.empire.data.ColumnExpr;
 import org.apache.empire.struts2.action.ListPagingInfo;
@@ -37,7 +37,7 @@ import org.apache.empire.struts2.action.ListSortingInfo;
 public abstract class ListActionSupport extends ErrorObject
     implements ListPagingInfo, ListSortingInfo
 {
-    protected static Log log = LogFactory.getLog(ListActionSupport.class);
+    protected static Logger log = LoggerFactory.getLogger(ListActionSupport.class);
     
     protected ActionBase action;
     protected String propertyName;

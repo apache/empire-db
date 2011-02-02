@@ -18,7 +18,9 @@
  */
 package org.apache.empire.struts2.websample.web;
 
+import org.apache.commons.logging.LogFactory;
 import org.apache.empire.xml.XMLConfiguration;
+import org.apache.log4j.xml.DOMConfigurator;
 
 public class SampleConfig extends XMLConfiguration {
 

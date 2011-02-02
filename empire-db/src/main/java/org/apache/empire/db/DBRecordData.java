@@ -23,8 +23,8 @@ import java.util.Collection;
 import java.util.Date;
 
 import org.apache.commons.beanutils.BeanUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.empire.commons.DateUtils;
 import org.apache.empire.commons.ObjectUtils;
 import org.apache.empire.commons.StringUtils;
@@ -44,7 +44,7 @@ public abstract class DBRecordData extends DBObject
 	implements RecordData
 {
     // Logger
-    protected static final Log log = LogFactory.getLog(DBRecordData.class);
+    protected static final Logger log = LoggerFactory.getLogger(DBRecordData.class);
     
     // Field Info
     public abstract int     getFieldCount();

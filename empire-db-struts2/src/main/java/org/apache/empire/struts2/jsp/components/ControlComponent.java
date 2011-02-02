@@ -24,8 +24,8 @@ import java.util.Locale;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.empire.commons.ObjectUtils;
 import org.apache.empire.commons.Options;
 import org.apache.empire.commons.StringUtils;
@@ -43,7 +43,7 @@ import com.opensymphony.xwork2.util.ValueStack;
 public abstract class ControlComponent extends UIBean implements InputControl.ValueInfo
 {
     // Logger
-    protected static Log log = LogFactory.getLog(ControlComponent.class);
+    protected static Logger log = LoggerFactory.getLogger(ControlComponent.class);
 
     // Properties
     protected Column     column;
@@ -108,7 +108,7 @@ public abstract class ControlComponent extends UIBean implements InputControl.Va
             return ActionContext.getContext().getActionInvocation().getAction();
         } catch (Exception e)
         {
-            log.fatal("Unable to detect Action. Action Invocation not available!");
+            log.error("Unable to detect Action. Action Invocation not available!");
             return "";
         }
     }

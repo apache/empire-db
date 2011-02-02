@@ -21,8 +21,8 @@ package org.apache.empire.struts2.html;
 import java.io.IOException;
 import java.io.Writer;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.empire.commons.StringUtils;
 import org.apache.commons.lang.xwork.StringEscapeUtils;
 
@@ -30,7 +30,7 @@ import org.apache.commons.lang.xwork.StringEscapeUtils;
 public class HtmlWriter
 {
     // Logger
-    protected static Log log = LogFactory.getLog(HtmlWriter.class);
+    protected static Logger log = LoggerFactory.getLogger(HtmlWriter.class);
     
     public static class HtmlTag
     {
@@ -205,8 +205,7 @@ public class HtmlWriter
             if (endOfLine)
                 writer.write("\n");
           } catch(IOException e) {
-              log.error(e.getMessage());
-              log.error(e.getStackTrace());
+              log.error(e.getMessage(), e);
           }
     }
 

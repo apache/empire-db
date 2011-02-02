@@ -26,6 +26,22 @@
 	<artifactId>empire-db-examples</artifactId>
 	<packaging>pom</packaging>
 	<name>Apache Empire-db Examples</name>
+	<dependencies>
+		<dependency>
+			<groupId>commons-logging</groupId>
+			<artifactId>commons-logging</artifactId>
+			<version>1.0.4</version>
+		</dependency>
+		<dependency>
+			<groupId>log4j</groupId>
+			<artifactId>log4j</artifactId>
+			<version>1.2.14</version>
+		</dependency>
+		<dependency>
+			<groupId>commons-beanutils</groupId>
+			<artifactId>commons-beanutils</artifactId>
+		</dependency>
+	</dependencies>
 	<modules>
 		<module>empire-db-example-basic</module>
 		<module>empire-db-example-advanced</module>

@@ -28,8 +28,8 @@ import java.sql.Types;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.empire.commons.ErrorObject;
 import org.apache.empire.commons.Errors;
 import org.apache.empire.data.DataType;
@@ -69,7 +69,7 @@ public class CodeGenParser extends ErrorObject {
 		}
 	}
 
-	private static final Log log = LogFactory.getLog(CodeGenParser.class);
+	private static final Logger log = LoggerFactory.getLogger(CodeGenParser.class);
 	
 	private DatabaseMetaData dbMeta;
 	private Connection con;

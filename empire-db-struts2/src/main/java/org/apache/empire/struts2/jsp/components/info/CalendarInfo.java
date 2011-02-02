@@ -24,8 +24,8 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.empire.commons.DateUtils;
 import org.apache.empire.struts2.jsp.components.ControlComponent;
 
@@ -33,7 +33,7 @@ import org.apache.empire.struts2.jsp.components.ControlComponent;
 public class CalendarInfo
 {
     // Logger
-    protected static Log log = LogFactory.getLog(ControlComponent.class);
+    protected static Logger log = LoggerFactory.getLogger(ControlComponent.class);
 
     private static final String DATE_FORMAT = "yyyyMMdd";
     

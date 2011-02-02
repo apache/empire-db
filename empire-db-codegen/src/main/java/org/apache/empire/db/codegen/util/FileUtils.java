@@ -31,8 +31,8 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * File utilities
@@ -41,7 +41,7 @@ import org.apache.commons.logging.LogFactory;
  */
 public class FileUtils {
 	
-	private static final Log log =  LogFactory.getLog(FileUtils.class);
+	private static final Logger log =  LoggerFactory.getLogger(FileUtils.class);
 	public static final String SEPARATOR =  System.getProperty("file.separator");
 	private FileUtils()
 	{

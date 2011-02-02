@@ -26,8 +26,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.empire.struts2.action.Disposable;
 import org.apache.empire.struts2.web.servlet.ServletContextWrapper;
 import org.apache.empire.struts2.web.servlet.ServletRequestWrapper;
@@ -40,7 +40,7 @@ import org.apache.struts2.dispatcher.mapper.ActionMapping;
 public class EmpireStrutsDispatcher extends Dispatcher
 {
     // Logger
-    protected static Log log = LogFactory.getLog(EmpireStrutsDispatcher.class);
+    protected static Logger log = LoggerFactory.getLogger(EmpireStrutsDispatcher.class);
 
     public final String APPLICATION_CLASS = "ApplicationClass";
     public final String SESSION_CLASS     = "SessionClass";

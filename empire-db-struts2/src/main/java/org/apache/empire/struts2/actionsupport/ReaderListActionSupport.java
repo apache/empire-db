@@ -18,8 +18,8 @@
  */
 package org.apache.empire.struts2.actionsupport;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.empire.db.DBCommandExpr;
 import org.apache.empire.db.DBReader;
 
@@ -34,7 +34,7 @@ import org.apache.empire.db.DBReader;
 public class ReaderListActionSupport extends ListActionSupport
 {
     @SuppressWarnings("hiding")
-    protected static Log log = LogFactory.getLog(RecordActionSupport.class);
+    protected static Logger log = LoggerFactory.getLogger(RecordActionSupport.class);
     
     protected DBReader  reader;
 

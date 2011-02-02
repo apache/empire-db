@@ -26,8 +26,8 @@ import java.util.List;
 import java.util.Locale;
 
 import org.apache.commons.beanutils.MethodUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * This class contains common functions for comparing and converting values of type Object. 
@@ -58,7 +58,7 @@ public final class ObjectUtils
     public static final NoValue NO_VALUE = new NoValue();
     
     // Logger
-    private static final Log log = LogFactory.getLog(ObjectUtils.class);
+    private static final Logger log = LoggerFactory.getLogger(ObjectUtils.class);
 
     private static final String DATE_FORMAT = "yyyy-MM-dd";
 	private static final String DATETIME_FORMAT = "yyyy-MM-dd hh:mm:ss";

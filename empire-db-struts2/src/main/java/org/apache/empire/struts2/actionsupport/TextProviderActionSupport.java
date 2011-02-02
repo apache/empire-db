@@ -23,8 +23,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.opensymphony.xwork2.LocaleProvider;
 import com.opensymphony.xwork2.ResourceBundleTextProvider;
@@ -35,7 +35,7 @@ public class TextProviderActionSupport extends TextProviderSupport
 {
 
     private static Map<Locale, Map<String, String>> maps = new Hashtable<Locale, Map<String, String>>();
-    protected static Log log = LogFactory.getLog(TextProviderActionSupport.class);
+    protected static Logger log = LoggerFactory.getLogger(TextProviderActionSupport.class);
     private static final String INVALID_TEXT = "NO_TEXT";
     
     private LocaleProvider aLocaleProvider;

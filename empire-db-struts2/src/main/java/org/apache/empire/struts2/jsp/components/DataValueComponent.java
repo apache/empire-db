@@ -23,8 +23,8 @@ import java.io.StringWriter;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.empire.struts2.html.HtmlWriter;
 import org.apache.empire.struts2.html.HtmlWriter.HtmlTag;
 import org.apache.empire.struts2.jsp.controls.InputControl;
@@ -40,7 +40,7 @@ public class DataValueComponent extends ControlComponent
 {
     // Logger
     @SuppressWarnings("hiding")
-	protected static Log log = LogFactory.getLog(DataValueComponent.class);
+	protected static Logger log = LoggerFactory.getLogger(DataValueComponent.class);
 
     protected UrlRenderer urlRenderer;
 

@@ -25,8 +25,8 @@ import java.io.Writer;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.empire.db.DBDatabase;
 import org.apache.empire.db.DBTable;
 import org.apache.empire.db.DBView;
@@ -64,7 +64,7 @@ import org.apache.velocity.runtime.resource.loader.ClasspathResourceLoader;
  */
 
 public class CodeGenWriter {
-	private static final Log log = LogFactory.getLog(CodeGenWriter.class);
+	private static final Logger log = LoggerFactory.getLogger(CodeGenWriter.class);
 
 	// Templates
 	public static final String DATABASE_TEMPLATE = "Database.vm";
@@ -111,7 +111,7 @@ public class CodeGenWriter {
 		try {
 			engine.init();
 		} catch (Exception e) {
-			log.fatal(e);
+			log.error("A Exception occured on initializing the velocity-engine:", e);
 			throw new RuntimeException(e);
 		}
 	}

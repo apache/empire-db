@@ -24,8 +24,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang.xwork.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.empire.struts2.html.HtmlWriter;
 import org.apache.empire.struts2.html.HtmlWriter.HtmlTag;
 import org.apache.struts2.components.Form;
@@ -36,7 +36,7 @@ import com.opensymphony.xwork2.util.ValueStack;
 public class FormComponent extends Form
 {
     // Logger
-    protected static Log log = LogFactory.getLog(ControlComponent.class);
+    protected static Logger log = LoggerFactory.getLogger(ControlComponent.class);
     
     // Internal use only
     private HtmlTag formTag = null;

@@ -25,8 +25,8 @@ import java.util.List;
 
 import org.apache.commons.beanutils.BeanUtilsBean;
 import org.apache.commons.beanutils.PropertyUtilsBean;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.empire.commons.Errors;
 import org.apache.empire.commons.ObjectUtils;
 import org.apache.empire.commons.Options;
@@ -55,7 +55,7 @@ public class DBRecord extends DBRecordData implements Record, Cloneable
     public static final int REC_NEW      = 3;
 
     @SuppressWarnings("hiding")
-    protected static final Log    log          = LogFactory.getLog(DBRecord.class);
+    protected static final Logger     log          = LoggerFactory.getLogger(DBRecord.class);
 
     // This is the record data
     private int             state;

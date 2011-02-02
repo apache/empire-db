@@ -18,13 +18,13 @@
  */
 package org.apache.empire.struts2.html;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public abstract class HtmlTagDictionary
 {
     // Logger
-    protected static Log log = LogFactory.getLog(HtmlTagDictionary.class);
+    protected static Logger log = LoggerFactory.getLogger(HtmlTagDictionary.class);
 
     private static HtmlTagDictionary htmlDictonary; 
     

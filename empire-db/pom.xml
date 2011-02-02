@@ -35,12 +35,10 @@
 			<groupId>commons-collections</groupId>
 			<artifactId>commons-collections</artifactId>
 		</dependency>-->
-		<!-- TODO we should get rid of this dependency -->
 		<dependency>
-			<groupId>log4j</groupId>
-			<artifactId>log4j</artifactId>
-			<!-- <scope>runtime</scope>-->
-			<!-- <optional>true</optional> -->
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-api</artifactId>
+			<version>1.6.1</version>
 		</dependency>
 		<!-- TEST -->
 		<dependency>
@@ -53,6 +51,6 @@
 		    <artifactId>commons-io</artifactId>
 		    <version>1.4</version>
 		    <scope>test</scope>
-		</dependency> 
+		</dependency>
 	</dependencies>
 </project>

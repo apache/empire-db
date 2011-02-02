@@ -24,7 +24,7 @@ import static org.junit.Assert.assertTrue;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-import org.apache.commons.logging.Log;
+import org.slf4j.Logger;
 import org.junit.Test;
 import org.mockito.Mockito;
 
@@ -33,7 +33,7 @@ public class DBUtilTest {
 	@Test
 	public void testCloseResultSet() throws SQLException {
 		// null
-		Log log = Mockito.mock(Log.class);
+		Logger log = Mockito.mock(Logger.class);
 		boolean succes = DBUtil.close((ResultSet)null, log);
 		assertTrue(succes);
 		

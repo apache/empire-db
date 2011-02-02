@@ -26,8 +26,8 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.PageContext;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.empire.db.DBReader;
 import org.apache.struts2.components.Component;
 import org.apache.struts2.components.IteratorComponent;
@@ -42,7 +42,7 @@ import com.opensymphony.xwork2.util.ValueStack;
 public class ItemListTag extends IteratorTag
 {
     // Logger
-    protected static Log log = LogFactory.getLog(ItemListTag.class);
+    protected static Logger log = LoggerFactory.getLogger(ItemListTag.class);
 
     public static class ItemIteratorComponent extends IteratorComponent
     {

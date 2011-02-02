@@ -22,7 +22,7 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-import org.apache.commons.logging.Log;
+import org.slf4j.Logger;
 
 
 public final class DBUtil {
@@ -39,7 +39,7 @@ public final class DBUtil {
 	 * @param log the logger instance to use for logging
 	 * @return true on succes
 	 */
-	public static boolean close(ResultSet rs, Log log) {
+	public static boolean close(ResultSet rs, Logger log) {
 		boolean b = false;
 		try {
 			if(rs!=null)
@@ -54,13 +54,13 @@ public final class DBUtil {
 	/**
 	 * Closes a JDBC-Connection and logs exceptions.
 	 */
-	public static void close(Connection conn, Log log) {
+	public static void close(Connection conn, Logger log) {
 		if(conn != null){
 			log.info("Closing database connection");
 			try {
 				conn.close();
 			} catch (Exception e) {
-				log.fatal("Error closing connection", e);
+				log.error("Error closing connection", e);
 			}
 		}
 	}

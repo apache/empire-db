@@ -25,8 +25,8 @@ import java.util.List;
 import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.beanutils.BeanUtilsBean;
 import org.apache.commons.beanutils.PropertyUtilsBean;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.empire.commons.ErrorObject;
 import org.apache.empire.commons.Errors;
 import org.apache.empire.commons.ObjectUtils;
@@ -46,7 +46,7 @@ import org.apache.empire.data.Record;
  */
 public class BeanRecordProxy<T> extends ErrorObject implements Record
 {
-    protected static final Log log = LogFactory.getLog(BeanRecordProxy.class);
+    protected static final Logger log = LoggerFactory.getLogger(BeanRecordProxy.class);
     
     protected List<Column> columns;
     protected Column[] keyColumns;

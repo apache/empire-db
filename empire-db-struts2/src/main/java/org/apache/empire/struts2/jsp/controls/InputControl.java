@@ -20,8 +20,8 @@ package org.apache.empire.struts2.jsp.controls;
 
 import java.util.Locale;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.empire.commons.ErrorInfo;
 import org.apache.empire.commons.ErrorType;
 import org.apache.empire.commons.Options;
@@ -37,7 +37,7 @@ import org.apache.commons.lang.xwork.StringEscapeUtils;
 public abstract class InputControl
 {
     // Logger
-    protected static Log log = LogFactory.getLog(InputControl.class);
+    protected static Logger log = LoggerFactory.getLogger(InputControl.class);
 
     // Special Input Column Attributes
     public static final String NUMBER_FORMAT_ATTRIBUTE    = "numberFormat";   // "Integer", "Currency", "Percent"  

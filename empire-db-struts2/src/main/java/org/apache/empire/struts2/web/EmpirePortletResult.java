@@ -24,8 +24,8 @@ import java.util.Map;
 import javax.portlet.ActionResponse;
 import javax.portlet.PortletException;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.empire.struts2.action.WebAction;
 import org.apache.struts2.portlet.PortletActionConstants;
 import org.apache.struts2.portlet.context.PortletActionContext;
@@ -37,7 +37,7 @@ public class EmpirePortletResult extends PortletResult
 {
 	private static final long serialVersionUID = -6883272432993216278L;
 
-    protected static Log log = LogFactory.getLog(EmpirePortletResult.class);
+    protected static Logger log = LoggerFactory.getLogger(EmpirePortletResult.class);
 	
 	private String renderMethod = "renderPortlet";
 	

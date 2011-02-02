@@ -26,8 +26,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.Vector;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.empire.EmpireException;
 import org.apache.empire.commons.Errors;
 import org.apache.empire.data.DataType;
@@ -125,7 +125,7 @@ public abstract class DBCommand extends DBCommandExpr
 
     // Logger
     @SuppressWarnings("hiding")
-    protected static final Log log = LogFactory.getLog(DBCommand.class);
+    protected static final Logger log = LoggerFactory.getLogger(DBCommand.class);
     // Distinct Select
     protected boolean                selectDistinct = false;
     // Lists

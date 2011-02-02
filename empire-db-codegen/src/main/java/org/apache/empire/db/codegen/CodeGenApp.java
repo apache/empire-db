@@ -18,8 +18,8 @@
  */
 package org.apache.empire.db.codegen;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.empire.commons.ErrorObject;
 import org.apache.empire.db.DBDatabase;
 
@@ -29,7 +29,7 @@ import org.apache.empire.db.DBDatabase;
  */
 public class CodeGenApp {
 	
-	private static final Log log = LogFactory.getLog(CodeGenApp.class);
+	private static final Logger log = LoggerFactory.getLogger(CodeGenApp.class);
 	
 	private static final String DEFAULT_CONFIG_FILE = "config.xml";
 	

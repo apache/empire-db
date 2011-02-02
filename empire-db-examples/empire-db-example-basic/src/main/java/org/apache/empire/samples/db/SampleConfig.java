@@ -18,8 +18,9 @@
  */
 package org.apache.empire.samples.db;
 
+import org.apache.commons.logging.LogFactory;
 import org.apache.empire.xml.XMLConfiguration;
-
+import org.apache.log4j.xml.DOMConfigurator;
 /**
  * <PRE>
  * The SampleConfig class provides access to configuration settings.

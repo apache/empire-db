@@ -23,8 +23,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.empire.data.DataType;
 import org.apache.empire.db.DBColumn;
 import org.apache.empire.db.DBTable;
@@ -88,7 +88,7 @@ public class OracleDataDictionnary {
 
     }
     
-    protected static final Log log = LogFactory.getLog(OracleDataDictionnary.class);
+    protected static final Logger log = LoggerFactory.getLogger(OracleDataDictionnary.class);
     
     private final HashMap<String, HashMap<String, ColumnInfo>> dictionnary = new HashMap<String, HashMap<String, ColumnInfo>>();
     

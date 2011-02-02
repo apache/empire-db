@@ -20,8 +20,8 @@ package org.apache.empire.struts2.actionsupport;
 
 import java.sql.Connection;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.empire.commons.ErrorInfo;
 import org.apache.empire.commons.StringUtils;
 import org.apache.empire.data.Column;
@@ -42,7 +42,7 @@ public abstract class ActionBase
     implements ActionItemProperty, RequestParamProvider, LocaleProvider
 {
     // Logger
-    protected static Log log = LogFactory.getLog(ActionBase.class);
+    protected static Logger log = LoggerFactory.getLogger(ActionBase.class);
  
     private static final char KEY_SEP_CHAR  = '/';
     private static final char NEW_FLAG_CHAR = '*';
@@ -138,7 +138,7 @@ public abstract class ActionBase
                 obj = objClass.newInstance();
                 context.getSession().put(key, obj);
             } catch(Exception e) {
-                log.fatal("Cannot create Instance of type " + objClass.getName(), e);
+                log.error("Cannot create Instance of type " + objClass.getName(), e);
             }
         }
         return obj;

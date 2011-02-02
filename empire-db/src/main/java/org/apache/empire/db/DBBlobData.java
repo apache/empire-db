@@ -22,8 +22,8 @@ import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * This class allocates methods to store binary large objects in the database.
@@ -33,7 +33,7 @@ import org.apache.commons.logging.LogFactory;
 public class DBBlobData
 {
     /** Logger */
-    private static final Log log          = LogFactory.getLog(DBBlobData.class);
+    private static final Logger log          = LoggerFactory.getLogger(DBBlobData.class);
 
     /**
      * The stream associated with this object

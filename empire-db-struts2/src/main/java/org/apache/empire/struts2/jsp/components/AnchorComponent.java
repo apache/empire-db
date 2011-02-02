@@ -24,8 +24,8 @@ import java.io.Writer;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.empire.struts2.html.HtmlTagDictionary;
 import org.apache.empire.struts2.html.HtmlWriter;
 import org.apache.empire.struts2.html.HtmlWriter.HtmlTag;
@@ -37,7 +37,7 @@ import com.opensymphony.xwork2.util.ValueStack;
 public class AnchorComponent extends Anchor
 {
     // Logger
-    protected static Log log = LogFactory.getLog(AnchorComponent.class);
+    protected static Logger log = LoggerFactory.getLogger(AnchorComponent.class);
     
     private String  text;
     /*

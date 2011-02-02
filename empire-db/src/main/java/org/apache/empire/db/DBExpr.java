@@ -23,8 +23,8 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.Set;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.empire.data.DataType;
 
 
@@ -47,7 +47,7 @@ public abstract class DBExpr extends DBObject
     public static final long CTX_NOPARENTHESES = 16; // No Parentheses
     
     
-    protected static final Log log = LogFactory.getLog(DBExpr.class);
+    protected static final Logger log = LoggerFactory.getLogger(DBExpr.class);
     
     /**
      * Used to build the SQL command. SQL for this expression must be appended to StringBuilder.

@@ -21,8 +21,8 @@ package org.apache.empire.commons;
 import java.text.MessageFormat;
 import java.util.WeakHashMap;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.empire.EmpireException;
 
 
@@ -41,7 +41,7 @@ import org.apache.empire.EmpireException;
 public abstract class ErrorObject implements ErrorInfo
 {
     // Logger
-    private static final Log log = LogFactory.getLog(ErrorObject.class);
+    private static final Logger log = LoggerFactory.getLogger(ErrorObject.class);
     // Exceptions flag
     private static boolean exceptionsEnabled = false;
 

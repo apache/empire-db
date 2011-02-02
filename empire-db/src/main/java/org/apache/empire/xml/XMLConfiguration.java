@@ -29,13 +29,12 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.apache.commons.beanutils.BeanUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.empire.commons.ErrorObject;
 import org.apache.empire.commons.Errors;
 import org.apache.empire.commons.ObjectUtils;
 import org.apache.empire.commons.StringUtils;
-import org.apache.log4j.xml.DOMConfigurator;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -54,9 +53,7 @@ import org.xml.sax.SAXException;
 public class XMLConfiguration extends ErrorObject
 {
     // Logger (not final!)
-    protected static Log log = LogFactory.getLog(XMLConfiguration.class);
-
-    private String     loggingNodeName = "log4j:configuration";
+    protected static Logger log = LoggerFactory.getLogger(XMLConfiguration.class);
 
     private Element    configRootNode  = null;
 
@@ -74,9 +71,6 @@ public class XMLConfiguration extends ErrorObject
         // Read the properties file
         if (readConfiguration(filename, fromResource) == false)
             return false;
-        // Configure Logging
-        if (initLogging)
-            initLogging();
         // Done
         return success();
     }
@@ -138,31 +132,6 @@ public class XMLConfiguration extends ErrorObject
                 // Nothing to do.
             }
         }
-    }
-
-    protected boolean initLogging()
-    {
-        // Check state
-        if (configRootNode == null)
-            return error(Errors.ObjectNotValid, getClass().getName());
-        // Configure Logging
-        if (StringUtils.isValid(loggingNodeName) == false)
-            return success();
-        // Find loggingNode
-        Element loggingNode = XMLUtil.findFirstChild(configRootNode, loggingNodeName);
-        if (loggingNode == null)
-        { // Configuration
-            log.fatal("Logging-Node " + loggingNodeName + " has not been found. Logging has not been configured.");
-            return error(Errors.ItemNotFound, loggingNodeName);
-        }
-        // Init Log4J
-        LogFactory.releaseAll();
-        DOMConfigurator.configure(loggingNode);
-        // Get the new Logger
-        log = LogFactory.getLog(XMLConfiguration.class);
-        log.info("Logging sucessfully configured.");
-        // done
-        return success();
     }
 
     public boolean readProperties(Object bean, String propertiesNodeName)

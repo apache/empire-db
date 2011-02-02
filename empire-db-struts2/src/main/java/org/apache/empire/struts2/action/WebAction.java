@@ -25,8 +25,8 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.ResourceBundle;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.empire.commons.ErrorInfo;
 import org.apache.empire.commons.ErrorObject;
 import org.apache.empire.commons.ErrorType;
@@ -58,7 +58,7 @@ public abstract class WebAction extends ActionBase
 {   
     // Logger
     @SuppressWarnings("hiding")
-    protected static Log log = LogFactory.getLog(WebAction.class);
+    protected static Logger log = LoggerFactory.getLogger(WebAction.class);
 
     // Default Name for Item param
     public static String DEFAULT_ITEM_PROPERTY_NAME = "item";

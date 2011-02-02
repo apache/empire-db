@@ -18,8 +18,8 @@
  */
 package org.apache.empire.commons;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * The ErrorType class defines a type of error.
@@ -34,7 +34,7 @@ import org.apache.commons.logging.LogFactory;
  */
 public class ErrorType
 {
-    private static final Log log = LogFactory.getLog(ErrorType.class);
+    private static final Logger log = LoggerFactory.getLogger(ErrorType.class);
 
     private final String key;
     private final String msgPattern;

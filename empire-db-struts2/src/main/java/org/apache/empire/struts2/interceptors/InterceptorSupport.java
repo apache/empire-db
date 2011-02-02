@@ -26,8 +26,8 @@ import javax.portlet.PortletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.struts2.ServletActionContext;
 import org.apache.struts2.portlet.servlet.PortletServletRequest;
 import org.apache.struts2.portlet.servlet.PortletServletResponse;
@@ -39,7 +39,7 @@ import com.opensymphony.xwork2.interceptor.AbstractInterceptor;
 public abstract class InterceptorSupport extends AbstractInterceptor
 {
     // Logger
-    protected static Log log = LogFactory.getLog(InterceptorSupport.class);
+    protected static Logger log = LoggerFactory.getLogger(InterceptorSupport.class);
     
     public static final String NONE = "none";
     

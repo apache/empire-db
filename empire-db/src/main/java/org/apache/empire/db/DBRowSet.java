@@ -26,8 +26,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.empire.commons.Errors;
 import org.apache.empire.commons.ObjectUtils;
 import org.apache.empire.commons.StringUtils;
@@ -68,7 +68,7 @@ public abstract class DBRowSet extends DBExpr
     
     // Logger
     @SuppressWarnings("hiding")
-    protected static final Log log = LogFactory.getLog(DBRowSet.class);
+    protected static final Logger log = LoggerFactory.getLogger(DBRowSet.class);
     // Members
     protected final DBDatabase db;
     protected String        comment           = null;

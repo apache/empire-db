@@ -52,7 +52,7 @@ public class FlexDivTag extends EmpireTagSupport
     @Override
     public Component getBean(ValueStack stack, HttpServletRequest req, HttpServletResponse res)
     {
-        log.fatal("No Bean available for flex-tag");
+        log.error("No Bean available for flex-tag");
         return null;
     }
 

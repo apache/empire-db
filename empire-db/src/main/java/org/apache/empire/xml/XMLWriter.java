@@ -33,8 +33,8 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.empire.commons.ErrorObject;
 import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
@@ -52,7 +52,7 @@ import org.w3c.dom.NodeList;
 public class XMLWriter extends ErrorObject
 {
     // Logger
-    protected static final Log   log                  = LogFactory.getLog(XMLWriter.class);
+    protected static final Logger    log                  = LoggerFactory.getLogger(XMLWriter.class);
 
     /** Print writer. */
     protected PrintWriter  out;
@@ -197,7 +197,7 @@ public class XMLWriter extends ErrorObject
             this.canonical = false;
         } catch (UnsupportedEncodingException e)
         {
-            log.error(e);
+            log.error("The encoding \"" + this.charsetEncoding + "\" is not supported!", e);
         }
     }
 

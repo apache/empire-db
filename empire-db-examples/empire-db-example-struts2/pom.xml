@@ -50,10 +50,6 @@
 			<artifactId>hsqldb</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>log4j</groupId>
-			<artifactId>log4j</artifactId>
-		</dependency>
-		<dependency>
             <groupId>javax.portlet</groupId>
             <artifactId>portlet-api</artifactId>
             <scope>runtime</scope>

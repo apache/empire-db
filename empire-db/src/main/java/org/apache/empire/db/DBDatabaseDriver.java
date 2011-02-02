@@ -31,8 +31,8 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.empire.commons.DateUtils;
 import org.apache.empire.commons.ErrorObject;
 import org.apache.empire.commons.Errors;
@@ -103,7 +103,7 @@ public abstract class DBDatabaseDriver extends ErrorObject
     public static final int SQL_FUNC_DECODE_ELSE = 153; // Oracle: "{0}"           SQL: "else {0}"
 
     // Logger
-    protected static final Log log = LogFactory.getLog(DBDatabaseDriver.class);
+    protected static final Logger log = LoggerFactory.getLogger(DBDatabaseDriver.class);
     
     // Flag whether or not to set column defaults when crating DDL statements
     protected boolean ddlColumnDefaults = false;

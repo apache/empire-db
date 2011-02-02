@@ -27,8 +27,8 @@ import javax.portlet.PortletRequest;
 import javax.portlet.PortletResponse;
 import javax.portlet.PortletSession;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.empire.struts2.action.Disposable;
 import org.apache.empire.struts2.web.portlet.PortletContextWrapper;
 import org.apache.empire.struts2.web.portlet.PortletRequestWrapper;
@@ -38,7 +38,7 @@ import org.apache.struts2.portlet.dispatcher.Jsr168Dispatcher;
 
 public class EmpirePortletDispatcher extends Jsr168Dispatcher {
     // Logger
-    protected static Log log = LogFactory.getLog(EmpireStrutsDispatcher.class);
+    protected static Logger log = LoggerFactory.getLogger(EmpireStrutsDispatcher.class);
 
     public final String RENDER_DIRECT_ACTION = "struts.portlet.renderDirectAction";
     

@@ -25,8 +25,8 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * This class contains common functions for comparing and converting values of type Date. 
@@ -35,7 +35,7 @@ import org.apache.commons.logging.LogFactory;
 public class DateUtils
 {
     // Logger
-    private static final Log log = LogFactory.getLog(DateUtils.class);
+    private static final Logger log = LoggerFactory.getLogger(DateUtils.class);
     
     private DateUtils()
     {

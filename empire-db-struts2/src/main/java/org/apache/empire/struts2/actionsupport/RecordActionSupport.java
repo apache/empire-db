@@ -23,8 +23,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.empire.commons.Errors;
 import org.apache.empire.commons.StringUtils;
 import org.apache.empire.data.Record;
@@ -79,7 +79,7 @@ public class RecordActionSupport extends RecordFormActionSupport
     
     
     @SuppressWarnings("hiding")
-    protected static Log log = LogFactory.getLog(RecordActionSupport.class);
+    protected static Logger log = LoggerFactory.getLogger(RecordActionSupport.class);
 
     protected DBRowSet rowset;
 

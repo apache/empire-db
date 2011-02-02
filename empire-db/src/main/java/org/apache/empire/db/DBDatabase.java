@@ -26,8 +26,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.empire.commons.Errors;
 import org.apache.empire.commons.ObjectUtils;
 import org.apache.empire.commons.Options;
@@ -71,7 +71,7 @@ public abstract class DBDatabase extends DBObject
     public static final String EMPTY_STRING = "\0"; // will be replaced by ''
 
     // Logger
-    private static final Log log = LogFactory.getLog(DBDatabase.class);
+    private static final Logger log = LoggerFactory.getLogger(DBDatabase.class);
 
     /** the database schema * */
     protected String           schema    = null; // database schema name
