@@ -21,7 +21,6 @@ package org.apache.empire.samples.db;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.util.List;
-import java.util.logging.Logger;
 
 import org.apache.empire.commons.ErrorObject;
 import org.apache.empire.db.DBColumnExpr;
@@ -38,12 +37,15 @@ import org.apache.empire.db.oracle.DBDatabaseDriverOracle;
 import org.apache.empire.db.postgresql.DBDatabaseDriverPostgreSQL;
 import org.apache.empire.db.sqlserver.DBDatabaseDriverMSSQL;
 import org.apache.empire.xml.XMLWriter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 
 
 public class SampleApp 
 {
-	private static final Logger logger = Logger.getLogger(SampleApp.class.getName());
+    // Logger
+    private static final Logger log = LoggerFactory.getLogger(SampleApp.class);
 
 	private static final SampleDB db = new SampleDB();
 
@@ -168,29 +170,29 @@ public class SampleApp
     {
 		// Establish a new database connection
 		Connection conn = null;
-		logger.info("Connecting to Database'" + config.getJdbcURL() + "' / User=" + config.getJdbcUser());
+		log.info("Connecting to Database'" + config.getJdbcURL() + "' / User=" + config.getJdbcUser());
 		try
         {
             // Connect to the database
 			Class.forName(config.getJdbcClass()).newInstance();
 			conn = DriverManager.getConnection(config.getJdbcURL(), config.getJdbcUser(), config.getJdbcPwd());
-			logger.info("Connected successfully");
+			log.info("Connected successfully");
 			// set the AutoCommit to false for this connection. 
 			// commit must be called explicitly! 
 			conn.setAutoCommit(false);
-			logger.info("AutoCommit is " + conn.getAutoCommit());
+			log.info("AutoCommit is " + conn.getAutoCommit());
 
 		} catch (Exception e)
         {
-			logger.severe("Failed to connect directly to '" + config.getJdbcURL() + "' / User=" + config.getJdbcUser());
-			logger.severe(e.toString());
+			log.error("Failed to connect directly to '" + config.getJdbcURL() + "' / User=" + config.getJdbcUser());
+			log.error(e.toString());
 			throw new RuntimeException(e);
 		}
 		return conn;
 	}
 
     /**
-     * Returns the correspondig DatabaseDriver for a given database provider / vendor
+     * Returns the corresponding DatabaseDriver for a given database provider / vendor
      */
     private static DBDatabaseDriver getDatabaseDriver(String provider, Connection conn)
     {
@@ -259,7 +261,7 @@ public class SampleApp
 	 */
 	private static boolean databaseExists(Connection conn)
     {
-		// Check wether DB exists
+		// Check whether DB exists
 		DBCommand cmd = db.createCommand();
 		cmd.select(db.DEPARTMENTS.count());
 		// Check using "select count(*) from DEPARTMENTS"
@@ -367,11 +369,11 @@ public class SampleApp
 	 * For processing the rows there are three options available:
 	 * 
 	 *   QueryType.Reader:
-	 *     Interates through all rows and prints field values as tabbed text.
+	 *     Iterates through all rows and prints field values as tabbed text.
 	 *      
      *   QueryType.BeanList:
      *     Obtains the query result as a list of JavaBean objects of type SampleBean.
-     *     It then iterates throuh the list of beans and uses bean.toString() for printing.
+     *     It then iterates through the list of beans and uses bean.toString() for printing.
      *     
      *   QueryType.XmlDocument:
      *     Obtains the query result as an XML-Document and prints the document.

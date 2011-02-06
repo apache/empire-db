@@ -55,24 +55,32 @@ public class XMLConfiguration extends ErrorObject
     // Logger (not final!)
     protected static Logger log = LoggerFactory.getLogger(XMLConfiguration.class);
 
-    private Element    configRootNode  = null;
+    private Element configRootNode = null;
 
     /**
      * Initialize the configuration.
      * 
      * @param filename the file
      * @param fromResource will read from the classpath if true
-     * @param initLogging set to true to set up logging
      * 
-     * @return true on succes
+     * @return true on success
      */
-    public boolean init(String filename, boolean fromResource, boolean initLogging)
+    public boolean init(String filename, boolean fromResource)
     {
         // Read the properties file
         if (readConfiguration(filename, fromResource) == false)
             return false;
         // Done
         return success();
+    }
+    
+    /**
+     * returns the configuration root element or null if init() has not been called.
+     * @return the configuration root element
+     */
+    public Element getRootNode()
+    {
+        return configRootNode;
     }
 
     /**
@@ -144,7 +152,7 @@ public class XMLConfiguration extends ErrorObject
             return error(Errors.InvalidArg, null, "bean");
         if (StringUtils.isValid(propertiesNodeName) == false)
             return error(Errors.InvalidArg, null, "propertiesNodeName");
-        // Get Configuraiton Node
+        // Get configuration node
         Element propertiesNode = XMLUtil.findFirstChild(configRootNode, propertiesNodeName);
         if (propertiesNode == null)
         { // Configuration

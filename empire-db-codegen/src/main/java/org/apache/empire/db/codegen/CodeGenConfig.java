@@ -179,7 +179,7 @@ public class CodeGenConfig extends XMLConfiguration {
 	
 	/**
 	 * if TRUE record classes should have a getter and setter for each field.<br/>
-	 * Otherwiese getters / setters are omitted.
+	 * Otherwise getters / setters are omitted.
 	 */
 	private boolean createRecordProperties;
 
@@ -189,11 +189,11 @@ public class CodeGenConfig extends XMLConfiguration {
 	 * @param filename
 	 *            the file to read
 	 * 
-	 * @return true on succes
+	 * @return true on success
 	 */
 	public boolean init(String filename) {
 		// Read the properties file
-		if (super.init(filename, false, true) == false)
+		if (super.init(filename, false) == false)
 			return false;
 		// Done
 		if (readProperties(this, "properties") == false)

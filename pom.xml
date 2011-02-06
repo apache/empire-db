@@ -215,16 +215,30 @@
 				<version>${project.version}</version>
 				<type>jar</type>
 			</dependency>
+			<!-- logging -->
+			<dependency>
+				<groupId>org.slf4j</groupId>
+				<artifactId>slf4j-api</artifactId>
+				<version>1.6.1</version>
+			</dependency>
+			<dependency>
+				<groupId>org.slf4j</groupId>
+				<artifactId>slf4j-log4j12</artifactId>
+				<version>1.6.1</version>
+			</dependency>
+			<!-- commons -->			
 			<dependency>
 				<groupId>commons-beanutils</groupId>
 				<artifactId>commons-beanutils</artifactId>
 				<version>1.7.0</version>
 			</dependency>
+			<!-- hsqldb -->			
 			<dependency>
 				<groupId>hsqldb</groupId>
 				<artifactId>hsqldb</artifactId>
 				<version>1.8.0.10</version>
 			</dependency>
+			<!-- struts2 -->			
 			<dependency>
 				<groupId>org.apache.struts</groupId>
 				<artifactId>struts2-core</artifactId>

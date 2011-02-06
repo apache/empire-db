@@ -18,9 +18,7 @@
  */
 package org.apache.empire.struts2.websample.web;
 
-import org.apache.commons.logging.LogFactory;
 import org.apache.empire.xml.XMLConfiguration;
-import org.apache.log4j.xml.DOMConfigurator;
 
 public class SampleConfig extends XMLConfiguration {
 	
@@ -38,7 +36,7 @@ public class SampleConfig extends XMLConfiguration {
 	 */
 	public boolean init(String filename) {
 		// Read the properties file
-		if (super.init(filename, false, true) == false)
+		if (super.init(filename, false) == false)
 			return false;
 		// Done
 		if (readProperties(this, "properties") == false)

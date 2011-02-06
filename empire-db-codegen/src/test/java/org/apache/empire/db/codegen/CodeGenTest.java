@@ -40,7 +40,7 @@ public class CodeGenTest
     public void testCodeGen()
     {
         CodeGenConfig config = new CodeGenConfig();
-        config.init("testconfig.xml", true, false);
+        config.init("testconfig.xml", true);
         CodeGenWriter codeGen = new CodeGenWriter(config);
         
         DBDatabase db = new DBDatabase()

@@ -93,4 +93,50 @@
 		<jdbcPwd>esteam</jdbcPwd>
 		<schemaName>DBSAMPLE</schemaName>
 	</properties-sqlserver>
+	
+	<!-- log4j configuration node -->
+	<log4j:configuration xmlns:log4j="http://jakarta.apache.org/log4j/">
+
+		<appender name="default" class="org.apache.log4j.ConsoleAppender">
+			<!-- layout class="org.apache.log4j.TTCCLayout"/ -->
+			<layout class="org.apache.log4j.PatternLayout">
+				<!-- param name="ConversionPattern" value="NSB(%c) %-5p %m	at %l%n"/ -->
+				<param name="ConversionPattern" value="%-5p [%d{yyyy/MM/dd HH:mm}]: %m		at %l %n"/>
+			</layout>
+		</appender>
+	
+		<!-- log detail configuration -->
+		<logger name="org.apache.empire.xml" additivity="false">
+			<level value="info"/>
+			<appender-ref ref="default"/>
+		</logger>
+
+		<logger name="org.apache.empire.commons" additivity="false">
+			<level value="warn"/>
+			<appender-ref ref="default"/>
+		</logger>
+
+		<logger name="org.apache.empire.db" additivity="false">
+			<level value="warn"/>
+			<appender-ref ref="default"/>
+		</logger>
+
+		<!-- Set this level to "debug" to log all SQL-Statements -->		
+		<logger name="org.apache.empire.db.DBDatabase" additivity="false">
+			<level value="debug"/>
+			<appender-ref ref="default"/>
+		</logger>
+
+		<logger name="org.apache.empire.samples.db" additivity="false">
+			<level value="debug"/>
+			<appender-ref ref="default"/>
+		</logger>
+
+		<root>
+			<priority value="info"/>
+			<appender-ref ref="default"/>
+		</root>
+
+	</log4j:configuration>
+	
 </config>

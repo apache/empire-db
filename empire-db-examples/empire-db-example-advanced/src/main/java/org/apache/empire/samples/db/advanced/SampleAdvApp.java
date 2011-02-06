@@ -22,7 +22,6 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.logging.Logger;
 
 import org.apache.empire.commons.DateUtils;
 import org.apache.empire.commons.ErrorObject;
@@ -46,11 +45,14 @@ import org.apache.empire.db.mysql.DBDatabaseDriverMySQL;
 import org.apache.empire.db.oracle.DBDatabaseDriverOracle;
 import org.apache.empire.db.postgresql.DBDatabaseDriverPostgreSQL;
 import org.apache.empire.db.sqlserver.DBDatabaseDriverMSSQL;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 public class SampleAdvApp 
 {
-    private static final Logger logger = Logger.getLogger(SampleAdvApp.class.getName());
+    // Logger
+    private static final Logger log = LoggerFactory.getLogger(SampleAdvApp.class);
 
     private static final SampleAdvDB db = new SampleAdvDB();
 
@@ -184,7 +186,7 @@ public class SampleAdvApp
             System.out.println("--------------------------------------------------------");
             System.out.println("*** ddlSample: shows how to add a column at runtime and update a record with the added column ***");
             if (db.getDriver() instanceof DBDatabaseDriverH2) {
-            	logger.info("As H2 does not support changing a table with a view defined we remove the view");
+            	log.info("As H2 does not support changing a table with a view defined we remove the view");
             	System.out.println("*** drop EMPLOYEE_INFO_VIEW ***");
             	DBSQLScript script = new DBSQLScript();
             	db.getDriver().getDDLScript(DBCmdType.DROP, db.V_EMPLOYEE_INFO, script);
@@ -192,7 +194,7 @@ public class SampleAdvApp
             }
             ddlSample(conn, idEmp2);
             if (db.getDriver() instanceof DBDatabaseDriverH2) {
-            	logger.info("And put back the view");
+            	log.info("And put back the view");
             	System.out.println("*** create EMPLOYEE_INFO_VIEW ***");
             	DBSQLScript script = new DBSQLScript();
             	db.getDriver().getDDLScript(DBCmdType.CREATE, db.V_EMPLOYEE_INFO, script);
@@ -223,22 +225,22 @@ public class SampleAdvApp
     {
         // Establish a new database connection
         Connection conn = null;
-        logger.info("Connecting to Database'" + config.getJdbcURL() + "' / User=" + config.getJdbcUser());
+        log.info("Connecting to Database'" + config.getJdbcURL() + "' / User=" + config.getJdbcUser());
         try
         {
             // Connect to the database
             Class.forName(config.getJdbcClass()).newInstance();
             conn = DriverManager.getConnection(config.getJdbcURL(), config.getJdbcUser(), config.getJdbcPwd());
-            logger.info("Connected successfully");
+            log.info("Connected successfully");
             // set the AutoCommit to false this session. You must commit
             // explicitly now
             conn.setAutoCommit(false);
-            logger.info("AutoCommit is " + conn.getAutoCommit());
+            log.info("AutoCommit is " + conn.getAutoCommit());
 
         } catch (Exception e)
         {
-            logger.severe("Failed to connect directly to '" + config.getJdbcURL() + "' / User=" + config.getJdbcUser());
-            logger.severe(e.toString());
+            log.error("Failed to connect directly to '" + config.getJdbcURL() + "' / User=" + config.getJdbcUser());
+            log.error(e.toString());
             throw new RuntimeException(e);
         }
         return conn;
@@ -372,7 +374,7 @@ public class SampleAdvApp
         rec.setValue(T_DEP.C_BUSINESS_UNIT, businessUnit);
         if (!rec.update(conn))
         {
-            logger.severe(rec.getErrorMessage());
+            log.error(rec.getErrorMessage());
             return 0;
         }
         // Return Department ID
@@ -394,7 +396,7 @@ public class SampleAdvApp
         rec.setValue(T_EMP.C_GENDER, gender);
         if (!rec.update(conn))
         {
-            logger.severe(rec.getErrorMessage());
+            log.error(rec.getErrorMessage());
             return 0;
         }
         // Return Employee ID
@@ -416,7 +418,7 @@ public class SampleAdvApp
         rec.setValue(T_EDH.C_DATE_FROM, dateFrom);
         if (!rec.update(conn))
         {
-            logger.severe(rec.getErrorMessage());
+            log.error(rec.getErrorMessage());
         }
     }
 
