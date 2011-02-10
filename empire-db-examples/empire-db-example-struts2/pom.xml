@@ -54,6 +54,11 @@
             <artifactId>portlet-api</artifactId>
             <scope>runtime</scope>
         </dependency>
+        <!-- use log4j for logging -->
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-log4j12</artifactId>
+		</dependency>
 	</dependencies>
 	<build>
 		<plugins>

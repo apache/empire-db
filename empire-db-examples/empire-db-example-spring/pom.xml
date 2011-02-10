@@ -38,6 +38,11 @@
 			<groupId>org.apache.empire-db</groupId>
 			<artifactId>empire-db</artifactId>
 		</dependency>
+		<!-- use log4j for logging -->
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-log4j12</artifactId>
+		</dependency>
 		<!-- Spring -->
         <dependency>
             <groupId>org.springframework</groupId>
