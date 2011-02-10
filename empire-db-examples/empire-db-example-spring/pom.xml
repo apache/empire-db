@@ -30,7 +30,7 @@
 	<description>Examples showing the use of empire-db with Spring.</description>
 
     <properties>
-        <spring.version>3.0.0.M3</spring.version>
+        <spring.version>3.0.5.RELEASE</spring.version>
     </properties>
 
 	<dependencies>
