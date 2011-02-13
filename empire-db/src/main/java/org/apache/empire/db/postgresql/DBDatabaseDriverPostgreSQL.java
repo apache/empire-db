@@ -18,8 +18,11 @@
  */
 package org.apache.empire.db.postgresql;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.util.GregorianCalendar;
+import java.util.Iterator;
+
 import org.apache.empire.commons.Errors;
 import org.apache.empire.commons.StringUtils;
 import org.apache.empire.data.DataType;
@@ -38,11 +41,8 @@ import org.apache.empire.db.DBSQLScript;
 import org.apache.empire.db.DBTable;
 import org.apache.empire.db.DBTableColumn;
 import org.apache.empire.db.DBView;
-
-import java.sql.Connection;
-import java.sql.SQLException;
-import java.util.GregorianCalendar;
-import java.util.Iterator;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -656,7 +656,7 @@ public class DBDatabaseDriverPostgreSQL extends DBDatabaseDriver
         switch (c.getDataType())
         {
             case INTEGER:
-            { // Integer type
+            {
                 int size = (int) c.getSize();
                 if (size >= 8) {
                     sql.append("BIGINT");

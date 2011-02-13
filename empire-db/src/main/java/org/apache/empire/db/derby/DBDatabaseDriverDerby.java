@@ -18,6 +18,10 @@
  */
 package org.apache.empire.db.derby;
 
+import java.sql.Connection;
+import java.util.GregorianCalendar;
+import java.util.Iterator;
+
 import org.apache.empire.commons.Errors;
 import org.apache.empire.commons.StringUtils;
 import org.apache.empire.data.DataType;
@@ -37,10 +41,6 @@ import org.apache.empire.db.DBTable;
 import org.apache.empire.db.DBTableColumn;
 import org.apache.empire.db.DBView;
 import org.apache.empire.db.oracle.DBDatabaseDriverOracle.BooleanType;
-
-import java.sql.Connection;
-import java.util.GregorianCalendar;
-import java.util.Iterator;
 
 
 /**
@@ -250,7 +250,7 @@ public class DBDatabaseDriverDerby extends DBDatabaseDriver
            case DECIMAL:   return "CAST(? AS DECIMAL)";
            case DOUBLE:    return "CAST(? AS DECIMAL)";
            case DATE:      return "CAST(? AS DATE)";
-           case DATETIME:  return "CAST(? AS DATETIME)";
+           case DATETIME:  return "CAST(? AS TIMESTAMP)";
            // Convert to text
            case TEXT:
                 return "CAST(? AS CHAR)";
@@ -515,12 +515,6 @@ public class DBDatabaseDriverDerby extends DBDatabaseDriver
                 } else {
                     sql.append("INT");
                 }
-//                if (size>0)
-//                {   // Set Integer length
-//                    sql.append("(");
-//                    sql.append(String.valueOf(size));
-//                    sql.append(")");
-//                }
                 break;
             }
             case AUTOINC:

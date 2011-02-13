@@ -23,9 +23,9 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Iterator;
 
+import org.apache.empire.commons.ErrorObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.apache.empire.commons.ErrorObject;
 
 
 /**
@@ -117,7 +117,7 @@ public class DBSQLScript extends ErrorObject implements Iterable<String>
                 // SQLException
                 log.error(e.toString(), e);
                 if (ignoreErrors==false)
-                    return error(DBErrors.SQLException, e);
+                    return error(DBErrors.SQLException, e.getClass().getSimpleName() + ": " + e.getMessage());
                 // continue
                 log.debug("Ignoring error. Continuing with script...");
             }

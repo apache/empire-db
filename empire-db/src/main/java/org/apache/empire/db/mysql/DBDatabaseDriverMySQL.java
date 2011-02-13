@@ -600,14 +600,20 @@ public class DBDatabaseDriverMySQL extends DBDatabaseDriver
         switch (c.getDataType())
         {
             case INTEGER:
-            { // Integer type
-                sql.append("INT");
-                int size = (int)c.getSize();
-                if (size>0)
-                {   // Set Integer length
-                    sql.append("(");
-                    sql.append(String.valueOf(size));
-                    sql.append(")");
+            {
+                int size = (int) c.getSize();
+                if (size >= 8) {
+                    sql.append("BIGINT");
+                } 
+                else 
+                {
+                    sql.append("INT");
+                    if (size > 0)
+                    {   // Set Integer length
+                        sql.append("(");
+                        sql.append(String.valueOf(size));
+                        sql.append(")");
+                    }
                 }
                 break;
             }    

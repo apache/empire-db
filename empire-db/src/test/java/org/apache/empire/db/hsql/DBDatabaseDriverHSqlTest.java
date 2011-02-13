@@ -25,7 +25,9 @@ import static org.junit.Assert.assertTrue;
 import java.sql.Connection;
 import java.util.Date;
 
-import org.apache.empire.HsqldbResource;
+import org.apache.empire.DBResource;
+import org.apache.empire.DBResource.DB;
+import org.apache.empire.commons.ErrorObject;
 import org.apache.empire.db.CompanyDB;
 import org.apache.empire.db.DBCmdType;
 import org.apache.empire.db.DBDatabaseDriver;
@@ -38,24 +40,26 @@ import org.junit.Test;
 public class DBDatabaseDriverHSqlTest{
  
     @Rule
-    public HsqldbResource hsqldb = new HsqldbResource();
+    public DBResource dbResource = new DBResource(DB.HSQL);
     
     @Test
     public void test()
     {
-        Connection conn = hsqldb.getConnection();
+        ErrorObject.setExceptionsEnabled(true);
+        
+        Connection conn = dbResource.getConnection();
      
-        DBDatabaseDriver driver = new DBDatabaseDriverHSql();
+        DBDatabaseDriver driver = dbResource.newDriver();
         CompanyDB db = new CompanyDB();
-        db.open(driver, hsqldb.getConnection());
+        db.open(driver, dbResource.getConnection());
         DBSQLScript script = new DBSQLScript();
         db.getCreateDDLScript(db.getDriver(), script);
-        script.run(db.getDriver(), hsqldb.getConnection(), false);
+        script.run(db.getDriver(), dbResource.getConnection(), false);
         
         DBRecord dep = new DBRecord();
         dep.create(db.DEPARTMENT);
         dep.setValue(db.DEPARTMENT.NAME, "junit");
-        dep.setValue(db.DEPARTMENT.BUSINESS_UNIT, "testers");
+        dep.setValue(db.DEPARTMENT.BUSINESS_UNIT, "test");
         dep.update(conn);
         
         Date date = dep.getDateTime(db.DEPARTMENT.UPDATE_TIMESTAMP);

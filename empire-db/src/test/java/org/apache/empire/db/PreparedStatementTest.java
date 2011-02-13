@@ -24,9 +24,10 @@ import static org.junit.Assert.assertTrue;
 
 import java.sql.Connection;
 
-import org.apache.empire.HsqldbResource;
+import org.apache.empire.DBResource;
+import org.apache.empire.DBResource.DB;
+import org.apache.empire.commons.ErrorObject;
 import org.apache.empire.db.DBCommand.DBCommandParam;
-import org.apache.empire.db.hsql.DBDatabaseDriverHSql;
 import org.junit.Rule;
 import org.junit.Test;
 
@@ -34,14 +35,16 @@ import org.junit.Test;
 public class PreparedStatementTest{
  
     @Rule
-    public HsqldbResource hsqldb = new HsqldbResource();
+    public DBResource dbResource = new DBResource(DB.HSQL);
     
     @Test
     public void testPreparedStatement()
     {
-        Connection conn = hsqldb.getConnection();
+        ErrorObject.setExceptionsEnabled(true);
         
-        DBDatabaseDriver driver = new DBDatabaseDriverHSql();
+        Connection conn = dbResource.getConnection();
+        
+        DBDatabaseDriver driver = dbResource.newDriver();
         CompanyDB db = new CompanyDB();
         db.open(driver, conn);
         DBSQLScript script = new DBSQLScript();
@@ -51,7 +54,7 @@ public class PreparedStatementTest{
         DBRecord department = new DBRecord();
         department.create(db.DEPARTMENT);
         department.setValue(db.DEPARTMENT.NAME, "junit");
-        department.setValue(db.DEPARTMENT.BUSINESS_UNIT, "testers");
+        department.setValue(db.DEPARTMENT.BUSINESS_UNIT, "test");
         department.update(conn);
 
         long id = department.getInt(db.DEPARTMENT.ID);

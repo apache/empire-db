@@ -18,7 +18,8 @@
  */
 package org.apache.empire;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertSame;
 
 import org.apache.empire.commons.ErrorInfo;
 import org.apache.empire.commons.ErrorObject;
@@ -68,6 +69,7 @@ public class EmpireExceptionTest
 	@Before
 	public void setupException()
 	{
+	    ErrorObject.setExceptionsEnabled(false);
 		this.errorObject = new MockErrorObject();
 		this.exception = new EmpireException(errorObject);
 	}
