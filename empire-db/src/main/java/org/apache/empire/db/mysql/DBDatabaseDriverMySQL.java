@@ -462,7 +462,7 @@ public class DBDatabaseDriverMySQL extends DBDatabaseDriver
             if (StringUtils.isValid(databaseName)==false)
                 return error(Errors.InvalidProperty, "databaseName");
             // Create Database
-            script.addStmt("CREATE DATABASE " + databaseName + " CHARACTER SET " + characterSet);
+            script.addStmt("CREATE DATABASE IF NOT EXISTS " + databaseName + " CHARACTER SET " + characterSet);
             script.addStmt("USE " + databaseName);
             // appendDDLStmt(db, "SET DATEFORMAT ymd", buf);
             // Sequence Table
