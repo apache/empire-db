@@ -117,7 +117,7 @@ public class DBSQLScript extends ErrorObject implements Iterable<String>
                 // SQLException
                 log.error(e.toString(), e);
                 if (ignoreErrors==false)
-                    return error(DBErrors.SQLException, e.getClass().getSimpleName() + ": " + e.getMessage());
+                    return error(DBErrors.SQLException, e);
                 // continue
                 log.debug("Ignoring error. Continuing with script...");
             }
