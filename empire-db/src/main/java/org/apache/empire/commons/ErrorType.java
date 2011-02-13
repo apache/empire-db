@@ -62,7 +62,7 @@ public class ErrorType
         }
         this.numParams = numParamCount;
         // Write error definition to log
-        log.info("Error defined: " + key + "=" + msgPattern);
+        log.debug("Error defined: " + key + "=" + msgPattern);
     }
 
     /**
