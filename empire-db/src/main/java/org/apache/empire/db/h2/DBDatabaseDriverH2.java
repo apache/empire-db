@@ -18,10 +18,6 @@
  */
 package org.apache.empire.db.h2;
 
-import java.sql.Connection;
-import java.util.GregorianCalendar;
-import java.util.Iterator;
-
 import org.apache.empire.commons.Errors;
 import org.apache.empire.commons.StringUtils;
 import org.apache.empire.data.DataType;
@@ -41,6 +37,10 @@ import org.apache.empire.db.DBTable;
 import org.apache.empire.db.DBTableColumn;
 import org.apache.empire.db.DBView;
 
+import java.sql.Connection;
+import java.util.GregorianCalendar;
+import java.util.Iterator;
+
 
 /**
  * This class provides support for the H2 database system.
@@ -49,11 +49,16 @@ import org.apache.empire.db.DBView;
  */
 public class DBDatabaseDriverH2 extends DBDatabaseDriver
 {
+
+  private final static long serialVersionUID = 1L;
+
     /**
      * Defines the H2 command type.
      */ 
     public static class DBCommandH2 extends DBCommand
     {
+        private final static long serialVersionUID = 1L;
+      
         public DBCommandH2(DBDatabase db)
         {
             super(db);

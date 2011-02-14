@@ -18,15 +18,17 @@
  */
 package org.apache.empire.db.expr.order;
 
-import java.util.Set;
-
 import org.apache.empire.db.DBColumn;
 import org.apache.empire.db.DBColumnExpr;
 import org.apache.empire.db.DBDatabase;
 import org.apache.empire.db.DBExpr;
 
+import java.util.Set;
+
 public class DBOrderByExpr extends DBExpr
 {
+    private final static long serialVersionUID = 1L;
+  
     public DBColumnExpr expr;
     public boolean desc;
 

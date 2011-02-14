@@ -34,6 +34,7 @@ import org.w3c.dom.Element;
  */
 public class OracleRowNumExpr extends DBColumnExpr
 {
+    private final static long serialVersionUID = 1L;
     public final DBDatabase   db;
 
     /**

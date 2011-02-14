@@ -18,10 +18,10 @@
  */
 package org.apache.empire.db.expr.compare;
 
-import java.util.Set;
-
 import org.apache.empire.db.DBColumn;
 import org.apache.empire.db.DBDatabase;
+
+import java.util.Set;
 
 
 /**
@@ -34,6 +34,8 @@ import org.apache.empire.db.DBDatabase;
  */
 public class DBCompareNotExpr extends DBCompareExpr
 {
+    private final static long serialVersionUID = 1L;
+  
     public final DBCompareExpr expr;
 
     /**

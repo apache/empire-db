@@ -27,6 +27,8 @@ package org.apache.empire.db;
  */
 public class DBIndex extends DBObject
 {
+    private final static long serialVersionUID = 1L;
+  
     // Index Types
     // TODO convert to an enum?
     /**

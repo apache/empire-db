@@ -21,6 +21,8 @@ package org.apache.empire.commons;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.Serializable;
+
 /**
  * The ErrorType class defines a type of error.
  * In order to define an error you need to provide an ErrorKey and a MessagePattern.
@@ -32,8 +34,9 @@ import org.slf4j.LoggerFactory;
  * The MessagePattern must be formated according to the {@link java.text.MessageFormat} rules.
  * <P>
  */
-public class ErrorType
+public class ErrorType implements Serializable
 {
+    private static final long serialVersionUID = 1L;
     private static final Logger log = LoggerFactory.getLogger(ErrorType.class);
 
     private final String key;

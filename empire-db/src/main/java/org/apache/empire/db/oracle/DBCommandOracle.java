@@ -32,6 +32,8 @@ import org.apache.empire.db.expr.compare.DBCompareExpr;
  */
 public class DBCommandOracle extends DBCommand
 {
+    private final static long serialVersionUID = 1L;
+  
     // Oracle Connect By / Start With
     protected DBCompareExpr connectBy  = null;
     protected DBCompareExpr startWith  = null;

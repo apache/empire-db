@@ -50,6 +50,9 @@ import org.apache.empire.db.DBView;
  */
 public class DBDatabaseDriverOracle extends DBDatabaseDriver
 {
+    private static final long serialVersionUID = 1L;
+
+
     // Implementation of boolean types
     public enum BooleanType
     {

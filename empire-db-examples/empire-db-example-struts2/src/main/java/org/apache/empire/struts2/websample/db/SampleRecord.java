@@ -24,6 +24,8 @@ import org.apache.empire.struts2.websample.web.SampleContext;
 
 public class SampleRecord extends DBRecord
 {
+    private final static long serialVersionUID = 1L;
+  
     // DBRecord members
     protected SampleContext context;
     

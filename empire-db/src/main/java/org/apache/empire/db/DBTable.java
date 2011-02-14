@@ -19,15 +19,15 @@
 package org.apache.empire.db;
 
 // java
+import org.apache.empire.commons.Errors;
+import org.apache.empire.data.DataMode;
+import org.apache.empire.data.DataType;
+
 import java.lang.reflect.Field;
 import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
-
-import org.apache.empire.commons.Errors;
-import org.apache.empire.data.DataMode;
-import org.apache.empire.data.DataType;
 
 
 /**
@@ -39,6 +39,7 @@ import org.apache.empire.data.DataType;
  */
 public class DBTable extends DBRowSet implements Cloneable
 {
+    private final static long serialVersionUID = 1L;
     private static AtomicInteger tableCount  = new AtomicInteger(0);
     private final String   name;
     private String         alias;

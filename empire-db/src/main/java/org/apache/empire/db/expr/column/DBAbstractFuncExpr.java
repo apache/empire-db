@@ -36,6 +36,8 @@ import org.w3c.dom.Element;
  */
 public abstract class DBAbstractFuncExpr extends DBColumnExpr
 {
+    private final static long serialVersionUID = 1L;
+  
     protected final DBColumnExpr expr;
     protected final DBColumn     updateColumn; // optional
     protected final boolean      isAggregate;

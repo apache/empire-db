@@ -34,6 +34,8 @@ import org.apache.empire.db.DBDatabase;
  */
 public class DBCompareAndOrExpr extends DBCompareExpr
 {
+    private final static long serialVersionUID = 1L;
+  
     protected final DBCompareExpr left;
     protected final DBCompareExpr right;
     protected final boolean       or;

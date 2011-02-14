@@ -19,13 +19,13 @@
 package org.apache.empire.db.expr.compare;
 
 // java
-import java.util.Set;
-
 import org.apache.empire.db.DBCmpType;
 import org.apache.empire.db.DBColumn;
 import org.apache.empire.db.DBColumnExpr;
 import org.apache.empire.db.DBDatabase;
 import org.apache.empire.db.DBExpr;
+
+import java.util.Set;
 
 
 /**
@@ -42,6 +42,8 @@ import org.apache.empire.db.DBExpr;
  */
 public class DBCompareColExpr extends DBCompareExpr
 {
+    private final static long serialVersionUID = 1L;
+  
     protected final DBColumnExpr expr;
     protected final DBCmpType    cmpop;
     protected Object value;

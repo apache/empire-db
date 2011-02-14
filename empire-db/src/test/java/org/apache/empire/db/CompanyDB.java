@@ -19,12 +19,8 @@
 package org.apache.empire.db;
 
 import org.apache.empire.commons.Options;
-import org.apache.empire.data.DataType;
 import org.apache.empire.data.DataMode;
-import org.apache.empire.db.DBColumn;
-import org.apache.empire.db.DBDatabase;
-import org.apache.empire.db.DBTable;
-import org.apache.empire.db.DBTableColumn;
+import org.apache.empire.data.DataType;
 
 
 /**
@@ -33,11 +29,14 @@ import org.apache.empire.db.DBTableColumn;
  */
 public class CompanyDB extends DBDatabase
 {
+    private final static long serialVersionUID = 1L;
+
     /**
      * This class represents the definition of the Departments table.
      */
     public static class Departments extends DBTable
     {
+        private final static long serialVersionUID = 1L;
         public final DBTableColumn ID;
         public final DBTableColumn NAME;
         public final DBTableColumn HEAD;
@@ -68,6 +67,7 @@ public class CompanyDB extends DBDatabase
      */
     public static class Employees extends DBTable
     {
+        private final static long serialVersionUID = 1L;
         public final DBTableColumn ID;
         public final DBTableColumn SALUTATION;
         public final DBTableColumn FIRSTNAME;

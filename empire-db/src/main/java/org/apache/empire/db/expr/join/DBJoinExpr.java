@@ -18,8 +18,6 @@
  */
 package org.apache.empire.db.expr.join;
 
-import java.util.*;
-
 import org.apache.empire.db.DBColumn;
 import org.apache.empire.db.DBColumnExpr;
 import org.apache.empire.db.DBDatabase;
@@ -28,6 +26,7 @@ import org.apache.empire.db.DBJoinType;
 import org.apache.empire.db.DBRowSet;
 import org.apache.empire.db.expr.compare.DBCompareExpr;
 
+import java.util.Set;
 
 /**
  * This class is used for building a join expression of an SQL statement.
@@ -39,6 +38,8 @@ import org.apache.empire.db.expr.compare.DBCompareExpr;
  */
 public class DBJoinExpr extends DBExpr
 {
+    private final static long serialVersionUID = 1L;
+  
     protected DBColumnExpr  left;
     protected DBColumnExpr  right;
     protected DBJoinType    type;

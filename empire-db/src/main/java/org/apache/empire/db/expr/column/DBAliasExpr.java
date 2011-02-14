@@ -19,15 +19,17 @@
 package org.apache.empire.db.expr.column;
 
 // Java
-import java.util.*;
-// XML
 import org.apache.empire.commons.StringUtils;
 import org.apache.empire.data.DataType;
 import org.apache.empire.db.DBColumn;
 import org.apache.empire.db.DBColumnExpr;
 import org.apache.empire.db.DBDatabase;
 import org.apache.empire.db.DBDatabaseDriver;
-import org.w3c.dom.*;
+import org.w3c.dom.Element;
+
+import java.util.Set;
+
+// XML
 
 
 /**
@@ -39,6 +41,8 @@ import org.w3c.dom.*;
  */
 public class DBAliasExpr extends DBColumnExpr
 {
+    private final static long serialVersionUID = 1L;
+  
     private final DBColumnExpr expr;
     private final String       alias;
 

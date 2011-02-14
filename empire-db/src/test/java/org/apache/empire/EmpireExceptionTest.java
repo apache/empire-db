@@ -19,7 +19,7 @@
 package org.apache.empire;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertArrayEquals;
 
 import org.apache.empire.commons.ErrorInfo;
 import org.apache.empire.commons.ErrorObject;
@@ -31,67 +31,75 @@ import org.junit.Test;
 public class EmpireExceptionTest
 {
 
-	private final class MockErrorInfo implements ErrorInfo
-	{
+    private final class MockErrorInfo implements ErrorInfo
+    {
 
-		public Object[] getErrorParams()
-		{
-			return new Object[] { "JUnit", "Test" };
-		}
+        public Object[] getErrorParams()
+        {
+            return new Object[] { "JUnit", "Test" };
+        }
 
-		public String getErrorSource()
-		{
-			return "JUnitSource";
-		}
+        public String getErrorSource()
+        {
+            return "JUnitSource";
+        }
 
-		public ErrorType getErrorType()
-		{
-			return Errors.IllegalFormat;
-		}
+        public ErrorType getErrorType()
+        {
+            return Errors.IllegalFormat;
+        }
 
-		public boolean hasError()
-		{
-			return true;
-		}
-	}
+        public boolean hasError()
+        {
+            return true;
+        }
 
-	private final class MockErrorObject extends ErrorObject
-	{
-		public MockErrorObject()
-		{
-			super(new MockErrorInfo());
-		}
-	}
+        public String getErrorMessage()
+        {
+            return "JUnit error.";
+        }
+    }
 
-	private EmpireException exception;
-	private ErrorObject errorObject;
+    private final class MockErrorObject extends ErrorObject
+    {
+        public MockErrorObject()
+        {
+            super(new MockErrorInfo());
+        }
+    }
 
-	@Before
-	public void setupException()
-	{
-	    ErrorObject.setExceptionsEnabled(false);
-		this.errorObject = new MockErrorObject();
-		this.exception = new EmpireException(errorObject);
-	}
+    private EmpireException exception;
+    private ErrorObject     errorObject;
 
-	@Test
-	public void testToString()
-	{
-		String expected = errorObject.getClass().getName() + ": The format of JUnit is invalid for Test";
-		assertEquals(expected, exception.toString());
-	}
+    @Before
+    public void setupException()
+    {
+        ErrorObject.setExceptionsEnabled(false);
+        this.errorObject = new MockErrorObject();
+        this.exception = new EmpireException(errorObject);
+    }
 
-	@Test
-	public void testGetErrorType()
-	{
-		assertEquals(Errors.IllegalFormat, exception.getErrorType());
-	}
+    @Test
+    public void testToString()
+    {
+        String expected = errorObject.getClass().getName() + ": The format of JUnit is invalid for Test";
+        assertEquals(expected, exception.toString());
+    }
 
-	@Test
-	public void testGetErrorObject()
-	{
-		assertEquals(errorObject, exception.getErrorObject());
-		assertSame(errorObject, exception.getErrorObject());
-	}
+    @Test
+    public void testGetErrorType()
+    {
+        assertEquals(Errors.IllegalFormat, exception.getErrorType());
+    }
+
+    @Test
+    public void testGetErrorObject()
+    {
+        assertEquals(errorObject.getErrorMessage(), exception.getErrorObject().getErrorMessage());
+        assertEquals(errorObject.getErrorSource(), exception.getErrorObject().getErrorSource());
+        assertEquals(errorObject.getErrorType(), exception.getErrorObject().getErrorType());
+        assertEquals(errorObject.hasError(), exception.getErrorObject().hasError());
+        assertArrayEquals(errorObject.getErrorParams(), exception.getErrorObject().getErrorParams());
+    }
 
 }

@@ -28,10 +28,7 @@ import org.springframework.dao.UncategorizedDataAccessException;
  */
 public class EmpireDBException extends UncategorizedDataAccessException {
 
-    /**
-     * Comment for <code>serialVersionUID</code>
-     */
-    private static final long serialVersionUID = 7451019261510054061L;
+    private static final long serialVersionUID = 1L;
 
     public EmpireDBException(String msg, Throwable cause) {
         super(msg, cause);

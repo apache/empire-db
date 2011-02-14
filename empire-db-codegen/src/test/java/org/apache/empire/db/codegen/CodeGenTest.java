@@ -37,14 +37,14 @@ public class CodeGenTest
 	}
 
     @Test
+    @SuppressWarnings("serial")
     public void testCodeGen()
     {
         CodeGenConfig config = new CodeGenConfig();
         config.init("testconfig.xml", true);
         CodeGenWriter codeGen = new CodeGenWriter(config);
         
-        DBDatabase db = new DBDatabase()
-        {
+        DBDatabase db = new DBDatabase() {
         };
         
         List<File> files = codeGen.generateCodeFiles(db);

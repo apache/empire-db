@@ -18,6 +18,20 @@
  */
 package org.apache.empire.db;
 
+import org.apache.commons.beanutils.ConstructorUtils;
+import org.apache.empire.commons.Errors;
+import org.apache.empire.commons.ObjectUtils;
+import org.apache.empire.data.ColumnExpr;
+import org.apache.empire.data.DataType;
+import org.apache.empire.xml.XMLUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+
+import java.io.IOException;
+import java.io.NotSerializableException;
+import java.io.ObjectOutputStream;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.sql.Connection;
@@ -28,17 +42,6 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
-
-import org.apache.commons.beanutils.ConstructorUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.apache.empire.commons.Errors;
-import org.apache.empire.commons.ObjectUtils;
-import org.apache.empire.data.ColumnExpr;
-import org.apache.empire.data.DataType;
-import org.apache.empire.xml.XMLUtil;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
 
 
 /**
@@ -65,6 +68,8 @@ import org.w3c.dom.Element;
  */
 public class DBReader extends DBRecordData
 {
+    private final static long serialVersionUID = 1L;
+  
     public abstract class DBReaderIterator implements Iterator<DBRecordData>
     {
         protected int curCount = 0;
@@ -870,7 +875,13 @@ public class DBReader extends DBRecordData
             openResultSets.remove(this);
         }
     }
-    
+
+    private void writeObject(ObjectOutputStream stream) throws IOException {
+        if (rset != null) {
+            throw new NotSerializableException(DBReader.class.getName() + " (due to attached ResultSet)");
+        }
+    }
+
     /**
      * copied from org.apache.commons.beanutils.ConstructorUtils since it's private there
      */

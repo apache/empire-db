@@ -19,12 +19,12 @@
 package org.apache.empire.db;
 
 // Java
-import java.util.Set;
-
 import org.apache.empire.commons.Options;
 import org.apache.empire.data.Column;
 import org.apache.empire.db.expr.set.DBSetExpr;
 import org.w3c.dom.Element;
+
+import java.util.Set;
 
 
 /**
@@ -42,6 +42,8 @@ import org.w3c.dom.Element;
 public abstract class DBColumn extends DBColumnExpr
     implements Column
 {
+    private final static long serialVersionUID = 1L;
+  
     // Predefined column attributes 
 
     /**

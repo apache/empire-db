@@ -19,8 +19,6 @@
 package org.apache.empire.db.expr.column;
 
 // Java
-import java.util.Set;
-
 import org.apache.empire.data.DataType;
 import org.apache.empire.db.DBColumn;
 import org.apache.empire.db.DBColumnExpr;
@@ -28,6 +26,8 @@ import org.apache.empire.db.DBDatabase;
 import org.apache.empire.db.DBRowSet;
 import org.apache.empire.xml.XMLUtil;
 import org.w3c.dom.Element;
+
+import java.util.Set;
 
 
 /**
@@ -40,6 +40,8 @@ import org.w3c.dom.Element;
  */
 public class DBCountExpr extends DBColumnExpr
 {
+    private final static long serialVersionUID = 1L;
+  
     private final DBRowSet rowset;
     private final DBColumnExpr column;
     private final boolean distinct;

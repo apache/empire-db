@@ -40,7 +40,6 @@ import org.apache.empire.db.DBSQLScript;
 import org.apache.empire.db.DBTable;
 import org.apache.empire.db.DBTableColumn;
 import org.apache.empire.db.DBView;
-import org.apache.empire.db.oracle.DBDatabaseDriverOracle.BooleanType;
 
 
 /**
@@ -50,13 +49,15 @@ import org.apache.empire.db.oracle.DBDatabaseDriverOracle.BooleanType;
  */
 public class DBDatabaseDriverDerby extends DBDatabaseDriver
 {
-	
-	private BooleanType booleanType = BooleanType.NUMBER;
+	private final static long serialVersionUID = 1L;
+  
     /**
      * Defines the Derby command type.
      */ 
     public static class DBCommandDerby extends DBCommand
     {
+        private final static long serialVersionUID = 1L;
+      
         public DBCommandDerby(DBDatabase db)
         {
             super(db);
@@ -162,9 +163,9 @@ public class DBDatabaseDriverDerby extends DBDatabaseDriver
         switch (type)
         {   // return support info 
             case CREATE_SCHEMA: return true;
-            case SEQUENCES:     return useSequenceTable;    
+            case SEQUENCES:     return useSequenceTable;
+            default:            return false;
         }
-        return false;
     }
     
     /**

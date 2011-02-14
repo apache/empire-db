@@ -18,10 +18,10 @@
  */
 package org.apache.empire.db;
 
+import org.apache.empire.db.expr.order.DBOrderByExpr;
+
 import java.util.ArrayList;
 import java.util.Set;
-
-import org.apache.empire.db.expr.order.DBOrderByExpr;
 
 /**
  * This class is used for building up a partition of a SQL-Command.
@@ -32,6 +32,8 @@ import org.apache.empire.db.expr.order.DBOrderByExpr;
  */
 public class DBCombinedCmd extends DBCommandExpr
 {
+   private final static long serialVersionUID = 1L;
+  
    // Members
    protected DBCommandExpr left;
    protected DBCommandExpr right;

@@ -18,12 +18,12 @@
  */
 package org.apache.empire.commons;
 
-import java.text.MessageFormat;
-import java.util.WeakHashMap;
-
+import org.apache.empire.EmpireException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.apache.empire.EmpireException;
+
+import java.text.MessageFormat;
+import java.util.WeakHashMap;
 
 
 /**
@@ -220,11 +220,6 @@ public abstract class ErrorObject implements ErrorInfo
         internalSetError(Errors.None, null, null);
     }
     
-    /**
-     * Returns the message associated with the last error.
-     * 
-     * @return the error message or an empty string if no error has been set.
-     */
     public final String getErrorMessage()
     {
         return getMessage(this);

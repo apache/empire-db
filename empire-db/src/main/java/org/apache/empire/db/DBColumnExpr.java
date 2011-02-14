@@ -19,10 +19,6 @@
 package org.apache.empire.db;
 
 // java
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
-
 import org.apache.empire.commons.Attributes;
 import org.apache.empire.commons.OptionEntry;
 import org.apache.empire.commons.Options;
@@ -44,6 +40,10 @@ import org.apache.empire.db.expr.compare.DBCompareExpr;
 import org.apache.empire.db.expr.order.DBOrderByExpr;
 import org.w3c.dom.Element;
 
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+
 
 /**
  * This class is the base class for all expressions that represent a single value.
@@ -52,6 +52,8 @@ import org.w3c.dom.Element;
 public abstract class DBColumnExpr extends DBExpr
     implements ColumnExpr
 {
+    private final static long serialVersionUID = 1L;
+  
     // Predefined column expression attributes
     public static final String DBCOLATTR_TITLE     = "title";
     public static final String DBCOLATTR_TYPE      = "type";

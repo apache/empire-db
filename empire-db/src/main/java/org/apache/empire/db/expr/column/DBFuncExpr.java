@@ -38,6 +38,8 @@ import org.apache.empire.db.DBColumnExpr;
  */
 public class DBFuncExpr extends DBAbstractFuncExpr
 {
+    private final static long serialVersionUID = 1L;
+  
     protected final int          phrase;
     protected final Object[]     params;
     protected String             template;

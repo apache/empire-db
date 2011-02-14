@@ -18,6 +18,17 @@
  */
 package org.apache.empire.db;
 
+import org.apache.empire.commons.DateUtils;
+import org.apache.empire.commons.ErrorObject;
+import org.apache.empire.commons.Errors;
+import org.apache.empire.commons.ObjectUtils;
+import org.apache.empire.commons.StringUtils;
+import org.apache.empire.data.DataMode;
+import org.apache.empire.data.DataType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.Serializable;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -31,23 +42,14 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.apache.empire.commons.DateUtils;
-import org.apache.empire.commons.ErrorObject;
-import org.apache.empire.commons.Errors;
-import org.apache.empire.commons.ObjectUtils;
-import org.apache.empire.commons.StringUtils;
-import org.apache.empire.data.DataMode;
-import org.apache.empire.data.DataType;
-
-
 /**
  * The DBDatabaseDriver class is an abstract base class for all database drivers.
  * Its purpose is to handle everything that is - or might be - database vendor specific. 
  */
-public abstract class DBDatabaseDriver extends ErrorObject
+public abstract class DBDatabaseDriver extends ErrorObject implements Serializable
 {
+    private final static long serialVersionUID = 1L;
+  
     // sql-phrases
     public static final int SQL_NULL_VALUE       = 1;   // Oracle: null
     public static final int SQL_PARAMETER        = 2;   // Oracle: ?
@@ -132,6 +134,8 @@ public abstract class DBDatabaseDriver extends ErrorObject
      */
     public static class DBSeqTable extends DBTable
     {
+        private final static long serialVersionUID = 1L;
+      
         public DBColumn C_SEQNAME;
         public DBColumn C_SEQVALUE;
         public DBColumn C_TIMESTAMP;

@@ -18,14 +18,15 @@
  */
 package org.apache.empire.db;
 
-import static org.junit.Assert.*;
+import org.apache.empire.data.DataType;
+import org.junit.Test;
+import org.w3c.dom.Element;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.empire.data.DataType;
-import org.junit.Test;
-import org.w3c.dom.Element;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 
 /**
  * @author francisdb
@@ -63,12 +64,14 @@ public class DBCommandTest
 	}
 	
 	private class MockDB extends DBDatabase{
+        private static final long serialVersionUID = 1L;
 		
 	}
 	
 	
 	
 	private class MockDBColumn extends DBColumn{
+      private final static long serialVersionUID = 1L;
 
 	    public MockDBColumn(DBRowSet rowSet, String name)
         {

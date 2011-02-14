@@ -18,20 +18,20 @@
  */
 package org.apache.empire.db;
 // XML
-import java.lang.reflect.InvocationTargetException;
-import java.util.Collection;
-import java.util.Date;
-
 import org.apache.commons.beanutils.BeanUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.apache.empire.commons.DateUtils;
 import org.apache.empire.commons.ObjectUtils;
 import org.apache.empire.commons.StringUtils;
 import org.apache.empire.data.ColumnExpr;
 import org.apache.empire.data.RecordData;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+
+import java.lang.reflect.InvocationTargetException;
+import java.util.Collection;
+import java.util.Date;
 
 
 /**
@@ -43,6 +43,8 @@ import org.w3c.dom.Element;
 public abstract class DBRecordData extends DBObject
 	implements RecordData
 {
+    private final static long serialVersionUID = 1L;
+  
     // Logger
     protected static final Logger log = LoggerFactory.getLogger(DBRecordData.class);
     

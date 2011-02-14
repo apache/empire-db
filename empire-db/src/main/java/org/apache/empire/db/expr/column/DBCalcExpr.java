@@ -19,14 +19,14 @@
 package org.apache.empire.db.expr.column;
 
 // Java
-import java.util.Set;
-
 import org.apache.empire.data.DataType;
 import org.apache.empire.db.DBColumn;
 import org.apache.empire.db.DBColumnExpr;
 import org.apache.empire.db.DBDatabase;
 import org.apache.empire.db.DBExpr;
 import org.w3c.dom.Element;
+
+import java.util.Set;
 
 
 /**
@@ -40,6 +40,8 @@ import org.w3c.dom.Element;
  */
 public class DBCalcExpr extends DBColumnExpr
 {
+    private final static long serialVersionUID = 1L;
+  
     private final DBColumnExpr expr;
     private final String       op;
     private final Object       value;

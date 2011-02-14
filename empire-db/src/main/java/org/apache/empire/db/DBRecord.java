@@ -18,15 +18,8 @@
  */
 package org.apache.empire.db;
 
-import java.lang.reflect.InvocationTargetException;
-import java.sql.Connection;
-import java.util.Collection;
-import java.util.List;
-
 import org.apache.commons.beanutils.BeanUtilsBean;
 import org.apache.commons.beanutils.PropertyUtilsBean;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.apache.empire.commons.Errors;
 import org.apache.empire.commons.ObjectUtils;
 import org.apache.empire.commons.Options;
@@ -34,8 +27,15 @@ import org.apache.empire.data.Column;
 import org.apache.empire.data.ColumnExpr;
 import org.apache.empire.data.Record;
 import org.apache.empire.xml.XMLUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+
+import java.lang.reflect.InvocationTargetException;
+import java.sql.Connection;
+import java.util.Collection;
+import java.util.List;
 
 
 /**
@@ -45,6 +45,8 @@ import org.w3c.dom.Element;
  */
 public class DBRecord extends DBRecordData implements Record, Cloneable
 {
+    private final static long serialVersionUID = 1L;
+  
     /*
      * TODO convert to an enum?
      */

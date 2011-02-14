@@ -19,17 +19,17 @@
 package org.apache.empire.db;
 
 // Java
+import org.apache.empire.commons.Attributes;
+import org.apache.empire.commons.Errors;
+import org.apache.empire.data.DataMode;
+import org.apache.empire.data.DataType;
+import org.apache.empire.xml.XMLUtil;
+import org.w3c.dom.Element;
+
 import java.sql.Connection;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-
-import org.apache.empire.commons.Attributes;
-import org.apache.empire.commons.Errors;
-import org.apache.empire.data.DataType;
-import org.apache.empire.data.DataMode;
-import org.apache.empire.xml.XMLUtil;
-import org.w3c.dom.Element;
 
 
 /**
@@ -41,6 +41,8 @@ import org.w3c.dom.Element;
  */
 public class DBTableColumn extends DBColumn
 {
+    private final static long serialVersionUID = 1L;
+
     // Column Information
     protected DataType  type;
     protected double    size;

@@ -18,10 +18,6 @@
  */
 package org.apache.empire.db.hsql;
 
-import java.sql.Connection;
-import java.util.GregorianCalendar;
-import java.util.Iterator;
-
 import org.apache.empire.commons.Errors;
 import org.apache.empire.data.DataType;
 import org.apache.empire.db.DBCmdType;
@@ -40,6 +36,10 @@ import org.apache.empire.db.DBTable;
 import org.apache.empire.db.DBTableColumn;
 import org.apache.empire.db.DBView;
 
+import java.sql.Connection;
+import java.util.GregorianCalendar;
+import java.util.Iterator;
+
 
 /**
  * This class provides support for the HSQLDB database system.<br>
@@ -49,12 +49,16 @@ import org.apache.empire.db.DBView;
  */
 public class DBDatabaseDriverHSql extends DBDatabaseDriver
 {
+  private final static long serialVersionUID = 1L;
+  
     /**
      * Defines the HSQLDB command type.
      */ 
 	public static class DBCommandHSql extends DBCommand
 	{
-	    /**
+        private static final long serialVersionUID = 1L;
+
+        /**
 	     * @param db the database
 	     * @see org.apache.empire.db.DBCommand
 	     */

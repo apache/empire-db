@@ -18,6 +18,14 @@
  */
 package org.apache.empire.db;
 
+import org.apache.empire.commons.Errors;
+import org.apache.empire.commons.ObjectUtils;
+import org.apache.empire.commons.Options;
+import org.apache.empire.data.DataType;
+import org.apache.empire.db.expr.column.DBValueExpr;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -25,14 +33,6 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.apache.empire.commons.Errors;
-import org.apache.empire.commons.ObjectUtils;
-import org.apache.empire.commons.Options;
-import org.apache.empire.data.DataType;
-import org.apache.empire.db.expr.column.DBValueExpr;
 
 
 /**
@@ -46,14 +46,16 @@ import org.apache.empire.db.expr.column.DBValueExpr;
  */
 public abstract class DBDatabase extends DBObject
 {
+    private final static long serialVersionUID = 1L;
+  
     /**
      * This class represents the database systems current date and time.
      * <P>
      * There is no need to use this class directly.<BR>
      * Instead you can use the constant {@link DBDatabase#SYSDATE}
      */
-    public static final class DBSystemDate 
-    {   
+    public static final class DBSystemDate
+    {
         // System Date Class for internal use
         private DBSystemDate() 
         { 

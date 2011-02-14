@@ -18,6 +18,8 @@
  */
 package org.apache.empire.db;
 
+import java.io.Serializable;
+
 /**
  * This class creates a DBReferene object for a foreing key relation.
  * 
@@ -25,10 +27,13 @@ package org.apache.empire.db;
  */
 public class DBRelation extends DBObject
 {
-	public static class DBReference
+  private final static long serialVersionUID = 1L;
+
+	public static class DBReference implements Serializable
 	{
+      private final static long serialVersionUID = 1L;
 	    private DBTableColumn sourceColumn;
-        private DBTableColumn targetColumn;
+      private DBTableColumn targetColumn;
 	    
 	    public DBReference(DBTableColumn sourceColumn, DBTableColumn targetColumn)
 	    {

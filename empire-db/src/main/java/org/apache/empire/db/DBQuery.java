@@ -18,12 +18,6 @@
  */
 package org.apache.empire.db;
 
-import java.sql.Connection;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.concurrent.atomic.AtomicInteger;
-
 import org.apache.empire.commons.Errors;
 import org.apache.empire.commons.ObjectUtils;
 import org.apache.empire.commons.Options;
@@ -33,6 +27,12 @@ import org.apache.empire.db.expr.compare.DBCompareColExpr;
 import org.apache.empire.db.expr.compare.DBCompareExpr;
 import org.apache.empire.db.expr.join.DBJoinExpr;
 import org.w3c.dom.Element;
+
+import java.sql.Connection;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.concurrent.atomic.AtomicInteger;
 
 
 /**
@@ -49,8 +49,11 @@ import org.w3c.dom.Element;
  */
 public class DBQuery extends DBRowSet
 {
+    private final static long serialVersionUID = 1L;
+
     public static class DBQueryColumn extends DBColumn
     {
+        private final static long serialVersionUID = 1L;
         protected DBColumnExpr expr;
 
         /**

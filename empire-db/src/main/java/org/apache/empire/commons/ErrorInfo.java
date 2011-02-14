@@ -51,5 +51,11 @@ public interface ErrorInfo
    * @return the error message or null if no error has been set.
    */
   String getErrorSource();
-  
+
+  /**
+   * Returns the message associated with the last error.
+   *
+   * @return the error message or an empty string if no error has been set.
+   */
+  String getErrorMessage();
 }

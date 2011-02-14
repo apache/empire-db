@@ -18,18 +18,6 @@
  */
 package org.apache.empire.db.codegen;
 
-import java.sql.Connection;
-import java.sql.DatabaseMetaData;
-import java.sql.DriverManager;
-import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
-import java.sql.SQLException;
-import java.sql.Types;
-import java.util.ArrayList;
-import java.util.List;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.apache.empire.commons.ErrorObject;
 import org.apache.empire.commons.Errors;
 import org.apache.empire.data.DataType;
@@ -41,6 +29,18 @@ import org.apache.empire.db.DBTableColumn;
 import org.apache.empire.db.DBView;
 import org.apache.empire.db.DBView.DBViewColumn;
 import org.apache.empire.db.codegen.util.DBUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.sql.Connection;
+import java.sql.DatabaseMetaData;
+import java.sql.DriverManager;
+import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
+import java.sql.SQLException;
+import java.sql.Types;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * This class is used to create a in memory DBDatabase of a given SQLConnection
@@ -51,9 +51,12 @@ import org.apache.empire.db.codegen.util.DBUtil;
 public class CodeGenParser extends ErrorObject {
 
 	public static class InMemoryDatabase extends DBDatabase {
+        private static final long serialVersionUID = 1L;
 	}
 	
 	public static class InMemoryView extends DBView {
+    private final static long serialVersionUID = 1L;
+
 		public InMemoryView(String name, DBDatabase db) {
 			super(name, db);
 		}

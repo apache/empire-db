@@ -43,11 +43,16 @@ import org.apache.empire.db.DBTableColumn;
  */
 public class SampleDB extends DBDatabase
 {
+    private final static long serialVersionUID = 1L;
+
     /**
      * This class represents the definition of the Departments table.
      */
     public static class Departments extends DBTable
     {
+
+        private final static long serialVersionUID = 1L;
+
         public final DBTableColumn DEPARTMENT_ID;
         public final DBTableColumn NAME;
         public final DBTableColumn HEAD;
@@ -78,6 +83,8 @@ public class SampleDB extends DBDatabase
      */
     public static class Employees extends DBTable
     {
+        private final static long serialVersionUID = 1L;
+      
         public final DBTableColumn EMPLOYEE_ID;
         public final DBTableColumn SALUTATION;
         public final DBTableColumn FIRSTNAME;

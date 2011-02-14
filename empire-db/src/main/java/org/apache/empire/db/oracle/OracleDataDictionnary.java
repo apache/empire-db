@@ -34,9 +34,9 @@ import org.apache.empire.db.DBView;
 public class OracleDataDictionnary {
     
     /**
-     * Immutable culumn info helper class
+     * Immutable column info helper class
      */
-    private class ColumnInfo {
+    public class ColumnInfo {
 
         private final String dataType;
         private final int charLength;

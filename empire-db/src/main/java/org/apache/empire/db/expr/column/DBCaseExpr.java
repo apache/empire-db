@@ -18,8 +18,6 @@
  */
 package org.apache.empire.db.expr.column;
 
-import java.util.Set;
-
 import org.apache.empire.data.DataType;
 import org.apache.empire.db.DBColumn;
 import org.apache.empire.db.DBColumnExpr;
@@ -27,6 +25,8 @@ import org.apache.empire.db.DBDatabase;
 import org.apache.empire.db.expr.compare.DBCompareExpr;
 import org.apache.empire.xml.XMLUtil;
 import org.w3c.dom.Element;
+
+import java.util.Set;
 
 /**
  * This class is used to add the "case when ?=A then X else Y end" statement to the SQL-Command.
@@ -38,6 +38,8 @@ import org.w3c.dom.Element;
  */
 public class DBCaseExpr extends DBColumnExpr
 {
+    private final static long serialVersionUID = 1L;
+  
     private final DBCompareExpr compExpr;
     private final DBColumnExpr  trueExpr;
     private final DBColumnExpr  elseExpr;

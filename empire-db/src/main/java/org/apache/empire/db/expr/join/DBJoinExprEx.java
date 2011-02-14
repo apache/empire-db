@@ -35,6 +35,7 @@ import org.apache.empire.db.expr.compare.DBCompareExpr;
  */
 public class DBJoinExprEx extends DBJoinExpr
 {
+    private final static long serialVersionUID = 1L;
     private final DBCompareExpr cmp;
     
     private static DBColumnExpr findFirstColumn(DBCompareExpr expr)

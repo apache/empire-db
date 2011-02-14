@@ -18,14 +18,15 @@
  */
 package org.apache.empire.db;
 
-import java.sql.Connection;
-
 import org.apache.empire.data.DataType;
 
-public class MockDriver extends DBDatabaseDriver{
-    
-    class MockCommand extends DBCommand{
+import java.sql.Connection;
 
+public class MockDriver extends DBDatabaseDriver{
+    private final static long serialVersionUID = 1L;
+  
+    class MockCommand extends DBCommand{
+        private final static long serialVersionUID = 1L;
         protected MockCommand(DBDatabase db)
         {
             super(db);

@@ -33,6 +33,8 @@ import org.apache.empire.db.DBDatabaseDriver;
  */
 public class DBConvertExpr extends DBAbstractFuncExpr
 {
+    private final static long serialVersionUID = 1L;
+  
     private final Object format;
     
     /**

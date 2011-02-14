@@ -18,16 +18,6 @@
  */
 package org.apache.empire.db;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
-import java.util.Vector;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.apache.empire.EmpireException;
 import org.apache.empire.commons.Errors;
 import org.apache.empire.data.DataType;
@@ -36,6 +26,16 @@ import org.apache.empire.db.expr.compare.DBCompareExpr;
 import org.apache.empire.db.expr.join.DBJoinExpr;
 import org.apache.empire.db.expr.join.DBJoinExprEx;
 import org.apache.empire.db.expr.set.DBSetExpr;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Set;
+import java.util.Vector;
 
 
 /**
@@ -46,8 +46,11 @@ import org.apache.empire.db.expr.set.DBSetExpr;
 public abstract class DBCommand extends DBCommandExpr
     implements Cloneable
 {
+    private final static long serialVersionUID = 1L;
+
     public static final class DBCommandParam extends DBExpr
     {
+        private final static long serialVersionUID = 1L;
         protected DBCommand cmd;
         protected DataType  type;
         protected Object    value;

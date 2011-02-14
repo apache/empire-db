@@ -29,6 +29,8 @@ import org.apache.empire.struts2.websample.web.SampleApplication;
 
 public class SampleDB extends DBDatabase
 {
+    private final static long serialVersionUID = 1L;
+  
     // Static Access
     public static SampleDB getInstance()
     {

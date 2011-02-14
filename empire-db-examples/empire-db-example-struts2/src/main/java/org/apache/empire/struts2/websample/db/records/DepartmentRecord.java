@@ -24,6 +24,8 @@ import org.apache.empire.struts2.websample.web.SampleContext;
 
 public class DepartmentRecord extends SampleRecord
 {
+    private final static long serialVersionUID = 1L;
+  
     public static final SampleDB.Departments T = SampleDB.getInstance().T_DEPARTMENTS;  
 
     // Department Record

@@ -18,16 +18,16 @@
  */
 package org.apache.empire.db.expr.column;
 
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Set;
-
 import org.apache.empire.commons.StringUtils;
 import org.apache.empire.data.DataType;
 import org.apache.empire.db.DBColumn;
 import org.apache.empire.db.DBColumnExpr;
 import org.apache.empire.db.DBDatabaseDriver;
 import org.apache.empire.db.DBExpr;
+
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * This class is used to decode a set of keys to the corresponding target values.
@@ -40,6 +40,8 @@ import org.apache.empire.db.DBExpr;
  */
 public class DBDecodeExpr extends DBAbstractFuncExpr
 {
+    private final static long serialVersionUID = 1L;
+  
     private final Map<?,?>  valueMap;
     private final Object    elseExpr;
     

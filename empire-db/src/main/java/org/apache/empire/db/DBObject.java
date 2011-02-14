@@ -19,12 +19,13 @@
 package org.apache.empire.db;
 
 // java.sql
-import java.sql.SQLException;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.apache.empire.commons.ErrorObject;
 import org.apache.empire.commons.ErrorType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.Serializable;
+import java.sql.SQLException;
 
 
 /**
@@ -33,8 +34,9 @@ import org.apache.empire.commons.ErrorType;
  * 
  *
  */
-public abstract class DBObject extends ErrorObject
+public abstract class DBObject extends ErrorObject implements Serializable
 {
+    private static final long serialVersionUID = 1L;
     // Logger
     private static final Logger log = LoggerFactory.getLogger(DBObject.class);
 

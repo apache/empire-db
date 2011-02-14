@@ -19,9 +19,6 @@
 package org.apache.empire.db.expr.column;
 
 // Java
-import java.text.MessageFormat;
-import java.util.Set;
-
 import org.apache.empire.data.DataType;
 import org.apache.empire.db.DBColumn;
 import org.apache.empire.db.DBColumnExpr;
@@ -30,6 +27,9 @@ import org.apache.empire.db.DBDatabaseDriver;
 import org.apache.empire.db.DBExpr;
 import org.apache.empire.xml.XMLUtil;
 import org.w3c.dom.Element;
+
+import java.text.MessageFormat;
+import java.util.Set;
 
 
 /**
@@ -41,6 +41,8 @@ import org.w3c.dom.Element;
  */
 public class DBConcatExpr extends DBColumnExpr
 {
+    private final static long serialVersionUID = 1L;
+  
     protected final DBColumnExpr left;
     protected final Object       right;
 

@@ -86,7 +86,6 @@ public class ActionErrorsTag extends EmpireTagSupport
     
     // ------- render helpers -------
     
-    @SuppressWarnings("null")
     private void renderAllErrors(HtmlWriter w, ActionErrorProvider provider)
     {
         // Get errors

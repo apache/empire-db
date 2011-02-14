@@ -99,7 +99,7 @@ public class CodeGenWriter {
 				new CommonsLogLogChute());
 		if(config.getTemplateFolder() == null){
 			engine.setProperty(RuntimeConstants.RESOURCE_LOADER, "classpath");
-			engine.setProperty("classpath." + VelocityEngine.RESOURCE_LOADER + ".class", ClasspathResourceLoader.class.getName());
+			engine.setProperty("classpath." + RuntimeConstants.RESOURCE_LOADER + ".class", ClasspathResourceLoader.class.getName());
 			config.setTemplateFolder("templates");
 		}else{
 			File templateFolder = new File(config.getTemplateFolder());

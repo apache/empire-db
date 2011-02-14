@@ -18,11 +18,6 @@
  */
 package org.apache.empire.db.sqlserver;
 
-import java.sql.Connection;
-import java.sql.SQLException;
-import java.util.GregorianCalendar;
-import java.util.Iterator;
-
 import org.apache.empire.commons.Errors;
 import org.apache.empire.commons.ObjectUtils;
 import org.apache.empire.commons.StringUtils;
@@ -43,6 +38,11 @@ import org.apache.empire.db.DBTable;
 import org.apache.empire.db.DBTableColumn;
 import org.apache.empire.db.DBView;
 
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.util.GregorianCalendar;
+import java.util.Iterator;
+
 
 /**
  * This class provides support for the Microsoft SQL-Server database system.
@@ -52,11 +52,14 @@ import org.apache.empire.db.DBView;
  */
 public class DBDatabaseDriverMSSQL extends DBDatabaseDriver
 {
+    private final static long serialVersionUID = 1L;
+  
     /**
      * Defines the Microsoft SQL-Server command type.
      */ 
     public static class DBCommandMSSQL extends DBCommand
     {
+        private final static long serialVersionUID = 1L;
         protected int limit = -1;
 
         public DBCommandMSSQL(DBDatabase db)

@@ -18,16 +18,6 @@
  */
 package org.apache.empire.db;
 
-import java.sql.Connection;
-import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.apache.empire.commons.Errors;
 import org.apache.empire.commons.ObjectUtils;
 import org.apache.empire.commons.StringUtils;
@@ -35,6 +25,16 @@ import org.apache.empire.data.Column;
 import org.apache.empire.data.DataType;
 import org.apache.empire.db.DBRelation.DBReference;
 import org.apache.empire.db.expr.column.DBCountExpr;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.sql.Connection;
+import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 
 /**
@@ -47,6 +47,8 @@ import org.apache.empire.db.expr.column.DBCountExpr;
  */
 public abstract class DBRowSet extends DBExpr
 {
+    private final static long serialVersionUID = 1L;
+
     /**
      * This class is used to set the auto generated key of a record if the database does not support sequences.
      * It is used with the executeSQL function and only required for insert statements

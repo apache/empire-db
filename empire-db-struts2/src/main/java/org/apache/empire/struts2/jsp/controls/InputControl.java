@@ -18,10 +18,7 @@
  */
 package org.apache.empire.struts2.jsp.controls;
 
-import java.util.Locale;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.commons.lang.xwork.StringEscapeUtils;
 import org.apache.empire.commons.ErrorInfo;
 import org.apache.empire.commons.ErrorType;
 import org.apache.empire.commons.Options;
@@ -31,7 +28,10 @@ import org.apache.empire.struts2.action.RequestParamProvider;
 import org.apache.empire.struts2.html.HtmlTagDictionary;
 import org.apache.empire.struts2.html.HtmlWriter;
 import org.apache.empire.struts2.html.HtmlWriter.HtmlTag;
-import org.apache.commons.lang.xwork.StringEscapeUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.Locale;
 
 
 public abstract class InputControl
@@ -137,7 +137,10 @@ public abstract class InputControl
         {
             return errSource;
         }
-        
+        public String getErrorMessage()
+        {
+            return null;
+        }
     }
 
     /**
@@ -263,8 +266,8 @@ public abstract class InputControl
      * to the data type of the supplied column
      * 
      * @param value the value string from the request
-     * @param the user locale 
-     * @param the column for which the value is supplied 
+     * @param locale the user locale
+     * @param column the column for which the value is supplied
      * 
      * @return the parsed value
      */
@@ -278,7 +281,7 @@ public abstract class InputControl
      * previously been parsed 
      * 
      * @param value the parsed object value
-     * @param the column for which the value should be validated  
+     * @param column the column for which the value should be validated
      * @param s the unparsed value string. In case of an error this should be forwarded to the error function. 
      * 
      * @return the parsed value

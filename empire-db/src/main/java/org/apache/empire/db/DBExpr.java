@@ -19,13 +19,13 @@
 package org.apache.empire.db;
 
 // java
+import org.apache.empire.data.DataType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.Collection;
 import java.util.Date;
 import java.util.Set;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.apache.empire.data.DataType;
 
 
 /**
@@ -36,6 +36,8 @@ import org.apache.empire.data.DataType;
  */
 public abstract class DBExpr extends DBObject
 {
+    private final static long serialVersionUID = 1L;
+  
     // SQL Context Flags
     public static final long CTX_DEFAULT       = 7;  // Default: FullyQualified + Value
     public static final long CTX_ALL           = 15; // All Flags set (except exclusions)

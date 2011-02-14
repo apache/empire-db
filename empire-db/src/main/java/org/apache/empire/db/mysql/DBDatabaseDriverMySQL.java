@@ -18,11 +18,6 @@
  */
 package org.apache.empire.db.mysql;
 
-import java.sql.Connection;
-import java.sql.SQLException;
-import java.util.GregorianCalendar;
-import java.util.Iterator;
-
 import org.apache.empire.commons.Errors;
 import org.apache.empire.commons.StringUtils;
 import org.apache.empire.data.DataType;
@@ -42,6 +37,11 @@ import org.apache.empire.db.DBTable;
 import org.apache.empire.db.DBTableColumn;
 import org.apache.empire.db.DBView;
 
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.util.GregorianCalendar;
+import java.util.Iterator;
+
 
 /**
  * This class provides support for the MySQL database system.
@@ -50,11 +50,15 @@ import org.apache.empire.db.DBView;
  */
 public class DBDatabaseDriverMySQL extends DBDatabaseDriver
 {
+    private static final long serialVersionUID = 1L;
+
     /**
      * Defines the MySQL command type.
      */ 
     public static class DBCommandMySQL extends DBCommand
     {
+        private final static long serialVersionUID = 1L;
+      
         protected int limit = -1;
         protected int skip  = -1;
         

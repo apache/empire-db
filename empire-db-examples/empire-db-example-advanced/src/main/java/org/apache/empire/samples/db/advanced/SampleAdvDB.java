@@ -47,11 +47,15 @@ import org.apache.empire.db.DBView;
  */
 public class SampleAdvDB extends DBDatabase
 {
+    private final static long serialVersionUID = 1L;
+
     /**
      * This class represents the definition of the Departments table.
      */
     public static class Departments extends DBTable
     {
+        private final static long serialVersionUID = 1L;
+
         public final DBTableColumn C_DEPARTMENT_ID;
         public final DBTableColumn C_NAME;
         public final DBTableColumn C_HEAD;
@@ -82,6 +86,8 @@ public class SampleAdvDB extends DBDatabase
      */
     public static class Employees extends DBTable
     {
+        private final static long serialVersionUID = 1L;
+      
         public final DBTableColumn C_EMPLOYEE_ID;
         public final DBTableColumn C_SALUTATION;
         public final DBTableColumn C_FIRSTNAME;
@@ -137,6 +143,8 @@ public class SampleAdvDB extends DBDatabase
      */
     public static class EmployeeDepartmentHistory extends DBTable
     {
+        private final static long serialVersionUID = 1L;
+      
         public final DBTableColumn C_EMPLOYEE_ID;
         public final DBTableColumn C_DEPARTMENT_ID;
         public final DBTableColumn C_DATE_FROM;
@@ -159,6 +167,8 @@ public class SampleAdvDB extends DBDatabase
      */
     public static class EmployeeDepSinceView extends DBView
     {
+        private final static long serialVersionUID = 1L;
+      
         public final DBViewColumn C_EMPLOYEE_ID;
         public final DBViewColumn C_MAX_DATE_FROM;
         
@@ -199,6 +209,8 @@ public class SampleAdvDB extends DBDatabase
      */
     public static class EmployeeInfoView extends DBView
     {
+        private final static long serialVersionUID = 1L;
+      
         public final DBViewColumn C_EMPLOYEE_ID;
         public final DBViewColumn C_CURRENT_DEP_ID;
         public final DBViewColumn C_NAME_AND_DEP;

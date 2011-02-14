@@ -18,12 +18,12 @@
  */
 package org.apache.empire.db.expr.compare;
 
-import java.util.Set;
-
 import org.apache.empire.db.DBColumn;
 import org.apache.empire.db.DBCommand;
 import org.apache.empire.db.DBCommandExpr;
 import org.apache.empire.db.DBDatabase;
+
+import java.util.Set;
 
 
 /**
@@ -34,6 +34,8 @@ import org.apache.empire.db.DBDatabase;
  */
 public class DBExistsExpr extends DBCompareExpr
 {
+    private final static long serialVersionUID = 1L;
+  
     public final DBCommandExpr cmd;
     public final DBCompareExpr compareExpr;
 

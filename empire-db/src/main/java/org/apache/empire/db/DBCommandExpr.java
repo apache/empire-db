@@ -19,16 +19,16 @@
 package org.apache.empire.db;
 
 // java
-import java.sql.Connection;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
-
 import org.apache.empire.commons.Errors;
 import org.apache.empire.commons.Options;
 import org.apache.empire.data.DataType;
 import org.apache.empire.db.expr.order.DBOrderByExpr;
 import org.w3c.dom.Element;
+
+import java.sql.Connection;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
 
 
 /**
@@ -40,9 +40,12 @@ import org.w3c.dom.Element;
  */
 public abstract class DBCommandExpr extends DBExpr
 {
+    private final static long serialVersionUID = 1L;
+
     // Internal Classes
     protected static class DBCmdQuery extends DBRowSet
     {
+        private final static long serialVersionUID = 1L;
         private DBCommandExpr cmd;
 
         /**
@@ -161,6 +164,7 @@ public abstract class DBCommandExpr extends DBExpr
      */
     protected static class DBCmdColumn extends DBColumn
     {
+        private final static long serialVersionUID = 1L;
         private DBColumnExpr expr;
 
         /**
