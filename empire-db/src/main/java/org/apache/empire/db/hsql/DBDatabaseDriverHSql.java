@@ -18,6 +18,10 @@
  */
 package org.apache.empire.db.hsql;
 
+import java.sql.Connection;
+import java.util.GregorianCalendar;
+import java.util.Iterator;
+
 import org.apache.empire.commons.Errors;
 import org.apache.empire.data.DataType;
 import org.apache.empire.db.DBCmdType;
@@ -35,10 +39,6 @@ import org.apache.empire.db.DBSQLScript;
 import org.apache.empire.db.DBTable;
 import org.apache.empire.db.DBTableColumn;
 import org.apache.empire.db.DBView;
-
-import java.sql.Connection;
-import java.util.GregorianCalendar;
-import java.util.Iterator;
 
 
 /**
@@ -174,7 +174,7 @@ public class DBDatabaseDriverHSql extends DBDatabaseDriver
             case SQL_FUNC_DECODE_ELSE:  return "else {0}";
             // Not defined
             default:
-                log.error("SQL phrase " + String.valueOf(phrase) + " is not defined!");
+                log.error("SQL phrase " + phrase + " is not defined!");
                 return "?";
         }
     }
@@ -199,7 +199,7 @@ public class DBDatabaseDriverHSql extends DBDatabaseDriver
                 { // Convert using a format string
                     if (srcType == DataType.INTEGER || srcType == DataType.AUTOINC)
                     {
-                        log.error("getConvertPhrase: unknown type (" + String.valueOf(destType));
+                        log.error("getConvertPhrase: unknown type " + destType);
                         return "?";
                     }
                     else
@@ -268,7 +268,7 @@ public class DBDatabaseDriverHSql extends DBDatabaseDriver
                 case DROP:
                     return dropObject(((DBDatabase) dbo).getSchema(), "DATABASE", script);
                 default:
-                    return error(Errors.NotImplemented, "getDDLScript."+dbo.getClass().getName()+"."+String.valueOf(type));
+                    return error(Errors.NotImplemented, "getDDLScript." + dbo.getClass().getName() + "." + type);
             }
         } 
         else if (dbo instanceof DBTable)
@@ -280,7 +280,7 @@ public class DBDatabaseDriverHSql extends DBDatabaseDriver
                 case DROP:
                     return dropObject(((DBTable) dbo).getName(), "TABLE", script);
                 default:
-                    return error(Errors.NotImplemented, "getDDLCommand."+dbo.getClass().getName()+"."+String.valueOf(type));
+                    return error(Errors.NotImplemented, "getDDLScript." + dbo.getClass().getName() + "." + type);
             }
         } 
         else if (dbo instanceof DBView)
@@ -292,7 +292,7 @@ public class DBDatabaseDriverHSql extends DBDatabaseDriver
                 case DROP:
                     return dropObject(((DBView) dbo).getName(), "VIEW", script);
                 default:
-                    return error(Errors.NotImplemented, "getDDLCommand."+dbo.getClass().getName()+"."+String.valueOf(type));
+                    return error(Errors.NotImplemented, "getDDLScript." + dbo.getClass().getName() + "." + type);
             }
         } 
         else if (dbo instanceof DBRelation)
@@ -304,7 +304,7 @@ public class DBDatabaseDriverHSql extends DBDatabaseDriver
                 case DROP:
                     return alterRelation((DBRelation) dbo, type, script);
                 default:
-                    return error(Errors.NotImplemented, "getDDLCommand."+dbo.getClass().getName()+"."+String.valueOf(type));
+                    return error(Errors.NotImplemented, "getDDLScript." + dbo.getClass().getName() + "." + type);
             }
         } 
         else if (dbo instanceof DBTableColumn)
@@ -634,7 +634,7 @@ public class DBDatabaseDriverHSql extends DBDatabaseDriver
                 return script.addStmt(sql.toString());
             }
             default:
-                return error(Errors.NotImplemented, "Type not supported ("+String.valueOf(type)+")");
+                return error(Errors.NotImplemented, "Type not supported (" + type + ")");
         }
 
     }

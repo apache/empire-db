@@ -424,7 +424,7 @@ public class DBDatabaseDriverPostgreSQL extends DBDatabaseDriver
                 case DROP:
                     return dropObject(((DBTable) dbo).getName(), "TABLE", script);
                 default:
-                    return error(Errors.NotImplemented, "getDDLCommand."+dbo.getClass().getName()+"."+String.valueOf(type));
+                    return error(Errors.NotImplemented, "getDDLScript." + dbo.getClass().getName() + "." + type);
             }
         } 
         else if (dbo instanceof DBView)
@@ -436,7 +436,7 @@ public class DBDatabaseDriverPostgreSQL extends DBDatabaseDriver
                 case DROP:
                     return dropObject(((DBView) dbo).getName(), "VIEW", script);
                 default:
-                    return error(Errors.NotImplemented, "getDDLCommand."+dbo.getClass().getName()+"."+String.valueOf(type));
+                    return error(Errors.NotImplemented, "getDDLScript." + dbo.getClass().getName() + "." + type);
             }
         } 
         else if (dbo instanceof DBRelation)
@@ -448,7 +448,7 @@ public class DBDatabaseDriverPostgreSQL extends DBDatabaseDriver
                 case DROP:
                     return dropObject(((DBRelation) dbo).getName(), "CONSTRAINT", script);
                 default:
-                    return error(Errors.NotImplemented, "getDDLCommand."+dbo.getClass().getName()+"."+String.valueOf(type));
+                    return error(Errors.NotImplemented, "getDDLScript." + dbo.getClass().getName() + "." + type);
             }
         } 
         else if (dbo instanceof DBTableColumn)
@@ -593,7 +593,7 @@ public class DBDatabaseDriverPostgreSQL extends DBDatabaseDriver
         sql.append(")");
         // Comment?
         String comment = t.getComment();
-        if (StringUtils.isValid(comment))
+        if (StringUtils.isNotEmpty(comment))
         {   // Add the table comment
             sql.append(" COMMENT = '");
             sql.append(comment);

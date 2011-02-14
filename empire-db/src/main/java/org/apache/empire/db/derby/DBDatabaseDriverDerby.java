@@ -233,7 +233,7 @@ public class DBDatabaseDriverDerby extends DBDatabaseDriver
             case SQL_FUNC_DECODE_ELSE:        return "else {0}";
             // Not defined
             default:
-                log.error("SQL phrase " + String.valueOf(phrase) + " is not defined!");
+                log.error("SQL phrase " + phrase + " is not defined!");
                 return "?";
         }
     }
@@ -259,7 +259,7 @@ public class DBDatabaseDriverDerby extends DBDatabaseDriver
                 return "CAST(? AS BLOB)";
            // Unknown Type                                       
            default:
-                log.error("getConvertPhrase: unknown type (" + String.valueOf(destType));
+                log.error("getConvertPhrase: unknown type " + destType);
                 return "?";
         }
     }
@@ -281,14 +281,12 @@ public class DBDatabaseDriverDerby extends DBDatabaseDriver
         }
     }
 
-    /**
-     * @see DBDatabaseDriver#getDDLScript(DBCmdType, DBObject, DBSQLScript)  
-     */
+    /** {@inheritDoc} */
     @Override
     public boolean getDDLScript(DBCmdType type, DBObject dbo, DBSQLScript script)
     {
         // The Object's database must be attached to this driver
-        if (dbo==null || dbo.getDatabase().getDriver()!=this)
+        if (dbo == null || dbo.getDatabase().getDriver() != this)
             return error(Errors.InvalidArg, dbo, "dbo");
         // Check Type of object
         if (dbo instanceof DBDatabase)
@@ -300,7 +298,7 @@ public class DBDatabaseDriverDerby extends DBDatabaseDriver
                 case DROP:
                     return dropObject(((DBDatabase) dbo).getSchema(), "DATABASE", script);
                 default:
-                    return error(Errors.NotImplemented, "getDDLScript."+dbo.getClass().getName()+"."+String.valueOf(type));
+                    return error(Errors.NotImplemented, "getDDLScript." + dbo.getClass().getName() + "." + type);
             }
         } 
         else if (dbo instanceof DBTable)
@@ -312,7 +310,7 @@ public class DBDatabaseDriverDerby extends DBDatabaseDriver
                 case DROP:
                     return dropObject(((DBTable) dbo).getName(), "TABLE", script);
                 default:
-                    return error(Errors.NotImplemented, "getDDLCommand."+dbo.getClass().getName()+"."+String.valueOf(type));
+                    return error(Errors.NotImplemented, "getDDLScript." + dbo.getClass().getName() + "." + type);
             }
         } 
         else if (dbo instanceof DBView)
@@ -324,7 +322,7 @@ public class DBDatabaseDriverDerby extends DBDatabaseDriver
                 case DROP:
                     return dropObject(((DBView) dbo).getName(), "VIEW", script);
                 default:
-                    return error(Errors.NotImplemented, "getDDLCommand."+dbo.getClass().getName()+"."+String.valueOf(type));
+                    return error(Errors.NotImplemented, "getDDLScript." + dbo.getClass().getName() + "." + type);
             }
         } 
         else if (dbo instanceof DBRelation)
@@ -336,7 +334,7 @@ public class DBDatabaseDriverDerby extends DBDatabaseDriver
                 case DROP:
                     return dropObject(((DBRelation) dbo).getName(), "CONSTRAINT", script);
                 default:
-                    return error(Errors.NotImplemented, "getDDLCommand."+dbo.getClass().getName()+"."+String.valueOf(type));
+                    return error(Errors.NotImplemented, "getDDLScript." + dbo.getClass().getName() + "." + type);
             }
         } 
         else if (dbo instanceof DBTableColumn)
@@ -425,7 +423,7 @@ public class DBDatabaseDriverDerby extends DBDatabaseDriver
         {
             DBTableColumn c = (DBTableColumn) columns.next();
             sql.append((addSeparator) ? ",\r\n   " : "\r\n   ");
-            if (appendColumnDesc(c, sql, false)==false)
+            if (appendColumnDesc(c, sql, false) == false)
                 continue; // Ignore and continue;
             addSeparator = true;
         }
@@ -581,14 +579,14 @@ public class DBDatabaseDriverDerby extends DBDatabaseDriver
                 sql.append("CLOB");
                 if (c.getSize() > 0)
                 {
-                    sql.append("(" + String.valueOf((long) c.getSize()) + ") ");
+                    sql.append("(" + (long) c.getSize() + ") ");
                 }
                 break;
             case BLOB:
                 sql.append("BLOB");
                 if (c.getSize() > 0)
                 {
-                    sql.append("(" + String.valueOf((long) c.getSize()) + ") ");
+                    sql.append("(" + (long) c.getSize() + ") ");
                 }
                 break;
             case UNIQUEID:

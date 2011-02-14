@@ -164,7 +164,22 @@ public class StringUtils
      */
     public static boolean isEmpty(String s)
     {
-        return (s==null || s.trim().length() == 0);
+        return s == null || s.trim().length() == 0;
+    }
+    
+    /**
+     * Checks if a string is not null or empty
+     * 
+     * @param s the string to validate
+     * 
+     * @return true if valid
+     * 
+     * @deprecated this has been renamed to isNotEmpty
+     */
+    @Deprecated
+    public static boolean isValid(String s)
+    {
+        return s != null && s.trim().length() > 0;
     }
     
     /**
@@ -174,9 +189,9 @@ public class StringUtils
      * 
      * @return true if valid
      */
-    public static boolean isValid(String s)
+    public static boolean isNotEmpty(String s)
     {
-        return (s != null && s.trim().length() > 0);
+        return s != null && s.trim().length() > 0;
     }
     
     /**

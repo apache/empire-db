@@ -18,16 +18,6 @@
  */
 package org.apache.empire.db;
 
-import org.apache.empire.commons.DateUtils;
-import org.apache.empire.commons.ErrorObject;
-import org.apache.empire.commons.Errors;
-import org.apache.empire.commons.ObjectUtils;
-import org.apache.empire.commons.StringUtils;
-import org.apache.empire.data.DataMode;
-import org.apache.empire.data.DataType;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.Serializable;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -41,6 +31,16 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
+
+import org.apache.empire.commons.DateUtils;
+import org.apache.empire.commons.ErrorObject;
+import org.apache.empire.commons.Errors;
+import org.apache.empire.commons.ObjectUtils;
+import org.apache.empire.commons.StringUtils;
+import org.apache.empire.data.DataMode;
+import org.apache.empire.data.DataType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * The DBDatabaseDriver class is an abstract base class for all database drivers.
@@ -111,11 +111,11 @@ public abstract class DBDatabaseDriver extends ErrorObject implements Serializab
     protected boolean ddlColumnDefaults = false;
 
     // Illegal name chars and reserved SQL keywords
-    protected static final char[]   illegalNameChars   = new char[] { '@', '?', '>', '=', '<', ';', ':', 
+    protected static final char[]   ILLEGAL_NAME_CHARS   = new char[] { '@', '?', '>', '=', '<', ';', ':', 
                                                                     '/', '.', '-', ',', '+', '*', ')', '(',
                                                                     '\'', '&', '%', '!', ' '
                                                                   };        
-    protected static final String[] generalSQLKeywords = new String[] { "user", "group", 
+    protected static final String[] GENERAL_SQL_KEYWORDS = new String[] { "user", "group", 
                                                            "table", "column", "view", "index", "constraint", 
                                                            "select", "udpate", "insert", "alter", "delete" };        
     protected final Set<String> reservedSQLKeywords;
@@ -233,8 +233,8 @@ public abstract class DBDatabaseDriver extends ErrorObject implements Serializab
     public DBDatabaseDriver()
     {
         // Initialize List of reserved Keywords
-        reservedSQLKeywords = new HashSet<String>(generalSQLKeywords.length);
-        for (String keyWord:generalSQLKeywords){
+        reservedSQLKeywords = new HashSet<String>(GENERAL_SQL_KEYWORDS.length);
+        for (String keyWord:GENERAL_SQL_KEYWORDS){
              reservedSQLKeywords.add(keyWord);
         }
     }
@@ -268,8 +268,8 @@ public abstract class DBDatabaseDriver extends ErrorObject implements Serializab
         int len = name.length();
         for (int i=0; i<len; i++)
         {   char c = name.charAt(i);
-            for (int j=0; j<illegalNameChars.length; j++)
-            {   char ic = illegalNameChars[j]; 
+            for (int j=0; j<ILLEGAL_NAME_CHARS.length; j++)
+            {   char ic = ILLEGAL_NAME_CHARS[j]; 
                 if (c>ic)
                     break;
                 if (c==ic)
@@ -372,7 +372,7 @@ public abstract class DBDatabaseDriver extends ErrorObject implements Serializab
             return (type==DataType.DATE ? DateUtils.getDateOnly(ts) : ts);
         }
         // Other types
-        error(Errors.NotSupported, "getColumnAutoValue() for "+String.valueOf(type));
+        error(Errors.NotSupported, "getColumnAutoValue() for "+type);
         return null;
     }
 
@@ -395,7 +395,7 @@ public abstract class DBDatabaseDriver extends ErrorObject implements Serializab
                 pstmt.setBinaryStream(i + 1, blobData.getInputStream(), blobData.getLength());
                 // log
                 if (log.isDebugEnabled())
-                    log.debug("Statement param " + String.valueOf(i+1) + " set to BLOB data");
+                    log.debug("Statement param " + (i+1) + " set to BLOB data");
             }
             else if(value instanceof DBClobData)
             {
@@ -404,14 +404,14 @@ public abstract class DBDatabaseDriver extends ErrorObject implements Serializab
                 pstmt.setCharacterStream(i + 1, clobData.getReader(), clobData.getLength());
                 // log
                 if (log.isDebugEnabled())
-                    log.debug("Statement param " + String.valueOf(i+1) + " set to CLOB data");
+                    log.debug("Statement param " + (i+1) + " set to CLOB data");
             }
             else
             {   // simple parameter value 
                 pstmt.setObject(i + 1, value);
                 // log
                 if (log.isDebugEnabled())
-                    log.debug("Statement param " + String.valueOf(i+1) + " set to '" + String.valueOf(value)+ "'");
+                    log.debug("Statement param " + (i+1) + " set to '" + value + "'");
             }
         }
 	}
@@ -446,13 +446,12 @@ public abstract class DBDatabaseDriver extends ErrorObject implements Serializab
     public Object getResultValue(ResultSet rset, int columnIndex, DataType dataType)
         throws SQLException
     {
-        // Check for character large object
         if (dataType == DataType.DATETIME)
         { // Get Timestamp (do not use getObject()!) 
             return rset.getTimestamp(columnIndex);
         } 
         else if (dataType == DataType.CLOB)
-        { // Get character large object
+        {
             java.sql.Clob clob = rset.getClob(columnIndex);
             return ((clob != null) ? clob.getSubString(1, (int) clob.length()) : null);
         } 
@@ -461,8 +460,10 @@ public abstract class DBDatabaseDriver extends ErrorObject implements Serializab
             java.sql.Blob blob = rset.getBlob(columnIndex);
             return ((blob != null) ? blob.getBytes(1, (int) blob.length()) : null);
         } 
-        // Default
-        return rset.getObject(columnIndex);
+        else
+        {
+        	return rset.getObject(columnIndex);
+        }
     }
     
     /**
@@ -506,7 +507,9 @@ public abstract class DBDatabaseDriver extends ErrorObject implements Serializab
                 ResultSet rs = stmt.getGeneratedKeys();
                 try {
                     while(rs.next())
+                    {
                         genKeys.set(rs.getObject(1));
+                    }
                 } finally {
                     rs.close();
                 }
@@ -638,10 +641,7 @@ public abstract class DBDatabaseDriver extends ErrorObject implements Serializab
                 } 
                 else
                 { // Boolean from String
-                    String strVal = value.toString();
-                    boolVal = strVal.equals("1") |
-                              strVal.equalsIgnoreCase("true") |
-                              strVal.equalsIgnoreCase("y");
+                    boolVal = stringToBoolean(value);
                 }
                 return getSQLPhrase((boolVal) ? SQL_BOOLEAN_TRUE : SQL_BOOLEAN_FALSE);
             }
@@ -681,7 +681,7 @@ public abstract class DBDatabaseDriver extends ErrorObject implements Serializab
     }
     
     /**
-     * gets an SQL command for creating, modifying or deleting objects in the database (tables, columns, constraints, etc.)
+     * Gets a SQL command for creating, modifying or deleting objects in the database (tables, columns, constraints, etc.)
      * 
      * @param type the command type 
      * @param dbo the databse object
@@ -695,7 +695,7 @@ public abstract class DBDatabaseDriver extends ErrorObject implements Serializab
     }
     
     /**
-     * @return true if column default values are created with dll statements or false if not
+     * @return <code>true</code> if column default values are created with dll statements or <code>false</code> if not
      */
     public boolean isDDLColumnDefaults()
     {
@@ -704,11 +704,13 @@ public abstract class DBDatabaseDriver extends ErrorObject implements Serializab
 
     /**
      * Set true if column default values should be included in DDL Statements  
-     * @param enable true if dll statements should include column default values or false if not
+     * 
+     * @param ddlColumnDefaults <code>true</code> if dll statements should include 
+     *   column default values or <code>false</code> if not
      */
-    public void setDDLColumnDefaults(boolean enable)
+    public void setDDLColumnDefaults(boolean ddlColumnDefaults)
     {
-        ddlColumnDefaults = enable;
+        this.ddlColumnDefaults = ddlColumnDefaults;
     }
 
     /**
@@ -746,5 +748,12 @@ public abstract class DBDatabaseDriver extends ErrorObject implements Serializab
             buf.append(value);
         }
     }
+    
+	private boolean stringToBoolean(final Object value) {
+		String strVal = value.toString();
+		return "1".equals(strVal) ||
+		          "true".equalsIgnoreCase(strVal) ||
+		          "y".equalsIgnoreCase(strVal);
+	}
 
 }

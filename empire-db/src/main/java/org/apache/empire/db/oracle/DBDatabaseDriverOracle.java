@@ -71,7 +71,7 @@ public class DBDatabaseDriverOracle extends DBDatabaseDriver
     public DBDatabaseDriverOracle()
     {
         // Info
-        log.info("DBDatabaseDriverOracle created. Boolean Type is " + String.valueOf(booleanType));
+        log.info("DBDatabaseDriverOracle created. Boolean Type is " + booleanType);
     }
 
     public boolean isOracle8Compatibilty()
@@ -92,7 +92,7 @@ public class DBDatabaseDriverOracle extends DBDatabaseDriver
     public void setBooleanType(BooleanType booleanType)
     {
         this.booleanType = booleanType;
-        log.info("DBDatabaseDriverOracle Boolean Type set to " + String.valueOf(booleanType));
+        log.info("DBDatabaseDriverOracle Boolean Type set to " + booleanType);
     }
 
     /**
@@ -194,7 +194,7 @@ public class DBDatabaseDriverOracle extends DBDatabaseDriver
             case SQL_FUNC_DECODE_ELSE:          return "{0}";
             // Not defined
             default:
-                log.error("SQL phrase " + String.valueOf(phrase) + " is not defined!");
+                log.error("SQL phrase " + phrase + " is not defined!");
                 return "?";
         }
     }
@@ -240,7 +240,7 @@ public class DBDatabaseDriverOracle extends DBDatabaseDriver
                 return "to_date(?)";
             // Unknown Type
             default:
-                log.error("getConvertPhrase: unknown type (" + String.valueOf(destType));
+                log.error("getConvertPhrase: unknown type " + destType);
                 return "?";
         }
     }
@@ -330,7 +330,7 @@ public class DBDatabaseDriverOracle extends DBDatabaseDriver
                 case DROP:
                     return dropObject(((DBDatabase) dbo).getSchema(), "USER", script);
                 default:
-                    return error(Errors.NotImplemented, "getDDLScript."+dbo.getClass().getName()+"."+String.valueOf(type));
+                    return error(Errors.NotImplemented, "getDDLScript." + dbo.getClass().getName() + "." + type);
             }
         } 
         else if (dbo instanceof DBTable)
@@ -342,7 +342,7 @@ public class DBDatabaseDriverOracle extends DBDatabaseDriver
                 case DROP:
                     return dropObject(((DBTable) dbo).getName(), "TABLE", script);
                 default:
-                    return error(Errors.NotImplemented, "getDDLCommand."+dbo.getClass().getName()+"."+String.valueOf(type));
+                    return error(Errors.NotImplemented, "getDDLScript." + dbo.getClass().getName() + "." + type);
             }
         } 
         else if (dbo instanceof DBView)
@@ -354,7 +354,7 @@ public class DBDatabaseDriverOracle extends DBDatabaseDriver
                 case DROP:
                     return dropObject(((DBView) dbo).getName(), "VIEW", script);
                 default:
-                    return error(Errors.NotImplemented, "getDDLCommand."+dbo.getClass().getName()+"."+String.valueOf(type));
+                    return error(Errors.NotImplemented, "getDDLScript." + dbo.getClass().getName() + "." + type);
             }
         } 
         else if (dbo instanceof DBRelation)
@@ -366,7 +366,7 @@ public class DBDatabaseDriverOracle extends DBDatabaseDriver
                 case DROP:
                     return dropObject(((DBRelation) dbo).getName(), "CONSTRAINT", script);
                 default:
-                    return error(Errors.NotImplemented, "getDDLCommand."+dbo.getClass().getName()+"."+String.valueOf(type));
+                    return error(Errors.NotImplemented, "getDDLScript." + dbo.getClass().getName() + "." + type);
             }
         } 
         else if (dbo instanceof DBTableColumn)
@@ -645,7 +645,7 @@ public class DBDatabaseDriverOracle extends DBDatabaseDriver
             case BLOB:
                 sql.append("BLOB");
                 if (c.getSize() > 0)
-                    sql.append(" (" + String.valueOf((long) c.getSize()) + ") ");
+                    sql.append(" (" + (long) c.getSize() + ") ");
                 break;
             case UNIQUEID:
                 // emulate using java.util.UUID

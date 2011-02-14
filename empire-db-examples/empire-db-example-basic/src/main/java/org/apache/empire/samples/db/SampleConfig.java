@@ -22,6 +22,7 @@ import org.apache.empire.commons.Errors;
 import org.apache.empire.xml.XMLConfiguration;
 import org.apache.empire.xml.XMLUtil;
 import org.apache.log4j.xml.DOMConfigurator;
+import org.slf4j.Logger;
 import org.w3c.dom.Element;
 /**
  * <PRE>
@@ -32,6 +33,8 @@ import org.w3c.dom.Element;
  */
 public class SampleConfig extends XMLConfiguration
 {
+	private static final Logger log = org.slf4j.LoggerFactory.getLogger(SampleConfig.class);
+	
     // the logging configuration root node name
     private final String loggingNodeName = "log4j:configuration";
 

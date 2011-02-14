@@ -18,6 +18,10 @@
  */
 package org.apache.empire.db.h2;
 
+import java.sql.Connection;
+import java.util.GregorianCalendar;
+import java.util.Iterator;
+
 import org.apache.empire.commons.Errors;
 import org.apache.empire.commons.StringUtils;
 import org.apache.empire.data.DataType;
@@ -36,10 +40,6 @@ import org.apache.empire.db.DBSQLScript;
 import org.apache.empire.db.DBTable;
 import org.apache.empire.db.DBTableColumn;
 import org.apache.empire.db.DBView;
-
-import java.sql.Connection;
-import java.util.GregorianCalendar;
-import java.util.Iterator;
 
 
 /**
@@ -236,7 +236,7 @@ public class DBDatabaseDriverH2 extends DBDatabaseDriver
             case SQL_FUNC_DECODE_ELSE:        return "else {0}";
             // Not defined
             default:
-                log.error("SQL phrase " + String.valueOf(phrase) + " is not defined!");
+                log.error("SQL phrase " + phrase + " is not defined!");
                 return "?";
         }
     }
@@ -262,7 +262,7 @@ public class DBDatabaseDriverH2 extends DBDatabaseDriver
                 return "CAST(? AS BLOB)";
            // Unknown Type                                       
            default:
-                log.error("getConvertPhrase: unknown type (" + String.valueOf(destType));
+                log.error("getConvertPhrase: unknown type " + destType);
                 return "?";
         }
     }
@@ -303,7 +303,7 @@ public class DBDatabaseDriverH2 extends DBDatabaseDriver
                 case DROP:
                     return dropObject(((DBDatabase) dbo).getSchema(), "DATABASE", script);
                 default:
-                    return error(Errors.NotImplemented, "getDDLScript."+dbo.getClass().getName()+"."+String.valueOf(type));
+                    return error(Errors.NotImplemented, "getDDLScript." + dbo.getClass().getName() + "." + type);
             }
         } 
         else if (dbo instanceof DBTable)
@@ -315,7 +315,7 @@ public class DBDatabaseDriverH2 extends DBDatabaseDriver
                 case DROP:
                     return dropObject(((DBTable) dbo).getName(), "TABLE", script);
                 default:
-                    return error(Errors.NotImplemented, "getDDLCommand."+dbo.getClass().getName()+"."+String.valueOf(type));
+                    return error(Errors.NotImplemented, "getDDLScript." + dbo.getClass().getName() + "." + type);
             }
         } 
         else if (dbo instanceof DBView)
@@ -327,7 +327,7 @@ public class DBDatabaseDriverH2 extends DBDatabaseDriver
                 case DROP:
                     return dropObject(((DBView) dbo).getName(), "VIEW", script);
                 default:
-                    return error(Errors.NotImplemented, "getDDLCommand."+dbo.getClass().getName()+"."+String.valueOf(type));
+                    return error(Errors.NotImplemented, "getDDLScript." + dbo.getClass().getName() + "." + type);
             }
         } 
         else if (dbo instanceof DBRelation)
@@ -339,7 +339,7 @@ public class DBDatabaseDriverH2 extends DBDatabaseDriver
                 case DROP:
                     return dropObject(((DBRelation) dbo).getName(), "CONSTRAINT", script);
                 default:
-                    return error(Errors.NotImplemented, "getDDLCommand."+dbo.getClass().getName()+"."+String.valueOf(type));
+                    return error(Errors.NotImplemented, "getDDLScript." + dbo.getClass().getName() + "." + type);
             }
         } 
         else if (dbo instanceof DBTableColumn)
@@ -574,7 +574,7 @@ public class DBDatabaseDriverH2 extends DBDatabaseDriver
             case BLOB:
                 sql.append("BLOB");
                 if (c.getSize() > 0)
-                    sql.append(" (" + String.valueOf((long) c.getSize()) + ") ");
+                    sql.append(" (" + (long) c.getSize() + ") ");
                 break;
             case UNIQUEID:
                 // emulate using java.util.UUID

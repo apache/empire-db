@@ -18,6 +18,7 @@
  */
 package org.apache.empire.xml;
 
+import java.io.Closeable;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
@@ -29,12 +30,12 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.apache.commons.beanutils.BeanUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.apache.empire.commons.ErrorObject;
 import org.apache.empire.commons.Errors;
 import org.apache.empire.commons.ObjectUtils;
 import org.apache.empire.commons.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -52,8 +53,7 @@ import org.xml.sax.SAXException;
  */
 public class XMLConfiguration extends ErrorObject
 {
-    // Logger (not final!)
-    protected static Logger log = LoggerFactory.getLogger(XMLConfiguration.class);
+    private static final Logger log = LoggerFactory.getLogger(XMLConfiguration.class);
 
     private Element configRootNode = null;
 
@@ -113,32 +113,24 @@ public class XMLConfiguration extends ErrorObject
             return success();
         } catch (FileNotFoundException e)
         {
-            log.error("Configuration file not found! filename=" + fileName);
+            log.error("Configuration file {} not found!", fileName, e);
             return error(Errors.FileNotFound, fileName);
         } catch (IOException e)
         {
-            log.error("Error reading configuration file " + fileName);
+            log.error("Error reading configuration file {}", fileName, e);
             return error(Errors.FileReadError, fileName);
         } catch (SAXException e)
         {
-            log.error("Invalid XML in configuraion file " + fileName, e);
+            log.error("Invalid XML in configuration file {}", fileName, e);
             return error(e);
         } catch (ParserConfigurationException e)
         {
-            log.error("ParserConfigurationException ", e);
+            log.error("ParserConfigurationException: {}", e.getMessage(), e);
             return error(e);
         } finally
-        { // Close reader
-            try
-            {
-                if (reader != null)
-                    reader.close();
-                if (inputStream != null)
-                    inputStream.close();
-            } catch (Exception e)
-            {
-                // Nothing to do.
-            }
+        { 
+        	close(reader);
+        	close(inputStream);
         }
     }
 
@@ -150,17 +142,17 @@ public class XMLConfiguration extends ErrorObject
         // Check arguments
         if (bean == null)
             return error(Errors.InvalidArg, null, "bean");
-        if (StringUtils.isValid(propertiesNodeName) == false)
+        if (StringUtils.isEmpty(propertiesNodeName))
             return error(Errors.InvalidArg, null, "propertiesNodeName");
         // Get configuration node
         Element propertiesNode = XMLUtil.findFirstChild(configRootNode, propertiesNodeName);
         if (propertiesNode == null)
         { // Configuration
-            log.error("Property-Node " + propertiesNodeName + " has not been found.");
+            log.error("Property-Node {} has not been found.", propertiesNodeName);
             return error(Errors.ItemNotFound, propertiesNodeName);
         }
         // configure Connection
-        log.info("reading bean properties from node: " + propertiesNodeName);
+        log.info("reading bean properties from node: {}", propertiesNodeName);
         NodeList nodeList = propertiesNode.getChildNodes();
         for (int i = 0; i < nodeList.getLength(); i++)
         {
@@ -180,29 +172,43 @@ public class XMLConfiguration extends ErrorObject
         String name = item.getNodeName();
         try
         {
-            String value = XMLUtil.getElementText(item);
-            BeanUtils.setProperty(bean, name, value);
+            String newValue = XMLUtil.getElementText(item);
+            BeanUtils.setProperty(bean, name, newValue);
 
-            Object check = BeanUtils.getProperty(bean, name);
-            if (ObjectUtils.compareEqual(value, check)==false)
+            Object value = BeanUtils.getProperty(bean, name);
+            if (ObjectUtils.compareEqual(newValue, value))
             {
-                log.error("Failed to set property '" + name + "'. Value is " + String.valueOf(check));
-                return;
+            	log.info("Configuration property '{}' set to \"{}\"", name, newValue);
             }
-
-            // success
-            log.info("Configuration property '" + name + "' set to \"" + value + "\"");
+            else
+            {
+            	log.error("Failed to set property '{}'. Value is \"{}\"", name, value);
+            }
 
         } catch (IllegalAccessException e)
         {
-            log.error("Access to Property " + name + " denied.");
+            log.error("Access to Property {} denied.", name);
         } catch (InvocationTargetException e)
         {
-            log.error("Unable to set Property " + name);
+            log.error("Unable to set Property {}", name);
         } catch (NoSuchMethodException e)
         {
-            log.error("Property '"  + name + "' not found in " + bean.getClass().getName());
+            log.error("Property '{}' not found in {}", name, bean.getClass().getName());
         }
     }
+    
+	private void close(final Closeable closeable) {
+		if (closeable != null)
+		{
+			try
+			{
+				closeable.close();
+			}
+			catch(IOException e)
+			{
+				log.debug(e.getMessage());
+			}
+		}
+	}
 
 }

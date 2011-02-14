@@ -18,14 +18,6 @@
  */
 package org.apache.empire.db;
 
-import org.apache.empire.commons.Errors;
-import org.apache.empire.commons.ObjectUtils;
-import org.apache.empire.commons.Options;
-import org.apache.empire.data.DataType;
-import org.apache.empire.db.expr.column.DBValueExpr;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -33,6 +25,14 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+
+import org.apache.empire.commons.Errors;
+import org.apache.empire.commons.ObjectUtils;
+import org.apache.empire.commons.Options;
+import org.apache.empire.data.DataType;
+import org.apache.empire.db.expr.column.DBValueExpr;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -60,6 +60,7 @@ public abstract class DBDatabase extends DBObject
         private DBSystemDate() 
         { 
             /* no instances */ 
+        	// FIXME what is wrong with a String constant?
         }
         @Override
         public String toString()
@@ -154,7 +155,7 @@ public abstract class DBDatabase extends DBObject
     {
         this.preparedStatementsEnabled = preparedStatementsEnabled;
         // log prepared statement 
-        log.info("PreparedStatementsEnabled is " + String.valueOf(preparedStatementsEnabled));
+        log.info("PreparedStatementsEnabled is " + preparedStatementsEnabled);
     }
 
     /**
@@ -398,7 +399,7 @@ public abstract class DBDatabase extends DBObject
      */
     public DBValueExpr getValueExpr(int value)
     {
-        return new DBValueExpr(this, new Integer(value), DataType.INTEGER);
+        return new DBValueExpr(this, Integer.valueOf(value), DataType.INTEGER);
     }
 
     /**
@@ -409,7 +410,7 @@ public abstract class DBDatabase extends DBObject
      */
     public DBValueExpr getValueExpr(long value)
     {
-        return new DBValueExpr(this, new Long(value), DataType.INTEGER);
+        return new DBValueExpr(this, Long.valueOf(value), DataType.INTEGER);
     }
 
     /**
@@ -622,7 +623,7 @@ public abstract class DBDatabase extends DBObject
      */
     public DBCommand createCommand()
     {
-        if (checkOpen()==false) 
+        if (!checkOpen()) 
             return null;
         return driver.createCommand(this);
     }
@@ -692,8 +693,8 @@ public abstract class DBDatabase extends DBObject
             clearError();
             Object result = rs.getObject(1);
             if (log.isDebugEnabled())
-	            log.debug("querySingleValue complete in " + String.valueOf(System.currentTimeMillis() - start) + " ms -> value="
-	                        + String.valueOf(result));
+	            log.debug("querySingleValue complete in " + (System.currentTimeMillis() - start) + " ms -> value="
+	                        + result);
             return result;
         } catch (SQLException e) 
         {
@@ -851,7 +852,7 @@ public abstract class DBDatabase extends DBObject
             }
             // No Value
             if (log.isInfoEnabled())
-                log.info("querySimpleList retured "+String.valueOf(count)+" items. Query completed in " + String.valueOf(System.currentTimeMillis() - start) + " ms");
+                log.info("querySimpleList retured " + count + " items. Query completed in " + (System.currentTimeMillis() - start) + " ms");
             clearError();
             return count;
         } catch (ClassCastException e) 
@@ -946,7 +947,7 @@ public abstract class DBDatabase extends DBObject
             }
             // No Value
             if (log.isInfoEnabled())
-                log.info("queryOptionList retured "+String.valueOf(result.size())+" items. Query completed in " + String.valueOf(System.currentTimeMillis() - start) + " ms");
+                log.info("queryOptionList retured " + result.size() + " items. Query completed in " + (System.currentTimeMillis() - start) + " ms");
             clearError();
             return result;
         } catch (SQLException e) 
@@ -1002,7 +1003,7 @@ public abstract class DBDatabase extends DBObject
             }
             // No Value
             if (log.isInfoEnabled())
-                log.info("queryObjectList retured "+String.valueOf(count)+" items. Query completed in " + String.valueOf(System.currentTimeMillis() - start) + " ms");
+                log.info("queryObjectList retured " + count + " items. Query completed in " + (System.currentTimeMillis() - start) + " ms");
             clearError();
             return count;
         } catch (SQLException e) 
@@ -1056,7 +1057,7 @@ public abstract class DBDatabase extends DBObject
             int affected = driver.executeSQL(sqlCmd, sqlParams, conn, setGenKeys);
             // Log
             if (log.isInfoEnabled())
-	            log.info("executeSQL affected " + String.valueOf(affected) + " Records / " + (System.currentTimeMillis() - start) + "ms");
+	            log.info("executeSQL affected " + affected + " Records / " + (System.currentTimeMillis() - start) + "ms");
             // number of affected records
             if (affected < 0)
             {
@@ -1120,7 +1121,7 @@ public abstract class DBDatabase extends DBObject
             }
             // Debug
             if (log.isDebugEnabled())
-                log.debug("executeQuery successful in " + String.valueOf(System.currentTimeMillis() - start) + " ms");
+                log.debug("executeQuery successful in " + (System.currentTimeMillis() - start) + " ms");
             // Return number of affected records
             success();
             return rs;

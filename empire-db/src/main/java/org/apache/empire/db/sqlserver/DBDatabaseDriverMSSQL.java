@@ -18,6 +18,11 @@
  */
 package org.apache.empire.db.sqlserver;
 
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.util.GregorianCalendar;
+import java.util.Iterator;
+
 import org.apache.empire.commons.Errors;
 import org.apache.empire.commons.ObjectUtils;
 import org.apache.empire.commons.StringUtils;
@@ -37,11 +42,6 @@ import org.apache.empire.db.DBSQLScript;
 import org.apache.empire.db.DBTable;
 import org.apache.empire.db.DBTableColumn;
 import org.apache.empire.db.DBView;
-
-import java.sql.Connection;
-import java.sql.SQLException;
-import java.util.GregorianCalendar;
-import java.util.Iterator;
 
 
 /**
@@ -173,11 +173,7 @@ public class DBDatabaseDriverMSSQL extends DBDatabaseDriver
 		this.sequenceTableName = sequenceTableName;
 	}
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.apache.empire.db.DBDatabaseDriver#openDatabase(org.apache.empire.db.DBDatabase, java.sql.Connection)
-     */
+    /** {@inheritDoc} */
     @Override
     public boolean attachDatabase(DBDatabase db, Connection conn)
     {
@@ -336,7 +332,7 @@ public class DBDatabaseDriverMSSQL extends DBDatabaseDriver
                 return "convert(varbinary, ?)";
            // Unknown Type                                       
            default:
-               	log.error("getConvertPhrase: unknown type (" + String.valueOf(destType));
+               	log.error("getConvertPhrase: unknown type " + destType);
                 return "?";
         }
     }
@@ -396,7 +392,7 @@ public class DBDatabaseDriverMSSQL extends DBDatabaseDriver
                 case DROP:
                     return dropObject(((DBDatabase) dbo).getSchema(), "DATABASE", script);
                 default:
-                    return error(Errors.NotImplemented, "getDDLCommand."+dbo.getClass().getName()+"."+String.valueOf(type));
+                    return error(Errors.NotImplemented, "getDDLScript." + dbo.getClass().getName() + "." + type);
             }
         } 
         else if (dbo instanceof DBTable)
@@ -408,7 +404,7 @@ public class DBDatabaseDriverMSSQL extends DBDatabaseDriver
                 case DROP:
                     return dropObject(((DBTable) dbo).getName(), "TABLE", script);
                 default:
-                    return error(Errors.NotImplemented, "getDDLCommand."+dbo.getClass().getName()+"."+String.valueOf(type));
+                    return error(Errors.NotImplemented, "getDDLScript." + dbo.getClass().getName() + "." + type);
             }
         } 
         else if (dbo instanceof DBView)
@@ -420,7 +416,7 @@ public class DBDatabaseDriverMSSQL extends DBDatabaseDriver
                 case DROP:
                     return dropObject(((DBView) dbo).getName(), "VIEW", script);
                 default:
-                    return error(Errors.NotImplemented, "getDDLCommand."+dbo.getClass().getName()+"."+String.valueOf(type));
+                    return error(Errors.NotImplemented, "getDDLScript." + dbo.getClass().getName() + "." + type);
             }
         } 
         else if (dbo instanceof DBRelation)
@@ -432,7 +428,7 @@ public class DBDatabaseDriverMSSQL extends DBDatabaseDriver
                 case DROP:
                     return dropObject(((DBRelation) dbo).getName(), "CONSTRAINT", script);
                 default:
-                    return error(Errors.NotImplemented, "getDDLCommand."+dbo.getClass().getName()+"."+String.valueOf(type));
+                    return error(Errors.NotImplemented, "getDDLScript." + dbo.getClass().getName() + "." + type);
             }
         } 
         else if (dbo instanceof DBTableColumn)
@@ -660,7 +656,7 @@ public class DBDatabaseDriverMSSQL extends DBDatabaseDriver
             case BLOB:
                 sql.append("[image]");
                 if (c.getSize() > 0)
-                    sql.append(" (" + String.valueOf((long) c.getSize()) + ") ");
+                    sql.append(" (" + (long) c.getSize() + ") ");
                 break;
             case UNIQUEID:
                 sql.append("[uniqueidentifier]");
