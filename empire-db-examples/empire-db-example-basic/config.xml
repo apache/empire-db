@@ -31,7 +31,11 @@
 		<jdbcURL>jdbc:hsqldb:file:hsqldb/sample;shutdown=true</jdbcURL>
 		<jdbcUser>sa</jdbcUser>
 		<jdbcPwd></jdbcPwd>
-		<schemaName>DBSAMPLE</schemaName>
+		<!-- Empire-db driver configuration -->
+		<empireDBDriverClass>org.apache.empire.db.hsql.DBDatabaseDriverHSql</empireDBDriverClass>
+		<empireDBDriverProperites>
+			<!-- no properties -->
+		</empireDBDriverProperites>
 	</properties-hsqldb>
 
 	<properties-mysql>
@@ -41,7 +45,11 @@
 		<jdbcURL>jdbc:mysql://localhost</jdbcURL>
 		<jdbcUser>root</jdbcUser>
 		<jdbcPwd>esteam</jdbcPwd>
-		<schemaName>DBSAMPLE</schemaName>
+		<!-- Empire-db driver configuration -->
+		<empireDBDriverClass>org.apache.empire.db.mysql.DBDatabaseDriverMySQL</empireDBDriverClass>
+		<empireDBDriverProperites>
+			<databaseName>DBSAMPLE</databaseName>
+		</empireDBDriverProperites>
 	</properties-mysql>
 	
 	<properties-postgresql>
@@ -51,7 +59,11 @@
 		<jdbcURL>jdbc:postgresql://localhost</jdbcURL>
 		<jdbcUser>postgres</jdbcUser>
 		<jdbcPwd>postgres</jdbcPwd>
-		<schemaName>DBSAMPLE</schemaName>
+		<!-- Empire-db driver configuration -->
+		<empireDBDriverClass>org.apache.empire.db.postgresql.DBDatabaseDriverPostgreSQL</empireDBDriverClass>
+		<empireDBDriverProperites>
+			<databaseName>DBSAMPLE</databaseName>
+		</empireDBDriverProperites>
 	</properties-postgresql>
 	
 	<properties-h2>
@@ -61,7 +73,11 @@
 		<jdbcURL>jdbc:h2:h2/DBSAMPLE</jdbcURL>
 		<jdbcUser>sa</jdbcUser>
 		<jdbcPwd></jdbcPwd>
-		<schemaName>DBSAMPLE</schemaName>
+		<!-- Empire-db driver configuration -->
+		<empireDBDriverClass>org.apache.empire.db.h2.DBDatabaseDriverH2</empireDBDriverClass>
+		<empireDBDriverProperites>
+			<databaseName>DBSAMPLE</databaseName>
+		</empireDBDriverProperites>
 	</properties-h2>
 	
 	<properties-derby>
@@ -71,7 +87,11 @@
 		<jdbcURL>jdbc:derby:derby/DBSAMPLE;create=true</jdbcURL>
 		<jdbcUser></jdbcUser>
 		<jdbcPwd></jdbcPwd>
-		<schemaName>DBSAMPLE</schemaName>
+		<!-- Empire-db driver configuration -->
+		<empireDBDriverClass>org.apache.empire.db.derby.DBDatabaseDriverDerby</empireDBDriverClass>
+		<empireDBDriverProperites>
+			<databaseName>DBSAMPLE</databaseName>
+		</empireDBDriverProperites>
 	</properties-derby>
 
 	<properties-oracle>
@@ -81,7 +101,11 @@
 		<jdbcURL>jdbc:oracle:thin:@192.168.0.2:1521:ora10</jdbcURL>
 		<jdbcUser>DBSAMPLE</jdbcUser>
 		<jdbcPwd>DBSAMPLE</jdbcPwd>
-		<schemaName>DBSAMPLE</schemaName>
+		<!-- Empire-db driver configuration -->
+		<empireDBDriverClass>org.apache.empire.db.oracle.DBDatabaseDriverOracle</empireDBDriverClass>
+		<empireDBDriverProperites>
+			<!-- no properties -->
+		</empireDBDriverProperites>
 	</properties-oracle>
 
 	<properties-sqlserver>
@@ -91,7 +115,12 @@
 		<jdbcURL>jdbc:sqlserver://esteams2:1433</jdbcURL>
 		<jdbcUser>sa</jdbcUser>
 		<jdbcPwd>esteam</jdbcPwd>
-		<schemaName>DBSAMPLE</schemaName>
+		<!-- Empire-db driver configuration -->
+		<empireDBDriverClass>org.apache.empire.db.sqlserver.DBDatabaseDriverMSSQL</empireDBDriverClass>
+		<empireDBDriverProperites>
+			<databaseName>DBSAMPLE</databaseName>
+			<useSequenceTable>false</useSequenceTable>
+		</empireDBDriverProperites>
 	</properties-sqlserver>
 	
 	<!-- log4j configuration node -->

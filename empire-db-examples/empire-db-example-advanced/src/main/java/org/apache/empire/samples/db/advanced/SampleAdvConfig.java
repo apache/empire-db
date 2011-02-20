@@ -49,7 +49,7 @@ public class SampleAdvConfig extends XMLConfiguration
 
     private String jdbcPwd = "";
 
-    private String schemaName = "DBSAMPLEADV";
+    private String empireDBDriverClass = "";
 
     /**
      * Initialize the configuration.
@@ -126,9 +126,9 @@ public class SampleAdvConfig extends XMLConfiguration
         return jdbcURL;
     }
 
-    public String getSchemaName()
+    public String getEmpireDBDriverClass()
     {
-        return schemaName;
+        return empireDBDriverClass;
     }
 
     // ------- Setters -------
@@ -153,9 +153,9 @@ public class SampleAdvConfig extends XMLConfiguration
         this.jdbcUser = jdbcUser;
     }
 
-    public void setSchemaName(String schemaName)
+    public void setEmpireDBDriverClass(String empireDBDriverClass)
     {
-        this.schemaName = schemaName;
+        this.empireDBDriverClass = empireDBDriverClass;
     }
 
 }

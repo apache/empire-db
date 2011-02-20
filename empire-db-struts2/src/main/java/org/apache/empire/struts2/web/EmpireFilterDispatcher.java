@@ -35,15 +35,13 @@ public class EmpireFilterDispatcher extends FilterDispatcher
         // Default Constructor
     }
 
-    @SuppressWarnings("rawtypes")
 	@Override
     protected Dispatcher createDispatcher(FilterConfig filterConfig)
     {
         Map<String, String> params = new HashMap<String, String>();
-        for (Enumeration e = filterConfig.getInitParameterNames(); 
-             e.hasMoreElements();)
+        for (Enumeration<String> e = filterConfig.getInitParameterNames(); e.hasMoreElements();)
         {
-            String name = (String) e.nextElement();
+            String name = e.nextElement();
             String value = filterConfig.getInitParameter(name);
             params.put(name, value);
         }

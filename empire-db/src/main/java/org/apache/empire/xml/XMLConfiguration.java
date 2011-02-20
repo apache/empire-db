@@ -134,7 +134,13 @@ public class XMLConfiguration extends ErrorObject
         }
     }
 
-    public boolean readProperties(Object bean, String propertiesNodeName)
+    /**
+     * reads all properties from a given properties node and applies them to the given bean
+     * @param bean the bean to which to apply the configuration
+     * @param propertiesNodeName the name of the properties node below the root element
+     * @return true of successful or false otherwise
+     */
+    public boolean readProperties(Object bean, String... propertiesNodeNames)
     {
         // Check state
         if (configRootNode == null)
@@ -142,17 +148,39 @@ public class XMLConfiguration extends ErrorObject
         // Check arguments
         if (bean == null)
             return error(Errors.InvalidArg, null, "bean");
-        if (StringUtils.isEmpty(propertiesNodeName))
-            return error(Errors.InvalidArg, null, "propertiesNodeName");
-        // Get configuration node
-        Element propertiesNode = XMLUtil.findFirstChild(configRootNode, propertiesNodeName);
-        if (propertiesNode == null)
-        { // Configuration
-            log.error("Property-Node {} has not been found.", propertiesNodeName);
-            return error(Errors.ItemNotFound, propertiesNodeName);
+        
+        Element propertiesNode = configRootNode;  
+        for(String nodeName : propertiesNodeNames)
+        {
+            if (StringUtils.isEmpty(nodeName))
+                return error(Errors.InvalidArg, null, "propertiesNodeNames");
+            // Get configuration node
+            propertiesNode = XMLUtil.findFirstChild(propertiesNode, nodeName);
+            if (propertiesNode == null)
+            { // Configuration
+                log.error("Property-Node {} has not been found.", nodeName);
+                return error(Errors.ItemNotFound, nodeName);
+            }
         }
-        // configure Connection
-        log.info("reading bean properties from node: {}", propertiesNodeName);
+        // read the properties
+        return readProperties(bean, propertiesNode);
+    }
+
+    /**
+     * reads all properties from a given properties node and applies them to the given bean
+     * @param bean the bean to which to apply the configuration
+     * @param propertiesNode the properties node
+     * @return true of successful or false otherwise
+     */
+    public boolean readProperties(Object bean, Element propertiesNode)
+    {
+        // Check arguments
+        if (propertiesNode == null)
+            return error(Errors.InvalidArg, null, "propertiesNode");
+        if (bean == null)
+            return error(Errors.InvalidArg, null, "bean");
+        // apply configuration
+        log.info("reading bean properties from node: {}", propertiesNode.getNodeName());
         NodeList nodeList = propertiesNode.getChildNodes();
         for (int i = 0; i < nodeList.getLength(); i++)
         {

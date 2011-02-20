@@ -119,10 +119,10 @@ public class StringUtilsTest
 	@Test
 	public void testIsValid()
 	{
-		assertFalse(StringUtils.isValid(null));
-		assertFalse(StringUtils.isValid(""));
-		assertFalse(StringUtils.isValid("\t\r\n"));
-		assertTrue(StringUtils.isValid(" test "));
+		assertFalse(StringUtils.isNotEmpty(null));
+		assertFalse(StringUtils.isNotEmpty(""));
+		assertFalse(StringUtils.isNotEmpty("\t\r\n"));
+		assertTrue (StringUtils.isNotEmpty(" test "));
 	}
 
 	@Test

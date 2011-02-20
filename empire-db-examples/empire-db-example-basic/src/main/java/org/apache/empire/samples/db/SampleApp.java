@@ -23,6 +23,7 @@ import java.sql.DriverManager;
 import java.util.List;
 
 import org.apache.empire.commons.ErrorObject;
+import org.apache.empire.commons.StringUtils;
 import org.apache.empire.db.DBColumnExpr;
 import org.apache.empire.db.DBCommand;
 import org.apache.empire.db.DBDatabaseDriver;
@@ -32,10 +33,7 @@ import org.apache.empire.db.DBSQLScript;
 import org.apache.empire.db.derby.DBDatabaseDriverDerby;
 import org.apache.empire.db.h2.DBDatabaseDriverH2;
 import org.apache.empire.db.hsql.DBDatabaseDriverHSql;
-import org.apache.empire.db.mysql.DBDatabaseDriverMySQL;
-import org.apache.empire.db.oracle.DBDatabaseDriverOracle;
 import org.apache.empire.db.postgresql.DBDatabaseDriverPostgreSQL;
-import org.apache.empire.db.sqlserver.DBDatabaseDriverMSSQL;
 import org.apache.empire.xml.XMLWriter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -191,63 +189,36 @@ public class SampleApp
 		return conn;
 	}
 
-    /**
-     * Returns the corresponding DatabaseDriver for a given database provider / vendor
-     */
+	/**
+	 * Creates an Empire-db DatabaseDriver for the given provider and applies driver specific configuration 
+	 */
     private static DBDatabaseDriver getDatabaseDriver(String provider, Connection conn)
     {
-        if (provider.equalsIgnoreCase("mysql"))
-        {
-            DBDatabaseDriverMySQL driver = new DBDatabaseDriverMySQL();
-            // Set Driver specific properties (if any)
-            driver.setDatabaseName(config.getSchemaName());
+        try
+        {   // Get Driver Class Name
+            String driverClassName = config.getEmpireDBDriverClass();
+            if (StringUtils.isEmpty(driverClassName))
+                throw new RuntimeException("Configuration error: Element 'empireDBDriverClass' not found in node 'properties-"+provider+"'");
+
+            // Create driver
+            DBDatabaseDriver driver = (DBDatabaseDriver) Class.forName(driverClassName).newInstance();
+
+            // Configure driver
+            config.readProperties(driver, "properties-"+provider, "empireDBDriverProperites");
+
+            // Special cases
+            if (driver instanceof DBDatabaseDriverPostgreSQL)
+            {   // Create the reverse function that is needed by this sample
+                ((DBDatabaseDriverPostgreSQL)driver).createReverseFunction(conn);
+            }
+
+            // done
             return driver;
-        }
-        else if (provider.equalsIgnoreCase("oracle"))
-        {
-            DBDatabaseDriverOracle driver = new DBDatabaseDriverOracle();
-            // Set Driver specific properties (if any)
-            return driver;
-        }
-        else if (provider.equalsIgnoreCase("sqlserver"))
-        {
-            DBDatabaseDriverMSSQL driver = new DBDatabaseDriverMSSQL();
-            // Set Driver specific properties (if any)
-            driver.setDatabaseName(config.getSchemaName());
-            return driver;
-        }
-        else if (provider.equalsIgnoreCase("hsqldb"))
-        {
-            DBDatabaseDriverHSql driver = new DBDatabaseDriverHSql();
-            // Set Driver specific properties (if any)
-            return driver;
-        }
-        else if (provider.equalsIgnoreCase("postgresql"))
-        {
-            DBDatabaseDriverPostgreSQL driver = new DBDatabaseDriverPostgreSQL();
-            // Set Driver specific properties (if any)
-            driver.setDatabaseName(config.getSchemaName());
-            // Create the reverse function that is needed by this sample
-            driver.createReverseFunction(conn);
-            return driver;
-        }
-        else if (provider.equalsIgnoreCase("h2"))
-        {
-            DBDatabaseDriverH2 driver = new DBDatabaseDriverH2();
-            // Set Driver specific properties (if any)
-            driver.setDatabaseName(config.getSchemaName());
-            return driver;
-        }
-        else if (provider.equalsIgnoreCase("derby"))
-        {
-            DBDatabaseDriverDerby driver = new DBDatabaseDriverDerby();
-            // Set Driver specific properties (if any)
-            driver.setDatabaseName(config.getSchemaName());
-            return driver;
-        }
-        else
-        {   // Unknown Provider
-            throw new RuntimeException("Unknown Database Provider " + provider);
+            
+        } catch (Exception e)
+        {   // catch any checked exception and forward it
+            e.printStackTrace();
+            throw new RuntimeException(e);
         }
     }
 

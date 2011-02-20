@@ -233,7 +233,7 @@ public abstract class ErrorObject implements ErrorInfo
      * @param source object from which this error originated from.
      * @return always false except if the errType is of Type Errors.None
      */
-    protected boolean internalSetError(ErrorType errType, Object[] params, ErrorInfo source)
+    protected boolean internalSetError(final ErrorType errType, final Object[] params, final ErrorInfo source)
     { 	// setError
         if (errType == Errors.None )
         {   // No Error
@@ -265,7 +265,7 @@ public abstract class ErrorObject implements ErrorInfo
      * @param params array of parameters for the error message if any.
      * @return always false except if the errType is of Type Errors.None
      */
-    protected final boolean error(ErrorType errType, Object[] params)
+    protected final boolean error(final ErrorType errType, final Object... params)
     {
         // check error code
         if (errType == Errors.None)
@@ -314,34 +314,9 @@ public abstract class ErrorObject implements ErrorInfo
      * 
      * @return always false except if the errType is of Type Errors.None
      */
-    protected final boolean error(ErrorType errType)
+    protected final boolean error(final ErrorType errType)
     {
         return error(errType, (Object[])null);
-    }
-
-    /**
-     * Sets the specified error and and the message.
-     * 
-     * @param errType the type of error to set.
-     * @param param parameter for the error message.
-     * @return always false except if the errType is of Type Errors.None
-     */
-    protected final boolean error(ErrorType errType, Object param)
-    {
-        return error(errType, new Object[] { param });
-    }
-
-    /**
-     * Sets the specified error and two messages.
-     * 
-     * @param errType the type of error to set.
-     * @param param1 parameter for the error message.
-     * @param param2 parameter for the error message.
-     * @return always false except if the errType is of Type Errors.None
-     */
-    protected final boolean error(ErrorType errType, Object param1, Object param2)
-    {
-        return error(errType, new Object[] { param1, param2 });
     }
 
     /**
@@ -351,7 +326,7 @@ public abstract class ErrorObject implements ErrorInfo
      * @param exptn Exception from witch the error message is copied.
      * @return always false except if the errType is of Type Errors.None
      */
-    protected final boolean error(ErrorType errType, Throwable exptn)
+    protected final boolean error(final ErrorType errType, final Throwable exptn)
     {
         if (exptn==null)
         {   log.warn("Cannot set exception error with param of null!");
@@ -376,7 +351,7 @@ public abstract class ErrorObject implements ErrorInfo
      * @param exptn Exception from witch the error message is copied.
      * @return always false except if the errType is of Type Errors.None
      */
-    protected final boolean error(Throwable exptn)
+    protected final boolean error(final Throwable exptn)
     {
         return error(Errors.Exception, exptn);
     }
@@ -387,7 +362,7 @@ public abstract class ErrorObject implements ErrorInfo
      * @param other the object from which to copy the error.
      * @return always false except if the errType is of Type Errors.None
      */
-    protected final boolean error(ErrorInfo other)
+    protected final boolean error(final ErrorInfo other)
     {   // copy other error
         return internalSetError(other.getErrorType(),
                                 other.getErrorParams(), other);
