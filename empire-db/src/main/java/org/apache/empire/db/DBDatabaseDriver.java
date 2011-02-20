@@ -39,6 +39,7 @@ import org.apache.empire.commons.ObjectUtils;
 import org.apache.empire.commons.StringUtils;
 import org.apache.empire.data.DataMode;
 import org.apache.empire.data.DataType;
+import org.apache.empire.db.DBCommand.DBCommandParam;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -162,21 +163,24 @@ public abstract class DBDatabaseDriver extends ErrorObject implements Serializab
         {
             DBDatabaseDriver driver = db.getDriver();
             // Create a Command
-            Statement stmt = null;
+            PreparedStatement stmt = null;
             try
             {   // The select Statement
                 DBCommand cmd = driver.createCommand(db);
+                DBCommandParam nameParam = cmd.addParam(SeqName);
                 cmd.select(C_SEQVALUE);
                 cmd.select(C_TIMESTAMP);
-                cmd.where (C_SEQNAME.is(SeqName));
+                cmd.where (C_SEQNAME.is(nameParam));
                 String selectCmd = cmd.getSelect();
                 // Get the next Value
                 long seqValue = 0;
                 while (seqValue == 0)
                 {
-                    stmt = conn.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
+                    // stmt = conn.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
+                    stmt = conn.prepareStatement(selectCmd, ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
+                    stmt.setString(1, SeqName);
                     // Query existing value
-                    ResultSet rs = stmt.executeQuery(selectCmd);
+                    ResultSet rs = stmt.executeQuery();
                     if (rs.next())
                     { // Read the Sequence Value
                         seqValue = Math.max(rs.getLong(1) + 1, minValue);
@@ -184,11 +188,13 @@ public abstract class DBDatabaseDriver extends ErrorObject implements Serializab
                         db.closeResultSet(rs);
                         // Update existing Record
                         cmd.clear();
+                        DBCommandParam name = cmd.addParam(SeqName);
+                        DBCommandParam time = cmd.addParam(current);
                         cmd.set(C_SEQVALUE.to(seqValue));
                         cmd.set(C_TIMESTAMP.to(DBDatabase.SYSDATE));
-                        cmd.where(C_SEQNAME.is(SeqName));
-                        cmd.where(C_TIMESTAMP.is(current));
-                        if (db.executeSQL(cmd.getUpdate(), null, conn) < 1)
+                        cmd.where(C_SEQNAME.is(name));
+                        cmd.where(C_TIMESTAMP.is(time));
+                        if (driver.executeSQL(cmd.getUpdate(), cmd.getParamValues(), conn, null) < 1)
                             seqValue = 0; // Try again
                     } 
                     else
@@ -196,24 +202,25 @@ public abstract class DBDatabaseDriver extends ErrorObject implements Serializab
                         db.closeResultSet(rs);
                         // sequence does not exist
                         seqValue = minValue;
-                        log.warn("warn: Sequence '" + SeqName
-                                       + "' does not exist! Creating sequence with start-value of " + seqValue);
+                        log.warn("Sequence {} does not exist! Creating sequence with start-value of {}", SeqName, seqValue);
                         // create a new sequence entry
                         cmd.clear();
                         cmd.set(C_SEQNAME.to(SeqName));
                         cmd.set(C_SEQVALUE.to(seqValue));
                         cmd.set(C_TIMESTAMP.to(DBDatabase.SYSDATE));
-                        if (db.executeSQL(cmd.getInsert(), null, conn) < 1)
+                        if (driver.executeSQL(cmd.getInsert(), null, conn, null) < 1)
                             seqValue = 0; // Try again
                     }
                     // check for concurrency problem
                     if (seqValue == 0)
-                        log.warn("Failed to increment sequence '" + SeqName + "'. Trying again!");
+                        log.warn("Failed to increment sequence {}. Trying again!", SeqName);
                     // close
                     db.closeStatement(stmt);
                     cmd.clear();
                     rs = null;
                 }
+                if (log.isInfoEnabled())
+                    log.info("Sequence {} incremented to {}.", SeqName, seqValue);
                 return new Long(seqValue);
             } catch (Exception e) 
             {
@@ -533,13 +540,13 @@ public abstract class DBDatabaseDriver extends ErrorObject implements Serializab
                                    : ResultSet.TYPE_FORWARD_ONLY);
             // Create an execute a query statement
 	        if (sqlParams!=null)
-	        {	// Use prepared statment
+	        {	// Use prepared statement
 	            PreparedStatement pstmt = conn.prepareStatement(sqlCmd, type, ResultSet.CONCUR_READ_ONLY);
 	            stmt = pstmt;
 	            prepareStatement(pstmt, sqlParams);
 	            return pstmt.executeQuery();
-	        }
-	        {	// Use simple statment
+	        } else
+	        {	// Use simple statement
 	            stmt = conn.createStatement(type, ResultSet.CONCUR_READ_ONLY);
 	            return stmt.executeQuery(sqlCmd);
 	        }
