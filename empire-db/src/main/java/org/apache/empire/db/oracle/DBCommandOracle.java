@@ -120,8 +120,9 @@ public class DBCommandOracle extends DBCommand
      * @return true if the creation was successful
      */
     @Override
-    public boolean getSelect(StringBuilder buf)
+    public synchronized boolean getSelect(StringBuilder buf)
     {
+        resetParamUsage();
         if (select == null)
             return error(Errors.ObjectNotValid, getClass().getName()); // invalid!
         // Prepares statement
@@ -173,8 +174,9 @@ public class DBCommandOracle extends DBCommand
      * @return the delete SQL-Command
      */
     @Override
-    public String getDelete(DBTable table)
+    public synchronized String getDelete(DBTable table)
     {
+        resetParamUsage();
         StringBuilder buf = new StringBuilder("DELETE ");
         if (optimizerHint != null)
         {   // Append an optimizer hint to the select statement e.g. SELECT /*+ RULE */

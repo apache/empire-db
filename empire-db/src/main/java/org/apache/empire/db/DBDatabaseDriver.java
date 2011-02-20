@@ -24,6 +24,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.sql.Timestamp;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -208,7 +209,7 @@ public abstract class DBDatabaseDriver extends ErrorObject implements Serializab
                         cmd.set(C_SEQNAME.to(SeqName));
                         cmd.set(C_SEQVALUE.to(seqValue));
                         cmd.set(C_TIMESTAMP.to(DBDatabase.SYSDATE));
-                        if (driver.executeSQL(cmd.getInsert(), null, conn, null) < 1)
+                        if (driver.executeSQL(cmd.getInsert(), cmd.getParamValues(), conn, null) < 1)
                             seqValue = 0; // Try again
                     }
                     // check for concurrency problem
@@ -402,7 +403,7 @@ public abstract class DBDatabaseDriver extends ErrorObject implements Serializab
                 pstmt.setBinaryStream(i + 1, blobData.getInputStream(), blobData.getLength());
                 // log
                 if (log.isDebugEnabled())
-                    log.debug("Statement param " + (i+1) + " set to BLOB data");
+                    log.debug("Statement param {} set to BLOB data", i+1);
             }
             else if(value instanceof DBClobData)
             {
@@ -411,14 +412,32 @@ public abstract class DBDatabaseDriver extends ErrorObject implements Serializab
                 pstmt.setCharacterStream(i + 1, clobData.getReader(), clobData.getLength());
                 // log
                 if (log.isDebugEnabled())
-                    log.debug("Statement param " + (i+1) + " set to CLOB data");
+                    log.debug("Statement param {} set to CLOB data", i+1);
+            }
+            else if(value instanceof Character)
+            {
+                // handling for dates
+                String strval = value.toString();
+                pstmt.setObject(i + 1, strval);
+                // log
+                if (log.isDebugEnabled())
+                    log.debug("Statement param {} set to '{}'", i+1, strval);
+            }
+            else if(value instanceof Date && !(value instanceof Timestamp))
+            {
+                // handling for dates
+                Timestamp ts = new Timestamp(((Date)value).getTime());
+                pstmt.setObject(i + 1, ts);
+                // log
+                if (log.isDebugEnabled())
+                    log.debug("Statement param {} set to date '{}'", i+1, ts);
             }
             else
             {   // simple parameter value 
                 pstmt.setObject(i + 1, value);
                 // log
                 if (log.isDebugEnabled())
-                    log.debug("Statement param " + (i+1) + " set to '" + value + "'");
+                    log.debug("Statement param {} set to '{}'", i+1, value);
             }
         }
 	}

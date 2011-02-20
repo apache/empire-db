@@ -213,7 +213,7 @@ public class DBDatabaseDriverMySQL extends DBDatabaseDriver
         // Prepare
         try
         {   // Set Database
-            if (StringUtils.isValid(databaseName))
+            if (StringUtils.isNotEmpty(databaseName))
                 executeSQL("USE " + databaseName, null, conn, null);
             // Sequence Table
             if (useSequenceTable && db.getTable(sequenceTableName)==null)
@@ -463,7 +463,7 @@ public class DBDatabaseDriverMySQL extends DBDatabaseDriver
         // User Master to create Database
         if (createSchema)
         {   // check database Name
-            if (StringUtils.isValid(databaseName)==false)
+            if (StringUtils.isEmpty(databaseName))
                 return error(Errors.InvalidProperty, "databaseName");
             // Create Database
             script.addStmt("CREATE DATABASE IF NOT EXISTS " + databaseName + " CHARACTER SET " + characterSet);
@@ -540,14 +540,14 @@ public class DBDatabaseDriverMySQL extends DBDatabaseDriver
         }
         sql.append(")");
         // Engine
-        if (StringUtils.isValid(engine)) 
+        if (StringUtils.isNotEmpty(engine)) 
         {   // Set the table engine
             sql.append(" ENGINE = ");
             sql.append(engine);
         }
         // Comment?
         String comment = t.getComment();
-        if (StringUtils.isValid(comment))
+        if (StringUtils.isNotEmpty(comment))
         {   // Add the table comment
             sql.append(" COMMENT = '");
             sql.append(comment);

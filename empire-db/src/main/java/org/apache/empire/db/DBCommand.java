@@ -140,7 +140,7 @@ public abstract class DBCommand extends DBCommandExpr
     protected List<DBColumnExpr>     groupBy        = null;
     // Parameters for prepared Statements
     protected Vector<DBCommandParam> cmdParams      = null;
-    protected int                    paramUsageCount= 0;
+    private int                      paramUsageCount= 0;
     // Database
     private DBDatabase               db;
 
@@ -158,7 +158,7 @@ public abstract class DBCommand extends DBCommandExpr
      * internally used to reset the command param usage count.
      * Note: Only one thread my generate an SQL statement 
      */
-    private void resetParamUsage()
+    protected void resetParamUsage()
     {
         paramUsageCount = 0;
     }
@@ -320,8 +320,12 @@ public abstract class DBCommand extends DBCommandExpr
         }
     }
     
-    protected boolean useCmdParam(DBColumn col)
+    protected boolean useCmdParam(DBColumn col, Object value)
     {
+        // Cannot wrap DBExpr or DBSystemDate
+        if (value instanceof DBExpr || value instanceof DBDatabase.DBSystemDate)
+            return false;
+        // Check if prepared statements are enabled
         if (db.isPreparedStatementsEnabled())
             return true;
         // Only use a command param if column is of type BLOB or CLOB
@@ -343,8 +347,7 @@ public abstract class DBCommand extends DBCommandExpr
             DBSetExpr chk = set.get(i);
             if (chk.column.equals(expr.column))
             { // Overwrite existing value
-                if (useCmdParam(expr.column) && (expr.value instanceof DBExpr) == false
-                    && chk.value instanceof DBCommandParam)
+                if (useCmdParam(expr.column, expr.value) && chk.value instanceof DBCommandParam)
                 {   // replace parameter value
                     // int index = ((DBCommandParam) chk.value).index;
                     // this.setCmdParam(index, getCmdParamValue(expr.column, expr.value));
@@ -358,7 +361,7 @@ public abstract class DBCommand extends DBCommandExpr
             }
         }
         // Replace with parameter 
-        if (useCmdParam(expr.column) && (expr.value instanceof DBExpr)==false)
+        if (useCmdParam(expr.column, expr.value))
             expr.value = addParam(expr.column.getDataType(), expr.value);
         // new Value!
         set.add(expr);

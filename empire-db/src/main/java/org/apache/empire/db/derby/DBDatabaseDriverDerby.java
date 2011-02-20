@@ -446,7 +446,7 @@ public class DBDatabaseDriverDerby extends DBDatabaseDriver
         sql.append(")");
         // Comment?
         String comment = t.getComment();
-        if (StringUtils.isValid(comment))
+        if (StringUtils.isNotEmpty(comment))
         {   // Add the table comment
             sql.append(" COMMENT = '");
             sql.append(comment);

@@ -180,7 +180,7 @@ public class DBDatabaseDriverMSSQL extends DBDatabaseDriver
         // Prepare
         try
         {   // Set Database
-            if (StringUtils.isValid(databaseName))
+            if (StringUtils.isNotEmpty(databaseName))
                 executeSQL("USE " + databaseName, null, conn, null);
             // Set Dateformat
             executeSQL("SET DATEFORMAT ymd", null, conn, null);
@@ -189,7 +189,7 @@ public class DBDatabaseDriverMSSQL extends DBDatabaseDriver
                 new DBSeqTable(sequenceTableName, db);
             // Check Schema
             String schema = db.getSchema();
-            if (StringUtils.isValid(schema) && schema.indexOf('.')<0 && StringUtils.isValid(objectOwner))
+            if (StringUtils.isNotEmpty(schema) && schema.indexOf('.')<0 && StringUtils.isNotEmpty(objectOwner))
             {   // append database owner
                 db.setSchema(schema + "." + objectOwner);
             }
@@ -462,7 +462,7 @@ public class DBDatabaseDriverMSSQL extends DBDatabaseDriver
         // User Master to create Database
         if (createSchema)
         {   // check database Name
-            if (StringUtils.isValid(databaseName)==false)
+            if (StringUtils.isEmpty(databaseName))
                 return error(Errors.InvalidProperty, "databaseName");
             // Create Database
             script.addStmt("USE master");
