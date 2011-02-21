@@ -58,6 +58,10 @@
 					<plugin>
 						<groupId>com.mycila.maven-license-plugin</groupId>
 						<artifactId>maven-license-plugin</artifactId>
+						<configuration>
+							<!-- TODO enable strict checking and fix issues -->
+							<strictCheck>false</strictCheck>
+						</configuration>
 					</plugin>
 					<plugin>
 				      	<groupId>org.apache.rat</groupId>

@@ -190,14 +190,14 @@ public abstract class BeanDetailAction<T> extends DetailAction
     
     /**
      * Returns the bean for the supplied object key.
-     * If an error occurs the fuction must set an action error and return null.
+     * If an error occurs the function must set an action error and return null.
      * @return the bean object
      */
     public abstract T createBean();
     
     /**
      * Returns the bean for the supplied object key.
-     * If an error occurs the fuction must set an action error and return null.
+     * If an error occurs the function must set an action error and return null.
      * @param key the bean's key values
      * @return the bean object
      */
@@ -207,14 +207,14 @@ public abstract class BeanDetailAction<T> extends DetailAction
      * Saves a bean object 
      * @param bean 
      * @param isNew true the bean is a newly created object or false otherwise
-     * @return true if the bean has been stored sucessfully or false otherwise
+     * @return true if the bean has been stored successfully or false otherwise
      */
     public abstract boolean saveBean(T bean, boolean isNew);
     
     /**
      * Deletes a bean object
-     * @param bean 
-     * @return true if the bean has been stored sucessfully or false otherwise
+     * @param key 
+     * @return true if the bean has been stored successfully or false otherwise
      */
     public abstract boolean deleteBean(Object[] key);
     
