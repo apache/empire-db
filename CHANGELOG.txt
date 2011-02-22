@@ -9,8 +9,29 @@ For more Information about a particular issue please visit
 https://issues.apache.org/jira/browse/EMPIREDB
 
 --------------
+Release 2.1.0:
+--------------
+Major new features:
+- New and improved utilization of prepared statements which can be enabled / disabled by database property. 
+- Use of SLF4J instead of log4j 
+EMPIREDB-101- [C/I]:  Create DDL Script on MySQL should state CREATE DATABASE IF NOT EXISTS
+EMPIREDB-100- [C/I]:  Support of long integer fields for H2, Derby and MySQL
+EMPIREDB-97 - [C/I]:  Added serialization to Empire-DB objects
+EMPIREDB-95 - [C/I]:  Code optimizations/cleanup and javadoc improvements  
+EMPIREDB-94 - [C/B]:  Added Postgre and Derby bigint support
+EMPIREDB-93 - [C/B]:  DBRowSet.updateRecord log output does not report column name properly
+EMPIREDB-92 - [C/I]:  Switch to Apache Parent pom version 8
+EMPIREDB-91 - [C/I]:  Increase and optimize the use of prepared statements
+EMPIREDB-81 - [C/B]:  Endless loop in DBSeqTable#getNextValue() fixed
+EMPIREDB-77 - [C/I]:  Removed the Log4J compile-time dependency by switching to slf4j (same also EMPIREDB-38) 
+EMPIREDB-38 - [C/I]:  Switched from log4j to slf4j
+
+--------------
 Release 2.0.7:
 --------------
+Major new features:
+- Switched to latest struts version and added portelt support to struts2 extentions
+- Support for limiting the number of rows returned by a query.  
 EMPIREDB-90 - [C/B]:  The "createRecordProperties" switch in the codegenerator's configuration works not properly.     
 EMPIREDB-89 - [S/I]:  Update Empire-Struts-Extentions to Struts 2.2.1 and provide Portlet Support     
 EMPIREDB-88 - [C/B]:  CodeGenerator generates uppercase fieldnames where empire code expects lowercase names     
