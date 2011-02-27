@@ -173,6 +173,7 @@
 		<developerConnection>scm:svn:https://svn.apache.org/repos/asf/incubator/empire-db/trunk</developerConnection>
 		<url>http://svn.apache.org/viewvc/incubator/empire-db/trunk</url>
 	</scm>
+
 	<mailingLists>
 		<mailingList>
 			<name>Empire-db User List</name>
