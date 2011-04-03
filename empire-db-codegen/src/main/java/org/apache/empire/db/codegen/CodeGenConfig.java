@@ -191,15 +191,12 @@ public class CodeGenConfig extends XMLConfiguration {
 	 * 
 	 * @return true on success
 	 */
-	public boolean init(String filename) {
+	public void init(String filename) {
 		// Read the properties file
-		if (super.init(filename, false) == false)
-			return false;
+		super.init(filename, false);
 		// Done
-		if (readProperties(this, "properties") == false)
-			return false;
+		readProperties(this, "properties");
 		// Reader Provider Properties
-		return true;
 	}
 
 	public String getJdbcClass() {

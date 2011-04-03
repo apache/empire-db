@@ -18,7 +18,12 @@
  */
 package org.apache.empire.db;
 // XML
+import java.lang.reflect.InvocationTargetException;
+import java.util.Collection;
+import java.util.Date;
+
 import org.apache.commons.beanutils.BeanUtils;
+import org.apache.empire.EmpireException;
 import org.apache.empire.commons.DateUtils;
 import org.apache.empire.commons.ObjectUtils;
 import org.apache.empire.commons.StringUtils;
@@ -28,10 +33,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
-
-import java.lang.reflect.InvocationTargetException;
-import java.util.Collection;
-import java.util.Date;
 
 
 /**
@@ -55,8 +56,8 @@ public abstract class DBRecordData extends DBObject
     // Column lookup
     public abstract ColumnExpr getColumnExpr(int i);
     // xml
-    public abstract boolean  addColumnDesc(Element parent);
-    public abstract boolean  addRowValues (Element parent);
+    public abstract void  addColumnDesc(Element parent);
+    public abstract void  addRowValues (Element parent);
     public abstract Document getXmlDocument();
     // others
     public abstract void    close();
@@ -256,7 +257,7 @@ public abstract class DBRecordData extends DBObject
     /**
      * Set a single property value of a java bean object used by readProperties.
      */
-    protected boolean getBeanProperty(Object bean, String property, Object value)
+    protected void getBeanProperty(Object bean, String property, Object value)
     {
         try
         {   /*
@@ -279,16 +280,15 @@ public abstract class DBRecordData extends DBObject
              * res); }
              */
             // done
-            return success();
 
         } catch (IllegalAccessException e)
         {
             log.error(bean.getClass().getName() + ": unable to set property '" + property + "'");
-            return error(e);
+            throw new EmpireException(e);
         } catch (InvocationTargetException e)
         {
             log.error(bean.getClass().getName() + ": unable to set property '" + property + "'");
-            return error(e);
+            throw new EmpireException(e);
             /*
              * } catch(NoSuchMethodException e) { log.warn(bean.getClass().getName() + ": cannot check value of property '" +
              * property + "'"); return true;
@@ -301,7 +301,7 @@ public abstract class DBRecordData extends DBObject
      * 
      * @return true if successful
      */
-    public boolean getBeanProperties(Object bean, Collection<ColumnExpr> ignoreList)
+    public void getBeanProperties(Object bean, Collection<ColumnExpr> ignoreList)
     {
         // Add all Columns
         for (int i = 0; i < getFieldCount(); i++)
@@ -311,13 +311,8 @@ public abstract class DBRecordData extends DBObject
                 continue; // ignore this property
             // Get Property Name
             String property = column.getBeanPropertyName();
-            if (getBeanProperty(bean, property, this.getValue(i))==false)
-            {   // Error setting property.
-                return false;
-            }
+            getBeanProperty(bean, property, this.getValue(i));
         }
-        // Success, All Properties have been set
-        return success();
     }
 
     /**
@@ -325,9 +320,9 @@ public abstract class DBRecordData extends DBObject
      * 
      * @return true if successful
      */
-    public final boolean getBeanProperties(Object bean)
+    public final void getBeanProperties(Object bean)
     {
-        return getBeanProperties(bean, null);
+        getBeanProperties(bean, null);
     }
     
 }

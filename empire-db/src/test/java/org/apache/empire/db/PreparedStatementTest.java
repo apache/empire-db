@@ -26,7 +26,6 @@ import java.sql.Connection;
 
 import org.apache.empire.DBResource;
 import org.apache.empire.DBResource.DB;
-import org.apache.empire.commons.ErrorObject;
 import org.apache.empire.db.DBCommand.DBCommandParam;
 import org.junit.Rule;
 import org.junit.Test;
@@ -40,7 +39,6 @@ public class PreparedStatementTest{
     @Test
     public void testPreparedStatement()
     {
-        ErrorObject.setExceptionsEnabled(true);
         
         Connection conn = dbResource.getConnection();
         

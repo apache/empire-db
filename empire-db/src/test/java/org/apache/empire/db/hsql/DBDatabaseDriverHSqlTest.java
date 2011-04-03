@@ -27,7 +27,6 @@ import java.util.Date;
 
 import org.apache.empire.DBResource;
 import org.apache.empire.DBResource.DB;
-import org.apache.empire.commons.ErrorObject;
 import org.apache.empire.db.CompanyDB;
 import org.apache.empire.db.DBCmdType;
 import org.apache.empire.db.DBDatabaseDriver;
@@ -45,7 +44,6 @@ public class DBDatabaseDriverHSqlTest{
     @Test
     public void test()
     {
-        ErrorObject.setExceptionsEnabled(true);
         
         Connection conn = dbResource.getConnection();
      

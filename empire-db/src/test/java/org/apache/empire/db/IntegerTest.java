@@ -26,7 +26,6 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.empire.commons.ErrorObject;
 import org.apache.empire.data.DataMode;
 import org.apache.empire.data.DataType;
 import org.apache.empire.db.derby.DBDatabaseDriverDerby;
@@ -36,7 +35,6 @@ import org.apache.empire.db.mysql.DBDatabaseDriverMySQL;
 import org.apache.empire.db.oracle.DBDatabaseDriverOracle;
 import org.apache.empire.db.postgresql.DBDatabaseDriverPostgreSQL;
 import org.apache.empire.db.sqlserver.DBDatabaseDriverMSSQL;
-import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -49,11 +47,6 @@ import org.slf4j.LoggerFactory;
 public class IntegerTest {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(IntegerTest.class);
-
-    @Before
-    public void enableExceptions(){
-        ErrorObject.setExceptionsEnabled(true);
-    }
     
     @Test
     public void testHsqldb() {

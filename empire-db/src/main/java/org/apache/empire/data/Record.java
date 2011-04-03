@@ -96,7 +96,7 @@ public interface Record extends RecordData
      * @param value the new field value
      * @return true if value has been set or false if the value cannot be set for this field
      */
-    boolean setValue(int i, Object value);
+    void setValue(int i, Object value);
 
     /**
      * sets a record value based on a column.
@@ -104,7 +104,7 @@ public interface Record extends RecordData
      * @param value the new record value for the given column
      * @return true if value has been set or false if the value cannot be set for this column
      */
-    boolean setValue(Column column, Object value);
+    void setValue(Column column, Object value);
 
     /**
      * checks whether or not the field for the given column has been modified since it has been loaded.
@@ -127,7 +127,7 @@ public interface Record extends RecordData
      * @param ignoreList list of column to ignore
      * @return true if at least one field value has been successfully set    
      */
-    boolean setBeanValues(Object bean, Collection<Column> ignoreList);
+    void setBeanValues(Object bean, Collection<Column> ignoreList);
 
     /**
      * sets all record values from a particular bean.
@@ -137,6 +137,6 @@ public interface Record extends RecordData
      * @param bean the Java Bean from which to read the value from
      * @return true if at least one field value has been successfully set    
      */
-    boolean setBeanValues(Object bean);
+    void setBeanValues(Object bean);
 
 }

@@ -25,15 +25,15 @@ import java.util.List;
 import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.beanutils.BeanUtilsBean;
 import org.apache.commons.beanutils.PropertyUtilsBean;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.apache.empire.commons.ErrorObject;
+import org.apache.empire.EmpireException;
 import org.apache.empire.commons.Errors;
 import org.apache.empire.commons.ObjectUtils;
 import org.apache.empire.commons.Options;
 import org.apache.empire.data.Column;
 import org.apache.empire.data.ColumnExpr;
 import org.apache.empire.data.Record;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -44,7 +44,7 @@ import org.apache.empire.data.Record;
  * 
  * @author Rainer
  */
-public class BeanRecordProxy<T> extends ErrorObject implements Record
+public class BeanRecordProxy<T> implements Record
 {
     protected static final Logger log = LoggerFactory.getLogger(BeanRecordProxy.class);
     
@@ -173,9 +173,8 @@ public class BeanRecordProxy<T> extends ErrorObject implements Record
     public boolean isNew()
     {
         if (!isValid())
-            return error(Errors.InvalidProperty, "bean");
+        	throw new EmpireException(Errors.InvalidProperty, "bean");
         // Record is new until all key fields have been supplied
-        clearError();
         if (keyColumns!=null)
         {   // Check all Key Columns
             for (int i=0; i<keyColumns.length; i++)
@@ -199,8 +198,7 @@ public class BeanRecordProxy<T> extends ErrorObject implements Record
     public Object getValue(ColumnExpr column)
     {
         if (!isValid())
-        {   error(Errors.InvalidProperty, "bean");
-            return null;
+        {   throw new EmpireException(Errors.InvalidProperty, "bean");
         }
         return getBeanPropertyValue(data, column);
     }
@@ -223,10 +221,10 @@ public class BeanRecordProxy<T> extends ErrorObject implements Record
     /**
      * sets the value of a field.
      */
-    public boolean setValue(Column column, Object value)
+    public void setValue(Column column, Object value)
     {
         if (!isValid())
-            return error(Errors.InvalidProperty, "bean");
+        	throw new EmpireException(Errors.InvalidProperty, "bean");
         // Track modification status
         if (ObjectUtils.compareEqual(getValue(column), value)==false)
         {
@@ -235,15 +233,15 @@ public class BeanRecordProxy<T> extends ErrorObject implements Record
             modified[getFieldIndex(column)] = true;
         }
         // Set Value
-        return setBeanPropertyValue(data, column, value);
+        setBeanPropertyValue(data, column, value);
     }
 
     /**
      * sets the value of a field.
      */
-    public boolean setValue(int i, Object value)
+    public void setValue(int i, Object value)
     {
-        return setValue(getColumn(i), value);
+        setValue(getColumn(i), value);
     }
 
     /**
@@ -253,8 +251,7 @@ public class BeanRecordProxy<T> extends ErrorObject implements Record
     {
         int index = getFieldIndex(column);
         if (index<0)
-            return error(Errors.ItemNotFound, column.getName());
-        clearError();
+        	throw new EmpireException(Errors.ItemNotFound, column.getName());
         return (modified!=null && modified[index]);
     }
 
@@ -268,15 +265,14 @@ public class BeanRecordProxy<T> extends ErrorObject implements Record
 
     // --------------- Bean support ------------------
 
-    public boolean getBeanProperties(Object bean)
+    public void getBeanProperties(Object bean)
     {
-        return getBeanProperties(bean, null);
+        getBeanProperties(bean, null);
     }
 
-    public boolean getBeanProperties(Object bean, Collection<ColumnExpr> ignoreList)
+    public void getBeanProperties(Object bean, Collection<ColumnExpr> ignoreList)
     {
         // Add all Columns
-        int count = 0;
         for (int i = 0; i < getFieldCount(); i++)
         { // Check Property
             Column column = getColumn(i);
@@ -287,13 +283,11 @@ public class BeanRecordProxy<T> extends ErrorObject implements Record
             // Get Property Name
             setBeanPropertyValue(bean, column, getValue(i));
         }
-        return (count > 0);
     }
 
-    public boolean setBeanValues(Object bean, Collection<Column> ignoreList)
+    public void setBeanValues(Object bean, Collection<Column> ignoreList)
     {
         // Add all Columns
-        int count = 0;
         for (int i = 0; i < getFieldCount(); i++)
         { // Check Property
             Column column = getColumn(i);
@@ -304,17 +298,13 @@ public class BeanRecordProxy<T> extends ErrorObject implements Record
             // Get Property Name
             String property = column.getBeanPropertyName();
             Object value = getBeanPropertyValue(bean, property);
-            if (value==null && this.hasError())
-                continue;
-            if (setValue(column, value))
-                count++;
+            setValue(column, value);
         }
-        return (count > 0);
     }
 
-    public boolean setBeanValues(Object bean)
+    public void setBeanValues(Object bean)
     {
-        return setBeanValues(bean, null);
+        setBeanValues(bean, null);
     }
 
     // --------------- protected ------------------
@@ -323,8 +313,7 @@ public class BeanRecordProxy<T> extends ErrorObject implements Record
     {
         // Check Params
         if (column==null)
-        {   error(Errors.InvalidArg, "column");
-            return null;
+        {   throw new EmpireException(Errors.InvalidArg, "column");
         }
         return getBeanPropertyValue(bean, column.getBeanPropertyName()); 
     }
@@ -333,55 +322,48 @@ public class BeanRecordProxy<T> extends ErrorObject implements Record
     {
         // Check Params
         if (bean==null || property==null)
-        {   error(Errors.InvalidArg, "property");
-            return null;
+        {   throw new EmpireException(Errors.InvalidArg, "property");
         }
         try
         {   // Get Property Value
-            clearError();
             PropertyUtilsBean pub = BeanUtilsBean.getInstance().getPropertyUtils();
             return pub.getSimpleProperty(bean, property);
 
         } catch (IllegalAccessException e)
         {   log.error(bean.getClass().getName() + ": unable to get property '" + property + "'");
-            error(e);
-            return null;
+        	throw new EmpireException(e);
         } catch (InvocationTargetException e)
         {   log.error(bean.getClass().getName() + ": unable to get property '" + property + "'");
-            error(e);
-            return null;
+        	throw new EmpireException(e);
         } catch (NoSuchMethodException e)
         {   log.warn(bean.getClass().getName() + ": no getter available for property '" + property + "'");
-            error(e);
-            return null;
+        	throw new EmpireException(e);
         }
     }
 
-    protected boolean setBeanPropertyValue(Object bean, Column column, Object value)
+    protected void setBeanPropertyValue(Object bean, Column column, Object value)
     {
         // Check Params
         if (bean==null || column==null)
-            return error(Errors.InvalidArg, "column");
+            throw new EmpireException(Errors.InvalidArg, "column");
         // Get Property Name
         String property = column.getBeanPropertyName(); 
         try
         {   // Get Property Value
-            clearError();
             if (ObjectUtils.isEmpty(value))
                 value = null;
             BeanUtils.setProperty(bean, property, value);
             // PropertyUtilsBean pub = BeanUtilsBean.getInstance().getPropertyUtils();
             // pub.setSimpleProperty(data, property, value);
-            return success();
         } catch (IllegalArgumentException e) {
             log.error(bean.getClass().getName() + ": invalid argument for property '" + property + "'");
-            return error(e);
+            throw new EmpireException(e);
         } catch (IllegalAccessException e)
         {   log.error(bean.getClass().getName() + ": unable to set property '" + property + "'");
-            return error(e);
+        	throw new EmpireException(e);
         } catch (InvocationTargetException e)
         {   log.error(bean.getClass().getName() + ": unable to set property '" + property + "'");
-            return error(e);
+        	throw new EmpireException(e);
         }    
     }
     

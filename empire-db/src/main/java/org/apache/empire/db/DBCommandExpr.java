@@ -19,16 +19,17 @@
 package org.apache.empire.db;
 
 // java
+import java.sql.Connection;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
+
+import org.apache.empire.EmpireException;
 import org.apache.empire.commons.Errors;
 import org.apache.empire.commons.Options;
 import org.apache.empire.data.DataType;
 import org.apache.empire.db.expr.order.DBOrderByExpr;
 import org.w3c.dom.Element;
-
-import java.sql.Connection;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
 
 
 /**
@@ -107,8 +108,7 @@ public abstract class DBCommandExpr extends DBExpr
         @Override
         public DBColumn[] getKeyColumns()
         {
-            error(Errors.NotSupported, "getKeyColumns");
-            return null;
+            throw new EmpireException(Errors.NotSupported, "getKeyColumns");
         }
 
         /**
@@ -119,43 +119,42 @@ public abstract class DBCommandExpr extends DBExpr
         @Override
         public Object[] getRecordKey(DBRecord rec)
         {
-            error(Errors.NotSupported, "getRecordKey");
-            return null;
+        	throw new EmpireException(Errors.NotSupported, "getRecordKey");
         }
 
         /** Returns the error message: ERR_NOTSUPPORTED */
         @Override
-        public boolean initRecord(DBRecord rec, Object[] keyValues)
+        public void initRecord(DBRecord rec, Object[] keyValues)
         {
-            return error(Errors.NotSupported, "initRecord");
+            throw new EmpireException(Errors.NotSupported, "initRecord");
         }
 
         /** Returns the error message: ERR_NOTSUPPORTED */
         @Override
-        public boolean createRecord(DBRecord rec, Connection conn)
+        public void createRecord(DBRecord rec, Connection conn)
         {
-            return error(Errors.NotSupported, "addRecord");
+        	throw new EmpireException(Errors.NotSupported, "addRecord");
         }
 
         /** Returns the error message: ERR_NOTSUPPORTED */
         @Override
-        public boolean readRecord(DBRecord rec, Object[] keys, Connection conn)
+        public void readRecord(DBRecord rec, Object[] keys, Connection conn)
         {
-            return error(Errors.NotSupported, "getRecord");
+        	throw new EmpireException(Errors.NotSupported, "getRecord");
         }
 
         /** Returns the error message: ERR_NOTSUPPORTED */
         @Override
-        public boolean updateRecord(DBRecord rec, Connection conn)
+        public void updateRecord(DBRecord rec, Connection conn)
         {
-            return error(Errors.NotSupported, "updateRecord");
+        	throw new EmpireException(Errors.NotSupported, "updateRecord");
         }
 
         /** Returns the error message: ERR_NOTSUPPORTED */
         @Override
-        public boolean deleteRecord(Object[] keys, Connection conn)
+        public void deleteRecord(Object[] keys, Connection conn)
         {
-            return error(Errors.NotSupported, "deleteRecord");
+        	throw new EmpireException(Errors.NotSupported, "deleteRecord");
         }
     }
 
@@ -275,9 +274,9 @@ public abstract class DBCommandExpr extends DBExpr
          * Not applicable - always returns true.
          */
         @Override
-        public boolean checkValue(Object value)
+        public void checkValue(Object value)
         {
-            return true;
+
         }
 
         /**
@@ -304,7 +303,7 @@ public abstract class DBCommandExpr extends DBExpr
     // get Select SQL
     public abstract boolean isValid();
 
-    public abstract boolean getSelect(StringBuilder buf);
+    public abstract void getSelect(StringBuilder buf);
 
     public abstract DBColumnExpr[] getSelectExprList();
     
@@ -343,11 +342,7 @@ public abstract class DBCommandExpr extends DBExpr
     public String getSelect()
     {
         StringBuilder buf = new StringBuilder();
-        if (getSelect(buf) == false)
-        {
-            log.error(getErrorMessage());
-            return null;
-        }
+        getSelect(buf);
         return buf.toString();
     }
 
@@ -468,8 +463,7 @@ public abstract class DBCommandExpr extends DBExpr
     {
         if (select == null)
         { // invalid Object
-            error(Errors.ObjectNotValid, getClass().getName());
-            return null;
+        	throw new EmpireException(Errors.ObjectNotValid, getClass().getName());
         }
         StringBuilder buf = new StringBuilder("INSERT INTO ");
         table.addSQL(buf, CTX_FULLNAME);
@@ -478,8 +472,7 @@ public abstract class DBCommandExpr extends DBExpr
         { // Check Count
             if (columns.size() != select.length)
             {
-                error(Errors.InvalidArg, columns, "columns");
-                return null;
+            	throw new EmpireException(Errors.InvalidArg, columns, "columns");
             }
             // Append Names
             buf.append(" (");
@@ -520,8 +513,7 @@ public abstract class DBCommandExpr extends DBExpr
         DBColumnExpr[] select = getSelectExprList();
         if (select == null || select.length < 1)
         {
-            error(Errors.ObjectNotValid, getClass().getName());
-            return null;
+        	throw new EmpireException(Errors.ObjectNotValid, getClass().getName());
         }
         // Match Columns
         List<DBColumnExpr> inscols = new ArrayList<DBColumnExpr>(select.length);

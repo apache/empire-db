@@ -21,6 +21,7 @@ package org.apache.empire.db;
 import java.sql.Connection;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.apache.empire.EmpireException;
 import org.apache.empire.commons.Errors;
 import org.apache.empire.commons.Options;
 import org.apache.empire.data.DataType;
@@ -117,11 +118,11 @@ public abstract class DBView extends DBRowSet
         }    
 
         @Override
-        public boolean checkValue(Object value)
+        public void checkValue(Object value)
         {
             if (updateColumn==null)
-                return true;
-            return updateColumn.checkValue(value);
+                return;
+            updateColumn.checkValue(value);
         }
 
         @Override
@@ -286,9 +287,9 @@ public abstract class DBView extends DBRowSet
     protected boolean addColumn(DBViewColumn col)
     { // find column by name
         if (col == null || col.getRowSet() != this)
-            return error(Errors.InvalidArg, col, "col");
+        	throw new EmpireException(Errors.InvalidArg, col, "col");
         if (columns.contains(col) == true)
-            return error(Errors.ItemExists, col.getName());
+        	throw new EmpireException(Errors.ItemExists, col.getName());
         // add now
         columns.add(col);
         return true;
@@ -377,12 +378,12 @@ public abstract class DBView extends DBRowSet
     }
 
     @Override
-    public boolean updateRecord(DBRecord rec, Connection conn)
+    public void updateRecord(DBRecord rec, Connection conn)
     {
         if (updateable==false)
-            return error(Errors.NotSupported, "updateRecord");
+        	throw new EmpireException(Errors.NotSupported, "updateRecord");
         // Update the record
-        return super.updateRecord(rec, conn);
+        super.updateRecord(rec, conn);
     }
     
     /*
@@ -391,9 +392,9 @@ public abstract class DBView extends DBRowSet
      * @see org.apache.empire.db.DBRowSet#addRecord(org.apache.empire.db.DBRecord, java.sql.Connection)
      */
     @Override
-    public boolean createRecord(DBRecord rec, Connection conn)
+    public void createRecord(DBRecord rec, Connection conn)
     {
-        return error(Errors.NotSupported, "addRecord");
+    	throw new EmpireException(Errors.NotSupported, "addRecord");
     }
 
     /*
@@ -402,8 +403,8 @@ public abstract class DBView extends DBRowSet
      * @see org.apache.empire.db.DBRowSet#deleteRecord(java.lang.Object[], java.sql.Connection, boolean)
      */
     @Override
-    public boolean deleteRecord(Object[] keys, Connection conn)
+    public void deleteRecord(Object[] keys, Connection conn)
     {
-        return error(Errors.NotSupported, "deleteRecord");
+    	throw new EmpireException(Errors.NotSupported, "deleteRecord");
     }
 }

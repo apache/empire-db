@@ -99,7 +99,7 @@ public interface RecordData
      * @param ignoreList list of columns to skip (optional)
      * @return true if at least one property has been successfully set
      */
-    boolean getBeanProperties(Object bean, Collection<ColumnExpr> ignoreList);
+    void getBeanProperties(Object bean, Collection<ColumnExpr> ignoreList);
 
     /**
      * writes all field values into a static Java Bean.
@@ -109,6 +109,6 @@ public interface RecordData
      * @param bean the Java Bean for which to set the properties
      * @return true if at least one property has been successfully set
      */
-    boolean getBeanProperties(Object bean);
+    void getBeanProperties(Object bean);
 
 }

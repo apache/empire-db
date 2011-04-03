@@ -22,7 +22,6 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.util.List;
 
-import org.apache.empire.commons.ErrorObject;
 import org.apache.empire.commons.StringUtils;
 import org.apache.empire.db.DBColumnExpr;
 import org.apache.empire.db.DBCommand;
@@ -69,9 +68,6 @@ public class SampleApp
         {
 			// Init Configuration
 			config.init((args.length > 0 ? args[0] : "config.xml" ));
-
-			// Enable Exceptions
-            ErrorObject.setExceptionsEnabled(true);
 
 			System.out.println("Running DB Sample...");
 

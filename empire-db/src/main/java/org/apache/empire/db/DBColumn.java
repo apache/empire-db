@@ -19,12 +19,12 @@
 package org.apache.empire.db;
 
 // Java
+import java.util.Set;
+
 import org.apache.empire.commons.Options;
 import org.apache.empire.data.Column;
 import org.apache.empire.db.expr.set.DBSetExpr;
 import org.w3c.dom.Element;
-
-import java.util.Set;
 
 
 /**
@@ -114,7 +114,7 @@ public abstract class DBColumn extends DBColumnExpr
      */
     public abstract boolean isReadOnly();
 
-    public abstract boolean checkValue(Object value);
+    public abstract void checkValue(Object value);
 
     @Override
     public abstract Element addXml(Element parent, long flags);
