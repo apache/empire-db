@@ -46,7 +46,7 @@ public final class EmpireException extends RuntimeException
         super(errorObject.getErrorMessage());
         // init
         this.errorType = errorObject.getErrorType();
-        this.errorObject = new ErrorInfoImpl(errorObject);
+        this.errorObject = new DeepCopyErrorInfo(errorObject);
         this.errorObjectClassname = errorObject.getClass().getName();
     }
     
@@ -77,7 +77,7 @@ public final class EmpireException extends RuntimeException
     /**
      * A serializable version of {@link ErrorInfo}.
      */
-    private static class ErrorInfoImpl implements ErrorInfo, Serializable {
+    private static class DeepCopyErrorInfo implements ErrorInfo, Serializable {
         private static final long serialVersionUID = 1L;
         
         private final boolean hasError;
@@ -90,7 +90,7 @@ public final class EmpireException extends RuntimeException
          * Copy ctor.
          * @param errorInfo
          */
-        ErrorInfoImpl(ErrorInfo errorInfo) {
+        DeepCopyErrorInfo(ErrorInfo errorInfo) {
             this.hasError = errorInfo.hasError();
             this.errorType = errorInfo.getErrorType();
             Object[] params = errorInfo.getErrorParams();
