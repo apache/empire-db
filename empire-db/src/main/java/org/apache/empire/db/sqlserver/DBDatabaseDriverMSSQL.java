@@ -466,7 +466,7 @@ public class DBDatabaseDriverMSSQL extends DBDatabaseDriver
                 return error(Errors.InvalidProperty, "databaseName");
             // Create Database
             script.addStmt("USE master");
-            script.addStmt("CREATE DATABASE " + databaseName);
+            script.addStmt("IF NOT EXISTS(SELECT * FROM sys.databases WHERE name = '" + databaseName + "') CREATE DATABASE " + databaseName);
             script.addStmt("USE " + databaseName);
             script.addStmt("SET DATEFORMAT ymd");
             // Sequence Table
