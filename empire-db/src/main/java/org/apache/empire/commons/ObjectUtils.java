@@ -374,6 +374,8 @@ public final class ObjectUtils
             return c.cast(getInteger(v));
         if (c.isAssignableFrom(Long.class))
             return c.cast(getLong(v));
+        if(c.isAssignableFrom(Double.class))
+        	return c.cast(getDouble(v));
         if (c.isAssignableFrom(String.class))
             return c.cast(v.toString());
         // other
