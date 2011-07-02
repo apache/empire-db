@@ -68,6 +68,11 @@ public class $dbClassName extends DBDatabase {
 	 * Default constructor for the $dbClassName.
 	 */
 	private ${dbClassName}() {
+#foreach ($relation in $database.relations)
+#foreach ($reference in $relation.references)
+		addRelation(${reference.sourceColumn.rowSet.name}.${parser.getAttributeName($reference.sourceColumn)}.referenceOn(${reference.targetColumn.rowSet.name}.${parser.getAttributeName($reference.targetColumn)}));
+#end
+#end
 	}
 	
 	#if($nestTables == true)
