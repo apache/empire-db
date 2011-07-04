@@ -18,9 +18,20 @@
  */
 package org.apache.empire.db.codegen;
 
+import org.apache.empire.commons.Errors;
 import org.apache.empire.xml.XMLConfiguration;
+import org.apache.empire.xml.XMLUtil;
+import org.apache.log4j.xml.DOMConfigurator;
+import org.slf4j.Logger;
+import org.w3c.dom.Element;
 
 public class CodeGenConfig extends XMLConfiguration {
+
+	private static final Logger log = org.slf4j.LoggerFactory.getLogger(CodeGenConfig.class);
+	
+    // the logging configuration root node name
+    private final String loggingNodeName = "log4j:configuration";
+	
 	private String jdbcClass;
 
 	private String jdbcURL;
@@ -169,13 +180,13 @@ public class CodeGenConfig extends XMLConfiguration {
 	 * if TRUE table classes should be declared as inner classes of DBDatabase.<br/>
 	 * if FALSE table classes should be declared as top level classes.
 	 */
-	private boolean nestTables;
+	private boolean nestTables = false;
 	
 	/**
 	 * if TRUE view classes should be declared as inner classes of DBDatabase.<br/>
 	 * if FALSE view classes should be declared as top level classes.
 	 */
-	private boolean nestViews;
+	private boolean nestViews = false;
 	
 	/**
 	 * if TRUE record classes should have a getter and setter for each field.<br/>
@@ -195,12 +206,38 @@ public class CodeGenConfig extends XMLConfiguration {
 		// Read the properties file
 		if (super.init(filename, false) == false)
 			return false;
+        // Init Logging
+        initLogging();
 		// Done
 		if (readProperties(this, "properties") == false)
 			return false;
 		// Reader Provider Properties
 		return true;
 	}
+
+    /**
+     * Init logging using Log4J's DOMConfigurator 
+     * @return
+     */
+    private boolean initLogging()
+    {
+        // Get configuration root node
+        Element rootNode = getRootNode();
+        if (rootNode == null)
+            return error(Errors.ObjectNotValid, getClass().getName());
+        // Find log configuration node
+        Element loggingNode = XMLUtil.findFirstChild(rootNode, loggingNodeName);
+        if (loggingNode == null)
+        {   // log configuration node not found
+            log.error("Log configuration node {} has not been found. Logging has not been configured.", loggingNodeName);
+            return error(Errors.ItemNotFound, loggingNodeName);
+        }
+        // Init Log4J
+        DOMConfigurator.configure(loggingNode);
+        // done
+        log.info("Logging sucessfully configured from node {}.", loggingNodeName);
+        return success();
+    }
 
 	public String getJdbcClass() {
 		return jdbcClass;

@@ -234,7 +234,7 @@ public class CodeGenParser extends ErrorObject {
 				
 				// add the relation
 				db.addRelation(fkCol.referenceOn(pkCol));
-				log.error("Added relation (FK-PK): "+relName);
+				log.info("Added relation (FK-PK): "+relName);
 			}
 		}
 	}
