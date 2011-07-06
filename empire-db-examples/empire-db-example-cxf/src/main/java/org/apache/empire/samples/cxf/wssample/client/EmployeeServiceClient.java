@@ -60,18 +60,19 @@ public class EmployeeServiceClient
         return service.getEmmployee(id);
     }
 
-    public void saveEmployee(Employee e)
+    public boolean saveEmployee(Employee e)
     {
         // Employee is here a INOUT parameter, and therfore has to be placed in a Holder.
         Holder<Employee> holder = new Holder<Employee>(e);
-        service.saveEmmployee(holder);
+        boolean retVal = service.saveEmmployee(holder);
         // In order to retrieve changes made by the webservice we copy the content to our local variable.
         e.set(holder.value);
+        return retVal;
     }
 
-    public void deleteEmployee(int id)
+    public boolean deleteEmployee(int id)
     {
-        service.deleteEmmployee(id);
+        return service.deleteEmmployee(id);
     }
 
     public List<Employee> searchEmployee(Integer id, String firstName, String lastName, Integer department)

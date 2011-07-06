@@ -18,14 +18,6 @@
  */
 package org.apache.empire.db;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
-import java.util.Vector;
-
 import org.apache.empire.EmpireException;
 import org.apache.empire.commons.Errors;
 import org.apache.empire.data.DataType;
@@ -36,6 +28,14 @@ import org.apache.empire.db.expr.join.DBJoinExprEx;
 import org.apache.empire.db.expr.set.DBSetExpr;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Set;
+import java.util.Vector;
 
 
 /**
@@ -172,7 +172,8 @@ public abstract class DBCommand extends DBCommandExpr
         if (index < paramUsageCount)
         {   // Error: parameter probably used twice in statement!
             String msg = "A parameter may only be used once in a command.";
-            throw new EmpireException(Errors.Internal, msg);
+            error(Errors.Internal, msg);
+            throw new EmpireException(this);
         }
         if (index > paramUsageCount)
         {   // Correct parameter order
@@ -673,10 +674,9 @@ public abstract class DBCommand extends DBCommandExpr
      * 
      * @return true if the database supports a limit or false otherwise
      */
-    public void limitRows(int numRows)
+    public boolean limitRows(int numRows)
     {
-    	log.warn("limitRows not supported by " + this.getClass().getSimpleName());
-    	throw new EmpireException(Errors.NotSupported, "limitRows");
+        return error(Errors.NotSupported, "limitRows");
     }
 
     /**
@@ -685,10 +685,9 @@ public abstract class DBCommand extends DBCommandExpr
      * 
      * @return true if the database supports an offset or false otherwise
      */
-    public void skipRows(int numRows)
+    public boolean skipRows(int numRows)
     {
-    	log.warn("skipRows not supported by " + this.getClass().getSimpleName());
-        throw new EmpireException(Errors.NotSupported, "skipRows");
+        return error(Errors.NotSupported, "skipRows");
     }
     
     /**
@@ -705,11 +704,11 @@ public abstract class DBCommand extends DBCommandExpr
     }
     
     @Override
-    public synchronized void getSelect(StringBuilder buf)
+    public synchronized boolean getSelect(StringBuilder buf)
     {
         resetParamUsage();
         if (select == null)
-        	throw new EmpireException(Errors.ObjectNotValid, getClass().getName()); // invalid!
+            return error(Errors.ObjectNotValid, getClass().getName()); // invalid!
         // Prepares statement
         addSelect(buf);
         // From clause
@@ -721,6 +720,7 @@ public abstract class DBCommand extends DBCommandExpr
         // Add Order
         addOrder(buf);
         // done
+        return success();
     }
     
     /**

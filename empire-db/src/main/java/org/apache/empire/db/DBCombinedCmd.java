@@ -18,10 +18,10 @@
  */
 package org.apache.empire.db;
 
+import org.apache.empire.db.expr.order.DBOrderByExpr;
+
 import java.util.ArrayList;
 import java.util.Set;
-
-import org.apache.empire.db.expr.order.DBOrderByExpr;
 
 /**
  * This class is used for building up a partition of a SQL-Command.
@@ -122,20 +122,23 @@ public class DBCombinedCmd extends DBCommandExpr
    * Creates the SQL-Command.
    * 
    * @param buf the SQL-Command
+   * @return true if the creation was successful
    */
    @Override
-   public void getSelect(StringBuilder buf)
+   public boolean getSelect(StringBuilder buf)
    {
       // the left part
       left.clearOrderBy();
-      left.getSelect(buf);
+      if (!left.getSelect(buf))
+           return error(left);
       // concat keyword     
       buf.append( " " );
       buf.append( keyWord );
       buf.append( " (" );
       // the right part
       right.clearOrderBy();
-      right.getSelect(buf);
+      if (!right.getSelect(buf))
+           return error(right);
       // done
       buf.append( ")" );
       // Add optional Order by statement
@@ -144,6 +147,7 @@ public class DBCombinedCmd extends DBCommandExpr
            buf.append("\r\nORDER BY ");
            addListExpr(buf, orderBy, CTX_DEFAULT, ", ");
       }
+      return success();
    }
 
    @Override

@@ -23,7 +23,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Iterator;
 
-import org.apache.empire.EmpireException;
+import org.apache.empire.commons.ErrorObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,7 +34,7 @@ import org.slf4j.LoggerFactory;
  * The class is used for obtaining and executing DDL commands supplied
  * by the database driver (@see {@link DBDatabaseDriver#getDDLScript(DBCmdType, DBObject, DBSQLScript)}) 
  */
-public class DBSQLScript implements Iterable<String>
+public class DBSQLScript extends ErrorObject implements Iterable<String>
 {
     // Logger
     private static final Logger log = LoggerFactory.getLogger(DBSQLScript.class);
@@ -49,9 +49,10 @@ public class DBSQLScript implements Iterable<String>
      * @param sql the statement
      * @return true if successful
      */
-    public void addStmt(String sql)
+    public boolean addStmt(String sql)
     {
         sqlCmdList.add(sql);
+        return success();
     }
     
     /**
@@ -60,11 +61,13 @@ public class DBSQLScript implements Iterable<String>
      * @param sql the statement
      * @return true if successful
      */
-    public final void addStmt(StringBuilder sql)
+    public final boolean addStmt(StringBuilder sql)
     {
-        addStmt(sql.toString());
+        if (!addStmt(sql.toString()))
+            return false;
         // Clear Builder
         sql.setLength(0);
+        return true;
     }
     
     /**
@@ -99,8 +102,9 @@ public class DBSQLScript implements Iterable<String>
      * @param driver the driver used for statement execution
      * @param conn the connection
      * @param ignoreErrors true if errors should be ignored
+     * @return true if the script has been run successful or false otherwise 
      */
-    public void run(DBDatabaseDriver driver, Connection conn, boolean ignoreErrors)
+    public boolean run(DBDatabaseDriver driver, Connection conn, boolean ignoreErrors)
     {
         log.debug("Running script containing " + String.valueOf(getCount()) + " statements.");
         for(String stmt : sqlCmdList)
@@ -113,12 +117,13 @@ public class DBSQLScript implements Iterable<String>
                 // SQLException
                 log.error(e.toString(), e);
                 if (ignoreErrors==false)
-                    throw new EmpireException(DBErrors.SQLException, e);
+                    return error(DBErrors.SQLException, e);
                 // continue
                 log.debug("Ignoring error. Continuing with script...");
             }
         }
         log.debug("Script completed.");
+        return success();
     }
     
     /**

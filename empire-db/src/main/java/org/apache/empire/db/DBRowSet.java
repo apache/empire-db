@@ -18,15 +18,6 @@
  */
 package org.apache.empire.db;
 
-import java.sql.Connection;
-import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import org.apache.empire.EmpireException;
 import org.apache.empire.commons.Errors;
 import org.apache.empire.commons.ObjectUtils;
 import org.apache.empire.commons.StringUtils;
@@ -36,6 +27,14 @@ import org.apache.empire.db.DBRelation.DBReference;
 import org.apache.empire.db.expr.column.DBCountExpr;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.sql.Connection;
+import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 
 /**
@@ -96,9 +95,9 @@ public abstract class DBRowSet extends DBExpr
     
     public abstract String getAlias();
 
-    public abstract void createRecord(DBRecord rec, Connection conn);
+    public abstract boolean createRecord(DBRecord rec, Connection conn);
 
-    public abstract void deleteRecord(Object[] keys, Connection conn);
+    public abstract boolean deleteRecord(Object[] keys, Connection conn);
     
     /**
      * Returns the full qualified name of the rowset.
@@ -290,14 +289,15 @@ public abstract class DBRowSet extends DBExpr
      * @param source a column reference for one of this table's column
      * @param target the target column to which the source column references
      */
-    protected void addColumnReference(DBColumn source, DBColumn target)
+    protected boolean addColumnReference(DBColumn source, DBColumn target)
     {
         if (source.getRowSet()!=this)
-        	throw new EmpireException(Errors.InvalidArg, source.getFullName(), "column");
+            return error(Errors.InvalidArg, source.getFullName(), "column");
         if (columnReferences== null)
             columnReferences = new HashMap<DBColumn, DBColumn>();
         // Check if column is already there
         columnReferences.put(source, target);
+        return success();
     }
     
     /**
@@ -354,13 +354,15 @@ public abstract class DBRowSet extends DBExpr
      * 
      * @param rec the DBRecord object to initialise this DBRowSet object
      * @param state the state of this DBRowSet object
+     * @return true if successful
      */
-    protected void prepareInitRecord(DBRecord rec, int state, Object rowSetData)
+    protected boolean prepareInitRecord(DBRecord rec, int state, Object rowSetData)
     {
         if (columns.size() < 1)
-        	throw new EmpireException(Errors.ObjectNotValid, getClass().getName());
+            return error(Errors.ObjectNotValid, getClass().getName());
         // Init
         rec.init(this, state, rowSetData);
+        return success();
     }
 
     /**
@@ -369,11 +371,13 @@ public abstract class DBRowSet extends DBExpr
      * <P>
      * @param rec the Record object
      * @param keyValues an array of the primary key columns
+     * @return true if successful
      */
-    public void initRecord(DBRecord rec, Object[] keyValues)
+    public boolean initRecord(DBRecord rec, Object[] keyValues)
     {
         // Inititialisierung
-        prepareInitRecord(rec, DBRecord.REC_EMTPY, null);
+        if (!prepareInitRecord(rec, DBRecord.REC_EMTPY, null))
+            return false;
         // Initialize all Fields
         Object[] fields = rec.getFields();
         for (int i = 0; i < fields.length; i++)
@@ -390,7 +394,7 @@ public abstract class DBRowSet extends DBExpr
             }
         }
         // Init
-        completeInitRecord(rec);
+        return completeInitRecord(rec);
     }
 
     /**
@@ -404,7 +408,7 @@ public abstract class DBRowSet extends DBExpr
      * @param recData the record data from which to initialized the record
      * @return true if successful
      */
-    public void initRecord(DBRecord rec, DBRecordData recData)
+    public boolean initRecord(DBRecord rec, DBRecordData recData)
     {
         // Initialize the record
         prepareInitRecord(rec, DBRecord.REC_VALID, null);
@@ -420,7 +424,7 @@ public abstract class DBRowSet extends DBExpr
             	{	// Field not available in Record Data
             		if (primaryKey!=null && primaryKey.contains(column))
             		{	// Error: Primary Key not supplied
-            			throw new EmpireException(DBErrors.RecordInvalidKey, column.toString());
+            			return error(DBErrors.RecordInvalidKey, column.toString());
             		}
                     if (timestampColumn == column)
                     { // Check the update Time Stamp
@@ -433,35 +437,43 @@ public abstract class DBRowSet extends DBExpr
             	else
             	{   // Get Field value
                     fields[i] = recData.getValue(rdi);
+                    // Check for error
+                    if (fields[i]==null && recData.hasError())
+                        return error(recData);
             	}
             } catch (Exception e)
             {   // Unknown exception
                 log.error("initRecord exception: " + e.toString());
                 rec.close();
-                throw new EmpireException(e);
+                return error(e);
             }
         }
         // Done
-        completeInitRecord(rec);
+        return completeInitRecord(rec);
     }
     
     /**
      * Reads a single record from the database using the given command object.<BR>
-     * If a record is found the DBRecord object will hold all record data. 
+     * If a reocord is found the DBRecord object will hold all record data. 
      * <P>
      * @param rec the DBRecord object which holds the record data
      * @param cmd the SQL-Command used to query the record
      * @param conn a valid JDBC connection.
      * @return true if successful
      */
-    protected void readRecord(DBRecord rec, DBCommand cmd, Connection conn)
+    protected boolean readRecord(DBRecord rec, DBCommand cmd, Connection conn)
     {
         DBReader reader = null;
         try
         {
+            clearError();
             reader = new DBReader();
-            reader.getRecordData(cmd, conn);
-            initRecord(rec, reader);
+            if (reader.getRecordData(cmd, conn)==false)
+                return error(reader);
+            if (initRecord(rec, reader)==false)
+            	return false;
+            // Done
+            return success();
             
         } finally
         {
@@ -476,9 +488,10 @@ public abstract class DBRowSet extends DBExpr
      * @param rec the DBRecord object to initialise
      * @return true if successful
      */
-    protected void completeInitRecord(DBRecord rec)
+    protected boolean completeInitRecord(DBRecord rec)
     {
     	rec.onRecordChanged();
+        return success();
     }
     
     /**
@@ -487,15 +500,15 @@ public abstract class DBRowSet extends DBExpr
      * @param key the record key
      * @return true if the constraints have been successfully set or false otherwise
      */
-    protected void setKeyConstraints(DBCommand cmd, Object[] key)
+    protected boolean setKeyConstraints(DBCommand cmd, Object[] key)
     {
         // Check Primary key
         if (primaryKey == null ) 
-        	throw new EmpireException(DBErrors.NoPrimaryKey, getName()); // Invalid Argument
+            return error(DBErrors.NoPrimaryKey, getName()); // Invalid Argument
         // Check Columns
         DBColumn[] keyColumns = primaryKey.getColumns();
         if (key == null || key.length != keyColumns.length)
-        	throw new EmpireException(DBErrors.RecordInvalidKey, key); // Invalid Argument
+            return error(DBErrors.RecordInvalidKey, key); // Invalid Argument
         // Add the key constraints
         for (int i = 0; i < key.length; i++)
         {   // Set key column constraint
@@ -503,7 +516,8 @@ public abstract class DBRowSet extends DBExpr
             if (db.isPreparedStatementsEnabled())
                 value = cmd.addParam(keyColumns[i], value);
             cmd.where(keyColumns[i].is(value));
-        }
+        }    
+        return true;
     }
     
     /**
@@ -512,19 +526,29 @@ public abstract class DBRowSet extends DBExpr
      * @param rec the DBRecord object which will hold the record data
      * @param key the primary key values
      * @param conn a valid JDBC connection.
+     * @return true if successful
      */
-    public void readRecord(DBRecord rec, Object[] key, Connection conn)
+    public boolean readRecord(DBRecord rec, Object[] key, Connection conn)
     {
         // Check Arguments
         if (conn == null || rec == null)
-        	throw new EmpireException(Errors.InvalidArg, null, "conn|rec");
+            return error(Errors.InvalidArg, null, "conn|rec");
         // Select
         DBCommand cmd = db.createCommand();
         cmd.select(columns);
         // Set key constraints
-        setKeyConstraints(cmd, key);
+        if (!setKeyConstraints(cmd, key))
+        	return false;
         // Read Record
-        readRecord(rec, cmd, conn);
+        if (!readRecord(rec, cmd, conn))
+        {   // Record not found
+            if (getErrorType()==DBErrors.QueryNoResult)
+                return error(DBErrors.RecordNotFound, key);
+            // Return given error
+            return false;
+        }
+        // Done
+        return success();
     }
 
     /**
@@ -538,12 +562,13 @@ public abstract class DBRowSet extends DBExpr
     {
         // Check Arguments
         if (conn == null)
-        	throw new EmpireException(Errors.InvalidArg, conn, "conn");
+            return error(Errors.InvalidArg, conn, "conn");
         // Select
         DBCommand cmd = db.createCommand();
         cmd.select(count());
         // Set key constraints
-        setKeyConstraints(cmd, key);
+        if (!setKeyConstraints(cmd, key))
+        	return false;
         // check exits
         return (db.querySingleInt(cmd.getSelect(), conn)==1);
     }
@@ -572,12 +597,13 @@ public abstract class DBRowSet extends DBExpr
      * <P>
      * @param rec the DBRecord object. contains all fields and the field properties
      * @param conn a valid JDBC connection.
+     * @return true if the update was sucessful or false otherwise
      */
-    public void updateRecord(DBRecord rec, Connection conn)
+    public boolean updateRecord(DBRecord rec, Connection conn)
     {
         // Check Arguments
         if (conn == null)
-        	throw new EmpireException(Errors.InvalidArg, conn, "conn");
+            return error(Errors.InvalidArg, conn, "conn");
         // Get the new Timestamp
         String name = getName();
         Timestamp timestamp = (timestampColumn!=null) ? db.getUpdateTimestamp(conn) : null;
@@ -594,7 +620,7 @@ public abstract class DBRowSet extends DBExpr
                 if (primaryKey == null)
                 { // Requires a primary key
                     log.error("updateRecord: "  + name + " no primary key defined!");
-                    throw new EmpireException(DBErrors.NoPrimaryKey, name);
+                    return error(DBErrors.NoPrimaryKey, name);
                 }
                 for (int i = 0; i < columns.size(); i++)
                 { // search for the column
@@ -631,7 +657,8 @@ public abstract class DBRowSet extends DBExpr
                         if (col.isReadOnly())
                             log.warn("updateRecord: Read-only column '" + col.getName() + " has been modified!");
                         // Check the value
-                        col.checkValue(value);
+                        if (!col.checkValue(value))
+                            return error(col);
                         // Set the column
                         cmd.set(col.to(value));
                         setCount++;
@@ -667,20 +694,19 @@ public abstract class DBRowSet extends DBExpr
                     // Add the value to the command
                     if (empty==false)
                     {   // Check the value
-                        if (!col.isAutoGenerated()){
-                        	col.checkValue(value);
-                        }
+                        if (!col.isAutoGenerated() && !col.checkValue(value))
+                            return error(col);
                         // Insert a field
                         cmd.set(col.to(value));
                         setCount++;
                     }
                     else if (primaryKey!=null && primaryKey.contains(col))
                     {   // All primary key fields must be supplied
-                    	throw new EmpireException(DBErrors.FieldNotNull, col.getName());
+                        return error(DBErrors.FieldNotNull, col.getName());
                     }
                     else if (col.isRequired())
                     {   // Error Column is required!
-                    	throw new EmpireException(DBErrors.FieldNotNull, col.getName());
+                        return error(DBErrors.FieldNotNull, col.getName());
                     }
                 }
                 sql = cmd.getInsert();
@@ -688,26 +714,26 @@ public abstract class DBRowSet extends DBExpr
 
             default:
                 log.warn("updateRecord: " + name + " record has not been modified! ");
-                return;
+                return success();
         }
         if (setCount == 0)
         { // Cannot update or insert fields
             log.info("updateRecord: " + name + " nothing to update or insert!");
-            return;
+            return success();
         }
         // Perform action
         int affected = db.executeSQL(sql, cmd.getParamValues(), conn, setGenKey);
         if (affected < 0)
         { // Update Failed
-        	throw new EmpireException(DBErrors.RecordUpdateFailed, name);
+            return error(db);
         } 
         else if (affected == 0)
         { // Record not found
-        	throw new EmpireException(DBErrors.RecordUpdateFailed, name);
+            return error(DBErrors.RecordUpdateFailed, name);
         } 
         else if (affected > 1)
         { // Multiple Records affected
-        	throw new EmpireException(DBErrors.RecordUpdateInvalid, name);
+            return error(DBErrors.RecordUpdateInvalid, name);
         }
         // Correct Timestamp
         if (timestampColumn != null)
@@ -718,6 +744,7 @@ public abstract class DBRowSet extends DBExpr
         }
         // Change State
         rec.changeState(DBRecord.REC_VALID, null);
+        return success();
     }
     
     /**
@@ -727,9 +754,9 @@ public abstract class DBRowSet extends DBExpr
      * @param conn a valid JDBC connection
      * @return true if the record has been successfully deleted or false otherwise
      */
-    public final void deleteRecord(Object id, Connection conn)
+    public final boolean deleteRecord(Object id, Connection conn)
     {
-        deleteRecord(new Object[] { id }, conn);
+        return deleteRecord(new Object[] { id }, conn);
     }
 
     /**
@@ -737,14 +764,15 @@ public abstract class DBRowSet extends DBExpr
      * <P>
      * @param key the key the record to be deleted
      * @param conn a valid connection
+     * @return true if all reference records could be deleted
      */
-    protected final void deleteAllReferences(Object[] key, Connection conn)
+    protected final boolean deleteAllReferences(Object[] key, Connection conn)
     {
         // Merge Sub-Records
         List<DBRelation> relations = db.getRelations();
         DBColumn[] keyColumns = getKeyColumns();
         if (keyColumns==null)
-            return; // No primary key - no references!
+            return success(); // No primary key - no references!
         // Find all relations
         for (DBRelation rel : relations)
         {   // References
@@ -754,11 +782,13 @@ public abstract class DBRowSet extends DBExpr
                 if (refs[i].getTargetColumn().equals(keyColumns[0]))
                 {   // Found a reference on RowSet
                     DBRowSet rs = refs[0].getSourceColumn().getRowSet(); 
-                    rs.deleteReferenceRecords(refs, key, conn);
+                    if (rs.deleteReferenceRecords(refs, key, conn)==false)
+                        return false;
                 }
             }
         }
         // No delete this record
+        return success();
     }
     
     /**
@@ -767,12 +797,13 @@ public abstract class DBRowSet extends DBExpr
      * @param refs the reference columns belonging to the releation
      * @param parentKey the key of the parent element
      * @param conn a valid connection
+     * @return true if all records could be deleted or false otherwise
      */
-    protected void deleteReferenceRecords(DBReference[] refs, Object[] parentKey, Connection conn)
+    protected boolean deleteReferenceRecords(DBReference[] refs, Object[] parentKey, Connection conn)
     {
         // Key length and reference length must match
         if (refs.length!=parentKey.length)
-        	throw new EmpireException(DBErrors.RecordInvalidKey);
+            return error(DBErrors.RecordInvalidKey);
         // Rowset
         DBColumn[] keyColumns = getKeyColumns();
         if (keyColumns==null || keyColumns.length==0)
@@ -780,7 +811,8 @@ public abstract class DBRowSet extends DBExpr
             DBCommand cmd = db.createCommand();
             for (int i=0; i<parentKey.length; i++)
                 cmd.where(refs[i].getSourceColumn().is(parentKey[i]));
-            db.executeSQL(cmd.getDelete((DBTable)this), conn);
+            if (db.executeSQL(cmd.getDelete((DBTable)this), conn)<0)
+                return error(db);
         }
         else
         {   // Query all keys
@@ -796,9 +828,12 @@ public abstract class DBRowSet extends DBExpr
             for (Object[] recKey : recKeys)
             {   
                 log.info("Deleting Record " + StringUtils.valueOf(recKey) + " from table " + getName());
-                deleteRecord(recKey, conn);
+                if (deleteRecord(recKey, conn)==false)
+                    return false;
             }
         }
+        // Done
+        return success();
     }
     
 }

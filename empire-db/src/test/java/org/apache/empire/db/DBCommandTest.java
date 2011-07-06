@@ -18,15 +18,15 @@
  */
 package org.apache.empire.db;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import org.apache.empire.data.DataType;
+import org.junit.Test;
+import org.w3c.dom.Element;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.empire.data.DataType;
-import org.junit.Test;
-import org.w3c.dom.Element;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 
 /**
  * @author francisdb
@@ -85,9 +85,9 @@ public class DBCommandTest
         }
 
         @Override
-        public void checkValue(Object value)
+        public boolean checkValue(Object value)
         {
-            //
+            return false;
         }
 
         @Override

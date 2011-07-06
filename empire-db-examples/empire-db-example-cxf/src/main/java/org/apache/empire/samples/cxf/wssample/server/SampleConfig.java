@@ -41,13 +41,15 @@ public class SampleConfig extends XMLConfiguration {
 	 * 
 	 * @return true on success
 	 */
-	public void init(String filename) {
+	public boolean init(String filename) {
 		// Read the properties file
-		super.init(filename, false);
+		if (super.init(filename, false) == false)
+			return false;
 		// Done
-		readProperties(this, "properties");
+		if (readProperties(this, "properties")==false)
+			return false;
 		// Reader Provider Properties
-		readProperties(this, "properties-" + databaseProvider);
+		return readProperties(this, "properties-" + databaseProvider);
 	}
 
 	public String getDatabaseProvider() {

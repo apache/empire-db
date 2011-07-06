@@ -18,17 +18,7 @@
  */
 package org.apache.empire.db.codegen;
 
-import java.sql.Connection;
-import java.sql.DatabaseMetaData;
-import java.sql.DriverManager;
-import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
-import java.sql.SQLException;
-import java.sql.Types;
-import java.util.ArrayList;
-import java.util.List;
-
-import org.apache.empire.EmpireException;
+import org.apache.empire.commons.ErrorObject;
 import org.apache.empire.commons.Errors;
 import org.apache.empire.data.DataType;
 import org.apache.empire.db.DBColumn;
@@ -42,13 +32,23 @@ import org.apache.empire.db.codegen.util.DBUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.sql.Connection;
+import java.sql.DatabaseMetaData;
+import java.sql.DriverManager;
+import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
+import java.sql.SQLException;
+import java.sql.Types;
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * This class is used to create a in memory DBDatabase of a given SQLConnection
  * and Configuration
  * 
  * @author Benjamin Venditti
  */
-public class CodeGenParser {
+public class CodeGenParser extends ErrorObject {
 
 	public static class InMemoryDatabase extends DBDatabase {
         private static final long serialVersionUID = 1L;
@@ -130,6 +130,7 @@ public class CodeGenParser {
 	 */
 	private void populateDatabase(DBDatabase db) throws SQLException {
 		ResultSet tables = null;
+		ArrayList<String> populatedTables=new ArrayList<String>();
 		try{
             this.dbMeta = con.getMetaData();
             String[] tablePatterns = {null}; // Could be null, so start that way.
@@ -164,10 +165,14 @@ public class CodeGenParser {
 					} else {
 						DBTable table = new DBTable(tableName, db);
 						populateTable(table);
+						populatedTables.add(tableName);
 						tableCount++;
 					}
 				}
-            }
+				
+				// Add all relations
+				gatherRelations(db, dbMeta, populatedTables);
+			}
 
 			if (tableCount==0 && viewCount==0) {
 			    // getTables returned no result
@@ -175,10 +180,86 @@ public class CodeGenParser {
                 info += "/ schema="+config.getDbSchema(); 
                 info += "/ pattern="+config.getDbTablePattern(); 
 			    log.warn("DatabaseMetaData.getTables() returned no tables or views! Please check parameters: "+info);
+				log.info("Available catalogs: " + getCatalogs(dbMeta));
+				log.info("Available schemata: " + getSchemata(dbMeta));
 			}
 		} finally {
 			DBUtil.close(tables, log);
 		}
+	}
+	
+	private void gatherRelations(DBDatabase db, DatabaseMetaData dbMeta, ArrayList<String> tables) throws SQLException{
+		ResultSet relations = null;
+		String fkTableName, pkTableName, fkColName, pkColName, relName;
+		DBTableColumn fkCol, pkCol;
+		DBTable fkTable, pkTable;
+		DBColumn col;
+		
+		// Add all Relations
+		for (String tableName :tables) {
+			
+			// check for foreign-keys
+			relations = dbMeta.getImportedKeys(config.getDbCatalog(), config .getDbSchema(), tableName);
+			while (relations.next()) {
+				pkCol=fkCol=null;
+				
+				fkTableName=relations.getString("FKTABLE_NAME");
+				pkTableName=relations.getString("PKTABLE_NAME");
+				fkColName=relations.getString("FKCOLUMN_NAME");
+				pkColName=relations.getString("PKCOLUMN_NAME");
+				relName=fkTableName+"."+fkColName+"-"+pkTableName+"."+pkColName;
+				
+				pkTable = db.getTable(pkTableName);
+				fkTable = db.getTable(fkTableName);
+				
+				// check if both tables really exist in the model
+				if(pkTable==null || fkTable==null){
+					log.error("Unable to add the relation \""+relName+"\"! One of the tables could not be found.");
+					continue;
+				}
+				
+				col=pkTable.getColumn(pkColName);
+				if(col instanceof DBTableColumn)
+					pkCol = (DBTableColumn) col;
+	
+				col=fkTable.getColumn(fkColName);
+				if(col instanceof DBTableColumn)
+					fkCol = (DBTableColumn) col;
+				
+				// check if both columns really exist in the model
+				if(fkCol==null || pkCol==null){
+					log.error("Unable to add the relation \""+relName+"\"! One of the columns could not be found.");
+					continue;
+				}
+				
+				// add the relation
+				db.addRelation(fkCol.referenceOn(pkCol));
+				log.info("Added relation (FK-PK): "+relName);
+			}
+		}
+	}
+
+	private String getCatalogs(DatabaseMetaData dbMeta) throws SQLException {
+		String retVal = "";
+		ResultSet rs = dbMeta.getCatalogs();
+		while (rs.next()) {
+			retVal += rs.getString("TABLE_CAT") + ", ";
+		}
+		if(retVal.length()>2)
+			retVal=retVal.substring(0,retVal.length()-2);
+		
+		return retVal;
+	}
+
+	private String getSchemata(DatabaseMetaData dbMeta) throws SQLException {
+		String retVal = "";
+		ResultSet rs = dbMeta.getSchemas();
+		while (rs.next()) {
+			retVal += rs.getString("TABLE_SCHEM") + ", ";
+		}
+		if(retVal.length()>2)
+			retVal=retVal.substring(0,retVal.length()-2);
+		return retVal;
 	}
 
 	/**
@@ -208,7 +289,7 @@ public class CodeGenParser {
 	        // Check whether all key columns have been set
 	        for (i=0; i<keys.length; i++)
 	            if (keys[i]==null)
-	                throw new EmpireException(Errors.ItemNotFound, pkCols.get(i));
+	                error(Errors.ItemNotFound, pkCols.get(i));
 	        if(keys.length > 0){
 	        	t.setPrimaryKey(keys);
 	        }

@@ -23,9 +23,9 @@ import java.util.List;
 
 import javax.jws.WebMethod;
 import javax.jws.WebParam;
-import javax.jws.WebParam.Mode;
 import javax.jws.WebResult;
 import javax.jws.WebService;
+import javax.jws.WebParam.Mode;
 import javax.xml.ws.Holder;
 
 //specifies the the attribute wsdl:portType
@@ -50,11 +50,11 @@ public interface EmployeeService
 
     @WebMethod(operationName = "saveEmmployee")
     @WebResult(name = "saveResponse")
-    public void saveEmmployee(@WebParam(name = "employee", mode = Mode.INOUT) Holder<Employee> e);
+    public boolean saveEmmployee(@WebParam(name = "employee", mode = Mode.INOUT) Holder<Employee> e);
 
     @WebMethod(operationName = "deleteEmmployee")
     @WebResult(name = "deleteResponse")
-    public void deleteEmmployee(@WebParam(name = "id", mode = Mode.IN) int id);
+    public boolean deleteEmmployee(@WebParam(name = "id", mode = Mode.IN) int id);
 
     @WebMethod(operationName = "getDepartments")
     @WebResult(name = "allDepartments")

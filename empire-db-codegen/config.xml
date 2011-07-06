@@ -48,12 +48,12 @@
 		<tableBaseName>SampleTable</tableBaseName>
 		<viewBaseName>SampleView</viewBaseName>
 		<recordBaseName>SampleRecord</recordBaseName>
-		<tableClassPrefix>T</tableClassPrefix>
-		<tableClassSuffix>Table</tableClassSuffix>
-		<viewClassPrefix>V</viewClassPrefix>
-		<viewClassSuffix>View</viewClassSuffix>
-		<nestTables>True</nestTables>
-		<nestViews>False</nestViews>
+		<tableClassPrefix>T_</tableClassPrefix>
+		<tableClassSuffix></tableClassSuffix>
+		<viewClassPrefix>V_</viewClassPrefix>
+		<viewClassSuffix></viewClassSuffix>
+		<nestTables>true</nestTables>
+		<nestViews>false</nestViews>
 		<createRecordProperties>true</createRecordProperties>
 	</properties>
 	

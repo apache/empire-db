@@ -55,21 +55,26 @@ public class EmployeeServiceImpl implements EmployeeService
         T_EMP = db.EMPLOYEES;
     }
 
-    public void saveEmmployee(javax.xml.ws.Holder<Employee> empHolder)
+    public boolean saveEmmployee(javax.xml.ws.Holder<Employee> empHolder)
     {
         DBRecord r = new DBRecord();
         Employee emp = empHolder.value;
+        boolean init;
         if (emp.isNew())
-            r.create(T_EMP, conn);
+            init = r.create(T_EMP, conn);
         else
-            r.read(T_EMP, emp.getEmployeeId(), conn);
+            init = r.read(T_EMP, emp.getEmployeeId(), conn);
 
-        r.setBeanValues(emp);
-        r.update(conn);
+        boolean fill = r.setBeanValues(emp);
+        boolean save = r.update(conn);
 
-
+        if (init && fill && save)
+        {
             r.getBeanProperties(emp);
             emp.setNew(false);
+        }
+
+        return init && fill && save;
     }
 
     public List<Employee> searchEmmployee(Integer id, String firstName, String lastName, Integer department)
@@ -123,17 +128,17 @@ public class EmployeeServiceImpl implements EmployeeService
         Employee emp = new Employee();
 
         // null, so that no IDs are wasted.
-        r.create(T_EMP, null);
-        r.getBeanProperties(emp);
+        boolean create = r.create(T_EMP, null);
+        boolean fill = r.getBeanProperties(emp);
 
         emp.setNew(true);
 
-        return emp;
+        return (create && fill ? emp : null);
     }
 
-    public void deleteEmmployee(int id)
+    public boolean deleteEmmployee(int id)
     {
-        T_EMP.deleteRecord(id, conn);
+        return T_EMP.deleteRecord(id, conn);
     }
 
     public Employee getEmmployee(int id)
@@ -141,10 +146,10 @@ public class EmployeeServiceImpl implements EmployeeService
         DBRecord r = new DBRecord();
         Employee emp = new Employee();
 
-        r.read(T_EMP, id, conn);
-        r.getBeanProperties(emp);
+        boolean read = r.read(T_EMP, id, conn);
+        boolean fill = r.getBeanProperties(emp);
 
-        return emp;
+        return (read && fill ? emp : null);
     }
 
     public boolean ping()

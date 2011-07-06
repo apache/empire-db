@@ -24,6 +24,7 @@ import java.util.Date;
 import java.util.HashMap;
 
 import org.apache.empire.commons.DateUtils;
+import org.apache.empire.commons.ErrorObject;
 import org.apache.empire.commons.Options;
 import org.apache.empire.commons.StringUtils;
 import org.apache.empire.data.DataMode;
@@ -31,13 +32,13 @@ import org.apache.empire.data.DataType;
 import org.apache.empire.db.DBCmdType;
 import org.apache.empire.db.DBColumnExpr;
 import org.apache.empire.db.DBCommand;
-import org.apache.empire.db.DBCommand.DBCommandParam;
 import org.apache.empire.db.DBDatabaseDriver;
 import org.apache.empire.db.DBQuery;
 import org.apache.empire.db.DBReader;
 import org.apache.empire.db.DBRecord;
 import org.apache.empire.db.DBSQLScript;
 import org.apache.empire.db.DBTableColumn;
+import org.apache.empire.db.DBCommand.DBCommandParam;
 import org.apache.empire.db.h2.DBDatabaseDriverH2;
 import org.apache.empire.db.postgresql.DBDatabaseDriverPostgreSQL;
 import org.slf4j.Logger;
@@ -72,6 +73,9 @@ public class SampleAdvApp
 
             // Init Configuration
             config.init((args.length > 0 ? args[0] : "config.xml" ));
+
+            // Enable Exceptions
+            ErrorObject.setExceptionsEnabled(true);
 
             System.out.println("Running DB Sample Advanced...");
 
@@ -330,7 +334,11 @@ public class SampleAdvApp
         rec.create(T_DEP);
         rec.setValue(T_DEP.C_NAME, departmentName);
         rec.setValue(T_DEP.C_BUSINESS_UNIT, businessUnit);
-        rec.update(conn);
+        if (!rec.update(conn))
+        {
+            log.error(rec.getErrorMessage());
+            return 0;
+        }
         // Return Department ID
         return rec.getInt(T_DEP.C_DEPARTMENT_ID);
     }
@@ -348,7 +356,11 @@ public class SampleAdvApp
         rec.setValue(T_EMP.C_FIRSTNAME, firstName);
         rec.setValue(T_EMP.C_LASTNAME, lastName);
         rec.setValue(T_EMP.C_GENDER, gender);
-        rec.update(conn);
+        if (!rec.update(conn))
+        {
+            log.error(rec.getErrorMessage());
+            return 0;
+        }
         // Return Employee ID
         return rec.getInt(T_EMP.C_EMPLOYEE_ID);
     }
@@ -366,7 +378,10 @@ public class SampleAdvApp
         rec.setValue(T_EDH.C_EMPLOYEE_ID, employeeId);
         rec.setValue(T_EDH.C_DEPARTMENT_ID, departmentId);
         rec.setValue(T_EDH.C_DATE_FROM, dateFrom);
-        rec.update(conn);
+        if (!rec.update(conn))
+        {
+            log.error(rec.getErrorMessage());
+        }
     }
 
     /* This procedure demonstrates the use of command parameter for prepared statements */
@@ -444,7 +459,8 @@ public class SampleAdvApp
             // Open Reader
             System.out.println("Running Query:");
             System.out.println(cmd.getSelect());
-            reader.open(cmd, conn);
+            if (reader.open(cmd, conn) == false)
+                throw new RuntimeException(reader.getErrorMessage());
             // Print output
             DBRecord record = new DBRecord();
             while (reader.moveNext())
@@ -496,7 +512,8 @@ public class SampleAdvApp
         {   // Open Reader
             System.out.println("Running Query:");
             System.out.println(cmd.getSelect());
-            reader.open(cmd, conn);
+            if (reader.open(cmd, conn) == false)
+                throw new RuntimeException(reader.getErrorMessage());
             // Print output
             HashMap<Integer, DBRecord> employeeMap = new HashMap<Integer, DBRecord>();
             while (reader.moveNext())
@@ -626,7 +643,8 @@ public class SampleAdvApp
         {   // Open Reader
             System.out.println("Running Query:");
             System.out.println(cmd.getSelect());
-            reader.open(cmd, conn);
+            if (reader.open(cmd, conn) == false)
+                throw new RuntimeException(reader.getErrorMessage());
             // Print column titles 
             System.out.println("---------------------------------");
             int count = reader.getFieldCount();

@@ -19,16 +19,15 @@
 package org.apache.empire.db;
 
 // java
+import org.apache.empire.commons.Errors;
+import org.apache.empire.data.DataMode;
+import org.apache.empire.data.DataType;
+
 import java.lang.reflect.Field;
 import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
-
-import org.apache.empire.EmpireException;
-import org.apache.empire.commons.Errors;
-import org.apache.empire.data.DataMode;
-import org.apache.empire.data.DataType;
 
 
 /**
@@ -171,9 +170,9 @@ public class DBTable extends DBRowSet implements Cloneable
     protected boolean addColumn(DBTableColumn column)
     { // find column by name
         if (column==null || column.getRowSet()!=this)
-            throw new EmpireException(Errors.InvalidArg, column, "column");
+            return error(Errors.InvalidArg, column, "column");
         if (columns.contains(column) == true)
-        	throw new EmpireException(Errors.ItemExists, column.getName());
+            return error(Errors.ItemExists, column.getName());
         // add now
         columns.add(column);
         return true;
@@ -271,11 +270,11 @@ public class DBTable extends DBRowSet implements Cloneable
     public boolean setPrimaryKey(DBColumn[] columns)
     {
         if (columns==null || columns.length==0)
-        	throw new EmpireException(Errors.InvalidArg, columns, "columns");
+            return error(Errors.InvalidArg, columns, "columns");
         // All columns must belong to this table
         for (int i=0; i<columns.length; i++)
             if (columns[i].getRowSet()!=this)
-            	throw new EmpireException(Errors.InvalidArg, columns[i].getFullName(), "columns");
+                return error(Errors.InvalidArg, columns[i].getFullName(), "columns");
         // Set primary Key now
         primaryKey = new DBIndex(name + "_PK", DBIndex.PRIMARYKEY, columns);
         return true;
@@ -326,7 +325,7 @@ public class DBTable extends DBRowSet implements Cloneable
     public boolean addIndex(String indexName, boolean unique, DBColumn[] indexColumns)
     {
         if (indexName==null || indexColumns==null || indexColumns.length==0)
-        	throw new EmpireException(Errors.InvalidArg, null, "name|columns");
+            return error(Errors.InvalidArg, null, "name|columns");
         // add Index now
         indexes.add(new DBIndex(indexName, (unique) ? DBIndex.UNIQUE : DBIndex.STANDARD, indexColumns));
         return true;
@@ -379,12 +378,14 @@ public class DBTable extends DBRowSet implements Cloneable
      * @param rec the DBRecord object. contains all fields and the field properties
      * @param conn a valid connection to the database.
      * 
+     * @return true if successful
      */
     @Override
-    public void createRecord(DBRecord rec, Connection conn)
+    public boolean createRecord(DBRecord rec, Connection conn)
     {
         // Inititialisierung
-        prepareInitRecord(rec, DBRecord.REC_NEW, null);
+        if (!prepareInitRecord(rec, DBRecord.REC_NEW, null))
+            return false;
         // Set Defaults
         int count = columns.size();
         for (int i = 0; i < count; i++)
@@ -395,7 +396,7 @@ public class DBTable extends DBRowSet implements Cloneable
                 rec.modifyValue(i, value); 
         }
         // Init
-        completeInitRecord(rec);
+        return completeInitRecord(rec);
     }
 
     /**
@@ -428,42 +429,44 @@ public class DBTable extends DBRowSet implements Cloneable
      * @return true if successful
      */
     @Override
-    public void deleteRecord(Object[] key, Connection conn)
+    public boolean deleteRecord(Object[] key, Connection conn)
     {
         // Check Primary key
         if (primaryKey == null )
-        	throw new EmpireException(DBErrors.NoPrimaryKey, getName());
+            return error(DBErrors.NoPrimaryKey, getName());
 
         // Check Columns
         DBColumn[] keyColumns = primaryKey.getColumns();
         if (key == null || key.length != keyColumns.length)
-        	throw new EmpireException(Errors.InvalidArg, key); // Invalid Argument
+            return error(Errors.InvalidArg, key); // Invalid Argument
 
         // Delete References
-        if (isCascadeDelete()){
-        	deleteAllReferences(key, conn);
-        }
+        if (isCascadeDelete() && deleteAllReferences(key, conn)==false)
+            return false; // Error deleting referenced records
         
         // Build SQL-Statement
         DBCommand cmd = db.createCommand();
         // Set key constraints
-        setKeyConstraints(cmd, key);
+        if (!setKeyConstraints(cmd, key))
+        	return false;
 
         // Perform delete
         String sqlCmd = cmd.getDelete(this);
         int affected  = db.executeSQL(sqlCmd, cmd.getParamValues(), conn);
         if (affected < 0)
         { // Delete Failed
-        	throw new EmpireException(DBErrors.RecordDeleteFailed, name);
+            return error(db);
         } 
         else if (affected == 0)
         { // Record not found
-        	throw new EmpireException(DBErrors.RecordDeleteFailed, name);
+            return error(DBErrors.RecordDeleteFailed, name);
         } 
         else if (affected > 1)
         { // Multiple Records affected
-        	throw new EmpireException(DBErrors.RecordUpdateInvalid, name);
+            return error(DBErrors.RecordUpdateInvalid, name);
         }
+        // success
+        return success();
     }
 
 }

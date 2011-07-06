@@ -20,6 +20,7 @@ package org.apache.empire.samples.spring;
 
 import java.util.logging.Logger;
 
+import org.apache.empire.commons.ErrorObject;
 import org.springframework.beans.factory.xml.XmlBeanDefinitionReader;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.GenericApplicationContext;
@@ -30,7 +31,9 @@ import org.springframework.core.io.ClassPathResource;
  */
 public class SampleSpringApp {
     private static final Logger log = Logger.getLogger(SampleSpringApp.class.getName());
-
+    static {
+        ErrorObject.setExceptionsEnabled(true);
+    }
     //creates the application context
     //this is usually in some bootstrapping code; so your application will
     //just have one at runtime.

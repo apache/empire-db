@@ -23,7 +23,6 @@ import java.sql.SQLException;
 import java.util.GregorianCalendar;
 import java.util.Iterator;
 
-import org.apache.empire.EmpireException;
 import org.apache.empire.commons.Errors;
 import org.apache.empire.commons.StringUtils;
 import org.apache.empire.data.DataType;
@@ -84,10 +83,55 @@ public class DBDatabaseDriverPostgreSQL extends DBDatabaseDriver
     {
         private final static long serialVersionUID = 1L;
       
+        protected int limit = -1;
+        protected int skip  = -1;
+        
         public DBCommandPostreSQL(DBDatabase db)
         {
             super(db);
         }
+        
+        @Override
+        public boolean limitRows(int numRows)
+        {
+            limit = numRows;
+            return success();
+        }
+
+        @Override
+        public boolean skipRows(int numRows)
+        {
+            skip = numRows;
+            return success();
+        }
+         
+        @Override
+        public void clearLimit()
+        {
+            limit = -1;
+            skip  = -1;
+        }
+        
+        @Override
+        public boolean getSelect(StringBuilder buf)
+        {   // call base class
+            if (super.getSelect(buf)==false)
+                return false;
+            // add limit and offset
+            if (limit>=0)
+            {   buf.append("\r\nLIMIT ");
+                buf.append(String.valueOf(limit));
+                // Offset
+                if (skip>=0) 
+                {   buf.append(" OFFSET ");
+                    buf.append(String.valueOf(skip));
+                }    
+            }
+            // done
+            return success();
+        }
+        
+        
     }
     
     private String databaseName;
@@ -243,7 +287,7 @@ public class DBDatabaseDriverPostgreSQL extends DBDatabaseDriver
             return (executeSQL(CREATE_REVERSE_FUNCTION, null, conn, null)>=0);
         } catch(SQLException e) {
             log.error("Unable to create reverse function!", e);
-            throw new EmpireException(e);
+            return error(e);
         }
     }
     
@@ -271,8 +315,10 @@ public class DBDatabaseDriverPostgreSQL extends DBDatabaseDriver
     {
         switch (type)
         {   // return support info 
-            case CREATE_SCHEMA: return true;
-            case SEQUENCES:     return true;    
+            case CREATE_SCHEMA: 	return true;
+            case SEQUENCES:     	return true;    
+            case QUERY_LIMIT_ROWS:  return true;
+            case QUERY_SKIP_ROWS:   return true;
             default:
                 // All other features are not supported by default
                 return false;
@@ -398,24 +444,22 @@ public class DBDatabaseDriverPostgreSQL extends DBDatabaseDriver
      * @see DBDatabaseDriver#getDDLScript(DBCmdType, DBObject, DBSQLScript)  
      */
     @Override
-    public void getDDLScript(DBCmdType type, DBObject dbo, DBSQLScript script)
+    public boolean getDDLScript(DBCmdType type, DBObject dbo, DBSQLScript script)
     {
         // The Object's database must be attached to this driver
         if (dbo==null || dbo.getDatabase().getDriver()!=this)
-        	throw new EmpireException(Errors.InvalidArg, dbo, "dbo");
+            return error(Errors.InvalidArg, dbo, "dbo");
         // Check Type of object
         if (dbo instanceof DBDatabase)
         { // Database
             switch (type)
             {
                 case CREATE:
-                    createDatabase((DBDatabase) dbo, script);
-                    break;
+                    return createDatabase((DBDatabase) dbo, script);
                 case DROP:
-                    dropObject(((DBDatabase) dbo).getSchema(), "DATABASE", script);
-                    break;
+                    return dropObject(((DBDatabase) dbo).getSchema(), "DATABASE", script);
                 default:
-                	throw new EmpireException(Errors.NotImplemented, "getDDLScript."+dbo.getClass().getName()+"."+String.valueOf(type));
+                    return error(Errors.NotImplemented, "getDDLScript."+dbo.getClass().getName()+"."+String.valueOf(type));
             }
         } 
         else if (dbo instanceof DBTable)
@@ -423,13 +467,11 @@ public class DBDatabaseDriverPostgreSQL extends DBDatabaseDriver
             switch (type)
             {
                 case CREATE:
-                    createTable((DBTable) dbo, script);
-                    break;
+                    return createTable((DBTable) dbo, script);
                 case DROP:
-                    dropObject(((DBTable) dbo).getName(), "TABLE", script);
-                    break;
+                    return dropObject(((DBTable) dbo).getName(), "TABLE", script);
                 default:
-                	throw new EmpireException(Errors.NotImplemented, "getDDLScript." + dbo.getClass().getName() + "." + type);
+                    return error(Errors.NotImplemented, "getDDLScript." + dbo.getClass().getName() + "." + type);
             }
         } 
         else if (dbo instanceof DBView)
@@ -437,13 +479,11 @@ public class DBDatabaseDriverPostgreSQL extends DBDatabaseDriver
             switch (type)
             {
                 case CREATE:
-                    createView((DBView) dbo, script);
-                    break;
+                    return createView((DBView) dbo, script);
                 case DROP:
-                    dropObject(((DBView) dbo).getName(), "VIEW", script);
-                    break;
+                    return dropObject(((DBView) dbo).getName(), "VIEW", script);
                 default:
-                	throw new EmpireException(Errors.NotImplemented, "getDDLScript." + dbo.getClass().getName() + "." + type);
+                    return error(Errors.NotImplemented, "getDDLScript." + dbo.getClass().getName() + "." + type);
             }
         } 
         else if (dbo instanceof DBRelation)
@@ -451,22 +491,20 @@ public class DBDatabaseDriverPostgreSQL extends DBDatabaseDriver
             switch (type)
             {
                 case CREATE:
-                    createRelation((DBRelation) dbo, script);
-                    break;
+                    return createRelation((DBRelation) dbo, script);
                 case DROP:
-                    dropObject(((DBRelation) dbo).getName(), "CONSTRAINT", script);
-                    break;
+                    return dropObject(((DBRelation) dbo).getName(), "CONSTRAINT", script);
                 default:
-                	throw new EmpireException(Errors.NotImplemented, "getDDLScript." + dbo.getClass().getName() + "." + type);
+                    return error(Errors.NotImplemented, "getDDLScript." + dbo.getClass().getName() + "." + type);
             }
         } 
         else if (dbo instanceof DBTableColumn)
         { // Table Column
-            alterTable((DBTableColumn) dbo, type, script);
+            return alterTable((DBTableColumn) dbo, type, script);
         } 
         else
         { // an invalid argument has been supplied
-        	throw new EmpireException(Errors.InvalidArg, dbo, "dbo");
+            return error(Errors.InvalidArg, dbo, "dbo");
         }
     }
 
@@ -486,7 +524,7 @@ public class DBDatabaseDriverPostgreSQL extends DBDatabaseDriver
     /*
      * return the sql for creating a Database
      */
-    protected void createDatabase(DBDatabase db, DBSQLScript script)
+    protected boolean createDatabase(DBDatabase db, DBSQLScript script)
     {    	
         // Create all Sequences
         Iterator<DBTable> seqtabs = db.getTables().iterator();
@@ -508,20 +546,25 @@ public class DBDatabaseDriverPostgreSQL extends DBDatabaseDriver
         Iterator<DBTable> tables = db.getTables().iterator();
         while (tables.hasNext())
         {
-            createTable(tables.next(), script);
+            if (!createTable(tables.next(), script))
+                return false;
         }
         // Create Relations
         Iterator<DBRelation> relations = db.getRelations().iterator();
         while (relations.hasNext())
         {
-            createRelation(relations.next(), script);
+            if (!createRelation(relations.next(), script))
+                return false;
         }
         // Create Views
         Iterator<DBView> views = db.getViews().iterator();
         while (views.hasNext())
         {
-            createView(views.next(), script);
+            if (!createView(views.next(), script))
+                return false;
         }
+        // Done
+        return true;
     }
     
     protected String createSequenceName(DBTableColumn c){
@@ -534,7 +577,7 @@ public class DBDatabaseDriverPostgreSQL extends DBDatabaseDriver
      * 
      * @return true if the sequence has been created successfully
      */
-    protected void createSequence(DBDatabase db, DBTableColumn c, DBSQLScript script)
+    protected boolean createSequence(DBDatabase db, DBTableColumn c, DBSQLScript script)
     {
     	String seqName = createSequenceName(c);
         // createSQL
@@ -551,7 +594,7 @@ public class DBDatabaseDriverPostgreSQL extends DBDatabaseDriver
         
         sql.append(" INCREMENT BY 1 START WITH 1 MINVALUE 0");
         // executeDLL
-        script.addStmt(sql);
+        return script.addStmt(sql);
     }
     
     /**
@@ -559,7 +602,7 @@ public class DBDatabaseDriverPostgreSQL extends DBDatabaseDriver
      * 
      * @return true if the table has been created successfully
      */
-    protected void createTable(DBTable t, DBSQLScript script)
+    protected boolean createTable(DBTable t, DBSQLScript script)
     {
         StringBuilder sql = new StringBuilder();
         sql.append("-- creating table ");
@@ -604,7 +647,8 @@ public class DBDatabaseDriverPostgreSQL extends DBDatabaseDriver
             sql.append("'");
         }
         // Create the table
-        script.addStmt(sql);
+        if (script.addStmt(sql) == false)
+            return false;
         // Create other Indexes (except primary key)
         Iterator<DBIndex> indexes = t.getIndexes().iterator();
         while (indexes.hasNext())
@@ -632,8 +676,11 @@ public class DBDatabaseDriverPostgreSQL extends DBDatabaseDriver
             }
             sql.append(")");
             // Create Index
-            script.addStmt(sql);
+            if (script.addStmt(sql) == false)
+                return false;
         }
+        // done
+        return success();
     }
     
     /**
@@ -763,7 +810,7 @@ public class DBDatabaseDriverPostgreSQL extends DBDatabaseDriver
      * 
      * @return true if the relation has been created successfully
      */
-    protected void createRelation(DBRelation r, DBSQLScript script)
+    protected boolean createRelation(DBRelation r, DBSQLScript script)
     {
         DBTable sourceTable = (DBTable) r.getReferences()[0].getSourceColumn().getRowSet();
         DBTable targetTable = (DBTable) r.getReferences()[0].getTargetColumn().getRowSet();
@@ -800,8 +847,10 @@ public class DBDatabaseDriverPostgreSQL extends DBDatabaseDriver
         }
         // done
         sql.append(")");
-        script.addStmt(sql);
-
+        if (script.addStmt(sql) == false)
+            return false;
+        // done
+        return success();
     }
     
     /**
@@ -811,7 +860,7 @@ public class DBDatabaseDriverPostgreSQL extends DBDatabaseDriver
      * @param script to which to append the sql statement to
      * @return true if the statement was successfully appended to the buffer
      */
-    protected void alterTable(DBTableColumn col, DBCmdType type, DBSQLScript script)
+    protected boolean alterTable(DBTableColumn col, DBCmdType type, DBSQLScript script)
     {
         StringBuilder sql = new StringBuilder();
         sql.append("ALTER TABLE ");
@@ -832,7 +881,7 @@ public class DBDatabaseDriverPostgreSQL extends DBDatabaseDriver
                 break;
         }
         // done
-        script.addStmt(sql);
+        return script.addStmt(sql);
     }
     
     
@@ -842,15 +891,17 @@ public class DBDatabaseDriverPostgreSQL extends DBDatabaseDriver
      * 
      * @return true if the view has been created successfully
      */
-    protected void createView(DBView v, DBSQLScript script)
+    protected boolean createView(DBView v, DBSQLScript script)
     {
         // Create the Command
         DBCommandExpr cmd = v.createCommand();
         if (cmd==null)
         {   // Check whether Error information is available
             log.error("No command has been supplied for view " + v.getName());
+            if (v.hasError())
+                return error(v);
             // No error information available: Use Errors.NotImplemented
-            throw new EmpireException(Errors.NotImplemented, v.getName() + ".createCommand");
+            return error(Errors.NotImplemented, v.getName() + ".createCommand");
         }
         // Make sure there is no OrderBy
         cmd.clearOrderBy();
@@ -873,7 +924,7 @@ public class DBDatabaseDriverPostgreSQL extends DBDatabaseDriver
         sql.append(")\r\nAS\r\n");
         cmd.addSQL( sql, DBExpr.CTX_DEFAULT);
         // done
-        script.addStmt(sql.toString());
+        return script.addStmt(sql.toString());
     }
     
     /**
@@ -881,17 +932,17 @@ public class DBDatabaseDriverPostgreSQL extends DBDatabaseDriver
      * 
      * @return true if the object has been dropped successfully
      */
-    protected void dropObject(String name, String objType, DBSQLScript script)
+    protected boolean dropObject(String name, String objType, DBSQLScript script)
     {
         if (name == null || name.length() == 0)
-        	throw new EmpireException(Errors.InvalidArg, name, "name");
+            return error(Errors.InvalidArg, name, "name");
         // Create Drop Statement
         StringBuilder sql = new StringBuilder();
         sql.append("DROP ");
         sql.append(objType);
         sql.append(" ");
         appendElementName(sql, name);
-        script.addStmt(sql);
+        return script.addStmt(sql);
     }
     
 }

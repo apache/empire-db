@@ -19,13 +19,13 @@
 package org.apache.empire.db;
 
 // java.sql
-import java.io.Serializable;
-import java.sql.SQLException;
-
-import org.apache.empire.EmpireException;
+import org.apache.empire.commons.ErrorObject;
 import org.apache.empire.commons.ErrorType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.Serializable;
+import java.sql.SQLException;
 
 
 /**
@@ -34,7 +34,7 @@ import org.slf4j.LoggerFactory;
  * 
  *
  */
-public abstract class DBObject implements Serializable
+public abstract class DBObject extends ErrorObject implements Serializable
 {
     private static final long serialVersionUID = 1L;
     // Logger
@@ -56,15 +56,15 @@ public abstract class DBObject implements Serializable
      *            
      * @return the return value is always false
      */
-    protected void error(ErrorType type, SQLException sqle)
+    protected boolean error(ErrorType type, SQLException sqle)
     {
         log.error("Database operation failed.", sqle);
         // converts a database error message to a human readable error message.
         DBDatabase db = getDatabase();
         if (db!=null && db.getDriver()!=null)
-            throw new EmpireException(type, db.getDriver().extractErrorMessage(sqle));
+            return error(type, db.getDriver().extractErrorMessage(sqle));
         // Set the error Message
-        throw new EmpireException(type, sqle.getMessage());
+        return error(type, sqle.getMessage());
     }
 
     /**
@@ -74,9 +74,9 @@ public abstract class DBObject implements Serializable
      *            
      * @return the return value is always false
      */
-    protected void error(SQLException sqle)
+    protected boolean error(SQLException sqle)
     { // converts a database error message to a human readable error message.
-        error(DBErrors.SQLException, sqle);
+        return error(DBErrors.SQLException, sqle);
     }
 
 }

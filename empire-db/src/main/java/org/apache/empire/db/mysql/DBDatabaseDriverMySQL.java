@@ -23,7 +23,6 @@ import java.sql.SQLException;
 import java.util.GregorianCalendar;
 import java.util.Iterator;
 
-import org.apache.empire.EmpireException;
 import org.apache.empire.commons.Errors;
 import org.apache.empire.commons.StringUtils;
 import org.apache.empire.data.DataType;
@@ -69,15 +68,17 @@ public class DBDatabaseDriverMySQL extends DBDatabaseDriver
         }
         
         @Override
-        public void limitRows(int numRows)
+        public boolean limitRows(int numRows)
         {
             limit = numRows;
+            return success();
         }
 
         @Override
-        public void skipRows(int numRows)
+        public boolean skipRows(int numRows)
         {
             skip = numRows;
+            return success();
         }
          
         @Override
@@ -88,9 +89,10 @@ public class DBDatabaseDriverMySQL extends DBDatabaseDriver
         }
         
         @Override
-        public void getSelect(StringBuilder buf)
+        public boolean getSelect(StringBuilder buf)
         {   // call base class
-            super.getSelect(buf);
+            if (super.getSelect(buf)==false)
+                return false;
             // add limit and offset
             if (limit>=0)
             {   buf.append("\r\nLIMIT ");
@@ -101,6 +103,8 @@ public class DBDatabaseDriverMySQL extends DBDatabaseDriver
                     buf.append(String.valueOf(skip));
                 }    
             }
+            // done
+            return success();
         }
     }
     
@@ -204,7 +208,7 @@ public class DBDatabaseDriverMySQL extends DBDatabaseDriver
      * @see org.apache.empire.db.DBDatabaseDriver#openDatabase(org.apache.empire.db.DBDatabase, java.sql.Connection)
      */
     @Override
-    public void attachDatabase(DBDatabase db, Connection conn)
+    public boolean attachDatabase(DBDatabase db, Connection conn)
     {
         // Prepare
         try
@@ -215,11 +219,11 @@ public class DBDatabaseDriverMySQL extends DBDatabaseDriver
             if (useSequenceTable && db.getTable(sequenceTableName)==null)
                 new DBSeqTable(sequenceTableName, db);
             // call Base implementation
-            super.attachDatabase(db, conn);
+            return super.attachDatabase(db, conn);
             
         } catch (SQLException e)
         {
-        	throw new EmpireException(e);
+            return error(e);
         }
     }
 
@@ -374,24 +378,22 @@ public class DBDatabaseDriverMySQL extends DBDatabaseDriver
      * @see DBDatabaseDriver#getDDLScript(DBCmdType, DBObject, DBSQLScript)  
      */
     @Override
-    public void getDDLScript(DBCmdType type, DBObject dbo, DBSQLScript script)
+    public boolean getDDLScript(DBCmdType type, DBObject dbo, DBSQLScript script)
     {
         // The Object's database must be attached to this driver
         if (dbo==null || dbo.getDatabase().getDriver()!=this)
-        	throw new EmpireException(Errors.InvalidArg, dbo, "dbo");
+            return error(Errors.InvalidArg, dbo, "dbo");
         // Check Type of object
         if (dbo instanceof DBDatabase)
         { // Database
             switch (type)
             {
                 case CREATE:
-                    createDatabase((DBDatabase) dbo, script, true);
-                    break;
+                    return createDatabase((DBDatabase) dbo, script, true);
                 case DROP:
-                    dropObject(((DBDatabase) dbo).getSchema(), "DATABASE", script);
-                    break;
+                    return dropObject(((DBDatabase) dbo).getSchema(), "DATABASE", script);
                 default:
-                	throw new EmpireException(Errors.NotImplemented, "getDDLScript." + dbo.getClass().getName() + "." + type);
+                    return error(Errors.NotImplemented, "getDDLScript." + dbo.getClass().getName() + "." + type);
             }
         } 
         else if (dbo instanceof DBTable)
@@ -399,13 +401,11 @@ public class DBDatabaseDriverMySQL extends DBDatabaseDriver
             switch (type)
             {
                 case CREATE:
-                    createTable((DBTable) dbo, script);
-                    break;
+                    return createTable((DBTable) dbo, script);
                 case DROP:
-                    dropObject(((DBTable) dbo).getName(), "TABLE", script);
-                    break;
+                    return dropObject(((DBTable) dbo).getName(), "TABLE", script);
                 default:
-                	throw new EmpireException(Errors.NotImplemented, "getDDLScript." + dbo.getClass().getName() + "." + type);
+                    return error(Errors.NotImplemented, "getDDLScript." + dbo.getClass().getName() + "." + type);
             }
         } 
         else if (dbo instanceof DBView)
@@ -413,13 +413,11 @@ public class DBDatabaseDriverMySQL extends DBDatabaseDriver
             switch (type)
             {
                 case CREATE:
-                    createView((DBView) dbo, script);
-                    break;
+                    return createView((DBView) dbo, script);
                 case DROP:
-                    dropObject(((DBView) dbo).getName(), "VIEW", script);
-                    break;
+                    return dropObject(((DBView) dbo).getName(), "VIEW", script);
                 default:
-                	throw new EmpireException(Errors.NotImplemented, "getDDLScript." + dbo.getClass().getName() + "." + type);
+                    return error(Errors.NotImplemented, "getDDLScript." + dbo.getClass().getName() + "." + type);
             }
         } 
         else if (dbo instanceof DBRelation)
@@ -427,22 +425,20 @@ public class DBDatabaseDriverMySQL extends DBDatabaseDriver
             switch (type)
             {
                 case CREATE:
-                    createRelation((DBRelation) dbo, script);
-                    break;
+                    return createRelation((DBRelation) dbo, script);
                 case DROP:
-                    dropObject(((DBRelation) dbo).getName(), "CONSTRAINT", script);
-                    break;
+                    return dropObject(((DBRelation) dbo).getName(), "CONSTRAINT", script);
                 default:
-                	throw new EmpireException(Errors.NotImplemented, "getDDLScript." + dbo.getClass().getName() + "." + type);
+                    return error(Errors.NotImplemented, "getDDLScript." + dbo.getClass().getName() + "." + type);
             }
         } 
         else if (dbo instanceof DBTableColumn)
         { // Table Column
-            alterTable((DBTableColumn) dbo, type, script);
+            return alterTable((DBTableColumn) dbo, type, script);
         } 
         else
         { // an invalid argument has been supplied
-        	throw new EmpireException(Errors.InvalidArg, dbo, "dbo");
+            return error(Errors.InvalidArg, dbo, "dbo");
         }
     }
 
@@ -462,13 +458,13 @@ public class DBDatabaseDriverMySQL extends DBDatabaseDriver
     /*
      * return the sql for creating a Database
      */
-    protected void createDatabase(DBDatabase db, DBSQLScript script, boolean createSchema)
+    protected boolean createDatabase(DBDatabase db, DBSQLScript script, boolean createSchema)
     {
         // User Master to create Database
         if (createSchema)
         {   // check database Name
             if (StringUtils.isEmpty(databaseName))
-            	throw new EmpireException(Errors.InvalidProperty, "databaseName");
+                return error(Errors.InvalidProperty, "databaseName");
             // Create Database
             script.addStmt("CREATE DATABASE IF NOT EXISTS " + databaseName + " CHARACTER SET " + characterSet);
             script.addStmt("USE " + databaseName);
@@ -481,20 +477,25 @@ public class DBDatabaseDriverMySQL extends DBDatabaseDriver
         Iterator<DBTable> tables = db.getTables().iterator();
         while (tables.hasNext())
         {
-            createTable(tables.next(), script);
+            if (!createTable(tables.next(), script))
+                return false;
         }
         // Create Relations
         Iterator<DBRelation> relations = db.getRelations().iterator();
         while (relations.hasNext())
         {
-            createRelation(relations.next(), script);
+            if (!createRelation(relations.next(), script))
+                return false;
         }
         // Create Views
         Iterator<DBView> views = db.getViews().iterator();
         while (views.hasNext())
         {
-            createView(views.next(), script);
+            if (!createView(views.next(), script))
+                return false;
         }
+        // Done
+        return true;
     }
     
     /**
@@ -502,7 +503,7 @@ public class DBDatabaseDriverMySQL extends DBDatabaseDriver
      * 
      * @return true if the table has been created successfully
      */
-    protected void createTable(DBTable t, DBSQLScript script)
+    protected boolean createTable(DBTable t, DBSQLScript script)
     {
         StringBuilder sql = new StringBuilder();
         sql.append("-- creating table ");
@@ -517,7 +518,8 @@ public class DBDatabaseDriverMySQL extends DBDatabaseDriver
         {
             DBTableColumn c = (DBTableColumn) columns.next();
             sql.append((addSeparator) ? ",\r\n   " : "\r\n   ");
-            appendColumnDesc(c, sql);
+            if (appendColumnDesc(c, sql)==false)
+                continue; // Ignore and continue;
             addSeparator = true;
         }
         // Primary Key
@@ -552,7 +554,8 @@ public class DBDatabaseDriverMySQL extends DBDatabaseDriver
             sql.append("'");
         }
         // Create the table
-        script.addStmt(sql);
+        if (script.addStmt(sql) == false)
+            return false;
         // Create other Indexes (except primary key)
         Iterator<DBIndex> indexes = t.getIndexes().iterator();
         while (indexes.hasNext())
@@ -580,8 +583,11 @@ public class DBDatabaseDriverMySQL extends DBDatabaseDriver
             }
             sql.append(")");
             // Create Index
-            script.addStmt(sql);
+            if (script.addStmt(sql) == false)
+                return false;
         }
+        // done
+        return success();
     }
     
     /**
@@ -590,7 +596,7 @@ public class DBDatabaseDriverMySQL extends DBDatabaseDriver
      * @param sql the sql builder object
      * @return true if the column was successfully appended or false otherwise
      */
-    protected void appendColumnDesc(DBTableColumn c, StringBuilder sql)
+    protected boolean appendColumnDesc(DBTableColumn c, StringBuilder sql)
     {
         // Append name
         c.addSQL(sql, DBExpr.CTX_NAME);
@@ -680,7 +686,7 @@ public class DBDatabaseDriverMySQL extends DBDatabaseDriver
                 break;
             case UNKNOWN:
                  log.error("Cannot append column of Data-Type 'UNKNOWN'");
-                 return;
+                 return false;
         }
         // Default Value
         if (isDDLColumnDefaults() && !c.isAutoGenerated() && c.getDefaultValue()!=null)
@@ -690,6 +696,8 @@ public class DBDatabaseDriverMySQL extends DBDatabaseDriver
         // Nullable
         if (c.isRequired() ||  c.isAutoGenerated())
             sql.append(" NOT NULL");
+        // Done
+        return true;
     }
 
     /**
@@ -697,7 +705,7 @@ public class DBDatabaseDriverMySQL extends DBDatabaseDriver
      * 
      * @return true if the relation has been created successfully
      */
-    protected void createRelation(DBRelation r, DBSQLScript script)
+    protected boolean createRelation(DBRelation r, DBSQLScript script)
     {
         DBTable sourceTable = (DBTable) r.getReferences()[0].getSourceColumn().getRowSet();
         DBTable targetTable = (DBTable) r.getReferences()[0].getTargetColumn().getRowSet();
@@ -734,7 +742,10 @@ public class DBDatabaseDriverMySQL extends DBDatabaseDriver
         }
         // done
         sql.append(")");
-       script.addStmt(sql);
+        if (script.addStmt(sql) == false)
+            return false;
+        // done
+        return success();
     }
 
     /**
@@ -744,7 +755,7 @@ public class DBDatabaseDriverMySQL extends DBDatabaseDriver
      * @param script to which to append the sql statement to
      * @return true if the statement was successfully appended to the buffer
      */
-    protected void alterTable(DBTableColumn col, DBCmdType type, DBSQLScript script)
+    protected boolean alterTable(DBTableColumn col, DBCmdType type, DBSQLScript script)
     {
         StringBuilder sql = new StringBuilder();
         sql.append("ALTER TABLE ");
@@ -765,7 +776,7 @@ public class DBDatabaseDriverMySQL extends DBDatabaseDriver
                 break;
         }
         // done
-        script.addStmt(sql);
+        return script.addStmt(sql);
     }
 
     /**
@@ -773,15 +784,17 @@ public class DBDatabaseDriverMySQL extends DBDatabaseDriver
      * 
      * @return true if the view has been created successfully
      */
-    protected void createView(DBView v, DBSQLScript script)
+    protected boolean createView(DBView v, DBSQLScript script)
     {
         // Create the Command
         DBCommandExpr cmd = v.createCommand();
         if (cmd==null)
         {   // Check whether Error information is available
             log.error("No command has been supplied for view " + v.getName());
+            if (v.hasError())
+                return error(v);
             // No error information available: Use Errors.NotImplemented
-            throw new EmpireException(Errors.NotImplemented, v.getName() + ".createCommand");
+            return error(Errors.NotImplemented, v.getName() + ".createCommand");
         }
         // Make sure there is no OrderBy
         cmd.clearOrderBy();
@@ -804,7 +817,7 @@ public class DBDatabaseDriverMySQL extends DBDatabaseDriver
         sql.append(")\r\nAS\r\n");
         cmd.addSQL( sql, DBExpr.CTX_DEFAULT);
         // done
-        script.addStmt(sql.toString());
+        return script.addStmt(sql.toString());
     }
     
     /**
@@ -812,17 +825,17 @@ public class DBDatabaseDriverMySQL extends DBDatabaseDriver
      * 
      * @return true if the object has been dropped successfully
      */
-    protected void dropObject(String name, String objType, DBSQLScript script)
+    protected boolean dropObject(String name, String objType, DBSQLScript script)
     {
         if (name == null || name.length() == 0)
-        	throw new EmpireException(Errors.InvalidArg, name, "name");
+            return error(Errors.InvalidArg, name, "name");
         // Create Drop Statement
         StringBuilder sql = new StringBuilder();
         sql.append("DROP ");
         sql.append(objType);
         sql.append(" ");
         appendElementName(sql, name);
-        script.addStmt(sql);
+        return script.addStmt(sql);
     }
 
 }

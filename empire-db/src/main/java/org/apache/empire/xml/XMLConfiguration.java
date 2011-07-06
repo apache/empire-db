@@ -30,7 +30,7 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.apache.commons.beanutils.BeanUtils;
-import org.apache.empire.EmpireException;
+import org.apache.empire.commons.ErrorObject;
 import org.apache.empire.commons.Errors;
 import org.apache.empire.commons.ObjectUtils;
 import org.apache.empire.commons.StringUtils;
@@ -51,7 +51,7 @@ import org.xml.sax.SAXException;
  * </PRE>
  *
  */
-public class XMLConfiguration
+public class XMLConfiguration extends ErrorObject
 {
     private static final Logger log = LoggerFactory.getLogger(XMLConfiguration.class);
 
@@ -62,12 +62,16 @@ public class XMLConfiguration
      * 
      * @param filename the file
      * @param fromResource will read from the classpath if true
+     * 
+     * @return true on success
      */
-    public void init(String filename, boolean fromResource)
+    public boolean init(String filename, boolean fromResource)
     {
         // Read the properties file
-        readConfiguration(filename, fromResource);
-
+        if (readConfiguration(filename, fromResource) == false)
+            return false;
+        // Done
+        return success();
     }
     
     /**
@@ -81,11 +85,8 @@ public class XMLConfiguration
 
     /**
      * Reads the configuration file and parses the XML Configuration.
-     * @param fileName
-     * @param fromResource
-     * 
      */
-    protected void readConfiguration(String fileName, boolean fromResource)
+    protected boolean readConfiguration(String fileName, boolean fromResource)
     {
         FileReader reader = null;
         InputStream inputStream = null;
@@ -97,9 +98,6 @@ public class XMLConfiguration
             {   // Open Resource
                 log.info("reading resource file: " + fileName);
                 inputStream = getClass().getClassLoader().getResourceAsStream(fileName);
-                if(inputStream == null){
-                	throw new FileNotFoundException("Could not read resource file: " + fileName);
-                }
                 // Parse File
                 doc = docBuilder.parse(inputStream);
             }
@@ -112,22 +110,23 @@ public class XMLConfiguration
             }
             // Get Root Element
             configRootNode = doc.getDocumentElement();
+            return success();
         } catch (FileNotFoundException e)
         {
             log.error("Configuration file {} not found!", fileName, e);
-            throw new EmpireException(e, Errors.FileNotFound, fileName);
+            return error(Errors.FileNotFound, fileName);
         } catch (IOException e)
         {
             log.error("Error reading configuration file {}", fileName, e);
-            throw new EmpireException(e, Errors.FileReadError, fileName);
+            return error(Errors.FileReadError, fileName);
         } catch (SAXException e)
         {
             log.error("Invalid XML in configuration file {}", fileName, e);
-            throw new EmpireException(e);
+            return error(e);
         } catch (ParserConfigurationException e)
         {
             log.error("ParserConfigurationException: {}", e.getMessage(), e);
-            throw new EmpireException(e);
+            return error(e);
         } finally
         { 
         	close(reader);
@@ -141,44 +140,45 @@ public class XMLConfiguration
      * @param propertiesNodeName the name of the properties node below the root element
      * @return true of successful or false otherwise
      */
-    public void readProperties(Object bean, String... propertiesNodeNames)
+    public boolean readProperties(Object bean, String... propertiesNodeNames)
     {
         // Check state
         if (configRootNode == null)
-        	throw new EmpireException(Errors.ObjectNotValid, getClass().getName());
+            return error(Errors.ObjectNotValid, getClass().getName());
         // Check arguments
         if (bean == null)
-        	throw new EmpireException(Errors.InvalidArg, null, "bean");
+            return error(Errors.InvalidArg, null, "bean");
         
         Element propertiesNode = configRootNode;  
         for(String nodeName : propertiesNodeNames)
         {
             if (StringUtils.isEmpty(nodeName))
-            	throw new EmpireException(Errors.InvalidArg, null, "propertiesNodeNames");
+                return error(Errors.InvalidArg, null, "propertiesNodeNames");
             // Get configuration node
             propertiesNode = XMLUtil.findFirstChild(propertiesNode, nodeName);
             if (propertiesNode == null)
             { // Configuration
                 log.error("Property-Node {} has not been found.", nodeName);
-                throw new EmpireException(Errors.ItemNotFound, nodeName);
+                return error(Errors.ItemNotFound, nodeName);
             }
         }
         // read the properties
-        readProperties(bean, propertiesNode);
+        return readProperties(bean, propertiesNode);
     }
 
     /**
      * reads all properties from a given properties node and applies them to the given bean
      * @param bean the bean to which to apply the configuration
      * @param propertiesNode the properties node
+     * @return true of successful or false otherwise
      */
-    public void readProperties(Object bean, Element propertiesNode)
+    public boolean readProperties(Object bean, Element propertiesNode)
     {
         // Check arguments
         if (propertiesNode == null)
-        	throw new EmpireException(Errors.InvalidArg, null, "propertiesNode");
+            return error(Errors.InvalidArg, null, "propertiesNode");
         if (bean == null)
-        	throw new EmpireException(Errors.InvalidArg, null, "bean");
+            return error(Errors.InvalidArg, null, "bean");
         // apply configuration
         log.info("reading bean properties from node: {}", propertiesNode.getNodeName());
         NodeList nodeList = propertiesNode.getChildNodes();
@@ -190,6 +190,8 @@ public class XMLConfiguration
             // Get the Text and set the Property
             setPropertyValue(bean, item);
         }
+        // done
+        return success();
     }
     
     protected void setPropertyValue(Object bean, Node item)

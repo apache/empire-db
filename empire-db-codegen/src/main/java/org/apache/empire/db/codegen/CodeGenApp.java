@@ -18,9 +18,10 @@
  */
 package org.apache.empire.db.codegen;
 
-import org.apache.empire.db.DBDatabase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.apache.empire.commons.ErrorObject;
+import org.apache.empire.db.DBDatabase;
 
 /**
  * Console code generator application, takes the config file as first argument.
@@ -40,6 +41,7 @@ public class CodeGenApp {
 	 *            arguments
 	 */
 	public static void main(String[] args) {
+	    ErrorObject.setExceptionsEnabled(true);
 	    // Start code generator
 		CodeGenApp app = new CodeGenApp();
 		app.start((args.length > 0 ? args[0] : DEFAULT_CONFIG_FILE));
@@ -75,6 +77,9 @@ public class CodeGenApp {
 		// Init Configuration
 		CodeGenConfig config = new CodeGenConfig();
 		config.init(configFile);
+
+		// Enable Exceptions
+		ErrorObject.setExceptionsEnabled(true);
 
 		if (config.getTableClassPrefix() == null)
 			config.setTableClassPrefix("");

@@ -18,13 +18,6 @@
  */
 package org.apache.empire.db;
 
-import java.sql.Connection;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.concurrent.atomic.AtomicInteger;
-
-import org.apache.empire.EmpireException;
 import org.apache.empire.commons.Errors;
 import org.apache.empire.commons.ObjectUtils;
 import org.apache.empire.commons.Options;
@@ -34,6 +27,12 @@ import org.apache.empire.db.expr.compare.DBCompareColExpr;
 import org.apache.empire.db.expr.compare.DBCompareExpr;
 import org.apache.empire.db.expr.join.DBJoinExpr;
 import org.w3c.dom.Element;
+
+import java.sql.Connection;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.concurrent.atomic.AtomicInteger;
 
 
 /**
@@ -113,12 +112,12 @@ public class DBQuery extends DBRowSet
         }
 
         @Override
-        public void checkValue(Object value)
+        public boolean checkValue(Object value)
         {
             DBColumn column = expr.getUpdateColumn();
             if (column==null)
-                return;
-            column.checkValue(value);
+                return true;
+            return column.checkValue(value);
         }
 
         @Override
@@ -272,7 +271,8 @@ public class DBQuery extends DBRowSet
     {
         if (record == null || record.getRowSet() != this)
         {
-            throw new EmpireException(Errors.InvalidArg, record, "record");
+            error(Errors.InvalidArg, record, "record");
+            return null; // Invalid Argument
         }
         // get Key
         return (Object[]) record.getRowSetData();
@@ -304,12 +304,14 @@ public class DBQuery extends DBRowSet
      * 
      * @param rec the Record object
      * @param keyValues an array of the primary key columns
+     * @return true if successful
      */
     @Override
-    public void initRecord(DBRecord rec, Object[] keyValues)
+    public boolean initRecord(DBRecord rec, Object[] keyValues)
     {
         // Inititialisierung
-        prepareInitRecord(rec, DBRecord.REC_EMTPY, keyValues);
+        if (!prepareInitRecord(rec, DBRecord.REC_EMTPY, keyValues))
+            return false;
         // Initialize all Fields
         Object[] fields = rec.getFields();
         for (int i = 0; i < fields.length; i++)
@@ -323,7 +325,7 @@ public class DBQuery extends DBRowSet
                     fields[columns.indexOf(keyColumns[i])] = keyValues[i];
         }
         // Init
-        completeInitRecord(rec);
+        return completeInitRecord(rec);
     }
     
     /**
@@ -334,9 +336,9 @@ public class DBQuery extends DBRowSet
      * @return an error, because querys could't add new records to the database
      */
     @Override
-    public void createRecord(DBRecord rec, Connection conn)
+    public boolean createRecord(DBRecord rec, Connection conn)
     {
-    	 throw new EmpireException(Errors.NotImplemented, "addRecord");
+        return error(Errors.NotImplemented, "addRecord");
     }
 
     /**
@@ -345,15 +347,16 @@ public class DBQuery extends DBRowSet
      * @param rec rec the DBRecord object, contains all fields and the field properties
      * @param key an array of the primary key columns
      * @param conn a valid connection to the database.
+     * @return true if successful
      */
     @Override
-    public void readRecord(DBRecord rec, Object[] key, Connection conn)
+    public boolean readRecord(DBRecord rec, Object[] key, Connection conn)
     {
         if (conn == null || rec == null)
-        	throw new EmpireException(Errors.InvalidArg, null, "conn|rec");
+            return error(Errors.InvalidArg, null, "conn|rec");
         DBColumn[] keyColumns = getKeyColumns();
         if (key == null || keyColumns.length != key.length)
-        	throw new EmpireException(DBErrors.RecordInvalidKey, key);
+            return error(DBErrors.RecordInvalidKey, key);
         // Select
         for (int i = 0; i < keyColumns.length; i++)
         {   // Set key column constraint
@@ -363,9 +366,16 @@ public class DBQuery extends DBRowSet
             cmd.where(keyColumns[i].is(value));
         }    
         // Read Record
-        readRecord(rec, cmd, conn);
+        if (!readRecord(rec, cmd, conn))
+        { // Record not found
+            if (getErrorType() == DBErrors.QueryNoResult)
+                return error(DBErrors.RecordNotFound, key);
+            // Return given error
+            return false;
+        }
         // Set RowSetData
         rec.changeState(DBRecord.REC_VALID, key.clone());
+        return success();
     }
 
     /**
@@ -376,17 +386,17 @@ public class DBQuery extends DBRowSet
      * @return true if succesfull
      */
     @Override
-    public void updateRecord(DBRecord rec, Connection conn)
+    public boolean updateRecord(DBRecord rec, Connection conn)
     {
         if (conn == null || rec == null)
-        	throw new EmpireException(Errors.InvalidArg, null, "conn|rec");
+            return error(Errors.InvalidArg, null, "conn|rec");
         // Has record been modified?
         if (rec.isModified() == false)
-            return; // Nothing to update
+            return success(); // Nothing to update
         // Must have key Columns
         DBColumn[] keyColumns = getKeyColumns();
         if (keyColumns==null)
-        	throw new EmpireException(DBErrors.NoPrimaryKey, getAlias());
+            return error(DBErrors.NoPrimaryKey, getAlias());
         // Get the fields and the flags
         Object[] fields = rec.getFields();
         // Get all Update Commands
@@ -413,7 +423,8 @@ public class DBQuery extends DBRowSet
                 if (col.isReadOnly() && log.isDebugEnabled())
                     log.debug("updateRecord: Read-only column '" + col.getName() + " has been modified!");
                 // Check the value
-                col.checkValue(fields[i]);
+                if (!col.checkValue(fields[i]))
+                    return error(col);
                 // Set
                 updCmd.set(col.to(fields[i]));
             }
@@ -439,10 +450,10 @@ public class DBQuery extends DBRowSet
                 DBColumn right = join.getRight().getUpdateColumn();
                 if (left.getRowSet()==table && table.isKeyColumn(left))
                     if (!addJoinRestriction(upd, left, right, keyColumns, rec))
-                    	throw new EmpireException(Errors.ItemNotFound, left.getFullName());
+                        return error(Errors.ItemNotFound, left.getFullName());
                 if (right.getRowSet()==table && table.isKeyColumn(right))
                     if (!addJoinRestriction(upd, right, left, keyColumns, rec))
-                    	throw new EmpireException(Errors.ItemNotFound, right.getFullName());
+                        return error(Errors.ItemNotFound, right.getFullName());
             }
             // Evaluate Existing restrictions
             for (i = 0; cmd.where != null && i < cmd.where.size(); i++)
@@ -466,7 +477,7 @@ public class DBQuery extends DBRowSet
                 } 
                 else
                 {	// other constraints are not supported
-                	throw new EmpireException(Errors.NotSupported, "updateRecord");
+                    return error(Errors.NotSupported, "updateRecord");
                 }
             }
             // Add Restrictions
@@ -513,14 +524,15 @@ public class DBQuery extends DBRowSet
             {   // Error
                 if (affected == 0)
                 { // Record not found
-                	throw new EmpireException(DBErrors.RecordUpdateFailed, table.getName());
+                    error(DBErrors.RecordUpdateFailed, table.getName());
                 }
                 // Rollback
                 db.rollback(conn);
+                return false;
             } 
             else if (affected > 1)
             { // More than one record
-                throw new EmpireException(DBErrors.RecordUpdateInvalid, table.getName());
+                error(DBErrors.RecordUpdateInvalid, table.getName());
             } 
             else
             { // success
@@ -534,6 +546,7 @@ public class DBQuery extends DBRowSet
         }
         // success
         rec.changeState(DBRecord.REC_VALID, keys);
+        return success();
     }
 
     /**
@@ -571,9 +584,9 @@ public class DBQuery extends DBRowSet
      * @return true if the record has been successfully deleted or false otherwise
      */
     @Override
-    public void deleteRecord(Object[] keys, Connection conn)
+    public boolean deleteRecord(Object[] keys, Connection conn)
     {
-    	throw new EmpireException(Errors.NotImplemented, "deleteRecord");
+        return error(Errors.NotImplemented, "deleteRecord");
     }
 
 }

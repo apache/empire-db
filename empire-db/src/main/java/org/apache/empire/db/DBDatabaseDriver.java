@@ -33,8 +33,8 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 
-import org.apache.empire.EmpireException;
 import org.apache.empire.commons.DateUtils;
+import org.apache.empire.commons.ErrorObject;
 import org.apache.empire.commons.Errors;
 import org.apache.empire.commons.ObjectUtils;
 import org.apache.empire.commons.StringUtils;
@@ -48,7 +48,7 @@ import org.slf4j.LoggerFactory;
  * The DBDatabaseDriver class is an abstract base class for all database drivers.
  * Its purpose is to handle everything that is - or might be - database vendor specific. 
  */
-public abstract class DBDatabaseDriver implements Serializable
+public abstract class DBDatabaseDriver extends ErrorObject implements Serializable
 {
     private final static long serialVersionUID = 1L;
   
@@ -226,7 +226,8 @@ public abstract class DBDatabaseDriver implements Serializable
             } catch (Exception e) 
             {
                 log.error("getNextValue exception: " + e.toString());
-                throw new EmpireException(e);
+                error(e);
+                return null;
             } finally
             { // Cleanup
                 db.closeStatement(stmt);
@@ -379,7 +380,8 @@ public abstract class DBDatabaseDriver implements Serializable
             return (type==DataType.DATE ? DateUtils.getDateOnly(ts) : ts);
         }
         // Other types
-        throw new EmpireException(Errors.NotSupported, "getColumnAutoValue() for " + type);
+        error(Errors.NotSupported, "getColumnAutoValue() for "+type);
+        return null;
     }
 
     /**
@@ -677,9 +679,9 @@ public abstract class DBDatabaseDriver implements Serializable
     /**
      * Called when a database is opened
      */
-    protected void attachDatabase(DBDatabase db, Connection conn)
+    protected boolean attachDatabase(DBDatabase db, Connection conn)
     {
-        // Overrided by the driver impl
+        return success();
     }
 
     /**
@@ -701,7 +703,7 @@ public abstract class DBDatabaseDriver implements Serializable
      */
     public boolean checkDatabase(DBDatabase db, String owner, Connection conn)
     {
-    	throw new EmpireException(Errors.NotImplemented, "checkDatabase");
+    	return error(Errors.NotImplemented, "checkDatabase");
     }
     
     /**
@@ -711,10 +713,11 @@ public abstract class DBDatabaseDriver implements Serializable
      * @param dbo the databse object
      * @param script the script to complete
      * 
+     * @return true on succes 
      */
-    public void getDDLScript(DBCmdType type, DBObject dbo, DBSQLScript script)
+    public boolean getDDLScript(DBCmdType type, DBObject dbo, DBSQLScript script)
     {
-    	throw new EmpireException(Errors.NotSupported, "getDDLScript");
+        return error(Errors.NotSupported, "getDDLScript");
     }
     
     /**
