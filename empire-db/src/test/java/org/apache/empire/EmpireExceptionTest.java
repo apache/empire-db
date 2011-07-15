@@ -18,71 +18,27 @@
  */
 package org.apache.empire;
 
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
 
-import org.apache.empire.commons.ErrorInfo;
-import org.apache.empire.commons.ErrorObject;
-import org.apache.empire.commons.ErrorType;
 import org.apache.empire.commons.Errors;
 import org.junit.Before;
 import org.junit.Test;
 
 public class EmpireExceptionTest
 {
-
-    private final class MockErrorInfo implements ErrorInfo
-    {
-
-        public Object[] getErrorParams()
-        {
-            return new Object[] { "JUnit", "Test" };
-        }
-
-        public String getErrorSource()
-        {
-            return "JUnitSource";
-        }
-
-        public ErrorType getErrorType()
-        {
-            return Errors.IllegalFormat;
-        }
-
-        public boolean hasError()
-        {
-            return true;
-        }
-
-        public String getErrorMessage()
-        {
-            return "JUnit error.";
-        }
-    }
-
-    private final class MockErrorObject extends ErrorObject
-    {
-        public MockErrorObject()
-        {
-            super(new MockErrorInfo());
-        }
-    }
-
     private EmpireException exception;
-    private ErrorObject     errorObject;
 
     @Before
     public void setupException()
     {
-        ErrorObject.setExceptionsEnabled(false);
-        this.errorObject = new MockErrorObject();
-        this.exception = new EmpireException(errorObject);
+        this.exception = new EmpireException(Errors.InvalidArg, -1, "param");
     }
 
     @Test
     public void testToString()
     {
-        String expected = errorObject.getClass().getName() + ": The format of JUnit is invalid for Test";
+        String expected = "Invalid Argument -1 for parameter param.";
         assertEquals(expected, exception.toString());
     }
 
@@ -95,11 +51,9 @@ public class EmpireExceptionTest
     @Test
     public void testGetErrorObject()
     {
-        assertEquals(errorObject.getErrorMessage(), exception.getErrorObject().getErrorMessage());
-        assertEquals(errorObject.getErrorSource(), exception.getErrorObject().getErrorSource());
-        assertEquals(errorObject.getErrorType(), exception.getErrorObject().getErrorType());
-        assertEquals(errorObject.hasError(), exception.getErrorObject().hasError());
-        assertArrayEquals(errorObject.getErrorParams(), exception.getErrorObject().getErrorParams());
+        assertEquals(exception.getMessage(),   "Invalid Argument -1 for parameter param.");
+        assertEquals(exception.getErrorType(), Errors.InvalidArg);
+        assertArrayEquals(exception.getErrorParams(), new Object[]{ -1, "param" });
     }
 
 }

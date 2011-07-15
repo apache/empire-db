@@ -171,9 +171,7 @@ public abstract class DBCommand extends DBCommandExpr
         int index = cmdParams.indexOf(param);
         if (index < paramUsageCount)
         {   // Error: parameter probably used twice in statement!
-            String msg = "A parameter may only be used once in a command.";
-            error(Errors.Internal, msg);
-            throw new EmpireException(this);
+            throw new EmpireException(Errors.Internal, "A parameter may only be used once in a command.");
         }
         if (index > paramUsageCount)
         {   // Correct parameter order

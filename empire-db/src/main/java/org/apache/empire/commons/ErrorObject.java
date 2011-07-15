@@ -247,7 +247,7 @@ public abstract class ErrorObject implements ErrorInfo
         info.errSource =(source!=null) ? source.getClass().getName() : getClass().getName();
         // Use Exceptions
         if (exceptionsEnabled)
-            throw new EmpireException(this);
+            throw new EmpireException(errType, params);
         // return Error Status
         return false;
     }
