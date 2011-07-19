@@ -18,6 +18,7 @@
  */
 package org.apache.empire.samples.db;
 
+import org.apache.empire.EmpireException;
 import org.apache.empire.commons.Errors;
 import org.apache.empire.xml.XMLConfiguration;
 import org.apache.empire.xml.XMLUtil;
@@ -57,42 +58,39 @@ public class SampleConfig extends XMLConfiguration
      * 
      * @return true on success
      */
-    public boolean init(String filename)
+    public void init(String filename)
     {
         // Read the properties file
-        if (super.init(filename, false) == false)
-            return false;
+        super.init(filename, false);
         // Init Logging
         initLogging();
         // Done
-        if (readProperties(this, "properties")==false)
-            return false;
+        readProperties(this, "properties");
         // Reader Provider Properties
-        return readProperties(this, "properties-" + databaseProvider);
+        readProperties(this, "properties-" + databaseProvider);
     }
 
     /**
      * Init logging using Log4J's DOMConfigurator 
      * @return
      */
-    private boolean initLogging()
+    private void initLogging()
     {
         // Get configuration root node
         Element rootNode = getRootNode();
         if (rootNode == null)
-            return error(Errors.ObjectNotValid, getClass().getName());
+            throw new EmpireException(Errors.ObjectNotValid, getClass().getName());
         // Find log configuration node
         Element loggingNode = XMLUtil.findFirstChild(rootNode, loggingNodeName);
         if (loggingNode == null)
         {   // log configuration node not found
             log.error("Log configuration node {} has not been found. Logging has not been configured.", loggingNodeName);
-            return error(Errors.ItemNotFound, loggingNodeName);
+            throw new EmpireException(Errors.ItemNotFound, loggingNodeName);
         }
         // Init Log4J
         DOMConfigurator.configure(loggingNode);
         // done
         log.info("Logging sucessfully configured from node {}.", loggingNodeName);
-        return success();
     }
     
     public String getDatabaseProvider()

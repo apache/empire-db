@@ -22,7 +22,6 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.util.List;
 
-import org.apache.empire.commons.ErrorObject;
 import org.apache.empire.commons.StringUtils;
 import org.apache.empire.db.DBColumnExpr;
 import org.apache.empire.db.DBCommand;
@@ -69,9 +68,6 @@ public class SampleApp
         {
 			// Init Configuration
 			config.init((args.length > 0 ? args[0] : "config.xml" ));
-
-			// Enable Exceptions
-            ErrorObject.setExceptionsEnabled(true);
 
 			System.out.println("Running DB Sample...");
 
@@ -160,7 +156,7 @@ public class SampleApp
 	/**
      * <PRE>
 	 * Opens and returns a JDBC-Connection.
-	 * JDBC url, user and password for the connection are obained from the SampleConfig bean
+	 * JDBC url, user and password for the connection are obtained from the SampleConfig bean
 	 * Please use the config.xml file to change connection params.
      * </PRE>
 	 */
@@ -227,7 +223,7 @@ public class SampleApp
 	 * Checks whether the database exists or not by executing
 	 *     select count(*) from DEPARTMENTS
 	 * If the Departments table does not exist the querySingleInt() function return -1 for failure.
-	 * Please note that in this case an error will appear in the log wich can be ingored.
+	 * Please note that in this case an error will appear in the log which can be ignored.
      * </PRE>
 	 */
 	private static boolean databaseExists(Connection conn)
@@ -243,7 +239,7 @@ public class SampleApp
 	/**
      * <PRE>
 	 * Creates a DDL Script for entire SampleDB Database and executes it line by line.
-	 * Please make sure you uses the correct DatabaseDriver for your target dbms.
+	 * Please make sure you uses the correct DatabaseDriver for your target DBMS.
      * </PRE>
 	 */
 	private static void createDatabase(DBDatabaseDriver driver, Connection conn)
