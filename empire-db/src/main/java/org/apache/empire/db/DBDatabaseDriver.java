@@ -33,6 +33,7 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 
+import org.apache.empire.EmpireException;
 import org.apache.empire.commons.DateUtils;
 import org.apache.empire.commons.ErrorObject;
 import org.apache.empire.commons.Errors;
@@ -223,11 +224,9 @@ public abstract class DBDatabaseDriver extends ErrorObject implements Serializab
                 if (log.isInfoEnabled())
                     log.info("Sequence {} incremented to {}.", SeqName, seqValue);
                 return new Long(seqValue);
-            } catch (Exception e) 
-            {
-                log.error("getNextValue exception: " + e.toString());
-                error(e);
-                return null;
+            } catch (SQLException e) {
+                // throw exception
+                throw SQL2EmpireException(e);
             } finally
             { // Cleanup
                 db.closeStatement(stmt);
@@ -380,8 +379,7 @@ public abstract class DBDatabaseDriver extends ErrorObject implements Serializab
             return (type==DataType.DATE ? DateUtils.getDateOnly(ts) : ts);
         }
         // Other types
-        error(Errors.NotSupported, "getColumnAutoValue() for "+type);
-        return null;
+        throw new EmpireException(Errors.NotSupported, "getColumnAutoValue() for "+type);
     }
 
     /**
@@ -569,8 +567,7 @@ public abstract class DBDatabaseDriver extends ErrorObject implements Serializab
 	            stmt = conn.createStatement(type, ResultSet.CONCUR_READ_ONLY);
 	            return stmt.executeQuery(sqlCmd);
 	        }
-        } catch(SQLException e) 
-        {
+        } catch(SQLException e) {
             // close statement (if not null)
             close(stmt);
             throw e;
@@ -679,9 +676,9 @@ public abstract class DBDatabaseDriver extends ErrorObject implements Serializab
     /**
      * Called when a database is opened
      */
-    protected boolean attachDatabase(DBDatabase db, Connection conn)
+    protected void attachDatabase(DBDatabase db, Connection conn)
     {
-        return success();
+        // Override to implement attaching behaviour
     }
 
     /**
@@ -701,9 +698,9 @@ public abstract class DBDatabaseDriver extends ErrorObject implements Serializab
      * 
      * @return true if it is consistent with the description
      */
-    public boolean checkDatabase(DBDatabase db, String owner, Connection conn)
+    public void checkDatabase(DBDatabase db, String owner, Connection conn)
     {
-    	return error(Errors.NotImplemented, "checkDatabase");
+        throw new EmpireException(Errors.NotImplemented, "checkDatabase");
     }
     
     /**
@@ -715,9 +712,9 @@ public abstract class DBDatabaseDriver extends ErrorObject implements Serializab
      * 
      * @return true on succes 
      */
-    public boolean getDDLScript(DBCmdType type, DBObject dbo, DBSQLScript script)
+    public void getDDLScript(DBCmdType type, DBObject dbo, DBSQLScript script)
     {
-        return error(Errors.NotSupported, "getDDLScript");
+        throw new EmpireException(Errors.NotSupported, "getDDLScript");
     }
     
     /**

@@ -23,7 +23,7 @@ import java.util.Collection;
 /**
  * The RecordData interface provides methods for accessing data and context specific metadata.
  * <P>
- * The Record interface is implmented by the classes {@link org.apache.empire.db.DBReader}
+ * The Record interface is implemented by the classes {@link org.apache.empire.db.DBReader}
  * and {@link org.apache.empire.db.DBRecord}.
  * <P>
  */
@@ -37,7 +37,7 @@ public interface RecordData
 
     /**
      * returns the index of the given column expression
-     * Indexed operations provide better performace for bulk processing  
+     * Indexed operations provide better performance for bulk processing  
      * @param column the column for which to return the index
      * @return the field index of the given column
      */
@@ -60,7 +60,7 @@ public interface RecordData
 
     /**
      * returns the value of the field at the given index position 
-     * Indexed operations provide better performace for bulk processing compared to getValue(ColumnExpr)  
+     * Indexed operations provide better performance for bulk processing compared to getValue(ColumnExpr)  
      * @param index the field index for which to return the value
      * @return the record value for the given field
      */
@@ -75,7 +75,7 @@ public interface RecordData
     
     /**
      * checks if the field at the given index position contains no value (null) 
-     * Indexed operations provide better performace for bulk processing compared to isNull(ColumnExpr)  
+     * Indexed operations provide better performance for bulk processing compared to isNull(ColumnExpr)  
      * @param index the field index
      * @return true if the field value is null or false otherwise
      */
@@ -91,24 +91,22 @@ public interface RecordData
     // ------- Java Bean Support -------
 
     /**
-     * writes all field values into a static Java Bean.
+     * copies all field values into a static Java Bean.
      * <P>
      * In order to map column names to property names 
      * the property name is detected by ColumnExpr.getBeanPropertyName()     
      * @param bean the Java Bean for which to set the properties
      * @param ignoreList list of columns to skip (optional)
-     * @return true if at least one property has been successfully set
      */
-    boolean getBeanProperties(Object bean, Collection<ColumnExpr> ignoreList);
+    int getBeanProperties(Object bean, Collection<ColumnExpr> ignoreList);
 
     /**
-     * writes all field values into a static Java Bean.
+     * copies all field values into a static Java Bean.
      * <P>
      * In order to map column names to property names 
      * the property name is detected by ColumnExpr.getBeanPropertyName()     
      * @param bean the Java Bean for which to set the properties
-     * @return true if at least one property has been successfully set
      */
-    boolean getBeanProperties(Object bean);
+    int getBeanProperties(Object bean);
 
 }

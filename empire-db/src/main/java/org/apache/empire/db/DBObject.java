@@ -19,13 +19,14 @@
 package org.apache.empire.db;
 
 // java.sql
+import java.io.Serializable;
+import java.sql.SQLException;
+
+import org.apache.empire.EmpireException;
 import org.apache.empire.commons.ErrorObject;
 import org.apache.empire.commons.ErrorType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.Serializable;
-import java.sql.SQLException;
 
 
 /**
@@ -47,7 +48,7 @@ public abstract class DBObject extends ErrorObject implements Serializable
      * @return the database object
      */
     public abstract DBDatabase getDatabase();
-
+    
     /**
      * Sets the current error from an SQL Exception.
      * 
@@ -56,15 +57,15 @@ public abstract class DBObject extends ErrorObject implements Serializable
      *            
      * @return the return value is always false
      */
-    protected boolean error(ErrorType type, SQLException sqle)
+    protected EmpireException SQL2EmpireException(ErrorType type, SQLException sqle)
     {
         log.error("Database operation failed.", sqle);
         // converts a database error message to a human readable error message.
         DBDatabase db = getDatabase();
         if (db!=null && db.getDriver()!=null)
-            return error(type, db.getDriver().extractErrorMessage(sqle));
+            return new EmpireException(type, new Object[] { db.getDriver().extractErrorMessage(sqle) }, sqle);
         // Set the error Message
-        return error(type, sqle.getMessage());
+        return new EmpireException(type, sqle.getMessage());
     }
 
     /**
@@ -74,9 +75,9 @@ public abstract class DBObject extends ErrorObject implements Serializable
      *            
      * @return the return value is always false
      */
-    protected boolean error(SQLException sqle)
-    { // converts a database error message to a human readable error message.
-        return error(DBErrors.SQLException, sqle);
+    protected EmpireException SQL2EmpireException(SQLException sqle)
+    {   // converts a database error message to a human readable error message.
+        return SQL2EmpireException(DBErrors.SQLException, sqle);
     }
 
 }

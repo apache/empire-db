@@ -31,7 +31,7 @@ import org.slf4j.LoggerFactory;
  * Exceptions will only be thrown if exceptions are enabled in the ErrorObject.
  * @see ErrorObject#setExceptionsEnabled(boolean)
  */
-public final class EmpireException extends RuntimeException
+public class EmpireException extends RuntimeException
 {
     // Logger
     private static final Logger log = LoggerFactory.getLogger(ErrorObject.class);
@@ -99,6 +99,22 @@ public final class EmpireException extends RuntimeException
     }
 
     /**
+     * Constructor for derived classes
+     * @param errType
+     * @param params
+     * @param cause
+     */
+    public EmpireException(final ErrorType errType, final Object[] params, final Throwable cause)
+    {
+        super(formatErrorMessage(errType, params), cause);
+        // save type and params for custom message formatting
+        this.errorType = errType;
+        this.errorParams = params;
+        // done
+        log();
+    }
+
+    /**
      * Constructor
      * @param errType
      * @param params
@@ -109,20 +125,6 @@ public final class EmpireException extends RuntimeException
         // save type and params for custom message formatting
         this.errorType = errType;
         this.errorParams = normalizeParams(params);
-        // done
-        log();
-    }
-
-    /**
-     * Constructor
-     * @param other
-     */
-    public EmpireException(final EmpireException other)
-    {
-        super(other.getMessage(), other);
-        // save type and params for custom message formatting
-        this.errorType   = other.getErrorType();
-        this.errorParams = other.getErrorParams(); 
         // done
         log();
     }
@@ -137,6 +139,20 @@ public final class EmpireException extends RuntimeException
         // save type and params for custom message formatting
         this.errorType   = Errors.Exception;
         this.errorParams = paramsFromThrowable(cause); 
+        // done
+        log();
+    }
+
+    /**
+     * Constructor
+     * @param other
+     */
+    public EmpireException(final EmpireException other)
+    {
+        super(other.getMessage(), other);
+        // save type and params for custom message formatting
+        this.errorType   = other.getErrorType();
+        this.errorParams = other.getErrorParams(); 
         // done
         log();
     }

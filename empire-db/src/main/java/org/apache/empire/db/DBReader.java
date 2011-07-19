@@ -18,17 +18,6 @@
  */
 package org.apache.empire.db;
 
-import org.apache.commons.beanutils.ConstructorUtils;
-import org.apache.empire.commons.Errors;
-import org.apache.empire.commons.ObjectUtils;
-import org.apache.empire.data.ColumnExpr;
-import org.apache.empire.data.DataType;
-import org.apache.empire.xml.XMLUtil;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-
 import java.io.IOException;
 import java.io.NotSerializableException;
 import java.io.ObjectOutputStream;
@@ -43,6 +32,18 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
+import org.apache.commons.beanutils.ConstructorUtils;
+import org.apache.empire.EmpireException;
+import org.apache.empire.commons.Errors;
+import org.apache.empire.commons.ObjectUtils;
+import org.apache.empire.data.ColumnExpr;
+import org.apache.empire.data.DataType;
+import org.apache.empire.xml.XMLUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+
 
 /**
  * <P>
@@ -50,7 +51,7 @@ import java.util.Map;
  * In oder to perform a query call the open() function or - for single row queries - call getRecordData();<BR>
  * You can iterate through the rows using moveNext() or an iterator.<BR>
  * <P>
- * However take care: A reader must always be explcitly closed using the close() method!<BR>
+ * However take care: A reader must always be explicitly closed using the close() method!<BR>
  * Otherwise you may lock the JDBC connection and run out of resources.<BR>
  * Use <PRE>try { ... } finally { reader.close(); } </PRE> to make sure the reader is closed.<BR>
  * <P>
@@ -119,9 +120,7 @@ public class DBReader extends DBRecordData
         public boolean hasNext()
         {
             try
-            { // clear previous error
-                clearError();
-                // Check position
+            {   // Check position
                 if (curCount >= maxCount)
                     return false;
                 // Check Recordset
@@ -129,9 +128,8 @@ public class DBReader extends DBRecordData
                     return false;
                 // there are more records
                 return true;
-            } catch (SQLException e)
-            {
-                return error(e);
+            } catch (SQLException e) {
+                throw SQL2EmpireException(e);
             }
         }
 
@@ -187,7 +185,7 @@ public class DBReader extends DBRecordData
             if (curCount >= maxCount)
                 return false;
             if (rset == null)
-                return error(Errors.ObjectNotValid, getClass().getName());
+                throw new EmpireException(Errors.ObjectNotValid, getClass().getName());
             // Check next Record
             if (getCurrent == true)
             {
@@ -346,7 +344,6 @@ public class DBReader extends DBRecordData
         }
         try
         { // Check Value on Resultset
-            clearError();
             rset.getObject(index + 1);
             return rset.wasNull();
         } catch (Exception e)
@@ -365,21 +362,17 @@ public class DBReader extends DBRecordData
     @Override
     public Object getValue(int index)
     {
+        // Check params
         if (index < 0 || index >= colList.length)
-        { // Index out of range
-            error(Errors.OutOfRange, index);
-            return null;
-        }
+            throw new EmpireException(Errors.OutOfRange, index);
         try
-        { // Get Value from Resultset
-            clearError();
+        {   // Get Value from Resultset
             DataType dataType = colList[index].getDataType();
             return db.driver.getResultValue(rset, index + 1, dataType);
 
-        } catch (Exception e)
+        } catch (SQLException e)
         { // Operation failed
-            error(e);
-            return null;
+            throw SQL2EmpireException(e);
         }
     }
 
@@ -407,7 +400,7 @@ public class DBReader extends DBRecordData
      * @param conn a valid JDBC connection.
      * @return true if successful
      */
-    public boolean open(DBCommandExpr cmd, boolean scrollable, Connection conn)
+    public void open(DBCommandExpr cmd, boolean scrollable, Connection conn)
     {
         if (isOpen())
             close();
@@ -417,11 +410,10 @@ public class DBReader extends DBRecordData
         db = cmd.getDatabase();
         rset = db.executeQuery(sqlCmd, cmd.getParamValues(), scrollable, conn);
         if (rset==null)
-            return error(db);
+            throw new EmpireException(DBErrors.QueryNoResult, sqlCmd);
         // successfully opened
         colList = cmd.getSelectExprList();
         addOpenResultSet();
-        return success();
     }
 
     /**
@@ -433,9 +425,9 @@ public class DBReader extends DBRecordData
      * @param conn a valid JDBC connection.
      * @return true if successful
      */
-    public boolean open(DBCommandExpr cmd, Connection conn)
+    public final void open(DBCommandExpr cmd, Connection conn)
     {
-        return open(cmd, false, conn);
+        open(cmd, false, conn);
     }
 
     /**
@@ -452,16 +444,14 @@ public class DBReader extends DBRecordData
      * @param conn a valid JDBC connection.
      * @return true if successful
      */
-    public boolean getRecordData(DBCommandExpr cmd, Connection conn)
+    public void getRecordData(DBCommandExpr cmd, Connection conn)
     { // Open the record
-        if (!open(cmd, conn))
-            return false;
+        open(cmd, conn);
         // Get First Record
         if (!moveNext())
         { // Close
-            return error(DBErrors.QueryNoResult, cmd.getSelect());
+            throw new EmpireException(DBErrors.QueryNoResult, cmd.getSelect());
         }
-        return success();
     }
 
     /**
@@ -504,17 +494,15 @@ public class DBReader extends DBRecordData
     public boolean skipRows(int count)
     {
         try
-        { // clear previous error
-            clearError();
-            // Check Recordset
+        {   // Check Recordset
             if (rset == null)
-                return error(Errors.ObjectNotValid, getClass().getName());
+                throw new EmpireException(Errors.ObjectNotValid, getClass().getName());
             // Forward only cursor?
             int type = rset.getType();
             if (type == ResultSet.TYPE_FORWARD_ONLY)
             {
                 if (count < 0)
-                    return error(Errors.InvalidArg, count, "count");
+                    throw new EmpireException(Errors.InvalidArg, count, "count");
                 // Move
                 for (; count > 0; count--)
                 {
@@ -542,9 +530,9 @@ public class DBReader extends DBRecordData
             }
             return true;
 
-        } catch (SQLException e)
-        { // an error ocurred
-            return error(e);
+        } catch (SQLException e) {
+            // an error occurred
+            throw new EmpireException(e);
         }
     }
 
@@ -556,23 +544,20 @@ public class DBReader extends DBRecordData
     public boolean moveNext()
     {
         try
-        { // clear previous error
-            clearError();
-            // Check Recordset
+        {   // Check Recordset
             if (rset == null)
-                return error(Errors.ObjectNotValid, getClass().getName());
+                throw new EmpireException(Errors.ObjectNotValid, getClass().getName());
             // Move Next
             if (rset.next() == false)
             { // Close recordset automatically after last record
                 close();
-                clearError();
                 return false;
             }
             return true;
 
-        } catch (SQLException e)
-        { // an error ocurred
-            return error(e);
+        } catch (SQLException e) {
+            // an error occurred
+            throw SQL2EmpireException(e);
         }
     }
 
@@ -582,8 +567,8 @@ public class DBReader extends DBRecordData
      * Returns an row iterator for this reader.<BR>
      * There can only be one iterator at a time.
      * <P>
-     * @param maxCount the maximum number of item that shold be returned by this iterator
-     * @return the row interator
+     * @param maxCount the maximum number of item that should be returned by this iterator
+     * @return the row iterator
      */
     public Iterator<DBRecordData> iterator(int maxCount)
     {
@@ -602,7 +587,7 @@ public class DBReader extends DBRecordData
      * Returns an row iterator for this reader.
      * There can only be one iterator at a time.
      * </PRE>
-     * @return the row interator
+     * @return the row iterator
      */
     public final Iterator<DBRecordData> iterator()
     {
@@ -618,15 +603,14 @@ public class DBReader extends DBRecordData
      * </PRE>
      * @param rowset the rowset to which to attach
      * @param rec the record which to initialize
-     * @return true if the record has been initialized sucessfully or false otherwise
+     * @return true if the record has been initialized successfully or false otherwise
      */
-    public boolean initRecord(DBRowSet rowset, DBRecord rec)
+    public void initRecord(DBRowSet rowset, DBRecord rec)
     {
     	if (rowset==null)
-    		return error(Errors.InvalidArg, rowset, "rowset");
-    	if (rowset.initRecord(rec, this)==false)
-    		return error(rowset);
-    	return success();
+    	    throw new EmpireException(Errors.InvalidArg, rowset, "rowset");
+    	// init Record
+    	rowset.initRecord(rec, this);
     }
 
     /**
@@ -645,8 +629,7 @@ public class DBReader extends DBRecordData
         // Check Recordset
         if (rset == null)
         {   // Resultset not available
-            error(Errors.ObjectNotValid, getClass().getName());
-            return null;
+            throw new EmpireException(Errors.ObjectNotValid, getClass().getName());
         }
         // Query List
         try
@@ -672,8 +655,7 @@ public class DBReader extends DBRecordData
                 else
                 {   // Use Property Setters
                     T bean = t.newInstance();
-                    if (getBeanProperties(bean)==false)
-                        return null;
+                    getBeanProperties(bean);
                     c.add(bean);
                 }
                 // Decrease count
@@ -682,18 +664,12 @@ public class DBReader extends DBRecordData
             }
             // done
             return c;
-        } catch (InvocationTargetException e)
-        {
-            error(e);
-            return null;
-        } catch (IllegalAccessException e)
-        {
-            error(e);
-            return null;
-        } catch (InstantiationException e)
-        {
-            error(e);
-            return null;
+        } catch (InvocationTargetException e) {
+            throw new EmpireException(e);
+        } catch (IllegalAccessException e) {
+            throw new EmpireException(e);
+        } catch (InstantiationException e) {
+            throw new EmpireException(e);
         }
     }
     
@@ -726,14 +702,15 @@ public class DBReader extends DBRecordData
      * @return true if successful
      */
     @Override
-    public boolean addColumnDesc(Element parent)
+    public int addColumnDesc(Element parent)
     {
         if (colList == null)
-            return error(Errors.ObjectNotValid, getClass().getName());
+            throw new EmpireException(Errors.ObjectNotValid, getClass().getName());
         // Add Field Description
         for (int i = 0; i < colList.length; i++)
             colList[i].addXml(parent, 0);
-        return success();
+        // return count
+        return colList.length; 
     }
 
     /**
@@ -743,10 +720,10 @@ public class DBReader extends DBRecordData
      * @return true if successful
      */
     @Override
-    public boolean addRowValues(Element parent)
+    public int addRowValues(Element parent)
     {
         if (rset == null)
-            return error(Errors.ObjectNotValid, getClass().getName());
+            throw new EmpireException(Errors.ObjectNotValid, getClass().getName());
         // Add all children
         for (int i = 0; i < colList.length; i++)
         { // Read all
@@ -764,7 +741,8 @@ public class DBReader extends DBRecordData
                     elem.setAttribute("null", "yes"); // Null-Value
             }
         }
-        return success();
+        // return count
+        return colList.length; 
     }
 
     /**
@@ -798,7 +776,7 @@ public class DBReader extends DBRecordData
     }
 
     /**
-     * Returns a XML document with the field descriptiona an values of this record.
+     * Returns a XML document with the field description an values of this record.
      * 
      * @return the new XML Document object
      */
@@ -811,8 +789,7 @@ public class DBReader extends DBRecordData
         String rowsetElementName = getXmlDictionary().getRowSetElementName();
         Element root = XMLUtil.createDocument(rowsetElementName);
         // Add Field Description
-        if (!addColumnDesc(root))
-            return null;
+        addColumnDesc(root);
         // Add row rset
         addRows(root);
         // return Document

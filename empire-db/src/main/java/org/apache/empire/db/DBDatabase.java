@@ -26,6 +26,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import org.apache.empire.EmpireException;
 import org.apache.empire.commons.Errors;
 import org.apache.empire.commons.ObjectUtils;
 import org.apache.empire.commons.Options;
@@ -162,22 +163,20 @@ public abstract class DBDatabase extends DBObject
      * Sets the database driver for this database. This will
      * set up the connection for use.<br>
      * 
-     * @param driver the databae driver
+     * @param driver the database driver
      * @param conn the connection
      * 
-     * @return true on succes
+     * @return true on success
      */
-    public boolean open(DBDatabaseDriver driver, Connection conn)
+    public void open(DBDatabaseDriver driver, Connection conn)
     {
         // Close Database if already open
         if (isOpen())
             close(conn);
         // Attach to driver
-        if (driver.attachDatabase(this, conn)==false)
-            return error(driver);
+        driver.attachDatabase(this, conn);
         // set new driver
         this.driver = driver;
-        return success();
     }
 
     /**
@@ -207,24 +206,20 @@ public abstract class DBDatabase extends DBObject
      * 
      * @return the DLL script for creating the entire database schema
      */
-    public synchronized boolean getCreateDDLScript(DBDatabaseDriver driver, DBSQLScript script)
+    public synchronized void getCreateDDLScript(DBDatabaseDriver driver, DBSQLScript script)
     {
         DBDatabaseDriver prevDriver = this.driver;
         try {
             // Set driver
             if (this.driver!=null && this.driver!=driver && driver!=null)
             {   // The database belongs to a different driver
-                return error(Errors.Internal, "The database is attached to a different driver.");
+                throw new EmpireException(Errors.Internal, "The database is attached to a different driver.");
             }
             // Temporarily change driver
             if (this.driver== null)
                 this.driver = driver;
             // Get DDL Command
-            if (driver.getDDLScript(DBCmdType.CREATE, this, script)==false)
-            {   // DDL-creation failed 
-                return error(driver);
-            }
-            return success();
+            driver.getDDLScript(DBCmdType.CREATE, this, script);
             
         } finally {
             this.driver = prevDriver; 
@@ -255,15 +250,14 @@ public abstract class DBDatabase extends DBObject
      * 
      * @param schema the schema to set
      * 
-     * @return true on succes
+     * @return true on success
      */
-    public boolean setSchema(String schema)
+    public void setSchema(String schema)
     {   // Database must not be open so far
         if (driver != null)
-            return error(Errors.NoAccess);
+            throw new EmpireException(Errors.NoAccess);
         // Set Schema 
         this.schema = schema;
-        return success();
     }
 
     /**
@@ -296,15 +290,14 @@ public abstract class DBDatabase extends DBObject
      * 
      * @param linkName the database link name
      * 
-     * @return true on succes
+     * @return true on success
      */
-    public boolean setLinkName(String linkName)
+    public void setLinkName(String linkName)
     {   // Database must not be open so far
         if (driver != null)
-            return error(Errors.NoAccess);
+            throw new EmpireException(Errors.NoAccess);
         // Set Link 
         this.linkName = linkName;
-        return success();
     }
 
     /**
@@ -327,7 +320,7 @@ public abstract class DBDatabase extends DBObject
     /**
      * Adds a full qualified object name including schema prefix
      * and database link postfix (if any).
-     * to the string buffer suppield
+     * to the string buffer supplied
      * 
      * @param buf the string buffer to which to append the qualified object name
      * @param name the object's name
@@ -338,7 +331,7 @@ public abstract class DBDatabase extends DBObject
         // Check driver
         if (driver==null)
         {   // No driver attached!
-            error(Errors.ObjectNotValid, name);
+            log.warn("No driver attached for appending qualified name {0}.", name);
             buf.append(name);
             return;
         }
@@ -433,24 +426,23 @@ public abstract class DBDatabase extends DBObject
      * @param table the DBTable object
      * @return true if successful
      */
-    public boolean addTable(DBTable table)
+    public void addTable(DBTable table)
     { // find column by name
         if (table == null || table.getDatabase() != this)
-            return error(Errors.InvalidArg, table, "table");
+            throw new EmpireException(Errors.InvalidArg, table, "table");
         if (tables.contains(table)==true)
-            return error(Errors.ItemExists, table.getName());
+            throw new EmpireException(Errors.ItemExists, table.getName());
         // Check for second instances
         DBTable existing = getTable(table.getName()); 
         if (existing!=null)
         {   // Check classes
             if (existing.getClass().equals(table.getClass()))
-                return success(); // Ingore other instances 
+                return; // Ignore other instances 
             // Table exists with different class
-            return error(Errors.ItemExists, table.getName());
+            throw new EmpireException(Errors.ItemExists, table.getName());
         }
         // add now
         tables.add(table);
-        return true;
     }
 
     /**
@@ -486,14 +478,14 @@ public abstract class DBDatabase extends DBObject
      * @param reference a reference for a source and target column pair
      * @return true if the relations were successfully created.
      */
-    public final boolean addRelation(DBRelation.DBReference reference)
+    public final void addRelation(DBRelation.DBReference reference)
     {
         String table = reference.getSourceColumn().getRowSet().getName();
         String col1 = reference.getSourceColumn().getName();
         // Create Relation Name
         String name = table.substring(0, Math.min(table.length(), 14)) + "_" + col1.substring(0, Math.min(col1.length(), 12))
         			  + "_FK";
-        return addRelation(name, new DBRelation.DBReference[] { reference });
+        addRelation(name, new DBRelation.DBReference[] { reference });
     }
 
     /**
@@ -503,7 +495,7 @@ public abstract class DBDatabase extends DBObject
      * @param ref2 a reference for a source and target column pair
      * @return true if the relations were successfully created.
      */
-    public final boolean addRelation(DBRelation.DBReference ref1, DBRelation.DBReference ref2)
+    public final void addRelation(DBRelation.DBReference ref1, DBRelation.DBReference ref2)
     {
         String table = ref1.getSourceColumn().getRowSet().getName();
         String col1 = ref1.getSourceColumn().getName();
@@ -512,7 +504,7 @@ public abstract class DBDatabase extends DBObject
         String name = table.substring(0, Math.min(table.length(), 9))
                     + "_" + col1.substring(0, Math.min(col1.length(), 9))
                     + "_" + col2.substring(0, Math.min(col2.length(), 9)) + "_FK";
-        return addRelation(name, new DBRelation.DBReference[] { ref1, ref2 });
+        addRelation(name, new DBRelation.DBReference[] { ref1, ref2 });
     }
 
     /**
@@ -523,12 +515,12 @@ public abstract class DBDatabase extends DBObject
      * 
      * @return true if the relations were successfully created.
      */
-    public boolean addRelation(String name, DBRelation.DBReference[] references)
+    public void addRelation(String name, DBRelation.DBReference[] references)
     {
         // Add a Relation
         DBRelation relation = new DBRelation(this, name, references);
         if (relations.contains(relation))
-            return error(Errors.ItemExists, name); // Itemn already exists
+            throw new EmpireException(Errors.ItemExists, name); // Itemn already exists
         // Add Reference column to table
         for (DBRelation.DBReference ref : references)
         {   // add the reference column
@@ -537,7 +529,6 @@ public abstract class DBDatabase extends DBObject
         }
         // OK
         relations.add(relation);
-        return true;
     }
 
     /**
@@ -558,15 +549,14 @@ public abstract class DBDatabase extends DBObject
      * @param view the DBView object
      * @return true if successful
      */
-    public boolean addView(DBView view)
+    public void addView(DBView view)
     { // find column by name
         if (view == null || view.getDatabase() != this)
-            return error(Errors.InvalidArg, view, "view");
+            throw new EmpireException(Errors.InvalidArg, view, "view");
         if (views.contains(view) == true)
-            return error(Errors.ItemExists, view.getName());
+            throw new EmpireException(Errors.ItemExists, view.getName());
         // add now
         views.add(view);
-        return true;
     }
 
     /**
@@ -609,11 +599,10 @@ public abstract class DBDatabase extends DBObject
     /**
      * @return true if the database has been opened or false otherwise 
      */
-    protected boolean checkOpen()
+    protected void checkOpen()
     {
-        if (driver == null)
-            return error(DBErrors.DatabaseNotOpen);
-        return success();
+        if (isOpen()==false)
+            throw new EmpireException(DBErrors.DatabaseNotOpen);
     }
     
     /**
@@ -623,8 +612,7 @@ public abstract class DBDatabase extends DBObject
      */
     public DBCommand createCommand()
     {
-        if (!checkOpen()) 
-            return null;
+        checkOpen(); 
         return driver.createCommand(this);
     }
 
@@ -636,20 +624,16 @@ public abstract class DBDatabase extends DBObject
      */
     public java.sql.Timestamp getUpdateTimestamp(Connection conn)
     {
-        // Default implementation
-        if (checkOpen()==false)
-            return null;
         // Ask driver
+        checkOpen(); 
         return driver.getUpdateTimestamp(conn);
     }
 
     // Sequences
     public Object getNextSequenceValue(String seqName, Connection conn)
     {
-        // Default implementation
-        if (checkOpen()==false)
-            return null;
         // Ask driver
+        checkOpen(); 
         return driver.getNextSequenceValue(this, seqName, 1, conn);
     }
 
@@ -665,42 +649,34 @@ public abstract class DBDatabase extends DBObject
 
     public Object querySingleValue(String sqlCmd, Connection conn)
     {
+        checkOpen(); 
         ResultSet rs = null;
         try
-        {	// Check Open
-            if (checkOpen()==false)
-                return null;
-            // Debug
+        {   // Debug
             long start = System.currentTimeMillis();
             if (log.isDebugEnabled())
                 log.debug("executing: " + sqlCmd);
             // Get the next Value
             rs = driver.executeQuery(sqlCmd, null, false, conn);
             if (rs == null)
-            { // Error
-                error(driver);
-                return null;
-            }
+                throw new EmpireException(Errors.Internal, "Unexpected return value.");
             // Check Result
             if (rs.next() == false)
-            {
-                //log.warn("querySingleValue returned no result : Stack", new Exception("Just to show the stack"));
+            {   // no result
                 log.debug("querySingleValue returned no result");
-                error(DBErrors.QueryNoResult, sqlCmd);
-                return null;
+                throw new EmpireException(DBErrors.QueryNoResult, sqlCmd);
             }
             // No Value
-            clearError();
             Object result = rs.getObject(1);
             if (log.isDebugEnabled())
 	            log.debug("querySingleValue complete in " + (System.currentTimeMillis() - start) + " ms -> value="
 	                        + result);
             return result;
-        } catch (SQLException e) 
-        {
-            log.error("querySingleValue exception: " + e.toString());
-            error(DBErrors.QueryFailed, e);
-            return null;
+        } catch (SQLException sqle) 
+        {   // Error
+            EmpireException exptn = SQL2EmpireException(DBErrors.QueryFailed, sqle); 
+            log.error("Error executing query {0}. Message is {0}", sqlCmd, exptn.getMessage());
+            throw exptn;
         } finally
         { // Cleanup
             closeResultSet(rs);
@@ -825,10 +801,8 @@ public abstract class DBDatabase extends DBObject
      * @return the number of elements that have been added to the collection or -1 if an error occurred 
      */
     public <T> int querySimpleList(Class<T> c, String sqlCmd, Connection conn, Collection<T> result)
-    {   // Check status
-        if (checkOpen()==false)
-            return -1;
-        // Start query
+    {   // Start query
+        checkOpen();
         ResultSet rs = null;
         try
         {   // Log performance
@@ -838,10 +812,7 @@ public abstract class DBDatabase extends DBObject
             // Get the next Value
             rs = driver.executeQuery(sqlCmd, null, false, conn);
             if (rs == null)
-            { // Error
-                error(driver);
-                return -1;
-            }
+                throw new EmpireException(Errors.Internal, "Unexpected return value.");
             // Check Result
             int count=0;
             while (rs.next())
@@ -853,18 +824,15 @@ public abstract class DBDatabase extends DBObject
             // No Value
             if (log.isInfoEnabled())
                 log.info("querySimpleList retured " + count + " items. Query completed in " + (System.currentTimeMillis() - start) + " ms");
-            clearError();
             return count;
         } catch (ClassCastException e) 
-        {   
-            log.error("querySingleValue cast exception: ", e);
-            error(Errors.Exception, e);
-            return -1;
-        } catch (SQLException e) 
-        {
-            log.error("querySimpleList exception: ", e);
-            error(DBErrors.QueryFailed, e);
-            return -1;
+        {   log.error("querySingleValue cast exception: ", e);
+            throw new EmpireException(e);
+        } catch (SQLException sqle) 
+        {   // Error
+            EmpireException exptn = SQL2EmpireException(DBErrors.QueryFailed, sqle); 
+            log.error("Error executing query {0}. Message is {0}", sqlCmd, exptn.getMessage());
+            throw exptn;
         } finally
         { // Cleanup
             closeResultSet(rs);
@@ -913,30 +881,19 @@ public abstract class DBDatabase extends DBObject
      */
     public Options queryOptionList(String sqlCmd, Connection conn)
     {   // Execute the  Statement
-        if (checkOpen()==false)
-            return null;
-        // Debug
+        checkOpen();
         ResultSet rs = null;
         try
-        {   // Check Open
-            if (checkOpen()==false)
-                return null;
-            // Debug
+        {   // Debug
             long start = System.currentTimeMillis();
             if (log.isInfoEnabled())
                 log.info("executing: " + sqlCmd);
             // Get the next Value
             rs = driver.executeQuery(sqlCmd, null, false, conn);
             if (rs == null)
-            { // Error
-                error(driver);
-                return null;
-            }
+                throw new EmpireException(Errors.Internal, "Unexpected return value.");
             if (rs.getMetaData().getColumnCount()<2)
-            {   // Not enough columns
-                error(Errors.InvalidArg, sqlCmd, "sqlCmd");
-                return null;
-            }
+                throw new EmpireException(Errors.InvalidArg, sqlCmd, "sqlCmd");
             // Check Result
             Options result = new Options();
             while (rs.next())
@@ -948,12 +905,12 @@ public abstract class DBDatabase extends DBObject
             // No Value
             if (log.isInfoEnabled())
                 log.info("queryOptionList retured " + result.size() + " items. Query completed in " + (System.currentTimeMillis() - start) + " ms");
-            clearError();
             return result;
-        } catch (SQLException e) 
-        {
-            error(DBErrors.QueryFailed, e);
-            return null;
+        } catch (SQLException sqle) 
+        {   // Error
+            EmpireException exptn = SQL2EmpireException(DBErrors.QueryFailed, sqle); 
+            log.error("Error executing query {0}. Message is {0}", sqlCmd, exptn.getMessage());
+            throw exptn;
         } finally
         { // Cleanup
             closeResultSet(rs);
@@ -971,10 +928,8 @@ public abstract class DBDatabase extends DBObject
      * @return a list of object arrays 
      */
     public int queryObjectList(String sqlCmd, Connection conn, Collection<Object[]> result)
-    {   // Check status
-        if (checkOpen()==false)
-            return -1;
-        // Perform query
+    {   // Perform query
+        checkOpen();
         ResultSet rs = null;
         try
         {   // Log performance
@@ -984,10 +939,7 @@ public abstract class DBDatabase extends DBObject
             // Get the next Value
             rs = driver.executeQuery(sqlCmd, null, false, conn);
             if (rs == null)
-            { // Error
-                error(driver);
-                return -1;
-            }
+                throw new EmpireException(Errors.Internal, "Unexpected return value.");
             // Read List
             int colCount = rs.getMetaData().getColumnCount();
             int count = 0;
@@ -1004,12 +956,12 @@ public abstract class DBDatabase extends DBObject
             // No Value
             if (log.isInfoEnabled())
                 log.info("queryObjectList retured " + count + " items. Query completed in " + (System.currentTimeMillis() - start) + " ms");
-            clearError();
             return count;
-        } catch (SQLException e) 
-        {
-            error(DBErrors.QueryFailed, e);
-            return -1;
+        } catch (SQLException sqle) 
+        {   // Error
+            EmpireException exptn = SQL2EmpireException(DBErrors.QueryFailed, sqle); 
+            log.error("Error executing query {0}. Message is {0}", sqlCmd, exptn.getMessage());
+            throw exptn;
         } finally
         { // Cleanup
             closeResultSet(rs);
@@ -1044,33 +996,28 @@ public abstract class DBDatabase extends DBObject
      */
     public int executeSQL(String sqlCmd, Object[] sqlParams, Connection conn, DBDatabaseDriver.DBSetGenKeys setGenKeys)
     {
+        checkOpen();
         try 
-        {
-            // check driver
-            if (checkOpen()==false)
-                return -1;
-            // Debug
+        {   // Debug
             if (log.isInfoEnabled())
                 log.info("Executing: " + sqlCmd);
             // execute SQL
             long start = System.currentTimeMillis();
             int affected = driver.executeSQL(sqlCmd, sqlParams, conn, setGenKeys);
+            // number of affected records
+            if (affected < 0)
+                throw new EmpireException(Errors.Internal, "Unexpected return value <0 for driver.executeSQL().");
             // Log
             if (log.isInfoEnabled())
 	            log.info("executeSQL affected " + affected + " Records / " + (System.currentTimeMillis() - start) + "ms");
-            // number of affected records
-            if (affected < 0)
-            {
-                error(driver);
-                return -1;
-            }
             // Return number of affected records
             return affected;
             
 	    } catch (SQLException sqle) 
         { 	// Error
-	        error(sqle);
-	        return -1;
+	        EmpireException exptn = SQL2EmpireException(DBErrors.QueryFailed, sqle); 
+            log.error("Error executing statement {0}. Message is {0}", sqlCmd, exptn.getMessage());
+            throw exptn;
 	    }    
     }
 
@@ -1105,33 +1052,28 @@ public abstract class DBDatabase extends DBObject
      */
     public ResultSet executeQuery(String sqlCmd, Object[] sqlParams, boolean scrollable, Connection conn)
     {
+        checkOpen();
         try
-        {   // check driver
-            if (checkOpen()==false)
-                return null;
-            // Debug
+        {   // Debug
             if (log.isDebugEnabled())
     	        log.debug("Executing: " + sqlCmd);
             // Execute the Statement
             long start = System.currentTimeMillis();
             ResultSet rs = driver.executeQuery(sqlCmd, sqlParams, scrollable, conn);
             if (rs == null)
-            {   error(driver);
-                return null;
-            }
+                throw new EmpireException(Errors.Internal, "Unexpected return value.");
             // Debug
             if (log.isDebugEnabled())
                 log.debug("executeQuery successful in " + (System.currentTimeMillis() - start) + " ms");
             // Return number of affected records
-            success();
             return rs;
 
-        } catch (SQLException e) 
-        {   // SQL Query failed!
-            log.error("execute query exception! sql = " + sqlCmd);
-            error(DBErrors.QueryFailed, e);
-            return null; 
-        }
+        } catch (SQLException sqle) 
+        {   // Error
+            EmpireException exptn = SQL2EmpireException(DBErrors.QueryFailed, sqle); 
+            log.error("Error executing query {0}. Message is {0}", sqlCmd, exptn.getMessage());
+            throw exptn;
+        } 
     }
 
     /**
@@ -1143,20 +1085,20 @@ public abstract class DBDatabase extends DBObject
      * 
      * @return true if successful
      */
-    public boolean commit(Connection conn)
+    public void commit(Connection conn)
     {
         try
         {   // Check argument
             if (conn==null)
-                return error(Errors.InvalidArg, null, "conn");
+                throw new EmpireException(Errors.InvalidArg, null, "conn");
             // Commit
             if (conn.getAutoCommit()==false)
                 conn.commit();
-            return true;
-        } catch (SQLException sqle) 
-        { 
+            // Done
+            return;
+        } catch (SQLException sqle) { 
             // Commit failed!
-            return error(sqle);
+            throw new EmpireException(sqle);
         }
     }
 
@@ -1169,19 +1111,20 @@ public abstract class DBDatabase extends DBObject
      * 
      * @return true if successful
      */
-    public boolean rollback(Connection conn)
+    public void rollback(Connection conn)
     {
         try
-        {   // Check arguement
+        {   // Check argument
             if (conn==null)
-                return error(Errors.InvalidArg, null, "conn");
-            // Rollback
+                throw new EmpireException(Errors.InvalidArg, null, "conn");
+            // rollback
             log.info("Database rollback issued!");
             conn.rollback();
-            return success();
-        } catch (SQLException sqle) 
-        {
-            return error(sqle);
+            // Done
+            return;
+        } catch (SQLException sqle) { 
+            // Commit failed!
+            throw new EmpireException(sqle);
         }
     }
 
@@ -1198,10 +1141,10 @@ public abstract class DBDatabase extends DBObject
             if (stmt != null)
                 stmt.close();
             // done
-            success();
-        } catch (SQLException sqle)
-        {
-            error(sqle);
+            return;
+        } catch (SQLException sqle) { 
+            // Commit failed!
+            throw new EmpireException(sqle);
         }
     }
 
@@ -1217,7 +1160,7 @@ public abstract class DBDatabase extends DBObject
         { 	// check ResultSet
             if (rset == null)
                 return; // nothing to do
-            // close Resutlset
+            // close Resultset
             Statement stmt = rset.getStatement();
             rset.close();
             // check Statement
@@ -1225,11 +1168,11 @@ public abstract class DBDatabase extends DBObject
                 return;
             // close Statement
             stmt.close();
-            success();
-            
-        } catch (SQLException sqle) 
-        {
-            error(sqle);
+            // done
+            return;
+        } catch (SQLException sqle) { 
+            // Commit failed!
+            throw new EmpireException(sqle);
         }
     }
 

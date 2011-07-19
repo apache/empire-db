@@ -18,7 +18,12 @@
  */
 package org.apache.empire.db;
 // XML
+import java.lang.reflect.InvocationTargetException;
+import java.util.Collection;
+import java.util.Date;
+
 import org.apache.commons.beanutils.BeanUtils;
+import org.apache.empire.EmpireException;
 import org.apache.empire.commons.DateUtils;
 import org.apache.empire.commons.ObjectUtils;
 import org.apache.empire.commons.StringUtils;
@@ -28,10 +33,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
-
-import java.lang.reflect.InvocationTargetException;
-import java.util.Collection;
-import java.util.Date;
 
 
 /**
@@ -55,8 +56,8 @@ public abstract class DBRecordData extends DBObject
     // Column lookup
     public abstract ColumnExpr getColumnExpr(int i);
     // xml
-    public abstract boolean  addColumnDesc(Element parent);
-    public abstract boolean  addRowValues (Element parent);
+    public abstract int     addColumnDesc(Element parent);
+    public abstract int     addRowValues (Element parent);
     public abstract Document getXmlDocument();
     // others
     public abstract void    close();
@@ -95,7 +96,7 @@ public abstract class DBRecordData extends DBObject
      * Returns a data value for the desired column.
      * The data value is converted to integer if necessary.
      * 
-     * @param column identifing the column
+     * @param column identifying the column
      * @return the value
      */
     public final int getInt(ColumnExpr column)
@@ -121,7 +122,7 @@ public abstract class DBRecordData extends DBObject
      * Returns a data value for the desired column.
      * The data value is converted to a long if necessary.
      * 
-     * @param column identifing the column
+     * @param column identifying the column
      * @return the value
      */
     public final long getLong(ColumnExpr column)
@@ -147,7 +148,7 @@ public abstract class DBRecordData extends DBObject
      * Returns a data value for the desired column.
      * The data value is converted to double if necessary.
      * 
-     * @param column identifing the column
+     * @param column identifying the column
      * @return the value
      */
     public final double getDouble(ColumnExpr column)
@@ -173,7 +174,7 @@ public abstract class DBRecordData extends DBObject
      * Returns a data value for the desired column.
      * The data value is converted to boolean if necessary.
      * 
-     * @param column identifing the column
+     * @param column identifying the column
      * @return the value
      */
     public final boolean getBoolean(ColumnExpr column)
@@ -197,7 +198,7 @@ public abstract class DBRecordData extends DBObject
      * Returns a data value for the desired column.
      * The data value is converted to a string if necessary.
      * 
-     * @param column identifing the column
+     * @param column identifying the column
      * @return the value
      */
     public final String getString(ColumnExpr column)
@@ -223,7 +224,7 @@ public abstract class DBRecordData extends DBObject
      * Returns a data value for the desired column.
      * The data value is converted to a Date if necessary.
      * 
-     * @param column identifing the column
+     * @param column identifying the column
      * @return the value
      */
     public final Date getDateTime(ColumnExpr column)
@@ -245,7 +246,7 @@ public abstract class DBRecordData extends DBObject
     /**
      * Checks whether or not the value for the given column is null.
      * 
-     * @param column identifing the column
+     * @param column identifying the column
      * @return true if the value is null or false otherwise
      */
     public final boolean isNull(ColumnExpr column)
@@ -256,7 +257,7 @@ public abstract class DBRecordData extends DBObject
     /**
      * Set a single property value of a java bean object used by readProperties.
      */
-    protected boolean getBeanProperty(Object bean, String property, Object value)
+    protected void getBeanProperty(Object bean, String property, Object value)
     {
         try
         {   /*
@@ -264,7 +265,7 @@ public abstract class DBRecordData extends DBObject
                 log.trace(bean.getClass().getName() + ": setting property '" + property + "' to " + String.valueOf(value));
             */    
             if (value instanceof Date)
-            {   // Patch for Strage Date Bug in BeanUtils
+            {   // Patch for Stage Date Bug in BeanUtils
                 value = DateUtils.addDate((Date)value, 0, 0, 0);
             }
             // Set Property Value
@@ -279,16 +280,15 @@ public abstract class DBRecordData extends DBObject
              * res); }
              */
             // done
-            return success();
 
         } catch (IllegalAccessException e)
         {
             log.error(bean.getClass().getName() + ": unable to set property '" + property + "'");
-            return error(e);
+            throw new EmpireException(e);
         } catch (InvocationTargetException e)
         {
             log.error(bean.getClass().getName() + ": unable to set property '" + property + "'");
-            return error(e);
+            throw new EmpireException(e);
             /*
              * } catch(NoSuchMethodException e) { log.warn(bean.getClass().getName() + ": cannot check value of property '" +
              * property + "'"); return true;
@@ -301,9 +301,10 @@ public abstract class DBRecordData extends DBObject
      * 
      * @return true if successful
      */
-    public boolean getBeanProperties(Object bean, Collection<ColumnExpr> ignoreList)
+    public int getBeanProperties(Object bean, Collection<ColumnExpr> ignoreList)
     {
         // Add all Columns
+        int count = 0;
         for (int i = 0; i < getFieldCount(); i++)
         { // Check Property
             ColumnExpr column = getColumnExpr(i);
@@ -311,13 +312,10 @@ public abstract class DBRecordData extends DBObject
                 continue; // ignore this property
             // Get Property Name
             String property = column.getBeanPropertyName();
-            if (getBeanProperty(bean, property, this.getValue(i))==false)
-            {   // Error setting property.
-                return false;
-            }
+            getBeanProperty(bean, property, this.getValue(i));
+            count++;
         }
-        // Success, All Properties have been set
-        return success();
+        return count;
     }
 
     /**
@@ -325,7 +323,7 @@ public abstract class DBRecordData extends DBObject
      * 
      * @return true if successful
      */
-    public final boolean getBeanProperties(Object bean)
+    public final int getBeanProperties(Object bean)
     {
         return getBeanProperties(bean, null);
     }

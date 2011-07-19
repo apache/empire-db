@@ -18,12 +18,12 @@
  */
 package org.apache.empire.commons;
 
+import java.text.MessageFormat;
+import java.util.WeakHashMap;
+
 import org.apache.empire.EmpireException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.text.MessageFormat;
-import java.util.WeakHashMap;
 
 
 /**
@@ -50,7 +50,7 @@ public abstract class ErrorObject implements ErrorInfo
      * If disabled (default) the functions' return values will indicate success or failure<BR> 
      * @return true if Exceptions are enable or false otherwise
      */
-    public static boolean isExceptionsEnabled()
+    private static boolean isExceptionsEnabled()
     {
         return exceptionsEnabled;
     }
@@ -61,7 +61,7 @@ public abstract class ErrorObject implements ErrorInfo
      * Instead the functions' return values will indicate success or failure<BR> 
      * @param enableExceptions true to enable exceptions or false to disable
      */
-    public static void setExceptionsEnabled(boolean enableExceptions)
+    private static void setExceptionsEnabled(boolean enableExceptions)
     {
         ErrorObject.exceptionsEnabled = enableExceptions;
     }
@@ -105,7 +105,7 @@ public abstract class ErrorObject implements ErrorInfo
      * @param error the error information for which to obtain an error message
      * @return the error message or an empty string if no error has been set.
      */
-    public static String getMessage(ErrorInfo error)
+    private static String getMessage(ErrorInfo error)
     {
         if (error==null)
             return "";
@@ -143,7 +143,7 @@ public abstract class ErrorObject implements ErrorInfo
     /**
      * getErrorInfo
      */
-    protected ObjectErrorInfo getErrorInfo(boolean create)
+    private ObjectErrorInfo getErrorInfo(boolean create)
     {
         WeakHashMap<ErrorObject, ObjectErrorInfo> map = errorMap.get();
         if (map==null)
@@ -161,7 +161,7 @@ public abstract class ErrorObject implements ErrorInfo
     /**
      * Clears the ErrorInfo.
      */
-    protected void clearErrorInfo()
+    private void clearErrorInfo()
     {
         WeakHashMap<ErrorObject, ObjectErrorInfo> map = errorMap.get();
         if (map!=null)
@@ -212,17 +212,17 @@ public abstract class ErrorObject implements ErrorInfo
         return ((info!=null) ? info.errParams : null);
     }
     
-    /**
-     * Clears the error for this object.
-     */
-    public final void clearError()
-    {
-        internalSetError(Errors.None, null, null);
-    }
-    
     public final String getErrorMessage()
     {
         return getMessage(this);
+    }
+    
+    /**
+     * Clears the error for this object.
+     */
+    private final void clearError()
+    {
+        internalSetError(Errors.None, null, null);
     }
     
     /**
@@ -233,7 +233,7 @@ public abstract class ErrorObject implements ErrorInfo
      * @param source object from which this error originated from.
      * @return always false except if the errType is of Type Errors.None
      */
-    protected boolean internalSetError(final ErrorType errType, final Object[] params, final ErrorInfo source)
+    private boolean internalSetError(final ErrorType errType, final Object[] params, final ErrorInfo source)
     { 	// setError
         if (errType == Errors.None )
         {   // No Error
@@ -253,9 +253,9 @@ public abstract class ErrorObject implements ErrorInfo
     }
     
     /** returns true */
-    protected final boolean success()
+    private final void success()
     {
-        return internalSetError(Errors.None, null, null);
+        // return internalSetError(Errors.None, null, null);
     }
 
     /**
@@ -265,13 +265,13 @@ public abstract class ErrorObject implements ErrorInfo
      * @param params array of parameters for the error message if any.
      * @return always false except if the errType is of Type Errors.None
      */
-    protected final boolean error(final ErrorType errType, final Object... params)
+    private final void error(final ErrorType errType, final Object... params)
     {
         // check error code
         if (errType == Errors.None)
         {	// Must supply a valid error code
             log.error("error function called with invalid error Code.");
-            return true; 
+            return; 
         }
         // Check parameter count
         int paramCount = (params!=null) ? params.length : 0;
@@ -306,7 +306,7 @@ public abstract class ErrorObject implements ErrorInfo
             log.error("Unable to log error message.", e);
         }
         // Set the Error
-        return internalSetError(errType, params, null);
+        internalSetError(errType, params, null);
     }
 
     /**
@@ -314,9 +314,9 @@ public abstract class ErrorObject implements ErrorInfo
      * 
      * @return always false except if the errType is of Type Errors.None
      */
-    protected final boolean error(final ErrorType errType)
+    private final void error(final ErrorType errType)
     {
-        return error(errType, (Object[])null);
+        error(errType, (Object[])null);
     }
 
     /**
@@ -326,11 +326,11 @@ public abstract class ErrorObject implements ErrorInfo
      * @param exptn Exception from witch the error message is copied.
      * @return always false except if the errType is of Type Errors.None
      */
-    protected final boolean error(final ErrorType errType, final Throwable exptn)
+    private final void error(final ErrorType errType, final Throwable exptn)
     {
         if (exptn==null)
         {   log.warn("Cannot set exception error with param of null!");
-            return true; // No Error
+            return; // No Error
         }
         // Exception
         String type  = exptn.getClass().getName();
@@ -342,7 +342,7 @@ public abstract class ErrorObject implements ErrorInfo
         StackTraceElement[] stack = exptn.getStackTrace();
         String pos = (stack!=null) ? stack[0].toString() : getClass().getName();
         // Create Error
-        return error(errType, new Object[] { type, msg, pos });
+        error(errType, new Object[] { type, msg, pos });
     }
 
     /**
@@ -351,9 +351,9 @@ public abstract class ErrorObject implements ErrorInfo
      * @param exptn Exception from witch the error message is copied.
      * @return always false except if the errType is of Type Errors.None
      */
-    protected final boolean error(final Throwable exptn)
+    private final void error(final Throwable exptn)
     {
-        return error(Errors.Exception, exptn);
+        error(Errors.Exception, exptn);
     }
 
     /**
@@ -362,9 +362,8 @@ public abstract class ErrorObject implements ErrorInfo
      * @param other the object from which to copy the error.
      * @return always false except if the errType is of Type Errors.None
      */
-    protected final boolean error(final ErrorInfo other)
+    private final void error(final ErrorInfo other)
     {   // copy other error
-        return internalSetError(other.getErrorType(),
-                                other.getErrorParams(), other);
+        internalSetError(other.getErrorType(), other.getErrorParams(), other);
     }
 }

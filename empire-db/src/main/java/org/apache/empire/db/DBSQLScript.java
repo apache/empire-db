@@ -23,6 +23,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Iterator;
 
+import org.apache.empire.EmpireException;
 import org.apache.empire.commons.ErrorObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,10 +50,9 @@ public class DBSQLScript extends ErrorObject implements Iterable<String>
      * @param sql the statement
      * @return true if successful
      */
-    public boolean addStmt(String sql)
+    public void addStmt(String sql)
     {
         sqlCmdList.add(sql);
-        return success();
     }
     
     /**
@@ -61,17 +61,15 @@ public class DBSQLScript extends ErrorObject implements Iterable<String>
      * @param sql the statement
      * @return true if successful
      */
-    public final boolean addStmt(StringBuilder sql)
+    public final void addStmt(StringBuilder sql)
     {
-        if (!addStmt(sql.toString()))
-            return false;
+        addStmt(sql.toString());
         // Clear Builder
         sql.setLength(0);
-        return true;
     }
     
     /**
-     * Returns the number of statemetns in this script
+     * Returns the number of statements in this script
      * @return number of statements in this script
      */
     public int getCount()
@@ -104,7 +102,7 @@ public class DBSQLScript extends ErrorObject implements Iterable<String>
      * @param ignoreErrors true if errors should be ignored
      * @return true if the script has been run successful or false otherwise 
      */
-    public boolean run(DBDatabaseDriver driver, Connection conn, boolean ignoreErrors)
+    public void run(DBDatabaseDriver driver, Connection conn, boolean ignoreErrors)
     {
         log.debug("Running script containing " + String.valueOf(getCount()) + " statements.");
         for(String stmt : sqlCmdList)
@@ -117,13 +115,15 @@ public class DBSQLScript extends ErrorObject implements Iterable<String>
                 // SQLException
                 log.error(e.toString(), e);
                 if (ignoreErrors==false)
-                    return error(DBErrors.SQLException, e);
+                {   // forward exception
+                    String msg = driver.extractErrorMessage(e);
+                    throw new EmpireException(DBErrors.SQLException, new Object[] { msg }, e);
+                }    
                 // continue
                 log.debug("Ignoring error. Continuing with script...");
             }
         }
         log.debug("Script completed.");
-        return success();
     }
     
     /**

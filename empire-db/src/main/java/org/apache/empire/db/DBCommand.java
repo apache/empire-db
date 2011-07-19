@@ -672,9 +672,9 @@ public abstract class DBCommand extends DBCommandExpr
      * 
      * @return true if the database supports a limit or false otherwise
      */
-    public boolean limitRows(int numRows)
+    public void limitRows(int numRows)
     {
-        return error(Errors.NotSupported, "limitRows");
+        throw new EmpireException(Errors.NotSupported, "limitRows");
     }
 
     /**
@@ -683,9 +683,9 @@ public abstract class DBCommand extends DBCommandExpr
      * 
      * @return true if the database supports an offset or false otherwise
      */
-    public boolean skipRows(int numRows)
+    public void skipRows(int numRows)
     {
-        return error(Errors.NotSupported, "skipRows");
+        throw new EmpireException(Errors.NotSupported, "skipRows");
     }
     
     /**
@@ -702,11 +702,11 @@ public abstract class DBCommand extends DBCommandExpr
     }
     
     @Override
-    public synchronized boolean getSelect(StringBuilder buf)
+    public synchronized void getSelect(StringBuilder buf)
     {
         resetParamUsage();
         if (select == null)
-            return error(Errors.ObjectNotValid, getClass().getName()); // invalid!
+            throw new EmpireException(Errors.ObjectNotValid, getClass().getName()); // invalid!
         // Prepares statement
         addSelect(buf);
         // From clause
@@ -717,8 +717,6 @@ public abstract class DBCommand extends DBCommandExpr
         addGrouping(buf);
         // Add Order
         addOrder(buf);
-        // done
-        return success();
     }
     
     /**
