@@ -33,9 +33,8 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 
-import org.apache.empire.EmpireException;
 import org.apache.empire.commons.DateUtils;
-import org.apache.empire.commons.ErrorObject;
+import org.apache.empire.commons.EmpireException;
 import org.apache.empire.commons.Errors;
 import org.apache.empire.commons.ObjectUtils;
 import org.apache.empire.commons.StringUtils;
@@ -49,7 +48,7 @@ import org.slf4j.LoggerFactory;
  * The DBDatabaseDriver class is an abstract base class for all database drivers.
  * Its purpose is to handle everything that is - or might be - database vendor specific. 
  */
-public abstract class DBDatabaseDriver extends ErrorObject implements Serializable
+public abstract class DBDatabaseDriver implements Serializable
 {
     private final static long serialVersionUID = 1L;
   

@@ -25,8 +25,7 @@ import java.util.List;
 import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.beanutils.BeanUtilsBean;
 import org.apache.commons.beanutils.PropertyUtilsBean;
-import org.apache.empire.EmpireException;
-import org.apache.empire.commons.ErrorObject;
+import org.apache.empire.commons.EmpireException;
 import org.apache.empire.commons.Errors;
 import org.apache.empire.commons.ObjectUtils;
 import org.apache.empire.commons.Options;
@@ -45,7 +44,7 @@ import org.slf4j.LoggerFactory;
  * 
  * @author Rainer
  */
-public class BeanRecordProxy<T> extends ErrorObject implements Record
+public class BeanRecordProxy<T> implements Record
 {
     protected static final Logger log = LoggerFactory.getLogger(BeanRecordProxy.class);
     
@@ -303,8 +302,6 @@ public class BeanRecordProxy<T> extends ErrorObject implements Record
             // Get Property Name
             String property = column.getBeanPropertyName();
             Object value = getBeanPropertyValue(bean, property);
-            if (value==null && this.hasError())
-                continue;
             setValue(column, value);
             count++;
         }

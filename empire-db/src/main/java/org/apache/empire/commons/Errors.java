@@ -26,7 +26,7 @@ import java.text.MessageFormat;
  * purpose is to hold the definition of Error Types.
  * <P>
  * Define your own error types in the same way.
- * See @link {@link ErrorType} for futher information.
+ * See @link {@link ErrorType} for further information.
  * <P>
  */
 public class Errors
@@ -35,13 +35,14 @@ public class Errors
     public static final ErrorType None            = new ErrorType("error.none", "");
     public static final ErrorType Cancelled       = new ErrorType("error.cancelled", "The action has been cancelled by the user");
     // Code Errors
-    public static final ErrorType Exception       = new ErrorType("error.exception", "An Exception of type {0} occurred.\n-->Message is {1}\n-->at Position {2}");
+    public static final ErrorType Exception       = new ErrorType("error.exception", "An Exception of type {0} occurred.\n-->Message is: {1}\n-->at Position: {2}");
     public static final ErrorType Internal        = new ErrorType("error.internal", "Internal Error: {0}");
     public static final ErrorType InvalidArg      = new ErrorType("error.invalidarg", "Invalid Argument {0} for parameter {1}.");
     public static final ErrorType NotSupported    = new ErrorType("error.notsupported", "The function {0} is not supported");
     public static final ErrorType NotImplemented  = new ErrorType("error.notimplemented", "The function {0} is not implemented");
     public static final ErrorType ObjectNotValid  = new ErrorType("error.objectnotvalid", "The object {0} has not been initialized.");
     public static final ErrorType InvalidProperty = new ErrorType("error.invalidproperty", "The value of the property {0} is not valid.");
+    public static final ErrorType UnexpectedValue = new ErrorType("error.unexpectedvalue", "Unexpected value {0} for {1}.");
     // Security Errors
     public static final ErrorType NoAccess        = new ErrorType("error.noaccess", "Access denied");
     public static final ErrorType NotAuthorized   = new ErrorType("error.notauthorized", "You are not autorized for this operation.");
@@ -77,18 +78,13 @@ public class Errors
      * @param info the ErrorInfo to get the message for
      * @return the message string for this info
      */
-    public static String getErrorMessage(ErrorInfo info)
+    public static String getErrorMessage(ErrorType type, Object[] msgParams)
     {
-        // Check Param
-        if (info==null || info.hasError()==false)
-            return ""; // No Error
         // Get Error Type
-        ErrorType type = info.getErrorType();
         if (type==null || type==Errors.None)
             return ""; // No Error
         // Get Message Pattern and Params
         String msgPattern = type.getMessagePattern();
-        Object[] msgParams = info.getErrorParams();
         if (msgParams==null)
             return msgPattern;
         // Get Error Message

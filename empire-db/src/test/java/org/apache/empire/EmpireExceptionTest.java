@@ -21,6 +21,7 @@ package org.apache.empire;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 
+import org.apache.empire.commons.EmpireException;
 import org.apache.empire.commons.Errors;
 import org.junit.Before;
 import org.junit.Test;

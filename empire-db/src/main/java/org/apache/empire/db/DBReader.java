@@ -33,7 +33,7 @@ import java.util.Iterator;
 import java.util.Map;
 
 import org.apache.commons.beanutils.ConstructorUtils;
-import org.apache.empire.EmpireException;
+import org.apache.empire.commons.EmpireException;
 import org.apache.empire.commons.Errors;
 import org.apache.empire.commons.ObjectUtils;
 import org.apache.empire.data.ColumnExpr;

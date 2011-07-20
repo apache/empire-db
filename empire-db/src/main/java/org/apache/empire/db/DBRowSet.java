@@ -26,7 +26,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.empire.EmpireException;
+import org.apache.empire.commons.EmpireException;
 import org.apache.empire.commons.Errors;
 import org.apache.empire.commons.ObjectUtils;
 import org.apache.empire.commons.StringUtils;
@@ -711,7 +711,7 @@ public abstract class DBRowSet extends DBExpr
         int affected = db.executeSQL(sql, cmd.getParamValues(), conn, setGenKey);
         if (affected < 0)
         {   // Update Failed
-            throw new EmpireException(Errors.Internal, "Unexpected return value.");
+            throw new EmpireException(Errors.UnexpectedValue, affected, "db.executeSQL()");
         } 
         else if (affected == 0)
         { // Record not found
@@ -794,7 +794,7 @@ public abstract class DBRowSet extends DBExpr
             for (int i=0; i<parentKey.length; i++)
                 cmd.where(refs[i].getSourceColumn().is(parentKey[i]));
             if (db.executeSQL(cmd.getDelete((DBTable)this), conn)<0)
-                throw new EmpireException(Errors.Internal, "Unexpected return value.");
+                throw new EmpireException(Errors.UnexpectedValue, -1, "db.executeSQL()");
         }
         else
         {   // Query all keys

@@ -19,7 +19,7 @@
 package org.apache.empire.db;
 
 // java
-import org.apache.empire.EmpireException;
+import org.apache.empire.commons.EmpireException;
 import org.apache.empire.commons.Errors;
 import org.apache.empire.commons.Options;
 import org.apache.empire.data.DataType;

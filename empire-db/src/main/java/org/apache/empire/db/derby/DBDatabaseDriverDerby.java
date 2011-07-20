@@ -22,7 +22,7 @@ import java.sql.Connection;
 import java.util.GregorianCalendar;
 import java.util.Iterator;
 
-import org.apache.empire.EmpireException;
+import org.apache.empire.commons.EmpireException;
 import org.apache.empire.commons.Errors;
 import org.apache.empire.commons.StringUtils;
 import org.apache.empire.data.DataType;

@@ -23,8 +23,8 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-import org.apache.empire.EmpireException;
 import org.apache.empire.commons.Attributes;
+import org.apache.empire.commons.EmpireException;
 import org.apache.empire.commons.Errors;
 import org.apache.empire.data.DataMode;
 import org.apache.empire.data.DataType;

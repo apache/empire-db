@@ -23,8 +23,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Iterator;
 
-import org.apache.empire.EmpireException;
-import org.apache.empire.commons.ErrorObject;
+import org.apache.empire.commons.EmpireException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,7 +34,7 @@ import org.slf4j.LoggerFactory;
  * The class is used for obtaining and executing DDL commands supplied
  * by the database driver (@see {@link DBDatabaseDriver#getDDLScript(DBCmdType, DBObject, DBSQLScript)}) 
  */
-public class DBSQLScript extends ErrorObject implements Iterable<String>
+public class DBSQLScript implements Iterable<String>
 {
     // Logger
     private static final Logger log = LoggerFactory.getLogger(DBSQLScript.class);

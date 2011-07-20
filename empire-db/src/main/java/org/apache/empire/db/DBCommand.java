@@ -18,7 +18,7 @@
  */
 package org.apache.empire.db;
 
-import org.apache.empire.EmpireException;
+import org.apache.empire.commons.EmpireException;
 import org.apache.empire.commons.Errors;
 import org.apache.empire.data.DataType;
 import org.apache.empire.db.expr.compare.DBCompareColExpr;

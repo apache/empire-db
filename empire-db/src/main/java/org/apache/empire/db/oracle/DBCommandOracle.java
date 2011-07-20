@@ -19,7 +19,7 @@
 package org.apache.empire.db.oracle;
 
 // Imports
-import org.apache.empire.EmpireException;
+import org.apache.empire.commons.EmpireException;
 import org.apache.empire.commons.Errors;
 import org.apache.empire.db.DBCommand;
 import org.apache.empire.db.DBDatabase;

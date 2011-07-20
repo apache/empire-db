@@ -35,7 +35,6 @@ import javax.xml.transform.stream.StreamResult;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.apache.empire.commons.ErrorObject;
 import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
 import org.w3c.dom.NamedNodeMap;
@@ -49,7 +48,7 @@ import org.w3c.dom.NodeList;
  * 
  *
  */
-public class XMLWriter extends ErrorObject
+public class XMLWriter
 {
     // Logger
     protected static final Logger    log                  = LoggerFactory.getLogger(XMLWriter.class);

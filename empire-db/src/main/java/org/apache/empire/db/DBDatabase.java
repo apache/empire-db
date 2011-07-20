@@ -26,7 +26,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import org.apache.empire.EmpireException;
+import org.apache.empire.commons.EmpireException;
 import org.apache.empire.commons.Errors;
 import org.apache.empire.commons.ObjectUtils;
 import org.apache.empire.commons.Options;
@@ -659,7 +659,7 @@ public abstract class DBDatabase extends DBObject
             // Get the next Value
             rs = driver.executeQuery(sqlCmd, null, false, conn);
             if (rs == null)
-                throw new EmpireException(Errors.Internal, "Unexpected return value.");
+                throw new EmpireException(Errors.UnexpectedValue, rs, "driver.executeQuery()");
             // Check Result
             if (rs.next() == false)
             {   // no result
@@ -812,7 +812,7 @@ public abstract class DBDatabase extends DBObject
             // Get the next Value
             rs = driver.executeQuery(sqlCmd, null, false, conn);
             if (rs == null)
-                throw new EmpireException(Errors.Internal, "Unexpected return value.");
+                throw new EmpireException(Errors.UnexpectedValue, rs, "driver.executeQuery()");
             // Check Result
             int count=0;
             while (rs.next())
@@ -891,7 +891,7 @@ public abstract class DBDatabase extends DBObject
             // Get the next Value
             rs = driver.executeQuery(sqlCmd, null, false, conn);
             if (rs == null)
-                throw new EmpireException(Errors.Internal, "Unexpected return value.");
+                throw new EmpireException(Errors.UnexpectedValue, rs, "driver.executeQuery()");
             if (rs.getMetaData().getColumnCount()<2)
                 throw new EmpireException(Errors.InvalidArg, sqlCmd, "sqlCmd");
             // Check Result
@@ -939,7 +939,7 @@ public abstract class DBDatabase extends DBObject
             // Get the next Value
             rs = driver.executeQuery(sqlCmd, null, false, conn);
             if (rs == null)
-                throw new EmpireException(Errors.Internal, "Unexpected return value.");
+                throw new EmpireException(Errors.UnexpectedValue, rs, "driver.executeQuery()");
             // Read List
             int colCount = rs.getMetaData().getColumnCount();
             int count = 0;
@@ -1006,7 +1006,7 @@ public abstract class DBDatabase extends DBObject
             int affected = driver.executeSQL(sqlCmd, sqlParams, conn, setGenKeys);
             // number of affected records
             if (affected < 0)
-                throw new EmpireException(Errors.Internal, "Unexpected return value <0 for driver.executeSQL().");
+                throw new EmpireException(Errors.UnexpectedValue, affected, "driver.executeSQL()");
             // Log
             if (log.isInfoEnabled())
 	            log.info("executeSQL affected " + affected + " Records / " + (System.currentTimeMillis() - start) + "ms");
@@ -1040,9 +1040,9 @@ public abstract class DBDatabase extends DBObject
     }
     
     /**
-     * Executes a select SQL-Statement and returns a resulset containing the query results.<BR>
+     * Executes a select SQL-Statement and returns a resultset containing the query results.<BR>
      * This function returns a JDBC ResultSet.<BR>
-     * Insteam of using this function directly you should use a DBReader object instead.<BR>
+     * Instead of using this function directly you should use a DBReader object instead.<BR>
      * <P>
      * @param sqlCmd the SQL-Command
      * @param sqlParams a list of parameters for parameter queries (may depend on driver)
@@ -1061,7 +1061,7 @@ public abstract class DBDatabase extends DBObject
             long start = System.currentTimeMillis();
             ResultSet rs = driver.executeQuery(sqlCmd, sqlParams, scrollable, conn);
             if (rs == null)
-                throw new EmpireException(Errors.Internal, "Unexpected return value.");
+                throw new EmpireException(Errors.UnexpectedValue, rs, "driver.executeQuery()");
             // Debug
             if (log.isDebugEnabled())
                 log.debug("executeQuery successful in " + (System.currentTimeMillis() - start) + " ms");

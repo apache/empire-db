@@ -23,8 +23,8 @@ import java.util.Collection;
 import java.util.Date;
 
 import org.apache.commons.beanutils.BeanUtils;
-import org.apache.empire.EmpireException;
 import org.apache.empire.commons.DateUtils;
+import org.apache.empire.commons.EmpireException;
 import org.apache.empire.commons.ObjectUtils;
 import org.apache.empire.commons.StringUtils;
 import org.apache.empire.data.ColumnExpr;

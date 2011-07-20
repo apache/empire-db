@@ -22,8 +22,7 @@ package org.apache.empire.db;
 import java.io.Serializable;
 import java.sql.SQLException;
 
-import org.apache.empire.EmpireException;
-import org.apache.empire.commons.ErrorObject;
+import org.apache.empire.commons.EmpireException;
 import org.apache.empire.commons.ErrorType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,7 +34,7 @@ import org.slf4j.LoggerFactory;
  * 
  *
  */
-public abstract class DBObject extends ErrorObject implements Serializable
+public abstract class DBObject implements Serializable
 {
     private static final long serialVersionUID = 1L;
     // Logger

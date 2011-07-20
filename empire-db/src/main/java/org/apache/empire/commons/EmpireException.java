@@ -16,13 +16,10 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.empire;
+package org.apache.empire.commons;
 
 import java.text.MessageFormat;
 
-import org.apache.empire.commons.ErrorObject;
-import org.apache.empire.commons.ErrorType;
-import org.apache.empire.commons.Errors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,7 +31,7 @@ import org.slf4j.LoggerFactory;
 public class EmpireException extends RuntimeException
 {
     // Logger
-    private static final Logger log = LoggerFactory.getLogger(ErrorObject.class);
+    private static final Logger log = LoggerFactory.getLogger(EmpireException.class);
     
     private static final long serialVersionUID = 1L;
     
@@ -157,30 +154,14 @@ public class EmpireException extends RuntimeException
         log();
     }
     
+    /**
+     * log the error (info must be enabled)
+     */
     private void log()
     {
         if (log.isInfoEnabled())
-            log.info("Error '" + this.getMessage() + "' has been set.");
+            log.info("An Error occured. Message is: {}", this.getMessage());
     }
-    
-    /**
-     * creates an empire exception from an error object.
-     * @param errorObject
-    public EmpireException(final ErrorInfo errorObject)
-    {
-        super(errorObject.getErrorMessage());
-        // init
-        this.errorType = errorObject.getErrorType();
-        this.errorObject = new DeepCopyErrorInfo(errorObject);
-        this.errorObjectClassname = errorObject.getClass().getName();
-    }
-    
-    @Override
-    public String toString()
-    {   // Return Object class name and error message
-        return errorObjectClassname + ": " + getMessage();
-    }
-     */
 
     /**
      * The type of error that occurred
@@ -192,68 +173,13 @@ public class EmpireException extends RuntimeException
         return errorType;
     }
 
-    
+    /**
+     * The message parameters for the message.
+     * @see org.apache.empire.commons.Errors
+     * @return the type of error
+     */
     public Object[] getErrorParams()
     {
         return errorParams;
     }
-    
-    
-    /**
-     * A serializable version of {@link ErrorInfo}.
-    private static class DeepCopyErrorInfo implements ErrorInfo, Serializable {
-        private static final long serialVersionUID = 1L;
-        
-        private final boolean hasError;
-        private final ErrorType errorType;
-        private final Serializable[] errorParams;
-        private final String errorSource;
-        private final String errorMessage;
-
-        // Copy ctor.
-        DeepCopyErrorInfo(ErrorInfo errorInfo) {
-            this.hasError = errorInfo.hasError();
-            this.errorType = errorInfo.getErrorType();
-            Object[] params = errorInfo.getErrorParams();
-            if (params != null) {
-                this.errorParams = new Serializable[params.length];
-                for (int i=0; i<params.length; i++) {
-                  Object p = params[i];
-                  if (p == null) {
-                      this.errorParams[i] = null;
-                  } else if (p instanceof Serializable) {
-                      Serializable serializable = (Serializable) p;
-                      this.errorParams[i] = serializable;
-                  } else {
-                      this.errorParams[i] = p.toString();
-                  }
-                }
-            } else {
-                this.errorParams = null;
-            }
-            this.errorSource = errorInfo.getErrorSource();
-            this.errorMessage = errorInfo.getErrorMessage();
-        }
-
-        public boolean hasError() {
-            return hasError;
-        }
-
-        public ErrorType getErrorType() {
-            return errorType;
-        }
-
-        public Object[] getErrorParams() {
-            return errorParams;
-        }
-
-        public String getErrorSource() {
-            return errorSource;
-        }
-
-        public String getErrorMessage() {
-            return errorMessage;
-        }
-    }
-     */
 }

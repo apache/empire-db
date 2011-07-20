@@ -18,7 +18,7 @@
  */
 package org.apache.empire.samples.db;
 
-import org.apache.empire.EmpireException;
+import org.apache.empire.commons.EmpireException;
 import org.apache.empire.commons.Errors;
 import org.apache.empire.xml.XMLConfiguration;
 import org.apache.empire.xml.XMLUtil;

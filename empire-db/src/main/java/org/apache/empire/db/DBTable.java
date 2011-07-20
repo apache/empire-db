@@ -25,7 +25,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.apache.empire.EmpireException;
+import org.apache.empire.commons.EmpireException;
 import org.apache.empire.commons.Errors;
 import org.apache.empire.data.DataMode;
 import org.apache.empire.data.DataType;
@@ -450,7 +450,7 @@ public class DBTable extends DBRowSet implements Cloneable
         int affected  = db.executeSQL(sqlCmd, cmd.getParamValues(), conn);
         if (affected < 0)
         { // Delete Failed
-            throw new EmpireException(Errors.Internal, "Unexpected return value.");
+            throw new EmpireException(Errors.UnexpectedValue, affected, "db.executeSQL()");
         } 
         else if (affected == 0)
         { // Record not found

@@ -30,8 +30,7 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.apache.commons.beanutils.BeanUtils;
-import org.apache.empire.EmpireException;
-import org.apache.empire.commons.ErrorObject;
+import org.apache.empire.commons.EmpireException;
 import org.apache.empire.commons.Errors;
 import org.apache.empire.commons.ObjectUtils;
 import org.apache.empire.commons.StringUtils;
@@ -52,7 +51,7 @@ import org.xml.sax.SAXException;
  * </PRE>
  *
  */
-public class XMLConfiguration extends ErrorObject
+public class XMLConfiguration
 {
     private static final Logger log = LoggerFactory.getLogger(XMLConfiguration.class);
 
