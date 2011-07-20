@@ -20,7 +20,7 @@ package org.apache.empire.samples.spring.support;
 
 import java.sql.Connection;
 
-import org.apache.empire.EmpireException;
+import org.apache.empire.commons.EmpireException;
 import org.apache.empire.db.DBCommand;
 import org.apache.empire.db.DBDatabase;
 import org.apache.empire.db.DBDatabaseDriver;
