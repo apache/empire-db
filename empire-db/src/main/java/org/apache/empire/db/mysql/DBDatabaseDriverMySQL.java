@@ -163,7 +163,7 @@ public class DBDatabaseDriverMySQL extends DBDatabaseDriver
     }
     
     /**
-     * returns whether a sequence table is used for record identiy management.<br>
+     * returns whether a sequence table is used for record identity management.<br>
      * Default is false. In this case the AutoIncrement feature of MySQL is used.
      * @return true if a sequence table is used instead of identity columns.
      */
@@ -174,7 +174,7 @@ public class DBDatabaseDriverMySQL extends DBDatabaseDriver
 
     /**
      * If set to true a special table is used for sequence number generation.<br>
-     * Otherwise the AutoIncrement feature of MySQL is used identiy fields. 
+     * Otherwise the AutoIncrement feature of MySQL is used identity fields. 
      * @param useSequenceTable true to use a sequence table or false otherwise.
      */
     public void setUseSequenceTable(boolean useSequenceTable)
