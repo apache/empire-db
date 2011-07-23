@@ -16,10 +16,14 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.empire.commons;
+package org.apache.empire.exceptions;
 
+import java.io.IOException;
+import java.io.ObjectOutputStream;
 import java.text.MessageFormat;
 
+import org.apache.empire.commons.ErrorType;
+import org.apache.empire.commons.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,12 +45,6 @@ public class EmpireException extends RuntimeException
     
     private static String formatErrorMessage(final ErrorType errType, final Object[] params)
     {
-        // check error code
-        if (errType == Errors.None)
-        {   // Must supply a valid error code
-            log.error("error function called with invalid error Code.");
-            return formatErrorMessage(Errors.Internal, new Object[] { "Invalid Error Code" });
-        }
         // Check parameter count
         int paramCount = (params!=null) ? params.length : 0;
         if (paramCount!= errType.getNumParams())
@@ -59,49 +57,13 @@ public class EmpireException extends RuntimeException
         return msg;
     }
     
-    private static Object[] paramsFromThrowable(final Throwable exptn)
-    {
-        // Exception
-        String type  = exptn.getClass().getName();
-        if (type.startsWith("java.lang."))
-            type = type.substring("java.lang.".length());
-        // The message
-        String msg   = exptn.getMessage();
-        // Prepare stack trace
-        StackTraceElement[] stack = exptn.getStackTrace();
-        String pos = (stack!=null) ? stack[0].toString() : "{unknown}";
-        // Create Error
-        return new Object[] { type, msg, pos };
-    }
-    
-    private static Object[] normalizeParams(final Object[] params)
-    {
-        if (params!=null && params.length>0)
-        {   // convert complex params form object[] to string[]
-            for (int i=0; i<params.length; i++)
-            {   // convert to String
-                Object o = params[i]; 
-                if (o==null || (o instanceof String))
-                    continue;
-                if (o.getClass().isPrimitive())
-                    continue;
-                // Convert to String
-                if (o instanceof RuntimeException)
-                    params[i] = ((RuntimeException)o).getMessage();
-                else 
-                    params[i] = String.valueOf(o.toString());
-            }
-        }
-        return params;
-    }
-
     /**
      * Constructor for derived classes
      * @param errType
      * @param params
      * @param cause
      */
-    public EmpireException(final ErrorType errType, final Object[] params, final Throwable cause)
+    protected EmpireException(final ErrorType errType, final Object[] params, final Throwable cause)
     {
         super(formatErrorMessage(errType, params), cause);
         // save type and params for custom message formatting
@@ -110,54 +72,21 @@ public class EmpireException extends RuntimeException
         // done
         log();
     }
-
     /**
-     * Constructor
+     * Constructor for derived classes
      * @param errType
      * @param params
-     */
-    public EmpireException(final ErrorType errType, final Object... params)
-    {
-        super(formatErrorMessage(errType, params));
-        // save type and params for custom message formatting
-        this.errorType = errType;
-        this.errorParams = normalizeParams(params);
-        // done
-        log();
-    }
-    
-    /**
-     * Constructor
      * @param cause
      */
-    public EmpireException(final Throwable cause)
+    protected EmpireException(final ErrorType errType, final Object[] params)
     {
-        super(formatErrorMessage(Errors.Exception, paramsFromThrowable(cause)), cause);
-        // save type and params for custom message formatting
-        this.errorType   = Errors.Exception;
-        this.errorParams = paramsFromThrowable(cause); 
-        // done
-        log();
-    }
-
-    /**
-     * Constructor
-     * @param other
-     */
-    public EmpireException(final EmpireException other)
-    {
-        super(other.getMessage(), other);
-        // save type and params for custom message formatting
-        this.errorType   = other.getErrorType();
-        this.errorParams = other.getErrorParams(); 
-        // done
-        log();
+        this(errType, params, null);
     }
     
     /**
      * log the error (info must be enabled)
      */
-    private void log()
+    protected void log()
     {
         if (log.isInfoEnabled())
             log.info("An Error occured. Message is: {}", this.getMessage());
@@ -181,5 +110,30 @@ public class EmpireException extends RuntimeException
     public Object[] getErrorParams()
     {
         return errorParams;
+    }
+
+    /**
+     * when serializing, convert all params to strings
+     * @param out
+     * @throws IOException
+     */
+    private void writeObject(ObjectOutputStream out) throws IOException
+    {
+        // normalize Params
+        if (errorParams!=null)
+        {   // convert complex params from object[] to string[]
+            for (int i=0; i<errorParams.length; i++)
+            {   // convert to String
+                Object o = errorParams[i]; 
+                if (o==null || (o instanceof String))
+                    continue;
+                if (o.getClass().isPrimitive())
+                    continue;
+                // Convert to String
+                errorParams[i] = StringUtils.toString(o);
+            }
+        }
+        // Serialize
+        out.defaultWriteObject(); 
     }
 }

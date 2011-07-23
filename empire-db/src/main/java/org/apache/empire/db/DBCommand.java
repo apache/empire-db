@@ -18,17 +18,6 @@
  */
 package org.apache.empire.db;
 
-import org.apache.empire.commons.EmpireException;
-import org.apache.empire.commons.Errors;
-import org.apache.empire.data.DataType;
-import org.apache.empire.db.expr.compare.DBCompareColExpr;
-import org.apache.empire.db.expr.compare.DBCompareExpr;
-import org.apache.empire.db.expr.join.DBJoinExpr;
-import org.apache.empire.db.expr.join.DBJoinExprEx;
-import org.apache.empire.db.expr.set.DBSetExpr;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
@@ -36,6 +25,18 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import java.util.Vector;
+
+import org.apache.empire.data.DataType;
+import org.apache.empire.db.expr.compare.DBCompareColExpr;
+import org.apache.empire.db.expr.compare.DBCompareExpr;
+import org.apache.empire.db.expr.join.DBJoinExpr;
+import org.apache.empire.db.expr.join.DBJoinExprEx;
+import org.apache.empire.db.expr.set.DBSetExpr;
+import org.apache.empire.exceptions.MiscellaneousErrorException;
+import org.apache.empire.exceptions.NotSupportedException;
+import org.apache.empire.exceptions.ObjectNotValidException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -171,7 +172,7 @@ public abstract class DBCommand extends DBCommandExpr
         int index = cmdParams.indexOf(param);
         if (index < paramUsageCount)
         {   // Error: parameter probably used twice in statement!
-            throw new EmpireException(Errors.Internal, "A parameter may only be used once in a command.");
+            throw new MiscellaneousErrorException("A parameter may only be used once in a command.");
         }
         if (index > paramUsageCount)
         {   // Correct parameter order
@@ -674,7 +675,7 @@ public abstract class DBCommand extends DBCommandExpr
      */
     public void limitRows(int numRows)
     {
-        throw new EmpireException(Errors.NotSupported, "limitRows");
+        throw new NotSupportedException(this, "limitRows");
     }
 
     /**
@@ -685,7 +686,7 @@ public abstract class DBCommand extends DBCommandExpr
      */
     public void skipRows(int numRows)
     {
-        throw new EmpireException(Errors.NotSupported, "skipRows");
+        throw new NotSupportedException(this, "skipRows");
     }
     
     /**
@@ -706,7 +707,7 @@ public abstract class DBCommand extends DBCommandExpr
     {
         resetParamUsage();
         if (select == null)
-            throw new EmpireException(Errors.ObjectNotValid, getClass().getName()); // invalid!
+            throw new ObjectNotValidException(this); // invalid!
         // Prepares statement
         addSelect(buf);
         // From clause

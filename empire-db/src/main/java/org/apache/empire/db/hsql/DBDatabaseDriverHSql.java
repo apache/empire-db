@@ -22,8 +22,6 @@ import java.sql.Connection;
 import java.util.GregorianCalendar;
 import java.util.Iterator;
 
-import org.apache.empire.commons.EmpireException;
-import org.apache.empire.commons.Errors;
 import org.apache.empire.data.DataType;
 import org.apache.empire.db.DBCmdType;
 import org.apache.empire.db.DBColumn;
@@ -40,6 +38,9 @@ import org.apache.empire.db.DBSQLScript;
 import org.apache.empire.db.DBTable;
 import org.apache.empire.db.DBTableColumn;
 import org.apache.empire.db.DBView;
+import org.apache.empire.exceptions.InvalidArgumentException;
+import org.apache.empire.exceptions.NotImplementedException;
+import org.apache.empire.exceptions.NotSupportedException;
 
 
 /**
@@ -258,7 +259,7 @@ public class DBDatabaseDriverHSql extends DBDatabaseDriver
     {
         // The Object's database must be attached to this driver
         if (dbo==null || dbo.getDatabase().getDriver()!=this)
-            throw new EmpireException(Errors.InvalidArg, dbo, "dbo");
+            throw new InvalidArgumentException("dbo", dbo);
         // Check Type of object
         if (dbo instanceof DBDatabase)
         { // Database
@@ -271,7 +272,7 @@ public class DBDatabaseDriverHSql extends DBDatabaseDriver
                     dropObject(((DBDatabase) dbo).getSchema(), "DATABASE", script);
                     return;
                 default:
-                    throw new EmpireException(Errors.NotImplemented, "getDDLScript." + dbo.getClass().getName() + "." + type);
+                    throw new NotImplementedException(this, "getDDLScript." + dbo.getClass().getName() + "." + type);
             }
         } 
         else if (dbo instanceof DBTable)
@@ -285,7 +286,7 @@ public class DBDatabaseDriverHSql extends DBDatabaseDriver
                     dropObject(((DBTable) dbo).getName(), "TABLE", script);
                     return;
                 default:
-                    throw new EmpireException(Errors.NotImplemented, "getDDLScript." + dbo.getClass().getName() + "." + type);
+                    throw new NotImplementedException(this, "getDDLScript." + dbo.getClass().getName() + "." + type);
             }
         } 
         else if (dbo instanceof DBView)
@@ -299,7 +300,7 @@ public class DBDatabaseDriverHSql extends DBDatabaseDriver
                     dropObject(((DBView) dbo).getName(), "VIEW", script);
                     return;
                 default:
-                    throw new EmpireException(Errors.NotImplemented, "getDDLScript." + dbo.getClass().getName() + "." + type);
+                    throw new NotImplementedException(this, "getDDLScript." + dbo.getClass().getName() + "." + type);
             }
         } 
         else if (dbo instanceof DBRelation)
@@ -313,7 +314,7 @@ public class DBDatabaseDriverHSql extends DBDatabaseDriver
                     alterRelation((DBRelation) dbo, type, script);
                     return;
                 default:
-                    throw new EmpireException(Errors.NotImplemented, "getDDLScript." + dbo.getClass().getName() + "." + type);
+                    throw new NotImplementedException(this, "getDDLScript." + dbo.getClass().getName() + "." + type);
             }
         } 
         else if (dbo instanceof DBTableColumn)
@@ -322,8 +323,8 @@ public class DBDatabaseDriverHSql extends DBDatabaseDriver
             return;
         } 
         else
-        { // an invalid argument has been supplied
-            throw new EmpireException(Errors.InvalidArg, dbo, "dbo");
+        { // dll generation not supported for this type
+            throw new NotSupportedException(this, "getDDLScript() for "+dbo.getClass().getName());
         }
     }
 
@@ -633,7 +634,7 @@ public class DBDatabaseDriverHSql extends DBDatabaseDriver
                 break;
             }
             default:
-                throw new EmpireException(Errors.NotImplemented, "Type not supported (" + type + ")");
+                throw new NotImplementedException(this, "Type not supported (" + type + ")");
         }
 
     }
@@ -681,7 +682,7 @@ public class DBDatabaseDriverHSql extends DBDatabaseDriver
         if (cmd==null)
         {   // Check whether Error information is available
             log.error("No command has been supplied for view " + v.getName());
-            throw new EmpireException(Errors.NotImplemented, v.getName() + ".createCommand");
+            throw new NotImplementedException(this, v.getName() + ".createCommand");
         }
         // Make sure there is no OrderBy
         cmd.clearOrderBy();
@@ -715,7 +716,7 @@ public class DBDatabaseDriverHSql extends DBDatabaseDriver
     protected void dropObject(String name, String objType, DBSQLScript script)
     {
         if (name == null || name.length() == 0)
-            throw new EmpireException(Errors.InvalidArg, name, "name");
+            throw new InvalidArgumentException("name", name);
         // Create Drop Statement
         StringBuilder sql = new StringBuilder();
         sql.append("DROP ");

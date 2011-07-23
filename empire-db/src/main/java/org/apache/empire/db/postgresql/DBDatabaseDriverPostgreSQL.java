@@ -23,8 +23,6 @@ import java.sql.SQLException;
 import java.util.GregorianCalendar;
 import java.util.Iterator;
 
-import org.apache.empire.commons.EmpireException;
-import org.apache.empire.commons.Errors;
 import org.apache.empire.commons.StringUtils;
 import org.apache.empire.data.DataType;
 import org.apache.empire.db.DBCmdType;
@@ -34,7 +32,6 @@ import org.apache.empire.db.DBCommandExpr;
 import org.apache.empire.db.DBDatabase;
 import org.apache.empire.db.DBDatabaseDriver;
 import org.apache.empire.db.DBDriverFeature;
-import org.apache.empire.db.DBErrors;
 import org.apache.empire.db.DBExpr;
 import org.apache.empire.db.DBIndex;
 import org.apache.empire.db.DBObject;
@@ -43,6 +40,10 @@ import org.apache.empire.db.DBSQLScript;
 import org.apache.empire.db.DBTable;
 import org.apache.empire.db.DBTableColumn;
 import org.apache.empire.db.DBView;
+import org.apache.empire.db.exceptions.InternalSQLException;
+import org.apache.empire.exceptions.InvalidArgumentException;
+import org.apache.empire.exceptions.NotImplementedException;
+import org.apache.empire.exceptions.NotSupportedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -282,8 +283,7 @@ public class DBDatabaseDriverPostgreSQL extends DBDatabaseDriver
             executeSQL(CREATE_REVERSE_FUNCTION, null, conn, null);
         } catch(SQLException e) {
             log.error("Unable to create reverse function!", e);
-            String msg = extractErrorMessage(e);
-            throw new EmpireException(DBErrors.SQLException, new Object[] { msg }, e);
+            throw new InternalSQLException(this, e);
         }
     }
     
@@ -444,7 +444,7 @@ public class DBDatabaseDriverPostgreSQL extends DBDatabaseDriver
     {
         // The Object's database must be attached to this driver
         if (dbo==null || dbo.getDatabase().getDriver()!=this)
-            throw new EmpireException(Errors.InvalidArg, dbo, "dbo");
+            throw new InvalidArgumentException("dbo", dbo);
         // Check Type of object
         if (dbo instanceof DBDatabase)
         { // Database
@@ -457,7 +457,7 @@ public class DBDatabaseDriverPostgreSQL extends DBDatabaseDriver
                     dropObject(((DBDatabase) dbo).getSchema(), "DATABASE", script);
                     return;
                 default:
-                    throw new EmpireException(Errors.NotImplemented, "getDDLScript."+dbo.getClass().getName()+"."+String.valueOf(type));
+                    throw new NotImplementedException(this, "getDDLScript."+dbo.getClass().getName()+"."+String.valueOf(type));
             }
         } 
         else if (dbo instanceof DBTable)
@@ -471,7 +471,7 @@ public class DBDatabaseDriverPostgreSQL extends DBDatabaseDriver
                     dropObject(((DBTable) dbo).getName(), "TABLE", script);
                     return;
                 default:
-                    throw new EmpireException(Errors.NotImplemented, "getDDLScript." + dbo.getClass().getName() + "." + type);
+                    throw new NotImplementedException(this, "getDDLScript." + dbo.getClass().getName() + "." + type);
             }
         } 
         else if (dbo instanceof DBView)
@@ -485,7 +485,7 @@ public class DBDatabaseDriverPostgreSQL extends DBDatabaseDriver
                     dropObject(((DBView) dbo).getName(), "VIEW", script);
                     return;
                 default:
-                    throw new EmpireException(Errors.NotImplemented, "getDDLScript." + dbo.getClass().getName() + "." + type);
+                    throw new NotImplementedException(this, "getDDLScript." + dbo.getClass().getName() + "." + type);
             }
         } 
         else if (dbo instanceof DBRelation)
@@ -499,7 +499,7 @@ public class DBDatabaseDriverPostgreSQL extends DBDatabaseDriver
                     dropObject(((DBRelation) dbo).getName(), "CONSTRAINT", script);
                     return;
                 default:
-                    throw new EmpireException(Errors.NotImplemented, "getDDLScript." + dbo.getClass().getName() + "." + type);
+                    throw new NotImplementedException(this, "getDDLScript." + dbo.getClass().getName() + "." + type);
             }
         } 
         else if (dbo instanceof DBTableColumn)
@@ -508,8 +508,8 @@ public class DBDatabaseDriverPostgreSQL extends DBDatabaseDriver
             return;
         } 
         else
-        { // an invalid argument has been supplied
-            throw new EmpireException(Errors.InvalidArg, dbo, "dbo");
+        { // dll generation not supported for this type
+            throw new NotSupportedException(this, "getDDLScript() for "+dbo.getClass().getName());
         }
     }
 
@@ -893,7 +893,7 @@ public class DBDatabaseDriverPostgreSQL extends DBDatabaseDriver
         if (cmd==null)
         {   // Check whether Error information is available
             log.error("No command has been supplied for view " + v.getName());
-            throw new EmpireException(Errors.NotImplemented, v.getName() + ".createCommand");
+            throw new NotImplementedException(this, v.getName() + ".createCommand");
         }
         // Make sure there is no OrderBy
         cmd.clearOrderBy();
@@ -927,7 +927,7 @@ public class DBDatabaseDriverPostgreSQL extends DBDatabaseDriver
     protected void dropObject(String name, String objType, DBSQLScript script)
     {
         if (name == null || name.length() == 0)
-            throw new EmpireException(Errors.InvalidArg, name, "name");
+            throw new InvalidArgumentException("name", name);
         // Create Drop Statement
         StringBuilder sql = new StringBuilder();
         sql.append("DROP ");

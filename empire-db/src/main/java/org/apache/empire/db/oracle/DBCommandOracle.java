@@ -19,12 +19,11 @@
 package org.apache.empire.db.oracle;
 
 // Imports
-import org.apache.empire.commons.EmpireException;
-import org.apache.empire.commons.Errors;
 import org.apache.empire.db.DBCommand;
 import org.apache.empire.db.DBDatabase;
 import org.apache.empire.db.DBTable;
 import org.apache.empire.db.expr.compare.DBCompareExpr;
+import org.apache.empire.exceptions.ObjectNotValidException;
 
 /**
  * This class handles the special features of an oracle database.
@@ -124,7 +123,7 @@ public class DBCommandOracle extends DBCommand
     {
         resetParamUsage();
         if (select == null)
-            throw new EmpireException(Errors.ObjectNotValid, getClass().getName()); // invalid!
+            throw new ObjectNotValidException(this);
         // Prepares statement
         buf.append("SELECT ");
         if (optimizerHint != null)

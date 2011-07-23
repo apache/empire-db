@@ -24,8 +24,6 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Iterator;
 
-import org.apache.empire.commons.EmpireException;
-import org.apache.empire.commons.Errors;
 import org.apache.empire.data.DataType;
 import org.apache.empire.db.DBCmdType;
 import org.apache.empire.db.DBColumn;
@@ -34,7 +32,6 @@ import org.apache.empire.db.DBCommandExpr;
 import org.apache.empire.db.DBDatabase;
 import org.apache.empire.db.DBDatabaseDriver;
 import org.apache.empire.db.DBDriverFeature;
-import org.apache.empire.db.DBErrors;
 import org.apache.empire.db.DBExpr;
 import org.apache.empire.db.DBIndex;
 import org.apache.empire.db.DBObject;
@@ -44,6 +41,10 @@ import org.apache.empire.db.DBSQLScript;
 import org.apache.empire.db.DBTable;
 import org.apache.empire.db.DBTableColumn;
 import org.apache.empire.db.DBView;
+import org.apache.empire.db.exceptions.InternalSQLException;
+import org.apache.empire.exceptions.InvalidArgumentException;
+import org.apache.empire.exceptions.NotImplementedException;
+import org.apache.empire.exceptions.NotSupportedException;
 
 
 /**
@@ -321,7 +322,7 @@ public class DBDatabaseDriverOracle extends DBDatabaseDriver
     {
         // The Object's database must be attached to this driver
         if (dbo==null || dbo.getDatabase().getDriver()!=this)
-            throw new EmpireException(Errors.InvalidArg, dbo, "dbo");
+            throw new InvalidArgumentException("dbo", dbo);
         // Check Type of object
         if (dbo instanceof DBDatabase)
         { // Database
@@ -334,7 +335,7 @@ public class DBDatabaseDriverOracle extends DBDatabaseDriver
                     dropObject(((DBDatabase) dbo).getSchema(), "USER", script);
                     return;
                 default:
-                    throw new EmpireException(Errors.NotImplemented, "getDDLScript." + dbo.getClass().getName() + "." + type);
+                    throw new NotImplementedException(this, "getDDLScript." + dbo.getClass().getName() + "." + type);
             }
         } 
         else if (dbo instanceof DBTable)
@@ -348,7 +349,7 @@ public class DBDatabaseDriverOracle extends DBDatabaseDriver
                     dropObject(((DBTable) dbo).getName(), "TABLE", script);
                     return;
                 default:
-                    throw new EmpireException(Errors.NotImplemented, "getDDLScript." + dbo.getClass().getName() + "." + type);
+                    throw new NotImplementedException(this, "getDDLScript." + dbo.getClass().getName() + "." + type);
             }
         } 
         else if (dbo instanceof DBView)
@@ -362,7 +363,7 @@ public class DBDatabaseDriverOracle extends DBDatabaseDriver
                     dropObject(((DBView) dbo).getName(), "VIEW", script);
                     return;
                 default:
-                    throw new EmpireException(Errors.NotImplemented, "getDDLScript." + dbo.getClass().getName() + "." + type);
+                    throw new NotImplementedException(this, "getDDLScript." + dbo.getClass().getName() + "." + type);
             }
         } 
         else if (dbo instanceof DBRelation)
@@ -376,7 +377,7 @@ public class DBDatabaseDriverOracle extends DBDatabaseDriver
                     dropObject(((DBRelation) dbo).getName(), "CONSTRAINT", script);
                     return;
                 default:
-                    throw new EmpireException(Errors.NotImplemented, "getDDLScript." + dbo.getClass().getName() + "." + type);
+                    throw new NotImplementedException(this, "getDDLScript." + dbo.getClass().getName() + "." + type);
             }
         } 
         else if (dbo instanceof DBTableColumn)
@@ -385,8 +386,8 @@ public class DBDatabaseDriverOracle extends DBDatabaseDriver
             return;
         } 
         else
-        { // an invalid argument has been supplied
-            throw new EmpireException(Errors.InvalidArg, dbo, "dbo");
+        { // dll generation not supported for this type
+            throw new NotSupportedException(this, "getDDLScript() for "+dbo.getClass().getName());
         }
     }
 
@@ -406,8 +407,7 @@ public class DBDatabaseDriverOracle extends DBDatabaseDriver
             return (rs.next() ? rs.getTimestamp(1) : null);
         } catch (SQLException e) {
             // throw exception
-            String msg = extractErrorMessage(e);
-            throw new EmpireException(DBErrors.SQLException, new Object[] { msg }, e);
+            throw new InternalSQLException(this, e);
         } finally
         { // Cleanup
             try
@@ -419,8 +419,7 @@ public class DBDatabaseDriverOracle extends DBDatabaseDriver
                     stmt.close();
             } catch (SQLException e) {
                 // throw exception
-                String msg = extractErrorMessage(e);
-                throw new EmpireException(DBErrors.SQLException, new Object[] { msg }, e);
+                throw new InternalSQLException(this, e);
             }
         }
     }
@@ -465,14 +464,10 @@ public class DBDatabaseDriverOracle extends DBDatabaseDriver
         {
             try {
                 createView(views.next(), script);
-            } catch(EmpireException e) {
-                // Error
-                if (e.getErrorType()!=Errors.NotImplemented)
-                {   // View command not implemented
-                    log.warn("Error creating the view {0}. This view will be ignored.");
-                    continue;
-                }    
-                else throw e; 
+            } catch(NotImplementedException e) {
+                // View command not implemented
+                log.warn("Error creating the view {0}. This view will be ignored.");
+                continue;
             }
         }
     }
@@ -766,7 +761,7 @@ public class DBDatabaseDriverOracle extends DBDatabaseDriver
         if (cmd==null)
         {   // Check whether Error information is available
             log.error("No command has been supplied for view " + v.getName());
-            throw new EmpireException(Errors.NotImplemented, v.getName() + ".createCommand");
+            throw new NotImplementedException(this, v.getName() + ".createCommand");
         }
         // Make sure there is no OrderBy
         cmd.clearOrderBy();
@@ -827,7 +822,7 @@ public class DBDatabaseDriverOracle extends DBDatabaseDriver
     protected void dropObject(String name, String objType, DBSQLScript script)
     {
         if (name == null || name.length() == 0)
-            throw new EmpireException(Errors.InvalidArg, name, "name");
+            throw new InvalidArgumentException("name", name);
         // Create Drop Statement
         StringBuilder sql = new StringBuilder();
         sql.append("DROP ");
@@ -848,7 +843,7 @@ public class DBDatabaseDriverOracle extends DBDatabaseDriver
     {
         // Check Params
         if (owner==null || owner.length()==0)
-            throw new EmpireException(Errors.InvalidArg, owner, "owner");
+            throw new InvalidArgumentException("owner", owner);
         // Database definition
         OracleSYSDatabase sysDB = new OracleSYSDatabase(this);
         // Check Columns

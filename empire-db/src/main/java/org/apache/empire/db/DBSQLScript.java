@@ -23,7 +23,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Iterator;
 
-import org.apache.empire.commons.EmpireException;
+import org.apache.empire.db.exceptions.InternalSQLException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -87,7 +87,7 @@ public class DBSQLScript implements Iterable<String>
     }
     
     /**
-     * Clears the script and delets all statements
+     * Clears the script by removing all statements
      */
     public void clear()
     {
@@ -99,7 +99,6 @@ public class DBSQLScript implements Iterable<String>
      * @param driver the driver used for statement execution
      * @param conn the connection
      * @param ignoreErrors true if errors should be ignored
-     * @return true if the script has been run successful or false otherwise 
      */
     public void run(DBDatabaseDriver driver, Connection conn, boolean ignoreErrors)
     {
@@ -115,14 +114,23 @@ public class DBSQLScript implements Iterable<String>
                 log.error(e.toString(), e);
                 if (ignoreErrors==false)
                 {   // forward exception
-                    String msg = driver.extractErrorMessage(e);
-                    throw new EmpireException(DBErrors.SQLException, new Object[] { msg }, e);
+                    throw new InternalSQLException(driver, e);
                 }    
                 // continue
                 log.debug("Ignoring error. Continuing with script...");
             }
         }
         log.debug("Script completed.");
+    }
+    
+    /**
+     * Runs all SQL Statements using the supplied driver and connection.
+     * @param driver the driver used for statement execution
+     * @param conn the connection
+     */
+    public void run(DBDatabaseDriver driver, Connection conn)
+    {
+        run(driver, conn, false);
     }
     
     /**

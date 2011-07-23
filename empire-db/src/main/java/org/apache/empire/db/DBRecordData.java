@@ -24,11 +24,11 @@ import java.util.Date;
 
 import org.apache.commons.beanutils.BeanUtils;
 import org.apache.empire.commons.DateUtils;
-import org.apache.empire.commons.EmpireException;
 import org.apache.empire.commons.ObjectUtils;
 import org.apache.empire.commons.StringUtils;
 import org.apache.empire.data.ColumnExpr;
 import org.apache.empire.data.RecordData;
+import org.apache.empire.exceptions.BeanPropertySetException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
@@ -282,13 +282,12 @@ public abstract class DBRecordData extends DBObject
             // done
 
         } catch (IllegalAccessException e)
-        {
-            log.error(bean.getClass().getName() + ": unable to set property '" + property + "'");
-            throw new EmpireException(e);
+        {   log.error(bean.getClass().getName() + ": unable to set property '" + property + "'");
+            throw new BeanPropertySetException(bean, property, e);
+            
         } catch (InvocationTargetException e)
-        {
-            log.error(bean.getClass().getName() + ": unable to set property '" + property + "'");
-            throw new EmpireException(e);
+        {   log.error(bean.getClass().getName() + ": unable to set property '" + property + "'");
+            throw new BeanPropertySetException(bean, property, e);
             /*
              * } catch(NoSuchMethodException e) { log.warn(bean.getClass().getName() + ": cannot check value of property '" +
              * property + "'"); return true;

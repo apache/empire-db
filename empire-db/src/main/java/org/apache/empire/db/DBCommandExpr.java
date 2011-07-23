@@ -19,17 +19,18 @@
 package org.apache.empire.db;
 
 // java
-import org.apache.empire.commons.EmpireException;
-import org.apache.empire.commons.Errors;
-import org.apache.empire.commons.Options;
-import org.apache.empire.data.DataType;
-import org.apache.empire.db.expr.order.DBOrderByExpr;
-import org.w3c.dom.Element;
-
 import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+
+import org.apache.empire.commons.Options;
+import org.apache.empire.data.DataType;
+import org.apache.empire.db.expr.order.DBOrderByExpr;
+import org.apache.empire.exceptions.InvalidArgumentException;
+import org.apache.empire.exceptions.NotSupportedException;
+import org.apache.empire.exceptions.ObjectNotValidException;
+import org.w3c.dom.Element;
 
 
 /**
@@ -108,7 +109,7 @@ public abstract class DBCommandExpr extends DBExpr
         @Override
         public DBColumn[] getKeyColumns()
         {
-            throw new EmpireException(Errors.NotSupported, "getKeyColumns");
+            throw new NotSupportedException(this, "getKeyColumns");
         }
 
         /**
@@ -119,42 +120,42 @@ public abstract class DBCommandExpr extends DBExpr
         @Override
         public Object[] getRecordKey(DBRecord rec)
         {
-            throw new EmpireException(Errors.NotSupported, "getRecordKey");
+            throw new NotSupportedException(this, "getRecordKey");
         }
 
         /** Returns the error message: ERR_NOTSUPPORTED */
         @Override
         public void initRecord(DBRecord rec, Object[] keyValues)
         {
-            throw new EmpireException(Errors.NotSupported, "initRecord");
+            throw new NotSupportedException(this, "initRecord");
         }
 
         /** Returns the error message: ERR_NOTSUPPORTED */
         @Override
         public void createRecord(DBRecord rec, Connection conn)
         {
-            throw new EmpireException(Errors.NotSupported, "addRecord");
+            throw new NotSupportedException(this, "addRecord");
         }
 
         /** Returns the error message: ERR_NOTSUPPORTED */
         @Override
         public void readRecord(DBRecord rec, Object[] keys, Connection conn)
         {
-            throw new EmpireException(Errors.NotSupported, "getRecord");
+            throw new NotSupportedException(this, "getRecord");
         }
 
         /** Returns the error message: ERR_NOTSUPPORTED */
         @Override
         public void updateRecord(DBRecord rec, Connection conn)
         {
-            throw new EmpireException(Errors.NotSupported, "updateRecord");
+            throw new NotSupportedException(this, "updateRecord");
         }
 
         /** Returns the error message: ERR_NOTSUPPORTED */
         @Override
         public void deleteRecord(Object[] keys, Connection conn)
         {
-            throw new EmpireException(Errors.NotSupported, "deleteRecord");
+            throw new NotSupportedException(this, "deleteRecord");
         }
     }
 
@@ -462,7 +463,7 @@ public abstract class DBCommandExpr extends DBExpr
     protected String getInsertInto(DBTable table, DBColumnExpr[] select, List<DBColumnExpr> columns)
     {
         if (select == null)
-            throw new EmpireException(Errors.ObjectNotValid, getClass().getName());
+            throw new ObjectNotValidException(this);
         // prepare buffer
         StringBuilder buf = new StringBuilder("INSERT INTO ");
         table.addSQL(buf, CTX_FULLNAME);
@@ -471,7 +472,7 @@ public abstract class DBCommandExpr extends DBExpr
         { // Check Count
             if (columns.size() != select.length)
             {
-                throw new EmpireException(Errors.InvalidArg, columns, "columns");
+                throw new InvalidArgumentException("columns", "size()!=select.length");
             }
             // Append Names
             buf.append(" (");
@@ -511,7 +512,7 @@ public abstract class DBCommandExpr extends DBExpr
     {
         DBColumnExpr[] select = getSelectExprList();
         if (select == null || select.length < 1)
-            throw new EmpireException(Errors.ObjectNotValid, getClass().getName());
+            throw new ObjectNotValidException(this);
         // Match Columns
         List<DBColumnExpr> inscols = new ArrayList<DBColumnExpr>(select.length);
         for (int i = 0; i < select.length; i++)

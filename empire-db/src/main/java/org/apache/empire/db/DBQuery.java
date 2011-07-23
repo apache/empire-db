@@ -24,15 +24,23 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.apache.empire.commons.EmpireException;
-import org.apache.empire.commons.Errors;
 import org.apache.empire.commons.ObjectUtils;
 import org.apache.empire.commons.Options;
 import org.apache.empire.data.DataType;
 import org.apache.empire.db.DBCommand.DBCommandParam;
+import org.apache.empire.db.exceptions.NoPrimaryKeyException;
+import org.apache.empire.db.exceptions.InvalidKeyException;
+import org.apache.empire.db.exceptions.RecordNotFoundException;
+import org.apache.empire.db.exceptions.RecordUpdateFailedException;
+import org.apache.empire.db.exceptions.RecordUpdateInvalidException;
 import org.apache.empire.db.expr.compare.DBCompareColExpr;
 import org.apache.empire.db.expr.compare.DBCompareExpr;
 import org.apache.empire.db.expr.join.DBJoinExpr;
+import org.apache.empire.exceptions.EmpireException;
+import org.apache.empire.exceptions.InvalidArgumentException;
+import org.apache.empire.exceptions.ItemNotFoundException;
+import org.apache.empire.exceptions.NotImplementedException;
+import org.apache.empire.exceptions.NotSupportedException;
 import org.w3c.dom.Element;
 
 
@@ -43,7 +51,7 @@ import org.w3c.dom.Element;
  *  <LI>In oder to define subqueries simply define a command object with the subquery and wrap it inside a DBQuery.
  *    Then in a second command object you can reference this Query to join with your other tables and views.
  *    In order to join other columns with your query use findQueryColumn(DBColumnExpr expr) to get the 
- *    query column object for a given column expression in the orignial select clause.</LI> 
+ *    query column object for a given column expression in the original select clause.</LI> 
  *  <LI>With a key supplied you can have an updateable query that will update several records at once.</LI>
  * </UL>
  *
@@ -271,7 +279,7 @@ public class DBQuery extends DBRowSet
     public Object[] getRecordKey(DBRecord record)
     {
         if (record == null || record.getRowSet() != this)
-            throw new EmpireException(Errors.InvalidArg, record, "record");
+            throw new InvalidArgumentException("record", record);
         // get Key
         return (Object[]) record.getRowSetData();
     }
@@ -335,7 +343,7 @@ public class DBQuery extends DBRowSet
     @Override
     public void createRecord(DBRecord rec, Connection conn)
     {
-        throw new EmpireException(Errors.NotImplemented, "createRecord");
+        throw new NotImplementedException(this, "createRecord");
     }
 
     /**
@@ -350,10 +358,10 @@ public class DBQuery extends DBRowSet
     public void readRecord(DBRecord rec, Object[] key, Connection conn)
     {
         if (conn == null || rec == null)
-            throw new EmpireException(Errors.InvalidArg, null, "conn|rec");
+            throw new InvalidArgumentException("conn|rec", null);
         DBColumn[] keyColumns = getKeyColumns();
         if (key == null || keyColumns.length != key.length)
-            throw new EmpireException(DBErrors.RecordInvalidKey, key);
+            throw new InvalidKeyException(this, key);
         // Select
         for (int i = 0; i < keyColumns.length; i++)
         {   // Set key column constraint
@@ -372,7 +380,7 @@ public class DBQuery extends DBRowSet
             // Translate exception
             if (e.getErrorType()==DBErrors.QueryNoResult)
                 // Record not found
-                throw new EmpireException(DBErrors.RecordNotFound, key);
+                throw new RecordNotFoundException(this, key);
             else
                 // Other error
                 throw e;
@@ -390,14 +398,14 @@ public class DBQuery extends DBRowSet
     public void updateRecord(DBRecord rec, Connection conn)
     {
         if (conn == null || rec == null)
-            throw new EmpireException(Errors.InvalidArg, null, "conn|rec");
+            throw new InvalidArgumentException("conn|rec", null);
         // Has record been modified?
         if (rec.isModified() == false)
             return; // Nothing to update
         // Must have key Columns
         DBColumn[] keyColumns = getKeyColumns();
         if (keyColumns==null)
-            throw new EmpireException(DBErrors.NoPrimaryKey, getAlias());
+            throw new NoPrimaryKeyException(this);
         // Get the fields and the flags
         Object[] fields = rec.getFields();
         // Get all Update Commands
@@ -450,10 +458,10 @@ public class DBQuery extends DBRowSet
                 DBColumn right = join.getRight().getUpdateColumn();
                 if (left.getRowSet()==table && table.isKeyColumn(left))
                     if (!addJoinRestriction(upd, left, right, keyColumns, rec))
-                        throw new EmpireException(Errors.ItemNotFound, left.getFullName());
+                        throw new ItemNotFoundException(left.getFullName());
                 if (right.getRowSet()==table && table.isKeyColumn(right))
                     if (!addJoinRestriction(upd, right, left, keyColumns, rec))
-                        throw new EmpireException(Errors.ItemNotFound, right.getFullName());
+                        throw new ItemNotFoundException(right.getFullName());
             }
             // Evaluate Existing restrictions
             for (i = 0; cmd.where != null && i < cmd.where.size(); i++)
@@ -477,7 +485,7 @@ public class DBQuery extends DBRowSet
                 } 
                 else
                 {	// other constraints are not supported
-                    throw new EmpireException(Errors.NotSupported, "updateRecord");
+                    throw new NotSupportedException(this, "updateRecord with "+cmp.getClass().getName());
                 }
             }
             // Add Restrictions
@@ -524,7 +532,7 @@ public class DBQuery extends DBRowSet
             {   // Error
                 if (affected == 0)
                 { // Record not found
-                    throw new EmpireException(DBErrors.RecordUpdateFailed, table.getName());
+                    throw new RecordUpdateFailedException(this, keys);
                 }
                 // Rollback
                 db.rollback(conn);
@@ -532,7 +540,7 @@ public class DBQuery extends DBRowSet
             } 
             else if (affected > 1)
             { // More than one record
-                throw new EmpireException(DBErrors.RecordUpdateInvalid, table.getName());
+                throw new RecordUpdateInvalidException(this, keys);
             } 
             else
             { // success
@@ -585,7 +593,7 @@ public class DBQuery extends DBRowSet
     @Override
     public void deleteRecord(Object[] keys, Connection conn)
     {
-        throw new EmpireException(Errors.NotImplemented, "deleteRecord");
+        throw new NotImplementedException(this, "deleteRecord()");
     }
 
 }

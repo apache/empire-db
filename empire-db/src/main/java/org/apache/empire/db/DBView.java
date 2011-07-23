@@ -21,11 +21,12 @@ package org.apache.empire.db;
 import java.sql.Connection;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.apache.empire.commons.EmpireException;
-import org.apache.empire.commons.Errors;
 import org.apache.empire.commons.Options;
 import org.apache.empire.data.DataType;
 import org.apache.empire.db.expr.column.DBValueExpr;
+import org.apache.empire.exceptions.InvalidArgumentException;
+import org.apache.empire.exceptions.ItemExistsException;
+import org.apache.empire.exceptions.NotSupportedException;
 import org.apache.empire.xml.XMLUtil;
 import org.w3c.dom.Element;
 
@@ -287,9 +288,9 @@ public abstract class DBView extends DBRowSet
     protected void addColumn(DBViewColumn col)
     { // find column by name
         if (col == null || col.getRowSet() != this)
-            throw new EmpireException(Errors.InvalidArg, col, "col");
+            throw new InvalidArgumentException("col", col);
         if (columns.contains(col) == true)
-            throw new EmpireException(Errors.ItemExists, col.getName());
+            throw new ItemExistsException(col.getName());
         // add now
         columns.add(col);
     }
@@ -383,7 +384,7 @@ public abstract class DBView extends DBRowSet
     public void updateRecord(DBRecord rec, Connection conn)
     {
         if (updateable==false)
-            throw new EmpireException(Errors.NotSupported, "updateRecord");
+            throw new NotSupportedException(this, "updateRecord");
         // Update the record
         super.updateRecord(rec, conn);
     }
@@ -396,7 +397,7 @@ public abstract class DBView extends DBRowSet
     @Override
     public void createRecord(DBRecord rec, Connection conn)
     {
-        throw new EmpireException(Errors.NotSupported, "addRecord");
+        throw new NotSupportedException(this, "addRecord");
     }
 
     /*
@@ -407,6 +408,6 @@ public abstract class DBView extends DBRowSet
     @Override
     public void deleteRecord(Object[] keys, Connection conn)
     {
-        throw new EmpireException(Errors.NotSupported, "deleteRecord");
+        throw new NotSupportedException(this, "deleteRecord");
     }
 }

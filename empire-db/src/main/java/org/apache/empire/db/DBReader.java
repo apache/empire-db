@@ -33,11 +33,14 @@ import java.util.Iterator;
 import java.util.Map;
 
 import org.apache.commons.beanutils.ConstructorUtils;
-import org.apache.empire.commons.EmpireException;
-import org.apache.empire.commons.Errors;
 import org.apache.empire.commons.ObjectUtils;
 import org.apache.empire.data.ColumnExpr;
 import org.apache.empire.data.DataType;
+import org.apache.empire.db.exceptions.InternalSQLException;
+import org.apache.empire.db.exceptions.QueryNoResultException;
+import org.apache.empire.exceptions.BeanInstantiationException;
+import org.apache.empire.exceptions.InvalidArgumentException;
+import org.apache.empire.exceptions.ObjectNotValidException;
 import org.apache.empire.xml.XMLUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -129,7 +132,8 @@ public class DBReader extends DBRecordData
                 // there are more records
                 return true;
             } catch (SQLException e) {
-                throw SQL2EmpireException(e);
+                // Error
+                throw new InternalSQLException(getDatabase(), e);
             }
         }
 
@@ -185,7 +189,7 @@ public class DBReader extends DBRecordData
             if (curCount >= maxCount)
                 return false;
             if (rset == null)
-                throw new EmpireException(Errors.ObjectNotValid, getClass().getName());
+                throw new ObjectNotValidException(this);
             // Check next Record
             if (getCurrent == true)
             {
@@ -364,7 +368,7 @@ public class DBReader extends DBRecordData
     {
         // Check params
         if (index < 0 || index >= colList.length)
-            throw new EmpireException(Errors.OutOfRange, index);
+            throw new InvalidArgumentException("index", index);
         try
         {   // Get Value from Resultset
             DataType dataType = colList[index].getDataType();
@@ -372,7 +376,7 @@ public class DBReader extends DBRecordData
 
         } catch (SQLException e)
         { // Operation failed
-            throw SQL2EmpireException(e);
+            throw new InternalSQLException(this, e);
         }
     }
 
@@ -410,7 +414,7 @@ public class DBReader extends DBRecordData
         db = cmd.getDatabase();
         rset = db.executeQuery(sqlCmd, cmd.getParamValues(), scrollable, conn);
         if (rset==null)
-            throw new EmpireException(DBErrors.QueryNoResult, sqlCmd);
+            throw new QueryNoResultException(sqlCmd);
         // successfully opened
         colList = cmd.getSelectExprList();
         addOpenResultSet();
@@ -450,7 +454,7 @@ public class DBReader extends DBRecordData
         // Get First Record
         if (!moveNext())
         { // Close
-            throw new EmpireException(DBErrors.QueryNoResult, cmd.getSelect());
+            throw new QueryNoResultException(cmd.getSelect());
         }
     }
 
@@ -496,13 +500,13 @@ public class DBReader extends DBRecordData
         try
         {   // Check Recordset
             if (rset == null)
-                throw new EmpireException(Errors.ObjectNotValid, getClass().getName());
+                throw new ObjectNotValidException(this);
             // Forward only cursor?
             int type = rset.getType();
             if (type == ResultSet.TYPE_FORWARD_ONLY)
             {
                 if (count < 0)
-                    throw new EmpireException(Errors.InvalidArg, count, "count");
+                    throw new InvalidArgumentException("count", count);
                 // Move
                 for (; count > 0; count--)
                 {
@@ -532,7 +536,7 @@ public class DBReader extends DBRecordData
 
         } catch (SQLException e) {
             // an error occurred
-            throw new EmpireException(e);
+            throw new InternalSQLException(this, e);
         }
     }
 
@@ -546,7 +550,7 @@ public class DBReader extends DBRecordData
         try
         {   // Check Recordset
             if (rset == null)
-                throw new EmpireException(Errors.ObjectNotValid, getClass().getName());
+                throw new ObjectNotValidException(this);
             // Move Next
             if (rset.next() == false)
             { // Close recordset automatically after last record
@@ -557,7 +561,7 @@ public class DBReader extends DBRecordData
 
         } catch (SQLException e) {
             // an error occurred
-            throw SQL2EmpireException(e);
+            throw new InternalSQLException(this, e);
         }
     }
 
@@ -608,7 +612,7 @@ public class DBReader extends DBRecordData
     public void initRecord(DBRowSet rowset, DBRecord rec)
     {
     	if (rowset==null)
-    	    throw new EmpireException(Errors.InvalidArg, rowset, "rowset");
+    	    throw new InvalidArgumentException("rowset", rowset);
     	// init Record
     	rowset.initRecord(rec, this);
     }
@@ -629,7 +633,7 @@ public class DBReader extends DBRecordData
         // Check Recordset
         if (rset == null)
         {   // Resultset not available
-            throw new EmpireException(Errors.ObjectNotValid, getClass().getName());
+            throw new ObjectNotValidException(this);
         }
         // Query List
         try
@@ -665,11 +669,11 @@ public class DBReader extends DBRecordData
             // done
             return c;
         } catch (InvocationTargetException e) {
-            throw new EmpireException(e);
+            throw new BeanInstantiationException(t, e);
         } catch (IllegalAccessException e) {
-            throw new EmpireException(e);
+            throw new BeanInstantiationException(t, e);
         } catch (InstantiationException e) {
-            throw new EmpireException(e);
+            throw new BeanInstantiationException(t, e);
         }
     }
     
@@ -705,7 +709,7 @@ public class DBReader extends DBRecordData
     public int addColumnDesc(Element parent)
     {
         if (colList == null)
-            throw new EmpireException(Errors.ObjectNotValid, getClass().getName());
+            throw new ObjectNotValidException(this);
         // Add Field Description
         for (int i = 0; i < colList.length; i++)
             colList[i].addXml(parent, 0);
@@ -723,7 +727,7 @@ public class DBReader extends DBRecordData
     public int addRowValues(Element parent)
     {
         if (rset == null)
-            throw new EmpireException(Errors.ObjectNotValid, getClass().getName());
+            throw new ObjectNotValidException(this);
         // Add all children
         for (int i = 0; i < colList.length; i++)
         { // Read all

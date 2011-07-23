@@ -34,13 +34,14 @@ import java.util.Set;
 import java.util.UUID;
 
 import org.apache.empire.commons.DateUtils;
-import org.apache.empire.commons.EmpireException;
-import org.apache.empire.commons.Errors;
 import org.apache.empire.commons.ObjectUtils;
 import org.apache.empire.commons.StringUtils;
 import org.apache.empire.data.DataMode;
 import org.apache.empire.data.DataType;
 import org.apache.empire.db.DBCommand.DBCommandParam;
+import org.apache.empire.db.exceptions.InternalSQLException;
+import org.apache.empire.exceptions.NotImplementedException;
+import org.apache.empire.exceptions.NotSupportedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -225,7 +226,7 @@ public abstract class DBDatabaseDriver implements Serializable
                 return new Long(seqValue);
             } catch (SQLException e) {
                 // throw exception
-                throw SQL2EmpireException(e);
+                throw new InternalSQLException(this, e);
             } finally
             { // Cleanup
                 db.closeStatement(stmt);
@@ -378,7 +379,7 @@ public abstract class DBDatabaseDriver implements Serializable
             return (type==DataType.DATE ? DateUtils.getDateOnly(ts) : ts);
         }
         // Other types
-        throw new EmpireException(Errors.NotSupported, "getColumnAutoValue() for "+type);
+        throw new NotSupportedException(this, "getColumnAutoValue() for "+type);
     }
 
     /**
@@ -699,7 +700,7 @@ public abstract class DBDatabaseDriver implements Serializable
      */
     public void checkDatabase(DBDatabase db, String owner, Connection conn)
     {
-        throw new EmpireException(Errors.NotImplemented, "checkDatabase");
+        throw new NotImplementedException(this, "checkDatabase");
     }
     
     /**
@@ -713,7 +714,7 @@ public abstract class DBDatabaseDriver implements Serializable
      */
     public void getDDLScript(DBCmdType type, DBObject dbo, DBSQLScript script)
     {
-        throw new EmpireException(Errors.NotSupported, "getDDLScript");
+        throw new NotImplementedException(this, "getDDLScript");
     }
     
     /**

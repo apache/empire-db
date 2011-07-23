@@ -18,8 +18,8 @@
  */
 package org.apache.empire.samples.db.advanced;
 
-import org.apache.empire.commons.EmpireException;
-import org.apache.empire.commons.Errors;
+import org.apache.empire.exceptions.ItemNotFoundException;
+import org.apache.empire.exceptions.ObjectNotValidException;
 import org.apache.empire.xml.XMLConfiguration;
 import org.apache.empire.xml.XMLUtil;
 import org.apache.log4j.xml.DOMConfigurator;
@@ -80,13 +80,13 @@ public class SampleAdvConfig extends XMLConfiguration
         // Get configuration root node
         Element rootNode = getRootNode();
         if (rootNode == null)
-            throw new EmpireException(Errors.ObjectNotValid, getClass().getName());
+            throw new ObjectNotValidException(this);
         // Find log configuration node
         Element loggingNode = XMLUtil.findFirstChild(rootNode, loggingNodeName);
         if (loggingNode == null)
         {   // log configuration node not found
             log.error("Log configuration node {} has not been found. Logging has not been configured.", loggingNodeName);
-            throw new EmpireException(Errors.ItemNotFound, loggingNodeName);
+            throw new ItemNotFoundException(loggingNodeName);
         }
         // Init Log4J
         DOMConfigurator.configure(loggingNode);

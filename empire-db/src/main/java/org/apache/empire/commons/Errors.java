@@ -18,7 +18,6 @@
  */
 package org.apache.empire.commons;
 
-import java.text.MessageFormat;
 
 /**
  * This class holds the definition of common error types.
@@ -32,6 +31,7 @@ import java.text.MessageFormat;
 public class Errors
 {
     // No Error
+/*    
     public static final ErrorType None            = new ErrorType("error.none", "");
     public static final ErrorType Cancelled       = new ErrorType("error.cancelled", "The action has been cancelled by the user");
     // Code Errors
@@ -63,6 +63,7 @@ public class Errors
     public static final ErrorType FileWriteError  = new ErrorType("error.filewriteerror", "Error creating or writing file {0}");
     public static final ErrorType PathNotFound    = new ErrorType("error.pathnotfound", "The directory {0} does not exists.");
     public static final ErrorType PathCreateFailed= new ErrorType("error.pathcreatefailed", "Error creating the directory {0}");
+*/    
 
     /**
      *  No instances of this class can be created.
@@ -78,6 +79,7 @@ public class Errors
      * @param info the ErrorInfo to get the message for
      * @return the message string for this info
      */
+    /*
     public static String getErrorMessage(ErrorType type, Object[] msgParams)
     {
         // Get Error Type
@@ -91,4 +93,5 @@ public class Errors
         String msg = MessageFormat.format(msgPattern, msgParams);
         return msg;
     }
+    */
 }

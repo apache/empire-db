@@ -30,10 +30,14 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.apache.commons.beanutils.BeanUtils;
-import org.apache.empire.commons.EmpireException;
-import org.apache.empire.commons.Errors;
 import org.apache.empire.commons.ObjectUtils;
 import org.apache.empire.commons.StringUtils;
+import org.apache.empire.exceptions.FileParseException;
+import org.apache.empire.exceptions.FileReadException;
+import org.apache.empire.exceptions.InternalException;
+import org.apache.empire.exceptions.InvalidArgumentException;
+import org.apache.empire.exceptions.ItemNotFoundException;
+import org.apache.empire.exceptions.ObjectNotValidException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
@@ -110,19 +114,19 @@ public class XMLConfiguration
         } catch (FileNotFoundException e)
         {
             log.error("Configuration file {} not found!", fileName, e);
-            throw new EmpireException(Errors.FileNotFound, fileName);
+            throw new FileReadException(fileName, e);
         } catch (IOException e)
         {
             log.error("Error reading configuration file {}", fileName, e);
-            throw new EmpireException(Errors.FileReadError, fileName);
+            throw new FileReadException(fileName, e);
         } catch (SAXException e)
         {
             log.error("Invalid XML in configuration file {}", fileName, e);
-            throw new EmpireException(e);
+            throw new FileParseException(fileName, e);
         } catch (ParserConfigurationException e)
         {
             log.error("ParserConfigurationException: {}", e.getMessage(), e);
-            throw new EmpireException(e);
+            throw new InternalException(e);
         } finally
         { 
         	close(reader);
@@ -140,22 +144,22 @@ public class XMLConfiguration
     {
         // Check state
         if (configRootNode == null)
-            throw new EmpireException(Errors.ObjectNotValid, getClass().getName());
+            throw new ObjectNotValidException(this);
         // Check arguments
         if (bean == null)
-            throw new EmpireException(Errors.InvalidArg, null, "bean");
+            throw new InvalidArgumentException("bean", bean);
         
         Element propertiesNode = configRootNode;  
         for(String nodeName : propertiesNodeNames)
         {
             if (StringUtils.isEmpty(nodeName))
-                throw new EmpireException(Errors.InvalidArg, null, "propertiesNodeNames");
+                throw new InvalidArgumentException("propertiesNodeNames", null);
             // Get configuration node
             propertiesNode = XMLUtil.findFirstChild(propertiesNode, nodeName);
             if (propertiesNode == null)
             { // Configuration
                 log.error("Property-Node {} has not been found.", nodeName);
-                throw new EmpireException(Errors.ItemNotFound, nodeName);
+                throw new ItemNotFoundException(nodeName);
             }
         }
         // read the properties
@@ -172,9 +176,9 @@ public class XMLConfiguration
     {
         // Check arguments
         if (propertiesNode == null)
-            throw new EmpireException(Errors.InvalidArg, null, "propertiesNode");
+            throw new InvalidArgumentException("propertiesNode", propertiesNode);
         if (bean == null)
-            throw new EmpireException(Errors.InvalidArg, null, "bean");
+            throw new InvalidArgumentException("bean", bean);
         // apply configuration
         log.info("reading bean properties from node: {}", propertiesNode.getNodeName());
         NodeList nodeList = propertiesNode.getChildNodes();
