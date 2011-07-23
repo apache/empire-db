@@ -28,15 +28,15 @@ import org.apache.empire.commons.ObjectUtils;
 import org.apache.empire.commons.Options;
 import org.apache.empire.data.DataType;
 import org.apache.empire.db.DBCommand.DBCommandParam;
-import org.apache.empire.db.exceptions.NoPrimaryKeyException;
 import org.apache.empire.db.exceptions.InvalidKeyException;
+import org.apache.empire.db.exceptions.NoPrimaryKeyException;
+import org.apache.empire.db.exceptions.QueryNoResultException;
 import org.apache.empire.db.exceptions.RecordNotFoundException;
 import org.apache.empire.db.exceptions.RecordUpdateFailedException;
 import org.apache.empire.db.exceptions.RecordUpdateInvalidException;
 import org.apache.empire.db.expr.compare.DBCompareColExpr;
 import org.apache.empire.db.expr.compare.DBCompareExpr;
 import org.apache.empire.db.expr.join.DBJoinExpr;
-import org.apache.empire.exceptions.EmpireException;
 import org.apache.empire.exceptions.InvalidArgumentException;
 import org.apache.empire.exceptions.ItemNotFoundException;
 import org.apache.empire.exceptions.NotImplementedException;
@@ -376,14 +376,9 @@ public class DBQuery extends DBRowSet
             readRecord(rec, cmd, conn);
             // Set RowSetData
             rec.changeState(DBRecord.REC_VALID, key.clone());
-        } catch (EmpireException e) {
-            // Translate exception
-            if (e.getErrorType()==DBErrors.QueryNoResult)
-                // Record not found
-                throw new RecordNotFoundException(this, key);
-            else
-                // Other error
-                throw e;
+        } catch (QueryNoResultException e) {
+            // Record not found
+            throw new RecordNotFoundException(this, key);
         }
     }
 
