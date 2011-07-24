@@ -23,6 +23,7 @@ import java.sql.DriverManager;
 import java.util.List;
 
 import org.apache.empire.commons.StringUtils;
+import org.apache.empire.data.bean.BeanResult;
 import org.apache.empire.db.DBColumnExpr;
 import org.apache.empire.db.DBCommand;
 import org.apache.empire.db.DBDatabaseDriver;
@@ -141,6 +142,9 @@ public class SampleApp
 			System.out.println("*** Step 8 Option 3: queryRecords() / XML-Output ***");
 			queryRecords(conn, QueryType.XmlDocument); // XML-Output
 
+			// STEP 9: Use Bean Result to query beans
+			queryBeans(conn);
+			
 			// Done
 			System.out.println("DB Sample finished successfully.");
 
@@ -373,8 +377,7 @@ public class SampleApp
 		// Select required columns
 		cmd.select(EMP.EMPLOYEE_ID, EMPLOYEE_FULLNAME);
 		if(db.getDriver() instanceof DBDatabaseDriverPostgreSQL)
-		{
-			// postgres does not support the substring expression
+		{	// postgres does not support the substring expression
 			cmd.select(EMP.GENDER, EMP.PHONE_NUMBER);
 		}else{
 			cmd.select(EMP.GENDER, EMP.PHONE_NUMBER, PHONE_EXT_NUMBER);
@@ -442,6 +445,22 @@ public class SampleApp
 			// always close Reader
 			reader.close();
 		}
+	}
+	
+	private static void queryBeans(Connection conn)
+	{
+        DBCommand cmd = db.createCommand();
+        cmd.select(db.EMPLOYEES.getColumns());
+        cmd.where (db.EMPLOYEES.GENDER.is("M"));
+	    
+        // Query all males
+	    BeanResult<SampleBean> result = new BeanResult<SampleBean>(SampleBean.class, cmd);
+	    result.fetch(conn);
+
+	    // And now, the females
+	    result.getCommand().where(db.EMPLOYEES.GENDER.is("F"));
+	    result.fetch(conn);
+	    
 	}
 	
 }
