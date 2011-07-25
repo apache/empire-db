@@ -20,13 +20,13 @@ package org.apache.empire.samples.spring.support;
 
 import java.sql.Connection;
 
-import org.apache.empire.commons.EmpireException;
 import org.apache.empire.db.DBCommand;
 import org.apache.empire.db.DBDatabase;
 import org.apache.empire.db.DBDatabaseDriver;
 import org.apache.empire.db.DBReader;
 import org.apache.empire.db.DBSQLScript;
 import org.apache.empire.db.DBTable;
+import org.apache.empire.exceptions.EmpireException;
 import org.springframework.jdbc.core.support.JdbcDaoSupport;
 
 /**

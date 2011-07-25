@@ -18,13 +18,13 @@
  */
 package org.apache.empire.samples.spring.support;
 
-import org.apache.empire.commons.EmpireException;
+import org.apache.empire.exceptions.EmpireException;
 import org.springframework.dao.UncategorizedDataAccessException;
 
 /**
  * Exception inside springs exception hierarchy. This may be good for client
  * code that catches any {@link org.springframework.dao.DataAccessException}
- * and doesn't want to look for implementation specific {@link org.apache.empire.commons.EmpireException}.
+ * and doesn't want to look for implementation specific {@link org.apache.empire.exceptions.EmpireException}.
  */
 public class EmpireDBException extends UncategorizedDataAccessException {
 

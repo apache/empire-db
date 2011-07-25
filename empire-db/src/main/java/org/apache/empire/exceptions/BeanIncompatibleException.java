@@ -19,37 +19,19 @@
 package org.apache.empire.exceptions;
 
 import org.apache.empire.commons.ErrorType;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.empire.db.DBRowSet;
 
-public class BeanInstantiationException extends EmpireException
+public class BeanIncompatibleException extends EmpireException
 {
-    // Logger
-    private static final Logger log = LoggerFactory.getLogger(BeanInstantiationException.class);
-    
     /**
      * Comment for <code>serialVersionUID</code>
      */
     private static final long serialVersionUID = 1L;
     
-    public static final ErrorType errorType = new ErrorType("error.BeanInstantiation", "Unable create an instance of type {0}.");
+    public static final ErrorType errorType = new ErrorType("error.BeanIncompatible", "The class {0} is not compatible with {1}.");
     
-    public BeanInstantiationException(Class<?> clazz, Throwable cause)
+    public BeanIncompatibleException(Class<?> clazz, DBRowSet rowset)
     {
-        super(errorType, new Object[] { clazz.getName() }, cause);
+        super(errorType, new Object[] { clazz.getName(), rowset.getName() });
     }
-    
-    /**
-     * log the error
-     */
-    @Override
-    protected void log()
-    {
-       if ( log.isErrorEnabled() )
-            log.error(getMessage());
-       else
-           super.log();
-    }
-    
-    
 }

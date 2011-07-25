@@ -449,18 +449,18 @@ public class SampleApp
 	
 	private static void queryBeans(Connection conn)
 	{
-        DBCommand cmd = db.createCommand();
-        cmd.select(db.EMPLOYEES.getColumns());
-        cmd.where (db.EMPLOYEES.GENDER.is("M"));
-	    
         // Query all males
-	    BeanResult<SampleBean> result = new BeanResult<SampleBean>(SampleBean.class, cmd);
+	    BeanResult<SampleBean> result = new BeanResult<SampleBean>(SampleBean.class, db.EMPLOYEES);
+        result.getCommand().where(db.EMPLOYEES.GENDER.is("M"));
 	    result.fetch(conn);
+	    
+	    System.out.println("Number of male employees is: "+result.size());
 
 	    // And now, the females
 	    result.getCommand().where(db.EMPLOYEES.GENDER.is("F"));
 	    result.fetch(conn);
 	    
+        System.out.println("Number of female employees is: "+result.size());
 	}
 	
 }
