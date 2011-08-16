@@ -112,7 +112,7 @@ public class TextAreaInputControl extends InputControl
         if (ci.getDisabled()==false)
         {   // Get Max Length
             String checklength = getFormatOption(ci, "maxlength:");
-            if (StringUtils.isValid(checklength))
+            if (StringUtils.isNotEmpty(checklength))
             {   // Do lengthcheck via onKeyPress and onKeyUp Events
                 int maxLength = (int)ci.getColumn().getSize();
                 checklength = StringUtils.replace(checklength, "{0}", String.valueOf(maxLength)); 

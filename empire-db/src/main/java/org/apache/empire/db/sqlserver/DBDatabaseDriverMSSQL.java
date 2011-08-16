@@ -23,7 +23,6 @@ import java.sql.SQLException;
 import java.util.GregorianCalendar;
 import java.util.Iterator;
 
-import org.apache.empire.commons.Errors;
 import org.apache.empire.commons.ObjectUtils;
 import org.apache.empire.commons.StringUtils;
 import org.apache.empire.data.DataType;
@@ -42,6 +41,11 @@ import org.apache.empire.db.DBSQLScript;
 import org.apache.empire.db.DBTable;
 import org.apache.empire.db.DBTableColumn;
 import org.apache.empire.db.DBView;
+import org.apache.empire.db.exceptions.InternalSQLException;
+import org.apache.empire.exceptions.InvalidArgumentException;
+import org.apache.empire.exceptions.NotImplementedException;
+import org.apache.empire.exceptions.NotSupportedException;
+import org.apache.empire.exceptions.InvalidPropertyException;
 
 
 /**
@@ -68,10 +72,9 @@ public class DBDatabaseDriverMSSQL extends DBDatabaseDriver
     	}
         
         @Override
-        public boolean limitRows(int numRows)
+        public void limitRows(int numRows)
         {
             limit = numRows;
-            return success();
         }
          
         @Override
@@ -104,7 +107,7 @@ public class DBDatabaseDriverMSSQL extends DBDatabaseDriver
     private String objectOwner = "dbo";
     private String sequenceTableName = "Sequences";
     // Sequence treatment
-    // When set to 'false' (default) MySQL's autoincrement feature is used.
+    // When set to 'false' (default) MySQL's auto-increment feature is used.
     private boolean useSequenceTable = false;
     
     /**
@@ -175,7 +178,7 @@ public class DBDatabaseDriverMSSQL extends DBDatabaseDriver
 
     /** {@inheritDoc} */
     @Override
-    public boolean attachDatabase(DBDatabase db, Connection conn)
+    public void attachDatabase(DBDatabase db, Connection conn)
     {
         // Prepare
         try
@@ -194,11 +197,11 @@ public class DBDatabaseDriverMSSQL extends DBDatabaseDriver
                 db.setSchema(schema + "." + objectOwner);
             }
             // call Base implementation
-            return super.attachDatabase(db, conn);
+            super.attachDatabase(db, conn);
             
-        } catch (SQLException e)
-        {
-            return error(e);
+        } catch (SQLException e) {
+            // throw exception
+            throw new InternalSQLException(this, e);
         }
     }
 
@@ -377,22 +380,24 @@ public class DBDatabaseDriverMSSQL extends DBDatabaseDriver
      * @see DBDatabaseDriver#getDDLScript(DBCmdType, DBObject, DBSQLScript)  
      */
     @Override
-    public boolean getDDLScript(DBCmdType type, DBObject dbo, DBSQLScript script)
+    public void getDDLScript(DBCmdType type, DBObject dbo, DBSQLScript script)
     {
         // The Object's database must be attached to this driver
         if (dbo==null || dbo.getDatabase().getDriver()!=this)
-            return error(Errors.InvalidArg, dbo, "dbo");
+            throw new InvalidArgumentException("dbo", dbo);
         // Check Type of object
         if (dbo instanceof DBDatabase)
         { // Database
             switch (type)
             {
                 case CREATE:
-                    return createDatabase((DBDatabase) dbo, script, true);
+                    createDatabase((DBDatabase) dbo, script, true);
+                    return;
                 case DROP:
-                    return dropObject(((DBDatabase) dbo).getSchema(), "DATABASE", script);
+                    dropObject(((DBDatabase) dbo).getSchema(), "DATABASE", script);
+                    return;
                 default:
-                    return error(Errors.NotImplemented, "getDDLScript." + dbo.getClass().getName() + "." + type);
+                    throw new NotImplementedException(this, "getDDLScript." + dbo.getClass().getName() + "." + type);
             }
         } 
         else if (dbo instanceof DBTable)
@@ -400,11 +405,13 @@ public class DBDatabaseDriverMSSQL extends DBDatabaseDriver
             switch (type)
             {
                 case CREATE:
-                    return createTable((DBTable) dbo, script);
+                    createTable((DBTable) dbo, script);
+                    return;
                 case DROP:
-                    return dropObject(((DBTable) dbo).getName(), "TABLE", script);
+                    dropObject(((DBTable) dbo).getName(), "TABLE", script);
+                    return;
                 default:
-                    return error(Errors.NotImplemented, "getDDLScript." + dbo.getClass().getName() + "." + type);
+                    throw new NotImplementedException(this, "getDDLScript." + dbo.getClass().getName() + "." + type);
             }
         } 
         else if (dbo instanceof DBView)
@@ -412,11 +419,13 @@ public class DBDatabaseDriverMSSQL extends DBDatabaseDriver
             switch (type)
             {
                 case CREATE:
-                    return createView((DBView) dbo, script);
+                    createView((DBView) dbo, script);
+                    return;
                 case DROP:
-                    return dropObject(((DBView) dbo).getName(), "VIEW", script);
+                    dropObject(((DBView) dbo).getName(), "VIEW", script);
+                    return;
                 default:
-                    return error(Errors.NotImplemented, "getDDLScript." + dbo.getClass().getName() + "." + type);
+                    throw new NotImplementedException(this, "getDDLScript." + dbo.getClass().getName() + "." + type);
             }
         } 
         else if (dbo instanceof DBRelation)
@@ -424,20 +433,23 @@ public class DBDatabaseDriverMSSQL extends DBDatabaseDriver
             switch (type)
             {
                 case CREATE:
-                    return createRelation((DBRelation) dbo, script);
+                    createRelation((DBRelation) dbo, script);
+                    return;
                 case DROP:
-                    return dropObject(((DBRelation) dbo).getName(), "CONSTRAINT", script);
+                    dropObject(((DBRelation) dbo).getName(), "CONSTRAINT", script);
+                    return;
                 default:
-                    return error(Errors.NotImplemented, "getDDLScript." + dbo.getClass().getName() + "." + type);
+                    throw new NotImplementedException(this, "getDDLScript." + dbo.getClass().getName() + "." + type);
             }
         } 
         else if (dbo instanceof DBTableColumn)
         { // Table Column
-            return alterTable((DBTableColumn) dbo, type, script);
+            alterTable((DBTableColumn) dbo, type, script);
+            return;
         } 
         else
-        { // an invalid argument has been supplied
-            return error(Errors.InvalidArg, dbo, "dbo");
+        { // dll generation not supported for this type
+            throw new NotSupportedException(this, "getDDLScript() for "+dbo.getClass().getName());
         }
     }
 
@@ -463,7 +475,7 @@ public class DBDatabaseDriverMSSQL extends DBDatabaseDriver
         if (createSchema)
         {   // check database Name
             if (StringUtils.isEmpty(databaseName))
-                return error(Errors.InvalidProperty, "databaseName");
+                throw new InvalidPropertyException("databaseName", databaseName);
             // Create Database
             script.addStmt("USE master");
             script.addStmt("IF NOT EXISTS(SELECT * FROM sys.databases WHERE name = '" + databaseName + "') CREATE DATABASE " + databaseName);
@@ -477,22 +489,19 @@ public class DBDatabaseDriverMSSQL extends DBDatabaseDriver
         Iterator<DBTable> tables = db.getTables().iterator();
         while (tables.hasNext())
         {
-            if (!createTable(tables.next(), script))
-                return false;
+            createTable(tables.next(), script);
         }
         // Create Relations
         Iterator<DBRelation> relations = db.getRelations().iterator();
         while (relations.hasNext())
         {
-            if (!createRelation(relations.next(), script))
-                return false;
+            createRelation(relations.next(), script);
         }
         // Create Views
         Iterator<DBView> views = db.getViews().iterator();
         while (views.hasNext())
         {
-            if (!createView(views.next(), script))
-                return false;
+            createView(views.next(), script);
         }
         // Done
         return true;
@@ -503,7 +512,7 @@ public class DBDatabaseDriverMSSQL extends DBDatabaseDriver
      * 
      * @return true if the table has been created successfully
      */
-    protected boolean createTable(DBTable t, DBSQLScript script)
+    protected void createTable(DBTable t, DBSQLScript script)
     {
         StringBuilder sql = new StringBuilder();
         sql.append("-- creating table ");
@@ -542,8 +551,7 @@ public class DBDatabaseDriverMSSQL extends DBDatabaseDriver
         }
         sql.append(")");
         // Create the table
-        if (script.addStmt(sql) == false)
-            return false;
+        script.addStmt(sql);
         // Create other Indexes (except primary key)
         Iterator<DBIndex> indexes = t.getIndexes().iterator();
         while (indexes.hasNext())
@@ -572,11 +580,8 @@ public class DBDatabaseDriverMSSQL extends DBDatabaseDriver
             }
             sql.append(")");
             // Create Index
-            if (script.addStmt(sql) == false)
-                return false;
+            script.addStmt(sql);
         }
-        // done
-        return success();
     }
     
     /**
@@ -684,7 +689,7 @@ public class DBDatabaseDriverMSSQL extends DBDatabaseDriver
      * 
      * @return true if the relation has been created successfully
      */
-    protected boolean createRelation(DBRelation r, DBSQLScript script)
+    protected void createRelation(DBRelation r, DBSQLScript script)
     {
         DBTable sourceTable = (DBTable) r.getReferences()[0].getSourceColumn().getRowSet();
         DBTable targetTable = (DBTable) r.getReferences()[0].getTargetColumn().getRowSet();
@@ -721,10 +726,7 @@ public class DBDatabaseDriverMSSQL extends DBDatabaseDriver
         }
         // done
         sql.append(")");
-        if (script.addStmt(sql) == false)
-            return false;
-        // done
-        return success();
+        script.addStmt(sql);
     }
 
     /**
@@ -734,7 +736,7 @@ public class DBDatabaseDriverMSSQL extends DBDatabaseDriver
      * @param script to which to append the sql statement to
      * @return true if the statement was successfully appended to the buffer
      */
-    protected boolean alterTable(DBTableColumn col, DBCmdType type, DBSQLScript script)
+    protected void alterTable(DBTableColumn col, DBCmdType type, DBSQLScript script)
     {
         StringBuilder sql = new StringBuilder();
         sql.append("ALTER TABLE ");
@@ -755,7 +757,7 @@ public class DBDatabaseDriverMSSQL extends DBDatabaseDriver
                 break;
         }
         // done
-        return script.addStmt(sql);
+        script.addStmt(sql);
     }
 
     /**
@@ -763,17 +765,14 @@ public class DBDatabaseDriverMSSQL extends DBDatabaseDriver
      * 
      * @return true if the view has been created successfully
      */
-    protected boolean createView(DBView v, DBSQLScript script)
+    protected void createView(DBView v, DBSQLScript script)
     {
         // Create the Command
         DBCommandExpr cmd = v.createCommand();
         if (cmd==null)
         {   // Check whether Error information is available
             log.error("No command has been supplied for view " + v.getName());
-            if (v.hasError())
-                return error(v);
-            // No error information available: Use Errors.NotImplemented
-            return error(Errors.NotImplemented, v.getName() + ".createCommand");
+            throw new NotImplementedException(this, v.getName() + ".createCommand");
         }
         // Make sure there is no OrderBy
         cmd.clearOrderBy();
@@ -796,7 +795,7 @@ public class DBDatabaseDriverMSSQL extends DBDatabaseDriver
         sql.append(")\r\nAS\r\n");
         cmd.addSQL( sql, DBExpr.CTX_DEFAULT);
         // done
-        return script.addStmt(sql.toString());
+        script.addStmt(sql.toString());
     }
         
     /**
@@ -804,17 +803,17 @@ public class DBDatabaseDriverMSSQL extends DBDatabaseDriver
      * 
      * @return true if the object has been dropped successfully
      */
-    protected boolean dropObject(String name, String objType, DBSQLScript script)
+    protected void dropObject(String name, String objType, DBSQLScript script)
     {
         if (name == null || name.length() == 0)
-            return error(Errors.InvalidArg, name, "name");
+            throw new InvalidArgumentException("name", name);
         // Create Drop Statement
         StringBuilder sql = new StringBuilder();
         sql.append("DROP ");
         sql.append(objType);
         sql.append(" ");
         appendElementName(sql, name);
-        return script.addStmt(sql);
+        script.addStmt(sql);
     }
 
 }

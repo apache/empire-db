@@ -19,26 +19,19 @@
 package org.apache.empire.db;
 
 // java.sql
-import org.apache.empire.commons.ErrorObject;
-import org.apache.empire.commons.ErrorType;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.Serializable;
-import java.sql.SQLException;
 
 
 /**
- * Base class for all database related objects.
- * Every object is attached to a DBDatabase object.
- * 
- *
+ * Base class for all objects that directly or indirectly belong to a database including the database object itself.
+ * Examples are: tables, views, columns, indexes, relations etc.
+ * Not included are: drivers, helper classes
  */
-public abstract class DBObject extends ErrorObject implements Serializable
+public abstract class DBObject implements Serializable
 {
     private static final long serialVersionUID = 1L;
     // Logger
-    private static final Logger log = LoggerFactory.getLogger(DBObject.class);
+    // private static final Logger log = LoggerFactory.getLogger(DBObject.class);
 
     /**
      * Returns the database object to which this object belongs to.
@@ -47,36 +40,5 @@ public abstract class DBObject extends ErrorObject implements Serializable
      * @return the database object
      */
     public abstract DBDatabase getDatabase();
-
-    /**
-     * Sets the current error from an SQL Exception.
-     * 
-     * @param type the error type
-     * @param sqle the SQL error message
-     *            
-     * @return the return value is always false
-     */
-    protected boolean error(ErrorType type, SQLException sqle)
-    {
-        log.error("Database operation failed.", sqle);
-        // converts a database error message to a human readable error message.
-        DBDatabase db = getDatabase();
-        if (db!=null && db.getDriver()!=null)
-            return error(type, db.getDriver().extractErrorMessage(sqle));
-        // Set the error Message
-        return error(type, sqle.getMessage());
-    }
-
-    /**
-     * Sets the current error from an SQL Exception.
-     * 
-     * @param sqle the SQL error message
-     *            
-     * @return the return value is always false
-     */
-    protected boolean error(SQLException sqle)
-    { // converts a database error message to a human readable error message.
-        return error(DBErrors.SQLException, sqle);
-    }
 
 }

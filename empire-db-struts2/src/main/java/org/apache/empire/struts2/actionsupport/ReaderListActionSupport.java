@@ -48,31 +48,27 @@ public class ReaderListActionSupport extends ListActionSupport
         return reader;
     }
     
-    public boolean initReader(DBCommandExpr cmd, boolean scrollable)
+    public void initReader(DBCommandExpr cmd, boolean scrollable)
     {
         // Make sure previous reader is closed
         if (reader!=null)
             reader.close();
         // Create a new reader
         reader = new DBReader();
-        if (!reader.open(cmd, scrollable, action.getConnection() ))
-        {   return error(reader);
-        }
+        reader.open(cmd, scrollable, action.getConnection() );
         // Move to desired Position
         int first = this.getFirstItemIndex();
         if (first>0 && !reader.skipRows(first))
         {   // Page is not valid. Try again from beginning
             reader.close();
             setFirstItem(0);
-            return initReader(cmd);
+            initReader(cmd);
         }
-        // done
-        return true;
     }
     
-    public boolean initReader(DBCommandExpr cmd)
+    public void initReader(DBCommandExpr cmd)
     {
-        return initReader(cmd, false);
+        initReader(cmd, false);
     }
 
 }

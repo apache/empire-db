@@ -31,6 +31,7 @@ import org.apache.empire.db.DBSQLScript;
 import org.apache.empire.db.hsql.DBDatabaseDriverHSql;
 import org.apache.empire.db.mysql.DBDatabaseDriverMySQL;
 import org.apache.empire.db.oracle.DBDatabaseDriverOracle;
+import org.apache.empire.db.postgresql.DBDatabaseDriverPostgreSQL;
 import org.apache.empire.db.sqlserver.DBDatabaseDriverMSSQL;
 import org.apache.empire.struts2.actionsupport.TextProviderActionSupport;
 import org.apache.empire.struts2.html.HtmlTagDictionary;
@@ -86,14 +87,33 @@ public class SampleApplication implements WebApplication {
 			log.info("*** create DBDatabaseDriverOracle() ***");
 			DBDatabaseDriver driver = getDatabaseDriver(config.getDatabaseProvider());
 
-			// Open Database (and create if not existing)
-			log.info("*** open database ***");
-			if (!db.open(driver, conn) || !databaseExists(conn)) {
-				// STEP 4: Create Database
-				log.info("*** create Database ***");
-				createSampleDatabase(driver, conn);
-			}
-
+            // Open Database (and create if not existing)
+            log.info("*** open database ***");
+            try {
+                // Open the database
+                db.open(driver, conn);
+                // Check whether database exists
+                databaseExists(conn);
+                System.out.println("*** Database already exists. Skipping Step4 ***");
+                
+            } catch(Exception e) {
+                // STEP 4: Create Database
+                log.info("*** create Database ***");
+                // postgre does not support DDL in transaction
+                if(db.getDriver() instanceof DBDatabaseDriverPostgreSQL)
+                {
+                    conn.setAutoCommit(true);
+                }
+                createSampleDatabase(driver, conn);
+                if(db.getDriver() instanceof DBDatabaseDriverPostgreSQL)
+                {
+                    conn.setAutoCommit(false);
+                }
+                // Open again
+                if (db.isOpen()==false)
+                    db.open(driver, conn);
+            }
+			
 			/*
 			// Check Database Definition against Real Database(log differences)
 			log.info("*** driver.checkDatabase() ***");
@@ -191,11 +211,11 @@ public class SampleApplication implements WebApplication {
         }
     }
 
-	private boolean databaseExists(Connection conn) {
+	private void databaseExists(Connection conn) {
 		// Check wether DB exists
 		DBCommand cmd = db.createCommand();
 		cmd.select(db.T_DEPARTMENTS.count());
-		return (db.querySingleInt(cmd.getSelect(), -1, conn) >= 0);
+		db.querySingleInt(cmd.getSelect(), -1, conn);
 	}
 	
 	/*
@@ -215,10 +235,8 @@ public class SampleApplication implements WebApplication {
         script.run(driver, conn, false);
         db.commit(conn);
         // Open again
-        if (!db.isOpen() && !db.open(driver, conn))
-        {
-            throw new RuntimeException(driver.getErrorMessage());
-        }
+        if (db.isOpen()==false)
+            db.open(driver, conn);
 		// Insert Sample Departments
 		int idDevDep = insertDepartmentSampleRecord(conn, "Development", "ITTK");
 		int idSalDep = insertDepartmentSampleRecord(conn, "Sales", "ITTK");
@@ -239,10 +257,7 @@ public class SampleApplication implements WebApplication {
 			rec.create(db.T_DEPARTMENTS);
 			rec.setValue(db.T_DEPARTMENTS.C_NAME, department_name);
 			rec.setValue(db.T_DEPARTMENTS.C_BUSINESS_UNIT, businessUnit);
-			if (!rec.update(conn)) {
-				log.error(rec.getErrorMessage());
-				return 0;
-			}
+			rec.update(conn);
 			// Return Department ID
 			return rec.getInt(db.T_DEPARTMENTS.C_DEPARTMENT_ID);
 		}
@@ -259,10 +274,7 @@ public class SampleApplication implements WebApplication {
 		rec.setValue(db.T_EMPLOYEES.C_LASTNAME, lastName);
 		rec.setValue(db.T_EMPLOYEES.C_GENDER, gender);
 		rec.setValue(db.T_EMPLOYEES.C_DEPARTMENT_ID, depID);
-		if (!rec.update(conn)) {
-			log.error(rec.getErrorMessage());
-			return 0; 
-		}
+		rec.update(conn);
 		// Return Employee ID
 		return rec.getInt(db.T_EMPLOYEES.C_EMPLOYEE_ID);
 	}

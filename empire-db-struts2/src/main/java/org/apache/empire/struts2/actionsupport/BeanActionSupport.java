@@ -20,12 +20,12 @@ package org.apache.empire.struts2.actionsupport;
 
 import java.util.List;
 
-import org.apache.empire.commons.Errors;
 import org.apache.empire.data.Column;
 import org.apache.empire.data.Record;
 import org.apache.empire.data.bean.BeanClass;
 import org.apache.empire.data.bean.BeanRecordProxy;
-import org.apache.empire.struts2.web.WebErrors;
+import org.apache.empire.exceptions.ObjectNotValidException;
+import org.apache.empire.struts2.exceptions.InvalidFormDataException;
 
 
 /**
@@ -171,27 +171,24 @@ public class BeanActionSupport<T> extends RecordFormActionSupport
      * Initializes the key columns of the current record from the action parameters. 
      * @return true if the key columns were set successfully of false otherwise
      */
-    public boolean initKeyColumns()
+    public void initKeyColumns()
     {
         // Action parameters
         Object[] keyValues = getActionParamKey();
         if (isValid()==false || keyValues==null)
-            return error(WebErrors.InvalidFormData);
+            throw new InvalidFormDataException();
         // Check Record
         if (record==null || !record.isValid())
-            return error(Errors.ObjectNotValid, "record");
+            throw new ObjectNotValidException(record);
         // Check Key Length
         Column[] keyColumns = record.getKeyColumns();
         if (keyValues.length!=keyColumns.length)
-            return error(WebErrors.InvalidFormData);
+            throw new InvalidFormDataException();
         // Copy values
         for (int i=0; i<keyColumns.length; i++)
         {   
-            if (!record.setValue(keyColumns[i], keyValues[i]))
-                return error(record);
+            record.setValue(keyColumns[i], keyValues[i]);
         }
-        // done
-        return success();
     }
     
 }

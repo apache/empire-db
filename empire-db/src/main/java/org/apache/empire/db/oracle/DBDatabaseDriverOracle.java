@@ -24,7 +24,6 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Iterator;
 
-import org.apache.empire.commons.Errors;
 import org.apache.empire.data.DataType;
 import org.apache.empire.db.DBCmdType;
 import org.apache.empire.db.DBColumn;
@@ -42,6 +41,10 @@ import org.apache.empire.db.DBSQLScript;
 import org.apache.empire.db.DBTable;
 import org.apache.empire.db.DBTableColumn;
 import org.apache.empire.db.DBView;
+import org.apache.empire.db.exceptions.InternalSQLException;
+import org.apache.empire.exceptions.InvalidArgumentException;
+import org.apache.empire.exceptions.NotImplementedException;
+import org.apache.empire.exceptions.NotSupportedException;
 
 
 /**
@@ -97,7 +100,7 @@ public class DBDatabaseDriverOracle extends DBDatabaseDriver
 
     /**
      * Returns whether or not a particular feature is supported by this driver
-     * @param type type of requrested feature. @see DBDriverFeature
+     * @param type type of requested feature. @see DBDriverFeature
      * @return true if the features is supported or false otherwise
      */
     @Override
@@ -315,22 +318,24 @@ public class DBDatabaseDriverOracle extends DBDatabaseDriver
      * @see DBDatabaseDriver#getDDLScript(DBCmdType, DBObject, DBSQLScript)  
      */
     @Override
-    public boolean getDDLScript(DBCmdType type, DBObject dbo, DBSQLScript script)
+    public void getDDLScript(DBCmdType type, DBObject dbo, DBSQLScript script)
     {
         // The Object's database must be attached to this driver
         if (dbo==null || dbo.getDatabase().getDriver()!=this)
-            return error(Errors.InvalidArg, dbo, "dbo");
+            throw new InvalidArgumentException("dbo", dbo);
         // Check Type of object
         if (dbo instanceof DBDatabase)
         { // Database
             switch (type)
             {
                 case CREATE:
-                    return createDatabase((DBDatabase) dbo, script);
+                    createDatabase((DBDatabase) dbo, script);
+                    return;
                 case DROP:
-                    return dropObject(((DBDatabase) dbo).getSchema(), "USER", script);
+                    dropObject(((DBDatabase) dbo).getSchema(), "USER", script);
+                    return;
                 default:
-                    return error(Errors.NotImplemented, "getDDLScript." + dbo.getClass().getName() + "." + type);
+                    throw new NotImplementedException(this, "getDDLScript." + dbo.getClass().getName() + "." + type);
             }
         } 
         else if (dbo instanceof DBTable)
@@ -338,11 +343,13 @@ public class DBDatabaseDriverOracle extends DBDatabaseDriver
             switch (type)
             {
                 case CREATE:
-                    return createTable((DBTable) dbo, script);
+                    createTable((DBTable) dbo, script);
+                    return;
                 case DROP:
-                    return dropObject(((DBTable) dbo).getName(), "TABLE", script);
+                    dropObject(((DBTable) dbo).getName(), "TABLE", script);
+                    return;
                 default:
-                    return error(Errors.NotImplemented, "getDDLScript." + dbo.getClass().getName() + "." + type);
+                    throw new NotImplementedException(this, "getDDLScript." + dbo.getClass().getName() + "." + type);
             }
         } 
         else if (dbo instanceof DBView)
@@ -350,11 +357,13 @@ public class DBDatabaseDriverOracle extends DBDatabaseDriver
             switch (type)
             {
                 case CREATE:
-                    return createView((DBView) dbo, script);
+                    createView((DBView) dbo, script);
+                    return;
                 case DROP:
-                    return dropObject(((DBView) dbo).getName(), "VIEW", script);
+                    dropObject(((DBView) dbo).getName(), "VIEW", script);
+                    return;
                 default:
-                    return error(Errors.NotImplemented, "getDDLScript." + dbo.getClass().getName() + "." + type);
+                    throw new NotImplementedException(this, "getDDLScript." + dbo.getClass().getName() + "." + type);
             }
         } 
         else if (dbo instanceof DBRelation)
@@ -362,20 +371,23 @@ public class DBDatabaseDriverOracle extends DBDatabaseDriver
             switch (type)
             {
                 case CREATE:
-                    return createRelation((DBRelation) dbo, script);
+                    createRelation((DBRelation) dbo, script);
+                    return;
                 case DROP:
-                    return dropObject(((DBRelation) dbo).getName(), "CONSTRAINT", script);
+                    dropObject(((DBRelation) dbo).getName(), "CONSTRAINT", script);
+                    return;
                 default:
-                    return error(Errors.NotImplemented, "getDDLScript." + dbo.getClass().getName() + "." + type);
+                    throw new NotImplementedException(this, "getDDLScript." + dbo.getClass().getName() + "." + type);
             }
         } 
         else if (dbo instanceof DBTableColumn)
         { // Table Column
-            return alterTable((DBTableColumn) dbo, type, script);
+            alterTable((DBTableColumn) dbo, type, script);
+            return;
         } 
         else
-        { // an invalid argument has been supplied
-            return error(Errors.InvalidArg, dbo, "dbo");
+        { // dll generation not supported for this type
+            throw new NotSupportedException(this, "getDDLScript() for "+dbo.getClass().getName());
         }
     }
 
@@ -393,11 +405,9 @@ public class DBDatabaseDriverOracle extends DBDatabaseDriver
         {   // Oracle Timestamp query
             rs = executeQuery("select sysdate from dual", null, false, conn);
             return (rs.next() ? rs.getTimestamp(1) : null);
-        } catch (Exception e)
-        {
-            log.error("getUpdateTimestamp exception: " + e);
-            error(e);
-            return null;
+        } catch (SQLException e) {
+            // throw exception
+            throw new InternalSQLException(this, e);
         } finally
         { // Cleanup
             try
@@ -407,9 +417,9 @@ public class DBDatabaseDriverOracle extends DBDatabaseDriver
                     rs.close();
                 if (stmt != null)
                     stmt.close();
-            } catch (SQLException sqle)
-            {
-                log.error("getUpdateTimestamp close exception: " + sqle);
+            } catch (SQLException e) {
+                // throw exception
+                throw new InternalSQLException(this, e);
             }
         }
     }
@@ -419,7 +429,7 @@ public class DBDatabaseDriverOracle extends DBDatabaseDriver
      * 
      * @return true if the database has been created successfully
      */
-    protected boolean createDatabase(DBDatabase db, DBSQLScript script)
+    protected void createDatabase(DBDatabase db, DBSQLScript script)
     {
         // Create all Sequences
         Iterator<DBTable> seqtabs = db.getTables().iterator();
@@ -440,26 +450,26 @@ public class DBDatabaseDriverOracle extends DBDatabaseDriver
         Iterator<DBTable> tables = db.getTables().iterator();
         while (tables.hasNext())
         {
-            if (!createTable(tables.next(), script))
-                return false;
+            createTable(tables.next(), script);
         }
         // Create Relations
         Iterator<DBRelation> relations = db.getRelations().iterator();
         while (relations.hasNext())
         {
-            if (!createRelation(relations.next(), script))
-                return false;
+            createRelation(relations.next(), script);
         }
         // Create Views
         Iterator<DBView> views = db.getViews().iterator();
         while (views.hasNext())
         {
-            if (!createView(views.next(), script))
-                if (getErrorType()!=Errors.NotImplemented)
-                    return false;
+            try {
+                createView(views.next(), script);
+            } catch(NotImplementedException e) {
+                // View command not implemented
+                log.warn("Error creating the view {0}. This view will be ignored.");
+                continue;
+            }
         }
-        // Done
-        return true;
     }
 
     /**
@@ -467,7 +477,7 @@ public class DBDatabaseDriverOracle extends DBDatabaseDriver
      * 
      * @return true if the sequence has been created successfully
      */
-    protected boolean createSequence(DBDatabase db, DBTableColumn c, DBSQLScript script)
+    protected void createSequence(DBDatabase db, DBTableColumn c, DBSQLScript script)
     {
         Object defValue = c.getDefaultValue();
         String seqName = (defValue != null) ? defValue.toString() : c.toString();
@@ -480,14 +490,14 @@ public class DBDatabaseDriverOracle extends DBDatabaseDriver
         db.appendQualifiedName(sql, seqName, detectQuoteName(seqName));
         sql.append(" INCREMENT BY 1 START WITH 1 MINVALUE 0 NOCYCLE NOCACHE NOORDER");
         // executeDLL
-        return script.addStmt(sql);
+        script.addStmt(sql);
     }
     
     /**
      * Returns true if the table has been created successfully.
      * @return true if the table has been created successfully
      */
-    protected boolean createTable(DBTable t, DBSQLScript script)
+    protected void createTable(DBTable t, DBSQLScript script)
     {
         StringBuilder sql = new StringBuilder();
         sql.append("-- creating table ");
@@ -527,8 +537,7 @@ public class DBDatabaseDriverOracle extends DBDatabaseDriver
         sql.append(")");
         // Create the table
         DBDatabase db = t.getDatabase();
-        if (script.addStmt(sql) == false)
-            return false;
+        script.addStmt(sql);
         // Create other Indexes (except primary key)
         Iterator<DBIndex> indexes = t.getIndexes().iterator();
         while (indexes.hasNext())
@@ -557,8 +566,7 @@ public class DBDatabaseDriverOracle extends DBDatabaseDriver
             }
             sql.append(")");
             // Create Index
-            if (script.addStmt(sql) == false)
-                return false;
+            script.addStmt(sql);
         }
         // add Comments
         createComment(db, "TABLE", t, t.getComment(), script);
@@ -570,8 +578,6 @@ public class DBDatabaseDriverOracle extends DBDatabaseDriver
             if (com != null)
                 createComment(db, "COLUMN", c, com, script);
         }
-        // done
-        return success();
     }
     
     /**
@@ -652,7 +658,7 @@ public class DBDatabaseDriverOracle extends DBDatabaseDriver
                 sql.append("CHAR(36)");
                 break;
             case UNKNOWN:
-                log.error("Cannot append column of Data-Type 'UNKNOWN'");
+                log.warn("Cannot append column of Data-Type 'UNKNOWN'");
                 return false;
         }
         // Default Value
@@ -671,7 +677,7 @@ public class DBDatabaseDriverOracle extends DBDatabaseDriver
      * Create a sql string for creating a relation and appends it to the supplied buffer
      * @return true if the relation has been created successfully
      */
-    protected boolean createRelation(DBRelation r, DBSQLScript script)
+    protected void createRelation(DBRelation r, DBSQLScript script)
     {
         DBTable sourceTable = (DBTable) r.getReferences()[0].getSourceColumn().getRowSet();
         DBTable targetTable = (DBTable) r.getReferences()[0].getTargetColumn().getRowSet();
@@ -709,7 +715,7 @@ public class DBDatabaseDriverOracle extends DBDatabaseDriver
         // done
         sql.append(")");
         // done
-        return script.addStmt(sql);
+        script.addStmt(sql);
     }
 
     /**
@@ -719,7 +725,7 @@ public class DBDatabaseDriverOracle extends DBDatabaseDriver
      * @param script to which to append the sql statement to
      * @return true if the statement was successfully appended to the buffer
      */
-    protected boolean alterTable(DBTableColumn col, DBCmdType type, DBSQLScript script)
+    protected void alterTable(DBTableColumn col, DBCmdType type, DBSQLScript script)
     {
         StringBuilder sql = new StringBuilder();
         sql.append("ALTER TABLE ");
@@ -740,7 +746,7 @@ public class DBDatabaseDriverOracle extends DBDatabaseDriver
                 break;
         }
         // done
-        return script.addStmt(sql);
+        script.addStmt(sql);
     }
     
     /**
@@ -748,17 +754,14 @@ public class DBDatabaseDriverOracle extends DBDatabaseDriver
      * 
      * @return true if the view has been created successfully
      */
-    protected boolean createView(DBView v, DBSQLScript script)
+    protected void createView(DBView v, DBSQLScript script)
     {
         // Create the Command
         DBCommandExpr cmd = v.createCommand();
         if (cmd==null)
         {   // Check whether Error information is available
             log.error("No command has been supplied for view " + v.getName());
-            if (v.hasError())
-                return error(v);
-            // No error information available: Use Errors.NotImplemented
-            return error(Errors.NotImplemented, v.getName() + ".createCommand");
+            throw new NotImplementedException(this, v.getName() + ".createCommand");
         }
         // Make sure there is no OrderBy
         cmd.clearOrderBy();
@@ -781,7 +784,7 @@ public class DBDatabaseDriverOracle extends DBDatabaseDriver
         sql.append(")\r\nAS\r\n");
         cmd.addSQL( sql, DBExpr.CTX_DEFAULT);
         // done
-        return script.addStmt(sql.toString());
+        script.addStmt(sql.toString());
     }
 
     /**
@@ -789,10 +792,10 @@ public class DBDatabaseDriverOracle extends DBDatabaseDriver
      * 
      * @return true if the comment has been created successfully
      */
-    protected boolean createComment(DBDatabase db, String type, DBExpr expr, String comment, DBSQLScript script)
+    protected void createComment(DBDatabase db, String type, DBExpr expr, String comment, DBSQLScript script)
     {
         if (comment==null || comment.length()==0)
-            return true;
+            return; // Nothing to do
         StringBuilder sql = new StringBuilder();
         sql.append("COMMENT ON ");
         sql.append(type);
@@ -808,7 +811,7 @@ public class DBDatabaseDriverOracle extends DBDatabaseDriver
         sql.append(comment);
         sql.append("'");
         // Create Index
-        return script.addStmt(sql);
+        script.addStmt(sql);
     }
     
     /**
@@ -816,17 +819,17 @@ public class DBDatabaseDriverOracle extends DBDatabaseDriver
      * 
      * @return true if the object has been dropped successfully
      */
-    protected boolean dropObject(String name, String objType, DBSQLScript script)
+    protected void dropObject(String name, String objType, DBSQLScript script)
     {
         if (name == null || name.length() == 0)
-            return error(Errors.InvalidArg, name, "name");
+            throw new InvalidArgumentException("name", name);
         // Create Drop Statement
         StringBuilder sql = new StringBuilder();
         sql.append("DROP ");
         sql.append(objType);
         sql.append(" ");
         appendElementName(sql, name);
-        return script.addStmt(sql);
+        script.addStmt(sql);
     }
 
     
@@ -836,12 +839,12 @@ public class DBDatabaseDriverOracle extends DBDatabaseDriver
      * @return true if the database definition matches the real database structure.
      */
     @Override
-    public boolean checkDatabase(DBDatabase db, String owner, Connection conn)
+    public void checkDatabase(DBDatabase db, String owner, Connection conn)
     {
         // Check Params
         if (owner==null || owner.length()==0)
-            return error(Errors.InvalidArg, owner, "owner");
-        // Datebase definition
+            throw new InvalidArgumentException("owner", owner);
+        // Database definition
         OracleSYSDatabase sysDB = new OracleSYSDatabase(this);
         // Check Columns
         DBCommand sysDBCommand = sysDB.createCommand();
@@ -852,78 +855,74 @@ public class DBDatabaseDriverOracle extends DBDatabaseDriver
         DBReader rd = new DBReader();
         try
         {
-            if (rd.open(sysDBCommand, conn))
+            rd.open(sysDBCommand, conn);
+            // read all
+            log.info("---------------------------------------------------------------------------------");
+            log.info("checkDatabase start: " + db.getClass().getName());
+            String skipTable = "";
+            while (rd.moveNext())
             {
-                log.info("---------------------------------------------------------------------------------");
-                log.info("checkDatabase start: " + db.getClass().getName());
-                String skipTable = "";
-                while (rd.moveNext())
+                String tableName = rd.getString(sysDB.CI.C_TABLE_NAME);
+
+                // if a table wasn't found before, skip it
+                if (tableName.equals(skipTable))
+                    continue;
+
+                // check if the found table exists in the DBDatabase object
+                String columnName = rd.getString(sysDB.CI.C_COLUMN_NAME);
+                DBTable dbTable = db.getTable(tableName);
+                DBView  dbView  = db.getView(tableName);
+                
+                String dataType = rd.getString(sysDB.CI.C_DATA_TYPE);
+                int charLength = rd.getInt(sysDB.CI.C_CHAR_LENGTH);
+                int dataLength = rd.getInt(sysDB.CI.C_DATA_LENGTH);
+                int dataPrecision = rd.getInt(sysDB.CI.C_DATA_PRECISION);
+                int dataScale = rd.getInt(sysDB.CI.C_DATA_SCALE);
+                String nullable = rd.getString(sysDB.CI.C_NULLABLE);
+                
+                dataDictionnary.fillDataDictionnary(tableName, columnName, dataType, 
+                                                    charLength, dataLength, dataPrecision, dataScale, nullable);
+                
+                if (dbTable != null)
                 {
-                    String tableName = rd.getString(sysDB.CI.C_TABLE_NAME);
-
-                    // if a table wasn't found before, skip it
-                    if (tableName.equals(skipTable))
-                        continue;
-
-                    // check if the found table exists in the DBDatabase object
-                    String columnName = rd.getString(sysDB.CI.C_COLUMN_NAME);
-                    DBTable dbTable = db.getTable(tableName);
-                    DBView  dbView  = db.getView(tableName);
                     
-                    String dataType = rd.getString(sysDB.CI.C_DATA_TYPE);
-                    int charLength = rd.getInt(sysDB.CI.C_CHAR_LENGTH);
-                    int dataLength = rd.getInt(sysDB.CI.C_DATA_LENGTH);
-                    int dataPrecision = rd.getInt(sysDB.CI.C_DATA_PRECISION);
-                    int dataScale = rd.getInt(sysDB.CI.C_DATA_SCALE);
-                    String nullable = rd.getString(sysDB.CI.C_NULLABLE);
-                    
-                    dataDictionnary.fillDataDictionnary(tableName, columnName, dataType, 
-                                                        charLength, dataLength, dataPrecision, dataScale, nullable);
-                    
-                    if (dbTable != null)
+                    // check if the found column exists in the found DBTable
+                    DBColumn col = dbTable.getColumn(columnName);
+                    if (col == null)
                     {
-                        
-                        // check if the found column exists in the found DBTable
-                        DBColumn col = dbTable.getColumn(columnName);
-                        if (col == null)
-                        {
-                            log.warn("COLUMN NOT FOUND IN " + db.getClass().getName() + "\t: [" + tableName + "]["
-                                           + columnName + "][" + dataType + "][" + dataLength + "]");
-                            continue;
-                        }
-                        /*
-                        else
-                        {   // check the DBTableColumn definition
-                            int length = (charLength>0) ? charLength : dataLength;
-                            dataDictionnary.checkColumnDefinition(col, dataType, length, dataPrecision, dataScale, nullable.equals("N"));
-                        }
-                        */
-                    } 
-                    else if (dbView!=null)
-                    {
-                        log.debug("Column check for view " + tableName + " not yet implemented.");
-                    } 
-                    else
-                    {
-                        log.debug("TABLE OR VIEW NOT FOUND IN " + db.getClass().getName() + "\t: [" + tableName + "]");
-                        // skip this table
-                        skipTable = tableName;
+                        log.warn("COLUMN NOT FOUND IN " + db.getClass().getName() + "\t: [" + tableName + "]["
+                                       + columnName + "][" + dataType + "][" + dataLength + "]");
                         continue;
                     }
+                    /*
+                    else
+                    {   // check the DBTableColumn definition
+                        int length = (charLength>0) ? charLength : dataLength;
+                        dataDictionnary.checkColumnDefinition(col, dataType, length, dataPrecision, dataScale, nullable.equals("N"));
+                    }
+                    */
+                } 
+                else if (dbView!=null)
+                {
+                    log.debug("Column check for view " + tableName + " not yet implemented.");
+                } 
+                else
+                {
+                    log.debug("TABLE OR VIEW NOT FOUND IN " + db.getClass().getName() + "\t: [" + tableName + "]");
+                    // skip this table
+                    skipTable = tableName;
+                    continue;
                 }
-                // check Tables
-                dataDictionnary.checkDBTableDefinition(db.getTables());
-                // check Views
-                dataDictionnary.checkDBViewDefinition (db.getViews()); 
             }
-            else {
-                return error(Errors.NotAuthorized);
-            }
+            // check Tables
+            dataDictionnary.checkDBTableDefinition(db.getTables());
+            // check Views
+            dataDictionnary.checkDBViewDefinition (db.getViews());
+            // done
             log.info("checkDatabase end: " + db.getClass().getName());
             log.info("---------------------------------------------------------------------------------");
-            return success();
-        } finally
-        {
+        } finally {
+            // close
             rd.close();
         }
     }

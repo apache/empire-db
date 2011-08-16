@@ -30,7 +30,7 @@ import org.apache.empire.commons.Options;
  * <P>
  * This interface inherits from RecordData which provides further data access methods.
  * <P>
- * The Record interface is implmented by the class {@link org.apache.empire.db.DBRecord}
+ * The Record interface is implemented by the class {@link org.apache.empire.db.DBRecord}
  * <P>
  */
 public interface Record extends RecordData
@@ -94,17 +94,15 @@ public interface Record extends RecordData
      * sets a record value based on the field index.
      * @param i index of the field for which to set the value
      * @param value the new field value
-     * @return true if value has been set or false if the value cannot be set for this field
      */
-    boolean setValue(int i, Object value);
+    void setValue(int i, Object value);
 
     /**
      * sets a record value based on a column.
      * @param column the requested column
      * @param value the new record value for the given column
-     * @return true if value has been set or false if the value cannot be set for this column
      */
-    boolean setValue(Column column, Object value);
+    void setValue(Column column, Object value);
 
     /**
      * checks whether or not the field for the given column has been modified since it has been loaded.
@@ -125,9 +123,9 @@ public interface Record extends RecordData
      * <P>
      * @param bean the Java Bean from which to read the value from
      * @param ignoreList list of column to ignore
-     * @return true if at least one field value has been successfully set    
+     * @return the number of fields that have been set    
      */
-    boolean setBeanValues(Object bean, Collection<Column> ignoreList);
+    int setBeanValues(Object bean, Collection<Column> ignoreList);
 
     /**
      * sets all record values from a particular bean.
@@ -135,8 +133,8 @@ public interface Record extends RecordData
      * The bean must provide corresponding getter functions for all desired column.
      * <P>
      * @param bean the Java Bean from which to read the value from
-     * @return true if at least one field value has been successfully set    
+     * @return the number of fields that have been set    
      */
-    boolean setBeanValues(Object bean);
+    int setBeanValues(Object bean);
 
 }

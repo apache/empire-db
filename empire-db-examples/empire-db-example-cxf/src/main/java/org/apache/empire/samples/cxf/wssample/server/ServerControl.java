@@ -117,7 +117,8 @@ public class ServerControl
 
         // Open Database (and create if not existing)
         log.info("*** open database ***");
-        if (!db.open(driver, conn) || !databaseExists(conn))
+        db.open(driver, conn);
+        if (!databaseExists(conn))
         {
             // STEP 4: Create Database
             log.info("*** create Database ***");
@@ -231,8 +232,8 @@ public class ServerControl
         script.run(driver, conn, false);
         db.commit(conn);
         // Open again
-        if (!db.isOpen() && !db.open(driver, conn)){
-            throw new RuntimeException(driver.getErrorMessage());
+        if (!db.isOpen()){
+    		db.open(driver, conn);
         }
         // Insert Sample Departments
         int idDevDep = insertDepartmentSampleRecord(conn, "Development", "ITTK");
@@ -255,11 +256,7 @@ public class ServerControl
         rec.create(db.DEPARTMENTS);
         rec.setValue(db.DEPARTMENTS.NAME, department_name);
         rec.setValue(db.DEPARTMENTS.BUSINESS_UNIT, businessUnit);
-        if (!rec.update(conn))
-        {
-            log.error(rec.getErrorMessage());
-            return 0;
-        }
+        rec.update(conn);
         // Return Department ID
         return rec.getInt(db.DEPARTMENTS.DEPARTMENT_ID);
     }
@@ -278,11 +275,7 @@ public class ServerControl
         rec.setValue(db.EMPLOYEES.LASTNAME, lastName);
         rec.setValue(db.EMPLOYEES.GENDER, gender);
         rec.setValue(db.EMPLOYEES.DEPARTMENT_ID, depID);
-        if (!rec.update(conn))
-        {
-            log.error(rec.getErrorMessage());
-            return 0;
-        }
+        rec.update(conn);
         // Return Employee ID
         return rec.getInt(db.EMPLOYEES.EMPLOYEE_ID);
     }

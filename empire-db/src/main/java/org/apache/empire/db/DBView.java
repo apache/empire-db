@@ -21,10 +21,12 @@ package org.apache.empire.db;
 import java.sql.Connection;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.apache.empire.commons.Errors;
 import org.apache.empire.commons.Options;
 import org.apache.empire.data.DataType;
 import org.apache.empire.db.expr.column.DBValueExpr;
+import org.apache.empire.exceptions.InvalidArgumentException;
+import org.apache.empire.exceptions.ItemExistsException;
+import org.apache.empire.exceptions.NotSupportedException;
 import org.apache.empire.xml.XMLUtil;
 import org.w3c.dom.Element;
 
@@ -117,11 +119,11 @@ public abstract class DBView extends DBRowSet
         }    
 
         @Override
-        public boolean checkValue(Object value)
+        public void checkValue(Object value)
         {
             if (updateColumn==null)
-                return true;
-            return updateColumn.checkValue(value);
+                return;
+            updateColumn.checkValue(value);
         }
 
         @Override
@@ -283,15 +285,14 @@ public abstract class DBView extends DBRowSet
      * @param col a view column object
      * @return true if the column was successfully added or false otherwise
      */
-    protected boolean addColumn(DBViewColumn col)
+    protected void addColumn(DBViewColumn col)
     { // find column by name
         if (col == null || col.getRowSet() != this)
-            return error(Errors.InvalidArg, col, "col");
+            throw new InvalidArgumentException("col", col);
         if (columns.contains(col) == true)
-            return error(Errors.ItemExists, col.getName());
+            throw new ItemExistsException(col.getName());
         // add now
         columns.add(col);
-        return true;
     }
 
     /**
@@ -304,7 +305,8 @@ public abstract class DBView extends DBRowSet
     protected final DBViewColumn addColumn(String columnName, DataType dataType)
     { // find column by name
         DBViewColumn vc = new DBViewColumn(this, columnName, new DBValueExpr(db, null, dataType));
-        return (addColumn(vc) ? vc : null);
+        addColumn(vc);
+        return vc;
     }
 
     /**
@@ -317,7 +319,8 @@ public abstract class DBView extends DBRowSet
     protected final DBViewColumn addColumn(String columnName, DBColumnExpr columnExpr)
     { // find column by name
         DBViewColumn vc = new DBViewColumn(this, columnName, columnExpr);
-        return (addColumn(vc) ? vc : null);
+        addColumn(vc);
+        return vc;
     }
 
     /**
@@ -329,14 +332,15 @@ public abstract class DBView extends DBRowSet
     protected final DBViewColumn addColumn(DBTableColumn sourceColumn)
     { // find column by name
         DBViewColumn vc = new DBViewColumn(this, sourceColumn.getName(), sourceColumn);
-        return (addColumn(vc) ? vc : null);
+        addColumn(vc);
+        return vc;
     }
 
     /**
      * This function searchs for equal columns given by the specified DBColumnExpr object.
      * 
      * @param expr the DBColumnExpr object
-     * @return the located column (only DBViewColumn onjects)
+     * @return the located column (only DBViewColumn objects)
      */
     public DBViewColumn findViewColumn(DBColumnExpr expr)
     {
@@ -377,12 +381,12 @@ public abstract class DBView extends DBRowSet
     }
 
     @Override
-    public boolean updateRecord(DBRecord rec, Connection conn)
+    public void updateRecord(DBRecord rec, Connection conn)
     {
         if (updateable==false)
-            return error(Errors.NotSupported, "updateRecord");
+            throw new NotSupportedException(this, "updateRecord");
         // Update the record
-        return super.updateRecord(rec, conn);
+        super.updateRecord(rec, conn);
     }
     
     /*
@@ -391,9 +395,9 @@ public abstract class DBView extends DBRowSet
      * @see org.apache.empire.db.DBRowSet#addRecord(org.apache.empire.db.DBRecord, java.sql.Connection)
      */
     @Override
-    public boolean createRecord(DBRecord rec, Connection conn)
+    public void createRecord(DBRecord rec, Connection conn)
     {
-        return error(Errors.NotSupported, "addRecord");
+        throw new NotSupportedException(this, "addRecord");
     }
 
     /*
@@ -402,8 +406,8 @@ public abstract class DBView extends DBRowSet
      * @see org.apache.empire.db.DBRowSet#deleteRecord(java.lang.Object[], java.sql.Connection, boolean)
      */
     @Override
-    public boolean deleteRecord(Object[] keys, Connection conn)
+    public void deleteRecord(Object[] keys, Connection conn)
     {
-        return error(Errors.NotSupported, "deleteRecord");
+        throw new NotSupportedException(this, "deleteRecord");
     }
 }

@@ -18,21 +18,30 @@
  */
 package org.apache.empire.db;
 
-import org.apache.empire.commons.Errors;
-import org.apache.empire.commons.ObjectUtils;
-import org.apache.empire.commons.Options;
-import org.apache.empire.data.DataType;
-import org.apache.empire.db.DBCommand.DBCommandParam;
-import org.apache.empire.db.expr.compare.DBCompareColExpr;
-import org.apache.empire.db.expr.compare.DBCompareExpr;
-import org.apache.empire.db.expr.join.DBJoinExpr;
-import org.w3c.dom.Element;
-
 import java.sql.Connection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.atomic.AtomicInteger;
+
+import org.apache.empire.commons.ObjectUtils;
+import org.apache.empire.commons.Options;
+import org.apache.empire.data.DataType;
+import org.apache.empire.db.DBCommand.DBCommandParam;
+import org.apache.empire.db.exceptions.InvalidKeyException;
+import org.apache.empire.db.exceptions.NoPrimaryKeyException;
+import org.apache.empire.db.exceptions.QueryNoResultException;
+import org.apache.empire.db.exceptions.RecordNotFoundException;
+import org.apache.empire.db.exceptions.RecordUpdateFailedException;
+import org.apache.empire.db.exceptions.RecordUpdateInvalidException;
+import org.apache.empire.db.expr.compare.DBCompareColExpr;
+import org.apache.empire.db.expr.compare.DBCompareExpr;
+import org.apache.empire.db.expr.join.DBJoinExpr;
+import org.apache.empire.exceptions.InvalidArgumentException;
+import org.apache.empire.exceptions.ItemNotFoundException;
+import org.apache.empire.exceptions.NotImplementedException;
+import org.apache.empire.exceptions.NotSupportedException;
+import org.w3c.dom.Element;
 
 
 /**
@@ -42,7 +51,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  *  <LI>In oder to define subqueries simply define a command object with the subquery and wrap it inside a DBQuery.
  *    Then in a second command object you can reference this Query to join with your other tables and views.
  *    In order to join other columns with your query use findQueryColumn(DBColumnExpr expr) to get the 
- *    query column object for a given column expression in the orignial select clause.</LI> 
+ *    query column object for a given column expression in the original select clause.</LI> 
  *  <LI>With a key supplied you can have an updateable query that will update several records at once.</LI>
  * </UL>
  *
@@ -112,12 +121,12 @@ public class DBQuery extends DBRowSet
         }
 
         @Override
-        public boolean checkValue(Object value)
+        public void checkValue(Object value)
         {
             DBColumn column = expr.getUpdateColumn();
             if (column==null)
-                return true;
-            return column.checkValue(value);
+                return;
+            column.checkValue(value);
         }
 
         @Override
@@ -270,10 +279,7 @@ public class DBQuery extends DBRowSet
     public Object[] getRecordKey(DBRecord record)
     {
         if (record == null || record.getRowSet() != this)
-        {
-            error(Errors.InvalidArg, record, "record");
-            return null; // Invalid Argument
-        }
+            throw new InvalidArgumentException("record", record);
         // get Key
         return (Object[]) record.getRowSetData();
     }
@@ -307,11 +313,10 @@ public class DBQuery extends DBRowSet
      * @return true if successful
      */
     @Override
-    public boolean initRecord(DBRecord rec, Object[] keyValues)
+    public void initRecord(DBRecord rec, Object[] keyValues)
     {
-        // Inititialisierung
-        if (!prepareInitRecord(rec, DBRecord.REC_EMTPY, keyValues))
-            return false;
+        // Prepare
+        prepareInitRecord(rec, DBRecord.REC_EMTPY, keyValues);
         // Initialize all Fields
         Object[] fields = rec.getFields();
         for (int i = 0; i < fields.length; i++)
@@ -325,38 +330,38 @@ public class DBQuery extends DBRowSet
                     fields[columns.indexOf(keyColumns[i])] = keyValues[i];
         }
         // Init
-        return completeInitRecord(rec);
+        completeInitRecord(rec);
     }
     
     /**
-     * Returns an error, because querys could't add new records to the database.
+     * Returns an error, because it is not possible to add a record to a query.
      * 
      * @param rec the DBRecord object, contains all fields and the field properties
      * @param conn a valid database connection
-     * @return an error, because querys could't add new records to the database
+     * @return a not implemented error
      */
     @Override
-    public boolean createRecord(DBRecord rec, Connection conn)
+    public void createRecord(DBRecord rec, Connection conn)
     {
-        return error(Errors.NotImplemented, "addRecord");
+        throw new NotImplementedException(this, "createRecord");
     }
 
     /**
      * Creates a select SQL-Command of the query call the InitRecord method to execute the SQL-Command.
      * 
-     * @param rec rec the DBRecord object, contains all fields and the field properties
+     * @param rec the DBRecord object, contains all fields and the field properties
      * @param key an array of the primary key columns
      * @param conn a valid connection to the database.
      * @return true if successful
      */
     @Override
-    public boolean readRecord(DBRecord rec, Object[] key, Connection conn)
+    public void readRecord(DBRecord rec, Object[] key, Connection conn)
     {
         if (conn == null || rec == null)
-            return error(Errors.InvalidArg, null, "conn|rec");
+            throw new InvalidArgumentException("conn|rec", null);
         DBColumn[] keyColumns = getKeyColumns();
         if (key == null || keyColumns.length != key.length)
-            return error(DBErrors.RecordInvalidKey, key);
+            throw new InvalidKeyException(this, key);
         // Select
         for (int i = 0; i < keyColumns.length; i++)
         {   // Set key column constraint
@@ -366,16 +371,15 @@ public class DBQuery extends DBRowSet
             cmd.where(keyColumns[i].is(value));
         }    
         // Read Record
-        if (!readRecord(rec, cmd, conn))
-        { // Record not found
-            if (getErrorType() == DBErrors.QueryNoResult)
-                return error(DBErrors.RecordNotFound, key);
-            // Return given error
-            return false;
+        try {
+            // Read Record
+            readRecord(rec, cmd, conn);
+            // Set RowSetData
+            rec.changeState(DBRecord.REC_VALID, key.clone());
+        } catch (QueryNoResultException e) {
+            // Record not found
+            throw new RecordNotFoundException(this, key);
         }
-        // Set RowSetData
-        rec.changeState(DBRecord.REC_VALID, key.clone());
-        return success();
     }
 
     /**
@@ -383,20 +387,20 @@ public class DBQuery extends DBRowSet
      * 
      * @param rec the DBRecord object. contains all fields and the field properties
      * @param conn a valid connection to the database.
-     * @return true if succesfull
+     * @return true if successful
      */
     @Override
-    public boolean updateRecord(DBRecord rec, Connection conn)
+    public void updateRecord(DBRecord rec, Connection conn)
     {
         if (conn == null || rec == null)
-            return error(Errors.InvalidArg, null, "conn|rec");
+            throw new InvalidArgumentException("conn|rec", null);
         // Has record been modified?
         if (rec.isModified() == false)
-            return success(); // Nothing to update
+            return; // Nothing to update
         // Must have key Columns
         DBColumn[] keyColumns = getKeyColumns();
         if (keyColumns==null)
-            return error(DBErrors.NoPrimaryKey, getAlias());
+            throw new NoPrimaryKeyException(this);
         // Get the fields and the flags
         Object[] fields = rec.getFields();
         // Get all Update Commands
@@ -423,8 +427,7 @@ public class DBQuery extends DBRowSet
                 if (col.isReadOnly() && log.isDebugEnabled())
                     log.debug("updateRecord: Read-only column '" + col.getName() + " has been modified!");
                 // Check the value
-                if (!col.checkValue(fields[i]))
-                    return error(col);
+                col.checkValue(fields[i]);
                 // Set
                 updCmd.set(col.to(fields[i]));
             }
@@ -450,10 +453,10 @@ public class DBQuery extends DBRowSet
                 DBColumn right = join.getRight().getUpdateColumn();
                 if (left.getRowSet()==table && table.isKeyColumn(left))
                     if (!addJoinRestriction(upd, left, right, keyColumns, rec))
-                        return error(Errors.ItemNotFound, left.getFullName());
+                        throw new ItemNotFoundException(left.getFullName());
                 if (right.getRowSet()==table && table.isKeyColumn(right))
                     if (!addJoinRestriction(upd, right, left, keyColumns, rec))
-                        return error(Errors.ItemNotFound, right.getFullName());
+                        throw new ItemNotFoundException(right.getFullName());
             }
             // Evaluate Existing restrictions
             for (i = 0; cmd.where != null && i < cmd.where.size(); i++)
@@ -477,7 +480,7 @@ public class DBQuery extends DBRowSet
                 } 
                 else
                 {	// other constraints are not supported
-                    return error(Errors.NotSupported, "updateRecord");
+                    throw new NotSupportedException(this, "updateRecord with "+cmp.getClass().getName());
                 }
             }
             // Add Restrictions
@@ -524,15 +527,15 @@ public class DBQuery extends DBRowSet
             {   // Error
                 if (affected == 0)
                 { // Record not found
-                    error(DBErrors.RecordUpdateFailed, table.getName());
+                    throw new RecordUpdateFailedException(this, keys);
                 }
                 // Rollback
                 db.rollback(conn);
-                return false;
+                return;
             } 
             else if (affected > 1)
             { // More than one record
-                error(DBErrors.RecordUpdateInvalid, table.getName());
+                throw new RecordUpdateInvalidException(this, keys);
             } 
             else
             { // success
@@ -546,7 +549,6 @@ public class DBQuery extends DBRowSet
         }
         // success
         rec.changeState(DBRecord.REC_VALID, keys);
-        return success();
     }
 
     /**
@@ -584,9 +586,9 @@ public class DBQuery extends DBRowSet
      * @return true if the record has been successfully deleted or false otherwise
      */
     @Override
-    public boolean deleteRecord(Object[] keys, Connection conn)
+    public void deleteRecord(Object[] keys, Connection conn)
     {
-        return error(Errors.NotImplemented, "deleteRecord");
+        throw new NotImplementedException(this, "deleteRecord()");
     }
 
 }

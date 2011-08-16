@@ -19,15 +19,20 @@
 package org.apache.empire.db;
 
 // java
-import org.apache.empire.commons.Errors;
-import org.apache.empire.data.DataMode;
-import org.apache.empire.data.DataType;
-
 import java.lang.reflect.Field;
 import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
+
+import org.apache.empire.data.DataMode;
+import org.apache.empire.data.DataType;
+import org.apache.empire.db.exceptions.NoPrimaryKeyException;
+import org.apache.empire.db.exceptions.RecordDeleteFailedException;
+import org.apache.empire.db.exceptions.RecordUpdateInvalidException;
+import org.apache.empire.exceptions.InvalidArgumentException;
+import org.apache.empire.exceptions.ItemExistsException;
+import org.apache.empire.exceptions.UnexpectedReturnValueException;
 
 
 /**
@@ -167,15 +172,14 @@ public class DBTable extends DBRowSet implements Cloneable
      * 
      * @param column a column object
      */
-    protected boolean addColumn(DBTableColumn column)
+    protected void addColumn(DBTableColumn column)
     { // find column by name
         if (column==null || column.getRowSet()!=this)
-            return error(Errors.InvalidArg, column, "column");
+            throw new InvalidArgumentException("column", column);
         if (columns.contains(column) == true)
-            return error(Errors.ItemExists, column.getName());
+            throw new ItemExistsException(column.getName());
         // add now
         columns.add(column);
-        return true;
     }
 
     /**
@@ -267,17 +271,16 @@ public class DBTable extends DBRowSet implements Cloneable
      * 
      * @return true on success
      */
-    public boolean setPrimaryKey(DBColumn[] columns)
+    public void setPrimaryKey(DBColumn[] columns)
     {
         if (columns==null || columns.length==0)
-            return error(Errors.InvalidArg, columns, "columns");
+            throw new InvalidArgumentException("columns", columns);
         // All columns must belong to this table
         for (int i=0; i<columns.length; i++)
             if (columns[i].getRowSet()!=this)
-                return error(Errors.InvalidArg, columns[i].getFullName(), "columns");
+                throw new InvalidArgumentException("columns["+String.valueOf(i)+"]", columns[i].getFullName());
         // Set primary Key now
         primaryKey = new DBIndex(name + "_PK", DBIndex.PRIMARYKEY, columns);
-        return true;
     }
 
     /**
@@ -316,19 +319,18 @@ public class DBTable extends DBRowSet implements Cloneable
     /**
      * Adds an index.
      * 
-     * @param indexName the index name
+     * @param name the index name
      * @param unique is this a unique index
-     * @param indexColumns the columns indexed by this index
+     * @param columns the columns indexed by this index
      * 
      * @return true on success
      */
-    public boolean addIndex(String indexName, boolean unique, DBColumn[] indexColumns)
+    public void addIndex(String name, boolean unique, DBColumn[] columns)
     {
-        if (indexName==null || indexColumns==null || indexColumns.length==0)
-            return error(Errors.InvalidArg, null, "name|columns");
+        if (name==null || columns==null || columns.length==0)
+            throw new InvalidArgumentException("name|columns", null);
         // add Index now
-        indexes.add(new DBIndex(indexName, (unique) ? DBIndex.UNIQUE : DBIndex.STANDARD, indexColumns));
-        return true;
+        indexes.add(new DBIndex(name, (unique) ? DBIndex.UNIQUE : DBIndex.STANDARD, columns));
     }
 
     /**
@@ -381,11 +383,10 @@ public class DBTable extends DBRowSet implements Cloneable
      * @return true if successful
      */
     @Override
-    public boolean createRecord(DBRecord rec, Connection conn)
+    public void createRecord(DBRecord rec, Connection conn)
     {
-        // Inititialisierung
-        if (!prepareInitRecord(rec, DBRecord.REC_NEW, null))
-            return false;
+        // Prepare
+        prepareInitRecord(rec, DBRecord.REC_NEW, null);
         // Set Defaults
         int count = columns.size();
         for (int i = 0; i < count; i++)
@@ -396,7 +397,7 @@ public class DBTable extends DBRowSet implements Cloneable
                 rec.modifyValue(i, value); 
         }
         // Init
-        return completeInitRecord(rec);
+        completeInitRecord(rec);
     }
 
     /**
@@ -429,44 +430,40 @@ public class DBTable extends DBRowSet implements Cloneable
      * @return true if successful
      */
     @Override
-    public boolean deleteRecord(Object[] key, Connection conn)
+    public void deleteRecord(Object[] key, Connection conn)
     {
         // Check Primary key
         if (primaryKey == null )
-            return error(DBErrors.NoPrimaryKey, getName());
+            throw new NoPrimaryKeyException(this);
 
         // Check Columns
         DBColumn[] keyColumns = primaryKey.getColumns();
         if (key == null || key.length != keyColumns.length)
-            return error(Errors.InvalidArg, key); // Invalid Argument
+            throw new InvalidArgumentException("key", key);
 
         // Delete References
-        if (isCascadeDelete() && deleteAllReferences(key, conn)==false)
-            return false; // Error deleting referenced records
+        if (isCascadeDelete())
+            deleteAllReferences(key, conn);
         
         // Build SQL-Statement
         DBCommand cmd = db.createCommand();
         // Set key constraints
-        if (!setKeyConstraints(cmd, key))
-        	return false;
-
+        setKeyConstraints(cmd, key);
         // Perform delete
         String sqlCmd = cmd.getDelete(this);
         int affected  = db.executeSQL(sqlCmd, cmd.getParamValues(), conn);
         if (affected < 0)
         { // Delete Failed
-            return error(db);
+            throw new UnexpectedReturnValueException(affected, "db.executeSQL()");
         } 
         else if (affected == 0)
         { // Record not found
-            return error(DBErrors.RecordDeleteFailed, name);
+            throw new RecordDeleteFailedException(this, key);
         } 
         else if (affected > 1)
         { // Multiple Records affected
-            return error(DBErrors.RecordUpdateInvalid, name);
+            throw new RecordUpdateInvalidException(this, key);
         }
-        // success
-        return success();
     }
 
 }

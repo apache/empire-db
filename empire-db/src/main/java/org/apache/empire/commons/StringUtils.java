@@ -88,7 +88,7 @@ public class StringUtils
      */
     public static String valueOf(Object value)
     {
-        return toString(value, "");
+        return toString(value, "null");
     }
 
     /**
@@ -99,7 +99,7 @@ public class StringUtils
      */
     public static String valueOf(Object[] array)
     {
-        return toString(array, "");
+        return toString(array, "null");
     }
     
     /**

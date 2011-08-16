@@ -18,20 +18,20 @@
  */
 package org.apache.empire.struts2.jsp.controls;
 
+import java.util.Locale;
+
 import org.apache.commons.lang.xwork.StringEscapeUtils;
-import org.apache.empire.commons.ErrorInfo;
 import org.apache.empire.commons.ErrorType;
 import org.apache.empire.commons.Options;
 import org.apache.empire.commons.StringUtils;
 import org.apache.empire.data.Column;
+import org.apache.empire.struts2.action.ErrorInfo;
 import org.apache.empire.struts2.action.RequestParamProvider;
 import org.apache.empire.struts2.html.HtmlTagDictionary;
 import org.apache.empire.struts2.html.HtmlWriter;
 import org.apache.empire.struts2.html.HtmlWriter.HtmlTag;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.Locale;
 
 
 public abstract class InputControl
@@ -108,18 +108,12 @@ public abstract class InputControl
     {
         private ErrorType errType;  // Type of error
         private String[]  errParams;  // Error message params
-        private String    errSource;  // Source object's class name
         private String    errValue;
-        public FieldValueError(ErrorType errorType, String[] msgParams, String value, Class source)
+        public FieldValueError(ErrorType errorType, String[] msgParams, String value)
         {
             errType    = errorType;
             errParams  = msgParams;
-            errSource  = source.getName();
             this.errValue = value;
-        }
-        public boolean hasError()
-        {
-            return true;
         }
         public ErrorType getErrorType()
         {
@@ -132,10 +126,6 @@ public abstract class InputControl
         public String[] getErrorParams()
         {
             return errParams;
-        }
-        public String getErrorSource()
-        {
-            return errSource;
         }
         public String getErrorMessage()
         {
@@ -155,7 +145,7 @@ public abstract class InputControl
      */
     protected final FieldValueError error(ErrorType errorType, String[] msgParams, String value)
     {
-        return new FieldValueError(errorType, msgParams, value, getClass());
+        return new FieldValueError(errorType, msgParams, value);
     }
     
     protected final FieldValueError error(ErrorType errorType, Object msgParam, String value)

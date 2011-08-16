@@ -18,24 +18,27 @@
  */
 package org.apache.empire.db;
 
+import java.lang.reflect.InvocationTargetException;
+import java.sql.Connection;
+import java.util.Collection;
+import java.util.List;
+
 import org.apache.commons.beanutils.BeanUtilsBean;
 import org.apache.commons.beanutils.PropertyUtilsBean;
-import org.apache.empire.commons.Errors;
 import org.apache.empire.commons.ObjectUtils;
 import org.apache.empire.commons.Options;
 import org.apache.empire.data.Column;
 import org.apache.empire.data.ColumnExpr;
 import org.apache.empire.data.Record;
+import org.apache.empire.db.exceptions.FieldIsReadOnlyException;
+import org.apache.empire.exceptions.InvalidArgumentException;
+import org.apache.empire.exceptions.ObjectNotValidException;
+import org.apache.empire.exceptions.BeanPropertyGetException;
 import org.apache.empire.xml.XMLUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
-
-import java.lang.reflect.InvocationTargetException;
-import java.sql.Connection;
-import java.util.Collection;
-import java.util.List;
 
 
 /**
@@ -69,7 +72,7 @@ public class DBRecord extends DBRecordData implements Record, Cloneable
 
     /**
      * Create a new DBRecord object.<BR>
-     * The record is not attachted to a RowSet and the record's state is intitially set to REC_INVALID.
+     * The record is not attached to a RowSet and the record's state is initially set to REC_INVALID.
      * 
      * Please derive your own Objects from this class.   
      */
@@ -321,11 +324,10 @@ public class DBRecord extends DBRecordData implements Record, Cloneable
     public boolean wasModified(int index)
     {
         if (rowset == null)
-            return error(Errors.ObjectNotValid, getClass().getName());
+            throw new ObjectNotValidException(this);
         if (index < 0 || index >= fields.length)
-            return error(Errors.OutOfRange, index);
+            throw new InvalidArgumentException("index", index);
         // Check modified
-        clearError();
         if (modified == null)
             return false;
         return modified[index];
@@ -406,17 +408,10 @@ public class DBRecord extends DBRecordData implements Record, Cloneable
     public Object getValue(int index)
     {   // Check state
         if (fields == null)
-        {   // Record not valid
-            error(Errors.ObjectNotValid, getClass().getName());
-            return null; 
-        }
+            throw new ObjectNotValidException(this);
         // Check index
         if (index < 0 || index>= fields.length)
-        {   // Index out of range
-            error(Errors.OutOfRange, index);
-            return null; 
-        }
-        clearError();
+            throw new InvalidArgumentException("index", index);
         // Special check for NO_VALUE 
         if (fields[index] == ObjectUtils.NO_VALUE)
             return null;
@@ -426,7 +421,7 @@ public class DBRecord extends DBRecordData implements Record, Cloneable
     
     /**
      * Returns whether a field value is provided i.e. the value is not DBRowSet.NO_VALUE<BR>
-     * This function is only useful in cases where records are partically loaded.<BR>
+     * This function is only useful in cases where records are partially loaded.<BR>
      * 
      * @param index the filed index
      *  
@@ -435,13 +430,12 @@ public class DBRecord extends DBRecordData implements Record, Cloneable
     public boolean isValueValid(int index)
     {   // Check state
         if (fields == null)
-            return error(Errors.ObjectNotValid, getClass().getName());
+            throw new ObjectNotValidException(this);
         // Check index
         if (index < 0 || index>= fields.length)
         {   // Index out of range
-            return error(Errors.OutOfRange, index);
+            throw new InvalidArgumentException("index", index);
         }
-        clearError();
         // Special check for NO_VALUE
         return (fields[index] != ObjectUtils.NO_VALUE);
     }
@@ -501,36 +495,32 @@ public class DBRecord extends DBRecordData implements Record, Cloneable
      * The functions checks if the column and the value are valid and whether the
      * value has changed.
      * 
-     * @param i the index of the column
+     * @param index the index of the column
      * @param value the value
      * @return true if successful
      */
-    public boolean setValue(int i, Object value)
+    public void setValue(int index, Object value)
     {
         if (rowset == null)
-            return error(Errors.ObjectNotValid, getClass().getName());
-        if (i < 0 || i >= fields.length)
-            return error(Errors.OutOfRange, i);
+            throw new ObjectNotValidException(this);
+        if (index < 0 || index >= fields.length)
+            throw new InvalidArgumentException("index", index);
         // Strings special
         if ((value instanceof String) && ((String)value).length()==0)
             value = null;
         // Has Value changed?
-        if (ObjectUtils.compareEqual(fields[i], value))
-            return success(); // no change
+        if (ObjectUtils.compareEqual(fields[index], value))
+            return; // no change
         // Field has changed
-        DBColumn column = rowset.getColumn(i);
+        DBColumn column = rowset.getColumn(index);
         if (column.isAutoGenerated())
         {   // Read Only column may be set
-            return error(DBErrors.FieldIsReadOnly, column.getName());
+            throw new FieldIsReadOnlyException(column);
         }
         // Is Value valid
-        if (column.checkValue(value) == false)
-        { // Invalid Value for column
-            return error(column);
-        }
+        column.checkValue(value);
         // Init original values
-        modifyValue(i, value);
-        return success();
+        modifyValue(index, value);
     }
 
     /**
@@ -542,12 +532,12 @@ public class DBRecord extends DBRecordData implements Record, Cloneable
      * @param value the value
      * @return true if successful
      */
-    public final boolean setValue(Column column, Object value)
+    public final void setValue(Column column, Object value)
     {
         if (rowset == null)
-            return error(Errors.ObjectNotValid, getClass().getName());
+            throw new ObjectNotValidException(this);
         // Get Column Index
-        return setValue(rowset.getColumnIndex(column), value);
+        setValue(rowset.getColumnIndex(column), value);
     }
     
     /**
@@ -560,9 +550,7 @@ public class DBRecord extends DBRecordData implements Record, Cloneable
     public boolean isFieldReadOnly(DBColumn column)
     {
         if (rowset==null)
-        {   error(Errors.ObjectNotValid, getClass().getName());
-            return true;
-        }
+            throw new ObjectNotValidException(this);
         // Ask RowSet
         return (rowset.isColumnReadOnly(column));
     }
@@ -585,7 +573,7 @@ public class DBRecord extends DBRecordData implements Record, Cloneable
     public boolean isFieldVisible(DBColumn column)
     {
         if (rowset==null)
-            return error(Errors.ObjectNotValid, getClass().getName());
+            throw new ObjectNotValidException(this);
         // Check if field is present and the value is valid 
         int index = rowset.getColumnIndex(column);
         return (index>=0 && isValueValid(index));
@@ -609,36 +597,11 @@ public class DBRecord extends DBRecordData implements Record, Cloneable
      * @param insert if true change the state of this object to REC_NEW
      * @return true if successful or false otherwise
      */
-    public boolean init(DBRowSet table, Object[] keyValues, boolean insert)
+    public void init(DBRowSet table, Object[] keyValues, boolean insert)
     { // Init with keys
-        if (table.initRecord(this, keyValues) == false)
-            return error(table);
+        table.initRecord(this, keyValues);
         if (insert)
             state = DBRecord.REC_NEW;
-        return success();
-    }
-
-    /**
-     * @param table 
-     * @param conn 
-     * @return true on succes
-     * @deprecated use {@link DBRecord#create(DBRowSet, Connection)}
-     */
-    @Deprecated
-	public final boolean initNew(DBRowSet table, Connection conn)
-    {
-        return (table.createRecord(this, conn) == false) ? error(table) : success();
-    }
-
-    /**
-     * @param table 
-     * @return true on succes
-     * @deprecated use {@link DBRecord#create(DBRowSet)}
-     */
-    @Deprecated
-	public final boolean initNew(DBRowSet table)
-    {
-        return initNew(table, null);
     }
     
     /**
@@ -653,9 +616,9 @@ public class DBRecord extends DBRecordData implements Record, Cloneable
      * @param conn a valid JDBC connection
      * @return true if successful
      */
-    public boolean create(DBRowSet table, Connection conn)
+    public void create(DBRowSet table, Connection conn)
     {
-        return (table.createRecord(this, conn) == false) ? error(table) : success();
+        table.createRecord(this, conn);
     }
     
     /**
@@ -666,44 +629,44 @@ public class DBRecord extends DBRecordData implements Record, Cloneable
      * @param table the table for which to create a record
      * @return true if successful
      */
-    public boolean create(DBRowSet table)
+    public void create(DBRowSet table)
     {
-        return create(table, null);
+        create(table, null);
     }
 
     /**
      * Loads a record from the database identified by it's primary key. 
-     * After sucessful reading the record will be valid and all values will be accessible.
+     * After successful reading the record will be valid and all values will be accessible.
      * @see org.apache.empire.db.DBTable#readRecord(DBRecord, Object[], Connection)
      * 
      * @param table the rowset from which to read the record
      * @param keys an array of the primary key values
      * @param conn a valid connection to the database.
-     * @return true if the record was sucessfully loaded or false if the record was not found or an error occurred.
+     * @return true if the record was successfully loaded or false if the record was not found or an error occurred.
      */
-    public boolean read(DBRowSet table, Object[] keys, Connection conn)
+    public void read(DBRowSet table, Object[] keys, Connection conn)
     {
-        return (table.readRecord(this, keys, conn) == false) ? error(table) : success();
+        table.readRecord(this, keys, conn);
     }
 
     /**
      * Loads a record from the database identified by it's primary key. 
-     * After sucessful reading the record will be valid and all values will be accessible.
+     * After successful reading the record will be valid and all values will be accessible.
      * @see org.apache.empire.db.DBTable#readRecord(DBRecord, Object[], Connection)
      * 
      * @param table the rowset from which to read the record
      * @param id the primary key of the record to load.
      * @param conn a valid connection to the database.
-     * @return true if the record was sucessfully loaded or false if the record was not found or an error occurred.
+     * @return true if the record was successfully loaded or false if the record was not found or an error occurred.
      */
-    public final boolean read(DBRowSet table, Object id, Connection conn)
+    public final void read(DBRowSet table, Object id, Connection conn)
     {
         if (id instanceof Collection<?>)
         {   // If it's a collection then convert it to an array
-            return read(table, ((Collection<?>)id).toArray(), conn);
+            read(table, ((Collection<?>)id).toArray(), conn);
         }
         // Simple One-Column key
-        return read(table, new Object[] { id }, conn);
+        read(table, new Object[] { id }, conn);
     }
 
     /**
@@ -713,13 +676,12 @@ public class DBRecord extends DBRecordData implements Record, Cloneable
      * @param conn a valid connection to the database.
      * @return true if successful
      */
-    public boolean update(Connection conn)
+    public void update(Connection conn)
     {
         if (rowset == null)
-            return error(Errors.ObjectNotValid, getClass().getName());
-        if (!rowset.updateRecord(this, conn))
-            return error(rowset);
-        return success();
+            throw new ObjectNotValidException(this);
+        // update
+        rowset.updateRecord(this, conn);
     }
 
     /**
@@ -733,19 +695,17 @@ public class DBRecord extends DBRecordData implements Record, Cloneable
      * @param conn a valid connection to the database.
      * @return true if successful
      */
-    public boolean delete(Connection conn)
+    public void delete(Connection conn)
     {
         if (isValid()==false)
-            return error(Errors.ObjectNotValid, getClass().getName());
+            throw new ObjectNotValidException(this);
         // Delete only if record is not new
         if (!isNew())
         {
             Object[] keys = rowset.getRecordKey(this);
-            if (rowset.deleteRecord(keys, conn)==false)
-                return error(rowset);
+            rowset.deleteRecord(keys, conn);
         }
         close();
-        return success();
     }
 
     /**
@@ -754,11 +714,12 @@ public class DBRecord extends DBRecordData implements Record, Cloneable
      * @return true if successful
      */
     @Override
-    public boolean addColumnDesc(Element parent)
+    public int addColumnDesc(Element parent)
     {
         if (rowset == null)
-            return error(Errors.ObjectNotValid, getClass().getName());
+            throw new ObjectNotValidException(this);
         // Add Field Description
+        int count = 0;
         List<DBColumn> columns = rowset.getColumns();
         for (int i = 0; i < columns.size(); i++)
         { // Add Field
@@ -766,8 +727,9 @@ public class DBRecord extends DBRecordData implements Record, Cloneable
             if (isFieldVisible(column)==false)
                 continue;
             column.addXml(parent, 0);
+            count++;
         }
-        return success();
+        return count;
     }
 
     /**
@@ -777,10 +739,10 @@ public class DBRecord extends DBRecordData implements Record, Cloneable
      * @return true if successful
      */
     @Override
-    public boolean addRowValues(Element parent)
+    public int addRowValues(Element parent)
     {
         if (rowset == null)
-            return error(Errors.ObjectNotValid, getClass().getName());
+            throw new ObjectNotValidException(this);
         // set row key
         DBColumn[] keyColumns = rowset.getKeyColumns();
         if (keyColumns != null && keyColumns.length > 0)
@@ -803,6 +765,7 @@ public class DBRecord extends DBRecordData implements Record, Cloneable
         if (isNew())
             parent.setAttribute("new", "1");
         // Add all children
+        int count = 0;
         List<DBColumn> columns = rowset.getColumns();
         for (int i = 0; i < fields.length; i++)
         { // Read all
@@ -815,8 +778,10 @@ public class DBRecord extends DBRecordData implements Record, Cloneable
                 XMLUtil.addElement(parent, name, getString(i));
             else
                 XMLUtil.addElement(parent, name).setAttribute("null", "yes"); // Null-Value
+            // increase count
+            count++;
         }
-        return success();
+        return count;
     }
     
     /**
@@ -829,7 +794,7 @@ public class DBRecord extends DBRecordData implements Record, Cloneable
     }
 
     /**
-     * Returns a XML document with the field descriptiona an values of this record.
+     * Returns a XML document with the field description an values of this record.
      * 
      * @return the new XML Document object
      */
@@ -837,22 +802,18 @@ public class DBRecord extends DBRecordData implements Record, Cloneable
     public Document getXmlDocument()
     {
         if (rowset == null)
-        {   error(Errors.ObjectNotValid, getClass().getName());
-            return null;
-        }
+            throw new ObjectNotValidException(this);
         // Create Document
         DBXmlDictionary xmlDic = getXmlDictionary();
         Element root = XMLUtil.createDocument(xmlDic.getRowSetElementName());
         if (rowset.getName() != null)
             root.setAttribute("name", rowset.getName());
         // Add Field Description
-        if (!addColumnDesc(root))
-            return null;
-        // Add row Values
-        if (!addRowValues(XMLUtil.addElement(root, xmlDic.getRowElementName())))
-            return null;
+        if (addColumnDesc(root)>0)
+        {   // Add row Values
+            addRowValues(XMLUtil.addElement(root, xmlDic.getRowElementName()));
+        }
         // return Document
-        clearError();
         return root.getOwnerDocument();
     }
 
@@ -893,9 +854,9 @@ public class DBRecord extends DBRecordData implements Record, Cloneable
      * @param bean the Java Bean from which to read the value from
      * @param property the name of the property
      * @param column the column for which to set the record value
-     * @return true if the value has been sucessfully set or false if not    
+     * @return true if the value has been successfully set or false if not    
      */
-    protected boolean setBeanValue(Object bean, String property, Column column)
+    protected void setBeanValue(Object bean, String property, Column column)
     {
         try
         {   /*
@@ -908,27 +869,26 @@ public class DBRecord extends DBRecordData implements Record, Cloneable
             Object value = pub.getSimpleProperty(bean, property);
 
             // Now, set the record value
-            return setValue( column, value ); 
+            setValue( column, value ); 
 
         } catch (IllegalAccessException e)
         {   log.error(bean.getClass().getName() + ": unable to get property '" + property + "'");
-            return error(e);
+            throw new BeanPropertyGetException(bean, property, e);
         } catch (InvocationTargetException e)
         {   log.error(bean.getClass().getName() + ": unable to get property '" + property + "'");
-            return error(e);
+            throw new BeanPropertyGetException(bean, property, e);
         } catch (NoSuchMethodException e)
-        { 
-            log.warn(bean.getClass().getName() + ": no getter available for property '" + property + "'");
-            return error(e);
+        {   log.warn(bean.getClass().getName() + ": no getter available for property '" + property + "'");
+            throw new BeanPropertyGetException(bean, property, e);
         }
     }
     
     /**
-     * Sets record values from the suppied java bean.
+     * Sets record values from the supplied java bean.
      * 
-     * @return true if at least one value has been set sucessfully 
+     * @return true if at least one value has been set successfully 
      */
-    public boolean setBeanValues(Object bean, Collection<Column> ignoreList)
+    public int setBeanValues(Object bean, Collection<Column> ignoreList)
     {
         // Add all Columns
         int count = 0;
@@ -941,17 +901,17 @@ public class DBRecord extends DBRecordData implements Record, Cloneable
                 continue; // ignore this property
             // Get Property Name
             String property = column.getBeanPropertyName();
-            if (setBeanValue(bean, property, column))
-                count++;
+            setBeanValue(bean, property, column);
+            count++;
         }
-        return (count > 0);
+        return count;
     }
 
     /**
      * Sets record values from the suppied java bean.
      * @return true if at least one value has been set sucessfully
      */
-    public final boolean setBeanValues(Object bean)
+    public final int setBeanValues(Object bean)
     {
         return setBeanValues(bean, null);
     }

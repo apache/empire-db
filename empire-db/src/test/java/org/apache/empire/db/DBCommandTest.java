@@ -85,9 +85,9 @@ public class DBCommandTest
         }
 
         @Override
-        public boolean checkValue(Object value)
+        public void checkValue(Object value)
         {
-            return false;
+            return;
         }
 
         @Override

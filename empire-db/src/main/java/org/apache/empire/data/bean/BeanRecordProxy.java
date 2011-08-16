@@ -25,15 +25,18 @@ import java.util.List;
 import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.beanutils.BeanUtilsBean;
 import org.apache.commons.beanutils.PropertyUtilsBean;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.apache.empire.commons.ErrorObject;
-import org.apache.empire.commons.Errors;
 import org.apache.empire.commons.ObjectUtils;
 import org.apache.empire.commons.Options;
 import org.apache.empire.data.Column;
 import org.apache.empire.data.ColumnExpr;
 import org.apache.empire.data.Record;
+import org.apache.empire.exceptions.BeanPropertyGetException;
+import org.apache.empire.exceptions.BeanPropertySetException;
+import org.apache.empire.exceptions.InvalidArgumentException;
+import org.apache.empire.exceptions.ItemNotFoundException;
+import org.apache.empire.exceptions.ObjectNotValidException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -44,7 +47,7 @@ import org.apache.empire.data.Record;
  * 
  * @author Rainer
  */
-public class BeanRecordProxy<T> extends ErrorObject implements Record
+public class BeanRecordProxy<T> implements Record
 {
     protected static final Logger log = LoggerFactory.getLogger(BeanRecordProxy.class);
     
@@ -173,9 +176,8 @@ public class BeanRecordProxy<T> extends ErrorObject implements Record
     public boolean isNew()
     {
         if (!isValid())
-            return error(Errors.InvalidProperty, "bean");
+            throw new ObjectNotValidException(this);
         // Record is new until all key fields have been supplied
-        clearError();
         if (keyColumns!=null)
         {   // Check all Key Columns
             for (int i=0; i<keyColumns.length; i++)
@@ -199,9 +201,8 @@ public class BeanRecordProxy<T> extends ErrorObject implements Record
     public Object getValue(ColumnExpr column)
     {
         if (!isValid())
-        {   error(Errors.InvalidProperty, "bean");
-            return null;
-        }
+            throw new ObjectNotValidException(this);
+        // getBeanPropertyValue 
         return getBeanPropertyValue(data, column);
     }
 
@@ -223,10 +224,10 @@ public class BeanRecordProxy<T> extends ErrorObject implements Record
     /**
      * sets the value of a field.
      */
-    public boolean setValue(Column column, Object value)
+    public void setValue(Column column, Object value)
     {
         if (!isValid())
-            return error(Errors.InvalidProperty, "bean");
+            throw new ObjectNotValidException(this);
         // Track modification status
         if (ObjectUtils.compareEqual(getValue(column), value)==false)
         {
@@ -235,15 +236,15 @@ public class BeanRecordProxy<T> extends ErrorObject implements Record
             modified[getFieldIndex(column)] = true;
         }
         // Set Value
-        return setBeanPropertyValue(data, column, value);
+        setBeanPropertyValue(data, column, value);
     }
 
     /**
      * sets the value of a field.
      */
-    public boolean setValue(int i, Object value)
+    public void setValue(int i, Object value)
     {
-        return setValue(getColumn(i), value);
+        setValue(getColumn(i), value);
     }
 
     /**
@@ -253,8 +254,8 @@ public class BeanRecordProxy<T> extends ErrorObject implements Record
     {
         int index = getFieldIndex(column);
         if (index<0)
-            return error(Errors.ItemNotFound, column.getName());
-        clearError();
+            throw new ItemNotFoundException(column.getName());
+        // check modified
         return (modified!=null && modified[index]);
     }
 
@@ -268,12 +269,12 @@ public class BeanRecordProxy<T> extends ErrorObject implements Record
 
     // --------------- Bean support ------------------
 
-    public boolean getBeanProperties(Object bean)
+    public int getBeanProperties(Object bean)
     {
         return getBeanProperties(bean, null);
     }
 
-    public boolean getBeanProperties(Object bean, Collection<ColumnExpr> ignoreList)
+    public int getBeanProperties(Object bean, Collection<ColumnExpr> ignoreList)
     {
         // Add all Columns
         int count = 0;
@@ -287,10 +288,10 @@ public class BeanRecordProxy<T> extends ErrorObject implements Record
             // Get Property Name
             setBeanPropertyValue(bean, column, getValue(i));
         }
-        return (count > 0);
+        return count;
     }
 
-    public boolean setBeanValues(Object bean, Collection<Column> ignoreList)
+    public int setBeanValues(Object bean, Collection<Column> ignoreList)
     {
         // Add all Columns
         int count = 0;
@@ -304,15 +305,13 @@ public class BeanRecordProxy<T> extends ErrorObject implements Record
             // Get Property Name
             String property = column.getBeanPropertyName();
             Object value = getBeanPropertyValue(bean, property);
-            if (value==null && this.hasError())
-                continue;
-            if (setValue(column, value))
-                count++;
+            setValue(column, value);
+            count++;
         }
-        return (count > 0);
+        return count;
     }
 
-    public boolean setBeanValues(Object bean)
+    public int setBeanValues(Object bean)
     {
         return setBeanValues(bean, null);
     }
@@ -322,66 +321,63 @@ public class BeanRecordProxy<T> extends ErrorObject implements Record
     protected Object getBeanPropertyValue(Object bean, ColumnExpr column)
     {
         // Check Params
+        if (bean==null)
+            throw new InvalidArgumentException("bean", bean);
         if (column==null)
-        {   error(Errors.InvalidArg, "column");
-            return null;
-        }
+            throw new InvalidArgumentException("column", column);
+        // getBeanPropertyValue 
         return getBeanPropertyValue(bean, column.getBeanPropertyName()); 
     }
 
     protected Object getBeanPropertyValue(Object bean, String property)
     {
         // Check Params
-        if (bean==null || property==null)
-        {   error(Errors.InvalidArg, "property");
-            return null;
-        }
+        if (bean==null)
+            throw new InvalidArgumentException("bean", bean);
+        if (property==null)
+            throw new InvalidArgumentException("property", property);
         try
         {   // Get Property Value
-            clearError();
             PropertyUtilsBean pub = BeanUtilsBean.getInstance().getPropertyUtils();
             return pub.getSimpleProperty(bean, property);
 
         } catch (IllegalAccessException e)
         {   log.error(bean.getClass().getName() + ": unable to get property '" + property + "'");
-            error(e);
-            return null;
+            throw new BeanPropertyGetException(bean, property, e);
         } catch (InvocationTargetException e)
         {   log.error(bean.getClass().getName() + ": unable to get property '" + property + "'");
-            error(e);
-            return null;
+            throw new BeanPropertyGetException(bean, property, e);
         } catch (NoSuchMethodException e)
         {   log.warn(bean.getClass().getName() + ": no getter available for property '" + property + "'");
-            error(e);
-            return null;
+            throw new BeanPropertyGetException(bean, property, e);
         }
     }
 
-    protected boolean setBeanPropertyValue(Object bean, Column column, Object value)
+    protected void setBeanPropertyValue(Object bean, Column column, Object value)
     {
         // Check Params
-        if (bean==null || column==null)
-            return error(Errors.InvalidArg, "column");
+        if (bean==null)
+            throw new InvalidArgumentException("bean", bean);
+        if (column==null)
+            throw new InvalidArgumentException("column", column);
         // Get Property Name
         String property = column.getBeanPropertyName(); 
         try
         {   // Get Property Value
-            clearError();
             if (ObjectUtils.isEmpty(value))
                 value = null;
             BeanUtils.setProperty(bean, property, value);
             // PropertyUtilsBean pub = BeanUtilsBean.getInstance().getPropertyUtils();
             // pub.setSimpleProperty(data, property, value);
-            return success();
         } catch (IllegalArgumentException e) {
             log.error(bean.getClass().getName() + ": invalid argument for property '" + property + "'");
-            return error(e);
+            throw new BeanPropertySetException(bean, property, e);
         } catch (IllegalAccessException e)
         {   log.error(bean.getClass().getName() + ": unable to set property '" + property + "'");
-            return error(e);
+            throw new BeanPropertySetException(bean, property, e);
         } catch (InvocationTargetException e)
         {   log.error(bean.getClass().getName() + ": unable to set property '" + property + "'");
-            return error(e);
+            throw new BeanPropertySetException(bean, property, e);
         }    
     }
     

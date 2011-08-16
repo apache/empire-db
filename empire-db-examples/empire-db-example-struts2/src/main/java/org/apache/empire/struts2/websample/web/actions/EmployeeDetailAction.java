@@ -32,7 +32,7 @@ import org.apache.struts2.interceptor.NoParameters;
  * This class provides form processing functions for an Employee record.<br>
  * The class uses a RecordActionSupport object which does most of the work.<br>
  * For multi-record forms it is possible to have several RecordActionSupport members.<br>
- * In this case each must be given a differnt property name however (see RecordActionSupport overloads).
+ * In this case each must be given a different property name however (see RecordActionSupport overloads).
  * </p>
  */
 public class EmployeeDetailAction extends DetailAction
@@ -67,7 +67,6 @@ public class EmployeeDetailAction extends DetailAction
     public String doCreate() {
         // Create Record
         if (!recordSupport.createRecord()) {
-            setActionError(recordSupport);
             return RETURN;
         }
         // Done
@@ -78,7 +77,6 @@ public class EmployeeDetailAction extends DetailAction
     public String doLoad() {
         // Load Record
         if (!recordSupport.loadRecord()) {
-            setActionError(recordSupport);
             return RETURN;
         }
         // Set Edit Mode
@@ -89,13 +87,10 @@ public class EmployeeDetailAction extends DetailAction
     public String doSave() {
         // Load Form Data into record
         if (!recordSupport.loadFormData()) {
-            if (recordSupport.hasError())
-                setActionError(recordSupport);
             return INPUT;
         }
         // Now save the record
         if (!recordSupport.saveChanges()) {
-            setActionError(recordSupport);
             return INPUT;
         }
         // Erfolg
@@ -106,7 +101,6 @@ public class EmployeeDetailAction extends DetailAction
     public String doDelete() {
         // Delete Record
         if (!recordSupport.deleteRecord()) {
-            setActionError(recordSupport);
             return INPUT;
         }
         // Erfolg

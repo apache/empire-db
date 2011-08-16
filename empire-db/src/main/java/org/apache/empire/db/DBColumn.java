@@ -114,7 +114,7 @@ public abstract class DBColumn extends DBColumnExpr
      */
     public abstract boolean isReadOnly();
 
-    public abstract boolean checkValue(Object value);
+    public abstract void checkValue(Object value);
 
     @Override
     public abstract Element addXml(Element parent, long flags);

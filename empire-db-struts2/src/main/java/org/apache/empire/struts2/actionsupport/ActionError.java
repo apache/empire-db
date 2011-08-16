@@ -18,29 +18,42 @@
  */
 package org.apache.empire.struts2.actionsupport;
 
-import org.apache.empire.commons.ErrorInfo;
-import org.apache.empire.commons.ErrorObject;
+import java.text.MessageFormat;
+
 import org.apache.empire.commons.ErrorType;
-import org.apache.empire.commons.Errors;
+import org.apache.empire.exceptions.EmpireException;
+import org.apache.empire.exceptions.InternalException;
+import org.apache.empire.struts2.action.ErrorInfo;
 
-public class ActionError extends ErrorObject
+public class ActionError implements ErrorInfo
 {
-    private ObjectErrorInfo errorInfo = null;
+    private ErrorType errType;  // Type of error
+    private String[]  errParams;  // Error message params
+    private String    errMsg;
 
-    @Override
-    protected ObjectErrorInfo getErrorInfo(boolean create)
+    protected void clear()
     {
-        if (errorInfo==null && create)
-            errorInfo = new ObjectErrorInfo();
-        return errorInfo;
+        errType = null;
+    }
+    
+    public boolean hasError()
+    {
+        return (errType!=null);
     }
 
-    @Override
-    protected void clearErrorInfo()
+    public ErrorType getErrorType()
     {
-        errorInfo = null;
+        return errType;
     }
-
+    public String[] getErrorParams()
+    {
+        return errParams;
+    }
+    public String getErrorMessage()
+    {
+        return errMsg;
+    }
+    
     /**
      * Private constructor to prevent inheritance.
      * Other classes should not be derived from Action Error
@@ -59,15 +72,41 @@ public class ActionError extends ErrorObject
     public ActionError(ErrorInfo other)
     {
         // copy other error
-        error(other);
+        errType   = other.getErrorType();
+        errParams = other.getErrorParams();
+        errMsg    = other.getErrorMessage();
     }
 
+    public ActionError(EmpireException e)
+    {
+        // copy other error
+        errType   = e.getErrorType();
+        errParams =(String[]) e.getErrorParams();
+        errMsg    = e.getMessage();
+    }
+
+    public ActionError(Throwable e)
+    {
+        // copy other error
+        this(new InternalException(e));
+    }
+    
     /**
      * @see ErrorObject#error(ErrorType, Object[])
      */
-    public ActionError(ErrorType errType, Object[] params)
+    public ActionError(ErrorType errType, String[] params)
     {   // Set the Error
-        error(errType, params);
+        this.errType = errType;
+        this.errParams = params;
+        this.errMsg = MessageFormat.format(errType.getMessagePattern(), (Object[])params);
+    }
+
+    /**
+     * @see ErrorObject#error(ErrorType, Object)
+     */
+    public ActionError(ErrorType errType, String param)
+    {
+        this(errType, new String[] { param });
     }
 
     /**
@@ -75,40 +114,38 @@ public class ActionError extends ErrorObject
      */
     public ActionError(ErrorType errType)
     {
-        error(errType);
-    }
-
-    /**
-     * @see ErrorObject#error(ErrorType, Object)
-     */
-    public ActionError(ErrorType errType, Object param)
-    {
-        error(errType, param);
+        this(errType, (String[])null);
     }
 
     /**
      * @see ErrorObject#error(ErrorType, Object, Object)
      */
+    /*
     public ActionError(ErrorType errType, Object param1, Object param2)
     {
         error(errType, param1, param2);
     }
+    */
 
     /**
      * @see ErrorObject#error(ErrorType, Throwable)
      */
+    /*
     public ActionError(ErrorType errType, Exception exptn)
     {
         error(errType,  exptn);
     }
+    */
 
     /**
      * @see ErrorObject#error(Throwable)
      */
+    /*
     public ActionError(Throwable exptn)
     {
         error(Errors.Exception, exptn);
     }
+    */
     
     /**
      * @return the error message for this Action Error

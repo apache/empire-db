@@ -24,7 +24,7 @@ import org.apache.empire.commons.StringUtils;
 import org.apache.empire.data.Column;
 import org.apache.empire.struts2.html.HtmlWriter;
 import org.apache.empire.struts2.html.HtmlWriter.HtmlTag;
-import org.apache.empire.struts2.web.WebErrors;
+import org.apache.empire.struts2.web.FieldErrors;
 
 
 public class PasswordInputControl extends InputControl
@@ -56,7 +56,7 @@ public class PasswordInputControl extends InputControl
         int minLength = getMinPasswordLength();
         if (pwd!=null && pwd.length()<minLength)
         {
-            return error(WebErrors.InputTextTooShort, minLength, s);
+            return error(FieldErrors.InputTextTooShort, minLength, s);
         }
         // Default
         return value;
@@ -71,7 +71,7 @@ public class PasswordInputControl extends InputControl
         if (hasError)
             return "";
         // Replace by Default-Mask
-        return (StringUtils.isValid(pwd) ? PASSWORD_NOT_CHANGED : null);
+        return (StringUtils.isNotEmpty(pwd) ? PASSWORD_NOT_CHANGED : null);
     }
 
     @Override

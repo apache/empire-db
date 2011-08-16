@@ -58,24 +58,22 @@ public class BeanListActionSupport<T> extends ListActionSupport
         DBReader reader = new DBReader();
         try {
             // Open Suppier Reader
-            if (!reader.open(cmd, action.getConnection() ))
-            {   return error(reader);
-            }
+            reader.open(cmd, action.getConnection());
             // Move to desired Position
             int first = this.getFirstItemIndex();
             if (first>0 && !reader.skipRows(first))
             {   // Page is not valid. Try again from beginning
                 reader.close();
                 setFirstItem(0);
-                return initBeanList(cmd);
+                initBeanList(cmd);
             }
             // Read List
             list = reader.getBeanList(beanClass, getPageSize());
-            if (list==null)
-            {   return error(reader);
-            }
-            // done
             return true;
+            
+        } catch(Exception e ) {
+            action.setActionError(e);
+            return false;
             
         } finally {
             reader.close();

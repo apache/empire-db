@@ -61,7 +61,7 @@ public class TextProviderActionSupport extends TextProviderSupport
 
     //  ------- Singleton getInstance -------
     
-    public static TextProvider getInstance(Class clazz, LocaleProvider provider)
+    public static TextProvider getInstance(Class<?> clazz, LocaleProvider provider)
     {
         TextProvider instance=new TextProviderActionSupport(provider);
         if (instance instanceof ResourceBundleTextProvider)

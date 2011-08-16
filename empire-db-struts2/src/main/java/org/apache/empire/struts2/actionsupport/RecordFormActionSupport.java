@@ -22,16 +22,17 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Locale;
 
-import org.apache.empire.commons.ErrorInfo;
-import org.apache.empire.commons.Errors;
 import org.apache.empire.commons.ObjectUtils;
 import org.apache.empire.data.Column;
 import org.apache.empire.data.DataType;
 import org.apache.empire.data.Record;
 import org.apache.empire.db.DBDatabase;
+import org.apache.empire.exceptions.EmpireException;
+import org.apache.empire.exceptions.ObjectNotValidException;
+import org.apache.empire.struts2.action.ErrorInfo;
 import org.apache.empire.struts2.jsp.controls.InputControl;
 import org.apache.empire.struts2.jsp.controls.InputControlManager;
-import org.apache.empire.struts2.web.WebErrors;
+import org.apache.empire.struts2.web.FieldErrors;
 
 
 public abstract class RecordFormActionSupport extends FormActionSupport
@@ -199,12 +200,18 @@ public abstract class RecordFormActionSupport extends FormActionSupport
     @Override
     public boolean loadFormData()
     {
-        Record record = getRecord();
-        if (record.isValid()==false)
-            return error(Errors.ObjectNotValid, "record");
-        // Load Data
-        clearError();
-        return setUpdateFields(record);
+        try {
+            Record record = getRecord();
+            if (record.isValid()==false)
+                throw new ObjectNotValidException(record);
+            // Load Data
+            return setUpdateFields(record);
+
+        } catch(Exception e) {
+            // Action failed
+            action.setActionError(e);
+            return false;
+        }
     }
     
     // --------------------------- protected --------------------------------
@@ -218,7 +225,13 @@ public abstract class RecordFormActionSupport extends FormActionSupport
         if (ObjectUtils.isEmpty(value))
             value = null;
         // Set Value
-        return getRecord().setValue(i, value);
+        try {
+            getRecord().setValue(i, value);
+            return true;
+        } catch(EmpireException e) {
+            log.info("setRecordFieldValue failed. Message is {}.", e.getMessage());
+            return false;
+        }
     }
 
     /**
@@ -267,21 +280,20 @@ public abstract class RecordFormActionSupport extends FormActionSupport
                 // Check Value
                 if (value.equals(InputControl.NULL_VALUE) && col.isRequired())
                 {   // Oops, columns is required
-                    InputControl.FieldValueError fieldError = new InputControl.FieldValueError(WebErrors.InputValueRequired, null, "", control.getClass());
+                    InputControl.FieldValueError fieldError = new InputControl.FieldValueError(FieldErrors.InputValueRequired, null, "");
                     addFieldError(field, col, fieldError, value);
                     valid = false;
                     continue;
                 }
-                // Set Value
+                // set field value now
                 if (log.isInfoEnabled())
                     log.info("SetUpdateFields: setting field '" + col.getName() + "' to " + String.valueOf(value));
-                // Feldwert setzen
                 if (!setRecordFieldValue(i, value, true))
                 {   // Force to set field value
                     if (record instanceof ErrorInfo)
                         addFieldError(field, col, (ErrorInfo)record, value);
                     else
-                        addFieldError(field, col, new ActionError(WebErrors.InputInvalidValue), value);
+                        addFieldError(field, col, new ActionError(FieldErrors.InputInvalidValue), value);
                     // set Value
                     setRecordFieldValue(i, value, false);
                     valid = false;
@@ -324,7 +336,7 @@ public abstract class RecordFormActionSupport extends FormActionSupport
                 log.info("SetUpdateFields: Failed to modify record! At least one field error!");
             return false;
         }
-        return success();
+        return true;
     }
     
     /**

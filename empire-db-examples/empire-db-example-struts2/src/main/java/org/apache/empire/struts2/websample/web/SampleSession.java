@@ -67,7 +67,7 @@ public class SampleSession implements WebSession
         return objectMap.get(name);
     }
     
-    public final Object getObject(Class objclass)
+    public final Object getObject(Class<?> objclass)
     {
         return getObject(objclass.getName());
     }
@@ -77,7 +77,7 @@ public class SampleSession implements WebSession
         return objectMap.put(name, obj);
     }
     
-    public final Object setObject(Class objclass, Object obj)
+    public final Object setObject(Class<?> objclass, Object obj)
     {
         return setObject(objclass.getName(), obj);
     }

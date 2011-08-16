@@ -125,20 +125,18 @@ public class DBCombinedCmd extends DBCommandExpr
    * @return true if the creation was successful
    */
    @Override
-   public boolean getSelect(StringBuilder buf)
+   public void getSelect(StringBuilder buf)
    {
       // the left part
       left.clearOrderBy();
-      if (!left.getSelect(buf))
-           return error(left);
+      left.getSelect(buf);
       // concat keyword     
       buf.append( " " );
       buf.append( keyWord );
       buf.append( " (" );
       // the right part
       right.clearOrderBy();
-      if (!right.getSelect(buf))
-           return error(right);
+      right.getSelect(buf);
       // done
       buf.append( ")" );
       // Add optional Order by statement
@@ -147,7 +145,6 @@ public class DBCombinedCmd extends DBCommandExpr
            buf.append("\r\nORDER BY ");
            addListExpr(buf, orderBy, CTX_DEFAULT, ", ");
       }
-      return success();
    }
 
    @Override

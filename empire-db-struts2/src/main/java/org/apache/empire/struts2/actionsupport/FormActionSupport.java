@@ -18,15 +18,14 @@
  */
 package org.apache.empire.struts2.actionsupport;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.apache.empire.commons.ErrorInfo;
-import org.apache.empire.commons.ErrorObject;
 import org.apache.empire.commons.StringUtils;
 import org.apache.empire.data.Column;
+import org.apache.empire.struts2.action.ErrorInfo;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
-public abstract class FormActionSupport extends ErrorObject
+public abstract class FormActionSupport
 {
     protected static Logger log = LoggerFactory.getLogger(FormActionSupport.class);
 

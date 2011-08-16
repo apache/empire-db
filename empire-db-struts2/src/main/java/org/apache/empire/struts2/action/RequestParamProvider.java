@@ -22,7 +22,7 @@ import java.util.Map;
 
 public interface RequestParamProvider
 {
-    Map getRequestParameters();
+    Map<String,Object> getRequestParameters();
 
     boolean hasRequestParam(String param);
     

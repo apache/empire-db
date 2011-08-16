@@ -45,10 +45,7 @@ public class EmployeeRecord extends SampleRecord
     {
         DepartmentRecord rec = new DepartmentRecord(context);
         SampleDB.Departments table = SampleDB.getInstance().T_DEPARTMENTS;
-        if (!rec.read(table, this.getInt(T.C_DEPARTMENT_ID), context.getConnection())) {
-            log.error("Unable to get department record. Message is " + rec.getErrorMessage());
-            return null;
-        }
+        rec.read(table, this.getInt(T.C_DEPARTMENT_ID), context.getConnection());
         return rec; 
     }
     

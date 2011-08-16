@@ -19,11 +19,11 @@
 package org.apache.empire.db.oracle;
 
 // Imports
-import org.apache.empire.commons.Errors;
 import org.apache.empire.db.DBCommand;
 import org.apache.empire.db.DBDatabase;
 import org.apache.empire.db.DBTable;
 import org.apache.empire.db.expr.compare.DBCompareExpr;
+import org.apache.empire.exceptions.ObjectNotValidException;
 
 /**
  * This class handles the special features of an oracle database.
@@ -94,13 +94,12 @@ public class DBCommandOracle extends DBCommand
     }
     
     @Override
-    public boolean limitRows(int numRows)
+    public void limitRows(int numRows)
     {
     	if (rowNumExpr==null)
     		rowNumExpr = new OracleRowNumExpr(getDatabase());
     	// Add the constraint
     	where(rowNumExpr.isLessOrEqual(numRows));
-        return success();
     }
      
     @Override
@@ -116,15 +115,15 @@ public class DBCommandOracle extends DBCommand
      * Creates the SQL statement the special characteristics of
      * the Oracle database are supported.
      * 
-     * @param buf the SQL statment
+     * @param buf the SQL statement
      * @return true if the creation was successful
      */
     @Override
-    public synchronized boolean getSelect(StringBuilder buf)
+    public synchronized void getSelect(StringBuilder buf)
     {
         resetParamUsage();
         if (select == null)
-            return error(Errors.ObjectNotValid, getClass().getName()); // invalid!
+            throw new ObjectNotValidException(this);
         // Prepares statement
         buf.append("SELECT ");
         if (optimizerHint != null)
@@ -164,8 +163,6 @@ public class DBCommandOracle extends DBCommand
             // Add List of Order By Expressions
             addListExpr(buf, orderBy, CTX_DEFAULT, ", ");
         }
-        // Done
-        return success();
     }
     
     /**

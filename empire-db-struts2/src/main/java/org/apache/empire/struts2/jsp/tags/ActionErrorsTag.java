@@ -25,8 +25,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.jsp.JspException;
 
-import org.apache.empire.commons.ErrorInfo;
 import org.apache.empire.struts2.action.ActionErrorProvider;
+import org.apache.empire.struts2.action.ErrorInfo;
 import org.apache.empire.struts2.html.HtmlTagDictionary;
 import org.apache.empire.struts2.html.HtmlWriter;
 import org.apache.empire.struts2.html.HtmlWriter.HtmlTag;
@@ -92,7 +92,7 @@ public class ActionErrorsTag extends EmpireTagSupport
         ErrorInfo lastActionError = provider.getLastActionError(true);
         Map<String, ErrorInfo> fieldErrors = provider.getItemErrors();
         
-        boolean hasActionError = (lastActionError!=null && lastActionError.hasError());
+        boolean hasActionError = (lastActionError!=null); //  && lastActionError.hasError());
         boolean hasFieldErrors = (fieldErrors!=null && fieldErrors.size()>0); 
 
         // Check whether we have an error to render

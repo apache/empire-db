@@ -22,8 +22,8 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.util.List;
 
-import org.apache.empire.commons.ErrorObject;
 import org.apache.empire.commons.StringUtils;
+import org.apache.empire.data.bean.BeanResult;
 import org.apache.empire.db.DBColumnExpr;
 import org.apache.empire.db.DBCommand;
 import org.apache.empire.db.DBDatabaseDriver;
@@ -69,9 +69,6 @@ public class SampleApp
         {
 			// Init Configuration
 			config.init((args.length > 0 ? args[0] : "config.xml" ));
-
-			// Enable Exceptions
-            ErrorObject.setExceptionsEnabled(true);
 
 			System.out.println("Running DB Sample...");
 
@@ -145,6 +142,9 @@ public class SampleApp
 			System.out.println("*** Step 8 Option 3: queryRecords() / XML-Output ***");
 			queryRecords(conn, QueryType.XmlDocument); // XML-Output
 
+			// STEP 9: Use Bean Result to query beans
+			queryBeans(conn);
+			
 			// Done
 			System.out.println("DB Sample finished successfully.");
 
@@ -160,7 +160,7 @@ public class SampleApp
 	/**
      * <PRE>
 	 * Opens and returns a JDBC-Connection.
-	 * JDBC url, user and password for the connection are obained from the SampleConfig bean
+	 * JDBC url, user and password for the connection are obtained from the SampleConfig bean
 	 * Please use the config.xml file to change connection params.
      * </PRE>
 	 */
@@ -227,7 +227,7 @@ public class SampleApp
 	 * Checks whether the database exists or not by executing
 	 *     select count(*) from DEPARTMENTS
 	 * If the Departments table does not exist the querySingleInt() function return -1 for failure.
-	 * Please note that in this case an error will appear in the log wich can be ingored.
+	 * Please note that in this case an error will appear in the log which can be ignored.
      * </PRE>
 	 */
 	private static boolean databaseExists(Connection conn)
@@ -243,7 +243,7 @@ public class SampleApp
 	/**
      * <PRE>
 	 * Creates a DDL Script for entire SampleDB Database and executes it line by line.
-	 * Please make sure you uses the correct DatabaseDriver for your target dbms.
+	 * Please make sure you uses the correct DatabaseDriver for your target DBMS.
      * </PRE>
 	 */
 	private static void createDatabase(DBDatabaseDriver driver, Connection conn)
@@ -377,8 +377,7 @@ public class SampleApp
 		// Select required columns
 		cmd.select(EMP.EMPLOYEE_ID, EMPLOYEE_FULLNAME);
 		if(db.getDriver() instanceof DBDatabaseDriverPostgreSQL)
-		{
-			// postgres does not support the substring expression
+		{	// postgres does not support the substring expression
 			cmd.select(EMP.GENDER, EMP.PHONE_NUMBER);
 		}else{
 			cmd.select(EMP.GENDER, EMP.PHONE_NUMBER, PHONE_EXT_NUMBER);
@@ -446,6 +445,22 @@ public class SampleApp
 			// always close Reader
 			reader.close();
 		}
+	}
+	
+	private static void queryBeans(Connection conn)
+	{
+        // Query all males
+	    BeanResult<SampleBean> result = new BeanResult<SampleBean>(SampleBean.class, db.EMPLOYEES);
+        result.getCommand().where(db.EMPLOYEES.GENDER.is("M"));
+	    result.fetch(conn);
+	    
+	    System.out.println("Number of male employees is: "+result.size());
+
+	    // And now, the females
+	    result.getCommand().where(db.EMPLOYEES.GENDER.is("F"));
+	    result.fetch(conn);
+	    
+        System.out.println("Number of female employees is: "+result.size());
 	}
 	
 }

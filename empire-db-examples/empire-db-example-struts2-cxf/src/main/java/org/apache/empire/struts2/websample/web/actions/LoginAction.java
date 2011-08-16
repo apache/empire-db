@@ -21,9 +21,9 @@ package org.apache.empire.struts2.websample.web.actions;
 import java.util.Locale;
 import java.util.Map;
 
-import org.apache.empire.commons.Errors;
 import org.apache.empire.commons.OptionEntry;
 import org.apache.empire.commons.Options;
+import org.apache.empire.struts2.websample.web.SampleErrors;
 import org.apache.empire.struts2.websample.web.SampleUser;
 import org.apache.empire.struts2.websample.web.actiontypes.SampleAction;
 
@@ -114,7 +114,7 @@ public class LoginAction extends SampleAction implements Parameterizable // Stat
 
         if (userID == null || userID.length() == 0)
         {
-            setActionError(Errors.InvalidPassword);
+        	setActionError(SampleErrors.InvalidPassword);
             return INPUT;
         }
 

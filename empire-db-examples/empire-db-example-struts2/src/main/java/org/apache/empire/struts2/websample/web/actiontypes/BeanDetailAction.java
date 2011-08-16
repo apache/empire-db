@@ -18,13 +18,14 @@
  */
 package org.apache.empire.struts2.websample.web.actiontypes;
 
-import org.apache.empire.commons.Errors;
 import org.apache.empire.data.Record;
 import org.apache.empire.data.bean.BeanClass;
 import org.apache.empire.data.bean.BeanRecordProxy;
+import org.apache.empire.exceptions.ItemNotFoundException;
+import org.apache.empire.exceptions.NotSupportedException;
 import org.apache.empire.struts2.actionsupport.BeanActionSupport;
 import org.apache.empire.struts2.actionsupport.SessionPersistence;
-import org.apache.empire.struts2.web.WebErrors;
+import org.apache.empire.struts2.exceptions.InvalidFormDataException;
 
 import com.opensymphony.xwork2.interceptor.NoParameters;
 
@@ -64,7 +65,7 @@ public abstract class BeanDetailAction<T> extends DetailAction
     
     /**
      * Returns the Record interface implmentation for the bean.
-     * @return the Record interface implmentation for the bean. 
+     * @return the Record interface implementation for the bean. 
      */
     public Record getRecord() 
     {
@@ -78,7 +79,7 @@ public abstract class BeanDetailAction<T> extends DetailAction
         if (bean==null)
         {   // Must have an action error set!
             if (!hasActionError())
-                setActionError(Errors.ObjectNotValid, beanSupport.getRecordPropertyName());
+                setActionError(new NotSupportedException(beanSupport, "createBean"));
             return doCancel();
         }
         beanSupport.setData(bean);
@@ -96,7 +97,7 @@ public abstract class BeanDetailAction<T> extends DetailAction
             if (bean==null)
             {   // Must have an action error set!
                 if (!hasActionError())
-                    setActionError(Errors.ItemNotFound, beanSupport.getRecordKeyString());
+                    setActionError(new ItemNotFoundException(beanSupport.getRecordKeyString()));
                 return doCancel();
             }
             beanSupport.setData(bean);
@@ -104,7 +105,7 @@ public abstract class BeanDetailAction<T> extends DetailAction
         // Check if record is valid
         if (beanSupport.isValid()==false)
         {
-            setActionError(WebErrors.InvalidFormData);
+            setActionError(new InvalidFormDataException());
             return doCancel();
         }
         // Test
@@ -153,7 +154,7 @@ public abstract class BeanDetailAction<T> extends DetailAction
             if (bean==null)
             {   // Must have an action error set!
                 if (!hasActionError())
-                    setActionError(Errors.ItemNotFound, beanSupport.getRecordKeyString());
+                    setActionError(new ItemNotFoundException(beanSupport.getRecordKeyString()));
                 return doCancel();
             }
             beanSupport.setData(bean);
@@ -162,7 +163,7 @@ public abstract class BeanDetailAction<T> extends DetailAction
         {   // Check whether we have the right key
             if (!beanSupport.checkKey())
             {   // Record's don't match
-                setActionError(WebErrors.InvalidFormData);
+                setActionError(new InvalidFormDataException());
                 return doCancel();
             }
         }

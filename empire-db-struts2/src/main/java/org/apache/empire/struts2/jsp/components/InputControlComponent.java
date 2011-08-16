@@ -25,11 +25,11 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.empire.commons.ErrorInfo;
 import org.apache.empire.commons.ObjectUtils;
 import org.apache.empire.commons.StringUtils;
 import org.apache.empire.data.DataType;
 import org.apache.empire.struts2.action.ActionErrorProvider;
+import org.apache.empire.struts2.action.ErrorInfo;
 import org.apache.empire.struts2.html.HtmlTagDictionary;
 import org.apache.empire.struts2.html.HtmlWriter;
 import org.apache.empire.struts2.html.HtmlWriter.HtmlTag;
