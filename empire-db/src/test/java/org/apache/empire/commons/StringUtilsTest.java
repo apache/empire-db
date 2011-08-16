@@ -18,7 +18,9 @@
  */
 package org.apache.empire.commons;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
@@ -61,7 +63,7 @@ public class StringUtilsTest
 	@Test
 	public void testValueOfObject()
 	{
-		assertEquals("",StringUtils.valueOf(null));
+		assertEquals("null",StringUtils.valueOf(null));
 		assertEquals("",StringUtils.valueOf(""));
 		assertEquals("123",StringUtils.valueOf(Long.valueOf("123")));
 	}
@@ -69,8 +71,8 @@ public class StringUtilsTest
 	@Test
 	public void testValueOfObjectArray()
 	{
-		assertEquals("",StringUtils.valueOf(null));
-		assertEquals("",StringUtils.valueOf(new Object[]{}));
+		assertEquals("null",StringUtils.valueOf(null));
+		assertEquals("null",StringUtils.valueOf(new Object[]{}));
 		assertEquals("123/12.3",StringUtils.valueOf(new Number[]{Integer.valueOf("123"), Double.valueOf("12.3")}));
 	}
 
