@@ -127,7 +127,7 @@ public abstract class EmpireValueTagSupport extends EmpireTagSupport
     
     protected String getTagName(String suppliedName)
     {
-        if (StringUtils.isValid(suppliedName))
+        if (StringUtils.isNotEmpty(suppliedName))
             return suppliedName;
         if (property != null)
             return getFullPropertyName(property);

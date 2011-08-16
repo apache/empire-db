@@ -20,9 +20,6 @@ package org.apache.empire.struts2.actionsupport;
 
 import java.sql.Connection;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.apache.empire.commons.ErrorInfo;
 import org.apache.empire.commons.StringUtils;
 import org.apache.empire.data.Column;
 import org.apache.empire.data.Record;
@@ -30,7 +27,10 @@ import org.apache.empire.db.DBColumn;
 import org.apache.empire.db.DBColumnExpr;
 import org.apache.empire.db.DBRowSet;
 import org.apache.empire.struts2.action.ActionItemProperty;
+import org.apache.empire.struts2.action.ErrorInfo;
 import org.apache.empire.struts2.action.RequestParamProvider;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.opensymphony.xwork2.ActionContext;
 import com.opensymphony.xwork2.ActionInvocation;
@@ -50,6 +50,8 @@ public abstract class ActionBase
     // ------- Must Implements -------
     
     protected abstract Connection getConnection(); 
+
+    public abstract void setActionError(Exception exception);
 
     protected abstract void addFieldError(String name, Column column, ErrorInfo error);
 
@@ -111,7 +113,7 @@ public abstract class ActionBase
         return proxy;
     }
     
-    protected String getActionBeanName(ActionContext context, Class objClass, String ownerProperty)
+    protected String getActionBeanName(ActionContext context, Class<?> objClass, String ownerProperty)
     {
         ActionProxy proxy = getActionProxy(context);
         if (proxy==null)
@@ -122,7 +124,7 @@ public abstract class ActionBase
         return proxy.getActionName()+ "." + ownerProperty + "." + objClass.getName();
     }
     
-    public Object getActionBean(Class objClass, boolean create, String ownerProperty)
+    public Object getActionBean(Class<?> objClass, boolean create, String ownerProperty)
     {
         if (objClass==null)
             return null;
@@ -144,7 +146,7 @@ public abstract class ActionBase
         return obj;
     }
 
-    public Object getActionBean(Class objClass, boolean create)
+    public Object getActionBean(Class<?> objClass, boolean create)
     {
         return getActionBean(objClass, create, null);
     }
@@ -168,7 +170,7 @@ public abstract class ActionBase
         putActionBean(obj, null);
     }
     
-    public void removeActionBean(Class objClass, String propertyName)
+    public void removeActionBean(Class<?> objClass, String propertyName)
     {
         if (objClass==null)
             return;
@@ -178,7 +180,7 @@ public abstract class ActionBase
             context.getSession().remove(key);
     }
 
-    public void removeActionBean(Class objClass)
+    public void removeActionBean(Class<?> objClass)
     {
         removeActionBean(objClass, null);
     }

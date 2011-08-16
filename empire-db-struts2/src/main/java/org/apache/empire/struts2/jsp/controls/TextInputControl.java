@@ -32,7 +32,7 @@ import org.apache.empire.data.Column;
 import org.apache.empire.data.DataType;
 import org.apache.empire.struts2.html.HtmlWriter;
 import org.apache.empire.struts2.html.HtmlWriter.HtmlTag;
-import org.apache.empire.struts2.web.WebErrors;
+import org.apache.empire.struts2.web.FieldErrors;
 import org.apache.commons.lang.xwork.StringEscapeUtils;
 
 
@@ -83,7 +83,7 @@ public class TextInputControl extends InputControl
                 if (n.intValue()<ObjectUtils.getInteger(min) ||
                     n.intValue()>ObjectUtils.getInteger(max))
                 {   // Out of Range
-                    return error(WebErrors.InputValueOutOfRange, new String[] { min.toString(), max.toString() }, s);
+                    return error(FieldErrors.InputValueOutOfRange, new String[] { min.toString(), max.toString() }, s);
                 }
             }
         }
@@ -373,7 +373,7 @@ public class TextInputControl extends InputControl
             // Parse String
             return Integer.parseInt(s);
         } catch(Exception e) {
-            return error(WebErrors.InputNoIntegerFormat, null, s);
+            return error(FieldErrors.InputNoIntegerFormat, null, s);
         }
     }
     
@@ -384,12 +384,12 @@ public class TextInputControl extends InputControl
             // Check for characters
             for (int i=0; i<s.length(); i++)
             {   if (s.charAt(i)>='A')
-                    return error(WebErrors.InputNoNumberFormat, null, s);
+                    return error(FieldErrors.InputNoNumberFormat, null, s);
             }
             // Parse String
             return nf.parseObject(s);
         } catch(Exception e) {
-            return error(WebErrors.InputNoNumberFormat, null, s);
+            return error(FieldErrors.InputNoNumberFormat, null, s);
         }
     }
     
@@ -401,7 +401,7 @@ public class TextInputControl extends InputControl
             df.setLenient(true);
             return df.parseObject(s);
         } catch(Exception e) {
-            return error(WebErrors.InputNoDateFormat, null, s);
+            return error(FieldErrors.InputNoDateFormat, null, s);
         }
     }
 

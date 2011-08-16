@@ -25,12 +25,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.ResourceBundle;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.apache.empire.commons.ErrorInfo;
-import org.apache.empire.commons.ErrorObject;
 import org.apache.empire.commons.ErrorType;
-import org.apache.empire.commons.Errors;
 import org.apache.empire.commons.ObjectUtils;
 import org.apache.empire.commons.StringUtils;
 import org.apache.empire.data.Column;
@@ -40,8 +35,10 @@ import org.apache.empire.struts2.actionsupport.ActionPropertySupport;
 import org.apache.empire.struts2.actionsupport.TextProviderActionSupport;
 import org.apache.empire.struts2.web.EmpireThreadManager;
 import org.apache.empire.struts2.web.UrlHelperEx;
-import org.apache.empire.struts2.web.WebErrors;
+import org.apache.empire.struts2.web.FieldErrors;
 import org.apache.empire.struts2.web.WebRequest;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.opensymphony.xwork2.ActionContext;
 import com.opensymphony.xwork2.TextProvider;
@@ -190,7 +187,7 @@ public abstract class WebAction extends ActionBase
      */
     public String getLocalizedErrorMessage(ErrorInfo error)
     {   // Get the message
-        if (error==null || !error.hasError())
+        if (error==null) //  || !error.hasError())
             return "";
         // Translate the error
         String msgKey = error.getErrorType().getKey();
@@ -206,10 +203,12 @@ public abstract class WebAction extends ActionBase
             actionError = null;
             return; 
         }
+        /*
         if (error.hasError()==false)
         {   log.warn("setActionError: No error information supplied.");
             error = new ActionError(Errors.Internal, "No error information available!");
         }
+        */
         // We have an error
         if (error instanceof ActionError)
             actionError = ((ActionError)error);
@@ -225,12 +224,13 @@ public abstract class WebAction extends ActionBase
         setActionError(new ActionError(errType));
     }
 
-    protected final void setActionError(ErrorType errType, Object param)
+    protected final void setActionError(ErrorType errType, String param)
     {
         setActionError(new ActionError(errType, param));
     }
 
-    protected final void setActionError(Exception exception)
+    @Override
+    public final void setActionError(Exception exception)
     {
         setActionError(new ActionError(exception));
     }
@@ -253,14 +253,14 @@ public abstract class WebAction extends ActionBase
             fieldErrors = new LinkedHashMap<String, ErrorInfo>();
         // Error Message
         if (log.isWarnEnabled())
-            log.warn("Invlalid value for item or field " + item + " Message= " + ErrorObject.getMessage(error));
+            log.warn("Invlalid value for item or field " + item + " Message= " + error.getErrorMessage());
         // Map of errors
         fieldErrors.put(item, error);
     }
 
     protected void addItemError(String item, ErrorType errorType, String title, ErrorInfo error)
     {   // Check error
-        if (error.hasError()==false)
+        if (error==null) // .hasError()==false)
         {   log.error("addItemError has been called without an error provided!");
             return;
         }
@@ -278,7 +278,7 @@ public abstract class WebAction extends ActionBase
     @Override
     protected void addFieldError(String name, Column column, ErrorInfo error)
     {
-        addItemError(name, WebErrors.FieldError, column.getTitle(), error);
+        addItemError(name, FieldErrors.FieldError, column.getTitle(), error);
     }
     
     // ------- Action Message -------
@@ -425,7 +425,7 @@ public abstract class WebAction extends ActionBase
     
     // ------- Request Param accessors -------
     
-    public final Map getRequestParameters()
+    public final Map<String,Object> getRequestParameters()
     {
         ActionContext context = ActionContext.getContext();
         return (context!=null) ? context.getParameters() : null;
@@ -438,7 +438,7 @@ public abstract class WebAction extends ActionBase
     
     public final String getRequestParam(String param)
     {
-        Map params = getRequestParameters();
+        Map<String,Object> params = getRequestParameters();
         Object value = params.get( param );
         // Is the error provided?
         if (value==null)
@@ -452,7 +452,7 @@ public abstract class WebAction extends ActionBase
     
     public final String[] getRequestArrayParam(String param)
     {
-        Map params = getRequestParameters();
+        Map<String,Object> params = getRequestParameters();
         Object value = params.get( param );
         if (value==null)
             return null; // null is default
@@ -508,7 +508,7 @@ public abstract class WebAction extends ActionBase
      * @deprecated
      */
     @Deprecated
-    public String getActionURL(String action, Map parameters)
+    public String getActionURL(String action, Map<String,Object> parameters)
     {
         Object request = EmpireThreadManager.getCurrentRequest();
         if ((request instanceof WebRequest)==false)

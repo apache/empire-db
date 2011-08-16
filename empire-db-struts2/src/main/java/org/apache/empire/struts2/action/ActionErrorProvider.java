@@ -20,8 +20,6 @@ package org.apache.empire.struts2.action;
 
 import java.util.Map;
 
-import org.apache.empire.commons.ErrorInfo;
-
 
 public interface ActionErrorProvider
 {

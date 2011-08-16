@@ -197,7 +197,7 @@ public class CalendarComponent extends UIBean
         weekCell.addAttribute("class", this.weekOfYearClass);
         weekCell.beginBody();
 
-        if(StringUtils.isValid(bodyText) && StringUtils.isValid(selectWeekAction))
+        if(StringUtils.isNotEmpty(bodyText) && StringUtils.isNotEmpty(selectWeekAction))
             renderLink(writer, bodyText, selectWeekAction, paramName, linkItem);
         else
             weekCell.endTag("");
@@ -381,7 +381,7 @@ public class CalendarComponent extends UIBean
 
     public void setParamName(String paramName)
     {
-        if (StringUtils.isValid(paramName))
+        if (StringUtils.isNotEmpty(paramName))
             this.paramName = paramName;
     }
 

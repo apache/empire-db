@@ -23,21 +23,26 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.apache.empire.commons.Errors;
 import org.apache.empire.commons.StringUtils;
 import org.apache.empire.data.Record;
 import org.apache.empire.db.DBColumn;
 import org.apache.empire.db.DBCommand;
-import org.apache.empire.db.DBErrors;
 import org.apache.empire.db.DBIndex;
 import org.apache.empire.db.DBReader;
 import org.apache.empire.db.DBRecord;
 import org.apache.empire.db.DBRowSet;
 import org.apache.empire.db.DBTable;
+import org.apache.empire.db.exceptions.InvalidKeyException;
+import org.apache.empire.db.exceptions.NoPrimaryKeyException;
+import org.apache.empire.db.exceptions.QueryNoResultException;
 import org.apache.empire.db.expr.compare.DBCompareExpr;
-import org.apache.empire.struts2.web.WebErrors;
+import org.apache.empire.exceptions.EmpireException;
+import org.apache.empire.exceptions.ItemNotFoundException;
+import org.apache.empire.exceptions.NotSupportedException;
+import org.apache.empire.exceptions.ObjectNotValidException;
+import org.apache.empire.struts2.exceptions.InvalidFormDataException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -153,12 +158,18 @@ public class RecordActionSupport extends RecordFormActionSupport
      */
     public boolean createRecord()
     {
-        // initNew
-        if (!record.create(rowset, action.getConnection()))
-            return error(record);
-        // Save Record Key Info
-        persistOnSession();
-        return success();
+        try {
+            // initNew
+            record.create(rowset, action.getConnection());
+            // Save Record Key Info
+            persistOnSession();
+            return true;
+            
+        } catch(Exception e) {
+            // Action failed
+            action.setActionError(e);
+            return false;
+        }
     }
     
     /**
@@ -166,10 +177,9 @@ public class RecordActionSupport extends RecordFormActionSupport
      * The foreign key values must be supplied with the request.
      * @return true if all required foreign keys have been successfully set, or false otherwise
      */
-    public boolean initReferenceColumns()
+    public void initReferenceColumns()
     {
         // set Reference Values (if provided)
-        this.clearError();
         Map<DBColumn, DBColumn> refs = rowset.getColumnReferences();
         if (refs!=null)
         {   // Get Parent Columns from Request (if provided)
@@ -179,38 +189,33 @@ public class RecordActionSupport extends RecordFormActionSupport
                 String value = action.getRequestParam(name);
                 if (value!=null)
                 {
-                    if (StringUtils.isValid(value))
+                    if (StringUtils.isNotEmpty(value))
                         record.setValue(column, value);
                 }
                 else if (column.isRequired())
                 {   // Reference column not provided
                     log.warn("Value for reference column has not been provided!");
-                    error(Errors.ItemNotFound, name);
+                    throw new ItemNotFoundException(name);
                 }
             }
         }
-        return (hasError()==false);
     }
     
     /**
      * loads the record identified by the supplied key from the database<BR/>
      * @return true if the record has been successfully reloaded or false otherwise
      */
-    public boolean loadRecord(Object[] recKey)
+    public void loadRecord(Object[] recKey)
     {
         // Check Key
         if (recKey==null || recKey.length==0)
         {   // Invalid Record key
-            return error(DBErrors.RecordInvalidKey, recKey);
+            throw new InvalidKeyException(rowset, recKey);
         }
         // Record laden
-        if (record.read(rowset, recKey, action.getConnection()) == false)
-        {   // error
-            return error(record);
-        }
+        record.read(rowset, recKey, action.getConnection());
         // Save Record Key Info
         persistOnSession();
-        return success();
     }
     
     /**
@@ -219,13 +224,22 @@ public class RecordActionSupport extends RecordFormActionSupport
      */
     public boolean loadRecord()
     {   // Load 
-        Object[] key = getActionParamKey();
-        if (key==null && (persistence==SessionPersistence.Data))
-        {   // reload session record
-            return reloadRecord();
+        try {
+            Object[] key = getActionParamKey();
+            if (key==null && (persistence==SessionPersistence.Data))
+            {   // reload session record
+                reloadRecord();
+                return true;
+            }
+            // Load Record
+            loadRecord(key);
+            return true;
+
+        } catch(Exception e) {
+            // Action failed
+            action.setActionError(e);
+            return false;
         }
-        // Load Record
-        return loadRecord(key);
     }
     
     /**
@@ -234,7 +248,7 @@ public class RecordActionSupport extends RecordFormActionSupport
      * is reloaded from the database. 
      * @return true if the record has been successfully reloaded or false otherwise
      */
-    public boolean reloadRecord()
+    public void reloadRecord()
     {   // Load 
         switch(persistence)
         {
@@ -243,7 +257,7 @@ public class RecordActionSupport extends RecordFormActionSupport
             {   // Load from session key
                 String stKey = StringUtils.toString(action.getActionObject(getRecordPropertyName()));
                 Object[] key = action.getRecordKeyFromString(stKey);
-                return loadRecord(key);
+                loadRecord(key);
             }
             // Data persistence
             case Data:
@@ -252,17 +266,16 @@ public class RecordActionSupport extends RecordFormActionSupport
                 if (rec!=null && (rec instanceof DBRecord))
                 {   // Check rowset
                     if (((DBRecord)rec).getRowSet()!=rowset)
-                        return error(Errors.ObjectNotValid, "record");
+                        throw new ObjectNotValidException(rec);
                     // Record restored
                     this.record = (DBRecord)rec;
-                    return success();
                 }
                 // Record not found
-                return error(Errors.ItemNotFound, rowset.getName());
+                throw new ItemNotFoundException(rowset.getName());
             }
             // Other
             default:
-                return error(Errors.NotSupported, "reloadRecord[] " + String.valueOf(persistence));
+                throw new NotSupportedException(this, "reloadRecord[] " + String.valueOf(persistence));
         }
     }
     
@@ -274,32 +287,36 @@ public class RecordActionSupport extends RecordFormActionSupport
      */
     public boolean deleteRecord(Object[] recKey, boolean newRec)
     {
-        // Check Key
-        if (recKey==null || recKey.length==0)
-        {   // Invalid Record Key
-            return error(DBErrors.RecordInvalidKey, recKey);
-        }
-        if (newRec)
-        { 	// Record has not been saved yet!
-            record.close();
-            return success();
-        }
-        // Delete Record
-        if (loadBeforeDelete)
-        {   // load record and delete afterwards
-            if (record.read(rowset, recKey, action.getConnection()) == false ||
-                record.delete(action.getConnection()) == false)
-            {   // error
-                return error(record);
+        try {
+            // Check Key
+            if (recKey==null || recKey.length==0)
+            {   // Invalid Record Key
+                throw new InvalidKeyException(rowset, recKey);
             }
+            if (newRec)
+            { 	// Record has not been saved yet!
+                record.close();
+                return true;
+            }
+            // Delete Record
+            if (loadBeforeDelete)
+            {   // load record and delete afterwards
+                record.read(rowset, recKey, action.getConnection());
+                record.delete(action.getConnection());
+            }
+            else
+            {   // rowset error
+                rowset.deleteRecord(recKey, action.getConnection());
+            }
+            // Success
+            removeFromSession();
+            return true;
+
+        } catch(Exception e) {
+            // Action failed
+            action.setActionError(e);
+            return false;
         }
-        else if (rowset.deleteRecord(recKey, action.getConnection()) == false)
-        {   // rowset error
-            return error(rowset);
-        }
-        // Success
-        removeFromSession();
-        return success();
     }
 
     /**
@@ -330,27 +347,31 @@ public class RecordActionSupport extends RecordFormActionSupport
      */
     public boolean loadFormData(Object[] recKey, boolean insert)
     {
-        // Check Key
-        if (recKey==null || recKey.length==0)
-        {   // Invalid Record key
-            return error(DBErrors.RecordInvalidKey, recKey);
+        try {
+            // Check Key
+            if (recKey==null || recKey.length==0)
+            {   // Invalid Record key
+                throw new InvalidKeyException(rowset, recKey);
+            }
+            // Prepare Update
+            Connection conn = action.getConnection();
+            initUpdateRecord(recKey, insert, conn);
+            // Set Update Fields
+            setUpdateFields(record);
+            // Done
+            persistOnSession();
+            return true;
+
+        } catch(Exception e) {
+            // Action failed
+            action.setActionError(e);
+            return false;
         }
-        // Prepare Update
-        Connection conn = action.getConnection();
-        if (!initUpdateRecord(recKey, insert, conn))
-            return false;
-        // Set Update Fields
-        if (!setUpdateFields(record))
-            return false;
-        // Done
-        persistOnSession();
-        return success();
     }
 
     @Override
     public boolean loadFormData()
     {
-        clearError();
         // Get Record Key
         Object[] recKey = getActionParamKey();
         boolean  insert = getActionParamNewFlag();
@@ -359,28 +380,31 @@ public class RecordActionSupport extends RecordFormActionSupport
     
     /**
      * Updates the record by calling onUpdateRecord and updates the currentKey
-     * The update will not be commited, hence the caller must commit or rollback
+     * The update will not be committed, hence the caller must commit or rollback
      * the operation
      * 
      * @return true if the update was successful otherwise false
      */
     public boolean saveChanges()
     {
-        // Record is not valid
-        if (record.isValid()==false)
-        {   
-            log.error("Cannot save changes: record ist not valid");
-            return error(Errors.ObjectNotValid, record.getClass().getName());
-        }
-        // Update Record
-        if (updateRecord(action.getConnection())==false)
-        {
-            log.error("Error updating record." + getErrorMessage());
+        try {
+            // Record is not valid
+            if (record.isValid()==false)
+            {   
+                log.error("Cannot save changes: record ist not valid");
+                throw new ObjectNotValidException(record);
+            }
+            // Update Record
+            updateRecord(action.getConnection());
+            // Save Record Key Info
+            persistOnSession();
+            return true;
+
+        } catch(Exception e) {
+            // Action failed
+            action.setActionError(e);
             return false;
         }
-        // Save Record Key Info
-        persistOnSession();
-        return success();
     }
     
     /**
@@ -479,15 +503,16 @@ public class RecordActionSupport extends RecordFormActionSupport
             // Query now
             DBReader reader = new DBReader();
             try { 
-                if (reader.getRecordData(cmd, action.getConnection()))
-                {   // We have found a record
-                    Object[] key = new Object[keyColumns.length];
-                    for (int i=0; i<keyColumns.length; i++)
-                    {   // Check if column has changed
-                        key[i] = reader.getValue(i);
-                    }
-                    return key;
+                reader.getRecordData(cmd, action.getConnection());
+                // We have found a record
+                Object[] key = new Object[keyColumns.length];
+                for (int i=0; i<keyColumns.length; i++)
+                {   // Check if column has changed
+                    key[i] = reader.getValue(i);
                 }
+                return key;
+            } catch(QueryNoResultException e) {
+                // ignore
             } finally {
                 reader.close();
             }
@@ -501,15 +526,15 @@ public class RecordActionSupport extends RecordFormActionSupport
     /**
      * overridable: onUpdateRecord
      */
-    protected boolean updateRecord(Connection conn)
+    protected void updateRecord(Connection conn)
     {
         // Modified?
         if (!record.isModified())
-            return success();
+            return;
         // Missing defaults?
         record.fillMissingDefaults(null);
         // Update Record
-        return (record.update(conn) ? success() : error(record));
+        record.update(conn);
     }
 
     // --------------------------- overrides --------------------------------
@@ -519,7 +544,13 @@ public class RecordActionSupport extends RecordFormActionSupport
     {
         if (verify)
         {   // Set Value with checking
-            return record.setValue(i, value);
+            try {
+                record.setValue(i, value);
+                return true;
+            } catch(EmpireException e) {
+                log.info("setRecordFieldValue failed. Message is {}.", e.getMessage());
+                return false;
+            }
         }
         else
         {   // No Checking
@@ -545,22 +576,21 @@ public class RecordActionSupport extends RecordFormActionSupport
      *            the primary key(s)
      * @param insert
      *            true if insert sql statement
-     * @retrun true if successfull otherwise false
      */
-    private boolean initUpdateRecord(Object[] keyValues, boolean insert, Connection conn)
+    private void initUpdateRecord(Object[] keyValues, boolean insert, Connection conn)
     { // Get the record key
         DBColumn[] keyColumns = rowset.getKeyColumns();
         if (keyColumns == null || keyColumns.length < 1)
-            return error(DBErrors.NoPrimaryKey, rowset.getName());
+            throw new NoPrimaryKeyException(rowset);
         if (keyValues == null || keyValues.length != keyColumns.length)
-            return error(DBErrors.RecordInvalidKey, keyValues, "keyValues");
+            throw new InvalidKeyException(rowset, keyValues);
         // Get Persistent record
         if (persistence==SessionPersistence.Data)
         {   // Get the record from the session
             Record rec = getRecordFromSession();
             if (rec==null || (rec instanceof DBRecord)==false)
             {   // Record restored
-                return error(WebErrors.InvalidFormData);
+                throw new InvalidFormDataException();
             }
             // Record not found
             record = (DBRecord)rec;
@@ -571,28 +601,24 @@ public class RecordActionSupport extends RecordFormActionSupport
             Object[] currentKey = record.getKeyValues();
             if (compareKey(currentKey, keyValues)==false)
             {   // Keys don't match
-                return error(WebErrors.InvalidFormData);
+                throw new InvalidFormDataException();
             }
             // We have a valid record
-            return success();
+            return;
         }
         // Insert
         if (insert)
         { // Initialize the Record
-            if (!record.init(rowset, keyValues, insert))
-                return error(record);
+            record.init(rowset, keyValues, insert);
             // Add the record
             // rec.state = DBRecord.REC_NEW;
             log.debug("Record '" + rowset.getName() + "' prepared for Insert!");
         } else
         { // Read the record from the db
-            if (!record.read(rowset, keyValues, conn))
-                return error(record);
+            record.read(rowset, keyValues, conn);
             // Record has been reloaded
             log.debug("Record '" + rowset.getName() + "' prepared for Update!");
         }
-        // Done
-        return success();
     }
     
 }

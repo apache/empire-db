@@ -164,7 +164,7 @@ public abstract class ControlComponent extends UIBean implements InputControl.Va
     @Override
     public boolean usesBody()
     {
-        return StringUtils.isValid(bodyUsage);
+        return StringUtils.isNotEmpty(bodyUsage);
     }
 
     public void setColumn(Column column)

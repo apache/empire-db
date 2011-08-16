@@ -215,7 +215,7 @@ public abstract class EmpireTagSupport extends ComponentTagSupport
         return ((value!=null) ? value : defValue);
     }
 
-    protected Object getObject(Object value, Object defValue, Class asType)
+    protected Object getObject(Object value, Object defValue, Class<?> asType)
     {
         if (value == null)
         {
