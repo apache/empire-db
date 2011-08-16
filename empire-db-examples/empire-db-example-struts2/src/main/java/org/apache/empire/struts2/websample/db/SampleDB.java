@@ -19,8 +19,8 @@
 package org.apache.empire.struts2.websample.db;
 
 import org.apache.empire.commons.Options;
-import org.apache.empire.data.DataType;
 import org.apache.empire.data.DataMode;
+import org.apache.empire.data.DataType;
 import org.apache.empire.db.DBColumn;
 import org.apache.empire.db.DBDatabase;
 import org.apache.empire.db.DBTableColumn;
@@ -42,6 +42,8 @@ public class SampleDB extends DBDatabase
      */
     public static class Departments extends SampleTable
     {
+        private static final long serialVersionUID = 1L;
+        
         public final DBTableColumn C_DEPARTMENT_ID;
         public final DBTableColumn C_NAME;
         public final DBTableColumn C_HEAD;
@@ -73,6 +75,8 @@ public class SampleDB extends DBDatabase
      */
     public static class Employees extends SampleTable
     {
+        private static final long serialVersionUID = 1L;
+        
         public final DBTableColumn C_EMPLOYEE_ID;
         public final DBTableColumn C_SALUTATION;
         public final DBTableColumn C_FIRSTNAME;

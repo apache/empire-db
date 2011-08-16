@@ -20,7 +20,7 @@ package org.apache.empire.struts2.websample.web.actions;
 
 import java.util.Map;
 
-import org.apache.empire.commons.Errors;
+import org.apache.empire.struts2.websample.web.SampleErrors;
 import org.apache.empire.struts2.websample.web.SampleUser;
 import org.apache.empire.struts2.websample.web.actiontypes.Action;
 
@@ -92,7 +92,7 @@ public class LoginAction extends Action
         
         if (userID==null || userID.length()==0)
         {
-            setActionError(Errors.InvalidPassword);
+            setActionError(SampleErrors.InvalidPassword);
             return INPUT;
         }
         

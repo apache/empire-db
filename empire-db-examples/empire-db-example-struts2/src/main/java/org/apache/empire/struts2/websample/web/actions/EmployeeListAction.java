@@ -238,10 +238,10 @@ public class EmployeeListAction extends Action
         SearchInfo si = getSearchInfo();
         if (si.getDepartmentId()!=null)
             cmd.where(EMP.C_DEPARTMENT_ID.is(si.getDepartmentId()));
-        if (StringUtils.isValid( si.getFirstName()) )
+        if (StringUtils.isNotEmpty( si.getFirstName()) )
             cmd.where(EMP.C_FIRSTNAME.likeUpper( si.getFirstName()+"%" )
                   .or(EMP.C_FIRSTNAME.is(null)));
-        if (StringUtils.isValid( si.getLastName()) )
+        if (StringUtils.isNotEmpty( si.getLastName()) )
             cmd.where(EMP.C_LASTNAME.likeUpper( si.getLastName()+"%" ));
         
         cmd.orderBy(EMP.C_LASTNAME);
@@ -249,8 +249,7 @@ public class EmployeeListAction extends Action
         
         // Init BeanList
         if (!employeeBeanList.initBeanList(cmd))
-        {
-            setActionError(employeeBeanList);
+        {   // Error
             return LIST;
         }
         
