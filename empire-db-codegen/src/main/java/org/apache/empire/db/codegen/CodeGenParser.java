@@ -18,20 +18,6 @@
  */
 package org.apache.empire.db.codegen;
 
-import org.apache.empire.commons.ErrorObject;
-import org.apache.empire.commons.Errors;
-import org.apache.empire.data.DataType;
-import org.apache.empire.db.DBColumn;
-import org.apache.empire.db.DBCommandExpr;
-import org.apache.empire.db.DBDatabase;
-import org.apache.empire.db.DBTable;
-import org.apache.empire.db.DBTableColumn;
-import org.apache.empire.db.DBView;
-import org.apache.empire.db.DBView.DBViewColumn;
-import org.apache.empire.db.codegen.util.DBUtil;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.DriverManager;
@@ -42,13 +28,26 @@ import java.sql.Types;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.empire.data.DataType;
+import org.apache.empire.db.DBColumn;
+import org.apache.empire.db.DBCommandExpr;
+import org.apache.empire.db.DBDatabase;
+import org.apache.empire.db.DBTable;
+import org.apache.empire.db.DBTableColumn;
+import org.apache.empire.db.DBView;
+import org.apache.empire.db.DBView.DBViewColumn;
+import org.apache.empire.db.codegen.util.DBUtil;
+import org.apache.empire.exceptions.ItemNotFoundException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * This class is used to create a in memory DBDatabase of a given SQLConnection
  * and Configuration
  * 
  * @author Benjamin Venditti
  */
-public class CodeGenParser extends ErrorObject {
+public class CodeGenParser {
 
 	public static class InMemoryDatabase extends DBDatabase {
         private static final long serialVersionUID = 1L;
@@ -288,8 +287,9 @@ public class CodeGenParser extends ErrorObject {
 			}
 	        // Check whether all key columns have been set
 	        for (i=0; i<keys.length; i++)
-	            if (keys[i]==null)
-	                error(Errors.ItemNotFound, pkCols.get(i));
+	            if (keys[i]==null){
+	            	throw new ItemNotFoundException(pkCols.get(i));
+	            }
 	        if(keys.length > 0){
 	        	t.setPrimaryKey(keys);
 	        }
