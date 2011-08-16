@@ -63,7 +63,7 @@ public class StringUtilsTest
 	@Test
 	public void testValueOfObject()
 	{
-		assertEquals("null",StringUtils.valueOf(null));
+		assertEquals("null",StringUtils.valueOf((Object)null));
 		assertEquals("",StringUtils.valueOf(""));
 		assertEquals("123",StringUtils.valueOf(Long.valueOf("123")));
 	}
@@ -71,7 +71,7 @@ public class StringUtilsTest
 	@Test
 	public void testValueOfObjectArray()
 	{
-		assertEquals("null",StringUtils.valueOf(null));
+		assertEquals("null",StringUtils.valueOf((Object[])null));
 		assertEquals("null",StringUtils.valueOf(new Object[]{}));
 		assertEquals("123/12.3",StringUtils.valueOf(new Number[]{Integer.valueOf("123"), Double.valueOf("12.3")}));
 	}
