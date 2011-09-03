@@ -344,7 +344,7 @@ public class CodeGenParser {
 			throws SQLException {
 		String name = rs.getString("COLUMN_NAME");
 		DataType empireType = getEmpireDataType(rs.getInt("DATA_TYPE"));
-		int colSize = rs.getInt("COLUMN_SIZE");
+		double colSize = rs.getInt("COLUMN_SIZE") + (rs.getInt("DECIMAL_DIGITS") / 10.0);
 		boolean required = false;
 		String defaultValue = rs.getString("COLUMN_DEF");
 		if (rs.getString("IS_NULLABLE").equalsIgnoreCase("NO"))

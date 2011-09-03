@@ -18,11 +18,15 @@
  */
 package org.apache.empire.db.codegen;
 
+import static org.apache.empire.data.DataType.DECIMAL;
+import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertThat;
 
 import java.util.List;
 
+import org.apache.empire.db.DBColumn;
 import org.apache.empire.db.DBDatabase;
 import org.apache.empire.db.DBRelation;
 import org.apache.empire.db.DBTable;
@@ -40,6 +44,7 @@ public class CodeGenParserTest {
         config.init("src/test/resources/testconfig.xml");
         config.setDbSchema(null);
         parser = new CodeGenParser(config);
+        parser.loadDbModel();
     }
 
     @Test
@@ -64,5 +69,10 @@ public class CodeGenParserTest {
         final DBReference dbReference = references[0];
 		assertEquals(dbReference.getSourceColumn(), employees.getColumn("DEPARTMENT_ID"));
         assertEquals(dbReference.getTargetColumn(), departments.getColumn("DEPARTMENT_ID"));
+        
+        final DBColumn salary = employees.getColumn("SALARY");
+
+        assertThat(salary.getDataType(), is(DECIMAL));
+        assertThat(salary.getSize(), is(10.2));
     }
 }
