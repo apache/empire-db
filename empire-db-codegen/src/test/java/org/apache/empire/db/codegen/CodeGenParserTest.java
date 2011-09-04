@@ -42,9 +42,9 @@ public class CodeGenParserTest {
     public void setUp() throws Exception {
         final CodeGenConfig config = new CodeGenConfig();
         config.init("src/test/resources/testconfig.xml");
-        config.setDbSchema(null);
+        config.setDbSchema("PUBLIC");
+        config.setDbTablePattern("DEPARTMENTS,EMPLOYEES,ORGANIZATIONS");
         parser = new CodeGenParser(config);
-        parser.loadDbModel();
     }
 
     @Test
@@ -58,9 +58,9 @@ public class CodeGenParserTest {
 		assertNotNull("Expected EMPLOYEES table.", employees);
 
         final List<DBRelation> relations = db.getRelations();
-        assertEquals("Should have EMPLOYEES->DEPARTMENTS relation.", 1, relations.size());
+        assertEquals("Should have two relations.", 2, relations.size());
 
-        final DBRelation dbRelation = relations.get(0);
+        final DBRelation dbRelation = relations.get(1);
         assertEquals("EMPLOYEES_DEPARTMENT_I_FK", dbRelation.getName());
 
         final DBReference[] references = dbRelation.getReferences();

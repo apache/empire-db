@@ -168,10 +168,9 @@ public class CodeGenParser {
 						tableCount++;
 					}
 				}
-				
-				// Add all relations
-				gatherRelations(db, dbMeta, populatedTables);
 			}
+			// Add all relations
+			gatherRelations(db, dbMeta, populatedTables);
 
 			if (tableCount==0 && viewCount==0) {
 			    // getTables returned no result
