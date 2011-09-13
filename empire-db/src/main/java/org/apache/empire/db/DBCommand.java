@@ -33,7 +33,6 @@ import org.apache.empire.db.expr.join.DBJoinExpr;
 import org.apache.empire.db.expr.join.DBJoinExprEx;
 import org.apache.empire.db.expr.set.DBSetExpr;
 import org.apache.empire.exceptions.MiscellaneousErrorException;
-import org.apache.empire.exceptions.NotSupportedException;
 import org.apache.empire.exceptions.ObjectNotValidException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -128,7 +127,6 @@ public abstract class DBCommand extends DBCommandExpr
     }
 
     // Logger
-    @SuppressWarnings("hiding")
     protected static final Logger log = LoggerFactory.getLogger(DBCommand.class);
     // Distinct Select
     protected boolean                selectDistinct = false;
@@ -665,36 +663,6 @@ public abstract class DBCommand extends DBCommandExpr
             if (expr.isAggregate()==false && groupBy.contains(expr)==false)
                 groupBy.add(expr);
         }
-    }
-
-    /**
-     * set the maximum number of rows to return when executing a query command
-     * A negative value will remove the limit.
-     * 
-     * @return true if the database supports a limit or false otherwise
-     */
-    public void limitRows(int numRows)
-    {
-        throw new NotSupportedException(this, "limitRows");
-    }
-
-    /**
-     * sets the offset of the first row to return when executing a query command.
-     * A negative value will remove the offset.
-     * 
-     * @return true if the database supports an offset or false otherwise
-     */
-    public void skipRows(int numRows)
-    {
-        throw new NotSupportedException(this, "skipRows");
-    }
-    
-    /**
-     * Clears a limit or offset set by calling limit() or offset()
-     */
-    public void clearLimit()
-    {
-        // Nothing to do!
     }
     
     public boolean hasSelectExpr()

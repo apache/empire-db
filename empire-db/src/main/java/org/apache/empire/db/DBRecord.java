@@ -59,8 +59,7 @@ public class DBRecord extends DBRecordData implements Record, Cloneable
     public static final int REC_MODIFIED = 2;
     public static final int REC_NEW      = 3;
 
-    @SuppressWarnings("hiding")
-    protected static final Logger     log          = LoggerFactory.getLogger(DBRecord.class);
+    protected static final Logger log    = LoggerFactory.getLogger(DBRecord.class);
 
     // This is the record data
     private int             state;

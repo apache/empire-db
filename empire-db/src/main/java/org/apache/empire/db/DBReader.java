@@ -223,7 +223,6 @@ public class DBReader extends DBRecordData
     }
 
     // Logger
-    @SuppressWarnings("hiding")
     protected static final Logger    log               = LoggerFactory.getLogger(DBReader.class);
     
     /**

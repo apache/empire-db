@@ -57,7 +57,6 @@ public class DBDatabaseDriverPostgreSQL extends DBDatabaseDriver
 {
     private final static long serialVersionUID = 1L;
   
-    @SuppressWarnings("hiding")
     private static final Logger log = LoggerFactory.getLogger(DBDatabaseDriverPostgreSQL.class);
     
     private static final String CREATE_REVERSE_FUNCTION =

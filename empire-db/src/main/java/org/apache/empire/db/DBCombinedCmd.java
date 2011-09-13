@@ -129,9 +129,10 @@ public class DBCombinedCmd extends DBCommandExpr
    {
       // the left part
       left.clearOrderBy();
+      buf.append( "(" );
       left.getSelect(buf);
       // concat keyword     
-      buf.append( " " );
+      buf.append( ") " );
       buf.append( keyWord );
       buf.append( " (" );
       // the right part

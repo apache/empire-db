@@ -43,9 +43,9 @@ import org.apache.empire.db.DBTableColumn;
 import org.apache.empire.db.DBView;
 import org.apache.empire.db.exceptions.InternalSQLException;
 import org.apache.empire.exceptions.InvalidArgumentException;
+import org.apache.empire.exceptions.InvalidPropertyException;
 import org.apache.empire.exceptions.NotImplementedException;
 import org.apache.empire.exceptions.NotSupportedException;
-import org.apache.empire.exceptions.InvalidPropertyException;
 
 
 /**
@@ -101,7 +101,7 @@ public class DBDatabaseDriverMSSQL extends DBDatabaseDriver
             addListExpr(buf, select, CTX_ALL, ", ");
         }
     }
-	
+    
     // Properties
     private String databaseName = null;
     private String objectOwner = "dbo";
@@ -221,7 +221,7 @@ public class DBDatabaseDriverMSSQL extends DBDatabaseDriver
 
     /**
      * Returns whether or not a particular feature is supported by this driver
-     * @param type type of requrested feature. @see DBDriverFeature
+     * @param type type of requested feature. @see DBDriverFeature
      * @return true if the features is supported or false otherwise
      */
     @Override

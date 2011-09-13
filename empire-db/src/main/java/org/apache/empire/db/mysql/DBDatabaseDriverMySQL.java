@@ -27,6 +27,7 @@ import org.apache.empire.commons.StringUtils;
 import org.apache.empire.data.DataType;
 import org.apache.empire.db.DBCmdType;
 import org.apache.empire.db.DBColumn;
+import org.apache.empire.db.DBCombinedCmd;
 import org.apache.empire.db.DBCommand;
 import org.apache.empire.db.DBCommandExpr;
 import org.apache.empire.db.DBDatabase;
@@ -42,9 +43,9 @@ import org.apache.empire.db.DBTableColumn;
 import org.apache.empire.db.DBView;
 import org.apache.empire.db.exceptions.InternalSQLException;
 import org.apache.empire.exceptions.InvalidArgumentException;
+import org.apache.empire.exceptions.InvalidPropertyException;
 import org.apache.empire.exceptions.NotImplementedException;
 import org.apache.empire.exceptions.NotSupportedException;
-import org.apache.empire.exceptions.InvalidPropertyException;
 
 
 /**
@@ -238,6 +239,55 @@ public class DBDatabaseDriverMySQL extends DBDatabaseDriver
             return null;
         // create command object
         return new DBCommandMySQL(db);
+    }
+
+    @Override
+    /**
+     * Creates a combined command that supports limit() and skip()
+	 * @param left the first DBCommandExpr object
+	 * @param keyWord the key word between the two DBCommandExpr objects
+	 * @param right the second DBCommandExpr object
+     * @return the new DBCommandExpr object
+     */
+    public DBCommandExpr createCombinedCommand(DBCommandExpr left, String keyWord, DBCommandExpr right)
+    {
+    	// Override CombinedCmd
+    	return new DBCombinedCmd(left, keyWord, right) {
+			private static final long serialVersionUID = 1L;
+			protected int limit = -1;
+            protected int skip  = -1;
+            @Override
+            public void limitRows(int numRows)
+            {
+                limit = numRows;
+            }
+            @Override
+            public void skipRows(int numRows)
+            {
+                skip = numRows;
+            }
+            @Override
+            public void clearLimit()
+            {
+                limit = -1;
+                skip  = -1;
+            }
+            @Override
+            public void getSelect(StringBuilder buf)
+            {   // Prepares statement
+            	super.getSelect(buf);
+                // add limit and offset
+                if (limit>=0)
+                {   buf.append("\r\nLIMIT ");
+                    buf.append(String.valueOf(limit));
+                    // Offset
+                    if (skip>=0) 
+                    {   buf.append(" OFFSET ");
+                        buf.append(String.valueOf(skip));
+                    }    
+                }
+            }
+    	};
     }
 
     /**

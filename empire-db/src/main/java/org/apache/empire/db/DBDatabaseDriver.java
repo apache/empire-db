@@ -254,6 +254,19 @@ public abstract class DBDatabaseDriver implements Serializable
     public abstract DBCommand createCommand(DBDatabase db);
 
     /**
+     * This function gives the driver a chance to provide a custom implementation 
+     * for a combined command such as UNION or INTERSECT 
+     * @param left the left command
+     * @param keyWord the key word (either "UNION" or "INTERSECT")
+     * @param left the right command
+     * @return a DBCommandExpr object
+     */
+    public DBCommandExpr createCombinedCommand(DBCommandExpr left, String keyWord, DBCommandExpr right)
+    {
+    	return new DBCombinedCmd(left, keyWord, right);
+    }
+
+    /**
      * Returns whether or not a particular feature is supported by this driver
      * @param type type of requested feature. @see DBDriverFeature
      * @return true if the features is supported or false otherwise

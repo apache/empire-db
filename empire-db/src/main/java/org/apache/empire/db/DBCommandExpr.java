@@ -383,13 +383,13 @@ public abstract class DBCommandExpr extends DBExpr
      * the key word= "UNION" and the selected DBCommandExpr.
      * 
      * @see org.apache.empire.db.DBCombinedCmd
-     * @param other the secend DBCommandExpr
+     * @param other the second DBCommandExpr
      * @return the new DBCombinedCmd object
      */
-    // Combinations
     public DBCommandExpr union(DBCommandExpr other)
-    {
-        return new DBCombinedCmd(this, "UNION", other);
+    {   // give driver a chance to subclass DBCombinedCmd
+    	DBDatabaseDriver driver = getDatabase().getDriver();
+    	return driver.createCombinedCommand(this, "UNION", other);
     }
 
     /**
@@ -400,8 +400,9 @@ public abstract class DBCommandExpr extends DBExpr
      * @return the new DBCombinedCmd object
      */
     public DBCommandExpr intersect(DBCommandExpr other)
-    {
-        return new DBCombinedCmd(this, "INTERSECT", other);
+    {   // give driver a chance to subclass DBCombinedCmd
+    	DBDatabaseDriver driver = getDatabase().getDriver();
+    	return driver.createCombinedCommand(this, "INTERSECT", other);
     }
 
     /**
@@ -428,6 +429,36 @@ public abstract class DBCommandExpr extends DBExpr
         {
             orderBy.add(expr);
         }
+    }
+
+    /**
+     * set the maximum number of rows to return when executing a query command
+     * A negative value will remove the limit.
+     * 
+     * @return true if the database supports a limit or false otherwise
+     */
+    public void limitRows(int numRows)
+    {
+        throw new NotSupportedException(this, "limitRows");
+    }
+
+    /**
+     * sets the offset of the first row to return when executing a query command.
+     * A negative value will remove the offset.
+     * 
+     * @return true if the database supports an offset or false otherwise
+     */
+    public void skipRows(int numRows)
+    {
+        throw new NotSupportedException(this, "skipRows");
+    }
+    
+    /**
+     * Clears a limit or offset set by calling limit() or offset()
+     */
+    public void clearLimit()
+    {
+        // Nothing to do!
     }
 
     /**
