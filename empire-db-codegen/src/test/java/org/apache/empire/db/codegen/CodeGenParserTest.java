@@ -73,6 +73,6 @@ public class CodeGenParserTest {
         final DBColumn salary = employees.getColumn("SALARY");
 
         assertThat(salary.getDataType(), is(DECIMAL));
-        assertThat(salary.getSize(), is(10.2));
+        assertThat(salary.getSize(), is(121.212));
     }
 }
