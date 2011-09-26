@@ -30,10 +30,10 @@ EMPIREDB-38 - [C/I]:  Switched from log4j to slf4j
 Release 2.0.7:
 --------------
 Major new features:
-- Switched to latest struts version and added portelt support to struts2 extentions
+- Switched to latest struts version and added portlet support to struts2 extensions
 - Support for limiting the number of rows returned by a query.  
 EMPIREDB-90 - [C/B]:  The "createRecordProperties" switch in the codegenerator's configuration works not properly.     
-EMPIREDB-89 - [S/I]:  Update Empire-Struts-Extentions to Struts 2.2.1 and provide Portlet Support     
+EMPIREDB-89 - [S/I]:  Update Empire-Struts-Extensions to Struts 2.2.1 and provide Portlet Support     
 EMPIREDB-88 - [C/B]:  CodeGenerator generates uppercase fieldnames where empire code expects lowercase names     
 EMPIREDB-87 - [C/I]:  Use EXTRACT() function to extract the day, month or year from a date column in Oracle  
 EMPIREDB-86 - [C/B]:  Correct some typos in the javadocs     
@@ -74,12 +74,12 @@ Major new features:
 - Maven project management
 - New database handlers for Apache Derby, H2, PostgreSQL
 - New Examples showing WebService integration using Apache CXF
-- Empire-DB Struts2-Extentions' dependencies updated from Struts 2.0.11 to Struts 2.1.6 
+- Empire-DB Struts2-Extensions' dependencies updated from Struts 2.0.11 to Struts 2.1.6 
 
 Issues resolved:
 EMPIREDB-49 - [C/B]: The generation of table, view and query aliases now uses thread-safe counters  
 EMPIREDB-46 - [C/B]: datetime-phrase issue in DBDatabaseDriverDerby
-EMPIREDB-45 - [S/I]: Update struts extentions to accomodate latest struts release  
+EMPIREDB-45 - [S/I]: Update struts extensions to accomodate latest struts release  
 EMPIREDB-44 - [C/B]: error using apache derby and CLOB datatype  
 EMPIREDB-42 - [C/I]: Extend DBReader to provide query results in a hash set  
 EMPIREDB-41 - [C/I]: Deal with databases differences regarding SQL reverse function
