@@ -432,7 +432,7 @@ public class CodeGenParser {
 		case Types.DOUBLE:
 		case Types.FLOAT:
 		case Types.REAL:
-			empireType = DataType.DOUBLE;
+			empireType = DataType.FLOAT;
 			break;
 		case Types.DECIMAL:
 		case Types.NUMERIC:

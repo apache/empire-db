@@ -198,7 +198,7 @@ public class WriterService {
 			return Date.class;
 		case CHAR:
 			return String.class;
-		case DOUBLE:
+		case FLOAT:
 			return Double.class;
 		case DECIMAL:
 			return BigDecimal.class;
