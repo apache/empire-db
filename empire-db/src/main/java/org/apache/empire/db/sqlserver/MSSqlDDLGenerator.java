@@ -47,7 +47,6 @@ public class MSSqlDDLGenerator extends DBDDLGenerator<DBDatabaseDriverMSSQL>
         DATATYPE_VARCHAR    = "NVARCHAR";   // variable length characters (unicode)      
         DATATYPE_DATE       = "DATETIME";
         DATATYPE_TIMESTAMP  = "DATETIME";
-        DATATYPE_BOOLEAN    = "BIT";
         DATATYPE_CLOB       = "NTEXT";
         DATATYPE_BLOB       = "IMAGE";
         DATATYPE_UNIQUEID   = "UNIQUEID";  // Globally Unique Identifier

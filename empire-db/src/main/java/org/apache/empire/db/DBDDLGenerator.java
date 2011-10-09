@@ -33,20 +33,25 @@ public abstract class DBDDLGenerator<T extends DBDatabaseDriver>
     private static final Logger log = LoggerFactory.getLogger(DBDDLGenerator.class);
     
     protected T driver;
-    
+
+    // Data types
     protected String DATATYPE_INT_SMALL  = "SMALLINT";  // Integer with small size (usually 16-bit)
-    protected String DATATYPE_INTEGER    = "INTEGER";   // Integer with default size (usually 32-bit) 
+    protected String DATATYPE_INTEGER    = "INT";       // Integer with default size (usually 32-bit) 
     protected String DATATYPE_INT_BIG    = "BIGINT";    // Integer with long size (usually 64-bit)
     protected String DATATYPE_CHAR       = "CHAR";      // Fixed length characters (unicode)
     protected String DATATYPE_VARCHAR    = "VARCHAR";   // variable length characters (unicode)      
     protected String DATATYPE_DATE       = "DATE";
     protected String DATATYPE_TIMESTAMP  = "TIMESTAMP";
-    protected String DATATYPE_BOOLEAN    = "BOOLEAN";
+    protected String DATATYPE_BOOLEAN    = "BIT";
     protected String DATATYPE_DECIMAL    = "DECIMAL";
     protected String DATATYPE_FLOAT      = "FLOAT";     // floating point number (double precision 8 bytes)
     protected String DATATYPE_CLOB       = "CLOB";
     protected String DATATYPE_BLOB       = "BLOB";
     protected String DATATYPE_UNIQUEID   = "CHAR(36)";  // Globally Unique Identifier
+
+    // Options
+    protected boolean namePrimaryKeyConstraint = false; // Add name for primary key constraint
+    protected String  alterColumnPhrase  = " ALTER ";   // Phrase for altering a column
     
     protected DBDDLGenerator(T driver)
     {
@@ -156,7 +161,7 @@ public abstract class DBDDLGenerator<T extends DBDatabaseDriver>
             case BLOB:
                 sql.append(DATATYPE_BLOB);
                 if (size > 0) {
-                    sql.append(" (" + ((long)size) + ") ");
+                    sql.append("(" + ((long)size) + ") ");
                 }    
                 break;
             case UNIQUEID:
@@ -174,10 +179,11 @@ public abstract class DBDDLGenerator<T extends DBDatabaseDriver>
     /**
      * Appends a table column definition to a ddl statement
      * @param c the column which description to append
+     * @param alter true if altering an existing column or false otherwise
      * @param sql the sql builder object
      * @return true if the column was successfully appended or false otherwise
      */
-    protected void appendColumnDesc(DBTableColumn c, StringBuilder sql)
+    protected void appendColumnDesc(DBTableColumn c, boolean alter, StringBuilder sql)
     {
         // Append name
         c.addSQL(sql, DBExpr.CTX_NAME);
@@ -340,15 +346,18 @@ public abstract class DBDDLGenerator<T extends DBDatabaseDriver>
                 continue; // Ignore and continue;
             // Append column
             sql.append((addSeparator) ? ",\r\n   " : "\r\n   ");
-            appendColumnDesc(c, sql);
+            appendColumnDesc(c, false, sql);
             addSeparator = true;
         }
         // Primary Key
         DBIndex pk = t.getPrimaryKey();
         if (pk != null)
         { // add the primary key
-            sql.append(",\r\n CONSTRAINT ");
-            appendElementName(sql, pk.getName());
+            sql.append(",\r\n");
+            if (namePrimaryKeyConstraint) {
+                sql.append(" CONSTRAINT ");
+                appendElementName(sql, pk.getName());
+            }
             sql.append(" PRIMARY KEY (");
             addSeparator = false;
             // columns
@@ -364,6 +373,19 @@ public abstract class DBDDLGenerator<T extends DBDatabaseDriver>
         sql.append(")");
         // Create the table
         addCreateTableStmt(t, sql, script);
+        // Create all Indexes
+        createTableIndexes(t, pk, script);        
+    }
+
+    /**
+     * Appends the DDL-Script for creating all indexes of table (except the primary key) to an SQL-Script 
+     * @param t the table to create
+     * @param pk the primary key index to ignore
+     * @param script the sql script to which to append the dll command(s)
+     */
+    protected void createTableIndexes(DBTable t, DBIndex pk, DBSQLScript script)
+    {
+        StringBuilder sql = new StringBuilder();
         // Create other Indexes (except primary key)
         Iterator<DBIndex> indexes = t.getIndexes().iterator();
         while (indexes.hasNext())
@@ -379,9 +401,9 @@ public abstract class DBDDLGenerator<T extends DBDatabaseDriver>
             sql.append(" ON ");
             t.addSQL(sql, DBExpr.CTX_FULLNAME);
             sql.append(" (");
-            addSeparator = false;
 
             // columns
+            boolean addSeparator = false;
             DBColumn[] idxColumns = idx.getColumns();
             for (int i = 0; i < idxColumns.length; i++)
             {
@@ -395,7 +417,7 @@ public abstract class DBDDLGenerator<T extends DBDatabaseDriver>
             addCreateIndexStmt(idx, sql, script);
         }
     }
-
+    
     /**
      * Appends the DDL-Script for creating the given foreign-key relation to an SQL-Script 
      * @param r the relation to create
@@ -457,11 +479,16 @@ public abstract class DBDDLGenerator<T extends DBDatabaseDriver>
         {
             case CREATE:
                 sql.append(" ADD ");
-                appendColumnDesc(col, sql);
+                appendColumnDesc(col, false, sql);
                 break;
             case ALTER:
-                sql.append(" MODIFY ");
-                appendColumnDesc(col, sql);
+                sql.append(alterColumnPhrase);
+                /*
+                sql.append(" ALTER "); // Derby, H2,
+                sql.append(" MODIFY "); // MySQL, Oracle
+                sql.append(" ALTER COLUMN ");   // HSQL, Postgre, SQLServer
+                */                  
+                appendColumnDesc(col, true, sql);
                 break;
             case DROP:
                 sql.append(" DROP COLUMN ");

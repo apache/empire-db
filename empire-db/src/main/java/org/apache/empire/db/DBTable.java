@@ -44,6 +44,12 @@ import org.apache.empire.exceptions.UnexpectedReturnValueException;
  */
 public class DBTable extends DBRowSet implements Cloneable
 {
+    // Integer size definitions
+    public static final int DEFAULT   = 0;
+    public static final int SMALLINT  = 2;
+    public static final int MEDIUMINT = 4;
+    public static final int BIGINT    = 8;
+
     private final static long serialVersionUID = 1L;
     private static AtomicInteger tableCount  = new AtomicInteger(0);
     private final String   name;
@@ -51,6 +57,7 @@ public class DBTable extends DBRowSet implements Cloneable
     private List<DBIndex>  indexes       = new ArrayList<DBIndex>();
     private boolean        cascadeDelete = false;
     private Boolean        quoteName     = null;
+    
 
     /**
      * Construct a new DBTable object set the specified parameters
