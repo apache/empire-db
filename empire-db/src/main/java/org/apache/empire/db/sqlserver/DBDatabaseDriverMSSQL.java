@@ -21,32 +21,22 @@ package org.apache.empire.db.sqlserver;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.GregorianCalendar;
-import java.util.Iterator;
 
-import org.apache.empire.commons.ObjectUtils;
 import org.apache.empire.commons.StringUtils;
 import org.apache.empire.data.DataType;
 import org.apache.empire.db.DBCmdType;
-import org.apache.empire.db.DBColumn;
 import org.apache.empire.db.DBCommand;
-import org.apache.empire.db.DBCommandExpr;
+import org.apache.empire.db.DBDDLGenerator;
 import org.apache.empire.db.DBDatabase;
 import org.apache.empire.db.DBDatabaseDriver;
 import org.apache.empire.db.DBDriverFeature;
-import org.apache.empire.db.DBExpr;
-import org.apache.empire.db.DBIndex;
 import org.apache.empire.db.DBObject;
-import org.apache.empire.db.DBRelation;
 import org.apache.empire.db.DBSQLScript;
 import org.apache.empire.db.DBTable;
 import org.apache.empire.db.DBTableColumn;
-import org.apache.empire.db.DBView;
 import org.apache.empire.db.exceptions.InternalSQLException;
-import org.apache.empire.exceptions.InvalidArgumentException;
-import org.apache.empire.exceptions.InvalidPropertyException;
-import org.apache.empire.exceptions.NotImplementedException;
-import org.apache.empire.exceptions.NotSupportedException;
-
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * This class provides support for the Microsoft SQL-Server database system.
@@ -57,6 +47,7 @@ import org.apache.empire.exceptions.NotSupportedException;
 public class DBDatabaseDriverMSSQL extends DBDatabaseDriver
 {
     private final static long serialVersionUID = 1L;
+    private static final Logger log = LoggerFactory.getLogger(DBDatabaseDriverMSSQL.class);
   
     /**
      * Defines the Microsoft SQL-Server command type.
@@ -109,6 +100,8 @@ public class DBDatabaseDriverMSSQL extends DBDatabaseDriver
     // Sequence treatment
     // When set to 'false' (default) MySQL's auto-increment feature is used.
     private boolean useSequenceTable = false;
+    
+    private DBDDLGenerator<?> ddlGenerator = null; // lazy creation
     
     /**
      * Constructor for the MSSQL database driver.<br>
@@ -320,7 +313,7 @@ public class DBDatabaseDriverMSSQL extends DBDatabaseDriver
            case BOOL:      return "convert(bit, ?)";
            case INTEGER:   return "convert(int, ?)";
            case DECIMAL:   return "convert(decimal, ?)";
-           case DOUBLE:    return "convert(float, ?)";
+           case FLOAT:    return "convert(float, ?)";
            case DATE:      return "convert(datetime, ?, 111)";
            case DATETIME:  return "convert(datetime, ?, 120)";
            // Convert to text
@@ -356,6 +349,19 @@ public class DBDatabaseDriverMSSQL extends DBDatabaseDriver
             return null;
         }
     }
+    
+    /**
+     * Overridden. Returns a timestamp that is used for record updates created by the database server.
+     * 
+     * @return the current date and time of the database server.
+     */
+    @Override
+    public java.sql.Timestamp getUpdateTimestamp(Connection conn)
+    {
+        // Default implementation
+        GregorianCalendar cal = new GregorianCalendar();
+        return new java.sql.Timestamp(cal.getTimeInMillis());
+    }
 
     /**
      * Returns an auto-generated value for a particular column
@@ -382,438 +388,10 @@ public class DBDatabaseDriverMSSQL extends DBDatabaseDriver
     @Override
     public void getDDLScript(DBCmdType type, DBObject dbo, DBSQLScript script)
     {
-        // The Object's database must be attached to this driver
-        if (dbo==null || dbo.getDatabase().getDriver()!=this)
-            throw new InvalidArgumentException("dbo", dbo);
-        // Check Type of object
-        if (dbo instanceof DBDatabase)
-        { // Database
-            switch (type)
-            {
-                case CREATE:
-                    createDatabase((DBDatabase) dbo, script, true);
-                    return;
-                case DROP:
-                    dropObject(((DBDatabase) dbo).getSchema(), "DATABASE", script);
-                    return;
-                default:
-                    throw new NotImplementedException(this, "getDDLScript." + dbo.getClass().getName() + "." + type);
-            }
-        } 
-        else if (dbo instanceof DBTable)
-        { // Table
-            switch (type)
-            {
-                case CREATE:
-                    createTable((DBTable) dbo, script);
-                    return;
-                case DROP:
-                    dropObject(((DBTable) dbo).getName(), "TABLE", script);
-                    return;
-                default:
-                    throw new NotImplementedException(this, "getDDLScript." + dbo.getClass().getName() + "." + type);
-            }
-        } 
-        else if (dbo instanceof DBView)
-        { // View
-            switch (type)
-            {
-                case CREATE:
-                    createView((DBView) dbo, script);
-                    return;
-                case DROP:
-                    dropObject(((DBView) dbo).getName(), "VIEW", script);
-                    return;
-                default:
-                    throw new NotImplementedException(this, "getDDLScript." + dbo.getClass().getName() + "." + type);
-            }
-        } 
-        else if (dbo instanceof DBRelation)
-        { // Relation
-            switch (type)
-            {
-                case CREATE:
-                    createRelation((DBRelation) dbo, script);
-                    return;
-                case DROP:
-                    dropObject(((DBRelation) dbo).getName(), "CONSTRAINT", script);
-                    return;
-                default:
-                    throw new NotImplementedException(this, "getDDLScript." + dbo.getClass().getName() + "." + type);
-            }
-        } 
-        else if (dbo instanceof DBTableColumn)
-        { // Table Column
-            alterTable((DBTableColumn) dbo, type, script);
-            return;
-        } 
-        else
-        { // dll generation not supported for this type
-            throw new NotSupportedException(this, "getDDLScript() for "+dbo.getClass().getName());
-        }
-    }
-
-    /**
-     * Overridden. Returns a timestamp that is used for record updates created by the database server.
-     * 
-     * @return the current date and time of the database server.
-     */
-    @Override
-    public java.sql.Timestamp getUpdateTimestamp(Connection conn)
-    {
-        // Default implementation
-    	GregorianCalendar cal = new GregorianCalendar();
-    	return new java.sql.Timestamp(cal.getTimeInMillis());
-    }
-
-    /*
-     * return the sql for creating a Database
-     */
-    protected boolean createDatabase(DBDatabase db, DBSQLScript script, boolean createSchema)
-    {
-        // User Master to create Database
-        if (createSchema)
-        {   // check database Name
-            if (StringUtils.isEmpty(databaseName))
-                throw new InvalidPropertyException("databaseName", databaseName);
-            // Create Database
-            script.addStmt("USE master");
-            script.addStmt("IF NOT EXISTS(SELECT * FROM sys.databases WHERE name = '" + databaseName + "') CREATE DATABASE " + databaseName);
-            script.addStmt("USE " + databaseName);
-            script.addStmt("SET DATEFORMAT ymd");
-            // Sequence Table
-            if (useSequenceTable && db.getTable(sequenceTableName)==null)
-                new DBSeqTable(sequenceTableName, db);
-        }
-        // Create all Tables
-        Iterator<DBTable> tables = db.getTables().iterator();
-        while (tables.hasNext())
-        {
-            createTable(tables.next(), script);
-        }
-        // Create Relations
-        Iterator<DBRelation> relations = db.getRelations().iterator();
-        while (relations.hasNext())
-        {
-            createRelation(relations.next(), script);
-        }
-        // Create Views
-        Iterator<DBView> views = db.getViews().iterator();
-        while (views.hasNext())
-        {
-            createView(views.next(), script);
-        }
-        // Done
-        return true;
-    }
-    
-    /**
-     * Returns true if the table has been created successfully.
-     * 
-     * @return true if the table has been created successfully
-     */
-    protected void createTable(DBTable t, DBSQLScript script)
-    {
-        StringBuilder sql = new StringBuilder();
-        sql.append("-- creating table ");
-        sql.append(t.getName());
-        sql.append(" --\r\n");
-        sql.append("CREATE TABLE ");
-        t.addSQL(sql, DBExpr.CTX_FULLNAME);
-        sql.append(" (");
-        boolean addSeparator = false;
-        Iterator<DBColumn> columns = t.getColumns().iterator();
-        while (columns.hasNext())
-        {
-            DBTableColumn c = (DBTableColumn) columns.next();
-            sql.append((addSeparator) ? ",\r\n   " : "\r\n   ");
-            if (appendColumnDesc(c, sql)==false)
-                continue; // Ignore and continue;
-            addSeparator = true;
-        }
-        // Primary Key
-        DBIndex pk = t.getPrimaryKey();
-        if (pk != null)
-        { // add the primary key
-            sql.append(",\r\n CONSTRAINT ");
-            appendElementName(sql, pk.getName());
-            sql.append(" PRIMARY KEY (");
-            addSeparator = false;
-            // columns
-            DBColumn[] keyColumns = pk.getColumns();
-            for (int i = 0; i < keyColumns.length; i++)
-            {
-                sql.append((addSeparator) ? ", " : "");
-                keyColumns[i].addSQL(sql, DBExpr.CTX_NAME);
-                addSeparator = true;
-            }
-            sql.append(")");
-        }
-        sql.append(")");
-        // Create the table
-        script.addStmt(sql);
-        // Create other Indexes (except primary key)
-        Iterator<DBIndex> indexes = t.getIndexes().iterator();
-        while (indexes.hasNext())
-        {
-            DBIndex idx = indexes.next();
-            if (idx == pk || idx.getType() == DBIndex.PRIMARYKEY)
-                continue;
-
-            // Cretae Index
-            sql.setLength(0);
-            sql.append((idx.getType() == DBIndex.UNIQUE) ? "CREATE UNIQUE INDEX " : "CREATE INDEX ");
-            appendElementName(sql, idx.getName());
-            sql.append(" ON ");
-            t.addSQL(sql, DBExpr.CTX_FULLNAME);
-            sql.append(" (");
-            addSeparator = false;
-
-            // columns
-            DBColumn[] idxColumns = idx.getColumns();
-            for (int i = 0; i < idxColumns.length; i++)
-            {
-                sql.append((addSeparator) ? ", " : "");
-                idxColumns[i].addSQL(sql, DBExpr.CTX_NAME);
-                sql.append("");
-                addSeparator = true;
-            }
-            sql.append(")");
-            // Create Index
-            script.addStmt(sql);
-        }
-    }
-    
-    /**
-     * Appends a table column definition to a ddl statement
-     * @param c the column which description to append
-     * @param sql the sql builder object
-     * @return true if the column was successfully appended or false otherwise
-     */
-    protected boolean appendColumnDesc(DBTableColumn c, StringBuilder sql)
-    {
-        // Append name
-        c.addSQL(sql, DBExpr.CTX_NAME);
-        sql.append(" ");
-        switch (c.getDataType())
-        {
-            case INTEGER:
-                sql.append("[int]");
-                break;
-            case AUTOINC:
-                sql.append("[int]");
-                if (useSequenceTable==false)
-                {   // Make this column the identity column
-                    int minValue = ObjectUtils.getInteger(c.getAttribute(DBColumn.DBCOLATTR_MINVALUE), 1);
-                    sql.append(" IDENTITY(");
-                    sql.append(String.valueOf(minValue));
-                    sql.append(", 1) NOT NULL");
-                    return true;
-                }
-                break;
-            case TEXT:
-            { // Check fixed or variable length
-                int size = Math.abs((int) c.getSize());
-                if (size == 0)
-                    size = 100;
-                sql.append("[nvarchar](");
-                sql.append(String.valueOf(size));
-                sql.append(")");
-            }
-                break;
-            case CHAR:
-            { // Check fixed or variable length
-                int size = Math.abs((int) c.getSize());
-                if (size == 0)
-                    size = 1;
-                sql.append("[char] (");
-                sql.append(String.valueOf(size));
-                sql.append(")");
-            }
-                break;
-            case DATE:
-                sql.append("[datetime]");
-                break;
-            case DATETIME:
-                sql.append("[datetime]");
-                break;
-            case BOOL:
-                sql.append("[bit]");
-                break;
-            case DOUBLE:
-                sql.append("[float]");
-                break;
-            case DECIMAL:
-            {
-                sql.append("[decimal](");
-                int prec = (int) c.getSize();
-                int scale = (int) ((c.getSize() - prec) * 10 + 0.5);
-                // sql.append((prec+scale).ToString());sql.append(",");
-                sql.append(String.valueOf(prec));
-                sql.append(",");
-                sql.append(String.valueOf(scale));
-                sql.append(")");
-            }
-                break;
-            case CLOB:
-                sql.append("[ntext]");
-                break;
-            case BLOB:
-                sql.append("[image]");
-                if (c.getSize() > 0)
-                    sql.append(" (" + (long) c.getSize() + ") ");
-                break;
-            case UNIQUEID:
-                sql.append("[uniqueidentifier]");
-                if (c.isAutoGenerated())
-                    sql.append(" ROWGUIDCOL");
-                break;
-            case UNKNOWN:
-                 log.error("Cannot append column of Data-Type 'UNKNOWN'");
-                 return false;
-        }
-        // Default Value
-        if (isDDLColumnDefaults() && !c.isAutoGenerated() && c.getDefaultValue()!=null)
-        {   sql.append(" DEFAULT ");
-            sql.append(getValueString(c.getDefaultValue(), c.getDataType()));
-        }
-        // Nullable
-        if (c.isRequired() ||  c.isAutoGenerated())
-            sql.append(" NOT NULL");
-        // Done
-        return true;
-    }
-
-    /**
-     * Returns true if the relation has been created successfully.
-     * 
-     * @return true if the relation has been created successfully
-     */
-    protected void createRelation(DBRelation r, DBSQLScript script)
-    {
-        DBTable sourceTable = (DBTable) r.getReferences()[0].getSourceColumn().getRowSet();
-        DBTable targetTable = (DBTable) r.getReferences()[0].getTargetColumn().getRowSet();
-
-        StringBuilder sql = new StringBuilder();
-        sql.append("-- creating foreign key constraint ");
-        sql.append(r.getName());
-        sql.append(" --\r\n");
-        sql.append("ALTER TABLE ");
-        sourceTable.addSQL(sql, DBExpr.CTX_FULLNAME);
-        sql.append(" ADD CONSTRAINT ");
-        appendElementName(sql, r.getName());
-        sql.append(" FOREIGN KEY (");
-        // Source Names
-        boolean addSeparator = false;
-        DBRelation.DBReference[] refs = r.getReferences();
-        for (int i = 0; i < refs.length; i++)
-        {
-            sql.append((addSeparator) ? ", " : "");
-            refs[i].getSourceColumn().addSQL(sql, DBExpr.CTX_NAME);
-            addSeparator = true;
-        }
-        // References
-        sql.append(") REFERENCES ");
-        targetTable.addSQL(sql, DBExpr.CTX_FULLNAME);
-        sql.append(" (");
-        // Target Names
-        addSeparator = false;
-        for (int i = 0; i < refs.length; i++)
-        {
-            sql.append((addSeparator) ? ", " : "");
-            refs[i].getTargetColumn().addSQL(sql, DBExpr.CTX_NAME);
-            addSeparator = true;
-        }
-        // done
-        sql.append(")");
-        script.addStmt(sql);
-    }
-
-    /**
-     * Creates an alter table dll statement for adding, modifiying or droping a column.
-     * @param col the column which to add, modify or drop
-     * @param type the type of operation to perform
-     * @param script to which to append the sql statement to
-     * @return true if the statement was successfully appended to the buffer
-     */
-    protected void alterTable(DBTableColumn col, DBCmdType type, DBSQLScript script)
-    {
-        StringBuilder sql = new StringBuilder();
-        sql.append("ALTER TABLE ");
-        col.getRowSet().addSQL(sql, DBExpr.CTX_FULLNAME);
-        switch(type)
-        {
-            case CREATE:
-                sql.append(" ADD ");
-                appendColumnDesc(col, sql);
-                break;
-            case ALTER:
-                sql.append(" ALTER COLUMN ");
-                appendColumnDesc(col, sql);
-                break;
-            case DROP:
-                sql.append(" DROP COLUMN ");
-                sql.append(col.getName());
-                break;
-        }
-        // done
-        script.addStmt(sql);
-    }
-
-    /**
-     * Returns true if the view has been created successfully.
-     * 
-     * @return true if the view has been created successfully
-     */
-    protected void createView(DBView v, DBSQLScript script)
-    {
-        // Create the Command
-        DBCommandExpr cmd = v.createCommand();
-        if (cmd==null)
-        {   // Check whether Error information is available
-            log.error("No command has been supplied for view " + v.getName());
-            throw new NotImplementedException(this, v.getName() + ".createCommand");
-        }
-        // Make sure there is no OrderBy
-        cmd.clearOrderBy();
-
-        // Build String
-        StringBuilder sql = new StringBuilder();
-        sql.append( "CREATE VIEW ");
-        v.addSQL(sql, DBExpr.CTX_FULLNAME);
-        sql.append( " (" );
-        boolean addSeparator = false;
-        for(DBColumn c : v.getColumns())
-        {
-            if (addSeparator)
-                sql.append(", ");
-            // Add Column name
-            c.addSQL(sql, DBExpr.CTX_NAME);
-            // next
-            addSeparator = true;
-        }
-        sql.append(")\r\nAS\r\n");
-        cmd.addSQL( sql, DBExpr.CTX_DEFAULT);
-        // done
-        script.addStmt(sql.toString());
-    }
-        
-    /**
-     * Returns true if the object has been dropped successfully.
-     * 
-     * @return true if the object has been dropped successfully
-     */
-    protected void dropObject(String name, String objType, DBSQLScript script)
-    {
-        if (name == null || name.length() == 0)
-            throw new InvalidArgumentException("name", name);
-        // Create Drop Statement
-        StringBuilder sql = new StringBuilder();
-        sql.append("DROP ");
-        sql.append(objType);
-        sql.append(" ");
-        appendElementName(sql, name);
-        script.addStmt(sql);
+        if (ddlGenerator==null)
+            ddlGenerator = new MSSqlDDLGenerator(this);
+        // forward request
+        ddlGenerator.getDDLScript(type, dbo, script); 
     }
 
 }

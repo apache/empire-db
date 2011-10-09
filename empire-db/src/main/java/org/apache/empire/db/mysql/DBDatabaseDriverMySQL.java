@@ -46,6 +46,8 @@ import org.apache.empire.exceptions.InvalidArgumentException;
 import org.apache.empire.exceptions.InvalidPropertyException;
 import org.apache.empire.exceptions.NotImplementedException;
 import org.apache.empire.exceptions.NotSupportedException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -56,6 +58,7 @@ import org.apache.empire.exceptions.NotSupportedException;
 public class DBDatabaseDriverMySQL extends DBDatabaseDriver
 {
     private static final long serialVersionUID = 1L;
+    private static final Logger log = LoggerFactory.getLogger(DBDatabaseDriverMySQL.class);
 
     /**
      * Defines the MySQL command type.
@@ -391,7 +394,7 @@ public class DBDatabaseDriverMySQL extends DBDatabaseDriver
            case BOOL:      return "CAST(? AS UNSIGNED)";
            case INTEGER:   return "CAST(? AS SIGNED)";
            case DECIMAL:   return "CAST(? AS DECIMAL)";
-           case DOUBLE:    return "CAST(? AS DECIMAL)";
+           case FLOAT:    return "CAST(? AS DECIMAL)";
            case DATE:      return "CAST(? AS DATE)";
            case DATETIME:  return "CAST(? AS DATETIME)";
            // Convert to text
@@ -706,7 +709,7 @@ public class DBDatabaseDriverMySQL extends DBDatabaseDriver
             case BOOL:
                 sql.append("BIT");
                 break;
-            case DOUBLE:
+            case FLOAT:
                 sql.append("DOUBLE");
                 break;
             case DECIMAL:

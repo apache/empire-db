@@ -61,9 +61,9 @@ public enum DataType
     CHAR, //         = 6;
     
     /**
-     * Double precision floating point value
+     * floating point value
      */
-    DOUBLE, //       = 7;
+    FLOAT, //        = 7;
     
     /**
      * Decimal numeric value (size indicates scale and precision)

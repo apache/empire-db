@@ -30,6 +30,8 @@ import org.apache.empire.db.expr.order.DBOrderByExpr;
 import org.apache.empire.exceptions.InvalidArgumentException;
 import org.apache.empire.exceptions.NotSupportedException;
 import org.apache.empire.exceptions.ObjectNotValidException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.w3c.dom.Element;
 
 
@@ -43,6 +45,7 @@ import org.w3c.dom.Element;
 public abstract class DBCommandExpr extends DBExpr
 {
     private final static long serialVersionUID = 1L;
+    private static final Logger log = LoggerFactory.getLogger(DBCommandExpr.class);
 
     // Internal Classes
     protected static class DBCmdQuery extends DBRowSet

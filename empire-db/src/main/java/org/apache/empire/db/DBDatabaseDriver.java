@@ -52,6 +52,7 @@ import org.slf4j.LoggerFactory;
 public abstract class DBDatabaseDriver implements Serializable
 {
     private final static long serialVersionUID = 1L;
+    private static final Logger log = LoggerFactory.getLogger(DBDatabaseDriver.class);
   
     // sql-phrases
     public static final int SQL_NULL_VALUE       = 1;   // Oracle: null
@@ -106,9 +107,6 @@ public abstract class DBDatabaseDriver implements Serializable
     public static final int SQL_FUNC_DECODE_SEP  = 151; // Oracle: ","             SQL: " "
     public static final int SQL_FUNC_DECODE_PART = 152; // Oracle: "{0}, {1}"      SQL: "when {0} then {1}"
     public static final int SQL_FUNC_DECODE_ELSE = 153; // Oracle: "{0}"           SQL: "else {0}"
-
-    // Logger
-    protected static final Logger log = LoggerFactory.getLogger(DBDatabaseDriver.class);
     
     // Flag whether or not to set column defaults when crating DDL statements
     protected boolean ddlColumnDefaults = false;
@@ -720,10 +718,10 @@ public abstract class DBDatabaseDriver implements Serializable
      * Gets a SQL command for creating, modifying or deleting objects in the database (tables, columns, constraints, etc.)
      * 
      * @param type the command type 
-     * @param dbo the databse object
+     * @param dbo the database object
      * @param script the script to complete
      * 
-     * @return true on succes 
+     * @return true on success 
      */
     public void getDDLScript(DBCmdType type, DBObject dbo, DBSQLScript script)
     {

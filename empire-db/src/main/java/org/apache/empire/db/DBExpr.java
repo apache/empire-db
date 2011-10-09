@@ -37,6 +37,7 @@ import java.util.Set;
 public abstract class DBExpr extends DBObject
 {
     private final static long serialVersionUID = 1L;
+    private static final Logger log = LoggerFactory.getLogger(DBExpr.class);
   
     // SQL Context Flags
     public static final long CTX_DEFAULT       = 7;  // Default: FullyQualified + Value
@@ -47,9 +48,6 @@ public abstract class DBExpr extends DBObject
     public static final long CTX_VALUE         = 4;  // Value Only
     public static final long CTX_ALIAS         = 8;  // Rename expression
     public static final long CTX_NOPARENTHESES = 16; // No Parentheses
-    
-    
-    protected static final Logger log = LoggerFactory.getLogger(DBExpr.class);
     
     /**
      * Used to build the SQL command. SQL for this expression must be appended to StringBuilder.
@@ -137,7 +135,7 @@ public abstract class DBExpr extends DBObject
                 return Date.class;
             case CHAR:
                 return Character.class;
-            case DOUBLE:
+            case FLOAT:
                 return Double.class;
             case DECIMAL:
                 return java.math.BigDecimal.class;

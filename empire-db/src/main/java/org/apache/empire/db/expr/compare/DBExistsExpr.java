@@ -18,12 +18,14 @@
  */
 package org.apache.empire.db.expr.compare;
 
+import java.util.Set;
+
 import org.apache.empire.db.DBColumn;
 import org.apache.empire.db.DBCommand;
 import org.apache.empire.db.DBCommandExpr;
 import org.apache.empire.db.DBDatabase;
-
-import java.util.Set;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -35,6 +37,7 @@ import java.util.Set;
 public class DBExistsExpr extends DBCompareExpr
 {
     private final static long serialVersionUID = 1L;
+    private static final Logger log = LoggerFactory.getLogger(DBExistsExpr.class);
   
     public final DBCommandExpr cmd;
     public final DBCompareExpr compareExpr;

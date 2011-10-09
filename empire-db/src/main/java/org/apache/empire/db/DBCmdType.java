@@ -27,5 +27,5 @@ public enum DBCmdType
 {
     CREATE, //  = 0;
     DROP,   //  = 1;
-    ALTER, //   = 2;
+    ALTER,  //  = 2;
 }

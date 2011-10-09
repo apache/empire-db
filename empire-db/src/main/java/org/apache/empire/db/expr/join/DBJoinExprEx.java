@@ -24,6 +24,8 @@ import org.apache.empire.db.DBRowSet;
 import org.apache.empire.db.expr.compare.DBCompareAndOrExpr;
 import org.apache.empire.db.expr.compare.DBCompareColExpr;
 import org.apache.empire.db.expr.compare.DBCompareExpr;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * This class is used for building a join expression of an SQL statement.
@@ -36,6 +38,8 @@ import org.apache.empire.db.expr.compare.DBCompareExpr;
 public class DBJoinExprEx extends DBJoinExpr
 {
     private final static long serialVersionUID = 1L;
+    private static final Logger log = LoggerFactory.getLogger(DBJoinExprEx.class);
+    
     private final DBCompareExpr cmp;
     
     private static DBColumnExpr findFirstColumn(DBCompareExpr expr)

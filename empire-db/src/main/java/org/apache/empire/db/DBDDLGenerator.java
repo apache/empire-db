@@ -34,11 +34,24 @@ public abstract class DBDDLGenerator<T extends DBDatabaseDriver>
     
     protected T driver;
     
+    protected String DATATYPE_INT_SMALL  = "SMALLINT";  // Integer with small size (usually 16-bit)
+    protected String DATATYPE_INTEGER    = "INTEGER";   // Integer with default size (usually 32-bit) 
+    protected String DATATYPE_INT_BIG    = "BIGINT";    // Integer with long size (usually 64-bit)
+    protected String DATATYPE_CHAR       = "CHAR";      // Fixed length characters (unicode)
+    protected String DATATYPE_VARCHAR    = "VARCHAR";   // variable length characters (unicode)      
+    protected String DATATYPE_DATE       = "DATE";
+    protected String DATATYPE_TIMESTAMP  = "TIMESTAMP";
+    protected String DATATYPE_BOOLEAN    = "BOOLEAN";
+    protected String DATATYPE_DECIMAL    = "DECIMAL";
+    protected String DATATYPE_FLOAT      = "FLOAT";     // floating point number (double precision 8 bytes)
+    protected String DATATYPE_CLOB       = "CLOB";
+    protected String DATATYPE_BLOB       = "BLOB";
+    protected String DATATYPE_UNIQUEID   = "CHAR(36)";  // Globally Unique Identifier
+    
     protected DBDDLGenerator(T driver)
     {
         this.driver = driver;
     }
-    
 
     // Add statements
     protected void addCreateTableStmt(DBTable table, StringBuilder sql, DBSQLScript script)
@@ -70,80 +83,92 @@ public abstract class DBDDLGenerator<T extends DBDatabaseDriver>
     
     /**
      * appends the data type of a column
-     * @param c
+     * @param type
      * @param size
      * @param sql
+     * @returns true if further column attributes may be added or false otherwise
      */
-    protected void appendColumnDataType(DataType c, double size, StringBuilder sql)
+    protected boolean appendColumnDataType(DataType type, double size, DBTableColumn c, StringBuilder sql)
     {
-        switch (c)
+        switch (type)
         {
             case INTEGER:
-                sql.append("INTEGER");
-                break;
             case AUTOINC:
-                sql.append("INTEGER");
+            {   int bytes = Math.abs((int)size);
+                if (bytes>0 && bytes<3)
+                    sql.append(DATATYPE_INT_SMALL);
+                else if (bytes>4)
+                    sql.append(DATATYPE_INT_BIG);
+                else // Default
+                    sql.append(DATATYPE_INTEGER);  // Default integer length
+            }
                 break;
             case TEXT:
-            { // Check fixed or variable length
+            case CHAR:
+            {   // Char or Varchar
+                sql.append((type==DataType.CHAR) ? DATATYPE_CHAR : DATATYPE_VARCHAR);
+                // get length (sign may be used for specifying (unicode>0) or bytes (non-unicode<0)) 
                 int len = Math.abs((int)size);
                 if (len == 0)
-                    len = 100;
-                sql.append("VARCHAR(");
+                    len = (type==DataType.CHAR) ? 1 : 100;
+                sql.append("(");
                 sql.append(String.valueOf(len));
                 sql.append(")");
             }
                 break;
-            case CHAR:
-            { // Check fixed or variable length
-                int len = Math.abs((int)size);
-                if (len == 0)
-                    len = 1;
-                sql.append("CHAR(");
-                sql.append(String.valueOf(size));
-                sql.append(")");
-            }
-                break;
             case DATE:
-                sql.append("DATE");
+                sql.append(DATATYPE_DATE);
                 break;
             case DATETIME:
-                sql.append("DATETIME");
+                sql.append(DATATYPE_TIMESTAMP);
                 break;
             case BOOL:
-                sql.append("BOOLEAN");
+                sql.append(DATATYPE_BOOLEAN);
                 break;
-            case DOUBLE:
-                sql.append("DOUBLE");
+            case FLOAT:
+            {   sql.append(DATATYPE_FLOAT);
+                // append precision (if specified)
+                int prec = Math.abs((int)size);
+                if (prec>0) {
+                    sql.append("(");
+                    sql.append(String.valueOf(prec));
+                    sql.append(")");
+                }
                 break;
+            }    
             case DECIMAL:
-            {
-                sql.append("NUMBER(");
-                int prec = (int) size;
+            {   sql.append(DATATYPE_DECIMAL);
+                int prec  = (int) size;
                 int scale = (int) ((size - prec) * 10 + 0.5);
-                // sql.append((prec+scale).ToString());sql.append(",");
-                sql.append(String.valueOf(prec));
-                sql.append(",");
-                sql.append(String.valueOf(scale));
-                sql.append(")");
+                if (prec>0) {
+                    // append precision and scale
+                    sql.append("(");
+                    sql.append(String.valueOf(prec));
+                    sql.append(",");
+                    sql.append(String.valueOf(scale));
+                    sql.append(")");
+                }
             }
                 break;
             case CLOB:
-                sql.append("CLOB");
+                sql.append(DATATYPE_CLOB);
                 break;
             case BLOB:
-                sql.append("BLOB");
-                if (size > 0)
+                sql.append(DATATYPE_BLOB);
+                if (size > 0) {
                     sql.append(" (" + ((long)size) + ") ");
+                }    
                 break;
             case UNIQUEID:
                 // emulate using java.util.UUID
-                sql.append("CHAR(36)");
+                sql.append(DATATYPE_UNIQUEID);
                 break;
             default:
                 // Error: Unable to append column of type UNKNOWN
                 throw new MiscellaneousErrorException("Error: Unable to append column of type UNKNOWN");
         }
+        // done. Add more attributes (like e.g. NULLABLE or NOT NULL)
+        return true;
     }
     
     /**
@@ -158,7 +183,8 @@ public abstract class DBDDLGenerator<T extends DBDatabaseDriver>
         c.addSQL(sql, DBExpr.CTX_NAME);
         sql.append(" ");
         // Unknown data type
-        appendColumnDataType(c.getDataType(), c.getSize(), sql);
+        if (!appendColumnDataType(c.getDataType(), c.getSize(), c, sql))
+            return;
         // Default Value
         if (driver.isDDLColumnDefaults() && !c.isAutoGenerated() && c.getDefaultValue()!=null)
         {   sql.append(" DEFAULT ");
@@ -214,6 +240,10 @@ public abstract class DBDDLGenerator<T extends DBDatabaseDriver>
                 case DROP:
                     dropObject(((DBView) dbo).getName(), "VIEW", script);
                     return;
+                case ALTER:
+                    dropObject(((DBView) dbo).getName(), "VIEW", script);
+                    createView((DBView) dbo, script);
+                    return;
                 default:
                     throw new NotImplementedException(this, "getDDLScript." + dbo.getClass().getName() + "." + type);
             }
@@ -244,9 +274,10 @@ public abstract class DBDDLGenerator<T extends DBDatabaseDriver>
     }
 
     /**
-     * Returns true if the database has been created successfully.
-     * 
-     * @return true if the database has been created successfully
+     * Appends the DDL-Script for creating the given database to an SQL-Script<br/>
+     * This includes the generation of all tables, views and relations.
+     * @param db the database to create
+     * @param script the sql script to which to append the dll command(s)
      */
     protected void createDatabase(DBDatabase db, DBSQLScript script)
     {
@@ -275,10 +306,21 @@ public abstract class DBDDLGenerator<T extends DBDatabaseDriver>
             }
         }
     }
+
+    /**
+     * Appends the DDL-Script for dropping a database to the given script object 
+     * @param db the database to drop
+     * @param script the sql script to which to append the dll command(s)
+     */
+    protected void dropDatabase(DBDatabase db, DBSQLScript script)
+    {
+        dropObject(db.getSchema(), "DATABASE", script);
+    }
     
     /**
-     * Returns true if the table has been created successfully.
-     * @return true if the table has been created successfully
+     * Appends the DDL-Script for creating the given table to an SQL-Script 
+     * @param t the table to create
+     * @param script the sql script to which to append the dll command(s)
      */
     protected void createTable(DBTable t, DBSQLScript script)
     {
@@ -355,8 +397,9 @@ public abstract class DBDDLGenerator<T extends DBDatabaseDriver>
     }
 
     /**
-     * Creates a sql string for creating a relation and appends it to the supplied buffer
-     * @return true if the relation has been created successfully
+     * Appends the DDL-Script for creating the given foreign-key relation to an SQL-Script 
+     * @param r the relation to create
+     * @param script the sql script to which to append the dll command(s)
      */
     protected void createRelation(DBRelation r, DBSQLScript script)
     {
@@ -400,11 +443,10 @@ public abstract class DBDDLGenerator<T extends DBDatabaseDriver>
     }
 
     /**
-     * Creates an alter table dll statement for adding, modifying or dropping a column.
+     * Appends the DDL-Script for altering a table to an SQL-Script 
      * @param col the column which to add, modify or drop
-     * @param type the type of operation to perform
-     * @param script to which to append the sql statement to
-     * @return true if the statement was successfully appended to the buffer
+     * @param type the type of operation to perform (CREATE | MODIFY | DROP)
+     * @param script the sql script to which to append the dll command(s)
      */
     protected void alterTable(DBTableColumn col, DBCmdType type, DBSQLScript script)
     {
@@ -431,9 +473,9 @@ public abstract class DBDDLGenerator<T extends DBDatabaseDriver>
     }
     
     /**
-     * Returns true if the view has been created successfully.
-     * 
-     * @return true if the view has been created successfully
+     * Appends the DDL-Script for creating the given view to an SQL-Script 
+     * @param v the view to create
+     * @param script the sql script to which to append the dll command(s)
      */
     protected void createView(DBView v, DBSQLScript script)
     {
@@ -449,7 +491,7 @@ public abstract class DBDDLGenerator<T extends DBDatabaseDriver>
 
         // Build String
         StringBuilder sql = new StringBuilder();
-        sql.append( "CREATE OR REPLACE VIEW ");
+        sql.append( "CREATE VIEW ");
         v.addSQL(sql, DBExpr.CTX_FULLNAME);
         sql.append( " (" );
         boolean addSeparator = false;
@@ -469,9 +511,10 @@ public abstract class DBDDLGenerator<T extends DBDatabaseDriver>
     }
     
     /**
-     * Returns true if the object has been dropped successfully.
-     * 
-     * @return true if the object has been dropped successfully
+     * Appends the DDL-Script for dropping a database object to an SQL-Script 
+     * @param name the name of the object to delete
+     * @param objType the type of object to delete (TABLE, COLUMN, VIEW, RELATION, etc)
+     * @param script the sql script to which to append the dll command(s)
      */
     protected void dropObject(String name, String objType, DBSQLScript script)
     {

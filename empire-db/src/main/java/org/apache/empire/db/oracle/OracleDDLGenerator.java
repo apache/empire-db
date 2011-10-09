@@ -35,21 +35,42 @@ public class OracleDDLGenerator extends DBDDLGenerator<DBDatabaseDriverOracle>
     public OracleDDLGenerator(DBDatabaseDriverOracle driver)
     {
         super(driver);
+        // set Oracle specific data types
+        initDataTypes(driver);
+    }
+
+    /**
+     * sets Oracle specific data types
+     * @param driver
+     */
+    private void initDataTypes(DBDatabaseDriverOracle driver)
+    {   // Override data types
+        DATATYPE_INT_SMALL  = "NUMBER(5)";
+        DATATYPE_INT_BIG    = "NUMBER(38)";
+        DATATYPE_VARCHAR    = "VARCHAR2";
+        DATATYPE_DECIMAL    = "NUMBER";
+        if ( driver.getBooleanType() == BooleanType.CHAR )
+             DATATYPE_BOOLEAN = "CHAR(1)";
+        else DATATYPE_BOOLEAN = "NUMBER(1,0)";
     }
 
     @Override
-    protected void appendColumnDataType(DataType c, double size, StringBuilder sql)
+    protected boolean appendColumnDataType(DataType type, double size, DBTableColumn c, StringBuilder sql)
     {
-        switch (c)
+        switch (type)
         {
             case TEXT:
-            { // Check fixed or variable length
+            case CHAR:
+            {   // Char or Varchar
+                sql.append((type==DataType.CHAR) ? DATATYPE_CHAR : DATATYPE_VARCHAR);
+                // get length
                 int len = Math.abs((int)size);
                 if (len == 0)
-                    len = 100;
-                sql.append("VARCHAR2(");
+                    len = (type==DataType.CHAR) ? 1 : 100;
+                sql.append("(");
                 sql.append(String.valueOf(len));
-                sql.append(" char)");
+                // Check sign for char (unicode) or bytes (non-unicode) 
+                sql.append((size>0) ? " CHAR)" : " BYTE)");
             }
                 break;
             case BOOL:
@@ -57,14 +78,12 @@ public class OracleDDLGenerator extends DBDDLGenerator<DBDatabaseDriverOracle>
                      sql.append("CHAR(1)");
                 else sql.append("NUMBER(1,0)");
                 break;
-            case DOUBLE:
-                sql.append("FLOAT(80)");
-                break;
                 
             default:
                 // use default
-                super.appendColumnDataType(c, size, sql);
+                return super.appendColumnDataType(type, size, c, sql);
         }
+        return true;
     }
  
     @Override
@@ -87,6 +106,12 @@ public class OracleDDLGenerator extends DBDDLGenerator<DBDatabaseDriverOracle>
         }
         // Tables and the rest
         super.createDatabase(db, script);
+    }
+
+    @Override
+    protected void dropDatabase(DBDatabase db, DBSQLScript script)
+    {
+        dropObject(db.getSchema(), "USER", script);
     }
     
     /**

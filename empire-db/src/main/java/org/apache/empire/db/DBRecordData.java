@@ -47,7 +47,7 @@ public abstract class DBRecordData extends DBObject
     private final static long serialVersionUID = 1L;
   
     // Logger
-    protected static final Logger log = LoggerFactory.getLogger(DBRecordData.class);
+    private static final Logger log = LoggerFactory.getLogger(DBRecordData.class);
     
     // Field Info
     public abstract int     getFieldCount();

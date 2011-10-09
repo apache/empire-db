@@ -401,7 +401,7 @@ public class DBDatabaseDriverPostgreSQL extends DBDatabaseDriver
             case BOOL:     return "CAST(? AS BOOL)";
             case INTEGER:  return "CAST(? AS INTEGER)";
             case DECIMAL:  return "CAST(? AS DECIMAL)";
-            case DOUBLE:   return "CAST(? AS DOUBLE PRECISION)";
+            case FLOAT:   return "CAST(? AS DOUBLE PRECISION)";
             case DATE:     return "CAST(? AS DATE)";
             case DATETIME: return "CAST(? AS TIMESTAMP)";
                 // Convert to text
@@ -761,7 +761,7 @@ public class DBDatabaseDriverPostgreSQL extends DBDatabaseDriver
             case BOOL:
                 sql.append("BOOLEAN");
                 break;
-            case DOUBLE:
+            case FLOAT:
                 sql.append("DOUBLE PRECISION");
                 break;
             case DECIMAL:

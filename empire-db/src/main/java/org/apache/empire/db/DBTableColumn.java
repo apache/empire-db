@@ -31,6 +31,8 @@ import org.apache.empire.db.exceptions.FieldNotNullException;
 import org.apache.empire.db.exceptions.FieldValueTooLongException;
 import org.apache.empire.exceptions.PropertyReadOnlyException;
 import org.apache.empire.xml.XMLUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.w3c.dom.Element;
 
 
@@ -43,7 +45,8 @@ import org.w3c.dom.Element;
 public class DBTableColumn extends DBColumn
 {
     private final static long serialVersionUID = 1L;
-
+    private static final Logger log = LoggerFactory.getLogger(DBTableColumn.class);
+    
     // Column Information
     protected DataType  type;
     protected double    size;
@@ -289,7 +292,7 @@ public class DBTableColumn extends DBColumn
                 break;
 
             case DECIMAL:
-            case DOUBLE:
+            case FLOAT:
                 if (value!=null && (value instanceof java.lang.Number)==false)
                 {   try
                     {   // Convert to String and check

@@ -26,6 +26,8 @@ import org.apache.empire.db.DBColumn;
 import org.apache.empire.db.DBColumnExpr;
 import org.apache.empire.db.DBDatabase;
 import org.apache.empire.xml.XMLUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.w3c.dom.Element;
 
 
@@ -35,6 +37,8 @@ import org.w3c.dom.Element;
 public class OracleRowNumExpr extends DBColumnExpr
 {
     private final static long serialVersionUID = 1L;
+    private static final Logger log = LoggerFactory.getLogger(OracleRowNumExpr.class);
+    
     public final DBDatabase   db;
 
     /**

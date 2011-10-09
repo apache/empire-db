@@ -101,7 +101,7 @@ public class OracleDataDictionnary {
         dataTypeMapping = new HashMap<String, DataType[]>();
         dataTypeMapping.put("VARCHAR2", new DataType[] { DataType.TEXT });
         dataTypeMapping.put("CHAR",     new DataType[] { DataType.CHAR, DataType.BOOL });
-        dataTypeMapping.put("NUMBER",   new DataType[] { DataType.DECIMAL, DataType.DOUBLE, 
+        dataTypeMapping.put("NUMBER",   new DataType[] { DataType.DECIMAL, DataType.FLOAT, 
                                                          DataType.INTEGER, DataType.AUTOINC, DataType.BOOL });
         dataTypeMapping.put("DATE",     new DataType[] { DataType.DATE, DataType.DATETIME });
         dataTypeMapping.put("CLOB",     new DataType[] { DataType.CLOB });

@@ -41,8 +41,19 @@ public class DBSQLScript implements Iterable<String>
     private static final String DEFAULT_COMMAND_SEPARATOR = ";\r\n\r\n";
 
     // Properties
-    protected String COMMAND_SEPARATOR = DEFAULT_COMMAND_SEPARATOR; 
+    protected String commandSeparator = DEFAULT_COMMAND_SEPARATOR; 
+
     protected ArrayList<String> sqlCmdList = new ArrayList<String>();
+    
+    public DBSQLScript()
+    {
+        // nothing
+    }
+    
+    public DBSQLScript(String commandSeparator)
+    {
+        this.commandSeparator = commandSeparator;
+    }
     
     /**
      * Adds a statement to the script.
@@ -151,7 +162,7 @@ public class DBSQLScript implements Iterable<String>
         for(String stmt : sqlCmdList)
         {
             script.append(stmt);
-            script.append(COMMAND_SEPARATOR);
+            script.append(commandSeparator);
         }
         return script.toString();
     }
