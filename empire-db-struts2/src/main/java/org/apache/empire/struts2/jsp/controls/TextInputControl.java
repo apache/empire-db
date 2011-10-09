@@ -130,7 +130,7 @@ public class TextInputControl extends InputControl
             nf.setGroupingUsed(false);
             return nf.format(value);
         }
-        if (dataType == DataType.DECIMAL || dataType == DataType.DOUBLE)
+        if (dataType == DataType.DECIMAL || dataType == DataType.FLOAT)
         { // Dezimal oder Double
             NumberFormat nf = getNumberFormat(dataType, vi.getUserLocale(), column);
             return nf.format(value);
@@ -231,7 +231,7 @@ public class TextInputControl extends InputControl
         if (type==DataType.AUTOINC ||
             type==DataType.INTEGER)
             return 10; 
-        if (type==DataType.DOUBLE)
+        if (type==DataType.FLOAT)
             return 18;
         if (type==DataType.DECIMAL)
         {   
@@ -262,13 +262,13 @@ public class TextInputControl extends InputControl
         if (value instanceof Number)
         { // Check desired type
             if (desiredType == DataType.AUTOINC || desiredType == DataType.INTEGER || 
-                desiredType == DataType.DOUBLE || desiredType == DataType.DECIMAL)
+                desiredType == DataType.FLOAT || desiredType == DataType.DECIMAL)
                 return desiredType;
             // Detect type
             if (value instanceof Integer || value instanceof Long || value instanceof Short)
                 return DataType.INTEGER;
             if (value instanceof Float || value instanceof Double)
-                return DataType.DOUBLE;
+                return DataType.FLOAT;
             // default
             return DataType.DECIMAL;
         }
