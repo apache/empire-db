@@ -54,7 +54,7 @@ public class PreparedStatementTest{
         department.setValue(db.DEPARTMENT.BUSINESS_UNIT, "test");
         department.update(conn);
 
-        long id = department.getInt(db.DEPARTMENT.ID);
+        int id = department.getInt(db.DEPARTMENT.ID);
         assertTrue("Department add failed", id > 0);
         
 
