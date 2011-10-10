@@ -81,7 +81,7 @@ public class PreparedStatementTest{
             // must have one record
             assertEquals(true, r.moveNext());
             // Department Id must be correct
-            assertEquals(id, r.getValue(DEP.ID));
+            assertEquals(id, r.getInt(DEP.ID));
         } finally {
             r.close();
         }
