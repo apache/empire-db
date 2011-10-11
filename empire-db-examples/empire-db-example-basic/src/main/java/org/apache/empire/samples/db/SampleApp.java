@@ -374,18 +374,12 @@ public class SampleApp
         DBColumnExpr PHONE_EXT_NUMBER = EMP.PHONE_NUMBER.substring(PHONE_LAST_DASH).as("PHONE_EXTENSION");
         
         // DBColumnExpr genderExpr = cmd.select(EMP.GENDER.decode(EMP.GENDER.getOptions()).as(EMP.GENDER.getName()));
-		// Select required columns
-		cmd.select(EMP.EMPLOYEE_ID, EMPLOYEE_FULLNAME);
-		if(db.getDriver() instanceof DBDatabaseDriverPostgreSQL)
-		{	// postgres does not support the substring expression
-			cmd.select(EMP.GENDER, EMP.PHONE_NUMBER);
-		}else{
-			cmd.select(EMP.GENDER, EMP.PHONE_NUMBER, PHONE_EXT_NUMBER);
-			
-		}
-		cmd.select(DEP.NAME.as("DEPARTMENT"));
-		cmd.select(DEP.BUSINESS_UNIT);
-		cmd.join(EMP.DEPARTMENT_ID, DEP.DEPARTMENT_ID);
+        // Select required columns
+        cmd.select(EMP.EMPLOYEE_ID, EMPLOYEE_FULLNAME);
+        cmd.select(EMP.GENDER, EMP.PHONE_NUMBER, PHONE_EXT_NUMBER);
+        cmd.select(DEP.NAME.as("DEPARTMENT"));
+        cmd.select(DEP.BUSINESS_UNIT);
+        cmd.join(EMP.DEPARTMENT_ID, DEP.DEPARTMENT_ID);
         // Set constraints and order
         cmd.where(EMP.LASTNAME.length().isGreaterThan(0));
         cmd.orderBy(EMP.LASTNAME, EMP.FIRSTNAME);
