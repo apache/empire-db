@@ -68,12 +68,45 @@ public class $dbClassName extends DBDatabase {
 	 * Default constructor for the $dbClassName.
 	 */
 	private ${dbClassName}() {
+
+	#if($preserveRelationNames == true)
+	// Define foreign key relations
 #foreach ($relation in $database.relations)
+		addRelation("$relation.name", new DBReleation.DBReference[] {
 #foreach ($reference in $relation.references)
-		addRelation(${reference.sourceColumn.rowSet.name}.${parser.getAttributeName($reference.sourceColumn)}.referenceOn(${reference.targetColumn.rowSet.name}.${parser.getAttributeName($reference.targetColumn)}));
+#if($foreach.isLast())
+        	${reference.sourceColumn.rowSet.name}.${parser.getAttributeName($reference.sourceColumn)}.referenceOn(${reference.targetColumn.rowSet.name}.${parser.getAttributeName($reference.targetColumn)}) });
+#else
+        	${reference.sourceColumn.rowSet.name}.${parser.getAttributeName($reference.sourceColumn)}.referenceOn(${reference.targetColumn.rowSet.name}.${parser.getAttributeName($reference.targetColumn)}),
 #end
 #end
-	}
+#end
+		// foreign key relations done
+	}	
+	#else
+	// Define foreign key relations
+#foreach ($relation in $database.relations)
+#if($relation.references.size()==1)
+#foreach ($reference in $relation.references)
+		addRelation( ${reference.sourceColumn.rowSet.name}.${parser.getAttributeName($reference.sourceColumn)}.referenceOn(${reference.targetColumn.rowSet.name}.${parser.getAttributeName($reference.targetColumn)})); 
+#end
+#else
+#foreach ($reference in $relation.references)
+#if($foreach.isFirst())
+		addRelation( ${reference.sourceColumn.rowSet.name}.${parser.getAttributeName($reference.sourceColumn)}.referenceOn(${reference.targetColumn.rowSet.name}.${parser.getAttributeName($reference.targetColumn)}),
+#else
+#if($foreach.isLast())
+        	         ${reference.sourceColumn.rowSet.name}.${parser.getAttributeName($reference.sourceColumn)}.referenceOn(${reference.targetColumn.rowSet.name}.${parser.getAttributeName($reference.targetColumn)}));
+#else
+            	     ${reference.sourceColumn.rowSet.name}.${parser.getAttributeName($reference.sourceColumn)}.referenceOn(${reference.targetColumn.rowSet.name}.${parser.getAttributeName($reference.targetColumn)}),
+#end
+#end
+#end
+#end
+#end
+		// foreign key relations done
+	}	
+#end
 	
 	#if($nestTables == true)
 		#foreach ($table in $database.tables)

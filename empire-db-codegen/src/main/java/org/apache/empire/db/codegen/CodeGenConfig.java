@@ -194,6 +194,11 @@ public class CodeGenConfig extends XMLConfiguration {
 	 * Otherwise getters / setters are omitted.
 	 */
 	private boolean createRecordProperties;
+	
+	/**
+	 * true if names of foreign-key-relations should be preserved
+	 */
+	private boolean preserveRelationNames = false; 
 
 	/**
 	 * Initialize the configuration.
@@ -440,6 +445,14 @@ public class CodeGenConfig extends XMLConfiguration {
 		this.createRecordProperties = createRecordProperties;
 	}
 
+	public boolean isPreserveRelationNames() {
+		return preserveRelationNames;
+	}
+
+	public void setPreserveRelationNames(boolean preserveRelationNames) {
+		this.preserveRelationNames = preserveRelationNames;
+	}
+	
 	private String fallback(String packageName, String defaultSubpackage){
 		String pkg = packageName;
 		if( pkg == null && this.packageName != null){

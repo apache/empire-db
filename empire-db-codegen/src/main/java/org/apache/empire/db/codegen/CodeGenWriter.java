@@ -198,6 +198,7 @@ public class CodeGenWriter {
 		context.put("nestViews", config.isNestViews());
 		context.put("templateFolder", config.getTemplateFolder());
 		context.put("baseViewClassName", config.getViewBaseName());
+		context.put("preserveRelationNames", config.isPreserveRelationNames());
 
 		writeFile(file, DATABASE_TEMPLATE, context);
 		return file;

@@ -28,10 +28,12 @@ import java.sql.Types;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.empire.data.DataType;
 import org.apache.empire.db.DBColumn;
 import org.apache.empire.db.DBCommandExpr;
 import org.apache.empire.db.DBDatabase;
+import org.apache.empire.db.DBRelation;
 import org.apache.empire.db.DBTable;
 import org.apache.empire.db.DBTableColumn;
 import org.apache.empire.db.DBView;
@@ -205,7 +207,11 @@ public class CodeGenParser {
 				pkTableName=relations.getString("PKTABLE_NAME");
 				fkColName=relations.getString("FKCOLUMN_NAME");
 				pkColName=relations.getString("PKCOLUMN_NAME");
-				relName=fkTableName+"."+fkColName+"-"+pkTableName+"."+pkColName;
+
+				// Detect relation name
+				relName=relations.getString("FK_NAME");
+				if (StringUtils.isEmpty(relName))
+					relName=fkTableName+"."+fkColName+"-"+pkTableName+"."+pkColName;
 				
 				pkTable = db.getTable(pkTableName);
 				fkTable = db.getTable(fkTableName);
@@ -231,7 +237,23 @@ public class CodeGenParser {
 				}
 				
 				// add the relation
-				db.addRelation(fkCol.referenceOn(pkCol));
+				DBRelation.DBReference reference = fkCol.referenceOn(pkCol);
+				DBRelation.DBReference[] refs = null;
+		    	DBRelation r = db.getRelation(relName);
+		        if (r!=null) {
+		        	DBRelation.DBReference[] refsOld = r.getReferences();
+		        	refs = new DBRelation.DBReference[refsOld.length+1];
+		        	int i=0;
+		        	for (; i<refsOld.length; i++)
+		        		refs[i]=refsOld[i];
+	        		refs[i]=reference;
+		        	// remove old relation
+	        		db.getRelations().remove(r);
+		        } else {
+		        	refs = new DBRelation.DBReference[] { reference };
+		        }
+				// Add a new relation
+				db.addRelation(relName, refs);
 				log.info("Added relation (FK-PK): "+relName);
 			}
 		}
