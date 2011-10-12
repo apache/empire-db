@@ -525,10 +525,13 @@ public abstract class DBDatabase extends DBObject
      */
     public void addRelation(String name, DBRelation.DBReference[] references)
     {
+    	// Check
+    	if (getRelation(name)!=null)
+            throw new ItemExistsException(name); // Relation already exists
         // Add a Relation
         DBRelation relation = new DBRelation(this, name, references);
         if (relations.contains(relation))
-            throw new ItemExistsException(name); // Itemn already exists
+            throw new ItemExistsException(name); // Relation already exists
         // Add Reference column to table
         for (DBRelation.DBReference ref : references)
         {   // add the reference column
@@ -547,6 +550,22 @@ public abstract class DBDatabase extends DBObject
     public List<DBRelation> getRelations()
     {
         return relations;
+    }
+
+    /**
+     * Returns the relation of a given name
+     * 
+     * @return db the relation of the given name
+     */
+    public DBRelation getRelation(String relationName)
+    {
+        for (DBRelation r : relations)
+        {
+        	String name = r.getName();
+        	if (relationName.compareToIgnoreCase(name)==0)
+        		return r; 
+        }
+        return null;
     }
 
     /**
