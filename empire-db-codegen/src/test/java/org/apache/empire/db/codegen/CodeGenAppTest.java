@@ -47,7 +47,7 @@ public class CodeGenAppTest {
 		String[] args = new String[]{"src/test/resources/testconfig.xml"};
 		
 		// execute app
-		CodeGenApp.main(args);
+		CodeGenerator.main(args);
 		
 		// expected files
 		File expected = new File("target/generated/dbsample/org/apache/empire/db/samples/dbsample/SampleDB.java");
@@ -57,7 +57,7 @@ public class CodeGenAppTest {
 	@Test
 	public void testMainDefaultTemplateFolderNested() {
 		String[] args = new String[]{"src/test/resources/testconfig_default_template_folder_nested.xml"};
-		CodeGenApp.main(args);
+		CodeGenerator.main(args);
 		File expectedFile = new File("target/generated/dbsample/org/apache/empire/db/samples/dbsample/SampleDB.java");
 		
 		// the string to be expected within the DB class file
@@ -85,7 +85,7 @@ public class CodeGenAppTest {
 		String[] args = new String[]{"src/test/resources/testconfig_using_template_folder.xml"};
 		
 		// execute app
-		CodeGenApp.main(args);
+		CodeGenerator.main(args);
 		
 		// expected files
 		File expected = new File("target/generated/dbsample/org/apache/empire/db/samples/dbsample/SampleDB.java");
@@ -96,7 +96,7 @@ public class CodeGenAppTest {
 	public void testMainFailInvalidTemplateFolder() {
 		String[] args = new String[]{"src/test/resources/testconfig_invalid_template_folder.xml"};
 		try{
-			CodeGenApp.main(args);
+			CodeGenerator.main(args);
 			fail("This should fail as the template path is missing");
 		}catch(RuntimeException ex){
 			assertTrue("Wrong message", ex.getMessage().startsWith("Provided template folder missing or not readable:"));
