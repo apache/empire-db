@@ -36,7 +36,7 @@ public class BeanPropertySetException extends EmpireException
     
     public BeanPropertySetException(Object bean, String property, Throwable cause)
     {
-        super(errorType, new Object[] { property, (bean!=null ? bean.getClass().getName() : "{unknown}") }, cause);
+        super(errorType, new String[] { property, (bean!=null ? bean.getClass().getName() : "{unknown}") }, cause);
     }
     
     /**

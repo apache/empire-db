@@ -33,7 +33,7 @@ public class FileReadException extends EmpireFileException
     
     public FileReadException(String fileName, IOException cause)
     {
-        super(errorType, new Object[] { fileName, cause.toString() }, cause);
+        super(errorType, new String[] { fileName, cause.toString() }, cause);
     }
 
 }

@@ -46,7 +46,7 @@ public class InternalSQLException extends EmpireException
     
     public InternalSQLException(DBDatabaseDriver driver, SQLException cause)
     {
-        super(errorType, new Object[] { messageFromSQLException(driver, cause) }, cause );
+        super(errorType, new String[] { messageFromSQLException(driver, cause) }, cause );
     }
     
     public InternalSQLException(DBObject obj, SQLException cause)
@@ -55,7 +55,7 @@ public class InternalSQLException extends EmpireException
     }
     
     // Derived classes only
-    protected InternalSQLException(ErrorType type, Object[] params, SQLException cause)
+    protected InternalSQLException(ErrorType type, String[] params, SQLException cause)
     {
         super(type, params, cause);
     }

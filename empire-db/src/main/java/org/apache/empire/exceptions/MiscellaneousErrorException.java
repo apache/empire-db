@@ -31,7 +31,7 @@ public class MiscellaneousErrorException extends EmpireException
     
     public MiscellaneousErrorException(String errorMessage)
     {
-        super(errorType, new Object[] { errorMessage });
+        super(errorType, new String[] { errorMessage });
     }
 
 }

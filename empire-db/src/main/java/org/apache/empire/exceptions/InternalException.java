@@ -34,7 +34,7 @@ public class InternalException extends EmpireException
     
     public static final ErrorType errorType = new ErrorType("error.exception", "An Exception of type {0} occurred.\n-->Message is: {1}\n-->at Position: {2}");
 
-    private static Object[] paramsFromThrowable(final Throwable exptn)
+    private static String[] paramsFromThrowable(final Throwable exptn)
     {
         // Exception
         String type  = exptn.getClass().getName();
@@ -46,7 +46,7 @@ public class InternalException extends EmpireException
         StackTraceElement[] stack = exptn.getStackTrace();
         String pos = (stack!=null) ? stack[0].toString() : "{unknown}";
         // Create Error
-        return new Object[] { type, msg, pos };
+        return new String[] { type, msg, pos };
     }
     
     public InternalException(Throwable cause)

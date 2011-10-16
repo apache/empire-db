@@ -37,7 +37,7 @@ public abstract class WebException extends EmpireException
      * @param params
      * @param cause
      */
-    protected WebException(final ErrorType errType, final Object[] params)
+    protected WebException(final ErrorType errType, final String[] params)
     {
         super(errType, params, null);
     }

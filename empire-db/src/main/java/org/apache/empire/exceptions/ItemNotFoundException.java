@@ -19,6 +19,7 @@
 package org.apache.empire.exceptions;
 
 import org.apache.empire.commons.ErrorType;
+import org.apache.empire.commons.StringUtils;
 
 public class ItemNotFoundException extends EmpireException
 {
@@ -31,7 +32,7 @@ public class ItemNotFoundException extends EmpireException
     
     public ItemNotFoundException(Object item)
     {
-       super(errorType, new Object[] { (item!=null) ? item : "{unknown}" } );
+       super(errorType, new String[] { (item!=null) ? StringUtils.valueOf(item) : "{unknown}" } );
     }
 
 }

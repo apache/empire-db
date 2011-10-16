@@ -81,7 +81,7 @@ public class ActionError implements ErrorInfo
     {
         // copy other error
         errType   = e.getErrorType();
-        errParams =(String[]) e.getErrorParams();
+        errParams = e.getErrorParams();
         errMsg    = e.getMessage();
     }
 

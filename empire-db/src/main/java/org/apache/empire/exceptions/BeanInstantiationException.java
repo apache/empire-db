@@ -36,7 +36,7 @@ public class BeanInstantiationException extends EmpireException
     
     public BeanInstantiationException(Class<?> clazz, Throwable cause)
     {
-        super(errorType, new Object[] { clazz.getName() }, cause);
+        super(errorType, new String[] { clazz.getName() }, cause);
     }
     
     /**

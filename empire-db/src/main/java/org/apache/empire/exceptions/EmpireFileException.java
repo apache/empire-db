@@ -32,7 +32,7 @@ public abstract class EmpireFileException extends EmpireException
      */
     private static final long serialVersionUID = 1L;
 
-    protected EmpireFileException(final ErrorType errType, final Object[] params, final Throwable cause)
+    protected EmpireFileException(final ErrorType errType, final String[] params, final Throwable cause)
     {
         super(errType, params, cause);
     }

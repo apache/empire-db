@@ -40,7 +40,7 @@ public class QueryFailedException extends EmpireException
     
     public QueryFailedException(DBObject obj, String sqlCmd, SQLException cause)
     {
-        super(errorType, new Object[] { sqlCmd, InternalSQLException.messageFromSQLException(InternalSQLException.driverFromObject(obj), cause) }, cause);
+        super(errorType, new String[] { sqlCmd, InternalSQLException.messageFromSQLException(InternalSQLException.driverFromObject(obj), cause) }, cause);
     }
     
     /**

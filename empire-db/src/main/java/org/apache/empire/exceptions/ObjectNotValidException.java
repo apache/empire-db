@@ -31,7 +31,7 @@ public class ObjectNotValidException extends EmpireException
     
     public ObjectNotValidException(Object obj)
     {
-        super(errorType, new Object[] { (obj!=null) ? obj.getClass().getName() : "{unknown}" } );
+        super(errorType, new String[] { (obj!=null) ? obj.getClass().getName() : "{unknown}" } );
     }
 
 }

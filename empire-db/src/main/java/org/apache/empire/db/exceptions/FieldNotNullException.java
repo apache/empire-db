@@ -33,6 +33,6 @@ public class FieldNotNullException extends EmpireException
     
     public FieldNotNullException(DBColumn col)
     {
-        super(errorType, new Object[] { col.getFullName() });
+        super(errorType, new String[] { col.getFullName() });
     }
 }

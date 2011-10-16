@@ -32,11 +32,11 @@ public class FieldIllegalValueException extends FieldValueException
     
     public FieldIllegalValueException(DBColumn column, String value, Throwable cause)
     {
-        super(column, errorType, new Object[] { column.getFullName(), value }, cause);
+        super(column, errorType, new String[] { column.getFullName(), value }, cause);
     }
     
     public FieldIllegalValueException(DBColumn column, String value)
     {
-        super(column, errorType, new Object[] { column.getFullName(), value }, null);
+        super(column, errorType, new String[] { column.getFullName(), value }, null);
     }
 }

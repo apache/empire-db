@@ -31,7 +31,7 @@ public class FileParseException extends EmpireFileException
     
     public FileParseException(String fileName, Exception cause)
     {
-        super(errorType, new Object[] { fileName }, cause);
+        super(errorType, new String[] { fileName }, cause);
     }
     
     public FileParseException(String fileName)

@@ -31,7 +31,7 @@ public class NotImplementedException extends EmpireException
     
     public NotImplementedException(Object object, String functionName)
     {
-        super(errorType, new Object[] { functionName, (object!=null ? object.getClass().getName() : "{unknown}") });
+        super(errorType, new String[] { functionName, (object!=null ? object.getClass().getName() : "{unknown}") });
     }
 
 }

@@ -34,6 +34,6 @@ public class DatabaseNotOpenException extends EmpireException
     
     public DatabaseNotOpenException(DBDatabase db)
     {
-        super(errorType, new Object[] { (db!=null && StringUtils.isNotEmpty(db.getSchema())) ? db.getSchema() : "{NO_SCHEMA}"  });
+        super(errorType, new String[] { (db!=null && StringUtils.isNotEmpty(db.getSchema())) ? db.getSchema() : "{NO_SCHEMA}"  });
     }
 }

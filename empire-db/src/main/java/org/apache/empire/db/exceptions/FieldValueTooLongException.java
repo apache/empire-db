@@ -33,6 +33,6 @@ public class FieldValueTooLongException extends EmpireException
     
     public FieldValueTooLongException(DBColumn col)
     {
-        super(errorType, new Object[] { col.getFullName(), (int)col.getSize() });
+        super(errorType, new String[] { col.getFullName(), String.valueOf((int)col.getSize()) });
     }
 }

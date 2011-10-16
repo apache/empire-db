@@ -32,6 +32,6 @@ public class InvalidPropertyException extends EmpireException
     
     public InvalidPropertyException(String property, Object value)
     {
-        super(errorType, new Object[] { property, StringUtils.valueOf(value) });
+        super(errorType, new String[] { property, StringUtils.valueOf(value) });
     }
 }

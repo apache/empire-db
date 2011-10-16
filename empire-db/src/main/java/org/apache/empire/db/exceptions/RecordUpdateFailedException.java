@@ -34,6 +34,6 @@ public class RecordUpdateFailedException extends EmpireException
     
     public RecordUpdateFailedException(DBRowSet rowset, Object[] key)
     {
-        super(errorType, new Object[] { StringUtils.toString(key), StringUtils.coalesce(rowset.getName(), rowset.getAlias()) });
+        super(errorType, new String[] { StringUtils.toString(key), StringUtils.coalesce(rowset.getName(), rowset.getAlias()) });
     }
 }

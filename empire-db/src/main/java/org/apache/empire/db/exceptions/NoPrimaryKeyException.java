@@ -34,6 +34,6 @@ public class NoPrimaryKeyException extends EmpireException
     
     public NoPrimaryKeyException(DBRowSet rowset)
     {
-        super(errorType, new Object[] { StringUtils.coalesce(rowset.getName(), rowset.getAlias()) });
+        super(errorType, new String[] { StringUtils.coalesce(rowset.getName(), rowset.getAlias()) });
     }
 }

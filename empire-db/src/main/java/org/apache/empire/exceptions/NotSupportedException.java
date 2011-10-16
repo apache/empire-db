@@ -31,7 +31,7 @@ public class NotSupportedException extends EmpireException
     
     public NotSupportedException(Object object, String functionName)
     {
-        super(errorType, new Object[] { functionName, (object!=null ? object.getClass().getName() : "{unknown}") });
+        super(errorType, new String[] { functionName, (object!=null ? object.getClass().getName() : "{unknown}") });
     }
 
 }

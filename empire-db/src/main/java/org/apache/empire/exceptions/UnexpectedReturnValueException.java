@@ -19,6 +19,7 @@
 package org.apache.empire.exceptions;
 
 import org.apache.empire.commons.ErrorType;
+import org.apache.empire.commons.StringUtils;
 
 public class UnexpectedReturnValueException extends EmpireException
 {
@@ -31,7 +32,7 @@ public class UnexpectedReturnValueException extends EmpireException
     
     public UnexpectedReturnValueException(Object value, String function)
     {
-        super(errorType, new Object[] { value, function } );
+        super(errorType, new String[] { StringUtils.valueOf(value), function } );
     }
 
 }

@@ -33,6 +33,6 @@ public class FieldIsReadOnlyException extends EmpireException
     
     public FieldIsReadOnlyException(DBColumn col)
     {
-        super(errorType, new Object[] { col.getFullName() });
+        super(errorType, new String[] { col.getFullName() });
     }
 }

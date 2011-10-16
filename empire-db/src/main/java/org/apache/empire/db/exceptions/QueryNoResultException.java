@@ -32,6 +32,6 @@ public class QueryNoResultException extends EmpireException
     
     public QueryNoResultException(String sqlCmd)
     {
-        super(errorType, new Object[] { sqlCmd });
+        super(errorType, new String[] { sqlCmd });
     }
 }

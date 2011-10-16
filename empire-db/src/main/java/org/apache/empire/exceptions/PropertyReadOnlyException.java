@@ -31,6 +31,6 @@ public class PropertyReadOnlyException extends EmpireException
     
     public PropertyReadOnlyException(String property)
     {
-        super(errorType, new Object[] { property });
+        super(errorType, new String[] { property });
     }
 }

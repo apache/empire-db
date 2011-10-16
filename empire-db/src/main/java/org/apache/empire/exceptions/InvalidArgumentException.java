@@ -32,12 +32,12 @@ public class InvalidArgumentException extends EmpireException
     
     public InvalidArgumentException(String param, Object value)
     {
-        super(errorType, new Object[] { value, param } );
+        super(errorType, new String[] { StringUtils.valueOf(value), param } );
     }
     
     public InvalidArgumentException(String param, Object[] value)
     {
-        super(errorType, new Object[] { StringUtils.valueOf(param), param } );
+        super(errorType, new String[] { StringUtils.valueOf(value), param } );
     }
 
 }

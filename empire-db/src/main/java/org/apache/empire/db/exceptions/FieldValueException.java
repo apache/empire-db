@@ -31,7 +31,7 @@ public abstract class FieldValueException extends EmpireException
     
     private transient final DBColumn column;
 
-    protected FieldValueException(final DBColumn column, final ErrorType errType, final Object[] params, final Throwable cause)
+    protected FieldValueException(final DBColumn column, final ErrorType errType, final String[] params, final Throwable cause)
     {
         super(errType, params, cause);
         // save type and params for custom message formatting

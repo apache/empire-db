@@ -32,6 +32,6 @@ public class BeanIncompatibleException extends EmpireException
     
     public BeanIncompatibleException(Class<?> clazz, DBRowSet rowset)
     {
-        super(errorType, new Object[] { clazz.getName(), rowset.getName() });
+        super(errorType, new String[] { clazz.getName(), rowset.getName() });
     }
 }

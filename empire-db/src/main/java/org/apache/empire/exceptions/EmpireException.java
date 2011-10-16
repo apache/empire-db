@@ -18,12 +18,9 @@
  */
 package org.apache.empire.exceptions;
 
-import java.io.IOException;
-import java.io.ObjectOutputStream;
 import java.text.MessageFormat;
 
 import org.apache.empire.commons.ErrorType;
-import org.apache.empire.commons.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,10 +37,10 @@ public class EmpireException extends RuntimeException
     private static final long serialVersionUID = 1L;
     
     private final ErrorType errorType;
-    private final Object[]  errorParams;
+    private final String[]  errorParams;
     // private final String errorSourceClassname;
     
-    private static String formatErrorMessage(final ErrorType errType, final Object[] params)
+    private static String formatErrorMessage(final ErrorType errType, final String[] params)
     {
         // Check parameter count
         int paramCount = (params!=null) ? params.length : 0;
@@ -53,7 +50,7 @@ public class EmpireException extends RuntimeException
                    + "\nArguments supplied= " + String.valueOf(paramCount) + "; Arguments expected= " + String.valueOf(errType.getNumParams()));
         }
         // Log Error
-        String msg = MessageFormat.format(errType.getMessagePattern(), params);
+        String msg = MessageFormat.format(errType.getMessagePattern(), (Object[])params);
         return msg;
     }
     
@@ -63,7 +60,7 @@ public class EmpireException extends RuntimeException
      * @param params
      * @param cause
      */
-    protected EmpireException(final ErrorType errType, final Object[] params, final Throwable cause)
+    protected EmpireException(final ErrorType errType, final String[] params, final Throwable cause)
     {
         super(formatErrorMessage(errType, params), cause);
         // save type and params for custom message formatting
@@ -78,7 +75,7 @@ public class EmpireException extends RuntimeException
      * @param params
      * @param cause
      */
-    protected EmpireException(final ErrorType errType, final Object[] params)
+    protected EmpireException(final ErrorType errType, final String[] params)
     {
         this(errType, params, null);
     }
@@ -107,16 +104,15 @@ public class EmpireException extends RuntimeException
      * @see org.apache.empire.commons.Errors
      * @return the type of error
      */
-    public Object[] getErrorParams()
+    public String[] getErrorParams()
     {
         return errorParams;
     }
 
     /**
-     * when serializing, convert all params to strings
+     * when serializing, convert all params to strings (unnesessary after change from object[] to string[]
      * @param out
      * @throws IOException
-     */
     private void writeObject(ObjectOutputStream out) throws IOException
     {
         // normalize Params
@@ -136,4 +132,5 @@ public class EmpireException extends RuntimeException
         // Serialize
         out.defaultWriteObject(); 
     }
+    */
 }
