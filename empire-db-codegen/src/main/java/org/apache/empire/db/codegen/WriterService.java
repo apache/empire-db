@@ -26,6 +26,7 @@ import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.apache.empire.commons.StringUtils;
 import org.apache.empire.data.DataType;
 import org.apache.empire.db.DBColumn;
 import org.apache.empire.db.DBRecord;
@@ -70,8 +71,9 @@ public class WriterService {
 	 */
 	public String getTableClassName(String tableName)
 	{
-		return config.getTableClassPrefix() + deriveClassName(tableName)
-			+ config.getTableClassSuffix();
+		return StringUtils.toString(config.getTableClassPrefix(), "")
+			+ deriveClassName(tableName)
+			+ StringUtils.toString(config.getTableClassSuffix(),"");
 	}
 
 	/**
@@ -79,8 +81,9 @@ public class WriterService {
 	 */
 	public String getViewClassName(String viewName)
 	{
-		return config.getViewClassPrefix() + deriveClassName(viewName)
-			+ config.getViewClassSuffix();
+		return StringUtils.toString(config.getViewClassPrefix(), "")
+			+ deriveClassName(viewName)
+			+ StringUtils.toString(config.getViewClassSuffix(), "");
 	}
 	
 	/**

@@ -81,13 +81,6 @@ public class CodeGenerator {
 		// Init Configuration
 		CodeGenConfig config = new CodeGenConfig();
 		config.init(configFile);
-
-		if (config.getTableClassPrefix() == null)
-			config.setTableClassPrefix("");
-
-		if (config.getTableClassSuffix() == null)
-			config.setTableClassSuffix("");
-		
 		return config;
 	}
 	

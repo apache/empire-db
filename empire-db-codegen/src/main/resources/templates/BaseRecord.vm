@@ -23,6 +23,9 @@ import ${tablePackageName}.${baseTableClassName};
 
 
 public abstract class ${baseRecordClassName}<T extends ${baseTableClassName}> extends DBRecord {
+
+	private static final long serialVersionUID = 1L;
+
 	public ${baseRecordClassName}(T table) {
 		super.init(table, DBRecord.REC_EMTPY, null);
 	}
@@ -32,7 +35,7 @@ public abstract class ${baseRecordClassName}<T extends ${baseTableClassName}> ex
 	 * @return The table this record is based upon.
 	 */
 	@SuppressWarnings("unchecked")
-	public T getDbTable() {
+	public T getTable() {
 		return (T)super.getRowSet();
 	}
 }

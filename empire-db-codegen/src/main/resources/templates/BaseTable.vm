@@ -22,6 +22,9 @@ import org.apache.empire.db.DBDatabase;
 import org.apache.empire.db.DBTable;
 
 public class ${baseTableClassName} extends DBTable {
+
+	private static final long serialVersionUID = 1L;
+
 	public ${baseTableClassName}(String name, DBDatabase db) {
 		super(name, db);
 	}

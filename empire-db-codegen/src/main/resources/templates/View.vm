@@ -21,11 +21,21 @@
 package $viewPackageName;
 
 import org.apache.empire.data.DataType;
+import org.apache.empire.db.DBCommandExpr;
+import org.apache.empire.exceptions.NotImplementedException;
+
 import $basePackageName.${dbClassName};
+
 #end
 
-public #if($nestViews == true)static#end  class $parser.getViewClassName($view.name) extends ${baseViewClassName} {
+#if($nestViews == true)
+  public static class $parser.getViewClassName($view.name) extends ${baseViewClassName} {
+#else
+public class $parser.getViewClassName($view.name) extends ${baseViewClassName} {
+#end
 	
+	private static final long serialVersionUID = 1L;
+
 	// Regular attributes
 #foreach ($col in $view.columns)
 	public final DBViewColumn C_${parser.getAttributeName($col)};
@@ -39,4 +49,19 @@ public #if($nestViews == true)static#end  class $parser.getViewClassName($view.n
 		C_${parser.getAttributeName($col)} = super.addColumn("${col.name}", DataType.${col.getDataType()});
 #end		
 	}
+	
+	@Override
+    public DBCommandExpr createCommand()
+    {
+    	/*
+    	Supply a command for the creation of this view here.
+    	*/
+        throw new NotImplementedException(this, "createCommand");
+    }
+	
+#if($nestViews == true)
+  }
+#else
 }
+#end
+

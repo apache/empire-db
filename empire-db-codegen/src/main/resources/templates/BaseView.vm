@@ -18,19 +18,14 @@
  *#
 package $viewPackageName;
 
-import org.apache.empire.db.DBCommandExpr;
 import org.apache.empire.db.DBDatabase;
 import org.apache.empire.db.DBView;
 
-public class ${baseViewClassName} extends DBView {
+public abstract class ${baseViewClassName} extends DBView {
+
+	private static final long serialVersionUID = 1L;
+
 	public ${baseViewClassName}(String name, DBDatabase db) {
 		super(name, db);
 	}
-	
-	@Override
-    public DBCommandExpr createCommand()
-    {
-    	// TODO not IMPLEMENTED
-        throw new UnsupportedOperationException("Not iplemented");
-    }
 }

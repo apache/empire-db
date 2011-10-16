@@ -18,25 +18,35 @@
  *#
 package $basePackageName;
 
-import java.sql.Connection;
-
+#if($nestTables == true)
 import java.util.List;
 import java.util.ArrayList;
-
-import org.apache.empire.db.DBCommand;
-import org.apache.empire.db.DBDatabase;
-import org.apache.empire.db.DBReader;
-import org.apache.empire.db.DBRecord;
+#end
 
 #if($nestTables == true || $nestViews == true)
 import org.apache.empire.data.DataType;
 #end
+#if($nestViews == true)
+import org.apache.empire.db.DBCommandExpr;
+#end
+import org.apache.empire.db.DBDatabase;
+#if($preserveRelationNames == true)
+import org.apache.empire.db.DBRelation;
+#end
 #if($nestTables == true)
 import org.apache.empire.db.DBTableColumn;
 #end
+#if($nestViews == true)
+import org.apache.empire.exceptions.NotImplementedException;
+#end
 
+#if($nestTables==false || !($tablePackageName.equalsIgnoreCase($basePackageName)))
 import $tablePackageName.*;
+// $tablePackageName vs $basePackageName 
+#end
+#if($nestViews==false || ($viewPackageName!=$basePackageName))
 import $viewPackageName.*;
+#end
 
 public class $dbClassName extends DBDatabase {
 
@@ -72,7 +82,7 @@ public class $dbClassName extends DBDatabase {
 	#if($preserveRelationNames == true)
 	// Define foreign key relations
 #foreach ($relation in $database.relations)
-		addRelation("$relation.name", new DBReleation.DBReference[] {
+		addRelation("$relation.name", new DBRelation.DBReference[] {
 #foreach ($reference in $relation.references)
 #if($foreach.isLast())
         	${reference.sourceColumn.rowSet.name}.${parser.getAttributeName($reference.sourceColumn)}.referenceOn(${reference.targetColumn.rowSet.name}.${parser.getAttributeName($reference.targetColumn)}) });
