@@ -55,6 +55,7 @@
 		<nestTables>true</nestTables>
 		<nestViews>false</nestViews>
 		<createRecordProperties>true</createRecordProperties>
+		<preserveRelationNames>false</preserveRelationNames>
 	</properties>
 	
 	<log4j:configuration xmlns:log4j="http://jakarta.apache.org/log4j/">

@@ -303,11 +303,12 @@ public abstract class DBDDLGenerator<T extends DBDatabaseDriver>
         Iterator<DBView> views = db.getViews().iterator();
         while (views.hasNext())
         {
+        	DBView v = views.next();
             try {
-                createView(views.next(), script);
-            } catch(NotImplementedException e) {
+                createView(v, script);
+            } catch(NotSupportedException e) {
                 // View command not implemented
-                log.warn("Error creating the view {0}. This view will be ignored.");
+                log.warn("Error creating the view {0}. This view will be ignored.", v.getName());
                 continue;
             }
         }
@@ -511,7 +512,7 @@ public abstract class DBDDLGenerator<T extends DBDatabaseDriver>
         if (cmd==null)
         {   // Check whether Error information is available
             log.error("No command has been supplied for view " + v.getName());
-            throw new NotImplementedException(this, v.getName() + ".createCommand");
+            throw new NotSupportedException(this, v.getName() + ".createCommand");
         }
         // Make sure there is no OrderBy
         cmd.clearOrderBy();
