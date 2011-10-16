@@ -46,18 +46,18 @@ public class $parser.getRecordClassName($table.name) extends ${baseRecordClassNa
 	private static final long serialVersionUID = 1L;
 
 	public $parser.getRecordClassName($table.name)() {
-		super(${dbClassName}.get().${table.name});
+		super(${dbClassName}.get().$parser.getTableName($table));
 	}
 	
 #if($createRecordProperties == true)
-	// Access methods for all attributes
+	// Access methods for all columns
 #foreach($col in $table.columns)
 
 	public $parser.getJavaType($col).getName() $parser.getAccessorName($col)() {
-		return ($parser.getJavaType($col).getName())super.getValue(getTable().${parser.getAttributeName($col)});
+		return ($parser.getJavaType($col).getName())super.getValue(getTable().${parser.getColumnName($col)});
 	}
 	public void $parser.getMutatorName($col)($parser.getJavaType($col).getName() val) {
-		super.setValue(getTable().${parser.getAttributeName($col)}, val);
+		super.setValue(getTable().${parser.getColumnName($col)}, val);
 	}
 #end
 #end

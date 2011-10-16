@@ -55,12 +55,12 @@ public class $dbClassName extends DBDatabase {
 
 #foreach($table in $database.tables)
 	#set($tblClass=$parser.getTableClassName($table.name))
-	public final $tblClass ${table.name} = new $tblClass(this);
+	public final $tblClass $parser.getTableName($table) = new $tblClass(this);
 #end
 
 #foreach($view in $database.views)
 	#set($viewClass=$parser.getViewClassName($view.name))
-	public final $viewClass ${view.name} = new $viewClass(this);
+	public final $viewClass $parser.getViewName($view) = new $viewClass(this);
 #end
 	
 	/**
@@ -85,9 +85,9 @@ public class $dbClassName extends DBDatabase {
 		addRelation("$relation.name", new DBRelation.DBReference[] {
 #foreach ($reference in $relation.references)
 #if($foreach.isLast())
-        	${reference.sourceColumn.rowSet.name}.${parser.getAttributeName($reference.sourceColumn)}.referenceOn(${reference.targetColumn.rowSet.name}.${parser.getAttributeName($reference.targetColumn)}) });
+        	${parser.getRowsetName($reference.sourceColumn.rowSet)}.${parser.getColumnName($reference.sourceColumn)}.referenceOn(${parser.getRowsetName($reference.targetColumn.rowSet)}.${parser.getColumnName($reference.targetColumn)}) });
 #else
-        	${reference.sourceColumn.rowSet.name}.${parser.getAttributeName($reference.sourceColumn)}.referenceOn(${reference.targetColumn.rowSet.name}.${parser.getAttributeName($reference.targetColumn)}),
+        	${parser.getRowsetName($reference.sourceColumn.rowSet)}.${parser.getColumnName($reference.sourceColumn)}.referenceOn(${parser.getRowsetName($reference.targetColumn.rowSet)}.${parser.getColumnName($reference.targetColumn)}),
 #end
 #end
 #end
@@ -98,17 +98,17 @@ public class $dbClassName extends DBDatabase {
 #foreach ($relation in $database.relations)
 #if($relation.references.size()==1)
 #foreach ($reference in $relation.references)
-		addRelation( ${reference.sourceColumn.rowSet.name}.${parser.getAttributeName($reference.sourceColumn)}.referenceOn(${reference.targetColumn.rowSet.name}.${parser.getAttributeName($reference.targetColumn)})); 
+		addRelation( ${parser.getRowsetName($reference.sourceColumn.rowSet)}.${parser.getColumnName($reference.sourceColumn)}.referenceOn(${parser.getRowsetName($reference.targetColumn.rowSet)}.${parser.getColumnName($reference.targetColumn)}));
 #end
 #else
 #foreach ($reference in $relation.references)
 #if($foreach.isFirst())
-		addRelation( ${reference.sourceColumn.rowSet.name}.${parser.getAttributeName($reference.sourceColumn)}.referenceOn(${reference.targetColumn.rowSet.name}.${parser.getAttributeName($reference.targetColumn)}),
+		addRelation( ${parser.getRowsetName($reference.sourceColumn.rowSet)}.${parser.getColumnName($reference.sourceColumn)}.referenceOn(${parser.getRowsetName($reference.targetColumn.rowSet)}.$parser.getColumnName($reference.targetColumn)),
 #else
 #if($foreach.isLast())
-        	         ${reference.sourceColumn.rowSet.name}.${parser.getAttributeName($reference.sourceColumn)}.referenceOn(${reference.targetColumn.rowSet.name}.${parser.getAttributeName($reference.targetColumn)}));
+        	         ${parser.getRowsetName($reference.sourceColumn.rowSet)}.${parser.getColumnName($reference.sourceColumn)}.referenceOn(${parser.getRowsetName($reference.targetColumn.rowSet)}.$parser.getColumnName($reference.targetColumn)));
 #else
-            	     ${reference.sourceColumn.rowSet.name}.${parser.getAttributeName($reference.sourceColumn)}.referenceOn(${reference.targetColumn.rowSet.name}.${parser.getAttributeName($reference.targetColumn)}),
+            	     ${parser.getRowsetName($reference.sourceColumn.rowSet)}.${parser.getColumnName($reference.sourceColumn)}.referenceOn(${parser.getRowsetName($reference.targetColumn.rowSet)}.$parser.getColumnName($reference.targetColumn)),
 #end
 #end
 #end

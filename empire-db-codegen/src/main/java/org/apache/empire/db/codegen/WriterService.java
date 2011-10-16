@@ -24,14 +24,16 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.apache.empire.commons.StringUtils;
 import org.apache.empire.data.DataType;
 import org.apache.empire.db.DBColumn;
 import org.apache.empire.db.DBRecord;
+import org.apache.empire.db.DBRowSet;
 import org.apache.empire.db.DBTable;
 import org.apache.empire.db.DBTableColumn;
+import org.apache.empire.db.DBView;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * This class is used by the velocity templates.
@@ -64,6 +66,39 @@ public class WriterService {
 			names.add(method.getName());
 		}
 		return names;
+	}
+	
+	/**
+	 * Returns the instance name of a table
+	 */
+	public String getTableName(DBTable t) {
+		return StringUtils.toString(config.getTableNamePrefix(), "")
+			 + deriveAttributeName(t.getName());
+	}
+	
+	/**
+	 * Returns the instance name of a view
+	 */
+	public String getViewName(DBView v) {
+		return StringUtils.toString(config.getViewNamePrefix(), "")
+			 + deriveAttributeName(v.getName());
+	}
+	
+	/**
+	 * Returns the instance name of a rowset
+	 */
+	public String getRowsetName(DBRowSet r) {
+		// use same as table
+		return StringUtils.toString(config.getTableNamePrefix(), "")
+		 	 + deriveAttributeName(r.getName());
+	}
+	
+	/**
+	 * Returns the instance name of a column
+	 */
+	public String getColumnName(DBColumn c) {
+		return StringUtils.toString(config.getColumnNamePrefix(), "")
+			 + deriveAttributeName(c.getName());
 	}
 
 	/**
@@ -116,11 +151,11 @@ public class WriterService {
 	
 	/**
 	 * Returns the attribute name for a given DBColumn
-	 */
 	public String getAttributeName(DBColumn c)
 	{
 		return deriveAttributeName(c.getName());
 	}
+	 */
 
 	/**
 	 * Returns whether the given table uses BigDecimal class or not. Velocity

@@ -36,17 +36,17 @@ public class $parser.getViewClassName($view.name) extends ${baseViewClassName} {
 	
 	private static final long serialVersionUID = 1L;
 
-	// Regular attributes
+	// define columns
 #foreach ($col in $view.columns)
-	public final DBViewColumn C_${parser.getAttributeName($col)};
+	public final DBViewColumn ${parser.getColumnName($col)};
 #end
 	
 	public $parser.getViewClassName($view.name)(${dbClassName} db) {
-		super("$parser.getViewClassName($view.name)", db);
+		super("$view.name", db);
 		
-		// all columns
+		// create all columns
 #foreach ($col in $view.columns)
-		C_${parser.getAttributeName($col)} = super.addColumn("${col.name}", DataType.${col.getDataType()});
+		${parser.getColumnName($col)} = super.addColumn("${col.name}", DataType.${col.getDataType()});
 #end		
 	}
 	
@@ -54,7 +54,8 @@ public class $parser.getViewClassName($view.name) extends ${baseViewClassName} {
     public DBCommandExpr createCommand()
     {
     	/*
-    	Supply a command for the creation of this view here.
+    	Supply a command for the creation of this view here 
+    	or return null to skip view creation
     	*/
         throw new NotImplementedException(this, "createCommand");
     }

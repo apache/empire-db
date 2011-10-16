@@ -123,6 +123,21 @@ public class CodeGenConfig extends XMLConfiguration {
 	private String recordBaseName = "BaseRecord";
 	
 	/**
+	 * Prefix used for table member declarations
+	 */
+	private String tableNamePrefix = "";
+	
+	/**
+	 * Prefix used for view member declarations
+	 */
+	private String viewNamePrefix = "";
+	
+	/**
+	 * Prefix used for column member declarations
+	 */
+	private String columnNamePrefix = "";
+	
+	/**
 	 * Prefix used for generating table class names.<br/>
 	 * The Table name is appended after the prefix starting with captial letter
 	 * followed by lower case letters.<br/>
@@ -388,6 +403,14 @@ public class CodeGenConfig extends XMLConfiguration {
 	public void setRecordBaseName(String recordBaseName) {
 		this.recordBaseName = recordBaseName;
 	}
+	
+	public String getTableNamePrefix() {
+		return tableNamePrefix;
+	}
+
+	public void setTableNamePrefix(String tableNamePrefix) {
+		this.tableNamePrefix = tableNamePrefix;
+	}
 
 	public String getTableClassPrefix() {
 		return tableClassPrefix;
@@ -405,6 +428,14 @@ public class CodeGenConfig extends XMLConfiguration {
 		this.tableClassSuffix = tableClassSuffix;
 	}
 
+	public String getViewNamePrefix() {
+		return viewNamePrefix;
+	}
+
+	public void setViewNamePrefix(String viewNamePrefix) {
+		this.viewNamePrefix = viewNamePrefix;
+	}
+
 	public String getViewClassPrefix() {
 		return viewClassPrefix;
 	}
@@ -419,6 +450,14 @@ public class CodeGenConfig extends XMLConfiguration {
 
 	public void setViewClassSuffix(String viewClassSuffix) {
 		this.viewClassSuffix = viewClassSuffix;
+	}
+
+	public String getColumnNamePrefix() {
+		return columnNamePrefix;
+	}
+
+	public void setColumnNamePrefix(String columnNamePrefix) {
+		this.columnNamePrefix = columnNamePrefix;
 	}
 
 	public boolean isNestTables() {

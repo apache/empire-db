@@ -36,29 +36,28 @@ public class $parser.getTableClassName($table.name) extends ${baseTableClassName
 	private static final long serialVersionUID = 1L;
 	private List<DBTableColumn> keyColumns = new ArrayList<DBTableColumn>();
 	
-	// Regular attributes
+	// define columns
 #foreach ($col in $table.columns)
-	public final DBTableColumn ${parser.getAttributeName($col)};
+	public final DBTableColumn ${parser.getColumnName($col)};
 #end
 	
 	public $parser.getTableClassName($table.name)(${dbClassName} db) {
 		super("$table.name", db);
 		
-		// all columns
+		// create columns
 #foreach ($col in $table.columns)
-		${parser.getAttributeName($col)} = addColumn("${col.name}", DataType.${parser.getDataType($col)}, ${col.size}, ${col.isRequired()}, ${parser.getDefaultValue($col)});
+		${parser.getColumnName($col)} = addColumn("${col.name}", DataType.${parser.getDataType($col)}, ${col.size}, ${col.isRequired()}, ${parser.getDefaultValue($col)});
 #end
 
-
-		// configure primary columns
+		// configure key columns (primary key)
 #foreach ($col in $table.keyColumns)
-    	keyColumns.add(${col.name});
+    	keyColumns.add(${parser.getColumnName($col)});
 #end
 		setPrimaryKey(keyColumns.toArray(new DBTableColumn[keyColumns.size()]));
 		
 		// Optimistic locking column
 #if($parser.hasLockingColumn($table) == true)
-		setTimestampColumn(${parser.getAttributeName($table.getTimestampColumn())});
+		setTimestampColumn(${parser.getColumnName($table.getTimestampColumn())});
 #else
 		/*no locking column specified*/
 #end
