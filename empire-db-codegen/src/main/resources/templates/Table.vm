@@ -34,7 +34,6 @@ public class $parser.getTableClassName($table.name) extends ${baseTableClassName
 #end
 
 	private static final long serialVersionUID = 1L;
-	private List<DBTableColumn> keyColumns = new ArrayList<DBTableColumn>();
 	
 	// define columns
 #foreach ($col in $table.columns)
@@ -50,16 +49,25 @@ public class $parser.getTableClassName($table.name) extends ${baseTableClassName
 #end
 
 		// configure key columns (primary key)
+#if($table.keyColumns.size()==1)
+		setPrimaryKey(${parser.getColumnName($table.keyColumns[0])});
+#else
+		DBTableColumn[] keyColumns = new DBTableColumn[] {
 #foreach ($col in $table.keyColumns)
-    	keyColumns.add(${parser.getColumnName($col)});
+#if($foreach.isLast()==false)
+    		${parser.getColumnName($col)},
+#else
+    		${parser.getColumnName($col)} };
+		setPrimaryKey(keyColumns);
+#end    	
 #end
-		setPrimaryKey(keyColumns.toArray(new DBTableColumn[keyColumns.size()]));
 		
 		// Optimistic locking column
 #if($parser.hasLockingColumn($table) == true)
 		setTimestampColumn(${parser.getColumnName($table.getTimestampColumn())});
 #else
 		/*no locking column specified*/
+#end
 #end
 
 		// Set cascade delete
