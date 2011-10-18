@@ -183,7 +183,7 @@ public class DBTable extends DBRowSet implements Cloneable
     { // find column by name
         if (column==null || column.getRowSet()!=this)
             throw new InvalidArgumentException("column", column);
-        if (columns.contains(column) == true)
+        if (getColumn(column.getName())!=null)
             throw new ItemExistsException(column.getName());
         // add now
         columns.add(column);

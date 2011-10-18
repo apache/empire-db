@@ -289,7 +289,7 @@ public abstract class DBView extends DBRowSet
     { // find column by name
         if (col == null || col.getRowSet() != this)
             throw new InvalidArgumentException("col", col);
-        if (columns.contains(col) == true)
+        if (getColumn(col.getName())!=null)
             throw new ItemExistsException(col.getName());
         // add now
         columns.add(col);
