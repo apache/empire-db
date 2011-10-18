@@ -58,6 +58,7 @@
 		<nestTables>true</nestTables>
 		<nestViews>false</nestViews>
 		<createRecordProperties>true</createRecordProperties>
+		<preserverCharacterCase>false</preserverCharacterCase>
 		<preserveRelationNames>false</preserveRelationNames>
 	</properties>
 	

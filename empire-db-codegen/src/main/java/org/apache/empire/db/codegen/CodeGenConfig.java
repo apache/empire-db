@@ -211,6 +211,11 @@ public class CodeGenConfig extends XMLConfiguration {
 	private boolean createRecordProperties;
 	
 	/**
+	 * true if names of tables and views should not be camel-cased
+	 */
+	private boolean preserverCharacterCase = false;
+	
+	/**
 	 * true if names of foreign-key-relations should be preserved
 	 */
 	private boolean preserveRelationNames = false; 
@@ -482,6 +487,14 @@ public class CodeGenConfig extends XMLConfiguration {
 
 	public void setCreateRecordProperties(boolean createRecordProperties) {
 		this.createRecordProperties = createRecordProperties;
+	}
+	
+	public boolean isPreserverCharacterCase() {
+		return preserverCharacterCase;
+	}
+
+	public void setPreserverCharacterCase(boolean preserverCharacterCase) {
+		this.preserverCharacterCase = preserverCharacterCase;
 	}
 
 	public boolean isPreserveRelationNames() {

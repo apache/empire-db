@@ -284,15 +284,22 @@ public class WriterService {
 	 */
 	private String deriveClassName(String name)
 	{
+		// PreserverCharacterCase
+		if (config.isPreserverCharacterCase()) {
+			return name;
+		}
+		// Build camel case string
 		StringBuilder sb = new StringBuilder();
 		sb.append(Character.toUpperCase(name.charAt(0)));
 		// Tables might already be camel case. Let's skip this if no '_' anywhere.
+		/*
 		if(name.substring(1).indexOf('_') <= 0)
 		{
 			if(name.length() > 1)
-				sb.append(name.substring(1));
+				sb.append(name.substring(1).toLowerCase());
 			return sb.toString();
 		}
+		*/
 		boolean nextCharacterUppercase = false;
 		for (int i = 1; i < name.length(); i++) 
 		{
