@@ -33,9 +33,10 @@ public class WriterServiceTest {
 		WriterService service = new WriterService(config);
 		assertEquals("TestTable", service.getTableClassName("test_table"));
 		assertEquals("TestTable", service.getTableClassName("TEST_TABLE"));
-		assertEquals("TestTable", service.getTableClassName("TestTable"));
-		// TODO is this correct?
-		assertEquals("TESTTABLE", service.getTableClassName("TESTTABLE"));
+		assertEquals("Testtable", service.getTableClassName("TESTTABLE"));
+		/*
+		 * Hint: Camel casing can be disabled setting PreserverCharacterCase=true
+		 */
 	}
 	
 	@Test
