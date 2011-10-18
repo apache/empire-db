@@ -18,11 +18,6 @@
  *#
 package $basePackageName;
 
-#if($nestTables == true)
-import java.util.List;
-import java.util.ArrayList;
-#end
-
 #if($nestTables == true || $nestViews == true)
 import org.apache.empire.data.DataType;
 #end

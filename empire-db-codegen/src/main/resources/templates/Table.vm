@@ -19,9 +19,6 @@
 #if($nestTables == false)
 package $tablePackageName;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.apache.empire.data.DataType;
 import org.apache.empire.db.DBTableColumn;
 import $basePackageName.${dbClassName};
