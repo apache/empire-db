@@ -9,6 +9,27 @@ For more Information about a particular issue please visit
 https://issues.apache.org/jira/browse/EMPIREDB
 
 --------------
+Release 2.2.0:
+--------------
+** Bug
+    * [EMPIREDB-104] - Create DDL Script on MSSQL should state not CREATE DATABASE if already exist
+    * [EMPIREDB-105] - Support of long integer fields on MS SQL Server
+    * [EMPIREDB-107] - Limit function for postgres sql not implemented
+    * [EMPIREDB-109] - Missing conversion for Type double in ObjectUtils.convert
+    * [EMPIREDB-113] - Should preserve the decimal digits of DECIMAL columns
+    * [EMPIREDB-118] - Prevent columns to be added twice to a table or view
+
+** Improvement
+    * [EMPIREDB-99] - Remove optional support for old style error handing
+    * [EMPIREDB-103] - reduce getDDLScript duplicate code
+    * [EMPIREDB-115] - Add parenthesis to the first select of a union/ intersect and allow driver to implement limit() and skip()
+    * [EMPIREDB-116] - Add support for multi column foreign-keys to code generator
+    * [EMPIREDB-117] - Allow Table, View and Column prefixes in generation process
+
+** New Feature
+    * [EMPIREDB-110] - Add support for reverse-engineering of foreign-key relationships
+
+--------------
 Release 2.1.0:
 --------------
 Major new features:
@@ -38,7 +59,7 @@ EMPIREDB-88 - [C/B]:  CodeGenerator generates uppercase fieldnames where empire 
 EMPIREDB-87 - [C/I]:  Use EXTRACT() function to extract the day, month or year from a date column in Oracle  
 EMPIREDB-86 - [C/B]:  Correct some typos in the javadocs     
 EMPIREDB-85 - [C/I]:  Remove declarations of unused dependencies (from pom.xml)     
-EMPIREDB-84 - [C/B]:  Typo in section "Empire-db and Struts2 » Forms and controls"     
+EMPIREDB-84 - [C/B]:  Typo in section "Empire-db and Struts2 ï¿½ Forms and controls"     
 EMPIREDB-82 - [C/B]:  Cloning does not work if DBTable's column (DBColumn) are declared final (as per shipped examples). Causing table alias in resulting SQL queries to be wrong     
 EMPIREDB-62 - [C/N]:  Allow to set limit for maximum number of rows returned     
 EMPIREDB-60 - [C/B]:  Cloning of columns is restricted to current class     
