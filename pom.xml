@@ -27,7 +27,7 @@
 	<groupId>org.apache.empire-db</groupId>
 	<artifactId>empire-db-parent</artifactId>
 	<packaging>pom</packaging>
-	<version>2.2.0-incubating</version>
+	<version>2.2.1-incubating-SNAPSHOT</version>
 	<name>Apache Empire-db</name>
 	<description>Apache Empire-db is an Open Source relational data persistence component which allows database vendor independent dynamic query definition as well as safe and simple data retrieval and updating. Compared to most other solutions like e.g. Hibernate, TopLink, iBATIS or JPA implementations, Empire-db takes a considerably different approach, with a special focus on compile-time safety, reduced redundancies and improved developer productivity.</description>
 	<inceptionYear>2008</inceptionYear>
@@ -169,9 +169,9 @@
 		</license>
 	</licenses>
 	<scm>
-		<connection>scm:svn:http://svn.apache.org/repos/asf/incubator/empire-db/tags/apache-empire-db-2.2.0-incubating-rc1</connection>
-		<developerConnection>scm:svn:https://svn.apache.org/repos/asf/incubator/empire-db/tags/apache-empire-db-2.2.0-incubating-rc1</developerConnection>
-		<url>http://svn.apache.org/viewvc/incubator/empire-db/tags/apache-empire-db-2.2.0-incubating-rc1</url>
+		<connection>scm:svn:http://svn.apache.org/repos/asf/incubator/empire-db/trunk</connection>
+		<developerConnection>scm:svn:https://svn.apache.org/repos/asf/incubator/empire-db/trunk</developerConnection>
+		<url>http://svn.apache.org/viewvc/incubator/empire-db/trunk</url>
 	</scm>
 
 	<mailingLists>
