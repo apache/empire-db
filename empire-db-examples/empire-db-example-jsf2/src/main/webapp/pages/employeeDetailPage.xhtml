@@ -1,0 +1,61 @@
+<!-- 
+  Licensed to the Apache Software Foundation (ASF) under one
+  or more contributor license agreements.  See the NOTICE file
+  distributed with this work for additional information
+  regarding copyright ownership.  The ASF licenses this file
+  to you under the Apache License, Version 2.0 (the
+  "License"); you may not use this file except in compliance
+  with the License.  You may obtain a copy of the License at
+
+   http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing,
+  software distributed under the License is distributed on an
+  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+  KIND, either express or implied.  See the License for the
+  specific language governing permissions and limitations
+  under the License.
+ --> 
+<ui:composition template="/WEB-INF/facelets/templates/layout.xhtml"
+	xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:e="http://java.sun.com/jsf/composite/components"
+	xmlns:ice="http://www.icesoft.com/icefaces/component"
+	xmlns:ace="http://www.icefaces.org/icefaces/components"
+	xmlns:h="http://java.sun.com/jsf/html">
+
+	<!-- parameter for page title-->
+	<ui:param name="pageTitle" value="#{msg.employeeDetail_title}" />
+	<ui:param name="contentFooter" value="true" />
+	<ui:param name="contentStyle" value="unstyled" />
+
+	<!-- content -->
+	<ui:define name="content">
+		<ice:form id="employeeDetail">
+			<ice:panelGrid id="panel" columns="1" border="0">
+				<e:record value="#{page.employeeRecord}">
+					<e:control column="EMPLOYEE_ID" />
+					<e:control column="SALUTATION" />
+					<e:control column="FIRST_NAME" />
+					<e:control column="LAST_NAME" />
+					<e:control column="DATE_OF_BIRTH" />
+					<e:control column="DEPARTMENT_ID" />
+					<e:control column="GENDER" />
+					<e:control column="PHONE" />
+					<e:control column="EMAIL" />
+					<e:control column="RETIRED" />
+					<e:control column="UPDATE_TIMESTAMP" readonly="true" />
+				</e:record>
+				<ice:panelGroup>
+					<ice:commandButton value="#{msg.employeeDetail_save}"
+						action="#{page.save}" />
+					<ice:commandButton value="#{msg.employeeDetail_cancel}"
+						immediate="true" action="#{page.cancel}" />
+					<ice:commandButton value="#{msg.employeeDetail_delete}"
+						immediate="true" action="#{page.delete}" />
+				</ice:panelGroup>
+			</ice:panelGrid>
+		</ice:form>
+	</ui:define>
+</ui:composition>
