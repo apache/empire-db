@@ -278,10 +278,15 @@ public class DBTableColumn extends DBColumn
                 // Check whether value is a valid date/time value!
                 if (value!=null && (value instanceof Date)==false && value.equals(DBDatabase.SYSDATE)==false)
                 {   try
-                    {   // Parse date time value
-                        SimpleDateFormat sdFormat = new SimpleDateFormat("dd-MM-yyyy");
-                        sdFormat.setLenient(true);
-                        sdFormat.parse(value.toString());
+                    {   
+                		String val = value.toString();
+                		if (val.length() > 0)
+                		{
+	                		// Parse date time value
+	                        SimpleDateFormat sdFormat = new SimpleDateFormat("dd-MM-yyyy");
+	                        sdFormat.setLenient(true);
+	                        sdFormat.parse(value.toString());
+                		}	                        
                         // OK
                     } catch (ParseException e)
                     {   // Error
