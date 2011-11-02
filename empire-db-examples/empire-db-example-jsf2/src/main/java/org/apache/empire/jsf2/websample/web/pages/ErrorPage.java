@@ -18,7 +18,6 @@
  */
 package org.apache.empire.jsf2.websample.web.pages;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -27,7 +26,7 @@ import javax.faces.bean.ViewScoped;
 
 @ManagedBean(name = "error")
 @ViewScoped
-public class ErrorPage extends Page implements Serializable
+public class ErrorPage extends Page
 {
     private boolean showDetails = false;
 

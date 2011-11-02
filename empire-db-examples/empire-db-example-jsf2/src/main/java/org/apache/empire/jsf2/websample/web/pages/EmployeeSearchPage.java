@@ -18,14 +18,12 @@
  */
 package org.apache.empire.jsf2.websample.web.pages;
 
-import java.io.Serializable;
-
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ViewScoped;
 
 @ManagedBean
 @ViewScoped
-public class EmployeeSearchPage extends Page implements Serializable
+public class EmployeeSearchPage extends Page
 {
 	public String search()
 	{

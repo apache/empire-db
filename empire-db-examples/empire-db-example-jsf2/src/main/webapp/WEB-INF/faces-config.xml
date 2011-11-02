@@ -29,7 +29,6 @@
 		</locale-config>
 		<message-bundle>lang.messages</message-bundle>
 		<navigation-handler>org.apache.empire.jsf2.websample.web.SampleNavigationHandler</navigation-handler>
-		<el-resolver>org.apache.empire.jsf2.websample.web.PageELResolver</el-resolver>
 	</application>
 
 	<lifecycle>

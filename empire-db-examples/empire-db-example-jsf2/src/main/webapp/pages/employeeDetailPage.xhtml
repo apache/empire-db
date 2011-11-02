@@ -21,20 +21,20 @@
 	xmlns:ui="http://java.sun.com/jsf/facelets"
 	xmlns:f="http://java.sun.com/jsf/core"
 	xmlns:e="http://java.sun.com/jsf/composite/components"
-	xmlns:ice="http://www.icesoft.com/icefaces/component"
-	xmlns:ace="http://www.icefaces.org/icefaces/components"
 	xmlns:h="http://java.sun.com/jsf/html">
 
-	<!-- parameter for page title-->
+	<!-- parameters used in layout.xhtml -->
+	<ui:param name="page" value="#{employeeDetailPage}" />
 	<ui:param name="pageTitle" value="#{msg.employeeDetail_title}" />
 	<ui:param name="contentFooter" value="true" />
 	<ui:param name="contentStyle" value="unstyled" />
 
 	<!-- content -->
 	<ui:define name="content">
-		<ice:form id="employeeDetail">
-			<ice:panelGrid id="panel" columns="1" border="0">
-				<e:record value="#{page.employeeRecord}">
+		<h:form id="employeeDetail">
+			<h:panelGrid id="panel" columns="1" border="0">
+
+				<e:record value="#{employeeDetailPage.employeeRecord}">
 					<e:control column="EMPLOYEE_ID" />
 					<e:control column="SALUTATION" />
 					<e:control column="FIRST_NAME" />
@@ -46,16 +46,17 @@
 					<e:control column="EMAIL" />
 					<e:control column="RETIRED" />
 					<e:control column="UPDATE_TIMESTAMP" readonly="true" />
-				</e:record>
-				<ice:panelGroup>
-					<ice:commandButton value="#{msg.employeeDetail_save}"
-						action="#{page.save}" />
-					<ice:commandButton value="#{msg.employeeDetail_cancel}"
-						immediate="true" action="#{page.cancel}" />
-					<ice:commandButton value="#{msg.employeeDetail_delete}"
-						immediate="true" action="#{page.delete}" />
-				</ice:panelGroup>
-			</ice:panelGrid>
-		</ice:form>
+ 				</e:record>
+				
+				<h:panelGroup>
+					<h:commandButton value="#{msg.employeeDetail_save}"
+						action="#{employeeDetailPage.save}" />
+					<h:commandButton value="#{msg.employeeDetail_cancel}"
+						immediate="true" action="#{employeeDetailPage.cancel}" />
+					<h:commandButton value="#{msg.employeeDetail_delete}"
+						immediate="true" action="#{employeeDetailPage.delete}" />
+				</h:panelGroup>
+			</h:panelGrid>
+		</h:form>
 	</ui:define>
 </ui:composition>

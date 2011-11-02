@@ -18,8 +18,6 @@
  */
 package org.apache.empire.jsf2.websample.web.pages;
 
-import java.io.Serializable;
-
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ViewScoped;
 
@@ -31,7 +29,7 @@ import org.slf4j.LoggerFactory;
 
 @ManagedBean
 @ViewScoped
-public class EmployeeDetailPage extends Page implements Serializable {
+public class EmployeeDetailPage extends Page {
 	// Logger
 	private static final Logger log = LoggerFactory
 			.getLogger(EmployeeDetailPage.class);

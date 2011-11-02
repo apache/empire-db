@@ -21,25 +21,24 @@
 	xmlns="http://www.w3.org/1999/xhtml"
 	xmlns:ui="http://java.sun.com/jsf/facelets"
 	xmlns:f="http://java.sun.com/jsf/core"
-	xmlns:ice="http://www.icesoft.com/icefaces/component"
-	xmlns:ace="http://www.icefaces.org/icefaces/components"
 	xmlns:h="http://java.sun.com/jsf/html">
 
-	<!-- parameter for page title-->
+	<!-- parameters used in layout.xhtml -->
+	<ui:param name="page" value="#{loginPage}" />
 	<ui:param name="pageTitle" value="#{msg.login_title}" />
 	<ui:param name="contentFooter" value="true" />
 	<ui:param name="contentStyle" value="unstyled" />
 
 	<!-- content -->
 	<ui:define name="content">
-		<ice:form id="login">
-			<ice:panelGrid id="panel" columns="2" border="0">
-				<ice:outputLabel for="name" value="#{msg.login_field_name}" />
-				<ice:inputText id="name" value="#{user.name}" />
-				<ice:outputLabel for="name" value="#{msg.login_field_password}" />
-				<ice:inputSecret id="password" value="#{user.password}" />
-				<ice:commandButton value="#{msg.login_login}" action="#{page.login}" />
-			</ice:panelGrid>
-		</ice:form>
+		<h:form id="login">
+			<h:panelGrid id="panel" columns="2" border="0">
+				<h:outputLabel for="name" value="#{msg.login_field_name}" />
+				<h:inputText id="name" value="#{user.name}" />
+				<h:outputLabel for="name" value="#{msg.login_field_password}" />
+				<h:inputSecret id="password" value="#{user.password}" />
+				<h:commandButton value="#{msg.login_login}" action="#{loginPage.login}" />
+			</h:panelGrid>
+		</h:form>
 	</ui:define>
 </ui:composition>

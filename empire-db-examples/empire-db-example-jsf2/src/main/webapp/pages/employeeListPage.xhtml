@@ -20,11 +20,10 @@
 	xmlns="http://www.w3.org/1999/xhtml"
 	xmlns:ui="http://java.sun.com/jsf/facelets"
 	xmlns:f="http://java.sun.com/jsf/core"
-	xmlns:ice="http://www.icesoft.com/icefaces/component"
-	xmlns:ace="http://www.icefaces.org/icefaces/components"
 	xmlns:h="http://java.sun.com/jsf/html">
 
-	<!-- parameter for page title-->
+	<!-- parameters used in layout.xhtml -->
+	<ui:param name="page" value="#{employeeListPage}" />
 	<ui:param name="pageTitle" value="#{msg.employeeList_title}" />
 	<ui:param name="contentFooter" value="true" />
 	<ui:param name="contentStyle" value="unstyled" />
@@ -32,16 +31,16 @@
 	<!-- content -->
 	<ui:define name="content">
 		<h:link outcome="employeeDetailPage" value="#{msg.employeeList_create}" />		
-		<ice:dataTable value="#{page.employeeList}" var="item">
+		<h:dataTable value="#{employeeListPage.employeeList}" var="item">
 			<h:column>
 				<f:facet name="header">
-					<ice:outputText value="#{msg.employeeList_field_employeeId}" />
+					<h:outputText value="#{msg.employeeList_field_employeeId}" />
 				</f:facet>
-				<ice:outputText value="#{item.employeeId}" />
+				<h:outputText value="#{item.employeeId}" />
 			</h:column>
 			<h:column>
 				<f:facet name="header">
-					<ice:outputText value="#{msg.employeeList_field_name}" />
+					<h:outputText value="#{msg.employeeList_field_name}" />
 				</f:facet>
 				<h:link outcome="employeeDetailPage" value="#{item.name}">
 					<f:param name="id" value="#{item.employeeId}" />
@@ -49,23 +48,23 @@
 			</h:column>
 			<h:column>
 				<f:facet name="header">
-					<ice:outputText value="#{msg.employeeList_field_gender}" />
+					<h:outputText value="#{msg.employeeList_field_gender}" />
 				</f:facet>
-				<ice:outputText value="#{item.gender}" />
+				<h:outputText value="#{item.gender}" />
 			</h:column>
 			<h:column>
 				<f:facet name="header">
-					<ice:outputText value="#{msg.employeeList_field_dateOfBirth}" />
+					<h:outputText value="#{msg.employeeList_field_dateOfBirth}" />
 				</f:facet>
-				<ice:outputText value="#{item.dateOfBirth}" />
+				<h:outputText value="#{item.dateOfBirth}" />
 			</h:column>
 			<h:column>
 				<f:facet name="header">
-					<ice:outputText value="#{msg.employeeList_field_department}" />
+					<h:outputText value="#{msg.employeeList_field_department}" />
 				</f:facet>
-				<ice:outputText value="#{item.department}" />
+				<h:outputText value="#{item.department}" />
 			</h:column>
-		</ice:dataTable>
+		</h:dataTable>
 		<h:link outcome="employeeSearchPage" value="#{msg.employeeList_search}" />		
 	</ui:define>
 </ui:composition>

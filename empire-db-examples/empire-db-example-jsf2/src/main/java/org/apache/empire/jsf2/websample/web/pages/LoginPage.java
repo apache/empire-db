@@ -18,8 +18,6 @@
  */
 package org.apache.empire.jsf2.websample.web.pages;
 
-import java.io.Serializable;
-
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ViewScoped;
 
@@ -29,7 +27,7 @@ import org.apache.empire.jsf2.websample.web.objects.User;
 
 @ManagedBean
 @ViewScoped
-public class LoginPage extends Page implements Serializable
+public class LoginPage extends Page
 {
 	public String logout()
 	{

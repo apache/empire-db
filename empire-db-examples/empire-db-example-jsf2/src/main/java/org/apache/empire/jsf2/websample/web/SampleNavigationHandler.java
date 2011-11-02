@@ -21,8 +21,7 @@ package org.apache.empire.jsf2.websample.web;
 import javax.faces.context.FacesContext;
 
 import org.apache.empire.commons.StringUtils;
-
-import com.sun.faces.application.NavigationHandlerImpl;
+import org.apache.myfaces.application.NavigationHandlerImpl;
 
 public class SampleNavigationHandler extends NavigationHandlerImpl {
 

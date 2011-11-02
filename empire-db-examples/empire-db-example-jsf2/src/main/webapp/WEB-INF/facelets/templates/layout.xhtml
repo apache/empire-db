@@ -17,20 +17,17 @@
   KIND, either express or implied.  See the License for the
   specific language governing permissions and limitations
   under the License.
- --> 
+ -->
 <html xmlns="http://www.w3.org/1999/xhtml"
 	xmlns:ui="http://java.sun.com/jsf/facelets"
 	xmlns:h="http://java.sun.com/jsf/html"
-	xmlns:f="http://java.sun.com/jsf/core"
-	xmlns:ice="http://www.icesoft.com/icefaces/component">
-
-<!-- internationalization -->
-<ice:loadBundle basename="lang.messages" var="msg" />
+	xmlns:f="http://java.sun.com/jsf/core">
 
 <!-- Prerender event used to init page, e.g. for loading data from db -->
-<f:metadata>
-  <f:event type="preRenderView" listener="#{page.preRenderViewAction}"/>
-</f:metadata>
+<f:event type="preRenderView" listener="#{page.preRenderViewAction}" />
+
+<!-- internationalization -->
+<f:loadBundle basename="lang.messages" var="msg" />
 
 <h:head>
 
@@ -45,8 +42,9 @@
 	<meta name="description" content="" />
 
 	<!-- global stylesheets -->
-    <link rel="stylesheet" type="text/css" href="../xmlhttp/css/rime/rime.css"/>
-<!-- 
+	<link rel="stylesheet" type="text/css"
+		href="../xmlhttp/css/rime/rime.css" />
+	<!-- 
 	<link href="../css/sample.css" rel="stylesheet" media="all"
 		type="text/css" />
  -->
@@ -65,17 +63,17 @@
 	<ui:include src="header.xhtml" />
 
 	<!-- (error) messages -->
-	<ice:messages />
-	
+	<h:messages />
+
 	<!-- content -->
-	<ice:panelGroup id="content" styleClass="#{contentStyle}">
+	<h:panelGroup id="content" styleClass="#{contentStyle}">
 		<ui:insert name="content" />
-	</ice:panelGroup>
+	</h:panelGroup>
 
 	<!-- content footer -->
-	<ice:panelGroup id="contentFooter" rendered="#{contentFooter}">
+	<h:panelGroup id="contentFooter" rendered="#{contentFooter}">
 		<ui:insert name="contentFooter" />
-	</ice:panelGroup>
+	</h:panelGroup>
 
 </h:body>
 </html>

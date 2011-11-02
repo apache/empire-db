@@ -21,34 +21,33 @@
 	xmlns="http://www.w3.org/1999/xhtml"
 	xmlns:ui="http://java.sun.com/jsf/facelets"
 	xmlns:f="http://java.sun.com/jsf/core"
-	xmlns:ice="http://www.icesoft.com/icefaces/component"
-	xmlns:ace="http://www.icefaces.org/icefaces/components"
 	xmlns:h="http://java.sun.com/jsf/html">
 
-	<!-- parameter for page title-->
+	<!-- parameters used in layout.xhtml -->
+	<ui:param name="page" value="#{employeeSearchPage}" />
 	<ui:param name="pageTitle" value="#{msg.employeeSearch_title}" />
 	<ui:param name="contentFooter" value="true" />
 	<ui:param name="contentStyle" value="unstyled" />
 
 	<!-- content -->
 	<ui:define name="content">
-		<ice:form id="login">
-			<ice:panelGrid id="panel" columns="2" border="0">
-				<ice:outputLabel for="employeeId" value="#{msg.employeeSearch_field_employeeId}" />
-				<ice:inputText id="employeeId" value="#{employeeSearch.employeeId}" />
+		<h:form id="login">
+			<h:panelGrid id="panel" columns="2" border="0">
+				<h:outputLabel for="employeeId" value="#{msg.employeeSearch_field_employeeId}" />
+				<h:inputText id="employeeId" value="#{employeeSearch.employeeId}" />
 
-				<ice:outputLabel for="firstName" value="#{msg.employeeSearch_field_firstName}" />
-				<ice:inputText id="firstName" value="#{employeeSearch.firstName}" />
+				<h:outputLabel for="firstName" value="#{msg.employeeSearch_field_firstName}" />
+				<h:inputText id="firstName" value="#{employeeSearch.firstName}" />
 
-				<ice:outputLabel for="lastName" value="#{msg.employeeSearch_field_lastName}" />
-				<ice:inputText id="lastName" value="#{employeeSearch.lastName}" />
+				<h:outputLabel for="lastName" value="#{msg.employeeSearch_field_lastName}" />
+				<h:inputText id="lastName" value="#{employeeSearch.lastName}" />
 
-				<ice:outputLabel for="departmentId" value="#{msg.employeeSearch_field_departmentId}" />
-				<ice:inputText id="departmentId" value="#{employeeSearch.departmentId}" />
+				<h:outputLabel for="departmentId" value="#{msg.employeeSearch_field_departmentId}" />
+				<h:inputText id="departmentId" value="#{employeeSearch.departmentId}" />
 				
-				<ice:commandButton colspan="2" value="#{msg.employeeSearch_search}" action="#{page.search}" />
-				<ice:commandLink action="#{loginPage.logout}" value="#{msg.application_logout}" />
-			</ice:panelGrid>
-		</ice:form>
+				<h:commandButton colspan="2" value="#{msg.employeeSearch_search}" action="#{employeeSearchPage.search}" />
+				<h:commandLink action="#{loginPage.logout}" value="#{msg.application_logout}" />
+			</h:panelGrid>
+		</h:form>
 	</ui:define>
 </ui:composition>

@@ -18,7 +18,6 @@
  */
 package org.apache.empire.jsf2.websample.web.pages;
 
-import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
 
@@ -35,9 +34,7 @@ import org.apache.empire.jsf2.websample.web.objects.EmployeeSearch;
 
 @ManagedBean
 @ViewScoped
-public class EmployeeListPage extends Page implements Serializable {
-	private static final long serialVersionUID = 1944555691727940966L;
-
+public class EmployeeListPage extends Page  {
 	private List<EmployeeListItem> employeeList;
 
 	public List<EmployeeListItem> getEmployeeList() {

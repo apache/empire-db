@@ -18,8 +18,6 @@
  */
 package org.apache.empire.jsf2.websample.web;
 
-import java.io.Serializable;
-
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.SessionScoped;
 
@@ -28,13 +26,8 @@ import org.slf4j.LoggerFactory;
 
 @ManagedBean
 @SessionScoped
-public class SampleSession implements Serializable
+public class SampleSession
 {
-    /**
-     * Comment for <code>serialVersionUID</code>
-     */
-    private static final long   serialVersionUID   = 72284452358425878L;
-
     private static final Logger log                = LoggerFactory.getLogger(SampleSession.class);
 
     private SampleUser user;
