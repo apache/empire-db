@@ -270,7 +270,7 @@ public class DBDatabaseDriverMSSQL extends DBDatabaseDriver
             case SQL_FUNC_STRINDEXFROM:       return "charindex({0}, ?, {1})"; 
             case SQL_FUNC_LENGTH:             return "len(?)";
             case SQL_FUNC_UPPER:              return "upper(?)";
-            case SQL_FUNC_LOWER:              return "lcase(?)";
+            case SQL_FUNC_LOWER:              return "lower(?)";
             case SQL_FUNC_TRIM:               return "trim(?)";
             case SQL_FUNC_LTRIM:              return "ltrim(?)";
             case SQL_FUNC_RTRIM:              return "rtrim(?)";
