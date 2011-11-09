@@ -28,6 +28,7 @@ import org.apache.empire.db.DBTools;
 import org.apache.empire.db.derby.DBDatabaseDriverDerby;
 import org.apache.empire.db.h2.DBDatabaseDriverH2;
 import org.apache.empire.db.hsql.DBDatabaseDriverHSql;
+import org.apache.empire.db.sqlserver.DBDatabaseDriverMSSQL;
 import org.junit.rules.ExternalResource;
 
 public class DBResource extends ExternalResource
@@ -102,9 +103,13 @@ public class DBResource extends ExternalResource
               "jdbc:derby:memory:data/derby/test;create=true",
               DBDatabaseDriverDerby.class),
         H2(
-           "org.h2.Driver", 
-           "jdbc:h2:mem:data/h2/test",
-           DBDatabaseDriverH2.class);
+              "org.h2.Driver", 
+              "jdbc:h2:mem:data/h2/test",
+              DBDatabaseDriverH2.class),
+        MSSQL(
+              "com.microsoft.sqlserver.jdbc.SQLServerDriver", 
+              "jdbc:sqlserver://localhost:1433",
+              DBDatabaseDriverMSSQL.class);
         
         private final String jdbcClass;
         private final String jdbcURL;
