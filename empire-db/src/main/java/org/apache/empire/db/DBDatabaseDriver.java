@@ -661,6 +661,8 @@ public abstract class DBDatabaseDriver implements Serializable
             case UNIQUEID:
             {   // Text value
                 StringBuilder valBuf = new StringBuilder();
+                // for SQLSERVER utf8 support, see EMPIREDB-122
+                // valBuf.append("N'");
                 valBuf.append("'");
                 if (DBDatabase.EMPTY_STRING.equals(value)==false)
                     appendTextValue(valBuf, value.toString());
