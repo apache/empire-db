@@ -109,8 +109,13 @@ public class DBResource extends ExternalResource
         MSSQL(
               "com.microsoft.sqlserver.jdbc.SQLServerDriver", 
               "jdbc:sqlserver://localhost:1433",
+              DBDatabaseDriverMSSQL.class),
+        MSSQL_JTDS(
+              // http://jtds.sourceforge.net/faq.html#driverImplementation
+              "net.sourceforge.jtds.jdbc.Driver",
+              "jdbc:jtds:sqlserver://localhost/databasename;instance=sqlexpress;domain=mydomain",
               DBDatabaseDriverMSSQL.class);
-        
+
         private final String jdbcClass;
         private final String jdbcURL;
         private final Class<? extends DBDatabaseDriver> driver;

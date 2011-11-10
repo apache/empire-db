@@ -38,7 +38,7 @@ public class DBDatabaseDriverMSSqlTest
 {
 
 	@Rule
-	public DBResource dbResource = new DBResource(DB.MSSQL);
+	public DBResource dbResource = new DBResource(DB.MSSQL_JTDS);
 
 	@Test
 	public void testChineseCharacters() 
