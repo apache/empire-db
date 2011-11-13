@@ -597,8 +597,66 @@ public abstract class DBDatabaseDriver implements Serializable
             log.error("close statement:" + sqle.toString());
         }
     }
+    
+    /**
+     * Creates a sql string for a given value. 
+     * Text will be enclosed in single quotes and existing single quotes will be doubled.
+     * Empty strings are treated as null.
+     * Syntax of Date, Datetime and Boolean values are vendor specific.
+     * 
+     * @param value the value which is inserted to the new String
+     * @param type the sql data type of the supplied value
+     * @return the sql string representing this value
+     */
+    public String getValueString(Object value, DataType type)
+    { 
+        if (ObjectUtils.isEmpty(value))
+        {
+            return getSQLPhrase(SQL_NULL_VALUE);
+        }
+        // set string buffer
+        switch (type)
+        {
+            case DATE:
+                return getDateTimeString(value, SQL_DATE_TEMPLATE, SQL_DATE_PATTERN, SQL_CURRENT_DATE);
+            case DATETIME:
+                // System date is special case
+                if (!DBDatabase.SYSDATE.equals(value) && value.toString().length()<=10)
+                    return getDateTimeString(value, SQL_DATE_TEMPLATE, SQL_DATE_PATTERN, SQL_CURRENT_DATETIME);
+                // Complete Date-Time Object with time 
+                return getDateTimeString(value, SQL_DATETIME_TEMPLATE, SQL_DATETIME_PATTERN, SQL_CURRENT_DATETIME);
+            case TEXT:
+            case CHAR:
+            case CLOB:
+            case UNIQUEID:
+            {   // Text value
+                return getTextString(type, value);
+            }
+            case BOOL:
+            {   // Get Boolean value   
+                boolean boolVal = false;
+                if (value instanceof Boolean)
+                {   boolVal = ((Boolean) value).booleanValue();
+                } 
+                else
+                { // Boolean from String
+                    boolVal = stringToBoolean(value.toString());
+                }
+                return getSQLPhrase((boolVal) ? SQL_BOOLEAN_TRUE : SQL_BOOLEAN_FALSE);
+            }
+            default:
+                return value.toString();
+        }
+    }
 
-    // helper for Date and DateTime Strings
+    /**
+     * encodes a Date value for an SQL command string. 
+     * @param value
+     * @param sqlTemplate
+     * @param sqlPattern
+     * @param sqlCurrentDate
+     * @return
+     */
     protected String getDateTimeString(Object value, int sqlTemplate, int sqlPattern, int sqlCurrentDate)
     {
         // is it a sysdate expression
@@ -627,65 +685,57 @@ public abstract class DBDatabaseDriver implements Serializable
         String template = getSQLPhrase(sqlTemplate);
         return StringUtils.replace(template, "{0}", datetime);
     }
-    
+
     /**
-     * Creates a sql string for a given value. 
-     * Text will be enclosed in single quotes and existing single quotes will be doubled.
-     * Empty strings are treated as null.
-     * Syntax of Date, Datetime and Boolean values are vendor specific.
-     * 
-     * @param value the value which is inserted to the new String
-     * @param type the sql data type of the supplied value
-     * @return the sql string representing this value
+     * encodes Text values for an SQL command string.
+     * @param type date type (can only be TEXT, CHAR, CLOB and UNIQUEID)
+     * @param value the text to be encoded
+     * @return the encoded sql value
      */
-    public final String getValueString(Object value, DataType type)
-    { 
-        if (ObjectUtils.isEmpty(value))
-        {
-            return getSQLPhrase(SQL_NULL_VALUE);
-        }
-        // set string buffer
-        switch (type)
-        {
-            case DATE:
-                return getDateTimeString(value, SQL_DATE_TEMPLATE, SQL_DATE_PATTERN, SQL_CURRENT_DATE);
-            case DATETIME:
-                // System date is special case
-                if (!DBDatabase.SYSDATE.equals(value) && value.toString().length()<=10)
-                    return getDateTimeString(value, SQL_DATE_TEMPLATE, SQL_DATE_PATTERN, SQL_CURRENT_DATETIME);
-                // Complete Date-Time Object with time 
-                return getDateTimeString(value, SQL_DATETIME_TEMPLATE, SQL_DATETIME_PATTERN, SQL_CURRENT_DATETIME);
-            case TEXT:
-            case CHAR:
-            case CLOB:
-            case UNIQUEID:
-            {   // Text value
-                StringBuilder valBuf = new StringBuilder();
-                // for SQLSERVER utf8 support, see EMPIREDB-122
-                // valBuf.append("N'");
-                valBuf.append("'");
-                if (DBDatabase.EMPTY_STRING.equals(value)==false)
-                    appendTextValue(valBuf, value.toString());
-                valBuf.append("'");
-                return valBuf.toString();
-            }
-            case BOOL:
-            {   // Get Boolean value   
-                boolean boolVal = false;
-                if (value instanceof Boolean)
-                {   boolVal = ((Boolean) value).booleanValue();
-                } 
+    protected String getTextString(DataType type, Object value)
+    {
+        StringBuilder valBuf = new StringBuilder();
+        valBuf.append("'");
+        if (DBDatabase.EMPTY_STRING.equals(value)==false)
+            appendTextValue(valBuf, value.toString());
+        valBuf.append("'");
+        return valBuf.toString();
+    }
+
+    /** 
+     * this helper function doubles up single quotes for SQL 
+     */
+    protected void appendTextValue(StringBuilder buf, String value)
+    {
+        if (value.indexOf('\'') >= 0)
+        { // a routine to double up single quotes for SQL
+            int len = value.length();
+            for (int i = 0; i < len; i++)
+            {
+                if (value.charAt(i) == '\'')
+                    buf.append("''");
                 else
-                { // Boolean from String
-                    boolVal = stringToBoolean(value);
-                }
-                return getSQLPhrase((boolVal) ? SQL_BOOLEAN_TRUE : SQL_BOOLEAN_FALSE);
+                    buf.append(value.charAt(i));
             }
-            default:
-                return value.toString();
+        } 
+        else
+        {
+            buf.append(value);
         }
     }
 
+    /**
+     * this function converts a string containing a boolean expression to a boolean. 
+     * @param value the string containing a boolean expression
+     * @return true if the string contains either "true", "y" or "1" or false otherwise
+     */
+    protected boolean stringToBoolean(final String value) 
+    {
+        return "1".equals(value) ||
+               "true".equalsIgnoreCase(value) ||
+               "y".equalsIgnoreCase(value);
+    }
+    
     /**
      * Called when a database is opened
      */
@@ -762,34 +812,5 @@ public abstract class DBDatabaseDriver implements Serializable
         java.util.Date date = new java.util.Date();
         return new java.sql.Timestamp(date.getTime());
     }
-
-    /** 
-     * this helper function doubles up single quotes for SQL 
-     */
-    protected void appendTextValue(StringBuilder buf, String value)
-    {
-        if (value.indexOf('\'') >= 0)
-        { // a routine to double up single quotes for SQL
-            int len = value.length();
-            for (int i = 0; i < len; i++)
-            {
-                if (value.charAt(i) == '\'')
-                    buf.append("''");
-                else
-                    buf.append(value.charAt(i));
-            }
-        } 
-        else
-        {
-            buf.append(value);
-        }
-    }
-    
-	private boolean stringToBoolean(final Object value) {
-		String strVal = value.toString();
-		return "1".equals(strVal) ||
-		          "true".equalsIgnoreCase(strVal) ||
-		          "y".equalsIgnoreCase(strVal);
-	}
 
 }

@@ -349,6 +349,21 @@ public class DBDatabaseDriverMSSQL extends DBDatabaseDriver
             return null;
         }
     }
+
+    /**
+     * @see DBDatabaseDriver#getTextString(DataType type, Object value)
+     */
+    @Override
+    protected String getTextString(DataType type, Object value)
+    {
+        StringBuilder valBuf = new StringBuilder();
+        // for SQLSERVER utf8 support, see EMPIREDB-122
+        valBuf.append("N'");
+        if (DBDatabase.EMPTY_STRING.equals(value)==false)
+            appendTextValue(valBuf, value.toString());
+        valBuf.append("'");
+        return valBuf.toString();
+    }
     
     /**
      * Overridden. Returns a timestamp that is used for record updates created by the database server.
