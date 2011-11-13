@@ -100,15 +100,21 @@ public class DBDatabaseDriverMSSQL extends DBDatabaseDriver
     // Sequence treatment
     // When set to 'false' (default) MySQL's auto-increment feature is used.
     private boolean useSequenceTable = false;
+    private boolean useUnicodePrefix = true;
     
     private DBDDLGenerator<?> ddlGenerator = null; // lazy creation
+
+    protected static final String[] MSSQL_SQL_KEYWORDS = new String[] { "type", "key" };        
     
     /**
      * Constructor for the MSSQL database driver.<br>
      */
     public DBDatabaseDriverMSSQL()
     {
-        // Default Constructor
+        // Initialize List of reserved Keywords
+        for (String keyWord:MSSQL_SQL_KEYWORDS){
+             reservedSQLKeywords.add(keyWord);
+        }
     }
 
     public String getDatabaseName()
@@ -168,6 +174,24 @@ public class DBDatabaseDriverMSSQL extends DBDatabaseDriver
 	{
 		this.sequenceTableName = sequenceTableName;
 	}
+
+	/**
+	 * Indicates whether or not a Unicode Prefix (N) is prepended to all text values
+	 */
+    public boolean isUseUnicodePrefix()
+    {
+        return useUnicodePrefix;
+    }
+
+    /**
+     * Sets whether or not to use a Unicode Prefix (N) for all text values
+     * Default is true 
+     * @param useUnicodePrefix true if a Unicode Prefix (N) should be used for text values
+     */
+    public void setUseUnicodePrefix(boolean useUnicodePrefix)
+    {
+        this.useUnicodePrefix = useUnicodePrefix;
+    }
 
     /** {@inheritDoc} */
     @Override
@@ -358,7 +382,7 @@ public class DBDatabaseDriverMSSQL extends DBDatabaseDriver
     {
         StringBuilder valBuf = new StringBuilder();
         // for SQLSERVER utf8 support, see EMPIREDB-122
-        valBuf.append("N'");
+        valBuf.append((useUnicodePrefix) ? "N'" : "'");
         if (DBDatabase.EMPTY_STRING.equals(value)==false)
             appendTextValue(valBuf, value.toString());
         valBuf.append("'");
