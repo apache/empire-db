@@ -375,16 +375,16 @@ public class DBDatabaseDriverMSSQL extends DBDatabaseDriver
     }
 
     /**
-     * @see DBDatabaseDriver#getTextString(DataType type, Object value)
+     * @see DBDatabaseDriver#getSQLTextString(DataType type, Object value)
      */
     @Override
-    protected String getTextString(DataType type, Object value)
+    protected String getSQLTextString(DataType type, Object value)
     {
         StringBuilder valBuf = new StringBuilder();
         // for SQLSERVER utf8 support, see EMPIREDB-122
         valBuf.append((useUnicodePrefix) ? "N'" : "'");
         if (DBDatabase.EMPTY_STRING.equals(value)==false)
-            appendTextValue(valBuf, value.toString());
+            appendSQLTextValue(valBuf, value.toString());
         valBuf.append("'");
         return valBuf.toString();
     }

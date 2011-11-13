@@ -618,19 +618,19 @@ public abstract class DBDatabaseDriver implements Serializable
         switch (type)
         {
             case DATE:
-                return getDateTimeString(value, SQL_DATE_TEMPLATE, SQL_DATE_PATTERN, SQL_CURRENT_DATE);
+                return getSQLDateTimeString(value, SQL_DATE_TEMPLATE, SQL_DATE_PATTERN, SQL_CURRENT_DATE);
             case DATETIME:
                 // System date is special case
                 if (!DBDatabase.SYSDATE.equals(value) && value.toString().length()<=10)
-                    return getDateTimeString(value, SQL_DATE_TEMPLATE, SQL_DATE_PATTERN, SQL_CURRENT_DATETIME);
+                    return getSQLDateTimeString(value, SQL_DATE_TEMPLATE, SQL_DATE_PATTERN, SQL_CURRENT_DATETIME);
                 // Complete Date-Time Object with time 
-                return getDateTimeString(value, SQL_DATETIME_TEMPLATE, SQL_DATETIME_PATTERN, SQL_CURRENT_DATETIME);
+                return getSQLDateTimeString(value, SQL_DATETIME_TEMPLATE, SQL_DATETIME_PATTERN, SQL_CURRENT_DATETIME);
             case TEXT:
             case CHAR:
             case CLOB:
             case UNIQUEID:
             {   // Text value
-                return getTextString(type, value);
+                return getSQLTextString(type, value);
             }
             case BOOL:
             {   // Get Boolean value   
@@ -657,7 +657,7 @@ public abstract class DBDatabaseDriver implements Serializable
      * @param sqlCurrentDate
      * @return
      */
-    protected String getDateTimeString(Object value, int sqlTemplate, int sqlPattern, int sqlCurrentDate)
+    protected String getSQLDateTimeString(Object value, int sqlTemplate, int sqlPattern, int sqlCurrentDate)
     {
         // is it a sysdate expression
         if (DBDatabase.SYSDATE.equals(value))
@@ -692,12 +692,12 @@ public abstract class DBDatabaseDriver implements Serializable
      * @param value the text to be encoded
      * @return the encoded sql value
      */
-    protected String getTextString(DataType type, Object value)
+    protected String getSQLTextString(DataType type, Object value)
     {
         StringBuilder valBuf = new StringBuilder();
         valBuf.append("'");
         if (DBDatabase.EMPTY_STRING.equals(value)==false)
-            appendTextValue(valBuf, value.toString());
+            appendSQLTextValue(valBuf, value.toString());
         valBuf.append("'");
         return valBuf.toString();
     }
@@ -705,7 +705,7 @@ public abstract class DBDatabaseDriver implements Serializable
     /** 
      * this helper function doubles up single quotes for SQL 
      */
-    protected void appendTextValue(StringBuilder buf, String value)
+    protected void appendSQLTextValue(StringBuilder buf, String value)
     {
         if (value.indexOf('\'') >= 0)
         { // a routine to double up single quotes for SQL
