@@ -18,6 +18,7 @@
  */
 package org.apache.empire.commons;
 
+import java.io.Serializable;
 import java.util.AbstractSet;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -36,9 +37,11 @@ import org.w3c.dom.Element;
  * where the entry value is used as the key for the set and thus must be unique.<BR>
  * <P> 
  */
-public class Options extends AbstractSet<OptionEntry>
+public class Options extends AbstractSet<OptionEntry> implements Serializable
 {
-    public enum InsertPos
+	private static final long serialVersionUID = 1L;
+
+	public enum InsertPos
     {
         Top, Bottom, Sort
     }

@@ -18,6 +18,8 @@
  */
 package org.apache.empire.commons;
 
+import java.io.Serializable;
+
 /**
  * This class defines one possible value of a field and it's description<BR>
  * This class is used by the Options class to implement a set of options 
@@ -25,9 +27,11 @@ package org.apache.empire.commons;
  * The text should only be used for display purposes e.g. to display a drop-down in a user interface.<BR>
  * <P>
  */
-public class OptionEntry
+public class OptionEntry implements Serializable
 {
-    private Object value;
+	private static final long serialVersionUID = 1L;
+	
+	private Object value;
     private String text;
     
     public OptionEntry(Object value, String text)
