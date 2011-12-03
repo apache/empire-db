@@ -145,7 +145,7 @@ public class StringUtils
             StringBuilder buf = new StringBuilder();
             for (int i = 0; i < array.length; i++)
             {
-                if (i > 0)
+                if (i>0 && separator!=null)
                     buf.append(separator);
                 buf.append(array[i]);
             }

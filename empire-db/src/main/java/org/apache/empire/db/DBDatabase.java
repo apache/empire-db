@@ -895,14 +895,14 @@ public abstract class DBDatabase extends DBObject
     }
     
     /**
-     * Returns a list of key value pairs from an sql query.
+     * Fills an option list provided with the result from a query.
      * The option list is filled with the values of the first and second column.
      * 
      * @param sqlCmd the SQL statement
      * @param conn a valid connection to the database.
      * @return an Options object containing a set a of values and their corresponding names 
      */
-    public Options queryOptionList(String sqlCmd, Connection conn)
+    public int queryOptionList(String sqlCmd, Connection conn, Options result)
     {   // Execute the  Statement
         checkOpen();
         ResultSet rs = null;
@@ -918,17 +918,18 @@ public abstract class DBDatabase extends DBObject
             if (rs.getMetaData().getColumnCount()<2)
                 throw new InvalidArgumentException("sqlCmd", sqlCmd);
             // Check Result
-            Options result = new Options();
+            int count = 0;
             while (rs.next())
             {
                 Object value = rs.getObject(1);
                 String text  = rs.getString(2);
                 result.add(value, text, true);
+                count++;
             }
             // No Value
             if (log.isInfoEnabled())
-                log.info("queryOptionList retured " + result.size() + " items. Query completed in " + (System.currentTimeMillis() - start) + " ms");
-            return result;
+                log.info("queryOptionList retured " + count + " items. Query completed in " + (System.currentTimeMillis() - start) + " ms");
+            return count;
         } catch (SQLException sqle) 
         {   // Error
             throw new QueryFailedException(this, sqlCmd, sqle);
@@ -938,6 +939,21 @@ public abstract class DBDatabase extends DBObject
         }
     }
 
+    /**
+     * Returns a list of key value pairs from an sql query.
+     * The option list is filled with the values of the first and second column.
+     * 
+     * @param sqlCmd the SQL statement
+     * @param conn a valid connection to the database.
+     * @return an Options object containing a set a of values and their corresponding names 
+     */
+    public Options queryOptionList(String sqlCmd, Connection conn)
+    {   // Execute the  Statement
+        Options options = new Options();
+        queryOptionList(sqlCmd, conn, options);
+        return options; 
+    }
+    
     /**
      * Adds the result of a query to a given collection.<br/>
      * The individual rows will be added as an array of objects (object[])
