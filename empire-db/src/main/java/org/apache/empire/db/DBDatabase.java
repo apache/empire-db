@@ -696,8 +696,7 @@ public abstract class DBDatabase extends DBObject
             // No Value
             Object result = rs.getObject(1);
             if (log.isDebugEnabled())
-	            log.debug("querySingleValue complete in " + (System.currentTimeMillis() - start) + " ms -> value="
-	                        + result);
+	            log.debug("querySingleValue complete in " + (System.currentTimeMillis() - start) + " ms -> value=" + result);
             return result;
         } catch (SQLException sqle) 
         {   // Error
@@ -832,8 +831,8 @@ public abstract class DBDatabase extends DBObject
         try
         {   // Log performance
             long start = System.currentTimeMillis();
-            if (log.isInfoEnabled())
-                log.info("executing: " + sqlCmd);
+            if (log.isDebugEnabled())
+                log.debug("executing: " + sqlCmd);
             // Get the next Value
             rs = driver.executeQuery(sqlCmd, null, false, conn);
             if (rs == null)
@@ -847,8 +846,8 @@ public abstract class DBDatabase extends DBObject
                 count++;
             }
             // No Value
-            if (log.isInfoEnabled())
-                log.info("querySimpleList retured " + count + " items. Query completed in " + (System.currentTimeMillis() - start) + " ms");
+            if (log.isDebugEnabled())
+                log.debug("querySimpleList retured " + count + " items. Query completed in " + (System.currentTimeMillis() - start) + " ms");
             return count;
         } catch (ClassCastException e) 
         {   log.error("querySingleValue cast exception: ", e);
@@ -909,8 +908,8 @@ public abstract class DBDatabase extends DBObject
         try
         {   // Debug
             long start = System.currentTimeMillis();
-            if (log.isInfoEnabled())
-                log.info("executing: " + sqlCmd);
+            if (log.isDebugEnabled())
+                log.debug("executing: " + sqlCmd);
             // Get the next Value
             rs = driver.executeQuery(sqlCmd, null, false, conn);
             if (rs == null)
@@ -927,8 +926,8 @@ public abstract class DBDatabase extends DBObject
                 count++;
             }
             // No Value
-            if (log.isInfoEnabled())
-                log.info("queryOptionList retured " + count + " items. Query completed in " + (System.currentTimeMillis() - start) + " ms");
+            if (log.isDebugEnabled())
+                log.debug("queryOptionList retured " + count + " items. Query completed in " + (System.currentTimeMillis() - start) + " ms");
             return count;
         } catch (SQLException sqle) 
         {   // Error
@@ -971,8 +970,8 @@ public abstract class DBDatabase extends DBObject
         try
         {   // Log performance
             long start = System.currentTimeMillis();
-            if (log.isInfoEnabled())
-                log.info("executing: " + sqlCmd);
+            if (log.isDebugEnabled())
+                log.debug("executing: " + sqlCmd);
             // Get the next Value
             rs = driver.executeQuery(sqlCmd, null, false, conn);
             if (rs == null)
@@ -991,8 +990,8 @@ public abstract class DBDatabase extends DBObject
                 count++;
             }
             // No Value
-            if (log.isInfoEnabled())
-                log.info("queryObjectList retured " + count + " items. Query completed in " + (System.currentTimeMillis() - start) + " ms");
+            if (log.isDebugEnabled())
+                log.debug("queryObjectList retured " + count + " items. Query completed in " + (System.currentTimeMillis() - start) + " ms");
             return count;
         } catch (SQLException sqle) 
         {   // Error
