@@ -19,6 +19,7 @@
 package org.apache.empire.db;
 // XML
 import java.lang.reflect.InvocationTargetException;
+import java.math.BigDecimal;
 import java.util.Collection;
 import java.util.Date;
 
@@ -140,8 +141,8 @@ public abstract class DBRecordData extends DBObject
     public double getDouble(int index)
     {
         // Get Double value
-        Object o = getValue(index);
-        return ObjectUtils.getDouble(o);
+        Object v = getValue(index);
+        return ObjectUtils.getDouble(v);
     }
 
     /**
@@ -154,6 +155,32 @@ public abstract class DBRecordData extends DBObject
     public final double getDouble(ColumnExpr column)
     {
         return getDouble(getFieldIndex(column));
+    }
+
+    /**
+     * Returns a data value identified by the column index.
+     * The data value is converted to double if necessary.
+     * 
+     * @param index index of the column
+     * @return the value
+     */
+    public BigDecimal getDecimal(int index)
+    {
+        // Get Double value
+        Object v = getValue(index);
+        return ObjectUtils.getDecimal(v);
+    }
+
+    /**
+     * Returns a data value for the desired column.
+     * The data value is converted to BigDecimal if necessary.
+     * 
+     * @param column identifying the column
+     * @return the value
+     */
+    public final BigDecimal getDecimal(ColumnExpr column)
+    {
+        return getDecimal(getFieldIndex(column));
     }
     
     /**

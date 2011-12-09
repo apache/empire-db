@@ -18,6 +18,8 @@
  */
 package org.apache.empire.commons;
 
+import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -247,6 +249,56 @@ public final class ObjectUtils
     public static double getDouble(Object v)
     {
         return getDouble(v, 0.0);
+    }
+
+    /**
+     * Converts an object value to a BigDecimal.
+     * <P>
+     * If the object value supplied is null or if conversion is not possible then defValue is returned.
+     * @param v the object value to convert
+     * @param defValue the default value
+     * @return the BigDecimal value of v or defValue
+     */
+    public static BigDecimal getDecimal(Object v, BigDecimal defValue)
+    {
+        // Get Double value
+        if (v==null)
+            return defValue;
+        if (v instanceof BigDecimal)
+            return ((BigDecimal)v);
+        // Find a suitable converter
+        if (v instanceof Number)
+        {   // check other number types
+            if (v instanceof BigInteger)
+                return new BigDecimal((BigInteger)v);
+            if (v instanceof Integer)
+                return BigDecimal.valueOf(((Number)v).intValue());
+            if (v instanceof Long)
+                return BigDecimal.valueOf(((Number)v).longValue());
+            // Default: convert via double
+            return BigDecimal.valueOf(((Number)v).doubleValue());
+        }
+        // parse String for Integer value
+        try
+        {   // Last-Chance > Try a string conversion
+            return new BigDecimal(v.toString());
+        } catch (Exception e)
+        {
+            log.warn(String.format("Cannot convert value [%s] to BigDecimal!", v));
+            return defValue;
+        }
+    }
+
+    /**
+     * Converts an object value to a BigDecimal.
+     * <P>
+     * If the object value supplied is null or if conversion is not possible then 0.0 is returned.
+     * @param v the object value to convert
+     * @return the Long value of o or 0
+     */
+    public static BigDecimal getDecimal(Object v)
+    {
+        return getDecimal(v, BigDecimal.ZERO);
     }
     
     /**
