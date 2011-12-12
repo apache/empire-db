@@ -24,7 +24,7 @@ import java.util.Collection;
 import java.util.Date;
 
 import org.apache.commons.beanutils.BeanUtils;
-import org.apache.empire.commons.DateUtils;
+import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.empire.commons.ObjectUtils;
 import org.apache.empire.commons.StringUtils;
 import org.apache.empire.data.ColumnExpr;
@@ -290,35 +290,34 @@ public abstract class DBRecordData extends DBObject
         {   /*
             if (log.isTraceEnabled())
                 log.trace(bean.getClass().getName() + ": setting property '" + property + "' to " + String.valueOf(value));
-            */    
+            */
+            /*
             if (value instanceof Date)
-            {   // Patch for Stage Date Bug in BeanUtils
+            {   // Patch for date bug in BeanUtils
                 value = DateUtils.addDate((Date)value, 0, 0, 0);
             }
+            */
             // Set Property Value
-            // Should check whether property exists
-            BeanUtils.setProperty(bean, property, value);
-            // Check result
-            /*
-             * String res = BeanUtils.getProperty(bean, property); if (res!=value && res.equals(String.valueOf(value))==false) { //
-             * Property value cannot be set // (missing setter?) String msg = bean.getClass().getName() + ": unable to set
-             * property '" + property + "' to " + String.valueOf(value); return error(ERR_INTERNAL, msg); } else if
-             * (log.isInfoEnabled()) { log.info(bean.getClass().getName() + ": property '" + property + "' has been set to " +
-             * res); }
-             */
-            // done
-
+            if (value!=null)
+            {   // Bean utils will convert if necessary
+                BeanUtils.setProperty(bean, property, value);
+            }
+            else
+            {   // Don't convert, just set
+                PropertyUtils.setProperty(bean, property, null);
+            }
+          // IllegalAccessException
         } catch (IllegalAccessException e)
         {   log.error(bean.getClass().getName() + ": unable to set property '" + property + "'");
             throw new BeanPropertySetException(bean, property, e);
-            
+          // InvocationTargetException  
         } catch (InvocationTargetException e)
         {   log.error(bean.getClass().getName() + ": unable to set property '" + property + "'");
             throw new BeanPropertySetException(bean, property, e);
-            /*
-             * } catch(NoSuchMethodException e) { log.warn(bean.getClass().getName() + ": cannot check value of property '" +
-             * property + "'"); return true;
-             */
+          // NoSuchMethodException   
+        } catch (NoSuchMethodException e)
+        {   log.error(bean.getClass().getName() + ": unable to set property '" + property + "'");
+            throw new BeanPropertySetException(bean, property, e);
         }
     }
 
