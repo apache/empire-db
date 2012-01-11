@@ -1,5 +1,5 @@
 Apache Empire-db
-Copyright 2008-2010 The Apache Software Foundation
+Copyright 2008-2012 The Apache Software Foundation
 
 The issues are categorized as follows:
 [{C=Core}|{S=Struts Extensions}|{E=Examples}|{O=Other}
