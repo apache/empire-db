@@ -19,12 +19,13 @@
 package org.apache.empire.db;
 
 // Java
+import java.util.Set;
+
 import org.apache.empire.commons.Options;
 import org.apache.empire.data.Column;
+import org.apache.empire.db.exceptions.DatabaseNotOpenException;
 import org.apache.empire.db.expr.set.DBSetExpr;
 import org.w3c.dom.Element;
-
-import java.util.Set;
 
 
 /**
@@ -155,6 +156,8 @@ public abstract class DBColumn extends DBColumnExpr
         }
         // Append the name
         DBDatabaseDriver driver = getDatabase().getDriver();
+        if (driver==null)
+        	throw new DatabaseNotOpenException(getDatabase());
         if (quoteName==null)
             quoteName = driver.detectQuoteName(name);
         // Append the name
