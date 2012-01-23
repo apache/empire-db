@@ -46,19 +46,21 @@ public class $parser.getTableClassName($table.name) extends ${baseTableClassName
 #end
 
 		// configure key columns (primary key)
+#if($table.keyColumns.size()>0)
 #if($table.keyColumns.size()==1)
 		setPrimaryKey(${parser.getColumnName($table.keyColumns[0])});
 #else
 		DBTableColumn[] keyColumns = new DBTableColumn[] {
 #foreach ($col in $table.keyColumns)
 #if($foreach.isLast()==false)
-    		${parser.getColumnName($col)},
+			${parser.getColumnName($col)},
 #else
-    		${parser.getColumnName($col)} };
+			${parser.getColumnName($col)} };
 		setPrimaryKey(keyColumns);
-#end    	
 #end
-		
+#end
+#end
+
 		// Optimistic locking column
 #if($parser.hasLockingColumn($table) == true)
 		setTimestampColumn(${parser.getColumnName($table.getTimestampColumn())});
