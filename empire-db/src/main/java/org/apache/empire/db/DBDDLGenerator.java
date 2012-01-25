@@ -405,7 +405,7 @@ public abstract class DBDDLGenerator<T extends DBDatabaseDriver>
 
             // columns
             boolean addSeparator = false;
-            DBColumn[] idxColumns = idx.getColumns();
+            DBColumnExpr[] idxColumns = idx.getColumnExpressions();
             for (int i = 0; i < idxColumns.length; i++)
             {
                 sql.append((addSeparator) ? ", " : "");

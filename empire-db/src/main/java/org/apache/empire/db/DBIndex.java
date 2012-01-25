@@ -91,6 +91,16 @@ public class DBIndex extends DBObject
     }
 
     /**
+     * Returns the columnExpressions belonging to this index.
+     * 
+     * @return the columnExpressions belonging to this index
+     */
+    public DBColumnExpr[] getColumnExpressions()
+    {
+        return columns;
+    }
+
+    /**
      * Returns the full qualified table name.
      * 
      * @return the full qualified table name

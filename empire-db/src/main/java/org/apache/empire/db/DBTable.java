@@ -332,12 +332,38 @@ public class DBTable extends DBRowSet implements Cloneable
      * 
      * @return true on success
      */
+    public void addIndex(DBIndex index)
+    {
+        if (index==null)
+            throw new InvalidArgumentException("index", null);
+        // Check index name
+        String name = index.getName();
+        for (DBIndex i : indexes)
+        {
+            if (i==index || name.equalsIgnoreCase(i.getName()))
+            {
+                throw new ItemExistsException(name);
+            }
+        }        
+        // add Index now
+        indexes.add(index);
+    }
+
+    /**
+     * Adds an index.
+     * 
+     * @param name the index name
+     * @param unique is this a unique index
+     * @param columns the columns indexed by this index
+     * 
+     * @return true on success
+     */
     public void addIndex(String name, boolean unique, DBColumn[] columns)
     {
         if (name==null || columns==null || columns.length==0)
             throw new InvalidArgumentException("name|columns", null);
         // add Index now
-        indexes.add(new DBIndex(name, (unique) ? DBIndex.UNIQUE : DBIndex.STANDARD, columns));
+        addIndex(new DBIndex(name, (unique) ? DBIndex.UNIQUE : DBIndex.STANDARD, columns));
     }
 
     /**
