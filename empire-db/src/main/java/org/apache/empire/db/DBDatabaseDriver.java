@@ -405,52 +405,65 @@ public abstract class DBDatabaseDriver implements Serializable
         for (int i=0; i<sqlParams.length; i++)
         {
             Object value = sqlParams[i];
-            if (value instanceof DBBlobData)
-            {
-                // handling for blobs
-                DBBlobData blobData = (DBBlobData)value;
-                pstmt.setBinaryStream(i + 1, blobData.getInputStream(), blobData.getLength());
-                // log
-                if (log.isDebugEnabled())
-                    log.debug("Statement param {} set to BLOB data", i+1);
-            }
-            else if(value instanceof DBClobData)
-            {
-                // handling for clobs
-                DBClobData clobData = (DBClobData)value;
-                pstmt.setCharacterStream(i + 1, clobData.getReader(), clobData.getLength());
-                // log
-                if (log.isDebugEnabled())
-                    log.debug("Statement param {} set to CLOB data", i+1);
-            }
-            else if(value instanceof Character)
-            {
-                // handling for dates
-                String strval = value.toString();
-                pstmt.setObject(i + 1, strval);
-                // log
-                if (log.isDebugEnabled())
-                    log.debug("Statement param {} set to '{}'", i+1, strval);
-            }
-            else if(value instanceof Date && !(value instanceof Timestamp))
-            {
-                // handling for dates
-                Timestamp ts = new Timestamp(((Date)value).getTime());
-                pstmt.setObject(i + 1, ts);
-                // log
-                if (log.isDebugEnabled())
-                    log.debug("Statement param {} set to date '{}'", i+1, ts);
-            }
-            else
-            {   // simple parameter value 
-                pstmt.setObject(i + 1, value);
-                // log
-                if (log.isDebugEnabled())
-                    log.debug("Statement param {} set to '{}'", i+1, value);
-            }
+            addStatementParam(pstmt, i+1, value);
         }
 	}
 
+    /**
+     * Adds a statement parameter to a prepared statement
+     * 
+     * @param pstmt the prepared statement
+     * @param sqlParams list of objects
+     */
+    protected void addStatementParam(PreparedStatement pstmt, int paramIndex, Object value)
+		throws SQLException
+	{
+        if (value instanceof DBBlobData)
+        {
+            // handling for blobs
+            DBBlobData blobData = (DBBlobData)value;
+            pstmt.setBinaryStream(paramIndex, blobData.getInputStream(), blobData.getLength());
+            // log
+            if (log.isDebugEnabled())
+                log.debug("Statement param {} set to BLOB data", paramIndex);
+        }
+        else if(value instanceof DBClobData)
+        {
+            // handling for clobs
+            DBClobData clobData = (DBClobData)value;
+            pstmt.setCharacterStream(paramIndex, clobData.getReader(), clobData.getLength());
+            // log
+            if (log.isDebugEnabled())
+                log.debug("Statement param {} set to CLOB data", paramIndex);
+        }
+        else if(value instanceof Date && !(value instanceof Timestamp))
+        {
+            // handling for dates
+            Timestamp ts = new Timestamp(((Date)value).getTime());
+            pstmt.setObject(paramIndex, ts);
+            // log
+            if (log.isDebugEnabled())
+                log.debug("Statement param {} set to date '{}'", paramIndex, ts);
+        }
+        else if((value instanceof Character) 
+        	 || (value instanceof Enum<?>))
+        {
+            // Objects that need String conversion
+            String strval = value.toString();
+            pstmt.setObject(paramIndex, strval);
+            // log
+            if (log.isDebugEnabled())
+                log.debug("Statement param {} set to '{}'", paramIndex, strval);
+        }
+        else
+        {   // simple parameter value 
+            pstmt.setObject(paramIndex, value);
+            // log
+            if (log.isDebugEnabled())
+                log.debug("Statement param {} set to '{}'", paramIndex, value);
+        }
+	}
+    
     /**
      * Extracts native error message of an sqlExeption.
      * 
