@@ -668,13 +668,13 @@ public abstract class DBDatabase extends DBObject
      * Returns the value of the first row/column of a sql-query as an object.
      * 
      * @param sqlCmd the SQL-Command
+     * @param sqlParams list of query parameter values
      * @param conn a valid connection to the database.
      * 
      * @return the first column in the current row as a Java object 
      *         or <code>null</code> if there was no value 
      */
-
-    public Object querySingleValue(String sqlCmd, Connection conn)
+    public Object querySingleValue(String sqlCmd, Object[] sqlParams, Connection conn)
     {
         checkOpen(); 
         ResultSet rs = null;
@@ -684,7 +684,7 @@ public abstract class DBDatabase extends DBObject
             if (log.isDebugEnabled())
                 log.debug("executing: " + sqlCmd);
             // Get the next Value
-            rs = driver.executeQuery(sqlCmd, null, false, conn);
+            rs = driver.executeQuery(sqlCmd, sqlParams, false, conn);
             if (rs == null)
                 throw new UnexpectedReturnValueException(rs, "driver.executeQuery()");
             // Check Result
@@ -708,17 +708,48 @@ public abstract class DBDatabase extends DBObject
     }
 
     /**
+     * Returns the value of the first row/column of a sql-query as an object.
+     * 
+     * @param sqlCmd the SQL-Command
+     * @param conn a valid connection to the database.
+     * 
+     * @return the first column in the current row as a Java object 
+     *         or <code>null</code> if there was no value 
+     */
+    public Object querySingleValue(String sqlCmd, Connection conn)
+    {
+        return querySingleValue(sqlCmd, (Object[])null, conn);  
+    }
+    
+    /**
+     * Returns the value of the first row/column of a sql-query as an int.
+     * 
+     * @param sqlCmd the SQL statement
+     * @param sqlParams list of query parameter values
+     * @param defVal the default value if no value was returned by the database
+     * @param conn a valid connection to the database.
+     *
+     * @return the result as a int value, if no result the int value 0
+     */
+    public int querySingleInt(String sqlCmd, Object[] sqlParams, int defVal, Connection conn)
+    { 
+        Object value = querySingleValue(sqlCmd, sqlParams, conn);
+        return ObjectUtils.getInteger(value, defVal);
+    }
+
+    /**
      * Returns the value of the first row/column of a sql-query as an int.
      * 
      * @param sqlCmd the SQL statement
      * @param defVal the default value if no value was returned by the database
      * @param conn a valid connection to the database.
+     *
      * @return the result as a int value, if no result the int value 0
      */
     public int querySingleInt(String sqlCmd, int defVal, Connection conn)
     { 
         Object value = querySingleValue(sqlCmd, conn);
-        return ((value != null) ? Integer.parseInt(value.toString()) : defVal);
+        return ObjectUtils.getInteger(value, defVal);
     }
 
     /**
@@ -726,11 +757,28 @@ public abstract class DBDatabase extends DBObject
      * 
      * @param sqlCmd the SQL statement
      * @param conn a valid connection to the database.
+     *
      * @return the result as a int value, if no result the int value 0
      */
     public final int querySingleInt(String sqlCmd, Connection conn)
     { 
         return querySingleInt(sqlCmd, 0, conn);
+    }
+
+    /**
+     * Returns the value of the first row/column of a sql-query as a long.
+     * 
+     * @param sqlCmd the SQL statement
+     * @param sqlParams list of query parameter values
+     * @param defVal the default value
+     * @param conn a valid connection to the database.
+     * 
+     * @return the result as a long value, if no result the long value 0
+     */
+    public long querySingleLong(String sqlCmd, Object[] sqlParams, long defVal, Connection conn)
+    { 
+        Object value = querySingleValue(sqlCmd, sqlParams, conn);
+        return ((value != null) ? Long.parseLong(value.toString()) : defVal);
     }
     
     /**
@@ -753,6 +801,7 @@ public abstract class DBDatabase extends DBObject
      * 
      * @param sqlCmd the SQL statement
      * @param conn a valid connection to the database.
+     *
      * @return the result as a long value, if no result the long value 0
      */
     public final long querySingleLong(String sqlCmd, Connection conn)
@@ -761,31 +810,19 @@ public abstract class DBDatabase extends DBObject
     }
     
     /**
-     * Returns the value of the first row/column of a sql-query as a double.
+     * Returns the value of the first row/column of a sql-query as a string.
      * 
      * @param sqlCmd the SQL statement
-     * @param defVal the default value
+     * @param sqlParams list of query parameter values
+     * @param defVal the default value if no value was returned by the database
      * @param conn a valid connection to the database.
-     * 
-     * @return the result as a long value, if no result the long value 0
+     *
+     * @return the result as a String object, if no result a empty String
      */
-    public double querySingleDouble(String sqlCmd, double defVal, Connection conn)
+    public String querySingleString(String sqlCmd, Object[] sqlParams, String defVal, Connection conn)
     { 
-        Object value = querySingleValue(sqlCmd, conn);
-        return ((value != null) ? Double.parseDouble(value.toString()) : defVal);
-    }
-
-    /**
-     * Returns the value of the first row/column of a sql-query as a double.
-     * 
-     * @param sqlCmd the SQL statement
-     * @param conn a valid connection to the database.
-     * 
-     * @return the result as a long value, if no result the long value 0
-     */
-    public final double querySingleDouble(String sqlCmd, Connection conn)
-    { 
-        return querySingleDouble(sqlCmd, 0.0, conn);
+        Object value = querySingleValue(sqlCmd, sqlParams, conn);
+        return ((value != null) ? value.toString() : defVal);
     }
     
     /**
@@ -794,7 +831,8 @@ public abstract class DBDatabase extends DBObject
      * @param sqlCmd the SQL statement
      * @param defVal the default value if no value was returned by the database
      * @param conn a valid connection to the database.
-     * @return the result as a String object, if no result a emtpy String
+     *
+     * @return the result as a String object, if no result a empty String
      */
     public String querySingleString(String sqlCmd, String defVal, Connection conn)
     { 
@@ -807,7 +845,8 @@ public abstract class DBDatabase extends DBObject
      * 
      * @param sqlCmd the SQL statement
      * @param conn a valid connection to the database.
-     * @return the result as a String object, if no result a emtpy String
+     *
+     * @return the result as a String object, if no result a empty String
      */
     public final String querySingleString(String sqlCmd, Connection conn)
     { 

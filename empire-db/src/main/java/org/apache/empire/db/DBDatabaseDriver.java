@@ -399,13 +399,18 @@ public abstract class DBDatabaseDriver implements Serializable
      * @param pstmt the prepared statement
      * @param sqlParams list of objects
      */
-    protected void prepareStatement(PreparedStatement pstmt, Object[] sqlParams)
+    protected void prepareStatement(PreparedStatement pstmt, Object[] sqlParams, Connection conn)
     	throws SQLException
 	{
         for (int i=0; i<sqlParams.length; i++)
         {
             Object value = sqlParams[i];
-            addStatementParam(pstmt, i+1, value);
+            try {
+                addStatementParam(pstmt, i+1, value, conn);
+            } catch(SQLException e) {
+                log.error("SQLException: Unable to set prepared statement parameter {} to '{}'", i+1, StringUtils.toString(value));
+                throw e;
+            }
         }
 	}
 
@@ -415,7 +420,7 @@ public abstract class DBDatabaseDriver implements Serializable
      * @param pstmt the prepared statement
      * @param sqlParams list of objects
      */
-    protected void addStatementParam(PreparedStatement pstmt, int paramIndex, Object value)
+    protected void addStatementParam(PreparedStatement pstmt, int paramIndex, Object value, Connection conn)
 		throws SQLException
 	{
         if (value instanceof DBBlobData)
@@ -539,7 +544,7 @@ public abstract class DBDatabaseDriver implements Serializable
                     ? conn.prepareStatement(sqlCmd, Statement.RETURN_GENERATED_KEYS)
                     : conn.prepareStatement(sqlCmd);
     	        stmt = pstmt;
-	            prepareStatement(pstmt, sqlParams);
+	            prepareStatement(pstmt, sqlParams, conn);
 	            count = pstmt.executeUpdate(); 
             }
             else
@@ -584,7 +589,7 @@ public abstract class DBDatabaseDriver implements Serializable
 	        {	// Use prepared statement
 	            PreparedStatement pstmt = conn.prepareStatement(sqlCmd, type, ResultSet.CONCUR_READ_ONLY);
 	            stmt = pstmt;
-	            prepareStatement(pstmt, sqlParams);
+	            prepareStatement(pstmt, sqlParams, conn);
 	            return pstmt.executeQuery();
 	        } else
 	        {	// Use simple statement
@@ -593,6 +598,7 @@ public abstract class DBDatabaseDriver implements Serializable
 	        }
         } catch(SQLException e) {
             // close statement (if not null)
+            log.error("Error executing query '"+sqlCmd+"' --> "+e.getMessage(), e);
             close(stmt);
             throw e;
         }
