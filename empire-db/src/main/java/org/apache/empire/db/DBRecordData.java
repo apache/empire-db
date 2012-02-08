@@ -318,6 +318,9 @@ public abstract class DBRecordData extends DBObject
         } catch (NoSuchMethodException e)
         {   log.error(bean.getClass().getName() + ": unable to set property '" + property + "'");
             throw new BeanPropertySetException(bean, property, e);
+        } catch (NullPointerException e)
+        {   log.error(bean.getClass().getName() + ": unable to set property '" + property + "'");
+            throw new BeanPropertySetException(bean, property, e);
         }
     }
 
