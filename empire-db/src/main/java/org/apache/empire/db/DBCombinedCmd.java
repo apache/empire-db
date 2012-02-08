@@ -156,8 +156,8 @@ public class DBCombinedCmd extends DBCommandExpr
       // Add order by expression
       for (DBOrderByExpr obe : exprs)
       {
-          DBColumnExpr c = getCmdColumn(obe.expr);
-          orderBy.add(new DBOrderByExpr(c, obe.desc));
+          DBColumnExpr c = getCmdColumn(obe.getColumnExpr());
+          orderBy.add(new DBOrderByExpr(c, obe.isDescending()));
       }
    }
 

@@ -29,8 +29,8 @@ public class DBOrderByExpr extends DBExpr
 {
     private final static long serialVersionUID = 1L;
   
-    public DBColumnExpr expr;
-    public boolean desc;
+    protected final DBColumnExpr expr;
+    protected boolean desc;
 
     /**
      * Construct a new DBOrderByInfo object set the specified
@@ -43,6 +43,26 @@ public class DBOrderByExpr extends DBExpr
     {
         this.expr = expr;
         this.desc = desc;
+    }
+    
+    public DBColumnExpr getColumnExpr()
+    {
+        return expr;
+    }
+    
+    public DBColumn getColumn()
+    {
+        return expr.getUpdateColumn();
+    }
+
+    public boolean isDescending()
+    {
+        return desc;
+    }
+
+    public void setDescending(boolean descending)
+    {
+        desc = descending;
     }
 
     /*

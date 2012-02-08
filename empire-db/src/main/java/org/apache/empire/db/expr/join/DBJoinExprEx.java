@@ -40,7 +40,7 @@ public class DBJoinExprEx extends DBJoinExpr
     private final static long serialVersionUID = 1L;
     private static final Logger log = LoggerFactory.getLogger(DBJoinExprEx.class);
     
-    private final DBCompareExpr cmp;
+    protected final DBCompareExpr cmp;
     
     private static DBColumnExpr findFirstColumn(DBCompareExpr expr)
     {
