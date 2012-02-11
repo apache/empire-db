@@ -156,7 +156,7 @@
 	</profiles>
 	
 	
-	<url>http://incubator.apache.org/empire-db/${project.artifactId}</url>
+	<url>http://empire-db.apache.org/${project.artifactId}</url>
 	<organization>
 		<name>Apache Software Foundation</name>
 		<url>http://apache.org</url>
@@ -169,31 +169,31 @@
 		</license>
 	</licenses>
 	<scm>
-		<connection>scm:svn:http://svn.apache.org/repos/asf/incubator/empire-db/trunk</connection>
-		<developerConnection>scm:svn:https://svn.apache.org/repos/asf/incubator/empire-db/trunk</developerConnection>
-		<url>http://svn.apache.org/viewvc/incubator/empire-db/trunk</url>
+		<connection>scm:svn:http://svn.apache.org/repos/asf/empire-db/trunk</connection>
+		<developerConnection>scm:svn:https://svn.apache.org/repos/asf/empire-db/trunk</developerConnection>
+		<url>http://svn.apache.org/viewvc/empire-db/trunk</url>
 	</scm>
 
 	<mailingLists>
 		<mailingList>
 			<name>Empire-db User List</name>
-			<post>empire-db-user@incubator.apache.org</post>
-			<subscribe>empire-db-user-subscribe@incubator.apache.org</subscribe>
-			<unsubscribe>empire-db-user-unsubscribe@incubator.apache.org</unsubscribe>
-			<archive>http://mail-archives.apache.org/mod_mbox/incubator-empire-db-user/</archive>
+			<post>user@empire-db.apache.org</post>
+			<subscribe>user-subscribe@empire-db.apache.org</subscribe>
+			<unsubscribe>user-unsubscribe@empire-db.apache.org</unsubscribe>
+			<archive>http://mail-archives.apache.org/mod_mbox/empire-user/</archive>
 		</mailingList>
 		<mailingList>
 			<name>Empire-db Development List</name>
-			<post>empire-db-user@incubator.apache.org</post>
-			<subscribe>empire-db-dev-subscribe@incubator.apache.org</subscribe>
-			<unsubscribe>empire-db-dev-unsubscribe@incubator.apache.org</unsubscribe>
-			<archive>http://mail-archives.apache.org/mod_mbox/incubator-empire-db-dev/</archive>
+			<post>dev@empire-db.apache.org</post>
+			<subscribe>dev-subscribe@empire-db.apache.org</subscribe>
+			<unsubscribe>dev-unsubscribe@empire-db.apache.org</unsubscribe>
+			<archive>http://mail-archives.apache.org/mod_mbox/empire-dev/</archive>
 		</mailingList>
 		<mailingList>
 			<name>Empire-db commit List</name>
-			<subscribe>empire-db-commits-subscribe@incubator.apache.org</subscribe>
-			<unsubscribe>empire-db-commits-unsubscribe@incubator.apache.org</unsubscribe>
-			<archive>http://mail-archives.apache.org/mod_mbox/incubator-empire-db-commits/</archive>
+			<subscribe>commits-subscribe@empire-db.apache.org</subscribe>
+			<unsubscribe>commits-unsubscribe@empire-db.apache.org</unsubscribe>
+			<archive>http://mail-archives.apache.org/mod_mbox/empire-commits/</archive>
 		</mailingList>
 	</mailingLists>
 	<issueManagement>
@@ -330,7 +330,6 @@
 		 	<plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-remote-resources-plugin</artifactId>
-                <!-- TODO remove after graduation -->
                 <executions>
                     <execution>
                         <goals>
@@ -339,8 +338,6 @@
                         <configuration>
                             <resourceBundles>
                                 <resourceBundle>org.apache:apache-jar-resource-bundle:1.4</resourceBundle>
-                                <!-- add the DISCLAIMER -->
-                                <resourceBundle>org.apache:apache-incubator-disclaimer-resource-bundle:1.1</resourceBundle>
                             </resourceBundles>
                         </configuration>
                     </execution>
