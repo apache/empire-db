@@ -38,7 +38,7 @@ import org.apache.empire.commons.ObjectUtils;
 import org.apache.empire.commons.StringUtils;
 import org.apache.empire.data.DataMode;
 import org.apache.empire.data.DataType;
-import org.apache.empire.db.DBCommand.DBCommandParam;
+import org.apache.empire.db.DBCmdParam;
 import org.apache.empire.db.exceptions.InternalSQLException;
 import org.apache.empire.exceptions.NotImplementedException;
 import org.apache.empire.exceptions.NotSupportedException;
@@ -167,7 +167,7 @@ public abstract class DBDatabaseDriver implements Serializable
             try
             {   // The select Statement
                 DBCommand cmd = driver.createCommand(db);
-                DBCommandParam nameParam = cmd.addParam(SeqName);
+                DBCmdParam nameParam = cmd.addParam(SeqName);
                 cmd.select(C_SEQVALUE);
                 cmd.select(C_TIMESTAMP);
                 cmd.where (C_SEQNAME.is(nameParam));
@@ -188,8 +188,8 @@ public abstract class DBDatabaseDriver implements Serializable
                         db.closeResultSet(rs);
                         // Update existing Record
                         cmd.clear();
-                        DBCommandParam name = cmd.addParam(SeqName);
-                        DBCommandParam time = cmd.addParam(current);
+                        DBCmdParam name = cmd.addParam(SeqName);
+                        DBCmdParam time = cmd.addParam(current);
                         cmd.set(C_SEQVALUE.to(seqValue));
                         cmd.set(C_TIMESTAMP.to(DBDatabase.SYSDATE));
                         cmd.where(C_SEQNAME.is(name));

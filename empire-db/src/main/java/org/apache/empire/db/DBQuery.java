@@ -27,7 +27,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.empire.commons.ObjectUtils;
 import org.apache.empire.commons.Options;
 import org.apache.empire.data.DataType;
-import org.apache.empire.db.DBCommand.DBCommandParam;
+import org.apache.empire.db.DBCmdParam;
 import org.apache.empire.db.exceptions.InvalidKeyException;
 import org.apache.empire.db.exceptions.NoPrimaryKeyException;
 import org.apache.empire.db.exceptions.QueryNoResultException;
@@ -468,11 +468,11 @@ public class DBQuery extends DBRowSet
                     DBColumn col = cmpExpr.getColumnExpr().getUpdateColumn();
                     if (col!=null && col.getRowSet() == table)
                     {	// add the constraint
-                    	if (cmpExpr.getValue() instanceof DBCommandParam)
+                    	if (cmpExpr.getValue() instanceof DBCmdParam)
                     	{	// Create a new command param
                     		DBColumnExpr colExpr = cmpExpr.getColumnExpr();
-                    		DBCommandParam param =(DBCommandParam)cmpExpr.getValue(); 
-                    		DBCommandParam value = upd.addParam(colExpr, param.getValue());
+                    		DBCmdParam param =(DBCmdParam)cmpExpr.getValue(); 
+                    		DBCmdParam value = upd.addParam(colExpr, param.getValue());
                     		cmp = new DBCompareColExpr(colExpr, cmpExpr.getCmpop(), value);
                     	}
                         upd.where(cmp);

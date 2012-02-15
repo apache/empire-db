@@ -28,6 +28,7 @@ import org.apache.empire.commons.Options;
 import org.apache.empire.commons.StringUtils;
 import org.apache.empire.data.DataMode;
 import org.apache.empire.data.DataType;
+import org.apache.empire.db.DBCmdParam;
 import org.apache.empire.db.DBCmdType;
 import org.apache.empire.db.DBColumnExpr;
 import org.apache.empire.db.DBCommand;
@@ -37,7 +38,6 @@ import org.apache.empire.db.DBReader;
 import org.apache.empire.db.DBRecord;
 import org.apache.empire.db.DBSQLScript;
 import org.apache.empire.db.DBTableColumn;
-import org.apache.empire.db.DBCommand.DBCommandParam;
 import org.apache.empire.db.h2.DBDatabaseDriverH2;
 import org.apache.empire.db.postgresql.DBDatabaseDriverPostgreSQL;
 import org.slf4j.Logger;
@@ -375,8 +375,8 @@ public class SampleAdvApp
         // create a command
         DBCommand cmd = db.createCommand();
         // Create cmd parameters
-        DBCommandParam curDepParam = cmd.addParam(); // Current Department
-        DBCommandParam genderParam = cmd.addParam(); // Gender ('M' or 'F')
+        DBCmdParam curDepParam = cmd.addParam(); // Current Department
+        DBCmdParam genderParam = cmd.addParam(); // Gender ('M' or 'F')
         // Define the query
         cmd.select(T_EMP.C_FULLNAME);
         cmd.join  (T_EMP.C_EMPLOYEE_ID, db.V_EMPLOYEE_INFO.C_EMPLOYEE_ID);

@@ -26,7 +26,7 @@ import java.sql.Connection;
 
 import org.apache.empire.DBResource;
 import org.apache.empire.DBResource.DB;
-import org.apache.empire.db.DBCommand.DBCommandParam;
+import org.apache.empire.db.DBCmdParam;
 import org.junit.Rule;
 import org.junit.Test;
 
@@ -63,7 +63,7 @@ public class PreparedStatementTest{
         // Define the query
         DBCommand cmd = db.createCommand();
         // Create parameters
-        DBCommandParam empIdParam  = cmd.addParam(null);
+        DBCmdParam empIdParam  = cmd.addParam(null);
         // the previous line could be shorter
         // DBCommandParam empIdParam  = cmd.addCmdParam(id);
         // create statement
