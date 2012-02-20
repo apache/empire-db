@@ -18,6 +18,8 @@
  */
 package org.apache.empire.db;
 
+import org.apache.empire.exceptions.InvalidArgumentException;
+
 /**
  * This class handles the primary key for the tables.
  * The primary key contains one or more columns.
@@ -30,7 +32,6 @@ public class DBIndex extends DBObject
     private final static long serialVersionUID = 1L;
   
     // Index Types
-    // TODO convert to an enum?
     /**
      * SQL Standard index
      */
@@ -49,6 +50,7 @@ public class DBIndex extends DBObject
     private String          name;
     private int             type;
     private DBColumn[]      columns;
+    private DBTable         table;
 
     /**
      * Constructs a DBIndex object set the specified parameters to this object.
@@ -64,10 +66,33 @@ public class DBIndex extends DBObject
         this.columns = columns;
     }
 
+    /** 
+     * returns the table this index belongs to.
+     * Valid only if the index has been added to a table (DBTable.addIndex)
+     * @return the corresponding table
+     */
+    public DBTable getTable()
+    {
+        return table;
+    }
+
+    /** 
+     * internally used to set the table for this index.
+     * The table must be added to the table's index list beforehand 
+     * @param table
+     */
+    protected void setTable(DBTable table)
+    {
+        if (table==null || !table.getIndexes().contains(this))
+            throw new InvalidArgumentException("table", table);
+        // table
+        this.table = table;
+    }
+
     @Override
     public DBDatabase getDatabase()
     {
-        return columns[0].getDatabase();
+        return (table!=null) ? table.getDatabase() : null;
     }
 
     /**

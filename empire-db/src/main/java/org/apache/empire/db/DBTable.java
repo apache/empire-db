@@ -347,6 +347,7 @@ public class DBTable extends DBRowSet implements Cloneable
         }        
         // add Index now
         indexes.add(index);
+        index.setTable(this);
     }
 
     /**
@@ -358,12 +359,14 @@ public class DBTable extends DBRowSet implements Cloneable
      * 
      * @return true on success
      */
-    public void addIndex(String name, boolean unique, DBColumn[] columns)
+    public DBIndex addIndex(String name, boolean unique, DBColumn[] columns)
     {
         if (name==null || columns==null || columns.length==0)
             throw new InvalidArgumentException("name|columns", null);
         // add Index now
-        addIndex(new DBIndex(name, (unique) ? DBIndex.UNIQUE : DBIndex.STANDARD, columns));
+        DBIndex index = new DBIndex(name, (unique) ? DBIndex.UNIQUE : DBIndex.STANDARD, columns);
+        addIndex(index);
+        return index;
     }
 
     /**

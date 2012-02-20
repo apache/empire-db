@@ -21,8 +21,10 @@ package org.apache.empire.db.oracle;
 // Imports
 import org.apache.empire.db.DBCommand;
 import org.apache.empire.db.DBDatabase;
+import org.apache.empire.db.DBIndex;
 import org.apache.empire.db.DBTable;
 import org.apache.empire.db.expr.compare.DBCompareExpr;
+import org.apache.empire.exceptions.InvalidArgumentException;
 import org.apache.empire.exceptions.ObjectNotValidException;
 
 /**
@@ -61,6 +63,16 @@ public class DBCommandOracle extends DBCommand
     public void setOptimizerHint(String optimizerHint)
     {
         this.optimizerHint = optimizerHint;
+    }
+
+    public void setOptimizerIndexHint(DBIndex index)
+    {
+        if (index==null || index.getTable()==null)
+            throw new InvalidArgumentException("index", index);
+        // Set Index Hint
+        String tableAlias = index.getTable().getAlias();
+        String indexName  = index.getName();
+        this.optimizerHint = "INDEX ("+tableAlias+" "+indexName+")";
     }
 
     /**
