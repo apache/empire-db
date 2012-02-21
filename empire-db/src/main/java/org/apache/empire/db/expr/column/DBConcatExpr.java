@@ -144,6 +144,7 @@ public class DBConcatExpr extends DBColumnExpr
     public void addSQL(StringBuilder buf, long context)
     { // Zusammenbauen
         String template = getDatabase().getDriver().getSQLPhrase(DBDatabaseDriver.SQL_CONCAT_EXPR);
+        context &= ~CTX_ALIAS; // No column aliases
         // Find Separator
         int sep = template.indexOf('?');
         if (sep >= 0)

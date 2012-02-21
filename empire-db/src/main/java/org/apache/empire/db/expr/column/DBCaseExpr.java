@@ -99,7 +99,7 @@ public class DBCaseExpr extends DBColumnExpr
     @Override
     public void addSQL(StringBuilder sql, long context)
     {
-        // context = context & ~CTX_ALIAS;
+        context &= ~CTX_ALIAS; // No column aliases
         sql.append("CASE WHEN ");
         compExpr.addSQL(sql, context);
         sql.append( " THEN ");

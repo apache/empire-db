@@ -155,7 +155,7 @@ public class DBCountExpr extends DBColumnExpr
         {   // count(distinct column)
             if (distinct)
                 sql.append("distinct "); 
-            column.addSQL(sql, context);
+            column.addSQL(sql, (context & ~CTX_ALIAS));
         }
         else
         {   // count(*)

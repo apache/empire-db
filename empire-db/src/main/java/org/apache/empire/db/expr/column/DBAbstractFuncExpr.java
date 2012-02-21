@@ -176,7 +176,7 @@ public abstract class DBAbstractFuncExpr extends DBColumnExpr
         } 
         // append
         sql.append(prefix);
-        expr.addSQL(sql, context & ~CTX_ALIAS );
+        expr.addSQL(sql, (context & ~CTX_ALIAS));
         sql.append(postfix);
     }
 
