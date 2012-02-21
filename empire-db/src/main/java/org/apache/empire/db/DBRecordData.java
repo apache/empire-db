@@ -30,6 +30,7 @@ import org.apache.empire.commons.StringUtils;
 import org.apache.empire.data.ColumnExpr;
 import org.apache.empire.data.RecordData;
 import org.apache.empire.exceptions.BeanPropertySetException;
+import org.apache.empire.exceptions.ItemNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
@@ -76,7 +77,10 @@ public abstract class DBRecordData extends DBObject
      */
     public final Object getValue(ColumnExpr column)
     {
-        return getValue(getFieldIndex(column));
+        int index = getFieldIndex(column);
+        if (index<0)
+            throw new ItemNotFoundException(column.getName()); 
+        return getValue(index);
     }
 
     /**
