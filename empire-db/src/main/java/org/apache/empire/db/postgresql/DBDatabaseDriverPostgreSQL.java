@@ -19,6 +19,7 @@
 package org.apache.empire.db.postgresql;
 
 import java.sql.Connection;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.GregorianCalendar;
 
@@ -448,6 +449,21 @@ public class DBDatabaseDriverPostgreSQL extends DBDatabaseDriver
             ddlGenerator = new PostgreDDLGenerator(this);
         // forward request
         ddlGenerator.getDDLScript(type, dbo, script); 
+    }
+    
+    /**
+     * Postgre needs special handling for CLOBs
+     */
+    @Override
+    public Object getResultValue(ResultSet rset, int columnIndex, DataType dataType)
+        throws SQLException
+    {
+        if (dataType == DataType.CLOB)
+        {
+            return rset.getString(columnIndex);
+        }
+        // default handling
+        return super.getResultValue(rset, columnIndex, dataType);
     }
     
 }
