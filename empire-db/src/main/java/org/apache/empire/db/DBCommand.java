@@ -60,7 +60,7 @@ public abstract class DBCommand extends DBCommandExpr
     protected List<DBCompareExpr>    having         = null;
     protected List<DBColumnExpr>     groupBy        = null;
     // Parameters for prepared Statements
-    protected Vector<DBCmdParam> cmdParams      = null;
+    protected Vector<DBCmdParam>     cmdParams      = null;
     private int                      paramUsageCount= 0;
     // Database
     private DBDatabase               db;
