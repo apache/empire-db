@@ -72,7 +72,7 @@ public class OracleDDLGenerator extends DBDDLGenerator<DBDatabaseDriverOracle>
                 sql.append("(");
                 sql.append(String.valueOf(len));
                 // Check sign for char (unicode) or bytes (non-unicode) 
-                sql.append((size>0) ? " CHAR)" : " BYTE)");
+                sql.append((c.isSingleByteChars()) ? " BYTE)" : " CHAR)");
             }
                 break;
             case BOOL:

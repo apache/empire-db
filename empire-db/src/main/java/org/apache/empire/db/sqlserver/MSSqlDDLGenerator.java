@@ -73,9 +73,9 @@ public class MSSqlDDLGenerator extends DBDDLGenerator<DBDatabaseDriverMSSQL>
             case CHAR:
             {   // Char or Varchar
                 if (type==DataType.CHAR)
-                    sql.append((size<0) ? DATATYPE_CHAR.substring(1) : DATATYPE_CHAR);
+                    sql.append((c.isSingleByteChars()) ? DATATYPE_CHAR.substring(1) : DATATYPE_CHAR);
                 else
-                    sql.append((size<0) ? DATATYPE_VARCHAR.substring(1) : DATATYPE_VARCHAR);
+                    sql.append((c.isSingleByteChars()) ? DATATYPE_VARCHAR.substring(1) : DATATYPE_VARCHAR);
                 // get length
                 int len = Math.abs((int)size);
                 if (len == 0)

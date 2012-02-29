@@ -23,6 +23,7 @@ import java.util.Set;
 
 import org.apache.empire.commons.Options;
 import org.apache.empire.data.Column;
+import org.apache.empire.data.DataType;
 import org.apache.empire.db.exceptions.DatabaseNotOpenException;
 import org.apache.empire.db.expr.set.DBSetExpr;
 import org.w3c.dom.Element;
@@ -66,6 +67,11 @@ public abstract class DBColumn extends DBColumnExpr
      * Maximum value (Integer)
      */
     public static final String DBCOLATTR_MAXVALUE  = "maxValue";
+    
+    /**
+     * Read only column (Boolean)
+     */
+    public static final String DBCOLATTR_SINGLEBYTECHARS  = "singleByteChars";
 
     // basic data
     protected final DBRowSet   rowset;
@@ -117,6 +123,39 @@ public abstract class DBColumn extends DBColumnExpr
 
     public abstract void checkValue(Object value);
 
+    /**
+     * Returns true if column the column is a character based column (char, text or clob)
+     * 
+     * @return true if column is a character based column
+     */
+    public boolean isCharacterColumn()
+    {
+        DataType type = getDataType();
+        return (type==DataType.TEXT || type ==DataType.CHAR || type==DataType.CLOB);
+    }
+
+    /**
+     * Returns true if column the column is a numeric column (integer, decimal, float)
+     * 
+     * @return true if column is a numeric column
+     */
+    public boolean isNumericColumn()
+    {
+        DataType type = getDataType();
+        return (type==DataType.INTEGER || type ==DataType.DECIMAL || type==DataType.FLOAT || type==DataType.AUTOINC);
+    }
+
+    /**
+     * Returns true if column the column is a date based column (date, datetime)
+     * 
+     * @return true if column is a date based column
+     */
+    public boolean isDateColumn()
+    {
+        DataType type = getDataType();
+        return (type==DataType.DATE || type ==DataType.DATETIME);
+    }
+    
     @Override
     public abstract Element addXml(Element parent, long flags);
 
