@@ -132,7 +132,7 @@ public class DBQuery extends DBRowSet
         @Override
         public Object getAttribute(String name)
         {
-            if (attributes != null && attributes.containsKey(name))
+            if (attributes != null && attributes.contains(name))
                 return attributes.get(name);
             // Otherwise ask expression
             DBColumn column = expr.getUpdateColumn();

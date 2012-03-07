@@ -26,6 +26,7 @@ import java.util.Iterator;
 import java.util.Set;
 import java.util.Map.Entry;
 
+import org.apache.empire.commons.Attributes.Attribute;
 import org.apache.empire.xml.XMLUtil;
 import org.w3c.dom.Element;
 
@@ -262,6 +263,25 @@ public class Options extends AbstractSet<OptionEntry> implements Serializable
     public Object[] toArray()
     {
         return list.toArray();
+    }
+
+    @Override
+    public String toString()
+    {
+        StringBuilder b = new StringBuilder();
+        b.append("{");
+        boolean first = true;
+        for (OptionEntry e : list)
+        {
+            b.append((first) ? "\"" : ",\r\n \"");
+            b.append(StringUtils.toString(e.getValue()));
+            b.append("\":\"");
+            b.append(e.getText());
+            b.append("\"");
+            first = false;
+        }    
+        b.append("}");
+        return b.toString();
     }
 
     /**

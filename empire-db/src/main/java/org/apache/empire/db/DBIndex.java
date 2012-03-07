@@ -81,7 +81,7 @@ public class DBIndex extends DBObject
      * The table must be added to the table's index list beforehand 
      * @param table
      */
-    protected void setTable(DBTable table)
+    void setTable(DBTable table)
     {
         if (table==null || !table.getIndexes().contains(this))
             throw new InvalidArgumentException("table", table);

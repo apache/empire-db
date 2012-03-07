@@ -46,23 +46,9 @@ public class AttributesTest
 		Attributes attributes = new Attributes();
 		Object val = attributes.get("unexisting");
 		assertEquals(null, val);
-		attributes.put("test", Integer.valueOf(123));
+		attributes.set("test", Integer.valueOf(123));
 		val = attributes.get("test");
 		assertEquals(Integer.valueOf(123), val);
-	}
-
-	/**
-	 * Test method for {@link org.apache.empire.commons.Attributes#get(java.lang.Object)}.
-	 */
-	@Test
-	public void testGetObject()
-	{
-		Attributes attributes = new Attributes();
-		Object val = attributes.get(new Object());
-		assertEquals(null, val);
-		attributes.put("123", Integer.valueOf(456));
-		val = attributes.get(Integer.valueOf(123));
-		assertEquals(Integer.valueOf(456), val);
 	}
 
 	/**
@@ -72,13 +58,13 @@ public class AttributesTest
 	public void testPutStringObject()
 	{
 		Attributes attributes = new Attributes();
-		attributes.put(null, null);
+		attributes.set(null, null);
 		assertEquals(null, attributes.get(null));
-		attributes.put("", null);
+		attributes.set("", null);
 		assertEquals(null, attributes.get(""));
-		attributes.put("test", null);
+		attributes.set("test", null);
 		assertEquals(null, attributes.get("test"));
-		attributes.put("test", Integer.valueOf(456));
+		attributes.set("test", Integer.valueOf(456));
 		assertEquals(Integer.valueOf(456), attributes.get("test"));
 	}
 

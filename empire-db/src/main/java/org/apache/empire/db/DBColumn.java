@@ -128,7 +128,7 @@ public abstract class DBColumn extends DBColumnExpr
      * 
      * @return true if column is a character based column
      */
-    public boolean isCharacterColumn()
+    public boolean isTextColumn()
     {
         DataType type = getDataType();
         return (type==DataType.TEXT || type ==DataType.CHAR || type==DataType.CLOB);
