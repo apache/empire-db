@@ -40,7 +40,7 @@ public class SampleTable extends DBTable
     }
 
     @Override
-    protected void addColumn(DBTableColumn column)
+    protected DBTableColumn addColumn(DBTableColumn column)
     {
         // Set Translation Title
         String col = column.getBeanPropertyName();  
@@ -53,6 +53,6 @@ public class SampleTable extends DBTable
         column.setControlType((type==DataType.BOOL) ? "checkbox" : "text");
 
         // Add Column
-        super.addColumn(column);
+        return super.addColumn(column);
     }
 }

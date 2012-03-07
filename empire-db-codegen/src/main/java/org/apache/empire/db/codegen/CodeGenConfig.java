@@ -223,10 +223,7 @@ public class CodeGenConfig extends XMLConfiguration {
 	/**
 	 * Initialize the configuration.
 	 * 
-	 * @param filename
-	 *            the file to read
-	 * 
-	 * @return true on success
+	 * @param filename the file to read
 	 */
 	public void init(String filename) {
 		// Read the properties file

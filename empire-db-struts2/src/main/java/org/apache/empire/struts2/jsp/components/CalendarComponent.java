@@ -20,14 +20,12 @@ package org.apache.empire.struts2.jsp.components;
 
 import java.io.StringWriter;
 import java.io.Writer;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.apache.empire.commons.Attributes;
 import org.apache.empire.commons.StringUtils;
 import org.apache.empire.struts2.html.HtmlWriter;
 import org.apache.empire.struts2.html.HtmlWriter.HtmlTag;
@@ -37,6 +35,8 @@ import org.apache.struts2.components.ComponentUrlProvider;
 import org.apache.struts2.components.UIBean;
 import org.apache.struts2.components.UrlProvider;
 import org.apache.struts2.components.UrlRenderer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.opensymphony.xwork2.inject.Inject;
 import com.opensymphony.xwork2.util.ValueStack;
@@ -253,7 +253,7 @@ public class CalendarComponent extends UIBean
         Map<String, Object> paramMap = null;
         if (param != null)
         {
-            paramMap = new Attributes();
+            paramMap = new LinkedHashMap<String, Object>();
             paramMap.put(param, value);
         }
         // Render Link now

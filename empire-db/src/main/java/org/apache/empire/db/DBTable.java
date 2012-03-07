@@ -179,7 +179,7 @@ public class DBTable extends DBRowSet implements Cloneable
      * 
      * @param column a column object
      */
-    protected void addColumn(DBTableColumn column)
+    protected DBTableColumn addColumn(DBTableColumn column)
     { // find column by name
         if (column==null || column.getRowSet()!=this)
             throw new InvalidArgumentException("column", column);
@@ -187,6 +187,7 @@ public class DBTable extends DBRowSet implements Cloneable
             throw new ItemExistsException(column.getName());
         // add now
         columns.add(column);
+        return column;
     }
 
     /**
@@ -326,7 +327,7 @@ public class DBTable extends DBRowSet implements Cloneable
      * 
      * @param index the index to add
      */
-    public void addIndex(DBIndex index)
+    public DBIndex addIndex(DBIndex index)
     {
         if (index==null)
             throw new InvalidArgumentException("index", null);
@@ -342,6 +343,7 @@ public class DBTable extends DBRowSet implements Cloneable
         // add Index now
         indexes.add(index);
         index.setTable(this);
+        return index;
     }
 
     /**
@@ -353,7 +355,7 @@ public class DBTable extends DBRowSet implements Cloneable
      * 
      * @return the Index object
      */
-    public DBIndex addIndex(String name, boolean unique, DBColumn[] columns)
+    public final DBIndex addIndex(String name, boolean unique, DBColumn[] columns)
     {
         if (name==null || columns==null || columns.length==0)
             throw new InvalidArgumentException("name|columns", null);

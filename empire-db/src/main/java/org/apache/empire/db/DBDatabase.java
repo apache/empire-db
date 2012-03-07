@@ -420,12 +420,11 @@ public abstract class DBDatabase extends DBObject
 
     /**
      * Adds a DBTable object to list of database tables.<BR>
-     * There is usually no need to call this function directly 
-     * since it is internally called from the DBTable's constructor.
+     * This function is called internally from the DBTable's constructor.
      * <P> 
      * @param table the DBTable object
      */
-    public void addTable(DBTable table)
+    void addTable(DBTable table)
     { // find column by name
         if (table == null || table.getDatabase() != this)
             throw new InvalidArgumentException("table", table);
@@ -510,7 +509,7 @@ public abstract class DBDatabase extends DBObject
      * @param name the relation name
      * @param references a list of source and target column pairs
      */
-    public void addRelation(String name, DBRelation.DBReference[] references)
+    public DBRelation addRelation(String name, DBRelation.DBReference[] references)
     {
     	// Check
     	if (getRelation(name)!=null)
@@ -527,6 +526,7 @@ public abstract class DBDatabase extends DBObject
         }
         // OK
         relations.add(relation);
+        return relation;
     }
 
     /**
@@ -557,12 +557,11 @@ public abstract class DBDatabase extends DBObject
 
     /**
      * Adds a DBView object to list of database views.<BR>
-     * There is usually no need to call this function directly 
-     * since it is internally called from the DBView's constructor.
+     * This function is called internally from the DBView's constructor.
      * <P> 
      * @param view the DBView object
      */
-    public void addView(DBView view)
+    void addView(DBView view)
     { // find column by name
         if (view == null || view.getDatabase() != this)
             throw new InvalidArgumentException("view", view);
