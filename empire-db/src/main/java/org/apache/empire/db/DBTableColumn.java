@@ -193,11 +193,6 @@ public class DBTableColumn extends DBColumn
             if (isTextColumn())
             {
                 setAttribute(DBCOLATTR_SINGLEBYTECHARS, Boolean.TRUE);
-                
-                boolean test = attributes.contains(DBCOLATTR_SINGLEBYTECHARS);
-                if (test==false)
-                    test = true;
-                
             }    
             else
                 throw new InvalidArgumentException("size", size);
