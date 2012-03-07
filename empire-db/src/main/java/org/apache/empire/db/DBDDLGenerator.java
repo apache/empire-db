@@ -91,7 +91,7 @@ public abstract class DBDDLGenerator<T extends DBDatabaseDriver>
      * @param type
      * @param size
      * @param sql
-     * @returns true if further column attributes may be added or false otherwise
+     * @return true if further column attributes may be added or false otherwise
      */
     protected boolean appendColumnDataType(DataType type, double size, DBTableColumn c, StringBuilder sql)
     {

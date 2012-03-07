@@ -362,7 +362,6 @@ public abstract class DBRowSet extends DBExpr
      * 
      * @param rec the DBRecord object to initialize this DBRowSet object
      * @param state the state of this DBRowSet object
-     * @return true if successful
      */
     protected void prepareInitRecord(DBRecord rec, int state, Object rowSetData)
     {
@@ -380,7 +379,6 @@ public abstract class DBRowSet extends DBExpr
      * <P>
      * @param rec the Record object
      * @param keyValues an array of the primary key columns
-     * @return true if successful
      */
     public void initRecord(DBRecord rec, Object[] keyValues)
     {
@@ -414,7 +412,6 @@ public abstract class DBRowSet extends DBExpr
      * <P>
      * @param rec the record object
      * @param recData the record data from which to initialized the record
-     * @return true if successful
      */
     public void initRecord(DBRecord rec, DBRecordData recData)
     {
@@ -455,7 +452,6 @@ public abstract class DBRowSet extends DBExpr
      * Override this function to do post initialization processing.
      * <P>
      * @param rec the DBRecord object to initialize
-     * @return true if successful
      */
     protected void completeInitRecord(DBRecord rec)
     {
@@ -495,7 +491,6 @@ public abstract class DBRowSet extends DBExpr
      * @param rec the DBRecord object which holds the record data
      * @param cmd the SQL-Command used to query the record
      * @param conn a valid JDBC connection.
-     * @return true if successful
      */
     protected void readRecord(DBRecord rec, DBCommand cmd, Connection conn)
     {
@@ -518,7 +513,6 @@ public abstract class DBRowSet extends DBExpr
      * @param rec the DBRecord object which will hold the record data
      * @param key the primary key values
      * @param conn a valid JDBC connection.
-     * @return true if successful
      */
     public void readRecord(DBRecord rec, Object[] key, Connection conn)
     {
@@ -544,7 +538,7 @@ public abstract class DBRowSet extends DBExpr
      * <P>
      * @param key an array of the primary key columns
      * @param conn a valid JDBC connection.
-     * @return true if successful or false otherwise
+     * @return true if the record exists or false otherwise
      */
     public boolean recordExists(Object[] key, Connection conn)
     {
@@ -565,7 +559,7 @@ public abstract class DBRowSet extends DBExpr
      * <P>
      * @param id id of the record
      * @param conn a valid JDBC connection.
-     * @return true if successful or false otherwise
+     * @return true if the record exists or false otherwise
      */
     public final boolean recordExists(Object id, Connection conn)
     {

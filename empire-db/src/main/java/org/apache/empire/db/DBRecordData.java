@@ -331,7 +331,7 @@ public abstract class DBRecordData extends DBObject
     /**
      * Injects the current field values into a java bean.
      * 
-     * @return true if successful
+     * @return the number of bean properties set on the supplied bean
      */
     public int getBeanProperties(Object bean, Collection<ColumnExpr> ignoreList)
     {
@@ -353,7 +353,7 @@ public abstract class DBRecordData extends DBObject
     /**
      * Injects the current field values into a java bean.
      * 
-     * @return true if successful
+     * @return the number of bean properties set on the supplied bean
      */
     public final int getBeanProperties(Object bean)
     {

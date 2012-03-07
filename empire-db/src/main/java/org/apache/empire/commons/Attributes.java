@@ -32,7 +32,7 @@ import org.w3c.dom.Element;
  */
 public class Attributes extends AbstractSet<Attributes.Attribute> implements Serializable 
 {
-	static final class Attribute implements Serializable 
+	public static final class Attribute implements Serializable 
 	{
         private static final long serialVersionUID = 1L;
 	    private String name;
@@ -81,7 +81,7 @@ public class Attributes extends AbstractSet<Attributes.Attribute> implements Ser
         }
 	}
 	
-	static final class EmptyIterator implements Iterator<Attribute>
+	private static final class EmptyIterator implements Iterator<Attribute>
 	{
         public boolean hasNext()  {
             return false;
@@ -168,7 +168,7 @@ public class Attributes extends AbstractSet<Attributes.Attribute> implements Ser
     }
 
     /**
-     * @param key the attribute
+     * @param name the attribute name
      * @return the attribute value
      */
     public int indexOf(String name)
@@ -187,7 +187,7 @@ public class Attributes extends AbstractSet<Attributes.Attribute> implements Ser
     }
 
 	/**
-     * @param key the attribute
+     * @param name the attribute name
      * @return the attribute value
      */
     public Object get(String name)
@@ -204,7 +204,7 @@ public class Attributes extends AbstractSet<Attributes.Attribute> implements Ser
 
     /**
      * @param name the attribute
-     * @param object the attribute value
+     * @param The attribute to set
      */
     public Attribute set(String name, Object value)
     {

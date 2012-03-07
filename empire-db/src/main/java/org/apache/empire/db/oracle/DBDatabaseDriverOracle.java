@@ -358,8 +358,6 @@ public class DBDatabaseDriverOracle extends DBDatabaseDriver
     
     /**
      * Checks whether the database definition matches the real database structure.
-     * 
-     * @return true if the database definition matches the real database structure.
      */
     @Override
     public void checkDatabase(DBDatabase db, String owner, Connection conn)

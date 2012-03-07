@@ -275,8 +275,6 @@ public class DBTable extends DBRowSet implements Cloneable
      * Sets the primary keys.
      * 
      * @param columns a array with one or more DBColumn objects
-     * 
-     * @return true on success
      */
     public void setPrimaryKey(DBColumn[] columns)
     {
@@ -326,11 +324,7 @@ public class DBTable extends DBRowSet implements Cloneable
     /**
      * Adds an index.
      * 
-     * @param name the index name
-     * @param unique is this a unique index
-     * @param columns the columns indexed by this index
-     * 
-     * @return true on success
+     * @param index the index to add
      */
     public void addIndex(DBIndex index)
     {
@@ -357,7 +351,7 @@ public class DBTable extends DBRowSet implements Cloneable
      * @param unique is this a unique index
      * @param columns the columns indexed by this index
      * 
-     * @return true on success
+     * @return the Index object
      */
     public DBIndex addIndex(String name, boolean unique, DBColumn[] columns)
     {
@@ -415,8 +409,6 @@ public class DBTable extends DBRowSet implements Cloneable
      * 
      * @param rec the DBRecord object. contains all fields and the field properties
      * @param conn a valid connection to the database.
-     * 
-     * @return true if successful
      */
     @Override
     public void createRecord(DBRecord rec, Connection conn)
@@ -463,7 +455,6 @@ public class DBTable extends DBRowSet implements Cloneable
      * 
      * @param key an array of the primary key columns
      * @param conn a valid connection to the database.
-     * @return true if successful
      */
     @Override
     public void deleteRecord(Object[] key, Connection conn)

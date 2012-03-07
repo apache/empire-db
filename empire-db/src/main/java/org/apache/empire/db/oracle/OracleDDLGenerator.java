@@ -118,8 +118,6 @@ public class OracleDDLGenerator extends DBDDLGenerator<DBDatabaseDriverOracle>
     
     /**
      * Returns true if the sequence has been created successfully.
-     * 
-     * @return true if the sequence has been created successfully
      */
     protected void createSequence(DBDatabase db, DBTableColumn c, DBSQLScript script)
     {

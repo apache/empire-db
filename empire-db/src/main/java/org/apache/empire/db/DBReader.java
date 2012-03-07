@@ -401,7 +401,6 @@ public class DBReader extends DBRecordData
      * @param cmd the SQL-Command with cmd.getSelect()
      * @param scrollable true if the reader should be scrollable or false if not
      * @param conn a valid JDBC connection.
-     * @return true if successful
      */
     public void open(DBCommandExpr cmd, boolean scrollable, Connection conn)
     {
@@ -426,7 +425,6 @@ public class DBReader extends DBRecordData
      * </P>
      * @param cmd the SQL-Command with cmd.getSelect()
      * @param conn a valid JDBC connection.
-     * @return true if successful
      */
     public final void open(DBCommandExpr cmd, Connection conn)
     {
@@ -445,7 +443,6 @@ public class DBReader extends DBRecordData
      * <P>
      * @param cmd the SQL-Command with cmd.getSelect()
      * @param conn a valid JDBC connection.
-     * @return true if successful
      */
     public void getRecordData(DBCommandExpr cmd, Connection conn)
     { // Open the record
@@ -702,7 +699,7 @@ public class DBReader extends DBRecordData
     /**
      * Moves the cursor down one row from its current position.
      * 
-     * @return true if successful
+     * @return the number of column descriptions added to the Element
      */
     @Override
     public int addColumnDesc(Element parent)
@@ -720,7 +717,7 @@ public class DBReader extends DBRecordData
      * Adds all children to a parent.
      * 
      * @param parent the parent element below which to search the child
-     * @return true if successful
+     * @return the number of row values added to the element
      */
     @Override
     public int addRowValues(Element parent)
@@ -752,7 +749,7 @@ public class DBReader extends DBRecordData
      * Adds all children to a parent.
      * 
      * @param parent the parent element below which to search the child
-     * @return true if successful
+     * @return the number of rows added to the element
      */
     public int addRows(Element parent)
     {

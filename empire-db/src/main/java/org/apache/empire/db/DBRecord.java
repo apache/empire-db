@@ -496,7 +496,6 @@ public class DBRecord extends DBRecordData implements Record, Cloneable
      * 
      * @param index the index of the column
      * @param value the value
-     * @return true if successful
      */
     public void setValue(int index, Object value)
     {
@@ -529,7 +528,6 @@ public class DBRecord extends DBRecordData implements Record, Cloneable
      * 
      * @param column a DBColumn object
      * @param value the value
-     * @return true if successful
      */
     public final void setValue(Column column, Object value)
     {
@@ -594,7 +592,6 @@ public class DBRecord extends DBRecordData implements Record, Cloneable
      * @param table the rowset
      * @param keyValues a Object array, the primary key(s)
      * @param insert if true change the state of this object to REC_NEW
-     * @return true if successful or false otherwise
      */
     public void init(DBRowSet table, Object[] keyValues, boolean insert)
     { // Init with keys
@@ -613,7 +610,6 @@ public class DBRecord extends DBRecordData implements Record, Cloneable
      * <P>
      * @param table the table for which to create a record
      * @param conn a valid JDBC connection
-     * @return true if successful
      */
     public void create(DBRowSet table, Connection conn)
     {
@@ -626,7 +622,6 @@ public class DBRecord extends DBRecordData implements Record, Cloneable
      * The record's state is set to NEW
      * <P>
      * @param table the table for which to create a record
-     * @return true if successful
      */
     public void create(DBRowSet table)
     {
@@ -673,7 +668,6 @@ public class DBRecord extends DBRecordData implements Record, Cloneable
      * 
      * @see org.apache.empire.db.DBTable#updateRecord(DBRecord, Connection)
      * @param conn a valid connection to the database.
-     * @return true if successful
      */
     public void update(Connection conn)
     {
@@ -692,7 +686,6 @@ public class DBRecord extends DBRecordData implements Record, Cloneable
      * 
      * @see org.apache.empire.db.DBTable#deleteRecord(Object[], Connection)
      * @param conn a valid connection to the database.
-     * @return true if successful
      */
     public void delete(Connection conn)
     {
@@ -710,7 +703,7 @@ public class DBRecord extends DBRecordData implements Record, Cloneable
     /**
      * This function set the field descriptions to the the XML tag.
      * 
-     * @return true if successful
+     * @return the number of column descriptions added to the element
      */
     @Override
     public int addColumnDesc(Element parent)
@@ -735,7 +728,7 @@ public class DBRecord extends DBRecordData implements Record, Cloneable
      * Add the values of this record to the specified XML Element object.
      * 
      * @param parent the XML Element object
-     * @return true if successful
+     * @return the number of row values added to the element
      */
     @Override
     public int addRowValues(Element parent)

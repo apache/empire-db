@@ -73,7 +73,6 @@ public class EmpireException extends RuntimeException
      * Constructor for derived classes
      * @param errType
      * @param params
-     * @param cause
      */
     protected EmpireException(final ErrorType errType, final String[] params)
     {

@@ -791,8 +791,6 @@ public abstract class DBDatabaseDriver implements Serializable
      * @param type the command type 
      * @param dbo the database object
      * @param script the script to complete
-     * 
-     * @return true on success 
      */
     public void getDDLScript(DBCmdType type, DBObject dbo, DBSQLScript script)
     {

@@ -128,7 +128,6 @@ public class DBCommandOracle extends DBCommand
      * the Oracle database are supported.
      * 
      * @param buf the SQL statement
-     * @return true if the creation was successful
      */
     @Override
     public synchronized void getSelect(StringBuilder buf)

@@ -173,8 +173,6 @@ public abstract class DBDatabase extends DBObject
      * 
      * @param driver the database driver
      * @param conn the connection
-     * 
-     * @return true on success
      */
     public void open(DBDatabaseDriver driver, Connection conn)
     {
@@ -211,8 +209,6 @@ public abstract class DBDatabase extends DBObject
      * <P>
      * @param driver The driver for which to create a DDL Script
      * @param script the script object that will be completed
-     * 
-     * @return the DLL script for creating the entire database schema
      */
     public synchronized void getCreateDDLScript(DBDatabaseDriver driver, DBSQLScript script)
     {
@@ -257,8 +253,6 @@ public abstract class DBDatabase extends DBObject
      * Sets the schema for SQL statements.
      * 
      * @param schema the schema to set
-     * 
-     * @return true on success
      */
     public void setSchema(String schema)
     {   // Database must not be open so far
@@ -297,8 +291,6 @@ public abstract class DBDatabase extends DBObject
      * Sets the name of the database link used to identify objects.
      * 
      * @param linkName the database link name
-     * 
-     * @return true on success
      */
     public void setLinkName(String linkName)
     {   // Database must not be open so far
@@ -432,7 +424,6 @@ public abstract class DBDatabase extends DBObject
      * since it is internally called from the DBTable's constructor.
      * <P> 
      * @param table the DBTable object
-     * @return true if successful
      */
     public void addTable(DBTable table)
     { // find column by name
@@ -484,7 +475,6 @@ public abstract class DBDatabase extends DBObject
      * Adds a foreign key relation to the database.
      * <P>
      * @param reference a reference for a source and target column pair
-     * @return true if the relations were successfully created.
      */
     public final void addRelation(DBRelation.DBReference reference)
     {
@@ -501,7 +491,6 @@ public abstract class DBDatabase extends DBObject
      * 
      * @param ref1 a reference for a source and target column pair
      * @param ref2 a reference for a source and target column pair
-     * @return true if the relations were successfully created.
      */
     public final void addRelation(DBRelation.DBReference ref1, DBRelation.DBReference ref2)
     {
@@ -520,8 +509,6 @@ public abstract class DBDatabase extends DBObject
      * 
      * @param name the relation name
      * @param references a list of source and target column pairs
-     * 
-     * @return true if the relations were successfully created.
      */
     public void addRelation(String name, DBRelation.DBReference[] references)
     {
@@ -574,7 +561,6 @@ public abstract class DBDatabase extends DBObject
      * since it is internally called from the DBView's constructor.
      * <P> 
      * @param view the DBView object
-     * @return true if successful
      */
     public void addView(DBView view)
     { // find column by name
@@ -624,7 +610,7 @@ public abstract class DBDatabase extends DBObject
     }
 
     /**
-     * @return true if the database has been opened or false otherwise 
+     * checks if the database has been opened or false otherwise 
      */
     protected void checkOpen()
     {
@@ -1151,8 +1137,6 @@ public abstract class DBDatabase extends DBObject
      * Connection.
      * 
      * @param conn a valid database connection
-     * 
-     * @return true if successful
      */
     public void commit(Connection conn)
     {
@@ -1177,8 +1161,6 @@ public abstract class DBDatabase extends DBObject
      * Connection.
      * <P>
      * @param conn a valid database connection
-     * 
-     * @return true if successful
      */
     public void rollback(Connection conn)
     {

@@ -58,7 +58,6 @@ public class DBSQLScript implements Iterable<String>
     /**
      * Adds a statement to the script.
      * @param sql the statement
-     * @return true if successful
      */
     public void addStmt(String sql)
     {
@@ -69,7 +68,6 @@ public class DBSQLScript implements Iterable<String>
      * Adds a statement to the script.<br>
      * The supplied StringBuilder will be reset to a length of 0
      * @param sql the statement
-     * @return true if successful
      */
     public final void addStmt(StringBuilder sql)
     {

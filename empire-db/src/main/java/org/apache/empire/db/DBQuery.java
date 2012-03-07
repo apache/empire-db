@@ -310,7 +310,6 @@ public class DBQuery extends DBRowSet
      * 
      * @param rec the Record object
      * @param keyValues an array of the primary key columns
-     * @return true if successful
      */
     @Override
     public void initRecord(DBRecord rec, Object[] keyValues)
@@ -352,7 +351,6 @@ public class DBQuery extends DBRowSet
      * @param rec the DBRecord object, contains all fields and the field properties
      * @param key an array of the primary key columns
      * @param conn a valid connection to the database.
-     * @return true if successful
      */
     @Override
     public void readRecord(DBRecord rec, Object[] key, Connection conn)
@@ -387,7 +385,6 @@ public class DBQuery extends DBRowSet
      * 
      * @param rec the DBRecord object. contains all fields and the field properties
      * @param conn a valid connection to the database.
-     * @return true if successful
      */
     @Override
     public void updateRecord(DBRecord rec, Connection conn)

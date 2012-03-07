@@ -66,8 +66,6 @@ public class XMLConfiguration
      * 
      * @param filename the file
      * @param fromResource will read from the classpath if true
-     * 
-     * @return true on success
      */
     public void init(String filename, boolean fromResource)
     {
@@ -137,8 +135,7 @@ public class XMLConfiguration
     /**
      * reads all properties from a given properties node and applies them to the given bean
      * @param bean the bean to which to apply the configuration
-     * @param propertiesNodeName the name of the properties node below the root element
-     * @return true of successful or false otherwise
+     * @param propertiesNodeNames the name of the properties node below the root element
      */
     public void readProperties(Object bean, String... propertiesNodeNames)
     {
@@ -170,7 +167,6 @@ public class XMLConfiguration
      * reads all properties from a given properties node and applies them to the given bean
      * @param bean the bean to which to apply the configuration
      * @param propertiesNode the properties node
-     * @return true of successful or false otherwise
      */
     public void readProperties(Object bean, Element propertiesNode)
     {
