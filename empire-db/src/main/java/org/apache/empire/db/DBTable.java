@@ -179,7 +179,7 @@ public class DBTable extends DBRowSet implements Cloneable
      * 
      * @param column a column object
      */
-    protected DBTableColumn addColumn(DBTableColumn column)
+    protected void addColumn(DBTableColumn column)
     { // find column by name
         if (column==null || column.getRowSet()!=this)
             throw new InvalidArgumentException("column", column);
@@ -187,7 +187,6 @@ public class DBTable extends DBRowSet implements Cloneable
             throw new ItemExistsException(column.getName());
         // add now
         columns.add(column);
-        return column;
     }
 
     /**

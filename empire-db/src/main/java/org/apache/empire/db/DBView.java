@@ -60,6 +60,9 @@ public abstract class DBView extends DBRowSet
             this.expr = expr;
             // Update Column
             this.updateColumn = expr.getUpdateColumn();
+            // Add to view
+            if (view != null)
+                view.addColumn(this);
         }
 
         public DBColumnExpr getSourceColumnExpr()
@@ -285,7 +288,7 @@ public abstract class DBView extends DBRowSet
      * @param col a view column object
      * @return true if the column was successfully added or false otherwise
      */
-    protected DBViewColumn addColumn(DBViewColumn col)
+    protected void addColumn(DBViewColumn col)
     { // find column by name
         if (col == null || col.getRowSet() != this)
             throw new InvalidArgumentException("col", col);
@@ -293,7 +296,6 @@ public abstract class DBView extends DBRowSet
             throw new ItemExistsException(col.getName());
         // add now
         columns.add(col);
-        return col;
     }
 
     /**
@@ -305,9 +307,7 @@ public abstract class DBView extends DBRowSet
      */
     protected final DBViewColumn addColumn(String columnName, DataType dataType)
     { // find column by name
-        DBViewColumn vc = new DBViewColumn(this, columnName, new DBValueExpr(db, null, dataType));
-        addColumn(vc);
-        return vc;
+        return new DBViewColumn(this, columnName, new DBValueExpr(db, null, dataType));
     }
 
     /**
@@ -319,9 +319,7 @@ public abstract class DBView extends DBRowSet
      */
     protected final DBViewColumn addColumn(String columnName, DBColumnExpr columnExpr)
     { // find column by name
-        DBViewColumn vc = new DBViewColumn(this, columnName, columnExpr);
-        addColumn(vc);
-        return vc;
+        return new DBViewColumn(this, columnName, columnExpr);
     }
 
     /**
@@ -332,9 +330,7 @@ public abstract class DBView extends DBRowSet
      */
     protected final DBViewColumn addColumn(DBTableColumn sourceColumn)
     { // find column by name
-        DBViewColumn vc = new DBViewColumn(this, sourceColumn.getName(), sourceColumn);
-        addColumn(vc);
-        return vc;
+        return new DBViewColumn(this, sourceColumn.getName(), sourceColumn);
     }
 
     /**

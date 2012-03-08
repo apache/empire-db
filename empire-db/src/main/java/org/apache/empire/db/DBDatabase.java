@@ -424,7 +424,7 @@ public abstract class DBDatabase extends DBObject
      * <P> 
      * @param table the DBTable object
      */
-    void addTable(DBTable table)
+    protected void addTable(DBTable table)
     { // find column by name
         if (table == null || table.getDatabase() != this)
             throw new InvalidArgumentException("table", table);
@@ -561,7 +561,7 @@ public abstract class DBDatabase extends DBObject
      * <P> 
      * @param view the DBView object
      */
-    void addView(DBView view)
+    protected void addView(DBView view)
     { // find column by name
         if (view == null || view.getDatabase() != this)
             throw new InvalidArgumentException("view", view);
