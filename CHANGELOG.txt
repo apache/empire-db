@@ -9,15 +9,32 @@ For more Information about a particular issue please visit
 https://issues.apache.org/jira/browse/EMPIREDB
 
 --------------
+Release 2.2.1:
+--------------
+** New Feature
+    * [EMPIREDB-79]  - Allow specification of delete action for each DBRelation (ON DELETE CASCADE)
+
+** Improvement
+    * [EMPIREDB-133] - Simplify use of DBCommand:DBCommandParam class
+    * [EMPIREDB-129] - Allow expression based indexes
+    * [EMPIREDB-126] - Various small improvements, like new method overloads, code and javadoc cleanup, etc.
+    * [EMPIREDB-123] - Allow to specify the character column length in bytes (Non-Unicode) or chars (Unicode) for DDL generation
+
+** Bugfix
+    * [EMPIREDB-135] - Suppress column alias inside concatenations
+    * [EMPIREDB-132] - Fix support for CLOB data type in Postgre SQL
+    * [EMPIREDB-130] - Prepared Statements: Convert Enums to String to avoid SQLException
+    * [EMPIREDB-128] - Velocity Template Table.vm does not handle tables without primary keys
+    * [EMPIREDB-124] - Added missing Serializable on class commons.Options and commons.OptionEntry
+    * [EMPIREDB-122] - Fixed support for Update/ Insert of Chinese characters with non-prepared statements
+    * [EMPIREDB-121] - Fixed lower case expression for SQL-Server (lower instead of lcase)
+    * [EMPIREDB-120] - Fixed FieldIllegalValueException for DataType.DATETIME and DataType.DATE if the value is empty (but DBTableColumn is nullable)
+
+--------------
 Release 2.2.0:
 --------------
-** Bug
-    * [EMPIREDB-104] - Create DDL Script on MSSQL should state not CREATE DATABASE if already exist
-    * [EMPIREDB-105] - Support of long integer fields on MS SQL Server
-    * [EMPIREDB-107] - Limit function for postgres sql not implemented
-    * [EMPIREDB-109] - Missing conversion for Type double in ObjectUtils.convert
-    * [EMPIREDB-113] - Should preserve the decimal digits of DECIMAL columns
-    * [EMPIREDB-118] - Prevent columns to be added twice to a table or view
+** New Feature
+    * [EMPIREDB-110] - Add support for reverse-engineering of foreign-key relationships
 
 ** Improvement
     * [EMPIREDB-99] - Remove optional support for old style error handing
@@ -26,8 +43,13 @@ Release 2.2.0:
     * [EMPIREDB-116] - Add support for multi column foreign-keys to code generator
     * [EMPIREDB-117] - Allow Table, View and Column prefixes in generation process
 
-** New Feature
-    * [EMPIREDB-110] - Add support for reverse-engineering of foreign-key relationships
+** Bugfix
+    * [EMPIREDB-104] - Create DDL Script on MSSQL should state not CREATE DATABASE if already exist
+    * [EMPIREDB-105] - Support of long integer fields on MS SQL Server
+    * [EMPIREDB-107] - Limit function for postgres sql not implemented
+    * [EMPIREDB-109] - Missing conversion for Type double in ObjectUtils.convert
+    * [EMPIREDB-113] - Should preserve the decimal digits of DECIMAL columns
+    * [EMPIREDB-118] - Prevent columns to be added twice to a table or view
 
 --------------
 Release 2.1.0:
