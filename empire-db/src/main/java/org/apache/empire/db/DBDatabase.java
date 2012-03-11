@@ -18,6 +18,7 @@
  */
 package org.apache.empire.db;
 
+import java.io.Serializable;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -36,10 +37,10 @@ import org.apache.empire.db.exceptions.QueryFailedException;
 import org.apache.empire.db.exceptions.QueryNoResultException;
 import org.apache.empire.db.exceptions.StatementFailedException;
 import org.apache.empire.db.expr.column.DBValueExpr;
-import org.apache.empire.exceptions.MiscellaneousErrorException;
 import org.apache.empire.exceptions.InternalException;
 import org.apache.empire.exceptions.InvalidArgumentException;
 import org.apache.empire.exceptions.ItemExistsException;
+import org.apache.empire.exceptions.MiscellaneousErrorException;
 import org.apache.empire.exceptions.PropertyReadOnlyException;
 import org.apache.empire.exceptions.UnexpectedReturnValueException;
 import org.slf4j.Logger;
@@ -49,7 +50,7 @@ import org.slf4j.LoggerFactory;
 /**
  * This abstract class is the applicaton's interface for a particular database schema.
  * <P>
- * It provides access to the various database objects such als tables, views and relations.
+ * It provides access to the various database objects such as tables, views and relations.
  * <P>
  * It also provides methods to execute DQL and DML SQL-commands.
  * <P>
@@ -65,13 +66,13 @@ public abstract class DBDatabase extends DBObject
      * There is no need to use this class directly.<BR>
      * Instead you can use the constant {@link DBDatabase#SYSDATE}
      */
-    public static final class DBSystemDate
+    public static final class DBSystemDate implements Serializable
     {
+        private final static long serialVersionUID = 1L;
         // System Date Class for internal use
         private DBSystemDate() 
         { 
             /* no instances */ 
-        	// FIXME what is wrong with a String constant?
         }
         @Override
         public String toString()
