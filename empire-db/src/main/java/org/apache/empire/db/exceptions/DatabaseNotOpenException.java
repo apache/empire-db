@@ -30,7 +30,7 @@ public class DatabaseNotOpenException extends EmpireException
      */
     private static final long serialVersionUID = 1L;
     
-    public static final ErrorType errorType = new ErrorType("error.db.databasenotopen",    "the database {0} has not been opened.");
+    public static final ErrorType errorType = new ErrorType("error.db.databaseNotOpen",    "the database {0} has not been opened.");
     
     public DatabaseNotOpenException(DBDatabase db)
     {

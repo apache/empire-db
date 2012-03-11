@@ -22,11 +22,10 @@ import java.sql.SQLException;
 
 import org.apache.empire.commons.ErrorType;
 import org.apache.empire.db.DBObject;
-import org.apache.empire.exceptions.EmpireException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class QueryFailedException extends EmpireException
+public class QueryFailedException extends InternalSQLException
 {
     // Logger
     private static final Logger log = LoggerFactory.getLogger(QueryFailedException.class);
@@ -36,11 +35,12 @@ public class QueryFailedException extends EmpireException
      */
     private static final long serialVersionUID = 1L;
     
-    public static final ErrorType errorType = new ErrorType("error.db.queryfailed",  "Error executing query {0}.\r\nNative error is {0}.");
+    @SuppressWarnings("hiding")
+    public static final ErrorType errorType = new ErrorType("error.db.queryFailed",  "Error executing query {0}.\r\nNative error is: {1}");
     
     public QueryFailedException(DBObject obj, String sqlCmd, SQLException cause)
     {
-        super(errorType, new String[] { sqlCmd, InternalSQLException.messageFromSQLException(InternalSQLException.driverFromObject(obj), cause) }, cause);
+        super(QueryFailedException.errorType, new String[] { sqlCmd, messageFromSQLException(driverFromObject(obj), cause) }, cause);
     }
     
     /**

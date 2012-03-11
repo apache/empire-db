@@ -27,7 +27,7 @@ public class PropertyReadOnlyException extends EmpireException
      */
     private static final long serialVersionUID = 1L;
     
-    public static final ErrorType errorType = new ErrorType("error.PropertyReadOnly", "The property {0} is read only.");
+    public static final ErrorType errorType = new ErrorType("error.propertyIsReadOnly", "The property {0} is read only.");
     
     public PropertyReadOnlyException(String property)
     {

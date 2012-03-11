@@ -29,7 +29,7 @@ public class FileWriteException extends EmpireFileException
      */
     private static final long serialVersionUID = 1L;
     
-    public static final ErrorType errorType = new ErrorType("error.FileWriteException", "Error writing the file {0}. Message is: {1}.");
+    public static final ErrorType errorType = new ErrorType("error.fileWriteError", "Error writing the file {0}. Message is: {1}.");
     
     public FileWriteException(String fileName, IOException cause)
     {

@@ -28,7 +28,7 @@ public class UnexpectedReturnValueException extends EmpireException
      */
     private static final long serialVersionUID = 1L;
     
-    public static final ErrorType errorType = new ErrorType("error.UnexpectedReturnValueException", "Unexpected return value {0} for function {1}.");
+    public static final ErrorType errorType = new ErrorType("error.unexpectedReturnValue", "Unexpected return value {0} for function {1}.");
     
     public UnexpectedReturnValueException(Object value, String function)
     {

@@ -30,7 +30,7 @@ public class RecordDeleteFailedException extends EmpireException
      */
     private static final long serialVersionUID = 1L;
     
-    public static final ErrorType errorType = new ErrorType("error.db.recorddeletefailed", "Deleting the record {0} in {1} failed. The record might have been deleted already by another user.");
+    public static final ErrorType errorType = new ErrorType("error.db.recordDeleteFailed", "Deleting the record {0} in {1} failed. The record might have been deleted already by another user.");
     
     public RecordDeleteFailedException(DBRowSet rowset, Object[] key)
     {

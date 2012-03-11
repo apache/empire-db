@@ -30,7 +30,7 @@ public class InvalidKeyException extends EmpireException
      */
     private static final long serialVersionUID = 1L;
     
-    public static final ErrorType errorType = new ErrorType("error.db.recordinvalidkey",   "Invalid record key {0} for rowset {1}.");
+    public static final ErrorType errorType = new ErrorType("error.db.recordInvalidKey",   "Invalid record key {0} for rowset {1}.");
     
     public InvalidKeyException(DBRowSet rowset, Object[] key)
     {

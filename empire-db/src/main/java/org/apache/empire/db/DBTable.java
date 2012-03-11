@@ -430,9 +430,12 @@ public class DBTable extends DBRowSet implements Cloneable
     }
 
     /**
-     * Returns true if cascaded deletes are enabled or false otherwise.
-     *  
-     * @return true if cascade deletes are enabled
+     * @deprecated
+     * Deprecated flag that indicates whether cascaded deletes are enabled on this table.
+     * This property will be removed in future releases.
+     * Use DBRelation.getOnDeleteAction() instead.
+     * 
+     * @return true if cascade deletes (DBRelation.DBCascadeAction.CASCADE_RECORDS) are enabled
      */
     public boolean isCascadeDelete()
     {
@@ -440,9 +443,13 @@ public class DBTable extends DBRowSet implements Cloneable
     }
 
     /**
-     * Sets true if delete records will.
+     * @deprecated
+     * Deprecated flag that enables cascaded deletes on foreign key relations.
+     * WARING: The flag only affects newly created relations referring to this table.   
+     * This property will be removed in future releases.
+     * Use DBRelation.setOnDeleteAction() instead.
      *  
-     * @param cascadeDelete use cascade deletes or not
+     * @param cascadeDelete use cascade deletes (DBRelation.DBCascadeAction.CASCADE_RECORDS)
      */
     public void setCascadeDelete(boolean cascadeDelete)
     {
@@ -470,8 +477,7 @@ public class DBTable extends DBRowSet implements Cloneable
             throw new InvalidArgumentException("key", key);
 
         // Delete References
-        if (isCascadeDelete())
-            deleteAllReferences(key, conn);
+        deleteAllReferences(key, conn);
         
         // Build SQL-Statement
         DBCommand cmd = db.createCommand();

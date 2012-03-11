@@ -30,7 +30,7 @@ public class RecordUpdateInvalidException extends EmpireException
      */
     private static final long serialVersionUID = 1L;
     
-    public static final ErrorType errorType = new ErrorType("error.db.recordupatefailed",  "Updating the record {0} in {1} failed. It might have been changed or deleted by another user.");
+    public static final ErrorType errorType = new ErrorType("error.db.recordUpateFailed",  "Updating the record {0} in {1} failed. It might have been changed or deleted by another user.");
     
     public RecordUpdateInvalidException(DBRowSet rowset, Object[] key)
     {

@@ -30,7 +30,7 @@ public class RecordNotFoundException extends EmpireException
      */
     private static final long serialVersionUID = 1L;
     
-    public static final ErrorType errorType = new ErrorType("error.db.recordnotfound", "The record {0} does not exist in {1}. It might have been deleted by another user.");
+    public static final ErrorType errorType = new ErrorType("error.db.recordNotFound", "The record {0} does not exist in {1}. It might have been deleted by another user.");
     
     public RecordNotFoundException(DBRowSet rowset, Object[] key)
     {

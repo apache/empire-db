@@ -32,7 +32,7 @@ public class BeanInstantiationException extends EmpireException
      */
     private static final long serialVersionUID = 1L;
     
-    public static final ErrorType errorType = new ErrorType("error.BeanInstantiation", "Unable create an instance of type {0}.");
+    public static final ErrorType errorType = new ErrorType("error.beanInstantiationFailed", "Unable create an instance of type {0}.");
     
     public BeanInstantiationException(Class<?> clazz, Throwable cause)
     {

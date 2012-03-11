@@ -459,8 +459,12 @@ public abstract class DBDDLGenerator<T extends DBDatabaseDriver>
             refs[i].getTargetColumn().addSQL(sql, DBExpr.CTX_NAME);
             addSeparator = true;
         }
-        // done
         sql.append(")");
+        // On Delete Action
+        if (r.getOnDeleteAction()==DBRelation.DBCascadeAction.CASCADE)
+        {
+            sql.append(" ON DELETE CASCADE");
+        }
         // done
         addCreateRelationStmt(r, sql, script);
     }

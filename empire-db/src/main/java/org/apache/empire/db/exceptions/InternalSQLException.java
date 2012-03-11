@@ -32,7 +32,7 @@ public class InternalSQLException extends EmpireException
      */
     private static final long serialVersionUID = 1L;
     
-    public static final ErrorType errorType = new ErrorType("error.db.sqlexception", "The database operation failed. Native error is {0}.");
+    public static final ErrorType errorType = new ErrorType("error.db.sqlException", "The database operation failed. Native error is: {0}");
 
     protected static String messageFromSQLException(DBDatabaseDriver driver, SQLException sqle)
     {   // Set the error Message

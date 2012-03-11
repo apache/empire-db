@@ -30,6 +30,7 @@ import org.apache.empire.commons.ObjectUtils;
 import org.apache.empire.commons.StringUtils;
 import org.apache.empire.data.Column;
 import org.apache.empire.data.DataType;
+import org.apache.empire.db.DBRelation.DBCascadeAction;
 import org.apache.empire.db.DBRelation.DBReference;
 import org.apache.empire.db.exceptions.FieldNotNullException;
 import org.apache.empire.db.exceptions.NoPrimaryKeyException;
@@ -754,7 +755,10 @@ public abstract class DBRowSet extends DBExpr
             return; // No primary key - no references!
         // Find all relations
         for (DBRelation rel : relations)
-        {   // References
+        {   // Check cascade
+            if (rel.getOnDeleteAction()!=DBCascadeAction.CASCADE_RECORDS)
+                continue;
+            // References
             DBReference[] refs = rel.getReferences();
             for (int i=0; i<refs.length; i++)
             {

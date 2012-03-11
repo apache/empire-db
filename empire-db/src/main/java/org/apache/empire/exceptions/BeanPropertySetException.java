@@ -32,7 +32,7 @@ public class BeanPropertySetException extends EmpireException
      */
     private static final long serialVersionUID = 1L;
     
-    public static final ErrorType errorType = new ErrorType("error.PropertySet", "The property {0} cannot be set on type {1}.");
+    public static final ErrorType errorType = new ErrorType("error.propertySetError", "The property {0} cannot be set on type {1}.");
     
     public BeanPropertySetException(Object bean, String property, Throwable cause)
     {

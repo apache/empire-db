@@ -38,7 +38,6 @@ import org.apache.empire.commons.ObjectUtils;
 import org.apache.empire.commons.StringUtils;
 import org.apache.empire.data.DataMode;
 import org.apache.empire.data.DataType;
-import org.apache.empire.db.DBCmdParam;
 import org.apache.empire.db.exceptions.InternalSQLException;
 import org.apache.empire.exceptions.NotImplementedException;
 import org.apache.empire.exceptions.NotSupportedException;

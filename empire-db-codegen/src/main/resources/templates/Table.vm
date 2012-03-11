@@ -68,9 +68,6 @@ public class $parser.getTableClassName($table.name) extends ${baseTableClassName
 		/*no locking column specified*/
 #end
 #end
-
-		// Set cascade delete
-		setCascadeDelete(true);		
 	}
 #if($nestTables == true)
   }

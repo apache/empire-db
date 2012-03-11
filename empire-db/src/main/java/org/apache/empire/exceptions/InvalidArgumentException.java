@@ -28,7 +28,7 @@ public class InvalidArgumentException extends EmpireException
      */
     private static final long serialVersionUID = 1L;
     
-    public static final ErrorType errorType = new ErrorType("error.invalidarg", "Invalid Argument {0} for parameter {1}.");
+    public static final ErrorType errorType = new ErrorType("error.invalidArgument", "Invalid Argument {0} for parameter {1}.");
     
     public InvalidArgumentException(String param, Object value)
     {

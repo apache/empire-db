@@ -280,10 +280,10 @@ public class SampleAdvDB extends DBDatabase
     {
         // Create views
         V_EMP_DEP_SINCE_VIEW = new EmployeeDepSinceView(this, T_EMP_DEP_HIST);
-        V_EMPLOYEE_INFO = new EmployeeInfoView(this, T_EMPLOYEES, T_DEPARTMENTS);
+        V_EMPLOYEE_INFO      = new EmployeeInfoView(this, T_EMPLOYEES, T_DEPARTMENTS);
         
         // Define Foreign-Key Relations
-        addRelation( T_EMP_DEP_HIST.C_EMPLOYEE_ID  .referenceOn( T_EMPLOYEES.C_EMPLOYEE_ID ));
+        addRelation( T_EMP_DEP_HIST.C_EMPLOYEE_ID  .referenceOn( T_EMPLOYEES.C_EMPLOYEE_ID )).onDeleteCascade();
         addRelation( T_EMP_DEP_HIST.C_DEPARTMENT_ID.referenceOn( T_DEPARTMENTS.C_DEPARTMENT_ID ));
     }
 

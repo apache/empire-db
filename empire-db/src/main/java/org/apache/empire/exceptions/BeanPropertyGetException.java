@@ -32,7 +32,7 @@ public class BeanPropertyGetException extends EmpireException
      */
     private static final long serialVersionUID = 1L;
     
-    public static final ErrorType errorType = new ErrorType("error.PropertyGet", "Unable to get the property {0} from type {1}.");
+    public static final ErrorType errorType = new ErrorType("error.propertyGetError", "Unable to get the property {0} from type {1}.");
     
     public BeanPropertyGetException(Object bean, String property, Throwable cause)
     {

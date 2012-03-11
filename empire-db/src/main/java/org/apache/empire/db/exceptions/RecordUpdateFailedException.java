@@ -30,7 +30,7 @@ public class RecordUpdateFailedException extends EmpireException
      */
     private static final long serialVersionUID = 1L;
     
-    public static final ErrorType errorType = new ErrorType("error.db.recordupateinvalid", "Updating the record {0} in {1} failed. The given record key is ambiguous.");
+    public static final ErrorType errorType = new ErrorType("error.db.recordUpateInvalid", "Updating the record {0} in {1} failed. The given record key is ambiguous.");
     
     public RecordUpdateFailedException(DBRowSet rowset, Object[] key)
     {

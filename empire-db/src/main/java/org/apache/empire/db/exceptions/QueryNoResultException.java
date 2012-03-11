@@ -28,7 +28,7 @@ public class QueryNoResultException extends EmpireException
      */
     private static final long serialVersionUID = 1L;
     
-    public static final ErrorType errorType = new ErrorType("error.db.querynoresult",  "No records found for query {0}.");
+    public static final ErrorType errorType = new ErrorType("error.db.queryNoResult",  "No records found for query {0}.");
     
     public QueryNoResultException(String sqlCmd)
     {

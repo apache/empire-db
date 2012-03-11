@@ -28,7 +28,7 @@ public class ItemExistsException extends EmpireException
      */
     private static final long serialVersionUID = 1L;
     
-    public static final ErrorType errorType = new ErrorType("error.itemexists", "The element {0} already exists.");
+    public static final ErrorType errorType = new ErrorType("error.itemExists", "The element {0} already exists.");
     
     public ItemExistsException(Object item)
     {

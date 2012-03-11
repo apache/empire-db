@@ -27,7 +27,7 @@ public class FileParseException extends EmpireFileException
      */
     private static final long serialVersionUID = 1L;
     
-    public static final ErrorType errorType = new ErrorType("error.FileParseException", "The file {0} has an invalid format.");
+    public static final ErrorType errorType = new ErrorType("error.fileParseError", "The file {0} has an invalid format.");
     
     public FileParseException(String fileName, Exception cause)
     {

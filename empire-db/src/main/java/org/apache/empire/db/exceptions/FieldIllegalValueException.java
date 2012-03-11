@@ -28,7 +28,7 @@ public class FieldIllegalValueException extends FieldValueException
      */
     private static final long serialVersionUID = 1L;
     
-    public static final ErrorType errorType = new ErrorType("error.db.fieldillegalvalue",  "The value {1} for field {0} is invalid.");
+    public static final ErrorType errorType = new ErrorType("error.db.fieldIllegalValue",  "The value {1} for field {0} is invalid.");
     
     public FieldIllegalValueException(DBColumn column, String value, Throwable cause)
     {

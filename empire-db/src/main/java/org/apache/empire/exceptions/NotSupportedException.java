@@ -27,7 +27,7 @@ public class NotSupportedException extends EmpireException
      */
     private static final long serialVersionUID = 1L;
     
-    public static final ErrorType errorType = new ErrorType("error.notsupported", "The function {0} is not supported for type {1}.");
+    public static final ErrorType errorType = new ErrorType("error.notSupported", "The function {0} is not supported for type {1}.");
     
     public NotSupportedException(Object object, String functionName)
     {

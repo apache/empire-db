@@ -29,10 +29,12 @@ import java.util.List;
 import org.apache.empire.commons.ObjectUtils;
 import org.apache.empire.commons.Options;
 import org.apache.empire.data.DataType;
+import org.apache.empire.db.DBRelation.DBCascadeAction;
 import org.apache.empire.db.exceptions.DatabaseNotOpenException;
 import org.apache.empire.db.exceptions.InternalSQLException;
 import org.apache.empire.db.exceptions.QueryFailedException;
 import org.apache.empire.db.exceptions.QueryNoResultException;
+import org.apache.empire.db.exceptions.StatementFailedException;
 import org.apache.empire.db.expr.column.DBValueExpr;
 import org.apache.empire.exceptions.MiscellaneousErrorException;
 import org.apache.empire.exceptions.InternalException;
@@ -475,14 +477,15 @@ public abstract class DBDatabase extends DBObject
      * <P>
      * @param reference a reference for a source and target column pair
      */
-    public final void addRelation(DBRelation.DBReference reference)
+    public final DBRelation addRelation(DBRelation.DBReference reference)
     {
         String table = reference.getSourceColumn().getRowSet().getName();
         String col1 = reference.getSourceColumn().getName();
         // Create Relation Name
-        String name = table.substring(0, Math.min(table.length(), 14)) + "_" + col1.substring(0, Math.min(col1.length(), 12))
-        			  + "_FK";
-        addRelation(name, new DBRelation.DBReference[] { reference });
+        String name = table.substring(0, Math.min(table.length(), 14)) 
+                    + "_" + col1.substring(0, Math.min(col1.length(), 12))
+        			+ "_FK";
+        return addRelation(name, new DBRelation.DBReference[] { reference });
     }
 
     /**
@@ -491,7 +494,7 @@ public abstract class DBDatabase extends DBObject
      * @param ref1 a reference for a source and target column pair
      * @param ref2 a reference for a source and target column pair
      */
-    public final void addRelation(DBRelation.DBReference ref1, DBRelation.DBReference ref2)
+    public final DBRelation addRelation(DBRelation.DBReference ref1, DBRelation.DBReference ref2)
     {
         String table = ref1.getSourceColumn().getRowSet().getName();
         String col1 = ref1.getSourceColumn().getName();
@@ -499,8 +502,9 @@ public abstract class DBDatabase extends DBObject
         // Create Relation Name
         String name = table.substring(0, Math.min(table.length(), 9))
                     + "_" + col1.substring(0, Math.min(col1.length(), 9))
-                    + "_" + col2.substring(0, Math.min(col2.length(), 9)) + "_FK";
-        addRelation(name, new DBRelation.DBReference[] { ref1, ref2 });
+                    + "_" + col2.substring(0, Math.min(col2.length(), 9))
+                    + "_FK";
+        return addRelation(name, new DBRelation.DBReference[] { ref1, ref2 });
     }
 
     /**
@@ -514,8 +518,11 @@ public abstract class DBDatabase extends DBObject
     	// Check
     	if (getRelation(name)!=null)
             throw new ItemExistsException(name); // Relation already exists
+    	// Get default cascade action
+    	DBTable targetTable = (DBTable)references[0].getTargetColumn().getRowSet();
+    	DBCascadeAction deleteAction = (targetTable.isCascadeDelete() ? DBCascadeAction.CASCADE_RECORDS : DBCascadeAction.NONE); 
         // Add a Relation
-        DBRelation relation = new DBRelation(this, name, references);
+        DBRelation relation = new DBRelation(this, name, references, deleteAction);
         if (relations.contains(relation))
             throw new ItemExistsException(name); // Relation already exists
         // Add Reference column to table
@@ -1073,7 +1080,7 @@ public abstract class DBDatabase extends DBObject
             
 	    } catch (SQLException sqle) 
         { 	// Error
-            throw new QueryFailedException(this, sqlCmd, sqle);
+            throw new StatementFailedException(this, sqlCmd, sqle);
 	    }    
     }
 

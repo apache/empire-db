@@ -38,6 +38,7 @@ import org.apache.empire.db.DBReader;
 import org.apache.empire.db.DBRecord;
 import org.apache.empire.db.DBSQLScript;
 import org.apache.empire.db.DBTableColumn;
+import org.apache.empire.db.exceptions.StatementFailedException;
 import org.apache.empire.db.h2.DBDatabaseDriverH2;
 import org.apache.empire.db.postgresql.DBDatabaseDriverPostgreSQL;
 import org.slf4j.Logger;
@@ -142,7 +143,7 @@ public class SampleAdvApp
             
             // commit
             db.commit(conn);
-
+            
             // STEP 7: read from Employee_Info_View
             System.out.println("--------------------------------------------------------");
             System.out.println("*** read from EMPLOYEE_INFO_VIEW ***");
@@ -193,6 +194,11 @@ public class SampleAdvApp
             	script.run(db.getDriver(), conn, false);
             }
 
+            // STEP 13: delete records
+            System.out.println("--------------------------------------------------------");
+            System.out.println("*** deleteRecordSample: shows how to delete records (with and without cascade) ***");
+            deleteRecordSample(idEmp3, idSalDep, conn);
+            
             // Done
             System.out.println("--------------------------------------------------------");
             System.out.println("DB Sample Advanced finished successfully.");
@@ -612,6 +618,31 @@ public class SampleAdvApp
         // Successfully updated
         System.out.println("The employee has been sucessfully updated");
     }    
+    
+    /**
+     * This function demonstrates cascaded deletes.
+     * See DBRelation.setOnDeleteAction()
+     *  
+     * @param idEmployee the id of the employee to delete
+     * @param idDepartment the id of the department to delete
+     * @param conn the connection
+     */
+    private static void deleteRecordSample(int idEmployee, int idDepartment, Connection conn)
+    {
+        db.commit(conn);
+        // Delete an employee
+        // This statement is designed to succeed since cascaded deletes are enabled for this relation.
+        db.T_EMPLOYEES.deleteRecord(idEmployee, conn);
+        System.out.println("The employee has been sucessfully deleted");
+
+        // Delete a department
+        // This statement is designed to fail since cascaded deletes are not on!
+        try {
+            db.T_DEPARTMENTS.deleteRecord(idDepartment, conn);
+        } catch(StatementFailedException e) {
+            System.out.println("Delete of department failed as expected due to existing depending records.");
+        }
+    }
 
     /**
      * This functions prints the results of a query which is performed using the supplied command

@@ -27,13 +27,37 @@ import java.io.Serializable;
  */
 public class DBRelation extends DBObject
 {
-  private final static long serialVersionUID = 1L;
+    private final static long serialVersionUID = 1L;
+    
+    /**
+     * DBCascadeAction enum
+     * <pre>
+     * This enum specifies options for a relation when deleting records
+     * (see DBRelation.setOnDeleteAction)
+     *  
+     * - NONE:    No Action is performed and the operation will fail if depending records exist.
+     * 
+     * - CASCADE: Delete (or update) any depending records. This action will be performed by the database and thus 
+     *            the option "ON DELETE CASCADE" is added to the DDL generated for the relation. 
+     * 
+     * - CASCADE_RECORDS: This option allows to handle the cascade in code. All depending records will be selected
+     *            by the framework and for each record DBRowSet.deleteRecord() will be called. 
+     *            The option "ON DELETE CASCADE" will NOT be added to the DDL generated for the relation. 
+     * 
+     * </pre>
+     */
+    public static enum DBCascadeAction
+    {
+        NONE,
+        CASCADE,
+        CASCADE_RECORDS
+    }
 
 	public static class DBReference implements Serializable
 	{
-      private final static long serialVersionUID = 1L;
+	    private final static long serialVersionUID = 1L;
 	    private DBTableColumn sourceColumn;
-      private DBTableColumn targetColumn;
+	    private DBTableColumn targetColumn;
 	    
 	    public DBReference(DBTableColumn sourceColumn, DBTableColumn targetColumn)
 	    {
@@ -56,6 +80,23 @@ public class DBRelation extends DBObject
     private DBDatabase    db;
     private String        name;
     private DBReference[] references;
+    private DBCascadeAction onDeleteAction;
+
+    /**
+     * Creates a DBRelation object for a foreing key relation.
+     * 
+     * @param db the database object
+     * @param name the name
+     * @param references the references for this relation
+     * @param onDeleteAction specifies the action performed when deleting affected records.
+     */
+	public DBRelation(DBDatabase db, String name, DBReference[] references, DBCascadeAction onDeleteAction)
+	{
+	   this.db         = db;
+	   this.name       = name;
+	   this.references = references;
+	   this.onDeleteAction = onDeleteAction;
+	}
 
     /**
      * Creates a DBRelation object for a foreing key relation.
@@ -64,12 +105,10 @@ public class DBRelation extends DBObject
      * @param name the name
      * @param references the references for this relation
      */
-	public DBRelation(DBDatabase db, String name, DBReference[] references)
-	{
-	   this.db         = db;
-	   this.name       = name;
-	   this.references = references;
-	}
+    public DBRelation(DBDatabase db, String name, DBReference[] references)
+    {
+       this(db, name, references, DBCascadeAction.NONE);
+    }
 	
     /**
      * Returns the name.
@@ -106,6 +145,52 @@ public class DBRelation extends DBObject
     public DBDatabase getDatabase()
     {
         return db;
+    }
+    
+    /**
+     * return the action to perform when deleting affected records.
+     * See DBCascadeAction enum for details.
+     *
+     * @return the action to perform when deleting affected records
+     */
+    public DBCascadeAction getOnDeleteAction()
+    {
+        return onDeleteAction;
+    }
+
+    /**
+     * sets the action taken when deleting records that affect this foreign key relation
+     * See DBCascadeAction enum for details.
+     *
+     * @param onDeleteAction the action to perform when deleting affected records
+     */
+    public void setOnDeleteAction(DBCascadeAction onDeleteAction)
+    {
+        this.onDeleteAction = onDeleteAction;
+    }
+
+    /**
+     * short for 
+     * <pre> 
+     *  setOnDeleteAction(DBCascadeAction.CASCADE);
+     * </pre>
+     * See DBCascadeAction enum for details.
+     */
+    public void onDeleteCascade()
+    {
+        setOnDeleteAction(DBCascadeAction.CASCADE);
+    }
+
+    /**
+     * short for 
+     * <pre> 
+     *  setOnDeleteAction(DBCascadeAction.CASCADE);
+     * </pre>
+     * See DBCascadeAction enum for details.
+     */
+    public void onDeleteCascadeRecords()
+    {
+        setOnDeleteAction(DBCascadeAction.CASCADE_RECORDS);
     }
 
 }
