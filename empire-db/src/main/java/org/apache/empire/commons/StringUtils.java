@@ -195,6 +195,21 @@ public class StringUtils
     }
     
     /**
+     * Compares two Strings with each other - either with or without character case. Both arguments may be null.
+     * @param s1 the first String
+     * @param s2 the second String
+     * @param ignoreCase whether to ignore the character casing or not
+     * @return true if the two strings supplied are equal 
+     */
+    public static boolean compareEqual(String s1, String s2, boolean ignoreCase)
+    {
+        if (s1==null || s2==null)
+            return (s1==s2);
+        // Compare 
+        return (ignoreCase) ? s1.equalsIgnoreCase(s2) : s1.equals(s2);
+    }
+    
+    /**
      * Validates a given string. If the string is empty then null is returned. 
      * Otherwise the trimmed string is returned.
      * 
