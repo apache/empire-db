@@ -18,6 +18,9 @@
  */
 package org.apache.empire.db.expr.join;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import org.apache.empire.db.DBColumn;
 import org.apache.empire.db.DBColumnExpr;
 import org.apache.empire.db.DBDatabase;
@@ -25,8 +28,6 @@ import org.apache.empire.db.DBExpr;
 import org.apache.empire.db.DBJoinType;
 import org.apache.empire.db.DBRowSet;
 import org.apache.empire.db.expr.compare.DBCompareExpr;
-
-import java.util.Set;
 
 /**
  * This class is used for building a join expression of an SQL statement.
@@ -74,21 +75,33 @@ public class DBJoinExpr extends DBExpr
         return left.getDatabase();
     }
 
+    /**
+     * returns the left join expression
+     */
     public DBColumnExpr getLeft()
     {
         return left;
     }
 
+    /**
+     * returns the right join expression
+     */
     public DBColumnExpr getRight()
     {
         return right;
     }
 
+    /**
+     * returns the join type for this join
+     */
     public DBJoinType getType()
     {
         return type;
     }
     
+    /**
+     * returns true if this join is using the given table or view or false otherwise
+     */
     public boolean isJoinOn(DBRowSet rowset)
     {
         if (rowset==null)
@@ -98,6 +111,27 @@ public class DBJoinExpr extends DBExpr
         DBRowSet rsl = (l!=null ? l.getRowSet() : null);
         DBRowSet rsr = (r!=null ? r.getRowSet() : null);
         return rowset.equals(rsl) || rowset.equals(rsr);
+    }
+    
+    /**
+     * returns true if this join is using the given column or false otherwise
+     */
+    public boolean isJoinOn(DBColumn column)
+    {
+        if (column==null)
+            return false;
+        // Check Update Columns
+        if (column.equals(left.getUpdateColumn()) ||
+            column.equals(right.getUpdateColumn()))
+            return true;
+        if (compExpr!=null)
+        {   // Check expression
+            HashSet<DBColumn> set = new HashSet<DBColumn>();
+            compExpr.addReferencedColumns(set);
+            return set.contains(column);
+        }
+        // not found
+        return false;
     }
 
     /**

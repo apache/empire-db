@@ -63,7 +63,7 @@ public class BeanProperty implements Column
     }
 
     /**
-     * @deprecated use BeanProperty(String name, DataType dataType, double size, DataMode dataMode, String controlType) instead.
+     * Constructs a bean property definition
      * @param name
      * @param dataType
      * @param size
@@ -71,20 +71,18 @@ public class BeanProperty implements Column
      * @param controlType
      * @param readOnly
      */
-    @Deprecated
     public BeanProperty(String name, DataType dataType, double size, boolean required, String controlType, boolean readOnly)
     {
         this(name, dataType, size, (readOnly ? DataMode.ReadOnly : (required ? DataMode.NotNull : DataMode.Nullable)), controlType);
     }
     
     /**
-     * @deprecated use BeanProperty(String name, DataType dataType, double size, DataMode dataMode, String controlType) instead.
+     * Constructs a bean property definition
      * @param name
      * @param dataType
      * @param size
      * @param required
      */
-    @Deprecated
     public BeanProperty(String name, DataType dataType, double size, boolean required)
     {
         this(name, dataType, size, (required ? DataMode.NotNull : DataMode.Nullable), "text");

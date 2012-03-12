@@ -454,8 +454,7 @@ public abstract class DBCommand extends DBCommandExpr
     }
     
     /**
-     * Returns true if the command has a join on the given
-     * table or false otherwise.
+     * Returns true if the command has a join on the given table or false otherwise.
      * 
      * @param rowset rowset table or view to join
      * 
@@ -474,6 +473,69 @@ public abstract class DBCommand extends DBCommandExpr
         // not found
         return false;
     }
+    
+    /**
+     * Returns true if the command has a join on the given column or false otherwise.
+     * 
+     * @param column the column to test
+     * 
+     * @return true if the command has a join on the given column or false otherwise
+     */
+    public boolean hasJoinOn(DBColumn column)
+    {
+        if (joins==null)
+            return false;
+        // Examine all joins
+        for (DBJoinExpr join : joins)
+        {
+            if (join.isJoinOn(column))
+                return true;
+        }
+        // not found
+        return false;
+    }
+    
+    /**
+     * removes all joins to a given table or view
+     * 
+     * @param rowset the table or view for which to remove all joins
+     * 
+     * @return true if any joins have been removed or false otherwise
+     */
+    public boolean removeJoinsOn(DBRowSet rowset)
+    {
+        if (joins==null)
+            return false;
+        // Examine all joins
+        int size = joins.size();
+        for (int i=size-1; i>=0; i--)
+        {
+            if (joins.get(i).isJoinOn(rowset))
+                joins.remove(i);
+        }
+        return (size!=joins.size());
+    }
+    
+    /**
+     * removes all joins to a given column
+     * 
+     * @param column the column for which to remove all joins
+     * 
+     * @return true if any joins have been removed or false otherwise
+     */
+    public boolean removeJoinsOn(DBColumn column)
+    {
+        if (joins==null)
+            return false;
+        // Examine all joins
+        int size = joins.size();
+        for (int i=size-1; i>=0; i--)
+        {
+            if (joins.get(i).isJoinOn(column))
+                joins.remove(i);
+        }
+        return (size!=joins.size());
+    }
 
     /**
      * Adds a compare expression to the list of constraints.
@@ -489,7 +551,7 @@ public abstract class DBCommand extends DBCommandExpr
     }
 
     /**
-     * Returns true if the command has constaints or false if not.
+     * Returns true if the command has constraints or false if not.
      * 
      * @return true if constraints have been set on the command
      */
