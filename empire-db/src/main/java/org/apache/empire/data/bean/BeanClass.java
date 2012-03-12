@@ -65,18 +65,9 @@ public abstract class BeanClass
         return prop;
     }
 
-    protected final BeanProperty addProp(String propname, DataType dataType, double size, boolean required)
+    protected final BeanProperty addProp(String propname, DataType dataType, double size, DataMode dataMode)
     {
-        BeanProperty prop = new BeanProperty(propname, dataType, size, required, "text", false);
-        addProp(prop);
-        return prop;
-    }
-
-    protected final BeanProperty addProp(String propname, DataType dataType, double size, boolean required, String controlType)
-    {
-        BeanProperty prop = new BeanProperty(propname, dataType, size, required, controlType, false);
-        addProp(prop);
-        return prop;
+        return addProp(propname, dataType, size, dataMode, "text");
     }
 
     protected final BeanProperty addProp(String propname, DataType dataType, double size, boolean required, String controlType, boolean readOnly)
@@ -84,6 +75,16 @@ public abstract class BeanClass
         BeanProperty prop = new BeanProperty(propname, dataType, size, required, controlType, readOnly);
         addProp(prop);
         return prop;
+    }
+
+    protected final BeanProperty addProp(String propname, DataType dataType, double size, boolean required, String controlType)
+    {
+        return addProp(propname, dataType, size, required, controlType, false);
+    }
+
+    protected final BeanProperty addProp(String propname, DataType dataType, double size, boolean required)
+    {
+        return addProp(propname, dataType, size, required, "text", false);
     }
 
     /**
