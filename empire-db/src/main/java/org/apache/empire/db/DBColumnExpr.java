@@ -72,8 +72,8 @@ public abstract class DBColumnExpr extends DBExpr
     public abstract DataType getDataType();
 
     /**
-     * Returns the column name for this column epxression.
-     * The name must contain only alphanumerical charaters and the underscore.
+     * Returns the column name for this column expression.
+     * The name must contain only alphanumeric characters and the underscore.
      * For SQL functions this name may be generated. However subsequent calls to this function 
      * for the same object instance must return the same string.  
      *
@@ -99,7 +99,7 @@ public abstract class DBColumnExpr extends DBExpr
      * to the supplied parent XML Element.
      * 
      * @param parent the parent element to which to append the column description
-     * @param flags currenly not used
+     * @param flags currently not used
      * @return the newly created child element
      */
     public abstract Element addXml(Element parent, long flags);
@@ -137,7 +137,7 @@ public abstract class DBColumnExpr extends DBExpr
 
     /**
      * Returns the list of options for this column
-     * containing all possbile field values.
+     * containing all possible field values.
      * 
      * @return the list of options
      */
@@ -328,7 +328,7 @@ public abstract class DBColumnExpr extends DBExpr
 
     /**
      * Creates and returns a new comparison object for the SQL "like" operator.
-     * By converting column value and comparision value to upper case 
+     * By converting column value and comparison value to upper case 
      * the like is effectively case insensitive.   
      *
      * @param value the Object value
@@ -342,7 +342,7 @@ public abstract class DBColumnExpr extends DBExpr
 
     /**
      * Creates and returns a new comparison object for the SQL "like" operator.
-     * By converting column value and comparision value to lower case 
+     * By converting column value and comparison value to lower case 
      * the like is effectively case insensitive.   
      *
      * @param value the Object value
