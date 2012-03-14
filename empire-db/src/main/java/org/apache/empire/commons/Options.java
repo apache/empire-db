@@ -23,10 +23,9 @@ import java.util.AbstractSet;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.Set;
 import java.util.Map.Entry;
+import java.util.Set;
 
-import org.apache.empire.commons.Attributes.Attribute;
 import org.apache.empire.xml.XMLUtil;
 import org.w3c.dom.Element;
 
@@ -38,7 +37,7 @@ import org.w3c.dom.Element;
  * where the entry value is used as the key for the set and thus must be unique.<BR>
  * <P> 
  */
-public class Options extends AbstractSet<OptionEntry> implements Serializable
+public class Options extends AbstractSet<OptionEntry> implements Cloneable, Serializable
 {
 	private static final long serialVersionUID = 1L;
 
@@ -54,12 +53,17 @@ public class Options extends AbstractSet<OptionEntry> implements Serializable
     public Options()
     {
         // Default constructor
-        // TODO clean up this class as it is quite messy (add vs set, object vs key, ...)
     }
     
     public Options(Options other)
     {
         this.addAll(other);
+    }
+
+    @Override
+    public Options clone()
+    {
+        return new Options(this);
     }
     
     public Options(OptionEntry [] entries)

@@ -21,6 +21,7 @@ Release 2.2.1:
     * [EMPIREDB-123] - Allow to specify the character column length in bytes (Non-Unicode) or chars (Unicode) for DDL generation
 
 ** Bugfix
+    * [EMPIREDB-136] - DBCommand.clone() modified to produce an independent clone of the original command.
     * [EMPIREDB-135] - Suppress column alias inside concatenations
     * [EMPIREDB-132] - Fix support for CLOB data type in Postgre SQL
     * [EMPIREDB-130] - Prepared Statements: Convert Enums to String to avoid SQLException

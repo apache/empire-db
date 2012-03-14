@@ -30,7 +30,7 @@ import org.w3c.dom.Element;
  * This class holds a map of objects which are identified by a case insensitive key string.
  * 
  */
-public class Attributes extends AbstractSet<Attributes.Attribute> implements Serializable 
+public class Attributes extends AbstractSet<Attributes.Attribute> implements Cloneable, Serializable 
 {
 	public static final class Attribute implements Serializable 
 	{
@@ -114,6 +114,15 @@ public class Attributes extends AbstractSet<Attributes.Attribute> implements Ser
     {
         if (size>0)
             attributes = new ArrayList<Attributes.Attribute>(size);
+    }
+
+    @Override
+    public Attributes clone()
+    {
+         Attributes clone = new Attributes();
+         if (attributes!=null)
+             clone.attributes = new ArrayList<Attributes.Attribute>(attributes);
+         return clone;
     }
 
     @Override

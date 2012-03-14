@@ -32,6 +32,7 @@ import org.apache.empire.db.expr.compare.DBCompareExpr;
 import org.apache.empire.db.expr.join.DBJoinExpr;
 import org.apache.empire.db.expr.join.DBJoinExprEx;
 import org.apache.empire.db.expr.set.DBSetExpr;
+import org.apache.empire.exceptions.InternalException;
 import org.apache.empire.exceptions.MiscellaneousErrorException;
 import org.apache.empire.exceptions.ObjectNotValidException;
 import org.slf4j.Logger;
@@ -136,11 +137,37 @@ public abstract class DBCommand extends DBCommandExpr
     {
         try 
         {
-            return (DBCommand)super.clone();
-        } catch(CloneNotSupportedException e) 
-        {
+            DBCommand clone = (DBCommand)super.clone();
+            clone.db = db;
+            // Clone lists
+            if (select!=null)
+                clone.select = new ArrayList<DBColumnExpr>(select);
+            if (set!=null)
+                clone.set = new ArrayList<DBSetExpr>(set);
+            if (joins!=null)
+                clone.joins = new ArrayList<DBJoinExpr>(joins);
+            if (where!=null)
+                clone.where = new ArrayList<DBCompareExpr>(where);
+            if (groupBy!=null)
+                clone.groupBy = new ArrayList<DBColumnExpr>(groupBy);
+            if (having!=null)
+                clone.having = new ArrayList<DBCompareExpr>(having);
+            if (cmdParams!=null)
+            {   // clone params
+                clone.paramUsageCount = 0;
+                clone.cmdParams = new Vector<DBCmdParam>();
+                for (DBCmdParam p : cmdParams)
+                {
+                    DBCmdParam param = new DBCmdParam(this, p.getDataType(), p.getValue());
+                    clone.cmdParams.add(param);
+                }
+            }
+            // done
+            return clone;
+            
+        } catch (CloneNotSupportedException e) {
             log.error("Cloning DBCommand object failed!", e);
-            return null;
+            throw new InternalException(e); 
         }
     }
 
