@@ -162,4 +162,15 @@ public class DBConcatExpr extends DBColumnExpr
         }
         
     }
+    
+    @Override
+    public boolean equals(Object other)
+    {
+    	if (other instanceof DBConcatExpr)
+    	{	// Compare left and right
+    		return left .equals(((DBConcatExpr)other).left)
+    		    && right.equals(((DBConcatExpr)other).right);
+    	}
+    	return false;
+    }
 }
