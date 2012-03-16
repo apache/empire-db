@@ -217,6 +217,19 @@ public class DBRecord extends DBRecordData implements Record, Cloneable
     }
 
     /**
+     * Returns true if the record is valid.
+     * 
+     * @return true if the record is valid
+     */
+    public boolean isReadOnly()
+    {
+        if (!isValid())
+            return true;
+        DBRowSet rowset = getRowSet();
+        return (rowset==null || !rowset.isUpdateable());
+    }
+
+    /**
      * Returns true if the record is modified.
      * 
      * @return true if the record is modified

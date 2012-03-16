@@ -98,6 +98,16 @@ public class DBTable extends DBRowSet implements Cloneable
     {
         return alias;
     }
+    
+    /**
+     * Returns whether or not the table supports record updates. Default is true.
+     * @return true if the table allows record updates
+     */
+    @Override
+    public boolean isUpdateable()
+    {
+        return true;
+    }
 
     /**
      * Clones this table and assigns a new table alias.

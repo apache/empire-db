@@ -30,6 +30,7 @@ import org.apache.empire.commons.Options;
 import org.apache.empire.data.Column;
 import org.apache.empire.data.ColumnExpr;
 import org.apache.empire.data.Record;
+import org.apache.empire.db.DBRowSet;
 import org.apache.empire.exceptions.BeanPropertyGetException;
 import org.apache.empire.exceptions.BeanPropertySetException;
 import org.apache.empire.exceptions.InvalidArgumentException;
@@ -196,6 +197,11 @@ public class BeanRecordProxy<T> implements Record
     public boolean isValid()
     {
         return (data!=null);
+    }
+
+    public boolean isReadOnly()
+    {
+        return (isValid() ? false : true);
     }
 
     public Object getValue(ColumnExpr column)

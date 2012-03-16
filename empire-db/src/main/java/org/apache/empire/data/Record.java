@@ -43,6 +43,12 @@ public interface Record extends RecordData
     boolean isValid();
 
     /**
+     * returns true if this record is readOnly.
+     * @return true if this record is readOnly
+     */
+    boolean isReadOnly();
+
+    /**
      * returns true if the record has been modified.
      * @return true if the record has been modified or false otherwise
      */
@@ -53,7 +59,6 @@ public interface Record extends RecordData
      * @return true if this record is a new record
      */
     boolean isNew();
-
 
     /**
      * returns the column at the specified index.

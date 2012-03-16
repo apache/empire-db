@@ -122,11 +122,11 @@ public abstract class DBView extends DBRowSet
         }    
 
         @Override
-        public void checkValue(Object value)
+        public void validate(Object value)
         {
             if (updateColumn==null)
                 return;
-            updateColumn.checkValue(value);
+            updateColumn.validate(value);
         }
 
         @Override
@@ -277,6 +277,7 @@ public abstract class DBView extends DBRowSet
      * Returns whether or not the view is updateable
      * @return true if the view is updateable or false if not 
      */
+    @Override
     public boolean isUpdateable()
     {
         return this.updateable;
@@ -394,7 +395,7 @@ public abstract class DBView extends DBRowSet
     @Override
     public void createRecord(DBRecord rec, Connection conn)
     {
-        throw new NotSupportedException(this, "addRecord");
+        throw new NotSupportedException(this, "createRecord");
     }
 
     /*

@@ -121,12 +121,12 @@ public class DBQuery extends DBRowSet
         }
 
         @Override
-        public void checkValue(Object value)
+        public void validate(Object value)
         {
             DBColumn column = expr.getUpdateColumn();
             if (column==null)
                 return;
-            column.checkValue(value);
+            column.validate(value);
         }
 
         @Override
@@ -230,6 +230,16 @@ public class DBQuery extends DBRowSet
     public String getAlias()
     {
         return alias;
+    }
+    
+    /**
+     * Returns whether or not the table supports record updates.
+     * @return true if the table allows record updates
+     */
+    @Override
+    public boolean isUpdateable()
+    {
+        return (getKeyColumns()!=null);
     }
 
     /**
@@ -389,8 +399,14 @@ public class DBQuery extends DBRowSet
     @Override
     public void updateRecord(DBRecord rec, Connection conn)
     {
-        if (conn == null || rec == null)
-            throw new InvalidArgumentException("conn|rec", null);
+        // check updateable
+        if (isUpdateable()==false)
+            throw new NotSupportedException(this, "updateRecord");
+        // check params
+        if (rec == null)
+            throw new InvalidArgumentException("record", null);
+        if (conn == null)
+            throw new InvalidArgumentException("conn", null);
         // Has record been modified?
         if (rec.isModified() == false)
             return; // Nothing to update

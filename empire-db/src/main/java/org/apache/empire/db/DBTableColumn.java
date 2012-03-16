@@ -312,7 +312,7 @@ public class DBTableColumn extends DBColumn
      * @return true if the value is valid or false otherwise.
      */
     @Override
-    public void checkValue(Object value)
+    public void validate(Object value)
     {
         // Check for NULL
         if (isRequired() && (value == null || value.toString().length() < 1))

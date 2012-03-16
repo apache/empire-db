@@ -85,7 +85,7 @@ public class DBCommandTest
         }
 
         @Override
-        public void checkValue(Object value)
+        public void validate(Object value)
         {
             return;
         }

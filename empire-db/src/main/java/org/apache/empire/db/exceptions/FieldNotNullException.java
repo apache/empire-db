@@ -19,6 +19,7 @@
 package org.apache.empire.db.exceptions;
 
 import org.apache.empire.commons.ErrorType;
+import org.apache.empire.data.Column;
 import org.apache.empire.db.DBColumn;
 import org.apache.empire.exceptions.EmpireException;
 
@@ -34,5 +35,10 @@ public class FieldNotNullException extends EmpireException
     public FieldNotNullException(DBColumn col)
     {
         super(errorType, new String[] { col.getFullName() });
+    }
+    
+    public FieldNotNullException(Column col)
+    {
+        super(errorType, new String[] { col.getName() });
     }
 }

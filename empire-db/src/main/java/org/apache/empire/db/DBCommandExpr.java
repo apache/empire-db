@@ -80,6 +80,13 @@ public abstract class DBCommandExpr extends DBExpr
         {
             return null;
         }
+        
+        /** Not applicable - returns false */
+        @Override
+        public boolean isUpdateable()
+        {
+            return false;
+        }
 
         /**
          * @see org.apache.empire.db.DBExpr#addReferencedColumns(Set)
@@ -278,7 +285,7 @@ public abstract class DBCommandExpr extends DBExpr
          * Not applicable - always returns true.
          */
         @Override
-        public void checkValue(Object value)
+        public void validate(Object value)
         {
             // Nothing to check.
         }

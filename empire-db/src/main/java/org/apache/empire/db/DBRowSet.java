@@ -42,6 +42,7 @@ import org.apache.empire.db.exceptions.RecordUpdateInvalidException;
 import org.apache.empire.db.expr.column.DBCountExpr;
 import org.apache.empire.exceptions.InvalidArgumentException;
 import org.apache.empire.exceptions.ItemNotFoundException;
+import org.apache.empire.exceptions.NotSupportedException;
 import org.apache.empire.exceptions.ObjectNotValidException;
 import org.apache.empire.exceptions.UnexpectedReturnValueException;
 import org.slf4j.Logger;
@@ -104,6 +105,8 @@ public abstract class DBRowSet extends DBExpr
     public abstract String getName();
     
     public abstract String getAlias();
+    
+    public abstract boolean isUpdateable();
 
     public abstract void createRecord(DBRecord rec, Connection conn);
 
@@ -583,6 +586,12 @@ public abstract class DBRowSet extends DBExpr
      */
     public void updateRecord(DBRecord rec, Connection conn)
     {
+        // check updateable
+        if (isUpdateable()==false)
+            throw new NotSupportedException(this, "updateRecord");
+        // Check Arguments
+        if (rec == null)
+            throw new InvalidArgumentException("record", rec);
         // Check Arguments
         if (conn == null)
             throw new InvalidArgumentException("conn", conn);

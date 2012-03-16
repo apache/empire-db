@@ -19,9 +19,9 @@
 package org.apache.empire.data;
 
 /**
- * The column interface provides methods for accessing metadata that is only relevant for updateing records.
+ * The column interface provides methods for accessing metadata that is only relevant for updating records.
  * <P>
- * This interface inherits from ColumnExpr which provides futher metadata.
+ * This interface inherits from ColumnExpr which provides further metadata.
  * <P>
  */
 public interface Column extends ColumnExpr
@@ -58,5 +58,11 @@ public interface Column extends ColumnExpr
      * @return Returns true if the values for this column are generally read-only
      */
     boolean isReadOnly();
+
+    /**
+     * Checks if the given value is a valid value for this column 
+     * If not, an exception is thrown
+     */
+    void validate(Object value);
 
 }

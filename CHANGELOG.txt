@@ -15,6 +15,7 @@ Release 2.2.1:
     * [EMPIREDB-79]  - Allow specification of delete action for each DBRelation (ON DELETE CASCADE)
 
 ** Improvement
+    * [EMPIREDB-137] - Extend Record and Column interfaces by Record.isReadOnly() and Column.validate() methods
     * [EMPIREDB-133] - Simplify use of DBCommand:DBCommandParam class
     * [EMPIREDB-129] - Allow expression based indexes
     * [EMPIREDB-126] - Various small improvements, like new method overloads, code and javadoc cleanup, etc.

@@ -19,10 +19,12 @@
 package org.apache.empire.data.bean;
 
 import org.apache.empire.commons.Attributes;
+import org.apache.empire.commons.ObjectUtils;
 import org.apache.empire.commons.Options;
 import org.apache.empire.data.Column;
 import org.apache.empire.data.DataMode;
 import org.apache.empire.data.DataType;
+import org.apache.empire.db.exceptions.FieldNotNullException;
 
 /**
  * BeanObject
@@ -194,6 +196,12 @@ public class BeanProperty implements Column
     public boolean isRequired()
     {
         return (dataMode==DataMode.NotNull);
+    }
+
+    public void validate(Object value)
+    {
+        if (ObjectUtils.isEmpty(value) && isRequired())
+            throw new FieldNotNullException(this);
     }
 
     // --- others ---

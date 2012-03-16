@@ -21,10 +21,12 @@ package org.apache.empire.db;
 // Java
 import java.util.Set;
 
+import org.apache.empire.commons.ObjectUtils;
 import org.apache.empire.commons.Options;
 import org.apache.empire.data.Column;
 import org.apache.empire.data.DataType;
 import org.apache.empire.db.exceptions.DatabaseNotOpenException;
+import org.apache.empire.db.exceptions.FieldNotNullException;
 import org.apache.empire.db.expr.set.DBSetExpr;
 import org.w3c.dom.Element;
 
@@ -121,7 +123,20 @@ public abstract class DBColumn extends DBColumnExpr
      */
     public abstract boolean isReadOnly();
 
-    public abstract void checkValue(Object value);
+    /**
+     * Checks if the given value is a valid value for this column 
+     * If not, an exception is thrown
+     */
+    public abstract void validate(Object value);
+    
+    /**
+     * @deprecated use validate() instead 
+     */
+    @Deprecated
+    public final void checkValue(Object value)
+    {
+        validate(value);
+    }
 
     /**
      * Returns true if column the column is a character based column (char, text or clob)
