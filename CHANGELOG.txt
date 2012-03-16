@@ -9,7 +9,7 @@ For more Information about a particular issue please visit
 https://issues.apache.org/jira/browse/EMPIREDB
 
 --------------
-Release 2.2.1:
+Release 2.3.0:
 --------------
 ** New Feature
     * [EMPIREDB-79]  - Allow specification of delete action for each DBRelation (ON DELETE CASCADE)
