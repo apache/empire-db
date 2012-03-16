@@ -21,12 +21,10 @@ package org.apache.empire.db;
 // Java
 import java.util.Set;
 
-import org.apache.empire.commons.ObjectUtils;
 import org.apache.empire.commons.Options;
 import org.apache.empire.data.Column;
 import org.apache.empire.data.DataType;
 import org.apache.empire.db.exceptions.DatabaseNotOpenException;
-import org.apache.empire.db.exceptions.FieldNotNullException;
 import org.apache.empire.db.expr.set.DBSetExpr;
 import org.w3c.dom.Element;
 

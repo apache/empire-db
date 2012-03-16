@@ -529,7 +529,7 @@ public class DBRecord extends DBRecordData implements Record, Cloneable
             throw new FieldIsReadOnlyException(column);
         }
         // Is Value valid
-        column.checkValue(value);
+        column.validate(value);
         // Init original values
         modifyValue(index, value);
     }
