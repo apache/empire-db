@@ -24,6 +24,7 @@ import java.util.List;
 
 import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.beanutils.BeanUtilsBean;
+import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.commons.beanutils.PropertyUtilsBean;
 import org.apache.empire.commons.ObjectUtils;
 import org.apache.empire.commons.Options;
@@ -371,9 +372,15 @@ public class BeanRecordProxy<T> implements Record
         {   // Get Property Value
             if (ObjectUtils.isEmpty(value))
                 value = null;
-            BeanUtils.setProperty(bean, property, value);
-            // PropertyUtilsBean pub = BeanUtilsBean.getInstance().getPropertyUtils();
-            // pub.setSimpleProperty(data, property, value);
+            // Set Property Value
+            if (value!=null)
+            {   // Bean utils will convert if necessary
+                BeanUtils.setProperty(bean, property, value);
+            }
+            else
+            {   // Don't convert, just set
+                PropertyUtils.setProperty(bean, property, null);
+            }
         } catch (IllegalArgumentException e) {
             log.error(bean.getClass().getName() + ": invalid argument for property '" + property + "'");
             throw new BeanPropertySetException(bean, property, e);
@@ -382,6 +389,9 @@ public class BeanRecordProxy<T> implements Record
             throw new BeanPropertySetException(bean, property, e);
         } catch (InvocationTargetException e)
         {   log.error(bean.getClass().getName() + ": unable to set property '" + property + "'");
+            throw new BeanPropertySetException(bean, property, e);
+        } catch (NoSuchMethodException e) {
+            log.error(bean.getClass().getName() + ": no setter available for property '" + property + "'");
             throw new BeanPropertySetException(bean, property, e);
         }    
     }
