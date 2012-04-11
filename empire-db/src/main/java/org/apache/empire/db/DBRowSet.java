@@ -18,6 +18,10 @@
  */
 package org.apache.empire.db;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.lang.reflect.Field;
 import java.sql.Connection;
 import java.sql.Timestamp;
 import java.util.ArrayList;
@@ -83,7 +87,7 @@ public abstract class DBRowSet extends DBExpr
     // Logger
     protected static final Logger log = LoggerFactory.getLogger(DBRowSet.class);
     // Members
-    protected final DBDatabase db;
+    protected final transient DBDatabase db;
     protected String        comment           = null;
     protected DBIndex       primaryKey        = null;
     protected DBColumn      timestampColumn   = null; // Use SetUpdateTimestamp!
@@ -98,6 +102,100 @@ public abstract class DBRowSet extends DBExpr
     public DBRowSet(DBDatabase db)
     {
         this.db = db;
+    }
+
+    /**
+     * Gets an identifier for this RowSet Object
+     * @return the rowset identifier
+     */
+    public String getId()
+    {
+        return db.getId()+"."+getName();
+    }
+
+    /**
+     * returns a rowset by its identifier
+     * @param rowsetId the id of the rowset
+     * @return the rowset object
+     */
+    public static DBRowSet findById(String rowsetId)
+    {
+        int i = rowsetId.lastIndexOf('.');
+        if (i<0)
+            throw new InvalidArgumentException("rowsetId", rowsetId);
+        // database suchen
+        String dbid = rowsetId.substring(0, i);
+        DBDatabase db = DBDatabase.findById(dbid);
+        if (db==null)
+            throw new ItemNotFoundException(dbid);
+        // rowset suchen
+        String rsname = rowsetId.substring(i+1);
+        DBRowSet rset = db.getRowSet(rsname);
+        if (rset==null)
+            throw new ItemNotFoundException(rowsetId);
+        return rset;
+    }
+    
+    /**
+    * Custom serialization for transient database.
+    */
+    private void writeObject(ObjectOutputStream strm) throws IOException 
+    {
+        if (db==null)
+        {   // No database
+            strm.writeObject("");
+            strm.defaultWriteObject();
+            return;
+        }
+        String dbid = db.getId(); 
+        strm.writeObject(dbid);
+        if (log.isInfoEnabled())
+            log.info("Serialization: reading DBRowSet "+dbid);
+        // write the rest
+        strm.defaultWriteObject();
+    }
+
+    /**
+    * Custom deserialization for transient database.
+    */
+    private void readObject(ObjectInputStream strm) throws IOException, ClassNotFoundException,
+        SecurityException, NoSuchFieldException, IllegalArgumentException, IllegalAccessException
+    {
+        String dbid = String.valueOf(strm.readObject());
+        if (StringUtils.isNotEmpty(dbid))
+        {   // Find database
+            if (log.isInfoEnabled())
+                log.info("Serialization: reading DBRowSet "+dbid);
+            // find database
+            DBDatabase sdb = DBDatabase.findById(dbid);
+            if (sdb==null)
+                throw new ClassNotFoundException(dbid);
+            // set final field
+            Field f = DBRowSet.class.getDeclaredField("db");
+            f.setAccessible(true);
+            f.set(this, sdb);
+            f.setAccessible(false);
+        }    
+        // read the rest
+        strm.defaultReadObject();
+    }
+
+    @Override
+    public boolean equals(Object other)
+    {
+        if (other==this)
+            return true;
+        if (db==null)
+            return super.equals(other);
+        if (other instanceof DBRowSet)
+        {   // Database and name must match
+            DBRowSet r = (DBRowSet) other; 
+            if (db.equals(r.getDatabase())==false)
+                return false;
+            // check for equal names
+            return getName().equalsIgnoreCase(r.getName());
+        }
+        return false;
     }
 
     // ------- Abstract Methods -------

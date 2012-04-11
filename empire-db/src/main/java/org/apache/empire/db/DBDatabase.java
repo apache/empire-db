@@ -19,12 +19,14 @@
 package org.apache.empire.db;
 
 import java.io.Serializable;
+import java.lang.ref.WeakReference;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 
 import org.apache.empire.commons.ObjectUtils;
@@ -40,6 +42,7 @@ import org.apache.empire.db.expr.column.DBValueExpr;
 import org.apache.empire.exceptions.InternalException;
 import org.apache.empire.exceptions.InvalidArgumentException;
 import org.apache.empire.exceptions.ItemExistsException;
+import org.apache.empire.exceptions.ItemNotFoundException;
 import org.apache.empire.exceptions.MiscellaneousErrorException;
 import org.apache.empire.exceptions.PropertyReadOnlyException;
 import org.apache.empire.exceptions.UnexpectedReturnValueException;
@@ -87,6 +90,37 @@ public abstract class DBDatabase extends DBObject
 
     // Logger
     private static final Logger log = LoggerFactory.getLogger(DBDatabase.class);
+    
+    /** 
+     * global map of all database instances that have been allocated
+     */
+    private static HashMap<String, WeakReference<DBDatabase>> databaseMap = new HashMap<String, WeakReference<DBDatabase>>();
+    
+    /** 
+     * find a database by id
+     */
+    public static DBDatabase findById(String dbIdent)
+    {
+        if (databaseMap.containsKey(dbIdent)==false)
+            log.warn("Database {} not found!", dbIdent);
+        // get reference
+        WeakReference<DBDatabase> ref = databaseMap.get(dbIdent); 
+        return ref.get();
+    }
+    
+    /** 
+     * find a database by id
+     */
+    public static DBDatabase findByClass(Class<? extends DBDatabase> cls)
+    {
+        for (WeakReference<DBDatabase> ref : databaseMap.values())
+        {   // find database by class
+            DBDatabase db = ref.get();
+            if (db!=null && cls.isInstance(db))
+                return db;
+        }
+        throw new ItemNotFoundException(cls.getName());
+    }
 
     /** the database schema * */
     protected String           schema    = null; // database schema name
@@ -95,6 +129,7 @@ public abstract class DBDatabase extends DBObject
     protected List<DBRelation> relations = new ArrayList<DBRelation>();
     protected List<DBView>     views     = new ArrayList<DBView>();
     protected DBDatabaseDriver driver    = null;
+    protected String           instanceId;
     
     /**   
      * Property that indicates whether to always use usePreparedStatements (Default is false!)
@@ -102,24 +137,6 @@ public abstract class DBDatabase extends DBObject
      * For custom SQL commands parameters must be explicitly declared using cmd.addCmdParam();   
      */
     private boolean preparedStatementsEnabled = false;
-
-    /**
-     * Constructs a new DBDatabase object set the variable 'schema' = null.
-     */
-    public DBDatabase()
-    {
-        this.schema = null;
-    }
-
-    /**
-     * Constructs a new DBDatabase object and sets the specified schema object.
-     * 
-     * @param schema the database schema
-     */
-    public DBDatabase(String schema)
-    {
-        this.schema = schema;
-    }
 
     /**
      * Constructs a new DBDatabase object and sets the specified schema object.
@@ -131,6 +148,60 @@ public abstract class DBDatabase extends DBObject
     {
         this.schema = schema;
         this.linkName = linkName;
+
+        // register database in global map
+        register(getClass().getSimpleName());
+    }
+
+    /**
+     * Constructs a new DBDatabase object and sets the specified schema object.
+     * 
+     * @param schema the database schema
+     */
+    public DBDatabase(String schema)
+    {
+        this(schema, null);
+    }
+
+    /**
+     * Constructs a new DBDatabase object set the variable 'schema' = null.
+     */
+    public DBDatabase()
+    {
+        this(null, null);
+    }
+    
+    /**
+     * registers the database in the global list of databases
+     * @param dbid
+     */
+    protected void register(String dbid)
+    {
+        // Check if it exists
+        if (databaseMap.containsValue(this))
+            databaseMap.remove(instanceId);
+        // find a unique key
+        int inst=0;
+        for (String key : databaseMap.keySet())
+        {
+            if (key.startsWith(dbid) && databaseMap.get(key).get()!=null)
+                inst++;
+        }
+        if (inst>0)
+            this.instanceId = dbid+":"+String.valueOf(inst+1);
+        else
+            this.instanceId = dbid;
+        // register database in global map
+        databaseMap.put(this.instanceId, new WeakReference<DBDatabase>(this));
+    }
+
+    /**
+     * Returns the database instance id
+     * @return the identifier of the database
+     */
+    public String getId()
+    {
+        return instanceId;
     }
 
     // ------------------------------
@@ -454,6 +525,20 @@ public abstract class DBDatabase extends DBObject
     public List<DBTable> getTables()
     {
         return tables;
+    }
+
+    /**
+     * Finds a DBRowSet object (DBTable or DBView) by name.
+     * <P>
+     * @param name the name of the table
+     * @return the located DBTable object
+     */
+    public DBRowSet getRowSet(String name)
+    { // find table by name
+        DBRowSet rset = getTable(name);
+        if (rset==null)
+            rset = getView(name);
+        return rset;
     }
 
     /**

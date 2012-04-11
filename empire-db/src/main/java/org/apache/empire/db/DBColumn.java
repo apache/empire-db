@@ -19,13 +19,22 @@
 package org.apache.empire.db;
 
 // Java
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.lang.reflect.Field;
 import java.util.Set;
 
 import org.apache.empire.commons.Options;
+import org.apache.empire.commons.StringUtils;
 import org.apache.empire.data.Column;
 import org.apache.empire.data.DataType;
 import org.apache.empire.db.exceptions.DatabaseNotOpenException;
 import org.apache.empire.db.expr.set.DBSetExpr;
+import org.apache.empire.exceptions.InvalidArgumentException;
+import org.apache.empire.exceptions.ItemNotFoundException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.w3c.dom.Element;
 
 
@@ -46,6 +55,8 @@ public abstract class DBColumn extends DBColumnExpr
 {
     private final static long serialVersionUID = 1L;
   
+    private static final Logger log = LoggerFactory.getLogger(DBColumn.class);
+    
     // Predefined column attributes 
 
     /**
@@ -74,7 +85,7 @@ public abstract class DBColumn extends DBColumnExpr
     public static final String DBCOLATTR_SINGLEBYTECHARS  = "singleByteChars";
 
     // basic data
-    protected final DBRowSet   rowset;
+    protected final transient DBRowSet rowset;
     protected final String     name;
     protected String           comment;
 
@@ -93,6 +104,105 @@ public abstract class DBColumn extends DBColumnExpr
         this.comment = null;
     }
 
+    /**
+     * Gets an identifier for this RowSet Object
+     * @return the rowset identifier
+     */
+    public String getId()
+    {
+        return rowset.getId()+"."+name;
+    }
+
+    /**
+     * returns a rowset by its identifier
+     * @param rowsetId the id of the rowset
+     * @return the rowset object
+     */
+    public static DBColumn findById(String columnId)
+    {
+        int i = columnId.lastIndexOf('.');
+        if (i<0)
+            throw new InvalidArgumentException("columnId", columnId);
+        // rowset suchen
+        String rsid = columnId.substring(0, i);
+        DBRowSet rset = DBRowSet.findById(rsid);
+        // column suchen
+        String colname = columnId.substring(i+1);
+        DBColumn col = rset.getColumn(colname);
+        if (col==null)
+            throw new ItemNotFoundException(columnId);
+        return col;
+    }
+    
+    /**
+     * Custom serialization for transient rowset.
+     */
+    private void writeObject(ObjectOutputStream strm) throws IOException 
+    {
+        if (rowset==null)
+        {   // No rowset
+            strm.writeObject("");
+            strm.defaultWriteObject();
+            return;
+        }
+        // write dbid and rowset-name
+        String dbid   = rowset.getDatabase().getId(); 
+        String rsname = rowset.getName(); 
+        strm.writeObject(dbid);
+        strm.writeObject(rsname);
+        if (log.isInfoEnabled())
+            log.info("Serialization: reading DBColumn "+dbid+"."+rsname);
+        strm.defaultWriteObject();
+    }
+
+    /**
+     * Custom serialization for transient rowset.
+     */
+    private void readObject(ObjectInputStream strm) throws IOException, ClassNotFoundException, 
+        SecurityException, NoSuchFieldException, IllegalArgumentException, IllegalAccessException
+    {
+        String dbid = String.valueOf(strm.readObject());
+        if (StringUtils.isNotEmpty(dbid))
+        {   // Find Rowset
+            String rsname = String.valueOf(strm.readObject());
+            if (log.isInfoEnabled())
+                log.info("Serialization: reading DBColumn "+dbid+"."+rsname);
+            // find database
+            DBDatabase db = DBDatabase.findById(dbid);
+            if (db==null)
+                throw new ClassNotFoundException(dbid);
+            // find database
+            DBRowSet srs = db.getRowSet(rsname);
+            if (srs==null)
+                throw new ClassNotFoundException(dbid+"."+rsname);
+            // set final field
+            Field f = DBColumn.class.getDeclaredField("rowset");
+            f.setAccessible(true);
+            f.set(this, srs);
+            f.setAccessible(false);
+        }
+        // read the rest
+        strm.defaultReadObject();
+    }
+
+    @Override
+    public boolean equals(Object other)
+    {
+        if (other==this)
+            return true;
+        if (rowset==null)
+            return super.equals(other);
+        if (other instanceof DBColumn)
+        {   // Rowset and name must match
+            DBColumn c = (DBColumn) other;
+            if (rowset.equals(c.getRowSet())==false)
+                return false;
+            // check for equal names
+            return name.equalsIgnoreCase(c.getName());
+        }
+        return false;
+    }
+     
     /**
      * Returns the size of the column.
      *
