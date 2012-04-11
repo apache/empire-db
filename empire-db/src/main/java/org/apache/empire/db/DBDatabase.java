@@ -42,7 +42,6 @@ import org.apache.empire.db.expr.column.DBValueExpr;
 import org.apache.empire.exceptions.InternalException;
 import org.apache.empire.exceptions.InvalidArgumentException;
 import org.apache.empire.exceptions.ItemExistsException;
-import org.apache.empire.exceptions.ItemNotFoundException;
 import org.apache.empire.exceptions.MiscellaneousErrorException;
 import org.apache.empire.exceptions.PropertyReadOnlyException;
 import org.apache.empire.exceptions.UnexpectedReturnValueException;
@@ -101,11 +100,8 @@ public abstract class DBDatabase extends DBObject
      */
     public static DBDatabase findById(String dbIdent)
     {
-        if (databaseMap.containsKey(dbIdent)==false)
-            log.warn("Database {} not found!", dbIdent);
-        // get reference
-        WeakReference<DBDatabase> ref = databaseMap.get(dbIdent); 
-        return ref.get();
+        WeakReference<DBDatabase> ref = databaseMap.get(dbIdent);
+        return (ref!=null) ? ref.get() : null;
     }
     
     /** 
@@ -119,7 +115,8 @@ public abstract class DBDatabase extends DBObject
             if (db!=null && cls.isInstance(db))
                 return db;
         }
-        throw new ItemNotFoundException(cls.getName());
+        log.warn("Database of class {} not found!", cls.getSimpleName());
+        return null;
     }
 
     /** the database schema * */
