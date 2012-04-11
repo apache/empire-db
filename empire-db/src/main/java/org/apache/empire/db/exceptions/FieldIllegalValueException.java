@@ -19,7 +19,7 @@
 package org.apache.empire.db.exceptions;
 
 import org.apache.empire.commons.ErrorType;
-import org.apache.empire.db.DBColumn;
+import org.apache.empire.data.Column;
 
 public class FieldIllegalValueException extends FieldValueException
 {
@@ -30,13 +30,13 @@ public class FieldIllegalValueException extends FieldValueException
     
     public static final ErrorType errorType = new ErrorType("error.db.fieldIllegalValue",  "The value {1} for field {0} is invalid.");
     
-    public FieldIllegalValueException(DBColumn column, String value, Throwable cause)
+    public FieldIllegalValueException(Column column, String value, Throwable cause)
     {
-        super(column, errorType, new String[] { column.getFullName(), value }, cause);
+        super(column, errorType, new String[] { getColumnTitle(column), value }, cause);
     }
     
-    public FieldIllegalValueException(DBColumn column, String value)
+    public FieldIllegalValueException(Column column, String value)
     {
-        super(column, errorType, new String[] { column.getFullName(), value }, null);
+        super(column, errorType, new String[] { getColumnTitle(column), value }, null);
     }
 }

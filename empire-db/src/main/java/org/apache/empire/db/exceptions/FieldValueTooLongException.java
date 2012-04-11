@@ -19,10 +19,9 @@
 package org.apache.empire.db.exceptions;
 
 import org.apache.empire.commons.ErrorType;
-import org.apache.empire.db.DBColumn;
-import org.apache.empire.exceptions.EmpireException;
+import org.apache.empire.data.Column;
 
-public class FieldValueTooLongException extends EmpireException
+public class FieldValueTooLongException extends FieldValueException
 {
     /**
      * Comment for <code>serialVersionUID</code>
@@ -31,8 +30,8 @@ public class FieldValueTooLongException extends EmpireException
     
     public static final ErrorType errorType = new ErrorType("error.db.fieldValueTooLong",  "The value supplied for field {0} is too long. The maximum number of characters is {1}.");
     
-    public FieldValueTooLongException(DBColumn col)
+    public FieldValueTooLongException(Column col)
     {
-        super(errorType, new String[] { col.getFullName(), String.valueOf((int)col.getSize()) });
+        super(col, errorType, new String[] { getColumnTitle(col), String.valueOf((int)col.getSize()) });
     }
 }

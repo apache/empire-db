@@ -19,6 +19,8 @@
 package org.apache.empire.db.exceptions;
 
 import org.apache.empire.commons.ErrorType;
+import org.apache.empire.commons.StringUtils;
+import org.apache.empire.data.Column;
 import org.apache.empire.db.DBColumn;
 import org.apache.empire.exceptions.EmpireException;
 
@@ -29,16 +31,29 @@ public abstract class FieldValueException extends EmpireException
      */
     private static final long serialVersionUID = 1L;
     
-    private transient final DBColumn column;
+    protected static String getColumnTitle(Column column)
+    {
+        String title = column.getTitle();
+        if (StringUtils.isEmpty(title))
+            title = "!["+((column instanceof DBColumn) ? ((DBColumn)column).getId() : column.getName()) + "]";
+        return title;
+    }
+    
+    private transient final Column column;
 
-    protected FieldValueException(final DBColumn column, final ErrorType errType, final String[] params, final Throwable cause)
+    protected FieldValueException(final Column column, final ErrorType errType, final String[] params, final Throwable cause)
     {
         super(errType, params, cause);
         // save type and params for custom message formatting
         this.column = column;
     }
+
+    protected FieldValueException(final Column column, final ErrorType errType, final String[] params)
+    {
+        this(column, errType, params, null);
+    }
     
-    public DBColumn getColumn()
+    public Column getColumn()
     {
         return column;
     }
