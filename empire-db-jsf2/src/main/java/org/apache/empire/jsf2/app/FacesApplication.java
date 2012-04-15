@@ -36,17 +36,13 @@ import javax.servlet.ServletContext;
 import javax.sql.DataSource;
 
 import org.apache.empire.commons.StringUtils;
-import org.apache.empire.data.Column;
 import org.apache.empire.data.DataType;
 import org.apache.empire.db.DBDatabase;
 import org.apache.empire.exceptions.InternalException;
 import org.apache.empire.exceptions.InvalidArgumentException;
 import org.apache.empire.exceptions.NotSupportedException;
-import org.apache.empire.jsf2.controls.FieldRenderer;
-import org.apache.empire.jsf2.controls.FieldRendererManager;
-import org.apache.empire.jsf2.controls.SelectFieldRenderer;
-import org.apache.empire.jsf2.controls.TextAreaFieldRenderer;
-import org.apache.empire.jsf2.controls.TextFieldRenderer;
+import org.apache.empire.jsf2.controls.TextAreaInputControl;
+import org.apache.empire.jsf2.controls.TextInputControl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -205,45 +201,20 @@ public abstract class FacesApplication extends ApplicationImpl
         }
         return foundChild;
     }
-    
-    public FieldRenderer getFieldRenderer(Column column)
-    {
-        // Get Renderer from column
-        String controlType = column.getControlType();
-        FieldRenderer renderer = null;
-        if (StringUtils.isNotEmpty(controlType))
-        	renderer = FieldRendererManager.getRenderer(controlType);
-        if (renderer == null)
-        { // Auto-detect
-        	if (column.getOptions()!=null)
-        		controlType = SelectFieldRenderer.NAME;
-        	else
-        		controlType = getDefaultControlType(column.getDataType());
-            // get default renderer
-            renderer = FieldRendererManager.getRenderer(controlType);
-        	// Still not? Use Text Renderer
-		    if (renderer == null)
-		    	renderer = FieldRendererManager.getRenderer(TextFieldRenderer.NAME);
-            // debug
-            if (log.isDebugEnabled() && !controlType.equals(TextFieldRenderer.NAME))
-                log.debug("Auto-detected field renderer for " + column.getName() + " is " + controlType);
-        }
-        return renderer;
-    }
 
     /**
      * returns the default control type for a given data Type
      * @param dataType
      * @return
      */
-    protected String getDefaultControlType(DataType dataType)
+    public String getDefaultControlType(DataType dataType)
     {
         switch (dataType)
         {
             case CLOB:
-                return TextAreaFieldRenderer.NAME;
+                return TextAreaInputControl.NAME;
             default:
-            	return TextFieldRenderer.NAME;
+            	return TextInputControl.NAME;
         }
     }
     

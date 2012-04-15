@@ -34,7 +34,7 @@ import org.apache.empire.commons.Options;
 import org.apache.empire.commons.StringUtils;
 import org.apache.empire.jsf2.app.FacesUtils;
 import org.apache.empire.jsf2.app.TextResolver;
-import org.apache.empire.jsf2.utils.TagRenderHelper;
+import org.apache.empire.jsf2.utils.TagEncodingHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -152,7 +152,7 @@ public class SelectTag extends UIInput implements NamingContainer
         HtmlSelectOneMenu input = new HtmlSelectOneMenu();
         // css style
         String userStyle = StringUtils.toString(getAttributes().get("styleClass"));
-        String cssStyle  = TagRenderHelper.getTagStyleClass("eSelect", null, null, userStyle);
+        String cssStyle  = TagEncodingHelper.getTagStyleClass("eSelect", null, null, userStyle);
         input.setStyleClass(cssStyle);
         // other attributes
         copyAttributes(input);

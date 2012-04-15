@@ -40,9 +40,9 @@ import org.apache.empire.exceptions.InternalException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class TextFieldRenderer extends FieldRenderer
+public class TextInputControl extends InputControl
 {
-    private static final Logger log = LoggerFactory.getLogger(TextFieldRenderer.class);
+    private static final Logger log = LoggerFactory.getLogger(TextInputControl.class);
     
     public static final String NAME = "text"; 
 
@@ -50,18 +50,18 @@ public class TextFieldRenderer extends FieldRenderer
 
     private Class<? extends javax.faces.component.html.HtmlInputText> inputComponentClass;
     
-    public TextFieldRenderer(String name, Class<? extends HtmlInputText> inputComponentClass)
+    public TextInputControl(String name, Class<? extends HtmlInputText> inputComponentClass)
     {
         super(name);
         this.inputComponentClass = inputComponentClass;
     }
 
-    public TextFieldRenderer(String name)
+    public TextInputControl(String name)
     {
         this(name, javax.faces.component.html.HtmlInputText.class);
     }
 
-    public TextFieldRenderer()
+    public TextInputControl()
     {
         this(NAME, javax.faces.component.html.HtmlInputText.class);
     }
@@ -143,8 +143,8 @@ public class TextFieldRenderer extends FieldRenderer
     {
         if (o instanceof Number)
         {
-            Object min = column.getAttribute(FieldRenderer.MINVALUE_ATTRIBUTE);
-            Object max = column.getAttribute(FieldRenderer.MAXVALUE_ATTRIBUTE);
+            Object min = column.getAttribute(InputControl.MINVALUE_ATTRIBUTE);
+            Object max = column.getAttribute(InputControl.MAXVALUE_ATTRIBUTE);
             if (min!=null && max!=null)
             {
                 Number n = (Number)o;
@@ -357,18 +357,18 @@ public class TextFieldRenderer extends FieldRenderer
         if (column==null)
             return NumberFormat.getNumberInstance(locale); 
         // Column is supplied
-        String type = StringUtils.valueOf(column.getAttribute(FieldRenderer.NUMBER_TYPE_ATTRIBUTE));
+        String type = StringUtils.valueOf(column.getAttribute(InputControl.NUMBER_TYPE_ATTRIBUTE));
         NumberFormat nf = null;
         if (type.equalsIgnoreCase("Integer"))
             nf = NumberFormat.getIntegerInstance(locale);
         else
             nf = NumberFormat.getNumberInstance(locale);
         // Groups Separator?
-        Object groupSep = column.getAttribute(FieldRenderer.NUMBER_GROUPSEP_ATTRIBUTE);
+        Object groupSep = column.getAttribute(InputControl.NUMBER_GROUPSEP_ATTRIBUTE);
         if (groupSep!=null)
             nf.setGroupingUsed(ObjectUtils.getBoolean(groupSep));
         // Fraction Digits?
-        Object fractDigit = column.getAttribute(FieldRenderer.NUMBER_FRACTION_DIGITS);
+        Object fractDigit = column.getAttribute(InputControl.NUMBER_FRACTION_DIGITS);
         if (fractDigit!=null)
         {   int fractionDigits = ObjectUtils.getInteger(fractDigit);
             nf.setMaximumFractionDigits(fractionDigits);
@@ -398,12 +398,12 @@ public class TextFieldRenderer extends FieldRenderer
         Column column = vi.getColumn();
         if (column!=null && column.getDataType()==DataType.DECIMAL)
         {
-            String numberType = StringUtils.toString(column.getAttribute(FieldRenderer.NUMBER_TYPE_ATTRIBUTE));
+            String numberType = StringUtils.toString(column.getAttribute(InputControl.NUMBER_TYPE_ATTRIBUTE));
             if (numberType!=null)
             {
                 if (numberType.equalsIgnoreCase("Currency"))
                 {
-                    String currencyCode = StringUtils.toString(column.getAttribute(FieldRenderer.CURRENCY_CODE_ATTRIBUTE));
+                    String currencyCode = StringUtils.toString(column.getAttribute(InputControl.CURRENCY_CODE_ATTRIBUTE));
                     if (currencyCode!=null)
                     {   // nf = NumberFormat.getCurrencyInstance(locale);
                         Currency currency = Currency.getInstance(currencyCode);

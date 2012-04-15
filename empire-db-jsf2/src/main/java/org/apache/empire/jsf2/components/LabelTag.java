@@ -26,7 +26,7 @@ import javax.faces.context.FacesContext;
 
 import org.apache.empire.commons.ObjectUtils;
 import org.apache.empire.data.DataType;
-import org.apache.empire.jsf2.utils.TagRenderHelper;
+import org.apache.empire.jsf2.utils.TagEncodingHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,7 +35,7 @@ public class LabelTag extends UIOutput // implements NamingContainer
     // Logger
     private static final Logger log = LoggerFactory.getLogger(LabelTag.class);
     
-    private final TagRenderHelper helper = new TagRenderHelper(this, "eLabel");
+    private final TagEncodingHelper helper = new TagEncodingHelper(this, "eLabel");
 
     public LabelTag()
     {

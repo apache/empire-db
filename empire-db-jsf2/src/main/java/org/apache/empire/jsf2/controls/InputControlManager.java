@@ -20,17 +20,29 @@ package org.apache.empire.jsf2.controls;
 
 import java.util.HashMap;
 
-public final class FieldRendererManager
+public final class InputControlManager
 {
-    static HashMap<String, FieldRenderer> rendererMap = null;
+    private static Class<? extends javax.faces.component.html.HtmlOutputLabel> labelComponentClass;
+    
+    public static Class<? extends javax.faces.component.html.HtmlOutputLabel> getLabelComponentClass()
+    {
+        return labelComponentClass;
+    }
+
+    public static void setLabelComponentClass(Class<? extends javax.faces.component.html.HtmlOutputLabel> labelComponentClass)
+    {
+        InputControlManager.labelComponentClass = labelComponentClass;
+    }
+
+    static HashMap<String, InputControl> controlMap = null;
     
     static {
         
-        rendererMap = new HashMap<String, FieldRenderer>();
+        controlMap = new HashMap<String, InputControl>();
         
-        registerRenderer(new TextFieldRenderer());
-        registerRenderer(new SelectFieldRenderer());
-        registerRenderer(new TextAreaFieldRenderer());
+        registerControl(new TextInputControl());
+        registerControl(new SelectInputControl());
+        registerControl(new TextAreaInputControl());
         /*
         registerControl("checkbox", new CheckboxInputControl());
         registerControl("phone",    new PhoneInputControl());
@@ -41,19 +53,19 @@ public final class FieldRendererManager
         */
     }
     
-    private FieldRendererManager()
+    private InputControlManager()
     {
         // Default Constructor
     }
     
-    public static void registerRenderer(FieldRenderer renderer)
+    public static void registerControl(InputControl control)
     {
-        rendererMap.put(renderer.getName(), renderer);
+        controlMap.put(control.getName(), control);
     }
     
-    public static FieldRenderer getRenderer(String name)
+    public static InputControl getControl(String name)
     {
-        return rendererMap.get(name);
+        return controlMap.get(name);
     }
     
 }

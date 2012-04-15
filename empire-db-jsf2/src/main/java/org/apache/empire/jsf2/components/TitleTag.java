@@ -29,7 +29,7 @@ import javax.faces.context.ResponseWriter;
 import org.apache.empire.commons.StringUtils;
 import org.apache.empire.data.Column;
 import org.apache.empire.exceptions.InvalidArgumentException;
-import org.apache.empire.jsf2.utils.TagRenderHelper;
+import org.apache.empire.jsf2.utils.TagEncodingHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -38,7 +38,7 @@ public class TitleTag extends UIOutput implements NamingContainer
     // Logger
     private static final Logger log = LoggerFactory.getLogger(TitleTag.class);
     
-    private TagRenderHelper helper = new TagRenderHelper(this, "eTitle");
+    private TagEncodingHelper helper = new TagEncodingHelper(this, "eTitle");
 
     public TitleTag()
     {
@@ -81,7 +81,7 @@ public class TitleTag extends UIOutput implements NamingContainer
         // Check for short form    
         if (helper.hasFormat("short"))
         {
-            title = StringUtils.toString(column.getAttribute(TagRenderHelper.COLATTR_ABBR_TITLE));
+            title = StringUtils.toString(column.getAttribute(TagEncodingHelper.COLATTR_ABBR_TITLE));
             if (title==null)
                 log.warn("No Abbreviation available for column {}. Using normal title.", column.getName());
         }

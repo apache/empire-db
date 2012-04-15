@@ -26,8 +26,8 @@ import javax.faces.context.FacesContext;
 import javax.faces.context.ResponseWriter;
 
 import org.apache.empire.commons.StringUtils;
-import org.apache.empire.jsf2.controls.FieldRenderer;
-import org.apache.empire.jsf2.utils.TagRenderHelper;
+import org.apache.empire.jsf2.controls.InputControl;
+import org.apache.empire.jsf2.utils.TagEncodingHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,7 +37,7 @@ public class ValueTag extends UIOutput // implements NamingContainer
     // Logger
     private static final Logger log = LoggerFactory.getLogger(ValueTag.class);
     
-    private TagRenderHelper helper = new TagRenderHelper(this, "eVal");
+    private TagEncodingHelper helper = new TagEncodingHelper(this, "eVal");
 
     public ValueTag()
     {
@@ -59,18 +59,18 @@ public class ValueTag extends UIOutput // implements NamingContainer
         super.encodeBegin(context);
         
         helper.encodeBegin();
-        FieldRenderer renderer = helper.getFieldRenderer();
-        FieldRenderer.ValueInfo vi = helper.getValueInfo(context);
+        InputControl control = helper.getInputControl();
+        InputControl.ValueInfo vi = helper.getValueInfo(context);
 
         // render components
         ResponseWriter writer = context.getResponseWriter();
         String tag = writeStartElement(vi, writer);
-        renderer.renderValue(vi, writer);
+        control.renderValue(vi, writer);
         if (tag != null)
             writer.endElement(tag);
     }
 
-    protected String writeStartElement(FieldRenderer.ValueInfo vi, ResponseWriter writer)
+    protected String writeStartElement(InputControl.ValueInfo vi, ResponseWriter writer)
         throws IOException
     {
         Map<String, Object> map = getAttributes();

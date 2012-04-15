@@ -27,8 +27,8 @@ import javax.faces.context.FacesContext;
 import javax.faces.context.ResponseWriter;
 
 import org.apache.empire.data.Column;
-import org.apache.empire.jsf2.controls.FieldRenderer;
-import org.apache.empire.jsf2.utils.TagRenderHelper;
+import org.apache.empire.jsf2.controls.InputControl;
+import org.apache.empire.jsf2.utils.TagEncodingHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,14 +37,14 @@ public class InputTag extends UIInput implements NamingContainer
     // Logger
     private static final Logger log          = LoggerFactory.getLogger(InputTag.class);
     
-    // private static final String fieldRendererPropName = FieldRenderer.class.getSimpleName();
-    // private static final String inputInfoPropName  = FieldRenderer.InputInfo.class.getSimpleName();
+    // private static final String inpControlPropName = InputControl.class.getSimpleName();
+    // private static final String inputInfoPropName = InputControl.InputInfo.class.getSimpleName();
     private static final String readOnlyState  = "readOnlyState";
 
-    private final TagRenderHelper helper = new TagRenderHelper(this, "eInput");
+    private final TagEncodingHelper helper = new TagEncodingHelper(this, "eInput");
 
-    private FieldRenderer renderer = null;
-    private FieldRenderer.InputInfo inpInfo = null;
+    private InputControl control = null;
+    private InputControl.InputInfo inpInfo = null;
 
     public InputTag()
     {
@@ -59,7 +59,7 @@ public class InputTag extends UIInput implements NamingContainer
 
     private void saveState()
     {
-        // getStateHelper().put(fieldRendererPropName, renderer);
+        // getStateHelper().put(inpControlPropName, control);
         // getStateHelper().put(inputInfoPropName, inpInfo);
         getStateHelper().put(readOnlyState, (inpInfo==null));
     }
@@ -69,10 +69,10 @@ public class InputTag extends UIInput implements NamingContainer
         Boolean ros = (Boolean)getStateHelper().get(readOnlyState);
         if (ros!=null && ros.booleanValue())
             return false;
-        // renderer = ;
-        renderer = helper.getFieldRenderer();
+        // control = ;
+        control = helper.getInputControl();
         inpInfo  = helper.getInputInfo(context);
-        return (renderer!=null && inpInfo!=null);
+        return (control!=null && inpInfo!=null);
     }
 
     @Override
@@ -84,23 +84,23 @@ public class InputTag extends UIInput implements NamingContainer
         
         // init
         helper.encodeBegin();
-        renderer = helper.getFieldRenderer();
+        control = helper.getInputControl();
         
         // render components
         if (helper.isRecordReadOnly())
         {
-            FieldRenderer.ValueInfo valInfo = helper.getValueInfo(context);
+            InputControl.ValueInfo valInfo = helper.getValueInfo(context);
             // render value
             ResponseWriter writer = context.getResponseWriter();
             String tag = writeStartElement(valInfo, writer);
-            renderer.renderValue(valInfo, writer);
+            control.renderValue(valInfo, writer);
             writer.endElement(tag);
         }
         else
         {
             inpInfo = helper.getInputInfo(context);
             // render input
-            renderer.renderInput(this, inpInfo, context, true);
+            control.renderInput(this, inpInfo, context, true);
         }
         saveState();
     }
@@ -118,10 +118,10 @@ public class InputTag extends UIInput implements NamingContainer
     @Override
     public Object getSubmittedValue()
     {   // Check state
-        if (renderer==null || inpInfo==null)
+        if (control==null || inpInfo==null)
             return null;
         // get Input Value
-        return renderer.getInputValue(this, inpInfo, true);
+        return control.getInputValue(this, inpInfo, true);
     }
 
     @Override
@@ -200,7 +200,7 @@ public class InputTag extends UIInput implements NamingContainer
      * @return
      * @throws IOException
      */
-    protected String writeStartElement(FieldRenderer.ValueInfo vi, ResponseWriter writer)
+    protected String writeStartElement(InputControl.ValueInfo vi, ResponseWriter writer)
         throws IOException
     {
         // tag and class name

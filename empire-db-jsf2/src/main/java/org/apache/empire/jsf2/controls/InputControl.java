@@ -35,7 +35,7 @@ import org.apache.empire.exceptions.UnexpectedReturnValueException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public abstract class FieldRenderer
+public abstract class InputControl
 {
     /*
     public static class ColumnValueValidator implements Validator, StateHolder
@@ -144,7 +144,7 @@ public abstract class FieldRenderer
     }
     */
     
-    private static final Logger log = LoggerFactory.getLogger(FieldRenderer.class);
+    private static final Logger log = LoggerFactory.getLogger(InputControl.class);
 
     // Special Input Column Attributes
     public static final String NUMBER_TYPE_ATTRIBUTE      = "numberType";   // "Integer", "Currency", "Percent"  
@@ -154,9 +154,9 @@ public abstract class FieldRenderer
     public static final String MAXVALUE_ATTRIBUTE         = "maxValue";
     public static final String CURRENCY_CODE_ATTRIBUTE    = "currencyCode";   // "ISO 4217 code of the currency"  
     
-    public FieldRenderer()
+    public InputControl()
     {
-        log.info("FieldRenderer created");
+        log.info("InputControl of class {} created.", getClass().getName());
     }
     
     /**
@@ -210,7 +210,7 @@ public abstract class FieldRenderer
     
     private String name;
     
-    protected FieldRenderer(String name)
+    protected InputControl(String name)
     {
         this.name = name;
     }

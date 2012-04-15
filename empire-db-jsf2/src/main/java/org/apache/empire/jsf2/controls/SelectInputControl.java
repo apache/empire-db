@@ -32,9 +32,9 @@ import org.apache.empire.exceptions.InternalException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class SelectFieldRenderer extends FieldRenderer
+public class SelectInputControl extends InputControl
 {
-    private static final Logger log = LoggerFactory.getLogger(SelectFieldRenderer.class);
+    private static final Logger log = LoggerFactory.getLogger(SelectInputControl.class);
 
     public static final String COLATTR_ABBR_OPTIONS   = "ABBR_OPTIONS";     // Option list for abbreviations
     
@@ -42,13 +42,13 @@ public class SelectFieldRenderer extends FieldRenderer
     
     private Class<? extends javax.faces.component.html.HtmlSelectOneMenu> inputComponentClass;
 
-    public SelectFieldRenderer(Class<? extends HtmlSelectOneMenu> inputComponentClass)
+    public SelectInputControl(Class<? extends HtmlSelectOneMenu> inputComponentClass)
     {
         super(NAME);
         this.inputComponentClass = inputComponentClass;
     }
 
-    public SelectFieldRenderer()
+    public SelectInputControl()
     {
         this(javax.faces.component.html.HtmlSelectOneMenu.class);
     }

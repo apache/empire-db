@@ -34,9 +34,9 @@ import javax.faces.context.ResponseWriter;
 import org.apache.empire.commons.ObjectUtils;
 import org.apache.empire.commons.StringUtils;
 import org.apache.empire.data.DataType;
-import org.apache.empire.jsf2.controls.FieldRenderer;
+import org.apache.empire.jsf2.controls.InputControl;
 import org.apache.empire.jsf2.utils.StringResponseWriter;
-import org.apache.empire.jsf2.utils.TagRenderHelper;
+import org.apache.empire.jsf2.utils.TagEncodingHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -56,7 +56,7 @@ public class LinkTag extends UIOutput implements NamingContainer
     // Logger
     private static final Logger log = LoggerFactory.getLogger(LinkTag.class);
     
-    private final TagRenderHelper helper = new TagRenderHelper(this, "eLink");
+    private final TagEncodingHelper helper = new TagEncodingHelper(this, "eLink");
 
     public LinkTag()
     {
@@ -138,13 +138,13 @@ public class LinkTag extends UIOutput implements NamingContainer
         // Is a column provided?
         if (hasColumn)
         {
-            FieldRenderer renderer = helper.getFieldRenderer();
-            FieldRenderer.ValueInfo vi = helper.getValueInfo(FacesContext.getCurrentInstance());
+            InputControl control = helper.getInputControl();
+            InputControl.ValueInfo vi = helper.getValueInfo(FacesContext.getCurrentInstance());
             // render value
             StringResponseWriter srw = new StringResponseWriter();
             try
             {
-                renderer.renderValue(vi, srw);
+                control.renderValue(vi, srw);
             }
             catch (IOException e)
             {   // Error rendering value

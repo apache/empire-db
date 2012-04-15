@@ -25,24 +25,22 @@ import javax.faces.component.html.HtmlInputTextarea;
 import javax.faces.context.FacesContext;
 
 import org.apache.empire.exceptions.InternalException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-public class TextAreaFieldRenderer extends FieldRenderer
+public class TextAreaInputControl extends InputControl
 {
-    private static final Logger log = LoggerFactory.getLogger(TextAreaFieldRenderer.class);
+    // private static final Logger log = LoggerFactory.getLogger(TextAreaInputControl.class);
     
     public static final String NAME = "textarea"; 
     
     private Class<? extends javax.faces.component.html.HtmlInputTextarea> inputComponentClass;
 
-    public TextAreaFieldRenderer(Class<? extends HtmlInputTextarea> inputComponentClass)
+    public TextAreaInputControl(Class<? extends HtmlInputTextarea> inputComponentClass)
     {
         super(NAME);
         this.inputComponentClass = inputComponentClass;
     }
 
-    public TextAreaFieldRenderer()
+    public TextAreaInputControl()
     {
         this(javax.faces.component.html.HtmlInputTextarea.class);
     }

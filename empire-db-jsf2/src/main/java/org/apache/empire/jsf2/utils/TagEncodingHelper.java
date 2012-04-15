@@ -50,6 +50,7 @@ import org.apache.empire.db.DBDatabase;
 import org.apache.empire.db.DBRowSet;
 import org.apache.empire.exceptions.BeanPropertyGetException;
 import org.apache.empire.exceptions.BeanPropertySetException;
+import org.apache.empire.exceptions.InternalException;
 import org.apache.empire.exceptions.InvalidArgumentException;
 import org.apache.empire.exceptions.NotSupportedException;
 import org.apache.empire.exceptions.PropertyReadOnlyException;
@@ -59,13 +60,14 @@ import org.apache.empire.jsf2.app.TextResolver;
 import org.apache.empire.jsf2.components.InputTag;
 import org.apache.empire.jsf2.components.LinkTag;
 import org.apache.empire.jsf2.components.RecordTag;
-import org.apache.empire.jsf2.controls.FieldRenderer;
-import org.apache.empire.jsf2.controls.FieldRendererManager;
-import org.apache.empire.jsf2.controls.SelectFieldRenderer;
+import org.apache.empire.jsf2.controls.InputControl;
+import org.apache.empire.jsf2.controls.InputControlManager;
+import org.apache.empire.jsf2.controls.SelectInputControl;
+import org.apache.empire.jsf2.controls.TextInputControl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class TagRenderHelper implements NamingContainer
+public class TagEncodingHelper implements NamingContainer
 {
     /**
      * Inner class that implements the ValueInfo
@@ -161,7 +163,7 @@ public class TagRenderHelper implements NamingContainer
         }
     }
 
-    private class ValueInfoImpl implements FieldRenderer.ValueInfo
+    private class ValueInfoImpl implements InputControl.ValueInfo
     {
         public ValueInfoImpl(Column column, TextResolver resolver)
         {
@@ -240,7 +242,7 @@ public class TagRenderHelper implements NamingContainer
         }
     }
 
-    private class InputInfoImpl extends ValueInfoImpl implements FieldRenderer.InputInfo
+    private class InputInfoImpl extends ValueInfoImpl implements InputControl.InputInfo
     {
         public InputInfoImpl(Column column, TextResolver resolver)
         {
@@ -331,7 +333,7 @@ public class TagRenderHelper implements NamingContainer
     }
 
     // Logger
-    private static final Logger log          = LoggerFactory.getLogger(TagRenderHelper.class);
+    private static final Logger log          = LoggerFactory.getLogger(TagEncodingHelper.class);
 
     public static final String COLATTR_ABBR_TITLE     = "ABBR_TITLE";       // Column title for abbreviations
     
@@ -341,10 +343,10 @@ public class TagRenderHelper implements NamingContainer
     private Object              record       = null;
     private RecordTag           recordTag    = null;
     private Boolean             hasValueExpr = null;
-    private FieldRenderer       renderer     = null;
+    private InputControl        control      = null;
     private TextResolver        textResolver = null;
 
-    public TagRenderHelper(UIOutput tag, String tagCssStyle)
+    public TagEncodingHelper(UIOutput tag, String tagCssStyle)
     {
         this.tag = tag;
         this.tagCssStyle = tagCssStyle;
@@ -356,27 +358,45 @@ public class TagRenderHelper implements NamingContainer
             this.record = null;
     }
 
-    public FieldRenderer getFieldRenderer()
+    public InputControl getInputControl()
     {
-        if (renderer != null)
-            return renderer;
+        if (control != null)
+            return control;
         // Create
         if (getColumn() == null)
-        	throw new NotSupportedException(this, "getFieldRenderer");
-        // Find Select
+        	throw new NotSupportedException(this, "getInputControl");
+        // Get Control from column
         String controlType = column.getControlType();
-        if (StringUtils.isEmpty(controlType) && getValueOptions()!=null)
-        	return FieldRendererManager.getRenderer(SelectFieldRenderer.NAME);
-        // Ask Application
-        return FacesUtils.getFacesApplication().getFieldRenderer(column);
+        InputControl control = null;
+        if (StringUtils.isNotEmpty(controlType))
+            control = InputControlManager.getControl(controlType);
+        if (control == null)
+        { // Auto-detect
+            if (getValueOptions()!=null)
+                controlType = SelectInputControl.NAME;
+            else
+            {   // get from data type
+                DataType dataType = column.getDataType();
+                controlType = FacesUtils.getFacesApplication().getDefaultControlType(dataType);
+            }
+            // get default control
+            control = InputControlManager.getControl(controlType);
+            // Still not? Use Text Control
+            if (control == null)
+                control = InputControlManager.getControl(TextInputControl.NAME);
+            // debug
+            if (log.isDebugEnabled() && !controlType.equals(TextInputControl.NAME))
+                log.debug("Auto-detected field control for " + column.getName() + " is " + controlType);
+        }
+        return control;
     }
 
-    public FieldRenderer.ValueInfo getValueInfo(FacesContext ctx)
+    public InputControl.ValueInfo getValueInfo(FacesContext ctx)
     {
         return new ValueInfoImpl(getColumn(), getTextResolver(ctx));
     }
 
-    public FieldRenderer.InputInfo getInputInfo(FacesContext ctx)
+    public InputControl.InputInfo getInputInfo(FacesContext ctx)
     {
         return new InputInfoImpl(getColumn(), getTextResolver(ctx));
     }
@@ -819,7 +839,7 @@ public class TagRenderHelper implements NamingContainer
         return (f != null && String.valueOf(f).indexOf(format) >= 0);
     }
 
-    public boolean hasFormat(FieldRenderer.ValueInfo vi, String format)
+    public boolean hasFormat(InputControl.ValueInfo vi, String format)
     {
         String f = vi.getFormat();
         return (f != null && f.indexOf(format) >= 0);
@@ -916,8 +936,15 @@ public class TagRenderHelper implements NamingContainer
         if (column==null)
             throw new InvalidArgumentException("column", column);
 
-        // create now
-        HtmlOutputLabel label = new HtmlOutputLabel();
+        // create label now
+        HtmlOutputLabel label;
+        try {
+            label = InputControlManager.getLabelComponentClass().newInstance();
+        } catch (InstantiationException e1) {
+            throw new InternalException(e1);
+        } catch (IllegalAccessException e2) {
+            throw new InternalException(e2);
+        }
         
         // value
         label.setValue(getLabelValue(column, colon));

@@ -122,7 +122,7 @@ public class FacesUtils
         return page; 
     }
 
-    /* Pages */
+    /* Parameter-map */
     public static final String PARAMETER_MAP_ATTRIBUTE = ParameterMap.class.getSimpleName();
     
     public static ParameterMap getParameterMap(final FacesContext fc)
