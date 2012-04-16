@@ -160,6 +160,7 @@ public class FacesUtils
         String name = cls.getName();
         int i = name.lastIndexOf('.')+1;
         name  = name.substring(i, i+1).toLowerCase()+name.substring(i+1);
+        @SuppressWarnings("unchecked")
         T bean = (T)getManagedBean(fc, name);
         if (bean==null)
             log.warn("Managed Bean {} ist not available.", name);

@@ -32,6 +32,12 @@ public class TextAreaInputControl extends InputControl
     
     public static final String NAME = "textarea"; 
     
+    public static final String FORMAT_COLS = "cols:";
+    public static final String FORMAT_COLS_ATTRIBUTE = "format:cols";
+
+    public static final String FORMAT_ROWS = "rows:";
+    public static final String FORMAT_ROWS_ATTRIBUTE = "format:rows";
+    
     private Class<? extends javax.faces.component.html.HtmlInputTextarea> inputComponentClass;
 
     public TextAreaInputControl(Class<? extends HtmlInputTextarea> inputComponentClass)
@@ -58,11 +64,11 @@ public class TextAreaInputControl extends InputControl
 		}
         copyAttributes(parent, ii, input);
         
-        int cols = ii.getHSize();
+        int cols = getFormatInteger(ii, FORMAT_COLS, FORMAT_COLS_ATTRIBUTE);
         if (cols>0)
             input.setCols(cols);
 
-        int rows = ii.getVSize();
+        int rows = getFormatInteger(ii, FORMAT_ROWS, FORMAT_ROWS_ATTRIBUTE);
         if (rows>0)
             input.setRows(rows);
         
@@ -71,5 +77,12 @@ public class TextAreaInputControl extends InputControl
         
         compList.add(input);
     }
+
+    /*
+    private int getTextareaCols(InputInfo ii)
+    {
+        ii.getColumn().getAttribute("");
+    }
+    */
     
 }

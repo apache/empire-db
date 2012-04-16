@@ -47,7 +47,8 @@ public class TextInputControl extends InputControl
     public static final String NAME = "text"; 
 
     public static final String FORMAT_UNIT = "unit:";
-
+    public static final String FORMAT_UNIT_ATTRIBUTE = "format:unit";
+    
     private Class<? extends javax.faces.component.html.HtmlInputText> inputComponentClass;
     
     public TextInputControl(String name, Class<? extends HtmlInputText> inputComponentClass)
@@ -176,9 +177,10 @@ public class TextInputControl extends InputControl
         }
         // Check Value
         if (value == null)
-        {   // Try to use default value 
-            if (value!=vi.getNullValue())
-                return formatValue(vi.getNullValue(), vi, false);
+        {   // Try to use default value
+            Object nullValue = getFormatOption(vi, FORMAT_NULL, FORMAT_NULL_ATTRIBUTE);
+            if (nullValue!=null)
+                return formatValue(nullValue, vi, false);
             // Empty String
             return "";
         }
@@ -391,7 +393,7 @@ public class TextInputControl extends InputControl
     private String getUnitString(ValueInfo vi)
     {
         // Is unit supplied as a format option
-        String format = getFormatOption(vi, FORMAT_UNIT);
+        String format = getFormatString(vi, FORMAT_UNIT, FORMAT_UNIT_ATTRIBUTE);
         if (format!=null)
             return format;
         // Is it a currency column

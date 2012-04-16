@@ -30,8 +30,6 @@ import javax.servlet.ServletContext;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-
-
 public class AppStartupListener implements SystemEventListener
 {
     final Log log = LogFactory.getLog(AppStartupListener.class);
@@ -51,7 +49,7 @@ public class AppStartupListener implements SystemEventListener
         {
             Application app = ((PostConstructApplicationEvent) event).getApplication();
             if (!(app instanceof FacesApplication))
-                throw new AbortProcessingException("Error: Application is not a JsfApplication instance. Please create a ApplicationFactory!");
+                throw new AbortProcessingException("Error: Application is not a "+FacesApplication.class.getName()+" instance. Please create a ApplicationFactory!");
             // Create an Init application
             ServletContext servletContext = (ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext();
             FacesApplication jsfApp = (FacesApplication)app;
@@ -59,7 +57,7 @@ public class AppStartupListener implements SystemEventListener
             // Set Servlet Attribute
             servletContext.setAttribute(jsfApp.getApplicationBeanName(), jsfApp);
             // done
-            log.info("Fin2Application initialization complete!");
+            log.info("Application initialization complete!");
         }
         else if (event instanceof PreDestroyApplicationEvent)
         {

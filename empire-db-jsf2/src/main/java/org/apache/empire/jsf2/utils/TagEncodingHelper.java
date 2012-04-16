@@ -197,6 +197,7 @@ public class TagEncodingHelper implements NamingContainer
             return getValueOptions();
         }
 
+        /*
         @Override
         public Object getNullValue()
         {
@@ -210,6 +211,7 @@ public class TagEncodingHelper implements NamingContainer
             // not available
             return null;
         }
+        */
 
         @Override
         public String getFormat()
@@ -290,24 +292,6 @@ public class TagEncodingHelper implements NamingContainer
         public boolean isDisabled()
         {
             return isReadOnly();
-        }
-
-        @Override
-        public int getHSize()
-        {
-            Object size = tag.getAttributes().get("hSize");
-            if (size == null)
-                return 0;
-            return ObjectUtils.getInteger(size);
-        }
-
-        @Override
-        public int getVSize()
-        {
-            Object size = tag.getAttributes().get("vSize");
-            if (size == null)
-                return 0;
-            return ObjectUtils.getInteger(size);
         }
 
         @Override

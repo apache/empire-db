@@ -27,6 +27,7 @@ import javax.faces.component.UIInput;
 import javax.faces.context.FacesContext;
 import javax.faces.context.ResponseWriter;
 
+import org.apache.empire.commons.ObjectUtils;
 import org.apache.empire.commons.Options;
 import org.apache.empire.commons.StringUtils;
 import org.apache.empire.data.Column;
@@ -153,6 +154,10 @@ public abstract class InputControl
     public static final String MINVALUE_ATTRIBUTE         = "minValue";
     public static final String MAXVALUE_ATTRIBUTE         = "maxValue";
     public static final String CURRENCY_CODE_ATTRIBUTE    = "currencyCode";   // "ISO 4217 code of the currency"  
+
+    // format attributes
+    public static final String FORMAT_NULL = "null:";
+    public static final String FORMAT_NULL_ATTRIBUTE = "format:null";
     
     public InputControl()
     {
@@ -168,11 +173,11 @@ public abstract class InputControl
         Column getColumn();
         Options getOptions();
         Object getValue();
-        Object getNullValue();
         String getFormat();    // Custom Formatting options specific to each InputControl-type
         Locale getLocale();
         String getText(String key);
         /*
+        Object getNullValue();
         String getOnclick();
         String getOndblclick();
         String getCssClass();
@@ -187,17 +192,15 @@ public abstract class InputControl
      */ 
     public interface InputInfo extends ValueInfo
     {
-        int getHSize();
-        int getVSize();
-        boolean isRequired();
-        boolean isDisabled(); // readOnly
-        String getInputId();
-        String getTabindex();
-        String getStyleClass(String addlStyle);
         // perform action 
         void setValue(Object value);
         void validate(Object value);
-        
+        boolean isRequired();
+        boolean isDisabled(); // readOnly
+        // input
+        String getInputId();
+        String getTabindex();
+        String getStyleClass(String addlStyle);
         // String getAccesskey();
         /*
         String getName();
@@ -374,7 +377,7 @@ public abstract class InputControl
         }
         // value
         if (value==null)
-            value = vi.getNullValue();
+            value = getFormatOption(vi, FORMAT_NULL, FORMAT_NULL_ATTRIBUTE);
         // Convert to String
         String s = StringUtils.valueOf(value);
         if (hasFormatOption(vi, "noencode"))
@@ -417,7 +420,7 @@ public abstract class InputControl
         return (format!=null ? format.indexOf(option)>=0 : false);
     }
     
-    protected String getFormatOption(ValueInfo vi, String option)
+    private String getFormatOption(ValueInfo vi, String option)
     {
         // Is unit supplied with format
         String format = vi.getFormat();
@@ -434,6 +437,22 @@ public abstract class InputControl
             return format.substring(beg);
         // The cbValue
         return format.substring(beg, end);
+    }
+
+    protected Object getFormatOption(ValueInfo vi, String option, String columnAttributeName)
+    {
+        String format = getFormatOption(vi, option);
+        return (format!=null) ? format : vi.getColumn().getAttribute(columnAttributeName); 
+    }
+
+    protected String getFormatString(ValueInfo vi, String option, String columnAttributeName)
+    {
+        return StringUtils.toString(getFormatOption(vi, option, columnAttributeName));
+    }
+
+    protected int getFormatInteger(ValueInfo vi, String option, String columnAttributeName)
+    {
+        return ObjectUtils.getInteger(getFormatOption(vi, option, columnAttributeName));
     }
     
 }

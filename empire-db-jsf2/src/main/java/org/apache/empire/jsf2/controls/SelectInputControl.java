@@ -39,7 +39,7 @@ public class SelectInputControl extends InputControl
     public static final String COLATTR_ABBR_OPTIONS   = "ABBR_OPTIONS";     // Option list for abbreviations
     
     public static final String NAME = "select";
-    
+
     private Class<? extends javax.faces.component.html.HtmlSelectOneMenu> inputComponentClass;
 
     public SelectInputControl(Class<? extends HtmlSelectOneMenu> inputComponentClass)
@@ -85,10 +85,8 @@ public class SelectInputControl extends InputControl
     
     private String getNullText(InputInfo ii)
     {
-        String nullText = getFormatOption(ii, "null:");
-        if (nullText==null)
-            nullText="";
-        return nullText;
+        String nullText = getFormatString(ii, FORMAT_NULL, FORMAT_NULL_ATTRIBUTE);
+        return (nullText!=null) ? ii.getText(nullText) : "";
     }
 
     private void addSelectItem(UIComponent input, InputInfo ii, OptionEntry e)
