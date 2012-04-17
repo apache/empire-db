@@ -25,8 +25,10 @@ import javax.faces.context.FacesContext;
 import javax.faces.event.PhaseEvent;
 import javax.faces.event.PhaseId;
 import javax.faces.event.PhaseListener;
+import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.beanutils.BeanUtils;
+import org.apache.empire.jsf2.app.FacesUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -51,17 +53,50 @@ public class PagePhaseListener implements PhaseListener
     @Override
     public void beforePhase(PhaseEvent pe)
     {
-        log.trace("Processing Phase ", pe.getPhaseId());
+        PhaseId phaseId = pe.getPhaseId();
+        if (log.isTraceEnabled())
+            log.trace("Processing Phase {}.", phaseId);        
+
         FacesContext fc = pe.getFacesContext();
         UIViewRoot   vr = fc.getViewRoot();
         if (vr == null)
+        {
+            /*
+            PartialViewContext pvc = fc.getPartialViewContext(); 
+            boolean ajax = pvc.isAjaxRequest();
+            boolean part = pvc.isPartialRequest();
+            if (!part && !ajax)
+            {
+                HttpServletRequest req = FacesUtils.getHttpRequest(fc);
+                String reqURI = req.getRequestURI();
+                log.info("No View Root for request to '"+reqURI+"' in Phase "+String.valueOf(phaseId));
+            }
+            */
             return;
+        }    
 
         // Init Page
         String viewId = vr.getViewId();
         PageDefinition pageDef = PageDefinitions.getPageFromViewId(viewId);
         if (pageDef != null)
         {
+            // Check Request context path 
+            if (phaseId==PhaseId.APPLY_REQUEST_VALUES)
+            {
+                HttpServletRequest req = FacesUtils.getHttpRequest(fc);
+                String reqURI = req.getRequestURI();
+                int vix = viewId.lastIndexOf('.');
+                int rix = reqURI.lastIndexOf('.');
+                if (rix<vix || !viewId.regionMatches(true, 0, reqURI, rix-vix, vix))
+                {   // redirect to view page
+                    String ctxPath = fc.getExternalContext().getRequestContextPath();
+                    String pageURI = ctxPath + viewId.substring(0,vix) + ".iface";
+                    log.warn("Invalid RequestURI '" + reqURI + "'. Redirecting to '"+pageURI+"'.");
+                    FacesUtils.redirectDirectly(fc, pageURI);
+                    return;
+                }
+            }
+            // Process page
             String name = pageDef.getPageBeanName();
             Map<String, Object> viewMap = vr.getViewMap();
             Page pageBean = (Page) viewMap.get(name);
