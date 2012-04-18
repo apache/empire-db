@@ -25,19 +25,20 @@ import javax.faces.context.FacesContext;
 import javax.faces.event.PhaseEvent;
 import javax.faces.event.PhaseId;
 import javax.faces.event.PhaseListener;
-import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.beanutils.BeanUtils;
+import org.apache.empire.exceptions.ItemNotFoundException;
 import org.apache.empire.jsf2.app.FacesUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class PagePhaseListener implements PhaseListener
 {
-    private static final long   serialVersionUID    = 1L;
-    private static final Logger log                 = LoggerFactory.getLogger(PagePhaseListener.class);
+    private static final long   serialVersionUID       = 1L;
+    private static final Logger log                    = LoggerFactory.getLogger(PagePhaseListener.class);
 
-    public static final String  FORWARD_PAGE_PARAMS = "forwardPageParams";
+    public static final String  CURRENT_VIEW_ATTRIBUTE = "currentViewId";
+    public static final String  FORWARD_PAGE_PARAMS    = "forwardPageParams";
 
     public PagePhaseListener()
     {
@@ -55,10 +56,10 @@ public class PagePhaseListener implements PhaseListener
     {
         PhaseId phaseId = pe.getPhaseId();
         if (log.isTraceEnabled())
-            log.trace("Processing Phase {}.", phaseId);        
+            log.trace("Processing Phase {}.", phaseId);
 
         FacesContext fc = pe.getFacesContext();
-        UIViewRoot   vr = fc.getViewRoot();
+        UIViewRoot vr = fc.getViewRoot();
         if (vr == null)
         {
             /*
@@ -73,70 +74,97 @@ public class PagePhaseListener implements PhaseListener
             }
             */
             return;
-        }    
+        }
+
+        // Get the view Id
+        String viewId = vr.getViewId();
+        // boolean checkContextPath = false;
+
+        // Check view Change
+        Map<String, Object> sessionMap = fc.getExternalContext().getSessionMap();
+        Object lastViewId = sessionMap.get(CURRENT_VIEW_ATTRIBUTE);
+        if (lastViewId == null || !(((String) lastViewId).equalsIgnoreCase(viewId)))
+        { // view changes
+            FacesUtils.getFacesApplication().onChangeView(fc, (String) lastViewId, viewId);
+            if (fc.getResponseComplete())
+                return;
+            // set view Id
+            sessionMap.put(CURRENT_VIEW_ATTRIBUTE, viewId);
+        }
+
+        // Find Definition for view-id
+        PageDefinition pageDef = PageDefinitions.getInstance().getPageFromViewId(viewId);
+        if (pageDef == null)
+        {
+            pageDef = PageDefinitions.getInstance().getDefaultPage();
+            if (pageDef == null)
+            {
+                log.error("No Page definition Error for path {}", viewId);
+                throw new ItemNotFoundException(viewId);
+            }
+            log.warn("No Page definition for {}. Redirecting to default page.", viewId);
+            FacesUtils.redirectDirectly(fc, pageDef);
+            return;
+        }
+
+        // Check Request context path 
+        /*
+        if (checkContextPath)
+        {   HttpServletRequest req = FacesUtils.getHttpRequest(fc);
+            String reqURI = req.getRequestURI();
+            viewId = pageDef.getPath();
+            int vix = viewId.lastIndexOf('.');
+            int rix = reqURI.lastIndexOf('.');
+            if (rix<vix || !viewId.regionMatches(true, 0, reqURI, rix-vix, vix))
+            {   // redirect to view page
+                String ctxPath = fc.getExternalContext().getRequestContextPath();
+                String pageURI = ctxPath + viewId.substring(0,vix) + ".iface";
+                log.warn("Invalid RequestURI '" + reqURI + "'. Redirecting to '"+pageURI+"'.");
+                FacesUtils.redirectDirectly(fc, pageURI);
+                return;
+            }
+            // Save current viewId
+        }
+        */
 
         // Init Page
-        String viewId = vr.getViewId();
-        PageDefinition pageDef = PageDefinitions.getPageFromViewId(viewId);
-        if (pageDef != null)
+        String name = pageDef.getPageBeanName();
+        Map<String, Object> viewMap = vr.getViewMap();
+        Page pageBean = (Page) viewMap.get(name);
+        if (pageBean == null)
         {
-            // Check Request context path 
-            if (phaseId==PhaseId.APPLY_REQUEST_VALUES)
+            String pageBeanClassName = pageDef.getPageBeanClass().getName();
+            if (log.isDebugEnabled())
+                log.debug("Creating page bean {} for {} in Phase {}.", new Object[] { pageBeanClassName, viewId, pe.getPhaseId() });
+            try
             {
-                HttpServletRequest req = FacesUtils.getHttpRequest(fc);
-                String reqURI = req.getRequestURI();
-                int vix = viewId.lastIndexOf('.');
-                int rix = reqURI.lastIndexOf('.');
-                if (rix<vix || !viewId.regionMatches(true, 0, reqURI, rix-vix, vix))
-                {   // redirect to view page
-                    String ctxPath = fc.getExternalContext().getRequestContextPath();
-                    String pageURI = ctxPath + viewId.substring(0,vix) + ".iface";
-                    log.warn("Invalid RequestURI '" + reqURI + "'. Redirecting to '"+pageURI+"'.");
-                    FacesUtils.redirectDirectly(fc, pageURI);
-                    return;
-                }
+                pageBean = pageDef.getPageBeanClass().newInstance();
+                // List request parameters
+                /*
+                 * FacesContext fc = pe.getFacesContext();
+                 * Map<String, String> map = fc.getExternalContext().getRequestParameterMap();
+                 * for (String key : map.keySet())
+                 * {
+                 * StringBuilder param = new StringBuilder();
+                 * param.append("Parameter: ");
+                 * param.append(key);
+                 * param.append(" = ");
+                 * param.append(map.get(key));
+                 * log.debug(param.toString());
+                 * }
+                 */
             }
-            // Process page
-            String name = pageDef.getPageBeanName();
-            Map<String, Object> viewMap = vr.getViewMap();
-            Page pageBean = (Page) viewMap.get(name);
-            if (pageBean == null)
+            catch (Exception e)
             {
-                String pageBeanClassName = pageDef.getPageBeanClass().getName();
-                log.info("Creating page bean {} for {} in Phase {}.", new Object[] { pageBeanClassName, viewId, pe.getPhaseId() });
-                try
-                {
-                    pageBean = pageDef.getPageBeanClass().newInstance();
-                    // List request parameters
-                    /*
-                     * FacesContext fc = pe.getFacesContext();
-                     * Map<String, String> map = fc.getExternalContext().getRequestParameterMap();
-                     * for (String key : map.keySet())
-                     * {
-                     * StringBuilder param = new StringBuilder();
-                     * param.append("Parameter: ");
-                     * param.append(key);
-                     * param.append(" = ");
-                     * param.append(map.get(key));
-                     * log.debug(param.toString());
-                     * }
-                     */
-                }
-                catch (Exception e)
-                {
-                    throw new RuntimeException("Error creating instance of page bean " + pageBeanClassName, e);
-                }
-                viewMap.put(pageDef.getPageBeanName(), pageBean);
-                viewMap.put("page", pageBean);
+                throw new RuntimeException("Error creating instance of page bean " + pageBeanClassName, e);
             }
-            pageBean.setPageDefinition(pageDef);
-
-            if (pe.getPhaseId() == PhaseId.RENDER_RESPONSE)
-                initPageBean(pageBean, fc, viewMap);
-
+            viewMap.put(pageDef.getPageBeanName(), pageBean);
+            viewMap.put("page", pageBean);
         }
-        else
-            log.warn("No Page Defintion Error for path {}", viewId);
+        pageBean.setPageDefinition(pageDef);
+
+        if (pe.getPhaseId() == PhaseId.RENDER_RESPONSE)
+            initPageBean(pageBean, fc, viewMap);
 
         /*
          * Collection<UIViewParameter> params = ViewMetadata.getViewParameters(vr);
@@ -150,11 +178,11 @@ public class PagePhaseListener implements PhaseListener
     private void initPageBean(Page pageBean, FacesContext fc, Map<String, Object> viewMap)
     {
         if (!pageBean.isInitialized())
-        {   // Not yet initialized 
+        { // Not yet initialized 
             if (!PageNavigationHandler.isInitialized())
-            {   // Probably missing declaration in faces-config.xml 
+            { // Probably missing declaration in faces-config.xml 
                 log.error("PageNavigationHandler has not been initialized. Forward operations will not work!");
-            }    
+            }
             // Check for forward page params
             if (viewMap.containsKey(FORWARD_PAGE_PARAMS))
             {
@@ -162,7 +190,7 @@ public class PagePhaseListener implements PhaseListener
                 Map<String, String> pageParams = (Map<String, String>) viewMap.remove(FORWARD_PAGE_PARAMS);
                 // TODO: Set view metadata
                 if (!setViewMetadata(pageParams))
-                {   // instead set properties directly
+                { // instead set properties directly
                     for (String name : pageParams.keySet())
                     {
                         String value = pageParams.get(name);
@@ -178,13 +206,14 @@ public class PagePhaseListener implements PhaseListener
                 }
             }
             // page prepared
-        }    
+        }
         // Init now
         pageBean.preRenderPage(fc);
     }
-    
+
     /**
      * TODO: Find a way to set the view Metadata. Don't know how to do it.
+     * 
      * @param pageParams
      * @return
      */
@@ -196,7 +225,7 @@ public class PagePhaseListener implements PhaseListener
         UIViewRoot   vr = fc.getViewRoot();
         UIComponent metadataFacet = vr.getFacet(UIViewRoot.METADATA_FACET_NAME);
         */
-        
+
         /*
         String viewId = vr.getViewId();        
         ViewDeclarationLanguage vdl = fc.getApplication().getViewHandler().getViewDeclarationLanguage(fc, viewId);
@@ -236,10 +265,10 @@ public class PagePhaseListener implements PhaseListener
             }
         }
         */
-        
+
         return false;
     }
-    
+
     @Override
     public void afterPhase(PhaseEvent pe)
     {

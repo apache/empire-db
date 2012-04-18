@@ -34,6 +34,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.apache.empire.db.DBDatabase;
 import org.apache.empire.jsf2.pages.Page;
+import org.apache.empire.jsf2.pages.PageDefinition;
 import org.apache.empire.jsf2.utils.ParameterMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -82,7 +83,7 @@ public class FacesUtils
         return context.getExternalContext().getRequestParameterMap().get(param);
     }
 
-    public static void redirectDirectly(final FacesContext fc,final String url)
+    public static void redirectDirectly(final FacesContext fc, final String url)
     {
         try
         {
@@ -95,6 +96,13 @@ public class FacesUtils
         }
     }
 
+    public static void redirectDirectly(final FacesContext fc, final PageDefinition page)
+    {
+        String ctxPath = fc.getExternalContext().getRequestContextPath();
+        String pageURI = ctxPath + page.getPath().replace(".xhtml", ".iface");
+        FacesUtils.redirectDirectly(fc, pageURI);
+    }
+    
     /* Connection */
     
     public Connection getConnection(final FacesContext fc, DBDatabase db) 

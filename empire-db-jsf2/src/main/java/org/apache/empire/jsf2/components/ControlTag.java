@@ -46,11 +46,14 @@ public class ControlTag extends UIInput implements NamingContainer
     public static abstract class ControlSeparatorComponent extends javax.faces.component.UIComponentBase
     {
         private ControlTag control = null;
-        
+
+        /*
         protected ControlSeparatorComponent()
         {
-            log.info("ControlSeparatorComponent "+getClass().getName()+" created.");
+            if (log.isTraceEnabled())
+                log.trace("ControlSeparatorComponent "+getClass().getName()+" created.");
         }
+        */
 
         @Override
         public String getFamily()

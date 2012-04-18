@@ -50,14 +50,14 @@ public class AppStartupListener implements SystemEventListener
             Application app = ((PostConstructApplicationEvent) event).getApplication();
             if (!(app instanceof FacesApplication))
                 throw new AbortProcessingException("Error: Application is not a "+FacesApplication.class.getName()+" instance. Please create a ApplicationFactory!");
-            // Create an Init application
+            // Create and Init application
             ServletContext servletContext = (ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext();
             FacesApplication jsfApp = (FacesApplication)app;
             jsfApp.init(servletContext);
             // Set Servlet Attribute
             servletContext.setAttribute(jsfApp.getApplicationBeanName(), jsfApp);
             // done
-            log.info("Application initialization complete!");
+            jsfApp.initComplete();
         }
         else if (event instanceof PreDestroyApplicationEvent)
         {

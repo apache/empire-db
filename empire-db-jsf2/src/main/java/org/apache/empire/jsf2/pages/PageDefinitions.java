@@ -18,8 +18,9 @@
  */
 package org.apache.empire.jsf2.pages;
 
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 
+import org.apache.empire.commons.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,7 +32,7 @@ public abstract class PageDefinitions
 {
     private static final Logger log = LoggerFactory.getLogger(PageDefinitions.class);
 
-    private static HashMap<String,PageDefinition> pageMap = new HashMap<String,PageDefinition>();
+    private static LinkedHashMap<String,PageDefinition> pageMap = new LinkedHashMap<String,PageDefinition>();
     
     private static PageDefinitions instance = null;
     
@@ -80,14 +81,29 @@ public abstract class PageDefinitions
             bm.register(mbi);
         }
     }
+
+    /**
+     * returns the default (welcome) page definition.
+     * By default this is the first page in the PageMap
+     * @return the default (welcome) page definition. 
+     */
+    public PageDefinition getDefaultPage()
+    {
+        // first page is default
+        return pageMap.values().iterator().next();
+    }
     
     /**
      * returns a page definition for a given viewId
      * @param viewId
      * @return the page definition
      */
-    public static PageDefinition getPageFromViewId(String viewId)
+    public PageDefinition getPageFromViewId(String viewId)
     {
+        // Empty-String == default page
+        if (StringUtils.isEmpty(viewId))
+            return getDefaultPage();
+        // find in map
         viewId = viewId.replace(".iface", ".xhtml");
         PageDefinition view = pageMap.get(viewId);
         if (view==null)

@@ -52,25 +52,61 @@ public abstract class FacesApplication extends ApplicationImpl
 {
     private static final Logger    log    = LoggerFactory.getLogger(FacesApplication.class);
     
-    public final String APPLICATION_ATTRIBUTE   = "app";
+    public final String APPLICATION_ATTRIBUTE   = "facesApp";
     public final String CONNECTION_ATTRIBUTE    = "dbConnections";
     
     protected TextResolver[] textResolvers = null; 
     
+    protected FacesApplication(AppStartupListener startupListener)
+    {   // subscribe
+        subscribeToEvent(javax.faces.event.PostConstructApplicationEvent.class, startupListener);
+    }   
+    
     protected FacesApplication()
-    {
-    }
+    {   // subscribe
+        this(new AppStartupListener());
+    }   
     
     public String getApplicationBeanName()
     {
         return APPLICATION_ATTRIBUTE;
     }
-
+    
     protected abstract DataSource getAppDataSource(DBDatabase db);
     
     public abstract void init(ServletContext fc);
+
+    public void initComplete()
+    {
+        // Check Text resolvers
+        if (textResolvers==null)
+        {
+            log.info("TextResolvers not initialized. Using default.");
+            
+            int count = 0;
+            Iterator<Locale> locales = getSupportedLocales();
+            for (count=0; locales.hasNext(); count++) { locales.next(); }
+            
+            // get message bundles
+            String messageBundle = this.getMessageBundle();
+            textResolvers = new TextResolver[count];
+            locales = getSupportedLocales();
+            for (int i=0; locales.hasNext(); i++)
+            {
+                Locale locale = locales.next();
+                textResolvers[i] = new TextResolver(ResourceBundle.getBundle(messageBundle, locale));
+            }
+        }
+        // done
+        log.info("FacesApplication initialization complete");
+    }
     
     /* Context handling */
+    
+    public void onChangeView(final FacesContext fc, String previousViewId, String viewId)
+    {
+        // allow custom view change logic
+    }
 
     public void addJavascriptCall(final FacesContext fc, String function)
     {
