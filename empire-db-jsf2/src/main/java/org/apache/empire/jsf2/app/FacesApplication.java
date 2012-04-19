@@ -52,8 +52,8 @@ public abstract class FacesApplication extends ApplicationImpl
 {
     private static final Logger    log    = LoggerFactory.getLogger(FacesApplication.class);
     
-    public final String APPLICATION_ATTRIBUTE   = "facesApp";
-    public final String CONNECTION_ATTRIBUTE    = "dbConnections";
+    private static final String APPLICATION_ATTRIBUTE  = "facesApp";
+    private static final String CONNECTION_ATTRIBUTE   = "dbConnections";
     
     protected TextResolver[] textResolvers = null; 
     
@@ -103,7 +103,7 @@ public abstract class FacesApplication extends ApplicationImpl
     
     /* Context handling */
     
-    public void onChangeView(final FacesContext fc, String previousViewId, String viewId)
+    public void onChangeView(final FacesContext fc, String viewId)
     {
         // allow custom view change logic
     }

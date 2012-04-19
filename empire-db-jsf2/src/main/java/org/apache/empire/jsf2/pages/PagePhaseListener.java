@@ -27,7 +27,6 @@ import javax.faces.event.PhaseId;
 import javax.faces.event.PhaseListener;
 
 import org.apache.commons.beanutils.BeanUtils;
-import org.apache.empire.exceptions.ItemNotFoundException;
 import org.apache.empire.jsf2.app.FacesUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,12 +36,14 @@ public class PagePhaseListener implements PhaseListener
     private static final long   serialVersionUID       = 1L;
     private static final Logger log                    = LoggerFactory.getLogger(PagePhaseListener.class);
 
-    public static final String  CURRENT_VIEW_ATTRIBUTE = "currentViewId";
-    public static final String  FORWARD_PAGE_PARAMS    = "forwardPageParams";
+    private static final String LAST_PAGE_VIEW_ID      = "lastPageViewId";
+    
+    // FORWARD_PAGE_PARAMS used by PageNavigationHandler
+    public  static final String FORWARD_PAGE_PARAMS    = "forwardPageParams";
 
     public PagePhaseListener()
     {
-        // foo
+        log.trace("PagePhaseListener created.");
     }
 
     @Override
@@ -78,39 +79,36 @@ public class PagePhaseListener implements PhaseListener
 
         // Get the view Id
         String viewId = vr.getViewId();
-        // boolean checkContextPath = false;
-
-        // Check view Change
+        // boolean viewChanged = false;
+        
+        // Detect view change
         Map<String, Object> sessionMap = fc.getExternalContext().getSessionMap();
-        Object lastViewId = sessionMap.get(CURRENT_VIEW_ATTRIBUTE);
+        Object lastViewId = sessionMap.get(LAST_PAGE_VIEW_ID);
         if (lastViewId == null || !(((String) lastViewId).equalsIgnoreCase(viewId)))
         { // view changes
-            FacesUtils.getFacesApplication().onChangeView(fc, (String) lastViewId, viewId);
+            FacesUtils.getFacesApplication().onChangeView(fc, viewId);
             if (fc.getResponseComplete())
                 return;
             // set view Id
-            sessionMap.put(CURRENT_VIEW_ATTRIBUTE, viewId);
+            sessionMap.put(LAST_PAGE_VIEW_ID, viewId);
+            // viewChanged = true;
         }
 
-        // Find Definition for view-id
+        // Get Page Definition
         PageDefinition pageDef = PageDefinitions.getInstance().getPageFromViewId(viewId);
         if (pageDef == null)
-        {
-            pageDef = PageDefinitions.getInstance().getDefaultPage();
-            if (pageDef == null)
-            {
-                log.error("No Page definition Error for path {}", viewId);
-                throw new ItemNotFoundException(viewId);
-            }
-            log.warn("No Page definition for {}. Redirecting to default page.", viewId);
-            FacesUtils.redirectDirectly(fc, pageDef);
+        {   // No page definition available
+            if (log.isDebugEnabled())
+                log.debug("No page definition available for viewId {}.", viewId);
             return;
-        }
+        }    
 
         // Check Request context path 
         /*
-        if (checkContextPath)
-        {   HttpServletRequest req = FacesUtils.getHttpRequest(fc);
+        if (viewChanged)
+        {
+            log.debug("Checking view context path");
+            HttpServletRequest req = FacesUtils.getHttpRequest(fc);
             String reqURI = req.getRequestURI();
             viewId = pageDef.getPath();
             int vix = viewId.lastIndexOf('.');
@@ -126,7 +124,7 @@ public class PagePhaseListener implements PhaseListener
             // Save current viewId
         }
         */
-
+        
         // Init Page
         String name = pageDef.getPageBeanName();
         Map<String, Object> viewMap = vr.getViewMap();
@@ -141,18 +139,17 @@ public class PagePhaseListener implements PhaseListener
                 pageBean = pageDef.getPageBeanClass().newInstance();
                 // List request parameters
                 /*
-                 * FacesContext fc = pe.getFacesContext();
-                 * Map<String, String> map = fc.getExternalContext().getRequestParameterMap();
-                 * for (String key : map.keySet())
-                 * {
-                 * StringBuilder param = new StringBuilder();
-                 * param.append("Parameter: ");
-                 * param.append(key);
-                 * param.append(" = ");
-                 * param.append(map.get(key));
-                 * log.debug(param.toString());
-                 * }
-                 */
+                Map<String, String> map = fc.getExternalContext().getRequestParameterMap();
+                for (String key : map.keySet())
+                {
+                    StringBuilder param = new StringBuilder();
+                    param.append("Parameter: ");
+                    param.append(key);
+                    param.append(" = ");
+                    param.append(map.get(key));
+                    log.debug(param.toString());
+                }
+                */
             }
             catch (Exception e)
             {
@@ -167,12 +164,12 @@ public class PagePhaseListener implements PhaseListener
             initPageBean(pageBean, fc, viewMap);
 
         /*
-         * Collection<UIViewParameter> params = ViewMetadata.getViewParameters(vr);
-         * for (UIViewParameter p : params)
-         * {
-         * log.info("p {} = {}", p.getName(), p.getValue());
-         * }
-         */
+        Collection<UIViewParameter> params = ViewMetadata.getViewParameters(vr);
+        for (UIViewParameter p : params)
+        {
+            log.info("p {} = {}", p.getName(), p.getValue());
+        }
+        */
     }
 
     private void initPageBean(Page pageBean, FacesContext fc, Map<String, Object> viewMap)

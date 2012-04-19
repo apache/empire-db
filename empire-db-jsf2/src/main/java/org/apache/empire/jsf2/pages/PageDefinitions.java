@@ -81,6 +81,16 @@ public abstract class PageDefinitions
             bm.register(mbi);
         }
     }
+    
+    /**
+     * returns true if the view exists in the page map or false otherwise
+     * @param viewId
+     * @return true if the view exists in the page map or false otherwise
+     */
+    public boolean containsView(String viewId)
+    {
+        return pageMap.containsKey(viewId);        
+    }
 
     /**
      * returns the default (welcome) page definition.

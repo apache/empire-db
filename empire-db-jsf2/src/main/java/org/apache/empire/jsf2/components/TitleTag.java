@@ -69,13 +69,13 @@ public class TitleTag extends UIOutput implements NamingContainer
         // render components
         ResponseWriter writer = context.getResponseWriter();
         String tag = writeStartElement(title, writer);
-        renderLabel(column, writer);
+        renderTitle(column, writer);
         if (tag != null)
             writer.endElement(tag);
     }
 
     /* Helpers */
-    protected void renderLabel(Column column, ResponseWriter writer) throws IOException
+    protected void renderTitle(Column column, ResponseWriter writer) throws IOException
     {
         String title=null;
         // Check for short form    

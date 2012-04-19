@@ -809,10 +809,10 @@ public class TagEncodingHelper implements NamingContainer
     {
         Object title = tag.getAttributes().get("title");
         if (title != null)
-            return StringUtils.toString(title);
+            return getDisplayText(StringUtils.toString(title));
         // Check for short form
         if (hasFormat("short") && !ObjectUtils.isEmpty(column.getAttribute(COLATTR_ABBR_TITLE)))
-            return column.getTitle();
+            return getDisplayText(column.getTitle());
         // No Title
         return null;
     }
