@@ -22,7 +22,7 @@ import java.util.HashMap;
 
 public final class InputControlManager
 {
-    private static Class<? extends javax.faces.component.html.HtmlOutputLabel> labelComponentClass;
+    private static Class<? extends javax.faces.component.html.HtmlOutputLabel> labelComponentClass = javax.faces.component.html.HtmlOutputLabel.class;
     
     public static Class<? extends javax.faces.component.html.HtmlOutputLabel> getLabelComponentClass()
     {
