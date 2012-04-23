@@ -80,23 +80,8 @@ public abstract class FacesApplication extends ApplicationImpl
     {
         // Check Text resolvers
         if (textResolvers==null)
-        {
-            log.info("TextResolvers not initialized. Using default.");
-            
-            int count = 0;
-            Iterator<Locale> locales = getSupportedLocales();
-            for (count=0; locales.hasNext(); count++) { locales.next(); }
-            
-            // get message bundles
-            String messageBundle = this.getMessageBundle();
-            textResolvers = new TextResolver[count];
-            locales = getSupportedLocales();
-            for (int i=0; locales.hasNext(); i++)
-            {
-                Locale locale = locales.next();
-                textResolvers[i] = new TextResolver(ResourceBundle.getBundle(messageBundle, locale));
-            }
-        }
+            initTextResolvers();        
+
         // done
         log.info("FacesApplication initialization complete");
     }
@@ -257,9 +242,20 @@ public abstract class FacesApplication extends ApplicationImpl
     /* Message handling */
     
     protected void initTextResolvers()
-    {
-        ResourceBundle rb = ResourceBundle.getBundle("lang.messages", Locale.getDefault());
-        textResolvers = new TextResolver[] { new TextResolver(rb) }; 
+    {        
+        int count = 0;
+        Iterator<Locale> locales = getSupportedLocales();
+        for (count=0; locales.hasNext(); count++) { locales.next(); }
+        
+        // get message bundles
+        String messageBundle = this.getMessageBundle();
+        textResolvers = new TextResolver[count];
+        locales = getSupportedLocales();
+        for (int i=0; locales.hasNext(); i++)
+        {
+            Locale locale = locales.next();
+            textResolvers[i] = new TextResolver(ResourceBundle.getBundle(messageBundle, locale));
+        }
     }
     
     public TextResolver getTextResolver(Locale locale)
