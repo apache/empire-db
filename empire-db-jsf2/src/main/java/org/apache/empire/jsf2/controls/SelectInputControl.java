@@ -72,9 +72,12 @@ public class SelectInputControl extends InputControl
             options = new Options(options);
             addSelectItem(input, ii, new OptionEntry("", getNullText(ii)));
         }
-        for (OptionEntry e : options)
-        { // Option entries
-            addSelectItem(input, ii, e);
+        if (options!=null && options.size()>0)
+        {   // Add options
+            for (OptionEntry e : options)
+            { // Option entries
+                addSelectItem(input, ii, e);
+            }
         }
         
         input.setValue(ii.getValue());
