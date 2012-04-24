@@ -30,6 +30,7 @@ import org.apache.empire.commons.StringUtils;
 import org.apache.empire.data.ColumnExpr;
 import org.apache.empire.data.RecordData;
 import org.apache.empire.exceptions.BeanPropertySetException;
+import org.apache.empire.exceptions.InvalidArgumentException;
 import org.apache.empire.exceptions.ItemNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -291,7 +292,12 @@ public abstract class DBRecordData extends DBObject
     protected void getBeanProperty(Object bean, String property, Object value)
     {
         try
-        {   /*
+        {
+            if (bean==null)
+                throw new InvalidArgumentException("bean", bean);
+            if (StringUtils.isEmpty(property))
+                throw new InvalidArgumentException("property", property);
+            /*
             if (log.isTraceEnabled())
                 log.trace(bean.getClass().getName() + ": setting property '" + property + "' to " + String.valueOf(value));
             */
@@ -344,7 +350,8 @@ public abstract class DBRecordData extends DBObject
                 continue; // ignore this property
             // Get Property Name
             String property = column.getBeanPropertyName();
-            getBeanProperty(bean, property, this.getValue(i));
+            if (property!=null)
+                getBeanProperty(bean, property, this.getValue(i));
             count++;
         }
         return count;

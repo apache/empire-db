@@ -227,8 +227,12 @@ public abstract class DBColumnExpr extends DBExpr
     {
         if (beanPropertyName==null)
         {   // Compute bean property name
+            String name = getName();
+            if (name==null)
+                return null; // no name provided!
+            // compute name
+            name = name.toLowerCase();        
             String res = "";
-            String name = getName().toLowerCase();
             int beg=0;
             while (beg<name.length())
             {
@@ -947,7 +951,7 @@ public abstract class DBColumnExpr extends DBExpr
     }
 
     /**
-     * Creates and returns an expresion for the SQL "count()" function
+     * Creates and returns an expression for the SQL "count()" function
      * which returns the number of rows in the result set.
      *
      * @return the new DBFuncExpr object
@@ -958,7 +962,7 @@ public abstract class DBColumnExpr extends DBExpr
     }
 
     /**
-     * Creates and returns an expresion for the SQL "count()" function
+     * Creates and returns an expression for the SQL "count()" function
      * which returns the number of unique values in the result set.
      *
      * @return the new DBFuncExpr object
@@ -1002,8 +1006,7 @@ public abstract class DBColumnExpr extends DBExpr
      * @param otherwise the value to take if no key matches the given expression
      * @return a DBDecodeExpr object
      */
-    @SuppressWarnings("unchecked")
-    public DBColumnExpr decode(Map valueMap, Object otherwise)
+    public DBColumnExpr decode(Map<?,?> valueMap, Object otherwise)
     {
         // Detect data type
         DataType dataType = DataType.UNKNOWN;
@@ -1117,7 +1120,7 @@ public abstract class DBColumnExpr extends DBExpr
 
     /**
      * Creates a new DBFuncExpr object that will convert
-     * the current column to the destination data type specivied.
+     * the current column to the destination data type specified.
      * 
      * @param dataType the destination data type
      * @param format optional destination format (usually a string)
@@ -1130,7 +1133,7 @@ public abstract class DBColumnExpr extends DBExpr
 
     /**
      * Creates and returns a new DBFuncExpr object that will
-     * convert the current column to the destination data type specivied.
+     * convert the current column to the destination data type specified.
      * 
      * @param dataType Data type to which to convert the current expression to.
      * @return the new DBFuncExpr object
