@@ -19,6 +19,7 @@
 package org.apache.empire.jsf2.app;
 
 import java.beans.FeatureDescriptor;
+import java.lang.reflect.Field;
 import java.util.Iterator;
 
 import javax.el.ELContext;
@@ -26,7 +27,7 @@ import javax.el.ELResolver;
 import javax.faces.context.FacesContext;
 
 import org.apache.empire.commons.StringUtils;
-import org.apache.empire.db.DBColumn;
+import org.apache.empire.db.DBColumnExpr;
 import org.apache.empire.db.DBDatabase;
 import org.apache.empire.db.DBRowSet;
 import org.apache.empire.exceptions.NotSupportedException;
@@ -69,7 +70,9 @@ public class DBELResolver extends ELResolver
         if (base instanceof DBRowSet)
         {   // Find matching column
             String   name = StringUtils.toString(property);
-            DBColumn column = ((DBRowSet)base).getColumn(name);
+            DBColumnExpr column = ((DBRowSet)base).getColumn(name);
+            if (column==null)
+                column = findExpressionField(base, name); 
             if (column!=null)
                 context.setPropertyResolved(true); 
             else
@@ -98,6 +101,48 @@ public class DBELResolver extends ELResolver
             return db;
         }
         return null;
+    }
+    
+    public static DBColumnExpr findExpressionField(Object rowset, String property)
+    {
+        Class<?> c = rowset.getClass();
+        try
+        {   // Find a matching field name
+            Field f = c.getField(property);
+            if (f==null)
+                return null;
+            Object v = f.get(rowset);
+            if (v==null)
+            {   // invalid data type 
+                log.error("ELResolver error: Field '{}.{}' is null.", c.getSimpleName(), property);
+                return null;
+            }    
+            if (!(v instanceof DBColumnExpr))
+            {   // invalid data type 
+                log.error("ELResolver error: Field '{}.{}' is not a DBColumnExpr.", c.getSimpleName(), property);
+                return null;
+            }    
+            return ((DBColumnExpr)v);
+        }
+        catch (SecurityException e)
+        {
+            log.error("ELResolver error: Unable to access field "+c.getSimpleName()+"."+property, e);
+            return null;
+        }
+        catch (NoSuchFieldException e)
+        {
+            return null;
+        }
+        catch (IllegalArgumentException e)
+        {
+            log.error("ELResolver error: Unable to access field "+c.getSimpleName()+"."+property, e);
+            return null;
+        }
+        catch (IllegalAccessException e)
+        {
+            log.error("ELResolver error: Unable to access field "+c.getSimpleName()+"."+property, e);
+            return null;
+        }
     }
 
     @Override
