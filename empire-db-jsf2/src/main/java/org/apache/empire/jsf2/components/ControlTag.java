@@ -137,11 +137,14 @@ public class ControlTag extends UIInput implements NamingContainer
     public static class ValueOutputComponent extends javax.faces.component.UIComponentBase
     {
         private final String tagName = "span";
-        
+
+        /*
         public ValueOutputComponent()
         {
-            log.info("ValueOutputComponent created.");
-        }        
+            if (log.isTraceEnabled())
+                log.trace("ValueOutputComponent created.");
+        } 
+        */
 
         @Override
         public String getFamily()
