@@ -37,7 +37,7 @@ public abstract class DBCompareExpr extends DBExpr
 	 * @param expr the right part of the AND expression
 	 * @return the and compare expression
 	 */
-	public DBCompareExpr and(DBCompareExpr expr)
+	public DBCompareAndOrExpr and(DBCompareExpr expr)
 	{
 		// " AND "
 		return new DBCompareAndOrExpr(this, expr, false);
@@ -48,7 +48,7 @@ public abstract class DBCompareExpr extends DBExpr
 	 * @param expr the right part of the OR expression
 	 * @return the or compare expression
 	 */
-	public DBCompareExpr or(DBCompareExpr expr)
+	public DBCompareAndOrExpr or(DBCompareExpr expr)
 	{
 		// " OR "
 		return new DBCompareAndOrExpr(this, expr, true);

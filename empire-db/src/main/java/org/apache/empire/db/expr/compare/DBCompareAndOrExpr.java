@@ -152,5 +152,16 @@ public class DBCompareAndOrExpr extends DBCompareExpr
     	}
     	return false;
     }
+	
+	/**
+	 * wraps the current expression with parenthesis. 
+	 * 
+	 * @return the new DBCompareColExpr object
+	 */
+	public DBCompareExpr parenthesis()
+	{
+		// create parenthesis Expression
+		return new DBParenthesisExpr(this);
+	}
     
 }
