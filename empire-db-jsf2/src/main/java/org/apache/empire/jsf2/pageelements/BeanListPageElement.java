@@ -88,7 +88,7 @@ public class BeanListPageElement<T> extends ListPageElement<T> implements ListIt
         }
     }
 
-    public BeanListPageElement(Page page, Class<T> beanClass, DBColumn defaultSortColumn, String propertyName, boolean test)
+    public BeanListPageElement(Page page, Class<T> beanClass, DBColumn defaultSortColumn, String propertyName)
     {
         super(page, beanClass, propertyName);
         // Check
