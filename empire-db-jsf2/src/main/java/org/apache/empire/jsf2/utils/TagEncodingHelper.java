@@ -800,7 +800,7 @@ public class TagEncodingHelper implements NamingContainer
         else
             text = getDisplayText(StringUtils.toString(value));
         // Check for template
-        if (valIndex >= 0)
+        if (valIndex >= 0 && text!=null)
             text = StringUtils.replace(templ, "{}", text);
         return text;
     }
@@ -883,13 +883,15 @@ public class TagEncodingHelper implements NamingContainer
         // Use normal title
         if (title==null)
             title=column.getTitle();
-        // render now
+        // translate
         title = getDisplayText(title);
+        // handle empty string
+        if (StringUtils.isEmpty(title))
+            return "";
         // getColon
         if (colon) 
-        {
             title = title.trim() + ":";
-        }
+        // done
         return title;
     }
     
