@@ -554,11 +554,8 @@ public class BeanListPageElement<T> extends ListPageElement<T> implements ListIt
     {
         BeanListTableInfo lti = (BeanListTableInfo) getTableInfo();
         DBCommand cmd = lti.getQueryCmd().clone();
-       
-      
         
         Set<Object[]> items = getSelectedItems();
-        
         if (items.size()>0)
         {
             DBColumn[] pk = rowset.getKeyColumns();
@@ -584,7 +581,6 @@ public class BeanListPageElement<T> extends ListPageElement<T> implements ListIt
         // clear previous settings without the where causes
         cmd.clearSelect();
         cmd.clearGroupBy();
-        cmd.clearOrderBy();
         return cmd;
     }
 
