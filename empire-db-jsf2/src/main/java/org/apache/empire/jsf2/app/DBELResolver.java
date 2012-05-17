@@ -27,6 +27,8 @@ import javax.el.ELResolver;
 import javax.faces.context.FacesContext;
 
 import org.apache.empire.commons.StringUtils;
+import org.apache.empire.data.Record;
+import org.apache.empire.data.RecordData;
 import org.apache.empire.db.DBColumnExpr;
 import org.apache.empire.db.DBDatabase;
 import org.apache.empire.db.DBRowSet;
@@ -90,6 +92,21 @@ public class DBELResolver extends ELResolver
                 log.error("ELResolver error: Table/View '{}' cannot be resolved.", name.toUpperCase());
             // done
             return rset;
+        }
+        else if (base instanceof RecordData)
+        {   // Lookup RowSet           
+            String field= StringUtils.toString(property);
+            int index = ((Record)base).getFieldIndex(field);
+            if (index<0)
+            {   // not a field, it may be a property
+                if (log.isDebugEnabled())
+                    log.debug("ELResolver warning: field '{}' not found in record .", field);
+                // not resolved, continue search
+                return null; 
+            }
+            // Found! Return field value.
+            context.setPropertyResolved(true);
+            return ((Record)base).getValue(index);
         }
         else if (base==null)
         {   // LookupDatabase
