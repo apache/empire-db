@@ -19,11 +19,19 @@
 package org.apache.empire.db.oracle;
 
 // Imports
+import java.util.HashSet;
+import java.util.Set;
+
+import org.apache.empire.db.DBColumn;
+import org.apache.empire.db.DBColumnExpr;
 import org.apache.empire.db.DBCommand;
 import org.apache.empire.db.DBDatabase;
 import org.apache.empire.db.DBIndex;
+import org.apache.empire.db.DBRowSet;
 import org.apache.empire.db.DBTable;
 import org.apache.empire.db.expr.compare.DBCompareExpr;
+import org.apache.empire.db.expr.join.DBJoinExpr;
+import org.apache.empire.db.expr.set.DBSetExpr;
 import org.apache.empire.exceptions.InvalidArgumentException;
 import org.apache.empire.exceptions.ObjectNotValidException;
 
@@ -124,9 +132,9 @@ public class DBCommandOracle extends DBCommand
     }
 
     /**
-     * Creates the SQL statement the special characteristics of
-     * the Oracle database are supported.
-     * 
+     * Creates an Oracle specific select statement
+     * that supports special features of the Oracle DBMS
+     * like e.g. CONNECT BY PRIOR
      * @param buf the SQL statement
      */
     @Override
@@ -175,10 +183,82 @@ public class DBCommandOracle extends DBCommand
             addListExpr(buf, orderBy, CTX_DEFAULT, ", ");
         }
     }
+
+    /**
+     * Creates an Oracle specific update statement.
+     * If a join is required, this method creates a "MERGE INTO" expression 
+     */
+    @Override
+    public synchronized String getUpdate()
+    {
+        // No Joins: Use Default
+        if (joins==null || set==null)
+            return super.getUpdate();
+        // Generate Merge expression
+        resetParamUsage();
+        StringBuilder buf = new StringBuilder("MERGE INTO ");
+        DBRowSet table =  set.get(0).getTable();
+        table.addSQL(buf, CTX_FULLNAME|CTX_ALIAS);
+        // join (only one allowed yet)
+        DBJoinExpr updateJoin = null;
+        for (DBJoinExpr jex : joins)
+        {   // The join
+            if (jex.isJoinOn(table)==false)
+                continue;
+            // found the join
+            updateJoin = jex;
+            break;
+        }
+        if (updateJoin==null)
+            throw new ObjectNotValidException(this);
+        Set<DBColumn> joinColumns = new HashSet<DBColumn>();
+        updateJoin.addReferencedColumns(joinColumns);
+        // using
+        buf.append("\r\nUSING ");
+        DBCommand inner = this.clone();
+        inner.clearSelect();
+        inner.clearOrderBy();
+        for (DBColumn jcol : joinColumns)
+        {   // Select join columns
+            if (jcol.getRowSet()!=table)
+                inner.select(jcol);
+        }
+        for (DBSetExpr sex : set)
+        {   // Select set expressions
+            Object val = sex.getValue();
+            if (val instanceof DBColumnExpr)
+                inner.select(((DBColumnExpr)val));
+        }
+        inner.removeJoinsOn(table);
+        inner.addSQL(buf, CTX_DEFAULT);
+        // find the source table
+        DBColumnExpr left  = updateJoin.getLeft();
+        DBColumnExpr right = updateJoin.getRight();
+        DBRowSet source = right.getUpdateColumn().getRowSet();
+        if (source==table)
+            source = left.getUpdateColumn().getRowSet();
+        // add Alias
+        buf.append(" ");
+        buf.append(source.getAlias());
+        buf.append("\r\nON (");
+        left.addSQL(buf, CTX_DEFAULT);
+        buf.append(" = ");
+        right.addSQL(buf, CTX_DEFAULT);
+        // Compare Expression
+        if (updateJoin.getWhere() != null)
+        {   buf.append(" AND ");
+            updateJoin.getWhere().addSQL(buf, CTX_DEFAULT);
+        }
+        // Set Expressions
+        buf.append(")\r\nWHEN MATCHED THEN UPDATE ");
+        buf.append("\r\nSET ");
+        addListExpr(buf, set, CTX_DEFAULT, ", ");
+        // done
+        return buf.toString();
+    }
     
     /**
-     * Creates the delete SQL-Command.
-     * 
+     * Creates an Oracle specific delete statement.
      * @return the delete SQL-Command
      */
     @Override

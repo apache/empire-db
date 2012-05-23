@@ -123,6 +123,6 @@ public class DBSetExpr extends DBExpr
         if ((context & CTX_NAME) != 0 && (context & CTX_VALUE) != 0)
             buf.append("=");
         if ((context & CTX_VALUE) != 0)
-            buf.append(getObjectValue(column.getDataType(), value, CTX_NAME | CTX_VALUE, "+"));
+            buf.append(getObjectValue(column.getDataType(), value, context, "+"));
     }
 }

@@ -163,6 +163,15 @@ public class DBJoinExpr extends DBExpr
     }
 
     /**
+     * Returns any additional constraints to the join
+     * @return a compare expression containing additional constraints or null 
+     */
+    public DBCompareExpr getWhere()
+    {
+        return compExpr;
+    }
+
+    /**
      * This function adds an additional constraint to the join.
      * 
      * @param expr the compare expression
@@ -178,12 +187,15 @@ public class DBJoinExpr extends DBExpr
      * @param c1 the first column
      * @param c2 the second column
      * 
-     * @return the compare expression
+     * @return the object itself
      */
-    public DBCompareExpr and(DBColumnExpr c1, DBColumnExpr c2)
-    { // Set Compare Expression
-        compExpr = c1.is(c2);
-        return compExpr;
+    public DBJoinExpr and(DBColumnExpr c1, DBColumnExpr c2)
+    {   // Set Compare Expression
+        if (compExpr==null)
+            compExpr = c1.is(c2);
+        else
+            compExpr = compExpr.and(c1.is(c2));
+        return this;
     }
 
     /**

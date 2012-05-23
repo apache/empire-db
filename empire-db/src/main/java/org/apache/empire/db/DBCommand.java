@@ -929,19 +929,30 @@ public abstract class DBCommand extends DBCommandExpr
         if (set == null)
             return null;
         StringBuilder buf = new StringBuilder("UPDATE ");
-        // addTableExpr(buf, CTX_NAME);
         DBRowSet table =  set.get(0).getTable();
-        table.addSQL(buf, CTX_FULLNAME);
-        // Set Expressions
-        buf.append("\r\nSET ");
-        addListExpr(buf, set, CTX_DEFAULT, ", ");
-        // Constraints
-        if (where != null)
-        { // add where condition
-            buf.append("\r\nWHERE ");
-            if (where != null)
-                addListExpr(buf, where, CTX_NAME | CTX_VALUE, " AND ");
+        if ( joins!=null )
+        {   // Join Update
+            buf.append( table.getAlias() );
+            long context = CTX_DEFAULT;
+            // Set Expressions
+            buf.append("\r\nSET ");
+            addListExpr(buf, set, context, ", ");
+            // From clause
+            addFrom(buf);
+            // Add Where
+            addWhere(buf, context);
         }
+        else
+        {   // Simple Statement
+            table.addSQL(buf, CTX_FULLNAME);
+            long context = CTX_NAME | CTX_VALUE;
+            // Set Expressions
+            buf.append("\r\nSET ");
+            addListExpr(buf, set, context, ", ");
+            // Add Where
+            addWhere(buf, context);
+        }
+        // done
         return buf.toString();
     }
 
@@ -1043,7 +1054,7 @@ public abstract class DBCommand extends DBCommandExpr
         // Join
         boolean sep = false;
         List<DBRowSet> tables = getTableList();
-        if (joins!=null )
+        if (joins!=null && joins.size()>0)
         {   // Join
             List<DBRowSet> joinTables = new ArrayList<DBRowSet>();
 //          for (int i=0;i<joins.size();i++)
@@ -1089,14 +1100,19 @@ public abstract class DBCommand extends DBCommandExpr
         }
     }
 
-    protected void addWhere(StringBuilder buf)
+    protected void addWhere(StringBuilder buf, long context)
     {
         if (where != null)
         {   
             buf.append("\r\nWHERE ");
             // add where expression
-            addListExpr(buf, where, CTX_DEFAULT, " AND ");
+            addListExpr(buf, where, context, " AND ");
         }
+    }
+
+    protected final void addWhere(StringBuilder buf)
+    {
+        addWhere(buf, CTX_DEFAULT);
     }
 
     protected void addGrouping(StringBuilder buf)
