@@ -23,7 +23,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Iterator;
 
-import org.apache.empire.db.exceptions.InternalSQLException;
+import org.apache.empire.db.exceptions.EmpireSQLException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -123,7 +123,7 @@ public class DBSQLScript implements Iterable<String>
                 log.error(e.toString(), e);
                 if (ignoreErrors==false)
                 {   // forward exception
-                    throw new InternalSQLException(driver, e);
+                    throw new EmpireSQLException(driver, e);
                 }    
                 // continue
                 log.debug("Ignoring error. Continuing with script...");

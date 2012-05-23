@@ -38,7 +38,7 @@ import org.apache.empire.commons.ObjectUtils;
 import org.apache.empire.commons.StringUtils;
 import org.apache.empire.data.DataMode;
 import org.apache.empire.data.DataType;
-import org.apache.empire.db.exceptions.InternalSQLException;
+import org.apache.empire.db.exceptions.EmpireSQLException;
 import org.apache.empire.exceptions.NotImplementedException;
 import org.apache.empire.exceptions.NotSupportedException;
 import org.slf4j.Logger;
@@ -223,7 +223,7 @@ public abstract class DBDatabaseDriver implements Serializable
                 return new Long(seqValue);
             } catch (SQLException e) {
                 // throw exception
-                throw new InternalSQLException(this, e);
+                throw new EmpireSQLException(this, e);
             } finally
             { // Cleanup
                 db.closeStatement(stmt);

@@ -32,7 +32,7 @@ import org.apache.empire.db.DBDatabaseDriver;
 import org.apache.empire.db.DBDriverFeature;
 import org.apache.empire.db.DBObject;
 import org.apache.empire.db.DBSQLScript;
-import org.apache.empire.db.exceptions.InternalSQLException;
+import org.apache.empire.db.exceptions.EmpireSQLException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -273,7 +273,7 @@ public class DBDatabaseDriverPostgreSQL extends DBDatabaseDriver
             executeSQL(CREATE_REVERSE_FUNCTION, null, conn, null);
         } catch(SQLException e) {
             log.error("Unable to create reverse function!", e);
-            throw new InternalSQLException(this, e);
+            throw new EmpireSQLException(this, e);
         }
     }
     

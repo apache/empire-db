@@ -36,7 +36,7 @@ import org.apache.commons.beanutils.ConstructorUtils;
 import org.apache.empire.commons.ObjectUtils;
 import org.apache.empire.data.ColumnExpr;
 import org.apache.empire.data.DataType;
-import org.apache.empire.db.exceptions.InternalSQLException;
+import org.apache.empire.db.exceptions.EmpireSQLException;
 import org.apache.empire.db.exceptions.QueryNoResultException;
 import org.apache.empire.exceptions.BeanInstantiationException;
 import org.apache.empire.exceptions.InvalidArgumentException;
@@ -133,7 +133,7 @@ public class DBReader extends DBRecordData
                 return true;
             } catch (SQLException e) {
                 // Error
-                throw new InternalSQLException(getDatabase(), e);
+                throw new EmpireSQLException(getDatabase(), e);
             }
         }
 
@@ -375,7 +375,7 @@ public class DBReader extends DBRecordData
 
         } catch (SQLException e)
         { // Operation failed
-            throw new InternalSQLException(this, e);
+            throw new EmpireSQLException(this, e);
         }
     }
 
@@ -532,7 +532,7 @@ public class DBReader extends DBRecordData
 
         } catch (SQLException e) {
             // an error occurred
-            throw new InternalSQLException(this, e);
+            throw new EmpireSQLException(this, e);
         }
     }
 
@@ -557,7 +557,7 @@ public class DBReader extends DBRecordData
 
         } catch (SQLException e) {
             // an error occurred
-            throw new InternalSQLException(this, e);
+            throw new EmpireSQLException(this, e);
         }
     }
 

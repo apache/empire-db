@@ -25,7 +25,7 @@ import org.apache.empire.db.DBObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class QueryFailedException extends InternalSQLException
+public class QueryFailedException extends EmpireSQLException
 {
     // Logger
     private static final Logger log = LoggerFactory.getLogger(QueryFailedException.class);
@@ -40,7 +40,7 @@ public class QueryFailedException extends InternalSQLException
     
     public QueryFailedException(DBObject obj, String sqlCmd, SQLException cause)
     {
-        super(QueryFailedException.errorType, new String[] { sqlCmd, messageFromSQLException(driverFromObject(obj), cause) }, cause);
+        super(QueryFailedException.errorType, new String[] { sqlCmd, messageFromSQLException(driverFromObject(obj), cause) }, 1, cause);
     }
     
     /**

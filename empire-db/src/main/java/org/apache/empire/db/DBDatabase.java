@@ -34,7 +34,7 @@ import org.apache.empire.commons.Options;
 import org.apache.empire.data.DataType;
 import org.apache.empire.db.DBRelation.DBCascadeAction;
 import org.apache.empire.db.exceptions.DatabaseNotOpenException;
-import org.apache.empire.db.exceptions.InternalSQLException;
+import org.apache.empire.db.exceptions.EmpireSQLException;
 import org.apache.empire.db.exceptions.QueryFailedException;
 import org.apache.empire.db.exceptions.QueryNoResultException;
 import org.apache.empire.db.exceptions.StatementFailedException;
@@ -1240,7 +1240,7 @@ public abstract class DBDatabase extends DBObject
             return;
         } catch (SQLException sqle) { 
             // Commit failed!
-            throw new InternalSQLException(this, sqle);
+            throw new EmpireSQLException(this, sqle);
         }
     }
 
@@ -1264,7 +1264,7 @@ public abstract class DBDatabase extends DBObject
             return;
         } catch (SQLException sqle) { 
             // Commit failed!
-            throw new InternalSQLException(this, sqle);
+            throw new EmpireSQLException(this, sqle);
         }
     }
 
@@ -1284,7 +1284,7 @@ public abstract class DBDatabase extends DBObject
             return;
         } catch (SQLException sqle) { 
             // Commit failed!
-            throw new InternalSQLException(this, sqle);
+            throw new EmpireSQLException(this, sqle);
         }
     }
 
@@ -1312,7 +1312,7 @@ public abstract class DBDatabase extends DBObject
             return;
         } catch (SQLException sqle) { 
             // Commit failed!
-            throw new InternalSQLException(this, sqle);
+            throw new EmpireSQLException(this, sqle);
         }
     }
 

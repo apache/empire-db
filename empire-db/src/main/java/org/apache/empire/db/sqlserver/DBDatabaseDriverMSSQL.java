@@ -34,7 +34,7 @@ import org.apache.empire.db.DBObject;
 import org.apache.empire.db.DBSQLScript;
 import org.apache.empire.db.DBTable;
 import org.apache.empire.db.DBTableColumn;
-import org.apache.empire.db.exceptions.InternalSQLException;
+import org.apache.empire.db.exceptions.EmpireSQLException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -218,7 +218,7 @@ public class DBDatabaseDriverMSSQL extends DBDatabaseDriver
             
         } catch (SQLException e) {
             // throw exception
-            throw new InternalSQLException(this, e);
+            throw new EmpireSQLException(this, e);
         }
     }
 

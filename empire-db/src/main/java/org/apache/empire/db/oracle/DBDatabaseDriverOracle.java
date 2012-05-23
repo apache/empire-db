@@ -36,7 +36,7 @@ import org.apache.empire.db.DBReader;
 import org.apache.empire.db.DBSQLScript;
 import org.apache.empire.db.DBTable;
 import org.apache.empire.db.DBView;
-import org.apache.empire.db.exceptions.InternalSQLException;
+import org.apache.empire.db.exceptions.EmpireSQLException;
 import org.apache.empire.exceptions.InvalidArgumentException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -327,7 +327,7 @@ public class DBDatabaseDriverOracle extends DBDatabaseDriver
             return (rs.next() ? rs.getTimestamp(1) : null);
         } catch (SQLException e) {
             // throw exception
-            throw new InternalSQLException(this, e);
+            throw new EmpireSQLException(this, e);
         } finally
         { // Cleanup
             try
@@ -339,7 +339,7 @@ public class DBDatabaseDriverOracle extends DBDatabaseDriver
                     stmt.close();
             } catch (SQLException e) {
                 // throw exception
-                throw new InternalSQLException(this, e);
+                throw new EmpireSQLException(this, e);
             }
         }
     }

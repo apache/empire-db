@@ -25,7 +25,7 @@ import org.apache.empire.db.DBDatabaseDriver;
 import org.apache.empire.db.DBObject;
 import org.apache.empire.exceptions.EmpireException;
 
-public class InternalSQLException extends EmpireException
+public class EmpireSQLException extends EmpireException
 {
     /**
      * Comment for <code>serialVersionUID</code>
@@ -33,31 +33,40 @@ public class InternalSQLException extends EmpireException
     private static final long serialVersionUID = 1L;
     
     public static final ErrorType errorType = new ErrorType("error.db.sqlException", "The database operation failed. Native error is: {0}");
+    
+    private final String nativeErrorMessage;
 
     protected static String messageFromSQLException(DBDatabaseDriver driver, SQLException sqle)
     {   // Set the error Message
         return (driver!=null ? driver.extractErrorMessage(sqle) : sqle.getMessage());
     }
 
-    protected static DBDatabaseDriver driverFromObject(DBObject obj)
+	protected static DBDatabaseDriver driverFromObject(DBObject obj)
     {   // Set the error Message
         return (obj.getDatabase()!=null ? obj.getDatabase().getDriver() : (DBDatabaseDriver)null);
     }
     
-    public InternalSQLException(DBDatabaseDriver driver, SQLException cause)
+    public EmpireSQLException(DBDatabaseDriver driver, SQLException cause)
     {
         super(errorType, new String[] { messageFromSQLException(driver, cause) }, cause );
+        nativeErrorMessage = this.getErrorParams()[0];
     }
     
-    public InternalSQLException(DBObject obj, SQLException cause)
+    public EmpireSQLException(DBObject obj, SQLException cause)
     {
         this(driverFromObject(obj), cause);
     }
     
     // Derived classes only
-    protected InternalSQLException(ErrorType type, String[] params, SQLException cause)
+    protected EmpireSQLException(ErrorType type, String[] params, int nativeErrorIndex, SQLException cause)
     {
         super(type, params, cause);
+        nativeErrorMessage = this.getErrorParams()[nativeErrorIndex];
     }
+
+    public String getNativeErrorMessage() 
+    {
+		return nativeErrorMessage;
+	}
     
 }
