@@ -132,7 +132,7 @@ public class DBCombinedCmd extends DBCommandExpr
       buf.append( "(" );
       left.getSelect(buf);
       // concat keyword     
-      buf.append( ") " );
+      buf.append( ")\r\n" );
       buf.append( keyWord );
       buf.append( " (" );
       // the right part

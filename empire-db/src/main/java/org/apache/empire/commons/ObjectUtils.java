@@ -419,6 +419,11 @@ public final class ObjectUtils
     {
         if (v==null || c.isInstance(v))
             return (T)v;
+        // Get Class form Primitive Type
+        if (c.isPrimitive())
+        {   // Get's the Java Class representing the primitive type
+            c = MethodUtils.getPrimitiveWrapper(c);
+        }    
         // Convert
         if (c.isAssignableFrom(Boolean.class))
             return c.cast(getBoolean(v));
@@ -464,6 +469,11 @@ public final class ObjectUtils
         {   // Both are numeric
             return true;
         }
+        // Special case: Allow character to string assignment
+        if (source==Character.class && target==String.class)
+        {
+            return true;
+        }    
         // Not compatible
         return false;
     }

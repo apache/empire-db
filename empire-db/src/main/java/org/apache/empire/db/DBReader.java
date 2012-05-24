@@ -647,8 +647,9 @@ public class DBReader extends DBRecordData
             { // Create bean an init
                 if (ctor!=null)
                 {   // Use Constructor
+                    Class<?>[] ctorParamTypes = ctor.getParameterTypes();
                     for (int i = 0; i < getFieldCount(); i++)
-                        args[i] = getValue(i);
+                        args[i] = ObjectUtils.convert(ctorParamTypes[i], getValue(i));
                     T bean = (T)ctor.newInstance(args);
                     c.add(bean);
                 }

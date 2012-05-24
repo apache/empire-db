@@ -162,7 +162,7 @@ public class DBQuery extends DBRowSet
 
     private static AtomicInteger queryCount = new AtomicInteger(0);
 
-    protected DBCommand       cmd;
+    protected DBCommandExpr   cmdExpr;
     protected DBColumn[]      keyColumns = null;
     protected DBQueryColumn[] queryColumns = null;
     protected String          alias;
@@ -174,10 +174,10 @@ public class DBQuery extends DBRowSet
      * @param cmd the SQL-Command
      * @param keyColumns an array of the primary key columns
      */
-    public DBQuery(DBCommand cmd, DBColumn[] keyColumns)
+    public DBQuery(DBCommandExpr cmd, DBColumn[] keyColumns)
     { // Set the column expressions
         super(cmd.getDatabase());
-        this.cmd = cmd;
+        this.cmdExpr = cmd;
         // Set Query Columns
         DBColumnExpr[] exprList = cmd.getSelectExprList();
         queryColumns = new DBQueryColumn[exprList.length];
@@ -199,7 +199,7 @@ public class DBQuery extends DBRowSet
      * @param cmd the SQL-Command
      * @param keyColumn the primary key column
      */
-    public DBQuery(DBCommand cmd, DBColumn keyColumn)
+    public DBQuery(DBCommandExpr cmd, DBColumn keyColumn)
     { // Set the column expressions
         this(cmd, new DBColumn[] { keyColumn });
     }
@@ -209,9 +209,30 @@ public class DBQuery extends DBRowSet
      * 
      * @param cmd the command object representing an SQL-Command.
      */
-    public DBQuery(DBCommand cmd)
+    public DBQuery(DBCommandExpr cmd)
     { // Set the column expressions
         this(cmd, (DBColumn[]) null);
+    }
+
+    /**
+     * returns the command from the underlying command expression or throws an exception
+     * @return the command used for this query
+     */
+    private DBCommand getCommandFromExpression()
+    {
+        if (cmdExpr instanceof DBCommand)
+            return ((DBCommand)cmdExpr);
+        // not supported
+        throw new NotSupportedException(this, "getCommand");
+    }
+
+    /**
+     * returns the underlying command expression
+     * @return the command used for this query
+     */
+    public DBCommandExpr getCommandExpr()
+    {
+        return cmdExpr;
     }
 
     /**
@@ -304,7 +325,7 @@ public class DBQuery extends DBRowSet
     public void addSQL(StringBuilder buf, long context)
     {
         buf.append("(");
-        buf.append(cmd.getSelect());
+        buf.append(cmdExpr.getSelect());
         buf.append(")");
         // Add Alias
         if ((context & CTX_ALIAS) != 0 && alias != null)
@@ -371,6 +392,7 @@ public class DBQuery extends DBRowSet
         if (key == null || keyColumns.length != key.length)
             throw new InvalidKeyException(this, key);
         // Select
+        DBCommand cmd = getCommandFromExpression();
         for (int i = 0; i < keyColumns.length; i++)
         {   // Set key column constraint
             Object value = key[i];
@@ -440,15 +462,16 @@ public class DBQuery extends DBRowSet
                 if (col.isReadOnly() && log.isDebugEnabled())
                     log.debug("updateRecord: Read-only column '" + col.getName() + " has been modified!");
                 // Check the value
-                col.checkValue(fields[i]);
+                col.validate(fields[i]);
                 // Set
                 updCmd.set(col.to(fields[i]));
             }
         }
         // the commands
+        DBCommand cmd = getCommandFromExpression();
         Object[] keys = (Object[]) rec.getRowSetData();
-        DBRowSet table;
-        DBCommand upd;
+        DBRowSet table= null;
+        DBCommand upd = null;
         for(Entry<DBRowSet,DBCommand> entry:updCmds.entrySet())
         {
             int i = 0;
