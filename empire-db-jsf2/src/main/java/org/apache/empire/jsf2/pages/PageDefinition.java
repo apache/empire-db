@@ -19,14 +19,62 @@
 package org.apache.empire.jsf2.pages;
 
 import org.apache.empire.commons.StringUtils;
+import org.apache.empire.jsf2.app.FacesUtils;
+import org.apache.empire.jsf2.utils.ParameterMap;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 public class PageDefinition
 {
+    private static final Logger log = LoggerFactory.getLogger(PageDefinitions.class);
+
+    private static final String ACTION_PARAMETER_TYPE = "ACTION";
+    
     private String path;
     private String pageBeanName;
     private Class<? extends Page> pageBeanClass;
     private PageDefinition parent = null;
+
+    /*
+    private static Hashtable<String, String> actionCodeMap = new Hashtable<String, String>();
+    
+    private static Hashtable<String, String> actionMap = new Hashtable<String, String>();
+
+    private static String encodeActionParam(String action)
+    {
+        String param = ParameterMap.encodeString(action);
+        actionMap.put(param, action);
+        return param;
+    }
+    
+    public static String decodeActionParam(String param)
+    {
+        String action = actionMap.get(param);
+        if (action==null)
+            log.warn("no action available for param {}.", param);
+        return action;
+    }
+    */
+
+    private static String encodeActionParam(String action)
+    {
+        ParameterMap pm = FacesUtils.getParameterMap(FacesUtils.getContext());
+        if (pm==null)
+            return action;
+        return pm.put(ACTION_PARAMETER_TYPE, action, true);
+    }
+    
+    public static String decodeActionParam(String param)
+    {
+        ParameterMap pm = FacesUtils.getParameterMap(FacesUtils.getContext());
+        if (pm==null)
+            return param;
+        String action = StringUtils.valueOf(pm.get(ACTION_PARAMETER_TYPE, param));
+        if (action==null)
+            log.warn("no action available for param {}.", param);
+        return action;
+    }
     
     public PageDefinition(String path, Class<? extends Page> pageBeanClass)
     { 
@@ -77,7 +125,7 @@ public class PageDefinition
     {
         PageOutcome outcome = getOutcome();
         if (StringUtils.isNotEmpty(action))
-            outcome = outcome.addParam("action", action);
+            outcome = outcome.addParam("action", encodeActionParam(action));
         return outcome;
     }
     
@@ -92,7 +140,7 @@ public class PageDefinition
     {   
         PageOutcome outcome = getRedirect();
         if (StringUtils.isNotEmpty(action))
-            outcome = outcome.addParam("action", action);
+            outcome = outcome.addParam("action", encodeActionParam(action));
         return outcome;
     }
     
@@ -107,7 +155,7 @@ public class PageDefinition
     {
         PageOutcome outcome = getRedirectWithViewParams();
         if (StringUtils.isNotEmpty(action))
-            outcome = outcome.addParam("action", action);
+            outcome = outcome.addParam("action", encodeActionParam(action));
         return outcome;
     }
 

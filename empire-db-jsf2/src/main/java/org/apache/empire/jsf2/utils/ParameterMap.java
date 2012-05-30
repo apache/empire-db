@@ -19,18 +19,22 @@
 package org.apache.empire.jsf2.utils;
 
 import java.io.Serializable;
-import java.io.UnsupportedEncodingException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.HashMap;
+import java.text.SimpleDateFormat;
+import java.util.Hashtable;
+import java.util.Locale;
 
+import org.apache.empire.commons.DateUtils;
 import org.apache.empire.commons.StringUtils;
 import org.apache.empire.db.DBRowSet;
+import org.apache.empire.exceptions.InvalidArgumentException;
+import org.apache.empire.exceptions.UnexpectedReturnValueException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * This class manages request parameters in a way that they cannot be analysed and modified by the user 
+ * This class manages request parameters in a way that they cannot be analyzed and modified by the user 
  * @author doebele
  *
  */
@@ -40,6 +44,8 @@ public class ParameterMap implements Serializable
 
     private static final Logger           log              = LoggerFactory.getLogger(ParameterMap.class);
 
+    private static final SimpleDateFormat dateFormat       = new SimpleDateFormat("yyyy.MM.dd hh:mm:ss", Locale.GERMAN);
+    
     static private MessageDigest          md5              = null;
     {
         try
@@ -52,24 +58,93 @@ public class ParameterMap implements Serializable
             throw new RuntimeException(e);
         }
     }
+    
+    private final byte[] salt;
+    
+    public ParameterMap()
+    {
+        String dateTime = dateFormat.format(DateUtils.getTimeNow());
+        salt = dateTime.getBytes();
+    }
+    
+    public synchronized String encodeString(String valueAsString)
+    {
+        if (valueAsString==null)
+            throw new InvalidArgumentException("valueAsString", valueAsString);
+        // log
+        if (log.isTraceEnabled())
+            log.trace("Generating code for value {}.", valueAsString);
+        // generate code
+        md5.reset();
+        if (salt!=null)
+            md5.update(salt);
+        md5.update(valueAsString.getBytes());
+        byte s[] = ParameterMap.md5.digest();
+        StringBuilder hash = new StringBuilder(32);
+        for (int i = 0; i < s.length; i++)
+        {   // add the hash part
+            // String check = Integer.toHexString((0x000000ff & s[i]) | 0xffffff00).substring(6);;
+            String part = Integer.toHexString(0x000000ff & s[i]);
+            switch(part.length())
+            {
+                case 1: hash.append('0');
+                case 2: hash.append(part);
+                        break;
+                default:
+                        throw new UnexpectedReturnValueException(part, "Integer.toHexString");
+                        // hash.append(part.substring(2));
+            }
+        }
+        return hash.toString();
+    }
 
-    private final HashMap<String, HashMap<String, Object>> typeMap = new HashMap<String, HashMap<String, Object>>();
+    private Hashtable<String, String> codeMap = new Hashtable<String, String>();
+
+    public String encodeStringWithCache(String valueAsString)
+    {
+        String code = codeMap.get(valueAsString);
+        if (code==null)
+        {   // generate code
+            code = encodeString(valueAsString);
+            codeMap.put(valueAsString, code);
+        }
+        /*
+        else
+        {   // Trace
+            if (log.isTraceEnabled())
+                log.trace("Using already generated code {} for value {}.", code, valueAsString);
+        }
+        */
+        return code;
+    }
+    
+    private final Hashtable<String, Hashtable<String, Object>> typeMap = new Hashtable<String, Hashtable<String, Object>>();
     
     private void putValue(String typeName, String key, Object value)
     {
-        HashMap<String, Object> map = typeMap.get(typeName);
+        Hashtable<String, Object> map = typeMap.get(typeName);
         if (map==null)
-        {   map = new HashMap<String, Object>(1);
+        {   map = new Hashtable<String, Object>(1);
             typeMap.put(typeName, map);
         }
+        if (key==null || value==null)
+            log.warn("Key or value is null.");
         map.put(key, value);
+    }
+
+    public String put(String type, String key, boolean useCache)
+    {
+        // Generate id and put in map
+        String id = (useCache ? encodeStringWithCache(key) : encodeString(key));
+        putValue(type, id, key);
+        return id;
     }
 
     public String put(Class<? extends Object> c, Object[] key)
     {
         // Generate id and put in map
         String ref = StringUtils.valueOf(key);
-        String id = generateId(ref);
+        String id = encodeString(ref);
         String type = c.getSimpleName();
         putValue(type, id, key);
         return id;
@@ -79,30 +154,36 @@ public class ParameterMap implements Serializable
     {
         // Generate id and put in map
         String ref = StringUtils.valueOf(key);
-        String id = generateId(ref);
+        String id = encodeString(ref);
         String type = rowset.getClass().getSimpleName();
         putValue(type, id, key);
         return id;
     }
 
+    public Object get(String type, String id)
+    {
+        Hashtable<String, Object> map = typeMap.get(type);
+        return (map!=null ? map.get(id) : null);
+    }
+
     public Object[] get(Class<? extends Object> c, String id)
     {
         String type = c.getSimpleName();
-        HashMap<String, Object> map = typeMap.get(type);
+        Hashtable<String, Object> map = typeMap.get(type);
         return (map!=null ? ((Object[])map.get(id)) : null);
     }
 
     public Object[] get(DBRowSet rowset, String id)
     {
         String type = rowset.getClass().getSimpleName();
-        HashMap<String, Object> map = typeMap.get(type);
+        Hashtable<String, Object> map = typeMap.get(type);
         return (map!=null ? ((Object[])map.get(id)) : null);
     }
 
     public void clear(Class<? extends Object> c)
     {
         String type = c.getSimpleName();
-        HashMap<String, Object> map = typeMap.get(type);
+        Hashtable<String, Object> map = typeMap.get(type);
         if (map!=null)
             map.clear();
     }
@@ -110,31 +191,9 @@ public class ParameterMap implements Serializable
     public void clear(DBRowSet rowset)
     {
         String type = rowset.getClass().getSimpleName();
-        HashMap<String, Object> map = typeMap.get(type);
+        Hashtable<String, Object> map = typeMap.get(type);
         if (map!=null)
             map.clear();
-    }
-
-    private String generateId(String valueAsString)
-    {
-        // byte salt[] = UserBean.SALT.getBytes();
-        try
-        {
-            String result = "";
-            // md5.update(salt);
-            ParameterMap.md5.update(valueAsString.getBytes("UTF8"));
-            byte s[] = ParameterMap.md5.digest();
-            for (int i = 0; i < s.length; i++)
-            {
-                // TODO DW: avoid magic numbers for readability || add few words of comments, else
-                result += Integer.toHexString((0x000000ff & s[i]) | 0xffffff00).substring(6);
-            }
-            return result;
-        }
-        catch (UnsupportedEncodingException e)
-        {
-            throw new RuntimeException(e);
-        }
     }
 
 }

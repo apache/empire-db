@@ -30,10 +30,13 @@ import javax.faces.application.NavigationHandler;
 import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
 
+import org.apache.empire.commons.StringUtils;
 import org.apache.empire.db.DBDatabase;
 import org.apache.empire.db.DBRowSet;
+import org.apache.empire.exceptions.ItemNotFoundException;
 import org.apache.empire.jsf2.app.FacesApplication;
 import org.apache.empire.jsf2.app.FacesUtils;
+import org.apache.empire.jsf2.utils.ParameterMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -43,7 +46,7 @@ public abstract class Page implements Serializable
 
     private static final String SESSION_MESSAGE  = "PAGE_SESSION_MESSAGE";
 
-    private static final String INVALID_ACTION   = "XXXXXXXXXXXX";
+    // private static final String INVALID_ACTION   = "XXXXXXXXXXXX";
 
     private static final Logger log              = LoggerFactory.getLogger(Page.class);
 
@@ -54,8 +57,10 @@ public abstract class Page implements Serializable
 
     protected Page()
     {
-        String name = this.getClass().getSimpleName();
-        Page.log.info("PageBean {} created.", name);
+        if (log.isDebugEnabled())
+        {   String name = this.getClass().getSimpleName();
+            Page.log.debug("PageBean {} created.", name);
+        }
     }
 
     public String getPageName()
@@ -78,16 +83,33 @@ public abstract class Page implements Serializable
 
     public String getAction()
     {
-        return this.action;
+        if (this.action==null)
+            return null;
+        
+        // if (this.action==INVALID_ACTION)
+        //      return null;
+
+        // Generate key
+        ParameterMap pm = FacesUtils.getParameterMap(FacesUtils.getContext());
+        String actionParam = (pm!=null ? pm.encodeString(action) : action);
+        return actionParam;
     }
 
-    public void setAction(String action)
+    public void setAction(String actionParam)
     {
         if (!initialized)
-            Page.log.info("Setting PageBean action {} for bean {}.", action, getPageName());
+            Page.log.debug("Setting PageBean action {} for bean {}.", action, getPageName());
         else
             Page.log.trace("Re-setting PageBeanAction {} for bean {}.", action, getPageName());
-        this.action = action;
+        
+        // actionParam
+        if (StringUtils.isEmpty(actionParam))
+            return;
+
+        // Set action from param
+        this.action = PageDefinition.decodeActionParam(actionParam);
+        if (this.action==null)
+            throw new ItemNotFoundException(actionParam); 
     }
 
     public PageDefinition getPageDefinition()
@@ -144,15 +166,17 @@ public abstract class Page implements Serializable
         // Execute Action
         if (this.action != null)
         {
+            /*
             if (this.action.equals(Page.INVALID_ACTION))
             {
                 Page.log.error("Action probably executed twice. Ignoring action.");
                 return;
             }
+            */
             try
             {
-                Page.log.debug("Executing action {} on {}.", String.valueOf(this.action), getPageName());
-                Method method = getClass().getMethod(this.action);
+                Page.log.debug("Executing action {} on {}.", String.valueOf(action), getPageName());
+                Method method = getClass().getMethod(action);
                 Object result = method.invoke(this);
                 if (result != null)
                 {
@@ -178,7 +202,7 @@ public abstract class Page implements Serializable
             finally
             {
                 // Clear action
-                this.action = Page.INVALID_ACTION;
+                this.action = null; // Page.INVALID_ACTION;
             }
         }
         else
