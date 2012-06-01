@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Locale;
 
+import javax.el.ValueExpression;
 import javax.faces.component.UIComponent;
 import javax.faces.component.UIInput;
 import javax.faces.context.FacesContext;
@@ -172,7 +173,7 @@ public abstract class InputControl
     {
         Column getColumn();
         Options getOptions();
-        Object getValue();
+        Object getValue(boolean evalExpression);
         String getFormat();    // Custom Formatting options specific to each InputControl-type
         Locale getLocale();
         String getText(String key);
@@ -256,6 +257,17 @@ public abstract class InputControl
         // Get value from Input
         return (submitted) ? input.getSubmittedValue() : input.getValue();        
     }
+
+    protected void setInputValue(UIInput input, InputInfo ii)
+    {
+        Object value = ii.getValue(false);
+        if (value instanceof ValueExpression)
+        {   input.setLocalValueSet(false);
+            input.setValueExpression("value", (ValueExpression)value);
+        }    
+        else
+            input.setValue(value);
+    }    
     
     /* validate 
     public boolean validateValue(UIComponent comp, InputInfo ii, FacesContext context)
@@ -394,7 +406,7 @@ public abstract class InputControl
     protected final String formatValue(ValueInfo vi)
     {
         boolean hasError = false; // ((vi instanceof InputInfo) && !((InputInfo)vi).isValid()); 
-        return formatValue(vi.getValue(), vi, hasError);
+        return formatValue(vi.getValue(true), vi, hasError);
     }
     
     /**

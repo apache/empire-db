@@ -110,9 +110,10 @@ public class InputTag extends UIInput implements NamingContainer
     {
         // check for record
         if (helper.getRecord()!=null)
-            helper.getDataValue();
+            return helper.getDataValue(true);
         // default
-        return super.getValue();
+        Object value = super.getValue(); 
+        return value; 
     }
 
     @Override

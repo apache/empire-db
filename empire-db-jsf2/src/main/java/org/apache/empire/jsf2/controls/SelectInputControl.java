@@ -80,8 +80,8 @@ public class SelectInputControl extends InputControl
             }
         }
         
-        input.setValue(ii.getValue());
         input.setDisabled(ii.isDisabled());
+        setInputValue(input, ii);
         
         compList.add(input);
     }

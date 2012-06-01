@@ -186,9 +186,9 @@ public class TagEncodingHelper implements NamingContainer
         }
 
         @Override
-        public Object getValue()
+        public Object getValue(boolean evalExpression)
         {
-            return getDataValue();
+            return getDataValue(evalExpression);
         }
 
         @Override
@@ -252,20 +252,6 @@ public class TagEncodingHelper implements NamingContainer
         }
 
         @Override
-        public Object getValue()
-        {
-            /*
-            if (tag instanceof UIInput)
-            {
-                UIInput t = ((UIInput)tag);
-                Object  v = t.getValue();
-                log.info("tag Value =" + String.valueOf(v));
-            }
-            */
-            return getDataValue();
-        }
-
-        @Override
         public void setValue(Object value)
         {
             setDataValue(value);
@@ -274,7 +260,7 @@ public class TagEncodingHelper implements NamingContainer
         @Override
         public void validate(Object value)
         {
-            // Make sure null values are not foced to be required
+            // Make sure null values are not forced to be required
             boolean isNull = ObjectUtils.isEmpty(value);
             if (isNull && !isRequired())
                 return;
@@ -439,7 +425,7 @@ public class TagEncodingHelper implements NamingContainer
         return null;
     }
 
-    public Object getDataValue()
+    public Object getDataValue(boolean evalExpression)
     {
         if (getRecord() != null)
         { // value
@@ -454,8 +440,18 @@ public class TagEncodingHelper implements NamingContainer
             }
         }
         else
-        { // Get from tag
-            return tag.getValue();
+        {   // Get from tag
+            if (evalExpression)
+                return tag.getValue();
+            else
+            {   // return value or value expression
+                Object value = tag.getLocalValue();
+                if (value==null)
+                    value = findValueExpression();
+                
+                // value = tag.getValue();
+                return value;
+            }
         }
     }
 
@@ -673,6 +669,8 @@ public class TagEncodingHelper implements NamingContainer
         hasValueExpr = new Boolean(ve != null);
         return hasValueExpr.booleanValue();
     }
+    
+    private static final String CC_ATTR_EXPR = "#{cc.attrs.";
 
     protected ValueExpression findValueExpression()
     {
@@ -683,13 +681,16 @@ public class TagEncodingHelper implements NamingContainer
         // Find expression
         UIComponent parent = tag;
         String expr = ve.getExpressionString();
-        while (expr.equals("#{cc.attrs.value}"))
+        while (expr.startsWith(CC_ATTR_EXPR))
         {
+            // find parent
             parent = UIComponent.getCompositeComponentParent(parent);
             if (parent == null)
                 return null;
             // check expression
-            ve = parent.getValueExpression("value");
+            int end = expr.indexOf('}');
+            String attrib = expr.substring(CC_ATTR_EXPR.length(), end);
+            ve = parent.getValueExpression(attrib);
             if (ve == null)
                 return null;
             // get new expression String
@@ -698,7 +699,7 @@ public class TagEncodingHelper implements NamingContainer
         // found
         return ve;
     }
-
+    
     protected Options getValueOptions()
     {
         // null value
@@ -788,7 +789,7 @@ public class TagEncodingHelper implements NamingContainer
         String templ = StringUtils.valueOf(value);
         int valIndex = templ.indexOf("{}");
         if (valIndex >= 0)
-            value = getDataValue();
+            value = getDataValue(true);
         // Check Options
         String text;
         Options options = getValueOptions();
@@ -872,27 +873,29 @@ public class TagEncodingHelper implements NamingContainer
 
     protected String getLabelValue(Column column, boolean colon)
     {
-        String title=null;
+        String label = getTagAttribute("label");
+        if (label!=null)
+            return label;
         // Check for short form    
         if (hasFormat("short"))
         {
-            title = StringUtils.toString(column.getAttribute(COLATTR_ABBR_TITLE));
-            if (title==null)
+            label = StringUtils.toString(column.getAttribute(COLATTR_ABBR_TITLE));
+            if (label==null)
                 log.warn("No Abbreviation available for column {}. Using normal title.", column.getName());
         }
         // Use normal title
-        if (title==null)
-            title=column.getTitle();
+        if (label==null)
+            label=column.getTitle();
         // translate
-        title = getDisplayText(title);
+        label = getDisplayText(label);
         // handle empty string
-        if (StringUtils.isEmpty(title))
+        if (StringUtils.isEmpty(label))
             return "";
         // getColon
         if (colon) 
-            title = title.trim() + ":";
+            label = label.trim() + ":";
         // done
-        return title;
+        return label;
     }
     
     public HtmlOutputLabel createLabelComponent(FacesContext context, String forInput, String styleClass, String style, boolean colon)
@@ -933,7 +936,11 @@ public class TagEncodingHelper implements NamingContainer
         }
         
         // value
-        label.setValue(getLabelValue(column, colon));
+        String labelText = getLabelValue(column, colon);
+        if (StringUtils.isEmpty(labelText))
+            label.setRendered(false);
+        else
+            label.setValue(labelText);
 
         // styleClass
         if (StringUtils.isNotEmpty(styleClass))

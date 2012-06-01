@@ -73,7 +73,7 @@ public class TextAreaInputControl extends InputControl
             input.setRows(rows);
         
         input.setDisabled(ii.isDisabled());
-        input.setValue(ii.getValue());
+        setInputValue(input, ii);
         
         compList.add(input);
     }
