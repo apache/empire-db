@@ -50,44 +50,45 @@ import com.sun.faces.application.ApplicationImpl;
 
 public abstract class FacesApplication extends ApplicationImpl
 {
-    private static final Logger    log    = LoggerFactory.getLogger(FacesApplication.class);
-    
-    private static final String APPLICATION_ATTRIBUTE  = "facesApp";
-    private static final String CONNECTION_ATTRIBUTE   = "dbConnections";
-    
-    protected TextResolver[] textResolvers = null; 
-    
-    protected FacesApplication(AppStartupListener startupListener)
-    {   // subscribe
-        subscribeToEvent(javax.faces.event.PostConstructApplicationEvent.class, startupListener);
-    }   
-    
-    protected FacesApplication()
-    {   // subscribe
-        this(new AppStartupListener());
-    }   
-    
-    public String getApplicationBeanName()
-    {
-        return APPLICATION_ATTRIBUTE;
-    }
-    
-    protected abstract DataSource getAppDataSource(DBDatabase db);
-    
-    public abstract void init(ServletContext fc);
+    private static final Logger log                   = LoggerFactory.getLogger(FacesApplication.class);
 
-    public void initComplete()
+    private static final String CONNECTION_ATTRIBUTE  = "dbConnections";
+
+    public static String        APPLICATION_ATTRIBUTE = "app";
+
+    protected TextResolver[]    textResolvers         = null;
+
+    private String              webRoot               = null;
+
+    protected FacesApplication(AppStartupListener startupListener)
+    { // subscribe
+        subscribeToEvent(javax.faces.event.PostConstructApplicationEvent.class, startupListener);
+    }
+
+    protected FacesApplication()
+    { // subscribe
+        this(new AppStartupListener());
+    }
+
+    protected abstract DataSource getAppDataSource(DBDatabase db);
+
+    protected abstract void init(ServletContext fc);
+
+    protected void initComplete(ServletContext servletContext)
     {
+        // Get Web Root
+        webRoot = servletContext.getContextPath();
+
         // Check Text resolvers
-        if (textResolvers==null)
-            initTextResolvers();        
+        if (textResolvers == null)
+            initTextResolvers();
 
         // done
         log.info("FacesApplication initialization complete");
     }
-    
+
     /* Context handling */
-    
+
     public void onChangeView(final FacesContext fc, String viewId)
     {
         // allow custom view change logic
@@ -97,7 +98,18 @@ public abstract class FacesApplication extends ApplicationImpl
     {
         throw new NotSupportedException(this, "addJavascriptCall");
     }
-    
+
+    /**
+     * returns the web context path as returned from ServletContext.getContextPath()
+     */
+    public String getWebRoot()
+    {
+        return webRoot;
+    }
+
+    /**
+     * returns the active locale for a given FacesContext
+     */
     public Locale getContextLocale(final FacesContext ctx)
     {
         UIViewRoot root;
@@ -106,31 +118,34 @@ public abstract class FacesApplication extends ApplicationImpl
         Locale defaultLocale = Locale.getDefault();
         locale = defaultLocale;
         // See if this FacesContext has a ViewRoot
-        if (null != (root = ctx.getViewRoot())) {
+        if (null != (root = ctx.getViewRoot()))
+        {
             // If so, ask it for its Locale
-            if (null == (locale = root.getLocale())) {
+            if (null == (locale = root.getLocale()))
+            {
                 // If the ViewRoot has no Locale, fall back to the default.
                 locale = defaultLocale;
             }
         }
         return locale;
     }
-    
+
     /**
      * checks if the current context contains an error
-     * @param fc the FacesContext
+     * 
+     * @param fc
+     *            the FacesContext
      * @return true if the context has an error set or false otherwise
      */
     public boolean hasError(final FacesContext fc)
     {
         Iterator<FacesMessage> msgIterator = fc.getMessages();
-        if (msgIterator!=null)
-        {   // Check Messages
+        if (msgIterator != null)
+        { // Check Messages
             while (msgIterator.hasNext())
-            {   // Check Severity
+            { // Check Severity
                 Severity fms = msgIterator.next().getSeverity();
-                if (fms==FacesMessage.SEVERITY_ERROR ||
-                    fms==FacesMessage.SEVERITY_FATAL)
+                if (fms == FacesMessage.SEVERITY_ERROR || fms == FacesMessage.SEVERITY_FATAL)
                     return true;
             }
         }
@@ -139,53 +154,56 @@ public abstract class FacesApplication extends ApplicationImpl
 
     /**
      * finds a component from with a given id from a given start component
-     * @param fc the FacesContext
+     * 
+     * @param fc
+     *            the FacesContext
      * @param componentId
-     * @param nearComponent a component within the same naming container
+     * @param nearComponent
+     *            a component within the same naming container
      * @return
      */
     public UIComponent findComponent(FacesContext fc, String componentId, UIComponent nearComponent)
     {
         if (StringUtils.isEmpty(componentId))
-        	throw new InvalidArgumentException("forComponentId", componentId);
+            throw new InvalidArgumentException("forComponentId", componentId);
         // Search for compoent
         UIComponent forComponent = null;
-        if (nearComponent!=null)
+        if (nearComponent != null)
         {
-	        // Look for the 'for' component in the nearest parental naming container 
-	        // of the UIComponent (there's actually a bit more to this search - see
-	        // the docs for the findComponent method
-	        forComponent = nearComponent.findComponent(componentId);
-	        // Since the nearest naming container may be nested, search the 
-	        // next-to-nearest parental naming container in a recursive fashion, 
-	        // until we get to the view root
-	        if (forComponent == null)
-	        {
-	            UIComponent nextParent = nearComponent;
-	            while (true)
-	            {
-	                nextParent = nextParent.getParent();
-	                // avoid extra searching by going up to the next NamingContainer
-	                // (see the docs for findComponent for an information that will
-	                // justify this approach)
-	                while (nextParent != null && !(nextParent instanceof NamingContainer))
-	                {
-	                    nextParent = nextParent.getParent();
-	                }
-	                if (nextParent == null)
-	                {
-	                    break;
-	                }
-	                else
-	                {
-	                    forComponent = nextParent.findComponent(componentId);
-	                }
-	                if (forComponent != null)
-	                {
-	                    break;
-	                }
-	            }
-	        }
+            // Look for the 'for' component in the nearest parental naming container 
+            // of the UIComponent (there's actually a bit more to this search - see
+            // the docs for the findComponent method
+            forComponent = nearComponent.findComponent(componentId);
+            // Since the nearest naming container may be nested, search the 
+            // next-to-nearest parental naming container in a recursive fashion, 
+            // until we get to the view root
+            if (forComponent == null)
+            {
+                UIComponent nextParent = nearComponent;
+                while (true)
+                {
+                    nextParent = nextParent.getParent();
+                    // avoid extra searching by going up to the next NamingContainer
+                    // (see the docs for findComponent for an information that will
+                    // justify this approach)
+                    while (nextParent != null && !(nextParent instanceof NamingContainer))
+                    {
+                        nextParent = nextParent.getParent();
+                    }
+                    if (nextParent == null)
+                    {
+                        break;
+                    }
+                    else
+                    {
+                        forComponent = nextParent.findComponent(componentId);
+                    }
+                    if (forComponent != null)
+                    {
+                        break;
+                    }
+                }
+            }
         }
         // There is one other situation to cover: if the 'for' component 
         // is not situated inside a NamingContainer then the algorithm above
@@ -225,6 +243,7 @@ public abstract class FacesApplication extends ApplicationImpl
 
     /**
      * returns the default control type for a given data Type
+     * 
      * @param dataType
      * @return
      */
@@ -235,54 +254,58 @@ public abstract class FacesApplication extends ApplicationImpl
             case CLOB:
                 return TextAreaInputControl.NAME;
             default:
-            	return TextInputControl.NAME;
+                return TextInputControl.NAME;
         }
     }
-    
+
     /* Message handling */
-    
+
     protected void initTextResolvers()
-    {        
+    {
         int count = 0;
         Iterator<Locale> locales = getSupportedLocales();
-        for (count=0; locales.hasNext(); count++) { locales.next(); }
-        
+        for (count = 0; locales.hasNext(); count++)
+        {
+            locales.next();
+        }
+
         // get message bundles
         String messageBundle = this.getMessageBundle();
         textResolvers = new TextResolver[count];
         locales = getSupportedLocales();
-        for (int i=0; locales.hasNext(); i++)
+        for (int i = 0; locales.hasNext(); i++)
         {
             Locale locale = locales.next();
             textResolvers[i] = new TextResolver(ResourceBundle.getBundle(messageBundle, locale));
         }
     }
-    
+
     public TextResolver getTextResolver(Locale locale)
     {
         // No text Resolvers provided
-        if (textResolvers==null || textResolvers.length==0)
+        if (textResolvers == null || textResolvers.length == 0)
         {
             throw new NotSupportedException(this, "getTextResolver");
         }
         // Lookup resolver for locale
-        for (int i=0; i<textResolvers.length; i++)
+        for (int i = 0; i < textResolvers.length; i++)
             if (locale.equals(textResolvers[i].getLocale()))
                 return textResolvers[i];
         // locale not found: return default
         return textResolvers[0];
     }
-    
+
     public TextResolver getTextResolver(FacesContext ctx)
     {
         return getTextResolver(getContextLocale(ctx));
     }
-    
+
     /**
-     * @see javax.faces.application.Application#getResourceBundle(javax.faces.context.FacesContext, String)
+     * @see javax.faces.application.Application#getResourceBundle(javax.faces.context.FacesContext,
+     *      String)
      */
     @Override
-    public ResourceBundle getResourceBundle(FacesContext fc, String var) 
+    public ResourceBundle getResourceBundle(FacesContext fc, String var)
     {
         if (var.equals("msg"))
         {
@@ -291,9 +314,10 @@ public abstract class FacesApplication extends ApplicationImpl
         }
         return null;
     }
-    
+
     /**
      * returns a connection from the connection pool
+     * 
      * @return
      */
     protected Connection getConnection(DBDatabase db)
@@ -353,39 +377,41 @@ public abstract class FacesApplication extends ApplicationImpl
      */
     public Connection getConnectionForRequest(FacesContext fc, DBDatabase db)
     {
-        if (fc==null)
+        if (fc == null)
             throw new InvalidArgumentException("FacesContext", fc);
-        if (db==null)
+        if (db == null)
             throw new InvalidArgumentException("DBDatabase", db);
         // Get Conneciton map
         @SuppressWarnings("unchecked")
-        Map<DBDatabase, Connection> connMap = (Map<DBDatabase, Connection>)FacesUtils.getRequestAttribute(fc, CONNECTION_ATTRIBUTE);
-        if (connMap!=null && connMap.containsKey(db))
+        Map<DBDatabase, Connection> connMap = (Map<DBDatabase, Connection>) FacesUtils.getRequestAttribute(fc, CONNECTION_ATTRIBUTE);
+        if (connMap != null && connMap.containsKey(db))
             return connMap.get(db);
         // Pooled Connection
         Connection conn = getConnection(db);
-        if (conn==null)
+        if (conn == null)
             return null;
         // Add to map
-        if (connMap==null)
-        {   connMap= new HashMap<DBDatabase, Connection>();
+        if (connMap == null)
+        {
+            connMap = new HashMap<DBDatabase, Connection>();
             FacesUtils.setRequestAttribute(fc, CONNECTION_ATTRIBUTE, connMap);
-        }    
-        connMap.put(db, conn);    
+        }
+        connMap.put(db, conn);
         return conn;
     }
-    
+
     /**
      * Releases the current request connection
+     * 
      * @param fc
      * @param commit
      */
     public void releaseAllConnections(final FacesContext fc, boolean commit)
     {
         @SuppressWarnings("unchecked")
-        Map<DBDatabase, Connection> connMap = (Map<DBDatabase, Connection>)FacesUtils.getRequestAttribute(fc, CONNECTION_ATTRIBUTE);
+        Map<DBDatabase, Connection> connMap = (Map<DBDatabase, Connection>) FacesUtils.getRequestAttribute(fc, CONNECTION_ATTRIBUTE);
         if (connMap != null)
-        {   // Walk the connection map
+        { // Walk the connection map
             for (Map.Entry<DBDatabase, Connection> e : connMap.entrySet())
             {
                 releaseConnection(e.getKey(), e.getValue(), commit);
@@ -403,12 +429,12 @@ public abstract class FacesApplication extends ApplicationImpl
     public void releaseConnection(final FacesContext fc, DBDatabase db, boolean commit)
     {
         @SuppressWarnings("unchecked")
-        Map<DBDatabase, Connection> connMap = (Map<DBDatabase, Connection>)FacesUtils.getRequestAttribute(fc, CONNECTION_ATTRIBUTE);
+        Map<DBDatabase, Connection> connMap = (Map<DBDatabase, Connection>) FacesUtils.getRequestAttribute(fc, CONNECTION_ATTRIBUTE);
         if (connMap != null && connMap.containsKey(db))
-        {   // Walk the connection map
+        { // Walk the connection map
             releaseConnection(db, connMap.get(db), commit);
             connMap.remove(db);
-            if (connMap.size()==0)
+            if (connMap.size() == 0)
                 FacesUtils.setRequestAttribute(fc, CONNECTION_ATTRIBUTE, null);
         }
     }
@@ -417,5 +443,5 @@ public abstract class FacesApplication extends ApplicationImpl
     {
         releaseConnection(fc, db, !hasError(fc));
     }
-    
+
 }

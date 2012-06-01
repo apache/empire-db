@@ -27,12 +27,12 @@ import javax.faces.event.SystemEvent;
 import javax.faces.event.SystemEventListener;
 import javax.servlet.ServletContext;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class AppStartupListener implements SystemEventListener
 {
-    final Log log = LogFactory.getLog(AppStartupListener.class);
+    private static final Logger log = LoggerFactory.getLogger(AppStartupListener.class);
 
     @Override
     public boolean isListenerForSource(Object source)
@@ -55,9 +55,13 @@ public class AppStartupListener implements SystemEventListener
             FacesApplication jsfApp = (FacesApplication)app;
             jsfApp.init(servletContext);
             // Set Servlet Attribute
-            servletContext.setAttribute(jsfApp.getApplicationBeanName(), jsfApp);
+            if (servletContext.getAttribute(FacesApplication.APPLICATION_ATTRIBUTE)!=null)
+            {
+                log.warn("WARNING: Ambiguous application definition. An object of name '{}' already exists on application scope!", FacesApplication.APPLICATION_ATTRIBUTE);
+            }
+            servletContext.setAttribute(FacesApplication.APPLICATION_ATTRIBUTE, jsfApp);
             // done
-            jsfApp.initComplete();
+            jsfApp.initComplete(servletContext);
         }
         else if (event instanceof PreDestroyApplicationEvent)
         {
