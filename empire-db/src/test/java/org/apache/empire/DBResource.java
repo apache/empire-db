@@ -28,6 +28,7 @@ import org.apache.empire.db.DBTools;
 import org.apache.empire.db.derby.DBDatabaseDriverDerby;
 import org.apache.empire.db.h2.DBDatabaseDriverH2;
 import org.apache.empire.db.hsql.DBDatabaseDriverHSql;
+import org.apache.empire.db.postgresql.DBDatabaseDriverPostgreSQL;
 import org.apache.empire.db.sqlserver.DBDatabaseDriverMSSQL;
 import org.junit.rules.ExternalResource;
 
@@ -67,7 +68,9 @@ public class DBResource extends ExternalResource
         throws Throwable
     {   
         Class.forName(db.jdbcClass);
-        connection = DriverManager.getConnection(db.jdbcURL, "sa", "");
+        String user = db.username != null ? db.username:"sa";
+        String password = db.password != null ? db.password:"";
+        connection = DriverManager.getConnection(db.jdbcURL, user, password);
     }
     
     @Override
@@ -106,6 +109,12 @@ public class DBResource extends ExternalResource
               "org.h2.Driver", 
               "jdbc:h2:mem:data/h2/test",
               DBDatabaseDriverH2.class),
+        POSTGRESQL(
+              "org.postgresql.Driver", 
+              "jdbc:postgresql://localhost",
+              DBDatabaseDriverPostgreSQL.class,
+              "postgres",
+              "postgres"),
         MSSQL(
               "com.microsoft.sqlserver.jdbc.SQLServerDriver", 
               "jdbc:sqlserver://localhost:1433",
@@ -118,13 +127,22 @@ public class DBResource extends ExternalResource
 
         private final String jdbcClass;
         private final String jdbcURL;
+        private final String username;
+        private final String password;
         private final Class<? extends DBDatabaseDriver> driver;
         
         private DB(final String jdbcClass, final String jdbcURL, final Class<? extends DBDatabaseDriver> driver)
         {
+        	this(jdbcClass, jdbcURL, driver, null, null);
+        }
+        
+        private DB(final String jdbcClass, final String jdbcURL, final Class<? extends DBDatabaseDriver> driver, final String username, final String password)
+        {
             this.driver = driver;
             this.jdbcClass = jdbcClass;
             this.jdbcURL = jdbcURL;
+            this.username = username;
+            this.password = password;
         }
     }
 }

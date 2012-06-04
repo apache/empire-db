@@ -74,7 +74,13 @@
 		    <artifactId>jtds</artifactId>
 		    <version>1.2.4</version>
 		    <scope>test</scope>
-		</dependency> -->
+		</dependency>
+		<dependency>
+		    <groupId>postgresql</groupId>
+		    <artifactId>postgresql</artifactId>
+		    <version>9.1-901.jdbc4</version>
+		    <scope>test</scope>
+		</dependency>  -->
 		<dependency>
 		    <groupId>commons-io</groupId>
 		    <artifactId>commons-io</artifactId>

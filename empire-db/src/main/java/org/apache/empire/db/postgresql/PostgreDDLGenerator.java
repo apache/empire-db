@@ -46,6 +46,7 @@ public class PostgreDDLGenerator extends DBDDLGenerator<DBDatabaseDriverPostgreS
     {   // Override data types
         DATATYPE_BOOLEAN = "BOOLEAN";
         DATATYPE_CLOB = "TEXT";
+        DATATYPE_BLOB = "BYTEA";
     }
 
     @Override
