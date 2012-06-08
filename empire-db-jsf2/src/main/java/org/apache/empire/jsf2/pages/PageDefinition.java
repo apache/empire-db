@@ -118,7 +118,7 @@ public class PageDefinition
     
     public PageOutcome getOutcome()
     {
-        return new PageOutcome(path);
+        return new PageOutcome(path.replace(".xhtml", ".iface"));
     }
     
     public PageOutcome getOutcome(String action)

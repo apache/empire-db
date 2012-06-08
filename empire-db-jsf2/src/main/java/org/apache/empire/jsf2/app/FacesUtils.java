@@ -35,6 +35,7 @@ import javax.servlet.http.HttpServletRequest;
 import org.apache.empire.db.DBDatabase;
 import org.apache.empire.jsf2.pages.Page;
 import org.apache.empire.jsf2.pages.PageDefinition;
+import org.apache.empire.jsf2.pages.PageOutcome;
 import org.apache.empire.jsf2.utils.ParameterMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -86,7 +87,10 @@ public class FacesUtils
     public static void redirectDirectly(final FacesContext fc, final String url)
     {
         try
-        {
+        {   // log
+            if (log.isDebugEnabled())
+                log.debug("Redirecting directly to {}.", url);
+            // redirectDirectly
             fc.getExternalContext().redirect(url);
             fc.responseComplete();
         }
@@ -96,11 +100,16 @@ public class FacesUtils
         }
     }
 
-    public static void redirectDirectly(final FacesContext fc, final PageDefinition page)
+    public static void redirectDirectly(final FacesContext fc, final PageOutcome outcome)
     {
         String ctxPath = fc.getExternalContext().getRequestContextPath();
-        String pageURI = ctxPath + page.getPath().replace(".xhtml", ".iface");
+        String pageURI = ctxPath + outcome.toString();
         FacesUtils.redirectDirectly(fc, pageURI);
+    }
+
+    public static void redirectDirectly(final FacesContext fc, final PageDefinition page)
+    {
+        FacesUtils.redirectDirectly(fc, page.getOutcome());
     }
     
     /* Connection */
