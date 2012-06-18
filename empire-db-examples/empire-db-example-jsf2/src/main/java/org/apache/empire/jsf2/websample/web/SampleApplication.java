@@ -293,6 +293,7 @@ public class SampleApplication extends FacesApplication {
      * As the sample does not use connection pooling, a static connection is returned
      * @return a connection for the requested db
      */
+    @Override
     protected Connection getConnection(DBDatabase db)
     {
     	return conn;
@@ -302,6 +303,7 @@ public class SampleApplication extends FacesApplication {
      * Usually releases a connection from the connection pool
      * As the sample does not use connection pooling, only a commit or rollback is performed
      */
+    @Override
     protected void releaseConnection(DBDatabase db, Connection conn, boolean commit)
     {
         // release connection

@@ -215,7 +215,7 @@ public class EmployeeListPage extends SamplePage
             if (ObjectUtils.isEmpty(value))
                 return;
             // is it an array
-            if (value instanceof Collection || value.getClass().isArray())
+            if (value instanceof Collection<?> || value.getClass().isArray())
             {
                 cmd.where(col.in(value));
                 return;

@@ -78,16 +78,13 @@ public class FileInputControl extends InputControl
 
     public class HtmlInputFile extends HtmlInputText
     {
-
-        public static final String COMPONENT_TYPE = "HtmlFileInput";
-        public static final String RENDER_TYPE    = "org.apache.empire.jsf2.custom.controls.FileInputRenderer";
+        public static final String RENDER_TYPE = "org.apache.empire.jsf2.custom.controls.FileInputRenderer";
 
         @Override
         public String getRendererType()
         {
             return RENDER_TYPE;
         }
-
     }
 
     public class FileInputRenderer extends TextRenderer
