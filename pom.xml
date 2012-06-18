@@ -217,6 +217,12 @@
 			</dependency>
 			<dependency>
 				<groupId>org.apache.empire-db</groupId>
+				<artifactId>empire-db-jsf2</artifactId>
+				<version>${project.version}</version>
+				<type>jar</type>
+			</dependency>
+			<dependency>
+				<groupId>org.apache.empire-db</groupId>
 				<artifactId>empire-db-codegen</artifactId>
 				<version>${project.version}</version>
 				<type>jar</type>
