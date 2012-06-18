@@ -20,13 +20,14 @@ package org.apache.empire.jsf2.websample.web;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.util.Locale;
 
-import javax.faces.bean.ApplicationScoped;
-import javax.faces.bean.ManagedBean;
 import javax.servlet.ServletContext;
+import javax.sql.DataSource;
 
 import org.apache.empire.commons.StringUtils;
 import org.apache.empire.db.DBCommand;
+import org.apache.empire.db.DBDatabase;
 import org.apache.empire.db.DBDatabaseDriver;
 import org.apache.empire.db.DBRecord;
 import org.apache.empire.db.DBSQLScript;
@@ -35,75 +36,73 @@ import org.apache.empire.db.hsql.DBDatabaseDriverHSql;
 import org.apache.empire.db.mysql.DBDatabaseDriverMySQL;
 import org.apache.empire.db.oracle.DBDatabaseDriverOracle;
 import org.apache.empire.db.sqlserver.DBDatabaseDriverMSSQL;
+import org.apache.empire.jsf2.app.FacesApplication;
+import org.apache.empire.jsf2.controls.InputControlManager;
+import org.apache.empire.jsf2.custom.controls.FileInputControl;
 import org.apache.empire.jsf2.websample.db.SampleDB;
+import org.apache.empire.jsf2.websample.web.pages.SamplePages;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-@ManagedBean(name = "application")
-@ApplicationScoped
-public class SampleApplication {
+import com.sun.faces.application.ApplicationAssociate;
+import com.sun.faces.mgbean.BeanManager;
+
+public class SampleApplication extends FacesApplication {
 	// Logger
 	private static final Logger log = LoggerFactory
 			.getLogger(SampleApplication.class);
 
+	private static SampleApplication sampleApplication = null;
+
+	protected static final String MANAGED_BEAN_NAME = "sampleApplication";
+	protected static final Locale DEFAULT_LOCALE = Locale.ENGLISH;
 	// Non-Static
-	private SampleDB db = new SampleDB();
 	private SampleConfig config = new SampleConfig();
+	private SampleDB sampleDB = null;
 
 	private Connection conn = null;
 
-	public void init(ServletContext servletContext) {
-		try {
-			// register all controls
-			// InputControlManager.registerControl("myType", new
-			// MyTypeInputControl());
-			config.init(servletContext.getRealPath("WEB-INF/config.xml"));
+	public static SampleApplication get() {
+		return SampleApplication.sampleApplication;
+	}
 
-			// Set Database to Servlet Context
-			servletContext.setAttribute("db", db);
-
-			// Get a JDBC Connection
-			log.info("*** getJDBCConnection() ***");
-			conn = getJDBCConnection(servletContext);
-
-			// Choose a driver
-			log.info("*** create DBDatabaseDriverOracle() ***");
-			DBDatabaseDriver driver = getDatabaseDriver(config
-					.getDatabaseProvider());
-
-			// Open Database (and create if not existing)
-			log.info("*** open database ***");
-			db.open(driver, conn);
-			if (!databaseExists(conn)) {
-				// STEP 4: Create Database
-				log.info("*** create Database ***");
-				createSampleDatabase(driver, conn);
-			}
-
-			// Done
-			log.info("Application initialized ");
-
-		} catch (Exception e) {
-			// Error
-			log.info(e.toString());
-			e.printStackTrace();
+	public SampleApplication() { 
+		
+		// Check for single instance
+		if (SampleApplication.sampleApplication != null) {
+			throw new RuntimeException(
+					"Attempt to create second instance of SampleApplication. SampleApplication is a singleton!");
 		}
+		// trace
+		SampleApplication.log.trace("SampleApplication created");
+		SampleApplication.sampleApplication = this;
 
+		// register custom control types
+		InputControlManager.registerControl(new FileInputControl());
 	}
 
-	public SampleDB getDatabase() {
-		return db;
-	}
+	@Override
+	public void init(ServletContext servletContext) {
+		// register all controls
+		// InputControlManager.registerControl("myType", new
+		// MyTypeInputControl());
+		config.init(servletContext.getRealPath("WEB-INF/config.xml"));
 
-	public Connection getPooledConnection() {
-		return conn;
-	}
+		// Get a JDBC Connection
+		log.info("*** getJDBCConnection() ***");
+		conn = getJDBCConnection(servletContext);
 
-	/**
-	 * releases a connection from the connection pool
-	 */
-	public void releaseConnection(Connection conn, boolean commit) {
-		// Return Connection to Connection Pool
+		log.info("*** initDatabase() ***");
+		initDatabase();
+
+		log.info("*** initPages() ***");
+		initPages(servletContext);
+
+		// Set Database to Servlet Context
+		servletContext.setAttribute("db", sampleDB);
+
+		// Done
+		log.info("Application initialized ");
 	}
 
 	/*
@@ -138,6 +137,27 @@ public class SampleApplication {
 		return conn;
 	}
 
+	private void initDatabase() {
+		sampleDB = new SampleDB();
+
+		// Open Database (and create if not existing)
+		log.info("*** open database ***");
+		String driverProvider = config.getDatabaseProvider();
+		DBDatabaseDriver driver = getDatabaseDriver(driverProvider);
+		Connection conn = null;
+		try {
+			conn = getConnection(sampleDB);
+			sampleDB.open(driver, conn);
+			if (!databaseExists(conn)) {
+				// STEP 4: Create Database
+				log.info("*** create Database ***");
+				createSampleDatabase(driver, conn);
+			}
+		} finally {
+			releaseConnection(sampleDB, conn, true);
+		}
+	}
+
 	/*
 	 * getDatabaseDriver
 	 */
@@ -165,12 +185,21 @@ public class SampleApplication {
 		}
 	}
 
+	private void initPages(ServletContext sc) {
+		BeanManager bm = ApplicationAssociate.getInstance(sc).getBeanManager();
+		new SamplePages().registerPageBeans(bm);
+	}
+
+	public SampleDB getDatabase() {
+		return sampleDB;
+	}
+
 	private boolean databaseExists(Connection conn) {
 		// Check wether DB exists
-		DBCommand cmd = db.createCommand();
-		cmd.select(db.T_DEPARTMENTS.count());
+		DBCommand cmd = sampleDB.createCommand();
+		cmd.select(sampleDB.T_DEPARTMENTS.count());
 		try {
-			return (db.querySingleInt(cmd.getSelect(), -1, conn) >= 0);
+			return (sampleDB.querySingleInt(cmd.getSelect(), -1, conn) >= 0);
 		} catch (QueryFailedException e) {
 			return false;
 		}
@@ -185,15 +214,15 @@ public class SampleApplication {
 	private void createSampleDatabase(DBDatabaseDriver driver, Connection conn) {
 		// create DLL for Database Definition
 		DBSQLScript script = new DBSQLScript();
-		db.getCreateDDLScript(driver, script);
+		sampleDB.getCreateDDLScript(driver, script);
 		// Show DLL Statements
 		System.out.println(script.toString());
 		// Execute Script
 		script.run(driver, conn, false);
-		db.commit(conn);
+		sampleDB.commit(conn);
 		// Open again
-		if (!db.isOpen()) {
-			db.open(driver, conn);
+		if (!sampleDB.isOpen()) {
+			sampleDB.open(driver, conn);
 		}
 		// Insert Sample Departments
 		int idDevDep = insertDepartmentSampleRecord(conn, "Development", "ITTK");
@@ -205,7 +234,7 @@ public class SampleApplication {
 				idDevDep);
 		insertEmployeeSampleRecord(conn, "Mrs.", "Anna", "Smith", "F", idSalDep);
 		// Commit
-		db.commit(conn);
+		sampleDB.commit(conn);
 	}
 
 	/*
@@ -215,9 +244,9 @@ public class SampleApplication {
 			String department_name, String businessUnit) {
 		// Insert a Department
 		DBRecord rec = new DBRecord();
-		rec.create(db.T_DEPARTMENTS);
-		rec.setValue(db.T_DEPARTMENTS.C_NAME, department_name);
-		rec.setValue(db.T_DEPARTMENTS.C_BUSINESS_UNIT, businessUnit);
+		rec.create(sampleDB.T_DEPARTMENTS);
+		rec.setValue(sampleDB.T_DEPARTMENTS.NAME, department_name);
+		rec.setValue(sampleDB.T_DEPARTMENTS.BUSINESS_UNIT, businessUnit);
 		try {
 			rec.update(conn);
 		} catch (Exception e) {
@@ -225,7 +254,7 @@ public class SampleApplication {
 			return 0;
 		}
 		// Return Department ID
-		return rec.getInt(db.T_DEPARTMENTS.C_DEPARTMENT_ID);
+		return rec.getInt(sampleDB.T_DEPARTMENTS.DEPARTMENT_ID);
 	}
 
 	/*
@@ -235,23 +264,70 @@ public class SampleApplication {
 			String firstName, String lastName, String gender, int depID) {
 		// Insert an Employee
 		DBRecord rec = new DBRecord();
-		rec.create(db.T_EMPLOYEES);
-		rec.setValue(db.T_EMPLOYEES.C_SALUTATION, salutation);
-		rec.setValue(db.T_EMPLOYEES.C_FIRST_NAME, firstName);
-		rec.setValue(db.T_EMPLOYEES.C_LAST_NAME, lastName);
-		rec.setValue(db.T_EMPLOYEES.C_GENDER, gender);
-		rec.setValue(db.T_EMPLOYEES.C_DEPARTMENT_ID, depID);
-		try
-		{
+		rec.create(sampleDB.T_EMPLOYEES);
+		rec.setValue(sampleDB.T_EMPLOYEES.SALUTATION, salutation);
+		rec.setValue(sampleDB.T_EMPLOYEES.FIRST_NAME, firstName);
+		rec.setValue(sampleDB.T_EMPLOYEES.LAST_NAME, lastName);
+		rec.setValue(sampleDB.T_EMPLOYEES.GENDER, gender);
+		rec.setValue(sampleDB.T_EMPLOYEES.DEPARTMENT_ID, depID);
+		try {
 			rec.update(conn);
-		}
-		catch(Exception e)
-		{
+		} catch (Exception e) {
 			log.error(e.getLocalizedMessage());
 			return 0;
 		}
 		// Return Employee ID
-		return rec.getInt(db.T_EMPLOYEES.C_EMPLOYEE_ID);
+		return rec.getInt(sampleDB.T_EMPLOYEES.EMPLOYEE_ID);
+	}
+
+	@Override
+	/**
+	 * returns null as connection pooling is not used
+	 */
+	protected DataSource getAppDataSource(DBDatabase db) {
+		return null;
+	}
+
+    /**
+     * Usually returns a connection from the connection pool
+     * As the sample does not use connection pooling, a static connection is returned
+     * @return a connection for the requested db
+     */
+    protected Connection getConnection(DBDatabase db)
+    {
+    	return conn;
+    }
+
+    /**
+     * Usually releases a connection from the connection pool
+     * As the sample does not use connection pooling, only a commit or rollback is performed
+     */
+    protected void releaseConnection(DBDatabase db, Connection conn, boolean commit)
+    {
+        // release connection
+        if (conn == null)
+        {
+            return;
+        }
+        // Commit or rollback connection depending on the exit code
+        if (commit)
+        { // success: commit all changes
+            db.commit(conn);
+            log.debug("REQUEST {}: commited.");
+        }
+        else
+        { // failure: rollback all changes
+            db.rollback(conn);
+            log.debug("REQUEST {}: rolled back.");
+        }
+    }
+	
+	protected SampleConfig getSampleConfig() {
+		if (config == null) {
+			SampleApplication.log
+					.error("Application configuration not initialized!");
+		}
+		return config;
 	}
 
 }

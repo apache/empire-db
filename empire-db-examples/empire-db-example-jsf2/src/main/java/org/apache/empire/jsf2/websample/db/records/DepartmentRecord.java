@@ -18,13 +18,16 @@
  */
 package org.apache.empire.jsf2.websample.db.records;
 
-import org.apache.empire.db.DBRecord;
 import org.apache.empire.jsf2.websample.db.SampleDB;
-import org.apache.empire.jsf2.websample.web.FacesUtils;
+import org.apache.empire.jsf2.websample.db.SampleDB.TDepartments;
 
-public class DepartmentRecord extends DBRecord
+public class DepartmentRecord extends SampleRecord<TDepartments>
 {
     private final static long serialVersionUID = 1L;
+
+    public DepartmentRecord(SampleDB db)
+    {
+        super(db.T_DEPARTMENTS);
+    }
   
-    public static final SampleDB.Departments T = FacesUtils.getDatabase().T_DEPARTMENTS;  
 }

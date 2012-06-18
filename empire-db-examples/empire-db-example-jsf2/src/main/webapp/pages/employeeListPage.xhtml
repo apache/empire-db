@@ -15,56 +15,87 @@
   KIND, either express or implied.  See the License for the
   specific language governing permissions and limitations
   under the License.
- --> 
+ -->
 <ui:composition template="/WEB-INF/facelets/templates/layout.xhtml"
 	xmlns="http://www.w3.org/1999/xhtml"
 	xmlns:ui="http://java.sun.com/jsf/facelets"
 	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:e="http://java.sun.com/jsf/composite/empire"
+	xmlns:sample="http://java.sun.com/jsf/composite/components"
 	xmlns:h="http://java.sun.com/jsf/html">
+	<f:metadata>
+		<f:viewParam name="action" value="#{page.action}" />
+	</f:metadata>
 
 	<!-- parameters used in layout.xhtml -->
-	<ui:param name="page" value="#{employeeListPage}" />
 	<ui:param name="pageTitle" value="#{msg.employeeList_title}" />
-	<ui:param name="contentFooter" value="true" />
 	<ui:param name="contentStyle" value="unstyled" />
 
 	<!-- content -->
 	<ui:define name="content">
-		<h:link outcome="employeeDetailPage" value="#{msg.employeeList_create}" />		
-		<h:dataTable value="#{employeeListPage.employeeList}" var="item">
-			<h:column>
-				<f:facet name="header">
-					<h:outputText value="#{msg.employeeList_field_employeeId}" />
-				</f:facet>
-				<h:outputText value="#{item.employeeId}" />
-			</h:column>
-			<h:column>
-				<f:facet name="header">
-					<h:outputText value="#{msg.employeeList_field_name}" />
-				</f:facet>
-				<h:link outcome="employeeDetailPage" value="#{item.name}">
-					<f:param name="id" value="#{item.employeeId}" />
-				</h:link>
-			</h:column>
-			<h:column>
-				<f:facet name="header">
-					<h:outputText value="#{msg.employeeList_field_gender}" />
-				</f:facet>
-				<h:outputText value="#{item.gender}" />
-			</h:column>
-			<h:column>
-				<f:facet name="header">
-					<h:outputText value="#{msg.employeeList_field_dateOfBirth}" />
-				</f:facet>
-				<h:outputText value="#{item.dateOfBirth}" />
-			</h:column>
-			<h:column>
-				<f:facet name="header">
-					<h:outputText value="#{msg.employeeList_field_department}" />
-				</f:facet>
-				<h:outputText value="#{item.department}" />
-			</h:column>
-		</h:dataTable>
-		<h:link outcome="employeeSearchPage" value="#{msg.employeeList_search}" />		
+		<h:form id="employeeListFilter">
+			<h:panelGrid styleClass="borderAll" >
+				<!-- search settings -->
+				<h:panelGrid id="panel" columns="2" border="0">
+					<e:control column="#{db.EMPLOYEES.FIRST_NAME}"	    value="#{page.searchFilter.firstName}" />
+					<e:control column="#{db.EMPLOYEES.LAST_NAME}" 	    value="#{page.searchFilter.lastName}" />
+					<e:control column="#{db.EMPLOYEES.DEPARTMENT_ID}"	value="#{page.searchFilter.departmentId}"
+						       options="#{page.departmentOptions}" />
+					<e:control column="#{db.EMPLOYEES.GENDER}" 			value="#{page.searchFilter.gender}" />
+				</h:panelGrid>
+				<!-- button bar -->
+				<h:panelGrid columns="3" styleClass="buttonRow">
+					<h:commandLink styleClass="butStnd" action="#{page.doResetSearch}"              value="#{msg.employeeList_resetSearch}" />
+					<h:commandLink styleClass="butStnd" action="#{page.doSearch}" 	                value="#{msg.employeeList_search}" />
+					<e:link        styleClass="butStnd" page="#{pages.EmployeeDetailPage.doCreate}" value="#{msg.employeeList_create}" />
+				</h:panelGrid>
+			</h:panelGrid>
+		</h:form>
+
+		<h:form id="employeeList">
+			<h:panelGroup rendered="#{page.employees.resultEmpty}" styleClass="searchResult">
+				<h:outputText value="#{msg.global_list_result_empty}" />
+			</h:panelGroup>
+			<h:panelGroup rendered="#{page.employees.valid}" styleClass="searchResult">
+				<h:dataTable id="employeeTable" value="#{page.employees.items}" var="item" rowClasses="odd,even">
+					<h:column>
+						<f:facet name="header">
+							<e:title column="#{db.EMPLOYEES.EMPLOYEE_ID}" />
+						</f:facet>
+						<e:value record="#{item}" column="#{db.EMPLOYEES.EMPLOYEE_ID}"/>
+					</h:column>
+					<h:column>
+						<f:facet name="header">
+							<h:outputText value="#{msg.employeeList_field_name}" />
+						</f:facet>
+						<e:link page="#{pages.EmployeeDetailPage.doLoad}" idparam="#{item.idParam}" value="#{item.name}" />
+					</h:column>
+					<h:column>
+						<f:facet name="header">
+							<e:title column="#{db.EMPLOYEES.DEPARTMENT_ID}" />
+						</f:facet>
+						<h:outputText value="#{item.department}" />
+					</h:column>
+					<h:column>
+						<f:facet name="header">
+							<e:title column="#{db.EMPLOYEES.GENDER}" />
+						</f:facet>
+						<e:value record="#{item}" column="#{db.EMPLOYEES.GENDER}" />
+					</h:column>
+					<h:column>
+						<f:facet name="header">
+							<e:title column="#{db.EMPLOYEES.DATE_OF_BIRTH}" />
+						</f:facet>
+						<e:value record="#{item}" column="#{db.EMPLOYEES.DATE_OF_BIRTH}" />
+					</h:column>
+				</h:dataTable>
+			</h:panelGroup>
+		</h:form>
+		
+		<h:panelGroup styleClass="buttonBar">
+			<e:link page="#{pages.LoginPage.doLogout}" styleClass="butStnd" value="#{msg.application_logout}"/>
+		</h:panelGroup>
+		
 	</ui:define>
+	
 </ui:composition>

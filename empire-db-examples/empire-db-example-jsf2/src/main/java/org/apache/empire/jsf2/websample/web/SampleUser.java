@@ -18,24 +18,50 @@
  */
 package org.apache.empire.jsf2.websample.web;
 
-public class SampleUser
+import java.io.Serializable;
+import java.util.Locale;
+
+public class SampleUser implements Serializable
 {
-    private String userName;
-    private String password;
-    
-    public SampleUser(String userName, String password)
+    private static final long     serialVersionUID  = 1L;
+    protected static final String MANAGED_BEAN_NAME = "sampleUser";
+
+    private String                userName          = "";
+    private String                password          = "";
+    private Locale                language          = SampleApplication.DEFAULT_LOCALE;
+
+    public SampleUser()
     {
-        this.userName = userName;
-        this.password = password;
     }
-    
+
     public String getPassword()
     {
         return password;
     }
+
     public String getUserName()
     {
         return userName;
     }
+
+    public void setUserName(String name)
+    {
+        this.userName = name;
+    }
+
+    public void setPassword(String password)
+    {
+        this.password = password;
+    }
+
+    public Locale getLocale()
+    {
+        return this.language;
+    }
     
+    public void setLocale(Locale lo)
+    {
+        this.language = lo;
+    }
+
 }

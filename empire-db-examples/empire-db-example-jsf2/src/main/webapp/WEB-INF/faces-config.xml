@@ -1,26 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- 
-  Licensed to the Apache Software Foundation (ASF) under one
-  or more contributor license agreements.  See the NOTICE file
-  distributed with this work for additional information
-  regarding copyright ownership.  The ASF licenses this file
-  to you under the Apache License, Version 2.0 (the
-  "License"); you may not use this file except in compliance
-  with the License.  You may obtain a copy of the License at
-
-   http://www.apache.org/licenses/LICENSE-2.0
-
-  Unless required by applicable law or agreed to in writing,
-  software distributed under the License is distributed on an
-  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-  KIND, either express or implied.  See the License for the
-  specific language governing permissions and limitations
-  under the License.
- --> 
+<!-- Licensed to the Apache Software Foundation (ASF) under one or more contributor 
+	license agreements. See the NOTICE file distributed with this work for additional 
+	information regarding copyright ownership. The ASF licenses this file to 
+	you under the Apache License, Version 2.0 (the "License"); you may not use 
+	this file except in compliance with the License. You may obtain a copy of 
+	the License at http://www.apache.org/licenses/LICENSE-2.0 Unless required 
+	by applicable law or agreed to in writing, software distributed under the 
+	License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS 
+	OF ANY KIND, either express or implied. See the License for the specific 
+	language governing permissions and limitations under the License. -->
 <faces-config xmlns="http://java.sun.com/xml/ns/javaee"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-facesconfig_2_0.xsd"
 	version="2.0">
+	<factory>
+		<application-factory>org.apache.empire.jsf2.websample.web.SampleApplicationFactory</application-factory>
+	</factory>
 	<application>
 		<locale-config>
 			<default-locale>en</default-locale>
@@ -28,10 +23,75 @@
 			<supported-locale>de</supported-locale>
 		</locale-config>
 		<message-bundle>lang.messages</message-bundle>
-		<navigation-handler>org.apache.empire.jsf2.websample.web.SampleNavigationHandler</navigation-handler>
+		<!-- EL resolver -->
+		<el-resolver>org.apache.empire.jsf2.app.DBELResolver</el-resolver>
+		<el-resolver>org.apache.empire.jsf2.pages.PagesELResolver</el-resolver>
+		<!-- Navigation handler -->
+		<navigation-handler>org.apache.empire.jsf2.pages.PageNavigationHandler</navigation-handler>
 	</application>
 
+	<!-- Lifecycle -->
 	<lifecycle>
-		<phase-listener>org.apache.empire.jsf2.websample.web.SamplePhaseListener</phase-listener>
+		<phase-listener>org.apache.empire.jsf2.app.AppRequestPhaseListener</phase-listener>
+		<phase-listener>org.apache.empire.jsf2.pages.PagePhaseListener</phase-listener>
+		<phase-listener>org.apache.empire.jsf2.websample.web.AutheticationPhaseListener</phase-listener>
 	</lifecycle>
+
+	<!-- Application beans -->
+	<managed-bean>
+		<managed-bean-name>sampleApplication</managed-bean-name>
+		<managed-bean-class>org.apache.empire.jsf2.websample.web.SampleApplication</managed-bean-class>
+		<managed-bean-scope>application</managed-bean-scope>
+	</managed-bean>
+
+
+	<!-- Session beans -->
+	<managed-bean>
+		<managed-bean-name>sampleSession</managed-bean-name>
+		<managed-bean-class>org.apache.empire.jsf2.websample.web.SampleSession</managed-bean-class>
+		<managed-bean-scope>session</managed-bean-scope>
+	</managed-bean>
+
+	<managed-bean>
+		<managed-bean-name>employeeSearchFilter</managed-bean-name>
+		<managed-bean-class>org.apache.empire.jsf2.websample.web.objects.EmployeeSearchFilter</managed-bean-class>
+		<managed-bean-scope>session</managed-bean-scope>
+	</managed-bean>
+
+	<managed-bean>
+		<managed-bean-name>sampleUser</managed-bean-name>
+		<managed-bean-class>org.apache.empire.jsf2.websample.web.SampleUser</managed-bean-class>
+		<managed-bean-scope>session</managed-bean-scope>
+	</managed-bean>
+
+	<!-- Empire-JSF components -->
+	<component>
+		<component-type>components.RecordTag</component-type>
+		<component-class>org.apache.empire.jsf2.components.RecordTag</component-class>
+	</component>
+	<component>
+		<component-type>components.ControlTag</component-type>
+		<component-class>org.apache.empire.jsf2.components.ControlTag</component-class>
+	</component>
+	<component>
+		<component-type>components.InputTag</component-type>
+		<component-class>org.apache.empire.jsf2.components.InputTag</component-class>
+	</component>
+	<component>
+		<component-type>components.LinkTag</component-type>
+		<component-class>org.apache.empire.jsf2.components.LinkTag</component-class>
+	</component>
+	<component>
+		<component-type>components.TitleTag</component-type>
+		<component-class>org.apache.empire.jsf2.components.TitleTag</component-class>
+	</component>
+	<component>
+		<component-type>components.ValueTag</component-type>
+		<component-class>org.apache.empire.jsf2.components.ValueTag</component-class>
+	</component>
+	<component>
+		<component-type>components.LabelTag</component-type>
+		<component-class>org.apache.empire.jsf2.components.LabelTag</component-class>
+	</component>
+
 </faces-config>

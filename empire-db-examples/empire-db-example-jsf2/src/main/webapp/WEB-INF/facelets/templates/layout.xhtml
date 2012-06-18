@@ -23,11 +23,10 @@
 	xmlns:h="http://java.sun.com/jsf/html"
 	xmlns:f="http://java.sun.com/jsf/core">
 
-<!-- Prerender event used to init page, e.g. for loading data from db -->
-<f:event type="preRenderView" listener="#{page.preRenderViewAction}" />
-
 <!-- internationalization -->
-<f:loadBundle basename="lang.messages" var="msg" />
+<f:view locale="#{sampleUser.locale}" />
+<ui:param name="webRoot" value=".." />
+
 
 <h:head>
 
@@ -35,19 +34,15 @@
 	<title>#{msg.application_title} - #{pageTitle}</title>
 
 	<!-- meta information -->
-	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" /> 
 	<meta http-equiv="Content-Language" content="en" />
 	<meta http-equiv="imagetoolbar" content="no" />
 	<meta name="keywords" content="" />
 	<meta name="description" content="" />
 
 	<!-- global stylesheets -->
-	<link rel="stylesheet" type="text/css"
-		href="../xmlhttp/css/rime/rime.css" />
-	<!-- 
-	<link href="../css/sample.css" rel="stylesheet" media="all"
-		type="text/css" />
- -->
+	<link href="#{webRoot}/css/layout.css" rel="stylesheet" type="text/css" />
+
 	<!-- custom page stylesheets -->
 	<ui:insert name="pageCss" />
 
@@ -56,24 +51,28 @@
 	<!-- custom page script -->
 	<ui:insert name="pageScript" />
 </h:head>
-
 <h:body>
+	<f:view>
 
-	<!-- header -->
-	<ui:include src="header.xhtml" />
+		<f:metadata>
+			<ui:insert name="metadata" />
+		</f:metadata>
 
-	<!-- (error) messages -->
-	<h:messages />
+		<!-- header -->
+		<ui:include src="header.xhtml" />
 
-	<!-- content -->
-	<h:panelGroup id="content" styleClass="#{contentStyle}">
-		<ui:insert name="content" />
-	</h:panelGroup>
+		<!-- (error) messages -->
+		<h:messages />
 
-	<!-- content footer -->
-	<h:panelGroup id="contentFooter" rendered="#{contentFooter}">
-		<ui:insert name="contentFooter" />
-	</h:panelGroup>
+		<!-- content -->
+		<h:panelGroup id="content" styleClass="#{contentStyle}">
+			<ui:insert name="content" />
+		</h:panelGroup>
 
+		<!-- content footer -->
+		<h:panelGroup id="contentFooter" rendered="#{contentFooter}">
+			<ui:insert name="contentFooter" />
+		</h:panelGroup>
+	</f:view>
 </h:body>
 </html>

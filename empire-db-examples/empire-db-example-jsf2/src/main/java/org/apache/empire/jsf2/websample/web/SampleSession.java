@@ -18,27 +18,28 @@
  */
 package org.apache.empire.jsf2.websample.web;
 
-import javax.faces.bean.ManagedBean;
-import javax.faces.bean.SessionScoped;
+import java.io.Serializable;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-@ManagedBean
-@SessionScoped
-public class SampleSession
+public class SampleSession implements Serializable
 {
-    private static final Logger log                = LoggerFactory.getLogger(SampleSession.class);
+    private static final long     serialVersionUID  = 1L;
 
-    private SampleUser user;
+    private static final Logger   log               = LoggerFactory.getLogger(SampleSession.class);
 
-	private String              page               = "loginPage";
+    protected static final String MANAGED_BEAN_NAME = "sampleSession";
 
-    private Throwable           rootCause;
+    private SampleUser            user              = null;
+
+    private String                page              = "loginPage";
+
+    private Throwable             rootCause;
 
     public SampleSession()
     {
-    	SampleSession.log.info("SESSION: created.");
+        SampleSession.log.info("SESSION: created.");
     }
 
     public void setPage(String page)
@@ -61,12 +62,19 @@ public class SampleSession
         return this.rootCause;
     }
 
-    public SampleUser getUser() {
-		return user;
-	}
+    public boolean isAuthorized()
+    {
+        return user != null;
+    }
+    
+    public SampleUser getUser()
+    {
+        return user;
+    }
 
-	public void setUser(SampleUser user) {
-		this.user = user;
-	}
+    public void setUser(SampleUser user)
+    {
+        this.user = user;
+    }
 
 }

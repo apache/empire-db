@@ -21,43 +21,42 @@ package org.apache.empire.jsf2.websample.db.records;
 import org.apache.empire.commons.Options;
 import org.apache.empire.db.DBColumn;
 import org.apache.empire.db.DBCommand;
-import org.apache.empire.db.DBRecord;
 import org.apache.empire.jsf2.websample.db.SampleDB;
-import org.apache.empire.jsf2.websample.web.FacesUtils;
+import org.apache.empire.jsf2.websample.db.SampleDB.TEmployees;
+import org.apache.empire.jsf2.websample.web.SampleUtils;
 
-
-public class EmployeeRecord extends DBRecord
+public class EmployeeRecord extends SampleRecord<TEmployees>
 {
     private final static long serialVersionUID = 1L;
-  
-    public static final SampleDB.Employees T = FacesUtils.getDatabase().T_EMPLOYEES;  
- 
-    // Sample Implementation for Department Record
-    public DepartmentRecord getDepartmentRecord()
+
+    public EmployeeRecord(SampleDB db)
     {
-        DepartmentRecord rec = new DepartmentRecord();
-        SampleDB.Departments table = FacesUtils.getDatabase().T_DEPARTMENTS;
-        try {
-			rec.read(table, this.getInt(T.C_DEPARTMENT_ID), FacesUtils.getConnection());
-		} catch (Exception e) {
-	        log.error("Unable to get department record. Message is " + e.getMessage());
-	        return null;
-		}
-        return rec; 
+        super(db.T_EMPLOYEES);
     }
-    
+
     @Override
     public Options getFieldOptions(DBColumn column)
     {
-        if (column.equals(T.C_DEPARTMENT_ID)) {
-            SampleDB db = (SampleDB)getDatabase();
+        if (column.equals(T.DEPARTMENT_ID))
+        {
+            SampleDB db = (SampleDB) getDatabase();
             DBCommand cmd = db.createCommand();
-            cmd.select(db.T_DEPARTMENTS.C_DEPARTMENT_ID);
-            cmd.select(db.T_DEPARTMENTS.C_NAME);
-            return db.queryOptionList(cmd.getSelect(), FacesUtils.getConnection());
+            cmd.select(db.T_DEPARTMENTS.DEPARTMENT_ID);
+            cmd.select(db.T_DEPARTMENTS.NAME);
+            cmd.orderBy(db.T_DEPARTMENTS.NAME);
+            return db.queryOptionList(cmd.getSelect(), SampleUtils.getConnection());
         }
         // base class implementation
         return super.getFieldOptions(column);
     }
-    
+
+    // Sample Implementation for Department Record
+    public DepartmentRecord getDepartmentRecord()
+    {
+        DepartmentRecord rec = new DepartmentRecord((SampleDB)this.getDatabase());
+        SampleDB.TDepartments table = SampleUtils.getDatabase().T_DEPARTMENTS;
+        rec.read(table, this.getInt(T.DEPARTMENT_ID), SampleUtils.getConnection());
+        return rec;
+    }
+
 }

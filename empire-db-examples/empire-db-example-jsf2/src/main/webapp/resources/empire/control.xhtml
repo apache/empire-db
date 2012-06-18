@@ -1,0 +1,25 @@
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:cc="http://java.sun.com/jsf/composite">
+
+	<!-- Interface -->
+	<cc:interface componentType="components.ControlTag">
+		<cc:attribute name="record" />
+		<cc:attribute name="column" required="true" />	
+		<cc:attribute name="readonly" />	
+		<cc:attribute name="custom" />	
+		<cc:attribute name="colspan" />
+		<cc:attribute name="value" />	
+	</cc:interface>
+	
+	<!-- Implementation -->
+	<cc:implementation>
+		<c:choose>
+			<c:when test="#{cc.attrs.custom == true}">
+				<cc:insertChildren/>
+			</c:when>
+		</c:choose>
+	</cc:implementation>
+	
+</html>

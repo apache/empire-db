@@ -25,99 +25,115 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Element;
 
-public class SampleConfig extends XMLConfiguration {
-	// Logger
-	private static final Logger log = LoggerFactory
-			.getLogger(SampleConfig.class);
-    private String loggingNodeName = "log4j:configuration";
+public class SampleConfig extends XMLConfiguration
+{
+    // Logger
+    private static final Logger log              = LoggerFactory.getLogger(SampleConfig.class);
+    private String              loggingNodeName  = "log4j:configuration";
 
-	private String databaseProvider = "oracle";
+    private String              jndiContext      = "";
 
-	private String jdbcClass = "oracle.jdbc.driver.OracleDriver";
+    private String              databaseProvider = "oracle";
 
-	private String jdbcURL = "jdbc:oracle:thin:@192.168.0.2:1521:ora10";
+    private String              jdbcClass        = "oracle.jdbc.driver.OracleDriver";
 
-	private String jdbcUser = "DBSAMPLE";
+    private String              jdbcURL          = "jdbc:oracle:thin:@192.168.0.2:1521:ora10";
 
-	private String jdbcPwd = "DBSAMPLE";
+    private String              dataSource       = "java:comp/env/jdbc/sampleDataSource";
 
-	private String schemaName = "DBSAMPLE";
+    private String              jdbcUser         = "DBSAMPLE";
 
-	/**
-	 * Initialize the configuration
-	 * 
-	 * @param filename the file to read 
-	 * 
-	 * @return true on success 
-	 */
-	public boolean init(String filename) {
-		try
-		{
-			// Read the properties file
-			super.init(filename, false);
-			// Done			
-			readProperties(this, "properties");
-			if (initLogging() == false)
-				return false;
-			readProperties(this, "properties-" + databaseProvider);
-		}
-		catch(Exception e)
-		{
-			log.error(e.getLocalizedMessage());
-			return false;
-		}
-		return true;
-	}
+    private String              jdbcPwd          = "DBSAMPLE";
 
-	public String getDatabaseProvider() {
-		return databaseProvider;
-	}
+    private String              schemaName       = "DBSAMPLE";
 
-	public String getJdbcClass() {
-		return jdbcClass;
-	}
+    /**
+     * Initialize the configuration
+     * 
+     * @param filename the file to read
+     * 
+     * @return true on success
+     */
+    public boolean init(String filename)
+    {
+        try
+        {
+            // Read the properties file
+            super.init(filename, false);
+            // Done
+            readProperties(this, "properties");
+            if (initLogging() == false)
+                return false;
+            readProperties(this, "properties-" + databaseProvider);
+        } catch (Exception e)
+        {
+            log.error(e.getLocalizedMessage());
+            return false;
+        }
+        return true;
+    }
 
-	public void setJdbcClass(String jdbcClass) {
-		this.jdbcClass = jdbcClass;
-	}
+    public String getDatabaseProvider()
+    {
+        return databaseProvider;
+    }
 
-	public String getJdbcPwd() {
-		return jdbcPwd;
-	}
+    public String getJdbcClass()
+    {
+        return jdbcClass;
+    }
 
-	public void setJdbcPwd(String jdbcPwd) {
-		this.jdbcPwd = jdbcPwd;
-	}
+    public void setJdbcClass(String jdbcClass)
+    {
+        this.jdbcClass = jdbcClass;
+    }
 
-	public String getJdbcURL() {
-		return jdbcURL;
-	}
+    public String getJdbcPwd()
+    {
+        return jdbcPwd;
+    }
 
-	public String getSchemaName() {
-		return schemaName;
-	}
+    public void setJdbcPwd(String jdbcPwd)
+    {
+        this.jdbcPwd = jdbcPwd;
+    }
 
-	// ------- Setters -------
+    public String getJdbcURL()
+    {
+        return jdbcURL;
+    }
 
-	public void setDatabaseProvider(String databaseProvider) {
-		this.databaseProvider = databaseProvider;
-	}
-	
-	public void setJdbcURL(String jdbcURL) {
-		this.jdbcURL = jdbcURL;
-	}
+    public String getSchemaName()
+    {
+        return schemaName;
+    }
 
-	public String getJdbcUser() {
-		return jdbcUser;
-	}
+    // ------- Setters -------
 
-	public void setJdbcUser(String jdbcUser) {
-		this.jdbcUser = jdbcUser;
-	}
+    public void setDatabaseProvider(String databaseProvider)
+    {
+        this.databaseProvider = databaseProvider;
+    }
 
-	public void setSchemaName(String schemaName) {
-		this.schemaName = schemaName;
-	}
+    public void setJdbcURL(String jdbcURL)
+    {
+        this.jdbcURL = jdbcURL;
+    }
+
+    public String getJdbcUser()
+    {
+        return jdbcUser;
+    }
+
+    public void setJdbcUser(String jdbcUser)
+    {
+        this.jdbcUser = jdbcUser;
+    }
+
+    public void setSchemaName(String schemaName)
+    {
+        this.schemaName = schemaName;
+    }
 
     /**
      * Init logging using Log4J's DOMConfigurator
@@ -136,8 +152,7 @@ public class SampleConfig extends XMLConfiguration {
         Element loggingNode = XMLUtil.findFirstChild(rootNode, loggingNodeName);
         if (loggingNode == null)
         { // log configuration node not found
-            SampleConfig.log.error("Log configuration node {} has not been found. Logging has not been configured.",
-            		loggingNodeName);
+            SampleConfig.log.error("Log configuration node {} has not been found. Logging has not been configured.", loggingNodeName);
             return false;
         }
         // Init Log4J
@@ -147,5 +162,30 @@ public class SampleConfig extends XMLConfiguration {
         return true;
     }
 
+    public String getDataSourceName()
+    {
+        return dataSource;
+    }
+
+    public void setDataSourceName(String dataSource)
+    {
+        this.dataSource = dataSource;
+    }
+
+
+    public String getJndiContextFactoryName()
+    {
+        return jndiContext;
+    }
+
+    public void setJndiContextFactoryName(String jndiContext)
+    {
+        this.jndiContext = jndiContext;
+    }
+
+    public String getAccessDeniedPage()
+    {
+        return null;
+    }
 
 }

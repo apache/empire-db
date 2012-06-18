@@ -18,22 +18,22 @@
  */
 package org.apache.empire.jsf2.websample.db;
 
+import java.util.Locale;
+
 import org.apache.empire.data.DataType;
 import org.apache.empire.db.DBDatabase;
 import org.apache.empire.db.DBTable;
 import org.apache.empire.db.DBTableColumn;
 
 /**
- * Base class definition for all database tables
- * Automatically generates a message-key for the field title
- * e.g. for the column EMPLOYEES.DATE_OF_BIRTH
- * it generates the key "!field.title.employees.dateOfBirth";
+ * Base class definition for all database tables Automatically generates a message-key for the field title e.g. for the column
+ * EMPLOYEES.DATE_OF_BIRTH it generates the key "!field.title.employees.dateOfBirth";
  */
 public class SampleTable extends DBTable
 {
-    private final static long serialVersionUID = 1L;
-    public final String MESSAGE_KEY_PREFIX = "!field.title.";
-    
+    private final static long serialVersionUID   = 1L;
+    public final String       MESSAGE_KEY_PREFIX = "!field.title.";
+
     public SampleTable(String name, DBDatabase db)
     {
         super(name, db);
@@ -43,16 +43,39 @@ public class SampleTable extends DBTable
     protected void addColumn(DBTableColumn column)
     {
         // Set Translation Title
-        String col = column.getBeanPropertyName();  
-        String tbl = getName().toLowerCase();   
+        String col = column.getBeanPropertyName();
+        String tbl = getName().toLowerCase();
         String key = MESSAGE_KEY_PREFIX + tbl + "." + col;
         column.setTitle(key);
 
         // Set Default Control Type
         DataType type = column.getDataType();
-        column.setControlType((type==DataType.BOOL) ? "checkbox" : "text");
+        column.setControlType((type == DataType.BOOL) ? "checkbox" : "text");
 
         // Add Column
         super.addColumn(column);
+    }
+
+    public enum LanguageIndex {
+        DE(Locale.GERMAN),
+
+        EN(Locale.ENGLISH);
+
+        private final Locale locale;
+
+        private LanguageIndex(Locale locale)
+        {
+            this.locale = locale;
+        }
+
+        public Locale getLocale()
+        {
+            return this.locale;
+        }
+
+        public String getDBLangKey()
+        {
+            return this.name().toUpperCase();
+        }
     }
 }

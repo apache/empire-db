@@ -25,111 +25,129 @@ import org.apache.empire.db.DBColumn;
 import org.apache.empire.db.DBDatabase;
 import org.apache.empire.db.DBTableColumn;
 
-
 public class SampleDB extends DBDatabase
 {
-    private final static long serialVersionUID = 1L;
-  
-    /**
-     * This class represents the definition of the Departments table.
-     */
-    public static class Departments extends SampleTable
-    {
-		private static final long serialVersionUID = -2993431379391158533L;
-
-		public final DBTableColumn C_DEPARTMENT_ID;
-        public final DBTableColumn C_NAME;
-        public final DBTableColumn C_HEAD;
-        public final DBTableColumn C_BUSINESS_UNIT;
-        public final DBTableColumn C_UPDATE_TIMESTAMP;
-
-        public Departments(DBDatabase db)
-        {
-            super("DEPARTMENTS", db);
-            // ID
-            C_DEPARTMENT_ID   = addColumn("DEPARTMENT_ID",    DataType.AUTOINC,       0, DataMode.NotNull, "DEP_ID_SEQUENCE");
-            C_NAME            = addColumn("NAME",             DataType.TEXT,         80, DataMode.NotNull);
-            C_HEAD            = addColumn("HEAD",             DataType.TEXT,         80, DataMode.Nullable);
-            C_BUSINESS_UNIT   = addColumn("BUSINESS_UNIT",    DataType.TEXT,          4, DataMode.NotNull, "ITTK");
-            C_UPDATE_TIMESTAMP= addColumn("UPDATE_TIMESTAMP", DataType.DATETIME,      0, DataMode.NotNull);
-        
-            // Primary Key
-            setPrimaryKey(C_DEPARTMENT_ID);
-            // Set other Indexes
-            addIndex("DEARTMENT_NAME_IDX", true, new DBColumn[] { C_NAME });
-            // Set timestamp column for save updates
-            setTimestampColumn(C_UPDATE_TIMESTAMP);
-
-        }    
-    }   
-
-    /**
-     * This class represents the definition of the Employees table.
-     */
-    public static class Employees extends SampleTable
-    {
-		private static final long serialVersionUID = 2175667816137804685L;
-
-		public final DBTableColumn C_EMPLOYEE_ID;
-        public final DBTableColumn C_SALUTATION;
-        public final DBTableColumn C_FIRST_NAME;
-        public final DBTableColumn C_LAST_NAME;
-        public final DBTableColumn C_DATE_OF_BIRTH;
-        public final DBTableColumn C_DEPARTMENT_ID;
-        public final DBTableColumn C_GENDER;
-        public final DBTableColumn C_PHONE_NUMBER;
-        public final DBTableColumn C_EMAIL;
-        public final DBTableColumn C_RETIRED;
-        public final DBTableColumn C_UPDATE_TIMESTAMP;
-
-        public Employees(DBDatabase db)
-        {
-            super("EMPLOYEES", db);
-            // ID
-            C_EMPLOYEE_ID     = addColumn("EMPLOYEE_ID",      DataType.AUTOINC,      0, DataMode.NotNull, "EMPLOYEE_ID_SEQUENCE");
-            C_SALUTATION      = addColumn("SALUTATION",       DataType.TEXT,        5, DataMode.Nullable);
-            C_FIRST_NAME       = addColumn("FIRST_NAME",       DataType.TEXT,        40, DataMode.NotNull);
-            C_LAST_NAME        = addColumn("LAST_NAME",        DataType.TEXT,        40, DataMode.NotNull);
-            C_DATE_OF_BIRTH   = addColumn("DATE_OF_BIRTH",    DataType.DATE,         0, DataMode.Nullable);
-            C_DEPARTMENT_ID   = addColumn("DEPARTMENT_ID",    DataType.INTEGER,      0, DataMode.NotNull);
-            C_GENDER          = addColumn("GENDER",           DataType.TEXT,         1, DataMode.Nullable);
-            C_PHONE_NUMBER    = addColumn("PHONE",     		  DataType.TEXT,        40, DataMode.Nullable);
-            C_EMAIL           = addColumn("EMAIL",            DataType.TEXT,        80, DataMode.Nullable);
-            C_RETIRED         = addColumn("RETIRED",          DataType.BOOL,         0, DataMode.NotNull, false);
-            C_UPDATE_TIMESTAMP= addColumn("UPDATE_TIMESTAMP", DataType.DATETIME,     0, DataMode.NotNull);
-        
-            // Primary Key
-            setPrimaryKey(C_EMPLOYEE_ID);
-            // Set other Indexes
-            addIndex("PERSON_NAME_IDX", true, new DBColumn[] { C_FIRST_NAME, C_LAST_NAME, C_DATE_OF_BIRTH });
-            // Set timestamp column for save updates
-            setTimestampColumn(C_UPDATE_TIMESTAMP);
-            
-            // Create Options for GENDER column
-            Options genders = new Options();
-            genders.set("M", "option.employee.gender.male");
-            genders.set("F", "option.employee.gender.female");
-            C_GENDER.setOptions(genders);
-            C_GENDER.setControlType("select");
-            
-            // Set special control types
-            C_DEPARTMENT_ID.setControlType("select");
-            C_PHONE_NUMBER .setControlType("phone");
-            
-        }    
-    }   
+    private final static long       serialVersionUID = 1L;
 
     // Declare all Tables
-    public final Departments  T_DEPARTMENTS = new Departments(this);
-    public final Employees    T_EMPLOYEES   = new Employees(this);
-    
+    public final TDepartments       T_DEPARTMENTS    = new TDepartments(this);
+    public final TEmployees         T_EMPLOYEES      = new TEmployees(this);
+
     /**
      * Constructor SampleDB
      */
     public SampleDB()
     {
         // Define Foreign-Key Relations
-        addRelation( T_EMPLOYEES.C_DEPARTMENT_ID.referenceOn( T_DEPARTMENTS.C_DEPARTMENT_ID ));
+        addRelation(T_EMPLOYEES.DEPARTMENT_ID.referenceOn(T_DEPARTMENTS.DEPARTMENT_ID));
     }
-    
+
+    // Needed for the DBELResolver
+    @Override
+    protected void register(String id)
+    {
+        super.register("db");
+    }
+
+    /**
+     * This class represents the definition of the Departments table.
+     */
+    public static class TDepartments extends SampleTable
+    {
+        private static final long  serialVersionUID = 1L;
+
+        public final DBTableColumn DEPARTMENT_ID;
+        public final DBTableColumn NAME;
+        public final DBTableColumn HEAD;
+        public final DBTableColumn BUSINESS_UNIT;
+        public final DBTableColumn UPDATE_TIMESTAMP;
+
+        public TDepartments(DBDatabase db)
+        {
+            super("DEPARTMENTS", db);
+            // ID
+            DEPARTMENT_ID = addColumn("DEPARTMENT_ID", DataType.AUTOINC, 0, DataMode.NotNull, "DEP_ID_SEQUENCE");
+            NAME = addColumn("NAME", DataType.TEXT, 80, DataMode.NotNull);
+            HEAD = addColumn("HEAD", DataType.TEXT, 80, DataMode.Nullable);
+            BUSINESS_UNIT = addColumn("BUSINESS_UNIT", DataType.TEXT, 4, DataMode.NotNull, "ITTK");
+            UPDATE_TIMESTAMP = addColumn("UPDATE_TIMESTAMP", DataType.DATETIME, 0, DataMode.NotNull);
+
+            // Primary Key
+            setPrimaryKey(DEPARTMENT_ID);
+            // Set other Indexes
+            addIndex("DEARTMENT_NAME_IDX", true, new DBColumn[] { NAME });
+            // Set timestamp column for save updates
+            setTimestampColumn(UPDATE_TIMESTAMP);
+
+        }
+    }
+
+  
+
+    /**
+     * This class represents the definition of the Employees table.
+     */
+    public static class TEmployees extends SampleTable
+    {
+        private static final long  serialVersionUID = 1L;
+
+        public final DBTableColumn EMPLOYEE_ID;
+        public final DBTableColumn SALUTATION;
+//        public final DBTableColumn PICTURE;
+        public final DBTableColumn FIRST_NAME;
+        public final DBTableColumn LAST_NAME;
+        public final DBTableColumn DATE_OF_BIRTH;
+        public final DBTableColumn DEPARTMENT_ID;
+        public final DBTableColumn GENDER;
+        public final DBTableColumn PHONE_NUMBER;
+        public final DBTableColumn EMAIL;
+        public final DBTableColumn RETIRED;
+        public final DBTableColumn UPDATE_TIMESTAMP;
+        public TEmployees(DBDatabase db)
+        {
+            super("EMPLOYEES", db);
+            // ID
+            EMPLOYEE_ID = addColumn("EMPLOYEE_ID", DataType.AUTOINC, 0, DataMode.NotNull, "EMPLOYEE_ID_SEQUENCE");
+            SALUTATION = addColumn("SALUTATION", DataType.TEXT, 5, DataMode.Nullable);
+//            PICTURE = addColumn("PICTURE", DataType.BLOB, 0, DataMode.Nullable);
+            FIRST_NAME = addColumn("FIRST_NAME", DataType.TEXT, 40, DataMode.NotNull);
+            LAST_NAME = addColumn("LAST_NAME", DataType.TEXT, 40, DataMode.NotNull);
+            DATE_OF_BIRTH = addColumn("DATE_OF_BIRTH", DataType.DATE, 0, DataMode.Nullable);
+            DEPARTMENT_ID = addColumn("DEPARTMENT_ID", DataType.INTEGER, 0, DataMode.NotNull);
+            GENDER = addColumn("GENDER", DataType.TEXT, 1, DataMode.Nullable);
+            PHONE_NUMBER = addColumn("PHONE_NUMBER", DataType.TEXT, 40, DataMode.Nullable);
+            EMAIL = addColumn("EMAIL", DataType.TEXT, 80, DataMode.Nullable);
+            RETIRED = addColumn("RETIRED", DataType.BOOL, 0, DataMode.NotNull, false);
+            UPDATE_TIMESTAMP = addColumn("UPDATE_TIMESTAMP", DataType.DATETIME, 0, DataMode.NotNull);
+
+            // Primary Key
+            setPrimaryKey(EMPLOYEE_ID);
+            // Set other Indexes
+            addIndex("PERSON_NAME_IDX", true, new DBColumn[] { FIRST_NAME, LAST_NAME, DATE_OF_BIRTH });
+
+            // Set timestamp column for save updates
+            setTimestampColumn(UPDATE_TIMESTAMP);
+
+            // Create Options for GENDER column
+            Options genders = new Options();
+            genders.set("M", "!option.employee.gender.male");
+            genders.set("F", "!option.employee.gender.female");
+            GENDER.setOptions(genders);
+            GENDER.setControlType("select");
+
+            Options retireds = new Options();
+            retireds.set("N", "!option.employee.retired.true");
+            retireds.set("F", "!option.employee.retired.false");
+            RETIRED.setOptions(retireds);
+            RETIRED.setControlType("checkbox");
+            
+            // Set special control types
+            DEPARTMENT_ID.setControlType("select");
+            PHONE_NUMBER.setControlType("phone");
+            
+//            PICTURE.setControlType("blob");
+
+        }
+    }
+
 }

@@ -18,72 +18,94 @@
  */
 package org.apache.empire.jsf2.websample.web.pages;
 
-import javax.faces.bean.ManagedBean;
-import javax.faces.bean.ViewScoped;
+import java.sql.Connection;
 
+import org.apache.empire.jsf2.pageelements.RecordPageElement;
+import org.apache.empire.jsf2.pages.PageOutcome;
 import org.apache.empire.jsf2.websample.db.SampleDB;
 import org.apache.empire.jsf2.websample.db.records.EmployeeRecord;
-import org.apache.empire.jsf2.websample.web.FacesUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-@ManagedBean
-@ViewScoped
-public class EmployeeDetailPage extends Page {
-	// Logger
-	private static final Logger log = LoggerFactory
-			.getLogger(EmployeeDetailPage.class);
+public class EmployeeDetailPage extends SamplePage
+{
+    private static final Logger               log               = LoggerFactory.getLogger(EmployeeDetailPage.class);
+    private static final long                 serialVersionUID  = 1L;
 
-	private EmployeeRecord employeeRecord;
+    private static final String               EMPLOYEE_PROPERTY = "employee";
+    private String                            idParam;
 
-	public EmployeeRecord getEmployeeRecord() {
-		return employeeRecord;
-	}
+    private RecordPageElement<EmployeeRecord> employee;
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 7880544317192692309L;
+    public EmployeeDetailPage()
+    {
+        log.trace("EmployeeDetailPage created");
 
-	public String save() {
-		try {
-			employeeRecord.update(FacesUtils.getConnection());
-		} catch (Exception e) {
-			FacesUtils.addErrorMessage(e.getMessage());
-			return "";
-		}
-		return new EmployeeListPage().name();
-	}
+        SampleDB db = getDatabase();
+        EmployeeRecord emplRec = new EmployeeRecord(db);
+        employee = new RecordPageElement<EmployeeRecord>(this, emplRec.getTable(), emplRec, EMPLOYEE_PROPERTY);
+    }
 
-	public String delete() {
-		try {
-			employeeRecord.delete(FacesUtils.getConnection());
-		} catch (Exception e) {
-			FacesUtils.addErrorMessage(e.getMessage());
-		}
-		return new EmployeeListPage().name();
-	}
+    public String getIdParam()
+    {
+        return this.idParam;
+    }
 
-	public String cancel() {
-		return new EmployeeListPage().name();
-	}
+    public void setIdParam(String idParam)
+    {
+        log.info("EmployeeDetailPage idParam = {}.", idParam);
+        this.idParam = idParam;
+    }
 
-	@Override
-	public void preRenderViewAction() {
-		if (employeeRecord == null) {
-			employeeRecord = new EmployeeRecord();
-			SampleDB sampleDB = FacesUtils.getDatabase();
-			String id = FacesUtils.getHttpRequest().getParameter("id");
-			if (id != null) {
-				try {
-					employeeRecord.read(sampleDB.T_EMPLOYEES,
-							new String[] { id }, FacesUtils.getConnection());
-				} catch (Exception e) {
-					FacesUtils.addErrorMessage(e.getMessage());
-				}
-			} else {
-				employeeRecord.create(sampleDB.T_EMPLOYEES);
-			}
-		}
-	}
+    public RecordPageElement<EmployeeRecord> getEmployee()
+    {
+        return employee;
+    }
+
+    public EmployeeRecord getEmployeeRecord()
+    {
+        return employee.getRecord();
+    }
+
+    @Override
+    public void doInit()
+    { // Notify Elements
+        if (!employee.getRecord().isValid())
+        {
+            employee.reloadRecord();
+        }
+    }
+
+    public void doLoad()
+    {
+        log.info("EmployeeDetailPage Loading entryId {}.", this.idParam);
+        // load the record
+        this.employee.loadRecord(this.idParam);
+    }
+
+    public void doCreate()
+    {
+        Connection conn = getConnection();
+        getEmployeeRecord().create(conn);
+        doRefresh();
+    }
+    
+    public PageOutcome doSave()
+    {
+        Connection conn = getConnection();
+        getEmployeeRecord().update(conn);
+        return getParentOutcome(true);
+    }
+
+    public PageOutcome doDelete()
+    {
+        Connection conn = getConnection();
+        getEmployeeRecord().delete(conn);
+        return getParentOutcome(true);
+    }
+    
+    public PageOutcome doCancel()
+    {
+        return getParentOutcome(true);
+    }
 }

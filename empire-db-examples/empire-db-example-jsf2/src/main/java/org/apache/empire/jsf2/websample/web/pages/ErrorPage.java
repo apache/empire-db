@@ -18,16 +18,11 @@
  */
 package org.apache.empire.jsf2.websample.web.pages;
 
-import java.util.ArrayList;
-import java.util.List;
 
-import javax.faces.bean.ManagedBean;
-import javax.faces.bean.ViewScoped;
-
-@ManagedBean(name = "error")
-@ViewScoped
-public class ErrorPage extends Page
+public class ErrorPage extends SamplePage
 {
+    private static final long serialVersionUID = 1L;
+    
     private boolean showDetails = false;
 
     public boolean isShowDetails()
@@ -45,34 +40,34 @@ public class ErrorPage extends Page
         this.showDetails = !this.showDetails;
     }
 
-    public String getMessage()
-    {
-        if (getSampleSession().getError() != null)
-        {
-            return getSampleSession().getError().getMessage();
-        }
-        return "NULL";
-    }
+//    public String getMessage()
+//    {
+//        if (getSampleSession().getError() != null)
+//        {
+//            return getSampleSession().getError().getMessage();
+//        }
+//        return "NULL";
+//    }
+//
+//    public String getType()
+//    {
+//        if (getSampleSession().getError() != null)
+//        {
+//            return getSampleSession().getError().getClass().getName();
+//        }
+//        return "NULL";
+//    }
 
-    public String getType()
-    {
-        if (getSampleSession().getError() != null)
-        {
-            return getSampleSession().getError().getClass().getName();
-        }
-        return "NULL";
-    }
-
-    public List<String> getTrace()
-    {
-        List<String> trace = new ArrayList<String>();
-        if (getSampleSession().getError() != null && getSampleSession().getError().getStackTrace() != null)
-        {
-            for (StackTraceElement element : getSampleSession().getError().getStackTrace())
-            {
-                trace.add(element.toString());
-            }
-        }
-        return trace;
-    }
+//    public List<String> getTrace()
+//    {
+//        List<String> trace = new ArrayList<String>();
+//        if (getSampleSession().getError() != null && getSampleSession().getError().getStackTrace() != null)
+//        {
+//            for (StackTraceElement element : getSampleSession().getError().getStackTrace())
+//            {
+//                trace.add(element.toString());
+//            }
+//        }
+//        return trace;
+//    }
 }

@@ -1,4 +1,5 @@
 /*
+
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -18,122 +19,234 @@
  */
 package org.apache.empire.jsf2.websample.web.pages;
 
+import java.lang.reflect.InvocationTargetException;
+import java.util.Collection;
 import java.util.Date;
-import java.util.List;
 
-import javax.faces.bean.ManagedBean;
-import javax.faces.bean.ViewScoped;
-
-import org.apache.empire.commons.StringUtils;
+import org.apache.commons.beanutils.PropertyUtils;
+import org.apache.empire.commons.ObjectUtils;
+import org.apache.empire.commons.Options;
+import org.apache.empire.data.DataType;
+import org.apache.empire.db.DBColumn;
 import org.apache.empire.db.DBColumnExpr;
 import org.apache.empire.db.DBCommand;
-import org.apache.empire.db.DBReader;
+import org.apache.empire.exceptions.BeanPropertyGetException;
+import org.apache.empire.jsf2.pageelements.BeanListPageElement;
+import org.apache.empire.jsf2.pageelements.ListPageElement;
 import org.apache.empire.jsf2.websample.db.SampleDB;
-import org.apache.empire.jsf2.websample.web.FacesUtils;
-import org.apache.empire.jsf2.websample.web.objects.EmployeeSearch;
+import org.apache.empire.jsf2.websample.db.SampleDB.TDepartments;
+import org.apache.empire.jsf2.websample.db.SampleDB.TEmployees;
+import org.apache.empire.jsf2.websample.web.SampleUtils;
+import org.apache.empire.jsf2.websample.web.objects.EmployeeSearchFilter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-@ManagedBean
-@ViewScoped
-public class EmployeeListPage extends Page  {
-	private List<EmployeeListItem> employeeList;
+public class EmployeeListPage extends SamplePage
+{
+    private static final long                      serialVersionUID  = 1L;
+    private static final Logger                    log               = LoggerFactory.getLogger(EmployeeListPage.class);
 
-	public List<EmployeeListItem> getEmployeeList() {
-		return employeeList;
-	}
+    
+    public static final String                     EMPLOYEES_PROPERTY = "employees";
+    private BeanListPageElement<EmployeeListEntry> employees;
 
-	public static class EmployeeListItem {
-		private int employeeId;
-		private String name;
-		private String gender;
-		private Date dateOfBirth;
-		private String department;
+    
+    public static class EmployeeListEntry extends ListPageElement.SelectableItem
+    {
+        private static final long serialVersionUID = 1L;
 
-		public int getEmployeeId() {
-			return employeeId;
-		}
+        private int               employeeId;
+        private String            name;
+        private String            gender;
+        private Date              dateOfBirth;
+        private String            department;
+        private String            idParam;
 
-		public void setEmployeeId(int employeeId) {
-			this.employeeId = employeeId;
-		}
+        @Override
+        public String getIdParam()
+        {
+            return this.idParam;
+        }
 
-		public String getName() {
-			return name;
-		}
+        public void setIdParam(String idParam)
+        {
+            this.idParam = idParam;
+        }
 
-		public void setName(String name) {
-			this.name = name;
-		}
+        public int getEmployeeId()
+        {
+            return employeeId;
+        }
 
-		public String getGender() {
-			return gender;
-		}
+        public void setEmployeeId(int employeeId)
+        {
+            this.employeeId = employeeId;
+        }
 
-		public void setGender(String gender) {
-			this.gender = gender;
-		}
+        public String getName()
+        {
+            return name;
+        }
 
-		public Date getDateOfBirth() {
-			return dateOfBirth;
-		}
+        public void setName(String name)
+        {
+            this.name = name;
+        }
 
-		public void setDateOfBirth(Date dateOfBirth) {
-			this.dateOfBirth = dateOfBirth;
-		}
+        public String getGender()
+        {
+            return gender;
+        }
 
-		public String getDepartment() {
-			return department;
-		}
+        public void setGender(String gender)
+        {
+            this.gender = gender;
+        }
 
-		public void setDepartment(String department) {
-			this.department = department;
-		}
-	}
+        public Date getDateOfBirth()
+        {
+            return dateOfBirth;
+        }
 
-	public EmployeeListPage() {
-	}
+        public void setDateOfBirth(Date dateOfBirth)
+        {
+            this.dateOfBirth = dateOfBirth;
+        }
 
-	@Override
-	public void preRenderViewAction() {
-		SampleDB sampleDB = FacesUtils.getDatabase();
+        public String getDepartment()
+        {
+            return department;
+        }
 
-		DBColumnExpr C_FULL_NAME = sampleDB.T_EMPLOYEES.C_LAST_NAME.append(", ")
-				.append(sampleDB.T_EMPLOYEES.C_FIRST_NAME).as("NAME");
-		DBColumnExpr C_DEPARTMENT = sampleDB.T_DEPARTMENTS.C_NAME
-				.as("DEPARTMENT");
-		// lade Liste aus der Datenbank
+        public void setDepartment(String department)
+        {
+            this.department = department;
+        }
 
-		SampleDB.Employees EMP = sampleDB.T_EMPLOYEES;
-		SampleDB.Departments DEP = sampleDB.T_DEPARTMENTS;
+    }
 
-		DBCommand cmd = sampleDB.createCommand();
-		cmd.select(EMP.C_EMPLOYEE_ID);
-		cmd.select(C_FULL_NAME, EMP.C_GENDER, EMP.C_DATE_OF_BIRTH);
-		cmd.select(C_DEPARTMENT);
-		cmd.join(DEP.C_DEPARTMENT_ID, EMP.C_DEPARTMENT_ID);
+    public EmployeeListPage()
+    {
+        EmployeeListPage.log.trace("EmployeeListPage created");
+        TEmployees EMP = getDatabase().T_EMPLOYEES;
+        
+        DBColumn defSortColumn = EMP.EMPLOYEE_ID;
+        employees = new BeanListPageElement<EmployeeListEntry>(this, EmployeeListEntry.class, defSortColumn, EmployeeListPage.EMPLOYEES_PROPERTY);
+    }
 
-		// Set filter constraints
-		EmployeeSearch employeeSearch = (EmployeeSearch) FacesUtils
-				.getManagedBean(EmployeeSearch.class);
-		if (employeeSearch.getDepartmentId() != null)
-			cmd.where(EMP.C_DEPARTMENT_ID.is(employeeSearch.getDepartmentId()));
-		if (StringUtils.isValid(employeeSearch.getFirstName()))
-			cmd.where(EMP.C_FIRST_NAME.likeUpper(
-					employeeSearch.getFirstName() + "%").or(
-					EMP.C_FIRST_NAME.is(null)));
-		if (StringUtils.isValid(employeeSearch.getLastName()))
-			cmd.where(EMP.C_LAST_NAME.likeUpper(employeeSearch.getLastName()
-					+ "%"));
+    
+    public EmployeeSearchFilter getSearchFilter()
+    {
+        return SampleUtils.getManagedBean(EmployeeSearchFilter.class);
+    }
+    
+    public ListPageElement<EmployeeListEntry> getEmployees()
+    {
+        return employees;
+    }
 
-		cmd.orderBy(EMP.C_LAST_NAME);
-		cmd.orderBy(EMP.C_FIRST_NAME);
+    /*** Action Section ***/
 
-		// set DataTable
-		DBReader reader = new DBReader();
-		try {
-			reader.open(cmd, FacesUtils.getConnection());
-			employeeList = reader.getBeanList(EmployeeListItem.class);
-		} finally {
-			reader.close();
-		}
-	}
+    @Override
+    public void doInit()
+    { // Notify Elements
+        super.doInit();
+    }
+    
+    public void doResetSearch()
+    {
+        getSearchFilter().resetFilter();
+        this.employees.clearItems();
+    }
+    
+    public void doSearch()
+    {
+        TDepartments DEP = getDatabase().T_DEPARTMENTS;
+        TEmployees EMP = getDatabase().T_EMPLOYEES;
+
+        DBColumnExpr FULL_NAME = EMP.LAST_NAME.append(", ").append(EMP.FIRST_NAME).as("NAME");
+        DBColumnExpr DEPARTMENT = DEP.NAME.as("DEPARTMENT");
+
+        DBCommand queryCmd = createQueryCommand();
+
+        queryCmd.select(EMP.EMPLOYEE_ID, FULL_NAME);
+        queryCmd.select(EMP.GENDER, EMP.DATE_OF_BIRTH);
+        queryCmd.select(DEPARTMENT);
+
+        queryCmd.join(DEP.DEPARTMENT_ID, EMP.DEPARTMENT_ID);
+        queryCmd.orderBy(EMP.FIRST_NAME);
+        
+        addAllConstraints(queryCmd);
+
+        employees.initItems(queryCmd);
+    }
+
+
+    public Options getDepartmentOptions()
+    {
+    	TDepartments DEP = getDatabase().T_DEPARTMENTS;
+
+    	DBCommand queryCmd = createQueryCommand();
+    	queryCmd.select(DEP.DEPARTMENT_ID,DEP.NAME);
+    	
+    	SampleDB db = getDatabase();
+        return db.queryOptionList(queryCmd.getSelect(), getConnection());
+    }
+    
+    
+    protected void addAllConstraints(DBCommand queryCmd)
+    {
+        TEmployees EMP = getDatabase().T_EMPLOYEES;
+        EmployeeSearchFilter filter = getSearchFilter();
+        
+        addSearchConstraint(queryCmd, EMP.EMPLOYEE_ID, filter);
+        addSearchConstraint(queryCmd, EMP.FIRST_NAME, filter);
+        addSearchConstraint(queryCmd, EMP.LAST_NAME, filter);
+        addSearchConstraint(queryCmd, EMP.GENDER, filter);
+        addSearchConstraint(queryCmd, EMP.DEPARTMENT_ID, filter);
+    }
+    
+    private void addSearchConstraint(DBCommand cmd, DBColumn col, Object bean)
+    {
+        Object value;
+        try
+        {
+            value = PropertyUtils.getProperty(bean, col.getBeanPropertyName());
+            if (ObjectUtils.isEmpty(value))
+                return;
+            // is it an array
+            if (value instanceof Collection || value.getClass().isArray())
+            {
+                cmd.where(col.in(value));
+                return;
+            }
+            // text
+            if (col.getOptions() == null && col.getDataType().equals(DataType.TEXT))
+            {
+                StringBuilder b = new StringBuilder();
+                b.append("%");
+                b.append(((String) value).toUpperCase());
+                b.append("%");
+                cmd.where(col.upper().like(b.toString()));
+                return;
+            }
+            // value
+            cmd.where(col.is(value));
+            return;
+        }
+        catch (IllegalAccessException e)
+        {
+            throw new BeanPropertyGetException(bean, col.getBeanPropertyName(), e);
+        }
+        catch (InvocationTargetException e)
+        {
+            throw new BeanPropertyGetException(bean, col.getBeanPropertyName(), e);
+        }
+        catch (NoSuchMethodException e)
+        {
+            throw new BeanPropertyGetException(bean, col.getBeanPropertyName(), e);
+        }
+    }
+
+    
 }

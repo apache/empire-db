@@ -15,40 +15,40 @@
 		License.
 	-->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-	<modelVersion>4.0.0</modelVersion>
 	<parent>
-		<groupId>org.apache.empire-db</groupId>
 		<artifactId>empire-db-examples</artifactId>
+		<groupId>org.apache.empire-db</groupId>
 		<version>2.3.1-SNAPSHOT</version>
 	</parent>
+	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.apache.empire-db</groupId>
 	<artifactId>empire-db-example-jsf2</artifactId>
-	<packaging>war</packaging>
 	<name>Apache Empire-db JSF2 Example</name>
-	<description>Examples showing the use of empire-db.</description>
+	<description>Examples showing the use of empire-db-jsf.</description>
+
 	<dependencies>
+
 		<dependency>
 			<groupId>org.apache.empire-db</groupId>
 			<artifactId>empire-db</artifactId>
 		</dependency>
+
+		<!-- java server faces -->
 		<dependency>
 			<groupId>javax.servlet</groupId>
 			<artifactId>servlet-api</artifactId>
-			<scope>provided</scope>
 		</dependency>
 		<dependency>
-			<groupId>javax.servlet.jsp</groupId>
-			<artifactId>jsp-api</artifactId>
-			<scope>provided</scope>
+			<groupId>com.sun.faces</groupId>
+			<artifactId>jsf-api</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>hsqldb</groupId>
-			<artifactId>hsqldb</artifactId>
+			<groupId>com.sun.faces</groupId>
+			<artifactId>jsf-impl</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>javax.portlet</groupId>
-			<artifactId>portlet-api</artifactId>
-			<scope>runtime</scope>
+			<groupId>org.apache.empire-db</groupId>
+			<artifactId>empire-db-jsf2</artifactId>
 		</dependency>
 
 		<!-- myfaces -->
@@ -59,33 +59,31 @@
 			<type>jar</type>
 			<scope>provided</scope>
 		</dependency>
+
+        <!-- use log4j for logging -->
 		<dependency>
-			<groupId>org.apache.myfaces.core</groupId>
-			<artifactId>myfaces-api</artifactId>
-			<version>2.0.4</version>
-			<scope>compile</scope>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-log4j12</artifactId>
 		</dependency>
+
 		<dependency>
-			<groupId>org.apache.myfaces.core</groupId>
-			<artifactId>myfaces-impl</artifactId>
-			<version>2.0.4</version>
-			<scope>compile</scope>
+			<groupId>hsqldb</groupId>
+			<artifactId>hsqldb</artifactId>
 		</dependency>
+
 	</dependencies>
+	
 	<build>
 		<plugins>
-			<!-- WTP-Eclipse-Projekt -->
+			<!-- WTP-Eclipse-Projekt --> 
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-eclipse-plugin</artifactId>
+				<artifactId>maven-eclipse-plugin</artifactId> 
 				<configuration>
-					<m2eclipse>true</m2eclipse>
+					<m2eclipse>true</m2eclipse> 
 					<downloadSources>true</downloadSources>
-					<wtpversion>2.0</wtpversion>
-					<additionalProjectFacets>
-						<jst.jsf>2.0</jst.jsf>
-					</additionalProjectFacets>
-				</configuration>
+					<wtpversion>1.5</wtpversion> 
+				</configuration> 
 			</plugin>
 			<!-- Sysdeo Tomcat Eclipse -->
 			<plugin>
@@ -96,23 +94,8 @@
 					<webPath>empire-db-example-jsf2</webPath>
 				</configuration>
 			</plugin>
-			<!-- Jetty -->
-			<plugin>
-				<groupId>org.mortbay.jetty</groupId>
-				<artifactId>maven-jetty-plugin</artifactId>
-				<version>6.1.26</version>
-				<configuration>
-					<scanIntervalSeconds>10</scanIntervalSeconds>
-					<stopKey>foo</stopKey>
-					<stopPort>9999</stopPort>
-				</configuration>
-				<executions>
-					<!-- <execution> <id>start-jetty</id> <phase>pre-integration-test</phase> 
-						<goals> <goal>run</goal> </goals> <configuration> <scanIntervalSeconds>0</scanIntervalSeconds> 
-						<daemon>true</daemon> </configuration> </execution> <execution> <id>stop-jetty</id> 
-						<phase>post-integration-test</phase> <goals> <goal>stop</goal> </goals> </execution> -->
-				</executions>
-			</plugin>
 		</plugins>
 	</build>
+	
 </project>
+

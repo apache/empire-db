@@ -21,24 +21,29 @@
 	xmlns="http://www.w3.org/1999/xhtml"
 	xmlns:ui="http://java.sun.com/jsf/facelets"
 	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:e="http://java.sun.com/jsf/composite/empire"
 	xmlns:h="http://java.sun.com/jsf/html">
+	<f:metadata>
+		<f:viewParam name="action" value="#{page.action}" />
+	</f:metadata>
 
 	<!-- parameters used in layout.xhtml -->
-	<ui:param name="page" value="#{loginPage}" />
 	<ui:param name="pageTitle" value="#{msg.login_title}" />
 	<ui:param name="contentFooter" value="true" />
 	<ui:param name="contentStyle" value="unstyled" />
 
 	<!-- content -->
 	<ui:define name="content">
-		<h:form id="login">
+		<h:form id="login" method="post">
 			<h:panelGrid id="panel" columns="2" border="0">
 				<h:outputLabel for="name" value="#{msg.login_field_name}" />
-				<h:inputText id="name" value="#{user.name}" />
+				<h:inputText id="name" value="#{sampleUser.userName}" required="true"/>
 				<h:outputLabel for="name" value="#{msg.login_field_password}" />
-				<h:inputSecret id="password" value="#{user.password}" />
-				<h:commandButton value="#{msg.login_login}" action="#{loginPage.login}" />
+				<h:inputSecret id="password" value="#{sampleUser.password}" required="true" />
+				
+				<h:commandLink styleClass="butStnd" action="#{page.doLogin}" value="#{msg.login_title}" />
 			</h:panelGrid>
 		</h:form>
 	</ui:define>
+	
 </ui:composition>
