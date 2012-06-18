@@ -35,12 +35,14 @@ public abstract class PageDefinitions
     private static LinkedHashMap<String,PageDefinition> pageMap = new LinkedHashMap<String,PageDefinition>();
     
     private static PageDefinitions instance = null;
-    
-    public static PageDefinitions getInstance()
+
+	public static PageDefinitions getInstance()
     {
         return instance;
     }
-
+    
+    protected String pageUriExtension = null; // ".jsf";  
+	
     protected PageDefinitions()
     {
         if (instance!=null) 
@@ -51,6 +53,11 @@ public abstract class PageDefinitions
         instance = this;
         log.info("PageDefintions class created");
     }
+    
+    public String getPageUriExtension() 
+    {
+		return pageUriExtension;
+	}
     
     /**
      * Register page beans with the BeanManager
@@ -113,8 +120,11 @@ public abstract class PageDefinitions
         // Empty-String == default page
         if (StringUtils.isEmpty(viewId))
             return getDefaultPage();
+        // remove extension
+        int ext = viewId.lastIndexOf('.');
+        if (ext>0)
+        	viewId = viewId.substring(0,ext);
         // find in map
-        viewId = viewId.replace(".iface", ".xhtml");
         PageDefinition view = pageMap.get(viewId);
         if (view==null)
             log.error("No page defintion for viewId {}", viewId);
@@ -129,11 +139,16 @@ public abstract class PageDefinitions
     protected static void registerPage(PageDefinition pageDef)
     {
         String name = pageDef.getPath();
+        int ext = name.lastIndexOf('.');
+        if (ext>0)
+        	name = name.substring(0,ext);
+        // Check Name
         if (pageMap.containsKey(name))
         {
             throw new RuntimeException("Page of name "+name+" already defined!");
         }
         log.info("Registering view '{}'.", name);
+        // Register Name
         pageMap.put(name, pageDef);
     }
 }

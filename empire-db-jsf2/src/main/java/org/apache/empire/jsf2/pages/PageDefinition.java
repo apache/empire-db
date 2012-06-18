@@ -81,9 +81,9 @@ public class PageDefinition
         this.path = path;
         this.pageBeanClass = pageBeanClass;
         // beanName 
-        int lastSlash = path.lastIndexOf("/");
+        int lastSlash = path.lastIndexOf('/');
         String name = path.substring(lastSlash + 1);
-        this.pageBeanName = name.replace(".xhtml", "Page");
+        pageBeanName = name.replace(".xhtml", "Page");
         // add this view
         PageDefinitions.registerPage(this);
     }
@@ -118,7 +118,11 @@ public class PageDefinition
     
     public PageOutcome getOutcome()
     {
-        return new PageOutcome(path.replace(".xhtml", ".iface"));
+    	String uri = path;
+    	String extension = PageDefinitions.getInstance().getPageUriExtension();
+    	if (extension!=null)
+    		uri = path.replace(".xhtml", extension);
+        return new PageOutcome(uri);
     }
     
     public PageOutcome getOutcome(String action)

@@ -43,8 +43,8 @@ public final class InputControlManager
         registerControl(new TextInputControl());
         registerControl(new SelectInputControl());
         registerControl(new TextAreaInputControl());
+        registerControl(new CheckboxInputControl());
         /*
-        registerControl("checkbox", new CheckboxInputControl());
         registerControl("phone",    new PhoneInputControl());
         registerControl("radio",    new RadioInputControl());
         registerControl("email",    new EMailInputControl());
