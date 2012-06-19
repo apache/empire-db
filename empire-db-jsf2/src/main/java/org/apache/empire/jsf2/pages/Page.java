@@ -36,6 +36,7 @@ import org.apache.empire.db.DBRowSet;
 import org.apache.empire.exceptions.ItemNotFoundException;
 import org.apache.empire.jsf2.app.FacesApplication;
 import org.apache.empire.jsf2.app.FacesUtils;
+import org.apache.empire.jsf2.app.TextResolver;
 import org.apache.empire.jsf2.utils.ParameterMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -396,5 +397,13 @@ public abstract class Page implements Serializable
             for (PageElement pe : pageElements)
                 pe.onRefreshPage();
         }
+    }
+    
+    /* Helpers */
+    
+    protected final TextResolver getTextResolver()
+    {
+        FacesContext fc = FacesUtils.getContext();
+        return FacesUtils.getFacesApplication().getTextResolver(fc);
     }
 }

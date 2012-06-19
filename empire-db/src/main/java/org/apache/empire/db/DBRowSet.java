@@ -817,11 +817,11 @@ public abstract class DBRowSet extends DBExpr
         } 
         else if (affected == 0)
         { // Record not found
-            throw new RecordUpdateFailedException(this, getRecordKey(rec));
+            throw new RecordUpdateInvalidException(this, getRecordKey(rec));
         } 
         else if (affected > 1)
         { // Multiple Records affected
-            throw new RecordUpdateInvalidException(this, getRecordKey(rec));
+            throw new RecordUpdateFailedException(this, getRecordKey(rec));
         }
         // Correct Timestamp
         if (timestampColumn != null)
