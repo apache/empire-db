@@ -17,8 +17,9 @@
  * under the License.
  */
 html, body  {
+	width: 800px;
     margin-left: 10px;
-    margin-right: 10px;
+    margin-right: auto;
     margin-bottom: 5px;
     color: black;
     background-color: white;
@@ -39,49 +40,33 @@ h1 { font-weight:bold; color: brown; font-size:15px; text-align:left;}
 
 td { font-size:12px; padding-right:10px; }
 th { text-align:left; font-weight:bold; font-size:13px; padding-right:10px; }
-.tdLabel { font-weight: bold; white-space:nowrap; vertical-align:top;}
 
 A:link { text-decoration:none;}
 A:visited { text-decoration:none;}
 A:hover { text-decoration:underline;}
 
-
-.buttonRow{
-    padding: 5px 10px;
-}
-
-.borderAll {
-    border: 1px solid #000000;
-    padding: 2px;
-    width: 540px;
-}
-.searchResult {
-	padding: 5px 10px;
-	width: 540px;
-	text-align:center;
-}
-
-.butStnd {
-    font-family: ARIAL, SANS-SERIF;
-    font-size:11px;
-    font-weight:bold;
-    padding: 2px;
-    color:#000000;
-    border:1px solid #DCDFFA;
-}
-
-.error {
-    color: red;
-    font-weight: bold;
-}
-.errorSection {
-    padding-left:18px;
-    padding-top:2px;
-    padding-bottom:10px;
-    padding-right:5px;
-}
-
 .even { background-color: #EFEFFB; 	text-align:left;}
 .odd { background-color:  #FFFFFF; 	text-align:left; }
 
 .nowrap { white-space:nowrap; }
+
+
+#messages ul {
+    background-color: #FBF0F0;
+    border:2px solid #8F99EF;
+	list-style-type: square;
+	padding: 8px;
+	padding-left: 24px;
+}
+#messages ul li {
+	padding: 4px 0;
+/*
+	padding-left:18px;
+    padding-top:2px;
+    padding-bottom:10px;
+    padding-right:5px;
+*/    
+	color: #922727;
+    font-weight: bold;
+}
+

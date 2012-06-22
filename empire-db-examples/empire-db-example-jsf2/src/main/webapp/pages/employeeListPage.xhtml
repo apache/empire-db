@@ -34,37 +34,38 @@
 	<!-- content -->
 	<ui:define name="content">
 		<h:form id="employeeListFilter">
-			<h:panelGrid styleClass="borderAll" >
+			<sample:formPanel>
 				<!-- search settings -->
-				<h:panelGrid id="panel" columns="2" border="0">
-					<e:control column="#{db.EMPLOYEES.FIRST_NAME}"	    value="#{page.searchFilter.firstName}" />
-					<e:control column="#{db.EMPLOYEES.LAST_NAME}" 	    value="#{page.searchFilter.lastName}" />
-					<e:control column="#{db.EMPLOYEES.DEPARTMENT_ID}"	value="#{page.searchFilter.departmentId}"
+				<sample:formPanelRow>
+					<e:control column="#{db.EMPLOYEES.FIRST_NAME}" value="#{page.searchFilter.firstName}" />
+					<e:control column="#{db.EMPLOYEES.LAST_NAME}" value="#{page.searchFilter.lastName}" />
+				</sample:formPanelRow>
+				<sample:formPanelRow>
+					<e:control column="#{db.EMPLOYEES.DEPARTMENT_ID}" value="#{page.searchFilter.departmentId}"
 						       options="#{page.departmentOptions}" />
-					<e:control column="#{db.EMPLOYEES.GENDER}" 			value="#{page.searchFilter.gender}" />
-				</h:panelGrid>
-				<!-- button bar -->
-				<h:panelGrid columns="3" styleClass="buttonRow">
-					<h:commandLink styleClass="butStnd" action="#{page.doResetSearch}"              value="#{msg.employeeList_resetSearch}" />
-					<h:commandLink styleClass="butStnd" action="#{page.doSearch}" 	                value="#{msg.employeeList_search}" />
-					<e:link        styleClass="butStnd" page="#{pages.EmployeeDetailPage.doCreate}" value="#{msg.employeeList_create}" />
-				</h:panelGrid>
-			</h:panelGrid>
+					<e:control column="#{db.EMPLOYEES.GENDER}" value="#{page.searchFilter.gender}" />
+				</sample:formPanelRow>
+				<sample:formButtonRow>
+					<h:commandLink action="#{page.doResetSearch}" value="#{msg.employeeList_resetSearch}" />
+					<h:commandLink action="#{page.doSearch}" value="#{msg.employeeList_search}" />
+				</sample:formButtonRow>
+			</sample:formPanel>
 		</h:form>
 
 		<h:form id="employeeList">
-			<h:panelGroup rendered="#{page.employees.resultEmpty}" styleClass="searchResult">
+			<h:panelGroup rendered="#{page.employees.resultEmpty}" styleClass="searchResult" layout="block">
 				<h:outputText value="#{msg.global_list_result_empty}" />
 			</h:panelGroup>
-			<h:panelGroup rendered="#{page.employees.valid}" styleClass="searchResult">
+			<!-- list -->
+			<h:panelGroup styleClass="searchResult" layout="block" rendered="#{page.employees.valid}">
 				<h:dataTable id="employeeTable" value="#{page.employees.items}" var="item" rowClasses="odd,even">
 					<h:column>
 						<f:facet name="header">
-							<e:title column="#{db.EMPLOYEES.EMPLOYEE_ID}" />
+							<e:title column="#{db.EMPLOYEES.EMPLOYEE_ID}" value="ID" />
 						</f:facet>
 						<e:value record="#{item}" column="#{db.EMPLOYEES.EMPLOYEE_ID}"/>
 					</h:column>
-					<h:column>
+					<h:column styleClass="item">
 						<f:facet name="header">
 							<h:outputText value="#{msg.employeeList_field_name}" />
 						</f:facet>
@@ -92,8 +93,10 @@
 			</h:panelGroup>
 		</h:form>
 		
-		<h:panelGroup styleClass="buttonBar">
-			<e:link page="#{pages.LoginPage.doLogout}" styleClass="butStnd" value="#{msg.application_logout}"/>
+		<!-- button bar -->
+		<h:panelGroup styleClass="buttonBar" layout="block">
+			<e:link page="#{pages.LoginPage.doLogout}" value="#{msg.application_logout}"/>
+			<e:link page="#{pages.EmployeeDetailPage.doCreate}" value="#{msg.employeeList_create}" />
 		</h:panelGroup>
 		
 	</ui:define>

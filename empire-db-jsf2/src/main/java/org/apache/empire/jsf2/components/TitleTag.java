@@ -77,7 +77,7 @@ public class TitleTag extends UIOutput implements NamingContainer
     /* Helpers */
     protected void renderTitle(Column column, ResponseWriter writer) throws IOException
     {
-        String title=null;
+        String title=StringUtils.toString(getValue());
         // Check for short form    
         if (helper.hasFormat("short"))
         {

@@ -62,17 +62,15 @@
 		<ui:include src="header.xhtml" />
 
 		<!-- (error) messages -->
-		<h:messages />
+		<h:panelGroup id="messages" layout="block">
+			<h:messages />
+		</h:panelGroup>
 
 		<!-- content -->
-		<h:panelGroup id="content" styleClass="#{contentStyle}">
+		<h:panelGroup id="content" layout="block">
 			<ui:insert name="content" />
 		</h:panelGroup>
 
-		<!-- content footer -->
-		<h:panelGroup id="contentFooter" rendered="#{contentFooter}">
-			<ui:insert name="contentFooter" />
-		</h:panelGroup>
 	</f:view>
 </h:body>
 </html>

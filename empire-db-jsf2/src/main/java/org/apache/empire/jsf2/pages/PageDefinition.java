@@ -18,6 +18,8 @@
  */
 package org.apache.empire.jsf2.pages;
 
+import java.io.Serializable;
+
 import org.apache.empire.commons.StringUtils;
 import org.apache.empire.jsf2.app.FacesUtils;
 import org.apache.empire.jsf2.utils.ParameterMap;
@@ -25,16 +27,20 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
-public class PageDefinition
+public class PageDefinition implements Serializable
 {
-    private static final Logger log = LoggerFactory.getLogger(PageDefinitions.class);
+	private static final long serialVersionUID = 1L;
+
+	private static final Logger log = LoggerFactory.getLogger(PageDefinitions.class);
 
     private static final String ACTION_PARAMETER_TYPE = "ACTION";
     
-    private String path;
-    private String pageBeanName;
-    private Class<? extends Page> pageBeanClass;
-    private PageDefinition parent = null;
+    private final String path;
+    private final String fileExtension;
+
+	private final String pageBeanName;
+    private final Class<? extends Page> pageBeanClass;
+    private final PageDefinition parent;
 
     /*
     private static Hashtable<String, String> actionCodeMap = new Hashtable<String, String>();
@@ -76,28 +82,81 @@ public class PageDefinition
         return action;
     }
     
-    public PageDefinition(String path, Class<? extends Page> pageBeanClass)
+    /**
+     * Constructs a page definition
+     * @param path	the path of the view associated with this page
+     * @param pageBeanClass the page bean class associated with this page
+     * @param parent the parent page (if any). May be null
+     * @param pageBeanName the page bean name. If null this will be calculated from the path
+     */
+    public PageDefinition(String path, Class<? extends Page> pageBeanClass, PageDefinition parent, String pageBeanName)
     { 
         this.path = path;
         this.pageBeanClass = pageBeanClass;
-        // beanName 
-        int lastSlash = path.lastIndexOf('/');
-        String name = path.substring(lastSlash + 1);
-        pageBeanName = name.replace(".xhtml", "Page");
+        this.parent = parent;
+        // extension
+        int ext = path.lastIndexOf('.');
+        fileExtension = (ext>0) ? path.substring(ext) : null;
+        // beanName
+        if (pageBeanName==null) 
+        	this.pageBeanName = getPageBeanNameFromPath(path, fileExtension);
+        else
+        	this.pageBeanName = pageBeanName;
         // add this view
         PageDefinitions.registerPage(this);
     }
-    
-    public PageDefinition(String path, Class<? extends Page> pageClass, PageDefinition parent)
+
+    /**
+     * Constructs a page definition
+     * @param path	the path of the view associated with this page
+     * @param pageBeanClass the page bean class associated with this page
+     * @param pageBeanName the page bean name. If null this will be calculated from the path
+     */
+    public PageDefinition(String path, Class<? extends Page> pageBeanClass, String pageBeanName)
     {
-        this(path, pageClass);
-        this.parent = parent;
+        this(path, pageBeanClass, null, pageBeanName);
+    }
+
+    /**
+     * Constructs a page definition
+     * @param path	the path of the view associated with this page
+     * @param pageBeanClass the page bean class associated with this page
+     * @param parent the parent page (if any). May be null
+     */
+    public PageDefinition(String path, Class<? extends Page> pageBeanClass, PageDefinition parent)
+    {
+        this(path, pageBeanClass, parent, null);
+    }
+
+    /**
+     * Constructs a page definition
+     * @param path	the path of the view associated with this page
+     * @param pageBeanClass the page bean class associated with this page
+     */
+    public PageDefinition(String path, Class<? extends Page> pageBeanClass)
+    {
+        this(path, pageBeanClass, null, null);
+    }
+    
+    protected String getPageBeanNameFromPath(String path, String extension)
+    {
+        // beanName 
+        int lastSlash = path.lastIndexOf('/');
+        String name = path.substring(lastSlash + 1);
+        if (extension!=null)
+        	name = name.substring(0,(name.length()-extension.length()));
+        return name;
     }
     
     public String getPath()
     {
         return path;
     }
+
+    public String getFileExtension() 
+    {
+		return fileExtension;
+	}
     
     public String getPageBeanName()
     {
@@ -118,10 +177,7 @@ public class PageDefinition
     
     public PageOutcome getOutcome()
     {
-    	String uri = path;
-    	String extension = PageDefinitions.getInstance().getPageUriExtension();
-    	if (extension!=null)
-    		uri = path.replace(".xhtml", extension);
+    	String uri = PageDefinitions.getInstance().getPageUri(this);
         return new PageOutcome(uri);
     }
     

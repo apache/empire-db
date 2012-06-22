@@ -15,17 +15,23 @@
   KIND, either express or implied.  See the License for the
   specific language governing permissions and limitations
   under the License.
- --> 
-<h:panelGroup id="header" xmlns="http://www.w3.org/1999/xhtml"
+ -->
+<html xmlns="http://www.w3.org/1999/xhtml"
 	xmlns:h="http://java.sun.com/jsf/html"
-	xmlns:f="http://java.sun.com/jsf/core">
+	xmlns:ice="http://www.icesoft.com/icefaces/component"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+  	xmlns:cc="http://java.sun.com/jsf/composite">
 
-	<!-- application title -->
-	<h:panelGroup layout="block" styleClass="titleDiv">
-		<h:outputText value="#{msg.application_title}" />	
-	</h:panelGroup>
-		
-	<!-- page box -->
-	<h1><h:outputText value="#{pageTitle}" /></h1>
-
-</h:panelGroup>
+	<!-- Interface -->
+	<cc:interface>
+		<cc:attribute name="columns" default="1" />
+	</cc:interface>
+	
+	<!-- Implementation -->
+	<cc:implementation>
+		<h:panelGroup styleClass="buttonBar" layout="block">
+			<cc:insertChildren />
+		</h:panelGroup>
+	</cc:implementation>
+	
+</html>

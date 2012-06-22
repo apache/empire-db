@@ -21,6 +21,7 @@
 	xmlns:ui="http://java.sun.com/jsf/facelets"
 	xmlns:f="http://java.sun.com/jsf/core"
 	xmlns:e="http://java.sun.com/jsf/composite/empire"
+	xmlns:sample="http://java.sun.com/jsf/composite/components"
 	xmlns:h="http://java.sun.com/jsf/html">
 	<f:metadata>
 		<f:viewParam name="action" value="#{page.action}" />
@@ -34,30 +35,27 @@
 	<!-- content -->
 	<ui:define name="content">
 			<e:record value="#{page.employeeRecord}">
+			<!-- input form -->
+			
 			<h:form id="employeeDetail">
-				<h:panelGrid >
-					<h:panelGrid id="panel" border="0"  >
-						<e:control column="#{db.EMPLOYEES.SALUTATION}" />
-						<e:control column="#{db.EMPLOYEES.FIRST_NAME}" />
-						<e:control column="#{db.EMPLOYEES.LAST_NAME}" />
-						<e:control column="#{db.EMPLOYEES.DATE_OF_BIRTH}" />
-						<e:control column="#{db.EMPLOYEES.DEPARTMENT_ID}" />
-						<e:control column="#{db.EMPLOYEES.GENDER}"   /> 
-						<e:control column="#{db.EMPLOYEES.PHONE_NUMBER}" />
-						<e:control column="#{db.EMPLOYEES.EMAIL}" />
-						<e:control column="#{db.EMPLOYEES.RETIRED}" />
-						<e:control column="#{db.EMPLOYEES.UPDATE_TIMESTAMP}" readonly="true" rendered="#{page.idParam != null}" /> 
-					</h:panelGrid>
-					<h:panelGrid columns="4" styleClass="buttonRow">
-						<h:commandLink styleClass="butStnd" value="#{msg.employeeDetail_back}"
-								action="#{page.doCancel}" immediate="true" />
-						<h:commandLink styleClass="butStnd" value="#{msg.employeeDetail_save}"
-								action="#{page.doSave}" />
-						<h:commandLink styleClass="butStnd" value="#{msg.employeeDetail_delete}"
-								action="#{page.doDelete}" immediate="true" rendered="#{page.idParam != null}" />
-						<h:outputLink value="pages/loginPage.iface?logout=true" styleClass="butStnd">#{msg.application_logout}</h:outputLink>
-					</h:panelGrid>
-				</h:panelGrid>
+				<sample:formPanel>
+					<tr><e:control column="#{db.EMPLOYEES.SALUTATION}" /></tr>
+					<tr><e:control column="#{db.EMPLOYEES.FIRST_NAME}" /></tr>
+					<tr><e:control column="#{db.EMPLOYEES.LAST_NAME}" /></tr>
+					<tr><e:control column="#{db.EMPLOYEES.DATE_OF_BIRTH}" /></tr>
+					<tr><e:control column="#{db.EMPLOYEES.DEPARTMENT_ID}" /></tr>
+					<tr><e:control column="#{db.EMPLOYEES.GENDER}"   /> </tr>
+					<tr><e:control column="#{db.EMPLOYEES.PHONE_NUMBER}" /></tr>
+					<tr><e:control column="#{db.EMPLOYEES.EMAIL}" /></tr>
+					<tr><e:control column="#{db.EMPLOYEES.RETIRED}" /></tr>
+					<tr><e:control column="#{db.EMPLOYEES.UPDATE_TIMESTAMP}" readonly="true" rendered="#{page.idParam != null}" /></tr> 
+				</sample:formPanel>
+				<!-- button bar -->
+				<h:panelGroup styleClass="buttonBar" layout="block">
+					<h:commandLink value="#{msg.employeeDetail_back}" action="#{page.doCancel}" immediate="true" />
+					<h:commandLink value="#{msg.employeeDetail_delete}" action="#{page.doDelete}" immediate="true" rendered="#{page.idParam != null}" />
+					<h:commandLink value="#{msg.employeeDetail_save}" action="#{page.doSave}" />
+				</h:panelGroup>
 			</h:form>
 		
 		</e:record>

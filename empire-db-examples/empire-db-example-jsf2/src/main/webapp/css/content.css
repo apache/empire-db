@@ -16,33 +16,67 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+ 
+form {
+}
 
-.sampleForm {
-	color: #000000;
-	border: 1px #E4E4E5 solid;
+div.formPanel {
+	border: 1px #8F99EF solid;
 	background-color: #F8F8F8;
-	padding: 7px 7px;
-	width: 784px;
+	padding: 8px 4px;
 }
-
-a.sampleButton,
-a.sampleButton:visited 
-{
-	display: inline-block;
-	border: 1px #A8ADB3 solid;
-	margin: 0 12px 0 0;
-	padding: 3px;
-	background-color: white;
-	color: #000000;
+table.inputForm {
+	width: 100%;
+}
+table.inputForm td.eCtlLabel {
 	font-weight: bold; 
+	white-space:nowrap; 
+	vertical-align:top;
+	width: 140px;
+}
+table.inputForm td.buttonBar {
+	padding-top: 8px;
+}
+
+div.buttonBar {
+	margin: 12px 0;
+}
+
+.buttonBar a,
+.buttonBar a:visited {
+	display: inline-block;
+	border: 1px gray solid;
+	padding: 4px 12px;
+	color: black;
 	text-decoration: none;
+	margin-right: 16px;
+	background-color: white;
+}
+.buttonBar a:hover {
+	background-color: #EFFBEF;
 }
 
-<!--[if gt IE 7]><!-->
-a.sampleButton,
-a.sampleButton:visited 
-{
-	display: inline !important;
+div.searchResult,
+span.searchResult {
+	display: block;
+	margin: 12px 0;
+	padding: 4px 0;
 }
-<!--<![endif]-->
-
+.searchResult table {
+	width: 100%;
+	border: 1px gray solid;
+	border-collapse: collapse;
+}
+.searchResult table tr th,
+.searchResult table tr td {
+	padding: 4px;
+}
+.searchResult table tr th {
+	background-color: #EFFBEF;
+	border-bottom: 1px gray solid;
+}
+.searchResult table a.eLink,
+.searchResult table a.eLink:visited {
+	color: brown;
+	font-weight: bold;
+}

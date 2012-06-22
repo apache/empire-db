@@ -18,6 +18,7 @@
  */
 package org.apache.empire.jsf2.pages;
 
+import java.io.Serializable;
 import java.util.LinkedHashMap;
 
 import org.apache.empire.commons.StringUtils;
@@ -28,9 +29,11 @@ import com.sun.faces.mgbean.BeanManager;
 import com.sun.faces.mgbean.ManagedBeanInfo;
 
 
-public abstract class PageDefinitions
+public abstract class PageDefinitions implements Serializable
 {
-    private static final Logger log = LoggerFactory.getLogger(PageDefinitions.class);
+	private static final long serialVersionUID = 1L;
+
+	private static final Logger log = LoggerFactory.getLogger(PageDefinitions.class);
 
     private static LinkedHashMap<String,PageDefinition> pageMap = new LinkedHashMap<String,PageDefinition>();
     
@@ -41,9 +44,9 @@ public abstract class PageDefinitions
         return instance;
     }
     
-    protected String pageUriExtension = null; // ".jsf";  
+    protected String pageUriExtension;  
 	
-    protected PageDefinitions()
+    protected PageDefinitions(String pageUriExtension)
     {
         if (instance!=null) 
         {
@@ -51,13 +54,15 @@ public abstract class PageDefinitions
         }
         // init
         instance = this;
+        // set extension
+        this.pageUriExtension = pageUriExtension;
         log.info("PageDefintions class created");
     }
-    
-    public String getPageUriExtension() 
+
+    protected PageDefinitions()
     {
-		return pageUriExtension;
-	}
+    	this(null);
+    }
     
     /**
      * Register page beans with the BeanManager
@@ -87,6 +92,29 @@ public abstract class PageDefinitions
             ManagedBeanInfo mbi = new ManagedBeanInfo(beanName, beanClass, "view", null, null, null, null);
             bm.register(mbi);
         }
+    }
+    
+    /**
+     * returns the page uri extension
+     * @return
+     */
+    public String getPageUriExtension() 
+    {
+		return pageUriExtension;
+	}
+
+    /**
+     * returns the page uri (without contextRoot!) for given page definition
+     * @param pageDef the page definition
+     * @return the page uri
+     */
+    public String getPageUri(PageDefinition pageDef)
+    {
+    	String uri = pageDef.getPath();
+    	String fileExt = pageDef.getFileExtension();
+    	if (pageUriExtension!=null && fileExt!=null)
+    		uri = uri.replace(fileExt, pageUriExtension);
+        return uri;
     }
     
     /**

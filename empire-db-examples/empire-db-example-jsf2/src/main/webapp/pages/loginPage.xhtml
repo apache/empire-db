@@ -22,6 +22,7 @@
 	xmlns:ui="http://java.sun.com/jsf/facelets"
 	xmlns:f="http://java.sun.com/jsf/core"
 	xmlns:e="http://java.sun.com/jsf/composite/empire"
+	xmlns:sample="http://java.sun.com/jsf/composite/components"
 	xmlns:h="http://java.sun.com/jsf/html">
 	<f:metadata>
 		<f:viewParam name="action" value="#{page.action}" />
@@ -34,15 +35,21 @@
 
 	<!-- content -->
 	<ui:define name="content">
-		<h:form id="login" method="post">
-			<h:panelGrid id="panel" columns="2" border="0">
-				<h:outputLabel for="name" value="#{msg.login_field_name}" />
-				<h:inputText id="name" value="#{sampleUser.userName}" required="true"/>
-				<h:outputLabel for="name" value="#{msg.login_field_password}" />
-				<h:inputSecret id="password" value="#{sampleUser.password}" required="true" />
-				
-				<h:commandLink styleClass="butStnd" action="#{page.doLogin}" value="#{msg.login_title}" />
-			</h:panelGrid>
+		<h:form id="loginForm" method="post">
+			<p><h:outputText value="#{msg.login_hint}"/></p>
+			<!-- input form -->
+			<sample:formPanel>
+				<sample:formInputRow for="name" label="#{msg.login_field_name}">
+					<h:inputText id="name" value="#{sampleUser.userName}" required="true"/>
+				</sample:formInputRow>
+				<sample:formInputRow for="password" label="#{msg.login_field_password}">
+					<h:inputSecret id="password" value="#{sampleUser.password}" required="true" />
+				</sample:formInputRow>
+				<!-- button bar -->
+				<sample:formButtonRow>
+					<h:commandLink action="#{page.doLogin}" value="#{msg.login_title}" />
+				</sample:formButtonRow>
+			</sample:formPanel>
 		</h:form>
 	</ui:define>
 	
