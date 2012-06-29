@@ -140,6 +140,25 @@ public class DBRelation extends DBObject
     {
         return references;
     }
+    
+    /**
+     * Returns the table that is containing the foreign key (source table) 
+     * @return true if the relation's source table is the given table 
+     */
+    public DBTable getForeignKeyTable()
+    {
+        return (DBTable)references[0].getSourceColumn().getRowSet();
+    }
+
+    /**
+     * Returns the table that is referenced by this foreign key relation (target table)
+     * @return true if the relation's target table 
+     */
+    public DBTable getReferencedTable()
+    {
+        return (DBTable)references[0].getTargetColumn().getRowSet();
+    }
+    
 
     @Override
     public DBDatabase getDatabase()
@@ -191,6 +210,34 @@ public class DBRelation extends DBObject
     public void onDeleteCascadeRecords()
     {
         setOnDeleteAction(DBCascadeAction.CASCADE_RECORDS);
+    }
+    
+    @Override
+    public String toString()
+    {
+        StringBuilder b = new StringBuilder();
+        b.append("\"");
+        b.append(this.getForeignKeyTable().getName());
+        b.append("\" CONSTRAINT \"");
+        b.append(this.name);
+        b.append("\" FOREIGN KEY (");
+        for (int i=0; i<references.length; i++)
+        {
+            b.append((i>0) ? ", \"" : "\"");
+            b.append(references[i].getSourceColumn().getName());
+            b.append("\"");
+        }
+        b.append(") REFERENCES \"");
+        b.append(this.getReferencedTable().getName());
+        b.append("\" (");
+        for (int i=0; i<references.length; i++)
+        {
+            b.append((i>0) ? ", \"" : "\"");
+            b.append(references[i].getTargetColumn().getName());
+            b.append("\"");
+        }
+        b.append(")");
+        return b.toString();
     }
 
 }

@@ -509,5 +509,20 @@ public class DBTable extends DBRowSet implements Cloneable
             throw new RecordUpdateInvalidException(this, key);
         }
     }
+    
+    /**
+     * Returns a list of all foreign key relations for this table
+     * @return the list of foreign key relations
+     */
+    public List<DBRelation> getForeignKeyRelations()
+    {
+        List<DBRelation> relations = new ArrayList<DBRelation>();
+        for (DBRelation r : getDatabase().getRelations())
+        {   // check relation
+            if (this.equals(r.getForeignKeyTable()))
+                relations.add(r);
+        }
+        return relations;
+    }
 
 }
