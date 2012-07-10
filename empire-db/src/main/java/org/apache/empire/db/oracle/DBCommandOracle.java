@@ -22,6 +22,7 @@ package org.apache.empire.db.oracle;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.apache.empire.commons.StringUtils;
 import org.apache.empire.db.DBColumn;
 import org.apache.empire.db.DBColumnExpr;
 import org.apache.empire.db.DBCommand;
@@ -145,9 +146,8 @@ public class DBCommandOracle extends DBCommand
             throw new ObjectNotValidException(this);
         // Prepares statement
         buf.append("SELECT ");
-        if (optimizerHint != null)
-        {
-            // Append an optimizer hint to the select statement e.g. SELECT /*+ RULE */
+        if (StringUtils.isNotEmpty(optimizerHint))
+        {   // Append an optimizer hint to the select statement e.g. SELECT /*+ RULE */
             buf.append("/*+ ").append(optimizerHint).append(" */ ");
         }
         if (selectDistinct)
@@ -193,7 +193,42 @@ public class DBCommandOracle extends DBCommand
     {
         // No Joins: Use Default
         if (joins==null || set==null)
-            return super.getUpdate();
+            return getSimpleUpdate();
+        else
+            return getUpdateWithJoins();
+    }
+
+    protected String getSimpleUpdate()
+    {
+        resetParamUsage();
+        if (set == null)
+            return null;
+        StringBuilder buf = new StringBuilder("UPDATE ");
+        DBRowSet table =  set.get(0).getTable();
+        long context = CTX_FULLNAME;
+        // Optimizer Hint
+        if (StringUtils.isNotEmpty(optimizerHint))
+        {   // Append an optimizer hint to the select statement e.g. SELECT /*+ RULE */
+            buf.append("/*+ ").append(optimizerHint).append(" */ ");
+            // Append alias (if necessary)
+            if (optimizerHint.contains(table.getAlias()))
+                context |= CTX_ALIAS;
+        }
+        // table
+        table.addSQL(buf, context);
+        // Simple Statement
+        context = CTX_NAME | CTX_VALUE;
+        // Set Expressions
+        buf.append("\r\nSET ");
+        addListExpr(buf, set, context, ", ");
+        // Add Where
+        addWhere(buf, context);
+        // done
+        return buf.toString();
+    }
+    
+    protected String getUpdateWithJoins()
+    {
         // Generate Merge expression
         resetParamUsage();
         StringBuilder buf = new StringBuilder("MERGE INTO ");
