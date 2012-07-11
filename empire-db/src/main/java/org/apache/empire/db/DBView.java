@@ -193,13 +193,13 @@ public abstract class DBView extends DBRowSet
     public DBView(String name, DBDatabase db, boolean isUpdateable)
     { // Set the column expressions
         super(db);
-        // Add View to Database
-        if (db != null && name != null)
-            db.addView(this);
         // Set Name and Alias
         this.name = name;
         this.alias = "v" + String.valueOf(viewCount.incrementAndGet());
         this.updateable = isUpdateable;
+        // Add View to Database
+        if (db != null && name != null)
+            db.addView(this);
     }
 
     /**
