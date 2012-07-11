@@ -268,6 +268,20 @@ public abstract class DBDDLGenerator<T extends DBDatabaseDriver>
                     throw new NotImplementedException(this, "getDDLScript." + dbo.getClass().getName() + "." + type);
             }
         } 
+        else if (dbo instanceof DBIndex)
+        { // Relation
+            switch (type)
+            {
+                case CREATE:
+                    createIndex(((DBIndex) dbo).getTable(), (DBIndex) dbo, script);
+                    return;
+                case DROP:
+                    dropObject(((DBIndex) dbo).getName(), "INDEX", script);
+                    return;
+                default:
+                    throw new NotImplementedException(this, "getDDLScript." + dbo.getClass().getName() + "." + type);
+            }
+        } 
         else if (dbo instanceof DBTableColumn)
         { // Table Column
             alterTable((DBTableColumn) dbo, type, script);
@@ -386,7 +400,6 @@ public abstract class DBDDLGenerator<T extends DBDatabaseDriver>
      */
     protected void createTableIndexes(DBTable t, DBIndex pk, DBSQLScript script)
     {
-        StringBuilder sql = new StringBuilder();
         // Create other Indexes (except primary key)
         Iterator<DBIndex> indexes = t.getIndexes().iterator();
         while (indexes.hasNext())
@@ -396,27 +409,40 @@ public abstract class DBDDLGenerator<T extends DBDatabaseDriver>
                 continue;
 
             // Create Index
-            sql.setLength(0);
-            sql.append((idx.getType() == DBIndex.UNIQUE) ? "CREATE UNIQUE INDEX " : "CREATE INDEX ");
-            appendElementName(sql, idx.getName());
-            sql.append(" ON ");
-            t.addSQL(sql, DBExpr.CTX_FULLNAME);
-            sql.append(" (");
-
-            // columns
-            boolean addSeparator = false;
-            DBExpr[] idxColumns = idx.getExpressions();
-            for (int i = 0; i < idxColumns.length; i++)
-            {
-                sql.append((addSeparator) ? ", " : "");
-                idxColumns[i].addSQL(sql, DBExpr.CTX_NAME);
-                sql.append("");
-                addSeparator = true;
-            }
-            sql.append(")");
-            // Create Index
-            addCreateIndexStmt(idx, sql, script);
+            createIndex(t, idx, script);
         }
+    }
+
+    /**
+     * Appends the DDL-Script for creating a single index to an SQL-Script 
+     * @param t the table
+     * @param index the index to create
+     * @param script the sql script to which to append the dll command(s)
+     */
+    protected void createIndex(DBTable t, DBIndex idx, DBSQLScript script)
+    {
+        StringBuilder sql = new StringBuilder();
+
+        // Create Index
+        sql.append((idx.getType() == DBIndex.UNIQUE) ? "CREATE UNIQUE INDEX " : "CREATE INDEX ");
+        appendElementName(sql, idx.getName());
+        sql.append(" ON ");
+        t.addSQL(sql, DBExpr.CTX_FULLNAME);
+        sql.append(" (");
+
+        // columns
+        boolean addSeparator = false;
+        DBExpr[] idxColumns = idx.getExpressions();
+        for (int i = 0; i < idxColumns.length; i++)
+        {
+            sql.append((addSeparator) ? ", " : "");
+            idxColumns[i].addSQL(sql, DBExpr.CTX_NAME);
+            sql.append("");
+            addSeparator = true;
+        }
+        sql.append(")");
+        // Create Index
+        addCreateIndexStmt(idx, sql, script);
     }
     
     /**
