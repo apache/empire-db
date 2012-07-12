@@ -1146,7 +1146,10 @@ public abstract class DBDatabase extends DBObject
     {
         checkOpen();
         try 
-        {   // Debug
+        {   // Check argument
+            if (conn==null)
+                throw new InvalidArgumentException("conn", conn);
+            // Debug
             if (log.isInfoEnabled())
                 log.info("Executing: " + sqlCmd);
             // execute SQL
@@ -1200,7 +1203,10 @@ public abstract class DBDatabase extends DBObject
     {
         checkOpen();
         try
-        {   // Debug
+        {   // Check argument
+            if (conn==null)
+                throw new InvalidArgumentException("conn", conn);
+            // Debug
             if (log.isDebugEnabled())
     	        log.debug("Executing: " + sqlCmd);
             // Execute the Statement
