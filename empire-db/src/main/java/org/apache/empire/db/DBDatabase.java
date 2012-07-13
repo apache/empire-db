@@ -1196,14 +1196,13 @@ public abstract class DBDatabase extends DBObject
     public final List<Object[]> queryObjectList(String sqlCmd, Connection conn)
     {   // Execute the  Statement
         List<Object[]> result = new ArrayList<Object[]>();
-        if (queryObjectList(sqlCmd, null, conn, result, -1)<0)
-            return null; // No result
+        queryObjectList(sqlCmd, null, conn, result, -1);
         return result;
     }
 
     /**
      * Returns all values of the first row of a sql-query as an array.
-     * If the query does not return a result null is returned
+     * If the query does not return a result a QueryNoResultException is thrown
      * 
      * @param sqlCmd the SQL-Command
      * @param sqlParams list of query parameter values
@@ -1214,13 +1213,15 @@ public abstract class DBDatabase extends DBObject
     public Object[] querySingleRow(String sqlCmd, Object[] sqlParams, Connection conn)
     {
         List<Object[]> result = new ArrayList<Object[]>();
-        if (queryObjectList(sqlCmd, sqlParams, conn, result, 1)<0 || result.size()<1)
-            return null; // No result
+        queryObjectList(sqlCmd, sqlParams, conn, result, 1);
+        if (result.size()<1)
+            throw new QueryNoResultException(sqlCmd);
         return result.get(0);
     }
     
     /**
      * Returns all values of the first row of a sql-query as an array.
+     * If the query does not return a result a QueryNoResultException is thrown
      * 
      * @param sqlCmd the SQL-Command
      * @param conn a valid connection to the database.
