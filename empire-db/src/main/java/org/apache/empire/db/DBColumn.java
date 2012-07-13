@@ -198,7 +198,7 @@ public abstract class DBColumn extends DBColumnExpr
             if (rowset.equals(c.getRowSet())==false)
                 return false;
             // check for equal names
-            return name.equalsIgnoreCase(c.getName());
+            return StringUtils.compareEqual(name, c.getName(), true);
         }
         return false;
     }

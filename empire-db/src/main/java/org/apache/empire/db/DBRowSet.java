@@ -193,7 +193,7 @@ public abstract class DBRowSet extends DBExpr
             if (db.equals(r.getDatabase())==false)
                 return false;
             // check for equal names
-            return getName().equalsIgnoreCase(r.getName());
+            return StringUtils.compareEqual(getName(), r.getName(), true);
         }
         return false;
     }
