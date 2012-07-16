@@ -37,6 +37,8 @@ public class OracleDDLGenerator extends DBDDLGenerator<DBDatabaseDriverOracle>
         super(driver);
         // Alter Column Phrase
         alterColumnPhrase  = " MODIFY ";
+        // Name Primary Keys
+        namePrimaryKeyConstraint = true;
         // set Oracle specific data types
         initDataTypes(driver);
     }
