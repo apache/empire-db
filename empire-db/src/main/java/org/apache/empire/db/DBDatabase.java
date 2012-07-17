@@ -82,6 +82,9 @@ public abstract class DBDatabase extends DBObject
         }
     }
     
+    // Threshold for long running queries in milliseconds
+    protected long longRunndingStmtThreshold = 30000;
+    
     // Database specific date
     public static final DBSystemDate SYSDATE  = new DBSystemDate();
     
@@ -758,7 +761,7 @@ public abstract class DBDatabase extends DBObject
         {   // Debug
             long start = System.currentTimeMillis();
             if (log.isDebugEnabled())
-                log.debug("executing: " + sqlCmd);
+                log.debug("Executing: " + sqlCmd);
             // Get the next Value
             rs = driver.executeQuery(sqlCmd, sqlParams, false, conn);
             if (rs == null)
@@ -769,10 +772,15 @@ public abstract class DBDatabase extends DBObject
                 log.debug("querySingleValue returned no result");
                 throw new QueryNoResultException(sqlCmd);
             }
-            // No Value
+            // Read value
             Object result = driver.getResultValue(rs, 1, dataType);
+            // Debug
+            long queryTime = (System.currentTimeMillis() - start);
             if (log.isDebugEnabled())
-	            log.debug("querySingleValue complete in " + (System.currentTimeMillis() - start) + " ms -> value=" + result);
+                log.debug("querySingleValue successful in {} ms. Result value={}.", queryTime, result);
+            else if (queryTime>=longRunndingStmtThreshold)
+                log.warn("Long running query took {} seconds for statement {}.", queryTime / 1000, sqlCmd);
+            // done
             return result;
         } catch (SQLException sqle) 
         {   // Error
@@ -971,7 +979,7 @@ public abstract class DBDatabase extends DBObject
         {   // Log performance
             long start = System.currentTimeMillis();
             if (log.isDebugEnabled())
-                log.debug("executing: " + sqlCmd);
+                log.debug("Executing: " + sqlCmd);
             // Get the next Value
             rs = driver.executeQuery(sqlCmd, sqlParams, false, conn);
             if (rs == null)
@@ -984,9 +992,13 @@ public abstract class DBDatabase extends DBObject
                 result.add(item);
                 count++;
             }
-            // No Value
+            // Debug
+            long queryTime = (System.currentTimeMillis() - start);
             if (log.isDebugEnabled())
-                log.debug("querySimpleList retured " + count + " items. Query completed in " + (System.currentTimeMillis() - start) + " ms");
+                log.debug("querySimpleList retured {} items in {} ms.", count, queryTime);
+            else if (queryTime>=longRunndingStmtThreshold)
+                log.warn("Long running query took {} seconds for statement {}.", queryTime / 1000, sqlCmd);
+            // done
             return count;
         } catch (ClassCastException e) 
         {   log.error("querySingleValue cast exception: ", e);
@@ -1064,7 +1076,7 @@ public abstract class DBDatabase extends DBObject
         {   // Debug
             long start = System.currentTimeMillis();
             if (log.isDebugEnabled())
-                log.debug("executing: " + sqlCmd);
+                log.debug("Executing: " + sqlCmd);
             // Get the next Value
             rs = driver.executeQuery(sqlCmd, sqlParams, false, conn);
             if (rs == null)
@@ -1080,9 +1092,13 @@ public abstract class DBDatabase extends DBObject
                 result.add(value, text, true);
                 count++;
             }
-            // No Value
+            // Debug
+            long queryTime = (System.currentTimeMillis() - start);
             if (log.isDebugEnabled())
-                log.debug("queryOptionList retured " + count + " items. Query completed in " + (System.currentTimeMillis() - start) + " ms");
+                log.debug("queryOptionList retured {} items in {} ms.", count, queryTime);
+            else if (queryTime>=longRunndingStmtThreshold)
+                log.warn("Long running query took {} seconds for statement {}.", queryTime / 1000, sqlCmd);
+            // done
             return count;
         } catch (SQLException sqle) 
         {   // Error
@@ -1139,7 +1155,7 @@ public abstract class DBDatabase extends DBObject
         {   // Log performance
             long start = System.currentTimeMillis();
             if (log.isDebugEnabled())
-                log.debug("executing: " + sqlCmd);
+                log.debug("Executing: " + sqlCmd);
             // Get the next Value
             rs = driver.executeQuery(sqlCmd, sqlParams, false, conn);
             if (rs == null)
@@ -1157,9 +1173,13 @@ public abstract class DBDatabase extends DBObject
                 result.add(item);
                 count++;
             }
-            // done
+            // Debug
+            long queryTime = (System.currentTimeMillis() - start);
             if (log.isDebugEnabled())
-                log.debug("queryObjectList retured " + count + " items. Query completed in " + (System.currentTimeMillis() - start) + " ms");
+                log.debug("queryObjectList retured {} items in {} ms.", count, queryTime);
+            else if (queryTime>=longRunndingStmtThreshold)
+                log.warn("Long running query took {} seconds for statement {}.", queryTime / 1000, sqlCmd);
+            // done
             return count;
         } catch (SQLException sqle) 
         {   // Error
@@ -1260,8 +1280,11 @@ public abstract class DBDatabase extends DBObject
             if (affected < 0)
                 throw new UnexpectedReturnValueException(affected, "driver.executeSQL()");
             // Log
+            long execTime = (System.currentTimeMillis() - start);
             if (log.isInfoEnabled())
-	            log.info("executeSQL affected " + affected + " Records / " + (System.currentTimeMillis() - start) + "ms");
+	            log.info("executeSQL affected {} Records in {} ms ", affected, execTime);
+            else if (execTime>=longRunndingStmtThreshold)
+                log.warn("Long running query took {} seconds for statement {}.", execTime / 1000, sqlCmd);
             // Return number of affected records
             return affected;
             
@@ -1316,8 +1339,11 @@ public abstract class DBDatabase extends DBObject
             if (rs == null)
                 throw new UnexpectedReturnValueException(rs, "driver.executeQuery()");
             // Debug
+            long queryTime = (System.currentTimeMillis() - start);
             if (log.isDebugEnabled())
-                log.debug("executeQuery successful in " + (System.currentTimeMillis() - start) + " ms");
+                log.debug("executeQuery successful in {} ms", queryTime);
+            else if (queryTime>=longRunndingStmtThreshold)
+                log.warn("Long running query took {} seconds for statement {}.", queryTime / 1000, sqlCmd);
             // Return number of affected records
             return rs;
 
