@@ -296,6 +296,8 @@ public class DBTable extends DBRowSet implements Cloneable
                 throw new InvalidArgumentException("columns["+String.valueOf(i)+"]", columns[i].getFullName());
         // Set primary Key now
         primaryKey = new DBIndex(name + "_PK", DBIndex.PRIMARYKEY, columns);
+        indexes.add(primaryKey);
+        primaryKey.setTable(this);
     }
 
     /**
