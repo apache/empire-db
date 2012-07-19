@@ -53,6 +53,18 @@ public class SelectInputControl extends InputControl
         this(javax.faces.component.html.HtmlSelectOneMenu.class);
     }
     
+    /* for SelectTag (when no column is available) */
+    public HtmlSelectOneMenu createMenuComponent(UIComponent parent)
+    {
+        try {
+            return inputComponentClass.newInstance();
+        } catch (InstantiationException e1) {
+            throw new InternalException(e1);
+        } catch (IllegalAccessException e2) {
+            throw new InternalException(e2);
+        }
+    }
+    
     @Override
     protected void createInputComponents(UIComponent parent, InputInfo ii, FacesContext context, List<UIComponent> compList)
     {

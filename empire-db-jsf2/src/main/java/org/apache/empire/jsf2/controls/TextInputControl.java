@@ -48,6 +48,9 @@ public class TextInputControl extends InputControl
 
     public static final String FORMAT_UNIT = "unit:";
     public static final String FORMAT_UNIT_ATTRIBUTE = "format:unit";
+
+    public static final String DATE_FORMAT = "date-format:";
+    public static final String DATE_FORMAT_ATTRIBUTE = "format:date";
     
     private Class<? extends javax.faces.component.html.HtmlInputText> inputComponentClass;
     
@@ -211,7 +214,7 @@ public class TextInputControl extends InputControl
             if (dataType== DataType.DATETIME && hasFormatOption(vi, "notime"))
                 dataType = DataType.DATE;
             // Now format the date according to the user's locale
-            DateFormat df = getDateFormat(dataType, vi.getLocale(), column);
+            DateFormat df = getDateFormat(dataType, vi, column);
             return df.format(value);
         }
         /*
@@ -380,13 +383,24 @@ public class TextInputControl extends InputControl
         return nf; 
     }
     
-    protected DateFormat getDateFormat(DataType dataType, Locale locale, Column column)
+    protected DateFormat getDateFormat(DataType dataType, ValueInfo vi, Column column)
     {
+        int type = DateFormat.MEDIUM;
+        // Is unit supplied as a format option
+        String format = getFormatString(vi, DATE_FORMAT, DATE_FORMAT_ATTRIBUTE);
+        if (format!=null)
+        {   // format has been provided
+            if (StringUtils.compareEqual(format, "short", true))
+               type=DateFormat.SHORT; 
+            else if (StringUtils.compareEqual(format, "long", true))
+               type=DateFormat.LONG; 
+        }
+        // return date formatter
         DateFormat df;
         if (dataType==DataType.DATE)
-            df = DateFormat.getDateInstance(DateFormat.MEDIUM, locale);
+            df = DateFormat.getDateInstance(type, vi.getLocale());
         else
-            df = DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.MEDIUM, locale);
+            df = DateFormat.getDateTimeInstance(type, type, vi.getLocale());
         return df;
     }
 

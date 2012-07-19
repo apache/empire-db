@@ -34,6 +34,8 @@ import org.apache.empire.commons.Options;
 import org.apache.empire.commons.StringUtils;
 import org.apache.empire.jsf2.app.FacesUtils;
 import org.apache.empire.jsf2.app.TextResolver;
+import org.apache.empire.jsf2.controls.InputControlManager;
+import org.apache.empire.jsf2.controls.SelectInputControl;
 import org.apache.empire.jsf2.utils.TagEncodingHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -148,8 +150,8 @@ public class SelectTag extends UIInput implements NamingContainer
 
     private UIInput createSelectOneMenu(TextResolver textResolver)
     {
-
-        HtmlSelectOneMenu input = new HtmlSelectOneMenu();
+        SelectInputControl control = (SelectInputControl)InputControlManager.getControl(SelectInputControl.NAME);
+        HtmlSelectOneMenu input = control.createMenuComponent(this);
         // css style
         String userStyle = StringUtils.toString(getAttributes().get("styleClass"));
         String cssStyle  = TagEncodingHelper.getTagStyleClass("eSelect", null, null, userStyle);
