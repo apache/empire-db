@@ -23,14 +23,14 @@
 	<!-- Interface -->
 	<cc:interface>
 		<cc:attribute name="label" />
-		<cc:attribute name="for" />
+		<cc:attribute name="for" targets="outputLabel"/>
 	</cc:interface>
 	
 	<!-- Implementation -->
 	<cc:implementation>
 		<tr class="formButtonRow">
 			<td class="eCtlLabel">
-				<h:outputLabel for="#{cc.attrs.for}" value="#{cc.attrs.label}" />:
+				<h:outputLabel id="outputLabel" value="#{cc.attrs.label}" />:
 			</td>
 			<td class="eCtlInput">
 				<cc:insertChildren/>
