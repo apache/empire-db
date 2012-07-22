@@ -9,6 +9,24 @@ For more Information about a particular issue please visit
 https://issues.apache.org/jira/browse/EMPIREDB
 
 --------------
+Release 2.3.1:
+--------------
+** New Feature
+	* [EMPIREDB-140] - New Empire-db JSF extensions project (empire-db-jsf2) allows simplified web development with JFS 2.x implementations. An example project is also provided.
+
+** Improvement
+	* [EMPIREDB-149] - Simplified access to foreign key relations (see DBTable.getForeignKeyRelations())
+	* [EMPIREDB-145] - Allow using DBQuery with UNION and INTERSECT commands
+	* [EMPIREDB-144] - Allow generation of update commands with join expressions  
+	* [EMPIREDB-143] - Provide access to native error message for SQL exceptions
+	* [EMPIREDB-142] - Allow compare expressions to be wrapped with parenthesis
+	* [EMPIREDB-138] - Optimized serialization by making database and rowset references transient
+	* [EMPIREDB-138] - Optimized serialization by making database and rowset references transient
+
+** Bugfix
+	* [EMPIREDB-146] - Blob data type is not working with postgresql under v2.3
+
+--------------
 Release 2.3.0:
 --------------
 ** New Feature
