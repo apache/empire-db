@@ -21,10 +21,11 @@ Release 2.3.1:
 	* [EMPIREDB-143] - Provide access to native error message for SQL exceptions
 	* [EMPIREDB-142] - Allow compare expressions to be wrapped with parenthesis
 	* [EMPIREDB-138] - Optimized serialization by making database and rowset references transient
-	* [EMPIREDB-138] - Optimized serialization by making database and rowset references transient
+	* [EMPIREDB-141] - Miscellaneous small improvements
 
 ** Bugfix
 	* [EMPIREDB-146] - Blob data type is not working with postgresql under v2.3
+	* [EMPIREDB-147] - BLOB datatype under empire 2.3.1-SNAPSHOT
 
 --------------
 Release 2.3.0:
