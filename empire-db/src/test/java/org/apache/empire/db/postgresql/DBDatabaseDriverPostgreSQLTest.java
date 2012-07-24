@@ -19,18 +19,23 @@
 package org.apache.empire.db.postgresql;
 
 import java.sql.Connection;
+import java.sql.SQLException;
 
 import org.apache.empire.DBResource;
 import org.apache.empire.DBResource.DB;
 import org.apache.empire.db.CompanyDB;
 import org.apache.empire.db.DBCommand;
 import org.apache.empire.db.DBDatabaseDriver;
+import org.apache.empire.db.DBReader;
+import org.apache.empire.db.DBRecord;
 import org.apache.empire.db.DBSQLScript;
 import org.apache.empire.db.exceptions.QueryFailedException;
+import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 
+// Ignored as the db is not available everywhere
 @Ignore
 public class DBDatabaseDriverPostgreSQLTest 
 {
@@ -39,14 +44,14 @@ public class DBDatabaseDriverPostgreSQLTest
 	public DBResource dbResource = new DBResource(DB.POSTGRESQL);
 
 	@Test
-	public void testBlob() 
+	public void testBlobDDL() throws SQLException 
 	{
 		Connection conn = dbResource.getConnection();
 
 		DBDatabaseDriver driver = dbResource.newDriver();
 		CompanyDB db = new CompanyDB();
 
-		// Encoding issue occur when prepared statement is disabled
+		// Encoding issue occurs when prepared statement is disabled
 		//db.setPreparedStatementsEnabled(true);
 
 		db.open(driver, dbResource.getConnection());
@@ -57,6 +62,38 @@ public class DBDatabaseDriverPostgreSQLTest
 			System.out.println(script.toString());
 			script.run(db.getDriver(), dbResource.getConnection(), false);
 		}
+		
+		conn.close();
+	}
+	
+	@Test
+	public void testBlobWritingReading() throws SQLException 
+	{
+		Connection conn = dbResource.getConnection();
+
+		DBDatabaseDriver driver = dbResource.newDriver();
+		CompanyDB db = new CompanyDB();
+
+		// Encoding issue occurs when prepared statement is disabled
+		//db.setPreparedStatementsEnabled(true);
+
+		db.open(driver, dbResource.getConnection());
+		
+		DBRecord emp = new DBRecord();
+        emp.create(db.DATA);
+        emp.setValue(db.DATA.DATA, new byte[]{1,2,3});
+        emp.update(conn);
+		
+		// read a value
+		DBCommand cmd = db.createCommand();
+		cmd.select(db.DATA.DATA);
+		DBReader reader = new DBReader();
+		reader.open(cmd, conn);
+		while(reader.moveNext()){
+			byte[] value = (byte[]) reader.getValue(db.DATA.DATA);
+			Assert.assertArrayEquals(new byte[]{1,2,3}, value);
+		}
+		conn.close();
 	}
 	
 	/**

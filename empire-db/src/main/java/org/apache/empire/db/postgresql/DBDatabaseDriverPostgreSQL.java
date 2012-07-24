@@ -452,18 +452,19 @@ public class DBDatabaseDriverPostgreSQL extends DBDatabaseDriver
     }
     
     /**
-     * Postgre needs special handling for CLOBs
+     * Postgre needs special handling for CLOBs and BLOB's
      */
     @Override
     public Object getResultValue(ResultSet rset, int columnIndex, DataType dataType)
         throws SQLException
     {
-        if (dataType == DataType.CLOB)
-        {
-            return rset.getString(columnIndex);
-        }
-        // default handling
-        return super.getResultValue(rset, columnIndex, dataType);
+    	switch(dataType)
+    	{
+    		case BLOB: return rset.getBytes(columnIndex);
+    		case CLOB:	return rset.getString(columnIndex);
+    		default:   return super.getResultValue(rset, columnIndex, dataType);
+    	}
     }
+
     
 }
