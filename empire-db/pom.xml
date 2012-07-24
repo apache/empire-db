@@ -22,7 +22,6 @@
 		<groupId>org.apache.empire-db</groupId>
 		<version>2.3.1-SNAPSHOT</version>
 	</parent>
-	<groupId>org.apache.empire-db</groupId>
 	<artifactId>empire-db</artifactId>
 	<packaging>jar</packaging>
 	<name>Apache Empire-db Core</name>

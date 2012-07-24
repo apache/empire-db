@@ -21,7 +21,6 @@
 		<artifactId>empire-db-examples</artifactId>
 		<version>2.3.1-SNAPSHOT</version>
 	</parent>
-	<groupId>org.apache.empire-db</groupId>
 	<artifactId>empire-db-example-basic</artifactId>
 	<name>Apache Empire-db Basic Example</name>
 	<description>Examples showing the use of empire-db.</description>
@@ -50,13 +49,11 @@
 		<dependency>
 		    <groupId>com.h2database</groupId>
 		    <artifactId>h2</artifactId>
-		    <version>1.1.107</version>
 		    <!-- <scope>runtime</scope> -->
 		</dependency> 
 		<dependency>
 		    <groupId>org.apache.derby</groupId>
 		    <artifactId>derby</artifactId>
-		    <version>10.4.2.0</version>
 		    <!-- <scope>runtime</scope> -->
 		</dependency> 
 		<dependency>

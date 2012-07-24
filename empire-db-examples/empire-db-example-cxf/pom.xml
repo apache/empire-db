@@ -21,7 +21,6 @@
 		<version>2.3.1-SNAPSHOT</version>
 	</parent>
 	<modelVersion>4.0.0</modelVersion>
-	<groupId>org.apache.empire-db</groupId>
 	<artifactId>empire-db-example-cxf</artifactId>
 	<name>Apache Empire-db CXF Example</name>
 	<description>Example showing the use of empire-db wrapped in a webservice</description>

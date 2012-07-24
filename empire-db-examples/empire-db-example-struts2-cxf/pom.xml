@@ -24,7 +24,6 @@
 		<version>2.3.1-SNAPSHOT</version>
 	</parent>
 	<modelVersion>4.0.0</modelVersion>
-	<groupId>org.apache.empire-db</groupId>
 	<artifactId>empire-db-example-struts2-cxf</artifactId>
 	<packaging>war</packaging>
 	<name>Apache Empire-db Struts2/CXF Example</name>
