@@ -20,10 +20,12 @@ Release 2.3.1:
 	* [EMPIREDB-144] - Allow generation of update commands with join expressions  
 	* [EMPIREDB-143] - Provide access to native error message for SQL exceptions
 	* [EMPIREDB-142] - Allow compare expressions to be wrapped with parenthesis
-	* [EMPIREDB-138] - Optimized serialization by making database and rowset references transient
 	* [EMPIREDB-141] - Miscellaneous small improvements
+	* [EMPIREDB-138] - Optimized serialization by making database and rowset references transient
 
 ** Bugfix
+	* [EMPIREDB-151] - DBDatabaseDriverHSQL fails on selection of NEXT VALUE
+	* [EMPIREDB-150] - <sample:formInputRow> component failed to parse/resolve the "for" attribute 
 	* [EMPIREDB-146] - Blob data type is not working with postgresql under v2.3
 	* [EMPIREDB-147] - BLOB datatype under empire 2.3.1-SNAPSHOT
 
