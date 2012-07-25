@@ -374,9 +374,7 @@ public abstract class DBDatabaseDriver implements Serializable
         {   // Use a numeric sequence
             if (isSupported(DBDriverFeature.SEQUENCES)==false)
                 return null; // Create Later
-            // Detect the Sequence Name
-            Object defValue= column.getDefaultValue();
-            String SeqName = (defValue != null) ? defValue.toString() : this.toString();
+            String SeqName = column.getSequenceName();
             return db.getNextSequenceValue(SeqName, conn);
         }
         else if (type== DataType.UNIQUEID)

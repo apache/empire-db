@@ -123,8 +123,7 @@ public class OracleDDLGenerator extends DBDDLGenerator<DBDatabaseDriverOracle>
      */
     protected void createSequence(DBDatabase db, DBTableColumn c, DBSQLScript script)
     {
-        Object defValue = c.getDefaultValue();
-        String seqName = (defValue != null) ? defValue.toString() : c.toString();
+        String seqName = c.getSequenceName();
         // createSQL
         StringBuilder sql = new StringBuilder();
         sql.append("-- creating sequence for column ");

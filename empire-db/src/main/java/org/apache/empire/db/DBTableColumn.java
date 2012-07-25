@@ -439,4 +439,31 @@ public class DBTableColumn extends DBColumn
         // done
         return elem;
     }
+    
+    /**
+     * Gets the sequence name for this table's sequence (if it has one)
+     * This is derived form the default value or auto generated if no default value is set
+     * @return the sequence name
+     */
+	public String getSequenceName()
+	{
+		String seqName;
+		Object defValue = getDefaultValue();
+		if(defValue != null)
+		{
+			seqName = defValue.toString();
+		}
+		else
+		{
+			if (rowset != null) 
+			{
+				seqName = rowset.getName() + "." + name;
+			} 
+			else 
+			{
+				seqName = name;
+			}
+		}
+		return seqName;
+	}
 }
