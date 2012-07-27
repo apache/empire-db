@@ -81,7 +81,11 @@ public class DBCommandOracle extends DBCommand
         // Set Index Hint
         String tableAlias = index.getTable().getAlias();
         String indexName  = index.getName();
-        this.optimizerHint = "INDEX ("+tableAlias+" "+indexName+")";
+        String indexHint  = "INDEX ("+tableAlias+" "+indexName+")";
+        if (StringUtils.isNotEmpty(this.optimizerHint) && this.optimizerHint.indexOf(indexHint)<0)
+            this.optimizerHint = this.optimizerHint + " " + indexHint;
+        else
+            this.optimizerHint = indexHint;
     }
 
     /**
