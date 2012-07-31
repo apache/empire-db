@@ -500,7 +500,7 @@
 					<executions>
 						<execution>
 							<id>check-api</id>
-							<phase>test</phase>
+							<phase>integration-test</phase>
 							<goals>
 								<goal>check</goal>
 							</goals>
