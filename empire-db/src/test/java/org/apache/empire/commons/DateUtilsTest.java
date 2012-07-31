@@ -44,9 +44,9 @@ public class DateUtilsTest
 		Date date = DateUtils.getDateTimeFromNow(false, 1, 2, 3);
 		Calendar future = Calendar.getInstance();
 		future.setTime(date);
-		future.add(Calendar.DAY_OF_MONTH, -3);
-		future.add(Calendar.MONTH, -2);
 		future.add(Calendar.YEAR, -1);
+		future.add(Calendar.MONTH, -2);
+		future.add(Calendar.DAY_OF_MONTH, -3);
 
 		// this might fail when running exacly over midnight...
 		assertEquals(now.get(Calendar.YEAR), future.get(Calendar.YEAR));
