@@ -35,6 +35,7 @@
 				<include>empire-assembly-all.xml</include>
 				<include>empire-db/**</include>
 				<include>empire-db-struts2/**</include>
+				<include>empire-db-jsf2/**</include>
 				<include>empire-db-examples/**</include>
 				<include>empire-db-maven-plugin/**</include>
 				<include>empire-db-codegen/**</include>
@@ -70,21 +71,7 @@
 				<include>tutorial.pdf</include>
 			</includes>
 		</fileSet>
-	</fileSets><!--
-	<moduleSets>
-		<moduleSet>
-			<includes>
-				<include>org.apache.empire-db:empire-db</include>
-				<include>org.apache.empire-db:empire-db-struts2</include>
-			</includes>
-			<binaries>
-				<outputDirectory>lib</outputDirectory>
-				<unpack>false</unpack>
-				<includeDependencies>false</includeDependencies>
-			</binaries>
-		</moduleSet>
-	</moduleSets>
-	-->
+	</fileSets>
 	<dependencySets>
 		<dependencySet>
 			<outputDirectory>doc</outputDirectory>
@@ -93,6 +80,7 @@
 			<includes>
 				<include>org.apache.empire-db:empire-db:*:javadoc</include>
 				<include>org.apache.empire-db:empire-db-struts2:*:javadoc</include>
+				<include>org.apache.empire-db:empire-db-jsf2:*:javadoc</include>
 			</includes>
 		</dependencySet>
 		<dependencySet>
@@ -101,6 +89,7 @@
             <includes>
                 <include>org.apache.empire-db:empire-db:jar</include>
                 <include>org.apache.empire-db:empire-db-struts2:jar</include>
+                <include>org.apache.empire-db:empire-db-jsf2:jar</include>
             </includes>
         </dependencySet>
     </dependencySets>
