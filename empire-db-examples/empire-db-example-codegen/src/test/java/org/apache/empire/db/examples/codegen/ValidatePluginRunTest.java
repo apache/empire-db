@@ -32,7 +32,7 @@ import org.apache.empire.db.DBCommand;
 import org.apache.empire.db.DBDatabaseDriver;
 import org.apache.empire.db.DBReader;
 import org.apache.empire.db.example.MyDB;
-import org.apache.empire.db.example.tables.EMPLOYEES;
+import org.apache.empire.db.example.tables.Employees;
 import org.apache.empire.db.hsql.DBDatabaseDriverHSql;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -79,7 +79,7 @@ public class ValidatePluginRunTest {
 	public void useGeneratedCode() throws Exception {
 
 		MyDB db = MyDB.get();
-		EMPLOYEES EMP = db.EMPLOYEES;
+		Employees EMP = db.EMPLOYEES;
 
 		DBDatabaseDriver driver = new DBDatabaseDriverHSql();
 		db.open(driver, conn);
@@ -90,8 +90,7 @@ public class ValidatePluginRunTest {
 		DBReader reader = new DBReader();
 		try {
 			System.err.println(cmd.getSelect());
-			boolean succes = reader.open(cmd, conn);
-			assertTrue(db.getErrorMessage(), succes);
+			reader.open(cmd, conn);
 			while (reader.moveNext()) {
 				rowCount++;
 				System.out.println(reader.getString(EMP.EMPLOYEE_ID) + "\t" + reader.getString(EMP.FIRSTNAME));
