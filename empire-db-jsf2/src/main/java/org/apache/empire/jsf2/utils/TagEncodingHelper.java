@@ -666,7 +666,7 @@ public class TagEncodingHelper implements NamingContainer
             log.debug(tag.getClass().getSimpleName()+" for "+getColumn().getName()+" has no value expression!");
         */
         // merken
-        hasValueExpr = new Boolean(ve != null);
+        hasValueExpr = Boolean.valueOf(ve != null);
         return hasValueExpr.booleanValue();
     }
     
