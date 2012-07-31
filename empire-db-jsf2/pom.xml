@@ -58,4 +58,23 @@
 		</dependency>
 	</dependencies>
 	
+	<build>
+		<pluginManagement>
+			<plugins>
+				<!-- allow java 6 api calls for this module -->
+				<plugin>
+					<groupId>org.codehaus.mojo</groupId>
+					<artifactId>animal-sniffer-maven-plugin</artifactId>
+					<configuration>
+						<signature>
+							<groupId>org.codehaus.mojo.signature</groupId>
+							<artifactId>java16</artifactId>
+							<version>1.0</version>
+						</signature>
+					</configuration>
+				</plugin>
+			</plugins>
+		</pluginManagement>
+	</build>
+	
 </project>

@@ -369,6 +369,10 @@
 				<artifactId>maven-bundle-plugin</artifactId>
 				<inherited>true</inherited>
 			</plugin>
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>animal-sniffer-maven-plugin</artifactId>
+			</plugin>
         </plugins>
         
 		<pluginManagement>
@@ -394,14 +398,14 @@
 			       		<excludeSubProjects>false</excludeSubProjects>
 			       	</configuration>
 			  	</plugin>
-			  	<plugin>
-			  		<groupId>org.apache.maven.plugins</groupId>
-			  		<artifactId>maven-release-plugin</artifactId>
-			  		<configuration>
-			  			<!-- do not ask version for each module -->
-			  			<autoVersionSubmodules>true</autoVersionSubmodules>
-			  		</configuration>
-			  	</plugin>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-release-plugin</artifactId>
+					<configuration>
+						<!-- do not ask version for each module -->
+						<autoVersionSubmodules>true</autoVersionSubmodules>
+					</configuration>
+				</plugin>
 				<plugin>
 					<inherited>true</inherited>
 					<groupId>org.apache.maven.plugins</groupId>
@@ -464,17 +468,50 @@
 		                </execution>
 		            </executions>
 		        </plugin>
-		        <!-- When enforcer enabled this will make sure we compile using java 1.5 -->
+		        <!-- When enforcer enabled this will make sure we compile using java 1.6.x using maven 2.x -->
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-enforcer-plugin</artifactId>
-					<version>1.0</version>
+					<version>1.1.1</version>
+					<executions>
+						<execution>
+							<id>enforce-versions</id>
+							<goals>
+								<goal>enforce</goal>
+							</goals>
+							<configuration>
+								<rules>
+									<requireMavenVersion>
+										<version>[2.0.0,3.0.0)</version>
+									</requireMavenVersion>
+									<requireJavaVersion>
+										<version>[1.6,1.7)</version>
+									</requireJavaVersion>
+								</rules>
+							</configuration>
+						</execution>
+					</executions>
+				</plugin>
+				<!-- check that all api calls are java5 compatible -->
+				<plugin>
+					<groupId>org.codehaus.mojo</groupId>
+					<artifactId>animal-sniffer-maven-plugin</artifactId>
+					<version>1.8</version>
+					<executions>
+						<execution>
+							<id>check-api</id>
+							<phase>test</phase>
+							<goals>
+								<goal>check</goal>
+							</goals>
+						</execution>
+			        </executions>
 					<configuration>
-						<rules>
-							<requireJavaVersion>
-								<version>[1.5,1.6)</version>
-							</requireJavaVersion>
-						</rules>
+						<signature>
+							<groupId>org.codehaus.mojo.signature</groupId>
+							<artifactId>java15</artifactId>
+							<version>1.0</version>
+						</signature>
 					</configuration>
 				</plugin>
 				<plugin>
@@ -482,8 +519,8 @@
 					<artifactId>maven-eclipse-plugin</artifactId>
 					<version>2.8</version>
 					<configuration>
-				    	<downloadSources>true</downloadSources>
-				    	<!-- downloadJavadocs>true</downloadJavadocs -->
+						<downloadSources>true</downloadSources>
+						<!-- downloadJavadocs>true</downloadJavadocs -->
 					</configuration>
 				</plugin>
 				<plugin>
