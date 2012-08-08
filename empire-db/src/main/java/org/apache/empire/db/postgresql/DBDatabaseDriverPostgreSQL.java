@@ -49,10 +49,10 @@ public class DBDatabaseDriverPostgreSQL extends DBDatabaseDriver
     private static final Logger log = LoggerFactory.getLogger(DBDatabaseDriverPostgreSQL.class);
     
     private static final String CREATE_REVERSE_FUNCTION =
-        "CREATE OR REPLACE FUNCTION reverse(TEXT) RETURNS TEXT AS '\n" +
+        "CREATE OR REPLACE FUNCTION reverse(TEXT) RETURNS TEXT AS $$\n" +
         "DECLARE\n" +
         "   original ALIAS FOR $1;\n" +
-        "   reversed TEXT := \\'\\';\n" +
+        "   reversed TEXT := '';\n" +
         "   onechar  VARCHAR;\n" +
         "   mypos    INTEGER;\n" +
         "BEGIN\n" +
@@ -65,7 +65,7 @@ public class DBDatabaseDriverPostgreSQL extends DBDatabaseDriver
         "   END LOOP;\n" +
         "   RETURN reversed;\n" +
         "END\n" +
-        "' LANGUAGE plpgsql IMMUTABLE RETURNS NULL ON NULL INPUT";    
+        "$$ LANGUAGE plpgsql IMMUTABLE RETURNS NULL ON NULL INPUT";    
     
     /**
      * Defines the PostgreSQL command type.

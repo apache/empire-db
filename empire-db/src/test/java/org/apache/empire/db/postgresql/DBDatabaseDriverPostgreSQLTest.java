@@ -18,8 +18,12 @@
  */
 package org.apache.empire.db.postgresql;
 
+import static org.junit.Assert.assertEquals;
+
 import java.sql.Connection;
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 
 import org.apache.empire.DBResource;
 import org.apache.empire.DBResource.DB;
@@ -43,6 +47,24 @@ public class DBDatabaseDriverPostgreSQLTest
 	@Rule
 	public DBResource dbResource = new DBResource(DB.POSTGRESQL);
 
+	@Test
+	public void testCreateReverseFunction() throws SQLException 
+	{
+		Connection conn = dbResource.getConnection();
+		DBDatabaseDriver driver = dbResource.newDriver();
+		((DBDatabaseDriverPostgreSQL)driver).createReverseFunction(conn);
+		
+		Statement statement = conn.createStatement();
+		ResultSet resultSet = statement.executeQuery("SELECT reverse('reverseme')");
+		resultSet.next();
+		String reversed = resultSet.getString(1);
+		resultSet.close();
+		statement.close();
+		conn.close();
+		
+		assertEquals("emesrever", reversed);
+	}
+	
 	@Test
 	public void testBlobDDL() throws SQLException 
 	{
