@@ -46,7 +46,12 @@
 			<version>1.2.16</version>
 			<scope>test</scope>
 		</dependency>
-		
+		<dependency>
+			<groupId>org.xerial</groupId>
+			<artifactId>sqlite-jdbc</artifactId>
+			<version>3.7.2</version>
+			<scope>test</scope>
+		</dependency>
 		<dependency>
 		    <groupId>hsqldb</groupId>
 		    <artifactId>hsqldb</artifactId>

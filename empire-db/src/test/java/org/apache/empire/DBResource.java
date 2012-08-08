@@ -29,6 +29,7 @@ import org.apache.empire.db.derby.DBDatabaseDriverDerby;
 import org.apache.empire.db.h2.DBDatabaseDriverH2;
 import org.apache.empire.db.hsql.DBDatabaseDriverHSql;
 import org.apache.empire.db.postgresql.DBDatabaseDriverPostgreSQL;
+import org.apache.empire.db.sqlite.DBDatabaseDriverSQLite;
 import org.apache.empire.db.sqlserver.DBDatabaseDriverMSSQL;
 import org.junit.rules.ExternalResource;
 
@@ -97,6 +98,10 @@ public class DBResource extends ExternalResource
     }
     
     public enum DB{
+        SQLITE(
+                "org.sqlite.JDBC", 
+                "jdbc:sqlite::memory:",
+                DBDatabaseDriverSQLite.class),
         HSQL(
              "org.hsqldb.jdbcDriver", 
              "jdbc:hsqldb:mem:data/derby/test",

@@ -34,6 +34,7 @@ import org.apache.empire.db.hsql.DBDatabaseDriverHSql;
 import org.apache.empire.db.mysql.DBDatabaseDriverMySQL;
 import org.apache.empire.db.oracle.DBDatabaseDriverOracle;
 import org.apache.empire.db.postgresql.DBDatabaseDriverPostgreSQL;
+import org.apache.empire.db.sqlite.DBDatabaseDriverSQLite;
 import org.apache.empire.db.sqlserver.DBDatabaseDriverMSSQL;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -47,6 +48,16 @@ import org.slf4j.LoggerFactory;
 public class IntegerTest {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(IntegerTest.class);
+    
+    
+    @Test
+    public void testSQlitedb() {
+        SampleConfig config = new SampleConfig();
+        config.databaseProvider = "sqlite";
+        config.jdbcClass = "org.sqlite.JDBC";
+        config.jdbcURL = "jdbc:sqlite::memory:";
+        testLongInteger(config);
+    }
     
     @Test
     public void testHsqldb() {
@@ -135,6 +146,10 @@ public class IntegerTest {
     }
 
     private DBDatabaseDriver getDatabaseDriver(SampleConfig config, Connection conn) {
+        if (config.databaseProvider.equalsIgnoreCase("sqlite")) {
+            DBDatabaseDriverSQLite driver = new DBDatabaseDriverSQLite();
+            return driver;
+        }
         if (config.databaseProvider.equalsIgnoreCase("mysql")) {
             DBDatabaseDriverMySQL driver = new DBDatabaseDriverMySQL();
             driver.setDatabaseName(config.schemaName);
