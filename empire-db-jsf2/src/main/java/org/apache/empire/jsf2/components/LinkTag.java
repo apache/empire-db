@@ -26,6 +26,7 @@ import javax.faces.component.NamingContainer;
 import javax.faces.component.UIComponent;
 import javax.faces.component.UINamingContainer;
 import javax.faces.component.UIOutput;
+import javax.faces.component.UIPanel;
 import javax.faces.component.UIParameter;
 import javax.faces.component.html.HtmlOutcomeTargetLink;
 import javax.faces.context.FacesContext;
@@ -95,12 +96,23 @@ public class LinkTag extends UIOutput implements NamingContainer
                 if (c instanceof HtmlOutcomeTargetLink)
                     linkComponent = (HtmlOutcomeTargetLink)c;
                 else
-                    log.info("TODO: handle Child nodes!");
+                {   // Something's wrong here?
+                    log.info("INFO: Unexpected child node for {}!", getClass().getName());
+                    // Check facetComponent
+                    UIPanel facetComponent = (UIPanel)getFacets().get(UIComponent.COMPOSITE_FACET_NAME);
+                    if (facetComponent==null)
+                    {
+                        log.warn("WARN: component's facetComponent has not been set! Using Default (javax.faces.Panel).");
+                        facetComponent = (UIPanel)context.getApplication().createComponent("javax.faces.Panel");
+                        facetComponent.setRendererType("javax.faces.Group");
+                        getFacets().put(UIComponent.COMPOSITE_FACET_NAME, facetComponent);
+                    }
+                }    
             }
             if (linkComponent == null)
             {
                 linkComponent = new HtmlOutcomeTargetLink();
-                this.getChildren().add(linkComponent);
+                this.getChildren().add(0, linkComponent);
             }
             // set params
             setLinkProperties(linkComponent);

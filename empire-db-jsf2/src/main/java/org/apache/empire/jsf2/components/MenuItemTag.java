@@ -36,14 +36,19 @@ public class MenuItemTag extends LinkTag
     // Logger
     private static final Logger log = LoggerFactory.getLogger(MenuItemTag.class);
     
-    private static int renderCount = 1;
-    
     private MenuListTag parentMenu = null;
     private String menuId;
+
+    private static int itemIdSeq = 0;
+    private final int itemId;
     
     public MenuItemTag()
     {
         super();
+        // Debug stuff
+        itemId = ++itemIdSeq;
+        if (log.isDebugEnabled())
+            log.debug("MenuId {} created", itemId);
     }
 
     @Override
@@ -67,7 +72,7 @@ public class MenuItemTag extends LinkTag
         writer.startElement("li", this);
         writer.writeAttribute("id", getClientId(context), null);
         writer.writeAttribute("class", getStyleClass(), null);
-        writer.writeAttribute("count", String.valueOf(renderCount++), null);
+        // writer.writeAttribute("item", String.valueOf(itemId), null);
 
         // begin
         super.encodeBegin(context);
@@ -88,12 +93,12 @@ public class MenuItemTag extends LinkTag
             UIComponent c = getChildren().get(0);
             if (c instanceof HtmlOutcomeTargetLink)
             {   if (c.isRendered())
-                {   log.warn("Unexpected rendering of output link. Rendering is ignored.");
+                {   log.warn("WARN: Unexpected rendering of output link. Rendering is ignored.");
                     c.setRendered(false);
                 }
             }
             else
-                log.warn("Unexpected child element as first child of MenuItemTag!");
+                log.warn("WARN: Unexpected child element as first child of MenuItemTag!");
             // encode children
             super.encodeChildren(context);
         }
