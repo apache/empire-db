@@ -317,11 +317,11 @@ public class SampleAdvApp
     {
         DBCommand cmd = db.createCommand();
         // Delete all Employee Department History records
-        db.executeSQL(cmd.getDelete(T_EDH), conn);
+        db.executeDelete(T_EDH, cmd, conn);
         // Delete all Employees (no constraints)
-        db.executeSQL(cmd.getDelete(T_EMP), conn);
+        db.executeDelete(T_EMP, cmd, conn);
         // Delete all Departments (no constraints)
-        db.executeSQL(cmd.getDelete(T_DEP), conn);
+        db.executeDelete(T_DEP, cmd, conn);
     }
 
     /**

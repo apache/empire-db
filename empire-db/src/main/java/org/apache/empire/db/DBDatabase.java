@@ -1284,7 +1284,7 @@ public abstract class DBDatabase extends DBObject
             if (log.isInfoEnabled())
 	            log.info("executeSQL affected {} Records in {} ms ", affected, execTime);
             else if (execTime>=longRunndingStmtThreshold)
-                log.warn("Long running query took {} seconds for statement {}.", execTime / 1000, sqlCmd);
+                log.warn("Long running statement took {} seconds for statement {}.", execTime / 1000, sqlCmd);
             // Return number of affected records
             return affected;
             
@@ -1300,20 +1300,63 @@ public abstract class DBDatabase extends DBObject
     }
     
     /**
-     * Executes an update, insert or delete SQL-Statement.<BR>
-     * We recommend to use a DBCommand object in order to build the sqlCmd.<BR>
-     * <P>
-     * @param sqlCmd the SQL-Command
-     * @param conn a valid connection to the database.
-     * @return the row count for insert, update or delete or 0 for SQL statements that return nothing
+     * @deprecated This method has be deprecated in order to avoid missing command parameters for prepared statements  
+     * <pre>
+     * Instead of using this method signature please use any of the following:
+     *      executeInsert(...)
+     *      executeUpdate(...)
+     *      executeDelete(...)
+     * or use  
+     *      executeSQL(String sqlCmd, Object[] sqlParams, Connection conn)
+     * </pre>
      */
+    @Deprecated
     public final int executeSQL(String sqlCmd, Connection conn)
     {
+        // Params missing?
+        if (isPreparedStatementsEnabled() && sqlCmd.indexOf("?")>0)
+        {   // Params may not be provided
+            log.warn("Command params may be missing for prepared statement. Please supply params by calling executeSQL with cmd.getParamValues()!");
+        }
         return executeSQL(sqlCmd, null, conn); 
+    }
+
+    /**
+     * Executes an Insert statement from a command object
+     * @param cmd the command object containing the insert command
+     * @param conn a valid connection to the database.
+     * @return the number of records that have been inserted with the supplied statement
+     */
+    public final int executeInsert(DBCommand cmd, Connection conn)
+    {
+        return executeSQL(cmd.getInsert(), cmd.getParamValues(), conn); 
+    }
+
+    /**
+     * Executes an Update statement from a command object
+     * @param cmd the command object containing the update command
+     * @param conn a valid connection to the database.
+     * @return the number of records that have been updated with the supplied statement
+     */
+    public final int executeUpdate(DBCommand cmd, Connection conn)
+    {
+        return executeSQL(cmd.getUpdate(), cmd.getParamValues(), conn); 
+    }
+
+    /**
+     * Executes a Delete statement from a command object
+     * @param from the database table from which to delete records
+     * @param cmd the command object containing the delete constraints
+     * @param conn a valid connection to the database.
+     * @return the number of records that have been deleted with the supplied statement
+     */
+    public final int executeDelete(DBTable from, DBCommand cmd, Connection conn)
+    {
+        return executeSQL(cmd.getDelete(from), cmd.getParamValues(), conn); 
     }
     
     /**
-     * Executes a select SQL-Statement and returns a resultset containing the query results.<BR>
+     * Executes a select SQL-Statement and returns a ResultSet containing the query results.<BR>
      * This function returns a JDBC ResultSet.<BR>
      * Instead of using this function directly you should use a DBReader object instead.<BR>
      * <P>

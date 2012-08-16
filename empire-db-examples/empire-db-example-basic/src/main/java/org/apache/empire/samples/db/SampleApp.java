@@ -268,9 +268,9 @@ public class SampleApp
     {
 		DBCommand cmd = db.createCommand();
 		// Delete all Employees (no constraints)
-		db.executeSQL(cmd.getDelete(db.EMPLOYEES), conn);
+		db.executeDelete(db.EMPLOYEES, cmd, conn);
 		// Delete all Departments (no constraints)
-		db.executeSQL(cmd.getDelete(db.DEPARTMENTS), conn);
+		db.executeDelete(db.DEPARTMENTS, cmd, conn);
 	}
 
 	/**

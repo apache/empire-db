@@ -804,7 +804,7 @@ public abstract class DBRowSet extends DBExpr
                 break;
 
             default:
-                log.warn("updateRecord: " + name + " record has not been modified! ");
+                log.info("updateRecord: " + name + " record has not been modified! ");
                 return;
         }
         if (setCount == 0)
