@@ -60,5 +60,11 @@ public class StaticListPageElement<T> extends ListPageElement<T>
         this.items = items;
         getTableInfo().init(items.size(), 0);
     }
+    
+    public void update()
+    {
+        if (items!=null)
+            getTableInfo().init(items.size(), 0);
+    }
 
 }

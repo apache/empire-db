@@ -384,19 +384,37 @@ public abstract class Page implements Serializable
     public void doInit()
     {
         if (pageElements != null)
-        { // Init Page Elements
+        {   // Init Page Elements
             for (PageElement pe : pageElements)
-                pe.onInitPage();
+                doInitElement(pe);
         }
     }
 
     public void doRefresh()
     {
         if (pageElements != null)
-        { // Init Page Elements
+        {   // Refresh Page Elements
             for (PageElement pe : pageElements)
-                pe.onRefreshPage();
+                doRefreshElement(pe);
         }
+    }
+    
+    /**
+     * called by doInit() to initialize a particular page element
+     * @param pe the page element to initialize
+     */
+    protected void doInitElement(PageElement pe)
+    {
+        pe.onInitPage();
+    }
+    
+    /**
+     * called by doRefresh() to refresh a particular page element
+     * @param pe the page element to refresh
+     */
+    protected void doRefreshElement(PageElement pe)
+    {
+        pe.onRefreshPage();
     }
     
     /* Helpers */
