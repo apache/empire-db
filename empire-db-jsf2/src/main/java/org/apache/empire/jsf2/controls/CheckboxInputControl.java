@@ -25,7 +25,7 @@ import javax.faces.component.html.HtmlSelectBooleanCheckbox;
 import javax.faces.context.FacesContext;
 
 import org.apache.empire.exceptions.InternalException;
-import org.apache.empire.jsf2.controls.InputControl;
+import org.apache.empire.exceptions.UnexpectedReturnValueException;
 
 public class CheckboxInputControl extends InputControl
 {
@@ -48,19 +48,30 @@ public class CheckboxInputControl extends InputControl
     protected void createInputComponents(UIComponent parent, InputInfo ii, FacesContext context, List<UIComponent> compList)
     {
         HtmlSelectBooleanCheckbox input;
-        try
-        {   input = inputComponentClass.newInstance();
-		} catch (InstantiationException e1) {
-			throw new InternalException(e1);
-		} catch (IllegalAccessException e2) {
-			throw new InternalException(e2);
-		}
-        copyAttributes(parent, ii, input);
+        if (compList.size()==0)
+        {   try {
+                input = inputComponentClass.newInstance();
+            } catch (InstantiationException e1) {
+                throw new InternalException(e1);
+            } catch (IllegalAccessException e2) {
+                throw new InternalException(e2);
+            }
+            copyAttributes(parent, ii, input);
+            // add
+            compList.add(input);
+        }
+        else
+        {   // check type
+            UIComponent comp = compList.get(0);
+            if (!(comp instanceof HtmlSelectBooleanCheckbox))
+                throw new UnexpectedReturnValueException(comp.getClass().getName(), "compList.get");
+            // cast
+            input = (HtmlSelectBooleanCheckbox)comp;
+        }
         
-        setInputValue(input, ii);
+        // Set Value
         input.setDisabled(ii.isDisabled());
-        
-        compList.add(input);
+        setInputValue(input, ii);
     }
 
 }

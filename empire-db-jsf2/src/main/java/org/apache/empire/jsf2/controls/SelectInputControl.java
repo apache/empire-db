@@ -29,6 +29,7 @@ import org.apache.empire.commons.OptionEntry;
 import org.apache.empire.commons.Options;
 import org.apache.empire.data.Column;
 import org.apache.empire.exceptions.InternalException;
+import org.apache.empire.exceptions.UnexpectedReturnValueException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -69,33 +70,44 @@ public class SelectInputControl extends InputControl
     protected void createInputComponents(UIComponent parent, InputInfo ii, FacesContext context, List<UIComponent> compList)
     {
         HtmlSelectOneMenu input;
-		try {
-			input = inputComponentClass.newInstance();
-		} catch (InstantiationException e1) {
-			throw new InternalException(e1);
-		} catch (IllegalAccessException e2) {
-			throw new InternalException(e2);
-		}
-        copyAttributes(parent, ii, input);
-
-        Options options = ii.getOptions();
-        if (ii.isRequired()==false)
-        {   // Empty entry
-            options = new Options(options);
-            addSelectItem(input, ii, new OptionEntry("", getNullText(ii)));
-        }
-        if (options!=null && options.size()>0)
-        {   // Add options
-            for (OptionEntry e : options)
-            { // Option entries
-                addSelectItem(input, ii, e);
+        if (compList.size()==0)
+        {   try {
+                input = inputComponentClass.newInstance();
+            } catch (InstantiationException e1) {
+                throw new InternalException(e1);
+            } catch (IllegalAccessException e2) {
+                throw new InternalException(e2);
             }
+            copyAttributes(parent, ii, input);
+    
+            Options options = ii.getOptions();
+            if (ii.isRequired()==false)
+            {   // Empty entry
+                options = new Options(options);
+                addSelectItem(input, ii, new OptionEntry("", getNullText(ii)));
+            }
+            if (options!=null && options.size()>0)
+            {   // Add options
+                for (OptionEntry e : options)
+                { // Option entries
+                    addSelectItem(input, ii, e);
+                }
+            }
+            // add
+            compList.add(input);
+        }
+        else
+        {   // check type
+            UIComponent comp = compList.get(0);
+            if (!(comp instanceof HtmlSelectOneMenu))
+                throw new UnexpectedReturnValueException(comp.getClass().getName(), "compList.get");
+            // cast
+            input = (HtmlSelectOneMenu)comp;
         }
         
+        // Set Value
         input.setDisabled(ii.isDisabled());
         setInputValue(input, ii);
-        
-        compList.add(input);
     }
     
     private String getNullText(InputInfo ii)

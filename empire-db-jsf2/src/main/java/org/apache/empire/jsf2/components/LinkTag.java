@@ -97,12 +97,13 @@ public class LinkTag extends UIOutput implements NamingContainer
                     linkComponent = (HtmlOutcomeTargetLink)c;
                 else
                 {   // Something's wrong here?
-                    log.info("INFO: Unexpected child node for {}!", getClass().getName());
+                    log.info("INFO: Unexpected child node for {}! Child item type is {}.", getClass().getName(), c.getClass().getName());
                     // Check facetComponent
                     UIPanel facetComponent = (UIPanel)getFacets().get(UIComponent.COMPOSITE_FACET_NAME);
                     if (facetComponent==null)
                     {
                         log.warn("WARN: component's facetComponent has not been set! Using Default (javax.faces.Panel).");
+                        log.warn("Problem might be related to Mojarra 2.1.7 to 2.1.11 (and possibly later) - please use Mojarra 2.1.6!");
                         facetComponent = (UIPanel)context.getApplication().createComponent("javax.faces.Panel");
                         facetComponent.setRendererType("javax.faces.Group");
                         getFacets().put(UIComponent.COMPOSITE_FACET_NAME, facetComponent);

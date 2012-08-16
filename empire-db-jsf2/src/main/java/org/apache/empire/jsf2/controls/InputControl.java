@@ -236,9 +236,8 @@ public abstract class InputControl
     public void renderInput(UIComponent comp, InputInfo ii, FacesContext context, boolean encode)
         throws IOException
     {
-        int count = comp.getChildCount(); 
-        if (count<1)
-            createInputComponents(comp, ii, context, comp.getChildren());
+        // createInputComponents 
+        createInputComponents(comp, ii, context, comp.getChildren());
         // Encode all
         if (!encode)
             return;

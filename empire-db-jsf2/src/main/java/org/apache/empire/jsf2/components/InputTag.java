@@ -46,9 +46,16 @@ public class InputTag extends UIInput implements NamingContainer
     private InputControl control = null;
     private InputControl.InputInfo inpInfo = null;
 
+    private static int itemIdSeq = 0;
+    private final int itemId;
+    
     public InputTag()
     {
         super();
+        // Debug stuff
+        itemId = ++itemIdSeq;
+        if (log.isDebugEnabled())
+            log.debug("InputTag {} created", itemId);
     }
 
     @Override
@@ -66,12 +73,19 @@ public class InputTag extends UIInput implements NamingContainer
 
     private boolean initState(FacesContext context)
     {
+        // Must have children
+        if (getChildCount()==0)
+        {   log.warn("InputTag has no children! Unable to init Input state.");
+            log.warn("Problem might be related to Mojarra 2.1.7 to 2.1.11 (and possibly later) - please use Mojarra 2.1.6!");
+            return false;
+        }
+        // Read only State
         Boolean ros = (Boolean)getStateHelper().get(readOnlyState);
         if (ros!=null && ros.booleanValue())
             return false;
-        // control = ;
+        // Init Control and inputInfo;
         control = helper.getInputControl();
-        inpInfo  = helper.getInputInfo(context);
+        inpInfo = helper.getInputInfo(context);
         return (control!=null && inpInfo!=null);
     }
 

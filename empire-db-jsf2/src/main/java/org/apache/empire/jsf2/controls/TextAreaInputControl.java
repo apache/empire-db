@@ -25,6 +25,7 @@ import javax.faces.component.html.HtmlInputTextarea;
 import javax.faces.context.FacesContext;
 
 import org.apache.empire.exceptions.InternalException;
+import org.apache.empire.exceptions.UnexpectedReturnValueException;
 
 public class TextAreaInputControl extends InputControl
 {
@@ -55,27 +56,40 @@ public class TextAreaInputControl extends InputControl
     protected void createInputComponents(UIComponent parent, InputInfo ii, FacesContext context, List<UIComponent> compList)
     {
         HtmlInputTextarea input;
-		try {
-			input = inputComponentClass.newInstance();
-		} catch (InstantiationException e1) {
-			throw new InternalException(e1);
-		} catch (IllegalAccessException e2) {
-			throw new InternalException(e2);
-		}
-        copyAttributes(parent, ii, input);
-        
-        int cols = getFormatInteger(ii, FORMAT_COLS, FORMAT_COLS_ATTRIBUTE);
-        if (cols>0)
-            input.setCols(cols);
+        if (compList.size()==0)
+        {   try {
+                input = inputComponentClass.newInstance();
+            } catch (InstantiationException e1) {
+                throw new InternalException(e1);
+            } catch (IllegalAccessException e2) {
+                throw new InternalException(e2);
+            }
+            copyAttributes(parent, ii, input);
+            
+            int cols = getFormatInteger(ii, FORMAT_COLS, FORMAT_COLS_ATTRIBUTE);
+            if (cols>0)
+                input.setCols(cols);
+    
+            int rows = getFormatInteger(ii, FORMAT_ROWS, FORMAT_ROWS_ATTRIBUTE);
+            if (rows>0)
+                input.setRows(rows);
 
-        int rows = getFormatInteger(ii, FORMAT_ROWS, FORMAT_ROWS_ATTRIBUTE);
-        if (rows>0)
-            input.setRows(rows);
+            // add
+            compList.add(input);
+        }
+        else
+        {   // check type
+            UIComponent comp = compList.get(0);
+            if (!(comp instanceof HtmlInputTextarea))
+                throw new UnexpectedReturnValueException(comp.getClass().getName(), "compList.get");
+            // cast
+            input = (HtmlInputTextarea)comp;
+        }
         
+        // Set Value
         input.setDisabled(ii.isDisabled());
         setInputValue(input, ii);
         
-        compList.add(input);
     }
 
     /*

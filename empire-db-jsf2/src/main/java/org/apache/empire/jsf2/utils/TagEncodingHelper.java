@@ -47,6 +47,7 @@ import org.apache.empire.data.DataType;
 import org.apache.empire.data.Record;
 import org.apache.empire.data.RecordData;
 import org.apache.empire.db.DBDatabase;
+import org.apache.empire.db.DBRecord;
 import org.apache.empire.db.DBRowSet;
 import org.apache.empire.exceptions.BeanPropertyGetException;
 import org.apache.empire.exceptions.BeanPropertySetException;
@@ -324,8 +325,43 @@ public class TagEncodingHelper implements NamingContainer
 
     public void encodeBegin()
     {
-        if (this.record != null && !(this.record instanceof Record))
-            this.record = null;
+        /* nothing */
+    }
+    
+    private void checkRecord()
+    {
+        // Record may change even for the same instance
+        if (this.record== null)
+            return;
+        // Check direct record property
+        Object rec = tag.getAttributes().get("record");
+        if (rec!=null)
+        {   // record directly specified
+            if (rec!=this.record)
+            {   // Record has changed
+                if (log.isTraceEnabled())
+                {   // Debug output
+                    if ((rec instanceof DBRecord) && (this.record instanceof DBRecord))
+                    {   // a database record change
+                        String keyOld = StringUtils.toString(((DBRecord)this.record).getKeyValues());
+                        String keyNew = StringUtils.toString(((DBRecord)rec).getKeyValues());
+                        String rowSet = StringUtils.valueOf(((DBRecord)rec).getRowSet().getName());
+                        log.trace("Changing "+tag.getClass().getSimpleName()+" record of rowset "+rowSet+" from {} to {}", keyOld, keyNew);
+                    }
+                    else
+                    {   // probably a bean change
+                        log.trace("Changing "+tag.getClass().getSimpleName()+" record of class "+rec.getClass().getSimpleName());
+                    }
+                }
+                // change now
+                setRecord(rec);
+            }    
+        }
+        else 
+        {   // Invalidate if not an instance of Record
+            if (!(this.record instanceof Record))
+                this.record = null;
+        }
     }
 
     public InputControl getInputControl()
@@ -358,6 +394,8 @@ public class TagEncodingHelper implements NamingContainer
             if (log.isDebugEnabled() && !controlType.equals(TextInputControl.NAME))
                 log.debug("Auto-detected field control for " + column.getName() + " is " + controlType);
         }
+        // check record
+        checkRecord();
         return control;
     }
 
@@ -618,7 +656,7 @@ public class TagEncodingHelper implements NamingContainer
         Object rec = tag.getAttributes().get("record");
 
         if (rec == null && hasValueAttribute())
-        { // See if the record is in value
+        {   // See if the record is in value
             return null;
         }
 
@@ -636,11 +674,12 @@ public class TagEncodingHelper implements NamingContainer
         }
         return rec;
     }
-
+    
     protected boolean hasValueAttribute()
     {
         // direct value is set (no expression)
-        if (tag.getAttributes().containsKey("value"))
+        Object v = tag.getLocalValue();
+        if (v!=null) // tag.getAttributes().containsKey("value"))
             return true;
         // Find expression
         if (hasValueExpr != null)
@@ -648,7 +687,7 @@ public class TagEncodingHelper implements NamingContainer
         // Find expression
         ValueExpression ve = findValueExpression();
         if (ve != null)
-        { // weiter untersuchen
+        {   // check
             if (log.isDebugEnabled())
             {
                 FacesContext ctx = FacesContext.getCurrentInstance();
