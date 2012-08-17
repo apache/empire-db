@@ -337,7 +337,7 @@ public class DBTableColumn extends DBColumn
                         // OK
                     } catch (ParseException e)
                     {   // Error
-                        log.error("checkValue failed: " + e.toString() + " column=" + getName() + " value=" + value);
+                        log.info("checkValue failed: " + e.toString() + " column=" + getName() + " value=" + value);
                         throw new FieldIllegalValueException(this, String.valueOf(value), e);
                     }
                 }    
@@ -354,7 +354,7 @@ public class DBTableColumn extends DBColumn
                         // thows NumberFormatException if not a number!
                     } catch (NumberFormatException e)
                     {
-                        log.error("checkValue exception: " + e.toString() + " column=" + getName() + " value=" + value);
+                        log.info("checkValue failed: " + e.toString() + " column=" + getName() + " value=" + value);
                         throw new FieldIllegalValueException(this, String.valueOf(value), e);
                     }
                 }
@@ -370,7 +370,7 @@ public class DBTableColumn extends DBColumn
                         // throws NumberFormatException if not an integer!
                     } catch (NumberFormatException e)
                     {
-                        log.error("checkValue exception: " + e.toString() + " column=" + getName() + " value=" + String.valueOf(value));
+                        log.info("checkValue failed: " + e.toString() + " column=" + getName() + " value=" + String.valueOf(value));
                         throw new FieldIllegalValueException(this, String.valueOf(value), e);
                     }
                 }

@@ -358,7 +358,7 @@ public class ControlTag extends UIInput implements NamingContainer
         throws IOException
     {
         // render components
-        if (helper.isRecordReadOnly())
+        if (helper.isRecordReadOnly() && allowValueComponent(parent))
         {
             ValueOutputComponent valueComp = null;
             if (parent.getChildCount()>0)
@@ -469,5 +469,16 @@ public class ControlTag extends UIInput implements NamingContainer
     public boolean isInputRequired()
     {
         return helper.isValueRequired();
+    }
+
+    /**
+     * Check the parent allows the creation of a if the ValueOutputComponent.
+     * This method should never return false. If it does, the method "helper.isRecordReadOnly()" does not return the same value for subsequent calls as when the component was first encoded.
+     * @param parent the parent tag
+     * @return true on success or false if the parent's first child is not a instance of ValueOutputComponent
+     */
+    private boolean allowValueComponent(UIComponentBase parent)
+    {
+        return (parent.getChildCount()>0 ? (parent.getChildren().get(0) instanceof ValueOutputComponent) : true); 
     }
 }

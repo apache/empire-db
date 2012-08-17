@@ -577,7 +577,7 @@ public class TagEncodingHelper implements NamingContainer
         // See if we have a record parent
         if (isReadOnly())
             return false;
-        if (hasValueAttribute() && hasValueExpr.booleanValue())
+        if (hasValueAttribute() && (hasValueExpr==null || hasValueExpr.booleanValue()))
             return false;
         // Required
         return column.isRequired();
@@ -677,10 +677,14 @@ public class TagEncodingHelper implements NamingContainer
     
     protected boolean hasValueAttribute()
     {
+        /* this does not work - nor might it be necessary
         // direct value is set (no expression)
-        Object v = tag.getLocalValue();
-        if (v!=null) // tag.getAttributes().containsKey("value"))
+        if (tag.getAttributes().containsKey("value"))
             return true;
+        Object v = tag.getLocalValue(); // will be set for input controls that have an error set
+        if (v!=null)
+            v=null;
+        */    
         // Find expression
         if (hasValueExpr != null)
             return hasValueExpr.booleanValue();
