@@ -20,10 +20,14 @@ package org.apache.empire.jsf2.pageelements;
 
 import java.sql.Connection;
 
+import javax.faces.context.FacesContext;
+
 import org.apache.empire.db.DBRecord;
 import org.apache.empire.db.DBRowSet;
+import org.apache.empire.exceptions.EmpireException;
 import org.apache.empire.exceptions.InvalidArgumentException;
 import org.apache.empire.exceptions.ObjectNotValidException;
+import org.apache.empire.jsf2.app.FacesUtils;
 import org.apache.empire.jsf2.pages.Page;
 import org.apache.empire.jsf2.pages.PageElement;
 import org.slf4j.Logger;
@@ -102,6 +106,34 @@ public class RecordPageElement<T extends DBRecord> extends PageElement
         record.read(rowset, recKey, conn);
     }
 
+    public boolean updateRecord()
+    {
+        // Record laden
+        try {
+            // Check Key
+            if (record.isValid()==false)
+            {   // Invalid Record key
+                throw new ObjectNotValidException(record); 
+            }
+            // Check Modified
+            if (record.isModified()==false)
+            {   // Not Modified
+                return true; 
+            }
+            Connection conn = getPage().getConnection(rowset.getDatabase()); 
+            record.update(conn);
+            // Put key on Session
+            this.setSessionObject(Object[].class, record.getKeyValues());
+            return true; 
+            // OK
+        } catch(EmpireException e) {
+            FacesContext fc = FacesUtils.getContext();
+            String msg = FacesUtils.getTextResolver(fc).getExceptionMessage(e);
+            FacesUtils.addErrorMessage(fc, msg);
+            return false; 
+        }
+    }
+    
     /**
      * creates a new record
      */
