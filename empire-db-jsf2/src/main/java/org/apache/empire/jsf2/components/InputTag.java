@@ -45,6 +45,7 @@ public class InputTag extends UIInput implements NamingContainer
 
     private InputControl control = null;
     private InputControl.InputInfo inpInfo = null;
+    protected boolean hasRequiredFlagSet = false;
 
     private static int itemIdSeq = 0;
     private final int itemId;
@@ -113,10 +114,21 @@ public class InputTag extends UIInput implements NamingContainer
         else
         {
             inpInfo = helper.getInputInfo(context);
+            // set required
+            if (hasRequiredFlagSet==false)
+                super.setRequired(helper.isValueRequired());
             // render input
             control.renderInput(this, inpInfo, context, true);
         }
         saveState();
+    }
+
+    @Override
+    public void setRequired(boolean required) 
+    {
+        super.setRequired(required);
+        // flag has been set
+        hasRequiredFlagSet = true;
     }
 
     @Override
@@ -144,6 +156,12 @@ public class InputTag extends UIInput implements NamingContainer
     {   // Check state
         if (inpInfo==null)
             return;
+        // Skip Null values if not required
+        if (hasRequiredFlagSet && !isRequired() && isEmpty(value)) //  && helper.isValueRequired()
+        {   // Value is null, but not required
+            log.debug("Skipping validation for {} due to Null value.", inpInfo.getColumn().getName());
+            return;
+        }
         // Validate value
         inpInfo.validate(value);
         setValid(true);
@@ -186,9 +204,16 @@ public class InputTag extends UIInput implements NamingContainer
         // No Action
         if (!isValid() || !isLocalValueSet())
             return; 
+        // check required
+        Object value = getLocalValue();
+        if (hasRequiredFlagSet && !isRequired() && isEmpty(value) && helper.isValueRequired())
+        {   // Value is null, but not required
+            log.debug("Skipping model update for {} due to Null value.", inpInfo.getColumn().getName());
+            return;
+        }
         // super.updateModel(context);
         log.debug("Updating model input for {}.", inpInfo.getColumn().getName());
-        inpInfo.setValue(getLocalValue());
+        inpInfo.setValue(value);
         setValue(null);
         setLocalValueSet(false);
         // Post update
