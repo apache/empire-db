@@ -38,6 +38,7 @@ import org.apache.empire.data.Column;
 import org.apache.empire.data.DataType;
 import org.apache.empire.exceptions.InternalException;
 import org.apache.empire.exceptions.UnexpectedReturnValueException;
+import org.apache.empire.jsf2.controls.InputControl.InputInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -85,6 +86,8 @@ public class TextInputControl extends InputControl
             }
             // once
             copyAttributes(parent, ii, input);
+            // language
+            input.setLang(ii.getLocale().getLanguage());
             // maxlength
             int maxLength = 0;
             DataType type = ii.getColumn().getDataType();
@@ -122,35 +125,40 @@ public class TextInputControl extends InputControl
     
     // ------- parsing -------
 
-    /*
     @Override
-    protected Object parseValue(String value, Locale locale, Column column)
+    protected Object parseInputValue(String value, InputInfo ii)
     {
         // Check Data Type
+        Column column = ii.getColumn();
         DataType type = column.getDataType();
-        if (type==DataType.TEXT)
+        if (type.isText())
             return value;
         // Check other types
         if (type==DataType.INTEGER)
-        {   return parseInteger(value);
+        {   NumberFormat nf = NumberFormat.getIntegerInstance(ii.getLocale());
+            return parseNumber(value, nf);
         }
-        if (type==DataType.DECIMAL)
-        {   return parseDecimal(value, getNumberFormat(column.getDataType(), locale, column));
+        if (type==DataType.DECIMAL || type==DataType.FLOAT)
+        {   NumberFormat nf = NumberFormat.getNumberInstance(ii.getLocale());
+            return parseNumber(value, nf);
         }
         if (type==DataType.DATE || type==DataType.DATETIME)
-        {   return parseDate(value, getDateFormat(column.getDataType(), locale, column));
+        {   return parseDate(value, getDateFormat(column.getDataType(), ii, column));
+        }
+        if (type==DataType.BOOL)
+        {   return ObjectUtils.getBoolean(value);
         }
         if (type==DataType.AUTOINC)
         {   // autoinc
             log.error("Autoinc-value cannot be changed.");
-            return NO_VALUE;
+            return null;
         }
         // Default
         return value;
     }
     
     // ------- validation -------
-
+    /*
     @Override
     protected Object validate(Object o, Locale locale, Column column, String s)
     {
@@ -175,7 +183,7 @@ public class TextInputControl extends InputControl
     // ------- formatting -------
 
     @Override
-    protected String formatValue(Object value, ValueInfo vi, boolean hasError)
+    protected String formatValue(Object value, ValueInfo vi)
     {
         // Lookup and Print value
         Options options = vi.getOptions();
@@ -192,7 +200,7 @@ public class TextInputControl extends InputControl
         {   // Try to use default value
             Object nullValue = getFormatOption(vi, FORMAT_NULL, FORMAT_NULL_ATTRIBUTE);
             if (nullValue!=null)
-                return formatValue(nullValue, vi, false);
+                return formatValue(nullValue, vi);
             // Empty String
             return "";
         }
@@ -234,6 +242,7 @@ public class TextInputControl extends InputControl
         return escapeHTML(String.valueOf(value));
     }
 
+    /*
     protected String formatValue(ValueInfo vi, boolean appendUnit)
     {
         String text = super.formatValue(vi);
@@ -247,7 +256,21 @@ public class TextInputControl extends InputControl
         }
         return text;
     }
+    */
 
+    @Override
+    protected Object formatInputValue(Object value, InputInfo ii)
+    {
+        if (value == null)
+            return value;
+        // Check options
+        Options options = ii.getOptions();
+        if (options != null && !options.isEmpty())
+            return value;
+        // Format
+        return formatValue(value, ii);
+    }
+    
     // ------- render -------
     
     /*
@@ -446,13 +469,7 @@ public class TextInputControl extends InputControl
     
     // ------- value parsing -------
     
-    protected Object parseInteger(String s)
-    {
-        // Try to convert
-        return Integer.parseInt(s);
-    }
-    
-    protected Object parseDecimal(String s, NumberFormat nf)
+    protected Object parseNumber(String s, NumberFormat nf)
     {
         // Try to convert
         for (int i=0; i<s.length(); i++)

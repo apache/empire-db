@@ -130,13 +130,13 @@ public class SelectInputControl extends InputControl
     }
 
     @Override
-    protected String formatValue(Object value, ValueInfo vi, boolean hasError)
+    protected String formatValue(Object value, ValueInfo vi)
     {
         // Lookup and Print value
         if (vi.getOptions()==null)
         {
             log.warn("Select field {} has no Option list attached!", vi.getColumn().getName());
-            return super.formatValue(value, vi, hasError);
+            return super.formatValue(value, vi);
         }
         // Check for Abbreviation
         if (hasFormatOption(vi, "short"))
@@ -155,7 +155,7 @@ public class SelectInputControl extends InputControl
                 }
             }
         }
-        return super.formatValue(value, vi, hasError);
+        return super.formatValue(value, vi);
     }
     
     /*

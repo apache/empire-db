@@ -267,21 +267,25 @@ public abstract class InputControl
         
         // Get value from Input
         Object value = (submitted) ? input.getSubmittedValue() : input.getValue();
-        if (submitted && value!=null)
+        if (submitted)
         {
-            // if (!ObjectUtils.compareEqual(value, input.getLocalValue())
-            // {
-            // }
-            
-            FacesContext fc = FacesContext.getCurrentInstance();
-            Map<String, Object> reqMap = fc.getExternalContext().getRequestMap();
-            // Save submitted value
-            String clientId = input.getClientId();
-            if (reqMap.containsKey(clientId))
+            if (value!=null) // && (!ObjectUtils.compareEqual(value, input.getLocalValue())
             {
-                log.warn("OOps, what is going on here?");
-            }            
-            reqMap.put(clientId, value);
+                FacesContext fc = FacesContext.getCurrentInstance();
+                Map<String, Object> reqMap = fc.getExternalContext().getRequestMap();
+                // Save submitted value
+                String clientId = input.getClientId();
+                if (reqMap.containsKey(clientId))
+                {
+                    log.warn("OOps, what is going on here?");
+                }            
+                reqMap.put(clientId, value);
+            }
+            // Convert
+            if ((value instanceof String) && ((String)value).length()>0)
+            {
+                return parseInputValue((String)value, ii);
+            }
         }
         return value;
     }
@@ -321,6 +325,7 @@ public abstract class InputControl
         }    
         else
         {   // Set the value
+            value = formatInputValue(value, ii);
             input.setValue(value);
         }    
     }    
@@ -335,6 +340,22 @@ public abstract class InputControl
         if (reqMap.containsKey(clientId))
             reqMap.remove(clientId);
     }    
+
+    /**
+     * Override this to format a value for output
+     * @param value
+     * @param ii
+     * @return
+     */
+    protected Object formatInputValue(Object value, InputInfo ii)
+    {
+        return value;
+    }
+    
+    protected Object parseInputValue(String value, InputInfo ii)
+    {
+        return value;
+    }
     
     /* validate 
     public boolean validateValue(UIComponent comp, InputInfo ii, FacesContext context)
@@ -442,7 +463,7 @@ public abstract class InputControl
      *
      * @return the formatted value 
      */
-    protected String formatValue(Object value, ValueInfo vi, boolean hasError)
+    protected String formatValue(Object value, ValueInfo vi)
     {
         // Lookup and Print value
         Options options = vi.getOptions();
@@ -472,8 +493,8 @@ public abstract class InputControl
      */
     protected final String formatValue(ValueInfo vi)
     {
-        boolean hasError = false; // ((vi instanceof InputInfo) && !((InputInfo)vi).isValid()); 
-        return formatValue(vi.getValue(true), vi, hasError);
+        // boolean hasError = ((vi instanceof InputInfo) && !((InputInfo)vi).isValid()); 
+        return formatValue(vi.getValue(true), vi);
     }
     
     /**

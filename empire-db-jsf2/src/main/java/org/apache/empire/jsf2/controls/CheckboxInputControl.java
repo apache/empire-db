@@ -76,15 +76,9 @@ public class CheckboxInputControl extends InputControl
     }
     
     @Override
-    public Object getInputValue(UIComponent comp, InputInfo ii, boolean submitted)
+    protected Object parseInputValue(String value, InputInfo ii)
     {
-        Object value = super.getInputValue(comp, ii, submitted);
-        // Convert to boolean
-        if (!ObjectUtils.isEmpty(value))
-        {
-            return ObjectUtils.getBoolean(value);
-        }
-        return value;
+        return ObjectUtils.getBoolean(value);
     }
     
 }

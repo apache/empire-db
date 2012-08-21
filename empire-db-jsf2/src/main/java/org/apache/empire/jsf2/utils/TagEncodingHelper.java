@@ -344,11 +344,21 @@ public class TagEncodingHelper implements NamingContainer
         if (getColumn() == null)
         	throw new NotSupportedException(this, "getInputControl");
         // Get Control from column
-        String controlType = column.getControlType();
+        String controlType = getTagAttribute("controlType");
+        if (controlType==null)
+        {   controlType = column.getControlType();
+            // Always use SelectInputControl
+            if (TextInputControl.NAME.equalsIgnoreCase(controlType))
+            {   Object attr = tag.getAttributes().get("options");
+                if (attr != null && (attr instanceof Options) && !((Options)attr).isEmpty())
+                    controlType = SelectInputControl.NAME;
+            }
+        }
+        // find control type
         if (StringUtils.isNotEmpty(controlType))
             control = InputControlManager.getControl(controlType);
         if (control == null)
-        { // Auto-detect
+        {   // Auto-detect
             if (getValueOptions()!=null)
                 controlType = SelectInputControl.NAME;
             else
