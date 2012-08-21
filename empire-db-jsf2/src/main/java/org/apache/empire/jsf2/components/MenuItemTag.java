@@ -235,7 +235,7 @@ public class MenuItemTag extends LinkTag
     {
         if (StringUtils.isEmpty(newClass))
             return styleClass;
-        return (styleClass==null) ? newClass : " "+newClass;
+        return (styleClass==null) ? newClass : styleClass+" "+newClass;
     }
     
 }

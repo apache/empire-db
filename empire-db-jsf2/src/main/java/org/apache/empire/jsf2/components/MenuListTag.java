@@ -37,7 +37,7 @@ public class MenuListTag extends UIOutput implements NamingContainer
     
     private String currentId = null; 
     private String currentClass = null; 
-    private String enabledClass = null; 
+    // private String enabledClass = null; 
     private String disabledClass = null; 
     private String expandedClass = null;
     private String defaultItemClass = null; // e.g. "level{}"
@@ -90,7 +90,7 @@ public class MenuListTag extends UIOutput implements NamingContainer
     {
         currentId = StringUtils.toString(map.get("currentId"));
         currentClass = StringUtils.toString(map.get("currentClass")); 
-        enabledClass = StringUtils.toString(map.get("enabledClass")); 
+        // enabledClass = StringUtils.toString(map.get("enabledClass")); 
         disabledClass = StringUtils.toString(map.get("disabledClass")); 
         expandedClass = StringUtils.toString(map.get("expandedClass"));
         defaultItemClass = StringUtils.toString(map.get("defaultItemClass"));
@@ -103,8 +103,8 @@ public class MenuListTag extends UIOutput implements NamingContainer
             currentId = parent.getCurrentId();  
         if (currentClass==null)
             currentClass = parent.getCurrentClass();  
-        if (enabledClass==null)
-            enabledClass = parent.getEnabledClass();
+        // if (enabledClass==null)
+        //     enabledClass = parent.getEnabledClass();
         if (disabledClass==null)
             disabledClass = parent.getDisabledClass();
         if (expandedClass==null)
@@ -141,10 +141,12 @@ public class MenuListTag extends UIOutput implements NamingContainer
         return currentClass;
     }
 
+    /*
     public String getEnabledClass()
     {
         return enabledClass;
     }
+    */
 
     public String getDisabledClass()
     {
@@ -181,10 +183,12 @@ public class MenuListTag extends UIOutput implements NamingContainer
         this.currentClass = currentClass;
     }
 
+    /*
     public void setEnabledClass(String enabledClass)
     {
         this.enabledClass = enabledClass;
     }
+    */
 
     public void setDisabledClass(String disabledClass)
     {
