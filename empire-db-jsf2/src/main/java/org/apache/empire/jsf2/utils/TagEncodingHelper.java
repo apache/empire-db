@@ -301,6 +301,11 @@ public class TagEncodingHelper implements NamingContainer
             return getTagStyleClass(addlStyle);
         }
 
+        @Override
+        public Object getAttribute(String name)
+        {
+            return getTagAttribute(name);
+        }
     }
 
     // Logger
@@ -326,6 +331,43 @@ public class TagEncodingHelper implements NamingContainer
     public void encodeBegin()
     {
         /* nothing */
+    }
+
+    public InputControl getInputControl()
+    {
+        if (control != null)
+        {   // Must check record!
+            checkRecord();
+            return control;
+        }    
+        // Create
+        if (getColumn() == null)
+        	throw new NotSupportedException(this, "getInputControl");
+        // Get Control from column
+        String controlType = column.getControlType();
+        if (StringUtils.isNotEmpty(controlType))
+            control = InputControlManager.getControl(controlType);
+        if (control == null)
+        { // Auto-detect
+            if (getValueOptions()!=null)
+                controlType = SelectInputControl.NAME;
+            else
+            {   // get from data type
+                DataType dataType = column.getDataType();
+                controlType = FacesUtils.getFacesApplication().getDefaultControlType(dataType);
+            }
+            // get default control
+            control = InputControlManager.getControl(controlType);
+            // Still not? Use Text Control
+            if (control == null)
+                control = InputControlManager.getControl(TextInputControl.NAME);
+            // debug
+            if (log.isDebugEnabled() && !controlType.equals(TextInputControl.NAME))
+                log.debug("Auto-detected field control for " + column.getName() + " is " + controlType);
+        }
+        // check record
+        checkRecord();
+        return control;
     }
     
     private void checkRecord()
@@ -362,41 +404,6 @@ public class TagEncodingHelper implements NamingContainer
             if (!(this.record instanceof Record))
                 this.record = null;
         }
-    }
-
-    public InputControl getInputControl()
-    {
-        if (control != null)
-            return control;
-        // Create
-        if (getColumn() == null)
-        	throw new NotSupportedException(this, "getInputControl");
-        // Get Control from column
-        String controlType = column.getControlType();
-        InputControl control = null;
-        if (StringUtils.isNotEmpty(controlType))
-            control = InputControlManager.getControl(controlType);
-        if (control == null)
-        { // Auto-detect
-            if (getValueOptions()!=null)
-                controlType = SelectInputControl.NAME;
-            else
-            {   // get from data type
-                DataType dataType = column.getDataType();
-                controlType = FacesUtils.getFacesApplication().getDefaultControlType(dataType);
-            }
-            // get default control
-            control = InputControlManager.getControl(controlType);
-            // Still not? Use Text Control
-            if (control == null)
-                control = InputControlManager.getControl(TextInputControl.NAME);
-            // debug
-            if (log.isDebugEnabled() && !controlType.equals(TextInputControl.NAME))
-                log.debug("Auto-detected field control for " + column.getName() + " is " + controlType);
-        }
-        // check record
-        checkRecord();
-        return control;
     }
 
     public InputControl.ValueInfo getValueInfo(FacesContext ctx)
@@ -917,20 +924,20 @@ public class TagEncodingHelper implements NamingContainer
     protected String getLabelValue(Column column, boolean colon)
     {
         String label = getTagAttribute("label");
-        if (label!=null)
-            return label;
-        // Check for short form    
-        if (hasFormat("short"))
-        {
-            label = StringUtils.toString(column.getAttribute(COLATTR_ABBR_TITLE));
-            if (label==null)
-                log.warn("No Abbreviation available for column {}. Using normal title.", column.getName());
-        }
-        // Use normal title
         if (label==null)
-            label=column.getTitle();
-        // translate
-        label = getDisplayText(label);
+        {   // Check for short form    
+            if (hasFormat("short"))
+            {
+                label = StringUtils.toString(column.getAttribute(COLATTR_ABBR_TITLE));
+                if (label==null)
+                    log.warn("No Abbreviation available for column {}. Using normal title.", column.getName());
+            }
+            // Use normal title
+            if (label==null)
+                label=column.getTitle();
+            // translate
+            label = getDisplayText(label);
+        }    
         // handle empty string
         if (StringUtils.isEmpty(label))
             return "";

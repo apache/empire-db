@@ -191,6 +191,8 @@ public class InputTag extends UIInput implements NamingContainer
         inpInfo.setValue(getLocalValue());
         setValue(null);
         setLocalValueSet(false);
+        // Post update
+        control.postUpdateModel(this, inpInfo, context);
     }
     
     public Column getInputColumn()

@@ -169,10 +169,15 @@ public class ControlTag extends UIInput implements NamingContainer
             }
             
             ControlTag controlTag = (ControlTag)parent;
-            TagEncodingHelper helper = controlTag.helper;
+            InputControl control = controlTag.control;
+            InputControl.ValueInfo valInfo = controlTag.inpInfo;
 
-            InputControl control = helper.getInputControl();
-            InputControl.ValueInfo valInfo = helper.getValueInfo(context);
+            TagEncodingHelper helper = controlTag.helper;
+            if (control==null)
+                control = helper.getInputControl(); // Oops, should not come here 
+            if (valInfo==null)
+                valInfo = helper.getValueInfo(context); // Oops, should not come here 
+            
             String styleClass = helper.getTagStyleClass("eInpDis");
             String tooltip    = helper.getValueTooltip(helper.getTagAttribute("title"));
             
@@ -397,8 +402,8 @@ public class ControlTag extends UIInput implements NamingContainer
         // Get Input Tag
         if (getChildCount()<=1)
             return null;
-        ControlSeparatorComponent inputSepTag = (ControlSeparatorComponent) getChildren().get(1); 
         // get Input Value
+        ControlSeparatorComponent inputSepTag = (ControlSeparatorComponent) getChildren().get(1); 
         return control.getInputValue(inputSepTag, inpInfo, true);
     }
 
@@ -425,7 +430,6 @@ public class ControlTag extends UIInput implements NamingContainer
         // get submitted value and validate
         if (log.isDebugEnabled())
             log.debug("Validating input for {}.", inpInfo.getColumn().getName());
-        
         // Validate value
         try {
             // Will internally call getSubmittedValue() and validateValue() 
@@ -454,6 +458,9 @@ public class ControlTag extends UIInput implements NamingContainer
         inpInfo.setValue(getLocalValue());
         setValue(null);
         setLocalValueSet(false);
+        // Post update
+        ControlSeparatorComponent inputSepTag = (ControlSeparatorComponent) getChildren().get(1); 
+        control.postUpdateModel(inputSepTag, inpInfo, context);
     }
     
     public Column getInputColumn()

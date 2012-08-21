@@ -208,29 +208,34 @@ public class MenuItemTag extends LinkTag
     private String getStyleClass()
     {
         String styleClass = StringUtils.toString(getAttributes().get("styleClass"));
-        String menuClass = null; 
         if (parentMenu!=null)
         {
-            // Menu Class
-            if (isCurrent())
-                menuClass = parentMenu.getCurrentClass();
-            else if (isExpanded())
-                menuClass = parentMenu.getExpandedClass();
-            else if (isDisabled())
-                menuClass = parentMenu.getDisabledClass();
-            else
-                menuClass = parentMenu.getEnabledClass();
             // Style Class
             if (StringUtils.isEmpty(styleClass))
                 styleClass = parentMenu.getItemStyleClass();
+            // Menu Class
+            if (isCurrent())
+                styleClass = appendStyleClass(styleClass, parentMenu.getCurrentClass());
+            else if (isExpanded())
+                styleClass = appendStyleClass(styleClass, parentMenu.getExpandedClass());
+            // Disabled / enabled
+            if (isDisabled())
+                styleClass = appendStyleClass(styleClass, parentMenu.getDisabledClass());
         }
-        // check
-        if (menuClass==null)
-            return styleClass;
-        if (StringUtils.isEmpty(styleClass))
-            return menuClass;
+        else
+        {   // disabled
+            if (isDisabled())
+                styleClass = appendStyleClass(styleClass, "disabled");
+        }
         // both supplied
-        return styleClass+" "+menuClass;
+        return styleClass;
+    }
+    
+    private String appendStyleClass(String styleClass, String newClass)
+    {
+        if (StringUtils.isEmpty(newClass))
+            return styleClass;
+        return (styleClass==null) ? newClass : " "+newClass;
     }
     
 }

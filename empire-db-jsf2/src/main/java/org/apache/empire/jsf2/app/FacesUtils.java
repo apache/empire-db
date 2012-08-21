@@ -32,6 +32,7 @@ import javax.faces.context.FacesContext;
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 
+import org.apache.empire.commons.ObjectUtils;
 import org.apache.empire.db.DBDatabase;
 import org.apache.empire.jsf2.pages.Page;
 import org.apache.empire.jsf2.pages.PageDefinition;
@@ -235,6 +236,17 @@ public class FacesUtils
     public static void addErrorMessage(FacesContext fc, String msg)
     {
         addErrorMessage(fc, null, msg);
+    }
+    
+    public static boolean isClearSubmittedValues(FacesContext fc)
+    {
+        Object validate = fc.getExternalContext().getRequestMap().get("CLEAR_SUBMITTED_VALUES");
+        return (validate!=null ? ObjectUtils.getBoolean(validate) : false);
+    }
+
+    public static void setClearSubmittedValues(FacesContext fc, boolean validate)
+    {
+        fc.getExternalContext().getRequestMap().put("CLEAR_SUBMITTED_VALUES", validate);
     }
     
 }

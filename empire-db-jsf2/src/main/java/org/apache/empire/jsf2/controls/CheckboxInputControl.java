@@ -24,6 +24,7 @@ import javax.faces.component.UIComponent;
 import javax.faces.component.html.HtmlSelectBooleanCheckbox;
 import javax.faces.context.FacesContext;
 
+import org.apache.empire.commons.ObjectUtils;
 import org.apache.empire.exceptions.InternalException;
 import org.apache.empire.exceptions.UnexpectedReturnValueException;
 
@@ -73,5 +74,17 @@ public class CheckboxInputControl extends InputControl
         input.setDisabled(ii.isDisabled());
         setInputValue(input, ii);
     }
-
+    
+    @Override
+    public Object getInputValue(UIComponent comp, InputInfo ii, boolean submitted)
+    {
+        Object value = super.getInputValue(comp, ii, submitted);
+        // Convert to boolean
+        if (!ObjectUtils.isEmpty(value))
+        {
+            return ObjectUtils.getBoolean(value);
+        }
+        return value;
+    }
+    
 }

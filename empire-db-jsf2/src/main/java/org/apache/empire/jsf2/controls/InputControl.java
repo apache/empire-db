@@ -21,6 +21,7 @@ package org.apache.empire.jsf2.controls;
 import java.io.IOException;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 import javax.el.ValueExpression;
 import javax.faces.component.UIComponent;
@@ -34,6 +35,7 @@ import org.apache.empire.commons.StringUtils;
 import org.apache.empire.data.Column;
 import org.apache.empire.exceptions.ObjectNotValidException;
 import org.apache.empire.exceptions.UnexpectedReturnValueException;
+import org.apache.empire.jsf2.app.FacesUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -147,7 +149,7 @@ public abstract class InputControl
     */
     
     private static final Logger log = LoggerFactory.getLogger(InputControl.class);
-
+    
     // Special Input Column Attributes
     public static final String NUMBER_TYPE_ATTRIBUTE      = "numberType";   // "Integer", "Currency", "Percent"  
     public static final String NUMBER_GROUPSEP_ATTRIBUTE  = "numberGroupSeparator"; // boolean
@@ -210,6 +212,7 @@ public abstract class InputControl
         String getOnfocus();
         String getOnblur();
         */
+        Object getAttribute(String name);
     }
     
     private String name;
@@ -247,6 +250,15 @@ public abstract class InputControl
         }
     }
     
+    public void postUpdateModel(UIComponent comp, InputInfo ii, FacesContext fc)
+    {
+        UIInput input = getInputComponent(comp);
+        if (input==null)
+            return; /* May want to override this */
+        // Clear submitted value
+        clearSubmittedValue(input);
+    }
+    
     public Object getInputValue(UIComponent comp, InputInfo ii, boolean submitted)
     {
         UIInput input = getInputComponent(comp);
@@ -254,18 +266,74 @@ public abstract class InputControl
             throw new ObjectNotValidException(this);
         
         // Get value from Input
-        return (submitted) ? input.getSubmittedValue() : input.getValue();        
+        Object value = (submitted) ? input.getSubmittedValue() : input.getValue();
+        if (submitted && value!=null)
+        {
+            // if (!ObjectUtils.compareEqual(value, input.getLocalValue())
+            // {
+            // }
+            
+            FacesContext fc = FacesContext.getCurrentInstance();
+            Map<String, Object> reqMap = fc.getExternalContext().getRequestMap();
+            // Save submitted value
+            String clientId = input.getClientId();
+            if (reqMap.containsKey(clientId))
+            {
+                log.warn("OOps, what is going on here?");
+            }            
+            reqMap.put(clientId, value);
+        }
+        return value;
     }
 
     protected void setInputValue(UIInput input, InputInfo ii)
     {
+        if (input.isLocalValueSet())
+            return;
+        else
+        {   // check Request Map
+            FacesContext fc = FacesContext.getCurrentInstance();
+            if (FacesUtils.isClearSubmittedValues(fc))
+            {   // Clear submitted value
+                if (input.getSubmittedValue()!=null)
+                    input.setSubmittedValue(null);
+            }
+            else
+            {   // Restore submitted value
+                Map<String, Object> reqMap = fc.getExternalContext().getRequestMap();
+                String clientId = input.getClientId();
+                if (reqMap.containsKey(clientId))
+                {   // Set the local value from the request map
+                    Object value = reqMap.get(clientId);
+                    input.setSubmittedValue(value);
+                    return;
+                }
+            }
+        }
+        
         Object value = ii.getValue(false);
         if (value instanceof ValueExpression)
         {   input.setLocalValueSet(false);
             input.setValueExpression("value", (ValueExpression)value);
+            
+            Object check = ((ValueExpression)value).getValue(FacesContext.getCurrentInstance().getELContext());
+            log.info("Expression value is {}.", check);
         }    
         else
+        {   // Set the value
             input.setValue(value);
+        }    
+    }    
+
+    protected void clearSubmittedValue(UIInput input)
+    {
+        input.setSubmittedValue(null);
+        // check Request Map
+        FacesContext fc = FacesContext.getCurrentInstance();
+        Map<String, Object> reqMap = fc.getExternalContext().getRequestMap();
+        String clientId = input.getClientId();
+        if (reqMap.containsKey(clientId))
+            reqMap.remove(clientId);
     }    
     
     /* validate 
