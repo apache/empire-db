@@ -245,50 +245,6 @@ public abstract class DBColumn extends DBColumnExpr
     {
         validate(value);
     }
-
-    /**
-     * Returns true if column the column is a character based column (char, text or clob)
-     * 
-     * @return true if column is a character based column
-     */
-    public boolean isTextColumn()
-    {
-        DataType type = getDataType();
-        return (type==DataType.TEXT || type==DataType.CHAR || type==DataType.CLOB);
-    }
-
-    /**
-     * Returns true if column the column is a numeric column (integer, decimal, float)
-     * 
-     * @return true if column is a numeric column
-     */
-    public boolean isNumericColumn()
-    {
-        DataType type = getDataType();
-        return (type==DataType.INTEGER || type==DataType.DECIMAL || type==DataType.FLOAT || type==DataType.AUTOINC);
-    }
-
-    /**
-     * Returns true if column the column is a date based column (date or datetime)
-     * 
-     * @return true if column is a date based column
-     */
-    public boolean isDateColumn()
-    {
-        DataType type = getDataType();
-        return (type==DataType.DATE || type==DataType.DATETIME);
-    }
-
-    /**
-     * Returns true if column the column is a large object (LOB) column
-     * 
-     * @return true if column is a large object column
-     */
-    public boolean isLOBColumn()
-    {
-        DataType type = getDataType();
-        return (type==DataType.CLOB || type==DataType.BLOB);
-    }
     
     @Override
     public abstract Element addXml(Element parent, long flags);

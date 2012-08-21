@@ -190,7 +190,7 @@ public class DBTableColumn extends DBColumn
         // Negative size?
         if (size<0)
         {   // For Text-Columns set attribute "SINGLEBYTECHARS"
-            if (isTextColumn())
+            if (getDataType().isText())
             {
                 setAttribute(DBCOLATTR_SINGLEBYTECHARS, Boolean.TRUE);
             }    
@@ -247,7 +247,7 @@ public class DBTableColumn extends DBColumn
      */
     public void setSingleByteChars(boolean singleByteChars)
     {
-        if (!isTextColumn())
+        if (!getDataType().isText())
             throw new NotSupportedException(this, "setSingleByteChars");
         // set single byte
         setAttribute(DBCOLATTR_SINGLEBYTECHARS, singleByteChars);
