@@ -46,7 +46,7 @@
 					<e:control column="#{db.EMPLOYEES.GENDER}" value="#{page.searchFilter.gender}" />
 				</sample:formPanelRow>
 				<sample:formButtonRow>
-					<h:commandLink action="#{page.doResetSearch}" value="#{msg.employeeList_resetSearch}" />
+					<h:commandLink action="#{page.doResetSearch}" value="#{msg.employeeList_resetSearch}" immediate="true" />
 					<h:commandLink action="#{page.doSearch}" value="#{msg.employeeList_search}" />
 				</sample:formButtonRow>
 			</sample:formPanel>

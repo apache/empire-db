@@ -20,6 +20,10 @@ package org.apache.empire.jsf2.websample.web.objects;
 
 import java.io.Serializable;
 
+import javax.faces.context.FacesContext;
+
+import org.apache.empire.jsf2.app.FacesUtils;
+
 public class EmployeeSearchFilter implements Serializable
 {
     private static final long serialVersionUID = 1L;
@@ -42,6 +46,12 @@ public class EmployeeSearchFilter implements Serializable
         lastName = "";
         departmentId = "";
         gender = "";
+
+        /**
+         * Make sure submitted values are discarded.
+         * Works only, if the "immediate" attribute on the h:commandLink tag is set to true 
+         */
+        FacesUtils.setClearSubmittedValues(FacesContext.getCurrentInstance(), true);
     }
 
     public String getEmployeeId()
