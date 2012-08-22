@@ -155,6 +155,11 @@ public class BeanRecordProxy<T> implements Record
         return column.getOptions();
     }
 
+    public boolean isFieldVisible(Column column)
+    {
+        return true;
+    }
+
     public boolean isFieldReadOnly(Column column)
     {
     	if (isNew()==false && ObjectUtils.contains(keyColumns, column))
@@ -164,9 +169,9 @@ public class BeanRecordProxy<T> implements Record
         return column.isReadOnly();
     }
 
-    public boolean isFieldVisible(Column column)
+    public boolean isFieldRequired(Column column)
     {
-        return true;
+        return column.isRequired();
     }
 
     public boolean isModified()

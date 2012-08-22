@@ -74,6 +74,13 @@ public interface Record extends RecordData
     Column[] getKeyColumns();    
 
     /**
+     * returns true if the field is visible to the client.
+     * @param column the column to check for visibility
+     * @return true if the field is visible to the client
+     */
+    boolean isFieldVisible(Column column);
+
+    /**
      * returns true if the field is read-only.
      * @param column the requested column
      * @return true if the field is read-only
@@ -81,11 +88,11 @@ public interface Record extends RecordData
     boolean isFieldReadOnly(Column column);
 
     /**
-     * returns true if the field is visible to the client.
-     * @param column the column to check for visibility
-     * @return true if the field is visible to the client
+     * returns true if the field is required.
+     * @param column the requested column
+     * @return true if the field is required
      */
-    boolean isFieldVisible(Column column);
+    boolean isFieldRequired(Column column);
 
     /**
      * returns the Options list for the given record field.

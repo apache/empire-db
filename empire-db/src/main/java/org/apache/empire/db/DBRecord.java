@@ -551,50 +551,55 @@ public class DBRecord extends DBRecordData implements Record, Cloneable
     }
     
     /**
-     * returns whether a field is read only or not
-     * 
-     * @param column the database column 
-     * 
-     * @return true if the field is read only
-     */
-    public boolean isFieldReadOnly(DBColumn column)
-    {
-        if (rowset==null)
-            throw new ObjectNotValidException(this);
-        // Ask RowSet
-        return (rowset.isColumnReadOnly(column));
-    }
-    
-    /**
-     * returns whether a field is read only or not
-     */
-    public final boolean isFieldReadOnly(Column column)
-    {
-        return isFieldReadOnly((DBColumn)column);
-    }
-    
-    /**
      * returns whether a field is visible to the client or not
      * <P>
      * May be overridden to implement context specific logic.
      * @param column the column which to check for visibility
      * @return true if the column is visible or false if not 
      */
-    public boolean isFieldVisible(DBColumn column)
+    public boolean isFieldVisible(Column column)
     {
         if (rowset==null)
             throw new ObjectNotValidException(this);
         // Check if field is present and the value is valid 
         int index = rowset.getColumnIndex(column);
+    	if (index<0)
+            throw new InvalidArgumentException("column", column);
         return (index>=0 && isValueValid(index));
     }
     
     /**
      * returns whether a field is read only or not
+     * 
+     * @param column the database column 
+     * 
+     * @return true if the field is read only
      */
-    public final boolean isFieldVisible(Column column)
+    public boolean isFieldReadOnly(Column column)
     {
-        return isFieldVisible((DBColumn)column);
+        if (rowset==null)
+            throw new ObjectNotValidException(this);
+    	if (rowset.getColumnIndex(column)<0)
+            throw new InvalidArgumentException("column", column);
+        // Ask RowSet
+        return (rowset.isColumnReadOnly((DBColumn)column));
+    }
+    
+    /**
+     * returns whether a field is required or not
+     * 
+     * @param column the database column 
+     * 
+     * @return true if the field is required
+     */
+    public boolean isFieldRequired(Column column)
+    {
+        if (rowset==null)
+            throw new ObjectNotValidException(this);
+    	if (rowset.getColumnIndex(column)<0)
+            throw new InvalidArgumentException("column", column);
+        // from column definition
+        return (column.isRequired());
     }
 
     /**
