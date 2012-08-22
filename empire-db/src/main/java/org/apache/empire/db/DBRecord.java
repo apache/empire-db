@@ -560,11 +560,9 @@ public class DBRecord extends DBRecordData implements Record, Cloneable
     public boolean isFieldVisible(Column column)
     {
         if (rowset==null)
-            throw new ObjectNotValidException(this);
-        // Check if field is present and the value is valid 
+            return false;
+    	// Check value
         int index = rowset.getColumnIndex(column);
-    	if (index<0)
-            throw new InvalidArgumentException("column", column);
         return (index>=0 && isValueValid(index));
     }
     

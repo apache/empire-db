@@ -227,6 +227,10 @@ public class ControlTag extends UIInput implements NamingContainer
 
     private boolean initState(FacesContext context)
     {
+        // Check visibility
+        if (helper.isVisible()==false)
+            return false; // not visible
+        // Check read-Only
         Boolean ros = (Boolean)getStateHelper().get(readOnlyState);
         if (ros!=null && ros.booleanValue())
             return false;
@@ -242,6 +246,12 @@ public class ControlTag extends UIInput implements NamingContainer
     {
         // add label and input components when the view is loaded for the first time
         super.encodeBegin(context);
+
+        // Check visiblity
+        if (helper.isVisible()==false)
+        {   setRendered(false);
+            return; // not visible
+        }
         
         // init
         helper.encodeBegin();

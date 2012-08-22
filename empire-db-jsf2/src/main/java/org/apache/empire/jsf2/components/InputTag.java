@@ -74,6 +74,9 @@ public class InputTag extends UIInput implements NamingContainer
 
     private boolean initState(FacesContext context)
     {
+        // Check visibility
+        if (helper.isVisible()==false)
+            return false; // not visible
         // Must have children
         if (getChildCount()==0)
         {   log.warn("InputTag has no children! Unable to init Input state.");
@@ -96,6 +99,12 @@ public class InputTag extends UIInput implements NamingContainer
     {
         // add label and input components when the view is loaded for the first time
         super.encodeBegin(context);
+
+        // Check visiblity
+        if (helper.isVisible()==false)
+        {   setRendered(false);
+            return; // not visible
+        }
         
         // init
         helper.encodeBegin();

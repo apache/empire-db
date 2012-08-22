@@ -515,7 +515,14 @@ public class TagEncodingHelper implements NamingContainer
         if (getRecord() != null)
         { // value
             if (record instanceof Record)
-            { // a record
+            {   /* special case
+                if (value==null && getColumn().isRequired())
+                {   // ((Record)record).isFieldRequired(column)==false
+                    log.warn("Unable to set null for required field!");
+                    return;
+                }
+                */
+                // a record
                 ((Record) record).setValue(getColumn(), value);
             }
             else if (record instanceof RecordData)
@@ -566,6 +573,21 @@ public class TagEncodingHelper implements NamingContainer
         return false;
     }
 
+    public boolean isVisible()
+    {
+        // reset record
+        if (this.record!=null && (tag.getAttributes().get("record") instanceof Record))
+            this.record=null;
+        // Check Record
+        if ((getRecord() instanceof Record))
+        { // Ask Record
+            Record r = (Record) record;
+            return r.isFieldVisible(getColumn());
+        }
+        // column
+        return true;
+    }
+
     public boolean isReadOnly()
     {
         // check attribute
@@ -576,11 +598,10 @@ public class TagEncodingHelper implements NamingContainer
         if (isRecordReadOnly())
             return true;
         // Check Record
-        if ((record instanceof Record))
+        if ((getRecord() instanceof Record))
         { // Ask Record
             Record r = (Record) record;
-            if (r.isFieldReadOnly(getColumn()))
-                return true;
+            return r.isFieldReadOnly(getColumn());
         }
         // column
         return getColumn().isReadOnly();
@@ -588,16 +609,25 @@ public class TagEncodingHelper implements NamingContainer
 
     public boolean isValueRequired()
     {
+        /*
         Object required = tag.getAttributes().get("mandatory");
         if (required != null)
             return ObjectUtils.getBoolean(required);
-        // See if we have a record parent
+        */    
+        // Check Read-Only first
         if (isReadOnly())
             return false;
+        // Check Record
+        if ((getRecord() instanceof Record))
+        {   // Ask Record
+            Record r = (Record) record;
+            return r.isFieldRequired(getColumn());
+        }
+        // Check Value Attribute
         if (hasValueAttribute() && (hasValueExpr==null || hasValueExpr.booleanValue()))
             return false;
         // Required
-        return column.isRequired();
+        return getColumn().isRequired();
     }
 
     /* Helpers */
