@@ -27,6 +27,8 @@ import javax.faces.context.FacesContext;
 import javax.faces.context.ResponseWriter;
 
 import org.apache.empire.data.Column;
+import org.apache.empire.db.exceptions.FieldIllegalValueException;
+import org.apache.empire.exceptions.EmpireException;
 import org.apache.empire.jsf2.controls.InputControl;
 import org.apache.empire.jsf2.utils.TagEncodingHelper;
 import org.slf4j.Logger;
@@ -197,6 +199,9 @@ public class InputTag extends UIInput implements NamingContainer
             
         } catch(Exception e) {
             // Value is not valid
+            if (!(e instanceof EmpireException))
+                e = new FieldIllegalValueException(helper.getColumn(), "", e);
+            // Add error message
             helper.addErrorMessage(context, e);
             setValid(false);
         }

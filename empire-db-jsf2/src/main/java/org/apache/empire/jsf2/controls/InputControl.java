@@ -448,19 +448,17 @@ public abstract class InputControl
         copyAttribute(ii, input, "style");
         copyAttribute(ii, input, "tabindex");
         copyAttribute(ii, input, "onchange");
-        
+
+        // immediate
+        Object immediate = ii.getAttribute("immediate");
+        if (immediate!=null && ObjectUtils.getBoolean(immediate))
+        {
+            log.warn("Immediate attribute is not yet supported for {}!", ii.getColumn().getName());
+            // input.setImmediate(true);
+        }    
+
         // validator
         // input.addValidator(new ColumnValueValidator(ii.getColumn()));
-        
-        // IceFaces special
-        /*
-        if (input instanceof IceExtended)
-        {   // partialSubmit
-            Object v = parent.getAttributes().get("partialSubmit");
-            if (v!=null)
-               ((IceExtended)input).setPartialSubmit(ObjectUtils.getBoolean(v));
-        }
-        */
     }
 
     protected final void copyAttributes(UIComponent parent, InputInfo ii, UIInput input)

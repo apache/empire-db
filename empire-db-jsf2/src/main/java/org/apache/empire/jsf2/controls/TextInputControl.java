@@ -263,7 +263,7 @@ public class TextInputControl extends InputControl
     protected Object formatInputValue(Object value, InputInfo ii)
     {
         if (value == null)
-            return value;
+            return "";
         // Check options
         Options options = ii.getOptions();
         if (options != null && !options.isEmpty())

@@ -321,6 +321,7 @@ public class TagEncodingHelper implements NamingContainer
     private Boolean             hasValueExpr = null;
     private InputControl        control      = null;
     private TextResolver        textResolver = null;
+    private Object              mostRecentValue = null;
 
     public TagEncodingHelper(UIOutput tag, String tagCssStyle)
     {
@@ -466,6 +467,7 @@ public class TagEncodingHelper implements NamingContainer
     public void setRecord(Object record)
     {
         this.record = record;
+        this.mostRecentValue = null; 
     }
 
     public RecordTag getRecordComponent()
@@ -488,14 +490,23 @@ public class TagEncodingHelper implements NamingContainer
         }
         return null;
     }
+    
+    private boolean isDetectFieldChange()
+    {
+        Object v = this.getTagAttribute("detectFieldChange");
+        if (v==null && recordTag != null)
+            v = recordTag.getAttributes().get("detectFieldChange");
+        return (v!=null ? ObjectUtils.getBoolean(v) : true);
+    }
 
     public Object getDataValue(boolean evalExpression)
     {
         if (getRecord() != null)
-        { // value
+        {   // value
             if (record instanceof RecordData)
             { // a record
-                return ((RecordData) record).getValue(getColumn());
+                mostRecentValue = ((RecordData) record).getValue(getColumn());
+                return mostRecentValue;
             }
             else
             { // a normal bean
@@ -533,6 +544,15 @@ public class TagEncodingHelper implements NamingContainer
                     return;
                 }
                 */
+                if (isDetectFieldChange())
+                {   // DetectFieldChange by comparing current and most recent value
+                    Object currentValue = ((Record) record).getValue(getColumn());
+                    if (!ObjectUtils.compareEqual(currentValue, mostRecentValue))
+                    {   // Value has been changed by someone else!
+                        log.info("Concurrent data change for "+getColumn().getName()+". Current Value is {}. Ignoring new value {}", currentValue, value);
+                        return;
+                    }
+                }
                 // a record
                 ((Record) record).setValue(getColumn(), value);
             }
