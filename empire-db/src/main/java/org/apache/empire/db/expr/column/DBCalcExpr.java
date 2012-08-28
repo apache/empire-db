@@ -19,14 +19,15 @@
 package org.apache.empire.db.expr.column;
 
 // Java
+import java.util.Date;
+import java.util.Set;
+
 import org.apache.empire.data.DataType;
 import org.apache.empire.db.DBColumn;
 import org.apache.empire.db.DBColumnExpr;
 import org.apache.empire.db.DBDatabase;
 import org.apache.empire.db.DBExpr;
 import org.w3c.dom.Element;
-
-import java.util.Set;
 
 
 /**
@@ -79,7 +80,18 @@ public class DBCalcExpr extends DBColumnExpr
     @Override
     public DataType getDataType()
     {
-        return DataType.DECIMAL;
+        DataType type = expr.getDataType();
+        // Special treatment for adding days to dates
+        if (type.isDate() && ((value instanceof Date) || value instanceof DBDatabase.DBSystemDate))
+            return DataType.DECIMAL;
+        if ((value instanceof DBColumnExpr))
+        {   // Use the value type?
+            DataType type2 =  ((DBColumnExpr)value).getDataType();
+            if (type2.isNumeric() && type2.ordinal()>type.ordinal())
+                return type2;
+        }
+        // type
+        return type;
     }
 
     /** Returns the given expression name. */
@@ -149,7 +161,12 @@ public class DBCalcExpr extends DBColumnExpr
         // Zusammenbauen
         expr.addSQL(buf, context);
         buf.append(op);
-        buf.append(getObjectValue(getDataType(), value, context, op));
+        // Special treatment for adding days to dates
+        DataType type = expr.getDataType();
+        if (type.isNumeric()==false && (value instanceof Number))
+            type = DataType.DECIMAL;
+        // append
+        buf.append(getObjectValue(type, value, context, op));
     }
 
     @Override

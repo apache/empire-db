@@ -660,9 +660,51 @@ public abstract class DBDatabaseDriver implements Serializable
                 }
                 return getSQLPhrase((boolVal) ? SQL_BOOLEAN_TRUE : SQL_BOOLEAN_FALSE);
             }
+            case INTEGER:
+            case DECIMAL:
+            case FLOAT:
+                return getSQLNumberString(value, type);
+            case BLOB:
+                throw new NotSupportedException(this, "getValueString(?, DataType.BLOB)"); 
+            case AUTOINC:
+            case UNKNOWN:
+                /* Allow expressions */
+                return value.toString();
             default:
+                log.warn("Unknown DataType {} for getValueString().", type);
                 return value.toString();
         }
+    }
+    
+    /**
+     * encodes a numeric value for an SQL command string. 
+     * @param value the numeric value
+     * @param type the number data type
+     * @return the string reprentation of the number
+     */
+    protected String getSQLNumberString(Object value, DataType type)
+    {
+        // already a number
+        if (value instanceof Number)
+            return value.toString();
+        
+        // check if it is a number
+        String s = value.toString();
+        boolean integerOnly = (type==DataType.INTEGER);
+        for (int i=0; i<s.length(); i++)
+        {
+            char c = s.charAt(i);
+            if (c>='0' && c<='9')
+                continue; // OK
+            if (c=='-' || c=='+')
+                continue; // OK
+            if (c==' ' && i>0)
+                return s.substring(0,i);
+            // check 
+            if (integerOnly || (c!='.' && c!=','))
+                throw new NumberFormatException(s);
+        }
+        return s;
     }
 
     /**
