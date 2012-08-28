@@ -330,7 +330,16 @@ public class TagEncodingHelper implements NamingContainer
 
     public void encodeBegin()
     {
-        /* nothing */
+        if (tag instanceof UIInput)
+        {   /* has local value? */
+            if (((UIInput)tag).isLocalValueSet())
+            {   /* clear local value */
+                if (log.isDebugEnabled())
+                    log.debug("clearing local value for {}. value is {}.", getColumn().getName(), ((UIInput)tag).getLocalValue());
+                ((UIInput)tag).setValue(null);
+                ((UIInput)tag).setLocalValueSet(false);
+            }
+        }
     }
 
     public InputControl getInputControl()
@@ -501,6 +510,8 @@ public class TagEncodingHelper implements NamingContainer
             else
             {   // return value or value expression
                 Object value = tag.getLocalValue();
+                if (value!=null && (tag instanceof UIInput) && !((UIInput)tag).isLocalValueSet())
+                    value= null; /* should never come here! */
                 if (value==null)
                     value = findValueExpression();
                 

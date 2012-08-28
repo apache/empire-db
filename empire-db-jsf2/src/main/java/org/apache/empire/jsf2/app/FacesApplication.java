@@ -152,28 +152,6 @@ public abstract class FacesApplication extends ApplicationImpl
         }
         return false;
     }
-    
-    /**
-     * returns true if a form input element has been partially submitted
-     * @param fc the Faces Context
-     * @return the componentId or null if no partial submit was been performed
-     */
-    public boolean isPartialSubmit(final FacesContext fc)
-    {
-        Map<String,String> parameterMap = fc.getExternalContext().getRequestParameterMap();    
-        return ObjectUtils.getBoolean(parameterMap.get("ice.submit.partial"));      
-    }
-
-    /**
-     * returns the componentId for which a partial submit has been performed.
-     * @param fc the Faces Context
-     * @return the componentId or null if no partial submit was been performed
-     */
-    public String getPartialSubmitComponentId(final FacesContext fc)
-    {
-        Map<String,String> parameterMap = fc.getExternalContext().getRequestParameterMap();
-        return parameterMap.get("ice.event.captured"); 
-    }
 
     /**
      * finds a component from with a given id from a given start component

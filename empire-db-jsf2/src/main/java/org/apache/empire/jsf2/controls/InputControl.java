@@ -33,9 +33,9 @@ import org.apache.empire.commons.ObjectUtils;
 import org.apache.empire.commons.Options;
 import org.apache.empire.commons.StringUtils;
 import org.apache.empire.data.Column;
+import org.apache.empire.exceptions.InvalidArgumentException;
 import org.apache.empire.exceptions.ObjectNotValidException;
 import org.apache.empire.exceptions.UnexpectedReturnValueException;
-import org.apache.empire.jsf2.app.FacesUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -292,6 +292,7 @@ public abstract class InputControl
 
     protected void setInputValue(UIInput input, InputInfo ii)
     {
+        /*
         if (input.isLocalValueSet())
             return;
         else
@@ -314,10 +315,32 @@ public abstract class InputControl
                 }
             }
         }
+        */
+
+        // Restore submitted value
+        FacesContext fc = FacesContext.getCurrentInstance();
+        Map<String, Object> reqMap = fc.getExternalContext().getRequestMap();
+        String clientId = input.getClientId();
+        if (reqMap.containsKey(clientId))
+        {   // Set the local value from the request map
+            Object value = reqMap.get(clientId);
+            input.setSubmittedValue(value);
+            return;
+        }
+        else if (input.getSubmittedValue()!=null) //  && FacesUtils.isClearSubmittedValues(fc)
+        {   // Clear submitted value   
+            if (log.isDebugEnabled())
+                log.debug("clearing submitted value for {}. value is {}.", ii.getColumn().getName(), input.getSubmittedValue());
+            input.setSubmittedValue(null);
+        }
         
+        /* -------------------------------------- */
+
+        // Assign value
         Object value = ii.getValue(false);
         if (value instanceof ValueExpression)
-        {   input.setLocalValueSet(false);
+        {   input.setValue(null);
+            input.setLocalValueSet(false);
             input.setValueExpression("value", (ValueExpression)value);
             
             Object check = ((ValueExpression)value).getValue(FacesContext.getCurrentInstance().getELContext());
@@ -422,9 +445,9 @@ public abstract class InputControl
         String styleClass = ii.getStyleClass(additonalStyle);
         input.getAttributes().put("styleClass", styleClass);
         
-        copyAttribute(parent, input, "style");
-        copyAttribute(parent, input, "tabindex");
-        copyAttribute(parent, input, "onchange");
+        copyAttribute(ii, input, "style");
+        copyAttribute(ii, input, "tabindex");
+        copyAttribute(ii, input, "onchange");
         
         // validator
         // input.addValidator(new ColumnValueValidator(ii.getColumn()));
@@ -445,9 +468,12 @@ public abstract class InputControl
         copyAttributes(parent, ii, input, null);
     }
 
-    protected void copyAttribute(UIComponent parent, UIInput input, String name)
+    protected void copyAttribute(InputInfo ii, UIInput input, String name)
     {
-        Object value = parent.getAttributes().get(name);
+        if (ii==null)
+            throw new InvalidArgumentException("InputInfo", ii);
+        // get Attribute
+        Object value = ii.getAttribute(name);
         if (value!=null)
             input.getAttributes().put(name, value);
     }

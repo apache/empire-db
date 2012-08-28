@@ -32,7 +32,6 @@ import javax.faces.context.FacesContext;
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 
-import org.apache.empire.commons.ObjectUtils;
 import org.apache.empire.db.DBDatabase;
 import org.apache.empire.jsf2.pages.Page;
 import org.apache.empire.jsf2.pages.PageDefinition;
@@ -237,7 +236,12 @@ public class FacesUtils
     {
         addErrorMessage(fc, null, msg);
     }
-    
+
+    /**
+     * indicates whether submitted values in InputControl should be cleared or preserved.
+     * Default is true.   
+     * @param fc the faces context
+     * @return true if the submitted values should be cleared or false if they shold be preserved
     public static boolean isClearSubmittedValues(FacesContext fc)
     {
         Object validate = fc.getExternalContext().getRequestMap().get("CLEAR_SUBMITTED_VALUES");
@@ -248,5 +252,6 @@ public class FacesUtils
     {
         fc.getExternalContext().getRequestMap().put("CLEAR_SUBMITTED_VALUES", validate);
     }
+    */
     
 }

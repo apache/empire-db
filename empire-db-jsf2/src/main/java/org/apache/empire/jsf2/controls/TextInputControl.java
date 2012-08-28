@@ -18,6 +18,7 @@
  */
 package org.apache.empire.jsf2.controls;
 
+import java.io.IOException;
 import java.sql.Timestamp;
 import java.text.DateFormat;
 import java.text.NumberFormat;
@@ -30,6 +31,7 @@ import java.util.Locale;
 import javax.faces.component.UIComponent;
 import javax.faces.component.html.HtmlInputText;
 import javax.faces.context.FacesContext;
+import javax.faces.context.ResponseWriter;
 
 import org.apache.empire.commons.ObjectUtils;
 import org.apache.empire.commons.Options;
@@ -271,6 +273,27 @@ public class TextInputControl extends InputControl
     }
     
     // ------- render -------
+    
+    @Override
+    public void renderValue(ValueInfo vi, ResponseWriter writer)
+        throws IOException
+    {
+        String text = formatValue(vi);
+        if (StringUtils.isEmpty(text))
+        {   // nothing
+            writer.append("&nbsp;");
+            return;
+        }    
+        // append text
+        writer.append(text);
+        // unit?
+        String unit = getUnitString(vi);
+        if (StringUtils.isNotEmpty(unit))
+        {   // append unit
+            writer.append(" ");
+            writer.append(unit);
+        }
+    }
     
     /*
     @Override
