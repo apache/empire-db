@@ -343,8 +343,8 @@ public abstract class InputControl
             input.setLocalValueSet(false);
             input.setValueExpression("value", (ValueExpression)value);
             
-            Object check = ((ValueExpression)value).getValue(FacesContext.getCurrentInstance().getELContext());
-            log.info("Expression value is {}.", check);
+            // Object check = ((ValueExpression)value).getValue(FacesContext.getCurrentInstance().getELContext());
+            // log.info("Expression value is {}.", check);
         }    
         else
         {   // Set the value

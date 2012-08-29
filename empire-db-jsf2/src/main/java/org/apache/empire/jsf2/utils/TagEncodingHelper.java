@@ -68,6 +68,10 @@ import org.apache.empire.jsf2.controls.TextInputControl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.sun.faces.component.CompositeComponentStackManager;
+import com.sun.faces.facelets.el.ContextualCompositeValueExpression;
+import com.sun.faces.facelets.el.TagValueExpression;
+
 public class TagEncodingHelper implements NamingContainer
 {
     /**
@@ -805,13 +809,31 @@ public class TagEncodingHelper implements NamingContainer
         String expr = ve.getExpressionString();
         while (expr.startsWith(CC_ATTR_EXPR))
         {
+            // Unwrap
+            if (ve instanceof TagValueExpression)
+                ve = ((TagValueExpression)ve).getWrapped();
             // find parent
-            parent = UIComponent.getCompositeComponentParent(parent);
+            if (ve instanceof ContextualCompositeValueExpression)
+            {
+                FacesContext ctx = FacesContext.getCurrentInstance();
+                ContextualCompositeValueExpression ccve = (ContextualCompositeValueExpression)ve;
+                CompositeComponentStackManager manager = CompositeComponentStackManager.getManager(ctx);
+                UIComponent cc = manager.findCompositeComponentUsingLocation(ctx, ccve.getLocation());
+                // set Parent
+                parent = cc;
+            }
+            else
+            {   // find parent
+                parent = UIComponent.getCompositeComponentParent(parent);
+            }
             if (parent == null)
                 return null;
             // check expression
             int end = expr.indexOf('}');
             String attrib = expr.substring(CC_ATTR_EXPR.length(), end);
+            if (attrib.indexOf('.')>0)
+                return ve; // do not investigate any further
+            // find attribute 
             ve = parent.getValueExpression(attrib);
             if (ve == null)
                 return null;
