@@ -325,6 +325,7 @@ public class TagEncodingHelper implements NamingContainer
     private Column              column       = null;
     private Object              record       = null;
     private RecordTag           recordTag    = null;
+    private Boolean             tagRequired  = null;
     private Boolean             hasValueExpr = null;
     private InputControl        control      = null;
     private TextResolver        textResolver = null;
@@ -339,7 +340,7 @@ public class TagEncodingHelper implements NamingContainer
     public void encodeBegin()
     {
         if (tag instanceof UIInput)
-        {   /* has local value? */
+        {   // has local value?
             if (((UIInput)tag).isLocalValueSet())
             {   /* clear local value */
                 if (log.isDebugEnabled())
@@ -347,6 +348,13 @@ public class TagEncodingHelper implements NamingContainer
                 ((UIInput)tag).setValue(null);
                 ((UIInput)tag).setLocalValueSet(false);
             }
+            // See if the Input is required 
+            ValueExpression ve = findValueExpression("mandatory", true);
+            if (ve!=null)
+            {   Object req = ve.getValue(FacesContext.getCurrentInstance().getELContext());
+                if (req!=null)
+                    tagRequired = new Boolean(ObjectUtils.getBoolean(req));
+            }    
         }
     }
 
@@ -531,7 +539,7 @@ public class TagEncodingHelper implements NamingContainer
                 if (value!=null && (tag instanceof UIInput) && !((UIInput)tag).isLocalValueSet())
                     value= null; /* should never come here! */
                 if (value==null)
-                    value = findValueExpression();
+                    value = findValueExpression("value", false);
                 
                 // value = tag.getValue();
                 return value;
@@ -601,7 +609,7 @@ public class TagEncodingHelper implements NamingContainer
             if (!(record instanceof Record) || ((Record) record).isReadOnly())
                 return true;
         }
-        else if (!hasValueAttribute() || hasValueExpr == null)
+        else if (!hasValueExpression())
         { // No Value expression given
             return true;
         }
@@ -648,11 +656,9 @@ public class TagEncodingHelper implements NamingContainer
 
     public boolean isValueRequired()
     {
-        /*
-        Object required = tag.getAttributes().get("mandatory");
-        if (required != null)
-            return ObjectUtils.getBoolean(required);
-        */    
+        // See if the tag is required
+        if (tagRequired!=null)
+            return tagRequired.booleanValue();
         // Check Read-Only first
         if (isReadOnly())
             return false;
@@ -663,7 +669,7 @@ public class TagEncodingHelper implements NamingContainer
             return r.isFieldRequired(getColumn());
         }
         // Check Value Attribute
-        if (hasValueAttribute() && (hasValueExpr==null || hasValueExpr.booleanValue()))
+        if (hasValueExpression())
             return false;
         // Required
         return getColumn().isRequired();
@@ -741,7 +747,7 @@ public class TagEncodingHelper implements NamingContainer
     {
         Object rec = tag.getAttributes().get("record");
 
-        if (rec == null && hasValueAttribute())
+        if (rec == null && hasValueExpression())
         {   // See if the record is in value
             return null;
         }
@@ -761,21 +767,13 @@ public class TagEncodingHelper implements NamingContainer
         return rec;
     }
     
-    protected boolean hasValueAttribute()
+    protected boolean hasValueExpression()
     {
-        /* this does not work - nor might it be necessary
-        // direct value is set (no expression)
-        if (tag.getAttributes().containsKey("value"))
-            return true;
-        Object v = tag.getLocalValue(); // will be set for input controls that have an error set
-        if (v!=null)
-            v=null;
-        */    
         // Find expression
         if (hasValueExpr != null)
             return hasValueExpr.booleanValue();
         // Find expression
-        ValueExpression ve = findValueExpression();
+        ValueExpression ve = findValueExpression("value", false);
         if (ve != null)
         {   // check
             if (log.isDebugEnabled())
@@ -801,10 +799,10 @@ public class TagEncodingHelper implements NamingContainer
     
     private static final String CC_ATTR_EXPR = "#{cc.attrs.";
 
-    protected ValueExpression findValueExpression()
+    protected ValueExpression findValueExpression(String attribute, boolean allowLiteral)
     {
         // Check for expression
-        ValueExpression ve = tag.getValueExpression("value");
+        ValueExpression ve = tag.getValueExpression(attribute);
         if (ve == null)
             return null;
         // Find expression
@@ -836,11 +834,17 @@ public class TagEncodingHelper implements NamingContainer
             String attrib = expr.substring(CC_ATTR_EXPR.length(), end);
             if (attrib.indexOf('.')>0)
                 return ve; // do not investigate any further
-            // find attribute 
-            ve = parent.getValueExpression(attrib);
-            if (ve == null)
+            // find attribute
+            ValueExpression next = parent.getValueExpression(attrib);
+            if (next == null)
+            {   // allow literal
+                if (allowLiteral && (parent.getAttributes().get(attrib)!=null))
+                    return ve;
+                // not found
                 return null;
+            }
             // get new expression String
+            ve = next;
             expr = ve.getExpressionString();
         }
         // found
