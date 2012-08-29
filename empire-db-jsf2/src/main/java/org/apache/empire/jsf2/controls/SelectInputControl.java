@@ -25,6 +25,7 @@ import javax.faces.component.UISelectItem;
 import javax.faces.component.html.HtmlSelectOneMenu;
 import javax.faces.context.FacesContext;
 
+import org.apache.empire.commons.ObjectUtils;
 import org.apache.empire.commons.OptionEntry;
 import org.apache.empire.commons.Options;
 import org.apache.empire.data.Column;
@@ -78,8 +79,13 @@ public class SelectInputControl extends InputControl
             } catch (IllegalAccessException e2) {
                 throw new InternalException(e2);
             }
+            // copy Attributes
             copyAttributes(parent, ii, input);
-    
+            // disabled
+            Object dis = ii.getAttribute("disabled");
+            if (dis!=null)
+                input.setDisabled(ObjectUtils.getBoolean(dis));
+            // Options
             Options options = ii.getOptions();
             if (ii.isRequired()==false)
             {   // Empty entry
@@ -106,7 +112,7 @@ public class SelectInputControl extends InputControl
         }
         
         // Set Value
-        input.setDisabled(ii.isDisabled());
+        input.setReadonly(ii.isDisabled());
         setInputValue(input, ii);
     }
     

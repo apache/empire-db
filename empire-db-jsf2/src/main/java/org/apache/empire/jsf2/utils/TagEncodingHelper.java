@@ -302,7 +302,10 @@ public class TagEncodingHelper implements NamingContainer
         @Override
         public String getStyleClass(String addlStyle)
         {
-            return getTagStyleClass(addlStyle);
+            String style = getTagStyleClass(addlStyle);
+            if (isReadOnly())
+                style += " eInpDis";
+            return style; 
         }
 
         @Override

@@ -24,6 +24,7 @@ import javax.faces.component.UIComponent;
 import javax.faces.component.html.HtmlInputTextarea;
 import javax.faces.context.FacesContext;
 
+import org.apache.empire.commons.ObjectUtils;
 import org.apache.empire.exceptions.InternalException;
 import org.apache.empire.exceptions.UnexpectedReturnValueException;
 
@@ -64,16 +65,20 @@ public class TextAreaInputControl extends InputControl
             } catch (IllegalAccessException e2) {
                 throw new InternalException(e2);
             }
+            // once
             copyAttributes(parent, ii, input);
-            
+            // disabled
+            Object dis = ii.getAttribute("disabled");
+            if (dis!=null)
+                input.setDisabled(ObjectUtils.getBoolean(dis));
+            // cols
             int cols = getFormatInteger(ii, FORMAT_COLS, FORMAT_COLS_ATTRIBUTE);
             if (cols>0)
                 input.setCols(cols);
-    
+            // rows
             int rows = getFormatInteger(ii, FORMAT_ROWS, FORMAT_ROWS_ATTRIBUTE);
             if (rows>0)
                 input.setRows(rows);
-
             // add
             compList.add(input);
         }
@@ -87,7 +92,7 @@ public class TextAreaInputControl extends InputControl
         }
         
         // Set Value
-        input.setDisabled(ii.isDisabled());
+        input.setReadonly(ii.isDisabled());
         setInputValue(input, ii);
         
     }
