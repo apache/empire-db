@@ -555,6 +555,7 @@ public class TagEncodingHelper implements NamingContainer
                 }
                 // a record
                 ((Record) record).setValue(getColumn(), value);
+                mostRecentValue = value;
             }
             else if (record instanceof RecordData)
             { // a record
