@@ -58,7 +58,59 @@ public class StaticListPageElement<T> extends ListPageElement<T>
     {
         clearItems();
         this.items = items;
-        getTableInfo().init(items.size(), 0);
+        update();
+    }
+    
+    public int size()
+    {
+        return (items!=null ? items.size() : 0);
+    }
+    
+    public boolean contains(T item)
+    {
+        return (items!=null ? items.contains(item) : false);
+    }
+    
+    public boolean add(T item)
+    {
+        if (items==null || items.contains(item))
+            return false;
+        // remove
+        boolean added = items.add(item);
+        if (added)
+            update();
+        return added;
+    }
+    
+    public boolean add(T item, int index)
+    {
+        if (items==null || items.contains(item))
+            return false;
+        // remove
+        items.add(index, item);
+        update();
+        return true;
+    }
+    
+    public boolean move(T item, int index)
+    {
+        if (items==null || !items.contains(item))
+            return false;
+        // remove
+        items.add(index, item);
+        update();
+        return true;
+    }
+    
+    public boolean remove(T item)
+    {
+        if (items==null)
+            return false;
+        // remove
+        boolean removed = items.remove(item);
+        if (removed)
+            update();
+        return removed;
     }
     
     public void update()
