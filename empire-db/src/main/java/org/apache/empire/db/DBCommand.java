@@ -293,14 +293,20 @@ public abstract class DBCommand extends DBCommandExpr
             DBSetExpr chk = set.get(i);
             if (chk.column.equals(expr.column))
             { // Overwrite existing value
-                if (useCmdParam(expr.column, expr.value) && chk.value instanceof DBCmdParam)
+                if (useCmdParam(expr.column, expr.value))
                 {   // replace parameter value
                     // int index = ((DBCommandParam) chk.value).index;
                     // this.setCmdParam(index, getCmdParamValue(expr.column, expr.value));
-                    ((DBCmdParam)chk.value).setValue(expr.value);
+                    if (chk.value instanceof DBCmdParam)
+                        ((DBCmdParam)chk.value).setValue(expr.value);
+                    else
+                        chk.value = addParam(expr.column.getDataType(), expr.value);
                 } 
                 else
-                { // replace value
+                {   // remove from parameter list (if necessary)
+                    if (cmdParams!=null && chk.value instanceof DBCmdParam)
+                        cmdParams.remove(chk.value);
+                    // replace value
                     chk.value = expr.value;
                 }
                 return;
