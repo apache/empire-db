@@ -31,9 +31,9 @@ import org.apache.empire.data.Column;
 import org.apache.empire.data.ColumnExpr;
 import org.apache.empire.data.Record;
 import org.apache.empire.db.exceptions.FieldIsReadOnlyException;
+import org.apache.empire.exceptions.BeanPropertyGetException;
 import org.apache.empire.exceptions.InvalidArgumentException;
 import org.apache.empire.exceptions.ObjectNotValidException;
-import org.apache.empire.exceptions.BeanPropertyGetException;
 import org.apache.empire.xml.XMLUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -50,19 +50,30 @@ public class DBRecord extends DBRecordData implements Record, Cloneable
 {
     private final static long serialVersionUID = 1L;
   
-    /*
-     * TODO convert to an enum?
-     */
-    public static final int REC_INVALID  = -1;
-    // public static final int REC_EMTPY    = 0;
-    public static final int REC_VALID    = 1;
-    public static final int REC_MODIFIED = 2;
-    public static final int REC_NEW      = 3;
+    /* Record state enum */
+    public enum State
+    {
+    	Invalid,
+    /*	Empty,  not used! */
+    	Valid,
+    	Modified,
+    	New;
+
+    	/* Accessors */
+    	boolean isLess(State other)
+    	{
+    		return this.ordinal()<other.ordinal();
+    	}
+    	boolean isEqualOrMore(State other)
+    	{
+    		return this.ordinal()>=other.ordinal();
+    	}
+    }
 
     protected static final Logger log    = LoggerFactory.getLogger(DBRecord.class);
 
     // This is the record data
-    private int             state;
+    private State           state;
     private DBRowSet        rowset;
     private Object[]        fields;
     private boolean[]       modified;
@@ -77,7 +88,7 @@ public class DBRecord extends DBRecordData implements Record, Cloneable
      */
     public DBRecord()
     {
-        state = REC_INVALID;
+        state = State.Invalid;
         rowset = null;
         fields = null;
         modified = null;
@@ -90,7 +101,7 @@ public class DBRecord extends DBRecordData implements Record, Cloneable
      * @param state the state of the record 
      * @param rowSetData any further RowSet specific data
      */
-    protected void init(DBRowSet rowset, int state, Object rowSetData)
+    protected void init(DBRowSet rowset, State state, Object rowSetData)
     {
         // Init
         if (this.rowset != rowset)
@@ -126,7 +137,7 @@ public class DBRecord extends DBRecordData implements Record, Cloneable
      * @param state
      * @param rowSetData
      */
-    protected void changeState(int state, Object rowSetData)
+    protected void changeState(State state, Object rowSetData)
     {
         this.state = state;
         this.rowsetData = rowSetData;
@@ -139,7 +150,7 @@ public class DBRecord extends DBRecordData implements Record, Cloneable
     @Override
     public void close()
     {
-        init(null, REC_INVALID, null);
+        init(null, State.Invalid, null);
     }
     
     /** {@inheritDoc} */
@@ -201,7 +212,7 @@ public class DBRecord extends DBRecordData implements Record, Cloneable
      * 
      * @return the record state
      */
-    public int getState()
+    public State getState()
     {
         return state;
     }
@@ -213,7 +224,7 @@ public class DBRecord extends DBRecordData implements Record, Cloneable
      */
     public boolean isValid()
     {
-        return (state >= DBRecord.REC_VALID);
+        return (state != State.Invalid);
     }
 
     /**
@@ -236,7 +247,7 @@ public class DBRecord extends DBRecordData implements Record, Cloneable
      */
     public boolean isModified()
     {
-        return (state >= DBRecord.REC_MODIFIED);
+        return (state.isEqualOrMore(State.Modified));
     }
 
     /**
@@ -246,7 +257,7 @@ public class DBRecord extends DBRecordData implements Record, Cloneable
      */
     public boolean isNew()
     {
-        return (state == DBRecord.REC_NEW);
+        return (state == State.New);
     }
 
     /**
@@ -335,7 +346,7 @@ public class DBRecord extends DBRecordData implements Record, Cloneable
      */
     public boolean wasModified(int index)
     {
-        if (rowset == null)
+        if (!isValid())
             throw new ObjectNotValidException(this);
         if (index < 0 || index >= fields.length)
             throw new InvalidArgumentException("index", index);
@@ -363,9 +374,12 @@ public class DBRecord extends DBRecordData implements Record, Cloneable
      * @param isModified modified or not
      */
     public void setModified(DBColumn column, boolean isModified)
-    {
+    {	// Check valid
+        if (state == State.Invalid)
+            throw new ObjectNotValidException(this);
+        // Check modified
         if (modified == null)
-        { // Save all original values
+        { 	// Init array
             modified = new boolean[fields.length];
             for (int j = 0; j < fields.length; j++)
                 modified[j] = false;
@@ -374,10 +388,10 @@ public class DBRecord extends DBRecordData implements Record, Cloneable
         if (index >= 0)
             modified[index] = isModified;
         // Set State to modified, if not already at least modified and isModified is set to true
-        if (state < REC_MODIFIED && isModified)
-            state = REC_MODIFIED;
+        if (state.isLess(State.Modified) && isModified)
+            state = State.Modified;
         // Reset state to unmodified, if currently modified and not modified anymore after the change
-        if (state == REC_MODIFIED && !isModified)
+        if (state == State.Modified && !isModified)
         {
         	boolean recordNotModified = true;
             for (int j = 0; j < fields.length; j++)
@@ -389,7 +403,7 @@ public class DBRecord extends DBRecordData implements Record, Cloneable
             }
             if (recordNotModified)
             {
-            	state = REC_VALID;
+            	state = State.Valid;
             }
         }
     }
@@ -483,7 +497,10 @@ public class DBRecord extends DBRecordData implements Record, Cloneable
      * @param value the column value
      */
     public void modifyValue(int i, Object value)
-    { // Init original values
+    {	// Check valid
+        if (state == State.Invalid)
+            throw new ObjectNotValidException(this);
+        // Init original values
         if (modified == null)
         { // Save all original values
             modified = new boolean[fields.length];
@@ -496,8 +513,8 @@ public class DBRecord extends DBRecordData implements Record, Cloneable
         // Set Value
         fields[i] = value;
         // Set State
-        if (state < REC_MODIFIED)
-            state = REC_MODIFIED;
+        if (state.isLess(State.Modified))
+            state = State.Modified;
         // field changed
         onFieldChanged(i);
     }
@@ -512,7 +529,7 @@ public class DBRecord extends DBRecordData implements Record, Cloneable
      */
     public void setValue(int index, Object value)
     {
-        if (rowset == null)
+        if (state == State.Invalid)
             throw new ObjectNotValidException(this);
         if (index < 0 || index >= fields.length)
             throw new InvalidArgumentException("index", index);
@@ -526,6 +543,10 @@ public class DBRecord extends DBRecordData implements Record, Cloneable
         DBColumn column = rowset.getColumn(index);
         if (column.isAutoGenerated())
         {   // Read Only column may be set
+            throw new FieldIsReadOnlyException(column);
+        }
+        if (state!=State.New && rowset.isKeyColumn(column))
+        {   // Key columns cannot be changed
             throw new FieldIsReadOnlyException(column);
         }
         // Is Value valid
@@ -612,7 +633,7 @@ public class DBRecord extends DBRecordData implements Record, Cloneable
      
     public void init(DBRowSet table, Object[] keyValues, boolean insert)
     { // Init with keys
-    	int initialState = (insert ? REC_NEW : REC_VALID);  
+    	State initialState = (insert ? State.New : State.Valid);  
         table.initRecord(this, initialState, keyValues);
     }
     

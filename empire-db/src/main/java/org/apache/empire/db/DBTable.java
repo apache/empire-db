@@ -427,7 +427,7 @@ public class DBTable extends DBRowSet implements Cloneable
     public void createRecord(DBRecord rec, Connection conn)
     {
         // Prepare
-        prepareInitRecord(rec, DBRecord.REC_NEW, null);
+        prepareInitRecord(rec, DBRecord.State.New, null);
         // Set Defaults
         int count = columns.size();
         for (int i = 0; i < count; i++)

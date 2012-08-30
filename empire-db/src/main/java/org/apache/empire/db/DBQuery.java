@@ -343,7 +343,7 @@ public class DBQuery extends DBRowSet
      * @param keyValues an array of the primary key columns
      */
     @Override
-    public void initRecord(DBRecord rec, int initialState, Object[] keyValues)
+    public void initRecord(DBRecord rec, DBRecord.State initialState, Object[] keyValues)
     {
         // Prepare
         prepareInitRecord(rec, initialState, keyValues);
@@ -405,7 +405,7 @@ public class DBQuery extends DBRowSet
             // Read Record
             readRecord(rec, cmd, conn);
             // Set RowSetData
-            rec.changeState(DBRecord.REC_VALID, key.clone());
+            rec.changeState(DBRecord.State.Valid, key.clone());
         } catch (QueryNoResultException e) {
             // Record not found
             throw new RecordNotFoundException(this, key);
@@ -584,7 +584,7 @@ public class DBQuery extends DBRowSet
             }
         }
         // success
-        rec.changeState(DBRecord.REC_VALID, keys);
+        rec.changeState(DBRecord.State.Valid, keys);
     }
 
     /**

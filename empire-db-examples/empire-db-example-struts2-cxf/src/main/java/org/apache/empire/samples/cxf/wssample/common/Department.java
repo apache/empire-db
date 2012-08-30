@@ -21,13 +21,11 @@ package org.apache.empire.samples.cxf.wssample.common;
 
 import java.util.Date;
 
-import org.apache.empire.db.DBRecord;
-
 
 // Holds all the data represented by a department-record from the database
 public class Department {
 
-	private long departmentId = DBRecord.REC_NEW;
+	private long departmentId = 0;
 	private String name = "";
 	private String head = "";
 	private String businessUnit = "";

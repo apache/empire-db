@@ -31,7 +31,7 @@ public abstract class SampleRecord<T extends SampleTable> extends DBRecord {
 	protected T T; // The table
 
 	public SampleRecord(T table) {
-		super.init(table, DBRecord.REC_INVALID, null);
+		super.init(table, DBRecord.State.Invalid, null);
 		this.T = table;
 	}
 
