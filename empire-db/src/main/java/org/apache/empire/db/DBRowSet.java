@@ -485,10 +485,10 @@ public abstract class DBRowSet extends DBExpr
      * @param rec the Record object
      * @param keyValues an array of the primary key columns
      */
-    public void initRecord(DBRecord rec, Object[] keyValues)
+    public void initRecord(DBRecord rec, int initialState, Object[] keyValues)
     {
         // Prepare
-        prepareInitRecord(rec, DBRecord.REC_EMTPY, null);
+        prepareInitRecord(rec, initialState, null);
         // Initialize all Fields
         Object[] fields = rec.getFields();
         for (int i = 0; i < fields.length; i++)

@@ -54,7 +54,7 @@ public class DBRecord extends DBRecordData implements Record, Cloneable
      * TODO convert to an enum?
      */
     public static final int REC_INVALID  = -1;
-    public static final int REC_EMTPY    = 0;
+    // public static final int REC_EMTPY    = 0;
     public static final int REC_VALID    = 1;
     public static final int REC_MODIFIED = 2;
     public static final int REC_NEW      = 3;
@@ -609,11 +609,11 @@ public class DBRecord extends DBRecordData implements Record, Cloneable
      * @param keyValues a Object array, the primary key(s)
      * @param insert if true change the state of this object to REC_NEW
      */
+     
     public void init(DBRowSet table, Object[] keyValues, boolean insert)
     { // Init with keys
-        table.initRecord(this, keyValues);
-        if (insert)
-            state = DBRecord.REC_NEW;
+    	int initialState = (insert ? REC_NEW : REC_VALID);  
+        table.initRecord(this, initialState, keyValues);
     }
     
     /**

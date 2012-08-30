@@ -135,7 +135,7 @@ public abstract class DBCommandExpr extends DBExpr
 
         /** Returns the error message: ERR_NOTSUPPORTED */
         @Override
-        public void initRecord(DBRecord rec, Object[] keyValues)
+        public void initRecord(DBRecord rec, int initialState, Object[] keyValues)
         {
             throw new NotSupportedException(this, "initRecord");
         }
