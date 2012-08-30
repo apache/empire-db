@@ -5,7 +5,7 @@ Apache Empire-db is a lightweight data access and persistence component for
 relational databases based on JDBC.
 
 For release details see the file CHANGELOG.txt or visit the Empire-db website at
-http://incubator.apache.org/empire-db
+http://empire-db.apache.org
 
 
 Getting Started
@@ -55,10 +55,10 @@ Getting help
 
 The best place for getting help is the empire-db user mailing list.
 First subscribe to the list by sending an email to:
-	empire-db-user-subscribe@incubator.apache.org
+	user-subscribe@empire-db.apache.org
 
 Afterwards you may post a message to:
-	empire-db-user@incubator.apache.org
+	user@empire-db.apache.org
 
 Please visit our Website for more information.
-http://incubator.apache.org/empire-db
+http://empire-db.apache.org
