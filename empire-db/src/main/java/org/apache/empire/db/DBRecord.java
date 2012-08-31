@@ -657,6 +657,9 @@ public class DBRecord extends DBRecordData implements Record, Cloneable
             throw new ObjectNotValidException(this);
     	if (rowset.getColumnIndex(column)<0)
             throw new InvalidArgumentException("column", column);
+    	// Check key column 
+        if (isValid() && !isNew() && rowset.isKeyColumn((DBColumn)column))
+        	return true;
         // Ask RowSet
         return (rowset.isColumnReadOnly((DBColumn)column));
     }
