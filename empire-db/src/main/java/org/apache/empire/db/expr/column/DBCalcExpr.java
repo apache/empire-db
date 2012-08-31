@@ -82,9 +82,16 @@ public class DBCalcExpr extends DBColumnExpr
     {
         DataType type = expr.getDataType();
         // Special treatment for adding days to dates
-        if (type.isDate() && ((value instanceof Date) || value instanceof DBDatabase.DBSystemDate))
-            return DataType.DECIMAL;
-        if ((value instanceof DBColumnExpr))
+        if (type.isDate())
+        {   // see whether the value is a date too
+            if ((value instanceof Date) || 
+                (value instanceof DBDatabase.DBSystemDate) ||
+               ((value instanceof DBColumnExpr) && ((DBColumnExpr)value).getDataType().isDate()))
+            {   // Yes, result is a decimal
+                return DataType.DECIMAL;
+            }
+        }
+        else if ((value instanceof DBColumnExpr))
         {   // Use the value type?
             DataType type2 =  ((DBColumnExpr)value).getDataType();
             if (type2.isNumeric() && type2.ordinal()>type.ordinal())
