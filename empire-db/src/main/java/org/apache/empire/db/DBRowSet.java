@@ -475,7 +475,7 @@ public abstract class DBRowSet extends DBExpr
         if (columns.size() < 1)
             throw new ObjectNotValidException(this);
         // Init
-        rec.init(this, rowSetData, insert);
+        rec.initData(this, rowSetData, insert);
     }
 
     /**
