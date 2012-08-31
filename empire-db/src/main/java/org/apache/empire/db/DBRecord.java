@@ -77,6 +77,7 @@ public class DBRecord extends DBRecordData implements Record, Cloneable
     private DBRowSet        rowset;
     private Object[]        fields;
     private boolean[]       modified;
+    private boolean         validateFieldValues;
     // Special Rowset Data (usually null)
     private Object          rowsetData;
 
@@ -93,6 +94,14 @@ public class DBRecord extends DBRecordData implements Record, Cloneable
         fields = null;
         modified = null;
         rowsetData = null;
+        validateFieldValues = true;
+    }
+
+    public DBRecord(DBRowSet initialRowset)
+    {
+    	this();
+    	// allow initial rowset
+    	rowset = initialRowset;
     }
     
     /**
@@ -101,25 +110,39 @@ public class DBRecord extends DBRecordData implements Record, Cloneable
      * @param state the state of the record 
      * @param rowSetData any further RowSet specific data
      */
-    protected void init(DBRowSet rowset, State state, Object rowSetData)
+    protected void init(DBRowSet rowset, Object rowSetData, boolean newRecord)
     {
         // Init
-        if (this.rowset != rowset)
+    	boolean rowsetChanged = (this.rowset != rowset); 
+        if (rowsetChanged)
         {   // Set Rowset
             this.rowset = rowset;
             if (rowset!=null)
                 fields = new Object[rowset.getColumns().size()];
             else
                 fields = null;
-            onRowSetChanged();
         }
         else if (fields!=null)
         {   // clear fields
             for (int i=0; i<fields.length; i++)
-                fields[i]=null;
+                fields[i]=null; // ObjectUtils.NO_VALUE -> works too (difference?);
         }
         // Set State
-        changeState(state, rowSetData);
+        this.rowsetData = rowSetData;
+        this.modified = null;
+        changeState((rowset==null ? State.Invalid : (newRecord ? State.New : State.Valid)));
+        // notify
+        if (rowsetChanged)
+        	onRowSetChanged();
+    }
+
+    /**
+     * changes the state of the record
+     * @param newState
+     */
+    protected void changeState(State newState)
+    {
+    	this.state = newState;
     }
     
     /**
@@ -131,18 +154,6 @@ public class DBRecord extends DBRecordData implements Record, Cloneable
     {
         return fields;
     }
-    
-    /**
-     * This method is used internally be the RowSet to change the record's state<BR>
-     * @param state
-     * @param rowSetData
-     */
-    protected void changeState(State state, Object rowSetData)
-    {
-        this.state = state;
-        this.rowsetData = rowSetData;
-        this.modified = null;
-    }
 
     /**
      * Closes the record by releasing all resources and resetting the record's state to invalid.
@@ -150,7 +161,7 @@ public class DBRecord extends DBRecordData implements Record, Cloneable
     @Override
     public void close()
     {
-        init(null, State.Invalid, null);
+        init(null, null, false);
     }
     
     /** {@inheritDoc} */
@@ -160,13 +171,14 @@ public class DBRecord extends DBRecordData implements Record, Cloneable
         try 
         {
             DBRecord rec = (DBRecord)super.clone();
-            rec.rowset = rowset;
-            rec.state = state;
+            rec.rowset = this.rowset;
+            rec.state = this.state;
             if (rec.fields == fields && fields!=null)
                 rec.fields = fields.clone();
             if (rec.modified == modified && modified!=null)
                 rec.modified = modified.clone();
-            rec.rowsetData = rowsetData;
+            rec.rowsetData = this.rowsetData;
+            rec.validateFieldValues = this.validateFieldValues;
             return rec;
             
         } catch (CloneNotSupportedException e)
@@ -389,7 +401,7 @@ public class DBRecord extends DBRecordData implements Record, Cloneable
             modified[index] = isModified;
         // Set State to modified, if not already at least modified and isModified is set to true
         if (state.isLess(State.Modified) && isModified)
-            state = State.Modified;
+            changeState(State.Modified);
         // Reset state to unmodified, if currently modified and not modified anymore after the change
         if (state == State.Modified && !isModified)
         {
@@ -403,12 +415,12 @@ public class DBRecord extends DBRecordData implements Record, Cloneable
             }
             if (recordNotModified)
             {
-            	state = State.Valid;
+            	changeState(State.Valid);
             }
         }
     }
-    
-    /**
+
+	/**
      * returns an array of key columns which uniquely identify the record.
      * @return the array of key columns if any
      */
@@ -496,7 +508,7 @@ public class DBRecord extends DBRecordData implements Record, Cloneable
      * @param i index of the column
      * @param value the column value
      */
-    public void modifyValue(int i, Object value)
+    protected void modifyValue(int i, Object value)
     {	// Check valid
         if (state == State.Invalid)
             throw new ObjectNotValidException(this);
@@ -514,7 +526,7 @@ public class DBRecord extends DBRecordData implements Record, Cloneable
         fields[i] = value;
         // Set State
         if (state.isLess(State.Modified))
-            state = State.Modified;
+            changeState(State.Modified);
         // field changed
         onFieldChanged(i);
     }
@@ -541,16 +553,14 @@ public class DBRecord extends DBRecordData implements Record, Cloneable
             return; // no change
         // Field has changed
         DBColumn column = rowset.getColumn(index);
-        if (column.isAutoGenerated())
+        // Check whether we can change this field
+        if (!allowFieldChange(column))
         {   // Read Only column may be set
             throw new FieldIsReadOnlyException(column);
         }
-        if (state!=State.New && rowset.isKeyColumn(column))
-        {   // Key columns cannot be changed
-            throw new FieldIsReadOnlyException(column);
-        }
         // Is Value valid
-        column.validate(value);
+        if (validateFieldValues)
+        	validateValue(column, value);
         // Init original values
         modifyValue(index, value);
     }
@@ -570,6 +580,53 @@ public class DBRecord extends DBRecordData implements Record, Cloneable
         // Get Column Index
         setValue(rowset.getColumnIndex(column), value);
     }
+    
+    /**
+     * Checks whether or not this field can be changed at all.
+     * Note: This is not equivalent to isFieldReadOnly() 
+     * @param column the column that needs to be changed
+     * @return true if it is possible to change this field for this record context
+     */
+    protected boolean allowFieldChange(DBColumn column)
+    {
+        if (column.isAutoGenerated())
+        	return false;
+        if (state!=State.New && rowset.isKeyColumn(column))
+        	return false;
+        return true;
+    }
+
+    /**
+     * Validates a value before it is set in the record.
+     * if the value is invalid, the function should call an exception that is derived from FieldValueException
+     * By default, this method simply calls column.validate()
+     * @param column the column that needs to be changed
+     * @param value the new value
+     */
+    protected void validateValue(DBColumn column, Object value)
+    {
+    	column.validate(value);
+    }
+
+    /**
+     * Returns whether or not values are checked for validity when calling setValue().
+     * If set to true validateValue() is called to check validity
+     * @return true if the validity of values is checked or false otherwise
+     */
+    public boolean isValidateFieldValues() 
+    {
+		return validateFieldValues;
+	}
+
+    /**
+     * Set whether or not values are checked for validity when calling setValue().
+     * If set to true validateValue() is called to check validity, otherwise not.
+     * @param validateFieldValues flag whether to check validity
+     */
+	public void setValidateFieldValues(boolean validateFieldValues) 
+	{
+		this.validateFieldValues = validateFieldValues;
+	}
     
     /**
      * returns whether a field is visible to the client or not
@@ -632,9 +689,8 @@ public class DBRecord extends DBRecordData implements Record, Cloneable
      */
      
     public void init(DBRowSet table, Object[] keyValues, boolean insert)
-    { // Init with keys
-    	State initialState = (insert ? State.New : State.Valid);  
-        table.initRecord(this, initialState, keyValues);
+    { 	// Init with keys
+        table.initRecord(this, keyValues, insert);
     }
     
     /**
@@ -708,10 +764,24 @@ public class DBRecord extends DBRecordData implements Record, Cloneable
      */
     public void update(Connection conn)
     {
-        if (rowset == null)
+        if (!isValid())
             throw new ObjectNotValidException(this);
+        if (!isModified())
+        	return; /* Not modified. Nothing to do! */
         // update
         rowset.updateRecord(this, conn);
+    }
+    
+    /**
+     * This method is used internally to indicate that the record update has completed<BR>
+     * This will set change the record's state to Valid
+     * @param rowSetData additional data held by the rowset for this record (optional)
+     */
+    protected void updateComplete(Object rowSetData)
+    {
+        this.rowsetData = rowSetData;
+        this.modified = null;
+        changeState(State.Valid);
     }
 
     /**

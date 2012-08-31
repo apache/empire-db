@@ -554,7 +554,13 @@ public class RecordActionSupport extends RecordFormActionSupport
         }
         else
         {   // No Checking
-            record.modifyValue(i, value);
+        	boolean validate = record.isValidateFieldValues();
+        	try {
+	        	record.setValidateFieldValues(false);
+	            record.setValue(i, value);
+        	} finally {
+	        	record.setValidateFieldValues(validate);
+        	}
             return true;
         }
     }

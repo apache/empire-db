@@ -468,14 +468,14 @@ public abstract class DBRowSet extends DBExpr
      * @param rec the DBRecord object to initialize this DBRowSet object
      * @param state the state of this DBRowSet object
      */
-    protected void prepareInitRecord(DBRecord rec, DBRecord.State state, Object rowSetData)
+    protected void prepareInitRecord(DBRecord rec, Object rowSetData, boolean insert)
     {
         if (rec==null)
             throw new InvalidArgumentException("rec", rec);
         if (columns.size() < 1)
             throw new ObjectNotValidException(this);
         // Init
-        rec.init(this, state, rowSetData);
+        rec.init(this, rowSetData, insert);
     }
 
     /**
@@ -485,10 +485,10 @@ public abstract class DBRowSet extends DBExpr
      * @param rec the Record object
      * @param keyValues an array of the primary key columns
      */
-    public void initRecord(DBRecord rec, DBRecord.State initialState, Object[] keyValues)
+    public void initRecord(DBRecord rec, Object[] keyValues, boolean insert)
     {
         // Prepare
-        prepareInitRecord(rec, initialState, null);
+        prepareInitRecord(rec, null, insert);
         // Initialize all Fields
         Object[] fields = rec.getFields();
         for (int i = 0; i < fields.length; i++)
@@ -521,7 +521,7 @@ public abstract class DBRowSet extends DBExpr
     public void initRecord(DBRecord rec, DBRecordData recData)
     {
         // Initialize the record
-        prepareInitRecord(rec, DBRecord.State.Valid, null);
+        prepareInitRecord(rec, null, false);
         // Get Record Field Values
         Object[] fields = rec.getFields();
         for (int i = 0; i < fields.length; i++)
@@ -767,7 +767,7 @@ public abstract class DBRowSet extends DBExpr
             	boolean empty = ObjectUtils.isEmpty(value); 
                 DBTableColumn col = (DBTableColumn) columns.get(i);
                 if (primaryKey.contains(col))
-                { // Check for Modification
+                { 	// Check for Modification
                     if (modified == true)
                     { // Requires a primary key
                         log.warn("updateRecord: " + name + " primary has been modified!");
@@ -791,7 +791,7 @@ public abstract class DBRowSet extends DBExpr
                     cmd.set(col.to(timestamp));
                 } 
                 else if (modified && value!=ObjectUtils.NO_VALUE)
-                { // Update a field
+                { 	// Update a field
                     if (col.isReadOnly())
                         log.warn("updateRecord: Read-only column '" + col.getName() + " has been modified!");
                     // Check the value
@@ -836,7 +836,7 @@ public abstract class DBRowSet extends DBExpr
                 fields[i] = timestamp;
         }
         // Change State
-        rec.changeState(DBRecord.State.Valid, null);
+        rec.updateComplete(rec.getRowSetData());
     }
     
     /**

@@ -57,7 +57,7 @@ public class SerializeTest {
   public DBObject[] getObjectsToSerialize() {
     final TestDatabase db = new TestDatabase();
     DBRecord rec = new DBRecord();
-    rec.init(db.T_TEST, DBRecord.State.New, null);
+    rec.init(db.T_TEST, null, true);
     db.open(new MockDriver(), null);
     return new DBObject[] {
             db,
