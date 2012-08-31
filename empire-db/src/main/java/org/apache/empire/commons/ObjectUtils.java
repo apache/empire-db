@@ -18,6 +18,7 @@
  */
 package org.apache.empire.commons;
 
+import java.io.Serializable;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.text.SimpleDateFormat;
@@ -41,8 +42,9 @@ public final class ObjectUtils
      * This class eplicitly defines that an Object has not been assined a value.<BR>
      * This may be used in cases where the value of null may be a valid value.
      */
-    public static class NoValue
+    private static final class NoValue implements Serializable
     {
+        private static final long serialVersionUID = 1L;
         private NoValue()
         { /* dummy */
         }
