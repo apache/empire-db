@@ -33,6 +33,7 @@ import org.apache.empire.commons.ObjectUtils;
 import org.apache.empire.commons.Options;
 import org.apache.empire.commons.StringUtils;
 import org.apache.empire.data.Column;
+import org.apache.empire.db.exceptions.FieldIsReadOnlyException;
 import org.apache.empire.exceptions.InvalidArgumentException;
 import org.apache.empire.exceptions.ObjectNotValidException;
 import org.apache.empire.exceptions.UnexpectedReturnValueException;
@@ -271,6 +272,13 @@ public abstract class InputControl
         {
             if (value!=null) // && (!ObjectUtils.compareEqual(value, input.getLocalValue())
             {
+                // Disabled
+                if (ii.isDisabled())
+                {
+                    input.setSubmittedValue(null);
+                    throw new FieldIsReadOnlyException(ii.getColumn());
+                }    
+                // Save submitted value
                 FacesContext fc = FacesContext.getCurrentInstance();
                 Map<String, Object> reqMap = fc.getExternalContext().getRequestMap();
                 // Save submitted value

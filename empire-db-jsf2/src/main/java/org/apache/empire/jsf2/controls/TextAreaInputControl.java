@@ -25,6 +25,7 @@ import javax.faces.component.html.HtmlInputTextarea;
 import javax.faces.context.FacesContext;
 
 import org.apache.empire.commons.ObjectUtils;
+import org.apache.empire.commons.StringUtils;
 import org.apache.empire.exceptions.InternalException;
 import org.apache.empire.exceptions.UnexpectedReturnValueException;
 
@@ -97,11 +98,39 @@ public class TextAreaInputControl extends InputControl
         
     }
 
+    @Override
+    protected String formatValue(Object value, ValueInfo vi)
+    {
+        String strVal = super.formatValue(value, vi);
+        // replace CR/LF by <BR/>
+        if (strVal.indexOf("\r\n")>0)
+        {   // replace CR with <BR/>
+            strVal = StringUtils.replace(strVal, "\r\n", "<BR/>\n");
+        }
+        else if (strVal.indexOf('\n')>0)
+        {   // replace CR with <BR/>
+            strVal = StringUtils.replace(strVal, "\n", "<BR/>\n");
+        }
+        return strVal; 
+    }
+
+    @Override
+    protected Object parseInputValue(String value, InputInfo ii)
+    {
+        // Trim
+        if (hasFormatOption(ii, "notrim")==false)
+            value = value.trim();
+        // Done 
+        return value; 
+    }
+
     /*
     private int getTextareaCols(InputInfo ii)
     {
         ii.getColumn().getAttribute("");
     }
     */
+    
+    
     
 }

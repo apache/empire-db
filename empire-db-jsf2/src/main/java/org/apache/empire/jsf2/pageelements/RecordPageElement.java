@@ -62,6 +62,15 @@ public class RecordPageElement<T extends DBRecord> extends PageElement
     {
         return record.getRowSet();
     }
+    
+    public String getRecordIdParam()
+    {
+        if (!record.isValid())
+            return null;
+        // idParam
+        Object[] key = record.getKeyValues();
+        return getPage().getIdParamForKey(rowset, key);
+    }
 
     @Override
     protected void onInitPage()
@@ -81,7 +90,14 @@ public class RecordPageElement<T extends DBRecord> extends PageElement
         // Check Key
         if (recKey==null || recKey.length==0)
         {   // Invalid Record key
-            throw new ObjectNotValidException(this);
+            T rec = (T)getSessionObject(DBRecord.class);
+            if (rec!=null)
+            {   // A new record
+                record = rec;
+                return;
+            }    
+            // Not Valid
+            throw new ObjectNotValidException(record);
         }
         // Record laden
         Connection conn = getPage().getConnection(rowset.getDatabase()); 
@@ -100,12 +116,38 @@ public class RecordPageElement<T extends DBRecord> extends PageElement
             throw new InvalidArgumentException("recKey", recKey);
         }
         // Put key on Session
+        this.removeSessionObject(DBRecord.class);
         this.setSessionObject(Object[].class, recKey);
         // Record laden
         Connection conn = getPage().getConnection(rowset.getDatabase()); 
         record.read(rowset, recKey, conn);
     }
 
+    /**
+     * loads an existing record
+     * @param idParam
+     */
+    public void loadRecord(String idParam)
+    {
+        Object[] key = getPage().getKeyFromParam(rowset, idParam);
+        loadRecord(key);
+    }
+    
+    /**
+     * creates a new record
+     */
+    public void createRecord()
+    {
+        Connection conn = getPage().getConnection(rowset.getDatabase()); 
+        record.create(rowset, conn);
+        // Put key on Session
+        this.removeSessionObject(Object[].class);
+        this.setSessionObject(DBRecord.class, record);
+    }
+
+    /**
+     * updates or inserts the record in the database
+     */
     public boolean updateRecord()
     {
         // Record laden
@@ -123,6 +165,7 @@ public class RecordPageElement<T extends DBRecord> extends PageElement
             Connection conn = getPage().getConnection(rowset.getDatabase()); 
             record.update(conn);
             // Put key on Session
+            this.removeSessionObject(DBRecord.class);
             this.setSessionObject(Object[].class, record.getKeyValues());
             return true; 
             // OK
@@ -135,31 +178,30 @@ public class RecordPageElement<T extends DBRecord> extends PageElement
     }
     
     /**
-     * creates a new record
+     * deletes a record
      */
-    public void createRecord()
+    public void deleteRecord()
     {
-        record.create(rowset);
-    }
-
-    /**
-     * loads an existing record
-     * @param idParam
-     */
-    public void loadRecord(String idParam)
-    {
-        Object[] key = getPage().getKeyFromParam(rowset, idParam);
-
-        loadRecord(key);
+        // check valid
+        if (!record.isValid())
+            throw new ObjectNotValidException(record);
+        // delete
+        Connection conn = getPage().getConnection(rowset.getDatabase()); 
+        record.delete(conn);
+        // Put key on Session
+        this.removeSessionObject(Object[].class);
+        this.removeSessionObject(DBRecord.class);
     }
     
-    public String getRecordIdParam()
+    /**
+     * closes a record
+     */
+    public void closeRecord()
     {
-        if (!record.isValid())
-            return null;
-        // idParam
-        Object[] key = record.getKeyValues();
-        return getPage().getIdParamForKey(rowset, key);
+        record.close();
+        // Put key on Session
+        this.removeSessionObject(Object[].class);
+        this.removeSessionObject(DBRecord.class);
     }
 
 }

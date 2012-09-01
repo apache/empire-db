@@ -185,9 +185,6 @@ public class InputTag extends UIInput implements NamingContainer
     {
         if (initState(context)==false)
             return;
-        // check disabled
-        if (inpInfo.isDisabled())
-            return;
         // get submitted value and validate
         if (log.isDebugEnabled())
             log.debug("Validating input for {}.", inpInfo.getColumn().getName());
@@ -211,9 +208,6 @@ public class InputTag extends UIInput implements NamingContainer
     public void updateModel(FacesContext context)
     {
         if (initState(context)==false)
-            return;
-        // check disabled
-        if (inpInfo.isDisabled())
             return;
         // No Action
         if (!isValid() || !isLocalValueSet())

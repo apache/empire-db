@@ -133,6 +133,9 @@ public class TextInputControl extends InputControl
     @Override
     protected Object parseInputValue(String value, InputInfo ii)
     {
+        // Trim
+        if (hasFormatOption(ii, "notrim")==false)
+            value = value.trim();
         // Check Data Type
         Column column = ii.getColumn();
         DataType type = column.getDataType();

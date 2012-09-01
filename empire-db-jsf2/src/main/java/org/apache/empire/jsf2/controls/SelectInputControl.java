@@ -18,6 +18,7 @@
  */
 package org.apache.empire.jsf2.controls;
 
+import java.util.Iterator;
 import java.util.List;
 
 import javax.faces.component.UIComponent;
@@ -83,11 +84,11 @@ public class SelectInputControl extends InputControl
             copyAttributes(parent, ii, input);
             // disabled
             Object dis = ii.getAttribute("disabled");
-            if (dis!=null)
-                input.setDisabled(ObjectUtils.getBoolean(dis));
+            boolean disabled = (dis!=null) ? ObjectUtils.getBoolean(dis) : ii.isDisabled(); 
+            input.setDisabled(disabled);
             // Options
             Options options = ii.getOptions();
-            if (ii.isRequired()==false)
+            if (!ii.isRequired() && !(disabled && ii.getColumn().isRequired()) && !options.contains(""))
             {   // Empty entry
                 options = new Options(options);
                 addSelectItem(input, ii, new OptionEntry("", getNullText(ii)));
@@ -109,11 +110,65 @@ public class SelectInputControl extends InputControl
                 throw new UnexpectedReturnValueException(comp.getClass().getName(), "compList.get");
             // cast
             input = (HtmlSelectOneMenu)comp;
+            // Options
+            syncOptions(input, ii);
         }
         
         // Set Value
-        input.setReadonly(ii.isDisabled());
         setInputValue(input, ii);
+    }
+    
+    private void syncOptions(HtmlSelectOneMenu input, InputInfo ii)
+    {
+        Options options = ii.getOptions();
+        boolean disabled = input.isDisabled();
+        boolean hasEmpty =(!ii.isRequired() && !(disabled && ii.getColumn().isRequired()) && !options.contains(""));
+        // Compare child-items with options
+        Iterator<OptionEntry> ioe = options.iterator();
+        OptionEntry oe =(ioe.hasNext() ? ioe.next() : null);
+        List<UIComponent> childList = input.getChildren();
+        Iterator<UIComponent> ico = childList.iterator();
+        int lastIndex = 0;
+        while (ico.hasNext())
+        {
+            lastIndex++;
+            UIComponent co = ico.next(); 
+            if (!(co instanceof UISelectItem))
+                continue;
+            UISelectItem si = (UISelectItem)co;
+            Object ov = si.getItemValue();
+            if (ObjectUtils.isEmpty(ov) && hasEmpty)
+                continue;
+            if (oe==null)
+            {   // remove obsolete items
+                lastIndex--; 
+                for (int index = childList.size()-1; index>=lastIndex; index--)
+                    childList.remove(index);
+                // done
+                return;
+            }    
+            if (ObjectUtils.compareEqual(ov, oe.getValue()))
+            {   // next
+                oe =(ioe.hasNext() ? ioe.next() : null);
+                continue;
+            }    
+            // Not equal - do a full reload
+            input.getChildren().clear();
+            if (hasEmpty)
+                addSelectItem(input, ii, new OptionEntry("", getNullText(ii)));
+            for (OptionEntry e : options)
+            {   // Option entries
+                addSelectItem(input, ii, e);
+            }
+            // done
+            return;
+        }
+        // Are there any items left?
+        while(oe!=null)
+        {   // add missing item
+            addSelectItem(input, ii, oe);
+            oe =(ioe.hasNext() ? ioe.next() : null);
+        }
     }
     
     private String getNullText(InputInfo ii)
