@@ -79,16 +79,16 @@ public class InputTag extends UIInput implements NamingContainer
         // Check visibility
         if (helper.isVisible()==false)
             return false; // not visible
+        // Read only State
+        Boolean ros = (Boolean)getStateHelper().get(readOnlyState);
+        if (ros!=null && ros.booleanValue())
+            return false;
         // Must have children
         if (getChildCount()==0)
         {   log.warn("InputTag has no children! Unable to init Input state.");
             log.warn("Problem might be related to Mojarra 2.1.7 to 2.1.11 (and possibly later) - please use Mojarra 2.1.6!");
             return false;
         }
-        // Read only State
-        Boolean ros = (Boolean)getStateHelper().get(readOnlyState);
-        if (ros!=null && ros.booleanValue())
-            return false;
         // Init Control and inputInfo;
         control = helper.getInputControl();
         inpInfo = helper.getInputInfo(context);
