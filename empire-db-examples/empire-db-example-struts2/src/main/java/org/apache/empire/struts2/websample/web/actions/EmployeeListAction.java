@@ -184,7 +184,7 @@ public class EmployeeListAction extends Action
             cmd.select(db.T_DEPARTMENTS.C_DEPARTMENT_ID);
             cmd.select(db.T_DEPARTMENTS.C_NAME);
             cmd.orderBy(db.T_DEPARTMENTS.C_NAME.asc());
-            departments = db.queryOptionList(cmd.getSelect(), getConnection());
+            departments = db.queryOptionList(cmd, getConnection());
         }
         return departments;
     }

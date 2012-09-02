@@ -190,7 +190,7 @@ public class EmployeeListPage extends SamplePage
     	queryCmd.select(DEP.DEPARTMENT_ID,DEP.NAME);
     	
     	SampleDB db = getDatabase();
-        return db.queryOptionList(queryCmd.getSelect(), getConnection());
+        return db.queryOptionList(queryCmd, getConnection());
     }
     
     

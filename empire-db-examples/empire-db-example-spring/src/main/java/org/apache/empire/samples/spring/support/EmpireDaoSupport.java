@@ -82,7 +82,7 @@ public class EmpireDaoSupport extends JdbcDaoSupport {
             }
             DBTable t = db.getTables().get(0);
             cmd.select(t.count());
-            return (db.querySingleInt(cmd.getSelect(), -1, conn) >= 0);
+            return (db.querySingleInt(cmd, -1, conn) >= 0);
         } catch (Exception e) {
             return false;
         }

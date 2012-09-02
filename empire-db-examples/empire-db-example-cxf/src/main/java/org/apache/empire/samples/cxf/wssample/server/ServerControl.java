@@ -212,7 +212,7 @@ public class ServerControl
         // Check wether DB exists
         DBCommand cmd = db.createCommand();
         cmd.select(db.DEPARTMENTS.count());
-        int deps = db.querySingleInt(cmd.getSelect(), -1, conn);
+        int deps = db.querySingleInt(cmd, -1, conn);
         return (deps >= 0);
     }
 

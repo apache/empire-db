@@ -199,7 +199,7 @@ public class SampleApplication extends FacesApplication {
 		DBCommand cmd = sampleDB.createCommand();
 		cmd.select(sampleDB.T_DEPARTMENTS.count());
 		try {
-			return (sampleDB.querySingleInt(cmd.getSelect(), -1, conn) >= 0);
+			return (sampleDB.querySingleInt(cmd, -1, conn) >= 0);
 		} catch (QueryFailedException e) {
 			return false;
 		}

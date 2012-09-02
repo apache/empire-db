@@ -215,7 +215,7 @@ public class SampleApplication implements WebApplication {
 		// Check wether DB exists
 		DBCommand cmd = db.createCommand();
 		cmd.select(db.T_DEPARTMENTS.count());
-		db.querySingleInt(cmd.getSelect(), -1, conn);
+		db.querySingleInt(cmd, -1, conn);
 	}
 	
 	/*

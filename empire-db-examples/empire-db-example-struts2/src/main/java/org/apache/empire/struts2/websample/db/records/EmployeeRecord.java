@@ -57,7 +57,7 @@ public class EmployeeRecord extends SampleRecord
             DBCommand cmd = db.createCommand();
             cmd.select(db.T_DEPARTMENTS.C_DEPARTMENT_ID);
             cmd.select(db.T_DEPARTMENTS.C_NAME);
-            return db.queryOptionList(cmd.getSelect(), context.getConnection());
+            return db.queryOptionList(cmd, context.getConnection());
         }
         // base class implementation
         return super.getFieldOptions(column);
