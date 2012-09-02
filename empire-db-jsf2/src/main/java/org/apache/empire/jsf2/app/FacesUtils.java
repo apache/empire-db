@@ -21,6 +21,7 @@ package org.apache.empire.jsf2.app;
 import java.io.File;
 import java.io.IOException;
 import java.sql.Connection;
+import java.util.HashMap;
 import java.util.Map;
 
 import javax.el.ELContext;
@@ -59,8 +60,20 @@ public class FacesUtils
         return FacesContext.getCurrentInstance();
     }
 
+    /* Session */
+    
+    public static Map<String, Object> getSessionMap(final FacesContext fc)
+    {
+        return fc.getExternalContext().getSessionMap();
+    }
+    
     /* Request */
 
+    public static Map<String, Object> getRequestMap(final FacesContext fc)
+    {
+        return fc.getExternalContext().getRequestMap();
+    }
+    
     public static HttpServletRequest getHttpRequest(final FacesContext fc)
     {
         return (HttpServletRequest) fc.getExternalContext().getRequest();
@@ -151,6 +164,21 @@ public class FacesUtils
             sm.put(PARAMETER_MAP_ATTRIBUTE, pm);
         }
         return (ParameterMap)pm;
+    }
+
+    /* PageResource-map */
+    public static final String PAGE_RESOURCE_MAP_ATTRIBUTE = "pageResources"; /** use el-expression: #{pageResources.xxx} **/
+    
+    @SuppressWarnings("unchecked")
+    public static Map<String, Object> getPageResourceMap(final FacesContext fc)
+    {
+        Map<String, Object> sm = fc.getExternalContext().getSessionMap();
+        Map<String, Object> rm = (Map<String, Object>)sm.get(PAGE_RESOURCE_MAP_ATTRIBUTE);
+        if (rm==null)
+        {   rm = new HashMap<String, Object>();
+            sm.put(PAGE_RESOURCE_MAP_ATTRIBUTE, rm);
+        }
+        return rm;
     }
     
     /* Managed Beans */

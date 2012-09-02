@@ -35,7 +35,6 @@ import javax.faces.context.FacesContext;
 import javax.servlet.ServletContext;
 import javax.sql.DataSource;
 
-import org.apache.empire.commons.ObjectUtils;
 import org.apache.empire.commons.StringUtils;
 import org.apache.empire.data.DataType;
 import org.apache.empire.db.DBDatabase;
@@ -93,6 +92,11 @@ public abstract class FacesApplication extends ApplicationImpl
     public void onChangeView(final FacesContext fc, String viewId)
     {
         // allow custom view change logic
+
+        // clear page resources
+        Map<String, Object> sm = FacesUtils.getSessionMap(fc);
+        if (sm!=null)
+            sm.remove(FacesUtils.PAGE_RESOURCE_MAP_ATTRIBUTE);
     }
 
     public void addJavascriptCall(final FacesContext fc, String function)

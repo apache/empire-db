@@ -271,8 +271,11 @@ public class PagePhaseListener implements PhaseListener
     {
         if (pe.getPhaseId() != PhaseId.RENDER_RESPONSE)
             return;
-        // Check Page Bean
+        // Get the view
         UIViewRoot vr = pe.getFacesContext().getViewRoot();
+        if (vr==null)
+            return;
+        // Check Page Bean
         Map<String, Object> viewMap = vr.getViewMap();
         Page pageBean = (Page) viewMap.get("page");
         if (pageBean != null && !pageBean.isInitialized())

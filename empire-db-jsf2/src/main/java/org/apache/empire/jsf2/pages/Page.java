@@ -380,6 +380,37 @@ public abstract class Page implements Serializable
         app.addJavascriptCall(fc, function);
     }
     
+    /* Page Resources */
+    
+    /**
+     * Adds an object required for resource handling, to the page resource map.
+     * <pre>
+     * Since resource requests are not attached to a view, they cannot access page properties via expression language like this
+     *    #{page.someProperty}
+     * Instead, the page should add properties that are required to the "pageResources"-map. This map is held on the session, and cleared when the page changes.
+     * In order to access such page resources via expression language use
+     *    #{pageResources.someProperty}
+     * </pre>   
+     * @param name the name of the resource
+     * @param resource the resource
+     */
+    public void addPageResource(String name, Object resource)
+    {
+        Map<String, Object> prm = FacesUtils.getPageResourceMap(FacesUtils.getContext());
+        prm.put(name, this);
+    }
+    
+    /**
+     * Returns the page resource object previously added by addPageResource(...)
+     * @param name the name of the resource
+     * @return resource the resource
+     */
+    public Object getPageResource(String name)
+    {
+        Map<String, Object> prm = FacesUtils.getPageResourceMap(FacesUtils.getContext());
+        return prm.get(name);
+    }
+    
     /* Default Init Method */
     public void doInit()
     {
