@@ -418,7 +418,7 @@ public class DBDatabaseDriverPostgreSQL extends DBDatabaseDriver
         sql.append("SELECT nextval('");
         db.appendQualifiedName(sql, seqName, detectQuoteName(seqName));
         sql.append("')");
-        Object val = db.querySingleValue(sql.toString(), conn);
+        Object val = db.querySingleValue(sql.toString(), null, conn);
         if (val == null)
         { // Error!
             log.error("getNextSequenceValue: Invalid sequence value for sequence " + seqName);

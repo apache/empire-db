@@ -416,7 +416,7 @@ public class DBDatabaseDriverMSSQL extends DBDatabaseDriver
         // Supports sequences?
         if (column.getDataType()==DataType.UNIQUEID)
         {
-            return db.querySingleValue("select newid()", conn);
+            return db.querySingleValue("select newid()", null, conn);
         }
         return super.getColumnAutoValue(db, column, conn);
     }

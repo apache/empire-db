@@ -302,7 +302,7 @@ public class DBDatabaseDriverOracle extends DBDatabaseDriver
         sql.append("SELECT ");
         db.appendQualifiedName(sql, seqName, detectQuoteName(seqName));
         sql.append(".NEXTVAL FROM DUAL");
-        Object val = db.querySingleValue(sql.toString(), conn);
+        Object val = db.querySingleValue(sql.toString(), null, conn);
         if (val == null)
         { // Error!
             log.error("getNextSequenceValue: Invalid sequence value for sequence " + seqName);

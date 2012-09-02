@@ -235,7 +235,7 @@ public class DBDatabaseDriverHSql extends DBDatabaseDriver
         db.appendQualifiedName(sql, seqName, detectQuoteName(seqName));
         sql.append(" FROM INFORMATION_SCHEMA.SYSTEM_SEQUENCES WHERE SEQUENCE_NAME='"+ seqName.toUpperCase() + "'");
         	
-        Object val = db.querySingleValue(sql.toString(), conn);
+        Object val = db.querySingleValue(sql.toString(), null, conn);
         if (val == null)
         { // Error!
             log.error("getNextSequenceValue: Invalid sequence value for sequence " + seqName);

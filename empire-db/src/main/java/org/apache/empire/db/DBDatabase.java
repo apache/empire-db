@@ -810,14 +810,14 @@ public abstract class DBDatabase extends DBObject
      * Returns the value of the first row/column of a sql-query as an object.
      * If the query does not return a result a QueryNoResultException is thrown
      * 
-     * @param sqlCmd the SQL-Command
+     * @param cmd the Command object that contains the select statement
      * @param conn a valid connection to the database.
      * 
      * @return the value of the first column in the first row of the query 
      */
-    public final Object querySingleValue(String sqlCmd, Connection conn)
+    public final Object querySingleValue(DBCommand cmd, Connection conn)
     {
-        return querySingleValue(sqlCmd, (Object[])null, conn);  
+        return querySingleValue(cmd.getSelect(), cmd.getParamValues(), conn);  
     }
     
     /**
@@ -841,29 +841,29 @@ public abstract class DBDatabase extends DBObject
      * Returns the value of the first row/column of a sql-query as an int.
      * If the query does not return a result a QueryNoResultException is thrown
      * 
-     * @param sqlCmd the SQL statement
+     * @param cmd the Command object that contains the select statement
      * @param defVal the default value if no value was returned by the database
      * @param conn a valid connection to the database.
      *
      * @return the result as a int value
      */
-    public final int querySingleInt(String sqlCmd, int defVal, Connection conn)
+    public final int querySingleInt(DBCommand cmd, int defVal, Connection conn)
     { 
-        return querySingleInt(sqlCmd, null, defVal, conn);
+        return querySingleInt(cmd.getSelect(), cmd.getParamValues(), defVal, conn);
     }
 
     /**
      * Returns the value of the first row/column of a sql-query as an int.
      * If the query does not return a result a QueryNoResultException is thrown
      * 
-     * @param sqlCmd the SQL statement
+     * @param cmd the Command object that contains the select statement
      * @param conn a valid connection to the database.
      *
      * @return the result as a int value
      */
-    public final int querySingleInt(String sqlCmd, Connection conn)
+    public final int querySingleInt(DBCommand cmd, Connection conn)
     { 
-        return querySingleInt(sqlCmd, null, 0, conn);
+        return querySingleInt(cmd.getSelect(), cmd.getParamValues(), 0, conn);
     }
 
     /**
@@ -887,29 +887,29 @@ public abstract class DBDatabase extends DBObject
      * Returns the value of the first row/column of a sql-query as a long.
      * If the query does not return a result a QueryNoResultException is thrown
      * 
-     * @param sqlCmd the SQL statement
+     * @param cmd the Command object that contains the select statement
      * @param defVal the default value
      * @param conn a valid connection to the database.
      * 
      * @return the result as a long value
      */
-    public final long querySingleLong(String sqlCmd, long defVal, Connection conn)
+    public final long querySingleLong(DBCommand cmd, long defVal, Connection conn)
     { 
-        return querySingleLong(sqlCmd, null, defVal, conn);
+        return querySingleLong(cmd.getSelect(), cmd.getParamValues(), defVal, conn);
     }
 
     /**
      * Returns the value of the first row/column of a sql-query as a long.
      * If the query does not return a result a QueryNoResultException is thrown
      * 
-     * @param sqlCmd the SQL statement
+     * @param cmd the Command object that contains the select statement
      * @param conn a valid connection to the database.
      *
      * @return the result as a long value
      */
-    public final long querySingleLong(String sqlCmd, Connection conn)
+    public final long querySingleLong(DBCommand cmd, Connection conn)
     { 
-        return querySingleLong(sqlCmd, 0, conn);
+        return querySingleLong(cmd, 0, conn);
     }
     
     /**
@@ -933,29 +933,29 @@ public abstract class DBDatabase extends DBObject
      * Returns the value of the first row/column of a sql-query as a string.
      * If the query does not return a result a QueryNoResultException is thrown
      * 
-     * @param sqlCmd the SQL statement
+     * @param cmd the Command object that contains the select statement
      * @param defVal the default value if no value was returned by the database
      * @param conn a valid connection to the database.
      *
      * @return the result as a String object, if no result a empty String
      */
-    public final String querySingleString(String sqlCmd, String defVal, Connection conn)
+    public final String querySingleString(DBCommand cmd, String defVal, Connection conn)
     { 
-        return querySingleString(sqlCmd, null, defVal, conn);
+        return querySingleString(cmd.getSelect(), cmd.getParamValues(), defVal, conn);
     }
     
     /**
      * Returns the value of the first row/column of a sql-query as a string.
      * If the query does not return a result a QueryNoResultException is thrown
      * 
-     * @param sqlCmd the SQL statement
+     * @param cmd the Command object that contains the select statement
      * @param conn a valid connection to the database.
      *
      * @return the result as a String object, if no result a empty String
      */
-    public final String querySingleString(String sqlCmd, Connection conn)
+    public final String querySingleString(DBCommand cmd, Connection conn)
     { 
-        return querySingleString(sqlCmd, null, "", conn);
+        return querySingleString(cmd.getSelect(), cmd.getParamValues(), "", conn);
     }
     
     /**
@@ -1018,14 +1018,14 @@ public abstract class DBDatabase extends DBObject
      * 
      * @param c the class type for the list 
      * @param <T> the type for the list
-     * @param sqlCmd the SQL statement
+     * @param cmd the Command object that contains the select statement
      * @param conn a valid connection to the database.
      * 
      * @return the number of elements that have been added to the collection 
      */
-    public final <T> int querySimpleList(Class<T> c, String sqlCmd, Connection conn, Collection<T> result)
+    public final <T> int querySimpleList(Class<T> c, DBCommand cmd, Connection conn, Collection<T> result)
     {
-        return querySimpleList(c, sqlCmd, null, DataType.UNKNOWN, conn, result, -1); 
+        return querySimpleList(c, cmd.getSelect(), cmd.getParamValues(), DataType.UNKNOWN, conn, result, -1); 
     }
 
     /**
@@ -1034,15 +1034,15 @@ public abstract class DBDatabase extends DBObject
      * 
      * @param c the class type for the list 
      * @param <T> the type for the list
-     * @param sqlCmd the SQL statement
+     * @param cmd the Command object that contains the select statement
      * @param conn a valid connection to the database.
      * 
      * @return a list of the values of the first column of an sql query 
      */
-    public final <T> List<T> querySimpleList(Class<T> c, String sqlCmd, Connection conn)
+    public final <T> List<T> querySimpleList(Class<T> c, DBCommand cmd, Connection conn)
     {   // Execute the  Statement
         List<T> result = new ArrayList<T>();
-        if (querySimpleList(c, sqlCmd, conn, result)<0)
+        if (querySimpleList(c, cmd, conn, result)<0)
             return null;
         return result;
     }
@@ -1051,13 +1051,13 @@ public abstract class DBDatabase extends DBObject
      * Returns a one dimensional array from an sql query.
      * The array is filled with the values of the first column.
      * 
-     * @param sqlCmd the SQL statement
+     * @param cmd the Command object that contains the select statement
      * @param conn a valid connection to the database.
      * @return a list of values of type Object 
      */
-    public final List<Object> querySimpleList(String sqlCmd, Connection conn)
+    public final List<Object> querySimpleList(DBCommand cmd, Connection conn)
     {   // Execute the  Statement
-        return querySimpleList(Object.class, sqlCmd, conn);
+        return querySimpleList(Object.class, cmd, conn);
     }
     
     /**
@@ -1113,27 +1113,27 @@ public abstract class DBDatabase extends DBObject
      * Fills an option list provided with the result from a query.
      * The option list is filled with the values of the first and second column.
      * 
-     * @param sqlCmd the SQL statement
+     * @param cmd the Command object that contains the select statement
      * @param conn a valid connection to the database.
      * @return an Options object containing a set a of values and their corresponding names 
      */
-    public final int queryOptionList(String sqlCmd, Connection conn, Options result)
+    public final int queryOptionList(DBCommand cmd, Connection conn, Options result)
     {   // Execute the  Statement
-        return queryOptionList(sqlCmd, null, conn, result); 
+        return queryOptionList(cmd.getSelect(), cmd.getParamValues(), conn, result); 
     }
 
     /**
      * Returns a list of key value pairs from an sql query.
      * The option list is filled with the values of the first and second column.
      * 
-     * @param sqlCmd the SQL statement
+     * @param cmd the Command object that contains the select statement
      * @param conn a valid connection to the database.
      * @return an Options object containing a set a of values and their corresponding names 
      */
-    public final Options queryOptionList(String sqlCmd, Connection conn)
+    public final Options queryOptionList(DBCommand cmd, Connection conn)
     {   // Execute the  Statement
         Options options = new Options();
-        queryOptionList(sqlCmd, null, conn, options);
+        queryOptionList(cmd.getSelect(), cmd.getParamValues(), conn, options);
         return options; 
     }
     
@@ -1196,27 +1196,27 @@ public abstract class DBDatabase extends DBObject
      * <p>This function should only be used for small lists.
      * Otherwise a DBReader should be used!</p>
      * 
-     * @param sqlCmd the SQL statement
+     * @param cmd the Command object that contains the select statement
      * @param conn a valid connection to the database.
      * @return a list of object arrays 
      */
-    public final int queryObjectList(String sqlCmd, Connection conn, Collection<Object[]> result)
+    public final int queryObjectList(DBCommand cmd, Connection conn, Collection<Object[]> result)
     {   // Perform query
-        return queryObjectList(sqlCmd, null, conn, result, -1); 
+        return queryObjectList(cmd.getSelect(), cmd.getParamValues(), conn, result, -1); 
     }
 
     /**
      * Returns the result of a query as a list Object-Arrays 
      * This function should only be used for small lists.
      * 
-     * @param sqlCmd the SQL statement
+     * @param cmd the Command object that contains the select statement
      * @param conn a valid connection to the database.
      * @return a list of object arrays 
      */
-    public final List<Object[]> queryObjectList(String sqlCmd, Connection conn)
+    public final List<Object[]> queryObjectList(DBCommand cmd, Connection conn)
     {   // Execute the  Statement
         List<Object[]> result = new ArrayList<Object[]>();
-        queryObjectList(sqlCmd, null, conn, result, -1);
+        queryObjectList(cmd.getSelect(), cmd.getParamValues(), conn, result, -1);
         return result;
     }
 
@@ -1243,14 +1243,14 @@ public abstract class DBDatabase extends DBObject
      * Returns all values of the first row of a sql-query as an array.
      * If the query does not return a result a QueryNoResultException is thrown
      * 
-     * @param sqlCmd the SQL-Command
+     * @param cmd the Command object that contains the select statement
      * @param conn a valid connection to the database.
      * 
      * @return the values of the first row 
      */
-    public final Object[] querySingleRow(String sqlCmd, Connection conn)
+    public final Object[] querySingleRow(DBCommand cmd, Connection conn)
     {
-        return querySingleRow(sqlCmd, null, conn); 
+        return querySingleRow(cmd.getSelect(), cmd.getParamValues(), conn); 
     }
     
     /**

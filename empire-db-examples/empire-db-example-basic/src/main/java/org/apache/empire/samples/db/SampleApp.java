@@ -237,7 +237,7 @@ public class SampleApp
 		cmd.select(db.DEPARTMENTS.count());
 		// Check using "select count(*) from DEPARTMENTS"
 		System.out.println("Checking whether table DEPARTMENTS exists (SQLException will be logged if not - please ignore) ...");
-		return (db.querySingleInt(cmd.getSelect(), -1, conn) >= 0);
+		return (db.querySingleInt(cmd, -1, conn) >= 0);
 	}
 
 	/**

@@ -656,7 +656,7 @@ public abstract class DBRowSet extends DBExpr
         // Set key constraints
         setKeyConstraints(cmd, key);
         // check exits
-        return (db.querySingleInt(cmd.getSelect(), conn)==1);
+        return (db.querySingleInt(cmd, 0, conn)==1);
     }
 
     /**
@@ -916,7 +916,7 @@ public abstract class DBRowSet extends DBExpr
                 cmd.orderBy(keyColumns[i], true);
             }
             // Query all keys
-            List<Object[]> recKeys = db.queryObjectList(cmd.getSelect(), conn);
+            List<Object[]> recKeys = db.queryObjectList(cmd, conn);
             for (Object[] recKey : recKeys)
             {   
                 log.info("Deleting Record " + StringUtils.valueOf(recKey) + " from table " + getName());
