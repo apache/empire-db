@@ -35,6 +35,7 @@ import javax.faces.context.FacesContext;
 import javax.servlet.ServletContext;
 import javax.sql.DataSource;
 
+import org.apache.empire.commons.ObjectUtils;
 import org.apache.empire.commons.StringUtils;
 import org.apache.empire.data.DataType;
 import org.apache.empire.db.DBDatabase;
@@ -137,9 +138,7 @@ public abstract class FacesApplication extends ApplicationImpl
 
     /**
      * checks if the current context contains an error
-     * 
-     * @param fc
-     *            the FacesContext
+     * @param fc the FacesContext
      * @return true if the context has an error set or false otherwise
      */
     public boolean hasError(final FacesContext fc)
@@ -158,39 +157,54 @@ public abstract class FacesApplication extends ApplicationImpl
     }
 
     /**
-     * finds a component from with a given id from a given start component
-     * 
-     * @param fc
-     *            the FacesContext
-     * @param componentId
-     * @param nearComponent
-     *            a component within the same naming container
-     * @return
+     * returns true if a form input element has been partially submitted
+     * @param fc the Faces Context
+     * @return the componentId or null if no partial submit was been performed
+     */
+    public boolean isPartialSubmit(final FacesContext fc)
+    {
+        // Override for your JSF component Framework. e.g. for IceFaces
+        // Map<String,String> parameterMap = fc.getExternalContext().getRequestParameterMap();
+        // return ObjectUtils.getBoolean(parameterMap.get("ice.submit.partial"));
+        return false;
+    }
+
+    /**
+     * returns the componentId for which a partial submit has been performed.
+     * @param fc the Faces Context
+     * @return the componentId or null if no partial submit was been performed
+     */
+    public String getPartialSubmitComponentId(final FacesContext fc)
+    {
+        // Override for your JSF component Framework. e.g. for IceFaces
+        // Map<String,String> parameterMap = fc.getExternalContext().getRequestParameterMap();
+        // return parameterMap.get("ice.event.captured");
+        return null;
+    }
+
+    /**
+     * finds the component with the given id that is located in the same NamingContainer as a given component 
+     * @param fc the FacesContext
+     * @param componentId the component id
+     * @param nearComponent a component within the same naming container from which to start the search (optional)
+     * @return the component or null if no component was found
      */
     public UIComponent findComponent(FacesContext fc, String componentId, UIComponent nearComponent)
     {
         if (StringUtils.isEmpty(componentId))
-            throw new InvalidArgumentException("forComponentId", componentId);
-        // Search for compoent
-        UIComponent forComponent = null;
+            throw new InvalidArgumentException("componentId", componentId);
+        // Begin search near given component (if any)
+        UIComponent component = null;
         if (nearComponent != null)
-        {
-            // Look for the 'for' component in the nearest parental naming container 
-            // of the UIComponent (there's actually a bit more to this search - see
-            // the docs for the findComponent method
-            forComponent = nearComponent.findComponent(componentId);
-            // Since the nearest naming container may be nested, search the 
-            // next-to-nearest parental naming container in a recursive fashion, 
-            // until we get to the view root
-            if (forComponent == null)
-            {
+        {   // Search below the nearest naming container  
+            component = nearComponent.findComponent(componentId);
+            if (component == null)
+            {   // Recurse upwards
                 UIComponent nextParent = nearComponent;
                 while (true)
                 {
                     nextParent = nextParent.getParent();
-                    // avoid extra searching by going up to the next NamingContainer
-                    // (see the docs for findComponent for an information that will
-                    // justify this approach)
+                    // search NamingContainers only
                     while (nextParent != null && !(nextParent instanceof NamingContainer))
                     {
                         nextParent = nextParent.getParent();
@@ -201,56 +215,58 @@ public abstract class FacesApplication extends ApplicationImpl
                     }
                     else
                     {
-                        forComponent = nextParent.findComponent(componentId);
+                        component = nextParent.findComponent(componentId);
                     }
-                    if (forComponent != null)
+                    if (component != null)
                     {
                         break;
                     }
                 }
             }
         }
-        // There is one other situation to cover: if the 'for' component 
-        // is not situated inside a NamingContainer then the algorithm above
-        // will not have found it. We need, in this case, to search for the 
-        // component from the view root downwards
-        if (forComponent == null)
-        {
-            forComponent = searchDownwardsForChildComponentWithId(fc.getViewRoot(), componentId);
-        }
-        return forComponent;
+        // Not found. Search the entire tree 
+        if (component == null)
+            component = findChildComponent(fc.getViewRoot(), componentId);
+        // done
+        return component;
     }
 
-    private static UIComponent searchDownwardsForChildComponentWithId(UIComponent parent, String searchChildId)
+    /**
+     * finds a child component with the given id that is located below the given parent component 
+     * @param parent the parent
+     * @param componentId the component id
+     * @return the component or null if no component was found
+     */
+    public static UIComponent findChildComponent(UIComponent parent, String componentId)
     {
-        UIComponent foundChild = null;
+        UIComponent component = null;
         if (parent.getChildCount() == 0)
-            return foundChild;
+            return null;
         Iterator<UIComponent> children = parent.getChildren().iterator();
         while (children.hasNext())
         {
             UIComponent nextChild = children.next();
             if (nextChild instanceof NamingContainer)
             {
-                foundChild = nextChild.findComponent(searchChildId);
+                component = nextChild.findComponent(componentId);
             }
-            if (foundChild == null)
+            if (component == null)
             {
-                searchDownwardsForChildComponentWithId(nextChild, searchChildId);
+                findChildComponent(nextChild, componentId);
             }
-            if (foundChild != null)
+            if (component != null)
             {
                 break;
             }
         }
-        return foundChild;
+        return component;
     }
 
     /**
-     * returns the default control type for a given data Type
-     * 
+     * returns the default input control type for a given data Type
+     * @see org.apache.empire.jsf2.controls.InputControlManager
      * @param dataType
-     * @return
+     * @return an Input Cnotrol type
      */
     public String getDefaultControlType(DataType dataType)
     {
@@ -377,8 +393,7 @@ public abstract class FacesApplication extends ApplicationImpl
     }
 
     /**
-     * Returns a connection for the current Request
-     * Method should only be called by BeforeRestoreViewListener once per request!
+     * returns a connection for the current Request
      */
     public Connection getConnectionForRequest(FacesContext fc, DBDatabase db)
     {
@@ -406,10 +421,9 @@ public abstract class FacesApplication extends ApplicationImpl
     }
 
     /**
-     * Releases the current request connection
-     * 
-     * @param fc
-     * @param commit
+     * releases the current request connection
+     * @param fc the FacesContext
+     * @param commit when true changes are committed otherwise they are rolled back
      */
     public void releaseAllConnections(final FacesContext fc, boolean commit)
     {
