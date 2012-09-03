@@ -37,6 +37,7 @@ import org.apache.empire.db.exceptions.FieldIsReadOnlyException;
 import org.apache.empire.exceptions.InvalidArgumentException;
 import org.apache.empire.exceptions.ObjectNotValidException;
 import org.apache.empire.exceptions.UnexpectedReturnValueException;
+import org.apache.empire.jsf2.app.TextResolver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -180,6 +181,7 @@ public abstract class InputControl
         String getFormat();    // Custom Formatting options specific to each InputControl-type
         Locale getLocale();
         String getText(String key);
+        TextResolver getTextResolver();
         /*
         Object getNullValue();
         String getOnclick();

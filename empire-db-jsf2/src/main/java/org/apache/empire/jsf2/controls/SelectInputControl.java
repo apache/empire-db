@@ -32,6 +32,7 @@ import org.apache.empire.commons.Options;
 import org.apache.empire.data.Column;
 import org.apache.empire.exceptions.InternalException;
 import org.apache.empire.exceptions.UnexpectedReturnValueException;
+import org.apache.empire.jsf2.app.TextResolver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -88,18 +89,9 @@ public class SelectInputControl extends InputControl
             input.setDisabled(disabled);
             // Options
             Options options = ii.getOptions();
-            if (!ii.isRequired() && !(disabled && ii.getColumn().isRequired()) && !options.contains(""))
-            {   // Empty entry
-                options = new Options(options);
-                addSelectItem(input, ii, new OptionEntry("", getNullText(ii)));
-            }
-            if (options!=null && options.size()>0)
-            {   // Add options
-                for (OptionEntry e : options)
-                { // Option entries
-                    addSelectItem(input, ii, e);
-                }
-            }
+            boolean hasEmpty =(!ii.isRequired() && !(disabled && ii.getColumn().isRequired()) && !options.contains(""));
+            String nullText = (hasEmpty) ? getNullText(ii) : "";
+            initOptions(input, ii.getTextResolver(), options, hasEmpty, nullText);
             // add
             compList.add(input);
         }
@@ -110,19 +102,39 @@ public class SelectInputControl extends InputControl
                 throw new UnexpectedReturnValueException(comp.getClass().getName(), "compList.get");
             // cast
             input = (HtmlSelectOneMenu)comp;
-            // Options
-            syncOptions(input, ii);
+            // disabled
+            // boolean disabled = input.isDisabled();
+            Object dis = ii.getAttribute("disabled");
+            boolean disabled = (dis!=null) ? ObjectUtils.getBoolean(dis) : ii.isDisabled(); 
+            input.setDisabled(disabled);
+            // Options (sync)
+            Options options = ii.getOptions();
+            boolean hasEmpty =(!ii.isRequired() && !(disabled && ii.getColumn().isRequired()) && !options.contains(""));
+            String nullText = (hasEmpty) ? getNullText(ii) : "";
+            syncOptions(input, ii.getTextResolver(), options, hasEmpty, nullText);
         }
         
         // Set Value
         setInputValue(input, ii);
     }
-    
-    private void syncOptions(HtmlSelectOneMenu input, InputInfo ii)
+
+    public void initOptions(HtmlSelectOneMenu input, TextResolver textResolver, Options options, boolean addEmpty, String nullText)
     {
-        Options options = ii.getOptions();
-        boolean disabled = input.isDisabled();
-        boolean hasEmpty =(!ii.isRequired() && !(disabled && ii.getColumn().isRequired()) && !options.contains(""));
+        if (addEmpty)
+        {   // Empty entry
+            addSelectItem(input, textResolver, new OptionEntry("", nullText));
+        }
+        if (options!=null && options.size()>0)
+        {   // Add options
+            for (OptionEntry e : options)
+            { // Option entries
+                addSelectItem(input, textResolver, e);
+            }
+        }
+    }
+    
+    public void syncOptions(HtmlSelectOneMenu input, TextResolver textResolver, Options options, boolean hasEmpty, String nullText)
+    {
         // Compare child-items with options
         Iterator<OptionEntry> ioe = options.iterator();
         OptionEntry oe =(ioe.hasNext() ? ioe.next() : null);
@@ -155,10 +167,10 @@ public class SelectInputControl extends InputControl
             // Not equal - do a full reload
             input.getChildren().clear();
             if (hasEmpty)
-                addSelectItem(input, ii, new OptionEntry("", getNullText(ii)));
+                addSelectItem(input, textResolver, new OptionEntry("", nullText));
             for (OptionEntry e : options)
             {   // Option entries
-                addSelectItem(input, ii, e);
+                addSelectItem(input, textResolver, e);
             }
             // done
             return;
@@ -166,28 +178,28 @@ public class SelectInputControl extends InputControl
         // Are there any items left?
         while(oe!=null)
         {   // add missing item
-            addSelectItem(input, ii, oe);
+            addSelectItem(input, textResolver, oe);
             oe =(ioe.hasNext() ? ioe.next() : null);
         }
     }
-    
-    private String getNullText(InputInfo ii)
-    {
-        String nullText = getFormatString(ii, FORMAT_NULL, FORMAT_NULL_ATTRIBUTE);
-        return (nullText!=null) ? ii.getText(nullText) : "";
-    }
 
-    private void addSelectItem(UIComponent input, InputInfo ii, OptionEntry e)
+    public void addSelectItem(UIComponent input, TextResolver textResolver, OptionEntry e)
     {
         UISelectItem selectItem = new UISelectItem();
         // set value
         selectItem.setItemValue(e.getValueString());
         // set text
         String text = e.getText();
-        text = ii.getText(text);
+        text = textResolver.resolveText(text);
         selectItem.setItemLabel(text);
         // add item
         input.getChildren().add(selectItem);
+    }
+    
+    private String getNullText(InputInfo ii)
+    {
+        String nullText = getFormatString(ii, FORMAT_NULL, FORMAT_NULL_ATTRIBUTE);
+        return (nullText!=null) ? ii.getText(nullText) : "";
     }
 
     @Override

@@ -247,6 +247,12 @@ public class TagEncodingHelper implements NamingContainer
         {
             return textResolver.resolveText(text);
         }
+
+        @Override
+        public TextResolver getTextResolver()
+        {
+            return textResolver;
+        }
     }
 
     private class InputInfoImpl extends ValueInfoImpl implements InputControl.InputInfo
