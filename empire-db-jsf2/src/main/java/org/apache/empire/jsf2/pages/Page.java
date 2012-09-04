@@ -33,6 +33,8 @@ import javax.faces.context.FacesContext;
 import org.apache.empire.commons.StringUtils;
 import org.apache.empire.db.DBDatabase;
 import org.apache.empire.db.DBRowSet;
+import org.apache.empire.exceptions.EmpireException;
+import org.apache.empire.exceptions.InternalException;
 import org.apache.empire.exceptions.ItemNotFoundException;
 import org.apache.empire.jsf2.app.FacesApplication;
 import org.apache.empire.jsf2.app.FacesUtils;
@@ -258,7 +260,7 @@ public abstract class Page implements Serializable
     protected boolean handleActionError(String action, Throwable e)
     {
         // Set Faces Message
-        String msg = e.getLocalizedMessage();
+        String msg = getErrorMessage(e);
         String detail = extractErrorMessageDetail(action, e, 1);
         log.error(msg + "\r\n" + detail);
         FacesMessage facesMsg = new FacesMessage(FacesMessage.SEVERITY_ERROR, msg, detail);
@@ -270,6 +272,23 @@ public abstract class Page implements Serializable
         // redirect
         redirectTo(parentPage.getRedirect());
         return true;
+    }
+
+    protected void setErrorMessage(Throwable e)
+    {
+        String msg = getErrorMessage(e);
+        String detail = extractErrorMessageDetail(action, e, 1);
+        log.error(msg + "\r\n" + detail, e);
+        FacesMessage facesMsg = new FacesMessage(FacesMessage.SEVERITY_ERROR, msg, detail);
+        FacesContext.getCurrentInstance().addMessage(getPageName(), facesMsg);
+    }
+
+    protected String getErrorMessage(Throwable e)
+    {   // Wrap Exception
+        if (!(e instanceof EmpireException))
+            e = new InternalException(e);
+        // get message 
+        return getTextResolver().getExceptionMessage((Exception)e);
     }
     
     protected String extractErrorMessageDetail(String action, Throwable e, int stackTraceElements)

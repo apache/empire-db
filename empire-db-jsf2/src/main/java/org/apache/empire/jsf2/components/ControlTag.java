@@ -368,6 +368,8 @@ public class ControlTag extends UIInput implements NamingContainer
         if (parent.getChildCount() > 0)
         {
             labelComponent = (HtmlOutputLabel) parent.getChildren().get(0);
+            // update
+            helper.updateLabelComponent(context, labelComponent, null);
         }
         if (labelComponent == null)
         {

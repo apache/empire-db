@@ -49,6 +49,7 @@ import org.apache.empire.data.RecordData;
 import org.apache.empire.db.DBDatabase;
 import org.apache.empire.db.DBRecord;
 import org.apache.empire.db.DBRowSet;
+import org.apache.empire.db.exceptions.FieldNotNullException;
 import org.apache.empire.exceptions.BeanPropertyGetException;
 import org.apache.empire.exceptions.BeanPropertySetException;
 import org.apache.empire.exceptions.InternalException;
@@ -273,8 +274,12 @@ public class TagEncodingHelper implements NamingContainer
         {
             // Make sure null values are not forced to be required
             boolean isNull = ObjectUtils.isEmpty(value);
-            if (isNull && !isRequired())
-                return;
+            if (isNull)
+            {   // Check Required
+                if (isRequired())
+                    throw new FieldNotNullException(column);
+                return; // not required
+            }
             // validate through column
             column.validate(value);
         }
@@ -1124,16 +1129,43 @@ public class TagEncodingHelper implements NamingContainer
         
         // required
         if (required)
-        {
-            HtmlPanelGroup span = new HtmlPanelGroup();
-            span.setStyleClass("required");
-            HtmlOutputText text = new HtmlOutputText();
-            text.setValue("*");
-            span.getChildren().add(text);
-            label.getChildren().add(span);
-        }
+            addRequiredMark(label);
 
         return label;
+    }
+    
+    public void updateLabelComponent(FacesContext context, HtmlOutputLabel label, String forInput)
+    {
+        boolean hasMark = (label.getChildCount()>0);
+        // Find Input Control (only if forInput Attribute has been set!)
+        InputTag inputTag = null;
+        if (StringUtils.isNotEmpty(forInput) && !forInput.equals("*"))
+        {   // Set Label input Id
+            UIComponent input = FacesUtils.getFacesApplication().findComponent(context, forInput, tag);
+            if (input!=null && (input instanceof InputTag))
+            {   // Check Read-Only
+                inputTag = ((InputTag)input);
+            }
+        }
+        // Is the Mark required?
+        boolean required = (inputTag!=null ? inputTag.isInputRequired() : isValueRequired());
+        if (required==hasMark)
+            return;
+        // Add or remove the mark
+        if (required)
+            addRequiredMark(label);
+        else
+            label.getChildren().clear();
+    }
+    
+    protected void addRequiredMark(HtmlOutputLabel label)
+    {
+        HtmlPanelGroup span = new HtmlPanelGroup();
+        span.setStyleClass("required");
+        HtmlOutputText text = new HtmlOutputText();
+        text.setValue("*");
+        span.getChildren().add(text);
+        label.getChildren().add(span);
     }
     
     /* ********************** CSS-generation ********************** */

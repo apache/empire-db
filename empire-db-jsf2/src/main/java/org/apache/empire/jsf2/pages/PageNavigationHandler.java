@@ -118,7 +118,7 @@ public class PageNavigationHandler extends ConfigurableNavigationHandler
                 n = s.lastIndexOf('?', i);
             if (n<0)
                 continue; // something is wrong
-            int v = s.indexOf('&');
+            int v = s.indexOf('&', i);
             String name = s.substring(n+1, i);
             String value = (v>i) ? s.substring(i+1, v) : s.substring(i+1);
             log.debug("Adding view parameter '{}' with value '{}'.", name, value);

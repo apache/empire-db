@@ -25,6 +25,7 @@ import javax.faces.context.FacesContext;
 import org.apache.empire.db.DBRecord;
 import org.apache.empire.db.DBRowSet;
 import org.apache.empire.exceptions.EmpireException;
+import org.apache.empire.exceptions.InternalException;
 import org.apache.empire.exceptions.InvalidArgumentException;
 import org.apache.empire.exceptions.ObjectNotValidException;
 import org.apache.empire.jsf2.app.FacesUtils;
@@ -78,6 +79,19 @@ public class RecordPageElement<T extends DBRecord> extends PageElement
         // Chance to init the page
         if (record.isValid()==false)
             reloadRecord();
+    }
+
+    /**
+     * return true if the record can be restored from the session.
+     * @param newRecord flag to detect session data for a new reaord otherwise for an existing record
+     * @return true if information to restore the record is available on the session
+     */
+    public boolean canReloadRecord(boolean newRecord)
+    {
+        if (newRecord)
+            return (getSessionObject(DBRecord.class)!=null);
+        else
+            return (getSessionObject(Object[].class)!=null); 
     }
     
     /**
@@ -169,7 +183,11 @@ public class RecordPageElement<T extends DBRecord> extends PageElement
             this.setSessionObject(Object[].class, record.getKeyValues());
             return true; 
             // OK
-        } catch(EmpireException e) {
+        } catch(Exception e) {
+            // Wrap exception
+            if (!(e instanceof EmpireException))
+                e = new InternalException(e);
+            // Set error Message
             FacesContext fc = FacesUtils.getContext();
             String msg = FacesUtils.getTextResolver(fc).getExceptionMessage(e);
             FacesUtils.addErrorMessage(fc, msg);

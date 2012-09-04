@@ -60,6 +60,9 @@ public class LabelTag extends UIOutput // implements NamingContainer
         if (getChildCount() > 0)
         {
             labelComponent = (HtmlOutputLabel) getChildren().get(0);
+            // update
+            String forInput = helper.getTagAttribute("for");
+            helper.updateLabelComponent(context, labelComponent, forInput);
         }
         if (labelComponent == null)
         {
