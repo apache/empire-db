@@ -272,6 +272,9 @@ public class TagEncodingHelper implements NamingContainer
         @Override
         public void validate(Object value)
         {
+            // skip?
+            if (skipValidation)
+                return;
             // Make sure null values are not forced to be required
             boolean isNull = ObjectUtils.isEmpty(value);
             if (isNull)
@@ -341,6 +344,7 @@ public class TagEncodingHelper implements NamingContainer
     private InputControl        control      = null;
     private TextResolver        textResolver = null;
     private Object              mostRecentValue = null;
+    private boolean             skipValidation = false;
 
     public TagEncodingHelper(UIOutput tag, String tagCssStyle)
     {
@@ -365,7 +369,7 @@ public class TagEncodingHelper implements NamingContainer
             {   Object req = ve.getValue(FacesContext.getCurrentInstance().getELContext());
                 if (req!=null)
                     tagRequired = new Boolean(ObjectUtils.getBoolean(req));
-            }    
+            }
         }
     }
 
@@ -459,7 +463,15 @@ public class TagEncodingHelper implements NamingContainer
 
     public InputControl.InputInfo getInputInfo(FacesContext ctx)
     {
+        // Skip validate
+        skipValidation = FacesUtils.isSkipInputValidation(ctx);
+        // create
         return new InputInfoImpl(getColumn(), getTextResolver(ctx));
+    }
+
+    public boolean isSkipValidation()
+    {
+        return skipValidation;
     }
 
     public boolean hasColumn()
@@ -516,7 +528,7 @@ public class TagEncodingHelper implements NamingContainer
         }
         return null;
     }
-    
+
     private boolean isDetectFieldChange()
     {
         Object v = this.getTagAttribute("detectFieldChange");
@@ -561,9 +573,10 @@ public class TagEncodingHelper implements NamingContainer
     public void setDataValue(Object value)
     {
         if (getRecord() != null)
-        { // value
+        {   // value
             if (record instanceof Record)
-            {   /* special case
+            {   getColumn();
+                /* special case
                 if (value==null && getColumn().isRequired())
                 {   // ((Record)record).isFieldRequired(column)==false
                     log.warn("Unable to set null for required field!");
@@ -572,16 +585,39 @@ public class TagEncodingHelper implements NamingContainer
                 */
                 if (isDetectFieldChange())
                 {   // DetectFieldChange by comparing current and most recent value
-                    Object currentValue = ((Record) record).getValue(getColumn());
+                    Object currentValue = ((Record) record).getValue(column);
                     if (!ObjectUtils.compareEqual(currentValue, mostRecentValue))
                     {   // Value has been changed by someone else!
-                        log.info("Concurrent data change for "+getColumn().getName()+". Current Value is {}. Ignoring new value {}", currentValue, value);
+                        log.info("Concurrent data change for "+column.getName()+". Current Value is {}. Ignoring new value {}", currentValue, value);
                         return;
                     }
                 }
-                // a record
-                ((Record) record).setValue(getColumn(), value);
-                mostRecentValue = value;
+                // check whether to skip validation
+                boolean reenableValidation = false;
+                if (skipValidation && (record instanceof DBRecord))
+                {   // Ignore read only values
+                    if (this.isReadOnly())
+                        return;
+                    // Column required?
+                    if (column.isRequired() && ObjectUtils.isEmpty(value))
+                        return; // Cannot set required value to null
+                    // Disable Validation
+                    reenableValidation = ((DBRecord)record).isValidateFieldValues();
+                    if (reenableValidation)
+                        ((DBRecord)record).setValidateFieldValues(false);
+                    // Validation skipped for
+                    if (log.isDebugEnabled())
+                        log.debug("Input Validation skipped for {}.", column.getName());
+                }
+                // Now, set the value
+                try {
+                    ((Record) record).setValue(column, value);
+                    mostRecentValue = value;
+                } finally {
+                    // re-enable validation
+                    if (reenableValidation)
+                        ((DBRecord)record).setValidateFieldValues(true);
+                }
             }
             else if (record instanceof RecordData)
             { // a record

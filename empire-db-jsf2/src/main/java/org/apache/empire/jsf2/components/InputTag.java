@@ -176,8 +176,8 @@ public class InputTag extends UIInput implements NamingContainer
         // Validate value
         inpInfo.validate(value);
         setValid(true);
-        // call base class 
-        super.validateValue(context, value);
+        // don't call base class!
+        // super.validateValue(context, value);
     }    
     
     @Override

@@ -33,6 +33,7 @@ import javax.faces.context.FacesContext;
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 
+import org.apache.empire.commons.ObjectUtils;
 import org.apache.empire.db.DBDatabase;
 import org.apache.empire.jsf2.pages.Page;
 import org.apache.empire.jsf2.pages.PageDefinition;
@@ -45,6 +46,8 @@ public class FacesUtils
 {
 
     private static final Logger log = LoggerFactory.getLogger(FacesUtils.class);
+    
+    public static final String SKIP_INPUT_VALIDATION_PARAM = "empire.jsf.input.skipValidation";
 
     /* App */
 
@@ -281,5 +284,12 @@ public class FacesUtils
         fc.getExternalContext().getRequestMap().put("CLEAR_SUBMITTED_VALUES", validate);
     }
     */
+
+    public static boolean isSkipInputValidation(final FacesContext fc)
+    {
+        // Skip validate
+        String val = FacesUtils.getRequestParam(fc, SKIP_INPUT_VALIDATION_PARAM);
+        return (val!=null && ObjectUtils.getBoolean(val));
+    }
     
 }
