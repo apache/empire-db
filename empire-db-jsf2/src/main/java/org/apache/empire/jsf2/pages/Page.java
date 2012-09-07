@@ -278,7 +278,8 @@ public abstract class Page implements Serializable
     {
         String msg = getErrorMessage(e);
         String detail = extractErrorMessageDetail(action, e, 1);
-        log.error(msg + "\r\n" + detail, e);
+        if (log.isDebugEnabled())
+            log.debug(msg + "\r\n" + detail, e);
         FacesMessage facesMsg = new FacesMessage(FacesMessage.SEVERITY_ERROR, msg, detail);
         FacesContext.getCurrentInstance().addMessage(getPageName(), facesMsg);
     }

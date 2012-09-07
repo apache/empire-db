@@ -18,7 +18,6 @@
  */
 package org.apache.empire.jsf2.app;
 
-import java.text.MessageFormat;
 import java.util.Locale;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
@@ -99,16 +98,14 @@ public class TextResolver
                 pattern = ee.getErrorType().getMessagePattern();
                 log.error("Error resolving error messsage pattern: {}", key);
             }
-            // get Params
+            // get Params and translate
             String[] params = ee.getErrorParams();
-            Object[] values = null;
             if (params!=null)
-            {   values = new Object[params.length];
-                for (int i=0; i<params.length; i++)
-                    values[i] = resolveText(params[i]);
+            {   for (int i=0; i<params.length; i++)
+                    params[i] = resolveText(params[i]);
             }
             // Format message
-            return MessageFormat.format(pattern, values);            
+            return EmpireException.formatErrorMessage(ee.getErrorType(), pattern, params);
         }
         else
         {   // Other exception try to resolve by class name

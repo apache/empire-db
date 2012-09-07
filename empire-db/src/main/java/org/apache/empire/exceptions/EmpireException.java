@@ -40,18 +40,53 @@ public class EmpireException extends RuntimeException
     private final String[]  errorParams;
     // private final String errorSourceClassname;
     
-    private static String formatErrorMessage(final ErrorType errType, final String[] params)
+    public static String formatErrorMessage(final ErrorType errType, String pattern, final String[] params)
     {
-        // Check parameter count
-        int paramCount = (params!=null) ? params.length : 0;
-        if (paramCount!= errType.getNumParams())
-        {   // Number of parameters does not match
-            log.warn("Invalid Number of arguments supplied for error " + errType.getKey() 
-                   + "\nArguments supplied= " + String.valueOf(paramCount) + "; Arguments expected= " + String.valueOf(errType.getNumParams()));
-        }
         // Log Error
-        String msg = MessageFormat.format(errType.getMessagePattern(), (Object[])params);
-        return msg;
+        try {
+            // the pattern
+            if (pattern==null)
+                pattern=errType.getMessagePattern();
+            // init format args
+            Object[] formatArgs = (Object[])params;
+            // Check parameter count
+            int patParamCount = errType.getNumParams();
+            int paramCount = (params!=null) ? params.length : 0;            
+            if (paramCount < patParamCount)
+            {   // Number of parameters does not match
+                log.warn("Invalid Number of arguments supplied for error " + errType.getKey() 
+                       + "\nArguments supplied= " + String.valueOf(paramCount) + "; Arguments expected= " + String.valueOf(errType.getNumParams()));
+                // Return the pattern
+                return pattern;
+            }
+            // more params than expected
+            else if (paramCount>patParamCount)
+            {   // Wildcard for the rest
+                if (pattern.contains("{*}")) 
+                {   pattern = pattern.replace("{*}", "{"+String.valueOf(patParamCount)+"}");
+                    patParamCount++;
+                }
+                // Build new array
+                formatArgs = new String[patParamCount];
+                int i=0;
+                for (; i<patParamCount-1; i++)
+                    formatArgs[i]=params[i];
+                // Build a array for the rest
+                StringBuilder b = new StringBuilder();
+                for (;i<paramCount;i++)
+                {   if (b.length()>0)
+                        b.append(", ");
+                    b.append(String.valueOf(params[i]));
+                }
+                formatArgs[patParamCount-1]=b.toString();
+            }
+            // format now
+            String msg = MessageFormat.format(pattern, formatArgs);
+            return msg;
+        } catch(Exception e) {
+            log.error("Unable to format error message: "+pattern, e);
+            return pattern;
+        }
     }
     
     /**
@@ -62,7 +97,7 @@ public class EmpireException extends RuntimeException
      */
     protected EmpireException(final ErrorType errType, final String[] params, final Throwable cause)
     {
-        super(formatErrorMessage(errType, params), cause);
+        super(formatErrorMessage(errType, null, params), cause);
         // save type and params for custom message formatting
         this.errorType = errType;
         this.errorParams = params;
