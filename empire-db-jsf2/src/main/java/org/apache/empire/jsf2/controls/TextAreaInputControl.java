@@ -69,7 +69,7 @@ public class TextAreaInputControl extends InputControl
             // once
             copyAttributes(parent, ii, input);
             // disabled
-            Object dis = ii.getAttribute("disabled");
+            Object dis = ii.getAttributeEx("disabled");
             if (dis!=null)
                 input.setDisabled(ObjectUtils.getBoolean(dis));
             // cols

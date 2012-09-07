@@ -95,7 +95,7 @@ public class ControlTag extends UIInput implements NamingContainer
             if (control!=null)
             {   // write end tag
                 TagEncodingHelper helper = control.helper;
-                String tagName = helper.getTagAttribute("tag", "td");
+                String tagName = helper.getTagAttributeString("tag", "td");
                 
                 // render components
                 ResponseWriter writer = context.getResponseWriter();
@@ -115,7 +115,7 @@ public class ControlTag extends UIInput implements NamingContainer
         protected void writeAttributes(ResponseWriter writer, TagEncodingHelper helper, String tagName) 
             throws IOException
         {
-            String styleClass = helper.getTagAttribute("labelClass", DEFAULT_LABEL_SEPARATOR_CLASS);
+            String styleClass = helper.getTagAttributeString("labelClass", DEFAULT_LABEL_SEPARATOR_CLASS);
             if (StringUtils.isNotEmpty(styleClass))
                 writer.writeAttribute("class", styleClass, null);
         }
@@ -127,10 +127,10 @@ public class ControlTag extends UIInput implements NamingContainer
         protected void writeAttributes(ResponseWriter writer, TagEncodingHelper helper, String tagName) 
             throws IOException
         {
-            String styleClass = helper.getTagAttribute("inputClass", DEFAULT_INPUT_SEPARATOR_CLASS);
+            String styleClass = helper.getTagAttributeString("inputClass", DEFAULT_INPUT_SEPARATOR_CLASS);
             if (StringUtils.isNotEmpty(styleClass))
                 writer.writeAttribute("class", styleClass, null);
-            String colSpan = helper.getTagAttribute("colspan");
+            String colSpan = helper.getTagAttributeString("colspan");
             if (StringUtils.isNotEmpty(colSpan) && tagName.equalsIgnoreCase("td"))
                 writer.writeAttribute("colspan", colSpan, null);
         }
@@ -181,7 +181,7 @@ public class ControlTag extends UIInput implements NamingContainer
                 valInfo = helper.getValueInfo(context); // Oops, should not come here 
             
             String styleClass = helper.getTagStyleClass("eInpDis");
-            String tooltip    = helper.getValueTooltip(helper.getTagAttribute("title"));
+            String tooltip    = helper.getValueTooltip(helper.getTagAttributeString("title"));
             
             // render components
             ResponseWriter writer = context.getResponseWriter();
@@ -320,9 +320,9 @@ public class ControlTag extends UIInput implements NamingContainer
     {
         if (isCustomInput())
         {
-            String tagName  = helper.getTagAttribute("tag", DEFAULT_CONTROL_SEPARATOR_TAG);
-            String inpClass = helper.getTagAttribute("inputClass", DEFAULT_INPUT_SEPARATOR_CLASS);
-            String colSpan  = helper.getTagAttribute("colspan");
+            String tagName  = helper.getTagAttributeString("tag", DEFAULT_CONTROL_SEPARATOR_TAG);
+            String inpClass = helper.getTagAttributeString("inputClass", DEFAULT_INPUT_SEPARATOR_CLASS);
+            String colSpan  = helper.getTagAttributeString("colspan");
 
             ResponseWriter writer = context.getResponseWriter();
             writer.startElement(tagName, this);
@@ -352,7 +352,7 @@ public class ControlTag extends UIInput implements NamingContainer
         hasRequiredFlagSet = true;
     }
     
-    private boolean isCustomInput()
+    public boolean isCustomInput()
     {
         Object custom = getAttributes().get("custom");
         if (custom != null)
@@ -373,7 +373,7 @@ public class ControlTag extends UIInput implements NamingContainer
         }
         if (labelComponent == null)
         {
-            String forInput = isCustomInput() ? helper.getTagAttribute("for") : "*";
+            String forInput = isCustomInput() ? helper.getTagAttributeString("for") : "*";
             // createLabelComponent 
             labelComponent = helper.createLabelComponent(context, forInput, "eLabel", null, true);
             parent.getChildren().add(0, labelComponent);

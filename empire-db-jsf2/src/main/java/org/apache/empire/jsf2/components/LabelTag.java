@@ -61,14 +61,14 @@ public class LabelTag extends UIOutput // implements NamingContainer
         {
             labelComponent = (HtmlOutputLabel) getChildren().get(0);
             // update
-            String forInput = helper.getTagAttribute("for");
+            String forInput = helper.getTagAttributeString("for");
             helper.updateLabelComponent(context, labelComponent, forInput);
         }
         if (labelComponent == null)
         {
-            String forInput   = helper.getTagAttribute("for");
+            String forInput   = helper.getTagAttributeString("for");
             String styleClass = helper.getTagStyleClass(DataType.UNKNOWN);
-            String style      = helper.getTagAttribute("style");
+            String style      = helper.getTagAttributeString("style");
             // createLabelComponent 
             labelComponent = helper.createLabelComponent(context, forInput, styleClass, style, getColon());
             this.getChildren().add(labelComponent);

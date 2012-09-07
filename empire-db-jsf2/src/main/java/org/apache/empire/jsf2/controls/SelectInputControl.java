@@ -84,7 +84,7 @@ public class SelectInputControl extends InputControl
             // copy Attributes
             copyAttributes(parent, ii, input);
             // disabled
-            Object dis = ii.getAttribute("disabled");
+            Object dis = ii.getAttributeEx("disabled");
             boolean disabled = (dis!=null) ? ObjectUtils.getBoolean(dis) : ii.isDisabled(); 
             input.setDisabled(disabled);
             // Options
@@ -104,7 +104,7 @@ public class SelectInputControl extends InputControl
             input = (HtmlSelectOneMenu)comp;
             // disabled
             // boolean disabled = input.isDisabled();
-            Object dis = ii.getAttribute("disabled");
+            Object dis = ii.getAttributeEx("disabled");
             boolean disabled = (dis!=null) ? ObjectUtils.getBoolean(dis) : ii.isDisabled(); 
             input.setDisabled(disabled);
             // Options (sync)

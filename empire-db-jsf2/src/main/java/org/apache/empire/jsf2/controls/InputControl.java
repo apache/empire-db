@@ -205,17 +205,18 @@ public abstract class InputControl
         boolean isDisabled(); // readOnly
         // input
         String getInputId();
-        String getTabindex();
         String getStyleClass(String addlStyle);
-        // String getAccesskey();
         /*
         String getName();
+        String getTabindex();
+        String getAccesskey();
         boolean isValid(); // Indicates whether the value supplied is valid
         String getOnchange();
         String getOnfocus();
         String getOnblur();
         */
-        Object getAttribute(String name);
+        Object getAttribute(String name);   /* gets tag attribute only */
+        Object getAttributeEx(String name); /* check Column attributes too, and resolves references to other columns. */
     }
     
     private String name;

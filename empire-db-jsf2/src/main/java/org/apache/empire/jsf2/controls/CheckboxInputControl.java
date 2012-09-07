@@ -58,10 +58,6 @@ public class CheckboxInputControl extends InputControl
                 throw new InternalException(e2);
             }
             copyAttributes(parent, ii, input);
-            // disabled
-            Object dis = ii.getAttribute("disabled");
-            if (dis!=null)
-                input.setDisabled(ObjectUtils.getBoolean(dis));
             // add
             compList.add(input);
         }
@@ -73,9 +69,13 @@ public class CheckboxInputControl extends InputControl
             // cast
             input = (HtmlSelectBooleanCheckbox)comp;
         }
+
+        // disabled
+        Object dis = ii.getAttributeEx("disabled");
+        boolean disabled = (dis!=null) ? ObjectUtils.getBoolean(dis) : ii.isDisabled(); 
+        input.setDisabled(disabled);
         
         // Set Value
-        input.setReadonly(ii.isDisabled());
         setInputValue(input, ii);
     }
     

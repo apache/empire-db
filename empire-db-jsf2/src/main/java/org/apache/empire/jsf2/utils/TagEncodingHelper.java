@@ -59,6 +59,7 @@ import org.apache.empire.exceptions.PropertyReadOnlyException;
 import org.apache.empire.jsf2.app.FacesApplication;
 import org.apache.empire.jsf2.app.FacesUtils;
 import org.apache.empire.jsf2.app.TextResolver;
+import org.apache.empire.jsf2.components.ControlTag;
 import org.apache.empire.jsf2.components.InputTag;
 import org.apache.empire.jsf2.components.LinkTag;
 import org.apache.empire.jsf2.components.RecordTag;
@@ -208,7 +209,7 @@ public class TagEncodingHelper implements NamingContainer
         public Object getNullValue()
         {
             // null value
-            Object attr = tag.getAttributes().get("default");
+            Object attr = getTagAttributeValue("default");
             if (attr != null)
                 return attr;
             // Use Column default
@@ -223,9 +224,9 @@ public class TagEncodingHelper implements NamingContainer
         public String getFormat()
         {
             // null value
-            Object attr = tag.getAttributes().get("format");
+            String attr = getTagAttributeString("format");
             if (attr != null)
-                return attr.toString();
+                return attr;
             // Use Column default
             if (hasColumn())
             { // from column
@@ -307,13 +308,6 @@ public class TagEncodingHelper implements NamingContainer
         }
 
         @Override
-        public String getTabindex()
-        {
-            Object size = tag.getAttributes().get("tabindex");
-            return StringUtils.toString(size);
-        }
-
-        @Override
         public String getStyleClass(String addlStyle)
         {
             String style = getTagStyleClass(addlStyle);
@@ -325,8 +319,42 @@ public class TagEncodingHelper implements NamingContainer
         @Override
         public Object getAttribute(String name)
         {
-            return getTagAttribute(name);
+            return getTagAttributeValue(name);
         }
+        
+        @Override
+        public Object getAttributeEx(String name)
+        { 
+            Object value = getTagAttributeValue(name);
+            if (value==null)
+            {   // Check Column
+                value = getColumn().getAttribute(name);
+            }
+            // Checks whether it's another column    
+            if (value instanceof Column)
+            {   // Special case: Value is a column
+                Column col = ((Column)value);
+                Object rec = getRecord();
+                if (rec instanceof Record)
+                    return ((Record)rec).getValue(col);
+                else if (rec!=null)
+                {   // Get Value from a bean
+                    String property = col.getBeanPropertyName();
+                    try
+                    {   // Use Beanutils to get Property
+                        PropertyUtilsBean pub = BeanUtilsBean.getInstance().getPropertyUtils();
+                        return pub.getSimpleProperty(rec, property);
+                    }
+                    catch (Exception e)
+                    {   log.error("BeanUtils.getSimpleProperty failed for "+property, e);
+                        return null;
+                    }
+                }    
+                return null;
+            }
+            return value;
+        }
+        
     }
 
     // Logger
@@ -359,7 +387,7 @@ public class TagEncodingHelper implements NamingContainer
             if (((UIInput)tag).isLocalValueSet())
             {   /* clear local value */
                 if (log.isDebugEnabled())
-                    log.debug("clearing local value for {}. value is {}.", getColumn().getName(), ((UIInput)tag).getLocalValue());
+                    log.debug("clearing local value for {}. value is {}.", getColumnName(), ((UIInput)tag).getLocalValue());
                 ((UIInput)tag).setValue(null);
                 ((UIInput)tag).setLocalValueSet(false);
             }
@@ -384,12 +412,12 @@ public class TagEncodingHelper implements NamingContainer
         if (getColumn() == null)
         	throw new NotSupportedException(this, "getInputControl");
         // Get Control from column
-        String controlType = getTagAttribute("controlType");
+        String controlType = getTagAttributeString("controlType");
         if (controlType==null)
         {   controlType = column.getControlType();
             // Always use SelectInputControl
             if (TextInputControl.NAME.equalsIgnoreCase(controlType))
-            {   Object attr = tag.getAttributes().get("options");
+            {   Object attr = getTagAttributeValue("options");
                 if (attr != null && (attr instanceof Options) && !((Options)attr).isEmpty())
                     controlType = SelectInputControl.NAME;
             }
@@ -426,7 +454,7 @@ public class TagEncodingHelper implements NamingContainer
         if (this.record== null)
             return;
         // Check direct record property
-        Object rec = tag.getAttributes().get("record");
+        Object rec = getTagAttributeValue("record");
         if (rec!=null)
         {   // record directly specified
             if (rec!=this.record)
@@ -489,6 +517,11 @@ public class TagEncodingHelper implements NamingContainer
             throw new InvalidArgumentException("column", column);
         return column;
     }
+    
+    public String getColumnName()
+    {
+        return (getColumn()!=null ? column.getName() : "null");
+    }
 
     public void setColumn(Column column)
     {
@@ -514,7 +547,7 @@ public class TagEncodingHelper implements NamingContainer
         if (recordTag != null)
             return recordTag;
         // Check record
-        if (record != null || tag.getAttributes().containsKey("record"))
+        if (record != null || (record=getTagAttributeValue("record"))!=null)
             return null; // No record tag: Record has been specified!
         // walk upwards the parent component tree and return the first record component found (if any)
         UIComponent parent = tag;
@@ -531,7 +564,7 @@ public class TagEncodingHelper implements NamingContainer
 
     private boolean isDetectFieldChange()
     {
-        Object v = this.getTagAttribute("detectFieldChange");
+        Object v = this.getTagAttributeValue("detectFieldChange");
         if (v==null && recordTag != null)
             v = recordTag.getAttributes().get("detectFieldChange");
         return (v!=null ? ObjectUtils.getBoolean(v) : true);
@@ -647,7 +680,7 @@ public class TagEncodingHelper implements NamingContainer
         if (!(tag instanceof UIInput))
             return true;
         // check attribute
-        Object val = tag.getAttributes().get("readonly");
+        Object val = getTagAttributeValue("readonly");
         if (val != null && ObjectUtils.getBoolean(val))
             return true;
         // Do we have a record?
@@ -670,7 +703,7 @@ public class TagEncodingHelper implements NamingContainer
     public boolean isVisible()
     {
         // reset record
-        if (this.record!=null && (tag.getAttributes().get("record") instanceof Record))
+        if (this.record!=null && (getTagAttributeValue("record") instanceof Record))
             this.record=null;
         // Check Record
         if ((getRecord() instanceof Record))
@@ -685,7 +718,7 @@ public class TagEncodingHelper implements NamingContainer
     public boolean isReadOnly()
     {
         // check attribute
-        Object val = tag.getAttributes().get("disabled");
+        Object val = getTagAttributeValue("disabled");
         if (val != null && ObjectUtils.getBoolean(val))
             return true;
         // Check Record
@@ -726,7 +759,7 @@ public class TagEncodingHelper implements NamingContainer
     protected Column findColumn()
     {
         // if parent is a record tag, get the record from there
-        Object col = tag.getAttributes().get("column");
+        Object col = getTagAttributeValue("column");
         if (col instanceof Column)
         { // cast to column
             return (Column) col;
@@ -792,24 +825,24 @@ public class TagEncodingHelper implements NamingContainer
 
     protected Object findRecord()
     {
-        Object rec = tag.getAttributes().get("record");
-
-        if (rec == null && hasValueExpression())
+        Object rec = getTagAttributeValue("record");
+        if (rec != null)
+            return rec;
+        // Value expression
+        if (hasValueExpression())
         {   // See if the record is in value
             return null;
         }
-
-        if (rec == null)
-        { // if parent is a record tag, get the record from there
-            RecordTag recordComponent = getRecordComponent();
-            if (recordComponent != null)
-            {
-                rec = recordComponent.getRecord();
-            }
-            else
-            {
-                // not supplied;
-            }
+        // if parent is a record tag, get the record from there
+        RecordTag recordComponent = getRecordComponent();
+        if (recordComponent != null)
+        {
+            rec = recordComponent.getRecord();
+        }
+        else
+        {   // not supplied
+            if (!(tag instanceof ControlTag) && !((ControlTag)tag).isCustomInput())
+                log.warn("No record supplied for {} and column {}.", tag.getClass().getSimpleName(), getColumnName());
         }
         return rec;
     }
@@ -828,16 +861,16 @@ public class TagEncodingHelper implements NamingContainer
                 FacesContext ctx = FacesContext.getCurrentInstance();
                 boolean readOnly = ve.isReadOnly(ctx.getELContext());
                 if (readOnly)
-                    log.debug(tag.getClass().getSimpleName() + " for " + getColumn().getName() + " expression " + ve.getExpressionString()
+                    log.debug(tag.getClass().getSimpleName() + " for " + getColumnName() + " expression " + ve.getExpressionString()
                               + " is readOnly!");
                 else
-                    log.debug(tag.getClass().getSimpleName() + " for " + getColumn().getName() + " expression " + ve.getExpressionString()
+                    log.debug(tag.getClass().getSimpleName() + " for " + getColumnName() + " expression " + ve.getExpressionString()
                               + " is updateable!");
             }
         }
         /*
         else if (log.isDebugEnabled())
-            log.debug(tag.getClass().getSimpleName()+" for "+getColumn().getName()+" has no value expression!");
+            log.debug(tag.getClass().getSimpleName()+" for "+getColumnName()+" has no value expression!");
         */
         // merken
         hasValueExpr = Boolean.valueOf(ve != null);
@@ -901,7 +934,7 @@ public class TagEncodingHelper implements NamingContainer
     protected Options getValueOptions()
     {
         // null value
-        Object attr = tag.getAttributes().get("options");
+        Object attr = getTagAttributeValue("options");
         if (attr != null && (attr instanceof Options))
             return ((Options) attr);
         if (getColumn() != null)
@@ -1006,9 +1039,9 @@ public class TagEncodingHelper implements NamingContainer
 
     public String getLabelTooltip(Column column)
     {
-        Object title = tag.getAttributes().get("title");
+        String title = getTagAttributeString("title");
         if (title != null)
-            return getDisplayText(StringUtils.toString(title));
+            return getDisplayText(title);
         // Check for short form
         if (hasFormat("short") && !ObjectUtils.isEmpty(column.getAttribute(COLATTR_ABBR_TITLE)))
             return getDisplayText(column.getTitle());
@@ -1018,8 +1051,8 @@ public class TagEncodingHelper implements NamingContainer
 
     public boolean hasFormat(String format)
     { // null value
-        Object f = tag.getAttributes().get("format");
-        return (f != null && String.valueOf(f).indexOf(format) >= 0);
+        String f = getTagAttributeString("format");
+        return (f != null && f.indexOf(format) >= 0);
     }
 
     public boolean hasFormat(InputControl.ValueInfo vi, String format)
@@ -1056,22 +1089,27 @@ public class TagEncodingHelper implements NamingContainer
         context.addMessage(tag.getClientId(), msg);
     }
     
-    public String getTagAttribute(String name, String defValue)
+    public Object getTagAttributeValue(String name)
+    {
+        return tag.getAttributes().get(name);
+    }
+    
+    public String getTagAttributeString(String name, String defValue)
     {
         Object  v = tag.getAttributes().get(name);
         return (v!=null) ? StringUtils.toString(v) : defValue;
     }
 
-    public String getTagAttribute(String name)
+    public String getTagAttributeString(String name)
     {
-        return getTagAttribute(name, null);
+        return getTagAttributeString(name, null);
     }
 
     /* ********************** label ********************** */
 
     protected String getLabelValue(Column column, boolean colon)
     {
-        String label = getTagAttribute("label");
+        String label = getTagAttributeString("label");
         if (label==null)
         {   // Check for short form    
             if (hasFormat("short"))
@@ -1269,21 +1307,21 @@ public class TagEncodingHelper implements NamingContainer
 
     public final String getTagStyleClass(DataType dataType)
     {
-        String userStyle = StringUtils.toString(tag.getAttributes().get("styleClass"));
+        String userStyle = getTagAttributeString("styleClass");
         String typeClass = getDataTypeClass(dataType);
         return getTagStyleClass(tagCssStyle, typeClass, null, userStyle);
     }
 
     public final String getTagStyleClass(String addlStyle)
     {
-        String userStyle = StringUtils.toString(tag.getAttributes().get("styleClass"));
+        String userStyle = getTagAttributeString("styleClass");
         String typeClass = hasColumn() ? getDataTypeClass(column.getDataType()) : null;
         return getTagStyleClass(tagCssStyle, typeClass, addlStyle, userStyle);
     }
 
     public final String getTagStyleClass()
     {
-        String userStyle = StringUtils.toString(tag.getAttributes().get("styleClass"));
+        String userStyle = getTagAttributeString("styleClass");
         String typeClass = hasColumn() ? getDataTypeClass(column.getDataType()) : null;
         return getTagStyleClass(tagCssStyle, typeClass, null, userStyle);
     }
