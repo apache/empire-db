@@ -71,9 +71,11 @@ public class CheckboxInputControl extends InputControl
         }
 
         // disabled
-        Object dis = ii.getAttributeEx("disabled");
-        boolean disabled = (dis!=null) ? ObjectUtils.getBoolean(dis) : ii.isDisabled(); 
+        boolean disabled = ii.isDisabled(); 
         input.setDisabled(disabled);
+
+        // style
+        addRemoveDisabledStyle(input, input.isDisabled());
         
         // Set Value
         setInputValue(input, ii);

@@ -33,7 +33,6 @@ import org.apache.empire.commons.ObjectUtils;
 import org.apache.empire.commons.Options;
 import org.apache.empire.commons.StringUtils;
 import org.apache.empire.data.Column;
-import org.apache.empire.db.exceptions.FieldIsReadOnlyException;
 import org.apache.empire.exceptions.InvalidArgumentException;
 import org.apache.empire.exceptions.ObjectNotValidException;
 import org.apache.empire.exceptions.UnexpectedReturnValueException;
@@ -202,7 +201,8 @@ public abstract class InputControl
         void setValue(Object value);
         void validate(Object value);
         boolean isRequired();
-        boolean isDisabled(); // readOnly
+        boolean isDisabled(); // disabled or readOnly
+        boolean isFieldReadOnly(); // not disabled only readOnly (for input[type=text] only!)
         // input
         String getInputId();
         String getStyleClass(String addlStyle);
@@ -277,9 +277,11 @@ public abstract class InputControl
             {
                 // Disabled
                 if (ii.isDisabled())
-                {
+                {   // Ignore submitted value
+                    log.debug("Ignoring submitted value for disabled field {}.", ii.getColumn().getName());
                     input.setSubmittedValue(null);
-                    throw new FieldIsReadOnlyException(ii.getColumn());
+                    // throw new FieldIsReadOnlyException(ii.getColumn());
+                    return null;
                 }    
                 // Save submitted value
                 FacesContext fc = FacesContext.getCurrentInstance();
@@ -485,6 +487,24 @@ public abstract class InputControl
         Object value = ii.getAttribute(name);
         if (value!=null)
             input.getAttributes().put(name, value);
+    }
+    
+    public void addRemoveDisabledStyle(UIInput input, boolean disabled)
+    {
+        String styleClass = StringUtils.toString(input.getAttributes().get("styleClass"), "");
+        boolean hasDisStyle = (styleClass.indexOf("eInpDis")>=0);
+        if (disabled==hasDisStyle)
+            return; // Nothing to do
+        // Special IceFaces patch
+        if (styleClass.endsWith("-dis"))
+            styleClass = styleClass.substring(0, styleClass.length()-4);
+        // add or remove disabled style
+        if (disabled)
+            styleClass += " eInpDis";
+        else
+            styleClass = styleClass.replace(" eInpDis", "");
+        // add Style
+        input.getAttributes().put("styleClass", styleClass);
     }
     
     /**

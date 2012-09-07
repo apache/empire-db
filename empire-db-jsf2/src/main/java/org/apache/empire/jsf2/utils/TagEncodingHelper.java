@@ -301,6 +301,21 @@ public class TagEncodingHelper implements NamingContainer
         }
 
         @Override
+        public boolean isFieldReadOnly()
+        {   // Check Record
+            if (isRecordReadOnly())
+                return true;
+            // Check Record
+            if ((getRecord() instanceof Record))
+            { // Ask Record
+                Record r = (Record) record;
+                return r.isFieldReadOnly(getColumn());
+            }
+            // column
+            return getColumn().isReadOnly();
+        }
+        
+        @Override
         public String getInputId()
         {
             Column c = getColumn();
@@ -311,8 +326,8 @@ public class TagEncodingHelper implements NamingContainer
         public String getStyleClass(String addlStyle)
         {
             String style = getTagStyleClass(addlStyle);
-            if (isReadOnly())
-                style += " eInpDis";
+            // if (isReadOnly())
+            //     style += " eInpDis";
             return style; 
         }
 
@@ -324,37 +339,9 @@ public class TagEncodingHelper implements NamingContainer
         
         @Override
         public Object getAttributeEx(String name)
-        { 
-            Object value = getTagAttributeValue(name);
-            if (value==null)
-            {   // Check Column
-                value = getColumn().getAttribute(name);
-            }
-            // Checks whether it's another column    
-            if (value instanceof Column)
-            {   // Special case: Value is a column
-                Column col = ((Column)value);
-                Object rec = getRecord();
-                if (rec instanceof Record)
-                    return ((Record)rec).getValue(col);
-                else if (rec!=null)
-                {   // Get Value from a bean
-                    String property = col.getBeanPropertyName();
-                    try
-                    {   // Use Beanutils to get Property
-                        PropertyUtilsBean pub = BeanUtilsBean.getInstance().getPropertyUtils();
-                        return pub.getSimpleProperty(rec, property);
-                    }
-                    catch (Exception e)
-                    {   log.error("BeanUtils.getSimpleProperty failed for "+property, e);
-                        return null;
-                    }
-                }    
-                return null;
-            }
-            return value;
+        {
+            return getAttributeValueEx(name);
         }
-        
     }
 
     // Logger
@@ -718,7 +705,7 @@ public class TagEncodingHelper implements NamingContainer
     public boolean isReadOnly()
     {
         // check attribute
-        Object val = getTagAttributeValue("disabled");
+        Object val = getAttributeValueEx("disabled");
         if (val != null && ObjectUtils.getBoolean(val))
             return true;
         // Check Record
@@ -1092,6 +1079,38 @@ public class TagEncodingHelper implements NamingContainer
     public Object getTagAttributeValue(String name)
     {
         return tag.getAttributes().get(name);
+    }
+
+    public Object getAttributeValueEx(String name)
+    { 
+        Object value = getTagAttributeValue(name);
+        if (value==null)
+        {   // Check Column
+            value = getColumn().getAttribute(name);
+        }
+        // Checks whether it's another column    
+        if (value instanceof Column)
+        {   // Special case: Value is a column
+            Column col = ((Column)value);
+            Object rec = getRecord();
+            if (rec instanceof Record)
+                return ((Record)rec).getValue(col);
+            else if (rec!=null)
+            {   // Get Value from a bean
+                String property = col.getBeanPropertyName();
+                try
+                {   // Use Beanutils to get Property
+                    PropertyUtilsBean pub = BeanUtilsBean.getInstance().getPropertyUtils();
+                    return pub.getSimpleProperty(rec, property);
+                }
+                catch (Exception e)
+                {   log.error("BeanUtils.getSimpleProperty failed for "+property, e);
+                    return null;
+                }
+            }    
+            return null;
+        }
+        return value;
     }
     
     public String getTagAttributeString(String name, String defValue)

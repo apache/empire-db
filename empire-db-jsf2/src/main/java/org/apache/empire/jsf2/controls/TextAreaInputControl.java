@@ -68,10 +68,6 @@ public class TextAreaInputControl extends InputControl
             }
             // once
             copyAttributes(parent, ii, input);
-            // disabled
-            Object dis = ii.getAttributeEx("disabled");
-            if (dis!=null)
-                input.setDisabled(ObjectUtils.getBoolean(dis));
             // cols
             int cols = getFormatInteger(ii, FORMAT_COLS, FORMAT_COLS_ATTRIBUTE);
             if (cols>0)
@@ -91,9 +87,18 @@ public class TextAreaInputControl extends InputControl
             // cast
             input = (HtmlInputTextarea)comp;
         }
+
+        // disabled
+        Object dis = ii.getAttributeEx("disabled");
+        if (dis!=null)
+            input.setDisabled(ObjectUtils.getBoolean(dis));
+        // field-readOnly
+        if (ObjectUtils.getBoolean(dis)==false)
+            input.setReadonly(ii.isFieldReadOnly());
+        // style
+        addRemoveDisabledStyle(input, (input.isDisabled() || input.isReadonly()));
         
         // Set Value
-        input.setReadonly(ii.isDisabled());
         setInputValue(input, ii);
         
     }
