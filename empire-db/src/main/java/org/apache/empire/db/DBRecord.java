@@ -736,7 +736,7 @@ public class DBRecord extends DBRecordData implements Record, Cloneable
      * <P>
      * @param table the table for which to create a record
      */
-    public void create(DBRowSet table)
+    public final void create(DBRowSet table)
     {
         create(table, null);
     }
