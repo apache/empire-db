@@ -458,8 +458,8 @@ public class BeanListPageElement<T> extends ListPageElement<T> implements ListIt
         lti.setPosition((pos > 0 ? pos : 0));
     }
 
-    @Override
-    public Set<Object[]> getSelectedItems()
+    // @Override
+    public Set<Object[]> getSelectedItemKeys()
     {
         if (selectedItems == null)
             return null;
@@ -555,7 +555,7 @@ public class BeanListPageElement<T> extends ListPageElement<T> implements ListIt
         BeanListTableInfo lti = (BeanListTableInfo) getTableInfo();
         DBCommand cmd = lti.getQueryCmd().clone();
         
-        Set<Object[]> items = getSelectedItems();
+        Set<Object[]> items = getSelectedItemKeys();
         if (items.size()>0)
         {
             DBColumn[] pk = rowset.getKeyColumns();

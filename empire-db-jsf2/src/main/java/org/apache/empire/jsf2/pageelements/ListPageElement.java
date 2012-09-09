@@ -19,9 +19,9 @@
 package org.apache.empire.jsf2.pageelements;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import javax.faces.event.ActionEvent;
 
@@ -49,6 +49,7 @@ public abstract class ListPageElement<T> extends PageElement
     {
         private static final long serialVersionUID = 1L;
         
+        private boolean singleSelection = false;
         private boolean invertSelection = false;
         
         public SelectionSet()
@@ -61,9 +62,42 @@ public abstract class ListPageElement<T> extends PageElement
             super(size);
         }
     
+        public boolean isSingleSelection()
+        {
+            return singleSelection;
+        }
+
+        public void setSingleSelection(boolean singleSelection)
+        {
+            this.singleSelection = singleSelection;
+            clear();
+        }
+
         public boolean isInvertSelection()
         {
             return invertSelection;
+        }
+
+        public boolean set(String e)
+        {
+            clear();
+            return super.add(e);
+        }
+
+        @Override
+        public boolean add(String e)
+        {
+            if (singleSelection)
+                return false;
+            return super.add(e);
+        }
+
+        @Override
+        public boolean remove(Object o)
+        {
+            if (singleSelection)
+                return false;
+            return super.remove(o);
         }
 
         public void setInvertSelection(boolean invertSelection)
@@ -432,10 +466,18 @@ public abstract class ListPageElement<T> extends PageElement
         return this.selectedItems.size();
     }
 
-    public Set<Object[]> getSelectedItems()
+    public List<T> getSelectedItems()
     {
-        // if (this.selectedItems==null)
-        throw new NotSupportedException(this, "getSelectedItems");
+        if (this.selectedItems==null)
+            throw new NotSupportedException(this, "getSelectedItems");
+        // find all items
+        List<T> selection = new ArrayList<T>(this.selectedItems.size());
+        for (T item : getItems())
+        {
+            if (((SelectableItem)item).isSelected())
+                selection.add(item);
+        }
+        return selection;
     }
     
     public boolean isInvertSelection()
@@ -452,6 +494,43 @@ public abstract class ListPageElement<T> extends PageElement
             throw new NotSupportedException(this, "setInvertSelection");
         // Invert
         this.selectedItems.setInvertSelection(invertSelection);
+    }
+    
+    public boolean isSingleSelection()
+    {
+        if (this.selectedItems==null)
+            return false;
+        // Invert selection
+        return this.selectedItems.isSingleSelection();
+    }
+
+    public void setSingleSelection(boolean singleSelection)
+    {
+        if (this.selectedItems==null)
+            throw new NotSupportedException(this, "setSingleSelection");
+        // Invert
+        this.selectedItems.setSingleSelection(singleSelection);
+    }
+
+    public void setSelection(SelectableItem item)
+    {
+        if (this.selectedItems==null)
+            throw new NotSupportedException(this, "setInvertSelection");
+        // Invert
+        if (item!=null)
+            this.selectedItems.set(item.getIdParam());
+        else
+            this.selectedItems.clear();
+    }
+
+    public void setSelection(SelectableItem[] items)
+    {
+        if (this.selectedItems==null)
+            throw new NotSupportedException(this, "setInvertSelection");
+        // Invert
+        this.selectedItems.clear();
+        for (SelectableItem item : items)
+            this.selectedItems.add(item.getIdParam());
     }
 
     protected void assignSelectionMap(List<?> items)
