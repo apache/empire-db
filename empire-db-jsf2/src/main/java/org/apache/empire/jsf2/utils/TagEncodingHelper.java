@@ -465,8 +465,11 @@ public class TagEncodingHelper implements NamingContainer
             }    
         }
         else 
-        {   // Invalidate if not an instance of Record
-            if (!(this.record instanceof Record))
+        {   // Do we have a record-tag?
+            if (recordTag!=null)
+                record = recordTag.getRecord();
+            // Invalidate if not an instance of Record
+            else if (!(this.record instanceof Record))
                 this.record = null;
         }
     }
