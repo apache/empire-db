@@ -467,7 +467,13 @@ public class TagEncodingHelper implements NamingContainer
         else 
         {   // Do we have a record-tag?
             if (recordTag!=null)
-                setRecord(recordTag.getRecord());
+            {   // Check Record change
+                rec = recordTag.getRecord();
+                if (rec!=this.record)
+                {   // Record has changed
+                    setRecord(rec);
+                }
+            }    
             // Invalidate if not an instance of Record
             else if (!(this.record instanceof Record))
                 this.record = null;

@@ -429,6 +429,16 @@ public abstract class ListPageElement<T> extends PageElement
         return (this.items == null) ? false : this.items.size() > 0;
     }
 
+    public final boolean isEmpty()
+    {
+        return (this.items==null || this.items.size()==0);
+    }
+
+    public final boolean isNotEmpty()
+    {
+        return (this.items!=null && this.items.size()>0);
+    }
+
     public int getItemCount()
     {
         return getTableInfo().getItemCount();
