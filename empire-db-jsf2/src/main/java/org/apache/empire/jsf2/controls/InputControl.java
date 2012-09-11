@@ -461,6 +461,11 @@ public abstract class InputControl
         copyAttribute(ii, input, "style");
         copyAttribute(ii, input, "tabindex");
         copyAttribute(ii, input, "onchange");
+        copyAttribute(ii, input, "onfocus");
+        copyAttribute(ii, input, "onblur");
+        copyAttribute(ii, input, "onkeydown");
+        copyAttribute(ii, input, "onkeyup");
+        copyAttribute(ii, input, "onclick");
 
         // immediate
         Object immediate = ii.getAttribute("immediate");
