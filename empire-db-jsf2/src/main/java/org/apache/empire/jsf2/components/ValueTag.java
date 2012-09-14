@@ -25,7 +25,9 @@ import javax.faces.component.UIOutput;
 import javax.faces.context.FacesContext;
 import javax.faces.context.ResponseWriter;
 
+import org.apache.empire.commons.ObjectUtils;
 import org.apache.empire.commons.StringUtils;
+import org.apache.empire.data.DataType;
 import org.apache.empire.jsf2.controls.InputControl;
 import org.apache.empire.jsf2.utils.TagEncodingHelper;
 import org.slf4j.Logger;
@@ -83,7 +85,20 @@ public class ValueTag extends UIOutput // implements NamingContainer
         if (StringUtils.isEmpty(tag))
             tag="span";
         writer.startElement(tag, this);
-        helper.writeAttribute(writer, "class", helper.getTagStyleClass());
+        // Detect type and additional style
+        String addlStyle = null;
+        DataType dataType = vi.getColumn().getDataType();
+        if (dataType.isNumeric())
+        {   try {
+                Object val = helper.getDataValue(true);
+                if (val!=null && ObjectUtils.getInteger(val)<0)
+                    addlStyle = "eValNeg";
+            } catch(Exception e) {
+                log.warn("Unable to detect sign of numeric value {}. Message is {}!", vi.getColumn().getName(), e.getMessage());
+            }
+        }
+        // render attributes
+        helper.writeAttribute(writer, "class", helper.getTagStyleClass(dataType, addlStyle));
         helper.writeAttribute(writer, "style", map.get("style"));
         helper.writeAttribute(writer, "title", helper.getValueTooltip(title));
         return tag;

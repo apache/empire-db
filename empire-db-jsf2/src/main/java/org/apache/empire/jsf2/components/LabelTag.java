@@ -67,7 +67,7 @@ public class LabelTag extends UIOutput // implements NamingContainer
         if (labelComponent == null)
         {
             String forInput   = helper.getTagAttributeString("for");
-            String styleClass = helper.getTagStyleClass(DataType.UNKNOWN);
+            String styleClass = helper.getTagStyleClass(DataType.UNKNOWN, null);
             String style      = helper.getTagAttributeString("style");
             // createLabelComponent 
             labelComponent = helper.createLabelComponent(context, forInput, styleClass, style, getColon());

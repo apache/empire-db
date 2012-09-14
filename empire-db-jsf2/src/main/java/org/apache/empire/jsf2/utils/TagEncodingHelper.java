@@ -326,8 +326,6 @@ public class TagEncodingHelper implements NamingContainer
         public String getStyleClass(String addlStyle)
         {
             String style = getTagStyleClass(addlStyle);
-            // if (isReadOnly())
-            //     style += " eInpDis";
             return style; 
         }
 
@@ -1333,11 +1331,11 @@ public class TagEncodingHelper implements NamingContainer
         return getTagStyleClass(tagCssStyle, typeClass, addlStyle, userStyle);
     }
 
-    public final String getTagStyleClass(DataType dataType)
+    public final String getTagStyleClass(DataType dataType, String addlStyle)
     {
         String userStyle = getTagAttributeString("styleClass");
         String typeClass = getDataTypeClass(dataType);
-        return getTagStyleClass(tagCssStyle, typeClass, null, userStyle);
+        return getTagStyleClass(tagCssStyle, typeClass, addlStyle, userStyle);
     }
 
     public final String getTagStyleClass(String addlStyle)
