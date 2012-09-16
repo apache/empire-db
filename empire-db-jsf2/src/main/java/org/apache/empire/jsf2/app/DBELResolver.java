@@ -96,11 +96,14 @@ public class DBELResolver extends ELResolver
         else if (base instanceof RecordData)
         {   // Lookup RowSet           
             String field= StringUtils.toString(property);
+            // field must start with a capital Letter
+            if (field==null || field.length()==0 || field.charAt(0)<'A' || field.charAt(0)>'Z')
+                return null;
+            // try to find field
             int index = ((Record)base).getFieldIndex(field);
             if (index<0)
             {   // not a field, it may be a property
-                if (log.isDebugEnabled())
-                    log.debug("ELResolver warning: field '{}' not found in record .", field);
+                log.warn("ELResolver warning: field '{}' not found in record .", field);
                 // not resolved, continue search
                 return null; 
             }
