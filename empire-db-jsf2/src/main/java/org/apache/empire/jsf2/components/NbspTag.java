@@ -20,7 +20,6 @@ package org.apache.empire.jsf2.components;
 
 import java.io.IOException;
 
-import javax.faces.component.NamingContainer;
 import javax.faces.component.UINamingContainer;
 import javax.faces.component.UIOutput;
 import javax.faces.context.FacesContext;
@@ -28,7 +27,7 @@ import javax.faces.context.ResponseWriter;
 
 import org.apache.empire.commons.ObjectUtils;
 
-public class NbspTag extends UIOutput implements NamingContainer
+public class NbspTag extends UIOutput // implements NamingContainer
 {
     // private int count = 1;
 

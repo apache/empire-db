@@ -20,6 +20,7 @@ package org.apache.empire.jsf2.utils;
 
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
+import java.util.Iterator;
 import java.util.Locale;
 
 import javax.el.ValueExpression;
@@ -326,6 +327,10 @@ public class TagEncodingHelper implements NamingContainer
         public String getStyleClass(String addlStyle)
         {
             String style = getTagStyleClass(addlStyle);
+            if (hasError)
+            {   // Invalid
+                style = "eInvalid "+style;
+            }
             return style; 
         }
 
@@ -358,6 +363,7 @@ public class TagEncodingHelper implements NamingContainer
     private TextResolver        textResolver = null;
     private Object              mostRecentValue = null;
     private boolean             skipValidation = false;
+    private boolean             hasError = false;
 
     public TagEncodingHelper(UIOutput tag, String tagCssStyle)
     {
@@ -487,6 +493,8 @@ public class TagEncodingHelper implements NamingContainer
     {
         // Skip validate
         skipValidation = FacesUtils.isSkipInputValidation(ctx);
+        // check whether we have got an error
+        hasError = detectError(ctx);            
         // create
         return new InputInfoImpl(getColumn(), getTextResolver(ctx));
     }
@@ -1076,6 +1084,18 @@ public class TagEncodingHelper implements NamingContainer
         return textResolver;
     }
     
+    private boolean detectError(FacesContext context)
+    {
+        Iterator<FacesMessage> iter = context.getMessages(tag.getClientId());
+        while (iter.hasNext())
+        {   // Check for error
+            FacesMessage m = iter.next();
+            if (m.getSeverity()==FacesMessage.SEVERITY_ERROR)
+                return true;
+        }
+        return false;
+    }
+    
     public void addErrorMessage(FacesContext context, Exception e)
     {
         String msgText = getTextResolver(context).getExceptionMessage(e);
@@ -1176,6 +1196,10 @@ public class TagEncodingHelper implements NamingContainer
                 readOnly = inputTag.isInputReadOnly();
                 required = inputTag.isInputRequired();
             }
+            else
+            {   // Not found (<e:input id="ABC"...> must match <e:label for="ABC"...>
+                log.warn("Input component {} not found for label {}.", forInput, getColumn().getName());
+            }
         }
         if (column==null)
         {   // Get from LinkTag
@@ -1211,11 +1235,19 @@ public class TagEncodingHelper implements NamingContainer
         // for 
         if (StringUtils.isNotEmpty(forInput) && !readOnly)
         {   // Set Label input Id
-            String inputId = getInputInfo(context).getInputId();
-            if (forInput.equals("*"))
-                label.setFor(inputId);
+            InputControl.InputInfo ii = getInputInfo(context);
+            String inputId = getInputControl().getLabelForId(ii);
+            if (StringUtils.isNotEmpty(inputId))
+            {   // input_id was given
+                if (forInput.equals("*"))
+                    label.setFor(inputId);
+                else
+                    label.setFor(forInput+":"+inputId);
+            }
             else
-                label.setFor(forInput+":"+inputId);
+            {   // No input-id available
+                log.info("No input-id provided for {}.", getColumn().getName());
+            }    
         }    
 
         // style

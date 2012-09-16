@@ -21,7 +21,6 @@ package org.apache.empire.jsf2.components;
 import java.io.IOException;
 import java.util.Map;
 
-import javax.faces.component.NamingContainer;
 import javax.faces.component.UIOutput;
 import javax.faces.context.FacesContext;
 import javax.faces.context.ResponseWriter;
@@ -33,7 +32,7 @@ import org.apache.empire.jsf2.utils.TagEncodingHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class TitleTag extends UIOutput implements NamingContainer
+public class TitleTag extends UIOutput // implements NamingContainer
 {
     // Logger
     private static final Logger log = LoggerFactory.getLogger(TitleTag.class);

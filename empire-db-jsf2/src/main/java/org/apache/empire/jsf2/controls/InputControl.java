@@ -230,6 +230,11 @@ public abstract class InputControl
     {
         return name;
     }
+    
+    public String getLabelForId(InputInfo ii)
+    {
+        return ii.getInputId();
+    }
 
     /* Value */
     public void renderValue(ValueInfo vi, ResponseWriter writer)

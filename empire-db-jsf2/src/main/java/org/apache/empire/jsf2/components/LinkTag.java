@@ -22,7 +22,6 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
-import javax.faces.component.NamingContainer;
 import javax.faces.component.UIComponent;
 import javax.faces.component.UINamingContainer;
 import javax.faces.component.UIOutput;
@@ -41,7 +40,7 @@ import org.apache.empire.jsf2.utils.TagEncodingHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class LinkTag extends UIOutput implements NamingContainer
+public class LinkTag extends UIOutput // implements NamingContainer
 {
     // or HtmlOutcomeTargetLink
     // or HtmlOutputLink
