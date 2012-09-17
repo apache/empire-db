@@ -49,16 +49,20 @@ public class InputTag extends UIInput implements NamingContainer
     private InputControl.InputInfo inpInfo = null;
     protected boolean hasRequiredFlagSet = false;
 
+    /*
     private static int itemIdSeq = 0;
     private final int itemId;
+    */
     
     public InputTag()
     {
         super();
         // Debug stuff
+        /*
         itemId = ++itemIdSeq;
         if (log.isDebugEnabled())
             log.debug("InputTag {} created", itemId);
+        */    
     }
 
     @Override

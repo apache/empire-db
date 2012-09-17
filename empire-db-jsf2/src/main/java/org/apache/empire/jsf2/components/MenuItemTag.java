@@ -39,16 +39,20 @@ public class MenuItemTag extends LinkTag
     private MenuListTag parentMenu = null;
     private String menuId;
 
+    /*
     private static int itemIdSeq = 0;
     private final int itemId;
+    */
     
     public MenuItemTag()
     {
         super();
         // Debug stuff
+        /*
         itemId = ++itemIdSeq;
         if (log.isDebugEnabled())
             log.debug("MenuId {} created", itemId);
+        */    
     }
 
     @Override
