@@ -586,7 +586,7 @@ public class DBRecord extends DBRecordData implements Record, Cloneable
         if (!isValid())
             throw new ObjectNotValidException(this);
         // Get Column Index
-        setValue(rowset.getColumnIndex(column), value);
+        setValue(getFieldIndex(column), value);
     }
     
     /**
@@ -666,7 +666,7 @@ public class DBRecord extends DBRecordData implements Record, Cloneable
     {
         if (rowset==null)
             throw new ObjectNotValidException(this);
-    	if (rowset.getColumnIndex(column)<0)
+    	if (getFieldIndex(column)<0)
             throw new InvalidArgumentException("column", column);
     	// Check key column 
         if (isValid() && !isNew() && rowset.isKeyColumn((DBColumn)column))
