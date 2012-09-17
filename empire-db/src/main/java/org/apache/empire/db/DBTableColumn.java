@@ -18,6 +18,7 @@
  */
 package org.apache.empire.db;
 
+import java.math.BigDecimal;
 import java.sql.Connection;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -29,6 +30,7 @@ import org.apache.empire.data.DataMode;
 import org.apache.empire.data.DataType;
 import org.apache.empire.db.exceptions.FieldIllegalValueException;
 import org.apache.empire.db.exceptions.FieldNotNullException;
+import org.apache.empire.db.exceptions.FieldValueOutOfRangeException;
 import org.apache.empire.db.exceptions.FieldValueTooLongException;
 import org.apache.empire.exceptions.InvalidArgumentException;
 import org.apache.empire.exceptions.NotSupportedException;
@@ -344,29 +346,48 @@ public class DBTableColumn extends DBColumn
                 break;
 
             case DECIMAL:
-            case FLOAT:
-                if (value!=null && (value instanceof java.lang.Number)==false)
+                if (value==null)
+                    break;
+                if (!(value instanceof java.lang.Number))
                 {   try
                     {   // Convert to String and check
-                        String val = value.toString();
-                        if (val.length() > 0)
-                            Double.parseDouble(val);
-                        // thows NumberFormatException if not a number!
+                        value = ObjectUtils.toDecimal(value);
+                        // throws NumberFormatException if not a number!
                     } catch (NumberFormatException e)
                     {
                         log.info("checkValue failed: " + e.toString() + " column=" + getName() + " value=" + value);
                         throw new FieldIllegalValueException(this, String.valueOf(value), e);
                     }
                 }
+                // validate Number
+                validateNumber(type, (Number)value);
+                break;
+
+            case FLOAT:
+                if (value==null)
+                    break;
+                if (!(value instanceof java.lang.Number))
+                {   try
+                    {   // Convert to String and check
+                        value = ObjectUtils.toDouble(value);
+                        // throws NumberFormatException if not a number!
+                    } catch (NumberFormatException e)
+                    {
+                        log.info("checkValue failed: " + e.toString() + " column=" + getName() + " value=" + value);
+                        throw new FieldIllegalValueException(this, String.valueOf(value), e);
+                    }
+                }
+                // validate Number
+                validateNumber(type, (Number)value);
                 break;
 
             case INTEGER:
-                if (value!=null && (value instanceof java.lang.Number)==false)
+                if (value==null)
+                    break;
+                if (!(value instanceof java.lang.Number))
                 {   try
                     {   // Convert to String and check
-                        String val = value.toString();
-                        if (val.length() > 0)
-                            Long.parseLong(val);
+                        value = ObjectUtils.toLong(value);
                         // throws NumberFormatException if not an integer!
                     } catch (NumberFormatException e)
                     {
@@ -374,6 +395,8 @@ public class DBTableColumn extends DBColumn
                         throw new FieldIllegalValueException(this, String.valueOf(value), e);
                     }
                 }
+                // validate Number
+                validateNumber(type, (Number)value);
                 break;
 
             case TEXT:
@@ -388,6 +411,51 @@ public class DBTableColumn extends DBColumn
                 break;
 
         }
+    }
+    
+    protected void validateNumber(DataType type, Number n)
+    {
+        if (type==DataType.DECIMAL)
+        {   // Convert to Decimal
+            BigDecimal dv = ObjectUtils.toDecimal(n);
+            int prec = dv.precision();
+            int scale = dv.scale();
+            // check precision and scale
+            double size = getSize();
+            int reqPrec = (int)size;
+            int reqScale =((int)(size*10)-(reqPrec*10));
+            if ((prec-scale)>(reqPrec-reqScale) || scale>reqScale)
+                throw new FieldValueOutOfRangeException(this);
+        }
+        // Check Range
+        Object min = getAttribute(DBColumn.DBCOLATTR_MINVALUE);
+        Object max = getAttribute(DBColumn.DBCOLATTR_MAXVALUE);
+        if (min!=null && max!=null)
+        {   // Check Range
+            int minVal = ObjectUtils.getInteger(min);
+            int maxVal = ObjectUtils.getInteger(max);
+            if (n.intValue()<minVal || n.intValue()>maxVal)
+            {   // Out of Range
+                throw new FieldValueOutOfRangeException(this, minVal, maxVal);
+            }
+        }
+        else if (min!=null)
+        {   // Check Min Value
+            int minVal = ObjectUtils.getInteger(min);
+            if (n.intValue()<minVal)
+            {   // Out of Range
+                throw new FieldValueOutOfRangeException(this, minVal, false);
+            }
+        }
+        else if (max!=null)
+        {   // Check Max Value
+            int maxVal = ObjectUtils.getInteger(max);
+            if (n.intValue()>maxVal)
+            {   // Out of Range
+                throw new FieldValueOutOfRangeException(this, maxVal, true);
+            }
+        }
+            
     }
 
     /**

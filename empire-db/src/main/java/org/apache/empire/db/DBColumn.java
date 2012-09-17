@@ -28,7 +28,6 @@ import java.util.Set;
 import org.apache.empire.commons.Options;
 import org.apache.empire.commons.StringUtils;
 import org.apache.empire.data.Column;
-import org.apache.empire.data.DataType;
 import org.apache.empire.db.exceptions.DatabaseNotOpenException;
 import org.apache.empire.db.expr.set.DBSetExpr;
 import org.apache.empire.exceptions.InvalidArgumentException;
