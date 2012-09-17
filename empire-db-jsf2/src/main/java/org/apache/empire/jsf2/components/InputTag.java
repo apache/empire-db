@@ -172,8 +172,8 @@ public class InputTag extends UIInput implements NamingContainer
         if (inpInfo==null)
             return;
         // Skip Null values if not required
-        if (hasRequiredFlagSet && !isRequired() && isEmpty(value)) //  && helper.isValueRequired()
-        {   // Value is null, but not required
+        if (isEmpty(value) && isPartialSubmit(context)) //  && helper.isValueRequired()
+        {   // Value is null
             log.debug("Skipping validation for {} due to Null value.", inpInfo.getColumn().getName());
             return;
         }
@@ -218,8 +218,8 @@ public class InputTag extends UIInput implements NamingContainer
             return; 
         // check required
         Object value = getLocalValue();
-        if (hasRequiredFlagSet && !isRequired() && isEmpty(value) && helper.isValueRequired())
-        {   // Value is null, but not required
+        if (isEmpty(value) && isPartialSubmit(context) && helper.getColumn().isReadOnly())
+        {   // Value is null, but required
             log.debug("Skipping model update for {} due to Null value.", inpInfo.getColumn().getName());
             return;
         }
@@ -245,6 +245,15 @@ public class InputTag extends UIInput implements NamingContainer
     public boolean isInputRequired()
     {
         return helper.isValueRequired();
+    }
+
+    private boolean isPartialSubmit(FacesContext context)
+    {
+        // Check Required Flag
+        if (hasRequiredFlagSet && !isRequired())
+            return true;
+        // partial  
+        return helper.isPartialSubmit(context);
     }
 
     /**

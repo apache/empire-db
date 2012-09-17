@@ -500,6 +500,11 @@ public class TagEncodingHelper implements NamingContainer
         // create
         return new InputInfoImpl(getColumn(), getTextResolver(ctx));
     }
+    
+    public boolean isPartialSubmit(FacesContext ctx)
+    {
+        return FacesUtils.getFacesApplication().isPartialSubmit(ctx);
+    }
 
     public boolean isSkipValidation()
     {

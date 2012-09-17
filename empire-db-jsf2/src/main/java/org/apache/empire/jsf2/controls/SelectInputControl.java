@@ -113,6 +113,7 @@ public class SelectInputControl extends InputControl
 
         // style
         addRemoveDisabledStyle(input, input.isDisabled());
+        addRemoveInvalidStyle(input, ii.hasError());
         
         // Set Value
         setInputValue(input, ii);
