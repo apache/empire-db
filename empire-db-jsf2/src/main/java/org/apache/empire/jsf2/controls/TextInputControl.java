@@ -38,6 +38,7 @@ import org.apache.empire.commons.Options;
 import org.apache.empire.commons.StringUtils;
 import org.apache.empire.data.Column;
 import org.apache.empire.data.DataType;
+import org.apache.empire.db.DBColumn;
 import org.apache.empire.exceptions.InternalException;
 import org.apache.empire.exceptions.UnexpectedReturnValueException;
 import org.slf4j.Logger;
@@ -90,20 +91,7 @@ public class TextInputControl extends InputControl
             // language
             input.setLang(ii.getLocale().getLanguage());
             // maxlength
-            int maxLength = 0;
-            DataType type = ii.getColumn().getDataType();
-            switch(type)
-            {
-                case CHAR:
-                case TEXT:
-                     maxLength = ((int) Math.round(ii.getColumn().getSize()));
-                     break;
-                case DECIMAL:
-                     maxLength = ((int) Math.round(ii.getColumn().getSize()))+1;
-                     break;
-                default:
-                     maxLength = 0;
-            }
+            int maxLength = getMaxInputLength(ii.getColumn());
             if (maxLength>0)
                 input.setMaxlength(maxLength);
             // add
@@ -355,6 +343,7 @@ public class TextInputControl extends InputControl
             }
         }
     }
+    */
     
     // ------- Input Helpers -------
 
@@ -362,18 +351,34 @@ public class TextInputControl extends InputControl
     {
         // cast to DBTableColumn 
         DataType type = col.getDataType();
+        if (type==DataType.CHAR ||
+            type==DataType.TEXT)
+            return (int)Math.round(col.getSize());
         if (type==DataType.AUTOINC ||
             type==DataType.INTEGER)
             return 10; 
-        if (type==DataType.DOUBLE)
+        if (type==DataType.FLOAT)
             return 18;
         if (type==DataType.DECIMAL)
-        {   
+        {   // check precision and scale
             double size = col.getSize();
-            int len = (int)size;
-            size = (size - len)*10;   // Ganzahlanteil
-            if (((int)size)>0)
-                len += ((int)size)+1; // Dezimaltrenner plus Nachkommastellen
+            int prec  = (int)Math.round(size);
+            if (prec == 0)
+                return 0;
+            int len = prec;
+            // scale
+            int scale =((int)(size*10)-(prec*10));
+            if (scale>0)
+                len++; // Dezimaltrenner
+            // thousand separator ?
+            Object groupSep = col.getAttribute(InputControl.NUMBER_GROUPSEP_ATTRIBUTE);
+            if (groupSep!=null && ObjectUtils.getBoolean(groupSep))
+                len += (prec/3);
+            // sign?
+            Object minVal = col.getAttribute(DBColumn.DBCOLATTR_MINVALUE);
+            if (minVal==null || ObjectUtils.getInteger(minVal)<0)
+                len++; // Vorzeichen
+            // fertig
             return len;
         }
         if (type==DataType.BOOL)
@@ -384,10 +389,10 @@ public class TextInputControl extends InputControl
             return 16;
         if (type==DataType.CLOB)
             return 0; // unlimited (use 0x7FFFFFFF instead?)
-        // Default
-        return (int)col.getSize();
+        // undefined!
+        log.info("No max-length available for data type {}.", type);
+        return 0;
     }
-    */
     
     protected DataType getValueType(Object value, DataType desiredType)
     {
