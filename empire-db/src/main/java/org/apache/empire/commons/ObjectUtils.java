@@ -131,6 +131,22 @@ public final class ObjectUtils
     {
         return (preferred!=null ? preferred : alternative);
     }
+
+    /**
+     * converts an object to an integer. If conversion is not possible, an error is thrown
+     * @param v the value to convert
+     * @return the integer value
+     */
+    public static int toInteger(Object v)
+    {
+        if (v==null)
+            return 0;
+        if (v instanceof Number)
+            return ((Number)v).intValue();
+        // Try to convert
+        String str = v.toString();
+        return Integer.parseInt(str);
+    }
     
     /**
      * Converts an object value to an integer.
@@ -142,18 +158,13 @@ public final class ObjectUtils
      */
     public static int getInteger(Object v, int defValue)
     {
-        if (v==null)
+        // Check empty
+        if (ObjectUtils.isEmpty(v))
             return defValue;
-        if (v instanceof Number)
-            return ((Number)v).intValue();
         // Try to convert
         try
-        {
-            String str = v.toString();
-            if (str.length()==0)
-                return defValue;
-            // Parse String
-            return Integer.parseInt(str);
+        {   // Try to convert
+            return toInteger(v);
         } catch (Exception e)
         {
         	log.warn(String.format("Cannot convert value [%s] to int!", v));
@@ -172,6 +183,22 @@ public final class ObjectUtils
     {
         return getInteger(v, 0); 
     }
+
+    /**
+     * converts an object to a long. If conversion is not possible, an error is thrown
+     * @param v the value to convert
+     * @return the long value
+     */
+    public static long toLong(Object v)
+    {
+        if (v==null)
+            return 0;
+        if (v instanceof Number)
+            return ((Number)v).longValue();
+        // Try to convert
+        String str = v.toString();
+        return Long.parseLong(str);
+    }
     
     /**
      * Converts an object value to a long.
@@ -183,18 +210,13 @@ public final class ObjectUtils
      */
     public static long getLong(Object v, long defValue)
     {
-        if (v==null)
+        // Check empty
+        if (ObjectUtils.isEmpty(v))
             return defValue;
-        if (v instanceof Number)
-            return ((Number)v).longValue();
         // Try to convert
         try
-        {
-            String str = v.toString();
-            if (str.length()==0)
-                return defValue;
-            // Parse String
-            return Long.parseLong(str);
+        {   // Try to convert
+            return toLong(v);
         } catch (Exception e)
         {
         	log.warn(String.format("Cannot convert value [%s] to long!", v));
@@ -213,6 +235,23 @@ public final class ObjectUtils
     {
         return getLong(v, 0); 
     }
+
+    /**
+     * converts an object to a double. If conversion is not possible, an error is thrown
+     * @param v the value to convert
+     * @return the double value
+     */
+    public static double toDouble(Object v)
+    {
+        // Get Double value
+        if (v==null)
+            return 0.0;
+        if (v instanceof Number)
+            return ((Number)v).doubleValue();
+        // parse String for Integer value
+        String val = v.toString(); 
+        return Double.parseDouble(val);
+    }
     
     /**
      * Converts an object value to a double.
@@ -224,16 +263,12 @@ public final class ObjectUtils
      */
     public static double getDouble(Object v, double defValue)
     {
-        // Get Double value
-        if (v==null)
+        // Check empty
+        if (ObjectUtils.isEmpty(v))
             return defValue;
-        if (v instanceof Number)
-            return ((Number)v).doubleValue();
-        // parse String for Integer value
         try
-        {
-            String  val = v.toString(); 
-            return Double.parseDouble(val);
+        {   // Try to convert
+            return toDouble(v);
         } catch (Exception e)
         {
             log.warn(String.format("Cannot convert value [%s] to double!", v));
@@ -254,18 +289,15 @@ public final class ObjectUtils
     }
 
     /**
-     * Converts an object value to a BigDecimal.
-     * <P>
-     * If the object value supplied is null or if conversion is not possible then defValue is returned.
-     * @param v the object value to convert
-     * @param defValue the default value
-     * @return the BigDecimal value of v or defValue
+     * converts an object to a decimal. If conversion is not possible, an error is thrown
+     * @param v the value to convert
+     * @return the decimal value
      */
-    public static BigDecimal getDecimal(Object v, BigDecimal defValue)
+    public static BigDecimal toDecimal(Object v)
     {
         // Get Double value
         if (v==null)
-            return defValue;
+            return null;
         if (v instanceof BigDecimal)
             return ((BigDecimal)v);
         // Find a suitable converter
@@ -281,11 +313,28 @@ public final class ObjectUtils
             return BigDecimal.valueOf(((Number)v).doubleValue());
         }
         // parse String for Integer value
+        // Last-Chance > Try a string conversion
+        return new BigDecimal(v.toString());
+    }
+    
+    /**
+     * Converts an object value to a BigDecimal.
+     * <P>
+     * If the object value supplied is null or if conversion is not possible then defValue is returned.
+     * @param v the object value to convert
+     * @param defValue the default value
+     * @return the BigDecimal value of v or defValue
+     */
+    public static BigDecimal getDecimal(Object v, BigDecimal defValue)
+    {
+        // Check empty
+        if (ObjectUtils.isEmpty(v))
+            return defValue;
         try
-        {   // Last-Chance > Try a string conversion
-            return new BigDecimal(v.toString());
+        {   // Try to convert
+            return toDecimal(v);
         } catch (Exception e)
-        {
+        {   // Error
             log.warn(String.format("Cannot convert value [%s] to BigDecimal!", v));
             return defValue;
         }
@@ -313,7 +362,7 @@ public final class ObjectUtils
     public static boolean getBoolean(Object v)
     {
         // Get Boolean value
-        if (v==null)
+        if (ObjectUtils.isEmpty(v))
             return false;
         if (v instanceof Boolean)
             return ((Boolean)v).booleanValue();
@@ -334,7 +383,8 @@ public final class ObjectUtils
      */
     public static Date getDate(Object v, Locale locale)
     {
-        if (v==null)
+        // Get DateTime value
+        if (ObjectUtils.isEmpty(v))
             return null;
         if (v instanceof Date)
             return ((Date)v);
@@ -369,7 +419,7 @@ public final class ObjectUtils
     public static Date getDate(Object v)
     {
         // Get DateTime value
-        if (v==null)
+        if (ObjectUtils.isEmpty(v))
             return null;
         if (v instanceof java.util.Date)
             return ((java.util.Date)v);
