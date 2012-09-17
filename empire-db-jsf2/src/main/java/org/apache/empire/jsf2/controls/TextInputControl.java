@@ -127,6 +127,7 @@ public class TextInputControl extends InputControl
             input.setReadonly(ii.isFieldReadOnly());
         // style
         addRemoveDisabledStyle(input, (input.isDisabled() || input.isReadonly()));
+        addRemoveInvalidStyle(input, ii.hasError());
         
         // set value
         setInputValue(input, ii);

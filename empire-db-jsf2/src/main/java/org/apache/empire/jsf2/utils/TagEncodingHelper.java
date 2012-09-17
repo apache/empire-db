@@ -327,11 +327,13 @@ public class TagEncodingHelper implements NamingContainer
         public String getStyleClass(String addlStyle)
         {
             String style = getTagStyleClass(addlStyle);
-            if (hasError)
-            {   // Invalid
-                style = "eInvalid "+style;
-            }
             return style; 
+        }
+        
+        @Override
+        public boolean hasError()
+        {
+            return hasError;
         }
 
         @Override

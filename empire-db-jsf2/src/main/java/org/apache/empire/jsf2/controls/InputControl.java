@@ -206,6 +206,7 @@ public abstract class InputControl
         // input
         String getInputId();
         String getStyleClass(String addlStyle);
+        boolean hasError();
         /*
         String getName();
         String getTabindex();
@@ -501,18 +502,28 @@ public abstract class InputControl
     
     public void addRemoveDisabledStyle(UIInput input, boolean disabled)
     {
+        addRemoveStyle(input, " eInpDis", disabled);
+    }
+    
+    public void addRemoveInvalidStyle(UIInput input, boolean invalid)
+    {
+        addRemoveStyle(input, " eInvalid", invalid);
+    }
+    
+    public void addRemoveStyle(UIInput input, String styleName, boolean setStyle)
+    {
         String styleClass = StringUtils.toString(input.getAttributes().get("styleClass"), "");
-        boolean hasDisStyle = (styleClass.indexOf("eInpDis")>=0);
-        if (disabled==hasDisStyle)
+        boolean hasStyle = (styleClass.indexOf(styleName)>=0);
+        if (setStyle==hasStyle)
             return; // Nothing to do
         // Special IceFaces patch
         if (styleClass.endsWith("-dis"))
             styleClass = styleClass.substring(0, styleClass.length()-4);
         // add or remove disabled style
-        if (disabled)
-            styleClass += " eInpDis";
+        if (setStyle)
+            styleClass += styleName;
         else
-            styleClass = styleClass.replace(" eInpDis", "");
+            styleClass = styleClass.replace(styleName, "");
         // add Style
         input.getAttributes().put("styleClass", styleClass);
     }
