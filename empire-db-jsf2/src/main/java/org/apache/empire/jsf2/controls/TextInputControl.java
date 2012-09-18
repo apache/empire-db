@@ -441,8 +441,7 @@ public class TextInputControl extends InputControl
             nf = NumberFormat.getNumberInstance(locale);
         // Groups Separator?
         Object groupSep = column.getAttribute(InputControl.NUMBER_GROUPSEP_ATTRIBUTE);
-        if (groupSep!=null)
-            nf.setGroupingUsed(ObjectUtils.getBoolean(groupSep));
+        nf.setGroupingUsed(groupSep!=null && ObjectUtils.getBoolean(groupSep));
         // Fraction Digits?
         Object fractDigit = column.getAttribute(InputControl.NUMBER_FRACTION_DIGITS);
         if (fractDigit!=null)
