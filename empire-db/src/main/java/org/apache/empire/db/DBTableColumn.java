@@ -432,25 +432,25 @@ public class DBTableColumn extends DBColumn
         Object max = getAttribute(DBColumn.DBCOLATTR_MAXVALUE);
         if (min!=null && max!=null)
         {   // Check Range
-            int minVal = ObjectUtils.getInteger(min);
-            int maxVal = ObjectUtils.getInteger(max);
-            if (n.intValue()<minVal || n.intValue()>maxVal)
+            long minVal = ObjectUtils.getLong(min);
+            long maxVal = ObjectUtils.getLong(max);
+            if (n.longValue()<minVal || n.longValue()>maxVal)
             {   // Out of Range
                 throw new FieldValueOutOfRangeException(this, minVal, maxVal);
             }
         }
         else if (min!=null)
         {   // Check Min Value
-            int minVal = ObjectUtils.getInteger(min);
-            if (n.intValue()<minVal)
+            long minVal = ObjectUtils.getLong(min);
+            if (n.longValue()<minVal)
             {   // Out of Range
                 throw new FieldValueOutOfRangeException(this, minVal, false);
             }
         }
         else if (max!=null)
         {   // Check Max Value
-            int maxVal = ObjectUtils.getInteger(max);
-            if (n.intValue()>maxVal)
+            long maxVal = ObjectUtils.getLong(max);
+            if (n.longValue()>maxVal)
             {   // Out of Range
                 throw new FieldValueOutOfRangeException(this, maxVal, true);
             }
