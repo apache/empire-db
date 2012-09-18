@@ -373,7 +373,7 @@ public class TextInputControl extends InputControl
             // thousand separator ?
             Object groupSep = col.getAttribute(InputControl.NUMBER_GROUPSEP_ATTRIBUTE);
             if (groupSep!=null && ObjectUtils.getBoolean(groupSep))
-                len += (prec/3);
+                len += ((prec-scale-1)/3);
             // sign?
             Object minVal = col.getAttribute(DBColumn.DBCOLATTR_MINVALUE);
             if (minVal==null || ObjectUtils.getInteger(minVal)<0)
