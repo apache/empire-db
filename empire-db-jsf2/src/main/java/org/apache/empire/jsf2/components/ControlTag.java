@@ -486,7 +486,7 @@ public class ControlTag extends UIInput implements NamingContainer
         // check required?
         Object value = getLocalValue();
         // check required
-        if (isEmpty(value) && isPartialSubmit(context) && helper.getColumn().isRequired())
+        if (isEmpty(value) && isPartialSubmit(context) && !helper.isTempoaryNullable())
         {   // Value is null, but required
             log.debug("Skipping model update for {} due to Null value.", inpInfo.getColumn().getName());
             return;

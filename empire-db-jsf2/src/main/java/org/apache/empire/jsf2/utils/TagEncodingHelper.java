@@ -359,7 +359,7 @@ public class TagEncodingHelper implements NamingContainer
     private Column              column       = null;
     private Object              record       = null;
     private RecordTag           recordTag    = null;
-    private Boolean             tagRequired  = null;
+    // private Boolean          tagRequired  = null;
     private Boolean             hasValueExpr = null;
     private InputControl        control      = null;
     private TextResolver        textResolver = null;
@@ -384,13 +384,14 @@ public class TagEncodingHelper implements NamingContainer
                 ((UIInput)tag).setValue(null);
                 ((UIInput)tag).setLocalValueSet(false);
             }
-            // See if the Input is required 
-            ValueExpression ve = findValueExpression("mandatory", true);
+            /*
+            ValueExpression ve = findValueExpression("required", true);
             if (ve!=null)
             {   Object req = ve.getValue(FacesContext.getCurrentInstance().getELContext());
                 if (req!=null)
                     tagRequired = new Boolean(ObjectUtils.getBoolean(req));
             }
+            */
         }
     }
 
@@ -745,9 +746,10 @@ public class TagEncodingHelper implements NamingContainer
 
     public boolean isValueRequired()
     {
-        // See if the tag is required
-        if (tagRequired!=null)
-            return tagRequired.booleanValue();
+        // See if the tag is required (don't use the "required" attribute or tag.isRequired()!)
+        Object mandatory = getTagAttributeValue("mandatory");
+        if (mandatory!=null)
+            return ObjectUtils.getBoolean(mandatory);
         // Check Read-Only first
         if (isReadOnly())
             return false;
@@ -762,6 +764,16 @@ public class TagEncodingHelper implements NamingContainer
             return false;
         // Required
         return getColumn().isRequired();
+    }
+    
+    /**
+     * used for partial submits to detect whether the value of this field can be set to null
+     */
+    public boolean isTempoaryNullable()
+    {
+        if (getColumn().isRequired())
+            return false;
+        return true;        
     }
 
     /* Helpers */

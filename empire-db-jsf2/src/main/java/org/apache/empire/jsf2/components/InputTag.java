@@ -218,7 +218,7 @@ public class InputTag extends UIInput implements NamingContainer
             return; 
         // check required
         Object value = getLocalValue();
-        if (isEmpty(value) && isPartialSubmit(context) && helper.getColumn().isReadOnly())
+        if (isEmpty(value) && isPartialSubmit(context) && !helper.isTempoaryNullable())
         {   // Value is null, but required
             log.debug("Skipping model update for {} due to Null value.", inpInfo.getColumn().getName());
             return;
