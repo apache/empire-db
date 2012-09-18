@@ -555,7 +555,7 @@ public abstract class InputControl
         if (value==null)
             value = getFormatOption(vi, FORMAT_NULL, FORMAT_NULL_ATTRIBUTE);
         // Convert to String
-        String s = StringUtils.valueOf(value);
+        String s = StringUtils.toString(value, "");
         if (hasFormatOption(vi, "noencode"))
             return s;
         // Encode Html
