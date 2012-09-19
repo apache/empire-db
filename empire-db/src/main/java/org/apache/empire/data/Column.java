@@ -62,7 +62,8 @@ public interface Column extends ColumnExpr
     /**
      * Checks if the given value is a valid value for this column 
      * If not, an exception is thrown
+     * @return the value the validated and possibly converted value
      */
-    void validate(Object value);
+    Object validate(Object value);
 
 }

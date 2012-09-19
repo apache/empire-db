@@ -117,6 +117,15 @@ public interface Record extends RecordData
     void setValue(Column column, Object value);
 
     /**
+     * Validates a value before it is set in the record.
+     * By default, this method simply calls column.validate()
+     * @param column the column
+     * @param value the value to validate
+     * @return the value
+     */
+    Object validateValue(Column column, Object value);
+    
+    /**
      * checks whether or not the field for the given column has been modified since it has been loaded.
      * @param column the requested column
      * @return Returns true if a column has been modified

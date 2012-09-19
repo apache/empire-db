@@ -233,6 +233,14 @@ public class BeanRecordProxy<T> implements Record
     }
 
     /**
+     * Validates a value before it is set in the record.
+     */
+    public Object validateValue(Column column, Object value)
+    {
+        return column.validate(value);
+    }
+
+    /**
      * sets the value of a field.
      */
     public void setValue(Column column, Object value)
@@ -246,6 +254,8 @@ public class BeanRecordProxy<T> implements Record
                 modified = new boolean[columns.size()]; 
             modified[getFieldIndex(column)] = true;
         }
+        // validate
+        value = validateValue(column, value);
         // Set Value
         setBeanPropertyValue(data, column, value);
     }
@@ -253,7 +263,7 @@ public class BeanRecordProxy<T> implements Record
     /**
      * sets the value of a field.
      */
-    public void setValue(int i, Object value)
+    public final void setValue(int i, Object value)
     {
         setValue(getColumn(i), value);
     }

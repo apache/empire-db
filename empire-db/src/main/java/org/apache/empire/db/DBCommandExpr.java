@@ -282,12 +282,12 @@ public abstract class DBCommandExpr extends DBExpr
         }
 
         /**
-         * Not applicable - always returns true.
+         * Not applicable - always return the value.
          */
         @Override
-        public void validate(Object value)
-        {
-            // Nothing to check.
+        public Object validate(Object value)
+        {   // Nothing to check.
+            return value;
         }
 
         /**

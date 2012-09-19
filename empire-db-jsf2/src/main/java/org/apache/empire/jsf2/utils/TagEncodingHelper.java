@@ -166,8 +166,10 @@ public class TagEncodingHelper implements NamingContainer
         }
 
         @Override
-        public void validate(Object value)
+        public Object validate(Object value)
         {
+            log.warn("validate not supported for {}", expr.getName());
+            return value;
         }
     }
 
@@ -285,8 +287,11 @@ public class TagEncodingHelper implements NamingContainer
                     throw new FieldNotNullException(column);
                 return; // not required
             }
-            // validate through column
-            column.validate(value);
+            // validate through record (if any)
+            if ((getRecord() instanceof Record))
+               ((Record)getRecord()).validateValue(column, value);
+            else
+                column.validate(value);
         }
 
         @Override

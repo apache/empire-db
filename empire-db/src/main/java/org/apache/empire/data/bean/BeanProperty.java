@@ -198,10 +198,11 @@ public class BeanProperty implements Column
         return (dataMode==DataMode.NotNull);
     }
 
-    public void validate(Object value)
+    public Object validate(Object value)
     {
         if (ObjectUtils.isEmpty(value) && isRequired())
             throw new FieldNotNullException(this);
+        return value;
     }
 
     // --- others ---

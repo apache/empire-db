@@ -435,7 +435,7 @@ public class DBTable extends DBRowSet implements Cloneable
             DBTableColumn column = (DBTableColumn)columns.get(i);
             Object value = column.getRecordDefaultValue(conn);
             if (value!=null)
-                rec.modifyValue(i, value); 
+                rec.modifyValue(i, value, true); 
         }
         // Init
         completeInitRecord(rec);

@@ -121,12 +121,12 @@ public class DBQuery extends DBRowSet
         }
 
         @Override
-        public void validate(Object value)
+        public Object validate(Object value)
         {
             DBColumn column = expr.getUpdateColumn();
             if (column==null)
-                return;
-            column.validate(value);
+                return value;
+            return column.validate(value);
         }
 
         @Override

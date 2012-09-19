@@ -79,6 +79,11 @@ public abstract class DBColumn extends DBColumnExpr
     public static final String DBCOLATTR_MAXVALUE  = "maxValue";
     
     /**
+     * Maximum value (Integer)
+     */
+    public static final String DBCOLATTR_DATETIMEPATTERN  = "dateTimePattern";  // default is "yyyy-MM-dd HH:mm:ss"
+    
+    /**
      * Read only column (Boolean)
      */
     public static final String DBCOLATTR_SINGLEBYTECHARS  = "singleByteChars";
@@ -234,7 +239,7 @@ public abstract class DBColumn extends DBColumnExpr
      * Checks if the given value is a valid value for this column 
      * If not, an exception is thrown
      */
-    public abstract void validate(Object value);
+    public abstract Object validate(Object value);
     
     /**
      * @deprecated use validate() instead 

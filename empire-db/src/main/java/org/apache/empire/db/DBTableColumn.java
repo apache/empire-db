@@ -26,6 +26,7 @@ import java.util.Date;
 
 import org.apache.empire.commons.Attributes;
 import org.apache.empire.commons.ObjectUtils;
+import org.apache.empire.commons.StringUtils;
 import org.apache.empire.data.DataMode;
 import org.apache.empire.data.DataType;
 import org.apache.empire.db.exceptions.FieldIllegalValueException;
@@ -314,10 +315,10 @@ public class DBTableColumn extends DBColumn
      * @return true if the value is valid or false otherwise.
      */
     @Override
-    public void validate(Object value)
+    public Object validate(Object value)
     {
         // Check for NULL
-        if (isRequired() && (value == null || value.toString().length() < 1))
+        if (isRequired() && ObjectUtils.isEmpty(value))
             throw new FieldNotNullException(this);
         // Is value valid
         switch (type)
@@ -325,21 +326,24 @@ public class DBTableColumn extends DBColumn
             case DATE:
             case DATETIME:
                 // Check whether value is a valid date/time value!
-                if (value!=null && (value instanceof Date)==false && value.equals(DBDatabase.SYSDATE)==false)
-                {   try
-                    {   
-                		String val = value.toString();
-                		if (val.length() > 0)
-                		{
-	                		// Parse date time value
-	                        SimpleDateFormat sdFormat = new SimpleDateFormat("dd-MM-yyyy");
-	                        sdFormat.setLenient(true);
-	                        sdFormat.parse(value.toString());
-                		}	                        
+                if (value!=null && !(value instanceof Date) && !DBDatabase.SYSDATE.equals(value))
+                {   // Parse String
+                    String dateValue = value.toString();
+                    if (dateValue.length()==0)
+                        return null;
+                    // Convert through SimpleDateFormat
+                    String datePattern = StringUtils.coalesce(StringUtils.toString(getAttribute(DBCOLATTR_DATETIMEPATTERN)), "yyyy-MM-dd HH:mm:ss");
+                    if ((type==DataType.DATE || dateValue.length()<=12) && datePattern.indexOf(' ')>0)
+                        datePattern = datePattern.substring(0, datePattern.indexOf(' ')); // Strip off time
+                    try
+                    { 	// Parse date time value
+                        SimpleDateFormat sdFormat = new SimpleDateFormat(datePattern);
+                        sdFormat.setLenient(true);
+                        value = sdFormat.parse(dateValue);
                         // OK
                     } catch (ParseException e)
                     {   // Error
-                        log.info("checkValue failed: " + e.toString() + " column=" + getName() + " value=" + value);
+                        log.info("Parsing '{}' to Date ("+datePattern+") failed for column {}. Message is "+e.toString(), value, getName());
                         throw new FieldIllegalValueException(this, String.valueOf(value), e);
                     }
                 }    
@@ -355,7 +359,7 @@ public class DBTableColumn extends DBColumn
                         // throws NumberFormatException if not a number!
                     } catch (NumberFormatException e)
                     {
-                        log.info("checkValue failed: " + e.toString() + " column=" + getName() + " value=" + value);
+                        log.info("Parsing '{}' to Decimal failed for column {}. Message is "+e.toString(), value, getName());
                         throw new FieldIllegalValueException(this, String.valueOf(value), e);
                     }
                 }
@@ -373,7 +377,7 @@ public class DBTableColumn extends DBColumn
                         // throws NumberFormatException if not a number!
                     } catch (NumberFormatException e)
                     {
-                        log.info("checkValue failed: " + e.toString() + " column=" + getName() + " value=" + value);
+                        log.info("Parsing '{}' to Double failed for column {}. Message is "+e.toString(), value, getName());
                         throw new FieldIllegalValueException(this, String.valueOf(value), e);
                     }
                 }
@@ -391,7 +395,7 @@ public class DBTableColumn extends DBColumn
                         // throws NumberFormatException if not an integer!
                     } catch (NumberFormatException e)
                     {
-                        log.info("checkValue failed: " + e.toString() + " column=" + getName() + " value=" + String.valueOf(value));
+                        log.info("Parsing '{}' to Integer failed for column {}. Message is "+e.toString(), value, getName());
                         throw new FieldIllegalValueException(this, String.valueOf(value), e);
                     }
                 }
@@ -411,22 +415,11 @@ public class DBTableColumn extends DBColumn
                 break;
 
         }
+        return value;
     }
     
     protected void validateNumber(DataType type, Number n)
     {
-        if (type==DataType.DECIMAL)
-        {   // Convert to Decimal
-            BigDecimal dv = ObjectUtils.toDecimal(n);
-            int prec = dv.precision();
-            int scale = dv.scale();
-            // check precision and scale
-            double size = getSize();
-            int reqPrec = (int)size;
-            int reqScale =((int)(size*10)-(reqPrec*10));
-            if ((prec-scale)>(reqPrec-reqScale) || scale>reqScale)
-                throw new FieldValueOutOfRangeException(this);
-        }
         // Check Range
         Object min = getAttribute(DBColumn.DBCOLATTR_MINVALUE);
         Object max = getAttribute(DBColumn.DBCOLATTR_MAXVALUE);
@@ -455,7 +448,19 @@ public class DBTableColumn extends DBColumn
                 throw new FieldValueOutOfRangeException(this, maxVal, true);
             }
         }
-            
+        // Check overall
+        if (type==DataType.DECIMAL)
+        {   // Convert to Decimal
+            BigDecimal dv = ObjectUtils.toDecimal(n);
+            int prec = dv.precision();
+            int scale = dv.scale();
+            // check precision and scale
+            double size = getSize();
+            int reqPrec = (int)size;
+            int reqScale =((int)(size*10)-(reqPrec*10));
+            if ((prec-scale)>(reqPrec-reqScale) || scale>reqScale)
+                throw new FieldValueOutOfRangeException(this);
+        }
     }
 
     /**

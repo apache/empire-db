@@ -516,7 +516,7 @@ public class DBRecord extends DBRecordData implements Record, Cloneable
      * @param i index of the column
      * @param value the column value
      */
-    protected void modifyValue(int i, Object value)
+    protected void modifyValue(int i, Object value, boolean fireChangeEvent)
     {	// Check valid
         if (state == State.Invalid)
             throw new ObjectNotValidException(this);
@@ -536,7 +536,8 @@ public class DBRecord extends DBRecordData implements Record, Cloneable
         if (state.isLess(State.Modified))
             changeState(State.Modified);
         // field changed
-        onFieldChanged(i);
+        if (fireChangeEvent)
+            onFieldChanged(i);
     }
 
     /**
@@ -568,9 +569,9 @@ public class DBRecord extends DBRecordData implements Record, Cloneable
         }
         // Is Value valid
         if (validateFieldValues)
-        	validateValue(column, value);
+        	value = validateValue(column, value);
         // Init original values
-        modifyValue(index, value);
+        modifyValue(index, value, true);
     }
 
     /**
@@ -609,14 +610,13 @@ public class DBRecord extends DBRecordData implements Record, Cloneable
 
     /**
      * Validates a value before it is set in the record.
-     * if the value is invalid, the function should call an exception that is derived from FieldValueException
      * By default, this method simply calls column.validate()
      * @param column the column that needs to be changed
      * @param value the new value
      */
-    protected void validateValue(DBColumn column, Object value)
+    public Object validateValue(Column column, Object value)
     {
-    	column.validate(value);
+    	return column.validate(value);
     }
 
     /**
@@ -959,7 +959,7 @@ public class DBRecord extends DBRecordData implements Record, Cloneable
                 if (value==null)
                     continue;
                 // Modify value
-                modifyValue(i, value);
+                modifyValue(i, value, true);
                 count++;
             }
         }
