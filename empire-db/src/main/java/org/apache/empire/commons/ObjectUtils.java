@@ -97,6 +97,7 @@ public final class ObjectUtils
      * 
      * @return true if both objects are equal or false otherwise
      */
+    @SuppressWarnings("unchecked")
     public static boolean compareEqual(Object o1, Object o2)
     {
         // Check for Null Values
@@ -104,7 +105,12 @@ public final class ObjectUtils
             return (o1==o2);
         // Check classes
         if (o1.getClass().equals(o2.getClass()))
-            return o1.equals(o2);
+        {   // Check if object implements comparable
+            if (o1 instanceof Comparable)
+                return (((Comparable<Object>)o1).compareTo(o2)==0);
+            else
+                return o1.equals(o2);
+        }
         // Classes don't match
         // Use equal check first
         if (o1.equals(o2) || o2.equals(o1))
