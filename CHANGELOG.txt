@@ -1,12 +1,30 @@
 Apache Empire-db
 Copyright 2008-2012 The Apache Software Foundation
 
-The issues are categorized as follows:
-[{C=Core}|{S=Struts Extensions}|{E=Examples}|{O=Other}
-/{N=New Feature}|{B=Bug fix}|{I=Improvement}]
-
 For more Information about a particular issue please visit
 https://issues.apache.org/jira/browse/EMPIREDB
+
+--------------
+Release 2.4.1:
+--------------
+** Improvement
+	* [EMPIREDB-169] - Allow access to page properties in resource requests via EL.
+	* [EMPIREDB-168] - Extend JSF2 Input Controls by adding missing attributes and improve input value parsing and validation.
+	* [EMPIREDB-167] - Review DBRecord state handling. Changed state from int constants to state enum. Improved method overrides 
+	* [EMPIREDB-165] - JSF2: detect model changes for record bound input controls
+	* [EMPIREDB-164] - Check Numeric values when encoding sql commands. New method DBDatabaseDriver.getSQLNumberString()
+	* [EMPIREDB-163] - New function Record.isFieldRequired() to determine whether a field is required or not
+	* [EMPIREDB-162] - JSF2: Support partial submits for Input control validation. Overridable method FacesApplication.isPartialSubmit()
+	* [EMPIREDB-161] - JSF2: Format and parse Input Values with according to the users locale
+	* [EMPIREDB-160] - JSF2: Preserve submitted form values when validation error occurs
+	* [EMPIREDB-158] - Avoid accidentally missing command parameter values when using DBDatabase.executeSQL. New executeInsert, executeUpdate and executeDelete on DBDatabase.
+	* [EMPIREDB-157] - Miscellaneous small improvements such as new overloads and improved JavaDoc
+
+** Bugfix
+	* [EMPIREDB-171] - ObjectUtils.compareEquals returns false for BigDecimals with equal value but different scale
+	* [EMPIREDB-166] - Overwriting set expressions does not remove prepared statement parameter
+	* [EMPIREDB-154] - <e:input> component failed inside a datatable
+	* [EMPIREDB-153] - DBDatabaseDriverPostgreSQL.createReverseFunction throws syntax error exception
 
 --------------
 Release 2.4.0:
@@ -73,6 +91,11 @@ Release 2.2.0:
     * [EMPIREDB-109] - Missing conversion for Type double in ObjectUtils.convert
     * [EMPIREDB-113] - Should preserve the decimal digits of DECIMAL columns
     * [EMPIREDB-118] - Prevent columns to be added twice to a table or view
+
+
+The following older issues are categorized as follows:
+[{C=Core}|{S=Struts Extensions}|{E=Examples}|{O=Other}
+/{N=New Feature}|{B=Bug fix}|{I=Improvement}]
 
 --------------
 Release 2.1.0:
