@@ -19,6 +19,7 @@
 package org.apache.empire.jsf2.pages;
 
 import org.apache.empire.commons.StringUtils;
+import org.apache.empire.exceptions.InvalidArgumentException;
 
 public class PageOutcome
 {
@@ -26,14 +27,14 @@ public class PageOutcome
     public PageOutcome(String outcome)
     {
         if (StringUtils.isEmpty(outcome))
-            throw new RuntimeException("Illegal Outcome Value");
+            throw new InvalidArgumentException("outcome", outcome);
         this.outcome = outcome;
     }
     
     public PageOutcome addParamWithValue(String paramWithValue)
     {
         if (paramWithValue==null || paramWithValue.indexOf('=')<0)
-            throw new RuntimeException("Illegal Parameter Value");
+            throw new InvalidArgumentException("paramWithValue", paramWithValue);
         // assemble
         if (outcome.indexOf('?')>0)
             outcome = outcome+"&"+paramWithValue;
@@ -47,7 +48,7 @@ public class PageOutcome
         if (StringUtils.isEmpty(value))
             return this; // Ignore Empty values
         if (StringUtils.isEmpty(param))
-            throw new RuntimeException("Illegal Parameter Name");
+            throw new InvalidArgumentException("param", param);
         String paramWithValue = param + "=" + value;
         return addParamWithValue(paramWithValue);
     }

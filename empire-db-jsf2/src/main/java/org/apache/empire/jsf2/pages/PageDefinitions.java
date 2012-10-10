@@ -22,6 +22,8 @@ import java.io.Serializable;
 import java.util.LinkedHashMap;
 
 import org.apache.empire.commons.StringUtils;
+import org.apache.empire.exceptions.ItemExistsException;
+import org.apache.empire.exceptions.MiscellaneousErrorException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -50,7 +52,7 @@ public abstract class PageDefinitions implements Serializable
     {
         if (instance!=null) 
         {
-            throw new RuntimeException("PageDefintions alreday defined. Only one Instance allowed!");
+            throw new MiscellaneousErrorException("PageDefintions alreday defined. Only one Instance allowed!");
         }
         // init
         instance = this;
@@ -77,7 +79,7 @@ public abstract class PageDefinitions implements Serializable
             // check
             if (bm.getRegisteredBeans().containsKey(beanName))
             {
-                throw new RuntimeException("Bean of name "+beanName+" already defined!");
+                throw new ItemExistsException(beanName);
             }
             log.info("Registering managed bean '{}' of class '{}' for page '{}'.", new Object[] { beanName, beanClass, v.getPath() });
             /*
@@ -173,7 +175,7 @@ public abstract class PageDefinitions implements Serializable
         // Check Name
         if (pageMap.containsKey(name))
         {
-            throw new RuntimeException("Page of name "+name+" already defined!");
+            throw new ItemExistsException(name);
         }
         log.info("Registering view '{}'.", name);
         // Register Name

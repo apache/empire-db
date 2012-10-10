@@ -27,6 +27,8 @@ import javax.faces.event.PhaseId;
 import javax.faces.event.PhaseListener;
 
 import org.apache.commons.beanutils.BeanUtils;
+import org.apache.empire.exceptions.InternalException;
+import org.apache.empire.exceptions.ObjectNotValidException;
 import org.apache.empire.jsf2.app.FacesUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -153,7 +155,8 @@ public class PagePhaseListener implements PhaseListener
             }
             catch (Exception e)
             {
-                throw new RuntimeException("Error creating instance of page bean " + pageBeanClassName, e);
+                log.error("Error creating instance of page bean " + pageBeanClassName, e);
+                throw new InternalException(e);
             }
             viewMap.put(pageDef.getPageBeanName(), pageBean);
             viewMap.put("page", pageBean);
@@ -281,7 +284,7 @@ public class PagePhaseListener implements PhaseListener
         if (pageBean != null && !pageBean.isInitialized())
         {
             log.warn("PageBean was not initialized!");
-            throw new RuntimeException("PageBean was not initialized!");
+            throw new ObjectNotValidException(pageBean);
         }
         // FacesUtils.getFin2Application().releaseConnection(true);
         log.trace("PagePhase complete.");

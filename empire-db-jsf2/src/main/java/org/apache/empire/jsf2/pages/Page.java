@@ -36,6 +36,7 @@ import org.apache.empire.db.DBRowSet;
 import org.apache.empire.exceptions.EmpireException;
 import org.apache.empire.exceptions.InternalException;
 import org.apache.empire.exceptions.ItemNotFoundException;
+import org.apache.empire.exceptions.MiscellaneousErrorException;
 import org.apache.empire.jsf2.app.FacesApplication;
 import org.apache.empire.jsf2.app.FacesUtils;
 import org.apache.empire.jsf2.app.TextResolver;
@@ -247,7 +248,12 @@ public abstract class Page implements Serializable
         // Message
         Page.log.error(msg, e);
         if (!handleActionError(action, e))
-            throw new RuntimeException(msg, e);
+        {   // Not handled. Throw again
+            if (e instanceof EmpireException)
+                throw ((EmpireException)e);
+            else
+                throw new InternalException(e);
+        }    
     }
 
     protected void setSessionMessage(FacesMessage facesMsg)
@@ -314,7 +320,8 @@ public abstract class Page implements Serializable
 
     protected void redirectTo(PageOutcome outcome)
     {
-        log.error("Redirecting from page {} to page {}.", getPageName(), outcome.toString());
+        if (log.isDebugEnabled())
+            log.debug("Redirecting from page {} to page {}.", getPageName(), outcome.toString());
         // Return to Parent
         FacesContext context = FacesContext.getCurrentInstance();
         // Retrieve the NavigationHandler instance..
@@ -353,7 +360,7 @@ public abstract class Page implements Serializable
     {
         PageDefinition parentPage = getParentPage();
         if (parentPage == null)
-            throw new RuntimeException("No Parent Page defined for " + getPageName());
+            throw new MiscellaneousErrorException("No Parent Page defined for " + getPageName());
         if (redirect)
             return parentPage.getRedirect(action);
         else

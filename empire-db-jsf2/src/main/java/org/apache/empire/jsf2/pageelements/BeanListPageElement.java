@@ -35,8 +35,11 @@ import org.apache.empire.db.DBCommand;
 import org.apache.empire.db.DBReader;
 import org.apache.empire.db.DBRecordData;
 import org.apache.empire.db.DBRowSet;
+import org.apache.empire.db.exceptions.NoPrimaryKeyException;
 import org.apache.empire.db.expr.order.DBOrderByExpr;
+import org.apache.empire.exceptions.InternalException;
 import org.apache.empire.exceptions.InvalidArgumentException;
+import org.apache.empire.exceptions.MiscellaneousErrorException;
 import org.apache.empire.exceptions.NotSupportedException;
 import org.apache.empire.exceptions.ObjectNotValidException;
 import org.apache.empire.exceptions.UnexpectedReturnValueException;
@@ -500,7 +503,7 @@ public class BeanListPageElement<T> extends ListPageElement<T> implements ListIt
     {
         DBColumn[] keyCols = rowset.getKeyColumns();
         if (keyCols == null)
-            throw new RuntimeException("No Primary Key");
+            throw new NoPrimaryKeyException(rowset);
         // generate all
         for (Object item : items)
         {
@@ -512,9 +515,8 @@ public class BeanListPageElement<T> extends ListPageElement<T> implements ListIt
             }
             catch (Exception e)
             {
-                String msg = "Error setting property idparam on bean.";
-                log.error(msg, e);
-                throw new RuntimeException(msg, e);
+                log.error("Error setting property idparam on bean.", e);
+                throw new InternalException(e);
             }
         }
     }
@@ -532,7 +534,7 @@ public class BeanListPageElement<T> extends ListPageElement<T> implements ListIt
             { // Bean Property Name
                 String propName = cols[i].getBeanPropertyName();
                 if (propName == null || propName.length() == 0)
-                    throw new RuntimeException("Invalid Bean Property Name");
+                    throw new MiscellaneousErrorException("Invalid Bean Property Name");
                 // Get Property value
                 try
                 {
@@ -542,7 +544,7 @@ public class BeanListPageElement<T> extends ListPageElement<T> implements ListIt
                 {
                     String msg = "Error getting property '" + propName + "' from bean.";
                     log.error(msg, e);
-                    throw new RuntimeException(msg, e);
+                    throw new InternalException(e);
                 }
             }
         }

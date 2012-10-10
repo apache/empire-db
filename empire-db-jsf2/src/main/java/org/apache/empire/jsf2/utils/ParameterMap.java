@@ -28,6 +28,7 @@ import java.util.Locale;
 import org.apache.empire.commons.DateUtils;
 import org.apache.empire.commons.StringUtils;
 import org.apache.empire.db.DBRowSet;
+import org.apache.empire.exceptions.InternalException;
 import org.apache.empire.exceptions.InvalidArgumentException;
 import org.apache.empire.exceptions.UnexpectedReturnValueException;
 import org.slf4j.Logger;
@@ -55,7 +56,7 @@ public class ParameterMap implements Serializable
         catch (NoSuchAlgorithmException e)
         {
             ParameterMap.log.error("MessageDigest NoSuchAlgorithmException.", e);
-            throw new RuntimeException(e);
+            throw new InternalException(e);
         }
     }
     
