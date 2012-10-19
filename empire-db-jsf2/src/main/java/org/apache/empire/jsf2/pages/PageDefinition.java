@@ -76,7 +76,7 @@ public class PageDefinition implements Serializable
         ParameterMap pm = FacesUtils.getParameterMap(FacesUtils.getContext());
         if (pm==null)
             return param;
-        String action = StringUtils.valueOf(pm.get(ACTION_PARAMETER_TYPE, param));
+        String action = StringUtils.toString(pm.get(ACTION_PARAMETER_TYPE, param));
         if (action==null)
             log.warn("no action available for param {}.", param);
         return action;

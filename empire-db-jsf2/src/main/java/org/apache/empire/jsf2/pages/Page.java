@@ -167,6 +167,12 @@ public abstract class Page implements Serializable
         // Initialize
         this.initialized = true;
 
+        // String value of "null"?
+        if (this.action!=null && "null".equals(this.action))
+        {   log.warn("Invalid action name 'null' for {}", getClass().getName());
+            this.action = null;
+        }    
+        
         // Execute Action
         if (this.action != null)
         {
