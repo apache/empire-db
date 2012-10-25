@@ -60,7 +60,6 @@
 				<include>NOTICE.txt</include>
 				<include>README.txt</include>
 				<include>CHANGELOG.txt</include>
-				<include>DISCLAIMER.txt</include>
 				<!-- <include>licenses/**</include> -->
 			</includes>
 		</fileSet>
