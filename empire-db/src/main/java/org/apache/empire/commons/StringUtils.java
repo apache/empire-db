@@ -259,59 +259,227 @@ public class StringUtils
      * <code>to</code>,<code>orig</code> itself is returned rather than a copy being made. If orig is <code>null</code>,
      * <code>null</code> is returned.
      * 
-     * @param source the original String.
+     * @param s the original String.
      * @param find the String to be replaced
      * @param replace the replacement string
      * 
      * @return a new string with all occurances of <code>find</code> in <code>source</code> replaced by <code>replace</code>
      */
-    public static String replaceAll(String source, String find, String replace)
+    public static String replaceAll(String s, String find, String replace)
     {
-        if (source == null)
+        if (s == null)
             return null;
-        if (find == null || "".equals(find))
-        {
-            return source;
-        }
         if (replace == null)
-        {
             replace = "";
+        if (find == null || "".equals(find) || find.equals(replace))
+        {   // Nothing to find
+            return s;
         }
-        int fromLength = find.length();
-        int start = source.indexOf(find);
-        if (start == -1)
-            return source;
-
-        boolean greaterLength = (replace.length() >= fromLength);
-
-        StringBuilder buffer;
-        // If the "to" parameter is longer than (or
-        // as long as) "from", the final length will
-        // be at least as large
-        if (greaterLength)
-        {
-            if (find.equals(replace))
-                return source;
-            buffer = new StringBuilder(source.length());
-        } 
-        else
-        {
-            buffer = new StringBuilder();
-        }
-
-        char[] origChars = source.toCharArray();
-
+        int start = s.indexOf(find);
+        if (start < 0) 
+        {   // Nothing to replace
+            return s;
+        }    
+        // Rebuild string
+        StringBuilder b = new StringBuilder(s.length());
+        char[] origChars = s.toCharArray();
+        int findLength = find.length();
         int copyFrom = 0;
-        while (start != -1)
-        {
-            buffer.append(origChars, copyFrom, start - copyFrom);
-            buffer.append(replace);
-            copyFrom = start + fromLength;
-            start = source.indexOf(find, copyFrom);
+        while (start>= 0)
+        {   // append part
+            b.append(origChars, copyFrom, start - copyFrom);
+            if (replace.length()>0)
+                b.append(replace);
+            copyFrom = start + findLength;
+            start = s.indexOf(find, copyFrom);
         }
-        buffer.append(origChars, copyFrom, origChars.length - copyFrom);
+        // append the rest
+        if (origChars.length > copyFrom)
+            b.append(origChars, copyFrom, origChars.length - copyFrom);
+        // done
+        return b.toString();
+    }
+ 
+    /**
+     * Removes all occurrences of c from s 
+     * @param s the source string
+     * @param c the character to remove
+     * @return the result string
+     */
+    public static String removeChar(String s, char c)
+    {
+        return replaceAll(s, String.valueOf(c), null);
+    }
+ 
+    /**
+     * removes all blanks from s
+     * @param s the source string
+     * @return the result string
+     */
+    public static String removeBlanks(String s)
+    {
+        return removeChar(s, ' ');
+    }
 
-        return buffer.toString();
+    /**
+     * returns true if the character c is between the characters beg and end
+     * @param c the source character
+     * @param beg the lower end character
+     * @param end the higher end character
+     * @return true if the c is between beg and end, or false otherwise
+     */
+    public static boolean isCharBetween(char c, char beg, char end)
+    {
+        return (c>=beg && c<=end);
+    }
+
+    /**
+     * returns true if the character c is a number digit ('0'-'9')
+     * @param c the source character
+     * @return true if the c is between 0 and 9
+     */
+    public static boolean isNumber(char c)
+    {
+        return (c>='0' && c<='9');
+    }
+ 
+    /**
+     * returns true if the string s is a number (contains only the characters 0 to 9)
+     * @param s the source string
+     * @return true if s contains only the characters 0 to 9
+     */
+    public static boolean isNumber(String s)
+    {   if (isEmpty(s))
+            return false;
+        // check all chars
+        for (int i=0; i<s.length(); i++)
+            if (!isNumber(s.charAt(i)))
+                return false;
+        return true;
+    }
+
+    /**
+     * returns true if the character c is a numeric digit ('+' || '-' || '.' || ',' || '0'-'9')
+     * @param c the source character
+     * @param decimal flag to indicate whether the decimal and grouping separators ('.' || ',') are allowed
+     * @return true if the c is a valid numeric character
+     */
+    public static boolean isNumeric(char c, boolean decimal)
+    {   // is sign
+        if (c=='+' || c=='-')
+            return true;
+        // is decimal char
+        if (decimal && (c=='.' || c==','))
+            return true;
+        // number?
+        return isNumber(c);
+    }
+ 
+    /**
+     * returns true if the string s contains only numeric digits ('+' || '-' || '.' || ',' || '0'-'9')
+     * @param s the source string
+     * @param decimal flag to indicate whether the decimal and grouping separators ('.' || ',') are allowed
+     * @return true if s contains only numeric digits
+     */
+    public static boolean isNumeric(String s, boolean decimal)
+    {   if (isEmpty(s))
+            return false;
+        // check all chars
+        for (int i=0; i<s.length(); i++)
+        {
+            char c = s.charAt(i);
+            if ((c=='+' || c=='-') && i>0)
+                return false;
+            if (!isNumeric(c, decimal))
+                return false;
+        }    
+        return true;
+    }
+ 
+    /**
+     * returns true if the character c is an upper case character ('A'-'Z')
+     * @param c the character
+     * @return true if c is an upper case character 
+     */
+    public static boolean isUpper(char c)
+    {
+        return (c>='A' && c<='Z') || (c>='À' && c<='Ý');
+    }
+ 
+    /**
+     * returns true if the first count characters of s are all upper case (or other non-case sensitive characters)
+     * @param s the source string
+     * @return true if the first count characters of s are all upper case
+     */
+    public static boolean isUpper(String s, int count)
+    {   if (isEmpty(s))
+            return false;
+        if (count>s.length())
+            count=s.length();
+        for (int i=0; i<count; i++)
+            if (isLower(s.charAt(i)))
+                return false;
+        return true;
+    }
+ 
+    /**
+     * returns true if the character c is an upper case character ('a'-'z')
+     * @param c the character
+     * @return true if c is an upper case character 
+     */
+    public static boolean isLower(char c)
+    {
+        return (c>='a' && c<='z') || (c>='ß' && c<='ÿ');
+    }
+ 
+    /**
+     * returns true if the first count characters of s are all lower case (or other non-case sensitive characters)
+     * @param s the source string
+     * @return true if the first count characters of s are all lower case
+     */
+    public static boolean isLower(String s, int count)
+    {   if (isEmpty(s))
+            return false;
+        if (count>s.length())
+            count=s.length();
+        for (int i=0; i<count; i++)
+            if (isUpper(s.charAt(i)))
+                return false;
+        return true;
+    }
+    
+    /**
+     * makes the first n characters of s upper case 
+     * @param s the source string
+     * @param count the number of characters to convert
+     * @return the result string
+     */
+    public static String toUpper(String s, int count)
+    {
+        if (isEmpty(s))
+            return s;
+        if (s.length()<=count)
+            return s.toUpperCase();
+        // Upper
+        String start = s.substring(0, count);
+        return start.toUpperCase()+s.substring(count);
+    }
+    
+    /**
+     * makes the first n characters of s lower case 
+     * @param s the source string
+     * @param count the number of characters to convert
+     * @return the result string
+     */
+    public static String toLower(String s, int count)
+    {
+        if (isEmpty(s))
+            return s;
+        if (s.length()<=count)
+            return s.toLowerCase();
+        // Lower
+        String start = s.substring(0, count);
+        return start.toLowerCase()+s.substring(count);
     }
     
 }

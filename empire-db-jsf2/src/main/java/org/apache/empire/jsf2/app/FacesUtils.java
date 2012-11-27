@@ -106,6 +106,8 @@ public class FacesUtils
         {   // log
             if (log.isDebugEnabled())
                 log.debug("Redirecting directly to {}.", url);
+            if (fc.getResponseComplete())
+                log.warn("Redirecting although response is already complete!");
             // redirectDirectly
             fc.getExternalContext().redirect(url);
             fc.responseComplete();
