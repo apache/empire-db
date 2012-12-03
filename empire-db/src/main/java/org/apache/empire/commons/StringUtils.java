@@ -227,13 +227,13 @@ public class StringUtils
     }
     
     /**
-     * Replaces all occurences of find in source by replace.
+     * Replaces all occurrences of find in source by replace.
      * 
      * @param source the original String.
      * @param find the String to be replaced
      * @param replace the replacement string
      * 
-     * @return a new string with all occurances of <code>find</code> in <code>source</code> replaced by <code>replace</code>
+     * @return a new string with all occurrences of <code>find</code> in <code>source</code> replaced by <code>replace</code>
      */
     public static String replace(String source, String find, String replace)
     {
@@ -263,7 +263,7 @@ public class StringUtils
      * @param find the String to be replaced
      * @param replace the replacement string
      * 
-     * @return a new string with all occurances of <code>find</code> in <code>source</code> replaced by <code>replace</code>
+     * @return a new string with all occurrences of <code>find</code> in <code>source</code> replaced by <code>replace</code>
      */
     public static String replaceAll(String s, String find, String replace)
     {
@@ -299,6 +299,17 @@ public class StringUtils
         // done
         return b.toString();
     }
+    
+    /**
+     * Removes all occurrences of remove from s 
+     * @param s the source string
+     * @param remove the string to remove
+     * @return the result string
+     */
+    public static String remove(String s, String remove)
+    {
+        return replaceAll(s, remove, null);
+    }
  
     /**
      * Removes all occurrences of c from s 
@@ -306,7 +317,7 @@ public class StringUtils
      * @param c the character to remove
      * @return the result string
      */
-    public static String removeChar(String s, char c)
+    public static String remove(String s, char c)
     {
         return replaceAll(s, String.valueOf(c), null);
     }
@@ -318,7 +329,7 @@ public class StringUtils
      */
     public static String removeBlanks(String s)
     {
-        return removeChar(s, ' ');
+        return remove(s, " ");
     }
 
     /**
