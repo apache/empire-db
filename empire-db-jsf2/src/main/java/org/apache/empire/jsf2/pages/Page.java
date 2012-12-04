@@ -48,7 +48,7 @@ public abstract class Page implements Serializable
 {
     private static final long   serialVersionUID = 1L;
 
-    private static final String SESSION_MESSAGE  = "PAGE_SESSION_MESSAGE";
+    public static final String  SESSION_MESSAGE  = "PAGE_SESSION_MESSAGE";
 
     // private static final String INVALID_ACTION   = "XXXXXXXXXXXX";
 
@@ -160,7 +160,9 @@ public abstract class Page implements Serializable
             if (context.getResponseComplete())
                 return;
             // Oops, not redirected yet?
-            redirectTo(getParentOutcome(true));
+            if (getParentPage()!=null)
+                redirectTo(getParentOutcome(true)); 
+            // Done
             return;
         }
 
@@ -280,7 +282,9 @@ public abstract class Page implements Serializable
         // Return to parent page
         PageDefinition parentPage = getParentPage();
         if (parentPage == null)
+        {   FacesContext.getCurrentInstance().addMessage(getPageName(), facesMsg);
             return false;
+        }
         // redirect
         redirectTo(parentPage.getRedirect());
         return true;
