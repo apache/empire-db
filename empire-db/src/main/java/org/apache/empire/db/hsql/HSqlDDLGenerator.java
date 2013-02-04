@@ -33,6 +33,8 @@ public class HSqlDDLGenerator extends DBDDLGenerator<DBDatabaseDriverHSql>
     public HSqlDDLGenerator(DBDatabaseDriverHSql driver)
     {
         super(driver);
+        // Database object name for DROP database
+        databaseObjectName = "SCHEMA";
         // set Oracle specific data types
         initDataTypes();
     }

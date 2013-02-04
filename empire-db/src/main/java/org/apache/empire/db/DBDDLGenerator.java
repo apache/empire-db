@@ -52,6 +52,7 @@ public abstract class DBDDLGenerator<T extends DBDatabaseDriver>
     // Options
     protected boolean namePrimaryKeyConstraint = false; // Add name for primary key constraint
     protected String  alterColumnPhrase  = " ALTER ";   // Phrase for altering a column
+    protected String  databaseObjectName = "DATABASE";  // Database object name for DROP database
     
     protected DBDDLGenerator(T driver)
     {
@@ -216,7 +217,7 @@ public abstract class DBDDLGenerator<T extends DBDatabaseDriver>
                     createDatabase((DBDatabase) dbo, script);
                     return;
                 case DROP:
-                    dropObject(((DBDatabase) dbo).getSchema(), "USER", script);
+                    dropObject(((DBDatabase) dbo).getSchema(), databaseObjectName, script);
                     return;
                 default:
                     throw new NotImplementedException(this, "getDDLScript." + dbo.getClass().getName() + "." + type);

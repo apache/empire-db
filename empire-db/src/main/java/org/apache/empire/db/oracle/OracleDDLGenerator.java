@@ -35,6 +35,8 @@ public class OracleDDLGenerator extends DBDDLGenerator<DBDatabaseDriverOracle>
     public OracleDDLGenerator(DBDatabaseDriverOracle driver)
     {
         super(driver);
+        // Database object name for DROP database
+        databaseObjectName = "USER";
         // Alter Column Phrase
         alterColumnPhrase  = " MODIFY ";
         // Name Primary Keys
