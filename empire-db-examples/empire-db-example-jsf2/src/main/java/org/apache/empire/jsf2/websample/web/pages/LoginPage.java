@@ -32,14 +32,14 @@ public class LoginPage extends SamplePage {
 		SampleSession session =	SampleUtils.getSampleSession();
 		session.setUser(SampleUtils.getSampleUser());
 		// goto list page
-		redirectTo(SamplePages.EmployeeListPage.getOutcome());
+		navigateTo(SamplePages.EmployeeListPage.getRedirect());
 	}
 
 	public void doLogout() 
 	{
 		// Perform logout
 		PageOutcome logout = this.getPageDefinition().getRedirect().addParam("logout", String.valueOf(true));
-		redirectTo( logout );
+		navigateTo( logout );
 		
         // Invalidate Session
 		FacesUtils.getContext().getExternalContext().invalidateSession();

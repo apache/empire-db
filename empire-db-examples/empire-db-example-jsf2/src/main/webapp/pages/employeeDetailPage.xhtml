@@ -53,7 +53,7 @@
 				<!-- button bar -->
 				<h:panelGroup styleClass="buttonBar" layout="block">
 					<h:commandLink value="#{msg.employeeDetail_back}" action="#{page.doCancel}" immediate="true" />
-					<h:commandLink value="#{msg.employeeDetail_delete}" action="#{page.doDelete}" immediate="true" rendered="#{page.idParam != null}" />
+					<h:commandLink value="#{msg.employeeDetail_delete}" action="#{page.doDelete}" immediate="true" rendered="#{!page.employeeRecord.new}" />
 					<h:commandLink value="#{msg.employeeDetail_save}" action="#{page.doSave}" />
 				</h:panelGroup>
 			</h:form>
