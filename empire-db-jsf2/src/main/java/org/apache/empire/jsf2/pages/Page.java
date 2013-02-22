@@ -161,7 +161,7 @@ public abstract class Page implements Serializable
                 return;
             // Oops, not redirected yet?
             if (getParentPage()!=null)
-                redirectTo(getParentOutcome(true)); 
+                navigateTo(getParentOutcome(true)); 
             // Done
             return;
         }
@@ -286,7 +286,7 @@ public abstract class Page implements Serializable
             return false;
         }
         // redirect
-        redirectTo(parentPage.getRedirect());
+        navigateTo(parentPage.getRedirect());
         return true;
     }
 
@@ -328,7 +328,11 @@ public abstract class Page implements Serializable
         return b.toString();
     }
 
-    protected void redirectTo(PageOutcome outcome)
+    /**
+     * navigates to the desired page. Depending on the page outcome provided this is either a forward or a redirect.
+     * @param outcome the destination page to navigate to
+     */
+    protected void navigateTo(PageOutcome outcome)
     {
         if (log.isDebugEnabled())
             log.debug("Redirecting from page {} to page {}.", getPageName(), outcome.toString());
