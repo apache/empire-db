@@ -44,7 +44,7 @@ public class InternalException extends EmpireException
         String msg   = exptn.getMessage();
         // Prepare stack trace
         StackTraceElement[] stack = exptn.getStackTrace();
-        String pos = (stack!=null) ? stack[0].toString() : "{unknown}";
+        String pos = (stack!=null && stack.length>0) ? stack[0].toString() : "{unknown}";
         // Create Error
         return new String[] { type, msg, pos };
     }
