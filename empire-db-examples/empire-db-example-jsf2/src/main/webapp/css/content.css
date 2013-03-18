@@ -29,10 +29,14 @@ table.inputForm {
 	width: 100%;
 }
 table.inputForm td.eCtlLabel {
-	font-weight: bold; 
-	white-space:nowrap; 
 	vertical-align:top;
 	width: 140px;
+	height: 24px;
+	padding-top: 3px;
+	font-weight: bold; 
+}
+table.inputForm td.eCtlInput {
+	vertical-align:top;
 }
 table.inputForm td.buttonBar {
 	padding-top: 8px;
@@ -79,4 +83,34 @@ span.searchResult {
 .searchResult table a.eLink:visited {
 	color: brown;
 	font-weight: bold;
+}
+
+span.required {
+	color: brown;
+}
+select, 
+input[type=text],
+input[type=password] {
+	border: 1px #8f99ef solid;
+}
+select.eInpReq, 
+input[type=text].eInpReq {
+	border: 1px brown solid;
+}
+select.eInpDis, 
+input[type=text].eInpDis {
+	border: 1px #C0C0C0 solid;
+	color: #808080;
+}
+span.eInpDis {
+	display: inline-block;
+	padding-top: 3px;
+}
+.eUnit {
+	padding-left: 4px;
+	font-style: bold;
+}
+.eInputHint {
+	padding-left: 4px;
+	font-style: italic;
 }

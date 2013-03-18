@@ -60,6 +60,7 @@ public class EmployeeListPage extends SamplePage
         private String            gender;
         private Date              dateOfBirth;
         private String            department;
+        private boolean	 	      retired;
         private String            idParam;
 
         @Override
@@ -123,6 +124,14 @@ public class EmployeeListPage extends SamplePage
             this.department = department;
         }
 
+		public boolean isRetired() {
+			return retired;
+		}
+
+		public void setRetired(boolean retired) {
+			this.retired = retired;
+		}
+
     }
 
     public EmployeeListPage()
@@ -170,7 +179,8 @@ public class EmployeeListPage extends SamplePage
         DBCommand queryCmd = createQueryCommand();
 
         queryCmd.select(EMP.EMPLOYEE_ID, FULL_NAME);
-        queryCmd.select(EMP.GENDER, EMP.DATE_OF_BIRTH);
+        queryCmd.select(EMP.GENDER, EMP.DATE_OF_BIRTH, EMP.RETIRED);
+        // queryCmd.select(EMP.RETIRED.decode(true, "X", "-"));
         queryCmd.select(DEPARTMENT);
 
         queryCmd.join(DEP.DEPARTMENT_ID, EMP.DEPARTMENT_ID);

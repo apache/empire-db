@@ -225,14 +225,13 @@ public class SampleApplication extends FacesApplication {
 			sampleDB.open(driver, conn);
 		}
 		// Insert Sample Departments
+		insertDepartmentSampleRecord(conn, "Procurement", "ITTK");
 		int idDevDep = insertDepartmentSampleRecord(conn, "Development", "ITTK");
-		int idSalDep = insertDepartmentSampleRecord(conn, "Sales", "ITTK");
+		int idSalDep = insertDepartmentSampleRecord(conn, "Sales", 		 "ITTK");
 		// Insert Sample Employees
-		insertEmployeeSampleRecord(conn, "Mr.", "Eugen", "Miller", "M",
-				idDevDep);
-		insertEmployeeSampleRecord(conn, "Mr.", "Max", "Mc. Callahan", "M",
-				idDevDep);
-		insertEmployeeSampleRecord(conn, "Mrs.", "Anna", "Smith", "F", idSalDep);
+		insertEmployeeSampleRecord(conn, "Mr.", "Eugen", "Miller", "M",		idDevDep);
+		insertEmployeeSampleRecord(conn, "Mr.", "Max", "Mc. Callahan", "M",	idDevDep);
+		insertEmployeeSampleRecord(conn, "Mrs.", "Anna", "Smith", "F", 		idSalDep);
 		// Commit
 		sampleDB.commit(conn);
 	}

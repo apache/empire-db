@@ -19,6 +19,7 @@
 package org.apache.empire.jsf2.websample.db.records;
 
 import org.apache.empire.commons.Options;
+import org.apache.empire.data.Column;
 import org.apache.empire.db.DBColumn;
 import org.apache.empire.db.DBCommand;
 import org.apache.empire.jsf2.websample.db.SampleDB;
@@ -32,6 +33,20 @@ public class EmployeeRecord extends SampleRecord<TEmployees>
     public EmployeeRecord(SampleDB db)
     {
         super(db.T_EMPLOYEES);
+    }
+    
+	/*
+	 * Add some business logic:
+	 * Make all fields read only if employee is retired (except the retired field itself!) 
+	 */
+    @Override
+    public boolean isFieldReadOnly(Column column)
+    {
+    	if (column!=T.RETIRED && getBoolean(T.RETIRED))
+    	{	/* Employee is retired */
+    		return true;
+    	}	
+    	return super.isFieldReadOnly(column);	
     }
 
     @Override

@@ -89,6 +89,12 @@
 						</f:facet>
 						<e:value record="#{item}" column="#{db.EMPLOYEES.DATE_OF_BIRTH}" />
 					</h:column>
+					<h:column>
+						<f:facet name="header">
+							<e:title column="#{db.EMPLOYEES.RETIRED}" />
+						</f:facet>
+						<e:value record="#{item}" column="#{db.EMPLOYEES.RETIRED}" />
+					</h:column>
 				</h:dataTable>
 			</h:panelGroup>
 		</h:form>

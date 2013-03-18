@@ -66,11 +66,11 @@ public class SampleDB extends DBDatabase
         {
             super("DEPARTMENTS", db);
             // ID
-            DEPARTMENT_ID = addColumn("DEPARTMENT_ID", DataType.AUTOINC, 0, DataMode.NotNull, "DEP_ID_SEQUENCE");
-            NAME = addColumn("NAME", DataType.TEXT, 80, DataMode.NotNull);
-            HEAD = addColumn("HEAD", DataType.TEXT, 80, DataMode.Nullable);
-            BUSINESS_UNIT = addColumn("BUSINESS_UNIT", DataType.TEXT, 4, DataMode.NotNull, "ITTK");
-            UPDATE_TIMESTAMP = addColumn("UPDATE_TIMESTAMP", DataType.DATETIME, 0, DataMode.NotNull);
+            DEPARTMENT_ID 	= addColumn("DEPARTMENT_ID", 	DataType.AUTOINC,	 0, DataMode.NotNull, "DEP_ID_SEQUENCE");
+            NAME 			= addColumn("NAME", 			DataType.TEXT, 		80, DataMode.NotNull);
+            HEAD 			= addColumn("HEAD", 			DataType.TEXT, 		80, DataMode.Nullable);
+            BUSINESS_UNIT 	= addColumn("BUSINESS_UNIT", 	DataType.TEXT,		 4, DataMode.NotNull, "ITTK");
+            UPDATE_TIMESTAMP= addColumn("UPDATE_TIMESTAMP", DataType.DATETIME,	 0, DataMode.NotNull);
 
             // Primary Key
             setPrimaryKey(DEPARTMENT_ID);
@@ -93,7 +93,7 @@ public class SampleDB extends DBDatabase
 
         public final DBTableColumn EMPLOYEE_ID;
         public final DBTableColumn SALUTATION;
-//        public final DBTableColumn PICTURE;
+//      public final DBTableColumn PICTURE;
         public final DBTableColumn FIRST_NAME;
         public final DBTableColumn LAST_NAME;
         public final DBTableColumn DATE_OF_BIRTH;
@@ -107,18 +107,18 @@ public class SampleDB extends DBDatabase
         {
             super("EMPLOYEES", db);
             // ID
-            EMPLOYEE_ID = addColumn("EMPLOYEE_ID", DataType.AUTOINC, 0, DataMode.NotNull, "EMPLOYEE_ID_SEQUENCE");
-            SALUTATION = addColumn("SALUTATION", DataType.TEXT, 5, DataMode.Nullable);
-//            PICTURE = addColumn("PICTURE", DataType.BLOB, 0, DataMode.Nullable);
-            FIRST_NAME = addColumn("FIRST_NAME", DataType.TEXT, 40, DataMode.NotNull);
-            LAST_NAME = addColumn("LAST_NAME", DataType.TEXT, 40, DataMode.NotNull);
-            DATE_OF_BIRTH = addColumn("DATE_OF_BIRTH", DataType.DATE, 0, DataMode.Nullable);
-            DEPARTMENT_ID = addColumn("DEPARTMENT_ID", DataType.INTEGER, 0, DataMode.NotNull);
-            GENDER = addColumn("GENDER", DataType.TEXT, 1, DataMode.Nullable);
-            PHONE_NUMBER = addColumn("PHONE_NUMBER", DataType.TEXT, 40, DataMode.Nullable);
-            EMAIL = addColumn("EMAIL", DataType.TEXT, 80, DataMode.Nullable);
-            RETIRED = addColumn("RETIRED", DataType.BOOL, 0, DataMode.NotNull, false);
-            UPDATE_TIMESTAMP = addColumn("UPDATE_TIMESTAMP", DataType.DATETIME, 0, DataMode.NotNull);
+            EMPLOYEE_ID 	= addColumn("EMPLOYEE_ID", 		DataType.AUTOINC, 	 0, DataMode.NotNull, "EMPLOYEE_ID_SEQUENCE");
+            SALUTATION 		= addColumn("SALUTATION", 		DataType.TEXT, 		 5, DataMode.Nullable);
+            FIRST_NAME 		= addColumn("FIRST_NAME", 		DataType.TEXT, 		40, DataMode.NotNull);
+            LAST_NAME 		= addColumn("LAST_NAME", 		DataType.TEXT, 		40, DataMode.NotNull);
+            DATE_OF_BIRTH 	= addColumn("DATE_OF_BIRTH", 	DataType.DATE,		 0, DataMode.Nullable);
+            DEPARTMENT_ID 	= addColumn("DEPARTMENT_ID", 	DataType.INTEGER, 	 0, DataMode.NotNull);
+            GENDER 			= addColumn("GENDER", 			DataType.TEXT, 		 1, DataMode.Nullable);
+            PHONE_NUMBER 	= addColumn("PHONE_NUMBER", 	DataType.TEXT, 		40, DataMode.Nullable);
+            EMAIL 			= addColumn("EMAIL", 			DataType.TEXT, 		80, DataMode.Nullable);
+            RETIRED			= addColumn("RETIRED", 			DataType.BOOL, 		 0, DataMode.NotNull, false);
+            // PICTURE 		= addColumn("PICTURE", 			DataType.BLOB, 		 0, DataMode.Nullable);
+            UPDATE_TIMESTAMP= addColumn("UPDATE_TIMESTAMP", DataType.DATETIME,	 0, DataMode.NotNull);
 
             // Primary Key
             setPrimaryKey(EMPLOYEE_ID);
@@ -135,17 +135,20 @@ public class SampleDB extends DBDatabase
             GENDER.setOptions(genders);
             GENDER.setControlType("select");
 
-            Options retireds = new Options();
-            retireds.set("N", "!option.employee.retired.true");
-            retireds.set("F", "!option.employee.retired.false");
-            RETIRED.setOptions(retireds);
+            Options retired = new Options();
+            retired.set(false, "!option.employee.active");
+            retired.set(true,  "!option.employee.retired");
+            RETIRED.setOptions(retired);
             RETIRED.setControlType("checkbox");
             
             // Set special control types
             DEPARTMENT_ID.setControlType("select");
-            PHONE_NUMBER.setControlType("phone");
+            PHONE_NUMBER .setControlType("phone");
             
-//            PICTURE.setControlType("blob");
+            // Set optional formatting attributes
+            DATE_OF_BIRTH.setAttribute("format:date", "yyyy-MM-dd");
+            
+            // PICTURE.setControlType("blob");
 
         }
     }
