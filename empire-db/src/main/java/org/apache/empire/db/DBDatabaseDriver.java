@@ -25,7 +25,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Timestamp;
-import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -39,6 +38,7 @@ import org.apache.empire.commons.StringUtils;
 import org.apache.empire.data.DataMode;
 import org.apache.empire.data.DataType;
 import org.apache.empire.db.exceptions.EmpireSQLException;
+import org.apache.empire.exceptions.InvalidArgumentException;
 import org.apache.empire.exceptions.NotImplementedException;
 import org.apache.empire.exceptions.NotSupportedException;
 import org.slf4j.Logger;
@@ -726,13 +726,19 @@ public abstract class DBDatabaseDriver implements Serializable
         if ((value instanceof Date)==false)
         {   // Convert String to Date
             try
-            {
-                DateFormat source = DateFormat.getDateInstance(DateFormat.SHORT);
-                Date dt = source.parse(value.toString());
-               datetime = sqlFormat.format(dt);
-            } catch (ParseException e)
-            {
-                log.error("Date parsing error ", e);
+            {	// init DateFormat
+            	String dtValue   = value.toString().trim();
+            	String dtPattern = DBDatabase.DATETIME_PATTERN.substring(0, Math.min(dtValue.length(), 24));  
+                SimpleDateFormat sdFormat = new SimpleDateFormat(dtPattern);
+                // Parse value
+                sdFormat.setLenient(true);
+                Date dt = sdFormat.parse(dtValue);
+                // Format to SQL pattern
+               	datetime = sqlFormat.format(dt);
+            } catch (ParseException e) {
+            	// Invalid date
+                log.error("Unable to parse date value "+datetime, e);
+                throw new InvalidArgumentException("value", value);
             }
         }
         else
