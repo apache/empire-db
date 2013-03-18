@@ -1326,7 +1326,7 @@ public class TagEncodingHelper implements NamingContainer
     
     /* ********************** CSS-generation ********************** */
 
-    public static String getTagStyleClass(String tagCssStyle, String typeClass, String addlStyle, String userStyle)
+    public static final String getTagStyleClass(String tagCssStyle, String typeClass, String addlStyle, String userStyle)
     {
         // tag and type style class
         if (StringUtils.isEmpty(userStyle) && StringUtils.isEmpty(addlStyle))
@@ -1356,7 +1356,7 @@ public class TagEncodingHelper implements NamingContainer
     public static final String CSS_DATA_TYPE_DATE     = " eTypeDate";
     public static final String CSS_DATA_TYPE_BOOL     = " eTypeBool";
 
-    private static String getDataTypeClass(DataType type)
+    public static final String getDataTypeClass(DataType type)
     {
         switch (type)
         {

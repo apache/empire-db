@@ -23,6 +23,7 @@ import java.sql.Timestamp;
 import java.text.DateFormat;
 import java.text.NumberFormat;
 import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Currency;
 import java.util.Date;
 import java.util.List;
@@ -30,6 +31,8 @@ import java.util.Locale;
 
 import javax.faces.component.UIComponent;
 import javax.faces.component.html.HtmlInputText;
+import javax.faces.component.html.HtmlOutputText;
+import javax.faces.component.html.HtmlPanelGroup;
 import javax.faces.context.FacesContext;
 import javax.faces.context.ResponseWriter;
 
@@ -41,6 +44,7 @@ import org.apache.empire.data.DataType;
 import org.apache.empire.db.DBColumn;
 import org.apache.empire.exceptions.InternalException;
 import org.apache.empire.exceptions.UnexpectedReturnValueException;
+import org.apache.empire.jsf2.utils.TagEncodingHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -96,6 +100,19 @@ public class TextInputControl extends InputControl
                 input.setMaxlength(maxLength);
             // add
             compList.add(input);
+
+            // add unit
+            String unit = getUnitString(ii);
+            if (StringUtils.isNotEmpty(unit)) 
+            {	// add the unit
+	        	compList.add(createUnitLabel("eUnit", ii, unit));
+            }
+            // add hint
+            String hint = StringUtils.toString(ii.getAttribute("hint"));
+            if (StringUtils.isNotEmpty(hint) && !ii.isDisabled()) 
+            {	// add the hint (if not an empty string!)
+        		compList.add(createUnitLabel("eInputHint", ii, hint));
+            }
         } 
         else
         {   // check type
@@ -119,6 +136,18 @@ public class TextInputControl extends InputControl
         
         // set value
         setInputValue(input, ii);
+    }
+    
+    protected UIComponent createUnitLabel(String tagStyle, InputInfo ii, String value)
+    {
+        HtmlOutputText text = new HtmlOutputText();
+        text.setValue(value);
+        // wrap
+        HtmlPanelGroup span = new HtmlPanelGroup();
+        String styleClass = TagEncodingHelper.getTagStyleClass(tagStyle, TagEncodingHelper.getDataTypeClass(ii.getColumn().getDataType()), null, null);
+        span.getAttributes().put("styleClass", styleClass);
+        span.getChildren().add(text);
+        return span;
     }
     
     // ------- parsing -------
@@ -455,22 +484,31 @@ public class TextInputControl extends InputControl
     
     protected DateFormat getDateFormat(DataType dataType, ValueInfo vi, Column column)
     {
-        int type = DateFormat.MEDIUM;
+        String pattern = null;
+        int type = DateFormat.DEFAULT;
         // Is unit supplied as a format option
         String format = getFormatString(vi, DATE_FORMAT, DATE_FORMAT_ATTRIBUTE);
         if (format!=null)
         {   // format has been provided
-            if (StringUtils.compareEqual(format, "short", true))
+            if (StringUtils.compareEqual(format, "full", true))
+               type=DateFormat.FULL; 
+            else if (StringUtils.compareEqual(format, "medium", true))
+               type=DateFormat.MEDIUM; 
+            else if (StringUtils.compareEqual(format, "short", true))
                type=DateFormat.SHORT; 
             else if (StringUtils.compareEqual(format, "long", true))
-               type=DateFormat.LONG; 
+               type=DateFormat.LONG;
+            else 
+               pattern = format;
         }
         // return date formatter
         DateFormat df;
-        if (dataType==DataType.DATE)
-            df = DateFormat.getDateInstance(type, vi.getLocale());
+        if (StringUtils.isNotEmpty(pattern))
+	        df = new SimpleDateFormat(pattern, vi.getLocale());
+        else if (dataType==DataType.DATE)
+	        df = DateFormat.getDateInstance(type, vi.getLocale());
         else
-            df = DateFormat.getDateTimeInstance(type, type, vi.getLocale());
+        	df = DateFormat.getDateTimeInstance(type, type, vi.getLocale());
         return df;
     }
 

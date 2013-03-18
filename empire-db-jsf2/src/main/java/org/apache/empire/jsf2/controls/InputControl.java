@@ -445,14 +445,24 @@ public abstract class InputControl
     {
         // default implementation
         int count = parent.getChildCount(); 
-        if (count!=1)
+        if (count<1)
             return null;
-        // the input
-        UIComponent inp = parent.getChildren().get(0);
-        if (!(inp instanceof UIInput))
-            throw new UnexpectedReturnValueException(inp, "comp.getChildren().get(0)"); 
-        // OK
-        return (UIInput)inp;
+        // find the UIInput component (only one allowed)
+        UIInput inp = null;
+        for (int i=0; i<count; i++)
+        {	// check UIInput 
+        	UIComponent comp = parent.getChildren().get(i);
+	        if (comp instanceof UIInput)
+	        {	if (inp!=null)
+		        	throw new UnexpectedReturnValueException(comp, "comp.getChildren().get("+String.valueOf(i)+")");
+		        inp = (UIInput)comp;
+	        }
+        }
+        // No UIInput found
+        if (inp==null)
+        	throw new UnexpectedReturnValueException(null, "comp.getChildren().get()");
+        // done
+        return inp;
     }
 
     protected void copyAttributes(UIComponent parent, InputInfo ii, UIInput input, String additonalStyle)
@@ -487,7 +497,7 @@ public abstract class InputControl
 
     protected final void copyAttributes(UIComponent parent, InputInfo ii, UIInput input)
     {
-        copyAttributes(parent, ii, input, null);
+        copyAttributes(parent, ii, input, (ii.isRequired() ? "eInpReq" : null));
     }
 
     protected void copyAttribute(InputInfo ii, UIInput input, String name)
