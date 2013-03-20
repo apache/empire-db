@@ -901,7 +901,8 @@ public class TagEncodingHelper implements NamingContainer
     }
     
     private static final String CC_ATTR_EXPR = "#{cc.attrs.";
-
+    
+    @SuppressWarnings("unchecked")
     protected ValueExpression findValueExpression(String attribute, boolean allowLiteral)
     {
         // Check for expression
@@ -917,7 +918,7 @@ public class TagEncodingHelper implements NamingContainer
             if (ve instanceof FacesWrapper<?>)
                 ve = ((FacesWrapper<ValueExpression>)ve).getWrapped();
             // find parent
-            UIComponent valueParent = FacesUtils.getFacesApplication().getFacesImplemenation().getValueParentComponent(ve);
+            UIComponent valueParent = FacesUtils.getFacesApplication().getFacesImplementation().getValueParentComponent(ve);
             if (valueParent!=null)
             {	// use the value parent
             	parent = valueParent;

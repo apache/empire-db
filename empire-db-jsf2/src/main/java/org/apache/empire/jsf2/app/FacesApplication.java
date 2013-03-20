@@ -88,7 +88,7 @@ public abstract class FacesApplication extends Application
     
     private Application			applImpl 			  = null;
     
-    private FacesImplementation 	facesImpl			  = null;
+    private FacesImplementation facesImpl			  = null;
 
     protected FacesApplication()
     { 	// subscribe
@@ -139,7 +139,7 @@ public abstract class FacesApplication extends Application
      * return the interface for Implementation specific features 
      * that are specific for Mojarra or MyFaces
      */
-    public FacesImplementation getFacesImplemenation() 
+    public FacesImplementation getFacesImplementation() 
     {
 		return facesImpl;
 	}
