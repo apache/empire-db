@@ -184,7 +184,7 @@ public class SampleApplication extends FacesApplication {
 
 	private void initPages(ServletContext sc) {
 		// register Page Beans
-		new SamplePages().registerPageBeans(this.getFacesImplemenation());
+		new SamplePages().registerPageBeans(this.getFacesImplementation());
 	}
 
 	public SampleDB getDatabase() {
