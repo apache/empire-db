@@ -18,31 +18,67 @@
  */
 package org.apache.empire.jsf2.app;
 
-import java.util.Map;
-
 import javax.faces.application.Application;
 import javax.faces.application.ApplicationFactory;
-import javax.faces.context.FacesContext;
 
 import org.apache.empire.exceptions.InternalException;
 import org.apache.empire.exceptions.InvalidArgumentException;
 import org.apache.empire.exceptions.ItemExistsException;
+import org.apache.empire.jsf2.app.impl.MojarraImplementation;
+import org.apache.empire.jsf2.app.impl.MyFacesImplementation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.sun.faces.application.InjectionApplicationFactory;
 
 public abstract class FacesApplicationFactory extends ApplicationFactory
 {
     private static final Logger  log = LoggerFactory.getLogger(FacesApplicationFactory.class);
-
-    private Class<? extends FacesApplication> applicationClass;
     
-    private volatile Application application;
+    private final Class<? extends FacesApplication> applicationClass;
+
+    private final FacesImplementation facesImplementation;
+
+    private final AppStartupListener startupListener;
+    
+    private volatile FacesApplication application;
+    
+	private static FacesImplementation detectFacesImplementation()
+	{
+		// Test for Sun Mojarra
+		try {
+			Class.forName("com.sun.faces.application.ApplicationFactoryImpl");
+			return new MojarraImplementation();
+		} catch (ClassNotFoundException e) {
+			// It's not Mojarra
+		}
+		// Test for Apache MyFaces
+		try {
+			Class.forName("org.apache.myfaces.application.ApplicationFactoryImpl");
+			return new MyFacesImplementation();
+		} catch (ClassNotFoundException e) {
+			// It's not MyFaces
+		}
+		// Not found
+		throw new UnsupportedOperationException(); 
+	}
+    
+    protected FacesApplicationFactory(Class<? extends FacesApplication> applicationClass, FacesImplementation facesImplementation, AppStartupListener startupListener)
+    {
+    	// FacesImplementation
+    	if (facesImplementation==null)
+    		facesImplementation= detectFacesImplementation();
+
+    	// FacesImplementation
+    	this.facesImplementation = facesImplementation;
+        this.applicationClass    = applicationClass;
+        this.startupListener     = startupListener;
+
+        // log
+        log.info("FacesApplicationFactory created for {0} using Implemenation {1}.", applicationClass, facesImplementation.getClass().getName());
+    }
     
     protected FacesApplicationFactory(Class<? extends FacesApplication> applicationClass)
     {
-        this.applicationClass  = applicationClass;
+    	this(applicationClass, null, new AppStartupListener());
     }
 
     @Override
@@ -50,8 +86,12 @@ public abstract class FacesApplicationFactory extends ApplicationFactory
     {
         if (application == null)
         {   try
-            {   // Create Application
+            {	// Create FacesApplication
                 application = applicationClass.newInstance();
+        		// init
+        		facesImplementation.initApplication(application);
+                // subscribe
+                application.subscribeToEvent(javax.faces.event.PostConstructApplicationEvent.class, startupListener);
             }
             catch (InstantiationException e)
             {
@@ -61,9 +101,6 @@ public abstract class FacesApplicationFactory extends ApplicationFactory
             {
                 throw new InternalException(e);
             }
-            // InjectionApplicationFactory.setApplicationInstance(application);
-            Map<String, Object> appMap = FacesContext.getCurrentInstance().getExternalContext().getApplicationMap();
-            appMap.put(InjectionApplicationFactory.class.getName(), application);
             // log
             log.info("Fin2Application Application instance created");
         }
@@ -77,6 +114,6 @@ public abstract class FacesApplicationFactory extends ApplicationFactory
             throw new ItemExistsException(this.application);
         if (!(application instanceof FacesApplication))
             throw new InvalidArgumentException("application", application);
-        this.application = application;
+        this.application = (FacesApplication)application;
     }
 }

@@ -24,11 +24,9 @@ import java.util.LinkedHashMap;
 import org.apache.empire.commons.StringUtils;
 import org.apache.empire.exceptions.ItemExistsException;
 import org.apache.empire.exceptions.MiscellaneousErrorException;
+import org.apache.empire.jsf2.app.FacesImplementation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.sun.faces.mgbean.BeanManager;
-import com.sun.faces.mgbean.ManagedBeanInfo;
 
 
 public abstract class PageDefinitions implements Serializable
@@ -70,29 +68,16 @@ public abstract class PageDefinitions implements Serializable
      * Register page beans with the BeanManager
      * @param bm
      */
-    public void registerPageBeans(BeanManager bm)
+    public void registerPageBeans(FacesImplementation facesImpl)
     {
         for (PageDefinition v : pageMap.values())
         {
             String beanName  = v.getPageBeanName();
             String beanClass = v.getPageBeanClass().getName();
-            // check
-            if (bm.getRegisteredBeans().containsKey(beanName))
-            {
-                throw new ItemExistsException(beanName);
-            }
+            // log
             log.info("Registering managed bean '{}' of class '{}' for page '{}'.", new Object[] { beanName, beanClass, v.getPath() });
-            /*
-            ManagedBeanInfo(String name,
-                            String className,
-                            String beanScope,
-                            ManagedBeanInfo.MapEntry mapEntry,
-                            ManagedBeanInfo.ListEntry listEntry,
-                            List<ManagedBeanInfo.ManagedProperty> managedProperties,
-                            Map<String,String> descriptions) {
-            */
-            ManagedBeanInfo mbi = new ManagedBeanInfo(beanName, beanClass, "view", null, null, null, null);
-            bm.register(mbi);
+            // register
+            facesImpl.registerManagedBean(beanName, beanClass, "view");
         }
     }
     

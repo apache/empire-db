@@ -27,6 +27,9 @@
 <f:view locale="#{sampleUser.locale}" />
 <ui:param name="webRoot" value=".." />
 
+<f:metadata>
+	<ui:insert name="metadata" />
+</f:metadata>
 
 <h:head>
 
@@ -53,10 +56,6 @@
 </h:head>
 <h:body>
 	<f:view>
-
-		<f:metadata>
-			<ui:insert name="metadata" />
-		</f:metadata>
 
 		<!-- header -->
 		<ui:include src="header.xhtml" />

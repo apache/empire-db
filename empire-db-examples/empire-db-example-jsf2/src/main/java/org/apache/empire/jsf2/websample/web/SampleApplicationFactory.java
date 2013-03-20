@@ -18,52 +18,16 @@
  */
 package org.apache.empire.jsf2.websample.web;
 
-import java.util.Map;
+import org.apache.empire.jsf2.app.FacesApplicationFactory;
 
-import javax.faces.application.Application;
-import javax.faces.application.ApplicationFactory;
-import javax.faces.context.FacesContext;
-
-import org.apache.empire.exceptions.InvalidArgumentException;
-import org.apache.empire.exceptions.ItemExistsException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.sun.faces.application.InjectionApplicationFactory;
-
-public class SampleApplicationFactory extends ApplicationFactory
+/**
+ * The Application factory for this application
+ * @author doebele
+ */
+public class SampleApplicationFactory extends FacesApplicationFactory
 {
-    private static final Logger  log = LoggerFactory.getLogger(SampleApplicationFactory.class);
-    private volatile Application application;
-
     public SampleApplicationFactory()
     {
-        log.info("SampleApplicationFactory created");
+    	super(SampleApplication.class);
     }
-
-    @Override
-    public Application getApplication()
-    {
-        if (application == null)
-        { // Create Application
-            application = new SampleApplication();
-            // InjectionApplicationFactory.setApplicationInstance(application);
-            Map<String, Object> appMap = FacesContext.getCurrentInstance().getExternalContext().getApplicationMap();
-            appMap.put(InjectionApplicationFactory.class.getName(), application);
-            // log
-            log.info("Fin2Application Application instance created");
-        }
-        return application;
-    }
-
-    @Override
-    public void setApplication(Application application)
-    {
-        if (this.application != null)
-            throw new ItemExistsException(this.application);
-        if (!(application instanceof SampleApplication))
-            throw new InvalidArgumentException("application", application);
-        this.application = application;
-    }
-
 }

@@ -38,11 +38,19 @@
 			<artifactId>empire-db</artifactId>
 		</dependency>
 
-		<!-- java server faces -->
+		<dependency>
+			<groupId>org.apache.empire-db</groupId>
+			<artifactId>empire-db-jsf2</artifactId>
+		</dependency>
+
 		<dependency>
 			<groupId>javax.servlet</groupId>
 			<artifactId>servlet-api</artifactId>
+			<scope>provided</scope>
 		</dependency>
+
+		<!-- Sun Mojarra -->
+		<!-- 		
 		<dependency>
 			<groupId>com.sun.faces</groupId>
 			<artifactId>jsf-api</artifactId>
@@ -51,12 +59,18 @@
 			<groupId>com.sun.faces</groupId>
 			<artifactId>jsf-impl</artifactId>
 		</dependency>
+		 -->
+
+		<!-- Apache MyFaces -->
 		<dependency>
-			<groupId>org.apache.empire-db</groupId>
-			<artifactId>empire-db-jsf2</artifactId>
+			<groupId>org.apache.myfaces.core</groupId>
+			<artifactId>myfaces-api</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.myfaces.core</groupId>
+			<artifactId>myfaces-impl</artifactId>
 		</dependency>
 
-		<!-- myfaces -->
 		<dependency>
 			<groupId>org.apache.tomcat</groupId>
 			<artifactId>el-api</artifactId>

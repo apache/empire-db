@@ -18,22 +18,14 @@
  */
 package org.apache.empire.jsf2.custom.controls;
 
-import java.io.IOException;
 import java.util.List;
 
 import javax.faces.component.UIComponent;
 import javax.faces.component.html.HtmlInputText;
 import javax.faces.context.FacesContext;
-import javax.faces.context.ResponseWriter;
-import javax.faces.convert.ConverterException;
 
 import org.apache.empire.exceptions.InternalException;
 import org.apache.empire.jsf2.controls.InputControl;
-
-import com.sun.faces.renderkit.Attribute;
-import com.sun.faces.renderkit.AttributeManager;
-import com.sun.faces.renderkit.RenderKitUtils;
-import com.sun.faces.renderkit.html_basic.TextRenderer;
 
 public class FileInputControl extends InputControl
 {
@@ -87,6 +79,7 @@ public class FileInputControl extends InputControl
         }
     }
 
+    /*
     public class FileInputRenderer extends TextRenderer
     {
 
@@ -149,5 +142,6 @@ public class FileInputControl extends InputControl
         }
 
     }
+    */
 
 }

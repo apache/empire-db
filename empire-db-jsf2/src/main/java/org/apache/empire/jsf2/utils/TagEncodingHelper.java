@@ -24,6 +24,7 @@ import java.util.Iterator;
 import java.util.Locale;
 
 import javax.el.ValueExpression;
+import javax.faces.FacesWrapper;
 import javax.faces.application.FacesMessage;
 import javax.faces.component.NamingContainer;
 import javax.faces.component.UIComponent;
@@ -70,10 +71,6 @@ import org.apache.empire.jsf2.controls.SelectInputControl;
 import org.apache.empire.jsf2.controls.TextInputControl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.sun.faces.component.CompositeComponentStackManager;
-import com.sun.faces.facelets.el.ContextualCompositeValueExpression;
-import com.sun.faces.facelets.el.TagValueExpression;
 
 public class TagEncodingHelper implements NamingContainer
 {
@@ -917,17 +914,13 @@ public class TagEncodingHelper implements NamingContainer
         while (expr.startsWith(CC_ATTR_EXPR))
         {
             // Unwrap
-            if (ve instanceof TagValueExpression)
-                ve = ((TagValueExpression)ve).getWrapped();
+            if (ve instanceof FacesWrapper<?>)
+                ve = ((FacesWrapper<ValueExpression>)ve).getWrapped();
             // find parent
-            if (ve instanceof ContextualCompositeValueExpression)
-            {
-                FacesContext ctx = FacesContext.getCurrentInstance();
-                ContextualCompositeValueExpression ccve = (ContextualCompositeValueExpression)ve;
-                CompositeComponentStackManager manager = CompositeComponentStackManager.getManager(ctx);
-                UIComponent cc = manager.findCompositeComponentUsingLocation(ctx, ccve.getLocation());
-                // set Parent
-                parent = cc;
+            UIComponent valueParent = FacesUtils.getFacesApplication().getFacesImplemenation().getValueParentComponent(ve);
+            if (valueParent!=null)
+            {	// use the value parent
+            	parent = valueParent;
             }
             else
             {   // find parent

@@ -306,7 +306,7 @@
 			    <artifactId>javassist</artifactId>
 			    <version>3.8.0.GA</version>
 			</dependency>
-			<!-- jsf2 -->			
+			<!-- Sun Mojarra -->			
 			<dependency>
 				<groupId>com.sun.faces</groupId>
 				<artifactId>jsf-api</artifactId>
@@ -316,6 +316,17 @@
 				<groupId>com.sun.faces</groupId>
 				<artifactId>jsf-impl</artifactId>
 				<version>2.1.6</version>
+			</dependency>
+			<!-- Apache MyFaces -->
+			<dependency>
+				<groupId>org.apache.myfaces.core</groupId>
+				<artifactId>myfaces-api</artifactId>
+				<version>2.1.10</version>
+			</dependency>
+			<dependency>
+				<groupId>org.apache.myfaces.core</groupId>
+				<artifactId>myfaces-impl</artifactId>
+				<version>2.1.10</version>
 			</dependency>
 	        <!-- Misc -->
 			<dependency>

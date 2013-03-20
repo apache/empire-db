@@ -44,9 +44,6 @@ import org.apache.empire.jsf2.websample.web.pages.SamplePages;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sun.faces.application.ApplicationAssociate;
-import com.sun.faces.mgbean.BeanManager;
-
 public class SampleApplication extends FacesApplication {
 	// Logger
 	private static final Logger log = LoggerFactory
@@ -186,8 +183,8 @@ public class SampleApplication extends FacesApplication {
 	}
 
 	private void initPages(ServletContext sc) {
-		BeanManager bm = ApplicationAssociate.getInstance(sc).getBeanManager();
-		new SamplePages().registerPageBeans(bm);
+		// register Page Beans
+		new SamplePages().registerPageBeans(this.getFacesImplemenation());
 	}
 
 	public SampleDB getDatabase() {
