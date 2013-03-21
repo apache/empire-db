@@ -24,7 +24,6 @@ import java.sql.Connection;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.el.ELContext;
 import javax.faces.FactoryFinder;
 import javax.faces.application.Application;
 import javax.faces.application.ApplicationFactory;
@@ -198,11 +197,12 @@ public class FacesUtils
         {
             throw new NullPointerException("name must not be null");
         }
-
+        /*
         final ELContext elcontext = fc.getELContext();
         final Application application = fc.getApplication();
-
         return application.getELResolver().getValue(elcontext, null, name);
+        */
+        return getFacesApplication().getFacesImplementation().getManagedBean(name, fc);
     }
     
     public static <T> T getManagedBean(final FacesContext fc, final Class<T> cls)

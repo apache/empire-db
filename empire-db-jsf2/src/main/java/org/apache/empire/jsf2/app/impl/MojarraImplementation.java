@@ -1,3 +1,21 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *  http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
 package org.apache.empire.jsf2.app.impl;
 
 import java.util.Map;
@@ -20,9 +38,10 @@ import com.sun.faces.mgbean.ManagedBeanInfo;
 
 public class MojarraImplementation implements FacesImplementation 
 {
+	private BeanManager bm;
 
 	@Override
-	public void initApplication(FacesApplication application)
+	public void initApplication(final FacesApplication application)
 	{
 		ApplicationFactoryImpl applFactoryImpl = new ApplicationFactoryImpl();
         // set impl
@@ -30,13 +49,14 @@ public class MojarraImplementation implements FacesImplementation
         // Application Map 
         Map<String, Object> appMap = FacesContext.getCurrentInstance().getExternalContext().getApplicationMap();
         appMap.put(InjectionApplicationFactory.class.getName(), application);
+        // init Bean Manager
+		FacesContext fc = FacesContext.getCurrentInstance();
+		bm = ApplicationAssociate.getInstance(fc.getExternalContext()).getBeanManager();
 	}
 
 	@Override
-	public void registerManagedBean(String beanName, String beanClass, String scope) 
+	public void registerManagedBean(final String beanName,final String beanClass,final String scope) 
 	{
-		FacesContext fc = FacesContext.getCurrentInstance();
-		BeanManager  bm = ApplicationAssociate.getInstance(fc.getExternalContext()).getBeanManager();
 		// check
         if (bm.getRegisteredBeans().containsKey(beanName))
         {
@@ -48,7 +68,17 @@ public class MojarraImplementation implements FacesImplementation
 	}
 
 	@Override
-	public UIComponent getValueParentComponent(ValueExpression ve) 
+	public Object getManagedBean(final String beanName, final FacesContext fc)
+	{
+		// Find Bean
+		Object mbean = bm.getBeanFromScope(beanName, fc);
+		if (mbean==null)
+			mbean= bm.create(beanName, fc);
+        return mbean;
+	}
+	
+	@Override
+	public UIComponent getValueParentComponent(final ValueExpression ve) 
 	{
         if (ve instanceof ContextualCompositeValueExpression)
         {
