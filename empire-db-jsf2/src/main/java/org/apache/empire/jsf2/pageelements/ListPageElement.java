@@ -423,10 +423,9 @@ public abstract class ListPageElement<T> extends PageElement
         return this.items;
     }
 
-    // DS only valid if there are items in the list
     public final boolean isValid()
     {
-        return (this.items == null) ? false : this.items.size() > 0;
+        return (this.items != null); //  ? false : this.items.size() > 0
     }
 
     public final boolean isEmpty()
