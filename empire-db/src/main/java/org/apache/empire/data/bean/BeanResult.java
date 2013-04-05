@@ -86,7 +86,7 @@ public class BeanResult<T> extends ArrayList<T>
             String property = col.getBeanPropertyName();
             if (!isPropertyAcessible(methods, property)) {
                 // Property not found
-                log.info("Unable to access the property {} on {}. Column will be ignored.", property, clazz.getName());
+                log.debug("Unable to access the property {} on {}. Column will be ignored.", property, clazz.getName());
                 continue;
             }
             // Select
