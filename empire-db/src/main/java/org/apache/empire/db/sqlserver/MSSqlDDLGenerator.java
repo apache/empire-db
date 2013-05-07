@@ -49,7 +49,7 @@ public class MSSqlDDLGenerator extends DBDDLGenerator<DBDatabaseDriverMSSQL>
         DATATYPE_TIMESTAMP  = "DATETIME";
         DATATYPE_CLOB       = "NTEXT";
         DATATYPE_BLOB       = "IMAGE";
-        DATATYPE_UNIQUEID   = "UNIQUEID";  // Globally Unique Identifier
+        DATATYPE_UNIQUEID   = "UNIQUEIDENTIFIER";  // Globally Unique Identifier
     }
 
     @Override
