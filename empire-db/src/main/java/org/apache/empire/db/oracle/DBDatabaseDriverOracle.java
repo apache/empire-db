@@ -31,8 +31,10 @@ import org.apache.empire.db.DBDDLGenerator;
 import org.apache.empire.db.DBDatabase;
 import org.apache.empire.db.DBDatabaseDriver;
 import org.apache.empire.db.DBDriverFeature;
+import org.apache.empire.db.DBExpr;
 import org.apache.empire.db.DBObject;
 import org.apache.empire.db.DBReader;
+import org.apache.empire.db.DBRelation;
 import org.apache.empire.db.DBSQLScript;
 import org.apache.empire.db.DBTable;
 import org.apache.empire.db.DBView;
@@ -354,6 +356,23 @@ public class DBDatabaseDriverOracle extends DBDatabaseDriver
             ddlGenerator = new OracleDDLGenerator(this);
         // forward request
         ddlGenerator.getDDLScript(type, dbo, script); 
+    }
+
+    /**
+     * @see DBDatabaseDriver#addEnableRelationStmt(DBRelation, boolean, DBSQLScript)  
+     */
+    @Override
+    public void addEnableRelationStmt(DBRelation r, boolean enable, DBSQLScript script)
+    {
+        // ALTER TABLE {table.name} {ENABLE|DISABLE} CONSTRAINT {relation.name}
+        StringBuilder b = new StringBuilder();
+        b.append("ALTER TABLE ");
+        r.getForeignKeyTable().addSQL(b, DBExpr.CTX_FULLNAME);
+        b.append(enable ? " ENABLE " : " DISABLE ");
+        b.append("CONSTRAINT ");
+        b.append(r.getName());
+        // add
+        script.addStmt(b);
     }
     
     /**

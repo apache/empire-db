@@ -20,6 +20,9 @@ package org.apache.empire.db;
 
 import java.io.Serializable;
 
+import org.apache.empire.exceptions.InvalidArgumentException;
+import org.apache.empire.exceptions.UnexpectedReturnValueException;
+
 /**
  * This class creates a DBReferene object for a foreing key relation.
  * 
@@ -210,6 +213,32 @@ public class DBRelation extends DBObject
     public void onDeleteCascadeRecords()
     {
         setOnDeleteAction(DBCascadeAction.CASCADE_RECORDS);
+    }
+    
+    /**
+     * Appends the required DLL command to enable or disable a foreign key constraint to the supplied DBDQLScript.
+     * @param enable true if the constraint should be enabled or false to disable the constraint
+     * @param the driver for which to enable or disable the relation
+     */
+    public String getEnableDisableStmt(boolean enable, DBDatabaseDriver driver)
+    {
+        if (driver==null)
+            throw new InvalidArgumentException("driver", driver);
+        // get Statement
+        DBSQLScript script = new DBSQLScript();
+        driver.addEnableRelationStmt(this, enable, script);
+        if (script.getCount()!=1)
+            throw new UnexpectedReturnValueException(script.getCount(), "driver.addEnableRelationStatement");
+        return script.getStmt(0);
+    }
+
+    /**
+     * Appends the required DLL command to enable or disable a foreign key constraint to the supplied DBDQLScript.
+     * @param enable true if the constraint should be enabled or false to disable the constraint
+     */
+    public final String getEnableDisableStatement(boolean enable)
+    {
+        return getEnableDisableStmt(enable, getDatabase().getDriver());
     }
     
     @Override

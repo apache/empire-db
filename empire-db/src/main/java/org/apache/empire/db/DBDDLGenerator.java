@@ -202,7 +202,12 @@ public abstract class DBDDLGenerator<T extends DBDatabaseDriver>
             sql.append(" NOT NULL");
     }
     
-    // GetDDL
+    /**
+     * Appends the required DLL commands to create, drop or alter an object to the supplied DBDQLScript.
+     * @param type operation to perform (CREATE, DROP, ALTER)
+     * @param dbo the object for which to perform the operation (DBDatabase, DBTable, DBView, DBColumn, DBRelation) 
+     * @param script the script to which to add the DDL command(s)
+     */
     public void getDDLScript(DBCmdType type, DBObject dbo, DBSQLScript script)
     {
         // The Object's database must be attached to this driver
@@ -231,7 +236,7 @@ public abstract class DBDDLGenerator<T extends DBDatabaseDriver>
                     createTable((DBTable) dbo, script);
                     return;
                 case DROP:
-                    dropObject(((DBTable) dbo).getName(), "TABLE", script);
+                    dropObject(((DBTable) dbo).getFullName(), "TABLE", script);
                     return;
                 default:
                     throw new NotImplementedException(this, "getDDLScript." + dbo.getClass().getName() + "." + type);
@@ -245,10 +250,10 @@ public abstract class DBDDLGenerator<T extends DBDatabaseDriver>
                     createView((DBView) dbo, script);
                     return;
                 case DROP:
-                    dropObject(((DBView) dbo).getName(), "VIEW", script);
+                    dropObject(((DBView) dbo).getFullName(), "VIEW", script);
                     return;
                 case ALTER:
-                    dropObject(((DBView) dbo).getName(), "VIEW", script);
+                    dropObject(((DBView) dbo).getFullName(), "VIEW", script);
                     createView((DBView) dbo, script);
                     return;
                 default:
@@ -263,7 +268,7 @@ public abstract class DBDDLGenerator<T extends DBDatabaseDriver>
                     createRelation((DBRelation) dbo, script);
                     return;
                 case DROP:
-                    dropObject(((DBRelation) dbo).getName(), "CONSTRAINT", script);
+                    dropObject(((DBRelation) dbo).getFullName(), "CONSTRAINT", script);
                     return;
                 default:
                     throw new NotImplementedException(this, "getDDLScript." + dbo.getClass().getName() + "." + type);
@@ -277,7 +282,7 @@ public abstract class DBDDLGenerator<T extends DBDatabaseDriver>
                     createIndex(((DBIndex) dbo).getTable(), (DBIndex) dbo, script);
                     return;
                 case DROP:
-                    dropObject(((DBIndex) dbo).getName(), "INDEX", script);
+                    dropObject(((DBIndex) dbo).getFullName(), "INDEX", script);
                     return;
                 default:
                     throw new NotImplementedException(this, "getDDLScript." + dbo.getClass().getName() + "." + type);
@@ -293,7 +298,7 @@ public abstract class DBDDLGenerator<T extends DBDatabaseDriver>
             throw new NotSupportedException(this, "getDDLScript() for "+dbo.getClass().getName());
         }
     }
-
+        
     /**
      * Appends the DDL-Script for creating the given database to an SQL-Script<br/>
      * This includes the generation of all tables, views and relations.

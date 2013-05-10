@@ -831,15 +831,30 @@ public abstract class DBDatabaseDriver implements Serializable
     }
     
     /**
-     * Gets a SQL command for creating, modifying or deleting objects in the database (tables, columns, constraints, etc.)
-     * 
-     * @param type the command type 
-     * @param dbo the database object
-     * @param script the script to complete
+     * Appends the required DLL commands to create, drop or alter an object to the supplied DBDQLScript.
+     * @param type operation to perform (CREATE, DROP, ALTER)
+     * @param dbo the object for which to perform the operation (DBDatabase, DBTable, DBView, DBColumn, DBRelation) 
+     * @param script the script to which to add the DDL command(s)
      */
     public void getDDLScript(DBCmdType type, DBObject dbo, DBSQLScript script)
     {
         throw new NotImplementedException(this, "getDDLScript");
+    }
+    
+    /**
+     * Appends a statement to enable or disable a foreign key relation.<br/
+     * The default is to drop or create the relation 
+     * Override this method to provide different behavior for your database.
+     * @param r the foreign key relation which should be enabled or disabled
+     * @param enable true to enable the relation or false to disable
+     * @param script the script to which to add the DDL command(s)
+     */
+    public void addEnableRelationStmt(DBRelation r, boolean enable, DBSQLScript script)
+    {
+        if (enable)
+            getDDLScript(DBCmdType.CREATE, r, script);
+        else
+            getDDLScript(DBCmdType.DROP, r, script);
     }
     
     /**
