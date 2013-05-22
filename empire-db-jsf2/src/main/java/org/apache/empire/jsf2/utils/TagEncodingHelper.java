@@ -1120,11 +1120,6 @@ public class TagEncodingHelper implements NamingContainer
         FacesMessage msg = new FacesMessage(FacesMessage.SEVERITY_ERROR, msgText, msgText);
         context.addMessage(tag.getClientId(), msg);
     }
-    
-    public Object getTagAttributeValue(String name)
-    {
-        return tag.getAttributes().get(name);
-    }
 
     public Object getAttributeValueEx(String name)
     { 
@@ -1158,9 +1153,24 @@ public class TagEncodingHelper implements NamingContainer
         return value;
     }
     
+    public Object getTagAttributeValue(String name)
+    {
+        Object value = tag.getAttributes().get(name);
+        if (value==null)
+        {   // try value expression
+            ValueExpression ve = tag.getValueExpression(name);
+            if (ve!=null)
+            {   // It's a value expression
+                FacesContext ctx = FacesContext.getCurrentInstance();
+                value = ve.getValue(ctx.getELContext());
+            }
+        }
+        return value;
+    }
+    
     public String getTagAttributeString(String name, String defValue)
     {
-        Object  v = tag.getAttributes().get(name);
+        Object  v = getTagAttributeValue(name);
         return (v!=null) ? StringUtils.toString(v) : defValue;
     }
 

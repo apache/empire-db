@@ -19,7 +19,6 @@
 package org.apache.empire.jsf2.components;
 
 import java.io.IOException;
-import java.util.Map;
 
 import javax.faces.component.NamingContainer;
 import javax.faces.component.UIComponent;
@@ -29,11 +28,14 @@ import javax.faces.context.FacesContext;
 import javax.faces.context.ResponseWriter;
 
 import org.apache.empire.commons.StringUtils;
+import org.apache.empire.jsf2.utils.TagEncodingHelper;
 
 public class MenuListTag extends UIOutput implements NamingContainer
 {
     // Logger
     // private static final Logger log = LoggerFactory.getLogger(MenuTag.class);
+    
+    private final TagEncodingHelper helper = new TagEncodingHelper(this, "eMenuList");
     
     private String currentId = null; 
     private String currentClass = null; 
@@ -56,15 +58,14 @@ public class MenuListTag extends UIOutput implements NamingContainer
         // call base
         super.encodeBegin(context);
         
-        Map<String, Object> map = getAttributes();
-        initMenuAttributes(map);
+        initMenuAttributes();
 
         // render components
         ResponseWriter writer = context.getResponseWriter();
         writer.startElement("ul", this);
         // writeAttribute(writer, map, "id");
-        writeAttribute(writer, map, "styleClass", "class");
-        writeAttribute(writer, map, "style");
+        helper.writeAttribute(writer, "class", helper.getTagAttributeString("styleClass"));
+        helper.writeAttribute(writer, "style", helper.getTagAttributeString("style"));
     }
 
     /*
@@ -75,25 +76,33 @@ public class MenuListTag extends UIOutput implements NamingContainer
         return test;
     }
     */
+    
+    @Override
+    public void encodeChildren(FacesContext context)
+        throws IOException
+    {
+        super.encodeChildren(context);
+    }
 
     @Override
     public void encodeEnd(FacesContext context)
         throws IOException
     {
-        ResponseWriter writer = context.getResponseWriter();
-        writer.endElement("ul");
         // call base
         super.encodeEnd(context);
+        // close
+        ResponseWriter writer = context.getResponseWriter();
+        writer.endElement("ul");
     }
     
-    private void initMenuAttributes(Map<String, Object> map)
-    {
-        currentId = StringUtils.toString(map.get("currentId"));
-        currentClass = StringUtils.toString(map.get("currentClass")); 
-        // enabledClass = StringUtils.toString(map.get("enabledClass")); 
-        disabledClass = StringUtils.toString(map.get("disabledClass")); 
-        expandedClass = StringUtils.toString(map.get("expandedClass"));
-        defaultItemClass = StringUtils.toString(map.get("defaultItemClass"));
+    private void initMenuAttributes()
+    {        
+        currentId        = helper.getTagAttributeString("currentId"); 
+        currentClass     = helper.getTagAttributeString("currentClass"); 
+        // enabledClass  = StringUtils.toString(map.get("enabledClass")); 
+        disabledClass    = helper.getTagAttributeString("disabledClass"); 
+        expandedClass    = helper.getTagAttributeString("expandedClass");
+        defaultItemClass = helper.getTagAttributeString("defaultItemClass");
         
         MenuListTag parent = getParentMenu();
         if (parent==null)
@@ -171,7 +180,7 @@ public class MenuListTag extends UIOutput implements NamingContainer
         return defaultItemClass;
     }
 
-    /** setters wozu? **/
+    /* setters */
     
     public void setCurrentId(String currentId)
     {
@@ -198,19 +207,6 @@ public class MenuListTag extends UIOutput implements NamingContainer
     public void setExpandedClass(String expandedClass)
     {
         this.expandedClass = expandedClass;
-    }
-
-    protected void writeAttribute(ResponseWriter writer, Map<String, Object> map, String attribute, String targetName)
-        throws IOException
-    {
-        Object value = map.get(attribute);
-        if (value != null)
-            writer.writeAttribute(targetName, value, null);
-    }
-    protected void writeAttribute(ResponseWriter writer, Map<String, Object> map, String attribute)
-        throws IOException
-    {
-        writeAttribute(writer, map, attribute, attribute);
     }
 
 }

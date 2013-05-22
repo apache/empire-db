@@ -423,21 +423,46 @@ public abstract class ListPageElement<T> extends PageElement
         return this.items;
     }
 
+    /**
+     * returns whether the item list has been loaded 
+     * @return true if the item list has been loaded even it contains no items for false otherwise
+     */
     public final boolean isValid()
     {
-        return (this.items != null); //  ? false : this.items.size() > 0
+        return (this.items != null);
     }
 
+    /**
+     * returns true if the either the item list is not valid or if it contains no items 
+     * @return true if the either the item list is not valid or if it contains no items
+     */
     public final boolean isEmpty()
     {
         return (this.items==null || this.items.size()==0);
     }
 
+    /**
+     * returns whether the item list is valid and contains at least one item 
+     * @return true if the item list contains one or more items or false otherwise
+     */
     public final boolean isNotEmpty()
     {
         return (this.items!=null && this.items.size()>0);
     }
 
+    /**
+     * added as "isEmpty" is not accessible from EL.
+     * @return true if the either the item list is not valid or if it contains no items
+     */
+    public final boolean isBlank()
+    {
+        return isEmpty();
+    }
+
+    /**
+     * returns the total item count of the entire list (not just the visible part)
+     * @return the total number of items in the list
+     */
     public int getItemCount()
     {
         return getTableInfo().getItemCount();

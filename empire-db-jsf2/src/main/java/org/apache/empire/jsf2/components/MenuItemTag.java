@@ -115,7 +115,10 @@ public class MenuItemTag extends LinkTag
         if(!isRendered())
             return;
         // call base
-        super.encodeEnd(context);
+        if (isExpanded())
+        {
+            super.encodeEnd(context);
+        }
         // end of list item
         ResponseWriter writer = context.getResponseWriter();
         writer.endElement("li");
