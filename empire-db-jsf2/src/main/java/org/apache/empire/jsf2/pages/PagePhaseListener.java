@@ -81,7 +81,11 @@ public class PagePhaseListener implements PhaseListener
 
         // Get the view Id
         String viewId = vr.getViewId();
-        // boolean viewChanged = false;
+        if (viewId==null)
+        {   // Error: No viewId!
+            log.warn("No viewId provided for PagePhaseEvent in phase {}.", phaseId);
+            return;
+        }
         
         // Detect view change
         Map<String, Object> sessionMap = fc.getExternalContext().getSessionMap();
@@ -93,7 +97,6 @@ public class PagePhaseListener implements PhaseListener
                 return;
             // set view Id
             sessionMap.put(LAST_PAGE_VIEW_ID, viewId);
-            // viewChanged = true;
         }
 
         // Get Page Definition
@@ -127,42 +130,42 @@ public class PagePhaseListener implements PhaseListener
         }
         */
         
-        // Init Page
+        // Obtain PageBean from BeanManager
         String name = pageDef.getPageBeanName();
         Map<String, Object> viewMap = vr.getViewMap();
         Page pageBean = (Page) viewMap.get(name);
         if (pageBean == null)
-        {
-            String pageBeanClassName = pageDef.getPageBeanClass().getName();
+        {   // Not available yet
+            Class<? extends Page> pageClass = pageDef.getPageBeanClass();
             if (log.isDebugEnabled())
-                log.debug("Creating page bean {} for {} in Phase {}.", new Object[] { pageBeanClassName, viewId, pe.getPhaseId() });
-            try
-            {
-                pageBean = pageDef.getPageBeanClass().newInstance();
-                // List request parameters
-                /*
-                Map<String, String> map = fc.getExternalContext().getRequestParameterMap();
-                for (String key : map.keySet())
-                {
-                    StringBuilder param = new StringBuilder();
-                    param.append("Parameter: ");
-                    param.append(key);
-                    param.append(" = ");
-                    param.append(map.get(key));
-                    log.debug(param.toString());
+                log.debug("Creating page bean {} for {} in Phase {}.", new Object[] { pageClass.getName(), viewId, pe.getPhaseId() });
+            // Use Bean Manager
+            pageBean = (Page)FacesUtils.getManagedBean(fc, name);
+            if (pageBean==null)
+            {   // Create Instance ourselves
+                log.warn("Unable to obtain page bean '{}' from BeanManager. Page bean probably not registered. Creating new instance but Injection might not work! ", name);
+                try
+                {   // Create Instance
+                    pageBean = pageClass.newInstance();
+                    viewMap.put(name, pageBean);
                 }
-                */
+                catch (Exception e)
+                {
+                    log.error("Error creating instance of page bean " + pageClass.getName(), e);
+                    throw new InternalException(e);
+                }
             }
-            catch (Exception e)
-            {
-                log.error("Error creating instance of page bean " + pageBeanClassName, e);
-                throw new InternalException(e);
+            else if (!pageClass.isInstance(pageBean))
+            {   // Wrong class
+                log.warn("Page bean '"+name+"' is not an instance of class {} as expected. Detected class is {}", pageClass.getName(), pageBean.getClass().getName());
             }
-            viewMap.put(pageDef.getPageBeanName(), pageBean);
+            // Add 'page' to map 
             viewMap.put("page", pageBean);
         }
+        // set definition
         pageBean.setPageDefinition(pageDef);
 
+        // Init PageBean
         if (pe.getPhaseId() == PhaseId.RENDER_RESPONSE)
             initPageBean(pageBean, fc, viewMap);
 
