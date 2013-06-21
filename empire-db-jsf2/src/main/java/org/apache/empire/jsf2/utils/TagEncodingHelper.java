@@ -864,7 +864,7 @@ public class TagEncodingHelper implements NamingContainer
         }
         else
         {   // not supplied
-            if (!(tag instanceof ControlTag) && !((ControlTag)tag).isCustomInput())
+            if ((tag instanceof ControlTag) && !((ControlTag)tag).isCustomInput())
                 log.warn("No record supplied for {} and column {}.", tag.getClass().getSimpleName(), getColumnName());
         }
         return rec;

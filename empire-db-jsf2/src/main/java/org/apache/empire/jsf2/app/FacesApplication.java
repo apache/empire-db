@@ -291,7 +291,7 @@ public abstract class FacesApplication extends Application
             }
             if (component == null)
             {
-                findChildComponent(nextChild, componentId);
+                component = findChildComponent(nextChild, componentId);
             }
             if (component != null)
             {
