@@ -19,7 +19,6 @@
 package org.apache.empire.jsf2.components;
 
 import java.io.IOException;
-import java.util.Map;
 
 import javax.faces.component.UIOutput;
 import javax.faces.context.FacesContext;
@@ -75,11 +74,11 @@ public class ValueTag extends UIOutput // implements NamingContainer
     protected String writeStartElement(InputControl.ValueInfo vi, ResponseWriter writer)
         throws IOException
     {
-        Map<String, Object> map = getAttributes();
-        String tag   = StringUtils.toString(map.get("tag"));
-        String title = StringUtils.toString(map.get("title"));
+        // Map<String, Object> map = getAttributes();
+        String tag   = helper.getTagAttributeString("tag");
+        Object title = helper.getTagAttributeValue("title");
         // Check
-        if (tag == null && title == null && !map.containsKey("styleClass"))
+        if (tag == null && title == null && helper.getTagAttributeValue("styleClass")==null)
             return null;
         // Write tag
         if (StringUtils.isEmpty(tag))
@@ -99,7 +98,7 @@ public class ValueTag extends UIOutput // implements NamingContainer
         }
         // render attributes
         helper.writeAttribute(writer, "class", helper.getTagStyleClass(dataType, addlStyle));
-        helper.writeAttribute(writer, "style", map.get("style"));
+        helper.writeAttribute(writer, "style", helper.getTagAttributeString("style"));
         helper.writeAttribute(writer, "title", helper.getValueTooltip(title));
         return tag;
     }

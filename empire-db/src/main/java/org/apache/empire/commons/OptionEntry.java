@@ -52,8 +52,14 @@ public class OptionEntry implements Serializable
      */
     public String getValueString()
     {
-        // Convenience Function
-        return (value != null ? String.valueOf(value) : "");
+        // check null
+        if (value==null)
+            return "";
+        // check enum
+        if (value.getClass().isEnum())
+            return ((Enum<?>)value).name();
+        // convert
+        return String.valueOf(value);
     }
     
     public String getText()
