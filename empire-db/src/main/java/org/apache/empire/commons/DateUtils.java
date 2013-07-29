@@ -218,24 +218,4 @@ public class DateUtils
         c.setTime(d);
         return sdf.format(d);
     }
-    
-    
-	/**
-	 * returns a date relative from the current date.
-	 * <P>
-	 * @param withTime true if the current time should be added or false if only the date is desired.
-	 * @return the target date
-	 */
-	private static Date getDateTimeFromNow(boolean withTime)
-	{
-	    Calendar calendar = Calendar.getInstance();
-	    if (withTime==false)
-	    {
-	        calendar.set(Calendar.HOUR_OF_DAY, 0);
-	        calendar.set(Calendar.MINUTE, 0);
-	        calendar.set(Calendar.SECOND, 0);
-	        calendar.set(Calendar.MILLISECOND, 0);
-	    }
-	    return calendar.getTime();
-	}
 }
