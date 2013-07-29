@@ -34,43 +34,12 @@ import org.slf4j.LoggerFactory;
  */
 public class DateUtils
 {
-    // Logger
     private static final Logger log = LoggerFactory.getLogger(DateUtils.class);
     
     private DateUtils()
     {
         // Static Function only
         // No instance may be created
-    }
-        
-    /**
-     * returns a date relative from the current date.
-     * <P>
-     * @param withTime true if the current time should be added or false if only the date is desired.
-     * @param years number of years to add or subtract from the current date
-     * @param months number of months to add or subtract from the current date
-     * @param days number of days to add or subtract from the current date
-     * @return the target date
-     */
-    public static Date getDateTimeFromNow(boolean withTime, int years, int months, int days)
-    {
-        Calendar calendar = Calendar.getInstance();
-        if (withTime==false)
-        {
-            calendar.set(Calendar.HOUR_OF_DAY, 0);
-            calendar.set(Calendar.MINUTE, 0);
-            calendar.set(Calendar.SECOND, 0);
-            calendar.set(Calendar.MILLISECOND, 0);
-        }
-        // Roll
-        if (years!=0)
-            calendar.add(Calendar.YEAR, years);
-        if (months!=0)
-            calendar.add(Calendar.MONTH, months);
-        if (days!=0)
-            calendar.add(Calendar.DAY_OF_MONTH, days);
-        // get Time
-        return calendar.getTime();
     }
 
     /**
@@ -79,7 +48,12 @@ public class DateUtils
      */
     public static Date getDateNow()
     {
-        return getDateTimeFromNow(false, 0, 0, 0);
+    	Calendar calendar = Calendar.getInstance();
+	    calendar.set(Calendar.HOUR_OF_DAY, 0);
+	    calendar.set(Calendar.MINUTE, 0);
+	    calendar.set(Calendar.SECOND, 0);
+	    calendar.set(Calendar.MILLISECOND, 0);
+	    return calendar.getTime();
     }
 
     /**
@@ -88,7 +62,7 @@ public class DateUtils
      */
     public static Date getTimeNow()
     {
-        return getDateTimeFromNow(true, 0, 0, 0);
+        return Calendar.getInstance().getTime();
     }
 
     /**
@@ -244,4 +218,24 @@ public class DateUtils
         c.setTime(d);
         return sdf.format(d);
     }
+    
+    
+	/**
+	 * returns a date relative from the current date.
+	 * <P>
+	 * @param withTime true if the current time should be added or false if only the date is desired.
+	 * @return the target date
+	 */
+	private static Date getDateTimeFromNow(boolean withTime)
+	{
+	    Calendar calendar = Calendar.getInstance();
+	    if (withTime==false)
+	    {
+	        calendar.set(Calendar.HOUR_OF_DAY, 0);
+	        calendar.set(Calendar.MINUTE, 0);
+	        calendar.set(Calendar.SECOND, 0);
+	        calendar.set(Calendar.MILLISECOND, 0);
+	    }
+	    return calendar.getTime();
+	}
 }

@@ -33,26 +33,6 @@ import org.junit.Test;
  */
 public class DateUtilsTest
 {
-	
-	/**
-	 * Test method for {@link org.apache.empire.commons.DateUtils#getDateTimeFromNow(boolean, int, int, int)}.
-	 */
-	@Test
-	public void testGetDateTimeFromNow()
-	{
-		Calendar now = Calendar.getInstance();
-		Date date = DateUtils.getDateTimeFromNow(false, 1, 2, 3);
-		Calendar future = Calendar.getInstance();
-		future.setTime(date);
-		future.add(Calendar.YEAR, -1);
-		future.add(Calendar.MONTH, -2);
-		future.add(Calendar.DAY_OF_MONTH, -3);
-
-		// this might fail when running exacly over midnight...
-		assertEquals(now.get(Calendar.YEAR), future.get(Calendar.YEAR));
-		assertEquals(now.get(Calendar.MONTH), future.get(Calendar.MONTH));
-		assertEquals(now.get(Calendar.DAY_OF_MONTH), future.get(Calendar.DAY_OF_MONTH));
-	}
 
 	/**
 	 * Test method for {@link org.apache.empire.commons.DateUtils#getDateNow()}.
