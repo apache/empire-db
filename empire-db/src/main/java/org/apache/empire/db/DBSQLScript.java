@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 
 import org.apache.empire.db.exceptions.EmpireSQLException;
+import org.apache.empire.exceptions.InvalidArgumentException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -92,7 +93,26 @@ public class DBSQLScript implements Iterable<String>
      */
     public String getStmt(int i)
     {
+        if (i<0 || i>=sqlCmdList.size())
+            throw new InvalidArgumentException("index", i);
+        // return statement
         return sqlCmdList.get(i);
+    }
+    
+    /**
+     * Replaces an entry in the list
+     * @param i index of the statement to replace
+     * @param stmt the new statement for this index, or NULL to remove the statement
+     */
+    public void setStmt(int i, String stmt)
+    {
+        if (i<0 || i>=sqlCmdList.size())
+            throw new InvalidArgumentException("index", i);
+        // replace or remove statement
+        if (stmt==null)
+            sqlCmdList.remove(i);
+        else
+            sqlCmdList.set(i, stmt);
     }
     
     /**
