@@ -69,8 +69,8 @@ public class ObjectUtilsTest
 		assertTrue(ObjectUtils.compareEqual("abc", String.valueOf("abc")));
 		assertTrue(ObjectUtils.compareEqual("abc", new String("abc")));
 
-		assertFalse(ObjectUtils.compareEqual("", null));
-		assertFalse(ObjectUtils.compareEqual(null, ""));
+		assertTrue(ObjectUtils.compareEqual("", null));
+		assertTrue(ObjectUtils.compareEqual(null, ""));
 		assertFalse(ObjectUtils.compareEqual("", " "));
 		
 		assertTrue(ObjectUtils.compareEqual(Long.valueOf(100), Integer.valueOf(100)));
