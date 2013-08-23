@@ -100,6 +100,9 @@ public final class ObjectUtils
     @SuppressWarnings("unchecked")
     public static boolean compareEqual(Object o1, Object o2)
     {
+    	// simple case
+    	if (o1==o2)
+    		return true;
         // Check for Empty Values
         if (isEmpty(o1))
             return isEmpty(o2);
