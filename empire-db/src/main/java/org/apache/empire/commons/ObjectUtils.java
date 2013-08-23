@@ -39,7 +39,7 @@ import org.slf4j.LoggerFactory;
 public final class ObjectUtils
 {
     /**
-     * This class eplicitly defines that an Object has not been assined a value.<BR>
+     * This class explicitly defines that an Object has not been assigned a value.<BR>
      * This may be used in cases where the value of null may be a valid value.
      */
     private static final class NoValue implements Serializable
@@ -100,9 +100,11 @@ public final class ObjectUtils
     @SuppressWarnings("unchecked")
     public static boolean compareEqual(Object o1, Object o2)
     {
-        // Check for Null Values
-        if (o1==null || o2==null)
-            return (o1==o2);
+        // Check for Empty Values
+        if (isEmpty(o1))
+            return isEmpty(o2);
+        if (isEmpty(o2))
+            return isEmpty(o1);
         // Check classes
         if (o1.getClass().equals(o2.getClass()))
         {   // Check if object implements comparable
@@ -115,14 +117,14 @@ public final class ObjectUtils
         // Use equal check first
         if (o1.equals(o2) || o2.equals(o1))
             return true;
-        // Check Numbers
+        // Compare Numbers
         if (o1 instanceof Number && o2 instanceof Number)
         {   // boolean test = obj1.equals(obj2);
             double d1 = ((Number)o1).doubleValue();
             double d2 = ((Number)o2).doubleValue(); 
             return (d1==d2);
         }
-        // Check Strings
+        // Compare Strings
         return o1.toString().equals(o2.toString());
     }
     
@@ -145,7 +147,7 @@ public final class ObjectUtils
      */
     public static int toInteger(Object v)
     {
-        if (v==null)
+        if (ObjectUtils.isEmpty(v))
             return 0;
         if (v instanceof Number)
             return ((Number)v).intValue();
@@ -197,7 +199,7 @@ public final class ObjectUtils
      */
     public static long toLong(Object v)
     {
-        if (v==null)
+        if (ObjectUtils.isEmpty(v))
             return 0;
         if (v instanceof Number)
             return ((Number)v).longValue();
@@ -250,7 +252,7 @@ public final class ObjectUtils
     public static double toDouble(Object v)
     {
         // Get Double value
-        if (v==null)
+        if (ObjectUtils.isEmpty(v))
             return 0.0;
         if (v instanceof Number)
             return ((Number)v).doubleValue();
@@ -302,7 +304,7 @@ public final class ObjectUtils
     public static BigDecimal toDecimal(Object v)
     {
         // Get Double value
-        if (v==null)
+        if (ObjectUtils.isEmpty(v))
             return null;
         if (v instanceof BigDecimal)
             return ((BigDecimal)v);
@@ -454,7 +456,7 @@ public final class ObjectUtils
      */
     public static String formatDate(Date date, boolean withTime)
     {
-    	if(withTime)
+    	if (withTime)
     		return new SimpleDateFormat(DATETIME_FORMAT).format(date);
     	else
     		return new SimpleDateFormat(DATE_FORMAT).format(date);
