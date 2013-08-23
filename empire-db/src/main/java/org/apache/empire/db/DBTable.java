@@ -27,6 +27,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.empire.data.DataMode;
 import org.apache.empire.data.DataType;
+import org.apache.empire.db.DBRelation.DBCascadeAction;
 import org.apache.empire.db.exceptions.NoPrimaryKeyException;
 import org.apache.empire.db.exceptions.RecordDeleteFailedException;
 import org.apache.empire.db.exceptions.RecordUpdateInvalidException;
@@ -50,13 +51,14 @@ public class DBTable extends DBRowSet implements Cloneable
     public static final int MEDIUMINT = 4;
     public static final int BIGINT    = 8;
 
-    private final static long serialVersionUID = 1L;
-    private static AtomicInteger tableCount  = new AtomicInteger(0);
-    private final String   name;
-    private String         alias;
-    private List<DBIndex>  indexes       = new ArrayList<DBIndex>();
-    private boolean        cascadeDelete = false;
-    private Boolean        quoteName     = null;
+    private final static long    serialVersionUID    = 1L;
+    private static AtomicInteger tableCount          = new AtomicInteger(0);
+
+    private final String         name;
+    private String               alias;
+    private final List<DBIndex>  indexes             = new ArrayList<DBIndex>();
+    private Boolean              quoteName           = null;
+    private DBCascadeAction      cascadeDeleteAction = DBCascadeAction.NONE;
     
 
     /**
@@ -286,7 +288,7 @@ public class DBTable extends DBRowSet implements Cloneable
      * 
      * @param columns a array with one or more DBColumn objects
      */
-    public void setPrimaryKey(DBColumn[] columns)
+    public void setPrimaryKey(DBColumn... columns)
     {
         if (columns==null || columns.length==0)
             throw new InvalidArgumentException("columns", columns);
@@ -298,39 +300,6 @@ public class DBTable extends DBRowSet implements Cloneable
         primaryKey = new DBIndex(name + "_PK", DBIndex.PRIMARYKEY, columns);
         indexes.add(primaryKey);
         primaryKey.setTable(this);
-    }
-
-    /**
-     * Sets the primary key to a single column.
-     * 
-     * @param column the primary key column
-     */
-    public final void setPrimaryKey(DBColumn column)
-    {
-        setPrimaryKey(new DBColumn[] { column });
-    }
-
-    /**
-     * Adds two columns to the primary key list.
-     * 
-     * @param col1 the first column 
-     * @param col2 the second column
-     */
-    public final void setPrimaryKey(DBColumn col1, DBColumn col2)
-    {
-        setPrimaryKey(new DBColumn[] { col1, col2 });
-    }
-
-    /**
-     * Adds three columns to the primary key list.
-     * 
-     * @param col1 the first column
-     * @param col2 the second column
-     * @param col3 the third column
-     */
-    public final void setPrimaryKey(DBColumn col1, DBColumn col2, DBColumn col3)
-    {
-        setPrimaryKey(new DBColumn[] { col1, col2, col3 });
     }
 
     /**
@@ -366,7 +335,7 @@ public class DBTable extends DBRowSet implements Cloneable
      * 
      * @return the Index object
      */
-    public final DBIndex addIndex(String name, boolean unique, DBColumn[] columns)
+    public final DBIndex addIndex(String name, boolean unique, DBColumn... columns)
     {
         if (name==null || columns==null || columns.length==0)
             throw new InvalidArgumentException("name|columns", null);
@@ -440,32 +409,24 @@ public class DBTable extends DBRowSet implements Cloneable
         // Init
         completeInitRecord(rec);
     }
-
+    
     /**
-     * @deprecated
-     * Deprecated flag that indicates whether cascaded deletes are enabled on this table.
-     * This property will be removed in future releases.
-     * Use DBRelation.getOnDeleteAction() instead.
-     * 
-     * @return true if cascade deletes (DBRelation.DBCascadeAction.CASCADE_RECORDS) are enabled
+     * returns the default cascade action for deletes on this table.
+     * This is used as the default for newly created relations on this table and does not affect existing relations.
+     * @return the delete cascade action for new relations (DBRelation.DBCascadeAction.CASCADE_RECORDS) are enabled
      */
-    public boolean isCascadeDelete()
+    public DBCascadeAction getDefaultCascadeDeleteAction()
     {
-        return cascadeDelete;
+        return cascadeDeleteAction;
     }
 
     /**
-     * @deprecated
-     * Deprecated flag that enables cascaded deletes on foreign key relations.
-     * WARING: The flag only affects newly created relations referring to this table.   
-     * This property will be removed in future releases.
-     * Use DBRelation.setOnDeleteAction() instead.
-     *  
-     * @param cascadeDelete use cascade deletes (DBRelation.DBCascadeAction.CASCADE_RECORDS)
+     * sets the default cascade action for deletes on foreign key relations.
+     * @param cascadeDeleteAction cascade action for deletes (DBRelation.DBCascadeAction.CASCADE_RECORDS)
      */
-    public void setCascadeDelete(boolean cascadeDelete)
+    public void setDefaultCascadeDeleteAction(DBCascadeAction cascadeDeleteAction)
     {
-        this.cascadeDelete = cascadeDelete;
+        this.cascadeDeleteAction = cascadeDeleteAction;
     }
 
     /**

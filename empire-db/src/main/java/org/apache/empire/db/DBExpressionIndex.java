@@ -40,7 +40,7 @@ public class DBExpressionIndex extends DBIndex
      * @param unique true if the index has only unique values or false otherwise
      * @param columnExpressions an array of one or more column expressions of the index
      */
-    public DBExpressionIndex(String name, boolean unique, DBExpr[] columnExpressions)
+    public DBExpressionIndex(String name, boolean unique, DBExpr... columnExpressions)
     {
         super(name, (unique ? UNIQUE : STANDARD), null);
         // columnExpressions

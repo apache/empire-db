@@ -601,14 +601,14 @@ public abstract class DBDatabase extends DBObject
      * @param name the relation name
      * @param references a list of source and target column pairs
      */
-    public DBRelation addRelation(String name, DBRelation.DBReference[] references)
+    public DBRelation addRelation(String name, DBRelation.DBReference... references)
     {
     	// Check
     	if (getRelation(name)!=null)
             throw new ItemExistsException(name); // Relation already exists
     	// Get default cascade action
     	DBTable targetTable = (DBTable)references[0].getTargetColumn().getRowSet();
-    	DBCascadeAction deleteAction = (targetTable.isCascadeDelete() ? DBCascadeAction.CASCADE_RECORDS : DBCascadeAction.NONE); 
+    	DBCascadeAction deleteAction = targetTable.getDefaultCascadeDeleteAction(); 
         // Add a Relation
         DBRelation relation = new DBRelation(this, name, references, deleteAction);
         if (relations.contains(relation))
