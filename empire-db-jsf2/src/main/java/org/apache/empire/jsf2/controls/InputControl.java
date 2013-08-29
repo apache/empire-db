@@ -42,113 +42,6 @@ import org.slf4j.LoggerFactory;
 
 public abstract class InputControl
 {
-    /*
-    public static class ColumnValueValidator implements Validator, StateHolder
-    {
-        private static final Logger log = LoggerFactory.getLogger(ColumnValueValidator.class);
-        
-        private Column column;
-
-        public ColumnValueValidator()
-        {
-        }
-        
-        public ColumnValueValidator(Column column)
-        {
-            this.column=column;
-        }
-        
-        @Override
-        public void validate(FacesContext context, UIComponent component, Object value)
-            throws ValidatorException
-        {
-            try {
-                log.info("ColumnValueValidator:validate for column "+column.getName()+" value is: "+String.valueOf(value));
-                column.validate(value);
-                if (value.equals("test"))
-                    throw new FieldIllegalValueException(column, String.valueOf(value));
-                
-            } catch(Exception e) {
-                FacesMessage msg = new FacesMessage(e.getLocalizedMessage());
-                throw new ValidatorException(msg);
-            }
-        }
-
-        @Override
-        public Object saveState(FacesContext context)
-        {
-            /-- *
-            try
-            {   // Serialization test
-                String columnId = ((DBColumn)column).getId();
-                
-                DBColumn c = DBColumn.findById(columnId);
-                if (c==column)
-                    log.info("success!");
-            
-                // findByClass test
-                DBDatabase fdb = DBDatabase.findByClass(FinDB.class);
-                log.info(fdb.getId());
-                
-                ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                ObjectOutputStream oos = new ObjectOutputStream(baos);
-                oos.writeObject(column);
-                // oos.writeObject(fdb);
-                oos.flush();
-                String info = baos.toString();
-                System.out.println(info);
-                byte[] bytes = baos.toByteArray();
-                int size = bytes.length;
-                System.out.println("Size is "+String.valueOf(size));
-                
-                ByteArrayInputStream bais = new ByteArrayInputStream(bytes);
-                ObjectInputStream ois = new ObjectInputStream(bais);
-                Object obj = ois.readObject();
-                
-                if (obj instanceof FinDB)
-                {
-                    System.out.println("Hurra Database!");
-                }
-                if (obj instanceof Column)
-                {
-                    if (column==(Column)obj)
-                        System.out.println("Hurra Column!");
-                }
-            }
-            catch (ClassNotFoundException e)
-            {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
-            catch (IOException e)
-            {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            } 
-            * --/
-            return column;
-        }
-
-        @Override
-        public void restoreState(FacesContext context, Object state)
-        {
-            if (state instanceof Column)
-                column = (Column)state;
-        }
-
-        @Override
-        public boolean isTransient()
-        {
-            return false;
-        }
-
-        @Override
-        public void setTransient(boolean newTransientValue)
-        {
-        }
-    }
-    */
-    
     private static final Logger log = LoggerFactory.getLogger(InputControl.class);
     
     // Special Input Column Attributes
@@ -277,6 +170,11 @@ public abstract class InputControl
         
         // Get value from Input
         Object value = (submitted) ? input.getSubmittedValue() : input.getValue();
+        /* Patch for MyFaces? 
+        if (value==null && input.isLocalValueSet())
+            value = input.getLocalValue();
+        */
+
         if (submitted)
         {
             if (value!=null) // && (!ObjectUtils.compareEqual(value, input.getLocalValue())
@@ -311,30 +209,6 @@ public abstract class InputControl
 
     protected void setInputValue(UIInput input, InputInfo ii)
     {
-        /*
-        if (input.isLocalValueSet())
-            return;
-        else
-        {   // check Request Map
-            FacesContext fc = FacesContext.getCurrentInstance();
-            if (FacesUtils.isClearSubmittedValues(fc))
-            {   // Clear submitted value
-                if (input.getSubmittedValue()!=null)
-                    input.setSubmittedValue(null);
-            }
-            else
-            {   // Restore submitted value
-                Map<String, Object> reqMap = fc.getExternalContext().getRequestMap();
-                String clientId = input.getClientId();
-                if (reqMap.containsKey(clientId))
-                {   // Set the local value from the request map
-                    Object value = reqMap.get(clientId);
-                    input.setSubmittedValue(value);
-                    return;
-                }
-            }
-        }
-        */
 
         // Restore submitted value
         FacesContext fc = FacesContext.getCurrentInstance();
@@ -343,7 +217,8 @@ public abstract class InputControl
         if (reqMap.containsKey(clientId))
         {   // Set the local value from the request map
             Object value = reqMap.get(clientId);
-            input.setSubmittedValue(value);
+            if (input.isLocalValueSet()==false)  // Patch for MyFaces?  
+                input.setSubmittedValue(value);  // Always for Mojarra!
             return;
         }
         else if (input.getSubmittedValue()!=null) //  && FacesUtils.isClearSubmittedValues(fc)
@@ -441,6 +316,11 @@ public abstract class InputControl
     /* Input helpers */
     protected abstract void createInputComponents(UIComponent parent, InputInfo ii, FacesContext context, List<UIComponent> compList);
     
+    /**
+     * returns the first UIInput component that is a direct child of the parent component
+     * @param parent the parent component which node to search for
+     * @return the first child that is a UIInput
+     */
     protected UIInput getInputComponent(UIComponent parent)
     {
         // default implementation
@@ -465,6 +345,13 @@ public abstract class InputControl
         return inp;
     }
 
+    /**
+     * copies standard input attributes such as styleClass, style, tabindex and event handlers (onclick, onblur, etc.) from the parent component to the input  
+     * @param parent (not used) 
+     * @param ii the input info from which to obtain the attribute values 
+     * @param input the input component on which to set the attributes 
+     * @param additonalStyle additional style classes 
+     */
     protected void copyAttributes(UIComponent parent, InputInfo ii, UIInput input, String additonalStyle)
     {
         String inputId = ii.getInputId();
@@ -495,11 +382,23 @@ public abstract class InputControl
         // input.addValidator(new ColumnValueValidator(ii.getColumn()));
     }
 
+    /**
+     * copies standard input attributes such as styleClass, style, tabindex and event handlers (onclick, onblur, etc.) from the parent component to the input
+     * @param parent (not used) 
+     * @param ii the input info 
+     * @param input the input component on which to set the attributes 
+     */
     protected final void copyAttributes(UIComponent parent, InputInfo ii, UIInput input)
     {
         copyAttributes(parent, ii, input, (ii.isRequired() ? "eInpReq" : null));
     }
 
+    /**
+     * copies a single attribute
+     * @param ii
+     * @param input
+     * @param name
+     */
     protected void copyAttribute(InputInfo ii, UIInput input, String name)
     {
         if (ii==null)
