@@ -386,18 +386,28 @@ public class ControlTag extends UIInput implements NamingContainer
         throws IOException
     {
         // render components
-        if (helper.isRecordReadOnly() && allowValueComponent(parent))
+        if (this.helper.isRecordReadOnly()) //  && allowValueComponent(parent))
         {
-            ValueOutputComponent valueComp = null;
-            if (parent.getChildCount()>0)
-                valueComp = (ValueOutputComponent)parent.getChildren().get(0);
-            if (valueComp==null)
-            {   valueComp = new ValueOutputComponent();
+            UIComponent valueComp = (parent.getChildCount()>0 ? parent.getChildren().get(0) : null);
+            if (valueComp != null && !(valueComp instanceof ValueOutputComponent))
+            {	// remove InputComponent
+                parent.getChildren().clear();
+                valueComp = null;
+            }
+            if (valueComp == null)
+            {
+                valueComp = new ValueOutputComponent();
                 parent.getChildren().add(valueComp);
             }
         }
         else
-        {
+        {	// check for ValueOutputComponent	
+            UIComponent valueComp = (parent.getChildCount()>0 ? parent.getChildren().get(0) : null);
+            if (valueComp instanceof ValueOutputComponent)
+            {	// remove ValueOutputComponent
+            	parent.getChildren().clear();
+            }
+            // continue
             inpInfo = helper.getInputInfo(context);
             // set required
             if (hasRequiredFlagSet==false)
@@ -424,7 +434,7 @@ public class ControlTag extends UIInput implements NamingContainer
     @Override
     public Object getSubmittedValue()
     {   // Check state
-        if (control==null || inpInfo==null)
+        if (control==null || inpInfo==null || helper.isReadOnly())
             return null;
         // Get Input Tag
         if (getChildCount()<=1)
@@ -530,9 +540,9 @@ public class ControlTag extends UIInput implements NamingContainer
      * This method should never return false. If it does, the method "helper.isRecordReadOnly()" does not return the same value for subsequent calls as when the component was first encoded.
      * @param parent the parent tag
      * @return true on success or false if the parent's first child is not a instance of ValueOutputComponent
-     */
     private boolean allowValueComponent(UIComponentBase parent)
     {
         return (parent.getChildCount()>0 ? (parent.getChildren().get(0) instanceof ValueOutputComponent) : true); 
     }
+     */
 }

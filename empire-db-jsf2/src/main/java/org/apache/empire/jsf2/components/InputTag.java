@@ -160,7 +160,7 @@ public class InputTag extends UIInput implements NamingContainer
     @Override
     public Object getSubmittedValue()
     {   // Check state
-        if (control==null || inpInfo==null)
+        if (control==null || inpInfo==null || helper.isReadOnly())
             return null;
         // get Input Value
         return control.getInputValue(this, inpInfo, true);
