@@ -817,13 +817,31 @@ public abstract class DBDatabase extends DBObject
      * If the query does not return a result a QueryNoResultException is thrown
      * 
      * @param cmd the Command object that contains the select statement
+     * @param dataType the expected data type
+     * @param conn a valid connection to the database.
+     * 
+     * @return the value of the first column in the first row of the query 
+     */
+    public final Object querySingleValue(DBCommand cmd, DataType dataType, Connection conn)
+    {
+        Object value = querySingleValue(cmd.getSelect(), cmd.getParamValues(), dataType, conn);
+        if (value==ObjectUtils.NO_VALUE)
+        	throw new QueryNoResultException(cmd.getSelect());
+        return value;
+    }
+    
+    /**
+     * Returns the value of the first row/column of a sql-query as an object.
+     * If the query does not return a result a QueryNoResultException is thrown
+     * 
+     * @param cmd the Command object that contains the select statement
      * @param conn a valid connection to the database.
      * 
      * @return the value of the first column in the first row of the query 
      */
     public final Object querySingleValue(DBCommand cmd, Connection conn)
     {
-        return querySingleValue(cmd.getSelect(), cmd.getParamValues(), conn);  
+        return querySingleValue(cmd, DataType.UNKNOWN, conn);  
     }
     
     /**
