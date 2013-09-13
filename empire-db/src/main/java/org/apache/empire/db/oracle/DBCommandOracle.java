@@ -50,7 +50,9 @@ public class DBCommandOracle extends DBCommand
     protected DBCompareExpr startWith  = null;
     // optimizerHint
     protected String        optimizerHint  = null;
-    protected OracleRowNumExpr	rowNumExpr = null;
+    // protected OracleRowNumExpr	rowNumExpr = null;
+    protected int limitRows = -1;
+    protected int skipRows  =  0;
 
     /**
      * Constructs an oracle command object.
@@ -119,21 +121,27 @@ public class DBCommandOracle extends DBCommand
     }
     
     @Override
-    public void limitRows(int numRows)
+    public void limitRows(int limitRows)
     {
-    	if (rowNumExpr==null)
-    		rowNumExpr = new OracleRowNumExpr(getDatabase());
-    	// Add the constraint
-    	where(rowNumExpr.isLessOrEqual(numRows));
+        // set limit
+        this.limitRows = limitRows;
+    }
+
+    @Override
+    public void skipRows(int skipRows)
+    {
+        if (skipRows<0)
+            throw new InvalidArgumentException("skipRows", skipRows);
+        // set skip
+        this.skipRows = skipRows; 
     }
      
     @Override
     public void clearLimit()
     {
-    	if (rowNumExpr!=null)
-    		removeWhereConstraintOn(rowNumExpr);
-    	// constraint removed
-    	rowNumExpr = null;
+    	// remove skip and limit
+        this.limitRows = -1;
+        this.skipRows  =  0;
     }
 
     /**
@@ -144,10 +152,18 @@ public class DBCommandOracle extends DBCommand
      */
     @Override
     public synchronized void getSelect(StringBuilder buf)
-    {
+    {        
         resetParamUsage();
         if (select == null)
             throw new ObjectNotValidException(this);
+        // limit rows
+        boolean usePreparedStatements = getDatabase().isPreparedStatementsEnabled();
+        if (limitRows>=0)
+        {   // add limitRows and skipRows wrapper
+            buf.append("SELECT * FROM (");
+            if (skipRows>0)
+                buf.append("SELECT row_.*, rownum rownum_ FROM (");
+        }
         // Prepares statement
         buf.append("SELECT ");
         if (StringUtils.isNotEmpty(optimizerHint))
@@ -186,8 +202,39 @@ public class DBCommandOracle extends DBCommand
             // Add List of Order By Expressions
             addListExpr(buf, orderBy, CTX_DEFAULT, ", ");
         }
+        // limit rows end
+        if (limitRows>=0)
+        {   // add limitRows and skipRows constraints
+            buf.append(") row_ WHERE rownum<=");
+            buf.append(usePreparedStatements ? "?" : String.valueOf(skipRows+limitRows));
+            if (skipRows>0)
+            {   // add skip rows
+                buf.append(") WHERE rownum_>");
+                buf.append(usePreparedStatements ? "?" : String.valueOf(skipRows));
+            }
+        }
     }
 
+    @Override
+    public Object[] getParamValues()
+    {
+        Object[] params = super.getParamValues();
+        if (limitRows<0 || !getDatabase().isPreparedStatementsEnabled())
+            return params;
+        // add limit and skip params
+        int newSize = (params!=null ? params.length : 0)+(skipRows>0 ? 2 : 1);
+        Object[] newParams = new Object[newSize];
+        // copy params
+        for (int i=0; params!=null && i<params.length; i++)
+            newParams[i]=params[i];
+        // set skip
+        if (skipRows>0)
+            newParams[--newSize]=skipRows;
+        // set limit
+        newParams[--newSize]=skipRows+limitRows;    
+        return newParams;
+    }
+    
     /**
      * Creates an Oracle specific update statement.
      * If a join is required, this method creates a "MERGE INTO" expression 
