@@ -508,6 +508,41 @@ public abstract class DBCommand extends DBCommandExpr
     }
     
     /**
+     * Returns true if the command has a constraint on the given table or false otherwise.
+     * 
+     * @param rowset rowset table or view to join
+     * 
+     * @return true if the command has a join on the given table or false otherwise
+     */
+    public boolean hasConstraintOn(DBRowSet rowset)
+    {
+        if (where==null && having==null)
+            return false;
+        // Examine all constraints
+        int i = 0;
+        Set<DBColumn> columns = new HashSet<DBColumn>();
+        for (i = 0; where != null && i < where.size(); i++)
+            ((DBExpr) where.get(i)).addReferencedColumns(columns);
+        /*
+        for (i = 0; groupBy != null && i < groupBy.size(); i++)
+            ((DBExpr) groupBy.get(i)).addReferencedColumns(columns);
+        */
+        for (i = 0; having != null && i < having.size(); i++)
+            ((DBExpr) having.get(i)).addReferencedColumns(columns);
+        // now we have all columns
+        Iterator<DBColumn> iterator = columns.iterator();
+        while (iterator.hasNext())
+        { // get the table
+            DBColumn col = iterator.next();
+            DBRowSet table = col.getRowSet();
+            if (table.equals(rowset))
+                return true;
+        }
+        // not found
+        return false;
+    }
+    
+    /**
      * Returns true if the command has a join on the given column or false otherwise.
      * 
      * @param column the column to test
@@ -855,7 +890,7 @@ public abstract class DBCommand extends DBCommandExpr
      *  
      * @return list of all rowsets (tables or views) used by the query
      */
-    protected List<DBRowSet> getTableList()
+    protected List<DBRowSet> getRowSetList()
     {
         // Check all tables
         int i = 0;
@@ -1059,14 +1094,12 @@ public abstract class DBCommand extends DBCommandExpr
         buf.append("\r\nFROM ");
         // Join
         boolean sep = false;
-        List<DBRowSet> tables = getTableList();
+        List<DBRowSet> tables = getRowSetList();
         if (joins!=null && joins.size()>0)
         {   // Join
             List<DBRowSet> joinTables = new ArrayList<DBRowSet>();
-//          for (int i=0;i<joins.size();i++)
-//               buf.append("(");
-            for (int i=0;i<joins.size();i++)
-            {    // Joins zusammenbauen
+            for (int i=0; i<joins.size(); i++)
+            {    // append join
                  long context;
                  DBJoinExpr join = joins.get(i);
                  if (i<1)
@@ -1091,7 +1124,7 @@ public abstract class DBCommand extends DBCommandExpr
                      buf.append( "\t" );
                  }
                  join.addSQL(buf, context);
-//               buf.append(")");
+                 // add CRLF
                  if( i!=joins.size()-1 )
                      buf.append("\r\n");
             }

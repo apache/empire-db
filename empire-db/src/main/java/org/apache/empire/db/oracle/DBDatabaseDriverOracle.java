@@ -110,7 +110,7 @@ public class DBDatabaseDriverOracle extends DBDatabaseDriver
             case CREATE_SCHEMA: 	return false;
             case SEQUENCES:     	return true;
             case QUERY_LIMIT_ROWS:  return true;
-            case QUERY_SKIP_ROWS:   return false;
+            case QUERY_SKIP_ROWS:   return true;
             default:
                 // All other features are not supported by default
                 return false;

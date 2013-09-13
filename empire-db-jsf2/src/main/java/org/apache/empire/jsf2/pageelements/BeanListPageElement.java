@@ -32,6 +32,8 @@ import org.apache.empire.data.DataType;
 import org.apache.empire.db.DBColumn;
 import org.apache.empire.db.DBColumnExpr;
 import org.apache.empire.db.DBCommand;
+import org.apache.empire.db.DBDatabaseDriver;
+import org.apache.empire.db.DBDriverFeature;
 import org.apache.empire.db.DBReader;
 import org.apache.empire.db.DBRecordData;
 import org.apache.empire.db.DBRowSet;
@@ -70,6 +72,8 @@ public class BeanListPageElement<T> extends ListPageElement<T> implements ListIt
     protected boolean           defaultSortAscending = true;
 
     protected DBOrderByExpr     secondarySortOrder   = null;
+    
+    protected int               maxItemCount = 1000;
     
     /**
      * Extended ListTableInfo
@@ -258,7 +262,11 @@ public class BeanListPageElement<T> extends ListPageElement<T> implements ListIt
         return (noQueryResult!=null) ? ObjectUtils.getBoolean( noQueryResult ) : false;
     }
 
-    private void loadItems(boolean initScrollbar)
+    /**
+     * loads all visible list items from the database
+     * @param initScrollbar
+     */
+    protected void loadItems(boolean initScrollbar)
     {
         // DBReader
         BeanListTableInfo lti = (BeanListTableInfo) getTableInfo();
@@ -277,32 +285,44 @@ public class BeanListPageElement<T> extends ListPageElement<T> implements ListIt
                 setOrderBy(queryCmd);
                 lti.setSortOrderChanged(false);
             }
+            
+            int position = 0;
+            int skipRows = 0;
+            int maxItems = maxItemCount;
+            if (loadPageFromPosition)
+            {   // detect position
+                position = lti.getPosition();
+                if (position > lti.getItemCount() - lti.getPageSize())
+                { // position > count of entries is not possible, set to max
+                    position = lti.getItemCount() - lti.getPageSize();
+                }
+                if (position < 0)
+                { // position < 0 is not possible, set to 0
+                    position = 0;
+                }
+                // maxItems
+                maxItems = lti.getPageSize();
+                skipRows = position;
+                // constraint
+                DBDatabaseDriver driver = queryCmd.getDatabase().getDriver(); 
+                if (driver.isSupported(DBDriverFeature.QUERY_LIMIT_ROWS))
+                {   // let the database limit the rows
+                    if (skipRows>0 && driver.isSupported(DBDriverFeature.QUERY_SKIP_ROWS))
+                    {   // let the database skip the rows
+                        queryCmd.skipRows(skipRows);
+                        skipRows = 0;
+                    }
+                    queryCmd.limitRows(skipRows+maxItems);
+                }
+            }
 
             // DBReader.open immer nur innerhalb eines try {} finally {} blocks!
             r.open(queryCmd, getConnection(queryCmd));
 
             // get position from the session
-            int position = 0;
-            int maxItems = 1000;
-            if (loadPageFromPosition)
-            {
-                position = lti.getPosition();
-                if (position < 0)
-                { // position < 0 is not possible, set to 0
-                    position = 0;
-                }
-                if (position > lti.getItemCount() - lti.getPageSize())
-                { // position > count of entries is not possible, set to max
-                    position = lti.getItemCount() - lti.getPageSize();
-                }
-                if (position > 0)
-                { // we are not at position 0, "skipping" entries
-                    r.skipRows(position);
-                }
-                else
-                    position = 0;
-                // maxItems
-                maxItems = lti.getPageSize();
+            if (skipRows>0)
+            {   // we are not at position 0, "skipping" entries
+                r.skipRows(skipRows);
             }
 
             // Read all Items

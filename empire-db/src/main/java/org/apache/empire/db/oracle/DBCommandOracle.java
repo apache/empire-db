@@ -315,7 +315,10 @@ public class DBCommandOracle extends DBCommand
             if (val instanceof DBColumnExpr)
                 inner.select(((DBColumnExpr)val));
         }
-        inner.removeJoinsOn(table);
+        // remove join (if not necessary)
+        if (inner.hasConstraintOn(table)==false)
+            inner.removeJoinsOn(table);
+        // add SQL for inner statement
         inner.addSQL(buf, CTX_DEFAULT);
         // find the source table
         DBColumnExpr left  = updateJoin.getLeft();
