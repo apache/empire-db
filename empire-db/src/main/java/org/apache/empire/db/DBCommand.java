@@ -266,19 +266,30 @@ public abstract class DBCommand extends DBCommandExpr
         }
     }
     
+    /**
+     * returns true if prepared statements are enabled for this database
+     */
+    protected boolean isPreparedStatementsEnabled()
+    {
+        return db.isPreparedStatementsEnabled();
+    }
+    
+    /**
+     * returns true if a cmdParam should be used for the given column or false otherwise
+     */
     protected boolean useCmdParam(DBColumn col, Object value)
     {
         // Cannot wrap DBExpr or DBSystemDate
         if (value instanceof DBExpr || value instanceof DBDatabase.DBSystemDate)
             return false;
         // Check if prepared statements are enabled
-        if (db.isPreparedStatementsEnabled())
+        if (isPreparedStatementsEnabled())
             return true;
         // Only use a command param if column is of type BLOB or CLOB
         DataType dt = col.getDataType();
         return ( dt==DataType.BLOB || dt==DataType.CLOB );
     }
-
+    
     /**
      * Inserts DBSetExpr objects to the Vector 'set'.
      * 

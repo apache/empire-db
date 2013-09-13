@@ -157,7 +157,7 @@ public class DBCommandOracle extends DBCommand
         if (select == null)
             throw new ObjectNotValidException(this);
         // limit rows
-        boolean usePreparedStatements = getDatabase().isPreparedStatementsEnabled();
+        boolean usePreparedStatements = isPreparedStatementsEnabled();
         if (limitRows>=0)
         {   // add limitRows and skipRows wrapper
             buf.append("SELECT * FROM (");
