@@ -1,8 +1,33 @@
 Apache Empire-db
-Copyright 2008-2012 The Apache Software Foundation
+Copyright 2008-2013 The Apache Software Foundation
 
 For more Information about a particular issue please visit
 https://issues.apache.org/jira/browse/EMPIREDB
+
+--------------
+Release 2.4.2:
+--------------
+** Improvement
+	EMPIREDB-192	Implement limitRows and skipRows for Oracle
+	EMPIREDB-190	Improve DDL Syntax by allowing variable parameters for primary key and relations
+	EMPIREDB-188	Allow replacement of statements in a DBScript
+	EMPIREDB-183	Allow enabling / disabling foreign key constraints
+	EMPIREDB-180	Strip Mojarra dependency from JSF2 extensions and show use of MyFaces in example
+	EMPIREDB-178	Improve JSF example, add business logic for retired state
+	EMPIREDB-173	Switch to ASF Parent 13 POM
+	EMPIREDB-170	extend DBDatabase.querySingleValue to utilize DataType
+
+** Bugfix
+	EMPIREDB-193	DBRowSet has an equals() implementation but no hashCode() implementation.
+	EMPIREDB-191	The spring example does not release connections.
+	EMPIREDB-189	DBDatabase.getSingleInt with default does not return the default but throws an exception.
+	EMPIREDB-185	MenuListTag not working in MyFaces
+	EMPIREDB-182	Wrong datatype for uniqueid in SQLServer
+	EMPIREDB-181	Do not check for item count in ListPageElement.isValid()
+	EMPIREDB-179	String to date conversion: use SimpleDateFormatter
+	EMPIREDB-177	Allow date entry in JSF-inputText 
+	EMPIREDB-175	rename misleading method name that falsely suggests a redirect
+	EMPIREDB-171	ObjectUtils.compareEquals fails on BigDecimal
 
 --------------
 Release 2.4.1:
