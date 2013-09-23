@@ -179,6 +179,13 @@ public abstract class DBRowSet extends DBExpr
         // read the rest
         strm.defaultReadObject();
     }
+    
+    @Override 
+    public int hashCode() 
+    {
+    	String nameWithAlias = getFullName()+"_"+getAlias();
+    	return nameWithAlias.hashCode();
+    }
 
     @Override
     public boolean equals(Object other)
@@ -903,7 +910,7 @@ public abstract class DBRowSet extends DBExpr
             DBCommand cmd = db.createCommand();
             for (int i=0; i<parentKey.length; i++)
                 cmd.where(refs[i].getSourceColumn().is(parentKey[i]));
-            if (db.executeSQL(cmd.getDelete((DBTable)this), conn)<0)
+            if (db.executeSQL(cmd.getDelete((DBTable)this), cmd.getParamValues(), conn)<0)
                 throw new UnexpectedReturnValueException(-1, "db.executeSQL()");
         }
         else
