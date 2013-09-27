@@ -34,6 +34,7 @@ import org.apache.empire.db.derby.DBDatabaseDriverDerby;
 import org.apache.empire.db.h2.DBDatabaseDriverH2;
 import org.apache.empire.db.hsql.DBDatabaseDriverHSql;
 import org.apache.empire.db.postgresql.DBDatabaseDriverPostgreSQL;
+import org.apache.empire.samples.db.SampleDB.Gender;
 import org.apache.empire.xml.XMLWriter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -117,9 +118,9 @@ public class SampleApp
 			int idDevDep = insertDepartment(conn, "Development", "ITTK");
 			int idSalDep = insertDepartment(conn, "Sales", "ITTK");
 			// Insert Employees
-			int idPers1 = insertEmployee(conn, "Peter", "Sharp", "M", idDevDep);
-			int idPers2 = insertEmployee(conn, "Fred", "Bloggs", "M", idDevDep);
-			int idPers3 = insertEmployee(conn, "Emma", "White", "F", idSalDep);
+			int idPers1 = insertEmployee(conn, "Peter", "Sharp", Gender.M, idDevDep);
+			int idPers2 = insertEmployee(conn, "Fred", "Bloggs", Gender.M, idDevDep);
+			int idPers3 = insertEmployee(conn, "Emma", "White",  Gender.F, idSalDep);
 
 			// STEP 7: Update Records (by setting the phone Number)
 			System.out.println("*** Step 7: updateEmployee() ***");
@@ -295,7 +296,7 @@ public class SampleApp
 	 * Inserts an Employee into the Employees table.
      * </PRE>
 	 */
-	private static int insertEmployee(Connection conn, String firstName, String lastName, String gender, int departmentId)
+	private static int insertEmployee(Connection conn, String firstName, String lastName, Gender gender, int departmentId)
     {
 		// Insert an Employee
 		DBRecord rec = new DBRecord();
@@ -445,13 +446,13 @@ public class SampleApp
 	{
         // Query all males
 	    BeanResult<SampleBean> result = new BeanResult<SampleBean>(SampleBean.class, db.EMPLOYEES);
-        result.getCommand().where(db.EMPLOYEES.GENDER.is("M"));
+        result.getCommand().where(db.EMPLOYEES.GENDER.is(Gender.M));
 	    result.fetch(conn);
 	    
 	    System.out.println("Number of male employees is: "+result.size());
 
 	    // And now, the females
-	    result.getCommand().where(db.EMPLOYEES.GENDER.is("F"));
+	    result.getCommand().where(db.EMPLOYEES.GENDER.is(Gender.F));
 	    result.fetch(conn);
 	    
         System.out.println("Number of female employees is: "+result.size());

@@ -44,6 +44,12 @@ import org.apache.empire.db.DBTableColumn;
 public class SampleDB extends DBDatabase
 {
     private final static long serialVersionUID = 1L;
+    
+    public enum Gender
+    {
+    	M,	// Male
+    	F; 	// Female
+    }
 
     /**
      * This class represents the definition of the Departments table.
@@ -123,8 +129,8 @@ public class SampleDB extends DBDatabase
 
             // Create Options for GENDER column
             Options genders = new Options();
-            genders.set("M", "Male");
-            genders.set("F", "Female");
+            genders.set(Gender.M, "Male");
+            genders.set(Gender.F, "Female");
             GENDER.setOptions(genders);
         }
     }
