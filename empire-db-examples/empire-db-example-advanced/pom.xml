@@ -19,7 +19,7 @@
 	<parent>
 		<groupId>org.apache.empire-db</groupId>
 		<artifactId>empire-db-examples</artifactId>
-		<version>2.4.2-SNAPSHOT</version>
+		<version>2.4.2</version>
 	</parent>
 	<artifactId>empire-db-example-advanced</artifactId>
 	<name>Apache Empire-db Advanced Example</name>
