@@ -116,6 +116,21 @@ public class DBSQLScript implements Iterable<String>
     }
     
     /**
+     * Inserts an entry in the list
+     * @param i index of the statement to replace
+     * @param stmt the new statement for this index, or NULL to remove the statement
+     */
+    public void insertStmt(int i, String stmt)
+    {
+        if (stmt==null)
+            throw new InvalidArgumentException("stmt", stmt);
+        if (i<0 || i>sqlCmdList.size())
+            throw new InvalidArgumentException("index", i);
+        // replace or remove statement
+        sqlCmdList.add(i, stmt);
+    }
+    
+    /**
      * Clears the script by removing all statements
      */
     public void clear()
