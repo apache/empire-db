@@ -31,6 +31,7 @@ import org.apache.empire.db.DBDriverFeature;
 import org.apache.empire.db.DBObject;
 import org.apache.empire.db.DBSQLScript;
 import org.apache.empire.db.DBTable;
+import org.apache.empire.exceptions.InvalidArgumentException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -52,10 +53,54 @@ public class DBDatabaseDriverH2 extends DBDatabaseDriver
     {
         private final static long serialVersionUID = 1L;
       
+	    protected int limitRows = -1;
+	    protected int skipRows  =  0;
+        
         public DBCommandH2(DBDatabase db)
         {
             super(db);
         }
+    
+	    @Override
+	    public void limitRows(int limitRows)
+	    {
+	        // set limit
+	        this.limitRows = limitRows;
+	    }
+	
+	    @Override
+	    public void skipRows(int skipRows)
+	    {
+	        if (skipRows<0)
+	            throw new InvalidArgumentException("skipRows", skipRows);
+	        // set skip
+	        this.skipRows = skipRows; 
+	    }
+	     
+	    @Override
+	    public void clearLimit()
+	    {
+	    	// remove skip and limit
+	        this.limitRows = -1;
+	        this.skipRows  =  0;
+	    }
+        
+        @Override
+        public void getSelect(StringBuilder buf)
+        {   // Prepares statement
+        	super.getSelect(buf);
+            // add limit and offset
+            if (limitRows>=0)
+            {   buf.append("\r\nLIMIT ");
+                buf.append(String.valueOf(limitRows));
+                // Offset
+                if (skipRows>0) 
+                {   buf.append(" OFFSET ");
+                    buf.append(String.valueOf(skipRows));
+                }    
+            }
+        }
+        
     }
     
     // Properties
@@ -158,8 +203,10 @@ public class DBDatabaseDriverH2 extends DBDatabaseDriver
     {
         switch (type)
         {   // return support info 
-            case CREATE_SCHEMA: return true;
-            case SEQUENCES:     return useSequenceTable;    
+            case CREATE_SCHEMA: 	return true;
+            case SEQUENCES:     	return useSequenceTable;    
+            case QUERY_LIMIT_ROWS:  return true;
+            case QUERY_SKIP_ROWS:   return true;
             default:
                 // All other features are not supported by default
                 return false;
