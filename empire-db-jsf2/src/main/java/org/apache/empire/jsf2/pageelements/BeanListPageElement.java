@@ -603,6 +603,8 @@ public class BeanListPageElement<T> extends ListPageElement<T> implements ListIt
         // clear previous settings without the where causes
         cmd.clearSelect();
         cmd.clearGroupBy();
+        // clear skip and limit!
+        cmd.clearLimit(); 
         return cmd;
     }
 
