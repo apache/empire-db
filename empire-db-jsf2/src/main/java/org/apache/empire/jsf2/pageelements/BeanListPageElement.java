@@ -304,10 +304,11 @@ public class BeanListPageElement<T> extends ListPageElement<T> implements ListIt
                 maxItems = lti.getPageSize();
                 skipRows = position;
                 // constraint
+                queryCmd.clearLimit();
                 DBDatabaseDriver driver = queryCmd.getDatabase().getDriver(); 
                 if (driver.isSupported(DBDriverFeature.QUERY_LIMIT_ROWS))
                 {   // let the database limit the rows
-                    if (skipRows>0 && driver.isSupported(DBDriverFeature.QUERY_SKIP_ROWS))
+                    if (driver.isSupported(DBDriverFeature.QUERY_SKIP_ROWS))
                     {   // let the database skip the rows
                         queryCmd.skipRows(skipRows);
                         skipRows = 0;
@@ -316,7 +317,7 @@ public class BeanListPageElement<T> extends ListPageElement<T> implements ListIt
                 }
             }
 
-            // DBReader.open immer nur innerhalb eines try {} finally {} blocks!
+            // DBReader.open must always be surrounded with a try {} finally {} block!
             r.open(queryCmd, getConnection(queryCmd));
 
             // get position from the session
