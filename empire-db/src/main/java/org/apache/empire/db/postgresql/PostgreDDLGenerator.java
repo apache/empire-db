@@ -71,6 +71,9 @@ public class PostgreDDLGenerator extends DBDDLGenerator<DBDatabaseDriverPostgreS
                 sql.append("DOUBLE PRECISION");
                 break;
             }
+            case BLOB:
+                sql.append(DATATYPE_BLOB);
+                break;
            default:
                 // use default
                 return super.appendColumnDataType(type, size, c, sql);

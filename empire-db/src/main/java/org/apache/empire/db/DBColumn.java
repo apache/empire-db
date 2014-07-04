@@ -206,6 +206,15 @@ public abstract class DBColumn extends DBColumnExpr
         }
         return false;
     }
+    
+    @Override
+    public int hashCode()
+    {
+    	if (rowset==null || name==null)
+    		return super.hashCode();
+    	// rowset and name
+    	return rowset.hashCode()+name.hashCode();
+    }
      
     /**
      * Returns the size of the column.
