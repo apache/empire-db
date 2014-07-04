@@ -119,8 +119,8 @@ public abstract class DBColumn extends DBColumnExpr
 
     /**
      * returns a rowset by its identifier
-     * @param rowsetId the id of the rowset
-     * @return the rowset object
+     * @param columnId the id of the column
+     * @return the DBColumn object
      */
     public static DBColumn findById(String columnId)
     {

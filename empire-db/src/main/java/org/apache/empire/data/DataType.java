@@ -76,7 +76,7 @@ public enum DataType
     BOOL, //         = 9;
     
     /**
-     * Long text > 2K
+     * Long text &gt; 2K
      */
     CLOB, //         = 10;
     

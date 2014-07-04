@@ -33,7 +33,7 @@ import org.apache.empire.struts2.exceptions.InvalidFormDataException;
  * <p>
  * This class provides functions for form data processing through ordinary JavaBean or Data Transfer Objects (DTO).   
  * Metadata for the Beans should be provided using the BeanClass and BeanProperty classes.<br>
- * It is recommended (but not necessary) to create a subclass of the BeanRecordProxy<T> class in order to provide
+ * It is recommended (but not necessary) to create a subclass of the BeanRecordProxy&lt;T&gt; class in order to provide
  * further context specific metadata.
  * </p>
  * @author Rainer
@@ -169,7 +169,6 @@ public class BeanActionSupport<T> extends RecordFormActionSupport
     
     /**
      * Initializes the key columns of the current record from the action parameters. 
-     * @return true if the key columns were set successfully of false otherwise
      */
     public void initKeyColumns()
     {

@@ -39,8 +39,7 @@ public class PostgreDDLGenerator extends DBDDLGenerator<DBDatabaseDriverPostgreS
     }
 
     /**
-     * sets Oracle specific data types
-     * @param driver
+     * sets PostgreSQL specific data types
      */
     private void initDataTypes()
     {   // Override data types
@@ -85,16 +84,11 @@ public class PostgreDDLGenerator extends DBDDLGenerator<DBDatabaseDriverPostgreS
     protected void createDatabase(DBDatabase db, DBSQLScript script)
     {
         // Create all Sequences
-        Iterator<DBTable> seqtabs = db.getTables().iterator();
-        while (seqtabs.hasNext())
+        for (DBTable table : db.getTables())
         {
-            DBTable table = seqtabs.next();
-            Iterator<DBColumn> cols = table.getColumns().iterator();
-            while (cols.hasNext())
-            {
-                DBTableColumn c = (DBTableColumn) cols.next();
-                if (c.getDataType() == DataType.AUTOINC)
-                {
+            for (DBColumn dbColumn : table.getColumns()) {
+                DBTableColumn c = (DBTableColumn) dbColumn;
+                if (c.getDataType() == DataType.AUTOINC) {
                     createSequence(db, c, script);
                 }
             }
@@ -104,7 +98,7 @@ public class PostgreDDLGenerator extends DBDDLGenerator<DBDatabaseDriverPostgreS
     }
 
     /**
-     * Appends the DDL-Script for creating a sequence to an SQL-Script<br/>
+     * Appends the DDL-Script for creating a sequence to an SQL-Script<br>
      * @param db the database to create
      * @param c the column for which to create the sequence
      * @param script the sql script to which to append the dll command(s)

@@ -287,7 +287,6 @@ public abstract class DBView extends DBRowSet
      * Adds a column to the view.
      * 
      * @param col a view column object
-     * @return true if the column was successfully added or false otherwise
      */
     protected void addColumn(DBViewColumn col)
     { // find column by name

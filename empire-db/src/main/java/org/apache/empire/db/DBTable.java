@@ -39,8 +39,6 @@ import org.apache.empire.exceptions.UnexpectedReturnValueException;
 /**
  * This class represent one table of the database.
  * It contains methods to get, add, update and delete records from the database.
- * <P>
- * 
  *
  */
 public class DBTable extends DBRowSet implements Cloneable
@@ -115,7 +113,7 @@ public class DBTable extends DBRowSet implements Cloneable
      * Clones this table and assigns a new table alias.
      * This second instance of the same table can be used for self-joins.
      * <pre>
-     * This method requires that all declared column fields are NOT declared final.</p>
+     * This method requires that all declared column fields are NOT declared final.
      * i.e. instead of:
      * 
      *      public final DBTableColumn MYCOL;
@@ -134,12 +132,11 @@ public class DBTable extends DBRowSet implements Cloneable
      *      ...
      *      cmd.join(MYTABLE1.ID, MYTABLE2.PARENTID); // self-join
      *      ...
-     * <pre>
+     * </pre>
      * @return a table clone with new table alias
      */
     @Override
-    public Object clone()
-    {
+    public Object clone() throws CloneNotSupportedException {
         try {
             DBTable clone = (DBTable) super.clone();
             // clone all columns
@@ -266,7 +263,7 @@ public class DBTable extends DBRowSet implements Cloneable
     /**
      * Returns the primary key.
      * 
-     * @return the the DBIndex object ->primary key
+     * @return the the DBIndex object -&gt; primary key
      */
     public DBIndex getPrimaryKey()
     {

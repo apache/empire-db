@@ -37,7 +37,7 @@ public interface ActionErrorProvider
     void clearActionErrors();
 
     /**
-     * returns the last Action Error of the current or a previous aciton
+     * returns the last Action Error of the current or a previous action
      * the error is left on the session unless the clear flag is set to true
      * In order to display the error to the user an application should use
      * this function instead of getActionError() and set clear to true. 
@@ -58,7 +58,8 @@ public interface ActionErrorProvider
     
     /**
      * return the localized message for an error
-     * 
+     *
+     * @param error the error info
      * @return the error message in the curren user's language
      */
     String getLocalizedErrorMessage(ErrorInfo error);
@@ -66,7 +67,8 @@ public interface ActionErrorProvider
     /**
      * returns the last set Action Message 
      * the message is left on the session unless the clear flag is set to true
-     * 
+     *
+     * @param clear if true will clear the message from the session
      * @return an action message for the user
      */
     String getLastActionMessage(boolean clear);

@@ -32,7 +32,7 @@ public class DefaultWebRequest implements WebRequest
     }
 
     /**
-     * @see WebRequest#getHttpRequest()
+     * @see WebRequest#getRequestContext()
      */
     public RequestContext getRequestContext()
     {
@@ -40,7 +40,7 @@ public class DefaultWebRequest implements WebRequest
     }
 
     /**
-     * @see WebRequest#getHttpResponse()
+     * @see WebRequest#getResponseContext()
      */
     public ResponseContext getResponseContext()
     {

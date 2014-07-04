@@ -396,7 +396,7 @@ public abstract class DBColumnExpr extends DBExpr
 
     /**
      * Creates and returns a new comparison object
-     * for the SQL "<>" (not equal) operator.
+     * for the SQL "&lt;&gt;" (not equal) operator.
      * 
      * @param value the Object value
      * @return the new DBCompareColExpr object
@@ -458,7 +458,7 @@ public abstract class DBColumnExpr extends DBExpr
 
     /**
      * Creates and returns a new comparison object
-     * for the SQL ">" (greater than) operator. 
+     * for the SQL "&gt;" (greater than) operator.
      *
      * @param value the Object value
      * @return the new DBCompareColExpr object
@@ -470,7 +470,7 @@ public abstract class DBColumnExpr extends DBExpr
 
     /**
      * Creates and returns a new comparison object
-     * for the SQL ">=" (greater or equal) operator. 
+     * for the SQL "&gt;=" (greater or equal) operator.
      *
      * @param value the Object value
      * @return the new DBCompareColExpr object
@@ -482,7 +482,7 @@ public abstract class DBColumnExpr extends DBExpr
 
     /**
      * Creates and returns a new comparison object
-     * for the SQL "<=" (less or equal) operator. 
+     * for the SQL "&lt;=" (less or equal) operator.
      *
      * @param value the Object value
      * @return the new DBCompareColExpr object
@@ -494,7 +494,7 @@ public abstract class DBColumnExpr extends DBExpr
 
     /**
      * Creates and returns a new comparison object
-     * for the SQL "<" (less than) operator. 
+     * for the SQL "&lt;" (less than) operator.
      *
      * @param value the Object value
      * @return the new DBCompareColExpr object
@@ -1067,8 +1067,8 @@ public abstract class DBColumnExpr extends DBExpr
     }
     
     /**
-     * Creates and returns a sql-expression for the SQL case-phrase.<BR/>
-     * The result will be in the form:<BR/> 
+     * Creates and returns a sql-expression for the SQL case-phrase.<br>
+     * The result will be in the form:<br>
      * "case when [compExpr] then [this] else [otherwise] end" 
      * 
      * @param compExpr the condition for which the current column expression is returned

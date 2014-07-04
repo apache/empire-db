@@ -18,8 +18,6 @@
  */
 package org.apache.empire.db.oracle;
 
-import java.util.Iterator;
-
 import org.apache.empire.data.DataType;
 import org.apache.empire.db.DBColumn;
 import org.apache.empire.db.DBDDLGenerator;
@@ -47,7 +45,7 @@ public class OracleDDLGenerator extends DBDDLGenerator<DBDatabaseDriverOracle>
 
     /**
      * sets Oracle specific data types
-     * @param driver
+     * @param driver the oracle driver in use
      */
     private void initDataTypes(DBDatabaseDriverOracle driver)
     {   // Override data types
@@ -96,16 +94,12 @@ public class OracleDDLGenerator extends DBDDLGenerator<DBDatabaseDriverOracle>
     protected void createDatabase(DBDatabase db, DBSQLScript script)
     {
         // Create all Sequences
-        Iterator<DBTable> seqtabs = db.getTables().iterator();
-        while (seqtabs.hasNext())
+        for (DBTable table : db.getTables())
         {
-            DBTable table = seqtabs.next();
-            Iterator<DBColumn> cols = table.getColumns().iterator();
-            while (cols.hasNext())
+            for (DBColumn dbColumn : table.getColumns())
             {
-                DBTableColumn c = (DBTableColumn) cols.next();
-                if (c.getDataType() == DataType.AUTOINC)
-                {
+                DBTableColumn c = (DBTableColumn) dbColumn;
+                if (c.getDataType() == DataType.AUTOINC) {
                     createSequence(db, c, script);
                 }
             }
@@ -145,21 +139,14 @@ public class OracleDDLGenerator extends DBDDLGenerator<DBDatabaseDriverOracle>
         // Add Column comments (if any)
         DBDatabase db = t.getDatabase();
         createComment(db, "TABLE", t, t.getComment(), script);
-        Iterator<DBColumn> columns = t.getColumns().iterator();
-        while (columns.hasNext())
+        for (DBColumn c : t.getColumns())
         {
-            DBColumn c = columns.next();
             String com = c.getComment();
             if (com != null)
                 createComment(db, "COLUMN", c, com, script);
         }
     }
-    
-    /**
-     * Returns true if the comment has been created successfully.
-     * 
-     * @return true if the comment has been created successfully
-     */
+
     protected void createComment(DBDatabase db, String type, DBExpr expr, String comment, DBSQLScript script)
     {
         if (comment==null || comment.length()==0)

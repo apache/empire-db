@@ -260,11 +260,10 @@ public class DBDatabaseDriverPostgreSQL extends DBDatabaseDriver
     /**
      * Creates the reverse function in postgre sql that returns the reverse of a string value.
      * The reverse function may be helpful in SQL to analyze a text field from its end.
-     * This function must be called manually by the application depending on whether it needs to use this function or not.<br/>
+     * This function must be called manually by the application depending on whether it needs to use this function or not.<br>
      * The current implementation does not check, whether the reverse function already exists.
      * If the functions exists it will be replaced and true is returned.
      * @param conn a valid database connection
-     * @return true if the reverse function was created successfully or false otherwise
      */
     public void createReverseFunction(Connection conn)
     {

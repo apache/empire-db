@@ -122,7 +122,6 @@ public class DBCombinedCmd extends DBCommandExpr
    * Creates the SQL-Command.
    * 
    * @param buf the SQL-Command
-   * @return true if the creation was successful
    */
    @Override
    public void getSelect(StringBuilder buf)

@@ -368,7 +368,7 @@ public class DBQuery extends DBRowSet
      * 
      * @param rec the DBRecord object, contains all fields and the field properties
      * @param conn a valid database connection
-     * @return a not implemented error
+     * @throws NotImplementedException because this is not implemented
      */
     @Override
     public void createRecord(DBRecord rec, Connection conn)
@@ -619,7 +619,6 @@ public class DBQuery extends DBRowSet
      * 
      * @param keys array of primary key values
      * @param conn a valid database connection
-     * @return true if the record has been successfully deleted or false otherwise
      */
     @Override
     public void deleteRecord(Object[] keys, Connection conn)

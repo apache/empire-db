@@ -237,11 +237,9 @@ public abstract class RecordFormActionSupport extends FormActionSupport
     /**
      * adds all fields found in the HTTP-JSPRequest for this table to the record
      * 
-     * @param rec
+     * @param record
      *            the Record object, contains all fields and the field
      *            properties
-     * @param request
-     *            request providing access to the HTTP-JSPRequest parameters
      * @return true if all values have been set successfully or otherwise false
      */
     protected boolean setUpdateFields(Record record)
@@ -341,9 +339,7 @@ public abstract class RecordFormActionSupport extends FormActionSupport
     
     /**
      * this method compares two primary key objects
-     * 
-     * @param keyColumns
-     *            an array of the primary key columns
+     *
      * @param currentKey
      *            the current key object
      * @param updateKey

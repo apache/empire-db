@@ -473,7 +473,8 @@ public abstract class DBRowSet extends DBExpr
      * Initialize this DBRowSet object and sets it's initial state.
      * 
      * @param rec the DBRecord object to initialize this DBRowSet object
-     * @param state the state of this DBRowSet object
+     * @param rowSetData any further RowSet specific data
+     * @param insert
      */
     protected void prepareInitRecord(DBRecord rec, Object rowSetData, boolean insert)
     {
@@ -574,7 +575,6 @@ public abstract class DBRowSet extends DBExpr
      * Set the constraints for a single record from a supplied key 
      * @param cmd the command to which to add the constraints
      * @param key the record key
-     * @return true if the constraints have been successfully set or false otherwise
      */
     protected void setKeyConstraints(DBCommand cmd, Object[] key)
     {
@@ -690,7 +690,6 @@ public abstract class DBRowSet extends DBExpr
      * <P>
      * @param rec the DBRecord object. contains all fields and the field properties
      * @param conn a valid JDBC connection.
-     * @return true if the update was successful or false otherwise
      */
     public void updateRecord(DBRecord rec, Connection conn)
     {
@@ -851,7 +850,6 @@ public abstract class DBRowSet extends DBExpr
      * <P>
      * @param id the record's primary key
      * @param conn a valid JDBC connection
-     * @return true if the record has been successfully deleted or false otherwise
      */
     public final void deleteRecord(Object id, Connection conn)
     {
@@ -863,7 +861,6 @@ public abstract class DBRowSet extends DBExpr
      * <P>
      * @param key the key the record to be deleted
      * @param conn a valid connection
-     * @return true if all reference records could be deleted
      */
     protected final void deleteAllReferences(Object[] key, Connection conn)
     {
@@ -896,7 +893,6 @@ public abstract class DBRowSet extends DBExpr
      * @param refs the reference columns belonging to the relation
      * @param parentKey the key of the parent element
      * @param conn a valid connection
-     * @return true if all records could be deleted or false otherwise
      */
     protected void deleteReferenceRecords(DBReference[] refs, Object[] parentKey, Connection conn)
     {

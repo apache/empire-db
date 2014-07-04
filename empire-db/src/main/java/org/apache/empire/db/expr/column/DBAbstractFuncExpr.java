@@ -67,7 +67,7 @@ public abstract class DBAbstractFuncExpr extends DBColumnExpr
     protected abstract String getFunctionName();
     
     /**
-     * returns the Database driver or null if the Expression is not attached to an open database<BR/>
+     * returns the Database driver or null if the Expression is not attached to an open database<BR>
      * This function is intended for convenience only.
      */
     protected final DBDatabaseDriver getDatabaseDriver()

@@ -107,8 +107,8 @@ public class DBRecord extends DBRecordData implements Record, Cloneable
     /**
      * This method is used internally by the RowSet to initialize the record's properties
      * @param rowset the rowset to which to attach this record
-     * @param state the state of the record 
      * @param rowSetData any further RowSet specific data
+     * @param newRecord
      */
     protected void initData(DBRowSet rowset, Object rowSetData, boolean newRecord)
     {
@@ -749,7 +749,6 @@ public class DBRecord extends DBRecordData implements Record, Cloneable
      * @param table the rowset from which to read the record
      * @param keys an array of the primary key values
      * @param conn a valid connection to the database.
-     * @return true if the record was successfully loaded or false if the record was not found or an error occurred.
      */
     public void read(DBRowSet table, Object[] keys, Connection conn)
     {
@@ -767,7 +766,6 @@ public class DBRecord extends DBRecordData implements Record, Cloneable
      * @param table the rowset from which to read the record
      * @param id the primary key of the record to load.
      * @param conn a valid connection to the database.
-     * @return true if the record was successfully loaded or false if the record was not found or an error occurred.
      */
     public final void read(DBRowSet table, Object id, Connection conn)
     {
@@ -976,7 +974,6 @@ public class DBRecord extends DBRecordData implements Record, Cloneable
      * @param bean the Java Bean from which to read the value from
      * @param property the name of the property
      * @param column the column for which to set the record value
-     * @return true if the value has been successfully set or false if not    
      */
     protected void setBeanValue(Object bean, String property, Column column)
     {

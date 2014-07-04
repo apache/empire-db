@@ -66,9 +66,6 @@ public class ActionError implements ErrorInfo
         // Default Constructor
     }
 
-    /**
-     * @see ErrorObject#error(ErrorInfo)
-     */
     public ActionError(ErrorInfo other)
     {
         // copy other error
@@ -90,10 +87,7 @@ public class ActionError implements ErrorInfo
         // copy other error
         this(new InternalException(e));
     }
-    
-    /**
-     * @see ErrorObject#error(ErrorType, Object[])
-     */
+
     public ActionError(ErrorType errType, String[] params)
     {   // Set the Error
         this.errType = errType;
@@ -101,17 +95,11 @@ public class ActionError implements ErrorInfo
         this.errMsg = MessageFormat.format(errType.getMessagePattern(), (Object[])params);
     }
 
-    /**
-     * @see ErrorObject#error(ErrorType, Object)
-     */
     public ActionError(ErrorType errType, String param)
     {
         this(errType, new String[] { param });
     }
 
-    /**
-     * @see ErrorObject#error(ErrorType)
-     */
     public ActionError(ErrorType errType)
     {
         this(errType, (String[])null);

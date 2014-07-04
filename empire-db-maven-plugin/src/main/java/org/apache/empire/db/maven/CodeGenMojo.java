@@ -30,85 +30,69 @@ import org.apache.log4j.Logger;
 import org.apache.log4j.spi.LoggingEvent;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
+import org.apache.maven.plugins.annotations.*;
 import org.apache.maven.project.MavenProject;
 
 /**
- * Generates code by reading an existing database schema
- * 
- * @goal codegen
- * @description Empire-DB Code generation
- * @requiresDependencyResolution runtime
- * @phase generate-sources
+ * Empire-DB Code generation by reading an existing database schema
  */
+@Mojo(
+        name = "codegen",
+        defaultPhase = LifecyclePhase.GENERATE_SOURCES,
+        requiresDependencyResolution = ResolutionScope.RUNTIME)
 public class CodeGenMojo extends AbstractMojo {
 
-	/**
-	 * @parameter expression="${project}" 
-	 * @readonly
-	 */
+    @Component
 	private MavenProject project;
 	
 	/**
 	 * Codegen configuration file, if the file is provided, only that file
 	 * is used to configure code generation
-	 * 
-	 * @parameter expression="${empiredb.configFile}"
 	 */
+    @Parameter(property = "empiredb.configFile")
 	private File configFile;
 
 	/**
 	 * Location of the generated sources.
-	 * 
-	 * @parameter 
-	 *     expression="${empiredb.generatedsources}" 
-	 *     default-value="${project.build.directory}/generated-sources/empiredb"
-	 * @required
 	 */
+    @Parameter(defaultValue = "${project.build.directory}/generated-sources/empiredb", property = "empiredb.generatedsources", required = true)
 	private File targetDirectory;
 	
 	/**
 	 * JDBC url
-	 * 
-	 * @parameter expression="${empiredb.jdbcURL}"
-	 * @required
 	 */
+    @Parameter(property = "empiredb.jdbcURL", required = true)
 	private String jdbcURL;
 	
 	/**
 	 * JDBC Driver class
-	 * 
-	 * @parameter expression="${empiredb.jdbcClass}"
-	 * @required
 	 */
+    @Parameter(property = "empiredb.jdbcClass", required = true)
 	private String jdbcClass;
 	
 	/**
 	 * JDBC Database user
-	 * 
-	 * @parameter expression="${empiredb.jdbcUser}"
 	 */
+    @Parameter(property = "empiredb.jdbcUser")
 	private String jdbcUser;
 	
 	/**
 	 * JDBC Database password
-	 * 
-	 * @parameter expression="${empiredb.jdbcPwd}"
 	 */
+    @Parameter(property = "empiredb.jdbcPwd")
 	private String jdbcPwd;
 	
 	/**
 	 * Code generator template directory, if not set the default templates
 	 * are loaded from the classpath
-	 * 
-	 * @parameter expression="${empiredb.templateDirectory}"
 	 */
+    @Parameter(property = "empiredb.templateDirectory")
 	private String templateDirectory;
 	
 	/**
 	 * The package for the generated sources
-	 * 
-	 * @parameter expression="${empiredb.packageName}"
 	 */
+    @Parameter(property = "empiredb.packageName")
 	private String packageName;
 
 	public void execute() throws MojoExecutionException 

@@ -25,9 +25,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * This exception type is used for all empire errors.<br>
- * Exceptions will only be thrown if exceptions are enabled in the ErrorObject.
- * @see ErrorObject#setExceptionsEnabled(boolean)
+ * This exception type is used for all empire errors.
  */
 public class EmpireException extends RuntimeException
 {
@@ -125,7 +123,7 @@ public class EmpireException extends RuntimeException
 
     /**
      * The type of error that occurred
-     * @see org.apache.empire.commons.Errors
+     * @see org.apache.empire.commons.ErrorType
      * @return the type of error
      */
     public ErrorType getErrorType()
@@ -135,8 +133,7 @@ public class EmpireException extends RuntimeException
 
     /**
      * The message parameters for the message.
-     * @see org.apache.empire.commons.Errors
-     * @return the type of error
+     * @return the parameter array
      */
     public String[] getErrorParams()
     {

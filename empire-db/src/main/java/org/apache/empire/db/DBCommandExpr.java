@@ -444,8 +444,7 @@ public abstract class DBCommandExpr extends DBExpr
     /**
      * set the maximum number of rows to return when executing a query command
      * A negative value will remove the limit.
-     * 
-     * @return true if the database supports a limit or false otherwise
+     *
      */
     public void limitRows(int numRows)
     {
@@ -455,8 +454,6 @@ public abstract class DBCommandExpr extends DBExpr
     /**
      * sets the offset of the first row to return when executing a query command.
      * A negative value will remove the offset.
-     * 
-     * @return true if the database supports an offset or false otherwise
      */
     public void skipRows(int numRows)
     {

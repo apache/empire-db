@@ -23,8 +23,6 @@ import org.apache.empire.exceptions.InvalidArgumentException;
 /**
  * This class handles the primary key for the tables.
  * The primary key contains one or more columns.
- * <P>
- * 
  *
  */
 public class DBExpressionIndex extends DBIndex
@@ -55,7 +53,7 @@ public class DBExpressionIndex extends DBIndex
      * 
      * @param name the index name
      * @param unique true if the index has only unique values or false otherwise
-     * @param columnExpression an column expressions that defines the key values for the index
+     * @param expr an column expressions that defines the key values for the index
      */
     public DBExpressionIndex(String name, boolean unique, DBColumnExpr expr)
     {
@@ -89,11 +87,11 @@ public class DBExpressionIndex extends DBIndex
     @Override
     public boolean contains(DBColumn col)
     {
-        for (int i = 0; i < columnExpressions.length; i++)
+        for (DBExpr columnExpression : columnExpressions)
         {
-            if (!(columnExpressions[i] instanceof DBColumnExpr))
+            if (!(columnExpression instanceof DBColumnExpr))
                 continue;
-            if (col.equals(((DBColumnExpr)columnExpressions[i]).getUpdateColumn()))
+            if (col.equals(((DBColumnExpr) columnExpression).getUpdateColumn()))
                 return true;
         }    
         return false;

@@ -53,7 +53,7 @@
 							<descriptors>
 								<descriptor>src/assemble/empire-assembly-all.xml</descriptor>
 							</descriptors>
-							<tarLongFileFormat>gnu</tarLongFileFormat>
+							<tarLongFileMode>gnu</tarLongFileMode>
 							<!-- <outputDirectory>${basedir}/target/dist</outputDirectory> -->
 							<!-- <finalName>apache-empire-db-${project.version}</finalName> -->
 							<appendAssemblyId>true</appendAssemblyId>

@@ -52,23 +52,6 @@ public class AttributesTest
 	}
 
 	/**
-	 * Test method for {@link org.apache.empire.commons.Attributes#put(java.lang.String, java.lang.Object)}.
-	 */
-	@Test
-	public void testPutStringObject()
-	{
-		Attributes attributes = new Attributes();
-		attributes.set(null, null);
-		assertEquals(null, attributes.get(null));
-		attributes.set("", null);
-		assertEquals(null, attributes.get(""));
-		attributes.set("test", null);
-		assertEquals(null, attributes.get("test"));
-		attributes.set("test", Integer.valueOf(456));
-		assertEquals(Integer.valueOf(456), attributes.get("test"));
-	}
-
-	/**
 	 * Test method for {@link org.apache.empire.commons.Attributes#set(java.lang.String, java.lang.Object)}.
 	 */
 	@Test

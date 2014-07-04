@@ -23,19 +23,12 @@ import org.apache.empire.exceptions.EmpireException;
 
 public abstract class WebException extends EmpireException
 {
-    /**
-     * Comment for <code>serialVersionUID</code>
-     */
     private static final long serialVersionUID = 1L;
 
-    /**
-     * Comment for <code>serialVersionUID</code>
-     */
     /**
      * Constructor for derived classes
      * @param errType
      * @param params
-     * @param cause
      */
     protected WebException(final ErrorType errType, final String[] params)
     {

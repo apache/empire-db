@@ -63,7 +63,7 @@ import org.w3c.dom.Element;
  *  <li>access field values directly by using one of the get... functions (see {@link DBRecordData})</li> 
  *  <li>get the rows as a list of Java Beans using by using {@link DBReader#getBeanList(Class, int)}</li> 
  *  <li>get the rows as an XML-Document using {@link DBReader#getXmlDocument()} </li> 
- *  <li>initialize a DBRecord with the current row data using {@link DBReader#initRecord(DBRowSet, DBRecord)}<br/>
+ *  <li>initialize a DBRecord with the current row data using {@link DBReader#initRecord(DBRowSet, DBRecord)}<br>
  *      This will allow you to modify and update the data. 
  *  </li> 
  * </ul>
@@ -227,7 +227,6 @@ public class DBReader extends DBRecordData
     
     /**
      * Support for finding code errors where a DBRecordSet is opened but not closed
-     * @author bond
      */
     private static ThreadLocal<Map<DBReader, Exception>> threadLocalOpenResultSets = new ThreadLocal<Map<DBReader, Exception>>();
     
@@ -603,7 +602,6 @@ public class DBReader extends DBRecordData
      * </PRE>
      * @param rowset the rowset to which to attach
      * @param rec the record which to initialize
-     * @return true if the record has been initialized successfully or false otherwise
      */
     public void initRecord(DBRowSet rowset, DBRecord rec)
     {
@@ -621,7 +619,7 @@ public class DBReader extends DBRecordData
      * @param t the class type of the objects in the list
      * @param maxCount the maximum number of objects
      * 
-     * @return the list of <T>
+     * @return the list of T
      */
     @SuppressWarnings("unchecked")
     public <C extends Collection<T>, T> C getBeanList(C c, Class<T> t, int maxCount)
@@ -680,7 +678,7 @@ public class DBReader extends DBRecordData
      * @param t the class type of the objects in the list
      * @param maxItems the maximum number of objects
      * 
-     * @return the list of <T>
+     * @return the list of T
      */
     public final <T> ArrayList<T> getBeanList(Class<T> t, int maxItems) {
         return getBeanList(new ArrayList<T>(), t, maxItems);
@@ -691,7 +689,7 @@ public class DBReader extends DBRecordData
      * 
      * @param t the class type of the objects in the list
      * 
-     * @return the list of <T>
+     * @return the list of T
      */
     public final <T> ArrayList<T> getBeanList(Class<T> t) {
         return getBeanList(t, -1);

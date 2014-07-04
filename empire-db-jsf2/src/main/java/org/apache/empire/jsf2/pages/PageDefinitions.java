@@ -66,7 +66,7 @@ public abstract class PageDefinitions implements Serializable
     
     /**
      * Register page beans with the BeanManager
-     * @param bm
+     * @param facesImpl
      */
     public void registerPageBeans(FacesImplementation facesImpl)
     {

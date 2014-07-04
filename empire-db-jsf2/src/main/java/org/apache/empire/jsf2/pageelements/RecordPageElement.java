@@ -95,8 +95,7 @@ public class RecordPageElement<T extends DBRecord> extends PageElement
     }
     
     /**
-     * loads the record identified by the supplied key from the database<BR/>
-     * @return true if the record has been successfully reloaded or false otherwise
+     * loads the record identified by the supplied key from the database<BR>
      */
     public void reloadRecord()
     {
@@ -119,8 +118,7 @@ public class RecordPageElement<T extends DBRecord> extends PageElement
     }
     
     /**
-     * loads the record identified by the supplied key from the database<BR/>
-     * @return true if the record has been successfully reloaded or false otherwise
+     * loads the record identified by the supplied key from the database<BR>
      */
     public void loadRecord(Object[] recKey)
     {

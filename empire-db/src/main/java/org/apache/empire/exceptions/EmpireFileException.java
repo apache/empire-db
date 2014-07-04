@@ -21,15 +21,10 @@ package org.apache.empire.exceptions;
 import org.apache.empire.commons.ErrorType;
 
 /**
- * This exception type is used for all empire errors.<br>
- * Exceptions will only be thrown if exceptions are enabled in the ErrorObject.
- * @see ErrorObject#setExceptionsEnabled(boolean)
+ * This exception type is used for file related empire errors.<br>
  */
 public abstract class EmpireFileException extends EmpireException
 {
-    /**
-     * Comment for <code>serialVersionUID</code>
-     */
     private static final long serialVersionUID = 1L;
 
     protected EmpireFileException(final ErrorType errType, final String[] params, final Throwable cause)

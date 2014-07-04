@@ -18,8 +18,6 @@
  */
 package org.apache.empire.db;
 
-import java.util.Iterator;
-
 import org.apache.empire.data.DataType;
 import org.apache.empire.exceptions.InvalidArgumentException;
 import org.apache.empire.exceptions.MiscellaneousErrorException;
@@ -89,9 +87,9 @@ public abstract class DBDDLGenerator<T extends DBDatabaseDriver>
     
     /**
      * appends the data type of a column
-     * @param type
-     * @param size
-     * @param sql
+     * @param type the type
+     * @param size the size
+     * @param sql the builder that we will append to
      * @return true if further column attributes may be added or false otherwise
      */
     protected boolean appendColumnDataType(DataType type, double size, DBTableColumn c, StringBuilder sql)
@@ -162,7 +160,7 @@ public abstract class DBDDLGenerator<T extends DBDatabaseDriver>
             case BLOB:
                 sql.append(DATATYPE_BLOB);
                 if (size > 0) {
-                    sql.append("(" + ((long)size) + ") ");
+                    sql.append("(").append((long) size).append(") ");
                 }    
                 break;
             case UNIQUEID:
@@ -182,7 +180,6 @@ public abstract class DBDDLGenerator<T extends DBDatabaseDriver>
      * @param c the column which description to append
      * @param alter true if altering an existing column or false otherwise
      * @param sql the sql builder object
-     * @return true if the column was successfully appended or false otherwise
      */
     protected void appendColumnDesc(DBTableColumn c, boolean alter, StringBuilder sql)
     {
@@ -291,7 +288,6 @@ public abstract class DBDDLGenerator<T extends DBDatabaseDriver>
         else if (dbo instanceof DBTableColumn)
         { // Table Column
             alterTable((DBTableColumn) dbo, type, script);
-            return;
         } 
         else
         { // dll generation not supported for this type
@@ -300,7 +296,7 @@ public abstract class DBDDLGenerator<T extends DBDatabaseDriver>
     }
         
     /**
-     * Appends the DDL-Script for creating the given database to an SQL-Script<br/>
+     * Appends the DDL-Script for creating the given database to an SQL-Script<br>
      * This includes the generation of all tables, views and relations.
      * @param db the database to create
      * @param script the sql script to which to append the dll command(s)
@@ -308,28 +304,23 @@ public abstract class DBDDLGenerator<T extends DBDatabaseDriver>
     protected void createDatabase(DBDatabase db, DBSQLScript script)
     {
         // Create all Tables
-        Iterator<DBTable> tables = db.getTables().iterator();
-        while (tables.hasNext())
+        for (DBTable dbTable : db.getTables())
         {
-            createTable(tables.next(), script);
+            createTable(dbTable, script);
         }
         // Create Relations
-        Iterator<DBRelation> relations = db.getRelations().iterator();
-        while (relations.hasNext())
+        for (DBRelation dbRelation : db.getRelations())
         {
-            createRelation(relations.next(), script);
+            createRelation(dbRelation, script);
         }
         // Create Views
-        Iterator<DBView> views = db.getViews().iterator();
-        while (views.hasNext())
+        for (DBView v : db.getViews())
         {
-        	DBView v = views.next();
             try {
                 createView(v, script);
-            } catch(NotSupportedException e) {
+            } catch (NotSupportedException e) {
                 // View command not implemented
                 log.warn("Error creating the view {0}. This view will be ignored.", v.getName());
-                continue;
             }
         }
     }
@@ -359,11 +350,9 @@ public abstract class DBDDLGenerator<T extends DBDatabaseDriver>
         t.addSQL(sql, DBExpr.CTX_FULLNAME);
         sql.append(" (");
         boolean addSeparator = false;
-        Iterator<DBColumn> columns = t.getColumns().iterator();
-        while (columns.hasNext())
-        {
-            DBTableColumn c = (DBTableColumn) columns.next();
-            if (c.getDataType()==DataType.UNKNOWN)
+        for (DBColumn dbColumn : t.getColumns()) {
+            DBTableColumn c = (DBTableColumn) dbColumn;
+            if (c.getDataType() == DataType.UNKNOWN)
                 continue; // Ignore and continue;
             // Append column
             sql.append((addSeparator) ? ",\r\n   " : "\r\n   ");
@@ -383,10 +372,9 @@ public abstract class DBDDLGenerator<T extends DBDatabaseDriver>
             addSeparator = false;
             // columns
             DBColumn[] keyColumns = pk.getColumns();
-            for (int i = 0; i < keyColumns.length; i++)
-            {
-                sql.append((addSeparator) ? ", " : "");
-                keyColumns[i].addSQL(sql, DBExpr.CTX_NAME);
+            for (DBColumn keyColumn : keyColumns) {
+                sql.append(addSeparator ? ", " : "");
+                keyColumn.addSQL(sql, DBExpr.CTX_NAME);
                 addSeparator = true;
             }
             sql.append(")");
@@ -407,10 +395,8 @@ public abstract class DBDDLGenerator<T extends DBDatabaseDriver>
     protected void createTableIndexes(DBTable t, DBIndex pk, DBSQLScript script)
     {
         // Create other Indexes (except primary key)
-        Iterator<DBIndex> indexes = t.getIndexes().iterator();
-        while (indexes.hasNext())
+        for (DBIndex idx : t.getIndexes())
         {
-            DBIndex idx = indexes.next();
             if (idx == pk || idx.getType() == DBIndex.PRIMARYKEY)
                 continue;
 
@@ -422,7 +408,7 @@ public abstract class DBDDLGenerator<T extends DBDatabaseDriver>
     /**
      * Appends the DDL-Script for creating a single index to an SQL-Script 
      * @param t the table
-     * @param index the index to create
+     * @param idx the index to create
      * @param script the sql script to which to append the dll command(s)
      */
     protected void createIndex(DBTable t, DBIndex idx, DBSQLScript script)
@@ -439,10 +425,10 @@ public abstract class DBDDLGenerator<T extends DBDatabaseDriver>
         // columns
         boolean addSeparator = false;
         DBExpr[] idxColumns = idx.getExpressions();
-        for (int i = 0; i < idxColumns.length; i++)
+        for (DBExpr idxColumn : idxColumns)
         {
-            sql.append((addSeparator) ? ", " : "");
-            idxColumns[i].addSQL(sql, DBExpr.CTX_NAME);
+            sql.append(addSeparator ? ", " : "");
+            idxColumn.addSQL(sql, DBExpr.CTX_NAME);
             sql.append("");
             addSeparator = true;
         }
@@ -473,10 +459,10 @@ public abstract class DBDDLGenerator<T extends DBDatabaseDriver>
         // Source Names
         boolean addSeparator = false;
         DBRelation.DBReference[] refs = r.getReferences();
-        for (int i = 0; i < refs.length; i++)
+        for (DBRelation.DBReference ref1 : refs)
         {
             sql.append((addSeparator) ? ", " : "");
-            refs[i].getSourceColumn().addSQL(sql, DBExpr.CTX_NAME);
+            ref1.getSourceColumn().addSQL(sql, DBExpr.CTX_NAME);
             addSeparator = true;
         }
         // References
@@ -485,10 +471,10 @@ public abstract class DBDDLGenerator<T extends DBDatabaseDriver>
         sql.append(" (");
         // Target Names
         addSeparator = false;
-        for (int i = 0; i < refs.length; i++)
+        for (DBRelation.DBReference ref : refs)
         {
             sql.append((addSeparator) ? ", " : "");
-            refs[i].getTargetColumn().addSQL(sql, DBExpr.CTX_NAME);
+            ref.getTargetColumn().addSQL(sql, DBExpr.CTX_NAME);
             addSeparator = true;
         }
         sql.append(")");

@@ -152,7 +152,7 @@ public class RecordActionSupport extends RecordFormActionSupport
     // ------- Methods -------
     
     /**
-     * creates a new record.<BR/>
+     * creates a new record.<BR>
      * Depending on the persistence setting the record key or the record data will be stored on the session.
      * @return true if the record was successfully created or false otherwise
      */
@@ -173,9 +173,8 @@ public class RecordActionSupport extends RecordFormActionSupport
     }
     
     /**
-     * sets all required foreign keys for this record.<BR/>
+     * sets all required foreign keys for this record.<BR>
      * The foreign key values must be supplied with the request.
-     * @return true if all required foreign keys have been successfully set, or false otherwise
      */
     public void initReferenceColumns()
     {
@@ -202,8 +201,7 @@ public class RecordActionSupport extends RecordFormActionSupport
     }
     
     /**
-     * loads the record identified by the supplied key from the database<BR/>
-     * @return true if the record has been successfully reloaded or false otherwise
+     * loads the record identified by the supplied key from the database<BR>
      */
     public void loadRecord(Object[] recKey)
     {
@@ -219,7 +217,7 @@ public class RecordActionSupport extends RecordFormActionSupport
     }
     
     /**
-     * loads the record either from the supplied item key on the request or from the session.<BR/>
+     * loads the record either from the supplied item key on the request or from the session.<BR>
      * @return true if the record has been successfully reloaded or false otherwise
      */
     public boolean loadRecord()
@@ -243,10 +241,9 @@ public class RecordActionSupport extends RecordFormActionSupport
     }
     
     /**
-     * reloads the current record from the session.<BR/>
+     * reloads the current record from the session.<BR>
      * If persistence is set to Key then the key is obtained from the session and the record 
-     * is reloaded from the database. 
-     * @return true if the record has been successfully reloaded or false otherwise
+     * is reloaded from the database.
      */
     public void reloadRecord()
     {   // Load 

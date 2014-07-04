@@ -1172,7 +1172,7 @@ public abstract class DBDatabase extends DBObject
     }
     
     /**
-     * Adds the result of a query to a given collection.<br/>
+     * Adds the result of a query to a given collection.<br>
      * The individual rows will be added as an array of objects (object[])
      * <p>This function should only be used for small lists.
      * Otherwise a DBReader should be used!</p>
@@ -1225,7 +1225,7 @@ public abstract class DBDatabase extends DBObject
     } 
 
     /**
-     * Adds the result of a query to a given collection.<br/>
+     * Adds the result of a query to a given collection.<br>
      * The individual rows will be added as an array of objects (object[])
      * <p>This function should only be used for small lists.
      * Otherwise a DBReader should be used!</p>

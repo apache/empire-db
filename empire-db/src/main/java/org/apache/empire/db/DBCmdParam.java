@@ -51,7 +51,7 @@ public class DBCmdParam extends DBExpr
      * Returns the internal parameter value for a given "real" value.  
      * Depending on the data type this might involve wrapping the real value with another class.
      * This is done e.g. for CLOBs and BLOBs 
-     * @param the "real" value 
+     * @param value the "real" value
      * @return the (possibly wrapped) value
      */
     protected Object getCmdParamValue(Object value)

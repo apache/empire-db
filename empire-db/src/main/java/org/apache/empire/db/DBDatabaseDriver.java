@@ -271,9 +271,9 @@ public abstract class DBDatabaseDriver implements Serializable
     public abstract boolean isSupported(DBDriverFeature type);
 
     /**
-     * Detects whether a table or column name needs to be quoted or not<BR/>
+     * Detects whether a table or column name needs to be quoted or not<br>
      * By default all reserved SQL keywords as well as names 
-     * containing a "-", "/", "+" or " " require quoting.<BR/>
+     * containing a "-", "/", "+" or " " require quoting.<br>
      * Overrides this function to add database specific keywords like "user" or "count"  
      */
     protected boolean detectQuoteName(String name)
@@ -415,7 +415,9 @@ public abstract class DBDatabaseDriver implements Serializable
      * Adds a statement parameter to a prepared statement
      * 
      * @param pstmt the prepared statement
-     * @param sqlParams list of objects
+     * @param paramIndex the parameter index
+     * @param value the parameter value
+     * @param conn the connection
      */
     protected void addStatementParam(PreparedStatement pstmt, int paramIndex, Object value, Connection conn)
 		throws SQLException
@@ -822,8 +824,6 @@ public abstract class DBDatabaseDriver implements Serializable
      * @param db the database
      * @param owner the owner
      * @param conn the connection
-     * 
-     * @return true if it is consistent with the description
      */
     public void checkDatabase(DBDatabase db, String owner, Connection conn)
     {
@@ -842,7 +842,7 @@ public abstract class DBDatabaseDriver implements Serializable
     }
     
     /**
-     * Appends a statement to enable or disable a foreign key relation.<br/
+     * Appends a statement to enable or disable a foreign key relation.<br>
      * The default is to drop or create the relation 
      * Override this method to provide different behavior for your database.
      * @param r the foreign key relation which should be enabled or disabled
