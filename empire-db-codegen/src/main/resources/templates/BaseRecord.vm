@@ -27,7 +27,7 @@ public abstract class ${baseRecordClassName}<T extends ${baseTableClassName}> ex
 	private static final long serialVersionUID = 1L;
 
 	public ${baseRecordClassName}(T table) {
-		super.init(table, DBRecord.REC_EMTPY, null);
+		super(table);
 	}
 
 	/**

@@ -60,21 +60,21 @@
 		    <version>5.1.1</version>
 		</dependency>-->
 		
-		<!-- ojdbc  
+		<!-- ojdbc   
 		<dependency>
 		    <groupId>com.oracle</groupId>
-		    <artifactId>ojdbc</artifactId>
-		    <version>14</version>
+			<artifactId>ojdbc5</artifactId>
+			<version>11.2.0.3</version>
 		</dependency>
 		-->
 
 		<!-- msssql 
 		<dependency>
-		    <groupId>microsoft</groupId>
+		    <groupId>com.microsoft</groupId>
 		    <artifactId>sqljdbc</artifactId>
 		    <version>1.0</version>
 		</dependency>
-		-->
+		--> 
 		
 	</dependencies>
 </project>

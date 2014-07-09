@@ -365,7 +365,28 @@ public class CodeGenParser {
 			throws SQLException {
 		String name = rs.getString("COLUMN_NAME");
 		DataType empireType = getEmpireDataType(rs.getInt("DATA_TYPE"));
-		double colSize = Double.parseDouble(""+rs.getInt("COLUMN_SIZE") + '.' +rs.getInt("DECIMAL_DIGITS"));
+		
+		double colSize = rs.getInt("COLUMN_SIZE");
+		if (empireType==DataType.DECIMAL || empireType==DataType.FLOAT)
+		{	// decimal digits
+			int decimalDig = rs.getInt("DECIMAL_DIGITS");
+			if (decimalDig>0)
+			{	// parse
+				try {
+					int intSize = rs.getInt("COLUMN_SIZE");
+					colSize = Double.parseDouble(String.valueOf(intSize)+'.'+decimalDig);
+				} catch(Exception e) {
+					log.error("Failed to parse decimal digits for column "+name);
+				}
+			}
+			// make integer?
+			if (colSize<1.0d)
+			{	// Turn into an integer
+				empireType=DataType.INTEGER;
+			}
+		}
+		
+		// mandatory field?
 		boolean required = false;
 		String defaultValue = rs.getString("COLUMN_DEF");
 		if (rs.getString("IS_NULLABLE").equalsIgnoreCase("NO"))
