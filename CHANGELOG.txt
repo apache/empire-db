@@ -11,6 +11,7 @@ Release 2.4.3:
 	EMPIREDB-127 	Switch to Apache Maven 3.0.x
 
 ** Bugfix
+	EMPIREDB-206	ExpireException may throw an ArrayOutOfBoundsException
 	EMPIREDB-205	DBColumn implements equals() but not hashcode()
 	EMPIREDB-204	PostgreSQL not supports size parameter on BYTEA
 	EMPIREDB-202	BeanListPageElement does not navigate back to page 0.
