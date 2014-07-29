@@ -46,7 +46,7 @@ public class EmpireException extends RuntimeException
             if (pattern==null)
                 pattern=errType.getMessagePattern();
             // init format args
-            Object[] formatArgs = (Object[])params;
+            Object[] formatArgs = params;
             // Check parameter count
             int patParamCount = errType.getNumParams();
             int paramCount = (params!=null) ? params.length : 0;            
@@ -59,24 +59,27 @@ public class EmpireException extends RuntimeException
             }
             // more params than expected
             else if (paramCount>patParamCount)
-            {   // Wildcard for the rest
+            {   // check for wildcard
                 if (pattern.contains("{*}")) 
                 {   pattern = pattern.replace("{*}", "{"+String.valueOf(patParamCount)+"}");
                     patParamCount++;
                 }
                 // Build new array
-                formatArgs = new String[patParamCount];
-                int i=0;
-                for (; i<patParamCount-1; i++)
-                    formatArgs[i]=params[i];
-                // Build a array for the rest
-                StringBuilder b = new StringBuilder();
-                for (;i<paramCount;i++)
-                {   if (b.length()>0)
-                        b.append(", ");
-                    b.append(String.valueOf(params[i]));
+                if (patParamCount>0)
+                {	// reduce number of arguments
+	                formatArgs = new String[patParamCount];
+	                int i=0;
+	                for (; i<patParamCount-1; i++)
+	                    formatArgs[i]=params[i];
+	                // Build a array for the rest
+	                StringBuilder b = new StringBuilder();
+	                for (;i<paramCount;i++)
+	                {   if (b.length()>0)
+	                        b.append(", ");
+	                    b.append(String.valueOf(params[i]));
+	                }
+	            	formatArgs[patParamCount-1]=b.toString();
                 }
-                formatArgs[patParamCount-1]=b.toString();
             }
             // format now
             String msg = MessageFormat.format(pattern, formatArgs);
