@@ -115,13 +115,21 @@ public class $dbClassName extends DBDatabase {
 	
 	#if($nestTables == true)
 		#foreach ($table in $database.tables)
-			#parse( "$templateFolder/Table.vm" )
+			#if ($templateFolder)
+				#parse( "$templateFolder/Table.vm" )
+			#else
+				#parse( "Table.vm" )
+			#end
 		#end
 	#end
 
 	#if($nestViews == true)
 		#foreach ($view in $database.views)
-			#parse( "$templateFolder/View.vm" )
+			#if ($templateFolder)
+				#parse( "$templateFolder/View.vm" )
+			#else
+				#parse( "View.vm" )
+			#end
 		#end
 	#end
 	

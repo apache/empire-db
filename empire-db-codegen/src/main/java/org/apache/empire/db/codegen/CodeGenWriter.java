@@ -100,7 +100,6 @@ public class CodeGenWriter {
 		if(config.getTemplateFolder() == null){
 			engine.setProperty(RuntimeConstants.RESOURCE_LOADER, "classpath");
 			engine.setProperty("classpath." + RuntimeConstants.RESOURCE_LOADER + ".class", ClasspathResourceLoader.class.getName());
-			config.setTemplateFolder("templates");
 		}else{
 			File templateFolder = new File(config.getTemplateFolder());
 			if(!templateFolder.canRead()){
@@ -288,7 +287,15 @@ public class CodeGenWriter {
 
 	private void writeFile(File file, String template,
 			VelocityContext context) {
-		String templatePath = config.getTemplateFolder()+ System.getProperty("file.separator") +template;
+	    
+	    String templatePath;
+	    
+	    if(config.getTemplateFolder() == null) {
+	        templatePath = template;
+	    } else {
+	        templatePath = config.getTemplateFolder()+ System.getProperty("file.separator") + template;
+	    }
+	    
 		Writer writer = null;
 		try {
 			log.info("Writing " + file);
