@@ -53,10 +53,10 @@ public class $parser.getRecordClassName($table.name) extends ${baseRecordClassNa
 	// Access methods for all columns
 #foreach($col in $table.columns)
 
-	public $parser.getJavaType($col).getName() $parser.getAccessorName($col)() {
-		return ($parser.getJavaType($col).getName())super.getValue(getTable().${parser.getColumnName($col)});
+	public $parser.getJavaType($col).getCanonicalName() $parser.getAccessorName($col)() {
+		return ($parser.getJavaType($col).getCanonicalName())super.getValue(getTable().${parser.getColumnName($col)});
 	}
-	public void $parser.getMutatorName($col)($parser.getJavaType($col).getName() val) {
+	public void $parser.getMutatorName($col)($parser.getJavaType($col).getCanonicalName() val) {
 		super.setValue(getTable().${parser.getColumnName($col)}, val);
 	}
 #end
