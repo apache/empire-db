@@ -168,11 +168,12 @@ public class DBAliasExpr extends DBColumnExpr
         {   // Add the column expression
             expr.addSQL(buf, context);
             // Rename
-            String asExpr = getDatabase().getDriver().getSQLPhrase(DBDatabaseDriver.SQL_RENAME_COLUMN);
+            DBDatabaseDriver driver = getDatabase().getDriver();
+            String asExpr = driver.getSQLPhrase(DBDatabaseDriver.SQL_RENAME_COLUMN);
             if (asExpr!=null)
             {
                 buf.append(asExpr);
-                buf.append(alias);
+                driver.appendElementName(buf, alias);
             }
         } 
         else

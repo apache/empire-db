@@ -117,7 +117,8 @@ public abstract class DBDatabaseDriver implements Serializable
                                                                   };        
     protected static final String[] GENERAL_SQL_KEYWORDS = new String[] { "user", "group", 
                                                            "table", "column", "view", "index", "constraint", 
-                                                           "select", "udpate", "insert", "alter", "delete" };        
+                                                           "select", "udpate", "insert", "alter", "delete", 
+                                                           "order" };        
     protected final Set<String> reservedSQLKeywords;
 
     /**
