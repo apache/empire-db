@@ -58,6 +58,7 @@ public class DBTableColumn extends DBColumn
     protected double    size;
     protected DataMode  dataMode;
     protected Object    defValue;
+    protected int 		decimalScale = 0;
 
     /**
      * Constructs a DBTableColumn object set the specified parameters to this object.
@@ -208,6 +209,32 @@ public class DBTableColumn extends DBColumn
         }
         // set now
         this.size = size;
+        // set scale
+    	if (getDataType()==DataType.DECIMAL)
+    	{	// set scale from size
+		    int reqPrec = (int)size;
+		    this.decimalScale = ((int)(size*10)-(reqPrec*10));
+    	}
+    }
+    
+    /**
+     * Returns the scale of the Decimal or 0 if the DataType is not DataType.DECIMAL.
+     * @return the decimal scale
+     */
+    public int getDecimalScale()
+    {
+	    return this.decimalScale;
+    }
+    
+    /**
+     * Sets the scale of a decimal. The DataType must be set to DataType.DECIMAL otherwise an exception is thrown. 
+     */
+    public void setDecimalScale(int scale)
+    {
+    	if (getDataType()!=DataType.DECIMAL)
+    		throw new NotSupportedException(this, "setDecimalScale");
+    	// return scale
+	    this.decimalScale = scale;
     }
 
     /**
@@ -457,7 +484,7 @@ public class DBTableColumn extends DBColumn
             // check precision and scale
             double size = getSize();
             int reqPrec = (int)size;
-            int reqScale =((int)(size*10)-(reqPrec*10));
+            int reqScale = getDecimalScale();
             if ((prec-scale)>(reqPrec-reqScale) || scale>reqScale)
                 throw new FieldValueOutOfRangeException(this);
         }

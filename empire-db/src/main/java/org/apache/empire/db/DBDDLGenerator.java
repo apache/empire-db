@@ -143,7 +143,7 @@ public abstract class DBDDLGenerator<T extends DBDatabaseDriver>
             case DECIMAL:
             {   sql.append(DATATYPE_DECIMAL);
                 int prec  = (int) size;
-                int scale = (int) ((size - prec) * 10 + 0.5);
+                int scale = c.getDecimalScale();
                 if (prec>0) {
                     // append precision and scale
                     sql.append("(");
