@@ -128,17 +128,25 @@ public class DBCombinedCmd extends DBCommandExpr
    {
       // the left part
       left.clearOrderBy();
-      buf.append( "(" );
-      left.getSelect(buf);
+      if (!(left instanceof DBCombinedCmd)) {
+	      buf.append( "(" );
+	      left.getSelect(buf);
+	      buf.append( ")" );
+      } else
+	      left.getSelect(buf);
       // concat keyword     
-      buf.append( ")\r\n" );
+      buf.append( "\r\n" );
       buf.append( keyWord );
-      buf.append( " (" );
+      buf.append( "\r\n" );
       // the right part
       right.clearOrderBy();
-      right.getSelect(buf);
+      if (!(right instanceof DBCombinedCmd)) {
+	      buf.append( "(" );
+	      right.getSelect(buf);
+	      buf.append( ")" );
+      } else
+	      right.getSelect(buf);
       // done
-      buf.append( ")" );
       // Add optional Order by statement
       if ( orderBy!=null )
       {    // Having
