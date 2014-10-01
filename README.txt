@@ -1,5 +1,5 @@
-About
-=====
+About Empire-DB
+===============
 
 Apache Empire-db is a lightweight data access and persistence component for
 relational databases based on JDBC.
