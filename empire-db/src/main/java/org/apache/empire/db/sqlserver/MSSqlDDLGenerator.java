@@ -35,6 +35,8 @@ public class MSSqlDDLGenerator extends DBDDLGenerator<DBDatabaseDriverMSSQL>
         super(driver);
         // set Oracle specific data types
         initDataTypes();
+        // Alter Column Phrase
+        alterColumnPhrase  = " ALTER COLUMN ";
     }
 
     /**
