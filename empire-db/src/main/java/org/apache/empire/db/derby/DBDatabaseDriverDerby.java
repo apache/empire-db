@@ -72,7 +72,9 @@ public class DBDatabaseDriverDerby extends DBDatabaseDriver
      */
     public DBDatabaseDriverDerby()
     {
-        // Default Constructor
+        // Add additional reserved keywords
+        reservedSQLKeywords.add("count");
+        reservedSQLKeywords.add("year");
     }
 
     /**
