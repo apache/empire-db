@@ -22,6 +22,9 @@ import org.apache.empire.data.DataType;
 import org.apache.empire.db.DBColumn;
 import org.apache.empire.db.DBIndex;
 import org.apache.empire.db.DBObject;
+import org.apache.empire.db.DBRelation;
+import org.apache.empire.db.DBTable;
+import org.apache.empire.db.DBView;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,15 +40,34 @@ public class DBModelErrorLogger implements DBModelErrorHandler
      */
     public void itemNotFound(DBObject dbo)
     {
-        if (dbo instanceof DBIndex)
+        if (dbo instanceof DBTable)
+        {
+            DBTable table = (DBTable)dbo;
+            DBModelErrorLogger.log.error("The table {} does not exist in the target database.", table.getName());
+        }
+        else if (dbo instanceof DBColumn)
+        {
+            DBColumn column = (DBColumn) dbo;
+            DBModelErrorLogger.log.error("The column {} does not exist in the target database.", column.getFullName());
+        }
+        else if (dbo instanceof DBIndex)
         {
             DBIndex dbi = (DBIndex) dbo;
-            DBModelErrorLogger.log.error("The primary key " + dbi.getName() + " for table " + dbi.getTable().getName()
-                                         + " does not exist in the target database.");
+            DBModelErrorLogger.log.error("The primary key {} for table{} does not exist in the target database.", dbi.getName(), dbi.getTable().getName());
+        }
+        else if (dbo instanceof DBView)
+        {
+            DBView view = (DBView)dbo;
+            DBModelErrorLogger.log.error("The view {} does not exist in the target database.", view.getName());
+        }
+        else if (dbo instanceof DBRelation)
+        {
+            DBRelation relation = (DBRelation)dbo;
+            DBModelErrorLogger.log.error("The foreing key relation "+relation.getName()+" from table {} to table {} does not exist in the target database.", relation.getForeignKeyTable().getName(), relation.getReferencedTable().getName());
         }
         else
         {
-            DBModelErrorLogger.log.error("The object " + dbo.toString() + " does not exist in the target database.");
+            DBModelErrorLogger.log.error("The object {} does not exist in the target database.", dbo.toString());
         }
     }
 
@@ -54,8 +76,7 @@ public class DBModelErrorLogger implements DBModelErrorHandler
      */
     public void columnTypeMismatch(DBColumn col, DataType type)
     {
-        DBModelErrorLogger.log.error("The column " + col.getFullName() + " type of " + col.getDataType().toString()
-                                     + " does not match the database type of " + type.toString());
+        DBModelErrorLogger.log.error("The column " + col.getFullName() + " type of {} does not match the database type of {}.", col.getDataType(), type);
     }
 
     /**
@@ -63,8 +84,14 @@ public class DBModelErrorLogger implements DBModelErrorHandler
      */
     public void columnSizeMismatch(DBColumn col, int size, int scale)
     {
-        DBModelErrorLogger.log.error("The column " + col.getFullName() + " size of " + String.valueOf(col.getSize())
-                                     + " does not match the size database size of " + String.valueOf(size));
+        if (size>0 && size<col.getSize())
+        {   // Database size is smaller: Error 
+            DBModelErrorLogger.log.error("The column "+col.getFullName()+" size of {} does not match the database size of {}.", col.getSize(), size);
+        }
+        else
+        {   // Database size is bigger or unknown: Warning only
+            DBModelErrorLogger.log.warn("The column "+col.getFullName()+" size of {} does not match the database size of {}.", col.getSize(), size);
+        }
     }
 
     /**
