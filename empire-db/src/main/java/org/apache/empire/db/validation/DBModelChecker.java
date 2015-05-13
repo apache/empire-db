@@ -307,6 +307,7 @@ public class DBModelChecker
                 }
                 // Not found
                 handler.itemNotFound(relation);
+				break referenceLoop;
             }
 
         }
