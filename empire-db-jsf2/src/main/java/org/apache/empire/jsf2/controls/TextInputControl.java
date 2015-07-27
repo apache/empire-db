@@ -60,6 +60,9 @@ public class TextInputControl extends InputControl
     public static final String DATE_FORMAT = "date-format:";
     public static final String DATE_FORMAT_ATTRIBUTE = "format:date";
     
+    public static final String GROUP_SEPARATOR = "group-separator:";
+    public static final String FRACTION_DIGITS = "fraction-digits:";
+    
     private Class<? extends javax.faces.component.html.HtmlInputText> inputComponentClass;
     
     public TextInputControl(String name, Class<? extends HtmlInputText> inputComponentClass)
@@ -253,7 +256,7 @@ public class TextInputControl extends InputControl
         }
         if (dataType == DataType.DECIMAL || dataType == DataType.FLOAT)
         { // Dezimal oder Double
-            NumberFormat nf = getNumberFormat(dataType, vi.getLocale(), column);
+            NumberFormat nf = getNumberFormat(dataType, vi);
             return nf.format(value);
         }
         if (dataType == DataType.DATE || dataType == DataType.DATETIME)
@@ -457,8 +460,10 @@ public class TextInputControl extends InputControl
         return DataType.UNKNOWN;
     }
     
-    protected NumberFormat getNumberFormat(DataType dataType, Locale locale, Column column)
+    protected NumberFormat getNumberFormat(DataType dataType, ValueInfo vi)
     {
+        Column column = vi.getColumn();
+        Locale locale = vi.getLocale();
         if (column==null)
             return NumberFormat.getNumberInstance(locale); 
         // Column is supplied
@@ -469,10 +474,10 @@ public class TextInputControl extends InputControl
         else
             nf = NumberFormat.getNumberInstance(locale);
         // Groups Separator?
-        Object groupSep = column.getAttribute(InputControl.NUMBER_GROUPSEP_ATTRIBUTE);
+        Object groupSep = getFormatOption(vi, GROUP_SEPARATOR, NUMBER_GROUPSEP_ATTRIBUTE); 
         nf.setGroupingUsed(groupSep!=null && ObjectUtils.getBoolean(groupSep));
         // Fraction Digits?
-        Object fractDigit = column.getAttribute(InputControl.NUMBER_FRACTION_DIGITS);
+        Object fractDigit = getFormatOption(vi, FRACTION_DIGITS, InputControl.NUMBER_FRACTION_DIGITS);
         if (fractDigit!=null)
         {   int fractionDigits = ObjectUtils.getInteger(fractDigit);
             nf.setMaximumFractionDigits(fractionDigits);
