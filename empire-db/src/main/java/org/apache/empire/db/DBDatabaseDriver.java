@@ -397,14 +397,14 @@ public abstract class DBDatabaseDriver implements Serializable
      * @param pstmt the prepared statement
      * @param sqlParams list of objects
      */
-    protected void prepareStatement(PreparedStatement pstmt, Object[] sqlParams, Connection conn)
+    protected void prepareStatement(PreparedStatement pstmt, Object[] sqlParams) 
     	throws SQLException
 	{
         for (int i=0; i<sqlParams.length; i++)
         {
             Object value = sqlParams[i];
             try {
-                addStatementParam(pstmt, i+1, value, conn);
+                addStatementParam(pstmt, i+1, value); // , conn
             } catch(SQLException e) {
                 log.error("SQLException: Unable to set prepared statement parameter {} to '{}'", i+1, StringUtils.toString(value));
                 throw e;
@@ -418,9 +418,8 @@ public abstract class DBDatabaseDriver implements Serializable
      * @param pstmt the prepared statement
      * @param paramIndex the parameter index
      * @param value the parameter value
-     * @param conn the connection
      */
-    protected void addStatementParam(PreparedStatement pstmt, int paramIndex, Object value, Connection conn)
+    protected void addStatementParam(PreparedStatement pstmt, int paramIndex, Object value)
 		throws SQLException
 	{
         if (value instanceof DBBlobData)
@@ -544,7 +543,7 @@ public abstract class DBDatabaseDriver implements Serializable
                     ? conn.prepareStatement(sqlCmd, Statement.RETURN_GENERATED_KEYS)
                     : conn.prepareStatement(sqlCmd);
     	        stmt = pstmt;
-	            prepareStatement(pstmt, sqlParams, conn);
+	            prepareStatement(pstmt, sqlParams); 
 	            count = pstmt.executeUpdate(); 
             }
             else
@@ -575,6 +574,80 @@ public abstract class DBDatabaseDriver implements Serializable
         }
     }
 
+    /**
+     * Executes a list of sql statements as batch
+     * @param sqlCmd
+     * @param sqlCmdParams
+     * @param conn
+     * @return
+     * @throws SQLException
+     */
+    public int[] executeBatch(String[] sqlCmd, Object[][] sqlCmdParams, Connection conn)
+        throws SQLException
+    {   // Execute the Statement
+        if (sqlCmdParams!=null)
+        {   // Use a prepared statement
+        	PreparedStatement pstmt = null;
+	        try
+	        {
+            	int pos=0;
+            	String lastCmd = null;
+            	int[] result = new int[sqlCmd.length];
+            	for (int i=0; i<=sqlCmd.length; i++)
+            	{	// get cmd
+            		String cmd = (i<sqlCmd.length ? sqlCmd[i] : null);
+            		if (StringUtils.compareEqual(cmd, lastCmd, true)==false)
+            		{	// close last statement
+            			if (pstmt!=null)
+            			{	// execute and close
+			        		log.debug("Executing batch containing {} statements", i-pos);
+            				int[] res = pstmt.executeBatch();
+            				for (int j=0; j<res.length; j++)
+            					result[pos+j]=res[j];
+            				pos+=res.length;
+            				close(pstmt);
+            				pstmt = null;
+            			}
+            			// has next?
+	        			if (cmd==null)
+	        				break;
+	        			// new statement
+	        			log.debug("Creating prepared statement for batch: "+cmd);
+            			pstmt = conn.prepareStatement(cmd);
+            			lastCmd = cmd;
+            		}
+            		// add batch
+            		if (sqlCmdParams[i]!=null)
+            		{	
+            			prepareStatement(pstmt, sqlCmdParams[i]); 
+            		}	
+        			log.debug("Adding batch with {} params.", (sqlCmdParams[i]!=null ? sqlCmdParams[i].length : 0));
+            		pstmt.addBatch();
+            	}
+	            return result; 
+            } finally {
+	            close(pstmt);
+	        }
+        }
+        else
+        {   // Execute a simple statement
+            Statement stmt = conn.createStatement();
+            try {
+            	for (int i=0; i<sqlCmd.length; i++)
+            	{
+            		String cmd = sqlCmd[i];
+            		log.debug("Adding statement to batch: "+cmd);
+            		stmt.addBatch(cmd);
+            	}
+        		log.debug("Executing batch containing {} statements", sqlCmd.length);
+	            int result[] = stmt.executeBatch();
+	            return result;
+            } finally {
+	            close(stmt);
+	        }
+        }
+    }
+    
     // executeQuery
     public ResultSet executeQuery(String sqlCmd, Object[] sqlParams, boolean scrollable, Connection conn)
         throws SQLException
@@ -589,7 +662,7 @@ public abstract class DBDatabaseDriver implements Serializable
 	        {	// Use prepared statement
 	            PreparedStatement pstmt = conn.prepareStatement(sqlCmd, type, ResultSet.CONCUR_READ_ONLY);
 	            stmt = pstmt;
-	            prepareStatement(pstmt, sqlParams, conn);
+	            prepareStatement(pstmt, sqlParams); 
 	            return pstmt.executeQuery();
 	        } else
 	        {	// Use simple statement

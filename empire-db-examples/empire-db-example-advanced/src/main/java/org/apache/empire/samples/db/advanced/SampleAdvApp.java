@@ -130,16 +130,19 @@ public class SampleAdvApp
             int idEmp2 = insertEmployee(conn, "Fred", "Bloggs", "M");
             int idEmp3 = insertEmployee(conn, "Emma", "White", "F");
             
-            insertEmpDepHistory(conn, idEmp1,  idDevDep,  DateUtils.getDate(2007, 11,  1));            
-            insertEmpDepHistory(conn, idEmp1,  idProdDep, DateUtils.getDate(2008,  8,  1));           
-            insertEmpDepHistory(conn, idEmp1,  idSalDep,  DateUtils.getDate(2009,  4, 15));           
+            // Insert History as batch
+            DBSQLScript batch = new DBSQLScript();
+            insertEmpDepHistory(batch, idEmp1,  idDevDep,  DateUtils.getDate(2007, 11,  1));            
+            insertEmpDepHistory(batch, idEmp1,  idProdDep, DateUtils.getDate(2008,  8,  1));           
+            insertEmpDepHistory(batch, idEmp1,  idSalDep,  DateUtils.getDate(2009,  4, 15));           
 
-            insertEmpDepHistory(conn, idEmp2,  idSalDep,  DateUtils.getDate(2006,  2,  1));            
-            insertEmpDepHistory(conn, idEmp2,  idDevDep,  DateUtils.getDate(2008, 10, 15));           
-
-            insertEmpDepHistory(conn, idEmp3,  idDevDep,  DateUtils.getDate(2006,  8, 15));            
-            insertEmpDepHistory(conn, idEmp3,  idSalDep,  DateUtils.getDate(2007,  7,  1));           
-            insertEmpDepHistory(conn, idEmp3,  idProdDep, DateUtils.getDate(2008,  6, 15));           
+            insertEmpDepHistory(batch, idEmp2,  idSalDep,  DateUtils.getDate(2006,  2,  1));            
+            insertEmpDepHistory(batch, idEmp2,  idDevDep,  DateUtils.getDate(2008, 10, 15));
+            
+            insertEmpDepHistory(batch, idEmp3,  idDevDep,  DateUtils.getDate(2006,  8, 15));            
+            insertEmpDepHistory(batch, idEmp3,  idSalDep,  DateUtils.getDate(2007,  7,  1));           
+            insertEmpDepHistory(batch, idEmp3,  idProdDep, DateUtils.getDate(2008,  6, 15));
+            batch.executeBatch(db.getDriver(), conn);
             
             // commit
             db.commit(conn);
@@ -183,7 +186,7 @@ public class SampleAdvApp
             	System.out.println("*** drop EMPLOYEE_INFO_VIEW ***");
             	DBSQLScript script = new DBSQLScript();
             	db.getDriver().getDDLScript(DBCmdType.DROP, db.V_EMPLOYEE_INFO, script);
-            	script.run(db.getDriver(), conn, false);
+            	script.executeAll(db.getDriver(), conn);
             }
             ddlSample(conn, idEmp2);
             if (db.getDriver() instanceof DBDatabaseDriverH2) {
@@ -191,7 +194,7 @@ public class SampleAdvApp
             	System.out.println("*** create EMPLOYEE_INFO_VIEW ***");
             	DBSQLScript script = new DBSQLScript();
             	db.getDriver().getDDLScript(DBCmdType.CREATE, db.V_EMPLOYEE_INFO, script);
-            	script.run(db.getDriver(), conn, false);
+            	script.executeAll(db.getDriver(), conn);
             }
 
             // STEP 13: delete records
@@ -303,7 +306,7 @@ public class SampleAdvApp
         // Show DLL Statement
         System.out.println(script.toString());
         // Execute Script
-        script.run(driver, conn, false);
+        script.executeAll(driver, conn);
         // Commit
         db.commit(conn);
     }
@@ -364,15 +367,23 @@ public class SampleAdvApp
      * Inserts an Employee into the Employees table.
      * </PRE>
      */
-    private static void insertEmpDepHistory(Connection conn, int employeeId, int departmentId, Date dateFrom)
+    private static void insertEmpDepHistory(DBSQLScript script, int employeeId, int departmentId, Date dateFrom)
     {
         // Insert an Employee
+    	/*
         DBRecord rec = new DBRecord();
         rec.create(T_EDH);
         rec.setValue(T_EDH.C_EMPLOYEE_ID, employeeId);
         rec.setValue(T_EDH.C_DEPARTMENT_ID, departmentId);
         rec.setValue(T_EDH.C_DATE_FROM, dateFrom);
         rec.update(conn);
+        */
+        DBCommand cmd = db.createCommand();
+    	cmd.set(T_EDH.C_EMPLOYEE_ID.to(employeeId));
+    	cmd.set(T_EDH.C_DEPARTMENT_ID.to(departmentId));
+    	cmd.set(T_EDH.C_DATE_FROM.to(dateFrom));
+    	// Add to script for batch execution
+    	script.addInsert(cmd);
     }
 
     /* This procedure demonstrates the use of command parameter for prepared statements */
@@ -537,7 +548,7 @@ public class SampleAdvApp
         System.out.println("Creating new column named FOO as varchar(20) for the EMPLOYEES table:");
         DBSQLScript script = new DBSQLScript();
         db.getDriver().getDDLScript(DBCmdType.CREATE, C_FOO, script);
-        script.run(db.getDriver(), conn, false);
+        script.executeAll(db.getDriver(), conn);
         
         // Now load a record from that table and set the value for foo
         System.out.println("Changing the value for the FOO field of a particular employee:");
@@ -551,7 +562,7 @@ public class SampleAdvApp
         C_FOO.setSize(40); 
         script.clear();
         db.getDriver().getDDLScript(DBCmdType.ALTER, C_FOO, script);
-        script.run(db.getDriver(), conn, false);
+        script.executeAll(db.getDriver(), conn);
 
         // Now set a longer value for the record
         System.out.println("Changing the value for the FOO field for the above employee to a longer string:");
@@ -562,7 +573,7 @@ public class SampleAdvApp
         System.out.println("Dropping the FOO column from the employee table:");
         script.clear();
         db.getDriver().getDDLScript(DBCmdType.DROP, C_FOO, script);
-        script.run(db.getDriver(), conn, false);
+        script.executeAll(db.getDriver(), conn);
     }
 
     /**
