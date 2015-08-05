@@ -19,8 +19,10 @@
 package org.apache.empire.db.sqlite;
 
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -403,6 +405,49 @@ public class DBDatabaseDriverSQLite extends DBDatabaseDriver
                 log.error("SQL phrase " + String.valueOf(phrase) + " is not defined!");
                 return "?";
         }
+    }
+
+    @Override
+    public int executeSQL(String sqlCmd, Object[] sqlParams, Connection conn, DBSetGenKeys genKeys) throws SQLException
+    {
+        Statement stmt = null;
+        int count = 0;
+        try
+        {
+            if (sqlParams != null)
+            { // Use a prepared statement
+                PreparedStatement pstmt = conn.prepareStatement(sqlCmd);
+                stmt = pstmt;
+                prepareStatement(pstmt, sqlParams);
+                count = pstmt.executeUpdate();
+            }
+            else
+            { // Execute a simple statement
+                stmt = conn.createStatement();
+                count = stmt.executeUpdate(sqlCmd);
+            }
+            // Retrieve any auto-generated keys
+            if (genKeys != null && count > 0)
+            { // Return Keys
+                ResultSet rs = stmt.getGeneratedKeys();
+                try
+                {
+                    while (rs.next())
+                    {
+                        genKeys.set(rs.getObject(1));
+                    }
+                }
+                finally
+                {
+                    rs.close();
+                }
+            }
+        }
+        finally
+        {
+            close(stmt);
+        }
+        return count;
     }
     
     @Override
