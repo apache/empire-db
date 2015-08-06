@@ -1,0 +1,136 @@
+#*
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *  http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ *#
+package $basePackageName;
+
+#if($nestTables == true || $nestViews == true)
+import org.apache.empire.data.DataType;
+#end
+#if($nestViews == true)
+import org.apache.empire.db.DBCommandExpr;
+#end
+import org.apache.empire.db.DBDatabase;
+#if($preserveRelationNames == true)
+import org.apache.empire.db.DBRelation;
+#end
+#if($nestTables == true)
+import org.apache.empire.db.DBTableColumn;
+#end
+#if($nestViews == true)
+import org.apache.empire.exceptions.NotImplementedException;
+#end
+
+#if($nestTables==false || !($tablePackageName.equalsIgnoreCase($basePackageName)))
+import $tablePackageName.*;
+// $tablePackageName vs $basePackageName 
+#end
+#if($nestViews==false || ($viewPackageName!=$basePackageName))
+import $viewPackageName.*;
+#end
+
+public class $dbClassName extends DBDatabase {
+
+	private static $dbClassName instance;
+	private static final long serialVersionUID = 1L;
+
+#foreach($table in $database.tables)
+	#set($tblClass=$parser.getTableClassName($table.name))
+	public final $tblClass $parser.getTableName($table) = new $tblClass(this);
+#end
+
+#foreach($view in $database.views)
+	#set($viewClass=$parser.getViewClassName($view.name))
+	public final $viewClass $parser.getViewName($view) = new $viewClass(this);
+#end
+	
+	/**
+	 * Returns the instance of the database.
+	 * @return
+	 */
+	public static $dbClassName get() {
+		if (instance == null) {
+			instance = new ${dbClassName}();
+		}
+		return instance;
+	}
+	
+	/**
+	 * Default constructor for the $dbClassName.
+	 */
+	private ${dbClassName}() {
+
+	#if($preserveRelationNames == true)
+	// Define foreign key relations
+#foreach ($relation in $database.relations)
+		addRelation("$relation.name", new DBRelation.DBReference[] {
+#foreach ($reference in $relation.references)
+#if($foreach.isLast())
+        	${parser.getRowsetName($reference.sourceColumn.rowSet)}.${parser.getColumnName($reference.sourceColumn)}.referenceOn(${parser.getRowsetName($reference.targetColumn.rowSet)}.${parser.getColumnName($reference.targetColumn)}) });
+#else
+        	${parser.getRowsetName($reference.sourceColumn.rowSet)}.${parser.getColumnName($reference.sourceColumn)}.referenceOn(${parser.getRowsetName($reference.targetColumn.rowSet)}.${parser.getColumnName($reference.targetColumn)}),
+#end
+#end
+#end
+		// foreign key relations done
+	}	
+	#else
+	// Define foreign key relations
+#foreach ($relation in $database.relations)
+#if($relation.references.size()==1)
+#foreach ($reference in $relation.references)
+		addRelation( ${parser.getRowsetName($reference.sourceColumn.rowSet)}.${parser.getColumnName($reference.sourceColumn)}.referenceOn(${parser.getRowsetName($reference.targetColumn.rowSet)}.${parser.getColumnName($reference.targetColumn)}));
+#end
+#else
+#foreach ($reference in $relation.references)
+#if($foreach.isFirst())
+		addRelation( ${parser.getRowsetName($reference.sourceColumn.rowSet)}.${parser.getColumnName($reference.sourceColumn)}.referenceOn(${parser.getRowsetName($reference.targetColumn.rowSet)}.$parser.getColumnName($reference.targetColumn)),
+#else
+#if($foreach.isLast())
+        	         ${parser.getRowsetName($reference.sourceColumn.rowSet)}.${parser.getColumnName($reference.sourceColumn)}.referenceOn(${parser.getRowsetName($reference.targetColumn.rowSet)}.$parser.getColumnName($reference.targetColumn)));
+#else
+            	     ${parser.getRowsetName($reference.sourceColumn.rowSet)}.${parser.getColumnName($reference.sourceColumn)}.referenceOn(${parser.getRowsetName($reference.targetColumn.rowSet)}.$parser.getColumnName($reference.targetColumn)),
+#end
+#end
+#end
+#end
+#end
+		// foreign key relations done
+	}	
+#end
+	
+	#if($nestTables == true)
+		#foreach ($table in $database.tables)
+			#if ($templateFolder)
+				#parse( "$templateFolder/Table.vm" )
+			#else
+				#parse( "Table.vm" )
+			#end
+		#end
+	#end
+
+	#if($nestViews == true)
+		#foreach ($view in $database.views)
+			#if ($templateFolder)
+				#parse( "$templateFolder/View.vm" )
+			#else
+				#parse( "View.vm" )
+			#end
+		#end
+	#end
+	
+}

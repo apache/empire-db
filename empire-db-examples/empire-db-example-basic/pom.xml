@@ -34,6 +34,7 @@
 			<groupId>org.slf4j</groupId>
 			<artifactId>slf4j-log4j12</artifactId>
 		</dependency>
+
 		<!-- This dependency should be declared as runtime but the exec plugin is broken atm... -->
 		<dependency>
 		    <groupId>hsqldb</groupId>

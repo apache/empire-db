@@ -44,8 +44,8 @@
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-		<maven.compile.source>1.5</maven.compile.source>
-		<maven.compile.target>1.5</maven.compile.target>
+		<maven.compile.source>1.6</maven.compile.source>
+		<maven.compile.target>1.6</maven.compile.target>
 		<disclaimer.dir>{project.basedir}</disclaimer.dir>
 	</properties>
 
@@ -54,8 +54,9 @@
     </prerequisites>
 	
 	<profiles>
+	
+		<!-- Hudson profile -->
 		<profile>
-			<!-- Hudson profile -->
 			<id>CI</id>
 			<build>
 				<plugins>
@@ -108,6 +109,8 @@
 				</plugins>
 			</build>
 		</profile>
+		
+		<!-- empire-db-dist -->
 		<profile>
 			<!-- Part of the release profile, merged with release profile defined in apache parent pom -->
 			<id>apache-release</id>
@@ -145,6 +148,15 @@
 				</plugins>
 			</build>
 		</profile>
+		
+		<!-- eclipse-plugin -->
+		<profile>
+			<id>eclipse-plugin</id>
+			<modules>
+				<module>empire-db-eclipse-codegen</module>
+			</modules>
+		</profile>
+		
 	</profiles>
 	
 	
@@ -574,6 +586,7 @@
         <excludeDefaults>true</excludeDefaults>
         <outputDirectory>${project.build.directory}/site</outputDirectory>
 		<plugins>
+			<!--  maven-project-info-reports-plugin -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-project-info-reports-plugin</artifactId>
@@ -591,14 +604,17 @@
                     </reportSet>
                 </reportSets>
             </plugin>
+            <!-- apache-rat-plugin -->
 			<plugin>
 			    <groupId>org.apache.rat</groupId>
         		<artifactId>apache-rat-plugin</artifactId>
 		    </plugin>
+		    <!-- maven-site-plugin -->
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-site-plugin</artifactId>
 			</plugin>
+			<!-- maven-pmd-plugin -->
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-pmd-plugin</artifactId>
@@ -607,6 +623,7 @@
 					<targetJdk>1.5</targetJdk>
 				</configuration>
 			</plugin>
+			<!-- findbugs-maven-plugin -->
 			<plugin>
 				<groupId>org.codehaus.mojo</groupId>
 				<artifactId>findbugs-maven-plugin</artifactId>
@@ -617,11 +634,13 @@
 					<omitVisitors>SerializableIdiom</omitVisitors>
 				</configuration>
 			</plugin>
+			<!-- jdepend-maven-plugin -->
 			<plugin>
 				<groupId>org.codehaus.mojo</groupId>
 				<artifactId>jdepend-maven-plugin</artifactId>
 				<version>2.0</version>
 			</plugin>
+			<!-- cobertura-maven-plugin -->
 			<plugin>
 				<groupId>org.codehaus.mojo</groupId>
 				<artifactId>cobertura-maven-plugin</artifactId>
@@ -633,15 +652,18 @@
 					</formats>
 				</configuration>
 			</plugin>
+			<!-- maven-jxr-plugin -->
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-jxr-plugin</artifactId>
 				<version>2.4</version>
 			</plugin>
+			<!-- maven-javadoc-plugin -->
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-javadoc-plugin</artifactId>
 			</plugin>
+			<!-- maven-changelog-plugin -->
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-changelog-plugin</artifactId>
