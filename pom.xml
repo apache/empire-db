@@ -405,6 +405,7 @@
 			       		<excludes>
 			       			<!-- This might be to generic  -->
 			       			<exclude>release.properties</exclude>
+                            <exclude>**/META-INF/MANIFEST.MF</exclude>
 			       			<exclude>**/target/**</exclude>
 			      			<exclude>**/dependencies.txt</exclude>
                             <exclude>**/.idea/**</exclude>
