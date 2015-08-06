@@ -44,8 +44,8 @@
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-		<maven.compile.source>1.6</maven.compile.source>
-		<maven.compile.target>1.6</maven.compile.target>
+		<maven.compile.source>1.7</maven.compile.source>
+		<maven.compile.target>1.7</maven.compile.target>
 		<disclaimer.dir>{project.basedir}</disclaimer.dir>
 	</properties>
 
@@ -132,7 +132,7 @@
 							</execution>
 						</executions>
 					</plugin>
-					<!-- enable enforcer for java 1.6 -->
+					<!-- enable enforcer for java 1.7 -->
 					<plugin>
 						<groupId>org.apache.maven.plugins</groupId>
 						<artifactId>maven-enforcer-plugin</artifactId>
@@ -534,7 +534,7 @@
 					<configuration>
 						<signature>
 							<groupId>org.codehaus.mojo.signature</groupId>
-							<artifactId>java15</artifactId>
+							<artifactId>java17</artifactId>
 							<version>1.0</version>
 						</signature>
 					</configuration>
@@ -621,7 +621,7 @@
 				<artifactId>maven-pmd-plugin</artifactId>
 				<version>3.1</version>
 				<configuration>
-					<targetJdk>1.5</targetJdk>
+					<targetJdk>1.7</targetJdk>
 				</configuration>
 			</plugin>
 			<!-- findbugs-maven-plugin -->
