@@ -11,8 +11,7 @@ Release 2.4.4:
 	EMPIREDB-221 	Allow batch execution through JDBC executeBatch
 	EMPIREDB-220 	Allow override of fraction digits on JSF input tag
 	EMPIREDB-219	Added source code for Eclipse-Code-Generation-Plugin
-	EMPIREDB-217	Consistency check for data model defintion vs deployed data model	
-	EMPIREDB-222	Switch to JDK7
+	EMPIREDB-217	Consistency check for data model defintion vs deployed data model
 
 ** Bugfix
 	EMPIREDB-218	Missing reserved keywords in DBDatabaseDriverMySQL
