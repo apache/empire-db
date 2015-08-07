@@ -75,7 +75,7 @@ public class DBDatabaseDriverSQLite extends DBDatabaseDriver
         }
         
         @Override
-		public DBJoinExpr join(DBColumnExpr left, DBColumn right, DBJoinType joinType)
+		public DBJoinExpr join(DBColumnExpr left, DBColumnExpr right, DBJoinType joinType)
         {
             // http://www.sqlite.org/omitted.html
             if (joinType != DBJoinType.LEFT) { throw new NotImplementedException(joinType, left + " join " + right); }

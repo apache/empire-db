@@ -434,7 +434,7 @@ public abstract class DBCommand extends DBCommandExpr
      * 
      * @return the join expression 
      */
-    public DBJoinExpr join(DBColumnExpr left, DBColumn right, DBJoinType joinType)
+    public DBJoinExpr join(DBColumnExpr left, DBColumnExpr right, DBJoinType joinType)
     {
         DBJoinExpr join = new DBJoinExpr(left, right, joinType); 
         join(join);
