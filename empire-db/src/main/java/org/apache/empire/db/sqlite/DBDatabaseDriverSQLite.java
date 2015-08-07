@@ -32,7 +32,6 @@ import java.util.List;
 
 import org.apache.empire.data.DataType;
 import org.apache.empire.db.DBCmdType;
-import org.apache.empire.db.DBColumn;
 import org.apache.empire.db.DBColumnExpr;
 import org.apache.empire.db.DBCommand;
 import org.apache.empire.db.DBDDLGenerator;
