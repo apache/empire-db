@@ -14,6 +14,7 @@ Release 2.4.4:
 	EMPIREDB-217	Consistency check for data model defintion vs deployed data model
 
 ** Bugfix
+	EMPIREDB-223	join function in DBCommand requires a DBColumn instead of a DBColumnExpr
 	EMPIREDB-218	Missing reserved keywords in DBDatabaseDriverMySQL
 	EMPIREDB-216	Reserved words as colum names not correctly escaped/quoted for derby
 	EMPIREDB-215	Sequence generation and use for HSql to not agree in using toUpperCase
