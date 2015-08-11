@@ -510,7 +510,8 @@
 										<version>[3.0.0,)</version>
 									</requireMavenVersion>
 									<requireJavaVersion>
-										<version>[1.6,1.7)</version>
+                                        <!-- we can no longer release with jdk6 because of certificate issues -->
+										<version>[1.6,1.8)</version>
 									</requireJavaVersion>
 								</rules>
 							</configuration>
