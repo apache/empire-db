@@ -23,6 +23,7 @@ Release 2.4.4:
 	EMPIREDB-210	Wrong Java Type in Records for BLOB Columns
 	EMPIREDB-209	Using a reserved word as a column alias in a select statement.
 	EMPIREDB-208	Decimal fields don't support scales above 9
+	EMPIREDB-125    Problem with the location of velocity templates on the code generator
 
 --------------
 Release 2.4.3:
