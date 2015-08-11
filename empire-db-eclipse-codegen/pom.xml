@@ -22,12 +22,12 @@
 		<groupId>org.apache.empire-db</groupId>
 		<version>2.4.4-SNAPSHOT</version>
 	</parent>
-	<artifactId>empire-db-eclipse-codegen</artifactId>
-	<name>Empire db eclipse codegen</name>
+	<artifactId>org.apache.empire.db.eclipse</artifactId>
+	<name>Apache Empire-db Eclipse Code Generator</name>
 	<packaging>eclipse-plugin</packaging>
 
 	<properties>
-		<tycho-version>0.16.0</tycho-version>
+        <tycho-version>0.23.1</tycho-version>
 	</properties>
 
 	<repositories>

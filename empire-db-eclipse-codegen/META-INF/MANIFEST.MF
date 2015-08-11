@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Empire-db eclipse code generator
 Bundle-SymbolicName: org.apache.empire.db.eclipse;singleton:=true
-Bundle-Version: 1.0.0
+Bundle-Version: 2.4.4.qualifier
 Bundle-ClassPath: .,
  lib/commons-beanutils-1.8.3.jar,
  lib/commons-logging-1.1.1.jar,
