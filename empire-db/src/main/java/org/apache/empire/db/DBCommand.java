@@ -684,10 +684,13 @@ public abstract class DBCommand extends DBCommandExpr
      */
     public void addWhereConstraints(List<DBCompareExpr> constraints)
     {
+        // check argument
+        if (constraints==null || constraints.isEmpty())
+            return; // nothing to do.
+        // allocate
         if (where == null)
-        {
             where = new ArrayList<DBCompareExpr>();
-        }
+        // add
         this.where.addAll(constraints);
     }
 
