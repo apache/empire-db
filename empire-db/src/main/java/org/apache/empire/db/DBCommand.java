@@ -684,9 +684,6 @@ public abstract class DBCommand extends DBCommandExpr
      */
     public void addWhereConstraints(List<DBCompareExpr> constraints)
     {
-        // check argument
-        if (constraints==null || constraints.isEmpty())
-            return; // nothing to do.
         // allocate
         if (where == null)
             where = new ArrayList<DBCompareExpr>();
@@ -1155,7 +1152,7 @@ public abstract class DBCommand extends DBCommandExpr
 
     protected void addWhere(StringBuilder buf, long context)
     {
-        if (where != null)
+        if (where!=null && !where.isEmpty())
         {   
             buf.append("\r\nWHERE ");
             // add where expression
