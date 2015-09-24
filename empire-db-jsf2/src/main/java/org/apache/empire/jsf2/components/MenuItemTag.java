@@ -36,8 +36,8 @@ public class MenuItemTag extends LinkTag
     // Logger
     private static final Logger log = LoggerFactory.getLogger(MenuItemTag.class);
     
-    private MenuListTag parentMenu = null;
-    private String menuId;
+    protected MenuListTag parentMenu = null;
+    protected String menuId;
 
     /*
     private static int itemIdSeq = 0;

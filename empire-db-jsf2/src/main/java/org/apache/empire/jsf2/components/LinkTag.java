@@ -56,7 +56,7 @@ public class LinkTag extends UIOutput // implements NamingContainer
     // Logger
     private static final Logger log = LoggerFactory.getLogger(LinkTag.class);
     
-    private final TagEncodingHelper helper = new TagEncodingHelper(this, "eLink");
+    protected final TagEncodingHelper helper = new TagEncodingHelper(this, "eLink");
 
     public LinkTag()
     {

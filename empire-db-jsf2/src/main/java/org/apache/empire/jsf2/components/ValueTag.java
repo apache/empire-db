@@ -38,7 +38,7 @@ public class ValueTag extends UIOutput // implements NamingContainer
     // Logger
     private static final Logger log = LoggerFactory.getLogger(ValueTag.class);
     
-    private TagEncodingHelper helper = new TagEncodingHelper(this, "eVal");
+    protected final TagEncodingHelper helper = new TagEncodingHelper(this, "eVal");
 
     public ValueTag()
     {
@@ -90,7 +90,7 @@ public class ValueTag extends UIOutput // implements NamingContainer
         if (dataType.isNumeric())
         {   try {
                 Object val = helper.getDataValue(true);
-                if (val!=null && ObjectUtils.getInteger(val)<0)
+                if (val!=null && ObjectUtils.getLong(val)<0)
                     addlStyle = "eValNeg";
             } catch(Exception e) {
                 log.warn("Unable to detect sign of numeric value {}. Message is {}!", vi.getColumn().getName(), e.getMessage());

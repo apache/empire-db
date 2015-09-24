@@ -43,7 +43,7 @@ public class InputTag extends UIInput implements NamingContainer
     // private static final String inputInfoPropName = InputControl.InputInfo.class.getSimpleName();
     private static final String readOnlyState  = "readOnlyState";
 
-    private final TagEncodingHelper helper = new TagEncodingHelper(this, "eInput");
+    protected final TagEncodingHelper helper = new TagEncodingHelper(this, "eInput");
 
     private InputControl control = null;
     private InputControl.InputInfo inpInfo = null;
