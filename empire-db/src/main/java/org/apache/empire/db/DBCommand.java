@@ -1082,8 +1082,7 @@ public abstract class DBCommand extends DBCommandExpr
         if (where!=null && !where.isEmpty())
         { // add where condition
             buf.append("\r\nWHERE ");
-            if (where != null)
-                addListExpr(buf, where, CTX_NAME|CTX_VALUE, " AND ");
+            addListExpr(buf, where, CTX_NAME|CTX_VALUE, " AND ");
         }
         return buf.toString();
     }
