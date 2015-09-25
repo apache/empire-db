@@ -38,6 +38,7 @@
 		<module>empire-db-jsf2</module>
 		<module>empire-db-codegen</module>
 		<module>empire-db-maven-plugin</module>
+		<module>empire-db-spring</module>
 		<module>empire-db-examples</module>
 	</modules>
 	
