@@ -505,7 +505,7 @@ public abstract class InputControl
         return (format!=null ? format.indexOf(option)>=0 : false);
     }
     
-    private String getFormatOption(ValueInfo vi, String option)
+    protected String getFormatOption(ValueInfo vi, String option)
     {
         // Is unit supplied with format
         String format = vi.getFormat();

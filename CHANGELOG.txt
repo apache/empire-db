@@ -5,6 +5,27 @@ For more Information about a particular issue please visit
 https://issues.apache.org/jira/browse/EMPIREDB
 
 --------------
+Release 2.4.4:
+--------------
+** Improvement
+	EMPIREDB-221 	Allow batch execution through JDBC executeBatch
+	EMPIREDB-220 	Allow override of fraction digits on JSF input tag
+	EMPIREDB-219	Added source code for Eclipse-Code-Generation-Plugin
+	EMPIREDB-217	Consistency check for data model definition vs deployed data model
+
+** Bugfix
+	EMPIREDB-223	join function in DBCommand requires a DBColumn instead of a DBColumnExpr
+	EMPIREDB-218	Missing reserved keywords in DBDatabaseDriverMySQL
+	EMPIREDB-216	Reserved words as column names not correctly escaped/quoted for derby
+	EMPIREDB-215	Sequence generation and use for HSql to not agree in using toUpperCase
+	EMPIREDB-214	SQLServer - wrong 'alterColumnPhrase'
+	EMPIREDB-212	MySQL Nested Union bad syntax
+	EMPIREDB-210	Wrong Java Type in Records for BLOB Columns
+	EMPIREDB-209	Using a reserved word as a column alias in a select statement.
+	EMPIREDB-208	Decimal fields don't support scales above 9
+	EMPIREDB-125    Problem with the location of velocity templates on the code generator
+
+--------------
 Release 2.4.3:
 --------------
 ** Improvement

@@ -28,12 +28,11 @@ import org.apache.empire.exceptions.InvalidArgumentException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
 /**
  * DBSQLScript<br>
  * This class is a collection of sql command strings.<br>
- * The class is used for obtaining and executing DDL commands supplied
- * by the database driver (@see {@link DBDatabaseDriver#getDDLScript(DBCmdType, DBObject, DBSQLScript)}) 
+ * The class is used for obtaining and executing DDL commands supplied by the
+ * database driver (@see {@link DBDatabaseDriver#getDDLScript(DBCmdType, DBObject, DBSQLScript)})
  */
 public class DBSQLScript implements Iterable<String>
 {
@@ -41,33 +40,111 @@ public class DBSQLScript implements Iterable<String>
     private static final Logger log = LoggerFactory.getLogger(DBSQLScript.class);
     private static final String DEFAULT_COMMAND_SEPARATOR = ";\r\n\r\n";
 
-    // Properties
-    protected String commandSeparator = DEFAULT_COMMAND_SEPARATOR; 
+    /**
+     * SQLCmd
+     * @author doebele
+     */
+    protected static class SQLStmt
+    {
+        private String   cmd;
+        private Object[] params;
 
-    protected ArrayList<String> sqlCmdList = new ArrayList<String>();
-    
+        public SQLStmt(String cmd, Object[] params)
+        {
+            this.cmd = cmd;
+            this.params = params;
+        }
+
+        public String getCmd()
+        {
+            return cmd;
+        }
+
+        public void setCmd(String cmd)
+        {
+            this.cmd = cmd;
+        }
+
+        public Object[] getParams()
+        {
+            return params;
+        }
+
+        public void setParams(Object[] params)
+        {
+            this.params = params;
+        }
+    }
+
+    /**
+     * SQLCmdIterator
+     * @author doebele
+     */
+    private static class SQLStmtIterator implements Iterator<String>
+    {
+        private final Iterator<SQLStmt> iterator;
+
+        private SQLStmtIterator(Iterator<SQLStmt> iterator)
+        {
+            this.iterator = iterator;
+        }
+
+        public boolean hasNext()
+        {
+            return iterator.hasNext();
+        }
+
+        public String next()
+        {
+            return iterator.next().getCmd();
+        }
+
+        public void remove()
+        {
+            iterator.remove();
+        }
+    }
+
+    // Properties
+    protected String commandSeparator = DEFAULT_COMMAND_SEPARATOR;
+
+    protected ArrayList<SQLStmt> sqlStmtList      = new ArrayList<SQLStmt>();
+
     public DBSQLScript()
     {
         // nothing
     }
-    
+
     public DBSQLScript(String commandSeparator)
     {
         this.commandSeparator = commandSeparator;
     }
-    
+
     /**
      * Adds a statement to the script.
+     * 
      * @param sql the statement
      */
     public void addStmt(String sql)
     {
-        sqlCmdList.add(sql);
+        sqlStmtList.add(new SQLStmt(sql, null));
     }
-    
+
+    /**
+     * Adds a statement to the script.
+     * 
+     * @param sql the statement
+     * @param params the statement parameters
+     */
+    public void addStmt(String sql, Object[] params)
+    {
+        sqlStmtList.add(new SQLStmt(sql, params));
+    }
+
     /**
      * Adds a statement to the script.<br>
      * The supplied StringBuilder will be reset to a length of 0
+     * 
      * @param sql the statement
      */
     public final void addStmt(StringBuilder sql)
@@ -76,115 +153,283 @@ public class DBSQLScript implements Iterable<String>
         // Clear Builder
         sql.setLength(0);
     }
-    
+
+    /**
+     * Adds an insert statement 
+     * @param cmd the insert command
+     */
+    public void addInsert(DBCommand cmd)
+    {
+        if (cmd == null)
+            throw new InvalidArgumentException("cmd", cmd);
+        addStmt(cmd.getInsert(), cmd.getParamValues());
+    }
+
+    /**
+     * Adds an update statement 
+     * @param cmd the insert command
+     */
+    public void addUpdate(DBCommand cmd)
+    {
+        if (cmd == null)
+            throw new InvalidArgumentException("cmd", cmd);
+        addStmt(cmd.getUpdate(), cmd.getParamValues());
+    }
+
+    /**
+     * Adds an delete statement 
+     * @param cmd the insert command
+     */
+    public void addDelete(DBCommand cmd, DBTable table)
+    {
+        if (cmd == null)
+            throw new InvalidArgumentException("cmd", cmd);
+        addStmt(cmd.getDelete(table), cmd.getParamValues());
+    }
+
     /**
      * Returns the number of statements in this script
+     * 
      * @return number of statements in this script
      */
     public int getCount()
     {
-        return sqlCmdList.size();
+        return sqlStmtList.size();
     }
-    
+
     /**
-     * Returns the statement at the given index
+     * Returns the statement command at the given index
      * @param i index of the statement to retrieve
-     * @return the sql statement
+     * @return the sql statement command
      */
     public String getStmt(int i)
     {
-        if (i<0 || i>=sqlCmdList.size())
+        if (i < 0 || i >= sqlStmtList.size())
             throw new InvalidArgumentException("index", i);
-        // return statement
-        return sqlCmdList.get(i);
+        // return statement command
+        return sqlStmtList.get(i).getCmd();
     }
-    
+
     /**
-     * Replaces an entry in the list
-     * @param i index of the statement to replace
-     * @param stmt the new statement for this index, or NULL to remove the statement
+     * Returns the statement command at the given index
+     * @param i index of the statement to retrieve
+     * @return the sql statement params
      */
-    public void setStmt(int i, String stmt)
+    public Object[] getStmtParams(int i)
     {
-        if (i<0 || i>=sqlCmdList.size())
+        if (i < 0 || i >= sqlStmtList.size())
             throw new InvalidArgumentException("index", i);
-        // replace or remove statement
-        if (stmt==null)
-            sqlCmdList.remove(i);
-        else
-            sqlCmdList.set(i, stmt);
+        // return statement params
+        return sqlStmtList.get(i).getParams();
     }
-    
+
     /**
      * Inserts an entry in the list
+     * 
      * @param i index of the statement to replace
      * @param stmt the new statement for this index, or NULL to remove the statement
      */
-    public void insertStmt(int i, String stmt)
+    public void insertStmt(int i, String stmt, Object[] params)
     {
-        if (stmt==null)
+        if (stmt == null)
             throw new InvalidArgumentException("stmt", stmt);
-        if (i<0 || i>sqlCmdList.size())
+        if (i < 0 || i > sqlStmtList.size())
             throw new InvalidArgumentException("index", i);
-        // replace or remove statement
-        sqlCmdList.add(i, stmt);
+        // insert statement
+        sqlStmtList.add(i, new SQLStmt(stmt, params));
     }
-    
+
+    /**
+     * Inserts an entry in the list
+     * 
+     * @param i index of the statement to replace
+     * @param stmt the new statement for this index, or NULL to remove the statement
+     */
+    public final void insertStmt(int i, String stmt)
+    {
+        // replace or remove statement
+        insertStmt(i, stmt, null);
+    }
+
+    /**
+     * Replaces an entry in the list
+     * 
+     * @param i index of the statement to replace
+     * @param cmd the new statement for this index, or NULL to remove the statement
+     * @param params the command params (optional)
+     */
+    public void replaceStmt(int i, String cmd, Object[] params)
+    {
+        if (cmd == null)
+            throw new InvalidArgumentException("cmd", cmd);
+        if (i < 0 || i >= sqlStmtList.size())
+            throw new InvalidArgumentException("index", i);
+        // replace statement
+        SQLStmt stmt = sqlStmtList.get(i);
+        stmt.setCmd(cmd);
+        stmt.setParams(params);
+    }
+
+    /**
+     * Replaces an entry in the list
+     * 
+     * @param i index of the statement to replace
+     * @param cmd the new statement for this index, or NULL to remove the statement
+     */
+    public final void replaceStmt(int i, String cmd)
+    {
+        // replace
+        replaceStmt(i, cmd, null);
+    }
+
+    /**
+     * Removes a statement from the list
+     * @param i index of the statement to replace
+     */
+    public void removeStmt(int i)
+    {
+        // check index
+        if (i < 0 || i >= sqlStmtList.size())
+            throw new InvalidArgumentException("index", i);
+        // remove statement
+        sqlStmtList.remove(i);
+    }
+
     /**
      * Clears the script by removing all statements
      */
     public void clear()
     {
-        sqlCmdList.clear();
+        sqlStmtList.clear();
     }
-    
+
     /**
-     * Runs all SQL Statements using the supplied driver and connection.
+     * Executes all SQL Statements one by one using the supplied driver and connection.
+     * 
      * @param driver the driver used for statement execution
      * @param conn the connection
      * @param ignoreErrors true if errors should be ignored
+     * @return number of records affected
      */
-    public void run(DBDatabaseDriver driver, Connection conn, boolean ignoreErrors)
+    public int executeAll(DBDatabaseDriver driver, Connection conn, boolean ignoreErrors)
     {
         log.debug("Running script containing " + String.valueOf(getCount()) + " statements.");
-        for(String stmt : sqlCmdList)
+        int result = 0;
+        for (SQLStmt stmt : sqlStmtList)
         {
-            try {
+            try
+            {
                 // Execute Statement
-                log.debug("Executing: " + stmt);
-                driver.executeSQL(stmt, null, conn, null);
-            } catch(SQLException e) {
+                log.debug("Executing: {}", stmt.getCmd());
+                int count = driver.executeSQL(stmt.getCmd(), stmt.getParams(), conn, null);
+                result += (count >= 0 ? count : 0);
+            }
+            catch (SQLException e)
+            {
                 // SQLException
                 log.error(e.toString(), e);
-                if (ignoreErrors==false)
-                {   // forward exception
+                if (ignoreErrors == false)
+                { // forward exception
                     throw new EmpireSQLException(driver, e);
-                }    
+                }
                 // continue
                 log.debug("Ignoring error. Continuing with script...");
             }
         }
-        log.debug("Script completed.");
+        log.debug("Script completed. {} records affected.", result);
+        return result;
     }
-    
+
+    /**
+     * Executes all SQL Statements one by one using the supplied driver and connection.
+     * 
+     * @param driver the driver used for statement execution
+     * @param conn the connection
+     * @return number of records affected
+     */
+    public final int executeAll(DBDatabaseDriver driver, Connection conn)
+    {
+        return executeAll(driver, conn, false);
+    }
+
+    /**
+     * Executes all SQL Statements as a JDBC Batch Job.
+     * 
+     * @param driver the driver used for statement execution
+     * @param conn the connection
+     * @param ignoreErrors true if errors should be ignored
+     */
+    public int executeBatch(DBDatabaseDriver driver, Connection conn)
+    {
+        log.debug("Running batch containing " + String.valueOf(getCount()) + " statements.");
+        try
+        {
+            // Execute Statement
+            int count = sqlStmtList.size();
+            String[] cmdList = new String[count];
+            Object[][] paramList = null;
+            int i = 0;
+            for (SQLStmt stmt : sqlStmtList)
+            {
+                cmdList[i] = stmt.getCmd();
+                // set params
+                if (stmt.getParams() != null)
+                {
+                    if (paramList == null)
+                        paramList = new Object[count][];
+                    paramList[i] = stmt.getParams();
+                }
+                i++;
+            }
+            // Execute batch
+            int[] res = driver.executeBatch(cmdList, paramList, conn);
+            for (count = 0, i = 0; i < (res != null ? res.length : 0); i++)
+                count += (res[i] >= 0 ? res[i] : 0);
+            log.debug("Script completed. {} records affected.", count);
+            return count;
+        }
+        catch (SQLException e)
+        {
+            // SQLException
+            log.error(e.toString(), e);
+            throw new EmpireSQLException(driver, e);
+        }
+    }
+
+    /**
+     * Executes all statements one by one. Replaced by executeAll()
+     * 
+     * @param driver the driver used for statement execution
+     * @param conn the connection
+     * @param ignoreErrors true if errors should be ignored
+     * @return number of records affected
+     */
+    @Deprecated
+    public final int run(DBDatabaseDriver driver, Connection conn, boolean ignoreErrors)
+    {
+        return executeAll(driver, conn, ignoreErrors);
+    }
+
     /**
      * Runs all SQL Statements using the supplied driver and connection.
+     * 
      * @param driver the driver used for statement execution
      * @param conn the connection
      */
-    public void run(DBDatabaseDriver driver, Connection conn)
+    @Deprecated
+    public final void run(DBDatabaseDriver driver, Connection conn)
     {
-        run(driver, conn, false);
+        executeAll(driver, conn, false);
     }
-    
+
     /**
      * Returns an iterator
      */
     public Iterator<String> iterator()
     {
-        return sqlCmdList.iterator();
+        return new SQLStmtIterator(sqlStmtList.iterator());
     }
-    
+
     /**
      * Returns the sql script as a string
      */
@@ -192,9 +437,9 @@ public class DBSQLScript implements Iterable<String>
     public String toString()
     {
         StringBuilder script = new StringBuilder();
-        for(String stmt : sqlCmdList)
+        for (SQLStmt stmt : sqlStmtList)
         {
-            script.append(stmt);
+            script.append(stmt.getCmd());
             script.append(commandSeparator);
         }
         return script.toString();

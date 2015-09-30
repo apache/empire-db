@@ -32,7 +32,6 @@ import java.util.List;
 
 import org.apache.empire.data.DataType;
 import org.apache.empire.db.DBCmdType;
-import org.apache.empire.db.DBColumn;
 import org.apache.empire.db.DBColumnExpr;
 import org.apache.empire.db.DBCommand;
 import org.apache.empire.db.DBDDLGenerator;
@@ -75,7 +74,7 @@ public class DBDatabaseDriverSQLite extends DBDatabaseDriver
         }
         
         @Override
-		public DBJoinExpr join(DBColumnExpr left, DBColumn right, DBJoinType joinType)
+		public DBJoinExpr join(DBColumnExpr left, DBColumnExpr right, DBJoinType joinType)
         {
             // http://www.sqlite.org/omitted.html
             if (joinType != DBJoinType.LEFT) { throw new NotImplementedException(joinType, left + " join " + right); }
@@ -120,49 +119,6 @@ public class DBDatabaseDriverSQLite extends DBDatabaseDriver
         {
             log.debug("Existing keyWord added: " + keyWord);
         }
-    }
-    
-    @Override
-    public int executeSQL(String sqlCmd, Object[] sqlParams, Connection conn, DBSetGenKeys genKeys) throws SQLException
-    {
-        Statement stmt = null;
-        int count = 0;
-        try
-        {
-            if (sqlParams != null)
-            { // Use a prepared statement
-                PreparedStatement pstmt = conn.prepareStatement(sqlCmd);
-                stmt = pstmt;
-                prepareStatement(pstmt, sqlParams, conn);
-                count = pstmt.executeUpdate();
-            }
-            else
-            { // Execute a simple statement
-                stmt = conn.createStatement();
-                count = stmt.executeUpdate(sqlCmd);
-            }
-            // Retrieve any auto-generated keys
-            if (genKeys != null && count > 0)
-            { // Return Keys
-                ResultSet rs = stmt.getGeneratedKeys();
-                try
-                {
-                    while (rs.next())
-                    {
-                        genKeys.set(rs.getObject(1));
-                    }
-                }
-                finally
-                {
-                    rs.close();
-                }
-            }
-        }
-        finally
-        {
-            close(stmt);
-        }
-        return count;
     }
     
     private void setReservedKeywords()
@@ -448,6 +404,49 @@ public class DBDatabaseDriverSQLite extends DBDatabaseDriver
                 log.error("SQL phrase " + String.valueOf(phrase) + " is not defined!");
                 return "?";
         }
+    }
+
+    @Override
+    public int executeSQL(String sqlCmd, Object[] sqlParams, Connection conn, DBSetGenKeys genKeys) throws SQLException
+    {
+        Statement stmt = null;
+        int count = 0;
+        try
+        {
+            if (sqlParams != null)
+            { // Use a prepared statement
+                PreparedStatement pstmt = conn.prepareStatement(sqlCmd);
+                stmt = pstmt;
+                prepareStatement(pstmt, sqlParams);
+                count = pstmt.executeUpdate();
+            }
+            else
+            { // Execute a simple statement
+                stmt = conn.createStatement();
+                count = stmt.executeUpdate(sqlCmd);
+            }
+            // Retrieve any auto-generated keys
+            if (genKeys != null && count > 0)
+            { // Return Keys
+                ResultSet rs = stmt.getGeneratedKeys();
+                try
+                {
+                    while (rs.next())
+                    {
+                        genKeys.set(rs.getObject(1));
+                    }
+                }
+                finally
+                {
+                    rs.close();
+                }
+            }
+        }
+        finally
+        {
+            close(stmt);
+        }
+        return count;
     }
     
     @Override

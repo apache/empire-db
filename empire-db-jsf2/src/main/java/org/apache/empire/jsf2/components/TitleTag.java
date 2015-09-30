@@ -37,7 +37,7 @@ public class TitleTag extends UIOutput // implements NamingContainer
     // Logger
     private static final Logger log = LoggerFactory.getLogger(TitleTag.class);
     
-    private TagEncodingHelper helper = new TagEncodingHelper(this, "eTitle");
+    protected final TagEncodingHelper helper = new TagEncodingHelper(this, "eTitle");
 
     public TitleTag()
     {

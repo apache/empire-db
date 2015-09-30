@@ -19,7 +19,7 @@
 	<parent>
 		<groupId>org.apache.empire-db</groupId>
 		<artifactId>empire-db-examples</artifactId>
-		<version>2.4.4-SNAPSHOT</version>
+		<version>2.4.5-SNAPSHOT</version>
 	</parent>
 	<artifactId>empire-db-example-struts2</artifactId>
 	<packaging>war</packaging>
@@ -68,7 +68,7 @@
 				<configuration>
 					<m2eclipse>true</m2eclipse> 
 					<downloadSources>true</downloadSources>
-					<wtpversion>1.5</wtpversion> 
+					<wtpversion>2.0</wtpversion> 
 				</configuration> 
 			</plugin>
 			<!-- Sysdeo Tomcat Eclipse --> 

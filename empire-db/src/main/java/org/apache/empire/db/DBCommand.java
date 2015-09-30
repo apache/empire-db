@@ -434,7 +434,7 @@ public abstract class DBCommand extends DBCommandExpr
      * 
      * @return the join expression 
      */
-    public DBJoinExpr join(DBColumnExpr left, DBColumn right, DBJoinType joinType)
+    public DBJoinExpr join(DBColumnExpr left, DBColumnExpr right, DBJoinType joinType)
     {
         DBJoinExpr join = new DBJoinExpr(left, right, joinType); 
         join(join);
@@ -684,10 +684,10 @@ public abstract class DBCommand extends DBCommandExpr
      */
     public void addWhereConstraints(List<DBCompareExpr> constraints)
     {
+        // allocate
         if (where == null)
-        {
             where = new ArrayList<DBCompareExpr>();
-        }
+        // add
         this.where.addAll(constraints);
     }
 
@@ -982,7 +982,7 @@ public abstract class DBCommand extends DBCommandExpr
             return null;
         StringBuilder buf = new StringBuilder("UPDATE ");
         DBRowSet table =  set.get(0).getTable();
-        if ( joins!=null )
+        if (joins!=null && !joins.isEmpty())
         {   // Join Update
             buf.append( table.getAlias() );
             long context = CTX_DEFAULT;
@@ -1027,7 +1027,7 @@ public abstract class DBCommand extends DBCommandExpr
         buf.append("( ");
         // Set Expressions
         ArrayList<DBCompareColExpr> compexpr = null;
-        if (where != null)
+        if (where!=null && !where.isEmpty())
         {   // Convert ColumnExpression List to Column List
             compexpr = new ArrayList<DBCompareColExpr>(where.size());
             for (DBCompareExpr expr : where)
@@ -1079,11 +1079,10 @@ public abstract class DBCommand extends DBCommandExpr
         StringBuilder buf = new StringBuilder("DELETE FROM ");
         table.addSQL(buf, CTX_FULLNAME);
         // Set Expressions
-        if (where != null)
+        if (where!=null && !where.isEmpty())
         { // add where condition
             buf.append("\r\nWHERE ");
-            if (where != null)
-                addListExpr(buf, where, CTX_NAME|CTX_VALUE, " AND ");
+            addListExpr(buf, where, CTX_NAME|CTX_VALUE, " AND ");
         }
         return buf.toString();
     }
@@ -1152,7 +1151,7 @@ public abstract class DBCommand extends DBCommandExpr
 
     protected void addWhere(StringBuilder buf, long context)
     {
-        if (where != null)
+        if (where!=null && !where.isEmpty())
         {   
             buf.append("\r\nWHERE ");
             // add where expression
@@ -1167,12 +1166,12 @@ public abstract class DBCommand extends DBCommandExpr
 
     protected void addGrouping(StringBuilder buf)
     {
-        if (groupBy != null)
+        if (groupBy!=null && !groupBy.isEmpty())
         { // Having
             buf.append("\r\nGROUP BY ");
             addListExpr(buf, groupBy, CTX_DEFAULT, ", ");
         }
-        if (having != null)
+        if (having!=null && !having.isEmpty())
         { // Having
             buf.append("\r\nHAVING ");
             addListExpr(buf, having, CTX_DEFAULT, " AND ");
@@ -1181,7 +1180,7 @@ public abstract class DBCommand extends DBCommandExpr
 
     protected void addOrder(StringBuilder buf)
     {
-        if (orderBy != null)
+        if (orderBy!=null && !orderBy.isEmpty())
         { // order By
             buf.append("\r\nORDER BY ");
             addListExpr(buf, orderBy, CTX_DEFAULT, ", ");
