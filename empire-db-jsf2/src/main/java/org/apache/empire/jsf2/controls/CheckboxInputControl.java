@@ -45,6 +45,17 @@ public class CheckboxInputControl extends InputControl
         this(javax.faces.component.html.HtmlSelectBooleanCheckbox.class);
     }
 
+	@Override
+	public void renderValue(ValueInfo vi, ResponseWriter writer)
+		throws IOException
+	{
+		boolean value = (Boolean) vi.getValue(true);
+		writer.startElement("div", null);
+		writer.writeAttribute("class", value ? "eTypeBoolTrue" : "eTypeBoolFalse", null);
+		writer.append("&nbsp;");
+		writer.endElement("div");
+	}
+	
     @Override
     protected void createInputComponents(UIComponent parent, InputInfo ii, FacesContext context, List<UIComponent> compList)
     {
