@@ -25,6 +25,7 @@ import java.util.Map;
 
 import javax.el.ValueExpression;
 import javax.faces.component.UIComponent;
+import javax.faces.component.UIData;
 import javax.faces.component.UIInput;
 import javax.faces.context.FacesContext;
 import javax.faces.context.ResponseWriter;
@@ -34,7 +35,6 @@ import org.apache.empire.commons.Options;
 import org.apache.empire.commons.StringUtils;
 import org.apache.empire.data.Column;
 import org.apache.empire.exceptions.InvalidArgumentException;
-import org.apache.empire.exceptions.ObjectNotValidException;
 import org.apache.empire.exceptions.UnexpectedReturnValueException;
 import org.apache.empire.jsf2.app.TextResolver;
 import org.slf4j.Logger;
@@ -166,27 +166,33 @@ public abstract class InputControl
     {
         UIInput input = getInputComponent(comp);
         if (input==null)
-            throw new ObjectNotValidException(this);
+        {   // throw new ObjectNotValidException(this);
+            return null; // ignore
+        }    
         
         // Get value from Input
-        Object value = (submitted) ? input.getSubmittedValue() : input.getValue();
-        /* Patch for MyFaces? 
-        if (value==null && input.isLocalValueSet())
-            value = input.getLocalValue();
-        */
-
+        Object value;
         if (submitted)
-        {
-            if (value!=null) // && (!ObjectUtils.compareEqual(value, input.getLocalValue())
-            {
-                // Disabled
+        {   // get submitted value
+            value = input.getSubmittedValue();
+            if (value == null && input.isLocalValueSet()) // MyFaces Patch!
+            {   // take local value
+                value = input.getLocalValue();
+                if (value == null)
+                {   // Empty-String
+                    value = "";
+                }
+            }
+            // Value supplied?
+            if (value != null)
+            {   // Check Disabled
                 if (ii.isDisabled())
-                {   // Ignore submitted value
-                    log.debug("Ignoring submitted value for disabled field {}.", ii.getColumn().getName());
+                { // Ignore submitted value
+                    InputControl.log.debug("Ignoring submitted value for disabled field {}.", ii.getColumn().getName());
                     input.setSubmittedValue(null);
                     // throw new FieldIsReadOnlyException(ii.getColumn());
                     return null;
-                }    
+                }
                 // Save submitted value
                 FacesContext fc = FacesContext.getCurrentInstance();
                 Map<String, Object> reqMap = fc.getExternalContext().getRequestMap();
@@ -194,15 +200,22 @@ public abstract class InputControl
                 String clientId = input.getClientId();
                 if (reqMap.containsKey(clientId))
                 {
-                    log.warn("OOps, what is going on here?");
-                }            
+                    InputControl.log.debug("Replacing submitted value from '{}' to '{}' for " + clientId, reqMap.get(clientId), value);
+                }
                 reqMap.put(clientId, value);
             }
+            // debug
+            if (log.isDebugEnabled())
+                log.debug("Submitted value for {} is {}", comp.getClientId(), value);
             // Convert
-            if ((value instanceof String) && ((String)value).length()>0)
+            if ((value instanceof String) && ((String) value).length() > 0)
             {
-                return parseInputValue((String)value, ii);
-            }
+                return parseInputValue((String) value, ii);
+            }            
+        }
+        else
+        {   // the current value
+            value = input.getValue();
         }
         return value;
     }
@@ -339,8 +352,18 @@ public abstract class InputControl
 	        }
         }
         // No UIInput found
-        if (inp==null)
-        	throw new UnexpectedReturnValueException(null, "comp.getChildren().get()");
+        if (inp == null)
+        {   // Check whether inside a DataTable (javax.faces.component.UIData)
+            for (UIComponent p = parent.getParent(); p!=null; p=p.getParent())
+            {   // Check whether inside UIData
+                if (p instanceof UIData) {
+                    log.info("Ignore value component for id '{}' inside a DataTable (javax.faces.component.UIData)", parent.getClientId());
+                    return null;
+                }
+            }
+            // Should not happen!
+            throw new UnexpectedReturnValueException(null, "comp.getChildren().get()");
+        }
         // done
         return inp;
     }
