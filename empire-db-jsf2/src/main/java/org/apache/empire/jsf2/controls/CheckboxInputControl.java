@@ -18,11 +18,13 @@
  */
 package org.apache.empire.jsf2.controls;
 
+import java.io.IOException;
 import java.util.List;
 
 import javax.faces.component.UIComponent;
 import javax.faces.component.html.HtmlSelectBooleanCheckbox;
 import javax.faces.context.FacesContext;
+import javax.faces.context.ResponseWriter;
 
 import org.apache.empire.commons.ObjectUtils;
 import org.apache.empire.exceptions.InternalException;
