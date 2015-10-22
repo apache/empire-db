@@ -59,7 +59,15 @@ public class Department {
 
 	@Override
 	public String toString() {
-		return this.name;
+		StringBuffer buf = new StringBuffer();
+		buf.append(departmentId);
+		buf.append("\t");
+		buf.append(name);
+		buf.append(" ");
+		buf.append(businessUnit);
+		buf.append("\t");
+		buf.append(head);
+		return buf.toString();
 	}
 	
 	@Override
@@ -87,4 +95,5 @@ public class Department {
 		return 1;
 	}
 
+	
 }

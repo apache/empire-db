@@ -23,6 +23,8 @@ import java.util.List;
 public interface EmployeeDao {
 
 	public List<Employee> getEmployees();
+	
+	public List<Department> getDepartments();
 
 	public Integer createEmployee(Employee employee);
 

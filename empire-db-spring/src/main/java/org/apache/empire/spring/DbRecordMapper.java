@@ -18,11 +18,17 @@
  */
 package org.apache.empire.spring;
 
-import org.apache.empire.db.DBRecord;
+import org.apache.empire.db.DBRecordData;
+
+/**
+ * Interface used by {@link EmpireTemplate} for mapping a
+ * {@link org.apache.empire.db.DBRecordData}. 
+ * 
+ */
 
 
-public interface EmpireRecordWriter<K> {
+public interface DbRecordMapper<K> {
 
-	public abstract void write(DBRecord record, K entity);
+	public abstract K read(DBRecordData record);
 	
 }

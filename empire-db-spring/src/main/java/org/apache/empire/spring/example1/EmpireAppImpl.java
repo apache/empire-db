@@ -39,10 +39,10 @@ import org.apache.empire.db.h2.DBDatabaseDriverH2;
 import org.apache.empire.db.hsql.DBDatabaseDriverHSql;
 import org.apache.empire.db.postgresql.DBDatabaseDriverPostgreSQL;
 import org.apache.empire.spring.EmpireDaoSupport;
-import org.apache.empire.spring.EmpireDataReader;
-import org.apache.empire.spring.EmpireReaderExtractor;
+import org.apache.empire.spring.DbRecordMapper;
+import org.apache.empire.spring.DbReaderExtractor;
 import org.apache.empire.spring.EmpireRecord;
-import org.apache.empire.spring.EmpireRowCallbackHandler;
+import org.apache.empire.spring.DbRecordCallbackHandler;
 import org.apache.empire.xml.XMLWriter;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.ConnectionCallback;
@@ -174,7 +174,7 @@ public class EmpireAppImpl extends EmpireDaoSupport implements EmpireApp {
 			switch (type) {
 			case BeanList:
 				// Text-Output by iterating through all records.
-				EmpireRowCallbackHandler readerImpl = new EmpireRowCallbackHandler() {
+				DbRecordCallbackHandler readerImpl = new DbRecordCallbackHandler() {
 
 					public void processRow(DBRecordData reader) {
 						System.out.println(reader.getString(EMP.EMPLOYEE_ID)
@@ -193,7 +193,7 @@ public class EmpireAppImpl extends EmpireDaoSupport implements EmpireApp {
 			case Reader:
 				// Text-Output using a list of Java Beans supplied by the
 				// DBReader
-				EmpireReaderExtractor<List<SampleBean>> beanListImpl = new EmpireReaderExtractor<List<SampleBean>>() {
+				DbReaderExtractor<List<SampleBean>> beanListImpl = new DbReaderExtractor<List<SampleBean>>() {
 
 					public List<SampleBean> process(DBReader reader) {
 						return reader.getBeanList(SampleBean.class);
@@ -254,7 +254,7 @@ public class EmpireAppImpl extends EmpireDaoSupport implements EmpireApp {
 	}
 
 	public static class XmlDocumentExtractor implements
-			EmpireReaderExtractor<Document> {
+			DbReaderExtractor<Document> {
 
 		public Document process(DBReader reader) {
 			return reader.getXmlDocument();
@@ -263,7 +263,7 @@ public class EmpireAppImpl extends EmpireDaoSupport implements EmpireApp {
 	}
 
 	public static class RowToObjectMapDataMapper implements
-			EmpireDataReader<Map<Object, Object>> {
+			DbRecordMapper<Map<Object, Object>> {
 
 		DBTable table;
 

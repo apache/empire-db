@@ -18,20 +18,10 @@
  */
 package org.apache.empire.spring;
 
-import org.apache.empire.db.DBColumnExpr;
 import org.apache.empire.db.DBRecordData;
 
-public class EmpireValueReader implements EmpireDataReader<Object> {
+public interface DbRecordCallbackHandler {
 
-	DBColumnExpr column;
-
-	public EmpireValueReader(DBColumnExpr column) {
-		super();
-		this.column = column;
-	}
-
-	public Object read(DBRecordData record) {
-		return record.getValue(column);
-	}
+	void processRow(DBRecordData record);
 
 }

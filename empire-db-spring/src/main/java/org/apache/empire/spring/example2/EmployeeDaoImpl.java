@@ -27,9 +27,9 @@ import org.apache.empire.db.DBJoinType;
 import org.apache.empire.db.DBRecord;
 import org.apache.empire.db.DBRecordData;
 import org.apache.empire.spring.EmpireDaoSupport;
-import org.apache.empire.spring.EmpireDataReader;
+import org.apache.empire.spring.DbRecordMapper;
 import org.apache.empire.spring.EmpireRecord;
-import org.apache.empire.spring.EmpireRecordWriter;
+import org.apache.empire.spring.DbRecordWriter;
 import org.apache.empire.spring.example1.SampleDB;
 import org.apache.empire.spring.example1.SampleDB.Departments;
 import org.apache.empire.spring.example1.SampleDB.Employees;
@@ -81,16 +81,23 @@ public class EmployeeDaoImpl extends EmpireDaoSupport implements EmployeeDao {
 	public Department openDepartment(Integer id) {
 		DBCommand cmd = createDepartmentSelectCommand();
 		cmd.where(DEPARTMENTS.DEPARTMENT_ID.is(id));
-		return getEmpireTemplate().queryForObject(cmd, new DepartmentMapper());
+		return getEmpireTemplate().queryForBean(cmd, Department.class);
 	}
 
 	@Transactional(readOnly = true)
 	public Department findDepartment(String name) {
 		DBCommand cmd = createDepartmentSelectCommand();
 		cmd.where(DEPARTMENTS.NAME.is(name));
-		return getEmpireTemplate().queryForObject(cmd, new DepartmentMapper());
+		return getEmpireTemplate().queryForBean(cmd, Department.class);
 	}
 
+	@Transactional(readOnly = true)
+	public List<Department> getDepartments() {
+		DBCommand cmd = createEmployeeSelectCommand();
+		return getEmpireTemplate().queryForBeanList(cmd, Department.class);
+	}
+
+	
 	@Transactional
 	public void renameDepartment(Integer id, String name) {
 		DBCommand cmd = getDatabase().createCommand();
@@ -137,7 +144,7 @@ public class EmployeeDaoImpl extends EmpireDaoSupport implements EmployeeDao {
 		getEmpireTemplate().updateRecord(record);
 	}
 
-	private class EmployeeMapper implements EmpireDataReader<Employee> {
+	private class EmployeeMapper implements DbRecordMapper<Employee> {
 
 		DepartmentMapper departmentMapper = new DepartmentMapper();
 
@@ -159,7 +166,7 @@ public class EmployeeDaoImpl extends EmpireDaoSupport implements EmployeeDao {
 
 	}
 
-	private class EmployeeWriter implements EmpireRecordWriter<Employee> {
+	private class EmployeeWriter implements DbRecordWriter<Employee> {
 
         @Override
 		public void write(DBRecord record, Employee entity) {
@@ -177,7 +184,7 @@ public class EmployeeDaoImpl extends EmpireDaoSupport implements EmployeeDao {
 
 	}
 
-	private class DepartmentMapper implements EmpireDataReader<Department> {
+	private class DepartmentMapper implements DbRecordMapper<Department> {
 
 		// reader cache, in case of joined resultset the same object is returned
 
@@ -206,7 +213,7 @@ public class EmployeeDaoImpl extends EmpireDaoSupport implements EmployeeDao {
 
 	}
 
-	private class DepartmentWriter implements EmpireRecordWriter<Department> {
+	private class DepartmentWriter implements DbRecordWriter<Department> {
 
 		@Override
         public void write(DBRecord record, Department entity) {

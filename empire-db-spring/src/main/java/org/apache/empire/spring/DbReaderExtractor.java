@@ -20,7 +20,7 @@ package org.apache.empire.spring;
 
 import org.apache.empire.db.DBReader;
 
-public interface EmpireReaderExtractor<K> {
+public interface DbReaderExtractor<K> {
 
 	K process(DBReader reader);
 

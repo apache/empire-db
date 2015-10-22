@@ -134,7 +134,14 @@ public class EmployeeSpringApp {
 			System.out.println(employee);
 		}
         
-        
+        System.out.println("*** List departments ***");
+
+        List<Department> departments = employeeDao.getDepartments();
+        for (Iterator<Department> iterator = departments.iterator(); iterator.hasNext();) {
+			Department department = iterator.next();
+			System.out.println(department);
+		}
+
     }
 
     private static void clearDatabase() {

@@ -18,22 +18,11 @@
  */
 package org.apache.empire.spring;
 
-import org.apache.empire.db.DBColumnExpr;
-import org.apache.empire.db.DBRecordData;
+import org.apache.empire.db.DBRecord;
 
-public class EmpireLongValueReader implements EmpireDataReader<Long> {
 
-	DBColumnExpr column;
-	private Long defaultValue;
+public interface DbRecordWriter<K> {
 
-	public EmpireLongValueReader(DBColumnExpr column, Long defaultValue) {
-		super();
-		this.column = column;
-		this.defaultValue = defaultValue;
-	}
-
-	public Long read(DBRecordData record) {
-		return record.isNull(column) ? defaultValue : record.getLong(column);
-	}
-
+	public abstract void write(DBRecord record, K entity);
+	
 }
