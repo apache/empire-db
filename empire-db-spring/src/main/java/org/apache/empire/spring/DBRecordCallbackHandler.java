@@ -18,10 +18,31 @@
  */
 package org.apache.empire.spring;
 
-import org.apache.empire.db.DBReader;
+import org.apache.empire.db.DBRecordData;
 
-public interface DbReaderExtractor<K> {
+/**
+ * An interface used by {@link EmpireTemplate} for processing a DBRecordData or
+ * rows of a DBReader on a per-row basis.
+ * 
+ * 
+ *
+ * DbRecordCallbackHandler object is typically stateful: It keeps the result
+ * state within the object, to be available for later inspection.
+ *
+ * If you need to map exactly one object to each row from a DBReader consider
+ * using a {@link DbRecordDataMapper}.
+ * 
+ *
+ */
 
-	K process(DBReader reader);
+public interface DBRecordCallbackHandler {
+
+	/**
+	 * Implementations must implement this method to process a DBRecordData.
+	 *  
+	 * @param record
+	 */
+	
+	void processRow(DBRecordData record);
 
 }

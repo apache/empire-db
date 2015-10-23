@@ -23,7 +23,7 @@ import org.apache.empire.db.DBDatabaseDriver;
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.InitializingBean;
 
-public class DbDatabaseFactoryBean implements FactoryBean<DBDatabase>,
+public class DBDatabaseFactoryBean implements FactoryBean<DBDatabase>,
 		InitializingBean {
 
 	private boolean singleton = true;

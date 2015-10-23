@@ -70,13 +70,13 @@ public class EmpireTemplate implements InitializingBean {
 	}
 
 	public <K> List<K> query(final DBCommand cmd,
-			final DbRecordMapper<K> dataReader) {
+			final DBRecordMapper<K> dataReader) {
 		return query(cmd, new DbRecordMapperExtractor<K>(dataReader));
 
 	}
 
 	public List<Object> queryForList(final DBCommand cmd, final DBColumnExpr col) {
-		class SingleValueMapper implements DbRecordMapper<Object> {
+		class SingleValueMapper implements DBRecordMapper<Object> {
 
 			@Override
 			public Object read(DBRecordData record) {
@@ -96,7 +96,7 @@ public class EmpireTemplate implements InitializingBean {
 
 	public List<Long> queryForLongList(final DBCommand cmd,
 			final DBColumnExpr col, final Long defaultValue) {
-		class SingleLongMapper implements DbRecordMapper<Long> {
+		class SingleLongMapper implements DBRecordMapper<Long> {
 
 			@Override
 			public Long read(DBRecordData record) {
@@ -116,7 +116,7 @@ public class EmpireTemplate implements InitializingBean {
 
 	public List<Integer> queryForIntegerList(final DBCommand cmd,
 			final DBColumnExpr col, final Integer defaultValue) {
-		class SingleIntegerMapper implements DbRecordMapper<Integer> {
+		class SingleIntegerMapper implements DBRecordMapper<Integer> {
 
 			@Override
 			public Integer read(DBRecordData record) {
@@ -133,7 +133,7 @@ public class EmpireTemplate implements InitializingBean {
 
 	public List<String> queryForStringList(final DBCommand cmd,
 			final DBColumnExpr col) {
-		class SingleStringMapper implements DbRecordMapper<String> {
+		class SingleStringMapper implements DBRecordMapper<String> {
 
 			@Override
 			public String read(DBRecordData record) {
@@ -145,7 +145,7 @@ public class EmpireTemplate implements InitializingBean {
 	}
 
 	public <K> K query(final DBCommand cmd,
-			final DbReaderExtractor<K> readerHandler) {
+			final DBReaderExtractor<K> readerHandler) {
 
 		class QueryCallback implements ConnectionCallback<K> {
 			public K doInConnection(Connection connection) throws SQLException,
@@ -158,12 +158,12 @@ public class EmpireTemplate implements InitializingBean {
 	}
 
 	public void query(final DBCommand cmd,
-			final DbRecordCallbackHandler rowCallbackHandler) {
+			final DBRecordCallbackHandler rowCallbackHandler) {
 		query(cmd, new DbRecordCallbackHandlerExtractor(rowCallbackHandler));
 	}
 
 	public <K> K queryForObject(final DBCommand cmd,
-			final DbRecordMapper<K> dataReader) {
+			final DBRecordMapper<K> dataReader) {
 
 		return DataAccessUtils.uniqueResult(query(cmd, dataReader));
 
@@ -286,7 +286,7 @@ public class EmpireTemplate implements InitializingBean {
 	public <C extends Collection<T>, T> C queryForBeanList(final DBCommand cmd,
 			final C c, final Class<T> t, final int maxCount) {
 
-		class GetBeanListCallback implements DbReaderExtractor<C> {
+		class GetBeanListCallback implements DBReaderExtractor<C> {
 
 			@Override
 			public C process(DBReader reader) {
@@ -316,7 +316,7 @@ public class EmpireTemplate implements InitializingBean {
 	}
 
 	private <K> K query(Connection connection, DBCommand command,
-			DbReaderExtractor<K> callback) {
+			DBReaderExtractor<K> callback) {
 		DBReader reader = newDBReader();
 		try {
 			reader.open(command, connection);
@@ -333,12 +333,12 @@ public class EmpireTemplate implements InitializingBean {
 	}
 
 	private static class DbRecordCallbackHandlerExtractor implements
-			DbReaderExtractor<Object> {
+			DBReaderExtractor<Object> {
 
-		private final DbRecordCallbackHandler rowCallbackHandler;
+		private final DBRecordCallbackHandler rowCallbackHandler;
 
 		public DbRecordCallbackHandlerExtractor(
-				DbRecordCallbackHandler rowCallbackHandler) {
+				DBRecordCallbackHandler rowCallbackHandler) {
 			Assert.notNull(rowCallbackHandler, "RowCallbackHandler is required");
 			this.rowCallbackHandler = rowCallbackHandler;
 		}
@@ -358,11 +358,11 @@ public class EmpireTemplate implements InitializingBean {
 	}
 
 	private static class DbRecordMapperExtractor<K> implements
-			DbReaderExtractor<List<K>> {
+			DBReaderExtractor<List<K>> {
 
-		private final DbRecordMapper<K> dataReader;
+		private final DBRecordMapper<K> dataReader;
 
-		public DbRecordMapperExtractor(DbRecordMapper<K> rowMapper) {
+		public DbRecordMapperExtractor(DBRecordMapper<K> rowMapper) {
 			Assert.notNull(rowMapper, "DataReader is required");
 			this.dataReader = rowMapper;
 		}

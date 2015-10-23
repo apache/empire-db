@@ -18,11 +18,28 @@
  */
 package org.apache.empire.spring;
 
-import org.apache.empire.db.DBRecord;
+import org.apache.empire.db.DBRecordData;
 
+/**
+ * Interface used by {@link EmpireTemplate} for mapping
+ * {@link org.apache.empire.db.DBRecordData} to an Object.
+ * 
+ * Typically it can be used to extract data from a DBReader, but without
+ * iterating over it, it is handled by EmpireTemplate.
+ * 
+ * 
+ */
 
-public interface DbRecordWriter<K> {
+public interface DBRecordMapper<K> {
 
-	public abstract void write(DBRecord record, K entity);
-	
+	/**
+	 * Implementations must implement this method to map data in a DBRecordData.
+	 * 
+	 * @param record
+	 *            the DBRecordData to map
+	 * @return the result object
+	 */
+
+	public abstract K read(DBRecordData record);
+
 }

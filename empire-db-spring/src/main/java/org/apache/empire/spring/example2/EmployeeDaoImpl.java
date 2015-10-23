@@ -27,9 +27,9 @@ import org.apache.empire.db.DBJoinType;
 import org.apache.empire.db.DBRecord;
 import org.apache.empire.db.DBRecordData;
 import org.apache.empire.spring.EmpireDaoSupport;
-import org.apache.empire.spring.DbRecordMapper;
+import org.apache.empire.spring.DBRecordMapper;
 import org.apache.empire.spring.EmpireRecord;
-import org.apache.empire.spring.DbRecordWriter;
+import org.apache.empire.spring.DBRecordWriter;
 import org.apache.empire.spring.example1.SampleDB;
 import org.apache.empire.spring.example1.SampleDB.Departments;
 import org.apache.empire.spring.example1.SampleDB.Employees;
@@ -144,7 +144,7 @@ public class EmployeeDaoImpl extends EmpireDaoSupport implements EmployeeDao {
 		getEmpireTemplate().updateRecord(record);
 	}
 
-	private class EmployeeMapper implements DbRecordMapper<Employee> {
+	private class EmployeeMapper implements DBRecordMapper<Employee> {
 
 		DepartmentMapper departmentMapper = new DepartmentMapper();
 
@@ -166,7 +166,7 @@ public class EmployeeDaoImpl extends EmpireDaoSupport implements EmployeeDao {
 
 	}
 
-	private class EmployeeWriter implements DbRecordWriter<Employee> {
+	private class EmployeeWriter implements DBRecordWriter<Employee> {
 
         @Override
 		public void write(DBRecord record, Employee entity) {
@@ -184,7 +184,7 @@ public class EmployeeDaoImpl extends EmpireDaoSupport implements EmployeeDao {
 
 	}
 
-	private class DepartmentMapper implements DbRecordMapper<Department> {
+	private class DepartmentMapper implements DBRecordMapper<Department> {
 
 		// reader cache, in case of joined resultset the same object is returned
 
@@ -213,7 +213,7 @@ public class EmployeeDaoImpl extends EmpireDaoSupport implements EmployeeDao {
 
 	}
 
-	private class DepartmentWriter implements DbRecordWriter<Department> {
+	private class DepartmentWriter implements DBRecordWriter<Department> {
 
 		@Override
         public void write(DBRecord record, Department entity) {

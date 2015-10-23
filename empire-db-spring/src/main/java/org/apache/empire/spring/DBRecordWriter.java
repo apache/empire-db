@@ -18,10 +18,11 @@
  */
 package org.apache.empire.spring;
 
-import org.apache.empire.db.DBRecordData;
+import org.apache.empire.db.DBRecord;
 
-public interface DbRecordCallbackHandler {
 
-	void processRow(DBRecordData record);
+public interface DBRecordWriter<K> {
 
+	public abstract void write(DBRecord record, K entity);
+	
 }

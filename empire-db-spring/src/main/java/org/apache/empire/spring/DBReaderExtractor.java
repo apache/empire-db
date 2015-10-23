@@ -18,17 +18,10 @@
  */
 package org.apache.empire.spring;
 
-import org.apache.empire.db.DBRecordData;
+import org.apache.empire.db.DBReader;
 
-/**
- * Interface used by {@link EmpireTemplate} for mapping a
- * {@link org.apache.empire.db.DBRecordData}. 
- * 
- */
+public interface DBReaderExtractor<K> {
 
+	K process(DBReader reader);
 
-public interface DbRecordMapper<K> {
-
-	public abstract K read(DBRecordData record);
-	
 }
