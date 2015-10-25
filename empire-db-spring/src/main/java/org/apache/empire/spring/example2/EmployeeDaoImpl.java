@@ -26,10 +26,10 @@ import org.apache.empire.db.DBCommand;
 import org.apache.empire.db.DBJoinType;
 import org.apache.empire.db.DBRecord;
 import org.apache.empire.db.DBRecordData;
-import org.apache.empire.spring.EmpireDaoSupport;
 import org.apache.empire.spring.DBRecordMapper;
-import org.apache.empire.spring.EmpireRecord;
 import org.apache.empire.spring.DBRecordWriter;
+import org.apache.empire.spring.EmpireDaoSupport;
+import org.apache.empire.spring.EmpireRecord;
 import org.apache.empire.spring.example1.SampleDB;
 import org.apache.empire.spring.example1.SampleDB.Departments;
 import org.apache.empire.spring.example1.SampleDB.Employees;
@@ -149,7 +149,7 @@ public class EmployeeDaoImpl extends EmpireDaoSupport implements EmployeeDao {
 		DepartmentMapper departmentMapper = new DepartmentMapper();
 
         @Override
-		public Employee read(DBRecordData record) {
+		public Employee mapRecord(DBRecordData record, int rowNum) {
 			Employee result = new Employee();
             // Auto-copy all properties
 			record.getBeanProperties(result);
@@ -160,7 +160,7 @@ public class EmployeeDaoImpl extends EmpireDaoSupport implements EmployeeDao {
 			result.setGender(Employee.Gender.valueOf(record.getString(EMPLOYEES.GENDER)));
 			result.setPhoneNumber(record.getString(EMPLOYEES.PHONE_NUMBER));
 			*/
-			result.setDepartment(departmentMapper.read(record));
+			result.setDepartment(departmentMapper.mapRecord(record, rowNum));
 			return result;
 		}
 
@@ -191,7 +191,7 @@ public class EmployeeDaoImpl extends EmpireDaoSupport implements EmployeeDao {
 		Map<Integer, Department> cache = new HashMap<Integer, Department>();
 
         @Override
-		public Department read(DBRecordData record) {
+		public Department mapRecord(DBRecordData record, int rowNum) {
 
 			Integer id = record.getInt(DEPARTMENTS.DEPARTMENT_ID);
 

@@ -39,6 +39,6 @@ public interface DBRecordCallbackHandler {
 	 * @param record
 	 */
 
-	void processRow(DBRecordData record);
+	void processRecord(DBRecordData record);
 
 }

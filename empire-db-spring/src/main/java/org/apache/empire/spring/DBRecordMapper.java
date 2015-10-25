@@ -39,9 +39,11 @@ public interface DBRecordMapper<K> {
 	 * 
 	 * @param record
 	 *            the DBRecordData to map
+	 * @param rowNum
+	 *            the number of the current row
 	 * @return the result object
 	 */
 
-	public abstract K read(DBRecordData record);
+	public abstract K mapRecord(DBRecordData record, int rowNum);
 
 }

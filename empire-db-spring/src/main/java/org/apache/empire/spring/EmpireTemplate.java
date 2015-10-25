@@ -231,7 +231,7 @@ public class EmpireTemplate implements InitializingBean {
 		class SingleValueMapper implements DBRecordMapper<Object> {
 
 			@Override
-			public Object read(DBRecordData record) {
+			public Object mapRecord(DBRecordData record, int rowNum) {
 				return record.getValue(col);
 			}
 
@@ -277,7 +277,7 @@ public class EmpireTemplate implements InitializingBean {
 		class SingleLongMapper implements DBRecordMapper<Long> {
 
 			@Override
-			public Long read(DBRecordData record) {
+			public Long mapRecord(DBRecordData record, int rowNum) {
 				return record.isNull(col) ? defaultValue : record.getLong(col);
 			}
 
@@ -324,7 +324,7 @@ public class EmpireTemplate implements InitializingBean {
 		class SingleIntegerMapper implements DBRecordMapper<Integer> {
 
 			@Override
-			public Integer read(DBRecordData record) {
+			public Integer mapRecord(DBRecordData record, int rowNum) {
 				return record.isNull(col) ? defaultValue : record.getInt(col);
 			}
 
@@ -362,7 +362,7 @@ public class EmpireTemplate implements InitializingBean {
 		class SingleStringMapper implements DBRecordMapper<String> {
 
 			@Override
-			public String read(DBRecordData record) {
+			public String mapRecord(DBRecordData record, int rowNum) {
 				return record.getString(col);
 			}
 
@@ -803,7 +803,7 @@ public class EmpireTemplate implements InitializingBean {
 		public Object process(DBReader reader) {
 			try {
 				while (reader.moveNext()) {
-					this.rowCallbackHandler.processRow(reader);
+					this.rowCallbackHandler.processRecord(reader);
 				}
 				return null;
 			} finally {
@@ -827,9 +827,11 @@ public class EmpireTemplate implements InitializingBean {
 		public List<K> process(DBReader reader) {
 			try {
 				List<K> results = new ArrayList<K>();
+				int rowNum = 0;
 
 				while (reader.moveNext()) {
-					results.add(this.dataReader.read(reader));
+					results.add(this.dataReader.mapRecord(reader, rowNum));
+					rowNum++;
 				}
 
 				return results;

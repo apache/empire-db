@@ -38,11 +38,11 @@ import org.apache.empire.db.derby.DBDatabaseDriverDerby;
 import org.apache.empire.db.h2.DBDatabaseDriverH2;
 import org.apache.empire.db.hsql.DBDatabaseDriverHSql;
 import org.apache.empire.db.postgresql.DBDatabaseDriverPostgreSQL;
-import org.apache.empire.spring.EmpireDaoSupport;
-import org.apache.empire.spring.DBRecordMapper;
 import org.apache.empire.spring.DBReaderExtractor;
-import org.apache.empire.spring.EmpireRecord;
 import org.apache.empire.spring.DBRecordCallbackHandler;
+import org.apache.empire.spring.DBRecordMapper;
+import org.apache.empire.spring.EmpireDaoSupport;
+import org.apache.empire.spring.EmpireRecord;
 import org.apache.empire.xml.XMLWriter;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.ConnectionCallback;
@@ -176,7 +176,7 @@ public class EmpireAppImpl extends EmpireDaoSupport implements EmpireApp {
 				// Text-Output by iterating through all records.
 				DBRecordCallbackHandler readerImpl = new DBRecordCallbackHandler() {
 
-					public void processRow(DBRecordData reader) {
+					public void processRecord(DBRecordData reader) {
 						System.out.println(reader.getString(EMP.EMPLOYEE_ID)
 								+ "\t"
 								+ reader.getString(EMPLOYEE_FULLNAME)
@@ -272,7 +272,7 @@ public class EmpireAppImpl extends EmpireDaoSupport implements EmpireApp {
 			this.table = table;
 		}
 
-		public Map<Object, Object> read(DBRecordData record) {
+		public Map<Object, Object> mapRecord(DBRecordData record, int rowNum) {
 			Map<Object, Object> dep = new HashMap<Object, Object>();
 			for (DBColumn col : table.getColumns()) {
 				dep.put(col.getName(), record.getValue(col));
