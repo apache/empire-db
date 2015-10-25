@@ -20,7 +20,26 @@ package org.apache.empire.spring;
 
 import org.apache.empire.db.DBReader;
 
+/**
+ * Callback interface to use with {@link EmpireTemplate}'s query methods.
+ * Implementations of this interface perform the actual work of extracting
+ * results from a {@link DBReader}.
+ * 
+ * This class is the Empire equivalent of Spring's
+ * {@link org.springframework.jdbc.core.ResultSetExtractor}.
+ */
+
 public interface DBReaderExtractor<K> {
+
+	/**
+	 * Implementations must implement this method to process the entire
+	 * DBReader. Unlike DBRecordMapper and DBRecordCallbackHandler it's the
+	 * developer's response to iterate through the reader calling reader.next();
+	 * 
+	 * @param reader
+	 *            to process
+	 * @return the result object, can be null
+	 */
 
 	K process(DBReader reader);
 

@@ -27,6 +27,8 @@ import org.apache.empire.db.DBRecordData;
  * Typically it can be used to extract data from a DBReader, but without
  * iterating over it, it is handled by EmpireTemplate.
  * 
+ * This class is the Empire equivalent of Spring's
+ * {@link org.springframework.jdbc.core.RowMapper}.
  * 
  */
 

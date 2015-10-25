@@ -60,7 +60,7 @@
     <bean id="employeeDao" class="org.apache.empire.spring.example2.EmployeeDaoImpl" parent="empireDao"/>
 
     
-    <bean id="sampleDb" class="org.apache.empire.spring.DbDatabaseFactoryBean">
+    <bean id="sampleDb" class="org.apache.empire.spring.DBDatabaseFactoryBean">
     	<property name="driverClass" value="${empire.driver}"/>
     	<property name="schema" value="${empire.schemaname}"/>
     	<property name="databaseClass" value="org.apache.empire.spring.example1.SampleDB"/>
@@ -68,12 +68,14 @@
     
     <bean id="empireDao" abstract="true">
     	<property name="database" ref="sampleDb"/>
-    	<property name="dataSource" ref="dataSource"/>
+    	<property name="empireTemplate" ref="empireTemplate"/>
     </bean>
     
     
     <bean id="empireTemplate" class="org.apache.empire.spring.EmpireTemplate">
     	<property name="dataSource" ref="dataSource"/>
+    	<property name="dBRecordClass" value="org.apache.empire.spring.EmpireRecord"/>
+    	<property name="dBReaderClass" value="org.apache.empire.spring.EmpireReader"/>
     </bean>
     
     

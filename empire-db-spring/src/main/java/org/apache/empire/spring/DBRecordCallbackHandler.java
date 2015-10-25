@@ -22,27 +22,23 @@ import org.apache.empire.db.DBRecordData;
 
 /**
  * An interface used by {@link EmpireTemplate} for processing a DBRecordData or
- * rows of a DBReader on a per-row basis.
+ * rows of a DBReader on a per-row basis. DbRecordCallbackHandler object is
+ * typically stateful: It keeps the result state within the object, to be
+ * available for later inspection.
  * 
+ * This class is the Empire equivalent of Spring's
+ * {@link org.springframework.jdbc.core.RowCallbackHandler}.
  * 
- *
- * DbRecordCallbackHandler object is typically stateful: It keeps the result
- * state within the object, to be available for later inspection.
- *
- * If you need to map exactly one object to each row from a DBReader consider
- * using a {@link DbRecordDataMapper}.
- * 
- *
  */
 
 public interface DBRecordCallbackHandler {
 
 	/**
 	 * Implementations must implement this method to process a DBRecordData.
-	 *  
+	 * 
 	 * @param record
 	 */
-	
+
 	void processRow(DBRecordData record);
 
 }
