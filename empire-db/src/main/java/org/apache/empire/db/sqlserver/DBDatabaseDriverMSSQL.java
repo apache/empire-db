@@ -204,8 +204,6 @@ public class DBDatabaseDriverMSSQL extends DBDatabaseDriver
         {   // Set Database
             if (StringUtils.isNotEmpty(databaseName))
                 executeSQL("USE " + databaseName, null, conn, null);
-            // Set Dateformat
-            executeSQL("SET DATEFORMAT ymd", null, conn, null);
             // Sequence Table
             if (useSequenceTable && db.getTable(sequenceTableName)==null)
                 new DBSeqTable(sequenceTableName, db);
@@ -282,10 +280,10 @@ public class DBDatabaseDriverMSSQL extends DBDatabaseDriver
             case SQL_BOOLEAN_FALSE:           return "0";
             case SQL_CURRENT_DATE:            return "convert(char, getdate(), 111)";
             case SQL_DATE_PATTERN:            return "yyyy-MM-dd";
-            case SQL_DATE_TEMPLATE:           return "'{0}'";
+            case SQL_DATE_TEMPLATE:           return "convert(date, '{0}', 121)";
             case SQL_CURRENT_DATETIME:        return "getdate()";
             case SQL_DATETIME_PATTERN:        return "yyyy-MM-dd HH:mm:ss.SSS";
-            case SQL_DATETIME_TEMPLATE:       return "'{0}'";
+            case SQL_DATETIME_TEMPLATE:       return "convert(datetime, '{0}', 121)";
             // functions
             case SQL_FUNC_COALESCE:           return "coalesce(?, {0})";
             case SQL_FUNC_SUBSTRING:          return "substring(?, {0}, 4000)";
