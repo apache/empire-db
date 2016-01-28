@@ -149,8 +149,8 @@ public abstract class DBRowSet extends DBExpr
         }
         String dbid = db.getId(); 
         strm.writeObject(dbid);
-        if (log.isInfoEnabled())
-            log.info("Serialization: reading DBRowSet "+dbid);
+        if (log.isDebugEnabled())
+            log.debug("Serialization: writing DBRowSet "+dbid);
         // write the rest
         strm.defaultWriteObject();
     }
@@ -164,8 +164,8 @@ public abstract class DBRowSet extends DBExpr
         String dbid = String.valueOf(strm.readObject());
         if (StringUtils.isNotEmpty(dbid))
         {   // Find database
-            if (log.isInfoEnabled())
-                log.info("Serialization: reading DBRowSet "+dbid);
+            if (log.isDebugEnabled())
+                log.debug("Serialization: reading DBRowSet "+dbid);
             // find database
             DBDatabase sdb = DBDatabase.findById(dbid);
             if (sdb==null)

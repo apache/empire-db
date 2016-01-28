@@ -13,16 +13,26 @@
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-facesconfig_2_0.xsd"
 	version="2.0">
-	<factory>
-		<application-factory>org.apache.empire.jsf2.websample.web.SampleApplicationFactory</application-factory>
-	</factory>
+
 	<application>
+	    <!-- System event listener --> 
+	    <system-event-listener>
+			<system-event-listener-class>org.apache.empire.jsf2.app.FacesStartupListener</system-event-listener-class>
+			<system-event-class>javax.faces.event.PostConstructApplicationEvent</system-event-class>
+	    </system-event-listener>
+	    <!-- locales -->
 		<locale-config>
 			<default-locale>en</default-locale>
 			<supported-locale>en</supported-locale>
 			<supported-locale>de</supported-locale>
 		</locale-config>
 		<message-bundle>lang.messages</message-bundle>
+		<!-- messages -->
+		<message-bundle>lang.messages</message-bundle>
+		<resource-bundle>
+			<base-name>lang.messages</base-name>
+			<var>msg</var>
+		</resource-bundle>
 		<!-- EL resolver -->
 		<el-resolver>org.apache.empire.jsf2.app.DBELResolver</el-resolver>
 		<el-resolver>org.apache.empire.jsf2.pages.PagesELResolver</el-resolver>
@@ -32,18 +42,17 @@
 
 	<!-- Lifecycle -->
 	<lifecycle>
-		<phase-listener>org.apache.empire.jsf2.app.AppRequestPhaseListener</phase-listener>
+		<phase-listener>org.apache.empire.jsf2.app.FacesRequestPhaseListener</phase-listener>
 		<phase-listener>org.apache.empire.jsf2.pages.PagePhaseListener</phase-listener>
 		<phase-listener>org.apache.empire.jsf2.websample.web.AutheticationPhaseListener</phase-listener>
 	</lifecycle>
 
-	<!-- Application beans -->
+	<!-- Application bean (MUST be named 'facesApplication' for FacesStartupListener!) -->
 	<managed-bean>
-		<managed-bean-name>sampleApplication</managed-bean-name>
+		<managed-bean-name>facesApplication</managed-bean-name>
 		<managed-bean-class>org.apache.empire.jsf2.websample.web.SampleApplication</managed-bean-class>
 		<managed-bean-scope>application</managed-bean-scope>
 	</managed-bean>
-
 
 	<!-- Session beans -->
 	<managed-bean>

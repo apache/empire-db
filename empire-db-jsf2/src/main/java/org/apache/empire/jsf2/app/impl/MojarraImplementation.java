@@ -40,6 +40,7 @@ public class MojarraImplementation implements FacesImplementation
 {
 	private BeanManager bm;
 
+	/*
 	@Override
 	public void initApplication(final FacesApplication application)
 	{
@@ -53,6 +54,7 @@ public class MojarraImplementation implements FacesImplementation
 		FacesContext fc = FacesContext.getCurrentInstance();
 		bm = ApplicationAssociate.getInstance(fc.getExternalContext()).getBeanManager();
 	}
+	*/
 
 	@Override
 	public void registerManagedBean(final String beanName,final String beanClass,final String scope) 
@@ -71,6 +73,8 @@ public class MojarraImplementation implements FacesImplementation
 	public Object getManagedBean(final String beanName, final FacesContext fc)
 	{
 		// Find Bean
+	    if (bm==null)
+            bm = ApplicationAssociate.getInstance(fc.getExternalContext()).getBeanManager();
 		Object mbean = bm.getBeanFromScope(beanName, fc);
 		if (mbean==null)
 			mbean= bm.create(beanName, fc);

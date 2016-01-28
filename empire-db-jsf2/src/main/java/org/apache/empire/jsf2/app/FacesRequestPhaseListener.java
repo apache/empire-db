@@ -18,30 +18,21 @@
  */
 package org.apache.empire.jsf2.app;
 
-import javax.faces.application.Application;
 import javax.faces.context.FacesContext;
-import javax.faces.event.AbortProcessingException;
 import javax.faces.event.PhaseEvent;
 import javax.faces.event.PhaseId;
 import javax.faces.event.PhaseListener;
+import javax.servlet.http.HttpServletResponse;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
-
-public class AppRequestPhaseListener implements PhaseListener
+public class FacesRequestPhaseListener implements PhaseListener
 {
     private static final long   serialVersionUID = 1L;
-    final Logger                log              = LoggerFactory.getLogger(AppRequestPhaseListener.class);
+    final Logger                log              = LoggerFactory.getLogger(FacesRequestPhaseListener.class);
 
-    /*
-    private static final String ACTION_PARAM     = "action";
-    private static final String REDIRECT_PARAM   = "redirect";
-    private static final String REDIRECT_RESULT  = "redirect:";
-    */
-
-    public AppRequestPhaseListener()
+    public FacesRequestPhaseListener()
     {
         // foo
     }
@@ -55,13 +46,17 @@ public class AppRequestPhaseListener implements PhaseListener
     @Override
     public void beforePhase(PhaseEvent pe)
     {
-        // Check for action param
-        /*
-        if (pe.getPhaseId().equals(PhaseId.RESTORE_VIEW))
-        {
-            beforeRestoreView(pe.getFacesContext());
+        // Only when rendering the response
+        if (pe.getPhaseId() == PhaseId.RENDER_RESPONSE)
+        {   
+            FacesContext facesContext = pe.getFacesContext();
+            HttpServletResponse response = (HttpServletResponse) facesContext.getExternalContext().getResponse();
+            response.addHeader("Pragma", "no-cache");
+            response.addHeader("Cache-Control", "no-cache");
+            response.addHeader("Cache-Control", "no-store");
+            response.addHeader("Cache-Control", "must-revalidate");
         }
-        */
+        // default
     }
 
     /** 
@@ -74,12 +69,11 @@ public class AppRequestPhaseListener implements PhaseListener
         FacesContext ctx = pe.getFacesContext();
         if (pe.getPhaseId() == PhaseId.RENDER_RESPONSE || ctx.getResponseComplete())
         {
-            Application app = ctx.getApplication();
-            if (!(app instanceof FacesApplication))
-                throw new AbortProcessingException("Error: Application is not a JsfApplication instance. Please create a ApplicationFactory!");
-            // Cast and release 
-            FacesApplication jsfApp = (FacesApplication)app;
-            jsfApp.releaseAllConnections(ctx);
+            FacesApplication app = FacesApplication.getInstance();
+            if (app!=null)
+                app.onRequestComplete(ctx);
+            else
+                log.warn("No FacesApplication available to complete and cleanup request. Please create a managed bean of name "+FacesApplication.APPLICATION_BEAN_NAME);
         }
             
     }

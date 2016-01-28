@@ -25,19 +25,6 @@ import javax.faces.context.FacesContext;
 public interface FacesImplementation 
 {
 	/**
-	 * Init application
-	 * @param application the FacesApplication instance
-	 *	
-	 *	Implementation example:
-	 *	--------------------------- 
-	 *	ApplicationFactoryImpl applFactoryImpl = new ApplicationFactoryImpl();
-     *	// set implementation
-     *	application.setImplementation(this, applFactoryImpl.getApplication());
-     *	applFactoryImpl.setApplication(application);
-	 */
-	void initApplication(final FacesApplication application);
-
-	/**
 	 *	Registers a managed bean	
 	 *
 	 *	Implementation for Mojarra:

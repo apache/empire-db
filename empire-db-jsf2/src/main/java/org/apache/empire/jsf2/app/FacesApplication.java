@@ -20,43 +20,21 @@ package org.apache.empire.jsf2.app;
 
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Locale;
 import java.util.Map;
 import java.util.ResourceBundle;
 
-import javax.el.ELContextListener;
-import javax.el.ELException;
-import javax.el.ELResolver;
-import javax.el.ExpressionFactory;
-import javax.el.ValueExpression;
-import javax.faces.FacesException;
+import javax.faces.FactoryFinder;
 import javax.faces.application.Application;
+import javax.faces.application.ApplicationFactory;
 import javax.faces.application.FacesMessage;
 import javax.faces.application.FacesMessage.Severity;
-import javax.faces.application.NavigationHandler;
-import javax.faces.application.ProjectStage;
-import javax.faces.application.Resource;
-import javax.faces.application.ResourceHandler;
-import javax.faces.application.StateManager;
-import javax.faces.application.ViewHandler;
 import javax.faces.component.NamingContainer;
 import javax.faces.component.UIComponent;
 import javax.faces.component.UIViewRoot;
-import javax.faces.component.behavior.Behavior;
 import javax.faces.context.FacesContext;
-import javax.faces.convert.Converter;
-import javax.faces.el.MethodBinding;
-import javax.faces.el.PropertyResolver;
-import javax.faces.el.ReferenceSyntaxException;
-import javax.faces.el.ValueBinding;
-import javax.faces.el.VariableResolver;
-import javax.faces.event.ActionListener;
-import javax.faces.event.SystemEvent;
-import javax.faces.event.SystemEventListener;
-import javax.faces.validator.Validator;
 import javax.servlet.ServletContext;
 import javax.sql.DataSource;
 
@@ -73,53 +51,84 @@ import org.slf4j.LoggerFactory;
 
 // import com.sun.faces.application.ApplicationImpl;
 
-@SuppressWarnings("deprecation")
-public abstract class FacesApplication extends Application
+public abstract class FacesApplication
 {
     private static final Logger log                   = LoggerFactory.getLogger(FacesApplication.class);
 
     private static final String CONNECTION_ATTRIBUTE  = "dbConnections";
 
-    public static String        APPLICATION_ATTRIBUTE = "app";
+    public static String        APPLICATION_BEAN_NAME = "facesApplication";
 
     protected TextResolver[]    textResolvers         = null;
 
     private String              webRoot               = null;
     
-    private Application			applImpl 			  = null;
-    
     private FacesImplementation facesImpl			  = null;
-
-    protected FacesApplication()
-    { 	// subscribe
-    	log.info("FacesApplication {0} created", getClass().getName());
-    }
     
-    public void setImplementation(FacesImplementation facesImpl, Application applImpl) 
+    private static FacesApplication appInstance       = null;
+    
+    public static FacesApplication getInstance()
     {
-    	this.facesImpl = facesImpl;
-    	this.applImpl  = applImpl; 
+        if (appInstance==null)
+            log.warn("No FacesApplication instance available. Please add a PostConstructApplicationEvent using FacesStartupListener in your faces-config.xml to create the FacesApplication object.");
+        // return instance
+        return appInstance;
     }
-
-	protected abstract DataSource getAppDataSource(DBDatabase db);
 
     protected abstract void init(ServletContext servletContext);
+    
+    protected abstract DataSource getAppDataSource(DBDatabase db);
 
-    protected void initComplete(ServletContext servletContext)
+    protected FacesApplication()
+    {   // subscribe
+        log.info("FacesApplication {0} created", getClass().getName());
+        // Must be a singleton
+        if (appInstance!=null) {
+            throw new RuntimeException("An attempt was made to create second instance of FacesApplication. FacesApplication must be a singleton!");
+        }
+        // set Instance
+        appInstance = this;
+    }
+
+    /**
+     * Init the Application
+     * @param servletContext
+     */
+    public final void init(FacesImplementation facesImpl, FacesContext startupContext)
     {
-        // Get Web Root
+        this.facesImpl = facesImpl;
+        // Only call once!
+        if (webRoot!=null)
+            throw new NotSupportedException(this, "init");
+        // webRoot
+        ServletContext servletContext = (ServletContext) startupContext.getExternalContext().getContext();
         webRoot = servletContext.getContextPath();
-
-        // Check Text resolvers
-        if (textResolvers == null)
-            initTextResolvers();
-
-        // done
-        log.info("FacesApplication initialization complete");
+        servletContext.setAttribute("webRoot", webRoot);
+        servletContext.setAttribute("app", this);
+        // Init
+        init(servletContext);
+        // text resolvers
+        ApplicationFactory appFactory = (ApplicationFactory) FactoryFinder.getFactory(FactoryFinder.APPLICATION_FACTORY);
+        Application app = appFactory.getApplication();
+        initTextResolvers(app);
     }
 
     /* Context handling */
+    
+    /**
+     * handle request cleanup
+     * @param ctx
+     */
+    public void onRequestComplete(final FacesContext ctx)
+    {
+        releaseAllConnections(ctx);
+    }
 
+    /**
+     * handle view change
+     * @param fc
+     * @param viewId
+     */
     public void onChangeView(final FacesContext fc, String viewId)
     {
         // allow custom view change logic
@@ -173,6 +182,26 @@ public abstract class FacesApplication extends Application
             }
         }
         return locale;
+    }
+
+    public TextResolver getTextResolver(Locale locale)
+    {
+        // No text Resolvers provided
+        if (textResolvers == null || textResolvers.length == 0)
+        {
+            throw new NotSupportedException(this, "getTextResolver");
+        }
+        // Lookup resolver for locale
+        for (int i = 0; i < textResolvers.length; i++)
+            if (locale.equals(textResolvers[i].getLocale()))
+                return textResolvers[i];
+        // locale not found: return default
+        return textResolvers[0];
+    }
+
+    public TextResolver getTextResolver(FacesContext ctx)
+    {
+        return getTextResolver(getContextLocale(ctx));
     }
 
     /**
@@ -320,59 +349,24 @@ public abstract class FacesApplication extends Application
 
     /* Message handling */
 
-    protected void initTextResolvers()
+    protected void initTextResolvers(Application app)
     {
         int count = 0;
-        Iterator<Locale> locales = getSupportedLocales();
+        Iterator<Locale> locales = app.getSupportedLocales();
         for (count = 0; locales.hasNext(); count++)
         {
             locales.next();
         }
 
         // get message bundles
-        String messageBundle = this.getMessageBundle();
+        String messageBundle = app.getMessageBundle();
         textResolvers = new TextResolver[count];
-        locales = getSupportedLocales();
+        locales = app.getSupportedLocales();
         for (int i = 0; locales.hasNext(); i++)
         {
             Locale locale = locales.next();
             textResolvers[i] = new TextResolver(ResourceBundle.getBundle(messageBundle, locale));
         }
-    }
-
-    public TextResolver getTextResolver(Locale locale)
-    {
-        // No text Resolvers provided
-        if (textResolvers == null || textResolvers.length == 0)
-        {
-            throw new NotSupportedException(this, "getTextResolver");
-        }
-        // Lookup resolver for locale
-        for (int i = 0; i < textResolvers.length; i++)
-            if (locale.equals(textResolvers[i].getLocale()))
-                return textResolvers[i];
-        // locale not found: return default
-        return textResolvers[0];
-    }
-
-    public TextResolver getTextResolver(FacesContext ctx)
-    {
-        return getTextResolver(getContextLocale(ctx));
-    }
-
-    /**
-     * @see javax.faces.application.Application#getResourceBundle(javax.faces.context.FacesContext,
-     *      String)
-     */
-    @Override
-    public ResourceBundle getResourceBundle(final FacesContext fc, final String var)
-    {
-        if (var.equals("msg"))
-        {
-            TextResolver resolver = getTextResolver(fc);
-            return resolver.getResourceBundle();
-        }
-        return applImpl.getResourceBundle(fc, var);
     }
 
     /**
@@ -502,386 +496,5 @@ public abstract class FacesApplication extends Application
         releaseConnection(fc, db, !hasError(fc));
     }
     
-    /************************************************************/
-
-	@Override
-	public void addBehavior(String behaviorId, String behaviorClass) {
-		// Forward to implementation
-		applImpl.addBehavior(behaviorId, behaviorClass);
-	}
-
-	@Override
-	public void addComponent(String componentType, String componentClass) {
-		// Forward to implementation
-		applImpl.addComponent(componentType, componentClass);
-	}
-
-	@Override
-	public void addConverter(Class<?> targetClass, String converterClass) {
-		// Forward to implementation
-		applImpl.addConverter(targetClass, converterClass);
-	}
-
-	@Override
-	public void addConverter(String converterId, String converterClass) {
-		// Forward to implementation
-		applImpl.addConverter(converterId, converterClass);
-	}
-
-	@Override
-	public void addDefaultValidatorId(String validatorId) {
-		// Forward to implementation
-		applImpl.addDefaultValidatorId(validatorId);
-	}
-
-	@Override
-	public void addELContextListener(ELContextListener listener) {
-		// Forward to implementation
-		applImpl.addELContextListener(listener);
-	}
-
-	@Override
-	public void addELResolver(ELResolver resolver) {
-		// Forward to implementation
-		applImpl.addELResolver(resolver);
-	}
-
-	@Override
-	public void addValidator(String validatorId, String validatorClass) {
-		// Forward to implementation
-		applImpl.addValidator(validatorId, validatorClass);
-	}
-
-	@Override
-	public Behavior createBehavior(String behaviorId) throws FacesException {
-		// Forward to implementation
-		return applImpl.createBehavior(behaviorId);
-	}
-
-	@Override
-	public UIComponent createComponent(FacesContext context,
-			Resource componentResource) {
-		// Forward to implementation
-		return applImpl.createComponent(context, componentResource);
-	}
-
-	@Override
-	public UIComponent createComponent(FacesContext context,
-			String componentType, String rendererType) {
-		// Forward to implementation
-		return applImpl.createComponent(context, componentType, rendererType);
-	}
-
-	@Override
-	public UIComponent createComponent(String componentType)
-			throws FacesException {
-		// Forward to implementation
-		return applImpl.createComponent(componentType);
-	}
-
-	@Override
-	public UIComponent createComponent(ValueBinding componentBinding,
-			FacesContext context, String componentType) throws FacesException {
-		// Forward to implementation
-		return applImpl.createComponent(componentBinding, context, componentType);
-	}
-
-	@Override
-	public UIComponent createComponent(ValueExpression componentExpression,
-			FacesContext context, String componentType) throws FacesException {
-		// Forward to implementation
-		return applImpl.createComponent(componentExpression, context, componentType);
-	}
-
-	@Override
-	public UIComponent createComponent(ValueExpression componentExpression,
-			FacesContext context, String componentType, String rendererType) {
-		// Forward to implementation
-		return applImpl.createComponent(componentExpression, context, componentType, rendererType);
-	}
-
-	@Override
-	public Converter createConverter(Class<?> targetClass) {
-		// Forward to implementation
-		return applImpl.createConverter(targetClass);
-	}
-
-	@Override
-	public Converter createConverter(String converterId) {
-		// Forward to implementation
-		return applImpl.createConverter(converterId);
-	}
-
-	@Override
-	public MethodBinding createMethodBinding(String ref, Class<?>[] params)
-			throws ReferenceSyntaxException {
-		// Forward to implementation
-		return applImpl.createMethodBinding(ref, params);
-	}
-
-	@Override
-	public Validator createValidator(String validatorId) throws FacesException {
-		// Forward to implementation
-		return applImpl.createValidator(validatorId);
-	}
-
-	@Override
-	public ValueBinding createValueBinding(String ref)
-			throws ReferenceSyntaxException {
-		// Forward to implementation
-		return applImpl.createValueBinding(ref);
-	}
-
-	@Override
-	public <T> T evaluateExpressionGet(FacesContext context, String expression,
-			Class<? extends T> expectedType) throws ELException {
-		// Forward to implementation
-		return applImpl.evaluateExpressionGet(context, expression, expectedType);
-	}
-
-	@Override
-	public ActionListener getActionListener() {
-		// Forward to implementation
-		return applImpl.getActionListener();
-	}
-
-	@Override
-	public Iterator<String> getBehaviorIds() {
-		// Forward to implementation
-		return applImpl.getBehaviorIds();
-	}
-
-	@Override
-	public Iterator<String> getComponentTypes() {
-		// Forward to implementation
-		return applImpl.getComponentTypes();
-	}
-
-	@Override
-	public Iterator<String> getConverterIds() {
-		// Forward to implementation
-		return applImpl.getConverterIds();
-	}
-
-	@Override
-	public Iterator<Class<?>> getConverterTypes() {
-		// Forward to implementation
-		return applImpl.getConverterTypes();
-	}
-
-	@Override
-	public Locale getDefaultLocale() {
-		// Forward to implementation
-		return applImpl.getDefaultLocale();
-	}
-
-	@Override
-	public String getDefaultRenderKitId() {
-		// Forward to implementation
-		return applImpl.getDefaultRenderKitId();
-	}
-
-	@Override
-	public Map<String, String> getDefaultValidatorInfo() {
-		// Forward to implementation
-		return applImpl.getDefaultValidatorInfo();
-	}
-
-	@Override
-	public ELContextListener[] getELContextListeners() {
-		// Forward to implementation
-		return applImpl.getELContextListeners();
-	}
-
-	@Override
-	public ELResolver getELResolver() {
-		// Forward to implementation
-		return applImpl.getELResolver();
-	}
-
-	@Override
-	public ExpressionFactory getExpressionFactory() {
-		// Forward to implementation
-		return applImpl.getExpressionFactory();
-	}
-
-	@Override
-	public String getMessageBundle() {
-		// Forward to implementation
-		return applImpl.getMessageBundle();
-	}
-
-	@Override
-	public NavigationHandler getNavigationHandler() {
-		// Forward to implementation
-		return applImpl.getNavigationHandler();
-	}
-
-	@Override
-	public ProjectStage getProjectStage() {
-		// Forward to implementation
-		return applImpl.getProjectStage();
-	}
-
-	@Override
-	public PropertyResolver getPropertyResolver() {
-		// Forward to implementation
-		return applImpl.getPropertyResolver();
-	}
-
-	@Override
-	public ResourceHandler getResourceHandler() {
-		// Forward to implementation
-		return applImpl.getResourceHandler();
-	}
-
-	@Override
-	public StateManager getStateManager() {
-		// Forward to implementation
-		return applImpl.getStateManager();
-	}
-
-	@Override
-	public Iterator<Locale> getSupportedLocales() {
-		// Forward to implementation
-		return applImpl.getSupportedLocales();
-	}
-
-	@Override
-	public Iterator<String> getValidatorIds() {
-		// Forward to implementation
-		return applImpl.getValidatorIds();
-	}
-
-	@Override
-	public VariableResolver getVariableResolver() {
-		// Forward to implementation
-		return applImpl.getVariableResolver();
-	}
-
-	@Override
-	public ViewHandler getViewHandler() {
-		// Forward to implementation
-		return applImpl.getViewHandler();
-	}
-
-	@Override
-	public void publishEvent(FacesContext facesContext,
-			Class<? extends SystemEvent> systemEventClass,
-			Class<?> sourceBaseType, Object source) {
-		// Forward to implementation
-		applImpl.publishEvent(facesContext, systemEventClass, sourceBaseType, source);
-	}
-
-	@Override
-	public void publishEvent(FacesContext facesContext,
-			Class<? extends SystemEvent> systemEventClass, Object source) {
-		// Forward to implementation
-		applImpl.publishEvent(facesContext, systemEventClass, source);
-	}
-
-	@Override
-	public void removeELContextListener(ELContextListener listener) {
-		// Forward to implementation
-		applImpl.removeELContextListener(listener);
-	}
-
-	@Override
-	public void setActionListener(ActionListener listener) {
-		// Forward to implementation
-		applImpl.setActionListener(listener);
-	}
-
-	@Override
-	public void setDefaultLocale(Locale locale) {
-		// Forward to implementation
-		applImpl.setDefaultLocale(locale);
-	}
-
-	@Override
-	public void setDefaultRenderKitId(String renderKitId) {
-		// Forward to implementation
-		applImpl.setDefaultRenderKitId(renderKitId);
-	}
-
-	@Override
-	public void setMessageBundle(String bundle) {
-		// Forward to implementation
-		applImpl.setMessageBundle(bundle);
-	}
-
-	@Override
-	public void setNavigationHandler(NavigationHandler handler) {
-		// Forward to implementation
-		applImpl.setNavigationHandler(handler);
-	}
-
-	@Override
-	public void setPropertyResolver(PropertyResolver resolver) {
-		// Forward to implementation
-		applImpl.setPropertyResolver(resolver);
-	}
-
-	@Override
-	public void setResourceHandler(ResourceHandler resourceHandler) {
-		// Forward to implementation
-		applImpl.setResourceHandler(resourceHandler);
-	}
-
-	@Override
-	public void setStateManager(StateManager manager) {
-		// Forward to implementation
-		applImpl.setStateManager(manager);
-	}
-
-	@Override
-	public void setSupportedLocales(Collection<Locale> locales) {
-		// Forward to implementation
-		applImpl.setSupportedLocales(locales);
-	}
-
-	@Override
-	public void setVariableResolver(VariableResolver resolver) {
-		// Forward to implementation
-		applImpl.setVariableResolver(resolver);
-	}
-
-	@Override
-	public void setViewHandler(ViewHandler handler) {
-		// Forward to implementation
-		applImpl.setViewHandler(handler);
-	}
-
-	@Override
-	public void subscribeToEvent(Class<? extends SystemEvent> systemEventClass,
-			Class<?> sourceClass, SystemEventListener listener) {
-		// Forward to implementation
-		applImpl.subscribeToEvent(systemEventClass, sourceClass, listener);
-	}
-
-	@Override
-	public void subscribeToEvent(Class<? extends SystemEvent> systemEventClass,
-			SystemEventListener listener) {
-		// Forward to implementation
-		applImpl.subscribeToEvent(systemEventClass, listener);
-	}
-
-	@Override
-	public void unsubscribeFromEvent(
-			Class<? extends SystemEvent> systemEventClass,
-			Class<?> sourceClass, SystemEventListener listener) {
-		// Forward to implementation
-		applImpl.unsubscribeFromEvent(systemEventClass, sourceClass, listener);
-	}
-
-	@Override
-	public void unsubscribeFromEvent(
-			Class<? extends SystemEvent> systemEventClass,
-			SystemEventListener listener) {
-		// Forward to implementation
-		applImpl.unsubscribeFromEvent(systemEventClass, listener);
-	}
-
-    /************************************************************/
     
 }

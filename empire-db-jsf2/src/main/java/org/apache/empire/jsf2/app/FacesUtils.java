@@ -24,9 +24,6 @@ import java.sql.Connection;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.faces.FactoryFinder;
-import javax.faces.application.Application;
-import javax.faces.application.ApplicationFactory;
 import javax.faces.application.FacesMessage;
 import javax.faces.context.FacesContext;
 import javax.servlet.ServletContext;
@@ -52,9 +49,7 @@ public class FacesUtils
 
     public static FacesApplication getFacesApplication()
     {
-        ApplicationFactory appFactory = (ApplicationFactory) FactoryFinder.getFactory(FactoryFinder.APPLICATION_FACTORY);
-        Application app = appFactory.getApplication();
-        return (FacesApplication) app;
+        return FacesApplication.getInstance();
     }
     
     public static FacesContext getContext()
@@ -242,7 +237,7 @@ public class FacesUtils
     
     public static TextResolver getTextResolver(final FacesContext fc)
     {
-        return ((FacesApplication)fc.getApplication()).getTextResolver(fc);
+        return getFacesApplication().getTextResolver(fc);
     }
     
     public static String getMessage(final FacesContext fc, String key)

@@ -154,8 +154,8 @@ public abstract class DBColumn extends DBColumnExpr
         String rsname = rowset.getName(); 
         strm.writeObject(dbid);
         strm.writeObject(rsname);
-        if (log.isInfoEnabled())
-            log.info("Serialization: reading DBColumn "+dbid+"."+rsname);
+        if (log.isDebugEnabled())
+            log.debug("Serialization: writing DBColumn "+dbid+"."+rsname);
         strm.defaultWriteObject();
     }
 
@@ -169,8 +169,8 @@ public abstract class DBColumn extends DBColumnExpr
         if (StringUtils.isNotEmpty(dbid))
         {   // Find Rowset
             String rsname = String.valueOf(strm.readObject());
-            if (log.isInfoEnabled())
-                log.info("Serialization: reading DBColumn "+dbid+"."+rsname);
+            if (log.isDebugEnabled())
+                log.debug("Serialization: reading DBColumn "+dbid+"."+rsname);
             // find database
             DBDatabase db = DBDatabase.findById(dbid);
             if (db==null)

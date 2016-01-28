@@ -281,6 +281,17 @@ public class DBRecord extends DBRecordData implements Record, Cloneable
     }
 
     /**
+     * Returns true if this record is a existing record (valid but not new).
+     * This may be used from expression language instead of the not allowed property "new" 
+     * 
+     * @return true if this record is a existing record (valid but not new).
+     */
+    public boolean isExists()
+    {
+        return (state == State.Valid || state == State.Modified);
+    }
+
+    /**
      * Returns the number of the columns.
      * 
      * @return the number of the columns

@@ -18,6 +18,9 @@
  */
 package org.apache.empire.db;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 // java.sql
 import java.io.Serializable;
 
@@ -41,4 +44,20 @@ public abstract class DBObject implements Serializable
      */
     public abstract DBDatabase getDatabase();
 
+    /*
+    private void readObject(ObjectInputStream strm) throws IOException, ClassNotFoundException,
+        SecurityException, IllegalArgumentException 
+    {
+        System.out.println("Serialization Reading Object "+getClass().getName());
+        //perform the default serialization for all non-transient, non-static fields
+        strm.defaultReadObject();
+    }
+
+    private void writeObject(ObjectOutputStream strm) throws IOException 
+    {
+        System.out.println("Serialization Writing Object "+getClass().getName());
+        //perform the default serialization for all non-transient, non-static fields
+        strm.defaultWriteObject();
+    }
+    */
 }

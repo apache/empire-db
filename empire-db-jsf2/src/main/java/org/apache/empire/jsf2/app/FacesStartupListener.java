@@ -27,12 +27,14 @@ import javax.faces.event.SystemEvent;
 import javax.faces.event.SystemEventListener;
 import javax.servlet.ServletContext;
 
+import org.apache.empire.jsf2.app.impl.MojarraImplementation;
+import org.apache.empire.jsf2.app.impl.MyFacesImplementation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class AppStartupListener implements SystemEventListener
+public class FacesStartupListener implements SystemEventListener
 {
-    private static final Logger log = LoggerFactory.getLogger(AppStartupListener.class);
+    private static final Logger log = LoggerFactory.getLogger(FacesStartupListener.class);
 
     @Override
     public boolean isListenerForSource(Object source)
@@ -47,21 +49,21 @@ public class AppStartupListener implements SystemEventListener
         log.info("ApplicationStartupListener:processEvent");
         if (event instanceof PostConstructApplicationEvent)
         {
-            Application app = ((PostConstructApplicationEvent) event).getApplication();
+            FacesContext startupContext = FacesContext.getCurrentInstance();
+            // detect implementation
+            FacesImplementation facesImplementation = detectFacesImplementation();
+            Object app = facesImplementation.getManagedBean(FacesApplication.APPLICATION_BEAN_NAME, startupContext);
             if (!(app instanceof FacesApplication))
                 throw new AbortProcessingException("Error: Application is not a "+FacesApplication.class.getName()+" instance. Please create a ApplicationFactory!");
             // Create and Init application
-            ServletContext servletContext = (ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext();
-            FacesApplication jsfApp = (FacesApplication)app;
-            jsfApp.init(servletContext);
+            FacesApplication facesApp = (FacesApplication)app;
+            facesApp.init(facesImplementation, startupContext);
             // Set Servlet Attribute
-            if (servletContext.getAttribute(FacesApplication.APPLICATION_ATTRIBUTE)!=null)
+            ServletContext servletContext = (ServletContext) startupContext.getExternalContext().getContext();
+            if (servletContext.getAttribute(FacesApplication.APPLICATION_BEAN_NAME)!=facesApp)
             {
-                log.warn("WARNING: Ambiguous application definition. An object of name '{}' already exists on application scope!", FacesApplication.APPLICATION_ATTRIBUTE);
+                log.warn("WARNING: Ambiguous application definition. An object of name '{}' already exists on application scope!", FacesApplication.APPLICATION_BEAN_NAME);
             }
-            servletContext.setAttribute(FacesApplication.APPLICATION_ATTRIBUTE, jsfApp);
-            // done
-            jsfApp.initComplete(servletContext);
         }
         else if (event instanceof PreDestroyApplicationEvent)
         {
@@ -70,4 +72,24 @@ public class AppStartupListener implements SystemEventListener
 
     }
 
+    private static FacesImplementation detectFacesImplementation()
+    {
+        // Test for Apache MyFaces
+        try {
+            Class.forName("org.apache.myfaces.application.ApplicationFactoryImpl");
+            return new MyFacesImplementation();
+        } catch (ClassNotFoundException e) {
+            // It's not MyFaces
+        }
+        // Test for Sun Mojarra
+        try {
+            Class.forName("com.sun.faces.application.ApplicationFactoryImpl");
+            return new MojarraImplementation();
+        } catch (ClassNotFoundException e) {
+            // It's not Mojarra
+        }
+        // Not found
+        throw new UnsupportedOperationException(); 
+    }
+    
 }

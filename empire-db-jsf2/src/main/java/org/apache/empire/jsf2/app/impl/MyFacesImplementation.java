@@ -33,6 +33,7 @@ import org.apache.myfaces.config.impl.digester.elements.ManagedBean;
 
 public class MyFacesImplementation implements FacesImplementation 
 {
+    /*
 	@Override
 	public void initApplication(FacesApplication application)
 	{
@@ -41,6 +42,7 @@ public class MyFacesImplementation implements FacesImplementation
         application.setImplementation(this, applFactoryImpl.getApplication());
         applFactoryImpl.setApplication(application);
 	}
+	*/
 
 	@Override
 	public void registerManagedBean(final String beanName, final String beanClass, final String scope) {

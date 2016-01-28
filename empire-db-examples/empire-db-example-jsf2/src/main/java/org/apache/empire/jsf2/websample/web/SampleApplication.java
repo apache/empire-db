@@ -26,6 +26,7 @@ import javax.servlet.ServletContext;
 import javax.sql.DataSource;
 
 import org.apache.empire.commons.StringUtils;
+import org.apache.empire.db.DBCmdType;
 import org.apache.empire.db.DBCommand;
 import org.apache.empire.db.DBDatabase;
 import org.apache.empire.db.DBDatabaseDriver;
@@ -49,8 +50,6 @@ public class SampleApplication extends FacesApplication {
 	private static final Logger log = LoggerFactory
 			.getLogger(SampleApplication.class);
 
-	private static SampleApplication sampleApplication = null;
-
 	protected static final String MANAGED_BEAN_NAME = "sampleApplication";
 	protected static final Locale DEFAULT_LOCALE = Locale.ENGLISH;
 	// Non-Static
@@ -60,19 +59,13 @@ public class SampleApplication extends FacesApplication {
 	private Connection conn = null;
 
 	public static SampleApplication get() {
-		return SampleApplication.sampleApplication;
+		return (SampleApplication)FacesApplication.getInstance();
 	}
 
 	public SampleApplication() { 
 		
-		// Check for single instance
-		if (SampleApplication.sampleApplication != null) {
-			throw new RuntimeException(
-					"Attempt to create second instance of SampleApplication. SampleApplication is a singleton!");
-		}
 		// trace
 		SampleApplication.log.trace("SampleApplication created");
-		SampleApplication.sampleApplication = this;
 
 		// register custom control types
 		InputControlManager.registerControl(new FileInputControl());

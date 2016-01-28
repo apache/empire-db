@@ -18,6 +18,10 @@
  */
 package org.apache.empire.db;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
@@ -26,6 +30,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.Vector;
 
+import org.apache.empire.commons.StringUtils;
 import org.apache.empire.data.DataType;
 import org.apache.empire.db.expr.compare.DBCompareColExpr;
 import org.apache.empire.db.expr.compare.DBCompareExpr;
@@ -64,7 +69,7 @@ public abstract class DBCommand extends DBCommandExpr
     protected Vector<DBCmdParam>     cmdParams      = null;
     private int                      paramUsageCount= 0;
     // Database
-    private DBDatabase               db;
+    private transient DBDatabase     db;
 
     /**
      * Constructs a new DBCommand object and set the specified DBDatabase object.
@@ -76,6 +81,50 @@ public abstract class DBCommand extends DBCommandExpr
         this.db = db;
     }
 
+    /**
+    * Custom serialization for transient database.
+    */
+    private void writeObject(ObjectOutputStream strm) throws IOException 
+    {
+        if (db==null)
+        {   // No database
+            strm.writeObject("");
+            strm.defaultWriteObject();
+            return;
+        }
+        String dbid = db.getId(); 
+        strm.writeObject(dbid);
+        if (log.isDebugEnabled())
+            log.debug("Serialization: writing DBCommand "+dbid);
+        // write the rest
+        strm.defaultWriteObject();
+    }
+
+    /**
+    * Custom deserialization for transient database.
+    */
+    private void readObject(ObjectInputStream strm) throws IOException, ClassNotFoundException,
+        SecurityException, NoSuchFieldException, IllegalArgumentException, IllegalAccessException
+    {
+        String dbid = String.valueOf(strm.readObject());
+        if (StringUtils.isNotEmpty(dbid))
+        {   // Find database
+            if (log.isDebugEnabled())
+                log.debug("Serialization: reading DBCommand "+dbid);
+            // find database
+            DBDatabase sdb = DBDatabase.findById(dbid);
+            if (sdb==null)
+                throw new ClassNotFoundException(dbid);
+            // set final field
+            Field f = DBCommand.class.getDeclaredField("db");
+            f.setAccessible(true);
+            f.set(this, sdb);
+            f.setAccessible(false);
+        }    
+        // read the rest
+        strm.defaultReadObject();
+    }
+    
     /**
      * internally used to reset the command param usage count.
      * Note: Only one thread my generate an SQL statement 

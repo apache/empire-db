@@ -1098,7 +1098,7 @@ public class TagEncodingHelper implements NamingContainer
     public TextResolver getTextResolver(FacesContext context)
     {
         if (textResolver==null)
-            textResolver=((FacesApplication)context.getApplication()).getTextResolver(context);
+            textResolver=FacesApplication.getInstance().getTextResolver(context);
         return textResolver;
     }
     
