@@ -57,13 +57,16 @@ public class SampleConfig extends XMLConfiguration
     public boolean init(String filename)
     {
         try
-        {
-            // Read the properties file
+        {   // init
             super.init(filename, false);
-            // Done
-            readProperties(this, "properties");
+            // Init Logging
             if (initLogging() == false)
                 return false;
+            // Read config
+            log.info("*** init Configuration ***");
+            log.info("Config file is '{}'", filename);
+            // Read the properties
+            readProperties(this, "properties");
             readProperties(this, "properties-" + databaseProvider);
         } catch (Exception e)
         {

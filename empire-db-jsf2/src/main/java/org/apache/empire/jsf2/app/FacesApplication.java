@@ -96,10 +96,11 @@ public abstract class FacesApplication
      */
     public final void init(FacesImplementation facesImpl, FacesContext startupContext)
     {
-        this.facesImpl = facesImpl;
         // Only call once!
-        if (webRoot!=null)
+        if (this.facesImpl!=null || this.webRoot!=null)
             throw new NotSupportedException(this, "init");
+        // set imppl
+        this.facesImpl = facesImpl;
         // webRoot
         ServletContext servletContext = (ServletContext) startupContext.getExternalContext().getContext();
         webRoot = servletContext.getContextPath();
@@ -108,9 +109,14 @@ public abstract class FacesApplication
         // Init
         init(servletContext);
         // text resolvers
+        log.info("*** initTextResolvers() ***");
         ApplicationFactory appFactory = (ApplicationFactory) FactoryFinder.getFactory(FactoryFinder.APPLICATION_FACTORY);
         Application app = appFactory.getApplication();
         initTextResolvers(app);
+        // Log info
+        log.info("*** FacesApplication initialization complete ***");
+        log.info("JSF-Implementation is '{}'", facesImpl.getClass().getName());
+        log.info("WebRoot is '{}'", webRoot);
     }
 
     /* Context handling */
@@ -366,6 +372,7 @@ public abstract class FacesApplication
         {
             Locale locale = locales.next();
             textResolvers[i] = new TextResolver(ResourceBundle.getBundle(messageBundle, locale));
+            log.info("added TextResolver for {} bundle='{}'", locale.getLanguage(), messageBundle);
         }
     }
 

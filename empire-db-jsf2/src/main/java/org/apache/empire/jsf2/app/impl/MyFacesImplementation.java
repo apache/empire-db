@@ -25,11 +25,9 @@ import javax.faces.component.UIComponent;
 import javax.faces.context.FacesContext;
 
 import org.apache.empire.exceptions.ItemExistsException;
-import org.apache.empire.jsf2.app.FacesApplication;
 import org.apache.empire.jsf2.app.FacesImplementation;
-import org.apache.myfaces.application.ApplicationFactoryImpl;
 import org.apache.myfaces.config.RuntimeConfig;
-import org.apache.myfaces.config.impl.digester.elements.ManagedBean;
+import org.apache.myfaces.config.impl.digester.elements.ManagedBeanImpl;
 
 public class MyFacesImplementation implements FacesImplementation 
 {
@@ -56,7 +54,8 @@ public class MyFacesImplementation implements FacesImplementation
             throw new ItemExistsException(beanName);
         }
         // register now
-        ManagedBean mbi = new ManagedBean(); 
+        // ManagedBean mbi = new ManagedBean();   --> Use this for Myfaces 2.1.x 
+        ManagedBeanImpl mbi = new ManagedBeanImpl();  // new since Myfaces 2.2.x
         mbi.setName(beanName);
         mbi.setBeanClass(beanClass);
         mbi.setScope(scope);

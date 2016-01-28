@@ -92,7 +92,6 @@ public class SampleApplication extends FacesApplication {
 		servletContext.setAttribute("db", sampleDB);
 
 		// Done
-		log.info("Application initialized ");
 	}
 
 	/*
@@ -131,16 +130,16 @@ public class SampleApplication extends FacesApplication {
 		sampleDB = new SampleDB();
 
 		// Open Database (and create if not existing)
-		log.info("*** open database ***");
 		String driverProvider = config.getDatabaseProvider();
 		DBDatabaseDriver driver = getDatabaseDriver(driverProvider);
+        log.info("Opening database '{}' using driver '{}'", sampleDB.getClass().getSimpleName(), driver.getClass().getSimpleName());
 		Connection conn = null;
 		try {
 			conn = getConnection(sampleDB);
 			sampleDB.open(driver, conn);
 			if (!databaseExists(conn)) {
 				// STEP 4: Create Database
-				log.info("*** create Database ***");
+				log.info("Creating database {}", sampleDB.getClass().getSimpleName());
 				createSampleDatabase(driver, conn);
 			}
 		} finally {

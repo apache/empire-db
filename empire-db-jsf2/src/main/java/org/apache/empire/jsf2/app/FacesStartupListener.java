@@ -72,8 +72,14 @@ public class FacesStartupListener implements SystemEventListener
 
     }
 
-    private static FacesImplementation detectFacesImplementation()
+    /**
+     * Detects the JSF Implementation and returns an implmentation handler class.
+     * Supported Implementations are Sun Mojarra (2.2.x) and Apache MyFaces (2.2.x) 
+     * @return
+     */
+    protected FacesImplementation detectFacesImplementation()
     {
+        log.debug("Detecting JSF-Implementation...");
         // Test for Apache MyFaces
         try {
             Class.forName("org.apache.myfaces.application.ApplicationFactoryImpl");
@@ -89,6 +95,7 @@ public class FacesStartupListener implements SystemEventListener
             // It's not Mojarra
         }
         // Not found
+        log.error("JSF-Implementation missing or unknown. Please make sure either Apache MyFaces or Sun Mojarra implementation is provided");
         throw new UnsupportedOperationException(); 
     }
     

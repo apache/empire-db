@@ -114,3 +114,17 @@ span.eInpDis {
 	padding-left: 4px;
 	font-style: italic;
 }
+div.eTypeBoolFalse {
+	width: 12px;
+	height: 12px;
+	background-image:url('../img/boxes.gif');
+	background-repeat: no-repeat;
+	background-position: 0 0;
+}
+div.eTypeBoolTrue {
+	width: 12px;
+	height: 12px;
+	background-image:url('../img/boxes.gif');
+	background-repeat: no-repeat;
+	background-position: -12px 0;
+}
