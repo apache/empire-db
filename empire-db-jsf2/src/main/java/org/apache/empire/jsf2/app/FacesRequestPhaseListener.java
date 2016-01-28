@@ -47,16 +47,15 @@ public class FacesRequestPhaseListener implements PhaseListener
     public void beforePhase(PhaseEvent pe)
     {
         // Only when rendering the response
-        if (pe.getPhaseId() == PhaseId.RENDER_RESPONSE)
-        {   
-            FacesContext facesContext = pe.getFacesContext();
-            HttpServletResponse response = (HttpServletResponse) facesContext.getExternalContext().getResponse();
-            response.addHeader("Pragma", "no-cache");
-            response.addHeader("Cache-Control", "no-cache");
-            response.addHeader("Cache-Control", "no-store");
-            response.addHeader("Cache-Control", "must-revalidate");
-        }
-        // default
+        if (pe.getPhaseId() != PhaseId.RENDER_RESPONSE)
+            return;
+        // Add header information    
+        FacesContext facesContext = pe.getFacesContext();
+        HttpServletResponse response = (HttpServletResponse) facesContext.getExternalContext().getResponse();
+        response.addHeader("Pragma", "no-cache");
+        response.addHeader("Cache-Control", "no-cache");
+        response.addHeader("Cache-Control", "no-store");
+        response.addHeader("Cache-Control", "must-revalidate");
     }
 
     /** 
@@ -65,15 +64,15 @@ public class FacesRequestPhaseListener implements PhaseListener
     @Override
     public void afterPhase(PhaseEvent pe)
     {
-        // Cleanup
+        // Check Response complete
         FacesContext ctx = pe.getFacesContext();
         if (pe.getPhaseId() == PhaseId.RENDER_RESPONSE || ctx.getResponseComplete())
-        {
-            FacesApplication app = FacesApplication.getInstance();
+        {   // Cleanup when response is complete
+            WebApplication app = WebApplication.getInstance();
             if (app!=null)
                 app.onRequestComplete(ctx);
             else
-                log.warn("No FacesApplication available to complete and cleanup request. Please create a managed bean of name "+FacesApplication.APPLICATION_BEAN_NAME);
+                log.warn("No WebApplication available to complete and cleanup request. Please create a managed bean of name "+WebApplication.APPLICATION_BEAN_NAME);
         }
             
     }

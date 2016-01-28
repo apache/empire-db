@@ -24,7 +24,7 @@ import java.util.LinkedHashMap;
 import org.apache.empire.commons.StringUtils;
 import org.apache.empire.exceptions.ItemExistsException;
 import org.apache.empire.exceptions.MiscellaneousErrorException;
-import org.apache.empire.jsf2.app.FacesImplementation;
+import org.apache.empire.jsf2.impl.FacesImplementation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

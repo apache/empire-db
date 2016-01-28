@@ -37,7 +37,7 @@ import org.apache.empire.exceptions.EmpireException;
 import org.apache.empire.exceptions.InternalException;
 import org.apache.empire.exceptions.ItemNotFoundException;
 import org.apache.empire.exceptions.MiscellaneousErrorException;
-import org.apache.empire.jsf2.app.FacesApplication;
+import org.apache.empire.jsf2.app.WebApplication;
 import org.apache.empire.jsf2.app.FacesUtils;
 import org.apache.empire.jsf2.app.TextResolver;
 import org.apache.empire.jsf2.utils.ParameterMap;
@@ -393,7 +393,7 @@ public abstract class Page implements Serializable
      */
     public Connection getConnection(DBDatabase db)
     {       
-        FacesApplication app = FacesUtils.getFacesApplication();
+        WebApplication app = FacesUtils.getWebApplication();
         return app.getConnectionForRequest(FacesUtils.getContext(), db);
     }
 
@@ -417,7 +417,7 @@ public abstract class Page implements Serializable
         }
         // Add Call
         FacesContext fc = FacesUtils.getContext();
-        FacesApplication app = FacesUtils.getFacesApplication();
+        WebApplication app = FacesUtils.getWebApplication();
         app.addJavascriptCall(fc, function);
     }
     
@@ -494,6 +494,6 @@ public abstract class Page implements Serializable
     protected final TextResolver getTextResolver()
     {
         FacesContext fc = FacesUtils.getContext();
-        return FacesUtils.getFacesApplication().getTextResolver(fc);
+        return FacesUtils.getWebApplication().getTextResolver(fc);
     }
 }

@@ -92,7 +92,7 @@ public class PagePhaseListener implements PhaseListener
         Object lastViewId = sessionMap.get(LAST_PAGE_VIEW_ID);
         if (lastViewId == null || !(((String) lastViewId).equalsIgnoreCase(viewId)))
         { // view changes
-            FacesUtils.getFacesApplication().onChangeView(fc, viewId);
+            FacesUtils.getWebApplication().onChangeView(fc, viewId);
             if (fc.getResponseComplete())
                 return;
             // set view Id

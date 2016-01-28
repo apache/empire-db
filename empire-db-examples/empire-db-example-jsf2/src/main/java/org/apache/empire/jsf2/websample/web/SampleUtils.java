@@ -101,19 +101,19 @@ public class SampleUtils extends FacesUtils
     public static Connection getConnection()
     {
         FacesContext fc = getContext();
-        return getFacesApplication().getConnectionForRequest(fc, getDatabase());
+        return getWebApplication().getConnectionForRequest(fc, getDatabase());
     }
 
     public static void releaseConnection(boolean commit)
     {
         FacesContext fc = getContext();
-        getFacesApplication().releaseConnection(fc, getDatabase(), commit);
+        getWebApplication().releaseConnection(fc, getDatabase(), commit);
     }
 
     public static void releaseConnection()
     {
         FacesContext fc = getContext();
-        getFacesApplication().releaseConnection(fc, getDatabase());
+        getWebApplication().releaseConnection(fc, getDatabase());
     }
 
     /* Messages */

@@ -58,7 +58,7 @@ import org.apache.empire.exceptions.InternalException;
 import org.apache.empire.exceptions.InvalidArgumentException;
 import org.apache.empire.exceptions.NotSupportedException;
 import org.apache.empire.exceptions.PropertyReadOnlyException;
-import org.apache.empire.jsf2.app.FacesApplication;
+import org.apache.empire.jsf2.app.WebApplication;
 import org.apache.empire.jsf2.app.FacesUtils;
 import org.apache.empire.jsf2.app.TextResolver;
 import org.apache.empire.jsf2.components.ControlTag;
@@ -428,7 +428,7 @@ public class TagEncodingHelper implements NamingContainer
             else
             {   // get from data type
                 DataType dataType = column.getDataType();
-                controlType = FacesUtils.getFacesApplication().getDefaultControlType(dataType);
+                controlType = FacesUtils.getWebApplication().getDefaultControlType(dataType);
             }
             // get default control
             control = InputControlManager.getControl(controlType);
@@ -506,7 +506,7 @@ public class TagEncodingHelper implements NamingContainer
     
     public boolean isPartialSubmit(FacesContext ctx)
     {
-        return FacesUtils.getFacesApplication().isPartialSubmit(ctx);
+        return FacesUtils.getWebApplication().isPartialSubmit(ctx);
     }
 
     public boolean isSkipValidation()
@@ -918,7 +918,7 @@ public class TagEncodingHelper implements NamingContainer
             if (ve instanceof FacesWrapper<?>)
                 ve = ((FacesWrapper<ValueExpression>)ve).getWrapped();
             // find parent
-            UIComponent valueParent = FacesUtils.getFacesApplication().getFacesImplementation().getValueParentComponent(ve);
+            UIComponent valueParent = FacesUtils.getWebApplication().getFacesImplementation().getValueParentComponent(ve);
             if (valueParent!=null)
             {	// use the value parent
             	parent = valueParent;
@@ -1098,7 +1098,7 @@ public class TagEncodingHelper implements NamingContainer
     public TextResolver getTextResolver(FacesContext context)
     {
         if (textResolver==null)
-            textResolver=FacesApplication.getInstance().getTextResolver(context);
+            textResolver=WebApplication.getInstance().getTextResolver(context);
         return textResolver;
     }
     
@@ -1216,7 +1216,7 @@ public class TagEncodingHelper implements NamingContainer
         // for
         if (StringUtils.isNotEmpty(forInput) && !forInput.equals("*"))
         {   // Set Label input Id
-            UIComponent input = FacesUtils.getFacesApplication().findComponent(context, forInput, tag);
+            UIComponent input = FacesUtils.getWebApplication().findComponent(context, forInput, tag);
             if (input!=null && (input instanceof InputTag))
             {   // Check Read-Only
                 InputTag inputTag = ((InputTag)input);
@@ -1301,7 +1301,7 @@ public class TagEncodingHelper implements NamingContainer
         InputTag inputTag = null;
         if (StringUtils.isNotEmpty(forInput) && !forInput.equals("*"))
         {   // Set Label input Id
-            UIComponent input = FacesUtils.getFacesApplication().findComponent(context, forInput, tag);
+            UIComponent input = FacesUtils.getWebApplication().findComponent(context, forInput, tag);
             if (input!=null && (input instanceof InputTag))
             {   // Check Read-Only
                 inputTag = ((InputTag)input);

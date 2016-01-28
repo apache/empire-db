@@ -17,7 +17,7 @@
 	<application>
 	    <!-- System event listener --> 
 	    <system-event-listener>
-			<system-event-listener-class>org.apache.empire.jsf2.app.FacesStartupListener</system-event-listener-class>
+			<system-event-listener-class>org.apache.empire.jsf2.app.WebAppStartupListener</system-event-listener-class>
 			<system-event-class>javax.faces.event.PostConstructApplicationEvent</system-event-class>
 	    </system-event-listener>
 	    <!-- locales -->
@@ -47,9 +47,9 @@
 		<phase-listener>org.apache.empire.jsf2.websample.web.AutheticationPhaseListener</phase-listener>
 	</lifecycle>
 
-	<!-- Application bean (MUST be named 'facesApplication' for FacesStartupListener!) -->
+	<!-- Application bean (MUST be named 'webApplication' for WebAppStartupListener!) -->
 	<managed-bean>
-		<managed-bean-name>facesApplication</managed-bean-name>
+		<managed-bean-name>webApplication</managed-bean-name>
 		<managed-bean-class>org.apache.empire.jsf2.websample.web.SampleApplication</managed-bean-class>
 		<managed-bean-scope>application</managed-bean-scope>
 	</managed-bean>

@@ -26,7 +26,6 @@ import javax.servlet.ServletContext;
 import javax.sql.DataSource;
 
 import org.apache.empire.commons.StringUtils;
-import org.apache.empire.db.DBCmdType;
 import org.apache.empire.db.DBCommand;
 import org.apache.empire.db.DBDatabase;
 import org.apache.empire.db.DBDatabaseDriver;
@@ -37,7 +36,7 @@ import org.apache.empire.db.hsql.DBDatabaseDriverHSql;
 import org.apache.empire.db.mysql.DBDatabaseDriverMySQL;
 import org.apache.empire.db.oracle.DBDatabaseDriverOracle;
 import org.apache.empire.db.sqlserver.DBDatabaseDriverMSSQL;
-import org.apache.empire.jsf2.app.FacesApplication;
+import org.apache.empire.jsf2.app.WebApplication;
 import org.apache.empire.jsf2.controls.InputControlManager;
 import org.apache.empire.jsf2.custom.controls.FileInputControl;
 import org.apache.empire.jsf2.websample.db.SampleDB;
@@ -45,7 +44,7 @@ import org.apache.empire.jsf2.websample.web.pages.SamplePages;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class SampleApplication extends FacesApplication {
+public class SampleApplication extends WebApplication {
 	// Logger
 	private static final Logger log = LoggerFactory
 			.getLogger(SampleApplication.class);
@@ -59,7 +58,7 @@ public class SampleApplication extends FacesApplication {
 	private Connection conn = null;
 
 	public static SampleApplication get() {
-		return (SampleApplication)FacesApplication.getInstance();
+		return (SampleApplication)WebApplication.getInstance();
 	}
 
 	public SampleApplication() { 
@@ -207,7 +206,7 @@ public class SampleApplication extends FacesApplication {
 		// Show DLL Statements
 		System.out.println(script.toString());
 		// Execute Script
-		script.run(driver, conn, false);
+		script.executeAll(driver, conn, false);
 		sampleDB.commit(conn);
 		// Open again
 		if (!sampleDB.isOpen()) {
