@@ -87,6 +87,10 @@
 		<component-class>org.apache.empire.jsf2.components.InputTag</component-class>
 	</component>
 	<component>
+		<component-type>components.LabelTag</component-type>
+		<component-class>org.apache.empire.jsf2.components.LabelTag</component-class>
+	</component>
+	<component>
 		<component-type>components.LinkTag</component-type>
 		<component-class>org.apache.empire.jsf2.components.LinkTag</component-class>
 	</component>
@@ -99,8 +103,20 @@
 		<component-class>org.apache.empire.jsf2.components.ValueTag</component-class>
 	</component>
 	<component>
-		<component-type>components.LabelTag</component-type>
-		<component-class>org.apache.empire.jsf2.components.LabelTag</component-class>
+		<component-type>components.MenuListTag</component-type>
+		<component-class>org.apache.empire.jsf2.components.MenuListTag</component-class>
+	</component>
+	<component>
+		<component-type>components.MenuItemTag</component-type>
+		<component-class>org.apache.empire.jsf2.components.MenuItemTag</component-class>
+	</component>
+	<component>
+		<component-type>components.TabViewTag</component-type>
+		<component-class>org.apache.empire.jsf2.components.TabViewTag</component-class>
+	</component>
+	<component>
+		<component-type>components.TabPageTag</component-type>
+		<component-class>org.apache.empire.jsf2.components.TabPageTag</component-class>
 	</component>
 
 </faces-config>

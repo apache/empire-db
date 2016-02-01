@@ -27,7 +27,7 @@ import org.slf4j.LoggerFactory;
 
 public class StaticListPageElement<T> extends ListPageElement<T>
 {
-    private static final Logger log              = LoggerFactory.getLogger(BeanListPageElement.class);
+    private static final Logger log              = LoggerFactory.getLogger(StaticListPageElement.class);
 
     private static final long   serialVersionUID = 1L;
 

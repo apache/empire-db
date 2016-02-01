@@ -19,12 +19,17 @@
 package org.apache.empire.jsf2.components;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.Map;
 
 import javax.faces.component.NamingContainer;
+import javax.faces.component.UIComponent;
 import javax.faces.component.UIInput;
 import javax.faces.component.html.HtmlSelectOneMenu;
+import javax.faces.component.visit.VisitCallback;
+import javax.faces.component.visit.VisitContext;
 import javax.faces.context.FacesContext;
+import javax.faces.view.AttachedObjectHandler;
 
 import org.apache.empire.commons.ObjectUtils;
 import org.apache.empire.commons.Options;
@@ -42,6 +47,8 @@ public class SelectTag extends UIInput implements NamingContainer
     // Logger
     private static final Logger log = LoggerFactory.getLogger(SelectTag.class);
 
+    private SelectInputControl control = null;
+    
     public SelectTag()
     {
         log.trace("component select created");
@@ -51,6 +58,32 @@ public class SelectTag extends UIInput implements NamingContainer
     public String getFamily()
     {
         return "javax.faces.NamingContainer";
+    }
+    
+    /**
+     * remember original clientId
+     * necessary only inside UIData
+     */
+    private String treeClientId = null;
+    
+    @Override
+    public boolean visitTree(VisitContext visitContext, VisitCallback callback) 
+    {
+        FacesContext context = visitContext.getFacesContext();
+        treeClientId = getClientId(context);
+        return super.visitTree(visitContext, callback);
+    }
+
+    @Override
+    public String getClientId(FacesContext context)
+    {
+        // Check if dynamic components are being created
+        if (this.treeClientId!=null && control!=null && control.isCreatingComponents())
+        {   // return the original tree client id
+            return treeClientId; 
+        }
+        // default behavior
+        return super.getClientId(context);
     }
 
     @Override
@@ -65,18 +98,18 @@ public class SelectTag extends UIInput implements NamingContainer
             inputComponent = getInputComponent();
             if (inputComponent instanceof HtmlSelectOneMenu)
             {
-                SelectInputControl control = (SelectInputControl)InputControlManager.getControl(SelectInputControl.NAME);
+                this.control = (SelectInputControl) InputControlManager.getControl(SelectInputControl.NAME);
                 // disabled
                 boolean disabled = isDisabled();
-                ((HtmlSelectOneMenu)inputComponent).setDisabled(disabled);
+                ((HtmlSelectOneMenu) inputComponent).setDisabled(disabled);
                 // Options (sync)
                 Options options = getOptionList();
                 boolean hasEmpty = isAllowNull() && !options.contains("");
-                control.syncOptions((HtmlSelectOneMenu)inputComponent, textResolver, options, hasEmpty, getNullText());
-                setInputValue((HtmlSelectOneMenu)inputComponent);
+                control.syncOptions((HtmlSelectOneMenu) inputComponent, textResolver, options, hasEmpty, getNullText(), false);
+                setInputValue((HtmlSelectOneMenu) inputComponent);
             }
             else
-            {   // Something's wrong here?
+            { // Something's wrong here?
                 log.warn("WARN: Unexpected child node for {}! Child item type is {}.", getClass().getName(), inputComponent.getClass().getName());
                 inputComponent = null;
             }
@@ -85,11 +118,23 @@ public class SelectTag extends UIInput implements NamingContainer
         {
             inputComponent = createSelectOneMenu(textResolver);
             this.getChildren().add(0, inputComponent);
+            // attach events
+            attachEvents(context, inputComponent);
         }
         // render components
         inputComponent.encodeAll(context);
         // default
         super.encodeBegin(context);
+    }
+
+    @Override
+    public void decode(FacesContext context)
+    {
+        for (UIComponent c : getChildren())
+        {
+            c.decode(context);
+        }
+        super.decode(context);
     }
 
     @Override
@@ -99,8 +144,8 @@ public class SelectTag extends UIInput implements NamingContainer
         if (!isDisabled())
         {
             UIInput inputComponent = getInputComponent();
-            
-            Object value = inputComponent == null ?  "" :  inputComponent.getValue();
+
+            Object value = (inputComponent==null ? "" : inputComponent.getValue());
             if (value == null)
                 value = "";
             setValue(value);
@@ -133,7 +178,7 @@ public class SelectTag extends UIInput implements NamingContainer
         {
             return null;
         }
-        
+
         return (UIInput) getChildren().get(0);
     }
 
@@ -141,7 +186,9 @@ public class SelectTag extends UIInput implements NamingContainer
     {
         Object options = getAttributes().get("options");
         if (!(options instanceof Options))
+        {
             return new Options();
+        }
         return ((Options) options);
     }
 
@@ -165,11 +212,11 @@ public class SelectTag extends UIInput implements NamingContainer
 
     private UIInput createSelectOneMenu(TextResolver textResolver)
     {
-        SelectInputControl control = (SelectInputControl)InputControlManager.getControl(SelectInputControl.NAME);
+        this.control = (SelectInputControl) InputControlManager.getControl(SelectInputControl.NAME);
         HtmlSelectOneMenu input = control.createMenuComponent(this);
         // css style
         String userStyle = StringUtils.toString(getAttributes().get("styleClass"));
-        String cssStyle  = TagEncodingHelper.getTagStyleClass("eSelect", null, null, userStyle);
+        String cssStyle = TagEncodingHelper.getTagStyleClass("eSelect", null, null, userStyle);
         input.setStyleClass(cssStyle);
         // other attributes
         copyAttributes(input);
@@ -187,14 +234,14 @@ public class SelectTag extends UIInput implements NamingContainer
         setInputValue(input);
         return input;
     }
-    
+
     private void setInputValue(HtmlSelectOneMenu input)
     {
         Object value = getValue();
-        if (value!=null)
+        if (value != null)
         {
             if (value.getClass().isEnum())
-                value = ((Enum<?>)value).name();
+                value = ((Enum<?>) value).name();
             else
                 value = String.valueOf(value);
         }
@@ -203,14 +250,49 @@ public class SelectTag extends UIInput implements NamingContainer
 
     private void copyAttributes(HtmlSelectOneMenu input)
     {
+        // set id
+        String inputId = this.getId();
+        if (StringUtils.isNotEmpty(inputId))
+        { // remove trailing underscore (workaround since parent and child may not have the same name)
+            if (inputId.endsWith("_"))
+            {
+                inputId = inputId.substring(0, inputId.length() - 1);
+            }
+            input.setId(inputId);
+        }
+
         Map<String, Object> attr = getAttributes();
         Object value;
         if ((value = attr.get("style")) != null)
+        {
             input.setStyle(StringUtils.toString(value));
+        }
         if ((value = attr.get("tabindex")) != null)
+        {
             input.setTabindex(StringUtils.toString(value));
+        }
         if ((value = attr.get("onchange")) != null)
+        {
             input.setOnchange(StringUtils.toString(value));
+        }
     }
-    
+
+    protected void attachEvents(FacesContext context, UIInput inputComponent)
+    {
+        // Events available?
+        @SuppressWarnings("unchecked")
+        List<AttachedObjectHandler> result = (List<AttachedObjectHandler>) getAttributes().get("javax.faces.RetargetableHandlers");
+        if (result == null)
+        {
+            return;
+        }
+        // Attach Events
+        for (AttachedObjectHandler aoh : result)
+        {
+            aoh.applyAttachedObject(context, inputComponent);
+        }
+        // remove
+        result.clear();
+        getAttributes().remove("javax.faces.RetargetableHandlers");
+    }
 }

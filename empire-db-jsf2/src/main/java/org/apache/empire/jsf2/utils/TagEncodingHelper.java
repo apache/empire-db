@@ -28,6 +28,7 @@ import javax.faces.FacesWrapper;
 import javax.faces.application.FacesMessage;
 import javax.faces.component.NamingContainer;
 import javax.faces.component.UIComponent;
+import javax.faces.component.UIData;
 import javax.faces.component.UIInput;
 import javax.faces.component.UIOutput;
 import javax.faces.component.html.HtmlOutputLabel;
@@ -54,13 +55,12 @@ import org.apache.empire.db.DBRowSet;
 import org.apache.empire.db.exceptions.FieldNotNullException;
 import org.apache.empire.exceptions.BeanPropertyGetException;
 import org.apache.empire.exceptions.BeanPropertySetException;
-import org.apache.empire.exceptions.InternalException;
 import org.apache.empire.exceptions.InvalidArgumentException;
 import org.apache.empire.exceptions.NotSupportedException;
 import org.apache.empire.exceptions.PropertyReadOnlyException;
-import org.apache.empire.jsf2.app.WebApplication;
 import org.apache.empire.jsf2.app.FacesUtils;
 import org.apache.empire.jsf2.app.TextResolver;
+import org.apache.empire.jsf2.app.WebApplication;
 import org.apache.empire.jsf2.components.ControlTag;
 import org.apache.empire.jsf2.components.InputTag;
 import org.apache.empire.jsf2.components.LinkTag;
@@ -68,6 +68,7 @@ import org.apache.empire.jsf2.components.RecordTag;
 import org.apache.empire.jsf2.controls.InputControl;
 import org.apache.empire.jsf2.controls.InputControlManager;
 import org.apache.empire.jsf2.controls.SelectInputControl;
+import org.apache.empire.jsf2.controls.TextAreaInputControl;
 import org.apache.empire.jsf2.controls.TextInputControl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -221,6 +222,13 @@ public class TagEncodingHelper implements NamingContainer
         */
 
         @Override
+        public String getStyleClass(String addlStyle)
+        {
+            String style = getTagStyleClass(addlStyle);
+            return style; 
+        }
+
+        @Override
         public String getFormat()
         {
             // null value
@@ -254,6 +262,12 @@ public class TagEncodingHelper implements NamingContainer
         public TextResolver getTextResolver()
         {
             return textResolver;
+        }
+        
+        @Override 
+        public boolean isInsideUIData()
+        {
+            return TagEncodingHelper.this.isInsideUIData();
         }
     }
 
@@ -324,13 +338,6 @@ public class TagEncodingHelper implements NamingContainer
             Column c = getColumn();
             return c.getName(); // (c instanceof DBColumn) ? ((DBColumn)c).getFullName() : c.getName();
         }
-
-        @Override
-        public String getStyleClass(String addlStyle)
-        {
-            String style = getTagStyleClass(addlStyle);
-            return style; 
-        }
         
         @Override
         public boolean hasError()
@@ -352,8 +359,11 @@ public class TagEncodingHelper implements NamingContainer
     }
 
     // Logger
-    private static final Logger log          = LoggerFactory.getLogger(TagEncodingHelper.class);
+    private static final Logger log = LoggerFactory.getLogger(TagEncodingHelper.class);
 
+    public static final String ORIGINAL_COMPONENT_ID  = "ORIGINAL_COMPONENT_ID"; 
+
+    public static final String COLATTR_TOOLTIP        = "TOOLTIP";          // Column tooltip
     public static final String COLATTR_ABBR_TITLE     = "ABBR_TITLE";       // Column title for abbreviations
     
     private final UIOutput      tag;
@@ -367,7 +377,8 @@ public class TagEncodingHelper implements NamingContainer
     private TextResolver        textResolver = null;
     private Object              mostRecentValue = null;
     private boolean             skipValidation = false;
-    private boolean             hasError = false;
+    private boolean             hasError     = false;
+    private Boolean             insideUIData = null;
 
     public TagEncodingHelper(UIOutput tag, String tagCssStyle)
     {
@@ -418,27 +429,8 @@ public class TagEncodingHelper implements NamingContainer
                     controlType = SelectInputControl.NAME;
             }
         }
-        // find control type
-        if (StringUtils.isNotEmpty(controlType))
-            control = InputControlManager.getControl(controlType);
-        if (control == null)
-        {   // Auto-detect
-            if (getValueOptions()!=null)
-                controlType = SelectInputControl.NAME;
-            else
-            {   // get from data type
-                DataType dataType = column.getDataType();
-                controlType = FacesUtils.getWebApplication().getDefaultControlType(dataType);
-            }
-            // get default control
-            control = InputControlManager.getControl(controlType);
-            // Still not? Use Text Control
-            if (control == null)
-                control = InputControlManager.getControl(TextInputControl.NAME);
-            // debug
-            if (log.isDebugEnabled() && !controlType.equals(TextInputControl.NAME))
-                log.debug("Auto-detected field control for " + column.getName() + " is " + controlType);
-        }
+        // detect Control
+        control = detectInputControl(controlType, column.getDataType(), column.getOptions()!=null);
         // check record
         checkRecord();
         return control;
@@ -590,7 +582,7 @@ public class TagEncodingHelper implements NamingContainer
             { // a record
                 mostRecentValue = ((RecordData) record).getValue(getColumn());
                 return mostRecentValue;
-            }
+            }   
             else
             { // a normal bean
                 String prop = getColumn().getBeanPropertyName();
@@ -628,7 +620,7 @@ public class TagEncodingHelper implements NamingContainer
                     return;
                 }
                 */
-                if (isDetectFieldChange())
+                if (mostRecentValue!=null && isDetectFieldChange())
                 {   // DetectFieldChange by comparing current and most recent value
                     Object currentValue = ((Record) record).getValue(column);
                     if (!ObjectUtils.compareEqual(currentValue, mostRecentValue))
@@ -752,9 +744,6 @@ public class TagEncodingHelper implements NamingContainer
         Object mandatory = getTagAttributeValue("mandatory");
         if (mandatory!=null)
             return ObjectUtils.getBoolean(mandatory);
-        // Check Read-Only first
-        if (isReadOnly())
-            return false;
         // Check Record
         if ((getRecord() instanceof Record))
         {   // Ask Record
@@ -1031,11 +1020,37 @@ public class TagEncodingHelper implements NamingContainer
             throw new BeanPropertySetException(bean, property, e);
         }
     }
-
+    
     public String getValueTooltip(Object value)
     {
         if (value == null)
             return null;
+        // is it a column
+        if (value instanceof Column)
+        {   // find column value   
+            Column ttc = ((Column)value);
+            if (getRecord() != null)
+            {   // value
+                if (record instanceof RecordData)
+                { // a record
+                    value = ((RecordData) record).getValue(ttc);
+                }
+                else
+                { // a normal bean
+                    String prop = ttc.getBeanPropertyName();
+                    value = getBeanPropertyValue(record, prop);
+                }
+                // translate
+                // ValueInfoImpl vi = new MiscValueInfoImpl(ttc, textResolver);
+                // InputControl ctrl = detectInputControl(ttc.getControlType(), ttc.getDataType(), ttc.getOptions()!=null);
+                return StringUtils.valueOf(value);
+            } 
+            else
+            {   // Error
+                log.warn("Unable to resolve Tooltip-value for column {}.", ttc.getName());
+                return null;
+            }
+        }
         // is it a template?
         String templ = StringUtils.valueOf(value);
         int valIndex = templ.indexOf("{}");
@@ -1060,11 +1075,14 @@ public class TagEncodingHelper implements NamingContainer
     public String getLabelTooltip(Column column)
     {
         String title = getTagAttributeString("title");
+        if (title == null)
+            title = StringUtils.toString(column.getAttribute(Column.COLATTR_TOOLTIP));
         if (title != null)
             return getDisplayText(title);
         // Check for short form
         if (hasFormat("short") && !ObjectUtils.isEmpty(column.getAttribute(COLATTR_ABBR_TITLE)))
             return getDisplayText(column.getTitle());
+        
         // No Title
         return null;
     }
@@ -1124,9 +1142,9 @@ public class TagEncodingHelper implements NamingContainer
     public Object getAttributeValueEx(String name)
     { 
         Object value = getTagAttributeValue(name);
-        if (value==null)
+        if (value==null && hasColumn())
         {   // Check Column
-            value = getColumn().getAttribute(name);
+            value = column.getAttribute(name);
         }
         // Checks whether it's another column    
         if (value instanceof Column)
@@ -1152,13 +1170,24 @@ public class TagEncodingHelper implements NamingContainer
         }
         return value;
     }
+
+    public String getTagAttributeStringEx(String name)
+    {
+        Object value = getAttributeValueEx(name);
+        return (value!=null) ? StringUtils.toString(value) : null;
+    }
     
     public Object getTagAttributeValue(String name)
     {
-        Object value = tag.getAttributes().get(name);
+        return TagEncodingHelper.getTagAttributeValue(tag, name);
+    }
+
+    public static Object getTagAttributeValue(UIComponent comp, String name)
+    {
+        Object value = comp.getAttributes().get(name);
         if (value==null)
         {   // try value expression
-            ValueExpression ve = tag.getValueExpression(name);
+            ValueExpression ve = comp.getValueExpression(name);
             if (ve!=null)
             {   // It's a value expression
                 FacesContext ctx = FacesContext.getCurrentInstance();
@@ -1240,14 +1269,7 @@ public class TagEncodingHelper implements NamingContainer
             throw new InvalidArgumentException("column", column);
 
         // create label now
-        HtmlOutputLabel label;
-        try {
-            label = InputControlManager.getLabelComponentClass().newInstance();
-        } catch (InstantiationException e1) {
-            throw new InternalException(e1);
-        } catch (IllegalAccessException e2) {
-            throw new InternalException(e2);
-        }
+        HtmlOutputLabel label = InputControlManager.createComponent(context, InputControlManager.getLabelComponentClass());
         
         // value
         String labelText = getLabelValue(column, colon);
@@ -1288,7 +1310,7 @@ public class TagEncodingHelper implements NamingContainer
             label.setTitle(title);
         
         // required
-        if (required)
+        if (required && InputControlManager.isShowLabelRequiredMark())
             addRequiredMark(label);
 
         return label;
@@ -1344,7 +1366,7 @@ public class TagEncodingHelper implements NamingContainer
             b.append(" ");
             b.append(addlStyle);
         }
-        if (StringUtils.isNotEmpty(userStyle))
+        if (StringUtils.isNotEmpty(userStyle) && !StringUtils.compareEqual(userStyle, addlStyle, false))
         {
             b.append(" ");
             b.append(userStyle);
@@ -1393,23 +1415,118 @@ public class TagEncodingHelper implements NamingContainer
 
     public final String getTagStyleClass(DataType dataType, String addlStyle)
     {
-        String userStyle = getTagAttributeString("styleClass");
+        String userStyle = getTagAttributeStringEx("styleClass");
         String typeClass = getDataTypeClass(dataType);
         return getTagStyleClass(tagCssStyle, typeClass, addlStyle, userStyle);
     }
 
     public final String getTagStyleClass(String addlStyle)
     {
-        String userStyle = getTagAttributeString("styleClass");
+        String userStyle = getTagAttributeStringEx("styleClass");
         String typeClass = hasColumn() ? getDataTypeClass(column.getDataType()) : null;
         return getTagStyleClass(tagCssStyle, typeClass, addlStyle, userStyle);
     }
 
     public final String getTagStyleClass()
     {
-        String userStyle = getTagAttributeString("styleClass");
+        String userStyle = getTagAttributeStringEx("styleClass");
         String typeClass = hasColumn() ? getDataTypeClass(column.getDataType()) : null;
         return getTagStyleClass(tagCssStyle, typeClass, null, userStyle);
     }
+    
+    public boolean isInsideUIData()
+    {
+        if (tag==null)
+            return false;
+        if (this.insideUIData!=null)
+            return this.insideUIData;
+        // detect
+        this.insideUIData = false;
+        for (UIComponent p = tag.getParent(); p!=null; p=p.getParent())
+        {   // Check whether inside UIData
+            if (p instanceof UIData) {
+                this.insideUIData = true;
+                break;
+            }
+        }
+        return this.insideUIData;
+    }
+    
+    public void saveComponentId(UIComponent comp)
+    {
+        if (comp==null || comp.getId()==null)
+            return;
+        String compId = comp.getId();
+        comp.getAttributes().put(ORIGINAL_COMPONENT_ID, compId);
+        comp.setId(compId); // reset
+    }
 
+    public void restoreComponentId(UIComponent comp)
+    {
+        if (comp==null)
+            return;
+        String compId = StringUtils.toString(comp.getAttributes().get(ORIGINAL_COMPONENT_ID));
+        if (compId==null)
+            return; // not set
+        if (StringUtils.compareEqual(compId, comp.getId(), false)==false)
+        {   // someone changed the id. Restore original Id
+            log.warn("Restoring original Component-id from {} to {}", comp.getId(), compId);
+            comp.setId(compId);
+        }
+    }
+    
+    public void resetComponentId(UIComponent comp)
+    {
+        if (comp==null || comp.getId()==null)
+            return;
+        if (isInsideUIData()) 
+        {
+            String resetId = comp.getId();
+            if (log.isInfoEnabled())
+                log.info("Resetting Component-id inside UIData to {}", resetId);
+            comp.setId(resetId);
+            
+            /* needed ? 
+            for (UIComponent c : comp.getChildren())
+            {
+                resetComponentId(c);
+            }
+            */
+        }
+    }
+
+    private static InputControl detectInputControl(String controlType, DataType dataType, boolean hasOptions)
+    {
+        // Create
+        if (dataType==null)
+            throw new InvalidArgumentException("dataType", dataType);
+        // find control type
+        InputControl control = null;
+        if (StringUtils.isNotEmpty(controlType))
+            control = InputControlManager.getControl(controlType);
+        if (control == null)
+        {   // Auto-detect
+            if (hasOptions)
+                controlType = SelectInputControl.NAME;
+            else
+            {   // get from data type
+                switch (dataType)
+                {
+                    case CLOB:
+                        controlType = TextAreaInputControl.NAME;
+                        break;
+                    default:
+                        controlType = TextInputControl.NAME;
+                }
+            }
+            // get default control
+            control = InputControlManager.getControl(controlType);
+            // Still not? Use Text Control
+            if (control == null)
+                control = InputControlManager.getControl(TextInputControl.NAME);
+        }
+        // check record
+        return control;
+    }
+    
 }

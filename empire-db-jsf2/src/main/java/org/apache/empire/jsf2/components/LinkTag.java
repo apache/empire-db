@@ -27,7 +27,10 @@ import javax.faces.component.UINamingContainer;
 import javax.faces.component.UIOutput;
 import javax.faces.component.UIPanel;
 import javax.faces.component.UIParameter;
+import javax.faces.component.html.HtmlGraphicImage;
 import javax.faces.component.html.HtmlOutcomeTargetLink;
+import javax.faces.component.visit.VisitCallback;
+import javax.faces.component.visit.VisitContext;
 import javax.faces.context.FacesContext;
 import javax.faces.context.ResponseWriter;
 
@@ -35,6 +38,7 @@ import org.apache.empire.commons.ObjectUtils;
 import org.apache.empire.commons.StringUtils;
 import org.apache.empire.data.DataType;
 import org.apache.empire.jsf2.controls.InputControl;
+import org.apache.empire.jsf2.controls.InputControlManager;
 import org.apache.empire.jsf2.utils.StringResponseWriter;
 import org.apache.empire.jsf2.utils.TagEncodingHelper;
 import org.slf4j.Logger;
@@ -58,6 +62,8 @@ public class LinkTag extends UIOutput // implements NamingContainer
     
     protected final TagEncodingHelper helper = new TagEncodingHelper(this, "eLink");
 
+    private boolean creatingComponents = false;
+    
     public LinkTag()
     {
         log.trace("component link created");
@@ -67,6 +73,32 @@ public class LinkTag extends UIOutput // implements NamingContainer
     public String getFamily()
     {
         return UINamingContainer.COMPONENT_FAMILY; 
+    }
+    
+    /**
+     * remember original clientId
+     * necessary only inside UIData
+     */
+    private String treeClientId = null;
+    
+    @Override
+    public boolean visitTree(VisitContext visitContext, VisitCallback callback) 
+    {
+        FacesContext context = visitContext.getFacesContext();
+        treeClientId = this.getClientId(context);
+        return super.visitTree(visitContext, callback);
+    }
+
+    @Override
+    public String getClientId(FacesContext context)
+    {
+        // Check if dynamic components are being created
+        if (this.treeClientId!=null && this.creatingComponents)
+        {   // return the original tree client id
+            return treeClientId; 
+        }
+        // default behavior
+        return super.getClientId(context);
     }
 
     @Override
@@ -93,7 +125,18 @@ public class LinkTag extends UIOutput // implements NamingContainer
             {
                 UIComponent c = getChildren().get(0);
                 if (c instanceof HtmlOutcomeTargetLink)
+                {   // reuse
                     linkComponent = (HtmlOutcomeTargetLink)c;
+                    helper.restoreComponentId(linkComponent);
+                    // check image
+                    if (linkComponent.getChildCount()>0)
+                    {   // Check HtmlGraphicImage
+                        int last = linkComponent.getChildCount()-1;
+                        UIComponent lcc = linkComponent.getChildren().get(last);
+                        if (lcc instanceof HtmlGraphicImage)
+                            helper.restoreComponentId(lcc);
+                    }
+                }
                 else
                 {   // Something's wrong here?
                     log.info("INFO: Unexpected child node for {}! Child item type is {}.", getClass().getName(), c.getClass().getName());
@@ -102,7 +145,7 @@ public class LinkTag extends UIOutput // implements NamingContainer
                     if (facetComponent==null)
                     {
                         log.warn("WARN: component's facetComponent has not been set! Using Default (javax.faces.Panel).");
-                        log.warn("Problem might be related to Mojarra 2.1.7 to 2.1.11 (and possibly later) - please use Mojarra 2.1.6!");
+                        log.warn("Problem might be related to Mojarra's state context saving for dynamic components (affects all versions > 2.1.6). See com.sun.faces.context.StateContext.java:AddRemoveListener");
                         facetComponent = (UIPanel)context.getApplication().createComponent("javax.faces.Panel");
                         facetComponent.setRendererType("javax.faces.Group");
                         getFacets().put(UIComponent.COMPOSITE_FACET_NAME, facetComponent);
@@ -110,9 +153,23 @@ public class LinkTag extends UIOutput // implements NamingContainer
                 }    
             }
             if (linkComponent == null)
-            {
-                linkComponent = new HtmlOutcomeTargetLink();
-                this.getChildren().add(0, linkComponent);
+            {   try {
+                    creatingComponents = true;
+                    linkComponent = new HtmlOutcomeTargetLink();
+                    this.getChildren().add(0, linkComponent);
+                    helper.saveComponentId(linkComponent);
+                    // encode image
+                    String imagePath = helper.getTagAttributeString("image");
+                    if (StringUtils.isNotEmpty(imagePath))
+                    {   // Create image
+                        HtmlGraphicImage img = encodeImage(context, linkComponent, imagePath);
+                        linkComponent.getChildren().add(img);
+                        helper.saveComponentId(linkComponent);
+                    }    
+                    // done
+                } finally {
+                    creatingComponents = false;
+                }
             }
             // set params
             setLinkProperties(linkComponent);
@@ -166,6 +223,10 @@ public class LinkTag extends UIOutput // implements NamingContainer
         }
         else
         {   // An ordinary link
+            String text = helper.getTagAttributeString("text");
+            if (text!=null)
+                return helper.getTextResolver(FacesContext.getCurrentInstance()).resolveText(text);
+            // Use value
             Object value = getValue();
             return value;
         }
@@ -182,7 +243,8 @@ public class LinkTag extends UIOutput // implements NamingContainer
         // Set Attributes
         Map<String,Object> attr = getAttributes();
         // Set outcome
-        String outcome = StringUtils.toString(attr.get("page"));
+        Object page = attr.get("page");
+        String outcome = StringUtils.toString(page);
         link.setOutcome(outcome);
         // Copy attributes
         if ((value=attr.get("style"))!=null)
@@ -191,6 +253,10 @@ public class LinkTag extends UIOutput // implements NamingContainer
             link.setTabindex(StringUtils.toString(value));
         if ((value=attr.get("onclick"))!=null)
             link.setOnclick(StringUtils.toString(value));
+        // title
+        String title = helper.getTagAttributeString("title");
+        if (StringUtils.isNotEmpty(title))
+            link.setTitle(title);
         // include view param
         link.setIncludeViewParams(false);
     }
@@ -219,6 +285,7 @@ public class LinkTag extends UIOutput // implements NamingContainer
         param.setName(paramName);
         param.setValue(paramValue);
         link.getChildren().add(param);
+        helper.resetComponentId(param);
     }
 
     protected String writeStartElement(ResponseWriter writer)
@@ -228,13 +295,20 @@ public class LinkTag extends UIOutput // implements NamingContainer
         String tagName  = StringUtils.coalesce(StringUtils.toString(map.get("tag")), "span");
         String cssClass = helper.getTagStyleClass();
         Object style = map.get("style");
-        Object title = map.get("title");
+        Object title = helper.getTagAttributeValue("title");
         // Write tag
         writer.startElement(tagName, this);
         helper.writeAttribute(writer, "class", cssClass);
         helper.writeAttribute(writer, "style", style);
         helper.writeAttribute(writer, "title", helper.hasColumn() ? helper.getValueTooltip(title) : title);
         return tagName;
+    }
+    
+    protected HtmlGraphicImage encodeImage(FacesContext context, HtmlOutcomeTargetLink parent, String imagePath)
+    {
+        HtmlGraphicImage img = InputControlManager.createComponent(context, HtmlGraphicImage.class);
+        img.setValue(imagePath);
+        return img;
     }
     
     /*

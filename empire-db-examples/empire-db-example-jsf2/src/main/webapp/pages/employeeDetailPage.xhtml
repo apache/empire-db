@@ -34,10 +34,14 @@
 
 	<!-- content -->
 	<ui:define name="content">
-			<e:record value="#{page.employeeRecord}">
-			<!-- input form -->
-			
-			<h:form id="employeeDetail">
+
+		<h:form id="employeeDetail">
+
+		<e:tabView minHeight="400px" activeIndex="#{page.activeTab}" tabChangedListener="#{page.onTabChanged}">
+			<e:tabPage title="#{msg.employeeDetail_tab_basic}" id="tabBasic">
+
+				<e:record value="#{page.employeeRecord}">
+				<!-- input form -->
 				<sample:formPanel>
 					<tr><e:control column="#{db.EMPLOYEES.SALUTATION}" /></tr>
 					<tr><e:control column="#{db.EMPLOYEES.FIRST_NAME}" /></tr>
@@ -50,15 +54,24 @@
 					<tr><e:control column="#{db.EMPLOYEES.RETIRED}" /></tr>
 					<tr><e:control column="#{db.EMPLOYEES.UPDATE_TIMESTAMP}" format="date-format:full" readonly="true" rendered="#{page.idParam != null}" /></tr> 
 				</sample:formPanel>
-				<!-- button bar -->
-				<h:panelGroup styleClass="buttonBar" layout="block">
-					<h:commandLink value="#{msg.employeeDetail_back}" action="#{page.doCancel}" immediate="true" />
-					<h:commandLink value="#{msg.employeeDetail_delete}" action="#{page.doDelete}" immediate="true" rendered="#{page.employeeRecord.exists}" />
-					<h:commandLink value="#{msg.employeeDetail_save}" action="#{page.doSave}" />
+				</e:record>
+				
+			</e:tabPage>
+			<e:tabPage title="#{msg.employeeDetail_tab_extended}" id="tabExtended" disabled="#{not page.employeeRecord.exists}">
+				<h:panelGroup layout="block" styleClass="info-msg">
+					<h:outputText value="#{msg.employeeDetail_msg_extended}"/>
 				</h:panelGroup>
-			</h:form>
+			</e:tabPage>
+		</e:tabView>	
 		
-		</e:record>
+		<!-- button bar -->
+		<h:panelGroup styleClass="buttonBar" layout="block">
+			<h:commandLink value="#{msg.employeeDetail_back}" action="#{page.doCancel}" immediate="true" />
+			<h:commandLink value="#{msg.employeeDetail_delete}" action="#{page.doDelete}" immediate="true" rendered="#{page.employeeRecord.exists}" />
+			<h:commandLink value="#{msg.employeeDetail_save}" action="#{page.doSave}" />
+		</h:panelGroup>
+
+		</h:form>
 
 	</ui:define>
 </ui:composition>

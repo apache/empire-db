@@ -27,14 +27,13 @@ import javax.faces.context.FacesContext;
 import javax.faces.context.ResponseWriter;
 
 import org.apache.empire.commons.ObjectUtils;
-import org.apache.empire.exceptions.InternalException;
 import org.apache.empire.exceptions.UnexpectedReturnValueException;
 
 public class CheckboxInputControl extends InputControl
 {
     public static final String NAME = "checkbox";
 
-    private Class<? extends javax.faces.component.html.HtmlSelectBooleanCheckbox> inputComponentClass;
+    private final Class<? extends javax.faces.component.html.HtmlSelectBooleanCheckbox> inputComponentClass;
 
     public CheckboxInputControl(Class<? extends HtmlSelectBooleanCheckbox> inputComponentClass)
     {
@@ -47,57 +46,69 @@ public class CheckboxInputControl extends InputControl
         this(javax.faces.component.html.HtmlSelectBooleanCheckbox.class);
     }
 
-	@Override
-	public void renderValue(ValueInfo vi, ResponseWriter writer)
-		throws IOException
-	{
-		boolean value = (Boolean) vi.getValue(true);
-		writer.startElement("div", null);
-		writer.writeAttribute("class", value ? "eTypeBoolTrue" : "eTypeBoolFalse", null);
-		writer.append("&nbsp;");
-		writer.endElement("div");
-	}
-	
+    @Override
+    public void renderValue(ValueInfo vi, ResponseWriter writer)
+        throws IOException
+    {
+        boolean value = (Boolean) vi.getValue(true);
+        writer.startElement(HTML_TAG_DIV, null);
+        writer.writeAttribute(HTML_ATTR_CLASS, value ? "eTypeBoolTrue" : "eTypeBoolFalse", null);
+        writer.append(HTML_EXPR_NBSP);
+        writer.endElement(HTML_TAG_DIV);
+    }
+
     @Override
     protected void createInputComponents(UIComponent parent, InputInfo ii, FacesContext context, List<UIComponent> compList)
     {
         HtmlSelectBooleanCheckbox input;
-        if (compList.size()==0)
-        {   try {
-                input = inputComponentClass.newInstance();
-            } catch (InstantiationException e1) {
-                throw new InternalException(e1);
-            } catch (IllegalAccessException e2) {
-                throw new InternalException(e2);
-            }
+        if (compList.size() == 0)
+        { // create component
+            input = InputControlManager.createComponent(context, this.inputComponentClass);
+            // copy attributes
             copyAttributes(parent, ii, input);
             // add
             compList.add(input);
         }
         else
-        {   // check type
+        { // check type
             UIComponent comp = compList.get(0);
             if (!(comp instanceof HtmlSelectBooleanCheckbox))
                 throw new UnexpectedReturnValueException(comp.getClass().getName(), "compList.get");
             // cast
-            input = (HtmlSelectBooleanCheckbox)comp;
+            input = (HtmlSelectBooleanCheckbox) comp;
         }
 
         // disabled
-        boolean disabled = ii.isDisabled(); 
+        boolean disabled = ii.isDisabled();
         input.setDisabled(disabled);
 
         // style
         addRemoveDisabledStyle(input, input.isDisabled());
-        
+
         // Set Value
         setInputValue(input, ii);
     }
-    
+
+    @Override
+    protected void updateInputState(List<UIComponent> compList, InputInfo ii, FacesContext context)
+    {
+        UIComponent comp = compList.get(0);
+        if (!(comp instanceof HtmlSelectBooleanCheckbox))
+        {
+            throw new UnexpectedReturnValueException(comp.getClass().getName(), "compList.get(0)");
+        }
+        HtmlSelectBooleanCheckbox input = (HtmlSelectBooleanCheckbox) comp;
+        // disabled
+        boolean disabled = ii.isDisabled();
+        input.setDisabled(disabled);
+        // style
+        addRemoveDisabledStyle(input, input.isDisabled());
+    }
+
     @Override
     protected Object parseInputValue(String value, InputInfo ii)
     {
         return ObjectUtils.getBoolean(value);
     }
-    
+
 }

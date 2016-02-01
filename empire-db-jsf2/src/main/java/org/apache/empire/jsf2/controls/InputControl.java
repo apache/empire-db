@@ -42,38 +42,60 @@ import org.slf4j.LoggerFactory;
 
 public abstract class InputControl
 {
-    private static final Logger log = LoggerFactory.getLogger(InputControl.class);
-    
-    // Special Input Column Attributes
-    public static final String NUMBER_TYPE_ATTRIBUTE      = "numberType";   // "Integer", "Currency", "Percent"  
-    public static final String NUMBER_GROUPSEP_ATTRIBUTE  = "numberGroupSeparator"; // boolean
-    public static final String NUMBER_FRACTION_DIGITS     = "numberFractionDigits"; // integer
-    public static final String MINVALUE_ATTRIBUTE         = "minValue";
-    public static final String MAXVALUE_ATTRIBUTE         = "maxValue";
-    public static final String CURRENCY_CODE_ATTRIBUTE    = "currencyCode";   // "ISO 4217 code of the currency"  
+
+    private static final Logger log                   = LoggerFactory.getLogger(InputControl.class);
 
     // format attributes
-    public static final String FORMAT_NULL = "null:";
-    public static final String FORMAT_NULL_ATTRIBUTE = "format:null";
+    public static final String  FORMAT_NULL           = "null:";
+    public static final String  FORMAT_NULL_ATTRIBUTE = "format:null";
     
+    // HTML-TAGS
+    public static final String  HTML_TAG_DIV          = "div"; 
+    public static final String  HTML_TAG_SPAN         = "span";
+    public static final String  HTML_TAG_TABLE        = "table";
+    public static final String  HTML_TAG_TR           = "tr";
+    public static final String  HTML_TAG_TD           = "td";
+    public static final String  HTML_TAG_INPUT        = "input";
+    public static final String  HTML_TAG_LABEL        = "label";
+    
+    // HTML-ATTRIBUTES
+    public static final String  HTML_ATTR_ID          = "id";
+    public static final String  HTML_ATTR_CLASS       = "class";
+    public static final String  HTML_ATTR_STYLE       = "style";
+    public static final String  HTML_ATTR_TYPE        = "type";
+    public static final String  HTML_ATTR_DISABLED    = "disabled";
+    public static final String  HTML_ATTR_CHECKED     = "checked";
+    
+    // HTML
+    public static String HTML_EXPR_NBSP = "&nbsp;";
+
     public InputControl()
     {
-        log.info("InputControl of class {} created.", getClass().getName());
+        InputControl.log.info("InputControl of class {} created.", getClass().getName());
     }
-    
+
     /**
      * This interface allows access to a value and its metainformation
      * used with the renderData function
-     */ 
+     */
     public interface ValueInfo
     {
         Column getColumn();
+
         Options getOptions();
+
         Object getValue(boolean evalExpression);
-        String getFormat();    // Custom Formatting options specific to each InputControl-type
+
+        String getFormat(); // Custom Formatting options specific to each InputControl-type
+
         Locale getLocale();
+
         String getText(String key);
+
         TextResolver getTextResolver();
+
+        String getStyleClass(String addlStyle);
+
         /*
         Object getNullValue();
         String getOnclick();
@@ -82,24 +104,32 @@ public abstract class InputControl
         String getCssStyle();
         String getId();
         */
+        
+        boolean isInsideUIData();
     }
 
     /**
      * This interface extends the value information by information about the input control
      * used with the renderInput function
-     */ 
+     */
     public interface InputInfo extends ValueInfo
     {
         // perform action 
         void setValue(Object value);
+
         void validate(Object value);
+
         boolean isRequired();
+
         boolean isDisabled(); // disabled or readOnly
+
         boolean isFieldReadOnly(); // not disabled only readOnly (for input[type=text] only!)
         // input
+
         String getInputId();
-        String getStyleClass(String addlStyle);
+
         boolean hasError();
+
         /*
         String getName();
         String getTabindex();
@@ -109,74 +139,105 @@ public abstract class InputControl
         String getOnfocus();
         String getOnblur();
         */
-        Object getAttribute(String name);   /* gets tag attribute only */
+        Object getAttribute(String name); /* gets tag attribute only */
+
         Object getAttributeEx(String name); /* check Column attributes too, and resolves references to other columns. */
     }
-    
+
     private String name;
-    
+
     protected InputControl(String name)
     {
         this.name = name;
     }
-    
+
     public final String getName()
     {
-        return name;
+        return this.name;
     }
-    
+
     public String getLabelForId(InputInfo ii)
     {
         return ii.getInputId();
     }
-
+    
+    /**
+     * Flag indicating whether child components are being created
+     */
+    private boolean creatingComponents = false;
+    public boolean isCreatingComponents()
+    {
+        return this.creatingComponents;
+    }
+    
     /* Value */
     public void renderValue(ValueInfo vi, ResponseWriter writer)
         throws IOException
     {
         String text = formatValue(vi);
-        writer.append((StringUtils.isEmpty(text) ? "&nbsp;" : text));
+        writer.append((StringUtils.isEmpty(text) ? HTML_EXPR_NBSP : text));
     }
 
-    /* Input */
+    /* renderInput */ 
     public void renderInput(UIComponent comp, InputInfo ii, FacesContext context, boolean encode)
         throws IOException
     {
-        // createInputComponents 
-        createInputComponents(comp, ii, context, comp.getChildren());
+        boolean resetChildId = comp.getChildren().isEmpty();
+        // createInputComponents
+        try {
+            this.creatingComponents = true;
+            createInputComponents(comp, ii, context, comp.getChildren());
+        } finally {
+            this.creatingComponents = false;
+        }
+        
         // Encode all
         if (!encode)
             return;
         for (UIComponent child : comp.getChildren())
-        {
+        {   // reset child-id
+            // necessary only inside UIData
+            if (resetChildId && child.getId()!=null)
+                child.setId(child.getId());
+            // encode now
             child.encodeAll(context);
         }
+    }
+    
+    public void updateInputState(UIComponent parent, InputInfo ii, FacesContext context)
+    {
+        List<UIComponent> cl = parent.getChildren(); 
+        if (cl.isEmpty())
+            return;
+        updateInputState(cl, ii, context);
     }
     
     public void postUpdateModel(UIComponent comp, InputInfo ii, FacesContext fc)
     {
         UIInput input = getInputComponent(comp);
-        if (input==null)
+        if (input == null)
             return; /* May want to override this */
         // Clear submitted value
         clearSubmittedValue(input);
     }
-    
+
     public Object getInputValue(UIComponent comp, InputInfo ii, boolean submitted)
     {
         UIInput input = getInputComponent(comp);
-        if (input==null)
+        if (input == null)
         {   // throw new ObjectNotValidException(this);
             return null; // ignore
-        }    
+        }
         
         // Get value from Input
         Object value;
         if (submitted)
         {   // get submitted value
             value = input.getSubmittedValue();
-            if (value == null && input.isLocalValueSet()) // MyFaces Patch!
+            if (value == null && input.isLocalValueSet()) // required for MyFaces!
             {   // take local value
+                if (log.isDebugEnabled())
+                    log.debug("No submitted value but local value available for InputComponent {}. Local value is '{}'", input.getClientId(), input.getLocalValue());
                 value = input.getLocalValue();
                 if (value == null)
                 {   // Empty-String
@@ -222,43 +283,43 @@ public abstract class InputControl
 
     protected void setInputValue(UIInput input, InputInfo ii)
     {
-
         // Restore submitted value
         FacesContext fc = FacesContext.getCurrentInstance();
         Map<String, Object> reqMap = fc.getExternalContext().getRequestMap();
         String clientId = input.getClientId();
         if (reqMap.containsKey(clientId))
-        {   // Set the local value from the request map
+        { // Set the local value from the request map
             Object value = reqMap.get(clientId);
-            if (input.isLocalValueSet()==false)  // Patch for MyFaces?  
-                input.setSubmittedValue(value);  // Always for Mojarra!
+            if (input.isLocalValueSet() == false)
+                input.setSubmittedValue(value);
             return;
         }
-        else if (input.getSubmittedValue()!=null) //  && FacesUtils.isClearSubmittedValues(fc)
-        {   // Clear submitted value   
-            if (log.isDebugEnabled())
-                log.debug("clearing submitted value for {}. value is {}.", ii.getColumn().getName(), input.getSubmittedValue());
+        else if (input.getSubmittedValue() != null) //  && FacesUtils.isClearSubmittedValues(fc)
+        { // Clear submitted value   
+            if (InputControl.log.isDebugEnabled())
+                InputControl.log.debug("clearing submitted value for {}. value is {}.", ii.getColumn().getName(), input.getSubmittedValue());
             input.setSubmittedValue(null);
         }
-        
+
         /* -------------------------------------- */
 
         // Assign value
         Object value = ii.getValue(false);
         if (value instanceof ValueExpression)
-        {   input.setValue(null);
+        {
+            input.setValue(null);
             input.setLocalValueSet(false);
-            input.setValueExpression("value", (ValueExpression)value);
-            
+            input.setValueExpression("value", (ValueExpression) value);
+
             // Object check = ((ValueExpression)value).getValue(FacesContext.getCurrentInstance().getELContext());
             // log.info("Expression value is {}.", check);
-        }    
+        }
         else
-        {   // Set the value
+        { // Set the value
             value = formatInputValue(value, ii);
             input.setValue(value);
-        }    
-    }    
+        }
+    }
 
     protected void clearSubmittedValue(UIInput input)
     {
@@ -269,10 +330,11 @@ public abstract class InputControl
         String clientId = input.getClientId();
         if (reqMap.containsKey(clientId))
             reqMap.remove(clientId);
-    }    
+    }
 
     /**
      * Override this to format a value for output
+     * 
      * @param value
      * @param ii
      * @return
@@ -281,12 +343,12 @@ public abstract class InputControl
     {
         return value;
     }
-    
+
     protected Object parseInputValue(String value, InputInfo ii)
     {
         return value;
     }
-    
+
     /* validate 
     public boolean validateValue(UIComponent comp, InputInfo ii, FacesContext context)
     {
@@ -325,31 +387,28 @@ public abstract class InputControl
         return true;
     }
     */
-    
+
     /* Input helpers */
     protected abstract void createInputComponents(UIComponent parent, InputInfo ii, FacesContext context, List<UIComponent> compList);
+
+    protected abstract void updateInputState(List<UIComponent> compList, InputInfo ii, FacesContext context);
     
-    /**
-     * returns the first UIInput component that is a direct child of the parent component
-     * @param parent the parent component which node to search for
-     * @return the first child that is a UIInput
-     */
     protected UIInput getInputComponent(UIComponent parent)
     {
         // default implementation
-        int count = parent.getChildCount(); 
-        if (count<1)
+        int count = parent.getChildCount();
+        if (count < 1)
             return null;
-        // find the UIInput component (only one allowed)
+        // find the UIInput component (only one allowed here)
         UIInput inp = null;
-        for (int i=0; i<count; i++)
-        {	// check UIInput 
-        	UIComponent comp = parent.getChildren().get(i);
-	        if (comp instanceof UIInput)
-	        {	if (inp!=null)
-		        	throw new UnexpectedReturnValueException(comp, "comp.getChildren().get("+String.valueOf(i)+")");
-		        inp = (UIInput)comp;
-	        }
+        for (int i = 0; i < count; i++)
+        { // check UIInput 
+            UIComponent comp = parent.getChildren().get(i);
+            if (comp instanceof UIInput)
+            {   if (inp != null)
+                    throw new UnexpectedReturnValueException(comp, "comp.getChildren().get(" + String.valueOf(i) + ")");
+                inp = (UIInput) comp;
+            }
         }
         // No UIInput found
         if (inp == null)
@@ -364,26 +423,21 @@ public abstract class InputControl
             // Should not happen!
             throw new UnexpectedReturnValueException(null, "comp.getChildren().get()");
         }
-        // done
+        // found one
         return inp;
     }
 
-    /**
-     * copies standard input attributes such as styleClass, style, tabindex and event handlers (onclick, onblur, etc.) from the parent component to the input  
-     * @param parent (not used) 
-     * @param ii the input info from which to obtain the attribute values 
-     * @param input the input component on which to set the attributes 
-     * @param additonalStyle additional style classes 
-     */
     protected void copyAttributes(UIComponent parent, InputInfo ii, UIInput input, String additonalStyle)
     {
         String inputId = ii.getInputId();
         if (StringUtils.isNotEmpty(inputId))
+        {
             input.getAttributes().put("id", inputId);
-        
+        }
+
         String styleClass = ii.getStyleClass(additonalStyle);
         input.getAttributes().put("styleClass", styleClass);
-        
+
         copyAttribute(ii, input, "style");
         copyAttribute(ii, input, "tabindex");
         copyAttribute(ii, input, "onchange");
@@ -395,62 +449,52 @@ public abstract class InputControl
 
         // immediate
         Object immediate = ii.getAttribute("immediate");
-        if (immediate!=null && ObjectUtils.getBoolean(immediate))
+        if (immediate != null && ObjectUtils.getBoolean(immediate))
         {
-            log.warn("Immediate attribute is not yet supported for {}!", ii.getColumn().getName());
+            InputControl.log.warn("Immediate attribute is not yet supported for {}!", ii.getColumn().getName());
             // input.setImmediate(true);
-        }    
+        }
 
         // validator
         // input.addValidator(new ColumnValueValidator(ii.getColumn()));
     }
 
-    /**
-     * copies standard input attributes such as styleClass, style, tabindex and event handlers (onclick, onblur, etc.) from the parent component to the input
-     * @param parent (not used) 
-     * @param ii the input info 
-     * @param input the input component on which to set the attributes 
-     */
     protected final void copyAttributes(UIComponent parent, InputInfo ii, UIInput input)
     {
         copyAttributes(parent, ii, input, (ii.isRequired() ? "eInpReq" : null));
     }
 
-    /**
-     * copies a single attribute
-     * @param ii
-     * @param input
-     * @param name
-     */
     protected void copyAttribute(InputInfo ii, UIInput input, String name)
     {
-        if (ii==null)
+        if (ii == null)
             throw new InvalidArgumentException("InputInfo", ii);
         // get Attribute
         Object value = ii.getAttribute(name);
-        if (value!=null)
-            input.getAttributes().put(name, value);
+        if (value == null)
+            value = ii.getColumn().getAttribute(name);
+        if (value != null)
+            input.getAttributes().put(name, String.valueOf(value));
     }
-    
+
     public void addRemoveDisabledStyle(UIInput input, boolean disabled)
     {
         addRemoveStyle(input, " eInpDis", disabled);
     }
-    
+
     public void addRemoveInvalidStyle(UIInput input, boolean invalid)
     {
         addRemoveStyle(input, " eInvalid", invalid);
     }
-    
+
     public void addRemoveStyle(UIInput input, String styleName, boolean setStyle)
     {
         String styleClass = StringUtils.toString(input.getAttributes().get("styleClass"), "");
-        boolean hasStyle = (styleClass.indexOf(styleName)>=0);
-        if (setStyle==hasStyle)
+        boolean hasStyle = (styleClass.indexOf(styleName) >= 0);
+        if (setStyle == hasStyle)
             return; // Nothing to do
         // Special IceFaces patch
         if (styleClass.endsWith("-dis"))
-            styleClass = styleClass.substring(0, styleClass.length()-4);
+            styleClass = styleClass.substring(0, styleClass.length() - 4);
         // add or remove disabled style
         if (setStyle)
             styleClass += styleName;
@@ -459,20 +503,30 @@ public abstract class InputControl
         // add Style
         input.getAttributes().put("styleClass", styleClass);
     }
-    
+
     /**
      * Returns the value formated as a string
      * this is a simple default implementation that does no type-secific formatting
      * Derived classes may override formatString an provide further formmatting
      * see TextInputControl for details
      * 
-     * @param value the value to be formatted
-     * @param vi Meta-information about the value
-     *
-     * @return the formatted value 
+     * @param value
+     *            the value to be formatted
+     * @param vi
+     *            Meta-information about the value
+     * @return the formatted value
      */
     protected String formatValue(Object value, ValueInfo vi)
     {
+        // For Enums use toString() to retrieve Value
+        if (value != null && value.getClass().isEnum() && !hasFormatOption(vi, "nolookup"))
+        { // Handle enum
+            String text = ((Enum<?>) value).toString();
+            if (text != null)
+                return vi.getText(text);
+            // Error
+            InputControl.log.error("The enum '" + ((Enum<?>) value).name() + "' has no text!");
+        }
         // Lookup and Print value
         Options options = vi.getOptions();
         if (options != null && !options.isEmpty() && !hasFormatOption(vi, "nolookup"))
@@ -481,11 +535,11 @@ public abstract class InputControl
             if (text != null)
                 return vi.getText(text);
             // Error
-            log.error("The element '" + String.valueOf(value) + "' is not part of the supplied option list.");
+            InputControl.log.error("The element '" + String.valueOf(value) + "' is not part of the supplied option list.");
         }
         // value
-        if (value==null)
-            value = getFormatOption(vi, FORMAT_NULL, FORMAT_NULL_ATTRIBUTE);
+        if (value == null)
+            value = getFormatOption(vi, InputControl.FORMAT_NULL, InputControl.FORMAT_NULL_ATTRIBUTE);
         // Convert to String
         String s = StringUtils.toString(value, "");
         if (hasFormatOption(vi, "noencode"))
@@ -504,9 +558,10 @@ public abstract class InputControl
         // boolean hasError = ((vi instanceof InputInfo) && !((InputInfo)vi).isValid()); 
         return formatValue(vi.getValue(true), vi);
     }
-    
+
     /**
      * escapes a String for html
+     * 
      * @param text
      * @return the escaped html String
      */
@@ -515,24 +570,27 @@ public abstract class InputControl
         // TODO
         return text;
     }
-    
+
     /**
      * checks if a particular formating option has been specified.
-     * @param vi the value info
-     * @param option the formating option to check
-     * @return true if the requested formating option has been specified or false otherwise 
+     * 
+     * @param vi
+     *            the value info
+     * @param option
+     *            the formating option to check
+     * @return true if the requested formating option has been specified or false otherwise
      */
     protected boolean hasFormatOption(ValueInfo vi, String option)
     {
         String format = vi.getFormat();
-        return (format!=null ? format.indexOf(option)>=0 : false);
+        return (format != null ? format.indexOf(option) >= 0 : false);
     }
-    
+
     protected String getFormatOption(ValueInfo vi, String option)
     {
         // Is unit supplied with format
         String format = vi.getFormat();
-        if (format==null)
+        if (format == null)
             return null;
         // Check for option
         int beg = format.indexOf(option);
@@ -540,7 +598,7 @@ public abstract class InputControl
             return null;
         // Find
         beg = beg + option.length();
-        int end = format.indexOf(';', beg+1);
+        int end = format.indexOf(';', beg + 1);
         if (end < beg)
             return format.substring(beg);
         // The cbValue
@@ -550,7 +608,7 @@ public abstract class InputControl
     protected Object getFormatOption(ValueInfo vi, String option, String columnAttributeName)
     {
         String format = getFormatOption(vi, option);
-        return (format!=null) ? format : vi.getColumn().getAttribute(columnAttributeName); 
+        return (format != null) ? format : vi.getColumn().getAttribute(columnAttributeName);
     }
 
     protected String getFormatString(ValueInfo vi, String option, String columnAttributeName)
@@ -562,5 +620,5 @@ public abstract class InputControl
     {
         return ObjectUtils.getInteger(getFormatOption(vi, option, columnAttributeName));
     }
-    
+
 }

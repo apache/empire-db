@@ -25,6 +25,7 @@ import javax.faces.component.html.HtmlInputText;
 import javax.faces.context.FacesContext;
 
 import org.apache.empire.exceptions.InternalException;
+import org.apache.empire.exceptions.UnexpectedReturnValueException;
 import org.apache.empire.jsf2.controls.InputControl;
 
 public class FileInputControl extends InputControl
@@ -66,6 +67,19 @@ public class FileInputControl extends InputControl
         input.setDisabled(ii.isDisabled());
         
         compList.add(input);
+    }
+
+    @Override
+    protected void updateInputState(List<UIComponent> compList, InputInfo ii, FacesContext context)
+    {
+        UIComponent comp = compList.get(0);
+        if (!(comp instanceof HtmlInputFile))
+        {
+            throw new UnexpectedReturnValueException(comp.getClass().getName(), "compList.get(0)");
+        }
+        // update state
+        HtmlInputFile input = (HtmlInputFile) comp;
+        input.setDisabled(ii.isDisabled());
     }
 
     public class HtmlInputFile extends HtmlInputText

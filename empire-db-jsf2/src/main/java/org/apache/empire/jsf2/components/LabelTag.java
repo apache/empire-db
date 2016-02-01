@@ -20,8 +20,11 @@ package org.apache.empire.jsf2.components;
 
 import java.io.IOException;
 
+import javax.faces.component.NamingContainer;
 import javax.faces.component.UIOutput;
 import javax.faces.component.html.HtmlOutputLabel;
+import javax.faces.component.visit.VisitCallback;
+import javax.faces.component.visit.VisitContext;
 import javax.faces.context.FacesContext;
 
 import org.apache.empire.commons.ObjectUtils;
@@ -30,13 +33,15 @@ import org.apache.empire.jsf2.utils.TagEncodingHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class LabelTag extends UIOutput // implements NamingContainer
+public class LabelTag extends UIOutput implements NamingContainer
 {
     // Logger
     private static final Logger log = LoggerFactory.getLogger(LabelTag.class);
     
-    protected final TagEncodingHelper helper = new TagEncodingHelper(this, "eLabel");
+    private final TagEncodingHelper helper = new TagEncodingHelper(this, "eLabel");
 
+    private boolean creatingComponents = false;
+    
     public LabelTag()
     {
         log.trace("component LabelTag created");
@@ -46,6 +51,32 @@ public class LabelTag extends UIOutput // implements NamingContainer
     public String getFamily()
     {
         return "javax.faces.NamingContainer";
+    }
+    
+    /**
+     * remember original clientId
+     * necessary only inside UIData
+     */
+    private String treeClientId = null;
+    
+    @Override
+    public boolean visitTree(VisitContext visitContext, VisitCallback callback) 
+    {
+        FacesContext context = visitContext.getFacesContext();
+        treeClientId = this.getClientId(context);
+        return super.visitTree(visitContext, callback);
+    }
+
+    @Override
+    public String getClientId(FacesContext context)
+    {
+        // Check if dynamic components are being created
+        if (this.treeClientId!=null && this.creatingComponents)
+        {   // return the original tree client id
+            return treeClientId; 
+        }
+        // default behavior
+        return super.getClientId(context);
     }
 
     @Override
@@ -65,14 +96,19 @@ public class LabelTag extends UIOutput // implements NamingContainer
             helper.updateLabelComponent(context, labelComponent, forInput);
         }
         if (labelComponent == null)
-        {
-            String forInput   = helper.getTagAttributeString("for");
-            String styleClass = helper.getTagStyleClass(DataType.UNKNOWN, null);
-            String style      = helper.getTagAttributeString("style");
-            // createLabelComponent 
-            labelComponent = helper.createLabelComponent(context, forInput, styleClass, style, getColon());
-            this.getChildren().add(labelComponent);
-        }
+        {   try {
+                creatingComponents = true;
+                String forInput   = helper.getTagAttributeString("for");
+                String styleClass = helper.getTagStyleClass(DataType.UNKNOWN, null);
+                String style      = helper.getTagAttributeString("style");
+                // createLabelComponent 
+                labelComponent = helper.createLabelComponent(context, forInput, styleClass, style, getColon());
+                this.getChildren().add(labelComponent);
+                helper.resetComponentId(labelComponent);
+            } finally {
+                creatingComponents = false;
+            }
+        } 
 
         // render components
         labelComponent.encodeAll(context);

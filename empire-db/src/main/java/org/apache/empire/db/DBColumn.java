@@ -57,31 +57,29 @@ public abstract class DBColumn extends DBColumnExpr
     private static final Logger log = LoggerFactory.getLogger(DBColumn.class);
     
     // Predefined column attributes 
-
-    /**
-     * Mandatory column (Boolean)
-     */
-    public static final String DBCOLATTR_MANDATORY = "mandatory";
     
+    /**
+     * @deprecated
+     * Use Column.COLATTR_MINVALUE  
+     */
+    public static final String DBCOLATTR_MINVALUE  = Column.COLATTR_MINVALUE;
+    
+    /**
+     * @deprecated
+     * Use Column.COLATTR_MAXVALUE  
+     */
+    public static final String DBCOLATTR_MAXVALUE  = Column.COLATTR_MAXVALUE;
+    
+    /**
+     * @deprecated
+     * Use Column.COLATTR_DATETIMEPATTERN 
+     */
+    public static final String DBCOLATTR_DATETIMEPATTERN  = Column.COLATTR_DATETIMEPATTERN;
+
     /**
      * Read only column (Boolean)
      */
     public static final String DBCOLATTR_READONLY  = "readonly";
-    
-    /**
-     * Minimum value (Integer)
-     */
-    public static final String DBCOLATTR_MINVALUE  = "minValue";
-    
-    /**
-     * Maximum value (Integer)
-     */
-    public static final String DBCOLATTR_MAXVALUE  = "maxValue";
-    
-    /**
-     * Maximum value (Integer)
-     */
-    public static final String DBCOLATTR_DATETIMEPATTERN  = "dateTimePattern";  // default is "yyyy-MM-dd HH:mm:ss"
     
     /**
      * Read only column (Boolean)

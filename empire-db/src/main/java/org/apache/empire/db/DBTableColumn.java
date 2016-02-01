@@ -26,7 +26,9 @@ import java.util.Date;
 
 import org.apache.empire.commons.Attributes;
 import org.apache.empire.commons.ObjectUtils;
+import org.apache.empire.commons.Options;
 import org.apache.empire.commons.StringUtils;
+import org.apache.empire.data.Column;
 import org.apache.empire.data.DataMode;
 import org.apache.empire.data.DataType;
 import org.apache.empire.db.exceptions.FieldIllegalValueException;
@@ -332,6 +334,27 @@ public class DBTableColumn extends DBColumn
                 attributes.remove(DBCOLATTR_READONLY);
         }
     }
+    
+    /**
+     * sets the options from an enum class
+     */
+    public void setEnumOptions(Class<?> enumType)
+    {
+        if (enumType==null || !enumType.isEnum())
+            throw new InvalidArgumentException("enumType", enumType);
+        // Enum special treatment
+        log.debug("Creating options for enum type {}.", enumType.getName());            
+        @SuppressWarnings({ "rawtypes", "unchecked" })
+        Enum<?>[] items = ((Class<Enum>)enumType).getEnumConstants();
+        this.options = new Options();
+        for (int i=0; i<items.length; i++)
+        {
+            Enum<?> item = items[i];
+            options.add(item, item.toString(), true);
+        }
+        // set enumType
+        setAttribute(Column.COLATTR_ENUMTYPE, enumType);
+    }
 
     /**
      * Checks whether the supplied value is valid for this column.
@@ -359,7 +382,7 @@ public class DBTableColumn extends DBColumn
                     if (dateValue.length()==0)
                         return null;
                     // Convert through SimpleDateFormat
-                    String datePattern = StringUtils.coalesce(StringUtils.toString(getAttribute(DBCOLATTR_DATETIMEPATTERN)), "yyyy-MM-dd HH:mm:ss");
+                    String datePattern = StringUtils.coalesce(StringUtils.toString(getAttribute(Column.COLATTR_DATETIMEPATTERN)), "yyyy-MM-dd HH:mm:ss");
                     if ((type==DataType.DATE || dateValue.length()<=12) && datePattern.indexOf(' ')>0)
                         datePattern = datePattern.substring(0, datePattern.indexOf(' ')); // Strip off time
                     try
@@ -448,8 +471,8 @@ public class DBTableColumn extends DBColumn
     protected void validateNumber(DataType type, Number n)
     {
         // Check Range
-        Object min = getAttribute(DBColumn.DBCOLATTR_MINVALUE);
-        Object max = getAttribute(DBColumn.DBCOLATTR_MAXVALUE);
+        Object min = getAttribute(Column.COLATTR_MINVALUE);
+        Object max = getAttribute(Column.COLATTR_MAXVALUE);
         if (min!=null && max!=null)
         {   // Check Range
             long minVal = ObjectUtils.getLong(min);
@@ -529,7 +552,7 @@ public class DBTableColumn extends DBColumn
                 elem.setAttribute("decimals", String.valueOf((int)(size*10)%10));
         }
         if (isRequired())
-            elem.setAttribute(DBCOLATTR_MANDATORY, String.valueOf(Boolean.TRUE));
+            elem.setAttribute("mandatory", String.valueOf(Boolean.TRUE));
         // add All Attributes
         if (attributes!=null)
             attributes.addXml(elem, flags);

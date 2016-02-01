@@ -18,12 +18,26 @@
  */
 package org.apache.empire.jsf2.controls;
 
+import java.lang.reflect.Field;
 import java.util.HashMap;
+import java.util.Map;
+
+import javax.faces.component.UIComponent;
+import javax.faces.context.FacesContext;
+
+import org.apache.empire.commons.StringUtils;
+import org.apache.empire.exceptions.InternalException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public final class InputControlManager
 {
+    private static final Logger log = LoggerFactory.getLogger(InputControlManager.class);
+
     private static Class<? extends javax.faces.component.html.HtmlOutputLabel> labelComponentClass = javax.faces.component.html.HtmlOutputLabel.class;
     
+    private static boolean showLabelRequiredMark = false;
+
     public static Class<? extends javax.faces.component.html.HtmlOutputLabel> getLabelComponentClass()
     {
         return labelComponentClass;
@@ -33,39 +47,110 @@ public final class InputControlManager
     {
         InputControlManager.labelComponentClass = labelComponentClass;
     }
+    
+    public static boolean isShowLabelRequiredMark()
+    {
+        return showLabelRequiredMark;
+    }
+    
+    public static void setShowLabelRequiredMark(boolean showLabelRequiredMark)
+    {
+        InputControlManager.showLabelRequiredMark = showLabelRequiredMark;
+    }
 
     static HashMap<String, InputControl> controlMap = null;
-    
-    static {
-        
+
+    static
+    {
+
         controlMap = new HashMap<String, InputControl>();
-        
+
         registerControl(new TextInputControl());
         registerControl(new SelectInputControl());
         registerControl(new TextAreaInputControl());
         registerControl(new CheckboxInputControl());
+        registerControl(new RadioInputControl());
         /*
-        registerControl("phone",    new PhoneInputControl());
-        registerControl("radio",    new RadioInputControl());
-        registerControl("email",    new EMailInputControl());
-        registerControl("hlink",    new HLinkInputControl());
-        registerControl("password", new PasswordInputControl());
+        registerControl(new PhoneInputControl());
+        registerControl(new EMailInputControl());
+        registerControl(new HLinkInputControl());
+        registerControl(new PasswordInputControl());
         */
     }
-    
+
     private InputControlManager()
     {
         // Default Constructor
     }
-    
+
     public static void registerControl(InputControl control)
     {
         controlMap.put(control.getName(), control);
     }
-    
+
     public static InputControl getControl(String name)
     {
         return controlMap.get(name);
     }
-    
+
+    private static Map<Class<? extends UIComponent>, String> componentTypeMap = new HashMap<Class<? extends UIComponent>, String>();
+
+    @SuppressWarnings("unchecked")
+    public static <T extends UIComponent> T createComponent(FacesContext context, Class<T> clazz)
+    {
+        // Get component type from class
+        String type = componentTypeMap.get(clazz);
+        if (type == null)
+        { // Detect type
+            try
+            { // Detect component type
+                Field field = clazz.getDeclaredField("COMPONENT_TYPE");
+                if (field != null)
+                    type = StringUtils.toString(field.get(null), ""); // Empty string is default
+                else
+                    type = ""; // Empty string is default
+                // show
+                log.debug("Component-Type for class {} is {}", clazz.getName(), type);
+            }
+            catch (SecurityException e)
+            {
+                throw new InternalException(e);
+            }
+            catch (NoSuchFieldException e)
+            {   // No COMPONENT_TYPE field
+                log.debug("No Component-Type available for class {}!", clazz.getName());
+                type = ""; // Empty string is default
+            }
+            catch (IllegalArgumentException e)
+            {
+                throw new InternalException(e);
+            }
+            catch (IllegalAccessException e)
+            {
+                throw new InternalException(e);
+            }
+            // put in map
+            componentTypeMap.put(clazz, type);
+        }
+        // Now, create the instance
+        if (StringUtils.isEmpty(type))
+        {
+            try
+            { // create instance directly
+                return clazz.newInstance();
+            }
+            catch (InstantiationException e)
+            {
+                throw new InternalException(e);
+            }
+            catch (IllegalAccessException e)
+            {
+                throw new InternalException(e);
+            }
+        }
+        // otherwise ask the application
+        return (T) context.getApplication().createComponent(type);
+
+    }
+
 }

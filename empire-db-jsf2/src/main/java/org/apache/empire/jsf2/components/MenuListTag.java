@@ -35,13 +35,16 @@ public class MenuListTag extends UIOutput implements NamingContainer
     // Logger
     // private static final Logger log = LoggerFactory.getLogger(MenuTag.class);
     
-    protected final TagEncodingHelper helper = new TagEncodingHelper(this, "eMenuList");
+    private final TagEncodingHelper helper = new TagEncodingHelper(this, "eMenuList");
     
     private String currentId = null; 
     private String currentClass = null; 
+    // private String prevMenuId = null; 
     // private String enabledClass = null; 
+    private String parentClass = null;
     private String disabledClass = null; 
     private String expandedClass = null;
+    private String itemWrapTag = null;
     private String defaultItemClass = null; // e.g. "level{}"
     private int level = 0;
 
@@ -58,7 +61,7 @@ public class MenuListTag extends UIOutput implements NamingContainer
         // call base
         super.encodeBegin(context);
         
-        initMenuAttributes();
+        initMenuAttributes(context);
 
         // render components
         ResponseWriter writer = context.getResponseWriter();
@@ -66,16 +69,19 @@ public class MenuListTag extends UIOutput implements NamingContainer
         // writeAttribute(writer, map, "id");
         helper.writeAttribute(writer, "class", helper.getTagAttributeString("styleClass"));
         helper.writeAttribute(writer, "style", helper.getTagAttributeString("style"));
+        // previousId
+        /*
+        if (prevMenuId!=null)
+            helper.writeAttribute(writer, "previousId", prevMenuId);
+        */    
     }
 
-    /*
     @Override
     public boolean getRendersChildren()
     {
         boolean test = super.getRendersChildren();
         return test;
     }
-    */
     
     @Override
     public void encodeChildren(FacesContext context)
@@ -95,29 +101,48 @@ public class MenuListTag extends UIOutput implements NamingContainer
         writer.endElement("ul");
     }
     
-    private void initMenuAttributes()
+    private void initMenuAttributes(FacesContext context)
     {        
-        currentId        = helper.getTagAttributeString("currentId"); 
-        currentClass     = helper.getTagAttributeString("currentClass"); 
-        // enabledClass  = StringUtils.toString(map.get("enabledClass")); 
-        disabledClass    = helper.getTagAttributeString("disabledClass"); 
-        expandedClass    = helper.getTagAttributeString("expandedClass");
+        currentId       = helper.getTagAttributeString("currentId"); 
+        currentClass    = helper.getTagAttributeString("currentClass"); 
+        // enabledClass = StringUtils.toString(map.get("enabledClass")); 
+        disabledClass   = helper.getTagAttributeString("disabledClass"); 
+        parentClass     = helper.getTagAttributeString("parentClass");
+        expandedClass   = helper.getTagAttributeString("expandedClass");
+        itemWrapTag     = helper.getTagAttributeString("itemWrapTag");
         defaultItemClass = helper.getTagAttributeString("defaultItemClass");
-        
+
+        // remember previousMenu (may be used by JavaScript)
+        /*
+        if (currentId!=null)
+        {   // StoreID on Session and set lastId
+            Map<String,Object> sessionMap = context.getExternalContext().getSessionMap();
+            String attrName = this.getClientId()+":prevMenuId";
+            prevMenuId = StringUtils.toString(sessionMap.get(attrName));
+            if (StringUtils.compareEqual(prevMenuId, currentId, false)==false)
+                sessionMap.put(attrName, currentId);
+        }
+        */
+
+        // find parent
         MenuListTag parent = getParentMenu();
         if (parent==null)
             return;
         
         if (currentId==null)
-            currentId = parent.getCurrentId();  
+            currentId = parent.getCurrentId();
         if (currentClass==null)
             currentClass = parent.getCurrentClass();  
         // if (enabledClass==null)
         //     enabledClass = parent.getEnabledClass();
         if (disabledClass==null)
             disabledClass = parent.getDisabledClass();
+        if (parentClass==null)
+            parentClass = parent.getParentClass();
         if (expandedClass==null)
             expandedClass = parent.getExpandedClass();
+        if (itemWrapTag==null)
+            itemWrapTag = parent.itemWrapTag;
         if (defaultItemClass==null)
             defaultItemClass = parent.defaultItemClass;
         
@@ -149,6 +174,13 @@ public class MenuListTag extends UIOutput implements NamingContainer
     {
         return currentClass;
     }
+    
+    /*
+    public String getPreviousMenuId()
+    {
+        return prevMenuId;
+    }
+    */
 
     /*
     public String getEnabledClass()
@@ -162,9 +194,19 @@ public class MenuListTag extends UIOutput implements NamingContainer
         return disabledClass;
     }
 
+    public String getParentClass()
+    {
+        return parentClass;
+    }
+
     public String getExpandedClass()
     {
         return expandedClass;
+    }
+
+    public String getItemWrapTag()
+    {
+        return itemWrapTag;
     }
     
     public int getLevel()
@@ -204,9 +246,34 @@ public class MenuListTag extends UIOutput implements NamingContainer
         this.disabledClass = disabledClass;
     }
 
+    public void setParentClass(String parentClass)
+    {
+        this.parentClass = parentClass;
+    }
+
     public void setExpandedClass(String expandedClass)
     {
         this.expandedClass = expandedClass;
     }
+
+    public void setItemWrapTag(String itemWrapTag)
+    {
+        this.itemWrapTag = itemWrapTag;
+    }
+
+    /*
+    protected void writeAttribute(ResponseWriter writer, Map<String, Object> map, String attribute, String targetName)
+        throws IOException
+    {
+        Object value = map.get(attribute);
+        if (value != null)
+            writer.writeAttribute(targetName, value, null);
+    }
+    protected void writeAttribute(ResponseWriter writer, Map<String, Object> map, String attribute)
+        throws IOException
+    {
+        writeAttribute(writer, map, attribute, attribute);
+    }
+    */
 
 }

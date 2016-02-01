@@ -18,15 +18,18 @@
  */
 package org.apache.empire.jsf2.controls;
 
+import java.io.IOException;
 import java.lang.reflect.Field;
 import java.util.Iterator;
 import java.util.List;
 
 import javax.el.ValueExpression;
 import javax.faces.component.UIComponent;
+import javax.faces.component.UIInput;
 import javax.faces.component.UISelectItem;
-import javax.faces.component.html.HtmlSelectOneMenu;
+import javax.faces.component.html.HtmlSelectOneRadio;
 import javax.faces.context.FacesContext;
+import javax.faces.context.ResponseWriter;
 
 import org.apache.empire.commons.ObjectUtils;
 import org.apache.empire.commons.OptionEntry;
@@ -39,52 +42,84 @@ import org.apache.empire.jsf2.app.TextResolver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class SelectInputControl extends InputControl
+public class RadioInputControl extends InputControl
 {
-    private static final Logger log                   = LoggerFactory.getLogger(SelectInputControl.class);
+    private static final Logger                      log                   = LoggerFactory.getLogger(RadioInputControl.class);
 
-    public static final String  COLATTR_ABBR_OPTIONS  = "ABBR_OPTIONS";                                   // Option list for abbreviations
+    public static final String                       COLATTR_ABBR_OPTIONS  = "ABBR_OPTIONS";                                   // Option list for abbreviations
 
-    public static final String  VALUE_EXPRESSION_FLAG = "VALUE_EXPRESSION_FLAG";
+    public static final String                       VALUE_EXPRESSION_FLAG = "VALUE_EXPRESSION_FLAG";
 
-    public static final String  NAME                  = "select";
+    public static final String                       NAME                  = "radio";
 
-    private final Class<? extends HtmlSelectOneMenu> inputComponentClass;
-    
-    public SelectInputControl(Class<? extends HtmlSelectOneMenu> inputComponentClass)
+    private final Class<? extends HtmlSelectOneRadio> inputComponentClass;
+
+    public RadioInputControl(Class<? extends HtmlSelectOneRadio> inputComponentClass)
     {
-        super(SelectInputControl.NAME);
+        super(RadioInputControl.NAME);
         this.inputComponentClass = inputComponentClass;
     }
 
-    public SelectInputControl()
+    public RadioInputControl()
     {
-        this(HtmlSelectOneMenu.class);
+        this(HtmlSelectOneRadio.class);
     }
 
-    /* for SelectTag (when no column is available) */ 
-    public HtmlSelectOneMenu createMenuComponent(UIComponent parent)
+    /* Value */
+    @Override
+    public void renderValue(ValueInfo vi, ResponseWriter writer)
+        throws IOException
     {
-        return InputControlManager.createComponent(FacesContext.getCurrentInstance(), this.inputComponentClass);
+        Object value = vi.getValue(true);
+        String style = vi.getStyleClass("eCtlRadio")+" eInpDis";
+        writer.startElement(HTML_TAG_DIV, null);
+        writer.writeAttribute(HTML_ATTR_CLASS, style, null);
+        writer.startElement(HTML_TAG_TABLE, null);
+        writer.writeAttribute(HTML_ATTR_CLASS, style, null);
+        writer.startElement(HTML_TAG_TR, null);
+        Options o = vi.getOptions();
+        for (OptionEntry e : o)
+        {
+            writer.startElement(HTML_TAG_TD, null);
+            // input
+            writer.startElement(HTML_TAG_INPUT, null);
+            writer.writeAttribute(HTML_ATTR_TYPE, "radio", null);
+            writer.writeAttribute(HTML_ATTR_DISABLED, "disabled", null);
+            if (ObjectUtils.compareEqual(e.getValue(), value))
+                writer.writeAttribute(HTML_ATTR_CHECKED, "checked", null);
+            writer.endElement(HTML_TAG_INPUT);
+            // label
+            writer.startElement(HTML_TAG_LABEL, null);
+            writer.writeAttribute(HTML_ATTR_CLASS, "eCtlRadio", null);
+            String text = e.getText();
+            text = vi.getTextResolver().resolveText(text);
+            writer.writeText(text, null);
+            writer.endElement(HTML_TAG_LABEL);
+            // end
+            writer.endElement(HTML_TAG_TD);
+        }
+        writer.endElement(HTML_TAG_TR);
+        writer.endElement(HTML_TAG_TABLE);
+        writer.endElement(HTML_TAG_DIV);
     }
 
     @Override
     protected void createInputComponents(UIComponent parent, InputInfo ii, FacesContext context, List<UIComponent> compList)
     {
-        HtmlSelectOneMenu input;
+        HtmlSelectOneRadio input;
         if (compList.size() == 0)
         {   // create component
             input = InputControlManager.createComponent(context, this.inputComponentClass);
             // setValueExpressionFlag
             Object value = ii.getValue(false);
-            input.getAttributes().put(SelectInputControl.VALUE_EXPRESSION_FLAG, (value instanceof ValueExpression));
+            input.getAttributes().put(RadioInputControl.VALUE_EXPRESSION_FLAG, (value instanceof ValueExpression));
             // copy Attributes
             copyAttributes(parent, ii, input);
             // disabled
             boolean disabled = ii.isDisabled();
             input.setDisabled(disabled);
             // Options
-            Options options = getOptions(ii);
+            Options options = ii.getOptions();
             boolean addEmpty = getEmptyEntryRequired(ii, disabled) && !options.contains("");
             String nullText = (addEmpty) ? getNullText(ii) : "";
             initOptions(input, ii.getTextResolver(), options, addEmpty, nullText);
@@ -94,18 +129,20 @@ public class SelectInputControl extends InputControl
         else
         { // check type
             UIComponent comp = compList.get(0);
-            if (!(comp instanceof HtmlSelectOneMenu))
+            if (!(comp instanceof HtmlSelectOneRadio))
+            {
                 throw new UnexpectedReturnValueException(comp.getClass().getName(), "compList.get");
+            }
             // cast
-            input = (HtmlSelectOneMenu) comp;
+            input = (HtmlSelectOneRadio) comp;
             // disabled
             boolean disabled = ii.isDisabled();
             input.setDisabled(disabled);
             // Options (sync)
-            Options options = getOptions(ii);
+            Options options = ii.getOptions();
             boolean addEmpty = getEmptyEntryRequired(ii, disabled) && !options.contains("");
             String nullText = (addEmpty) ? getNullText(ii) : "";
-            syncOptions(input, ii.getTextResolver(), options, addEmpty, nullText, ii.isInsideUIData());
+            syncOptions(input, ii.getTextResolver(), options, addEmpty, nullText);
         }
 
         // style
@@ -117,14 +154,25 @@ public class SelectInputControl extends InputControl
     }
     
     @Override
+    protected void copyAttributes(UIComponent parent, InputInfo ii, UIInput input, String additonalStyle)
+    {
+        if (additonalStyle!=null)
+            additonalStyle = additonalStyle+" eCtlRadio";
+        else
+            additonalStyle = "eCtlRadio"; 
+        // copy
+        super.copyAttributes(parent, ii, input, additonalStyle);
+    }
+    
+    @Override
     protected void updateInputState(List<UIComponent> compList, InputInfo ii, FacesContext context)
     {
         UIComponent comp = compList.get(0);
-        if (!(comp instanceof HtmlSelectOneMenu))
+        if (!(comp instanceof HtmlSelectOneRadio))
         {
             throw new UnexpectedReturnValueException(comp.getClass().getName(), "parent.getChildren()");
         }
-        HtmlSelectOneMenu input = (HtmlSelectOneMenu)comp;
+        HtmlSelectOneRadio input = (HtmlSelectOneRadio)comp;
         // disabled
         boolean disabled = ii.isDisabled();
         input.setDisabled(disabled);
@@ -132,7 +180,7 @@ public class SelectInputControl extends InputControl
         Options options = ii.getOptions();
         boolean addEmpty = getEmptyEntryRequired(ii, disabled) && !options.contains("");
         String nullText = (addEmpty) ? getNullText(ii) : "";
-        syncOptions(input, ii.getTextResolver(), options, addEmpty, nullText, ii.isInsideUIData());
+        syncOptions(input, ii.getTextResolver(), options, addEmpty, nullText);
     }
 
     private boolean getEmptyEntryRequired(InputInfo ii, boolean disabled)
@@ -145,7 +193,7 @@ public class SelectInputControl extends InputControl
         return (ii.getValue(true) == null);
     }
 
-    public void initOptions(HtmlSelectOneMenu input, TextResolver textResolver, Options options, boolean addEmpty, String nullText)
+    public void initOptions(HtmlSelectOneRadio input, TextResolver textResolver, Options options, boolean addEmpty, String nullText)
     {
         if (addEmpty)
         { // Empty entry
@@ -160,7 +208,7 @@ public class SelectInputControl extends InputControl
         }
     }
     
-    public void syncOptions(HtmlSelectOneMenu input, TextResolver textResolver, Options options, boolean hasEmpty, String nullText, boolean isInsideUIData)
+    public void syncOptions(HtmlSelectOneRadio input, TextResolver textResolver, Options options, boolean hasEmpty, String nullText)
     {
         // Compare child-items with options
         Iterator<OptionEntry> ioe = options.iterator();
@@ -168,47 +216,47 @@ public class SelectInputControl extends InputControl
         List<UIComponent> childList = input.getChildren();
         Iterator<UIComponent> ico = childList.iterator();
         int lastIndex = 0;
-        boolean emptyPresent = false;
         while (ico.hasNext())
         {
             lastIndex++;
             UIComponent co = ico.next();
             if (!(co instanceof UISelectItem))
+            {
                 continue;
+            }
             UISelectItem si = (UISelectItem) co;
             Object ov = si.getItemValue();
             if (ObjectUtils.isEmpty(ov) && hasEmpty)
-            {   emptyPresent = true;
+            {
                 continue;
             }
             if (oe == null)
-            {   // remove obsolete items
+            { // remove obsolete items
                 lastIndex--;
                 for (int index = childList.size() - 1; index >= lastIndex; index--)
+                {
                     childList.remove(index);
+                }
                 // done
                 return;
             }
             if (ObjectUtils.compareEqual(ov, oe.getValue()))
-            {   // next
+            { // next
                 oe = (ioe.hasNext() ? ioe.next() : null);
                 continue;
             }
             // Not equal - do a full reload
             input.getChildren().clear();
             if (hasEmpty)
+            {
                 addSelectItem(input, textResolver, new OptionEntry("", nullText));
+            }
             for (OptionEntry e : options)
             { // Option entries
                 addSelectItem(input, textResolver, e);
             }
             // done
             return;
-        }
-        // check empty entry
-        if (hasEmpty && !emptyPresent)
-        {   // add missing empty entry
-            addSelectItem(input, textResolver, new OptionEntry("", nullText), 0);
         }
         // Are there any items left?
         while (oe != null)
@@ -218,12 +266,12 @@ public class SelectInputControl extends InputControl
         }
     }
 
-    public void addSelectItem(UIComponent input, TextResolver textResolver, OptionEntry e, int pos)
+    public void addSelectItem(UIComponent input, TextResolver textResolver, OptionEntry e)
     {
         UISelectItem selectItem = new UISelectItem();
         // set value
         Object value;
-        Object valueExpressionFlag = input.getAttributes().get(SelectInputControl.VALUE_EXPRESSION_FLAG);
+        Object valueExpressionFlag = input.getAttributes().get(RadioInputControl.VALUE_EXPRESSION_FLAG);
         if (ObjectUtils.getBoolean(valueExpressionFlag))
         { // Use value as is
             value = e.getValue();
@@ -238,17 +286,9 @@ public class SelectInputControl extends InputControl
         text = textResolver.resolveText(text);
         selectItem.setItemLabel(text);
         // add item
-        if (pos>=0)
-            input.getChildren().add(pos, selectItem);
-        else
-            input.getChildren().add(selectItem);
+        input.getChildren().add(selectItem);
     }
 
-    public void addSelectItem(UIComponent input, TextResolver textResolver, OptionEntry e)
-    {
-        addSelectItem(input, textResolver, e, -1);
-    }
-    
     private String getNullText(InputInfo ii)
     {
         String nullText = getFormatString(ii, InputControl.FORMAT_NULL, InputControl.FORMAT_NULL_ATTRIBUTE);
@@ -261,7 +301,7 @@ public class SelectInputControl extends InputControl
         // Lookup and Print value
         if (vi.getOptions() == null)
         {
-            SelectInputControl.log.warn("Select field {} has no Option list attached!", vi.getColumn().getName());
+            RadioInputControl.log.warn("Select field {} has no Option list attached!", vi.getColumn().getName());
             return super.formatValue(value, vi);
         }
         // Check for Abbreviation
@@ -269,15 +309,17 @@ public class SelectInputControl extends InputControl
         {
             Column column = vi.getColumn();
             if (column != null)
-            {   // Check for Abbreviation option list
-                Object attrValue = column.getAttribute(SelectInputControl.COLATTR_ABBR_OPTIONS);
+            { // Check for Abbreviation option list
+                Object attrValue = column.getAttribute(RadioInputControl.COLATTR_ABBR_OPTIONS);
                 if (attrValue instanceof Options)
-                {   // Check for Options
+                { // Check for Options
                     String text = ((Options) attrValue).get(value);
                     if (text != null)
+                    {
                         return vi.getText(text);
+                    }
                     // Error
-                    SelectInputControl.log.error("The element '" + String.valueOf(value) + "' is not part of the supplied option list.");
+                    RadioInputControl.log.error("The element '" + String.valueOf(value) + "' is not part of the supplied option list.");
                 }
             }
         }
@@ -301,8 +343,7 @@ public class SelectInputControl extends InputControl
     {
         Object enumType = ii.getColumn().getAttribute(Column.COLATTR_ENUMTYPE);
         if (enumType != null)
-        {
-            try
+        {   try
             { // get enum
                 Class<?> enumClass = (Class<?>) enumType;
                 Field field = enumClass.getDeclaredField(value);
@@ -328,22 +369,6 @@ public class SelectInputControl extends InputControl
         return value;
     }
 
-    /**
-     * gets the options in a safe way (not null)
-     * @param ii
-     * @return the options for this column
-     */
-    protected Options getOptions(InputInfo ii)
-    {
-        Options options = ii.getOptions();
-        if (options==null)
-        {
-            log.warn("No options given for column {}", ii.getColumn().getName());
-            options = new Options();
-        }
-        return options;
-    }
-    
     /*
     @Override
     public void renderInput(ResponseWriter writer, ControlInfo ci)

@@ -36,8 +36,8 @@ public class MenuItemTag extends LinkTag
     // Logger
     private static final Logger log = LoggerFactory.getLogger(MenuItemTag.class);
     
-    protected MenuListTag parentMenu = null;
-    protected String menuId;
+    private MenuListTag parentMenu = null;
+    private String menuId;
 
     /*
     private static int itemIdSeq = 0;
@@ -67,7 +67,8 @@ public class MenuItemTag extends LinkTag
     {
         // Detect Parent Menu
         parentMenu = getParentMenu();
-        menuId = StringUtils.toString(getAttributes().get("menuId"));
+        menuId = helper.getTagAttributeString("menuId"); 
+        
         if(!isRendered())
             return;
         
@@ -75,11 +76,22 @@ public class MenuItemTag extends LinkTag
         ResponseWriter writer = context.getResponseWriter();
         writer.startElement("li", this);
         writer.writeAttribute("id", getClientId(context), null);
-        writer.writeAttribute("class", getStyleClass(), null);
-        // writer.writeAttribute("item", String.valueOf(itemId), null);
+        helper.writeAttribute(writer, "class", getStyleClass());
 
+        String wrap = (parentMenu!=null ? parentMenu.getItemWrapTag() : null);
+        if (StringUtils.isNotEmpty(wrap))
+        {   // Wrap-Element
+            writer.startElement(wrap, this);
+            // writer.writeAttribute("class", "item", null);
+        }
+        
         // begin
         super.encodeBegin(context);
+        
+        // End Wrapper
+        if (StringUtils.isNotEmpty(wrap))
+            writer.endElement(wrap);
+        
     }
     
     @Override
@@ -119,7 +131,7 @@ public class MenuItemTag extends LinkTag
         {
             super.encodeEnd(context);
         }
-        // end of list item
+        // EndElement
         ResponseWriter writer = context.getResponseWriter();
         writer.endElement("li");
     }
@@ -165,10 +177,19 @@ public class MenuItemTag extends LinkTag
         // All present
         return menuId.equals(parentMenu.getCurrentId());
     }
+    
+    private boolean isParent()
+    {
+        if (menuId==null || parentMenu==null || parentMenu.getCurrentId()==null)
+            return false;
+        // All present
+        String  currentId = parentMenu.getCurrentId();
+        return (currentId.length()>menuId.length() && currentId.startsWith(menuId));
+    }
 
     private boolean isDisabled()
     {
-        Object value = getAttributes().get("disabled");
+        Object value = helper.getTagAttributeValue("disabled");
         if (value!=null)
             return ObjectUtils.getBoolean(value);
         return false;
@@ -176,7 +197,7 @@ public class MenuItemTag extends LinkTag
 
     private boolean isExpanded()
     {
-        Object value = getAttributes().get("expanded");
+        Object value = helper.getTagAttributeValue("expanded");
         boolean auto = false;
         if (value!=null)
         {   // is current?
@@ -198,15 +219,15 @@ public class MenuItemTag extends LinkTag
     @Override
     public boolean isRendered()
     {
-        Object value = getAttributes().get("currentOnly");
+        Object value = helper.getTagAttributeValue("currentOnly");
         boolean currentOnly = false;
-        if(value!=null)
+        if (value!=null)
             currentOnly = ObjectUtils.getBoolean(value);
         
         // Check parent
         if (currentOnly && menuId!=null && parentMenu!=null && parentMenu.getCurrentId()!=null)
         {    
-            return isCurrent();
+            return isCurrent() || isParent();
         }
         
         return super.isRendered();
@@ -214,7 +235,7 @@ public class MenuItemTag extends LinkTag
     
     private String getStyleClass()
     {
-        String styleClass = StringUtils.toString(getAttributes().get("styleClass"));
+        String styleClass = helper.getTagAttributeString("styleClass");
         if (parentMenu!=null)
         {
             // Style Class
@@ -223,8 +244,11 @@ public class MenuItemTag extends LinkTag
             // Menu Class
             if (isCurrent())
                 styleClass = appendStyleClass(styleClass, parentMenu.getCurrentClass());
-            else if (isExpanded())
-                styleClass = appendStyleClass(styleClass, parentMenu.getExpandedClass());
+            else if (isParent())
+                styleClass = appendStyleClass(styleClass, parentMenu.getParentClass());
+            // expanded
+            if (isExpanded())
+                styleClass = appendStyleClass(styleClass, parentMenu.getExpandedClass());            
             // Disabled / enabled
             if (isDisabled())
                 styleClass = appendStyleClass(styleClass, parentMenu.getDisabledClass());

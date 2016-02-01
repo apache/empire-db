@@ -37,6 +37,8 @@ public class EmployeeDetailPage extends SamplePage
 
     private RecordPageElement<EmployeeRecord> employee;
 
+    private int                               activeTab         = 0;
+    
     public EmployeeDetailPage()
     {
         log.trace("EmployeeDetailPage created");
@@ -65,6 +67,16 @@ public class EmployeeDetailPage extends SamplePage
     public EmployeeRecord getEmployeeRecord()
     {
         return employee.getRecord();
+    }
+
+    public int getActiveTab()
+    {
+        return activeTab;
+    }
+
+    public void setActiveTab(int activeTab)
+    {
+        this.activeTab = activeTab;
     }
 
     @Override
@@ -108,4 +120,10 @@ public class EmployeeDetailPage extends SamplePage
     {
         return getParentOutcome(true);
     }
+
+    public void onTabChanged(int newPage)
+    {
+        log.debug("onTabChanged " + newPage);
+    }
+    
 }

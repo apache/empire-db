@@ -26,6 +26,8 @@ import javax.faces.component.UIComponentBase;
 import javax.faces.component.UIInput;
 import javax.faces.component.UINamingContainer;
 import javax.faces.component.html.HtmlOutputLabel;
+import javax.faces.component.visit.VisitCallback;
+import javax.faces.component.visit.VisitContext;
 import javax.faces.context.FacesContext;
 import javax.faces.context.ResponseWriter;
 
@@ -44,7 +46,7 @@ public class ControlTag extends UIInput implements NamingContainer
     public static String DEFAULT_CONTROL_SEPARATOR_TAG = "td";
     public static String DEFAULT_LABEL_SEPARATOR_CLASS = "eCtlLabel";
     public static String DEFAULT_INPUT_SEPARATOR_CLASS = "eCtlInput";
-    
+
     public static abstract class ControlSeparatorComponent extends javax.faces.component.UIComponentBase
     {
         private ControlTag control = null;
@@ -60,49 +62,64 @@ public class ControlTag extends UIInput implements NamingContainer
         @Override
         public String getFamily()
         {
-            return UINamingContainer.COMPONENT_FAMILY; 
+            return UINamingContainer.COMPONENT_FAMILY;
         }
         
+        /*
+        @Override
+        public String getClientId(FacesContext context)
+        {
+            String clientId = super.getClientId(context);
+            log.info("ControlSeparatorComponent-ID is {}", clientId);
+            // default behavior
+            return clientId;
+        }
+        */
+
         @Override
         public void encodeBegin(FacesContext context)
             throws IOException
         {
             super.encodeBegin(context);
-            
+
             UIComponent parent = getParent();
             if (!(parent instanceof ControlTag))
                 parent = parent.getParent();
             if (!(parent instanceof ControlTag))
-            {   log.error("Invalid parent component for "+getClass().getName());
+            {   log.error("Invalid parent component for " + getClass().getName());
                 return;
             }
-            
-            control = (ControlTag)parent;
+
+            this.control = (ControlTag) parent;
         }
-        
-        protected abstract void writeAttributes(ResponseWriter writer, TagEncodingHelper helper, String tagName) throws IOException;
-        
+
+        protected abstract void writeAttributes(ResponseWriter writer, TagEncodingHelper helper, String tagName)
+            throws IOException;
+
         @Override
         public boolean getRendersChildren()
         {
             return true;
         }
-        
+
         @Override
         public void encodeChildren(FacesContext context)
             throws IOException
         {
-            if (control!=null)
-            {   // write end tag
-                TagEncodingHelper helper = control.helper;
+            if (this.control != null)
+            { // write end tag
+                TagEncodingHelper helper = this.control.helper;
                 String tagName = helper.getTagAttributeString("tag", "td");
-                
+
                 // render components
                 ResponseWriter writer = context.getResponseWriter();
                 writer.startElement(tagName, this);
                 writeAttributes(writer, helper, tagName);
                 // write children
-                super.encodeChildren(context);
+                if (control.helper.isVisible())
+                    super.encodeChildren(context);
+                else
+                    log.debug("Field {} is not visible.", helper.getColumn().getName());
                 // end
                 writer.endElement(tagName);
             }
@@ -112,10 +129,10 @@ public class ControlTag extends UIInput implements NamingContainer
     public static class LabelSeparatorComponent extends ControlSeparatorComponent
     {
         @Override
-        protected void writeAttributes(ResponseWriter writer, TagEncodingHelper helper, String tagName) 
+        protected void writeAttributes(ResponseWriter writer, TagEncodingHelper helper, String tagName)
             throws IOException
         {
-            String styleClass = helper.getTagAttributeString("labelClass", DEFAULT_LABEL_SEPARATOR_CLASS);
+            String styleClass = helper.getTagAttributeString("labelClass", ControlTag.DEFAULT_LABEL_SEPARATOR_CLASS);
             if (StringUtils.isNotEmpty(styleClass))
                 writer.writeAttribute("class", styleClass, null);
         }
@@ -124,18 +141,21 @@ public class ControlTag extends UIInput implements NamingContainer
     public static class InputSeparatorComponent extends ControlSeparatorComponent
     {
         @Override
-        protected void writeAttributes(ResponseWriter writer, TagEncodingHelper helper, String tagName) 
+        protected void writeAttributes(ResponseWriter writer, TagEncodingHelper helper, String tagName)
             throws IOException
         {
-            String styleClass = helper.getTagAttributeString("inputClass", DEFAULT_INPUT_SEPARATOR_CLASS);
+            String styleClass = helper.getTagAttributeString("inputClass", ControlTag.DEFAULT_INPUT_SEPARATOR_CLASS);
+            // styleClass
             if (StringUtils.isNotEmpty(styleClass))
                 writer.writeAttribute("class", styleClass, null);
+            // colspan
             String colSpan = helper.getTagAttributeString("colspan");
             if (StringUtils.isNotEmpty(colSpan) && tagName.equalsIgnoreCase("td"))
                 writer.writeAttribute("colspan", colSpan, null);
         }
+        
     }
-    
+
     public static class ValueOutputComponent extends javax.faces.component.UIComponentBase
     {
         private final String tagName = "span";
@@ -151,63 +171,64 @@ public class ControlTag extends UIInput implements NamingContainer
         @Override
         public String getFamily()
         {
-            return UINamingContainer.COMPONENT_FAMILY; 
+            return UINamingContainer.COMPONENT_FAMILY;
         }
-        
+
         @Override
         public void encodeBegin(FacesContext context)
             throws IOException
         {
             super.encodeBegin(context);
-            
+
             UIComponent parent = getParent();
             if (!(parent instanceof ControlTag))
                 parent = parent.getParent();
             if (!(parent instanceof ControlTag))
                 parent = parent.getParent();
             if (!(parent instanceof ControlTag))
-            {   log.error("Invalid parent component for "+getClass().getName());
+            {   log.error("Invalid parent component for " + getClass().getName());
                 return;
             }
-            
-            ControlTag controlTag = (ControlTag)parent;
+
+            ControlTag controlTag = (ControlTag) parent;
             InputControl control = controlTag.control;
             InputControl.ValueInfo valInfo = controlTag.inpInfo;
 
             TagEncodingHelper helper = controlTag.helper;
-            if (control==null)
+            if (control == null)
                 control = helper.getInputControl(); // Oops, should not come here 
-            if (valInfo==null)
+            if (valInfo == null)
                 valInfo = helper.getValueInfo(context); // Oops, should not come here 
-            
+
             String styleClass = helper.getTagStyleClass("eInpDis");
-            String tooltip    = helper.getValueTooltip(helper.getTagAttributeString("title"));
-            
+            String tooltip = helper.getValueTooltip(helper.getTagAttributeString("title"));
+
             // render components
             ResponseWriter writer = context.getResponseWriter();
-            writer.startElement(tagName, this);
+            writer.startElement(this.tagName, this);
             if (StringUtils.isNotEmpty(styleClass))
                 writer.writeAttribute("class", styleClass, null);
             if (StringUtils.isNotEmpty(tooltip))
                 writer.writeAttribute("title", tooltip, null);
             // render Value
             control.renderValue(valInfo, writer);
-            writer.endElement(tagName);
+            writer.endElement(this.tagName);
         }
     }
-    
+
     // Logger
-    private static final Logger  log          = LoggerFactory.getLogger(ControlTag.class);
+    private static final Logger       log                = LoggerFactory.getLogger(ControlTag.class);
 
-    private static final String readOnlyState  = "readOnlyState";
-    
-    private static final boolean encodeLabel = true;
+    private static final String       readOnlyState      = "readOnlyState";
 
-    protected final TagEncodingHelper helper = new TagEncodingHelper(this, "eInput");
+    private static final boolean      encodeLabel        = true;
 
-    protected InputControl control = null;
-    protected InputControl.InputInfo inpInfo = null;
-    protected boolean hasRequiredFlagSet = false;
+    protected final TagEncodingHelper helper             = new TagEncodingHelper(this, "eInput");
+
+    protected InputControl            control            = null;
+    protected InputControl.InputInfo  inpInfo            = null;
+    protected boolean                 hasRequiredFlagSet = false;
+    private   boolean                 creatingComponents = false;
 
     public ControlTag()
     {
@@ -224,22 +245,51 @@ public class ControlTag extends UIInput implements NamingContainer
     {
         // getStateHelper().put(inpControlPropName, control);
         // getStateHelper().put(inputInfoPropName, inpInfo);
-        getStateHelper().put(readOnlyState, (inpInfo==null));
+        getStateHelper().put(ControlTag.readOnlyState, (this.inpInfo == null));
     }
 
     private boolean initState(FacesContext context)
     {
-        // Check visibility
-        if (helper.isVisible()==false)
-            return false; // not visible
         // Check read-Only
-        Boolean ros = (Boolean)getStateHelper().get(readOnlyState);
-        if (ros!=null && ros.booleanValue())
+        Boolean ros = (Boolean) getStateHelper().get(ControlTag.readOnlyState);
+        if (ros != null && ros.booleanValue())
             return false;
+        // Must have children        
+        if (getChildCount() == 0)
+        {   log.warn("InputTag has no children! Unable to init Input state for id={}", getClientId());
+            log.warn("Problem might be related to Mojarra's state context saving for dynamic components (affects all versions > 2.1.6). See com.sun.faces.context.StateContext.java:AddRemoveListener");
+            return false;
+        }
         // control = ;
-        control = helper.getInputControl();
-        inpInfo = helper.getInputInfo(context);
-        return (control!=null && inpInfo!=null);
+        this.control = helper.getInputControl();
+        this.inpInfo = helper.getInputInfo(context);
+        return (this.control != null && this.inpInfo != null);
+    }
+
+    /**
+     * remember original clientId
+     * necessary only inside UIData
+     */
+    private String treeClientId = null;
+    
+    @Override
+    public boolean visitTree(VisitContext visitContext, VisitCallback callback) 
+    {
+        FacesContext context = visitContext.getFacesContext();
+        treeClientId = this.getClientId(context);
+        return super.visitTree(visitContext, callback);
+    }
+
+    @Override
+    public String getClientId(FacesContext context)
+    {
+        // Check if dynamic components are being created
+        if (this.treeClientId!=null && (this.creatingComponents || this.control!=null && this.control.isCreatingComponents()))
+        {   // return the original tree client id
+            return treeClientId; 
+        }
+        // default behavior
+        return super.getClientId(context);
     }
 
     @Override
@@ -249,79 +299,78 @@ public class ControlTag extends UIInput implements NamingContainer
         // add label and input components when the view is loaded for the first time
         super.encodeBegin(context);
 
-        // Check visiblity
-        if (helper.isVisible()==false)
-        {   setRendered(false);
-            return; // not visible
-        }
-        
         // init
         helper.encodeBegin();
-        control = helper.getInputControl();
-        
+        this.control = helper.getInputControl();
+
         boolean isCustomInput = isCustomInput();
-        
+
         // create children
-        if (encodeLabel)
+        if (ControlTag.encodeLabel)
         {   // Create Label Separator Tag
-            ControlSeparatorComponent labelSepTag = null; 
+            ControlSeparatorComponent labelSepTag = null;
             if (getChildCount() > 0)
                 labelSepTag = (ControlSeparatorComponent) getChildren().get(0);
             if (labelSepTag == null)
-            {   labelSepTag = new LabelSeparatorComponent();
-                getChildren().add(labelSepTag);
+            {   try {
+                    creatingComponents = true;
+                    labelSepTag = new LabelSeparatorComponent();
+                    getChildren().add(labelSepTag);
+                    helper.resetComponentId(labelSepTag);
+                } finally {
+                    creatingComponents = false;
+                }
             }
             labelSepTag.setRendered(true);
             encodeLabel(context, labelSepTag);
             if (isCustomInput)
-            {   // don't render twice!
+            { // don't render twice!
                 labelSepTag.setRendered(false);
-            }    
-        }   
+            }
+        }
 
         if (!isCustomInput)
         {   // Create Input Separator Tag
-            ControlSeparatorComponent inputSepTag = null; 
+            ControlSeparatorComponent inputSepTag = null;
             if (getChildCount() > 1)
                 inputSepTag = (ControlSeparatorComponent) getChildren().get(1);
             if (inputSepTag == null)
-            {   inputSepTag = new InputSeparatorComponent();
-                getChildren().add(inputSepTag);
+            {   try {
+                    creatingComponents = true;
+                    inputSepTag = new InputSeparatorComponent();
+                    getChildren().add(inputSepTag);
+                    helper.resetComponentId(inputSepTag);
+                } finally {
+                    creatingComponents = false;
+                }
             }
             encodeInput(context, inputSepTag);
         }
-        
-        /*
-        ResponseWriter writer = context.getResponseWriter();
-        writer.startElement("td", this);
-        writer.write("hello world!");
-        writer.endElement("td");
-
-        if (!isCustomInput())
-        {
-            writer.startElement("td", this);
-            encodeInput(context, this);
-            writer.endElement("td");
-        }
-        */
-        
+        // done
         saveState();
     }
-    
+
     @Override
     public boolean getRendersChildren()
     {
         return true;
     }
-    
-    @Override 
-    public void encodeChildren(FacesContext context) 
-        throws IOException 
+
+    @Override
+    public void encodeChildren(FacesContext context)
+        throws IOException
     {
-        if (isCustomInput())
+        super.encodeChildren(context);
+    }
+
+    @Override
+    public void encodeEnd(FacesContext context)
+        throws IOException
+    {
+        if (isRendered() && isCustomInput()) // MyFaces Patch!
         {
-            String tagName  = helper.getTagAttributeString("tag", DEFAULT_CONTROL_SEPARATOR_TAG);
-            String inpClass = helper.getTagAttributeString("inputClass", DEFAULT_INPUT_SEPARATOR_CLASS);
+            String tagName  = helper.getTagAttributeString("tag", ControlTag.DEFAULT_CONTROL_SEPARATOR_TAG);
+            String inpClass = helper.getTagAttributeString("inputClass", ControlTag.DEFAULT_INPUT_SEPARATOR_CLASS);
             String colSpan  = helper.getTagAttributeString("colspan");
 
             ResponseWriter writer = context.getResponseWriter();
@@ -331,27 +380,66 @@ public class ControlTag extends UIInput implements NamingContainer
             if (StringUtils.isNotEmpty(colSpan) && tagName.equalsIgnoreCase("td"))
                 writer.writeAttribute("colspan", colSpan, null);
             // encode children
-            super.encodeChildren(context);
+            super.encodeEnd(context);
             // end of element
             writer.endElement(tagName);
-        }    
+        }
+        else
+        { // default
+            super.encodeEnd(context);
+        }
     }
-
+    
     @Override
-    public void encodeEnd(FacesContext context)
-        throws IOException 
+    public void setId(String id) 
     {
-        super.encodeEnd(context);
+        super.setId(id);
+        // reset record
+        helper.setRecord(null);
     }
 
     @Override
-    public void setRequired(boolean required) 
+    public void processDecodes(FacesContext context) 
+    {
+        if (helper.isInsideUIData())
+        {   // Check input controls
+            if (getChildCount()>1 && (getChildren().get(1) instanceof InputSeparatorComponent))
+            {   // Make sure all inputs are rendered
+                boolean hasChanged = false;
+                boolean readOnly = helper.isRecordReadOnly();
+                InputSeparatorComponent parent = (InputSeparatorComponent)getChildren().get(1);
+                // set rendered of children
+                for (UIComponent child : parent.getChildren())
+                {   // set rendered 
+                    boolean rendered = (child instanceof ValueOutputComponent) ? readOnly : !readOnly;
+                    if (child.isRendered()!=rendered)
+                    {
+                        child.setRendered(rendered);
+                        hasChanged = true;
+                    }    
+                }
+                // give control chance to update
+                if (hasChanged && log.isDebugEnabled())
+                    log.debug("Changing UIInput readOnly state for {} to {}", helper.getColumnName(), readOnly);
+                if (this.control==null)
+                    this.control = helper.getInputControl();
+                if (this.inpInfo==null)
+                    this.inpInfo = helper.getInputInfo(context);
+                this.control.updateInputState(parent, inpInfo, context);
+            }
+        }
+        // default
+        super.processDecodes(context);
+    }
+
+    @Override
+    public void setRequired(boolean required)
     {
         super.setRequired(required);
         // flag has been set
-        hasRequiredFlagSet = true;
+        this.hasRequiredFlagSet = true;
     }
-    
+
     public boolean isCustomInput()
     {
         Object custom = getAttributes().get("custom");
@@ -359,62 +447,71 @@ public class ControlTag extends UIInput implements NamingContainer
             return ObjectUtils.getBoolean(custom);
         return false;
     }
-    
+
     private void encodeLabel(FacesContext context, UIComponentBase parent)
         throws IOException
     {
         // render components
-        HtmlOutputLabel labelComponent = null;
-        if (parent.getChildCount() > 0)
-        {
-            labelComponent = (HtmlOutputLabel) parent.getChildren().get(0);
-            // update
-            helper.updateLabelComponent(context, labelComponent, null);
-        }
-        if (labelComponent == null)
-        {
-            String forInput = isCustomInput() ? helper.getTagAttributeString("for") : "*";
-            // createLabelComponent 
-            labelComponent = helper.createLabelComponent(context, forInput, "eLabel", null, true);
-            parent.getChildren().add(0, labelComponent);
+        try {
+            creatingComponents = true;
+            HtmlOutputLabel labelComponent = null;
+            if (parent.getChildCount() > 0)
+            {
+                labelComponent = (HtmlOutputLabel) parent.getChildren().get(0);
+                // update
+                helper.updateLabelComponent(context, labelComponent, null);
+            }
+            if (labelComponent == null)
+            {
+                String forInput = isCustomInput() ? helper.getTagAttributeString("for") : "*";
+                // createLabelComponent 
+                labelComponent = helper.createLabelComponent(context, forInput, "eLabel", null, true);
+                parent.getChildren().add(0, labelComponent);
+                helper.resetComponentId(labelComponent);
+            }
+        } finally {
+            creatingComponents = false;
         }
         // render components
         parent.encodeAll(context);
     }
-    
+
     private void encodeInput(FacesContext context, UIComponentBase parent)
         throws IOException
     {
         // render components
-        if (this.helper.isRecordReadOnly()) //  && allowValueComponent(parent))
-        {
-            UIComponent valueComp = (parent.getChildCount()>0 ? parent.getChildren().get(0) : null);
-            if (valueComp != null && !(valueComp instanceof ValueOutputComponent))
-            {	// remove InputComponent
-                parent.getChildren().clear();
-                valueComp = null;
-            }
+        try {
+            creatingComponents = true;
+            // check children
+            int count = parent.getChildCount();
+            boolean resetChildId = (count==0);
+            // continue
+            this.inpInfo = helper.getInputInfo(context);
+            // set required
+            if (this.hasRequiredFlagSet==false)
+                super.setRequired(helper.isValueRequired());
+	        // create Input Controls
+            // boolean recordReadOnly = helper.isRecordReadOnly();
+            control.renderInput(parent, inpInfo, context, false);
+            // create Value Component
+            UIComponent valueComp = (count>0 ? parent.getChildren().get(count-1) : null);
             if (valueComp == null)
-            {
+            {   // create ValueOutputComponent
                 valueComp = new ValueOutputComponent();
                 parent.getChildren().add(valueComp);
             }
-        }
-        else
-        {	// check for ValueOutputComponent	
-            UIComponent valueComp = (parent.getChildCount()>0 ? parent.getChildren().get(0) : null);
-            if (valueComp instanceof ValueOutputComponent)
-            {	// remove ValueOutputComponent
-            	parent.getChildren().clear();
+            // Walk through the list of controls
+            boolean readOnly = helper.isRecordReadOnly();
+            for (UIComponent child : parent.getChildren())
+            {   // reset child-id
+                if (resetChildId)
+                    helper.resetComponentId(child);
+                // set rendered 
+                boolean rendered = (child instanceof ValueOutputComponent) ? readOnly : !readOnly;
+                child.setRendered(rendered);
             }
-            // continue
-            inpInfo = helper.getInputInfo(context);
-            // set required
-            if (hasRequiredFlagSet==false)
-                super.setRequired(helper.isValueRequired());
-            // render input
-            control.renderInput(parent, inpInfo, context, false);
-            
+        } finally {
+            creatingComponents = false;
         }
         // render components
         parent.encodeAll(context);
@@ -424,58 +521,58 @@ public class ControlTag extends UIInput implements NamingContainer
     public Object getValue()
     {
         // check for record
-        if (helper.getRecord()!=null)
+        if (helper.getRecord() != null)
             return helper.getDataValue(true);
         // default
         Object value = super.getValue();
-        return value; 
+        return value;
     }
-
+    
     @Override
     public Object getSubmittedValue()
-    {   // Check state
-        if (control==null || inpInfo==null || helper.isReadOnly())
+    { // Check state
+        if (this.control == null || this.inpInfo == null || helper.isReadOnly())
             return null;
         // Get Input Tag
-        if (getChildCount()<=1)
+        if (getChildCount() <= 1)
             return null;
         // get Input Value
-        ControlSeparatorComponent inputSepTag = (ControlSeparatorComponent) getChildren().get(1); 
-        return control.getInputValue(inputSepTag, inpInfo, true);
+        ControlSeparatorComponent inputSepTag = (ControlSeparatorComponent) getChildren().get(1);
+        return this.control.getInputValue(inputSepTag, this.inpInfo, true);
     }
 
     @Override
     public void validateValue(FacesContext context, Object value)
-    {   // Check state
-        if (inpInfo==null || !isValid())
+    { // Check state
+        if (this.inpInfo == null || !isValid())
             return;
         // Skip Null values on partial submit
-        if (isEmpty(value) && isPartialSubmit(context)) //  && helper.isValueRequired()
-        {   // Value is null
-            log.debug("Skipping validation for {} due to Null value.", inpInfo.getColumn().getName());
+        if (UIInput.isEmpty(value) && isPartialSubmit(context)) //  && helper.isValueRequired()
+        { // Value is null
+            log.debug("Skipping validation for {} due to Null value.", this.inpInfo.getColumn().getName());
             return;
         }
         // Validate value
-        inpInfo.validate(value);
+        this.inpInfo.validate(value);
         setValid(true);
         // don't call base class!
         // super.validateValue(context, value);
-    }    
-    
+    }
+
     @Override
     public void validate(FacesContext context)
     {
-        if (initState(context)==false)
+        if (initState(context) == false)
             return;
         // get submitted value and validate
         if (log.isDebugEnabled())
-            log.debug("Validating input for {}.", inpInfo.getColumn().getName());
+            log.debug("Validating input for {}.", this.inpInfo.getColumn().getName());
         // Validate value
-        try {
-            // Will internally call getSubmittedValue() and validateValue() 
+        try
+        {   // Will internally call getSubmittedValue() and validateValue() 
             super.validate(context);
-            
-        } catch(Exception e) {
+
+        } catch (Exception e) {
             // Value is not valid
             if (!(e instanceof EmpireException))
                 e = new FieldIllegalValueException(helper.getColumn(), "", e);
@@ -488,39 +585,44 @@ public class ControlTag extends UIInput implements NamingContainer
     @Override
     public void updateModel(FacesContext context)
     {
-        if (initState(context)==false)
+        if (initState(context) == false)
             return;
         // No Action
         if (!isValid() || !isLocalValueSet())
-            return; 
+            return;
         // check required?
         Object value = getLocalValue();
         // check required
-        if (isEmpty(value) && isPartialSubmit(context) && !helper.isTempoaryNullable())
-        {   // Value is null, but required
-            log.debug("Skipping model update for {} due to Null value.", inpInfo.getColumn().getName());
+        if (UIInput.isEmpty(value) && isPartialSubmit(context) && !helper.isTempoaryNullable())
+        { // Value is null, but required
+            log.debug("Skipping model update for {} due to Null value.", this.inpInfo.getColumn().getName());
             return;
         }
         // super.updateModel(context);
-        log.debug("Updating model input for {}.", inpInfo.getColumn().getName());
-        inpInfo.setValue(value);
+        log.debug("Updating model input for {}.", this.inpInfo.getColumn().getName());
+        this.inpInfo.setValue(value);
         setValue(null);
         setLocalValueSet(false);
         // Post update
-        ControlSeparatorComponent inputSepTag = (ControlSeparatorComponent) getChildren().get(1); 
-        control.postUpdateModel(inputSepTag, inpInfo, context);
+        ControlSeparatorComponent inputSepTag = (ControlSeparatorComponent) getChildren().get(1);
+        this.control.postUpdateModel(inputSepTag, this.inpInfo, context);
     }
-    
+
+    public InputControl getInputControl()
+    {
+        return this.control;
+    }
+
     public Column getInputColumn()
     {
         return helper.getColumn();
     }
-    
+
     public boolean isInputReadOnly()
     {
         return helper.isRecordReadOnly();
     }
-    
+
     public boolean isInputRequired()
     {
         return helper.isValueRequired();
@@ -529,20 +631,10 @@ public class ControlTag extends UIInput implements NamingContainer
     private boolean isPartialSubmit(FacesContext context)
     {
         // Check Required Flag
-        if (hasRequiredFlagSet && !isRequired())
+        if (this.hasRequiredFlagSet && !isRequired())
             return true;
         // partial  
         return helper.isPartialSubmit(context);
     }
-
-    /**
-     * Check the parent allows the creation of a if the ValueOutputComponent.
-     * This method should never return false. If it does, the method "helper.isRecordReadOnly()" does not return the same value for subsequent calls as when the component was first encoded.
-     * @param parent the parent tag
-     * @return true on success or false if the parent's first child is not a instance of ValueOutputComponent
-    private boolean allowValueComponent(UIComponentBase parent)
-    {
-        return (parent.getChildCount()>0 ? (parent.getChildren().get(0) instanceof ValueOutputComponent) : true); 
-    }
-     */
+    
 }

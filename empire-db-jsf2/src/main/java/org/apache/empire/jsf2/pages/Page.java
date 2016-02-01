@@ -37,9 +37,9 @@ import org.apache.empire.exceptions.EmpireException;
 import org.apache.empire.exceptions.InternalException;
 import org.apache.empire.exceptions.ItemNotFoundException;
 import org.apache.empire.exceptions.MiscellaneousErrorException;
-import org.apache.empire.jsf2.app.WebApplication;
 import org.apache.empire.jsf2.app.FacesUtils;
 import org.apache.empire.jsf2.app.TextResolver;
+import org.apache.empire.jsf2.app.WebApplication;
 import org.apache.empire.jsf2.utils.ParameterMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -141,7 +141,7 @@ public abstract class Page implements Serializable
                 Page.log.debug("PageBean {} is already initialized. Calling doRefresh().", getPageName());
                 doRefresh();
             }
-            catch (Throwable e)
+            catch (Exception e)
             {
                 logAndHandleActionException("doRefresh", e);
             }
@@ -153,7 +153,7 @@ public abstract class Page implements Serializable
         {
             checkPageAccess();
         }
-        catch (Throwable e)
+        catch (Exception e)
         {
             logAndHandleActionException("checkAccess", e);
             // redirected?
@@ -187,7 +187,7 @@ public abstract class Page implements Serializable
             */
             try
             {
-                Page.log.debug("Executing action {} on {}.", String.valueOf(action), getPageName());
+                log.info("Processing action {} on {}.", String.valueOf(action), getPageName());
                 Method method = getClass().getMethod(action);
                 Object result = method.invoke(this);
                 if (result != null)
@@ -225,11 +225,17 @@ public abstract class Page implements Serializable
                 doInit();
                 restoreSessionMessage();
             }
-            catch (Throwable e)
+            catch (Exception e)
             {
                 logAndHandleActionException("doInit", e);
             }
         }
+    }
+    
+    public boolean isHasMessages()
+    {
+        List<FacesMessage> msgl = FacesContext.getCurrentInstance().getMessageList();
+        return !msgl.isEmpty();
     }
     
     protected void checkPageAccess()
@@ -263,7 +269,7 @@ public abstract class Page implements Serializable
                 throw new InternalException(e);
         }    
     }
-
+    
     protected void setSessionMessage(FacesMessage facesMsg)
     {
         // Set Session Message
@@ -411,10 +417,6 @@ public abstract class Page implements Serializable
 
     public void addJavascriptCall(String function)
     {
-        if (!function.endsWith(";"))
-        { // Add a semicolon (important!)
-            function += ";";
-        }
         // Add Call
         FacesContext fc = FacesUtils.getContext();
         WebApplication app = FacesUtils.getWebApplication();
@@ -494,6 +496,6 @@ public abstract class Page implements Serializable
     protected final TextResolver getTextResolver()
     {
         FacesContext fc = FacesUtils.getContext();
-        return FacesUtils.getWebApplication().getTextResolver(fc);
+        return FacesUtils.getTextResolver(fc);
     }
 }

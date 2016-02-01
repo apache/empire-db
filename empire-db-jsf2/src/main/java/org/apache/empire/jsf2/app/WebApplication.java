@@ -51,8 +51,6 @@ import org.apache.empire.jsf2.impl.ResourceTextResolver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-// import com.sun.faces.application.ApplicationImpl;
-
 public abstract class WebApplication
 {
     private static final Logger log                   = LoggerFactory.getLogger(WebApplication.class);
@@ -67,7 +65,7 @@ public abstract class WebApplication
     
     private FacesImplementation facesImpl			  = null;
     
-    private static WebApplication appInstance       = null;
+    private static WebApplication appInstance         = null;
     
     public static WebApplication getInstance()
     {

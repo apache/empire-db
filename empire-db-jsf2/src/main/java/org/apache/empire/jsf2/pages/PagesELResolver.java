@@ -96,7 +96,7 @@ public class PagesELResolver extends ELResolver
     @Override
     public Object getValue(ELContext context, Object base, Object property)
     {
-        // Resolve database, table/view or column
+        // Resolve PageDefinitions, PageDefinition
         if (base instanceof PageDefinition)
         {
             String action = String.valueOf(property);

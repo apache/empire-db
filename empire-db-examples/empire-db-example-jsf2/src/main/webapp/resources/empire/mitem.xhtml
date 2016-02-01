@@ -1,0 +1,19 @@
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:cc="http://java.sun.com/jsf/composite">
+
+	<!-- Interface -->
+	<cc:interface componentType="components.MenuItemTag">
+		<cc:attribute name="menuId" required="true"/>
+		<cc:attribute name="page" required="true" />
+		<cc:attribute name="idparam"/>
+		<cc:attribute name="currentOnly" type="java.lang.Boolean" default="false" />
+	</cc:interface>
+
+	<!-- Implementation -->
+	<cc:implementation>
+		<cc:insertChildren/>
+	</cc:implementation>
+	
+</html>

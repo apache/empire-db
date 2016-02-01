@@ -26,6 +26,26 @@ package org.apache.empire.data;
  */
 public interface Column extends ColumnExpr
 {
+    /**
+     *  Predefined column expression attributes (optional)
+     *  for method
+     *      Object getAttribute(String name)  
+     */
+    public static final String COLATTR_TITLE     = "title";
+    public static final String COLATTR_TOOLTIP   = "tooltip";
+    public static final String COLATTR_TYPE      = "type";
+    public static final String COLATTR_ENUMTYPE  = "enumType";
+
+    public static final String COLATTR_MINLENGTH = "minLength";
+    public static final String COLATTR_MINVALUE  = "minValue";
+    public static final String COLATTR_MAXVALUE  = "maxValue";
+    public static final String COLATTR_REGEXP    = "regExp";
+    
+    public static final String COLATTR_NUMBER_TYPE      = "numberType";             // "Integer", "Currency", "Percent"  
+    public static final String COLATTR_NUMBER_GROUPSEP  = "numberGroupSeparator";   // boolean (true or false)
+    public static final String COLATTR_FRACTION_DIGITS  = "numberFractionDigits";   // integer
+    public static final String COLATTR_CURRENCY_CODE    = "currencyCode";           // "ISO 4217 code of the currency"
+    public static final String COLATTR_DATETIMEPATTERN  = "dateTimePattern";        // default is yyyy-MM-dd HH:mm:ss
 
     /**
      * Returns the maximum size a value for this column is allowed to have.

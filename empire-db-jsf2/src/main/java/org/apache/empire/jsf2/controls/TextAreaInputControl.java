@@ -26,7 +26,6 @@ import javax.faces.context.FacesContext;
 
 import org.apache.empire.commons.ObjectUtils;
 import org.apache.empire.commons.StringUtils;
-import org.apache.empire.exceptions.InternalException;
 import org.apache.empire.exceptions.UnexpectedReturnValueException;
 
 public class TextAreaInputControl extends InputControl
@@ -59,13 +58,8 @@ public class TextAreaInputControl extends InputControl
     {
         HtmlInputTextarea input;
         if (compList.size()==0)
-        {   try {
-                input = inputComponentClass.newInstance();
-            } catch (InstantiationException e1) {
-                throw new InternalException(e1);
-            } catch (IllegalAccessException e2) {
-                throw new InternalException(e2);
-            }
+        {   // create component
+            input = InputControlManager.createComponent(context, this.inputComponentClass);
             // once
             copyAttributes(parent, ii, input);
             // cols
@@ -102,6 +96,24 @@ public class TextAreaInputControl extends InputControl
         // Set Value
         setInputValue(input, ii);
         
+    }
+    
+    @Override
+    protected void updateInputState(List<UIComponent> compList, InputInfo ii, FacesContext context)
+    {
+        UIComponent comp = compList.get(0);
+        if (!(comp instanceof HtmlInputTextarea))
+        {
+            throw new UnexpectedReturnValueException(comp.getClass().getName(), "compList.get(0)");
+        }
+        HtmlInputTextarea input = (HtmlInputTextarea)comp;
+        // disabled
+        Object dis = ii.getAttributeEx("disabled");
+        if (dis!=null)
+            input.setDisabled(ObjectUtils.getBoolean(dis));
+        // field-readOnly
+        if (ObjectUtils.getBoolean(dis)==false)
+            input.setReadonly(ii.isFieldReadOnly());
     }
 
     @Override
