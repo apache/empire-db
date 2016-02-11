@@ -604,6 +604,7 @@ public class DBDatabaseDriverMySQL extends DBDatabaseDriver
             case SQL_FUNC_TRUNC:              return "truncate(?,{0})";
             case SQL_FUNC_CEILING:            return "ceiling(?)";
             case SQL_FUNC_FLOOR:              return "floor(?)";
+            case SQL_FUNC_MODULO:             return "mod(?,{0})";
             // Date
             case SQL_FUNC_DAY:                return "day(?)";
             case SQL_FUNC_MONTH:              return "month(?)";

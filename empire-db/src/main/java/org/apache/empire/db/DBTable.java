@@ -58,6 +58,26 @@ public class DBTable extends DBRowSet implements Cloneable
     private Boolean              quoteName           = null;
     private DBCascadeAction      cascadeDeleteAction = DBCascadeAction.NONE;
     
+    /**
+     * Construct a new DBTable object set the specified parameters
+     * to this object and add this object to the current database.
+     * 
+     * @param name the table name
+     * @param db the valid database object
+     */
+    public DBTable(String name, DBDatabase db, String alias)
+    { 
+        super(db);
+        // generate alias
+        if (alias==null)
+            alias = "t" + String.valueOf(tableCount.incrementAndGet());
+        // init
+        this.name = name;
+        this.alias = alias;
+        // Add Table to Database
+        if (db != null)
+            db.addTable(this);
+    }
 
     /**
      * Construct a new DBTable object set the specified parameters
@@ -68,13 +88,7 @@ public class DBTable extends DBRowSet implements Cloneable
      */
     public DBTable(String name, DBDatabase db)
     { 
-        super(db);
-        // init
-        this.name = name;
-        this.alias = "t" + String.valueOf(tableCount.incrementAndGet());
-        // Add Table to Database
-        if (db != null)
-            db.addTable(this);
+        this(name, db, null);
     }
 
     /**
@@ -378,7 +392,7 @@ public class DBTable extends DBRowSet implements Cloneable
         if ((context & CTX_ALIAS)!=0 && alias!=null)
         {    // append alias
              buf.append(getRenameTablePhrase());
-             buf.append(alias);
+             buf.append(getAlias());
         }
     }
 

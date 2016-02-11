@@ -92,6 +92,7 @@ public abstract class DBDatabaseDriver implements Serializable
     public static final int SQL_FUNC_TRUNC       = 122; // Oracle: trunc(?, {0})
     public static final int SQL_FUNC_FLOOR       = 123; // Oracle: floor(?)
     public static final int SQL_FUNC_CEILING     = 124; // Oracle: ceil(?)
+    public static final int SQL_FUNC_MODULO      = 125; // Oracle: mod(?)
     // Date
     public static final int SQL_FUNC_DAY         = 132; // MSSQL: month(?)
     public static final int SQL_FUNC_MONTH       = 133; // MSSQL: month(?)

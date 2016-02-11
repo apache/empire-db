@@ -19,6 +19,10 @@
 package org.apache.empire.db;
 
 // java
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+
 import org.apache.empire.commons.Attributes;
 import org.apache.empire.commons.OptionEntry;
 import org.apache.empire.commons.Options;
@@ -39,10 +43,6 @@ import org.apache.empire.db.expr.compare.DBCompareColExpr;
 import org.apache.empire.db.expr.compare.DBCompareExpr;
 import org.apache.empire.db.expr.order.DBOrderByExpr;
 import org.w3c.dom.Element;
-
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
 
 
 /**
@@ -624,6 +624,17 @@ public abstract class DBColumnExpr extends DBExpr
     public DBColumnExpr coalesce(Object nullValue)
     {
         return getExprFromPhrase(DBDatabaseDriver.SQL_FUNC_COALESCE, new Object[] { nullValue }, getUpdateColumn(), false);
+    }
+
+    /**
+     * Creates a sql-expression for the modulo or mod() function.
+     * 
+     * @param divisor the Object value
+     * @return the new DBFuncExpr object
+     */
+    public DBColumnExpr modulo(Object divisor)
+    {
+        return getExprFromPhrase(DBDatabaseDriver.SQL_FUNC_MODULO, new Object[] { divisor }, getUpdateColumn(), false);
     }
 
     /**
