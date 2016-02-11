@@ -95,6 +95,10 @@
 		<component-class>org.apache.empire.jsf2.components.LinkTag</component-class>
 	</component>
 	<component>
+		<component-type>components.SelectTag</component-type>
+		<component-class>org.apache.empire.jsf2.components.SelectTag</component-class>
+	</component>	
+	<component>
 		<component-type>components.TitleTag</component-type>
 		<component-class>org.apache.empire.jsf2.components.TitleTag</component-class>
 	</component>

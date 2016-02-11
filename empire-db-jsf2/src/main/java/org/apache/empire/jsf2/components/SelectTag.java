@@ -23,7 +23,6 @@ import java.util.List;
 import java.util.Map;
 
 import javax.faces.component.NamingContainer;
-import javax.faces.component.UIComponent;
 import javax.faces.component.UIInput;
 import javax.faces.component.html.HtmlSelectOneMenu;
 import javax.faces.component.visit.VisitCallback;
@@ -46,6 +45,8 @@ public class SelectTag extends UIInput implements NamingContainer
 {
     // Logger
     private static final Logger log = LoggerFactory.getLogger(SelectTag.class);
+    
+    public static final String SELECT_COMPONENT_ID = "select";
 
     private SelectInputControl control = null;
     
@@ -125,16 +126,6 @@ public class SelectTag extends UIInput implements NamingContainer
         inputComponent.encodeAll(context);
         // default
         super.encodeBegin(context);
-    }
-
-    @Override
-    public void decode(FacesContext context)
-    {
-        for (UIComponent c : getChildren())
-        {
-            c.decode(context);
-        }
-        super.decode(context);
     }
 
     @Override
@@ -220,6 +211,7 @@ public class SelectTag extends UIInput implements NamingContainer
         input.setStyleClass(cssStyle);
         // other attributes
         copyAttributes(input);
+        input.setId(SELECT_COMPONENT_ID);
         // Options
         Options options = getOptionList();
         boolean addEmpty = isAllowNull() && !options.contains("");
