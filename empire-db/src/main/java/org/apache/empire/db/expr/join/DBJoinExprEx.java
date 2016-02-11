@@ -20,6 +20,7 @@ package org.apache.empire.db.expr.join;
 
 import org.apache.empire.db.DBColumnExpr;
 import org.apache.empire.db.DBJoinType;
+import org.apache.empire.db.DBQuery;
 import org.apache.empire.db.DBRowSet;
 import org.apache.empire.db.expr.compare.DBCompareAndOrExpr;
 import org.apache.empire.db.expr.compare.DBCompareColExpr;
@@ -55,6 +56,14 @@ public class DBJoinExprEx extends DBJoinExpr
         return null;
     }
     
+    private static DBColumnExpr firstRsetColumn(DBRowSet rset)
+    {
+        if (rset instanceof DBQuery)
+           return ((DBQuery)rset).getQueryColumns()[0];
+        else 
+           return rset.getColumn(0);
+    }
+    
     /**
      * Constructs a new DBJoinExprEx
      * 
@@ -64,7 +73,7 @@ public class DBJoinExprEx extends DBJoinExpr
      */
     public DBJoinExprEx(DBRowSet rset, DBCompareExpr cmp, DBJoinType joinType)
     {
-        super(rset.getColumn(0), findFirstColumn(cmp), joinType);
+        super(firstRsetColumn(rset), findFirstColumn(cmp), joinType);
         this.cmp = cmp;
     }
     
