@@ -50,17 +50,17 @@ public class TabViewTag extends UIOutput implements NamingContainer
 {
     // Logger
     // private static final Logger log = LoggerFactory.getLogger(MenuTag.class);
-    private static final Logger     log                    = LoggerFactory.getLogger(TabViewTag.class);
+    private static final Logger       log                    = LoggerFactory.getLogger(TabViewTag.class);
 
-    private final String            TAB_STYLE_CLASS        = "eTabView";
+    protected final String            TAB_STYLE_CLASS        = "eTabView";
 
-    private final String            TAB_ACTIVE_INDEX       = "activeIndex";
+    protected final String            TAB_ACTIVE_INDEX       = "activeIndex";
 
-    private final String            TABLINK_ID_PREFIX      = "tabLink";
+    protected final String            TABLINK_ID_PREFIX      = "tabLink";
 
-    private final String            TAB_RENDERED_ATTRIBUTE = "visible";
+    protected final String            TAB_RENDERED_ATTRIBUTE = "visible";
 
-    private final TagEncodingHelper helper                 = new TagEncodingHelper(this, this.TAB_STYLE_CLASS);
+    protected final TagEncodingHelper helper                 = new TagEncodingHelper(this, this.TAB_STYLE_CLASS);
 
     public static class TabPageActionListener implements ActionListener, StateHolder
     {
@@ -125,7 +125,7 @@ public class TabViewTag extends UIOutput implements NamingContainer
             return this.isTransient;
         }
     }
-    
+
     public TabViewTag()
     {
         log.trace("TabViewTag created");
@@ -232,7 +232,7 @@ public class TabViewTag extends UIOutput implements NamingContainer
         int activeIndex = getActivePageIndex();
         // Patch for MOJARRA: Remove HtmlCommandLinks
         List<UIComponent> chk = panel.getChildren();
-        for (int i = chk.size()-1; i>=0; i--)
+        for (int i = chk.size() - 1; i >= 0; i--)
         {
             if ((chk.get(i) instanceof HtmlCommandLink))
                 chk.remove(i);
@@ -304,7 +304,7 @@ public class TabViewTag extends UIOutput implements NamingContainer
             }
         }
         if (link == null)
-        {   // create the tab-Link   
+        { // create the tab-Link   
             String linkId = this.TABLINK_ID_PREFIX + String.valueOf(index);
             link = createCommandLink(context, linkId);
             tabLinks.add(index, link);
@@ -365,7 +365,7 @@ public class TabViewTag extends UIOutput implements NamingContainer
             log.warn("setActiveTab is called for active page!");
             return;
         }
-        
+
         // set new Page
         setActivePageIndex(pageIndex);
 

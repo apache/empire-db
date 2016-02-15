@@ -48,7 +48,7 @@ public class SelectTag extends UIInput implements NamingContainer
     
     public static final String SELECT_COMPONENT_ID = "select";
 
-    private SelectInputControl control = null;
+    protected SelectInputControl control = null;
     
     public SelectTag()
     {

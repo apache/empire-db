@@ -40,17 +40,17 @@ import org.slf4j.LoggerFactory;
 public class InputTag extends UIInput implements NamingContainer
 {
     // Logger
-    private static final Logger     log                = LoggerFactory.getLogger(InputTag.class);
+    private static final Logger       log                = LoggerFactory.getLogger(InputTag.class);
 
     // private static final String inpControlPropName = InputControl.class.getSimpleName();
     // private static final String inputInfoPropName = InputControl.InputInfo.class.getSimpleName();
-    private static final String     readOnlyState      = "readOnlyState";
+    private static final String       readOnlyState      = "readOnlyState";
 
-    private final TagEncodingHelper helper             = new TagEncodingHelper(this, "eInput");
+    protected final TagEncodingHelper helper             = new TagEncodingHelper(this, "eInput");
 
-    private InputControl            control            = null;
-    private InputControl.InputInfo  inpInfo            = null;
-    protected boolean               hasRequiredFlagSet = false;
+    protected InputControl            control            = null;
+    protected InputControl.InputInfo  inpInfo            = null;
+    protected boolean                 hasRequiredFlagSet = false;
 
     /*
     private static int itemIdSeq = 0;
@@ -101,15 +101,15 @@ public class InputTag extends UIInput implements NamingContainer
         inpInfo = helper.getInputInfo(context);
         return (control != null && inpInfo != null);
     }
-    
+
     /**
      * remember original clientId
      * necessary only inside UIData
      */
     private String treeClientId = null;
-    
+
     @Override
-    public boolean visitTree(VisitContext visitContext, VisitCallback callback) 
+    public boolean visitTree(VisitContext visitContext, VisitCallback callback)
     {
         FacesContext context = visitContext.getFacesContext();
         treeClientId = getClientId(context);
@@ -120,9 +120,9 @@ public class InputTag extends UIInput implements NamingContainer
     public String getClientId(FacesContext context)
     {
         // Check if dynamic components are being created
-        if (this.treeClientId!=null && control!=null && control.isCreatingComponents())
-        {   // return the original tree client id
-            return treeClientId; 
+        if (this.treeClientId != null && control != null && control.isCreatingComponents())
+        { // return the original tree client id
+            return treeClientId;
         }
         // default behavior
         return super.getClientId(context);
@@ -166,9 +166,9 @@ public class InputTag extends UIInput implements NamingContainer
         }
         saveState();
     }
-    
+
     @Override
-    public void setId(String id) 
+    public void setId(String id)
     {
         super.setId(id);
         // reset record
@@ -264,9 +264,9 @@ public class InputTag extends UIInput implements NamingContainer
 
         // Validate value
         try
-        {   // Will internally call getSubmittedValue() and validateValue() 
+        { // Will internally call getSubmittedValue() and validateValue() 
             super.validate(context);
-            
+
         } catch (Exception e) {
             // Value is not valid
             if (!(e instanceof EmpireException))

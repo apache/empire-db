@@ -34,7 +34,7 @@ public class TabPageTag extends UIOutput implements NamingContainer
     // Logger
     // private static final Logger log = LoggerFactory.getLogger(MenuTag.class);
     
-    private final TagEncodingHelper helper = new TagEncodingHelper(this, "eTabPage");
+    protected final TagEncodingHelper helper = new TagEncodingHelper(this, "eTabPage");
 
     @Override
     public String getFamily()

@@ -35,7 +35,7 @@ public class MenuListTag extends UIOutput implements NamingContainer
     // Logger
     // private static final Logger log = LoggerFactory.getLogger(MenuTag.class);
     
-    private final TagEncodingHelper helper = new TagEncodingHelper(this, "eMenuList");
+    protected final TagEncodingHelper helper = new TagEncodingHelper(this, "eMenuList");
     
     private String currentId = null; 
     private String currentClass = null; 
