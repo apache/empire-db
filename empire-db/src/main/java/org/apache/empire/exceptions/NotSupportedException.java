@@ -29,6 +29,11 @@ public class NotSupportedException extends EmpireException
     
     public static final ErrorType errorType = new ErrorType("error.notSupported", "The function {0} is not supported for type {1}.");
     
+    public NotSupportedException(Object object, String functionName, Exception e)
+    {
+        super(errorType, new String[] { functionName, (object!=null ? object.getClass().getName() : "{unknown}") }, e);
+    }
+    
     public NotSupportedException(Object object, String functionName)
     {
         super(errorType, new String[] { functionName, (object!=null ? object.getClass().getName() : "{unknown}") });
