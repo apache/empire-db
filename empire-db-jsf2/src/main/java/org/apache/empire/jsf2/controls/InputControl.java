@@ -268,11 +268,6 @@ public abstract class InputControl
             // debug
             if (log.isDebugEnabled())
                 log.debug("Submitted value for {} is {}", comp.getClientId(), value);
-            // Convert
-            if ((value instanceof String) && ((String) value).length() > 0)
-            {
-                return parseInputValue((String) value, ii);
-            }            
         }
         else
         {   // the current value
@@ -281,6 +276,16 @@ public abstract class InputControl
         return value;
     }
 
+    public Object getConvertedValue(UIComponent comp, InputInfo ii, Object submittedValue)
+    {
+        // Convert
+        if ((submittedValue instanceof String) && ((String) submittedValue).length() > 0)
+        {
+            return parseInputValue((String) submittedValue, ii);
+        }            
+        return submittedValue;
+    }
+    
     protected void setInputValue(UIInput input, InputInfo ii)
     {
         // Restore submitted value

@@ -30,6 +30,7 @@ import javax.faces.component.visit.VisitCallback;
 import javax.faces.component.visit.VisitContext;
 import javax.faces.context.FacesContext;
 import javax.faces.context.ResponseWriter;
+import javax.faces.convert.ConverterException;
 
 import org.apache.empire.commons.ObjectUtils;
 import org.apache.empire.commons.StringUtils;
@@ -539,6 +540,20 @@ public class ControlTag extends UIInput implements NamingContainer
         // get Input Value
         ControlSeparatorComponent inputSepTag = (ControlSeparatorComponent) getChildren().get(1);
         return this.control.getInputValue(inputSepTag, this.inpInfo, true);
+    }
+    
+    @Override
+    protected Object getConvertedValue(FacesContext context, Object newSubmittedValue)
+        throws ConverterException
+    { // Check state
+        if (this.control == null || this.inpInfo == null || helper.isReadOnly())
+            return null;
+        // Get Input Tag
+        if (getChildCount() <= 1)
+            return null;
+        // get Input Value
+        ControlSeparatorComponent inputSepTag = (ControlSeparatorComponent) getChildren().get(1);
+        return this.control.getConvertedValue(inputSepTag, this.inpInfo, newSubmittedValue);
     }
 
     @Override

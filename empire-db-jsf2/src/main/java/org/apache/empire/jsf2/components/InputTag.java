@@ -27,6 +27,7 @@ import javax.faces.component.visit.VisitCallback;
 import javax.faces.component.visit.VisitContext;
 import javax.faces.context.FacesContext;
 import javax.faces.context.ResponseWriter;
+import javax.faces.convert.ConverterException;
 
 import org.apache.empire.data.Column;
 import org.apache.empire.db.exceptions.FieldIllegalValueException;
@@ -222,6 +223,16 @@ public class InputTag extends UIInput implements NamingContainer
             return null;
         // get Input Value
         return control.getInputValue(this, inpInfo, true);
+    }
+
+    @Override
+    protected Object getConvertedValue(FacesContext context, Object newSubmittedValue)
+        throws ConverterException
+    {   // Check state
+        if (control == null || inpInfo == null || helper.isReadOnly())
+            return null;
+        // parse and convert value
+        return this.control.getConvertedValue(this, this.inpInfo, newSubmittedValue);
     }
 
     @Override
