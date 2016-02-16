@@ -300,11 +300,20 @@ public abstract class DBDatabase extends DBObject
             if (this.driver== null)
                 this.driver = driver;
             // Get DDL Command
-            driver.getDDLScript(DBCmdType.CREATE, this, script);
+            generateDDLScript(script);
             
         } finally {
             this.driver = prevDriver; 
         }
+    }
+
+    /**
+     * Override this to change or add DDL commands
+     * @param script
+     */
+    protected void generateDDLScript(DBSQLScript script)
+    {
+        this.driver.getDDLScript(DBCmdType.CREATE, this, script); 
     }
     
     /**
