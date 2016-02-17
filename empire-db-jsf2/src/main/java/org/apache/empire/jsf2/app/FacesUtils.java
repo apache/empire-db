@@ -40,6 +40,7 @@ import org.apache.empire.data.Column;
 import org.apache.empire.db.DBDatabase;
 import org.apache.empire.exceptions.EmpireException;
 import org.apache.empire.exceptions.InternalException;
+import org.apache.empire.exceptions.ItemNotFoundException;
 import org.apache.empire.jsf2.pages.Page;
 import org.apache.empire.jsf2.pages.PageDefinition;
 import org.apache.empire.jsf2.pages.PageOutcome;
@@ -269,16 +270,23 @@ public class FacesUtils
         return getWebApplication().getFacesImplementation().getManagedBean(name, fc);
     }
     
+    public static <T> T getManagedBean(final FacesContext fc, final Class<T> cls, final String name)
+    {
+        @SuppressWarnings("unchecked")
+        T bean = (T)getManagedBean(fc, name);
+        if (bean==null)
+        {   log.warn("Managed Bean {} ist not available.", name);
+            throw new ItemNotFoundException(name);
+        }    
+        return bean;
+    }
+    
     public static <T> T getManagedBean(final FacesContext fc, final Class<T> cls)
     {
         String name = cls.getName();
         int i = name.lastIndexOf('.')+1;
         name  = name.substring(i, i+1).toLowerCase()+name.substring(i+1);
-        @SuppressWarnings("unchecked")
-        T bean = (T)getManagedBean(fc, name);
-        if (bean==null)
-            log.warn("Managed Bean {} ist not available.", name);
-        return bean;
+        return getManagedBean(fc, cls, name);
     }
     
     public static <T> T getManagedBean(final Class<T> cls)
