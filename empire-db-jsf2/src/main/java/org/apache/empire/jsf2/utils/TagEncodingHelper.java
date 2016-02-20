@@ -1242,22 +1242,31 @@ public class TagEncodingHelper implements NamingContainer
         Column column = null;
         boolean readOnly=false;
         boolean required=false;
-        // for
-        if (StringUtils.isNotEmpty(forInput) && !forInput.equals("*"))
-        {   // Set Label input Id
-            UIComponent input = FacesUtils.getWebApplication().findComponent(context, forInput, tag);
-            if (input!=null && (input instanceof InputTag))
-            {   // Check Read-Only
-                InputTag inputTag = ((InputTag)input);
-                column = inputTag.getInputColumn();
-                readOnly = inputTag.isInputReadOnly();
-                required = inputTag.isInputRequired();
+        // forInput provided
+        if (StringUtils.isNotEmpty(forInput))
+        {   // find the component
+            if (!forInput.equals("*"))
+            {   // Set Label input Id
+                UIComponent input = FacesUtils.getWebApplication().findComponent(context, forInput, tag);
+                if (input!=null && (input instanceof InputTag))
+                {   // Check Read-Only
+                    InputTag inputTag = ((InputTag)input);
+                    column = inputTag.getInputColumn();
+                    readOnly = inputTag.isInputReadOnly();
+                    required = inputTag.isInputRequired();
+                }
+                else
+                {   // Not found (<e:input id="ABC"...> must match <e:label for="ABC"...>
+                    log.warn("Input component {} not found for label {}.", forInput, getColumn().getName());
+                }                
             }
             else
-            {   // Not found (<e:input id="ABC"...> must match <e:label for="ABC"...>
-                log.warn("Input component {} not found for label {}.", forInput, getColumn().getName());
+            {   // set readonly
+                readOnly = this.isReadOnly();
             }
         }
+        
+        // Column provided?
         if (column==null)
         {   // Get from LinkTag
             column = getColumn();
