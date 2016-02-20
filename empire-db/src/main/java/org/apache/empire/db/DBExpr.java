@@ -82,6 +82,13 @@ public abstract class DBExpr extends DBObject
             ((DBExpr) value).addSQL(buf, context);
             return buf.toString();
         } 
+        else if (value!=null && value.getClass().isEnum())
+        {   // check enum
+            if (dataType.isNumeric())
+                value = ((Enum<?>)value).ordinal();
+            else
+                value = ((Enum<?>)value).name();
+        }
         else if (value instanceof Collection<?>)
         {
         	value = ((Collection<?>)value).toArray();

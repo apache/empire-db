@@ -402,6 +402,12 @@ public class DBTableColumn extends DBColumn
             case DECIMAL:
                 if (value==null)
                     break;
+                // check enum
+                if (value!=null && value.getClass().isEnum())
+                {   
+                    value = ((Enum<?>)value).ordinal();
+                }
+                // check number
                 if (!(value instanceof java.lang.Number))
                 {   try
                     {   // Convert to String and check
@@ -438,6 +444,12 @@ public class DBTableColumn extends DBColumn
             case INTEGER:
                 if (value==null)
                     break;
+                // check enum
+                if (value!=null && value.getClass().isEnum())
+                {   
+                    value = ((Enum<?>)value).ordinal();
+                }
+                // check number
                 if (!(value instanceof java.lang.Number))
                 {   try
                     {   // Convert to String and check
@@ -455,6 +467,10 @@ public class DBTableColumn extends DBColumn
 
             case TEXT:
             case CHAR:
+                if (value!=null && value.getClass().isEnum())
+                {   // check enum
+                    value = ((Enum<?>)value).name();
+                }
                 if (value!=null && value.toString().length() > size)
                     throw new FieldValueTooLongException(this);
                 break;
