@@ -183,7 +183,7 @@ public class RadioInputControl extends InputControl
         syncOptions(input, ii.getTextResolver(), options, addEmpty, nullText);
     }
 
-    private boolean getEmptyEntryRequired(InputInfo ii, boolean disabled)
+    protected boolean getEmptyEntryRequired(InputInfo ii, boolean disabled)
     {
         if (!ii.isRequired() && !(disabled && ii.getColumn().isRequired()))
         {
@@ -289,7 +289,7 @@ public class RadioInputControl extends InputControl
         input.getChildren().add(selectItem);
     }
 
-    private String getNullText(InputInfo ii)
+    protected String getNullText(InputInfo ii)
     {
         String nullText = getFormatString(ii, InputControl.FORMAT_NULL, InputControl.FORMAT_NULL_ATTRIBUTE);
         return (nullText != null) ? ii.getText(nullText) : "";
@@ -368,70 +368,5 @@ public class RadioInputControl extends InputControl
         }
         return value;
     }
-
-    /*
-    @Override
-    public void renderInput(ResponseWriter writer, ControlInfo ci)
-    {
-        boolean disabled = ci.getDisabled();
-    
-        HtmlTag input = writer.startTag("select");
-        input.addAttribute("id",    ci.getId());
-        input.addAttribute("class", ci.getCssClass());
-        input.addAttribute("style", ci.getCssStyle());
-        if (disabled)
-        {
-            input.addAttribute("disabled");
-        } else
-        {
-            input.addAttribute("name", ci.getName());
-        }
-        // Event Attributes
-        input.addAttribute("onclick",   ci.getOnclick());
-        input.addAttribute("onchange",  ci.getOnchange());
-        input.addAttribute("onfocus",   ci.getOnfocus());
-        input.addAttribute("onblur",    ci.getOnblur());
-        input.beginBody(true);
-        // Render List of Options
-        Options options = ci.getOptions();
-        if (options!=null)
-        {   // Render option list
-            Object current = ci.getValue();
-            if (hasFormatOption(ci, "allownull") && options.contains(null)==false)
-            {   // add an empty entry
-                addEmtpyEntry(writer, ObjectUtils.isEmpty(current));
-            }
-            for (OptionEntry entry : options)
-            {
-                Object value = entry.getValue();
-                boolean isCurrent = ObjectUtils.compareEqual(current, value);
-                if (isCurrent == false && disabled)
-                    continue; // 
-                // Add Option entry
-                HtmlTag option = writer.startTag("option");
-                option.addAttributeNoCheck("value", value, true);
-                option.addAttribute("selected", isCurrent);
-                option.beginBody(ci.getTranslation(entry.getText()));
-                option.endTag(true);
-            }
-        }
-        else
-        {   // No Option list available
-            log.error("No options available for select input control.");
-        }
-        // done
-        input.endTag();
-    }
-    
-    private void addEmtpyEntry(HtmlWriter writer, boolean isCurrent)
-    {
-        // Add Option entry
-        HtmlTag option = writer.startTag("option");
-        option.addAttributeNoCheck("value", "", false);
-        option.addAttribute("selected", isCurrent);
-        option.beginBody("");
-        option.endTag(true);
-    }
-    */
 
 }

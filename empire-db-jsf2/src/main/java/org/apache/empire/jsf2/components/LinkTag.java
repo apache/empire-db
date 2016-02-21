@@ -155,7 +155,7 @@ public class LinkTag extends UIOutput // implements NamingContainer
             if (linkComponent == null)
             {   try {
                     creatingComponents = true;
-                    linkComponent = new HtmlOutcomeTargetLink();
+                    linkComponent = createOutcomeTargetLink(context);
                     this.getChildren().add(0, linkComponent);
                     helper.saveComponentId(linkComponent);
                     // encode image
@@ -193,7 +193,7 @@ public class LinkTag extends UIOutput // implements NamingContainer
         return StringUtils.toString(getAttributes().get("styleClass"));
     }
     
-    private boolean isLinkDisabled()
+    protected boolean isLinkDisabled()
     {
         Object v = getAttributes().get("disabled");
         if (v==null)
@@ -202,7 +202,7 @@ public class LinkTag extends UIOutput // implements NamingContainer
         return ObjectUtils.getBoolean(v); 
     }
     
-    private Object getLinkValue(boolean hasColumn)
+    protected Object getLinkValue(boolean hasColumn)
     {
         // Is a column provided?
         if (hasColumn)
@@ -232,7 +232,7 @@ public class LinkTag extends UIOutput // implements NamingContainer
         }
     }
 
-    private void setLinkProperties(HtmlOutcomeTargetLink link)
+    protected void setLinkProperties(HtmlOutcomeTargetLink link)
     {
         boolean hasColumn = helper.hasColumn();
         Object value = getLinkValue(hasColumn);
@@ -261,7 +261,7 @@ public class LinkTag extends UIOutput // implements NamingContainer
         link.setIncludeViewParams(false);
     }
     
-    private void addOrSetParam(HtmlOutcomeTargetLink link, String attribute, String paramName)
+    protected void addOrSetParam(HtmlOutcomeTargetLink link, String attribute, String paramName)
     {
         // Get Attribute
         String paramValue = StringUtils.toString(getAttributes().get(attribute));
@@ -302,6 +302,13 @@ public class LinkTag extends UIOutput // implements NamingContainer
         helper.writeAttribute(writer, "style", style);
         helper.writeAttribute(writer, "title", helper.hasColumn() ? helper.getValueTooltip(title) : title);
         return tagName;
+    }
+
+    protected HtmlOutcomeTargetLink createOutcomeTargetLink(FacesContext context)
+    {
+        // OutcomeTargetLink link 
+        HtmlOutcomeTargetLink link = InputControlManager.createComponent(context, HtmlOutcomeTargetLink.class);
+        return link;
     }
     
     protected HtmlGraphicImage encodeImage(FacesContext context, HtmlOutcomeTargetLink parent, String imagePath)

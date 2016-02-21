@@ -37,16 +37,16 @@ public class MenuListTag extends UIOutput implements NamingContainer
     
     protected final TagEncodingHelper helper = new TagEncodingHelper(this, "eMenuList");
     
-    private String currentId = null; 
-    private String currentClass = null; 
-    // private String prevMenuId = null; 
-    // private String enabledClass = null; 
-    private String parentClass = null;
-    private String disabledClass = null; 
-    private String expandedClass = null;
-    private String itemWrapTag = null;
-    private String defaultItemClass = null; // e.g. "level{}"
-    private int level = 0;
+    protected String currentId = null; 
+    protected String currentClass = null; 
+    // protected String prevMenuId = null; 
+    // protected String enabledClass = null; 
+    protected String parentClass = null;
+    protected String disabledClass = null; 
+    protected String expandedClass = null;
+    protected String itemWrapTag = null;
+    protected String defaultItemClass = null; // e.g. "level{}"
+    protected int level = 0;
 
     @Override
     public String getFamily()
@@ -101,7 +101,7 @@ public class MenuListTag extends UIOutput implements NamingContainer
         writer.endElement("ul");
     }
     
-    private void initMenuAttributes(FacesContext context)
+    protected void initMenuAttributes(FacesContext context)
     {        
         currentId       = helper.getTagAttributeString("currentId"); 
         currentClass    = helper.getTagAttributeString("currentClass"); 

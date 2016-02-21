@@ -36,23 +36,12 @@ public class MenuItemTag extends LinkTag
     // Logger
     private static final Logger log = LoggerFactory.getLogger(MenuItemTag.class);
     
-    private MenuListTag parentMenu = null;
-    private String menuId;
+    protected MenuListTag parentMenu = null;
+    protected String menuId;
 
-    /*
-    private static int itemIdSeq = 0;
-    private final int itemId;
-    */
-    
     public MenuItemTag()
     {
         super();
-        // Debug stuff
-        /*
-        itemId = ++itemIdSeq;
-        if (log.isDebugEnabled())
-            log.debug("MenuId {} created", itemId);
-        */    
     }
 
     @Override
@@ -170,7 +159,7 @@ public class MenuItemTag extends LinkTag
         return null;
     }
     
-    private boolean isCurrent()
+    protected boolean isCurrent()
     {
         if (menuId==null || parentMenu==null || parentMenu.getCurrentId()==null)
             return false;
@@ -178,7 +167,7 @@ public class MenuItemTag extends LinkTag
         return menuId.equals(parentMenu.getCurrentId());
     }
     
-    private boolean isParent()
+    protected boolean isParent()
     {
         if (menuId==null || parentMenu==null || parentMenu.getCurrentId()==null)
             return false;
@@ -187,7 +176,7 @@ public class MenuItemTag extends LinkTag
         return (currentId.length()>menuId.length() && currentId.startsWith(menuId));
     }
 
-    private boolean isDisabled()
+    protected boolean isDisabled()
     {
         Object value = helper.getTagAttributeValue("disabled");
         if (value!=null)
@@ -195,7 +184,7 @@ public class MenuItemTag extends LinkTag
         return false;
     }
 
-    private boolean isExpanded()
+    protected boolean isExpanded()
     {
         Object value = helper.getTagAttributeValue("expanded");
         boolean auto = false;
@@ -233,7 +222,7 @@ public class MenuItemTag extends LinkTag
         return super.isRendered();
     }
     
-    private String getStyleClass()
+    protected String getStyleClass()
     {
         String styleClass = helper.getTagAttributeString("styleClass");
         if (parentMenu!=null)
@@ -262,7 +251,7 @@ public class MenuItemTag extends LinkTag
         return styleClass;
     }
     
-    private String appendStyleClass(String styleClass, String newClass)
+    protected String appendStyleClass(String styleClass, String newClass)
     {
         if (StringUtils.isEmpty(newClass))
             return styleClass;

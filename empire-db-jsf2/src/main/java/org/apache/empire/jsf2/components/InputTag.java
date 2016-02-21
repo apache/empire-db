@@ -44,7 +44,7 @@ public class InputTag extends UIInput implements NamingContainer
 
     // private static final String inpControlPropName = InputControl.class.getSimpleName();
     // private static final String inputInfoPropName = InputControl.InputInfo.class.getSimpleName();
-    private static final String       readOnlyState      = "readOnlyState";
+    protected static final String     readOnlyState      = "readOnlyState";
 
     protected final TagEncodingHelper helper             = new TagEncodingHelper(this, "eInput");
 
@@ -74,14 +74,14 @@ public class InputTag extends UIInput implements NamingContainer
         return "javax.faces.NamingContainer";
     }
 
-    private void saveState()
+    protected void saveState()
     {
         // getStateHelper().put(inpControlPropName, control);
         // getStateHelper().put(inputInfoPropName, inpInfo);
         getStateHelper().put(readOnlyState, (inpInfo == null));
     }
 
-    private boolean initState(FacesContext context)
+    protected boolean initState(FacesContext context)
     {
         // Check visibility
         if (helper.isVisible() == false)
@@ -316,7 +316,7 @@ public class InputTag extends UIInput implements NamingContainer
         return helper.isValueRequired();
     }
 
-    private boolean isPartialSubmit(FacesContext context)
+    protected boolean isPartialSubmit(FacesContext context)
     {
         // Check Required Flag
         if (hasRequiredFlagSet && !isRequired())

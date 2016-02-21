@@ -27,6 +27,7 @@ import javax.faces.context.FacesContext;
 
 import org.apache.empire.commons.StringUtils;
 import org.apache.empire.exceptions.InternalException;
+import org.apache.empire.exceptions.InvalidArgumentException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -150,7 +151,22 @@ public final class InputControlManager
         }
         // otherwise ask the application
         return (T) context.getApplication().createComponent(type);
-
+    }
+    
+    public static void registerComponentType(Class<? extends UIComponent> componentClass, String componentType)
+    {
+        if (componentClass==null)
+            throw new InvalidArgumentException("componentClass", componentClass);
+        if (StringUtils.isNotEmpty(componentType))
+        {   // add
+            log.debug("registering Component type {} for {}", componentType, componentClass.getName());
+            componentTypeMap.put(componentClass, componentType);
+        }
+        else
+        {   // remove
+            log.debug("unregisterin Component type {} for {}", componentType, componentClass.getName());
+            componentTypeMap.remove(componentClass);
+        }
     }
 
 }

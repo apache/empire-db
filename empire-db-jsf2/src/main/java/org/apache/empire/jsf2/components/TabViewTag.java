@@ -218,7 +218,7 @@ public class TabViewTag extends UIOutput implements NamingContainer
     }
     */
 
-    private void encodeTabs(FacesContext context, ResponseWriter writer)
+    protected void encodeTabs(FacesContext context, ResponseWriter writer)
         throws IOException
     {
         Iterator<UIComponent> ci = getFacetsAndChildren();
@@ -280,7 +280,7 @@ public class TabViewTag extends UIOutput implements NamingContainer
         }
     }
 
-    private void encodeTabLink(FacesContext context, ResponseWriter writer, int index, TabPageTag page, boolean disabled)
+    protected void encodeTabLink(FacesContext context, ResponseWriter writer, int index, TabPageTag page, boolean disabled)
         throws IOException
     {
         // Add component
@@ -325,7 +325,7 @@ public class TabViewTag extends UIOutput implements NamingContainer
         link.setRendered(false); // Don't render twice!
     }
 
-    private HtmlCommandLink createCommandLink(FacesContext context, String linkId)
+    protected HtmlCommandLink createCommandLink(FacesContext context, String linkId)
     {
         // CommandLink link 
         HtmlCommandLink link = InputControlManager.createComponent(context, HtmlCommandLink.class);

@@ -141,14 +141,5 @@ public class TextAreaInputControl extends InputControl
         // Done 
         return value; 
     }
-
-    /*
-    private int getTextareaCols(InputInfo ii)
-    {
-        ii.getColumn().getAttribute("");
-    }
-    */
-    
-    
     
 }

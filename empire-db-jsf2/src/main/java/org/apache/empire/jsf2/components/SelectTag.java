@@ -163,7 +163,7 @@ public class SelectTag extends UIInput implements NamingContainer
         super.validate(context);
     }
 
-    private UIInput getInputComponent()
+    protected UIInput getInputComponent()
     {
         if (getChildren().size() == 0)
         {
@@ -173,7 +173,7 @@ public class SelectTag extends UIInput implements NamingContainer
         return (UIInput) getChildren().get(0);
     }
 
-    private Options getOptionList()
+    protected Options getOptionList()
     {
         Object options = getAttributes().get("options");
         if (!(options instanceof Options))
@@ -183,25 +183,25 @@ public class SelectTag extends UIInput implements NamingContainer
         return ((Options) options);
     }
 
-    private boolean isAllowNull()
+    protected boolean isAllowNull()
     {
         Object allowNull = getAttributes().get("allowNull");
         return ObjectUtils.getBoolean(allowNull);
     }
 
-    private String getNullText()
+    protected String getNullText()
     {
         Object nullText = getAttributes().get("nullText");
         return StringUtils.toString(nullText, "");
     }
 
-    private boolean isDisabled()
+    protected boolean isDisabled()
     {
         Object disabled = getAttributes().get("disabled");
         return ObjectUtils.getBoolean(disabled);
     }
 
-    private UIInput createSelectOneMenu(TextResolver textResolver)
+    protected UIInput createSelectOneMenu(TextResolver textResolver)
     {
         this.control = (SelectInputControl) InputControlManager.getControl(SelectInputControl.NAME);
         HtmlSelectOneMenu input = control.createMenuComponent(this);
@@ -227,7 +227,7 @@ public class SelectTag extends UIInput implements NamingContainer
         return input;
     }
 
-    private void setInputValue(HtmlSelectOneMenu input)
+    protected void setInputValue(HtmlSelectOneMenu input)
     {
         Object value = getValue();
         if (value != null)
@@ -240,7 +240,7 @@ public class SelectTag extends UIInput implements NamingContainer
         input.setValue(value);
     }
 
-    private void copyAttributes(HtmlSelectOneMenu input)
+    protected void copyAttributes(HtmlSelectOneMenu input)
     {
         // set id
         String inputId = this.getId();

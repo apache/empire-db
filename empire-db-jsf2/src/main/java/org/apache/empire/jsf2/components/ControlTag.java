@@ -220,15 +220,14 @@ public class ControlTag extends UIInput implements NamingContainer
     // Logger
     private static final Logger       log                = LoggerFactory.getLogger(ControlTag.class);
 
-    private static final String       readOnlyState      = "readOnlyState";
-
-    private static final boolean      encodeLabel        = true;
+    protected static final String     readOnlyState      = "readOnlyState";
 
     protected final TagEncodingHelper helper             = new TagEncodingHelper(this, "eInput");
 
     protected InputControl            control            = null;
     protected InputControl.InputInfo  inpInfo            = null;
     protected boolean                 hasRequiredFlagSet = false;
+    protected boolean                 encodeLabel        = true;
     private   boolean                 creatingComponents = false;
 
     public ControlTag()
@@ -242,14 +241,14 @@ public class ControlTag extends UIInput implements NamingContainer
         return "javax.faces.NamingContainer";
     }
 
-    private void saveState()
+    protected void saveState()
     {
         // getStateHelper().put(inpControlPropName, control);
         // getStateHelper().put(inputInfoPropName, inpInfo);
         getStateHelper().put(ControlTag.readOnlyState, (this.inpInfo == null));
     }
 
-    private boolean initState(FacesContext context)
+    protected boolean initState(FacesContext context)
     {
         // Check read-Only
         Boolean ros = (Boolean) getStateHelper().get(ControlTag.readOnlyState);
@@ -271,7 +270,7 @@ public class ControlTag extends UIInput implements NamingContainer
      * remember original clientId
      * necessary only inside UIData
      */
-    private String treeClientId = null;
+    protected String treeClientId = null;
     
     @Override
     public boolean visitTree(VisitContext visitContext, VisitCallback callback) 
@@ -307,7 +306,7 @@ public class ControlTag extends UIInput implements NamingContainer
         boolean isCustomInput = isCustomInput();
 
         // create children
-        if (ControlTag.encodeLabel)
+        if (this.encodeLabel)
         {   // Create Label Separator Tag
             ControlSeparatorComponent labelSepTag = null;
             if (getChildCount() > 0)
@@ -449,7 +448,7 @@ public class ControlTag extends UIInput implements NamingContainer
         return false;
     }
 
-    private void encodeLabel(FacesContext context, UIComponentBase parent)
+    protected void encodeLabel(FacesContext context, UIComponentBase parent)
         throws IOException
     {
         // render components
@@ -477,7 +476,7 @@ public class ControlTag extends UIInput implements NamingContainer
         parent.encodeAll(context);
     }
 
-    private void encodeInput(FacesContext context, UIComponentBase parent)
+    protected void encodeInput(FacesContext context, UIComponentBase parent)
         throws IOException
     {
         // render components
@@ -643,7 +642,7 @@ public class ControlTag extends UIInput implements NamingContainer
         return helper.isValueRequired();
     }
 
-    private boolean isPartialSubmit(FacesContext context)
+    protected boolean isPartialSubmit(FacesContext context)
     {
         // Check Required Flag
         if (this.hasRequiredFlagSet && !isRequired())

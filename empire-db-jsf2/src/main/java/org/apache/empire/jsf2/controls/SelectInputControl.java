@@ -135,7 +135,7 @@ public class SelectInputControl extends InputControl
         syncOptions(input, ii.getTextResolver(), options, addEmpty, nullText, ii.isInsideUIData());
     }
 
-    private boolean getEmptyEntryRequired(InputInfo ii, boolean disabled)
+    protected boolean getEmptyEntryRequired(InputInfo ii, boolean disabled)
     {
         if (!ii.isRequired() && !(disabled && ii.getColumn().isRequired()))
         {
@@ -249,7 +249,7 @@ public class SelectInputControl extends InputControl
         addSelectItem(input, textResolver, e, -1);
     }
     
-    private String getNullText(InputInfo ii)
+    protected String getNullText(InputInfo ii)
     {
         String nullText = getFormatString(ii, InputControl.FORMAT_NULL, InputControl.FORMAT_NULL_ATTRIBUTE);
         return (nullText != null) ? ii.getText(nullText) : "";
