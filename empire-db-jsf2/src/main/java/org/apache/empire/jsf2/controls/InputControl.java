@@ -232,7 +232,15 @@ public abstract class InputControl
         // Get value from Input
         Object value;
         if (submitted)
-        {   // get submitted value
+        {   // check disabled
+            if (ii.isDisabled())
+            { // Ignore submitted value
+                InputControl.log.debug("Ignoring submitted value for disabled field {}.", ii.getColumn().getName());
+                input.setSubmittedValue(null);
+                // throw new FieldIsReadOnlyException(ii.getColumn());
+                return null;
+            }
+            // get submitted value
             value = input.getSubmittedValue();
             if (value == null && input.isLocalValueSet()) // required for MyFaces!
             {   // take local value
@@ -243,27 +251,6 @@ public abstract class InputControl
                 {   // Empty-String
                     value = "";
                 }
-            }
-            // Value supplied?
-            if (value != null)
-            {   // Check Disabled
-                if (ii.isDisabled())
-                { // Ignore submitted value
-                    InputControl.log.debug("Ignoring submitted value for disabled field {}.", ii.getColumn().getName());
-                    input.setSubmittedValue(null);
-                    // throw new FieldIsReadOnlyException(ii.getColumn());
-                    return null;
-                }
-                // Save submitted value
-                FacesContext fc = FacesContext.getCurrentInstance();
-                Map<String, Object> reqMap = fc.getExternalContext().getRequestMap();
-                // Save submitted value
-                String clientId = input.getClientId();
-                if (reqMap.containsKey(clientId))
-                {
-                    InputControl.log.debug("Replacing submitted value from '{}' to '{}' for " + clientId, reqMap.get(clientId), value);
-                }
-                reqMap.put(clientId, value);
             }
             // debug
             if (log.isDebugEnabled())
@@ -278,9 +265,27 @@ public abstract class InputControl
 
     public Object getConvertedValue(UIComponent comp, InputInfo ii, Object submittedValue)
     {
+        // Value supplied?
+        if (submittedValue != null)
+        {   // Save submitted value in request-map
+            FacesContext fc = FacesContext.getCurrentInstance();
+            Map<String, Object> reqMap = fc.getExternalContext().getRequestMap();
+            // Save submitted value
+            UIInput input = getInputComponent(comp);
+            String clientId = input.getClientId();
+            if (reqMap.containsKey(clientId))
+            {   Object oldValue =  reqMap.get(clientId);
+                if (ObjectUtils.compareEqual(oldValue, submittedValue)==false)
+                    InputControl.log.debug("Replacing submitted value from '{}' to '{}' for " + clientId, oldValue, submittedValue);
+            }
+            reqMap.put(clientId, submittedValue);
+        }
         // Convert
         if ((submittedValue instanceof String) && ((String) submittedValue).length() > 0)
-        {
+        {   // debug
+            if (log.isDebugEnabled())
+                log.debug("Converting value for colum {}. Value is {}", ii.getColumn().getName(), submittedValue);
+            // parse
             return parseInputValue((String) submittedValue, ii);
         }            
         return submittedValue;
