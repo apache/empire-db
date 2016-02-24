@@ -26,6 +26,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.empire.commons.ObjectUtils;
 import org.apache.empire.commons.Options;
+import org.apache.empire.commons.StringUtils;
 import org.apache.empire.data.DataType;
 import org.apache.empire.db.DBCmdParam;
 import org.apache.empire.db.exceptions.InvalidKeyException;
@@ -278,13 +279,30 @@ public class DBQuery extends DBRowSet
      * specified DBColumnExpr object.
      * 
      * @param expr the DBColumnExpr object
-     * @return the located column (only DBViewColumn onjects)
+     * @return the located column
      */
     public DBQueryColumn findQueryColumn(DBColumnExpr expr)
     {
         for (int i = 0; i < queryColumns.length; i++)
         {
             if (queryColumns[i].expr.equals(expr))
+                return queryColumns[i];
+        }
+        // not found
+        return null;
+    }
+    
+    /**
+     * This function searchs for a query column by name
+     * 
+     * @param the column name
+     * @return the located column
+     */
+    public DBQueryColumn findQueryColumn(String name)
+    {
+        for (int i = 0; i < queryColumns.length; i++)
+        {
+            if (StringUtils.compareEqual(queryColumns[i].getName(), name, true))
                 return queryColumns[i];
         }
         // not found

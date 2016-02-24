@@ -43,9 +43,10 @@ public class DBValueExpr extends DBColumnExpr
     private final static long serialVersionUID = 1L;
   
     public final DBDatabase   db;
-    public final Object       value;
     public final DataType     type;
     public final DBColumnExpr column;
+    // the underlying value
+    protected Object          value;
 
     /**
      * Constructs a new DBValueExpr object.
@@ -57,9 +58,9 @@ public class DBValueExpr extends DBColumnExpr
     public DBValueExpr(DBDatabase db, Object value, DataType type)
     {
         this.db = db;
-        this.value = value;
         this.type = type;
         this.column = null;
+        this.value = value;
     }
 
     /**
@@ -72,6 +73,24 @@ public class DBValueExpr extends DBColumnExpr
         this.column = col;
         this.type = col.getDataType();
         this.db = col.getDatabase();
+        this.value = value;
+    }
+
+    /**
+     * return the value associated with this value expression
+     * @return the current value
+     */
+    public Object getValue()
+    {
+        return value;
+    }
+
+    /**
+     * set the value associated with this value expression
+     * @param the value
+     */
+    public void setValue(Object value)
+    {
         this.value = value;
     }
 
