@@ -40,7 +40,6 @@ import org.apache.empire.db.expr.join.DBJoinExpr;
 import org.apache.empire.exceptions.BeanInstantiationException;
 import org.apache.empire.exceptions.InvalidArgumentException;
 import org.apache.empire.exceptions.MiscellaneousErrorException;
-import org.apache.empire.exceptions.NotSupportedException;
 import org.apache.empire.exceptions.ObjectNotValidException;
 import org.apache.empire.xml.XMLUtil;
 import org.slf4j.Logger;
