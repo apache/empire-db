@@ -18,9 +18,6 @@
  */
 package org.apache.empire.db;
 
-import java.io.IOException;
-import java.io.NotSerializableException;
-import java.io.ObjectOutputStream;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.sql.Connection;
@@ -30,6 +27,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.beanutils.ConstructorUtils;
@@ -38,8 +36,11 @@ import org.apache.empire.data.ColumnExpr;
 import org.apache.empire.data.DataType;
 import org.apache.empire.db.exceptions.EmpireSQLException;
 import org.apache.empire.db.exceptions.QueryNoResultException;
+import org.apache.empire.db.expr.join.DBJoinExpr;
 import org.apache.empire.exceptions.BeanInstantiationException;
 import org.apache.empire.exceptions.InvalidArgumentException;
+import org.apache.empire.exceptions.MiscellaneousErrorException;
+import org.apache.empire.exceptions.NotSupportedException;
 import org.apache.empire.exceptions.ObjectNotValidException;
 import org.apache.empire.xml.XMLUtil;
 import org.slf4j.Logger;
@@ -90,6 +91,7 @@ public class DBReader extends DBRecordData
         /**
          * Implements the Iterator Interface Method remove not implemented and not applicable.
          */
+        @Override
         public void remove()
         {
             log.error("DBReader.remove ist not implemented!");
@@ -120,6 +122,7 @@ public class DBReader extends DBRecordData
          * 
          * @return true if there is another record to read
          */
+        @Override
         public boolean hasNext()
         {
             try
@@ -142,6 +145,7 @@ public class DBReader extends DBRecordData
          * 
          * @return the current Record interface
          */
+        @Override
         public DBRecordData next()
         {
             if ((curCount < maxCount && moveNext()))
@@ -183,6 +187,7 @@ public class DBReader extends DBRecordData
          * 
          * @return true if there is another record to read
          */
+        @Override
         public boolean hasNext()
         {
             // Check position
@@ -204,6 +209,7 @@ public class DBReader extends DBRecordData
          * 
          * @return the current Record interface
          */
+        @Override
         public DBRecordData next()
         {
             if (hasCurrent == false)
@@ -223,7 +229,9 @@ public class DBReader extends DBRecordData
     }
 
     // Logger
-    protected static final Logger    log               = LoggerFactory.getLogger(DBReader.class);
+    protected static final Logger log = LoggerFactory.getLogger(DBReader.class);
+    
+    private static boolean trackOpenResultSets = false; 
     
     /**
      * Support for finding code errors where a DBRecordSet is opened but not closed
@@ -231,11 +239,11 @@ public class DBReader extends DBRecordData
     private static ThreadLocal<Map<DBReader, Exception>> threadLocalOpenResultSets = new ThreadLocal<Map<DBReader, Exception>>();
     
     // Object references
-    private DBDatabase     db                = null;
-    private DBColumnExpr[] colList           = null;
+    protected DBDatabase     db       = null;
+    protected DBColumnExpr[] colList  = null;
 
     // Direct column access
-    protected ResultSet    rset              = null;
+    protected ResultSet    rset       = null;
 
     /**
      * Constructs an empty DBRecordSet object.
@@ -405,16 +413,27 @@ public class DBReader extends DBRecordData
     {
         if (isOpen())
             close();
-        // SQL Command
+        // Get the query statement
         String sqlCmd = cmd.getSelect();
-        // Create Statement
+        // Collect the query parameters
+        Object[] paramValues = cmd.getParamValues();
+        List<Object[]> subqueryParamValues = (cmd instanceof DBCommand) ? findSubQueryParams((DBCommand)cmd) : null;
+        if (subqueryParamValues!=null && !subqueryParamValues.isEmpty())
+        {   // Check Count
+            if (paramValues!=null || subqueryParamValues.size()>1)
+                throw new MiscellaneousErrorException("More than one (sub)query is a parameterized query. Currently one one query is allowed to be parameterized!"); 
+            // Use subquery params
+            paramValues = subqueryParamValues.get(0);
+        }
+        // Execute the query
         db = cmd.getDatabase();
-        rset = db.executeQuery(sqlCmd, cmd.getParamValues(), scrollable, conn);
+        rset = db.executeQuery(sqlCmd, paramValues, scrollable, conn);
         if (rset==null)
             throw new QueryNoResultException(sqlCmd);
         // successfully opened
         colList = cmd.getSelectExprList();
-        addOpenResultSet();
+        // add to tracking list (if enabled)
+        trackThisResultSet();
     }
 
     /**
@@ -471,7 +490,8 @@ public class DBReader extends DBRecordData
             if (rset != null)
             {
                 getDatabase().closeResultSet(rset);
-                removeOpenResultSet();
+                // remove from tracking-list
+                endTrackingThisResultSet();
             }
             // Detach columns
             colList = null;
@@ -633,11 +653,11 @@ public class DBReader extends DBRecordData
         try
         {
             // Check whether we can use a constructor
-            Class[] paramTypes = new Class[getFieldCount()];
+            Class<T>[] paramTypes = new Class[getFieldCount()];
             for (int i = 0; i < colList.length; i++)
                 paramTypes[i] = DBExpr.getValueClass(colList[i].getDataType()); 
             // Find Constructor
-            Constructor ctor = findMatchingAccessibleConstructor(t, paramTypes);
+            Constructor<?> ctor = findMatchingAccessibleConstructor(t, paramTypes);
             Object[] args = (ctor!=null) ? new Object[getFieldCount()] : null; 
             
             // Create a list of beans
@@ -803,12 +823,74 @@ public class DBReader extends DBRecordData
     }
 
     /**
+     * internal helper function to find parameterized subqueries
+     * @param cmd the command
+     * @return a list of parameter arrays, one for each subquery
+     */
+    protected List<Object[]> findSubQueryParams(DBCommand cmd)
+    {
+        List<Object[]> subQueryParams = null;
+        List<DBJoinExpr> joins = cmd.getJoins();
+        if (joins==null)
+            return null;  // no joins
+        // check the joins
+        for (DBJoinExpr j : joins)
+        {
+            DBRowSet rsl = j.getLeft().getUpdateColumn().getRowSet();
+            DBRowSet rsr = j.getRight().getUpdateColumn().getRowSet();
+            if (rsl instanceof DBQuery)
+            {   // the left join is a query
+                subQueryParams = addSubQueryParams((DBQuery)rsl, subQueryParams);
+            }
+            if (rsr instanceof DBQuery)
+            {   // the right join is a query
+                subQueryParams = addSubQueryParams((DBQuery)rsr, subQueryParams);
+            }
+        }
+        return subQueryParams; 
+    }
+    
+    /**
+     * Adds any subquery params to the supplied list
+     * @param query the subquery
+     * @param list the current list of parameters
+     * @return the new list of parameters
+     */
+    private List<Object[]> addSubQueryParams(DBQuery query, List<Object[]> list)
+    {
+        DBCommandExpr sqcmd = query.getCommandExpr();
+        Object[] params = query.getCommandExpr().getParamValues();
+        if (params!=null && params.length>0)
+        {   // add params
+            if (list== null)
+                list = new ArrayList<Object[]>();
+            list.add(params);    
+        }
+        // recurse
+        if (sqcmd instanceof DBCommand)
+        {   // check this command too
+            List<Object[]> sqlist = findSubQueryParams((DBCommand)sqcmd);
+            if (sqlist!=null && !sqlist.isEmpty())
+            {   // make one list
+                if (list!= null)
+                    list.addAll(sqlist);
+                else 
+                    list = sqlist;
+            }
+        }
+        return list;
+    }
+
+    /**
      * Support for finding code errors where a DBRecordSet is opened but not closed.
      * 
      * @author bond
      */
-    private synchronized void addOpenResultSet()
+    protected synchronized void trackThisResultSet()
     {
+        // check if enabled
+        if (trackOpenResultSets==false)
+            return;
         // add this to the vector of open resultsets on this thread
         Map<DBReader, Exception> openResultSets = threadLocalOpenResultSets.get();
         if (openResultSets == null)
@@ -821,10 +903,7 @@ public class DBReader extends DBRecordData
         Exception stackException = openResultSets.get(this);
         if (stackException != null)
         {
-            log
-               .error(
-                      "DBRecordSet.addOpenResultSet called for an object which is already in the open list. This is the stack of the method opening the object which was not previously closed.",
-                      stackException);
+            log.error("DBRecordSet.addOpenResultSet called for an object which is already in the open list. This is the stack of the method opening the object which was not previously closed.", stackException);
             // the code continues and overwrites the logged object with the new one
         }
         // get the current stack trace
@@ -836,15 +915,16 @@ public class DBReader extends DBRecordData
      * 
      * @author bond
      */
-    private synchronized void removeOpenResultSet()
+    protected synchronized void endTrackingThisResultSet()
     {
+        // check if enabled
+        if (trackOpenResultSets==false)
+            return;
+        // remove
         Map<DBReader, Exception> openResultSets = threadLocalOpenResultSets.get();
         if (openResultSets.containsKey(this) == false)
         {
-            log
-               .error(
-                      "DBRecordSet.removeOpenResultSet called for an object which is not in the open list. Here is the current stack.",
-                      new Exception());
+            log.error("DBRecordSet.removeOpenResultSet called for an object which is not in the open list. Here is the current stack.", new Exception());
         } 
         else
         {
@@ -852,17 +932,18 @@ public class DBReader extends DBRecordData
         }
     }
 
+    /*
     private void writeObject(ObjectOutputStream stream) throws IOException {
         if (rset != null) {
             throw new NotSerializableException(DBReader.class.getName() + " (due to attached ResultSet)");
         }
     }
+    */
 
     /**
      * copied from org.apache.commons.beanutils.ConstructorUtils since it's private there
      */
-    @SuppressWarnings("unchecked")
-    private static Constructor findMatchingAccessibleConstructor(Class clazz, Class[] parameterTypes)
+    protected static Constructor<?> findMatchingAccessibleConstructor(Class<?> clazz, Class<?>[] parameterTypes)
     {
         // See if we can find the method directly
         // probably faster if it works
@@ -878,10 +959,10 @@ public class DBReader extends DBRecordData
 
         // search through all constructors 
         int paramSize = parameterTypes.length;
-        Constructor[] ctors = clazz.getConstructors();
+        Constructor<?>[] ctors = clazz.getConstructors();
         for (int i = 0, size = ctors.length; i < size; i++)
         {   // compare parameters
-            Class[] ctorParams = ctors[i].getParameterTypes();
+            Class<?>[] ctorParams = ctors[i].getParameterTypes();
             int ctorParamSize = ctorParams.length;
             if (ctorParamSize == paramSize)
             {   // Param Size matches
@@ -896,7 +977,7 @@ public class DBReader extends DBRecordData
                 }
                 if (match) {
                     // get accessible version of method
-                    Constructor ctor = ConstructorUtils.getAccessibleConstructor(ctors[i]);
+                    Constructor<?> ctor = ConstructorUtils.getAccessibleConstructor(ctors[i]);
                     if (ctor != null) {
                         try {
                             ctor.setAccessible(true);
@@ -908,6 +989,18 @@ public class DBReader extends DBRecordData
         }
         return null;
     }
+
+    /**
+     * Enables or disabled tracking of open ResultSets
+     * @param enable true to enable or false otherwise
+     * @return the previous state of the trackOpenResultSets
+     */
+    public static synchronized boolean enableOpenResultSetTracking(boolean enable)
+    {
+        boolean prev = trackOpenResultSets;
+        trackOpenResultSets = enable;
+        return prev;
+    }
     
     /**
      * <PRE>
@@ -918,6 +1011,10 @@ public class DBReader extends DBRecordData
      */
     public static synchronized void checkOpenResultSets()
     {
+        // check if enabled
+        if (trackOpenResultSets==false)
+            throw new MiscellaneousErrorException("Open-ResultSet-Tracking has not been enabled. Use DBReader.enableOpenResultSetTracking() to enable or disable.");
+        // Check map
         Map<DBReader, Exception> openResultSets = threadLocalOpenResultSets.get();
         if (openResultSets != null && openResultSets.isEmpty() == false)
         {
@@ -931,4 +1028,5 @@ public class DBReader extends DBRecordData
             openResultSets.clear();
         }
     }
+     
 }
