@@ -32,7 +32,6 @@ public class EmployeeDetailPage extends SamplePage
     private static final Logger               log               = LoggerFactory.getLogger(EmployeeDetailPage.class);
     private static final long                 serialVersionUID  = 1L;
 
-    private static final String               EMPLOYEE_PROPERTY = "employee";
     private String                            idParam;
 
     private RecordPageElement<EmployeeRecord> employee;
@@ -45,7 +44,7 @@ public class EmployeeDetailPage extends SamplePage
 
         SampleDB db = getDatabase();
         EmployeeRecord emplRec = new EmployeeRecord(db);
-        employee = new RecordPageElement<EmployeeRecord>(this, emplRec.getTable(), emplRec, EMPLOYEE_PROPERTY);
+        employee = new RecordPageElement<EmployeeRecord>(this, emplRec.getTable(), emplRec);
     }
 
     public String getIdParam()

@@ -33,6 +33,7 @@ import org.apache.empire.db.DBCommand;
 import org.apache.empire.exceptions.BeanPropertyGetException;
 import org.apache.empire.jsf2.pageelements.BeanListPageElement;
 import org.apache.empire.jsf2.pageelements.ListPageElement;
+import org.apache.empire.jsf2.pageelements.ListPageElement.ParameterizedItem;
 import org.apache.empire.jsf2.websample.db.SampleDB;
 import org.apache.empire.jsf2.websample.db.SampleDB.TDepartments;
 import org.apache.empire.jsf2.websample.db.SampleDB.TEmployees;
@@ -47,11 +48,9 @@ public class EmployeeListPage extends SamplePage
     private static final Logger                    log               = LoggerFactory.getLogger(EmployeeListPage.class);
 
     
-    public static final String                     EMPLOYEES_PROPERTY = "employees";
     private BeanListPageElement<EmployeeListEntry> employees;
-
     
-    public static class EmployeeListEntry extends ListPageElement.SelectableItem
+    public static class EmployeeListEntry extends ListPageElement.SelectableItem implements ParameterizedItem
     {
         private static final long serialVersionUID = 1L;
 
@@ -63,12 +62,21 @@ public class EmployeeListPage extends SamplePage
         private boolean	 	      retired;
         private String            idParam;
 
+        /**
+         * Implements ParameterizedItem.
+         * Used to uniquely identify this entry for selection and navigation 
+         */
         @Override
         public String getIdParam()
         {
             return this.idParam;
         }
 
+        /**
+         * Implements ParameterizedItem.
+         * This will automatically set the item idParam for navigation 
+         */
+        @Override
         public void setIdParam(String idParam)
         {
             this.idParam = idParam;
@@ -138,9 +146,9 @@ public class EmployeeListPage extends SamplePage
     {
         EmployeeListPage.log.trace("EmployeeListPage created");
         TEmployees EMP = getDatabase().T_EMPLOYEES;
-        
-        DBColumn defSortColumn = EMP.EMPLOYEE_ID;
-        employees = new BeanListPageElement<EmployeeListEntry>(this, EmployeeListEntry.class, defSortColumn, EmployeeListPage.EMPLOYEES_PROPERTY);
+
+        // create the Employees List page element
+        employees = new BeanListPageElement<EmployeeListEntry>(this, EmployeeListEntry.class, EMP.EMPLOYEE_ID);
     }
 
     

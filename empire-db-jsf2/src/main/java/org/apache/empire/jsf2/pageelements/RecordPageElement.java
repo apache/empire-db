@@ -44,14 +44,32 @@ public class RecordPageElement<T extends DBRecord> extends PageElement
 
     protected T record;
     
+    /**
+     * Creates a record page element for the given Table or View
+     * @param page the page element
+     * @param rowset Table or View
+     * @param record the record object for this page element
+     * @param propertyName the property name which is used to get and retrieve session information
+     */
     public RecordPageElement(Page page, DBRowSet rowset, T record, String propertyName)
     {
         super(page, propertyName);
         // Set Rowset and Record
         this.rowset = rowset;
         this.record = record;
-        
+        // log
         log.debug("RecordPageSupport for {} created.", rowset.getName());
+    }
+
+    /**
+     * Creates a record page element for the given Table or View
+     * @param page the page element
+     * @param rowset Table or View
+     * @param record the record object for this page element
+     */
+    public RecordPageElement(Page page, DBRowSet rowset, T record)
+    {
+        this(page, rowset, record, getDefaultPropertyName(rowset));
     }
     
     public T getRecord()

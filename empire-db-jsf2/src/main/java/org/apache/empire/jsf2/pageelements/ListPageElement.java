@@ -117,6 +117,20 @@ public abstract class ListPageElement<T> extends PageElement
         }
     }
 
+    /**
+     * Interface to uniquely identify a list item
+     * This will be used for selection and navigation 
+     */
+    public static interface ParameterizedItem {
+
+        public String getIdParam();
+        
+        public void setIdParam(String idParam);
+    }
+    
+    /**
+     * Abstract superclass to make a list item selectable
+     */
     public static abstract class SelectableItem implements Serializable
     {
         private static final long serialVersionUID = 1L;
@@ -151,6 +165,10 @@ public abstract class ListPageElement<T> extends PageElement
 
     }
 
+    /**
+     * This class holds information about the list view to display.
+     * This will be held on the session in order to maintain position and sorting when navigating back and forth. 
+     */
     public static class ListTableInfo implements Serializable
     {
         private static final long serialVersionUID = 1L;

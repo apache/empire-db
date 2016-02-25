@@ -27,6 +27,7 @@ import javax.faces.context.FacesContext;
 import org.apache.empire.commons.StringUtils;
 import org.apache.empire.db.DBDatabase;
 import org.apache.empire.db.DBObject;
+import org.apache.empire.db.DBRowSet;
 import org.apache.empire.exceptions.InvalidArgumentException;
 
 
@@ -110,6 +111,48 @@ public class PageElement implements Serializable
         if (dbo==null)
             throw new InvalidArgumentException("dbo", dbo);
         return page.getConnection(dbo.getDatabase());
+    }
+    
+    /**
+     * generates a default property name for the bean list
+     * @param rowset
+     * @return a propertyName
+     */
+    protected static String getDefaultPropertyName(DBRowSet rowset)
+    {
+        String name = rowset.getName();
+        if (name==null)
+            return "unknown"; // no name provided!
+        // compute name
+        name = name.toLowerCase();        
+        String res = "";
+        int beg=0;
+        while (beg<name.length())
+        {
+            int end = name.indexOf('_', beg);
+            if (end<0)
+                end = name.length();
+            // assemble
+            if (end>beg)
+            {
+                if (beg==0)
+                {   // begin with all lower cases
+                    res = name.substring(beg, end);
+                }
+                else
+                {   // add word where first letter is upper case 
+                    res += name.substring(beg, beg+1).toUpperCase();
+                    if (end-beg>1)
+                    {
+                        res += name.substring(beg+1, end);
+                    }
+                }
+            }
+            // next
+            beg = end + 1;
+        }
+        // Result
+        return res;
     }
     
     /**

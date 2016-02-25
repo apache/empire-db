@@ -58,8 +58,6 @@ public class BeanListPageElement<T> extends ListPageElement<T> implements ListIt
     private static final long   serialVersionUID     = 1L;
 
     private static final Logger log                  = LoggerFactory.getLogger(BeanListPageElement.class);
-
-    public static final String  IDPARAM_PROPERTY     = "idParam";
     
     public static final String  NO_RESULT_ATTRIBUTE  = "noQueryResult";
 
@@ -95,22 +93,67 @@ public class BeanListPageElement<T> extends ListPageElement<T> implements ListIt
         }
     }
 
-    public BeanListPageElement(Page page, Class<T> beanClass, DBColumn defaultSortColumn, String propertyName)
+    /**
+     * Constructor for creating a BeanListPageElement
+     * @param page the page element
+     * @param beanClass the bean class
+     * @param rowset required Table or View
+     * @param defaultSortColumn sort column that must belong to rowset
+     * @param propertyName the property name which is used to get and retrieve session information
+     */
+    public BeanListPageElement(Page page, Class<T> beanClass, DBRowSet rowset, DBColumn defaultSortColumn, String propertyName)
     {
         super(page, beanClass, propertyName);
         // Check
-        if (defaultSortColumn == null)
-            throw new InvalidArgumentException("defaultSortColumn", defaultSortColumn);
-        // Set Bean Class and more
-        this.rowset = defaultSortColumn.getRowSet();
-        this.defaultSortColumn = defaultSortColumn;
+        if (rowset == null)
+            throw new InvalidArgumentException("rowset", rowset);
         // Default Sort Order
-        if (defaultSortColumn.getDataType() == DataType.DATE || defaultSortColumn.getDataType() == DataType.DATETIME)
-        { // Date sort order is descending by default
-            defaultSortAscending = false;
+        if (defaultSortColumn!=null)
+        {   // Date sort order is descending by default
+            if (defaultSortColumn.getRowSet()!=rowset)
+                throw new InvalidArgumentException("defaultSortColumn", defaultSortColumn);
+            if (defaultSortColumn.getDataType() == DataType.DATE || defaultSortColumn.getDataType() == DataType.DATETIME)
+                defaultSortAscending = false;
         }
+        // Set Bean Class and more
+        this.rowset = rowset;
+        this.defaultSortColumn = defaultSortColumn;
     }
 
+    /**
+     * Overload that requires a default sort order to be provided
+     * @param page the page element
+     * @param beanClass the bean class
+     * @param defaultSortColumn
+     * @param propertyName the property name which is used to get and retrieve session information
+     */
+    public BeanListPageElement(Page page, Class<T> beanClass, DBColumn defaultSortColumn, String propertyName)
+    {
+        this(page, beanClass, defaultSortColumn.getRowSet(), defaultSortColumn, propertyName);
+    }
+
+    /**
+     * Overload that requires a default sort order to be provided
+     * @param page the page element
+     * @param beanClass the bean class
+     * @param defaultSortColumn
+     */
+    public BeanListPageElement(Page page, Class<T> beanClass, DBColumn defaultSortColumn)
+    {
+        this(page, beanClass, defaultSortColumn.getRowSet(), defaultSortColumn, getDefaultPropertyName(defaultSortColumn.getRowSet()));
+    }
+
+    /**
+     * Overload that requires a default sort order to be provided
+     * @param page the page element
+     * @param beanClass the bean class
+     * @param rowset required Table or View
+     */
+    public BeanListPageElement(Page page, Class<T> beanClass, DBRowSet rowSet)
+    {
+        this(page, beanClass, rowSet, null, getDefaultPropertyName(rowSet));
+    }
+    
     @Override
     protected void onInitPage()
     {
@@ -175,7 +218,7 @@ public class BeanListPageElement<T> extends ListPageElement<T> implements ListIt
         if ((listTableInfo == null) && (listTableInfo = getSessionObject(ListTableInfo.class)) == null)
         { // Create and put on session
             listTableInfo = new BeanListTableInfo();
-            listTableInfo.setSortColumnName(defaultSortColumn.getName());
+            listTableInfo.setSortColumnName((defaultSortColumn!=null ? defaultSortColumn.getName() : null));
             listTableInfo.setSortAscending(defaultSortAscending);
             setSessionObject(ListTableInfo.class, listTableInfo);
         }
@@ -226,9 +269,17 @@ public class BeanListPageElement<T> extends ListPageElement<T> implements ListIt
         // log
         int count = getTableInfo().getItemCount();
         if (count==0)
-            FacesUtils.setRequestAttribute(FacesUtils.getContext(), NO_RESULT_ATTRIBUTE, true);
+            handleNoResult();
         // log
         log.info("ItemList initialized for {} item count is {}.", getPropertyName(), count);
+    }
+
+    /**
+     * handle the case of an empty query result
+     */
+    protected void handleNoResult()
+    {
+        FacesUtils.setRequestAttribute(FacesUtils.getContext(), NO_RESULT_ATTRIBUTE, true);
     }
 
     /**
@@ -390,7 +441,8 @@ public class BeanListPageElement<T> extends ListPageElement<T> implements ListIt
         {
             log.error("Invalid Sort Column {}. Using Default!", sortColumnName);
             sortColumn = (DBColumn) getDefaultSortColumn();
-            getTableInfo().setSortColumnName(sortColumn.getName());
+            if (sortColumn!=null)
+                getTableInfo().setSortColumnName(sortColumn.getName());
         }
         // set Order
         setOrderBy(cmd, sortColumn, sortAscending);
@@ -398,14 +450,16 @@ public class BeanListPageElement<T> extends ListPageElement<T> implements ListIt
 
     protected void setOrderBy(DBCommand cmd, DBColumnExpr sortColumn, boolean sortAscending)
     {
-        // Sort now
-        if (sortAscending)
-        {
-            cmd.orderBy(sortColumn);
-        }
-        else
-        {
-            cmd.orderBy(sortColumn.desc());
+        if (sortColumn!=null)
+        {   // Sort now
+            if (sortAscending)
+            {
+                cmd.orderBy(sortColumn);
+            }
+            else
+            {
+                cmd.orderBy(sortColumn.desc());
+            }
         }
         // Secondary sort
         if (this.secondarySortOrder != null && !secondarySortOrder.getColumn().equals(sortColumn))
@@ -524,21 +578,16 @@ public class BeanListPageElement<T> extends ListPageElement<T> implements ListIt
     {
         DBColumn[] keyCols = rowset.getKeyColumns();
         if (keyCols == null)
-            throw new NoPrimaryKeyException(rowset);
+            return; // No Primary Key!
         // generate all
         for (Object item : items)
         {
+            if (!(item instanceof ParameterizedItem))
+                continue;
+            // set the idParam
             Object[] key = getItemKey(keyCols, item);
             String idparam = getParameterMap().put(rowset, key);
-            try
-            {
-                BeanUtils.setProperty(item, IDPARAM_PROPERTY, idparam);
-            }
-            catch (Exception e)
-            {
-                log.error("Error setting property idparam on bean.", e);
-                throw new InternalException(e);
-            }
+            ((ParameterizedItem)item).setIdParam(idparam);
         }
     }
 
