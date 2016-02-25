@@ -54,15 +54,15 @@ public class RadioInputControl extends InputControl
 
     private final Class<? extends HtmlSelectOneRadio> inputComponentClass;
 
-    public RadioInputControl(Class<? extends HtmlSelectOneRadio> inputComponentClass)
+    public RadioInputControl(String name, Class<? extends HtmlSelectOneRadio> inputComponentClass)
     {
-        super(RadioInputControl.NAME);
+        super(name);
         this.inputComponentClass = inputComponentClass;
     }
 
     public RadioInputControl()
     {
-        this(HtmlSelectOneRadio.class);
+        this(RadioInputControl.NAME, HtmlSelectOneRadio.class);
     }
 
     /* Value */

@@ -35,15 +35,15 @@ public class CheckboxInputControl extends InputControl
 
     private final Class<? extends javax.faces.component.html.HtmlSelectBooleanCheckbox> inputComponentClass;
 
-    public CheckboxInputControl(Class<? extends HtmlSelectBooleanCheckbox> inputComponentClass)
+    public CheckboxInputControl(String name, Class<? extends HtmlSelectBooleanCheckbox> inputComponentClass)
     {
-        super(NAME);
+        super(name);
         this.inputComponentClass = inputComponentClass;
     }
 
     public CheckboxInputControl()
     {
-        this(javax.faces.component.html.HtmlSelectBooleanCheckbox.class);
+        this(NAME, javax.faces.component.html.HtmlSelectBooleanCheckbox.class);
     }
 
     @Override

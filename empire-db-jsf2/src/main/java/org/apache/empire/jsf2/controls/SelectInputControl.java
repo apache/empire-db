@@ -51,15 +51,15 @@ public class SelectInputControl extends InputControl
 
     private final Class<? extends HtmlSelectOneMenu> inputComponentClass;
     
-    public SelectInputControl(Class<? extends HtmlSelectOneMenu> inputComponentClass)
+    public SelectInputControl(String name, Class<? extends HtmlSelectOneMenu> inputComponentClass)
     {
-        super(SelectInputControl.NAME);
+        super(name);
         this.inputComponentClass = inputComponentClass;
     }
 
     public SelectInputControl()
     {
-        this(HtmlSelectOneMenu.class);
+        this(SelectInputControl.NAME, HtmlSelectOneMenu.class);
     }
 
     /* for SelectTag (when no column is available) */ 

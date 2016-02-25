@@ -42,15 +42,15 @@ public class TextAreaInputControl extends InputControl
     
     private Class<? extends javax.faces.component.html.HtmlInputTextarea> inputComponentClass;
 
-    public TextAreaInputControl(Class<? extends HtmlInputTextarea> inputComponentClass)
+    public TextAreaInputControl(String name, Class<? extends HtmlInputTextarea> inputComponentClass)
     {
-        super(NAME);
+        super(name);
         this.inputComponentClass = inputComponentClass;
     }
 
     public TextAreaInputControl()
     {
-        this(javax.faces.component.html.HtmlInputTextarea.class);
+        this(NAME, javax.faces.component.html.HtmlInputTextarea.class);
     }
     
     @Override
