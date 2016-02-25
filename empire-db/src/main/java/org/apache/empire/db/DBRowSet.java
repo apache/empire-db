@@ -609,7 +609,7 @@ public abstract class DBRowSet extends DBExpr
         DBReader reader = null;
         try
         {   // read record using a DBReader
-            reader = new DBReader();
+            reader = new DBReader(false);
             reader.getRecordData(cmd, conn);
             initRecord(rec, reader);
             

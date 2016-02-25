@@ -238,18 +238,29 @@ public class DBReader extends DBRecordData
     private static ThreadLocal<Map<DBReader, Exception>> threadLocalOpenResultSets = new ThreadLocal<Map<DBReader, Exception>>();
     
     // Object references
-    protected DBDatabase     db       = null;
-    protected DBColumnExpr[] colList  = null;
-
-    // Direct column access
-    protected ResultSet    rset       = null;
+    private DBDatabase     db      = null;
+    private DBColumnExpr[] colList = null;
+    private ResultSet      rset    = null;
+    // the field index map
+    private Map<ColumnExpr, Integer> fieldIndexMap = null;
 
     /**
-     * Constructs an empty DBRecordSet object.
+     * Constructs a default DBReader object with the fieldIndexMap enabled.
      */
     public DBReader()
     {
         // Default Constructor
+        this(true);
+    }
+
+    /**
+     * Constructs an empty DBRecordSet object.
+     * @param useFieldIndexMap 
+     */
+    public DBReader(boolean useFieldIndexMap)
+    {
+        if (useFieldIndexMap)
+            fieldIndexMap = new HashMap<ColumnExpr, Integer>();
     }
 
     /**
@@ -282,30 +293,20 @@ public class DBReader extends DBRecordData
      * @return the index value
      */
     @Override
-    public int getFieldIndex(ColumnExpr column)
+    public int getFieldIndex(ColumnExpr column) 
     {
-        if (colList != null)
-        {
-            // First chance: Try to find an exact match
-            for (int i = 0; i < colList.length; i++)
-            {
-                if (colList[i].equals(column))
-                    return i;
-            }
-            // Second chance: Try Update Column
-            if (column instanceof DBColumn)
-            {
-                for (int i = 0; i < colList.length; i++)
-                {
-                    DBColumn updColumn = colList[i].getUpdateColumn();
-                    if (updColumn!=null && updColumn.equals(column))
-                        return i;
-                }
-            }
+        if (fieldIndexMap==null)
+            return findFieldIndex(column);
+        // Use fieldIndexMap
+        Integer index = fieldIndexMap.get(column);
+        if (index==null)
+        {   // add to field Index map
+            index = findFieldIndex(column);
+            fieldIndexMap.put(column, index);
         }
-        return -1;
+        return index;
     }
-
+    
     /** Get the column Expression at position */
     @Override
     public DBColumnExpr getColumnExpr(int iColumn)
@@ -394,7 +395,7 @@ public class DBReader extends DBRecordData
     {
         return (rset != null);
     }
-
+    
     /**
      * Opens the reader by executing the given SQL command.<BR>
      * After the reader is open, the reader's position is before the first record.<BR>
@@ -425,14 +426,12 @@ public class DBReader extends DBRecordData
             paramValues = subqueryParamValues.get(0);
         }
         // Execute the query
-        db = cmd.getDatabase();
-        rset = db.executeQuery(sqlCmd, paramValues, scrollable, conn);
-        if (rset==null)
+        DBDatabase queryDb   = cmd.getDatabase();
+        ResultSet  queryRset = queryDb.executeQuery(sqlCmd, paramValues, scrollable, conn);
+        if (queryRset==null)
             throw new QueryNoResultException(sqlCmd);
-        // successfully opened
-        colList = cmd.getSelectExprList();
-        // add to tracking list (if enabled)
-        trackThisResultSet();
+        // init
+        init(queryDb, cmd.getSelectExprList(), queryRset);
     }
 
     /**
@@ -495,6 +494,9 @@ public class DBReader extends DBRecordData
             // Detach columns
             colList = null;
             rset = null;
+            // clear FieldIndexMap
+            if (fieldIndexMap!=null)
+                fieldIndexMap.clear();
             // Done
         } catch (Exception e)
         { // What's wrong here?
@@ -819,6 +821,68 @@ public class DBReader extends DBRecordData
     public int getFieldCount()
     {
         return (colList != null) ? colList.length : 0;
+    }
+
+    /**
+     * Initialize the reader from an open JDBC-ResultSet 
+     * @param db the database
+     * @param colList the query column expressions
+     * @param rset the JDBC-ResultSet
+     */
+    protected void init(DBDatabase db, DBColumnExpr[] colList, ResultSet rset)
+    {
+        this.db = db;
+        this.colList = colList;
+        this.rset = rset;
+        // add to tracking list (if enabled)
+        trackThisResultSet();
+    }
+
+    /**
+     * Access the column expression list
+     * @return the column expression list
+     */
+    protected final DBColumnExpr[] getColumnExprList()
+    {
+        return colList;
+    }
+
+    /**
+     * Access the JDBC-ResultSet
+     * @return the JDBC-ResultSet
+     */
+    protected final ResultSet getResultSet()
+    {
+        return rset;
+    }
+
+    /**
+     * finds the field Index of a given column expression
+     * Internally used as helper for getFieldIndex()
+     * @return the index value
+     */
+    protected int findFieldIndex(ColumnExpr column)
+    {
+        if (colList == null)
+            return -1;
+        // First chance: Try to find an exact match
+        for (int i = 0; i < colList.length; i++)
+        {
+            if (colList[i].equals(column))
+                return i;
+        }
+        // Second chance: Try Update Column
+        if (column instanceof DBColumn)
+        {
+            for (int i = 0; i < colList.length; i++)
+            {
+                DBColumn updColumn = colList[i].getUpdateColumn();
+                if (updColumn!=null && updColumn.equals(column))
+                    return i;
+            }
+        }
+        // not found!
+        return -1;
     }
 
     /**
