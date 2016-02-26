@@ -89,16 +89,19 @@ public class DBSQLScript implements Iterable<String>
             this.iterator = iterator;
         }
 
+        @Override
         public boolean hasNext()
         {
             return iterator.hasNext();
         }
 
+        @Override
         public String next()
         {
             return iterator.next().getCmd();
         }
 
+        @Override
         public void remove()
         {
             iterator.remove();
@@ -425,6 +428,7 @@ public class DBSQLScript implements Iterable<String>
     /**
      * Returns an iterator
      */
+    @Override
     public Iterator<String> iterator()
     {
         return new SQLStmtIterator(sqlStmtList.iterator());

@@ -78,6 +78,7 @@ public abstract class DBRowSet extends DBExpr
             this.fields = fields;
             this.index = index;
         }
+        @Override
         public void set(Object value)
         {
             fields[index]=value;

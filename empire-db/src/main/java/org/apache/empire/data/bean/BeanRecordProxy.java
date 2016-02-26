@@ -94,16 +94,19 @@ public class BeanRecordProxy<T> implements Record
         this.data = data;
     }
 
+    @Override
     public Column getColumn(int index)
     {
         return columns.get(index);
     }
 
+    @Override
     public ColumnExpr getColumnExpr(int index)
     {
         return columns.get(index);
     }
 
+    @Override
     public Column[] getKeyColumns()
     {
         return keyColumns;
@@ -125,11 +128,13 @@ public class BeanRecordProxy<T> implements Record
         return key;
     }
 
+    @Override
     public int getFieldCount()
     {
         return columns.size();
     }
 
+    @Override
     public int getFieldIndex(ColumnExpr column)
     {
         for (int i=0; i<columns.size(); i++)
@@ -140,6 +145,7 @@ public class BeanRecordProxy<T> implements Record
         return -1;
     }
 
+    @Override
     public int getFieldIndex(String columnName)
     {
         for (int i=0; i<columns.size(); i++)
@@ -150,16 +156,19 @@ public class BeanRecordProxy<T> implements Record
         return -1;
     }
 
+    @Override
     public Options getFieldOptions(Column column)
     {
         return column.getOptions();
     }
 
+    @Override
     public boolean isFieldVisible(Column column)
     {
         return true;
     }
 
+    @Override
     public boolean isFieldReadOnly(Column column)
     {
     	if (isNew()==false && ObjectUtils.contains(keyColumns, column))
@@ -169,16 +178,19 @@ public class BeanRecordProxy<T> implements Record
         return column.isReadOnly();
     }
 
+    @Override
     public boolean isFieldRequired(Column column)
     {
         return column.isRequired();
     }
 
+    @Override
     public boolean isModified()
     {
         return (modified!=null);
     }
 
+    @Override
     public boolean isNew()
     {
         if (!isValid())
@@ -199,16 +211,19 @@ public class BeanRecordProxy<T> implements Record
         return false;
     }
 
+    @Override
     public boolean isValid()
     {
         return (data!=null);
     }
 
+    @Override
     public boolean isReadOnly()
     {
         return (isValid() ? false : true);
     }
 
+    @Override
     public Object getValue(ColumnExpr column)
     {
         if (!isValid())
@@ -217,16 +232,19 @@ public class BeanRecordProxy<T> implements Record
         return getBeanPropertyValue(data, column);
     }
 
+    @Override
     public Object getValue(int index)
     {
         return getValue(getColumn(index));
     }
 
+    @Override
     public boolean isNull(ColumnExpr column)
     {
         return ObjectUtils.isEmpty(getValue(column));
     }
 
+    @Override
     public boolean isNull(int index)
     {
         return isNull(getColumn(index));
@@ -235,6 +253,7 @@ public class BeanRecordProxy<T> implements Record
     /**
      * Validates a value before it is set in the record.
      */
+    @Override
     public Object validateValue(Column column, Object value)
     {
         return column.validate(value);
@@ -243,6 +262,7 @@ public class BeanRecordProxy<T> implements Record
     /**
      * sets the value of a field.
      */
+    @Override
     public void setValue(Column column, Object value)
     {
         if (!isValid())
@@ -263,6 +283,7 @@ public class BeanRecordProxy<T> implements Record
     /**
      * sets the value of a field.
      */
+    @Override
     public final void setValue(int i, Object value)
     {
         setValue(getColumn(i), value);
@@ -271,6 +292,7 @@ public class BeanRecordProxy<T> implements Record
     /**
      * Detects whether or not a particular field has been modified.
      */
+    @Override
     public boolean wasModified(Column column)
     {
         int index = getFieldIndex(column);
@@ -290,11 +312,13 @@ public class BeanRecordProxy<T> implements Record
 
     // --------------- Bean support ------------------
 
+    @Override
     public int getBeanProperties(Object bean)
     {
         return getBeanProperties(bean, null);
     }
 
+    @Override
     public int getBeanProperties(Object bean, Collection<ColumnExpr> ignoreList)
     {
         // Add all Columns
@@ -312,6 +336,7 @@ public class BeanRecordProxy<T> implements Record
         return count;
     }
 
+    @Override
     public int setBeanValues(Object bean, Collection<Column> ignoreList)
     {
         // Add all Columns
@@ -332,6 +357,7 @@ public class BeanRecordProxy<T> implements Record
         return count;
     }
 
+    @Override
     public int setBeanValues(Object bean)
     {
         return setBeanValues(bean, null);

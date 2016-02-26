@@ -69,6 +69,7 @@ public abstract class DBColumnExpr extends DBExpr
      *
      * @return the expressions data type
      */
+    @Override
     public abstract DataType getDataType();
 
     /**
@@ -79,6 +80,7 @@ public abstract class DBColumnExpr extends DBExpr
      *
      * @return the column name
      */
+    @Override
     public abstract String getName();
     
     /**
@@ -111,6 +113,7 @@ public abstract class DBColumnExpr extends DBExpr
      * @param name the attribute name
      * @return value of the attribute if it exists or null otherwise
      */
+    @Override
     public synchronized Object getAttribute(String name)
     {
         if (attributes != null && attributes.contains(name))
@@ -141,6 +144,7 @@ public abstract class DBColumnExpr extends DBExpr
      * 
      * @return the list of options
      */
+    @Override
     public synchronized Options getOptions()
     {
         if (options != null)
@@ -167,6 +171,7 @@ public abstract class DBColumnExpr extends DBExpr
      * 
      * @return the column title
      */
+    @Override
     public final String getTitle()
     { 
         Object title = getAttribute(DBCOLATTR_TITLE);
@@ -190,6 +195,7 @@ public abstract class DBColumnExpr extends DBExpr
      * 
      * @return the column control type
      */
+    @Override
     public final String getControlType()
     { 
         Object type = getAttribute(DBCOLATTR_TYPE);
@@ -211,6 +217,7 @@ public abstract class DBColumnExpr extends DBExpr
      * This is equivalent to the "Update Column"
      * see getUpdateColumn()
      */
+    @Override
     public final Column getSourceColumn()
     {
         return getUpdateColumn();
@@ -223,6 +230,7 @@ public abstract class DBColumnExpr extends DBExpr
      *      
      * @return the name of the bean property used to get and set values 
      */
+    @Override
     public String getBeanPropertyName()
     {
         if (beanPropertyName==null)

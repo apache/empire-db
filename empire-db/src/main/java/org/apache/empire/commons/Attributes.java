@@ -83,12 +83,15 @@ public class Attributes extends AbstractSet<Attributes.Attribute> implements Clo
 	
 	private static final class EmptyIterator implements Iterator<Attribute>
 	{
+        @Override
         public boolean hasNext()  {
             return false;
         }
+        @Override
         public Attribute next() {
             return null;
         }
+        @Override
         public void remove() {
         }
 	}

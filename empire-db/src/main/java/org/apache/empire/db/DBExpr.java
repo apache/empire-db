@@ -126,8 +126,7 @@ public abstract class DBExpr extends DBObject
      * @param type the data type
      * @return return the java class used for storing values of this dataType 
      */
-    @SuppressWarnings("unchecked")
-    public static final Class getValueClass(DataType type)
+    public static final Class<?> getValueClass(DataType type)
     {
         switch(type)
         {

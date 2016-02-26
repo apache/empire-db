@@ -18,9 +18,6 @@
  */
 package org.apache.empire.db;
 
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 // java.sql
 import java.io.Serializable;
 

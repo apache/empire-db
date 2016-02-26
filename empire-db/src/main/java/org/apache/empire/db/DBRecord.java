@@ -242,6 +242,7 @@ public class DBRecord extends DBRecordData implements Record, Cloneable
      * 
      * @return true if the record is valid
      */
+    @Override
     public boolean isValid()
     {
         return (state != State.Invalid);
@@ -252,6 +253,7 @@ public class DBRecord extends DBRecordData implements Record, Cloneable
      * 
      * @return true if the record is valid
      */
+    @Override
     public boolean isReadOnly()
     {
         if (!isValid())
@@ -265,6 +267,7 @@ public class DBRecord extends DBRecordData implements Record, Cloneable
      * 
      * @return true if the record is modified
      */
+    @Override
     public boolean isModified()
     {
         return (state.isEqualOrMore(State.Modified));
@@ -275,6 +278,7 @@ public class DBRecord extends DBRecordData implements Record, Cloneable
      * 
      * @return true if this record is a new record
      */
+    @Override
     public boolean isNew()
     {
         return (state == State.New);
@@ -353,6 +357,7 @@ public class DBRecord extends DBRecordData implements Record, Cloneable
      * Internally calls getDBColumn()
      * @return the Column at the specified index 
      */
+    @Override
     public final Column getColumn(int index)
     {
         return getDBColumn(index);
@@ -366,6 +371,28 @@ public class DBRecord extends DBRecordData implements Record, Cloneable
     public final ColumnExpr getColumnExpr(int index)
     {
         return getDBColumn(index);
+    }
+    
+    /**
+     * helper function to check if a given field index corresponds to one of the given columns
+     * @param index the field index
+     * @param column one or more columns to check
+     * @return true if the index is for one of the columns or false otherwise
+     */
+    protected boolean isColumn(int index, DBColumn... column)
+    {
+        if (index < 0 || index >= fields.length)
+            throw new InvalidArgumentException("index", index);
+        if (column==null)
+            throw new InvalidArgumentException("column", column);
+        Column col = getColumn(index);
+        for (int i=0; i<column.length; i++)
+        {   // compare
+            if (col==column[i])
+                return true;
+        }
+        // not found
+        return false; 
     }
     
     /**
@@ -392,6 +419,7 @@ public class DBRecord extends DBRecordData implements Record, Cloneable
      * 
      * @return true if the field was modified
      */
+    @Override
     public final boolean wasModified(Column column)
     {
         return wasModified(getFieldIndex(column));
@@ -443,6 +471,7 @@ public class DBRecord extends DBRecordData implements Record, Cloneable
      * returns an array of key columns which uniquely identify the record.
      * @return the array of key columns if any
      */
+    @Override
     public Column[] getKeyColumns()
     {
         return rowset.getKeyColumns();
@@ -515,6 +544,7 @@ public class DBRecord extends DBRecordData implements Record, Cloneable
      * Same as getFieldOptions(DBColumn)
      * @return the Option
      */
+    @Override
     public final Options getFieldOptions(Column column)
     {
         return getFieldOptions((DBColumn)column); 
@@ -559,6 +589,7 @@ public class DBRecord extends DBRecordData implements Record, Cloneable
      * @param index the index of the column
      * @param value the value
      */
+    @Override
     public void setValue(int index, Object value)
     {
         if (state == State.Invalid)
@@ -593,6 +624,7 @@ public class DBRecord extends DBRecordData implements Record, Cloneable
      * @param column a DBColumn object
      * @param value the value
      */
+    @Override
     public final void setValue(Column column, Object value)
     {
         if (!isValid())
@@ -625,6 +657,7 @@ public class DBRecord extends DBRecordData implements Record, Cloneable
      * @param column the column that needs to be changed
      * @param value the new value
      */
+    @Override
     public Object validateValue(Column column, Object value)
     {
     	return column.validate(value);
@@ -657,6 +690,7 @@ public class DBRecord extends DBRecordData implements Record, Cloneable
      * @param column the column which to check for visibility
      * @return true if the column is visible or false if not 
      */
+    @Override
     public boolean isFieldVisible(Column column)
     {
         if (rowset==null)
@@ -673,6 +707,7 @@ public class DBRecord extends DBRecordData implements Record, Cloneable
      * 
      * @return true if the field is read only
      */
+    @Override
     public boolean isFieldReadOnly(Column column)
     {
         if (rowset==null)
@@ -693,6 +728,7 @@ public class DBRecord extends DBRecordData implements Record, Cloneable
      * 
      * @return true if the field is required
      */
+    @Override
     public boolean isFieldRequired(Column column)
     {
         if (rowset==null)
@@ -1018,6 +1054,7 @@ public class DBRecord extends DBRecordData implements Record, Cloneable
      * 
      * @return true if at least one value has been set successfully 
      */
+    @Override
     public int setBeanValues(Object bean, Collection<Column> ignoreList)
     {
         // Add all Columns
@@ -1041,6 +1078,7 @@ public class DBRecord extends DBRecordData implements Record, Cloneable
      * Sets record values from the suppied java bean.
      * @return true if at least one value has been set sucessfully
      */
+    @Override
     public final int setBeanValues(Object bean)
     {
         return setBeanValues(bean, null);

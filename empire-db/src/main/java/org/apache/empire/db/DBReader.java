@@ -654,7 +654,7 @@ public class DBReader extends DBRecordData
         try
         {
             // Check whether we can use a constructor
-            Class<T>[] paramTypes = new Class[getFieldCount()];
+            Class<?>[] paramTypes = new Class[getFieldCount()];
             for (int i = 0; i < colList.length; i++)
                 paramTypes[i] = DBExpr.getValueClass(colList[i].getDataType()); 
             // Find Constructor

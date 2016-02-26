@@ -53,10 +53,14 @@ public abstract class DBRecordData extends DBObject
     private static final Logger log = LoggerFactory.getLogger(DBRecordData.class);
     
     // Field Info
+    @Override
     public abstract int     getFieldCount();
+    @Override
     public abstract int  	getFieldIndex(ColumnExpr column);
+    @Override
     public abstract int  	getFieldIndex(String column);
     // Column lookup
+    @Override
     public abstract ColumnExpr getColumnExpr(int i);
     // xml
     public abstract int     addColumnDesc(Element parent);
@@ -68,6 +72,7 @@ public abstract class DBRecordData extends DBObject
     /**
      * Returns a value based on an index.
      */
+    @Override
     public abstract Object  getValue(int index);
     
     /**
@@ -76,6 +81,7 @@ public abstract class DBRecordData extends DBObject
      * @param column the column for which to obtain the value
      * @return the record value
      */
+    @Override
     public final Object getValue(ColumnExpr column)
     {
         int index = getFieldIndex(column);
@@ -270,6 +276,7 @@ public abstract class DBRecordData extends DBObject
      * @param index index of the column
      * @return true if the value is null or false otherwise
      */
+    @Override
     public boolean isNull(int index)
     {
         return (getValue(index) == null);
@@ -281,6 +288,7 @@ public abstract class DBRecordData extends DBObject
      * @param column identifying the column
      * @return true if the value is null or false otherwise
      */
+    @Override
     public final boolean isNull(ColumnExpr column)
     {
         return isNull(getFieldIndex(column));
@@ -339,6 +347,7 @@ public abstract class DBRecordData extends DBObject
      * 
      * @return the number of bean properties set on the supplied bean
      */
+    @Override
     public int getBeanProperties(Object bean, Collection<ColumnExpr> ignoreList)
     {
         // Add all Columns
@@ -362,6 +371,7 @@ public abstract class DBRecordData extends DBObject
      * 
      * @return the number of bean properties set on the supplied bean
      */
+    @Override
     public final int getBeanProperties(Object bean)
     {
         return getBeanProperties(bean, null);

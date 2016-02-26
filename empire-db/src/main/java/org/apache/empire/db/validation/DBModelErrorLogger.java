@@ -38,6 +38,7 @@ public class DBModelErrorLogger implements DBModelErrorHandler
     /**
      * handle itemNotFound errors
      */
+    @Override
     public void itemNotFound(DBObject dbo)
     {
         if (dbo instanceof DBTable)
@@ -74,6 +75,7 @@ public class DBModelErrorLogger implements DBModelErrorHandler
     /**
      * handle columnTypeMismatch errors
      */
+    @Override
     public void columnTypeMismatch(DBColumn col, DataType type)
     {
         DBModelErrorLogger.log.error("The column " + col.getFullName() + " type of {} does not match the database type of {}.", col.getDataType(), type);
@@ -82,6 +84,7 @@ public class DBModelErrorLogger implements DBModelErrorHandler
     /**
      * handle columnSizeMismatch errors
      */
+    @Override
     public void columnSizeMismatch(DBColumn col, int size, int scale)
     {
         if (size>0 && size<col.getSize())
@@ -97,6 +100,7 @@ public class DBModelErrorLogger implements DBModelErrorHandler
     /**
      * handle columnNullableMismatch errors
      */
+    @Override
     public void columnNullableMismatch(DBColumn col, boolean nullable)
     {
         if (nullable)
@@ -112,6 +116,7 @@ public class DBModelErrorLogger implements DBModelErrorHandler
     /**
      * handle primaryKeyColumnMissing errors
      */
+    @Override
     public void primaryKeyColumnMissing(DBIndex primaryKey, DBColumn column)
     {
         DBModelErrorLogger.log.error("The primary key " + primaryKey.getName() + " of table " + primaryKey.getTable().getName()

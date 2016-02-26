@@ -35,7 +35,6 @@ public class StatementFailedException extends EmpireSQLException
      */
     private static final long serialVersionUID = 1L;
     
-    @SuppressWarnings("hiding")
     public static final ErrorType errorType = new ErrorType("error.db.statementFailed",  "Error executing statement {0}.\r\nNative error is: {1}");
     
     public StatementFailedException(DBObject obj, String sqlCmd, SQLException cause)

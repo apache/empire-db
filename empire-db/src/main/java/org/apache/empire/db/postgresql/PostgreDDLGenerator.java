@@ -18,8 +18,6 @@
  */
 package org.apache.empire.db.postgresql;
 
-import java.util.Iterator;
-
 import org.apache.empire.data.DataType;
 import org.apache.empire.db.DBColumn;
 import org.apache.empire.db.DBDDLGenerator;
