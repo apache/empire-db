@@ -162,7 +162,7 @@ public class InputTag extends UIInput implements NamingContainer
             if (hasRequiredFlagSet == false)
                 super.setRequired(helper.isValueRequired());
             // render input
-            control.renderInput(this, inpInfo, context, true);
+            control.renderInput(this, inpInfo, context);
         }
         saveState();
     }

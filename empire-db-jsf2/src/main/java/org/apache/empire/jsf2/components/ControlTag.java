@@ -51,31 +51,22 @@ public class ControlTag extends UIInput implements NamingContainer
     public static abstract class ControlSeparatorComponent extends javax.faces.component.UIComponentBase
     {
         private ControlTag control = null;
+        
+        private String tagName = "td";
 
-        /*
-        protected ControlSeparatorComponent()
-        {
-            if (log.isTraceEnabled())
-                log.trace("ControlSeparatorComponent "+getClass().getName()+" created.");
-        }
-        */
+        protected abstract void writeAttributes(ResponseWriter writer, TagEncodingHelper helper, String tagName)
+            throws IOException;
 
         @Override
         public String getFamily()
         {
             return UINamingContainer.COMPONENT_FAMILY;
         }
-        
-        /*
-        @Override
-        public String getClientId(FacesContext context)
+
+        protected ControlTag getControl()
         {
-            String clientId = super.getClientId(context);
-            log.info("ControlSeparatorComponent-ID is {}", clientId);
-            // default behavior
-            return clientId;
+            return control;
         }
-        */
 
         @Override
         public void encodeBegin(FacesContext context)
@@ -92,38 +83,34 @@ public class ControlTag extends UIInput implements NamingContainer
             }
 
             this.control = (ControlTag) parent;
+            // Start
+            
+            // write end tag
+            TagEncodingHelper helper = this.control.helper;
+            this.tagName = helper.getTagAttributeString("tag", "td");
+
+            // render components
+            ResponseWriter writer = context.getResponseWriter();
+            writer.startElement(tagName, this);
+            writeAttributes(writer, helper, tagName);
         }
-
-        protected abstract void writeAttributes(ResponseWriter writer, TagEncodingHelper helper, String tagName)
-            throws IOException;
-
+        
+        @Override
+        public void encodeEnd(FacesContext context)
+            throws IOException
+        {
+            // render components
+            ResponseWriter writer = context.getResponseWriter();
+            writer.endElement(tagName);
+            // call default
+            super.encodeEnd(context);
+        }
+        
         @Override
         public boolean getRendersChildren()
         {
-            return true;
-        }
-
-        @Override
-        public void encodeChildren(FacesContext context)
-            throws IOException
-        {
-            if (this.control != null)
-            { // write end tag
-                TagEncodingHelper helper = this.control.helper;
-                String tagName = helper.getTagAttributeString("tag", "td");
-
-                // render components
-                ResponseWriter writer = context.getResponseWriter();
-                writer.startElement(tagName, this);
-                writeAttributes(writer, helper, tagName);
-                // write children
-                if (control.helper.isVisible())
-                    super.encodeChildren(context);
-                else
-                    log.debug("Field {} is not visible.", helper.getColumn().getName());
-                // end
-                writer.endElement(tagName);
-            }
+            // return super.getRendersChildren();
+            return control.helper.isVisible();
         }
     }
 
@@ -137,10 +124,21 @@ public class ControlTag extends UIInput implements NamingContainer
             if (StringUtils.isNotEmpty(styleClass))
                 writer.writeAttribute("class", styleClass, null);
         }
+
+        @Override
+        public void encodeChildren(FacesContext context)
+            throws IOException
+        {
+            // encode label component
+            getControl().encodeLabel(context, this);
+            // now render
+            super.encodeChildren(context);
+        }
     }
 
     public static class InputSeparatorComponent extends ControlSeparatorComponent
     {
+
         @Override
         protected void writeAttributes(ResponseWriter writer, TagEncodingHelper helper, String tagName)
             throws IOException
@@ -154,7 +152,15 @@ public class ControlTag extends UIInput implements NamingContainer
             if (StringUtils.isNotEmpty(colSpan) && tagName.equalsIgnoreCase("td"))
                 writer.writeAttribute("colspan", colSpan, null);
         }
-        
+
+        @Override
+        public void encodeChildren(FacesContext context)
+            throws IOException
+        {
+            // encode input components
+            getControl().encodeInput(context, this);
+            // don't call super.encodeChildren()!
+        }
     }
 
     public static class ValueOutputComponent extends javax.faces.component.UIComponentBase
@@ -305,7 +311,7 @@ public class ControlTag extends UIInput implements NamingContainer
 
         boolean isCustomInput = isCustomInput();
 
-        // create children
+        // LabelSeparatorComponent
         if (this.encodeLabel)
         {   // Create Label Separator Tag
             ControlSeparatorComponent labelSepTag = null;
@@ -321,14 +327,11 @@ public class ControlTag extends UIInput implements NamingContainer
                     creatingComponents = false;
                 }
             }
-            labelSepTag.setRendered(true);
-            encodeLabel(context, labelSepTag);
-            if (isCustomInput)
-            { // don't render twice!
-                labelSepTag.setRendered(false);
-            }
+            // encode
+            labelSepTag.encodeAll(context);
         }
-
+        
+        // InputSeparatorComponent
         if (!isCustomInput)
         {   // Create Input Separator Tag
             ControlSeparatorComponent inputSepTag = null;
@@ -344,7 +347,8 @@ public class ControlTag extends UIInput implements NamingContainer
                     creatingComponents = false;
                 }
             }
-            encodeInput(context, inputSepTag);
+            // encode
+            inputSepTag.encodeAll(context);
         }
         // done
         saveState();
@@ -360,15 +364,8 @@ public class ControlTag extends UIInput implements NamingContainer
     public void encodeChildren(FacesContext context)
         throws IOException
     {
-        super.encodeChildren(context);
-    }
-
-    @Override
-    public void encodeEnd(FacesContext context)
-        throws IOException
-    {
-        if (isRendered() && isCustomInput()) // MyFaces Patch!
-        {
+        if (isRendered() && isCustomInput())
+        {   // Custom input
             String tagName  = helper.getTagAttributeString("tag", ControlTag.DEFAULT_CONTROL_SEPARATOR_TAG);
             String inpClass = helper.getTagAttributeString("inputClass", ControlTag.DEFAULT_INPUT_SEPARATOR_CLASS);
             String colSpan  = helper.getTagAttributeString("colspan");
@@ -380,14 +377,17 @@ public class ControlTag extends UIInput implements NamingContainer
             if (StringUtils.isNotEmpty(colSpan) && tagName.equalsIgnoreCase("td"))
                 writer.writeAttribute("colspan", colSpan, null);
             // encode children
-            super.encodeEnd(context);
+            super.encodeChildren(context);
             // end of element
             writer.endElement(tagName);
         }
-        else
-        { // default
-            super.encodeEnd(context);
-        }
+    }
+
+    @Override
+    public void encodeEnd(FacesContext context)
+        throws IOException
+    {
+        super.encodeEnd(context);
     }
     
     @Override
@@ -448,8 +448,12 @@ public class ControlTag extends UIInput implements NamingContainer
         return false;
     }
 
+    /**
+     * called from LabelSeparatorComponent
+     * @param context
+     * @param parent the LabelSeparatorComponent
+     */
     protected void encodeLabel(FacesContext context, UIComponentBase parent)
-        throws IOException
     {
         // render components
         try {
@@ -472,10 +476,14 @@ public class ControlTag extends UIInput implements NamingContainer
         } finally {
             creatingComponents = false;
         }
-        // render components
-        parent.encodeAll(context);
     }
 
+    /**
+     * called from InputSeparatorComponent
+     * @param context
+     * @param parent the InputSeparatorComponent
+     * @throws IOException
+     */
     protected void encodeInput(FacesContext context, UIComponentBase parent)
         throws IOException
     {
@@ -492,7 +500,7 @@ public class ControlTag extends UIInput implements NamingContainer
                 super.setRequired(helper.isValueRequired());
 	        // create Input Controls
             // boolean recordReadOnly = helper.isRecordReadOnly();
-            control.renderInput(parent, inpInfo, context, false);
+            control.renderInput(parent, inpInfo, context);
             // create Value Component
             UIComponent valueComp = (count>0 ? parent.getChildren().get(count-1) : null);
             if (valueComp == null)
@@ -513,8 +521,6 @@ public class ControlTag extends UIInput implements NamingContainer
         } finally {
             creatingComponents = false;
         }
-        // render components
-        parent.encodeAll(context);
     }
 
     @Override

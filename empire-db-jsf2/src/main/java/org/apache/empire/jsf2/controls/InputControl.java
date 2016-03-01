@@ -179,7 +179,7 @@ public abstract class InputControl
     }
 
     /* renderInput */ 
-    public void renderInput(UIComponent comp, InputInfo ii, FacesContext context, boolean encode)
+    public void renderInput(UIComponent comp, InputInfo ii, FacesContext context)
         throws IOException
     {
         boolean resetChildId = comp.getChildren().isEmpty();
@@ -190,10 +190,7 @@ public abstract class InputControl
         } finally {
             this.creatingComponents = false;
         }
-        
         // Encode all
-        if (!encode)
-            return;
         for (UIComponent child : comp.getChildren())
         {   // reset child-id
             // necessary only inside UIData
