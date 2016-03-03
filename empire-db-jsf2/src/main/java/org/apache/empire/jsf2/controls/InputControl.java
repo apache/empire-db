@@ -37,6 +37,7 @@ import org.apache.empire.data.Column;
 import org.apache.empire.exceptions.InvalidArgumentException;
 import org.apache.empire.exceptions.UnexpectedReturnValueException;
 import org.apache.empire.jsf2.app.TextResolver;
+import org.apache.empire.jsf2.components.ControlTag.ValueOutputComponent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -196,9 +197,11 @@ public abstract class InputControl
             // necessary only inside UIData
             if (resetChildId && child.getId()!=null)
                 child.setId(child.getId());
-            // encode now
-            child.setRendered(rendered);
-            if (rendered)
+            // set rendered
+            boolean valueOutput = (child instanceof ValueOutputComponent);
+            child.setRendered((valueOutput ? !rendered : rendered));
+            // render
+            if (child.isRendered())
                 child.encodeAll(context);
         }
     }

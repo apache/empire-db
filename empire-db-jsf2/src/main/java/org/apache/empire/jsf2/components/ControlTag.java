@@ -506,11 +506,12 @@ public class ControlTag extends UIInput implements NamingContainer
             if (valueComp == null)
             {   // create ValueOutputComponent
                 valueComp = new ValueOutputComponent();
-                valueComp.setRendered(readOnly);
                 parent.getChildren().add(valueComp);
+                valueComp.setRendered(readOnly);
                 if (readOnly)
                     valueComp.encodeAll(context);
             }
+            // render
         } finally {
             creatingComponents = false;
         }
