@@ -179,7 +179,7 @@ public abstract class InputControl
     }
 
     /* renderInput */ 
-    public void renderInput(UIComponent comp, InputInfo ii, FacesContext context)
+    public void renderInput(UIComponent comp, InputInfo ii, FacesContext context, boolean rendered)
         throws IOException
     {
         boolean resetChildId = comp.getChildren().isEmpty();
@@ -197,7 +197,9 @@ public abstract class InputControl
             if (resetChildId && child.getId()!=null)
                 child.setId(child.getId());
             // encode now
-            child.encodeAll(context);
+            child.setRendered(rendered);
+            if (rendered)
+                child.encodeAll(context);
         }
     }
     

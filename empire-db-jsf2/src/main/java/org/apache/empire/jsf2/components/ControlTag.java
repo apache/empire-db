@@ -492,7 +492,6 @@ public class ControlTag extends UIInput implements NamingContainer
             creatingComponents = true;
             // check children
             int count = parent.getChildCount();
-            boolean resetChildId = (count==0);
             // continue
             this.inpInfo = helper.getInputInfo(context);
             // set required
@@ -500,23 +499,17 @@ public class ControlTag extends UIInput implements NamingContainer
                 super.setRequired(helper.isValueRequired());
 	        // create Input Controls
             // boolean recordReadOnly = helper.isRecordReadOnly();
-            control.renderInput(parent, inpInfo, context);
+            boolean readOnly = helper.isRecordReadOnly();
+            control.renderInput(parent, inpInfo, context, !readOnly);
             // create Value Component
             UIComponent valueComp = (count>0 ? parent.getChildren().get(count-1) : null);
             if (valueComp == null)
             {   // create ValueOutputComponent
                 valueComp = new ValueOutputComponent();
+                valueComp.setRendered(readOnly);
                 parent.getChildren().add(valueComp);
-            }
-            // Walk through the list of controls
-            boolean readOnly = helper.isRecordReadOnly();
-            for (UIComponent child : parent.getChildren())
-            {   // reset child-id
-                if (resetChildId)
-                    helper.resetComponentId(child);
-                // set rendered 
-                boolean rendered = (child instanceof ValueOutputComponent) ? readOnly : !readOnly;
-                child.setRendered(rendered);
+                if (readOnly)
+                    valueComp.encodeAll(context);
             }
         } finally {
             creatingComponents = false;
