@@ -579,7 +579,18 @@ public abstract class InputControl
      */
     protected String escapeHTML(String text)
     {
-        // TODO
+        if (text==null || text.length()==0)
+            return text;
+        // &amp;
+        if (text.indexOf('&')>=0)
+            text = StringUtils.replaceAll(text, "&", "&amp;");
+        // &lt;
+        if (text.indexOf('<')>=0)
+            text = StringUtils.replaceAll(text, "<", "&lt;");
+        // &gt;
+        if (text.indexOf('>')>=0)
+            text = StringUtils.replaceAll(text, ">", "&gt;");
+        // done
         return text;
     }
 
