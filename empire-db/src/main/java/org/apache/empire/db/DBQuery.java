@@ -174,8 +174,9 @@ public class DBQuery extends DBRowSet
      * 
      * @param cmd the SQL-Command
      * @param keyColumns an array of the primary key columns
+     * @param the query alias
      */
-    public DBQuery(DBCommandExpr cmd, DBColumn[] keyColumns)
+    public DBQuery(DBCommandExpr cmd, DBColumn[] keyColumns, String alias)
     { // Set the column expressions
         super(cmd.getDatabase());
         this.cmdExpr = cmd;
@@ -190,9 +191,34 @@ public class DBQuery extends DBRowSet
         // Set the key Column
         this.keyColumns = keyColumns;
         // set alias
-        this.alias = "q" + String.valueOf(queryCount.incrementAndGet());
+        this.alias = alias;
     }
 
+    /**
+     * Constructor initializes the query object.
+     * Saves the columns and the primary keys of this query.
+     * 
+     * @param cmd the SQL-Command
+     * @param keyColumns an array of the primary key columns
+     */
+    public DBQuery(DBCommandExpr cmd, DBColumn[] keyColumns)
+    {   // Set the column expressions
+        this(cmd, keyColumns, "q" + String.valueOf(queryCount.incrementAndGet()));
+    }
+    
+    /**
+     * Constructs a new DBQuery object initialize the query object.
+     * Save the columns and the primary key of this query.
+     * 
+     * @param cmd the SQL-Command
+     * @param keyColumn the primary key column
+     * @param the query alias
+     */
+    public DBQuery(DBCommandExpr cmd, DBColumn keyColumn, String alias)
+    { // Set the column expressions
+        this(cmd, new DBColumn[] { keyColumn }, alias);
+    }
+    
     /**
      * Constructs a new DBQuery object initialize the query object.
      * Save the columns and the primary key of this query.
@@ -203,6 +229,17 @@ public class DBQuery extends DBRowSet
     public DBQuery(DBCommandExpr cmd, DBColumn keyColumn)
     { // Set the column expressions
         this(cmd, new DBColumn[] { keyColumn });
+    }
+
+    /**
+     * Creaes a DBQuery object from a given command object.
+     * 
+     * @param cmd the command object representing an SQL-Command.
+     * @param the query alias
+     */
+    public DBQuery(DBCommandExpr cmd, String alias)
+    { // Set the column expressions
+        this(cmd, (DBColumn[]) null, alias);
     }
 
     /**

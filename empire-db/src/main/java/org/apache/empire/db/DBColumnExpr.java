@@ -869,6 +869,26 @@ public abstract class DBColumnExpr extends DBExpr
     }
 
     /**
+     * Create and returns an expression for the SQL-function floor()
+     * 
+     * @return the new DBFuncExpr object
+     */
+    public DBColumnExpr floor()
+    {
+        return getExprFromPhrase(DBDatabaseDriver.SQL_FUNC_FLOOR, null, getUpdateColumn(), false);
+    }
+
+    /**
+     * Create and returns an expression for the SQL-function ceil()
+     * 
+     * @return the new DBFuncExpr object
+     */
+    public DBColumnExpr ceiling()
+    {
+        return getExprFromPhrase(DBDatabaseDriver.SQL_FUNC_CEILING, null, getUpdateColumn(), false);
+    }
+
+    /**
      * Creates and returns an function object that
      * rounds a number espression with the given decimals.
      * 
