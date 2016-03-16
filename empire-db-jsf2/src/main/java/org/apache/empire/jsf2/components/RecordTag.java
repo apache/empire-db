@@ -27,7 +27,7 @@ import org.apache.empire.data.RecordData;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class RecordTag extends UIComponentBase implements NamingContainer
+public class RecordTag extends UIComponentBase // implements NamingContainer
 {
     // Logger
     private static final Logger log = LoggerFactory.getLogger(RecordTag.class);
