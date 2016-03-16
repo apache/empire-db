@@ -19,7 +19,6 @@
 package org.apache.empire.jsf2.components;
 
 import java.io.IOException;
-import java.util.List;
 import java.util.Map;
 
 import javax.faces.component.NamingContainer;
@@ -28,13 +27,13 @@ import javax.faces.component.html.HtmlSelectOneMenu;
 import javax.faces.component.visit.VisitCallback;
 import javax.faces.component.visit.VisitContext;
 import javax.faces.context.FacesContext;
-import javax.faces.view.AttachedObjectHandler;
 
 import org.apache.empire.commons.ObjectUtils;
 import org.apache.empire.commons.Options;
 import org.apache.empire.commons.StringUtils;
 import org.apache.empire.jsf2.app.FacesUtils;
 import org.apache.empire.jsf2.app.TextResolver;
+import org.apache.empire.jsf2.controls.InputAttachedObjectsHandler;
 import org.apache.empire.jsf2.controls.InputControlManager;
 import org.apache.empire.jsf2.controls.SelectInputControl;
 import org.apache.empire.jsf2.utils.TagEncodingHelper;
@@ -119,8 +118,8 @@ public class SelectTag extends UIInput implements NamingContainer
         {
             inputComponent = createSelectOneMenu(textResolver);
             this.getChildren().add(0, inputComponent);
-            // attach events
-            attachEvents(context, inputComponent);
+            // attach objects
+            addAttachedObjects(context, inputComponent);
         }
         // render components
         inputComponent.encodeAll(context);
@@ -268,23 +267,11 @@ public class SelectTag extends UIInput implements NamingContainer
             input.setOnchange(StringUtils.toString(value));
         }
     }
-
-    protected void attachEvents(FacesContext context, UIInput inputComponent)
+    
+    protected void addAttachedObjects(FacesContext context, UIInput inputComponent)
     {
-        // Events available?
-        @SuppressWarnings("unchecked")
-        List<AttachedObjectHandler> result = (List<AttachedObjectHandler>) getAttributes().get("javax.faces.RetargetableHandlers");
-        if (result == null)
-        {
-            return;
-        }
-        // Attach Events
-        for (AttachedObjectHandler aoh : result)
-        {
-            aoh.applyAttachedObject(context, inputComponent);
-        }
-        // remove
-        result.clear();
-        getAttributes().remove("javax.faces.RetargetableHandlers");
+        InputAttachedObjectsHandler aoh = InputControlManager.getAttachedObjectsHandler();
+        if (aoh!=null)
+            aoh.addAttachedObjects(this, context, null, inputComponent);
     }
 }

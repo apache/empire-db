@@ -25,6 +25,7 @@ import java.util.Map;
 
 import javax.el.ValueExpression;
 import javax.faces.component.UIComponent;
+import javax.faces.component.UIComponentBase;
 import javax.faces.component.UIData;
 import javax.faces.component.UIInput;
 import javax.faces.context.FacesContext;
@@ -35,9 +36,9 @@ import org.apache.empire.commons.Options;
 import org.apache.empire.commons.StringUtils;
 import org.apache.empire.data.Column;
 import org.apache.empire.exceptions.InvalidArgumentException;
+import org.apache.empire.exceptions.ItemNotFoundException;
 import org.apache.empire.exceptions.UnexpectedReturnValueException;
 import org.apache.empire.jsf2.app.TextResolver;
-import org.apache.empire.jsf2.components.ControlTag.ValueOutputComponent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -171,6 +172,29 @@ public abstract class InputControl
         return this.creatingComponents;
     }
     
+    /* createInput */ 
+    public void createInput(UIComponent comp, InputInfo ii, FacesContext context)
+    {   // createInputComponents
+        List<UIComponent> children = comp.getChildren();
+        try {
+            this.creatingComponents = true;
+            createInputComponents(comp, ii, context, children);
+            // add attached objects
+            UIComponent parent = comp;
+            while (!(parent instanceof UIInput))
+                parent = parent.getParent();
+            for (UIComponent child : children)
+            {   // check type
+                if (!(child instanceof UIComponentBase))
+                    continue;
+                // add attached objects
+                addAttachedObjects(parent, context, ii, ((UIComponentBase)child));
+            }
+        } finally {
+            this.creatingComponents = false;
+        }
+    }
+    
     /* Value */
     public void renderValue(ValueInfo vi, ResponseWriter writer)
         throws IOException
@@ -180,38 +204,24 @@ public abstract class InputControl
     }
 
     /* renderInput */ 
-    public void renderInput(UIComponent comp, InputInfo ii, FacesContext context, boolean rendered)
+    public void renderInput(UIComponent comp, InputInfo ii, FacesContext context)
         throws IOException
     {
-        boolean resetChildId = comp.getChildren().isEmpty();
-        // createInputComponents
-        try {
-            this.creatingComponents = true;
-            createInputComponents(comp, ii, context, comp.getChildren());
-        } finally {
-            this.creatingComponents = false;
-        }
         // Encode all
         for (UIComponent child : comp.getChildren())
         {   // reset child-id
-            // necessary only inside UIData
-            if (resetChildId && child.getId()!=null)
-                child.setId(child.getId());
-            // set rendered
-            boolean valueOutput = (child instanceof ValueOutputComponent);
-            child.setRendered((valueOutput ? !rendered : rendered));
             // render
             if (child.isRendered())
                 child.encodeAll(context);
         }
     }
     
-    public void updateInputState(UIComponent parent, InputInfo ii, FacesContext context)
+    public void updateInputState(UIComponent parent, InputInfo ii, FacesContext context, boolean setValue)
     {
         List<UIComponent> cl = parent.getChildren(); 
         if (cl.isEmpty())
             return;
-        updateInputState(cl, ii, context);
+        updateInputState(cl, ii, context, setValue);
     }
     
     public void postUpdateModel(UIComponent comp, InputInfo ii, FacesContext fc)
@@ -222,7 +232,7 @@ public abstract class InputControl
         // Clear submitted value
         clearSubmittedValue(input);
     }
-
+    
     public Object getInputValue(UIComponent comp, InputInfo ii, boolean submitted)
     {
         UIInput input = getInputComponent(comp);
@@ -291,6 +301,24 @@ public abstract class InputControl
             return parseInputValue((String) submittedValue, ii);
         }            
         return submittedValue;
+    }
+    
+    protected void addAttachedObjects(UIComponent parent, FacesContext context, InputInfo ii, UIComponentBase inputComponent)
+    {
+        InputAttachedObjectsHandler aoh = InputControlManager.getAttachedObjectsHandler();
+        if (aoh!=null)
+            aoh.addAttachedObjects(parent, context, ii.getColumn(), inputComponent);
+    }
+    
+    protected UIInput getFirstInput(List<UIComponent> compList)
+    {
+        for (int i=0; i<compList.size(); i++)
+        {
+            UIComponent child = compList.get(i);
+            if (child instanceof UIInput)
+                return ((UIInput)child);
+        }
+        throw new ItemNotFoundException("UIInput");
     }
     
     protected void setInputValue(UIInput input, InputInfo ii)
@@ -403,7 +431,7 @@ public abstract class InputControl
     /* Input helpers */
     protected abstract void createInputComponents(UIComponent parent, InputInfo ii, FacesContext context, List<UIComponent> compList);
 
-    protected abstract void updateInputState(List<UIComponent> compList, InputInfo ii, FacesContext context);
+    protected abstract void updateInputState(List<UIComponent> compList, InputInfo ii, FacesContext context, boolean setValue);
     
     protected UIInput getInputComponent(UIComponent parent)
     {

@@ -19,6 +19,7 @@
 package org.apache.empire.jsf2.components;
 
 import java.io.IOException;
+import java.util.List;
 
 import javax.faces.component.NamingContainer;
 import javax.faces.component.UIComponent;
@@ -425,7 +426,8 @@ public class ControlTag extends UIInput implements NamingContainer
                     this.control = helper.getInputControl();
                 if (this.inpInfo==null)
                     this.inpInfo = helper.getInputInfo(context);
-                this.control.updateInputState(parent, inpInfo, context);
+                // update state
+                this.control.updateInputState(parent, inpInfo, context, false);
             }
         }
         // default
@@ -484,7 +486,7 @@ public class ControlTag extends UIInput implements NamingContainer
      * @param parent the InputSeparatorComponent
      * @throws IOException
      */
-    protected void encodeInput(FacesContext context, UIComponentBase parent)
+    protected void encodeInput(FacesContext context, UIComponent parent)
         throws IOException
     {
         // render components
@@ -492,6 +494,8 @@ public class ControlTag extends UIInput implements NamingContainer
             creatingComponents = true;
             // check children
             int count = parent.getChildCount();
+            UIComponent valueComp = (count>0 ? parent.getChildren().get(count-1) : null);
+            boolean resetChildId = (count==0);
             // continue
             this.inpInfo = helper.getInputInfo(context);
             // set required
@@ -499,18 +503,33 @@ public class ControlTag extends UIInput implements NamingContainer
                 super.setRequired(helper.isValueRequired());
 	        // create Input Controls
             // boolean recordReadOnly = helper.isRecordReadOnly();
-            boolean readOnly = helper.isRecordReadOnly();
-            control.renderInput(parent, inpInfo, context, !readOnly);
-            // create Value Component
-            UIComponent valueComp = (count>0 ? parent.getChildren().get(count-1) : null);
-            if (valueComp == null)
-            {   // create ValueOutputComponent
-                valueComp = new ValueOutputComponent();
-                parent.getChildren().add(valueComp);
-                valueComp.setRendered(readOnly);
-                if (readOnly)
-                    valueComp.encodeAll(context);
+            if (count==0)
+            {   // Create components
+                control.createInput(parent, inpInfo, context);
+                // create Value Component
+                if (valueComp == null)
+                {   // create ValueOutputComponent
+                    valueComp = new ValueOutputComponent();
+                    parent.getChildren().add(valueComp);
+                }
             }
+            else
+            {   // Update
+                control.updateInputState(parent, inpInfo, context, true);
+            }
+            // set rendered
+            boolean readOnly = helper.isRecordReadOnly();
+            List<UIComponent> children = parent.getChildren();
+            for (UIComponent child : children)
+            {   // reset child id
+                if (resetChildId && child.getId()!=null)
+                    child.setId(child.getId());
+                // set rendered
+                boolean valueOutput = (child instanceof ValueOutputComponent);
+                child.setRendered((valueOutput ? readOnly : !readOnly));
+            }
+            // render
+            control.renderInput(parent, inpInfo, context);
             // render
         } finally {
             creatingComponents = false;
@@ -649,6 +668,5 @@ public class ControlTag extends UIInput implements NamingContainer
             return true;
         // partial  
         return helper.isPartialSubmit(context);
-    }
-    
+    }    
 }

@@ -94,6 +94,18 @@ public final class InputControlManager
         return controlMap.get(name);
     }
 
+    static InputAttachedObjectsHandler attachedObjectsHandler = new InputAttachedObjectsHandler();
+    
+    public static InputAttachedObjectsHandler getAttachedObjectsHandler()
+    {
+        return attachedObjectsHandler;
+    }
+
+    public static void setAttachedObjectsHandler(InputAttachedObjectsHandler attachedObjectsHandler)
+    {
+        InputControlManager.attachedObjectsHandler = attachedObjectsHandler;
+    }
+
     private static Map<Class<? extends UIComponent>, String> componentTypeMap = new HashMap<Class<? extends UIComponent>, String>();
 
     @SuppressWarnings("unchecked")

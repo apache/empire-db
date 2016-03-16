@@ -36,6 +36,7 @@ import org.apache.empire.commons.OptionEntry;
 import org.apache.empire.commons.Options;
 import org.apache.empire.data.Column;
 import org.apache.empire.exceptions.InternalException;
+import org.apache.empire.exceptions.InvalidArgumentException;
 import org.apache.empire.exceptions.ItemNotFoundException;
 import org.apache.empire.exceptions.UnexpectedReturnValueException;
 import org.apache.empire.jsf2.app.TextResolver;
@@ -102,56 +103,6 @@ public class RadioInputControl extends InputControl
         writer.endElement(HTML_TAG_TABLE);
         writer.endElement(HTML_TAG_DIV);
     }
-
-    @Override
-    protected void createInputComponents(UIComponent parent, InputInfo ii, FacesContext context, List<UIComponent> compList)
-    {
-        HtmlSelectOneRadio input;
-        if (compList.size() == 0)
-        {   // create component
-            input = InputControlManager.createComponent(context, this.inputComponentClass);
-            // setValueExpressionFlag
-            Object value = ii.getValue(false);
-            input.getAttributes().put(RadioInputControl.VALUE_EXPRESSION_FLAG, (value instanceof ValueExpression));
-            // copy Attributes
-            copyAttributes(parent, ii, input);
-            // disabled
-            boolean disabled = ii.isDisabled();
-            input.setDisabled(disabled);
-            // Options
-            Options options = ii.getOptions();
-            boolean addEmpty = getEmptyEntryRequired(ii, disabled) && !options.contains("");
-            String nullText = (addEmpty) ? getNullText(ii) : "";
-            initOptions(input, ii.getTextResolver(), options, addEmpty, nullText);
-            // add
-            compList.add(input);
-        }
-        else
-        { // check type
-            UIComponent comp = compList.get(0);
-            if (!(comp instanceof HtmlSelectOneRadio))
-            {
-                throw new UnexpectedReturnValueException(comp.getClass().getName(), "compList.get");
-            }
-            // cast
-            input = (HtmlSelectOneRadio) comp;
-            // disabled
-            boolean disabled = ii.isDisabled();
-            input.setDisabled(disabled);
-            // Options (sync)
-            Options options = ii.getOptions();
-            boolean addEmpty = getEmptyEntryRequired(ii, disabled) && !options.contains("");
-            String nullText = (addEmpty) ? getNullText(ii) : "";
-            syncOptions(input, ii.getTextResolver(), options, addEmpty, nullText);
-        }
-
-        // style
-        addRemoveDisabledStyle(input, input.isDisabled());
-        addRemoveInvalidStyle(input, ii.hasError());
-
-        // Set Value
-        setInputValue(input, ii);
-    }
     
     @Override
     protected void copyAttributes(UIComponent parent, InputInfo ii, UIInput input, String additonalStyle)
@@ -163,9 +114,38 @@ public class RadioInputControl extends InputControl
         // copy
         super.copyAttributes(parent, ii, input, additonalStyle);
     }
+
+    @Override
+    protected void createInputComponents(UIComponent parent, InputInfo ii, FacesContext context, List<UIComponent> compList)
+    {
+        if (!compList.isEmpty())
+            throw new InvalidArgumentException("compList", compList);
+        // create
+        HtmlSelectOneRadio input = InputControlManager.createComponent(context, this.inputComponentClass);
+        // setValueExpressionFlag
+        Object value = ii.getValue(false);
+        input.getAttributes().put(RadioInputControl.VALUE_EXPRESSION_FLAG, (value instanceof ValueExpression));
+        // copy Attributes
+        copyAttributes(parent, ii, input);
+        // disabled
+        boolean disabled = ii.isDisabled();
+        input.setDisabled(disabled);
+        // Options
+        Options options = ii.getOptions();
+        boolean addEmpty = getEmptyEntryRequired(ii, disabled) && !options.contains("");
+        String nullText = (addEmpty) ? getNullText(ii) : "";
+        initOptions(input, ii.getTextResolver(), options, addEmpty, nullText);
+        // add
+        compList.add(input);
+        // style
+        addRemoveDisabledStyle(input, input.isDisabled());
+        addRemoveInvalidStyle(input, ii.hasError());
+        // Set Value
+        setInputValue(input, ii);
+    }
     
     @Override
-    protected void updateInputState(List<UIComponent> compList, InputInfo ii, FacesContext context)
+    protected void updateInputState(List<UIComponent> compList, InputInfo ii, FacesContext context, boolean setValue)
     {
         UIComponent comp = compList.get(0);
         if (!(comp instanceof HtmlSelectOneRadio))
@@ -181,6 +161,14 @@ public class RadioInputControl extends InputControl
         boolean addEmpty = getEmptyEntryRequired(ii, disabled) && !options.contains("");
         String nullText = (addEmpty) ? getNullText(ii) : "";
         syncOptions(input, ii.getTextResolver(), options, addEmpty, nullText);
+        // Set Value
+        if (setValue)
+        {   // style
+            addRemoveDisabledStyle(input, input.isDisabled());
+            addRemoveInvalidStyle(input, ii.hasError());
+            // set value
+            setInputValue(input, ii);
+        }
     }
 
     protected boolean getEmptyEntryRequired(InputInfo ii, boolean disabled)

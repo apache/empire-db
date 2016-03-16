@@ -40,6 +40,7 @@ import org.apache.empire.commons.Options;
 import org.apache.empire.commons.StringUtils;
 import org.apache.empire.data.Column;
 import org.apache.empire.data.DataType;
+import org.apache.empire.exceptions.InvalidArgumentException;
 import org.apache.empire.exceptions.UnexpectedReturnValueException;
 import org.apache.empire.jsf2.utils.TagEncodingHelper;
 import org.slf4j.Logger;
@@ -78,68 +79,41 @@ public class TextInputControl extends InputControl
     @Override
     protected void createInputComponents(UIComponent parent, InputInfo ii, FacesContext context, List<UIComponent> compList)
     {
-        HtmlInputText input;
-        if (compList.size() == 0)
-        { // create component
-            input = InputControlManager.createComponent(context, this.inputComponentClass);
-            // once
-            copyAttributes(parent, ii, input);
-            // language
-            input.setLang(ii.getLocale().getLanguage());
-            // maxlength
-            int maxLength = getMaxInputLength(ii);
-            if (maxLength > 0)
-            {
-                input.setMaxlength(maxLength);
-            }
-            // add
-            compList.add(input);
-
-            // add unit
-            String unit = getUnitString(ii);
-            if (StringUtils.isNotEmpty(unit))
-            {   // add the unit
-                compList.add(createUnitLabel("eUnit", ii, unit));
-            }
-            // add hint
-            String hint = StringUtils.toString(ii.getAttribute("hint"));
-            if (StringUtils.isNotEmpty(hint) && !ii.isDisabled())
-            {   // add the hint (if not an empty string!)
-                compList.add(createUnitLabel("eInputHint", ii, hint));
-            }
-        }
-        else
-        { // check type
-            UIComponent comp = compList.get(0);
-            if (!(comp instanceof HtmlInputText))
-            {
-                throw new UnexpectedReturnValueException(comp.getClass().getName(), "compList.get");
-            }
-            // cast
-            input = (HtmlInputText) comp;
-        }
-
-        // disabled
-        Object dis = ii.getAttributeEx("disabled");
-        if (dis != null)
+        // check params
+        if (!compList.isEmpty())
+            throw new InvalidArgumentException("compList", compList);
+        // create
+        HtmlInputText input = InputControlManager.createComponent(context, this.inputComponentClass);
+        // once
+        copyAttributes(parent, ii, input);
+        // language
+        input.setLang(ii.getLocale().getLanguage());
+        // maxlength
+        int maxLength = getMaxInputLength(ii);
+        if (maxLength > 0)
         {
-            input.setDisabled(ObjectUtils.getBoolean(dis));
+            input.setMaxlength(maxLength);
         }
-        // field-readOnly
-        if (ObjectUtils.getBoolean(dis) == false)
-        {
-            input.setReadonly(ii.isFieldReadOnly());
+        // add
+        compList.add(input);
+        // add unit
+        String unit = getUnitString(ii);
+        if (StringUtils.isNotEmpty(unit))
+        {   // add the unit
+            compList.add(createUnitLabel("eUnit", ii, unit));
         }
-        // style
-        addRemoveDisabledStyle(input, (input.isDisabled() || input.isReadonly()));
-        addRemoveInvalidStyle(input, ii.hasError());
-
-        // set value
-        setInputValue(input, ii);
+        // add hint
+        String hint = StringUtils.toString(ii.getAttribute("hint"));
+        if (StringUtils.isNotEmpty(hint) && !ii.isDisabled())
+        {   // add the hint (if not an empty string!)
+            compList.add(createUnitLabel("eInputHint", ii, hint));
+        }
+        // update
+        updateInputState(compList, ii, context, true);
     }
 
     @Override
-    protected void updateInputState(List<UIComponent> compList, InputInfo ii, FacesContext context)
+    protected void updateInputState(List<UIComponent> compList, InputInfo ii, FacesContext context, boolean setValue)
     {
         UIComponent comp = compList.get(0);
         if (!(comp instanceof HtmlInputText))
@@ -157,6 +131,14 @@ public class TextInputControl extends InputControl
         if (ObjectUtils.getBoolean(dis) == false)
         {
             input.setReadonly(ii.isFieldReadOnly());
+        }
+        // set value
+        if (setValue)
+        {   // style
+            addRemoveDisabledStyle(input, (input.isDisabled() || input.isReadonly()));
+            addRemoveInvalidStyle(input, ii.hasError());
+            // set value
+            setInputValue(input, ii);
         }
     }
 

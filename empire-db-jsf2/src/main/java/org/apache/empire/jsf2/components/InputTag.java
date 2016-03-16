@@ -19,15 +19,18 @@
 package org.apache.empire.jsf2.components;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.Map;
 
 import javax.faces.component.NamingContainer;
+import javax.faces.component.UIComponent;
 import javax.faces.component.UIInput;
 import javax.faces.component.visit.VisitCallback;
 import javax.faces.component.visit.VisitContext;
 import javax.faces.context.FacesContext;
 import javax.faces.context.ResponseWriter;
 import javax.faces.convert.ConverterException;
+import javax.faces.view.AttachedObjectHandler;
 
 import org.apache.empire.data.Column;
 import org.apache.empire.db.exceptions.FieldIllegalValueException;
@@ -161,8 +164,18 @@ public class InputTag extends UIInput implements NamingContainer
             // set required
             if (hasRequiredFlagSet == false)
                 super.setRequired(helper.isValueRequired());
+            // create input
+            if (this.getChildCount()==0)
+            {   // create input
+                control.createInput(this, inpInfo, context);
+                attachEvents(context);
+            }
+            else
+            {   // update state
+                control.updateInputState(this, inpInfo, context, true);
+            }
             // render input
-            control.renderInput(this, inpInfo, context, true);
+            control.renderInput(this, inpInfo, context);
         }
         saveState();
     }
@@ -349,5 +362,35 @@ public class InputTag extends UIInput implements NamingContainer
         helper.writeAttribute(writer, "style", style);
         helper.writeAttribute(writer, "title", helper.getValueTooltip(title));
         return tagName;
+    }
+    
+    protected void attachEvents(FacesContext context)
+    {
+        // Events available?
+        @SuppressWarnings("unchecked")
+        List<AttachedObjectHandler> result = (List<AttachedObjectHandler>) getAttributes().get("javax.faces.RetargetableHandlers");
+        if (result == null)
+        {
+            return;
+        }
+        UIInput inputComponent = null;
+        for (UIComponent c : getChildren())
+        {
+            if (c instanceof UIInput)
+            {   // found
+                inputComponent = (UIInput)c;
+                break;
+            }
+        }
+        if (inputComponent == null)
+            return;
+        // Attach Events
+        for (AttachedObjectHandler aoh : result)
+        {
+            aoh.applyAttachedObject(context, inputComponent);
+        }
+        // remove
+        result.clear();
+        getAttributes().remove("javax.faces.RetargetableHandlers");
     }
 }

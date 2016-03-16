@@ -26,6 +26,7 @@ import javax.faces.context.FacesContext;
 
 import org.apache.empire.commons.ObjectUtils;
 import org.apache.empire.commons.StringUtils;
+import org.apache.empire.exceptions.InvalidArgumentException;
 import org.apache.empire.exceptions.UnexpectedReturnValueException;
 
 public class TextAreaInputControl extends InputControl
@@ -56,50 +57,29 @@ public class TextAreaInputControl extends InputControl
     @Override
     protected void createInputComponents(UIComponent parent, InputInfo ii, FacesContext context, List<UIComponent> compList)
     {
-        HtmlInputTextarea input;
-        if (compList.size()==0)
-        {   // create component
-            input = InputControlManager.createComponent(context, this.inputComponentClass);
-            // once
-            copyAttributes(parent, ii, input);
-            // cols
-            int cols = getFormatInteger(ii, FORMAT_COLS, FORMAT_COLS_ATTRIBUTE);
-            if (cols>0)
-                input.setCols(cols);
-            // rows
-            int rows = getFormatInteger(ii, FORMAT_ROWS, FORMAT_ROWS_ATTRIBUTE);
-            if (rows>0)
-                input.setRows(rows);
-            // add
-            compList.add(input);
-        }
-        else
-        {   // check type
-            UIComponent comp = compList.get(0);
-            if (!(comp instanceof HtmlInputTextarea))
-                throw new UnexpectedReturnValueException(comp.getClass().getName(), "compList.get");
-            // cast
-            input = (HtmlInputTextarea)comp;
-        }
-
-        // disabled
-        Object dis = ii.getAttributeEx("disabled");
-        if (dis!=null)
-            input.setDisabled(ObjectUtils.getBoolean(dis));
-        // field-readOnly
-        if (ObjectUtils.getBoolean(dis)==false)
-            input.setReadonly(ii.isFieldReadOnly());
-        // style
-        addRemoveDisabledStyle(input, (input.isDisabled() || input.isReadonly()));
-        addRemoveInvalidStyle(input, ii.hasError());
-        
-        // Set Value
-        setInputValue(input, ii);
-        
+        // check params
+        if (!compList.isEmpty())
+            throw new InvalidArgumentException("compList", compList);
+        // create
+        HtmlInputTextarea input = InputControlManager.createComponent(context, this.inputComponentClass);
+        // once
+        copyAttributes(parent, ii, input);
+        // cols
+        int cols = getFormatInteger(ii, FORMAT_COLS, FORMAT_COLS_ATTRIBUTE);
+        if (cols>0)
+            input.setCols(cols);
+        // rows
+        int rows = getFormatInteger(ii, FORMAT_ROWS, FORMAT_ROWS_ATTRIBUTE);
+        if (rows>0)
+            input.setRows(rows);
+        // add
+        compList.add(input);
+        // update
+        updateInputState(compList, ii, context, true);
     }
     
     @Override
-    protected void updateInputState(List<UIComponent> compList, InputInfo ii, FacesContext context)
+    protected void updateInputState(List<UIComponent> compList, InputInfo ii, FacesContext context, boolean setValue)
     {
         UIComponent comp = compList.get(0);
         if (!(comp instanceof HtmlInputTextarea))
@@ -114,6 +94,14 @@ public class TextAreaInputControl extends InputControl
         // field-readOnly
         if (ObjectUtils.getBoolean(dis)==false)
             input.setReadonly(ii.isFieldReadOnly());
+        // Set Value
+        if (setValue)
+        {   // style
+            addRemoveDisabledStyle(input, (input.isDisabled() || input.isReadonly()));
+            addRemoveInvalidStyle(input, ii.hasError());
+            // set value
+            setInputValue(input, ii);
+        }    
     }
 
     @Override

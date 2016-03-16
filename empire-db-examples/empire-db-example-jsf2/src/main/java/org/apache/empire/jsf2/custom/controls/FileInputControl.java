@@ -30,7 +30,7 @@ import org.apache.empire.jsf2.controls.InputControl;
 
 public class FileInputControl extends InputControl
 {
-    public static final String             NAME                = "blob";
+    public static final String NAME = "file";
 
     private Class<? extends HtmlInputFile> inputComponentClass = null;
 
@@ -52,6 +52,7 @@ public class FileInputControl extends InputControl
         try
         {
             input = inputComponentClass.newInstance();
+            copyAttributes(parent, ii, input);
         }
         catch (InstantiationException e1)
         {
@@ -61,16 +62,13 @@ public class FileInputControl extends InputControl
         {
             throw new InternalException(e2);
         }
-
-        copyAttributes(parent, ii, input);
-        setInputValue(input, ii);
-        input.setDisabled(ii.isDisabled());
-        
         compList.add(input);
+        // update
+        updateInputState(compList, ii, context, true);
     }
 
     @Override
-    protected void updateInputState(List<UIComponent> compList, InputInfo ii, FacesContext context)
+    protected void updateInputState(List<UIComponent> compList, InputInfo ii, FacesContext context, boolean setValue)
     {
         UIComponent comp = compList.get(0);
         if (!(comp instanceof HtmlInputFile))
@@ -80,6 +78,9 @@ public class FileInputControl extends InputControl
         // update state
         HtmlInputFile input = (HtmlInputFile) comp;
         input.setDisabled(ii.isDisabled());
+        // set value
+        if (setValue)
+            setInputValue(input, ii);
     }
 
     public class HtmlInputFile extends HtmlInputText
