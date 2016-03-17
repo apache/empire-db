@@ -147,34 +147,35 @@ public class InputTag extends UIInput implements NamingContainer
         // init
         helper.encodeBegin();
         control = helper.getInputControl();
+        inpInfo = helper.getInputInfo(context);
+        // set required
+        if (hasRequiredFlagSet == false)
+            super.setRequired(helper.isValueRequired());
+        // create input
+        if (this.getChildCount()==0)
+        {   // create input
+            control.createInput(this, inpInfo, context);
+            attachEvents(context);
+        }
+        else
+        {   // update state
+            control.updateInputState(this, inpInfo, context, true);
+        }
+        
+        // set readonly
+        boolean readOnly = helper.isRecordReadOnly();
+        setRenderInput(!readOnly);
 
         // render components
-        if (helper.isRecordReadOnly())
-        {
-            InputControl.ValueInfo valInfo = helper.getValueInfo(context);
-            // render value
+        if (readOnly)
+        {   // render value
             ResponseWriter writer = context.getResponseWriter();
-            String tag = writeStartElement(valInfo, writer);
-            control.renderValue(valInfo, writer);
+            String tag = writeStartElement(inpInfo, writer);
+            control.renderValue(inpInfo, writer);
             writer.endElement(tag);
         }
         else
-        {
-            inpInfo = helper.getInputInfo(context);
-            // set required
-            if (hasRequiredFlagSet == false)
-                super.setRequired(helper.isValueRequired());
-            // create input
-            if (this.getChildCount()==0)
-            {   // create input
-                control.createInput(this, inpInfo, context);
-                attachEvents(context);
-            }
-            else
-            {   // update state
-                control.updateInputState(this, inpInfo, context, true);
-            }
-            // render input
+        {   // render input
             control.renderInput(this, inpInfo, context);
         }
         saveState();
@@ -188,27 +189,27 @@ public class InputTag extends UIInput implements NamingContainer
         helper.setRecord(null);
     }
 
-    /*
     @Override
     public void processDecodes(FacesContext context) 
     {
         if (helper.isInsideUIData())
         {   // Check input controls
             if (getChildCount()>0)
-            {   // Change readOnly and disabled too
+            {   // Set readOnly and disabled for each row
                 boolean readOnly = helper.isRecordReadOnly();
-                log.info("Changing UIInput readOnly state for {} to {}", helper.getColumnName(), readOnly);
+                setRenderInput(!readOnly);
+                // get control
                 if (control==null)
                     control = helper.getInputControl();
                 if (inpInfo==null)
                     inpInfo = helper.getInputInfo(context);
-                control.updateInputState(this, inpInfo, context);
+                // update control
+                control.updateInputState(this, inpInfo, context, false);
             }
         }
         // default
         super.processDecodes(context);
     }
-    */
 
     @Override
     public void setRequired(boolean required)
@@ -329,6 +330,19 @@ public class InputTag extends UIInput implements NamingContainer
         return helper.isValueRequired();
     }
 
+    protected void setRenderInput(boolean renderInput)
+    {
+        for (UIComponent child : getChildren())
+        {
+            if (child.isRendered()!=renderInput)
+            {
+                if (log.isDebugEnabled())
+                    log.debug("Changing UIInput rendered state for {} to {}", helper.getColumnName(), renderInput);
+                child.setRendered(renderInput);
+            }    
+        }
+    }
+    
     protected boolean isPartialSubmit(FacesContext context)
     {
         // Check Required Flag
