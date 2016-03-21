@@ -113,9 +113,19 @@ public class SelectInputControl extends InputControl
         input.setDisabled(disabled);
         // Options (sync)
         Options options = ii.getOptions();
-        boolean addEmpty = getEmptyEntryRequired(ii, disabled) && !options.contains("");
-        String nullText = (addEmpty) ? getNullText(ii) : "";
-        syncOptions(input, ii.getTextResolver(), options, addEmpty, nullText, ii.isInsideUIData());
+        if (options!=null)
+        {   // syncOptions
+            boolean addEmpty = getEmptyEntryRequired(ii, disabled) && !options.contains("");
+            String nullText = (addEmpty) ? getNullText(ii) : "";
+            syncOptions(input, ii.getTextResolver(), options, addEmpty, nullText, ii.isInsideUIData());
+        }
+        else
+        {   // clear or not?
+            if (ii.getValue(false)!=null)
+                log.warn("No options have been set for column {}", ii.getColumn().getName());
+            else
+                input.getChildren().clear();
+        }
         // set value
         if (setValue)
         {   // style
