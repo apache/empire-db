@@ -146,7 +146,7 @@ public interface Record extends RecordData
      * @param ignoreList list of column to ignore
      * @return the number of fields that have been set    
      */
-    int setBeanValues(Object bean, Collection<Column> ignoreList);
+    int setRecordValues(Object bean, Collection<Column> ignoreList);
 
     /**
      * sets all record values from a particular bean.
@@ -156,6 +156,6 @@ public interface Record extends RecordData
      * @param bean the Java Bean from which to read the value from
      * @return the number of fields that have been set    
      */
-    int setBeanValues(Object bean);
+    int setRecordValues(Object bean);
 
 }

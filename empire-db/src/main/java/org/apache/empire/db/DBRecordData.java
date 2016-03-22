@@ -27,6 +27,7 @@ import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.empire.commons.ObjectUtils;
 import org.apache.empire.commons.StringUtils;
+import org.apache.empire.data.Column;
 import org.apache.empire.data.ColumnExpr;
 import org.apache.empire.data.RecordData;
 import org.apache.empire.exceptions.BeanPropertySetException;
@@ -297,8 +298,11 @@ public abstract class DBRecordData extends DBObject
     /**
      * Set a single property value of a java bean object used by readProperties.
      */
-    protected void getBeanProperty(Object bean, String property, Object value)
+    @SuppressWarnings("rawtypes")
+    protected void setBeanProperty(ColumnExpr column, Object bean, String property, Object value)
     {
+        if (StringUtils.isEmpty(property))
+            property = column.getBeanPropertyName();
         try
         {
             if (bean==null)
@@ -315,6 +319,19 @@ public abstract class DBRecordData extends DBObject
                 value = DateUtils.addDate((Date)value, 0, 0, 0);
             }
             */
+            Object type = column.getAttribute(Column.COLATTR_ENUMTYPE);
+            if (type!=null && value!=null)
+            {
+                String name = value.toString();
+                @SuppressWarnings("unchecked")
+                Class<Enum> enumType = (Class<Enum>)type;
+                for (Enum e : enumType.getEnumConstants())
+                    if (e.name().equals(name))
+                    {
+                        value = e;
+                        break;
+                    }
+            }
             // Set Property Value
             if (value!=null)
             {   // Bean utils will convert if necessary
@@ -348,7 +365,7 @@ public abstract class DBRecordData extends DBObject
      * @return the number of bean properties set on the supplied bean
      */
     @Override
-    public int getBeanProperties(Object bean, Collection<ColumnExpr> ignoreList)
+    public int setBeanProperties(Object bean, Collection<ColumnExpr> ignoreList)
     {
         // Add all Columns
         int count = 0;
@@ -360,7 +377,7 @@ public abstract class DBRecordData extends DBObject
             // Get Property Name
             String property = column.getBeanPropertyName();
             if (property!=null)
-                getBeanProperty(bean, property, this.getValue(i));
+                setBeanProperty(column, bean, property, this.getValue(i));
             count++;
         }
         return count;
@@ -372,9 +389,9 @@ public abstract class DBRecordData extends DBObject
      * @return the number of bean properties set on the supplied bean
      */
     @Override
-    public final int getBeanProperties(Object bean)
+    public final int setBeanProperties(Object bean)
     {
-        return getBeanProperties(bean, null);
+        return setBeanProperties(bean, null);
     }
     
 }

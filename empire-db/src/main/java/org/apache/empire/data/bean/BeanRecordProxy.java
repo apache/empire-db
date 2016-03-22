@@ -313,13 +313,13 @@ public class BeanRecordProxy<T> implements Record
     // --------------- Bean support ------------------
 
     @Override
-    public int getBeanProperties(Object bean)
+    public int setBeanProperties(Object bean)
     {
-        return getBeanProperties(bean, null);
+        return setBeanProperties(bean, null);
     }
 
     @Override
-    public int getBeanProperties(Object bean, Collection<ColumnExpr> ignoreList)
+    public int setBeanProperties(Object bean, Collection<ColumnExpr> ignoreList)
     {
         // Add all Columns
         int count = 0;
@@ -337,7 +337,7 @@ public class BeanRecordProxy<T> implements Record
     }
 
     @Override
-    public int setBeanValues(Object bean, Collection<Column> ignoreList)
+    public int setRecordValues(Object bean, Collection<Column> ignoreList)
     {
         // Add all Columns
         int count = 0;
@@ -356,15 +356,15 @@ public class BeanRecordProxy<T> implements Record
         }
         return count;
     }
-
+    
     @Override
-    public int setBeanValues(Object bean)
+    public int setRecordValues(Object bean)
     {
-        return setBeanValues(bean, null);
+        return setRecordValues(bean, null);
     }
 
     // --------------- protected ------------------
-    
+
     protected Object getBeanPropertyValue(Object bean, ColumnExpr column)
     {
         // Check Params

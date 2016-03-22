@@ -675,7 +675,7 @@ public class DBReader extends DBRecordData
                 else
                 {   // Use Property Setters
                     T bean = t.newInstance();
-                    getBeanProperties(bean);
+                    setBeanProperties(bean);
                     c.add(bean);
                 }
                 // Decrease count

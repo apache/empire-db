@@ -27,6 +27,7 @@ import org.apache.commons.beanutils.BeanUtilsBean;
 import org.apache.commons.beanutils.PropertyUtilsBean;
 import org.apache.empire.commons.ObjectUtils;
 import org.apache.empire.commons.Options;
+import org.apache.empire.commons.StringUtils;
 import org.apache.empire.data.Column;
 import org.apache.empire.data.ColumnExpr;
 import org.apache.empire.data.Record;
@@ -1022,14 +1023,12 @@ public class DBRecord extends DBRecordData implements Record, Cloneable
      * @param property the name of the property
      * @param column the column for which to set the record value
      */
-    protected void setBeanValue(Object bean, String property, Column column)
+    protected void setRecordValue(Column column, Object bean, String property)
     {
+        if (StringUtils.isEmpty(property))
+            property = column.getBeanPropertyName();
         try
-        {   /*
-            if (log.isTraceEnabled())
-                log.trace(bean.getClass().getName() + ": getting property '" + property + "' for column " + column.getName());
-            */
-            
+        {
             // Get Property Value
             PropertyUtilsBean pub = BeanUtilsBean.getInstance().getPropertyUtils();
             Object value = pub.getSimpleProperty(bean, property);
@@ -1055,7 +1054,7 @@ public class DBRecord extends DBRecordData implements Record, Cloneable
      * @return true if at least one value has been set successfully 
      */
     @Override
-    public int setBeanValues(Object bean, Collection<Column> ignoreList)
+    public int setRecordValues(Object bean, Collection<Column> ignoreList)
     {
         // Add all Columns
         int count = 0;
@@ -1068,7 +1067,7 @@ public class DBRecord extends DBRecordData implements Record, Cloneable
                 continue; // ignore this property
             // Get Property Name
             String property = column.getBeanPropertyName();
-            setBeanValue(bean, property, column);
+            setRecordValue(column, bean, property);
             count++;
         }
         return count;
@@ -1079,9 +1078,9 @@ public class DBRecord extends DBRecordData implements Record, Cloneable
      * @return true if at least one value has been set sucessfully
      */
     @Override
-    public final int setBeanValues(Object bean)
+    public final int setRecordValues(Object bean)
     {
-        return setBeanValues(bean, null);
+        return setRecordValues(bean, null);
     }
     
     /**
