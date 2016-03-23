@@ -65,11 +65,11 @@ public class EmployeeServiceImpl implements EmployeeService
         else
             r.read(T_EMP, emp.getEmployeeId(), conn);
 
-        r.setBeanValues(emp);
+        r.setRecordValues(emp);
         r.update(conn);
 
 
-        r.getBeanProperties(emp);
+        r.setBeanProperties(emp);
         emp.setNew(false);
     }
 
@@ -125,7 +125,7 @@ public class EmployeeServiceImpl implements EmployeeService
 
         // null, so that no IDs are wasted.
         r.create(T_EMP, null);
-        r.getBeanProperties(emp);
+        r.setBeanProperties(emp);
 
         emp.setNew(true);
 
@@ -143,7 +143,7 @@ public class EmployeeServiceImpl implements EmployeeService
         Employee emp = new Employee();
 
         r.read(T_EMP, id, conn);
-        r.getBeanProperties(emp);
+        r.setBeanProperties(emp);
         return emp;
     }
 
