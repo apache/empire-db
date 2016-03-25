@@ -32,7 +32,7 @@ public class EmpireRecord extends DBRecord
     private static final long serialVersionUID = 1L;
 
     @Override
-    protected void setBeanValue(Object bean, String property, Column column)
+    protected void setRecordValue(Column column, Object bean, String property)
     {
         try
         {

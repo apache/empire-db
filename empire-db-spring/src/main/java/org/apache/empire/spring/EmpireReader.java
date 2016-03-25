@@ -26,6 +26,7 @@ import org.apache.commons.beanutils.BeanUtilsBean;
 import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.empire.commons.ObjectUtils;
 import org.apache.empire.commons.StringUtils;
+import org.apache.empire.data.ColumnExpr;
 import org.apache.empire.db.DBReader;
 import org.apache.empire.exceptions.BeanPropertySetException;
 import org.apache.empire.exceptions.InvalidArgumentException;
@@ -36,7 +37,7 @@ public class EmpireReader extends DBReader
     private static final long serialVersionUID = 1L;
 
     @Override
-    protected void getBeanProperty(Object bean, String property, Object value)
+    protected void setBeanProperty(ColumnExpr column, Object bean, String property, Object value)
     {
         try
         {

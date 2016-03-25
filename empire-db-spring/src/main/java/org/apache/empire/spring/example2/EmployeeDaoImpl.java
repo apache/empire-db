@@ -152,7 +152,7 @@ public class EmployeeDaoImpl extends EmpireDaoSupport implements EmployeeDao {
 		public Employee mapRecord(DBRecordData record, int rowNum) {
 			Employee result = new Employee();
             // Auto-copy all properties
-			record.getBeanProperties(result);
+			record.setBeanProperties(result);
 			/*
 			result.setEmployeeId(record.getInt(EMPLOYEES.EMPLOYEE_ID));
 			result.setFirstName(record.getString(EMPLOYEES.FIRSTNAME));
@@ -171,7 +171,7 @@ public class EmployeeDaoImpl extends EmpireDaoSupport implements EmployeeDao {
         @Override
 		public void write(DBRecord record, Employee entity) {
 			// Auto-copy all properties
-		    record.setBeanValues(entity);
+		    record.setRecordValues(entity);
 			/*
 		    record.setValue(EMPLOYEES.EMPLOYEE_ID, entity.getEmployeeId());
 			record.setValue(EMPLOYEES.FIRSTNAME, entity.getFirstName());
@@ -199,7 +199,7 @@ public class EmployeeDaoImpl extends EmpireDaoSupport implements EmployeeDao {
 			if (department == null) {
 				department = new Department();
                 // Auto-copy all properties
-				record.getBeanProperties(department);
+				record.setBeanProperties(department);
 				/*
 				department.setDepartmentId(id);
 				department.setName(record.getString(DEPARTMENTS.NAME));
@@ -218,7 +218,7 @@ public class EmployeeDaoImpl extends EmpireDaoSupport implements EmployeeDao {
 		@Override
         public void write(DBRecord record, Department entity) {
             // Auto-copy all properties
-		    record.setBeanValues(entity);
+		    record.setRecordValues(entity);
 		    /*
 			record.setValue(DEPARTMENTS.DEPARTMENT_ID, entity.getDepartmentId());
 			record.setValue(DEPARTMENTS.NAME, entity.getName());
