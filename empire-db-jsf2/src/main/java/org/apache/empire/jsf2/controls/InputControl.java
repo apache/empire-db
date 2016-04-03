@@ -179,12 +179,23 @@ public abstract class InputControl
         try {
             this.creatingComponents = true;
             createInputComponents(comp, ii, context, children);
+            // check
+            boolean resetChildId = ii.isInsideUIData();
+            if (resetChildId && log.isDebugEnabled())
+            {   // Debug-Info only   
+                UIComponent c1 = comp.getChildren().get(0);
+                String clientId = c1.getClientId();
+                log.debug("Performing ChildId-reset for {}", clientId);
+            }
             // add attached objects
             UIComponent parent = comp;
             while (!(parent instanceof UIInput))
                 parent = parent.getParent();
             for (UIComponent child : children)
-            {   // check type
+            {   // reset child-id
+                if (resetChildId && child.getId()!=null)
+                    child.setId(child.getId());
+                // check type
                 if (!(child instanceof UIComponentBase))
                     continue;
                 // add attached objects
@@ -209,8 +220,7 @@ public abstract class InputControl
     {
         // Encode all
         for (UIComponent child : comp.getChildren())
-        {   // reset child-id
-            // render
+        {   // render
             if (child.isRendered())
                 child.encodeAll(context);
         }
