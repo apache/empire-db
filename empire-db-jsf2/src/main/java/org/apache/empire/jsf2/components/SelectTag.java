@@ -121,6 +121,10 @@ public class SelectTag extends UIInput implements NamingContainer
             // attach objects
             addAttachedObjects(context, inputComponent);
         }
+        else
+        {   // update attached objects
+            updateAttachedObjects(context, inputComponent);
+        }
         // render components
         inputComponent.encodeAll(context);
         // default
@@ -273,5 +277,12 @@ public class SelectTag extends UIInput implements NamingContainer
         InputAttachedObjectsHandler aoh = InputControlManager.getAttachedObjectsHandler();
         if (aoh!=null)
             aoh.addAttachedObjects(this, context, null, inputComponent);
+    }
+    
+    protected void updateAttachedObjects(FacesContext context, UIInput inputComponent)
+    {
+        InputAttachedObjectsHandler aoh = InputControlManager.getAttachedObjectsHandler();
+        if (aoh!=null)
+            aoh.updateAttachedObjects(this, context, null, inputComponent);
     }
 }

@@ -28,6 +28,7 @@ import javax.faces.component.UIComponent;
 import javax.faces.component.UIComponentBase;
 import javax.faces.component.UIData;
 import javax.faces.component.UIInput;
+import javax.faces.component.behavior.ClientBehaviorHolder;
 import javax.faces.context.FacesContext;
 import javax.faces.context.ResponseWriter;
 
@@ -196,7 +197,7 @@ public abstract class InputControl
                 if (resetChildId && child.getId()!=null)
                     child.setId(child.getId());
                 // check type
-                if (!(child instanceof UIComponentBase))
+                if (!(child instanceof ClientBehaviorHolder))
                     continue;
                 // add attached objects
                 addAttachedObjects(parent, context, ii, ((UIComponentBase)child));
@@ -232,6 +233,17 @@ public abstract class InputControl
         if (cl.isEmpty())
             return;
         updateInputState(cl, ii, context, setValue);
+        // update attached objects
+        List<UIComponent> children = parent.getChildren();
+        while (!(parent instanceof UIInput))
+            parent = parent.getParent();
+        for (UIComponent child : children)
+        {   // check type
+            if (!(child instanceof ClientBehaviorHolder))
+                continue;
+            // update attached objects
+            updateAttachedObjects(parent, context, ii, ((UIComponentBase)child));
+        }
     }
     
     public void postUpdateModel(UIComponent comp, InputInfo ii, FacesContext fc)
@@ -318,6 +330,13 @@ public abstract class InputControl
         InputAttachedObjectsHandler aoh = InputControlManager.getAttachedObjectsHandler();
         if (aoh!=null)
             aoh.addAttachedObjects(parent, context, ii.getColumn(), inputComponent);
+    }
+    
+    protected void updateAttachedObjects(UIComponent parent, FacesContext context, InputInfo ii, UIComponentBase inputComponent)
+    {
+        InputAttachedObjectsHandler aoh = InputControlManager.getAttachedObjectsHandler();
+        if (aoh!=null)
+            aoh.updateAttachedObjects(parent, context, ii.getColumn(), inputComponent);
     }
     
     protected UIInput getFirstInput(List<UIComponent> compList)

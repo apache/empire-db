@@ -61,6 +61,18 @@ public class InputAttachedObjectsHandler
         result.clear();
         parent.getAttributes().remove("javax.faces.RetargetableHandlers");
     }
+    
+    /**
+     * updates objects such as events, validators, etc on dynamically created input components 
+     * @param parent the CompositeComponent parent
+     * @param context the faces context
+     * @param column the column for which to attach the objects (optional, i.e. may be null) 
+     * @param inputComponent the input component created by the InputControl implementation
+     */
+    public void updateAttachedObjects(UIComponent parent, FacesContext context, Column column, UIComponentBase inputComponent)
+    {
+        // Normally nothing to do
+    }
 
     /**
      * helper to get a tag attribute value
