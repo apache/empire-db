@@ -28,7 +28,6 @@ import org.apache.empire.commons.ObjectUtils;
 import org.apache.empire.commons.Options;
 import org.apache.empire.commons.StringUtils;
 import org.apache.empire.data.DataType;
-import org.apache.empire.db.DBCmdParam;
 import org.apache.empire.db.exceptions.InvalidKeyException;
 import org.apache.empire.db.exceptions.NoPrimaryKeyException;
 import org.apache.empire.db.exceptions.QueryNoResultException;
@@ -37,6 +36,7 @@ import org.apache.empire.db.exceptions.RecordUpdateFailedException;
 import org.apache.empire.db.exceptions.RecordUpdateInvalidException;
 import org.apache.empire.db.expr.compare.DBCompareColExpr;
 import org.apache.empire.db.expr.compare.DBCompareExpr;
+import org.apache.empire.db.expr.join.DBColumnJoinExpr;
 import org.apache.empire.db.expr.join.DBJoinExpr;
 import org.apache.empire.exceptions.InvalidArgumentException;
 import org.apache.empire.exceptions.ItemNotFoundException;
@@ -539,7 +539,10 @@ public class DBQuery extends DBRowSet
             // Evaluate Joins
             for (i = 0; cmd.joins != null && i < cmd.joins.size(); i++)
             {
-                DBJoinExpr join = cmd.joins.get(i);
+                DBJoinExpr jex = cmd.joins.get(i);
+                if (!(jex instanceof DBColumnJoinExpr))
+                    continue;
+                DBColumnJoinExpr join = (DBColumnJoinExpr)jex;
                 DBColumn left  = join.getLeft() .getUpdateColumn();
                 DBColumn right = join.getRight().getUpdateColumn();
                 if (left.getRowSet()==table && table.isKeyColumn(left))

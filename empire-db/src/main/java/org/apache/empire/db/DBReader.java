@@ -899,8 +899,8 @@ public class DBReader extends DBRecordData
         // check the joins
         for (DBJoinExpr j : joins)
         {
-            DBRowSet rsl = j.getLeft().getUpdateColumn().getRowSet();
-            DBRowSet rsr = j.getRight().getUpdateColumn().getRowSet();
+            DBRowSet rsl = j.getLeftTable();
+            DBRowSet rsr = j.getRightTable();
             if (rsl instanceof DBQuery)
             {   // the left join is a query
                 subQueryParams = addSubQueryParams((DBQuery)rsl, subQueryParams);

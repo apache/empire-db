@@ -31,6 +31,7 @@ import org.apache.empire.db.DBIndex;
 import org.apache.empire.db.DBRowSet;
 import org.apache.empire.db.DBTable;
 import org.apache.empire.db.expr.compare.DBCompareExpr;
+import org.apache.empire.db.expr.join.DBColumnJoinExpr;
 import org.apache.empire.db.expr.join.DBJoinExpr;
 import org.apache.empire.db.expr.set.DBSetExpr;
 import org.apache.empire.exceptions.InvalidArgumentException;
@@ -286,13 +287,15 @@ public class DBCommandOracle extends DBCommand
         DBRowSet table =  set.get(0).getTable();
         table.addSQL(buf, CTX_FULLNAME|CTX_ALIAS);
         // join (only one allowed yet)
-        DBJoinExpr updateJoin = null;
+        DBColumnJoinExpr updateJoin = null;
         for (DBJoinExpr jex : joins)
         {   // The join
+            if (!(jex instanceof DBColumnJoinExpr))
+                continue;
             if (jex.isJoinOn(table)==false)
                 continue;
             // found the join
-            updateJoin = jex;
+            updateJoin = (DBColumnJoinExpr)jex;
             break;
         }
         if (updateJoin==null)

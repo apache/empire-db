@@ -36,10 +36,10 @@ import org.slf4j.LoggerFactory;
  * <P>
  *
  */
-public class DBJoinExprEx extends DBJoinExpr
+public class DBCompareJoinExpr extends DBColumnJoinExpr
 {
     private final static long serialVersionUID = 1L;
-    private static final Logger log = LoggerFactory.getLogger(DBJoinExprEx.class);
+    private static final Logger log = LoggerFactory.getLogger(DBCompareJoinExpr.class);
     
     protected final DBCompareExpr cmp;
     
@@ -71,7 +71,7 @@ public class DBJoinExprEx extends DBJoinExpr
      * @param cmp the compare expression
      * @param joinType the join type
      */
-    public DBJoinExprEx(DBRowSet rset, DBCompareExpr cmp, DBJoinType joinType)
+    public DBCompareJoinExpr(DBRowSet rset, DBCompareExpr cmp, DBJoinType joinType)
     {
         super(firstRsetColumn(rset), findFirstColumn(cmp), joinType);
         this.cmp = cmp;

@@ -39,7 +39,12 @@ public enum DBJoinType
     /**
      * SQL Right join
      */
-    RIGHT;  //   = 1
+    RIGHT,  //   = 1
+    
+    /**
+     * SQL Cross join
+     */
+    CROSS;
     
     public static DBJoinType reversed(DBJoinType type)
     {

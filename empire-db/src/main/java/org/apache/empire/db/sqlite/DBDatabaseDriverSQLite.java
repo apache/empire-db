@@ -41,6 +41,7 @@ import org.apache.empire.db.DBDriverFeature;
 import org.apache.empire.db.DBJoinType;
 import org.apache.empire.db.DBObject;
 import org.apache.empire.db.DBSQLScript;
+import org.apache.empire.db.expr.join.DBColumnJoinExpr;
 import org.apache.empire.db.expr.join.DBJoinExpr;
 import org.apache.empire.exceptions.NotImplementedException;
 import org.apache.empire.exceptions.UnexpectedReturnValueException;
@@ -74,13 +75,13 @@ public class DBDatabaseDriverSQLite extends DBDatabaseDriver
         }
         
         @Override
-		public DBJoinExpr join(DBColumnExpr left, DBColumnExpr right, DBJoinType joinType)
+		public DBColumnJoinExpr join(DBColumnExpr left, DBColumnExpr right, DBJoinType joinType)
         {
             // http://www.sqlite.org/omitted.html
-            if (joinType != DBJoinType.LEFT) { throw new NotImplementedException(joinType, left + " join " + right); }
-            DBJoinExpr join = new DBJoinExpr(left, right, joinType);
-            join(join);
-            return join;
+            if (joinType != DBJoinType.LEFT) {
+                throw new NotImplementedException(joinType, left + " join " + right); 
+            }
+            return super.join(left, right, joinType);
         }
         
         @Override
@@ -88,7 +89,11 @@ public class DBDatabaseDriverSQLite extends DBDatabaseDriver
         {
             for (DBJoinExpr joinExpr : joinExprList)
             {
-                if (joinExpr.getType() != DBJoinType.LEFT) { throw new NotImplementedException(joinExpr.getType(), joinExpr.getLeft() + " join " + joinExpr.getLeft()); }
+                if ((joinExpr instanceof DBColumnJoinExpr) && 
+                    (joinExpr.getType() != DBJoinType.LEFT)) { 
+                    DBColumnJoinExpr join = (DBColumnJoinExpr)joinExpr;
+                    throw new NotImplementedException(joinExpr.getType(), join.getLeft() + " join " + join.getRight()); 
+                }
             }
             /*
              * Iterator<DBJoinExpr> iterator = joinExprList.iterator(); for

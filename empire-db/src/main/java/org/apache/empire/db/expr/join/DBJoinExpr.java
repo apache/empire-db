@@ -18,16 +18,11 @@
  */
 package org.apache.empire.db.expr.join;
 
-import java.util.HashSet;
-import java.util.Set;
-
 import org.apache.empire.db.DBColumn;
 import org.apache.empire.db.DBColumnExpr;
-import org.apache.empire.db.DBDatabase;
 import org.apache.empire.db.DBExpr;
 import org.apache.empire.db.DBJoinType;
 import org.apache.empire.db.DBRowSet;
-import org.apache.empire.db.expr.compare.DBCompareExpr;
 
 /**
  * This class is used for building a join expression of an SQL statement.
@@ -37,16 +32,11 @@ import org.apache.empire.db.expr.compare.DBCompareExpr;
  * <P>
  *
  */
-public class DBJoinExpr extends DBExpr
+public abstract class DBJoinExpr extends DBExpr
 {
     private final static long serialVersionUID = 1L;
   
-    protected DBColumnExpr  left;
-    protected DBColumnExpr  right;
     protected DBJoinType    type;
-
-    // Additional
-    public DBCompareExpr compExpr = null;
 
     /**
      * Constructs a new DBJoinExpr object initialize this object with
@@ -57,38 +47,9 @@ public class DBJoinExpr extends DBExpr
      * @param right right value
      * @param type data type (JOIN_INNER, JOIN_LEFT or JOIN_RIGHT)
      */
-    public DBJoinExpr(DBColumnExpr left, DBColumnExpr right, DBJoinType type)
+    protected DBJoinExpr(DBJoinType type)
     {
-        this.left = left;
-        this.right = right;
         this.type = type;
-    }
-
-    /**
-     * Returns the current DBDatabase object.
-     * 
-     * @return the current DBDatabase object
-     */
-    @Override
-    public DBDatabase getDatabase()
-    {
-        return left.getDatabase();
-    }
-
-    /**
-     * returns the left join expression
-     */
-    public DBColumnExpr getLeft()
-    {
-        return left;
-    }
-
-    /**
-     * returns the right join expression
-     */
-    public DBColumnExpr getRight()
-    {
-        return right;
     }
 
     /**
@@ -100,39 +61,24 @@ public class DBJoinExpr extends DBExpr
     }
     
     /**
+     * returns the RowSet on the left of the join
+     */
+    public abstract DBRowSet getLeftTable();
+    
+    /**
+     * returns the RowSet on the right of the join
+     */
+    public abstract DBRowSet getRightTable();
+    
+    /**
      * returns true if this join is using the given table or view or false otherwise
      */
-    public boolean isJoinOn(DBRowSet rowset)
-    {
-        if (rowset==null)
-            return false;
-        DBColumn l = (left !=null ? left .getUpdateColumn() : null);
-        DBColumn r = (right!=null ? right.getUpdateColumn() : null);
-        DBRowSet rsl = (l!=null ? l.getRowSet() : null);
-        DBRowSet rsr = (r!=null ? r.getRowSet() : null);
-        return rowset.equals(rsl) || rowset.equals(rsr);
-    }
+    public abstract boolean isJoinOn(DBRowSet rowset);
     
     /**
      * returns true if this join is using the given column or false otherwise
      */
-    public boolean isJoinOn(DBColumn column)
-    {
-        if (column==null)
-            return false;
-        // Check Update Columns
-        if (column.equals(left.getUpdateColumn()) ||
-            column.equals(right.getUpdateColumn()))
-            return true;
-        if (compExpr!=null)
-        {   // Check expression
-            HashSet<DBColumn> set = new HashSet<DBColumn>();
-            compExpr.addReferencedColumns(set);
-            return set.contains(column);
-        }
-        // not found
-        return false;
-    }
+    public abstract boolean isJoinOn(DBColumn column);
 
     /**
      * Returns the left table name if the data type= JOIN_LEFT and returns
@@ -141,126 +87,11 @@ public class DBJoinExpr extends DBExpr
      * 
      * @return the current DBDatabase object
      */
-    public DBRowSet getOuterTable()
-    {
-        switch(type)
-        {
-            case LEFT:  return right.getUpdateColumn().getRowSet();
-            case RIGHT: return left .getUpdateColumn().getRowSet();
-            default:    return null; // no outer table!
-        }
-    }
+    public abstract DBRowSet getOuterTable();
 
     /**
      * This function swaps the left and the right statements of the join expression.
      */
-    public void reverse()
-    { // Swap Type of Join
-        DBColumnExpr swap = left;
-        left = right;
-        right = swap;
-        type = DBJoinType.reversed(type); // (type * -1);
-    }
-
-    /**
-     * Returns any additional constraints to the join
-     * @return a compare expression containing additional constraints or null 
-     */
-    public DBCompareExpr getWhere()
-    {
-        return compExpr;
-    }
-
-    /**
-     * This function adds an additional constraint to the join.
-     * 
-     * @param expr the compare expression
-     */
-    public void where(DBCompareExpr expr)
-    { // Set Compare Expression
-        compExpr = expr;
-    }
-
-    /**
-     * This function adds an additional constraint to the join.
-     * 
-     * @param c1 the first column
-     * @param c2 the second column
-     * 
-     * @return the object itself
-     */
-    public DBJoinExpr and(DBColumnExpr c1, DBColumnExpr c2)
-    {   // Set Compare Expression
-        if (compExpr==null)
-            compExpr = c1.is(c2);
-        else
-            compExpr = compExpr.and(c1.is(c2));
-        return this;
-    }
-
-    /**
-     * @see org.apache.empire.db.DBExpr#addReferencedColumns(Set)
-     */
-    @Override
-    public void addReferencedColumns(Set<DBColumn> list)
-    {
-        left.addReferencedColumns(list);
-        right.addReferencedColumns(list);
-        // Compare Expression
-        if (compExpr != null)
-            compExpr.addReferencedColumns(list);
-    }
-
-    /** Not allowed, this operation have to be done in the DBCommand object. */
-    @Override
-    public void addSQL(StringBuilder buf, long context)
-    {
-        if ((context & CTX_NAME) != 0)
-            left.getUpdateColumn().getRowSet().addSQL(buf, CTX_DEFAULT | CTX_ALIAS);
-        if ((context & CTX_VALUE) != 0)
-        { // Join Type
-            switch(type)
-            {
-                case LEFT:  buf.append(" LEFT JOIN ");break;
-                case INNER: buf.append(" INNER JOIN ");break;
-                case RIGHT: buf.append(" RIGHT JOIN ");break;
-                default:    buf.append(" JOIN "); // should not come here!
-            }
-            right.getUpdateColumn().getRowSet().addSQL(buf, CTX_DEFAULT | CTX_ALIAS);
-            // compare equal
-            buf.append(" ON ");
-            right.addSQL(buf, CTX_DEFAULT);
-            buf.append(" = ");
-            left.addSQL(buf, CTX_DEFAULT);
-            // Compare Expression
-            if (compExpr != null)
-            {
-                buf.append(" AND ");
-                compExpr.addSQL(buf, CTX_DEFAULT);
-            }
-        }
-    }
-
-    /**
-     * Compares two DBJoinExpr objects.
-     * 
-     * @param obj other DBJoinExpr object
-     * @return true if the other DBJoinExpr object is equal to this object
-     */
-    @Override
-    public boolean equals(Object obj)
-    {
-        if (obj==null || obj.getClass()!=getClass())
-            return super.equals(obj);
-        // object
-        DBJoinExpr other = (DBJoinExpr) obj;
-        if (left.equals(other.left) && right.equals(other.right) && type == other.type)
-            return true;
-        // reversed
-        if (left.equals(other.right) && right.equals(other.left) && type == DBJoinType.reversed(other.type))
-            return true;
-        // not equal
-        return false;
-    }
+    public abstract void reverse();
 
 }

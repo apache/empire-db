@@ -34,8 +34,10 @@ import org.apache.empire.commons.StringUtils;
 import org.apache.empire.data.DataType;
 import org.apache.empire.db.expr.compare.DBCompareColExpr;
 import org.apache.empire.db.expr.compare.DBCompareExpr;
+import org.apache.empire.db.expr.join.DBColumnJoinExpr;
+import org.apache.empire.db.expr.join.DBCompareJoinExpr;
+import org.apache.empire.db.expr.join.DBCrossJoinExpr;
 import org.apache.empire.db.expr.join.DBJoinExpr;
-import org.apache.empire.db.expr.join.DBJoinExprEx;
 import org.apache.empire.db.expr.set.DBSetExpr;
 import org.apache.empire.exceptions.InternalException;
 import org.apache.empire.exceptions.MiscellaneousErrorException;
@@ -473,6 +475,19 @@ public abstract class DBCommand extends DBCommandExpr
         }
         joins.add(join);
     }
+    
+    /**
+     * Adds a cross join for two tables or views 
+     * @param left the left RowSet
+     * @param right the right RowSet
+     * @return the join expression
+     */
+    public DBCrossJoinExpr join(DBRowSet left, DBRowSet right)
+    {
+        DBCrossJoinExpr join = new DBCrossJoinExpr(left, right);
+        join(join);
+        return join;
+    }
 
     /**
      * Adds a join based on two columns to the list of join expressions.
@@ -483,9 +498,9 @@ public abstract class DBCommand extends DBCommandExpr
      * 
      * @return the join expression 
      */
-    public DBJoinExpr join(DBColumnExpr left, DBColumnExpr right, DBJoinType joinType)
+    public DBColumnJoinExpr join(DBColumnExpr left, DBColumnExpr right, DBJoinType joinType)
     {
-        DBJoinExpr join = new DBJoinExpr(left, right, joinType); 
+        DBColumnJoinExpr join = new DBColumnJoinExpr(left, right, joinType); 
         join(join);
         return join;
     }
@@ -498,7 +513,7 @@ public abstract class DBCommand extends DBCommandExpr
      * 
      * @return the join expresion 
      */
-    public DBJoinExpr join(DBColumnExpr left, DBColumn right)
+    public DBColumnJoinExpr join(DBColumnExpr left, DBColumn right)
     {
         return join(left, right, DBJoinType.INNER);
     }
@@ -512,9 +527,9 @@ public abstract class DBCommand extends DBCommandExpr
      * 
      * @return the join expresion 
      */
-    public DBJoinExpr join(DBRowSet rowset, DBCompareExpr cmp, DBJoinType joinType)
+    public DBCompareJoinExpr join(DBRowSet rowset, DBCompareExpr cmp, DBJoinType joinType)
     {
-        DBJoinExpr join = new DBJoinExprEx(rowset, cmp, joinType); 
+        DBCompareJoinExpr join = new DBCompareJoinExpr(rowset, cmp, joinType); 
         join(join);
         return join;
     }
@@ -527,7 +542,7 @@ public abstract class DBCommand extends DBCommandExpr
      * 
      * @return the join expresion 
      */
-    public DBJoinExpr join(DBRowSet rowset, DBCompareExpr cmp)
+    public DBCompareJoinExpr join(DBRowSet rowset, DBCompareExpr cmp)
     {
         return join(rowset, cmp, DBJoinType.INNER);
     }
@@ -1163,21 +1178,21 @@ public abstract class DBCommand extends DBCommandExpr
                  DBJoinExpr join = joins.get(i);
                  if (i<1)
                  {   // Add Join Tables
-                     joinTables.add(join.getLeft() .getUpdateColumn().getRowSet());
-                     joinTables.add(join.getRight().getUpdateColumn().getRowSet());
+                     joinTables.add(join.getLeftTable());
+                     joinTables.add(join.getRightTable());
                      // Remove from List
-                     tables.remove(join.getLeft() .getUpdateColumn().getRowSet());
-                     tables.remove(join.getRight().getUpdateColumn().getRowSet());
+                     tables.remove(join.getLeftTable());
+                     tables.remove(join.getRightTable());
                      // Context
                      context = CTX_NAME|CTX_VALUE;
                  }
                  else
                  {   // Extend the join                    
-                     if ( joinTables.contains(join.getRight().getUpdateColumn().getRowSet()))
+                     if ( joinTables.contains(join.getRightTable()))
                           join.reverse();
                      // Add Right Table     
-                     joinTables.add(join.getRight().getUpdateColumn().getRowSet());
-                     tables .remove(join.getRight().getUpdateColumn().getRowSet());
+                     joinTables.add(join.getRightTable());
+                     tables .remove(join.getRightTable());
                      // Context
                      context = CTX_VALUE;
                      buf.append( "\t" );

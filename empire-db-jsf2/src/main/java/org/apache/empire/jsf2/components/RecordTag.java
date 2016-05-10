@@ -18,7 +18,6 @@
  */
 package org.apache.empire.jsf2.components;
 
-import javax.faces.component.NamingContainer;
 import javax.faces.component.UIComponentBase;
 
 import org.apache.empire.commons.ObjectUtils;
