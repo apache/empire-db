@@ -99,6 +99,28 @@ public class DBDatabaseDriverMySQL extends DBDatabaseDriver
                 }    
             }
         }
+        
+        /**
+         * Creates an MySQL specific delete statement.
+         * @return the delete SQL-Command
+         */
+        @Override
+        public synchronized String getDelete(DBTable table)
+        {
+        	if (joins == null) {
+        		// Default
+        		return super.getDelete(table);
+        	}
+        	
+        	// DELETE with Multiple-Table Syntax
+        	// http://dev.mysql.com/doc/refman/5.7/en/delete.html
+            resetParamUsage();
+            StringBuilder buf = new StringBuilder("DELETE ");
+            buf.append(table.getAlias());
+            addFrom(buf);
+            addWhere(buf);
+            return buf.toString();
+        }
     }
     
     // Properties
