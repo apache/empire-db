@@ -1343,7 +1343,7 @@ public class TagEncodingHelper implements NamingContainer
         if (required==hasMark)
             return;
         // Add or remove the mark
-        if (required)
+        if (required && InputControlManager.isShowLabelRequiredMark())
             addRequiredMark(label);
         else
             label.getChildren().clear();
