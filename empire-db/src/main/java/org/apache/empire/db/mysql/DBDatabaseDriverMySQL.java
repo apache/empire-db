@@ -716,4 +716,38 @@ public class DBDatabaseDriverMySQL extends DBDatabaseDriver
         ddlGenerator.getDDLScript(type, dbo, script); 
     }
 
+    /** 
+     * this helper function doubles up single quotes for SQL 
+     */
+    @Override
+    protected void appendSQLTextValue(StringBuilder buf, String value)
+    {
+        if (value.indexOf('\'') >= 0)
+        { // a routine to double up single quotes for SQL
+            int len = value.length();
+            for (int i = 0; i < len; i++)
+            {
+                if (value.charAt(i) == '\'')
+                    buf.append("''");
+                else
+                    buf.append(value.charAt(i));
+            }
+        }
+        if (value.indexOf('\\') >= 0)
+        { // a routine to double up backslashes for MySQL
+            int len = value.length();
+            for (int i = 0; i < len; i++)
+            {
+                if (value.charAt(i) == '\\')
+                    buf.append("\\\\");
+                else
+                    buf.append(value.charAt(i));
+            }
+        }
+        else
+        {
+            buf.append(value);
+        }
+    }
+    
 }
