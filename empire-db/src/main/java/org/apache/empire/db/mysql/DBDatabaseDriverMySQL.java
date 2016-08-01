@@ -722,8 +722,10 @@ public class DBDatabaseDriverMySQL extends DBDatabaseDriver
     @Override
     protected void appendSQLTextValue(StringBuilder buf, String value)
     {
+    	boolean escape = false;
         if (value.indexOf('\'') >= 0)
         { // a routine to double up single quotes for SQL
+        	escape = true;
             int len = value.length();
             for (int i = 0; i < len; i++)
             {
@@ -735,6 +737,7 @@ public class DBDatabaseDriverMySQL extends DBDatabaseDriver
         }
         if (value.indexOf('\\') >= 0)
         { // a routine to double up backslashes for MySQL
+        	escape = true;
             int len = value.length();
             for (int i = 0; i < len; i++)
             {
@@ -744,8 +747,7 @@ public class DBDatabaseDriverMySQL extends DBDatabaseDriver
                     buf.append(value.charAt(i));
             }
         }
-        else
-        {
+        if (!escape) {
             buf.append(value);
         }
     }
