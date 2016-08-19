@@ -81,7 +81,7 @@ public abstract class WebApplication
 
     protected WebApplication()
     {   // subscribe
-        log.info("WebApplication {0} created", getClass().getName());
+        log.info("WebApplication {} created", getClass().getName());
         // Must be a singleton
         if (appInstance!=null) {
             throw new RuntimeException("An attempt was made to create second instance of WebApplication. WebApplication must be a singleton!");
