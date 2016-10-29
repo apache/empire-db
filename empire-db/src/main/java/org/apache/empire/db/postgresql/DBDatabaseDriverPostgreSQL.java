@@ -361,9 +361,9 @@ public class DBDatabaseDriverPostgreSQL extends DBDatabaseDriver
             case SQL_FUNC_FLOOR:              return "floor(?)";
             case SQL_FUNC_MODULO:             return "mod(?,{0})";
             // Date
-            case SQL_FUNC_DAY:                return "day(?)";
-            case SQL_FUNC_MONTH:              return "month(?)";
-            case SQL_FUNC_YEAR:               return "year(?)";
+			case SQL_FUNC_DAY:                return "extract(day from ?)";
+			case SQL_FUNC_MONTH:              return "extract(month from ?)";
+			case SQL_FUNC_YEAR:               return "extract(year from ?)";
             // Aggregation
             case SQL_FUNC_SUM:                return "sum(?)";
             case SQL_FUNC_MAX:                return "max(?)";
