@@ -42,7 +42,6 @@ import org.apache.empire.spring.DBReaderExtractor;
 import org.apache.empire.spring.DBRecordCallbackHandler;
 import org.apache.empire.spring.DBRecordMapper;
 import org.apache.empire.spring.EmpireDaoSupport;
-import org.apache.empire.spring.EmpireRecord;
 import org.apache.empire.xml.XMLWriter;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.ConnectionCallback;
@@ -70,7 +69,7 @@ public class EmpireAppImpl extends EmpireDaoSupport implements EmpireApp {
 	public Integer insertDepartment(String departmentName, String businessUnit) {
 		SampleDB db = getDatabase();
 
-		DBRecord rec = new EmpireRecord();
+		DBRecord rec = new DBRecord();
 		rec.create(db.DEPARTMENTS);
 		rec.setValue(db.DEPARTMENTS.NAME, departmentName);
 		rec.setValue(db.DEPARTMENTS.BUSINESS_UNIT, businessUnit);
@@ -85,7 +84,7 @@ public class EmpireAppImpl extends EmpireDaoSupport implements EmpireApp {
 			String gender, int departmentId) {
 		SampleDB db = getDatabase();
 
-		DBRecord rec = new EmpireRecord();
+		DBRecord rec = new DBRecord();
 		rec.create(db.EMPLOYEES);
 		rec.setValue(db.EMPLOYEES.FIRSTNAME, firstName);
 		rec.setValue(db.EMPLOYEES.LASTNAME, lastName);

@@ -609,7 +609,7 @@ public class EmpireTemplate implements InitializingBean {
 		class ReadRecordCallback implements ConnectionCallback<DBRecord> {
 			public DBRecord doInConnection(Connection connection)
 					throws SQLException, DataAccessException {
-				DBRecord record = new EmpireRecord();
+				DBRecord record = EmpireTemplate.this.recordFactory.getObject();
 				record.read(table, keys, connection);
 				return record;
 			}
@@ -650,7 +650,7 @@ public class EmpireTemplate implements InitializingBean {
 		class ReadRecordCallback implements ConnectionCallback<DBRecord> {
 			public DBRecord doInConnection(Connection connection)
 					throws SQLException, DataAccessException {
-				DBRecord record = new EmpireRecord();
+				DBRecord record = EmpireTemplate.this.recordFactory.getObject();
 				try {
 					record.read(table, keys, connection);
 				} catch (RecordNotFoundException e) {

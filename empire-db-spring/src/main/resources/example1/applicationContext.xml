@@ -67,15 +67,13 @@
     </bean>
     
     <bean id="empireDao" abstract="true">
-    	<property name="database" ref="sampleDb"/>
+    	<property name="database" ref="empireDb"/>
     	<property name="empireTemplate" ref="empireTemplate"/>
     </bean>
     
     
     <bean id="empireTemplate" class="org.apache.empire.spring.EmpireTemplate">
     	<property name="dataSource" ref="dataSource"/>
-    	<property name="dBRecordClass" value="org.apache.empire.spring.EmpireRecord"/>
-    	<property name="dBReaderClass" value="org.apache.empire.spring.EmpireReader"/>
     </bean>
     
     

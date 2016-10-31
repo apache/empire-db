@@ -29,7 +29,6 @@ import org.apache.empire.db.DBRecordData;
 import org.apache.empire.spring.DBRecordMapper;
 import org.apache.empire.spring.DBRecordWriter;
 import org.apache.empire.spring.EmpireDaoSupport;
-import org.apache.empire.spring.EmpireRecord;
 import org.apache.empire.spring.example1.SampleDB;
 import org.apache.empire.spring.example1.SampleDB.Departments;
 import org.apache.empire.spring.example1.SampleDB.Employees;
@@ -93,7 +92,7 @@ public class EmployeeDaoImpl extends EmpireDaoSupport implements EmployeeDao {
 
 	@Transactional(readOnly = true)
 	public List<Department> getDepartments() {
-		DBCommand cmd = createEmployeeSelectCommand();
+		DBCommand cmd = createDepartmentSelectCommand();
 		return getEmpireTemplate().queryForBeanList(cmd, Department.class);
 	}
 
@@ -114,7 +113,7 @@ public class EmployeeDaoImpl extends EmpireDaoSupport implements EmployeeDao {
 
 	@Transactional
 	public Integer createEmployee(Employee employee) {
-		DBRecord record = new EmpireRecord();
+		DBRecord record = new DBRecord();
 		record.create(EMPLOYEES);
 		new EmployeeWriter().write(record, employee);
 		getEmpireTemplate().updateRecord(record);
@@ -130,7 +129,7 @@ public class EmployeeDaoImpl extends EmpireDaoSupport implements EmployeeDao {
 
 	@Transactional
 	public Integer createDepartment(Department department) {
-		DBRecord record = new EmpireRecord();
+		DBRecord record = new DBRecord();
 		record.create(DEPARTMENTS);
 		new DepartmentWriter().write(record, department);
 		getEmpireTemplate().updateRecord(record);
@@ -152,14 +151,14 @@ public class EmployeeDaoImpl extends EmpireDaoSupport implements EmployeeDao {
 		public Employee mapRecord(DBRecordData record, int rowNum) {
 			Employee result = new Employee();
             // Auto-copy all properties
-			record.setBeanProperties(result);
-			/*
+			//record.setBeanProperties(result);
+			
 			result.setEmployeeId(record.getInt(EMPLOYEES.EMPLOYEE_ID));
 			result.setFirstName(record.getString(EMPLOYEES.FIRSTNAME));
 			result.setLastName(record.getString(EMPLOYEES.LASTNAME));
 			result.setGender(Employee.Gender.valueOf(record.getString(EMPLOYEES.GENDER)));
 			result.setPhoneNumber(record.getString(EMPLOYEES.PHONE_NUMBER));
-			*/
+			
 			result.setDepartment(departmentMapper.mapRecord(record, rowNum));
 			return result;
 		}
@@ -171,14 +170,14 @@ public class EmployeeDaoImpl extends EmpireDaoSupport implements EmployeeDao {
         @Override
 		public void write(DBRecord record, Employee entity) {
 			// Auto-copy all properties
-		    record.setRecordValues(entity);
-			/*
+		    //record.setRecordValues(entity);
+			
 		    record.setValue(EMPLOYEES.EMPLOYEE_ID, entity.getEmployeeId());
 			record.setValue(EMPLOYEES.FIRSTNAME, entity.getFirstName());
 			record.setValue(EMPLOYEES.LASTNAME, entity.getLastName());
 			record.setValue(EMPLOYEES.GENDER, entity.getGender().name());
 			record.setValue(EMPLOYEES.PHONE_NUMBER, entity.getPhoneNumber());
-			*/
+			
 			record.setValue(EMPLOYEES.DEPARTMENT_ID, entity.getDepartment().getDepartmentId());
 		}
 
@@ -199,13 +198,13 @@ public class EmployeeDaoImpl extends EmpireDaoSupport implements EmployeeDao {
 			if (department == null) {
 				department = new Department();
                 // Auto-copy all properties
-				record.setBeanProperties(department);
-				/*
+				//record.setBeanProperties(department);
+				
 				department.setDepartmentId(id);
 				department.setName(record.getString(DEPARTMENTS.NAME));
 				department.setHead(record.getString(DEPARTMENTS.HEAD));
 				department.setBusinessUnit(record.getString(DEPARTMENTS.BUSINESS_UNIT));
-				*/		
+						
 				cache.put(id, department);
 			}
 			return department;
@@ -218,13 +217,13 @@ public class EmployeeDaoImpl extends EmpireDaoSupport implements EmployeeDao {
 		@Override
         public void write(DBRecord record, Department entity) {
             // Auto-copy all properties
-		    record.setRecordValues(entity);
-		    /*
+		    //record.setRecordValues(entity);
+		    
 			record.setValue(DEPARTMENTS.DEPARTMENT_ID, entity.getDepartmentId());
 			record.setValue(DEPARTMENTS.NAME, entity.getName());
 			record.setValue(DEPARTMENTS.HEAD, entity.getHead());
 			record.setValue(DEPARTMENTS.BUSINESS_UNIT, entity.getBusinessUnit());
-			*/
+			
 		}
 
 	}
