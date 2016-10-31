@@ -38,11 +38,6 @@
 			<artifactId>empire-db</artifactId>
 		</dependency>
 		<dependency>
-		    <groupId>hsqldb</groupId>
-		    <artifactId>hsqldb</artifactId>
-		</dependency> 
-
-		<dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-context</artifactId>
             <version>${spring.version}</version>
@@ -54,11 +49,6 @@
             <version>${spring.version}</version>
 		</dependency>
 
-        <dependency>
-            <groupId>commons-dbcp</groupId>
-            <artifactId>commons-dbcp</artifactId>
-            <version>1.2.2</version>
-        </dependency>
 		
 	</dependencies>
 </project>
