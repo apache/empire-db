@@ -5,6 +5,34 @@ For more Information about a particular issue please visit
 https://issues.apache.org/jira/browse/EMPIREDB
 
 --------------
+Release 2.4.5:
+--------------
+
+** Improvement
+	EMPIREDB-245	Add Supprt for DELETE with JOIN for MySQL
+	EMPIREDB-243	Add Eclipse m2e plugin lifecycle mapping
+	EMPIREDB-242	Explicitly declare cross joins
+	EMPIREDB-238	Miscellaneous small improvements
+	EMPIREDB-237	Add support for the modulo function in SQL generation
+	EMPIREDB-235	Improve Empire-JSF-Extensions for JSF 2.2
+	EMPIREDB-233	Remove MSSQL DateFormat dependency
+	EMPIREDB-232	Support InputControls to work correctly in MyFaces and inside UIData components
+	EMPIREDB-231	Improve CheckboxInputControl
+	EMPIREDB-229	Code cleanup and adjustment of maven project settings
+	EMPIREDB-228	Allow access to TagEncodingHelper in derived classes
+	EMPIREDB-227	Spring Integration
+
+** Bugfix
+	EMPIREDB-248	date functions not properly handled in PostgreSQL
+	EMPIREDB-246	Label Required Mark check inconsistent
+	EMPIREDB-241	Error in lower() implementation for PostgreSQL
+	EMPIREDB-240	Update Spring dependencies in examples
+	EMPIREDB-239	Enum-handling: take name or ordinal as field value
+	EMPIREDB-236	Subquery join with DBQuery produces invalid join
+	EMPIREDB-230	MSSQL DDL generates incorrect data type for BLOB with nonzero length
+	EMPIREDB-226	Empire generates incorrect SQL when DBCommand's where list is empty
+
+--------------
 Release 2.4.4:
 --------------
 ** Improvement
