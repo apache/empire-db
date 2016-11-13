@@ -80,6 +80,7 @@
 				<include>org.apache.empire-db:empire-db:*:javadoc</include>
 				<include>org.apache.empire-db:empire-db-struts2:*:javadoc</include>
 				<include>org.apache.empire-db:empire-db-jsf2:*:javadoc</include>
+				<include>org.apache.empire-db:empire-db-spring:*:javadoc</include>
 			</includes>
 		</dependencySet>
 		<dependencySet>
@@ -89,6 +90,7 @@
                 <include>org.apache.empire-db:empire-db:jar</include>
                 <include>org.apache.empire-db:empire-db-struts2:jar</include>
                 <include>org.apache.empire-db:empire-db-jsf2:jar</include>
+				<include>org.apache.empire-db:empire-db-spring:jar</include>
             </includes>
         </dependencySet>
     </dependencySets>
