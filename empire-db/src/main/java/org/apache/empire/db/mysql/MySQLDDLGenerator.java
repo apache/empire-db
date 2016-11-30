@@ -23,6 +23,8 @@ import java.util.Iterator;
 import org.apache.empire.commons.StringUtils;
 import org.apache.empire.data.DataType;
 import org.apache.empire.db.DBColumn;
+import org.apache.empire.db.DBCombinedCmd;
+import org.apache.empire.db.DBCommandExpr;
 import org.apache.empire.db.DBDDLGenerator;
 import org.apache.empire.db.DBDatabase;
 import org.apache.empire.db.DBExpr;
@@ -30,10 +32,16 @@ import org.apache.empire.db.DBIndex;
 import org.apache.empire.db.DBSQLScript;
 import org.apache.empire.db.DBTable;
 import org.apache.empire.db.DBTableColumn;
+import org.apache.empire.db.DBView;
 import org.apache.empire.db.DBDatabaseDriver.DBSeqTable;
+import org.apache.empire.exceptions.NotSupportedException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class MySQLDDLGenerator extends DBDDLGenerator<DBDatabaseDriverMySQL>
 {
+	private static final Logger log = LoggerFactory.getLogger(MySQLDDLGenerator.class);
+	
     public MySQLDDLGenerator(DBDatabaseDriverMySQL driver)
     {
         super(driver);
@@ -154,6 +162,50 @@ public class MySQLDDLGenerator extends DBDDLGenerator<DBDatabaseDriverMySQL>
         addCreateTableStmt(t, sql, script);
         // Create all Indexes
         createTableIndexes(t, pk, script);        
+    }
+    
+    /**
+     * Appends the DDL-Script for creating the given view to an SQL-Script 
+     * @param v the view to create
+     * @param script the sql script to which to append the dll command(s)
+     */
+    protected void createView(DBView v, DBSQLScript script)
+    {
+        // Create the Command
+        DBCommandExpr cmd = v.createCommand();
+        if (cmd==null)
+        {   // Check whether Error information is available
+            log.error("No command has been supplied for view " + v.getName());
+            throw new NotSupportedException(this, v.getName() + ".createCommand");
+        }
+        // Make sure there is no OrderBy
+        cmd.clearOrderBy();
+
+        // Build String
+        StringBuilder sql = new StringBuilder();
+        sql.append( "CREATE VIEW ");
+        v.addSQL(sql, DBExpr.CTX_FULLNAME);
+        sql.append( " (" );
+        boolean addSeparator = false;
+        for(DBColumn c : v.getColumns())
+        {
+            if (addSeparator)
+                sql.append(", ");
+            // Add Column name
+            c.addSQL(sql, DBExpr.CTX_NAME);
+            // next
+            addSeparator = true;
+        }
+        sql.append(")\r\nAS\r\n");
+        if (cmd instanceof DBCombinedCmd)
+        {
+        	sql.append(cmd.getSelect());
+        } else
+        {
+        	cmd.addSQL( sql, DBExpr.CTX_DEFAULT);
+        }
+        // done
+        addCreateViewStmt(v, sql, script);
     }
     
 }
