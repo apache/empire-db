@@ -42,6 +42,10 @@ public class MySQLDDLGenerator extends DBDDLGenerator<DBDatabaseDriverMySQL>
 {
 	private static final Logger log = LoggerFactory.getLogger(MySQLDDLGenerator.class);
 	
+    // Data types
+    protected String DATATYPE_INT_TINY   = "TINYINT";  // Integer with really small size (1 byte)
+    protected String DATATYPE_INT_MEDIUM = "MEDIUMINT";  // Integer with really medium size (3 byte)
+	
     public MySQLDDLGenerator(DBDatabaseDriverMySQL driver)
     {
         super(driver);
@@ -72,7 +76,36 @@ public class MySQLDDLGenerator extends DBDDLGenerator<DBDatabaseDriverMySQL>
                 if (driver.isUseSequenceTable()==false)
                     sql.append(" AUTO_INCREMENT");
                 break;
-            }    
+            }
+            case INTEGER:
+            {   
+            	int bytes = Math.abs((int) size);
+            	if (bytes > 0 && bytes <= 1)
+            	{
+            		sql.append(DATATYPE_INT_TINY);
+            	}
+            	else if (bytes > 0 && bytes <= 2)
+            	{
+	                sql.append(DATATYPE_INT_SMALL);
+            	}
+            	else if (bytes > 0 && bytes <= 3)
+            	{
+	                sql.append(DATATYPE_INT_MEDIUM);
+            	}
+	            else if (bytes > 0 && bytes <= 4)
+	            {
+	                sql.append(DATATYPE_INTEGER);
+	            }
+	            else if (bytes > 0 && bytes <= 8)
+	            {
+	                sql.append(DATATYPE_INT_BIG);
+	            }
+	            else 
+	            {	// Default
+	                sql.append(DATATYPE_INTEGER);  // Default integer length
+	            }
+            	break;
+            }
            default:
                 // use default
                 return super.appendColumnDataType(type, size, c, sql);
