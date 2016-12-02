@@ -54,6 +54,7 @@ public class CodeGenerator {
 		
 		// read the database model
 		CodeGenParser parser = new CodeGenParser(config);
+		// CodeGenParser parser = new CodeGenParserMySQL(config);
 		DBDatabase db = parser.loadDbModel();
 		
 		// create the source-code for that database

@@ -365,8 +365,8 @@ public class CodeGenParser {
 			throws SQLException {
 		String name = rs.getString("COLUMN_NAME");
 		DataType empireType = getEmpireDataType(rs.getInt("DATA_TYPE"));
+		double colSize = getColumnSize(empireType, rs.getInt("DATA_TYPE"), rs.getInt("COLUMN_SIZE"));
 		
-		double colSize = rs.getInt("COLUMN_SIZE");
 		if (empireType==DataType.DECIMAL || empireType==DataType.FLOAT)
 		{	// decimal digits
 			int decimalDig = rs.getInt("DECIMAL_DIGITS");
@@ -434,6 +434,10 @@ public class CodeGenParser {
 		
 	}
 	
+	protected double getColumnSize(DataType empireType, int dataType, int columnSize) {
+		return columnSize;
+	}
+
 	/**
 	 * Adds DBColumn object to the given DBTable. The DBColumn is created from
 	 * the given ResultSet
