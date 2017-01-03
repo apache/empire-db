@@ -34,11 +34,12 @@
 				<include>pom.xml</include>
 				<include>empire-assembly-all.xml</include>
 				<include>empire-db/**</include>
-				<include>empire-db-struts2/**</include>
 				<include>empire-db-jsf2/**</include>
-				<include>empire-db-examples/**</include>
 				<include>empire-db-maven-plugin/**</include>
 				<include>empire-db-codegen/**</include>
+				<include>empire-db-spring/**</include>
+				<include>empire-db-struts2/**</include>
+				<include>empire-db-examples/**</include>
 			</includes>
 			<excludes>
 				<exclude>**/empire-db/target/**</exclude>

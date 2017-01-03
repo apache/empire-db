@@ -9,7 +9,7 @@ Release 2.4.5:
 --------------
 
 ** Improvement
-	EMPIREDB-245	Add Supprt for DELETE with JOIN for MySQL
+	EMPIREDB-245	Add Support for DELETE with JOIN for MySQL
 	EMPIREDB-243	Add Eclipse m2e plugin lifecycle mapping
 	EMPIREDB-242	Explicitly declare cross joins
 	EMPIREDB-238	Miscellaneous small improvements
@@ -20,7 +20,7 @@ Release 2.4.5:
 	EMPIREDB-231	Improve CheckboxInputControl
 	EMPIREDB-229	Code cleanup and adjustment of maven project settings
 	EMPIREDB-228	Allow access to TagEncodingHelper in derived classes
-	EMPIREDB-227	Spring Integration
+	EMPIREDB-227	Spring Integration including example
 
 ** Bugfix
 	EMPIREDB-248	date functions not properly handled in PostgreSQL
