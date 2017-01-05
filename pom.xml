@@ -228,6 +228,12 @@
 			</dependency>
 			<dependency>
 				<groupId>org.apache.empire-db</groupId>
+				<artifactId>empire-db-spring</artifactId>
+				<version>${project.version}</version>
+				<type>jar</type>
+			</dependency>
+			<dependency>
+				<groupId>org.apache.empire-db</groupId>
 				<artifactId>empire-db-codegen</artifactId>
 				<version>${project.version}</version>
 				<type>jar</type>
