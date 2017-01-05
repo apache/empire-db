@@ -1,14 +1,17 @@
 Apache Empire-db
-Copyright 2008-2014 The Apache Software Foundation
+Copyright 2008-2017 The Apache Software Foundation
 
 For more Information about a particular issue please visit
 https://issues.apache.org/jira/browse/EMPIREDB
 
 --------------
-Release 2.4.5:
+Release 2.4.6:
 --------------
 
 ** Improvement
+	EMPIREDB-252	Add Support for database specific CodeGenParser
+	EMPIREDB-251	Add Support for TINYINT, MEDIUMINT Integer Types for MySQL
+	EMPIREDB-249	Add "format" Support to MySQL convert expression
 	EMPIREDB-245	Add Support for DELETE with JOIN for MySQL
 	EMPIREDB-243	Add Eclipse m2e plugin lifecycle mapping
 	EMPIREDB-242	Explicitly declare cross joins
