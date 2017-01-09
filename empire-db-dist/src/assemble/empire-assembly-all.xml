@@ -93,6 +93,9 @@
                 <include>org.apache.empire-db:empire-db-jsf2:jar</include>
 				<include>org.apache.empire-db:empire-db-spring:jar</include>
             </includes>
+			<excludes>
+				<exclude>org.apache.empire-db:*:*:javadoc</exclude>
+			</excludes>
         </dependencySet>
     </dependencySets>
 </assembly>
