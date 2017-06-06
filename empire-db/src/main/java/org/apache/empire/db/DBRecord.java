@@ -414,7 +414,7 @@ public class DBRecord extends DBRecordData implements Record, Cloneable
             return false;
         return modified[index];
     }
-
+    
     /**
      * Returns true if the field was modified.
      * 
@@ -424,6 +424,21 @@ public class DBRecord extends DBRecordData implements Record, Cloneable
     public final boolean wasModified(Column column)
     {
         return wasModified(getFieldIndex(column));
+    }
+
+    /**
+     * Returns true if any of the given fields was modified.
+     * 
+     * @return true if any of the given fields were modified or false otherwise
+     */
+    public final boolean wasAnyModified(Column... columns)
+    {
+        for (Column c : columns)
+        {
+            if (wasModified(getFieldIndex(c)))
+                return true;
+        }
+        return false;
     }
 
     /**

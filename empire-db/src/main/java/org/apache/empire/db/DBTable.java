@@ -422,6 +422,48 @@ public class DBTable extends DBRowSet implements Cloneable
     }
     
     /**
+     * Checks weather a unique constraint is violated when inserting or updating a record.<BR>
+     * <P>
+     * @param id the record's primary key
+     * @param conn a valid JDBC connection
+     */
+    public DBIndex checkUniqueConstraints(DBRecord rec, Connection conn)
+    {
+        for (DBIndex idx : getIndexes())
+        {
+            if (idx.getType()==DBIndex.PRIMARYKEY)
+            {   // Only for new records
+                if (!rec.isNew())
+                    continue; // not new
+            }
+            else if (idx.getType()==DBIndex.UNIQUE)
+            {   // check if any of the fields were actually changed
+                if (!rec.isNew() && !rec.wasAnyModified(idx.getColumns()))
+                    continue; // not modified
+            }
+            else 
+            {   // No unique index
+                continue;
+            }
+            // Check index
+            DBCommand cmd = db.createCommand();
+            cmd.select(count());
+            for (DBColumn c : idx.getColumns())
+            {
+                Object value = rec.getValue(c);
+                cmd.where(c.is(value));
+            }
+            int count = db.querySingleInt(cmd, conn);
+            if (count>0)
+            {   // Index is violated
+                return idx;
+            }
+        }
+        // no index violation detected
+        return null;
+    }
+    
+    /**
      * returns the default cascade action for deletes on this table.
      * This is used as the default for newly created relations on this table and does not affect existing relations.
      * @return the delete cascade action for new relations (DBRelation.DBCascadeAction.CASCADE_RECORDS) are enabled

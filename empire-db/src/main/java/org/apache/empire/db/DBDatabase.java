@@ -23,6 +23,7 @@ import java.lang.ref.WeakReference;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.SQLIntegrityConstraintViolationException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -34,6 +35,7 @@ import org.apache.empire.commons.Options;
 import org.apache.empire.commons.StringUtils;
 import org.apache.empire.data.DataType;
 import org.apache.empire.db.DBRelation.DBCascadeAction;
+import org.apache.empire.db.exceptions.ConstraintViolationException;
 import org.apache.empire.db.exceptions.DatabaseNotOpenException;
 import org.apache.empire.db.exceptions.EmpireSQLException;
 import org.apache.empire.db.exceptions.QueryFailedException;
@@ -1331,10 +1333,13 @@ public abstract class DBDatabase extends DBObject
             // Return number of affected records
             return affected;
             
-	    } catch (SQLException sqle) 
-        { 	// Error
+        } catch (SQLIntegrityConstraintViolationException sqle) {
+            // ConstraintViolation
+            throw new ConstraintViolationException(this, sqlCmd, sqle);
+        } catch (SQLException sqle) {
+            // Other error
             throw new StatementFailedException(this, sqlCmd, sqle);
-	    }    
+        }    
     }
 
     public final int executeSQL(String sqlCmd, Object[] sqlParams, Connection conn)
