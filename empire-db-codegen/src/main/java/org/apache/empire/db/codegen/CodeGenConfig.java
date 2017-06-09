@@ -18,6 +18,7 @@
  */
 package org.apache.empire.db.codegen;
 
+import org.apache.empire.commons.StringUtils;
 import org.apache.empire.exceptions.ItemNotFoundException;
 import org.apache.empire.exceptions.ObjectNotValidException;
 import org.apache.empire.xml.XMLConfiguration;
@@ -208,7 +209,7 @@ public class CodeGenConfig extends XMLConfiguration {
 	 * if TRUE record classes should have a getter and setter for each field.<br/>
 	 * Otherwise getters / setters are omitted.
 	 */
-	private boolean createRecordProperties;
+	private boolean createRecordProperties = false;
 	
 	/**
 	 * true if names of tables and views should not be camel-cased
@@ -379,7 +380,8 @@ public class CodeGenConfig extends XMLConfiguration {
 	}
 
 	public void setDbClassName(String dbClassName) {
-		this.dbClassName = dbClassName;
+	    if (StringUtils.isNotEmpty(dbClassName))
+	        this.dbClassName = dbClassName;
 	}
 
 	public String getTableBaseName() {

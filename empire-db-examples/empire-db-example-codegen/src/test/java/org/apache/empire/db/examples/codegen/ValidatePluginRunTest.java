@@ -31,7 +31,7 @@ import java.sql.Statement;
 import org.apache.empire.db.DBCommand;
 import org.apache.empire.db.DBDatabaseDriver;
 import org.apache.empire.db.DBReader;
-import org.apache.empire.db.example.MyDB;
+import org.apache.empire.db.example.MyDatabase;
 import org.apache.empire.db.example.tables.Employees;
 import org.apache.empire.db.hsql.DBDatabaseDriverHSql;
 import org.junit.AfterClass;
@@ -75,32 +75,36 @@ public class ValidatePluginRunTest {
 		assertNotNull("Could not load generated class.", cls);
 	}
 
-	@Test
-	public void useGeneratedCode() throws Exception {
+    @Test
+    public void useGeneratedCode() throws Exception {
 
-		MyDB db = MyDB.get();
-		Employees EMP = db.EMPLOYEES;
+        System.out.println("Opening database...");
+        DBDatabaseDriver driver = new DBDatabaseDriverHSql();
+        MyDatabase db = MyDatabase.get();
+        db.open(driver, conn);
 
-		DBDatabaseDriver driver = new DBDatabaseDriverHSql();
-		db.open(driver, conn);
-		DBCommand cmd = db.createCommand();
-		cmd.select(EMP.EMPLOYEE_ID, EMP.FIRSTNAME);
+        System.out.println("Createing query command...");
+        Employees EMP = db.EMPLOYEES;
+        DBCommand cmd = db.createCommand();
+        cmd.select(EMP.EMPLOYEE_ID, EMP.FIRSTNAME);
 
-		int rowCount = 0;
-		DBReader reader = new DBReader();
-		try {
-			System.err.println(cmd.getSelect());
-			reader.open(cmd, conn);
-			while (reader.moveNext()) {
-				rowCount++;
-				System.out.println(reader.getString(EMP.EMPLOYEE_ID) + "\t" + reader.getString(EMP.FIRSTNAME));
-			}
-		} finally {
-			reader.close();
-		}
-		
-		assertEquals("We expect 3 rows", 3, rowCount);
-
-	}
+        int rowCount = 0;
+        DBReader reader = new DBReader();
+        try {
+            System.out.println("Executing query:");
+            System.err.println(cmd.getSelect());
+            reader.open(cmd, conn);
+            System.out.println("Reading results:");
+            while (reader.moveNext()) {
+                rowCount++;
+                System.out.println(reader.getString(EMP.EMPLOYEE_ID) + "\t" + reader.getString(EMP.FIRSTNAME));
+            }
+            System.out.println("Result contained "+String.valueOf(rowCount)+" records");
+        } finally {
+            reader.close();
+        }
+        
+        assertEquals("We expect 3 rows", 3, rowCount);
+    }
 
 }

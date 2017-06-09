@@ -24,14 +24,20 @@ import org.apache.empire.db.DBDatabase;
 import org.apache.empire.db.codegen.CodeGenConfig;
 import org.apache.empire.db.codegen.CodeGenParser;
 import org.apache.empire.db.codegen.CodeGenWriter;
+import org.apache.empire.exceptions.InvalidPropertyException;
 import org.apache.log4j.AppenderSkeleton;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.apache.log4j.spi.LoggingEvent;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
-import org.apache.maven.plugins.annotations.*;
+import org.apache.maven.plugins.annotations.Component;
+import org.apache.maven.plugins.annotations.LifecyclePhase;
+import org.apache.maven.plugins.annotations.Mojo;
+import org.apache.maven.plugins.annotations.Parameter;
+import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.apache.maven.project.MavenProject;
+import org.codehaus.plexus.util.StringUtils;
 
 /**
  * Empire-DB Code generation by reading an existing database schema
@@ -55,19 +61,19 @@ public class CodeGenMojo extends AbstractMojo {
 	/**
 	 * Location of the generated sources.
 	 */
-    @Parameter(defaultValue = "${project.build.directory}/generated-sources/empiredb", property = "empiredb.generatedsources", required = true)
+    @Parameter(defaultValue = "${project.build.directory}/generated-sources/java", property = "empiredb.generatedsources", required = true)
 	private File targetDirectory;
 	
 	/**
 	 * JDBC url
 	 */
-    @Parameter(property = "empiredb.jdbcURL", required = true)
+    @Parameter(property = "empiredb.jdbcURL")
 	private String jdbcURL;
 	
 	/**
 	 * JDBC Driver class
 	 */
-    @Parameter(property = "empiredb.jdbcClass", required = true)
+    @Parameter(property = "empiredb.jdbcClass")
 	private String jdbcClass;
 	
 	/**
@@ -94,8 +100,30 @@ public class CodeGenMojo extends AbstractMojo {
 	 */
     @Parameter(property = "empiredb.packageName")
 	private String packageName;
+    
+    /**
+     * The name of the generated Database class
+     */
+    @Parameter(property = "empiredb.dbClassName")
+    private String dbClassName;
 
-	public void execute() throws MojoExecutionException 
+    @Parameter(property = "empiredb.nestTables")
+    private boolean nestTables = false;
+    
+    @Parameter(property = "empiredb.nestViews")
+    private boolean nestViews = false;
+    
+    @Parameter(property = "empiredb.createRecordProperties")
+    private boolean createRecordProperties = false;
+    
+    @Parameter(property = "empiredb.preserverCharacterCase")
+    private boolean preserverCharacterCase = false;
+    
+    @Parameter(property = "empiredb.preserveRelationNames")
+    private boolean preserveRelationNames = false; 
+
+	@Override
+    public void execute() throws MojoExecutionException 
 	{
 		
 		setupLogging();
@@ -105,9 +133,16 @@ public class CodeGenMojo extends AbstractMojo {
 		{
 			getLog().info("Loading configuration file: " + configFile);
 			config.init(configFile.getAbsolutePath());
+			targetDirectory = new File(config.getTargetFolder());
 		}
 		else
 		{
+		    if (StringUtils.isEmpty(jdbcURL) ||
+		        StringUtils.isEmpty(jdbcClass))
+		    {   // Missing
+		        throw new InvalidPropertyException("jdbcURL|jdbcClass", null);
+		    }
+		    
 			config.setJdbcURL(jdbcURL);
 			config.setJdbcClass(jdbcClass);
 			config.setJdbcUser(jdbcUser);
@@ -115,6 +150,12 @@ public class CodeGenMojo extends AbstractMojo {
 			config.setTargetFolder(targetDirectory.getAbsolutePath());
 			config.setTemplateFolder(templateDirectory);
 			config.setPackageName(packageName);
+			config.setDbClassName(dbClassName);
+			config.setNestTables(nestTables);
+			config.setNestViews(nestViews);
+			config.setCreateRecordProperties(createRecordProperties);
+			config.setPreserverCharacterCase(preserverCharacterCase);
+			config.setPreserveRelationNames(preserveRelationNames);
 		}
 		
 		//config.setExceptionsEnabled(true);
@@ -132,9 +173,13 @@ public class CodeGenMojo extends AbstractMojo {
 		// we want the generate sources to be available in the project itself
 		if (project != null && targetDirectory != null && targetDirectory.exists()) 
 		{
+            getLog().info("Adding Compile Source Folder: " + targetDirectory);
 			project.addCompileSourceRoot(targetDirectory.getAbsolutePath());
 		}
-		
+		else if (targetDirectory!=null)
+		{
+            getLog().warn("Target Source Folder does not exist: " + targetDirectory);
+		}
 	}
 
 	private void setupLogging() 

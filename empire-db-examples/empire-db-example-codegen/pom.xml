@@ -16,40 +16,69 @@
 	-->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
-	<groupId>org.apache.empire-db.examples</groupId>
-	<artifactId>empire-db-example-codegen</artifactId>
-	<version>1.0.0-SNAPSHOT</version>
+	<parent>
+		<groupId>org.apache.empire-db</groupId>
+		<artifactId>empire-db-examples</artifactId>
+		<version>2.4.7-SNAPSHOT</version>
+	</parent>
+    <artifactId>empire-db-example-codegen</artifactId>
 	<name>Apache Empire-db Maven Codegen Example</name>
-	<description>Example showing the use of empire-db wrapped in a webservice</description>
+	<description>Example showing the use of the empire-db codegen maven plugin</description>
+    
+	<dependencies>
+        <dependency>
+			<groupId>org.apache.empire-db</groupId>
+			<artifactId>empire-db</artifactId>
+		</dependency>
+
+		<dependency>
+		    <groupId>hsqldb</groupId>
+		    <artifactId>hsqldb</artifactId>
+		</dependency> 
+		
+		<!-- test scope -->
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<version>4.8.2</version>
+			<scope>test</scope>
+		</dependency>
+	</dependencies>
 
 	<build>
 		<plugins>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
-				<version>2.5.1</version>
+                <version>3.1</version>
 				<configuration>
-					<source>1.5</source>
-					<target>1.5</target>
+					<source>1.6</source>
+					<target>1.6</target>
 					<optimize>true</optimize>
 					<debug>true</debug>
 				</configuration>
 			</plugin>
+            <!-- empire-db-maven-plugin -->
 			<plugin>
 				<groupId>org.apache.empire-db</groupId>
 				<artifactId>empire-db-maven-plugin</artifactId>
-				<version>2.4.3-SNAPSHOT</version>
+                <version>${project.version}</version>
 				<configuration>
+					<!-- either specify a config file -->  
+					<configFile>generate-config.xml</configFile>
+					<!-- or provide the parameters directly  
 					<jdbcClass>org.hsqldb.jdbcDriver</jdbcClass>
 					<jdbcURL>jdbc:hsqldb:file:${project.basedir}/src/test/resources/hsqldb/sample;shutdown=true</jdbcURL>
 					<jdbcUser>sa</jdbcUser>
 					<jdbcPwd></jdbcPwd>
 					<packageName>org.apache.empire.db.example</packageName>
+					<dbClassName>MyDatabase</dbClassName>
+					-->
 				</configuration>
 				<executions>
 					<!-- 
 					We enable the code generation on each build. The other option is 
-					to leave out this section and call mvn empiredb:codegen
+					to leave out this section and call mvn generate-sources
 					 -->
 					<execution>
 						<goals>
@@ -61,32 +90,12 @@
 					<dependency>
 						<groupId>hsqldb</groupId>
 						<artifactId>hsqldb</artifactId>
-						<version>1.8.0.10</version>
+                        <version>1.8.0.10</version>
 					</dependency> 
 				</dependencies>
 			</plugin>
+            
 		</plugins>
 	</build>
-	
-	<dependencies>
-		<dependency>
-			<groupId>org.apache.empire-db</groupId>
-			<artifactId>empire-db</artifactId>
-			<version>2.4.2</version>
-		</dependency>
-		<dependency>
-		    <groupId>hsqldb</groupId>
-		    <artifactId>hsqldb</artifactId>
-		    <version>1.8.0.10</version>
-		</dependency> 
-		
-		<!-- test scope -->
-		<dependency>
-			<groupId>junit</groupId>
-			<artifactId>junit</artifactId>
-			<version>4.8.2</version>
-			<scope>test</scope>
-		</dependency>
-	</dependencies>
 	
 </project>
