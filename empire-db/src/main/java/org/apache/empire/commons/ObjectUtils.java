@@ -130,6 +130,29 @@ public final class ObjectUtils
         // Compare Strings
         return o1.toString().equals(o2.toString());
     }
+
+    /**
+     * Compares two object arrrays for equality
+     *
+     * @param array1    the first array
+     * @param array2    the second array
+     *
+     * @return true if both arrays are equal or false otherwise
+     */
+    public static boolean compareEqual(Object[] array1, Object[] array2)
+    {   // Compare Length
+        int len1 = (array1!=null ? array1.length : 0);
+        int len2 = (array2!=null ? array2.length : 0);
+        if (len1!= len2)
+            return false;
+        // Compare Key Values
+        for (int i = 0; i < len1; i++)
+        {   // Check String Values
+            if (!ObjectUtils.compareEqual(array1[i], array2[i]))
+                return false;
+        }
+        return true;
+    }
     
     /**
      * Checks whether a preferred value is valid and returns an alternative value if not.
