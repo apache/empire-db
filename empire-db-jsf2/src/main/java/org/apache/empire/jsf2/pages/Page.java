@@ -50,8 +50,6 @@ public abstract class Page implements Serializable
 
     public static final String  SESSION_MESSAGE  = "PAGE_SESSION_MESSAGE";
 
-    // private static final String INVALID_ACTION   = "XXXXXXXXXXXX";
-
     private static final Logger log              = LoggerFactory.getLogger(Page.class);
 
     private String              action           = null;
@@ -89,9 +87,6 @@ public abstract class Page implements Serializable
     {
         if (this.action==null)
             return null;
-        
-        // if (this.action==INVALID_ACTION)
-        //      return null;
 
         // Generate key
         ParameterMap pm = FacesUtils.getParameterMap(FacesUtils.getContext());
@@ -152,6 +147,9 @@ public abstract class Page implements Serializable
         try
         {
             checkPageAccess();
+            // redirected?
+            if (context.getResponseComplete())
+                return;
         }
         catch (Exception e)
         {
@@ -177,16 +175,8 @@ public abstract class Page implements Serializable
         
         // Execute Action
         if (this.action != null)
-        {
-            /*
-            if (this.action.equals(Page.INVALID_ACTION))
-            {
-                Page.log.error("Action probably executed twice. Ignoring action.");
-                return;
-            }
-            */
-            try
-            {
+        {   try
+            {   // Process action
                 log.info("Processing action {} on {}.", String.valueOf(action), getPageName());
                 Method method = getClass().getMethod(action);
                 Object result = method.invoke(this);
@@ -218,7 +208,7 @@ public abstract class Page implements Serializable
             }
         }
         else
-        { // call default Action
+        {   // call default Action
             try
             {
                 Page.log.debug("Initializing PageBean {}. Calling doInit()", getPageName());
