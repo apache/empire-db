@@ -791,6 +791,19 @@ public abstract class DBCommand extends DBCommandExpr
                 groupBy.add(expr);
         }
     }
+
+    /**
+     * Adds a collection of columns to the group by phrase of an sql statement.
+     * 
+     * @param columns the column expressions to add
+     */
+    public void groupBy(Collection<? extends DBColumnExpr> columns)
+    {
+        for (DBColumnExpr expr : columns)
+        {
+            groupBy(expr);
+        }
+    }
     
     public boolean hasSelectExpr()
     {
