@@ -19,6 +19,7 @@
 package org.apache.empire.data.bean;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -52,7 +53,7 @@ public abstract class BeanDomain
     
     public List<BeanClass> getClasses()
     {
-        return classes;
+        return Collections.unmodifiableList(this.classes);        
     }
     
 }

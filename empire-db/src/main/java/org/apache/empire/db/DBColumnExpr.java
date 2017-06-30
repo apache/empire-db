@@ -1010,32 +1010,6 @@ public abstract class DBColumnExpr extends DBExpr
     {
         return new DBCountExpr(this, true);
     }
-    
-    /**
-     * Detects the DataType of a given value.
-     * @param value the value to detect
-     * @return the DataType enum for the value
-     */
-    protected DataType detectDataType(Object value)
-    {
-        if (value instanceof DBColumnExpr)
-            return ((DBColumnExpr)value).getDataType();
-        if (value instanceof String)
-            return DataType.TEXT;
-        if ((value instanceof Integer) || (value instanceof Long))
-            return DataType.INTEGER;
-        if (value instanceof Number)
-            return DataType.DECIMAL;
-        if (value instanceof Boolean)
-            return DataType.BOOL;
-        if (value instanceof Date)
-            return DataType.DATETIME;
-        if (value instanceof Character)
-            return DataType.CHAR;
-        if (value instanceof byte[])
-            return DataType.BLOB;
-        return DataType.UNKNOWN;
-    }
 
     /**
      * Creates and returns a sql-expression that compares the current column expression with 
@@ -1051,13 +1025,13 @@ public abstract class DBColumnExpr extends DBExpr
         DataType dataType = DataType.UNKNOWN;
         if (otherwise!=null)
         {
-            dataType = detectDataType(otherwise);
+            dataType = getDatabase().detectDataType(otherwise);
         }
         if (dataType==DataType.UNKNOWN)
         {
             for (Object v : valueMap.values())
             {
-                dataType = detectDataType(v);
+                dataType = getDatabase().detectDataType(v);
                 if (dataType!=DataType.UNKNOWN)
                     break;
             }

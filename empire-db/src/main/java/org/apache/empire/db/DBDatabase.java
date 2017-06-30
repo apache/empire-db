@@ -27,6 +27,8 @@ import java.sql.SQLIntegrityConstraintViolationException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
@@ -42,6 +44,7 @@ import org.apache.empire.db.exceptions.QueryFailedException;
 import org.apache.empire.db.exceptions.QueryNoResultException;
 import org.apache.empire.db.exceptions.StatementFailedException;
 import org.apache.empire.db.expr.column.DBValueExpr;
+import org.apache.empire.db.expr.compare.DBCompareExpr;
 import org.apache.empire.exceptions.InternalException;
 import org.apache.empire.exceptions.InvalidArgumentException;
 import org.apache.empire.exceptions.ItemExistsException;
@@ -538,7 +541,7 @@ public abstract class DBDatabase extends DBObject
      */
     public List<DBTable> getTables()
     {
-        return tables;
+        return Collections.unmodifiableList(this.tables);        
     }
 
     /**
@@ -643,7 +646,7 @@ public abstract class DBDatabase extends DBObject
      */
     public List<DBRelation> getRelations()
     {
-        return relations;
+        return Collections.unmodifiableList(this.relations);        
     }
 
     /**
@@ -685,7 +688,7 @@ public abstract class DBDatabase extends DBObject
      */
     public List<DBView> getViews()
     {
-        return views;
+        return Collections.unmodifiableList(this.views);        
     }
 
     /**
@@ -1381,6 +1384,18 @@ public abstract class DBDatabase extends DBObject
     }
 
     /**
+     * Executes an InsertInfo statement from a command object
+     * @param table the table into which to insert the selected data
+     * @param cmd the command object containing the selection command 
+     * @param conn a valid connection to the database.
+     * @return the number of records that have been inserted with the supplied statement
+     */
+    public final int executeInsertInto(DBTable table, DBCommand cmd, Connection conn)
+    {
+        return executeSQL(cmd.getInsertInto(table), cmd.getParamValues(), conn); 
+    }
+
+    /**
      * Executes an Update statement from a command object
      * @param cmd the command object containing the update command
      * @param conn a valid connection to the database.
@@ -1538,6 +1553,62 @@ public abstract class DBDatabase extends DBObject
             // Commit failed!
             throw new EmpireSQLException(this, sqle);
         }
+    }
+    
+    /**
+     * Detects the DataType of a given value.
+     * @param value the value to detect
+     * @return the DataType enum for the value
+     */
+    public DataType detectDataType(Object value)
+    {
+        if (value instanceof DBColumnExpr)
+            return ((DBColumnExpr)value).getDataType();
+        if (value instanceof String)
+            return DataType.TEXT;
+        if ((value instanceof Integer) || (value instanceof Long))
+            return DataType.INTEGER;
+        if (value instanceof Number)
+            return DataType.DECIMAL;
+        if (value instanceof Boolean)
+            return DataType.BOOL;
+        if (value instanceof Date)
+            return DataType.DATETIME;
+        if (value instanceof Character)
+            return DataType.CHAR;
+        if (value instanceof byte[])
+            return DataType.BLOB;
+        return DataType.UNKNOWN;
+    }
+    
+    /**
+     * Creates a case column expression
+     * "case when <condition> then <trueValue> else <falseValue> end"
+     * This is a helper function to simplify client usage
+     * @param condition
+     * @param trueValue the value to select if the condition is true
+     * @param falseValue the value to select if the condition is false
+     * @return an sql case expression
+     */
+    public DBColumnExpr caseWhen(DBCompareExpr condition, Object trueValue, Object falseValue)
+    {
+        DataType dataType = detectDataType((trueValue!=null ? trueValue : falseValue)); 
+        DBColumnExpr trueExpr = ((trueValue  instanceof DBColumnExpr) ? (DBColumnExpr)trueValue : this.getValueExpr(trueValue, dataType));
+        return trueExpr.when(condition, falseValue);
+    }
+
+    /**
+     * Creates a case column expression that check whether a column or column expression is null
+     * "case when <condition> is null then <trueValue> else <falseValue> end"
+     * This is a helper function to simplify client usage
+     * @param expr a column or column expression
+     * @param trueValue the value to select if the condition is true
+     * @param falseValue the value to select if the condition is false
+     * @return an sql case expression
+     */
+    public DBColumnExpr caseWhenNull(DBColumnExpr expr, Object trueValue, Object falseValue)
+    {
+        return caseWhen(expr.is(null), trueValue, falseValue);
     }
 
 }

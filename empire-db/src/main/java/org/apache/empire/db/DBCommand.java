@@ -24,6 +24,7 @@ import java.io.ObjectOutputStream;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -32,6 +33,7 @@ import java.util.Vector;
 
 import org.apache.empire.commons.StringUtils;
 import org.apache.empire.data.DataType;
+import org.apache.empire.db.exceptions.DatabaseMismatchException;
 import org.apache.empire.db.expr.compare.DBCompareColExpr;
 import org.apache.empire.db.expr.compare.DBCompareExpr;
 import org.apache.empire.db.expr.join.DBColumnJoinExpr;
@@ -284,7 +286,8 @@ public abstract class DBCommand extends DBCommandExpr
      * @param expr the DBColumnExpr object
      */
     public void select(DBColumnExpr expr)
-    { // Select this column
+    {   // Select this column
+        checkDatabase(expr);
         if (select == null)
             select = new ArrayList<DBColumnExpr>();
         if (expr != null && select.contains(expr) == false)
@@ -309,7 +312,7 @@ public abstract class DBCommand extends DBCommandExpr
      * 
      * @param columns the column expressions to add
      */
-    public void select(Collection<? extends DBColumnExpr> columns)
+    public final void select(Collection<? extends DBColumnExpr> columns)
     {
         for (DBColumnExpr expr : columns)
         {
@@ -348,6 +351,7 @@ public abstract class DBCommand extends DBCommandExpr
      */
     public void set(DBSetExpr expr)
     {
+        checkDatabase(expr);
         if (set == null)
             set = new ArrayList<DBSetExpr>();
         for (int i = 0; i < set.size(); i++)
@@ -464,6 +468,7 @@ public abstract class DBCommand extends DBCommandExpr
      */
     public void join(DBJoinExpr join)
     {
+        checkDatabase(join);
         if (joins == null)
             joins = new ArrayList<DBJoinExpr>();
         // Create a new join
@@ -482,7 +487,7 @@ public abstract class DBCommand extends DBCommandExpr
      * @param right the right RowSet
      * @return the join expression
      */
-    public DBCrossJoinExpr join(DBRowSet left, DBRowSet right)
+    public final DBCrossJoinExpr join(DBRowSet left, DBRowSet right)
     {
         DBCrossJoinExpr join = new DBCrossJoinExpr(left, right);
         join(join);
@@ -498,7 +503,7 @@ public abstract class DBCommand extends DBCommandExpr
      * 
      * @return the join expression 
      */
-    public DBColumnJoinExpr join(DBColumnExpr left, DBColumnExpr right, DBJoinType joinType)
+    public final DBColumnJoinExpr join(DBColumnExpr left, DBColumnExpr right, DBJoinType joinType)
     {
         DBColumnJoinExpr join = new DBColumnJoinExpr(left, right, joinType); 
         join(join);
@@ -513,7 +518,7 @@ public abstract class DBCommand extends DBCommandExpr
      * 
      * @return the join expresion 
      */
-    public DBColumnJoinExpr join(DBColumnExpr left, DBColumn right)
+    public final DBColumnJoinExpr join(DBColumnExpr left, DBColumn right)
     {
         return join(left, right, DBJoinType.INNER);
     }
@@ -527,7 +532,7 @@ public abstract class DBCommand extends DBCommandExpr
      * 
      * @return the join expresion 
      */
-    public DBCompareJoinExpr join(DBRowSet rowset, DBCompareExpr cmp, DBJoinType joinType)
+    public final DBCompareJoinExpr join(DBRowSet rowset, DBCompareExpr cmp, DBJoinType joinType)
     {
         DBCompareJoinExpr join = new DBCompareJoinExpr(rowset, cmp, joinType); 
         join(join);
@@ -542,7 +547,7 @@ public abstract class DBCommand extends DBCommandExpr
      * 
      * @return the join expresion 
      */
-    public DBCompareJoinExpr join(DBRowSet rowset, DBCompareExpr cmp)
+    public final DBCompareJoinExpr join(DBRowSet rowset, DBCompareExpr cmp)
     {
         return join(rowset, cmp, DBJoinType.INNER);
     }
@@ -688,6 +693,7 @@ public abstract class DBCommand extends DBCommandExpr
      */
     public void where(DBCompareExpr expr)
     {
+        checkDatabase(expr);
         if (where == null)
             where = new ArrayList<DBCompareExpr>();
         setConstraint(where, expr);
@@ -710,11 +716,7 @@ public abstract class DBCommand extends DBCommandExpr
      */
     public List<DBCompareExpr> getWhereConstraints()
     {
-        if (where != null)
-        {   // Return a Copy of all Where Constraints
-            return new ArrayList<DBCompareExpr>(where);
-        }
-        return null;
+        return (this.where!=null ? Collections.unmodifiableList(this.where) : null);
     }
     
     /**
@@ -735,11 +737,7 @@ public abstract class DBCommand extends DBCommandExpr
      */
     public List<DBJoinExpr> getJoins()
     {
-        if (joins != null)
-        {
-            return new ArrayList<DBJoinExpr>(joins);
-        }
-        return null;
+        return (this.joins!=null ? Collections.unmodifiableList(this.joins) : null);
     }
 
     /**
@@ -761,6 +759,7 @@ public abstract class DBCommand extends DBCommandExpr
      */
     public void having(DBCompareExpr expr)
     {
+        checkDatabase(expr);
         if (having == null)
             having = new ArrayList<DBCompareExpr>();
         setConstraint(having, expr);
@@ -786,7 +785,10 @@ public abstract class DBCommand extends DBCommandExpr
     {
         if (groupBy == null)
             groupBy = new ArrayList<DBColumnExpr>();
-        for(DBColumnExpr expr:exprs){
+        // Add all
+        for(DBColumnExpr expr : exprs)
+        {
+            checkDatabase(expr);
             if (expr.isAggregate()==false && groupBy.contains(expr)==false)
                 groupBy.add(expr);
         }
@@ -797,7 +799,7 @@ public abstract class DBCommand extends DBCommandExpr
      * 
      * @param columns the column expressions to add
      */
-    public void groupBy(Collection<? extends DBColumnExpr> columns)
+    public final void groupBy(Collection<? extends DBColumnExpr> columns)
     {
         for (DBColumnExpr expr : columns)
         {
@@ -1263,5 +1265,13 @@ public abstract class DBCommand extends DBCommandExpr
             addListExpr(buf, orderBy, CTX_DEFAULT, ", ");
         }
     }
-    
+     
+    protected void checkDatabase(DBExpr expr)
+    {
+        if (expr.getDatabase().equals(this.getDatabase()))
+            return;
+        // not the same database
+        throw new DatabaseMismatchException(this, expr);
+    }
+   
 }

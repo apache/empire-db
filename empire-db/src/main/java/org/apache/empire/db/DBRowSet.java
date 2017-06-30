@@ -25,6 +25,7 @@ import java.lang.reflect.Field;
 import java.sql.Connection;
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -37,9 +38,9 @@ import org.apache.empire.data.DataType;
 import org.apache.empire.db.DBRelation.DBCascadeAction;
 import org.apache.empire.db.DBRelation.DBReference;
 import org.apache.empire.db.exceptions.FieldNotNullException;
+import org.apache.empire.db.exceptions.InvalidKeyException;
 import org.apache.empire.db.exceptions.NoPrimaryKeyException;
 import org.apache.empire.db.exceptions.QueryNoResultException;
-import org.apache.empire.db.exceptions.InvalidKeyException;
 import org.apache.empire.db.exceptions.RecordNotFoundException;
 import org.apache.empire.db.exceptions.RecordUpdateFailedException;
 import org.apache.empire.db.exceptions.RecordUpdateInvalidException;
@@ -260,7 +261,7 @@ public abstract class DBRowSet extends DBExpr
      */
     public List<DBColumn> getColumns()
     {
-        return columns;
+        return Collections.unmodifiableList(columns);
     }
 
     /**

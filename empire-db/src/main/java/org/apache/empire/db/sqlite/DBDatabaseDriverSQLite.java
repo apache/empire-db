@@ -32,7 +32,6 @@ import java.util.List;
 
 import org.apache.empire.data.DataType;
 import org.apache.empire.db.DBCmdType;
-import org.apache.empire.db.DBColumnExpr;
 import org.apache.empire.db.DBCommand;
 import org.apache.empire.db.DBDDLGenerator;
 import org.apache.empire.db.DBDatabase;
@@ -75,13 +74,13 @@ public class DBDatabaseDriverSQLite extends DBDatabaseDriver
         }
         
         @Override
-		public DBColumnJoinExpr join(DBColumnExpr left, DBColumnExpr right, DBJoinType joinType)
+		public void join(DBJoinExpr join)
         {
             // http://www.sqlite.org/omitted.html
-            if (joinType != DBJoinType.LEFT) {
-                throw new NotImplementedException(joinType, left + " join " + right); 
+            if (join.getType() != DBJoinType.LEFT) {
+                throw new NotImplementedException(join.getType(), join.getLeftTable().getName() + " join " + join.getRightTable().getName()); 
             }
-            return super.join(left, right, joinType);
+            super.join(join);
         }
         
         @Override

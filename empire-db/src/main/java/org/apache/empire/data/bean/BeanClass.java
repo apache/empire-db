@@ -19,6 +19,7 @@
 package org.apache.empire.data.bean;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import org.apache.empire.data.Column;
@@ -120,7 +121,7 @@ public abstract class BeanClass
      */
     public List<BeanProperty> getProperties() 
     {
-        return properties;
+        return Collections.unmodifiableList(this.properties);
     }
 
     /**

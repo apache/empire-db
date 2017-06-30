@@ -22,6 +22,7 @@ package org.apache.empire.db;
 import java.lang.reflect.Field;
 import java.sql.Connection;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -291,7 +292,7 @@ public class DBTable extends DBRowSet implements Cloneable
      */
     public List<DBIndex> getIndexes()
     {
-        return indexes;
+        return Collections.unmodifiableList(this.indexes);        
     }
     
     /**
@@ -538,7 +539,7 @@ public class DBTable extends DBRowSet implements Cloneable
             if (this.equals(r.getForeignKeyTable()))
                 relations.add(r);
         }
-        return relations;
+        return Collections.unmodifiableList(relations);        
     }
 
 }
