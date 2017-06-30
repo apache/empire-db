@@ -36,6 +36,7 @@ import org.apache.empire.db.DBRelation;
 import org.apache.empire.db.DBSQLScript;
 import org.apache.empire.db.DBTable;
 import org.apache.empire.db.DBTableColumn;
+import org.apache.empire.db.DBDatabaseDriver.DBSetGenKeys;
 import org.apache.empire.db.exceptions.EmpireSQLException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -100,13 +101,13 @@ public class DBDatabaseDriverMSSQL extends DBDatabaseDriver
     private String objectOwner = "dbo";
     private String sequenceTableName = "Sequences";
     // Sequence treatment
-    // When set to 'false' (default) MySQL's auto-increment feature is used.
+    // When set to 'false' (default) MySQL's IDENTITY feature is used.
     private boolean useSequenceTable = false;
     private boolean useUnicodePrefix = true;
     
     private DBDDLGenerator<?> ddlGenerator = null; // lazy creation
 
-    protected static final String[] MSSQL_SQL_KEYWORDS = new String[] { "type", "key" };        
+    protected static final String[] MSSQL_SQL_KEYWORDS = new String[] { "type", "key", "plan" };        
     
     /**
      * Constructor for the MSSQL database driver.<br>
@@ -197,7 +198,7 @@ public class DBDatabaseDriverMSSQL extends DBDatabaseDriver
 
     /** {@inheritDoc} */
     @Override
-    public void attachDatabase(DBDatabase db, Connection conn)
+    protected void attachDatabase(DBDatabase db, Connection conn)
     {
         // Prepare
         try
@@ -305,7 +306,7 @@ public class DBDatabaseDriverMSSQL extends DBDatabaseDriver
             case SQL_FUNC_TRUNC:              return "trunc(?,{0})";
             case SQL_FUNC_CEILING:            return "ceiling(?)";
             case SQL_FUNC_FLOOR:              return "floor(?)";
-            case SQL_FUNC_MODULO:             return "mod(?,{0})";
+            case SQL_FUNC_MODULO:             return "((?) % {0})";
             // Date
             case SQL_FUNC_DAY:                return "day(?)";
             case SQL_FUNC_MONTH:              return "month(?)";
@@ -422,6 +423,23 @@ public class DBDatabaseDriverMSSQL extends DBDatabaseDriver
         return super.getColumnAutoValue(db, column, conn);
     }
 
+    /**
+     * @see DBDatabaseDriver#executeSQL(String, Object[], Connection, DBSetGenKeys)  
+     */
+    @Override
+    public int executeSQL(String sqlCmd, Object[] sqlParams, Connection conn, DBSetGenKeys genKeys)
+        throws SQLException
+    {
+        int affected = super.executeSQL(sqlCmd, sqlParams, conn, genKeys);
+        if (affected<0)
+        {   // less than 0?
+            log.warn("executeSQL for {} retuned {} affected records!", sqlCmd, affected);
+            return 0;
+        }
+        return affected;
+        
+    }
+    
     /**
      * @see DBDatabaseDriver#getDDLScript(DBCmdType, DBObject, DBSQLScript)  
      */
