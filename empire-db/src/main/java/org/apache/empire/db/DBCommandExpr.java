@@ -436,8 +436,21 @@ public abstract class DBCommandExpr extends DBExpr
             orderBy = new ArrayList<DBOrderByExpr>();
         // Add order by expression
         for (DBOrderByExpr expr : exprs)
-        {
-            orderBy.add(expr);
+        {   // find existing
+            for (DBOrderByExpr ob : orderBy)
+            {   // Compare expression
+                if (ob.getColumnExpr().equals(expr.getColumnExpr()))
+                {   // already there, replace
+                    ob.setDescending(expr.isDescending());
+                    expr = null;
+                    break;
+                }
+            }
+            // add, if not replaced
+            if (expr!=null)
+            {   // add expression
+                orderBy.add(expr);
+            }
         }
     }
 
