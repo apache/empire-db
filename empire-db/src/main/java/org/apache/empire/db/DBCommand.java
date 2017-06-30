@@ -1268,7 +1268,7 @@ public abstract class DBCommand extends DBCommandExpr
      
     protected void checkDatabase(DBExpr expr)
     {
-        if (expr.getDatabase().equals(this.getDatabase()))
+        if (getDatabase().equals(expr.getDatabase()))
             return;
         // not the same database
         throw new DatabaseMismatchException(this, expr);
