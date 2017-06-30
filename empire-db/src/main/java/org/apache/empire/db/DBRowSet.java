@@ -915,9 +915,14 @@ public abstract class DBRowSet extends DBExpr
         {   // Query all keys
             DBCommand cmd = db.createCommand();
             cmd.select(keyColumns);
+            // Set constraints
             for (int i=0; i<parentKey.length; i++)
             {
                 cmd.where(refs[i].getSourceColumn().is(parentKey[i]));
+            }
+            // Set order (descending)
+            for (int i=0; i<keyColumns.length; i++)
+            {
                 cmd.orderBy(keyColumns[i], true);
             }
             // Query all keys
