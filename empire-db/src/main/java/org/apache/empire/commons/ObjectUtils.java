@@ -508,7 +508,7 @@ public final class ObjectUtils
         // Get Class form Primitive Type
         if (c.isPrimitive())
         {   // Get's the Java Class representing the primitive type
-            c = MethodUtils.getPrimitiveWrapper(c);
+            c = (Class<T>) MethodUtils.getPrimitiveWrapper(c);
         }    
         // Convert
         if (c.isAssignableFrom(Boolean.class))
