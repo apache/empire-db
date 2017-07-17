@@ -18,8 +18,11 @@
  */
 package org.apache.empire.db;
 
+import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
+
+import org.apache.empire.exceptions.InternalException;
 
 /**
  * This class allocates methods to store binary character objects in the database.
@@ -48,11 +51,11 @@ public class DBClobData
      * @throws IllegalArgumentException If the reader is null
      */
     public DBClobData(Reader reader, int length)
-                                         throws IllegalArgumentException
+        throws IllegalArgumentException
     {
         if (reader == null)
         {
-            throw new IllegalArgumentException("reader was null");
+            throw new IllegalArgumentException("reader must not be null");
 
         }
         this.reader = reader;
@@ -65,25 +68,33 @@ public class DBClobData
      * @param text The string to be used as data
      * @throws IllegalArgumentException If the text is null
      */
-    public DBClobData(String text)
-                                  throws IllegalArgumentException
+    public DBClobData(String text) 
+        throws IllegalArgumentException
     {
         if (text == null)
         {
-            throw new IllegalArgumentException("text was null");
+            throw new IllegalArgumentException("text must not be null");
         }
         reader = new StringReader(text);
         this.length = text.length();
     }
 
     /**
-     * Set the defaultEncoding used in a constructor.
+     * Get the Reader for the large string
      *
      * @return Returns the reader with the character data for the CLOB
      */
     public Reader getReader()
     {
-        return reader;
+        try
+        {
+            reader.reset();
+            return reader;
+        }
+        catch (IOException e)
+        {
+            throw new InternalException(e);
+        }
     }
 
     /**
