@@ -127,6 +127,21 @@ public final class ObjectUtils
             double d2 = ((Number)o2).doubleValue(); 
             return (d1==d2);
         }
+        // Enum
+        if (o1.getClass().isEnum())
+        {   // Special enum handling   
+            if (o2 instanceof Number)
+                return ((Enum<?>)o1).ordinal()==((Number)o2).intValue();
+            else
+                return ((Enum<?>)o1).name().equals(o2);
+        }
+        else if (o2.getClass().isEnum())
+        {   // Special enum handling   
+            if (o1 instanceof Number)
+                return ((Enum<?>)o2).ordinal()==((Number)o1).intValue();
+            else
+                return ((Enum<?>)o2).name().equals(o1);
+        }
         // Compare Strings
         return o1.toString().equals(o2.toString());
     }
