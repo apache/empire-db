@@ -98,7 +98,7 @@ public interface RecordData
      * @param bean the Java Bean for which to set the properties
      * @param ignoreList list of columns to skip (optional)
      */
-    int setBeanProperties(Object bean, Collection<ColumnExpr> ignoreList);
+    int setBeanProperties(Object bean, Collection<? extends ColumnExpr> ignoreList);
 
     /**
      * copies all field values into a static Java Bean.

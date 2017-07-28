@@ -365,7 +365,7 @@ public abstract class DBRecordData extends DBObject
      * @return the number of bean properties set on the supplied bean
      */
     @Override
-    public int setBeanProperties(Object bean, Collection<ColumnExpr> ignoreList)
+    public int setBeanProperties(Object bean, Collection<? extends ColumnExpr> ignoreList)
     {
         // Add all Columns
         int count = 0;

@@ -319,7 +319,7 @@ public class BeanRecordProxy<T> implements Record
     }
 
     @Override
-    public int setBeanProperties(Object bean, Collection<ColumnExpr> ignoreList)
+    public int setBeanProperties(Object bean, Collection<? extends ColumnExpr> ignoreList)
     {
         // Add all Columns
         int count = 0;
