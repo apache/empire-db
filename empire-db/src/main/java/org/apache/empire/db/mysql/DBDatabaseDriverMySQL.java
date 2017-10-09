@@ -667,6 +667,9 @@ public class DBDatabaseDriverMySQL extends DBDatabaseDriver
                if (format != null)
                { // Convert using a format string
                    return "CAST(? AS CHAR " + format.toString() + ")";
+               } else
+               {
+            	   return "CAST(? AS CHAR)";
                }
            case BLOB:
                 return "CAST(? AS BLOB)";
