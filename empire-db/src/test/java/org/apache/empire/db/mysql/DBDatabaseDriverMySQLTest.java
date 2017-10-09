@@ -18,8 +18,10 @@
  */
 package org.apache.empire.db.mysql;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
+import org.apache.empire.data.DataType;
 import org.apache.empire.db.CompanyDB;
 import org.apache.empire.db.CompanyDB.Departments;
 import org.apache.empire.db.DBCommand;
@@ -59,6 +61,50 @@ public class DBDatabaseDriverMySQLTest {
 		cmd.where(TD.NAME.is("Tarkk\\'ampujankatu"));
 		assertTrue(cmd.getSelect().contains("NAME='Tarkk\\\\''ampujankatu'"));
 		
+	}
+	
+	@Test
+	public void testGetConvertPhrase()
+	{
+		
+        DBDatabaseDriver driver = new DBDatabaseDriverMySQL();
+
+        // BOOL
+        assertEquals("CAST(? AS UNSIGNED)", driver.getConvertPhrase(DataType.BOOL, null, null));
+        assertEquals("CAST(? AS UNSIGNED)", driver.getConvertPhrase(DataType.BOOL, null, "test"));
+        
+        // INTEGER
+        assertEquals("CAST(? AS SIGNED)", driver.getConvertPhrase(DataType.INTEGER, null, null));
+        assertEquals("CAST(? AS SIGNED)", driver.getConvertPhrase(DataType.INTEGER, null, "test"));
+
+        // DECIMAL
+        assertEquals("CAST(? AS DECIMAL)", driver.getConvertPhrase(DataType.DECIMAL, null, null));
+        assertEquals("CAST(? AS DECIMAL)", driver.getConvertPhrase(DataType.DECIMAL, null, "test"));
+        
+        // FLOAT
+        assertEquals("CAST(? AS DECIMAL)", driver.getConvertPhrase(DataType.FLOAT, null, null));
+        assertEquals("CAST(? AS DECIMAL)", driver.getConvertPhrase(DataType.FLOAT, null, "test"));
+        
+        // DATE
+        assertEquals("CAST(? AS DATE)", driver.getConvertPhrase(DataType.DATE, null, null));
+        assertEquals("CAST(? AS DATE)", driver.getConvertPhrase(DataType.DATE, null, "test"));
+        
+        // DATETIME
+        assertEquals("CAST(? AS DATETIME)", driver.getConvertPhrase(DataType.DATETIME, null, null));
+        assertEquals("CAST(? AS DATETIME)", driver.getConvertPhrase(DataType.DATETIME, null, "test"));
+        
+        // TEXT
+        assertEquals("CAST(? AS CHAR CHARACTER SET cp1250)", driver.getConvertPhrase(DataType.TEXT, null, "CHARACTER SET cp1250"));
+        assertEquals("CAST(? AS CHAR)", driver.getConvertPhrase(DataType.TEXT, null, null));
+        
+        // BLOB
+        assertEquals("CAST(? AS BLOB)", driver.getConvertPhrase(DataType.BLOB, null, null));
+        assertEquals("CAST(? AS BLOB)", driver.getConvertPhrase(DataType.BLOB, null, "test"));
+        
+     // Unknown Type
+        assertEquals("?", driver.getConvertPhrase(DataType.AUTOINC, null, null));
+        assertEquals("?", driver.getConvertPhrase(DataType.AUTOINC, null, "test"));
+        
 	}
 	
 }
