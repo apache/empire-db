@@ -45,21 +45,21 @@ public class DBDatabaseDriverMySQLTest {
 		// Test 1
 		cmd.select(TD.count());
 		cmd.where(TD.NAME.is("\\LCI\\"));
-		assertTrue(cmd.getSelect().endsWith(("NAME='\\\\LCI\\\\'"))); // Must be double escaped
+		assertTrue(cmd.getSelect().endsWith(("`NAME`='\\\\LCI\\\\'"))); // Must be double escaped
 		
 		cmd = db.createCommand();
 
 		// Test 2
 		cmd.select(TD.count());
 		cmd.where(TD.NAME.is("'"));
-		assertTrue(cmd.getSelect().contains("NAME=''''"));
+		assertTrue(cmd.getSelect().contains("`NAME`=''''"));
 
 		cmd = db.createCommand();
 		
 		// \ and '
 		cmd.select(TD.count());
 		cmd.where(TD.NAME.is("Tarkk\\'ampujankatu"));
-		assertTrue(cmd.getSelect().contains("NAME='Tarkk\\\\''ampujankatu'"));
+		assertTrue(cmd.getSelect().contains("`NAME`='Tarkk\\\\''ampujankatu'"));
 		
 	}
 	
