@@ -111,7 +111,7 @@ public class OracleDDLGenerator extends DBDDLGenerator<DBDatabaseDriverOracle>
     @Override
     protected void dropDatabase(DBDatabase db, DBSQLScript script)
     {
-        dropObject(db.getSchema(), "USER", script);
+        dropObject(null, db.getSchema(), "USER", script);
     }
     
     /**

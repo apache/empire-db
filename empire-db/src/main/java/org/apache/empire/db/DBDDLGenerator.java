@@ -18,6 +18,7 @@
  */
 package org.apache.empire.db;
 
+import org.apache.empire.commons.StringUtils;
 import org.apache.empire.data.DataType;
 import org.apache.empire.exceptions.InvalidArgumentException;
 import org.apache.empire.exceptions.MiscellaneousErrorException;
@@ -211,6 +212,7 @@ public abstract class DBDDLGenerator<T extends DBDatabaseDriver>
         if (dbo==null || dbo.getDatabase().getDriver()!=driver)
             throw new InvalidArgumentException("dbo", dbo);
         // Check Type of object
+        String schema = dbo.getDatabase().getSchema();
         if (dbo instanceof DBDatabase)
         { // Database
             switch (type)
@@ -219,7 +221,7 @@ public abstract class DBDDLGenerator<T extends DBDatabaseDriver>
                     createDatabase((DBDatabase) dbo, script);
                     return;
                 case DROP:
-                    dropObject(((DBDatabase) dbo).getSchema(), databaseObjectName, script);
+                    dropObject(null, schema, databaseObjectName, script);
                     return;
                 default:
                     throw new NotImplementedException(this, "getDDLScript." + dbo.getClass().getName() + "." + type);
@@ -233,7 +235,7 @@ public abstract class DBDDLGenerator<T extends DBDatabaseDriver>
                     createTable((DBTable) dbo, script);
                     return;
                 case DROP:
-                    dropObject(((DBTable) dbo).getFullName(), "TABLE", script);
+                    dropObject(schema, ((DBTable) dbo).getName(), "TABLE", script);
                     return;
                 default:
                     throw new NotImplementedException(this, "getDDLScript." + dbo.getClass().getName() + "." + type);
@@ -247,10 +249,10 @@ public abstract class DBDDLGenerator<T extends DBDatabaseDriver>
                     createView((DBView) dbo, script);
                     return;
                 case DROP:
-                    dropObject(((DBView) dbo).getFullName(), "VIEW", script);
+                    dropObject(schema, ((DBView) dbo).getName(), "VIEW", script);
                     return;
                 case ALTER:
-                    dropObject(((DBView) dbo).getFullName(), "VIEW", script);
+                    dropObject(schema, ((DBView) dbo).getName(), "VIEW", script);
                     createView((DBView) dbo, script);
                     return;
                 default:
@@ -265,7 +267,7 @@ public abstract class DBDDLGenerator<T extends DBDatabaseDriver>
                     createRelation((DBRelation) dbo, script);
                     return;
                 case DROP:
-                    dropObject(((DBRelation) dbo).getFullName(), "CONSTRAINT", script);
+                    dropObject(schema, ((DBRelation) dbo).getName(), "CONSTRAINT", script);
                     return;
                 default:
                     throw new NotImplementedException(this, "getDDLScript." + dbo.getClass().getName() + "." + type);
@@ -279,7 +281,7 @@ public abstract class DBDDLGenerator<T extends DBDatabaseDriver>
                     createIndex(((DBIndex) dbo).getTable(), (DBIndex) dbo, script);
                     return;
                 case DROP:
-                    dropObject(((DBIndex) dbo).getFullName(), "INDEX", script);
+                    dropObject(schema, ((DBIndex) dbo).getName(), "INDEX", script);
                     return;
                 default:
                     throw new NotImplementedException(this, "getDDLScript." + dbo.getClass().getName() + "." + type);
@@ -332,7 +334,7 @@ public abstract class DBDDLGenerator<T extends DBDatabaseDriver>
      */
     protected void dropDatabase(DBDatabase db, DBSQLScript script)
     {
-        dropObject(db.getSchema(), "DATABASE", script);
+        dropObject(null, db.getSchema(), "DATABASE", script);
     }
     
     /**
@@ -566,15 +568,20 @@ public abstract class DBDDLGenerator<T extends DBDatabaseDriver>
      * @param objType the type of object to delete (TABLE, COLUMN, VIEW, RELATION, etc)
      * @param script the sql script to which to append the dll command(s)
      */
-    protected void dropObject(String name, String objType, DBSQLScript script)
+    protected void dropObject(String schema, String name, String objType, DBSQLScript script)
     {
-        if (name == null || name.length() == 0)
+        if (StringUtils.isEmpty(name))
             throw new InvalidArgumentException("name", name);
         // Create Drop Statement
         StringBuilder sql = new StringBuilder();
         sql.append("DROP ");
         sql.append(objType);
         sql.append(" ");
+        if (StringUtils.isNotEmpty(schema))
+        {   // append schema
+            sql.append(schema);
+            sql.append(".");
+        }
         appendElementName(sql, name);
         script.addStmt(sql);
     }
