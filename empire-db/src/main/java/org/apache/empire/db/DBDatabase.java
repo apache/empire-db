@@ -512,12 +512,22 @@ public abstract class DBDatabase extends DBObject
     /**
      * Creates and returns a value expression for a command parameter
      * 
-     * @param param the command param
-     * @return the new DBValueExpr object
+     * @param param the command parameter
+     * @return the corresponding DBValueExpr object
      */
-    public DBValueExpr getValueExpr(DBCmdParam param)
+    public DBValueExpr getParamExpr(DBCmdParam param)
     {
         return new DBValueExpr(this, param, param.getDataType());
+    }    
+
+    /**
+     * Creates and returns a value expression for NULL
+     * 
+     * @return the corresponding DBValueExpr object
+     */
+    public DBValueExpr getNullExpr()
+    {
+        return new DBValueExpr(this, null, DataType.UNKNOWN);
     }    
     
     /**
