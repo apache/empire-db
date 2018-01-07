@@ -876,9 +876,15 @@ public class DBReader extends DBRecordData
         {
             for (int i = 0; i < colList.length; i++)
             {
-                DBColumn updColumn = colList[i].getUpdateColumn();
+                DBColumn updColumn = colList[i].getUpdateColumn();                    
                 if (updColumn!=null && updColumn.equals(column))
                     return i;
+                 // Query Expression?
+                if (updColumn instanceof DBQueryColumn)
+                {   updColumn = ((DBQueryColumn)updColumn).getQueryExpression().getUpdateColumn();
+                    if (updColumn!=null && updColumn.equals(column))
+                        return i;
+                }
             }
         }
         // not found!
