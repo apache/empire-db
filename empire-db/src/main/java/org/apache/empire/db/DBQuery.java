@@ -83,7 +83,7 @@ public class DBQuery extends DBRowSet
         for (int i = 0; i < exprList.length; i++)
         {   // Init Columns 
             columns.add(exprList[i].getUpdateColumn());
-            queryColumns[i] = new DBQueryColumn(this, exprList[i]);
+            queryColumns[i] = createQueryColumn(exprList[i]);
         }
         // Set the key Column
         this.keyColumns = keyColumns;
@@ -147,18 +147,6 @@ public class DBQuery extends DBRowSet
     public DBQuery(DBCommandExpr cmd)
     { // Set the column expressions
         this(cmd, (DBColumn[]) null);
-    }
-
-    /**
-     * returns the command from the underlying command expression or throws an exception
-     * @return the command used for this query
-     */
-    private DBCommand getCommandFromExpression()
-    {
-        if (cmdExpr instanceof DBCommand)
-            return ((DBCommand)cmdExpr);
-        // not supported
-        throw new NotSupportedException(this, "getCommand");
     }
 
     /**
@@ -543,6 +531,18 @@ public class DBQuery extends DBRowSet
     }
 
     /**
+     * Deletes a record identified by its primary key from the database.
+     * 
+     * @param keys array of primary key values
+     * @param conn a valid database connection
+     */
+    @Override
+    public void deleteRecord(Object[] keys, Connection conn)
+    {
+        throw new NotImplementedException(this, "deleteRecord()");
+    }
+
+    /**
      * Adds join restrictions to the supplied command object.
      */
     protected boolean addJoinRestriction(DBCommand upd, DBColumn updCol, DBColumn keyCol, DBColumn[] keyColumns, DBRecord rec)
@@ -570,15 +570,25 @@ public class DBQuery extends DBRowSet
     }
 
     /**
-     * Deletes a record identified by its primary key from the database.
-     * 
-     * @param keys array of primary key values
-     * @param conn a valid database connection
+     * returns the command from the underlying command expression or throws an exception
+     * @return the command used for this query
      */
-    @Override
-    public void deleteRecord(Object[] keys, Connection conn)
+    protected DBCommand getCommandFromExpression()
     {
-        throw new NotImplementedException(this, "deleteRecord()");
+        if (cmdExpr instanceof DBCommand)
+            return ((DBCommand)cmdExpr);
+        // not supported
+        throw new NotSupportedException(this, "getCommand");
+    }
+    
+    /**
+     * factory method for column expressions in order to allow overrides 
+     * @param expr
+     * @return the query column
+     */
+    protected DBQueryColumn createQueryColumn(DBColumnExpr expr)
+    {
+        return new DBQueryColumn(this, expr);
     }
 
 }
