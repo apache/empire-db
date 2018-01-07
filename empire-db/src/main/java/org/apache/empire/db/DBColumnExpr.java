@@ -18,8 +18,6 @@
  */
 package org.apache.empire.db;
 
-// java
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 

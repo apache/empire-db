@@ -498,9 +498,9 @@ public abstract class DBDatabase extends DBObject
     }
 
     /**
-     * Creates and returns a value object for the given value.
+     * Creates and returns a value object for the given scalar value.
      * 
-     * @param value the value
+     * @param value the scalar value
      * @param dataType the database systems data type used for this value
      * @return the new DBValueExpr object
      */
@@ -509,6 +509,17 @@ public abstract class DBDatabase extends DBObject
         return new DBValueExpr(this, value, dataType);
     }
 
+    /**
+     * Creates and returns a value expression for a command parameter
+     * 
+     * @param param the command param
+     * @return the new DBValueExpr object
+     */
+    public DBValueExpr getValueExpr(DBCmdParam param)
+    {
+        return new DBValueExpr(this, param, param.getDataType());
+    }    
+    
     /**
      * Adds a DBTable object to list of database tables.<BR>
      * This function is called internally from the DBTable's constructor.

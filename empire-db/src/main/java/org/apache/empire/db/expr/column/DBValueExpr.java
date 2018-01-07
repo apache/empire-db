@@ -18,16 +18,17 @@
  */
 package org.apache.empire.db.expr.column;
 
+import java.util.Set;
+
 // Java
 import org.apache.empire.data.DataType;
 import org.apache.empire.db.DBColumn;
 import org.apache.empire.db.DBColumnExpr;
 import org.apache.empire.db.DBDatabase;
 import org.apache.empire.db.DBDatabaseDriver;
+import org.apache.empire.db.DBExpr;
 import org.apache.empire.xml.XMLUtil;
 import org.w3c.dom.Element;
-
-import java.util.Set;
 
 
 /**
@@ -185,9 +186,16 @@ public class DBValueExpr extends DBColumnExpr
     @Override
     public void addSQL(StringBuilder buf, long context)
     {
-        DBDatabaseDriver driver = db.getDriver();
-        String text = (driver!=null) ? driver.getValueString(value, getDataType()) : String.valueOf(value); 
-        buf.append(text);
+        if (value instanceof DBExpr)
+        {   // its an expression
+            ((DBExpr)value).addSQL(buf, context);
+        }
+        else
+        {   // convert value to sql literal
+            DBDatabaseDriver driver = db.getDriver();
+            String text = (driver!=null) ? driver.getValueString(value, getDataType()) : String.valueOf(value); 
+            buf.append(text);
+        }
     }
 
     /**
