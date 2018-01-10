@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title></title>
+  <!-- <script src="js/jquery-3.2.1.min.js"></script> -->
+  <!-- <script src="https://unpkg.com/vue"></script>  -->
+  <script src="components/einput/einput.js"></script>
+</head>
+<body>
+
+  <div id="app">
+
+	<table>
+	
+		<tr>
+			<td>ID</td>
+			<td><einput v-bind:col="employee.employeeId"></einput></td>
+		</tr>
+		<tr>
+			<td>Last Name</td>
+			<td><einput v-bind:col="employee.lastName"></einput></td>
+		</tr>
+		<tr>
+			<td>First name</td>
+			<td><einput v-bind:col="employee.firstName"></einput></td>
+		</tr>
+		<tr>
+			<td>Date of Birth</td>
+			<td><einput v-bind:col="employee.dateOfBirth"></einput></td>
+		</tr>
+	
+	</table>
+	
+  </div>
+
+  <script src="js/app.js"></script>
+
+</body>
+</html>
