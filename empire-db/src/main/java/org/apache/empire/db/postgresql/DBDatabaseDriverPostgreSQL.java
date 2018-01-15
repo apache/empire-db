@@ -332,7 +332,7 @@ public class DBDatabaseDriverPostgreSQL extends DBDatabaseDriver
             // data types
             case SQL_BOOLEAN_TRUE:            return "TRUE";
             case SQL_BOOLEAN_FALSE:           return "FALSE";
-            case SQL_CURRENT_DATE:            return "CURRENT_DATE()";
+            case SQL_CURRENT_DATE:            return "CURRENT_DATE";
             case SQL_DATE_PATTERN:            return "yyyy-MM-dd";
             case SQL_DATE_TEMPLATE:           return "'{0}'";
             case SQL_CURRENT_DATETIME:        return "NOW()";
