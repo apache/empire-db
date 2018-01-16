@@ -39,6 +39,7 @@
 		<module>empire-db-example-struts2</module>
 		<module>empire-db-example-struts2-cxf</module>
 		<module>empire-db-example-jsf2</module>
+		<module>empire-db-example-vue</module>
 		<!-- <module>empire-db-example-codegen</module> -->
 	</modules>
 	<build>
