@@ -1419,7 +1419,8 @@ public class TagEncodingHelper implements NamingContainer
     public final String getTagStyleClass(DataType dataType, String addlStyle, String userStyle)
     {
         String typeClass = getDataTypeClass(dataType);
-        return getTagStyleClass(tagCssStyle, typeClass, addlStyle, userStyle);
+        String contextStyle = getContextStyleClass(addlStyle);
+        return getTagStyleClass(tagCssStyle, typeClass, contextStyle, userStyle);
     }
 
     public final String getTagStyleClass(DataType dataType, String addlStyle)
@@ -1441,6 +1442,24 @@ public class TagEncodingHelper implements NamingContainer
         String userStyle = getTagAttributeStringEx("styleClass");
         String typeClass = hasColumn() ? getDataTypeClass(column.getDataType()) : null;
         return getTagStyleClass(tagCssStyle, typeClass, null, userStyle);
+    }
+    
+    private final String getContextStyleClass(String addlStyle)
+    {
+        String contextStyle = null;
+        if ((getRecord() instanceof TagContextInfo) && hasColumn())
+        {
+            contextStyle = ((TagContextInfo)getRecord()).getContextStyleClass(getColumn());
+        }
+        if (StringUtils.isEmpty(addlStyle))
+        {
+            return contextStyle;
+        }
+        if (StringUtils.isEmpty(contextStyle))
+        {
+            return addlStyle;
+        }
+        return addlStyle + " " + contextStyle;
     }
     
     public boolean isInsideUIData()
