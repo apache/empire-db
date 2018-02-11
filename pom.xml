@@ -37,7 +37,9 @@
 		<module>empire-db-struts2</module>
 		<module>empire-db-jsf2</module>
 		<module>empire-db-codegen</module>
+		<!-- excluded due to maven build error "Unqualified OSGi version 2.4.4.qualifier must match unqualified Maven version"
 		<module>empire-db-eclipse-codegen</module>
+		 -->
 		<module>empire-db-maven-plugin</module>
 		<module>empire-db-spring</module>
 		<module>empire-db-examples</module>
