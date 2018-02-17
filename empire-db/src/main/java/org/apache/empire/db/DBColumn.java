@@ -365,6 +365,23 @@ public abstract class DBColumn extends DBColumnExpr
     }
 
     /**
+     * returns the qualified Name of this column
+     */
+    public String qualifiedAlias()
+    {
+        String rsName = getRowSet().getName();
+        return rsName + "_" + getName();
+    }
+
+    /**
+     * returns the column as an expression with a full qualified alias
+     */
+    public DBColumnExpr qualified()
+    {
+        return this.as(qualifiedAlias());
+    }
+
+    /**
      *  @see DBColumnExpr#getAttribute(String)
      */
     @Override

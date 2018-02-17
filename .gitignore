@@ -8,3 +8,4 @@ target/
 # IntelliJ IDEA
 .idea/
 *.iml
+empire-db-examples/empire-db-example-vue/.tomcatplugin
