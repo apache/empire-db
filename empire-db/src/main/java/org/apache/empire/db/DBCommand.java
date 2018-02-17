@@ -299,7 +299,7 @@ public abstract class DBCommand extends DBCommandExpr
      * 
      * @param exprs an vararg of DBColumnExpr's to select
      */
-    public void select(DBColumnExpr... exprs)
+    public final void select(DBColumnExpr... exprs)
     {
         for (DBColumnExpr expr : exprs)
         {
@@ -345,8 +345,8 @@ public abstract class DBCommand extends DBCommandExpr
     }
     
     /**
-     * Inserts DBSetExpr objects to the Vector 'set'.
-     * 
+     * Adds a single set expressions to this command
+     * Use column.to(...) to create a set expression 
      * @param expr the DBSetExpr object(s)
      */
     public void set(DBSetExpr expr)
@@ -383,6 +383,17 @@ public abstract class DBCommand extends DBCommandExpr
             expr.value = addParam(expr.column.getDataType(), expr.value);
         // new Value!
         set.add(expr);
+    }
+    
+    /**
+     * Adds a list of set expressions to this command
+     * Use column.to(...) to create a set expression 
+     * @param expr the DBSetExpr object(s)
+     */
+    public final void set(DBSetExpr... exprs)
+    {
+        for (int i=0; i<exprs.length; i++)
+            set(exprs[i]);
     }
 
     /**
@@ -686,7 +697,7 @@ public abstract class DBCommand extends DBCommandExpr
     }
 
     /**
-     * Adds a compare expression to the list of constraints.
+     * Adds a constraint to the where phrase of the sql statement
      * If another restriction already exists for the same column it will be replaced.
      * 
      * @param expr the DBCompareExpr object
@@ -697,6 +708,18 @@ public abstract class DBCommand extends DBCommandExpr
         if (where == null)
             where = new ArrayList<DBCompareExpr>();
         setConstraint(where, expr);
+    }
+    
+    /**
+     * Adds a list of constraints to the where phrase of the sql statement
+     * If another restriction already exists for the same column it will be replaced.
+     * 
+     * @param expr the DBCompareExpr object
+     */
+    public final void where(DBCompareExpr... exprs)
+    {
+        for (int i=0; i<exprs.length; i++)
+            where(exprs[i]);
     }
 
     /**
