@@ -359,7 +359,15 @@ public abstract class DBDatabaseDriver implements Serializable
      * @return a new unique sequence value or null if an error occurred
      */
     public abstract Object getNextSequenceValue(DBDatabase db, String SeqName, int minValue, Connection conn);
-
+    
+    /**
+     * Returns an expression for creating a sequence value.
+     * This is intended for the use with INSERT INTO statements where many records are affected. 
+     * @param col the column for which to obtain an expression providing the next sequence value
+     * @return an expression for the next sequence value
+     */
+    public abstract DBColumnExpr getNextSequenceValueExpr(DBTableColumn column);
+    
     /**
      * Returns an auto-generated value for a particular column
      * 

@@ -32,6 +32,7 @@ import java.util.List;
 
 import org.apache.empire.data.DataType;
 import org.apache.empire.db.DBCmdType;
+import org.apache.empire.db.DBColumnExpr;
 import org.apache.empire.db.DBCommand;
 import org.apache.empire.db.DBDDLGenerator;
 import org.apache.empire.db.DBDatabase;
@@ -40,9 +41,11 @@ import org.apache.empire.db.DBDriverFeature;
 import org.apache.empire.db.DBJoinType;
 import org.apache.empire.db.DBObject;
 import org.apache.empire.db.DBSQLScript;
+import org.apache.empire.db.DBTableColumn;
 import org.apache.empire.db.expr.join.DBColumnJoinExpr;
 import org.apache.empire.db.expr.join.DBJoinExpr;
 import org.apache.empire.exceptions.NotImplementedException;
+import org.apache.empire.exceptions.NotSupportedException;
 import org.apache.empire.exceptions.UnexpectedReturnValueException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -562,6 +565,15 @@ public class DBDatabaseDriverSQLite extends DBDatabaseDriver
     public Object getNextSequenceValue(DBDatabase db, String SeqName, int minValue, Connection conn)
     {
         throw new NotImplementedException(db, " sequence values are assigned dynamicaly from sqlite ");
+    }
+
+    /**
+     * @see DBDatabaseDriver#getNextSequenceValueExpr(DBTableColumn col)
+     */
+    @Override
+    public DBColumnExpr getNextSequenceValueExpr(DBTableColumn column)
+    {
+        throw new NotSupportedException(this, "getNextSequenceValueExpr");
     }
     
 }

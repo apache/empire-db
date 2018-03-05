@@ -23,8 +23,10 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.GregorianCalendar;
 
+import org.apache.empire.commons.StringUtils;
 import org.apache.empire.data.DataType;
 import org.apache.empire.db.DBCmdType;
+import org.apache.empire.db.DBColumnExpr;
 import org.apache.empire.db.DBCommand;
 import org.apache.empire.db.DBDDLGenerator;
 import org.apache.empire.db.DBDatabase;
@@ -32,7 +34,10 @@ import org.apache.empire.db.DBDatabaseDriver;
 import org.apache.empire.db.DBDriverFeature;
 import org.apache.empire.db.DBObject;
 import org.apache.empire.db.DBSQLScript;
+import org.apache.empire.db.DBTableColumn;
 import org.apache.empire.db.exceptions.EmpireSQLException;
+import org.apache.empire.db.expr.column.DBValueExpr;
+import org.apache.empire.exceptions.InvalidArgumentException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -300,10 +305,11 @@ public class DBDatabaseDriverPostgreSQL extends DBDatabaseDriver
     {
         switch (type)
         {   // return support info 
-            case CREATE_SCHEMA: 	return true;
-            case SEQUENCES:     	return true;    
-            case QUERY_LIMIT_ROWS:  return true;
-            case QUERY_SKIP_ROWS:   return true;
+            case CREATE_SCHEMA: 	  return true;
+            case SEQUENCES:     	  return true;    
+            case SEQUENCE_VALUE_EXPR: return true;
+            case QUERY_LIMIT_ROWS:    return true;
+            case QUERY_SKIP_ROWS:     return true;
             default:
                 // All other features are not supported by default
                 return false;
@@ -424,6 +430,22 @@ public class DBDatabaseDriverPostgreSQL extends DBDatabaseDriver
             log.error("getNextSequenceValue: Invalid sequence value for sequence " + seqName);
         }
         return val;
+    }
+
+    /**
+     * @see DBDatabaseDriver#getNextSequenceValueExpr(DBTableColumn col)
+     */
+    @Override
+    public DBColumnExpr getNextSequenceValueExpr(DBTableColumn column)
+    {
+        String seqName = StringUtils.toString(column.getDefaultValue());
+        if (StringUtils.isEmpty(seqName))
+            throw new InvalidArgumentException("column", column);
+        StringBuilder sql = new StringBuilder(80);
+        sql.append("nextval('");
+        column.getDatabase().appendQualifiedName(sql, seqName, false);
+        sql.append("')");
+        return new DBValueExpr(column.getDatabase(), sql.toString(), DataType.UNKNOWN);
     }
 
     /**

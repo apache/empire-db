@@ -53,6 +53,12 @@ public class MockDriver extends DBDatabaseDriver{
     }
 
     @Override
+    public DBColumnExpr getNextSequenceValueExpr(DBTableColumn column)
+    {
+        return null;
+    }
+
+    @Override
     public String getSQLPhrase(int phrase)
     {
         return null;

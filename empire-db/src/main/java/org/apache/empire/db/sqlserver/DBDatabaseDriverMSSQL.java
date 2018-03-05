@@ -25,6 +25,7 @@ import java.util.GregorianCalendar;
 import org.apache.empire.commons.StringUtils;
 import org.apache.empire.data.DataType;
 import org.apache.empire.db.DBCmdType;
+import org.apache.empire.db.DBColumnExpr;
 import org.apache.empire.db.DBCommand;
 import org.apache.empire.db.DBDDLGenerator;
 import org.apache.empire.db.DBDatabase;
@@ -36,8 +37,8 @@ import org.apache.empire.db.DBRelation;
 import org.apache.empire.db.DBSQLScript;
 import org.apache.empire.db.DBTable;
 import org.apache.empire.db.DBTableColumn;
-import org.apache.empire.db.DBDatabaseDriver.DBSetGenKeys;
 import org.apache.empire.db.exceptions.EmpireSQLException;
+import org.apache.empire.exceptions.NotSupportedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -374,6 +375,18 @@ public class DBDatabaseDriverMSSQL extends DBDatabaseDriver
         {   // Post Detection
             return null;
         }
+    }
+
+    /**
+     * @see DBDatabaseDriver#getNextSequenceValueExpr(DBTableColumn col)
+     */
+    @Override
+    public DBColumnExpr getNextSequenceValueExpr(DBTableColumn column)
+    {
+        if (isUseSequenceTable())
+            throw new NotSupportedException(this, "getNextSequenceValueExpr");
+        // automatic identity management
+        return null;
     }
 
     /**

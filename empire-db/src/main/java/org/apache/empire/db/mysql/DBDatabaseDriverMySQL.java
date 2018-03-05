@@ -25,6 +25,7 @@ import java.util.GregorianCalendar;
 import org.apache.empire.commons.StringUtils;
 import org.apache.empire.data.DataType;
 import org.apache.empire.db.DBCmdType;
+import org.apache.empire.db.DBColumnExpr;
 import org.apache.empire.db.DBCombinedCmd;
 import org.apache.empire.db.DBCommand;
 import org.apache.empire.db.DBCommandExpr;
@@ -35,7 +36,9 @@ import org.apache.empire.db.DBDriverFeature;
 import org.apache.empire.db.DBObject;
 import org.apache.empire.db.DBSQLScript;
 import org.apache.empire.db.DBTable;
+import org.apache.empire.db.DBTableColumn;
 import org.apache.empire.db.exceptions.EmpireSQLException;
+import org.apache.empire.exceptions.NotSupportedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -1091,6 +1094,15 @@ public class DBDatabaseDriverMySQL extends DBDatabaseDriver
         {   // Post Detection
             return null;
         }
+    }
+
+    /**
+     * @see DBDatabaseDriver#getNextSequenceValueExpr(DBTableColumn col)
+     */
+    @Override
+    public DBColumnExpr getNextSequenceValueExpr(DBTableColumn column)
+    {
+        throw new NotSupportedException(this, "getNextSequenceValueExpr");
     }
 
     /**
