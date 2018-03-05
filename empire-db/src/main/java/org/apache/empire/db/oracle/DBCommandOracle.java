@@ -18,11 +18,14 @@
  */
 package org.apache.empire.db.oracle;
 
+import java.util.ArrayList;
 // Imports
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import org.apache.empire.commons.StringUtils;
+import org.apache.empire.data.DataType;
 import org.apache.empire.db.DBColumn;
 import org.apache.empire.db.DBColumnExpr;
 import org.apache.empire.db.DBCommand;
@@ -30,6 +33,8 @@ import org.apache.empire.db.DBDatabase;
 import org.apache.empire.db.DBIndex;
 import org.apache.empire.db.DBRowSet;
 import org.apache.empire.db.DBTable;
+import org.apache.empire.db.expr.column.DBAliasExpr;
+import org.apache.empire.db.expr.column.DBValueExpr;
 import org.apache.empire.db.expr.compare.DBCompareExpr;
 import org.apache.empire.db.expr.join.DBColumnJoinExpr;
 import org.apache.empire.db.expr.join.DBJoinExpr;
@@ -312,23 +317,42 @@ public class DBCommandOracle extends DBCommand
             if (jcol.getRowSet()!=table)
                 inner.select(jcol);
         }
-        for (DBSetExpr sex : set)
-        {   // Select set expressions
-            Object val = sex.getValue();
-            if (val instanceof DBColumnExpr)
-                inner.select(((DBColumnExpr)val));
-        }
-        // remove join (if not necessary)
-        if (inner.hasConstraintOn(table)==false)
-            inner.removeJoinsOn(table);
-        // add SQL for inner statement
-        inner.addSQL(buf, CTX_DEFAULT);
         // find the source table
         DBColumnExpr left  = updateJoin.getLeft();
         DBColumnExpr right = updateJoin.getRight();
         DBRowSet source = right.getUpdateColumn().getRowSet();
         if (source==table)
             source = left.getUpdateColumn().getRowSet();
+        // Add set expressions
+        String sourceAliasPrefix = source.getAlias()+".";
+        List<DBSetExpr> mergeSet = new ArrayList<DBSetExpr>(set.size());   
+        for (DBSetExpr sex : set)
+        {   // Select set expressions
+            Object val = sex.getValue();
+            if (val instanceof DBColumnExpr)
+            {
+                DBColumnExpr expr = ((DBColumnExpr)val);
+                if (!(expr instanceof DBColumn) && !(expr instanceof DBAliasExpr))
+                {   // rename column
+                    String name = "COL_"+String.valueOf(mergeSet.size());
+                    expr = expr.as(name);
+                }
+                // select
+                inner.select(expr);
+                // Name
+                DBValueExpr NAME_EXPR = getDatabase().getValueExpr(sourceAliasPrefix+expr.getName(), DataType.UNKNOWN);
+                mergeSet.add(sex.getColumn().to(NAME_EXPR));
+            }
+            else
+            {   // add original
+                mergeSet.add(sex);
+            }
+        }
+        // remove join (if not necessary)
+        if (inner.hasConstraintOn(table)==false)
+            inner.removeJoinsOn(table);
+        // add SQL for inner statement
+        inner.addSQL(buf, CTX_DEFAULT);
         // add Alias
         buf.append(" ");
         buf.append(source.getAlias());
@@ -344,7 +368,7 @@ public class DBCommandOracle extends DBCommand
         // Set Expressions
         buf.append(")\r\nWHEN MATCHED THEN UPDATE ");
         buf.append("\r\nSET ");
-        addListExpr(buf, set, CTX_DEFAULT, ", ");
+        addListExpr(buf, mergeSet, CTX_DEFAULT, ", ");
         // done
         return buf.toString();
     }
