@@ -713,6 +713,10 @@ public class DBRecord extends DBRecordData implements Record, Cloneable
             return false;
     	// Check value
         int index = rowset.getColumnIndex(column);
+        if (index<0)
+        {   // Column not found
+            log.warn("Column {} does not exist for record of {}", column.getName(), rowset.getName());
+        }
         return (index>=0 && isValueValid(index));
     }
     

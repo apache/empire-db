@@ -33,8 +33,10 @@ import javax.faces.convert.ConverterException;
 import javax.faces.view.AttachedObjectHandler;
 
 import org.apache.empire.data.Column;
+import org.apache.empire.db.DBRecord;
 import org.apache.empire.db.exceptions.FieldIllegalValueException;
 import org.apache.empire.exceptions.EmpireException;
+import org.apache.empire.exceptions.InvalidArgumentException;
 import org.apache.empire.jsf2.controls.InputControl;
 import org.apache.empire.jsf2.utils.TagEncodingHelper;
 import org.slf4j.Logger;
@@ -140,7 +142,23 @@ public class InputTag extends UIInput implements NamingContainer
 
         // Check visiblity
         if (helper.isVisible() == false)
-        {   setRendered(false);
+        {   // not visible
+            setRendered(false);
+            // Check column
+            Column column = helper.getColumn();
+            if (column==null)
+                throw new InvalidArgumentException("column", null);
+            // Check record
+            Object record = helper.getRecord();
+            if (record!=null && (record instanceof DBRecord))
+            {   // Record is not null
+                String rowsetName = (((DBRecord)record).isValid())  ? ((DBRecord)record).getRowSet().getName() : "[INVALID]";
+                log.warn("Column {} is not visible for record of {} and will not be rendered!", column.getName(), rowsetName);
+            }
+            else
+            {   // Column not visible
+                log.warn("Column {} is not visible will not be rendered!", column.getName());
+            }
             return; // not visible
         }
 
