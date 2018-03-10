@@ -152,8 +152,17 @@ public class InputTag extends UIInput implements NamingContainer
             Object record = helper.getRecord();
             if (record!=null && (record instanceof DBRecord))
             {   // Record is not null
-                String rowsetName = (((DBRecord)record).isValid())  ? ((DBRecord)record).getRowSet().getName() : "[INVALID]";
-                log.warn("Column {} is not visible for record of {} and will not be rendered!", column.getName(), rowsetName);
+                if (((DBRecord)record).isValid())
+                {   // Check if column exists
+                    if (((DBRecord)record).getFieldIndex(column)<0)
+                        throw new InvalidArgumentException("column", column.getName());
+                    // not visible
+                    log.info("Column {} is not visible for record of {} and will not be rendered!", column.getName(), ((DBRecord)record).getRowSet().getName());
+                }    
+                else
+                {   // Record not valid
+                    log.warn("Invalid Record provided for column {}. Input will not be rendered!", column.getName());
+                }    
             }
             else
             {   // Column not visible

@@ -60,10 +60,10 @@ public class DBQuery extends DBRowSet
 
     private static AtomicInteger queryCount = new AtomicInteger(0);
 
-    protected DBCommandExpr   cmdExpr;
-    protected DBColumn[]      keyColumns = null;
-    protected DBQueryColumn[] queryColumns = null;
-    protected String          alias;
+    protected final DBCommandExpr   cmdExpr;
+    protected final DBColumn[]      keyColumns;
+    protected final DBQueryColumn[] queryColumns;
+    protected final String          alias;
 
     /**
      * Constructor initializes the query object.
@@ -79,7 +79,7 @@ public class DBQuery extends DBRowSet
         this.cmdExpr = cmd;
         // Set Query Columns
         DBColumnExpr[] exprList = cmd.getSelectExprList();
-        queryColumns = new DBQueryColumn[exprList.length];
+        this.queryColumns = new DBQueryColumn[exprList.length];
         for (int i = 0; i < exprList.length; i++)
         {   // Init Columns 
             columns.add(exprList[i].getUpdateColumn());
@@ -164,7 +164,7 @@ public class DBQuery extends DBRowSet
     @Override
     public String getName()
     {
-        return null;
+        return alias;
     }
 
     /**
@@ -197,11 +197,10 @@ public class DBQuery extends DBRowSet
     }
 
     /**
-     * This function searchs for equal columns given by the
-     * specified DBColumnExpr object.
+     * This function provides the query column object for a particular query command expression 
      * 
      * @param expr the DBColumnExpr object
-     * @return the located column
+     * @return the query column
      */
     public DBQueryColumn findQueryColumn(DBColumnExpr expr)
     {
@@ -215,10 +214,10 @@ public class DBQuery extends DBRowSet
     }
     
     /**
-     * This function searchs for a query column by name
+     * This function provides the query column object for a particular query command expression 
      * 
      * @param the column name
-     * @return the located column
+     * @return the query column
      */
     public DBQueryColumn findQueryColumn(String name)
     {
@@ -231,6 +230,28 @@ public class DBQuery extends DBRowSet
         return null;
     }
 
+    /**
+     * This is a convenience shortcut for findQueryColumn
+     * 
+     * @param expr the DBColumnExpr object
+     * @return the query column
+     */
+    public DBQueryColumn column(DBColumnExpr expr)
+    {
+        return findQueryColumn(expr);
+    }
+    
+    /**
+     * This is a convenience shortcut for findQueryColumn
+     * 
+     * @param the column name
+     * @return the located column
+     */
+    public DBQueryColumn column(String name)
+    {
+        return findQueryColumn(name);
+    }
+    
     /**
      * return query key columns
      */
