@@ -370,6 +370,8 @@ public abstract class DBColumn extends DBColumnExpr
     public String qualifiedAlias()
     {
         String rsName = getRowSet().getName();
+        if (StringUtils.isEmpty(rsName))
+            return getName();
         return rsName + "_" + getName();
     }
 

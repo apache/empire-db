@@ -319,6 +319,32 @@ public abstract class DBCommand extends DBCommandExpr
             select(expr);
         }
     }
+
+    /**
+     * Adds a list of columns with their qualified name to the select phrase of an sql statement.
+     * 
+     * @param exprs one or more columns to select
+     */
+    public void selectQualified(DBColumn... columns)
+    {
+        for (DBColumn col : columns)
+        {
+            select(col.qualified());
+        }
+    }
+
+    /**
+     * Adds a collection of columns to the select phrase of an sql statement.
+     * 
+     * @param columns the column expressions to add
+     */
+    public final void selectQualified(Collection<? extends DBColumn> columns)
+    {
+        for (DBColumn col : columns)
+        {
+            select(col.qualified());
+        }
+    }
     
     /**
      * returns true if prepared statements are enabled for this database
