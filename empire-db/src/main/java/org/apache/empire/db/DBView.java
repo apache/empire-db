@@ -217,7 +217,7 @@ public abstract class DBView extends DBRowSet
      * identifies the columns that uniquely identify a row in the view
      * @param keyColumns list of columns that uniquely identify a row 
      */
-    protected void setKeyColumns(DBViewColumn[] keyColumns)
+    protected void setKeyColumns(DBViewColumn... keyColumns)
     { // Set Key Columns
         if (keyColumns != null)
             primaryKey = new DBIndex(null, DBIndex.PRIMARYKEY, keyColumns);
