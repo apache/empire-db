@@ -31,6 +31,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.empire.commons.ObjectUtils;
 import org.apache.empire.commons.Options;
@@ -186,8 +187,14 @@ public abstract class DBDatabase extends DBObject
     protected void register(String dbid)
     {
         // Check if it exists
-        if (databaseMap.containsValue(this))
-            databaseMap.remove(instanceId);
+        for (Map.Entry<String, WeakReference<DBDatabase>> e : databaseMap.entrySet())
+        {   
+            if (e.getValue().get()==this)
+            {   // Remove from set
+                log.error("Instance of database "+getClass().getName()+" already registered. Not registering same instance twice!");
+                throw new ItemExistsException(e.getKey());
+            }
+        }
         // find a unique key
         int inst=0;
         for (String key : databaseMap.keySet())
@@ -200,6 +207,7 @@ public abstract class DBDatabase extends DBObject
         else
             this.instanceId = dbid;
         // register database in global map
+        log.info("Instance of database {} registered with instanceid={}", getClass().getName(), this.instanceId);
         databaseMap.put(this.instanceId, new WeakReference<DBDatabase>(this));
     }
 
