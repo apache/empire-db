@@ -111,11 +111,11 @@ public class DBDatabaseDriverOracle extends DBDatabaseDriver
     {
         switch (type)
         {   // return support info 
-            case CREATE_SCHEMA: 	  return false;
-            case SEQUENCES:     	  return true;
-            case SEQUENCE_VALUE_EXPR: return true;
-            case QUERY_LIMIT_ROWS:    return true;
-            case QUERY_SKIP_ROWS:     return true;
+            case CREATE_SCHEMA: 	return false;
+            case SEQUENCES:     	return true;
+            case SEQUENCE_NEXTVAL:  return true;
+            case QUERY_LIMIT_ROWS:  return true;
+            case QUERY_SKIP_ROWS:   return true;
             default:
                 // All other features are not supported by default
                 return false;
