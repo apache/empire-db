@@ -18,6 +18,7 @@
  */
 package org.apache.empire.db;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -40,6 +41,7 @@ import org.apache.empire.db.expr.column.DBValueExpr;
 import org.apache.empire.db.expr.compare.DBCompareColExpr;
 import org.apache.empire.db.expr.compare.DBCompareExpr;
 import org.apache.empire.db.expr.order.DBOrderByExpr;
+import org.apache.empire.exceptions.InvalidArgumentException;
 import org.w3c.dom.Element;
 
 
@@ -114,7 +116,7 @@ public abstract class DBColumnExpr extends DBExpr
     @Override
     public synchronized Object getAttribute(String name)
     {
-        if (attributes != null && attributes.contains(name))
+        if (attributes != null && attributes.indexOf(name)>=0)
             return attributes.get(name);
         // Otherwise ask expression
         DBColumn column = getUpdateColumn();
@@ -308,9 +310,9 @@ public abstract class DBColumnExpr extends DBExpr
      * @param column the column whose name serves as an alias for the current expression
      * @return the new DBAliasExpr object
      */
-    public DBColumnExpr as(DBColumn column)
+    public final DBColumnExpr as(DBColumn column)
     {
-        return new DBAliasExpr(this, column.getName());
+        return as(column.getName());
     }
 
     /**
@@ -331,7 +333,7 @@ public abstract class DBColumnExpr extends DBExpr
      * @param value the Object value
      * @return the new DBCompareColExpr object
      */
-    public DBCompareColExpr like(Object value)
+    public final DBCompareColExpr like(Object value)
     {
         return cmp(DBCmpType.LIKE, value);
     }
@@ -384,7 +386,7 @@ public abstract class DBColumnExpr extends DBExpr
      * @param value the Object value
      * @return the new DBCompareColExpr object
      */
-    public DBCompareColExpr notLike(Object value)
+    public final DBCompareColExpr notLike(Object value)
     {
         return cmp(DBCmpType.NOTLIKE, value);
     }
@@ -395,7 +397,7 @@ public abstract class DBColumnExpr extends DBExpr
      * @param value the Object value
      * @return the new DBCompareColExpr object
      */
-    public DBCompareColExpr is(Object value)
+    public final DBCompareColExpr is(Object value)
     {
         return cmp(DBCmpType.EQUAL, value);
     }
@@ -407,33 +409,87 @@ public abstract class DBColumnExpr extends DBExpr
      * @param value the Object value
      * @return the new DBCompareColExpr object
      */
-    public DBCompareColExpr isNot(Object value)
+    public final DBCompareColExpr isNot(Object value)
     {
         return cmp(DBCmpType.NOTEQUAL, value);
     }
 
     /**
-     * Creates and returns a new comparison object
-     * for the SQL "in" operator. 
+     * Creates and returns an expression for the SQL "in" operator. 
      * 
-     * @param value the int value
-     * @return the new DBCompareColExpr object
+     * @param list the values to compare this column with
+     * @return a DBCompareColExpr for the "in" operator
      */
-    public DBCompareColExpr in(Object value)
+    public final DBCompareColExpr in(Collection<?> values)
     {
-        return cmp(DBCmpType.IN, listToArray(value));
+        if (values==null || values.isEmpty())
+            return cmp(DBCmpType.EQUAL, null);
+        // create expression
+        return cmp(DBCmpType.IN, values);
     }
 
     /**
-     * Creates and returns a new comparison object
-     * for the SQL "not in" operator.
-     *
-     * @param value the int value
-     * @return the new DBCompareColExpr object
+     * Creates and returns an expression for the SQL "in" operator. 
+     * 
+     * @param values the values to compare this column with
+     * @return a DBCompareColExpr for the "in" operator
      */
-    public DBCompareColExpr notIn(Object value)
+    public final DBCompareColExpr in(Object... values)
     {
-        return cmp(DBCmpType.NOTIN, listToArray(value));
+        if (values==null || values.length==0)
+            return cmp(DBCmpType.EQUAL, null);
+        // create expression
+        return cmp(DBCmpType.IN, values);
+    }
+
+    /**
+     * Creates and returns an expression for the SQL "not in" operator. 
+     *
+     * @param expr a database expression to provide a list of values
+     * @return a DBCompareColExpr for the "not in" operator
+     */
+    public final DBCompareColExpr in(DBExpr expr)
+    {
+        return cmp(DBCmpType.IN, expr);
+    }
+
+    /**
+     * Creates and returns an expression for the SQL "not in" operator. 
+     *
+     * @param values the values to compare this column with
+     * @return a DBCompareColExpr for the "not in" operator
+     */
+    public final DBCompareColExpr notIn(Collection<?> values)
+    {
+        if (values==null || values.isEmpty())
+            return cmp(DBCmpType.NOTEQUAL, null);
+        // create expression
+        return cmp(DBCmpType.NOTIN, values);
+    }
+
+    /**
+     * Creates and returns an expression for the SQL "not in" operator. 
+     *
+     * @param values the values to compare this column with
+     * @return a DBCompareColExpr for the "not in" operator
+     */
+    public final DBCompareColExpr notIn(Object... values)
+    {
+        if (values==null || values.length==0)
+            return cmp(DBCmpType.NOTEQUAL, null);
+        // create expression
+        return cmp(DBCmpType.NOTIN, values);
+    }
+
+    /**
+     * Creates and returns an expression for the SQL "not in" operator. 
+     *
+     * @param expr a database expression to provide a list of values
+     * @return a DBCompareColExpr for the "not in" operator
+     */
+    public final DBCompareColExpr notIn(DBExpr expr)
+    {
+        return cmp(DBCmpType.NOTIN, expr);
     }
 
     /**
@@ -444,7 +500,7 @@ public abstract class DBColumnExpr extends DBExpr
      * @param maxValue the maximum value
      * @return the new DBCompareColExpr object
      */
-    public DBCompareColExpr isBetween(Object minValue, Object maxValue)
+    public final DBCompareColExpr isBetween(Object minValue, Object maxValue)
     {
         return cmp(DBCmpType.BETWEEN, new Object[] { minValue, maxValue });
     }
@@ -457,7 +513,7 @@ public abstract class DBColumnExpr extends DBExpr
      * @param maxValue the maximum value
      * @return the new DBCompareColExpr object
      */
-    public DBCompareColExpr isNotBetween(Object minValue, Object maxValue)
+    public final DBCompareColExpr isNotBetween(Object minValue, Object maxValue)
     {
         return cmp(DBCmpType.NOTBETWEEN, new Object[] { minValue, maxValue });
     }
@@ -469,7 +525,7 @@ public abstract class DBColumnExpr extends DBExpr
      * @param value the Object value
      * @return the new DBCompareColExpr object
      */
-    public DBCompareColExpr isGreaterThan(Object value)
+    public final DBCompareColExpr isGreaterThan(Object value)
     {
         return cmp(DBCmpType.GREATERTHAN, value);
     }
@@ -481,7 +537,7 @@ public abstract class DBColumnExpr extends DBExpr
      * @param value the Object value
      * @return the new DBCompareColExpr object
      */
-    public DBCompareColExpr isMoreOrEqual(Object value)
+    public final DBCompareColExpr isMoreOrEqual(Object value)
     {
         return cmp(DBCmpType.MOREOREQUAL, value);
     }
@@ -493,7 +549,7 @@ public abstract class DBColumnExpr extends DBExpr
      * @param value the Object value
      * @return the new DBCompareColExpr object
      */
-    public DBCompareColExpr isLessOrEqual(Object value)
+    public final DBCompareColExpr isLessOrEqual(Object value)
     {
         return cmp(DBCmpType.LESSOREQUAL, value);
     }
@@ -505,7 +561,7 @@ public abstract class DBColumnExpr extends DBExpr
      * @param value the Object value
      * @return the new DBCompareColExpr object
      */
-    public DBCompareColExpr isSmallerThan(Object value)
+    public final DBCompareColExpr isSmallerThan(Object value)
     {
         return cmp(DBCmpType.LESSTHAN, value);
     }
@@ -1172,18 +1228,6 @@ public abstract class DBColumnExpr extends DBExpr
     public DBOrderByExpr desc()
     {
         return new DBOrderByExpr(this, true);
-    }
-
-    // get object Array from List
-    private Object listToArray(Object value)
-    {   // Check whether value is a list
-        /*
-        if (value != null && value instanceof java.util.List)
-        { // Convert List to array
-            return ((List)value).toArray();
-        }
-        */
-        return value;
     }
     
 }

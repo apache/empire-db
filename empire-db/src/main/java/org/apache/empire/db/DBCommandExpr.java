@@ -257,7 +257,7 @@ public abstract class DBCommandExpr extends DBExpr
         @Override
         public Object getAttribute(String name)
         {
-            if (attributes != null && attributes.contains(name))
+            if (attributes != null && attributes.indexOf(name)>=0)
                 return attributes.get(name);
             // Otherwise ask expression
             DBColumn column = expr.getUpdateColumn();
