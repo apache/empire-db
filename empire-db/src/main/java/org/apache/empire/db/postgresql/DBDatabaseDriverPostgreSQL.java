@@ -383,7 +383,7 @@ public class DBDatabaseDriverPostgreSQL extends DBDatabaseDriver
             // Not defined
             default:
                 log.error("SQL phrase " + String.valueOf(phrase) + " is not defined!");
-                return "?";
+                return "";
         }
     }
 

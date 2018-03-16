@@ -1229,6 +1229,7 @@ public abstract class DBCommand extends DBCommandExpr
 
     protected void addFrom(StringBuilder buf)
     {
+        int originalLength = buf.length();
         buf.append("\r\nFROM ");
         // Join
         boolean sep = false;
@@ -1274,6 +1275,18 @@ public abstract class DBCommand extends DBCommandExpr
             DBRowSet t = tables.get(i); 
             t.addSQL(buf, CTX_DEFAULT|CTX_ALIAS);
             sep = true;
+        }
+        if (sep==false)
+        {   // add pseudo table or omitt from
+            String pseudoTable = db.getDriver().getSQLPhrase(DBDatabaseDriver.SQL_PSEUDO_TABLE);
+            if (StringUtils.isNotEmpty(pseudoTable))
+            {   // add pseudo table
+                buf.append(pseudoTable);
+            }    
+            else
+            {   // remove from
+                buf.setLength(originalLength);
+            }
         }
     }
 

@@ -277,6 +277,7 @@ public class DBDatabaseDriverMSSQL extends DBDatabaseDriver
             case SQL_QUOTES_OPEN:             return "[";
             case SQL_QUOTES_CLOSE:            return "]";
             case SQL_CONCAT_EXPR:             return " + ";
+            case SQL_PSEUDO_TABLE:            return ""; // not necessary (FROM will be omitted)            
             // data types
             case SQL_BOOLEAN_TRUE:            return "1";
             case SQL_BOOLEAN_FALSE:           return "0";
@@ -325,7 +326,7 @@ public class DBDatabaseDriverMSSQL extends DBDatabaseDriver
             // Not defined
             default:
                 log.error("SQL phrase " + String.valueOf(phrase) + " is not defined!");
-                return "?";
+                return "";
         }
     }
 

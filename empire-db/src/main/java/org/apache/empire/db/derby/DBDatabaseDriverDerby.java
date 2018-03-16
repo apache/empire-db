@@ -235,7 +235,7 @@ public class DBDatabaseDriverDerby extends DBDatabaseDriver
             // Not defined
             default:
                 log.error("SQL phrase " + phrase + " is not defined!");
-                return "?";
+                return "";
         }
     }
 

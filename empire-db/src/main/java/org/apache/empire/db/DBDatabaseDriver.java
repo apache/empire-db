@@ -62,6 +62,7 @@ public abstract class DBDatabaseDriver implements Serializable
     public static final int SQL_QUOTES_OPEN      = 6;   // Oracle: "; MSSQL: [
     public static final int SQL_QUOTES_CLOSE     = 7;   // Oracle: "; MSSQL: ]
     public static final int SQL_CONCAT_EXPR      = 8;   // Oracle: ||
+    public static final int SQL_PSEUDO_TABLE     = 9;   // Oracle: "DUAL"
     // data types
     public static final int SQL_BOOLEAN_TRUE     = 10;  // Oracle: "'Y'"; MSSQL: "1"
     public static final int SQL_BOOLEAN_FALSE    = 11;  // Oracle: "'N'"; MSSQL: "0"

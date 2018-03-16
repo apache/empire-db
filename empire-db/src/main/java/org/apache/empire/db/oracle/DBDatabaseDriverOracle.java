@@ -155,6 +155,7 @@ public class DBDatabaseDriverOracle extends DBDatabaseDriver
             case SQL_QUOTES_OPEN:               return "\"";
             case SQL_QUOTES_CLOSE:              return "\"";
             case SQL_CONCAT_EXPR:               return " || ";
+            case SQL_PSEUDO_TABLE:              return "DUAL";
             // data types
             case SQL_BOOLEAN_TRUE:              return (booleanType==BooleanType.CHAR) ? "'Y'" : "1";
             case SQL_BOOLEAN_FALSE:             return (booleanType==BooleanType.CHAR) ? "'N'" : "0";
@@ -203,7 +204,7 @@ public class DBDatabaseDriverOracle extends DBDatabaseDriver
             // Not defined
             default:
                 log.error("SQL phrase " + phrase + " is not defined!");
-                return "?";
+                return "";
         }
     }
 
