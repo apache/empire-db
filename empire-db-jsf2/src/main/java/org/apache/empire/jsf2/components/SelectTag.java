@@ -31,9 +31,11 @@ import javax.faces.context.FacesContext;
 import org.apache.empire.commons.ObjectUtils;
 import org.apache.empire.commons.Options;
 import org.apache.empire.commons.StringUtils;
+import org.apache.empire.exceptions.InvalidPropertyException;
 import org.apache.empire.jsf2.app.FacesUtils;
 import org.apache.empire.jsf2.app.TextResolver;
 import org.apache.empire.jsf2.controls.InputAttachedObjectsHandler;
+import org.apache.empire.jsf2.controls.InputControl;
 import org.apache.empire.jsf2.controls.InputControlManager;
 import org.apache.empire.jsf2.controls.SelectInputControl;
 import org.apache.empire.jsf2.utils.TagEncodingHelper;
@@ -198,6 +200,12 @@ public class SelectTag extends UIInput implements NamingContainer
         return StringUtils.toString(nullText, "");
     }
 
+    protected String getInputControl()
+    {
+        Object inputControl = getAttributes().get("inputControl");
+        return StringUtils.toString(inputControl, SelectInputControl.NAME);
+    }
+
     protected boolean isDisabled()
     {
         Object disabled = getAttributes().get("disabled");
@@ -206,7 +214,12 @@ public class SelectTag extends UIInput implements NamingContainer
 
     protected UIInput createSelectOneMenu(TextResolver textResolver)
     {
-        this.control = (SelectInputControl) InputControlManager.getControl(SelectInputControl.NAME);
+        // find inputControl by name
+        InputControl inputControl = InputControlManager.getControl(getInputControl());
+        if (inputControl==null || !(inputControl instanceof SelectInputControl))
+            throw new InvalidPropertyException("inputControl", getInputControl());
+        // create component
+        this.control = (SelectInputControl)inputControl; 
         HtmlSelectOneMenu input = control.createMenuComponent(this);
         // css style
         String userStyle = StringUtils.toString(getAttributes().get("styleClass"));
