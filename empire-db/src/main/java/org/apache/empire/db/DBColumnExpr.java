@@ -41,7 +41,6 @@ import org.apache.empire.db.expr.column.DBValueExpr;
 import org.apache.empire.db.expr.compare.DBCompareColExpr;
 import org.apache.empire.db.expr.compare.DBCompareExpr;
 import org.apache.empire.db.expr.order.DBOrderByExpr;
-import org.apache.empire.exceptions.InvalidArgumentException;
 import org.w3c.dom.Element;
 
 
@@ -434,7 +433,7 @@ public abstract class DBColumnExpr extends DBExpr
      * @param values the values to compare this column with
      * @return a DBCompareColExpr for the "in" operator
      */
-    public final DBCompareColExpr in(Object... values)
+    public final <T extends Object> DBCompareColExpr in(T... values)
     {
         if (values==null || values.length==0)
             return cmp(DBCmpType.EQUAL, null);
@@ -473,7 +472,7 @@ public abstract class DBColumnExpr extends DBExpr
      * @param values the values to compare this column with
      * @return a DBCompareColExpr for the "not in" operator
      */
-    public final DBCompareColExpr notIn(Object... values)
+    public final <T extends Object> DBCompareColExpr notIn(T... values)
     {
         if (values==null || values.length==0)
             return cmp(DBCmpType.NOTEQUAL, null);
