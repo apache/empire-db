@@ -30,6 +30,8 @@ import org.apache.empire.commons.StringUtils;
 import org.apache.empire.data.Column;
 import org.apache.empire.data.ColumnExpr;
 import org.apache.empire.data.RecordData;
+import org.apache.empire.db.exceptions.FieldIllegalValueException;
+import org.apache.empire.db.exceptions.FieldValueOutOfRangeException;
 import org.apache.empire.exceptions.BeanPropertySetException;
 import org.apache.empire.exceptions.InvalidArgumentException;
 import org.apache.empire.exceptions.ItemNotFoundException;
@@ -271,6 +273,77 @@ public abstract class DBRecordData extends DBObject
         return getDateTime(getFieldIndex(column));
     }
 
+
+    /**
+     * Returns the value of a field as an enum
+     * For numeric columns the value is assumed to be an ordinal of the enumeration item
+     * For non numeric columns the value is assumed to be the name of the enumeration item
+     * 
+     * @param index index of the field
+     * @return the enum value
+     */
+    public <T extends Enum<?>> T getEnum(int index, Class<T> enumType)
+    {
+        // check column data type
+        ColumnExpr col = getColumnExpr(index);
+        boolean numeric = col.getDataType().isNumeric();
+        T[] items = enumType.getEnumConstants();
+        if (numeric)
+        {   // by ordinal
+            if (isNull(index))
+                return null;
+            int ordinal = getInt(index);
+            // check range
+            if (ordinal<0 || ordinal>=items.length)
+                throw new FieldValueOutOfRangeException(col.getSourceColumn(), 0, items.length);
+            // return enum
+            return items[ordinal]; 
+        }
+        else
+        {   // by name
+            String name = getString(index);
+            if (StringUtils.isEmpty(name))
+                return null;
+            // find name
+            for (T e : items)
+                if (e.name().equals(name))
+                    return e;
+            // error: not found
+            throw new FieldIllegalValueException(col.getSourceColumn(), name);
+        }
+    }
+
+    /**
+     * Returns the value of a field as an enum
+     * For numeric columns the value is assumed to be an ordinal of the enumeration item
+     * For non numeric columns the value is assumed to be the name of the enumeration item
+     * 
+     * @param column the column for which to retrieve the value
+     * @return the enum value
+     */
+    public final <T extends Enum<?>> T getEnum(ColumnExpr column, Class<T> enumType)
+    {
+        return getEnum(getFieldIndex(column), enumType);
+    }
+
+    /**
+     * Returns the value of a field as an enum
+     * This assumes that the column attribute "enumType" has been set to an enum type
+     * 
+     * @param column the column for which to retrieve the value
+     * @return the enum value
+     */
+    @SuppressWarnings("unchecked")
+    public final <T extends Enum<?>> T getEnum(Column column)
+    {
+        Object enumType = column.getAttribute(Column.COLATTR_ENUMTYPE);
+        if (enumType==null || !(enumType instanceof Class<?>))
+        {   // Not an enum column (Attribute "enumType" has not been set)
+            throw new InvalidArgumentException("column", column);
+        }
+        return getEnum(getFieldIndex(column), (Class<T>)enumType);
+    }
+    
     /**
      * Checks whether or not the value for the given column is null.
      * 
