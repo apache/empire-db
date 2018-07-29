@@ -564,7 +564,7 @@ public abstract class DBCommand extends DBCommandExpr
      * Adds a join based on a compare expression to the command.
      * 
      * @param rowset table or view to join
-     * @param cmp the compare expression with wich to join the table
+     * @param cmp the compare expression with which to join the table
      * @param joinType type of join ({@link DBJoinType#INNER}, {@link DBJoinType#LEFT}, {@link DBJoinType#RIGHT})
      * 
      * @return the join expresion 
