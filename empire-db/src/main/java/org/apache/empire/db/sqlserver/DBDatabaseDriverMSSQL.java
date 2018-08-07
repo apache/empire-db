@@ -287,6 +287,9 @@ public class DBDatabaseDriverMSSQL extends DBDatabaseDriver
             case SQL_CURRENT_DATETIME:        return "getdate()";
             case SQL_DATETIME_PATTERN:        return "yyyy-MM-dd HH:mm:ss.SSS";
             case SQL_DATETIME_TEMPLATE:       return "convert(datetime, '{0}', 121)";
+            case SQL_CURRENT_TIME:            return "convert(char, getdate(), 108)";
+            case SQL_TIME_PATTERN:            return "HH:mm:ss.SSS";
+            case SQL_TIME_TEMPLATE:           return "convert(time, '{0}', 114)";
             // functions
             case SQL_FUNC_COALESCE:           return "coalesce(?, {0})";
             case SQL_FUNC_SUBSTRING:          return "substring(?, {0}, 4000)";
@@ -344,6 +347,7 @@ public class DBDatabaseDriverMSSQL extends DBDatabaseDriver
            case FLOAT:    return "convert(float, ?)";
            case DATE:      return "convert(datetime, ?, 111)";
            case DATETIME:  return "convert(datetime, ?, 120)";
+           case TIME:      return "convert(datetime, ?, 108)";
            // Convert to text
            case TEXT:
                 // Date-Time-Format "YYYY-MM-DD hh.mm.ss"

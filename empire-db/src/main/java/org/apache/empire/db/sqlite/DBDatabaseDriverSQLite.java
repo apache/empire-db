@@ -341,6 +341,12 @@ public class DBDatabaseDriverSQLite extends DBDatabaseDriver
                 return "yyyy-MM-dd hh:mm:ss.sss";
             case SQL_DATETIME_TEMPLATE:
                 return "'{0}'";
+            case SQL_CURRENT_TIME:
+                return "SELECT time('now','localtime');";
+            case SQL_TIME_PATTERN:
+                return "hh:mm:ss.sss";
+            case SQL_TIME_TEMPLATE:
+                return "'{0}'";
                 // functions
             case SQL_FUNC_COALESCE:
                 return "coalesce(?, {0})";

@@ -72,6 +72,9 @@ public abstract class DBDatabaseDriver implements Serializable
     public static final int SQL_CURRENT_DATETIME = 25;  // Oracle: "sysdate"
     public static final int SQL_DATETIME_PATTERN = 26;  // "yyyy.MM.dd HH:mm:ss"
     public static final int SQL_DATETIME_TEMPLATE= 27;  // Oracle: "TO_DATE('{0}', 'YYYY-MM-DD HH24:MI:SS')"
+    public static final int SQL_CURRENT_TIME     = 28;  // Oracle: "sysdate"
+    public static final int SQL_TIME_PATTERN     = 29;  // "HH:mm:ss"
+    public static final int SQL_TIME_TEMPLATE    = 30;  // Oracle: "TO_DATE('{0}', 'HH24:MI:SS')"
     // functions
     public static final int SQL_FUNC_COALESCE    = 100; // Oracle: nvl(?, {0})
     public static final int SQL_FUNC_SUBSTRING   = 101; // Oracle: substr(?,{0})
@@ -392,10 +395,10 @@ public abstract class DBDatabaseDriver implements Serializable
         {   // emulate using java.util.UUID
             return UUID.randomUUID();
         }
-        else if ((type==DataType.DATE || type==DataType.DATETIME))
+        else if ((type==DataType.DATE || type==DataType.DATETIME || type==DataType.TIME))
         {   // Get database system's date and time
             Date ts = db.getUpdateTimestamp(conn);
-            return (type==DataType.DATE ? DateUtils.getDateOnly(ts) : ts);
+            return (type==DataType.DATE ? DateUtils.getDateOnly(ts) : type==DataType.TIME ? DateUtils.getTimeOnly(ts) : ts);
         }
         // Other types
         throw new NotSupportedException(this, "getColumnAutoValue() for "+type);
@@ -727,6 +730,8 @@ public abstract class DBDatabaseDriver implements Serializable
                     return getSQLDateTimeString(value, SQL_DATE_TEMPLATE, SQL_DATE_PATTERN, SQL_CURRENT_DATETIME);
                 // Complete Date-Time Object with time 
                 return getSQLDateTimeString(value, SQL_DATETIME_TEMPLATE, SQL_DATETIME_PATTERN, SQL_CURRENT_DATETIME);
+            case TIME:
+                return getSQLDateTimeString(value, SQL_TIME_TEMPLATE, SQL_TIME_PATTERN, SQL_CURRENT_TIME);
             case TEXT:
             case CHAR:
             case CLOB:

@@ -40,6 +40,7 @@ public abstract class DBDDLGenerator<T extends DBDatabaseDriver>
     protected String DATATYPE_CHAR       = "CHAR";      // Fixed length characters (unicode)
     protected String DATATYPE_VARCHAR    = "VARCHAR";   // variable length characters (unicode)      
     protected String DATATYPE_DATE       = "DATE";
+    protected String DATATYPE_TIME       = "TIME";
     protected String DATATYPE_TIMESTAMP  = "TIMESTAMP";
     protected String DATATYPE_BOOLEAN    = "BIT";
     protected String DATATYPE_DECIMAL    = "DECIMAL";
@@ -126,6 +127,9 @@ public abstract class DBDDLGenerator<T extends DBDatabaseDriver>
                 break;
             case DATETIME:
                 sql.append(DATATYPE_TIMESTAMP);
+                break;
+            case TIME:
+                sql.append(DATATYPE_TIME);
                 break;
             case BOOL:
                 sql.append(DATATYPE_BOOLEAN);

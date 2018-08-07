@@ -88,8 +88,13 @@ public enum DataType
     /**
      * Unique Identifier (non-numeric, treated like text) 
      */
-    UNIQUEID; //     = 12;
+    UNIQUEID, //     = 12;
     
+    /**
+     * Time only value (without date)
+     */
+    TIME; //         = 13
+
     /**
      * Returns true if the data type is a text based data type (char, text or clob)
      * @return true if the data type is a character based data type
@@ -114,7 +119,7 @@ public enum DataType
      */
     public boolean isDate()
     {
-        return (this==DataType.DATE || this==DataType.DATETIME);
+        return (this==DataType.DATE || this==DataType.DATETIME || this==DataType.TIME);
     }
 
     /**

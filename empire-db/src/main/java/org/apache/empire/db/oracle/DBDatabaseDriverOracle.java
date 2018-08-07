@@ -165,6 +165,9 @@ public class DBDatabaseDriverOracle extends DBDatabaseDriver
             case SQL_CURRENT_DATETIME:          return "sysdate";
             case SQL_DATETIME_PATTERN:          return "yyyy-MM-dd HH:mm:ss";
             case SQL_DATETIME_TEMPLATE:         return "TO_DATE('{0}', 'YYYY-MM-DD HH24:MI:SS')";
+            case SQL_CURRENT_TIME:              return "sysdate";
+            case SQL_TIME_PATTERN:              return "HH:MI:SS";
+            case SQL_TIME_TEMPLATE:             return "TO_DATE('{0}', 'HH24:MI:SS')";
             // functions
             case SQL_FUNC_COALESCE:             return "nvl(?, {0})";
             case SQL_FUNC_SUBSTRING:            return "substr(?, {0})";
@@ -242,6 +245,7 @@ public class DBDatabaseDriverOracle extends DBDatabaseDriver
             // Convert to date
             case DATE:
             case DATETIME:
+            case TIME:
                 if (format != null)
                 { // Convert using a format string
                     return "to_date(?, '"+format.toString()+"')";

@@ -375,6 +375,7 @@ public class DBTableColumn extends DBColumn
         {
             case DATE:
             case DATETIME:
+            case TIME:
                 // Check whether value is a valid date/time value!
                 if (value!=null && !(value instanceof Date) && !DBDatabase.SYSDATE.equals(value))
                 {   // Parse String
@@ -383,7 +384,9 @@ public class DBTableColumn extends DBColumn
                         return null;
                     // Convert through SimpleDateFormat
                     String datePattern = StringUtils.coalesce(StringUtils.toString(getAttribute(Column.COLATTR_DATETIMEPATTERN)), "yyyy-MM-dd HH:mm:ss");
-                    if ((type==DataType.DATE || dateValue.length()<=12) && datePattern.indexOf(' ')>0)
+                    if (type==DataType.TIME && datePattern.indexOf(' ')>0)
+                        datePattern = datePattern.substring(datePattern.indexOf(' ') + 1); // Strip off date
+                    else if ((type==DataType.DATE || dateValue.length()<=12) && datePattern.indexOf(' ')>0) // don't like the "12" now that we have time
                         datePattern = datePattern.substring(0, datePattern.indexOf(' ')); // Strip off time
                     try
                     { 	// Parse date time value

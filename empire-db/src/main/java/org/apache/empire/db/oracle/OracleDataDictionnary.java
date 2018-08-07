@@ -103,7 +103,7 @@ public class OracleDataDictionnary {
         dataTypeMapping.put("CHAR",     new DataType[] { DataType.CHAR, DataType.BOOL });
         dataTypeMapping.put("NUMBER",   new DataType[] { DataType.DECIMAL, DataType.FLOAT, 
                                                          DataType.INTEGER, DataType.AUTOINC, DataType.BOOL });
-        dataTypeMapping.put("DATE",     new DataType[] { DataType.DATE, DataType.DATETIME });
+        dataTypeMapping.put("DATE",     new DataType[] { DataType.DATE, DataType.DATETIME, DataType.TIME });
         dataTypeMapping.put("CLOB",     new DataType[] { DataType.CLOB });
         dataTypeMapping.put("BLOB",     new DataType[] { DataType.BLOB });
     }
