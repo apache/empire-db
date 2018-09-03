@@ -34,7 +34,7 @@ import org.apache.empire.db.DBSQLScript;
 import org.apache.empire.db.exceptions.QueryFailedException;
 import org.apache.empire.db.hsql.DBDatabaseDriverHSql;
 import org.apache.empire.db.mysql.DBDatabaseDriverMySQL;
-import org.apache.empire.vuesample.model.EmpireServiceConsts;
+import org.apache.empire.rest.service.Service;
 import org.apache.empire.vuesample.model.db.SampleDB;
 import org.apache.log4j.ConsoleAppender;
 import org.apache.log4j.Level;
@@ -63,7 +63,7 @@ public class AppListener implements ServletContextListener {
 		db.open(driver, conn);
 
 		// Add to context
-		sce.getServletContext().setAttribute(EmpireServiceConsts.ATTRIBUTE_DB, db);
+		sce.getServletContext().setAttribute(Service.Consts.ATTRIBUTE_DB, db);
 		// sce.getServletContext().setAttribute(MobileImportServiceConsts.ATTRIBUTE_DATASOURCE, ds);
 		// sce.getServletContext().setAttribute(MobileImportServiceConsts.ATTRIBUTE_CONFIG, config);
 

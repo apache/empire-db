@@ -1,0 +1,241 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *  http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+* {
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+}
+*:before,
+*:after {
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+}
+
+html, body  {
+	width: 800px;
+    margin-left: 10px;
+    margin-right: auto;
+    margin-bottom: 5px;
+    color: black;
+    background-color: white;
+    font-family: Verdana, Arial, sans-serif;
+    font-size:12px;
+}
+.titleDiv {
+    background-color: #EFFBEF;
+    font-weight:bold;
+    font-size:18px;
+    text-align:left;
+    padding-left:10px;
+    padding-top:10px;
+    padding-bottom:10px;
+    border:2px solid #8F99EF;
+}
+h1 { font-weight:bold; color: brown; font-size:15px; text-align:left;}
+
+td { font-size:12px; padding-right:10px; }
+th { text-align:left; font-weight:bold; font-size:13px; padding-right:10px; }
+
+A:link { text-decoration:none;}
+A:visited { text-decoration:none;}
+A:hover { text-decoration:underline;}
+
+.even { background-color: #EFEFFB; 	text-align:left;}
+.odd { background-color:  #FFFFFF; 	text-align:left; }
+
+.nowrap { white-space:nowrap; }
+
+
+#messages ul {
+    background-color: #FBF0F0;
+    border:2px solid #8F99EF;
+	list-style-type: square;
+	padding: 8px;
+	padding-left: 24px;
+}
+#messages ul li {
+	padding: 4px 0;
+/*
+	padding-left:18px;
+    padding-top:2px;
+    padding-bottom:10px;
+    padding-right:5px;
+*/
+	color: #922727;
+    font-weight: bold;
+}
+
+
+form {
+}
+
+div.formPanel {
+	border: 1px #8F99EF solid;
+	background-color: #F8F8F8;
+	padding: 8px 4px;
+}
+table.inputForm {
+	width: 100%;
+}
+table.inputForm td.eCtlLabel {
+	vertical-align:top;
+	width: 140px;
+	height: 24px;
+	padding-top: 3px;
+	font-weight: bold;
+}
+table.inputForm td.eCtlInput {
+	vertical-align:top;
+}
+table.inputForm td.buttonBar {
+	padding-top: 8px;
+}
+
+div.buttonBar {
+	margin: 12px 0;
+}
+
+.buttonBar a,
+.buttonBar a:visited {
+	display: inline-block;
+	border: 1px #8F99EF solid;
+	padding: 4px 12px;
+	color: black;
+	text-decoration: none;
+	margin-right: 16px;
+	background-color: white;
+}
+.buttonBar a:hover {
+	background-color: #EFFBEF;
+}
+
+div.searchResult,
+span.searchResult {
+	display: block;
+	margin: 12px 0;
+	padding: 4px 0;
+}
+.searchResult table {
+	width: 100%;
+	border: 1px #8F99EF solid;
+	border-collapse: collapse;
+}
+.searchResult table tr th,
+.searchResult table tr td {
+	padding: 4px;
+}
+.searchResult table tr th {
+	background-color: #EFFBEF;
+	border-bottom: 1px #8F99EF solid;
+}
+.searchResult table a.eLink,
+.searchResult table a.eLink:visited {
+	color: brown;
+	font-weight: bold;
+}
+
+span.required {
+	color: brown;
+}
+select,
+input[type=text],
+input[type=password] {
+	border: 1px #8f99ef solid;
+}
+select.eInpReq,
+input[type=text].eInpReq {
+	border: 1px brown solid;
+}
+select.eInpDis,
+input[type=text].eInpDis {
+	border: 1px #C0C0C0 solid;
+	color: #808080;
+}
+span.eInpDis {
+	display: inline-block;
+	padding-top: 3px;
+}
+.eUnit {
+	padding-left: 4px;
+	font-style: bold;
+}
+.eInputHint {
+	padding-left: 4px;
+	font-style: italic;
+}
+div.eTypeBoolFalse {
+	width: 12px;
+	height: 12px;
+	background-image:url('../img/boxes.gif');
+	background-repeat: no-repeat;
+	background-position: 0 0;
+}
+div.eTypeBoolTrue {
+	width: 12px;
+	height: 12px;
+	background-image:url('../img/boxes.gif');
+	background-repeat: no-repeat;
+	background-position: -12px 0;
+}
+div.eTabView {
+	width: 500px;
+}
+table.eTabBar {
+	width: 100%;
+	border-spacing: 0;
+	border-collapse: collapse;
+	table-layout: auto;
+	padding: 0;
+}
+table.eTabBar tr td.eTabLabel {
+	border: 1px #8F99EF solid;
+	padding: 8px;
+	white-space: nowrap;
+}
+table.eTabBar tr td.eTabLabel.eTabActive {
+	border-bottom: 1px #F8F8F8 solid;
+	background-color: #F8F8F8;
+}
+table.eTabBar tr td.eTabLabel.eTabDisabled {
+	color: gray;
+	font-style: italic;
+}
+table.eTabBar tr td.eTabBarEmpty {
+	width: 99%;
+	border-bottom: 1px #8F99EF solid;
+}
+table.eTabPanel {
+	width: 100%;
+	border-spacing: 0;
+	border-collapse: collapse;
+	border: 1px #8F99EF solid;
+	border-top: 0px;
+}
+table.eTabPanel tr td.eTabPage {
+	padding: 8px;
+	background-color: #F8F8F8;
+}
+table.eTabPanel tr td.eTabPage div.formPanel {
+	border: 0;
+}
+div.info-msg {
+	padding: 12px;
+	background-color: #FFFFCA;
+}

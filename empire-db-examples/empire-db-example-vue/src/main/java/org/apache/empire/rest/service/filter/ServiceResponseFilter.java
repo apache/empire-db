@@ -29,7 +29,7 @@ import javax.ws.rs.container.ContainerResponseFilter;
 import javax.ws.rs.core.Response.Status.Family;
 import javax.ws.rs.ext.Provider;
 
-import org.apache.empire.vuesample.model.EmpireServiceConsts;
+import org.apache.empire.rest.service.Service;
 import org.glassfish.jersey.server.ContainerRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,7 +46,7 @@ public class ServiceResponseFilter implements ContainerResponseFilter {
 		// responseContext.getHeaders().putSingle(key, value);
 
 		ContainerRequest containerRequest = (ContainerRequest) requestContext;
-		Connection conn = (Connection) containerRequest.getProperty(EmpireServiceConsts.ATTRIBUTE_CONNECTION);
+		Connection conn = (Connection) containerRequest.getProperty(Service.Consts.ATTRIBUTE_CONNECTION);
 
 		boolean success = responseContext.getStatusInfo().getFamily() == Family.SUCCESSFUL;
 

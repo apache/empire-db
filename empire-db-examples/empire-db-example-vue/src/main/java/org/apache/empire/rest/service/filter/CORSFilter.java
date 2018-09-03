@@ -23,18 +23,38 @@ import java.io.IOException;
 import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.container.ContainerResponseContext;
 import javax.ws.rs.container.ContainerResponseFilter;
+import javax.ws.rs.container.PreMatching;
 import javax.ws.rs.ext.Provider;
 
+import org.apache.empire.commons.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 @Provider
-public class CORSFilter implements ContainerResponseFilter {
+@PreMatching
+public class CORSFilter implements ContainerResponseFilter
+{
+    private static final Logger log = LoggerFactory.getLogger(CORSFilter.class);
 
-	@Override
-	public void filter(final ContainerRequestContext requestContext, final ContainerResponseContext cres) throws IOException {
-		// cres.getHeaders().add("Access-Control-Allow-Origin", "*");
-		// cres.getHeaders().add("Access-Control-Allow-Headers", "origin, content-type, accept, authorization");
-		// cres.getHeaders().add("Access-Control-Allow-Credentials", "true");
-		// cres.getHeaders().add("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS, HEAD");
-		// cres.getHeaders().add("Access-Control-Max-Age", "1209600");
-	}
-
+    @Override
+    public void filter(ContainerRequestContext requestContext, ContainerResponseContext responseContext)
+        throws IOException
+    {
+        // get origin
+        String origin = requestContext.getHeaderString("origin");
+        if (StringUtils.isNotEmpty(origin))
+        {   // origin given
+            log.info("Accepting request from {}", origin);
+            // set response
+            responseContext.getHeaders().add("Access-Control-Allow-Origin", origin);
+            responseContext.getHeaders().add("Access-Control-Allow-Headers", "origin, content-type, accept, authorization");
+            responseContext.getHeaders().add("Access-Control-Allow-Credentials", "true");
+            responseContext.getHeaders().add("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS, HEAD");
+            responseContext.getHeaders().add("Access-Control-Max-Age", "1209600");
+        }
+        else
+        {   // unknown origin
+            log.info("Accepting request from unknown origin");
+        }
+    }
 }

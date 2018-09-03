@@ -47,39 +47,39 @@ public class EmployeeService extends Service {
 
 	private static final Logger log = LoggerFactory.getLogger(EmployeeService.class);
 
-	@POST
-	@Path("/{employeeId}")
-	@Consumes(MediaType.APPLICATION_JSON)
-	public Response updateEmployee(@PathParam("employeeId") int employeeId, EmployeeBean employee) {
+    @GET
+    @Path("/list/")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getEmployeeList() {
 
-		SampleDB db = getDatabase();
-		TEmployees TE = db.T_EMPLOYEES;
+        SampleDB db = getDatabase();
 
-		DBCommand cmd = db.createCommand();
+        TEmployees TE = db.T_EMPLOYEES;
 
-		// First name
-		cmd.set(TE.FIRST_NAME.to(TE.FIRST_NAME.validate(getValue(employee.getFirstName()))));
+        log.info("Providing employee list...");
 
-		// Last name
-		cmd.set(TE.LAST_NAME.to(TE.LAST_NAME.validate(getValue(employee.getLastName()))));
+        DBCommand cmd = db.createCommand();
+        cmd.select(TE.EMPLOYEE_ID, TE.LAST_NAME, TE.FIRST_NAME, TE.DATE_OF_BIRTH);
 
-		// Date of Birth
-		cmd.set(TE.DATE_OF_BIRTH.to(TE.DATE_OF_BIRTH.validate(getValue(employee.getDateOfBirth()))));
+        DBReader reader = new DBReader();
+        List<EmployeeBean> list = new ArrayList<>();
 
-		cmd.where(TE.EMPLOYEE_ID.is(employeeId));
+        try {
+            reader.open(cmd, getConnection());
+            while (reader.moveNext()) {
+                list.add(createEmployee(reader));
+            }
 
-		int executeUpdate = db.executeUpdate(cmd, getConnection());
+        } finally {
+            reader.close();
+        }
 
-		if (executeUpdate == 0) {
-			return Response.status(Status.NOT_FOUND).build();
-		} else {
-			return Response.ok().build();
-		}
+        return Response.ok(list).build();
 
-	}
+    }
 
 	@GET
-	@Path("/{employeeId}")
+	@Path("/get/{employeeId}")
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response getEmployee(@PathParam("employeeId") int employeeId) {
 
@@ -111,34 +111,36 @@ public class EmployeeService extends Service {
 		return Response.ok(eb).build();
 	}
 
-	@GET
-	@Path("/list/")
-	@Produces(MediaType.APPLICATION_JSON)
-	public Response getEmployeeList() {
+    @POST
+    @Path("/set")
+    @Consumes(MediaType.APPLICATION_JSON)
+    public Response updateEmployee(EmployeeBean employee) {
 
-		SampleDB db = getDatabase();
+        SampleDB db = getDatabase();
+        TEmployees TE = db.T_EMPLOYEES;
 
-		TEmployees TE = db.T_EMPLOYEES;
+        DBCommand cmd = db.createCommand();
 
-		DBCommand cmd = db.createCommand();
-		cmd.select(TE.EMPLOYEE_ID, TE.LAST_NAME, TE.FIRST_NAME, TE.DATE_OF_BIRTH);
+        // First name
+        cmd.set(TE.FIRST_NAME.to(TE.FIRST_NAME.validate(getValue(employee.getFirstName()))));
 
-		DBReader reader = new DBReader();
-		List<EmployeeBean> list = new ArrayList<>();
+        // Last name
+        cmd.set(TE.LAST_NAME.to(TE.LAST_NAME.validate(getValue(employee.getLastName()))));
 
-		try {
-			reader.open(cmd, getConnection());
-			while (reader.moveNext()) {
-				list.add(createEmployee(reader));
-			}
+        // Date of Birth
+        cmd.set(TE.DATE_OF_BIRTH.to(TE.DATE_OF_BIRTH.validate(getValue(employee.getDateOfBirth()))));
 
-		} finally {
-			reader.close();
-		}
+        cmd.where(TE.EMPLOYEE_ID.is(employee.getEmployeeId()));
 
-		return Response.ok(list).build();
+        int executeUpdate = db.executeUpdate(cmd, getConnection());
 
-	}
+        if (executeUpdate == 0) {
+            return Response.status(Status.NOT_FOUND).build();
+        } else {
+            return Response.ok().build();
+        }
+
+    }
 
 	private EmployeeBean createEmployee(DBReader reader) {
 

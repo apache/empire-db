@@ -26,12 +26,25 @@ import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.core.Context;
 
-import org.apache.empire.vuesample.model.EmpireServiceConsts;
 import org.apache.empire.vuesample.model.db.SampleDB;
 import org.glassfish.jersey.server.ContainerRequest;
 
 public abstract class Service {
 
+    public static class Consts {
+    
+        public static final String  LOGIN_COOKIE_NAME       = "EmployeeVueLoginCookie";
+        
+        public static final String  ATTRIBUTE_DB            = "db";
+    
+        public static final String  ATTRIBUTE_CONNECTION    = "connection";
+    
+        public static final String  ATTRIBUTE_DATASOURCE    = "ds";
+    
+        public static final String  ATTRIBUTE_CONFIG        = "config";
+    
+    }
+    
 	@Context
 	private ServletContext			context;
 
@@ -42,12 +55,12 @@ public abstract class Service {
 	private HttpServletRequest		req;
 
 	public SampleDB getDatabase() {
-		return (SampleDB) this.context.getAttribute(EmpireServiceConsts.ATTRIBUTE_DB);
+		return (SampleDB) this.context.getAttribute(Service.Consts.ATTRIBUTE_DB);
 	}
 
 	public Connection getConnection() {
 		ContainerRequest containerRequest = (ContainerRequest) this.containerRequestContext;
-		return (Connection) containerRequest.getProperty(EmpireServiceConsts.ATTRIBUTE_CONNECTION);
+		return (Connection) containerRequest.getProperty(Service.Consts.ATTRIBUTE_CONNECTION);
 	}
 
 	public ServletRequest getServletRequest() {

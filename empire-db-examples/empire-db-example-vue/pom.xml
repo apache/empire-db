@@ -66,6 +66,18 @@
 			<version>2.0</version>
 		</dependency>
 
+		<!-- JSON -->
+		<dependency>
+			<groupId>javax.json</groupId>
+			<artifactId>javax.json-api</artifactId>
+			<version>1.0</version>
+		</dependency>
+		<dependency>
+			<groupId>org.glassfish</groupId>
+			<artifactId>javax.json</artifactId>
+			<version>1.0.4</version>
+		</dependency>
+
 		<!-- Jersey -->
 		<dependency>
 			<groupId>org.glassfish.jersey.containers</groupId>
@@ -99,7 +111,7 @@
 
 	<build>
 
-		<finalName>evue</finalName>
+		<finalName>empvue</finalName>
 
 		<plugins>
 			<!-- Eclipse Web Tools Platform -->

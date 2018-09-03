@@ -26,34 +26,51 @@ import javax.servlet.ServletContext;
 import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.container.ContainerRequestFilter;
 import javax.ws.rs.core.Context;
+import javax.ws.rs.core.Cookie;
+import javax.ws.rs.core.Response;
 import javax.ws.rs.ext.Provider;
 
+import org.apache.empire.rest.service.Service;
 import org.apache.empire.rest.service.listener.AppListener;
-import org.apache.empire.vuesample.model.EmpireServiceConsts;
 import org.glassfish.jersey.server.ContainerRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @Provider
 @Priority(0)
-public class ServiceRequestFilter implements ContainerRequestFilter {
+public class ServiceRequestFilter implements ContainerRequestFilter
+{
 
-	private static final Logger	log	= LoggerFactory.getLogger(ServiceRequestFilter.class);
+    private static final Logger log = LoggerFactory.getLogger(ServiceRequestFilter.class);
 
-	@Context
-	private ServletContext		servletContext;
+    @Context
+    private ServletContext      servletContext;
 
-	@Override
-	public void filter(ContainerRequestContext requestContext) throws IOException {
+    @Override
+    public void filter(ContainerRequestContext requestContext)
+        throws IOException
+    {
+        String path = requestContext.getUriInfo().getPath();
+        log.info("Filtering request path: " + path);
+        // Check authentication
+        if (!path.startsWith("auth") && !requestContext.getMethod().equals("OPTIONS"))
+        {
+            Cookie cookie = requestContext.getCookies().get(Service.Consts.LOGIN_COOKIE_NAME);
+            if (cookie == null)
+            {
+                requestContext.abortWith(Response.status(Response.Status.UNAUTHORIZED).build());
+                return;
+            }
+        }
 
-		ContainerRequest containerRequest = (ContainerRequest) requestContext;
+        ContainerRequest containerRequest = (ContainerRequest) requestContext;
 
-		// get Connection from pool
-		Connection conn = AppListener.getJDBCConnection(this.servletContext);
+        // get Connection from pool
+        Connection conn = AppListener.getJDBCConnection(this.servletContext);
 
-		// Add to context
-		containerRequest.setProperty(EmpireServiceConsts.ATTRIBUTE_CONNECTION, conn);
+        // Add to context
+        containerRequest.setProperty(Service.Consts.ATTRIBUTE_CONNECTION, conn);
 
-	}
+    }
 
 }

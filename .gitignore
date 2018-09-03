@@ -9,3 +9,9 @@ target/
 .idea/
 *.iml
 empire-db-examples/empire-db-example-vue/.tomcatplugin
+empire-db-examples/empire-db-example-vue/src/main/vue/node_modules/
+empire-db-examples/empire-db-example-vue/src/main/vue/.postcssrc.js
+empire-db-examples/empire-db-example-vue/src/main/vue/.eslintrc.js
+empire-db-examples/empire-db-example-vue/src/main/vue/.eslintignore
+empire-db-examples/empire-db-example-vue/src/main/vue/.editorconfig
+empire-db-examples/empire-db-example-vue/src/main/vue/package-lock.json
