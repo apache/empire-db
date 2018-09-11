@@ -93,6 +93,7 @@
 	</dependencies>
 	
 	<build>
+		<finalName>empjsf</finalName>
 		<plugins>
 			<!-- WTP-Eclipse-Projekt --> 
 			<plugin>

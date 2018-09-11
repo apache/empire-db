@@ -17,8 +17,8 @@
 import Vue from 'vue'
 import Router from 'vue-router'
 import login from '@/pages/login'
-import list from '@/pages/list'
-import details from '@/pages/details'
+import list from '@/pages/employeeList'
+import details from '@/pages/employeeDetail'
 
 Vue.use(Router)
 
@@ -30,13 +30,13 @@ export default new Router({
       component: login
     },
     {
-      path: '/list',
-      name: 'List',
+      path: '/employeeList',
+      name: 'EmployeeList',
       component: list
     },
     {
-      path: '/details/:employeeId',
-      name: 'Details',
+      path: '/employeeDetail/:employeeId',
+      name: 'EmployeeDetail',
       component: details
     },
     {

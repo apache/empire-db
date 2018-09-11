@@ -110,9 +110,7 @@
 	</dependencies>
 
 	<build>
-
 		<finalName>empvue</finalName>
-
 		<plugins>
 			<!-- Eclipse Web Tools Platform -->
 			<plugin>

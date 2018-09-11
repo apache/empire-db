@@ -90,13 +90,19 @@ AJAX.setup()
 // The EMPAPI
 const EMPAPI = {
 
-  loggedIn: true, // assume true
+  loggedIn: false,
 
   debug: function (msg) {
     if (isDebug()) {
       alert('Debug: ' + msg)
     } else {
       console.log(msg)
+    }
+  },
+
+  assertLoggedIn: function (page) {
+    if (!this.loggedIn) {
+      page.$router.push('/login')
     }
   },
 
@@ -110,10 +116,10 @@ const EMPAPI = {
   },
 
   loadEmployeeList: function () {
-    return AJAX.get(`/employee/list`)
+    return AJAX.get('/employee/list')
   },
 
-  loadEmployeeDetails: function (employeeId) {
+  loadEmployeeRecord: function (employeeId) {
     return AJAX.get(`/employee/get/${employeeId}`)
   },
 

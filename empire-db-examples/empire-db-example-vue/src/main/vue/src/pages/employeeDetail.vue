@@ -16,7 +16,7 @@
 <template>
   <div class="rdp-content">
 
-    <h1>Employee-Details</h1>
+    <h1>Employee-Details for {{employeeId}}</h1>
 
     <!--
     <div class="rdp-weeknavbar">
@@ -52,6 +52,8 @@
     },
 
     created: function () {
+      EMPAPI.assertLoggedIn(this)
+      this.employeeId = this.$route.params.employeeId
       this.loadDetails()
     },
 
@@ -59,13 +61,15 @@
       return {
         loggedIn: true,
         employeeId: 0,
-        info: {}
+        record: {}
       }
     },
 
     methods: {
       loadDetails: function (event) {
-        EMPAPI.debug('load employee details')
+        EMPAPI.debug('load employee record')
+        EMPAPI.loadEmployeeRecord(this.employeeId)
+          .done(response => (this.record = response))
         /*
         this.datum = this.$route.params.datum
         this.bereichId = this.$route.params.bereichId
@@ -75,7 +79,7 @@
         */
       },
       showList: function (event) {
-        this.$router.push('/list')
+        this.$router.push('/employeeList')
       }
     }
   }

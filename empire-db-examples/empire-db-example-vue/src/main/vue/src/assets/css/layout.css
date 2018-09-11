@@ -57,8 +57,8 @@ A:link { text-decoration:none;}
 A:visited { text-decoration:none;}
 A:hover { text-decoration:underline;}
 
-.even { background-color: #EFEFFB; 	text-align:left;}
-.odd { background-color:  #FFFFFF; 	text-align:left; }
+.row-even { background-color: #EFEFFB; 	text-align:left;}
+.row-odd { background-color:  #FFFFFF; 	text-align:left; }
 
 .nowrap { white-space:nowrap; }
 

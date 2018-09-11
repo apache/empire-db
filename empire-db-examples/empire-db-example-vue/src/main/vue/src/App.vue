@@ -16,8 +16,10 @@
 <template>
   <div id="app">
 
-  	<div class="titleDiv">Employee Management Application</div>
-    <button class="rdp-button" @click="logout">Logout</button>
+    <div class="titleDiv">
+      <span>Employee Management Application</span>
+      <button class="rdp-button" @click="logout" v-if="this.isLoggedIn()">Logout</button>
+    </div>
 
     <router-view></router-view>
 
@@ -30,7 +32,14 @@
   export default {
     name: 'app',
 
+    created: function () {
+      this.startup()
+    },
+
     methods: {
+      startup: function () {
+        EMPAPI.debug('Application startup')
+      },
       isLoggedIn: function () {
         if (EMPAPI.loggedIn === undefined) {
           EMPAPI.debug('EMPAPI.loggedIn is undefined!')
@@ -46,7 +55,7 @@
       },
       onLoginComplete: function () {
         EMPAPI.loggedIn = true
-        this.$router.push('/list')
+        this.$router.push('/employeeList')
       },
       onLogoutComplete: function () {
         EMPAPI.loggedIn = false

@@ -60,6 +60,7 @@
 		</dependency>
 	</dependencies>
 	<build>
+		<finalName>empstruts</finalName>
 		<plugins>
 			<!-- WTP-Eclipse-Projekt --> 
 			<plugin>
