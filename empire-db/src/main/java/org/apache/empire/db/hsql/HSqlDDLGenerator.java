@@ -19,9 +19,11 @@
 package org.apache.empire.db.hsql;
 
 import org.apache.empire.data.DataType;
+import org.apache.empire.db.DBCmdType;
 import org.apache.empire.db.DBColumn;
 import org.apache.empire.db.DBDDLGenerator;
 import org.apache.empire.db.DBDatabase;
+import org.apache.empire.db.DBObject;
 import org.apache.empire.db.DBSQLScript;
 import org.apache.empire.db.DBTable;
 import org.apache.empire.db.DBTableColumn;
@@ -76,6 +78,24 @@ public class HSqlDDLGenerator extends DBDDLGenerator<DBDatabaseDriverHSql>
         }
         // default processing
         super.createDatabase(db, script);
+    }
+    
+    @Override
+    public void getDDLScript(DBCmdType type, DBObject dbo, DBSQLScript script)
+    {
+        super.getDDLScript(type, dbo, script);
+        // Additional tasks
+        if ((type==DBCmdType.DROP) && (dbo instanceof DBTable))
+        {   // Drop Sequences
+            for (DBColumn c : ((DBTable) dbo).getColumns())
+            {
+                if (c.getDataType() == DataType.AUTOINC && (c instanceof DBTableColumn))
+                {   // SEQUENCE column
+                    DBTableColumn column = (DBTableColumn) c;
+                    script.addStmt("DROP SEQUENCE " + column.getSequenceName());
+                }
+            }
+        }
     }
 
     /**
