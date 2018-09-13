@@ -51,18 +51,17 @@
     components: {
     },
 
+    data () {
+      return {
+        employeeId: 0,
+        record: {}
+      }
+    },
+
     created: function () {
       EMPAPI.assertLoggedIn(this)
       this.employeeId = this.$route.params.employeeId
       this.loadDetails()
-    },
-
-    data () {
-      return {
-        loggedIn: true,
-        employeeId: 0,
-        record: {}
-      }
     },
 
     methods: {

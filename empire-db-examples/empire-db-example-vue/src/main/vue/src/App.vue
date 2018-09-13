@@ -27,10 +27,17 @@
 </template>
 
 <script>
+  import Vue from 'vue'
   import EMPAPI from './api/emp-api'
 
   export default {
     name: 'app',
+
+    data () {
+      return {
+        employeeFilter: undefined
+      }
+    },
 
     created: function () {
       this.startup()
@@ -38,7 +45,8 @@
 
     methods: {
       startup: function () {
-        EMPAPI.debug('Application startup')
+        EMPAPI.debug('Application startup! Vue version is ' + Vue.version)
+        // alert(Vue.version)
       },
       isLoggedIn: function () {
         if (EMPAPI.loggedIn === undefined) {
@@ -55,11 +63,16 @@
       },
       onLoginComplete: function () {
         EMPAPI.loggedIn = true
+        this.clearData()
         this.$router.push('/employeeList')
       },
       onLogoutComplete: function () {
         EMPAPI.loggedIn = false
+        this.clearData()
         this.$router.push('/login')
+      },
+      clearData: function () {
+        this.employeeFilter = undefined
       }
     }
   }

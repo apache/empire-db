@@ -19,18 +19,31 @@
     <h1>Employee-List</h1>
 
     <div class="formPanel">
+      <!--
+      <div style="border:1px red solid">
+        <e-input :column="meta.FIRSTNAME" :data="filter"/>
+      </div>
+      -->
       <table class="inputForm">
-        <tr>
-          <td class="eCtlLabel"><label class="eLabel" for="FIRST_NAME">Firstname:</label></td>
-          <td class="eCtlInput"><input name="FIRST_NAME" class="eInput eTypeText" id="FIRST_NAME" lang="en" type="text" maxlength="40" value=""></td>
-          <td class="eCtlLabel"><label class="eLabel" for="LAST_NAME">Lastname:</label></td>
-          <td class="eCtlInput"><input name="LAST_NAME" class="eInput eTypeText" id="LAST_NAME" lang="en" type="text" maxlength="40" value=""></td>
-        </tr>
-        <tr>
-          <td class="eCtlLabel"><label class="eLabel" for="DEPARTMENT_ID">Department:</label></td>
-          <td class="eCtlInput"><select name="DEPARTMENT_ID" class="eInput eTypeNumber" id="DEPARTMENT_ID" size="1">	<option selected="selected" value=""></option>	<option value="1">Procurement</option>	<option value="2">Development</option>	<option value="3">Sales</option></select></td>
-          <td class="eCtlLabel"><label class="eLabel" for="GENDER">Gender:</label></td>
-          <td class="eCtlInput"><select name="GENDER" class="eInput eTypeText" id="GENDER" size="1">	<option selected="selected" value=""></option>	<option value="M">Male</option>	<option value="F">Female</option></select></td>
+      <tr>
+        <e-control :column="meta.FIRSTNAME" :data="filter"/>
+        <e-control :column="meta.LASTNAME"  :data="filter"/>
+      </tr>
+      <tr>
+        <td class="eCtlLabel"><label class="eLabel" for="DEPARTMENT_ID">Department:</label></td>
+        <td class="eCtlInput"><select name="DEPARTMENT_ID" class="eInput eTypeNumber" id="DEPARTMENT_ID" size="1">	<option selected="selected" value=""></option>	<option value="1">Procurement</option>	<option value="2">Development</option>	<option value="3">Sales</option></select></td>
+        <td class="eCtlLabel"><label class="eLabel" for="GENDER">Gender:</label></td>
+        <td class="eCtlInput"><select name="GENDER" class="eInput eTypeText" id="GENDER" size="1">	<option selected="selected" value=""></option>	<option value="M">Male</option>	<option value="F">Female</option></select></td>
+      </tr>
+      <tr>
+        <td class="eCtlLabel"><label class="eLabel" for="DEPARTMENT_ID">Info:</label></td>
+        <td class="eCtlInput">
+          firstname: {{filter.firstname}}, lastname: {{filter.lastname}}
+          <!--
+          <e-input column="test" :value="filter.lastname"/>
+            <input v-model="filter.lastname"/>
+          -->
+          </td>
         </tr>
         <tr class="formButtonRow">
           <td></td>
@@ -106,45 +119,73 @@
 
 <script>
   import EMPAPI from '../api/emp-api'
+  import eControl from '../components/e-control.vue'
+  import eInput from '../components/e-input'
+  import $ from 'jquery'
 
   export default {
     name: 'list',
 
     components: {
-    },
-
-    created: function () {
-      EMPAPI.assertLoggedIn(this)
-      this.initSearch()
+      eInput,
+      eControl
     },
 
     data () {
       return {
-        loggedIn: true,
+        meta: {
+          FIRSTNAME: { name: 'FIRSTNAME', type: 'TEXT', property: 'firstname', title: 'Firstname' },
+          LASTNAME: { name: 'LASTNAME', type: 'TEXT', property: 'lastname', title: 'Lastname' }
+        },
+        filter: undefined,
         searchDone: false,
         employeeList: {}
       }
     },
 
+    created: function () {
+      EMPAPI.assertLoggedIn(this)
+      if (this.$parent.employeeFilter) {
+        this.filter = this.$parent.employeeFilter
+        this.doSearch()
+      } else {
+        this.initSearch()
+      }
+    },
+
     methods: {
       initSearch: function () {
+        this.filter = {
+          firstname: 'Hello',
+          lastname: 'World',
+          department: null,
+          gender: null
+        }
         this.searchDone = false
+        this.employeeList = {}
       },
       doReset: function () {
-        this.employeeList = {}
-        this.searchDone = false
+        this.initSearch()
+        this.$parent.employeeFilter = undefined
       },
       doSearch: function () {
+        // alert('firstname: ' + this.filter.firstname + ' lastname: ' + this.filter.lastname)
         EMPAPI.debug('load employee list')
-        EMPAPI.loadEmployeeList()
+        EMPAPI.loadEmployeeList(this.filter)
           .done(response => (this.setResult(response)))
       },
       setResult (result) {
         this.employeeList = result
         this.searchDone = true
+        this.$parent.employeeFilter = this.filter
       },
       doSomething: function () {
         EMPAPI.debug('list contains ' + this.employeeList.length + ' items')
+      },
+      updateValue (event) {
+        var inp = $(event.currentTarget)
+        var val = inp.val()
+        this.$emit('input', { val })
       }
     }
   }
