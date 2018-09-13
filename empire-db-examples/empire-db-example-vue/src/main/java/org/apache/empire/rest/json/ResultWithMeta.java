@@ -16,48 +16,33 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.empire.rest;
+package org.apache.empire.rest.json;
 
-public class EmpireColumnMeta {
+import java.util.LinkedHashMap;
+import java.util.Map;
 
-	private Double	size;
+public class ResultWithMeta
+{
+    private final Map<String, ColumnMetaData> meta;
+    private final Object data;
+    
+    public ResultWithMeta(Object data, ColumnMetaData... columnMeta)
+    {
+        super();
+        this.meta = new LinkedHashMap<String, ColumnMetaData>(columnMeta.length);
+        for (ColumnMetaData c : columnMeta) {
+            meta.put(c.getProperty(), c);
+        }
+        this.data = data;
+    }
 
-	private String	type;
+    public Map<String, ColumnMetaData> getMeta()
+    {
+        return meta;
+    }
 
-	private boolean	required;
-
-	private boolean	readonly;
-
-	public Double getSize() {
-		return this.size;
-	}
-
-	public void setSize(Double size) {
-		this.size = size;
-	}
-
-	public String getType() {
-		return this.type;
-	}
-
-	public void setType(String type) {
-		this.type = type;
-	}
-
-	public boolean isRequired() {
-		return this.required;
-	}
-
-	public void setRequired(boolean required) {
-		this.required = required;
-	}
-
-	public boolean isReadonly() {
-		return this.readonly;
-	}
-
-	public void setReadonly(boolean readonly) {
-		this.readonly = readonly;
-	}
-
+    public Object getData()
+    {
+        return data;
+    }
 }

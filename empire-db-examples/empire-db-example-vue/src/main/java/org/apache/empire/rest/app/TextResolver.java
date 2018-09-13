@@ -16,30 +16,20 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.empire.rest;
+package org.apache.empire.rest.app;
 
-import org.apache.empire.rest.EmpireColumnMeta;
+import java.util.Locale;
 
-public class EmpireColumn {
+public interface TextResolver
+{
+    public static String MSG_KEY_INDICATOR = "!";
+    
+    Locale getLocale();
 
-	private Object				value;
-
-	private EmpireColumnMeta	meta;
-
-	public Object getValue() {
-		return this.value;
-	}
-
-	public void setValue(Object value) {
-		this.value = value;
-	}
-
-	public EmpireColumnMeta getMeta() {
-		return this.meta;
-	}
-
-	public void setMeta(EmpireColumnMeta meta) {
-		this.meta = meta;
-	}
-
+    String resolveKey(String key);
+    
+    String resolveText(String text);
+    
+    String getExceptionMessage(Exception e);
+    
 }

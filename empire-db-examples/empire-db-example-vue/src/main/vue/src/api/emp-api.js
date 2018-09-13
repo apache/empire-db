@@ -115,6 +115,10 @@ const EMPAPI = {
     return AJAX.post('/auth/logout')
   },
 
+  loadEmployeeFilter: function () {
+    return AJAX.get('/employee/filter')
+  },
+
   loadEmployeeList: function (filter) {
     return AJAX.postJSON('/employee/list', filter)
   },

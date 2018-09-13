@@ -18,7 +18,7 @@
 
     <h1>Employee-List</h1>
 
-    <div class="formPanel">
+    <div class="formPanel" v-if="filter">
       <!--
       <div style="border:1px red solid">
         <e-input :column="meta.FIRSTNAME" :data="filter"/>
@@ -26,8 +26,8 @@
       -->
       <table class="inputForm">
       <tr>
-        <e-control :column="meta.FIRSTNAME" :data="filter"/>
-        <e-control :column="meta.LASTNAME"  :data="filter"/>
+        <e-control :column="filter.meta.firstName" :data="filter.data"/>
+        <e-control :column="filter.meta.lastName"  :data="filter.data"/>
       </tr>
       <tr>
         <td class="eCtlLabel"><label class="eLabel" for="DEPARTMENT_ID">Department:</label></td>
@@ -38,7 +38,7 @@
       <tr>
         <td class="eCtlLabel"><label class="eLabel" for="DEPARTMENT_ID">Info:</label></td>
         <td class="eCtlInput">
-          firstname: {{filter.firstname}}, lastname: {{filter.lastname}}
+          firstname: {{filter.data.firstName}}, lastname: {{filter.data.lastName}}
           <!--
           <e-input column="test" :value="filter.lastname"/>
             <input v-model="filter.lastname"/>
@@ -68,33 +68,33 @@
 
         <thead>
           <tr>
-            <th>Id</th>
-            <th>Name</th>
-            <th>Department</th>
-            <th>Gender</th>
-            <th>Date of birth</th>
+            <th>ID</th>
+            <th>{{employeeList.meta['name'].title}}</th>
+            <th>{{employeeList.meta['department'].title}}</th>
+            <th>{{employeeList.meta['gender'].title}}</th>
+            <th>{{employeeList.meta['dateOfBirth'].title}}</th>
             <th>Retired</th>
           </tr>
         </thead>
 
         <tbody>
-        <template v-for="(item, index) in employeeList">
+        <template v-for="(item, index) in employeeList.data">
           <tr v-bind:key="index" v-bind:class="[index % 2 == 0 ? 'row-even' : 'row-odd' ]">
-            <td>{{item.employeeId.value}}</td>
+            <td>{{item.employeeId}}</td>
             <td>
-              <router-link class="eLink" :to="{ path: '/employeeDetail/'+item.employeeId.value }">
-                {{item.lastName.value}}, {{item.firstName.value}} ({{item.employeeId.value}})
+              <router-link class="eLink" :to="{ path: '/employeeDetail/'+item.employeeId }">
+                {{item.name}}
               </router-link>
             </td>
-            <td>{{item.firstName.value}}</td>
-            <td>{{item.lastName.value}}</td>
-            <td>{{item.dateOfBirth.value}}</td>
+            <td>{{item.department}}</td>
+            <td>{{item.gender}}</td>
+            <td>{{item.dateOfBirth}}</td>
             <td>?</td>
           </tr>
         </template>
         </tbody>
       </table>
-      <h1>Employee-count is {{employeeList.length}}</h1>
+      <h1>Employee-count is {{employeeList.data.length}}</h1>
     </div>
 
 
@@ -133,13 +133,9 @@
 
     data () {
       return {
-        meta: {
-          FIRSTNAME: { name: 'FIRSTNAME', type: 'TEXT', property: 'firstname', title: 'Firstname' },
-          LASTNAME: { name: 'LASTNAME', type: 'TEXT', property: 'lastname', title: 'Lastname' }
-        },
         filter: undefined,
         searchDone: false,
-        employeeList: {}
+        employeeList: undefined
       }
     },
 
@@ -149,29 +145,26 @@
         this.filter = this.$parent.employeeFilter
         this.doSearch()
       } else {
-        this.initSearch()
+        EMPAPI.loadEmployeeFilter()
+          .done(response => (this.initSearch(response)))
       }
     },
 
     methods: {
-      initSearch: function () {
-        this.filter = {
-          firstname: 'Hello',
-          lastname: 'World',
-          department: null,
-          gender: null
-        }
+      initSearch: function (response) {
+        this.filter = response
         this.searchDone = false
-        this.employeeList = {}
+        this.employeeList = undefined
       },
       doReset: function () {
-        this.initSearch()
+        EMPAPI.loadEmployeeFilter()
+          .done(response => (this.initSearch(response)))
         this.$parent.employeeFilter = undefined
       },
       doSearch: function () {
-        // alert('firstname: ' + this.filter.firstname + ' lastname: ' + this.filter.lastname)
+        // alert('firstname: ' + this.filter.data.firstName + ' lastname: ' + this.filter.data.lastName)
         EMPAPI.debug('load employee list')
-        EMPAPI.loadEmployeeList(this.filter)
+        EMPAPI.loadEmployeeList(this.filter.data)
           .done(response => (this.setResult(response)))
       },
       setResult (result) {
@@ -180,7 +173,7 @@
         this.$parent.employeeFilter = this.filter
       },
       doSomething: function () {
-        EMPAPI.debug('list contains ' + this.employeeList.length + ' items')
+        EMPAPI.debug('list contains ' + this.employeeList.data.length + ' items')
       },
       updateValue (event) {
         var inp = $(event.currentTarget)

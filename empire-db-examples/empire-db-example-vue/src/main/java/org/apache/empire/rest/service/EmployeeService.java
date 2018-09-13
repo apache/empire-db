@@ -20,6 +20,7 @@ package org.apache.empire.rest.service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
@@ -31,13 +32,18 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
-import org.apache.empire.db.DBColumn;
+import org.apache.empire.db.DBColumnExpr;
 import org.apache.empire.db.DBCommand;
+import org.apache.empire.db.DBJoinType;
 import org.apache.empire.db.DBReader;
-import org.apache.empire.rest.EmpireColumn;
-import org.apache.empire.rest.EmpireColumnMeta;
-import org.apache.empire.vuesample.model.db.EmployeeBean;
+import org.apache.empire.rest.app.EmployeeVueApp;
+import org.apache.empire.rest.app.TextResolver;
+import org.apache.empire.rest.json.ColumnMetaData;
+import org.apache.empire.rest.json.EmployeeData;
+import org.apache.empire.rest.json.EmployeeSearchFilter;
+import org.apache.empire.rest.json.ResultWithMeta;
 import org.apache.empire.vuesample.model.db.SampleDB;
+import org.apache.empire.vuesample.model.db.SampleDB.TDepartments;
 import org.apache.empire.vuesample.model.db.SampleDB.TEmployees;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,73 +52,69 @@ import org.slf4j.LoggerFactory;
 public class EmployeeService extends Service {
 
 	private static final Logger log = LoggerFactory.getLogger(EmployeeService.class);
-	
-	public static class EmployeeFilter
-	{
-        private static final Logger log = LoggerFactory.getLogger(EmployeeService.EmployeeFilter.class);
-	    private String firstname;
-        private String lastname;
-        private String department;
-        public EmployeeFilter()
-        {
-            log.info("EmployeeFilter");
-        }
-        public String getFirstname()
-        {
-            return firstname;
-        }
-        public void setFirstname(String firstname)
-        {
-            this.firstname = firstname;
-        }
-        public String getLastname()
-        {
-            return lastname;
-        }
-        public void setLastname(String lastname)
-        {
-            this.lastname = lastname;
-        }
-        public String getDepartment()
-        {
-            return department;
-        }
-        public void setDepartment(String department)
-        {
-            this.department = department;
-        }
-	}
+
+	@GET
+    @Path("/filter")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getEmployee() {
+
+        EmployeeSearchFilter filter = new EmployeeSearchFilter(); 
+	    
+        TextResolver txtres = EmployeeVueApp.instance().getTextResolver(Locale.ENGLISH);
+        
+        SampleDB db = getDatabase();
+        TEmployees TE = db.T_EMPLOYEES;
+        ColumnMetaData[] meta = new ColumnMetaData[] { 
+          new ColumnMetaData(TE.EMPLOYEE_ID, txtres),
+          new ColumnMetaData(TE.FIRST_NAME, txtres),
+          new ColumnMetaData(TE.LAST_NAME, txtres),
+          new ColumnMetaData(TE.DEPARTMENT_ID, txtres),
+          new ColumnMetaData(TE.GENDER, txtres),
+        };
+        
+        return Response.ok(new ResultWithMeta(filter, meta)).build();
+    }
 
     @POST
     @Path("/list/")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getEmployeeList(EmployeeFilter filter) {
+    public Response getEmployeeList(EmployeeSearchFilter filter) {
 
         SampleDB db = getDatabase();
 
         TEmployees TE = db.T_EMPLOYEES;
+        TDepartments TD = db.T_DEPARTMENTS;
+        DBColumnExpr FULL_NAME  = TE.LAST_NAME.append(", ").append(TE.FIRST_NAME).as("NAME");
+        DBColumnExpr DEPARTMENT = TD.NAME.as("DEPARTMENT");
+        FULL_NAME.setTitle("!field.title.employees.fullname");
 
         log.info("Providing employee list...");
 
         DBCommand cmd = db.createCommand();
-        cmd.select(TE.EMPLOYEE_ID, TE.LAST_NAME, TE.FIRST_NAME, TE.DATE_OF_BIRTH);
+        cmd.select(TE.EMPLOYEE_ID, FULL_NAME, DEPARTMENT, TE.GENDER, TE.DATE_OF_BIRTH, TE.RETIRED);
+        cmd.join  (TE.DEPARTMENT_ID, TD.DEPARTMENT_ID, DBJoinType.LEFT);
 
+        DBColumnExpr[] cols = cmd.getSelectExprList();
+        ColumnMetaData[] meta = new ColumnMetaData[cols.length]; 
+        TextResolver txtres = EmployeeVueApp.instance().getTextResolver(Locale.ENGLISH);
+        for (int i=0; i<meta.length; i++)
+        {
+            meta[i] = new ColumnMetaData(cols[i], txtres);
+        }
+        
         DBReader reader = new DBReader();
-        List<EmployeeBean> list = new ArrayList<>();
-
+        List<EmployeeData> list = new ArrayList<>();
         try {
             reader.open(cmd, getConnection());
             while (reader.moveNext()) {
-                list.add(createEmployee(reader));
+                list.add(new EmployeeData(reader));
             }
-
         } finally {
             reader.close();
         }
-
-        return Response.ok(list).build();
-
+        // done
+        return Response.ok(new ResultWithMeta(list, meta)).build();
     }
 
 	@GET
@@ -129,8 +131,6 @@ public class EmployeeService extends Service {
 		cmd.where(TE.EMPLOYEE_ID.is(employeeId));
 
 		DBReader reader = new DBReader();
-		EmployeeBean eb = new EmployeeBean();
-
 		try {
 			reader.open(cmd, getConnection());
 
@@ -139,80 +139,23 @@ public class EmployeeService extends Service {
 				return Response.status(Status.NOT_FOUND).build();
 			}
 
-			eb = createEmployee(reader);
+			EmployeeData emp = new EmployeeData(reader);
+            return Response.ok(emp).build();
 
 		} finally {
 			reader.close();
 		}
-
-		return Response.ok(eb).build();
 	}
 
     @POST
     @Path("/set")
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response updateEmployee(EmployeeBean employee) {
-
+    public Response updateEmployee(EmployeeData employee) {
+        /*
         SampleDB db = getDatabase();
         TEmployees TE = db.T_EMPLOYEES;
-
-        DBCommand cmd = db.createCommand();
-
-        // First name
-        cmd.set(TE.FIRST_NAME.to(TE.FIRST_NAME.validate(getValue(employee.getFirstName()))));
-
-        // Last name
-        cmd.set(TE.LAST_NAME.to(TE.LAST_NAME.validate(getValue(employee.getLastName()))));
-
-        // Date of Birth
-        cmd.set(TE.DATE_OF_BIRTH.to(TE.DATE_OF_BIRTH.validate(getValue(employee.getDateOfBirth()))));
-
-        cmd.where(TE.EMPLOYEE_ID.is(employee.getEmployeeId()));
-
-        int executeUpdate = db.executeUpdate(cmd, getConnection());
-
-        if (executeUpdate == 0) {
-            return Response.status(Status.NOT_FOUND).build();
-        } else {
-            return Response.ok().build();
-        }
-
+        */
+        return Response.ok().build();
     }
-
-	private EmployeeBean createEmployee(DBReader reader) {
-
-		TEmployees TE = getDatabase().T_EMPLOYEES;
-
-		EmployeeBean eb = new EmployeeBean();
-		eb.setEmployeeId(createEmpireColumn(reader, TE.EMPLOYEE_ID));
-		eb.setLastName(createEmpireColumn(reader, TE.LAST_NAME));
-		eb.setFirstName(createEmpireColumn(reader, TE.FIRST_NAME));
-		eb.setDateOfBirth(createEmpireColumn(reader, TE.DATE_OF_BIRTH));
-
-		return eb;
-	}
-
-	private EmpireColumn createEmpireColumn(DBReader reader, DBColumn col) {
-
-		EmpireColumn ec = new EmpireColumn();
-		// Value
-		ec.setValue(reader.getValue(col));
-		// Meta
-		EmpireColumnMeta meta = new EmpireColumnMeta();
-		meta.setSize(col.getSize());
-		meta.setType(col.getDataType().name());
-		meta.setRequired(col.isRequired());
-		meta.setReadonly(col.isReadOnly());
-		ec.setMeta(meta);
-
-		return ec;
-	}
-
-	private Object getValue(EmpireColumn ec) {
-		if (ec == null) {
-			return null;
-		}
-		return ec.getValue();
-	}
 
 }
