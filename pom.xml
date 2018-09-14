@@ -67,7 +67,7 @@
 					<!-- check the apache headers -->
 					<plugin>
 						<groupId>com.mycila</groupId>
-						<artifactId>maven-license-plugin</artifactId>
+						<artifactId>license-maven-plugin</artifactId>
 						<configuration>
 							<!-- TODO enable strict checking and fix issues -->
 							<strictCheck>false</strictCheck>
@@ -477,7 +477,7 @@
                 </plugin>
 				<plugin>
 		            <groupId>com.mycila</groupId>
-		            <artifactId>maven-license-plugin</artifactId>
+		            <artifactId>license-maven-plugin</artifactId>
 		            <version>3.0</version>
 		            <configuration>
 		                <basedir>${basedir}</basedir>
