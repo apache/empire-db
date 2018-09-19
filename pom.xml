@@ -64,15 +64,16 @@
 			<id>CI</id>
 			<build>
 				<plugins>
-					<!-- check the apache headers -->
+					<!-- check the apache headers 
 					<plugin>
 						<groupId>com.mycila</groupId>
 						<artifactId>license-maven-plugin</artifactId>
 						<configuration>
-							<!-- TODO enable strict checking and fix issues -->
+							<! - TODO enable strict checking and fix issues - >
 							<strictCheck>false</strictCheck>
 						</configuration>
 					</plugin>
+					-->
 					<plugin>
 				      	<groupId>org.apache.rat</groupId>
         				<artifactId>apache-rat-plugin</artifactId>
@@ -475,6 +476,7 @@
                         </execution>
                     </executions>
                 </plugin>
+                <!-- 
 				<plugin>
 		            <groupId>com.mycila</groupId>
 		            <artifactId>license-maven-plugin</artifactId>
@@ -482,7 +484,7 @@
 		            <configuration>
 		                <basedir>${basedir}</basedir>
 		                <header>tools/header.txt</header>
-		                <!--<header>${basedir}/src/etc/header.txt</header>-->
+		                <! - <header>${basedir}/src/etc/header.txt</header> - >
 		                <quiet>false</quiet>
 		                <failIfMissing>true</failIfMissing>
 		                <aggregate>false</aggregate>
@@ -503,6 +505,7 @@
 		                </execution>
 		            </executions>
 		        </plugin>
+		         -->
 		        <!-- When enforcer enabled this will make sure we compile using java 1.6.x using maven 3.x -->
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
