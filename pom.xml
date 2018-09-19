@@ -397,10 +397,12 @@
 				<artifactId>maven-bundle-plugin</artifactId>
 				<inherited>true</inherited>
 			</plugin>
+			<!-- 
 			<plugin>
 				<groupId>org.codehaus.mojo</groupId>
 				<artifactId>animal-sniffer-maven-plugin</artifactId>
 			</plugin>
+			 -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-site-plugin</artifactId>
@@ -533,7 +535,7 @@
 						</execution>
 					</executions>
 				</plugin>
-				<!-- check that all api calls are java5 compatible -->
+				<!-- check that all api calls are java5 compatible 
 				<plugin>
 					<groupId>org.codehaus.mojo</groupId>
 					<artifactId>animal-sniffer-maven-plugin</artifactId>
@@ -555,6 +557,7 @@
 						</signature>
 					</configuration>
 				</plugin>
+				-->
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-eclipse-plugin</artifactId>
