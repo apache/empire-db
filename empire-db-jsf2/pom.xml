@@ -71,7 +71,7 @@
 	<build>
 		<pluginManagement>
 			<plugins>
-				<!-- allow java 6 api calls for this module 
+				<!-- allow java 6 api calls for this module -->
 				<plugin>
 					<groupId>org.codehaus.mojo</groupId>
 					<artifactId>animal-sniffer-maven-plugin</artifactId>
@@ -83,7 +83,6 @@
 						</signature>
 					</configuration>
 				</plugin>
-				-->
 			</plugins>
 		</pluginManagement>
 	</build>

@@ -64,16 +64,15 @@
 			<id>CI</id>
 			<build>
 				<plugins>
-					<!-- check the apache headers 
+					<!-- check the apache headers -->
 					<plugin>
-						<groupId>com.mycila</groupId>
-						<artifactId>license-maven-plugin</artifactId>
+						<groupId>com.mycila.maven-license-plugin</groupId>
+						<artifactId>maven-license-plugin</artifactId>
 						<configuration>
-							<! - TODO enable strict checking and fix issues - >
+							<!-- TODO enable strict checking and fix issues -->
 							<strictCheck>false</strictCheck>
 						</configuration>
 					</plugin>
-					-->
 					<plugin>
 				      	<groupId>org.apache.rat</groupId>
         				<artifactId>apache-rat-plugin</artifactId>
@@ -99,7 +98,6 @@
 							</execution>
 						</executions>
 					</plugin>
-					<!-- 
 					<plugin>
 						<groupId>org.apache.maven.plugins</groupId>
 						<artifactId>maven-javadoc-plugin</artifactId>
@@ -112,7 +110,6 @@
 							</execution>
 						</executions>
 					</plugin>
-					 -->
 				</plugins>
 			</build>
 		</profile>
@@ -397,12 +394,10 @@
 				<artifactId>maven-bundle-plugin</artifactId>
 				<inherited>true</inherited>
 			</plugin>
-			<!-- 
 			<plugin>
 				<groupId>org.codehaus.mojo</groupId>
 				<artifactId>animal-sniffer-maven-plugin</artifactId>
 			</plugin>
-			 -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-site-plugin</artifactId>
@@ -480,15 +475,14 @@
                         </execution>
                     </executions>
                 </plugin>
-                <!-- 
 				<plugin>
-		            <groupId>com.mycila</groupId>
-		            <artifactId>license-maven-plugin</artifactId>
-		            <version>3.0</version>
+		            <groupId>com.mycila.maven-license-plugin</groupId>
+		            <artifactId>maven-license-plugin</artifactId>
+		            <version>1.9.0</version>
 		            <configuration>
 		                <basedir>${basedir}</basedir>
 		                <header>tools/header.txt</header>
-		                <! - <header>${basedir}/src/etc/header.txt</header> - >
+		                <!--<header>${basedir}/src/etc/header.txt</header>-->
 		                <quiet>false</quiet>
 		                <failIfMissing>true</failIfMissing>
 		                <aggregate>false</aggregate>
@@ -509,7 +503,6 @@
 		                </execution>
 		            </executions>
 		        </plugin>
-		         -->
 		        <!-- When enforcer enabled this will make sure we compile using java 1.6.x using maven 3.x -->
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
@@ -535,7 +528,7 @@
 						</execution>
 					</executions>
 				</plugin>
-				<!-- check that all api calls are java5 compatible 
+				<!-- check that all api calls are java5 compatible -->
 				<plugin>
 					<groupId>org.codehaus.mojo</groupId>
 					<artifactId>animal-sniffer-maven-plugin</artifactId>
@@ -557,7 +550,6 @@
 						</signature>
 					</configuration>
 				</plugin>
-				-->
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-eclipse-plugin</artifactId>
@@ -733,12 +725,11 @@
 				<artifactId>maven-jxr-plugin</artifactId>
 				<version>2.4</version>
 			</plugin>
-			<!-- maven-javadoc-plugin 
+			<!-- maven-javadoc-plugin -->
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-javadoc-plugin</artifactId>
 			</plugin>
-			-->
 			<!-- maven-changelog-plugin -->
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
