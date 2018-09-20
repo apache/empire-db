@@ -66,6 +66,25 @@
 				<plugins>
 					<!-- check the apache headers -->
 					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-enforcer-plugin</artifactId>
+						<executions>
+							<execution>
+								<id>enforce-maven</id>
+								<goals>
+									<goal>enforce</goal>
+								</goals>
+								<configuration>
+									<rules>
+										<requireMavenVersion>
+											<version>3.0</version>
+										</requireMavenVersion>
+									</rules>
+								</configuration>
+							</execution>
+						</executions>
+					</plugin>					
+					<plugin>
 						<groupId>com.mycila.maven-license-plugin</groupId>
 						<artifactId>maven-license-plugin</artifactId>
 						<configuration>
@@ -475,6 +494,7 @@
                         </execution>
                     </executions>
                 </plugin>
+                <!-- check license headers -->
 				<plugin>
 		            <groupId>com.mycila.maven-license-plugin</groupId>
 		            <artifactId>maven-license-plugin</artifactId>
@@ -507,27 +527,28 @@
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-enforcer-plugin</artifactId>
-					<version>1.3.1</version>
+					<version>3.0.0-M2</version>
 					<executions>
 						<execution>
-							<id>enforce-versions</id>
+							<id>enforce-maven</id>
 							<goals>
 								<goal>enforce</goal>
 							</goals>
 							<configuration>
 								<rules>
 									<requireMavenVersion>
-										<version>[3.0.0,)</version>
+										<version>3.0</version>
 									</requireMavenVersion>
+                                    <!-- we can no longer release with jdk6 because of certificate issues 
 									<requireJavaVersion>
-                                        <!-- we can no longer release with jdk6 because of certificate issues -->
 										<version>[1.6,1.8)</version>
 									</requireJavaVersion>
+									-->
 								</rules>
 							</configuration>
 						</execution>
 					</executions>
-				</plugin>
+				</plugin>		        
 				<!-- check that all api calls are java5 compatible -->
 				<plugin>
 					<groupId>org.codehaus.mojo</groupId>
