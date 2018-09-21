@@ -64,7 +64,7 @@
 			<id>CI</id>
 			<build>
 				<plugins>
-					<!-- check the apache headers -->
+					<!-- maven-enforcer-plugin -->
 					<plugin>
 						<groupId>org.apache.maven.plugins</groupId>
 						<artifactId>maven-enforcer-plugin</artifactId>
@@ -84,6 +84,7 @@
 							</execution>
 						</executions>
 					</plugin>					
+					<!-- check the apache headers -->
 					<plugin>
 						<groupId>com.mycila.maven-license-plugin</groupId>
 						<artifactId>maven-license-plugin</artifactId>
@@ -142,6 +143,27 @@
 			</modules>
 			<build>
 				<plugins>
+					<!-- maven-enforcer-plugin -->
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-enforcer-plugin</artifactId>
+						<executions>
+							<execution>
+								<id>enforce-maven</id>
+								<goals>
+									<goal>enforce</goal>
+								</goals>
+								<configuration>
+									<rules>
+										<requireMavenVersion>
+											<version>3.0</version>
+										</requireMavenVersion>
+									</rules>
+								</configuration>
+							</execution>
+						</executions>
+					</plugin>
+					<!-- RAT-Plugin -->					
 					<plugin>
 			      		<groupId>org.apache.rat</groupId>
         				<artifactId>apache-rat-plugin</artifactId>
@@ -151,19 +173,6 @@
 								<phase>verify</phase>
 								<goals>
 									<goal>check</goal>
-								</goals>
-							</execution>
-						</executions>
-					</plugin>
-					<!-- enable enforcer for java 1.6 -->
-					<plugin>
-						<groupId>org.apache.maven.plugins</groupId>
-						<artifactId>maven-enforcer-plugin</artifactId>
-						<executions>
-							<execution>
-								<id>enforce-versions</id>
-								<goals>
-									<goal>enforce</goal>
 								</goals>
 							</execution>
 						</executions>
@@ -391,6 +400,27 @@
 		<defaultGoal>install</defaultGoal>
 	
 		<plugins>
+			<!-- maven-enforcer-plugin -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-enforcer-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>enforce-maven</id>
+						<goals>
+							<goal>enforce</goal>
+						</goals>
+						<configuration>
+							<rules>
+								<requireMavenVersion>
+									<version>3.0</version>
+								</requireMavenVersion>
+							</rules>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+			<!-- maven-remote-resources-plugin -->
 		 	<plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-remote-resources-plugin</artifactId>
