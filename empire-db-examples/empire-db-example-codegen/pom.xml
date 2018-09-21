@@ -49,7 +49,6 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
-                <version>3.1</version>
 				<configuration>
 					<source>1.6</source>
 					<target>1.6</target>
@@ -74,17 +73,16 @@
 					<dbClassName>MyDatabase</dbClassName>
 					-->
 				</configuration>
+				<!-- enable the code generation on each build.
+				     when left out "mvn generate-sources" must be called
 				<executions>
-					<!-- 
-					We enable the code generation on each build. The other option is 
-					to leave out this section and call mvn generate-sources
-					 -->
 					<execution>
 						<goals>
 							<goal>codegen</goal>
 						</goals>
 					</execution>
 				</executions>
+				 -->
 				<dependencies>
 					<dependency>
 						<groupId>hsqldb</groupId>
