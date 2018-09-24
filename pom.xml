@@ -462,14 +462,17 @@
 			       	<version>0.11</version>
 			       	<configuration>
 			       		<excludes>
-			       			<!-- This might be to generic  -->
+			       			<!-- folders -->
+			       			<exclude>**/target/**</exclude>
+                            <exclude>**/.idea/**</exclude>
+			       			<exclude>**/.settings/**</exclude>
+			       			<!-- file types -->
+                            <exclude>**/*.iml</exclude>
+			       			<exclude>**/*.json</exclude>
+			       			<!-- specific files -->
 			       			<exclude>release.properties</exclude>
                             <exclude>**/META-INF/MANIFEST.MF</exclude>
-			       			<exclude>**/target/**</exclude>
 			      			<exclude>**/dependencies.txt</exclude>
-                            <exclude>**/.idea/**</exclude>
-                            <exclude>**/*.iml</exclude>
-			       			<exclude>**/.settings/**</exclude>
 			       			<exclude>**/.project</exclude>
 			       			<exclude>**/.classpath</exclude>
 			       			<exclude>**/.tomcatplugin</exclude>
@@ -542,7 +545,6 @@
 		                </includes>
                         <excludes>
                             <exclude>**/.idea/**</exclude>
-                            <exclude>**/*.json</exclude>
                         </excludes>
 		                <encoding>UTF-8</encoding>
 		            </configuration>
