@@ -542,6 +542,7 @@
 		                </includes>
                         <excludes>
                             <exclude>**/.idea/**</exclude>
+                            <exclude>**/*.json</exclude>
                         </excludes>
 		                <encoding>UTF-8</encoding>
 		            </configuration>
