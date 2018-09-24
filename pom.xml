@@ -546,6 +546,7 @@
                         <excludes>
                             <exclude>**/.idea/**</exclude>
 			       			<exclude>**/*.json</exclude>
+			       			<exclude>**/readme.txt</exclude>
                         </excludes>
 		                <encoding>UTF-8</encoding>
 		            </configuration>
