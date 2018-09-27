@@ -44,11 +44,13 @@ public class ResourceTextResolver implements TextResolver
         return resBundle;
     }
     
+    @Override
     public final Locale getLocale()
     {
         return resBundle.getLocale();
     }
 
+    @Override
     public String resolveKey(String key)
     {
         try
@@ -70,6 +72,7 @@ public class ResourceTextResolver implements TextResolver
         }
     }
     
+    @Override
     public String resolveText(String text)
     {
         // Translate
@@ -81,6 +84,7 @@ public class ResourceTextResolver implements TextResolver
         return text;
     }
     
+    @Override
     public String getExceptionMessage(Exception e)
     {
         if (e instanceof EmpireException)

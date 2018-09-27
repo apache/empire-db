@@ -37,7 +37,7 @@
 	 -->
 	
 	<listener>
-		<listener-class>org.apache.empire.rest.service.listener.AppListener</listener-class>
+		<listener-class>org.apache.empire.rest.app.SampleServiceApp$ContextListener</listener-class>
 	</listener>
 
 </web-app>

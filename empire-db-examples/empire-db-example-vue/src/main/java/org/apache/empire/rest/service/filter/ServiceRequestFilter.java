@@ -30,7 +30,7 @@ import javax.ws.rs.core.Cookie;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.ext.Provider;
 
-import org.apache.empire.rest.app.EmployeeVueApp;
+import org.apache.empire.rest.app.SampleServiceApp;
 import org.apache.empire.rest.service.Service;
 import org.glassfish.jersey.server.ContainerRequest;
 import org.slf4j.Logger;
@@ -66,7 +66,7 @@ public class ServiceRequestFilter implements ContainerRequestFilter
         ContainerRequest containerRequest = (ContainerRequest) requestContext;
 
         // get Connection from pool
-        Connection conn = EmployeeVueApp.instance().getJDBCConnection(this.servletContext);
+        Connection conn = SampleServiceApp.instance().getJDBCConnection(this.servletContext);
 
         // Add to context
         containerRequest.setProperty(Service.Consts.ATTRIBUTE_CONNECTION, conn);

@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.empire.vuesample.model.db;
+package org.apache.empire.vue.sample.db;
 
 import java.util.Locale;
 

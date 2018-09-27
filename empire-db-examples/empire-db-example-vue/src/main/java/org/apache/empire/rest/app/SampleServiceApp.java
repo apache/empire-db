@@ -17,7 +17,6 @@
  * under the License.
  */
 package org.apache.empire.rest.app;
-
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.util.HashMap;
@@ -26,6 +25,8 @@ import java.util.Map;
 import java.util.ResourceBundle;
 
 import javax.servlet.ServletContext;
+import javax.servlet.ServletContextEvent;
+import javax.servlet.ServletContextListener;
 
 import org.apache.empire.commons.StringUtils;
 import org.apache.empire.db.DBCommand;
@@ -36,35 +37,53 @@ import org.apache.empire.db.DBSQLScript;
 import org.apache.empire.db.exceptions.QueryFailedException;
 import org.apache.empire.db.hsql.DBDatabaseDriverHSql;
 import org.apache.empire.rest.service.Service;
-import org.apache.empire.vuesample.model.db.SampleDB;
+import org.apache.empire.vue.sample.db.SampleDB;
 import org.apache.log4j.ConsoleAppender;
 import org.apache.log4j.Level;
 import org.apache.log4j.PatternLayout;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class EmployeeVueApp
+public class SampleServiceApp
 {
-    private static final Logger log = LoggerFactory.getLogger(EmployeeVueApp.class);
+    private static final Logger log = LoggerFactory.getLogger(SampleServiceApp.class);
     
-    private static Map<Locale, ResourceTextResolver> textResolverMap = new HashMap<Locale, ResourceTextResolver>();
+    /**
+     * Implementation of ServletContextListener which create the SampleServiceApp Singleton
+     * @author doebele
+     */
+    public static class ContextListener implements ServletContextListener {
     
-    private static EmployeeVueApp app;
+        @Override
+        public void contextInitialized(ServletContextEvent sce) {
     
-    public static EmployeeVueApp instance()
+            System.out.println("ServletContextListener:contextInitialized");
+            // check singleton
+            if (app!=null)
+                throw new RuntimeException("FATAL: SampleServiceApp already created!");
+            // create application
+            ServletContext ctx = sce.getServletContext();
+            app = new SampleServiceApp(ctx);
+            // done
+            log.debug("SampleServiceApp created sucessfully!");
+        }
+    
+        @Override
+        public void contextDestroyed(ServletContextEvent sce) {
+            System.out.println("ServletContextListener:contextDestroyed");
+        }
+    }
+    
+    private static SampleServiceApp app;
+    
+    public static SampleServiceApp instance()
     {
         return app;
     }
+
+    private Map<Locale, ResourceTextResolver> textResolverMap = new HashMap<Locale, ResourceTextResolver>();
     
-    public static EmployeeVueApp create(ServletContext ctx)
-    {
-        if (app!=null)
-            throw new RuntimeException("Application already exists");
-        app = new EmployeeVueApp(ctx);
-        return app;
-    }
-    
-    protected EmployeeVueApp(ServletContext ctx) 
+    protected SampleServiceApp(ServletContext ctx) 
     {
         // Logging
         initLogging();

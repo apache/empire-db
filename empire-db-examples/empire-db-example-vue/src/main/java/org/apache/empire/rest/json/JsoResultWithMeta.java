@@ -19,24 +19,35 @@
 package org.apache.empire.rest.json;
 
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
-public class ResultWithMeta
+public class JsoResultWithMeta
 {
-    private final Map<String, ColumnMetaData> meta;
+    private final Map<String, JsoColumnMeta> meta;
     private final Object data;
-    
-    public ResultWithMeta(Object data, ColumnMetaData... columnMeta)
+
+    public JsoResultWithMeta(JsoRecordData record, JsoColumnMeta... columnMeta)
     {
         super();
-        this.meta = new LinkedHashMap<String, ColumnMetaData>(columnMeta.length);
-        for (ColumnMetaData c : columnMeta) {
+        this.meta = new LinkedHashMap<String, JsoColumnMeta>(columnMeta.length);
+        for (JsoColumnMeta c : columnMeta) {
             meta.put(c.getProperty(), c);
         }
-        this.data = data;
+        this.data = record;
+    }
+    
+    public JsoResultWithMeta(List<JsoRecordData> list, JsoColumnMeta... columnMeta)
+    {
+        super();
+        this.meta = new LinkedHashMap<String, JsoColumnMeta>(columnMeta.length);
+        for (JsoColumnMeta c : columnMeta) {
+            meta.put(c.getProperty(), c);
+        }
+        this.data = list;
     }
 
-    public Map<String, ColumnMetaData> getMeta()
+    public Map<String, JsoColumnMeta> getMeta()
     {
         return meta;
     }

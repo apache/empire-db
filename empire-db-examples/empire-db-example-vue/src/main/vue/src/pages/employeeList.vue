@@ -30,10 +30,8 @@
         <e-control :column="filter.meta.lastName"  :data="filter.data"/>
       </tr>
       <tr>
-        <td class="eCtlLabel"><label class="eLabel" for="DEPARTMENT_ID">Department:</label></td>
-        <td class="eCtlInput"><select name="DEPARTMENT_ID" class="eInput eTypeNumber" id="DEPARTMENT_ID" size="1">	<option selected="selected" value=""></option>	<option value="1">Procurement</option>	<option value="2">Development</option>	<option value="3">Sales</option></select></td>
-        <td class="eCtlLabel"><label class="eLabel" for="GENDER">Gender:</label></td>
-        <td class="eCtlInput"><select name="GENDER" class="eInput eTypeText" id="GENDER" size="1">	<option selected="selected" value=""></option>	<option value="M">Male</option>	<option value="F">Female</option></select></td>
+        <e-control :column="filter.meta.departmentId" :data="filter.data"/>
+        <e-control :column="filter.meta.gender"  :data="filter.data"/>
       </tr>
       <tr>
         <td class="eCtlLabel"><label class="eLabel" for="DEPARTMENT_ID">Info:</label></td>
@@ -87,9 +85,9 @@
               </router-link>
             </td>
             <td>{{item.department}}</td>
-            <td>{{item.gender}}</td>
-            <td>{{item.dateOfBirth}}</td>
-            <td>?</td>
+            <td><e-value :column="employeeList.meta.gender" :data="item"/></td>
+            <td><e-value :column="employeeList.meta.dateOfBirth" :data="item"/></td>
+            <td><e-value :column="employeeList.meta.retired" :data="item"/></td>
           </tr>
         </template>
         </tbody>
@@ -121,14 +119,18 @@
   import EMPAPI from '../api/emp-api'
   import eControl from '../components/e-control.vue'
   import eInput from '../components/e-input'
+//  import eLabel from '../components/e-label'
+  import eValue from '../components/e-value'
   import $ from 'jquery'
 
   export default {
     name: 'list',
 
     components: {
+      eControl,
       eInput,
-      eControl
+//    eLabel,
+      eValue
     },
 
     data () {

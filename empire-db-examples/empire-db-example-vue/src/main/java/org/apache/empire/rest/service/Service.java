@@ -26,11 +26,16 @@ import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.core.Context;
 
-import org.apache.empire.vuesample.model.db.SampleDB;
+import org.apache.empire.vue.sample.db.RecordContext;
+import org.apache.empire.vue.sample.db.SampleDB;
 import org.glassfish.jersey.server.ContainerRequest;
 
 public abstract class Service {
 
+    /**
+     * Some constants used by the services
+     * @author doebele
+     */
     public static class Consts {
     
         public static final String  LOGIN_COOKIE_NAME       = "EmployeeVueLoginCookie";
@@ -43,6 +48,27 @@ public abstract class Service {
     
         public static final String  ATTRIBUTE_CONFIG        = "config";
     
+    }
+
+    /**
+     * Implementation for RecordContext
+     * Holds a connection and therefore must not live for longer than the request  
+     * @author doebele
+     */
+    public static class ServiceRecordContext implements RecordContext
+    {
+        private final Connection conn;
+        
+        public ServiceRecordContext(Connection conn)
+        {
+            this.conn = conn;
+        }
+
+        @Override
+        public Connection getConnection()
+        {
+            return conn;
+        }
     }
     
 	@Context
@@ -62,6 +88,10 @@ public abstract class Service {
 		ContainerRequest containerRequest = (ContainerRequest) this.containerRequestContext;
 		return (Connection) containerRequest.getProperty(Service.Consts.ATTRIBUTE_CONNECTION);
 	}
+
+    public RecordContext getRecordContext() {
+        return new ServiceRecordContext(getConnection());
+    }
 
 	public ServletRequest getServletRequest() {
 		return this.req;

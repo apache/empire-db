@@ -14,7 +14,21 @@
       License.
   -->
 <template>
-  <input :id="'CTL_' + column" name="FIRST_NAME" class="eInput eTypeText" lang="en" type="text" maxlength="40" :value="data[column.property]" @input="updateValue($event)">
+  <div class="eInpWrap">
+    <template v-if="column.options">
+      <select :id="'CTL_' + column.name" :name="column.name" class="eInput eTypeSelect" @change="updateValue($event)">
+        <template v-if="column.required === false && column.options[''] === undefined">
+          <option value="" :selected="inputValue === null"></option>
+        </template>
+        <template v-for="(value, key) in column.options">
+          <option :value="key" :selected="inputValue === key">{{value}}</option>
+        </template>
+      </select>
+    </template>
+    <template v-else>
+      <input :id="'CTL_' + column.name" :name="column.name" class="eInput eTypeText" lang="en" type="text" :maxlength="column.maxLength" :value="inputValue" @input="updateValue($event)">
+    </template>
+  </div>
 </template>
 <script>
   import EMPAPI from '../api/emp-api'
@@ -29,6 +43,12 @@
       },
       data: {
         required: true
+      }
+    },
+
+    computed: {
+      inputValue: function () {
+        return this.data[this.column.property]
       }
     },
 

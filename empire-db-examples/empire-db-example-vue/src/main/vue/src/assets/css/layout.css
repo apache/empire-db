@@ -93,6 +93,7 @@ div.formPanel {
 }
 table.inputForm {
 	width: 100%;
+  table-layout: fixed;
 }
 table.inputForm td.eCtlLabel {
 	vertical-align:top;
@@ -175,6 +176,11 @@ span.eInpDis {
 .eUnit {
 	padding-left: 4px;
 	font-style: bold;
+}
+.eInpWrap {
+}
+.eInput {
+  width: 100%;
 }
 .eInputHint {
 	padding-left: 4px;

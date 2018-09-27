@@ -16,33 +16,19 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.empire.rest.service.listener;
+package org.apache.empire.vue.sample.db.records;
 
-import javax.servlet.ServletContextEvent;
-import javax.servlet.ServletContextListener;
+import org.apache.empire.vue.sample.db.RecordContext;
+import org.apache.empire.vue.sample.db.SampleDB;
+import org.apache.empire.vue.sample.db.SampleDB.TDepartments;
 
-import org.apache.empire.rest.app.EmployeeVueApp;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+public class DepartmentRecord extends SampleRecord<TDepartments>
+{
+    private final static long serialVersionUID = 1L;
 
-public class AppListener implements ServletContextListener {
-
-	private static final Logger log = LoggerFactory.getLogger(AppListener.class);
-
-	@Override
-	public void contextInitialized(ServletContextEvent sce) {
-
-		log.debug("contextInitialized");
-		// create application
-		EmployeeVueApp.create(sce.getServletContext());
-		// done
-		log.debug("contextInitialized done");
-	}
-
-	@Override
-	public void contextDestroyed(ServletContextEvent sce) {
-		log.debug("contextDestroyed");
-		log.debug("contextDestroyed done");
-	}
-
+    public DepartmentRecord(SampleDB db, RecordContext recordContext)
+    {
+        super(db.T_DEPARTMENTS, recordContext);
+    }
+  
 }

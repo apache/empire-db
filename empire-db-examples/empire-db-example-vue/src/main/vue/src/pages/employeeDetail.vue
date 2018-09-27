@@ -18,25 +18,25 @@
 
     <h1>Employee-Details for {{employeeId}}</h1>
 
-    <!--
-    <div class="rdp-weeknavbar">
-      <button class="rdp-button" @click="showPlan($event)">Zurück</button>
-    </div>
-
-    <div class="rdp-weekinfo">
-      Hinweise für Bezirk <strong>{{info.bereich.kurz}}</strong> ({{info.bereich.name}})
-      <br/>am <strong>{{info.tag.datumLang}}</strong>
-    </div>
-
-    <rdp-hints :hints="info.hinweise"></rdp-hints>
-
-    <div class="rdp-weeknavbar">
-      <button class="rdp-button" @click="showPlan($event)">Zurück</button>
-    </div>
-    -->
+    <table class="inputForm" v-if="record" style="width:400px">
+      <colgroup>
+        <col width="120px"/>
+        <col/>
+      </colgroup>
+      <tr><e-control :data="record.data" :column="record.meta.salutation" /></tr>
+      <tr><e-control :data="record.data" :column="record.meta.firstName" /></tr>
+      <tr><e-control :data="record.data" :column="record.meta.lastName" /></tr>
+      <tr><e-control :data="record.data" :column="record.meta.dateOfBirth" format="[yyyy-MM-dd]"/></tr>
+      <tr><e-control :data="record.data" :column="record.meta.departmentId" /></tr>
+      <tr><e-control :data="record.data" :column="record.meta.gender"   /> </tr>
+      <tr><e-control :data="record.data" :column="record.meta.phoneNumber" /></tr>
+      <tr><e-control :data="record.data" :column="record.meta.email" /></tr>
+      <tr><e-control :data="record.data" :column="record.meta.retired" /></tr>
+    </table>
 
     <div class="rdp-weeknavbar">
       <button class="rdp-button" @click="showList($event)">Back</button>
+      <button @click="saveChanges($event)">Save</button>
     </div>
 
   </div>
@@ -44,11 +44,13 @@
 
 <script>
   import EMPAPI from '../api/emp-api'
+  import eControl from '../components/e-control.vue'
 
   export default {
     name: 'details',
 
     components: {
+      eControl
     },
 
     data () {
@@ -76,6 +78,14 @@
           .done(response => (this.info = response))
           .fail(() => this.$router.push('/login'))
         */
+      },
+      saveChanges: function (event) {
+        EMPAPI.debug('load employee record')
+        EMPAPI.updateEmployee(this.record.data)
+          .done(response => (this.setResult(response)))
+      },
+      setResult (result) {
+        alert('Save OK!')
       },
       showList: function (event) {
         this.$router.push('/employeeList')
