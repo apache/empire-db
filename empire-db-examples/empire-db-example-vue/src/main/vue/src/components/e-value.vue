@@ -14,7 +14,6 @@
       License.
   -->
 <script>
-  // import $ from 'jquery'
   export default {
     functional: true,
     name: 'e-value',
@@ -23,17 +22,78 @@
       column: {
         required: true
       },
+      record: {
+        type: Object
+      },
       data: {
-        required: true
+        type: Object
       }
     },
+
     render (createElement, context) {
-      var value = context.props.data[context.props.column.property]
-      if (context.props.column.options) {
-        value = context.props.column.options[value]
+      /*
+       * function to get the record (if nesessary)
+       */
+      function _record (context) {
+        // find record
+        let record = context.props.record
+        if (record === undefined) {
+          let parent = context.parent
+          while (parent) {
+            if (parent.record) {
+              record = parent.record
+              break
+            }
+            parent = parent.$parent
+          }
+        }
+        // check record
+        if (record === undefined) {
+          throw new TypeError('e-input: No data or record provided!')
+        }
+        if (record.meta === undefined) {
+          throw new TypeError('e-input: Invalid record param: no meta property!')
+        }
+        if (record.data === undefined) {
+          throw new TypeError('e-input: Invalid record param: no data property!')
+        }
+        return record
       }
-      const text = createElement('span', null, value)
-      return text
+      /*
+       * function to get the column meta data
+       */
+      function _meta (column, context) {
+        // get column from meta
+        if (typeof column === 'string' || column instanceof String) {
+          // from record
+          return _record(context).meta[column]
+        }
+        if (column.dataType === undefined) {
+          throw new TypeError('e-value: Invalid column param!')
+        }
+        return column
+      }
+      /*
+       * function to get the raw data value
+       */
+      function _value (prop, context) {
+        // find record
+        if (context.props.data === undefined) {
+          // get column from meta
+          return _record(context).data[prop]
+        }
+        return context.props.data[prop]
+      }
+      /*
+       * render implementation
+       */
+      const meta = _meta(context.props.column, context)
+      let value = _value(meta.property, context)
+      if (meta.options) {
+        value = meta.options[value]
+      }
+      // create span with value
+      return createElement('span', {class: 'eVal'}, value)
     }
 
   }

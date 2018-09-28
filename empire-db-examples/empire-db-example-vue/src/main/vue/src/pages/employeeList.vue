@@ -19,41 +19,35 @@
     <h1>Employee-List</h1>
 
     <div class="formPanel" v-if="filter">
-      <!--
-      <div style="border:1px red solid">
-        <e-input :column="meta.FIRSTNAME" :data="filter"/>
-      </div>
-      -->
-      <table class="inputForm">
-      <tr>
-        <e-control :column="filter.meta.firstName" :data="filter.data"/>
-        <e-control :column="filter.meta.lastName"  :data="filter.data"/>
-      </tr>
-      <tr>
-        <e-control :column="filter.meta.departmentId" :data="filter.data"/>
-        <e-control :column="filter.meta.gender"  :data="filter.data"/>
-      </tr>
-      <tr>
-        <td class="eCtlLabel"><label class="eLabel" for="DEPARTMENT_ID">Info:</label></td>
-        <td class="eCtlInput">
-          firstname: {{filter.data.firstName}}, lastname: {{filter.data.lastName}}
-          <!--
-          <e-input column="test" :value="filter.lastname"/>
-            <input v-model="filter.lastname"/>
+      <e-record :record="filter">
+        <table class="inputForm">
+          <tr>
+            <e-control column="firstName"/>
+            <e-control column="lastName"/>
+          </tr>
+          <tr>
+            <e-control column="departmentId"/>
+            <e-control column="gender"/>
+          </tr>
+          <!-- debug
+          <tr>
+            <td class="eCtlLabel"><label class="eLabel" for="DEPARTMENT_ID">Info:</label></td>
+            <td class="eCtlInput">firstname: {{filter.data.firstName}}, lastname: {{filter.data.lastName}}</td>
+          </tr>
           -->
-          </td>
-        </tr>
-        <tr class="formButtonRow">
-          <td></td>
-          <td class="buttonBar" colspan="3">
-            <button @click="doReset()" :disabled="!searchDone">Search reset</button>
-            <button @click="doSearch()">Search</button>
-          </td>
-        </tr>
-      </table>
+          <tr class="formButtonRow">
+            <td></td>
+            <td class="buttonBar" colspan="3">
+              <button @click="doReset()" :disabled="!searchDone">Search reset</button>
+              <button @click="doSearch()">Search</button>
+            </td>
+          </tr>
+        </table>
+      </e-record>
     </div>
 
     <div class="searchResult" v-if="searchDone">
+      <h1>Search found {{employeeList.data.length}} Employees</h1>
       <table class="employeeList">
         <colgroup>
           <col class="col-id"/>
@@ -63,36 +57,35 @@
           <col class="col-dateOfBirth"/>
           <col class="col-Retired"/>
         </colgroup>
-
+        <!-- head -->
         <thead>
           <tr>
             <th>ID</th>
-            <th>{{employeeList.meta['name'].title}}</th>
-            <th>{{employeeList.meta['department'].title}}</th>
-            <th>{{employeeList.meta['gender'].title}}</th>
-            <th>{{employeeList.meta['dateOfBirth'].title}}</th>
+            <th><e-label :column="meta.name"/></th>
+            <th><e-label :column="meta.department"/></th>
+            <th><e-label :column="meta.gender"/></th>
+            <th><e-label :column="meta.dateOfBirth"/></th>
             <th>Retired</th>
           </tr>
         </thead>
-
+        <!-- body -->
         <tbody>
         <template v-for="(item, index) in employeeList.data">
           <tr v-bind:key="index" v-bind:class="[index % 2 == 0 ? 'row-even' : 'row-odd' ]">
             <td>{{item.employeeId}}</td>
             <td>
               <router-link class="eLink" :to="{ path: '/employeeDetail/'+item.employeeId }">
-                {{item.name}}
+                <e-value :column="meta.name" :data="item"/>
               </router-link>
             </td>
-            <td>{{item.department}}</td>
-            <td><e-value :column="employeeList.meta.gender" :data="item"/></td>
-            <td><e-value :column="employeeList.meta.dateOfBirth" :data="item"/></td>
-            <td><e-value :column="employeeList.meta.retired" :data="item"/></td>
+            <td><e-value :data="item" :column="meta.department"/></td>
+            <td><e-value :data="item" :column="meta.gender"/></td>
+            <td><e-value :data="item" :column="meta.dateOfBirth"/></td>
+            <td><e-value :data="item" :column="meta.retired"/></td>
           </tr>
         </template>
         </tbody>
       </table>
-      <h1>Employee-count is {{employeeList.data.length}}</h1>
     </div>
 
 
@@ -117,19 +110,21 @@
 
 <script>
   import EMPAPI from '../api/emp-api'
+  import eRecord from '../components/e-record.vue'
   import eControl from '../components/e-control.vue'
   import eInput from '../components/e-input'
-//  import eLabel from '../components/e-label'
+  import eLabel from '../components/e-label'
   import eValue from '../components/e-value'
-  import $ from 'jquery'
+  // import $ from 'jquery'
 
   export default {
     name: 'list',
 
     components: {
+      eRecord,
       eControl,
       eInput,
-//    eLabel,
+      eLabel,
       eValue
     },
 
@@ -138,6 +133,12 @@
         filter: undefined,
         searchDone: false,
         employeeList: undefined
+      }
+    },
+
+    computed: {
+      meta: function () {
+        return this.employeeList.meta
       }
     },
 
@@ -159,6 +160,7 @@
         this.employeeList = undefined
       },
       doReset: function () {
+        EMPAPI.debug('resetting search filter')
         EMPAPI.loadEmployeeFilter()
           .done(response => (this.initSearch(response)))
         this.$parent.employeeFilter = undefined
@@ -172,16 +174,16 @@
       setResult (result) {
         this.employeeList = result
         this.searchDone = true
-        this.$parent.employeeFilter = this.filter
-      },
-      doSomething: function () {
-        EMPAPI.debug('list contains ' + this.employeeList.data.length + ' items')
-      },
+        // copy filter data (do not simply assign!)
+        this.$parent.employeeFilter = { meta: this.filter.meta, data: Object.assign({}, this.filter.data) }
+      }
+      /*
       updateValue (event) {
         var inp = $(event.currentTarget)
         var val = inp.val()
         this.$emit('input', { val })
       }
+      */
     }
   }
 </script>

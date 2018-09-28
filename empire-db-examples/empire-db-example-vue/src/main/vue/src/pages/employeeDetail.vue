@@ -18,24 +18,26 @@
 
     <h1>Employee-Details for {{employeeId}}</h1>
 
-    <table class="inputForm" v-if="record" style="width:400px">
-      <colgroup>
-        <col width="120px"/>
-        <col/>
-      </colgroup>
-      <tr><e-control :data="record.data" :column="record.meta.salutation" /></tr>
-      <tr><e-control :data="record.data" :column="record.meta.firstName" /></tr>
-      <tr><e-control :data="record.data" :column="record.meta.lastName" /></tr>
-      <tr><e-control :data="record.data" :column="record.meta.dateOfBirth" format="[yyyy-MM-dd]"/></tr>
-      <tr><e-control :data="record.data" :column="record.meta.departmentId" /></tr>
-      <tr><e-control :data="record.data" :column="record.meta.gender"   /> </tr>
-      <tr><e-control :data="record.data" :column="record.meta.phoneNumber" /></tr>
-      <tr><e-control :data="record.data" :column="record.meta.email" /></tr>
-      <tr><e-control :data="record.data" :column="record.meta.retired" /></tr>
-    </table>
+    <e-record :record="employeeRecord">
+      <table class="inputForm" style="width:400px">
+        <colgroup>
+          <col width="120px"/>
+          <col/>
+        </colgroup>
+        <tr><e-control column="salutation" /></tr>
+        <tr><e-control column="firstName" /></tr>
+        <tr><e-control column="lastName" /></tr>
+        <tr><e-control column="dateOfBirth" format="[yyyy-MM-dd]"/></tr>
+        <tr><e-control column="departmentId" /></tr>
+        <tr><e-control column="gender"   /> </tr>
+        <tr><e-control column="phoneNumber" /></tr>
+        <tr><e-control column="email" /></tr>
+        <tr><e-control column="retired" /></tr>
+      </table>
+    </e-record>
 
     <div class="rdp-weeknavbar">
-      <button class="rdp-button" @click="showList($event)">Back</button>
+      <button class="rdp-button" @click="returnToList($event)">Back</button>
       <button @click="saveChanges($event)">Save</button>
     </div>
 
@@ -44,19 +46,21 @@
 
 <script>
   import EMPAPI from '../api/emp-api'
+  import eRecord from '../components/e-record.vue'
   import eControl from '../components/e-control.vue'
 
   export default {
     name: 'details',
 
     components: {
+      eRecord,
       eControl
     },
 
     data () {
       return {
         employeeId: 0,
-        record: {}
+        employeeRecord: undefined
       }
     },
 
@@ -70,24 +74,23 @@
       loadDetails: function (event) {
         EMPAPI.debug('load employee record')
         EMPAPI.loadEmployeeRecord(this.employeeId)
-          .done(response => (this.record = response))
+          .done(response => (this.onLoadDone(response)))
         /*
-        this.datum = this.$route.params.datum
-        this.bereichId = this.$route.params.bereichId
-        RDPAPI.loadHints(this.datum, this.bereichId)
-          .done(response => (this.info = response))
           .fail(() => this.$router.push('/login'))
         */
       },
       saveChanges: function (event) {
         EMPAPI.debug('load employee record')
-        EMPAPI.updateEmployee(this.record.data)
-          .done(response => (this.setResult(response)))
+        EMPAPI.updateEmployee(this.employeeRecord.data)
+          .done(response => (this.onSaveDone(response)))
       },
-      setResult (result) {
+      onLoadDone (result) {
+        this.employeeRecord = result
+      },
+      onSaveDone (result) {
         alert('Save OK!')
       },
-      showList: function (event) {
+      returnToList: function (event) {
         this.$router.push('/employeeList')
       }
     }

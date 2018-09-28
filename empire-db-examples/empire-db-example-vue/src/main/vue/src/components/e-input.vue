@@ -15,55 +15,126 @@
   -->
 <template>
   <div class="eInpWrap">
-    <template v-if="column.options">
-      <select :id="'CTL_' + column.name" :name="column.name" class="eInput eTypeSelect" @change="updateValue($event)">
-        <template v-if="column.required === false && column.options[''] === undefined">
-          <option value="" :selected="inputValue === null"></option>
+    <template v-if="meta.readonly">
+      <e-value :column="meta" :data="_recordData"/>
+    </template>
+    <template v-else-if="meta.options">
+      <select :id="'CTL_' + meta.name" :name="meta.name" class="eInput eTypeSelect" @change="updateValue($event)">
+        <template v-if="meta.required === false && meta.options[''] === undefined">
+          <option value="" :selected="isValueEqualTo(null)"></option>
         </template>
-        <template v-for="(value, key) in column.options">
-          <option :value="key" :selected="inputValue === key">{{value}}</option>
+        <template v-for="(value, key) in meta.options">
+          <option :value="key" :selected="isValueEqualTo(key)">{{value}}</option>
         </template>
       </select>
     </template>
     <template v-else>
-      <input :id="'CTL_' + column.name" :name="column.name" class="eInput eTypeText" lang="en" type="text" :maxlength="column.maxLength" :value="inputValue" @input="updateValue($event)">
+      <input :id="'CTL_' + meta.name" :name="meta.name" class="eInput eTypeText" lang="en" type="text" :maxlength="meta.maxLength" :value="inputValue" @input="updateValue($event)">
     </template>
   </div>
 </template>
 <script>
   import EMPAPI from '../api/emp-api'
+  import eValue from '../components/e-value'
   import $ from 'jquery'
 
   export default {
     name: 'e-input',
 
+    components: {
+      eValue
+    },
+
     props: {
       column: {
         required: true
       },
+      record: {
+        type: Object
+      },
       data: {
-        required: true
+        type: Object
       }
     },
 
     computed: {
-      inputValue: function () {
-        return this.data[this.column.property]
+      _record: function () {
+        // find record
+        let record = this.record
+        if (record === undefined) {
+          let parent = this.$parent
+          while (parent) {
+            if (parent.record) {
+              record = parent.record
+              break
+            }
+            parent = parent.$parent
+          }
+        }
+        // check record
+        if (record === undefined) {
+          throw new TypeError('e-input: No data or record provided!')
+        }
+        if (record.meta === undefined) {
+          throw new TypeError('e-input: Invalid record param: no meta property!')
+        }
+        if (record.data === undefined) {
+          throw new TypeError('e-input: Invalid record param: no data property!')
+        }
+        return record
+      },
+      _recordData: function () {
+        if (this.data === undefined) {
+          // get column from meta
+          return this._record.data
+        }
+        return this.data
+      },
+      meta: function () {
+        // get column from meta
+        if (typeof this.column === 'string' || this.column instanceof String) {
+          // from record
+          return this._record.meta[this.column]
+        }
+        if (this.column.dataType === undefined) {
+          throw new TypeError('e-input: Invalid column param!')
+        }
+        return this.column
+      },
+      inputValue: {
+        get: function () {
+          // find record
+          const prop = this.meta.property
+          return this._recordData[prop]
+        },
+        set: function (value) {
+          const prop = this.meta.property
+          this._recordData[prop] = value
+        }
       }
     },
 
+    /*
     created: function () {
-      // alert('column=' + this.column.name + ' is ' + this.data[this.column.property])
+      EMPAPI.debug('Input for ' + this.meta.name + ' created!')
     },
+    */
 
     methods: {
+      isValueEqualTo (value) {
+        const inp = this.inputValue
+        if (value === '') {
+          value = null
+        }
+        return (inp === value)
+      },
       updateValue (event) {
-        var inp = $(event.currentTarget)
-        var val = inp.val()
+        let inp = $(event.currentTarget)
+        let val = inp.val()
         // this.$emit('input', val)
-        this.data[this.column.property] = val
+        this.inputValue = val
         // debug
-        EMPAPI.debug('Value for: "' + this.column.name + '" has been set to: ' + this.data[this.column.property])
+        EMPAPI.debug('Value for: "' + this.meta.name + '" has been set to: ' + val)
       }
     }
   }

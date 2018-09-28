@@ -13,40 +13,20 @@
       the specific language governing permissions and limitations under the
       License.
   -->
+<template>
+  <div v-if="record" class="eRecord">
+    <slot></slot>
+  </div>
+</template>
 <script>
   // import $ from 'jquery'
-  import eLabel from './e-label.vue'
-  import eInput from './e-input.vue'
-
   export default {
-    functional: true,
-    name: 'e-control',
-
+    name: 'e-record',
     props: {
-      column: {
-        required: true
-      },
       record: {
-        type: Object
-      },
-      data: {
-        type: Object
+        type: Object,
+        required: true
       }
-    },
-    render (createElement, context) {
-      const label = createElement('td', {class: 'eCtlLabel'}
-        , [ createElement(eLabel, { props: Object.assign({column: context.props.column, forInput: true}) }) ])
-      const input = createElement('td', {class: 'eCtlInput'}
-        , [ createElement(eInput, { props: context.props }) ])
-      /*
-      const input = createElement('td', {class: 'eCtlInput'}
-        , [ createElement('input', {
-          on: { input: e => context.data.on.input(e.target.value) },
-          domProps: { value: context.props.value },
-          attrs: { name: 'TEST' }}) ])
-      */
-      return [label, input]
     }
-
   }
 </script>
