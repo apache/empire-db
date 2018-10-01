@@ -19,7 +19,6 @@
 package org.apache.empire.vue.sample.db;
 
 import org.apache.empire.commons.Options;
-import org.apache.empire.data.DataMode;
 import org.apache.empire.data.DataType;
 import org.apache.empire.db.DBColumn;
 import org.apache.empire.db.DBDatabase;

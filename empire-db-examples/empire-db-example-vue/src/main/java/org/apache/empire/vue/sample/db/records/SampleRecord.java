@@ -116,7 +116,7 @@ public abstract class SampleRecord<T extends SampleTable> extends DBRecord {
         }
     }
     
-    public void create(Connection conn)
+    public void create()
     {
         super.create(getTable(), recordContext.getConnection());
     }

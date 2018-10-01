@@ -20,7 +20,7 @@
     </template>
     <template v-else-if="meta.options">
       <select :id="'CTL_' + meta.name" :name="meta.name" class="eInput eTypeSelect" @change="updateValue($event)">
-        <template v-if="meta.required === false && meta.options[''] === undefined">
+        <template v-if="(meta.required === false || isValueEqualTo(null)) && meta.options[''] === undefined">
           <option value="" :selected="isValueEqualTo(null)"></option>
         </template>
         <template v-for="(value, key) in meta.options">

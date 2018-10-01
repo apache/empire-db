@@ -14,7 +14,7 @@
       License.
   -->
 <template>
-  <div class="emp-content">
+  <div class="page-content">
 
     <form id="loginForm" name="loginForm" enctype="application/x-www-form-urlencoded" @submit.prevent="login">
     <p>Hint: enter any non null username and password.</p>
@@ -32,7 +32,7 @@
         <tr class="formButtonRow">
           <td></td>
           <td class="buttonBar" colspan="3">
-            <button type="submit" class="rdp-button btn btn-primary">Login</button>
+            <button type="submit">Login</button>
           </td>
         </tr>
       </table>
@@ -49,7 +49,7 @@
   const defaultPwd = process.env.EMP_DEFAULT_PWD
 
   export default {
-    name: 'login',
+    name: 'userLogin',
 
     data () {
       return {

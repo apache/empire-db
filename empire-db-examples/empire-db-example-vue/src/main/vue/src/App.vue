@@ -18,7 +18,7 @@
 
     <div class="titleDiv">
       <span>Employee Management Application</span>
-      <button class="rdp-button" @click="logout" v-if="this.isLoggedIn()">Logout</button>
+      <button class="rdp-button" @click="doLogout" v-if="this.isLoggedIn()">Logout</button>
     </div>
 
     <router-view></router-view>
@@ -46,7 +46,9 @@
     methods: {
       startup: function () {
         EMPAPI.debug('Application startup! Vue version is ' + Vue.version)
-        // alert(Vue.version)
+      },
+      clearData: function () {
+        this.employeeFilter = undefined
       },
       isLoggedIn: function () {
         if (EMPAPI.loggedIn === undefined) {
@@ -55,7 +57,7 @@
         }
         return EMPAPI.loggedIn
       },
-      logout: function () {
+      doLogout: function () {
         if (!confirm('Do you really want to logout?')) {
           return
         }
@@ -70,9 +72,6 @@
         EMPAPI.loggedIn = false
         this.clearData()
         this.$router.push('/login')
-      },
-      clearData: function () {
-        this.employeeFilter = undefined
       }
     }
   }

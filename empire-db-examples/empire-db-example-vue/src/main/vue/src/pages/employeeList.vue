@@ -14,37 +14,35 @@
       License.
   -->
 <template>
-  <div class="rdp-content">
+  <div class="page-content">
 
     <h1>Employee-List</h1>
 
-    <div class="formPanel" v-if="filter">
-      <e-record :record="filter">
-        <table class="inputForm">
-          <tr>
-            <e-control column="firstName"/>
-            <e-control column="lastName"/>
-          </tr>
-          <tr>
-            <e-control column="departmentId"/>
-            <e-control column="gender"/>
-          </tr>
-          <!-- debug
-          <tr>
-            <td class="eCtlLabel"><label class="eLabel" for="DEPARTMENT_ID">Info:</label></td>
-            <td class="eCtlInput">firstname: {{filter.data.firstName}}, lastname: {{filter.data.lastName}}</td>
-          </tr>
-          -->
-          <tr class="formButtonRow">
-            <td></td>
-            <td class="buttonBar" colspan="3">
-              <button @click="doReset()" :disabled="!searchDone">Search reset</button>
-              <button @click="doSearch()">Search</button>
-            </td>
-          </tr>
-        </table>
-      </e-record>
-    </div>
+    <e-record styleClass="formPanel" :record="filter">
+      <table class="inputForm">
+        <tr>
+          <e-control column="firstName"/>
+          <e-control column="lastName"/>
+        </tr>
+        <tr>
+          <e-control column="departmentId"/>
+          <e-control column="gender"/>
+        </tr>
+        <!-- debug
+        <tr>
+          <td class="eCtlLabel"><label class="eLabel" for="DEPARTMENT_ID">Info:</label></td>
+          <td class="eCtlInput">firstname: {{filter.data.firstName}}, lastname: {{filter.data.lastName}}</td>
+        </tr>
+        -->
+        <tr class="formButtonRow">
+          <td></td>
+          <td class="buttonBar" colspan="3">
+            <button @click="doReset()" :disabled="!searchDone">Search reset</button>
+            <button @click="doSearch()">Search</button>
+          </td>
+        </tr>
+      </table>
+    </e-record>
 
     <div class="searchResult" v-if="searchDone">
       <h1>Search found {{employeeList.data.length}} Employees</h1>
@@ -88,22 +86,10 @@
       </table>
     </div>
 
-
-    <!--
-    <div class="rdp-weeknavbar">
-      <button class="rdp-button" @click="weekOffset -= 1">&lt</button>
-      <button class="rdp-button" @click="weekOffset = 0">heute</button>
-      <button class="rdp-button" @click="weekOffset += 1">&gt</button>
+    <div class="buttonBar">
+      <button @click="$parent.doLogout()">Logout</button>
+      <button @click="doAddNew()">Add new employee</button>
     </div>
-
-    <div class="rdp-weekinfo">
-      <strong>KW {{info.kw}}</strong> vom <strong>{{info.von}}</strong> bis <strong>{{info.bis}}</strong>
-      <span> / </span>
-      <strong>{{info.name}}</strong>
-    </div>
-
-    <rdp-plan :week-offset="weekOffset"></rdp-plan>
-    -->
 
   </div>
 </template>
@@ -115,17 +101,19 @@
   import eInput from '../components/e-input'
   import eLabel from '../components/e-label'
   import eValue from '../components/e-value'
+  import app from '../App'
   // import $ from 'jquery'
 
   export default {
-    name: 'list',
+    name: 'employeeList',
 
     components: {
       eRecord,
       eControl,
       eInput,
       eLabel,
-      eValue
+      eValue,
+      app
     },
 
     data () {
@@ -148,7 +136,7 @@
         this.filter = this.$parent.employeeFilter
         this.doSearch()
       } else {
-        EMPAPI.loadEmployeeFilter()
+        EMPAPI.getEmployeeFilter()
           .done(response => (this.initSearch(response)))
       }
     },
@@ -161,17 +149,21 @@
       },
       doReset: function () {
         EMPAPI.debug('resetting search filter')
-        EMPAPI.loadEmployeeFilter()
+        EMPAPI.getEmployeeFilter()
           .done(response => (this.initSearch(response)))
         this.$parent.employeeFilter = undefined
       },
       doSearch: function () {
-        // alert('firstname: ' + this.filter.data.firstName + ' lastname: ' + this.filter.data.lastName)
+        // Find all employees matching filter criteria
         EMPAPI.debug('load employee list')
-        EMPAPI.loadEmployeeList(this.filter.data)
-          .done(response => (this.setResult(response)))
+        EMPAPI.findEmployees(this.filter.data)
+          .done(response => (this.onSearchComplete(response)))
       },
-      setResult (result) {
+      doAddNew: function () {
+        // Add a new employee by passing an employeeId of 0
+        this.$router.push('/employeeDetail/0')
+      },
+      onSearchComplete (result) {
         this.employeeList = result
         this.searchDone = true
         // copy filter data (do not simply assign!)

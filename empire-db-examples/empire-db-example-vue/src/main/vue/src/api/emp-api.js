@@ -117,21 +117,30 @@ const EMPAPI = {
     return AJAX.post('/auth/logout')
   },
 
-  loadEmployeeFilter: function () {
+  getEmployeeFilter: function () {
     return AJAX.get('/employee/filter')
   },
 
-  loadEmployeeList: function (filter) {
+  findEmployees: function (filter) {
     return AJAX.postJSON('/employee/list', filter)
   },
 
-  loadEmployeeRecord: function (employeeId) {
+  readEmployeeRecord: function (employeeId) {
     return AJAX.get(`/employee/get/${employeeId}`)
+  },
+
+  createEmployeeRecord: function () {
+    return AJAX.get('/employee/add')
   },
 
   updateEmployee: function (employeeData) {
     return AJAX.postJSON('/employee/set', employeeData)
+  },
+
+  deleteEmployee: function (employeeId) {
+    return AJAX.get(`/employee/delete/${employeeId}`)
   }
+
 }
 
 // export

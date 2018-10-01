@@ -155,6 +155,24 @@ public class EmployeeService extends Service {
 	    }
 	}
 
+    @GET
+    @Path("/add")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response addEmployee() {
+
+        try {
+            // return a record
+            EmployeeRecord rec = new EmployeeRecord(getDatabase(), getRecordContext());
+            rec.create();
+            JsoRecordData emp = new JsoRecordData(rec);
+            return Response.ok(new JsoResultWithMeta(emp, rec.getMeta())).build();
+            
+        } catch(EmpireException e) {
+            log.error("Unable to create an employee record");
+            return Response.serverError().build();
+        }
+    }
+
     @POST
     @Path("/set")
     @Consumes(MediaType.APPLICATION_JSON)
@@ -165,6 +183,23 @@ public class EmployeeService extends Service {
         rec.update();
         
         return Response.ok().build();
+    }
+
+    @GET
+    @Path("/delete/{employeeId}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response deleteEmployee(@PathParam("employeeId") int employeeId) {
+
+        try {
+            // return a record
+            SampleDB db = getDatabase();
+            db.T_EMPLOYEES.deleteRecord(employeeId, getRecordContext().getConnection());
+            return Response.ok().build();
+            
+        } catch(EmpireException e) {
+            log.error("Unable to delete employee with id {}", employeeId);
+            return Response.serverError().build();
+        }
     }
 
 }

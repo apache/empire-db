@@ -14,11 +14,11 @@
       License.
   -->
 <template>
-  <div class="rdp-content">
+  <div class="page-content">
 
-    <h1>Employee-Details for {{employeeId}}</h1>
+    <h1>Employee-Details</h1>
 
-    <e-record :record="employeeRecord">
+    <e-record styleClass="formPanel" :record="employeeRecord">
       <table class="inputForm" style="width:400px">
         <colgroup>
           <col width="120px"/>
@@ -36,9 +36,10 @@
       </table>
     </e-record>
 
-    <div class="rdp-weeknavbar">
-      <button class="rdp-button" @click="returnToList($event)">Back</button>
-      <button @click="saveChanges($event)">Save</button>
+    <div class="buttonBar">
+      <button @click="doReturnToList($event)">Back</button>
+      <button @click="doDelete($event)" v-if="allowDelete">Delete</button>
+      <button @click="doSave($event)">Save</button>
     </div>
 
   </div>
@@ -50,47 +51,78 @@
   import eControl from '../components/e-control.vue'
 
   export default {
-    name: 'details',
+    name: 'employeeDetail',
 
     components: {
       eRecord,
       eControl
     },
 
+    props: {
+      employeeId: {
+        required: true
+      }
+    },
+
     data () {
       return {
-        employeeId: 0,
         employeeRecord: undefined
       }
     },
 
-    created: function () {
+    computed: {
+      allowDelete: function () {
+        return (this.employeeRecord && !this.employeeRecord.data._newRecord)
+      }
+    },
+
+    created: function (empid) {
       EMPAPI.assertLoggedIn(this)
-      this.employeeId = this.$route.params.employeeId
-      this.loadDetails()
+      if (this.employeeId === 0) {
+        this.addNew()
+      } else {
+        this.loadDetails()
+      }
     },
 
     methods: {
-      loadDetails: function (event) {
-        EMPAPI.debug('load employee record')
-        EMPAPI.loadEmployeeRecord(this.employeeId)
+      addNew: function () {
+        EMPAPI.debug('create employee record')
+        EMPAPI.createEmployeeRecord(this.employeeId)
           .done(response => (this.onLoadDone(response)))
         /*
           .fail(() => this.$router.push('/login'))
         */
       },
-      saveChanges: function (event) {
+      loadDetails: function () {
+        EMPAPI.debug('load employee record')
+        EMPAPI.readEmployeeRecord(this.employeeId)
+          .done(response => (this.onLoadDone(response)))
+        /*
+          .fail(() => this.$router.push('/login'))
+        */
+      },
+      doSave: function (event) {
         EMPAPI.debug('load employee record')
         EMPAPI.updateEmployee(this.employeeRecord.data)
-          .done(response => (this.onSaveDone(response)))
+          .done(response => (this.onUpdateDone(response)))
+      },
+      doDelete: function (event) {
+        EMPAPI.debug('load employee record')
+        EMPAPI.deleteEmployee(this.employeeId)
+          .done(response => (this.onUpdateDone(response)))
+        /*
+          .fail(() => this.$router.push('/login'))
+        */
+      },
+      doReturnToList: function (event) {
+        this.$router.push('/employeeList')
       },
       onLoadDone (result) {
         this.employeeRecord = result
       },
-      onSaveDone (result) {
-        alert('Save OK!')
-      },
-      returnToList: function (event) {
+      onUpdateDone (result) {
+        EMPAPI.debug('employee record successfully updated')
         this.$router.push('/employeeList')
       }
     }

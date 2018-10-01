@@ -13,20 +13,25 @@
       the specific language governing permissions and limitations under the
       License.
   -->
-<template>
-  <div v-if="record" class="eRecord">
-    <slot></slot>
-  </div>
-</template>
 <script>
-  // import $ from 'jquery'
   export default {
     name: 'e-record',
     props: {
       record: {
-        type: Object,
-        required: true
+        type: Object
+      },
+      styleClass: {
+        type: String,
+        default: 'eRecord'
       }
+    },
+    render (createElement) {
+      if (this.record === undefined) {
+        // render nothing
+        return
+      }
+      // render div
+      return createElement('div', {class: this.styleClass}, this.$slots.default)
     }
   }
 </script>

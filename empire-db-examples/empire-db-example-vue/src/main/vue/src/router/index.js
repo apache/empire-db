@@ -18,9 +18,9 @@
  */
 import Vue from 'vue'
 import Router from 'vue-router'
-import login from '@/pages/login'
-import list from '@/pages/employeeList'
-import details from '@/pages/employeeDetail'
+import userLogin from '@/pages/login'
+import employeeList from '@/pages/employeeList'
+import employeeDetail from '@/pages/employeeDetail'
 
 Vue.use(Router)
 
@@ -28,18 +28,22 @@ export default new Router({
   routes: [
     {
       path: '/login',
-      name: 'Login',
-      component: login
+      component: userLogin
     },
     {
       path: '/employeeList',
-      name: 'EmployeeList',
-      component: list
+      component: employeeList
     },
     {
       path: '/employeeDetail/:employeeId',
-      name: 'EmployeeDetail',
-      component: details
+      component: employeeDetail,
+      props: (route) => {
+        const employeeId = Number.parseInt(route.params.employeeId)
+        if (Number.isNaN(employeeId)) {
+          return 0
+        }
+        return { employeeId }
+      }
     },
     {
       path: '*',
