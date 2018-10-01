@@ -14,7 +14,7 @@
       License.
   -->
 <template>
-  <label v-if="forInput" class="eLabel" :for="'CTL_' + meta.name">{{meta.title}}:</label>
+  <label v-if="forInput" class="eLabel" :for="'CTL_' + meta.name">{{meta.title}}:<span v-if="meta.required" class="required">*</span></label>
   <span v-else class="eLabel" >{{meta.title}}</span>
 </template>
 <script>

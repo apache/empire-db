@@ -54,31 +54,37 @@ public class JsoColumnMeta extends LinkedHashMap<String, Object>
     private static final String _dataType = "dataType";
     private static final String _maxLength = "maxLength";
     private static final String _required = "required";
-    private static final String _readonly = "readonly";
+    private static final String _disabled = "disabled";  // Column read only
+    private static final String _readOnly = "readOnly";  // Record read only
     private static final String _title = "title";
+    private static final String _controlType = "controlType";
     private static final String _options = "options";
     
-    public JsoColumnMeta(DBColumn column, TextResolver resolver, Options options, boolean required, boolean readOnly)
+    public JsoColumnMeta(DBColumn column, TextResolver resolver, Options options, boolean readOnly, boolean disabled, boolean required)
     {
         put(_name,      column.getName());
         put(_property,  column.getBeanPropertyName());
         put(_dataType,  column.getDataType().name());
+        put(_readOnly,  readOnly);
+        put(_disabled,  disabled);
         put(_required,  required);
-        put(_readonly,  readOnly);
         put(_title,     resolver.resolveText(StringUtils.coalesce(column.getTitle(), column.getName())));
         if (column.getDataType()==DataType.TEXT)
         {   // add maxLength
             put(_maxLength, (int)column.getSize());
         }
-        if (options!=null)
-        {   // add options
-            put(_options, new JsoOptions(options, resolver));
-        }
+        // ControlType And Options
+        addControlTypeAndOptions(column.getControlType(), options, resolver);
+    }
+
+    public JsoColumnMeta(DBColumn column, TextResolver resolver, boolean readOnly)
+    {
+        this(column, resolver, column.getOptions(), readOnly, false, false);
     }
 
     public JsoColumnMeta(DBColumn column, TextResolver resolver)
     {
-        this(column, resolver, column.getOptions(), column.isRequired(), column.isReadOnly());
+        this(column, resolver, false);
     }
     
     public JsoColumnMeta(DBColumnExpr column, TextResolver resolver)
@@ -87,15 +93,33 @@ public class JsoColumnMeta extends LinkedHashMap<String, Object>
         put(_property,  column.getBeanPropertyName());
         put(_dataType,  column.getDataType().name());
         put(_title,     resolver.resolveText(StringUtils.coalesce(column.getTitle(), column.getName())));
-        if (column.getOptions()!=null)
-        {   // add options
-            put(_options, new JsoOptions(column.getOptions(), resolver));
-        }
+        put(_readOnly,  true);
+        // ControlType And Options
+        addControlTypeAndOptions(column.getControlType(), column.getOptions(), resolver);
     }
     
     public String getProperty()
     {
         return String.valueOf(get(_property));
+    }
+    
+    /*
+     * Helpers
+     */
+    
+    private void addControlTypeAndOptions(String controlType, Options options, TextResolver resolver)
+    {
+        // Get Control from column
+        if ("text".equalsIgnoreCase(controlType) && (options!=null && !options.isEmpty()))
+        {  // use select when options are provided   
+           controlType = "select";
+        }
+        put(_controlType, controlType);
+        // options
+        if (options!=null)
+        {   // add options
+            put(_options, new JsoOptions(options, resolver));
+        }
     }
     
 }

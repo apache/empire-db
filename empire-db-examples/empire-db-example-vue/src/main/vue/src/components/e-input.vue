@@ -15,11 +15,12 @@
   -->
 <template>
   <div class="eInpWrap">
-    <template v-if="meta.readonly">
+    <template v-if="meta.readOnly">
       <e-value :column="meta" :data="_recordData"/>
     </template>
-    <template v-else-if="meta.options">
-      <select :id="'CTL_' + meta.name" :name="meta.name" class="eInput eTypeSelect" @change="updateValue($event)">
+    <template v-else-if="meta.controlType === 'select'">
+      <select :id="'CTL_' + meta.name" :name="meta.name" @change="updateData(inputValue($event))"
+              v-bind:class="styleClass('eSelect', meta)" v-bind:disabled="meta.disabled">
         <template v-if="(meta.required === false || isValueEqualTo(null)) && meta.options[''] === undefined">
           <option value="" :selected="isValueEqualTo(null)"></option>
         </template>
@@ -28,8 +29,15 @@
         </template>
       </select>
     </template>
+    <template v-else-if="meta.controlType === 'checkbox'">
+      <input :id="'CTL_' + meta.name" :name="meta.name" lang="en" type="checkbox"
+             v-bind:class="styleClass('eCheckbox', meta)" v-bind:readonly="meta.disabled"
+             :checked="dataValue" @input="updateData(checkboxValue($event))">
+    </template>
     <template v-else>
-      <input :id="'CTL_' + meta.name" :name="meta.name" class="eInput eTypeText" lang="en" type="text" :maxlength="meta.maxLength" :value="inputValue" @input="updateValue($event)">
+      <input :id="'CTL_' + meta.name" :name="meta.name" lang="en" type="text"
+             v-bind:class="styleClass('eInpText', meta)" v-bind:readonly="meta.disabled"
+             :maxlength="meta.maxLength" :value="dataValue" @input="updateData(inputValue($event))">
     </template>
   </div>
 </template>
@@ -101,7 +109,7 @@
         }
         return this.column
       },
-      inputValue: {
+      dataValue: {
         get: function () {
           // find record
           const prop = this.meta.property
@@ -122,19 +130,37 @@
 
     methods: {
       isValueEqualTo (value) {
-        const inp = this.inputValue
+        const inp = this.dataValue
         if (value === '') {
           value = null
         }
         return (inp === value)
       },
-      updateValue (event) {
-        let inp = $(event.currentTarget)
-        let val = inp.val()
+      styleClass: function (type, meta) {
+        var cls = 'eInput ' + type
+        cls += ' eType' + meta.dataType
+        if (meta.disabled) {
+          cls += ' eInpDis'
+        }
+        if (meta.required) {
+          cls += ' eInpReq'
+        }
+        return cls
+      },
+      inputValue (event) {
+        const inp = $(event.currentTarget)
+        return inp.val()
+      },
+      checkboxValue (event) {
+        const cb = $(event.currentTarget)
+        // var un_val = cb.attr('data-unchecked');
+        return cb.prop('checked')
+      },
+      updateData (value) {
         // this.$emit('input', val)
-        this.inputValue = val
+        this.dataValue = value
         // debug
-        EMPAPI.debug('Value for: "' + this.meta.name + '" has been set to: ' + val)
+        EMPAPI.debug('Value for: "' + this.meta.name + '" has been set to: ' + value)
       }
     }
   }

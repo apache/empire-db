@@ -18,7 +18,6 @@
  */
 package org.apache.empire.vue.sample.db.records;
 
-import java.sql.Connection;
 import java.util.List;
 import java.util.Locale;
 
@@ -64,6 +63,7 @@ public abstract class SampleRecord<T extends SampleTable> extends DBRecord {
         List<DBColumn> columns = T.getColumns();
         JsoColumnMeta[] meta = new JsoColumnMeta[columns.size()]; 
         TextResolver txtres = SampleServiceApp.instance().getTextResolver(Locale.ENGLISH);
+        boolean readOnly = isReadOnly();
         for (int i=0; i<meta.length; i++)
         {
             DBColumn col = columns.get(i);
@@ -71,9 +71,9 @@ public abstract class SampleRecord<T extends SampleTable> extends DBRecord {
                 continue;
             // get Meta
             Options  opt = this.getFieldOptions(col);
-            boolean readOnly = this.isFieldReadOnly(col);
+            boolean disabled = this.isFieldReadOnly(col);
             boolean required = this.isFieldRequired(col);
-            meta[i] = new JsoColumnMeta(col, txtres, opt, required, readOnly);
+            meta[i] = new JsoColumnMeta(col, txtres, opt, readOnly, disabled, required);
         }
         return meta;
     }
@@ -85,8 +85,7 @@ public abstract class SampleRecord<T extends SampleTable> extends DBRecord {
         Object[] key = new Object[kc.length];
         for (int i=0; i<kc.length; i++)
         {   // set key values
-            String prop = kc[i].getBeanPropertyName();
-            key[i] = data.get(prop);
+            key[i] = data.getValue(kc[i]);
         }
         // load original record
         if (newRecord)
@@ -110,7 +109,7 @@ public abstract class SampleRecord<T extends SampleTable> extends DBRecord {
             {   // not provided
                 continue; 
             }
-            Object value = data.get(prop);
+            Object value = data.getValue(prop, c.getDataType());
             // set Value 
             this.setValue(c, value);
         }

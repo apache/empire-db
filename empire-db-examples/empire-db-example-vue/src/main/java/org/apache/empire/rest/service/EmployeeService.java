@@ -76,7 +76,7 @@ public class EmployeeService extends Service {
           new JsoColumnMeta(TE.EMPLOYEE_ID, txtres),
           new JsoColumnMeta(TE.FIRST_NAME, txtres),
           new JsoColumnMeta(TE.LAST_NAME, txtres),
-          new JsoColumnMeta(TE.DEPARTMENT_ID, txtres, departmentOptions, false, false),
+          new JsoColumnMeta(TE.DEPARTMENT_ID, txtres, departmentOptions, false, false, false),
           new JsoColumnMeta(TE.GENDER, txtres),
         };
         

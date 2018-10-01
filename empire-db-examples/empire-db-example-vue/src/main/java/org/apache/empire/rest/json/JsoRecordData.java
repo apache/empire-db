@@ -24,6 +24,7 @@ import java.util.LinkedHashMap;
 
 import org.apache.empire.commons.ObjectUtils;
 import org.apache.empire.data.Column;
+import org.apache.empire.data.DataType;
 import org.apache.empire.db.DBRecord;
 import org.apache.empire.db.DBRecordData;
 import org.slf4j.Logger;
@@ -160,14 +161,26 @@ public class JsoRecordData extends LinkedHashMap<String, Object>
         return !ObjectUtils.isEmpty(val);
     }
 
-    public Object getValue(Column c)
+    public Object getValue(String prop, DataType dataType)
     {
-        return this.get(c.getBeanPropertyName());
+        Object value = this.get(prop);
+        switch(dataType) 
+        {
+            case BOOL:
+                return ObjectUtils.getBoolean(value);
+            default:
+                return value;
+        }
+    }
+
+    public final Object getValue(Column c)
+    {
+        return getValue(c.getBeanPropertyName(), c.getDataType());
     }
 
     public String getString(Column c)
     {
-        return String.valueOf(getValue(c));
+        return String.valueOf(get(c.getBeanPropertyName()));
     }
     
     public boolean isNewRecord()

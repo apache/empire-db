@@ -125,12 +125,12 @@ const EMPAPI = {
     return AJAX.postJSON('/employee/list', filter)
   },
 
-  readEmployeeRecord: function (employeeId) {
-    return AJAX.get(`/employee/get/${employeeId}`)
-  },
-
   createEmployeeRecord: function () {
     return AJAX.get('/employee/add')
+  },
+
+  readEmployeeRecord: function (employeeId) {
+    return AJAX.get(`/employee/get/${employeeId}`)
   },
 
   updateEmployee: function (employeeData) {

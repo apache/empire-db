@@ -108,6 +108,9 @@
           .done(response => (this.onUpdateDone(response)))
       },
       doDelete: function (event) {
+        if (!confirm('Do you really want to delete this employee?')) {
+          return
+        }
         EMPAPI.debug('load employee record')
         EMPAPI.deleteEmployee(this.employeeId)
           .done(response => (this.onUpdateDone(response)))

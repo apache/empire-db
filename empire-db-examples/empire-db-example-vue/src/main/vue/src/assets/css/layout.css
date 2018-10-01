@@ -179,8 +179,12 @@ span.eInpDis {
 }
 .eInpWrap {
 }
-.eInput {
+.eInpText,
+.eSelect {
   width: 100%;
+}
+.eInpText.eTypeDATE {
+  width: 100px;
 }
 .eInputHint {
 	padding-left: 4px;
