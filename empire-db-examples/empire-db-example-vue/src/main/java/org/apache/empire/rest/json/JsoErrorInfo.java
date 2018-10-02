@@ -16,35 +16,33 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.empire.vue.sample.db;
+package org.apache.empire.rest.json;
 
-import java.sql.Connection;
+import java.util.LinkedHashSet;
+import java.util.List;
 
+import org.apache.empire.exceptions.EmpireException;
 import org.apache.empire.rest.app.TextResolver;
 
-/**
- * Provide access to info and resources for a record instance
- * Add more to 
- * @author doebele
- *
- */
-public interface RecordContext
+public class JsoErrorInfo extends LinkedHashSet<String>
 {
-    /**
-     * provide a JDBC connection for DB operations 
-     * @return the JDBC connection
-     */
-    Connection getConnection();
+    private static final long serialVersionUID = 1L;
 
-    /**
-     * provides access to the text resolver
-     * @return the TextResolver
-     */
-    TextResolver getTextResolver();
+    public JsoErrorInfo(String message)
+    {
+        this.add(message);
+    }
     
-    /**
-     * provide access to the current user
-     * @return the user
-     */
-    // User getUser()
+    public JsoErrorInfo(EmpireException e, TextResolver resolver)
+    {
+        this.add(resolver.getExceptionMessage(e));
+    }
+    
+    public JsoErrorInfo(List<? extends EmpireException> list, TextResolver resolver)
+    {
+        for (EmpireException e : list)
+        {
+            this.add(resolver.getExceptionMessage(e));
+        }
+    }
 }

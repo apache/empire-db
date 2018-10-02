@@ -62,13 +62,7 @@
       login: function () {
         EMPAPI.login(this.username, this.password)
           .done(() => this.$parent.onLoginComplete())
-          .fail(function (response) {
-            var msg = 'Der Dienst ist zur Zeit nicht verfügbar.'
-            if (response.responseJSON) {
-              msg = response.responseJSON.error
-            }
-            alert(msg)
-          })
+          .fail(response => (this.$parent.handleError(response)))
       }
     }
   }

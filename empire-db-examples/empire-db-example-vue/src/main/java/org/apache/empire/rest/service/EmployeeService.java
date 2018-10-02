@@ -37,11 +37,13 @@ import org.apache.empire.db.DBCommand;
 import org.apache.empire.db.DBJoinType;
 import org.apache.empire.db.DBReader;
 import org.apache.empire.exceptions.EmpireException;
+import org.apache.empire.rest.app.RecordInitException;
 import org.apache.empire.rest.app.SampleServiceApp;
 import org.apache.empire.rest.app.TextResolver;
 import org.apache.empire.rest.json.JsoColumnMeta;
 import org.apache.empire.rest.json.JsoRecordData;
 import org.apache.empire.rest.json.JsoResultWithMeta;
+import org.apache.empire.vue.sample.db.RecordContext;
 import org.apache.empire.vue.sample.db.SampleDB;
 import org.apache.empire.vue.sample.db.SampleDB.TDepartments;
 import org.apache.empire.vue.sample.db.SampleDB.TEmployees;
@@ -59,7 +61,8 @@ public class EmployeeService extends Service {
     @Produces(MediaType.APPLICATION_JSON)
     public Response getEmployeeFilter() {
 
-        TextResolver txtres = SampleServiceApp.instance().getTextResolver(Locale.ENGLISH);
+        RecordContext ctx = this.getRecordContext(); 
+	    TextResolver textResolver = ctx.getTextResolver();
 
         // Query Department options
         SampleDB db = getDatabase();
@@ -68,16 +71,16 @@ public class EmployeeService extends Service {
         cmd.join  (db.T_DEPARTMENTS.DEPARTMENT_ID, db.T_EMPLOYEES.DEPARTMENT_ID);
         cmd.groupBy(cmd.getSelectExprList());
         cmd.orderBy(db.T_DEPARTMENTS.NAME);
-        Options departmentOptions = db.queryOptionList(cmd, getRecordContext().getConnection());
+        Options departmentOptions = db.queryOptionList(cmd, ctx.getConnection());
         
         // Create Metadata
         TEmployees TE = db.T_EMPLOYEES;
         JsoColumnMeta[] meta = new JsoColumnMeta[] { 
-          new JsoColumnMeta(TE.EMPLOYEE_ID, txtres),
-          new JsoColumnMeta(TE.FIRST_NAME, txtres),
-          new JsoColumnMeta(TE.LAST_NAME, txtres),
-          new JsoColumnMeta(TE.DEPARTMENT_ID, txtres, departmentOptions, false, false, false),
-          new JsoColumnMeta(TE.GENDER, txtres),
+          new JsoColumnMeta(TE.EMPLOYEE_ID, textResolver),
+          new JsoColumnMeta(TE.FIRST_NAME, textResolver),
+          new JsoColumnMeta(TE.LAST_NAME, textResolver),
+          new JsoColumnMeta(TE.DEPARTMENT_ID, textResolver, departmentOptions, false, false, false),
+          new JsoColumnMeta(TE.GENDER, textResolver),
         };
         
         JsoRecordData filter = new JsoRecordData(meta);
@@ -142,16 +145,17 @@ public class EmployeeService extends Service {
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response getEmployee(@PathParam("employeeId") int employeeId) {
 
+        RecordContext ctx = this.getRecordContext(); 
 	    try {
 	        // return a record
-	        EmployeeRecord rec = new EmployeeRecord(getDatabase(), getRecordContext());
+	        EmployeeRecord rec = new EmployeeRecord(getDatabase(), ctx);
             rec.read(employeeId);
             JsoRecordData emp = new JsoRecordData(rec);
             return Response.ok(new JsoResultWithMeta(emp, rec.getMeta())).build();
 	        
 	    } catch(EmpireException e) {
 	        log.error("Unable to load employee with id {}", employeeId);
-	        return Response.serverError().build();
+            return getErrorResponse(e, ctx);
 	    }
 	}
 
@@ -160,29 +164,42 @@ public class EmployeeService extends Service {
     @Produces(MediaType.APPLICATION_JSON)
     public Response addEmployee() {
 
+        RecordContext ctx = this.getRecordContext(); 
         try {
             // return a record
-            EmployeeRecord rec = new EmployeeRecord(getDatabase(), getRecordContext());
+            EmployeeRecord rec = new EmployeeRecord(getDatabase(), ctx);
             rec.create();
             JsoRecordData emp = new JsoRecordData(rec);
             return Response.ok(new JsoResultWithMeta(emp, rec.getMeta())).build();
             
         } catch(EmpireException e) {
             log.error("Unable to create an employee record");
-            return Response.serverError().build();
+            return getErrorResponse(e, ctx);
         }
     }
 
     @POST
-    @Path("/set")
+    @Path("/update")
     @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
     public Response updateEmployee(JsoRecordData employeeData) {
 
-        EmployeeRecord rec = new EmployeeRecord(getDatabase(), getRecordContext());
-        rec.init(employeeData, employeeData.isNewRecord());
-        rec.update();
-        
-        return Response.ok().build();
+        RecordContext ctx = this.getRecordContext(); 
+        try {
+            // return a record
+            EmployeeRecord rec = new EmployeeRecord(getDatabase(), ctx);
+            rec.init(employeeData, employeeData.isNewRecord());
+            rec.update();
+            return Response.ok().build();
+            
+        } catch(RecordInitException e) {
+            log.error("Record initialization failed due to {}", e.getMessage());
+            return getErrorResponse(e.getFieldExeptions(), ctx);
+
+        } catch(EmpireException e) {
+            log.error("Unable to update employee with id {}", employeeData.get("employeeId"));
+            return getErrorResponse(e, ctx);
+        }
     }
 
     @GET
@@ -190,15 +207,16 @@ public class EmployeeService extends Service {
     @Produces(MediaType.APPLICATION_JSON)
     public Response deleteEmployee(@PathParam("employeeId") int employeeId) {
 
+        RecordContext ctx = this.getRecordContext(); 
         try {
             // return a record
             SampleDB db = getDatabase();
-            db.T_EMPLOYEES.deleteRecord(employeeId, getRecordContext().getConnection());
+            db.T_EMPLOYEES.deleteRecord(employeeId, ctx.getConnection());
             return Response.ok().build();
             
         } catch(EmpireException e) {
             log.error("Unable to delete employee with id {}", employeeId);
-            return Response.serverError().build();
+            return getErrorResponse(e, ctx);
         }
     }
 

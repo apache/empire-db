@@ -18,12 +18,15 @@
  */
 package org.apache.empire.vue.sample.db.records;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
 import org.apache.empire.commons.Options;
 import org.apache.empire.db.DBColumn;
 import org.apache.empire.db.DBRecord;
+import org.apache.empire.db.exceptions.FieldValueException;
+import org.apache.empire.rest.app.RecordInitException;
 import org.apache.empire.rest.app.SampleServiceApp;
 import org.apache.empire.rest.app.TextResolver;
 import org.apache.empire.rest.json.JsoColumnMeta;
@@ -97,6 +100,7 @@ public abstract class SampleRecord<T extends SampleTable> extends DBRecord {
             super.read(T, key, recordContext.getConnection());
         }
         // set all fields
+        List<FieldValueException> exptns = new ArrayList<FieldValueException>(0);
         for (DBColumn c : T.getColumns())
         {   // skip all key columns
             if (T.isKeyColumn(c))
@@ -110,8 +114,19 @@ public abstract class SampleRecord<T extends SampleTable> extends DBRecord {
                 continue; 
             }
             Object value = data.getValue(prop, c.getDataType());
-            // set Value 
-            this.setValue(c, value);
+            // set Value
+            try {
+                // set the value
+                this.setValue(c, value);
+            } catch(FieldValueException e) {
+                // add exception to list
+                exptns.add(e);
+            }
+        }
+        // Exceptions?
+        if (!exptns.isEmpty())
+        {   // Init failed with exceptions
+            throw new RecordInitException(exptns);
         }
     }
     

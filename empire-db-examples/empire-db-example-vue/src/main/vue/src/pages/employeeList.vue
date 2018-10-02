@@ -101,7 +101,6 @@
   import eInput from '../components/e-input'
   import eLabel from '../components/e-label'
   import eValue from '../components/e-value'
-  import app from '../App'
   // import $ from 'jquery'
 
   export default {
@@ -112,8 +111,7 @@
       eControl,
       eInput,
       eLabel,
-      eValue,
-      app
+      eValue
     },
 
     data () {

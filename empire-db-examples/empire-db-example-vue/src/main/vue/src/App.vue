@@ -21,6 +21,14 @@
       <button class="rdp-button" @click="doLogout" v-if="this.isLoggedIn()">Logout</button>
     </div>
 
+    <div id="messages" v-if="messages">
+      <ul>
+        <template v-for="item in messages">
+          <li>{{item}}</li>
+        </template>
+      </ul>
+    </div>
+
     <router-view></router-view>
 
   </div>
@@ -35,12 +43,24 @@
 
     data () {
       return {
-        employeeFilter: undefined
+        employeeFilter: undefined,
+        messages: undefined,
+        redirectWithError: false
       }
     },
 
     created: function () {
       this.startup()
+    },
+
+    watch: {
+      $route (to, from) {
+        if (this.redirectWithError) {
+          this.redirectWithError = false
+        } else {
+          this.clearMessages()
+        }
+      }
     },
 
     methods: {
@@ -49,6 +69,33 @@
       },
       clearData: function () {
         this.employeeFilter = undefined
+      },
+      clearMessages: function () {
+        this.messages = undefined
+      },
+      addMessages: function (msgs) {
+        if (this.messages) {
+          this.messages = this.messages.concat(msgs)
+        } else {
+          this.messages = msgs
+        }
+      },
+      redirect: function (target) {
+        this.clearMessages()
+        this.$router.push(target)
+      },
+      handleError: function (error, target) {
+        // redirect to target
+        if (target) {
+          this.redirectWithError = true
+          this.$router.push(target)
+        }
+        // set message
+        if (error.responseJSON) {
+          this.addMessages(error.responseJSON)
+        } else {
+          this.addMessages([ error.statusText ])
+        }
       },
       isLoggedIn: function () {
         if (EMPAPI.loggedIn === undefined) {

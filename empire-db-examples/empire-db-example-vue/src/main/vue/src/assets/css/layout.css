@@ -64,8 +64,8 @@ A:hover { text-decoration:underline;}
 
 
 #messages ul {
-    background-color: #FBF0F0;
-    border:2px solid #8F99EF;
+  background-color: #FBF0F0;
+  border:2px solid #922727;
 	list-style-type: square;
 	padding: 8px;
 	padding-left: 24px;
@@ -79,7 +79,7 @@ A:hover { text-decoration:underline;}
     padding-right:5px;
 */
 	color: #922727;
-    font-weight: bold;
+  font-weight: bold;
 }
 
 

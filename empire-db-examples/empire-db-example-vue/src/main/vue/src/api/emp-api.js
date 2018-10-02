@@ -134,7 +134,7 @@ const EMPAPI = {
   },
 
   updateEmployee: function (employeeData) {
-    return AJAX.postJSON('/employee/set', employeeData)
+    return AJAX.postJSON('/employee/update', employeeData)
   },
 
   deleteEmployee: function (employeeId) {

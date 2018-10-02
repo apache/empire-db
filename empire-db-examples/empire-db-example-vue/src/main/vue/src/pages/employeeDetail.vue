@@ -90,33 +90,30 @@
         EMPAPI.debug('create employee record')
         EMPAPI.createEmployeeRecord(this.employeeId)
           .done(response => (this.onLoadDone(response)))
-        /*
-          .fail(() => this.$router.push('/login'))
-        */
+          .fail(response => (this.$parent.handleError(response, '/employeeList')))
       },
       loadDetails: function () {
         EMPAPI.debug('load employee record')
         EMPAPI.readEmployeeRecord(this.employeeId)
           .done(response => (this.onLoadDone(response)))
-        /*
-          .fail(() => this.$router.push('/login'))
-        */
+          .fail(response => (this.$parent.handleError(response, '/employeeList')))
       },
       doSave: function (event) {
+        this.$parent.clearMessages()
         EMPAPI.debug('load employee record')
         EMPAPI.updateEmployee(this.employeeRecord.data)
           .done(response => (this.onUpdateDone(response)))
+          .fail(response => (this.$parent.handleError(response)))
       },
       doDelete: function (event) {
         if (!confirm('Do you really want to delete this employee?')) {
           return
         }
+        this.$parent.clearMessages()
         EMPAPI.debug('load employee record')
         EMPAPI.deleteEmployee(this.employeeId)
           .done(response => (this.onUpdateDone(response)))
-        /*
-          .fail(() => this.$router.push('/login'))
-        */
+          .fail(response => (this.$parent.handleError(response, '/employeeList')))
       },
       doReturnToList: function (event) {
         this.$router.push('/employeeList')
