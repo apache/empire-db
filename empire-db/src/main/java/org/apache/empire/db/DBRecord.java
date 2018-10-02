@@ -616,7 +616,8 @@ public class DBRecord extends DBRecordData implements Record, Cloneable
         if ((value instanceof String) && ((String)value).length()==0)
             value = null;
         // Has Value changed?
-        if (ObjectUtils.compareEqual(fields[index], value))
+        Object current = fields[index]; 
+        if (current!=ObjectUtils.NO_VALUE && ObjectUtils.compareEqual(current, value))
             return; // no change
         // Field has changed
         DBColumn column = rowset.getColumn(index);
