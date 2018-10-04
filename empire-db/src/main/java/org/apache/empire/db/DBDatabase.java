@@ -181,6 +181,26 @@ public abstract class DBDatabase extends DBObject
     }
     
     /**
+     * Frees all resources and unregisters database in global map.
+     * Do not reuse this object afterwards!
+     * Hint: Database must be closed!
+     */
+    public void destroy()
+    {
+        if (isOpen())
+            throw new MiscellaneousErrorException("Database is open. Destroy not possible.");
+        // unregister
+        databaseMap.remove(this.instanceId);
+        this.instanceId = null;
+        // clear all 
+        this.schema = null;
+        this.linkName = null;
+        tables.clear();
+        relations.clear();
+        views.clear();
+    }
+    
+    /**
      * registers the database in the global list of databases
      * @param dbid
      */
