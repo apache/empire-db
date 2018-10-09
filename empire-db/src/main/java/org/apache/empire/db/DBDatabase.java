@@ -29,9 +29,11 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
-import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.empire.commons.ObjectUtils;
 import org.apache.empire.commons.Options;
@@ -105,21 +107,29 @@ public abstract class DBDatabase extends DBObject
     /** 
      * global map of all database instances that have been allocated
      */
-    private static HashMap<String, WeakReference<DBDatabase>> databaseMap = new HashMap<String, WeakReference<DBDatabase>>();
+    private static Map<String, WeakReference<DBDatabase>> databaseMap = new LinkedHashMap<String, WeakReference<DBDatabase>>();
     
     /** 
      * find a database by id
      */
-    public static DBDatabase findById(String dbIdent)
+    public static synchronized DBDatabase findById(String dbIdent)
     {
         WeakReference<DBDatabase> ref = databaseMap.get(dbIdent);
-        return (ref!=null) ? ref.get() : null;
+        if (ref==null)
+            return null; // not found
+        DBDatabase db = ref.get();
+        if (db==null) 
+        {   // object reference not valid
+            log.warn("Database width id='{}' habe been destroyed!", dbIdent);
+            databaseMap.remove(dbIdent);
+        }
+        return db;
     }
     
     /** 
      * find a database by id
      */
-    public static DBDatabase findByClass(Class<? extends DBDatabase> cls)
+    public static synchronized DBDatabase findByClass(Class<? extends DBDatabase> cls)
     {
         for (WeakReference<DBDatabase> ref : databaseMap.values())
         {   // find database by class
@@ -157,7 +167,6 @@ public abstract class DBDatabase extends DBObject
     {
         this.schema = schema;
         this.linkName = linkName;
-
         // register database in global map
         register(getClass().getSimpleName());
     }
@@ -185,7 +194,7 @@ public abstract class DBDatabase extends DBObject
      * Do not reuse this object afterwards!
      * Hint: Database must be closed!
      */
-    public void destroy()
+    public synchronized void destroy()
     {
         if (isOpen())
             throw new MiscellaneousErrorException("Database is open. Destroy not possible.");
@@ -204,33 +213,69 @@ public abstract class DBDatabase extends DBObject
      * registers the database in the global list of databases
      * @param dbid
      */
-    protected void register(String dbid)
+    protected synchronized void register(String dbid)
     {
         // Check if it exists
+        Set<String> invalidKeys = new HashSet<String>();
         for (Map.Entry<String, WeakReference<DBDatabase>> e : databaseMap.entrySet())
         {   
-            if (e.getValue().get()==this)
+            DBDatabase dbInst = e.getValue().get(); 
+            if (dbInst==this)
             {   // Remove from set
                 log.error("Instance of database "+getClass().getName()+" already registered. Not registering same instance twice!");
                 throw new ItemExistsException(e.getKey());
             }
+            else if (dbInst==null) 
+            {   // remove this instance
+                invalidKeys.add(e.getKey());
+            }
         }
-        // find a unique key
-        int inst=0;
-        for (String key : databaseMap.keySet())
+        // Remove all invalid keys
+        for (String key : invalidKeys)
         {
-            if (key.startsWith(dbid) && databaseMap.get(key).get()!=null)
-                inst++;
+            databaseMap.remove(key);
         }
-        if (inst>0)
-            this.instanceId = dbid+":"+String.valueOf(inst+1);
+        invalidKeys.clear();
+        // Find a unique key
+        if (findById(dbid)!=null)
+        {   int maxInstId=1;
+            String instPrefix = dbid+":";
+            for (String key : databaseMap.keySet())
+            {
+                if (databaseMap.get(key).get()==null)
+                {   // not valid any more
+                    log.warn("Database width id='{}' habe been destroyed!", key);
+                    continue; 
+                }
+                else if (key.startsWith(instPrefix))
+                {   // parse inst
+                    int instId = Integer.parseInt(key.substring(instPrefix.length()));
+                    if (instId > maxInstId)
+                        maxInstId = instId; 
+                }
+            }
+            // set global id
+            this.instanceId = dbid+":"+String.valueOf(maxInstId+1);
+        }
         else
+        {   // use provided dbid
             this.instanceId = dbid;
+        }
         // register database in global map
         log.info("Instance of database {} registered with instanceid={}", getClass().getName(), this.instanceId);
         databaseMap.put(this.instanceId, new WeakReference<DBDatabase>(this));
     }
 
+    /**
+     * returns the default database id
+     * Override this to customize
+     * @return the defaultId
+     */
+    protected String getDefaultId()
+    {
+        return getClass().getSimpleName(); 
+    }
+    
     /**
      * Returns the database instance id
      * @return the identifier of the database
