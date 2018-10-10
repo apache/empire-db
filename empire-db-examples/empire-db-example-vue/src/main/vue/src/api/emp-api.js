@@ -43,7 +43,7 @@ const AJAX = {
     beforeSend: function (jqXHR) {
       //
       // Add additional header values e.g.
-      //   jqXHR.setRequestHeader('X-RDPLAN-????', 'some value')
+      //   jqXHR.setRequestHeader('X-EMPVUE-????', 'some value')
       //
       EMPAPI.debug('Sensing request!' + this.url)
     },

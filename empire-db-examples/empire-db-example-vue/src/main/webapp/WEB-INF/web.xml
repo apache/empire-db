@@ -30,11 +30,9 @@
 		<url-pattern>/api/*</url-pattern>
 	</servlet-mapping>
 
-	<!-- 
 	<welcome-file-list>
 		<welcome-file>index.html</welcome-file>
 	</welcome-file-list>
-	 -->
 	
 	<listener>
 		<listener-class>org.apache.empire.rest.app.SampleServiceApp$ContextListener</listener-class>

@@ -18,7 +18,7 @@
 
     <div class="titleDiv">
       <span>Employee Management Application</span>
-      <button class="rdp-button" @click="doLogout" v-if="this.isLoggedIn()">Logout</button>
+      <button @click="doLogout" v-if="this.isLoggedIn()">Logout</button>
     </div>
 
     <div id="messages" v-if="messages">

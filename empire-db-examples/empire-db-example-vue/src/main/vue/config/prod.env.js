@@ -19,7 +19,7 @@
 module.exports = {
   DEBUG_MODE: false,
   NODE_ENV: '"production"',
-  RDP_SERVICE_URL: '"/api"',
-  RDP_DEFAULT_USER: '""',
-  RDP_DEFAULT_PWD: '""'
+  EMP_SERVICE_URL:  '"api"',
+  EMP_DEFAULT_USER: '""',
+  EMP_DEFAULT_PWD: '""'
 }
