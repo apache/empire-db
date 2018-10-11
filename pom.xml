@@ -548,8 +548,10 @@
                         <excludes>
                             <exclude>**/.idea/**</exclude>
 			       			<exclude>**/*.json</exclude>
+			       			<exclude>**/*.vue</exclude>
+			       			<exclude>**/static/js/*.js</exclude>
+			       			<exclude>**/app.*.css</exclude>
 			       			<exclude>**/readme.txt</exclude>
-			       			<exclude>**/empire-db-example-vue/src/main/webapp/static/**</exclude>
                         </excludes>
 		                <encoding>UTF-8</encoding>
 		            </configuration>
