@@ -466,6 +466,7 @@
 			       			<exclude>**/target/**</exclude>
                             <exclude>**/.idea/**</exclude>
 			       			<exclude>**/.settings/**</exclude>
+			       			<exclude>**/empire-db-example-vue/src/main/webapp/static/**</exclude>
 			       			<!-- file types -->
                             <exclude>**/*.iml</exclude>
 			       			<exclude>**/*.json</exclude>
@@ -476,6 +477,7 @@
 			       			<exclude>**/.project</exclude>
 			       			<exclude>**/.classpath</exclude>
 			       			<exclude>**/.tomcatplugin</exclude>
+			       			<exclude>**/.babelrc</exclude>
 			       			<!-- should the sample databases be created in target? -->
 			       			<exclude>**/hsqldb/sample.*</exclude>
 			       		</excludes>
