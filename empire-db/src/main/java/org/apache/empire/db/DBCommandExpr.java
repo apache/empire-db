@@ -404,6 +404,20 @@ public abstract class DBCommandExpr extends DBExpr
 
     /**
      * Constructs a new DBCombinedCmd object with this object,
+     * the key word= "UNION ALL" and the selected DBCommandExpr.
+     * 
+     * @see org.apache.empire.db.DBCombinedCmd
+     * @param other the second DBCommandExpr
+     * @return the new DBCombinedCmd object
+     */
+    public DBCommandExpr unionAll(DBCommandExpr other)
+    {   // give driver a chance to subclass DBCombinedCmd
+        DBDatabaseDriver driver = getDatabase().getDriver();
+        return driver.createCombinedCommand(this, "UNION ALL", other);
+    }
+
+    /**
+     * Constructs a new DBCombinedCmd object with this object,
      * the key word= "INTERSECT" and the selected DBCommandExpr.
      * 
      * @param other the second DBCommandExpr
