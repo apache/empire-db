@@ -1,8 +1,43 @@
 Apache Empire-db
-Copyright 2008-2017 The Apache Software Foundation
+Copyright 2008-2018 The Apache Software Foundation
 
 For more Information about a particular issue please visit
 https://issues.apache.org/jira/browse/EMPIREDB
+
+--------------
+Release 2.4.7:
+--------------
+
+** Improvement
+	EMPIREDB-278 Provide new accessors for Enum values on records
+	EMPIREDB-277 JSF2 Extensions: Allow other inputControl to be used with selectTag
+	EMPIREDB-276 Add support for pseudo table (like DUAL in Oracle)
+	EMPIREDB-275 Allow provision of sequence gerneration expression for bulk insert statements
+	EMPIREDB-274 Oracle: Correct MergeInto syntax
+	EMPIREDB-272 Provide easy way to select column with a qualfied alias
+	EMPIREDB-271 New application example with Vue.js framework and REST service
+	EMPIREDB-270 JSF2 Extensions: Allow records to provide context specific css styles for JSF tags
+	EMPIREDB-267 Allow DBCmdParams to be used as a value expression in an SQL statement
+	EMPIREDB-266 Map query columns in DBReader to underlying table columns
+	EMPIREDB-264 MySQL Driver: Update Keywords for version 5.7
+	EMPIREDB-262 Add special enum handling to ObjectUtils.compareEqual function
+	EMPIREDB-258 MS-SQL Server: Improve Driver to support latest features  
+	EMPIREDB-256 Allow page redirect in overrides of method Page.checkPageAcces()
+	EMPIREDB-254 Allow detection and handling of constraint violations when inserting or updating records
+	EMPIREDB-253 Add UNION ALL support to DBCommand
+	EMPIREDB-252 MySQL: Added Support for database specific CodeGenParser
+	EMPIREDB-251 MySQL: Added Support for TINYINT, MEDIUMINT Integer Types
+
+** Bugfix
+	EMPIREDB-280 DBRecord.setValue does not correctly validate null for new records
+	EMPIREDB-279 Sequences left after dropping my Database. Can't create a new one.
+	EMPIREDB-273 Improve multi-region support in TagEncodingHelper / TextInputControl
+	EMPIREDB-269 DBDatabaseDriverPostgreSQL: wrong SQLPhrase for DBSystemDate
+	EMPIREDB-265 DDL syntax for DROP statements contains invalid quotes when a schema name is given.
+	EMPIREDB-263 Not possible to set skipRows unless limitRows is also set
+	EMPIREDB-261 DBCommand is not re-usable, when a CLOB column is involved
+	EMPIREDB-255 Compiler error in code generated from codegen plugin
+	EMPIREDB-250 MySQL: wrong SQL for CREATE VIEW with DBCombinedCmd
 
 --------------
 Release 2.4.6:
