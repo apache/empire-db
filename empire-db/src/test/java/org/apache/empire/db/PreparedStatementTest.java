@@ -46,7 +46,7 @@ public class PreparedStatementTest{
         db.open(driver, conn);
         DBSQLScript script = new DBSQLScript();
         db.getCreateDDLScript(db.getDriver(), script);
-        script.run(db.getDriver(), conn, false);
+        script.executeAll(db.getDriver(), conn, false);
         
         DBRecord department = new DBRecord();
         department.create(db.DEPARTMENT);

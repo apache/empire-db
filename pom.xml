@@ -471,7 +471,6 @@
                             <exclude>**/*.iml</exclude>
 			       			<exclude>**/*.json</exclude>
 			       			<!-- specific files -->
-			       			<exclude>release.properties</exclude>
                             <exclude>**/META-INF/MANIFEST.MF</exclude>
 			      			<exclude>**/dependencies.txt</exclude>
 			       			<exclude>**/.project</exclude>

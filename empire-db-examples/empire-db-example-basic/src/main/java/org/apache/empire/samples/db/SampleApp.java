@@ -255,7 +255,7 @@ public class SampleApp
 		// Show DDL Statement
 		System.out.println(script.toString());
 		// Execute Script
-		script.run(driver, conn, false);
+		script.executeAll(driver, conn, false);
 		// Commit
 		db.commit(conn);
 	}

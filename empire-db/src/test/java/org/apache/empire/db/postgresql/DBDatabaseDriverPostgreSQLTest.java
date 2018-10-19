@@ -82,7 +82,7 @@ public class DBDatabaseDriverPostgreSQLTest
 			DBSQLScript script = new DBSQLScript();
 			db.getCreateDDLScript(db.getDriver(), script);
 			System.out.println(script.toString());
-			script.run(db.getDriver(), dbResource.getConnection(), false);
+			script.executeAll(db.getDriver(), dbResource.getConnection(), false);
 		}
 		
 		conn.close();

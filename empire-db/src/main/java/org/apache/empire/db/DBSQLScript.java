@@ -400,32 +400,6 @@ public class DBSQLScript implements Iterable<String>
     }
 
     /**
-     * Executes all statements one by one. Replaced by executeAll()
-     * 
-     * @param driver the driver used for statement execution
-     * @param conn the connection
-     * @param ignoreErrors true if errors should be ignored
-     * @return number of records affected
-     */
-    @Deprecated
-    public final int run(DBDatabaseDriver driver, Connection conn, boolean ignoreErrors)
-    {
-        return executeAll(driver, conn, ignoreErrors);
-    }
-
-    /**
-     * Runs all SQL Statements using the supplied driver and connection.
-     * 
-     * @param driver the driver used for statement execution
-     * @param conn the connection
-     */
-    @Deprecated
-    public final void run(DBDatabaseDriver driver, Connection conn)
-    {
-        executeAll(driver, conn, false);
-    }
-
-    /**
      * Returns an iterator
      */
     @Override

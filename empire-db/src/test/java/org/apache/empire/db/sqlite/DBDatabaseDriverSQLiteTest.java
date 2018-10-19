@@ -56,7 +56,7 @@ public class DBDatabaseDriverSQLiteTest{
         db.open(driver, dbResource.getConnection());
         DBSQLScript script = new DBSQLScript();
         db.getCreateDDLScript(db.getDriver(), script);
-        script.run(db.getDriver(), dbResource.getConnection(), false);
+        script.executeAll(db.getDriver(), dbResource.getConnection(), false);
         
         DBRecord dep = new DBRecord();
         dep.create(db.DEPARTMENT);
@@ -97,7 +97,7 @@ public class DBDatabaseDriverSQLiteTest{
         script = new DBSQLScript();
         db.getDriver().getDDLScript(DBCmdType.DROP, db.EMPLOYEE, script);
         db.getDriver().getDDLScript(DBCmdType.DROP, db.DEPARTMENT, script);
-        script.run(db.getDriver(), conn, true);
+        script.executeAll(db.getDriver(), conn, true);
     }
     
     
@@ -114,7 +114,7 @@ public class DBDatabaseDriverSQLiteTest{
         db.open(driver, dbResource.getConnection());
         DBSQLScript script = new DBSQLScript();
         db.getCreateDDLScript(db.getDriver(), script);
-        script.run(db.getDriver(), dbResource.getConnection(), false);
+        script.executeAll(db.getDriver(), dbResource.getConnection(), false);
         
         DBRecord data = new DBRecord();
         data.create(db.DATA);
@@ -130,7 +130,7 @@ public class DBDatabaseDriverSQLiteTest{
         
         script = new DBSQLScript();
         db.getDriver().getDDLScript(DBCmdType.DROP, db.DATA, script);
-        script.run(db.getDriver(), conn, true);
+        script.executeAll(db.getDriver(), conn, true);
     }
     
     /**

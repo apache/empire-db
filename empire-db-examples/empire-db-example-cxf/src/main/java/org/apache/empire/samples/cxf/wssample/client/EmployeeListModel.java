@@ -26,10 +26,11 @@ import javax.swing.DefaultListModel;
 import org.apache.empire.samples.cxf.wssample.common.Employee;
 
 // A very simple ListModel to display emloyees in a listview.
-@SuppressWarnings("serial")
 public class EmployeeListModel extends DefaultListModel {
 
-	public void setListData(List<Employee> data) {
+    private static final long serialVersionUID = 1L;
+
+    public void setListData(List<Employee> data) {
 		this.removeAllElements();
 
 		if (data != null) {

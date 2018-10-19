@@ -72,7 +72,7 @@ public class DBDatabaseDriverMSSqlDateTest {
 			DBSQLScript script = new DBSQLScript();
 			db.getCreateDDLScript(db.getDriver(), script);
 			System.out.println(script.toString());
-			script.run(db.getDriver(), dbResource.getConnection(), false);
+			script.executeAll(db.getDriver(), dbResource.getConnection(), false);
 		}
 
 		// STEP 5: Clear Database (Delete all records)
@@ -122,7 +122,7 @@ public class DBDatabaseDriverMSSqlDateTest {
 	private static void clearDatabase(Connection conn, DateTimeTestDB db) {
 		DBCommand cmd = db.createCommand();
 		// Delete all Employees (no constraints)
-		db.executeSQL(cmd.getDelete(db.USER_INFO), conn);
+		db.executeDelete(db.USER_INFO, cmd, conn);
 	}
 
 	/**
@@ -155,7 +155,9 @@ public class DBDatabaseDriverMSSqlDateTest {
 
 		public static class UserInfoTable extends DBTable {
 
-			public final DBTableColumn ID;
+            private static final long serialVersionUID = 1L;
+            
+            public final DBTableColumn ID;
 			public final DBTableColumn USER;
 			public final DBTableColumn REG_DATE;
 			public final DBTableColumn LAST_LOGIN;

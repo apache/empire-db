@@ -232,7 +232,7 @@ public class SampleApplication implements WebApplication {
         // Show DLL Statements
         System.out.println(script.toString());
         // Execute Script
-        script.run(driver, conn, false);
+        script.executeAll(driver, conn, false);
         db.commit(conn);
         // Open again
         if (db.isOpen()==false)

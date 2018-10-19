@@ -97,7 +97,7 @@ public class EmpireDaoSupport extends JdbcDaoSupport {
         // Show DLL Statement
         System.out.println(script.toString());
         // Execute Script
-        script.run(driver, conn, false);
+        script.executeAll(driver, conn, false);
     }
 
     public void initializeDatabase() {

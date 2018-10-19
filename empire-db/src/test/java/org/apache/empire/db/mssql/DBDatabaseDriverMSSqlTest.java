@@ -57,7 +57,7 @@ public class DBDatabaseDriverMSSqlTest
 			DBSQLScript script = new DBSQLScript();
 			db.getCreateDDLScript(db.getDriver(), script);
 			System.out.println(script.toString());
-			script.run(db.getDriver(), dbResource.getConnection(), false);
+			script.executeAll(db.getDriver(), dbResource.getConnection(), false);
 		}
 		
 		// STEP 5: Clear Database (Delete all records)
@@ -89,7 +89,7 @@ public class DBDatabaseDriverMSSqlTest
     {
 		DBCommand cmd = db.createCommand();
 		// Delete all Employees (no constraints)
-		db.executeSQL(cmd.getDelete(db.DEPARTMENT), conn);
+		db.executeDelete(db.DEPARTMENT, cmd, conn);
 	}
 	
 	/**

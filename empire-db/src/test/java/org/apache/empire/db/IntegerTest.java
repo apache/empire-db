@@ -196,7 +196,7 @@ public class IntegerTest {
                 db.getDriver().getDDLScript(DBCmdType.DROP, table, script2);
             }
         }
-        script2.run(driver, conn, false);
+        script2.executeAll(driver, conn, false);
         // Commit
         db.commit(conn);
         
@@ -207,7 +207,7 @@ public class IntegerTest {
         // Show DDL Statement
         LOGGER.info(script.toString());
         // Execute Script
-        script.run(driver, conn, false);
+        script.executeAll(driver, conn, false);
         // Commit
         db.commit(conn);
     }
