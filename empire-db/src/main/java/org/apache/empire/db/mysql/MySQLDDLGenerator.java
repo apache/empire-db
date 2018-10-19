@@ -202,6 +202,7 @@ public class MySQLDDLGenerator extends DBDDLGenerator<DBDatabaseDriverMySQL>
      * @param v the view to create
      * @param script the sql script to which to append the dll command(s)
      */
+    @Override
     protected void createView(DBView v, DBSQLScript script)
     {
         // Create the Command
