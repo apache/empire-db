@@ -21,7 +21,7 @@
 	</parent>
 	<artifactId>empire-db-example-vue</artifactId>
 	<packaging>war</packaging>
-	<name>Empire-db Vue.js Example</name>
+	<name>Apache Empire-db Vue.js Example</name>
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
