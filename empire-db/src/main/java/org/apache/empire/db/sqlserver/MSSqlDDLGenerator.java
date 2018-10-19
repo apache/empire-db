@@ -20,13 +20,13 @@ package org.apache.empire.db.sqlserver;
 
 import org.apache.empire.commons.ObjectUtils;
 import org.apache.empire.commons.StringUtils;
+import org.apache.empire.data.Column;
 import org.apache.empire.data.DataType;
-import org.apache.empire.db.DBColumn;
 import org.apache.empire.db.DBDDLGenerator;
 import org.apache.empire.db.DBDatabase;
+import org.apache.empire.db.DBDatabaseDriver.DBSeqTable;
 import org.apache.empire.db.DBSQLScript;
 import org.apache.empire.db.DBTableColumn;
-import org.apache.empire.db.DBDatabaseDriver.DBSeqTable;
 
 public class MSSqlDDLGenerator extends DBDDLGenerator<DBDatabaseDriverMSSQL>
 {
@@ -64,7 +64,7 @@ public class MSSqlDDLGenerator extends DBDDLGenerator<DBDatabaseDriverMSSQL>
                 // Check for identity column
                 if (driver.isUseSequenceTable()==false)
                 {   // Make this column the identity column
-                    int minValue = ObjectUtils.getInteger(c.getAttribute(DBColumn.DBCOLATTR_MINVALUE), 1);
+                    int minValue = ObjectUtils.getInteger(c.getAttribute(Column.COLATTR_MINVALUE), 1);
                     sql.append(" IDENTITY(");
                     sql.append(String.valueOf(minValue));
                     sql.append(", 1) NOT NULL");

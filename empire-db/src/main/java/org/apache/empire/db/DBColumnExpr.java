@@ -83,7 +83,7 @@ public abstract class DBColumnExpr extends DBExpr
     public abstract String getName();
     
     /**
-     * Indicates wheter this function is an aggregate (sum, min, max, avg, ...) or not
+     * Indicates whether this function is an aggregate (sum, min, max, avg, ...) or not
      * @return true if the column expression represents an aggregate
      */
     public abstract boolean isAggregate();

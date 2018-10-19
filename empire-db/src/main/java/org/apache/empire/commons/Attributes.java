@@ -156,6 +156,11 @@ public class Attributes extends AbstractSet<Attributes.Attribute> implements Clo
         String name = (item instanceof Attribute) ? ((Attribute)item).getName() : item.toString();
         return (indexOf(name)>=0);
     }
+
+    public final boolean contains(String name)
+    {
+        return contains((Object)name); 
+    }
     
     @Override
     public boolean add(Attribute a)
@@ -177,6 +182,11 @@ public class Attributes extends AbstractSet<Attributes.Attribute> implements Clo
         // remove
         list().remove(i);
         return true;
+    }
+    
+    public final boolean remove(String name)
+    {
+        return remove((Object)name);
     }
 
     /**

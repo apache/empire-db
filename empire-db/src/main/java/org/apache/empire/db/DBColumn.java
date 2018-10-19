@@ -32,6 +32,7 @@ import org.apache.empire.db.exceptions.DatabaseNotOpenException;
 import org.apache.empire.db.expr.set.DBSetExpr;
 import org.apache.empire.exceptions.InvalidArgumentException;
 import org.apache.empire.exceptions.ItemNotFoundException;
+import org.apache.empire.exceptions.ObjectNotValidException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Element;
@@ -56,26 +57,6 @@ public abstract class DBColumn extends DBColumnExpr
   
     private static final Logger log = LoggerFactory.getLogger(DBColumn.class);
     
-    // Predefined column attributes 
-    
-    /**
-     * @deprecated
-     * Use Column.COLATTR_MINVALUE  
-     */
-    public static final String DBCOLATTR_MINVALUE  = Column.COLATTR_MINVALUE;
-    
-    /**
-     * @deprecated
-     * Use Column.COLATTR_MAXVALUE  
-     */
-    public static final String DBCOLATTR_MAXVALUE  = Column.COLATTR_MAXVALUE;
-    
-    /**
-     * @deprecated
-     * Use Column.COLATTR_DATETIMEPATTERN 
-     */
-    public static final String DBCOLATTR_DATETIMEPATTERN  = Column.COLATTR_DATETIMEPATTERN;
-
     /**
      * Read only column (Boolean)
      */
@@ -360,27 +341,29 @@ public abstract class DBColumn extends DBColumnExpr
     public String getFullName()
     {
         if (rowset==null)
-            return name;
+            throw new ObjectNotValidException(this);
         return rowset.getFullName()+"."+name;
     }
 
     /**
-     * returns the qualified Name of this column
+     * returns the qualified alias name for this column
      */
-    public String qualifiedAlias()
+    public String getAlias()
     {
-        String rsName = getRowSet().getName();
+        if (rowset==null)
+            throw new ObjectNotValidException(this);
+        String rsName = rowset.getName();
         if (StringUtils.isEmpty(rsName))
-            return getName();
-        return rsName + "_" + getName();
+            return name;
+        return rsName + "_" + name;
     }
 
     /**
-     * returns the column as an expression with a full qualified alias
+     * returns an expression that renames the column with its alias name
      */
     public DBColumnExpr qualified()
     {
-        return this.as(qualifiedAlias());
+        return this.as(getAlias());
     }
 
     /**
