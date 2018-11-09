@@ -412,18 +412,18 @@ public abstract class WebApplication
             if (commit)
             { // success: commit all changes
                 db.commit(conn);
-                log.debug("REQUEST {}: commited.");
+                log.debug("REQUEST commited.");
             }
             else
             { // failure: rollback all changes
                 db.rollback(conn);
-                log.debug("REQUEST {}: rolled back.");
+                log.debug("REQUEST rolled back.");
             }
             // Release Connection
             conn.close();
             // done
             if (log.isDebugEnabled())
-                log.debug("REQUEST {}: returned connection to pool.");
+                log.debug("REQUEST returned connection to pool.");
         }
         catch (SQLException e)
         {
