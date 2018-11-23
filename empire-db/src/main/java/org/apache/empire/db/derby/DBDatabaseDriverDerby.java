@@ -197,6 +197,9 @@ public class DBDatabaseDriverDerby extends DBDatabaseDriver
             case SQL_CURRENT_DATETIME:        return "CURRENT_TIMESTAMP";
             case SQL_DATETIME_PATTERN:        return "yyyy-MM-dd HH:mm:ss";
             case SQL_DATETIME_TEMPLATE:       return "'{0}'";
+            case SQL_CURRENT_TIME:            return "CURRENT_TIME";
+            case SQL_TIME_PATTERN:            return "HH:mm:ss";
+            case SQL_TIME_TEMPLATE:           return "'{0}'";
             // functions
             case SQL_FUNC_COALESCE:           return "coalesce(?, {0})";
             case SQL_FUNC_SUBSTRING:          return "substr(?, {0})";
@@ -253,6 +256,7 @@ public class DBDatabaseDriverDerby extends DBDatabaseDriver
            case FLOAT:    return "CAST(? AS DECIMAL)";
            case DATE:      return "CAST(? AS DATE)";
            case DATETIME:  return "CAST(? AS TIMESTAMP)";
+           case TIME:      return "CAST(? AS TIME)";
            // Convert to text
            case TEXT:
                 return "CAST(? AS CHAR)";

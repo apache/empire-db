@@ -354,6 +354,7 @@ public class DBModelChecker
                 break;
             case DATE:
             case DATETIME:
+            case TIME:
                 checkDateColumn(column, remoteColumn, handler);
                 break;
             case CHAR:
@@ -442,7 +443,7 @@ public class DBModelChecker
         checkColumnNullable(column, remoteColumn, handler);
 
         // check type
-        if (!(remoteColumn.getDataType() == DataType.DATE || remoteColumn.getDataType() == DataType.DATETIME))
+        if (!(remoteColumn.getDataType() == DataType.DATE || remoteColumn.getDataType() == DataType.DATETIME || remoteColumn.getDataType() == DataType.TIME))
         {
             handler.columnTypeMismatch(column, remoteColumn.getDataType());
         }
@@ -605,8 +606,10 @@ public class DBModelChecker
                 empireType = DataType.DATE;
                 break;
             case Types.TIMESTAMP:
-            case Types.TIME:
                 empireType = DataType.DATETIME;
+                break;
+            case Types.TIME:
+                empireType = DataType.TIME;
                 break;
             case Types.CHAR:
                 empireType = DataType.CHAR;

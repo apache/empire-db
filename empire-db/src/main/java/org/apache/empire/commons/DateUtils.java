@@ -133,7 +133,12 @@ public class DateUtils
     {
         return setTime(date, 0, 0, 0, 0);
     }
-    
+
+    public static Date getTimeOnly(Date date)
+    {
+        return setDate(date, 0, 0, 0);
+    }
+
     // ------- parsing functions -----
 
     public static Date parseDate(String sDate, Locale locale)
