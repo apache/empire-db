@@ -390,7 +390,7 @@ public class DBTableColumn extends DBColumn
                         else if (type==DataType.DATE)
                             datePattern = datePattern.substring(0, datePattern.indexOf(' ')); // Strip off time
                         else if (dateValue.length()<=12) // not enough characters for a date-time, assume it's a date for backwards compatability
-                            datePattern = datePattern.substring(0, datePattern.indexOf(' ')); // Strip off date
+                            datePattern = datePattern.substring(0, datePattern.indexOf(' ')); // Strip off time
                     }
                     try
                     { 	// Parse date time value
