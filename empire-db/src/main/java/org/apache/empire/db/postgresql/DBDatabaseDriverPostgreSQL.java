@@ -412,21 +412,50 @@ public class DBDatabaseDriverPostgreSQL extends DBDatabaseDriver
         }
     }
 
-    
+    @Override
+    public Object getColumnAutoValue(DBDatabase db, DBTableColumn column, Connection conn) 
+    {
+
+        DataType type = column.getDataType();
+        if (type == DataType.AUTOINC) {
+            // Find sequence name
+            String seqName = getSequenceName(db, column, conn);
+            // Query
+            return getNextSequenceValue(db, seqName, 1, conn);
+        }
+
+        return super.getColumnAutoValue(db, column, conn);
+    }
+
     /**
-     * @see DBDatabaseDriver#getNextSequenceValue(DBDatabase, String, int, Connection)
+     * Returns the sequence name for the given {@code DBTableColumn}. It uses
+     * the PostgreSQL function {@code pg_get_serial_sequence}.
+     *
+     * @param db the Database where the sequence is
+     * @param column the column that has a sequence.
+     * @param conn the connection to use for query
+     * @return the sequence name for the given {@code DBTableColumn}
      */
+    public String getSequenceName(DBDatabase db, DBTableColumn column, Connection conn) 
+    {
+        // Use find PostgreSQL auto-generated sequence
+        String sqlCmd = "SELECT pg_get_serial_sequence(?, ?)";
+        Object[] sqlParams = {column.getRowSet().getName().toLowerCase(), column.getName().toLowerCase()};
+        String seqName = db.querySingleString(sqlCmd, sqlParams, null, conn);
+        if (seqName == null) { // Error!
+            log.error("getNextSequenceName: Invalid sequence value for column " + column.getName());
+        }
+        return seqName;
+    }
+
     @Override
     public Object getNextSequenceValue(DBDatabase db, String seqName, int minValue, Connection conn)
-    { 
+    {
         // Use PostgreSQL Sequences
-        StringBuilder sql = new StringBuilder(80);
-        sql.append("SELECT nextval('");
-        db.appendQualifiedName(sql, seqName, detectQuoteName(seqName));
-        sql.append("')");
-        Object val = db.querySingleValue(sql.toString(), null, conn);
-        if (val == null)
-        { // Error!
+        String sqlCmd = "SELECT nextval(?)";
+        Object[] sqlParams = {seqName};
+        Object val = db.querySingleValue(sqlCmd, sqlParams, conn);
+        if (val == null) { // Error!
             log.error("getNextSequenceValue: Invalid sequence value for sequence " + seqName);
         }
         return val;

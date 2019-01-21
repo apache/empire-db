@@ -19,12 +19,10 @@
 package org.apache.empire.db.postgresql;
 
 import org.apache.empire.data.DataType;
-import org.apache.empire.db.DBColumn;
 import org.apache.empire.db.DBDDLGenerator;
 import org.apache.empire.db.DBDatabase;
 import org.apache.empire.db.DBExpr;
 import org.apache.empire.db.DBSQLScript;
-import org.apache.empire.db.DBTable;
 import org.apache.empire.db.DBTableColumn;
 
 public class PostgreDDLGenerator extends DBDDLGenerator<DBDatabaseDriverPostgreSQL>
@@ -78,23 +76,6 @@ public class PostgreDDLGenerator extends DBDDLGenerator<DBDatabaseDriverPostgreS
         return true;
     }
     
-    @Override
-    protected void createDatabase(DBDatabase db, DBSQLScript script)
-    {
-        // Create all Sequences
-        for (DBTable table : db.getTables())
-        {
-            for (DBColumn dbColumn : table.getColumns()) {
-                DBTableColumn c = (DBTableColumn) dbColumn;
-                if (c.getDataType() == DataType.AUTOINC) {
-                    createSequence(db, c, script);
-                }
-            }
-        }
-        // default processing
-        super.createDatabase(db, script);
-    }
-
     /**
      * Appends the DDL-Script for creating a sequence to an SQL-Script<br>
      * @param db the database to create
