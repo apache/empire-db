@@ -110,16 +110,17 @@
 
 	<properties-sqlserver>
 		<!-- JDBC properties for a Microsoft SQL-Server Database connection -->
-		<!-- Required jar file: sqljdbc.jar -->
 		<jdbcClass>com.microsoft.sqlserver.jdbc.SQLServerDriver</jdbcClass>
-		<jdbcURL>jdbc:sqlserver://esteams2:1433</jdbcURL>
-		<jdbcUser>sa</jdbcUser>
-		<jdbcPwd>esteam</jdbcPwd>
+		<jdbcURL>jdbc:sqlserver://esteamsvr12\sql14</jdbcURL>
+		<jdbcUser>jdbcUser</jdbcUser>
+		<jdbcPwd>jdbcPwd</jdbcPwd>
 		<!-- Empire-db driver configuration -->
 		<empireDBDriverClass>org.apache.empire.db.sqlserver.DBDatabaseDriverMSSQL</empireDBDriverClass>
 		<empireDBDriverProperites>
 			<databaseName>DBSAMPLEADV</databaseName>
 			<useSequenceTable>false</useSequenceTable>
+			<!-- useDateTime2: set to false for databases using DATETIME for timestamps instead of DATETIME2 -->
+			<useDateTime2>true</useDateTime2>
 		</empireDBDriverProperites>
 	</properties-sqlserver>
 

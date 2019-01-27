@@ -19,7 +19,9 @@
 package org.apache.empire.db.sqlserver;
 
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.util.GregorianCalendar;
 
 import org.apache.empire.commons.StringUtils;
@@ -105,6 +107,7 @@ public class DBDatabaseDriverMSSQL extends DBDatabaseDriver
     // When set to 'false' (default) MySQL's IDENTITY feature is used.
     private boolean useSequenceTable = false;
     private boolean useUnicodePrefix = true;
+    private boolean useDateTime2 = true;
     
     private DBDDLGenerator<?> ddlGenerator = null; // lazy creation
 
@@ -197,7 +200,26 @@ public class DBDatabaseDriverMSSQL extends DBDatabaseDriver
         this.useUnicodePrefix = useUnicodePrefix;
     }
 
+    /**
+     * returns whether the DATETIME2 datatype is used for timestamps (instead of DATETIME)
+     */
+    public boolean isUseDateTime2()
+    {
+        return useDateTime2;
+    }
+
+    /**
+     * Sets whether or not to use the DATETIME2 datatype instead of DATETIME for timestamps
+     * Default is true (set to false for existing databases using DATETIME!) 
+     * @param useDateTime2 true if DATETIME2 or false if DATETIME is used
+     */
+    public void setUseDateTime2(boolean useDateTime2)
+    {
+        this.useDateTime2 = useDateTime2;
+    }
+
     /** {@inheritDoc} */
+    @SuppressWarnings("unused")
     @Override
     protected void attachDatabase(DBDatabase db, Connection conn)
     {
@@ -206,6 +228,8 @@ public class DBDatabaseDriverMSSQL extends DBDatabaseDriver
         {   // Set Database
             if (StringUtils.isNotEmpty(databaseName))
                 executeSQL("USE " + databaseName, null, conn, null);
+            // Dateformat must be ymd!
+            executeSQL("set dateformat ymd", null, conn, null);
             // Sequence Table
             if (useSequenceTable && db.getTable(sequenceTableName)==null)
                 new DBSeqTable(sequenceTableName, db);
@@ -283,10 +307,11 @@ public class DBDatabaseDriverMSSQL extends DBDatabaseDriver
             case SQL_BOOLEAN_FALSE:           return "0";
             case SQL_CURRENT_DATE:            return "convert(char, getdate(), 111)";
             case SQL_DATE_PATTERN:            return "yyyy-MM-dd";
-            case SQL_DATE_TEMPLATE:           return "convert(date, '{0}', 121)";
+            case SQL_DATE_TEMPLATE:           return "convert(date, '{0}', 111)";
             case SQL_CURRENT_DATETIME:        return "getdate()";
             case SQL_DATETIME_PATTERN:        return "yyyy-MM-dd HH:mm:ss.SSS";
-            case SQL_DATETIME_TEMPLATE:       return "convert(datetime, '{0}', 121)";
+            case SQL_DATETIME_TEMPLATE:       return isUseDateTime2() ? "convert(datetime2, '{0}', 121)"
+                                                                      : "convert(datetime,  '{0}', 121)";
             // functions
             case SQL_FUNC_COALESCE:           return "coalesce(?, {0})";
             case SQL_FUNC_SUBSTRING:          return "substring(?, {0}, 4000)";
@@ -341,16 +366,19 @@ public class DBDatabaseDriverMSSQL extends DBDatabaseDriver
            case BOOL:      return "convert(bit, ?)";
            case INTEGER:   return "convert(int, ?)";
            case DECIMAL:   return "convert(decimal, ?)";
-           case FLOAT:    return "convert(float, ?)";
-           case DATE:      return "convert(datetime, ?, 111)";
-           case DATETIME:  return "convert(datetime, ?, 120)";
+           case FLOAT:     return "convert(float, ?)";
+           case DATE:      return "convert(date, ?, 111)";
+           case DATETIME:  return isUseDateTime2() ? "convert(datetime2, ?, 121)"
+                                                   : "convert(datetime,  ?, 121)";
            // Convert to text
            case TEXT:
-                // Date-Time-Format "YYYY-MM-DD hh.mm.ss"
+                // Date-Time-Format "YYYY-MM-DD"
                 if (srcType==DataType.DATE)
-                    return "replace(convert(nvarchar, ?, 111), '/', '-')";
+                    return "convert(nvarchar, ?, 111)";
+                // Date-Time-Format "YYYY-MM-DD hh.mm.ss"
                 if (srcType==DataType.DATETIME)
                     return "convert(nvarchar, ?, 120)";
+                // other
                 return "convert(nvarchar, ?)";
            case BLOB:
                 return "convert(varbinary, ?)";
@@ -436,22 +464,40 @@ public class DBDatabaseDriverMSSQL extends DBDatabaseDriver
         }
         return super.getColumnAutoValue(db, column, conn);
     }
-
+    
     /**
-     * @see DBDatabaseDriver#executeSQL(String, Object[], Connection, DBSetGenKeys)  
+     * Adds special behaviour for Timestamp columns with are declared as DATETIME
      */
     @Override
-    public int executeSQL(String sqlCmd, Object[] sqlParams, Connection conn, DBSetGenKeys genKeys)
+    protected void addStatementParam(PreparedStatement pstmt, int paramIndex, Object value)
         throws SQLException
     {
-        int affected = super.executeSQL(sqlCmd, sqlParams, conn, genKeys);
-        if (affected<0)
-        {   // less than 0?
-            log.warn("executeSQL for {} retuned {} affected records!", sqlCmd, affected);
-            return 0;
+        if ((value instanceof Timestamp) && !this.isUseDateTime2()) 
+        {   /*
+             * For compatibility with databases using DATETIME instead of DATETIME2:
+             * For constraints to work, the nanoseconds part must be reduced to milliseconds
+             * otherwise the comparison with existing database values will fail. 
+             */
+            Timestamp ts = (Timestamp)value;
+            if (ts.getNanos()!=0)
+            {   // special
+                String tsAsString = ts.toString();
+                int nano = tsAsString.lastIndexOf('.');
+                int milliLength = nano+4;
+                if (nano>0 && tsAsString.length()>milliLength)
+                    tsAsString = tsAsString.substring(0, milliLength);
+                // Sets timestamp as string with Milliseconds only
+                pstmt.setObject(paramIndex, tsAsString);
+            }
+            else
+            {   // Sets the timestamp as provided
+                pstmt.setTimestamp(paramIndex, ts);
+            }
         }
-        return affected;
-        
+        else
+        {   // Default handling
+            super.addStatementParam(pstmt, paramIndex, value);
+        }
     }
     
     /**

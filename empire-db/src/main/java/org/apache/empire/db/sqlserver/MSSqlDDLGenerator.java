@@ -34,7 +34,7 @@ public class MSSqlDDLGenerator extends DBDDLGenerator<DBDatabaseDriverMSSQL>
     {
         super(driver);
         // set Oracle specific data types
-        initDataTypes();
+        initDataTypes(driver);
         // Alter Column Phrase
         alterColumnPhrase  = " ALTER COLUMN ";
     }
@@ -43,12 +43,12 @@ public class MSSqlDDLGenerator extends DBDDLGenerator<DBDatabaseDriverMSSQL>
      * sets Oracle specific data types
      * @param driver
      */
-    private void initDataTypes()
+    protected void initDataTypes(DBDatabaseDriverMSSQL driver)
     {   // Override data types
         DATATYPE_CHAR       = "NCHAR";      // Fixed length chars (unicode)
         DATATYPE_VARCHAR    = "NVARCHAR";   // variable length characters (unicode)      
-        DATATYPE_DATE       = "DATETIME";
-        DATATYPE_TIMESTAMP  = "DATETIME";
+        DATATYPE_DATE       = "DATE";
+        DATATYPE_TIMESTAMP  = (driver.isUseDateTime2() ? "DATETIME2" : "DATETIME");
         DATATYPE_CLOB       = "NTEXT";
         DATATYPE_BLOB       = "IMAGE";
         DATATYPE_UNIQUEID   = "UNIQUEIDENTIFIER";  // Globally Unique Identifier
@@ -104,6 +104,7 @@ public class MSSqlDDLGenerator extends DBDDLGenerator<DBDatabaseDriverMSSQL>
         return true;
     }
  
+    @SuppressWarnings("unused")
     @Override
     protected void createDatabase(DBDatabase db, DBSQLScript script)
     {
