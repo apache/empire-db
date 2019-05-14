@@ -471,7 +471,7 @@ public class ControlTag extends UIInput implements NamingContainer
             {
                 String forInput = isCustomInput() ? helper.getTagAttributeString("for") : "*";
                 // createLabelComponent 
-                labelComponent = helper.createLabelComponent(context, forInput, "eLabel", null, true);
+                labelComponent = helper.createLabelComponent(context, forInput, "eLabel", null, getColon());
                 parent.getChildren().add(0, labelComponent);
                 helper.resetComponentId(labelComponent);
             }
@@ -659,6 +659,14 @@ public class ControlTag extends UIInput implements NamingContainer
     public boolean isInputRequired()
     {
         return helper.isValueRequired();
+    }
+    
+    protected boolean getColon()
+    {
+        Object colon = getAttributes().get("colon");
+        if (colon!=null)
+            return ObjectUtils.getBoolean(colon);
+        return true;
     }
 
     protected boolean isPartialSubmit(FacesContext context)
