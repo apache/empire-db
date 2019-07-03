@@ -36,6 +36,7 @@ import javax.faces.component.UIComponent;
 import javax.faces.component.UIViewRoot;
 import javax.faces.context.FacesContext;
 import javax.servlet.ServletContext;
+import javax.servlet.http.HttpServletRequest;
 import javax.sql.DataSource;
 
 import org.apache.empire.commons.StringUtils;
@@ -131,13 +132,22 @@ public abstract class WebApplication
     }
 
     /**
+     * handle view not found
+     * @param fc
+     * @param HttpServletRequest
+     */
+    public void onViewNotFound(final FacesContext fc, final HttpServletRequest req)
+    {   // View not Found Error
+        log.warn("No view found for request to '{}'. Use FacesUtils.redirectDirectly() to redirect to valid view.", req.getRequestURI());
+    }
+
+    /**
      * handle view change
      * @param fc
      * @param viewId
      */
     public void onChangeView(final FacesContext fc, String viewId)
-    {
-        // allow custom view change logic
+    {   // allow custom view change logic
 
         // clear page resources
         Map<String, Object> sm = FacesUtils.getSessionMap(fc);

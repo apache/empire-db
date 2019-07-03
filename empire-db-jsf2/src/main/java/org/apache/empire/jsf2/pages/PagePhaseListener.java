@@ -83,7 +83,10 @@ public class PagePhaseListener implements PhaseListener
         String viewId = vr.getViewId();
         if (viewId==null)
         {   // Error: No viewId!
-            log.warn("No viewId provided for PagePhaseEvent in phase {}.", phaseId);
+            if (phaseId==PhaseId.RENDER_RESPONSE)
+                FacesUtils.getWebApplication().onViewNotFound(fc, FacesUtils.getHttpRequest(fc));
+            else
+                log.error("No viewId provided for PagePhaseEvent in phase "+phaseId.getName());
             return;
         }
         
@@ -105,7 +108,6 @@ public class PagePhaseListener implements PhaseListener
         {   // No page definition available
             if (log.isDebugEnabled())
                 log.debug("No page definition available for viewId {}.", viewId);
-            return;
         }    
 
         // Check Request context path 
