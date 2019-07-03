@@ -534,7 +534,7 @@ public abstract class DBDatabase extends DBObject
      */
     public DBValueExpr getValueExpr(String value)
     {
-        return new DBValueExpr(this, value, DataType.TEXT);
+        return new DBValueExpr(this, value, DataType.VARCHAR);
     }
 
     /**
@@ -1063,7 +1063,7 @@ public abstract class DBDatabase extends DBObject
      */
     public final String querySingleString(String sqlCmd, Object[] sqlParams, String defaultValue, Connection conn)
     { 
-        Object value = querySingleValue(sqlCmd, sqlParams, DataType.TEXT, conn);
+        Object value = querySingleValue(sqlCmd, sqlParams, DataType.VARCHAR, conn);
         return (ObjectUtils.isEmpty(value) ? defaultValue : value.toString());
     }
     
@@ -1094,7 +1094,7 @@ public abstract class DBDatabase extends DBObject
      */
     public final String querySingleString(DBCommand cmd, Connection conn)
     { 
-        Object value = querySingleValue(cmd.getSelect(), cmd.getParamValues(), DataType.TEXT, conn);
+        Object value = querySingleValue(cmd.getSelect(), cmd.getParamValues(), DataType.VARCHAR, conn);
 		if (value==ObjectUtils.NO_VALUE)
 			throw new QueryNoResultException(cmd.getSelect());
 		return StringUtils.toString(value, "");
@@ -1659,7 +1659,7 @@ public abstract class DBDatabase extends DBObject
         if (value instanceof DBColumnExpr)
             return ((DBColumnExpr)value).getDataType();
         if (value instanceof String)
-            return DataType.TEXT;
+            return DataType.VARCHAR;
         if ((value instanceof Integer) || (value instanceof Long))
             return DataType.INTEGER;
         if (value instanceof Number)

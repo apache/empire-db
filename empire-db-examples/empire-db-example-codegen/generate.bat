@@ -19,7 +19,7 @@ IF [%1%] == [] GOTO INVALID_PARAMS
 IF [%2%] == [] GOTO INVALID_PARAMS
 rem base setting
 set repo=%2%
-set empire-db-version=2.4.7-SNAPSHOT
+set empire-db-version=2.5.0-SNAPSHOT
 set jdbc-jar-path=hsqldb\hsqldb\1.8.0.10\hsqldb-1.8.0.10.jar
 IF [%3%] == [] GOTO CLASSPATH
 set jdbc-jar-path=%3%

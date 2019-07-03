@@ -99,7 +99,7 @@ public class OracleDataDictionnary {
      */
     public OracleDataDictionnary() {
         dataTypeMapping = new HashMap<String, DataType[]>();
-        dataTypeMapping.put("VARCHAR2", new DataType[] { DataType.TEXT });
+        dataTypeMapping.put("VARCHAR2", new DataType[] { DataType.VARCHAR });
         dataTypeMapping.put("CHAR",     new DataType[] { DataType.CHAR, DataType.BOOL });
         dataTypeMapping.put("NUMBER",   new DataType[] { DataType.DECIMAL, DataType.FLOAT, 
                                                          DataType.INTEGER, DataType.AUTOINC, DataType.BOOL });

@@ -134,6 +134,7 @@ public abstract class DBExpr extends DBObject
             case INTEGER:
                 return Long.class;
             case TEXT:
+            case VARCHAR:
             case CLOB:
                 return String.class;
             case DATE:

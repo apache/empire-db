@@ -47,7 +47,7 @@ public class TextInputControl extends InputControl
     {
         // Check Data Type
         DataType type = column.getDataType();
-        if (type==DataType.TEXT)
+        if (type.isText())
             return value;
         // Check other types
         if (type==DataType.INTEGER)
@@ -116,7 +116,7 @@ public class TextInputControl extends InputControl
         // Format Value
         Column column = vi.getColumn();
         DataType dataType = getValueType(value, (column != null) ? column.getDataType() : DataType.UNKNOWN);
-        if (dataType == DataType.TEXT || dataType == DataType.UNKNOWN)
+        if (dataType.isText() || dataType == DataType.UNKNOWN)
         { // String
             String s = String.valueOf(value);
             if (hasFormatOption(vi, "noencode"))
@@ -258,7 +258,7 @@ public class TextInputControl extends InputControl
     {
         // Detect Data Type from Value
         if (value instanceof String)
-            return DataType.TEXT;
+            return DataType.VARCHAR;
         if (value instanceof Number)
         { // Check desired type
             if (desiredType == DataType.AUTOINC || desiredType == DataType.INTEGER || 

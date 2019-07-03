@@ -89,7 +89,7 @@ public class SerializeTest {
         super("testtable", db);
         this.C_ID = addColumn("id", DataType.INTEGER, 0, true);
         setPrimaryKey(C_ID);
-        this.C_TEXT = addColumn("text", DataType.TEXT, 255, false);
+        this.C_TEXT = addColumn("text", DataType.VARCHAR, 255, false);
       }
     }
     static class TestView extends DBView {

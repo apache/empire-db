@@ -1063,6 +1063,8 @@ public class DBDatabaseDriverMySQL extends DBDatabaseDriver
            case DATETIME:  return "CAST(? AS DATETIME)";
            // Convert to text
            case TEXT:
+           case VARCHAR:
+           case CHAR:
                if (format != null)
                { // Convert using a format string
                    return "CAST(? AS CHAR " + format.toString() + ")";

@@ -55,9 +55,9 @@ public class SampleDB extends DBDatabase
             super("DEPARTMENTS", db);
             // ID
             C_DEPARTMENT_ID   = addColumn("DEPARTMENT_ID",    DataType.AUTOINC,       0, DataMode.NotNull, "DEP_ID_SEQUENCE");
-            C_NAME            = addColumn("NAME",             DataType.TEXT,         80, DataMode.NotNull);
-            C_HEAD            = addColumn("HEAD",             DataType.TEXT,         80, DataMode.Nullable);
-            C_BUSINESS_UNIT   = addColumn("BUSINESS_UNIT",    DataType.TEXT,          4, DataMode.NotNull, "ITTK");
+            C_NAME            = addColumn("NAME",             DataType.VARCHAR,      80, DataMode.NotNull);
+            C_HEAD            = addColumn("HEAD",             DataType.VARCHAR,      80, DataMode.Nullable);
+            C_BUSINESS_UNIT   = addColumn("BUSINESS_UNIT",    DataType.VARCHAR,       4, DataMode.NotNull, "ITTK");
             C_UPDATE_TIMESTAMP= addColumn("UPDATE_TIMESTAMP", DataType.DATETIME,      0, DataMode.NotNull);
         
             // Primary Key
@@ -94,14 +94,14 @@ public class SampleDB extends DBDatabase
             super("EMPLOYEES", db);
             // ID
             C_EMPLOYEE_ID     = addColumn("EMPLOYEE_ID",      DataType.AUTOINC,      0, DataMode.NotNull, "EMPLOYEE_ID_SEQUENCE");
-            C_SALUTATION      = addColumn("SALUTATION",       DataType.TEXT,        20, DataMode.Nullable);
-            C_FIRSTNAME       = addColumn("FIRSTNAME",        DataType.TEXT,        40, DataMode.NotNull);
-            C_LASTNAME        = addColumn("LASTNAME",         DataType.TEXT,        40, DataMode.NotNull);
+            C_SALUTATION      = addColumn("SALUTATION",       DataType.VARCHAR,     20, DataMode.Nullable);
+            C_FIRSTNAME       = addColumn("FIRSTNAME",        DataType.VARCHAR,     40, DataMode.NotNull);
+            C_LASTNAME        = addColumn("LASTNAME",         DataType.VARCHAR,     40, DataMode.NotNull);
             C_DATE_OF_BIRTH   = addColumn("DATE_OF_BIRTH",    DataType.DATE,         0, DataMode.Nullable);
             C_DEPARTMENT_ID   = addColumn("DEPARTMENT_ID",    DataType.INTEGER,      0, DataMode.NotNull);
-            C_GENDER          = addColumn("GENDER",           DataType.TEXT,         1, DataMode.Nullable);
-            C_PHONE_NUMBER    = addColumn("PHONE_NUMBER",     DataType.TEXT,        40, DataMode.Nullable);
-            C_EMAIL           = addColumn("EMAIL",            DataType.TEXT,        80, DataMode.Nullable);
+            C_GENDER          = addColumn("GENDER",           DataType.VARCHAR,      1, DataMode.Nullable);
+            C_PHONE_NUMBER    = addColumn("PHONE_NUMBER",     DataType.VARCHAR,     40, DataMode.Nullable);
+            C_EMAIL           = addColumn("EMAIL",            DataType.VARCHAR,     80, DataMode.Nullable);
             C_RETIRED         = addColumn("RETIRED",          DataType.BOOL,         0, DataMode.NotNull, false);
             C_UPDATE_TIMESTAMP= addColumn("UPDATE_TIMESTAMP", DataType.DATETIME,     0, DataMode.NotNull);
         

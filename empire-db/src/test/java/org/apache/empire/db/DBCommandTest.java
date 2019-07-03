@@ -79,7 +79,7 @@ public class DBCommandTest
             super("MOCK_TABLE", db);
             // add Columns
             COL1 = addColumn("COL1", DataType.INTEGER,   0, true);
-            COL2 = addColumn("COL2", DataType.TEXT,     20, true);
+            COL2 = addColumn("COL2", DataType.VARCHAR,  20, true);
             COL3 = addColumn("COL3", DataType.DATETIME,  0, false);
         }
     }

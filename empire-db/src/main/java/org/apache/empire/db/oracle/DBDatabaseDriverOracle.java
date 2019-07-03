@@ -223,6 +223,7 @@ public class DBDatabaseDriverOracle extends DBDatabaseDriver
              */
             // Convert to text
             case TEXT:
+            case VARCHAR:
             case CHAR:
             case CLOB:
                 if (format != null)

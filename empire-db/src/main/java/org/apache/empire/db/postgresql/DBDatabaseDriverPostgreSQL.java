@@ -398,11 +398,13 @@ public class DBDatabaseDriverPostgreSQL extends DBDatabaseDriver
             case BOOL:     return "CAST(? AS BOOL)";
             case INTEGER:  return "CAST(? AS INTEGER)";
             case DECIMAL:  return "CAST(? AS DECIMAL)";
-            case FLOAT:   return "CAST(? AS DOUBLE PRECISION)";
+            case FLOAT:    return "CAST(? AS DOUBLE PRECISION)";
             case DATE:     return "CAST(? AS DATE)";
             case DATETIME: return "CAST(? AS TIMESTAMP)";
                 // Convert to text
-            case TEXT:     return "CAST(? AS CHAR)";
+            case TEXT:
+            case VARCHAR:  
+            case CHAR:     return "CAST(? AS CHAR)";
             case BLOB:     return "CAST(? AS bytea)";
             case CLOB:     return "CAST(? AS TEXT)";
                 // Unknown Type

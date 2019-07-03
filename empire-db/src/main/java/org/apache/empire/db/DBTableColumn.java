@@ -466,6 +466,7 @@ public class DBTableColumn extends DBColumn
                 break;
 
             case TEXT:
+            case VARCHAR:
             case CHAR:
                 if (value!=null && value.getClass().isEnum())
                 {   // check enum

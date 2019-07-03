@@ -347,7 +347,7 @@ public abstract class DBColumnExpr extends DBExpr
      */
     public DBCompareColExpr likeUpper(String value)
     { 
-        DBValueExpr expr = new DBValueExpr(getDatabase(), value, DataType.TEXT);
+        DBValueExpr expr = new DBValueExpr(getDatabase(), value, DataType.VARCHAR);
         return new DBCompareColExpr(this.upper(), DBCmpType.LIKE, expr.upper());
     }
 
@@ -361,7 +361,7 @@ public abstract class DBColumnExpr extends DBExpr
      */
     public DBCompareColExpr likeLower(String value)
     { 
-        DBValueExpr expr = new DBValueExpr(getDatabase(), value, DataType.TEXT);
+        DBValueExpr expr = new DBValueExpr(getDatabase(), value, DataType.VARCHAR);
         return new DBCompareColExpr(this.lower(), DBCmpType.LIKE, expr.lower());
     }
 
@@ -374,8 +374,8 @@ public abstract class DBColumnExpr extends DBExpr
      */
     public DBCompareColExpr like(String value, char escape)
     {
-        DBValueExpr  textExpr = new DBValueExpr(getDatabase(), value, DataType.TEXT);
-        DBFuncExpr escapeExpr = new DBFuncExpr(textExpr, DBDatabaseDriver.SQL_FUNC_ESCAPE, new Object[] { String.valueOf(escape) }, getUpdateColumn(), false, DataType.TEXT );
+        DBValueExpr  textExpr = new DBValueExpr(getDatabase(), value, DataType.VARCHAR);
+        DBFuncExpr escapeExpr = new DBFuncExpr(textExpr, DBDatabaseDriver.SQL_FUNC_ESCAPE, new Object[] { String.valueOf(escape) }, getUpdateColumn(), false, DataType.VARCHAR );
         return cmp(DBCmpType.LIKE, escapeExpr);
     }
 
@@ -1168,7 +1168,7 @@ public abstract class DBColumnExpr extends DBExpr
      */
     public DBColumnExpr toChar()
     {
-        return convertTo(DataType.TEXT);
+        return convertTo(DataType.VARCHAR);
     }
 
     /**
@@ -1181,7 +1181,7 @@ public abstract class DBColumnExpr extends DBExpr
      */
     public DBColumnExpr toChar(String format)
     {
-        return convertTo(DataType.TEXT, format);
+        return convertTo(DataType.VARCHAR, format);
     }
 
     /**

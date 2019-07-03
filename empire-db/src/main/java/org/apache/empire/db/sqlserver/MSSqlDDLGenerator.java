@@ -72,6 +72,7 @@ public class MSSqlDDLGenerator extends DBDDLGenerator<DBDatabaseDriverMSSQL>
                 }
                 break;
             case TEXT:
+            case VARCHAR:
             case CHAR:
             {   // Char or Varchar
                 if (type==DataType.CHAR)

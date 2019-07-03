@@ -41,8 +41,16 @@ public enum DataType
     AUTOINC, //      = 2;
     
     /**
-     * Small text (represents varchar)
+     * Variable text (represents varchar)
      */
+    VARCHAR, //      = 3;
+    
+    /**
+     * Variable text (represents varchar)
+     * 
+     * @deprecated  Use VARCHAR instead
+     */
+    @Deprecated
     TEXT, //         = 3;
     
     /**
@@ -96,7 +104,7 @@ public enum DataType
      */
     public boolean isText()
     {
-        return (this==DataType.TEXT || this==DataType.CHAR || this==DataType.CLOB);
+        return (this==DataType.TEXT || this==DataType.VARCHAR || this==DataType.CHAR || this==DataType.CLOB);
     }
 
     /**

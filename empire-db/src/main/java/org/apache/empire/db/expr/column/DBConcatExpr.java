@@ -72,7 +72,7 @@ public class DBConcatExpr extends DBColumnExpr
     @Override
     public DataType getDataType()
     {
-        return DataType.TEXT;
+        return DataType.VARCHAR;
     }
 
     @Override

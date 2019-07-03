@@ -69,7 +69,7 @@ public class JsoColumnMeta extends LinkedHashMap<String, Object>
         put(_disabled,  disabled);
         put(_required,  required);
         put(_title,     resolver.resolveText(StringUtils.coalesce(column.getTitle(), column.getName())));
-        if (column.getDataType()==DataType.TEXT)
+        if (column.getDataType()==DataType.VARCHAR || column.getDataType()==DataType.CHAR)
         {   // add maxLength
             put(_maxLength, (int)column.getSize());
         }

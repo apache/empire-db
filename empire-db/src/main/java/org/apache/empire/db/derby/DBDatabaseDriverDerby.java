@@ -250,11 +250,13 @@ public class DBDatabaseDriverDerby extends DBDatabaseDriver
            case BOOL:      return "CAST(? AS UNSIGNED)";
            case INTEGER:   return "CAST(? AS SIGNED)";
            case DECIMAL:   return "CAST(? AS DECIMAL)";
-           case FLOAT:    return "CAST(? AS DECIMAL)";
+           case FLOAT:     return "CAST(? AS DECIMAL)";
            case DATE:      return "CAST(? AS DATE)";
            case DATETIME:  return "CAST(? AS TIMESTAMP)";
            // Convert to text
            case TEXT:
+           case VARCHAR:
+           case CHAR:
                 return "CAST(? AS CHAR)";
            case BLOB:
                 return "CAST(? AS BLOB)";

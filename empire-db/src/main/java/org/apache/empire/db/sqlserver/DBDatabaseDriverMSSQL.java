@@ -372,6 +372,9 @@ public class DBDatabaseDriverMSSQL extends DBDatabaseDriver
                                                    : "convert(datetime,  ?, 121)";
            // Convert to text
            case TEXT:
+           case VARCHAR:
+           case CHAR:
+           case CLOB:
                 // Date-Time-Format "YYYY-MM-DD"
                 if (srcType==DataType.DATE)
                     return "convert(nvarchar, ?, 111)";

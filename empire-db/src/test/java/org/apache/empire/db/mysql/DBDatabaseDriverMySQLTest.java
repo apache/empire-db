@@ -94,8 +94,8 @@ public class DBDatabaseDriverMySQLTest {
         assertEquals("CAST(? AS DATETIME)", driver.getConvertPhrase(DataType.DATETIME, null, "test"));
         
         // TEXT
-        assertEquals("CAST(? AS CHAR CHARACTER SET cp1250)", driver.getConvertPhrase(DataType.TEXT, null, "CHARACTER SET cp1250"));
-        assertEquals("CAST(? AS CHAR)", driver.getConvertPhrase(DataType.TEXT, null, null));
+        assertEquals("CAST(? AS CHAR CHARACTER SET cp1250)", driver.getConvertPhrase(DataType.VARCHAR, null, "CHARACTER SET cp1250"));
+        assertEquals("CAST(? AS CHAR)", driver.getConvertPhrase(DataType.VARCHAR, null, null));
         
         // BLOB
         assertEquals("CAST(? AS BLOB)", driver.getConvertPhrase(DataType.BLOB, null, null));

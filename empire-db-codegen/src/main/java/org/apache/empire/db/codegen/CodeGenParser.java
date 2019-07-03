@@ -464,7 +464,7 @@ public class CodeGenParser {
 			empireType = DataType.INTEGER;
 			break;
 		case Types.VARCHAR:
-			empireType = DataType.TEXT;
+			empireType = DataType.VARCHAR;
 			break;
 		case Types.DATE:
 			empireType = DataType.DATE;

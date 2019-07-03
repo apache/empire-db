@@ -502,6 +502,7 @@ public class DBDatabaseDriverSQLite extends DBDatabaseDriver
         {
         // Convert to text
             case TEXT:
+            case VARCHAR:
             case CHAR:
                 if (format != null)
                 { // Convert using a format string

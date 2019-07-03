@@ -66,6 +66,7 @@ public class OracleDDLGenerator extends DBDDLGenerator<DBDatabaseDriverOracle>
         switch (type)
         {
             case TEXT:
+            case VARCHAR:
             case CHAR:
             {   // Char or Varchar
                 sql.append((type==DataType.CHAR) ? DATATYPE_CHAR : DATATYPE_VARCHAR);

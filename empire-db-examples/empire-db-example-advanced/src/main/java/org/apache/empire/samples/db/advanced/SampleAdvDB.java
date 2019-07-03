@@ -20,7 +20,6 @@ package org.apache.empire.samples.db.advanced;
 
 import org.apache.empire.commons.Options;
 import org.apache.empire.data.DataType;
-import org.apache.empire.data.DataMode;
 import org.apache.empire.db.DBColumn;
 import org.apache.empire.db.DBColumnExpr;
 import org.apache.empire.db.DBCommand;
@@ -67,9 +66,9 @@ public class SampleAdvDB extends DBDatabase
             super("DEPARTMENTS", db);
             // ID
             C_DEPARTMENT_ID   = addColumn("DEPARTMENT_ID",    DataType.AUTOINC,       0, true, "DEP_ID_SEQUENCE");
-            C_NAME            = addColumn("NAME",             DataType.TEXT,         80, true);
-            C_HEAD            = addColumn("HEAD",             DataType.TEXT,         80, false);
-            C_BUSINESS_UNIT   = addColumn("BUSINESS_UNIT",    DataType.TEXT,          4, true, "ITTK");
+            C_NAME            = addColumn("NAME",             DataType.VARCHAR,      80, true);
+            C_HEAD            = addColumn("HEAD",             DataType.VARCHAR,      80, false);
+            C_BUSINESS_UNIT   = addColumn("BUSINESS_UNIT",    DataType.VARCHAR,       4, true, "ITTK");
             C_UPDATE_TIMESTAMP= addColumn("UPDATE_TIMESTAMP", DataType.DATETIME,      0, true);
 
             // Primary Key
@@ -108,13 +107,13 @@ public class SampleAdvDB extends DBDatabase
             super("EMPLOYEES", db);
             // ID
             C_EMPLOYEE_ID     = addColumn("EMPLOYEE_ID",      DataType.AUTOINC,      0, true, "EMPLOYEE_ID_SEQUENCE");
-            C_SALUTATION      = addColumn("SALUTATION",       DataType.TEXT,        20, false);
-            C_FIRSTNAME       = addColumn("FIRSTNAME",        DataType.TEXT,        40, true);
-            C_LASTNAME        = addColumn("LASTNAME",         DataType.TEXT,        40, true);
+            C_SALUTATION      = addColumn("SALUTATION",       DataType.VARCHAR,     20, false);
+            C_FIRSTNAME       = addColumn("FIRSTNAME",        DataType.VARCHAR,     40, true);
+            C_LASTNAME        = addColumn("LASTNAME",         DataType.VARCHAR,     40, true);
             C_DATE_OF_BIRTH   = addColumn("DATE_OF_BIRTH",    DataType.DATE,         0, false);
-            C_GENDER          = addColumn("GENDER",           DataType.TEXT,         1, false);
-            C_PHONE_NUMBER    = addColumn("PHONE_NUMBER",     DataType.TEXT,        40, false);
-            C_EMAIL           = addColumn("EMAIL",            DataType.TEXT,        80, false);
+            C_GENDER          = addColumn("GENDER",           DataType.VARCHAR,      1, false);
+            C_PHONE_NUMBER    = addColumn("PHONE_NUMBER",     DataType.VARCHAR,     40, false);
+            C_EMAIL           = addColumn("EMAIL",            DataType.VARCHAR,     80, false);
             C_RETIRED         = addColumn("RETIRED",          DataType.BOOL,         0, true, false);
             C_CHECKSUM        = addColumn("CHECKSUM",         DataType.INTEGER,      0, false);
             C_UPDATE_TIMESTAMP= addColumn("UPDATE_TIMESTAMP", DataType.DATETIME,     0, true);
@@ -221,7 +220,7 @@ public class SampleAdvDB extends DBDatabase
             // ID
             C_EMPLOYEE_ID     = addColumn(T_EMP.C_EMPLOYEE_ID);
             C_CURRENT_DEP_ID  = addColumn("CURRENT_DEP_ID", T_DEP.C_DEPARTMENT_ID); 
-            C_NAME_AND_DEP    = addColumn("NAME_AND_DEP", DataType.TEXT);
+            C_NAME_AND_DEP    = addColumn("NAME_AND_DEP", DataType.VARCHAR);
 
             // set Key-column (if any)
             setKeyColumn(C_EMPLOYEE_ID);

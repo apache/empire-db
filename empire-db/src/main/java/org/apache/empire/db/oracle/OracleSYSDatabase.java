@@ -48,10 +48,10 @@ public class OracleSYSDatabase extends DBDatabase
         {
             super("ALL_TAB_COMMENTS", db);
             // add all Colums
-            C_OWNER = addColumn("OWNER", DataType.TEXT, 50, false);
-            C_TABLE_NAME = addColumn("TABLE_NAME", DataType.TEXT, 50, false);
-            C_TABLE_TYPE = addColumn("TABLE_TYPE", DataType.TEXT, 50, false);
-            C_COMMENTS = addColumn("COMMENTS", DataType.TEXT, 500, false);
+            C_OWNER = addColumn("OWNER", DataType.VARCHAR, 50, false);
+            C_TABLE_NAME = addColumn("TABLE_NAME", DataType.VARCHAR, 50, false);
+            C_TABLE_TYPE = addColumn("TABLE_TYPE", DataType.VARCHAR, 50, false);
+            C_COMMENTS = addColumn("COMMENTS", DataType.VARCHAR, 500, false);
         }
     }
 
@@ -72,11 +72,11 @@ public class OracleSYSDatabase extends DBDatabase
             super("ALL_CONSTRAINTS", db);
             // add all Colums
 
-            C_CONSTRAINT_NAME = addColumn("CONSTRAINT_NAME", DataType.TEXT, 100, false);
-            C_TABLE_NAME = addColumn("TABLE_NAME", DataType.TEXT, 100, false);
-            C_R_CONSTRAINT_NAME = addColumn("R_CONSTRAINT_NAME", DataType.TEXT, 100, false);
-            C_CONSTRAINT_TYPE = addColumn("CONSTRAINT_TYPE", DataType.TEXT, 1, false);
-            C_STATUS = addColumn("STATUS", DataType.TEXT, 20, false);
+            C_CONSTRAINT_NAME = addColumn("CONSTRAINT_NAME", DataType.VARCHAR, 100, false);
+            C_TABLE_NAME = addColumn("TABLE_NAME", DataType.VARCHAR, 100, false);
+            C_R_CONSTRAINT_NAME = addColumn("R_CONSTRAINT_NAME", DataType.VARCHAR, 100, false);
+            C_CONSTRAINT_TYPE = addColumn("CONSTRAINT_TYPE", DataType.VARCHAR, 1, false);
+            C_STATUS = addColumn("STATUS", DataType.VARCHAR, 20, false);
         }
     }
 
@@ -96,10 +96,10 @@ public class OracleSYSDatabase extends DBDatabase
             super("USER_CONS_COLUMNS", db);
             // add all Colums
 
-            C_CONSTRAINT_NAME = addColumn("CONSTRAINT_NAME", DataType.TEXT, 100, false);
-            C_TABLE_NAME = addColumn("TABLE_NAME", DataType.TEXT, 100, false);
-            C_COLUMN_NAME = addColumn("COLUMN_NAME", DataType.TEXT, 100, false);
-            C_OWNER = addColumn("OWNER", DataType.TEXT, 100, false);
+            C_CONSTRAINT_NAME = addColumn("CONSTRAINT_NAME", DataType.VARCHAR, 100, false);
+            C_TABLE_NAME = addColumn("TABLE_NAME", DataType.VARCHAR, 100, false);
+            C_COLUMN_NAME = addColumn("COLUMN_NAME", DataType.VARCHAR, 100, false);
+            C_OWNER = addColumn("OWNER", DataType.VARCHAR, 100, false);
             setPrimaryKey(C_CONSTRAINT_NAME);
         }
     }
@@ -126,13 +126,13 @@ public class OracleSYSDatabase extends DBDatabase
         {
             super("ALL_TAB_COLUMNS", db);
             // add all Colums
-            C_OWNER = addColumn("OWNER", DataType.TEXT, 30, false);
-            C_TABLE_NAME = addColumn("TABLE_NAME", DataType.TEXT, 30, false);
-            C_COLUMN_NAME = addColumn("COLUMN_NAME", DataType.TEXT, 30, false);
-            C_DATA_TYPE = addColumn("DATA_TYPE", DataType.TEXT, 50, false);
-            C_DATA_TYPE_MOD = addColumn("DATA_TYPE_MOD", DataType.TEXT, 50, false);
-            C_DATA_TYPE_OWNER = addColumn("DATA_TYPE_OWNER", DataType.TEXT, 50, false);
-            C_NULLABLE = addColumn("NULLABLE", DataType.TEXT, 1, false);
+            C_OWNER = addColumn("OWNER", DataType.VARCHAR, 30, false);
+            C_TABLE_NAME = addColumn("TABLE_NAME", DataType.VARCHAR, 30, false);
+            C_COLUMN_NAME = addColumn("COLUMN_NAME", DataType.VARCHAR, 30, false);
+            C_DATA_TYPE = addColumn("DATA_TYPE", DataType.VARCHAR, 50, false);
+            C_DATA_TYPE_MOD = addColumn("DATA_TYPE_MOD", DataType.VARCHAR, 50, false);
+            C_DATA_TYPE_OWNER = addColumn("DATA_TYPE_OWNER", DataType.VARCHAR, 50, false);
+            C_NULLABLE = addColumn("NULLABLE", DataType.VARCHAR, 1, false);
             C_DATA_LENGTH = addColumn("DATA_LENGTH", DataType.DECIMAL, 0, false);
             C_DATA_PRECISION = addColumn("DATA_PRECISION", DataType.DECIMAL, 0, false);
             C_DATA_SCALE = addColumn("DATA_SCALE", DataType.DECIMAL, 0, false);
@@ -155,10 +155,10 @@ public class OracleSYSDatabase extends DBDatabase
         {
             super("ALL_COL_COMMENTS", db);
             // add all Colums
-            C_OWNER = addColumn("OWNER", DataType.TEXT, 50, false);
-            C_TABLE_NAME = addColumn("TABLE_NAME", DataType.TEXT, 50, false);
-            C_COLUMN_NAME = addColumn("COLUMN_NAME", DataType.TEXT, 50, false);
-            C_COMMENTS = addColumn("COMMENTS", DataType.TEXT, 500, false);
+            C_OWNER = addColumn("OWNER", DataType.VARCHAR, 50, false);
+            C_TABLE_NAME = addColumn("TABLE_NAME", DataType.VARCHAR, 50, false);
+            C_COLUMN_NAME = addColumn("COLUMN_NAME", DataType.VARCHAR, 50, false);
+            C_COMMENTS = addColumn("COMMENTS", DataType.VARCHAR, 500, false);
         }
     }
 

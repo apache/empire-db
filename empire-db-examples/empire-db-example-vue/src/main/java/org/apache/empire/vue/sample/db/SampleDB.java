@@ -66,9 +66,9 @@ public class SampleDB extends DBDatabase
             super("DEPARTMENTS", db);
             // ID
             DEPARTMENT_ID 	= addColumn("DEPARTMENT_ID", 	DataType.AUTOINC,	 0, true, "DEP_ID_SEQUENCE");
-            NAME 			= addColumn("NAME", 			DataType.TEXT, 		80, true);
-            HEAD 			= addColumn("HEAD", 			DataType.TEXT, 		80, false);
-            BUSINESS_UNIT 	= addColumn("BUSINESS_UNIT", 	DataType.TEXT,		 4, true, "ITTK");
+            NAME 			= addColumn("NAME", 			DataType.VARCHAR,	80, true);
+            HEAD 			= addColumn("HEAD", 			DataType.VARCHAR,	80, false);
+            BUSINESS_UNIT 	= addColumn("BUSINESS_UNIT", 	DataType.VARCHAR,    4, true, "ITTK");
             UPDATE_TIMESTAMP= addColumn("UPDATE_TIMESTAMP", DataType.DATETIME,	 0, true);
 
             // Primary Key
@@ -107,14 +107,14 @@ public class SampleDB extends DBDatabase
             super("EMPLOYEES", db);
             // ID
             EMPLOYEE_ID 	= addColumn("EMPLOYEE_ID", 		DataType.AUTOINC, 	 0, true, "EMPLOYEE_ID_SEQUENCE");
-            SALUTATION 		= addColumn("SALUTATION", 		DataType.TEXT, 		 5, false);
-            FIRST_NAME 		= addColumn("FIRST_NAME", 		DataType.TEXT, 		40, true);
-            LAST_NAME 		= addColumn("LAST_NAME", 		DataType.TEXT, 		40, true);
+            SALUTATION 		= addColumn("SALUTATION", 		DataType.VARCHAR,	 5, false);
+            FIRST_NAME 		= addColumn("FIRST_NAME", 		DataType.VARCHAR,	40, true);
+            LAST_NAME 		= addColumn("LAST_NAME", 		DataType.VARCHAR,	40, true);
             DATE_OF_BIRTH 	= addColumn("DATE_OF_BIRTH", 	DataType.DATE,		 0, false);
             DEPARTMENT_ID 	= addColumn("DEPARTMENT_ID", 	DataType.INTEGER, 	 0, true);
-            GENDER 			= addColumn("GENDER", 			DataType.TEXT, 		 1, false);
-            PHONE_NUMBER 	= addColumn("PHONE_NUMBER", 	DataType.TEXT, 		40, false);
-            EMAIL 			= addColumn("EMAIL", 			DataType.TEXT, 		80, false);
+            GENDER 			= addColumn("GENDER", 			DataType.VARCHAR,	 1, false);
+            PHONE_NUMBER 	= addColumn("PHONE_NUMBER", 	DataType.VARCHAR,	40, false);
+            EMAIL 			= addColumn("EMAIL", 			DataType.VARCHAR,	80, false);
             RETIRED			= addColumn("RETIRED", 			DataType.BOOL, 		 0, true, false);
             // PICTURE 		= addColumn("PICTURE", 			DataType.BLOB, 		 0, false);
             UPDATE_TIMESTAMP= addColumn("UPDATE_TIMESTAMP", DataType.DATETIME,	 0, true);

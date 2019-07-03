@@ -255,7 +255,7 @@ public class TextInputControl extends InputControl
         // Format Value
         Column column = vi.getColumn();
         DataType dataType = getValueType(value, (column != null) ? column.getDataType() : DataType.UNKNOWN);
-        if (dataType == DataType.TEXT || dataType == DataType.UNKNOWN)
+        if (dataType.isText() || dataType == DataType.UNKNOWN)
         { // String
             String s = String.valueOf(value);
             if (hasFormatOption(vi, "noencode"))
@@ -414,8 +414,7 @@ public class TextInputControl extends InputControl
         Column col = ii.getColumn();
         // cast to DBTableColumn 
         DataType type = col.getDataType();
-        if (type == DataType.CHAR || 
-            type == DataType.TEXT)
+        if (type == DataType.CHAR || type == DataType.VARCHAR || type == DataType.TEXT)
             return (int) Math.round(col.getSize());
         if (type == DataType.AUTOINC || type == DataType.INTEGER)
             return 10;
@@ -460,7 +459,7 @@ public class TextInputControl extends InputControl
     {
         // Detect Data Type from Value
         if (value instanceof String)
-            return DataType.TEXT;
+            return DataType.VARCHAR;
         if (value instanceof Number)
         { // Check desired type
             if (desiredType == DataType.AUTOINC || 

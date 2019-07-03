@@ -542,7 +542,7 @@ public class SampleAdvApp
         db.getDriver().setDDLColumnDefaults(true);
 
         // First, add a new column to the Table object
-        DBTableColumn C_FOO = db.T_EMPLOYEES.addColumn("FOO", DataType.TEXT, 20, DataMode.Nullable);
+        DBTableColumn C_FOO = db.T_EMPLOYEES.addColumn("FOO", DataType.VARCHAR, 20, DataMode.Nullable);
 
         // Now create the corresponding DDL statement 
         System.out.println("Creating new column named FOO as varchar(20) for the EMPLOYEES table:");

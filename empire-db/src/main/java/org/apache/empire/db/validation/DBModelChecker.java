@@ -350,6 +350,7 @@ public class DBModelChecker
                 checkAutoIncColumn(column, remoteColumn, handler);
                 break;
             case TEXT:
+            case VARCHAR:
                 checkTextColumn(column, remoteColumn, handler);
                 break;
             case DATE:
@@ -599,7 +600,7 @@ public class DBModelChecker
                 empireType = DataType.INTEGER;
                 break;
             case Types.VARCHAR:
-                empireType = DataType.TEXT;
+                empireType = DataType.VARCHAR;
                 break;
             case Types.DATE:
                 empireType = DataType.DATE;

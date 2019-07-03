@@ -239,7 +239,7 @@ public class EmployeeListPage extends SamplePage
                 return;
             }
             // text
-            if (col.getOptions() == null && col.getDataType().equals(DataType.TEXT))
+            if (col.getOptions() == null && col.getDataType().isText())
             {
                 StringBuilder b = new StringBuilder();
                 b.append("%");

@@ -153,7 +153,7 @@ public abstract class DBDatabaseDriver implements Serializable
         {
             super(tableName, db);
             // Add all Colums
-            C_SEQNAME   = addColumn("SeqName",  DataType.TEXT,      40, DataMode.NotNull);
+            C_SEQNAME   = addColumn("SeqName",  DataType.VARCHAR,   40, DataMode.NotNull);
             C_SEQVALUE  = addColumn("SeqValue", DataType.INTEGER,    0, DataMode.NotNull);
             C_TIMESTAMP = addColumn("SeqTime",  DataType.DATETIME,   0, DataMode.NotNull);
             // Primary Key
@@ -727,7 +727,7 @@ public abstract class DBDatabaseDriver implements Serializable
                     return getSQLDateTimeString(value, SQL_DATE_TEMPLATE, SQL_DATE_PATTERN, SQL_CURRENT_DATETIME);
                 // Complete Date-Time Object with time 
                 return getSQLDateTimeString(value, SQL_DATETIME_TEMPLATE, SQL_DATETIME_PATTERN, SQL_CURRENT_DATETIME);
-            case TEXT:
+            case VARCHAR:
             case CHAR:
             case CLOB:
             case UNIQUEID:

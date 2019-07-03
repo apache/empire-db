@@ -229,6 +229,7 @@ public class WriterService {
 		case INTEGER:
 			return Long.class;
 		case TEXT:
+        case VARCHAR:
 			return String.class;
 		case DATE:
 			return Date.class;
