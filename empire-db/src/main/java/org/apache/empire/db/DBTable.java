@@ -244,7 +244,11 @@ public class DBTable extends DBRowSet implements Cloneable
      * @return the created DBTableColumn object
      */
     public final DBTableColumn addColumn(String columnName, DataType type, double size, boolean required, Object defValue)
-    { 
+    {
+        if (defValue instanceof Class<?>)
+        {
+            log.warn("Column {}: a class object of type \"{}\" has been passed as default value. Please check!", columnName, ((Class<?>)defValue).getName());
+        }
         DataMode dm = (required ? DataMode.NotNull : DataMode.Nullable);
         return this.addColumn(columnName, type, size, dm, defValue);
     }
@@ -275,7 +279,7 @@ public class DBTable extends DBRowSet implements Cloneable
      * @param enumType  the class of the enum type
      * @return the created DBTableColumn object
      */
-    public final DBTableColumn addColumn(String columnName, DataType type, int size, boolean required, Class<?> enumType)
+    public final DBTableColumn addColumn(String columnName, DataType type, double size, boolean required, Class<?> enumType)
     {
         if (!enumType.isEnum())
         {   // Class must be an enum type
@@ -298,7 +302,7 @@ public class DBTable extends DBRowSet implements Cloneable
      * @param enumType  defValue the default value
      * @return the created DBTableColumn object
      */
-    public final DBTableColumn addColumn(String columnName, DataType type, int size, boolean required, Enum<?> defValue)
+    public final DBTableColumn addColumn(String columnName, DataType type, double size, boolean required, Enum<?> defValue)
     { 
         DataMode dm = (required ? DataMode.NotNull : DataMode.Nullable);
         DBTableColumn col = this.addColumn(columnName, type, size, dm, defValue);

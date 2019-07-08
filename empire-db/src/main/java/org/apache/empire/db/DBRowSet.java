@@ -357,6 +357,9 @@ public abstract class DBRowSet extends DBExpr
     public boolean isKeyColumn(DBColumn column)
     {
         DBColumn[] keyColumns = getKeyColumns();
+        if (keyColumns==null)
+            return false;
+        // search
         for (int i=0; i<keyColumns.length; i++)
         {
             if (keyColumns[i]==column)
