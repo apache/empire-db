@@ -200,11 +200,13 @@ public class DBTable extends DBRowSet implements Cloneable
 
     /**
      * Adds a column to this table's column list.
+     * DO NOT CALL!
+     * This method is internally called from the constructor of DBTableColumn
      * 
      * @param column a column object
      */
     protected void addColumn(DBTableColumn column)
-    { // find column by name
+    {   // find column by name
         if (column==null || column.getRowSet()!=this)
             throw new InvalidArgumentException("column", column);
         if (getColumn(column.getName())!=null)
@@ -212,7 +214,7 @@ public class DBTable extends DBRowSet implements Cloneable
         // add now
         columns.add(column);
     }
-
+    
     /**
      * Creates a new DBTableColumn object and adds it to the column collection.
      * 
@@ -223,23 +225,11 @@ public class DBTable extends DBRowSet implements Cloneable
      * @param defValue a Object object
      * @return the created DBTableColumn object
      */
-    public final DBTableColumn addColumn(String columnName, DataType type, double size, DataMode dataMode, Object defValue)
+    protected DBTableColumn addColumn(String columnName, DataType type, double size, DataMode dataMode, Object defValue)
     { 
-        return new DBTableColumn(this, type, columnName, size, dataMode, defValue);
-    }
-
-    /**
-     * Creates a new DBTableColumn object and adds it to the column collection.
-     * 
-     * @param columnName the column name
-     * @param type the type of the column e.g. integer, text, date
-     * @param size the column width
-     * @param dataMode determines whether this column is optional, required or auto-generated 
-     * @return the created DBTableColumn object
-     */
-    public final DBTableColumn addColumn(String columnName, DataType type, double size, DataMode dataMode)
-    { 
-        return new DBTableColumn(this, type, columnName, size, dataMode, null);
+        DBTableColumn col = new DBTableColumn(this, type, columnName, size, dataMode, defValue);
+        addColumn(col);
+        return col;
     }
 
     /**
@@ -256,12 +246,11 @@ public class DBTable extends DBRowSet implements Cloneable
     public final DBTableColumn addColumn(String columnName, DataType type, double size, boolean required, Object defValue)
     { 
         DataMode dm = (required ? DataMode.NotNull : DataMode.Nullable);
-        return new DBTableColumn(this, type, columnName, size, dm, defValue);
+        return this.addColumn(columnName, type, size, dm, defValue);
     }
 
     /**
-     * Creates a new DBTableColumn object and adds it to the column collection.
-     * Instead of the data mode enum, a boolean flag is used to indicate whether the column is required or optional. 
+     * Creates a new table column and adds it to the table's column list
      * 
      * @param columnName the column name
      * @param type the type of the column e.g. integer, text, date
@@ -272,7 +261,49 @@ public class DBTable extends DBRowSet implements Cloneable
     public final DBTableColumn addColumn(String columnName, DataType type, double size, boolean required)
     { 
         DataMode dm = (required ? DataMode.NotNull : DataMode.Nullable);
-        return new DBTableColumn(this, type, columnName, size, dm, null);
+        return this.addColumn(columnName, type, size, dm, null);
+    }
+
+    /**
+     * Creates a new table column and adds it to the table's column list
+     * This overload should be used for column containing enum values which have no default value.
+     * 
+     * @param columnName the column name
+     * @param type the type of the column e.g. integer, text, date
+     * @param size the column width
+     * @param required true if not null column
+     * @param enumType  the class of the enum type
+     * @return the created DBTableColumn object
+     */
+    public final DBTableColumn addColumn(String columnName, DataType type, int size, boolean required, Class<?> enumType)
+    {
+        if (!enumType.isEnum())
+        {   // Class must be an enum type
+            throw new InvalidArgumentException("enumType", enumType);
+        }
+        DataMode dm = (required ? DataMode.NotNull : DataMode.Nullable);
+        DBTableColumn col = this.addColumn(columnName, type, size, dm, null);
+        col.setEnumOptions(enumType);
+        return col;
+    }
+
+    /**
+     * Creates a new table column and adds it to the table's column list
+     * This overload should be used for column containing enum values which have a default value.
+     * 
+     * @param columnName the column name
+     * @param type the type of the column e.g. integer, text, date
+     * @param size the column width
+     * @param required true if not null column
+     * @param enumType  defValue the default value
+     * @return the created DBTableColumn object
+     */
+    public final DBTableColumn addColumn(String columnName, DataType type, int size, boolean required, Enum<?> defValue)
+    { 
+        DataMode dm = (required ? DataMode.NotNull : DataMode.Nullable);
+        DBTableColumn col = this.addColumn(columnName, type, size, dm, defValue);
+        col.setEnumOptions(defValue.getClass());
+        return col;
     }
 
     /**
@@ -366,7 +397,7 @@ public class DBTable extends DBRowSet implements Cloneable
      */
     public DBTableColumn addTimestampColumn(String columnName)
     {
-        DBTableColumn col = addColumn(columnName, DataType.DATETIME, 0, DataMode.AutoGenerated, DBDatabase.SYSDATE);
+        DBTableColumn col = addColumn(columnName, DataType.DATETIME, 0, true, DBDatabase.SYSDATE);
         setTimestampColumn(col);
         return col;
     }

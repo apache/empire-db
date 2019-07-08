@@ -392,6 +392,13 @@ public abstract class DBRowSet extends DBExpr
      */
     public void setTimestampColumn(DBColumn timestampColumn)
     {
+        if (timestampColumn.getRowSet()!=this)
+            throw new InvalidArgumentException("timestampColumn", timestampColumn);
+        if (this.timestampColumn!=null && this.timestampColumn!=timestampColumn)
+            log.warn("Timestamp column has already been set for rowset {}. Replacing with {}", getName(), timestampColumn.getName());
+        if (timestampColumn instanceof DBTableColumn)
+            ((DBTableColumn) timestampColumn).setReadOnly(true);
+        // set now
         this.timestampColumn = timestampColumn;
     }
     

@@ -23,10 +23,6 @@ package org.apache.empire.data;
  */
 public enum DataMode {
     /**
-     * ReadOnly = value cannot be changed
-     */
-    ReadOnly, 
-    /**
      * Optional = value may be null
      */
     Nullable, // i.e. Optional 

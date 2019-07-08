@@ -26,7 +26,6 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.empire.data.DataMode;
 import org.apache.empire.data.DataType;
 import org.apache.empire.db.derby.DBDatabaseDriverDerby;
 import org.apache.empire.db.h2.DBDatabaseDriverH2;
@@ -256,9 +255,9 @@ public class IntegerTest {
 
             public SampleTable(DBDatabase db) {
                 super("SAMPLE", db);
-                MY_INTEGER = addColumn("MY_INTEGER", DataType.INTEGER, 0, DataMode.NotNull);
-                MY_LONG = addColumn("MY_LONG", DataType.INTEGER, 8, DataMode.NotNull);
-                MY_SHORT = addColumn("MY_SHORT", DataType.INTEGER, 2, DataMode.NotNull);
+                MY_INTEGER = addColumn("MY_INTEGER", DataType.INTEGER, 0, true);
+                MY_LONG    = addColumn("MY_LONG",    DataType.INTEGER, 8, true);
+                MY_SHORT   = addColumn("MY_SHORT",   DataType.INTEGER, 2, true);
             }
         }
     }

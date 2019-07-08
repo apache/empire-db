@@ -35,7 +35,6 @@ import java.util.UUID;
 import org.apache.empire.commons.DateUtils;
 import org.apache.empire.commons.ObjectUtils;
 import org.apache.empire.commons.StringUtils;
-import org.apache.empire.data.DataMode;
 import org.apache.empire.data.DataType;
 import org.apache.empire.db.exceptions.EmpireSQLException;
 import org.apache.empire.exceptions.InvalidArgumentException;
@@ -153,9 +152,9 @@ public abstract class DBDatabaseDriver implements Serializable
         {
             super(tableName, db);
             // Add all Colums
-            C_SEQNAME   = addColumn("SeqName",  DataType.VARCHAR,   40, DataMode.NotNull);
-            C_SEQVALUE  = addColumn("SeqValue", DataType.INTEGER,    0, DataMode.NotNull);
-            C_TIMESTAMP = addColumn("SeqTime",  DataType.DATETIME,   0, DataMode.NotNull);
+            C_SEQNAME   = addColumn("SeqName",  DataType.VARCHAR,   40, true);
+            C_SEQVALUE  = addColumn("SeqValue", DataType.INTEGER,    0, true);
+            C_TIMESTAMP = addColumn("SeqTime",  DataType.DATETIME,   0, true);
             // Primary Key
             setPrimaryKey(new DBColumn[] { C_SEQNAME });
         }

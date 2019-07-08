@@ -60,7 +60,7 @@ public abstract class DBColumn extends DBColumnExpr
     /**
      * Read only column (Boolean)
      */
-    public static final String DBCOLATTR_READONLY  = "readonly";
+    // private static final String DBCOLATTR_READONLY  = "readonly";
     
     /**
      * Read only column (Boolean)

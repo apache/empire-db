@@ -24,7 +24,6 @@ import java.util.List;
 
 import org.apache.empire.data.Column;
 import org.apache.empire.data.DataType;
-import org.apache.empire.data.DataMode;
 
 
 /**
@@ -59,19 +58,7 @@ public abstract class BeanClass
         prop.beanClass = this;
     }
 
-    protected final BeanProperty addProp(String propname, DataType dataType, double size, DataMode dataMode, String controlType)
-    {
-        BeanProperty prop = new BeanProperty(propname, dataType, size, dataMode, controlType);
-        addProp(prop);
-        return prop;
-    }
-
-    protected final BeanProperty addProp(String propname, DataType dataType, double size, DataMode dataMode)
-    {
-        return addProp(propname, dataType, size, dataMode, "text");
-    }
-
-    protected final BeanProperty addProp(String propname, DataType dataType, double size, boolean required, String controlType, boolean readOnly)
+    protected BeanProperty addProp(String propname, DataType dataType, double size, boolean required, String controlType, boolean readOnly)
     {
         BeanProperty prop = new BeanProperty(propname, dataType, size, required, controlType, readOnly);
         addProp(prop);
@@ -81,6 +68,11 @@ public abstract class BeanClass
     protected final BeanProperty addProp(String propname, DataType dataType, double size, boolean required, String controlType)
     {
         return addProp(propname, dataType, size, required, controlType, false);
+    }
+
+    protected final BeanProperty addProp(String propname, DataType dataType, double size, boolean required, boolean readOnly)
+    {
+        return addProp(propname, dataType, size, required, "text", readOnly);
     }
 
     protected final BeanProperty addProp(String propname, DataType dataType, double size, boolean required)
