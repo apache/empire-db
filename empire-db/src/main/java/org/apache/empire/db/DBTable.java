@@ -26,6 +26,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.apache.empire.commons.Options;
 import org.apache.empire.data.DataMode;
 import org.apache.empire.data.DataType;
 import org.apache.empire.db.DBRelation.DBCascadeAction;
@@ -305,7 +306,48 @@ public class DBTable extends DBRowSet implements Cloneable
     }
 
     /**
-     * Creates a new table column and adds it to the table's column list
+     * Creates a new table column with options and adds it to the table's column list
+     * This overload should be used for column containing enum values which have no default value.
+     * 
+     * @param columnName the column name
+     * @param type the type of the column e.g. integer, text, date
+     * @param size the column width
+     * @param required true if not null column
+     * @param options this list of options
+     * @return the new column object 
+     */
+    public final DBTableColumn addColumn(String columnName, DataType type, double size, boolean required, Options options)
+    {
+        DBTableColumn col = this.crateAndAppendColumn(columnName, type, size, required, null);
+        col.setOptions(options);
+        return col;
+    }
+
+    /**
+     * Creates a new table column with options and adds it to the table's column list
+     * This overload should be used for column containing enum values which have a default value.
+     * 
+     * @param columnName the column name
+     * @param type the type of the column e.g. integer, text, date
+     * @param size the column width
+     * @param required true if not null column
+     * @param options this list of options
+     * @param defValue the default value
+     * @return the new column object 
+     */
+    public final DBTableColumn addColumn(String columnName, DataType type, double size, boolean required, Options options, Object defValue)
+    { 
+        // defValue must be part of options
+        if (defValue!=null && !options.contains(defValue))
+            throw new InvalidArgumentException("devValue", defValue);
+        // add
+        DBTableColumn col = this.crateAndAppendColumn(columnName, type, size, required, defValue);
+        col.setOptions(options);
+        return col;
+    }
+
+    /**
+     * Creates a new table column with Enum-Options and adds it to the table's column list
      * This overload should be used for column containing enum values which have no default value.
      * 
      * @param columnName the column name
@@ -327,7 +369,7 @@ public class DBTable extends DBRowSet implements Cloneable
     }
 
     /**
-     * Creates a new table column and adds it to the table's column list
+     * Creates a new table column with Enum-Options and adds it to the table's column list
      * This overload should be used for column containing enum values which have a default value.
      * 
      * @param columnName the column name
