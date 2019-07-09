@@ -20,7 +20,9 @@ package org.apache.empire.data;
 
 /**
  * DataMode is an enumeration that specifies whether the value of a column is readonly, optional (nullable), required (NotNull), or auto-generated 
+ * @deprecated will be removed in a future release 
  */
+@Deprecated
 public enum DataMode {
     /**
      * Optional = value may be null
