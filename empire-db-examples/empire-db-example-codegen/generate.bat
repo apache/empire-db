@@ -27,9 +27,9 @@ rem Assemble classpath
 :CLASSPATH
 set classpath=%repo%\org\apache\empire-db\empire-db\%empire-db-version%\empire-db-%empire-db-version%.jar
 set classpath=%classpath%;%repo%\org\apache\empire-db\empire-db-codegen\%empire-db-version%\empire-db-codegen-%empire-db-version%.jar
-set classpath=%classpath%;%repo%\org\slf4j\slf4j-api\1.6.1\slf4j-api-1.6.1.jar
-set classpath=%classpath%;%repo%\org\slf4j\slf4j-log4j12\1.6.1\slf4j-log4j12-1.6.1.jar
-set classpath=%classpath%;%repo%\log4j\log4j\1.2.16\log4j-1.2.16.jar
+set classpath=%classpath%;%repo%\org\slf4j\slf4j-api\1.7.26\slf4j-api-1.7.26.jar
+set classpath=%classpath%;%repo%\org\slf4j\slf4j-log4j12\1.7.26\slf4j-log4j12-1.7.26.jar
+set classpath=%classpath%;%repo%\log4j\log4j\1.2.17\log4j-1.2.17.jar
 set classpath=%classpath%;%repo%\commons-beanutils\commons-beanutils\1.8.3\commons-beanutils-1.8.3.jar
 set classpath=%classpath%;%repo%\commons-logging\commons-logging\1.1.1\commons-logging-1.1.1.jar
 set classpath=%classpath%;%repo%\org\apache\velocity\velocity\1.7\velocity-1.7.jar

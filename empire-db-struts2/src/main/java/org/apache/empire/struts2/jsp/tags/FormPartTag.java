@@ -271,8 +271,9 @@ public class FormPartTag extends EmpireTagSupport // FormTag
                 if (record.isNull(i))
                     continue;
                 // Add hidden field
+                DataType dataType = column.getDataType();
                 String value = StringUtils.toString(record.getValue(i)); 
-                if (column.getDataType()==DataType.DATETIME && sysdate.equals(value)==false)
+                if ((dataType==DataType.DATETIME || dataType==DataType.TIMESTAMP) && sysdate.equals(value)==false)
                 {   // Special for Timestamps
                     Date date = ObjectUtils.getDate(record.getValue(i));
                     value = formatDate(date, "yyyy-MM-dd HH:mm:ss.S");

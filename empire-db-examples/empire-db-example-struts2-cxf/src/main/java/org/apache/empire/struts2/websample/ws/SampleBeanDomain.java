@@ -52,7 +52,7 @@ public class SampleBeanDomain extends BeanDomain
             C_NAME            = addProp("name",            DataType.VARCHAR,      80, true);
             C_HEAD            = addProp("head",            DataType.VARCHAR,      80, false);
             C_BUSINESS_UNIT   = addProp("businessUnit",    DataType.VARCHAR,       4, true);
-            C_UPDATE_TIMESTAMP= addProp("updateTimestamp", DataType.DATETIME,      0, true, true);
+            C_UPDATE_TIMESTAMP= addProp("updateTimestamp", DataType.TIMESTAMP,     0, true, true);
         
             // Primary Key
             setKeyColumn(C_DEPARTMENT_ID);
@@ -95,7 +95,7 @@ public class SampleBeanDomain extends BeanDomain
             C_PHONE_NUMBER    = addProp("phoneNumber",		DataType.VARCHAR,     40, false, 	"phone");
             C_EMAIL           = addProp("email",            DataType.VARCHAR,     80, false);
             C_RETIRED         = addProp("retired",          DataType.BOOL,         0, true);
-            C_UPDATE_TIMESTAMP= addProp("updateTimestamp",	DataType.DATETIME,     0, true, "    text", true);
+            C_UPDATE_TIMESTAMP= addProp("updateTimestamp",	DataType.TIMESTAMP,    0, true, "    text", true);
         
             // Primary Key
             setKeyColumn(C_EMPLOYEE_ID);

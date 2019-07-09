@@ -139,6 +139,7 @@ public abstract class DBExpr extends DBObject
                 return String.class;
             case DATE:
             case DATETIME:
+            case TIMESTAMP:
                 return Date.class;
             case CHAR:
                 return Character.class;

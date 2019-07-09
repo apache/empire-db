@@ -90,7 +90,7 @@ public class DBDatabaseDriverMySQLTest {
         assertEquals("CAST(? AS DATE)", driver.getConvertPhrase(DataType.DATE, null, "test"));
         
         // DATETIME
-        assertEquals("CAST(? AS DATETIME)", driver.getConvertPhrase(DataType.DATETIME, null, null));
+        assertEquals("CAST(? AS DATETIME)", driver.getConvertPhrase(DataType.TIMESTAMP, null, null));
         assertEquals("CAST(? AS DATETIME)", driver.getConvertPhrase(DataType.DATETIME, null, "test"));
         
         // TEXT

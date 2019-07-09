@@ -233,6 +233,7 @@ public class WriterService {
 			return String.class;
 		case DATE:
 		case DATETIME:
+        case TIMESTAMP:
 			return Date.class;
 		case CHAR:
 			return String.class;

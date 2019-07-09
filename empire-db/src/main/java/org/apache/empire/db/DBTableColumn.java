@@ -360,6 +360,7 @@ public class DBTableColumn extends DBColumn
         {
             case DATE:
             case DATETIME:
+            case TIMESTAMP:
                 // Check whether value is a valid date/time value!
                 if (value!=null && !(value instanceof Date) && !DBDatabase.SYSDATE.equals(value))
                 {   // Parse String

@@ -66,12 +66,6 @@ public class $parser.getTableClassName($table.name) extends ${baseTableClassName
 #end
 #end
 
-		// Optimistic locking column
-#if($parser.hasLockingColumn($table) == true)
-		setTimestampColumn(${parser.getColumnName($table.getTimestampColumn())});
-#else
-		/*no locking column specified*/
-#end
 #end
 	}
 #if($nestTables == true)

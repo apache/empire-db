@@ -56,7 +56,7 @@ public class TextInputControl extends InputControl
         if (type==DataType.DECIMAL)
         {   return parseDecimal(value, getNumberFormat(column.getDataType(), locale, column));
         }
-        if (type==DataType.DATE || type==DataType.DATETIME)
+        if (type==DataType.DATE || type==DataType.DATETIME || type==DataType.TIMESTAMP)
         {   return parseDate(value, getDateFormat(column.getDataType(), locale, column));
         }
         if (type==DataType.AUTOINC)
@@ -135,9 +135,9 @@ public class TextInputControl extends InputControl
             NumberFormat nf = getNumberFormat(dataType, vi.getUserLocale(), column);
             return nf.format(value);
         }
-        if (dataType == DataType.DATE || dataType == DataType.DATETIME)
+        if (dataType == DataType.DATE || dataType == DataType.DATETIME || dataType == DataType.TIMESTAMP)
         { // Date or DateTime
-            if (dataType== DataType.DATETIME && hasFormatOption(vi, "notime"))
+            if (dataType!= DataType.DATE && hasFormatOption(vi, "notime"))
                 dataType = DataType.DATE;
             // Now format the date according to the user's locale
             DateFormat df = getDateFormat(dataType, vi.getUserLocale(), column);
@@ -246,7 +246,7 @@ public class TextInputControl extends InputControl
             return 1;
         if (type==DataType.DATE)
             return 10;
-        if (type==DataType.DATETIME)
+        if (type==DataType.DATETIME || type==DataType.TIMESTAMP)
             return 16;
         if (type==DataType.CLOB)
             return 0; // unlimited (use 0x7FFFFFFF instead?)
@@ -274,7 +274,7 @@ public class TextInputControl extends InputControl
         }
         if (value instanceof Date)
         { // Check desired type
-            if (desiredType == DataType.DATETIME || desiredType == DataType.DATE)
+            if (desiredType == DataType.TIMESTAMP || desiredType == DataType.DATETIME || desiredType == DataType.DATE)
                 return desiredType;
             // Detect type
             if (value instanceof Timestamp)

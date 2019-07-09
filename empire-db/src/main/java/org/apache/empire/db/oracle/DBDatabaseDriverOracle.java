@@ -243,6 +243,7 @@ public class DBDatabaseDriverOracle extends DBDatabaseDriver
             // Convert to date
             case DATE:
             case DATETIME:
+            case TIMESTAMP:
                 if (format != null)
                 { // Convert using a format string
                     return "to_date(?, '"+format.toString()+"')";

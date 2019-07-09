@@ -368,7 +368,8 @@ public class DBDatabaseDriverMSSQL extends DBDatabaseDriver
            case DECIMAL:   return "convert(decimal, ?)";
            case FLOAT:     return "convert(float, ?)";
            case DATE:      return "convert(date, ?, 111)";
-           case DATETIME:  return isUseDateTime2() ? "convert(datetime2, ?, 121)"
+           case DATETIME:
+           case TIMESTAMP: return isUseDateTime2() ? "convert(datetime2, ?, 121)"
                                                    : "convert(datetime,  ?, 121)";
            // Convert to text
            case TEXT:
@@ -379,7 +380,7 @@ public class DBDatabaseDriverMSSQL extends DBDatabaseDriver
                 if (srcType==DataType.DATE)
                     return "convert(nvarchar, ?, 111)";
                 // Date-Time-Format "YYYY-MM-DD hh.mm.ss"
-                if (srcType==DataType.DATETIME)
+                if (srcType==DataType.DATETIME || srcType==DataType.TIMESTAMP)
                     return "convert(nvarchar, ?, 120)";
                 // other
                 return "convert(nvarchar, ?)";

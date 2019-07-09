@@ -213,6 +213,22 @@ public class DBTable extends DBRowSet implements Cloneable
             throw new ItemExistsException(column.getName());
         // add now
         columns.add(column);
+        // auto-set primary key
+        if (column.getDataType()==DataType.AUTOINC)
+        {   // Automatically set primary key
+            if (this.primaryKey==null)
+                this.setPrimaryKey(column);
+            else
+                log.warn("Table {} already has a Primary-Key! DataType of column {} should be INTEGER.", getName(), column.getName());
+        }
+        // auto-set timestamp column
+        if (column.getDataType()==DataType.TIMESTAMP)
+        {   // Automatically set timestamp column
+            if (timestampColumn==null)
+                this.setTimestampColumn(column);
+            else
+                log.warn("Table {} already has a Timestamp column. DataType of column {} should be DATETIME.", getName(), column.getName());
+        }
     }
     
     /**
@@ -337,16 +353,30 @@ public class DBTable extends DBRowSet implements Cloneable
      */
     public void setPrimaryKey(DBColumn... columns)
     {
-        if (columns==null || columns.length==0)
+        if (columns==null)
             throw new InvalidArgumentException("columns", columns);
         // All columns must belong to this table
         for (int i=0; i<columns.length; i++)
             if (columns[i].getRowSet()!=this)
                 throw new InvalidArgumentException("columns["+String.valueOf(i)+"]", columns[i].getFullName());
+        // Check if already exists
+        if (primaryKey!=null)
+        {   // compare columns
+            if (primaryKey.compareColumns(columns))
+                return; // already set
+            // new key
+            removeIndex(primaryKey);
+        }
         // Set primary Key now
-        primaryKey = new DBIndex(name + "_PK", DBIndex.PRIMARYKEY, columns);
-        indexes.add(primaryKey);
-        primaryKey.setTable(this);
+        if (columns.length>0)
+        {   // create primary key
+            primaryKey = new DBIndex(name + "_PK", DBIndex.PRIMARYKEY, columns);
+            addIndex(primaryKey);
+        }
+        else
+        {   // No primary Key
+            primaryKey = null;
+        }
     }
 
     /**
@@ -393,6 +423,20 @@ public class DBTable extends DBRowSet implements Cloneable
     }
 
     /**
+     * removes an index.
+     * 
+     * @param index the index to remove
+     */
+    public void removeIndex(DBIndex index)
+    {
+        if (index.getTable()!=this || !indexes.contains(index))
+            throw new InvalidArgumentException("index", index);
+        // table
+        indexes.remove(index);
+        index.setTable(null);
+    }
+
+    /**
      * Adds a timestamp column to the table used for optimistic locking.
      * 
      * @param columnName the column name
@@ -401,8 +445,9 @@ public class DBTable extends DBRowSet implements Cloneable
      */
     public DBTableColumn addTimestampColumn(String columnName)
     {
-        DBTableColumn col = addColumn(columnName, DataType.DATETIME, 0, true, DBDatabase.SYSDATE);
-        setTimestampColumn(col);
+        DBTableColumn col = addColumn(columnName, DataType.TIMESTAMP, 0, true, DBDatabase.SYSDATE);
+        if (this.timestampColumn!=col)
+            setTimestampColumn(col);    // make sure, this is the timestamp column, even if another one exists
         return col;
     }
 

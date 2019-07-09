@@ -64,39 +64,44 @@ public enum DataType
     DATETIME, //     = 5;
     
     /**
+     * Automatic Record timestamp (only one per table allowed)  
+     */
+    TIMESTAMP, //    = 6;
+    
+    /**
      * Fixed length character value.
      */
-    CHAR, //         = 6;
+    CHAR, //         = 7;
     
     /**
      * floating point value
      */
-    FLOAT, //        = 7;
+    FLOAT, //        = 8;
     
     /**
      * Decimal numeric value (size indicates scale and precision)
      */
-    DECIMAL, //      = 8;
+    DECIMAL, //      = 9;
     
     /**
      * Boolean field (emulated if not supported by DBMS as number or char)
      */
-    BOOL, //         = 9;
+    BOOL, //         = 10;
     
     /**
      * Long text &gt; 2K
      */
-    CLOB, //         = 10;
+    CLOB, //         = 11;
     
     /**
      * Binary data
      */
-    BLOB, //         = 11;
+    BLOB, //         = 12;
     
     /**
      * Unique Identifier (non-numeric, treated like text) 
      */
-    UNIQUEID; //     = 12;
+    UNIQUEID; //     = 13;
     
     /**
      * Returns true if the data type is a text based data type (char, text or clob)
@@ -122,7 +127,7 @@ public enum DataType
      */
     public boolean isDate()
     {
-        return (this==DataType.DATE || this==DataType.DATETIME);
+        return (this==DataType.DATE || this==DataType.DATETIME || this==DataType.TIMESTAMP);
     }
 
     /**

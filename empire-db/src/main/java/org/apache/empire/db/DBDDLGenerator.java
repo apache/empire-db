@@ -125,6 +125,7 @@ public abstract class DBDDLGenerator<T extends DBDatabaseDriver>
                 sql.append(DATATYPE_DATE);
                 break;
             case DATETIME:
+            case TIMESTAMP:
                 sql.append(DATATYPE_TIMESTAMP);
                 break;
             case BOOL:

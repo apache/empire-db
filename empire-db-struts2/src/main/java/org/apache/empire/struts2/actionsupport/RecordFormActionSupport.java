@@ -299,7 +299,7 @@ public abstract class RecordFormActionSupport extends FormActionSupport
             }
             else if ((value=action.getRequestParam(field + "!"))!=null)
             {   // hidden value
-                if (col.getDataType()==DataType.DATE || col.getDataType()==DataType.DATETIME)
+                if (col.getDataType().isDate())
                 {   // Special for Dates and timestamps
                     if (value.equals(sysdate)==false)
                     {   // Parse Date Time

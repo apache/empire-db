@@ -400,7 +400,8 @@ public class DBDatabaseDriverPostgreSQL extends DBDatabaseDriver
             case DECIMAL:  return "CAST(? AS DECIMAL)";
             case FLOAT:    return "CAST(? AS DOUBLE PRECISION)";
             case DATE:     return "CAST(? AS DATE)";
-            case DATETIME: return "CAST(? AS TIMESTAMP)";
+            case DATETIME:
+            case TIMESTAMP:return "CAST(? AS TIMESTAMP)";
                 // Convert to text
             case TEXT:
             case VARCHAR:  

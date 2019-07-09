@@ -355,6 +355,7 @@ public class DBModelChecker
                 break;
             case DATE:
             case DATETIME:
+            case TIMESTAMP:
                 checkDateColumn(column, remoteColumn, handler);
                 break;
             case CHAR:
@@ -443,7 +444,7 @@ public class DBModelChecker
         checkColumnNullable(column, remoteColumn, handler);
 
         // check type
-        if (!(remoteColumn.getDataType() == DataType.DATE || remoteColumn.getDataType() == DataType.DATETIME))
+        if (!remoteColumn.getDataType().isDate())
         {
             handler.columnTypeMismatch(column, remoteColumn.getDataType());
         }

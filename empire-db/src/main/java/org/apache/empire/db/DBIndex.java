@@ -18,8 +18,6 @@
  */
 package org.apache.empire.db;
 
-import org.apache.empire.exceptions.InvalidArgumentException;
-
 /**
  * This class handles the primary key for the tables.
  * The primary key contains one or more columns.
@@ -83,9 +81,6 @@ public class DBIndex extends DBObject
      */
     void setTable(DBTable table)
     {
-        if (table==null || !table.getIndexes().contains(this))
-            throw new InvalidArgumentException("table", table);
-        // table
         this.table = table;
     }
 
@@ -113,6 +108,24 @@ public class DBIndex extends DBObject
     public DBColumn[] getColumns()
     {
         return columns;
+    }
+    
+    /**
+     * checks whether the columns of this index match the supplied columns
+     * @param columns
+     * @return true if columns match or false otherwise
+     */
+    public boolean compareColumns(DBColumn[] columns)
+    {
+        if (columns==null || columns.length!=this.columns.length)
+            return false;
+        // Compare all columns
+        for (int i=0; i<columns.length; i++)
+        {
+            if (!columns[i].equals(this.columns[i]))
+                return false;
+        }
+        return true;
     }
 
     /**

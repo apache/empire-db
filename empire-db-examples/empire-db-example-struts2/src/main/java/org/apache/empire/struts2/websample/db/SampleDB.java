@@ -57,14 +57,12 @@ public class SampleDB extends DBDatabase
             C_NAME            = addColumn("NAME",             DataType.VARCHAR,      80, true);
             C_HEAD            = addColumn("HEAD",             DataType.VARCHAR,      80, false);
             C_BUSINESS_UNIT   = addColumn("BUSINESS_UNIT",    DataType.VARCHAR,       4, true, "ITTK");
-            C_UPDATE_TIMESTAMP= addColumn("UPDATE_TIMESTAMP", DataType.DATETIME,      0, true);
+            C_UPDATE_TIMESTAMP= addColumn("UPDATE_TIMESTAMP", DataType.TIMESTAMP,     0, true);
         
             // Primary Key
             setPrimaryKey(C_DEPARTMENT_ID);
             // Set other Indexes
             addIndex("DEARTMENT_NAME_IDX", true, new DBColumn[] { C_NAME });
-            // Set timestamp column for save updates
-            setTimestampColumn(C_UPDATE_TIMESTAMP);
 
         }    
     }   
@@ -102,14 +100,12 @@ public class SampleDB extends DBDatabase
             C_PHONE_NUMBER    = addColumn("PHONE_NUMBER",     DataType.VARCHAR,     40, false);
             C_EMAIL           = addColumn("EMAIL",            DataType.VARCHAR,     80, false);
             C_RETIRED         = addColumn("RETIRED",          DataType.BOOL,         0, true, false);
-            C_UPDATE_TIMESTAMP= addColumn("UPDATE_TIMESTAMP", DataType.DATETIME,     0, true);
+            C_UPDATE_TIMESTAMP= addColumn("UPDATE_TIMESTAMP", DataType.TIMESTAMP,    0, true);
         
             // Primary Key
             setPrimaryKey(C_EMPLOYEE_ID);
             // Set other Indexes
             addIndex("PERSON_NAME_IDX", true, new DBColumn[] { C_FIRSTNAME, C_LASTNAME, C_DATE_OF_BIRTH });
-            // Set timestamp column for save updates
-            setTimestampColumn(C_UPDATE_TIMESTAMP);
             
             // Create Options for GENDER column
             Options genders = new Options();

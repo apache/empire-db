@@ -391,7 +391,7 @@ public abstract class DBDatabaseDriver implements Serializable
         {   // emulate using java.util.UUID
             return UUID.randomUUID();
         }
-        else if ((type==DataType.DATE || type==DataType.DATETIME))
+        else if (type==DataType.DATE || type==DataType.DATETIME || type==DataType.TIMESTAMP)
         {   // Get database system's date and time
             Date ts = db.getUpdateTimestamp(conn);
             return (type==DataType.DATE ? DateUtils.getDateOnly(ts) : ts);
@@ -507,7 +507,7 @@ public abstract class DBDatabaseDriver implements Serializable
     public Object getResultValue(ResultSet rset, int columnIndex, DataType dataType)
         throws SQLException
     {
-        if (dataType == DataType.DATETIME)
+        if (dataType == DataType.DATETIME || dataType == DataType.TIMESTAMP)
         { // Get Timestamp (do not use getObject()!) 
             return rset.getTimestamp(columnIndex);
         } 
@@ -721,6 +721,7 @@ public abstract class DBDatabaseDriver implements Serializable
             case DATE:
                 return getSQLDateTimeString(value, SQL_DATE_TEMPLATE, SQL_DATE_PATTERN, SQL_CURRENT_DATE);
             case DATETIME:
+            case TIMESTAMP:
                 // System date is special case
                 if (!DBDatabase.SYSDATE.equals(value) && value.toString().length()<=10)
                     return getSQLDateTimeString(value, SQL_DATE_TEMPLATE, SQL_DATE_PATTERN, SQL_CURRENT_DATETIME);

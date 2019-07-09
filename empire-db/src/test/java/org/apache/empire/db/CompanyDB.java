@@ -50,13 +50,11 @@ public class CompanyDB extends DBDatabase
             NAME            = addColumn("NAME",             DataType.VARCHAR,      80, true);
             HEAD            = addColumn("HEAD",             DataType.VARCHAR,      80, false);
             BUSINESS_UNIT   = addColumn("BUSINESS_UNIT",    DataType.VARCHAR,       4, true, "ITTK");
-            UPDATE_TIMESTAMP= addColumn("UPDATE_TIMESTAMP", DataType.DATETIME,      0, true);
+            UPDATE_TIMESTAMP= addColumn("UPDATE_TIMESTAMP", DataType.TIMESTAMP,     0, true);
             // Primary Key
             setPrimaryKey(ID);
             // Set other Indexes
             addIndex("DEARTMENT_NAME_IDX", true, new DBColumn[] { NAME });
-            // Set timestamp column for save updates
-            setTimestampColumn(UPDATE_TIMESTAMP);
         }
     }
 
@@ -94,14 +92,12 @@ public class CompanyDB extends DBDatabase
             EMAIL           = addColumn("EMAIL",            DataType.VARCHAR,     80, false);
             SALARY          = addColumn("SALARY",           DataType.DECIMAL,   10.2, false);
             RETIRED         = addColumn("RETIRED",          DataType.BOOL,         0, true, false);
-            UPDATE_TIMESTAMP= addColumn("UPDATE_TIMESTAMP", DataType.DATETIME,     0, true);
+            UPDATE_TIMESTAMP= addColumn("UPDATE_TIMESTAMP", DataType.TIMESTAMP,    0, true);
 
             // Primary Key
             setPrimaryKey(ID);
             // Set other Indexes
             addIndex("EMPLOYEE_NAME_IDX", true, new DBColumn[] { FIRSTNAME, LASTNAME, DATE_OF_BIRTH });
-            // Set timestamp column for save updates
-            setTimestampColumn(UPDATE_TIMESTAMP);
 
             // Create Options for GENDER column
             Options genders = new Options();
@@ -127,12 +123,9 @@ public class CompanyDB extends DBDatabase
             // ID
             ID              = addColumn("DEPARTMENT_ID",    DataType.AUTOINC,       0, true, "DATA_ID_SEQUENCE");
             DATA            = addColumn("NAME",             DataType.BLOB,          0, true);
-            UPDATE_TIMESTAMP= addColumn("UPDATE_TIMESTAMP", DataType.DATETIME,      0, true);
-
+            UPDATE_TIMESTAMP= addColumn("UPDATE_TIMESTAMP", DataType.TIMESTAMP,     0, true);
             // Primary Key
             setPrimaryKey(ID);
-            // Set timestamp column for save updates
-            setTimestampColumn(UPDATE_TIMESTAMP);
         }
     }
 

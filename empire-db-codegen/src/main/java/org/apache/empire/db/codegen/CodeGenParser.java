@@ -293,18 +293,13 @@ public class CodeGenParser {
 		DBColumn[] keys = new DBColumn[pkCols.size()];
 		ResultSet rs = null;
 		try {
-			rs = dbMeta.getColumns(config.getDbCatalog(), config.getDbSchema(),
-					t.getName(), null);
+			rs = dbMeta.getColumns(config.getDbCatalog(), config.getDbSchema(),	t.getName(), null);
 	        int i=0;
 			while (rs.next()) {
-				DBTableColumn c = addColumn(t, rs);
+				DBTableColumn c = addColumn(t, rs, lockColName);
 				// check if it is a KeyColumn
 				if (pkCols.contains(c.getName()))
 					keys[i++] = c;
-				
-				// check if it is the Timestamp/Locking Column
-				if (lockColName!=null && c.getName().equalsIgnoreCase(lockColName))
-					t.setTimestampColumn(c);
 			}
 	        // Check whether all key columns have been set
 	        for (i=0; i<keys.length; i++)
@@ -361,12 +356,20 @@ public class CodeGenParser {
 	 * Adds DBColumn object to the given DBTable. The DBColumn is created from
 	 * the given ResultSet
 	 */
-	private DBTableColumn addColumn(DBTable t, ResultSet rs)
+	private DBTableColumn addColumn(DBTable t, ResultSet rs, String lockColName)
 			throws SQLException {
 		String name = rs.getString("COLUMN_NAME");
 		DataType empireType = getEmpireDataType(rs.getInt("DATA_TYPE"));
 		double colSize = getColumnSize(empireType, rs.getInt("DATA_TYPE"), rs.getInt("COLUMN_SIZE"));
-		
+
+		// Timestamp column
+        if (empireType==DataType.DATETIME && StringUtils.isNotEmpty(lockColName) && name.equalsIgnoreCase(lockColName))
+        {
+            empireType=DataType.TIMESTAMP;
+            colSize=0;
+        }
+
+        // Number column
 		if (empireType==DataType.DECIMAL || empireType==DataType.FLOAT)
 		{	// decimal digits
 			int decimalDig = rs.getInt("DECIMAL_DIGITS");

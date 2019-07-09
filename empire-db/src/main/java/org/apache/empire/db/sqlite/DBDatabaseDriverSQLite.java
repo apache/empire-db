@@ -461,7 +461,7 @@ public class DBDatabaseDriverSQLite extends DBDatabaseDriver
     @Override
     public Object getResultValue(ResultSet rset, int columnIndex, DataType dataType) throws SQLException
     {
-        if (dataType == DataType.DATETIME)
+        if (dataType == DataType.DATETIME || dataType == DataType.TIMESTAMP)
         {
             // SQLite does not have a Date type, or any kind of type :(
             String datePattern = getSQLPhrase(SQL_DATETIME_PATTERN);

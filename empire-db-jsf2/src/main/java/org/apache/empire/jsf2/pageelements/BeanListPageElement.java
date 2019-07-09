@@ -112,7 +112,7 @@ public class BeanListPageElement<T> extends ListPageElement<T> implements ListIt
         {   // Date sort order is descending by default
             if (defaultSortColumn.getRowSet()!=rowset)
                 throw new InvalidArgumentException("defaultSortColumn", defaultSortColumn);
-            if (defaultSortColumn.getDataType() == DataType.DATE || defaultSortColumn.getDataType() == DataType.DATETIME)
+            if (defaultSortColumn.getDataType().isDate())
                 defaultSortAscending = false;
         }
         // Set Bean Class and more

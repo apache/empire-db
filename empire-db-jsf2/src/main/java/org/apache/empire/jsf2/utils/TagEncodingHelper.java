@@ -1407,6 +1407,7 @@ public class TagEncodingHelper implements NamingContainer
                 return CSS_DATA_TYPE_TEXT;
             case DATE:
             case DATETIME:
+            case TIMESTAMP:
                 return CSS_DATA_TYPE_DATE;
             case BOOL:
                 return CSS_DATA_TYPE_BOOL;

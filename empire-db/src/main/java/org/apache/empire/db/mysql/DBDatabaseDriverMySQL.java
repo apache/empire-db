@@ -1060,7 +1060,8 @@ public class DBDatabaseDriverMySQL extends DBDatabaseDriver
            case DECIMAL:   return "CAST(? AS DECIMAL)";
            case FLOAT:     return "CAST(? AS DECIMAL)";
            case DATE:      return "CAST(? AS DATE)";
-           case DATETIME:  return "CAST(? AS DATETIME)";
+           case DATETIME:
+           case TIMESTAMP: return "CAST(? AS DATETIME)";
            // Convert to text
            case TEXT:
            case VARCHAR:
