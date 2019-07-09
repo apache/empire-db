@@ -727,6 +727,7 @@ public abstract class DBDatabaseDriver implements Serializable
                     return getSQLDateTimeString(value, SQL_DATE_TEMPLATE, SQL_DATE_PATTERN, SQL_CURRENT_DATETIME);
                 // Complete Date-Time Object with time 
                 return getSQLDateTimeString(value, SQL_DATETIME_TEMPLATE, SQL_DATETIME_PATTERN, SQL_CURRENT_DATETIME);
+            case TEXT:
             case VARCHAR:
             case CHAR:
             case CLOB:
