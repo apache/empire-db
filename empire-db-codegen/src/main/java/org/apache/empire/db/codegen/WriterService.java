@@ -232,7 +232,6 @@ public class WriterService {
         case VARCHAR:
 			return String.class;
 		case DATE:
-			return Date.class;
 		case DATETIME:
 			return Date.class;
 		case CHAR:
@@ -273,10 +272,13 @@ public class WriterService {
 		Object val = dbC.getDefaultValue();
 		if (val == null)
 		{
-			return "null";
+			return null;
 		}
-
-		return "\"" + val + "\"";
+		if (val instanceof Number)
+		{
+		    return String.valueOf(val);
+		}
+		return "\"" + String.valueOf(val) + "\"";
 	}
 	
 	

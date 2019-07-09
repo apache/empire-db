@@ -42,8 +42,13 @@ public class $parser.getTableClassName($table.name) extends ${baseTableClassName
 		
 		// create columns
 #foreach ($col in $table.columns)
+#if($parser.getDefaultValue($col))
 		${parser.getColumnName($col)} = addColumn("${col.name}", DataType.${parser.getDataType($col)}, ${col.size}, ${col.isRequired()}, ${parser.getDefaultValue($col)});
+#else
+		${parser.getColumnName($col)} = addColumn("${col.name}", DataType.${parser.getDataType($col)}, ${col.size}, ${col.isRequired()});
 #end
+#end
+
 
 		// configure key columns (primary key)
 #if($table.keyColumns.size()>0)
