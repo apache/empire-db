@@ -20,7 +20,6 @@ package org.apache.empire.samples.db;
 
 import org.apache.empire.commons.Options;
 import org.apache.empire.data.DataType;
-import org.apache.empire.data.DataMode;
 import org.apache.empire.db.DBColumn;
 import org.apache.empire.db.DBDatabase;
 import org.apache.empire.db.DBTable;
@@ -47,8 +46,20 @@ public class SampleDB extends DBDatabase
     
     public enum Gender
     {
-    	M,	// Male
-    	F; 	// Female
+    	M("Male"),
+    	F("Female"),
+        U("Unknown");
+        
+        private final String title;
+        private Gender(String title)
+        {
+            this.title = title;
+        }
+        @Override
+        public String toString()
+        {
+            return title;
+        }
     }
 
     /**
@@ -74,8 +85,8 @@ public class SampleDB extends DBDatabase
             BUSINESS_UNIT   = addColumn("BUSINESS_UNIT",    DataType.VARCHAR,       4, true, "ITTK");
             UPDATE_TIMESTAMP= addColumn("UPDATE_TIMESTAMP", DataType.TIMESTAMP,     0, true);
 
-            // Primary Key
-            setPrimaryKey(DEPARTMENT_ID);
+            // Primary Key (automatically set due to AUTOINC column)
+            // setPrimaryKey(DEPARTMENT_ID);
             // Set other Indexes
             addIndex("DEPARTMENT_NAME_IDX", true, new DBColumn[] { NAME });
         }
@@ -93,6 +104,7 @@ public class SampleDB extends DBDatabase
         public final DBTableColumn FIRSTNAME;
         public final DBTableColumn LASTNAME;
         public final DBTableColumn DATE_OF_BIRTH;
+        public final DBTableColumn DATE_WITH_TIME;
         public final DBTableColumn DEPARTMENT_ID;
         public final DBTableColumn GENDER;
         public final DBTableColumn PHONE_NUMBER;
@@ -104,30 +116,26 @@ public class SampleDB extends DBDatabase
         public Employees(DBDatabase db)
         {
             super("EMPLOYEES", db);
+            
             // ID
             EMPLOYEE_ID     = addColumn("EMPLOYEE_ID",      DataType.AUTOINC,      0, true, "EMPLOYEE_ID_SEQUENCE");
             SALUTATION      = addColumn("SALUTATION",       DataType.VARCHAR,     20, false);
             FIRSTNAME       = addColumn("FIRSTNAME",        DataType.VARCHAR,     40, true);
             LASTNAME        = addColumn("LASTNAME",         DataType.VARCHAR,     40, true);
             DATE_OF_BIRTH   = addColumn("DATE_OF_BIRTH",    DataType.DATE,         0, false);
+            DATE_WITH_TIME  = addColumn("DATE_WITH_TIME",   DataType.DATETIME,     0, false);
             DEPARTMENT_ID   = addColumn("DEPARTMENT_ID",    DataType.INTEGER,      0, true);
-            GENDER          = addColumn("GENDER",           DataType.VARCHAR,      1, false);
+            GENDER          = addColumn("GENDER",           DataType.VARCHAR,      1, false, Gender.class);
             PHONE_NUMBER    = addColumn("PHONE_NUMBER",     DataType.VARCHAR,     40, false);
             EMAIL           = addColumn("EMAIL",            DataType.VARCHAR,     80, false);
             SALARY          = addColumn("SALARY",           DataType.DECIMAL,   10.2, false);
             RETIRED         = addColumn("RETIRED",          DataType.BOOL,         0, true, false);
             UPDATE_TIMESTAMP= addColumn("UPDATE_TIMESTAMP", DataType.TIMESTAMP,    0, true);
 
-            // Primary Key
-            setPrimaryKey(EMPLOYEE_ID);
+            // Primary Key (automatically set due to AUTOINC column)
+            // setPrimaryKey(EMPLOYEE_ID);
             // Set other Indexes
             addIndex("EMPLOYEE_NAME_IDX", true, new DBColumn[] { FIRSTNAME, LASTNAME, DATE_OF_BIRTH });
-            
-            // Create Options for GENDER column
-            Options genders = new Options();
-            genders.set(Gender.M, "Male");
-            genders.set(Gender.F, "Female");
-            GENDER.setOptions(genders);
         }
     }
 
