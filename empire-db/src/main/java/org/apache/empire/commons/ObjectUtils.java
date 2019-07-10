@@ -90,6 +90,21 @@ public final class ObjectUtils
     }
     
     /**
+     * returns the string length of an object
+     * @param o the object to check
+     * @return the string length of the object
+     */
+    public static int lengthOf(Object o)
+    {
+        if (o==null || o==ObjectUtils.NO_VALUE)
+            return 0;
+        if ((o instanceof String))
+            return ((String)o).length();
+        // convert
+        return o.toString().length();
+    }
+    
+    /**
      * Compares two objects for equality 
      * 
      * @param o1 the first object

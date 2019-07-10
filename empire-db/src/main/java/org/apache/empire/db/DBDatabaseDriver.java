@@ -63,14 +63,16 @@ public abstract class DBDatabaseDriver implements Serializable
     public static final int SQL_CONCAT_EXPR      = 8;   // Oracle: ||
     public static final int SQL_PSEUDO_TABLE     = 9;   // Oracle: "DUAL"
     // data types
-    public static final int SQL_BOOLEAN_TRUE     = 10;  // Oracle: "'Y'"; MSSQL: "1"
-    public static final int SQL_BOOLEAN_FALSE    = 11;  // Oracle: "'N'"; MSSQL: "0"
-    public static final int SQL_CURRENT_DATE     = 20;  // Oracle: "sysdate"
-    public static final int SQL_DATE_PATTERN     = 21;  // "yyyy.MM.dd"
-    public static final int SQL_DATE_TEMPLATE    = 22;  // Oracle: "TO_DATE('{0}', 'YYYY-MM-DD')"
-    public static final int SQL_CURRENT_DATETIME = 25;  // Oracle: "sysdate"
-    public static final int SQL_DATETIME_PATTERN = 26;  // "yyyy.MM.dd HH:mm:ss"
-    public static final int SQL_DATETIME_TEMPLATE= 27;  // Oracle: "TO_DATE('{0}', 'YYYY-MM-DD HH24:MI:SS')"
+    public static final int SQL_BOOLEAN_TRUE      = 10; // Oracle: "'Y'"; MSSQL: "1"
+    public static final int SQL_BOOLEAN_FALSE     = 11; // Oracle: "'N'"; MSSQL: "0"
+    public static final int SQL_CURRENT_DATE      = 20; // Oracle: "sysdate"
+    public static final int SQL_DATE_PATTERN      = 21; // "yyyy-MM-dd"  // SimpleDateFormat
+    public static final int SQL_DATE_TEMPLATE     = 22; // Oracle: "TO_DATE('{0}', 'YYYY-MM-DD')"
+    public static final int SQL_DATETIME_PATTERN  = 23; // "yyyy-MM-dd HH:mm:ss.SSS"  // SimpleDateFormat
+    public static final int SQL_DATETIME_TEMPLATE = 24; // Oracle: "TO_DATE('{0}', 'YYYY-MM-DD HH24:MI:SS')"
+    public static final int SQL_CURRENT_TIMESTAMP = 25; // Oracle: "systimestamp"
+    public static final int SQL_TIMESTAMP_PATTERN = 26; // "yyyy-MM-dd HH:mm:ss.SSS" // SimpleDateFormat
+    public static final int SQL_TIMESTAMP_TEMPLATE= 27; // Oracle: "TO_TIMESTAMP('{0}', 'YYYY.MM.DD HH24:MI:SS.FF')";
     // functions
     public static final int SQL_FUNC_COALESCE    = 100; // Oracle: nvl(?, {0})
     public static final int SQL_FUNC_SUBSTRING   = 101; // Oracle: substr(?,{0})
@@ -721,12 +723,13 @@ public abstract class DBDatabaseDriver implements Serializable
             case DATE:
                 return getSQLDateTimeString(value, SQL_DATE_TEMPLATE, SQL_DATE_PATTERN, SQL_CURRENT_DATE);
             case DATETIME:
-            case TIMESTAMP:
-                // System date is special case
-                if (!DBDatabase.SYSDATE.equals(value) && value.toString().length()<=10)
-                    return getSQLDateTimeString(value, SQL_DATE_TEMPLATE, SQL_DATE_PATTERN, SQL_CURRENT_DATETIME);
+                // Only date (without time) provided?
+                if (!DBDatabase.SYSDATE.equals(value) && ObjectUtils.lengthOf(value)<=10)
+                    return getSQLDateTimeString(value, SQL_DATE_TEMPLATE, SQL_DATE_PATTERN, SQL_CURRENT_TIMESTAMP);
                 // Complete Date-Time Object with time 
-                return getSQLDateTimeString(value, SQL_DATETIME_TEMPLATE, SQL_DATETIME_PATTERN, SQL_CURRENT_DATETIME);
+                return getSQLDateTimeString(value, SQL_DATETIME_TEMPLATE, SQL_DATETIME_PATTERN, SQL_CURRENT_TIMESTAMP);
+            case TIMESTAMP:
+                return getSQLDateTimeString(value, SQL_TIMESTAMP_TEMPLATE, SQL_TIMESTAMP_PATTERN, SQL_CURRENT_TIMESTAMP);
             case TEXT:
             case VARCHAR:
             case CHAR:

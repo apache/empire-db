@@ -308,9 +308,12 @@ public class DBDatabaseDriverMSSQL extends DBDatabaseDriver
             case SQL_CURRENT_DATE:            return "convert(char, getdate(), 111)";
             case SQL_DATE_PATTERN:            return "yyyy-MM-dd";
             case SQL_DATE_TEMPLATE:           return "convert(date, '{0}', 111)";
-            case SQL_CURRENT_DATETIME:        return "getdate()";
             case SQL_DATETIME_PATTERN:        return "yyyy-MM-dd HH:mm:ss.SSS";
             case SQL_DATETIME_TEMPLATE:       return isUseDateTime2() ? "convert(datetime2, '{0}', 121)"
+                                                                      : "convert(datetime,  '{0}', 121)";
+            case SQL_CURRENT_TIMESTAMP:       return "getdate()";
+            case SQL_TIMESTAMP_PATTERN:       return "yyyy-MM-dd HH:mm:ss.SSS";
+            case SQL_TIMESTAMP_TEMPLATE:      return isUseDateTime2() ? "convert(datetime2, '{0}', 121)"
                                                                       : "convert(datetime,  '{0}', 121)";
             // functions
             case SQL_FUNC_COALESCE:           return "coalesce(?, {0})";

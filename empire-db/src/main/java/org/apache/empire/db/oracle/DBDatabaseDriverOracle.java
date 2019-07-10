@@ -162,9 +162,11 @@ public class DBDatabaseDriverOracle extends DBDatabaseDriver
             case SQL_CURRENT_DATE:              return "sysdate";
             case SQL_DATE_PATTERN:              return "yyyy-MM-dd";
             case SQL_DATE_TEMPLATE:             return "TO_DATE('{0}', 'YYYY-MM-DD')";
-            case SQL_CURRENT_DATETIME:          return "sysdate";
-            case SQL_DATETIME_PATTERN:          return "yyyy-MM-dd HH:mm:ss";
+            case SQL_DATETIME_PATTERN:          return "yyyy-MM-dd HH:mm:ss.SSS";
             case SQL_DATETIME_TEMPLATE:         return "TO_DATE('{0}', 'YYYY-MM-DD HH24:MI:SS')";
+            case SQL_CURRENT_TIMESTAMP:         return "systimestamp";
+            case SQL_TIMESTAMP_PATTERN:         return "yyyy-MM-dd HH:mm:ss.SSS";
+            case SQL_TIMESTAMP_TEMPLATE:        return "TO_TIMESTAMP('{0}', 'YYYY.MM.DD HH24:MI:SS.FF')";
             // functions
             case SQL_FUNC_COALESCE:             return "nvl(?, {0})";
             case SQL_FUNC_SUBSTRING:            return "substr(?, {0})";
@@ -243,12 +245,17 @@ public class DBDatabaseDriverOracle extends DBDatabaseDriver
             // Convert to date
             case DATE:
             case DATETIME:
-            case TIMESTAMP:
                 if (format != null)
                 { // Convert using a format string
                     return "to_date(?, '"+format.toString()+"')";
                 }
                 return "to_date(?)";
+            case TIMESTAMP:
+                if (format != null)
+                { // Convert using a format string
+                    return "to_timestamp(?, '"+format.toString()+"')";
+                }
+                return "to_timestamp(?)";
             // Unknown Type
             default:
                 log.error("getConvertPhrase: unknown type " + destType);
@@ -349,7 +356,7 @@ public class DBDatabaseDriverOracle extends DBDatabaseDriver
         ResultSet rs = null;
         try
         {   // Oracle Timestamp query
-            rs = executeQuery("select sysdate from dual", null, false, conn);
+            rs = executeQuery("SELECT systimestamp FROM DUAL", null, false, conn);
             return (rs.next() ? rs.getTimestamp(1) : null);
         } catch (SQLException e) {
             // throw exception

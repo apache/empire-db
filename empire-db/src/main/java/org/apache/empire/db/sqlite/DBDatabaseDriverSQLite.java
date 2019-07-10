@@ -306,109 +306,64 @@ public class DBDatabaseDriverSQLite extends DBDatabaseDriver
     {
         switch (phrase)
         {
-        
-        // sql-phrases
-            case SQL_NULL_VALUE:
-                return "null";
-            case SQL_PARAMETER:
-                return " ? ";
-            case SQL_RENAME_TABLE:
-                return " ";
-            case SQL_RENAME_COLUMN:
-                return " AS ";
-            case SQL_DATABASE_LINK:
-                return "@";
-            case SQL_QUOTES_OPEN:
-                return "`";
-            case SQL_QUOTES_CLOSE:
-                return "`";
-            case SQL_CONCAT_EXPR:
-                return "concat(?, {0})";
-                // data types
-            case SQL_BOOLEAN_TRUE:
-                return "1";
-            case SQL_BOOLEAN_FALSE:
-                return "0";
-            case SQL_CURRENT_DATE:
-                return "SELECT date('now','localtime');";
-            case SQL_DATE_PATTERN:
-                return "yyyy-MM-dd";
-            case SQL_DATE_TEMPLATE:
-                return "'{0}'";
-            case SQL_CURRENT_DATETIME:
-                return "NOW()";
-            case SQL_DATETIME_PATTERN:
-                return "yyyy-MM-dd hh:mm:ss.sss";
-            case SQL_DATETIME_TEMPLATE:
-                return "'{0}'";
-                // functions
-            case SQL_FUNC_COALESCE:
-                return "coalesce(?, {0})";
-            case SQL_FUNC_SUBSTRING:
-                return "substring(?, {0})";
-            case SQL_FUNC_SUBSTRINGEX:
-                return "substring(?, {0}, {1})";
-            case SQL_FUNC_REPLACE:
-                return "replace(?, {0}, {1})";
-            case SQL_FUNC_REVERSE:
-                return "reverse(?)";
-            case SQL_FUNC_STRINDEX:
-                return "instr(?, {0})";
-            case SQL_FUNC_STRINDEXFROM:
-                return "locate({0}, ?, {1})";
-            case SQL_FUNC_LENGTH:
-                return "length(?)";
-            case SQL_FUNC_UPPER:
-                return "upper(?)";
-            case SQL_FUNC_LOWER:
-                return "lcase(?)";
-            case SQL_FUNC_TRIM:
-                return "trim(?)";
-            case SQL_FUNC_LTRIM:
-                return "ltrim(?)";
-            case SQL_FUNC_RTRIM:
-                return "rtrim(?)";
-            case SQL_FUNC_ESCAPE:
-                return "? escape '{0}'";
-                // Numeric
-            case SQL_FUNC_ABS:
-                return "abs(?)";
-            case SQL_FUNC_ROUND:
-                return "round(?,{0})";
-            case SQL_FUNC_TRUNC:
-                return "truncate(?,{0})";
-            case SQL_FUNC_CEILING:
-                return "ceiling(?)";
-            case SQL_FUNC_FLOOR:
-                return "floor(?)";
-            case SQL_FUNC_MODULO:               
-                return "mod(?,{0})";
-                // Date
-            case SQL_FUNC_DAY:
-                return "day(?)";
-            case SQL_FUNC_MONTH:
-                return "month(?)";
-            case SQL_FUNC_YEAR:
-                return "year(?)";
-                // Aggregation
-            case SQL_FUNC_SUM:
-                return "sum(?)";
-            case SQL_FUNC_MAX:
-                return "max(?)";
-            case SQL_FUNC_MIN:
-                return "min(?)";
-            case SQL_FUNC_AVG:
-                return "avg(?)";
-                // Others
-            case SQL_FUNC_DECODE:
-                return "case ? {0} end";
-            case SQL_FUNC_DECODE_SEP:
-                return " ";
-            case SQL_FUNC_DECODE_PART:
-                return "when {0} then {1}";
-            case SQL_FUNC_DECODE_ELSE:
-                return "else {0}";
-                // Not defined
+
+            // sql-phrases
+            case SQL_NULL_VALUE:            return "null";
+            case SQL_PARAMETER:             return " ? ";
+            case SQL_RENAME_TABLE:          return " ";
+            case SQL_RENAME_COLUMN:         return " AS ";
+            case SQL_DATABASE_LINK:         return "@";
+            case SQL_QUOTES_OPEN:           return "`";
+            case SQL_QUOTES_CLOSE:          return "`";
+            case SQL_CONCAT_EXPR:           return "concat(?, {0})";
+            // data types
+            case SQL_BOOLEAN_TRUE:          return "1";
+            case SQL_BOOLEAN_FALSE:         return "0";
+            case SQL_CURRENT_DATE:          return "SELECT date('now','localtime');";
+            case SQL_DATE_PATTERN:          return "yyyy-MM-dd";
+            case SQL_DATE_TEMPLATE:         return "'{0}'";
+            case SQL_DATETIME_PATTERN:      return "yyyy-MM-dd hh:mm:ss.sss";
+            case SQL_DATETIME_TEMPLATE:     return "'{0}'";
+            case SQL_CURRENT_TIMESTAMP:     return "NOW()";
+            case SQL_TIMESTAMP_PATTERN:     return "yyyy-MM-dd hh:mm:ss.sss";
+            case SQL_TIMESTAMP_TEMPLATE:    return "'{0}'";
+            // functions
+            case SQL_FUNC_COALESCE:         return "coalesce(?, {0})";
+            case SQL_FUNC_SUBSTRING:        return "substring(?, {0})";
+            case SQL_FUNC_SUBSTRINGEX:      return "substring(?, {0}, {1})";
+            case SQL_FUNC_REPLACE:          return "replace(?, {0}, {1})";
+            case SQL_FUNC_REVERSE:          return "reverse(?)";
+            case SQL_FUNC_STRINDEX:         return "instr(?, {0})";
+            case SQL_FUNC_STRINDEXFROM:     return "locate({0}, ?, {1})";
+            case SQL_FUNC_LENGTH:           return "length(?)";
+            case SQL_FUNC_UPPER:            return "upper(?)";
+            case SQL_FUNC_LOWER:            return "lcase(?)";
+            case SQL_FUNC_TRIM:             return "trim(?)";
+            case SQL_FUNC_LTRIM:            return "ltrim(?)";
+            case SQL_FUNC_RTRIM:            return "rtrim(?)";
+            case SQL_FUNC_ESCAPE:           return "? escape '{0}'";
+            // Numeric
+            case SQL_FUNC_ABS:              return "abs(?)";
+            case SQL_FUNC_ROUND:            return "round(?,{0})";
+            case SQL_FUNC_TRUNC:            return "truncate(?,{0})";
+            case SQL_FUNC_CEILING:          return "ceiling(?)";
+            case SQL_FUNC_FLOOR:            return "floor(?)";
+            case SQL_FUNC_MODULO:           return "mod(?,{0})";
+            // Date
+            case SQL_FUNC_DAY:              return "day(?)";
+            case SQL_FUNC_MONTH:            return "month(?)";
+            case SQL_FUNC_YEAR:             return "year(?)";
+            // Aggregation
+            case SQL_FUNC_SUM:              return "sum(?)";
+            case SQL_FUNC_MAX:              return "max(?)";
+            case SQL_FUNC_MIN:              return "min(?)";
+            case SQL_FUNC_AVG:              return "avg(?)";
+            // Others
+            case SQL_FUNC_DECODE:           return "case ? {0} end";
+            case SQL_FUNC_DECODE_SEP:       return " ";
+            case SQL_FUNC_DECODE_PART:      return "when {0} then {1}";
+            case SQL_FUNC_DECODE_ELSE:      return "else {0}";
+            // Not defined
             default:
                 log.error("SQL phrase " + String.valueOf(phrase) + " is not defined!");
                 return "";
