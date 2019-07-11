@@ -138,4 +138,27 @@ public enum DataType
     {
         return (this==DataType.BOOL);
     }
+
+    /**
+     * Returns whether or not two DataTypes are compatible
+     * @param other the other one
+     * @return true of types are compatible or false otherwise
+     */
+    public boolean isCompatible(DataType other)
+    {
+        if (this==other)
+            return true; // the same 
+        // Special case: UNKNOWN
+        if (this==DataType.UNKNOWN || other==DataType.UNKNOWN)
+            return true; // assume compatible
+        // Check compatability
+        if (isText() && other.isText())
+            return true;
+        if (isNumeric() && other.isNumeric())
+            return true;
+        if (isDate() && other.isDate())
+            return true;
+        // no match
+        return false;
+    }
 }

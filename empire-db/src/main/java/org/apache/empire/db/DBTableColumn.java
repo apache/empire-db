@@ -362,8 +362,41 @@ public class DBTableColumn extends DBColumn
     public Object validate(Object value)
     {
         // Check for NULL
-        if (isRequired() && ObjectUtils.isEmpty(value))
-            throw new FieldNotNullException(this);
+        if (ObjectUtils.isEmpty(value))
+        {   // Null value   
+            if (isRequired())
+                throw new FieldNotNullException(this);
+            // Null is allowed
+            return null;
+        }
+        // Check for Column expression
+        if (value instanceof DBColumnExpr)
+        {   DataType funcType = ((DBColumnExpr)value).getDataType();
+            if (!type.isCompatible(funcType))
+            {   // Incompatible data types
+                log.info("Incompatible data types in expression for column {} using function {}!", getName(), value.toString());
+                throw new FieldIllegalValueException(this, String.valueOf(value));
+            }
+            // allowed
+            return value; 
+        }
+        // Check for Command expression
+        if (value instanceof DBCommandExpr)
+        {   DBColumnExpr[] exprList = ((DBCommandExpr)value).getSelectExprList();
+            if (exprList.length!=1)
+            {   // Incompatible data types
+                log.info("Invalid command expression for column {} using command {}!", getName(), ((DBCommandExpr)value).getSelect());
+                throw new FieldIllegalValueException(this, ((DBCommandExpr)value).getSelect());
+            }
+            // Compare types
+            if (!type.isCompatible(exprList[0].getDataType()))
+            {   // Incompatible data types
+                log.info("Incompatible data types in expression for column {} using function {}!", getName(), value.toString());
+                throw new FieldIllegalValueException(this, String.valueOf(value));
+            }
+            // allowed
+            return value; 
+        }
         // Is value valid
         switch (type)
         {
@@ -371,7 +404,7 @@ public class DBTableColumn extends DBColumn
             case DATETIME:
             case TIMESTAMP:
                 // Check whether value is a valid date/time value!
-                if (value!=null && !(value instanceof Date) && !DBDatabase.SYSDATE.equals(value))
+                if (!(value instanceof Date) && !DBDatabase.SYSDATE.equals(value))
                 {   // Parse String
                     String dateValue = value.toString();
                     if (dateValue.length()==0)
@@ -381,7 +414,7 @@ public class DBTableColumn extends DBColumn
                     if ((type==DataType.DATE || dateValue.length()<=12) && datePattern.indexOf(' ')>0)
                         datePattern = datePattern.substring(0, datePattern.indexOf(' ')); // Strip off time
                     try
-                    { 	// Parse date time value
+                    {   // Parse date time value
                         SimpleDateFormat sdFormat = new SimpleDateFormat(datePattern);
                         sdFormat.setLenient(true);
                         value = sdFormat.parse(dateValue);
@@ -395,10 +428,8 @@ public class DBTableColumn extends DBColumn
                 break;
 
             case DECIMAL:
-                if (value==null)
-                    break;
                 // check enum
-                if (value!=null && value.getClass().isEnum())
+                if (value.getClass().isEnum())
                 {   
                     value = ((Enum<?>)value).ordinal();
                 }
@@ -419,8 +450,6 @@ public class DBTableColumn extends DBColumn
                 break;
 
             case FLOAT:
-                if (value==null)
-                    break;
                 if (!(value instanceof java.lang.Number))
                 {   try
                     {   // Convert to String and check
@@ -437,10 +466,8 @@ public class DBTableColumn extends DBColumn
                 break;
 
             case INTEGER:
-                if (value==null)
-                    break;
                 // check enum
-                if (value!=null && value.getClass().isEnum())
+                if (value.getClass().isEnum())
                 {   
                     value = ((Enum<?>)value).ordinal();
                 }
@@ -463,11 +490,11 @@ public class DBTableColumn extends DBColumn
             case TEXT:
             case VARCHAR:
             case CHAR:
-                if (value!=null && value.getClass().isEnum())
+                if (value.getClass().isEnum())
                 {   // check enum
                     value = ((Enum<?>)value).name();
                 }
-                if (value!=null && value.toString().length() > size)
+                if (value.toString().length() > size)
                     throw new FieldValueTooLongException(this);
                 break;
                 
