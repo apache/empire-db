@@ -18,10 +18,13 @@
  */
 package org.apache.empire.db.expr.column;
 
+import java.util.Set;
+
 // Java
 import org.apache.empire.data.DataType;
 import org.apache.empire.db.DBColumn;
 import org.apache.empire.db.DBColumnExpr;
+import org.apache.empire.db.DBExpr;
 
 
 /**
@@ -109,6 +112,23 @@ public class DBFuncExpr extends DBAbstractFuncExpr
         }
         // default
         return "func_" + String.valueOf(phrase);
+    }
+
+    /**
+     * @see org.apache.empire.db.DBExpr#addReferencedColumns(Set)
+     */
+    @Override
+    public void addReferencedColumns(Set<DBColumn> list)
+    {
+        super.addReferencedColumns(list);
+        if (this.params==null)
+            return;
+        // Check params
+        for (int i=0; i<this.params.length; i++)
+        {   // add referenced columns
+            if (params[i] instanceof DBExpr)
+               ((DBExpr)params[i]).addReferencedColumns(list);
+        }
     }
 
     /**
