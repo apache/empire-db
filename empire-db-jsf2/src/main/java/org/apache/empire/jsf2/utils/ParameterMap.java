@@ -31,6 +31,7 @@ import org.apache.empire.db.DBRowSet;
 import org.apache.empire.exceptions.InternalException;
 import org.apache.empire.exceptions.InvalidArgumentException;
 import org.apache.empire.exceptions.UnexpectedReturnValueException;
+import org.apache.empire.jsf2.pages.PageDefinition;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -160,6 +161,23 @@ public class ParameterMap implements Serializable
         putValue(type, id, key);
         return id;
     }
+    
+    /**
+     * Generates an idParam which is only valid for the given page.
+     * 
+     * @param targetPage
+     * @param rowset
+     * @param key
+     * @return
+     */
+    public String put(PageDefinition targetPage, DBRowSet rowset, Object[] key) {
+        // Generate id and put in map
+        String ref = targetPage.getPageBeanName() + "/" + StringUtils.valueOf(key);
+        String idParam = encodeString(ref);
+        String type = targetPage.getPageBeanName() + "$" + rowset.getClass().getSimpleName();
+        putValue(type, idParam, key);
+        return idParam;
+    }
 
     public Object get(String type, String id)
     {
@@ -177,6 +195,13 @@ public class ParameterMap implements Serializable
     public Object[] get(DBRowSet rowset, String id)
     {
         String type = rowset.getClass().getSimpleName();
+        Hashtable<String, Object> map = typeMap.get(type);
+        return (map!=null ? ((Object[])map.get(id)) : null);
+    }
+    
+    public Object[] get(PageDefinition page, DBRowSet rowset, String id)
+    {
+    	String type = page.getPageBeanName() + "$" + rowset.getClass().getSimpleName();
         Hashtable<String, Object> map = typeMap.get(type);
         return (map!=null ? ((Object[])map.get(id)) : null);
     }

@@ -30,6 +30,7 @@ import org.apache.empire.exceptions.InvalidArgumentException;
 import org.apache.empire.exceptions.ObjectNotValidException;
 import org.apache.empire.jsf2.app.FacesUtils;
 import org.apache.empire.jsf2.pages.Page;
+import org.apache.empire.jsf2.pages.PageDefinition;
 import org.apache.empire.jsf2.pages.PageElement;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -160,6 +161,17 @@ public class RecordPageElement<T extends DBRecord> extends PageElement
     public void loadRecord(String idParam)
     {
         Object[] key = getPage().getKeyFromParam(rowset, idParam);
+        loadRecord(key);
+    }
+    
+    /**
+     * loads an existing record the the specified page
+     * 
+     * @param page
+     * @param idParam
+     */
+    public void loadRecord(PageDefinition page, String idParam) {
+        Object[] key = FacesUtils.getParameterMap().get(page, rowset, idParam);
         loadRecord(key);
     }
     

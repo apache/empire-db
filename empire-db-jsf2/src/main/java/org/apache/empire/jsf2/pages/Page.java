@@ -405,6 +405,12 @@ public abstract class Page implements Serializable
         return FacesUtils.getParameterMap(fc).put(rowset, key);
     }
 
+    public String getIdParamForKey(PageDefinition page, DBRowSet rowset, Object[] key)
+    {
+        FacesContext fc = FacesUtils.getContext();
+        return FacesUtils.getParameterMap(fc).put(page, rowset, key);
+    }
+    
     public void addJavascriptCall(String function)
     {
         // Add Call
