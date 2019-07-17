@@ -171,7 +171,7 @@ public class RecordPageElement<T extends DBRecord> extends PageElement
      * @param idParam
      */
     public void loadRecord(PageDefinition page, String idParam) {
-        Object[] key = FacesUtils.getParameterMap().get(page, rowset, idParam);
+        Object[] key = getPage().getKeyFromParam(page, rowset, idParam);
         loadRecord(key);
     }
     
