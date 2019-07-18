@@ -53,6 +53,12 @@ public class CodeGenParser {
 
 	public static class InMemoryDatabase extends DBDatabase {
         private static final long serialVersionUID = 1L;
+        
+        @Override
+        public List<DBRelation> getRelations()
+        {
+            return relations;
+        }
 	}
 	
 	public static class InMemoryView extends DBView {
@@ -141,13 +147,15 @@ public class CodeGenParser {
             int tableCount = 0; // Moved to be outside table pattern loop.
             int viewCount = 0;
             for(String pattern : tablePatterns){
-            
+                // types
+                String[] types = config.isGenerateViews() ? new String[] { "TABLE", "VIEW" }
+                                                          : new String[] { "TABLE" }; 
 			    // Get table metadata
 	            tables = dbMeta.getTables(
 			            config.getDbCatalog(), 
 			            config.getDbSchema(), 
 			            pattern == null ? pattern: pattern.trim(),
-						new String[] { "TABLE", "VIEW" });
+						types);
 	            
 	            // Add all tables and views 
 				while (tables.next()) {
@@ -248,6 +256,7 @@ public class CodeGenParser {
 		        		refs[i]=refsOld[i];
 	        		refs[i]=reference;
 		        	// remove old relation
+                    log.warn("Duplicate relation {}", r.getName());
 	        		db.getRelations().remove(r);
 		        } else {
 		        	refs = new DBRelation.DBReference[] { reference };
@@ -467,6 +476,7 @@ public class CodeGenParser {
 			empireType = DataType.INTEGER;
 			break;
 		case Types.VARCHAR:
+		case Types.NVARCHAR:
 			empireType = DataType.VARCHAR;
 			break;
 		case Types.DATE:
@@ -477,6 +487,7 @@ public class CodeGenParser {
 			empireType = DataType.DATETIME;
 			break;
 		case Types.CHAR:
+        case Types.NCHAR:
 			empireType = DataType.CHAR;
 			break;
 		case Types.DOUBLE:
@@ -493,7 +504,9 @@ public class CodeGenParser {
 			empireType = DataType.BOOL;
 			break;
 		case Types.CLOB:
+		case Types.NCLOB:
 		case Types.LONGVARCHAR:
+		case Types.LONGNVARCHAR:
 			empireType = DataType.CLOB;
 			break;
 		case Types.BINARY:

@@ -20,23 +20,28 @@
 <config>
 
 	<properties>
-		<!-- provider name must match the property-section containing the connection data -->
+		<!-- JDBC connection data -->
+		
+		<!-- ORACLE example 
 		<jdbcClass>oracle.jdbc.driver.OracleDriver</jdbcClass>
 		<jdbcURL>jdbc:oracle:thin:@192.168.0.2:1521:ora10</jdbcURL>
 		<jdbcUser>DBSAMPLE</jdbcUser>
 		<jdbcPwd>DBSAMPLE</jdbcPwd>
-		<!-- 
-		<jdbcClass>com.microsoft.sqlserver.jdbc.SQLServerDriver</jdbcClass>
-		<jdbcURL>jdbc:sqlserver://localhost:1433</jdbcURL>
-		<jdbcUser>empire-db</jdbcUser>
-		<jdbcPwd>empire-db</jdbcPwd>
-		-->
-
-		<!-- Schema options -->
 		<dbCatalog></dbCatalog>
 		<dbSchema>DBSAMPLE</dbSchema>
 		<dbTablePattern></dbTablePattern>
-		<timestampColumn>CREATIONDATE</timestampColumn>
+		<timestampColumn>UPDATE_TIMESTAMP</timestampColumn>
+		-->
+
+		<!-- SQL-Server example -->		
+        <jdbcClass>com.microsoft.sqlserver.jdbc.SQLServerDriver</jdbcClass>
+        <jdbcURL>jdbc:sqlserver://vm010</jdbcURL>
+        <jdbcUser>jdbcUser</jdbcUser>
+        <jdbcPwd>jdbcPwd</jdbcPwd>
+		<dbCatalog>DBSAMPLE</dbCatalog>
+		<dbSchema>dbo</dbSchema>
+		<dbTablePattern></dbTablePattern>
+		<timestampColumn>UPDATE_TIMESTAMP</timestampColumn>
 		
 		<!-- generation options -->
 		<targetFolder>target/generated/dbsample</targetFolder>
@@ -44,6 +49,7 @@
 		<tablePackageName>org.apache.empire.db.samples.dbsample.tables</tablePackageName>
 		<viewPackageName>org.apache.empire.db.samples.dbsample.views</viewPackageName>
 		<recordPackageName>org.apache.empire.db.samples.dbsample.records</recordPackageName>
+		<generateViews>true</generateViews>
 		<dbClassName>SampleDB</dbClassName>
 		<tableBaseName>SampleTable</tableBaseName>
 		<viewBaseName>SampleView</viewBaseName>

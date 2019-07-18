@@ -93,12 +93,13 @@ public class $dbClassName extends DBDatabase {
 #foreach ($relation in $database.relations)
 #if($relation.references.size()==1)
 #foreach ($reference in $relation.references)
-		addRelation( ${parser.getRowsetName($reference.sourceColumn.rowSet)}.${parser.getColumnName($reference.sourceColumn)}.referenceOn(${parser.getRowsetName($reference.targetColumn.rowSet)}.${parser.getColumnName($reference.targetColumn)}));
+		addRelation( "$relation.name", ${parser.getRowsetName($reference.sourceColumn.rowSet)}.${parser.getColumnName($reference.sourceColumn)}.referenceOn(${parser.getRowsetName($reference.targetColumn.rowSet)}.${parser.getColumnName($reference.targetColumn)}));
 #end
 #else
 #foreach ($reference in $relation.references)
 #if($foreach.isFirst())
-		addRelation( ${parser.getRowsetName($reference.sourceColumn.rowSet)}.${parser.getColumnName($reference.sourceColumn)}.referenceOn(${parser.getRowsetName($reference.targetColumn.rowSet)}.$parser.getColumnName($reference.targetColumn)),
+		addRelation( "$relation.name", 
+					 ${parser.getRowsetName($reference.sourceColumn.rowSet)}.${parser.getColumnName($reference.sourceColumn)}.referenceOn(${parser.getRowsetName($reference.targetColumn.rowSet)}.$parser.getColumnName($reference.targetColumn)),
 #else
 #if($foreach.isLast())
         	         ${parser.getRowsetName($reference.sourceColumn.rowSet)}.${parser.getColumnName($reference.sourceColumn)}.referenceOn(${parser.getRowsetName($reference.targetColumn.rowSet)}.$parser.getColumnName($reference.targetColumn)));

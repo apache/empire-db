@@ -58,6 +58,10 @@ public class CodeGenConfig extends XMLConfiguration {
 	 */
 	private String dbTablePattern = null;
 	/**
+	 * flag whether to parse and generate views
+	 */
+	private boolean generateViews = true;
+	/**
 	 * Name of the timestamp column used for optimistic locking (may be null)
 	 * e.g. "UPDATE_TIMESTAMP";
 	 */
@@ -321,7 +325,15 @@ public class CodeGenConfig extends XMLConfiguration {
 		this.dbTablePattern = dbTablePattern;
 	}
 
-	public String getTimestampColumn() {
+    public boolean isGenerateViews() {
+        return generateViews;
+    }
+
+    public void setGenerateViews(boolean generateViews) {
+        this.generateViews = generateViews;
+    }
+
+    public String getTimestampColumn() {
 		return timestampColumn;
 	}
 

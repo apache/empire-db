@@ -53,28 +53,32 @@
 		    <scope>test</scope>
 		</dependency>
 
-		<!-- mysql -->
-		<!-- <dependency>
-		    <groupId>mysql</groupId>
-		    <artifactId>mysql-connector-java</artifactId>
-		    <version>5.1.1</version>
-		</dependency>-->
+        <!-- msssql -->
+		<!--   
+        <dependency>
+            <groupId>com.microsoft.sqlserver</groupId>
+            <artifactId>mssql-jdbc</artifactId>
+            <version>7.0.0.jre8</version>
+        </dependency>
+		-->
 		
-		<!-- ojdbc   
+		<!-- oracle -->
+		<!--   
 		<dependency>
 		    <groupId>com.oracle</groupId>
-			<artifactId>ojdbc5</artifactId>
-			<version>11.2.0.3</version>
+			<artifactId>ojdbc6</artifactId>
+			<version>11.2.0.3.0</version>
 		</dependency>
 		-->
 
-		<!-- msssql 
+		<!-- mysql -->
+		<!-- 
 		<dependency>
-		    <groupId>com.microsoft</groupId>
-		    <artifactId>sqljdbc</artifactId>
-		    <version>1.0</version>
+		    <groupId>mysql</groupId>
+		    <artifactId>mysql-connector-java</artifactId>
+		    <version>5.1.6</version>
 		</dependency>
-		--> 
+		-->
 		
 	</dependencies>
 	
