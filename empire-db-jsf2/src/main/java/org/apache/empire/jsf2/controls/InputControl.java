@@ -71,6 +71,9 @@ public abstract class InputControl
     
     // HTML
     public static String HTML_EXPR_NBSP = "&nbsp;";
+    
+    // style classes
+    public static final String STYLECLASS_REQUIRED    = "eInpReq";
 
     public InputControl()
     {
@@ -530,7 +533,7 @@ public abstract class InputControl
 
     protected final void copyAttributes(UIComponent parent, InputInfo ii, UIInput input)
     {
-        copyAttributes(parent, ii, input, (ii.isRequired() ? "eInpReq" : null));
+        copyAttributes(parent, ii, input, (ii.isRequired() ? STYLECLASS_REQUIRED : null));
     }
 
     protected void copyAttribute(InputInfo ii, UIInput input, String name)

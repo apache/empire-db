@@ -108,6 +108,8 @@ public class SelectInputControl extends InputControl
             throw new UnexpectedReturnValueException(comp.getClass().getName(), "parent.getChildren()");
         }
         HtmlSelectOneMenu input = (HtmlSelectOneMenu)comp;
+        // required
+    	addRemoveStyle(input, " " + InputControl.STYLECLASS_REQUIRED, ii.isRequired());
         // disabled
         boolean disabled = ii.isDisabled();
         input.setDisabled(disabled);
