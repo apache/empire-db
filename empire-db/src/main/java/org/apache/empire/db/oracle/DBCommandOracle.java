@@ -35,6 +35,7 @@ import org.apache.empire.db.DBRowSet;
 import org.apache.empire.db.DBTable;
 import org.apache.empire.db.expr.column.DBAliasExpr;
 import org.apache.empire.db.expr.column.DBValueExpr;
+import org.apache.empire.db.expr.compare.DBCompareColExpr;
 import org.apache.empire.db.expr.compare.DBCompareExpr;
 import org.apache.empire.db.expr.join.DBColumnJoinExpr;
 import org.apache.empire.db.expr.join.DBJoinExpr;
@@ -312,9 +313,12 @@ public class DBCommandOracle extends DBCommand
         DBCommand inner = this.clone();
         inner.clearSelect();
         inner.clearOrderBy();
+        DBRowSet outerTable = updateJoin.getOuterTable();
+        if (outerTable==null)
+            outerTable=table;
         for (DBColumn jcol : joinColumns)
         {   // Select join columns
-            if (jcol.getRowSet()!=table)
+            if (jcol.getRowSet().equals(outerTable)==false)
                 inner.select(jcol);
         }
         // find the source table
@@ -365,12 +369,33 @@ public class DBCommandOracle extends DBCommand
         {   buf.append(" AND ");
             updateJoin.getWhere().addSQL(buf, CTX_DEFAULT);
         }
+        // More constraints
+        for (DBCompareExpr we : this.where) 
+        {
+            DBCompareColExpr cce = (DBCompareColExpr)we;
+            DBColumn ccecol = cce.getColumnExpr().getUpdateColumn();
+            if (table.isKeyColumn(ccecol)&& !isSetColumn(ccecol))  
+            {
+                buf.append(" AND ");
+                cce.addSQL(buf, CTX_DEFAULT);
+            }
+        }
         // Set Expressions
         buf.append(")\r\nWHEN MATCHED THEN UPDATE ");
         buf.append("\r\nSET ");
         addListExpr(buf, mergeSet, CTX_DEFAULT, ", ");
         // done
         return buf.toString();
+    }
+        
+    protected boolean isSetColumn(DBColumn col)
+    {
+        for (DBSetExpr se : this.set)
+        {
+            if (se.getColumn().equals(col))
+                return true;
+        }
+        return false;
     }
     
     /**
