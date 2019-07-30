@@ -724,7 +724,7 @@ public abstract class DBDatabaseDriver implements Serializable
                 return getSQLDateTimeString(value, SQL_DATE_TEMPLATE, SQL_DATE_PATTERN, SQL_CURRENT_DATE);
             case DATETIME:
                 // Only date (without time) provided?
-                if (!DBDatabase.SYSDATE.equals(value) && ObjectUtils.lengthOf(value)<=10)
+                if (!DBDatabase.SYSDATE.equals(value) && !(value instanceof Date) && ObjectUtils.lengthOf(value)<=10)
                     return getSQLDateTimeString(value, SQL_DATE_TEMPLATE, SQL_DATE_PATTERN, SQL_CURRENT_TIMESTAMP);
                 // Complete Date-Time Object with time 
                 return getSQLDateTimeString(value, SQL_DATETIME_TEMPLATE, SQL_DATETIME_PATTERN, SQL_CURRENT_TIMESTAMP);
