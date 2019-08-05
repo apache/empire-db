@@ -20,6 +20,7 @@ package org.apache.empire.db;
 
 import java.util.Set;
 
+import org.apache.empire.commons.ObjectUtils;
 import org.apache.empire.data.DataType;
 
 /**
@@ -74,6 +75,8 @@ public class DBCmdParam extends DBExpr
                     return value;
                 // create a clob data
                 return new DBClobData(value.toString());
+            case BOOL:
+            	return ObjectUtils.getBoolean(value);
             default:
                 return value;
         }
