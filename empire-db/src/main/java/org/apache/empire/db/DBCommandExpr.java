@@ -21,6 +21,7 @@ package org.apache.empire.db;
 // java
 import java.sql.Connection;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
@@ -429,6 +430,16 @@ public abstract class DBCommandExpr extends DBExpr
     	return driver.createCombinedCommand(this, "INTERSECT", other);
     }
 
+    /**
+     * Returns a copy of the defined order-bys.
+     * 
+     * @return list of order-bys
+     */
+    public List<DBOrderByExpr> getOrderBy()
+    {
+        return (this.orderBy!=null ? Collections.unmodifiableList(this.orderBy) : null);
+    }
+    
     /**
      * Clears the list of order by expressions.
      */
