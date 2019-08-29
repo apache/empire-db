@@ -51,9 +51,18 @@ public class CheckboxInputControl extends InputControl
     public void renderValue(ValueInfo vi, ResponseWriter writer)
         throws IOException
     {
-        boolean value = (Boolean) vi.getValue(true);
+    	Boolean value = (Boolean) vi.getValue(true);
         writer.startElement(HTML_TAG_DIV, null);
-        writer.writeAttribute(HTML_ATTR_CLASS, value ? "eTypeBoolTrue" : "eTypeBoolFalse", null);
+        if (value == null)
+        {
+        	writer.writeAttribute(HTML_ATTR_CLASS, "eTypeBoolNull", null);
+        } else if (value == Boolean.TRUE)
+        {
+        	writer.writeAttribute(HTML_ATTR_CLASS, "eTypeBoolTrue", null);
+        } else
+        {
+        	writer.writeAttribute(HTML_ATTR_CLASS, "eTypeBoolFalse", null);
+        }
         writer.append(HTML_EXPR_NBSP);
         writer.endElement(HTML_TAG_DIV);
     }
