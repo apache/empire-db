@@ -79,10 +79,11 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-plugin-plugin</artifactId>
-                    <version>3.2</version>
+                    <version>3.3</version>
                     <configuration>
                         <skipErrorNoDescriptorsFound>true</skipErrorNoDescriptorsFound>
                     </configuration>
+                    <!-- not necessary for version 3.3 
                     <executions>
                         <execution>
                             <id>mojo-descriptor</id>
@@ -92,6 +93,7 @@
                             </goals>
                         </execution>
                     </executions>
+                    -->
                 </plugin>
             </plugins>
         </pluginManagement>
