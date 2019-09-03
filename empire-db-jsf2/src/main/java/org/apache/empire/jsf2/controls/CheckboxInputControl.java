@@ -55,12 +55,15 @@ public class CheckboxInputControl extends InputControl
         writer.startElement(HTML_TAG_DIV, null);
         if (value == null)
         {
+        	// value not set
         	writer.writeAttribute(HTML_ATTR_CLASS, "eTypeBoolNull", null);
-        } else if (value == Boolean.TRUE)
+        } else if (value) 
         {
+        	// value is true
         	writer.writeAttribute(HTML_ATTR_CLASS, "eTypeBoolTrue", null);
         } else
         {
+        	// value is false
         	writer.writeAttribute(HTML_ATTR_CLASS, "eTypeBoolFalse", null);
         }
         writer.append(HTML_EXPR_NBSP);
