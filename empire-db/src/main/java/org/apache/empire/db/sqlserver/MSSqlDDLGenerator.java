@@ -22,9 +22,13 @@ import org.apache.empire.commons.ObjectUtils;
 import org.apache.empire.commons.StringUtils;
 import org.apache.empire.data.Column;
 import org.apache.empire.data.DataType;
+import org.apache.empire.db.DBColumn;
 import org.apache.empire.db.DBDDLGenerator;
 import org.apache.empire.db.DBDatabase;
 import org.apache.empire.db.DBDatabaseDriver.DBSeqTable;
+import org.apache.empire.db.DBExpr;
+import org.apache.empire.db.DBIndex;
+import org.apache.empire.db.DBIndex.DBIndexType;
 import org.apache.empire.db.DBSQLScript;
 import org.apache.empire.db.DBTableColumn;
 
@@ -123,6 +127,29 @@ public class MSSqlDDLGenerator extends DBDDLGenerator<DBDatabaseDriverMSSQL>
         }
         // default processing
         super.createDatabase(db, script);
+    }
+    
+    @Override
+    protected void addCreateIndexStmt(DBIndex index, StringBuilder sql, DBSQLScript script)
+    {
+        // Check type
+        if (index.getType()==DBIndexType.UNIQUE_ALLOW_NULL)
+        {   // Add WHERE constraint for ALLOW_NULL
+            boolean first = true;
+            for (DBColumn col : index.getColumns())
+            {
+                // Check whether columns is nullable
+                if (col.isRequired())
+                    continue;
+                // append
+                sql.append((first) ? " WHERE " : " AND ");
+                col.addSQL(sql, DBExpr.CTX_NAME);
+                sql.append(" IS NOT NULL");
+                first = false;
+            }
+        }
+        // done
+        super.addCreateIndexStmt(index, sql, script);
     }
     
 }

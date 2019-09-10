@@ -23,6 +23,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.empire.commons.Options;
 import org.apache.empire.data.DataType;
+import org.apache.empire.db.DBIndex.DBIndexType;
 import org.apache.empire.db.expr.column.DBValueExpr;
 import org.apache.empire.exceptions.InvalidArgumentException;
 import org.apache.empire.exceptions.ItemExistsException;
@@ -219,7 +220,7 @@ public abstract class DBView extends DBRowSet
     protected void setKeyColumns(DBViewColumn... keyColumns)
     { // Set Key Columns
         if (keyColumns != null)
-            primaryKey = new DBIndex(null, DBIndex.PRIMARYKEY, keyColumns);
+            primaryKey = new DBIndex(null, DBIndexType.PRIMARY_KEY, keyColumns);
     }
 
     /**

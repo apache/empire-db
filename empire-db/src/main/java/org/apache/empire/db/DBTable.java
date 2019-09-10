@@ -29,6 +29,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.empire.commons.Options;
 import org.apache.empire.data.DataMode;
 import org.apache.empire.data.DataType;
+import org.apache.empire.db.DBIndex.DBIndexType;
 import org.apache.empire.db.DBRelation.DBCascadeAction;
 import org.apache.empire.db.exceptions.NoPrimaryKeyException;
 import org.apache.empire.db.exceptions.RecordDeleteFailedException;
@@ -430,7 +431,7 @@ public class DBTable extends DBRowSet implements Cloneable
         // Set primary Key now
         if (columns.length>0)
         {   // create primary key
-            primaryKey = new DBIndex(name + "_PK", DBIndex.PRIMARYKEY, columns);
+            primaryKey = new DBIndex(name + "_PK", DBIndexType.PRIMARY_KEY, columns);
             addIndex(primaryKey);
         }
         else
@@ -472,14 +473,25 @@ public class DBTable extends DBRowSet implements Cloneable
      * 
      * @return the Index object
      */
-    public final DBIndex addIndex(String name, boolean unique, DBColumn... columns)
+    public final DBIndex addIndex(String name, DBIndexType type, DBColumn... columns)
     {
         if (name==null || columns==null || columns.length==0)
             throw new InvalidArgumentException("name|columns", null);
+        if (type==DBIndexType.PRIMARY_KEY && this.primaryKey!=null)
+            throw new InvalidArgumentException("type", DBIndexType.PRIMARY_KEY.name());
         // add Index now
-        DBIndex index = new DBIndex(name, (unique) ? DBIndex.UNIQUE : DBIndex.STANDARD, columns);
+        DBIndex index = new DBIndex(name, type, columns);
         addIndex(index);
         return index;
+    }
+    
+    /**
+     * Adds an index.
+     * Overload for convenience
+     */
+    public final DBIndex addIndex(String name, boolean unique, DBColumn... columns)
+    {
+        return addIndex(name, (unique) ? DBIndexType.UNIQUE : DBIndexType.STANDARD, columns);
     }
 
     /**
@@ -572,12 +584,12 @@ public class DBTable extends DBRowSet implements Cloneable
     {
         for (DBIndex idx : getIndexes())
         {
-            if (idx.getType()==DBIndex.PRIMARYKEY)
+            if (idx.getType()==DBIndexType.PRIMARY_KEY)
             {   // Only for new records
                 if (!rec.isNew())
                     continue; // not new
             }
-            else if (idx.getType()==DBIndex.UNIQUE)
+            else if (idx.getType().isUnique())
             {   // check if any of the fields were actually changed
                 if (!rec.isNew() && !rec.wasAnyModified(idx.getColumns()))
                     continue; // not modified

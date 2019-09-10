@@ -20,6 +20,7 @@ package org.apache.empire.db;
 
 import org.apache.empire.commons.StringUtils;
 import org.apache.empire.data.DataType;
+import org.apache.empire.db.DBIndex.DBIndexType;
 import org.apache.empire.exceptions.InvalidArgumentException;
 import org.apache.empire.exceptions.MiscellaneousErrorException;
 import org.apache.empire.exceptions.NotImplementedException;
@@ -401,7 +402,7 @@ public abstract class DBDDLGenerator<T extends DBDatabaseDriver>
         // Create other Indexes (except primary key)
         for (DBIndex idx : t.getIndexes())
         {
-            if (idx == pk || idx.getType() == DBIndex.PRIMARYKEY)
+            if (idx == pk || idx.getType() == DBIndexType.PRIMARY_KEY)
                 continue;
 
             // Create Index
@@ -420,7 +421,7 @@ public abstract class DBDDLGenerator<T extends DBDatabaseDriver>
         StringBuilder sql = new StringBuilder();
 
         // Create Index
-        sql.append((idx.getType() == DBIndex.UNIQUE) ? "CREATE UNIQUE INDEX " : "CREATE INDEX ");
+        sql.append((idx.getType().isUnique()) ? "CREATE UNIQUE INDEX " : "CREATE INDEX ");
         appendElementName(sql, idx.getName());
         sql.append(" ON ");
         t.addSQL(sql, DBExpr.CTX_FULLNAME);

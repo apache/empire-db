@@ -30,7 +30,7 @@ public class DBExpressionIndex extends DBIndex
     private final static long serialVersionUID = 1L;
     
     private DBExpr[] columnExpressions;
-
+    
     /**
      * Constructs a DBExpresionIndex
      * 
@@ -38,9 +38,9 @@ public class DBExpressionIndex extends DBIndex
      * @param unique true if the index has only unique values or false otherwise
      * @param columnExpressions an array of one or more column expressions of the index
      */
-    public DBExpressionIndex(String name, boolean unique, DBExpr... columnExpressions)
+    public DBExpressionIndex(String name, DBIndexType type, DBExpr... columnExpressions)
     {
-        super(name, (unique ? UNIQUE : STANDARD), null);
+        super(name, type, null);
         // columnExpressions
         if (columnExpressions==null || columnExpressions.length==0)
             throw new InvalidArgumentException("columnExpressions", columnExpressions);
@@ -50,15 +50,13 @@ public class DBExpressionIndex extends DBIndex
 
     /**
      * Constructs a DBExpresionIndex
-     * 
-     * @param name the index name
-     * @param unique true if the index has only unique values or false otherwise
-     * @param expr an column expressions that defines the key values for the index
+     * Overload for convenience
      */
-    public DBExpressionIndex(String name, boolean unique, DBColumnExpr expr)
+    public DBExpressionIndex(String name, boolean unique, DBExpr... columnExpressions)
     {
-        this(name, unique, new DBColumnExpr[] { expr });
+        this(name, (unique ? DBIndexType.UNIQUE : DBIndexType.STANDARD), columnExpressions);
     }
+
     
     @Override
     public DBDatabase getDatabase()

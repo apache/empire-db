@@ -29,24 +29,28 @@ public class DBIndex extends DBObject
 {
     private final static long serialVersionUID = 1L;
   
-    // Index Types
-    /**
-     * SQL Standard index
-     */
-    public static final int STANDARD   = 0;
-    
-    /**
-     * SQL Unique index
-     */
-    public static final int UNIQUE     = 1;
-    
-    /**
-     * SQL Primary key index
-     */
-    public static final int PRIMARYKEY = 2;
+    public enum DBIndexType
+    {
+        STANDARD(false),
+        UNIQUE(true),
+        UNIQUE_ALLOW_NULL(true),
+        PRIMARY_KEY(true);
+        
+        private final boolean unique;
+        
+        DBIndexType(boolean unique)
+        {
+            this.unique = unique;
+        }
+
+        public boolean isUnique()
+        {
+            return unique;
+        }
+    }
 
     private String          name;
-    private int             type;
+    private DBIndexType     type;
     private DBColumn[]      columns;
     private DBTable         table;
 
@@ -57,7 +61,7 @@ public class DBIndex extends DBObject
      * @param type the primary key type (only PRIMARYKEY)
      * @param columns an array of one or more columns of the primary key
      */
-    public DBIndex(String name, int type, DBColumn[] columns)
+    public DBIndex(String name, DBIndexType type, DBColumn[] columns)
     {
         this.name = name;
         this.type = type;
@@ -154,7 +158,7 @@ public class DBIndex extends DBObject
      * 
      * @return the type of this index ({@link #PRIMARYKEY}, {@link #UNIQUE}, {@link #STANDARD}) 
      */
-    public int getType()
+    public DBIndexType getType()
     {
         return type;
     }
