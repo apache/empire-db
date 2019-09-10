@@ -166,6 +166,17 @@ public class BeanProperty implements Column
     }
 
     /**
+     * Returns true if an enum type has been set for this column
+     * <P>
+     * @return eturns true if an enum type has been set for this column
+     */
+    @Override
+    public boolean isEnum()
+    {
+        return (attributes!=null && getAttribute(COLATTR_ENUMTYPE)!=null);
+    }
+
+    /**
      * Returns the columns control type.
      * The control type is a client specific name for the type of input control 
      * that should be used to display and edit values for this column. 

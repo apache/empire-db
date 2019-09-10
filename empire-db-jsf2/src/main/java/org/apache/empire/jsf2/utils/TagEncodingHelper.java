@@ -164,6 +164,12 @@ public class TagEncodingHelper implements NamingContainer
         }
 
         @Override
+        public boolean isEnum()
+        {
+            return getSourceColumn().isEnum();
+        }
+
+        @Override
         public Object validate(Object value)
         {
             log.warn("validate not supported for {}", expr.getName());

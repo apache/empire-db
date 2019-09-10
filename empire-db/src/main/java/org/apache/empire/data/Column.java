@@ -80,6 +80,13 @@ public interface Column extends ColumnExpr
     boolean isReadOnly();
 
     /**
+     * Returns true if an enum type has been set for this column
+     * <P>
+     * @return eturns true if an enum type has been set for this column
+     */
+    boolean isEnum();
+
+    /**
      * Checks if the given value is a valid value for this column 
      * If not, an exception is thrown
      * @return the value the validated and possibly converted value

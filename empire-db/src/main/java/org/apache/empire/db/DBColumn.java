@@ -385,6 +385,17 @@ public abstract class DBColumn extends DBColumnExpr
     }
 
     /**
+     * Returns true if an enum type has been set for this column
+     * <P>
+     * @return eturns true if an enum type has been set for this column
+     */
+    @Override
+    public boolean isEnum()
+    {
+        return (attributes!=null && getAttribute(COLATTR_ENUMTYPE)!=null);
+    }
+
+    /**
      * Creates and returns a new DBSetExpr object.
      *
      * @see org.apache.empire.db.expr.set.DBSetExpr
