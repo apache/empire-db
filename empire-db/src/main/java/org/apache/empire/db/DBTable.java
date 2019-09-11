@@ -634,6 +634,22 @@ public class DBTable extends DBRowSet implements Cloneable
     {
         this.cascadeDeleteAction = cascadeDeleteAction;
     }
+    
+    /**
+     * Creates a record key from a list of key values.
+     * The supplied values must be in the correct order. 
+     * @param keyValues
+     * @return the record key
+     */
+    public Object[] key(Object... keyValues)
+    {   // Check size
+        if (keyValues==null || keyValues.length==0)
+            throw new InvalidArgumentException("keyValues", keyValues);
+        if (this.primaryKey!=null && keyValues.length!=this.primaryKey.getColumnCount())
+            throw new InvalidArgumentException("keyValues:length", keyValues.length);
+        // Return the key
+        return keyValues;
+    }
 
     /**
      * Creates a delete SQL-Command by using the DBCommand getDelete method

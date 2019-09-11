@@ -70,7 +70,7 @@ public class DBRecord extends DBRecordData implements Record, Cloneable
     		return this.ordinal()>=other.ordinal();
     	}
     }
-
+    
     protected static final Logger log    = LoggerFactory.getLogger(DBRecord.class);
 
     // This is the record data
@@ -793,7 +793,6 @@ public class DBRecord extends DBRecordData implements Record, Cloneable
      * @param keyValues a Object array, the primary key(s)
      * @param insert if true change the state of this object to REC_NEW
      */
-     
     public void init(DBRowSet table, Object[] keyValues, boolean insert)
     { 	// Init with keys
         if (table!=null)
@@ -842,12 +841,12 @@ public class DBRecord extends DBRecordData implements Record, Cloneable
      * @param keys an array of the primary key values
      * @param conn a valid connection to the database.
      */
-    public void read(DBRowSet table, Object[] keys, Connection conn)
+    public void read(DBRowSet table, Object[] key, Connection conn)
     {
         if (table==null)
             throw new InvalidArgumentException("table", table);
         // read
-        table.readRecord(this, keys, conn);
+        table.readRecord(this, key, conn);
     }
 
     /**

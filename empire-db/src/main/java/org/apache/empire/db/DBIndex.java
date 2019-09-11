@@ -115,6 +115,16 @@ public class DBIndex extends DBObject
     }
     
     /**
+     * Returns the number of columns belonging to this index.
+     * 
+     * @return the number of columns belonging to this index
+     */
+    public int getColumnCount()
+    {
+        return columns.length;
+    }
+    
+    /**
      * checks whether the columns of this index match the supplied columns
      * @param columns
      * @return true if columns match or false otherwise
