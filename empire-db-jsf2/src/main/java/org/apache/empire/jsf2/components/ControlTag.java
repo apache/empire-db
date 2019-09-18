@@ -209,18 +209,10 @@ public class ControlTag extends UIInput implements NamingContainer
                 valInfo = helper.getValueInfo(context); // Oops, should not come here 
 
             String styleClass = helper.getTagStyleClass("eInpDis");
-            String tooltip = helper.getValueTooltip(helper.getTagAttributeString("title"));
+            String tooltip = helper.getValueTooltip(helper.getTagAttributeValue("title"));
 
             // render components
-            ResponseWriter writer = context.getResponseWriter();
-            writer.startElement(this.tagName, this);
-            if (StringUtils.isNotEmpty(styleClass))
-                writer.writeAttribute("class", styleClass, null);
-            if (StringUtils.isNotEmpty(tooltip))
-                writer.writeAttribute("title", tooltip, null);
-            // render Value
-            control.renderValue(valInfo, writer);
-            writer.endElement(this.tagName);
+            control.renderValue(this, this.tagName, styleClass, tooltip, valInfo, context);
         }
     }
 

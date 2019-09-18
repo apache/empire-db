@@ -20,7 +20,6 @@ package org.apache.empire.jsf2.components;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.Map;
 
 import javax.faces.component.NamingContainer;
 import javax.faces.component.UIComponent;
@@ -28,7 +27,6 @@ import javax.faces.component.UIInput;
 import javax.faces.component.visit.VisitCallback;
 import javax.faces.component.visit.VisitContext;
 import javax.faces.context.FacesContext;
-import javax.faces.context.ResponseWriter;
 import javax.faces.convert.ConverterException;
 import javax.faces.view.AttachedObjectHandler;
 
@@ -196,10 +194,10 @@ public class InputTag extends UIInput implements NamingContainer
         // render components
         if (readOnly)
         {   // render value
-            ResponseWriter writer = context.getResponseWriter();
-            String tag = writeStartElement(inpInfo, writer);
-            control.renderValue(inpInfo, writer);
-            writer.endElement(tag);
+            String tagName = "span";
+            String styleClass = helper.getTagStyleClass("eInpDis");
+            String tooltip = helper.getValueTooltip(helper.getTagAttributeValue("title"));
+            control.renderValue(this, tagName, styleClass, tooltip, inpInfo, context);
         }
         else
         {   // render input
@@ -377,32 +375,6 @@ public class InputTag extends UIInput implements NamingContainer
             return true;
         // partial  
         return helper.isPartialSubmit(context);
-    }
-
-    /**
-     * write value element
-     * 
-     * @param vi
-     * @param writer
-     * @return
-     * @throws IOException
-     */
-    protected String writeStartElement(InputControl.ValueInfo vi, ResponseWriter writer)
-        throws IOException
-    {
-        // tag and class name
-        String tagName = "span";
-        String className = helper.getTagStyleClass("eInpDis");
-        // other attributes
-        Map<String, Object> map = getAttributes();
-        Object style = map.get("style");
-        Object title = map.get("title");
-        // Write tag
-        writer.startElement(tagName, this);
-        helper.writeAttribute(writer, "class", className);
-        helper.writeAttribute(writer, "style", style);
-        helper.writeAttribute(writer, "title", helper.getValueTooltip(title));
-        return tagName;
     }
     
     protected void attachEvents(FacesContext context)

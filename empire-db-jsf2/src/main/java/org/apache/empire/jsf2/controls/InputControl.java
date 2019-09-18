@@ -210,7 +210,49 @@ public abstract class InputControl
         }
     }
     
-    /* Value */
+    /**
+     * Renders the control value with a surrounding HTML tag, if a tagName is supplied
+     * @param comp the JSF component
+     * @param tagName the tag name of the HTML wrapper tag (optional)
+     * @param styleClass the style class of the HTML wrapper tag (optional)
+     * @param tooltip the title of the HTML wrapper tag (optional)
+     * @param vi the value info
+     * @param context the FacesContext
+     * @throws IOException
+     */
+    public void renderValue(UIComponent comp, String tagName, String styleClass, String tooltip, ValueInfo vi, FacesContext context)
+        throws IOException
+    {
+        // writer
+        ResponseWriter writer = context.getResponseWriter();
+        // has tag?
+        if (tagName!=null)
+        {   // write start tag
+            writer.startElement(tagName, comp);
+            if (StringUtils.isNotEmpty(styleClass))
+                writer.writeAttribute("class", styleClass, null);
+            if (StringUtils.isNotEmpty(tooltip))
+                writer.writeAttribute("title", tooltip, null);
+            // style
+            Object style = comp.getAttributes().get("style");
+            if (style!=null)
+                writer.writeAttribute("style", style, null);
+        }
+        // render Value
+        renderValue(vi, writer);
+        // has tag?
+        if (tagName!=null)
+        {   // write end tag
+            writer.endElement(tagName);
+        }
+    }
+    
+    /**
+     * Renders the control value without a surrounding tag (Text only)
+     * @param vi the value info
+     * @param writer the output writer
+     * @throws IOException
+     */
     public void renderValue(ValueInfo vi, ResponseWriter writer)
         throws IOException
     {
@@ -218,7 +260,13 @@ public abstract class InputControl
         writer.append((StringUtils.isEmpty(text) ? HTML_EXPR_NBSP : text));
     }
 
-    /* renderInput */ 
+    /**
+     * Renders the input element(s) for editing the underlying record value 
+     * @param comp the JSF component
+     * @param ii the input info
+     * @param context the FacesContext
+     * @throws IOException
+     */
     public void renderInput(UIComponent comp, InputInfo ii, FacesContext context)
         throws IOException
     {

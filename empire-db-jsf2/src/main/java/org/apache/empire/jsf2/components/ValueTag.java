@@ -60,47 +60,41 @@ public class ValueTag extends UIOutput // implements NamingContainer
         super.encodeBegin(context);
         
         helper.encodeBegin();
-        InputControl control = helper.getInputControl();
-        InputControl.ValueInfo vi = helper.getValueInfo(context);
 
         // render components
-        ResponseWriter writer = context.getResponseWriter();
-        String tag = writeStartElement(vi, writer);
-        control.renderValue(vi, writer);
-        if (tag != null)
-            writer.endElement(tag);
+        InputControl control = helper.getInputControl();
+        InputControl.ValueInfo vi = helper.getValueInfo(context);
+        renderControlValue(control, vi, context);
     }
 
-    protected String writeStartElement(InputControl.ValueInfo vi, ResponseWriter writer)
+    protected void renderControlValue(InputControl control, InputControl.ValueInfo vi, FacesContext context)
         throws IOException
     {
         // Map<String, Object> map = getAttributes();
-        String tag   = helper.getTagAttributeString("tag");
-        Object title = helper.getTagAttributeValue("title");
+        String tagName = helper.getTagAttributeString("tag");
+        String tooltip = helper.getTagAttributeString("title");
+        String styleClass = helper.getTagAttributeString("styleClass");
         // Check
-        if (tag == null && title == null && helper.getTagAttributeValue("styleClass")==null)
-            return null;
-        // Write tag
-        if (StringUtils.isEmpty(tag))
-            tag="span";
-        writer.startElement(tag, this);
-        // Detect type and additional style
-        String addlStyle = null;
-        DataType dataType = vi.getColumn().getDataType();
-        if (dataType.isNumeric())
-        {   try {
-                Object val = helper.getDataValue(true);
-                if (val!=null && ObjectUtils.getLong(val)<0)
-                    addlStyle = "eValNeg";
-            } catch(Exception e) {
-                log.warn("Unable to detect sign of numeric value {}. Message is {}!", vi.getColumn().getName(), e.getMessage());
+        if (StringUtils.isNotEmpty(tagName) || StringUtils.isNotEmpty(styleClass) || StringUtils.isNotEmpty(tooltip))
+        {   // tagname
+            if (StringUtils.isEmpty(tagName))
+                tagName="span";
+            // Detect type and additional style
+            String addlStyle = null;
+            DataType dataType = vi.getColumn().getDataType();
+            if (dataType.isNumeric())
+            {   try {
+                    Object val = helper.getDataValue(true);
+                    if (val!=null && ObjectUtils.getLong(val)<0)
+                        addlStyle = "eValNeg";
+                } catch(Exception e) {
+                    log.warn("Unable to detect sign of numeric value {}. Message is {}!", vi.getColumn().getName(), e.getMessage());
+                }
             }
+            styleClass = helper.getTagStyleClass(dataType, addlStyle);
         }
-        // render attributes
-        helper.writeAttribute(writer, "class", helper.getTagStyleClass(dataType, addlStyle));
-        helper.writeAttribute(writer, "style", helper.getTagAttributeString("style"));
-        helper.writeAttribute(writer, "title", helper.getValueTooltip(title));
-        return tag;
+        // render now
+        control.renderValue(this, tagName, styleClass, tooltip, vi, context);
     }
 
 }
