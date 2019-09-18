@@ -22,7 +22,6 @@ import java.io.IOException;
 
 import javax.faces.component.UIOutput;
 import javax.faces.context.FacesContext;
-import javax.faces.context.ResponseWriter;
 
 import org.apache.empire.commons.ObjectUtils;
 import org.apache.empire.commons.StringUtils;
