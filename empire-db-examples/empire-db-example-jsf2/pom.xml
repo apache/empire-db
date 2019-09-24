@@ -71,6 +71,14 @@
 			<artifactId>myfaces-impl</artifactId>
 		</dependency>
 
+		<!-- EL --> 
+		<dependency>
+		    <groupId>org.apache.tomcat</groupId>
+		    <artifactId>tomcat-el-api</artifactId>
+			<type>jar</type>
+			<scope>provided</scope>
+		</dependency>
+
         <!-- use log4j for logging -->
 		<dependency>
 			<groupId>org.slf4j</groupId>
