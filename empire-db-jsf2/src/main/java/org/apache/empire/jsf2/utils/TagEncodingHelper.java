@@ -23,7 +23,9 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.Iterator;
 import java.util.Locale;
 
+import javax.el.ELContext;
 import javax.el.ValueExpression;
+import javax.el.ValueReference;
 import javax.faces.FacesWrapper;
 import javax.faces.application.FacesMessage;
 import javax.faces.component.NamingContainer;
@@ -340,9 +342,13 @@ public class TagEncodingHelper implements NamingContainer
         
         @Override
         public String getInputId()
-        {
-            Column c = getColumn();
-            return c.getName(); // (c instanceof DBColumn) ? ((DBColumn)c).getFullName() : c.getName();
+        {   /**
+             * obsolete since ControlTag or InputTag will set column name as id
+             * 
+             Column c = getColumn();
+             return c.getName();
+            */
+            return "inp";
         }
         
         @Override
@@ -378,7 +384,7 @@ public class TagEncodingHelper implements NamingContainer
     private Object              record       = null;
     private RecordTag           recordTag    = null;
     // private Boolean          tagRequired  = null;
-    private Boolean             hasValueExpr = null;
+    private Boolean             hasValueRef  = null;
     private InputControl        control      = null;
     private TextResolver        textResolver = null;
     private Object              mostRecentValue = null;
@@ -414,6 +420,17 @@ public class TagEncodingHelper implements NamingContainer
         }
     }
 
+    public String completeInputTagId(String id)
+    {
+        if (StringUtils.isEmpty(id))
+            return getColumnName();
+        // check
+        if (id.indexOf("{column}")>0)
+            id = id.replace("{column}", getColumnName());
+        // done 
+        return id;
+    }
+    
     public InputControl getInputControl()
     {
         if (control != null)
@@ -699,7 +716,7 @@ public class TagEncodingHelper implements NamingContainer
             if (!(record instanceof Record) || ((Record) record).isReadOnly())
                 return true;
         }
-        else if (!hasValueExpression())
+        else if (!hasValueReference())
         { // No Value expression given
             return true;
         }
@@ -757,7 +774,7 @@ public class TagEncodingHelper implements NamingContainer
             return r.isFieldRequired(getColumn());
         }
         // Check Value Attribute
-        if (hasValueExpression())
+        if (hasValueReference())
             return false;
         // Required
         return getColumn().isRequired();
@@ -847,7 +864,7 @@ public class TagEncodingHelper implements NamingContainer
         if (rec != null)
             return rec;
         // Value expression
-        if (hasValueExpression())
+        if (hasValueReference())
         {   // See if the record is in value
             return null;
         }
@@ -865,34 +882,32 @@ public class TagEncodingHelper implements NamingContainer
         return rec;
     }
     
-    protected boolean hasValueExpression()
+    protected boolean hasValueReference()
     {
         // Find expression
-        if (hasValueExpr != null)
-            return hasValueExpr.booleanValue();
+        if (hasValueRef != null)
+            return hasValueRef.booleanValue();
         // Find expression
+        boolean hasVR = false;
         ValueExpression ve = findValueExpression("value", false);
         if (ve != null)
         {   // check
-            if (log.isDebugEnabled())
-            {
-                FacesContext ctx = FacesContext.getCurrentInstance();
-                boolean readOnly = ve.isReadOnly(ctx.getELContext());
-                if (readOnly)
-                    log.debug(tag.getClass().getSimpleName() + " for " + getColumnName() + " expression " + ve.getExpressionString()
-                              + " is readOnly!");
-                else
-                    log.debug(tag.getClass().getSimpleName() + " for " + getColumnName() + " expression " + ve.getExpressionString()
-                              + " is updateable!");
+            ELContext elc = FacesContext.getCurrentInstance().getELContext();
+            ValueReference vr = ve.getValueReference(elc);
+            if (vr!=null && log.isDebugEnabled())  
+            {   // log value reference
+                Object base = vr.getBase();
+                Object property = vr.getProperty();
+                String writeable = (ve.isReadOnly(elc) ? "read-only" : "updateable");
+                String beanName = (base!=null ? base.getClass().getSimpleName() : "{NULL}");
+                log.debug("Tag-ValueExpression for {} on {}.{} is {}. Expression is \"{}\".", getColumnName(), beanName, property, writeable, ve.getExpressionString());
             }
+            // set result
+            hasVR = (vr!=null);
         }
-        /*
-        else if (log.isDebugEnabled())
-            log.debug(tag.getClass().getSimpleName()+" for "+getColumnName()+" has no value expression!");
-        */
-        // merken
-        hasValueExpr = Boolean.valueOf(ve != null);
-        return hasValueExpr.booleanValue();
+        // store result to avoid multiple detection 
+        hasValueRef = Boolean.valueOf(hasVR);
+        return hasValueRef.booleanValue();
     }
     
     private static final String CC_ATTR_EXPR = "#{cc.attrs.";

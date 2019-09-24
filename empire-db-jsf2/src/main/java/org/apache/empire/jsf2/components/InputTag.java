@@ -30,6 +30,7 @@ import javax.faces.context.FacesContext;
 import javax.faces.convert.ConverterException;
 import javax.faces.view.AttachedObjectHandler;
 
+import org.apache.empire.commons.StringUtils;
 import org.apache.empire.data.Column;
 import org.apache.empire.db.DBRecord;
 import org.apache.empire.db.exceptions.FieldIllegalValueException;
@@ -208,7 +209,9 @@ public class InputTag extends UIInput implements NamingContainer
 
     @Override
     public void setId(String id)
-    {
+    {   // complete
+        id = helper.completeInputTagId(id); 
+        // setId
         super.setId(id);
         // reset record
         helper.setRecord(null);

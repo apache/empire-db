@@ -385,7 +385,9 @@ public class ControlTag extends UIInput implements NamingContainer
     
     @Override
     public void setId(String id) 
-    {
+    {   // complete
+        id = helper.completeInputTagId(id); 
+        // set
         super.setId(id);
         // reset record
         helper.setRecord(null);

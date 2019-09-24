@@ -370,6 +370,11 @@
 				<artifactId>myfaces-impl</artifactId>
 				<version>2.2.12</version>
 			</dependency>
+			<dependency>
+			    <groupId>org.apache.tomcat</groupId>
+			    <artifactId>tomcat-el-api</artifactId>
+			    <version>8.0.48</version>
+			</dependency>
 	        <!-- Misc -->
 			<dependency>
 				<groupId>junit</groupId>
