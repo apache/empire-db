@@ -51,6 +51,7 @@ import org.apache.empire.data.ColumnExpr;
 import org.apache.empire.data.DataType;
 import org.apache.empire.data.Record;
 import org.apache.empire.data.RecordData;
+import org.apache.empire.db.DBColumn;
 import org.apache.empire.db.DBDatabase;
 import org.apache.empire.db.DBRecord;
 import org.apache.empire.db.DBRowSet;
@@ -419,14 +420,29 @@ public class TagEncodingHelper implements NamingContainer
             */
         }
     }
+    
+    private static final String PH_COLUMN_NAME = "{column}";  // placeholder for column name
+    private static final String PH_COLUMN_FULL = "{COLUMN}";  // placeholder for column full name including table
 
     public String completeInputTagId(String id)
     {
         if (StringUtils.isEmpty(id))
             return getColumnName();
-        // check
-        if (id.indexOf("{column}")>0)
-            id = id.replace("{column}", getColumnName());
+        // replace placeholder
+        if (id.indexOf(PH_COLUMN_NAME)>=0)
+        {   // column name only
+            id = id.replace(PH_COLUMN_NAME, getColumnName());
+        }
+        else if (id.indexOf(PH_COLUMN_FULL)>=0) 
+        {   // column full name including table
+            String name= null;
+            Column c = getColumn();
+            if (c instanceof DBColumn)
+                name = ((DBColumn)c).getFullName().replace('.', '_');
+            else if (c!=null)
+                name = c.getName();
+            id = id.replace(PH_COLUMN_FULL, String.valueOf(name));
+        }
         // done 
         return id;
     }
