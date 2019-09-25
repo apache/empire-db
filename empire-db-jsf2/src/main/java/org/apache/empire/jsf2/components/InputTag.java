@@ -38,6 +38,7 @@ import org.apache.empire.exceptions.EmpireException;
 import org.apache.empire.exceptions.InvalidArgumentException;
 import org.apache.empire.jsf2.controls.InputControl;
 import org.apache.empire.jsf2.utils.TagEncodingHelper;
+import org.apache.empire.jsf2.utils.TagEncodingHelperFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -50,7 +51,7 @@ public class InputTag extends UIInput implements NamingContainer
     // private static final String inputInfoPropName = InputControl.InputInfo.class.getSimpleName();
     protected static final String     readOnlyState      = "readOnlyState";
 
-    protected final TagEncodingHelper helper             = new TagEncodingHelper(this, "eInput");
+    protected final TagEncodingHelper helper             = TagEncodingHelperFactory.create(this, "eInput");
 
     protected InputControl            control            = null;
     protected InputControl.InputInfo  inpInfo            = null;

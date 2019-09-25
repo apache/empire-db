@@ -371,9 +371,9 @@
 				<version>2.2.12</version>
 			</dependency>
 			<dependency>
-			    <groupId>org.apache.tomcat</groupId>
-			    <artifactId>tomcat-el-api</artifactId>
-			    <version>8.0.48</version>
+			    <groupId>javax.el</groupId>
+			    <artifactId>javax.el-api</artifactId>
+			    <version>3.0.0</version>
 			</dependency>
 	        <!-- Misc -->
 			<dependency>

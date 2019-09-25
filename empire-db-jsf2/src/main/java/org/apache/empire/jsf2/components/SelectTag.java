@@ -223,7 +223,7 @@ public class SelectTag extends UIInput implements NamingContainer
         HtmlSelectOneMenu input = control.createMenuComponent(this);
         // css style
         String userStyle = StringUtils.toString(getAttributes().get("styleClass"));
-        String cssStyle = TagEncodingHelper.getTagStyleClass("eSelect", null, null, userStyle);
+        String cssStyle = TagEncodingHelper.assembleStyleClassString("eSelect", null, null, userStyle);
         input.setStyleClass(cssStyle);
         // other attributes
         copyAttributes(input);

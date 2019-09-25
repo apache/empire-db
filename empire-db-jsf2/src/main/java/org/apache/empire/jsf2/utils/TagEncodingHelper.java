@@ -79,13 +79,11 @@ import org.slf4j.LoggerFactory;
 public class TagEncodingHelper implements NamingContainer
 {
     /**
-     * Inner class that implements the ValueInfo
-     * Only necessary because of name clash with value tag interface (i.e. getColumn())
-     * 
-     * @author Rainer
+     * ColumnExprWrapper
+     * wraps a ColumnExpr object into a Column interface object
+     * @author doebele
      */
-
-    private static class ColumnExprWrapper implements Column
+    protected static class ColumnExprWrapper implements Column
     {
         private final ColumnExpr expr;
 
@@ -180,7 +178,12 @@ public class TagEncodingHelper implements NamingContainer
         }
     }
 
-    private class ValueInfoImpl implements InputControl.ValueInfo
+    /**
+     * ValueInfoImpl
+     * Provides information necessary to render a data value (non editable) 
+     * @author doebele
+     */
+    protected class ValueInfoImpl implements InputControl.ValueInfo
     {
         public ValueInfoImpl(Column column, TextResolver resolver)
         {
@@ -191,7 +194,7 @@ public class TagEncodingHelper implements NamingContainer
         }
 
         /* Value Options */
-        private boolean hasColumn()
+        protected boolean hasColumn()
         {
             return (column != null || getColumn() != null);
         }
@@ -280,7 +283,12 @@ public class TagEncodingHelper implements NamingContainer
         }
     }
 
-    private class InputInfoImpl extends ValueInfoImpl implements InputControl.InputInfo
+    /**
+     * InputInfoImpl
+     * Provides information necessary to render an input control (editable) 
+     * @author doebele
+     */
+    protected class InputInfoImpl extends ValueInfoImpl implements InputControl.InputInfo
     {
         public InputInfoImpl(Column column, TextResolver resolver)
         {
@@ -379,36 +387,36 @@ public class TagEncodingHelper implements NamingContainer
     public static final String COLATTR_TOOLTIP        = "TOOLTIP";          // Column tooltip
     public static final String COLATTR_ABBR_TITLE     = "ABBR_TITLE";       // Column title for abbreviations
     
-    private final UIOutput      tag;
-    private final String        tagCssStyle;
-    private Column              column       = null;
-    private Object              record       = null;
-    private RecordTag           recordTag    = null;
-    // private Boolean          tagRequired  = null;
-    private Boolean             hasValueRef  = null;
-    private InputControl        control      = null;
-    private TextResolver        textResolver = null;
-    private Object              mostRecentValue = null;
-    private boolean             skipValidation = false;
-    private boolean             hasError     = false;
-    private Boolean             insideUIData = null;
+    protected final UIOutput      component;
+    protected final String        cssStyleClass;
+    protected Column              column       = null;
+    protected Object              record       = null;
+    protected RecordTag           recordTag    = null;
+    // protected Boolean          tagRequired  = null;
+    protected Boolean             hasValueRef  = null;
+    protected InputControl        control      = null;
+    protected TextResolver        textResolver = null;
+    protected Object              mostRecentValue = null;
+    protected boolean             skipValidation = false;
+    protected boolean             hasError     = false;
+    protected Boolean             insideUIData = null;
 
-    public TagEncodingHelper(UIOutput tag, String tagCssStyle)
+    protected TagEncodingHelper(UIOutput component, String cssStyleClass)
     {
-        this.tag = tag;
-        this.tagCssStyle = tagCssStyle;
+        this.component = component;
+        this.cssStyleClass = cssStyleClass;
     }
 
     public void encodeBegin()
     {
-        if (tag instanceof UIInput)
+        if (component instanceof UIInput)
         {   // has local value?
-            if (((UIInput)tag).isLocalValueSet())
+            if (((UIInput)component).isLocalValueSet())
             {   /* clear local value */
                 if (log.isDebugEnabled())
-                    log.debug("clearing local value for {}. value is {}.", getColumnName(), ((UIInput)tag).getLocalValue());
-                ((UIInput)tag).setValue(null);
-                ((UIInput)tag).setLocalValueSet(false);
+                    log.debug("clearing local value for {}. value is {}.", getColumnName(), ((UIInput)component).getLocalValue());
+                ((UIInput)component).setValue(null);
+                ((UIInput)component).setLocalValueSet(false);
             }
             /*
             ValueExpression ve = findValueExpression("required", true);
@@ -421,8 +429,8 @@ public class TagEncodingHelper implements NamingContainer
         }
     }
     
-    private static final String PH_COLUMN_NAME = "{column}";  // placeholder for column name
-    private static final String PH_COLUMN_FULL = "{COLUMN}";  // placeholder for column full name including table
+    protected static final String PH_COLUMN_NAME = "{column}";  // placeholder for column name
+    protected static final String PH_COLUMN_FULL = "{COLUMN}";  // placeholder for column full name including table
 
     public String completeInputTagId(String id)
     {
@@ -474,8 +482,42 @@ public class TagEncodingHelper implements NamingContainer
         checkRecord();
         return control;
     }
+
+    protected InputControl detectInputControl(String controlType, DataType dataType, boolean hasOptions)
+    {
+        // Create
+        if (dataType==null)
+            throw new InvalidArgumentException("dataType", dataType);
+        // find control type
+        InputControl control = null;
+        if (StringUtils.isNotEmpty(controlType))
+            control = InputControlManager.getControl(controlType);
+        if (control == null)
+        {   // Auto-detect
+            if (hasOptions)
+                controlType = SelectInputControl.NAME;
+            else
+            {   // get from data type
+                switch (dataType)
+                {
+                    case CLOB:
+                        controlType = TextAreaInputControl.NAME;
+                        break;
+                    default:
+                        controlType = TextInputControl.NAME;
+                }
+            }
+            // get default control
+            control = InputControlManager.getControl(controlType);
+            // Still not? Use Text Control
+            if (control == null)
+                control = InputControlManager.getControl(TextInputControl.NAME);
+        }
+        // check record
+        return control;
+    }
     
-    private void checkRecord()
+    protected void checkRecord()
     {
         // Record may change even for the same instance
         if (this.record== null)
@@ -493,11 +535,11 @@ public class TagEncodingHelper implements NamingContainer
                         String keyOld = StringUtils.toString(((DBRecord)this.record).getKeyValues());
                         String keyNew = StringUtils.toString(((DBRecord)rec).getKeyValues());
                         String rowSet = StringUtils.valueOf(((DBRecord)rec).getRowSet().getName());
-                        log.trace("Changing "+tag.getClass().getSimpleName()+" record of rowset "+rowSet+" from {} to {}", keyOld, keyNew);
+                        log.trace("Changing "+component.getClass().getSimpleName()+" record of rowset "+rowSet+" from {} to {}", keyOld, keyNew);
                     }
                     else
                     {   // probably a bean change
-                        log.trace("Changing "+tag.getClass().getSimpleName()+" record of class "+rec.getClass().getSimpleName());
+                        log.trace("Changing "+component.getClass().getSimpleName()+" record of class "+rec.getClass().getSimpleName());
                     }
                 }
                 // change now
@@ -593,7 +635,7 @@ public class TagEncodingHelper implements NamingContainer
         if (record != null || (record=getTagAttributeValue("record"))!=null)
             return null; // No record tag: Record has been specified!
         // walk upwards the parent component tree and return the first record component found (if any)
-        UIComponent parent = tag;
+        UIComponent parent = component;
         while ((parent = parent.getParent()) != null)
         {
             if (parent instanceof RecordTag)
@@ -605,7 +647,7 @@ public class TagEncodingHelper implements NamingContainer
         return null;
     }
 
-    private boolean isDetectFieldChange()
+    protected boolean isDetectFieldChange()
     {
         Object v = this.getTagAttributeValue("detectFieldChange");
         if (v==null && recordTag != null)
@@ -631,11 +673,11 @@ public class TagEncodingHelper implements NamingContainer
         else
         {   // Get from tag
             if (evalExpression)
-                return tag.getValue();
+                return component.getValue();
             else
             {   // return value or value expression
-                Object value = tag.getLocalValue();
-                if (value!=null && (tag instanceof UIInput) && !((UIInput)tag).isLocalValueSet())
+                Object value = component.getLocalValue();
+                if (value!=null && (component instanceof UIInput) && !((UIInput)component).isLocalValueSet())
                     value= null; /* should never come here! */
                 if (value==null)
                     value = findValueExpression("value", false);
@@ -708,7 +750,7 @@ public class TagEncodingHelper implements NamingContainer
         else
         { // Get from tag
           // tag.setValue(value);
-            ValueExpression ve = tag.getValueExpression("value");
+            ValueExpression ve = component.getValueExpression("value");
             if (ve == null)
                 throw new PropertyReadOnlyException("value");
 
@@ -720,7 +762,7 @@ public class TagEncodingHelper implements NamingContainer
     public boolean isRecordReadOnly()
     {
         // Check tag
-        if (!(tag instanceof UIInput))
+        if (!(component instanceof UIInput))
             return true;
         // check attribute
         Object val = getTagAttributeValue("readonly");
@@ -852,7 +894,7 @@ public class TagEncodingHelper implements NamingContainer
         // When null, try value
         if (col == null)
         { // Try value
-            col = tag.getValue();
+            col = component.getValue();
             // Column supplied?
             if (col instanceof Column)
             {
@@ -865,13 +907,18 @@ public class TagEncodingHelper implements NamingContainer
                 if (source != null)
                     return source;
                 // No source column? --> wrap 
-                return new ColumnExprWrapper((ColumnExpr) col);
+                return createColumnExprWrapper((ColumnExpr) col);
             }
         }
         // No column!
-        if (log.isDebugEnabled() && !(tag instanceof LinkTag))
+        if (log.isDebugEnabled() && !(component instanceof LinkTag))
             log.warn("No Column provided for value tag!");
         return null;
+    }
+    
+    protected Column createColumnExprWrapper(ColumnExpr colExpr)
+    {
+         return new ColumnExprWrapper(colExpr);
     }
 
     protected Object findRecord()
@@ -892,8 +939,8 @@ public class TagEncodingHelper implements NamingContainer
         }
         else
         {   // not supplied
-            if ((tag instanceof ControlTag) && !((ControlTag)tag).isCustomInput())
-                log.warn("No record supplied for {} and column {}.", tag.getClass().getSimpleName(), getColumnName());
+            if ((component instanceof ControlTag) && !((ControlTag)component).isCustomInput())
+                log.warn("No record supplied for {} and column {}.", component.getClass().getSimpleName(), getColumnName());
         }
         return rec;
     }
@@ -926,17 +973,17 @@ public class TagEncodingHelper implements NamingContainer
         return hasValueRef.booleanValue();
     }
     
-    private static final String CC_ATTR_EXPR = "#{cc.attrs.";
+    protected static final String CC_ATTR_EXPR = "#{cc.attrs.";
     
     @SuppressWarnings("unchecked")
     protected ValueExpression findValueExpression(String attribute, boolean allowLiteral)
     {
         // Check for expression
-        ValueExpression ve = tag.getValueExpression(attribute);
+        ValueExpression ve = component.getValueExpression(attribute);
         if (ve == null)
             return null;
         // Find expression
-        UIComponent parent = tag;
+        UIComponent parent = component;
         String expr = ve.getExpressionString();
         while (expr.startsWith(CC_ATTR_EXPR))
         {
@@ -1157,9 +1204,9 @@ public class TagEncodingHelper implements NamingContainer
         return textResolver;
     }
     
-    private boolean detectError(FacesContext context)
+    protected boolean detectError(FacesContext context)
     {
-        Iterator<FacesMessage> iter = context.getMessages(tag.getClientId());
+        Iterator<FacesMessage> iter = context.getMessages(component.getClientId());
         while (iter.hasNext())
         {   // Check for error
             FacesMessage m = iter.next();
@@ -1173,7 +1220,7 @@ public class TagEncodingHelper implements NamingContainer
     {
         String msgText = getTextResolver(context).getExceptionMessage(e);
         FacesMessage msg = new FacesMessage(FacesMessage.SEVERITY_ERROR, msgText, msgText);
-        context.addMessage(tag.getClientId(), msg);
+        context.addMessage(component.getClientId(), msg);
     }
 
     public Object getAttributeValueEx(String name)
@@ -1216,7 +1263,7 @@ public class TagEncodingHelper implements NamingContainer
     
     public Object getTagAttributeValue(String name)
     {
-        return TagEncodingHelper.getTagAttributeValue(tag, name);
+        return TagEncodingHelper.getTagAttributeValue(component, name);
     }
 
     public static Object getTagAttributeValue(UIComponent comp, String name)
@@ -1284,7 +1331,7 @@ public class TagEncodingHelper implements NamingContainer
         {   // find the component
             if (!forInput.equals("*"))
             {   // Set Label input Id
-                UIComponent input = FacesUtils.getWebApplication().findComponent(context, forInput, tag);
+                UIComponent input = FacesUtils.getWebApplication().findComponent(context, forInput, component);
                 if (input!=null && (input instanceof InputTag))
                 {   // Check Read-Only
                     InputTag inputTag = ((InputTag)input);
@@ -1369,7 +1416,7 @@ public class TagEncodingHelper implements NamingContainer
         InputTag inputTag = null;
         if (StringUtils.isNotEmpty(forInput) && !forInput.equals("*"))
         {   // Set Label input Id
-            UIComponent input = FacesUtils.getWebApplication().findComponent(context, forInput, tag);
+            UIComponent input = FacesUtils.getWebApplication().findComponent(context, forInput, component);
             if (input!=null && (input instanceof InputTag))
             {   // Check Read-Only
                 inputTag = ((InputTag)input);
@@ -1398,22 +1445,24 @@ public class TagEncodingHelper implements NamingContainer
     
     /* ********************** CSS-generation ********************** */
 
-    public static final String getTagStyleClass(String tagCssStyle, String typeClass, String addlStyle, String userStyle)
+    public static final String assembleStyleClassString(String tagCssStyle, String typeClass, String addlStyle, String userStyle)
     {
-        // tag and type style class
+        // handle simple case
         if (StringUtils.isEmpty(userStyle) && StringUtils.isEmpty(addlStyle))
             return StringUtils.isEmpty(typeClass) ? tagCssStyle : tagCssStyle + typeClass;
-        // concatenate
+        // assemble 
         StringBuilder b = new StringBuilder(tagCssStyle);
         if (StringUtils.isNotEmpty(typeClass))
+        {   // type class must begin with a space!
             b.append(typeClass);
+        }
         if (StringUtils.isNotEmpty(addlStyle))
-        {
+        {   // add additional style class
             b.append(" ");
             b.append(addlStyle);
         }
         if (StringUtils.isNotEmpty(userStyle) && !StringUtils.compareEqual(userStyle, addlStyle, false))
-        {
+        {   // add user style class
             b.append(" ");
             b.append(userStyle);
         }
@@ -1428,7 +1477,7 @@ public class TagEncodingHelper implements NamingContainer
     public static final String CSS_DATA_TYPE_DATE     = " eTypeDate";
     public static final String CSS_DATA_TYPE_BOOL     = " eTypeBool";
 
-    public static final String getDataTypeClass(DataType type)
+    protected String getDataTypeClass(DataType type)
     {
         switch (type)
         {
@@ -1455,35 +1504,31 @@ public class TagEncodingHelper implements NamingContainer
         }
     }
 
-    public final String getTagStyleClass(DataType dataType, String addlStyle, String userStyle)
+    public String getTagStyleClass(DataType dataType, String addlStyle, String userStyle)
     {
-        String typeClass = getDataTypeClass(dataType);
+        String typeClass = (dataType!=null) ? getDataTypeClass(dataType) : null;
         String contextStyle = getContextStyleClass(addlStyle);
-        return getTagStyleClass(tagCssStyle, typeClass, contextStyle, userStyle);
+        return assembleStyleClassString(cssStyleClass, typeClass, contextStyle, userStyle);
     }
 
-    public final String getTagStyleClass(DataType dataType, String addlStyle)
+    public String getTagStyleClass(DataType dataType, String addlStyle)
     {
         String userStyle = getTagAttributeStringEx("styleClass");
-        String typeClass = getDataTypeClass(dataType);
-        return getTagStyleClass(tagCssStyle, typeClass, addlStyle, userStyle);
+        return getTagStyleClass(dataType, addlStyle, userStyle);
     }
 
-    public final String getTagStyleClass(String addlStyle)
+    public String getTagStyleClass(String addlStyle)
     {
-        String userStyle = getTagAttributeStringEx("styleClass");
-        String typeClass = hasColumn() ? getDataTypeClass(column.getDataType()) : null;
-        return getTagStyleClass(tagCssStyle, typeClass, addlStyle, userStyle);
+        DataType dataType = (hasColumn() ? column.getDataType() : null);
+        return getTagStyleClass(dataType, addlStyle);
     }
 
     public final String getTagStyleClass()
     {
-        String userStyle = getTagAttributeStringEx("styleClass");
-        String typeClass = hasColumn() ? getDataTypeClass(column.getDataType()) : null;
-        return getTagStyleClass(tagCssStyle, typeClass, null, userStyle);
+        return getTagStyleClass((String)null);
     }
     
-    private final String getContextStyleClass(String addlStyle)
+    protected String getContextStyleClass(String addlStyle)
     {
         String contextStyle = null;
         if ((getRecord() instanceof TagContextInfo) && hasColumn())
@@ -1503,13 +1548,13 @@ public class TagEncodingHelper implements NamingContainer
     
     public boolean isInsideUIData()
     {
-        if (tag==null)
+        if (component==null)
             return false;
         if (this.insideUIData!=null)
             return this.insideUIData;
         // detect
         this.insideUIData = false;
-        for (UIComponent p = tag.getParent(); p!=null; p=p.getParent())
+        for (UIComponent p = component.getParent(); p!=null; p=p.getParent())
         {   // Check whether inside UIData
             if (p instanceof UIData) {
                 this.insideUIData = true;
@@ -1560,40 +1605,6 @@ public class TagEncodingHelper implements NamingContainer
             }
             */
         }
-    }
-
-    private static InputControl detectInputControl(String controlType, DataType dataType, boolean hasOptions)
-    {
-        // Create
-        if (dataType==null)
-            throw new InvalidArgumentException("dataType", dataType);
-        // find control type
-        InputControl control = null;
-        if (StringUtils.isNotEmpty(controlType))
-            control = InputControlManager.getControl(controlType);
-        if (control == null)
-        {   // Auto-detect
-            if (hasOptions)
-                controlType = SelectInputControl.NAME;
-            else
-            {   // get from data type
-                switch (dataType)
-                {
-                    case CLOB:
-                        controlType = TextAreaInputControl.NAME;
-                        break;
-                    default:
-                        controlType = TextInputControl.NAME;
-                }
-            }
-            // get default control
-            control = InputControlManager.getControl(controlType);
-            // Still not? Use Text Control
-            if (control == null)
-                control = InputControlManager.getControl(TextInputControl.NAME);
-        }
-        // check record
-        return control;
     }
     
 }

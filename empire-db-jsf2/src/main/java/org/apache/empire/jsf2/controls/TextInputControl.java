@@ -42,7 +42,6 @@ import org.apache.empire.data.Column;
 import org.apache.empire.data.DataType;
 import org.apache.empire.exceptions.InvalidArgumentException;
 import org.apache.empire.exceptions.UnexpectedReturnValueException;
-import org.apache.empire.jsf2.utils.TagEncodingHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -148,9 +147,12 @@ public class TextInputControl extends InputControl
         text.setValue(value);
         // wrap
         HtmlPanelGroup span = new HtmlPanelGroup();
-        String styleClass = TagEncodingHelper.getTagStyleClass(tagStyle, TagEncodingHelper.getDataTypeClass(ii.getColumn().getDataType()),
-                                                               null, null);
-        span.getAttributes().put("styleClass", styleClass);
+        /* 
+        --- dataTypeClass not needed --- 
+        String dataTypeClass = TagEncodingHelper.getDataTypeClass(ii.getColumn().getDataType()); 
+        String styleClass    = TagEncodingHelper.getTagStyleClass(tagStyle, dataTypeClass, null, null);
+        */
+        span.getAttributes().put("styleClass", tagStyle);
         span.getChildren().add(text);
         return span;
     }

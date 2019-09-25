@@ -40,6 +40,7 @@ import org.apache.empire.db.exceptions.FieldIllegalValueException;
 import org.apache.empire.exceptions.EmpireException;
 import org.apache.empire.jsf2.controls.InputControl;
 import org.apache.empire.jsf2.utils.TagEncodingHelper;
+import org.apache.empire.jsf2.utils.TagEncodingHelperFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -221,7 +222,7 @@ public class ControlTag extends UIInput implements NamingContainer
 
     protected static final String     readOnlyState      = "readOnlyState";
 
-    protected final TagEncodingHelper helper             = new TagEncodingHelper(this, "eInput");
+    protected final TagEncodingHelper helper             = TagEncodingHelperFactory.create(this, "eInput");
 
     protected InputControl            control            = null;
     protected InputControl.InputInfo  inpInfo            = null;

@@ -73,8 +73,8 @@
 
 		<!-- EL --> 
 		<dependency>
-		    <groupId>org.apache.tomcat</groupId>
-		    <artifactId>tomcat-el-api</artifactId>
+		    <groupId>javax.el</groupId>
+		    <artifactId>javax.el-api</artifactId>
 			<type>jar</type>
 			<scope>provided</scope>
 		</dependency>

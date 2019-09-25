@@ -43,6 +43,7 @@ import org.apache.empire.jsf2.app.FacesUtils;
 import org.apache.empire.jsf2.controls.InputControl;
 import org.apache.empire.jsf2.controls.InputControlManager;
 import org.apache.empire.jsf2.utils.TagEncodingHelper;
+import org.apache.empire.jsf2.utils.TagEncodingHelperFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -60,7 +61,7 @@ public class TabViewTag extends UIOutput implements NamingContainer
 
     protected final String            TAB_RENDERED_ATTRIBUTE = "visible";
 
-    protected final TagEncodingHelper helper                 = new TagEncodingHelper(this, this.TAB_STYLE_CLASS);
+    protected final TagEncodingHelper helper                 = TagEncodingHelperFactory.create(this, this.TAB_STYLE_CLASS);
 
     public static class TabPageActionListener implements ActionListener, StateHolder
     {

@@ -41,6 +41,7 @@ import org.apache.empire.jsf2.controls.InputControl;
 import org.apache.empire.jsf2.controls.InputControlManager;
 import org.apache.empire.jsf2.utils.StringResponseWriter;
 import org.apache.empire.jsf2.utils.TagEncodingHelper;
+import org.apache.empire.jsf2.utils.TagEncodingHelperFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -60,7 +61,7 @@ public class LinkTag extends UIOutput // implements NamingContainer
     // Logger
     private static final Logger log = LoggerFactory.getLogger(LinkTag.class);
     
-    protected final TagEncodingHelper helper = new TagEncodingHelper(this, "eLink");
+    protected final TagEncodingHelper helper = TagEncodingHelperFactory.create(this, "eLink");
 
     private boolean creatingComponents = false;
     
