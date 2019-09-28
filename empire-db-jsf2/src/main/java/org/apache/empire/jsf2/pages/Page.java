@@ -22,6 +22,7 @@ import java.io.Serializable;
 import java.lang.reflect.Method;
 import java.sql.Connection;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -224,8 +225,8 @@ public abstract class Page implements Serializable
     
     public boolean isHasMessages()
     {
-        List<FacesMessage> msgl = FacesContext.getCurrentInstance().getMessageList();
-        return !msgl.isEmpty();
+        Iterator<FacesMessage> fmi = FacesContext.getCurrentInstance().getMessages();
+        return fmi.hasNext();
     }
     
     protected void checkPageAccess()

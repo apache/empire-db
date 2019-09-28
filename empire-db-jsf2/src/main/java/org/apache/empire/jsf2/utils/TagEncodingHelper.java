@@ -605,7 +605,7 @@ public class TagEncodingHelper implements NamingContainer
     
     public String getColumnName()
     {
-        return (getColumn()!=null ? column.getName() : "null");
+        return ((this.column=findColumn())!=null ? column.getName() : "null");
     }
 
     public void setColumn(Column column)

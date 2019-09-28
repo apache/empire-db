@@ -37,8 +37,11 @@ import javax.faces.context.ResponseWriter;
 import org.apache.empire.commons.ObjectUtils;
 import org.apache.empire.commons.StringUtils;
 import org.apache.empire.data.DataType;
+import org.apache.empire.exceptions.InvalidPropertyException;
+import org.apache.empire.jsf2.app.FacesUtils;
 import org.apache.empire.jsf2.controls.InputControl;
 import org.apache.empire.jsf2.controls.InputControlManager;
+import org.apache.empire.jsf2.utils.ParameterMap;
 import org.apache.empire.jsf2.utils.StringResponseWriter;
 import org.apache.empire.jsf2.utils.TagEncodingHelper;
 import org.apache.empire.jsf2.utils.TagEncodingHelperFactory;
@@ -81,6 +84,24 @@ public class LinkTag extends UIOutput // implements NamingContainer
      * necessary only inside UIData
      */
     private String treeClientId = null;
+    
+    @Override
+    public void setId(String id) 
+    {   // empty?
+        if(StringUtils.isEmpty(id))
+        {   // Generate unique id
+            Object page = getAttributes().get("page");
+            String outcome = StringUtils.toString(page);
+            if (StringUtils.isEmpty(outcome))
+                throw new InvalidPropertyException("page", page);
+            ParameterMap pm = FacesUtils.getParameterMap(FacesUtils.getContext());
+            id = pm.encodeString(outcome);
+        }
+        // set
+        super.setId(id);
+        // reset record
+        helper.setRecord(null);
+    }
     
     @Override
     public boolean visitTree(VisitContext visitContext, VisitCallback callback) 
@@ -238,6 +259,10 @@ public class LinkTag extends UIOutput // implements NamingContainer
         boolean hasColumn = helper.hasColumn();
         Object value = getLinkValue(hasColumn);
         link.setValue(value);
+        // id
+        String id = getId();
+        if (id.startsWith("j_")==false)
+            link.setId(id+"_a");
         // css Style
         DataType dataType = (hasColumn ? helper.getColumn().getDataType() : DataType.UNKNOWN);
         link.setStyleClass(helper.getTagStyleClass(dataType, null, getLinkStyleClass()));
