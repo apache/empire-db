@@ -120,6 +120,11 @@ public abstract class WebApplication
         log.info("WebRoot is '{}'", webRoot);
     }
 
+    public void destroy()
+    {
+    	// Override if needed
+    }
+    
     /* Context handling */
     
     /**
