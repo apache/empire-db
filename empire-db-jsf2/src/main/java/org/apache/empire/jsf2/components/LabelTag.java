@@ -20,7 +20,6 @@ package org.apache.empire.jsf2.components;
 
 import java.io.IOException;
 
-import javax.faces.component.NamingContainer;
 import javax.faces.component.UIOutput;
 import javax.faces.component.html.HtmlOutputLabel;
 import javax.faces.component.visit.VisitCallback;
@@ -34,7 +33,7 @@ import org.apache.empire.jsf2.utils.TagEncodingHelperFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class LabelTag extends UIOutput implements NamingContainer
+public class LabelTag extends UIOutput // implements NamingContainer
 {
     // Logger
     private static final Logger log = LoggerFactory.getLogger(LabelTag.class);

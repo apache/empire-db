@@ -66,6 +66,7 @@ import org.apache.empire.jsf2.app.TextResolver;
 import org.apache.empire.jsf2.app.WebApplication;
 import org.apache.empire.jsf2.components.ControlTag;
 import org.apache.empire.jsf2.components.InputTag;
+import org.apache.empire.jsf2.components.LabelTag;
 import org.apache.empire.jsf2.components.LinkTag;
 import org.apache.empire.jsf2.components.RecordTag;
 import org.apache.empire.jsf2.controls.InputControl;
@@ -338,6 +339,9 @@ public class TagEncodingHelper implements NamingContainer
         public boolean isFieldReadOnly()
         {   // Check Record
             if (isRecordReadOnly())
+                return true;
+            // Check tag
+            if (!(component instanceof UIInput))
                 return true;
             // Check Record
             if ((getRecord() instanceof Record))
@@ -761,9 +765,6 @@ public class TagEncodingHelper implements NamingContainer
 
     public boolean isRecordReadOnly()
     {
-        // Check tag
-        if (!(component instanceof UIInput))
-            return true;
         // check attribute
         Object val = getTagAttributeValue("readonly");
         if (val != null && ObjectUtils.getBoolean(val))
@@ -1344,8 +1345,18 @@ public class TagEncodingHelper implements NamingContainer
                     log.warn("Input component {} not found for label {}.", forInput, getColumn().getName());
                 }                
             }
-            else
-            {   // set readonly
+            else if (component instanceof LabelTag)
+            {   // for LabelTag
+                forInput = this.getColumnName();
+                // readOnly
+                Object val = getAttributeValueEx("readOnly");
+                if (val!=null)
+                    readOnly = ObjectUtils.getBoolean(val);
+                else 
+                    readOnly = this.isReadOnly();
+            }
+            else 
+            {   // for ControlTag
                 readOnly = this.isReadOnly();
             }
         }
