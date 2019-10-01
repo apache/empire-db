@@ -133,7 +133,7 @@ public class FacesUtils
         return context.getExternalContext().getRequestParameterMap().get(param);
     }
 
-    public static Object getRequestParam(final String key)
+    public static String getRequestParam(final String key)
     {
         FacesContext fc = getContext();
         return getRequestParam(fc, key);
@@ -212,17 +212,54 @@ public class FacesUtils
     }
 
     /* Parameter-map */
-    public static final String PARAMETER_MAP_ATTRIBUTE = ParameterMap.class.getSimpleName();
+    public static final String PARAMETER_MAP_ATTRIBUTE = "PARAMETER_MAP";
+
+    public static final String PARAMETER_MAP_CLASS_ATTRIBUTE = "PARAMETER_MAP_CLASS";
+
+    public static void setParameterMapClass(final FacesContext fc, Class<? extends ParameterMap>clazz)
+    {
+        Map<String, Object> am = fc.getExternalContext().getApplicationMap();
+        am.put(PARAMETER_MAP_CLASS_ATTRIBUTE, clazz);
+    }
     
     public static ParameterMap getParameterMap(final FacesContext fc)
     {
         Map<String, Object> sm = fc.getExternalContext().getSessionMap();
-        Object pm = sm.get(PARAMETER_MAP_ATTRIBUTE);
+        ParameterMap pm = (ParameterMap)sm.get(PARAMETER_MAP_ATTRIBUTE);
         if (pm==null)
-        {   pm = new ParameterMap();
+        {   try
+            {   // Create Paramter Map
+                Map<String, Object> am = fc.getExternalContext().getApplicationMap();
+                Object pmClass = am.get(PARAMETER_MAP_CLASS_ATTRIBUTE);
+                if (pmClass instanceof Class<?>) {
+                    // ParamterMapClass provided as Object
+                    pm = (ParameterMap)((Class<?>)pmClass).newInstance(); 
+                } 
+                else if (pmClass instanceof String) {
+                    // ParamterMapClass provided as String
+                    pm = (ParameterMap)Class.forName((String)pmClass).newInstance(); 
+                }
+                else {
+                    // not provided, use default
+                    pm = new ParameterMap();
+                }
+            }
+            catch (ClassNotFoundException e)
+            {
+                throw new InternalException(e);
+            }
+            catch (InstantiationException e)
+            {
+                throw new InternalException(e);
+            }
+            catch (IllegalAccessException e)
+            {
+                throw new InternalException(e);
+            }
+            // put on session
             sm.put(PARAMETER_MAP_ATTRIBUTE, pm);
         }
-        return (ParameterMap)pm;
+        return pm;
     }
     
     public static ParameterMap getParameterMap()

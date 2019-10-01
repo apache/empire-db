@@ -545,7 +545,7 @@ public class BeanListPageElement<T> extends ListPageElement<T> implements ListIt
         Set<Object[]> items = new HashSet<Object[]>(selectedItems.size());
         for (String idParam : selectedItems)
         {
-            Object[] key = getParameterMap().get(rowset, idParam);
+            Object[] key = getParameterMap().getKey(rowset, idParam);
             if (key == null)
             {
                 log.warn("Object does not exist in ParameterMap!");

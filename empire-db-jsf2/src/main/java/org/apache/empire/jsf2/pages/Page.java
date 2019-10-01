@@ -397,13 +397,13 @@ public abstract class Page implements Serializable
     public Object[] getKeyFromParam(DBRowSet rowset, String idParam)
     {
         FacesContext fc = FacesUtils.getContext();
-        return FacesUtils.getParameterMap(fc).get(rowset, idParam);
+        return FacesUtils.getParameterMap(fc).getKey(rowset, idParam);
     }
     
     public Object[] getKeyFromParam(PageDefinition page, DBRowSet rowset, String idParam)
     {
         FacesContext fc = FacesUtils.getContext();
-        return FacesUtils.getParameterMap(fc).get(page, rowset, idParam);
+        return FacesUtils.getParameterMap(fc).getKey(page, rowset, idParam);
     }
     
     public String getIdParamForKey(DBRowSet rowset, Object[] key)

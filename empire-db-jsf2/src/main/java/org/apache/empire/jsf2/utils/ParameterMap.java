@@ -62,6 +62,10 @@ public class ParameterMap implements Serializable
     }
     
     private final byte[] salt;
+
+    protected Hashtable<String, String> codeMap = new Hashtable<String, String>();
+
+    protected final Hashtable<String, Hashtable<String, Object>> typeMap = new Hashtable<String, Hashtable<String, Object>>();
     
     public ParameterMap()
     {
@@ -100,8 +104,6 @@ public class ParameterMap implements Serializable
         return hash.toString();
     }
 
-    private Hashtable<String, String> codeMap = new Hashtable<String, String>();
-
     public String encodeStringWithCache(String valueAsString)
     {
         String code = codeMap.get(valueAsString);
@@ -110,61 +112,104 @@ public class ParameterMap implements Serializable
             code = encodeString(valueAsString);
             codeMap.put(valueAsString, code);
         }
-        /*
-        else
-        {   // Trace
-            if (log.isTraceEnabled())
-                log.trace("Using already generated code {} for value {}.", code, valueAsString);
-        }
-        */
         return code;
     }
-    
-    private final Hashtable<String, Hashtable<String, Object>> typeMap = new Hashtable<String, Hashtable<String, Object>>();
-    
-    private void putValue(String typeName, String key, Object value)
+
+    /**
+     * gets a unique name for a given rowset  
+     * @param rowset
+     * @return a unique name for the given rowset
+     */
+    protected String getRowSetTypeName(DBRowSet rowset)
     {
+        /*
+         * alternatively use:
+         *     rowset.getName();
+         * or
+         *     rowset.getFullName();
+         */
+        return rowset.getClass().getName();
+    }
+
+    /**
+     * puts an object into the parameter map
+     * @param typeName
+     * @param id
+     * @param value
+     */
+    protected void putValue(String typeName, String encodedId, Object item)
+    {   // put in Table
+        if (encodedId==null)
+        {
+            throw new InvalidArgumentException("encodedId", encodedId);
+        }
         Hashtable<String, Object> map = typeMap.get(typeName);
         if (map==null)
         {   map = new Hashtable<String, Object>(1);
             typeMap.put(typeName, map);
         }
-        if (key==null || value==null)
-            log.warn("Key or value is null.");
-        map.put(key, value);
+        map.put(encodedId, item);
+    }
+    
+    /**
+     * encodes the objectKey and stores the item in the parameter map
+     * @param typeName
+     * @param id
+     * @param value
+     */
+    protected String encodeAndStore(String typeName, String objectKey, Object item, boolean useCache)
+    {   // Generate the id
+        String encodedId = (useCache ? encodeStringWithCache(objectKey) : encodeString(objectKey));
+        // store
+        putValue(typeName, encodedId, item);
+        // return id
+        return encodedId;
     }
 
     public String put(String type, String key, boolean useCache)
     {
         // Generate id and put in map
-        String id = (useCache ? encodeStringWithCache(key) : encodeString(key));
-        putValue(type, id, key);
-        return id;
+        return encodeAndStore(type, key, key, useCache);
     }
 
-    public String put(Class<? extends Object> c, Object[] key)
+    /**
+     * Puts an object into the paramter map that implements the ParameterObject interface  
+     * @param paramObject
+     * @return
+     */
+    public String put(ParameterObject paramObject)
     {
+        String objectKey;
+        // check param
+        if (paramObject==null || StringUtils.isEmpty((objectKey=paramObject.getObjectKey())))
+            throw new InvalidArgumentException("paramObject", paramObject);
         // Generate id and put in map
-        String ref = StringUtils.valueOf(key);
-        String id = encodeString(ref);
-        String type = c.getSimpleName();
-        putValue(type, id, key);
-        return id;
+        String type = paramObject.getClass().getName();
+        return encodeAndStore(type, objectKey, paramObject, false);
     }
 
     public String put(DBRowSet rowset, Object[] key)
     {
         // Generate id and put in map
-        String ref = StringUtils.valueOf(key);
-        String id = encodeString(ref);
-        String type = rowset.getClass().getSimpleName();
-        putValue(type, id, key);
-        return id;
+        String rowKey = StringUtils.valueOf(key);
+        String type = getRowSetTypeName(rowset);
+        return encodeAndStore(type, rowKey, key, false);
     }
+
+    /*
+     * do we really need this?
+     * 
+    public String put(Class<? extends Object> c, Object[] key)
+    {
+        // Generate id and put in map
+        String ref = StringUtils.valueOf(key);
+        String type = c.getName();
+        return encodeAndStore(type, ref, key, false);
+    }
+    */
     
     /**
      * Generates an idParam which is only valid for the given page.
-     * 
      * @param targetPage
      * @param rowset
      * @param key
@@ -172,54 +217,85 @@ public class ParameterMap implements Serializable
      */
     public String put(PageDefinition targetPage, DBRowSet rowset, Object[] key) {
         // Generate id and put in map
-        String ref = targetPage.getPageBeanName() + "/" + StringUtils.valueOf(key);
-        String idParam = encodeString(ref);
-        String type = targetPage.getPageBeanName() + "$" + rowset.getClass().getSimpleName();
-        putValue(type, idParam, key);
-        return idParam;
+        String ref  = StringUtils.valueOf(key);
+        String type = targetPage.getPageBeanName() + "$" + getRowSetTypeName(rowset);
+        return encodeAndStore(type, ref, key, false);
     }
 
+    /**
+     * Gets an object from the parameter map for a given type and id
+     * @param type the object type (typically the class name)
+     * @param id the encoded idParam
+     * @return the object
+     */
     public Object get(String type, String id)
     {
         Hashtable<String, Object> map = typeMap.get(type);
         return (map!=null ? map.get(id) : null);
     }
 
-    public Object[] get(Class<? extends Object> c, String id)
+    public void clear(String type)
     {
-        String type = c.getSimpleName();
-        Hashtable<String, Object> map = typeMap.get(type);
-        return (map!=null ? ((Object[])map.get(id)) : null);
-    }
-
-    public Object[] get(DBRowSet rowset, String id)
-    {
-        String type = rowset.getClass().getSimpleName();
-        Hashtable<String, Object> map = typeMap.get(type);
-        return (map!=null ? ((Object[])map.get(id)) : null);
-    }
-    
-    public Object[] get(PageDefinition page, DBRowSet rowset, String id)
-    {
-    	String type = page.getPageBeanName() + "$" + rowset.getClass().getSimpleName();
-        Hashtable<String, Object> map = typeMap.get(type);
-        return (map!=null ? ((Object[])map.get(id)) : null);
-    }
-
-    public void clear(Class<? extends Object> c)
-    {
-        String type = c.getSimpleName();
         Hashtable<String, Object> map = typeMap.get(type);
         if (map!=null)
             map.clear();
+    }
+
+    /**
+     * Puts an object into the paramter map that implements the ParameterObject interface  
+     * @param paramType
+     * @param id
+     * @return
+     */
+    @SuppressWarnings("unchecked")
+    public <T extends ParameterObject> T get(Class<T> paramType, String id)
+    {
+        String type = paramType.getName();
+        Hashtable<String, Object> map = typeMap.get(type);
+        return (T)(map!=null ? map.get(id) : null);
+    }
+
+    public void clear(Class<? extends ParameterObject> paramType)
+    {
+        String type = paramType.getName();
+        clear(type);
+    }
+
+    /*
+     * do we really need this?
+     * 
+    public Object[] getKey(Class<? extends Object> c, String id)
+    {
+        String type = c.getName();
+        Hashtable<String, Object> map = typeMap.get(type);
+        return (map!=null ? ((Object[])map.get(id)) : null);
+    }
+    */
+
+    public Object[] getKey(DBRowSet rowset, String id)
+    {
+        String type = getRowSetTypeName(rowset);
+        Hashtable<String, Object> map = typeMap.get(type);
+        return (map!=null ? ((Object[])map.get(id)) : null);
     }
 
     public void clear(DBRowSet rowset)
     {
-        String type = rowset.getClass().getSimpleName();
-        Hashtable<String, Object> map = typeMap.get(type);
-        if (map!=null)
-            map.clear();
+        String type = getRowSetTypeName(rowset);
+        clear(type);
     }
 
+    /**
+     * returns an record key for a given page
+     * @param page
+     * @param rowset
+     * @param id
+     * @return
+     */
+    public Object[] getKey(PageDefinition page, DBRowSet rowset, String id)
+    {
+        String type = page.getPageBeanName() + "$" + getRowSetTypeName(rowset);
+        Hashtable<String, Object> map = typeMap.get(type);
+        return (map!=null ? ((Object[])map.get(id)) : null);
+    }
 }
