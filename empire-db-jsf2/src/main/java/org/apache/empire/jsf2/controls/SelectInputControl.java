@@ -87,7 +87,7 @@ public class SelectInputControl extends InputControl
         input.setDisabled(disabled);
         // Options
         Options options = getOptions(ii);
-        boolean addEmpty = getEmptyEntryRequired(ii, disabled) && !options.contains("");
+        boolean addEmpty = isEmptyEntryRequired(options, ii, disabled);
         String nullText = (addEmpty) ? getNullText(ii) : "";
         initOptions(input, ii.getTextResolver(), options, addEmpty, nullText);
         // add
@@ -117,7 +117,7 @@ public class SelectInputControl extends InputControl
         Options options = ii.getOptions();
         if (options!=null)
         {   // syncOptions
-            boolean addEmpty = getEmptyEntryRequired(ii, disabled) && !options.contains("");
+            boolean addEmpty = isEmptyEntryRequired(options, ii, disabled);
             String nullText = (addEmpty) ? getNullText(ii) : "";
             syncOptions(input, ii.getTextResolver(), options, addEmpty, nullText, ii.isInsideUIData());
         }
@@ -138,8 +138,12 @@ public class SelectInputControl extends InputControl
         }
     }
 
-    protected boolean getEmptyEntryRequired(InputInfo ii, boolean disabled)
+    protected boolean isEmptyEntryRequired(Options options, InputInfo ii, boolean disabled)
     {
+        if (options.contains(""))
+        {   // already has an empty option
+            return false;
+        }
         if (!ii.isRequired() && !(disabled && ii.getColumn().isRequired()))
         {
             return true;
