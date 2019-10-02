@@ -130,6 +130,34 @@ public class StringUtils
     }
 
     /**
+     * Returns true if the given substring is part of the string provided by value 
+     * 
+     * @param value the value to check
+     * @param substring the substring
+     * @return true if the given substring is part of the string provided by value 
+     */
+    public static boolean contains(String value, String substring)
+    {
+        if (value==null || substring==null)
+            return false;
+        return ((value.indexOf(substring))>=0);
+    }
+
+    /**
+     * Returns true if the given substring is part of the string provided by value 
+     * 
+     * @param value the value to check
+     * @param substring the substring
+     * @return true if the given substring is part of the string provided by value 
+     */
+    public static boolean notContains(String value, String substring)
+    {
+        if (value==null || substring==null)
+            return true;
+        return ((value.indexOf(substring))<0);
+    }
+
+    /**
      * Converts an array of objects to a string.
      * 
      * @param array array of objects

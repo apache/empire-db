@@ -1384,7 +1384,7 @@ public class TagEncodingHelper implements NamingContainer
 
         // styleClass
         if (StringUtils.isNotEmpty(styleClass))
-            label.setStyleClass(styleClass);
+            label.setStyleClass(completeLabelStyleClass(styleClass, required));
         
         // for 
         if (StringUtils.isNotEmpty(forInput) && !readOnly)
@@ -1422,7 +1422,6 @@ public class TagEncodingHelper implements NamingContainer
     
     public void updateLabelComponent(FacesContext context, HtmlOutputLabel label, String forInput)
     {
-        boolean hasMark = (label.getChildCount()>0);
         // Find Input Control (only if forInput Attribute has been set!)
         InputTag inputTag = null;
         if (StringUtils.isNotEmpty(forInput) && !forInput.equals("*"))
@@ -1435,6 +1434,11 @@ public class TagEncodingHelper implements NamingContainer
         }
         // Is the Mark required?
         boolean required = (inputTag!=null ? inputTag.isInputRequired() : isValueRequired());
+        // Style Class
+        String styleClass = label.getStyleClass();
+        label.setStyleClass(completeLabelStyleClass(styleClass, required));
+        // set mark
+        boolean hasMark = (label.getChildCount()>0);
         if (required==hasMark)
             return;
         // Add or remove the mark
@@ -1442,6 +1446,28 @@ public class TagEncodingHelper implements NamingContainer
             addRequiredMark(label);
         else
             label.getChildren().clear();
+    }
+
+    protected String completeLabelStyleClass(String styleClass, boolean required)
+    {
+        final String LABEL_REQ_STYLE = " "+InputControl.STYLECLASS_REQUIRED;
+
+        boolean hasRequired = StringUtils.contains(styleClass, LABEL_REQ_STYLE);
+        if (required==hasRequired)
+            return styleClass; // no change
+        // must be empty at least
+        if (styleClass==null)
+            styleClass="";
+        // add or remove
+        if (required) {
+            styleClass += LABEL_REQ_STYLE;
+        }    
+        else
+        {   // remove both   
+            styleClass = StringUtils.remove(styleClass, LABEL_REQ_STYLE);
+        }    
+        // done
+        return styleClass;
     }
     
     protected void addRequiredMark(HtmlOutputLabel label)

@@ -412,6 +412,8 @@ public abstract class InputControl
             Object value = reqMap.get(clientId);
             if (input.isLocalValueSet() == false)
                 input.setSubmittedValue(value);
+            // change the style
+            addRemoveValueNullStyle(input, ObjectUtils.isEmpty(value));
             return;
         }
         else if (input.getSubmittedValue() != null) //  && FacesUtils.isClearSubmittedValues(fc)
@@ -438,6 +440,8 @@ public abstract class InputControl
         { // Set the value
             value = formatInputValue(value, ii);
             input.setValue(value);
+            // change the style
+            addRemoveValueNullStyle(input, ObjectUtils.isEmpty(value));
         }
     }
 
@@ -594,6 +598,11 @@ public abstract class InputControl
             value = ii.getColumn().getAttribute(name);
         if (value != null)
             input.getAttributes().put(name, String.valueOf(value));
+    }
+    
+    public void addRemoveValueNullStyle(UIInput input, boolean nullValue)
+    {
+        addRemoveStyle(input, " eValNull", nullValue);
     }
 
     public void addRemoveDisabledStyle(UIInput input, boolean disabled)
