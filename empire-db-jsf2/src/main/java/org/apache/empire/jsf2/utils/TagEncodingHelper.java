@@ -52,6 +52,7 @@ import org.apache.empire.data.DataType;
 import org.apache.empire.data.Record;
 import org.apache.empire.data.RecordData;
 import org.apache.empire.db.DBColumn;
+import org.apache.empire.db.DBColumnExpr;
 import org.apache.empire.db.DBDatabase;
 import org.apache.empire.db.DBRecord;
 import org.apache.empire.db.DBRowSet;
@@ -59,6 +60,7 @@ import org.apache.empire.db.exceptions.FieldNotNullException;
 import org.apache.empire.exceptions.BeanPropertyGetException;
 import org.apache.empire.exceptions.BeanPropertySetException;
 import org.apache.empire.exceptions.InvalidArgumentException;
+import org.apache.empire.exceptions.InvalidPropertyException;
 import org.apache.empire.exceptions.NotSupportedException;
 import org.apache.empire.exceptions.PropertyReadOnlyException;
 import org.apache.empire.jsf2.app.FacesUtils;
@@ -91,6 +93,11 @@ public class TagEncodingHelper implements NamingContainer
         public ColumnExprWrapper(ColumnExpr expr)
         {
             this.expr = expr;
+        }
+        
+        public ColumnExpr getExpr()
+        {
+            return this.expr;
         }
 
         @Override
@@ -665,7 +672,8 @@ public class TagEncodingHelper implements NamingContainer
         {   // value
             if (record instanceof RecordData)
             { // a record
-                mostRecentValue = ((RecordData) record).getValue(getColumn());
+                ColumnExpr col = unwrapColumnExpr(getColumn());
+                mostRecentValue = ((RecordData) record).getValue(col);
                 return mostRecentValue;
             }   
             else
@@ -855,8 +863,17 @@ public class TagEncodingHelper implements NamingContainer
         // if parent is a record tag, get the record from there
         Object col = getTagAttributeValue("column");
         if (col instanceof Column)
-        { // cast to column
+        {   // cast to column
             return (Column) col;
+        }
+        if (col instanceof ColumnExpr)
+        {   // check component
+            if ((component instanceof InputTag || component instanceof ControlTag))
+            {   log.warn("ColumnExpresion cannot be used with InputTag or ControlTag");
+                throw new InvalidPropertyException("column", column);
+            }
+            // wrap expression
+            return createColumnExprWrapper((ColumnExpr) col);
         }
         if (col instanceof String)
         {   // parse String
@@ -920,6 +937,13 @@ public class TagEncodingHelper implements NamingContainer
     protected Column createColumnExprWrapper(ColumnExpr colExpr)
     {
          return new ColumnExprWrapper(colExpr);
+    }
+    
+    protected ColumnExpr unwrapColumnExpr(Column col)
+    {
+        if (col instanceof ColumnExprWrapper)
+            return ((ColumnExprWrapper) col).getExpr();
+        return col;
     }
 
     protected Object findRecord()
