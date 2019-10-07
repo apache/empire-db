@@ -52,7 +52,6 @@ import org.apache.empire.data.DataType;
 import org.apache.empire.data.Record;
 import org.apache.empire.data.RecordData;
 import org.apache.empire.db.DBColumn;
-import org.apache.empire.db.DBColumnExpr;
 import org.apache.empire.db.DBDatabase;
 import org.apache.empire.db.DBRecord;
 import org.apache.empire.db.DBRowSet;
@@ -403,6 +402,7 @@ public class TagEncodingHelper implements NamingContainer
     protected Column              column       = null;
     protected Object              record       = null;
     protected RecordTag           recordTag    = null;
+    protected UIData              uiDataTag    = null;
     // protected Boolean          tagRequired  = null;
     protected Boolean             hasValueRef  = null;
     protected InputControl        control      = null;
@@ -637,22 +637,26 @@ public class TagEncodingHelper implements NamingContainer
         this.mostRecentValue = null; 
     }
 
-    public RecordTag getRecordComponent()
+    public Object findRecordComponent()
     {
         // already present?
-        if (recordTag != null)
-            return recordTag;
-        // Check record
-        if (record != null || (record=getTagAttributeValue("record"))!=null)
-            return null; // No record tag: Record has been specified!
+        if (this.recordTag != null)
+            return this.recordTag.getRecord();
+        if (this.uiDataTag != null)
+            return this.uiDataTag.getRowData();
         // walk upwards the parent component tree and return the first record component found (if any)
         UIComponent parent = component;
         while ((parent = parent.getParent()) != null)
         {
             if (parent instanceof RecordTag)
             {
-                recordTag = (RecordTag) parent;
-                return recordTag;
+                this.recordTag = (RecordTag) parent;
+                return this.recordTag.getRecord();
+            }
+            if (parent instanceof UIData)
+            {
+                this.uiDataTag = (UIData)parent;
+                return this.uiDataTag.getRowData();
             }
         }
         return null;
@@ -955,14 +959,10 @@ public class TagEncodingHelper implements NamingContainer
         if (hasValueReference())
         {   // See if the record is in value
             return null;
-        }
+        }       
         // if parent is a record tag, get the record from there
-        RecordTag recordComponent = getRecordComponent();
-        if (recordComponent != null)
-        {
-            rec = recordComponent.getRecord();
-        }
-        else
+        rec = findRecordComponent();
+        if (rec==null)
         {   // not supplied
             if ((component instanceof ControlTag) && !((ControlTag)component).isCustomInput())
                 log.warn("No record supplied for {} and column {}.", component.getClass().getSimpleName(), getColumnName());
