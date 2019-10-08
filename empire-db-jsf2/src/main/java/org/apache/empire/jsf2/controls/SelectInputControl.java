@@ -232,8 +232,8 @@ public class SelectInputControl extends InputControl
         Object value;
         Object valueExpressionFlag = input.getAttributes().get(SelectInputControl.VALUE_EXPRESSION_FLAG);
         if (ObjectUtils.getBoolean(valueExpressionFlag))
-        { // Use value as is
-            value = e.getValue();
+        {   // Use formatted value
+            value = formatInputValue(e.getValue());
         }
         else
         { // Convert to String
@@ -293,6 +293,12 @@ public class SelectInputControl extends InputControl
 
     @Override
     protected Object formatInputValue(Object value, InputInfo ii)
+    {
+        // the value
+        return formatInputValue(value);
+    }
+
+    protected Object formatInputValue(Object value)
     {
         // the enum Value
         if (value != null && value.getClass().isEnum())
