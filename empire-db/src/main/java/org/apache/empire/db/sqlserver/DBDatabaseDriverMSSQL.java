@@ -109,7 +109,7 @@ public class DBDatabaseDriverMSSQL extends DBDatabaseDriver
     private boolean useUnicodePrefix = true;
     private boolean useDateTime2 = true;
     
-    private DBDDLGenerator<?> ddlGenerator = null; // lazy creation
+    protected DBDDLGenerator<?> ddlGenerator = null; // lazy creation
 
     protected static final String[] MSSQL_SQL_KEYWORDS = new String[] { "type", "key", "plan" };        
     
