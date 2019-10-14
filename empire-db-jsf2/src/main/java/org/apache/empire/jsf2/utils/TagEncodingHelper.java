@@ -775,6 +775,11 @@ public class TagEncodingHelper implements NamingContainer
         }
     }
 
+    public boolean isRenderValueComponent()
+    {
+        return isRecordReadOnly();
+    }
+    
     public boolean isRecordReadOnly()
     {
         // check attribute

@@ -190,11 +190,11 @@ public class InputTag extends UIInput implements NamingContainer
         }
         
         // set readonly
-        boolean readOnly = helper.isRecordReadOnly();
-        setRenderInput(!readOnly);
+        boolean renderValue = helper.isRenderValueComponent();
+        setRenderInput(!renderValue);
 
         // render components
-        if (readOnly)
+        if (renderValue)
         {   // render value
             String tagName = "span";
             String styleClass = helper.getTagStyleClass("eInpDis");

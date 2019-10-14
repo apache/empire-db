@@ -513,7 +513,7 @@ public class ControlTag extends UIInput implements NamingContainer
                 control.updateInputState(parent, inpInfo, context, true);
             }
             // set rendered
-            boolean readOnly = helper.isRecordReadOnly();
+            boolean renderValue = helper.isRenderValueComponent();
             List<UIComponent> children = parent.getChildren();
             for (UIComponent child : children)
             {   // reset child id
@@ -521,7 +521,7 @@ public class ControlTag extends UIInput implements NamingContainer
                     child.setId(child.getId());
                 // set rendered
                 boolean valueOutput = (child instanceof ValueOutputComponent);
-                child.setRendered((valueOutput ? readOnly : !readOnly));
+                child.setRendered((valueOutput ? renderValue : !renderValue));
             }
             // render
             control.renderInput(parent, inpInfo, context);
