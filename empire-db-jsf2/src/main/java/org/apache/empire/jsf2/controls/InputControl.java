@@ -551,6 +551,16 @@ public abstract class InputControl
         return inp;
     }
 
+    protected String getInputStyleClass(InputInfo ii, String additonalStyle)
+    {
+        return ii.getStyleClass(additonalStyle);
+    }
+
+    protected void setInputStyleClass(UIInput input, String cssStyleClass)
+    {
+        input.getAttributes().put("styleClass", cssStyleClass);
+    }
+
     protected void copyAttributes(UIComponent parent, InputInfo ii, UIInput input, String additonalStyle)
     {
         String inputId = ii.getInputId();
@@ -559,9 +569,11 @@ public abstract class InputControl
             input.getAttributes().put("id", inputId);
         }
 
-        String styleClass = ii.getStyleClass(additonalStyle);
-        input.getAttributes().put("styleClass", styleClass);
+        // set style class
+        String styleClass = getInputStyleClass(ii, additonalStyle);
+        setInputStyleClass(input, styleClass);
 
+        // copy standard attributes
         copyAttribute(ii, input, "style");
         copyAttribute(ii, input, "tabindex");
         copyAttribute(ii, input, "onchange");
@@ -630,7 +642,7 @@ public abstract class InputControl
         else
             styleClass = styleClass.replace(styleName, "");
         // add Style
-        input.getAttributes().put("styleClass", styleClass);
+        setInputStyleClass(input, styleClass);
     }
 
     /**

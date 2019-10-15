@@ -100,7 +100,7 @@ public class DBELResolver extends ELResolver
             if (field==null || field.length()==0 || field.charAt(0)<'A' || field.charAt(0)>'Z')
                 return null;
             // try to find field
-            int index = ((Record)base).getFieldIndex(field);
+            int index = ((RecordData)base).getFieldIndex(field);
             if (index<0)
             {   // not a field, it may be a property
                 log.warn("ELResolver warning: field '{}' not found in record .", field);
@@ -109,7 +109,7 @@ public class DBELResolver extends ELResolver
             }
             // Found! Return field value.
             context.setPropertyResolved(true);
-            return ((Record)base).getValue(index);
+            return ((RecordData)base).getValue(index);
         }
         else if (base==null)
         {   // LookupDatabase
