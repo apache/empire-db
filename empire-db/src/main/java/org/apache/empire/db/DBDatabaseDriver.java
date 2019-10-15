@@ -25,7 +25,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Timestamp;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashSet;
@@ -811,29 +810,39 @@ public abstract class DBDatabaseDriver implements Serializable
         if (DBDatabase.SYSDATE.equals(value))
             return getSQLPhrase(sqlCurrentDate);
         // Format the date (ymd)
-        String datetime = value.toString(); 
-        SimpleDateFormat sqlFormat = new SimpleDateFormat(getSQLPhrase(sqlPattern));
-        if ((value instanceof Date)==false)
-        {   // Convert String to Date
+        Timestamp ts; 
+        if ((value instanceof Timestamp)) 
+        {   // We have a timestamp
+            ts = (Timestamp)value;
+        }
+        else if ((value instanceof Date))
+        {   // Convert Date to Timestamp
+            ts = new Timestamp(((Date)value).getTime());
+        }
+        else 
+        {   // "Timestamp format must be yyyy-mm-dd hh:mm:ss[.fffffffff]"
+            String dtValue = value.toString().trim();
             try
-            {	// init DateFormat
-            	String dtValue   = value.toString().trim();
-            	String dtPattern = DBDatabase.DATETIME_PATTERN.substring(0, Math.min(dtValue.length(), 24));  
-                SimpleDateFormat sdFormat = new SimpleDateFormat(dtPattern);
-                // Parse value
-                sdFormat.setLenient(true);
-                Date dt = sdFormat.parse(dtValue);
-                // Format to SQL pattern
-               	datetime = sqlFormat.format(dt);
-            } catch (ParseException e) {
-            	// Invalid date
-                log.error("Unable to parse date value "+datetime, e);
+            {   // parse timestamp
+                ts = Timestamp.valueOf(dtValue);
+            } catch (Throwable e) {
+                // Invalid date
+                log.error("Unable to parse date value "+dtValue, e);
                 throw new InvalidArgumentException("value", value);
             }
         }
-        else
-        {   // Format the date as string
-            datetime = sqlFormat.format((Date)value);
+        // Convert to String
+        String pattern = getSQLPhrase(sqlPattern);
+        SimpleDateFormat sqlFormat = new SimpleDateFormat(getSQLPhrase(sqlPattern));
+        String datetime = sqlFormat.format(ts);
+        // Add micro / nanoseconds
+        int nanos = (ts.getNanos() % 1000000);
+        if (pattern.endsWith(".SSS") && nanos>0)
+        {   // Add nanoseconds
+            if (((nanos) % 100)>0)
+                datetime += String.format("%06d", nanos);
+            else
+                datetime += String.format("%04d",(nanos/100));
         }
         // Now Build String
         String template = getSQLPhrase(sqlTemplate);

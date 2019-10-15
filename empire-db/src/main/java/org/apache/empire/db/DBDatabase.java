@@ -97,8 +97,6 @@ public abstract class DBDatabase extends DBObject
     // Database specific date
     public static final DBSystemDate SYSDATE  = new DBSystemDate();
     
-    public static final String DATETIME_PATTERN = "yyyy-MM-dd HH:mm:ss.SSSZ";
-    
     public static final String EMPTY_STRING = "\0"; // will be replaced by ''
 
     // Logger
