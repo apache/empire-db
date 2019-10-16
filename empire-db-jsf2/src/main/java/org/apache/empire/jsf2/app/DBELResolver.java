@@ -27,7 +27,6 @@ import javax.el.ELResolver;
 import javax.faces.context.FacesContext;
 
 import org.apache.empire.commons.StringUtils;
-import org.apache.empire.data.Record;
 import org.apache.empire.data.RecordData;
 import org.apache.empire.db.DBColumnExpr;
 import org.apache.empire.db.DBDatabase;

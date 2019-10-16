@@ -31,7 +31,10 @@ import javax.faces.context.FacesContext;
 import org.apache.empire.commons.ObjectUtils;
 import org.apache.empire.commons.OptionEntry;
 import org.apache.empire.commons.Options;
+import org.apache.empire.commons.StringUtils;
 import org.apache.empire.data.Column;
+import org.apache.empire.db.exceptions.FieldIllegalValueException;
+import org.apache.empire.db.exceptions.FieldValueOutOfRangeException;
 import org.apache.empire.exceptions.InternalException;
 import org.apache.empire.exceptions.InvalidArgumentException;
 import org.apache.empire.exceptions.ItemNotFoundException;
@@ -294,6 +297,20 @@ public class SelectInputControl extends InputControl
     @Override
     protected Object formatInputValue(Object value, InputInfo ii)
     {
+        if ((value instanceof Number)) 
+        {   // Check whether it's an Enum
+            Object enumType = ii.getColumn().getAttribute(Column.COLATTR_ENUMTYPE);
+            if ((enumType instanceof Class<?>)) 
+            {   // Convert ordinal value to Enum
+                int ordinal = ObjectUtils.getInteger(value);
+                Class<? extends Enum<?>> enumTypeClazz = (Class<? extends Enum<?>>)enumType;
+                Enum<?>[] items = enumTypeClazz.getEnumConstants();
+                if (ordinal>=0 && ordinal<items.length)
+                    value = items[ordinal].name();
+                else
+                    log.warn("Enum lookup failed. Ordinal {} out of range.", ordinal);
+            } 
+        }
         // the value
         return formatInputValue(value);
     }
