@@ -180,17 +180,6 @@ public class DateUtilsTest
 	}
 
 	/**
-	 * Test method for {@link org.apache.empire.commons.DateUtils#formatDate(java.util.Date, java.util.Locale)}.
-	 */
-	@Test
-	public void testFormatDate()
-	{
-		Calendar cal = simpleCalendar();
-		String formatted = DateUtils.formatDate(cal.getTime(), Locale.FRANCE);
-		assertEquals("3 mars 0001", formatted);
-	}
-
-	/**
 	 * Test method for {@link org.apache.empire.commons.DateUtils#formatTime(java.util.Date, java.util.Locale, boolean)}.
 	 */
 	@Test
