@@ -5,3 +5,5 @@ target/
 .project
 .tern-project
 *.log
+/.apt_generated/
+/.factorypath
