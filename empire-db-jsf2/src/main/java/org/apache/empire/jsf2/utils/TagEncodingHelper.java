@@ -23,9 +23,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.Iterator;
 import java.util.Locale;
 
-import javax.el.ELContext;
 import javax.el.ValueExpression;
-import javax.el.ValueReference;
 import javax.faces.FacesWrapper;
 import javax.faces.application.FacesMessage;
 import javax.faces.component.NamingContainer;
@@ -203,7 +201,7 @@ public class TagEncodingHelper implements NamingContainer
         /* Value Options */
         protected boolean hasColumn()
         {
-            return (column != null || getColumn() != null);
+            return (column != null || TagEncodingHelper.this.hasColumn());
         }
 
         @Override
@@ -404,7 +402,7 @@ public class TagEncodingHelper implements NamingContainer
     protected RecordTag           recordTag    = null;
     protected UIData              uiDataTag    = null;
     // protected Boolean          tagRequired  = null;
-    protected Boolean             hasValueRef  = null;
+    protected Boolean             hasValueExpr = null;
     protected InputControl        control      = null;
     protected TextResolver        textResolver = null;
     protected Object              mostRecentValue = null;
@@ -455,11 +453,12 @@ public class TagEncodingHelper implements NamingContainer
         else if (id.indexOf(PH_COLUMN_FULL)>=0) 
         {   // column full name including table
             String name= null;
-            Column c = getColumn();
-            if (c instanceof DBColumn)
-                name = ((DBColumn)c).getFullName().replace('.', '_');
-            else if (c!=null)
-                name = c.getName();
+            if (column==null)
+                column = findColumn();
+            if (column instanceof DBColumn)
+                name = ((DBColumn)column).getFullName().replace('.', '_');
+            else if (column!=null)
+                name = column.getName();
             id = id.replace(PH_COLUMN_FULL, String.valueOf(name));
         }
         // done 
@@ -602,21 +601,29 @@ public class TagEncodingHelper implements NamingContainer
     {
         if (column == null)
             column = findColumn();
+        if (column == null)
+        {   // @deprecated: for compatiblity only!
+            column = findColumnFromValue();  
+            if (column!=null)
+                log.warn("Providing the column as the value is deprecated. Use column attribute insteam. This might be removed in future versions!");
+        }
         return (column != null);
     }
 
     public Column getColumn()
     {
-        if (column == null)
-            column = findColumn();
-        if (column == null)
+        if (hasColumn())
+            return this.column;
+        else
             throw new InvalidArgumentException("column", column);
-        return column;
     }
     
     public String getColumnName()
     {
-        return ((this.column=findColumn())!=null ? column.getName() : "null");
+        // don't use hasColumn() or getColumn() here!
+        if (column==null)
+            column = findColumn(); 
+        return (column!=null ? column.getName() : "null");
     }
 
     public void setColumn(Column column)
@@ -792,7 +799,7 @@ public class TagEncodingHelper implements NamingContainer
             if (!(record instanceof Record) || ((Record) record).isReadOnly())
                 return true;
         }
-        else if (!hasValueReference())
+        else if (!hasValueExpression())
         { // No Value expression given
             return true;
         }
@@ -850,7 +857,7 @@ public class TagEncodingHelper implements NamingContainer
             return r.isFieldRequired(getColumn());
         }
         // Check Value Attribute
-        if (hasValueReference())
+        if (hasValueExpression())
             return false;
         // Required
         return getColumn().isRequired();
@@ -918,34 +925,39 @@ public class TagEncodingHelper implements NamingContainer
             // done
             return column;
         }
-        // When null, try value
-        if (col == null)
-        { // Try value
-            col = component.getValue();
-            // Column supplied?
-            if (col instanceof Column)
-            {
-                return (Column) col;
-            }
-            // Column expression supplied?
-            if (col instanceof ColumnExpr)
-            { // Use source column instead 
-                Column source = ((ColumnExpr) col).getSourceColumn();
-                if (source != null)
-                    return source;
-                // No source column? --> wrap 
-                return createColumnExprWrapper((ColumnExpr) col);
-            }
-        }
         // No column!
         if (log.isDebugEnabled() && !(component instanceof LinkTag))
             log.warn("No Column provided for value tag!");
         return null;
     }
+
+    /**
+     * Checks whether the value attribute contains a column reference and returns it
+     * @return the column
+     */
+    protected Column findColumnFromValue()
+    {   // Try value
+        Object col = component.getValue();
+        // Column supplied?
+        if (col instanceof Column)
+        {
+            return (Column) col;
+        }
+        // Column expression supplied?
+        if (col instanceof ColumnExpr)
+        { // Use source column instead 
+            Column source = ((ColumnExpr) col).getSourceColumn();
+            if (source != null)
+                return source;
+            // No source column? --> wrap 
+            return createColumnExprWrapper((ColumnExpr) col);
+        }
+        return null;
+    }
     
     protected Column createColumnExprWrapper(ColumnExpr colExpr)
     {
-         return new ColumnExprWrapper(colExpr);
+        return new ColumnExprWrapper(colExpr);
     }
     
     protected ColumnExpr unwrapColumnExpr(Column col)
@@ -961,7 +973,7 @@ public class TagEncodingHelper implements NamingContainer
         if (rec != null)
             return rec;
         // Value expression
-        if (hasValueReference())
+        if (hasValueExpression())
         {   // See if the record is in value
             return null;
         }       
@@ -970,39 +982,36 @@ public class TagEncodingHelper implements NamingContainer
         if (rec==null)
         {   // not supplied
             if ((component instanceof ControlTag) && !((ControlTag)component).isCustomInput())
-                log.warn("No record supplied for {} and column {}.", component.getClass().getSimpleName(), getColumnName());
+                log.warn("No record supplied for {} and column {}.", component.getClass().getSimpleName(), getColumnName()); 
         }
         return rec;
     }
     
-    protected boolean hasValueReference()
+    protected boolean hasValueExpression()
     {
         // Find expression
-        if (hasValueRef != null)
-            return hasValueRef.booleanValue();
+        if (hasValueExpr != null)
+            return hasValueExpr.booleanValue();
         // Find expression
-        boolean hasVR = false;
         ValueExpression ve = findValueExpression("value", false);
         if (ve != null)
-        {   // check
-            ELContext elc = FacesContext.getCurrentInstance().getELContext();
-            ValueReference vr = ve.getValueReference(elc);
-            if (vr!=null && log.isDebugEnabled())  
-            {   // log value reference
-                Object base = vr.getBase();
-                Object property = vr.getProperty();
-                String writeable = (ve.isReadOnly(elc) ? "read-only" : "updateable");
-                String beanName = (base!=null ? base.getClass().getSimpleName() : "{NULL}");
-                log.debug("Tag-ValueExpression for {} on {}.{} is {}. Expression is \"{}\".", getColumnName(), beanName, property, writeable, ve.getExpressionString());
+        {   // We have a ValueExpression!
+            // Now unwrap for Facelet-Tags to work
+            String originalExpr = ve.getExpressionString(); // log.isDebugEnabled() ? ve.getExpressionString() : null;
+            ve = FacesUtils.getFacesImplementation().unwrapValueExpression(ve);
+            if (originalExpr!=null)
+            {   // log result
+                if (ve!=null)
+                    log.info("ValueExpression \"{}\" has been resolved to \"{}\" from class {}", originalExpr, ve.getExpressionString(), ve.getClass().getName());
+                else 
+                    log.info("ValueExpression \"{}\" has been resolved to NULL", originalExpr);
             }
-            // set result
-            hasVR = (vr!=null);
         }
         // store result to avoid multiple detection 
-        hasValueRef = Boolean.valueOf(hasVR);
-        return hasValueRef.booleanValue();
+        hasValueExpr = Boolean.valueOf(ve!=null);
+        return hasValueExpr.booleanValue();
     }
-    
+        
     protected static final String CC_ATTR_EXPR = "#{cc.attrs.";
     
     @SuppressWarnings("unchecked")
@@ -1021,7 +1030,7 @@ public class TagEncodingHelper implements NamingContainer
             if (ve instanceof FacesWrapper<?>)
                 ve = ((FacesWrapper<ValueExpression>)ve).getWrapped();
             // find parent
-            UIComponent valueParent = FacesUtils.getWebApplication().getFacesImplementation().getValueParentComponent(ve);
+            UIComponent valueParent = FacesUtils.getFacesImplementation().getValueParentComponent(ve);
             if (valueParent!=null)
             {	// use the value parent
             	parent = valueParent;

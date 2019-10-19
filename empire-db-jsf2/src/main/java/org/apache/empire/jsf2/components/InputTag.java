@@ -30,7 +30,6 @@ import javax.faces.context.FacesContext;
 import javax.faces.convert.ConverterException;
 import javax.faces.view.AttachedObjectHandler;
 
-import org.apache.empire.commons.StringUtils;
 import org.apache.empire.data.Column;
 import org.apache.empire.db.DBRecord;
 import org.apache.empire.db.exceptions.FieldIllegalValueException;
@@ -216,6 +215,17 @@ public class InputTag extends UIInput implements NamingContainer
         super.setId(id);
         // reset record
         helper.setRecord(null);
+    }
+
+    @Override
+    public String getId()
+    {
+        String compId = super.getId();
+        // Mojarra-Patch since Id might have been set to "null"
+        if ("null".equals(compId))
+            compId =  helper.completeInputTagId(null);
+        // done
+        return compId;
     }
 
     @Override

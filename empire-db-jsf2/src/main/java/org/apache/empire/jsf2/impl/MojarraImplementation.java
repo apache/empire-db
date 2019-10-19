@@ -18,27 +18,36 @@
  */
 package org.apache.empire.jsf2.impl;
 
-import java.util.Map;
-
 import javax.el.ValueExpression;
+import javax.el.VariableMapper;
 import javax.faces.component.UIComponent;
 import javax.faces.context.FacesContext;
 
+import org.apache.empire.commons.ObjectUtils;
+import org.apache.empire.commons.StringUtils;
 import org.apache.empire.exceptions.ItemExistsException;
-import org.apache.empire.jsf2.app.WebApplication;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.sun.faces.application.ApplicationAssociate;
-import com.sun.faces.application.ApplicationFactoryImpl;
-import com.sun.faces.application.InjectionApplicationFactory;
 import com.sun.faces.component.CompositeComponentStackManager;
 import com.sun.faces.facelets.el.ContextualCompositeValueExpression;
+import com.sun.faces.facelets.el.TagValueExpression;
 import com.sun.faces.mgbean.BeanManager;
 import com.sun.faces.mgbean.ManagedBeanInfo;
 
 public class MojarraImplementation implements FacesImplementation 
 {
-	private BeanManager bm;
+    // Logger
+    private static final Logger log = LoggerFactory.getLogger(FacesImplementation.class);
 
+    private BeanManager bm;
+    
+    public MojarraImplementation()
+	{
+	    log.debug("MojarraImplementation created");
+	}
+		
 	/*
 	@Override
 	public void initApplication(final FacesApplication application)
@@ -71,7 +80,7 @@ public class MojarraImplementation implements FacesImplementation
 	@Override
 	public Object getManagedBean(final String beanName, final FacesContext fc)
 	{
-		// Find Bean
+	    // Find Bean
 	    if (bm==null)
             bm = ApplicationAssociate.getInstance(fc.getExternalContext()).getBeanManager();
 		Object mbean = bm.getBeanFromScope(beanName, fc);
@@ -95,4 +104,49 @@ public class MojarraImplementation implements FacesImplementation
         return null;
 	}
 
+    @Override
+    public ValueExpression unwrapValueExpression(ValueExpression ve)
+    {
+        // unwrap from com.sun.faces.facelets.el.TagValueExpression
+        if (ve instanceof TagValueExpression)
+        {   // cast and getWrapped
+            ve = ((TagValueExpression)ve).getWrapped();
+        }
+        // now unwrap ValueExpressionImpl
+        if (ve!=null)
+        {   // expected: ve = org.apache.el.ValueExpressionImpl
+            if (ve.getClass().getName().equals("org.apache.el.ValueExpressionImpl"))
+            {   // get the Node
+                Object node = ObjectUtils.invokeSimplePrivateMethod(ve, "getNode");
+                if (node!=null)
+                {   // we have a Node
+                    // now get the Image
+                    String image = StringUtils.toString(ObjectUtils.invokeSimpleMethod(node, "getImage"));
+                    if (StringUtils.isNotEmpty(image)) 
+                    {   // find the varMapper
+                        Object varMapper = ObjectUtils.getPrivateFieldValue(ve, "varMapper");
+                        if (varMapper!=null)
+                        {   // Resolve variable using mapper
+                            log.debug("Resolving el-variable \"{}\" using VariableMapper", image);
+                            VariableMapper vm = (VariableMapper)varMapper;
+                            ve = vm.resolveVariable(image);
+                        } else {
+                            // Variable not provided!
+                            ve = null;
+                        }
+                    } else {
+                        // no image: unwrapping not necessary
+                        // use original ValueExpression!
+                    }
+                }
+            } else {
+                // unexpected
+                log.warn("Unexpected ValueExpression-Implementation: {}", ve.getClass().getName());
+                log.warn("ValueExpression unwrapping does not work!");
+            }
+        }
+        // done 
+        return ve;
+    }
+	
 }

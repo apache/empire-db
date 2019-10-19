@@ -395,6 +395,17 @@ public class ControlTag extends UIInput implements NamingContainer
     }
 
     @Override
+    public String getId()
+    {
+        String compId = super.getId();
+        // Mojarra-Patch since Id might have been set to "null"
+        if ("null".equals(compId))
+            compId =  helper.completeInputTagId(null);
+        // done
+        return compId;
+    }
+
+    @Override
     public void processDecodes(FacesContext context) 
     {
         if (helper.isInsideUIData())

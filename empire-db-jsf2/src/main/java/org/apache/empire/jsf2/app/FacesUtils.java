@@ -29,6 +29,7 @@ import javax.el.ValueExpression;
 import javax.faces.application.FacesMessage;
 import javax.faces.component.UIComponent;
 import javax.faces.component.UIInput;
+import javax.faces.component.UIViewRoot;
 import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
 import javax.servlet.ServletContext;
@@ -41,6 +42,7 @@ import org.apache.empire.db.DBDatabase;
 import org.apache.empire.exceptions.EmpireException;
 import org.apache.empire.exceptions.InternalException;
 import org.apache.empire.exceptions.ItemNotFoundException;
+import org.apache.empire.jsf2.impl.FacesImplementation;
 import org.apache.empire.jsf2.pages.Page;
 import org.apache.empire.jsf2.pages.PageDefinition;
 import org.apache.empire.jsf2.pages.PageOutcome;
@@ -60,6 +62,11 @@ public class FacesUtils
     public static WebApplication getWebApplication()
     {
         return WebApplication.getInstance();
+    }
+    
+    public static FacesImplementation getFacesImplementation()
+    {
+        return getWebApplication().getFacesImplementation();    
     }
     
     public static FacesContext getContext()
@@ -205,9 +212,14 @@ public class FacesUtils
 
     public static Page getPage(final FacesContext fc)
     {
-        Page page = (Page) getManagedBean(fc, "page");
+        UIViewRoot vr = fc.getViewRoot();
+        if (vr==null)
+            throw new ItemNotFoundException("ViewRoot");
+        // find page
+        Page page = (Page)vr.getViewMap().get("page");
         if (page==null)
-            log.error("Page bean {} does not exist!");
+            throw new ItemNotFoundException("page");
+        // ok
         return page; 
     }
 

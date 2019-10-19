@@ -84,5 +84,12 @@ public interface FacesImplementation
      *  }
 	 */
 	UIComponent getValueParentComponent(final ValueExpression ve);
+
+	/**
+	 * Returns the inner value expression
+	 * @param ve the original ValueExpression
+	 * @return the unwrapped ValueExpression (may be null)
+	 */
+	ValueExpression unwrapValueExpression(ValueExpression ve);
 	
 }
