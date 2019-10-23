@@ -966,6 +966,13 @@ public class TagEncodingHelper implements NamingContainer
             return ((ColumnExprWrapper) col).getExpr();
         return col;
     }
+    
+    protected Column unwrapColumn(Column col)
+    {
+        if (col instanceof ColumnExprWrapper)
+            return ((ColumnExprWrapper) col).getSourceColumn();
+        return col;
+    }
 
     protected Object findRecord()
     {
@@ -1072,7 +1079,7 @@ public class TagEncodingHelper implements NamingContainer
         if (getColumn() != null)
         { // Do we have a record?
             if (getRecord() instanceof Record)
-                return ((Record) record).getFieldOptions(column);
+                return ((Record) record).getFieldOptions(unwrapColumn(column));
             // get From Column
             return column.getOptions();
         }

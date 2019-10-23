@@ -44,6 +44,7 @@ public interface Column extends ColumnExpr
     public static final String COLATTR_NUMBER_TYPE      = "numberType";             // "Integer", "Currency", "Percent"  
     public static final String COLATTR_NUMBER_GROUPSEP  = "numberGroupSeparator";   // boolean (true or false)
     public static final String COLATTR_FRACTION_DIGITS  = "numberFractionDigits";   // integer
+    public static final String COLATTR_INTEGER_DIGITS   = "numberIntegerDigits";    // integer
     public static final String COLATTR_CURRENCY_CODE    = "currencyCode";           // "ISO 4217 code of the currency"
     public static final String COLATTR_DATETIMEPATTERN  = "dateTimePattern";        // default is yyyy-MM-dd HH:mm:ss
 

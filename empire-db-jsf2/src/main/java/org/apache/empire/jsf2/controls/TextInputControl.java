@@ -514,6 +514,13 @@ public class TextInputControl extends InputControl
             nf.setMaximumFractionDigits(fractionDigits);
             nf.setMinimumFractionDigits(fractionDigits);
         }
+        // IntegerDigits (left-padding)
+        Object intDigits = column.getAttribute(Column.COLATTR_INTEGER_DIGITS);
+        if (intDigits != null) {
+            int integerDigits = ObjectUtils.getInteger(intDigits);
+            if (integerDigits>0)
+                nf.setMinimumIntegerDigits(integerDigits);
+        }
         // Number format
         return nf;
     }
