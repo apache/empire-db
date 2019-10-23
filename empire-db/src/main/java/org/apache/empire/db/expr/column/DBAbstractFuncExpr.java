@@ -27,7 +27,10 @@ import org.apache.empire.db.DBColumn;
 import org.apache.empire.db.DBColumnExpr;
 import org.apache.empire.db.DBDatabase;
 import org.apache.empire.db.DBDatabaseDriver;
+import org.apache.empire.exceptions.InvalidArgumentException;
 import org.apache.empire.xml.XMLUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.w3c.dom.Element;
 
 
@@ -37,6 +40,7 @@ import org.w3c.dom.Element;
 public abstract class DBAbstractFuncExpr extends DBColumnExpr
 {
     private final static long serialVersionUID = 1L;
+    private static final Logger log = LoggerFactory.getLogger(DBAbstractFuncExpr.class);
   
     protected final DBColumnExpr expr;
     protected final DBColumn     updateColumn; // optional
@@ -156,13 +160,37 @@ public abstract class DBAbstractFuncExpr extends DBColumnExpr
     {
         // Get Template
         if (params != null)
-        {   // Replace Params
-            DataType dataType = expr.getDataType();
+        {   // Replace Params 
             for (int i = 0; i < params.length; i++)
-            {   // String test  =(params[i] != null) ? params[i].toString() : "";
-                String value = getObjectValue(dataType, params[i], CTX_DEFAULT, ",");
+            {   // Detect placeholder and data type
+                DataType paramDataType = expr.getDataType();
+                int idx;
+                String ph = "{"+String.valueOf(i);
+                if ((idx=template.indexOf(ph))>=0) {
+                    // param found
+                    idx += ph.length();
+                    int end = template.indexOf('}', idx);
+                    if (end<idx)
+                        throw new InvalidArgumentException("template", template); 
+                    // check if type is specified
+                    if (template.charAt(idx)==':')
+                    {   // DataType is specified
+                        String typeName = ((end>=idx) ? template.substring(idx+1, end) : null);
+                        DataType dataType = ((typeName!=null) ? DataType.valueOf(typeName) : null);
+                        if (dataType!=null)
+                            paramDataType = dataType;
+                    }
+                    // complete placeholder
+                    ph += template.substring(idx, end+1);
+                    
+                } else {
+                    log.warn("No placeholder found in template {} for paramter {}", template, i);
+                    continue;
+                }
+                // get param and replace      
+                String paramAsString = getObjectValue(paramDataType, params[i], CTX_DEFAULT, ",");
                 // template = template.replaceAll("\\{" + String.valueOf(i) + "\\}", value);
-                template = StringUtils.replaceAll(template, "{"+ String.valueOf(i) + "}", value);
+                template = StringUtils.replaceAll(template, ph, paramAsString);
             }
         }
         // Get Prefix and Postfix

@@ -189,6 +189,7 @@ public class DBDatabaseDriverOracle extends DBDatabaseDriver
             case SQL_FUNC_CEILING:              return "ceil(?)";
             case SQL_FUNC_FLOOR:                return "floor(?)";
             case SQL_FUNC_MODULO:               return "mod(?,{0})";
+            case SQL_FUNC_FORMAT:               return "TO_CHAR(?, {0:VARCHAR})";
             // Date
             case SQL_FUNC_DAY:                  return oracle8Compatibilty ? "to_number(to_char(?,'DD'))"   : "extract(day from ?)";
             case SQL_FUNC_MONTH:                return oracle8Compatibilty ? "to_number(to_char(?,'MM'))"   : "extract(month from ?)";

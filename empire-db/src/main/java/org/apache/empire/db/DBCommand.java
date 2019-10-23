@@ -778,11 +778,11 @@ public abstract class DBCommand extends DBCommandExpr
         	return;
         removeConstraintOn(where, col);
     }
-
+    
     /**
      * Returns a copy of the defined joins.
      * 
-     * @return vector of joins
+     * @return the list of joins
      */
     public List<DBJoinExpr> getJoins()
     {
@@ -813,9 +813,29 @@ public abstract class DBCommand extends DBCommandExpr
             having = new ArrayList<DBCompareExpr>();
         setConstraint(having, expr);
     }
+
+    /**
+     * Returns true if the command has having-constraints or false if not.
+     * 
+     * @return true if constraints have been set on the command
+     */
+    public boolean hasHavingConstraints()
+    {
+        return (having!=null && having.size()>0);
+    }
+
+    /**
+     * Returns a copy of the defined having clauses.
+     * 
+     * @return list of having constraints
+     */
+    public List<DBCompareExpr> getHavingConstraints()
+    {
+        return (this.having!=null ? Collections.unmodifiableList(this.having) : null);
+    }
     
     /**
-     * removes a constraint on a particular column from the where clause
+     * removes a constraint on a particular column from the having clause
      * @param col the column expression for which to remove the constraint
      */
     public void removeHavingConstraintOn(DBColumnExpr col)

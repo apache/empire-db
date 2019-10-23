@@ -864,6 +864,18 @@ public abstract class DBColumnExpr extends DBExpr
     }
 
     /**
+     * Formats a column-expression using a format string
+     * This function is intended for formatting numbers.
+     * Formatting any other data types may not supported and be database specific
+     * @param format the format string. Beware: This is passed to the database "as is" and hence may be database specific.
+     * @return a string expression representing the formatted value
+     */
+    public DBColumnExpr format(String format)
+    {
+        return getExprFromPhrase(DBDatabaseDriver.SQL_FUNC_FORMAT, new Object[] { format }, getUpdateColumn(), false, DataType.VARCHAR);
+    }
+    
+    /**
      * Creates and returns a sql-expression that returns the string length of this expression.
 
      * @return the new DBFuncExpr object

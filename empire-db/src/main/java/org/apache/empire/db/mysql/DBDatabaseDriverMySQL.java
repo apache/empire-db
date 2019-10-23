@@ -1028,6 +1028,7 @@ public class DBDatabaseDriverMySQL extends DBDatabaseDriver
             case SQL_FUNC_CEILING:            return "ceiling(?)";
             case SQL_FUNC_FLOOR:              return "floor(?)";
             case SQL_FUNC_MODULO:             return "mod(?,{0})";
+            case SQL_FUNC_FORMAT:             return "format(?, {0:INTEGER})"; /* TODO: supports only decimal places. Add support for a format string */
             // Date
             case SQL_FUNC_DAY:                return "day(?)";
             case SQL_FUNC_MONTH:              return "month(?)";
