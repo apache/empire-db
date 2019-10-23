@@ -997,14 +997,14 @@ public class TagEncodingHelper implements NamingContainer
         if (ve != null)
         {   // We have a ValueExpression!
             // Now unwrap for Facelet-Tags to work
-            String originalExpr = ve.getExpressionString(); // log.isDebugEnabled() ? ve.getExpressionString() : null;
+            String originalExpr = (log.isDebugEnabled() ? ve.getExpressionString() : null);
             ve = FacesUtils.getFacesImplementation().unwrapValueExpression(ve);
             if (originalExpr!=null)
             {   // log result
-                if (ve!=null)
-                    log.info("ValueExpression \"{}\" has been resolved to \"{}\" from class {}", originalExpr, ve.getExpressionString(), ve.getClass().getName());
-                else 
-                    log.info("ValueExpression \"{}\" has been resolved to NULL", originalExpr);
+                if (ve!=null && !originalExpr.equals(ve.getExpressionString()))
+                    log.debug("ValueExpression \"{}\" has been resolved to \"{}\" from class {}", originalExpr, ve.getExpressionString(), ve.getClass().getName());
+                else if (ve==null)
+                    log.debug("ValueExpression \"{}\" has been resolved to NULL", originalExpr);
             }
         }
         // store result to avoid multiple detection 

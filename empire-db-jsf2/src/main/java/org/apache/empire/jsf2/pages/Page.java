@@ -42,6 +42,7 @@ import org.apache.empire.jsf2.app.FacesUtils;
 import org.apache.empire.jsf2.app.TextResolver;
 import org.apache.empire.jsf2.app.WebApplication;
 import org.apache.empire.jsf2.utils.ParameterMap;
+import org.apache.empire.jsf2.utils.ParameterObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -392,6 +393,13 @@ public abstract class Page implements Serializable
     {       
         WebApplication app = FacesUtils.getWebApplication();
         return app.getConnectionForRequest(FacesUtils.getContext(), db);
+    }
+
+    public <T extends ParameterObject> T getObjectFromParam(Class<T> paramType, String idParam)
+    {
+        FacesContext fc = FacesUtils.getContext();
+        ParameterMap paramMap = FacesUtils.getParameterMap(fc);
+        return paramMap.get(paramType, idParam);
     }
 
     public Object[] getKeyFromParam(DBRowSet rowset, String idParam)
