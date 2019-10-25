@@ -78,6 +78,9 @@ public class DBDatabaseDriverOracle extends DBDatabaseDriver
     {
         // Info
         log.info("DBDatabaseDriverOracle created. Boolean Type is " + booleanType);
+        // Additional reserved names 
+        this.reservedSQLKeywords.add("date");
+        this.reservedSQLKeywords.add("number");
     }
 
     public boolean isOracle8Compatibilty()

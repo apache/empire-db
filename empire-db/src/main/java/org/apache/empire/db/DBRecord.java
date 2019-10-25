@@ -21,7 +21,9 @@ package org.apache.empire.db;
 import java.lang.reflect.InvocationTargetException;
 import java.sql.Connection;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.commons.beanutils.BeanUtilsBean;
 import org.apache.commons.beanutils.PropertyUtilsBean;
@@ -32,6 +34,7 @@ import org.apache.empire.data.Column;
 import org.apache.empire.data.ColumnExpr;
 import org.apache.empire.data.Record;
 import org.apache.empire.db.exceptions.FieldIsReadOnlyException;
+import org.apache.empire.db.expr.compare.DBCompareExpr;
 import org.apache.empire.exceptions.BeanPropertyGetException;
 import org.apache.empire.exceptions.InvalidArgumentException;
 import org.apache.empire.exceptions.ObjectNotValidException;
@@ -833,7 +836,7 @@ public class DBRecord extends DBRecordData implements Record, Cloneable
     }
 
     /**
-     * Loads a record from the database identified by it's primary key. 
+     * Reads a record from the database identified by it's primary key. 
      * After successful reading the record will be valid and all values will be accessible.
      * @see org.apache.empire.db.DBTable#readRecord(DBRecord, Object[], Connection)
      * 
@@ -850,7 +853,7 @@ public class DBRecord extends DBRecordData implements Record, Cloneable
     }
 
     /**
-     * Loads a record from the database identified by it's primary key. 
+     * Reads a record from the database identified by it's primary key. 
      * After successful reading the record will be valid and all values will be accessible.
      * @see org.apache.empire.db.DBTable#readRecord(DBRecord, Object[], Connection)
      * 
@@ -866,6 +869,33 @@ public class DBRecord extends DBRecordData implements Record, Cloneable
         }
         // Simple One-Column key
         read(table, new Object[] { id }, conn);
+    }
+
+    /**
+     * Reads a record from the database identified by one or more constraints. 
+     * 
+     * In oder to concatenate constraints use the and() operator from the first constraint
+     * e.g. FIRSTNAME.is("Joe").and(LASTNAME.is("Doe"))
+     * 
+     * @param table the rowset from which to read the record
+     * @param whereConstraints the constraint(s) (which must all be on the table)
+     * @param conn a valid connection to the database.
+     */
+    public void read(DBRowSet table, DBCompareExpr whereConstraints, Connection conn)
+    {
+        if (whereConstraints==null)
+            throw new InvalidArgumentException("whereConstraints", null);
+        // check constraints
+        Set<DBColumn> columns = new HashSet<DBColumn>();
+        whereConstraints.addReferencedColumns(columns);
+        for (DBColumn c : columns)
+            if (!table.equals(c.getRowSet()))
+                throw new InvalidArgumentException("whereConstraints", c.getFullName());
+        // read now
+        DBCommand cmd = table.getDatabase().createCommand();
+        cmd.select(table.getColumns());
+        cmd.where(whereConstraints);
+        table.readRecord(this, cmd, conn);
     }
 
     /**
