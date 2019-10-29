@@ -602,7 +602,10 @@ public class TagEncodingHelper implements NamingContainer
         if (column == null)
             column = findColumn();
         if (column == null)
-        {   // @deprecated: for compatiblity only!
+        {   // @deprecated: for compatibility only!
+            if (getTagAttributeValue("column")!=null)
+                return false; // provided but not found
+            // find value
             column = findColumnFromValue();  
             if (column!=null)
                 log.warn("Providing the column as the value is deprecated. Use column attribute insteam. This might be removed in future versions!");
