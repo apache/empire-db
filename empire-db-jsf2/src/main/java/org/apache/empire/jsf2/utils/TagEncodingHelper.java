@@ -443,7 +443,8 @@ public class TagEncodingHelper implements NamingContainer
 
     public String completeInputTagId(String id)
     {
-        if (StringUtils.isEmpty(id))
+        // EmptyString or AT
+        if (StringUtils.isEmpty(id) || "@".equals(id))
             return getColumnName();
         // replace placeholder
         if (id.indexOf(PH_COLUMN_NAME)>=0)
