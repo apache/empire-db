@@ -92,9 +92,9 @@ public class Options extends AbstractSet<OptionEntry> implements Cloneable, Seri
         return -1;
     }
     
-    protected OptionEntry createOptionEntry(Object value, String text)
+    protected OptionEntry createOptionEntry(Object value, String text, boolean active)
     {
-        return new OptionEntry(value, text);
+        return new OptionEntry(value, text, active);
     }
 
     public OptionEntry getEntry(Object value)
@@ -107,6 +107,12 @@ public class Options extends AbstractSet<OptionEntry> implements Cloneable, Seri
     {
         int i = getIndex(value);
         return (i >= 0 ? list.get(i).getText() : EMPTY_STRING);
+    }
+
+    public boolean isActive(Object value)
+    {
+        int i = getIndex(value);
+        return (i >= 0 ? list.get(i).isActive() : false);
     }
 
     /**
@@ -148,7 +154,7 @@ public class Options extends AbstractSet<OptionEntry> implements Cloneable, Seri
      * @param text the text
      * @param pos the position, see {@link InsertPos}
      */
-    public void set(Object value, String text, InsertPos pos)
+    public void set(Object value, String text, boolean active, InsertPos pos)
     {
         if (text == null)
         { // text must not be null!
@@ -170,10 +176,22 @@ public class Options extends AbstractSet<OptionEntry> implements Cloneable, Seri
             else // bottom is default
                 index = list.size();
             // add entry now
-            list.add(index, createOptionEntry(value, text));
+            list.add(index, createOptionEntry(value, text, active));
         }
     }
 
+    /**
+     * Sets or Adds an option at a certain position
+     * 
+     * @param value the value object
+     * @param text the text
+     * @param pos the position, see {@link InsertPos}
+     */
+    public void set(Object value, String text, InsertPos pos)
+    {
+        set(value, text, true, pos);
+    }
+    
     /**
      * Sets or adds Adds an option at the bottom
      * 
@@ -193,15 +211,18 @@ public class Options extends AbstractSet<OptionEntry> implements Cloneable, Seri
      * @param text the text
      * @param noCheck set to true to skip testing for an existing key (handle with care!)
      */
-    public void add(Object value, String text, boolean noCheck)
+    public void add(Object value, String text, boolean active)
     {
-        if (noCheck)
-        { 
-            list.add(createOptionEntry(value, text));
-        } 
+        int i = getIndex(value);
+        if (i >= 0) 
+        {
+            OptionEntry oe = list.get(i);
+            oe.setText(text);
+            oe.setActive(active);
+        }
         else
         {
-            set(value, text);
+            list.add(createOptionEntry(value, text, active));
         }
     }
 
@@ -227,12 +248,24 @@ public class Options extends AbstractSet<OptionEntry> implements Cloneable, Seri
     }
 
     @Override
-    public boolean contains(Object object)
-    {
-        // Check if exits
-        return (getIndex(object) >= 0);
+    public boolean contains(Object value)
+    {   // Check if exits
+        return (getIndex(value) >= 0);
     }
 
+    public boolean containsNull()
+    {   // Check if exits
+        return (getIndex("") >= 0);
+    }
+    
+    /**
+     * same as contains(), but IDE may not issue warning
+     */
+    public boolean exists(Object value)
+    {   // Check if exits
+        return (getIndex(value) >= 0);
+    }
+    
     @Override
     public boolean isEmpty()
     {

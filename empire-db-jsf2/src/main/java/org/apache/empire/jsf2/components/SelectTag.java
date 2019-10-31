@@ -19,8 +19,10 @@
 package org.apache.empire.jsf2.components;
 
 import java.io.IOException;
+import java.util.Locale;
 import java.util.Map;
 
+import javax.el.ValueExpression;
 import javax.faces.component.NamingContainer;
 import javax.faces.component.UIInput;
 import javax.faces.component.html.HtmlSelectOneMenu;
@@ -31,11 +33,14 @@ import javax.faces.context.FacesContext;
 import org.apache.empire.commons.ObjectUtils;
 import org.apache.empire.commons.Options;
 import org.apache.empire.commons.StringUtils;
+import org.apache.empire.data.Column;
 import org.apache.empire.exceptions.InvalidPropertyException;
+import org.apache.empire.exceptions.NotSupportedException;
 import org.apache.empire.jsf2.app.FacesUtils;
 import org.apache.empire.jsf2.app.TextResolver;
 import org.apache.empire.jsf2.controls.InputAttachedObjectsHandler;
 import org.apache.empire.jsf2.controls.InputControl;
+import org.apache.empire.jsf2.controls.InputControl.InputInfo;
 import org.apache.empire.jsf2.controls.InputControlManager;
 import org.apache.empire.jsf2.controls.SelectInputControl;
 import org.apache.empire.jsf2.utils.TagEncodingHelper;
@@ -50,6 +55,141 @@ public class SelectTag extends UIInput implements NamingContainer
     public static final String SELECT_COMPONENT_ID = "select";
 
     protected SelectInputControl control = null;
+    
+    private class SelectInputInfo implements InputInfo
+    {
+        @Override
+        public Column getColumn()
+        {
+            return null;
+        }
+
+        @Override
+        public Options getOptions()
+        {
+            return SelectTag.this.getOptionList();
+        }
+
+        @Override
+        public Object getValue(boolean evalExpression)
+        {
+            Object value = SelectTag.this.getValue();
+            if (value != null)
+            {
+                if (value.getClass().isEnum())
+                    value = ((Enum<?>) value).name();
+                else
+                    value = String.valueOf(value);
+            }
+            return value;
+        }
+
+        @Override
+        public String getFormat()
+        {
+            String nullText = SelectTag.this.getNullText();
+            if (StringUtils.isEmpty(nullText))
+                return null;
+            // return format for null text
+            return InputControl.FORMAT_NULL+nullText;
+        }
+
+        @Override
+        public Locale getLocale()
+        {
+            return null;
+        }
+
+        @Override
+        public String getText(String key)
+        {
+            return null;
+        }
+
+        @Override
+        public TextResolver getTextResolver()
+        {
+            return  FacesUtils.getTextResolver(FacesContext.getCurrentInstance());
+        }
+
+        @Override
+        public String getStyleClass(String addlStyle)
+        {
+            return null;
+        }
+
+        @Override
+        public boolean isInsideUIData()
+        {
+            return false;
+        }
+
+        @Override
+        public void setValue(Object value)
+        {
+            throw new NotSupportedException(SelectTag.this, "setValue");
+        }
+
+        @Override
+        public void validate(Object value)
+        {
+        }
+
+        @Override
+        public boolean isRequired()
+        {
+            return !(SelectTag.this.isAllowNull());
+        }
+
+        @Override
+        public boolean isDisabled()
+        {
+            return SelectTag.this.isDisabled();
+        }
+
+        @Override
+        public boolean isFieldReadOnly()
+        {
+            return false;
+        }
+
+        @Override
+        public String getInputId()
+        {
+            return "select";
+        }
+
+        @Override
+        public boolean hasError()
+        {
+            return false;
+        }
+
+        @Override
+        public Object getAttribute(String name)
+        {
+            return null;
+        }
+
+        @Override
+        public Object getAttributeEx(String name)
+        {
+            Object value = SelectTag.this.getAttributes().get(name);
+            if (value==null)
+            {   // try value expression
+                ValueExpression ve = SelectTag.this.getValueExpression(name);
+                if (ve!=null)
+                {   // It's a value expression
+                    FacesContext ctx = FacesContext.getCurrentInstance();
+                    value = ve.getValue(ctx.getELContext());
+                }
+            }
+            return value;
+        }
+        
+    }
+    
+    private SelectInputInfo selectInputInfo = new SelectInputInfo();
     
     public SelectTag()
     {
@@ -105,9 +245,7 @@ public class SelectTag extends UIInput implements NamingContainer
                 boolean disabled = isDisabled();
                 ((HtmlSelectOneMenu) inputComponent).setDisabled(disabled);
                 // Options (sync)
-                Options options = getOptionList();
-                boolean hasEmpty = isAllowNull() && !options.contains("");
-                control.syncOptions((HtmlSelectOneMenu) inputComponent, textResolver, options, hasEmpty, getNullText(), false);
+                control.syncOptions((HtmlSelectOneMenu) inputComponent, textResolver, selectInputInfo);
                 setInputValue((HtmlSelectOneMenu) inputComponent);
             }
             else
@@ -229,9 +367,7 @@ public class SelectTag extends UIInput implements NamingContainer
         copyAttributes(input);
         input.setId(SELECT_COMPONENT_ID);
         // Options
-        Options options = getOptionList();
-        boolean addEmpty = isAllowNull() && !options.contains("");
-        control.initOptions(input, textResolver, options, addEmpty, getNullText());
+        control.initOptions(input, textResolver, selectInputInfo);
         // disabled
         boolean disabled = isDisabled();
         input.setDisabled(disabled);

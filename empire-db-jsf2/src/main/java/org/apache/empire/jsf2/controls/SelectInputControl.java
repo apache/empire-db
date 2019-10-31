@@ -31,10 +31,7 @@ import javax.faces.context.FacesContext;
 import org.apache.empire.commons.ObjectUtils;
 import org.apache.empire.commons.OptionEntry;
 import org.apache.empire.commons.Options;
-import org.apache.empire.commons.StringUtils;
 import org.apache.empire.data.Column;
-import org.apache.empire.db.exceptions.FieldIllegalValueException;
-import org.apache.empire.db.exceptions.FieldValueOutOfRangeException;
 import org.apache.empire.exceptions.InternalException;
 import org.apache.empire.exceptions.InvalidArgumentException;
 import org.apache.empire.exceptions.ItemNotFoundException;
@@ -89,10 +86,7 @@ public class SelectInputControl extends InputControl
         boolean disabled = ii.isDisabled();
         input.setDisabled(disabled);
         // Options
-        Options options = getOptions(ii);
-        boolean addEmpty = isEmptyEntryRequired(options, ii, disabled);
-        String nullText = (addEmpty) ? getNullText(ii) : "";
-        initOptions(input, ii.getTextResolver(), options, addEmpty, nullText);
+        initOptions(input, ii.getTextResolver(), ii);
         // add
         compList.add(input);
         // style
@@ -117,20 +111,7 @@ public class SelectInputControl extends InputControl
         boolean disabled = ii.isDisabled();
         input.setDisabled(disabled);
         // Options (sync)
-        Options options = ii.getOptions();
-        if (options!=null)
-        {   // syncOptions
-            boolean addEmpty = isEmptyEntryRequired(options, ii, disabled);
-            String nullText = (addEmpty) ? getNullText(ii) : "";
-            syncOptions(input, ii.getTextResolver(), options, addEmpty, nullText, ii.isInsideUIData());
-        }
-        else
-        {   // clear or not?
-            if (ii.getValue(false)!=null)
-                log.warn("No options have been set for column {}", ii.getColumn().getName());
-            else
-                input.getChildren().clear();
-        }
+        syncOptions(input, ii.getTextResolver(), ii);
         // set value
         if (setValue)
         {   // style
@@ -141,37 +122,73 @@ public class SelectInputControl extends InputControl
         }
     }
 
-    protected boolean isEmptyEntryRequired(Options options, InputInfo ii, boolean disabled)
+    protected boolean isEmptyEntryRequired(Options options, InputInfo ii, Object currentValue)
     {
-        if (options.contains(""))
+        if (options!=null && options.containsNull())
         {   // already has an empty option
             return false;
         }
-        if (!ii.isRequired() && !(disabled && ii.getColumn().isRequired()))
-        {
-            return true;
+        if (!ii.isRequired())
+        {   // check disabled and column
+            Column column = ii.getColumn(); 
+            if (!(ii.isDisabled() && (column==null || ii.getColumn().isRequired())))
+            {
+                return true;
+            }
         }
         // Check Value
-        return (ii.getValue(true) == null);
+        return ObjectUtils.isEmpty(currentValue);
     }
 
-    public void initOptions(HtmlSelectOneMenu input, TextResolver textResolver, Options options, boolean addEmpty, String nullText)
+    public void initOptions(HtmlSelectOneMenu input, TextResolver textResolver, InputInfo ii)
     {
-        if (addEmpty)
-        { // Empty entry
-            addSelectItem(input, textResolver, new OptionEntry(null, nullText));
+        // get the options
+        Options options = ii.getOptions();
+        if (options==null)
+        {   // invalid options
+            if (ii.getColumn()!=null)
+                log.warn("No options given for column {}", ii.getColumn().getName());
+            else
+                log.warn("No options given for select tag {}", input.getClientId());
+            options = new Options();
+        }
+        // current 
+        Object currentValue = ii.getValue(true);
+        if (isEmptyEntryRequired(options, ii, currentValue))
+        {   // Empty entry
+            addSelectItem(input, textResolver, new OptionEntry(null, getNullText(ii)));
         }
         if (options != null && options.size() > 0)
-        { // Add options
-            for (OptionEntry e : options)
-            { // Option entries
-                addSelectItem(input, textResolver, e);
+        {   // Add options
+            for (OptionEntry oe : options)
+            {   // Option entries
+                if (oe.isActive() || ObjectUtils.compareEqual(oe.getValue(), currentValue))
+                {   // add active or current item   
+                    addSelectItem(input, textResolver, oe);
+                }
+                else if (log.isDebugEnabled())
+                {   // not active, ignore this one
+                    log.debug("Select item {} is not active.", oe.getValue());
+                }
             }
         }
     }
     
-    public void syncOptions(HtmlSelectOneMenu input, TextResolver textResolver, Options options, boolean hasEmpty, String nullText, boolean isInsideUIData)
+    public void syncOptions(HtmlSelectOneMenu input, TextResolver textResolver, InputInfo ii)
     {
+        // get the options
+        Options options = ii.getOptions();
+        if (options==null)
+        {   // clear or not?
+            if (ii.getValue(false)!=null)
+                log.warn("No options have been set for column {}", ii.getColumn().getName());
+            else
+                input.getChildren().clear();
+            return;
+        }
+        Object currentValue = ii.getValue(true);
+        boolean hasEmpty = isEmptyEntryRequired(options, ii, currentValue);
+        // boolean isInsideUIData = ii.isInsideUIData();
         // Compare child-items with options
         Iterator<OptionEntry> ioe = options.iterator();
         OptionEntry oe = (ioe.hasNext() ? ioe.next() : null);
@@ -206,11 +223,16 @@ public class SelectInputControl extends InputControl
             }
             // Not equal - do a full reload
             input.getChildren().clear();
-            if (hasEmpty)
-                addSelectItem(input, textResolver, new OptionEntry("", nullText));
-            for (OptionEntry e : options)
-            { // Option entries
-                addSelectItem(input, textResolver, e);
+            if (hasEmpty) {
+                // add empty entry
+                addSelectItem(input, textResolver, new OptionEntry("", getNullText(ii)));
+            }
+            for (OptionEntry opt : options)
+            {   // Option entries
+                if (opt.isActive() || ObjectUtils.compareEqual(opt.getValue(), currentValue))
+                {   // add active or current item
+                    addSelectItem(input, textResolver, opt);
+                }
             }
             // done
             return;
@@ -218,16 +240,19 @@ public class SelectInputControl extends InputControl
         // check empty entry
         if (hasEmpty && !emptyPresent)
         {   // add missing empty entry
-            addSelectItem(input, textResolver, new OptionEntry("", nullText), 0);
+            addSelectItem(input, textResolver, new OptionEntry("", getNullText(ii)), 0);
         }
         // Are there any items left?
         while (oe != null)
-        { // add missing item
-            addSelectItem(input, textResolver, oe);
+        {   // add missing item
+            if (oe.isActive() || ObjectUtils.compareEqual(oe.getValue(), currentValue))
+            {   // add item
+                addSelectItem(input, textResolver, oe);
+            }
             oe = (ioe.hasNext() ? ioe.next() : null);
         }
     }
-
+    
     public void addSelectItem(UIComponent input, TextResolver textResolver, OptionEntry e, int pos)
     {
         UISelectItem selectItem = new UISelectItem();
@@ -303,6 +328,7 @@ public class SelectInputControl extends InputControl
             if ((enumType instanceof Class<?>)) 
             {   // Convert ordinal value to Enum
                 int ordinal = ObjectUtils.getInteger(value);
+                @SuppressWarnings("unchecked")
                 Class<? extends Enum<?>> enumTypeClazz = (Class<? extends Enum<?>>)enumType;
                 Enum<?>[] items = enumTypeClazz.getEnumConstants();
                 if (ordinal>=0 && ordinal<items.length)
@@ -357,86 +383,5 @@ public class SelectInputControl extends InputControl
         }
         return value;
     }
-
-    /**
-     * gets the options in a safe way (not null)
-     * @param ii
-     * @return the options for this column
-     */
-    protected Options getOptions(InputInfo ii)
-    {
-        Options options = ii.getOptions();
-        if (options==null)
-        {
-            log.warn("No options given for column {}", ii.getColumn().getName());
-            options = new Options();
-        }
-        return options;
-    }
-    
-    /*
-    @Override
-    public void renderInput(ResponseWriter writer, ControlInfo ci)
-    {
-        boolean disabled = ci.getDisabled();
-    
-        HtmlTag input = writer.startTag("select");
-        input.addAttribute("id",    ci.getId());
-        input.addAttribute("class", ci.getCssClass());
-        input.addAttribute("style", ci.getCssStyle());
-        if (disabled)
-        {
-            input.addAttribute("disabled");
-        } else
-        {
-            input.addAttribute("name", ci.getName());
-        }
-        // Event Attributes
-        input.addAttribute("onclick",   ci.getOnclick());
-        input.addAttribute("onchange",  ci.getOnchange());
-        input.addAttribute("onfocus",   ci.getOnfocus());
-        input.addAttribute("onblur",    ci.getOnblur());
-        input.beginBody(true);
-        // Render List of Options
-        Options options = ci.getOptions();
-        if (options!=null)
-        {   // Render option list
-            Object current = ci.getValue();
-            if (hasFormatOption(ci, "allownull") && options.contains(null)==false)
-            {   // add an empty entry
-                addEmtpyEntry(writer, ObjectUtils.isEmpty(current));
-            }
-            for (OptionEntry entry : options)
-            {
-                Object value = entry.getValue();
-                boolean isCurrent = ObjectUtils.compareEqual(current, value);
-                if (isCurrent == false && disabled)
-                    continue; // 
-                // Add Option entry
-                HtmlTag option = writer.startTag("option");
-                option.addAttributeNoCheck("value", value, true);
-                option.addAttribute("selected", isCurrent);
-                option.beginBody(ci.getTranslation(entry.getText()));
-                option.endTag(true);
-            }
-        }
-        else
-        {   // No Option list available
-            log.error("No options available for select input control.");
-        }
-        // done
-        input.endTag();
-    }
-    
-    private void addEmtpyEntry(HtmlWriter writer, boolean isCurrent)
-    {
-        // Add Option entry
-        HtmlTag option = writer.startTag("option");
-        option.addAttributeNoCheck("value", "", false);
-        option.addAttribute("selected", isCurrent);
-        option.beginBody("");
-        option.endTag(true);
-    }
-    */
 
 }

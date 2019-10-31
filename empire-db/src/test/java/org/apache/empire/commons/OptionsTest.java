@@ -136,7 +136,7 @@ public class OptionsTest
     public void testCreateOptionEntry()
     {
         Options options = new Options();
-        OptionEntry entry = options.createOptionEntry(Integer.valueOf(123), "test");
+        OptionEntry entry = options.createOptionEntry(Integer.valueOf(123), "test", true);
         assertEquals("test", entry.getText());
         assertEquals(Integer.valueOf(123), entry.getValue());
     }

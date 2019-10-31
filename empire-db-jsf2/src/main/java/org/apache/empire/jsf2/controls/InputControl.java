@@ -47,7 +47,7 @@ public abstract class InputControl
 {
 
     private static final Logger log                   = LoggerFactory.getLogger(InputControl.class);
-
+    
     // format attributes
     public static final String  FORMAT_NULL           = "null:";
     public static final String  FORMAT_NULL_ATTRIBUTE = "format:null";
@@ -759,8 +759,13 @@ public abstract class InputControl
 
     protected Object getFormatOption(ValueInfo vi, String option, String columnAttributeName)
     {
+        // direct format provided?
         String format = getFormatOption(vi, option);
-        return (format != null) ? format : vi.getColumn().getAttribute(columnAttributeName);
+        if (format!=null)
+            return format;
+        // column format provided?
+        Column column = vi.getColumn();
+        return (column!=null ? column.getAttribute(columnAttributeName) : null);
     }
 
     protected String getFormatString(ValueInfo vi, String option, String columnAttributeName)

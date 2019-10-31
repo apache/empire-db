@@ -31,13 +31,20 @@ public class OptionEntry implements Serializable
 {
 	private static final long serialVersionUID = 1L;
 	
-	private Object value;
+	private final Object value;
     private String text;
+    private boolean active;
     
-    public OptionEntry(Object value, String text)
+    public OptionEntry(Object value, String text, boolean active)
     {
         this.value = value;
         this.text = text;
+        this.active = active;
+    }
+    
+    public OptionEntry(Object value, String text)
+    {
+        this(value, text, true);
     }
 
     public Object getValue()
@@ -70,5 +77,15 @@ public class OptionEntry implements Serializable
     public void setText(String text)
     {
         this.text = text;
+    }
+
+    public boolean isActive()
+    {
+        return active;
+    }
+
+    public void setActive(boolean active)
+    {
+        this.active = active;
     }
 }

@@ -132,7 +132,7 @@ public class RadioInputControl extends InputControl
         input.setDisabled(disabled);
         // Options
         Options options = ii.getOptions();
-        boolean addEmpty = getEmptyEntryRequired(ii, disabled) && !options.contains("");
+        boolean addEmpty = getEmptyEntryRequired(ii, disabled) && !options.containsNull();
         String nullText = (addEmpty) ? getNullText(ii) : "";
         initOptions(input, ii.getTextResolver(), options, addEmpty, nullText);
         // add
@@ -158,7 +158,7 @@ public class RadioInputControl extends InputControl
         input.setDisabled(disabled);
         // Options (sync)
         Options options = ii.getOptions();
-        boolean addEmpty = getEmptyEntryRequired(ii, disabled) && !options.contains("");
+        boolean addEmpty = getEmptyEntryRequired(ii, disabled) && !options.containsNull();
         String nullText = (addEmpty) ? getNullText(ii) : "";
         syncOptions(input, ii.getTextResolver(), options, addEmpty, nullText);
         // Set Value
