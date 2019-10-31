@@ -336,7 +336,12 @@ public class TagEncodingHelper implements NamingContainer
         @Override
         public boolean isDisabled()
         {
-            return isReadOnly();
+            // check attribute
+            Object val = getAttributeValueEx("disabled");
+            if (val != null && ObjectUtils.getBoolean(val))
+                return true;
+            // not disabeld
+            return false;
         }
 
         @Override
@@ -831,10 +836,6 @@ public class TagEncodingHelper implements NamingContainer
 
     public boolean isReadOnly()
     {
-        // check attribute
-        Object val = getAttributeValueEx("disabled");
-        if (val != null && ObjectUtils.getBoolean(val))
-            return true;
         // Check Record
         if (isRecordReadOnly())
             return true;

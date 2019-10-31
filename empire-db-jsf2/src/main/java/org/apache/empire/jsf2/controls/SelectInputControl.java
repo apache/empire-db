@@ -128,11 +128,12 @@ public class SelectInputControl extends InputControl
         {   // already has an empty option
             return false;
         }
+        // check required
         if (!ii.isRequired())
-        {   // check disabled and column
+        {   // check column
             Column column = ii.getColumn(); 
-            if (!(ii.isDisabled() && (column==null || ii.getColumn().isRequired())))
-            {
+            if (column==null || !column.isRequired())
+            {   // add empty entry
                 return true;
             }
         }
