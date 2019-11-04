@@ -314,11 +314,9 @@ public class TagEncodingHelper implements NamingContainer
                 return;
             // Make sure null values are not forced to be required
             boolean isNull = ObjectUtils.isEmpty(value);
-            if (isNull)
-            {   // Check Required
-                if (isRequired())
-                    throw new FieldNotNullException(column);
-                return; // not required
+            if (isNull && validateNullValue())
+            {   // OK, null allowed
+                return;
             }
             // validate through record (if any)
             if ((getRecord() instanceof Record))
@@ -652,7 +650,7 @@ public class TagEncodingHelper implements NamingContainer
         this.record = record;
         this.mostRecentValue = null; 
     }
-
+    
     public Object findRecordComponent()
     {
         // already present?
@@ -866,6 +864,14 @@ public class TagEncodingHelper implements NamingContainer
             return false;
         // Required
         return getColumn().isRequired();
+    }
+
+    public boolean validateNullValue()
+    {
+        if (isValueRequired())
+            throw new FieldNotNullException(column);
+        // OK, null allowed
+        return true;
     }
     
     /**

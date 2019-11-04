@@ -34,14 +34,23 @@ import org.apache.empire.jsf2.utils.TagEncodingHelperFactory;
 public class MenuListTag extends UIOutput implements NamingContainer
 {
     // Logger
-    // private static final Logger log = LoggerFactory.getLogger(MenuTag.class);
+    // private static final Logger log = LoggerFactory.getLogger(MenuListTag.class);
     
     protected final TagEncodingHelper helper = TagEncodingHelperFactory.create(this, "eMenuList");
     
+    private enum Properties
+    {
+        currentId,
+        currentClass,
+        parentClass,
+        disabledClass,
+        expandedClass,
+        itemWrapTag,
+        defaultItemClass;
+    }
+    
     protected String currentId = null; 
     protected String currentClass = null; 
-    // protected String prevMenuId = null; 
-    // protected String enabledClass = null; 
     protected String parentClass = null;
     protected String disabledClass = null; 
     protected String expandedClass = null;
@@ -104,26 +113,13 @@ public class MenuListTag extends UIOutput implements NamingContainer
     
     protected void initMenuAttributes(FacesContext context)
     {        
-        currentId       = helper.getTagAttributeString("currentId"); 
-        currentClass    = helper.getTagAttributeString("currentClass"); 
-        // enabledClass = StringUtils.toString(map.get("enabledClass")); 
-        disabledClass   = helper.getTagAttributeString("disabledClass"); 
-        parentClass     = helper.getTagAttributeString("parentClass");
-        expandedClass   = helper.getTagAttributeString("expandedClass");
-        itemWrapTag     = helper.getTagAttributeString("itemWrapTag");
-        defaultItemClass = helper.getTagAttributeString("defaultItemClass");
-
-        // remember previousMenu (may be used by JavaScript)
-        /*
-        if (currentId!=null)
-        {   // StoreID on Session and set lastId
-            Map<String,Object> sessionMap = context.getExternalContext().getSessionMap();
-            String attrName = this.getClientId()+":prevMenuId";
-            prevMenuId = StringUtils.toString(sessionMap.get(attrName));
-            if (StringUtils.compareEqual(prevMenuId, currentId, false)==false)
-                sessionMap.put(attrName, currentId);
-        }
-        */
+        currentId        = helper.getTagAttributeString(Properties.currentId.name()); 
+        currentClass     = helper.getTagAttributeString(Properties.currentClass.name()); 
+        disabledClass    = helper.getTagAttributeString(Properties.disabledClass.name()); 
+        parentClass      = helper.getTagAttributeString(Properties.parentClass.name());
+        expandedClass    = helper.getTagAttributeString(Properties.expandedClass.name());
+        itemWrapTag      = helper.getTagAttributeString(Properties.itemWrapTag.name());
+        defaultItemClass = helper.getTagAttributeString(Properties.defaultItemClass.name());
 
         // find parent
         MenuListTag parent = getParentMenu();
@@ -134,8 +130,6 @@ public class MenuListTag extends UIOutput implements NamingContainer
             currentId = parent.getCurrentId();
         if (currentClass==null)
             currentClass = parent.getCurrentClass();  
-        // if (enabledClass==null)
-        //     enabledClass = parent.getEnabledClass();
         if (disabledClass==null)
             disabledClass = parent.getDisabledClass();
         if (parentClass==null)
@@ -143,7 +137,7 @@ public class MenuListTag extends UIOutput implements NamingContainer
         if (expandedClass==null)
             expandedClass = parent.getExpandedClass();
         if (itemWrapTag==null)
-            itemWrapTag = parent.itemWrapTag;
+            itemWrapTag = parent.getItemWrapTag();
         if (defaultItemClass==null)
             defaultItemClass = parent.defaultItemClass;
         
@@ -168,45 +162,43 @@ public class MenuListTag extends UIOutput implements NamingContainer
     
     public String getCurrentId()
     {
+        if (currentId==null)
+            currentId= StringUtils.toString(getStateHelper().get(Properties.currentId));
         return currentId;
     }
 
     public String getCurrentClass()
     {
+        if (currentClass==null)
+            currentClass= StringUtils.toString(getStateHelper().get(Properties.currentClass));
         return currentClass;
     }
-    
-    /*
-    public String getPreviousMenuId()
-    {
-        return prevMenuId;
-    }
-    */
-
-    /*
-    public String getEnabledClass()
-    {
-        return enabledClass;
-    }
-    */
 
     public String getDisabledClass()
     {
+        if (disabledClass==null)
+            disabledClass= StringUtils.toString(getStateHelper().get(Properties.disabledClass));
         return disabledClass;
     }
 
     public String getParentClass()
     {
+        if (parentClass==null)
+            parentClass= StringUtils.toString(getStateHelper().get(Properties.parentClass));
         return parentClass;
     }
 
     public String getExpandedClass()
     {
+        if (expandedClass==null)
+            expandedClass= StringUtils.toString(getStateHelper().get(Properties.expandedClass));
         return expandedClass;
     }
 
     public String getItemWrapTag()
     {
+        if (itemWrapTag==null)
+            itemWrapTag= StringUtils.toString(getStateHelper().get(Properties.itemWrapTag));
         return itemWrapTag;
     }
     
@@ -228,53 +220,43 @@ public class MenuListTag extends UIOutput implements NamingContainer
     public void setCurrentId(String currentId)
     {
         this.currentId = currentId;
+        // save
+        getStateHelper().put(Properties.currentId, currentId);
     }
 
     public void setCurrentClass(String currentClass)
     {
         this.currentClass = currentClass;
+        // save
+        getStateHelper().put(Properties.currentClass, currentClass);
     }
-
-    /*
-    public void setEnabledClass(String enabledClass)
-    {
-        this.enabledClass = enabledClass;
-    }
-    */
 
     public void setDisabledClass(String disabledClass)
     {
         this.disabledClass = disabledClass;
+        // save
+        getStateHelper().put(Properties.disabledClass, disabledClass);
     }
 
     public void setParentClass(String parentClass)
     {
         this.parentClass = parentClass;
+        // save
+        getStateHelper().put(Properties.parentClass, parentClass);
     }
 
     public void setExpandedClass(String expandedClass)
     {
         this.expandedClass = expandedClass;
+        // save
+        getStateHelper().put(Properties.expandedClass, expandedClass);
     }
 
     public void setItemWrapTag(String itemWrapTag)
     {
         this.itemWrapTag = itemWrapTag;
+        // save
+        getStateHelper().put(Properties.itemWrapTag, itemWrapTag);
     }
-
-    /*
-    protected void writeAttribute(ResponseWriter writer, Map<String, Object> map, String attribute, String targetName)
-        throws IOException
-    {
-        Object value = map.get(attribute);
-        if (value != null)
-            writer.writeAttribute(targetName, value, null);
-    }
-    protected void writeAttribute(ResponseWriter writer, Map<String, Object> map, String attribute)
-        throws IOException
-    {
-        writeAttribute(writer, map, attribute, attribute);
-    }
-    */
 
 }
