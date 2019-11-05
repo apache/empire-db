@@ -427,6 +427,7 @@ public class TagEncodingHelper implements NamingContainer
             {   /* clear local value */
                 if (log.isDebugEnabled())
                     log.debug("clearing local value for {}. value is {}.", getColumnName(), ((UIInput)component).getLocalValue());
+                // reset
                 ((UIInput)component).setValue(null);
                 ((UIInput)component).setLocalValueSet(false);
             }
@@ -569,10 +570,12 @@ public class TagEncodingHelper implements NamingContainer
                 {   // Record has changed
                     setRecord(rec);
                 }
-            }    
-            // Invalidate if not an instance of Record
-            else if (!(this.record instanceof Record))
-                this.record = null;
+            }  
+            // Invalidate if inside UIData
+            else if (isInsideUIData())
+            {   // reset record
+                setRecord(null);
+            }
         }
     }
 
@@ -657,7 +660,12 @@ public class TagEncodingHelper implements NamingContainer
         if (this.recordTag != null)
             return this.recordTag.getRecord();
         if (this.uiDataTag != null)
-            return this.uiDataTag.getRowData();
+        {   // check row available
+            if (this.uiDataTag.isRowAvailable())
+                return this.uiDataTag.getRowData();
+            // row not available (possibly deleted)
+            return null;
+        }
         // walk upwards the parent component tree and return the first record component found (if any)
         UIComponent parent = component;
         while ((parent = parent.getParent()) != null)
@@ -670,6 +678,7 @@ public class TagEncodingHelper implements NamingContainer
             if (parent instanceof UIData)
             {
                 this.uiDataTag = (UIData)parent;
+                this.insideUIData = true;
                 return this.uiDataTag.getRowData();
             }
         }

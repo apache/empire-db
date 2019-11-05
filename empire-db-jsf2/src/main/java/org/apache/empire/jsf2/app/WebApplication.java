@@ -98,8 +98,11 @@ public abstract class WebApplication
     public final void init(FacesImplementation facesImpl, FacesContext startupContext)
     {
         // Only call once!
-        if (this.facesImpl!=null || this.webRoot!=null)
-            throw new NotSupportedException(this, "init");
+        if (this.facesImpl!=null || this.webRoot!=null) 
+        {   // already initialized
+            log.warn("WARNING: WebApplication has already been initialized! Continuing without init...");
+            return;
+        }
         // set imppl
         this.facesImpl = facesImpl;
         // webRoot

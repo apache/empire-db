@@ -390,8 +390,6 @@ public class ControlTag extends UIInput implements NamingContainer
         id = helper.completeInputTagId(id); 
         // set
         super.setId(id);
-        // reset record
-        helper.setRecord(null);
     }
 
     @Override

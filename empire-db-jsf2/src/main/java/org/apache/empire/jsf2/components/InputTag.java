@@ -139,7 +139,11 @@ public class InputTag extends UIInput implements NamingContainer
         // add label and input components when the view is loaded for the first time
         super.encodeBegin(context);
 
-        // Check visiblity
+        // get Control (before checking visible)
+        helper.encodeBegin();
+        this.control = helper.getInputControl();
+        
+        // Check visibility
         if (helper.isVisible() == false)
         {   // not visible
             setRendered(false);
@@ -149,31 +153,22 @@ public class InputTag extends UIInput implements NamingContainer
                 throw new InvalidArgumentException("column", null);
             // Check record
             Object record = helper.getRecord();
-            if (record!=null && (record instanceof DBRecord))
-            {   // Record is not null
-                if (((DBRecord)record).isValid())
-                {   // Check if column exists
-                    if (((DBRecord)record).getFieldIndex(column)<0)
-                        throw new InvalidArgumentException("column", column.getName());
-                    // not visible
-                    log.info("Column {} is not visible for record of {} and will not be rendered!", column.getName(), ((DBRecord)record).getRowSet().getName());
-                }    
-                else
-                {   // Record not valid
-                    log.warn("Invalid Record provided for column {}. Input will not be rendered!", column.getName());
-                }    
-            }
+            if (record!=null && (record instanceof DBRecord) && ((DBRecord)record).isValid())
+            {   // Check if column exists
+                if (((DBRecord)record).getFieldIndex(column)<0)
+                    throw new InvalidArgumentException("column", column.getName());
+                // not visible
+                log.info("Column {} is not visible for record of {} and will not be rendered!", column.getName(), ((DBRecord)record).getRowSet().getName());
+            }    
             else
-            {   // Column not visible
-                log.warn("Column {} is not visible will not be rendered!", column.getName());
-            }
+            {   // Record not valid
+                log.warn("Invalid Record provided for column {}. Input will not be rendered!", column.getName());
+            }    
             return; // not visible
         }
 
-        // init
-        helper.encodeBegin();
-        control = helper.getInputControl();
-        inpInfo = helper.getInputInfo(context);
+        // render
+        this.inpInfo = helper.getInputInfo(context);
         // set required
         if (hasRequiredFlagSet == false)
             super.setRequired(helper.isValueRequired());
@@ -213,8 +208,6 @@ public class InputTag extends UIInput implements NamingContainer
         id = helper.completeInputTagId(id); 
         // setId
         super.setId(id);
-        // reset record
-        helper.setRecord(null);
     }
 
     @Override

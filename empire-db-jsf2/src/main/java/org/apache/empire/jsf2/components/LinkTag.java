@@ -99,8 +99,6 @@ public class LinkTag extends UIOutput // implements NamingContainer
         }
         // set
         super.setId(id);
-        // reset record
-        helper.setRecord(null);
     }
     
     @Override
