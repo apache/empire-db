@@ -440,15 +440,22 @@ public class TagEncodingHelper implements NamingContainer
             }
             */
         }
+        // check record
+        checkRecord();
+    }
+
+    public void prepareData()
+    {
+        checkRecord();
     }
     
-    protected static final String PH_COLUMN_NAME = "{column}";  // placeholder for column name
-    protected static final String PH_COLUMN_FULL = "{COLUMN}";  // placeholder for column full name including table
+    protected static final String PH_COLUMN_NAME = "@";  // placeholder for column name
+    protected static final String PH_COLUMN_FULL = "&";  // placeholder for column full name including table
 
     public String completeInputTagId(String id)
     {
         // EmptyString or AT
-        if (StringUtils.isEmpty(id) || "@".equals(id))
+        if (StringUtils.isEmpty(id) || PH_COLUMN_NAME.equals(id))
             return getColumnName();
         // replace placeholder
         if (id.indexOf(PH_COLUMN_NAME)>=0)
@@ -472,11 +479,6 @@ public class TagEncodingHelper implements NamingContainer
     
     public InputControl getInputControl()
     {
-        if (control != null)
-        {   // Must check record!
-            checkRecord();
-            return control;
-        }    
         // Create
         if (getColumn() == null)
         	throw new NotSupportedException(this, "getInputControl");
@@ -494,7 +496,6 @@ public class TagEncodingHelper implements NamingContainer
         // detect Control
         control = detectInputControl(controlType, column.getDataType(), column.getOptions()!=null);
         // check record
-        checkRecord();
         return control;
     }
 

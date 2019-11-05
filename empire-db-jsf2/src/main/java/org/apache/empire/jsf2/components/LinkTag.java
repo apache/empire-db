@@ -227,6 +227,7 @@ public class LinkTag extends UIOutput // implements NamingContainer
         // Is a column provided?
         if (hasColumn)
         {
+            helper.prepareData();
             InputControl control = helper.getInputControl();
             InputControl.ValueInfo vi = helper.getValueInfo(FacesContext.getCurrentInstance());
             // render value

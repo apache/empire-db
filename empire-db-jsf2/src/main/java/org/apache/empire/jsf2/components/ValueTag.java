@@ -55,7 +55,6 @@ public class ValueTag extends UIOutput // implements NamingContainer
     public void encodeBegin(FacesContext context)
         throws IOException
     {
-
         // add label and input components when the view is loaded for the first time
         super.encodeBegin(context);
         

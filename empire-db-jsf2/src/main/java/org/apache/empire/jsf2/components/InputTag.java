@@ -101,6 +101,7 @@ public class InputTag extends UIInput implements NamingContainer
             return false;
         }
         // Init Control and inputInfo;
+        helper.prepareData();
         control = helper.getInputControl();
         inpInfo = helper.getInputInfo(context);
         return (control != null && inpInfo != null);
@@ -141,7 +142,6 @@ public class InputTag extends UIInput implements NamingContainer
 
         // get Control (before checking visible)
         helper.encodeBegin();
-        this.control = helper.getInputControl();
         
         // Check visibility
         if (helper.isVisible() == false)
@@ -168,6 +168,7 @@ public class InputTag extends UIInput implements NamingContainer
         }
 
         // render
+        this.control = helper.getInputControl();
         this.inpInfo = helper.getInputInfo(context);
         // set required
         if (hasRequiredFlagSet == false)
@@ -231,6 +232,7 @@ public class InputTag extends UIInput implements NamingContainer
                 boolean readOnly = helper.isRecordReadOnly();
                 setRenderInput(!readOnly);
                 // get control
+                helper.prepareData();
                 if (control==null)
                     control = helper.getInputControl();
                 if (inpInfo==null)

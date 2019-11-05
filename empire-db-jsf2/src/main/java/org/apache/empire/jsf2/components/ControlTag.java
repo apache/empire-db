@@ -261,6 +261,7 @@ public class ControlTag extends UIInput implements NamingContainer
             return false;
         }
         // control = ;
+        helper.prepareData();
         this.control = helper.getInputControl();
         this.inpInfo = helper.getInputInfo(context);
         return (this.control != null && this.inpInfo != null);
@@ -302,7 +303,6 @@ public class ControlTag extends UIInput implements NamingContainer
         // init
         helper.encodeBegin();
         this.control = helper.getInputControl();
-
         boolean isCustomInput = isCustomInput();
 
         // LabelSeparatorComponent
@@ -426,6 +426,8 @@ public class ControlTag extends UIInput implements NamingContainer
                 // give control chance to update
                 if (hasChanged && log.isDebugEnabled())
                     log.debug("Changing UIInput readOnly state for {} to {}", helper.getColumnName(), readOnly);
+                // check record
+                helper.prepareData();
                 if (this.control==null)
                     this.control = helper.getInputControl();
                 if (this.inpInfo==null)
