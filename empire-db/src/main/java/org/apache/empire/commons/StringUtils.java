@@ -112,7 +112,7 @@ public class StringUtils
      */
     public static String coalesce(String preferred, String alternative)
     {
-        return isValid(preferred) ? preferred : alternative;        
+        return isNotEmpty(preferred) ? preferred : alternative;        
     }
 
     /**
@@ -192,22 +192,14 @@ public class StringUtils
      */
     public static boolean isEmpty(String s)
     {
-        return s == null || s.trim().length() == 0;
-    }
-    
-    /**
-     * Checks if a string is not null or empty
-     * 
-     * @param s the string to validate
-     * 
-     * @return true if valid
-     * 
-     * @deprecated this has been renamed to isNotEmpty
-     */
-    @Deprecated
-    public static boolean isValid(String s)
-    {
-        return s != null && s.trim().length() > 0;
+        if (s!=null)
+        {   // find non-space character
+            for (int i=0; i<s.length(); i++)
+                if (s.charAt(i)>' ')
+                    return false;
+        }
+        // empty
+        return true;
     }
     
     /**
@@ -219,7 +211,7 @@ public class StringUtils
      */
     public static boolean isNotEmpty(String s)
     {
-        return s != null && s.trim().length() > 0;
+        return !isEmpty(s);
     }
     
     /**

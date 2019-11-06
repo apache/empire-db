@@ -245,7 +245,7 @@ public class OptionsTest
         options.add(Integer.valueOf(1), "text", true);
         assertEquals(Integer.valueOf(1), options.getValueAt(0));
         options.add(Integer.valueOf(1), "text", true);
-        assertEquals(Integer.valueOf(1), options.getValueAt(1));
+        assertEquals(Integer.valueOf(1), options.getValueAt(0));
         
         options = new Options();
         options.add(Integer.valueOf(1), "text", false);
