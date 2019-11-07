@@ -96,8 +96,7 @@ public class InputTag extends UIInput implements NamingContainer
             return false;
         // Must have children
         if (getChildCount() == 0)
-        {   log.warn("InputTag has no children! Unable to init Input state for id={}", getClientId());
-            log.warn("Problem might be related to Mojarra's state context saving for dynamic components (affects all versions > 2.1.6). See com.sun.faces.context.StateContext.java:AddRemoveListener");
+        {   log.warn("InputTag '{}' has no children. encodeBegin may not have been called yet.", getClientId());
             return false;
         }
         // Init Control and inputInfo;
