@@ -483,6 +483,17 @@ public abstract class DBRowSet extends DBExpr
     }
 
     /**
+     * Returns the column expression at a given column index
+     * Allow overrides in derived classes
+     * @param index
+     * @return the column expression
+     */
+    protected DBColumnExpr getColumnExprAt(int index)
+    {
+        return columns.get(index);
+    }
+    
+    /**
      * Initialize this DBRowSet object and sets it's initial state.
      * 
      * @param rec the DBRecord object to initialize this DBRowSet object
@@ -546,13 +557,12 @@ public abstract class DBRowSet extends DBExpr
         // Get Record Field Values
         Object[] fields = rec.getFields();
         for (int i = 0; i < fields.length; i++)
-        {
-            // Read a value
-        	DBColumn column = columns.get(i);
+        {   // Read a value
+        	DBColumnExpr column = getColumnExprAt(i);
         	int rdi = recData.getFieldIndex(column);
         	if (rdi<0)
         	{	// Field not available in Record Data
-        		if (primaryKey!=null && primaryKey.contains(column))
+        		if (primaryKey!=null && (column instanceof DBColumn) && primaryKey.contains((DBColumn)column))
         		{	// Error: Primary Key not supplied
         		    throw new ItemNotFoundException(column.getName());
         		}
