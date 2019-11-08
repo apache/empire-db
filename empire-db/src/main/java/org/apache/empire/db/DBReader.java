@@ -881,7 +881,7 @@ public class DBReader extends DBRecordData
                     return i;
                  // Query Expression?
                 if (updColumn instanceof DBQueryColumn)
-                {   updColumn = ((DBQueryColumn)updColumn).getQueryExpression().getUpdateColumn();
+                {   updColumn = ((DBQueryColumn)updColumn).getExpr().getUpdateColumn();
                     if (updColumn!=null && updColumn.equals(column))
                         return i;
                 }

@@ -136,14 +136,14 @@ public class DBAliasExpr extends DBColumnExpr
     }
 
     /**
-     * Always returns false since an alias expression cannot be an aggregate.
+     * Forward to expression
      *
      * @return false
      */
     @Override
     public boolean isAggregate()
     {
-        return false;
+        return expr.isAggregate();
     }
 
     /**

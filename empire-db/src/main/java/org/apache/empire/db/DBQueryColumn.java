@@ -25,6 +25,7 @@ import org.w3c.dom.Element;
 public class DBQueryColumn extends DBColumn
 {
     private final static long serialVersionUID = 1L;
+    
     protected final DBColumnExpr expr;
 
     /**
@@ -33,14 +34,14 @@ public class DBQueryColumn extends DBColumn
      * @param query the DBQuery object
      * @param expr the concrete DBColumnExpr object
      */
-    public DBQueryColumn(DBQuery query, DBColumnExpr expr)
+    public DBQueryColumn(DBQuery query, String name, DBColumnExpr expr)
     { // call base
-        super(query, expr.getName());
+        super(query, name);
         // set Expression
         this.expr = expr;
     }
     
-    public DBColumnExpr getQueryExpression()
+    public DBColumnExpr getExpr()
     {
         return expr;
     }
