@@ -632,7 +632,7 @@ public class DBQuery extends DBRowSet
         index=0;
         for (DBColumn c : columns)
         {   // check update column
-            if ((c instanceof DBQueryColumn) && column.equals(c.getUpdateColumn()))
+            if ((c instanceof DBQueryColumn) && column.equals(((DBQueryColumn)c).expr.getUpdateColumn()))
                  return index;
             // next
             index++;
