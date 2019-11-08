@@ -60,6 +60,39 @@ public class DBQuery extends DBRowSet
     private final static long serialVersionUID = 1L;
 
     private static AtomicInteger queryCount = new AtomicInteger(0);
+    
+    /**
+     * DBQueryExprColumn 
+     * @author doebele
+     */
+    protected static class DBQueryExprColumn extends DBQueryColumn
+    {
+        private static final long serialVersionUID = 1L;
+        
+        protected DBQueryExprColumn(DBQuery q, String name, DBColumnExpr expr)
+        {
+            super(q, name, expr);
+        }
+        
+        @Override
+        public DBColumn getUpdateColumn()
+        {
+            return expr.getUpdateColumn();
+        }
+        
+        @Override
+        public boolean equals(Object other)
+        {
+            if (super.equals(other))
+                return true;
+            if (other instanceof DBQueryColumn)
+            {   // compare expressions
+                DBQueryColumn oc = (DBQueryColumn)other;
+                return (this.rowset.equals(oc.getRowSet()) && this.expr.equals(oc.getExpr()));
+            }
+            return false;
+        }
+    }
 
     protected final DBCommandExpr   cmdExpr;
     protected final DBColumn[]      keyColumns;
@@ -89,7 +122,7 @@ public class DBQuery extends DBRowSet
             DBColumn column = exprList[i].getUpdateColumn();
             if (column==null || (exprList[i] instanceof DBAliasExpr))
             {   // user QueryColumn
-                column = queryColumns[i]; 
+                column = new DBQueryExprColumn(this, queryColumns[i].getName(), exprList[i]); 
             }
             columns.add(column);
         }
@@ -632,7 +665,7 @@ public class DBQuery extends DBRowSet
         index=0;
         for (DBColumn c : columns)
         {   // check update column
-            if ((c instanceof DBQueryColumn) && column.equals(((DBQueryColumn)c).expr.getUpdateColumn()))
+            if ((c instanceof DBQueryExprColumn) && column.equals(c.getUpdateColumn()))
                  return index;
             // next
             index++;
@@ -646,7 +679,7 @@ public class DBQuery extends DBRowSet
     {
         DBColumn column = columns.get(index);
         if (column instanceof DBQueryColumn)
-            return ((DBQueryColumn)column).expr;  // unwrap
+            return ((DBQueryExprColumn)column).expr;  // unwrap
         // use column
         return column;
     }
