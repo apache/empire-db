@@ -36,6 +36,7 @@ import org.apache.empire.commons.ObjectUtils;
 import org.apache.empire.commons.Options;
 import org.apache.empire.commons.StringUtils;
 import org.apache.empire.data.Column;
+import org.apache.empire.data.DataType;
 import org.apache.empire.exceptions.InvalidArgumentException;
 import org.apache.empire.exceptions.ItemNotFoundException;
 import org.apache.empire.exceptions.UnexpectedReturnValueException;
@@ -49,8 +50,10 @@ public abstract class InputControl
     private static final Logger log                   = LoggerFactory.getLogger(InputControl.class);
     
     // format attributes
-    public static final String  FORMAT_NULL           = "null:";
-    public static final String  FORMAT_NULL_ATTRIBUTE = "format:null";
+    public static final String  FORMAT_NULL                   = "null:";
+    public static final String  FORMAT_NULL_ATTRIBUTE         = "format:null";
+    public static final String  FORMAT_VALUE_STYLES           = "valueStyles";
+    public static final String  FORMAT_VALUE_STYLES_ATTRIBUTE = "format:valueStyles";
     
     // HTML-TAGS
     public static final String  HTML_TAG_DIV          = "div"; 
@@ -229,6 +232,8 @@ public abstract class InputControl
         if (tagName!=null)
         {   // write start tag
             writer.startElement(tagName, comp);
+            if (hasFormatOption(vi, FORMAT_VALUE_STYLES, FORMAT_VALUE_STYLES_ATTRIBUTE))
+                styleClass = addDataValueStyle(vi, vi.getValue(true), styleClass);
             if (StringUtils.isNotEmpty(styleClass))
                 writer.writeAttribute("class", styleClass, null);
             if (StringUtils.isNotEmpty(tooltip))
@@ -376,6 +381,28 @@ public abstract class InputControl
         return submittedValue;
     }
     
+    /**
+     * adds style attributes related to the current value
+     * @param vi
+     * @param value the current value
+     * @param styleClass
+     * @return
+     */
+    protected String addDataValueStyle(ValueInfo vi, Object value, String styleClass)
+    {
+        DataType dataType = vi.getColumn().getDataType();
+        if (ObjectUtils.isEmpty(value))
+        {   // Null
+            styleClass += " eValNull";
+        }
+        else if (dataType.isNumeric())
+        {   // Check negative
+            if (ObjectUtils.getLong(value)<0)
+                styleClass += " eValNeg";
+        }
+        return styleClass;
+    }
+
     protected void addAttachedObjects(UIComponent parent, FacesContext context, InputInfo ii, UIComponentBase inputComponent)
     {
         InputAttachedObjectsHandler aoh = InputControlManager.getAttachedObjectsHandler();
@@ -738,6 +765,15 @@ public abstract class InputControl
         return (format != null ? format.indexOf(option) >= 0 : false);
     }
 
+    protected boolean hasFormatOption(ValueInfo vi, String option, String columnAttributeName)
+    {
+        if (hasFormatOption(vi, option))
+            return true;
+        // column format provided?
+        Column column = vi.getColumn();
+        return (column!=null ? !ObjectUtils.isEmpty(column.getAttribute(columnAttributeName)) : false);
+    }
+    
     protected String getFormatOption(ValueInfo vi, String option)
     {
         // Is unit supplied with format

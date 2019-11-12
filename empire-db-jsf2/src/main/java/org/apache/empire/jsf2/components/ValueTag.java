@@ -23,7 +23,6 @@ import java.io.IOException;
 import javax.faces.component.UIOutput;
 import javax.faces.context.FacesContext;
 
-import org.apache.empire.commons.ObjectUtils;
 import org.apache.empire.commons.StringUtils;
 import org.apache.empire.data.DataType;
 import org.apache.empire.jsf2.controls.InputControl;
@@ -81,15 +80,7 @@ public class ValueTag extends UIOutput // implements NamingContainer
             // Detect type and additional style
             String addlStyle = null;
             DataType dataType = vi.getColumn().getDataType();
-            if (dataType.isNumeric())
-            {   try {
-                    Object val = helper.getDataValue(true);
-                    if (val!=null && ObjectUtils.getLong(val)<0)
-                        addlStyle = "eValNeg";
-                } catch(Exception e) {
-                    log.warn("Unable to detect sign of numeric value {}. Message is {}!", vi.getColumn().getName(), e.getMessage());
-                }
-            }
+            // get style
             styleClass = helper.getTagStyleClass(dataType, addlStyle);
         }
         // render now
