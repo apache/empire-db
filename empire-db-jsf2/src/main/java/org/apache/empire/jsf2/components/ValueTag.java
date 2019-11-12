@@ -71,7 +71,7 @@ public class ValueTag extends UIOutput // implements NamingContainer
     {
         // Map<String, Object> map = getAttributes();
         String tagName = helper.getTagAttributeString("tag");
-        String tooltip = helper.getTagAttributeString("title");
+        String tooltip = helper.getValueTooltip(helper.getTagAttributeValue("title"));
         String styleClass = helper.getTagAttributeString("styleClass");
         // Check
         if (StringUtils.isNotEmpty(tagName) || StringUtils.isNotEmpty(styleClass) || StringUtils.isNotEmpty(tooltip))
