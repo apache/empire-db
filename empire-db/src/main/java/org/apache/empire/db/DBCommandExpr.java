@@ -429,6 +429,14 @@ public abstract class DBCommandExpr extends DBExpr
     	DBDatabaseDriver driver = getDatabase().getDriver();
     	return driver.createCombinedCommand(this, "INTERSECT", other);
     }
+    
+    /**
+     * Returns whether or not the command has order by set
+     */
+    public boolean hasOrderBy()
+    {
+        return (this.orderBy!=null ? !this.orderBy.isEmpty() : false);
+    }
 
     /**
      * Returns a copy of the defined order-bys.
