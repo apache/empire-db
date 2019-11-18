@@ -746,7 +746,8 @@ public abstract class DBRowSet extends DBExpr
                 DBTableColumn col = (DBTableColumn) columns.get(i);
                 if (timestampColumn == col)
                 {   // Make sure the update timestamp column is set
-                    cmd.set(col.to(timestamp));
+                    if (timestamp!=null)
+                        cmd.set(col.to(timestamp));
                     continue;
                 } 
                 boolean empty = ObjectUtils.isEmpty(value); 
@@ -814,10 +815,12 @@ public abstract class DBRowSet extends DBExpr
                             value = cmd.addParam(col, value);
                         cmd.where(col.is(value));
                 	}    
-                	else if (log.isDebugEnabled()) {
-                		log.debug("updateRecord has no value for timestamp column. Concurrent changes will not be detected.");
-                	}	
-                    cmd.set(col.to(timestamp));
+                	else if (value!=ObjectUtils.NO_VALUE) {
+                		log.warn("updateRecord has no value for timestamp column. Concurrent changes will not be detected.");
+                	}
+                	// set new timestamp
+                	if (timestamp!=null)
+                        cmd.set(col.to(timestamp)); 
                 } 
                 else if (modified && value!=ObjectUtils.NO_VALUE)
                 { 	// Update a field
@@ -858,8 +861,8 @@ public abstract class DBRowSet extends DBExpr
             throw new RecordUpdateFailedException(this, getRecordKey(rec));
         }
         // Correct Timestamp
-        if (timestampColumn != null)
-        { // Set the correct Timestamp
+        if (timestampColumn!=null && timestamp!=null)
+        {   // Set the correct Timestamp
             int i = rec.getFieldIndex(timestampColumn);
             if (i >= 0)
                 fields[i] = timestamp;
