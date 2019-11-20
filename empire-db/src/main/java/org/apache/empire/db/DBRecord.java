@@ -574,32 +574,30 @@ public class DBRecord extends DBRecordData implements Record, Cloneable
      * Modifies a column value bypassing all checks made by setValue.
      * Use this to explicitly set invalid values i.e. for temporary storage.
      * 
-     * @param i index of the column
+     * @param index index of the column
      * @param value the column value
      */
-    protected void modifyValue(int i, Object value, boolean fireChangeEvent)
+    protected void modifyValue(int index, Object value, boolean fireChangeEvent)
     {	// Check valid
         if (state == State.Invalid)
             throw new ObjectNotValidException(this);
-        // must have been fetched
-        if (fields[i]==ObjectUtils.NO_VALUE)
-            throw new FieldValueNotFetchedException(getColumn(i));
-        // Init original values
+        if (index < 0 || index >= fields.length)
+            throw new InvalidArgumentException("index", index);
+        // modified state array
         if (modified == null)
-        { // Save all original values
-            modified = new boolean[fields.length];
+        {   modified = new boolean[fields.length];
             for (int j = 0; j < fields.length; j++)
                 modified[j] = false;
         }
-        // Set Value and Modified
-        fields[i] = value;
-        modified[i] = true;
-        // Set State
+        // set value and modified
+        fields[index] = value;
+        modified[index] = true;
+        // set record state
         if (state.isLess(State.Modified))
             changeState(State.Modified);
-        // field changed
+        // field changed event
         if (fireChangeEvent)
-            onFieldChanged(i);
+            onFieldChanged(index);
     }
     
     /**
@@ -644,9 +642,12 @@ public class DBRecord extends DBRecordData implements Record, Cloneable
         // Strings special
         if ((value instanceof String) && ((String)value).length()==0)
             value = null;
-        // Has Value changed?
+        // Is value valid
         Object current = fields[index]; 
-        if (current!=ObjectUtils.NO_VALUE && ObjectUtils.compareEqual(current, value))
+        if (current==ObjectUtils.NO_VALUE)
+            throw new FieldValueNotFetchedException(getColumn(index));
+        // Has Value changed?
+        if (ObjectUtils.compareEqual(current, value))
             return; // no change
         // Field has changed
         DBColumn column = rowset.getColumn(index);
