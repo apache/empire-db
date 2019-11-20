@@ -34,6 +34,7 @@ import org.apache.empire.data.Column;
 import org.apache.empire.data.ColumnExpr;
 import org.apache.empire.data.Record;
 import org.apache.empire.db.exceptions.FieldIsReadOnlyException;
+import org.apache.empire.db.exceptions.FieldValueNotFetchedException;
 import org.apache.empire.db.expr.compare.DBCompareExpr;
 import org.apache.empire.exceptions.BeanPropertyGetException;
 import org.apache.empire.exceptions.InvalidArgumentException;
@@ -519,7 +520,7 @@ public class DBRecord extends DBRecordData implements Record, Cloneable
             throw new InvalidArgumentException("index", index);
         // Special check for NO_VALUE 
         if (fields[index] == ObjectUtils.NO_VALUE)
-            return null;
+            throw new FieldValueNotFetchedException(getColumn(index));
         // Return field value
         return fields[index];
     }
@@ -580,6 +581,9 @@ public class DBRecord extends DBRecordData implements Record, Cloneable
     {	// Check valid
         if (state == State.Invalid)
             throw new ObjectNotValidException(this);
+        // must have been fetched
+        if (fields[i]==ObjectUtils.NO_VALUE)
+            throw new FieldValueNotFetchedException(getColumn(i));
         // Init original values
         if (modified == null)
         { // Save all original values
@@ -587,11 +591,9 @@ public class DBRecord extends DBRecordData implements Record, Cloneable
             for (int j = 0; j < fields.length; j++)
                 modified[j] = false;
         }
-        // Set Modified
-        if (fields[i]!=ObjectUtils.NO_VALUE || value!=null)
-            modified[i] = true;
-        // Set Value
+        // Set Value and Modified
         fields[i] = value;
+        modified[i] = true;
         // Set State
         if (state.isLess(State.Modified))
             changeState(State.Modified);

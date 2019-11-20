@@ -66,6 +66,12 @@ public abstract class DBRowSet extends DBExpr
 {
     private final static long serialVersionUID = 1L;
 
+    public enum PartialMode
+    {
+        INCLUDE,
+        EXCLUDE;
+    }
+    
     /**
      * This class is used to set the auto generated key of a record if the database does not support sequences.
      * It is used with the executeSQL function and only required for insert statements
@@ -657,6 +663,53 @@ public abstract class DBRowSet extends DBExpr
         // Select
         DBCommand cmd = db.createCommand();
         cmd.select(columns);
+        // Set key constraints
+        setKeyConstraints(cmd, key);
+        try {
+            // Read Record
+            readRecord(rec, cmd, conn);
+        } catch (QueryNoResultException e) {
+            // Translate exception
+            throw new RecordNotFoundException(this, key);
+        }
+    }
+    
+    /**
+     * Reads the partial record for a given primary key from the database
+     * @param rec the DBRecord object which will hold the record data
+     * @param key the primary key values
+     * @param conn a valid JDBC connection.
+     * @param mode flag whether to include only the given columns or whether to add all but the given columns
+     * @param columns the columns to include or exclude (depending on mode)
+     */
+    public void readRecord(DBRecord rec, Object[] key, Connection conn, PartialMode mode, DBColumn... columns)
+    {
+        // Check Arguments
+        if (conn == null || rec == null)
+            throw new InvalidArgumentException("conn|rec", null);
+        // create command
+        DBCommand cmd = db.createCommand();        
+        for (DBColumn column : this.columns)
+        {   // key column?
+            if (isKeyColumn(column))
+            {   // always select key column
+                cmd.select(column);
+                continue;
+            }
+            // find in column list 
+            for (int i=0; i<columns.length; i++)
+            {   // compare column
+                if (column.equals(columns[i]))
+                {   // found: add for INCLUDE
+                    if (mode==PartialMode.INCLUDE)
+                        cmd.select(column);
+                }
+                else if (mode==PartialMode.EXCLUDE)
+                {   // not found: add for EXCLUDE
+                    cmd.select(column);
+                }
+            }
+        }
         // Set key constraints
         setKeyConstraints(cmd, key);
         try {
