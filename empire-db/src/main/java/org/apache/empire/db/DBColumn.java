@@ -392,7 +392,19 @@ public abstract class DBColumn extends DBColumnExpr
     @Override
     public boolean isEnum()
     {
-        return (attributes!=null && getAttribute(COLATTR_ENUMTYPE)!=null);
+        return (getEnumType()!=null);
+    }
+
+    /**
+     * Returns the enum type for this column
+     * <P>
+     * @return the enum type
+     */
+    @Override
+    @SuppressWarnings("unchecked")
+    public Class<Enum<?>> getEnumType()
+    {
+        return (attributes!=null ? (Class<Enum<?>>)getAttribute(COLATTR_ENUMTYPE) : null);
     }
 
     /**

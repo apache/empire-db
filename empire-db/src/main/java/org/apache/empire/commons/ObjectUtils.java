@@ -35,6 +35,7 @@ import org.apache.commons.beanutils.MethodUtils;
 import org.apache.empire.exceptions.EmpireException;
 import org.apache.empire.exceptions.InternalException;
 import org.apache.empire.exceptions.InvalidArgumentException;
+import org.apache.empire.exceptions.ItemNotFoundException;
 import org.apache.empire.exceptions.NotSupportedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -442,6 +443,48 @@ public final class ObjectUtils
         // parse String for boolean value
         String  val = v.toString(); 
         return (val.equalsIgnoreCase("Y") || val.equalsIgnoreCase("true"));
+    }
+    
+    /**
+     * Converts an object to an enum of the given type
+     * @param enumType the enum type
+     * @param value the value to convert
+     * @return the enum
+     */
+    @SuppressWarnings("unchecked")
+    public static <T extends Enum<?>> T getEnum(Class<T> enumType, Object value)
+    {   // check for null
+        if (isEmpty(value))
+            return null;
+        // check enum
+        if (value instanceof Enum<?>)
+        {   // already an enum: Check type
+            if (value.getClass().equals(enumType))
+                return (T)value;
+            // try to match names
+            value = ((Enum<?>)value).name();
+        }
+        // check column data type
+        T[] items = enumType.getEnumConstants();
+        if (value instanceof Number)
+        {   // by ordinal
+            int ordinal = ((Number)value).intValue();
+            // check range
+            if (ordinal<0 || ordinal>=items.length)
+                throw new ItemNotFoundException(String.valueOf(ordinal));
+            // return enum
+            return items[ordinal]; 
+        }
+        else
+        {   // by name
+            String name = StringUtils.toString(value);
+            // find name
+            for (T e : items)
+                if (e.name().equals(name))
+                    return e;
+            // error: not found
+            throw new ItemNotFoundException(name);
+        }
     }
     
     /**

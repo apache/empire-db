@@ -83,9 +83,16 @@ public interface Column extends ColumnExpr
     /**
      * Returns true if an enum type has been set for this column
      * <P>
-     * @return eturns true if an enum type has been set for this column
+     * @return true if an enum type has been set for this column
      */
     boolean isEnum();
+
+    /**
+     * Returns the enum type for this column
+     * <P>
+     * @return the enum type
+     */
+    Class<Enum<?>> getEnumType();
 
     /**
      * Checks if the given value is a valid value for this column 

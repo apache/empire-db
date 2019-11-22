@@ -325,17 +325,10 @@ public class SelectInputControl extends InputControl
     {
         if ((value instanceof Number)) 
         {   // Check whether it's an Enum
-            Object enumType = ii.getColumn().getAttribute(Column.COLATTR_ENUMTYPE);
-            if ((enumType instanceof Class<?>)) 
-            {   // Convert ordinal value to Enum
-                int ordinal = ObjectUtils.getInteger(value);
-                @SuppressWarnings("unchecked")
-                Class<? extends Enum<?>> enumTypeClazz = (Class<? extends Enum<?>>)enumType;
-                Enum<?>[] items = enumTypeClazz.getEnumConstants();
-                if (ordinal>=0 && ordinal<items.length)
-                    value = items[ordinal].name();
-                else
-                    log.warn("Enum lookup failed. Ordinal {} out of range.", ordinal);
+            if (ii.getColumn().isEnum()) 
+            {   // Convert ordinal value to Enum-name
+                Enum<?> enumVal = ObjectUtils.getEnum(ii.getColumn().getEnumType(), value);
+                value = enumVal.name();
             } 
         }
         // the value
@@ -356,31 +349,9 @@ public class SelectInputControl extends InputControl
     @Override
     protected Object parseInputValue(String value, InputInfo ii)
     {
-        Object enumType = ii.getColumn().getAttribute(Column.COLATTR_ENUMTYPE);
-        if (enumType != null)
-        {
-            try
-            { // get enum
-                Class<?> enumClass = (Class<?>) enumType;
-                Field field = enumClass.getDeclaredField(value);
-                return field.get(null);
-            }
-            catch (NoSuchFieldException e)
-            {
-                throw new ItemNotFoundException(value);
-            }
-            catch (SecurityException e)
-            {
-                throw new InternalException(e);
-            }
-            catch (IllegalArgumentException e)
-            {
-                throw new InternalException(e);
-            }
-            catch (IllegalAccessException e)
-            {
-                throw new InternalException(e);
-            }
+        if (ii.getColumn().isEnum())
+        {   // convert to enum
+            return ObjectUtils.getEnum(ii.getColumn().getEnumType(), value);
         }
         return value;
     }

@@ -31,7 +31,6 @@ import org.apache.empire.data.Column;
 import org.apache.empire.data.ColumnExpr;
 import org.apache.empire.data.RecordData;
 import org.apache.empire.db.exceptions.FieldIllegalValueException;
-import org.apache.empire.db.exceptions.FieldValueOutOfRangeException;
 import org.apache.empire.exceptions.BeanPropertySetException;
 import org.apache.empire.exceptions.InvalidArgumentException;
 import org.apache.empire.exceptions.ItemNotFoundException;
@@ -103,8 +102,8 @@ public abstract class DBRecordData extends DBObject
     public int getInt(int index)
     {
         // Get Integer value
-        Object o = getValue(index);
-        return ObjectUtils.getInteger(o);
+        Object value = getValue(index);
+        return ObjectUtils.getInteger(value);
     }
     
     /**
@@ -129,8 +128,8 @@ public abstract class DBRecordData extends DBObject
     public long getLong(int index)
     {
         // Get Integer value
-        Object o = getValue(index);
-        return ObjectUtils.getLong(o);
+        Object value = getValue(index);
+        return ObjectUtils.getLong(value);
     }
     
     /**
@@ -155,8 +154,8 @@ public abstract class DBRecordData extends DBObject
     public double getDouble(int index)
     {
         // Get Double value
-        Object v = getValue(index);
-        return ObjectUtils.getDouble(v);
+        Object value = getValue(index);
+        return ObjectUtils.getDouble(value);
     }
 
     /**
@@ -181,8 +180,8 @@ public abstract class DBRecordData extends DBObject
     public BigDecimal getDecimal(int index)
     {
         // Get Double value
-        Object v = getValue(index);
-        return ObjectUtils.getDecimal(v);
+        Object value = getValue(index);
+        return ObjectUtils.getDecimal(value);
     }
 
     /**
@@ -207,8 +206,8 @@ public abstract class DBRecordData extends DBObject
     public boolean getBoolean(int index)
     {
         // Get Boolean value
-        Object o = getValue(index);
-        return ObjectUtils.getBoolean(o);
+        Object value = getValue(index);
+        return ObjectUtils.getBoolean(value);
     }
     
     /**
@@ -231,8 +230,8 @@ public abstract class DBRecordData extends DBObject
     public String getString(int index)
     {
         // Get Integer value
-        Object o = getValue(index);
-        return StringUtils.toString(o);
+        Object value = getValue(index);
+        return StringUtils.toString(value);
     }
 
     /**
@@ -257,8 +256,8 @@ public abstract class DBRecordData extends DBObject
     public Date getDateTime(int index)
     {
         // Get DateTime value
-        Object o = getValue(index);
-        return ObjectUtils.getDate(o);
+        Object value = getValue(index);
+        return ObjectUtils.getDate(value);
     }
     
     /**
@@ -283,33 +282,21 @@ public abstract class DBRecordData extends DBObject
      * @return the enum value
      */
     public <T extends Enum<?>> T getEnum(int index, Class<T> enumType)
-    {
-        // check column data type
+    {   // check for null
+        if (isNull(index))
+            return null;
+        // convert
         ColumnExpr col = getColumnExpr(index);
-        boolean numeric = col.getDataType().isNumeric();
-        T[] items = enumType.getEnumConstants();
-        if (numeric)
-        {   // by ordinal
-            if (isNull(index))
-                return null;
-            int ordinal = getInt(index);
-            // check range
-            if (ordinal<0 || ordinal>=items.length)
-                throw new FieldValueOutOfRangeException(col.getSourceColumn(), 0, items.length);
-            // return enum
-            return items[ordinal]; 
-        }
-        else
-        {   // by name
-            String name = getString(index);
-            if (StringUtils.isEmpty(name))
-                return null;
-            // find name
-            for (T e : items)
-                if (e.name().equals(name))
-                    return e;
-            // error: not found
-            throw new FieldIllegalValueException(col.getSourceColumn(), name);
+        try {
+            // Convert to enum, depending on DataType
+            boolean numeric = col.getDataType().isNumeric();
+            return ObjectUtils.getEnum(enumType, (numeric ? getInt(index) : getValue(index)));
+
+        } catch (Exception e) {
+            // Illegal value
+            String value = StringUtils.valueOf(getValue(index));
+            log.error("Unable to resolve enum value of '{}' for type {}", value, enumType.getName());
+            throw new FieldIllegalValueException(col.getSourceColumn(), value, e);
         }
     }
 
@@ -336,8 +323,8 @@ public abstract class DBRecordData extends DBObject
     @SuppressWarnings("unchecked")
     public final <T extends Enum<?>> T getEnum(Column column)
     {
-        Object enumType = column.getAttribute(Column.COLATTR_ENUMTYPE);
-        if (enumType==null || !(enumType instanceof Class<?>))
+        Class<Enum<?>> enumType = column.getEnumType();
+        if (enumType==null)
         {   // Not an enum column (Attribute "enumType" has not been set)
             throw new InvalidArgumentException("column", column);
         }
@@ -371,7 +358,6 @@ public abstract class DBRecordData extends DBObject
     /**
      * Set a single property value of a java bean object used by readProperties.
      */
-    @SuppressWarnings("rawtypes")
     protected void setBeanProperty(ColumnExpr column, Object bean, String property, Object value)
     {
         if (StringUtils.isEmpty(property))
@@ -392,18 +378,11 @@ public abstract class DBRecordData extends DBObject
                 value = DateUtils.addDate((Date)value, 0, 0, 0);
             }
             */
-            Object type = column.getAttribute(Column.COLATTR_ENUMTYPE);
-            if (type!=null && value!=null)
-            {
-                String name = value.toString();
-                @SuppressWarnings("unchecked")
-                Class<Enum> enumType = (Class<Enum>)type;
-                for (Enum e : enumType.getEnumConstants())
-                    if (e.name().equals(name))
-                    {
-                        value = e;
-                        break;
-                    }
+            @SuppressWarnings("unchecked")
+            Class<Enum<?>> enumType = (Class<Enum<?>>)column.getAttribute(Column.COLATTR_ENUMTYPE);
+            if (enumType!=null && value!=null)
+            {   // value to enum
+                value = ObjectUtils.getEnum(enumType, value);
             }
             // Set Property Value
             if (value!=null)

@@ -430,7 +430,7 @@ public class DBTableColumn extends DBColumn
             case DECIMAL:
                 // check enum
                 if (value.getClass().isEnum())
-                {   
+                {   // convert enum   
                     value = ((Enum<?>)value).ordinal();
                 }
                 // check number
@@ -468,7 +468,7 @@ public class DBTableColumn extends DBColumn
             case INTEGER:
                 // check enum
                 if (value.getClass().isEnum())
-                {   
+                {   // convert enum   
                     value = ((Enum<?>)value).ordinal();
                 }
                 // check number
@@ -490,12 +490,16 @@ public class DBTableColumn extends DBColumn
             case TEXT:
             case VARCHAR:
             case CHAR:
+                // check enum
                 if (value.getClass().isEnum())
-                {   // check enum
+                {   // convert enum   
                     value = ((Enum<?>)value).name();
                 }
+                // check length
                 if (value.toString().length() > size)
+                {
                     throw new FieldValueTooLongException(this);
+                }
                 break;
                 
             default:

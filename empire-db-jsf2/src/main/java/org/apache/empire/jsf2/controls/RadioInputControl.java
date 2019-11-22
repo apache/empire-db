@@ -19,7 +19,6 @@
 package org.apache.empire.jsf2.controls;
 
 import java.io.IOException;
-import java.lang.reflect.Field;
 import java.util.Iterator;
 import java.util.List;
 
@@ -35,9 +34,7 @@ import org.apache.empire.commons.ObjectUtils;
 import org.apache.empire.commons.OptionEntry;
 import org.apache.empire.commons.Options;
 import org.apache.empire.data.Column;
-import org.apache.empire.exceptions.InternalException;
 import org.apache.empire.exceptions.InvalidArgumentException;
-import org.apache.empire.exceptions.ItemNotFoundException;
 import org.apache.empire.exceptions.UnexpectedReturnValueException;
 import org.apache.empire.jsf2.app.TextResolver;
 import org.slf4j.Logger;
@@ -329,30 +326,9 @@ public class RadioInputControl extends InputControl
     @Override
     protected Object parseInputValue(String value, InputInfo ii)
     {
-        Object enumType = ii.getColumn().getAttribute(Column.COLATTR_ENUMTYPE);
-        if (enumType != null)
-        {   try
-            { // get enum
-                Class<?> enumClass = (Class<?>) enumType;
-                Field field = enumClass.getDeclaredField(value);
-                return field.get(null);
-            }
-            catch (NoSuchFieldException e)
-            {
-                throw new ItemNotFoundException(value);
-            }
-            catch (SecurityException e)
-            {
-                throw new InternalException(e);
-            }
-            catch (IllegalArgumentException e)
-            {
-                throw new InternalException(e);
-            }
-            catch (IllegalAccessException e)
-            {
-                throw new InternalException(e);
-            }
+        if (ii.getColumn().isEnum())
+        {   // convert to enum
+            return ObjectUtils.getEnum(ii.getColumn().getEnumType(), value);
         }
         return value;
     }

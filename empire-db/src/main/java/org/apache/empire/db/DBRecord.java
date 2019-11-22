@@ -646,19 +646,30 @@ public class DBRecord extends DBRecordData implements Record, Cloneable
         Object current = fields[index]; 
         if (current==ObjectUtils.NO_VALUE)
             throw new FieldValueNotFetchedException(getColumn(index));
+        // convert
+        DBColumn column = rowset.getColumn(index);
+        // must convert enums
+        if (value!=null && value.getClass().isEnum())
+        {   // convert enum
+            Enum<?> enumVal = ((Enum<?>)value);
+            boolean numeric = column.getDataType().isNumeric();
+            value = (numeric ? enumVal.ordinal() : enumVal.name());
+        }
         // Has Value changed?
         if (ObjectUtils.compareEqual(current, value))
-            return; // no change
-        // Field has changed
-        DBColumn column = rowset.getColumn(index);
+        {   // value has not changed!
+            return; 
+        }
         // Check whether we can change this field
         if (!allowFieldChange(column))
         {   // Read Only column may be set
             throw new FieldIsReadOnlyException(column);
         }
-        // Is Value valid
+        // Is Value valid?
         if (this.validateFieldValues)
-        	value = validateValue(column, value);
+        {   // validate
+            value = validateValue(column, value);
+        }
         // Init original values
         modifyValue(index, value, true);
     }
