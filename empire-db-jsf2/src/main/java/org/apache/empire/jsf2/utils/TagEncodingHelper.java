@@ -170,12 +170,6 @@ public class TagEncodingHelper implements NamingContainer
         }
 
         @Override
-        public boolean isEnum()
-        {
-            return getSourceColumn().isEnum();
-        }
-
-        @Override
         public Class<Enum<?>> getEnumType()
         {
             return getSourceColumn().getEnumType();

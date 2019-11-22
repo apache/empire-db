@@ -389,8 +389,7 @@ public abstract class DBColumn extends DBColumnExpr
      * <P>
      * @return eturns true if an enum type has been set for this column
      */
-    @Override
-    public boolean isEnum()
+    public final boolean isEnum()
     {
         return (getEnumType()!=null);
     }

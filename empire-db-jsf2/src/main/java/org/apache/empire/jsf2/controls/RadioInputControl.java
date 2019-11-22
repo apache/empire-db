@@ -326,9 +326,10 @@ public class RadioInputControl extends InputControl
     @Override
     protected Object parseInputValue(String value, InputInfo ii)
     {
-        if (ii.getColumn().isEnum())
+        Class<Enum<?>> enumType = ii.getColumn().getEnumType();
+        if (enumType!=null)
         {   // convert to enum
-            return ObjectUtils.getEnum(ii.getColumn().getEnumType(), value);
+            return ObjectUtils.getEnum(enumType, value);
         }
         return value;
     }

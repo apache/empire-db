@@ -166,17 +166,6 @@ public class BeanProperty implements Column
     }
 
     /**
-     * Returns true if an enum type has been set for this column
-     * <P>
-     * @return eturns true if an enum type has been set for this column
-     */
-    @Override
-    public boolean isEnum()
-    {
-        return (getEnumType()!=null);
-    }
-
-    /**
      * Returns the enum type for this column
      * <P>
      * @return the enum type

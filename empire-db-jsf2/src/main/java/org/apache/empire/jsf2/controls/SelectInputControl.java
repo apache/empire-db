@@ -325,9 +325,10 @@ public class SelectInputControl extends InputControl
     {
         if ((value instanceof Number)) 
         {   // Check whether it's an Enum
-            if (ii.getColumn().isEnum()) 
-            {   // Convert ordinal value to Enum-name
-                Enum<?> enumVal = ObjectUtils.getEnum(ii.getColumn().getEnumType(), value);
+            Class<Enum<?>> enumType = ii.getColumn().getEnumType();
+            if (enumType!=null) 
+            {   // Convert ordinal to name
+                Enum<?> enumVal = ObjectUtils.getEnum(enumType, value);
                 value = enumVal.name();
             } 
         }
@@ -349,9 +350,10 @@ public class SelectInputControl extends InputControl
     @Override
     protected Object parseInputValue(String value, InputInfo ii)
     {
-        if (ii.getColumn().isEnum())
+        Class<Enum<?>> enumType = ii.getColumn().getEnumType();
+        if (enumType!=null)
         {   // convert to enum
-            return ObjectUtils.getEnum(ii.getColumn().getEnumType(), value);
+            return ObjectUtils.getEnum(enumType, value);
         }
         return value;
     }
