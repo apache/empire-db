@@ -18,7 +18,6 @@
  */
 package org.apache.empire.jsf2.controls;
 
-import java.lang.reflect.Field;
 import java.util.Iterator;
 import java.util.List;
 
@@ -32,9 +31,7 @@ import org.apache.empire.commons.ObjectUtils;
 import org.apache.empire.commons.OptionEntry;
 import org.apache.empire.commons.Options;
 import org.apache.empire.data.Column;
-import org.apache.empire.exceptions.InternalException;
 import org.apache.empire.exceptions.InvalidArgumentException;
-import org.apache.empire.exceptions.ItemNotFoundException;
 import org.apache.empire.exceptions.UnexpectedReturnValueException;
 import org.apache.empire.jsf2.app.TextResolver;
 import org.slf4j.Logger;
@@ -129,13 +126,18 @@ public class SelectInputControl extends InputControl
             return false;
         }
         // check required
-        if (!ii.isRequired())
-        {   // check column
+        if (ii.isRequired()==false)
+        {   // not required!   
+            /* 
+             * Old code: Why check this?
+             * 
             Column column = ii.getColumn(); 
-            if (column==null || !column.isRequired())
+            if (column==null || !(ii.isDisabled() && !column.isRequired()))
             {   // add empty entry
                 return true;
             }
+            */
+            return true;
         }
         // Check Value
         return ObjectUtils.isEmpty(currentValue);
