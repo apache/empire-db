@@ -644,8 +644,8 @@ public class TagEncodingHelper implements NamingContainer
 
     public Object getRecord()
     {
-        if (record == null)
-            record = findRecord();
+        if (record == null && (record=findRecord())!=null)
+            setRecord(record);
         return record;
     }
 
@@ -830,11 +830,18 @@ public class TagEncodingHelper implements NamingContainer
     public boolean isVisible()
     {
         // reset record
-        if (this.record!=null && (getTagAttributeValue("record") instanceof Record))
-            this.record=null;
+        if (this.record!=null)
+        {   // Check attribute
+            Object recordTagValue = getTagAttributeValue("record");
+            if ((recordTagValue instanceof DBRecord) && this.record!=recordTagValue)
+            {   // shoud not come here
+                log.warn("Record in call to IsVisible has unexpectedly changed!");
+                this.record=null;
+            }
+        }
         // Check Record
         if ((getRecord() instanceof Record))
-        { // Ask Record
+        {   // Ask Record
             Record r = (Record) record;
             return r.isFieldVisible(getColumn());
         }

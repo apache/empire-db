@@ -88,6 +88,7 @@ public class InputTag extends UIInput implements NamingContainer
     protected boolean initState(FacesContext context)
     {
         // Check visibility
+        helper.prepareData();
         if (helper.isVisible() == false)
             return false; // not visible
         // Read only State
@@ -100,7 +101,6 @@ public class InputTag extends UIInput implements NamingContainer
             return false;
         }
         // Init Control and inputInfo;
-        helper.prepareData();
         control = helper.getInputControl();
         inpInfo = helper.getInputInfo(context);
         return (control != null && inpInfo != null);
