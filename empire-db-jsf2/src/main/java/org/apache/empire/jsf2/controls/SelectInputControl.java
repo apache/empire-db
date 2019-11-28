@@ -211,6 +211,14 @@ public class SelectInputControl extends InputControl
             {   emptyPresent = true;
                 continue;
             }
+            // skip inactive
+            while (oe!=null && !oe.isActive())
+            {   // check for current
+                if (ObjectUtils.compareEqual(oe.getValue(), currentValue))
+                    break;
+                // next oe
+                oe = ioe.next();
+            }
             if (oe == null)
             {   // remove obsolete items
                 lastIndex--;

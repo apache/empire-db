@@ -218,17 +218,18 @@ public class ControlTag extends UIInput implements NamingContainer
     }
 
     // Logger
-    private static final Logger       log                = LoggerFactory.getLogger(ControlTag.class);
+    private static final Logger       log                  = LoggerFactory.getLogger(ControlTag.class);
 
-    protected static final String     readOnlyState      = "readOnlyState";
+    protected static final String     readOnlyState        = "readOnlyState";
 
-    protected final TagEncodingHelper helper             = TagEncodingHelperFactory.create(this, "eInput");
+    protected final TagEncodingHelper helper               = TagEncodingHelperFactory.create(this, "eInput");
 
-    protected InputControl            control            = null;
-    protected InputControl.InputInfo  inpInfo            = null;
-    protected boolean                 hasRequiredFlagSet = false;
-    protected boolean                 encodeLabel        = true;
-    private   boolean                 creatingComponents = false;
+    protected InputControl            control              = null;
+    protected InputControl.InputInfo  inpInfo              = null;
+    protected boolean                 hasRequiredFlagSet   = false;
+    protected boolean                 encodeLabel          = true;
+    private boolean                   creatingComponents   = false;
+    protected boolean                 processingValidators = false;
 
     public ControlTag()
     {
@@ -417,8 +418,7 @@ public class ControlTag extends UIInput implements NamingContainer
                 {   // set rendered 
                     boolean rendered = (child instanceof ValueOutputComponent) ? readOnly : !readOnly;
                     if (child.isRendered()!=rendered)
-                    {
-                        child.setRendered(rendered);
+                    {   child.setRendered(rendered);
                         hasChanged = true;
                     }    
                 }
@@ -578,28 +578,35 @@ public class ControlTag extends UIInput implements NamingContainer
         ControlSeparatorComponent inputSepTag = (ControlSeparatorComponent) getChildren().get(1);
         return this.control.getConvertedValue(inputSepTag, this.inpInfo, newSubmittedValue);
     }
+    
+    @Override
+    public int getChildCount()
+    {
+        return (processingValidators ? 0 : super.getChildCount());
+    }
+    
+    @Override
+    public int getFacetCount()
+    {
+        return (processingValidators ? 0 : super.getFacetCount());
+    }
 
     @Override
-    public void validateValue(FacesContext context, Object value)
-    { // Check state
-        if (this.inpInfo == null || !isValid())
-            return;
-        // Skip Null values on partial submit
-        if (UIInput.isEmpty(value) && isPartialSubmit(context)) //  && helper.isValueRequired()
-        { // Value is null
-            log.debug("Skipping validation for {} due to Null value.", this.inpInfo.getColumn().getName());
-            return;
+    public void processValidators(FacesContext context)
+    {
+        try {
+            processingValidators = true;
+            super.processValidators(context);
+        } finally {
+            processingValidators = false;
         }
-        // Validate value
-        this.inpInfo.validate(value);
-        setValid(true);
-        // don't call base class!
-        // super.validateValue(context, value);
     }
 
     @Override
     public void validate(FacesContext context)
-    {
+    {   // free Validators lock
+        processingValidators = false;
+        // init state
         if (initState(context) == false)
             return;
         // get submitted value and validate
@@ -618,6 +625,24 @@ public class ControlTag extends UIInput implements NamingContainer
             helper.addErrorMessage(context, e);
             setValid(false);
         }
+    }
+
+    @Override
+    public void validateValue(FacesContext context, Object value)
+    { // Check state
+        if (this.inpInfo == null || !isValid())
+            return;
+        // Skip Null values on partial submit
+        if (UIInput.isEmpty(value) && isPartialSubmit(context)) //  && helper.isValueRequired()
+        { // Value is null
+            log.debug("Skipping validation for {} due to Null value.", this.inpInfo.getColumn().getName());
+            return;
+        }
+        // Validate value
+        this.inpInfo.validate(value);
+        setValid(true);
+        // don't call base class!
+        // super.validateValue(context, value);
     }
 
     @Override

@@ -44,17 +44,18 @@ import org.slf4j.LoggerFactory;
 public class InputTag extends UIInput implements NamingContainer
 {
     // Logger
-    private static final Logger       log                = LoggerFactory.getLogger(InputTag.class);
+    private static final Logger       log                  = LoggerFactory.getLogger(InputTag.class);
 
     // private static final String inpControlPropName = InputControl.class.getSimpleName();
     // private static final String inputInfoPropName = InputControl.InputInfo.class.getSimpleName();
-    protected static final String     readOnlyState      = "readOnlyState";
+    protected static final String     readOnlyState        = "readOnlyState";
 
-    protected final TagEncodingHelper helper             = TagEncodingHelperFactory.create(this, "eInput");
+    protected final TagEncodingHelper helper               = TagEncodingHelperFactory.create(this, "eInput");
 
-    protected InputControl            control            = null;
-    protected InputControl.InputInfo  inpInfo            = null;
-    protected boolean                 hasRequiredFlagSet = false;
+    protected InputControl            control              = null;
+    protected InputControl.InputInfo  inpInfo              = null;
+    protected boolean                 hasRequiredFlagSet   = false;
+    protected boolean                 processingValidators = false;
 
     /*
     private static int itemIdSeq = 0;
@@ -220,7 +221,7 @@ public class InputTag extends UIInput implements NamingContainer
         // done
         return compId;
     }
-
+    
     @Override
     public void processDecodes(FacesContext context) 
     {
@@ -281,28 +282,35 @@ public class InputTag extends UIInput implements NamingContainer
         // parse and convert value
         return this.control.getConvertedValue(this, this.inpInfo, newSubmittedValue);
     }
+    
+    @Override
+    public int getChildCount()
+    {
+        return (processingValidators ? 0 : super.getChildCount());
+    }
+    
+    @Override
+    public int getFacetCount()
+    {
+        return (processingValidators ? 0 : super.getFacetCount());
+    }
 
     @Override
-    public void validateValue(FacesContext context, Object value)
-    { // Check state
-        if (inpInfo == null)
-            return;
-        // Skip Null values if not required
-        if (UIInput.isEmpty(value) && isPartialSubmit(context)) //  && helper.isValueRequired()
-        { // Value is null
-            log.debug("Skipping validation for {} due to Null value.", inpInfo.getColumn().getName());
-            return;
+    public void processValidators(FacesContext context)
+    {
+        try {
+            processingValidators = true;
+            super.processValidators(context);
+        } finally {
+            processingValidators = false;
         }
-        // Validate value
-        inpInfo.validate(value);
-        setValid(true);
-        // don't call base class!
-        // super.validateValue(context, value);
     }
 
     @Override
     public void validate(FacesContext context)
-    {
+    {   // free Validators lock
+        processingValidators = false;
+        // init state
         if (initState(context) == false)
             return;
         // get submitted value and validate
@@ -322,6 +330,24 @@ public class InputTag extends UIInput implements NamingContainer
             helper.addErrorMessage(context, e);
             setValid(false);
         }
+    }
+    
+    @Override
+    public void validateValue(FacesContext context, Object value)
+    {   // Check state
+        if (inpInfo == null)
+            return;
+        // Skip Null values if not required
+        if (UIInput.isEmpty(value) && isPartialSubmit(context)) //  && helper.isValueRequired()
+        { // Value is null
+            log.debug("Skipping validation for {} due to Null value.", inpInfo.getColumn().getName());
+            return;
+        }
+        // Validate value
+        inpInfo.validate(value);
+        setValid(true);
+        // don't call base class!
+        // super.validateValue(context, value);
     }
 
     @Override
