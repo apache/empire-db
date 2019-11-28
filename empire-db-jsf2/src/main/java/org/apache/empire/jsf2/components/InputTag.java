@@ -299,7 +299,7 @@ public class InputTag extends UIInput implements NamingContainer
     public void processValidators(FacesContext context)
     {
         try {
-            processingValidators = true;
+            processingValidators = helper.skipInputValidators();
             super.processValidators(context);
         } finally {
             processingValidators = false;

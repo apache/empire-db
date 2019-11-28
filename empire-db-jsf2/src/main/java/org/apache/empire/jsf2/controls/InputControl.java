@@ -671,6 +671,11 @@ public abstract class InputControl
         // add Style
         setInputStyleClass(input, styleClass);
     }
+    
+    public boolean skipInputValidators()
+    {
+        return true;
+    }
 
     /**
      * Returns the value formated as a string

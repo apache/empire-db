@@ -314,7 +314,8 @@ public class Options extends AbstractSet<OptionEntry> implements Cloneable, Seri
             b.append(StringUtils.toString(e.getValue()));
             b.append("\":\"");
             b.append(e.getText());
-            b.append("\"");
+            b.append("\":");
+            b.append(e.isActive() ? "1" : "0");
             first = false;
         }    
         b.append("}");
@@ -335,6 +336,8 @@ public class Options extends AbstractSet<OptionEntry> implements Cloneable, Seri
             // Create Option Element
             Element opt = XMLUtil.addElement(element, "option", e.getText());
             opt.setAttribute("value", value);
+            if (e.isActive()==false)
+                opt.setAttribute("disabled", "true");
         }
     }
 

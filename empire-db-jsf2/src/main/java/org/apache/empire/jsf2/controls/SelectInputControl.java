@@ -217,7 +217,7 @@ public class SelectInputControl extends InputControl
                 if (ObjectUtils.compareEqual(oe.getValue(), currentValue))
                     break;
                 // next oe
-                oe = ioe.next();
+                oe = (ioe.hasNext() ? ioe.next() : null);
             }
             if (oe == null)
             {   // remove obsolete items
