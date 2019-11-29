@@ -674,9 +674,9 @@ public abstract class InputControl
     
     public boolean skipInputValidators()
     {
-        return true;
+        return false;  /* was true: Undo change in order to clarify behaviour */
     }
-
+    
     /**
      * Returns the value formated as a string
      * this is a simple default implementation that does no type-secific formatting
