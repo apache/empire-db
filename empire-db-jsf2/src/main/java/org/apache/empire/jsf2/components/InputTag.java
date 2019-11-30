@@ -55,7 +55,6 @@ public class InputTag extends UIInput implements NamingContainer
     protected InputControl            control              = null;
     protected InputControl.InputInfo  inpInfo              = null;
     protected boolean                 hasRequiredFlagSet   = false;
-    protected boolean                 processingValidators = false;
 
     /*
     private static int itemIdSeq = 0;
@@ -221,29 +220,6 @@ public class InputTag extends UIInput implements NamingContainer
         // done
         return compId;
     }
-    
-    @Override
-    public void processDecodes(FacesContext context) 
-    {
-        if (helper.isInsideUIData())
-        {   // Check input controls
-            if (getChildCount()>0)
-            {   // Set readOnly and disabled for each row
-                boolean readOnly = helper.isRecordReadOnly();
-                setRenderInput(!readOnly);
-                // get control
-                helper.prepareData();
-                if (control==null)
-                    control = helper.getInputControl();
-                if (inpInfo==null)
-                    inpInfo = helper.getInputInfo(context);
-                // update control
-                control.updateInputState(this, inpInfo, context, false);
-            }
-        }
-        // default
-        super.processDecodes(context);
-    }
 
     @Override
     public void setRequired(boolean required)
@@ -282,35 +258,43 @@ public class InputTag extends UIInput implements NamingContainer
         // parse and convert value
         return this.control.getConvertedValue(this, this.inpInfo, newSubmittedValue);
     }
-    
+
     @Override
-    public int getChildCount()
+    public void processDecodes(FacesContext context) 
     {
-        return (processingValidators ? 0 : super.getChildCount());
-    }
-    
-    @Override
-    public int getFacetCount()
-    {
-        return (processingValidators ? 0 : super.getFacetCount());
+        /*
+         * previous code moved to processValidators (below)
+         */
+        super.processDecodes(context);
     }
 
     @Override
     public void processValidators(FacesContext context)
     {
-        try {
-            processingValidators = helper.skipInputValidators();
-            super.processValidators(context);
-        } finally {
-            processingValidators = false;
+        // check UI-Data
+        if (helper.isInsideUIData())
+        {   // Check input controls
+            if (getChildCount()>0)
+            {   // Set readOnly and disabled for each row
+                boolean readOnly = helper.isRecordReadOnly();
+                setRenderInput(!readOnly);
+                // get control
+                helper.prepareData();
+                if (control==null)
+                    control = helper.getInputControl();
+                if (inpInfo==null)
+                    inpInfo = helper.getInputInfo(context);
+                // update control
+                control.updateInputState(this, inpInfo, context, false);
+            }
         }
+        // process all validators (including children)
+        super.processValidators(context);
     }
 
     @Override
     public void validate(FacesContext context)
-    {   // free Validators lock
-        processingValidators = false;
-        // init state
+    {   // init state
         if (initState(context) == false)
             return;
         // get submitted value and validate

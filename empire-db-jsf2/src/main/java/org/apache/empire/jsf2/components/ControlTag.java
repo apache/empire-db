@@ -229,7 +229,6 @@ public class ControlTag extends UIInput implements NamingContainer
     protected boolean                 hasRequiredFlagSet   = false;
     protected boolean                 encodeLabel          = true;
     private boolean                   creatingComponents   = false;
-    protected boolean                 processingValidators = false;
 
     public ControlTag()
     {
@@ -404,42 +403,6 @@ public class ControlTag extends UIInput implements NamingContainer
     }
 
     @Override
-    public void processDecodes(FacesContext context) 
-    {
-        if (helper.isInsideUIData())
-        {   // Check input controls
-            if (getChildCount()>1 && (getChildren().get(1) instanceof InputSeparatorComponent))
-            {   // Make sure all inputs are rendered
-                boolean hasChanged = false;
-                boolean readOnly = helper.isRecordReadOnly();
-                InputSeparatorComponent parent = (InputSeparatorComponent)getChildren().get(1);
-                // set rendered of children
-                for (UIComponent child : parent.getChildren())
-                {   // set rendered 
-                    boolean rendered = (child instanceof ValueOutputComponent) ? readOnly : !readOnly;
-                    if (child.isRendered()!=rendered)
-                    {   child.setRendered(rendered);
-                        hasChanged = true;
-                    }    
-                }
-                // give control chance to update
-                if (hasChanged && log.isDebugEnabled())
-                    log.debug("Changing UIInput readOnly state for {} to {}", helper.getColumnName(), readOnly);
-                // check record
-                helper.prepareData();
-                if (this.control==null)
-                    this.control = helper.getInputControl();
-                if (this.inpInfo==null)
-                    this.inpInfo = helper.getInputInfo(context);
-                // update state
-                this.control.updateInputState(parent, inpInfo, context, false);
-            }
-        }
-        // default
-        super.processDecodes(context);
-    }
-
-    @Override
     public void setRequired(boolean required)
     {
         super.setRequired(required);
@@ -578,35 +541,56 @@ public class ControlTag extends UIInput implements NamingContainer
         ControlSeparatorComponent inputSepTag = (ControlSeparatorComponent) getChildren().get(1);
         return this.control.getConvertedValue(inputSepTag, this.inpInfo, newSubmittedValue);
     }
-    
+
     @Override
-    public int getChildCount()
+    public void processDecodes(FacesContext context) 
     {
-        return (processingValidators ? 0 : super.getChildCount());
-    }
-    
-    @Override
-    public int getFacetCount()
-    {
-        return (processingValidators ? 0 : super.getFacetCount());
+        /*
+         * previous code moved to processValidators (below)
+         */
+        super.processDecodes(context);
     }
 
     @Override
     public void processValidators(FacesContext context)
     {
-        try {
-            processingValidators = helper.skipInputValidators();
-            super.processValidators(context);
-        } finally {
-            processingValidators = false;
+        // check UI-Data
+        if (helper.isInsideUIData())
+        {   // Check input controls
+            if (getChildCount()>1 && (getChildren().get(1) instanceof InputSeparatorComponent))
+            {   // Make sure all inputs are rendered
+                boolean hasChanged = false;
+                boolean readOnly = helper.isRecordReadOnly();
+                InputSeparatorComponent parent = (InputSeparatorComponent)getChildren().get(1);
+                // set rendered of children
+                for (UIComponent child : parent.getChildren())
+                {   // set rendered 
+                    boolean rendered = (child instanceof ValueOutputComponent) ? readOnly : !readOnly;
+                    if (child.isRendered()!=rendered)
+                    {   child.setRendered(rendered);
+                        hasChanged = true;
+                    }    
+                }
+                // give control chance to update
+                if (hasChanged && log.isDebugEnabled())
+                    log.debug("Changing UIInput readOnly state for {} to {}", helper.getColumnName(), readOnly);
+                // check record
+                helper.prepareData();
+                if (this.control==null)
+                    this.control = helper.getInputControl();
+                if (this.inpInfo==null)
+                    this.inpInfo = helper.getInputInfo(context);
+                // update state
+                this.control.updateInputState(parent, inpInfo, context, false);
+            }
         }
+        // process all validators (including children)
+        super.processValidators(context);
     }
 
     @Override
     public void validate(FacesContext context)
-    {   // free Validators lock
-        processingValidators = false;
-        // init state
+    {   // init state
         if (initState(context) == false)
             return;
         // get submitted value and validate

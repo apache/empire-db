@@ -1674,11 +1674,6 @@ public class TagEncodingHelper implements NamingContainer
         return this.insideUIData;
     }
     
-    public boolean skipInputValidators()
-    {
-        return (this.control!=null ? this.control.skipInputValidators() : false);
-    }
-    
     public void saveComponentId(UIComponent comp)
     {
         if (comp==null || comp.getId()==null)
