@@ -225,8 +225,51 @@ public class StringUtils
     {
         if (s1==null || s2==null)
             return (s1==s2);
+        // Empty
+        if (isEmpty(s1) && isEmpty(s2))
+            return true;
         // Compare 
         return (ignoreCase) ? s1.equalsIgnoreCase(s2) : s1.equals(s2);
+    }
+    
+    /**
+     * Compares two Strings with each other - either with or without character case. Both arguments may be null.
+     * @param s1 the first String
+     * @param s2 the second String
+     * @return true if the two strings supplied are equal 
+     */
+    public static boolean compareEqual(String s1, String s2)
+    {
+        if (s1==null || s2==null)
+            return (s1==s2);
+        // Empty
+        if (isEmpty(s1) && isEmpty(s2))
+            return true;
+        // Compare 
+        return s1.equals(s2);
+    }
+    
+    /**
+     * Compares two Strings with each other - either with or without character case. Both arguments may be null.
+     * @param s1 the first String
+     * @param s2 the second String
+     * @param ignoreCase whether to ignore the character casing or not
+     * @return true if the two strings supplied are not equal 
+     */
+    public static boolean compareNotEqual(String s1, String s2, boolean ignoreCase)
+    {
+        return !compareEqual(s1, s2, ignoreCase);
+    }
+    
+    /**
+     * Compares two Strings with each other - either with or without character case. Both arguments may be null.
+     * @param s1 the first String
+     * @param s2 the second String
+     * @return true if the two strings supplied are not equal 
+     */
+    public static boolean compareNotEqual(String s1, String s2)
+    {
+        return !compareEqual(s1, s2);
     }
     
     /**
