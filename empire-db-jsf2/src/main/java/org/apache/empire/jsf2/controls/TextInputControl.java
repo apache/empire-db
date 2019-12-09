@@ -177,13 +177,11 @@ public class TextInputControl extends InputControl
         // Check other types
         if (type == DataType.INTEGER)
         {
-            NumberFormat nf = NumberFormat.getIntegerInstance(ii.getLocale());
-            return parseNumber(value, nf);
+        	return parseInteger(value, ii.getLocale());
         }
         if (type == DataType.DECIMAL || type == DataType.FLOAT)
         {
-            NumberFormat nf = NumberFormat.getNumberInstance(ii.getLocale());
-            return parseNumber(value, nf);
+        	return parseDecimal(value, ii.getLocale());
         }
         if (type == DataType.DATE || type == DataType.DATETIME || type == DataType.TIMESTAMP)
         {
@@ -597,21 +595,27 @@ public class TextInputControl extends InputControl
 
     // ------- value parsing -------
 
-    protected Object parseNumber(String s, NumberFormat nf)
+    protected Object parseInteger(String value, Locale locale)
     {
-        // Try to convert
-        for (int i = 0; i < s.length(); i++)
-        {
-            if (s.charAt(i) >= 'A')
-            {
-                throw new NumberFormatException("Not a number: " + s);
-            }
-        }
+        NumberFormat nf = NumberFormat.getIntegerInstance();
         // Parse String
-        try {
-            return nf.parseObject(s);
+        try
+        {
+            return nf.parseObject(value);
         } catch (ParseException pe) {
-            throw new NumberFormatException("Not a number: " + s + " Exception: " + pe.toString());
+            throw new NumberFormatException("Not a number: " + value + " Exception: " + pe.toString());
+        }        
+    }
+
+    protected Object parseDecimal(String value, Locale locale)
+    {
+        NumberFormat nf = NumberFormat.getNumberInstance(locale);
+        // Parse String
+        try
+        {
+            return nf.parseObject(value);
+        } catch (ParseException pe) {
+            throw new NumberFormatException("Not a number: " + value + " Exception: " + pe.toString());
         }
     }
 
