@@ -392,6 +392,16 @@ public class FacesUtils
         addInfoMessage(fc, null, msg);
     }
 
+    public static void addWarnMessage(FacesContext fc, String clientId, String msg)
+    {
+        fc.addMessage(clientId, new FacesMessage(FacesMessage.SEVERITY_WARN, msg, msg));
+    }
+    
+    public static void addWarnMessage(FacesContext fc, String msg)
+    {
+        addWarnMessage(fc, null, msg);
+    }
+
     public static void addErrorMessage(FacesContext fc, String clientId, String msg)
     {
         fc.addMessage(clientId, new FacesMessage(FacesMessage.SEVERITY_ERROR, msg, msg));
