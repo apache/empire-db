@@ -732,6 +732,18 @@ public abstract class DBDatabase extends DBObject
     }
 
     /**
+     * removes a relation from the list of relations
+     * @param name
+     */
+    public void removeRelation(DBRelation relation)
+    {
+        if (relation==null || relation.getDatabase()!=this)
+            throw new InvalidArgumentException("relation", relation);
+        // remove
+        this.relations.remove(relation);
+    }
+
+    /**
      * Returns the relations which have been defined in the database.
      * 
      * @return db relations.
