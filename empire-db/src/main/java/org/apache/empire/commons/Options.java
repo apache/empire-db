@@ -26,6 +26,7 @@ import java.util.Iterator;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import org.apache.empire.exceptions.InvalidArgumentException;
 import org.apache.empire.xml.XMLUtil;
 import org.w3c.dom.Element;
 
@@ -41,37 +42,54 @@ public class Options extends AbstractSet<OptionEntry> implements Cloneable, Seri
 {
 	private static final long serialVersionUID = 1L;
 
+    private static final String EMPTY_STRING = "";
+
 	public enum InsertPos
     {
         Top, Bottom, Sort
     }
 
-    private static final String EMPTY_STRING = "";
-
-    private ArrayList<OptionEntry> list = new ArrayList<OptionEntry>();
+    private final ArrayList<OptionEntry> list;
     
     public Options()
-    {
-        // Default constructor
+    {   // Default constructor
+        this.list = new ArrayList<OptionEntry>();
     }
     
     public Options(Options other)
     {
+        this.list = new ArrayList<OptionEntry>(other.size());
         this.addAll(other);
+    }
+    
+    public Options(OptionEntry [] entries)
+    {
+        this.list = new ArrayList<OptionEntry>(entries.length);
+        for (int i=0; i<entries.length; i++)
+        {
+            this.add(entries[i]);
+        }
+    }
+    
+    public Options(Class<?> enumType)
+    {   // must be an enum
+        if (enumType==null || !enumType.isEnum())
+            throw new InvalidArgumentException("enumType", enumType);
+        // create options from enum
+        @SuppressWarnings("unchecked")
+        Enum<?>[] items = ((Class<Enum<?>>)enumType).getEnumConstants();
+        this.list = new ArrayList<OptionEntry>(items.length);
+        for (int i=0; i<items.length; i++)
+        {
+            Enum<?> item = items[i];
+            add(item, item.toString(), true);
+        }
     }
 
     @Override
     public Options clone()
     {
         return new Options(this);
-    }
-    
-    public Options(OptionEntry [] entries)
-    {
-        for (int i=0; i<entries.length; i++)
-        {
-            this.add(entries[i]);
-        }
     }
 
     protected int getIndex(Object value)

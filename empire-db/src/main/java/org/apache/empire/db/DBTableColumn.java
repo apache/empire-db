@@ -334,18 +334,9 @@ public class DBTableColumn extends DBColumn
      */
     public void setEnumOptions(Class<?> enumType)
     {
-        if (enumType==null || !enumType.isEnum())
-            throw new InvalidArgumentException("enumType", enumType);
         // Enum special treatment
-        log.debug("Creating options for enum type {}.", enumType.getName());            
-        @SuppressWarnings({ "rawtypes", "unchecked" })
-        Enum<?>[] items = ((Class<Enum>)enumType).getEnumConstants();
-        this.options = new Options();
-        for (int i=0; i<items.length; i++)
-        {
-            Enum<?> item = items[i];
-            options.add(item, item.toString(), true);
-        }
+        log.debug("Adding enum options of type {} for column {}.", enumType.getName(), getName());            
+        this.options = new Options(enumType);
         // set enumType
         setAttribute(Column.COLATTR_ENUMTYPE, enumType);
     }
