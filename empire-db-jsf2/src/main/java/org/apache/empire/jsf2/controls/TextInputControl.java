@@ -238,10 +238,11 @@ public class TextInputControl extends InputControl
         if (options != null && !options.isEmpty())
         { // Check for Options
             String text = options.get(value);
-            if (text != null)
+            if (StringUtils.isNotEmpty(text))
                 return vi.getText(text);
             // Error
-            log.error("The element '" + String.valueOf(value) + "' is not part of the supplied option list.");
+            if (value!=null)
+                TextInputControl.log.error("The element '" + String.valueOf(value) + "' is not part of the supplied option list.");
         }
         // Check Value
         if (value == null)

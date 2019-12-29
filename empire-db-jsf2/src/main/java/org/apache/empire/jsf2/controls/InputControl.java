@@ -698,12 +698,13 @@ public abstract class InputControl
         // Lookup and Print value
         Options options = vi.getOptions();
         if (options != null && !options.isEmpty() && !hasFormatOption(vi, "nolookup"))
-        { // Check for Options
+        {   // Check for Options
             String text = options.get(value);
-            if (text != null)
+            if (StringUtils.isNotEmpty(text))
                 return vi.getText(text);
             // Error
-            InputControl.log.error("The element '" + String.valueOf(value) + "' is not part of the supplied option list.");
+            if (value!=null)
+                InputControl.log.error("The element '" + String.valueOf(value) + "' is not part of the supplied option list.");
         }
         // value
         if (value == null)
