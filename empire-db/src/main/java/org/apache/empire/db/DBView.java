@@ -41,12 +41,17 @@ public abstract class DBView extends DBRowSet
 {
     private final static long serialVersionUID = 1L;
 
+    /**
+     * DBViewColumn
+     * @author doebele
+     */
     public static class DBViewColumn extends DBColumn
     {
         private final static long serialVersionUID = 1L;
       
         protected final DBColumnExpr expr;
         protected final DBColumn     updateColumn;
+        protected final double       size;
 
         /**
          * Constructs a DBViewColumn object set the specified parameters to this object.
@@ -54,18 +59,20 @@ public abstract class DBView extends DBRowSet
          * @param view the DBView object
          * @param expr the DBColumnExpr of the source table
          */
-        protected DBViewColumn(DBView view, String name, DBColumnExpr expr)
+        protected DBViewColumn(DBView view, String name, DBColumnExpr expr, double size)
         { // call base
             super(view, name);
             // set Expression
             this.expr = expr;
             // Update Column
             this.updateColumn = expr.getUpdateColumn();
+            // from update column
+            this.size = (updateColumn!=null ? updateColumn.getSize() : size);
             // Add to view
             if (view != null)
                 view.addColumn(this);
         }
-
+        
         public DBColumnExpr getSourceColumnExpr()
         {
             return expr;
@@ -85,9 +92,7 @@ public abstract class DBView extends DBRowSet
         @Override
         public double getSize()
         {
-            if (updateColumn==null)
-                return 0.0;
-            return updateColumn.getSize();
+            return size;
         }
         
         @Override
@@ -288,7 +293,7 @@ public abstract class DBView extends DBRowSet
      * 
      * @param col a view column object
      */
-    protected void addColumn(DBViewColumn col)
+    void addColumn(DBViewColumn col)
     { // find column by name
         if (col == null || col.getRowSet() != this)
             throw new InvalidArgumentException("col", col);
@@ -303,11 +308,24 @@ public abstract class DBView extends DBRowSet
      * 
      * @param columnName name of the column in the view
      * @param dataType the data type of the column
+     * @param size the size of the column
+     * @return true if the column was successfully added or false otherwise
+     */
+    protected final DBViewColumn addColumn(String columnName, DataType dataType, double size)
+    {   // find column by name
+        return new DBViewColumn(this, columnName, new DBValueExpr(db, null, dataType), size);
+    }
+
+    /**
+     * Adds a column to the view.
+     * 
+     * @param columnName name of the column in the view
+     * @param dataType the data type of the column
      * @return true if the column was successfully added or false otherwise
      */
     protected final DBViewColumn addColumn(String columnName, DataType dataType)
-    { // find column by name
-        return new DBViewColumn(this, columnName, new DBValueExpr(db, null, dataType));
+    {   // find column by name
+        return new DBViewColumn(this, columnName, new DBValueExpr(db, null, dataType), 0.0d);
     }
 
     /**
@@ -318,8 +336,8 @@ public abstract class DBView extends DBRowSet
      * @return true if the column was successfully added or false otherwise
      */
     protected final DBViewColumn addColumn(String columnName, DBColumnExpr columnExpr)
-    { // find column by name
-        return new DBViewColumn(this, columnName, columnExpr);
+    {   // find column by name
+        return new DBViewColumn(this, columnName, columnExpr, 0.0d);
     }
 
     /**
@@ -329,8 +347,8 @@ public abstract class DBView extends DBRowSet
      * @return the view column object
      */
     protected final DBViewColumn addColumn(DBTableColumn sourceColumn)
-    { // find column by name
-        return new DBViewColumn(this, sourceColumn.getName(), sourceColumn);
+    {   // find column by name
+        return new DBViewColumn(this, sourceColumn.getName(), sourceColumn, 0.0d);
     }
 
     /**
