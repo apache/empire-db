@@ -380,10 +380,11 @@ public class DBTable extends DBRowSet implements Cloneable
      * @param enumType  defValue the default value
      * @return the new column object 
      */
-    public final DBTableColumn addColumn(String columnName, DataType type, double size, boolean required, Enum<?> defValue)
+    public final DBTableColumn addColumn(String columnName, DataType type, double size, boolean required, Enum<?> enumValue)
     { 
+        Object defValue = type.isNumeric() ? enumValue.ordinal() : enumValue.name();
         DBTableColumn col = this.crateAndAppendColumn(columnName, type, size, required, defValue);
-        col.setEnumOptions(defValue.getClass());
+        col.setEnumOptions(enumValue.getClass());
         return col;
     }
 
