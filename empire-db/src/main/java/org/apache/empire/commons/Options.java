@@ -94,20 +94,17 @@ public class Options extends AbstractSet<OptionEntry> implements Cloneable, Seri
 
     protected int getIndex(Object value)
     {
-        // Find an Entry
-        if (value instanceof Entry<?,?>)
-            value = ((Entry<?,?>) value).getKey();
         if (value instanceof OptionEntry)
+        {   // already an option entry
+            int index = list.indexOf(value);
+            if (index>=0)
+                return index;
+            // second try
             value = ((OptionEntry) value).getValue();
-        // Find it now
-        int size = list.size();
-        for (int i = 0; i < size; i++)
-        { // Search List for Index
-            Object v = list.get(i).getValue();
-            if (ObjectUtils.compareEqual(value, v))
-                return i;
         }
-        return -1;
+        // find entry
+        OptionEntry oe = getEntry(value);
+        return (oe!=null ? list.indexOf(oe) : -1);
     }
     
     protected OptionEntry createOptionEntry(Object value, String text, boolean active)
@@ -116,21 +113,30 @@ public class Options extends AbstractSet<OptionEntry> implements Cloneable, Seri
     }
 
     public OptionEntry getEntry(Object value)
-    {
-        int i = getIndex(value);
-        return (i >= 0 ? list.get(i) : null);
+    {   // Find an Entry
+        if (value instanceof Entry<?,?>)
+            value = ((Entry<?,?>) value).getKey();
+        if (value instanceof OptionEntry)
+            value = ((OptionEntry) value).getValue();
+        // Find it now
+        for (OptionEntry oe : list)
+        {   // Search List for Index
+            if (oe.valueEquals(value))
+                return oe;
+        }
+        return null;
     }
 
     public String get(Object value)
     {
-        int i = getIndex(value);
-        return (i >= 0 ? list.get(i).getText() : EMPTY_STRING);
+        OptionEntry oe = getEntry(value);
+        return (oe!=null ? oe.getText() : EMPTY_STRING);
     }
 
     public boolean isActive(Object value)
     {
-        int i = getIndex(value);
-        return (i >= 0 ? list.get(i).isActive() : false);
+        OptionEntry oe = getEntry(value);
+        return (oe!=null ? oe.isActive() : false);
     }
 
     /**
@@ -178,11 +184,12 @@ public class Options extends AbstractSet<OptionEntry> implements Cloneable, Seri
         { // text must not be null!
             return;
         }
-        // Find Index
-        int i = getIndex(value);
-        if (i >= 0)
-        { // already present
-            list.get(i).setText(text);
+        // Find Entry
+        OptionEntry oe = getEntry(value);
+        if (oe!=null)
+        {   // already present
+            oe.setText(text);
+            oe.setActive(active);
         } 
         else
         {   // find insert pos
@@ -231,10 +238,9 @@ public class Options extends AbstractSet<OptionEntry> implements Cloneable, Seri
      */
     public void add(Object value, String text, boolean active)
     {
-        int i = getIndex(value);
-        if (i >= 0) 
+        OptionEntry oe = getEntry(value);
+        if (oe!=null)
         {
-            OptionEntry oe = list.get(i);
             oe.setText(text);
             oe.setActive(active);
         }
@@ -251,9 +257,9 @@ public class Options extends AbstractSet<OptionEntry> implements Cloneable, Seri
         { // text must not be null!
             return false;
         }
-        int i = getIndex(option.getValue());
-        if (i >= 0)
-            list.set(i, option);
+        OptionEntry oe = getEntry(option.getValue());
+        if (oe!=null)
+            list.set(getIndex(oe), option);
         else
             list.add(option);
         return true;
@@ -268,12 +274,12 @@ public class Options extends AbstractSet<OptionEntry> implements Cloneable, Seri
     @Override
     public boolean contains(Object value)
     {   // Check if exits
-        return (getIndex(value) >= 0);
+        return (getEntry(value)!=null);
     }
 
     public boolean containsNull()
     {   // Check if exits
-        return (getIndex("") >= 0);
+        return (getEntry("")!=null);
     }
     
     /**
@@ -281,7 +287,7 @@ public class Options extends AbstractSet<OptionEntry> implements Cloneable, Seri
      */
     public boolean exists(Object value)
     {   // Check if exits
-        return (getIndex(value) >= 0);
+        return (getEntry(value)!=null);
     }
     
     @Override
@@ -297,14 +303,14 @@ public class Options extends AbstractSet<OptionEntry> implements Cloneable, Seri
     }
 
     @Override
-    public boolean remove(Object object)
+    public boolean remove(Object value)
     {
         // Check if exits
-        int i = getIndex(object);
-        if (i < 0)
+        OptionEntry oe = getEntry(value);
+        if (oe==null)
             return false; // Element not found
         // remove
-        list.remove(i);
+        list.remove(getIndex(oe));
         return true;
     }
 

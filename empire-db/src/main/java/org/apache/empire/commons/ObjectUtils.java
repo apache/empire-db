@@ -155,6 +155,8 @@ public final class ObjectUtils
         {   // Special enum handling   
             if (o2 instanceof Number)
                 return ((Enum<?>)o1).ordinal()==((Number)o2).intValue();
+            else if (o2 instanceof Character)
+                return ((Enum<?>)o1).name().equals(o2.toString());
             else
                 return ((Enum<?>)o1).name().equals(o2);
         }
@@ -162,6 +164,8 @@ public final class ObjectUtils
         {   // Special enum handling   
             if (o1 instanceof Number)
                 return ((Enum<?>)o2).ordinal()==((Number)o1).intValue();
+            else if (o1 instanceof Character)
+                return ((Enum<?>)o2).name().equals(o1.toString());
             else
                 return ((Enum<?>)o2).name().equals(o1);
         }

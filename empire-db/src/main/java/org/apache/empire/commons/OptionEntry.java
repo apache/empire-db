@@ -52,6 +52,11 @@ public class OptionEntry implements Serializable
         return value;
     }
 
+    public boolean valueEquals(Object value)
+    {
+        return ObjectUtils.compareEqual(this.value, value);
+    }
+
     /**
      * Gets the value as string
      * 
