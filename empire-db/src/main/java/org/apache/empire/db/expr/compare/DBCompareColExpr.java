@@ -18,14 +18,16 @@
  */
 package org.apache.empire.db.expr.compare;
 
+import java.util.Set;
+
 // java
 import org.apache.empire.db.DBCmpType;
 import org.apache.empire.db.DBColumn;
 import org.apache.empire.db.DBColumnExpr;
 import org.apache.empire.db.DBDatabase;
 import org.apache.empire.db.DBExpr;
-
-import java.util.Set;
+import org.apache.empire.db.expr.column.DBAbstractFuncExpr;
+import org.apache.empire.db.expr.column.DBAliasExpr;
 
 
 /**
@@ -253,9 +255,30 @@ public class DBCompareColExpr extends DBCompareExpr
     		DBColumnExpr oexpr = o.getColumnExpr();
     		if (expr.equals(oexpr))
     			return true;
-    		DBColumn col  = expr.getUpdateColumn();
+    		// unwrap
+            DBColumnExpr texpr = expr;
+            if (texpr instanceof DBAliasExpr)
+                texpr = ((DBAliasExpr) texpr).getExpr();
+            if (oexpr instanceof DBAliasExpr)
+                oexpr = ((DBAliasExpr) oexpr).getExpr();
+            // check function expression
+            boolean tfunc = (texpr instanceof DBAbstractFuncExpr);
+            boolean ofunc = (oexpr instanceof DBAbstractFuncExpr); 
+            if (tfunc || ofunc) 
+            {   // check if both are the same
+                if (tfunc && ofunc)
+                {   // both are functions
+                    return ((DBAbstractFuncExpr)texpr).isMutuallyExclusive((DBAbstractFuncExpr)oexpr);
+                }
+                else
+                {   // not the same
+                    return false; 
+                }
+            }
+            // finally check update columns
+    		DBColumn tcol = texpr.getUpdateColumn();
     		DBColumn ocol = oexpr.getUpdateColumn();
-    		return (col!=null) ? (col.equals(ocol)) : false;
+    		return (tcol!=null) ? (tcol.equals(ocol)) : false;
     	}
     	return false;
     }

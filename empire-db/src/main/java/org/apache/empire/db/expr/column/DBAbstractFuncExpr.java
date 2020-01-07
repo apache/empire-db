@@ -146,6 +146,23 @@ public abstract class DBAbstractFuncExpr extends DBColumnExpr
     }
 
     /**
+     * check if other function is the same and applies to the same column 
+     * @param other
+     * @return true if both functions are the same and on the same column or false otherwise
+     */
+    public boolean isMutuallyExclusive(DBAbstractFuncExpr other)
+    {
+        String tname = getFunctionName();
+        String oname = other.getFunctionName();
+        if (StringUtils.compareNotEqual(tname, oname))
+            return false;
+        // check update columns
+        DBColumn tcol = getUpdateColumn();
+        DBColumn ocol = other.getUpdateColumn();
+        return (tcol!=null) ? (tcol.equals(ocol)) : false;
+    }
+
+    /**
      * Creates the SQL-Command adds a function to the SQL-Command.
      * 
      * The sql function string is built from a string template.

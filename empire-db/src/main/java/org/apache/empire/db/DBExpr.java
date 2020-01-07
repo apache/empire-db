@@ -18,14 +18,15 @@
  */
 package org.apache.empire.db;
 
+import java.util.Collection;
+import java.util.Date;
+import java.util.Set;
+
+import org.apache.empire.commons.OptionEntry;
 // java
 import org.apache.empire.data.DataType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.Collection;
-import java.util.Date;
-import java.util.Set;
 
 
 /**
@@ -82,7 +83,13 @@ public abstract class DBExpr extends DBObject
             ((DBExpr) value).addSQL(buf, context);
             return buf.toString();
         } 
-        else if (value!=null && value.getClass().isEnum())
+        // check option entry
+        if (value instanceof OptionEntry)
+        {
+            value = ((OptionEntry)value).getValue();
+        }
+        // check enum
+        if (value!=null && value.getClass().isEnum())
         {   // check enum
             if (dataType.isNumeric())
                 value = ((Enum<?>)value).ordinal();
@@ -90,7 +97,7 @@ public abstract class DBExpr extends DBObject
                 value = ((Enum<?>)value).name();
         }
         else if (value instanceof Collection<?>)
-        {
+        {   // collection 2 array
         	value = ((Collection<?>)value).toArray();
         }
         // Check whether it is an array
