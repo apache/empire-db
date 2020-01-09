@@ -46,6 +46,7 @@ import org.apache.empire.db.exceptions.EmpireSQLException;
 import org.apache.empire.db.exceptions.QueryFailedException;
 import org.apache.empire.db.exceptions.QueryNoResultException;
 import org.apache.empire.db.exceptions.StatementFailedException;
+import org.apache.empire.db.expr.column.DBCaseWhenExpr;
 import org.apache.empire.db.expr.column.DBValueExpr;
 import org.apache.empire.db.expr.compare.DBCompareExpr;
 import org.apache.empire.exceptions.InternalException;
@@ -1699,6 +1700,12 @@ public abstract class DBDatabase extends DBObject
         DataType dataType = detectDataType((trueValue!=null ? trueValue : falseValue)); 
         DBColumnExpr trueExpr = ((trueValue  instanceof DBColumnExpr) ? (DBColumnExpr)trueValue : this.getValueExpr(trueValue, dataType));
         return trueExpr.when(condition, falseValue);
+    }
+    
+    
+    public DBColumnExpr caseWhen(Map<DBCompareExpr, DBColumnExpr> whenMap, DBColumnExpr elseValue)
+    {
+        return new DBCaseWhenExpr(whenMap, elseValue);
     }
 
     /**
