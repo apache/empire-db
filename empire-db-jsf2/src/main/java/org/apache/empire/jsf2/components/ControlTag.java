@@ -688,8 +688,8 @@ public class ControlTag extends UIInput implements NamingContainer
                 log.debug("Changing UIInput readOnly state for {} to {}", helper.getColumnName(), renderInput);
         }
         else
-        {   // Must have at least two children, one for Input and one for Output
-            log.warn("Control-Tag does not have separate Input and Output components");
+        {   // Must have at least two children, for label and input
+            log.warn("Control-Tag does not have separate Label and Input components");
         }
     }
     
