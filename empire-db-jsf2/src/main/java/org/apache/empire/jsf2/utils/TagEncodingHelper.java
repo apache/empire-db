@@ -757,7 +757,7 @@ public class TagEncodingHelper implements NamingContainer
                     if (this.isReadOnly())
                         return;
                     // Column required?
-                    if (column.isRequired() && ObjectUtils.isEmpty(value))
+                    if (ObjectUtils.isEmpty(value) && ((Record) this.record).isFieldRequired(column))
                         return; // Cannot set required value to null
                     // Disable Validation
                     reenableValidation = ((DBRecord)record).isValidateFieldValues();
