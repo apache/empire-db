@@ -545,9 +545,15 @@ public class ControlTag extends UIInput implements NamingContainer
     @Override
     public void processDecodes(FacesContext context) 
     {
-        /*
-         * previous code moved to processValidators (below)
-         */
+        // check UI-Data
+        if (helper.isInsideUIData() && getChildCount()>0)
+        {   // update input state
+            updateControlInputState(context);
+            // render Input or Value component
+            boolean readOnly = helper.isRecordReadOnly();
+            setRenderInput(!readOnly);
+        }
+        // default
         super.processDecodes(context);
     }
 
@@ -555,34 +561,9 @@ public class ControlTag extends UIInput implements NamingContainer
     public void processValidators(FacesContext context)
     {
         // check UI-Data
-        if (helper.isInsideUIData())
-        {   // Check input controls
-            if (getChildCount()>1 && (getChildren().get(1) instanceof InputSeparatorComponent))
-            {   // Make sure all inputs are rendered
-                boolean hasChanged = false;
-                boolean readOnly = helper.isRecordReadOnly();
-                InputSeparatorComponent parent = (InputSeparatorComponent)getChildren().get(1);
-                // set rendered of children
-                for (UIComponent child : parent.getChildren())
-                {   // set rendered 
-                    boolean rendered = (child instanceof ValueOutputComponent) ? readOnly : !readOnly;
-                    if (child.isRendered()!=rendered)
-                    {   child.setRendered(rendered);
-                        hasChanged = true;
-                    }    
-                }
-                // give control chance to update
-                if (hasChanged && log.isDebugEnabled())
-                    log.debug("Changing UIInput readOnly state for {} to {}", helper.getColumnName(), readOnly);
-                // check record
-                helper.prepareData();
-                if (this.control==null)
-                    this.control = helper.getInputControl();
-                if (this.inpInfo==null)
-                    this.inpInfo = helper.getInputInfo(context);
-                // update state
-                this.control.updateInputState(parent, inpInfo, context, false);
-            }
+        if (helper.isInsideUIData() && getChildCount()>0)
+        {   // update input state
+            updateControlInputState(context);
         }
         // process all validators (including children)
         super.processValidators(context);
@@ -673,6 +654,43 @@ public class ControlTag extends UIInput implements NamingContainer
     public boolean isInputRequired()
     {
         return helper.isValueRequired();
+    }
+    
+    protected void updateControlInputState(FacesContext context)
+    {
+        // get control
+        helper.prepareData();
+        if (control==null)
+            control = helper.getInputControl();
+        if (inpInfo==null)
+            inpInfo = helper.getInputInfo(context);
+        // update control
+        control.updateInputState(this, inpInfo, context, false);
+    }
+
+    protected void setRenderInput(boolean renderInput)
+    {
+        if (getChildCount()>1 && (getChildren().get(1) instanceof InputSeparatorComponent))
+        {   // Make sure all inputs are rendered
+            boolean hasChanged = false;
+            InputSeparatorComponent parent = (InputSeparatorComponent)getChildren().get(1);
+            // set rendered of children
+            for (UIComponent child : parent.getChildren())
+            {   // set rendered 
+                boolean rendered = (child instanceof ValueOutputComponent) ? renderInput : !renderInput;
+                if (child.isRendered()!=rendered)
+                {   child.setRendered(rendered);
+                    hasChanged = true;
+                }    
+            }
+            // give control chance to update
+            if (hasChanged && log.isDebugEnabled())
+                log.debug("Changing UIInput readOnly state for {} to {}", helper.getColumnName(), renderInput);
+        }
+        else
+        {   // Must have at least two children, one for Input and one for Output
+            log.warn("Control-Tag does not have separate Input and Output components");
+        }
     }
     
     protected boolean getColon()

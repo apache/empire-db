@@ -262,9 +262,15 @@ public class InputTag extends UIInput implements NamingContainer
     @Override
     public void processDecodes(FacesContext context) 
     {
-        /*
-         * previous code moved to processValidators (below)
-         */
+        // check UI-Data
+        if (helper.isInsideUIData() && getChildCount()>0)
+        {   // update input state
+            updateControlInputState(context);
+            // Set readOnly and disabled for each row
+            boolean readOnly = helper.isRecordReadOnly();
+            setRenderInput(!readOnly);
+        }
+        // default
         super.processDecodes(context);
     }
 
@@ -272,21 +278,9 @@ public class InputTag extends UIInput implements NamingContainer
     public void processValidators(FacesContext context)
     {
         // check UI-Data
-        if (helper.isInsideUIData())
-        {   // Check input controls
-            if (getChildCount()>0)
-            {   // Set readOnly and disabled for each row
-                boolean readOnly = helper.isRecordReadOnly();
-                setRenderInput(!readOnly);
-                // get control
-                helper.prepareData();
-                if (control==null)
-                    control = helper.getInputControl();
-                if (inpInfo==null)
-                    inpInfo = helper.getInputInfo(context);
-                // update control
-                control.updateInputState(this, inpInfo, context, false);
-            }
+        if (helper.isInsideUIData() && getChildCount()>0)
+        {   // update input state
+            updateControlInputState(context);
         }
         // process all validators (including children)
         super.processValidators(context);
@@ -371,6 +365,18 @@ public class InputTag extends UIInput implements NamingContainer
     public boolean isInputRequired()
     {
         return helper.isValueRequired();
+    }
+    
+    protected void updateControlInputState(FacesContext context)
+    {
+        // get control
+        helper.prepareData();
+        if (control==null)
+            control = helper.getInputControl();
+        if (inpInfo==null)
+            inpInfo = helper.getInputInfo(context);
+        // update control
+        control.updateInputState(this, inpInfo, context, false);
     }
 
     protected void setRenderInput(boolean renderInput)
