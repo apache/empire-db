@@ -34,6 +34,7 @@ import javax.faces.component.html.HtmlOutputText;
 import javax.faces.component.html.HtmlPanelGroup;
 import javax.faces.context.FacesContext;
 import javax.faces.context.ResponseWriter;
+import javax.faces.event.PhaseId;
 
 import org.apache.empire.commons.ObjectUtils;
 import org.apache.empire.commons.Options;
@@ -108,11 +109,11 @@ public class TextInputControl extends InputControl
             compList.add(createUnitLabel("eInputHint", ii, hint));
         }
         // update
-        updateInputState(compList, ii, context, true);
+        updateInputState(compList, ii, context, context.getCurrentPhaseId());
     }
 
     @Override
-    protected void updateInputState(List<UIComponent> compList, InputInfo ii, FacesContext context, boolean setValue)
+    protected void updateInputState(List<UIComponent> compList, InputInfo ii, FacesContext context, PhaseId phaseId)
     {
         UIComponent comp = compList.get(0);
         if (!(comp instanceof HtmlInputText))
@@ -132,7 +133,7 @@ public class TextInputControl extends InputControl
             input.setReadonly(ii.isFieldReadOnly());
         }
         // set value
-        if (setValue)
+        if (phaseId==PhaseId.RENDER_RESPONSE)
         {   // style
             addRemoveDisabledStyle(input, (input.isDisabled() || input.isReadonly()));
             addRemoveInvalidStyle(input, ii.hasError());

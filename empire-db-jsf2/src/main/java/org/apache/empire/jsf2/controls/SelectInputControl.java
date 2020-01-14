@@ -26,6 +26,7 @@ import javax.faces.component.UIComponent;
 import javax.faces.component.UISelectItem;
 import javax.faces.component.html.HtmlSelectOneMenu;
 import javax.faces.context.FacesContext;
+import javax.faces.event.PhaseId;
 
 import org.apache.empire.commons.ObjectUtils;
 import org.apache.empire.commons.OptionEntry;
@@ -95,7 +96,7 @@ public class SelectInputControl extends InputControl
     }
     
     @Override
-    protected void updateInputState(List<UIComponent> compList, InputInfo ii, FacesContext context, boolean setValue)
+    protected void updateInputState(List<UIComponent> compList, InputInfo ii, FacesContext context, PhaseId phaseId)
     {
         UIComponent comp = compList.get(0);
         if (!(comp instanceof HtmlSelectOneMenu))
@@ -108,10 +109,12 @@ public class SelectInputControl extends InputControl
         // disabled
         boolean disabled = ii.isDisabled();
         input.setDisabled(disabled);
-        // Options (sync)
-        syncOptions(input, ii.getTextResolver(), ii);
-        // set value
-        if (setValue)
+        // check phase
+        if (phaseId!=PhaseId.APPLY_REQUEST_VALUES)
+        {   // Options (sync)
+            syncOptions(input, ii.getTextResolver(), ii);
+        }
+        if (phaseId==PhaseId.RENDER_RESPONSE)
         {   // style
             addRemoveDisabledStyle(input, input.isDisabled());
             addRemoveInvalidStyle(input, ii.hasError());

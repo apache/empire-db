@@ -31,6 +31,7 @@ import javax.faces.component.UIInput;
 import javax.faces.component.behavior.ClientBehaviorHolder;
 import javax.faces.context.FacesContext;
 import javax.faces.context.ResponseWriter;
+import javax.faces.event.PhaseId;
 
 import org.apache.empire.commons.ObjectUtils;
 import org.apache.empire.commons.Options;
@@ -283,12 +284,12 @@ public abstract class InputControl
         }
     }
     
-    public void updateInputState(UIComponent parent, InputInfo ii, FacesContext context, boolean setValue)
+    public void updateInputState(UIComponent parent, InputInfo ii, FacesContext context, PhaseId phaseId)
     {
         List<UIComponent> cl = parent.getChildren(); 
         if (cl.isEmpty())
             return;
-        updateInputState(cl, ii, context, setValue);
+        updateInputState(cl, ii, context, phaseId);
         // update attached objects
         List<UIComponent> children = parent.getChildren();
         while (!(parent instanceof UIInput))
@@ -542,7 +543,7 @@ public abstract class InputControl
     /* Input helpers */
     protected abstract void createInputComponents(UIComponent parent, InputInfo ii, FacesContext context, List<UIComponent> compList);
 
-    protected abstract void updateInputState(List<UIComponent> compList, InputInfo ii, FacesContext context, boolean setValue);
+    protected abstract void updateInputState(List<UIComponent> compList, InputInfo ii, FacesContext context, PhaseId phaseId);
     
     protected UIInput getInputComponent(UIComponent parent)
     {

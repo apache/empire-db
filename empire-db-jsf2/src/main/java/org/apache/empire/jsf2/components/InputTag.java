@@ -180,7 +180,7 @@ public class InputTag extends UIInput implements NamingContainer
         }
         else
         {   // update state
-            control.updateInputState(this, inpInfo, context, true);
+            control.updateInputState(this, inpInfo, context, context.getCurrentPhaseId());
         }
         
         // set readonly
@@ -376,7 +376,7 @@ public class InputTag extends UIInput implements NamingContainer
         if (inpInfo==null)
             inpInfo = helper.getInputInfo(context);
         // update control
-        control.updateInputState(this, inpInfo, context, false);
+        control.updateInputState(this, inpInfo, context, context.getCurrentPhaseId());
     }
 
     protected void setRenderInput(boolean renderInput)

@@ -29,6 +29,7 @@ import javax.faces.component.UISelectItem;
 import javax.faces.component.html.HtmlSelectOneRadio;
 import javax.faces.context.FacesContext;
 import javax.faces.context.ResponseWriter;
+import javax.faces.event.PhaseId;
 
 import org.apache.empire.commons.ObjectUtils;
 import org.apache.empire.commons.OptionEntry;
@@ -143,7 +144,7 @@ public class RadioInputControl extends InputControl
     }
     
     @Override
-    protected void updateInputState(List<UIComponent> compList, InputInfo ii, FacesContext context, boolean setValue)
+    protected void updateInputState(List<UIComponent> compList, InputInfo ii, FacesContext context, PhaseId phaseId)
     {
         UIComponent comp = compList.get(0);
         if (!(comp instanceof HtmlSelectOneRadio))
@@ -154,13 +155,15 @@ public class RadioInputControl extends InputControl
         // disabled
         boolean disabled = ii.isDisabled();
         input.setDisabled(disabled);
-        // Options (sync)
-        Options options = ii.getOptions();
-        boolean addEmpty = getEmptyEntryRequired(ii, disabled) && !options.containsNull();
-        String nullText = (addEmpty) ? getNullText(ii) : "";
-        syncOptions(input, ii.getTextResolver(), options, addEmpty, nullText);
-        // Set Value
-        if (setValue)
+        // check phase
+        if (phaseId!=PhaseId.APPLY_REQUEST_VALUES)
+        {   // Options (sync)
+            Options options = ii.getOptions();
+            boolean addEmpty = getEmptyEntryRequired(ii, disabled) && !options.containsNull();
+            String nullText = (addEmpty) ? getNullText(ii) : "";
+            syncOptions(input, ii.getTextResolver(), options, addEmpty, nullText);
+        }
+        if (phaseId==PhaseId.RENDER_RESPONSE)
         {   // style
             addRemoveDisabledStyle(input, input.isDisabled());
             addRemoveInvalidStyle(input, ii.hasError());

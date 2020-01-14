@@ -483,7 +483,7 @@ public class ControlTag extends UIInput implements NamingContainer
             }
             else
             {   // Update
-                control.updateInputState(parent, inpInfo, context, true);
+                control.updateInputState(parent, inpInfo, context, context.getCurrentPhaseId());
             }
             // set rendered
             boolean renderValue = helper.isRenderValueComponent();
@@ -665,7 +665,7 @@ public class ControlTag extends UIInput implements NamingContainer
         if (inpInfo==null)
             inpInfo = helper.getInputInfo(context);
         // update control
-        control.updateInputState(this, inpInfo, context, false);
+        control.updateInputState(this, inpInfo, context, context.getCurrentPhaseId());
     }
 
     protected void setRenderInput(boolean renderInput)

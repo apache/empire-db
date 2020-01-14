@@ -25,6 +25,7 @@ import javax.faces.component.UIComponent;
 import javax.faces.component.html.HtmlSelectBooleanCheckbox;
 import javax.faces.context.FacesContext;
 import javax.faces.context.ResponseWriter;
+import javax.faces.event.PhaseId;
 
 import org.apache.empire.commons.ObjectUtils;
 import org.apache.empire.exceptions.InvalidArgumentException;
@@ -82,11 +83,11 @@ public class CheckboxInputControl extends InputControl
         // add
         compList.add(input);
         // set style and value
-        updateInputState(compList, ii, context, true);
+        updateInputState(compList, ii, context, context.getCurrentPhaseId());
     }
 
     @Override
-    protected void updateInputState(List<UIComponent> compList, InputInfo ii, FacesContext context, boolean setValue)
+    protected void updateInputState(List<UIComponent> compList, InputInfo ii, FacesContext context, PhaseId phaseId)
     {
         UIComponent comp = compList.get(0);
         if (!(comp instanceof HtmlSelectBooleanCheckbox))
@@ -97,11 +98,13 @@ public class CheckboxInputControl extends InputControl
         // disabled
         boolean disabled = ii.isDisabled();
         input.setDisabled(disabled);
-        // style
-        addRemoveDisabledStyle(input, input.isDisabled());
-        // set value
-        if (setValue)
+        // check phase
+        if (phaseId==PhaseId.RENDER_RESPONSE)
+        {   // style
+            addRemoveDisabledStyle(input, input.isDisabled());
+            // set value
             setInputValue(input, ii);
+        }
     }
 
     @Override

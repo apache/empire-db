@@ -23,6 +23,7 @@ import java.util.List;
 import javax.faces.component.UIComponent;
 import javax.faces.component.html.HtmlInputText;
 import javax.faces.context.FacesContext;
+import javax.faces.event.PhaseId;
 
 import org.apache.empire.exceptions.InternalException;
 import org.apache.empire.exceptions.UnexpectedReturnValueException;
@@ -64,11 +65,11 @@ public class FileInputControl extends InputControl
         }
         compList.add(input);
         // update
-        updateInputState(compList, ii, context, true);
+        updateInputState(compList, ii, context, context.getCurrentPhaseId());
     }
 
     @Override
-    protected void updateInputState(List<UIComponent> compList, InputInfo ii, FacesContext context, boolean setValue)
+    protected void updateInputState(List<UIComponent> compList, InputInfo ii, FacesContext context, PhaseId phaseId)
     {
         UIComponent comp = compList.get(0);
         if (!(comp instanceof HtmlInputFile))
@@ -79,8 +80,10 @@ public class FileInputControl extends InputControl
         HtmlInputFile input = (HtmlInputFile) comp;
         input.setDisabled(ii.isDisabled());
         // set value
-        if (setValue)
+        if (phaseId==PhaseId.RENDER_RESPONSE)
+        {   // set value
             setInputValue(input, ii);
+        }
     }
 
     public class HtmlInputFile extends HtmlInputText
