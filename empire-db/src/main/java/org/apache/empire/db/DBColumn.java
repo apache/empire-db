@@ -407,6 +407,31 @@ public abstract class DBColumn extends DBColumnExpr
     }
 
     /**
+     * Creates and returns a sql-expression that maps enum values by name or ordinal to their string representation 
+     * 
+     * @return a DBDecodeExpr object
+     */
+    public DBColumnExpr decodeEnum()
+    {
+        return super.decodeEnum(getEnumType(), null, getDataType().isNumeric());
+    }
+
+    /**
+     * Creates and returns a sql-expression that maps enum values from name to ordinal
+     * 
+     * @return a DBDecodeExpr object
+     */
+    public DBColumnExpr decodeSort(boolean defaultToEnd)
+    {
+        if (getDataType().isNumeric())
+        {
+            log.warn("Unnecessary decode for numeric column");
+            return this;
+        }
+        return super.decodeSort(getEnumType(), defaultToEnd);
+    }
+    
+    /**
      * Creates and returns a new DBSetExpr object.
      *
      * @see org.apache.empire.db.expr.set.DBSetExpr

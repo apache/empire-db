@@ -20,6 +20,7 @@ package org.apache.empire.db;
 
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 import org.apache.empire.commons.Attributes;
@@ -41,6 +42,7 @@ import org.apache.empire.db.expr.column.DBValueExpr;
 import org.apache.empire.db.expr.compare.DBCompareColExpr;
 import org.apache.empire.db.expr.compare.DBCompareExpr;
 import org.apache.empire.db.expr.order.DBOrderByExpr;
+import org.apache.empire.exceptions.InvalidArgumentException;
 import org.w3c.dom.Element;
 
 
@@ -1076,6 +1078,57 @@ public abstract class DBColumnExpr extends DBExpr
         return new DBCountExpr(this, true);
     }
 
+    /**
+     * Creates and returns a sql-expression that maps enum values by name or ordinal to their string representation 
+     * 
+     * @param enumType an enumType to decode 
+     * @param otherwise the value to take if no key matches the given expression
+     * @param byOrdinal if true then the ordinal of the enum will be decoded otherwise the name
+     * @return a DBDecodeExpr object
+     */
+    public DBColumnExpr decodeEnum(Class<Enum<?>> enumType, Object otherwise, boolean byOrdinal)
+    {
+        if (enumType==null || !enumType.isEnum())
+            throw new InvalidArgumentException("enumType", enumType);
+        // create map
+        Enum<?>[] items = enumType.getEnumConstants();
+        Map<Object, String> enumMap = new LinkedHashMap<Object, String>(items.length);
+        for (int i=0; i<items.length; i++)
+        {   // key: ordinal (for numeric columns) or name (for CHAR columns)
+            Object key = (byOrdinal ? items[i].ordinal() : items[i].name());
+            enumMap.put(key, items[i].toString());
+        }
+        // Create the decode function
+        return new DBDecodeExpr(this, enumMap, otherwise, DataType.VARCHAR);
+    }
+
+    /**
+     * Creates and returns a sql-expression that maps enum values from name to ordinal
+     * This is useful for sorting.
+     * e.g. cmd.orderBy(SOME_EXPR.decodeSort(MyEnum.class, true) 
+     * 
+     * @param enumType an enumType to decode 
+     * @param defaultToEnd true if non matching values (e.g. NULL) should be assigned the highest number, otherwise they get the lowest number
+     * @return a DBDecodeExpr object
+     */
+    public DBColumnExpr decodeSort(Class<Enum<?>> enumType, boolean defaultToEnd)
+    {
+        if (enumType==null || !enumType.isEnum())
+            throw new InvalidArgumentException("enumType", enumType);
+        // create map
+        Enum<?>[] items = enumType.getEnumConstants();
+        Map<String, Integer> enumMap = new LinkedHashMap<String, Integer>(items.length);
+        int sortOffset = (defaultToEnd ? 0 : 1);
+        for (int i=0; i<items.length; i++)
+        {   
+            int sortValue = items[i].ordinal();
+            enumMap.put(items[i].name(), sortValue + sortOffset);
+        }
+        // Create the decode function
+        int defaultValue = (defaultToEnd ? items.length : 0);
+        return new DBDecodeExpr(this, enumMap, defaultValue, DataType.INTEGER);
+    }
+    
     /**
      * Creates and returns a sql-expression that compares the current column expression with 
      * a list of values and returns the corresponding alternative value.<BR>
