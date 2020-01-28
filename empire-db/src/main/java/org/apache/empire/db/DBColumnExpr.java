@@ -1082,15 +1082,15 @@ public abstract class DBColumnExpr extends DBExpr
      * Creates and returns a sql-expression that maps enum values by name or ordinal to their string representation 
      * 
      * @param enumType an enumType to decode 
-     * @param otherwise the value to take if no key matches the given expression
-     * @param byOrdinal if true then the ordinal of the enum will be decoded otherwise the name
+     * @param otherwise the varchar value to take if no key matches the given expression
      * @return a DBDecodeExpr object
      */
-    public DBColumnExpr decodeEnum(Class<Enum<?>> enumType, Object otherwise, boolean byOrdinal)
+    public DBColumnExpr decodeEnum(Class<Enum<?>> enumType, String otherwise)
     {
         if (enumType==null || !enumType.isEnum())
             throw new InvalidArgumentException("enumType", enumType);
         // create map
+        boolean byOrdinal = getDataType().isNumeric();
         Enum<?>[] items = enumType.getEnumConstants();
         Map<Object, String> enumMap = new LinkedHashMap<Object, String>(items.length);
         for (int i=0; i<items.length; i++)

@@ -413,7 +413,7 @@ public abstract class DBColumn extends DBColumnExpr
      */
     public DBColumnExpr decodeEnum()
     {
-        return super.decodeEnum(getEnumType(), null, getDataType().isNumeric());
+        return super.decodeEnum(getEnumType(), null);
     }
 
     /**
