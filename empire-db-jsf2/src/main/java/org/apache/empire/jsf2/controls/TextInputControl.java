@@ -121,6 +121,8 @@ public class TextInputControl extends InputControl
             throw new UnexpectedReturnValueException(comp.getClass().getName(), "compList.get(0)");
         }
         HtmlInputText input = (HtmlInputText) comp;
+		// required
+		addRemoveStyle(input, " " + InputControl.STYLECLASS_REQUIRED, ii.isRequired());
         // disabled
         Object dis = ii.getAttributeEx("disabled");
         if (dis != null)
