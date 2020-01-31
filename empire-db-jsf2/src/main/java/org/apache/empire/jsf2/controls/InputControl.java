@@ -34,6 +34,7 @@ import javax.faces.context.ResponseWriter;
 import javax.faces.event.PhaseId;
 
 import org.apache.empire.commons.ObjectUtils;
+import org.apache.empire.commons.OptionEntry;
 import org.apache.empire.commons.Options;
 import org.apache.empire.commons.StringUtils;
 import org.apache.empire.data.Column;
@@ -700,9 +701,9 @@ public abstract class InputControl
         Options options = vi.getOptions();
         if (options != null && !options.isEmpty() && !hasFormatOption(vi, "nolookup"))
         {   // Check for Options
-            String text = options.get(value);
-            if (StringUtils.isNotEmpty(text))
-                return vi.getText(text);
+            OptionEntry entry = options.getEntry(value);
+            if (entry!=null)
+                return vi.getText(entry.getText());
             // Error
             if (value!=null)
                 InputControl.log.error("The element '" + String.valueOf(value) + "' is not part of the supplied option list.");
