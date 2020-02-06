@@ -1085,7 +1085,7 @@ public abstract class DBColumnExpr extends DBExpr
      * @param otherwise the varchar value to take if no key matches the given expression
      * @return a DBDecodeExpr object
      */
-    public DBColumnExpr decodeEnum(Class<Enum<?>> enumType, String otherwise)
+    public DBColumnExpr decodeEnum(Class<? extends Enum<?>> enumType, String otherwise)
     {
         if (enumType==null || !enumType.isEnum())
             throw new InvalidArgumentException("enumType", enumType);
@@ -1111,7 +1111,7 @@ public abstract class DBColumnExpr extends DBExpr
      * @param defaultToEnd true if non matching values (e.g. NULL) should be assigned the highest number, otherwise they get the lowest number
      * @return a DBDecodeExpr object
      */
-    public DBColumnExpr decodeSort(Class<Enum<?>> enumType, boolean defaultToEnd)
+    public DBColumnExpr decodeSort(Class<? extends Enum<?>> enumType, boolean defaultToEnd)
     {
         if (enumType==null || !enumType.isEnum())
             throw new InvalidArgumentException("enumType", enumType);
