@@ -56,12 +56,14 @@ public class DBCmdParam extends DBExpr
      * @return the (possibly wrapped) value
      */
     protected Object getCmdParamValue(Object value)
-    {        
+    {
+        // check null
+        if (value == null)
+            return null;
+        // check type
         switch (type)
         {
             case BLOB:
-                if (value == null)
-                    return null;
                 if (value instanceof DBBlobData)
                     return value;
                 if (value instanceof byte[])
@@ -69,8 +71,6 @@ public class DBCmdParam extends DBExpr
                 // create a blob data
                 return new DBBlobData(value.toString());
             case CLOB:
-                if (value == null)
-                    return null;
                 if (value instanceof DBClobData)
                     return value;
                 // create a clob data
@@ -78,6 +78,13 @@ public class DBCmdParam extends DBExpr
             case BOOL:
             	return ObjectUtils.getBoolean(value);
             default:
+                // check for enum
+                if (value.getClass().isEnum())
+                {   // convert enum
+                    Enum<?> enumValue = ((Enum<?>)value);
+                    return (type.isNumeric() ? enumValue.ordinal() : enumValue.name());
+                }
+                // use as is
                 return value;
         }
     }
