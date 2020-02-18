@@ -96,8 +96,17 @@ public class CheckboxInputControl extends InputControl
         }
         HtmlSelectBooleanCheckbox input = (HtmlSelectBooleanCheckbox) comp;
         // disabled
-        boolean disabled = ii.isDisabled();
-        input.setDisabled(disabled);
+        Object dis = ii.getAttributeEx("disabled");
+        if (dis != null)
+        {
+            input.setDisabled(ObjectUtils.getBoolean(dis));
+        }
+        // field-readOnly
+        if (ObjectUtils.getBoolean(dis) == false)
+        {
+            input.setReadonly(ii.isFieldReadOnly());
+            input.setDisabled(ii.isFieldReadOnly());
+        }
         // check phase
         if (phaseId==PhaseId.RENDER_RESPONSE)
         {   // style
