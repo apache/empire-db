@@ -29,9 +29,9 @@ public class FieldValueOutOfRangeException extends FieldValueException
     private static final long serialVersionUID = 1L;
     
     public static final ErrorType outOfRangeErrorType      = new ErrorType("error.db.fieldValueOutOfRange",   "The value supplied for field {0} is out of range.");
-    public static final ErrorType notInRangeErrorType      = new ErrorType("error.db.fieldValueNotInRagen",   "The value supplied for field {0} must be between {1} and {2}.");
-    public static final ErrorType valueTooBigErrorType     = new ErrorType("error.db.fieldValueTooBig",       "The value supplied for field {0} must be less or equal {1}.");
-    public static final ErrorType valueTooSmallErrorType   = new ErrorType("error.db.fieldValueTooSmall",     "The value supplied for field {0} must be more or equal {1}.");
+    public static final ErrorType notInRangeErrorType      = new ErrorType("error.db.fieldValueNotInRange",   "The value supplied for field {0} must be between {1} and {2}.");
+    public static final ErrorType valueTooBigErrorType     = new ErrorType("error.db.fieldValueTooBig",       "The value supplied for field {0} must not be greater than {1}.");
+    public static final ErrorType valueTooSmallErrorType   = new ErrorType("error.db.fieldValueTooSmall",     "The value supplied for field {0} must not be smaller than {1}.");
     
     public FieldValueOutOfRangeException(Column col)
     {
