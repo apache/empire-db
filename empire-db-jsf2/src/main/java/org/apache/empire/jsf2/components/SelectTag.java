@@ -142,6 +142,13 @@ public class SelectTag extends UIInput implements NamingContainer
         }
 
         @Override
+        public boolean isModified()
+        {
+            Object modified = SelectTag.this.getAttributes().get("modified");
+            return (modified!=null ? ObjectUtils.getBoolean(modified) : false);
+        }
+
+        @Override
         public boolean isDisabled()
         {
             return SelectTag.this.isDisabled();

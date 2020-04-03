@@ -105,7 +105,7 @@ public class SelectInputControl extends InputControl
         }
         HtmlSelectOneMenu input = (HtmlSelectOneMenu)comp;
         // required
-    	addRemoveStyle(input, " " + InputControl.STYLECLASS_REQUIRED, ii.isRequired());
+    	addRemoveStyle(input, InputControl.STYLECLASS_REQUIRED, ii.isRequired());
         // disabled
         boolean disabled = ii.isDisabled();
         input.setDisabled(disabled);

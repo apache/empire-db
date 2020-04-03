@@ -78,7 +78,8 @@ public abstract class InputControl
     public static String HTML_EXPR_NBSP = "&nbsp;";
     
     // style classes
-    public static final String STYLECLASS_REQUIRED    = "eInpReq";
+    public static final String STYLECLASS_REQUIRED    = " eInpReq";
+    public static final String STYLECLASS_MODIFIED    = " eInpModified";
 
     public InputControl()
     {
@@ -132,6 +133,8 @@ public abstract class InputControl
 
         boolean isRequired();
 
+        boolean isModified();
+        
         boolean isDisabled(); // disabled or readOnly
 
         boolean isFieldReadOnly(); // not disabled only readOnly (for input[type=text] only!)
@@ -626,7 +629,19 @@ public abstract class InputControl
 
     protected final void copyAttributes(UIComponent parent, InputInfo ii, UIInput input)
     {
-        copyAttributes(parent, ii, input, (ii.isRequired() ? STYLECLASS_REQUIRED : null));
+        String addlStyles = null;
+        if (ii.isRequired())
+        {   // required
+            addlStyles = STYLECLASS_REQUIRED;
+        }
+        if (ii.isModified()) 
+        {   // modified only
+            if (addlStyles==null)
+                addlStyles = STYLECLASS_MODIFIED;
+            else
+                addlStyles+= STYLECLASS_MODIFIED;
+        }
+        copyAttributes(parent, ii, input, addlStyles);
     }
 
     protected void copyAttribute(InputInfo ii, UIInput input, String name)

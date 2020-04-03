@@ -122,7 +122,9 @@ public class TextInputControl extends InputControl
         }
         HtmlInputText input = (HtmlInputText) comp;
 		// required
-		addRemoveStyle(input, " " + InputControl.STYLECLASS_REQUIRED, ii.isRequired());
+		addRemoveStyle(input, InputControl.STYLECLASS_REQUIRED, ii.isRequired());
+        // modified
+        addRemoveStyle(input, InputControl.STYLECLASS_MODIFIED, ii.isModified());
         // disabled
         Object dis = ii.getAttributeEx("disabled");
         if (dis != null)

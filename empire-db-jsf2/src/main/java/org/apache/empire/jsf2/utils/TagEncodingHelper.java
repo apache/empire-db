@@ -78,6 +78,7 @@ import org.slf4j.LoggerFactory;
 
 public class TagEncodingHelper implements NamingContainer
 {
+    private final static String SPACE = " ";
     /**
      * ColumnExprWrapper
      * wraps a ColumnExpr object into a Column interface object
@@ -329,6 +330,12 @@ public class TagEncodingHelper implements NamingContainer
         public boolean isRequired()
         {
             return isValueRequired();
+        }
+
+        @Override
+        public boolean isModified()
+        {
+            return isValueModified();
         }
 
         @Override
@@ -881,6 +888,21 @@ public class TagEncodingHelper implements NamingContainer
             return false;
         // Required
         return getColumn().isRequired();
+    }
+    
+    public boolean isValueModified()
+    {
+        Object modified = getTagAttributeValue("modified");
+        if (modified!=null)
+            return ObjectUtils.getBoolean(modified);
+        // Check Record
+        if ((getRecord() instanceof Record))
+        {   // Ask Record
+            Record r = (Record) record;
+            return r.wasModified(getColumn());
+        }
+        // not detectable
+        return false;
     }
 
     public boolean validateNullValue()
@@ -1523,7 +1545,7 @@ public class TagEncodingHelper implements NamingContainer
 
     protected String completeLabelStyleClass(String styleClass, boolean required)
     {
-        final String LABEL_REQ_STYLE = " "+InputControl.STYLECLASS_REQUIRED;
+        final String LABEL_REQ_STYLE = InputControl.STYLECLASS_REQUIRED;
 
         boolean hasRequired = StringUtils.contains(styleClass, LABEL_REQ_STYLE);
         if (required==hasRequired)
@@ -1568,12 +1590,14 @@ public class TagEncodingHelper implements NamingContainer
         }
         if (StringUtils.isNotEmpty(addlStyle))
         {   // add additional style class
-            b.append(" ");
+            if (!addlStyle.startsWith(SPACE))
+                b.append(SPACE);
             b.append(addlStyle);
         }
         if (StringUtils.isNotEmpty(userStyle) && !StringUtils.compareEqual(userStyle, addlStyle, false))
         {   // add user style class
-            b.append(" ");
+            if (!userStyle.startsWith(SPACE))
+                b.append(SPACE);
             b.append(userStyle);
         }
         return b.toString();
@@ -1653,7 +1677,11 @@ public class TagEncodingHelper implements NamingContainer
         {
             return addlStyle;
         }
-        return addlStyle + " " + contextStyle;
+        if (contextStyle.startsWith(SPACE))
+        {
+            return addlStyle + contextStyle;
+        }
+        return addlStyle + SPACE + contextStyle;
     }
     
     public boolean isInsideUIData()
