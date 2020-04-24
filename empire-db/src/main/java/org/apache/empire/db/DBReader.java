@@ -834,6 +834,9 @@ public class DBReader extends DBRecordData
         this.db = db;
         this.colList = colList;
         this.rset = rset;
+        // clear fieldIndexMap         
+        if (fieldIndexMap!=null)
+            fieldIndexMap.clear();
         // add to tracking list (if enabled)
         trackThisResultSet();
     }

@@ -364,7 +364,7 @@ public class DBModelChecker
 
         if (remoteView == null)
         {
-            handler.itemNotFound(remoteView);
+            handler.itemNotFound(view);
             return;
         }
 
