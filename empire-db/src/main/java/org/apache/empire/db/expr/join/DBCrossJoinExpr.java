@@ -52,7 +52,7 @@ public class DBCrossJoinExpr extends DBJoinExpr
      */
     public DBCrossJoinExpr(DBRowSet left, DBRowSet right)
     {
-        super(DBJoinType.CROSS);
+        super(DBJoinType.FULL);
         this.left = left;
         this.right = right;
     }

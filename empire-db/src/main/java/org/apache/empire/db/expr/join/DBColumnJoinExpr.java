@@ -225,6 +225,7 @@ public class DBColumnJoinExpr extends DBJoinExpr
                 case LEFT:  buf.append(" LEFT JOIN ");break;
                 case INNER: buf.append(" INNER JOIN ");break;
                 case RIGHT: buf.append(" RIGHT JOIN ");break;
+                case FULL:  buf.append(" FULL JOIN ");break;
                 default:    buf.append(" JOIN "); // should not come here!
             }
             right.getUpdateColumn().getRowSet().addSQL(buf, CTX_DEFAULT | CTX_ALIAS);

@@ -23,6 +23,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -420,10 +421,15 @@ public class DBReader extends DBRecordData
         List<Object[]> subqueryParamValues = (cmd instanceof DBCommand) ? findSubQueryParams((DBCommand)cmd) : null;
         if (subqueryParamValues!=null && !subqueryParamValues.isEmpty())
         {   // Check Count
-            if (paramValues!=null || subqueryParamValues.size()>1)
-                throw new MiscellaneousErrorException("More than one (sub)query is a parameterized query. Currently one one query is allowed to be parameterized!"); 
-            // Use subquery params
-            paramValues = subqueryParamValues.get(0);
+            if (paramValues==null)
+            {   // use subquery params
+                paramValues = subqueryParamValues.toArray();
+            }
+            else if (paramValues.length!=subqueryParamValues.size())
+            {   // number of params do not match
+                String msg = MessageFormat.format("Invalid number of parameters query: provided={0}, required={1}; query="+cmd.getSelect(), paramValues.length, subqueryParamValues.size());
+                throw new MiscellaneousErrorException(msg);
+            }
         }
         // Execute the query
         DBDatabase queryDb   = cmd.getDatabase();
