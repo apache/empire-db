@@ -5,6 +5,60 @@ For more Information about a particular issue please visit
 https://issues.apache.org/jira/browse/EMPIREDB
 
 --------------
+Release 2.5.0:
+--------------
+
+** Improvement
+	EMPIREDB-329	Core:	Add full join support for column joins
+	EMPIREDB-328	JSF:	Add css style class to input element if value of input control was modified
+	EMPIREDB-327	JSF:	CheckboxInputControl ignores isFieldReadOnly
+	EMPIREDB-325	JSF:	TextInputControl: required-Styleclass is not updated after ajax call
+	EMPIREDB-324	Core:	Add caseWhen expression for multiple conditions
+	EMPIREDB-322	Core:	Add DataModelChecker for SQL-Server
+	EMPIREDB-321	JSF:	TextInputControl: Improve the ability to implement custom parsing
+	EMPIREDB-319	Core: 	Improve partial record handling
+	EMPIREDB-317	JSF:	Improve TagEncoding inside UIData components
+	EMPIREDB-315	Core:	Extend Options allowing Entries to be active/inactive
+	EMPIREDB-314	Core:	Add support for the SQL format function
+	EMPIREDB-312	JSF:	Allow to customize whether to render the Input or the Value
+	EMPIREDB-311	Core:	Allow Column Expression to be use with ValueTag
+	EMPIREDB-310	JSF:	Improve ParamterMap for request parameter handling
+	EMPIREDB-308	JSF:	WebApplication: Add "destroy"-method
+	EMPIREDB-307	JSF:	Allow overrides of TagEncodingHelper class
+	EMPIREDB-306	JSF:	Improve JSF Taglib support
+	EMPIREDB-305	JSF:	Allow InputControl to render value wrapper tag
+	EMPIREDB-304	Core:	Add isEnum() function to Column indicating whether an Enum-type has been set
+	EMPIREDB-303	Core:	Add support for Unique-Indexes which allow null values
+	EMPIREDB-301	Core:	DBCommandExpr: expose orderBy
+	EMPIREDB-300	JSF:	Problem with prepared statements when using booleans with SelectInputControl
+	EMPIREDB-299	Core:	Improve Oracle update statements using "MERGE INTO"
+	EMPIREDB-298	JSF:	Allow update of required style after Ajax request with SelectInputControl
+	EMPIREDB-296	JSF:	Allow page-specific idParams in ParameterMap
+	EMPIREDB-294	Core:	Allow functions and command expression to be used as record values
+	EMPIREDB-293	Core:	Allow driver to distinguish between DATETIME and TIMESTAMP
+	EMPIREDB-291	Core:	Make table definition for update timestamp simpler
+	EMPIREDB-290	Core:	Provide additional overloads to DBTable.addColumn for Enum value types
+	EMPIREDB-289	Core:	Rename DataType TEXT to VARCHAR to align with SQL specification
+	EMPIREDB-288	JSF:	Provide handler for view not found in web application
+	
+** Bugfix
+	EMPIREDB-326	Core:	Fix DateTime conversion in ObjectUtils
+	EMPIREDB-323	Core:	Fix multiple sql-functions on same column not possible with DBCommand
+	EMPIREDB-320	JSF:	Fix skip default JSF input validation
+	EMPIREDB-318	Core:	Fix field resolution failure for expressions with no UpdateColumn in DBQuery
+	EMPIREDB-316	JSF:	Control-Rendering: distinguish between disabled and readOnly
+	EMPIREDB-313	JSF:	Fix SelectInputControl not working for numeric enum columns
+	EMPIREDB-309	JSF:	Fix JSF-LabelTag must not implement NamingContainter
+	EMPIREDB-302	JSF:	Fix Support for NULL values in CheckboxInputControl
+	EMPIREDB-297	Core:	Fix CodeGenerator failure for NVARCHAR columns in SQL-Server
+	EMPIREDB-295	Core:	Fix incorrect From clause when using function expressions
+	EMPIREDB-286	JSF:	Fix ControlTag using "colon"-Attribute for label rendering
+	EMPIREDB-285	Core:	Fix correctly escape sequence name when dropping tables
+	EMPIREDB-283	Core:	Fix PreparedStatements not working with MS SQL-Server >= 2016
+	EMPIREDB-281	JSF:	Fix Allow modifying options with SelectInputControl in Ajax request
+	EMPIREDB-280	Core:	Fix incorrect validation of null values in DBRecord.setValue
+
+--------------
 Release 2.4.7:
 --------------
 
