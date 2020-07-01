@@ -529,12 +529,13 @@ public abstract class DBRowSet extends DBExpr
         prepareInitRecord(rec, null, insert);
         // Initialize all Fields
         Object[] fields = rec.getFields();
+        /* obsolete
         for (int i = 0; i < fields.length; i++)
             fields[i] = ObjectUtils.NO_VALUE;
+        */    
         // Init Key Values
         if (keyValues != null && primaryKey != null)
-        {
-            // Check Columns
+        {   // Check Columns
             DBColumn[] keyColumns = primaryKey.getColumns();
             for (int i = 0; i < keyColumns.length; i++)
             { // Ignore Validity Checks
