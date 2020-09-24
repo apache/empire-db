@@ -131,7 +131,8 @@ public class DBRecord extends DBRecordData implements Record, Cloneable
             else
             {   // clear fields
                 for (int i=0; i<fields.length; i++)
-                    fields[i]=null; // ObjectUtils.NO_VALUE -> works too (difference?);
+                    if (fields[i]!=ObjectUtils.NO_VALUE)
+                        fields[i]=null;
             }
         }
         // Set State
