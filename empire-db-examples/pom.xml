@@ -34,6 +34,7 @@
 	<modules>
 		<module>empire-db-example-basic</module>
 		<module>empire-db-example-advanced</module>
+		<module>empire-db-example-codegen</module>
 		<module>empire-db-example-cxf</module>
 		<module>empire-db-example-spring</module>
 		<module>empire-db-example-struts2</module>
