@@ -28,18 +28,23 @@ import org.apache.empire.db.DBDatabase;
 #if($preserveRelationNames == true)
 import org.apache.empire.db.DBRelation;
 #end
+#if($nestTables==true && $baseTableClassName.equals('DBTable'))
+import org.apache.empire.db.DBTable;
+#end
 #if($nestTables == true)
 import org.apache.empire.db.DBTableColumn;
+#end
+#if($nestViews==true && $baseViewClassName.equals('DBView'))
+import org.apache.empire.db.DBView;
 #end
 #if($nestViews == true)
 import org.apache.empire.exceptions.NotImplementedException;
 #end
 
-#if($nestTables==false || !($tablePackageName.equalsIgnoreCase($basePackageName)))
+#if($nestTables==false && !($tablePackageName.equalsIgnoreCase($basePackageName)))
 import $tablePackageName.*;
-// $tablePackageName vs $basePackageName 
 #end
-#if($nestViews==false || ($viewPackageName!=$basePackageName))
+#if($nestViews==false && !($viewPackageName.equalsIgnoreCase($basePackageName)))
 import $viewPackageName.*;
 #end
 

@@ -19,8 +19,11 @@
 package ${recordPackageName};
 
 import org.apache.empire.db.DBRecord;
+#if($baseTableClassName.equals('DBTable'))
+import org.apache.empire.db.DBTable;
+#else
 import ${tablePackageName}.${baseTableClassName};
-
+#end
 
 public abstract class ${baseRecordClassName}<T extends ${baseTableClassName}> extends DBRecord {
 

@@ -89,24 +89,23 @@ public class CodeGenWriter {
 	/**
 	 * Constructor
 	 */
-	public CodeGenWriter(CodeGenConfig config) {
-		this.writerService = new WriterService(config);
+	public CodeGenWriter(CodeGenConfig config, WriterService writerService) {
+		this.writerService = writerService;
 		this.config = config;
-		this.engine = new VelocityEngine();
+        this.engine = new VelocityEngine();
 		// we have to keep this in sync with our logging system
 		// http://velocity.apache.org/engine/releases/velocity-1.5/developer-guide.html#simpleexampleofacustomlogger
-		engine.setProperty(RuntimeConstants.RUNTIME_LOG_LOGSYSTEM,
-				new CommonsLogLogChute());
+		engine.setProperty(RuntimeConstants.RUNTIME_LOG_LOGSYSTEM, new CommonsLogLogChute());
 		if(config.getTemplateFolder() == null){
 			engine.setProperty(RuntimeConstants.RESOURCE_LOADER, "classpath");
 			engine.setProperty("classpath." + RuntimeConstants.RESOURCE_LOADER + ".class", ClasspathResourceLoader.class.getName());
-		}else{
+		} else {
 			File templateFolder = new File(config.getTemplateFolder());
 			if(!templateFolder.canRead()){
 				throw new RuntimeException("Provided template folder missing or not readable: " + config.getTemplateFolder());
 			}
 		}
-		
+		// init engine
 		try {
 			engine.init();
 		} catch (Exception e) {
@@ -115,6 +114,14 @@ public class CodeGenWriter {
 		}
 	}
 
+	/**
+	 * Overload using standard WriterService
+	 * @param config
+	 */
+    public CodeGenWriter(CodeGenConfig config) {
+        this(config, new WriterService(config));
+    }
+	
 	/**
 	 * Generates the java code files for the database
 	 * 
@@ -131,25 +138,35 @@ public class CodeGenWriter {
 		generatedFiles.add(this.createDatabaseClass(db));
 
 		// Create base table class
-		generatedFiles.add(this.createBaseTableClass(db));
+        if (config.getTableBaseName().equals("DBTable")==false) {
+            generatedFiles.add(this.createBaseTableClass(db));
+        }    
+
+        // Create base record class
+        if (config.isGenerateRecords()) {
+            generatedFiles.add(this.createBaseRecordClass(db));
+        }    
 		
 		// Create base view class
-		generatedFiles.add(this.createBaseViewClass(db));
-
-		// Create base record class
-		generatedFiles.add(this.createBaseRecordClass(db));
+        if (config.isGenerateViews() && config.getViewBaseName().equals("DBView")==false) {
+    		generatedFiles.add(this.createBaseViewClass(db));
+        }
+        
 		// Create table classes, record interfaces and record classes
 		for (DBTable table : db.getTables()) {
 			if (!config.isNestTables()) {
 				// if table nesting is disabled, create separate table classes 
 				generatedFiles.add(this.createTableClass(db, table));
 			}
-			generatedFiles.add(this.createRecordClass(db, table));
+            if (config.isGenerateRecords()) {
+                // generate record 
+                generatedFiles.add(this.createRecordClass(db, table));
+            }
 		}
 		
 		// Create view classes
 		for (DBView view : db.getViews()) {
-			if (!config.isNestViews()) {
+			if (config.isGenerateViews() && !config.isNestViews()) {
 				// if table nesting is disabled, create separate table classes 
 				generatedFiles.add(this.createViewClass(db, view));
 			}
@@ -170,15 +187,23 @@ public class CodeGenWriter {
 
 		// Clean out the directory so old code is wiped out.
 		FileUtils.cleanDirectory(this.baseDir);
-
+		
+		boolean createTables  = (!config.isNestTables() || !config.getTableBaseName().equals("DBTable"));
+        boolean createViews   = config.isGenerateViews()  && (!config.isNestViews()  || !config.getViewBaseName().equals("DBView"));
+		boolean craeteRecords = config.isGenerateRecords();
+		
+		// createViews
+		if (!createViews)
+            config.setViewPackageName(config.getPackageName());
+		
 		// Create the table package directory
-		this.tableDir = FileUtils.getFileFromPackage(targetDir, config.getTablePackageName());
+		this.tableDir = (createTables ? FileUtils.getFileFromPackage(targetDir, config.getTablePackageName()) : null);
 
 		// Create the record package directory
-		this.recordDir = FileUtils.getFileFromPackage(targetDir, config.getRecordPackageName());
+		this.recordDir = (craeteRecords ? FileUtils.getFileFromPackage(targetDir, config.getRecordPackageName()) : null);
 		
 		// Create the record package directory
-		this.viewDir = FileUtils.getFileFromPackage(targetDir, config.getViewPackageName());
+		this.viewDir = (createViews ? FileUtils.getFileFromPackage(targetDir, config.getViewPackageName()) : null);
 	}
 
 	private File createDatabaseClass(DBDatabase db) {

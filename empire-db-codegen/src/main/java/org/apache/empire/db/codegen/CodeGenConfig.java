@@ -61,6 +61,10 @@ public class CodeGenConfig extends XMLConfiguration {
 	 * flag whether to parse and generate views
 	 */
 	private boolean generateViews = true;
+    /**
+     * flag whether to parse and generate views
+     */
+    private boolean generateRecords = true;
 	/**
 	 * Name of the timestamp column used for optimistic locking (may be null)
 	 * e.g. "UPDATE_TIMESTAMP";
@@ -223,7 +227,12 @@ public class CodeGenConfig extends XMLConfiguration {
 	/**
 	 * true if names of foreign-key-relations should be preserved
 	 */
-	private boolean preserveRelationNames = false; 
+	private boolean preserveRelationNames = false;
+	
+	/**
+	 * classname of the writerService
+	 */
+	private String writerServiceClass;
 
 	/**
 	 * Initialize the configuration.
@@ -331,6 +340,16 @@ public class CodeGenConfig extends XMLConfiguration {
 
     public void setGenerateViews(boolean generateViews) {
         this.generateViews = generateViews;
+    }
+
+    public boolean isGenerateRecords()
+    {
+        return generateRecords;
+    }
+
+    public void setGenerateRecords(boolean generateRecords)
+    {
+        this.generateRecords = generateRecords;
     }
 
     public String getTimestampColumn() {
@@ -516,7 +535,15 @@ public class CodeGenConfig extends XMLConfiguration {
 		this.preserveRelationNames = preserveRelationNames;
 	}
 	
-	private String fallback(String packageName, String defaultSubpackage){
+	public String getWriterServiceClass() {
+        return writerServiceClass;
+    }
+
+    public void setWriterServiceClass(String writerServiceClass)  {
+        this.writerServiceClass = writerServiceClass;
+    }
+
+    private String fallback(String packageName, String defaultSubpackage){
 		String pkg = packageName;
 		if( pkg == null && this.packageName != null){
 			pkg = this.packageName + "." + defaultSubpackage;

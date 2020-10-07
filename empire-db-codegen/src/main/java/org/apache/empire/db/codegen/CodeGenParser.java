@@ -25,6 +25,7 @@ import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Types;
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -117,7 +118,7 @@ public class CodeGenParser {
      * JDBC url, user and password for the connection are obained from the SampleConfig bean
      * Please use the config.xml file to change connection params.
      */
-    private Connection openJDBCConnection(CodeGenConfig config) throws SQLException{
+	protected Connection openJDBCConnection(CodeGenConfig config) throws SQLException{
         log.info("Connecting to Database'" + config.getJdbcURL() + "' / User=" + config.getJdbcUser());
         Connection conn = null;
         try {
@@ -129,13 +130,33 @@ public class CodeGenParser {
         log.info("Connected successfully");
         return conn;
     }
+
+	/**
+	 * Returns whether to add the table or ignore it
+	 * @param tableName
+	 */
+    protected boolean isPopulateTable(String tableName)
+    {
+        if (tableName.indexOf('$') >= 0)
+            return false;
+        return true;
+    }
+    
+    /**
+     * Returns whether to add the column or ignore it
+     * @param columnName
+     */
+    protected boolean isPopulateColumn(String columnName)
+    {
+        return true;
+    }
 	
 	/**
 	 * Queries the metadata of the database for tables and vies and populates the
 	 * database with those
 	 * @throws SQLException 
 	 */
-	private void populateDatabase(DBDatabase db) throws SQLException {
+    protected void populateDatabase(DBDatabase db) throws SQLException {
 		ResultSet tables = null;
 		ArrayList<String> populatedTables=new ArrayList<String>();
 		try{
@@ -160,13 +181,16 @@ public class CodeGenParser {
 	            // Add all tables and views 
 				while (tables.next()) {
 					String tableName = tables.getString("TABLE_NAME");
+			        if (!isPopulateTable(tableName)) {
+                        log.info("Ignoring table " + tableName);
+			            continue;
+			        }
+					// show
 					String tableType = tables.getString("TABLE_TYPE");
-					// Ignore system tables containing a '$' symbol (required for Oracle!)
-					if (tableName.indexOf('$') >= 0) {
-						log.info("Ignoring system table " + tableName);
-						continue;
-					}
-					log.info(tableType + ": " + tableName);
+					String tableSchema = tables.getString("TABLE_SCHEM");
+					String templ = StringUtils.isNotEmpty(tableSchema) ? "{0}: {1} ({2})" : "{0}: {1}"; 
+				    log.info(MessageFormat.format(templ, tableType, tableName, tableSchema));
+					// Table or View
 					if(tableType.equalsIgnoreCase("VIEW")){
 						InMemoryView view = new InMemoryView(tableName, db);
 						populateView(view);
@@ -196,7 +220,7 @@ public class CodeGenParser {
 		}
 	}
 	
-	private void gatherRelations(DBDatabase db, DatabaseMetaData dbMeta, ArrayList<String> tables) throws SQLException{
+    protected void gatherRelations(DBDatabase db, DatabaseMetaData dbMeta, ArrayList<String> tables) throws SQLException{
 		ResultSet relations = null;
 		String fkTableName, pkTableName, fkColName, pkColName, relName;
 		DBTableColumn fkCol, pkCol;
@@ -268,7 +292,7 @@ public class CodeGenParser {
 		}
 	}
 
-	private String getCatalogs(DatabaseMetaData dbMeta) throws SQLException {
+    protected String getCatalogs(DatabaseMetaData dbMeta) throws SQLException {
 		String retVal = "";
 		ResultSet rs = dbMeta.getCatalogs();
 		while (rs.next()) {
@@ -280,7 +304,7 @@ public class CodeGenParser {
 		return retVal;
 	}
 
-	private String getSchemata(DatabaseMetaData dbMeta) throws SQLException {
+    protected String getSchemata(DatabaseMetaData dbMeta) throws SQLException {
 		String retVal = "";
 		ResultSet rs = dbMeta.getSchemas();
 		while (rs.next()) {
@@ -296,7 +320,7 @@ public class CodeGenParser {
 	 * table with that information
 	 * @throws SQLException 
 	 */
-	private void populateTable(DBTable t) throws SQLException {
+    protected void populateTable(DBTable t) throws SQLException {
 		List<String> pkCols = this.findPkColumns(t.getName());
 		String lockColName = config.getTimestampColumn();
 		DBColumn[] keys = new DBColumn[pkCols.size()];
@@ -306,6 +330,8 @@ public class CodeGenParser {
 	        int i=0;
 			while (rs.next()) {
 				DBTableColumn c = addColumn(t, rs, lockColName);
+				if (c==null)
+				    continue;
 				// check if it is a KeyColumn
 				if (pkCols.contains(c.getName()))
 					keys[i++] = c;
@@ -328,7 +354,7 @@ public class CodeGenParser {
 	 * table with that information
 	 * @throws SQLException 
 	 */
-	private void populateView(InMemoryView v) throws SQLException {
+    protected void populateView(InMemoryView v) throws SQLException {
 		ResultSet rs = null;
 		try {
 			rs = dbMeta.getColumns(config.getDbCatalog(), config.getDbSchema(),
@@ -346,7 +372,7 @@ public class CodeGenParser {
 	 * table.
 	 * @throws SQLException 
 	 */
-	private List<String> findPkColumns(String tableName) throws SQLException {
+    protected List<String> findPkColumns(String tableName) throws SQLException {
 		List<String> cols = new ArrayList<String>();
 		ResultSet rs = null;
 		try {
@@ -365,9 +391,15 @@ public class CodeGenParser {
 	 * Adds DBColumn object to the given DBTable. The DBColumn is created from
 	 * the given ResultSet
 	 */
-	private DBTableColumn addColumn(DBTable t, ResultSet rs, String lockColName)
+    protected DBTableColumn addColumn(DBTable t, ResultSet rs, String lockColName)
 			throws SQLException {
-		String name = rs.getString("COLUMN_NAME");
+		
+	    String name = rs.getString("COLUMN_NAME");
+	    if (!isPopulateColumn(name)) {
+            log.info("Ignoring column " + name);
+            return null;
+	    }
+	    
 		DataType empireType = getEmpireDataType(rs.getInt("DATA_TYPE"));
 		double colSize = getColumnSize(empireType, rs.getInt("DATA_TYPE"), rs.getInt("COLUMN_SIZE"));
 

@@ -19,6 +19,9 @@
 #if($nestTables == false)
 package $tablePackageName;
 
+#if($baseTableClassName.equals('DBTable'))
+import org.apache.empire.db.DBTable;
+#end
 import org.apache.empire.data.DataType;
 import org.apache.empire.db.DBTableColumn;
 import $basePackageName.${dbClassName};
@@ -50,8 +53,8 @@ public class $parser.getTableClassName($table.name) extends ${baseTableClassName
 #end
 
 
+#if($table.keyColumns && $table.keyColumns.size()>0)
 		// configure key columns (primary key)
-#if($table.keyColumns.size()>0)
 #if($table.keyColumns.size()==1)
 		setPrimaryKey(${parser.getColumnName($table.keyColumns[0])});
 #else

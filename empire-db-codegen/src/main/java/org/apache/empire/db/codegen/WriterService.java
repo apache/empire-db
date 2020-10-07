@@ -57,7 +57,7 @@ public class WriterService {
 	 * the method names.
 	 * @return the DBRecord method's names
 	 */
-	private Set<String> loadDBRecordMethodNames()
+	protected Set<String> loadDBRecordMethodNames()
 	{
 		Method[] dbrecMethods = DBRecord.class.getMethods();
 		Set<String> names = new HashSet<String>(dbrecMethods.length);
@@ -267,7 +267,7 @@ public class WriterService {
 	/**
 	 * Returns the default value of the given DBColumn.
 	 */
-	public String getDefaultValue(DBColumn c)
+	protected String getDefaultValue(DBColumn c)
 	{
 		DBTableColumn dbC = (DBTableColumn) c;
 		Object val = dbC.getDefaultValue();
@@ -286,7 +286,7 @@ public class WriterService {
 	/**
 	 * Derives a java class name from a database table name.
 	 */
-	private String deriveClassName(String name)
+	protected String deriveClassName(String name)
 	{
 		// PreserverCharacterCase
 		if (config.isPreserverCharacterCase()) {
@@ -328,7 +328,7 @@ public class WriterService {
 	 * @param isBoolean
 	 * @return
 	 */
-	private String deriveAccessorName(String attribute, Class<?> type)
+	protected String deriveAccessorName(String attribute, Class<?> type)
 	{
 		return deriveRecordMethodName(attribute, type, true);
 	}
@@ -339,7 +339,7 @@ public class WriterService {
 	 * so that getter and setter have matching suffixes if one or 
 	 * the other conflicts with an existing method.
 	 */
-	private String deriveRecordMethodName(String attribute, Class<?> type, boolean isGetter) {
+	protected String deriveRecordMethodName(String attribute, Class<?> type, boolean isGetter) {
 		attribute = deriveAttributeName(attribute);
 		StringBuilder attributeName = new StringBuilder();
 		attributeName.append(Character.toUpperCase(attribute.charAt(0)));
@@ -374,7 +374,7 @@ public class WriterService {
 		return attributeName.toString();
 	}
 	
-	private String getGetterPrefix(Class<?> type){
+	protected String getGetterPrefix(Class<?> type){
 		if (type == boolean.class || type == Boolean.class)
 		{
 			return "is";
@@ -391,7 +391,7 @@ public class WriterService {
 	 * @param attribute
 	 * @return
 	 */
-	private String deriveMutatorName(String attribute, Class<?> type)
+	protected String deriveMutatorName(String attribute, Class<?> type)
 	{
 		return deriveRecordMethodName(attribute, type, false);
 	}
@@ -402,8 +402,20 @@ public class WriterService {
 	 * @param attribute
 	 * @return
 	 */
-	private String deriveAttributeName(String column)
+	protected String deriveAttributeName(String column)
 	{
+        // find invalid chars
+        char[] invalidChars = new char[] { '$','#' };
+        for (int i=0; i<invalidChars.length; i++)
+        {   // Remove
+            char c = invalidChars[i];
+            if (column.indexOf(c)>=0)
+                column=StringUtils.remove(column, c);
+        }
+        // replace dash
+        if (column.indexOf('-')>=0)
+            column=column.replace('-','_');
+        // replace space
 		return column.replace(' ', '_');
 	}
 
