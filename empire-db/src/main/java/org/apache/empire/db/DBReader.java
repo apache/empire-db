@@ -418,7 +418,7 @@ public class DBReader extends DBRecordData
         String sqlCmd = cmd.getSelect();
         // Collect the query parameters
         Object[] paramValues = cmd.getParamValues();
-        List<Object[]> subqueryParamValues = (cmd instanceof DBCommand) ? findSubQueryParams((DBCommand)cmd) : null;
+        List<Object> subqueryParamValues = (cmd instanceof DBCommand) ? findSubQueryParams((DBCommand)cmd) : null;
         if (subqueryParamValues!=null && !subqueryParamValues.isEmpty())
         {   // Check Count
             if (paramValues==null)
@@ -905,9 +905,9 @@ public class DBReader extends DBRecordData
      * @param cmd the command
      * @return a list of parameter arrays, one for each subquery
      */
-    protected List<Object[]> findSubQueryParams(DBCommand cmd)
+    protected List<Object> findSubQueryParams(DBCommand cmd)
     {
-        List<Object[]> subQueryParams = null;
+        List<Object> subQueryParams = null;
         List<DBJoinExpr> joins = cmd.getJoins();
         if (joins==null)
             return null;  // no joins
@@ -934,20 +934,21 @@ public class DBReader extends DBRecordData
      * @param list the current list of parameters
      * @return the new list of parameters
      */
-    private List<Object[]> addSubQueryParams(DBQuery query, List<Object[]> list)
+    private List<Object> addSubQueryParams(DBQuery query, List<Object> list)
     {
         DBCommandExpr sqcmd = query.getCommandExpr();
         Object[] params = query.getCommandExpr().getParamValues();
         if (params!=null && params.length>0)
         {   // add params
             if (list== null)
-                list = new ArrayList<Object[]>();
-            list.add(params);    
+                list = new ArrayList<Object>();
+            for (Object p : params)
+                list.add(p);    
         }
         // recurse
         if (sqcmd instanceof DBCommand)
         {   // check this command too
-            List<Object[]> sqlist = findSubQueryParams((DBCommand)sqcmd);
+            List<Object> sqlist = findSubQueryParams((DBCommand)sqcmd);
             if (sqlist!=null && !sqlist.isEmpty())
             {   // make one list
                 if (list!= null)
