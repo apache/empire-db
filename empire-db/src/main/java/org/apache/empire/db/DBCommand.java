@@ -42,6 +42,7 @@ import org.apache.empire.db.expr.join.DBCrossJoinExpr;
 import org.apache.empire.db.expr.join.DBJoinExpr;
 import org.apache.empire.db.expr.set.DBSetExpr;
 import org.apache.empire.exceptions.InternalException;
+import org.apache.empire.exceptions.InvalidArgumentException;
 import org.apache.empire.exceptions.MiscellaneousErrorException;
 import org.apache.empire.exceptions.ObjectNotValidException;
 import org.slf4j.Logger;
@@ -506,6 +507,10 @@ public abstract class DBCommand extends DBCommandExpr
     public void join(DBJoinExpr join)
     {
         checkDatabase(join);
+        // check tables
+        if (join.getLeftTable().equals(join.getRightTable()))
+            throw new InvalidArgumentException("left|right", join.getLeftTable());
+        // create list
         if (joins == null)
             joins = new ArrayList<DBJoinExpr>();
         // Create a new join
@@ -542,7 +547,7 @@ public abstract class DBCommand extends DBCommandExpr
      */
     public final DBColumnJoinExpr join(DBColumnExpr left, DBColumnExpr right, DBJoinType joinType)
     {
-        DBColumnJoinExpr join = new DBColumnJoinExpr(left, right, joinType); 
+        DBColumnJoinExpr join = new DBColumnJoinExpr(left, right, joinType);
         join(join);
         return join;
     }

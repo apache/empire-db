@@ -27,6 +27,7 @@ import org.apache.empire.db.DBDatabase;
 import org.apache.empire.db.DBJoinType;
 import org.apache.empire.db.DBRowSet;
 import org.apache.empire.db.expr.compare.DBCompareExpr;
+import org.apache.empire.exceptions.InvalidPropertyException;
 
 public class DBColumnJoinExpr extends DBJoinExpr
 {
@@ -84,7 +85,10 @@ public class DBColumnJoinExpr extends DBJoinExpr
     @Override
     public DBRowSet getLeftTable()
     {
-        return left.getUpdateColumn().getRowSet();
+        DBColumn col = left.getUpdateColumn();
+        if (col==null)
+            throw new InvalidPropertyException("left", left);
+        return col.getRowSet();
     }
     
     /**
@@ -93,7 +97,10 @@ public class DBColumnJoinExpr extends DBJoinExpr
     @Override
     public DBRowSet getRightTable()
     {
-        return right.getUpdateColumn().getRowSet();
+        DBColumn col = right.getUpdateColumn();
+        if (col==null)
+            throw new InvalidPropertyException("right", right);
+        return col.getRowSet();
     }
     
     /**
@@ -104,11 +111,8 @@ public class DBColumnJoinExpr extends DBJoinExpr
     {
         if (rowset==null)
             return false;
-        DBColumn l = (left !=null ? left .getUpdateColumn() : null);
-        DBColumn r = (right!=null ? right.getUpdateColumn() : null);
-        DBRowSet rsl = (l!=null ? l.getRowSet() : null);
-        DBRowSet rsr = (r!=null ? r.getRowSet() : null);
-        return rowset.equals(rsl) || rowset.equals(rsr);
+        // compare rowsets
+        return rowset.equals(getLeftTable()) || rowset.equals(getRightTable());
     }
     
     /**
@@ -145,8 +149,8 @@ public class DBColumnJoinExpr extends DBJoinExpr
     {
         switch(type)
         {
-            case LEFT:  return right.getUpdateColumn().getRowSet();
-            case RIGHT: return left .getUpdateColumn().getRowSet();
+            case LEFT:  return getRightTable();
+            case RIGHT: return getLeftTable();
             default:    return null; // no outer table!
         }
     }
@@ -216,8 +220,9 @@ public class DBColumnJoinExpr extends DBJoinExpr
     @Override
     public void addSQL(StringBuilder buf, long context)
     {
+        // left 
         if ((context & CTX_NAME) != 0)
-            left.getUpdateColumn().getRowSet().addSQL(buf, CTX_DEFAULT | CTX_ALIAS);
+            getLeftTable().addSQL(buf, CTX_DEFAULT | CTX_ALIAS);
         if ((context & CTX_VALUE) != 0)
         { // Join Type
             switch(type)
@@ -228,7 +233,7 @@ public class DBColumnJoinExpr extends DBJoinExpr
                 case FULL:  buf.append(" FULL JOIN ");break;
                 default:    buf.append(" JOIN "); // should not come here!
             }
-            right.getUpdateColumn().getRowSet().addSQL(buf, CTX_DEFAULT | CTX_ALIAS);
+            getRightTable().addSQL(buf, CTX_DEFAULT | CTX_ALIAS);
             // compare equal
             buf.append(" ON ");
             right.addSQL(buf, CTX_DEFAULT);

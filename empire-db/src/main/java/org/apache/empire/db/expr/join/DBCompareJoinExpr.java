@@ -85,8 +85,9 @@ public class DBCompareJoinExpr extends DBColumnJoinExpr
     @Override
     public void addSQL(StringBuilder buf, long context)
     {
+        // left 
         if ((context & CTX_NAME) != 0)
-            left.getUpdateColumn().getRowSet().addSQL(buf, CTX_DEFAULT | CTX_ALIAS);
+            getLeftTable().addSQL(buf, CTX_DEFAULT | CTX_ALIAS);
         if ((context & CTX_VALUE) != 0)
         { // Join Type
             switch(type)
@@ -96,7 +97,7 @@ public class DBCompareJoinExpr extends DBColumnJoinExpr
                 case RIGHT: buf.append(" RIGHT JOIN ");break;
                 default:    buf.append(" JOIN "); // should not come here!
             }
-            right.getUpdateColumn().getRowSet().addSQL(buf, CTX_DEFAULT | CTX_ALIAS);
+            getRightTable().addSQL(buf, CTX_DEFAULT | CTX_ALIAS);
             // compare equal
             buf.append(" ON ");
             cmp.addSQL(buf, CTX_DEFAULT);
