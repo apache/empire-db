@@ -240,7 +240,7 @@ public class TextInputControl extends InputControl
     {
         // Lookup and Print value
         Options options = vi.getOptions();
-        if (options != null && !options.isEmpty())
+        if (options != null && !options.isEmpty() && !hasFormatOption(vi, "nolookup"))
         { // Check for Options
             String text = options.get(value);
             if (StringUtils.isNotEmpty(text))
