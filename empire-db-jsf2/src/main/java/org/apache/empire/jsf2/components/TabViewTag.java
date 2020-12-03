@@ -156,16 +156,23 @@ public class TabViewTag extends UIOutput implements NamingContainer
         this.helper.writeAttribute(writer, InputControl.HTML_ATTR_STYLE, this.helper.getTagAttributeString("style"));
 
         // The Tabs
-        writer.startElement(InputControl.HTML_TAG_TABLE, this);
-        writer.writeAttribute(InputControl.HTML_ATTR_CLASS, "eTabBar", null);
-        writer.startElement(InputControl.HTML_TAG_TR, this);
-        encodeTabs(context, writer);
-        writer.startElement(InputControl.HTML_TAG_TD, this);
-        writer.writeAttribute(InputControl.HTML_ATTR_CLASS, "eTabBarEmpty", null);
-        writer.endElement(InputControl.HTML_TAG_TD);
-        writer.endElement(InputControl.HTML_TAG_TR);
-        writer.endElement(InputControl.HTML_TAG_TABLE);
-
+        if (ObjectUtils.getBoolean(this.helper.getTagAttributeValue("hideTabBar")))
+        {   // hideTabs
+            encodeTabs(context, null);
+        }
+        else
+        {   // showTabs
+            writer.startElement(InputControl.HTML_TAG_TABLE, this);
+            writer.writeAttribute(InputControl.HTML_ATTR_CLASS, "eTabBar", null);
+            writer.startElement(InputControl.HTML_TAG_TR, this);
+            encodeTabs(context, writer);
+            writer.startElement(InputControl.HTML_TAG_TD, this);
+            writer.writeAttribute(InputControl.HTML_ATTR_CLASS, "eTabBarEmpty", null);
+            writer.endElement(InputControl.HTML_TAG_TD);
+            writer.endElement(InputControl.HTML_TAG_TR);
+            writer.endElement(InputControl.HTML_TAG_TABLE);
+        }
+        
         // The Pages
         writer.startElement(InputControl.HTML_TAG_TABLE, this);
         writer.writeAttribute(InputControl.HTML_ATTR_CLASS, "eTabPanel", null);
@@ -257,23 +264,25 @@ public class TabViewTag extends UIOutput implements NamingContainer
                 page.setRendered(false);
                 continue;
             }
-
-            boolean disabled = ObjectUtils.getBoolean(TagEncodingHelper.getTagAttributeValue(page, "disabled"));
-            writer.startElement(InputControl.HTML_TAG_TD, this);
-            // tab label
-            String styleClass = "eTabLabel";
-            if (active)
-            {
-                styleClass += " eTabActive";
+            if (writer!=null)
+            {   // encode Tab
+                boolean disabled = ObjectUtils.getBoolean(TagEncodingHelper.getTagAttributeValue(page, "disabled"));
+                writer.startElement(InputControl.HTML_TAG_TD, this);
+                // tab label
+                String styleClass = "eTabLabel";
+                if (active)
+                {
+                    styleClass += " eTabActive";
+                }
+                else if (disabled)
+                {
+                    styleClass += " eTabDisabled";
+                }
+                writer.writeAttribute(InputControl.HTML_ATTR_CLASS, styleClass, null);
+                // encode Link
+                encodeTabLink(context, writer, index, page, (active || disabled));
+                writer.endElement(InputControl.HTML_TAG_TD);
             }
-            else if (disabled)
-            {
-                styleClass += " eTabDisabled";
-            }
-            writer.writeAttribute(InputControl.HTML_ATTR_CLASS, styleClass, null);
-            // encode Link
-            encodeTabLink(context, writer, index, page, (active || disabled));
-            writer.endElement(InputControl.HTML_TAG_TD);
             // set rendered
             page.setRendered(active);
             // next
