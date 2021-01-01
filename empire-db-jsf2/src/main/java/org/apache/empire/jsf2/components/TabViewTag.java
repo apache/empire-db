@@ -157,11 +157,11 @@ public class TabViewTag extends UIOutput implements NamingContainer
 
         // The Tabs
         if (ObjectUtils.getBoolean(this.helper.getTagAttributeValue("hideTabBar")))
-        {   // hideTabs
+        {   // hide bar
             encodeTabs(context, null);
         }
         else
-        {   // showTabs
+        {   // show bar
             writer.startElement(InputControl.HTML_TAG_TABLE, this);
             writer.writeAttribute(InputControl.HTML_ATTR_CLASS, "eTabBar", null);
             writer.startElement(InputControl.HTML_TAG_TR, this);
