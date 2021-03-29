@@ -359,7 +359,7 @@ public abstract class DBCommand extends DBCommandExpr
     protected boolean useCmdParam(DBColumn col, Object value)
     {
         // Cannot wrap DBExpr or DBSystemDate
-        if (value instanceof DBExpr || value instanceof DBDatabase.DBSystemDate)
+        if (value==null || value instanceof DBExpr || value instanceof DBDatabase.DBSystemDate)
             return false;
         // Check if prepared statements are enabled
         if (isPreparedStatementsEnabled())
