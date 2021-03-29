@@ -58,7 +58,7 @@ A:hover { text-decoration:underline;}
 	padding: 8px;
 	padding-left: 24px;
 }
-#messages ul li {
+#messages ul > li {
 	padding: 4px 0;
 /*
 	padding-left:18px;

@@ -33,7 +33,6 @@ import java.util.Vector;
 
 import org.apache.empire.commons.StringUtils;
 import org.apache.empire.data.DataType;
-import org.apache.empire.db.exceptions.DatabaseMismatchException;
 import org.apache.empire.db.expr.compare.DBCompareColExpr;
 import org.apache.empire.db.expr.compare.DBCompareExpr;
 import org.apache.empire.db.expr.join.DBColumnJoinExpr;
@@ -288,7 +287,6 @@ public abstract class DBCommand extends DBCommandExpr
      */
     public void select(DBColumnExpr expr)
     {   // Select this column
-        checkDatabase(expr);
         if (select == null)
             select = new ArrayList<DBColumnExpr>();
         if (expr != null && select.contains(expr) == false)
@@ -378,7 +376,6 @@ public abstract class DBCommand extends DBCommandExpr
      */
     public void set(DBSetExpr expr)
     {
-        checkDatabase(expr);
         if (set == null)
             set = new ArrayList<DBSetExpr>();
         for (int i = 0; i < set.size(); i++)
@@ -506,7 +503,6 @@ public abstract class DBCommand extends DBCommandExpr
      */
     public void join(DBJoinExpr join)
     {
-        checkDatabase(join);
         // check tables
         if (join.getLeftTable().equals(join.getRightTable()))
             throw new InvalidArgumentException("left|right", join.getLeftTable());
@@ -735,7 +731,6 @@ public abstract class DBCommand extends DBCommandExpr
      */
     public void where(DBCompareExpr expr)
     {
-        checkDatabase(expr);
         if (where == null)
             where = new ArrayList<DBCompareExpr>();
         setConstraint(where, expr);
@@ -813,7 +808,6 @@ public abstract class DBCommand extends DBCommandExpr
      */
     public void having(DBCompareExpr expr)
     {
-        checkDatabase(expr);
         if (having == null)
             having = new ArrayList<DBCompareExpr>();
         setConstraint(having, expr);
@@ -862,7 +856,6 @@ public abstract class DBCommand extends DBCommandExpr
         // Add all
         for(DBColumnExpr expr : exprs)
         {
-            checkDatabase(expr);
             if (expr.isAggregate()==false && groupBy.contains(expr)==false)
                 groupBy.add(expr);
         }
@@ -1351,14 +1344,6 @@ public abstract class DBCommand extends DBCommandExpr
             buf.append("\r\nORDER BY ");
             addListExpr(buf, orderBy, CTX_DEFAULT, ", ");
         }
-    }
-     
-    protected void checkDatabase(DBExpr expr)
-    {
-        if (getDatabase().equals(expr.getDatabase()))
-            return;
-        // not the same database
-        throw new DatabaseMismatchException(this, expr);
     }
    
 }
