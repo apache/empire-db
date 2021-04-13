@@ -27,6 +27,7 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.empire.commons.Options;
+import org.apache.empire.commons.StringUtils;
 import org.apache.empire.data.DataMode;
 import org.apache.empire.data.DataType;
 import org.apache.empire.db.DBIndex.DBIndexType;
@@ -153,50 +154,83 @@ public class DBTable extends DBRowSet implements Cloneable
      * @return a table clone with new table alias
      */
     @Override
-    public Object clone() throws CloneNotSupportedException {
+    public Object clone() throws CloneNotSupportedException 
+    {
+        DBTable clone = (DBTable) super.clone();
+        initClonedFields(clone);
+        // set new alias
+        clone.alias = "t" + String.valueOf(tableCount.incrementAndGet());
+        // done
+        log.info("clone: Table " + name + " cloned! Alias old=" + alias + " new=" + clone.alias);
+        return clone;
+    }
+    
+    public <T extends DBTable> T clone(String newAlias) 
+    {
         try {
             DBTable clone = (DBTable) super.clone();
-            // clone all columns
-            Class<?> colClass = columns.get(0).getClass();
-            Class<?> colBase = colClass.getSuperclass();
-            clone.columns = new ArrayList<DBColumn>();
-            Field[] fields = getClass().getFields();
-            for (int i = 0; i < columns.size(); i++)
-            {
-                DBTableColumn srcCol = (DBTableColumn) columns.get(i);
-                DBTableColumn newCol = new DBTableColumn(clone, srcCol);
-                // Replace all references for oldCol to newCol
-                for (int j = 0; j < fields.length; j++)
-                { // Find a class of Type DBColumn or DBTableColumn
-                    Class<?> type = fields[j].getType();
-                    if (type == colClass || type == colBase)
-                    {
-                        try
-                        {   // Check if the field points to the old Value
-                            if (fields[j].get(clone) == srcCol)
-                              fields[j].set(clone, newCol);
-                        } catch (Exception e)  {
-                            // IllegalAccessException or IllegalArgumentException
-                            String fieldName = fields[j].getName();
-                            log.error("Cannot adjust declared table field: " + fieldName + ". Reason is: " + e.getMessage());
-                            // throw CloneNotSupportedException
-                            CloneNotSupportedException cnse = new CloneNotSupportedException("Unable to replace field reference for field " + fieldName);
-                            cnse.initCause(e);
-                            throw cnse;
-                        }
-                    }
-                }
-            }
+            initClonedFields(clone);
             // set new alias
-            clone.alias = "t" + String.valueOf(tableCount.incrementAndGet());
+            if (StringUtils.isEmpty(newAlias))
+                clone.alias = "t" + String.valueOf(tableCount.incrementAndGet());
+            else
+                clone.alias = newAlias;
             // done
             log.info("clone: Table " + name + " cloned! Alias old=" + alias + " new=" + clone.alias);
-            return clone;
-
+            return (T)clone;
         } catch (CloneNotSupportedException e) {
             // unable to clone table
             log.error("Unable to clone table " + getName());
             throw new RuntimeException(e);
+        }
+    }
+    
+    protected <T extends DBTable> void initClonedFields(T clone) throws CloneNotSupportedException
+    {
+        // clone all columns
+        Class<?> colClass = columns.get(0).getClass();
+        Class<?> colBase = colClass.getSuperclass();
+        clone.columns = new ArrayList<DBColumn>();
+        Field[] fields = getClass().getFields();
+        for (int i = 0; i < columns.size(); i++)
+        {
+            DBTableColumn srcCol = (DBTableColumn) columns.get(i);
+            DBTableColumn newCol = new DBTableColumn(clone, srcCol);
+            // Replace all references for oldCol to newCol
+            for (int j = 0; j < fields.length; j++)
+            {   // Find a class of Type DBColumn or DBTableColumn
+                Field f = fields[j];
+                Class<?> type = f.getType();
+                if (type == colClass || type == colBase)
+                {   try
+                    {   // Check if the field points to the old Value
+                        if (f.get(clone) == srcCol)
+                        {   // Check accessible
+                            if (f.isAccessible()==false) 
+                            {   // not accessible
+                                f.setAccessible(true);
+                                try {
+                                    f.set(clone, newCol);
+                                } finally {
+                                    f.setAccessible(false);
+                                }
+                            }
+                            else
+                            {   // already accessible
+                                f.set(clone, newCol);
+                            }
+                        }
+                    } catch (Exception e)  {
+                        // IllegalAccessException or IllegalArgumentException
+                        String fieldName = fields[j].getName();
+                        log.error("Failed to modify declared table field: " + fieldName + ". Reason is: " + e.toString());
+                        // throw CloneNotSupportedException
+                        CloneNotSupportedException cnse = new CloneNotSupportedException("Unable to replace field reference for field " + fieldName);
+                        cnse.initCause(e);
+                        throw cnse;
+                    }
+                }
+            }
         }
     }
 
