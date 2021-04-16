@@ -36,6 +36,11 @@ public class DBParenthesisExpr extends DBCompareExpr
     {
         this.wrap = wrap;
     }
+    
+    public DBCompareExpr getWrapped()
+    {
+        return wrap;
+    }
 
     @Override
     public DBDatabase getDatabase()

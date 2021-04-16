@@ -440,6 +440,15 @@ public abstract class DBCommand extends DBCommandExpr
     }
 
     /**
+     * Returns all set expressions as unmodifiable list
+     * @return the list of DBSetExpr used for set
+     */
+    public List<DBSetExpr> getSetExpressions()
+    {
+        return (this.set!=null ? Collections.unmodifiableList(this.set) : null);
+    }
+
+    /**
      * Adds an command parameter which will be used in a prepared statement.
      * The command parameter returned may be used to alter the value.
      * 
@@ -898,9 +907,9 @@ public abstract class DBCommand extends DBCommandExpr
     }
     
     /**
-     * Returns a array of all select DBColumnExpr for this command 
+     * Returns an array of all select expressions
      * 
-     * @return a array of all DBColumnExpr objects or <code>null</code> if there are no selects
+     * @return an array of all DBColumnExpr objects or <code>null</code> if there is nothing to select
      */
     @Override
     public DBColumnExpr[] getSelectExprList()
@@ -914,6 +923,15 @@ public abstract class DBCommand extends DBCommandExpr
             exprList[i] = select.get(i);
         // The expression List
         return exprList;
+    }
+
+    /**
+     * Returns all select expressions as unmodifiable list
+     * @return the list of DBColumnExpr used for select
+     */
+    public List<DBColumnExpr> getSelectExpressions()
+    {
+        return (this.select!=null ? Collections.unmodifiableList(this.select) : null);
     }
 
     /**

@@ -25,6 +25,7 @@ import org.apache.empire.db.DBRowSet;
 import org.apache.empire.db.expr.compare.DBCompareAndOrExpr;
 import org.apache.empire.db.expr.compare.DBCompareColExpr;
 import org.apache.empire.db.expr.compare.DBCompareExpr;
+import org.apache.empire.db.expr.compare.DBParenthesisExpr;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -45,9 +46,12 @@ public class DBCompareJoinExpr extends DBColumnJoinExpr
     
     private static DBColumnExpr findFirstColumn(DBCompareExpr expr)
     {
-        // DBCompareORExpr 
-        while (expr instanceof DBCompareAndOrExpr)
-               expr = ((DBCompareAndOrExpr)expr).getLeft();
+        // DBParenthesisExpr
+        if (expr instanceof DBParenthesisExpr)
+            return findFirstColumn(((DBParenthesisExpr)expr).getWrapped());
+        // DBCompareORExpr
+        if (expr instanceof DBCompareAndOrExpr)
+            return findFirstColumn(((DBCompareAndOrExpr)expr).getLeft());
         // Get Colum Expr
         if (expr instanceof DBCompareColExpr)
             return ((DBCompareColExpr)expr).getColumnExpr();
