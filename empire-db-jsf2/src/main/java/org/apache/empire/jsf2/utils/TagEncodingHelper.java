@@ -363,6 +363,10 @@ public class TagEncodingHelper implements NamingContainer
                 Record r = (Record) record;
                 return r.isFieldReadOnly(getColumn());
             }
+            // override 
+            Object val = getTagAttributeValue("readonly");
+            if (val!=null)
+                return ObjectUtils.getBoolean(val);
             // column
             return getColumn().isReadOnly();
         }
