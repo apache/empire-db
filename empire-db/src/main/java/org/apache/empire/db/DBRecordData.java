@@ -93,6 +93,25 @@ public abstract class DBRecordData extends DBObject
     }
 
     /**
+     * Returns an array of values for the given column expressions
+     * 
+     * @param column the column expressions
+     * @return the corresponding record values
+     */
+    public final Object[] getValues(ColumnExpr[] columns)
+    {
+        Object[] values = new Object[columns.length];
+        for (int i=0; i<columns.length; i++)
+        {
+            int index = getFieldIndex(columns[i]);
+            if (index<0)
+                throw new ItemNotFoundException(columns[i].getName()); 
+            values[i] = getValue(index);
+        }
+        return values;
+    }
+
+    /**
      * Returns a data value identified by the column index.
      * The value is converted to integer if necessary .
      * 

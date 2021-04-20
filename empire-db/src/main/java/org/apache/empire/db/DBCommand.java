@@ -42,6 +42,7 @@ import org.apache.empire.db.expr.join.DBJoinExpr;
 import org.apache.empire.db.expr.set.DBSetExpr;
 import org.apache.empire.exceptions.InternalException;
 import org.apache.empire.exceptions.InvalidArgumentException;
+import org.apache.empire.exceptions.ItemNotFoundException;
 import org.apache.empire.exceptions.MiscellaneousErrorException;
 import org.apache.empire.exceptions.ObjectNotValidException;
 import org.slf4j.Logger;
@@ -343,6 +344,35 @@ public abstract class DBCommand extends DBCommandExpr
         {
             select(col.qualified());
         }
+    }
+
+    /**
+     * returns whether or not a command contains a select expression
+     * @return true if the expression is contained in the select 
+     */
+    public boolean containsSelect(DBColumnExpr selExpr)
+    {
+        int idx = (select != null ? select.indexOf(selExpr) : -1);
+        return (idx<0);
+    }
+
+    /**
+     * replaces a select expression with another or removes a select expression
+     * In order to remove the expression, set the replWith parameter to null
+     * @param replExpr
+     * @param replWith
+     * @return true if the expression could be replaced or false otherwise
+     */
+    public void replaceSelect(DBColumnExpr replExpr, DBColumnExpr replWith)
+    {
+        int idx = (select != null ? select.indexOf(replExpr) : -1);
+        if (idx < 0)
+            throw new ItemNotFoundException(replExpr);
+        // replace now
+        if (replWith!=null)
+            select.set(idx, replWith);
+        else
+            select.remove(idx);
     }
     
     /**
