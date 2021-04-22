@@ -18,6 +18,7 @@
  */
 package org.apache.empire.jsf2.controls;
 
+import java.io.IOException;
 import java.util.List;
 
 import javax.faces.component.UIComponent;
@@ -29,6 +30,7 @@ import org.apache.empire.commons.ObjectUtils;
 import org.apache.empire.commons.StringUtils;
 import org.apache.empire.exceptions.InvalidArgumentException;
 import org.apache.empire.exceptions.UnexpectedReturnValueException;
+import org.apache.empire.jsf2.controls.InputControl.ValueInfo;
 
 public class TextAreaInputControl extends InputControl
 {
@@ -53,6 +55,22 @@ public class TextAreaInputControl extends InputControl
     public TextAreaInputControl()
     {
         this(NAME, javax.faces.component.html.HtmlInputTextarea.class);
+    }
+
+    @Override
+    public void renderValue(UIComponent comp, String tagName, String styleClass, String tooltip, ValueInfo vi, FacesContext context)
+            throws IOException
+    {
+        // cols
+        int cols = getFormatInteger(vi, FORMAT_COLS, FORMAT_COLS_ATTRIBUTE);
+        if (cols>0)
+            styleClass += " cols"+String.valueOf(cols);
+        // rows
+        int rows = getFormatInteger(vi, FORMAT_ROWS, FORMAT_ROWS_ATTRIBUTE);
+        if (rows>0)
+            styleClass += " rows"+String.valueOf(rows);
+        // render
+        super.renderValue(comp, tagName, styleClass, tooltip, vi, context);
     }
     
     @Override
