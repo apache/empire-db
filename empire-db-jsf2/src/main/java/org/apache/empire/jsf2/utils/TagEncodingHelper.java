@@ -351,24 +351,11 @@ public class TagEncodingHelper implements NamingContainer
 
         @Override
         public boolean isFieldReadOnly()
-        {   // Check Record
-            if (isRecordReadOnly())
-                return true;
-            // Check tag
+        {   // Check tag
             if (!(component instanceof UIInput))
                 return true;
-            // Check Record
-            if ((getRecord() instanceof Record))
-            { // Ask Record
-                Record r = (Record) record;
-                return r.isFieldReadOnly(getColumn());
-            }
-            // override 
-            Object val = getTagAttributeValue("readonly");
-            if (val!=null)
-                return ObjectUtils.getBoolean(val);
-            // column
-            return getColumn().isReadOnly();
+            // column read only
+            return TagEncodingHelper.this.isReadOnly();
         }
         
         @Override
@@ -812,27 +799,35 @@ public class TagEncodingHelper implements NamingContainer
 
     public boolean isRenderValueComponent()
     {
-        return isRecordReadOnly();
+        return isReadOnly();
     }
     
     public boolean isRecordReadOnly()
     {
-        // check attribute
-        Object val = getTagAttributeValue("readonly");
-        if (val != null && ObjectUtils.getBoolean(val))
-            return true;
         // Do we have a record?
         if (getRecord() instanceof RecordData)
-        { // Only a RecordData?
-            if (!(record instanceof Record) || ((Record) record).isReadOnly())
+        {   // Only a RecordData?
+            if (!(record instanceof Record))
                 return true;
         }
         else if (!hasValueExpression())
-        { // No Value expression given
+        {   // No Value expression given
             return true;
         }
-        // Check Component
+        // check attribute
+        Object val = getTagAttributeValue("readonly");
+        if (val != null)
+        {   // check
+            if (StringUtils.valueOf(val).equalsIgnoreCase("never"))
+                return false;
+            if (ObjectUtils.getBoolean(val))
+                return true;
+        }
+        // check record component
         if (recordTag != null && recordTag.isReadOnly())
+            return true;
+        // Do we have a record?
+        if ((record instanceof Record) && ((Record)record).isReadOnly())
             return true;
         // column
         return false;

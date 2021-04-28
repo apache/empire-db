@@ -82,7 +82,7 @@ public class SelectInputControl extends InputControl
         // copy Attributes
         copyAttributes(parent, ii, input);
         // disabled
-        boolean disabled = ii.isDisabled();
+        boolean disabled = ii.isDisabled() || ii.isFieldReadOnly();
         input.setDisabled(disabled);
         // Options
         initOptions(input, ii.getTextResolver(), ii);
