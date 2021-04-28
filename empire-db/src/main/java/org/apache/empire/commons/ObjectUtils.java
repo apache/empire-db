@@ -92,7 +92,10 @@ public final class ObjectUtils
             return new SimpleDateFormat(DATETIME_FORMAT);
         }
     };
-	
+
+    // Interal literal for NULL
+    private static final String NULL = "NULL";
+    
     private ObjectUtils()
     {
         // Static Function only
@@ -173,19 +176,17 @@ public final class ObjectUtils
         {   // Special enum handling   
             if (o2 instanceof Number)
                 return ((Enum<?>)o1).ordinal()==((Number)o2).intValue();
-            else if (o2 instanceof Character)
-                return ((Enum<?>)o1).name().equals(o2.toString());
-            else
-                return ((Enum<?>)o1).name().equals(o2);
+            // Compare Strings
+            String strVal = StringUtils.coalesce(getString((Enum<?>)o1), NULL);
+            return strVal.equals(getString(o2));
         }
         else if (o2 instanceof Enum<?>)
         {   // Special enum handling   
             if (o1 instanceof Number)
                 return ((Enum<?>)o2).ordinal()==((Number)o1).intValue();
-            else if (o1 instanceof Character)
-                return ((Enum<?>)o2).name().equals(o1.toString());
-            else
-                return ((Enum<?>)o2).name().equals(o1);
+            // Compare Strings
+            String strVal = StringUtils.coalesce(getString((Enum<?>)o2), NULL); 
+            return strVal.equals(getString(o1));
         }
         // Compare Strings
         return o1.toString().equals(o2.toString());
@@ -561,7 +562,7 @@ public final class ObjectUtils
         if (enumValue instanceof EnumValue)
             return StringUtils.toString(((EnumValue)enumValue).toValue(false));
         /* special case */
-        if (enumValue==null || enumValue.name().equals("NULL"))
+        if (enumValue==null || enumValue.name().equals(NULL))
             return null;
         /* use name */
         return enumValue.name();
@@ -572,6 +573,8 @@ public final class ObjectUtils
      */
     public static String getString(Object value)
     {
+        if (value==null || (value instanceof String))
+            return (String)value;
         // convert
         if (value instanceof Enum<?>)
             return getString((Enum<?>)value);
@@ -580,7 +583,7 @@ public final class ObjectUtils
         if (value==NO_VALUE)
             return null;
         // toString
-        return (value!=null ? value.toString() : null);
+        return value.toString();
     }
     
     /**
