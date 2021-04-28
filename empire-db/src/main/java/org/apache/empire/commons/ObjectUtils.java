@@ -75,6 +75,24 @@ public final class ObjectUtils
     private static final String DATE_FORMAT = "yyyy-MM-dd";
 	private static final String DATETIME_FORMAT = "yyyy-MM-dd HH:mm:ss";
 	
+    // DateOnly Formatter
+    private static final ThreadLocal<SimpleDateFormat> dateOnlyFormatter = new ThreadLocal<SimpleDateFormat>() {
+        @Override
+        protected SimpleDateFormat initialValue()
+        {
+            return new SimpleDateFormat(DATE_FORMAT);
+        }
+    };
+
+    // DateTime Formatter
+    private static final ThreadLocal<SimpleDateFormat> dateTimeFormatter = new ThreadLocal<SimpleDateFormat>() {
+        @Override
+        protected SimpleDateFormat initialValue()
+        {
+            return new SimpleDateFormat(DATETIME_FORMAT);
+        }
+    };
+	
     private ObjectUtils()
     {
         // Static Function only
@@ -619,9 +637,9 @@ public final class ObjectUtils
         try
         {   String str = v.toString();
             if (str.length() > 10)
-                return new SimpleDateFormat(DATETIME_FORMAT).parse(str);
+                return dateTimeFormatter.get().parse(str);
             else
-                return new SimpleDateFormat(DATE_FORMAT).parse(str);
+                return dateOnlyFormatter.get().parse(str);
         } catch (Exception e)
         {
             log.error("Cannot convert value to date!", e);
@@ -641,9 +659,9 @@ public final class ObjectUtils
     public static String formatDate(Date date, boolean withTime)
     {
     	if (withTime)
-    		return new SimpleDateFormat(DATETIME_FORMAT).format(date);
+    		return dateTimeFormatter.get().format(date);
     	else
-    		return new SimpleDateFormat(DATE_FORMAT).format(date);
+    		return dateOnlyFormatter.get().format(date);
     }
     
     /**
