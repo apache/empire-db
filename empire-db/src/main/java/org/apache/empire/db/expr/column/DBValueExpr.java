@@ -20,6 +20,7 @@ package org.apache.empire.db.expr.column;
 
 import java.util.Set;
 
+import org.apache.empire.commons.ObjectUtils;
 // Java
 import org.apache.empire.data.DataType;
 import org.apache.empire.db.DBColumn;
@@ -195,11 +196,8 @@ public class DBValueExpr extends DBColumnExpr
             Object val = value;
             // unwrap enum
             if (value instanceof Enum)
-            {   // its an enum
-                if (dataType.isNumeric())
-                    val = ((Enum<?>) value).ordinal();
-                else 
-                    val = ((Enum<?>) value).name();
+            {   // Convert value
+                value = ObjectUtils.getEnumValue((Enum<?>) value, dataType.isNumeric());
             }
             // convert value to sql literal
             DBDatabaseDriver driver = db.getDriver();

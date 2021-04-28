@@ -354,10 +354,8 @@ public class SelectInputControl extends InputControl
     protected Object formatInputValue(Object value)
     {
         // the enum Value
-        if (value != null && value.getClass().isEnum())
-        {
+        if (value instanceof Enum<?>)
             return ((Enum<?>) value).name();
-        }
         // the value
         return value;
     }
@@ -368,7 +366,7 @@ public class SelectInputControl extends InputControl
         Class<Enum<?>> enumType = ii.getColumn().getEnumType();
         if (enumType!=null)
         {   // convert to enum
-            return ObjectUtils.getEnum(enumType, value);
+            return ObjectUtils.getEnumByName(enumType, value);
         }
         return value;
     }

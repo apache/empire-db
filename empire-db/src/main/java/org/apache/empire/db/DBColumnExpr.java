@@ -24,6 +24,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 import org.apache.empire.commons.Attributes;
+import org.apache.empire.commons.ObjectUtils;
 import org.apache.empire.commons.OptionEntry;
 import org.apache.empire.commons.Options;
 import org.apache.empire.commons.StringUtils;
@@ -1095,7 +1096,7 @@ public abstract class DBColumnExpr extends DBExpr
         Map<Object, String> enumMap = new LinkedHashMap<Object, String>(items.length);
         for (int i=0; i<items.length; i++)
         {   // key: ordinal (for numeric columns) or name (for CHAR columns)
-            Object key = (byOrdinal ? items[i].ordinal() : items[i].name());
+            Object key = ObjectUtils.getEnumValue(items[i], byOrdinal);            
             enumMap.put(key, items[i].toString());
         }
         // Create the decode function
@@ -1122,7 +1123,8 @@ public abstract class DBColumnExpr extends DBExpr
         for (int i=0; i<items.length; i++)
         {   
             int sortValue = items[i].ordinal();
-            enumMap.put(items[i].name(), sortValue + sortOffset);
+            String value = ObjectUtils.getString(items[i]);
+            enumMap.put(value, sortValue + sortOffset);
         }
         // Create the decode function
         int defaultValue = (defaultToEnd ? items.length : 0);

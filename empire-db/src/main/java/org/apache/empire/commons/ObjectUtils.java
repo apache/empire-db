@@ -74,7 +74,7 @@ public final class ObjectUtils
 
     private static final String DATE_FORMAT = "yyyy-MM-dd";
 	private static final String DATETIME_FORMAT = "yyyy-MM-dd HH:mm:ss";
-
+	
     private ObjectUtils()
     {
         // Static Function only
@@ -151,7 +151,7 @@ public final class ObjectUtils
             return (d1==d2);
         }
         // Enum
-        if (o1.getClass().isEnum())
+        if (o1 instanceof Enum<?>)
         {   // Special enum handling   
             if (o2 instanceof Number)
                 return ((Enum<?>)o1).ordinal()==((Number)o2).intValue();
@@ -160,7 +160,7 @@ public final class ObjectUtils
             else
                 return ((Enum<?>)o1).name().equals(o2);
         }
-        else if (o2.getClass().isEnum())
+        else if (o2 instanceof Enum<?>)
         {   // Special enum handling   
             if (o1 instanceof Number)
                 return ((Enum<?>)o2).ordinal()==((Number)o1).intValue();
@@ -469,8 +469,20 @@ public final class ObjectUtils
             value = ((Enum<?>)value).name();
         }
         // check column data type
+        boolean numeric = (value instanceof Number);
         T[] items = enumType.getEnumConstants();
-        if (value instanceof Number)
+        if (items.length>0 && (items[0] instanceof EnumValue))
+        {   // custom conversion
+            for (T e : items)
+            {
+                Object eVal = ((EnumValue)e).toValue(numeric);
+                if (ObjectUtils.compareEqual(eVal, value))
+                    return e;
+            }
+            // error: not found
+            throw new ItemNotFoundException(StringUtils.toString(value));
+        }
+        else if (numeric)
         {   // by ordinal
             int ordinal = ((Number)value).intValue();
             // check range
@@ -489,6 +501,68 @@ public final class ObjectUtils
             // error: not found
             throw new ItemNotFoundException(name);
         }
+    }
+
+    /**
+     * find by name
+     * @param enumType the enum type
+     * @param name the enum name
+     * @return the enum
+     */
+    public static <T extends Enum<?>> T getEnumByName(Class<T> enumType, String name)
+    {   // check for null
+        if (isEmpty(name))
+            return null;
+        // check column data type
+        T[] items = enumType.getEnumConstants();
+        for (T e : items)
+            if (e.name().equals(name))
+                return e;
+        // error: not found
+        throw new ItemNotFoundException(name);
+    }
+    
+    /**
+     * Convert Enum<?> to Object
+     */
+    public static Object getEnumValue(Enum<?> enumValue, boolean isNumeric)
+    {
+        // convert
+        if (enumValue instanceof EnumValue)
+            return ((EnumValue)enumValue).toValue(isNumeric);
+        // default
+        return (isNumeric ? enumValue.ordinal() : getString(enumValue));
+    }
+    
+    /**
+     * Convert Enum<?> to String
+     */
+    public static String getString(Enum<?> enumValue)
+    {
+        // convert
+        if (enumValue instanceof EnumValue)
+            return StringUtils.toString(((EnumValue)enumValue).toValue(false));
+        /* special case */
+        if (enumValue==null || enumValue.name().equals("NULL"))
+            return null;
+        /* use name */
+        return enumValue.name();
+    }
+    
+    /**
+     * Convert Object to String
+     */
+    public static String getString(Object value)
+    {
+        // convert
+        if (value instanceof Enum<?>)
+            return getString((Enum<?>)value);
+        if (value instanceof Date)
+            return formatDate((Date)value, true);
+        if (value==NO_VALUE)
+            return null;
+        // toString
+        return (value!=null ? value.toString() : null);
     }
     
     /**

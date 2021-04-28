@@ -79,10 +79,9 @@ public class DBCmdParam extends DBExpr
             	return ObjectUtils.getBoolean(value);
             default:
                 // check for enum
-                if (value.getClass().isEnum())
+                if (value instanceof Enum<?>)
                 {   // convert enum
-                    Enum<?> enumValue = ((Enum<?>)value);
-                    return (type.isNumeric() ? enumValue.ordinal() : enumValue.name());
+                    return ObjectUtils.getEnumValue((Enum<?>)value, type.isNumeric());
                 }
                 // use as is
                 return value;

@@ -26,6 +26,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.apache.empire.commons.ObjectUtils;
 import org.apache.empire.commons.Options;
 import org.apache.empire.commons.StringUtils;
 import org.apache.empire.data.DataMode;
@@ -416,7 +417,7 @@ public class DBTable extends DBRowSet implements Cloneable
      */
     public final DBTableColumn addColumn(String columnName, DataType type, double size, boolean required, Enum<?> enumValue)
     { 
-        Object defValue = type.isNumeric() ? enumValue.ordinal() : enumValue.name();
+        Object defValue = ObjectUtils.getEnumValue(enumValue, type.isNumeric());
         DBTableColumn col = this.crateAndAppendColumn(columnName, type, size, required, defValue);
         col.setEnumOptions(enumValue.getClass());
         return col;

@@ -704,7 +704,7 @@ public abstract class InputControl
     protected String formatValue(Object value, ValueInfo vi)
     {
         // For Enums use toString() to retrieve Value
-        if (value != null && value.getClass().isEnum() && !hasFormatOption(vi, "nolookup"))
+        if ((value instanceof Enum<?>) && !hasFormatOption(vi, "nolookup"))
         { // Handle enum
             String text = ((Enum<?>) value).toString();
             if (text != null)

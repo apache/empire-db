@@ -26,6 +26,7 @@ import java.util.Date;
 
 import org.apache.empire.commons.Attributes;
 import org.apache.empire.commons.ObjectUtils;
+import org.apache.empire.commons.OptionEntry;
 import org.apache.empire.commons.Options;
 import org.apache.empire.commons.StringUtils;
 import org.apache.empire.data.Column;
@@ -36,6 +37,7 @@ import org.apache.empire.db.exceptions.FieldNotNullException;
 import org.apache.empire.db.exceptions.FieldValueOutOfRangeException;
 import org.apache.empire.db.exceptions.FieldValueTooLongException;
 import org.apache.empire.exceptions.InvalidArgumentException;
+import org.apache.empire.exceptions.InvalidPropertyException;
 import org.apache.empire.exceptions.NotSupportedException;
 import org.apache.empire.exceptions.PropertyReadOnlyException;
 import org.apache.empire.xml.XMLUtil;
@@ -339,6 +341,16 @@ public class DBTableColumn extends DBColumn
         this.options = new Options(enumType);
         // set enumType
         setAttribute(Column.COLATTR_ENUMTYPE, enumType);
+        // check length
+        if (getDataType().isNumeric())
+            return; // no check required
+        int maxLength = (int)size;
+        for (OptionEntry oe : options)
+        {   // check length
+            String val = oe.getValueString();
+            if (val!=null && val.length()>maxLength)
+                throw new InvalidPropertyException(enumType.getName(), val);
+        }
     }
 
     /**
@@ -420,7 +432,7 @@ public class DBTableColumn extends DBColumn
 
             case DECIMAL:
                 // check enum
-                if (value.getClass().isEnum())
+                if (value instanceof Enum<?>)
                 {   // convert enum   
                     value = ((Enum<?>)value).ordinal();
                 }
@@ -458,7 +470,7 @@ public class DBTableColumn extends DBColumn
 
             case INTEGER:
                 // check enum
-                if (value.getClass().isEnum())
+                if (value instanceof Enum<?>)
                 {   // convert enum   
                     value = ((Enum<?>)value).ordinal();
                 }
@@ -482,9 +494,9 @@ public class DBTableColumn extends DBColumn
             case VARCHAR:
             case CHAR:
                 // check enum
-                if (value.getClass().isEnum())
+                if (value instanceof Enum<?>)
                 {   // convert enum   
-                    value = ((Enum<?>)value).name();
+                    value = ObjectUtils.getString((Enum<?>)value);
                 }
                 // check length
                 if (value.toString().length() > size)

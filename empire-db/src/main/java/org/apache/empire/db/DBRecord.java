@@ -650,11 +650,11 @@ public class DBRecord extends DBRecordData implements Record, Cloneable
         // convert
         DBColumn column = rowset.getColumn(index);
         // must convert enums
-        if (value!=null && value.getClass().isEnum())
+        if (value instanceof Enum<?>)
         {   // convert enum
             Enum<?> enumVal = ((Enum<?>)value);
             boolean numeric = column.getDataType().isNumeric();
-            value = (numeric ? enumVal.ordinal() : enumVal.name());
+            value = ObjectUtils.getEnumValue(enumVal, numeric);
         }
         // Has Value changed?
         if (ObjectUtils.compareEqual(current, value))

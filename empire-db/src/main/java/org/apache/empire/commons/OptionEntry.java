@@ -68,8 +68,8 @@ public class OptionEntry implements Serializable
         if (value==null)
             return "";
         // check enum
-        if (value.getClass().isEnum())
-            return ((Enum<?>)value).name();
+        if (value instanceof Enum<?>)
+            return ObjectUtils.getString((Enum<?>)value);
         // convert
         return String.valueOf(value);
     }

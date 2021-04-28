@@ -22,6 +22,7 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.Set;
 
+import org.apache.empire.commons.ObjectUtils;
 import org.apache.empire.commons.OptionEntry;
 // java
 import org.apache.empire.data.DataType;
@@ -85,16 +86,13 @@ public abstract class DBExpr extends DBObject
         } 
         // check option entry
         if (value instanceof OptionEntry)
-        {
+        {   // option value
             value = ((OptionEntry)value).getValue();
         }
         // check enum
-        if (value!=null && value.getClass().isEnum())
+        if (value instanceof Enum<?>)
         {   // check enum
-            if (dataType.isNumeric())
-                value = ((Enum<?>)value).ordinal();
-            else
-                value = ((Enum<?>)value).name();
+            value = ObjectUtils.getEnumValue((Enum<?>)value, dataType.isNumeric());
         }
         else if (value instanceof Collection<?>)
         {   // collection 2 array

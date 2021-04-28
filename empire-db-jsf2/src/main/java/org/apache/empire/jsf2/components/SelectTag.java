@@ -76,8 +76,8 @@ public class SelectTag extends UIInput implements NamingContainer
             Object value = SelectTag.this.getValue();
             if (value != null)
             {
-                if (value.getClass().isEnum())
-                    value = ((Enum<?>) value).name();
+                if (value instanceof Enum<?>)
+                    value = ((Enum<?>)value).name();
                 else
                     value = String.valueOf(value);
             }
@@ -391,8 +391,8 @@ public class SelectTag extends UIInput implements NamingContainer
         Object value = getValue();
         if (value != null)
         {
-            if (value.getClass().isEnum())
-                value = ((Enum<?>) value).name();
+            if (value instanceof Enum<?>)
+                value = ((Enum<?>)value).name();
             else
                 value = String.valueOf(value);
         }
