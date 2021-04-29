@@ -715,6 +715,7 @@ public abstract class DBDatabaseDriver implements Serializable
     { 
         if (value instanceof Enum<?>)
         {   // convert enum
+            log.warn("Enum of type {} supplied for getValueString. Converting value...", value.getClass().getName());
             value = ObjectUtils.getEnumValue((Enum<?>)value, type.isNumeric());
         }
         if (ObjectUtils.isEmpty(value))

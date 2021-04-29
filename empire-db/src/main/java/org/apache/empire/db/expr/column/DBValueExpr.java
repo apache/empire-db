@@ -192,10 +192,14 @@ public class DBValueExpr extends DBColumnExpr
             ((DBExpr)value).addSQL(buf, context);
         }
         else
-        {   DataType dataType = getDataType();
+        {   // unpack
+            DataType dataType = getDataType();
+            Object dataValue = value;
+            if (dataValue instanceof Enum<?>)
+                dataValue = ObjectUtils.getEnumValue((Enum<?>)dataValue, dataType.isNumeric());
             // convert value to sql literal
             DBDatabaseDriver driver = db.getDriver();
-            String text = (driver!=null) ? driver.getValueString(value, dataType) : ObjectUtils.getString(value); 
+            String text = (driver!=null) ? driver.getValueString(dataValue, dataType) : ObjectUtils.getString(dataValue); 
             buf.append(text);
         }
     }
