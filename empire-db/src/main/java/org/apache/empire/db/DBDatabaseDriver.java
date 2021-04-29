@@ -713,8 +713,12 @@ public abstract class DBDatabaseDriver implements Serializable
      */
     public String getValueString(Object value, DataType type)
     { 
+        if (value instanceof Enum<?>)
+        {   // convert enum
+            value = ObjectUtils.getEnumValue((Enum<?>)value, type.isNumeric());
+        }
         if (ObjectUtils.isEmpty(value))
-        {
+        {   // null
             return getSQLPhrase(SQL_NULL_VALUE);
         }
         // set string buffer
