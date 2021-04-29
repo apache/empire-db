@@ -573,16 +573,18 @@ public final class ObjectUtils
      */
     public static String getString(Object value)
     {
-        if (value==null || (value instanceof String))
+        if (value==null)
+            return null;
+        if (value instanceof String)
             return (String)value;
         // convert
+        if (value==NO_VALUE)
+            throw new NotSupportedException(value, "getString");
         if (value instanceof Enum<?>)
             return getString((Enum<?>)value);
         if (value instanceof Date)
             return formatDate((Date)value, true);
-        if (value==NO_VALUE)
-            return null;
-        // toString
+        // default
         return value.toString();
     }
     
