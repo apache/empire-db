@@ -30,6 +30,7 @@ import org.apache.empire.commons.ObjectUtils;
 import org.apache.empire.commons.StringUtils;
 import org.apache.empire.exceptions.InvalidArgumentException;
 import org.apache.empire.exceptions.UnexpectedReturnValueException;
+import org.apache.empire.jsf2.controls.InputControl.DisabledType;
 import org.apache.empire.jsf2.controls.InputControl.ValueInfo;
 
 public class TextAreaInputControl extends InputControl
@@ -107,16 +108,15 @@ public class TextAreaInputControl extends InputControl
         }
         HtmlInputTextarea input = (HtmlInputTextarea)comp;
         // disabled
-        Object dis = ii.getAttributeEx("disabled");
-        if (dis!=null)
-            input.setDisabled(ObjectUtils.getBoolean(dis));
-        // field-readOnly
-        if (ObjectUtils.getBoolean(dis)==false)
-            input.setReadonly(ii.isFieldReadOnly());
+        DisabledType disabled = ii.getDisabled();
+        if (disabled!=null)
+        {   input.setReadonly((disabled==DisabledType.READONLY));
+            input.setDisabled((disabled==DisabledType.DISABLED));
+        }
         // Set Value
         if (phaseId==PhaseId.RENDER_RESPONSE)
         {   // style
-            addRemoveDisabledStyle(input, (input.isDisabled() || input.isReadonly()));
+            addRemoveDisabledStyle(input, (disabled!=null && disabled!=DisabledType.NO));
             addRemoveInvalidStyle(input, ii.hasError());
             // set value
             setInputValue(input, ii);

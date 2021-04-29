@@ -40,6 +40,7 @@ import org.apache.empire.jsf2.app.FacesUtils;
 import org.apache.empire.jsf2.app.TextResolver;
 import org.apache.empire.jsf2.controls.InputAttachedObjectsHandler;
 import org.apache.empire.jsf2.controls.InputControl;
+import org.apache.empire.jsf2.controls.InputControl.DisabledType;
 import org.apache.empire.jsf2.controls.InputControl.InputInfo;
 import org.apache.empire.jsf2.controls.InputControlManager;
 import org.apache.empire.jsf2.controls.SelectInputControl;
@@ -155,9 +156,9 @@ public class SelectTag extends UIInput implements NamingContainer
         }
 
         @Override
-        public boolean isFieldReadOnly()
+        public DisabledType getDisabled()
         {
-            return false;
+            return (SelectTag.this.isDisabled() ? DisabledType.DISABLED : DisabledType.NO);
         }
 
         @Override

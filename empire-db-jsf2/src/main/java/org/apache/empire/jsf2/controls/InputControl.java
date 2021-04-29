@@ -87,6 +87,17 @@ public abstract class InputControl
     }
 
     /**
+     * DisabledType
+     * @author doebele
+     */
+    public enum DisabledType 
+    {
+        NO,
+        READONLY,
+        DISABLED;
+    }
+    
+    /**
      * This interface allows access to a value and its metainformation
      * used with the renderData function
      */
@@ -137,7 +148,7 @@ public abstract class InputControl
         
         boolean isDisabled(); // disabled or readOnly
 
-        boolean isFieldReadOnly(); // not disabled only readOnly (for input[type=text] only!)
+        DisabledType getDisabled();
         // input
 
         String getInputId();

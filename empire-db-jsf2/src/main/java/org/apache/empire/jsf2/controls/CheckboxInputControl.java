@@ -30,6 +30,7 @@ import javax.faces.event.PhaseId;
 import org.apache.empire.commons.ObjectUtils;
 import org.apache.empire.exceptions.InvalidArgumentException;
 import org.apache.empire.exceptions.UnexpectedReturnValueException;
+import org.apache.empire.jsf2.controls.InputControl.DisabledType;
 
 public class CheckboxInputControl extends InputControl
 {
@@ -96,21 +97,12 @@ public class CheckboxInputControl extends InputControl
         }
         HtmlSelectBooleanCheckbox input = (HtmlSelectBooleanCheckbox) comp;
         // disabled
-        Object dis = ii.getAttributeEx("disabled");
-        if (dis != null)
-        {
-            input.setDisabled(ObjectUtils.getBoolean(dis));
-        }
-        // field-readOnly
-        if (ObjectUtils.getBoolean(dis) == false)
-        {
-            input.setReadonly(ii.isFieldReadOnly());
-            input.setDisabled(ii.isFieldReadOnly());
-        }
+        boolean disabled = ii.isDisabled();
+        input.setDisabled(disabled);
         // check phase
         if (phaseId==PhaseId.RENDER_RESPONSE)
         {   // style
-            addRemoveDisabledStyle(input, input.isDisabled());
+            addRemoveDisabledStyle(input, disabled);
             // set value
             setInputValue(input, ii);
         }

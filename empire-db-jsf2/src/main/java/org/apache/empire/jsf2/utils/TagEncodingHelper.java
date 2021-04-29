@@ -69,6 +69,7 @@ import org.apache.empire.jsf2.components.LabelTag;
 import org.apache.empire.jsf2.components.LinkTag;
 import org.apache.empire.jsf2.components.RecordTag;
 import org.apache.empire.jsf2.controls.InputControl;
+import org.apache.empire.jsf2.controls.InputControl.DisabledType;
 import org.apache.empire.jsf2.controls.InputControlManager;
 import org.apache.empire.jsf2.controls.SelectInputControl;
 import org.apache.empire.jsf2.controls.TextAreaInputControl;
@@ -79,6 +80,7 @@ import org.slf4j.LoggerFactory;
 public class TagEncodingHelper implements NamingContainer
 {
     private final static String SPACE = " ";
+    
     /**
      * ColumnExprWrapper
      * wraps a ColumnExpr object into a Column interface object
@@ -341,21 +343,14 @@ public class TagEncodingHelper implements NamingContainer
         @Override
         public boolean isDisabled()
         {
-            // check attribute
-            Object val = getAttributeValueEx("disabled");
-            if (val != null && ObjectUtils.getBoolean(val))
-                return true;
-            // not disabeld
-            return false;
+            DisabledType disabled = TagEncodingHelper.this.getDisabled(); 
+            return (disabled!=null && disabled!=DisabledType.NO);
         }
-
+        
         @Override
-        public boolean isFieldReadOnly()
-        {   // Check tag
-            if (!(component instanceof UIInput))
-                return true;
-            // column read only
-            return TagEncodingHelper.this.isReadOnly();
+        public DisabledType getDisabled()
+        {            
+            return TagEncodingHelper.this.getDisabled();
         }
         
         @Override
@@ -816,12 +811,9 @@ public class TagEncodingHelper implements NamingContainer
         }
         // check attribute
         Object val = getTagAttributeValue("readonly");
-        if (val != null)
-        {   // check
-            if (StringUtils.valueOf(val).equalsIgnoreCase("never"))
-                return false;
-            if (ObjectUtils.getBoolean(val))
-                return true;
+        if (!ObjectUtils.isEmpty(val))
+        {   // override
+            return ObjectUtils.getBoolean(val);
         }
         // check record component
         if (recordTag != null && recordTag.isReadOnly())
@@ -857,6 +849,11 @@ public class TagEncodingHelper implements NamingContainer
 
     public boolean isReadOnly()
     {
+        // component 
+        if (!(component instanceof UIInput))
+        {   log.warn("Component is not of type UIInput");
+            return true;
+        }
         // Check Record
         if (isRecordReadOnly())
             return true;
@@ -868,6 +865,27 @@ public class TagEncodingHelper implements NamingContainer
         }
         // column
         return getColumn().isReadOnly();
+    }
+    
+    public DisabledType getDisabled()
+    {
+        // component 
+        if (!(component instanceof UIInput))
+        {   log.warn("Component is not of type UIInput");
+            return DisabledType.READONLY;
+        }
+        // Check attribute
+        Object dis = getAttributeValueEx("disabled");
+        if (ObjectUtils.isEmpty(dis))
+            return null; // not provided!
+        // direct
+        if (dis instanceof DisabledType)
+            return (DisabledType)dis;
+        // readonly
+        if (String.valueOf(dis).equalsIgnoreCase("readonly"))
+            return DisabledType.READONLY;
+        // other
+        return (ObjectUtils.getBoolean(dis) ? DisabledType.DISABLED : DisabledType.NO);
     }
 
     public boolean isValueRequired()

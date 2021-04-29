@@ -82,14 +82,14 @@ public class SelectInputControl extends InputControl
         // copy Attributes
         copyAttributes(parent, ii, input);
         // disabled
-        boolean disabled = ii.isDisabled() || ii.isFieldReadOnly();
+        boolean disabled = ii.isDisabled();
         input.setDisabled(disabled);
         // Options
         initOptions(input, ii.getTextResolver(), ii);
         // add
         compList.add(input);
         // style
-        addRemoveDisabledStyle(input, input.isDisabled());
+        addRemoveDisabledStyle(input, disabled);
         addRemoveInvalidStyle(input, ii.hasError());
         // Set Value
         setInputValue(input, ii);
@@ -116,7 +116,7 @@ public class SelectInputControl extends InputControl
         }
         if (phaseId==PhaseId.RENDER_RESPONSE)
         {   // style
-            addRemoveDisabledStyle(input, input.isDisabled());
+            addRemoveDisabledStyle(input, disabled);
             addRemoveInvalidStyle(input, ii.hasError());
             // set value
             setInputValue(input, ii);

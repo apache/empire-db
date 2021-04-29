@@ -39,6 +39,7 @@ import org.apache.empire.data.Column;
 import org.apache.empire.exceptions.InvalidArgumentException;
 import org.apache.empire.exceptions.UnexpectedReturnValueException;
 import org.apache.empire.jsf2.app.TextResolver;
+import org.apache.empire.jsf2.controls.InputControl.DisabledType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -137,7 +138,7 @@ public class RadioInputControl extends InputControl
         // add
         compList.add(input);
         // style
-        addRemoveDisabledStyle(input, input.isDisabled());
+        addRemoveDisabledStyle(input, disabled);
         addRemoveInvalidStyle(input, ii.hasError());
         // Set Value
         setInputValue(input, ii);
@@ -165,7 +166,7 @@ public class RadioInputControl extends InputControl
         }
         if (phaseId==PhaseId.RENDER_RESPONSE)
         {   // style
-            addRemoveDisabledStyle(input, input.isDisabled());
+            addRemoveDisabledStyle(input, disabled);
             addRemoveInvalidStyle(input, ii.hasError());
             // set value
             setInputValue(input, ii);
