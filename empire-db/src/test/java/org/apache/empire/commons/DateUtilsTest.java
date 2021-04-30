@@ -90,7 +90,7 @@ public class DateUtilsTest
 	{
 		Calendar now = Calendar.getInstance();
 		Date date = now.getTime();
-		Date pastDate = DateUtils.setDate(date, 1952, 11, 21);
+		Date pastDate = DateUtils.setDate(date, 1952, 12, 21);
 		Calendar past = Calendar.getInstance();
 		past.setTime(pastDate);
 		assertEquals(1952, past.get(Calendar.YEAR));
@@ -108,12 +108,12 @@ public class DateUtilsTest
 	@Test
 	public void testGetDate()
 	{
-		Date date = DateUtils.getDate(1, 2, 3);
+		Date date = DateUtils.getDate(2000, 12, 31);
 		Calendar cal = Calendar.getInstance();
 		cal.setTime(date);
-		assertEquals(1, cal.get(Calendar.YEAR));
-		assertEquals(2, cal.get(Calendar.MONTH));
-		assertEquals(3, cal.get(Calendar.DAY_OF_MONTH));
+		assertEquals(2000, cal.get(Calendar.YEAR));
+		assertEquals(11, cal.get(Calendar.MONTH));
+		assertEquals(31, cal.get(Calendar.DAY_OF_MONTH));
 		assertEquals(0, cal.get(Calendar.HOUR_OF_DAY));
 		assertEquals(0, cal.get(Calendar.MINUTE));
 		assertEquals(0, cal.get(Calendar.SECOND));

@@ -36,6 +36,8 @@ public class DateUtils
 {
     private static final Logger log = LoggerFactory.getLogger(DateUtils.class);
     
+    public static final long MILLIS_IN_DAY = 86400000;
+    
     private DateUtils()
     {
         // Static Function only
@@ -94,8 +96,8 @@ public class DateUtils
             calendar.setTime(date);
         if (year>0)
             calendar.set(Calendar.YEAR, year);
-        if (month>=0)
-            calendar.set(Calendar.MONTH, month);
+        if (month>0)
+            calendar.set(Calendar.MONTH, month-1);
         if (day>0)
             calendar.set(Calendar.DAY_OF_MONTH, day);
         return calendar.getTime();
@@ -106,8 +108,8 @@ public class DateUtils
         Calendar calendar = Calendar.getInstance();
         if (year>0)
             calendar.set(Calendar.YEAR, year);
-        if (month>=0)
-            calendar.set(Calendar.MONTH, month);
+        if (month>0)
+            calendar.set(Calendar.MONTH, month-1);
         if (day>0)
             calendar.set(Calendar.DAY_OF_MONTH, day);
         // No Time
@@ -132,6 +134,20 @@ public class DateUtils
     public static Date getDateOnly(Date date)
     {
         return setTime(date, 0, 0, 0, 0);
+    }
+
+    public static long compareDates(Date date1, Date date2)
+    {
+        long time1 = setTime(date1, 0, 0, 0, 0).getTime();
+        long time2 = setTime(date2, 0, 0, 0, 0).getTime();
+        time1 = time1 / MILLIS_IN_DAY;
+        time2 = time2 / MILLIS_IN_DAY;
+        return time1-time2;
+    }
+    
+    public static boolean compareEqual(Date date1, Date date2)
+    {
+        return (compareDates(date1, date2)==0);
     }
     
     // ------- parsing functions -----

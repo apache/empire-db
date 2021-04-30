@@ -132,16 +132,16 @@ public class SampleAdvApp
             
             // Insert History as batch
             DBSQLScript batch = new DBSQLScript();
-            insertEmpDepHistory(batch, idEmp1,  idDevDep,  DateUtils.getDate(2007, 11,  1));            
-            insertEmpDepHistory(batch, idEmp1,  idProdDep, DateUtils.getDate(2008,  8,  1));           
-            insertEmpDepHistory(batch, idEmp1,  idSalDep,  DateUtils.getDate(2009,  4, 15));           
+            insertEmpDepHistory(batch, idEmp1,  idDevDep,  DateUtils.getDate(2007, 12,  1));            
+            insertEmpDepHistory(batch, idEmp1,  idProdDep, DateUtils.getDate(2008,  9,  1));           
+            insertEmpDepHistory(batch, idEmp1,  idSalDep,  DateUtils.getDate(2009,  5, 15));           
 
-            insertEmpDepHistory(batch, idEmp2,  idSalDep,  DateUtils.getDate(2006,  2,  1));            
-            insertEmpDepHistory(batch, idEmp2,  idDevDep,  DateUtils.getDate(2008, 10, 15));
+            insertEmpDepHistory(batch, idEmp2,  idSalDep,  DateUtils.getDate(2006,  3,  1));            
+            insertEmpDepHistory(batch, idEmp2,  idDevDep,  DateUtils.getDate(2008, 11, 15));
             
-            insertEmpDepHistory(batch, idEmp3,  idDevDep,  DateUtils.getDate(2006,  8, 15));            
-            insertEmpDepHistory(batch, idEmp3,  idSalDep,  DateUtils.getDate(2007,  7,  1));           
-            insertEmpDepHistory(batch, idEmp3,  idProdDep, DateUtils.getDate(2008,  6, 15));
+            insertEmpDepHistory(batch, idEmp3,  idDevDep,  DateUtils.getDate(2006,  9, 15));            
+            insertEmpDepHistory(batch, idEmp3,  idSalDep,  DateUtils.getDate(2007,  6,  1));           
+            insertEmpDepHistory(batch, idEmp3,  idProdDep, DateUtils.getDate(2008,  7, 31));
             batch.executeBatch(db.getDriver(), conn);
             
             // commit
