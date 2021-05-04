@@ -43,7 +43,6 @@ import org.apache.empire.data.Column;
 import org.apache.empire.data.DataType;
 import org.apache.empire.exceptions.InvalidArgumentException;
 import org.apache.empire.exceptions.UnexpectedReturnValueException;
-import org.apache.empire.jsf2.controls.InputControl.DisabledType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
