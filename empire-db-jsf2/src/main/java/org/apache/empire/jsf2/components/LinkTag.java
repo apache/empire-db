@@ -45,6 +45,7 @@ import org.apache.empire.jsf2.utils.ParameterMap;
 import org.apache.empire.jsf2.utils.StringResponseWriter;
 import org.apache.empire.jsf2.utils.TagEncodingHelper;
 import org.apache.empire.jsf2.utils.TagEncodingHelperFactory;
+import org.apache.myfaces.shared.renderkit.html.HTML;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -67,6 +68,10 @@ public class LinkTag extends UIOutput // implements NamingContainer
     protected final TagEncodingHelper helper = TagEncodingHelperFactory.create(this, "eLink");
 
     private boolean creatingComponents = false;
+    
+    private boolean encodeLinkChildren = false;
+    
+    private String disabledTagName;
     
     public LinkTag()
     {
@@ -127,16 +132,19 @@ public class LinkTag extends UIOutput // implements NamingContainer
     {
         // add label and input components when the view is loaded for the first time
         super.encodeBegin(context);
-
+        
         // begin
         helper.encodeBegin();
         if (isLinkDisabled())
-        {   // render as span
-            // render components
+        {   // render disabled
             ResponseWriter writer = context.getResponseWriter();
-            String tag = writeStartElement(writer);
-            writer.write(StringUtils.toString(getLinkValue(helper.hasColumn()), ""));
-            writer.endElement(tag);
+            Object linkValue = getLinkValue(helper.hasColumn());
+            this.disabledTagName = writeStartElement(writer);
+            this.encodeLinkChildren = isEncodeLinkChildren(linkValue); 
+            if (!encodeLinkChildren)
+            {   writer.write(StringUtils.toString(linkValue, ""));
+                writer.endElement(this.disabledTagName);
+            }
         }
         else
         {   // Add component
@@ -195,17 +203,55 @@ public class LinkTag extends UIOutput // implements NamingContainer
             setLinkProperties(linkComponent);
             addOrSetParam(linkComponent, "idparam", "id");
             // encode link
-            linkComponent.setRendered(true);
-            linkComponent.encodeAll(context);
-            linkComponent.setRendered(false); // Don't render twice!
+            this.encodeLinkChildren = isEncodeLinkChildren(linkComponent.getChildCount()>0 ? null : linkComponent.getValue());
+            if (this.encodeLinkChildren)
+                linkComponent.encodeBegin(context);
+            else
+            {   // default rendering (no children)
+                linkComponent.setRendered(true);
+                linkComponent.encodeAll(context);
+                linkComponent.setRendered(false); // Don't render twice!
+            }
         }
     }
     
     @Override 
     public void encodeChildren(FacesContext context) throws IOException 
     {
-        if (!isLinkDisabled())
+        // render
+        if (this.encodeLinkChildren)
             super.encodeChildren(context);
+    }
+
+    /**
+     * required for MenuItemTag
+     * @param context
+     * @throws IOException
+     */
+    public void forceEncodeChildren(FacesContext context) throws IOException 
+    {
+        super.encodeChildren(context);
+    }
+    
+    @Override 
+    public void encodeEnd(FacesContext context) throws IOException 
+    {
+        if (this.encodeLinkChildren)
+        {
+            if (isLinkDisabled())
+            {   // Disabled
+                ResponseWriter writer = context.getResponseWriter();
+                writer.endElement(StringUtils.coalesce(this.disabledTagName, HTML.SPAN_ELEM));
+            }
+            else
+            {   // Enabled
+                HtmlOutcomeTargetLink link = getLinkComponent();
+                if (link!=null && link.isRendered())
+                    link.encodeEnd(context);
+            }
+        }
+        // done
+        super.encodeEnd(context);
     }
     
     protected String getLinkStyleClass()
@@ -357,4 +403,14 @@ public class LinkTag extends UIOutput // implements NamingContainer
      * return (String) getAttributes().get("action");
      * }
      */
+    
+    protected boolean isEncodeLinkChildren(Object linkValue)
+    {
+        return ObjectUtils.isEmpty(linkValue);
+    }
+    
+    protected HtmlOutcomeTargetLink getLinkComponent()
+    {
+        return (getChildCount()>0 ? (HtmlOutcomeTargetLink)getChildren().get(0) : null);
+    }
 }

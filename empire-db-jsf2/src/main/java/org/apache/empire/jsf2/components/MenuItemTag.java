@@ -105,7 +105,7 @@ public class MenuItemTag extends LinkTag
             else
                 log.warn("WARN: Unexpected child element as first child of MenuItemTag!");
             // encode children
-            super.encodeChildren(context);
+            super.forceEncodeChildren(context);
         }
     }
 
@@ -258,4 +258,9 @@ public class MenuItemTag extends LinkTag
         return (styleClass==null) ? newClass : styleClass+" "+newClass;
     }
     
+    @Override
+    protected boolean isEncodeLinkChildren(Object linkValue)
+    {
+        return false;
+    }
 }
