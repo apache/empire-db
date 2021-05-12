@@ -98,6 +98,7 @@ input[type=text].eInpReq {
 	border: 1px brown solid;
 }
 select.eInpDis, 
+textarea.eInpDis,
 input[type=text].eInpDis {
 	border: 1px #C0C0C0 solid;
 	color: #808080;

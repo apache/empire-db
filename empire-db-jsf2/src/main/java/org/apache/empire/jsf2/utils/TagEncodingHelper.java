@@ -796,8 +796,13 @@ public class TagEncodingHelper implements NamingContainer
     {
         return isReadOnly();
     }
-    
+
     public boolean isRecordReadOnly()
+    {
+        return (getRecordReadOnly()==Boolean.TRUE);
+    }
+    
+    public Boolean getRecordReadOnly()
     {
         // Do we have a record?
         if (getRecord() instanceof RecordData)
@@ -821,8 +826,8 @@ public class TagEncodingHelper implements NamingContainer
         // Do we have a record?
         if ((record instanceof Record) && ((Record)record).isReadOnly())
             return true;
-        // column
-        return false;
+        // not defined
+        return null;
     }
 
     public boolean isVisible()
@@ -855,8 +860,9 @@ public class TagEncodingHelper implements NamingContainer
             return true;
         }
         // Check Record
-        if (isRecordReadOnly())
-            return true;
+        Boolean readOnly = getRecordReadOnly();
+        if (readOnly!=null)
+            return readOnly;
         // Check Record
         if ((getRecord() instanceof Record))
         { // Ask Record
