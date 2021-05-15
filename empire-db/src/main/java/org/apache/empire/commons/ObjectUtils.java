@@ -119,6 +119,48 @@ public final class ObjectUtils
     }
     
     /**
+     * Checks whether an object has a value.
+     * A Object is considered to have a value if it is not null and not an empty string 
+     * @param o the object to check
+     * @return true if the Object is neither null nor an empty string. 
+     */
+    public static boolean isNotEmpty(Object o)
+    {
+        return !isEmpty(o);
+    }
+    
+    /**
+     * Checks whether a number is null or zero
+     * @param value the number to check
+     * @return true if the value is null or zero 
+     */
+    public static boolean isZero(Number value)
+    {
+        if (value==null)
+            return true;
+        if (value instanceof BigDecimal)
+            return (BigDecimal.ZERO.compareTo((BigDecimal)value) == 0);
+        if (value instanceof Float)
+            return (((Float) value).compareTo(0.0f)==0);
+        if (value instanceof Double)
+            return (((Float) value).compareTo(0.0f)==0);
+        if (value instanceof Long)
+            return (value.longValue()==0);
+        // default: check int value
+        return (value.intValue()==0);
+    }
+
+    /**
+     * Checks whether a number is NOT null or zero
+     * @param value the number to check
+     * @return true if the value is NOT null or zero 
+     */
+    public static boolean isNonZero(Number value)
+    {
+        return !isZero(value);
+    }
+    
+    /**
      * returns the string length of an object
      * @param o the object to check
      * @return the string length of the object
@@ -816,9 +858,7 @@ public final class ObjectUtils
     public static synchronized Object getFieldValue(Class<?> clazz, Object object, String property, boolean includePrivateFields)
     {
         // check arguments
-        if (object==null)
-            throw new InvalidArgumentException("object", object);
-        if (clazz==null || !clazz.isInstance(object))
+        if (clazz==null || (object!=null && !clazz.isInstance(object)))
             throw new InvalidArgumentException("clazz", clazz);
         if (StringUtils.isEmpty(property))
             throw new InvalidArgumentException("property", property);
