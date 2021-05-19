@@ -1270,13 +1270,22 @@ public abstract class DBCommand extends DBCommandExpr
     public synchronized String getDelete(DBTable table)
     {
         resetParamUsage();
-        StringBuilder buf = new StringBuilder("DELETE FROM ");
-        table.addSQL(buf, CTX_FULLNAME);
-        // Set Expressions
-        if (where!=null && !where.isEmpty())
-        { // add where condition
-            buf.append("\r\nWHERE ");
-            addListExpr(buf, where, CTX_NAME|CTX_VALUE, " AND ");
+        StringBuilder buf = new StringBuilder("DELETE ");
+        // joins or simple
+        if (joins!=null && !joins.isEmpty())
+        {   // delete with joins
+            table.addSQL(buf, CTX_FULLNAME);
+            // From clause
+            addFrom(buf);
+            // Add Where
+            addWhere(buf, CTX_DEFAULT);
+        }
+        else
+        {   // Simple Statement
+            buf.append("FROM ");
+            table.addSQL(buf, CTX_FULLNAME);
+            // where
+            addWhere(buf, CTX_NAME|CTX_VALUE);
         }
         return buf.toString();
     }
