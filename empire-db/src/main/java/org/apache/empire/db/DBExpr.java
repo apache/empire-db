@@ -141,13 +141,12 @@ public abstract class DBExpr extends DBObject
             case TEXT:
             case VARCHAR:
             case CLOB:
+            case CHAR:
                 return String.class;
             case DATE:
             case DATETIME:
             case TIMESTAMP:
                 return Date.class;
-            case CHAR:
-                return Character.class;
             case FLOAT:
                 return Double.class;
             case DECIMAL:
