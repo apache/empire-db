@@ -61,6 +61,14 @@ public abstract class DBJoinExpr extends DBExpr
     }
     
     /**
+     * alters the join type for this join
+     */
+    public void setType(DBJoinType type)
+    {
+        this.type = type;
+    }
+
+    /**
      * returns the RowSet on the left of the join
      */
     public abstract DBRowSet getLeftTable();
