@@ -29,6 +29,7 @@ import java.util.List;
 import java.util.Locale;
 
 import javax.faces.component.UIComponent;
+import javax.faces.component.UIInput;
 import javax.faces.component.html.HtmlInputText;
 import javax.faces.component.html.HtmlOutputText;
 import javax.faces.component.html.HtmlPanelGroup;
@@ -98,7 +99,7 @@ public class TextInputControl extends InputControl
         compList.add(input);
         // add unit
         String unit = getUnitString(ii);
-        if (StringUtils.isNotEmpty(unit))
+        if (StringUtils.isNotEmpty(unit) && !hasFormatOption(ii, "nounit"))
         {   // add the unit
             compList.add(createUnitLabel("eUnit", ii, unit));
         }
@@ -121,10 +122,24 @@ public class TextInputControl extends InputControl
             throw new UnexpectedReturnValueException(comp.getClass().getName(), "compList.get(0)");
         }
         HtmlInputText input = (HtmlInputText) comp;
-		// required
-		addRemoveStyle(input, InputControl.STYLECLASS_REQUIRED, ii.isRequired());
+        if (ii.isInsideUIData())
+        {   // always reset the style class inside UIData
+            String tagStyle = StringUtils.toString(ii.getAttribute("styleClass"), null);
+            String cssStyle = getInputStyleClass(ii, tagStyle);
+            input.setStyleClass(cssStyle);
+            /*
+            String curStyle = input.getStyleClass();
+            if (curStyle==null || !curStyle.equals(cssStyle))
+            {   // log.info("{} ->  {} vs '{}'", ii.getColumn().getName(), inpStyle, reqStyle);
+                input.setStyleClass(cssStyle);
+            }
+            */
+        }
+        // required
+        addRemoveStyle(input, InputControl.STYLECLASS_REQUIRED, ii.isRequired());
         // modified
         addRemoveStyle(input, InputControl.STYLECLASS_MODIFIED, ii.isModified());
+
         // disabled
         DisabledType disabled = ii.getDisabled();
         if (disabled!=null)
@@ -155,6 +170,15 @@ public class TextInputControl extends InputControl
         span.getAttributes().put("styleClass", tagStyle);
         span.getChildren().add(text);
         return span;
+    }
+
+    @Override
+    protected void setInputStyleClass(UIInput input, String cssStyleClass)
+    {
+        if (input instanceof HtmlInputText)
+            ((HtmlInputText)input).setStyleClass(cssStyleClass);
+        else
+            super.setInputStyleClass(input, cssStyleClass);
     }
 
     // ------- parsing -------
