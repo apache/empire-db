@@ -349,6 +349,26 @@ public abstract class DBRecordData extends DBObject
         }
         return getEnum(getFieldIndex(column), (Class<T>)enumType);
     }
+
+    /**
+     * Returns the value of a field as an object of a given (wrapper)type
+     * @param index index of the field
+     * @return the value
+     */
+    public final <T> T getAs(int index, Class<T> wrapperType)
+    {
+        return ObjectUtils.convert(wrapperType, getValue(index));
+    }
+
+    /**
+     * Returns the value of a field as an object of a given (wrapper)type
+     * @param column the column for which to retrieve the value
+     * @return the value
+     */
+    public final <T> T getAs(Column column, Class<T> wrapperType)
+    {
+        return ObjectUtils.convert(wrapperType, getValue(column));
+    }
     
     /**
      * Checks whether or not the value for the given column is null.
