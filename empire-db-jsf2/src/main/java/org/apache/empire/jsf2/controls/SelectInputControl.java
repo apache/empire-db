@@ -24,6 +24,8 @@ import java.util.List;
 import javax.el.ValueExpression;
 import javax.faces.component.UIComponent;
 import javax.faces.component.UISelectItem;
+import javax.faces.component.UISelectOne;
+import javax.faces.component.html.HtmlSelectOneListbox;
 import javax.faces.component.html.HtmlSelectOneMenu;
 import javax.faces.context.FacesContext;
 import javax.faces.event.PhaseId;
@@ -47,25 +49,44 @@ public class SelectInputControl extends InputControl
 
     public static final String  VALUE_EXPRESSION_FLAG = "VALUE_EXPRESSION_FLAG";
 
+    public static final String  FORMAT_SIZE           = "size:";
+
+    public static final String  FORMAT_SIZE_ATTR      = "format:size";
+    
     public static final String  NAME                  = "select";
 
-    private final Class<? extends HtmlSelectOneMenu> inputComponentClass;
+    private final Class<? extends HtmlSelectOneMenu> menuComponentClass;
+
+    private final Class<? extends HtmlSelectOneListbox> listComponentClass;
     
-    public SelectInputControl(String name, Class<? extends HtmlSelectOneMenu> inputComponentClass)
+    public SelectInputControl(String name, Class<? extends HtmlSelectOneMenu> menuComponentClass, Class<? extends HtmlSelectOneListbox> listComponentClass)
     {
         super(name);
-        this.inputComponentClass = inputComponentClass;
+        this.menuComponentClass = menuComponentClass;
+        this.listComponentClass = listComponentClass;
     }
 
     public SelectInputControl()
     {
-        this(SelectInputControl.NAME, HtmlSelectOneMenu.class);
+        this(SelectInputControl.NAME, HtmlSelectOneMenu.class, HtmlSelectOneListbox.class);
     }
 
     /* for SelectTag (when no column is available) */ 
-    public HtmlSelectOneMenu createMenuComponent(UIComponent parent)
+    public UISelectOne createSelectComponent(UIComponent parent, FacesContext context, Object formatSize)
     {
-        return InputControlManager.createComponent(FacesContext.getCurrentInstance(), this.inputComponentClass);
+        Class<? extends UISelectOne> selectOneClass;
+        int listSize = ObjectUtils.getInteger(formatSize, 1);
+        if (listSize==-1 || listSize>1)
+            selectOneClass = this.listComponentClass;
+        else
+            selectOneClass = this.menuComponentClass;
+        // create now
+        UISelectOne selectOne = InputControlManager.createComponent(context, selectOneClass);
+        // set list size
+        if ((selectOne instanceof HtmlSelectOneListbox) && listSize>1)
+            ((HtmlSelectOneListbox)selectOne).setSize(listSize);
+        // done
+        return selectOne;
     }
 
     @Override
@@ -74,16 +95,16 @@ public class SelectInputControl extends InputControl
         // check params
         if (!compList.isEmpty())
             throw new InvalidArgumentException("compList", compList);
-        // create
-        HtmlSelectOneMenu input = InputControlManager.createComponent(context, this.inputComponentClass);
+        // create list or menu
+        Object formatSize = getFormatOption(ii, FORMAT_SIZE, FORMAT_SIZE_ATTR);
+        UISelectOne input = createSelectComponent(parent, context, formatSize);
         // setValueExpressionFlag
         Object value = ii.getValue(false);
         input.getAttributes().put(SelectInputControl.VALUE_EXPRESSION_FLAG, (value instanceof ValueExpression));
         // copy Attributes
         copyAttributes(parent, ii, input);
         // disabled
-        boolean disabled = ii.isDisabled();
-        input.setDisabled(disabled);
+        boolean disabled = setDisabled(input, ii);
         // Options
         initOptions(input, ii.getTextResolver(), ii);
         // add
@@ -99,16 +120,15 @@ public class SelectInputControl extends InputControl
     protected void updateInputState(List<UIComponent> compList, InputInfo ii, FacesContext context, PhaseId phaseId)
     {
         UIComponent comp = compList.get(0);
-        if (!(comp instanceof HtmlSelectOneMenu))
+        if (!(comp instanceof UISelectOne))
         {
             throw new UnexpectedReturnValueException(comp.getClass().getName(), "parent.getChildren()");
         }
-        HtmlSelectOneMenu input = (HtmlSelectOneMenu)comp;
+        UISelectOne input = (UISelectOne)comp;
         // required
     	addRemoveStyle(input, InputControl.STYLECLASS_REQUIRED, ii.isRequired());
         // disabled
-        boolean disabled = ii.isDisabled();
-        input.setDisabled(disabled);
+    	boolean disabled = setDisabled(input, ii);
         // check phase
         if (phaseId!=PhaseId.APPLY_REQUEST_VALUES)
         {   // Options (sync)
@@ -122,9 +142,23 @@ public class SelectInputControl extends InputControl
             setInputValue(input, ii);
         }
     }
-
-    protected boolean isEmptyEntryRequired(Options options, InputInfo ii, Object currentValue)
+    
+    protected boolean setDisabled(UISelectOne input, InputInfo ii)
     {
+        boolean disabled = ii.isDisabled();
+        if (input instanceof HtmlSelectOneMenu)
+            ((HtmlSelectOneMenu)input).setDisabled(disabled);
+        else if (input instanceof HtmlSelectOneListbox)
+            ((HtmlSelectOneListbox)input).setDisabled(disabled);
+        else
+            log.warn("Unable to set disabled attribute!");
+        return disabled;
+    }
+
+    protected boolean isEmptyEntryRequired(UISelectOne input, Options options, InputInfo ii, Object currentValue)
+    {
+        if (input instanceof HtmlSelectOneListbox)
+            return false; // not for listbox
         if (options!=null && options.containsNull())
         {   // already has an empty option
             return false;
@@ -147,7 +181,7 @@ public class SelectInputControl extends InputControl
         return ObjectUtils.isEmpty(currentValue);
     }
 
-    public void initOptions(HtmlSelectOneMenu input, TextResolver textResolver, InputInfo ii)
+    public void initOptions(UISelectOne input, TextResolver textResolver, InputInfo ii)
     {
         // get the options
         Options options = ii.getOptions();
@@ -161,7 +195,7 @@ public class SelectInputControl extends InputControl
         }
         // current 
         Object currentValue = ii.getValue(true);
-        if (isEmptyEntryRequired(options, ii, currentValue))
+        if (isEmptyEntryRequired(input, options, ii, currentValue))
         {   // Empty entry
             addSelectItem(input, textResolver, new OptionEntry(null, getNullText(ii)));
         }
@@ -181,7 +215,7 @@ public class SelectInputControl extends InputControl
         }
     }
     
-    public void syncOptions(HtmlSelectOneMenu input, TextResolver textResolver, InputInfo ii)
+    public void syncOptions(UISelectOne input, TextResolver textResolver, InputInfo ii)
     {
         // get the options
         Options options = ii.getOptions();
@@ -194,7 +228,7 @@ public class SelectInputControl extends InputControl
             return;
         }
         Object currentValue = ii.getValue(true);
-        boolean hasEmpty = isEmptyEntryRequired(options, ii, currentValue);
+        boolean hasEmpty = isEmptyEntryRequired(input, options, ii, currentValue);
         // boolean isInsideUIData = ii.isInsideUIData();
         // Compare child-items with options
         Iterator<OptionEntry> ioe = options.iterator();
