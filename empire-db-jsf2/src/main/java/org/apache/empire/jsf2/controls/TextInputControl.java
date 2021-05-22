@@ -366,7 +366,7 @@ public class TextInputControl extends InputControl
         writer.append(text);
         // unit?
         String unit = getUnitString(vi);
-        if (StringUtils.isNotEmpty(unit))
+        if (StringUtils.isNotEmpty(unit) && !hasFormatOption(vi, "nounit"))
         { // append unit
             writer.append(" ");
             writer.append(unit);
