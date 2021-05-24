@@ -19,6 +19,7 @@
 package org.apache.empire.db;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.sql.Connection;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -449,7 +450,7 @@ public class DBTableColumn extends DBColumn
                     }
                 }
                 // validate Number
-                validateNumber(type, (Number)value);
+                value = validateNumber(type, (Number)value);
                 break;
 
             case FLOAT:
@@ -465,7 +466,7 @@ public class DBTableColumn extends DBColumn
                     }
                 }
                 // validate Number
-                validateNumber(type, (Number)value);
+                value = validateNumber(type, (Number)value);
                 break;
 
             case INTEGER:
@@ -487,7 +488,7 @@ public class DBTableColumn extends DBColumn
                     }
                 }
                 // validate Number
-                validateNumber(type, (Number)value);
+                value = validateNumber(type, (Number)value);
                 break;
 
             case TEXT:
@@ -514,7 +515,7 @@ public class DBTableColumn extends DBColumn
         return value;
     }
     
-    protected void validateNumber(DataType type, Number n)
+    protected Number validateNumber(DataType type, Number n)
     {
         // Check Range
         Object min = getAttribute(Column.COLATTR_MINVALUE);
@@ -554,9 +555,19 @@ public class DBTableColumn extends DBColumn
             double size = getSize();
             int reqPrec = (int)size;
             int reqScale = getDecimalScale();
-            if ((prec-scale)>(reqPrec-reqScale) || scale>reqScale)
+            if (scale>reqScale)
+            {   // Round if scale is exceeded
+                dv = dv.setScale(reqScale, RoundingMode.HALF_UP);
+                prec  = dv.precision();
+                scale = dv.scale();
+                n = dv;
+            }
+            if ((prec-scale)>(reqPrec-reqScale))
+            {   
                 throw new FieldValueOutOfRangeException(this);
+            }
         }
+        return n;
     }
 
     /**

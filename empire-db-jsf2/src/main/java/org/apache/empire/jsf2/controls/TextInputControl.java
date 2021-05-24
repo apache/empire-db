@@ -99,7 +99,7 @@ public class TextInputControl extends InputControl
         compList.add(input);
         // add unit
         String unit = getUnitString(ii);
-        if (StringUtils.isNotEmpty(unit) && !hasFormatOption(ii, "nounit"))
+        if (StringUtils.isNotEmpty(unit))
         {   // add the unit
             compList.add(createUnitLabel("eUnit", ii, unit));
         }
@@ -366,7 +366,7 @@ public class TextInputControl extends InputControl
         writer.append(text);
         // unit?
         String unit = getUnitString(vi);
-        if (StringUtils.isNotEmpty(unit) && !hasFormatOption(vi, "nounit"))
+        if (StringUtils.isNotEmpty(unit))
         { // append unit
             writer.append(" ");
             writer.append(unit);
@@ -584,7 +584,7 @@ public class TextInputControl extends InputControl
         String format = getFormatString(vi, TextInputControl.FORMAT_UNIT, TextInputControl.FORMAT_UNIT_ATTRIBUTE);
         if (format != null)
         {
-            return vi.getTextResolver().resolveText(format);
+            return (format.length()>0 ? vi.getTextResolver().resolveText(format) : null);
         }
         // Is it a currency column
         Column column = vi.getColumn();
