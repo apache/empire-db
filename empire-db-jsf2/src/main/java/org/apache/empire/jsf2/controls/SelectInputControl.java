@@ -345,7 +345,8 @@ public class SelectInputControl extends InputControl
         // Lookup and Print value
         if (vi.getOptions() == null)
         {
-            SelectInputControl.log.warn("Select field {} has no Option list attached!", vi.getColumn().getName());
+            if (!hasFormatOption(vi, "nolookup"))
+                SelectInputControl.log.warn("Select field {} has no Option list attached!", vi.getColumn().getName());
             return super.formatValue(value, vi);
         }
         // Check for Abbreviation
