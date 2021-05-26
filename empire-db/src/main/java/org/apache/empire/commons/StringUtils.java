@@ -31,6 +31,16 @@ public class StringUtils
     }
 
     /**
+     * Empty String
+     */
+    public static final String EMPTY = "";
+
+    /**
+     * Single Space
+     */
+    public static final String SPACE = " ";
+
+    /**
      * Converts a value to a string.
      * If the value is null then the default value is returned.
      * 
