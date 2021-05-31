@@ -267,6 +267,7 @@ public class SelectInputControl extends InputControl
             }
             if (ObjectUtils.compareEqual(ov, oe.getValue()))
             {   // next
+                si.setItemLabel(oe.getText());
                 oe = (ioe.hasNext() ? ioe.next() : null);
                 continue;
             }
