@@ -250,8 +250,8 @@ public class StringUtils
      */
     public static boolean compareEqual(String s1, String s2)
     {
-        if (s1==null || s2==null)
-            return (s1==s2);
+        if (s1==s2)
+            return true;
         // Empty
         if (isEmpty(s1) && isEmpty(s2))
             return true;
