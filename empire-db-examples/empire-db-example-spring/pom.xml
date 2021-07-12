@@ -119,7 +119,7 @@
     	<repository>
 		    <id>spring-milestone</id>
 		    <name>Spring Portfolio Milestone Repository</name>
-		    <url>http://s3.amazonaws.com/maven.springframework.org/milestone</url>
+		    <url>https://s3.amazonaws.com/maven.springframework.org/milestone</url>
 		</repository>
     </repositories>
 
