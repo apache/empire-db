@@ -25,6 +25,7 @@ import org.apache.empire.db.DBObject;
 import org.apache.empire.db.DBRelation;
 import org.apache.empire.db.DBTable;
 import org.apache.empire.db.DBView;
+import org.apache.empire.db.DBView.DBViewColumn;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -78,6 +79,11 @@ public class DBModelErrorLogger implements DBModelErrorHandler
     @Override
     public void columnTypeMismatch(DBColumn col, DataType type)
     {
+        if ((col instanceof DBViewColumn) && col.getDataType()==DataType.DECIMAL && type==DataType.INTEGER)
+        {   // sepcial view column handling
+            return;
+        }
+        // log
         DBModelErrorLogger.log.error("The column " + col.getFullName() + " type of {} does not match the database type of {}.", col.getDataType(), type);
     }
 
@@ -91,7 +97,7 @@ public class DBModelErrorLogger implements DBModelErrorHandler
         {   // Database size is smaller: Error 
             DBModelErrorLogger.log.error("The column "+col.getFullName()+" size of {} does not match the database size of {}.", col.getSize(), size);
         }
-        else
+        else if (col.getDataType()!=DataType.INTEGER)
         {   // Database size is bigger or unknown: Warning only
             DBModelErrorLogger.log.warn("The column "+col.getFullName()+" size of {} does not match the database size of {}.", col.getSize(), size);
         }
