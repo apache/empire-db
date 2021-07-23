@@ -253,8 +253,10 @@ public class StringUtils
         if (s1==s2)
             return true;
         // Empty
-        if (isEmpty(s1) && isEmpty(s2))
-            return true;
+        if (isEmpty(s1))
+            return isEmpty(s2);
+        else if (isEmpty(s2))
+            return false;
         // Compare 
         return s1.equals(s2);
     }
