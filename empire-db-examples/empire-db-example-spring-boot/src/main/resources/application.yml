@@ -1,0 +1,57 @@
+spring:
+  profiles:
+    active: hsqldb
+  datasource:
+    url: 'jdbc:hsqldb:file:hsqldb/sample;shutdown=true'
+    username: 'sa'
+    password: ''
+
+empiredb:
+  driverClass: 'org.apache.empire.db.hsql.DBDatabaseDriverHSql'
+
+---
+
+spring:
+  config:
+    activate:
+      on-profile: mysql
+
+empiredb:
+  driverClass: 'org.apache.empire.db.mysql.DBDatabaseDriverMySQL'
+  driverProperties:
+    databaseName: 'DBSAMPLE'
+
+---
+
+spring:
+  config:
+    activate:
+      on-profile: postgresql
+
+---
+
+spring:
+  config:
+    activate:
+      on-profile: h2
+
+---
+
+spring:
+  config:
+    activate:
+      on-profile: derby
+
+---
+
+spring:
+  config:
+    activate:
+      on-profile: oracle
+
+---
+
+spring:
+  config:
+    activate:
+      on-profile: sqlserver
