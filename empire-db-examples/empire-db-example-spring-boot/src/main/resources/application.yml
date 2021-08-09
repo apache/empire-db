@@ -15,6 +15,10 @@ spring:
   config:
     activate:
       on-profile: mysql
+  datasource:
+    url: 'jdbc:mysql://localhost'
+    username: 'root'
+    password: 'esteam'
 
 empiredb:
   driverClass: 'org.apache.empire.db.mysql.DBDatabaseDriverMySQL'
@@ -27,6 +31,15 @@ spring:
   config:
     activate:
       on-profile: postgresql
+  datasource:
+    url: 'jdbc:postgresql://localhost'
+    username: 'postgres'
+    password: 'postgres'
+
+empiredb:
+  driverClass: 'org.apache.empire.db.postgresql.DBDatabaseDriverPostgreSQL'
+  driverProperties:
+    databaseName: 'DBSAMPLE'
 
 ---
 
@@ -34,6 +47,15 @@ spring:
   config:
     activate:
       on-profile: h2
+  datasource:
+    url: 'jdbc:h2:h2/DBSAMPLE'
+    username: 'sa'
+    password: ''
+
+empiredb:
+  driverClass: 'org.apache.empire.db.h2.DBDatabaseDriverH2'
+  driverProperties:
+    databaseName: 'DBSAMPLE'
 
 ---
 
@@ -41,6 +63,15 @@ spring:
   config:
     activate:
       on-profile: derby
+  datasource:
+    url: 'jdbc:derby:derby/DBSAMPLE;create=true'
+    username: ''
+    password: ''
+
+empiredb:
+  driverClass: 'org.apache.empire.db.derby.DBDatabaseDriverDerby'
+  driverProperties:
+    databaseName: 'DBSAMPLE'
 
 ---
 
@@ -48,6 +79,13 @@ spring:
   config:
     activate:
       on-profile: oracle
+  datasource:
+    url: 'jdbc:oracle:thin:@192.168.0.2:1521:ora10'
+    username: 'DBSAMPLE'
+    password: 'DBSAMPLE'
+
+empiredb:
+  driverClass: 'org.apache.empire.db.oracle.DBDatabaseDriverOracle'
 
 ---
 
@@ -55,3 +93,14 @@ spring:
   config:
     activate:
       on-profile: sqlserver
+  datasource:
+    url: 'jdbc:sqlserver://esteamsvr12\sql14'
+    username: 'jdbcUser'
+    password: 'jdbcPwd'
+
+empiredb:
+  driverClass: 'org.apache.empire.db.sqlserver.DBDatabaseDriverMSSQL'
+  driverProperties:
+    databaseName: 'DBSAMPLE'
+    useSequenceTable: false
+    useDateTime2: true
