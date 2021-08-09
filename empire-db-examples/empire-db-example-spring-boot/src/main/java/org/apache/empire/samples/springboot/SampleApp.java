@@ -99,48 +99,47 @@ public class SampleApp implements ApplicationRunner {
       if (db.isOpen() == false) {
         db.open(driver, conn);
       }
-
-      // STEP 5: Clear Database (Delete all records)
-      System.out.println("*** Step 5: clearDatabase() ***");
-      clearDatabase(conn);
-
-      // STEP 6: Insert Departments
-      System.out.println("*** Step 6: insertDepartment() & insertEmployee() ***");
-      int idDevDep = insertDepartment(conn, "Development", "ITTK");
-      int idSalDep = insertDepartment(conn, "Sales", "ITTK");
-      // Insert Employees
-      int idPers1 = insertEmployee(conn, "Peter", "Sharp", Gender.M, idDevDep);
-      int idPers2 = insertEmployee(conn, "Fred", "Bloggs", Gender.M, idDevDep);
-      int idPers3 = insertEmployee(conn, "Emma", "White", Gender.F, idSalDep);
-
-      // STEP 7: Update Records (by setting the phone Number)
-      System.out.println("*** Step 7: updateEmployee() ***");
-      updateEmployee(conn, idPers1, "+49-7531-457160");
-      updateEmployee(conn, idPers2, "+49-5555-505050");
-      updateEmployee(conn, idPers3, "+49-040-125486");
-
-      // commit
-      db.commit(conn);
-
-      // STEP 8: Option 1: Query Records and print tab-separated
-      System.out.println("*** Step 8 Option 1: queryRecords() / Tab-Output ***");
-      queryRecords(conn, QueryType.Reader); // Tab-Output
-
-      // STEP 8: Option 2: Query Records as a list of java beans
-      System.out.println("*** Step 8 Option 2: queryRecords() / Bean-List-Output ***");
-      queryRecords(conn, QueryType.BeanList); // Bean-List-Output
-
-      // STEP 8: Option 3: Query Records as XML
-      System.out.println("*** Step 8 Option 3: queryRecords() / XML-Output ***");
-      queryRecords(conn, QueryType.XmlDocument); // XML-Output
-
-      // STEP 9: Use Bean Result to query beans
-      queryBeans(conn);
-
-      // Done
-      System.out.println("DB Sample finished successfully.");
     }
 
+    // STEP 5: Clear Database (Delete all records)
+    System.out.println("*** Step 5: clearDatabase() ***");
+    clearDatabase(conn);
+
+    // STEP 6: Insert Departments
+    System.out.println("*** Step 6: insertDepartment() & insertEmployee() ***");
+    int idDevDep = insertDepartment(conn, "Development", "ITTK");
+    int idSalDep = insertDepartment(conn, "Sales", "ITTK");
+    // Insert Employees
+    int idPers1 = insertEmployee(conn, "Peter", "Sharp", Gender.M, idDevDep);
+    int idPers2 = insertEmployee(conn, "Fred", "Bloggs", Gender.M, idDevDep);
+    int idPers3 = insertEmployee(conn, "Emma", "White", Gender.F, idSalDep);
+
+    // STEP 7: Update Records (by setting the phone Number)
+    System.out.println("*** Step 7: updateEmployee() ***");
+    updateEmployee(conn, idPers1, "+49-7531-457160");
+    updateEmployee(conn, idPers2, "+49-5555-505050");
+    updateEmployee(conn, idPers3, "+49-040-125486");
+
+    // commit
+    db.commit(conn);
+
+    // STEP 8: Option 1: Query Records and print tab-separated
+    System.out.println("*** Step 8 Option 1: queryRecords() / Tab-Output ***");
+    queryRecords(conn, QueryType.Reader); // Tab-Output
+
+    // STEP 8: Option 2: Query Records as a list of java beans
+    System.out.println("*** Step 8 Option 2: queryRecords() / Bean-List-Output ***");
+    queryRecords(conn, QueryType.BeanList); // Bean-List-Output
+
+    // STEP 8: Option 3: Query Records as XML
+    System.out.println("*** Step 8 Option 3: queryRecords() / XML-Output ***");
+    queryRecords(conn, QueryType.XmlDocument); // XML-Output
+
+    // STEP 9: Use Bean Result to query beans
+    queryBeans(conn);
+
+    // Done
+    System.out.println("DB Sample finished successfully.");
   }
 
   /**
