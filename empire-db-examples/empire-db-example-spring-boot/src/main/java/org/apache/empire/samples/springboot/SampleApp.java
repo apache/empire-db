@@ -266,7 +266,9 @@ public class SampleApp implements ApplicationRunner {
           } else {
             LOGGER.error("Failed to set property '{}'. Value is \"{}\"", name, value);
           }
-        } catch (IllegalAccessException | InvocationTargetException ex) {
+        } catch (IllegalAccessException ex) {
+          LOGGER.error(null, ex);
+        } catch (InvocationTargetException ex) {
           LOGGER.error(null, ex);
         } catch (NoSuchMethodException ex) {
           LOGGER.error("Property '{}' not found in {}", name, bean.getClass().getName());

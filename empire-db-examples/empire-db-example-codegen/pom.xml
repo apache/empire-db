@@ -32,7 +32,7 @@
 		</dependency>
 
 		<dependency>
-		    <groupId>hsqldb</groupId>
+		    <groupId>org.hsqldb</groupId>
 		    <artifactId>hsqldb</artifactId>
 		</dependency> 
 		
@@ -65,7 +65,7 @@
 					<!-- either specify a config file -->  
 					<configFile>generate-config.xml</configFile>
 					<!-- or provide the parameters directly  
-					<jdbcClass>org.hsqldb.jdbcDriver</jdbcClass>
+					<jdbcClass>org.hsqldb.jdbc.JDBCDriver</jdbcClass>
 					<jdbcURL>jdbc:hsqldb:file:${project.basedir}/src/test/resources/hsqldb/sample;shutdown=true</jdbcURL>
 					<jdbcUser>sa</jdbcUser>
 					<jdbcPwd></jdbcPwd>
@@ -85,9 +85,9 @@
 				 -->
 				<dependencies>
 					<dependency>
-						<groupId>hsqldb</groupId>
+						<groupId>org.hsqldb</groupId>
 						<artifactId>hsqldb</artifactId>
-                        <version>1.8.0.10</version>
+                        <version>2.3.6</version>
 					</dependency> 
 				</dependencies>
 			</plugin>

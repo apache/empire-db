@@ -21,7 +21,7 @@
 
 	<properties>
 		<!-- provider name must match the property-section containing the connection data -->
-		<jdbcClass>org.hsqldb.jdbcDriver</jdbcClass>
+		<jdbcClass>org.hsqldb.jdbc.JDBCDriver</jdbcClass>
 		<jdbcURL>jdbc:hsqldb:file:src/test/resources/hsqldb/sample;shutdown=true</jdbcURL>
 		<jdbcUser>sa</jdbcUser>
 		<jdbcPwd></jdbcPwd>
