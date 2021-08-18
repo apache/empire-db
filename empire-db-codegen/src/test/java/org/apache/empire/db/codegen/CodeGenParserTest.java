@@ -58,9 +58,9 @@ public class CodeGenParserTest {
 		assertNotNull("Expected EMPLOYEES table.", employees);
 
         final List<DBRelation> relations = db.getRelations();
-        assertEquals("Should have two relations.", 2, relations.size());
+        assertEquals("Should have one relation.", 1, relations.size());
 
-        final DBRelation dbRelation = relations.get(1);
+        final DBRelation dbRelation = relations.get(0);
         assertEquals("EMPLOYEES_DEPARTMENT_I_FK", dbRelation.getName());
 
         final DBReference[] references = dbRelation.getReferences();
@@ -73,6 +73,6 @@ public class CodeGenParserTest {
         final DBColumn salary = employees.getColumn("SALARY");
 
         assertThat(salary.getDataType(), is(DECIMAL));
-        assertThat(salary.getSize(), is(121.212));
+        assertThat(salary.getSize(), is(10.2));
     }
 }

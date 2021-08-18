@@ -26,7 +26,6 @@ import java.util.HashMap;
 import org.apache.empire.commons.DateUtils;
 import org.apache.empire.commons.Options;
 import org.apache.empire.commons.StringUtils;
-import org.apache.empire.data.DataMode;
 import org.apache.empire.data.DataType;
 import org.apache.empire.db.DBCmdParam;
 import org.apache.empire.db.DBCmdType;
@@ -38,7 +37,7 @@ import org.apache.empire.db.DBReader;
 import org.apache.empire.db.DBRecord;
 import org.apache.empire.db.DBSQLScript;
 import org.apache.empire.db.DBTableColumn;
-import org.apache.empire.db.exceptions.StatementFailedException;
+import org.apache.empire.db.exceptions.ConstraintViolationException;
 import org.apache.empire.db.h2.DBDatabaseDriverH2;
 import org.apache.empire.db.postgresql.DBDatabaseDriverPostgreSQL;
 import org.slf4j.Logger;
@@ -650,7 +649,7 @@ public class SampleAdvApp
         // This statement is designed to fail since cascaded deletes are not on!
         try {
             db.T_DEPARTMENTS.deleteRecord(idDepartment, conn);
-        } catch(StatementFailedException e) {
+        } catch(ConstraintViolationException e) {
             System.out.println("Delete of department failed as expected due to existing depending records.");
         }
     }

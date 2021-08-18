@@ -485,6 +485,7 @@
 			       			<!-- file types -->
                             <exclude>**/*.iml</exclude>
 			       			<exclude>**/*.json</exclude>
+			       			<exclude>**/*.jml</exclude>
 			       			<!-- specific files -->
                             <exclude>**/META-INF/MANIFEST.MF</exclude>
 			       			<exclude>**/.project</exclude>
