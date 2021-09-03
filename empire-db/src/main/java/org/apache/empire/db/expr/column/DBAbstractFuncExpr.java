@@ -209,20 +209,26 @@ public abstract class DBAbstractFuncExpr extends DBColumnExpr
                 // template = template.replaceAll("\\{" + String.valueOf(i) + "\\}", value);
                 template = StringUtils.replaceAll(template, ph, paramAsString);
             }
-        }
-        // Get Prefix and Postfix
-        String prefix  = template;
-        String postfix = "";
-        int sep = template.indexOf("?");
-        if (sep >= 0)
+        }        
+        // Assemble SQL
+        int beg = 0;
+        while (true)
         {
-            prefix  = template.substring(0, sep);
-            postfix = template.substring(sep + 1);
-        } 
-        // append
-        sql.append(prefix);
-        expr.addSQL(sql, (context & ~CTX_ALIAS));
-        sql.append(postfix);
+            int end = template.indexOf("?", beg);
+            if (end < 0)
+                break;
+            // part
+            sql.append(template.substring(beg, end));
+            expr.addSQL(sql, (context & ~CTX_ALIAS));
+            beg = end + 1;
+        }
+        if (beg < template.length())
+        {   // add the rest
+            sql.append(template.substring(beg));
+            // special case: Nothing added yet
+            if (beg==0)
+                log.warn("No Placeholder for Column found in function template.");
+        }
     }
 
     @Override
