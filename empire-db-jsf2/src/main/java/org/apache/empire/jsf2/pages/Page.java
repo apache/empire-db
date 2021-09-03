@@ -268,6 +268,17 @@ public abstract class Page implements Serializable
         ExternalContext ec = FacesContext.getCurrentInstance().getExternalContext();
         ec.getSessionMap().put(SESSION_MESSAGE, facesMsg);
     }
+    
+    protected void setSessionError(Throwable e)
+    {
+        // Set Session Message
+        String msg = getErrorMessage(e);
+        String detail = extractErrorMessageDetail(action, e, 1);
+        if (log.isDebugEnabled())
+            log.debug(msg + "\r\n" + detail, e);
+        FacesMessage facesMsg = new FacesMessage(FacesMessage.SEVERITY_ERROR, msg, detail);
+        setSessionMessage(facesMsg);
+    }
 
     protected boolean handleActionError(String action, Throwable e)
     {
