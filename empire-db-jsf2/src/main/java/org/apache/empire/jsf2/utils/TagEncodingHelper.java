@@ -786,6 +786,13 @@ public class TagEncodingHelper implements NamingContainer
             ValueExpression ve = component.getValueExpression("value");
             if (ve == null)
                 throw new PropertyReadOnlyException("value");
+            
+            if (ObjectUtils.isEmpty(value))
+            {   // check mandatory
+                Object mandatory = getTagAttributeValue("mandatory");
+                if (ObjectUtils.getBoolean(mandatory))
+                    throw new FieldNotNullException(this.column);
+            }
 
             FacesContext ctx = FacesContext.getCurrentInstance();
             ve.setValue(ctx.getELContext(), value);
