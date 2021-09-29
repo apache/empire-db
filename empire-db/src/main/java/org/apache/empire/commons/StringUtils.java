@@ -568,4 +568,20 @@ public class StringUtils
         return start.toLowerCase()+s.substring(count);
     }
     
+    /**
+     * truncates a string to a maximum number of chars 
+     * @param s the source string
+     * @param the maximum number of chars
+     * @return the result string
+     */
+    public static String truncate(String s, int maxChar)
+    {
+        if (isEmpty(s))
+            return StringUtils.EMPTY;
+        if (maxChar<1 || s.length()<maxChar)
+            return s;
+        // trunc
+        return s.substring(0, maxChar);
+    }
+    
 }
