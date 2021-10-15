@@ -534,7 +534,9 @@ public class TextInputControl extends InputControl
         Object fractDigit = column.getAttribute(Column.COLATTR_FRACTION_DIGITS);
         if (fractDigit != null)
         {   int fractionDigits = ObjectUtils.getInteger(fractDigit);
-            nf.setMaximumFractionDigits(fractionDigits);
+            int length = (int)column.getSize();
+            int fractionColumn = (int)(column.getSize()*10)-(length*10);
+            nf.setMaximumFractionDigits(Math.max(fractionDigits, fractionColumn));
             nf.setMinimumFractionDigits(fractionDigits);
         }
         // IntegerDigits (left-padding)
