@@ -673,9 +673,7 @@ public class TagEncodingHelper implements NamingContainer
             {
                 this.uiDataTag = (UIData)parent;
                 this.insideUIData = true;
-                if (this.uiDataTag.getRowIndex()<0)
-                    return null; // No Row selected
-                return this.uiDataTag.getRowData();
+                return (this.uiDataTag.isRowAvailable() ? this.uiDataTag.getRowData() : null);
             }
         }
         return null;
