@@ -734,6 +734,11 @@ public final class ObjectUtils
             c = (Class<T>) MethodUtils.getPrimitiveWrapper(c);
         }    
         // Convert
+        if (c.isEnum())
+        {   // convert to enum
+            Object ev = getEnum((Class<? extends Enum<?>>)c, v); 
+            return (T)ev;
+        }
         if (c.isAssignableFrom(Boolean.class))
             return c.cast(getBoolean(v));
         if (c.isAssignableFrom(Integer.class))
