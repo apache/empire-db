@@ -359,9 +359,9 @@ public abstract class DBCommand extends DBCommandExpr
     /**
      * replaces a select expression with another or removes a select expression
      * In order to remove the expression, set the replWith parameter to null
+     * If the replace expression is not found, an ItemNotFoundException is thrown 
      * @param replExpr
      * @param replWith
-     * @return true if the expression could be replaced or false otherwise
      */
     public void replaceSelect(DBColumnExpr replExpr, DBColumnExpr replWith)
     {
@@ -373,6 +373,22 @@ public abstract class DBCommand extends DBCommandExpr
             select.set(idx, replWith);
         else
             select.remove(idx);
+    }
+
+    /**
+     * removes one or more expressions from the Select expression list
+     * @param exprs the expression(s) to be removed
+     */
+    public void removeSelect(DBColumnExpr... exprs)
+    {
+        if (select==null)
+            return;
+        for (int i=0; i<exprs.length; i++)
+        {
+            int idx = select.indexOf(exprs[i]);
+            if (idx>=0)
+                select.remove(idx);
+        }
     }
     
     /**
@@ -913,9 +929,22 @@ public abstract class DBCommand extends DBCommandExpr
         }
     }
     
+    /**
+     * returns whether or not the command has any select expression 
+     * @return true if the command has any select expression of false otherwise
+     */
     public boolean hasSelectExpr()
     {
-        return (select!=null && select.size()>0);
+        return (select!=null && !select.isEmpty());
+    }
+
+    /**
+     * returns whether or not the command has a specific select expression 
+     * @return true if the command contains the given select expression of false otherwise
+     */
+    public boolean hasSelectExpr(DBColumnExpr expr)
+    {
+        return (select!=null ? (select.indexOf(expr)>=0) : false);
     }
     
     @Override
