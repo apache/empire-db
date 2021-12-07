@@ -92,7 +92,10 @@ public class HSqlDDLGenerator extends DBDDLGenerator<DBDatabaseDriverHSql>
                 if (c.getDataType() == DataType.AUTOINC && (c instanceof DBTableColumn))
                 {   // SEQUENCE column
                     DBTableColumn column = (DBTableColumn) c;
-                    script.addStmt("DROP SEQUENCE " + column.getSequenceName());
+                    StringBuilder sql = new StringBuilder("DROP SEQUENCE ");
+                    //Sequence name can contain special characters
+                    appendElementName(sql, column.getSequenceName());
+                    script.addStmt(sql.toString());
                 }
             }
         }
