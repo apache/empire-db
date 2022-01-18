@@ -37,7 +37,6 @@ import java.util.Set;
  * <P>
  * There is no need to explicitly create instances of this class.<BR>
  * Instead use {@link DBColumnExpr#append(Object) }
- * <P>
  */
 public class DBConcatExpr extends DBColumnExpr
 {

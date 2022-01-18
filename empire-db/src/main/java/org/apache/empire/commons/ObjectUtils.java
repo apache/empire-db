@@ -584,7 +584,7 @@ public final class ObjectUtils
     }
     
     /**
-     * Convert Enum<?> to Object
+     * Convert Enum to Object
      */
     public static Object getEnumValue(Enum<?> enumValue, boolean isNumeric)
     {
@@ -596,7 +596,7 @@ public final class ObjectUtils
     }
     
     /**
-     * Convert Enum<?> to String
+     * Convert Enum to String
      */
     public static String getString(Enum<?> enumValue)
     {

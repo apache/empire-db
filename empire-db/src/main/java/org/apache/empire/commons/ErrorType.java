@@ -32,7 +32,6 @@ import java.io.Serializable;
  * <P>
  * The MessagePattern is a template containing the error message and placeholders for additional parameters.
  * The MessagePattern must be formated according to the {@link java.text.MessageFormat} rules.
- * <P>
  */
 public class ErrorType implements Serializable
 {

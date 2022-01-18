@@ -23,7 +23,6 @@ import org.apache.empire.commons.Options;
 /**
  * The column interface provides methods for accessing metadata that is relevant for managing
  * and displaying data available through the RecordData interface.
- * <P>
  */
 public interface ColumnExpr
 {

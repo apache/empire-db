@@ -31,7 +31,6 @@ import org.apache.empire.commons.Options;
  * This interface inherits from RecordData which provides further data access methods.
  * <P>
  * The Record interface is implemented by the class {@link org.apache.empire.db.DBRecord}
- * <P>
  */
 public interface Record extends RecordData
 {

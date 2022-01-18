@@ -37,7 +37,6 @@ import org.w3c.dom.Element;
  * There is no need to explicitly create instances of this class.<BR>
  * Instead use {@link DBColumnExpr#plus(Object) }, {@link DBColumnExpr#minus(Object) },
  * {@link DBColumnExpr#multiplyWith(Object) }, {@link DBColumnExpr#divideBy(Object) }
- * <P>
  */
 public class DBCalcExpr extends DBColumnExpr
 {

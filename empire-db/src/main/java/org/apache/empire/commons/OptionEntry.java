@@ -25,7 +25,6 @@ import java.io.Serializable;
  * This class is used by the Options class to implement a set of options 
  * where the option value us used as the key for the set.<BR>
  * The text should only be used for display purposes e.g. to display a drop-down in a user interface.<BR>
- * <P>
  */
 public class OptionEntry implements Serializable
 {

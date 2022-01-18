@@ -22,7 +22,6 @@ package org.apache.empire.data;
  * The column interface provides methods for accessing metadata that is only relevant for updating records.
  * <P>
  * This interface inherits from ColumnExpr which provides further metadata.
- * <P>
  */
 public interface Column extends ColumnExpr
 {

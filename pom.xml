@@ -118,10 +118,13 @@
 							</execution>
 						</executions>
 					</plugin>
-					<!-- temporarily disable due to build problem 
+					<!-- temporarily disable due to build problem -->
 					<plugin>
 						<groupId>org.apache.maven.plugins</groupId>
 						<artifactId>maven-javadoc-plugin</artifactId>
+						<configuration>
+							<additionalparam>-Xdoclint:none</additionalparam>
+						</configuration>
 						<executions>
 							<execution>
 								<id>attach-javadocs</id>
@@ -131,7 +134,6 @@
 							</execution>
 						</executions>
 					</plugin>
-					 -->
 				</plugins>
 			</build>
 		</profile>
@@ -178,6 +180,14 @@
 								</goals>
 							</execution>
 						</executions>
+					</plugin>
+					<!-- temporarily disable due to build problem -->
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-javadoc-plugin</artifactId>
+						<configuration>
+							<additionalparam>-Xdoclint:none</additionalparam>
+						</configuration>
 					</plugin>
 				</plugins>
 			</build>
@@ -803,11 +813,11 @@
 				<artifactId>maven-jxr-plugin</artifactId>
 				<version>2.4</version>
 			</plugin>
-			<!-- maven-javadoc-plugin
-				 temporarily disable due to build problem 
+			<!-- maven-javadoc-plugin 
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-javadoc-plugin</artifactId>
+				<version>2.10.3</version>
 			</plugin>
 			-->
 			<!-- maven-changelog-plugin -->

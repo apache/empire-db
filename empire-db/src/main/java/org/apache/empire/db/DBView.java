@@ -35,7 +35,6 @@ import org.w3c.dom.Element;
 /**
  * This class represents a database view.
  * It contains methods to get and update records from the database
- * <P>
  */
 public abstract class DBView extends DBRowSet
 {
