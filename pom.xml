@@ -567,6 +567,7 @@
 			       			<exclude>**/static/js/*.js</exclude>
 			       			<exclude>**/app.*.css</exclude>
 			       			<exclude>**/readme.txt</exclude>
+			       			<exclude>**/.factorypath</exclude>
                         </excludes>
 		                <encoding>UTF-8</encoding>
 		            </configuration>
