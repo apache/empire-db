@@ -1,8 +1,45 @@
 Apache Empire-db
-Copyright 2008-2018 The Apache Software Foundation
+Copyright 2008-2021 The Apache Software Foundation
 
 For more Information about a particular issue please visit
 https://issues.apache.org/jira/browse/EMPIREDB
+
+--------------
+Release 2.5.1:
+--------------
+
+** Improvement
+	EMPIREDB-361	JSF:    NumberFormat allow MaximumFractionDigits<>MinimumFractionDigits
+	EMPIREDB-360	JSF:    Add check for null on ValueExpressions supplied with input or control tag.
+	EMPIREDB-359	Core:   Allow multiple occurrences of column placeholder in function expression template
+	EMPIREDB-358	Core:   New example project for spring-boot integration
+	EMPIREDB-355	JSF:    JSF extensions: Allow SelectControl to be rendered as listbox
+	EMPIREDB-354	Core:   Miscellaneous small improvements
+	EMPIREDB-353	Core:   Provide default implementation für delete with joins
+	EMPIREDB-351	Core:   Improve ObjectUtils
+	EMPIREDB-350	JSF:    Allow LInkTag to render child elements
+	EMPIREDB-349	Core:   Improve DateUtils / add compare function
+	EMPIREDB-348	JSF:    Improve readonly detection for InputContols, allow override
+	EMPIREDB-346	Core:   Improve Enum value conversion / allow custom conversion
+	EMPIREDB-345	JSF:    JSF TextAreaInputControl: add css style for rows and cols
+	EMPIREDB-344	Core:   Allow replacement of select expressions in DBCommand
+	EMPIREDB-343	JSF:    JSF InputControl: Allow override readonly attribute
+	EMPIREDB-342	Core:   Impove allowed expressions for joins
+	EMPIREDB-341	Core:   Improved table cloning for multiple- and self-joins
+	EMPIREDB-337	JSF:    JSF Improve TabViewTag with option to hide tabBar
+	EMPIREDB-336	Core:   Add validity checks for Join expressions
+	EMPIREDB-334	Core:   Improve customizablity of data model code generation
+
+** Bugfix
+	EMPIREDB-357	Core:   StringUtils.compareEqual fails for arguments null + empty string
+	EMPIREDB-356	Core:   SelectInputControl: option label not correctly updated
+	EMPIREDB-352	Core:   DBExpr.getValueClass should return String.class for DataType CHAR
+	EMPIREDB-347	Core:   Avoid unneccessary instances of SimpleDateFormat in ObjectUtils
+	EMPIREDB-340	Core:   Omit command param if value is null
+	EMPIREDB-335	JSF:    JSF add missing format option "nolookup" for text controls
+	EMPIREDB-333	Core:   Fix Problem with parameter propagation for nested queries
+	EMPIREDB-332	Core:   codegen example incorrect pom entries
+	EMPIREDB-331	Core:   DBRowSet:initRecord falsely intializing fields with NO_VALUE
 
 --------------
 Release 2.5.0:
