@@ -20,6 +20,7 @@ package org.apache.empire.jsf2.websample.web;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.SQLException;
 import java.util.Locale;
 
 import javax.servlet.ServletContext;
@@ -27,10 +28,12 @@ import javax.sql.DataSource;
 
 import org.apache.empire.commons.StringUtils;
 import org.apache.empire.db.DBCommand;
+import org.apache.empire.db.DBContext;
 import org.apache.empire.db.DBDatabase;
 import org.apache.empire.db.DBDatabaseDriver;
 import org.apache.empire.db.DBRecord;
 import org.apache.empire.db.DBSQLScript;
+import org.apache.empire.db.context.DBContextStatic;
 import org.apache.empire.db.exceptions.QueryFailedException;
 import org.apache.empire.db.hsql.DBDatabaseDriverHSql;
 import org.apache.empire.db.mysql.DBDatabaseDriverMySQL;
@@ -133,15 +136,18 @@ public class SampleApplication extends WebApplication {
 		DBDatabaseDriver driver = getDatabaseDriver(driverProvider);
         log.info("Opening database '{}' using driver '{}'", sampleDB.getClass().getSimpleName(), driver.getClass().getSimpleName());
 		Connection conn = null;
+		DBContext context = null;
 		try {
 			conn = getConnection(sampleDB);
+			context = new DBContextStatic(driver, conn);
 			sampleDB.open(driver, conn);
 			if (!databaseExists(conn)) {
 				// STEP 4: Create Database
 				log.info("Creating database {}", sampleDB.getClass().getSimpleName());
-				createSampleDatabase(driver, conn);
+				createSampleDatabase(context);
 			}
 		} finally {
+		    context.discard();
 			releaseConnection(sampleDB, conn, true);
 		}
 	}
@@ -199,43 +205,42 @@ public class SampleApplication extends WebApplication {
 	 * the department tables does not exist, the entire dll-script is executed
 	 * line by line
 	 */
-	private void createSampleDatabase(DBDatabaseDriver driver, Connection conn) {
+	private void createSampleDatabase(DBContext context) {
 		// create DLL for Database Definition
-		DBSQLScript script = new DBSQLScript();
-		sampleDB.getCreateDDLScript(driver, script);
+		DBSQLScript script = new DBSQLScript(context);
+		sampleDB.getCreateDDLScript(script);
 		// Show DLL Statements
 		System.out.println(script.toString());
 		// Execute Script
-		script.executeAll(driver, conn, false);
-		sampleDB.commit(conn);
+		script.executeAll(false);
+		context.commit();
 		// Open again
 		if (!sampleDB.isOpen()) {
-			sampleDB.open(driver, conn);
+			sampleDB.open(context.getDriver(), conn);
 		}
 		// Insert Sample Departments
-		insertDepartmentSampleRecord(conn, "Procurement", "ITTK");
-		int idDevDep = insertDepartmentSampleRecord(conn, "Development", "ITTK");
-		int idSalDep = insertDepartmentSampleRecord(conn, "Sales", 		 "ITTK");
+		insertDepartmentSampleRecord(context, "Procurement", "ITTK");
+		int idDevDep = insertDepartmentSampleRecord(context, "Development", "ITTK");
+		int idSalDep = insertDepartmentSampleRecord(context, "Sales", 		 "ITTK");
 		// Insert Sample Employees
-		insertEmployeeSampleRecord(conn, "Mr.", "Eugen", "Miller", "M",		idDevDep);
-		insertEmployeeSampleRecord(conn, "Mr.", "Max", "Mc. Callahan", "M",	idDevDep);
-		insertEmployeeSampleRecord(conn, "Mrs.", "Anna", "Smith", "F", 		idSalDep);
+		insertEmployeeSampleRecord(context, "Mr.", "Eugen", "Miller", "M",		idDevDep);
+		insertEmployeeSampleRecord(context, "Mr.", "Max", "Mc. Callahan", "M",	idDevDep);
+		insertEmployeeSampleRecord(context, "Mrs.", "Anna", "Smith", "F", 		idSalDep);
 		// Commit
-		sampleDB.commit(conn);
+        context.commit();
 	}
 
 	/*
 	 * Insert a department
 	 */
-	private int insertDepartmentSampleRecord(Connection conn,
-			String department_name, String businessUnit) {
+	private int insertDepartmentSampleRecord(DBContext context, String department_name, String businessUnit) {
 		// Insert a Department
-		DBRecord rec = new DBRecord();
-		rec.create(sampleDB.T_DEPARTMENTS);
+		DBRecord rec = new DBRecord(context, sampleDB.T_DEPARTMENTS);
+		rec.create();
 		rec.setValue(sampleDB.T_DEPARTMENTS.NAME, department_name);
 		rec.setValue(sampleDB.T_DEPARTMENTS.BUSINESS_UNIT, businessUnit);
 		try {
-			rec.update(conn);
+			rec.update();
 		} catch (Exception e) {
 			log.error(e.getLocalizedMessage());
 			return 0;
@@ -247,18 +252,17 @@ public class SampleApplication extends WebApplication {
 	/*
 	 * Insert a person
 	 */
-	private int insertEmployeeSampleRecord(Connection conn, String salutation,
-			String firstName, String lastName, String gender, int depID) {
+	private int insertEmployeeSampleRecord(DBContext context, String salutation, String firstName, String lastName, String gender, int depID) {
 		// Insert an Employee
-		DBRecord rec = new DBRecord();
-		rec.create(sampleDB.T_EMPLOYEES);
+		DBRecord rec = new DBRecord(context, sampleDB.T_EMPLOYEES);
+		rec.create();
 		rec.setValue(sampleDB.T_EMPLOYEES.SALUTATION, salutation);
 		rec.setValue(sampleDB.T_EMPLOYEES.FIRST_NAME, firstName);
 		rec.setValue(sampleDB.T_EMPLOYEES.LAST_NAME, lastName);
 		rec.setValue(sampleDB.T_EMPLOYEES.GENDER, gender);
 		rec.setValue(sampleDB.T_EMPLOYEES.DEPARTMENT_ID, depID);
 		try {
-			rec.update(conn);
+			rec.update();
 		} catch (Exception e) {
 			log.error(e.getLocalizedMessage());
 			return 0;
@@ -293,21 +297,30 @@ public class SampleApplication extends WebApplication {
     @Override
     protected void releaseConnection(DBDatabase db, Connection conn, boolean commit)
     {
-        // release connection
-        if (conn == null)
+        try
+        { // release connection
+            if (conn == null)
+            {
+                return;
+            }
+            // Commit or rollback connection depending on the exit code
+            if (commit)
+            { // success: commit all changes
+                conn.commit();
+                log.debug("REQUEST commited.");
+            }
+            else
+            { // failure: rollback all changes
+                conn.rollback();
+                log.debug("REQUEST rolled back.");
+            }
+            // Don't Release Connection
+            // conn.close();
+        }
+        catch (SQLException e)
         {
-            return;
-        }
-        // Commit or rollback connection depending on the exit code
-        if (commit)
-        { // success: commit all changes
-            db.commit(conn);
-            log.debug("REQUEST {}: commited.");
-        }
-        else
-        { // failure: rollback all changes
-            db.rollback(conn);
-            log.debug("REQUEST {}: rolled back.");
+            log.error("Error releasing connection", e);
+            e.printStackTrace();
         }
     }
 	

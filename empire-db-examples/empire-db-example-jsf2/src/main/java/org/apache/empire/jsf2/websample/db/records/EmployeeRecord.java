@@ -24,15 +24,16 @@ import org.apache.empire.db.DBColumn;
 import org.apache.empire.db.DBCommand;
 import org.apache.empire.jsf2.websample.db.SampleDB;
 import org.apache.empire.jsf2.websample.db.SampleDB.TEmployees;
+import org.apache.empire.jsf2.websample.web.SampleContext;
 import org.apache.empire.jsf2.websample.web.SampleUtils;
 
 public class EmployeeRecord extends SampleRecord<TEmployees>
 {
     private final static long serialVersionUID = 1L;
 
-    public EmployeeRecord(SampleDB db)
+    public EmployeeRecord(SampleContext context)
     {
-        super(db.T_EMPLOYEES);
+        super(context, context.getDatabase().T_EMPLOYEES);
     }
     
 	/*
@@ -68,7 +69,7 @@ public class EmployeeRecord extends SampleRecord<TEmployees>
     // Sample Implementation for Department Record
     public DepartmentRecord getDepartmentRecord()
     {
-        DepartmentRecord rec = new DepartmentRecord((SampleDB)this.getDatabase());
+        DepartmentRecord rec = new DepartmentRecord((SampleContext)getContext());
         SampleDB.TDepartments table = SampleUtils.getDatabase().T_DEPARTMENTS;
         rec.read(table, this.getInt(T.DEPARTMENT_ID), SampleUtils.getConnection());
         return rec;

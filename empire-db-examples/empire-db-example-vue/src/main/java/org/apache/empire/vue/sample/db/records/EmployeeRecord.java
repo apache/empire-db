@@ -30,9 +30,9 @@ public class EmployeeRecord extends SampleRecord<TEmployees>
 {
     private final static long serialVersionUID = 1L;
 
-    public EmployeeRecord(SampleDB db, RecordContext recordContext)
+    public EmployeeRecord(RecordContext recordContext)
     {
-        super(db.T_EMPLOYEES, recordContext);
+        super(recordContext.getDb().T_EMPLOYEES, recordContext);
     }
     
 	/*
@@ -68,9 +68,9 @@ public class EmployeeRecord extends SampleRecord<TEmployees>
     // Sample Implementation for Department Record
     public DepartmentRecord getDepartmentRecord()
     {
-        DepartmentRecord rec = new DepartmentRecord((SampleDB)this.getDatabase(), recordContext);
+        DepartmentRecord rec = new DepartmentRecord(recordContext);
         SampleDB.TDepartments table = ((SampleDB)getDatabase()).T_DEPARTMENTS;
-        rec.read(table, this.getInt(T.DEPARTMENT_ID), recordContext.getConnection());
+        rec.read(this.getInt(T.DEPARTMENT_ID));
         return rec;
     }
 

@@ -43,7 +43,7 @@ public abstract class SampleRecord<T extends SampleTable> extends DBRecord {
 	protected final RecordContext recordContext;
 
 	public SampleRecord(T table, RecordContext recordContext) {
-		super(table);
+		super(recordContext, table);
 		this.T = table;
 		this.recordContext = recordContext;
 	}
@@ -129,25 +129,4 @@ public abstract class SampleRecord<T extends SampleTable> extends DBRecord {
             throw new RecordInitException(exptns);
         }
     }
-    
-    public void create()
-    {
-        super.create(getTable(), recordContext.getConnection());
-    }
-	
-    public void read(Object[] keys)
-    {
-        super.read(getTable(), keys, recordContext.getConnection());
-    }
-
-    public void read(Object id)
-    {
-        super.read(getTable(), id, recordContext.getConnection());
-    }
-    
-    public void update()
-    {
-        super.update(recordContext.getConnection());
-    }
-	
 }

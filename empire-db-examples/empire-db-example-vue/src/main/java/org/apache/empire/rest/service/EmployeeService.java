@@ -126,10 +126,10 @@ public class EmployeeService extends Service {
             meta[i] = new JsoColumnMeta(cols[i], txtres);
         }
         
-        DBReader reader = new DBReader();
+        DBReader reader = new DBReader(getRecordContext());
         List<JsoRecordData> list = new ArrayList<>();
         try {
-            reader.open(cmd, getConnection());
+            reader.open(cmd);
             while (reader.moveNext()) {
                 list.add(new JsoRecordData(reader));
             }
@@ -148,7 +148,7 @@ public class EmployeeService extends Service {
         RecordContext ctx = this.getRecordContext(); 
 	    try {
 	        // return a record
-	        EmployeeRecord rec = new EmployeeRecord(getDatabase(), ctx);
+	        EmployeeRecord rec = new EmployeeRecord(ctx);
             rec.read(employeeId);
             JsoRecordData emp = new JsoRecordData(rec);
             return Response.ok(new JsoResultWithMeta(emp, rec.getMeta())).build();
@@ -167,7 +167,7 @@ public class EmployeeService extends Service {
         RecordContext ctx = this.getRecordContext(); 
         try {
             // return a record
-            EmployeeRecord rec = new EmployeeRecord(getDatabase(), ctx);
+            EmployeeRecord rec = new EmployeeRecord(ctx);
             rec.create();
             JsoRecordData emp = new JsoRecordData(rec);
             return Response.ok(new JsoResultWithMeta(emp, rec.getMeta())).build();
@@ -187,7 +187,7 @@ public class EmployeeService extends Service {
         RecordContext ctx = this.getRecordContext(); 
         try {
             // return a record
-            EmployeeRecord rec = new EmployeeRecord(getDatabase(), ctx);
+            EmployeeRecord rec = new EmployeeRecord(ctx);
             rec.init(employeeData, employeeData.isNewRecord());
             rec.update();
             return Response.ok().build();

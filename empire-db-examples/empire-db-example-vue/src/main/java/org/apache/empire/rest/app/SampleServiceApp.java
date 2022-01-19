@@ -19,6 +19,7 @@
 package org.apache.empire.rest.app;
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
@@ -30,10 +31,12 @@ import javax.servlet.ServletContextListener;
 
 import org.apache.empire.commons.StringUtils;
 import org.apache.empire.db.DBCommand;
+import org.apache.empire.db.DBContext;
 import org.apache.empire.db.DBDatabase;
 import org.apache.empire.db.DBDatabaseDriver;
 import org.apache.empire.db.DBRecord;
 import org.apache.empire.db.DBSQLScript;
+import org.apache.empire.db.context.DBContextStatic;
 import org.apache.empire.db.exceptions.QueryFailedException;
 import org.apache.empire.db.hsql.DBDatabaseDriverHSql;
 import org.apache.empire.rest.service.Service;
@@ -144,16 +147,30 @@ public class SampleServiceApp
 
     protected void releaseConnection(DBDatabase db, Connection conn, boolean commit) {
         // release connection
-        if (conn == null) {
-            return;
+        try
+        { // release connection
+            if (conn == null)
+            {
+                return;
+            }
+            // Commit or rollback connection depending on the exit code
+            if (commit)
+            { // success: commit all changes
+                conn.commit();
+                log.debug("REQUEST commited.");
+            }
+            else
+            { // failure: rollback all changes
+                conn.rollback();
+                log.debug("REQUEST rolled back.");
+            }
+            // Don't Release Connection
+            // conn.close();
         }
-        // Commit or rollback connection depending on the exit code
-        if (commit) { // success: commit all changes
-            db.commit(conn);
-            log.debug("REQUEST {}: commited.");
-        } else { // failure: rollback all changes
-            db.rollback(conn);
-            log.debug("REQUEST {}: rolled back.");
+        catch (SQLException e)
+        {
+            log.error("Error releasing connection", e);
+            e.printStackTrace();
         }
     }
     
@@ -167,15 +184,18 @@ public class SampleServiceApp
         DBDatabaseDriver driver = new DBDatabaseDriverHSql();
         log.info("Opening database '{}' using driver '{}'", db.getClass().getSimpleName(), driver.getClass().getSimpleName());
         Connection conn = null;
+        DBContext context = null;
         try {
             conn = getJDBCConnection(ctx);
+            context = new DBContextStatic(driver, conn);
             db.open(driver, conn);
             if (!databaseExists(db, conn)) {
                 // STEP 4: Create Database
                 log.info("Creating database {}", db.getClass().getSimpleName());
-                createSampleDatabase(db, driver, conn);
+                createSampleDatabase(db, context);
             }
         } finally {
+            context.discard();
             releaseConnection(db, conn, true);
         }
 
@@ -193,39 +213,39 @@ public class SampleServiceApp
         }
     }
 
-    private static void createSampleDatabase(SampleDB db, DBDatabaseDriver driver, Connection conn) {
+    private static void createSampleDatabase(SampleDB db, DBContext context) {
         // create DLL for Database Definition
-        DBSQLScript script = new DBSQLScript();
-        db.getCreateDDLScript(driver, script);
+        DBSQLScript script = new DBSQLScript(context);
+        db.getCreateDDLScript(script);
         // Show DLL Statements
         System.out.println(script.toString());
         // Execute Script
-        script.executeAll(driver, conn, false);
-        db.commit(conn);
+        script.executeAll(false);
+        context.commit();
         // Open again
         if (!db.isOpen()) {
-            db.open(driver, conn);
+            db.open(context.getDriver(), context.getConnection());
         }
         // Insert Sample Departments
-        insertDepartmentSampleRecord(db, conn, "Procurement", "ITTK");
-        int idDevDep = insertDepartmentSampleRecord(db, conn, "Development", "ITTK");
-        int idSalDep = insertDepartmentSampleRecord(db, conn, "Sales", "ITTK");
+        insertDepartmentSampleRecord(db, context, "Procurement", "ITTK");
+        int idDevDep = insertDepartmentSampleRecord(db, context, "Development", "ITTK");
+        int idSalDep = insertDepartmentSampleRecord(db, context, "Sales", "ITTK");
         // Insert Sample Employees
-        insertEmployeeSampleRecord(db, conn, "Mr.", "Eugen", "Miller", "M", idDevDep);
-        insertEmployeeSampleRecord(db, conn, "Mr.", "Max", "Mc. Callahan", "M", idDevDep);
-        insertEmployeeSampleRecord(db, conn, "Mrs.", "Anna", "Smith", "F", idSalDep);
+        insertEmployeeSampleRecord(db, context, "Mr.", "Eugen", "Miller", "M", idDevDep);
+        insertEmployeeSampleRecord(db, context, "Mr.", "Max", "Mc. Callahan", "M", idDevDep);
+        insertEmployeeSampleRecord(db, context, "Mrs.", "Anna", "Smith", "F", idSalDep);
         // Commit
-        db.commit(conn);
+        context.commit();
     }
 
-    private static int insertDepartmentSampleRecord(SampleDB db, Connection conn, String department_name, String businessUnit) {
+    private static int insertDepartmentSampleRecord(SampleDB db, DBContext context, String department_name, String businessUnit) {
         // Insert a Department
-        DBRecord rec = new DBRecord();
-        rec.create(db.T_DEPARTMENTS);
+        DBRecord rec = new DBRecord(context, db.T_DEPARTMENTS);
+        rec.create();
         rec.setValue(db.T_DEPARTMENTS.NAME, department_name);
         rec.setValue(db.T_DEPARTMENTS.BUSINESS_UNIT, businessUnit);
         try {
-            rec.update(conn);
+            rec.update();
         } catch (Exception e) {
             log.error(e.getLocalizedMessage());
             return 0;
@@ -237,17 +257,17 @@ public class SampleServiceApp
     /*
      * Insert a person
      */
-    private static int insertEmployeeSampleRecord(SampleDB db, Connection conn, String salutation, String firstName, String lastName, String gender, int depID) {
+    private static int insertEmployeeSampleRecord(SampleDB db, DBContext context, String salutation, String firstName, String lastName, String gender, int depID) {
         // Insert an Employee
-        DBRecord rec = new DBRecord();
-        rec.create(db.T_EMPLOYEES);
+        DBRecord rec = new DBRecord(context, db.T_EMPLOYEES);
+        rec.create();
         rec.setValue(db.T_EMPLOYEES.SALUTATION, salutation);
         rec.setValue(db.T_EMPLOYEES.FIRST_NAME, firstName);
         rec.setValue(db.T_EMPLOYEES.LAST_NAME, lastName);
         rec.setValue(db.T_EMPLOYEES.GENDER, gender);
         rec.setValue(db.T_EMPLOYEES.DEPARTMENT_ID, depID);
         try {
-            rec.update(conn);
+            rec.update();
         } catch (Exception e) {
             log.error(e.getLocalizedMessage());
             return 0;

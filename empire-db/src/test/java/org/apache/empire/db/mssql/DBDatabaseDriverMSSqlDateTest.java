@@ -30,12 +30,14 @@ import org.apache.empire.DBResource;
 import org.apache.empire.DBResource.DB;
 import org.apache.empire.data.DataType;
 import org.apache.empire.db.DBCommand;
+import org.apache.empire.db.DBContext;
 import org.apache.empire.db.DBDatabase;
 import org.apache.empire.db.DBDatabaseDriver;
 import org.apache.empire.db.DBRecord;
 import org.apache.empire.db.DBSQLScript;
 import org.apache.empire.db.DBTable;
 import org.apache.empire.db.DBTableColumn;
+import org.apache.empire.db.context.DBContextStatic;
 import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
@@ -58,8 +60,9 @@ public class DBDatabaseDriverMSSqlDateTest {
 
 	public void runTestWithDateFormat(String dbDateFormat) throws Exception {
 		Connection conn = dbResource.getConnection();
-
 		DBDatabaseDriver driver = dbResource.newDriver();
+        DBContext context = new DBContextStatic(driver, conn); 
+		
 		DateTimeTestDB db = new DateTimeTestDB();
 
 		// Encoding issue occur when prepared statement is disabled
@@ -68,10 +71,10 @@ public class DBDatabaseDriverMSSqlDateTest {
 		db.open(driver, dbResource.getConnection());
 
 		if (!databaseExists(conn, db)) {
-			DBSQLScript script = new DBSQLScript();
-			db.getCreateDDLScript(db.getDriver(), script);
+			DBSQLScript script = new DBSQLScript(context);
+			db.getCreateDDLScript(script);
 			System.out.println(script.toString());
-			script.executeAll(db.getDriver(), dbResource.getConnection(), false);
+			script.executeAll(false);
 		}
 
 		// STEP 5: Clear Database (Delete all records)
@@ -88,19 +91,18 @@ public class DBDatabaseDriverMSSqlDateTest {
 
 		{
 
-			driver.executeSQL("SET DATEFORMAT " + dbDateFormat, null, conn,
-					null);
-			DBRecord rec = new DBRecord();
-			rec.create(db.USER_INFO);
+			driver.executeSQL("SET DATEFORMAT " + dbDateFormat, null, conn, null);
+			DBRecord rec = new DBRecord(context, db.USER_INFO);
+			rec.create();
 			rec.setValue(db.USER_INFO.USER, "john.doe");
 			rec.setValue(db.USER_INFO.REG_DATE, regDate);
 			rec.setValue(db.USER_INFO.LAST_LOGIN, lastLoginTs);
-			rec.update(conn);
+			rec.update();
 
 			int id = rec.getInt(db.USER_INFO.ID);
 
-			DBRecord recRead = new DBRecord();
-			recRead.read(db.USER_INFO, id, conn);
+			DBRecord recRead = new DBRecord(context, db.USER_INFO);
+			recRead.read(id);
 
 			assertEquals(truncDateFmt.format(lastLoginTs),
 					truncDateFmt.format(recRead

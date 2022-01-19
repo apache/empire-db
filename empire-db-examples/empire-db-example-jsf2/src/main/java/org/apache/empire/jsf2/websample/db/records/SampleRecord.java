@@ -18,8 +18,7 @@
  */
 package org.apache.empire.jsf2.websample.db.records;
 
-import java.sql.Connection;
-
+import org.apache.empire.db.DBContext;
 import org.apache.empire.db.DBRecord;
 import org.apache.empire.jsf2.websample.db.SampleTable;
 
@@ -30,8 +29,8 @@ public abstract class SampleRecord<T extends SampleTable> extends DBRecord {
 	
 	protected T T; // The table
 
-	public SampleRecord(T table) {
-		super(table);
+	public SampleRecord(DBContext context, T table) {
+		super(context, table);
 		this.T = table;
 	}
 
@@ -42,7 +41,8 @@ public abstract class SampleRecord<T extends SampleTable> extends DBRecord {
 	public T getTable() {
 		return T;
 	}
-    
+
+	/*
     public void create(Connection conn)
     {
         super.create(getTable(), conn);
@@ -62,5 +62,6 @@ public abstract class SampleRecord<T extends SampleTable> extends DBRecord {
     {
         super.read(getTable(), id, conn);
     }
+    */
 	
 }

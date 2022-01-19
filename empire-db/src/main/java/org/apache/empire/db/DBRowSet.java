@@ -224,7 +224,7 @@ public abstract class DBRowSet extends DBExpr
     
     public abstract boolean isUpdateable();
 
-    public abstract void createRecord(DBRecord rec, Connection conn);
+    public abstract void createRecord(DBRecord rec, boolean deferredInit);
 
     public abstract void deleteRecord(Object[] keys, Connection conn);
     
@@ -508,12 +508,12 @@ public abstract class DBRowSet extends DBExpr
      */
     protected void prepareInitRecord(DBRecord rec, Object rowSetData, boolean insert)
     {
-        if (rec==null)
+        if (rec==null || rec.getRowSet()!=this)
             throw new InvalidArgumentException("rec", rec);
         if (columns.size() < 1)
             throw new ObjectNotValidException(this);
         // Init
-        rec.initData(this, rowSetData, insert);
+        rec.initData(rowSetData, insert);
     }
 
     /**
@@ -634,13 +634,13 @@ public abstract class DBRowSet extends DBExpr
      * @param cmd the SQL-Command used to query the record
      * @param conn a valid JDBC connection.
      */
-    protected void readRecord(DBRecord rec, DBCommand cmd, Connection conn)
+    protected void readRecord(DBRecord rec, DBCommand cmd)
     {
         DBReader reader = null;
         try
         {   // read record using a DBReader
-            reader = new DBReader(false);
-            reader.getRecordData(cmd, conn);
+            reader = new DBReader(rec.getContext(), false);
+            reader.getRecordData(cmd);
             initRecord(rec, reader);
             
         } finally {
@@ -656,10 +656,10 @@ public abstract class DBRowSet extends DBExpr
      * @param key the primary key values
      * @param conn a valid JDBC connection.
      */
-    public void readRecord(DBRecord rec, Object[] key, Connection conn)
+    public void readRecord(DBRecord rec, Object[] key)
     {
         // Check Arguments
-        if (conn == null || rec == null)
+        if (rec == null)
             throw new InvalidArgumentException("conn|rec", null);
         // Select
         DBCommand cmd = db.createCommand();
@@ -668,7 +668,7 @@ public abstract class DBRowSet extends DBExpr
         setKeyConstraints(cmd, key);
         try {
             // Read Record
-            readRecord(rec, cmd, conn);
+            readRecord(rec, cmd);
         } catch (QueryNoResultException e) {
             // Translate exception
             throw new RecordNotFoundException(this, key);
@@ -683,10 +683,10 @@ public abstract class DBRowSet extends DBExpr
      * @param mode flag whether to include only the given columns or whether to add all but the given columns
      * @param columns the columns to include or exclude (depending on mode)
      */
-    public void readRecord(DBRecord rec, Object[] key, Connection conn, PartialMode mode, DBColumn... columns)
+    public void readRecord(DBRecord rec, Object[] key, PartialMode mode, DBColumn... columns)
     {
         // Check Arguments
-        if (conn == null || rec == null)
+        if (rec == null)
             throw new InvalidArgumentException("conn|rec", null);
         // create command
         DBCommand cmd = db.createCommand();        
@@ -715,7 +715,7 @@ public abstract class DBRowSet extends DBExpr
         setKeyConstraints(cmd, key);
         try {
             // Read Record
-            readRecord(rec, cmd, conn);
+            readRecord(rec, cmd);
         } catch (QueryNoResultException e) {
             // Translate exception
             throw new RecordNotFoundException(this, key);
@@ -768,7 +768,7 @@ public abstract class DBRowSet extends DBExpr
      * @param rec the DBRecord object. contains all fields and the field properties
      * @param conn a valid JDBC connection.
      */
-    public void updateRecord(DBRecord rec, Connection conn)
+    public void updateRecord(DBRecord rec)
     {
         // check updateable
         if (isUpdateable()==false)
@@ -778,8 +778,8 @@ public abstract class DBRowSet extends DBExpr
             throw new InvalidArgumentException("record", rec);
         if (rec.isValid()==false)
             throw new ObjectNotValidException(rec);
-        if (conn == null)
-            throw new InvalidArgumentException("conn", conn);
+        // the connection
+        Connection conn = rec.getContext().getConnection();
         // Get the new Timestamp
         String name = getName();
         Timestamp timestamp = (timestampColumn!=null) ? db.getUpdateTimestamp(conn) : null;

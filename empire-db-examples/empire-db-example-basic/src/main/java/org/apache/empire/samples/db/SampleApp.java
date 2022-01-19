@@ -30,7 +30,6 @@ import org.apache.empire.db.DBContext;
 import org.apache.empire.db.DBDatabaseDriver;
 import org.apache.empire.db.DBReader;
 import org.apache.empire.db.DBRecord;
-import org.apache.empire.db.DBRecordV3;
 import org.apache.empire.db.DBSQLScript;
 import org.apache.empire.db.context.DBContextStatic;
 import org.apache.empire.db.derby.DBDatabaseDriverDerby;
@@ -51,7 +50,9 @@ public class SampleApp
 
 	private static final SampleDB db = new SampleDB();
 
-	private static SampleConfig config = new SampleConfig();
+    private static SampleConfig config = new SampleConfig();
+	
+	private static DBContext context;
 
 	private enum QueryType
     {
@@ -85,7 +86,8 @@ public class SampleApp
 			System.out.println("*** Step 2: getDatabaseProvider() ***");
 			DBDatabaseDriver driver = getDatabaseDriver(config.getDatabaseProvider(), conn);
 			
-			DBContext context = new DBContextStatic(driver, conn); 
+            // STEP 2.2: Create a Context
+			context = new DBContextStatic(driver, conn); 
 
             // STEP 3: Open Database (and create if not existing)
             System.out.println("*** Step 3: openDatabase() ***");
@@ -104,7 +106,7 @@ public class SampleApp
                 {
                 	conn.setAutoCommit(true);
                 }
-                createDatabase(driver, conn);
+                createDatabase();
                 if(db.getDriver() instanceof DBDatabaseDriverPostgreSQL)
                 {
                 	conn.setAutoCommit(false);
@@ -120,40 +122,40 @@ public class SampleApp
 
 			// STEP 6: Insert Departments
 			System.out.println("*** Step 6: insertDepartment() & insertEmployee() ***");
-			int idDevDep = insertDepartment(conn, "Development", "ITTK");
-			int idSalDep = insertDepartment(conn, "Sales", "ITTK");
+			int idDevDep = insertDepartment("Development", "ITTK");
+			int idSalDep = insertDepartment("Sales", "ITTK");
 			// Insert Employees
-			int idPers1 = insertEmployee(conn, "Peter", "Sharp", Gender.M, idDevDep);
-			int idPers2 = insertEmployee(conn, "Fred", "Bloggs", Gender.M, idDevDep);
-			int idPers3 = insertEmployee(conn, "Emma", "White",  Gender.F, idSalDep);
+			int idPers1 = insertEmployee("Peter", "Sharp", Gender.M, idDevDep);
+			int idPers2 = insertEmployee("Fred", "Bloggs", Gender.M, idDevDep);
+			int idPers3 = insertEmployee("Emma", "White",  Gender.F, idSalDep);
 
             // commit
-            db.commit(conn);
+			context.commit();
 			
-            int idEmp = testTransactionCreate(context, idDevDep);
-            testTransactionUpdate(context, idEmp);
-            testTransactionDelete(context, idEmp);
+            int idEmp = testTransactionCreate(idDevDep);
+            testTransactionUpdate(idEmp);
+            testTransactionDelete(idEmp);
 
 			// STEP 7: Update Records (by setting the phone Number)
 			System.out.println("*** Step 7: updateEmployee() ***");
-			updateEmployee(conn, idPers1, "+49-7531-457160");
-			updateEmployee(conn, idPers2, "+49-5555-505050");
-			updateEmployee(conn, idPers3, "+49-040-125486");
+			updateEmployee(idPers1, "+49-7531-457160");
+			updateEmployee(idPers2, "+49-5555-505050");
+			updateEmployee(idPers3, "+49-040-125486");
 
 			// commit
-			db.commit(conn);
+			context.commit();
 
 			// STEP 8: Option 1: Query Records and print tab-separated
 			System.out.println("*** Step 8 Option 1: queryRecords() / Tab-Output ***");
-			queryRecords(conn, QueryType.Reader); // Tab-Output
+			queryRecords(QueryType.Reader); // Tab-Output
 
             // STEP 8: Option 2: Query Records as a list of java beans
             System.out.println("*** Step 8 Option 2: queryRecords() / Bean-List-Output ***");
-            queryRecords(conn, QueryType.BeanList); // Bean-List-Output
+            queryRecords(QueryType.BeanList); // Bean-List-Output
 
 			// STEP 8: Option 3: Query Records as XML
 			System.out.println("*** Step 8 Option 3: queryRecords() / XML-Output ***");
-			queryRecords(conn, QueryType.XmlDocument); // XML-Output
+			queryRecords(QueryType.XmlDocument); // XML-Output
 
 			// STEP 9: Use Bean Result to query beans
 			queryBeans(conn);
@@ -166,8 +168,10 @@ public class SampleApp
 			// Error
 			System.out.println(e.toString());
 			e.printStackTrace();
+			
+		} finally {
+		    context.discard();
 		}
-
 	}
 
 	/**
@@ -259,17 +263,17 @@ public class SampleApp
 	 * Please make sure you uses the correct DatabaseDriver for your target DBMS.
      * </PRE>
 	 */
-	private static void createDatabase(DBDatabaseDriver driver, Connection conn)
+	private static void createDatabase()
     {
 		// create DDL for Database Definition
-	    DBSQLScript script = new DBSQLScript();
-		db.getCreateDDLScript(driver, script);
+	    DBSQLScript script = new DBSQLScript(context);
+		db.getCreateDDLScript(script);
 		// Show DDL Statement
 		System.out.println(script.toString());
 		// Execute Script
-		script.executeAll(driver, conn, false);
+		script.executeAll(false);
 		// Commit
-		db.commit(conn);
+		context.commit();
 	}
 
 	/**
@@ -291,14 +295,14 @@ public class SampleApp
 	 * Insert a Department into the Departments table.
      * </PRE>
 	 */
-	private static int insertDepartment(Connection conn, String departmentName, String businessUnit)
+	private static int insertDepartment(String departmentName, String businessUnit)
     {
 		// Insert a Department
-		DBRecord rec = new DBRecord();
-		rec.create(db.DEPARTMENTS);
+		DBRecord rec = new DBRecord(context, db.DEPARTMENTS);
+		rec.create();
 		rec.setValue(db.DEPARTMENTS.NAME, departmentName);
 		rec.setValue(db.DEPARTMENTS.BUSINESS_UNIT, businessUnit);
-		rec.update(conn);
+		rec.update();
 		// Return Department ID
 		return rec.getInt(db.DEPARTMENTS.DEPARTMENT_ID);
 	}
@@ -308,16 +312,16 @@ public class SampleApp
 	 * Inserts an Employee into the Employees table.
      * </PRE>
 	 */
-	private static int insertEmployee(Connection conn, String firstName, String lastName, Gender gender, int departmentId)
+	private static int insertEmployee(String firstName, String lastName, Gender gender, int departmentId)
     {
 		// Insert an Employee
-		DBRecord rec = new DBRecord();
-		rec.create(db.EMPLOYEES);
+		DBRecord rec = new DBRecord(context, db.EMPLOYEES);
+		rec.create();
 		rec.setValue(db.EMPLOYEES.FIRSTNAME, firstName);
 		rec.setValue(db.EMPLOYEES.LASTNAME, lastName);
 		rec.setValue(db.EMPLOYEES.GENDER, gender);
 		rec.setValue(db.EMPLOYEES.DEPARTMENT_ID, departmentId);
-		rec.update(conn);
+		rec.update();
 		// Return Employee ID
 		return rec.getInt(db.EMPLOYEES.EMPLOYEE_ID);
 	}
@@ -327,24 +331,24 @@ public class SampleApp
 	 * Updates an employee record by setting the phone number.
      * </PRE>
 	 */
-	private static void updateEmployee(Connection conn, int idPers, String phoneNumber)
+	private static void updateEmployee(int idPers, String phoneNumber)
     {
 		// Update an Employee
-		DBRecord rec = new DBRecord();
-		rec.read(db.EMPLOYEES, idPers, conn);
+		DBRecord rec = new DBRecord(context, db.EMPLOYEES);
+		rec.read(idPers);
 		// Set
 		rec.setValue(db.EMPLOYEES.PHONE_NUMBER, phoneNumber);
-		rec.update(conn);
+		rec.update();
 	}
 
 	/**
 	 * @param context
 	 * @param idDep
 	 */
-	private static int testTransactionCreate(DBContext context, int idDep)
+	private static int testTransactionCreate(int idDep)
     {
         SampleDB.Employees T = db.EMPLOYEES;
-        DBRecordV3 rec = new DBRecordV3(context, T);
+        DBRecord rec = new DBRecord(context, T);
         
         rec.create();
         rec.setValue(T.FIRSTNAME, "Foo");
@@ -383,10 +387,10 @@ public class SampleApp
      * @param context
      * @param idDep
      */
-    private static void testTransactionUpdate(DBContext context, int idEmp)
+    private static void testTransactionUpdate(int idEmp)
     {
         SampleDB.Employees T = db.EMPLOYEES;
-        DBRecordV3 rec = new DBRecordV3(context, T);
+        DBRecord rec = new DBRecord(context, T);
         
         rec.read(idEmp);
         rec.setValue(T.PHONE_NUMBER, null);
@@ -415,10 +419,10 @@ public class SampleApp
      * @param context
      * @param idDep
      */
-    private static void testTransactionDelete(DBContext context, int idEmp)
+    private static void testTransactionDelete(int idEmp)
     {
         SampleDB.Employees T = db.EMPLOYEES;
-        DBRecordV3 rec = new DBRecordV3(context, T);
+        DBRecord rec = new DBRecord(context, T);
         
         rec.read(idEmp);
         /*
@@ -471,7 +475,7 @@ public class SampleApp
      *     Please note, that the XML not only contains the data but also the field metadata.
      * </PRE>
 	 */
-	private static void queryRecords(Connection conn, QueryType queryType)
+	private static void queryRecords(QueryType queryType)
     {
 	    // Define the query
 	    DBCommand cmd = db.createCommand();
@@ -515,13 +519,13 @@ public class SampleApp
         */
         
 		// Query Records and print output
-		DBReader reader = new DBReader();
+		DBReader reader = new DBReader(context);
 		try
         {
 			// Open Reader
 			System.out.println("Running Query:");
 			System.out.println(cmd.getSelect());
-			reader.open(cmd, conn);
+			reader.open(cmd);
 			// Print output
 			System.out.println("---------------------------------");
 			switch(queryType)
@@ -566,13 +570,13 @@ public class SampleApp
         // Query all males
 	    BeanResult<SampleBean> result = new BeanResult<SampleBean>(SampleBean.class, db.EMPLOYEES);
         result.getCommand().where(db.EMPLOYEES.GENDER.is(Gender.M));
-	    result.fetch(conn);
+	    result.fetch(context);
 	    
 	    System.out.println("Number of male employees is: "+result.size());
 
 	    // And now, the females
 	    result.getCommand().where(db.EMPLOYEES.GENDER.is(Gender.F));
-	    result.fetch(conn);
+	    result.fetch(context);
 	    
         System.out.println("Number of female employees is: "+result.size());
 	}

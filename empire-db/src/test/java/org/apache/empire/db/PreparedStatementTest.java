@@ -27,6 +27,7 @@ import java.sql.Connection;
 import org.apache.empire.DBResource;
 import org.apache.empire.DBResource.DB;
 import org.apache.empire.db.DBCmdParam;
+import org.apache.empire.db.context.DBContextStatic;
 import org.junit.Rule;
 import org.junit.Test;
 
@@ -42,17 +43,18 @@ public class PreparedStatementTest{
         Connection conn = dbResource.getConnection();
         
         DBDatabaseDriver driver = dbResource.newDriver();
+        DBContext context = new DBContextStatic(driver, conn); 
+        
         CompanyDB db = new CompanyDB();
         db.open(driver, conn);
-        DBSQLScript script = new DBSQLScript();
-        db.getCreateDDLScript(db.getDriver(), script);
-        script.executeAll(db.getDriver(), conn, false);
+        DBSQLScript script = new DBSQLScript(context);
+        db.getCreateDDLScript(script);
+        script.executeAll(false);
         
-        DBRecord department = new DBRecord();
-        department.create(db.DEPARTMENT);
+        DBRecord department = new DBRecord(context, db.DEPARTMENT);
         department.setValue(db.DEPARTMENT.NAME, "junit");
         department.setValue(db.DEPARTMENT.BUSINESS_UNIT, "test");
-        department.update(conn);
+        department.update();
 
         int id = department.getInt(db.DEPARTMENT.ID);
         assertTrue("Department add failed", id > 0);
@@ -75,9 +77,9 @@ public class PreparedStatementTest{
         assertNotNull(cmd.getParamValues());
         assertTrue(cmd.getSelect().indexOf('?') > 0);
 
-        DBReader r = new DBReader();
+        DBReader r = new DBReader(context);
         try {
-            r.open(cmd, conn);
+            r.open(cmd);
             // must have one record
             assertEquals(true, r.moveNext());
             // Department Id must be correct

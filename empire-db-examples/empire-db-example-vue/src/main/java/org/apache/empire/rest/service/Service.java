@@ -29,6 +29,8 @@ import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 
+import org.apache.empire.db.DBDatabaseDriver;
+import org.apache.empire.db.context.DBContextBase;
 import org.apache.empire.exceptions.EmpireException;
 import org.apache.empire.rest.app.SampleServiceApp;
 import org.apache.empire.rest.app.TextResolver;
@@ -62,15 +64,29 @@ public abstract class Service {
      * Holds a connection and therefore must not live for longer than the request  
      * @author doebele
      */
-    public static class ServiceRecordContext implements RecordContext
+    public static class ServiceRecordContext extends DBContextBase implements RecordContext
     {
+        private final SampleDB db;
         private final Connection conn;
         private final TextResolver textResolver;
         
-        public ServiceRecordContext(Connection conn)
+        public ServiceRecordContext(SampleDB db, Connection conn)
         {
+            this.db = db;
             this.conn = conn;
             this.textResolver = SampleServiceApp.instance().getTextResolver(Locale.ENGLISH);
+        }
+
+        @Override
+        public SampleDB getDb()
+        {
+            return db;
+        }
+
+        @Override
+        public DBDatabaseDriver getDriver()
+        {
+            return db.getDriver();
         }
 
         @Override
@@ -87,7 +103,7 @@ public abstract class Service {
     }
     
 	@Context
-	private ServletContext			context;
+	private ServletContext			servletContext;
 
 	@Context
 	private ContainerRequestContext	containerRequestContext;
@@ -96,7 +112,7 @@ public abstract class Service {
 	private HttpServletRequest		req;
 
 	public SampleDB getDatabase() {
-		return (SampleDB) this.context.getAttribute(Service.Consts.ATTRIBUTE_DB);
+		return (SampleDB) this.servletContext.getAttribute(Service.Consts.ATTRIBUTE_DB);
 	}
 
 	public Connection getConnection() {
@@ -105,7 +121,7 @@ public abstract class Service {
 	}
 
     public RecordContext getRecordContext() {
-        return new ServiceRecordContext(getConnection());
+        return new ServiceRecordContext(getDatabase(), getConnection());
     }
 
 	public ServletRequest getServletRequest() {

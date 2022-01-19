@@ -18,6 +18,7 @@
  */
 package org.apache.empire.jsf2.pageelements;
 
+import java.sql.Connection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -247,6 +248,7 @@ public class BeanListPageElement<T> extends ListPageElement<T> implements ListIt
     public void initItems(DBCommand queryCmd, DBCommand countCmd, int pageSize)
     {
         clearItems();
+        Connection conn = getDBContext(rowset).getConnection();
         // Init List Table Info
         BeanListTableInfo lti = (BeanListTableInfo) getTableInfo();
         lti.setQueryCmd(queryCmd);
@@ -254,7 +256,7 @@ public class BeanListPageElement<T> extends ListPageElement<T> implements ListIt
         { // Negative count means: loadItems should load all items.
             countCmd.clearSelect();
             countCmd.select(rowset.count());
-            int count = rowset.getDatabase().querySingleInt(countCmd.getSelect(), countCmd.getParamValues(), 0, getConnection(rowset));
+            int count = rowset.getDatabase().querySingleInt(countCmd.getSelect(), countCmd.getParamValues(), 0, conn);
             lti.init(count, pageSize);
         }
         else
@@ -319,7 +321,7 @@ public class BeanListPageElement<T> extends ListPageElement<T> implements ListIt
     {
         // DBReader
         BeanListTableInfo lti = (BeanListTableInfo) getTableInfo();
-        DBReader r = new DBReader();
+        DBReader r = new DBReader(getDBContext(rowset));
         try
         { // Check command
             DBCommand queryCmd = lti.getQueryCmd();
@@ -367,7 +369,7 @@ public class BeanListPageElement<T> extends ListPageElement<T> implements ListIt
             }
 
             // DBReader.open must always be surrounded with a try {} finally {} block!
-            r.open(queryCmd, getConnection(queryCmd));
+            r.open(queryCmd);
 
             // get position from the session
             if (skipRows>0)

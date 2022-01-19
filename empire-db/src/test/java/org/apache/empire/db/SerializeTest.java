@@ -20,6 +20,7 @@
 package org.apache.empire.db;
 
 import org.apache.empire.data.DataType;
+import org.apache.empire.db.context.DBContextStatic;
 import org.apache.empire.db.expr.order.DBOrderByExpr;
 import org.junit.Assert;
 import org.junit.Test;
@@ -53,12 +54,12 @@ public class SerializeTest {
     }
   }
 
-
   public DBObject[] getObjectsToSerialize() {
     final TestDatabase db = new TestDatabase();
-    DBRecord rec = new DBRecord();
-    rec.init(db.T_TEST, null, true);
-    db.open(new MockDriver(), null);
+    DBContext context = new DBContextStatic(new MockDriver(), null); 
+    DBRecord rec = new DBRecord(context, db.T_TEST);
+    rec.init(true);
+    db.open(context.getDriver(), null);
     return new DBObject[] {
             db,
             db.T_TEST,

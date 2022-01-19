@@ -18,12 +18,13 @@
  */
 package org.apache.empire.jsf2.websample.web.pages;
 
-import java.sql.Connection;
-
 import org.apache.empire.db.DBCommand;
+import org.apache.empire.db.DBContext;
+import org.apache.empire.db.DBDatabase;
 import org.apache.empire.jsf2.pages.Page;
 import org.apache.empire.jsf2.websample.db.SampleDB;
 import org.apache.empire.jsf2.websample.web.SampleApplication;
+import org.apache.empire.jsf2.websample.web.SampleContext;
 import org.apache.empire.jsf2.websample.web.SampleUser;
 import org.apache.empire.jsf2.websample.web.SampleUtils;
 
@@ -31,6 +32,23 @@ public class SamplePage extends Page
 {
     private static final long serialVersionUID = 1L;
 
+    private SampleContext sampleContext = null;
+
+    public SampleContext getSampleContext()
+    {
+        if (this.sampleContext == null)
+        {
+            SampleApplication app = SampleUtils.getSampleApplication();
+            this.sampleContext = new SampleContext(app);
+        }
+        return this.sampleContext;
+    }
+
+    @Override
+    public DBContext getDBContext(DBDatabase db)
+    {
+        return getSampleContext();
+    }
 
     protected SampleApplication getApplication()
     {
@@ -42,12 +60,6 @@ public class SamplePage extends Page
         return SampleUtils.getDatabase();
     }
 
-    public Connection getConnection()
-    {
-        Connection conn = SampleUtils.getConnection();
-        return conn;
-    }
-
     public SampleUser getUser()
     {
         return SampleUtils.getSampleUser();
@@ -57,8 +69,6 @@ public class SamplePage extends Page
 //    {
 //        return SampleUtils.getSampleSession().getUser().getLanguageIndex();
 //    }
-
-
 
     protected DBCommand createQueryCommand()
     {

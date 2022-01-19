@@ -429,12 +429,12 @@ public abstract class WebApplication
             // Commit or rollback connection depending on the exit code
             if (commit)
             { // success: commit all changes
-                db.commit(conn);
+                conn.commit();
                 log.debug("REQUEST commited.");
             }
             else
             { // failure: rollback all changes
-                db.rollback(conn);
+                conn.rollback();
                 log.debug("REQUEST rolled back.");
             }
             // Release Connection

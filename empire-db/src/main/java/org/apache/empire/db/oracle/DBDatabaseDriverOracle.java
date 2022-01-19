@@ -29,6 +29,7 @@ import org.apache.empire.db.DBCmdType;
 import org.apache.empire.db.DBColumn;
 import org.apache.empire.db.DBColumnExpr;
 import org.apache.empire.db.DBCommand;
+import org.apache.empire.db.DBContext;
 import org.apache.empire.db.DBDDLGenerator;
 import org.apache.empire.db.DBDatabase;
 import org.apache.empire.db.DBDatabaseDriver;
@@ -41,6 +42,7 @@ import org.apache.empire.db.DBSQLScript;
 import org.apache.empire.db.DBTable;
 import org.apache.empire.db.DBTableColumn;
 import org.apache.empire.db.DBView;
+import org.apache.empire.db.context.DBContextStatic;
 import org.apache.empire.db.exceptions.EmpireSQLException;
 import org.apache.empire.db.expr.column.DBValueExpr;
 import org.apache.empire.exceptions.InvalidArgumentException;
@@ -416,6 +418,7 @@ public class DBDatabaseDriverOracle extends DBDatabaseDriver
     @Override
     public void checkDatabase(DBDatabase db, String owner, Connection conn)
     {
+        DBContext context = new DBContextStatic(this, conn);
         // Check Params
         if (owner==null || owner.length()==0)
             throw new InvalidArgumentException("owner", owner);
@@ -427,10 +430,10 @@ public class DBDatabaseDriverOracle extends DBDatabaseDriver
         sysDBCommand.where (sysDB.CI.C_OWNER.is(owner));
         
         OracleDataDictionnary dataDictionnary = new OracleDataDictionnary();
-        DBReader rd = new DBReader();
+        DBReader rd = new DBReader(context);
         try
         {
-            rd.open(sysDBCommand, conn);
+            rd.open(sysDBCommand);
             // read all
             log.info("---------------------------------------------------------------------------------");
             log.info("checkDatabase start: " + db.getClass().getName());

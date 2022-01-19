@@ -19,12 +19,12 @@
 package org.apache.empire.jsf2.pages;
 
 import java.io.Serializable;
-import java.sql.Connection;
 import java.util.Map;
 
 import javax.faces.context.FacesContext;
 
 import org.apache.empire.commons.StringUtils;
+import org.apache.empire.db.DBContext;
 import org.apache.empire.db.DBDatabase;
 import org.apache.empire.db.DBObject;
 import org.apache.empire.db.DBRowSet;
@@ -101,16 +101,16 @@ public class PageElement implements Serializable
         setSessionObject(type, null);
     }
 
-    public Connection getConnection(DBDatabase db)
+    public DBContext getDBContext(DBDatabase db)
     {
-        return page.getConnection(db);
+        return page.getDBContext(db);
     }
 
-    public Connection getConnection(DBObject dbo)
+    public DBContext getDBContext(DBObject dbo)
     {
         if (dbo==null)
             throw new InvalidArgumentException("dbo", dbo);
-        return page.getConnection(dbo.getDatabase());
+        return getDBContext(dbo.getDatabase());
     }
     
     /**

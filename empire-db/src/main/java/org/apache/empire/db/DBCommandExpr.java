@@ -143,21 +143,21 @@ public abstract class DBCommandExpr extends DBExpr
 
         /** Returns the error message: ERR_NOTSUPPORTED */
         @Override
-        public void createRecord(DBRecord rec, Connection conn)
+        public void createRecord(DBRecord rec, boolean deferredInit)
         {
             throw new NotSupportedException(this, "addRecord");
         }
 
         /** Returns the error message: ERR_NOTSUPPORTED */
         @Override
-        public void readRecord(DBRecord rec, Object[] keys, Connection conn)
+        public void readRecord(DBRecord rec, Object[] keys)
         {
             throw new NotSupportedException(this, "getRecord");
         }
 
         /** Returns the error message: ERR_NOTSUPPORTED */
         @Override
-        public void updateRecord(DBRecord rec, Connection conn)
+        public void updateRecord(DBRecord rec)
         {
             throw new NotSupportedException(this, "updateRecord");
         }

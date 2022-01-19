@@ -371,7 +371,7 @@ public class DBQuery extends DBRowSet
      * @throws NotImplementedException because this is not implemented
      */
     @Override
-    public void createRecord(DBRecord rec, Connection conn)
+    public void createRecord(DBRecord rec, boolean deferredInit)
     {
         throw new NotImplementedException(this, "createRecord");
     }
@@ -384,9 +384,9 @@ public class DBQuery extends DBRowSet
      * @param conn a valid connection to the database.
      */
     @Override
-    public void readRecord(DBRecord rec, Object[] key, Connection conn)
+    public void readRecord(DBRecord rec, Object[] key)
     {
-        if (conn == null || rec == null)
+        if (rec == null)
             throw new InvalidArgumentException("conn|rec", null);
         DBColumn[] keyColumns = getKeyColumns();
         if (key == null || keyColumns.length != key.length)
@@ -403,7 +403,7 @@ public class DBQuery extends DBRowSet
         // Read Record
         try {
             // Read Record
-            readRecord(rec, cmd, conn);
+            readRecord(rec, cmd);
             // Set RowSetData
             rec.updateComplete(key.clone());
         } catch (QueryNoResultException e) {
@@ -419,7 +419,7 @@ public class DBQuery extends DBRowSet
      * @param conn a valid connection to the database.
      */
     @Override
-    public void updateRecord(DBRecord rec, Connection conn)
+    public void updateRecord(DBRecord rec)
     {
         // check updateable
         if (isUpdateable()==false)
@@ -427,8 +427,6 @@ public class DBQuery extends DBRowSet
         // check params
         if (rec == null)
             throw new InvalidArgumentException("record", null);
-        if (conn == null)
-            throw new InvalidArgumentException("conn", null);
         // Has record been modified?
         if (rec.isModified() == false)
             return; // Nothing to update
@@ -467,6 +465,8 @@ public class DBQuery extends DBRowSet
                 updCmd.set(col.to(fields[i]));
             }
         }
+        // the connection
+        Connection conn = rec.getContext().getConnection();
         // the commands
         DBCommand cmd = getCommandFromExpression();
         Object[] keys = (Object[]) rec.getRowSetData();
@@ -562,14 +562,14 @@ public class DBQuery extends DBRowSet
             
             // Execute SQL
             int affected = db.executeSQL(upd.getUpdate(), upd.getParamValues(), conn);
-            if (affected <= 0)
+            if (affected<= 0)
             {   // Error
                 if (affected == 0)
                 { // Record not found
                     throw new RecordUpdateFailedException(this, keys);
                 }
                 // Rollback
-                db.rollback(conn);
+                // context.rollback();
                 return;
             } 
             else if (affected > 1)

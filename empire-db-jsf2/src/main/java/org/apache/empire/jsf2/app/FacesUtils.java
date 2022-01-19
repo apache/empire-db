@@ -20,7 +20,6 @@ package org.apache.empire.jsf2.app;
 
 import java.io.File;
 import java.io.IOException;
-import java.sql.Connection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -38,6 +37,7 @@ import javax.servlet.http.HttpServletRequest;
 import org.apache.empire.commons.ObjectUtils;
 import org.apache.empire.commons.StringUtils;
 import org.apache.empire.data.Column;
+import org.apache.empire.db.DBContext;
 import org.apache.empire.db.DBDatabase;
 import org.apache.empire.exceptions.EmpireException;
 import org.apache.empire.exceptions.InternalException;
@@ -191,22 +191,23 @@ public class FacesUtils
         FacesUtils.redirectDirectly(fc, page.getOutcome());
     }
     
-    /* Connection */
+    /* Connection 
     
-    public Connection getConnection(final FacesContext fc, DBDatabase db) 
+    public DBContext getDBContext(final FacesContext fc, DBDatabase db) 
     {
-        return getWebApplication().getConnectionForRequest(fc, db);
+        return getWebApplication().getDBContextForRequest(fc, db);
     }
     
-    public void releaseAllConnections(final FacesContext fc, boolean commit)
+    public void releaseDBContext(final FacesContext fc, DBDatabase db, boolean commit)
     {
-        getWebApplication().releaseAllConnections(fc, commit);
+        getWebApplication().releaseDBContext(fc, db, commit);
     }
     
-    public void releaseAllConnections(final FacesContext fc, DBDatabase db, boolean commit)
+    public void releaseAllDBContexts(final FacesContext fc, boolean commit)
     {
-        getWebApplication().releaseConnection(fc, db, commit);
+        getWebApplication().releaseAllDBContexts(fc, commit);
     }
+    */
     
     /* Pages */
 

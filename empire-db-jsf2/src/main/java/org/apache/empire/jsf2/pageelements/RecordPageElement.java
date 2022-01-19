@@ -132,8 +132,7 @@ public class RecordPageElement<T extends DBRecord> extends PageElement
             throw new ObjectNotValidException(record);
         }
         // Record laden
-        Connection conn = getPage().getConnection(rowset.getDatabase()); 
-        record.read(rowset, recKey, conn);
+        record.read(recKey);
     }
     
     /**
@@ -150,8 +149,7 @@ public class RecordPageElement<T extends DBRecord> extends PageElement
         this.removeSessionObject(DBRecord.class);
         this.setSessionObject(Object[].class, recKey);
         // Record laden
-        Connection conn = getPage().getConnection(rowset.getDatabase()); 
-        record.read(rowset, recKey, conn);
+        record.read(recKey);
     }
 
     /**
@@ -180,8 +178,7 @@ public class RecordPageElement<T extends DBRecord> extends PageElement
      */
     public void createRecord()
     {
-        Connection conn = getPage().getConnection(rowset.getDatabase()); 
-        record.create(rowset, conn);
+        record.create();
         // Put key on Session
         this.removeSessionObject(Object[].class);
         this.setSessionObject(DBRecord.class, record);
@@ -204,8 +201,7 @@ public class RecordPageElement<T extends DBRecord> extends PageElement
             {   // Not Modified
                 return true; 
             }
-            Connection conn = getPage().getConnection(rowset.getDatabase()); 
-            record.update(conn);
+            record.update();
             // Put key on Session
             this.removeSessionObject(DBRecord.class);
             this.setSessionObject(Object[].class, record.getKeyValues());
@@ -232,8 +228,7 @@ public class RecordPageElement<T extends DBRecord> extends PageElement
         if (!record.isValid())
             throw new ObjectNotValidException(record);
         // delete
-        Connection conn = getPage().getConnection(rowset.getDatabase()); 
-        record.delete(conn);
+        record.delete();
         // Put key on Session
         this.removeSessionObject(Object[].class);
         this.removeSessionObject(DBRecord.class);

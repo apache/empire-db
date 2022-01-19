@@ -19,4 +19,6 @@ public interface DBContext
     
     void addRollbackHandler(DBRollbackHandler handler);
     
+    void discard();
+    
 }

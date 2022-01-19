@@ -18,7 +18,6 @@
  */
 package org.apache.empire.db;
 
-import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -34,7 +33,7 @@ import org.slf4j.LoggerFactory;
  * The class is used for obtaining and executing DDL commands supplied by the
  * database driver (@see {@link DBDatabaseDriver#getDDLScript(DBCmdType, DBObject, DBSQLScript)})
  */
-public class DBSQLScript implements Iterable<String>
+public class DBSQLScript implements DBContextAware, Iterable<String>
 {
     // Logger
     private static final Logger log = LoggerFactory.getLogger(DBSQLScript.class);
@@ -112,15 +111,30 @@ public class DBSQLScript implements Iterable<String>
     protected String commandSeparator = DEFAULT_COMMAND_SEPARATOR;
 
     protected ArrayList<SQLStmt> sqlStmtList      = new ArrayList<SQLStmt>();
+    
+    private final DBContext context;
 
-    public DBSQLScript()
+    public DBSQLScript(DBContext context)
     {
         // nothing
+        this.context = context;
     }
 
-    public DBSQLScript(String commandSeparator)
+    public DBSQLScript(DBContext context, String commandSeparator)
     {
+        this(context);
         this.commandSeparator = commandSeparator;
+    }
+
+    /**
+     * Returns the current Context
+     * @return
+     */
+    @Override
+    @SuppressWarnings("unchecked")
+    public <T extends DBContext> T  getContext()
+    {
+        return ((T)context);
     }
 
     /**
@@ -314,17 +328,18 @@ public class DBSQLScript implements Iterable<String>
      * @param ignoreErrors true if errors should be ignored
      * @return number of records affected
      */
-    public int executeAll(DBDatabaseDriver driver, Connection conn, boolean ignoreErrors)
+    public int executeAll(boolean ignoreErrors)
     {
         log.debug("Running script containing " + String.valueOf(getCount()) + " statements.");
         int result = 0;
+        DBDatabaseDriver driver = context.getDriver(); 
         for (SQLStmt stmt : sqlStmtList)
         {
             try
             {
                 // Execute Statement
                 log.debug("Executing: {}", stmt.getCmd());
-                int count = driver.executeSQL(stmt.getCmd(), stmt.getParams(), conn, null);
+                int count = driver.executeSQL(stmt.getCmd(), stmt.getParams(), context.getConnection(), null);
                 result += (count >= 0 ? count : 0);
             }
             catch (SQLException e)
@@ -350,9 +365,9 @@ public class DBSQLScript implements Iterable<String>
      * @param conn the connection
      * @return number of records affected
      */
-    public final int executeAll(DBDatabaseDriver driver, Connection conn)
+    public final int executeAll()
     {
-        return executeAll(driver, conn, false);
+        return executeAll(false);
     }
 
     /**
@@ -362,9 +377,10 @@ public class DBSQLScript implements Iterable<String>
      * @param conn the connection
      * @param ignoreErrors true if errors should be ignored
      */
-    public int executeBatch(DBDatabaseDriver driver, Connection conn)
+    public int executeBatch()
     {
         log.debug("Running batch containing " + String.valueOf(getCount()) + " statements.");
+        DBDatabaseDriver driver = context.getDriver();
         try
         {
             // Execute Statement
@@ -385,7 +401,7 @@ public class DBSQLScript implements Iterable<String>
                 i++;
             }
             // Execute batch
-            int[] res = driver.executeBatch(cmdList, paramList, conn);
+            int[] res = driver.executeBatch(cmdList, paramList, context.getConnection());
             for (count = 0, i = 0; i < (res != null ? res.length : 0); i++)
                 count += (res[i] >= 0 ? res[i] : 0);
             log.debug("Script completed. {} records affected.", count);

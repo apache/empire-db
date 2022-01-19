@@ -71,7 +71,7 @@ import org.w3c.dom.Element;
  *
  *
  */
-public class DBReader extends DBRecordData
+public class DBReader extends DBRecordData implements DBContextAware
 {
     private final static long serialVersionUID = 1L;
   
@@ -238,6 +238,8 @@ public class DBReader extends DBRecordData
      */
     private static ThreadLocal<Map<DBReader, Exception>> threadLocalOpenResultSets = new ThreadLocal<Map<DBReader, Exception>>();
     
+    private final DBContext context;
+    
     // Object references
     private DBDatabase     db      = null;
     private DBColumnExpr[] colList = null;
@@ -246,22 +248,34 @@ public class DBReader extends DBRecordData
     private Map<ColumnExpr, Integer> fieldIndexMap = null;
 
     /**
-     * Constructs a default DBReader object with the fieldIndexMap enabled.
-     */
-    public DBReader()
-    {
-        // Default Constructor
-        this(true);
-    }
-
-    /**
      * Constructs an empty DBRecordSet object.
      * @param useFieldIndexMap 
      */
-    public DBReader(boolean useFieldIndexMap)
+    public DBReader(DBContext context, boolean useFieldIndexMap)
     {
+        this.context = context;
         if (useFieldIndexMap)
             fieldIndexMap = new HashMap<ColumnExpr, Integer>();
+    }
+
+    /**
+     * Constructs a default DBReader object with the fieldIndexMap enabled.
+     */
+    public DBReader(DBContext context)
+    {
+        // Simple Constructor
+        this(context, true);
+    }
+
+    /**
+     * Returns the current Context
+     * @return
+     */
+    @Override
+    @SuppressWarnings("unchecked")
+    public <T extends DBContext> T  getContext()
+    {
+        return ((T)context);
     }
 
     /**
@@ -410,7 +424,7 @@ public class DBReader extends DBRecordData
      * @param scrollable true if the reader should be scrollable or false if not
      * @param conn a valid JDBC connection.
      */
-    public void open(DBCommandExpr cmd, boolean scrollable, Connection conn)
+    public void open(DBCommandExpr cmd, boolean scrollable)
     {
         if (isOpen())
             close();
@@ -433,7 +447,7 @@ public class DBReader extends DBRecordData
         }
         // Execute the query
         DBDatabase queryDb   = cmd.getDatabase();
-        ResultSet  queryRset = queryDb.executeQuery(sqlCmd, paramValues, scrollable, conn);
+        ResultSet  queryRset = queryDb.executeQuery(sqlCmd, paramValues, scrollable, context.getConnection());
         if (queryRset==null)
             throw new QueryNoResultException(sqlCmd);
         // init
@@ -448,9 +462,9 @@ public class DBReader extends DBRecordData
      * @param cmd the SQL-Command with cmd.getSelect()
      * @param conn a valid JDBC connection.
      */
-    public final void open(DBCommandExpr cmd, Connection conn)
+    public final void open(DBCommandExpr cmd)
     {
-        open(cmd, false, conn);
+        open(cmd, false);
     }
 
     /**
@@ -466,9 +480,9 @@ public class DBReader extends DBRecordData
      * @param cmd the SQL-Command with cmd.getSelect()
      * @param conn a valid JDBC connection.
      */
-    public void getRecordData(DBCommandExpr cmd, Connection conn)
+    public void getRecordData(DBCommandExpr cmd)
     { // Open the record
-        open(cmd, conn);
+        open(cmd);
         // Get First Record
         if (!moveNext())
         { // Close
@@ -630,11 +644,10 @@ public class DBReader extends DBRecordData
      * @param rowset the rowset to which to attach
      * @param rec the record which to initialize
      */
-    public void initRecord(DBRowSet rowset, DBRecord rec)
+    public void initRecord(DBRecord rec)
     {
-    	if (rowset==null)
-    	    throw new InvalidArgumentException("rowset", rowset);
-    	// init Record
+        // init Record
+        DBRowSet rowset = rec.getRowSet();
     	rowset.initRecord(rec, this);
     }
 

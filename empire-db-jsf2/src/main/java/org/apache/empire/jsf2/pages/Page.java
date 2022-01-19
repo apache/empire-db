@@ -20,7 +20,6 @@ package org.apache.empire.jsf2.pages;
 
 import java.io.Serializable;
 import java.lang.reflect.Method;
-import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -32,6 +31,7 @@ import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
 
 import org.apache.empire.commons.StringUtils;
+import org.apache.empire.db.DBContext;
 import org.apache.empire.db.DBDatabase;
 import org.apache.empire.db.DBRowSet;
 import org.apache.empire.exceptions.EmpireException;
@@ -66,6 +66,13 @@ public abstract class Page implements Serializable
             Page.log.debug("PageBean {} created.", name);
         }
     }
+
+    /**
+     * return a DBContext for a particular database
+     * @param db the database for which to obtain a connection
+     * @return the connection for the given database
+     */
+    public abstract DBContext getDBContext(DBDatabase db);
 
     public String getPageName()
     {
@@ -393,17 +400,6 @@ public abstract class Page implements Serializable
     protected PageOutcome getParentOutcome(boolean redirect)
     {
         return getParentOutcome(null, redirect);
-    }
-
-    /**
-     * return a connection for a particular database
-     * @param db the database for which to obtain a connection
-     * @return the connection for the given database
-     */
-    public Connection getConnection(DBDatabase db)
-    {       
-        WebApplication app = FacesUtils.getWebApplication();
-        return app.getConnectionForRequest(FacesUtils.getContext(), db);
     }
 
     public <T extends ParameterObject> T getObjectFromParam(Class<T> paramType, String idParam)

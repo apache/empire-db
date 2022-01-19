@@ -24,6 +24,7 @@ import java.util.ArrayList;
 
 import org.apache.empire.db.DBColumn;
 import org.apache.empire.db.DBCommand;
+import org.apache.empire.db.DBContext;
 import org.apache.empire.db.DBDatabase;
 import org.apache.empire.db.DBReader;
 import org.apache.empire.db.DBRowSet;
@@ -115,13 +116,13 @@ public class BeanResult<T> extends ArrayList<T>
         return cmd;
     }
     
-    public int fetch(Connection conn, int maxItems)
+    public int fetch(DBContext context, int maxItems)
     {
         clear();
-        DBReader reader = new DBReader();
+        DBReader reader = new DBReader(context);
         try {
             // Open and Read
-            reader.open(cmd, conn);
+            reader.open(cmd);
             reader.getBeanList(this, clazz, maxItems);
             return size();
             
@@ -130,9 +131,9 @@ public class BeanResult<T> extends ArrayList<T>
         }
     }
 
-    public final int fetch(Connection conn)
+    public final int fetch(DBContext context)
     {
-        return fetch(conn, -1);
+        return fetch(context, -1);
     }
     
 }

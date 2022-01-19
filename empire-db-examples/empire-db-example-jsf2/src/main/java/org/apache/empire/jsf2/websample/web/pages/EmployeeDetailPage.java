@@ -43,7 +43,7 @@ public class EmployeeDetailPage extends SamplePage
         log.trace("EmployeeDetailPage created");
 
         SampleDB db = getDatabase();
-        EmployeeRecord emplRec = new EmployeeRecord(db);
+        EmployeeRecord emplRec = new EmployeeRecord(getSampleContext());
         employee = new RecordPageElement<EmployeeRecord>(this, emplRec.getTable(), emplRec);
     }
 
@@ -96,22 +96,19 @@ public class EmployeeDetailPage extends SamplePage
 
     public void doCreate()
     {
-        Connection conn = getConnection();
-        getEmployeeRecord().create(conn);
+        getEmployeeRecord().create();
         doRefresh();
     }
     
     public PageOutcome doSave()
     {
-        Connection conn = getConnection();
-        getEmployeeRecord().update(conn);
+        getEmployeeRecord().update();
         return getParentOutcome(true);
     }
 
     public PageOutcome doDelete()
     {
-        Connection conn = getConnection();
-        getEmployeeRecord().delete(conn);
+        getEmployeeRecord().delete();
         return getParentOutcome(true);
     }
     

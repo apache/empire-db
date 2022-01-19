@@ -26,9 +26,11 @@ import org.apache.empire.DBResource;
 import org.apache.empire.DBResource.DB;
 import org.apache.empire.db.CompanyDB;
 import org.apache.empire.db.DBCommand;
+import org.apache.empire.db.DBContext;
 import org.apache.empire.db.DBDatabaseDriver;
 import org.apache.empire.db.DBRecord;
 import org.apache.empire.db.DBSQLScript;
+import org.apache.empire.db.context.DBContextStatic;
 import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
@@ -44,8 +46,9 @@ public class DBDatabaseDriverMSSqlTest
 	public void testChineseCharacters() 
 	{
 		Connection conn = dbResource.getConnection();
-
 		DBDatabaseDriver driver = dbResource.newDriver();
+        DBContext context = new DBContextStatic(driver, conn); 
+		
 		CompanyDB db = new CompanyDB();
 
 		// Encoding issue occur when prepared statement is disabled
@@ -54,27 +57,26 @@ public class DBDatabaseDriverMSSqlTest
 		db.open(driver, dbResource.getConnection());
 
 		if(!databaseExists(conn, db)){
-			DBSQLScript script = new DBSQLScript();
-			db.getCreateDDLScript(db.getDriver(), script);
+			DBSQLScript script = new DBSQLScript(context);
+			db.getCreateDDLScript(script);
 			System.out.println(script.toString());
-			script.executeAll(db.getDriver(), dbResource.getConnection(), false);
+			script.executeAll(false);
 		}
 		
 		// STEP 5: Clear Database (Delete all records)
 		System.out.println("*** Step 5: clearDatabase() ***");
 		clearDatabase(conn, db);
 
-		DBRecord dep = new DBRecord();
-		dep.create(db.DEPARTMENT);
+		DBRecord dep = new DBRecord(context, db.DEPARTMENT);
 		dep.setValue(db.DEPARTMENT.NAME, "junit");
 		dep.setValue(db.DEPARTMENT.BUSINESS_UNIT, "中文");
-		dep.update(conn);
+		dep.update();
 
 		int id = dep.getInt(db.DEPARTMENT.ID);
 
 		// Update an Employee
-		DBRecord depRead = new DBRecord();
-		depRead.read(db.DEPARTMENT, id, conn);
+		DBRecord depRead = new DBRecord(context, db.DEPARTMENT);
+		depRead.read(id);
 
 		// You may see ?? in the DB record
 		assertEquals("中文", depRead.getString(db.DEPARTMENT.BUSINESS_UNIT));

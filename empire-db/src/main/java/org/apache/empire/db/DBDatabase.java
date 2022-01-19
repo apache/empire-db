@@ -364,7 +364,7 @@ public abstract class DBDatabase extends DBObject
      * @param driver The driver for which to create a DDL Script
      * @param script the script object that will be completed
      */
-    public synchronized void getCreateDDLScript(DBDatabaseDriver driver, DBSQLScript script)
+    public synchronized void getCreateDDLScript(DBSQLScript script)
     {
         DBDatabaseDriver prevDriver = this.driver;
         try {
@@ -1571,7 +1571,7 @@ public abstract class DBDatabase extends DBObject
      * 
      * @param conn a valid database connection
      */
-    public void commit(Connection conn)
+    private void commit(Connection conn)
     {
         try
         {   // Check argument
@@ -1595,7 +1595,7 @@ public abstract class DBDatabase extends DBObject
      * <P>
      * @param conn a valid database connection
      */
-    public void rollback(Connection conn)
+    private void rollback(Connection conn)
     {
         try
         {   // Check argument

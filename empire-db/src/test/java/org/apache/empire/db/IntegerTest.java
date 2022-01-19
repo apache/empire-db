@@ -27,6 +27,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.empire.data.DataType;
+import org.apache.empire.db.context.DBContextStatic;
 import org.apache.empire.db.derby.DBDatabaseDriverDerby;
 import org.apache.empire.db.h2.DBDatabaseDriverH2;
 import org.apache.empire.db.hsql.DBDatabaseDriverHSql;
@@ -105,24 +106,25 @@ public class IntegerTest {
         Connection connection = getJDBCConnection(config);
 
         DBDatabaseDriver driver = getDatabaseDriver(config, connection);
+        DBContext context = new DBContextStatic(driver, connection); 
 
         database.open(driver, connection);
 
-        createDatabase(database, driver, connection);
+        createDatabase(database, driver, context);
 
-        DBRecord maxRec = new DBRecord();
-        maxRec.create(database.SAMPLE);
+        DBRecord maxRec = new DBRecord(context, database.SAMPLE);
+        maxRec.create();
         maxRec.setValue(database.SAMPLE.MY_INTEGER, Integer.MAX_VALUE);
         maxRec.setValue(database.SAMPLE.MY_LONG, Long.MAX_VALUE);
         maxRec.setValue(database.SAMPLE.MY_SHORT, Short.MAX_VALUE);
-        maxRec.update(connection);
+        maxRec.update();
         
-        DBRecord minRec = new DBRecord();
-        minRec.create(database.SAMPLE);
+        DBRecord minRec = new DBRecord(context, database.SAMPLE);
+        minRec.create();
         minRec.setValue(database.SAMPLE.MY_INTEGER, Integer.MIN_VALUE);
         minRec.setValue(database.SAMPLE.MY_LONG, Long.MIN_VALUE);
         minRec.setValue(database.SAMPLE.MY_SHORT, Short.MIN_VALUE);
-        minRec.update(connection);
+        minRec.update();
     }
 
     private static Connection getJDBCConnection(SampleConfig config) {
@@ -186,29 +188,29 @@ public class IntegerTest {
         throw new RuntimeException("Unknown Database Provider " + config.databaseProvider);
     }
 
-    private void createDatabase(DBDatabase db, DBDatabaseDriver driver, Connection conn) {
+    private void createDatabase(DBDatabase db, DBDatabaseDriver driver, DBContext context) {
         // try to remove previously existing tables
-        List<String> tables = getTableNames(db, conn);
-        DBSQLScript script2 = new DBSQLScript();
+        List<String> tables = getTableNames(db, context.getConnection());
+        DBSQLScript script2 = new DBSQLScript(context);
         for(DBTable table:db.getTables()){
             if(tables.contains(table.getName())){
                 db.getDriver().getDDLScript(DBCmdType.DROP, table, script2);
             }
         }
-        script2.executeAll(driver, conn, false);
+        script2.executeAll(false);
         // Commit
-        db.commit(conn);
+        context.commit();
         
         // create DDL for Database Definition
-        DBSQLScript script = new DBSQLScript();
-        db.getCreateDDLScript(driver, script);
+        DBSQLScript script = new DBSQLScript(context);
+        db.getCreateDDLScript(script);
         
         // Show DDL Statement
         LOGGER.info(script.toString());
         // Execute Script
-        script.executeAll(driver, conn, false);
+        script.executeAll(false);
         // Commit
-        db.commit(conn);
+        context.commit();
     }
 
     private List<String> getTableNames(DBDatabase db, Connection conn)

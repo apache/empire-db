@@ -31,12 +31,14 @@ import org.apache.empire.db.DBCmdParam;
 import org.apache.empire.db.DBCmdType;
 import org.apache.empire.db.DBColumnExpr;
 import org.apache.empire.db.DBCommand;
+import org.apache.empire.db.DBContext;
 import org.apache.empire.db.DBDatabaseDriver;
 import org.apache.empire.db.DBQuery;
 import org.apache.empire.db.DBReader;
 import org.apache.empire.db.DBRecord;
 import org.apache.empire.db.DBSQLScript;
 import org.apache.empire.db.DBTableColumn;
+import org.apache.empire.db.context.DBContextStatic;
 import org.apache.empire.db.exceptions.ConstraintViolationException;
 import org.apache.empire.db.h2.DBDatabaseDriverH2;
 import org.apache.empire.db.postgresql.DBDatabaseDriverPostgreSQL;
@@ -52,6 +54,8 @@ public class SampleAdvApp
     private static final SampleAdvDB db = new SampleAdvDB();
 
     private static SampleAdvConfig config = new SampleAdvConfig();
+    
+    private static DBContext context;
     
     // Shortcuts
     private static SampleAdvDB.Employees T_EMP = db.T_EMPLOYEES;
@@ -82,6 +86,9 @@ public class SampleAdvApp
             // STEP 2: Choose a driver
             System.out.println("*** Step 2: getDatabaseProvider() ***");
             DBDatabaseDriver driver = getDatabaseDriver(config.getDatabaseProvider());
+            
+            // STEP 2.2: Create a Context
+            context = new DBContextStatic(driver, conn); 
 
             // STEP 3: Open Database (and create if not existing)
             System.out.println("*** Step 3: openDatabase() ***");
@@ -103,7 +110,7 @@ public class SampleAdvApp
                 {
                 	conn.setAutoCommit(true);
                 }
-                createDatabase(driver, conn);
+                createDatabase();
                 if(db.getDriver() instanceof DBDatabaseDriverPostgreSQL)
                 {
                 	conn.setAutoCommit(false);
@@ -130,7 +137,7 @@ public class SampleAdvApp
             int idEmp3 = insertEmployee(conn, "Emma", "White", "F");
             
             // Insert History as batch
-            DBSQLScript batch = new DBSQLScript();
+            DBSQLScript batch = new DBSQLScript(context);
             insertEmpDepHistory(batch, idEmp1,  idDevDep,  DateUtils.getDate(2007, 12,  1));            
             insertEmpDepHistory(batch, idEmp1,  idProdDep, DateUtils.getDate(2008,  9,  1));           
             insertEmpDepHistory(batch, idEmp1,  idSalDep,  DateUtils.getDate(2009,  5, 15));           
@@ -141,10 +148,10 @@ public class SampleAdvApp
             insertEmpDepHistory(batch, idEmp3,  idDevDep,  DateUtils.getDate(2006,  9, 15));            
             insertEmpDepHistory(batch, idEmp3,  idSalDep,  DateUtils.getDate(2007,  6,  1));           
             insertEmpDepHistory(batch, idEmp3,  idProdDep, DateUtils.getDate(2008,  7, 31));
-            batch.executeBatch(db.getDriver(), conn);
+            batch.executeBatch();
             
             // commit
-            db.commit(conn);
+            context.commit();
             
             // STEP 7: read from Employee_Info_View
             System.out.println("--------------------------------------------------------");
@@ -165,7 +172,7 @@ public class SampleAdvApp
             HashMap<Integer, DBRecord> employeeMap = bulkReadRecords(conn);
             DBRecord rec = employeeMap.get(idEmp2);
             rec.setValue(db.T_EMPLOYEES.C_SALUTATION, "Mr.");
-            rec.update(conn);
+            rec.update();
 
             // STEP 10: bulkProcessRecords
             System.out.println("--------------------------------------------------------");
@@ -183,17 +190,17 @@ public class SampleAdvApp
             if (db.getDriver() instanceof DBDatabaseDriverH2) {
             	log.info("As H2 does not support changing a table with a view defined we remove the view");
             	System.out.println("*** drop EMPLOYEE_INFO_VIEW ***");
-            	DBSQLScript script = new DBSQLScript();
+            	DBSQLScript script = new DBSQLScript(context);
             	db.getDriver().getDDLScript(DBCmdType.DROP, db.V_EMPLOYEE_INFO, script);
-            	script.executeAll(db.getDriver(), conn);
+            	script.executeAll();
             }
             ddlSample(conn, idEmp2);
             if (db.getDriver() instanceof DBDatabaseDriverH2) {
             	log.info("And put back the view");
             	System.out.println("*** create EMPLOYEE_INFO_VIEW ***");
-            	DBSQLScript script = new DBSQLScript();
+            	DBSQLScript script = new DBSQLScript(context);
             	db.getDriver().getDDLScript(DBCmdType.CREATE, db.V_EMPLOYEE_INFO, script);
-            	script.executeAll(db.getDriver(), conn);
+            	script.executeAll();
             }
 
             // STEP 13: delete records
@@ -297,17 +304,17 @@ public class SampleAdvApp
      * Please make sure you uses the correct DatabaseDriver for your target dbms.
      * </PRE>
      */
-    private static void createDatabase(DBDatabaseDriver driver, Connection conn)
+    private static void createDatabase()
     {
         // create DLL for Database Definition
-        DBSQLScript script = new DBSQLScript();
-        db.getCreateDDLScript(driver, script);
+        DBSQLScript script = new DBSQLScript(context);
+        db.getCreateDDLScript(script);
         // Show DLL Statement
         System.out.println(script.toString());
         // Execute Script
-        script.executeAll(driver, conn);
+        script.executeAll();
         // Commit
-        db.commit(conn);
+        context.commit();
     }
 
     /**
@@ -334,11 +341,11 @@ public class SampleAdvApp
     private static int insertDepartment(Connection conn, String departmentName, String businessUnit)
     {
         // Insert a Department
-        DBRecord rec = new DBRecord();
-        rec.create(T_DEP);
+        DBRecord rec = new DBRecord(context, T_DEP);
+        rec.create();
         rec.setValue(T_DEP.C_NAME, departmentName);
         rec.setValue(T_DEP.C_BUSINESS_UNIT, businessUnit);
-        rec.update(conn);
+        rec.update();
         // Return Department ID
         return rec.getInt(T_DEP.C_DEPARTMENT_ID);
     }
@@ -351,12 +358,12 @@ public class SampleAdvApp
     private static int insertEmployee(Connection conn, String firstName, String lastName, String gender)
     {
         // Insert an Employee
-        DBRecord rec = new DBRecord();
-        rec.create(T_EMP);
+        DBRecord rec = new DBRecord(context, T_EMP);
+        rec.create();
         rec.setValue(T_EMP.C_FIRSTNAME, firstName);
         rec.setValue(T_EMP.C_LASTNAME, lastName);
         rec.setValue(T_EMP.C_GENDER, gender);
-        rec.update(conn);
+        rec.update();
         // Return Employee ID
         return rec.getInt(T_EMP.C_EMPLOYEE_ID);
     }
@@ -370,12 +377,12 @@ public class SampleAdvApp
     {
         // Insert an Employee
     	/*
-        DBRecord rec = new DBRecord();
+        DBRecord rec = new DBRecord(context);
         rec.create(T_EDH);
         rec.setValue(T_EDH.C_EMPLOYEE_ID, employeeId);
         rec.setValue(T_EDH.C_DEPARTMENT_ID, departmentId);
         rec.setValue(T_EDH.C_DATE_FROM, dateFrom);
-        rec.update(conn);
+        rec.update();
         */
         DBCommand cmd = db.createCommand();
     	cmd.set(T_EDH.C_EMPLOYEE_ID.to(employeeId));
@@ -401,7 +408,7 @@ public class SampleAdvApp
 
         System.out.println("Perfoming two queries using a the same command with different parameter values.");
         
-        DBReader r = new DBReader();
+        DBReader r = new DBReader(context);
         try {
             // Query all females currently working in the Production department
             System.out.println("1. Query all females currently working in the production department");
@@ -409,7 +416,7 @@ public class SampleAdvApp
             genderParam.setValue('F'); // set gender to female
             curDepParam.setValue(idProdDep); // set department id to production department
             // Open reader using a prepared statement (due to command parameters!)
-            r.open(cmd, conn);
+            r.open(cmd);
             // print all results
             System.out.println("Females working in the production department are:");
             while (r.moveNext())
@@ -423,7 +430,7 @@ public class SampleAdvApp
             genderParam.setValue('M'); // set gender to female
             curDepParam.setValue(idDevDep); // set department id to production department
             // Open reader using a prepared statement (due to command parameters!)
-            r.open(cmd, conn);
+            r.open(cmd);
             // print all results
             System.out.println("Males currently working in the development department are:");
             while (r.moveNext())
@@ -454,15 +461,15 @@ public class SampleAdvApp
         cmd.where(T_EMP.C_RETIRED.is(false));
 
         // Query Records and print output
-        DBReader reader = new DBReader();
+        DBReader reader = new DBReader(context);
         try
         {
             // Open Reader
             System.out.println("Running Query:");
             System.out.println(cmd.getSelect());
-            reader.open(cmd, conn);
+            reader.open(cmd);
             // Print output
-            DBRecord record = new DBRecord();
+            DBRecord record = new DBRecord(context, EMP);
             while (reader.moveNext())
             {
                 // Calculate sum
@@ -470,13 +477,13 @@ public class SampleAdvApp
                 for (int i=0; i<reader.getFieldCount(); i++)
                     sum += calcCharSum(reader.getString(i));
                 // Init updateable record
-                reader.initRecord(EMP, record);
+                reader.initRecord(record);
                 // reader
                 record.setValue(T_EMP.C_CHECKSUM, sum);
-                record.update(conn);
+                record.update();
             }
             // Done
-            db.commit(conn);
+            context.commit();
 
         } finally
         {
@@ -507,18 +514,18 @@ public class SampleAdvApp
         cmd.where(T_EMP.C_RETIRED.is(false));
 
         // Query Records and print output
-        DBReader reader = new DBReader();
+        DBReader reader = new DBReader(context);
         try
         {   // Open Reader
             System.out.println("Running Query:");
             System.out.println(cmd.getSelect());
-            reader.open(cmd, conn);
+            reader.open(cmd);
             // Print output
             HashMap<Integer, DBRecord> employeeMap = new HashMap<Integer, DBRecord>();
             while (reader.moveNext())
             {
-                DBRecord rec = new DBRecord();
-                reader.initRecord(T_EMP, rec);
+                DBRecord rec = new DBRecord(context, T_EMP);
+                reader.initRecord(rec);
                 employeeMap.put(reader.getInt(T_EMP.C_EMPLOYEE_ID), rec);
             }
             return employeeMap;
@@ -545,34 +552,34 @@ public class SampleAdvApp
 
         // Now create the corresponding DDL statement 
         System.out.println("Creating new column named FOO as varchar(20) for the EMPLOYEES table:");
-        DBSQLScript script = new DBSQLScript();
+        DBSQLScript script = new DBSQLScript(context);
         db.getDriver().getDDLScript(DBCmdType.CREATE, C_FOO, script);
-        script.executeAll(db.getDriver(), conn);
+        script.executeAll();
         
         // Now load a record from that table and set the value for foo
         System.out.println("Changing the value for the FOO field of a particular employee:");
-        DBRecord rec = new DBRecord();
-        rec.read(db.T_EMPLOYEES, idTestPerson, conn);
+        DBRecord rec = new DBRecord(context, db.T_EMPLOYEES);
+        rec.read(idTestPerson);
         rec.setValue(C_FOO, "Hello World");
-        rec.update(conn);
+        rec.update();
         
         // Now extend the size of the field from 20 to 40 characters
         System.out.println("Extending size of column FOO to 40 characters:");
         C_FOO.setSize(40); 
         script.clear();
         db.getDriver().getDDLScript(DBCmdType.ALTER, C_FOO, script);
-        script.executeAll(db.getDriver(), conn);
+        script.executeAll();
 
         // Now set a longer value for the record
         System.out.println("Changing the value for the FOO field for the above employee to a longer string:");
         rec.setValue(C_FOO, "This is a very long field value!");
-        rec.update(conn);
+        rec.update();
 
         // Finally, drop the column again
         System.out.println("Dropping the FOO column from the employee table:");
         script.clear();
         db.getDriver().getDDLScript(DBCmdType.DROP, C_FOO, script);
-        script.executeAll(db.getDriver(), conn);
+        script.executeAll();
     }
 
     /**
@@ -619,12 +626,12 @@ public class SampleAdvApp
         
         // Define an updateable query
         DBQuery Q_EMP_DEP = new DBQuery(cmd, T_EMP.C_EMPLOYEE_ID);
-        DBRecord rec = new DBRecord();
-        rec.read(Q_EMP_DEP, employeeId, conn);
+        DBRecord rec = new DBRecord(context, Q_EMP_DEP);
+        rec.read(employeeId);
         // Modify and Update fields from both Employee and Department
         rec.setValue(T_EMP.C_PHONE_NUMBER, "0815-4711");
         rec.setValue(T_DEP.C_BUSINESS_UNIT, "AUTO");
-        rec.update(conn);
+        rec.update();
         // Successfully updated
         System.out.println("The employee has been sucessfully updated");
     }    
@@ -639,7 +646,7 @@ public class SampleAdvApp
      */
     private static void deleteRecordSample(int idEmployee, int idDepartment, Connection conn)
     {
-        db.commit(conn);
+        context.commit();
         // Delete an employee
         // This statement is designed to succeed since cascaded deletes are enabled for this relation.
         db.T_EMPLOYEES.deleteRecord(idEmployee, conn);
@@ -662,12 +669,12 @@ public class SampleAdvApp
     private static void printQueryResults(DBCommand cmd, Connection conn)
     {
         // Query Records and print output
-        DBReader reader = new DBReader();
+        DBReader reader = new DBReader(context);
         try
         {   // Open Reader
             System.out.println("Running Query:");
             System.out.println(cmd.getSelect());
-            reader.open(cmd, conn);
+            reader.open(cmd);
             // Print column titles 
             System.out.println("---------------------------------");
             int count = reader.getFieldCount();

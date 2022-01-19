@@ -593,11 +593,12 @@ public class DBTable extends DBRowSet implements Cloneable
      * @param conn a valid connection to the database.
      */
     @Override
-    public void createRecord(DBRecord rec, Connection conn)
+    public void createRecord(DBRecord rec, boolean deferredInit)
     {
         // Prepare
         prepareInitRecord(rec, null, true);
         // Set Defaults
+        Connection conn = (deferredInit ? null : rec.getContext().getConnection());
         int count = columns.size();
         for (int i = 0; i < count; i++)
         {

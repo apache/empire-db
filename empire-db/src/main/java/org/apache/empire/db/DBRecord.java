@@ -38,6 +38,7 @@ import org.apache.empire.db.exceptions.FieldValueNotFetchedException;
 import org.apache.empire.db.expr.compare.DBCompareExpr;
 import org.apache.empire.exceptions.BeanPropertyGetException;
 import org.apache.empire.exceptions.InvalidArgumentException;
+import org.apache.empire.exceptions.NotSupportedException;
 import org.apache.empire.exceptions.ObjectNotValidException;
 import org.apache.empire.xml.XMLUtil;
 import org.slf4j.Logger;
@@ -51,7 +52,7 @@ import org.w3c.dom.Element;
  * This class handles one record from a database table. 
  *
  */
-public class DBRecord extends DBRecordData implements Record, Cloneable
+public class DBRecord extends DBRecordData implements DBContextAware, Record, Cloneable
 {
     private final static long serialVersionUID = 1L;
     
@@ -199,9 +200,11 @@ public class DBRecord extends DBRecordData implements Record, Cloneable
     
     protected static final Logger log    = LoggerFactory.getLogger(DBRecord.class);
 
+    private final DBContext context;
+    private final DBRowSet  rowset;
+    
     // This is the record data
     private State           state;
-    private DBRowSet        rowset;
     private Object[]        fields;
     private boolean[]       modified;
     private boolean         validateFieldValues;
@@ -213,8 +216,7 @@ public class DBRecord extends DBRecordData implements Record, Cloneable
      * The record is not attached to a RowSet and the record's state is initially set to REC_INVALID.
      * 
      * Please derive your own Objects from this class.   
-     */
-    public DBRecord()
+    protected DBRecord()
     {
         state = State.Invalid;
         rowset = null;
@@ -224,11 +226,27 @@ public class DBRecord extends DBRecordData implements Record, Cloneable
         validateFieldValues = true;
     }
 
-    public DBRecord(DBRowSet initialRowset)
+    protected DBRecord(DBRowSet initialRowset)
     {
     	this();
     	// allow initial rowset
     	rowset = initialRowset;
+    }
+     */
+    
+    public DBRecord(DBContext context, DBRowSet rowset)
+    {
+        // Check params
+        if (context==null || rowset==null)
+            throw new InvalidArgumentException("context|rowset", context);
+        // init
+        this.context = context;
+        this.rowset = rowset;
+        this.state = State.Invalid;
+        this.fields = null;
+        this.modified = null;
+        this.rowsetData = null;
+        this.validateFieldValues = true;
     }
     
     /**
@@ -237,33 +255,22 @@ public class DBRecord extends DBRecordData implements Record, Cloneable
      * @param rowSetData any further RowSet specific data
      * @param newRecord
      */
-    protected void initData(DBRowSet rowset, Object rowSetData, boolean newRecord)
+    void initData(Object rowSetData, boolean newRecord)
     {
         // Init rowset
-        boolean rowsetChanged = (this.rowset != rowset);
-        if (rowsetChanged)
-            fields = null;
-        this.rowset = rowset;
-        // Init fields
-        if (rowset!=null)
-        {   // Set Rowset
-            int colCount = rowset.getColumns().size();
-            if (fields==null || fields.length!=colCount)
-                fields = new Object[colCount];
-            else
-            {   // clear fields
-                for (int i=0; i<fields.length; i++)
-                    if (fields[i]!=ObjectUtils.NO_VALUE)
-                        fields[i]=null;
-            }
+        int colCount = rowset.getColumns().size();
+        if (fields==null || fields.length!=colCount)
+            fields = new Object[colCount];
+        else
+        {   // clear fields
+            for (int i=0; i<fields.length; i++)
+                if (fields[i]!=ObjectUtils.NO_VALUE)
+                    fields[i]=null;
         }
         // Set State
         this.rowsetData = rowSetData;
         this.modified = null;
         changeState((rowset==null ? State.Invalid : (newRecord ? State.New : State.Valid)));
-        // notify
-        if (rowsetChanged)
-            onRowSetChanged();
     }
     
     /**
@@ -307,7 +314,8 @@ public class DBRecord extends DBRecordData implements Record, Cloneable
         try 
         {
             DBRecord rec = (DBRecord)super.clone();
-            rec.rowset = this.rowset;
+            if (rec.rowset!= this.rowset)
+                throw new NotSupportedException(this, "clone");
             rec.state = this.state;
             if (rec.fields == fields && fields!=null)
                 rec.fields = fields.clone();
@@ -336,13 +344,25 @@ public class DBRecord extends DBRecordData implements Record, Cloneable
     }
 
     /**
+     * Returns the current Context
+     * @return
+     */
+    @Override
+    @SuppressWarnings("unchecked")
+    public <T extends DBContext> T  getContext()
+    {
+        return ((T)context);
+    }
+
+    /**
      * Returns the DBRowSet object.
      * 
      * @return the DBRowSet object
      */
-    public DBRowSet getRowSet()
+    @SuppressWarnings("unchecked")
+    public <T extends DBRowSet> T getRowSet()
     {
-        return rowset;
+        return (T)this.rowset;
     }
 
     /**
@@ -933,92 +953,65 @@ public class DBRecord extends DBRecordData implements Record, Cloneable
      * @param keyValues a Object array, the primary key(s)
      * @param insert if true change the state of this object to REC_NEW
      */
-    public void init(DBRowSet table, Object[] keyValues, boolean insert)
+    protected void init(DBRowSet table, Object[] keyValues, boolean insert)
     { 	// Init with keys
         if (table!=null)
             table.initRecord(this, keyValues, insert);
         else
-            initData(null, null, false);
-    }
-    
-    /**
-     * Creates a new record for the given table.<BR>
-     * All record fields will be filled with their default values.
-     * The record's state is set to NEW
-     * <P>
-     * If a connection is supplied sequence generated values will be obtained<BR>
-     * Otherwise the sequence will be generated later. 
-     * <P>
-     * @param table the table for which to create a record
-     * @param conn a valid JDBC connection
-     */
-    public void create(DBRowSet table, Connection conn)
-    {
-        if (table==null)
-            throw new InvalidArgumentException("table", table);
-        // create
-        table.createRecord(this, conn);
-    }
-    
-    /**
-     * Creates a new record for the given table.<BR>
-     * All record fields will be filled with their default values.<BR>
-     * The record's state is set to NEW
-     * <P>
-     * @param table the table for which to create a record
-     */
-    public final void create(DBRowSet table)
-    {
-        create(table, null);
+            initData(null, false);
     }
 
     /**
-     * Reads a record from the database identified by it's primary key. 
-     * After successful reading the record will be valid and all values will be accessible.
-     * @see org.apache.empire.db.DBTable#readRecord(DBRecord, Object[], Connection)
-     * 
-     * @param table the rowset from which to read the record
-     * @param keys an array of the primary key values
-     * @param conn a valid connection to the database.
+     * Initializes this record object 
+     * @param table
+     * @param keyValues
+     * @param insert
      */
-    public void read(DBRowSet table, Object[] key, Connection conn)
+    public void init(boolean statusNew, Object... key)
+    {   // Init with keys
+        rowset.initRecord(this, key, statusNew);
+    }
+
+    /**
+     * Creates a new record
+     */
+    public void create(boolean deferredInit)
     {
-        if (table==null)
-            throw new InvalidArgumentException("table", table);
+        rowset.createRecord(this, deferredInit);
+        // remove rollback
+        context.removeRollbackHandler(this);
+    }
+
+    /**
+     * Creates a new record
+     */
+    public void create()
+    {
+        create(false);
+    }
+    
+    /**
+     * Reads a record from the database
+     * @param key an array of the primary key values
+     */
+    public void read(Object... key)
+    {
+        // temporarily check for connection
+        // invalid due to conversion from old Api where Connection was the last param
+        for (int i=0; i<key.length; i++)
+            if (key[i] instanceof Connection)
+                throw new InvalidArgumentException("key", key);
         // read
-        table.readRecord(this, key, conn);
+        rowset.readRecord(this, key);
+        // remove rollback
+        context.removeRollbackHandler(this);
     }
-
+    
     /**
-     * Reads a record from the database identified by it's primary key. 
-     * After successful reading the record will be valid and all values will be accessible.
-     * @see org.apache.empire.db.DBTable#readRecord(DBRecord, Object[], Connection)
-     * 
-     * @param table the rowset from which to read the record
-     * @param id the primary key of the record to load.
-     * @param conn a valid connection to the database.
+     * Reads a record from the database
+     * @param key an array of the primary key values
      */
-    public final void read(DBRowSet table, Object id, Connection conn)
-    {
-        if (id instanceof Collection<?>)
-        {   // If it's a collection then convert it to an array
-            read(table, ((Collection<?>)id).toArray(), conn);
-        }
-        // Simple One-Column key
-        read(table, new Object[] { id }, conn);
-    }
-
-    /**
-     * Reads a record from the database identified by one or more constraints. 
-     * 
-     * In oder to concatenate constraints use the and() operator from the first constraint
-     * e.g. FIRSTNAME.is("Joe").and(LASTNAME.is("Doe"))
-     * 
-     * @param table the rowset from which to read the record
-     * @param whereConstraints the constraint(s) (which must all be on the table)
-     * @param conn a valid connection to the database.
-     */
-    public void read(DBRowSet table, DBCompareExpr whereConstraints, Connection conn)
+    public void read(DBCompareExpr whereConstraints)
     {
         if (whereConstraints==null)
             throw new InvalidArgumentException("whereConstraints", null);
@@ -1026,29 +1019,30 @@ public class DBRecord extends DBRecordData implements Record, Cloneable
         Set<DBColumn> columns = new HashSet<DBColumn>();
         whereConstraints.addReferencedColumns(columns);
         for (DBColumn c : columns)
-            if (!table.equals(c.getRowSet()))
+            if (!rowset.equals(c.getRowSet()))
                 throw new InvalidArgumentException("whereConstraints", c.getFullName());
         // read now
-        DBCommand cmd = table.getDatabase().createCommand();
-        cmd.select(table.getColumns());
+        DBCommand cmd = getDatabase().createCommand();
+        cmd.select(rowset.getColumns());
         cmd.where(whereConstraints);
-        table.readRecord(this, cmd, conn);
+        rowset.readRecord(this, cmd);
+        // remove rollback
+        context.removeRollbackHandler(this);
     }
 
     /**
      * Updates the record and saves all changes in the database.
-     * 
-     * @see org.apache.empire.db.DBTable#updateRecord(DBRecord, Connection)
-     * @param conn a valid connection to the database.
      */
-    public void update(Connection conn)
+    public void update()
     {
         if (!isValid())
             throw new ObjectNotValidException(this);
         if (!isModified())
-        	return; /* Not modified. Nothing to do! */
+            return; /* Not modified. Nothing to do! */
+        // allow rollback
+        context.addRollbackHandler(createRollbackHandler());
         // update
-        rowset.updateRecord(this, conn);
+        rowset.updateRecord(this);
     }
     
     /**
@@ -1056,7 +1050,7 @@ public class DBRecord extends DBRecordData implements Record, Cloneable
      * This will set change the record's state to Valid
      * @param rowSetData additional data held by the rowset for this record (optional)
      */
-    protected void updateComplete(Object rowSetData)
+    void updateComplete(Object rowSetData)
     {
         this.rowsetData = rowSetData;
         this.modified = null;
@@ -1073,7 +1067,7 @@ public class DBRecord extends DBRecordData implements Record, Cloneable
      * @see org.apache.empire.db.DBTable#deleteRecord(Object[], Connection)
      * @param conn a valid connection to the database.
      */
-    public void delete(Connection conn)
+    protected void delete(Connection conn)
     {
         if (isValid()==false)
             throw new ObjectNotValidException(this);
@@ -1084,6 +1078,30 @@ public class DBRecord extends DBRecordData implements Record, Cloneable
             rowset.deleteRecord(keys, conn);
         }
         close();
+    }
+    
+    public void delete()
+    {
+        if (isValid()==false)
+            throw new ObjectNotValidException(this);
+        // allow rollback
+        context.addRollbackHandler(createRollbackHandler());
+        // Delete only if record is not new
+        if (!isNew())
+        {
+            Object[] keys = rowset.getRecordKey(this);
+            rowset.deleteRecord(keys, context.getConnection());
+        }
+        close();
+    }
+    
+    /**
+     * Factory function to create  createRollbackHandler();
+     * @return the DBRollbackHandler
+     */
+    protected DBRollbackHandler createRollbackHandler()
+    {
+        return new DBRecordRollbackHandler(this);
     }
 
     /**
@@ -1295,12 +1313,13 @@ public class DBRecord extends DBRecordData implements Record, Cloneable
     
     /**
      * Override this to do extra handling when the rowset for this record changes
-     */
+     
     protected void onRowSetChanged()
     {
         if (log.isTraceEnabled() && rowset!=null)
             log.trace("Record has been attached to rowset " + rowset.getName());
     }
+    */
     
     /**
      * Override this to do extra handling when the record changes

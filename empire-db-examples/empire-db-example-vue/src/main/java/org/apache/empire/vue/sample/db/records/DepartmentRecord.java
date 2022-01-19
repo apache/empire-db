@@ -26,9 +26,9 @@ public class DepartmentRecord extends SampleRecord<TDepartments>
 {
     private final static long serialVersionUID = 1L;
 
-    public DepartmentRecord(SampleDB db, RecordContext recordContext)
+    public DepartmentRecord(RecordContext recordContext)
     {
-        super(db.T_DEPARTMENTS, recordContext);
+        super(recordContext.getDb().T_DEPARTMENTS, recordContext);
     }
   
 }

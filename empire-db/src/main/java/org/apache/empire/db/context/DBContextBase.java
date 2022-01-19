@@ -105,4 +105,25 @@ public abstract class DBContextBase implements DBContext
             log.info("Rollback handler for object {} was removed", object.getClass().getSimpleName());
     }
 
+    @Override
+    public void discard()
+    {
+        /* don't close connection! */
+    }
+    
+    /**
+     * helper to close a connection on discard
+     */
+    protected void closeConnection()
+    {
+        try
+        {   // close connection
+            Connection conn = getConnection();
+            conn.close();
+        } catch (SQLException sqle) { 
+            // Commit failed!
+            throw new EmpireSQLException(getDriver(), sqle);
+        }
+    }
+    
 }

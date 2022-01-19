@@ -20,6 +20,7 @@ package org.apache.empire.vue.sample.db;
 
 import java.sql.Connection;
 
+import org.apache.empire.db.DBContext;
 import org.apache.empire.rest.app.TextResolver;
 
 /**
@@ -28,8 +29,9 @@ import org.apache.empire.rest.app.TextResolver;
  * @author doebele
  *
  */
-public interface RecordContext
+public interface RecordContext extends DBContext
 {
+    SampleDB getDb();
     /**
      * provide a JDBC connection for DB operations 
      * @return the JDBC connection

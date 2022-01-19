@@ -30,12 +30,14 @@ import org.apache.empire.DBResource.DB;
 import org.apache.empire.data.DataType;
 import org.apache.empire.db.CompanyDB;
 import org.apache.empire.db.DBCmdType;
+import org.apache.empire.db.DBContext;
 import org.apache.empire.db.DBDatabase;
 import org.apache.empire.db.DBDatabaseDriver;
 import org.apache.empire.db.DBRecord;
 import org.apache.empire.db.DBSQLScript;
 import org.apache.empire.db.DBTable;
 import org.apache.empire.db.DBTableColumn;
+import org.apache.empire.db.context.DBContextStatic;
 import org.junit.Rule;
 import org.junit.Test;
 
@@ -51,30 +53,30 @@ public class DBDatabaseDriverHSqlTest{
         Connection conn = dbResource.getConnection();
      
         DBDatabaseDriver driver = dbResource.newDriver();
+        DBContext context = new DBContextStatic(driver, conn); 
+        
         CompanyDB db = new CompanyDB();
         db.open(driver, dbResource.getConnection());
-        DBSQLScript script = new DBSQLScript();
-        db.getCreateDDLScript(db.getDriver(), script);
-        script.executeAll(db.getDriver(), dbResource.getConnection(), false);
+        DBSQLScript script = new DBSQLScript(context);
+        db.getCreateDDLScript(script);
+        script.executeAll(false);
         
-        DBRecord dep = new DBRecord();
-        dep.create(db.DEPARTMENT);
+        DBRecord dep = new DBRecord(context, db.DEPARTMENT);
+        dep.create();
         dep.setValue(db.DEPARTMENT.NAME, "junit");
         dep.setValue(db.DEPARTMENT.BUSINESS_UNIT, "test");
-        dep.update(conn);
+        dep.update();
         
         Date date = dep.getDateTime(db.DEPARTMENT.UPDATE_TIMESTAMP);
         assertNotNull("Date is null", date);
         assertTrue("No departments", dep.getInt(db.DEPARTMENT.ID) > 0);
         
-        
-        DBRecord emp = new DBRecord();
-        emp.create(db.EMPLOYEE);
+        DBRecord emp = new DBRecord(context, db.EMPLOYEE);
         emp.setValue(db.EMPLOYEE.FIRSTNAME, "junit");
         emp.setValue(db.EMPLOYEE.LASTNAME, "test");
         emp.setValue(db.EMPLOYEE.GENDER, "m");
         emp.setValue(db.EMPLOYEE.DEPARTMENT_ID, dep.getInt(db.DEPARTMENT.ID));
-        emp.update(conn);
+        emp.update();
         
         date = emp.getDateTime(db.EMPLOYEE.UPDATE_TIMESTAMP);
         assertNotNull("Date is null", date);
@@ -83,24 +85,23 @@ public class DBDatabaseDriverHSqlTest{
         int id = emp.getInt(db.EMPLOYEE.ID);
         
         // Update an Employee
-        emp = new DBRecord();
-        emp.read(db.EMPLOYEE, id, conn);
+        emp = new DBRecord(context, db.EMPLOYEE);
+        emp.read(id);
         // Set
         emp.setValue(db.EMPLOYEE.PHONE_NUMBER, "123456");
-        emp.update(conn);
+        emp.update();
         
-        emp = new DBRecord();
+        emp = new DBRecord(context, db.EMPLOYEE);
         emp.read(db.EMPLOYEE, id, conn);
         
         assertEquals("123456", emp.getString(db.EMPLOYEE.PHONE_NUMBER));
         
         
-        script = new DBSQLScript();
+        script = new DBSQLScript(context);
         db.getDriver().getDDLScript(DBCmdType.DROP, db.EMPLOYEE, script);
         db.getDriver().getDDLScript(DBCmdType.DROP, db.DEPARTMENT, script);
-        script.executeAll(db.getDriver(), conn, true);
+        script.executeAll(true);
     }
-    
     
     /**
      * See https://issues.apache.org/jira/browse/EMPIREDB-151
@@ -108,29 +109,30 @@ public class DBDatabaseDriverHSqlTest{
     @Test
     public void testSequence(){
     	Connection conn = dbResource.getConnection();
-        
         DBDatabaseDriver driver = dbResource.newDriver();
+        DBContext context = new DBContextStatic(driver, conn); 
+        
         SeqDB db = new SeqDB();
         db.open(driver, dbResource.getConnection());
-        DBSQLScript script = new DBSQLScript();
-        db.getCreateDDLScript(db.getDriver(), script);
-        script.executeAll(db.getDriver(), dbResource.getConnection(), false);
+        DBSQLScript script = new DBSQLScript(context);
+        db.getCreateDDLScript(script);
+        script.executeAll(false);
         
-        DBRecord data = new DBRecord();
-        data.create(db.DATA);
+        DBRecord data = new DBRecord(context, db.DATA);
+        data.create();
         data.setValue(db.DATA.VALUE, "test");
-        data.update(conn);
+        data.update();
         
         final Object id = data.getLong(db.DATA.ID);
         
-        DBRecord read = new DBRecord();
-        read.read(db.DATA, id, conn);
+        DBRecord read = new DBRecord(context, db.DATA);
+        read.read(id);
         
         assertEquals("test", read.getString(db.DATA.VALUE));
         
-        script = new DBSQLScript();
+        script = new DBSQLScript(context);
         db.getDriver().getDDLScript(DBCmdType.DROP, db.DATA, script);
-        script.executeAll(db.getDriver(), conn, true);
+        script.executeAll(true);
     }
     
     /**

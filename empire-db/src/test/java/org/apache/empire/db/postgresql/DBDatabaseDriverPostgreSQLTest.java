@@ -29,10 +29,12 @@ import org.apache.empire.DBResource;
 import org.apache.empire.DBResource.DB;
 import org.apache.empire.db.CompanyDB;
 import org.apache.empire.db.DBCommand;
+import org.apache.empire.db.DBContext;
 import org.apache.empire.db.DBDatabaseDriver;
 import org.apache.empire.db.DBReader;
 import org.apache.empire.db.DBRecord;
 import org.apache.empire.db.DBSQLScript;
+import org.apache.empire.db.context.DBContextStatic;
 import org.apache.empire.db.exceptions.QueryFailedException;
 import org.junit.Assert;
 import org.junit.Ignore;
@@ -69,8 +71,9 @@ public class DBDatabaseDriverPostgreSQLTest
 	public void testBlobDDL() throws SQLException 
 	{
 		Connection conn = dbResource.getConnection();
-
 		DBDatabaseDriver driver = dbResource.newDriver();
+        DBContext context = new DBContextStatic(driver, conn); 
+		
 		CompanyDB db = new CompanyDB();
 
 		// Encoding issue occurs when prepared statement is disabled
@@ -79,10 +82,10 @@ public class DBDatabaseDriverPostgreSQLTest
 		db.open(driver, dbResource.getConnection());
 
 		if(!databaseExists(conn, db)){
-			DBSQLScript script = new DBSQLScript();
-			db.getCreateDDLScript(db.getDriver(), script);
+			DBSQLScript script = new DBSQLScript(context);
+			db.getCreateDDLScript(script);
 			System.out.println(script.toString());
-			script.executeAll(db.getDriver(), dbResource.getConnection(), false);
+			script.executeAll(false);
 		}
 		
 		conn.close();
@@ -94,23 +97,25 @@ public class DBDatabaseDriverPostgreSQLTest
 		Connection conn = dbResource.getConnection();
 
 		DBDatabaseDriver driver = dbResource.newDriver();
-		CompanyDB db = new CompanyDB();
+        DBContext context = new DBContextStatic(driver, conn); 
+
+        CompanyDB db = new CompanyDB();
 
 		// Encoding issue occurs when prepared statement is disabled
 		//db.setPreparedStatementsEnabled(true);
 
 		db.open(driver, dbResource.getConnection());
 		
-		DBRecord emp = new DBRecord();
-        emp.create(db.DATA);
+		DBRecord emp = new DBRecord(context, db.DATA);
+        emp.create();
         emp.setValue(db.DATA.DATA, new byte[]{1,2,3});
-        emp.update(conn);
+        emp.update();
 		
 		// read a value
 		DBCommand cmd = db.createCommand();
 		cmd.select(db.DATA.DATA);
-		DBReader reader = new DBReader();
-		reader.open(cmd, conn);
+		DBReader reader = new DBReader(context);
+		reader.open(cmd);
 		while(reader.moveNext()){
 			byte[] value = (byte[]) reader.getValue(db.DATA.DATA);
 			Assert.assertArrayEquals(new byte[]{1,2,3}, value);
