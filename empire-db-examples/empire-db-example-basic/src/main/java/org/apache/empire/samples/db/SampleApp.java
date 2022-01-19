@@ -26,10 +26,13 @@ import org.apache.empire.commons.StringUtils;
 import org.apache.empire.data.bean.BeanResult;
 import org.apache.empire.db.DBColumnExpr;
 import org.apache.empire.db.DBCommand;
+import org.apache.empire.db.DBContext;
 import org.apache.empire.db.DBDatabaseDriver;
 import org.apache.empire.db.DBReader;
 import org.apache.empire.db.DBRecord;
+import org.apache.empire.db.DBRecordV3;
 import org.apache.empire.db.DBSQLScript;
+import org.apache.empire.db.context.DBContextStatic;
 import org.apache.empire.db.derby.DBDatabaseDriverDerby;
 import org.apache.empire.db.h2.DBDatabaseDriverH2;
 import org.apache.empire.db.hsql.DBDatabaseDriverHSql;
@@ -81,6 +84,8 @@ public class SampleApp
 			// STEP 2: Choose a driver
 			System.out.println("*** Step 2: getDatabaseProvider() ***");
 			DBDatabaseDriver driver = getDatabaseDriver(config.getDatabaseProvider(), conn);
+			
+			DBContext context = new DBContextStatic(driver, conn); 
 
             // STEP 3: Open Database (and create if not existing)
             System.out.println("*** Step 3: openDatabase() ***");
@@ -121,6 +126,13 @@ public class SampleApp
 			int idPers1 = insertEmployee(conn, "Peter", "Sharp", Gender.M, idDevDep);
 			int idPers2 = insertEmployee(conn, "Fred", "Bloggs", Gender.M, idDevDep);
 			int idPers3 = insertEmployee(conn, "Emma", "White",  Gender.F, idSalDep);
+
+            // commit
+            db.commit(conn);
+			
+            int idEmp = testTransactionCreate(context, idDevDep);
+            testTransactionUpdate(context, idEmp);
+            testTransactionDelete(context, idEmp);
 
 			// STEP 7: Update Records (by setting the phone Number)
 			System.out.println("*** Step 7: updateEmployee() ***");
@@ -324,6 +336,113 @@ public class SampleApp
 		rec.setValue(db.EMPLOYEES.PHONE_NUMBER, phoneNumber);
 		rec.update(conn);
 	}
+
+	/**
+	 * @param context
+	 * @param idDep
+	 */
+	private static int testTransactionCreate(DBContext context, int idDep)
+    {
+        SampleDB.Employees T = db.EMPLOYEES;
+        DBRecordV3 rec = new DBRecordV3(context, T);
+        
+        rec.create();
+        rec.setValue(T.FIRSTNAME, "Foo");
+        rec.setValue(T.LASTNAME, "Manchoo");
+        rec.setValue(T.GENDER, Gender.M);
+        rec.setValue(T.DEPARTMENT_ID, idDep);
+        rec.update();
+        log.info("Timestamp {}", rec.getString(T.UPDATE_TIMESTAMP));
+        
+        rec.setValue(T.FIRSTNAME, "Foo 2");
+        rec.setValue(T.LASTNAME, "Manchu");
+        rec.setValue(T.PHONE_NUMBER, "0815/4711");
+        rec.update();
+        log.info("Timestamp {}", rec.getString(T.UPDATE_TIMESTAMP));
+        
+        context.rollback();
+        
+        rec.setValue(T.FIRSTNAME, "Dr. Foo");
+        rec.update();
+        log.info("Timestamp {}", rec.getString(T.UPDATE_TIMESTAMP));
+
+        rec.delete();
+        
+        context.rollback();
+
+        // insert final
+        rec.update();
+        log.info("Timestamp {}", rec.getString(T.UPDATE_TIMESTAMP));
+        
+        log.info("testTransactionCreate performed OK");
+        context.commit();
+        
+        return rec.getInt(T.EMPLOYEE_ID);
+    }
+    /**
+     * @param context
+     * @param idDep
+     */
+    private static void testTransactionUpdate(DBContext context, int idEmp)
+    {
+        SampleDB.Employees T = db.EMPLOYEES;
+        DBRecordV3 rec = new DBRecordV3(context, T);
+        
+        rec.read(idEmp);
+        rec.setValue(T.PHONE_NUMBER, null);
+        rec.setValue(T.SALARY, "100.000");
+        rec.update();
+
+        log.info("Timestamp {}", rec.getString(T.UPDATE_TIMESTAMP));
+        
+        context.rollback();
+        
+        rec.setValue(T.PHONE_NUMBER, "07531-45716-0");
+        rec.update();
+
+        log.info("Timestamp {}", rec.getString(T.UPDATE_TIMESTAMP));
+        
+        context.rollback();
+
+        rec.update();
+
+        log.info("Timestamp {}", rec.getString(T.UPDATE_TIMESTAMP));
+        log.info("testTransactionUpdate performed OK");
+        context.commit();
+        
+    }
+    /**
+     * @param context
+     * @param idDep
+     */
+    private static void testTransactionDelete(DBContext context, int idEmp)
+    {
+        SampleDB.Employees T = db.EMPLOYEES;
+        DBRecordV3 rec = new DBRecordV3(context, T);
+        
+        rec.read(idEmp);
+        /*
+        log.info("Timestamp {}", rec.getString(T.UPDATE_TIMESTAMP));
+        rec.setValue(T.SALARY, "100.001");
+        rec.update();
+        log.info("Timestamp {}", rec.getString(T.UPDATE_TIMESTAMP));
+        */
+        rec.delete();
+        
+        context.rollback();
+
+        /*
+        DBCommand cmd = db.createCommand();
+        cmd.select(T.UPDATE_TIMESTAMP);
+        cmd.where (T.EMPLOYEE_ID.is(idEmp));
+        log.info("Timestamp {}", db.querySingleString(cmd, context.getConnection()));
+        */
+        
+        rec.update();
+        
+        log.info("Transaction performed OK");
+        
+    }
 
 	/**
 	 * <PRE>

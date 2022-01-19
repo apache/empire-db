@@ -54,6 +54,128 @@ import org.w3c.dom.Element;
 public class DBRecord extends DBRecordData implements Record, Cloneable
 {
     private final static long serialVersionUID = 1L;
+    
+    /**
+     * DBRecordRollbackHandler
+     * @author doebele
+     */
+    public static class DBRecordRollbackHandler implements DBRollbackHandler
+    {
+        // Logger
+        private static final Logger log = LoggerFactory.getLogger(DBRecordRollbackHandler.class);
+        
+        public final DBRecord   record;
+        
+        private final State     state;  /* the original state */
+        private Object[]        fields;
+        private boolean[]       modified;
+        private Object          rowsetData;
+        
+        public DBRecordRollbackHandler(DBRecord record)
+        {
+            this.record = record;
+            // check
+            if (record.state==State.Invalid)
+                throw new ObjectNotValidException(record);
+            // save state
+            this.state = record.state;            
+            this.modified = copy(record.modified);
+            this.fields   = copy(record.fields);
+            this.rowsetData = record.rowsetData;
+        }
+
+        @Override
+        public DBObject getObject()
+        {
+            return record;
+        }
+
+        @Override
+        public void combine(DBRollbackHandler successor)
+        {
+            if (record!=successor.getObject())
+                throw new InvalidArgumentException("successor", successor);
+            // combine now
+            DBRecordRollbackHandler s = (DBRecordRollbackHandler)successor;
+            log.info("combining rollback state for record {}/{}", record.getRowSet().getName(), StringUtils.arrayToString(record.getKeyValues(), "|"));
+            if (s.modified==null)
+            {
+                return; // not modified!
+            }
+            // copy
+            for (int i=0; i<fields.length; i++)
+            {
+                if (fields[i]!= s.fields[i])
+                    fields[i] = s.fields[i]; 
+                // not modified
+                if (modified==null)
+                    continue;
+                if (modified[i]==false && s.modified[i])
+                    modified[i] = s.modified[i]; 
+            }
+            // check modified
+            if (modified==null && s.modified!=null)
+                modified = copy(s.modified);
+            /*
+            if (this.fields==s.fields)
+            {
+                // combine modified
+                if (this.modified==null)
+                    this.modified =s.modified;  // for delete case only!
+                else if (s.modified!=null)
+                    combineModified(s.modified);
+            }
+            else
+            {   // warn
+                log.warn("record fields have changed {}/{}", record.getRowSet().getName(), StringUtils.arrayToString(record.getKeyValues(), "|"));
+                this.fields = s.fields;
+                this.modified = s.modified;
+            }
+            */
+        }
+
+        @Override
+        public void rollback()
+        {
+            // rollback
+            record.state = this.state;
+            record.fields = this.fields;
+            record.modified = this.modified;
+            record.rowsetData = rowsetData;
+            // done
+            log.info("Rollback for record {}/{} performed", record.getRowSet().getName(), StringUtils.arrayToString(record.getKeyValues(), "|"));
+        }
+
+        @Override
+        public void discard()
+        {
+            /* nothing */
+        }
+        
+        private boolean[] copy(boolean[] other)
+        {
+            if (other==null)
+                return null;
+            boolean[] copy = new boolean[other.length];
+            for (int i=0; i<copy.length; i++)
+            {
+                copy[i] = other[i]; 
+            }
+            return copy;
+        }
+        
+        private Object[] copy(Object[] other)
+        {
+            if (other==null)
+                return null;
+            Object[] copy = new Object[other.length];
+            for (int i=0; i<copy.length; i++)
+            {
+                copy[i] = other[i]; 
+            }
+            return copy;
+        }
+    }
   
     /* Record state enum */
     public enum State
