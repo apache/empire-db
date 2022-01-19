@@ -22,10 +22,8 @@
 		<version>3.0.0-SNAPSHOT</version>
 	</parent>
 	<artifactId>empire-db-dist</artifactId>
-  <version>2.4.7</version>
 	<name>Apache Empire-db Distribtion</name>
 	<packaging>pom</packaging>
-
 	<build>	
 		<finalName>apache-empire-db-${project.version}</finalName>
 		<pluginManagement>
@@ -72,39 +70,7 @@
 		</dependency>
 		<dependency>
 			<groupId>org.apache.empire-db</groupId>
-			<artifactId>empire-db-struts2</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.empire-db</groupId>
 			<artifactId>empire-db-jsf2</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.empire-db</groupId>
-			<artifactId>empire-db-spring</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.empire-db</groupId>
-			<artifactId>empire-db</artifactId>
-			<version>3.0.0-SNAPSHOT</version>
-			<classifier>javadoc</classifier>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.empire-db</groupId>
-			<artifactId>empire-db-struts2</artifactId>
-			<version>3.0.0-SNAPSHOT</version>
-			<classifier>javadoc</classifier>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.empire-db</groupId>
-			<artifactId>empire-db-jsf2</artifactId>
-			<version>3.0.0-SNAPSHOT</version>
-			<classifier>javadoc</classifier>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.empire-db</groupId>
-			<artifactId>empire-db-spring</artifactId>
-			<version>3.0.0-SNAPSHOT</version>
-			<classifier>javadoc</classifier>
 		</dependency>
 	</dependencies>
 
