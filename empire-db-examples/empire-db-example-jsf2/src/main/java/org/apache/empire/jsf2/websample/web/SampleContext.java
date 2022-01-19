@@ -3,46 +3,27 @@
  */
 package org.apache.empire.jsf2.websample.web;
 
-import java.sql.Connection;
-
-import javax.faces.context.FacesContext;
-
-import org.apache.empire.db.DBDatabaseDriver;
-import org.apache.empire.db.context.DBContextBase;
+import org.apache.empire.jsf2.app.WebDBContext;
 import org.apache.empire.jsf2.websample.db.SampleDB;
 
-public class SampleContext extends DBContextBase
+/**
+ * This is an example for a custom DBContext extension
+ * @author rainer
+ *
+ */
+public class SampleContext extends WebDBContext<SampleDB>
 {
-    private final SampleApplication app;
+    private final SampleSession session;
     
-    private final SampleDB db;
-    
-    public SampleContext(SampleApplication app)
+    public SampleContext(SampleApplication app, SampleSession session)
     {
-        this.app = app;
-        this.db = app.getDatabase(); 
-    }
-    
-    public SampleDB getDatabase()
-    {
-        return db;
+        super(app, app.getDatabase());
+        // the session
+        this.session = session;
     }
 
     public SampleUser getUser()
     {
-        return SampleUtils.getSampleUser();
-    }
-    
-    @Override
-    public DBDatabaseDriver getDriver()
-    {
-        return getDatabase().getDriver();
-    }
-
-    @Override
-    public Connection getConnection()
-    {
-        FacesContext fc = FacesContext.getCurrentInstance();
-        return app.getConnectionForRequest(fc, db);
+        return session.getUser();
     }
 }

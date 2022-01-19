@@ -18,8 +18,6 @@
  */
 package org.apache.empire.jsf2.websample.web;
 
-import java.sql.Connection;
-
 import javax.faces.context.FacesContext;
 
 import org.apache.empire.jsf2.app.FacesUtils;
@@ -94,26 +92,6 @@ public class SampleUtils extends FacesUtils
     {
         FacesContext fc = getContext();
         return getFilePath(fc, path, file);
-    }
-
-    /* Connection */
-
-    public static Connection getConnection()
-    {
-        FacesContext fc = getContext();
-        return getWebApplication().getConnectionForRequest(fc, getDatabase());
-    }
-
-    public static void releaseConnection(boolean commit)
-    {
-        FacesContext fc = getContext();
-        getWebApplication().releaseConnection(fc, getDatabase(), commit);
-    }
-
-    public static void releaseConnection()
-    {
-        FacesContext fc = getContext();
-        getWebApplication().releaseConnection(fc, getDatabase());
     }
 
     /* Messages */

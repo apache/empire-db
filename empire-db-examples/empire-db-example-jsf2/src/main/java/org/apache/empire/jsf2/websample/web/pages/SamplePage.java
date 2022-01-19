@@ -25,6 +25,7 @@ import org.apache.empire.jsf2.pages.Page;
 import org.apache.empire.jsf2.websample.db.SampleDB;
 import org.apache.empire.jsf2.websample.web.SampleApplication;
 import org.apache.empire.jsf2.websample.web.SampleContext;
+import org.apache.empire.jsf2.websample.web.SampleSession;
 import org.apache.empire.jsf2.websample.web.SampleUser;
 import org.apache.empire.jsf2.websample.web.SampleUtils;
 
@@ -34,12 +35,13 @@ public class SamplePage extends Page
 
     private SampleContext sampleContext = null;
 
-    public SampleContext getSampleContext()
+    public synchronized SampleContext getSampleContext()
     {
         if (this.sampleContext == null)
         {
             SampleApplication app = SampleUtils.getSampleApplication();
-            this.sampleContext = new SampleContext(app);
+            SampleSession session = SampleUtils.getSampleSession();
+            this.sampleContext = new SampleContext(app, session);
         }
         return this.sampleContext;
     }

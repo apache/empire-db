@@ -4,10 +4,8 @@
 package org.apache.empire.db.context;
 
 import java.sql.Connection;
-import java.sql.SQLException;
 
 import org.apache.empire.db.DBDatabaseDriver;
-import org.apache.empire.db.exceptions.EmpireSQLException;
 
 public class DBContextStatic extends DBContextBase
 {

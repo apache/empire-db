@@ -60,7 +60,7 @@ public class EmployeeRecord extends SampleRecord<TEmployees>
             cmd.select(db.T_DEPARTMENTS.DEPARTMENT_ID);
             cmd.select(db.T_DEPARTMENTS.NAME);
             cmd.orderBy(db.T_DEPARTMENTS.NAME);
-            return db.queryOptionList(cmd, SampleUtils.getConnection());
+            return db.queryOptionList(cmd, getContext().getConnection());
         }
         // base class implementation
         return super.getFieldOptions(column);
@@ -71,7 +71,7 @@ public class EmployeeRecord extends SampleRecord<TEmployees>
     {
         DepartmentRecord rec = new DepartmentRecord((SampleContext)getContext());
         SampleDB.TDepartments table = SampleUtils.getDatabase().T_DEPARTMENTS;
-        rec.read(table, this.getInt(T.DEPARTMENT_ID), SampleUtils.getConnection());
+        rec.read(table, this.getInt(T.DEPARTMENT_ID), getContext().getConnection());
         return rec;
     }
 

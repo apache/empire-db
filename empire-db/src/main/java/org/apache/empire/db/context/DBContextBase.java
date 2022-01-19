@@ -96,19 +96,21 @@ public abstract class DBContextBase implements DBContext
     @Override
     public synchronized void removeRollbackHandler(DBObject object)
     {
-        if (rollbackHandler!=null && rollbackHandler.containsKey(object))
-            log.info("test");
-        
         if (object==null)
             rollbackHandler=null;   // remove all
         else if (rollbackHandler!=null && rollbackHandler.remove(object)!=null)
             log.info("Rollback handler for object {} was removed", object.getClass().getSimpleName());
     }
 
+    /**
+     * Discard connection releated ressources
+     * WARING: No gurarantee it will be called
+     */
     @Override
     public void discard()
     {
         /* don't close connection! */
+        rollbackHandler=null;
     }
     
     /**
