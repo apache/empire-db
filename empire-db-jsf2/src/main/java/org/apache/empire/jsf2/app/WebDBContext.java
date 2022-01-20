@@ -54,7 +54,7 @@ public class WebDBContext<DB extends DBDatabase> extends DBContextBase
      * IMPORTANT: Do not hold the connection!
      */
     @Override
-    public synchronized Connection getConnection()
+    public Connection getConnection()
     {
         if (conn==null)
         {   // get a new connection
@@ -82,7 +82,7 @@ public class WebDBContext<DB extends DBDatabase> extends DBContextBase
             log.info("No Connection to rollback changes");
     }
     
-    public synchronized void releaseConnection(boolean commitPerformed)
+    public void releaseConnection(boolean commitPerformed)
     {
         this.conn = null;
         // commit or rollback?

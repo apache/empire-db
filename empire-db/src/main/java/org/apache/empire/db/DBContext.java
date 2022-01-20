@@ -11,7 +11,7 @@ public interface DBContext
     
     Connection getConnection();
     
-    DBUtils getUtils();
+    <T extends DBUtils> T getUtils();
     
     void commit();
 

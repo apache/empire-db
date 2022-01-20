@@ -402,13 +402,14 @@ public abstract class WebApplication
      * 
      * @return
      */
-    protected Connection getConnection(DBDatabase db)
+    protected synchronized Connection getConnection(DBDatabase db)
     {
         // Get From Pool
         try
         { // Obtain a connection
             Connection conn = getAppDataSource(db).getConnection();
             conn.setAutoCommit(false);
+            log.trace("Connection {} obtained from pool", conn.hashCode());
             return conn;
         }
         catch (SQLException e)
@@ -421,7 +422,7 @@ public abstract class WebApplication
     /**
      * releases a connection from the connection pool
      */
-    protected void releaseConnection(DBDatabase db, Connection conn, boolean commit)
+    protected synchronized void releaseConnection(DBDatabase db, Connection conn, boolean commit)
     {
         try
         { // release connection
@@ -429,6 +430,7 @@ public abstract class WebApplication
             {
                 return;
             }
+            log.trace("releasing Connection {}", conn.hashCode());
             // Commit or rollback connection depending on the exit code
             if (commit)
             { // success: commit all changes
@@ -528,11 +530,22 @@ public abstract class WebApplication
         }
     }
 
+    /**
+     * Releases all connections attached to the current request
+     * If an error is detected in the faces message list, a rollback will automatically be performed insteamd of a commmit
+     * @param fc the FacesContext
+     */
     public void releaseAllConnections(final FacesContext fc)
     {
         releaseAllConnections(fc, !hasError(fc));
     }
 
+    /**
+     * Releases the connection associated with a database from the request
+     * @param fc the FacesContext
+     * @param db the DBDatabase
+     * @param commit when true changes are committed otherwise they are rolled back
+     */
     public void releaseConnection(final FacesContext fc, DBDatabase db, boolean commit)
     {
         @SuppressWarnings("unchecked")
@@ -551,6 +564,12 @@ public abstract class WebApplication
         }
     }
 
+    /**
+     * Releases the connection associated with a database from the request
+     * If an error is detected in the faces message list, a rollback will automatically be performed insteamd of a commmit
+     * @param fc the FacesContext
+     * @param db the DBDatabase
+     */
     public void releaseConnection(final FacesContext fc, DBDatabase db)
     {
         releaseConnection(fc, db, !hasError(fc));

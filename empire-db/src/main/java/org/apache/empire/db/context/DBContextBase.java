@@ -17,6 +17,11 @@ import org.apache.empire.exceptions.InvalidArgumentException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * DBContextBase
+ * Basic implementation of the DBContext interface which can be used as a base class for own implmentations
+ * @author rainer
+ */
 public abstract class DBContextBase implements DBContext
 {
     // Logger
@@ -25,22 +30,18 @@ public abstract class DBContextBase implements DBContext
     private Map<DBObject, DBRollbackHandler> rollbackHandler;
     
     private DBUtils utils = null;
-    
+
+    @SuppressWarnings("unchecked")
     @Override
-    public DBUtils getUtils()
+    public <T extends DBUtils> T getUtils()
     {
         if (utils==null)
             utils = createUtils();
-        return utils;
-    }
-    
-    protected DBUtils createUtils()
-    {
-        return new DBUtils(this);
+        return ((T)utils);
     }
     
     @Override
-    public synchronized void commit()
+    public void commit()
     {
         try
         {   // Check argument
@@ -68,7 +69,7 @@ public abstract class DBContextBase implements DBContext
      * @param conn a valid database connection
      */
     @Override
-    public synchronized void rollback()
+    public void rollback()
     {
         try
         {   // Check argument
@@ -89,7 +90,7 @@ public abstract class DBContextBase implements DBContext
     }
     
     @Override
-    public synchronized void addRollbackHandler(DBRollbackHandler handler)
+    public void addRollbackHandler(DBRollbackHandler handler)
     {
         if (rollbackHandler==null)
             rollbackHandler = new LinkedHashMap<DBObject, DBRollbackHandler>();
@@ -102,7 +103,7 @@ public abstract class DBContextBase implements DBContext
     }
     
     @Override
-    public synchronized void removeRollbackHandler(DBObject object)
+    public void removeRollbackHandler(DBObject object)
     {
         if (object==null)
             rollbackHandler=null;   // remove all
@@ -143,6 +144,15 @@ public abstract class DBContextBase implements DBContext
         for (DBRollbackHandler handler : rollbackHandler.values())
             handler.rollback();
         rollbackHandler=null;
+    }
+
+    /**
+     * Factory function for Utils creation 
+     * @return the utils implementation
+     */
+    protected DBUtils createUtils()
+    {
+        return new DBUtils(this);
     }
     
     /**

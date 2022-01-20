@@ -63,15 +63,96 @@ public class DBUtils implements DBContextAware
     {
         return driver.createCommand(db);
     }
-    
-    /*
-    // Sequences
-    public Object getNextSequenceValue(String seqName)
+    /**
+     * Executes an update, insert or delete SQL-Statement.<BR>
+     * We recommend to use a DBCommand object in order to build the sqlCmd.<BR>
+     * <P>
+     * @param sqlCmd the SQL-Command
+     * @param sqlParams a list of objects to replace sql parameters
+     * @param setGenKeys object to set the generated keys for
+     * @return the row count for insert, update or delete or 0 for SQL statements that return nothing
+     */
+    public int executeSQL(String sqlCmd, Object[] sqlParams, DBDatabaseDriver.DBSetGenKeys setGenKeys)
     {
-        // Ask driver
-        return driver.getNextSequenceValue(this, seqName, 1, context.getConnection());
+        try 
+        {   // Debug
+            if (log.isInfoEnabled())
+                log.info("Executing: " + sqlCmd);
+            // execute SQL
+            long start = System.currentTimeMillis();
+            int affected = driver.executeSQL(sqlCmd, sqlParams, context.getConnection(), setGenKeys);
+            // number of affected records
+            if (affected < 0)
+                throw new UnexpectedReturnValueException(affected, "driver.executeSQL()");
+            // Log
+            long execTime = (System.currentTimeMillis() - start);
+            if (log.isInfoEnabled())
+                log.info("executeSQL affected {} Records in {} ms ", affected, execTime);
+            else if (execTime>=longRunndingStmtThreshold)
+                log.warn("Long running statement took {} seconds for statement {}.", execTime / 1000, sqlCmd);
+            // Return number of affected records
+            return affected;
+            
+        } catch (SQLIntegrityConstraintViolationException sqle) {
+            // ConstraintViolation
+            throw new ConstraintViolationException(driver, sqlCmd, sqle);
+        } catch (SQLException sqle) {
+            // Other error
+            throw new StatementFailedException(driver, sqlCmd, sqle);
+        }    
     }
-    */
+
+    /**
+     * Executes an SQLStatment
+     * @param sqlCmd the SQL-Command
+     * @param sqlParams a list of objects to replace sql parameters
+     */
+    public final int executeSQL(String sqlCmd, Object[] sqlParams)
+    {
+        return executeSQL(sqlCmd, sqlParams, null); 
+    }
+
+    /**
+     * Executes an Insert statement from a command object
+     * @param cmd the command object containing the insert command
+     * @return the number of records that have been inserted with the supplied statement
+     */
+    public final int executeInsert(DBCommand cmd)
+    {
+        return executeSQL(cmd.getInsert(), cmd.getParamValues()); 
+    }
+
+    /**
+     * Executes an InsertInfo statement from a command object
+     * @param table the table into which to insert the selected data
+     * @param cmd the command object containing the selection command 
+     * @return the number of records that have been inserted with the supplied statement
+     */
+    public final int executeInsertInto(DBTable table, DBCommand cmd)
+    {
+        return executeSQL(cmd.getInsertInto(table), cmd.getParamValues()); 
+    }
+
+    /**
+     * Executes an Update statement from a command object
+     * @param cmd the command object containing the update command
+     * @return the number of records that have been updated with the supplied statement
+     */
+    public final int executeUpdate(DBCommand cmd)
+    {
+        return executeSQL(cmd.getUpdate(), cmd.getParamValues()); 
+    }
+
+    /**
+     * Executes a Delete statement from a command object
+     * @param from the database table from which to delete records
+     * @param cmd the command object containing the delete constraints
+     * @return the number of records that have been deleted with the supplied statement
+     */
+    public final int executeDelete(DBTable from, DBCommand cmd)
+    {
+        return executeSQL(cmd.getDelete(from), cmd.getParamValues()); 
+    }
 
     /**
      * Returns the value of the first row/column of a sql-query as an object.
@@ -80,31 +161,23 @@ public class DBUtils implements DBContextAware
      * @param sqlCmd the SQL-Command
      * @param sqlParams list of query parameter values
      * @param dataType the expected data type
-     * @param conn a valid connection to the database.
      * 
      * @return the value of the first column in the first row of the query 
      */
-    public Object querySingleValue(String sqlCmd, Object[] sqlParams, DataType dataType)
+    public Object querySingleValue(String sqlCmd, Object[] sqlParams, DataType dataType, boolean forceResult)
     {
         // Debug
         long start = System.currentTimeMillis();
         if (log.isDebugEnabled())
             log.debug("Executing: " + sqlCmd);
-        /*
-        // Get the next Value
-        rs = driver.executeQuery(sqlCmd, sqlParams, false, context.getConnection());
-        if (rs == null)
-            throw new UnexpectedReturnValueException(rs, "driver.executeQuery()");
-        // Check Result
-        if (rs.next() == false)
-        {   // no result
-            log.debug("querySingleValue returned no result");
-            return ObjectUtils.NO_VALUE;
-        }
         // Read value
-        Object result = driver.getResultValue(rs, 1, dataType);
-        */
         Object result = driver.querySingleValue(sqlCmd, sqlParams, dataType, context.getConnection());
+        if (result==ObjectUtils.NO_VALUE)
+        {   if (forceResult)
+                throw new QueryNoResultException(sqlCmd);
+            else
+                result = null;
+        }
         // Debug
         long queryTime = (System.currentTimeMillis() - start);
         if (log.isDebugEnabled())
@@ -114,24 +187,6 @@ public class DBUtils implements DBContextAware
         // done
         return result;
     }
-
-    /**
-     * Returns the value of the first row/column of a sql-query as an object.
-     * If the query does not return a result a QueryNoResultException is thrown
-     * 
-     * @param sqlCmd the SQL-Command
-     * @param sqlParams list of query parameter values
-     * @param conn a valid connection to the database.
-     * 
-     * @return the value of the first column in the first row of the query 
-     */
-    public final Object querySingleValue(String sqlCmd, Object[] sqlParams)
-    {
-        Object value = querySingleValue(sqlCmd, sqlParams, DataType.UNKNOWN);
-        if (value==ObjectUtils.NO_VALUE)
-            throw new QueryNoResultException(sqlCmd);
-        return value;
-    }
     
     /**
      * Returns the value of the first row/column of a sql-query as an object.
@@ -139,16 +194,12 @@ public class DBUtils implements DBContextAware
      * 
      * @param cmd the Command object that contains the select statement
      * @param dataType the expected data type
-     * @param conn a valid connection to the database.
      * 
      * @return the value of the first column in the first row of the query 
      */
-    public final Object querySingleValue(DBCommand cmd, DataType dataType)
+    public final Object querySingleValue(DBCommand cmd, DataType dataType, boolean forceResult)
     {
-        Object value = querySingleValue(cmd.getSelect(), cmd.getParamValues(), dataType);
-        if (value==ObjectUtils.NO_VALUE)
-            throw new QueryNoResultException(cmd.getSelect());
-        return value;
+        return querySingleValue(cmd.getSelect(), cmd.getParamValues(), dataType, forceResult);
     }
     
     /**
@@ -156,30 +207,25 @@ public class DBUtils implements DBContextAware
      * If the query does not return a result a QueryNoResultException is thrown
      * 
      * @param cmd the Command object that contains the select statement
-     * @param conn a valid connection to the database.
+     * 
+     * @return the value of the first column in the first row of the query 
+     */
+    public final Object querySingleValue(DBCommand cmd, boolean forceResult)
+    {
+        return querySingleValue(cmd, DataType.UNKNOWN, forceResult);  
+    }
+    
+    /**
+     * Returns the value of the first row/column of a sql-query as an object.
+     * If the query does not return a result a QueryNoResultException is thrown
+     * 
+     * @param cmd the Command object that contains the select statement
      * 
      * @return the value of the first column in the first row of the query 
      */
     public final Object querySingleValue(DBCommand cmd)
     {
-        return querySingleValue(cmd, DataType.UNKNOWN);  
-    }
-    
-    /**
-     * Returns the value of the first row/column of a sql-query as an int.
-     * If the query does not return a result or if the query result is NULL, then the defaultValue is returned
-     * 
-     * @param sqlCmd the SQL statement
-     * @param sqlParams list of query parameter values
-     * @param defaultValue the default value if no value was returned by the database
-     * @param conn a valid connection to the database.
-     *
-     * @return the value of the first column in the first row of the query 
-     */
-    public final int querySingleInt(String sqlCmd, Object[] sqlParams, int defaultValue)
-    { 
-        Object value = querySingleValue(sqlCmd, sqlParams, DataType.INTEGER);
-        return ObjectUtils.getInteger(value, defaultValue);
+        return querySingleValue(cmd, DataType.UNKNOWN, true);  
     }
 
     /**
@@ -188,13 +234,13 @@ public class DBUtils implements DBContextAware
      * 
      * @param cmd the Command object that contains the select statement
      * @param defaultValue the default value if no value was returned by the database
-     * @param conn a valid connection to the database.
      *
      * @return the result as a int value
      */
     public final int querySingleInt(DBCommand cmd, int defaultValue)
     { 
-        return querySingleInt(cmd.getSelect(), cmd.getParamValues(), defaultValue);
+        Object value = querySingleValue(cmd.getSelect(), cmd.getParamValues(), DataType.INTEGER, false);
+        return ObjectUtils.getInteger(value, defaultValue);
     }
 
     /**
@@ -202,34 +248,14 @@ public class DBUtils implements DBContextAware
      * If the query does not return a result a QueryNoResultException is thrown
      * 
      * @param cmd the Command object that contains the select statement
-     * @param conn a valid connection to the database.
      *
      * @return the result as a int value
      */
     public final int querySingleInt(DBCommand cmd)
     { 
-        Object value = querySingleValue(cmd.getSelect(), cmd.getParamValues(), DataType.INTEGER);
-        if (ObjectUtils.isEmpty(value))
-            throw new QueryNoResultException(cmd.getSelect());
+        Object value = querySingleValue(cmd.getSelect(), cmd.getParamValues(), DataType.INTEGER, true);
         return ObjectUtils.getInteger(value);
     }
-
-    /**
-     * Returns the value of the first row/column of a sql-query as a long.
-     * If the query does not return a result or if the query result is NULL, then the defaultValue is returned
-     * 
-     * @param sqlCmd the SQL statement
-     * @param sqlParams list of query parameter values
-     * @param defaultValue the default value
-     * @param conn a valid connection to the database.
-     * 
-     * @return the result as a long value
-     */
-    public final long querySingleLong(String sqlCmd, Object[] sqlParams, long defaultValue)
-    { 
-        Object value = querySingleValue(sqlCmd, sqlParams, DataType.INTEGER);
-        return ObjectUtils.getLong(value, defaultValue);
-     }
     
     /**
      * Returns the value of the first row/column of a sql-query as a long.
@@ -237,13 +263,13 @@ public class DBUtils implements DBContextAware
      * 
      * @param cmd the Command object that contains the select statement
      * @param defaultValue the default value
-     * @param conn a valid connection to the database.
      * 
      * @return the result as a long value
      */
     public final long querySingleLong(DBCommand cmd, long defaultValue)
     { 
-        return querySingleLong(cmd.getSelect(), cmd.getParamValues(), defaultValue);
+        Object value = querySingleValue(cmd.getSelect(), cmd.getParamValues(), DataType.INTEGER, false);
+        return ObjectUtils.getLong(value, defaultValue);
     }
 
     /**
@@ -251,15 +277,12 @@ public class DBUtils implements DBContextAware
      * If the query does not return a result a QueryNoResultException is thrown
      * 
      * @param cmd the Command object that contains the select statement
-     * @param conn a valid connection to the database.
      *
      * @return the result as a long value
      */
     public final long querySingleLong(DBCommand cmd)
     { 
-        Object value = querySingleValue(cmd.getSelect(), cmd.getParamValues(), DataType.INTEGER);
-        if (ObjectUtils.isEmpty(value))
-            throw new QueryNoResultException(cmd.getSelect());
+        Object value = querySingleValue(cmd.getSelect(), cmd.getParamValues(), DataType.INTEGER, true);
         return ObjectUtils.getLong(value);
     }
     
@@ -267,32 +290,15 @@ public class DBUtils implements DBContextAware
      * Returns the value of the first row/column of a sql-query as a string.
      * If the query does not return a result or if the query result is NULL, then the defaultValue is returned
      * 
-     * @param sqlCmd the SQL statement
-     * @param sqlParams list of query parameter values
-     * @param defaultValue the default value if no value was returned by the database
-     * @param conn a valid connection to the database.
-     *
-     * @return the result as a String object
-     */
-    public final String querySingleString(String sqlCmd, Object[] sqlParams, String defaultValue)
-    { 
-        Object value = querySingleValue(sqlCmd, sqlParams, DataType.VARCHAR);
-        return (ObjectUtils.isEmpty(value) ? defaultValue : value.toString());
-    }
-    
-    /**
-     * Returns the value of the first row/column of a sql-query as a string.
-     * If the query does not return a result or if the query result is NULL, then the defaultValue is returned
-     * 
      * @param cmd the Command object that contains the select statement
      * @param defaultValue the default value if no value was returned by the database
-     * @param conn a valid connection to the database.
      *
      * @return the result as a String object, if no result a empty String
      */
     public final String querySingleString(DBCommand cmd, String defaultValue)
     { 
-        return querySingleString(cmd.getSelect(), cmd.getParamValues(), defaultValue);
+        Object value = querySingleValue(cmd.getSelect(), cmd.getParamValues(), DataType.VARCHAR, false);
+        return StringUtils.toString(value, defaultValue);
     }
     
     /**
@@ -301,16 +307,13 @@ public class DBUtils implements DBContextAware
      * If the query result is NULL an empty string is returned.
      * 
      * @param cmd the Command object that contains the select statement
-     * @param conn a valid connection to the database.
      *
      * @return the result as a String object, if no result a empty String
      */
     public final String querySingleString(DBCommand cmd)
     { 
-        Object value = querySingleValue(cmd.getSelect(), cmd.getParamValues(), DataType.VARCHAR);
-        if (value==ObjectUtils.NO_VALUE)
-            throw new QueryNoResultException(cmd.getSelect());
-        return StringUtils.toString(value, "");
+        Object value = querySingleValue(cmd.getSelect(), cmd.getParamValues(), DataType.VARCHAR, true);
+        return StringUtils.toString(value);
     }
     
     /**
@@ -321,7 +324,6 @@ public class DBUtils implements DBContextAware
      * @param <T> the type for the list
      * @param sqlCmd the SQL statement
      * @param dataType the expected data type
-     * @param conn a valid connection to the database.
      * @param maxRows maximum number of rows or -1 for all rows
      * 
      * @return the number of elements that have been added to the collection 
@@ -373,7 +375,6 @@ public class DBUtils implements DBContextAware
      * @param c the class type for the list 
      * @param <T> the type for the list
      * @param cmd the Command object that contains the select statement
-     * @param conn a valid connection to the database.
      * 
      * @return the number of elements that have been added to the collection 
      */
@@ -389,7 +390,6 @@ public class DBUtils implements DBContextAware
      * @param c the class type for the list 
      * @param <T> the type for the list
      * @param cmd the Command object that contains the select statement
-     * @param conn a valid connection to the database.
      * 
      * @return a list of the values of the first column of an sql query 
      */
@@ -406,7 +406,6 @@ public class DBUtils implements DBContextAware
      * The array is filled with the values of the first column.
      * 
      * @param cmd the Command object that contains the select statement
-     * @param conn a valid connection to the database.
      * @return a list of values of type Object 
      */
     public final List<Object> querySimpleList(DBCommand cmd)
@@ -419,7 +418,6 @@ public class DBUtils implements DBContextAware
      * The option list is filled with the values of the first and second column.
      * 
      * @param sqlCmd the SQL statement
-     * @param conn a valid connection to the database.
      * @return an Options object containing a set a of values and their corresponding names 
      */
     public int queryOptionList(String sqlCmd, Object[] sqlParams, Options result)
@@ -467,7 +465,6 @@ public class DBUtils implements DBContextAware
      * The option list is filled with the values of the first and second column.
      * 
      * @param cmd the Command object that contains the select statement
-     * @param conn a valid connection to the database.
      * @return an Options object containing a set a of values and their corresponding names 
      */
     public final int queryOptionList(DBCommand cmd, Options result)
@@ -480,7 +477,6 @@ public class DBUtils implements DBContextAware
      * The option list is filled with the values of the first and second column.
      * 
      * @param cmd the Command object that contains the select statement
-     * @param conn a valid connection to the database.
      * @return an Options object containing a set a of values and their corresponding names 
      */
     public final Options queryOptionList(DBCommand cmd)
@@ -497,7 +493,6 @@ public class DBUtils implements DBContextAware
      * Otherwise a DBReader should be used!</p>
      * 
      * @param sqlCmd the SQL statement
-     * @param conn a valid connection to the database.
      * @return a list of object arrays 
      */
     public int queryObjectList(String sqlCmd, Object[] sqlParams, Collection<Object[]> result, int maxRows)
@@ -549,7 +544,6 @@ public class DBUtils implements DBContextAware
      * Otherwise a DBReader should be used!</p>
      * 
      * @param cmd the Command object that contains the select statement
-     * @param conn a valid connection to the database.
      * @return a list of object arrays 
      */
     public final int queryObjectList(DBCommand cmd, Collection<Object[]> result)
@@ -562,7 +556,6 @@ public class DBUtils implements DBContextAware
      * This function should only be used for small lists.
      * 
      * @param cmd the Command object that contains the select statement
-     * @param conn a valid connection to the database.
      * @return a list of object arrays 
      */
     public final List<Object[]> queryObjectList(DBCommand cmd)
@@ -578,7 +571,6 @@ public class DBUtils implements DBContextAware
      * 
      * @param sqlCmd the SQL-Command
      * @param sqlParams list of query parameter values
-     * @param conn a valid connection to the database.
      * 
      * @return the values of the first row 
      */
@@ -596,7 +588,6 @@ public class DBUtils implements DBContextAware
      * If the query does not return a result a QueryNoResultException is thrown
      * 
      * @param cmd the Command object that contains the select statement
-     * @param conn a valid connection to the database.
      * 
      * @return the values of the first row 
      */
@@ -604,103 +595,7 @@ public class DBUtils implements DBContextAware
     {
         return querySingleRow(cmd.getSelect(), cmd.getParamValues()); 
     }
-    
-    /**
-     * Executes an update, insert or delete SQL-Statement.<BR>
-     * We recommend to use a DBCommand object in order to build the sqlCmd.<BR>
-     * <P>
-     * @param sqlCmd the SQL-Command
-     * @param sqlParams a list of objects to replace sql parameters
-     * @param conn a valid connection to the database.
-     * @param setGenKeys object to set the generated keys for
-     * @return the row count for insert, update or delete or 0 for SQL statements that return nothing
-     */
-    public int executeSQL(String sqlCmd, Object[] sqlParams, DBDatabaseDriver.DBSetGenKeys setGenKeys)
-    {
-        try 
-        {   // Debug
-            if (log.isInfoEnabled())
-                log.info("Executing: " + sqlCmd);
-            // execute SQL
-            long start = System.currentTimeMillis();
-            int affected = driver.executeSQL(sqlCmd, sqlParams, context.getConnection(), setGenKeys);
-            // number of affected records
-            if (affected < 0)
-                throw new UnexpectedReturnValueException(affected, "driver.executeSQL()");
-            // Log
-            long execTime = (System.currentTimeMillis() - start);
-            if (log.isInfoEnabled())
-                log.info("executeSQL affected {} Records in {} ms ", affected, execTime);
-            else if (execTime>=longRunndingStmtThreshold)
-                log.warn("Long running statement took {} seconds for statement {}.", execTime / 1000, sqlCmd);
-            // Return number of affected records
-            return affected;
-            
-        } catch (SQLIntegrityConstraintViolationException sqle) {
-            // ConstraintViolation
-            throw new ConstraintViolationException(driver, sqlCmd, sqle);
-        } catch (SQLException sqle) {
-            // Other error
-            throw new StatementFailedException(driver, sqlCmd, sqle);
-        }    
-    }
-
-    /**
-     * Executes an SQLStatment
-     * @param sqlCmd the SQL-Command
-     * @param sqlParams a list of objects to replace sql parameters
-     */
-    public final int executeSQL(String sqlCmd, Object[] sqlParams)
-    {
-        return executeSQL(sqlCmd, sqlParams, null); 
-    }
-
-    /**
-     * Executes an Insert statement from a command object
-     * @param cmd the command object containing the insert command
-     * @param conn a valid connection to the database.
-     * @return the number of records that have been inserted with the supplied statement
-     */
-    public final int executeInsert(DBCommand cmd)
-    {
-        return executeSQL(cmd.getInsert(), cmd.getParamValues()); 
-    }
-
-    /**
-     * Executes an InsertInfo statement from a command object
-     * @param table the table into which to insert the selected data
-     * @param cmd the command object containing the selection command 
-     * @param conn a valid connection to the database.
-     * @return the number of records that have been inserted with the supplied statement
-     */
-    public final int executeInsertInto(DBTable table, DBCommand cmd)
-    {
-        return executeSQL(cmd.getInsertInto(table), cmd.getParamValues()); 
-    }
-
-    /**
-     * Executes an Update statement from a command object
-     * @param cmd the command object containing the update command
-     * @param conn a valid connection to the database.
-     * @return the number of records that have been updated with the supplied statement
-     */
-    public final int executeUpdate(DBCommand cmd)
-    {
-        return executeSQL(cmd.getUpdate(), cmd.getParamValues()); 
-    }
-
-    /**
-     * Executes a Delete statement from a command object
-     * @param from the database table from which to delete records
-     * @param cmd the command object containing the delete constraints
-     * @param conn a valid connection to the database.
-     * @return the number of records that have been deleted with the supplied statement
-     */
-    public final int executeDelete(DBTable from, DBCommand cmd)
-    {
-        return executeSQL(cmd.getDelete(from), cmd.getParamValues()); 
-    }
-    
+        
     /**
      * Executes a select SQL-Statement and returns a ResultSet containing the query results.<BR>
      * This function returns a JDBC ResultSet.<BR>
@@ -709,7 +604,6 @@ public class DBUtils implements DBContextAware
      * @param sqlCmd the SQL-Command
      * @param sqlParams a list of parameters for parameter queries (may depend on driver)
      * @param scrollable true if the reader should be scrollable or false if not
-     * @param conn a valid connection to the database.
      * @return the JDBC ResutSet
      */
     public ResultSet executeQuery(String sqlCmd, Object[] sqlParams, boolean scrollable)

@@ -256,7 +256,7 @@ public class BeanListPageElement<T> extends ListPageElement<T> implements ListIt
         { // Negative count means: loadItems should load all items.
             countCmd.clearSelect();
             countCmd.select(rowset.count());
-            int count = context.getUtils().querySingleInt(countCmd.getSelect(), countCmd.getParamValues(), 0);
+            int count = context.getUtils().querySingleInt(countCmd, 0);
             lti.init(count, pageSize);
         }
         else
