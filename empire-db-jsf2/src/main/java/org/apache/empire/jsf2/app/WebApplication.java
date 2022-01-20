@@ -45,6 +45,7 @@ import org.apache.empire.db.DBDatabase;
 import org.apache.empire.exceptions.InternalException;
 import org.apache.empire.exceptions.InvalidArgumentException;
 import org.apache.empire.exceptions.NotSupportedException;
+import org.apache.empire.exceptions.UnexpectedReturnValueException;
 import org.apache.empire.jsf2.controls.TextAreaInputControl;
 import org.apache.empire.jsf2.controls.TextInputControl;
 import org.apache.empire.jsf2.impl.FacesImplementation;
@@ -58,6 +59,8 @@ public abstract class WebApplication
 
     private static final String CONNECTION_ATTRIBUTE  = "dbConnections";
 
+    private static final String DB_CONTEXT_MAP        = "dbContextMap";
+    
     public static String        APPLICATION_BEAN_NAME = "webApplication";
 
     protected TextResolver[]    textResolvers         = null;
@@ -453,28 +456,38 @@ public abstract class WebApplication
     /**
      * returns a connection for the current Request
      */
-    public Connection getConnectionForRequest(FacesContext fc, DBDatabase db)
+    public Connection getConnectionForRequest(FacesContext fc, WebDBContext<? extends DBDatabase> context)
     {
         if (fc == null)
             throw new InvalidArgumentException("FacesContext", fc);
-        if (db == null)
-            throw new InvalidArgumentException("DBDatabase", db);
+        if (context == null)
+            throw new InvalidArgumentException("context", context);
         // Get Conneciton map
+        DBDatabase db = context.getDatabase();
         @SuppressWarnings("unchecked")
         Map<DBDatabase, Connection> connMap = (Map<DBDatabase, Connection>) FacesUtils.getRequestAttribute(fc, CONNECTION_ATTRIBUTE);
-        if (connMap != null && connMap.containsKey(db))
-            return connMap.get(db);
-        // Pooled Connection
-        Connection conn = getConnection(db);
-        if (conn == null)
-            return null;
-        // Add to map
-        if (connMap == null)
-        {
-            connMap = new HashMap<DBDatabase, Connection>();
+        if (connMap== null)
+        {   connMap = new HashMap<DBDatabase, Connection>();
             FacesUtils.setRequestAttribute(fc, CONNECTION_ATTRIBUTE, connMap);
         }
-        connMap.put(db, conn);
+        Connection conn = connMap.get(db);
+        if (conn==null)
+        {   // Get Pooled Connection
+            conn = getConnection(db);
+            if (conn== null)
+                throw new UnexpectedReturnValueException(this, "getConnection"); 
+            // Add to map
+            connMap.put(db, conn);
+        }
+        // Store Context
+        @SuppressWarnings("unchecked")
+        Map<Integer, WebDBContext<? extends DBDatabase>> ctxMap = (Map<Integer, WebDBContext<? extends DBDatabase>>) FacesUtils.getRequestAttribute(fc, DB_CONTEXT_MAP);
+        if (ctxMap== null)
+        {   ctxMap = new HashMap<Integer, WebDBContext<? extends DBDatabase>>();
+            FacesUtils.setRequestAttribute(fc, DB_CONTEXT_MAP, ctxMap);
+        }
+        ctxMap.put(conn.hashCode(), context);
+        // done
         return conn;
     }
 
@@ -487,14 +500,21 @@ public abstract class WebApplication
     {
         @SuppressWarnings("unchecked")
         Map<DBDatabase, Connection> connMap = (Map<DBDatabase, Connection>) FacesUtils.getRequestAttribute(fc, CONNECTION_ATTRIBUTE);
+        @SuppressWarnings("unchecked")
+        Map<Integer, WebDBContext<? extends DBDatabase>> ctxMap = (Map<Integer, WebDBContext<? extends DBDatabase>>) FacesUtils.getRequestAttribute(fc, DB_CONTEXT_MAP);
         if (connMap != null)
-        { // Walk the connection map
+        {   // Walk the connection map
             for (Map.Entry<DBDatabase, Connection> e : connMap.entrySet())
             {
-                releaseConnection(e.getKey(), e.getValue(), commit);
+                Connection conn = e.getValue();
+                releaseConnection(e.getKey(), conn, commit);
+                // release connection
+                WebDBContext<? extends DBDatabase> ctx = ctxMap.get(conn.hashCode());
+                ctx.releaseConnection(commit);
             }
             // remove from request map
             FacesUtils.setRequestAttribute(fc, CONNECTION_ATTRIBUTE, null);
+            FacesUtils.setRequestAttribute(fc, DB_CONTEXT_MAP, null);
         }
     }
 

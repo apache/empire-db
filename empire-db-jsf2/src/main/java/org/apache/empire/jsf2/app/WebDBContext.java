@@ -1,12 +1,15 @@
 package org.apache.empire.jsf2.app;
 
 import java.sql.Connection;
+import java.sql.SQLException;
 
 import javax.faces.context.FacesContext;
 
 import org.apache.empire.db.DBDatabase;
 import org.apache.empire.db.DBDatabaseDriver;
 import org.apache.empire.db.context.DBContextBase;
+import org.apache.empire.db.exceptions.EmpireSQLException;
+import org.apache.empire.exceptions.InvalidArgumentException;
 import org.apache.empire.exceptions.NotSupportedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,6 +28,9 @@ public class WebDBContext<DB extends DBDatabase> extends DBContextBase
 
     private final WebApplication app;
     private final DB             database;
+
+    // Held for request only
+    private Connection           conn;
 
     public WebDBContext(WebApplication app, DB db)
     {
@@ -51,10 +57,42 @@ public class WebDBContext<DB extends DBDatabase> extends DBContextBase
      * IMPORTANT: Do not hold the connection!
      */
     @Override
-    public Connection getConnection()
+    public synchronized Connection getConnection()
     {
-        FacesContext fc = FacesContext.getCurrentInstance();
-        return this.app.getConnectionForRequest(fc, database);
+        if (conn==null)
+        {   // get a new connection
+            FacesContext fc = FacesContext.getCurrentInstance();
+            conn = this.app.getConnectionForRequest(fc, this);
+        }
+        return conn;
+    }
+
+    @Override
+    public void commit()
+    {
+        if (conn!=null)
+            super.commit();
+        else
+            log.warn("No Connection to commmit");
+    }
+
+    @Override
+    public synchronized void rollback()
+    {
+        if (conn!=null)
+            super.commit();
+        else
+            log.warn("No Connection to rollbakc");
+    }
+    
+    public synchronized void releaseConnection(boolean commitPerformed)
+    {
+        this.conn = null;
+        // commit or rollback?
+        if (commitPerformed)
+            discardAllHandlers();
+        else
+            rollbackAllHandlers();
     }
 
     /**

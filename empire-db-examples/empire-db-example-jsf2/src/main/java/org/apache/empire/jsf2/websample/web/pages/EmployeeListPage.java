@@ -26,7 +26,6 @@ import java.util.Date;
 import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.empire.commons.ObjectUtils;
 import org.apache.empire.commons.Options;
-import org.apache.empire.data.DataType;
 import org.apache.empire.db.DBColumn;
 import org.apache.empire.db.DBColumnExpr;
 import org.apache.empire.db.DBCommand;

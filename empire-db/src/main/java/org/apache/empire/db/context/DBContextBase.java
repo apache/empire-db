@@ -35,16 +35,12 @@ public abstract class DBContextBase implements DBContext
             if (conn.getAutoCommit()==false)
                 conn.commit();
             // discard rollbacks
-            if (rollbackHandler!=null)
-                for (DBRollbackHandler handler : rollbackHandler.values())
-                    handler.discard();
+            discardAllHandlers();
             // Done
             return;
         } catch (SQLException sqle) { 
             // Commit failed!
             throw new EmpireSQLException(getDriver(), sqle);
-        } finally {
-            rollbackHandler=null;
         }
     }
 
@@ -67,16 +63,12 @@ public abstract class DBContextBase implements DBContext
             log.info("Database rollback issued!");
             conn.rollback();
             // rollback
-            if (rollbackHandler!=null)
-                for (DBRollbackHandler handler : rollbackHandler.values())
-                    handler.rollback();
+            rollbackAllHandlers();
             // Done
             return;
         } catch (SQLException sqle) { 
             // Commit failed!
             throw new EmpireSQLException(getDriver(), sqle);
-        } finally {
-            rollbackHandler=null;
         }
     }
     
@@ -110,6 +102,24 @@ public abstract class DBContextBase implements DBContext
     public void discard()
     {
         /* don't close connection! */
+        discardAllHandlers();
+    }
+    
+    protected void discardAllHandlers()
+    {   // rollback
+        if (rollbackHandler==null)
+            return;
+        for (DBRollbackHandler handler : rollbackHandler.values())
+            handler.discard();
+        rollbackHandler=null;
+    }
+    
+    protected void rollbackAllHandlers()
+    {   // rollback
+        if (rollbackHandler==null)
+            return;
+        for (DBRollbackHandler handler : rollbackHandler.values())
+            handler.rollback();
         rollbackHandler=null;
     }
     

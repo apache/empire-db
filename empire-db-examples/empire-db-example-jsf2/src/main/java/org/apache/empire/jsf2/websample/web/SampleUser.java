@@ -26,7 +26,7 @@ public class SampleUser implements Serializable
     private static final long     serialVersionUID  = 1L;
     protected static final String MANAGED_BEAN_NAME = "sampleUser";
 
-    private String                userName          = "";
+    private String                userName          = "test";
     private String                password          = "";
     private Locale                language          = SampleApplication.DEFAULT_LOCALE;
 
