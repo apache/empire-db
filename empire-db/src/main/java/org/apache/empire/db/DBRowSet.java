@@ -471,9 +471,9 @@ public abstract class DBRowSet extends DBExpr
      */
     protected String getRenameTablePhrase()
     {
-        if (db==null || db.driver==null)
+        if (db==null || db.getDriver()==null)
             return " ";
-        return db.driver.getSQLPhrase(DBDatabaseDriver.SQL_RENAME_TABLE);
+        return db.getDriver().getSQLPhrase(DBDatabaseDriver.SQL_RENAME_TABLE);
     }
 
     /**

@@ -39,6 +39,7 @@ import org.apache.empire.db.expr.compare.DBCompareExpr;
 import org.apache.empire.exceptions.InvalidArgumentException;
 import org.apache.empire.exceptions.ItemExistsException;
 import org.apache.empire.exceptions.MiscellaneousErrorException;
+import org.apache.empire.exceptions.NotSupportedException;
 import org.apache.empire.exceptions.PropertyReadOnlyException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -122,14 +123,17 @@ public abstract class DBDatabase extends DBObject
         return null;
     }
 
-    /** the database schema * */
-    protected String           schema    = null; // database schema name
-    protected String           linkName  = null; // database link name
-    protected List<DBTable>    tables    = new ArrayList<DBTable>();
-    protected List<DBRelation> relations = new ArrayList<DBRelation>();
-    protected List<DBView>     views     = new ArrayList<DBView>();
+    // properties
+    protected String schema;         // database schema name
+    protected String linkName;       // database link name
+    protected String instanceId;     // internal instance id
+    
+    // Collections
+    protected final List<DBTable>    tables    = new ArrayList<DBTable>();
+    protected final List<DBRelation> relations = new ArrayList<DBRelation>();
+    protected final List<DBView>     views     = new ArrayList<DBView>();
+    
     protected DBDatabaseDriver driver    = null;
-    protected String           instanceId;
     
     /**   
      * Property that indicates whether to always use usePreparedStatements (Default is false!)
@@ -175,16 +179,14 @@ public abstract class DBDatabase extends DBObject
      * Do not reuse this object afterwards!
      * Hint: Database must be closed!
      */
-    public synchronized void destroy()
+    public synchronized void discard()
     {
         if (isOpen())
-            throw new MiscellaneousErrorException("Database is open. Destroy not possible.");
+            throw new MiscellaneousErrorException("Database is open. Discard not possible.");
         // unregister
         databaseMap.remove(this.instanceId);
         this.instanceId = null;
         // clear all 
-        this.schema = null;
-        this.linkName = null;
         tables.clear();
         relations.clear();
         views.clear();
@@ -312,14 +314,22 @@ public abstract class DBDatabase extends DBObject
      */
     public void open(DBContext context)
     {
-        // Close Database if already open
-        if (isOpen())
-            close(context);
-        // Attach to driver
         DBDatabaseDriver driver = context.getDriver();
-        driver.attachDatabase(this, context.getConnection());
-        // set new driver
-        this.driver = driver;
+        if (driver==this.driver)
+        {
+            log.warn("Database already attached to this driver");
+        }
+        else if (this.driver!=null)
+        {
+            log.error("Database already attached to another driver {}", this.driver.getClass().getName());
+            throw new NotSupportedException(this, "open");
+        }
+        else
+        {   // Attach to driver
+            driver.attachDatabase(this, context.getConnection());
+            // set latest driver
+            this.driver = driver;
+        }
     }
 
     /**
@@ -331,10 +341,22 @@ public abstract class DBDatabase extends DBObject
      */
     public void close(DBContext context)
     {
-        if (driver != null)
-            driver.detachDatabase(this, context.getConnection());
-        // No diver
-        this.driver = null;
+        DBDatabaseDriver driver = context.getDriver();
+        if (this.driver == null)
+        {
+            log.warn("Database not attached to a driver");
+        }
+        else if (driver!=this.driver)
+        {
+            log.error("Database attached to another driver {}", this.driver.getClass().getName());
+            throw new NotSupportedException(this, "close");
+        }
+        else
+        {   // Detach
+            this.driver.detachDatabase(this, context.getConnection());
+            // No diver
+            this.driver = null;
+        }
     }
 
     /**
@@ -445,23 +467,6 @@ public abstract class DBDatabase extends DBObject
             throw new PropertyReadOnlyException(linkName);
         // Set Link 
         this.linkName = linkName;
-    }
-
-    /**
-     * Returns the full qualified object name including schema prefix
-     * and database link postfix (if any).
-     * 
-     * @param name the object's name
-     * 
-     * @return the qualified object name
-     */
-    @Deprecated
-    public String getQualifiedName(String name)
-    {
-        StringBuilder buf = new StringBuilder();
-        boolean quoteName = (driver!=null) ? driver.detectQuoteName(name) : false;
-        appendQualifiedName(buf, name, quoteName);
-        return buf.toString();
     }
     
     /**
