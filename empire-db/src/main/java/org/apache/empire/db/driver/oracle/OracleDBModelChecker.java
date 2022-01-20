@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.empire.db.oracle;
+package org.apache.empire.db.driver.oracle;
 
 import java.sql.Connection;
 
@@ -24,7 +24,7 @@ import org.apache.empire.data.DataType;
 import org.apache.empire.db.DBColumn;
 import org.apache.empire.db.DBDatabase;
 import org.apache.empire.db.DBDatabaseDriver;
-import org.apache.empire.db.oracle.DBDatabaseDriverOracle.BooleanType;
+import org.apache.empire.db.driver.oracle.DBDatabaseDriverOracle.BooleanType;
 import org.apache.empire.db.validation.DBModelChecker;
 import org.apache.empire.db.validation.DBModelErrorHandler;
 import org.apache.empire.exceptions.InvalidPropertyException;

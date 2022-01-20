@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.empire.db.oracle;
+package org.apache.empire.db.driver.oracle;
 
 import org.apache.empire.data.DataType;
 import org.apache.empire.db.DBCmdType;
@@ -28,7 +28,7 @@ import org.apache.empire.db.DBObject;
 import org.apache.empire.db.DBSQLScript;
 import org.apache.empire.db.DBTable;
 import org.apache.empire.db.DBTableColumn;
-import org.apache.empire.db.oracle.DBDatabaseDriverOracle.BooleanType;
+import org.apache.empire.db.driver.oracle.DBDatabaseDriverOracle.BooleanType;
 
 public class OracleDDLGenerator extends DBDDLGenerator<DBDatabaseDriverOracle>
 {

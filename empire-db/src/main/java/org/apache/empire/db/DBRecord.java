@@ -1093,7 +1093,7 @@ public class DBRecord extends DBRecordData implements DBContextAware, Record, Cl
         if (!isNew())
         {
             Object[] keys = rowset.getRecordKey(this);
-            rowset.deleteRecord(keys, conn);
+            rowset.deleteRecord(keys, context);
         }
         close();
     }
@@ -1108,7 +1108,7 @@ public class DBRecord extends DBRecordData implements DBContextAware, Record, Cl
         if (!isNew())
         {
             Object[] keys = rowset.getRecordKey(this);
-            rowset.deleteRecord(keys, context.getConnection());
+            rowset.deleteRecord(keys, context);
         }
         close();
     }

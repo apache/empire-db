@@ -28,6 +28,7 @@ import org.apache.empire.db.DBCommand;
 import org.apache.empire.db.DBContext;
 import org.apache.empire.db.DBDatabaseDriver;
 import org.apache.empire.db.context.DBContextStatic;
+import org.apache.empire.db.driver.mysql.DBDatabaseDriverMySQL;
 import org.junit.Test;
 
 public class DBDatabaseDriverMySQLTest {

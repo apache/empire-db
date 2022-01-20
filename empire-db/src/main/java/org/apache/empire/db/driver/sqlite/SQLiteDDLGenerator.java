@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.empire.db.sqlite;
+package org.apache.empire.db.driver.sqlite;
 
 import java.util.Iterator;
 import java.util.Map;

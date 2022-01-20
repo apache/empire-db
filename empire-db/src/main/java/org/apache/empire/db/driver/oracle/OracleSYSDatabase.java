@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.empire.db.oracle;
+package org.apache.empire.db.driver.oracle;
 
 // java
 import org.apache.empire.data.DataType;

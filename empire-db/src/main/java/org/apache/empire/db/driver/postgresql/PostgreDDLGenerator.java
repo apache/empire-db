@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.empire.db.postgresql;
+package org.apache.empire.db.driver.postgresql;
 
 import org.apache.empire.data.DataType;
 import org.apache.empire.db.DBColumn;

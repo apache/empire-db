@@ -32,7 +32,7 @@
 		<jdbcUser>sa</jdbcUser>
 		<jdbcPwd></jdbcPwd>
 		<!-- Empire-db driver configuration -->
-		<empireDBDriverClass>org.apache.empire.db.hsql.DBDatabaseDriverHSql</empireDBDriverClass>
+		<empireDBDriverClass>org.apache.empire.db.driver.hsql.DBDatabaseDriverHSql</empireDBDriverClass>
 		<empireDBDriverProperites>
 			<!-- no properties -->
 		</empireDBDriverProperites>
@@ -46,7 +46,7 @@
 		<jdbcUser>root</jdbcUser>
 		<jdbcPwd>esteam</jdbcPwd>
 		<!-- Empire-db driver configuration -->
-		<empireDBDriverClass>org.apache.empire.db.mysql.DBDatabaseDriverMySQL</empireDBDriverClass>
+		<empireDBDriverClass>org.apache.empire.db.driver.mysql.DBDatabaseDriverMySQL</empireDBDriverClass>
 		<empireDBDriverProperites>
 			<databaseName>DBSAMPLEADV</databaseName>
 		</empireDBDriverProperites>
@@ -60,7 +60,7 @@
 		<jdbcUser>postgres</jdbcUser>
 		<jdbcPwd>postgres</jdbcPwd>
 		<!-- Empire-db driver configuration -->
-		<empireDBDriverClass>org.apache.empire.db.postgresql.DBDatabaseDriverPostgreSQL</empireDBDriverClass>
+		<empireDBDriverClass>org.apache.empire.db.driver.postgresql.DBDatabaseDriverPostgreSQL</empireDBDriverClass>
 		<empireDBDriverProperites>
 			<databaseName>DBSAMPLEADV</databaseName>
 		</empireDBDriverProperites>
@@ -74,7 +74,7 @@
 		<jdbcUser>sa</jdbcUser>
 		<jdbcPwd></jdbcPwd>
 		<!-- Empire-db driver configuration -->
-		<empireDBDriverClass>org.apache.empire.db.h2.DBDatabaseDriverH2</empireDBDriverClass>
+		<empireDBDriverClass>org.apache.empire.db.driver.h2.DBDatabaseDriverH2</empireDBDriverClass>
 		<empireDBDriverProperites>
 			<databaseName>DBSAMPLEADV</databaseName>
 		</empireDBDriverProperites>
@@ -88,7 +88,7 @@
 		<jdbcUser></jdbcUser>
 		<jdbcPwd></jdbcPwd>
 		<!-- Empire-db driver configuration -->
-		<empireDBDriverClass>org.apache.empire.db.derby.DBDatabaseDriverDerby</empireDBDriverClass>
+		<empireDBDriverClass>org.apache.empire.db.driver.derby.DBDatabaseDriverDerby</empireDBDriverClass>
 		<empireDBDriverProperites>
 			<databaseName>DBSAMPLEADV</databaseName>
 		</empireDBDriverProperites>
@@ -102,7 +102,7 @@
 		<jdbcUser>DBSAMPLEADV</jdbcUser>
 		<jdbcPwd>DBSAMPLEADV</jdbcPwd>
 		<!-- Empire-db driver configuration -->
-		<empireDBDriverClass>org.apache.empire.db.oracle.DBDatabaseDriverOracle</empireDBDriverClass>
+		<empireDBDriverClass>org.apache.empire.db.driver.oracle.DBDatabaseDriverOracle</empireDBDriverClass>
 		<empireDBDriverProperites>
 			<!-- no properties -->
 		</empireDBDriverProperites>
@@ -115,7 +115,7 @@
 		<jdbcUser>jdbcUser</jdbcUser>
 		<jdbcPwd>jdbcPwd</jdbcPwd>
 		<!-- Empire-db driver configuration -->
-		<empireDBDriverClass>org.apache.empire.db.sqlserver.DBDatabaseDriverMSSQL</empireDBDriverClass>
+		<empireDBDriverClass>org.apache.empire.db.driver.sqlserver.DBDatabaseDriverMSSQL</empireDBDriverClass>
 		<empireDBDriverProperites>
 			<databaseName>DBSAMPLEADV</databaseName>
 			<useSequenceTable>false</useSequenceTable>

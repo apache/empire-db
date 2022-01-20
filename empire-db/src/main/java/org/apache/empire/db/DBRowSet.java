@@ -946,9 +946,9 @@ public abstract class DBRowSet extends DBExpr
      * @param id the record's primary key
      * @param conn a valid JDBC connection
      */
-    public final void deleteRecord(Object id, Connection conn)
+    public final void deleteRecord(long id, DBContext context)
     {
-        deleteRecord(new Object[] { id }, conn);
+        deleteRecord(new Object[] { id }, context);
     }
 
     /**

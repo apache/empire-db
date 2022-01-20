@@ -35,6 +35,7 @@ import org.apache.empire.db.DBReader;
 import org.apache.empire.db.DBRecord;
 import org.apache.empire.db.DBSQLScript;
 import org.apache.empire.db.context.DBContextStatic;
+import org.apache.empire.db.driver.postgresql.DBDatabaseDriverPostgreSQL;
 import org.apache.empire.db.exceptions.QueryFailedException;
 import org.junit.Assert;
 import org.junit.Ignore;

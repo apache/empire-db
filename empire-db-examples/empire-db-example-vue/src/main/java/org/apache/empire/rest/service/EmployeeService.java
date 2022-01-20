@@ -211,7 +211,7 @@ public class EmployeeService extends Service {
         try {
             // return a record
             SampleDB db = getDatabase();
-            db.T_EMPLOYEES.deleteRecord(employeeId, ctx.getConnection());
+            db.T_EMPLOYEES.deleteRecord(employeeId, ctx);
             return Response.ok().build();
             
         } catch(EmpireException e) {

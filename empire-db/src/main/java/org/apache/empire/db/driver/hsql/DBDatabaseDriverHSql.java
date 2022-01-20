@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.empire.db.hsql;
+package org.apache.empire.db.driver.hsql;
 
 import java.sql.Connection;
 import java.util.GregorianCalendar;

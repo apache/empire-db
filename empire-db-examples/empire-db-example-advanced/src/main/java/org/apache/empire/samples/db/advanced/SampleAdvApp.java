@@ -40,9 +40,9 @@ import org.apache.empire.db.DBSQLScript;
 import org.apache.empire.db.DBTableColumn;
 import org.apache.empire.db.DBUtils;
 import org.apache.empire.db.context.DBContextStatic;
+import org.apache.empire.db.driver.h2.DBDatabaseDriverH2;
+import org.apache.empire.db.driver.postgresql.DBDatabaseDriverPostgreSQL;
 import org.apache.empire.db.exceptions.ConstraintViolationException;
-import org.apache.empire.db.h2.DBDatabaseDriverH2;
-import org.apache.empire.db.postgresql.DBDatabaseDriverPostgreSQL;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -128,14 +128,14 @@ public class SampleAdvApp
             // STEP 6: Insert Records
             // Insert Departments
             System.out.println("*** Step 6: inserting departments, employees and employee_department_history records ***");
-            int idDevDep  = insertDepartment(conn, "Development", "ITTK");
-            int idProdDep = insertDepartment(conn, "Production", "ITTK");
-            int idSalDep  = insertDepartment(conn, "Sales", "ITTK");
+            int idDevDep  = insertDepartment("Development", "ITTK");
+            int idProdDep = insertDepartment("Production", "ITTK");
+            int idSalDep  = insertDepartment("Sales", "ITTK");
 
             // Insert Employees
-            int idEmp1 = insertEmployee(conn, "Peter", "Sharp", "M");
-            int idEmp2 = insertEmployee(conn, "Fred", "Bloggs", "M");
-            int idEmp3 = insertEmployee(conn, "Emma", "White", "F");
+            int idEmp1 = insertEmployee("Peter", "Sharp", "M");
+            int idEmp2 = insertEmployee("Fred", "Bloggs", "M");
+            int idEmp3 = insertEmployee("Emma", "White", "F");
             
             // Insert History as batch
             DBSQLScript batch = new DBSQLScript(context);
@@ -160,12 +160,12 @@ public class SampleAdvApp
             DBCommand cmd = db.createCommand();
             cmd.select (db.V_EMPLOYEE_INFO.getColumns());
             cmd.orderBy(db.V_EMPLOYEE_INFO.C_NAME_AND_DEP);
-            printQueryResults(cmd, conn);
+            printQueryResults(cmd);
 
             // STEP 8: prepared Statement sample
             System.out.println("--------------------------------------------------------");
             System.out.println("*** commandParamsSample: shows how to use command parameters for the generation of prepared statements ***");
-            commandParamsSample(conn, idProdDep, idDevDep);
+            commandParamsSample(idProdDep, idDevDep);
 
             // STEP 9: bulkReadRecords
             System.out.println("--------------------------------------------------------");
@@ -178,12 +178,12 @@ public class SampleAdvApp
             // STEP 10: bulkProcessRecords
             System.out.println("--------------------------------------------------------");
             System.out.println("*** bulkProcessRecords: creates a checksum for every employee in the employees table ***");
-            bulkProcessRecords(conn);
+            bulkProcessRecords();
 
             // STEP 11: querySample
             System.out.println("--------------------------------------------------------");
             System.out.println("*** querySample: shows how to use DBQuery class for subqueries and multi table records ***");
-            querySample(conn, idEmp2);
+            querySample(idEmp2);
 
             // STEP 12: ddlSample
             System.out.println("--------------------------------------------------------");
@@ -195,7 +195,7 @@ public class SampleAdvApp
             	db.getDriver().getDDLScript(DBCmdType.DROP, db.V_EMPLOYEE_INFO, script);
             	script.executeAll();
             }
-            ddlSample(conn, idEmp2);
+            ddlSample(idEmp2);
             if (db.getDriver() instanceof DBDatabaseDriverH2) {
             	log.info("And put back the view");
             	System.out.println("*** create EMPLOYEE_INFO_VIEW ***");
@@ -207,7 +207,7 @@ public class SampleAdvApp
             // STEP 13: delete records
             System.out.println("--------------------------------------------------------");
             System.out.println("*** deleteRecordSample: shows how to delete records (with and without cascade) ***");
-            deleteRecordSample(idEmp3, idSalDep, conn);
+            deleteRecordSample(idEmp3, idSalDep);
             
             // Done
             System.out.println("--------------------------------------------------------");
@@ -340,7 +340,7 @@ public class SampleAdvApp
      * Insert a Department into the Departments table.
      * </PRE>
      */
-    private static int insertDepartment(Connection conn, String departmentName, String businessUnit)
+    private static int insertDepartment(String departmentName, String businessUnit)
     {
         // Insert a Department
         DBRecord rec = new DBRecord(context, T_DEP);
@@ -357,7 +357,7 @@ public class SampleAdvApp
      * Inserts an Employee into the Employees table.
      * </PRE>
      */
-    private static int insertEmployee(Connection conn, String firstName, String lastName, String gender)
+    private static int insertEmployee(String firstName, String lastName, String gender)
     {
         // Insert an Employee
         DBRecord rec = new DBRecord(context, T_EMP);
@@ -395,7 +395,7 @@ public class SampleAdvApp
     }
 
     /* This procedure demonstrates the use of command parameter for prepared statements */
-    private static void commandParamsSample(Connection conn, int idProdDep, int idDevDep)
+    private static void commandParamsSample(int idProdDep, int idDevDep)
     {
         // create a command
         DBCommand cmd = db.createCommand();
@@ -451,7 +451,7 @@ public class SampleAdvApp
      * <P>
      * @param conn a connection to the database
      */
-    private static void bulkProcessRecords(Connection conn)
+    private static void bulkProcessRecords()
     {
         // Define the query
         DBCommand cmd = db.createCommand();
@@ -543,7 +543,7 @@ public class SampleAdvApp
      * This function demonstrates the use of the {@link DBDatabaseDriver#getDDLScript(org.apache.empire.db.DBCmdType, org.apache.empire.db.DBObject, DBSQLScript)}<BR>
      * 
      */
-    private static void ddlSample(Connection conn, int idTestPerson)
+    private static void ddlSample(int idTestPerson)
     {
         // Enable Column default for the database 
         // This is needed for adding required fields to non-empty tables
@@ -596,7 +596,7 @@ public class SampleAdvApp
      * @param conn
      * @param employeeId
      */
-    private static void querySample(Connection conn, int employeeId)
+    private static void querySample(int employeeId)
     {
         // Define the sub query
         DBCommand subCmd = db.createCommand();
@@ -624,7 +624,7 @@ public class SampleAdvApp
         cmd.orderBy(T_EMP.C_FIRSTNAME);
 
         // Query Records and print output
-        printQueryResults(cmd, conn);
+        printQueryResults(cmd);
         
         // Define an updateable query
         DBQuery Q_EMP_DEP = new DBQuery(cmd, T_EMP.C_EMPLOYEE_ID);
@@ -646,18 +646,18 @@ public class SampleAdvApp
      * @param idDepartment the id of the department to delete
      * @param conn the connection
      */
-    private static void deleteRecordSample(int idEmployee, int idDepartment, Connection conn)
+    private static void deleteRecordSample(int idEmployee, int idDepartment)
     {
         context.commit();
         // Delete an employee
         // This statement is designed to succeed since cascaded deletes are enabled for this relation.
-        db.T_EMPLOYEES.deleteRecord(idEmployee, conn);
+        db.T_EMPLOYEES.deleteRecord(idEmployee, context);
         System.out.println("The employee has been sucessfully deleted");
 
         // Delete a department
         // This statement is designed to fail since cascaded deletes are not on!
         try {
-            db.T_DEPARTMENTS.deleteRecord(idDepartment, conn);
+            db.T_DEPARTMENTS.deleteRecord(idDepartment, context);
         } catch(ConstraintViolationException e) {
             System.out.println("Delete of department failed as expected due to existing depending records.");
         }
@@ -668,7 +668,7 @@ public class SampleAdvApp
      * @param cmd the command to be used for performing the query
      * @param conn the connection
      */
-    private static void printQueryResults(DBCommand cmd, Connection conn)
+    private static void printQueryResults(DBCommand cmd)
     {
         // Query Records and print output
         DBReader reader = new DBReader(context);

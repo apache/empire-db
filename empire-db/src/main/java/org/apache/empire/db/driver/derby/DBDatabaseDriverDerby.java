@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.empire.db.derby;
+package org.apache.empire.db.driver.derby;
 
 import java.sql.Connection;
 import java.util.GregorianCalendar;

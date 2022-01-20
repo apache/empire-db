@@ -25,12 +25,12 @@ import java.sql.Statement;
 
 import org.apache.empire.db.DBDatabaseDriver;
 import org.apache.empire.db.DBTools;
-import org.apache.empire.db.derby.DBDatabaseDriverDerby;
-import org.apache.empire.db.h2.DBDatabaseDriverH2;
-import org.apache.empire.db.hsql.DBDatabaseDriverHSql;
-import org.apache.empire.db.postgresql.DBDatabaseDriverPostgreSQL;
-import org.apache.empire.db.sqlite.DBDatabaseDriverSQLite;
-import org.apache.empire.db.sqlserver.DBDatabaseDriverMSSQL;
+import org.apache.empire.db.driver.derby.DBDatabaseDriverDerby;
+import org.apache.empire.db.driver.h2.DBDatabaseDriverH2;
+import org.apache.empire.db.driver.hsql.DBDatabaseDriverHSql;
+import org.apache.empire.db.driver.postgresql.DBDatabaseDriverPostgreSQL;
+import org.apache.empire.db.driver.sqlite.DBDatabaseDriverSQLite;
+import org.apache.empire.db.driver.sqlserver.DBDatabaseDriverMSSQL;
 import org.junit.rules.ExternalResource;
 
 public class DBResource extends ExternalResource

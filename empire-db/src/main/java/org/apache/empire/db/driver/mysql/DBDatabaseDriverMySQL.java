@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.empire.db.mysql;
+package org.apache.empire.db.driver.mysql;
 
 import java.sql.Connection;
 import java.sql.SQLException;

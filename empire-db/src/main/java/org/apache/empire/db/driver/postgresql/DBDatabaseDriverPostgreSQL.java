@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.empire.db.postgresql;
+package org.apache.empire.db.driver.postgresql;
 
 import java.sql.Connection;
 import java.sql.ResultSet;

@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.empire.db.sqlserver;
+package org.apache.empire.db.driver.sqlserver;
 
 import java.sql.DatabaseMetaData;
 import java.sql.SQLException;
