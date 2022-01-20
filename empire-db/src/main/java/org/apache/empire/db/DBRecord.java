@@ -144,7 +144,7 @@ public class DBRecord extends DBRecordData implements DBContextAware, Record, Cl
             record.modified = this.modified;
             record.rowsetData = rowsetData;
             // done
-            log.info("Rollback for record {}/{} performed", record.getRowSet().getName(), StringUtils.arrayToString(record.getKeyValues(), "|"));
+            log.info("Rollback for record {}[{}] performed", record.getRowSet().getName(), StringUtils.arrayToString(record.getKeyValues(), "|"));
         }
 
         @Override

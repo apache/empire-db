@@ -18,6 +18,7 @@
  */
 package org.apache.empire.jsf2.websample.web.pages;
 
+import org.apache.empire.exceptions.MiscellaneousErrorException;
 import org.apache.empire.jsf2.pageelements.RecordPageElement;
 import org.apache.empire.jsf2.pages.PageOutcome;
 import org.apache.empire.jsf2.websample.db.SampleDB;
@@ -40,7 +41,6 @@ public class EmployeeDetailPage extends SamplePage
     {
         log.trace("EmployeeDetailPage created");
 
-        SampleDB db = getDatabase();
         EmployeeRecord emplRec = new EmployeeRecord(getSampleContext());
         employee = new RecordPageElement<EmployeeRecord>(this, emplRec.getTable(), emplRec);
     }
@@ -103,11 +103,11 @@ public class EmployeeDetailPage extends SamplePage
 
         getEmployeeRecord().update();
         
-        /* test transaction
+        /* test transaction  
         SampleDB db = this.getDatabase();
         if (getEmployeeRecord().isNull(db.T_EMPLOYEES.PHONE_NUMBER))
             throw new MiscellaneousErrorException("Phone number must not be empty!");
-         */
+        */
         
         return getParentOutcome(true);
     }

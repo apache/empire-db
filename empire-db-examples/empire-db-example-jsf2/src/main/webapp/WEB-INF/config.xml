@@ -79,7 +79,7 @@
 		</logger>
 
 		<logger name="org.apache.empire.db" additivity="false">
-			<level value="warn" />
+			<level value="info" />
 			<appender-ref ref="default" />
 		</logger>
 
