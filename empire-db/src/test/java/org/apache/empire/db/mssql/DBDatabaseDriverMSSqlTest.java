@@ -54,9 +54,9 @@ public class DBDatabaseDriverMSSqlTest
 		// Encoding issue occur when prepared statement is disabled
 		//db.setPreparedStatementsEnabled(true);
 
-		db.open(driver, dbResource.getConnection());
+		db.open(context);
 
-		if(!databaseExists(conn, db)){
+		if(!databaseExists(context, db)){
 			DBSQLScript script = new DBSQLScript(context);
 			db.getCreateDDLScript(script);
 			System.out.println(script.toString());
@@ -65,7 +65,7 @@ public class DBDatabaseDriverMSSqlTest
 		
 		// STEP 5: Clear Database (Delete all records)
 		System.out.println("*** Step 5: clearDatabase() ***");
-		clearDatabase(conn, db);
+		clearDatabase(context, db);
 
 		DBRecord dep = new DBRecord(context, db.DEPARTMENT);
 		dep.setValue(db.DEPARTMENT.NAME, "junit");
@@ -87,11 +87,11 @@ public class DBDatabaseDriverMSSqlTest
 	 * Empties all Tables.
      * </PRE>
 	 */
-	private static void clearDatabase(Connection conn, CompanyDB db)
+	private static void clearDatabase(DBContext context, CompanyDB db)
     {
 		DBCommand cmd = db.createCommand();
 		// Delete all Employees (no constraints)
-		db.executeDelete(db.DEPARTMENT, cmd, conn);
+		context.getUtils().executeDelete(db.DEPARTMENT, cmd);
 	}
 	
 	/**
@@ -102,13 +102,13 @@ public class DBDatabaseDriverMSSqlTest
 	 * Please note that in this case an error will appear in the log which can be ignored.
      * </PRE>
 	 */
-	private static boolean databaseExists(Connection conn, CompanyDB db)
+	private static boolean databaseExists(DBContext context, CompanyDB db)
     {
 		// Check whether DB exists
 		DBCommand cmd = db.createCommand();
 		cmd.select(db.DEPARTMENT.count());
 		// Check using "select count(*) from DEPARTMENTS"
 		System.out.println("Checking whether table DEPARTMENTS exists (SQLException will be logged if not - please ignore) ...");
-		return (db.querySingleInt(cmd, -1, conn) >= 0);
+		return (context.getUtils().querySingleInt(cmd, -1) >= 0);
 	}
 }

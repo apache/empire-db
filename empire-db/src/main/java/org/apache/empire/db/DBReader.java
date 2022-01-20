@@ -75,6 +75,11 @@ public class DBReader extends DBRecordData implements DBContextAware
 {
     private final static long serialVersionUID = 1L;
   
+    /**
+     * DBReaderIterator
+     * Base class for DBReader interators
+     * @author rainer
+     */
     public abstract class DBReaderIterator implements Iterator<DBRecordData>
     {
         protected int curCount = 0;
@@ -136,7 +141,7 @@ public class DBReader extends DBRecordData implements DBContextAware
                 return true;
             } catch (SQLException e) {
                 // Error
-                throw new EmpireSQLException(getDatabase(), e);
+                throw new EmpireSQLException(context.getDriver(), e);
             }
         }
 
@@ -286,7 +291,7 @@ public class DBReader extends DBRecordData implements DBContextAware
     @Override
     public DBDatabase getDatabase()
     {
-        return db;
+        return this.db;
     }
     
     public boolean getScrollable()
@@ -393,11 +398,11 @@ public class DBReader extends DBRecordData implements DBContextAware
         try
         {   // Get Value from Resultset
             DataType dataType = colList[index].getDataType();
-            return db.driver.getResultValue(rset, index + 1, dataType);
+            return context.getDriver().getResultValue(rset, index + 1, dataType);
 
         } catch (SQLException e)
         { // Operation failed
-            throw new EmpireSQLException(this, e);
+            throw new EmpireSQLException(context.getDriver(), e);
         }
     }
 
@@ -446,12 +451,12 @@ public class DBReader extends DBRecordData implements DBContextAware
             }
         }
         // Execute the query
-        DBDatabase queryDb   = cmd.getDatabase();
-        ResultSet  queryRset = queryDb.executeQuery(sqlCmd, paramValues, scrollable, context.getConnection());
+        DBUtils utils = context.getUtils();
+        ResultSet queryRset = utils.executeQuery(sqlCmd, paramValues, scrollable);
         if (queryRset==null)
             throw new QueryNoResultException(sqlCmd);
         // init
-        init(queryDb, cmd.getSelectExprList(), queryRset);
+        init(cmd.getDatabase(), cmd.getSelectExprList(), queryRset);
     }
 
     /**
@@ -507,7 +512,7 @@ public class DBReader extends DBRecordData implements DBContextAware
             // Close Recordset
             if (rset != null)
             {
-                getDatabase().closeResultSet(rset);
+                context.getDriver().closeResultSet(rset);
                 // remove from tracking-list
                 endTrackingThisResultSet();
             }
@@ -572,7 +577,7 @@ public class DBReader extends DBRecordData implements DBContextAware
 
         } catch (SQLException e) {
             // an error occurred
-            throw new EmpireSQLException(this, e);
+            throw new EmpireSQLException(context.getDriver(), e);
         }
     }
 
@@ -597,7 +602,7 @@ public class DBReader extends DBRecordData implements DBContextAware
 
         } catch (SQLException e) {
             // an error occurred
-            throw new EmpireSQLException(this, e);
+            throw new EmpireSQLException(context.getDriver(), e);
         }
     }
 

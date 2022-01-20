@@ -21,6 +21,7 @@ package org.apache.empire.db.hsql;
 import java.sql.Connection;
 import java.util.GregorianCalendar;
 
+import org.apache.empire.commons.ObjectUtils;
 import org.apache.empire.data.DataType;
 import org.apache.empire.db.DBCmdType;
 import org.apache.empire.db.DBColumnExpr;
@@ -32,6 +33,7 @@ import org.apache.empire.db.DBDriverFeature;
 import org.apache.empire.db.DBObject;
 import org.apache.empire.db.DBSQLScript;
 import org.apache.empire.db.DBTableColumn;
+import org.apache.empire.db.exceptions.QueryNoResultException;
 import org.apache.empire.exceptions.NotSupportedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -196,7 +198,6 @@ public class DBDatabaseDriverHSql extends DBDatabaseDriver
              * DBExpr.DT_DATE: return "convert(datetime, ?, 111)"; case DBExpr.DT_DATETIME: return "convert(datetime, ?, 120)";
              */
             // Convert to text
-            case TEXT:
             case VARCHAR:
             case CHAR:
                 if (format != null)
@@ -242,14 +243,17 @@ public class DBDatabaseDriverHSql extends DBDatabaseDriver
         sql.append("NEXT VALUE FOR ");
         db.appendQualifiedName(sql, seqName, detectQuoteName(seqName));
         sql.append(" FROM INFORMATION_SCHEMA.SYSTEM_SEQUENCES WHERE SEQUENCE_NAME='").append(seqName).append("'");
-        	
-        Object val = db.querySingleValue(sql.toString(), null, conn);
-        if (val == null)
-        { // Error!
+        // Query next sequence value
+        String sqlCmd = sql.toString();
+        if (log.isDebugEnabled())
+            log.debug("Executing: " + sqlCmd);
+        Object val = querySingleValue(sqlCmd, null, DataType.UNKNOWN, conn);
+        if (ObjectUtils.isEmpty(val))
+        {   // Error!
             log.error("getNextSequenceValue: Invalid sequence value for sequence " + seqName);
+            throw new QueryNoResultException(sqlCmd);
         }
         // Done
-        
         return val;
     }
 

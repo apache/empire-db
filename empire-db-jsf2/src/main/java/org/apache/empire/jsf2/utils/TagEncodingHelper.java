@@ -1644,7 +1644,6 @@ public class TagEncodingHelper implements NamingContainer
             case DECIMAL:
             case FLOAT:
                 return CSS_DATA_TYPE_NUMBER;
-            case TEXT:
             case VARCHAR:
             case CHAR:
                 return CSS_DATA_TYPE_TEXT;

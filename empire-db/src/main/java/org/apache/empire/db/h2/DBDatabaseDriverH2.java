@@ -306,7 +306,6 @@ public class DBDatabaseDriverH2 extends DBDatabaseDriver
            case DATETIME:
            case TIMESTAMP: return "CAST(? AS DATETIME)";
            // Convert to text
-           case TEXT:
            case VARCHAR:
            case CHAR:
                 return "CAST(? AS CHAR)";

@@ -31,6 +31,7 @@ import org.apache.empire.db.DBDatabaseDriver;
 import org.apache.empire.db.DBReader;
 import org.apache.empire.db.DBRecord;
 import org.apache.empire.db.DBSQLScript;
+import org.apache.empire.db.DBUtils;
 import org.apache.empire.db.context.DBContextStatic;
 import org.apache.empire.db.derby.DBDatabaseDriverDerby;
 import org.apache.empire.db.h2.DBDatabaseDriverH2;
@@ -93,9 +94,9 @@ public class SampleApp
             System.out.println("*** Step 3: openDatabase() ***");
 			try {
 			    // Open the database
-                db.open(driver, conn);
+                db.open(context);
                 // Check whether database exists
-			    databaseExists(conn);
+			    databaseExists();
                 System.out.println("*** Database already exists. Skipping Step4 ***");
                 
 			} catch(Exception e) {
@@ -113,12 +114,12 @@ public class SampleApp
                 }
                 // Open again
                 if (db.isOpen()==false)
-                    db.open(driver, conn);
+                    db.open(context);
 			}
 
 			// STEP 5: Clear Database (Delete all records)
 			System.out.println("*** Step 5: clearDatabase() ***");
-			clearDatabase(conn);
+			clearDatabase();
 
 			// STEP 6: Insert Departments
 			System.out.println("*** Step 6: insertDepartment() & insertEmployee() ***");
@@ -247,14 +248,14 @@ public class SampleApp
 	 * Please note that in this case an error will appear in the log which can be ignored.
      * </PRE>
 	 */
-	private static boolean databaseExists(Connection conn)
+	private static boolean databaseExists()
     {
 		// Check whether DB exists
 		DBCommand cmd = db.createCommand();
 		cmd.select(db.DEPARTMENTS.count());
 		// Check using "select count(*) from DEPARTMENTS"
 		System.out.println("Checking whether table DEPARTMENTS exists (SQLException will be logged if not - please ignore) ...");
-		return (db.querySingleInt(cmd, -1, conn) >= 0);
+		return (context.getUtils().querySingleInt(cmd, -1) >= 0);
 	}
 
 	/**
@@ -281,13 +282,14 @@ public class SampleApp
 	 * Empties all Tables.
      * </PRE>
 	 */
-	private static void clearDatabase(Connection conn)
+	private static void clearDatabase()
     {
+	    DBUtils utils = context.getUtils();
 		DBCommand cmd = db.createCommand();
 		// Delete all Employees (no constraints)
-		db.executeDelete(db.EMPLOYEES, cmd, conn);
+		utils.executeDelete(db.EMPLOYEES, cmd);
 		// Delete all Departments (no constraints)
-		db.executeDelete(db.DEPARTMENTS, cmd, conn);
+		utils.executeDelete(db.DEPARTMENTS, cmd);
 	}
 
 	/**

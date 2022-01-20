@@ -25,6 +25,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.empire.data.DataType;
+import org.apache.empire.db.context.DBContextStatic;
 import org.junit.Test;
 
 /**
@@ -38,7 +39,8 @@ public class DBCommandTest
 	public void testDBCommand()
 	{
 		MockDB mock = new MockDB();
-		mock.open(new MockDriver(), null);
+		DBContext context = new DBContextStatic(new MockDriver(), null);
+		mock.open(context);
 		
 		List<DBColumn> list = new ArrayList<DBColumn>();
 		DBCommand command = mock.createCommand();

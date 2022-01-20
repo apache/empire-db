@@ -18,8 +18,6 @@
  */
 package org.apache.empire.jsf2.pageelements;
 
-import java.sql.Connection;
-
 import javax.faces.context.FacesContext;
 
 import org.apache.empire.db.DBRecord;
@@ -122,6 +120,7 @@ public class RecordPageElement<T extends DBRecord> extends PageElement
         // Check Key
         if (recKey==null || recKey.length==0)
         {   // Invalid Record key
+            @SuppressWarnings("unchecked")
             T rec = (T)getSessionObject(DBRecord.class);
             if (rec!=null)
             {   // A new record

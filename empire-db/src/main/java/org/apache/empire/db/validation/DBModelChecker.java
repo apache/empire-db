@@ -394,7 +394,6 @@ public class DBModelChecker
             case AUTOINC:
                 checkAutoIncColumn(column, remoteColumn, handler);
                 break;
-            case TEXT:
             case VARCHAR:
                 checkTextColumn(column, remoteColumn, handler);
                 break;

@@ -140,8 +140,8 @@ public class SampleApplication extends WebApplication {
 		try {
 			conn = getConnection(sampleDB);
 			context = new DBContextStatic(driver, conn);
-			sampleDB.open(driver, conn);
-			if (!databaseExists(conn)) {
+			sampleDB.open(context);
+			if (!databaseExists(context)) {
 				// STEP 4: Create Database
 				log.info("Creating database {}", sampleDB.getClass().getSimpleName());
 				createSampleDatabase(context);
@@ -188,12 +188,12 @@ public class SampleApplication extends WebApplication {
 		return sampleDB;
 	}
 
-	private boolean databaseExists(Connection conn) {
+	private boolean databaseExists(DBContext context) {
 		// Check wether DB exists
 		DBCommand cmd = sampleDB.createCommand();
 		cmd.select(sampleDB.T_DEPARTMENTS.count());
 		try {
-			return (sampleDB.querySingleInt(cmd, -1, conn) >= 0);
+			return (context.getUtils().querySingleInt(cmd, -1) >= 0);
 		} catch (QueryFailedException e) {
 			return false;
 		}
@@ -216,7 +216,7 @@ public class SampleApplication extends WebApplication {
 		context.commit();
 		// Open again
 		if (!sampleDB.isOpen()) {
-			sampleDB.open(context.getDriver(), conn);
+			sampleDB.open(context);
 		}
 		// Insert Sample Departments
 		insertDepartmentSampleRecord(context, "Procurement", "ITTK");

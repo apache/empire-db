@@ -409,7 +409,7 @@ public class DBDatabaseDriverSQLite extends DBDatabaseDriver
         }
         finally
         {
-            close(stmt);
+            closeStatement(stmt);
         }
         return count;
     }
@@ -457,7 +457,6 @@ public class DBDatabaseDriverSQLite extends DBDatabaseDriver
         switch (destType)
         {
         // Convert to text
-            case TEXT:
             case VARCHAR:
             case CHAR:
                 if (format != null)

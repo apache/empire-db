@@ -33,7 +33,6 @@ import org.apache.empire.exceptions.BeanPropertyGetException;
 import org.apache.empire.jsf2.pageelements.BeanListPageElement;
 import org.apache.empire.jsf2.pageelements.ListPageElement;
 import org.apache.empire.jsf2.pageelements.ListPageElement.ParameterizedItem;
-import org.apache.empire.jsf2.websample.db.SampleDB;
 import org.apache.empire.jsf2.websample.db.SampleDB.TDepartments;
 import org.apache.empire.jsf2.websample.db.SampleDB.TEmployees;
 import org.apache.empire.jsf2.websample.web.SampleUtils;
@@ -206,8 +205,7 @@ public class EmployeeListPage extends SamplePage
     	DBCommand queryCmd = createQueryCommand();
     	queryCmd.select(DEP.DEPARTMENT_ID,DEP.NAME);
     	
-    	SampleDB db = getDatabase();
-        return db.queryOptionList(queryCmd, getSampleContext().getConnection());
+        return getSampleContext().getUtils().queryOptionList(queryCmd);
     }
     
     

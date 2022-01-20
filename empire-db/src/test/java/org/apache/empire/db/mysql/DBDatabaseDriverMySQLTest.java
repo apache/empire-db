@@ -25,7 +25,9 @@ import org.apache.empire.data.DataType;
 import org.apache.empire.db.CompanyDB;
 import org.apache.empire.db.CompanyDB.Departments;
 import org.apache.empire.db.DBCommand;
+import org.apache.empire.db.DBContext;
 import org.apache.empire.db.DBDatabaseDriver;
+import org.apache.empire.db.context.DBContextStatic;
 import org.junit.Test;
 
 public class DBDatabaseDriverMySQLTest {
@@ -36,7 +38,8 @@ public class DBDatabaseDriverMySQLTest {
 
         CompanyDB db = new CompanyDB();
         DBDatabaseDriver driver = new DBDatabaseDriverMySQL();
-        db.open(driver, null);
+        DBContext context = new DBContextStatic(driver, null);
+        db.open(context);
 
         Departments TD = db.DEPARTMENT;
         

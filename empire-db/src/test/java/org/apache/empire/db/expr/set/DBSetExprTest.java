@@ -29,6 +29,7 @@ import org.apache.empire.db.DBColumn;
 import org.apache.empire.db.DBDatabase;
 import org.apache.empire.db.DBExpr;
 import org.apache.empire.db.MockDriver;
+import org.apache.empire.db.context.DBContextStatic;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -41,7 +42,7 @@ public class DBSetExprTest
     @Before
     public void setup(){
         testDB = new CompanyDB();
-        testDB.open(new MockDriver(), null);
+        testDB.open(new DBContextStatic(new MockDriver(), null));
         expr = new DBSetExpr(testDB.EMPLOYEE.FIRSTNAME, "JUnit");
     }
 

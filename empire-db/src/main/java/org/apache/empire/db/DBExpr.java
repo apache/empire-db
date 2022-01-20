@@ -138,7 +138,6 @@ public abstract class DBExpr extends DBObject
             case AUTOINC:
             case INTEGER:
                 return Long.class;
-            case TEXT:
             case VARCHAR:
             case CLOB:
             case CHAR:

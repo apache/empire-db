@@ -226,7 +226,7 @@ public abstract class DBRowSet extends DBExpr
 
     public abstract void createRecord(DBRecord rec, boolean deferredInit);
 
-    public abstract void deleteRecord(Object[] keys, Connection conn);
+    public abstract void deleteRecord(Object[] keys, DBContext context);
     
     /**
      * Returns the full qualified name of the rowset.
@@ -729,18 +729,18 @@ public abstract class DBRowSet extends DBExpr
      * @param conn a valid JDBC connection.
      * @return true if the record exists or false otherwise
      */
-    public boolean recordExists(Object[] key, Connection conn)
+    public boolean recordExists(Object[] key, DBContext context)
     {
         // Check Arguments
-        if (conn == null)
-            throw new InvalidArgumentException("conn", conn);
+        if (context == null)
+            throw new InvalidArgumentException("context", context);
         // Select
         DBCommand cmd = db.createCommand();
         cmd.select(count());
         // Set key constraints
         setKeyConstraints(cmd, key);
         // check exits
-        return (db.querySingleInt(cmd, 0, conn)==1);
+        return (context.getUtils().querySingleInt(cmd, 0)==1);
     }
 
     /**
@@ -901,7 +901,8 @@ public abstract class DBRowSet extends DBExpr
             return;
         }
         // Perform action
-        int affected = db.executeSQL(sql, cmd.getParamValues(), conn, setGenKey);
+        DBUtils utils = rec.getContext().getUtils();
+        int affected = utils.executeSQL(sql, cmd.getParamValues(), setGenKey);
         if (affected < 0)
         {   // Update Failed
             throw new UnexpectedReturnValueException(affected, "db.executeSQL()");
@@ -942,7 +943,7 @@ public abstract class DBRowSet extends DBExpr
      * @param key the key the record to be deleted
      * @param conn a valid connection
      */
-    protected final void deleteAllReferences(Object[] key, Connection conn)
+    protected final void deleteAllReferences(Object[] key, DBContext context)
     {
         // Merge Sub-Records
         List<DBRelation> relations = db.getRelations();
@@ -961,7 +962,7 @@ public abstract class DBRowSet extends DBExpr
                 if (refs[i].getTargetColumn().equals(keyColumns[0]))
                 {   // Found a reference on RowSet
                     DBRowSet rs = refs[0].getSourceColumn().getRowSet(); 
-                    rs.deleteReferenceRecords(refs, key, conn);
+                    rs.deleteReferenceRecords(refs, key, context);
                 }
             }
         }
@@ -974,7 +975,7 @@ public abstract class DBRowSet extends DBExpr
      * @param parentKey the key of the parent element
      * @param conn a valid connection
      */
-    protected void deleteReferenceRecords(DBReference[] refs, Object[] parentKey, Connection conn)
+    protected void deleteReferenceRecords(DBReference[] refs, Object[] parentKey, DBContext context)
     {
         // Key length and reference length must match
         if (refs.length!=parentKey.length)
@@ -986,7 +987,7 @@ public abstract class DBRowSet extends DBExpr
             DBCommand cmd = db.createCommand();
             for (int i=0; i<parentKey.length; i++)
                 cmd.where(refs[i].getSourceColumn().is(parentKey[i]));
-            if (db.executeSQL(cmd.getDelete((DBTable)this), cmd.getParamValues(), conn)<0)
+            if (context.getUtils().executeSQL(cmd.getDelete((DBTable)this), cmd.getParamValues())<0)
                 throw new UnexpectedReturnValueException(-1, "db.executeSQL()");
         }
         else
@@ -1004,11 +1005,11 @@ public abstract class DBRowSet extends DBExpr
                 cmd.orderBy(keyColumns[i], true);
             }
             // Query all keys
-            List<Object[]> recKeys = db.queryObjectList(cmd, conn);
+            List<Object[]> recKeys = context.getUtils().queryObjectList(cmd);
             for (Object[] recKey : recKeys)
             {   
                 log.info("Deleting Record " + StringUtils.valueOf(recKey) + " from table " + getName());
-                deleteRecord(recKey, conn);
+                deleteRecord(recKey, context);
             }
         }
         // Done

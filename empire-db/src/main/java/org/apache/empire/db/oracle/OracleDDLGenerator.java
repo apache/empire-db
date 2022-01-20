@@ -65,7 +65,6 @@ public class OracleDDLGenerator extends DBDDLGenerator<DBDatabaseDriverOracle>
     {
         switch (type)
         {
-            case TEXT:
             case VARCHAR:
             case CHAR:
             {   // Char or Varchar

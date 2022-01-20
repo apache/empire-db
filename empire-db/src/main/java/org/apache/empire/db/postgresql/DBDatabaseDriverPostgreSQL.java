@@ -23,6 +23,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.GregorianCalendar;
 
+import org.apache.empire.commons.ObjectUtils;
 import org.apache.empire.commons.StringUtils;
 import org.apache.empire.data.DataType;
 import org.apache.empire.db.DBCmdType;
@@ -36,6 +37,7 @@ import org.apache.empire.db.DBObject;
 import org.apache.empire.db.DBSQLScript;
 import org.apache.empire.db.DBTableColumn;
 import org.apache.empire.db.exceptions.EmpireSQLException;
+import org.apache.empire.db.exceptions.QueryNoResultException;
 import org.apache.empire.db.expr.column.DBValueExpr;
 import org.apache.empire.exceptions.InvalidArgumentException;
 import org.slf4j.Logger;
@@ -406,7 +408,6 @@ public class DBDatabaseDriverPostgreSQL extends DBDatabaseDriver
             case DATETIME:
             case TIMESTAMP:return "CAST(? AS TIMESTAMP)";
                 // Convert to text
-            case TEXT:
             case VARCHAR:  
             case CHAR:     return "CAST(? AS CHAR)";
             case BLOB:     return "CAST(? AS bytea)";
@@ -430,11 +431,17 @@ public class DBDatabaseDriverPostgreSQL extends DBDatabaseDriver
         sql.append("SELECT nextval('");
         db.appendQualifiedName(sql, seqName, detectQuoteName(seqName));
         sql.append("')");
-        Object val = db.querySingleValue(sql.toString(), null, conn);
-        if (val == null)
-        { // Error!
+        // Query next sequence value
+        String sqlCmd = sql.toString();
+        if (log.isDebugEnabled())
+            log.debug("Executing: " + sqlCmd);
+        Object val = querySingleValue(sqlCmd, null, DataType.UNKNOWN, conn);
+        if (ObjectUtils.isEmpty(val))
+        {   // Error!
             log.error("getNextSequenceValue: Invalid sequence value for sequence " + seqName);
+            throw new QueryNoResultException(sqlCmd);
         }
+        // Done
         return val;
     }
 

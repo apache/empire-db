@@ -36,9 +36,11 @@ import org.apache.empire.commons.ObjectUtils;
 import org.apache.empire.commons.StringUtils;
 import org.apache.empire.data.DataType;
 import org.apache.empire.db.exceptions.EmpireSQLException;
+import org.apache.empire.db.exceptions.QueryFailedException;
 import org.apache.empire.exceptions.InvalidArgumentException;
 import org.apache.empire.exceptions.NotImplementedException;
 import org.apache.empire.exceptions.NotSupportedException;
+import org.apache.empire.exceptions.UnexpectedReturnValueException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -188,7 +190,7 @@ public abstract class DBDatabaseDriver implements Serializable
                     { // Read the Sequence Value
                         seqValue = Math.max(rs.getLong(1) + 1, minValue);
                         java.sql.Timestamp current = rs.getTimestamp(2);
-                        db.closeResultSet(rs);
+                        driver.closeResultSet(rs);
                         // Update existing Record
                         cmd.clear();
                         DBCmdParam name = cmd.addParam(SeqName);
@@ -202,7 +204,7 @@ public abstract class DBDatabaseDriver implements Serializable
                     } 
                     else
                     { // Close Reader
-                        db.closeResultSet(rs);
+                        driver.closeResultSet(rs);
                         // sequence does not exist
                         seqValue = minValue;
                         log.warn("Sequence {} does not exist! Creating sequence with start-value of {}", SeqName, seqValue);
@@ -218,7 +220,7 @@ public abstract class DBDatabaseDriver implements Serializable
                     if (seqValue == 0)
                         log.warn("Failed to increment sequence {}. Trying again!", SeqName);
                     // close
-                    db.closeStatement(stmt);
+                    driver.closeStatement(stmt);
                     cmd.clear();
                     rs = null;
                 }
@@ -230,7 +232,7 @@ public abstract class DBDatabaseDriver implements Serializable
                 throw new EmpireSQLException(this, e);
             } finally
             { // Cleanup
-                db.closeStatement(stmt);
+                driver.closeStatement(stmt);
             }
         }
     }
@@ -386,8 +388,8 @@ public abstract class DBDatabaseDriver implements Serializable
         {   // Use a numeric sequence
             if (isSupported(DBDriverFeature.SEQUENCES)==false)
                 return null; // Create Later
-            String SeqName = column.getSequenceName();
-            return db.getNextSequenceValue(SeqName, conn);
+            String sequenceName = column.getSequenceName();
+            return getNextSequenceValue(db, sequenceName, 1, conn);
         }
         else if (type== DataType.UNIQUEID)
         {   // emulate using java.util.UUID
@@ -579,9 +581,8 @@ public abstract class DBDatabaseDriver implements Serializable
             }
             // done
             return count;
-        } finally
-        {
-            close(stmt);
+        } finally {
+            closeStatement(stmt);
         }
     }
 
@@ -616,7 +617,7 @@ public abstract class DBDatabaseDriver implements Serializable
             				for (int j=0; j<res.length; j++)
             					result[pos+j]=res[j];
             				pos+=res.length;
-            				close(pstmt);
+            				closeStatement(pstmt);
             				pstmt = null;
             			}
             			// has next?
@@ -637,7 +638,7 @@ public abstract class DBDatabaseDriver implements Serializable
             	}
 	            return result; 
             } finally {
-	            close(pstmt);
+	            closeStatement(pstmt);
 	        }
         }
         else
@@ -654,12 +655,20 @@ public abstract class DBDatabaseDriver implements Serializable
 	            int result[] = stmt.executeBatch();
 	            return result;
             } finally {
-	            close(stmt);
+	            closeStatement(stmt);
 	        }
         }
     }
     
-    // executeQuery
+    /**
+     * Query a sql ResultSet
+     * @param sqlCmd
+     * @param sqlParams
+     * @param scrollable
+     * @param conn
+     * @return
+     * @throws SQLException
+     */
     public ResultSet executeQuery(String sqlCmd, Object[] sqlParams, boolean scrollable, Connection conn)
         throws SQLException
     {
@@ -683,24 +692,88 @@ public abstract class DBDatabaseDriver implements Serializable
         } catch(SQLException e) {
             // close statement (if not null)
             log.error("Error executing query '"+sqlCmd+"' --> "+e.getMessage(), e);
-            close(stmt);
+            closeStatement(stmt);
             throw e;
         }
     }
+
+    /**
+     * Query a single value 
+     * @return the value of the first column in the first row of the query 
+     */
+    public Object querySingleValue(String sqlCmd, Object[] sqlParams, DataType dataType, Connection conn)
+    {
+        ResultSet rs = null;
+        try
+        {   // Get the next Value
+            rs = executeQuery(sqlCmd, sqlParams, false, conn);
+            if (rs == null)
+                throw new UnexpectedReturnValueException(rs, "driver.executeQuery()");
+            // Check Result
+            if (rs.next() == false)
+            {   // no result
+                log.debug("querySingleValue returned no result");
+                return ObjectUtils.NO_VALUE;
+            }
+            // Read value
+            return getResultValue(rs, 1, dataType);
+        } catch (SQLException sqle) 
+        {   // Error
+            throw new QueryFailedException(this, sqlCmd, sqle);
+        } finally {
+            // Cleanup
+            closeResultSet(rs);
+        }
+    }
     
-    // close
-    protected void close(Statement stmt)
+     /**
+     * Convenience function for closing a JDBC Resultset<BR>
+     * Use it instead of stmt.close()<BR> 
+     * <P>
+     * @param stmt a Statement object
+     */
+    public void closeStatement(Statement stmt)
     {
         try
         { // Statement close
             if (stmt != null)
                 stmt.close();
-        } catch (SQLException sqle) 
-        {
-            log.error("close statement:" + sqle.toString());
+            // done
+            return;
+        } catch (SQLException sqle) { 
+            // Commit failed!
+            throw new EmpireSQLException(this, sqle);
         }
     }
-    
+
+    /**
+     * Convenience function for closing a JDBC Resultset<BR>
+     * Use it instead of rset.close() and stmt.close()<BR> 
+     * <P>
+     * @param rset a ResultSet object
+     */
+    public void closeResultSet(ResultSet rset)
+    {
+        try
+        {   // check ResultSet
+            if (rset == null)
+                return; // nothing to do
+            // close Resultset
+            Statement stmt = rset.getStatement();
+            rset.close();
+            // check Statement
+            if (stmt == null)
+                return;
+            // close Statement
+            stmt.close();
+            // done
+            return;
+        } catch (SQLException sqle) { 
+            // Commit failed!
+            throw new EmpireSQLException(this, sqle);
+        }
+    }
+   
     /**
      * Creates a sql string for a given value. 
      * Text will be enclosed in single quotes and existing single quotes will be doubled.
@@ -735,7 +808,6 @@ public abstract class DBDatabaseDriver implements Serializable
                 return getSQLDateTimeString(value, SQL_DATETIME_TEMPLATE, SQL_DATETIME_PATTERN, SQL_CURRENT_TIMESTAMP);
             case TIMESTAMP:
                 return getSQLDateTimeString(value, SQL_TIMESTAMP_TEMPLATE, SQL_TIMESTAMP_PATTERN, SQL_CURRENT_TIMESTAMP);
-            case TEXT:
             case VARCHAR:
             case CHAR:
             case CLOB:

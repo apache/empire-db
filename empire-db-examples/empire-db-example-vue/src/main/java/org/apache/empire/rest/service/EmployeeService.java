@@ -71,7 +71,7 @@ public class EmployeeService extends Service {
         cmd.join  (db.T_DEPARTMENTS.DEPARTMENT_ID, db.T_EMPLOYEES.DEPARTMENT_ID);
         cmd.groupBy(cmd.getSelectExprList());
         cmd.orderBy(db.T_DEPARTMENTS.NAME);
-        Options departmentOptions = db.queryOptionList(cmd, ctx.getConnection());
+        Options departmentOptions = ctx.getUtils().queryOptionList(cmd);
         
         // Create Metadata
         TEmployees TE = db.T_EMPLOYEES;

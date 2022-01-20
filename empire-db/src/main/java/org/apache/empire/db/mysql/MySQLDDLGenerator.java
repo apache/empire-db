@@ -113,6 +113,7 @@ public class MySQLDDLGenerator extends DBDDLGenerator<DBDatabaseDriverMySQL>
         return true;
     }
      
+    @SuppressWarnings("unused")
     @Override
     protected void createDatabase(DBDatabase db, DBSQLScript script)
     {

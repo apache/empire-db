@@ -68,9 +68,9 @@ public class DBDatabaseDriverMSSqlDateTest {
 		// Encoding issue occur when prepared statement is disabled
 		// db.setPreparedStatementsEnabled(true);
 
-		db.open(driver, dbResource.getConnection());
+		db.open(context);
 
-		if (!databaseExists(conn, db)) {
+		if (!databaseExists(context, db)) {
 			DBSQLScript script = new DBSQLScript(context);
 			db.getCreateDDLScript(script);
 			System.out.println(script.toString());
@@ -78,7 +78,7 @@ public class DBDatabaseDriverMSSqlDateTest {
 		}
 
 		// STEP 5: Clear Database (Delete all records)
-		clearDatabase(conn, db);
+		clearDatabase(context, db);
 
 		// MSSQL datetime Accuracy => Rounded to increments of .000, .003, or
 		// .007 seconds => ignore ms for comparison
@@ -120,10 +120,10 @@ public class DBDatabaseDriverMSSqlDateTest {
 	 * Empties all Tables.
 	 * </PRE>
 	 */
-	private static void clearDatabase(Connection conn, DateTimeTestDB db) {
+	private static void clearDatabase(DBContext context, DateTimeTestDB db) {
 		DBCommand cmd = db.createCommand();
 		// Delete all Employees (no constraints)
-		db.executeDelete(db.USER_INFO, cmd, conn);
+		context.getUtils().executeDelete(db.USER_INFO, cmd);
 	}
 
 	/**
@@ -134,7 +134,7 @@ public class DBDatabaseDriverMSSqlDateTest {
 	 * Please note that in this case an error will appear in the log which can be ignored.
 	 * </PRE>
 	 */
-	private static boolean databaseExists(Connection conn, DateTimeTestDB db) {
+	private static boolean databaseExists(DBContext context, DateTimeTestDB db) {
 		// Check whether DB exists
 		DBCommand cmd = db.createCommand();
 		cmd.select(db.USER_INFO.count());
@@ -143,7 +143,7 @@ public class DBDatabaseDriverMSSqlDateTest {
 		//System.out
 				//.println("Checking whether table USER_INFO exists (SQLException will be logged if not - please ignore) ...");
 		try {
-			return (db.querySingleInt(cmd, -1, conn) >= 0);
+			return (context.getUtils().querySingleInt(cmd, -1) >= 0);
 		} catch (Exception e) {
 			return false;
 		}

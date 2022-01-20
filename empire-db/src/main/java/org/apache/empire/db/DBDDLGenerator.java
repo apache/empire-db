@@ -109,7 +109,6 @@ public abstract class DBDDLGenerator<T extends DBDatabaseDriver>
                     sql.append(DATATYPE_INTEGER);  // Default integer length
             }
                 break;
-            case TEXT:
             case VARCHAR:
             case CHAR:
             {   // Char or Varchar

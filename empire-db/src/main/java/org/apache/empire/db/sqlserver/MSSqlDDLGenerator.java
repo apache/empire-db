@@ -75,7 +75,6 @@ public class MSSqlDDLGenerator extends DBDDLGenerator<DBDatabaseDriverMSSQL>
                     return false;
                 }
                 break;
-            case TEXT:
             case VARCHAR:
             case CHAR:
             {   // Char or Varchar

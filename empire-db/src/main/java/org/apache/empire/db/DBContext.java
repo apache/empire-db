@@ -11,6 +11,8 @@ public interface DBContext
     
     Connection getConnection();
     
+    DBUtils getUtils();
+    
     void commit();
 
     void rollback();

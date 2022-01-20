@@ -55,7 +55,7 @@ public class DBDatabaseDriverSQLiteTest{
         DBContext context = new DBContextStatic(driver, conn); 
         
         CompanyDB db = new CompanyDB();
-        db.open(driver, dbResource.getConnection());
+        db.open(context);
         DBSQLScript script = new DBSQLScript(context);
         db.getCreateDDLScript(script);
         script.executeAll(false);
@@ -114,7 +114,7 @@ public class DBDatabaseDriverSQLiteTest{
         DBContext context = new DBContextStatic(driver, conn); 
         
         SeqDB db = new SeqDB();
-        db.open(driver, dbResource.getConnection());
+        db.open(context);
         DBSQLScript script = new DBSQLScript(context);
         db.getCreateDDLScript(script);
         script.executeAll(false);

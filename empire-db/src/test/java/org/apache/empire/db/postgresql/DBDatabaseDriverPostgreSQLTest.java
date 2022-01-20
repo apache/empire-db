@@ -79,9 +79,9 @@ public class DBDatabaseDriverPostgreSQLTest
 		// Encoding issue occurs when prepared statement is disabled
 		//db.setPreparedStatementsEnabled(true);
 
-		db.open(driver, dbResource.getConnection());
+		db.open(context);
 
-		if(!databaseExists(conn, db)){
+		if(!databaseExists(context, db)){
 			DBSQLScript script = new DBSQLScript(context);
 			db.getCreateDDLScript(script);
 			System.out.println(script.toString());
@@ -104,7 +104,7 @@ public class DBDatabaseDriverPostgreSQLTest
 		// Encoding issue occurs when prepared statement is disabled
 		//db.setPreparedStatementsEnabled(true);
 
-		db.open(driver, dbResource.getConnection());
+		db.open(context);
 		
 		DBRecord emp = new DBRecord(context, db.DATA);
         emp.create();
@@ -129,7 +129,7 @@ public class DBDatabaseDriverPostgreSQLTest
 	 * If the Departments table does not exist the querySingleInt() function return -1 for failure.
 	 * Please note that in this case an error will appear in the log which can be ignored.
 	 */
-	private static boolean databaseExists(Connection conn, CompanyDB db)
+	private static boolean databaseExists(DBContext context, CompanyDB db)
     {
 		// Check whether DB exists
 		DBCommand cmd = db.createCommand();
@@ -137,7 +137,7 @@ public class DBDatabaseDriverPostgreSQLTest
 		// Check using "select count(*) from DEPARTMENTS"
 		
 		try{
-			return (db.querySingleInt(cmd, -1, conn) >= 0);
+			return (context.getUtils().querySingleInt(cmd, -1) >= 0);
 		}catch(QueryFailedException ex){
 			System.out.println("Checking whether table DEPARTMENTS exists (SQLException will be logged if not - please ignore) ...");
 			System.out.println(ex.getMessage());

@@ -21,6 +21,7 @@ package org.apache.empire.db.exceptions;
 import java.sql.SQLException;
 
 import org.apache.empire.commons.ErrorType;
+import org.apache.empire.db.DBDatabaseDriver;
 import org.apache.empire.db.DBObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,9 +38,14 @@ public class QueryFailedException extends EmpireSQLException
     
     public static final ErrorType errorType = new ErrorType("error.db.queryFailed",  "Error executing query {0}.\r\nNative error is: {1}");
     
+    public QueryFailedException(DBDatabaseDriver driver, String sqlCmd, SQLException cause)
+    {
+        super(QueryFailedException.errorType, new String[] { sqlCmd, messageFromSQLException(driver, cause) }, 1, cause);
+    }
+    
     public QueryFailedException(DBObject obj, String sqlCmd, SQLException cause)
     {
-        super(QueryFailedException.errorType, new String[] { sqlCmd, messageFromSQLException(driverFromObject(obj), cause) }, 1, cause);
+        this(driverFromObject(obj), sqlCmd, cause);
     }
     
     /**

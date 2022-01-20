@@ -873,6 +873,7 @@ public class DBDatabaseDriverMySQL extends DBDatabaseDriver
      * 
      * @see org.apache.empire.db.DBDatabaseDriver#openDatabase(org.apache.empire.db.DBDatabase, java.sql.Connection)
      */
+    @SuppressWarnings("unused")
     @Override
     public void attachDatabase(DBDatabase db, Connection conn)
     {
@@ -1066,7 +1067,6 @@ public class DBDatabaseDriverMySQL extends DBDatabaseDriver
            case DATETIME:
            case TIMESTAMP: return "CAST(? AS DATETIME)";
            // Convert to text
-           case TEXT:
            case VARCHAR:
            case CHAR:
                if (format != null)

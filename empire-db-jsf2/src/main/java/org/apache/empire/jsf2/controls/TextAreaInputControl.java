@@ -26,12 +26,9 @@ import javax.faces.component.html.HtmlInputTextarea;
 import javax.faces.context.FacesContext;
 import javax.faces.event.PhaseId;
 
-import org.apache.empire.commons.ObjectUtils;
 import org.apache.empire.commons.StringUtils;
 import org.apache.empire.exceptions.InvalidArgumentException;
 import org.apache.empire.exceptions.UnexpectedReturnValueException;
-import org.apache.empire.jsf2.controls.InputControl.DisabledType;
-import org.apache.empire.jsf2.controls.InputControl.ValueInfo;
 
 public class TextAreaInputControl extends InputControl
 {

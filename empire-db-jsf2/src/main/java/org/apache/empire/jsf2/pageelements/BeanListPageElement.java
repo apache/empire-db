@@ -18,7 +18,6 @@
  */
 package org.apache.empire.jsf2.pageelements;
 
-import java.sql.Connection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -32,6 +31,7 @@ import org.apache.empire.data.Column;
 import org.apache.empire.db.DBColumn;
 import org.apache.empire.db.DBColumnExpr;
 import org.apache.empire.db.DBCommand;
+import org.apache.empire.db.DBContext;
 import org.apache.empire.db.DBDatabaseDriver;
 import org.apache.empire.db.DBDriverFeature;
 import org.apache.empire.db.DBReader;
@@ -248,7 +248,7 @@ public class BeanListPageElement<T> extends ListPageElement<T> implements ListIt
     public void initItems(DBCommand queryCmd, DBCommand countCmd, int pageSize)
     {
         clearItems();
-        Connection conn = getDBContext(rowset).getConnection();
+        DBContext context = getDBContext(rowset);
         // Init List Table Info
         BeanListTableInfo lti = (BeanListTableInfo) getTableInfo();
         lti.setQueryCmd(queryCmd);
@@ -256,7 +256,7 @@ public class BeanListPageElement<T> extends ListPageElement<T> implements ListIt
         { // Negative count means: loadItems should load all items.
             countCmd.clearSelect();
             countCmd.select(rowset.count());
-            int count = rowset.getDatabase().querySingleInt(countCmd.getSelect(), countCmd.getParamValues(), 0, conn);
+            int count = context.getUtils().querySingleInt(countCmd.getSelect(), countCmd.getParamValues(), 0);
             lti.init(count, pageSize);
         }
         else

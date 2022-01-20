@@ -32,7 +32,6 @@ import javax.servlet.ServletContextListener;
 import org.apache.empire.commons.StringUtils;
 import org.apache.empire.db.DBCommand;
 import org.apache.empire.db.DBContext;
-import org.apache.empire.db.DBDatabase;
 import org.apache.empire.db.DBDatabaseDriver;
 import org.apache.empire.db.DBRecord;
 import org.apache.empire.db.DBSQLScript;
@@ -97,17 +96,18 @@ public class SampleServiceApp
         
         // get connection
         Connection conn = getJDBCConnection(ctx);
-
-        // DB
-        SampleDB db = initDatabase(ctx);
-        DBDatabaseDriver driver = new DBDatabaseDriverHSql();
-        db.open(driver, conn);
-
-        // Add to context
-        ctx.setAttribute(Service.Consts.ATTRIBUTE_DB, db);
-        // sce.getServletContext().setAttribute(MobileImportServiceConsts.ATTRIBUTE_DATASOURCE, ds);
-        // sce.getServletContext().setAttribute(MobileImportServiceConsts.ATTRIBUTE_CONFIG, config);
-        
+        try {
+            // DB
+            DBDatabaseDriver driver = new DBDatabaseDriverHSql();
+            DBContext context = new DBContextStatic(driver, conn);
+            SampleDB db = initDatabase(ctx, context);
+            // Add to context
+            ctx.setAttribute(Service.Consts.ATTRIBUTE_DB, db);
+            // sce.getServletContext().setAttribute(MobileImportServiceConsts.ATTRIBUTE_DATASOURCE, ds);
+            // sce.getServletContext().setAttribute(MobileImportServiceConsts.ATTRIBUTE_CONFIG, config);
+        } finally {
+            releaseConnection(conn, true);
+        }
     }
     
     public TextResolver getTextResolver(Locale locale) {
@@ -145,7 +145,7 @@ public class SampleServiceApp
         return conn;
     }
 
-    protected void releaseConnection(DBDatabase db, Connection conn, boolean commit) {
+    public void releaseConnection(Connection conn, boolean commit) {
         // release connection
         try
         { // release connection
@@ -164,50 +164,39 @@ public class SampleServiceApp
                 conn.rollback();
                 log.debug("REQUEST rolled back.");
             }
-            // Don't Release Connection
-            // conn.close();
+            // close connection / return to pool
+            conn.close();
         }
         catch (SQLException e)
         {
             log.error("Error releasing connection", e);
-            e.printStackTrace();
+            throw new RuntimeException(e);
         }
     }
     
     
     // ********************* private ********************* 
 
-    private SampleDB initDatabase(ServletContext ctx) {
+    private SampleDB initDatabase(ServletContext ctx, DBContext context) {
         SampleDB db = new SampleDB();
-
         // Open Database (and create if not existing)
-        DBDatabaseDriver driver = new DBDatabaseDriverHSql();
+        DBDatabaseDriver driver = context.getDriver();
         log.info("Opening database '{}' using driver '{}'", db.getClass().getSimpleName(), driver.getClass().getSimpleName());
-        Connection conn = null;
-        DBContext context = null;
-        try {
-            conn = getJDBCConnection(ctx);
-            context = new DBContextStatic(driver, conn);
-            db.open(driver, conn);
-            if (!databaseExists(db, conn)) {
-                // STEP 4: Create Database
-                log.info("Creating database {}", db.getClass().getSimpleName());
-                createSampleDatabase(db, context);
-            }
-        } finally {
-            context.discard();
-            releaseConnection(db, conn, true);
+        db.open(context);
+        if (!databaseExists(db, context)) {
+            // STEP 4: Create Database
+            log.info("Creating database {}", db.getClass().getSimpleName());
+            createSampleDatabase(db, context);
         }
-
         return db;
     }
 
-    private static boolean databaseExists(SampleDB db, Connection conn) {
+    private static boolean databaseExists(SampleDB db, DBContext context) {
         // Check wether DB exists
         DBCommand cmd = db.createCommand();
         cmd.select(db.T_DEPARTMENTS.count());
         try {
-            return (db.querySingleInt(cmd, -1, conn) >= 0);
+            return (context.getUtils().querySingleInt(cmd, -1) >= 0);
         } catch (QueryFailedException e) {
             return false;
         }
@@ -224,7 +213,7 @@ public class SampleServiceApp
         context.commit();
         // Open again
         if (!db.isOpen()) {
-            db.open(context.getDriver(), context.getConnection());
+            db.open(context);
         }
         // Insert Sample Departments
         insertDepartmentSampleRecord(db, context, "Procurement", "ITTK");

@@ -29,7 +29,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.empire.commons.ObjectUtils;
 import org.apache.empire.commons.Options;
 import org.apache.empire.commons.StringUtils;
-import org.apache.empire.data.DataMode;
 import org.apache.empire.data.DataType;
 import org.apache.empire.db.DBIndex.DBIndexType;
 import org.apache.empire.db.DBRelation.DBCascadeAction;
@@ -166,6 +165,7 @@ public class DBTable extends DBRowSet implements Cloneable
         return clone;
     }
     
+    @SuppressWarnings("unchecked")
     public <T extends DBTable> T clone(String newAlias) 
     {
         try {
@@ -281,30 +281,6 @@ public class DBTable extends DBRowSet implements Cloneable
                 log.warn("Table {} already has a Timestamp column. DataType of column {} should be DATETIME.", getName(), column.getName());
         }
         return column;
-    }
-    
-    /**
-     * Deprecacted function to add a table column.
-     * This function will be removed in a further release.
-     * @deprecated use {@link #addColumn(String columnName, DataType type, double size, boolean required, Object defValue)} instead. 
-     * @return the new column object 
-     */
-    @Deprecated
-    public final DBTableColumn addColumn(String columnName, DataType type, double size, DataMode dataMode, Object defValue)
-    { 
-        return this.addColumn(columnName, type, size, (dataMode!=DataMode.Nullable), defValue);
-    }
-
-    /**
-     * Deprecacted function to add a table column
-     * This function will be removed in a further release.
-     * @deprecated use {@link #addColumn(String columnName, DataType type, double size, boolean required)} instead. 
-     * @return the new column object 
-     */
-    @Deprecated
-    public final DBTableColumn addColumn(String columnName, DataType type, double size, DataMode dataMode) 
-    {
-        return this.addColumn(columnName, type, size, (dataMode!=DataMode.Nullable));
     }
     
     /**
@@ -617,7 +593,7 @@ public class DBTable extends DBRowSet implements Cloneable
      * @param id the record's primary key
      * @param conn a valid JDBC connection
      */
-    public DBIndex checkUniqueConstraints(DBRecord rec, Connection conn)
+    public DBIndex checkUniqueConstraints(DBRecord rec)
     {
         for (DBIndex idx : getIndexes())
         {
@@ -643,7 +619,8 @@ public class DBTable extends DBRowSet implements Cloneable
                 Object value = rec.getValue(c);
                 cmd.where(c.is(value));
             }
-            int count = db.querySingleInt(cmd, conn);
+            DBUtils utils = rec.getContext().getUtils();
+            int count = utils.querySingleInt(cmd);
             if (count>0)
             {   // Index is violated
                 return idx;
@@ -697,7 +674,7 @@ public class DBTable extends DBRowSet implements Cloneable
      * @param conn a valid connection to the database.
      */
     @Override
-    public void deleteRecord(Object[] key, Connection conn)
+    public void deleteRecord(Object[] key, DBContext context)
     {
         // Check Primary key
         if (primaryKey == null )
@@ -709,7 +686,7 @@ public class DBTable extends DBRowSet implements Cloneable
             throw new InvalidArgumentException("key", key);
 
         // Delete References
-        deleteAllReferences(key, conn);
+        deleteAllReferences(key, context);
         
         // Build SQL-Statement
         DBCommand cmd = db.createCommand();
@@ -717,7 +694,7 @@ public class DBTable extends DBRowSet implements Cloneable
         setKeyConstraints(cmd, key);
         // Perform delete
         String sqlCmd = cmd.getDelete(this);
-        int affected  = db.executeSQL(sqlCmd, cmd.getParamValues(), conn);
+        int affected  = context.getUtils().executeSQL(sqlCmd, cmd.getParamValues());
         if (affected < 0)
         { // Delete Failed
             throw new UnexpectedReturnValueException(affected, "db.executeSQL()");

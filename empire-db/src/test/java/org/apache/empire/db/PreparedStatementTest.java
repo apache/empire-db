@@ -46,7 +46,7 @@ public class PreparedStatementTest{
         DBContext context = new DBContextStatic(driver, conn); 
         
         CompanyDB db = new CompanyDB();
-        db.open(driver, conn);
+        db.open(context);
         DBSQLScript script = new DBSQLScript(context);
         db.getCreateDDLScript(script);
         script.executeAll(false);

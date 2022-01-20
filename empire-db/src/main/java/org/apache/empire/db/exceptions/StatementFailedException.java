@@ -21,7 +21,7 @@ package org.apache.empire.db.exceptions;
 import java.sql.SQLException;
 
 import org.apache.empire.commons.ErrorType;
-import org.apache.empire.db.DBObject;
+import org.apache.empire.db.DBDatabaseDriver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,9 +37,9 @@ public class StatementFailedException extends EmpireSQLException
     
     public static final ErrorType errorType = new ErrorType("error.db.statementFailed",  "Error executing statement {0}.\r\nNative error is: {1}");
     
-    public StatementFailedException(DBObject obj, String sqlCmd, SQLException cause)
+    public StatementFailedException(DBDatabaseDriver driver, String sqlCmd, SQLException cause)
     {
-        super(StatementFailedException.errorType, new String[] { sqlCmd, messageFromSQLException(driverFromObject(obj), cause) }, 1, cause);
+        super(StatementFailedException.errorType, new String[] { sqlCmd, messageFromSQLException(driver, cause) }, 1, cause);
     }
     
     /**

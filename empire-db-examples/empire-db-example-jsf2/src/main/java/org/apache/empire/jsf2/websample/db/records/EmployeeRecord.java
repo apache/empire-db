@@ -60,7 +60,7 @@ public class EmployeeRecord extends SampleRecord<TEmployees>
             cmd.select(db.T_DEPARTMENTS.DEPARTMENT_ID);
             cmd.select(db.T_DEPARTMENTS.NAME);
             cmd.orderBy(db.T_DEPARTMENTS.NAME);
-            return db.queryOptionList(cmd, getContext().getConnection());
+            return context.getUtils().queryOptionList(cmd);
         }
         // base class implementation
         return super.getFieldOptions(column);

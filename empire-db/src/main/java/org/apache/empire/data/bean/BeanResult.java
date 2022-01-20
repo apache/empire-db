@@ -19,7 +19,6 @@
 package org.apache.empire.data.bean;
 
 import java.lang.reflect.Method;
-import java.sql.Connection;
 import java.util.ArrayList;
 
 import org.apache.empire.db.DBColumn;

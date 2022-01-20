@@ -108,8 +108,7 @@ public class IntegerTest {
         DBDatabaseDriver driver = getDatabaseDriver(config, connection);
         DBContext context = new DBContextStatic(driver, connection); 
 
-        database.open(driver, connection);
-
+        database.open(context);
         createDatabase(database, driver, context);
 
         DBRecord maxRec = new DBRecord(context, database.SAMPLE);

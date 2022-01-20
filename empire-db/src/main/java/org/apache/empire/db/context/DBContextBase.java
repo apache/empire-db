@@ -11,6 +11,7 @@ import java.util.Map;
 import org.apache.empire.db.DBContext;
 import org.apache.empire.db.DBObject;
 import org.apache.empire.db.DBRollbackHandler;
+import org.apache.empire.db.DBUtils;
 import org.apache.empire.db.exceptions.EmpireSQLException;
 import org.apache.empire.exceptions.InvalidArgumentException;
 import org.slf4j.Logger;
@@ -22,6 +23,21 @@ public abstract class DBContextBase implements DBContext
     private static final Logger log = LoggerFactory.getLogger(DBContextBase.class);
     
     private Map<DBObject, DBRollbackHandler> rollbackHandler;
+    
+    private DBUtils utils = null;
+    
+    @Override
+    public DBUtils getUtils()
+    {
+        if (utils==null)
+            utils = createUtils();
+        return utils;
+    }
+    
+    protected DBUtils createUtils()
+    {
+        return new DBUtils(this);
+    }
     
     @Override
     public synchronized void commit()

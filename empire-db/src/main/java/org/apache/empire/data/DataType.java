@@ -46,14 +46,6 @@ public enum DataType
     VARCHAR, //      = 3;
     
     /**
-     * Variable text (represents varchar)
-     * 
-     * @deprecated  Use VARCHAR instead
-     */
-    @Deprecated
-    TEXT, //         = 3;
-    
-    /**
      * Date only value (without time)
      */
     DATE, //         = 4;
@@ -109,7 +101,7 @@ public enum DataType
      */
     public boolean isText()
     {
-        return (this==DataType.TEXT || this==DataType.VARCHAR || this==DataType.CHAR || this==DataType.CLOB);
+        return (this==DataType.VARCHAR || this==DataType.CHAR || this==DataType.CLOB);
     }
 
     /**

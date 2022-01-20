@@ -23,6 +23,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 
+import org.apache.empire.commons.ObjectUtils;
 import org.apache.empire.commons.StringUtils;
 import org.apache.empire.data.DataType;
 import org.apache.empire.db.DBCmdType;
@@ -44,6 +45,7 @@ import org.apache.empire.db.DBTableColumn;
 import org.apache.empire.db.DBView;
 import org.apache.empire.db.context.DBContextStatic;
 import org.apache.empire.db.exceptions.EmpireSQLException;
+import org.apache.empire.db.exceptions.QueryNoResultException;
 import org.apache.empire.db.expr.column.DBValueExpr;
 import org.apache.empire.exceptions.InvalidArgumentException;
 import org.slf4j.Logger;
@@ -230,7 +232,6 @@ public class DBDatabaseDriverOracle extends DBDatabaseDriver
              * DBExpr.DT_DATE: return "convert(datetime, ?, 111)"; case DBExpr.DT_DATETIME: return "convert(datetime, ?, 120)";
              */
             // Convert to text
-            case TEXT:
             case VARCHAR:
             case CHAR:
             case CLOB:
@@ -326,10 +327,15 @@ public class DBDatabaseDriverOracle extends DBDatabaseDriver
         sql.append("SELECT ");
         db.appendQualifiedName(sql, seqName, detectQuoteName(seqName));
         sql.append(".NEXTVAL FROM DUAL");
-        Object val = db.querySingleValue(sql.toString(), null, conn);
-        if (val == null)
-        { // Error!
+        // Query next sequence value
+        String sqlCmd = sql.toString();
+        if (log.isDebugEnabled())
+            log.debug("Executing: " + sqlCmd);
+        Object val = querySingleValue(sqlCmd, null, DataType.UNKNOWN, conn);
+        if (ObjectUtils.isEmpty(val))
+        {   // Error!
             log.error("getNextSequenceValue: Invalid sequence value for sequence " + seqName);
+            throw new QueryNoResultException(sqlCmd);
         }
         // Done
         return val;

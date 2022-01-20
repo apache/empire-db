@@ -376,7 +376,6 @@ public class DBDatabaseDriverMSSQL extends DBDatabaseDriver
            case TIMESTAMP: return isUseDateTime2() ? "convert(datetime2, ?, 121)"
                                                    : "convert(datetime,  ?, 121)";
            // Convert to text
-           case TEXT:
            case VARCHAR:
            case CHAR:
            case CLOB:
@@ -468,7 +467,7 @@ public class DBDatabaseDriverMSSQL extends DBDatabaseDriver
         // Supports sequences?
         if (column.getDataType()==DataType.UNIQUEID)
         {
-            return db.querySingleValue("select newid()", null, conn);
+            return querySingleValue("select newid()", null, DataType.UNIQUEID, conn);
         }
         return super.getColumnAutoValue(db, column, conn);
     }

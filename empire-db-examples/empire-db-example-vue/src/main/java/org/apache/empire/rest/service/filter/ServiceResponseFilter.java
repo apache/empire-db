@@ -20,7 +20,6 @@ package org.apache.empire.rest.service.filter;
 
 import java.io.IOException;
 import java.sql.Connection;
-import java.sql.SQLException;
 
 import javax.annotation.Priority;
 import javax.ws.rs.container.ContainerRequestContext;
@@ -29,6 +28,7 @@ import javax.ws.rs.container.ContainerResponseFilter;
 import javax.ws.rs.core.Response.Status.Family;
 import javax.ws.rs.ext.Provider;
 
+import org.apache.empire.rest.app.SampleServiceApp;
 import org.apache.empire.rest.service.Service;
 import org.glassfish.jersey.server.ContainerRequest;
 import org.slf4j.Logger;
@@ -48,31 +48,16 @@ public class ServiceResponseFilter implements ContainerResponseFilter {
 		ContainerRequest containerRequest = (ContainerRequest) requestContext;
 		Connection conn = (Connection) containerRequest.getProperty(Service.Consts.ATTRIBUTE_CONNECTION);
 
-		boolean success = responseContext.getStatusInfo().getFamily() == Family.SUCCESSFUL;
+        try {
+    		
+    		boolean success = responseContext.getStatusInfo().getFamily() == Family.SUCCESSFUL;
+            SampleServiceApp.instance().releaseConnection(conn, success);
+        
+        } catch(Exception e) {
 
-		try {
-
-			if (conn == null || conn.isClosed()) {
-				// Connection not found or already closed
-				return;
-			}
-
-			if (success) {
-				// commit
-				conn.commit();
-			} else {
-				// rollback
-				conn.rollback();
-			}
-
-			// close connection / return to pool
-			conn.close();
-
-		} catch (SQLException e) {
-			log.error("Error releasing connection", e);
-			responseContext.setStatus(500);
-		}
-
+            log.error("Error releasing connection", e);
+            responseContext.setStatus(500);
+        }
 	}
 
 }

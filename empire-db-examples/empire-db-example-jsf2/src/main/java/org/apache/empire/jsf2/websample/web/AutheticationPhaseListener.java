@@ -44,13 +44,13 @@ public class AutheticationPhaseListener implements PhaseListener
     {
     }
 
-    // @Override
+    @Override
     public PhaseId getPhaseId()
     {
         return PhaseId.RESTORE_VIEW;
     }
 
-    // @Override
+    @Override
     public void beforePhase(PhaseEvent pe)
     {
         // Check App
@@ -79,7 +79,7 @@ public class AutheticationPhaseListener implements PhaseListener
         }
     }
     
-    // @Override
+    @Override
     public void afterPhase(PhaseEvent event)
     {
         

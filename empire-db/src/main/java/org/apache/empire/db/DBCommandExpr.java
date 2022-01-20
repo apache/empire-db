@@ -18,8 +18,6 @@
  */
 package org.apache.empire.db;
 
-// java
-import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -164,7 +162,7 @@ public abstract class DBCommandExpr extends DBExpr
 
         /** Returns the error message: ERR_NOTSUPPORTED */
         @Override
-        public void deleteRecord(Object[] keys, Connection conn)
+        public void deleteRecord(Object[] keys, DBContext context)
         {
             throw new NotSupportedException(this, "deleteRecord");
         }

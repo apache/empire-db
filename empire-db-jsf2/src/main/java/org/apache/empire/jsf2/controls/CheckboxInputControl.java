@@ -30,7 +30,6 @@ import javax.faces.event.PhaseId;
 import org.apache.empire.commons.ObjectUtils;
 import org.apache.empire.exceptions.InvalidArgumentException;
 import org.apache.empire.exceptions.UnexpectedReturnValueException;
-import org.apache.empire.jsf2.controls.InputControl.DisabledType;
 
 public class CheckboxInputControl extends InputControl
 {

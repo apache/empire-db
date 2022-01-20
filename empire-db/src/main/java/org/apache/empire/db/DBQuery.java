@@ -561,7 +561,8 @@ public class DBQuery extends DBRowSet
             }
             
             // Execute SQL
-            int affected = db.executeSQL(upd.getUpdate(), upd.getParamValues(), conn);
+            DBUtils utils = rec.getContext().getUtils(); 
+            int affected = utils.executeSQL(upd.getUpdate(), upd.getParamValues());
             if (affected<= 0)
             {   // Error
                 if (affected == 0)
@@ -597,7 +598,7 @@ public class DBQuery extends DBRowSet
      * @param conn a valid database connection
      */
     @Override
-    public void deleteRecord(Object[] keys, Connection conn)
+    public void deleteRecord(Object[] keys, DBContext context)
     {
         throw new NotImplementedException(this, "deleteRecord()");
     }

@@ -18,7 +18,6 @@
  */
 package org.apache.empire.db;
 
-import java.sql.Connection;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.empire.commons.Options;
@@ -420,7 +419,7 @@ public abstract class DBView extends DBRowSet
      * @see org.apache.empire.db.DBRowSet#deleteRecord(java.lang.Object[], java.sql.Connection, boolean)
      */
     @Override
-    public void deleteRecord(Object[] keys, Connection conn)
+    public void deleteRecord(Object[] keys, DBContext context)
     {
         throw new NotSupportedException(this, "deleteRecord");
     }

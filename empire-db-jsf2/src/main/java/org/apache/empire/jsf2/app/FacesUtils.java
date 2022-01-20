@@ -37,8 +37,6 @@ import javax.servlet.http.HttpServletRequest;
 import org.apache.empire.commons.ObjectUtils;
 import org.apache.empire.commons.StringUtils;
 import org.apache.empire.data.Column;
-import org.apache.empire.db.DBContext;
-import org.apache.empire.db.DBDatabase;
 import org.apache.empire.exceptions.EmpireException;
 import org.apache.empire.exceptions.InternalException;
 import org.apache.empire.exceptions.ItemNotFoundException;

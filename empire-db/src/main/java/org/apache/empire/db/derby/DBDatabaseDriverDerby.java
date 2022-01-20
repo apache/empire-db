@@ -259,7 +259,6 @@ public class DBDatabaseDriverDerby extends DBDatabaseDriver
            case DATETIME:
            case TIMESTAMP: return "CAST(? AS TIMESTAMP)";
            // Convert to text
-           case TEXT:
            case VARCHAR:
            case CHAR:
                 return "CAST(? AS CHAR)";

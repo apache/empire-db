@@ -59,7 +59,7 @@ public class SerializeTest {
     DBContext context = new DBContextStatic(new MockDriver(), null); 
     DBRecord rec = new DBRecord(context, db.T_TEST);
     rec.init(true);
-    db.open(context.getDriver(), null);
+    db.open(context);
     return new DBObject[] {
             db,
             db.T_TEST,

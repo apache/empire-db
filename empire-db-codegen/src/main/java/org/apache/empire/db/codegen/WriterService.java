@@ -228,7 +228,6 @@ public class WriterService {
 		switch(type){
 		case INTEGER:
 			return Long.class;
-		case TEXT:
         case VARCHAR:
 			return String.class;
 		case DATE:

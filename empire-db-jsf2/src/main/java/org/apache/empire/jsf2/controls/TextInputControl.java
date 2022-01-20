@@ -439,7 +439,7 @@ public class TextInputControl extends InputControl
         Column col = ii.getColumn();
         // cast to DBTableColumn 
         DataType type = col.getDataType();
-        if (type == DataType.CHAR || type == DataType.VARCHAR || type == DataType.TEXT)
+        if (type == DataType.CHAR || type == DataType.VARCHAR)
             return (int) Math.round(col.getSize());
         if (type == DataType.AUTOINC || type == DataType.INTEGER)
             return 10;

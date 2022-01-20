@@ -200,8 +200,8 @@ public class DBRecord extends DBRecordData implements DBContextAware, Record, Cl
     
     protected static final Logger log    = LoggerFactory.getLogger(DBRecord.class);
 
-    private final DBContext context;
-    private final DBRowSet  rowset;
+    protected final DBContext context;
+    protected final DBRowSet  rowset;
     
     // This is the record data
     private State           state;
@@ -333,17 +333,6 @@ public class DBRecord extends DBRecordData implements DBContextAware, Record, Cl
     }
 
     /**
-     * Returns the current DBDatabase object.
-     * 
-     * @return the current DBDatabase object
-     */
-    @Override
-    public DBDatabase getDatabase()
-    {
-        return (rowset != null) ? rowset.db : null;
-    }
-
-    /**
      * Returns the current Context
      * @return
      */
@@ -352,6 +341,17 @@ public class DBRecord extends DBRecordData implements DBContextAware, Record, Cl
     public <T extends DBContext> T  getContext()
     {
         return ((T)context);
+    }
+
+    /**
+     * Returns the current DBDatabase object.
+     * 
+     * @return the current DBDatabase object
+     */
+    @Override
+    public DBDatabase getDatabase()
+    {
+        return rowset.db;
     }
 
     /**
