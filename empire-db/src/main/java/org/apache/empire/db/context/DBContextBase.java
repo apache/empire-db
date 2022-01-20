@@ -10,7 +10,6 @@ import java.util.Map;
 
 import org.apache.empire.db.DBContext;
 import org.apache.empire.db.DBObject;
-import org.apache.empire.db.DBRollbackHandler;
 import org.apache.empire.db.DBUtils;
 import org.apache.empire.db.exceptions.EmpireSQLException;
 import org.apache.empire.exceptions.InvalidArgumentException;

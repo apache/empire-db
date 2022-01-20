@@ -22,6 +22,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Iterator;
 
+import org.apache.empire.db.context.DBContextAware;
 import org.apache.empire.db.exceptions.EmpireSQLException;
 import org.apache.empire.exceptions.InvalidArgumentException;
 import org.slf4j.Logger;

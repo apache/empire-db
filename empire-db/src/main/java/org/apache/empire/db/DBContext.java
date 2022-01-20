@@ -5,6 +5,8 @@ package org.apache.empire.db;
 
 import java.sql.Connection;
 
+import org.apache.empire.db.context.DBRollbackHandler;
+
 public interface DBContext
 {
     DBDatabaseDriver getDriver();

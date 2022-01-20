@@ -11,6 +11,7 @@ import org.apache.empire.commons.ObjectUtils;
 import org.apache.empire.commons.Options;
 import org.apache.empire.commons.StringUtils;
 import org.apache.empire.data.DataType;
+import org.apache.empire.db.context.DBContextAware;
 import org.apache.empire.db.exceptions.ConstraintViolationException;
 import org.apache.empire.db.exceptions.QueryFailedException;
 import org.apache.empire.db.exceptions.QueryNoResultException;
@@ -161,6 +162,7 @@ public class DBUtils implements DBContextAware
      * @param sqlCmd the SQL-Command
      * @param sqlParams list of query parameter values
      * @param dataType the expected data type
+     * @param forceResult if true a QueryNoResultException result is thrown if no record exists otherwise null is returned
      * 
      * @return the value of the first column in the first row of the query 
      */
@@ -173,7 +175,8 @@ public class DBUtils implements DBContextAware
         // Read value
         Object result = driver.querySingleValue(sqlCmd, sqlParams, dataType, context.getConnection());
         if (result==ObjectUtils.NO_VALUE)
-        {   if (forceResult)
+        {   // Query returned no result
+            if (forceResult)
                 throw new QueryNoResultException(sqlCmd);
             else
                 result = null;
@@ -237,6 +240,21 @@ public class DBUtils implements DBContextAware
      *
      * @return the result as a int value
      */
+    public final int querySingleInt(String sqlCmd, Object[] sqlParams, int defaultValue)
+    { 
+        Object value = querySingleValue(sqlCmd, sqlParams, DataType.INTEGER, false);
+        return ObjectUtils.getInteger(value, defaultValue);
+    }
+
+    /**
+     * Returns the value of the first row/column of a sql-query as an int.
+     * If the query does not return a result or if the query result is NULL, then the defaultValue is returned
+     * 
+     * @param cmd the Command object that contains the select statement
+     * @param defaultValue the default value if no value was returned by the database
+     *
+     * @return the result as a int value
+     */
     public final int querySingleInt(DBCommand cmd, int defaultValue)
     { 
         Object value = querySingleValue(cmd.getSelect(), cmd.getParamValues(), DataType.INTEGER, false);
@@ -255,6 +273,21 @@ public class DBUtils implements DBContextAware
     { 
         Object value = querySingleValue(cmd.getSelect(), cmd.getParamValues(), DataType.INTEGER, true);
         return ObjectUtils.getInteger(value);
+    }
+
+    /**
+     * Returns the value of the first row/column of a sql-query as an int.
+     * If the query does not return a result or if the query result is NULL, then the defaultValue is returned
+     * 
+     * @param cmd the Command object that contains the select statement
+     * @param defaultValue the default value if no value was returned by the database
+     *
+     * @return the result as a int value
+     */
+    public final long querySingleLong(String sqlCmd, Object[] sqlParams, long defaultValue)
+    { 
+        Object value = querySingleValue(sqlCmd, sqlParams, DataType.INTEGER, false);
+        return ObjectUtils.getLong(value, defaultValue);
     }
     
     /**

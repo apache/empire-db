@@ -465,6 +465,14 @@ public abstract class DBCommand extends DBCommandExpr
         for (int i=0; i<exprs.length; i++)
             set(exprs[i]);
     }
+    
+    /**
+     * Returns whether or not the command has group by set
+     */
+    public boolean hasSetExpr()
+    {
+        return (this.set!=null ? !this.set.isEmpty() : false);
+    }
 
     /**
      * Checks whether a column is in the list of set expressions
@@ -897,6 +905,24 @@ public abstract class DBCommand extends DBCommandExpr
         if (having == null)
         	return;
         removeConstraintOn(having, col);
+    }
+    
+    /**
+     * Returns whether or not the command has group by set
+     */
+    public boolean hasGroupBy()
+    {
+        return (this.groupBy!=null ? !this.groupBy.isEmpty() : false);
+    }
+
+    /**
+     * Returns a copy of the defined where clauses.
+     * 
+     * @return vector of where clauses
+     */
+    public List<DBColumnExpr> getGroupBy()
+    {
+        return (this.groupBy!=null ? Collections.unmodifiableList(this.groupBy) : null);
     }
 
     /**

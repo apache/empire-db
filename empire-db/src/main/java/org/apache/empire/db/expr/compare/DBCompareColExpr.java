@@ -20,7 +20,6 @@ package org.apache.empire.db.expr.compare;
 
 import java.util.Set;
 
-// java
 import org.apache.empire.db.DBCmpType;
 import org.apache.empire.db.DBColumn;
 import org.apache.empire.db.DBColumnExpr;

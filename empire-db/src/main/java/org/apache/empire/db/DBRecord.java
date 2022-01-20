@@ -33,6 +33,8 @@ import org.apache.empire.commons.StringUtils;
 import org.apache.empire.data.Column;
 import org.apache.empire.data.ColumnExpr;
 import org.apache.empire.data.Record;
+import org.apache.empire.db.context.DBContextAware;
+import org.apache.empire.db.context.DBRollbackHandler;
 import org.apache.empire.db.exceptions.FieldIsReadOnlyException;
 import org.apache.empire.db.exceptions.FieldValueNotFetchedException;
 import org.apache.empire.db.expr.compare.DBCompareExpr;
