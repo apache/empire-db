@@ -97,7 +97,7 @@ public abstract class SampleRecord<T extends SampleTable> extends DBRecord {
         }
         else
         {   // read the current record
-            super.read(T, key, recordContext.getConnection());
+            super.read(key);
         }
         // set all fields
         List<FieldValueException> exptns = new ArrayList<FieldValueException>(0);

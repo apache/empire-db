@@ -38,7 +38,6 @@ import org.apache.empire.db.exceptions.FieldValueNotFetchedException;
 import org.apache.empire.db.expr.compare.DBCompareExpr;
 import org.apache.empire.exceptions.BeanPropertyGetException;
 import org.apache.empire.exceptions.InvalidArgumentException;
-import org.apache.empire.exceptions.MiscellaneousErrorException;
 import org.apache.empire.exceptions.NotSupportedException;
 import org.apache.empire.exceptions.ObjectNotValidException;
 import org.apache.empire.xml.XMLUtil;
@@ -994,10 +993,12 @@ public class DBRecord extends DBRecordData implements DBContextAware, Record, Cl
     
     /**
      * Reads a record from the database
+     * Hint: variable args param (Object...) caused problems with migration
      * @param key an array of the primary key values
      */
-    public void read(Object... key)
-    {    
+    public void read(Object[] key)
+    {   
+        /*
         // temporarily check for rowset as first parameter
         // invalid due to conversion from old Api where Rowset was first param
         if (key[0] instanceof DBRowSet)
@@ -1008,10 +1009,20 @@ public class DBRecord extends DBRecordData implements DBContextAware, Record, Cl
         for (int i=0; i<key.length; i++)
             if (key[i] instanceof Connection)
                 throw new MiscellaneousErrorException("Version 3 Migration Error: DBRecord.read() invalid key!");
+        */        
         // read
         rowset.readRecord(this, key);
         // remove rollback
         context.removeRollbackHandler(this);
+    }
+
+    /**
+     * Reads a record from the database
+     * @param id the record id value
+     */
+    public final void read(long id)
+    {
+        read(new Object[] {id});
     }
     
     /**

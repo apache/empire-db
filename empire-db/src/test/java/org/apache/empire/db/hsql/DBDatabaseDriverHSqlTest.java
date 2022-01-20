@@ -92,7 +92,7 @@ public class DBDatabaseDriverHSqlTest{
         emp.update();
         
         emp = new DBRecord(context, db.EMPLOYEE);
-        emp.read(db.EMPLOYEE, id, conn);
+        emp.read(id);
         
         assertEquals("123456", emp.getString(db.EMPLOYEE.PHONE_NUMBER));
         
@@ -123,7 +123,7 @@ public class DBDatabaseDriverHSqlTest{
         data.setValue(db.DATA.VALUE, "test");
         data.update();
         
-        final Object id = data.getLong(db.DATA.ID);
+        final long id = data.getLong(db.DATA.ID);
         
         DBRecord read = new DBRecord(context, db.DATA);
         read.read(id);

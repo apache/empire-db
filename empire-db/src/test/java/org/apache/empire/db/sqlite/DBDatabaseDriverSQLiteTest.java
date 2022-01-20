@@ -124,7 +124,7 @@ public class DBDatabaseDriverSQLiteTest{
         data.setValue(db.DATA.VALUE, "test");
         data.update();
         
-        final Object id = data.getLong(db.DATA.ID);
+        final long id = data.getLong(db.DATA.ID);
         
         DBRecord read = new DBRecord(context, db.DATA);
         read.read(id);
