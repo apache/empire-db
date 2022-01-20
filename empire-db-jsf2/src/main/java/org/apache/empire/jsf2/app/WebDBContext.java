@@ -1,15 +1,12 @@
 package org.apache.empire.jsf2.app;
 
 import java.sql.Connection;
-import java.sql.SQLException;
 
 import javax.faces.context.FacesContext;
 
 import org.apache.empire.db.DBDatabase;
 import org.apache.empire.db.DBDatabaseDriver;
 import org.apache.empire.db.context.DBContextBase;
-import org.apache.empire.db.exceptions.EmpireSQLException;
-import org.apache.empire.exceptions.InvalidArgumentException;
 import org.apache.empire.exceptions.NotSupportedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -73,16 +70,16 @@ public class WebDBContext<DB extends DBDatabase> extends DBContextBase
         if (conn!=null)
             super.commit();
         else
-            log.warn("No Connection to commmit");
+            log.info("No Connection to commmit changes");
     }
 
     @Override
-    public synchronized void rollback()
+    public void rollback()
     {
         if (conn!=null)
-            super.commit();
+            super.rollback();
         else
-            log.warn("No Connection to rollbakc");
+            log.info("No Connection to rollback changes");
     }
     
     public synchronized void releaseConnection(boolean commitPerformed)

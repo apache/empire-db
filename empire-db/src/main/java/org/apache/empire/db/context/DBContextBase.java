@@ -105,6 +105,9 @@ public abstract class DBContextBase implements DBContext
         discardAllHandlers();
     }
     
+    /**
+     * Discards all rollback handlers
+     */
     protected void discardAllHandlers()
     {   // rollback
         if (rollbackHandler==null)
@@ -114,6 +117,9 @@ public abstract class DBContextBase implements DBContext
         rollbackHandler=null;
     }
     
+    /**
+     * Performs rollback on all rollback handlers
+     */
     protected void rollbackAllHandlers()
     {   // rollback
         if (rollbackHandler==null)
