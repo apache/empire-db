@@ -215,6 +215,20 @@ public abstract class DBRowSet extends DBExpr
         }
         return false;
     }
+    
+    /**
+     * Compares the rowset to another one
+     * @param otherObject
+     * @return true if it is the same rowset (but maybe a different instance)
+     */
+    public boolean isSame(DBRowSet other)
+    {
+        // record
+        if (!getDatabase().equals(other.getDatabase()))
+            return false;
+        // compare names
+        return StringUtils.compareEqual(getName(), other.getName(), true);
+    }
 
     // ------- Abstract Methods -------
     

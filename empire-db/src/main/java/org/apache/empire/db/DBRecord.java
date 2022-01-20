@@ -38,6 +38,7 @@ import org.apache.empire.db.exceptions.FieldValueNotFetchedException;
 import org.apache.empire.db.expr.compare.DBCompareExpr;
 import org.apache.empire.exceptions.BeanPropertyGetException;
 import org.apache.empire.exceptions.InvalidArgumentException;
+import org.apache.empire.exceptions.MiscellaneousErrorException;
 import org.apache.empire.exceptions.NotSupportedException;
 import org.apache.empire.exceptions.ObjectNotValidException;
 import org.apache.empire.xml.XMLUtil;
@@ -200,6 +201,7 @@ public class DBRecord extends DBRecordData implements DBContextAware, Record, Cl
     
     protected static final Logger log    = LoggerFactory.getLogger(DBRecord.class);
 
+    // the context
     protected final DBContext context;
     protected final DBRowSet  rowset;
     
@@ -995,12 +997,17 @@ public class DBRecord extends DBRecordData implements DBContextAware, Record, Cl
      * @param key an array of the primary key values
      */
     public void read(Object... key)
-    {
+    {    
+        // temporarily check for rowset as first parameter
+        // invalid due to conversion from old Api where Rowset was first param
+        if (key[0] instanceof DBRowSet)
+            throw new MiscellaneousErrorException("Version 3 Migration Error: DBRecord.read() invalid key!");
+        
         // temporarily check for connection
         // invalid due to conversion from old Api where Connection was the last param
         for (int i=0; i<key.length; i++)
             if (key[i] instanceof Connection)
-                throw new InvalidArgumentException("key", key);
+                throw new MiscellaneousErrorException("Version 3 Migration Error: DBRecord.read() invalid key!");
         // read
         rowset.readRecord(this, key);
         // remove rollback
@@ -1309,6 +1316,24 @@ public class DBRecord extends DBRecordData implements DBContextAware, Record, Cl
     public final int setRecordValues(Object bean)
     {
         return setRecordValues(bean, null);
+    }
+
+    /**
+     * Compares the record to another one
+     * @param otherObject
+     * @return true if it is the same record (but maybe a different instance)
+     */
+    public boolean isSame(DBRecord other)
+    {   // check valid
+        if (!isValid() || !other.isValid())
+            return false;
+        // compare table
+        if (!rowset.isSame(other.getRowSet()))
+            return false;
+        // compare key
+        Object[] key1 = getKeyValues();
+        Object[] key2 = other.getKeyValues();
+        return ObjectUtils.compareEqual(key1, key2);
     }
     
     /**

@@ -28,10 +28,10 @@ public class DBUtils implements DBContextAware
     
     // Threshold for long running queries in milliseconds
     protected long longRunndingStmtThreshold = 30000;
-    
-    private final DBContext context;
-
-    private final DBDatabaseDriver driver;
+    // the context
+    protected final DBContext context;
+    // the driver
+    protected final DBDatabaseDriver driver;
     
     /**
      * Constructs an empty DBRecordSet object.
@@ -52,6 +52,16 @@ public class DBUtils implements DBContextAware
     public <T extends DBContext> T  getContext()
     {
         return ((T)context);
+    }
+    
+    /**
+     * Creates a new Command object for the given database
+     * 
+     * @return the command object.
+     */
+    public final DBCommand createCommand(DBDatabase db)
+    {
+        return driver.createCommand(db);
     }
     
     /*

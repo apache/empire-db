@@ -242,8 +242,9 @@ public class DBReader extends DBRecordData implements DBContextAware
      * Support for finding code errors where a DBRecordSet is opened but not closed
      */
     private static ThreadLocal<Map<DBReader, Exception>> threadLocalOpenResultSets = new ThreadLocal<Map<DBReader, Exception>>();
-    
-    private final DBContext context;
+
+    // the context
+    protected final DBContext context;
     
     // Object references
     private DBDatabase     db      = null;

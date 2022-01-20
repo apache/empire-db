@@ -112,7 +112,8 @@ public class DBSQLScript implements DBContextAware, Iterable<String>
 
     protected ArrayList<SQLStmt> sqlStmtList      = new ArrayList<SQLStmt>();
     
-    private final DBContext context;
+    // the context
+    protected final DBContext context;
 
     public DBSQLScript(DBContext context)
     {

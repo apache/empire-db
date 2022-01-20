@@ -821,7 +821,7 @@ public abstract class DBDatabase extends DBObject
      * 
      * @return the command object.
      */
-    public DBCommand createCommand()
+    public final DBCommand createCommand()
     {
         checkOpen(); 
         return driver.createCommand(this);
