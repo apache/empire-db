@@ -6,12 +6,21 @@ package org.apache.empire.db.context;
 import java.sql.Connection;
 
 import org.apache.empire.db.DBDatabaseDriver;
+import org.apache.empire.db.context.DBRollbackManager.ReleaseAction;
 
 public class DBContextStatic extends DBContextBase
 {
     private final DBDatabaseDriver driver;
     private final Connection conn;
     private final boolean closeOnDiscard;
+    
+    /**
+     *  Global DBRollbackManager
+     *  
+     *  initialConnectionCapacity = 2
+     *  initialObjectCapacity = 16
+     */
+    private static final DBRollbackManager staticRollbackManager = new DBRollbackManager(2, 16);
     
     public DBContextStatic(DBDatabaseDriver driver, Connection conn, boolean closeOnDiscard)
     {
@@ -30,19 +39,28 @@ public class DBContextStatic extends DBContextBase
     {
         return driver;
     }
-
-    @Override
-    public Connection getConnection()
-    {
-        return conn;
-    }
     
     @Override
     public void discard()
     {
         super.discard();
         // close
-        if (closeOnDiscard)
+        if (closeOnDiscard) 
+        {   // Close the connection
             closeConnection();
+            staticRollbackManager.releaseConnection(conn, ReleaseAction.Discard);
+        }
+    }
+
+    @Override
+    protected Connection getConnection(boolean create)
+    {
+        return conn;
+    }
+
+    @Override
+    protected DBRollbackManager getRollbackManager(boolean create)
+    {
+        return staticRollbackManager;
     }
 }

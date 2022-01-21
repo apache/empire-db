@@ -18,8 +18,10 @@
  */
 package org.apache.empire.jsf2.websample.web.pages;
 
+import org.apache.empire.exceptions.MiscellaneousErrorException;
 import org.apache.empire.jsf2.pageelements.RecordPageElement;
 import org.apache.empire.jsf2.pages.PageOutcome;
+import org.apache.empire.jsf2.websample.db.SampleDB;
 import org.apache.empire.jsf2.websample.db.records.EmployeeRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -101,11 +103,12 @@ public class EmployeeDetailPage extends SamplePage
 
         getEmployeeRecord().update();
         
-        /* test transaction  
+        getEmployeeRecord().getContext().getConnection();
+        
+        /* test transaction */  
         SampleDB db = this.getDatabase();
         if (getEmployeeRecord().isNull(db.T_EMPLOYEES.PHONE_NUMBER))
             throw new MiscellaneousErrorException("Phone number must not be empty!");
-        */
         
         return getParentOutcome(true);
     }

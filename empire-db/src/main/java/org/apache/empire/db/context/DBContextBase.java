@@ -5,12 +5,11 @@ package org.apache.empire.db.context;
 
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.util.LinkedHashMap;
-import java.util.Map;
 
 import org.apache.empire.db.DBContext;
 import org.apache.empire.db.DBObject;
 import org.apache.empire.db.DBUtils;
+import org.apache.empire.db.context.DBRollbackManager.ReleaseAction;
 import org.apache.empire.db.exceptions.EmpireSQLException;
 import org.apache.empire.exceptions.InvalidArgumentException;
 import org.slf4j.Logger;
@@ -26,9 +25,18 @@ public abstract class DBContextBase implements DBContext
     // Logger
     private static final Logger log = LoggerFactory.getLogger(DBContextBase.class);
     
-    private Map<DBObject, DBRollbackHandler> rollbackHandler;
-    
     private DBUtils utils = null;
+    
+    private boolean noRollbacksWarnOnce = true;
+    
+    /**
+     * Factory function for Utils creation 
+     * @return the utils implementation
+     */
+    protected DBUtils createUtils()
+    {
+        return new DBUtils(this);
+    }
 
     @SuppressWarnings("unchecked")
     @Override
@@ -38,20 +46,34 @@ public abstract class DBContextBase implements DBContext
             utils = createUtils();
         return ((T)utils);
     }
+
+    protected abstract Connection getConnection(boolean required);
+
+    protected abstract DBRollbackManager getRollbackManager(boolean required);
+
+    @Override
+    public Connection getConnection()
+    {
+        return getConnection(true);
+    }
     
     @Override
     public void commit()
     {
         try
         {   // Check argument
-            Connection conn = getConnection();
+            Connection conn = getConnection(false);
             if (conn==null)
-                throw new InvalidArgumentException("conn", conn);
+            {   log.info("No Connection to commmit changes");
+                return; // Nothing to do
+            }
             // Commit
             if (conn.getAutoCommit()==false)
                 conn.commit();
             // discard rollbacks
-            discardAllHandlers();
+            DBRollbackManager dbrm = getRollbackManager(false);
+            if (dbrm!=null)
+                dbrm.releaseConnection(conn, ReleaseAction.Discard);
             // Done
             return;
         } catch (SQLException sqle) { 
@@ -72,14 +94,18 @@ public abstract class DBContextBase implements DBContext
     {
         try
         {   // Check argument
-            Connection conn = getConnection();
+            Connection conn = getConnection(false);
             if (conn==null)
-                throw new InvalidArgumentException("conn", conn);
+            {   log.info("No Connection to rollback changes");
+                return; // Nothing to do
+            }
             // rollback
             log.info("Database rollback issued!");
             conn.rollback();
-            // rollback
-            rollbackAllHandlers();
+            // perform Rollback
+            DBRollbackManager dbrm = getRollbackManager(false);
+            if (dbrm!=null)
+                dbrm.releaseConnection(conn, ReleaseAction.Rollback);
             // Done
             return;
         } catch (SQLException sqle) { 
@@ -91,23 +117,27 @@ public abstract class DBContextBase implements DBContext
     @Override
     public void addRollbackHandler(DBRollbackHandler handler)
     {
-        if (rollbackHandler==null)
-            rollbackHandler = new LinkedHashMap<DBObject, DBRollbackHandler>();
-        // check
-        DBObject object = handler.getObject();
-        if (rollbackHandler.containsKey(object))
-            rollbackHandler.get(object).combine(handler);
-        else
-            rollbackHandler.put(object, handler);
+        if (handler==null || handler.getObject()==null)
+            throw new InvalidArgumentException("handler", handler);
+        // Add handler
+        DBRollbackManager dbrm = getRollbackManager(true);
+        if (dbrm!=null)
+            dbrm.addHandler(getConnection(true), handler);
+        else if (noRollbacksWarnOnce)
+        {   log.warn("*** No DBRollbackManager provided. Rollbacks will be disabled! ***");
+            noRollbacksWarnOnce = false;
+        }
     }
     
     @Override
     public void removeRollbackHandler(DBObject object)
     {
         if (object==null)
-            rollbackHandler=null;   // remove all
-        else if (rollbackHandler!=null && rollbackHandler.remove(object)!=null)
-            log.info("Rollback handler for object {} was removed", object.getClass().getSimpleName());
+            throw new InvalidArgumentException("object", object);
+        // Remove handler
+        DBRollbackManager dbrm = getRollbackManager(false);
+        if (dbrm!=null)
+            dbrm.removeHandler(getConnection(false), object);
     }
 
     /**
@@ -118,48 +148,13 @@ public abstract class DBContextBase implements DBContext
     public void discard()
     {
         /* don't close connection! */
-        discardAllHandlers();
-    }
-    
-    /**
-     * Discards all rollback handlers
-     */
-    protected void discardAllHandlers()
-    {   // rollback
-        if (rollbackHandler==null)
-            return;
-        for (DBRollbackHandler handler : rollbackHandler.values())
-            handler.discard();
-        rollbackHandler=null;
-    }
-    
-    /**
-     * Performs rollback on all rollback handlers
-     */
-    protected void rollbackAllHandlers()
-    {   // rollback
-        if (rollbackHandler==null)
-            return;
-        for (DBRollbackHandler handler : rollbackHandler.values())
-            handler.rollback();
-        rollbackHandler=null;
-    }
-
-    /**
-     * Factory function for Utils creation 
-     * @return the utils implementation
-     */
-    protected DBUtils createUtils()
-    {
-        return new DBUtils(this);
     }
     
     /**
      * helper to close a connection on discard
      */
     protected void closeConnection()
-    {
-        try
+    {   try
         {   // close connection
             Connection conn = getConnection();
             conn.close();

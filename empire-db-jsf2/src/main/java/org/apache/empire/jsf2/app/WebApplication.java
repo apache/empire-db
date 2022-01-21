@@ -20,10 +20,8 @@ package org.apache.empire.jsf2.app;
 
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.ResourceBundle;
@@ -44,6 +42,8 @@ import javax.sql.DataSource;
 import org.apache.empire.commons.StringUtils;
 import org.apache.empire.data.DataType;
 import org.apache.empire.db.DBDatabase;
+import org.apache.empire.db.context.DBRollbackManager;
+import org.apache.empire.db.context.DBRollbackManager.ReleaseAction;
 import org.apache.empire.exceptions.InternalException;
 import org.apache.empire.exceptions.InvalidArgumentException;
 import org.apache.empire.exceptions.NotSupportedException;
@@ -59,7 +59,9 @@ public abstract class WebApplication
 {
     private static final Logger log                   = LoggerFactory.getLogger(WebApplication.class);
     
-    private static final String CONNECTION_CONTEXT_INFO_MAP = "CONNECTION_CONTEXT_INFO_MAP";
+    private static final String REQUEST_CONNECTION_MAP = "requestConnectionMap";
+
+    private static final String CONN_ROLLBACK_MANAGER = "connRollbackManager";
     
     public static String        APPLICATION_BEAN_NAME = "webApplication";
 
@@ -455,55 +457,48 @@ public abstract class WebApplication
         }
     }
 
-    /**
-     * Internally used to manage Connections and Contexts
-     */
-    private static class ConnectionContextInfo
+    public DBRollbackManager getRollbackManagerForRequest(FacesContext fc, boolean create)
     {
-        ConnectionContextInfo(Connection conn, WebDBContext<? extends DBDatabase> ctx)
-        {
-            this.connection = conn;
-            ctxList.add(ctx);
+        DBRollbackManager dbrm = (DBRollbackManager)FacesUtils.getRequestAttribute(fc, CONN_ROLLBACK_MANAGER);
+        if (dbrm==null && create)
+        {   dbrm = new DBRollbackManager(1, 8);
+            FacesUtils.setRequestAttribute(fc, CONN_ROLLBACK_MANAGER, dbrm);
         }
-        public Connection connection;
-        public final List<WebDBContext<? extends DBDatabase>> ctxList = new ArrayList<WebDBContext<? extends DBDatabase>>(1);
+        return dbrm;
     }
-
+    
     /**
      * Obtains a connection for the current request
      * A WebDBContext must be provided which must store the connection util releaseConnection is called
      */
-    public Connection getConnectionForRequest(FacesContext fc, WebDBContext<? extends DBDatabase> context)
+    public Connection getConnectionForRequest(FacesContext fc, DBDatabase db, boolean create)
     {
         if (fc == null)
             throw new InvalidArgumentException("FacesContext", fc);
-        if (context == null)
-            throw new InvalidArgumentException("WebDBContext", context);
+        if (db == null)
+            throw new InvalidArgumentException("DBDatabase", db);
         // Get the ConnectionContextInfo map
         @SuppressWarnings("unchecked")
-        Map<DBDatabase, ConnectionContextInfo> cciMap = (Map<DBDatabase, ConnectionContextInfo>) FacesUtils.getRequestAttribute(fc, CONNECTION_CONTEXT_INFO_MAP);
-        if (cciMap== null)
-        {   cciMap = new HashMap<DBDatabase, ConnectionContextInfo>();
-            FacesUtils.setRequestAttribute(fc, CONNECTION_CONTEXT_INFO_MAP, cciMap);
+        Map<DBDatabase, Connection> connMap = (Map<DBDatabase, Connection>) FacesUtils.getRequestAttribute(fc, REQUEST_CONNECTION_MAP);
+        if (connMap== null && create)
+        {   connMap = new HashMap<DBDatabase, Connection>(1);
+            FacesUtils.setRequestAttribute(fc, REQUEST_CONNECTION_MAP, connMap);
         }
-        DBDatabase db = context.getDatabase();
-        ConnectionContextInfo cci = cciMap.get(db); 
-        if (cci==null)
+        else if (connMap==null)
+        {   // Nothing to do
+            return null; 
+        }
+        Connection conn = connMap.get(db); 
+        if (conn==null && create)
         {   // Get Pooled Connection
-            Connection conn = getConnection(db);
+            conn = getConnection(db);
             if (conn== null)
                 throw new UnexpectedReturnValueException(this, "getConnection"); 
             // Add to map
-            cci = new ConnectionContextInfo(conn, context);
-            cciMap.put(db, cci);
-        }
-        else
-        {   // add context
-            if (cci.ctxList.contains(context)==false)
-                cci.ctxList.add(context);
+            connMap.put(db, conn);
         }
         // done
-        return cci.connection;
+        return conn;
     }
 
     /**
@@ -514,20 +509,22 @@ public abstract class WebApplication
     public void releaseAllConnections(final FacesContext fc, boolean commit)
     {
         @SuppressWarnings("unchecked")
-        Map<DBDatabase, ConnectionContextInfo> cciMap = (Map<DBDatabase, ConnectionContextInfo>) FacesUtils.getRequestAttribute(fc, CONNECTION_CONTEXT_INFO_MAP);
-        if (cciMap != null)
-        {   // Walk the connection map
-            for (Map.Entry<DBDatabase, ConnectionContextInfo> e : cciMap.entrySet())
-            {
-                ConnectionContextInfo cci = e.getValue();
-                releaseConnection(e.getKey(), cci.connection, commit);
-                // release connection
-                for (WebDBContext<? extends DBDatabase> ctx : cci.ctxList)
-                    ctx.releaseConnection(commit);
-            }
-            // remove from request map
-            FacesUtils.setRequestAttribute(fc, CONNECTION_CONTEXT_INFO_MAP, null);
+        Map<DBDatabase, Connection> connMap = (Map<DBDatabase, Connection>) FacesUtils.getRequestAttribute(fc, REQUEST_CONNECTION_MAP);
+        if (connMap == null)
+            return; // Nothing to do
+        // Walk the connection map
+        DBRollbackManager dbrm = getRollbackManagerForRequest(fc, false);
+        ReleaseAction action = (commit ? ReleaseAction.Discard : ReleaseAction.Rollback);
+        for (Map.Entry<DBDatabase, Connection> e : connMap.entrySet())
+        {
+            Connection conn = e.getValue();
+            releaseConnection(e.getKey(), conn, commit);
+            // release connection
+            if (dbrm!=null)
+                dbrm.releaseConnection(conn, action);
         }
+        // remove from request map
+        FacesUtils.setRequestAttribute(fc, REQUEST_CONNECTION_MAP, null);
     }
 
     /**
@@ -549,19 +546,18 @@ public abstract class WebApplication
     public void releaseConnection(final FacesContext fc, DBDatabase db, boolean commit)
     {
         @SuppressWarnings("unchecked")
-        Map<DBDatabase, ConnectionContextInfo> cciMap = (Map<DBDatabase, ConnectionContextInfo>) FacesUtils.getRequestAttribute(fc, CONNECTION_CONTEXT_INFO_MAP);
-        if (cciMap != null && cciMap.containsKey(db))
-        {   
-            ConnectionContextInfo cci = cciMap.get(db);
-            releaseConnection(db, cci.connection, commit);
-            // release connection
-            for (WebDBContext<? extends DBDatabase> ctx : cci.ctxList)
-                ctx.releaseConnection(commit);
-            // Walk the connection map
-            cciMap.remove(db);
-            if (cciMap.isEmpty())
-                FacesUtils.setRequestAttribute(fc, CONNECTION_CONTEXT_INFO_MAP, null);
-        }
+        Map<DBDatabase, Connection> connMap = (Map<DBDatabase, Connection>) FacesUtils.getRequestAttribute(fc, REQUEST_CONNECTION_MAP);
+        if (connMap == null || !connMap.containsKey(db))
+            return; // Nothing to do;
+        // Release Connection   
+        Connection conn = connMap.get(db);
+        releaseConnection(db, conn, commit);
+        // release connection
+        DBRollbackManager dbrm = getRollbackManagerForRequest(fc, false);
+        if (dbrm!=null)
+            dbrm.releaseConnection(conn, (commit ? ReleaseAction.Discard : ReleaseAction.Rollback));
+        // Remove from map
+        connMap.remove(db);
     }
 
     /**

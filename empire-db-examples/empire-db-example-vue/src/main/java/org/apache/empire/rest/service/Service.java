@@ -31,6 +31,7 @@ import javax.ws.rs.core.Response;
 
 import org.apache.empire.db.DBDatabaseDriver;
 import org.apache.empire.db.context.DBContextBase;
+import org.apache.empire.db.context.DBRollbackManager;
 import org.apache.empire.exceptions.EmpireException;
 import org.apache.empire.rest.app.SampleServiceApp;
 import org.apache.empire.rest.app.TextResolver;
@@ -90,15 +91,21 @@ public abstract class Service {
         }
 
         @Override
-        public Connection getConnection()
+        public TextResolver getTextResolver()
+        {
+            return textResolver;
+        }
+
+        @Override
+        protected Connection getConnection(boolean required)
         {
             return conn;
         }
 
         @Override
-        public TextResolver getTextResolver()
+        protected DBRollbackManager getRollbackManager(boolean required)
         {
-            return textResolver;
+            return null; /* No Rollbacks allowed */
         }
     }
     

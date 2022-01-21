@@ -7,6 +7,7 @@ import javax.faces.context.FacesContext;
 import org.apache.empire.db.DBDatabase;
 import org.apache.empire.db.DBDatabaseDriver;
 import org.apache.empire.db.context.DBContextBase;
+import org.apache.empire.db.context.DBRollbackManager;
 import org.apache.empire.exceptions.NotSupportedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,17 +22,16 @@ import org.slf4j.LoggerFactory;
  */
 public class WebDBContext<DB extends DBDatabase> extends DBContextBase
 {
-    private static final Logger  log  = LoggerFactory.getLogger(WebDBContext.class);
+    private static final Logger    log = LoggerFactory.getLogger(WebDBContext.class);
 
-    private final WebApplication app;
-    private final DB             database;
-
-    // Held for request only
-    private Connection           conn;
+    private final WebApplication   app;
+    private final DBDatabaseDriver driver;
+    private final DB               database;
 
     public WebDBContext(WebApplication app, DB db)
     {
         this.app = app;
+        this.driver = db.getDriver();
         this.database = db;
         // check driver
         if (db.getDriver() == null)
@@ -46,50 +46,7 @@ public class WebDBContext<DB extends DBDatabase> extends DBContextBase
     @Override
     public DBDatabaseDriver getDriver()
     {
-        return database.getDriver();
-    }
-
-    /**
-     * gets a Connection for the current request
-     * IMPORTANT: Do not hold the connection!
-     */
-    @Override
-    public Connection getConnection()
-    {
-        if (conn==null)
-        {   // get a new connection
-            FacesContext fc = FacesContext.getCurrentInstance();
-            conn = this.app.getConnectionForRequest(fc, this);
-        }
-        return conn;
-    }
-
-    @Override
-    public void commit()
-    {
-        if (conn!=null)
-            super.commit();
-        else
-            log.info("No Connection to commmit changes");
-    }
-
-    @Override
-    public void rollback()
-    {
-        if (conn!=null)
-            super.rollback();
-        else
-            log.info("No Connection to rollback changes");
-    }
-    
-    public void releaseConnection(boolean commitPerformed)
-    {
-        this.conn = null;
-        // commit or rollback?
-        if (commitPerformed)
-            discardAllHandlers();
-        else
-            rollbackAllHandlers();
+        return driver;
     }
 
     /**
@@ -107,4 +64,19 @@ public class WebDBContext<DB extends DBDatabase> extends DBContextBase
         */
         throw new NotSupportedException(this, "discard");
     }
+
+    @Override
+    protected Connection getConnection(boolean create)
+    {
+        FacesContext fc = FacesContext.getCurrentInstance();
+        return this.app.getConnectionForRequest(fc, database, create);
+    }
+
+    @Override
+    protected DBRollbackManager getRollbackManager(boolean create)
+    {
+        FacesContext fc = FacesContext.getCurrentInstance();
+        return this.app.getRollbackManagerForRequest(fc, create);
+    }
+    
 }
