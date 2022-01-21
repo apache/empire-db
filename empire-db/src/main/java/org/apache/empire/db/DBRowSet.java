@@ -764,9 +764,9 @@ public abstract class DBRowSet extends DBExpr
      * @param conn a valid JDBC connection.
      * @return true if the record exists or false otherwise
      */
-    public final boolean recordExists(Object id, Connection conn)
+    public final boolean recordExists(Object id, DBContext context)
     {
-        return recordExists(new Object[] { id }, conn); 
+        return recordExists(new Object[] { id }, context); 
     }
     
     /**
