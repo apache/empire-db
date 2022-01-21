@@ -937,7 +937,7 @@ public abstract class DBRowSet extends DBExpr
                 fields[i] = timestamp;
         }
         // Change State
-        rec.updateComplete(rec.getRowSetData());
+        rec.onUpdateComplete(rec.getRowSetData());        
     }
     
     /**

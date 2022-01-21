@@ -405,7 +405,7 @@ public class DBQuery extends DBRowSet
             // Read Record
             readRecord(rec, cmd);
             // Set RowSetData
-            rec.updateComplete(key.clone());
+            rec.onUpdateComplete(key.clone());
         } catch (QueryNoResultException e) {
             // Record not found
             throw new RecordNotFoundException(this, key);
@@ -588,7 +588,7 @@ public class DBQuery extends DBRowSet
             }
         }
         // success
-        rec.updateComplete(keys);
+        rec.onUpdateComplete(keys);
     }
 
     /**
