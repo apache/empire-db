@@ -400,7 +400,7 @@ public abstract class WebApplication
     }
 
     /**
-     * returns a connection from the connection pool
+     * Obtains a JDBC-Connection from the connection pool
      * 
      * @return
      */
@@ -422,7 +422,7 @@ public abstract class WebApplication
     }
 
     /**
-     * releases a connection from the connection pool
+     * Releases a JDBC-Connection from the connection pool
      */
     protected synchronized void releaseConnection(DBDatabase db, Connection conn, boolean commit)
     {
@@ -457,6 +457,11 @@ public abstract class WebApplication
         }
     }
 
+    /**
+     * Obtains a DBRollbackManager for the current request
+     * @param fc the FacesContext
+     * @param create if true a DBRollbackManager will be created if not already present
+     */
     public DBRollbackManager getRollbackManagerForRequest(FacesContext fc, boolean create)
     {
         DBRollbackManager dbrm = (DBRollbackManager)FacesUtils.getRequestAttribute(fc, CONN_ROLLBACK_MANAGER);
@@ -468,8 +473,10 @@ public abstract class WebApplication
     }
     
     /**
-     * Obtains a connection for the current request
-     * A WebDBContext must be provided which must store the connection util releaseConnection is called
+     * Obtains a JDBC-Connection for the current request
+     * @param fc the FacesContext
+     * @param db the DBDatabase for which to obtain a connection
+     * @param create if true a Connection will be created if not already present
      */
     public Connection getConnectionForRequest(FacesContext fc, DBDatabase db, boolean create)
     {
@@ -540,7 +547,7 @@ public abstract class WebApplication
     /**
      * Releases the connection associated with a database from the request
      * @param fc the FacesContext
-     * @param db the DBDatabase
+     * @param db the DBDatabase for which to release the connection
      * @param commit when true changes are committed otherwise they are rolled back
      */
     public void releaseConnection(final FacesContext fc, DBDatabase db, boolean commit)
@@ -564,7 +571,7 @@ public abstract class WebApplication
      * Releases the connection associated with a database from the request
      * If an error is detected in the faces message list, a rollback will automatically be performed insteamd of a commmit
      * @param fc the FacesContext
-     * @param db the DBDatabase
+     * @param db the DBDatabase for which to release the connection
      */
     public void releaseConnection(final FacesContext fc, DBDatabase db)
     {
