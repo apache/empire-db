@@ -132,12 +132,14 @@ public class SampleApp
 			int idEmp2 = insertEmployee("Fred", "Bloggs", Gender.M, idDevDep);
 			int idEmp3 = insertEmployee("Emma", "White",  Gender.F, idSalDep);
 
-            // commit
+			// commit
 			context.commit();
 			
+			/*
             int idEmp = testTransactionCreate(idDevDep);
             testTransactionUpdate(idEmp);
             testTransactionDelete(idEmp);
+            */
 
 			// STEP 7: Update Records (by setting the phone Number)
 			System.out.println("*** Step 7: updateEmployee() ***");
@@ -355,9 +357,11 @@ public class SampleApp
      */
     private static void updatePartialRecord(int idEmp, String phoneNumber)
     {
-        // Update an Employee
-        DBRecord rec = new DBRecord(context, db.EMPLOYEES);
-        db.EMPLOYEES.readRecord(rec, DBRecord.key(idEmp), PartialMode.INCLUDE, db.EMPLOYEES.PHONE_NUMBER);
+        SampleDB.Employees E = db.EMPLOYEES;
+        // Update an Employee with partial record
+        // this will only load the EMPLOYEE_ID and the PHONE_NUMBER
+        DBRecord rec = new DBRecord(context, E);
+        E.readRecord(rec, DBRecord.key(idEmp), PartialMode.INCLUDE, E.PHONE_NUMBER);
         // Set
         rec.setValue(db.EMPLOYEES.PHONE_NUMBER, phoneNumber);
         rec.update();
@@ -372,14 +376,15 @@ public class SampleApp
     {
         SampleDB.Employees E = db.EMPLOYEES;
         SampleDB.Departments D = db.DEPARTMENTS;
-        
+
+        // Create DBQuery from command
         DBCommand cmd = db.createCommand();
         cmd.select(E.getColumns());
         cmd.select(D.getColumns());
         cmd.join(E.DEPARTMENT_ID, D.DEPARTMENT_ID);
+        DBQuery query = new DBQuery(cmd, E.EMPLOYEE_ID);
 
         // Make employee Head of Department and update salary
-        DBQuery query = new DBQuery(cmd, E.EMPLOYEE_ID);
         DBRecord rec = new DBRecord(context, query);
         rec.read(idEmp);
         rec.setValue(E.SALARY, salary);

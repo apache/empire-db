@@ -71,6 +71,12 @@ public interface Record extends RecordData
      * @return the array of key columns if any
      */
     Column[] getKeyColumns();    
+    
+    /**
+     * returns an array of key values which uniquely identify the record.
+     * @return the key value array
+     */
+    Object[] getKey();    
 
     /**
      * returns true if the field is visible to the client.

@@ -56,6 +56,8 @@ public class DBRecord extends DBRecordData implements DBContextAware, Record, Cl
 {
     private final static long serialVersionUID = 1L;
     
+    private static final Logger log  = LoggerFactory.getLogger(DBRecord.class);
+    
     /**
      * DBRecordRollbackHandler
      * @author doebele
@@ -70,7 +72,7 @@ public class DBRecord extends DBRecordData implements DBContextAware, Record, Cl
         private final State     state;  /* the original state */
         private Object[]        fields;
         private boolean[]       modified;
-        private Object          rowSetData;
+        private Object          rowsetData;
         
         public DBRecordRollbackHandler(DBRecord record)
         {
@@ -82,7 +84,7 @@ public class DBRecord extends DBRecordData implements DBContextAware, Record, Cl
             this.state = record.state;            
             this.modified = copy(record.modified);
             this.fields   = copy(record.fields);
-            this.rowSetData = record.rowSetData;
+            this.rowsetData = record.rowsetData;
         }
 
         @Override
@@ -98,7 +100,7 @@ public class DBRecord extends DBRecordData implements DBContextAware, Record, Cl
                 throw new InvalidArgumentException("successor", successor);
             // combine now
             DBRecordRollbackHandler s = (DBRecordRollbackHandler)successor;
-            log.info("combining rollback state for record {}/{}", record.getRowSet().getName(), StringUtils.arrayToString(record.getKeyValues(), "|"));
+            log.info("combining rollback state for record {}/{}", record.getRowSet().getName(), StringUtils.arrayToString(record.getKey(), "|"));
             if (s.modified==null)
             {
                 return; // not modified!
@@ -126,9 +128,9 @@ public class DBRecord extends DBRecordData implements DBContextAware, Record, Cl
             record.state = this.state;
             record.fields = this.fields;
             record.modified = this.modified;
-            record.rowSetData = rowSetData;
+            record.rowsetData = rowsetData;
             // done
-            log.info("Rollback for record {}[{}] performed", record.getRowSet().getName(), StringUtils.arrayToString(record.getKeyValues(), "|"));
+            log.info("Rollback for record {}[{}] performed", record.getRowSet().getName(), StringUtils.arrayToString(record.getKey(), "|"));
         }
 
         @Override
@@ -191,8 +193,6 @@ public class DBRecord extends DBRecordData implements DBContextAware, Record, Cl
     {
         return parts;
     }
-    
-    protected static final Logger log    = LoggerFactory.getLogger(DBRecord.class);
 
     // the context
     protected final DBContext context;
@@ -203,34 +203,16 @@ public class DBRecord extends DBRecordData implements DBContextAware, Record, Cl
     private Object[]        fields;
     private boolean[]       modified;
     // Special Rowset Data (usually null)
-    private Object          rowSetData;
+    private Object          rowsetData;
 
     // options
     private boolean         validateFieldValues;
     
     /**
-     * Create a new DBRecord object.<BR>
-     * The record is not attached to a RowSet and the record's state is initially set to REC_INVALID.
-     * 
-     * Please derive your own Objects from this class.   
-    protected DBRecord()
-    {
-        state = State.Invalid;
-        rowset = null;
-        fields = null;
-        modified = null;
-        rowSetData = null;
-        validateFieldValues = true;
-    }
-
-    protected DBRecord(DBRowSet initialRowset)
-    {
-    	this();
-    	// allow initial rowset
-    	rowset = initialRowset;
-    }
+     * Constructs a new DBRecord.<BR>
+     * @param context the DBContext for this record
+     * @param rowset the corresponding RowSet(Table, View, Query, etc.)
      */
-    
     public DBRecord(DBContext context, DBRowSet rowset)
     {
         // Check params
@@ -242,66 +224,8 @@ public class DBRecord extends DBRecordData implements DBContextAware, Record, Cl
         this.state = State.Invalid;
         this.fields = null;
         this.modified = null;
-        this.rowSetData = null;
+        this.rowsetData = null;
         this.validateFieldValues = true;
-    }
-    
-    /**
-     * This method is used internally by the RowSet to initialize the record's properties
-     * @param rowset the rowset to which to attach this record
-     * @param rowSetData any further RowSet specific data
-     * @param newRecord
-     */
-    protected void initData(Object rowSetData, boolean newRecord)
-    {
-        // Init rowset
-        int colCount = rowset.getColumns().size();
-        if (fields==null || fields.length!=colCount)
-            fields = new Object[colCount];
-        else
-        {   // clear fields
-            for (int i=0; i<fields.length; i++)
-                if (fields[i]!=ObjectUtils.NO_VALUE)
-                    fields[i]=null;
-        }
-        // Set State
-        this.rowSetData = rowSetData;
-        this.modified = null;
-        changeState((rowset==null ? State.Invalid : (newRecord ? State.New : State.Valid)));
-    }
-    
-    /**
-     * This method is used internally to indicate that the record update has completed<BR>
-     * This will set change the record's state to Valid
-     * @param rowSetData additional data held by the rowset for this record (optional)
-     */
-    protected void updateComplete(Object rowSetData)
-    {
-        // change rowSetData
-        if (rowSetData!=ObjectUtils.NO_VALUE)
-            this.rowSetData = rowSetData;
-        // Change state
-        this.modified = null;
-        changeState(State.Valid);
-    }
-    
-    /**
-     * changes the state of the record
-     * @param newState
-     */
-    protected void changeState(State newState)
-    {
-    	this.state = newState;
-    }
-    
-    /**
-     * This function provides direct access to the record fields.<BR>
-     * This method is used internally be the RowSet to fill the data.<BR>
-     * @return an array of field values
-     */
-    protected Object[] getFields()
-    {
-        return fields;
     }
 
     /**
@@ -313,7 +237,7 @@ public class DBRecord extends DBRecordData implements DBContextAware, Record, Cl
         // clear fields
         fields = null;
         modified = null;
-        rowSetData = null;
+        rowsetData = null;
         // change state
         if (state!=State.Invalid)
             changeState(State.Invalid);
@@ -335,7 +259,7 @@ public class DBRecord extends DBRecordData implements DBContextAware, Record, Cl
                 rec.fields = fields.clone();
             if (rec.modified == modified && modified!=null)
                 rec.modified = modified.clone();
-            rec.rowSetData = this.rowSetData;
+            rec.rowsetData = this.rowsetData;
             rec.validateFieldValues = this.validateFieldValues;
             return rec;
             
@@ -377,16 +301,6 @@ public class DBRecord extends DBRecordData implements DBContextAware, Record, Cl
     public <T extends DBRowSet> T getRowSet()
     {
         return (T)this.rowset;
-    }
-
-    /**
-     * Returns the DBRowSet object.
-     * 
-     * @return the DBRowSet object
-     */
-    public Object getRowSetData()
-    {
-        return rowSetData;
     }
 
     /**
@@ -536,28 +450,6 @@ public class DBRecord extends DBRecordData implements DBContextAware, Record, Cl
     }
     
     /**
-     * helper function to check if a given field index corresponds to one of the given columns
-     * @param index the field index
-     * @param column one or more columns to check
-     * @return true if the index is for one of the columns or false otherwise
-     */
-    protected boolean isColumn(int index, DBColumn... column)
-    {
-        if (index < 0 || index >= fields.length)
-            throw new InvalidArgumentException("index", index);
-        if (column==null)
-            throw new InvalidArgumentException("column", column);
-        Column col = getColumn(index);
-        for (int i=0; i<column.length; i++)
-        {   // compare
-            if (col==column[i])
-                return true;
-        }
-        // not found
-        return false; 
-    }
-    
-    /**
      * Returns true if the field was modified.
      * 
      * @param index the field index
@@ -602,48 +494,6 @@ public class DBRecord extends DBRecordData implements DBContextAware, Record, Cl
         return false;
     }
 
-    /**
-     * Sets the modified state of a column.<BR>
-	 * This will force the field to be updated in the database, if set to TRUE.
-	 * 
-     * @param column the column
-     * @param isModified modified or not
-     */
-    public void setModified(DBColumn column, boolean isModified)
-    {	// Check valid
-        if (state == State.Invalid)
-            throw new ObjectNotValidException(this);
-        // Check modified
-        if (modified == null)
-        { 	// Init array
-            modified = new boolean[fields.length];
-            for (int j = 0; j < fields.length; j++)
-                modified[j] = false;
-        }
-        int index = getFieldIndex(column);
-        if (index >= 0)
-            modified[index] = isModified;
-        // Set State to modified, if not already at least modified and isModified is set to true
-        if (state.isLess(State.Modified) && isModified)
-            changeState(State.Modified);
-        // Reset state to unmodified, if currently modified and not modified anymore after the change
-        if (state == State.Modified && !isModified)
-        {
-        	boolean recordNotModified = true;
-            for (int j = 0; j < fields.length; j++)
-            {
-                if (modified[j] == true)
-                {
-                	recordNotModified = false;
-                }
-            }
-            if (recordNotModified)
-            {
-            	changeState(State.Valid);
-            }
-        }
-    }
-
 	/**
      * returns an array of key columns which uniquely identify the record.
      * @return the array of key columns if any
@@ -658,6 +508,16 @@ public class DBRecord extends DBRecordData implements DBContextAware, Record, Cl
      * Returns the array of primary key columns.
      * @return the array of primary key columns
      */
+    public Object[] getKey()
+    {
+        return ((rowset != null) ? rowset.getRecordKey(this) : null);
+    }
+
+    /**
+     * Returns the array of primary key columns.
+     * @Deprecated use getKey() instead
+     */
+    @Deprecated
     public Object[] getKeyValues()
     {
         return ((rowset != null) ? rowset.getRecordKey(this) : null);
@@ -725,36 +585,6 @@ public class DBRecord extends DBRecordData implements DBContextAware, Record, Cl
     public final Options getFieldOptions(Column column)
     {
         return getFieldOptions((DBColumn)column); 
-    }
-
-    /**
-     * Modifies a column value bypassing all checks made by setValue.
-     * Use this to explicitly set invalid values i.e. for temporary storage.
-     * 
-     * @param index index of the column
-     * @param value the column value
-     */
-    protected void modifyValue(int index, Object value, boolean fireChangeEvent)
-    {	// Check valid
-        if (state == State.Invalid)
-            throw new ObjectNotValidException(this);
-        if (index < 0 || index >= fields.length)
-            throw new InvalidArgumentException("index", index);
-        // modified state array
-        if (modified == null)
-        {   modified = new boolean[fields.length];
-            for (int j = 0; j < fields.length; j++)
-                modified[j] = false;
-        }
-        // set value and modified
-        fields[index] = value;
-        modified[index] = true;
-        // set record state
-        if (state.isLess(State.Modified))
-            changeState(State.Modified);
-        // field changed event
-        if (fireChangeEvent)
-            onFieldChanged(index);
     }
     
     /**
@@ -846,24 +676,6 @@ public class DBRecord extends DBRecordData implements DBContextAware, Record, Cl
             throw new ObjectNotValidException(this);
         // Get Column Index
         setValue(getFieldIndex(column), value);
-    }
-    
-    /**
-     * Checks whether or not this field can be changed at all.
-     * Note: This is not equivalent to isFieldReadOnly() 
-     * @param column the column that needs to be changed
-     * @return true if it is possible to change this field for this record context
-     */
-    protected boolean allowFieldChange(DBColumn column)
-    {
-        // Check auto generated
-        if (column.isAutoGenerated() && (!isNew() || !isNull(column)))
-        	return false;
-        // Check key Column
-        if (!isNew() && rowset.isKeyColumn(column))
-        	return false;
-        // done
-        return true;
     }
 
     /**
@@ -971,17 +783,9 @@ public class DBRecord extends DBRecordData implements DBContextAware, Record, Cl
     /**
      * Creates a new record
      */
-    public void create(boolean deferredInit)
-    {
-        rowset.createRecord(this, deferredInit);
-    }
-
-    /**
-     * Creates a new record
-     */
     public void create()
     {
-        create(false);
+        rowset.createRecord(this, false);
     }
     
     /**
@@ -1051,15 +855,6 @@ public class DBRecord extends DBRecordData implements DBContextAware, Record, Cl
         }
         close();
     }
-    
-    /**
-     * Factory function to create  createRollbackHandler();
-     * @return the DBRollbackHandler
-     */
-    protected DBRollbackHandler createRollbackHandler()
-    {
-        return new DBRecordRollbackHandler(this);
-    }
 
     /**
      * This function set the field descriptions to the the XML tag.
@@ -1067,7 +862,7 @@ public class DBRecord extends DBRecordData implements DBContextAware, Record, Cl
      * @return the number of column descriptions added to the element
      */
     @Override
-    public int addColumnDesc(Element parent)
+    public int getXmlMeta(Element parent)
     {
         if (!isValid())
             throw new ObjectNotValidException(this);
@@ -1092,7 +887,7 @@ public class DBRecord extends DBRecordData implements DBContextAware, Record, Cl
      * @return the number of row values added to the element
      */
     @Override
-    public int addRowValues(Element parent)
+    public int getXmlData(Element parent)
     {
         if (!isValid())
             throw new ObjectNotValidException(this);
@@ -1136,15 +931,6 @@ public class DBRecord extends DBRecordData implements DBContextAware, Record, Cl
         }
         return count;
     }
-    
-    /**
-     * returns the DBXmlDictionary that should used to generate XMLDocuments<BR>
-     * @return the DBXmlDictionary
-     */
-    protected DBXmlDictionary getXmlDictionary()
-    {
-        return DBXmlDictionary.getInstance();
-    }
 
     /**
      * Returns a XML document with the field description an values of this record.
@@ -1162,76 +948,12 @@ public class DBRecord extends DBRecordData implements DBContextAware, Record, Cl
         if (rowset.getName() != null)
             root.setAttribute("name", rowset.getName());
         // Add Field Description
-        if (addColumnDesc(root)>0)
+        if (getXmlMeta(root)>0)
         {   // Add row Values
-            addRowValues(XMLUtil.addElement(root, xmlDic.getRowElementName()));
+            getXmlData(XMLUtil.addElement(root, xmlDic.getRowElementName()));
         }
         // return Document
         return root.getOwnerDocument();
-    }
-
-    /**
-     * Set the record default value for the fields with 
-     * the value {@link ObjectUtils#NO_VALUE}
-     * 
-     * @param conn the sql connection
-     *  
-     * @return the number of fields set to default
-     */
-    public int fillMissingDefaults(boolean allowConnect)
-    {
-        int count = 0;
-        Connection conn = (allowConnect ? context.getConnection() : null);
-        for (int i = 0; i < fields.length; i++)
-        {
-            if (fields[i] == ObjectUtils.NO_VALUE)
-            {
-                DBTableColumn col = (DBTableColumn) rowset.getColumn(i);
-                Object value = col.getRecordDefaultValue(conn);
-                if (value==null)
-                    continue;
-                // Modify value
-                modifyValue(i, value, true);
-                count++;
-            }
-        }
-        return count;
-    }
-    
-
-    /**
-     * set a record value from a particular bean property.
-     * <P>
-     * For a property called FOO this is equivalent of calling<BR>
-     *     setValue(column, bean.getFOO())
-     * <P>
-     * @param bean the Java Bean from which to read the value from
-     * @param property the name of the property
-     * @param column the column for which to set the record value
-     */
-    protected void setRecordValue(Column column, Object bean, String property)
-    {
-        if (StringUtils.isEmpty(property))
-            property = column.getBeanPropertyName();
-        try
-        {
-            // Get Property Value
-            PropertyUtilsBean pub = BeanUtilsBean.getInstance().getPropertyUtils();
-            Object value = pub.getSimpleProperty(bean, property);
-
-            // Now, set the record value
-            setValue( column, value ); 
-
-        } catch (IllegalAccessException e)
-        {   log.error(bean.getClass().getName() + ": unable to get property '" + property + "'");
-            throw new BeanPropertyGetException(bean, property, e);
-        } catch (InvocationTargetException e)
-        {   log.error(bean.getClass().getName() + ": unable to get property '" + property + "'");
-            throw new BeanPropertyGetException(bean, property, e);
-        } catch (NoSuchMethodException e)
-        {   log.warn(bean.getClass().getName() + ": no getter available for property '" + property + "'");
-            throw new BeanPropertyGetException(bean, property, e);
-        }
     }
     
     /**
@@ -1282,9 +1004,268 @@ public class DBRecord extends DBRecordData implements DBContextAware, Record, Cl
         if (!rowset.isSame(other.getRowSet()))
             return false;
         // compare key
-        Object[] key1 = getKeyValues();
-        Object[] key2 = other.getKeyValues();
+        Object[] key1 = getKey();
+        Object[] key2 = other.getKey();
         return ObjectUtils.compareEqual(key1, key2);
+    }
+
+    /**
+     * Returns the DBRowSet object.
+     * 
+     * @return the DBRowSet object
+     */
+    protected Object getRowSetData()
+    {
+        return rowsetData;
+    }
+    
+    /**
+     * This function provides direct access to the record fields.<BR>
+     * This method is used internally be the RowSet to fill the data.<BR>
+     * @return an array of field values
+     */
+    protected Object[] getFields()
+    {
+        return fields;
+    }
+    
+    /**
+     * returns the DBXmlDictionary that should used to generate XMLDocuments<BR>
+     * @return the DBXmlDictionary
+     */
+    protected DBXmlDictionary getXmlDictionary()
+    {
+        return DBXmlDictionary.getInstance();
+    }
+    
+    /**
+     * changes the state of the record
+     * @param newState
+     */
+    protected void changeState(State newState)
+    {
+        this.state = newState;
+    }
+    
+    /**
+     * Factory function to create  createRollbackHandler();
+     * @return the DBRollbackHandler
+     */
+    protected DBRollbackHandler createRollbackHandler()
+    {
+        return new DBRecordRollbackHandler(this);
+    }
+    
+    /**
+     * This method is used internally by the RowSet to initialize the record's properties
+     * @param rowset the rowset to which to attach this record
+     * @param rowsetData any further RowSet specific data
+     * @param newRecord
+     */
+    protected void initData(Object rowsetData, boolean newRecord)
+    {
+        // Init rowset
+        int colCount = rowset.getColumns().size();
+        if (fields==null || fields.length!=colCount)
+            fields = new Object[colCount];
+        else
+        {   // clear fields
+            for (int i=0; i<fields.length; i++)
+                if (fields[i]!=ObjectUtils.NO_VALUE)
+                    fields[i]=null;
+        }
+        // Set State
+        this.rowsetData = rowsetData;
+        this.modified = null;
+        changeState((rowset==null ? State.Invalid : (newRecord ? State.New : State.Valid)));
+    }
+    
+    /**
+     * This method is used internally to indicate that the record update has completed<BR>
+     * This will set change the record's state to Valid
+     * @param rowsetData additional data held by the rowset for this record (optional)
+     */
+    protected void updateComplete(Object rowsetData)
+    {
+        // change rowsetData
+        if (rowsetData!=ObjectUtils.NO_VALUE)
+            this.rowsetData = rowsetData;
+        // Change state
+        this.modified = null;
+        changeState(State.Valid);
+    }
+    
+    /**
+     * Checks whether or not this field can be changed at all.
+     * Note: This is not equivalent to isFieldReadOnly() 
+     * @param column the column that needs to be changed
+     * @return true if it is possible to change this field for this record context
+     */
+    protected boolean allowFieldChange(DBColumn column)
+    {
+        // Check auto generated
+        if (column.isAutoGenerated() && (!isNew() || !isNull(column)))
+            return false;
+        // Check key Column
+        if (!isNew() && rowset.isKeyColumn(column))
+            return false;
+        // done
+        return true;
+    }
+
+    /**
+     * Modifies a column value bypassing all checks made by setValue.
+     * Use this to explicitly set invalid values i.e. for temporary storage.
+     * 
+     * @param index index of the column
+     * @param value the column value
+     */
+    protected void modifyValue(int index, Object value, boolean fireChangeEvent)
+    {   // Check valid
+        if (state == State.Invalid)
+            throw new ObjectNotValidException(this);
+        if (index < 0 || index >= fields.length)
+            throw new InvalidArgumentException("index", index);
+        // modified state array
+        if (modified == null)
+        {   modified = new boolean[fields.length];
+            for (int j = 0; j < fields.length; j++)
+                modified[j] = false;
+        }
+        // set value and modified
+        fields[index] = value;
+        modified[index] = true;
+        // set record state
+        if (state.isLess(State.Modified))
+            changeState(State.Modified);
+        // field changed event
+        if (fireChangeEvent)
+            onFieldChanged(index);
+    }
+
+    /**
+     * Set the record default value for the fields with 
+     * the value {@link ObjectUtils#NO_VALUE}
+     * 
+     * @param conn the sql connection
+     *  
+     * @return the number of fields set to default
+     */
+    protected int fillMissingDefaults(Connection conn)
+    {
+        int count = 0;
+        for (int i = 0; i < fields.length; i++)
+        {
+            if (fields[i] == ObjectUtils.NO_VALUE)
+            {
+                DBTableColumn col = (DBTableColumn) rowset.getColumn(i);
+                Object value = col.getRecordDefaultValue(conn);
+                if (value==null)
+                    continue;
+                // Modify value
+                modifyValue(i, value, true);
+                count++;
+            }
+        }
+        return count;
+    }
+
+    /*
+     * Sets the modified state of a column.<BR>
+     * This will force the field to be updated in the database, if set to TRUE.
+     * 
+     * @param column the column
+     * @param isModified modified or not
+     * 
+    protected void setModified(DBColumn column, boolean isModified)
+    {   // Check valid
+        if (state == State.Invalid)
+            throw new ObjectNotValidException(this);
+        // Check modified
+        if (modified == null)
+        {   // Init array
+            modified = new boolean[fields.length];
+            for (int j = 0; j < fields.length; j++)
+                modified[j] = false;
+        }
+        int index = getFieldIndex(column);
+        if (index >= 0)
+            modified[index] = isModified;
+        // Set State to modified, if not already at least modified and isModified is set to true
+        if (state.isLess(State.Modified) && isModified)
+            changeState(State.Modified);
+        // Reset state to unmodified, if currently modified and not modified anymore after the change
+        if (state == State.Modified && !isModified)
+        {
+            boolean recordNotModified = true;
+            for (int j = 0; j < fields.length; j++)
+            {
+                if (modified[j] == true)
+                {
+                    recordNotModified = false;
+                }
+            }
+            if (recordNotModified)
+            {
+                changeState(State.Valid);
+            }
+        }
+    }
+    */
+
+    /**
+     * set a record value from a particular bean property.
+     * <P>
+     * For a property called FOO this is equivalent of calling<BR>
+     *     setValue(column, bean.getFOO())
+     * <P>
+     * @param bean the Java Bean from which to read the value from
+     * @param property the name of the property
+     * @param column the column for which to set the record value
+     */
+    protected void setRecordValue(Column column, Object bean, String property)
+    {
+        if (StringUtils.isEmpty(property))
+            property = column.getBeanPropertyName();
+        try
+        {   // Get Property Value
+            PropertyUtilsBean pub = BeanUtilsBean.getInstance().getPropertyUtils();
+            Object value = pub.getSimpleProperty(bean, property);
+            // Now, set the record value
+            setValue( column, value ); 
+            // done
+        } catch (IllegalAccessException e)
+        {   log.error(bean.getClass().getName() + ": unable to get property '" + property + "'");
+            throw new BeanPropertyGetException(bean, property, e);
+        } catch (InvocationTargetException e)
+        {   log.error(bean.getClass().getName() + ": unable to get property '" + property + "'");
+            throw new BeanPropertyGetException(bean, property, e);
+        } catch (NoSuchMethodException e)
+        {   log.warn(bean.getClass().getName() + ": no getter available for property '" + property + "'");
+            throw new BeanPropertyGetException(bean, property, e);
+        }
+    }
+    
+    /**
+     * helper function to check if a given field index corresponds to one of the given columns
+     * @param index the field index
+     * @param column one or more columns to check
+     * @return true if the index is for one of the columns or false otherwise
+     */
+    protected boolean isColumn(int index, DBColumn... column)
+    {
+        if (index < 0 || index >= fields.length)
+            throw new InvalidArgumentException("index", index);
+        if (column==null)
+            throw new InvalidArgumentException("column", column);
+        Column col = getColumn(index);
+        for (int i=0; i<column.length; i++)
+        {   // compare
+            if (col==column[i])
+                return true;
+        }
+        // not found
+        return false; 
     }
     
     /**

@@ -541,8 +541,8 @@ public class TagEncodingHelper implements NamingContainer
                 {   // Debug output
                     if ((rec instanceof DBRecord) && (this.record instanceof DBRecord))
                     {   // a database record change
-                        String keyOld = StringUtils.toString(((DBRecord)this.record).getKeyValues());
-                        String keyNew = StringUtils.toString(((DBRecord)rec).getKeyValues());
+                        String keyOld = StringUtils.toString(((DBRecord)this.record).getKey());
+                        String keyNew = StringUtils.toString(((DBRecord)rec).getKey());
                         String rowSet = StringUtils.valueOf(((DBRecord)rec).getRowSet().getName());
                         log.trace("Changing "+component.getClass().getSimpleName()+" record of rowset "+rowSet+" from {} to {}", keyOld, keyNew);
                     }

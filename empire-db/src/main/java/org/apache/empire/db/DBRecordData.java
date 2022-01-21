@@ -49,33 +49,38 @@ import org.w3c.dom.Element;
 public abstract class DBRecordData extends DBObject
 	implements RecordData
 {
-    private final static long serialVersionUID = 1L;
-  
+    private final static long   serialVersionUID = 1L;
+
     // Logger
-    private static final Logger log = LoggerFactory.getLogger(DBRecordData.class);
-    
+    private static final Logger log              = LoggerFactory.getLogger(DBRecordData.class);
+
     // Field Info
     @Override
-    public abstract int     getFieldCount();
+    public abstract int getFieldCount();
+
     @Override
-    public abstract int  	getFieldIndex(ColumnExpr column);
+    public abstract int getFieldIndex(ColumnExpr column);
+
     @Override
-    public abstract int  	getFieldIndex(String column);
+    public abstract int getFieldIndex(String column);
+
     // Column lookup
     @Override
     public abstract ColumnExpr getColumnExpr(int i);
+
     // xml
-    public abstract int     addColumnDesc(Element parent);
-    public abstract int     addRowValues (Element parent);
+    public abstract int getXmlMeta(Element parent);
+    public abstract int getXmlData(Element parent);
     public abstract Document getXmlDocument();
+
     // others
-    public abstract void    close();
+    public abstract void close();
 
     /**
      * Returns a value based on an index.
      */
     @Override
-    public abstract Object  getValue(int index);
+    public abstract Object getValue(int index);
     
     /**
      * Returns a data value for the desired column .
@@ -90,6 +95,28 @@ public abstract class DBRecordData extends DBObject
         if (index<0)
             throw new ItemNotFoundException(column.getName()); 
         return getValue(index);
+    }
+
+    /**
+     * Returns the value of a field as an object of a given (wrapper)type
+     * @param index index of the field
+     * @param returnType the type of the returned value
+     * @return the value
+     */
+    public final <T> T getValue(int index, Class<T> returnType)
+    {
+        return ObjectUtils.convert(returnType, getValue(index));
+    }
+
+    /**
+     * Returns the value of a field as an object of a given (wrapper)type
+     * @param column the column for which to retrieve the value
+     * @param returnType the type of the returned value
+     * @return the value
+     */
+    public final <T> T getValue(Column column, Class<T> returnType)
+    {
+        return ObjectUtils.convert(returnType, getValue(column));
     }
 
     /**
@@ -118,11 +145,9 @@ public abstract class DBRecordData extends DBObject
      * @param index index of the column
      * @return the record value
      */
-    public int getInt(int index)
+    public final int getInt(int index)
     {
-        // Get Integer value
-        Object value = getValue(index);
-        return ObjectUtils.getInteger(value);
+        return ObjectUtils.getInteger(getValue(index));
     }
     
     /**
@@ -144,11 +169,9 @@ public abstract class DBRecordData extends DBObject
      * @param index index of the column
      * @return the value
      */
-    public long getLong(int index)
+    public final long getLong(int index)
     {
-        // Get Integer value
-        Object value = getValue(index);
-        return ObjectUtils.getLong(value);
+        return ObjectUtils.getLong(getValue(index));
     }
     
     /**
@@ -170,11 +193,9 @@ public abstract class DBRecordData extends DBObject
      * @param index index of the column
      * @return the value
      */
-    public double getDouble(int index)
+    public final double getDouble(int index)
     {
-        // Get Double value
-        Object value = getValue(index);
-        return ObjectUtils.getDouble(value);
+        return ObjectUtils.getDouble(getValue(index));
     }
 
     /**
@@ -196,11 +217,9 @@ public abstract class DBRecordData extends DBObject
      * @param index index of the column
      * @return the value
      */
-    public BigDecimal getDecimal(int index)
+    public final BigDecimal getDecimal(int index)
     {
-        // Get Double value
-        Object value = getValue(index);
-        return ObjectUtils.getDecimal(value);
+        return ObjectUtils.getDecimal(getValue(index));
     }
 
     /**
@@ -222,11 +241,9 @@ public abstract class DBRecordData extends DBObject
      * @param index index of the column
      * @return the value
      */
-    public boolean getBoolean(int index)
+    public final boolean getBoolean(int index)
     {
-        // Get Boolean value
-        Object value = getValue(index);
-        return ObjectUtils.getBoolean(value);
+        return ObjectUtils.getBoolean(getValue(index));
     }
     
     /**
@@ -237,7 +254,9 @@ public abstract class DBRecordData extends DBObject
      * @return the value
      */
     public final boolean getBoolean(ColumnExpr column)
-    { return getBoolean(getFieldIndex(column)); }
+    { 
+        return getBoolean(getFieldIndex(column));
+    }
     
     /**
      * Returns a data value identified by the column index.
@@ -246,11 +265,9 @@ public abstract class DBRecordData extends DBObject
      * @param index index of the column
      * @return the value
      */
-    public String getString(int index)
+    public final String getString(int index)
     {
-        // Get Integer value
-        Object value = getValue(index);
-        return StringUtils.toString(value);
+        return StringUtils.toString(getValue(index));
     }
 
     /**
@@ -272,11 +289,9 @@ public abstract class DBRecordData extends DBObject
      * @param index index of the column
      * @return the value
      */
-    public Date getDateTime(int index)
+    public final Date getDateTime(int index)
     {
-        // Get DateTime value
-        Object value = getValue(index);
-        return ObjectUtils.getDate(value);
+        return ObjectUtils.getDate(getValue(index));
     }
     
     /**
@@ -290,7 +305,6 @@ public abstract class DBRecordData extends DBObject
     {
         return getDateTime(getFieldIndex(column));
     }
-
 
     /**
      * Returns the value of a field as an enum
@@ -348,26 +362,6 @@ public abstract class DBRecordData extends DBObject
             throw new InvalidArgumentException("column", column);
         }
         return getEnum(getFieldIndex(column), (Class<T>)enumType);
-    }
-
-    /**
-     * Returns the value of a field as an object of a given (wrapper)type
-     * @param index index of the field
-     * @return the value
-     */
-    public final <T> T getAs(int index, Class<T> wrapperType)
-    {
-        return ObjectUtils.convert(wrapperType, getValue(index));
-    }
-
-    /**
-     * Returns the value of a field as an object of a given (wrapper)type
-     * @param column the column for which to retrieve the value
-     * @return the value
-     */
-    public final <T> T getAs(Column column, Class<T> wrapperType)
-    {
-        return ObjectUtils.convert(wrapperType, getValue(column));
     }
     
     /**

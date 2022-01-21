@@ -86,7 +86,7 @@ public class RecordPageElement<T extends DBRecord> extends PageElement
         if (!record.isValid())
             return null;
         // idParam
-        Object[] key = record.getKeyValues();
+        Object[] key = record.getKey();
         return getPage().getIdParamForKey(rowset, key);
     }
 
@@ -203,7 +203,7 @@ public class RecordPageElement<T extends DBRecord> extends PageElement
             record.update();
             // Put key on Session
             this.removeSessionObject(DBRecord.class);
-            this.setSessionObject(Object[].class, record.getKeyValues());
+            this.setSessionObject(Object[].class, record.getKey());
             return true; 
             // OK
         } catch(Exception e) {

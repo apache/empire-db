@@ -748,7 +748,7 @@ public class DBReader extends DBRecordData implements DBContextAware
      * @return the number of column descriptions added to the Element
      */
     @Override
-    public int addColumnDesc(Element parent)
+    public int getXmlMeta(Element parent)
     {
         if (colList == null)
             throw new ObjectNotValidException(this);
@@ -766,7 +766,7 @@ public class DBReader extends DBRecordData implements DBContextAware
      * @return the number of row values added to the element
      */
     @Override
-    public int addRowValues(Element parent)
+    public int getXmlData(Element parent)
     {
         if (rset == null)
             throw new ObjectNotValidException(this);
@@ -806,7 +806,7 @@ public class DBReader extends DBRecordData implements DBContextAware
         String rowElementName = getXmlDictionary().getRowElementName();
         while (moveNext())
         {
-            addRowValues(XMLUtil.addElement(parent, rowElementName));
+            getXmlData(XMLUtil.addElement(parent, rowElementName));
             count++;
         }
         return count;
@@ -835,7 +835,7 @@ public class DBReader extends DBRecordData implements DBContextAware
         String rowsetElementName = getXmlDictionary().getRowSetElementName();
         Element root = XMLUtil.createDocument(rowsetElementName);
         // Add Field Description
-        addColumnDesc(root);
+        getXmlMeta(root);
         // Add row rset
         addRows(root);
         // return Document

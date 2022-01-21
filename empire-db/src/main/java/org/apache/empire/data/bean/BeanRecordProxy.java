@@ -116,7 +116,8 @@ public class BeanRecordProxy<T> implements Record
      * Returns the array of primary key columns.
      * @return the array of primary key columns
      */
-    public Object[] getKeyValues()
+    @Override
+    public Object[] getKey()
     {
         if (keyColumns==null)
             return null;
