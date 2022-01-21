@@ -20,7 +20,6 @@ package org.apache.empire.db;
 
 import java.io.Serializable;
 import java.lang.ref.WeakReference;
-import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -94,7 +93,7 @@ public abstract class DBDatabase extends DBObject
     /** 
      * find a database by id
      */
-    public static synchronized DBDatabase findById(String dbIdent)
+    public static DBDatabase findById(String dbIdent)
     {
         WeakReference<DBDatabase> ref = databaseMap.get(dbIdent);
         if (ref==null)
@@ -111,7 +110,7 @@ public abstract class DBDatabase extends DBObject
     /** 
      * find a database by id
      */
-    public static synchronized DBDatabase findByClass(Class<? extends DBDatabase> cls)
+    public static DBDatabase findByClass(Class<? extends DBDatabase> cls)
     {
         for (WeakReference<DBDatabase> ref : databaseMap.values())
         {   // find database by class
@@ -124,9 +123,9 @@ public abstract class DBDatabase extends DBObject
     }
 
     // properties
-    protected String schema;         // database schema name
-    protected String linkName;       // database link name
-    protected String instanceId;     // internal instance id
+    private String schema;          // database schema name
+    private String linkName;        // database link name
+    private String instanceId;      // internal instance id
     
     // Collections
     protected final List<DBTable>    tables    = new ArrayList<DBTable>();
@@ -250,20 +249,20 @@ public abstract class DBDatabase extends DBObject
     }
 
     /**
-     * returns the default database id
+     * returns the default database identifier
      * Override this to customize
      * @return the defaultId
      */
-    protected String getDefaultId()
+    protected String getDefaultIdentifier()
     {
         return getClass().getSimpleName(); 
     }
     
     /**
-     * Returns the database instance id
+     * Returns the database instance identifier
      * @return the identifier of the database
      */
-    public String getId()
+    public String getIdentifier()
     {
         return instanceId;
     }
@@ -830,19 +829,6 @@ public abstract class DBDatabase extends DBObject
     {
         checkOpen(); 
         return driver.createCommand(this);
-    }
-
-    /**
-     * Returns a timestamp that is used for record updates.
-     * 
-     * @param conn the connection
-     * @return the current date and time.
-     */
-    public java.sql.Timestamp getUpdateTimestamp(Connection conn)
-    {
-        // Ask driver
-        checkOpen(); 
-        return driver.getUpdateTimestamp(conn);
     }
     
     /**

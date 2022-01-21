@@ -396,8 +396,10 @@ public abstract class DBDatabaseDriver implements Serializable
             return UUID.randomUUID();
         }
         else if (type==DataType.DATE || type==DataType.DATETIME || type==DataType.TIMESTAMP)
-        {   // Get database system's date and time
-            Date ts = db.getUpdateTimestamp(conn);
+        {   if (conn==null)
+                return null; // No connection
+            // Get database system's date and time
+            Date ts = getUpdateTimestamp(conn);
             return (type==DataType.DATE ? DateUtils.getDateOnly(ts) : ts);
         }
         // Other types

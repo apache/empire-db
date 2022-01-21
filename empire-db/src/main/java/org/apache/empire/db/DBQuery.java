@@ -467,7 +467,8 @@ public class DBQuery extends DBRowSet
             }
         }
         // the connection
-        Connection conn = rec.getContext().getConnection();
+        DBContext context = rec.getContext();
+        Connection conn = context.getConnection();
         // the commands
         DBCommand cmd = getCommandFromExpression();
         Object[] key  = getRecordKey(rec);
@@ -544,7 +545,7 @@ public class DBQuery extends DBRowSet
                 timestampIndex = this.getColumnIndex(tsColumn);
                 if (timestampIndex>=0)
                 {   // The timestamp is availabe in the record
-                    timestampValue = db.getUpdateTimestamp(conn); 
+                    timestampValue = context.getDriver().getUpdateTimestamp(conn); 
                     Object lastTS = fields[timestampIndex];
                     if (ObjectUtils.isEmpty(lastTS)==false)
                     {   // set timestamp constraint

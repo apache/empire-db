@@ -97,7 +97,7 @@ public abstract class DBCommand extends DBCommandExpr
             strm.defaultWriteObject();
             return;
         }
-        String dbid = db.getId(); 
+        String dbid = db.getIdentifier(); 
         strm.writeObject(dbid);
         if (log.isDebugEnabled())
             log.debug("Serialization: writing DBCommand "+dbid);

@@ -130,7 +130,7 @@ public abstract class DBRowSet extends DBExpr
      */
     public String getId()
     {
-        return db.getId()+"."+getName();
+        return db.getIdentifier()+"."+getName();
     }
 
     /**
@@ -167,7 +167,7 @@ public abstract class DBRowSet extends DBExpr
             strm.defaultWriteObject();
             return;
         }
-        String dbid = db.getId(); 
+        String dbid = db.getIdentifier(); 
         strm.writeObject(dbid);
         if (log.isDebugEnabled())
             log.debug("Serialization: writing DBRowSet "+dbid);
@@ -826,10 +826,11 @@ public abstract class DBRowSet extends DBExpr
         if (rec.isValid()==false)
             throw new ObjectNotValidException(rec);
         // the connection
-        Connection conn = rec.getContext().getConnection();
+        DBContext context = rec.getContext();
+        Connection conn = context.getConnection();
         // Get the new Timestamp
         String name = getName();
-        Timestamp timestamp = (timestampColumn!=null) ? db.getUpdateTimestamp(conn) : null;
+        Timestamp timestamp = (timestampColumn!=null) ? context.getDriver().getUpdateTimestamp(conn) : null;
         DBDatabaseDriver.DBSetGenKeys setGenKey = null;
         // Get the fields and the flags
         Object[] fields = rec.getFields();

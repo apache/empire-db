@@ -508,17 +508,8 @@ public class DBRecord extends DBRecordData implements DBContextAware, Record, Cl
      * Returns the array of primary key columns.
      * @return the array of primary key columns
      */
+    @Override
     public Object[] getKey()
-    {
-        return ((rowset != null) ? rowset.getRecordKey(this) : null);
-    }
-
-    /**
-     * Returns the array of primary key columns.
-     * @Deprecated use getKey() instead
-     */
-    @Deprecated
-    public Object[] getKeyValues()
     {
         return ((rowset != null) ? rowset.getRecordKey(this) : null);
     }

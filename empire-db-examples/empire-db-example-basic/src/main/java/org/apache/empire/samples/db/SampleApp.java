@@ -306,14 +306,15 @@ public class SampleApp
 	 */
 	private static int insertDepartment(String departmentName, String businessUnit)
     {
+        SampleDB.Departments DEP = db.DEPARTMENTS;
 		// Insert a Department
-		DBRecord rec = new DBRecord(context, db.DEPARTMENTS);
+		DBRecord rec = new DBRecord(context, DEP);
 		rec.create();
-		rec.setValue(db.DEPARTMENTS.NAME, departmentName);
-		rec.setValue(db.DEPARTMENTS.BUSINESS_UNIT, businessUnit);
+		rec.setValue(DEP.NAME, departmentName);
+		rec.setValue(DEP.BUSINESS_UNIT, businessUnit);
 		rec.update();
 		// Return Department ID
-		return rec.getInt(db.DEPARTMENTS.DEPARTMENT_ID);
+		return rec.getInt(DEP.DEPARTMENT_ID);
 	}
 
 	/**
@@ -323,16 +324,17 @@ public class SampleApp
 	 */
 	private static int insertEmployee(String firstName, String lastName, Gender gender, int departmentId)
     {
+        SampleDB.Employees EMP = db.EMPLOYEES;
 		// Insert an Employee
-		DBRecord rec = new DBRecord(context, db.EMPLOYEES);
+		DBRecord rec = new DBRecord(context, EMP);
 		rec.create();
-		rec.setValue(db.EMPLOYEES.FIRSTNAME, firstName);
-		rec.setValue(db.EMPLOYEES.LASTNAME, lastName);
-		rec.setValue(db.EMPLOYEES.GENDER, gender);
-		rec.setValue(db.EMPLOYEES.DEPARTMENT_ID, departmentId);
+		rec.setValue(EMP.FIRSTNAME, firstName);
+		rec.setValue(EMP.LASTNAME, lastName);
+		rec.setValue(EMP.GENDER, gender);
+		rec.setValue(EMP.DEPARTMENT_ID, departmentId);
 		rec.update();
 		// Return Employee ID
-		return rec.getInt(db.EMPLOYEES.EMPLOYEE_ID);
+		return rec.getInt(EMP.EMPLOYEE_ID);
 	}
 
 	/**
@@ -357,11 +359,12 @@ public class SampleApp
      */
     private static void updatePartialRecord(int idEmp, String phoneNumber)
     {
-        SampleDB.Employees E = db.EMPLOYEES;
+        // Shortcut for convenience
+        SampleDB.Employees EMP = db.EMPLOYEES;
         // Update an Employee with partial record
         // this will only load the EMPLOYEE_ID and the PHONE_NUMBER
-        DBRecord rec = new DBRecord(context, E);
-        E.readRecord(rec, DBRecord.key(idEmp), PartialMode.INCLUDE, E.PHONE_NUMBER);
+        DBRecord rec = new DBRecord(context, EMP);
+        EMP.readRecord(rec, DBRecord.key(idEmp), PartialMode.INCLUDE, EMP.PHONE_NUMBER);
         // Set
         rec.setValue(db.EMPLOYEES.PHONE_NUMBER, phoneNumber);
         rec.update();
@@ -374,21 +377,22 @@ public class SampleApp
      */
     private static void updateJoinedRecords(int idEmp, int salary)
     {
-        SampleDB.Employees E = db.EMPLOYEES;
-        SampleDB.Departments D = db.DEPARTMENTS;
+        // Shortcuts for convenience
+        SampleDB.Employees EMP = db.EMPLOYEES;
+        SampleDB.Departments DEP = db.DEPARTMENTS;
 
         // Create DBQuery from command
         DBCommand cmd = db.createCommand();
-        cmd.select(E.getColumns());
-        cmd.select(D.getColumns());
-        cmd.join(E.DEPARTMENT_ID, D.DEPARTMENT_ID);
-        DBQuery query = new DBQuery(cmd, E.EMPLOYEE_ID);
+        cmd.select(EMP.getColumns());
+        cmd.select(DEP.getColumns());
+        cmd.join(EMP.DEPARTMENT_ID, DEP.DEPARTMENT_ID);
+        DBQuery query = new DBQuery(cmd, EMP.EMPLOYEE_ID);
 
         // Make employee Head of Department and update salary
         DBRecord rec = new DBRecord(context, query);
         rec.read(idEmp);
-        rec.setValue(E.SALARY, salary);
-        rec.setValue(D.HEAD, rec.getString(E.LASTNAME));
+        rec.setValue(EMP.SALARY, salary);
+        rec.setValue(DEP.HEAD, rec.getString(EMP.LASTNAME));
         rec.update();
     }
 
@@ -398,28 +402,29 @@ public class SampleApp
 	 */
 	private static int testTransactionCreate(int idDep)
     {
-        SampleDB.Employees T = db.EMPLOYEES;
-        DBRecord rec = new DBRecord(context, T);
-        
+        // Shortcut for convenience
+        SampleDB.Employees EMP = db.EMPLOYEES;
+
+        DBRecord rec = new DBRecord(context, EMP);
         rec.create();
-        rec.setValue(T.FIRSTNAME, "Foo");
-        rec.setValue(T.LASTNAME, "Manchoo");
-        rec.setValue(T.GENDER, Gender.M);
-        rec.setValue(T.DEPARTMENT_ID, idDep);
+        rec.setValue(EMP.FIRSTNAME, "Foo");
+        rec.setValue(EMP.LASTNAME, "Manchoo");
+        rec.setValue(EMP.GENDER, Gender.M);
+        rec.setValue(EMP.DEPARTMENT_ID, idDep);
         rec.update();
-        log.info("Timestamp {}", rec.getString(T.UPDATE_TIMESTAMP));
+        log.info("Timestamp {}", rec.getString(EMP.UPDATE_TIMESTAMP));
         
-        rec.setValue(T.FIRSTNAME, "Foo 2");
-        rec.setValue(T.LASTNAME, "Manchu");
-        rec.setValue(T.PHONE_NUMBER, "0815/4711");
+        rec.setValue(EMP.FIRSTNAME, "Foo 2");
+        rec.setValue(EMP.LASTNAME, "Manchu");
+        rec.setValue(EMP.PHONE_NUMBER, "0815/4711");
         rec.update();
-        log.info("Timestamp {}", rec.getString(T.UPDATE_TIMESTAMP));
+        log.info("Timestamp {}", rec.getString(EMP.UPDATE_TIMESTAMP));
         
         context.rollback();
         
-        rec.setValue(T.FIRSTNAME, "Dr. Foo");
+        rec.setValue(EMP.FIRSTNAME, "Dr. Foo");
         rec.update();
-        log.info("Timestamp {}", rec.getString(T.UPDATE_TIMESTAMP));
+        log.info("Timestamp {}", rec.getString(EMP.UPDATE_TIMESTAMP));
 
         rec.delete();
         
@@ -427,12 +432,12 @@ public class SampleApp
 
         // insert final
         rec.update();
-        log.info("Timestamp {}", rec.getString(T.UPDATE_TIMESTAMP));
+        log.info("Timestamp {}", rec.getString(EMP.UPDATE_TIMESTAMP));
         
         log.info("testTransactionCreate performed OK");
         context.commit();
         
-        return rec.getInt(T.EMPLOYEE_ID);
+        return rec.getInt(EMP.EMPLOYEE_ID);
     }
     /**
      * @param context
@@ -440,28 +445,29 @@ public class SampleApp
      */
     private static void testTransactionUpdate(int idEmp)
     {
-        SampleDB.Employees T = db.EMPLOYEES;
-        DBRecord rec = new DBRecord(context, T);
+        // Shortcut for convenience
+        SampleDB.Employees EMP = db.EMPLOYEES;
         
+        DBRecord rec = new DBRecord(context, EMP);        
         rec.read(idEmp);
-        rec.setValue(T.PHONE_NUMBER, null);
-        rec.setValue(T.SALARY, "100.000");
+        rec.setValue(EMP.PHONE_NUMBER, null);
+        rec.setValue(EMP.SALARY, "100.000");
         rec.update();
 
-        log.info("Timestamp {}", rec.getString(T.UPDATE_TIMESTAMP));
+        log.info("Timestamp {}", rec.getString(EMP.UPDATE_TIMESTAMP));
         
         context.rollback();
         
-        rec.setValue(T.PHONE_NUMBER, "07531-45716-0");
+        rec.setValue(EMP.PHONE_NUMBER, "07531-45716-0");
         rec.update();
 
-        log.info("Timestamp {}", rec.getString(T.UPDATE_TIMESTAMP));
+        log.info("Timestamp {}", rec.getString(EMP.UPDATE_TIMESTAMP));
         
         context.rollback();
 
         rec.update();
 
-        log.info("Timestamp {}", rec.getString(T.UPDATE_TIMESTAMP));
+        log.info("Timestamp {}", rec.getString(EMP.UPDATE_TIMESTAMP));
         log.info("testTransactionUpdate performed OK");
         context.commit();
         
@@ -472,9 +478,10 @@ public class SampleApp
      */
     private static void testTransactionDelete(int idEmp)
     {
+        // Shortcut for convenience
         SampleDB.Employees T = db.EMPLOYEES;
+
         DBRecord rec = new DBRecord(context, T);
-        
         rec.read(idEmp);
         /*
         log.info("Timestamp {}", rec.getString(T.UPDATE_TIMESTAMP));
@@ -618,15 +625,16 @@ public class SampleApp
 	
 	private static void queryBeans(Connection conn)
 	{
+	    SampleDB.Employees EMP = db.EMPLOYEES;
         // Query all males
-	    BeanResult<SampleBean> result = new BeanResult<SampleBean>(SampleBean.class, db.EMPLOYEES);
-        result.getCommand().where(db.EMPLOYEES.GENDER.is(Gender.M));
+	    BeanResult<SampleBean> result = new BeanResult<SampleBean>(SampleBean.class, EMP);
+        result.getCommand().where(EMP.GENDER.is(Gender.M));
 	    result.fetch(context);
 	    
 	    System.out.println("Number of male employees is: "+result.size());
 
 	    // And now, the females
-	    result.getCommand().where(db.EMPLOYEES.GENDER.is(Gender.F));
+	    result.getCommand().where(EMP.GENDER.is(Gender.F));
 	    result.fetch(context);
 	    
         System.out.println("Number of female employees is: "+result.size());

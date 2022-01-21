@@ -129,7 +129,7 @@ public abstract class DBColumn extends DBColumnExpr
             return;
         }
         // write dbid and rowset-name
-        String dbid   = rowset.getDatabase().getId(); 
+        String dbid   = rowset.getDatabase().getIdentifier(); 
         String rsname = rowset.getName(); 
         strm.writeObject(dbid);
         strm.writeObject(rsname);
