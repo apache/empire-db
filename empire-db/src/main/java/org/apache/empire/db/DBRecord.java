@@ -202,11 +202,11 @@ public class DBRecord extends DBRecordData implements DBContextAware, Record, Cl
     private State           state;
     private Object[]        fields;
     private boolean[]       modified;
-    // Special Rowset Data (usually null)
-    private Object          rowsetData;
+    private Object          rowsetData; // Special Rowset Data (usually null)
 
     // options
-    private boolean         validateFieldValues;
+    protected boolean       enableRollbackHandling = true;
+    protected boolean       validateFieldValues = true;
     
     /**
      * Constructs a new DBRecord.<BR>
@@ -225,7 +225,6 @@ public class DBRecord extends DBRecordData implements DBContextAware, Record, Cl
         this.fields = null;
         this.modified = null;
         this.rowsetData = null;
-        this.validateFieldValues = true;
     }
 
     /**
@@ -817,7 +816,8 @@ public class DBRecord extends DBRecordData implements DBContextAware, Record, Cl
         if (!isModified())
             return; /* Not modified. Nothing to do! */
         // allow rollback
-        context.addRollbackHandler(createRollbackHandler());
+        if (enableRollbackHandling)
+            context.addRollbackHandler(createRollbackHandler());
         // update
         rowset.updateRecord(this);
     }
@@ -837,7 +837,8 @@ public class DBRecord extends DBRecordData implements DBContextAware, Record, Cl
         if (isValid()==false)
             throw new ObjectNotValidException(this);
         // allow rollback
-        context.addRollbackHandler(createRollbackHandler());
+        if (enableRollbackHandling)
+            context.addRollbackHandler(createRollbackHandler());
         // Delete only if record is not new
         if (!isNew())
         {
@@ -1266,8 +1267,8 @@ public class DBRecord extends DBRecordData implements DBContextAware, Record, Cl
     {
         if (log.isTraceEnabled() && isValid())
             log.trace("Record has been changed");
-        // remove rollback (but not when close is called)
-        if (fields!=null)
+        // Remove rollback (but not when close() is called!)
+        if (enableRollbackHandling && fields!=null)
             context.removeRollbackHandler(this);
     }
     
