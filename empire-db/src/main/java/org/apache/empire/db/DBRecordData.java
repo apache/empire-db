@@ -103,7 +103,7 @@ public abstract class DBRecordData extends DBObject
      * @param returnType the type of the returned value
      * @return the value
      */
-    public final <T> T getValue(int index, Class<T> returnType)
+    public <T> T getValue(int index, Class<T> returnType)
     {
         return ObjectUtils.convert(returnType, getValue(index));
     }
@@ -116,7 +116,10 @@ public abstract class DBRecordData extends DBObject
      */
     public final <T> T getValue(Column column, Class<T> returnType)
     {
-        return ObjectUtils.convert(returnType, getValue(column));
+        int index = getFieldIndex(column);
+        if (index<0)
+            throw new ItemNotFoundException(column.getName()); 
+        return getValue(index, returnType);
     }
 
     /**
@@ -125,7 +128,7 @@ public abstract class DBRecordData extends DBObject
      * @param column the column expressions
      * @return the corresponding record values
      */
-    public final Object[] getValues(ColumnExpr[] columns)
+    public final Object[] getValues(ColumnExpr... columns)
     {
         Object[] values = new Object[columns.length];
         for (int i=0; i<columns.length; i++)
@@ -145,7 +148,7 @@ public abstract class DBRecordData extends DBObject
      * @param index index of the column
      * @return the record value
      */
-    public final int getInt(int index)
+    public int getInt(int index)
     {
         return ObjectUtils.getInteger(getValue(index));
     }
@@ -169,7 +172,7 @@ public abstract class DBRecordData extends DBObject
      * @param index index of the column
      * @return the value
      */
-    public final long getLong(int index)
+    public long getLong(int index)
     {
         return ObjectUtils.getLong(getValue(index));
     }
@@ -193,7 +196,7 @@ public abstract class DBRecordData extends DBObject
      * @param index index of the column
      * @return the value
      */
-    public final double getDouble(int index)
+    public double getDouble(int index)
     {
         return ObjectUtils.getDouble(getValue(index));
     }
@@ -217,7 +220,7 @@ public abstract class DBRecordData extends DBObject
      * @param index index of the column
      * @return the value
      */
-    public final BigDecimal getDecimal(int index)
+    public BigDecimal getDecimal(int index)
     {
         return ObjectUtils.getDecimal(getValue(index));
     }
@@ -241,7 +244,7 @@ public abstract class DBRecordData extends DBObject
      * @param index index of the column
      * @return the value
      */
-    public final boolean getBoolean(int index)
+    public boolean getBoolean(int index)
     {
         return ObjectUtils.getBoolean(getValue(index));
     }
@@ -265,9 +268,9 @@ public abstract class DBRecordData extends DBObject
      * @param index index of the column
      * @return the value
      */
-    public final String getString(int index)
+    public String getString(int index)
     {
-        return StringUtils.toString(getValue(index));
+        return ObjectUtils.getString(getValue(index));
     }
 
     /**

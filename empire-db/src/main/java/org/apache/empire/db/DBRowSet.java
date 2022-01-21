@@ -658,7 +658,7 @@ public abstract class DBRowSet extends DBExpr
      * <P>
      * @param rec the DBRecord object which holds the record data
      * @param cmd the SQL-Command used to query the record
-     * @param conn a valid JDBC connection.
+     * @param rowSetData optional rowset specific data to be held on the record
      */
     protected void readRecord(DBRecord rec, DBCommand cmd, Object rowSetData)
     {
@@ -672,6 +672,18 @@ public abstract class DBRowSet extends DBExpr
         } finally {
             reader.close();
         }
+    }
+
+    /**
+     * Reads a single record from the database using the given command object.<BR>
+     * If a record is found the DBRecord object will hold all record data. 
+     * <P>
+     * @param rec the DBRecord object which holds the record data
+     * @param cmd the SQL-Command used to query the record
+     */
+    protected final void readRecord(DBRecord rec, DBCommand cmd)
+    {
+        readRecord(rec, cmd, null);
     }
     
     /**
@@ -694,7 +706,7 @@ public abstract class DBRowSet extends DBExpr
         setKeyConstraints(cmd, key);
         try {
             // Read Record
-            readRecord(rec, cmd, null);
+            readRecord(rec, cmd);
         } catch (QueryNoResultException e) {
             // Translate exception
             throw new RecordNotFoundException(this, key);
@@ -719,7 +731,7 @@ public abstract class DBRowSet extends DBExpr
         DBCommand cmd = getDatabase().createCommand();
         cmd.select(getColumns());
         cmd.where(whereConstraints);
-        readRecord(rec, cmd, null);
+        readRecord(rec, cmd);
     }
     
     /**
@@ -762,7 +774,7 @@ public abstract class DBRowSet extends DBExpr
         setKeyConstraints(cmd, key);
         try {
             // Read Record
-            readRecord(rec, cmd, null);
+            readRecord(rec, cmd);
         } catch (QueryNoResultException e) {
             // Translate exception
             throw new RecordNotFoundException(this, key);
