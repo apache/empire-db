@@ -28,8 +28,10 @@ import org.apache.empire.db.DBColumnExpr;
 import org.apache.empire.db.DBCommand;
 import org.apache.empire.db.DBContext;
 import org.apache.empire.db.DBDatabaseDriver;
+import org.apache.empire.db.DBQuery;
 import org.apache.empire.db.DBReader;
 import org.apache.empire.db.DBRecord;
+import org.apache.empire.db.DBRowSet.PartialMode;
 import org.apache.empire.db.DBSQLScript;
 import org.apache.empire.db.DBUtils;
 import org.apache.empire.db.context.DBContextStatic;
@@ -126,9 +128,9 @@ public class SampleApp
 			int idDevDep = insertDepartment("Development", "ITTK");
 			int idSalDep = insertDepartment("Sales", "ITTK");
 			// Insert Employees
-			int idPers1 = insertEmployee("Peter", "Sharp", Gender.M, idDevDep);
-			int idPers2 = insertEmployee("Fred", "Bloggs", Gender.M, idDevDep);
-			int idPers3 = insertEmployee("Emma", "White",  Gender.F, idSalDep);
+			int idEmp1 = insertEmployee("Peter", "Sharp", Gender.M, idDevDep);
+			int idEmp2 = insertEmployee("Fred", "Bloggs", Gender.M, idDevDep);
+			int idEmp3 = insertEmployee("Emma", "White",  Gender.F, idSalDep);
 
             // commit
 			context.commit();
@@ -139,9 +141,12 @@ public class SampleApp
 
 			// STEP 7: Update Records (by setting the phone Number)
 			System.out.println("*** Step 7: updateEmployee() ***");
-			updateEmployee(idPers1, "+49-7531-457160");
-			updateEmployee(idPers2, "+49-5555-505050");
-			updateEmployee(idPers3, "+49-040-125486");
+			updateEmployee(idEmp1, "+49-7531-457160");
+			updateEmployee(idEmp2, "+49-5555-505050");
+			// Partial Record
+            updatePartialRecord(idEmp3, "+49-040-125486");
+			// Update Joined Records (Make Fred Bloggs head of department and set salary)
+			updateJoinedRecords(idEmp2, 100000);
 
 			// commit
 			context.commit();
@@ -333,15 +338,54 @@ public class SampleApp
 	 * Updates an employee record by setting the phone number.
      * </PRE>
 	 */
-	private static void updateEmployee(int idPers, String phoneNumber)
+	private static void updateEmployee(int idEmp, String phoneNumber)
     {
 		// Update an Employee
 		DBRecord rec = new DBRecord(context, db.EMPLOYEES);
-		rec.read(idPers);
+		rec.read(idEmp);
 		// Set
 		rec.setValue(db.EMPLOYEES.PHONE_NUMBER, phoneNumber);
 		rec.update();
 	}
+
+    /**
+     * <PRE>
+     * Updates an employee record by setting the phone number.
+     * </PRE>
+     */
+    private static void updatePartialRecord(int idEmp, String phoneNumber)
+    {
+        // Update an Employee
+        DBRecord rec = new DBRecord(context, db.EMPLOYEES);
+        db.EMPLOYEES.readRecord(rec, DBRecord.key(idEmp), PartialMode.INCLUDE, db.EMPLOYEES.PHONE_NUMBER);
+        // Set
+        rec.setValue(db.EMPLOYEES.PHONE_NUMBER, phoneNumber);
+        rec.update();
+    }
+
+    /**
+     * <PRE>
+     * Updates an employee record by setting the phone number.
+     * </PRE>
+     */
+    private static void updateJoinedRecords(int idEmp, int salary)
+    {
+        SampleDB.Employees E = db.EMPLOYEES;
+        SampleDB.Departments D = db.DEPARTMENTS;
+        
+        DBCommand cmd = db.createCommand();
+        cmd.select(E.getColumns());
+        cmd.select(D.getColumns());
+        cmd.join(E.DEPARTMENT_ID, D.DEPARTMENT_ID);
+
+        // Make employee Head of Department and update salary
+        DBQuery query = new DBQuery(cmd, E.EMPLOYEE_ID);
+        DBRecord rec = new DBRecord(context, query);
+        rec.read(idEmp);
+        rec.setValue(E.SALARY, salary);
+        rec.setValue(D.HEAD, rec.getString(E.LASTNAME));
+        rec.update();
+    }
 
 	/**
 	 * @param context

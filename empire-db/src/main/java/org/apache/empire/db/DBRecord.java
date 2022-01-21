@@ -21,9 +21,7 @@ package org.apache.empire.db;
 import java.lang.reflect.InvocationTargetException;
 import java.sql.Connection;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import org.apache.commons.beanutils.BeanUtilsBean;
 import org.apache.commons.beanutils.PropertyUtilsBean;
@@ -72,7 +70,7 @@ public class DBRecord extends DBRecordData implements DBContextAware, Record, Cl
         private final State     state;  /* the original state */
         private Object[]        fields;
         private boolean[]       modified;
-        private Object          rowsetData;
+        private Object          rowSetData;
         
         public DBRecordRollbackHandler(DBRecord record)
         {
@@ -84,7 +82,7 @@ public class DBRecord extends DBRecordData implements DBContextAware, Record, Cl
             this.state = record.state;            
             this.modified = copy(record.modified);
             this.fields   = copy(record.fields);
-            this.rowsetData = record.rowsetData;
+            this.rowSetData = record.rowSetData;
         }
 
         @Override
@@ -128,7 +126,7 @@ public class DBRecord extends DBRecordData implements DBContextAware, Record, Cl
             record.state = this.state;
             record.fields = this.fields;
             record.modified = this.modified;
-            record.rowsetData = rowsetData;
+            record.rowSetData = rowSetData;
             // done
             log.info("Rollback for record {}[{}] performed", record.getRowSet().getName(), StringUtils.arrayToString(record.getKeyValues(), "|"));
         }
@@ -189,7 +187,7 @@ public class DBRecord extends DBRecordData implements DBContextAware, Record, Cl
      * @param parts
      * @return
      */
-    public static Object[] toKey(Object... parts)
+    public static Object[] key(Object... parts)
     {
         return parts;
     }
@@ -205,7 +203,7 @@ public class DBRecord extends DBRecordData implements DBContextAware, Record, Cl
     private Object[]        fields;
     private boolean[]       modified;
     // Special Rowset Data (usually null)
-    private Object          rowsetData;
+    private Object          rowSetData;
 
     // options
     private boolean         validateFieldValues;
@@ -221,7 +219,7 @@ public class DBRecord extends DBRecordData implements DBContextAware, Record, Cl
         rowset = null;
         fields = null;
         modified = null;
-        rowsetData = null;
+        rowSetData = null;
         validateFieldValues = true;
     }
 
@@ -244,7 +242,7 @@ public class DBRecord extends DBRecordData implements DBContextAware, Record, Cl
         this.state = State.Invalid;
         this.fields = null;
         this.modified = null;
-        this.rowsetData = null;
+        this.rowSetData = null;
         this.validateFieldValues = true;
     }
     
@@ -254,7 +252,7 @@ public class DBRecord extends DBRecordData implements DBContextAware, Record, Cl
      * @param rowSetData any further RowSet specific data
      * @param newRecord
      */
-    void initData(Object rowSetData, boolean newRecord)
+    protected void initData(Object rowSetData, boolean newRecord)
     {
         // Init rowset
         int colCount = rowset.getColumns().size();
@@ -267,9 +265,24 @@ public class DBRecord extends DBRecordData implements DBContextAware, Record, Cl
                     fields[i]=null;
         }
         // Set State
-        this.rowsetData = rowSetData;
+        this.rowSetData = rowSetData;
         this.modified = null;
         changeState((rowset==null ? State.Invalid : (newRecord ? State.New : State.Valid)));
+    }
+    
+    /**
+     * This method is used internally to indicate that the record update has completed<BR>
+     * This will set change the record's state to Valid
+     * @param rowSetData additional data held by the rowset for this record (optional)
+     */
+    protected void updateComplete(Object rowSetData)
+    {
+        // change rowSetData
+        if (rowSetData!=ObjectUtils.NO_VALUE)
+            this.rowSetData = rowSetData;
+        // Change state
+        this.modified = null;
+        changeState(State.Valid);
     }
     
     /**
@@ -300,7 +313,7 @@ public class DBRecord extends DBRecordData implements DBContextAware, Record, Cl
         // clear fields
         fields = null;
         modified = null;
-        rowsetData = null;
+        rowSetData = null;
         // change state
         if (state!=State.Invalid)
             changeState(State.Invalid);
@@ -322,7 +335,7 @@ public class DBRecord extends DBRecordData implements DBContextAware, Record, Cl
                 rec.fields = fields.clone();
             if (rec.modified == modified && modified!=null)
                 rec.modified = modified.clone();
-            rec.rowsetData = this.rowsetData;
+            rec.rowSetData = this.rowSetData;
             rec.validateFieldValues = this.validateFieldValues;
             return rec;
             
@@ -373,7 +386,7 @@ public class DBRecord extends DBRecordData implements DBContextAware, Record, Cl
      */
     public Object getRowSetData()
     {
-        return rowsetData;
+        return rowSetData;
     }
 
     /**
@@ -996,19 +1009,7 @@ public class DBRecord extends DBRecordData implements DBContextAware, Record, Cl
      */
     public void read(DBCompareExpr whereConstraints)
     {
-        if (whereConstraints==null)
-            throw new InvalidArgumentException("whereConstraints", null);
-        // check constraints
-        Set<DBColumn> columns = new HashSet<DBColumn>();
-        whereConstraints.addReferencedColumns(columns);
-        for (DBColumn c : columns)
-            if (!rowset.equals(c.getRowSet()))
-                throw new InvalidArgumentException("whereConstraints", c.getFullName());
-        // read now
-        DBCommand cmd = getDatabase().createCommand();
-        cmd.select(rowset.getColumns());
-        cmd.where(whereConstraints);
-        rowset.readRecord(this, cmd);
+        rowset.readRecord(this, whereConstraints);
     }
 
     /**
@@ -1287,16 +1288,6 @@ public class DBRecord extends DBRecordData implements DBContextAware, Record, Cl
     }
     
     /**
-     * Override this to do extra handling when the rowset for this record changes
-     
-    protected void onRowSetChanged()
-    {
-        if (log.isTraceEnabled() && rowset!=null)
-            log.trace("Record has been attached to rowset " + rowset.getName());
-    }
-    */
-    
-    /**
      * Override this to do extra handling when the record changes
      */
     protected void onRecordChanged()
@@ -1315,18 +1306,6 @@ public class DBRecord extends DBRecordData implements DBContextAware, Record, Cl
     {
         if (log.isDebugEnabled())
             log.debug("Record field " + rowset.getColumn(i).getName() + " changed to " + String.valueOf(fields[i]));
-    }
-    
-    /**
-     * This method is used internally to indicate that the record update has completed<BR>
-     * This will set change the record's state to Valid
-     * @param rowSetData additional data held by the rowset for this record (optional)
-     */
-    protected void onUpdateComplete(Object rowSetData)
-    {
-        this.rowsetData = rowSetData;
-        this.modified = null;
-        changeState(State.Valid);
     }
     
 }

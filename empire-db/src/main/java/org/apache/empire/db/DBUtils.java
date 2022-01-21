@@ -24,8 +24,8 @@ import org.slf4j.LoggerFactory;
 
 public class DBUtils implements DBContextAware
 {
-    // Logger
-    protected static final Logger log = LoggerFactory.getLogger(DBUtils.class);
+    // Logger (Use logger from DBDatabase.class)
+    protected static final Logger log = LoggerFactory.getLogger(DBDatabase.class);
     
     // Threshold for long running queries in milliseconds
     protected long longRunndingStmtThreshold = 30000;

@@ -312,7 +312,10 @@ public class DBQuery extends DBRowSet
         if (record == null || record.getRowSet() != this)
             throw new InvalidArgumentException("record", record);
         // get Key
-        return (Object[]) record.getRowSetData();
+        Object rowSetData = record.getRowSetData();
+        if (rowSetData==null)
+            log.warn("No Record-key provided for query record!");
+        return (Object[])rowSetData;
     }
 
     /**
@@ -403,9 +406,7 @@ public class DBQuery extends DBRowSet
         // Read Record
         try {
             // Read Record
-            readRecord(rec, cmd);
-            // Set RowSetData
-            rec.onUpdateComplete(key.clone());
+            readRecord(rec, cmd, key.clone()); 
         } catch (QueryNoResultException e) {
             // Record not found
             throw new RecordNotFoundException(this, key);
@@ -469,7 +470,7 @@ public class DBQuery extends DBRowSet
         Connection conn = rec.getContext().getConnection();
         // the commands
         DBCommand cmd = getCommandFromExpression();
-        Object[] keys = (Object[]) rec.getRowSetData();
+        Object[] key  = getRecordKey(rec);
         DBRowSet table= null;
         DBCommand upd = null;
         for(Entry<DBRowSet,DBCommand> entry:updCmds.entrySet())
@@ -491,10 +492,10 @@ public class DBQuery extends DBRowSet
                 DBColumn left  = join.getLeft() .getUpdateColumn();
                 DBColumn right = join.getRight().getUpdateColumn();
                 if (left.getRowSet()==table && table.isKeyColumn(left))
-                    if (!addJoinRestriction(upd, left, right, keyColumns, rec))
+                    if (!addJoinRestriction(upd, left, right, keyColumns, key, rec))
                         throw new ItemNotFoundException(left.getFullName());
                 if (right.getRowSet()==table && table.isKeyColumn(right))
-                    if (!addJoinRestriction(upd, right, left, keyColumns, rec))
+                    if (!addJoinRestriction(upd, right, left, keyColumns, key, rec))
                         throw new ItemNotFoundException(right.getFullName());
             }
             // Evaluate Existing restrictions
@@ -527,7 +528,7 @@ public class DBQuery extends DBRowSet
             {
                 if (keyColumns[i].getRowSet() == table)
                 {   // Set key column constraint
-                    Object value = keys[i];
+                    Object value = key[i];
                     if (db.isPreparedStatementsEnabled())
                         value = upd.addParam(keyColumns[i], value);
                     upd.where(keyColumns[i].is(value));
@@ -567,7 +568,7 @@ public class DBQuery extends DBRowSet
             {   // Error
                 if (affected == 0)
                 { // Record not found
-                    throw new RecordUpdateFailedException(this, keys);
+                    throw new RecordUpdateFailedException(this, key);
                 }
                 // Rollback
                 // context.rollback();
@@ -575,7 +576,7 @@ public class DBQuery extends DBRowSet
             } 
             else if (affected > 1)
             { // More than one record
-                throw new RecordUpdateInvalidException(this, keys);
+                throw new RecordUpdateInvalidException(this, key);
             } 
             else
             { // success
@@ -588,7 +589,7 @@ public class DBQuery extends DBRowSet
             }
         }
         // success
-        rec.onUpdateComplete(keys);
+        rec.updateComplete(key);
     }
 
     /**
@@ -606,13 +607,12 @@ public class DBQuery extends DBRowSet
     /**
      * Adds join restrictions to the supplied command object.
      */
-    protected boolean addJoinRestriction(DBCommand upd, DBColumn updCol, DBColumn keyCol, DBColumn[] keyColumns, DBRecord rec)
+    protected boolean addJoinRestriction(DBCommand upd, DBColumn updCol, DBColumn keyCol, DBColumn[] keyColumns, Object[] keyValues, DBRecord rec)
     {   // Find key for foreign field
-        Object rowsetData = rec.getRowSetData();
-        for (int i = 0; i < keyColumns.length; i++)
-            if (keyColumns[i]==keyCol && rowsetData!=null)
+        for (int i = 0; keyValues!=null && i < keyColumns.length; i++)
+            if (keyColumns[i]==keyCol)
             {   // Set Field from Key
-                upd.where(updCol.is(((Object[]) rowsetData)[i]));
+                upd.where(updCol.is(keyValues[i]));
                 return true;
             }
         // Not found, what about the record

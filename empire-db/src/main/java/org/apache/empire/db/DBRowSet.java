@@ -27,6 +27,7 @@ import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -45,6 +46,7 @@ import org.apache.empire.db.exceptions.RecordNotFoundException;
 import org.apache.empire.db.exceptions.RecordUpdateFailedException;
 import org.apache.empire.db.exceptions.RecordUpdateInvalidException;
 import org.apache.empire.db.expr.column.DBCountExpr;
+import org.apache.empire.db.expr.compare.DBCompareExpr;
 import org.apache.empire.exceptions.InvalidArgumentException;
 import org.apache.empire.exceptions.ItemNotFoundException;
 import org.apache.empire.exceptions.NotSupportedException;
@@ -102,6 +104,16 @@ public abstract class DBRowSet extends DBExpr
     protected Map<DBColumn, DBColumn> columnReferences = null;
     // The column List
     protected List<DBColumn> columns          = new ArrayList<DBColumn>();
+
+    /**
+     * varArgs to Array
+     * @param parts
+     * @return
+     */
+    public static DBColumn[] key(DBColumn... parts)
+    {
+        return parts;
+    }
 
     /**
      * Constructs a DBRecord object set the current database object.
@@ -571,10 +583,10 @@ public abstract class DBRowSet extends DBExpr
      * @param rec the record object
      * @param recData the record data from which to initialized the record
      */
-    public void initRecord(DBRecord rec, DBRecordData recData)
+    protected void initRecord(DBRecord rec, DBRecordData recData, Object rowSetData)
     {
         // Initialize the record
-        prepareInitRecord(rec, null, false);
+        prepareInitRecord(rec, rowSetData, false);
         // Get Record Field Values
         Object[] fields = rec.getFields();
         for (int i = 0; i < fields.length; i++)
@@ -648,14 +660,14 @@ public abstract class DBRowSet extends DBExpr
      * @param cmd the SQL-Command used to query the record
      * @param conn a valid JDBC connection.
      */
-    protected void readRecord(DBRecord rec, DBCommand cmd)
+    protected void readRecord(DBRecord rec, DBCommand cmd, Object rowSetData)
     {
         DBReader reader = null;
         try
         {   // read record using a DBReader
             reader = new DBReader(rec.getContext(), false);
             reader.getRecordData(cmd);
-            initRecord(rec, reader);
+            initRecord(rec, reader, rowSetData);
             
         } finally {
             reader.close();
@@ -682,11 +694,32 @@ public abstract class DBRowSet extends DBExpr
         setKeyConstraints(cmd, key);
         try {
             // Read Record
-            readRecord(rec, cmd);
+            readRecord(rec, cmd, null);
         } catch (QueryNoResultException e) {
             // Translate exception
             throw new RecordNotFoundException(this, key);
         }
+    }
+   
+    /**
+     * Reads a record from the database
+     * @param key an array of the primary key values
+     */
+    public void readRecord(DBRecord rec, DBCompareExpr whereConstraints)
+    {
+        if (whereConstraints==null)
+            throw new InvalidArgumentException("whereConstraints", null);
+        // check constraints
+        Set<DBColumn> columns = new HashSet<DBColumn>();
+        whereConstraints.addReferencedColumns(columns);
+        for (DBColumn c : columns)
+            if (c.getRowSet().equals(this)==false)
+                throw new InvalidArgumentException("whereConstraints", c.getFullName());
+        // read now
+        DBCommand cmd = getDatabase().createCommand();
+        cmd.select(getColumns());
+        cmd.where(whereConstraints);
+        readRecord(rec, cmd, null);
     }
     
     /**
@@ -729,7 +762,7 @@ public abstract class DBRowSet extends DBExpr
         setKeyConstraints(cmd, key);
         try {
             // Read Record
-            readRecord(rec, cmd);
+            readRecord(rec, cmd, null);
         } catch (QueryNoResultException e) {
             // Translate exception
             throw new RecordNotFoundException(this, key);
@@ -937,7 +970,7 @@ public abstract class DBRowSet extends DBExpr
                 fields[i] = timestamp;
         }
         // Change State
-        rec.onUpdateComplete(rec.getRowSetData());        
+        rec.updateComplete(ObjectUtils.NO_VALUE);        
     }
     
     /**
