@@ -125,11 +125,11 @@ public abstract class DBView extends DBRowSet
         }    
 
         @Override
-        public Object validate(Object value)
+        public Object validateValue(Object value)
         {
             if (updateColumn==null)
                 return value;
-            return updateColumn.validate(value);
+            return updateColumn.validateValue(value);
         }
 
         @Override

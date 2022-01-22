@@ -687,7 +687,7 @@ public class DBRecord extends DBRecordData implements DBContextAware, Record, Cl
     @Override
     public Object validateValue(Column column, Object value)
     {
-    	return column.validate(value);
+    	return column.validateValue(value);
     }
 
     /**

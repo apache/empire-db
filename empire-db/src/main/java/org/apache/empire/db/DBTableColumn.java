@@ -18,13 +18,7 @@
  */
 package org.apache.empire.db;
 
-import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.sql.Connection;
-import java.text.ParseException;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.Date;
 
 import org.apache.empire.commons.Attributes;
 import org.apache.empire.commons.ObjectUtils;
@@ -32,10 +26,6 @@ import org.apache.empire.commons.OptionEntry;
 import org.apache.empire.commons.Options;
 import org.apache.empire.data.Column;
 import org.apache.empire.data.DataType;
-import org.apache.empire.db.exceptions.FieldIllegalValueException;
-import org.apache.empire.db.exceptions.FieldNotNullException;
-import org.apache.empire.db.exceptions.FieldValueOutOfRangeException;
-import org.apache.empire.db.exceptions.FieldValueTooLongException;
 import org.apache.empire.exceptions.InvalidArgumentException;
 import org.apache.empire.exceptions.InvalidPropertyException;
 import org.apache.empire.exceptions.NotSupportedException;
@@ -352,201 +342,9 @@ public class DBTableColumn extends DBColumn
      * @return true if the value is valid or false otherwise.
      */
     @Override
-    public Object validate(Object value)
+    public Object validateValue(Object value)
     {
-        // Check for NULL
-        if (ObjectUtils.isEmpty(value))
-        {   // Null value   
-            if (isRequired())
-                throw new FieldNotNullException(this);
-            // Null is allowed
-            return null;
-        }
-        // Check for Column expression
-        if (value instanceof DBColumnExpr)
-        {   DataType funcType = ((DBColumnExpr)value).getDataType();
-            if (!type.isCompatible(funcType))
-            {   // Incompatible data types
-                log.info("Incompatible data types in expression for column {} using function {}!", getName(), value.toString());
-                throw new FieldIllegalValueException(this, String.valueOf(value));
-            }
-            // allowed
-            return value; 
-        }
-        // Check for Command expression
-        if (value instanceof DBCommandExpr)
-        {   DBColumnExpr[] exprList = ((DBCommandExpr)value).getSelectExprList();
-            if (exprList.length!=1)
-            {   // Incompatible data types
-                log.info("Invalid command expression for column {} using command {}!", getName(), ((DBCommandExpr)value).getSelect());
-                throw new FieldIllegalValueException(this, ((DBCommandExpr)value).getSelect());
-            }
-            // Compare types
-            if (!type.isCompatible(exprList[0].getDataType()))
-            {   // Incompatible data types
-                log.info("Incompatible data types in expression for column {} using function {}!", getName(), value.toString());
-                throw new FieldIllegalValueException(this, String.valueOf(value));
-            }
-            // allowed
-            return value; 
-        }
-        // Is value valid
-        switch (type)
-        {
-            case DATE:
-                // Check for LocalDate
-                if (value instanceof LocalDate)
-                    break;
-                if (value instanceof LocalDateTime)
-                {   value = ((LocalDateTime)value).toLocalDate();
-                    break;
-                }
-            case DATETIME:
-            case TIMESTAMP:
-                // Check whether value is a valid date/time value!
-                if (!(value instanceof LocalDateTime) && !(value instanceof Date) && !DBDatabase.SYSDATE.equals(value))
-                {   try {
-                        // Parse Date
-                        value = ObjectUtils.toDate(value);
-                    } catch(ParseException e) {
-                        log.info("Parsing '{}' to Date failed for column {}. Message is "+e.toString(), value, getName());
-                        throw new FieldIllegalValueException(this, String.valueOf(value), e);
-                    }
-                }    
-                break;
-
-            case DECIMAL:
-                // check enum
-                if (value instanceof Enum<?>)
-                {   // convert enum   
-                    value = ((Enum<?>)value).ordinal();
-                }
-                // check number
-                if (!(value instanceof java.lang.Number))
-                {   try
-                    {   // Convert to Decimal
-                        value = ObjectUtils.toDecimal(value);
-                        // throws NumberFormatException if not a number!
-                    } catch (NumberFormatException e) {
-                        log.info("Parsing '{}' to Decimal failed for column {}. Message is "+e.toString(), value, getName());
-                        throw new FieldIllegalValueException(this, String.valueOf(value), e);
-                    }
-                }
-                // validate Number
-                value = validateNumber(type, (Number)value);
-                break;
-
-            case FLOAT:
-                if (!(value instanceof java.lang.Number))
-                {   try
-                    {   // Convert to Double
-                        value = ObjectUtils.toDouble(value);
-                        // throws NumberFormatException if not a number!
-                    } catch (NumberFormatException e) {
-                        log.info("Parsing '{}' to Double failed for column {}. Message is "+e.toString(), value, getName());
-                        throw new FieldIllegalValueException(this, String.valueOf(value), e);
-                    }
-                }
-                // validate Number
-                value = validateNumber(type, (Number)value);
-                break;
-
-            case INTEGER:
-                // check enum
-                if (value instanceof Enum<?>)
-                {   // convert enum   
-                    value = ((Enum<?>)value).ordinal();
-                }
-                // check number
-                if (!(value instanceof java.lang.Number))
-                {   try
-                    {   // Convert to Long
-                        value = ObjectUtils.toLong(value);
-                    } catch (NumberFormatException e) {
-                        log.info("Parsing '{}' to Integer failed for column {}. Message is "+e.toString(), value, getName());
-                        throw new FieldIllegalValueException(this, String.valueOf(value), e);
-                    }
-                }
-                // validate Number
-                value = validateNumber(type, (Number)value);
-                break;
-
-            case VARCHAR:
-            case CHAR:
-                // check enum
-                if (value instanceof Enum<?>)
-                {   // convert enum   
-                    value = ObjectUtils.getString((Enum<?>)value);
-                }
-                // check length
-                if (value.toString().length() > size)
-                {
-                    throw new FieldValueTooLongException(this);
-                }
-                break;
-                
-            default:
-                if (log.isDebugEnabled())
-                    log.debug("No column validation has been implemented for data type " + type);
-                break;
-
-        }
-        return value;
-    }
-    
-    protected Number validateNumber(DataType type, Number n)
-    {
-        // Check Range
-        Object min = getAttribute(Column.COLATTR_MINVALUE);
-        Object max = getAttribute(Column.COLATTR_MAXVALUE);
-        if (min!=null && max!=null)
-        {   // Check Range
-            long minVal = ObjectUtils.getLong(min);
-            long maxVal = ObjectUtils.getLong(max);
-            if (n.longValue()<minVal || n.longValue()>maxVal)
-            {   // Out of Range
-                throw new FieldValueOutOfRangeException(this, minVal, maxVal);
-            }
-        }
-        else if (min!=null)
-        {   // Check Min Value
-            long minVal = ObjectUtils.getLong(min);
-            if (n.longValue()<minVal)
-            {   // Out of Range
-                throw new FieldValueOutOfRangeException(this, minVal, false);
-            }
-        }
-        else if (max!=null)
-        {   // Check Max Value
-            long maxVal = ObjectUtils.getLong(max);
-            if (n.longValue()>maxVal)
-            {   // Out of Range
-                throw new FieldValueOutOfRangeException(this, maxVal, true);
-            }
-        }
-        // Check overall
-        if (type==DataType.DECIMAL)
-        {   // Convert to Decimal
-            BigDecimal dv = ObjectUtils.toDecimal(n);
-            int prec = dv.precision();
-            int scale = dv.scale();
-            // check precision and scale
-            double size = getSize();
-            int reqPrec = (int)size;
-            int reqScale = getDecimalScale();
-            if (scale>reqScale)
-            {   // Round if scale is exceeded
-                dv = dv.setScale(reqScale, RoundingMode.HALF_UP);
-                prec  = dv.precision();
-                scale = dv.scale();
-                n = dv;
-            }
-            if ((prec-scale)>(reqPrec-reqScale))
-            {   
-                throw new FieldValueOutOfRangeException(this);
-            }
-        }
-        return n;
+        return ((DBTable)rowset).validateValue(this, value);
     }
 
     /**

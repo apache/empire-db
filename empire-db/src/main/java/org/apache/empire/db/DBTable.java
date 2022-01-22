@@ -724,4 +724,12 @@ public class DBTable extends DBRowSet implements Cloneable
         return Collections.unmodifiableList(relations);        
     }
 
+    /**
+     * validates a column value
+     * @return the validated (possibly converted) value
+     */
+    protected Object validateValue(DBTableColumn column, Object value)
+    {
+        return db.validateValue(column, value);
+    }
 }

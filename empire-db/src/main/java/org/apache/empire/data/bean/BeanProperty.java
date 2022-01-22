@@ -225,7 +225,7 @@ public class BeanProperty implements Column
     }
 
     @Override
-    public Object validate(Object value)
+    public Object validateValue(Object value)
     {
         if (ObjectUtils.isEmpty(value) && isRequired())
             throw new FieldNotNullException(this);

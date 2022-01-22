@@ -179,7 +179,7 @@ public class TagEncodingHelper implements NamingContainer
         }
 
         @Override
-        public Object validate(Object value)
+        public Object validateValue(Object value)
         {
             log.warn("validate not supported for {}", expr.getName());
             return value;
@@ -325,7 +325,7 @@ public class TagEncodingHelper implements NamingContainer
             if ((getRecord() instanceof Record))
                ((Record)getRecord()).validateValue(column, value);
             else
-                column.validate(value);
+                column.validateValue(value);
         }
 
         @Override

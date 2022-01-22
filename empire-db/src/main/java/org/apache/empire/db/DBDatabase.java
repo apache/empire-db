@@ -20,6 +20,11 @@ package org.apache.empire.db;
 
 import java.io.Serializable;
 import java.lang.ref.WeakReference;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.text.ParseException;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -29,9 +34,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.empire.commons.ObjectUtils;
+import org.apache.empire.data.Column;
 import org.apache.empire.data.DataType;
 import org.apache.empire.db.DBRelation.DBCascadeAction;
 import org.apache.empire.db.exceptions.DatabaseNotOpenException;
+import org.apache.empire.db.exceptions.FieldIllegalValueException;
+import org.apache.empire.db.exceptions.FieldNotNullException;
+import org.apache.empire.db.exceptions.FieldValueOutOfRangeException;
+import org.apache.empire.db.exceptions.FieldValueTooLongException;
 import org.apache.empire.db.expr.column.DBCaseWhenExpr;
 import org.apache.empire.db.expr.column.DBValueExpr;
 import org.apache.empire.db.expr.compare.DBCompareExpr;
@@ -855,6 +866,215 @@ public abstract class DBDatabase extends DBObject
         if (value instanceof byte[])
             return DataType.BLOB;
         return DataType.UNKNOWN;
+    }
+    
+    /**
+     * Checks whether the supplied value is valid for the given column.
+     * If the type of the value supplied does not match the columns
+     * data type the value will be checked for compatibility.
+     * If the value is not valid a FieldIllegalValueException is thrown
+     * 
+     * @param column the column to check
+     * @param value the checked to check for validity
+     * @return the (possibly converted) value
+     * 
+     * @throws FieldValueException
+     */
+    protected Object validateValue(DBTableColumn column, Object value)
+    {
+        DataType type = column.getDataType();
+        // Check for NULL
+        if (ObjectUtils.isEmpty(value))
+        {   // Null value   
+            if (column.isRequired())
+                throw new FieldNotNullException(column);
+            // Null is allowed
+            return null;
+        }
+        // Check for Column expression
+        if (value instanceof DBColumnExpr)
+        {   DataType funcType = ((DBColumnExpr)value).getDataType();
+            if (!type.isCompatible(funcType))
+            {   // Incompatible data types
+                log.info("Incompatible data types in expression for column {} using function {}!", column.getName(), value.toString());
+                throw new FieldIllegalValueException(column, String.valueOf(value));
+            }
+            // allowed
+            return value; 
+        }
+        // Check for Command expression
+        if (value instanceof DBCommandExpr)
+        {   DBColumnExpr[] exprList = ((DBCommandExpr)value).getSelectExprList();
+            if (exprList.length!=1)
+            {   // Incompatible data types
+                log.info("Invalid command expression for column {} using command {}!", column.getName(), ((DBCommandExpr)value).getSelect());
+                throw new FieldIllegalValueException(column, ((DBCommandExpr)value).getSelect());
+            }
+            // Compare types
+            if (!type.isCompatible(exprList[0].getDataType()))
+            {   // Incompatible data types
+                log.info("Incompatible data types in expression for column {} using function {}!", column.getName(), value.toString());
+                throw new FieldIllegalValueException(column, String.valueOf(value));
+            }
+            // allowed
+            return value; 
+        }
+        // Is value valid
+        switch (type)
+        {
+            case DATE:
+                // Check for LocalDate
+                if (value instanceof LocalDate)
+                    break;
+                if (value instanceof LocalDateTime)
+                {   value = ((LocalDateTime)value).toLocalDate();
+                    break;
+                }
+            case DATETIME:
+            case TIMESTAMP:
+                // Check whether value is a valid date/time value!
+                if (!(value instanceof LocalDateTime) && !(value instanceof Date) && !DBDatabase.SYSDATE.equals(value))
+                {   try {
+                        // Parse Date
+                        value = ObjectUtils.toDate(value);
+                    } catch(ParseException e) {
+                        log.info("Parsing '{}' to Date failed for column {}. Message is "+e.toString(), value, column.getName());
+                        throw new FieldIllegalValueException(column, String.valueOf(value), e);
+                    }
+                }    
+                break;
+
+            case DECIMAL:
+                // check enum
+                if (value instanceof Enum<?>)
+                {   // convert enum   
+                    value = ((Enum<?>)value).ordinal();
+                }
+                // check number
+                if (!(value instanceof java.lang.Number))
+                {   try
+                    {   // Convert to Decimal
+                        value = ObjectUtils.toDecimal(value);
+                        // throws NumberFormatException if not a number!
+                    } catch (NumberFormatException e) {
+                        log.info("Parsing '{}' to Decimal failed for column {}. Message is "+e.toString(), value, column.getName());
+                        throw new FieldIllegalValueException(column, String.valueOf(value), e);
+                    }
+                }
+                // validate Number
+                value = validateNumber(column, type, (Number)value);
+                break;
+
+            case FLOAT:
+                if (!(value instanceof java.lang.Number))
+                {   try
+                    {   // Convert to Double
+                        value = ObjectUtils.toDouble(value);
+                        // throws NumberFormatException if not a number!
+                    } catch (NumberFormatException e) {
+                        log.info("Parsing '{}' to Double failed for column {}. Message is "+e.toString(), value, column.getName());
+                        throw new FieldIllegalValueException(column, String.valueOf(value), e);
+                    }
+                }
+                // validate Number
+                value = validateNumber(column, type, (Number)value);
+                break;
+
+            case INTEGER:
+                // check enum
+                if (value instanceof Enum<?>)
+                {   // convert enum   
+                    value = ((Enum<?>)value).ordinal();
+                }
+                // check number
+                if (!(value instanceof java.lang.Number))
+                {   try
+                    {   // Convert to Long
+                        value = ObjectUtils.toLong(value);
+                    } catch (NumberFormatException e) {
+                        log.info("Parsing '{}' to Integer failed for column {}. Message is "+e.toString(), value, column.getName());
+                        throw new FieldIllegalValueException(column, String.valueOf(value), e);
+                    }
+                }
+                // validate Number
+                value = validateNumber(column, type, (Number)value);
+                break;
+
+            case VARCHAR:
+            case CHAR:
+                // check enum
+                if (value instanceof Enum<?>)
+                {   // convert enum   
+                    value = ObjectUtils.getString((Enum<?>)value);
+                }
+                // check length
+                if (value.toString().length() > (int)column.getSize())
+                {
+                    throw new FieldValueTooLongException(column);
+                }
+                break;
+                
+            default:
+                if (log.isDebugEnabled())
+                    log.debug("No column validation has been implemented for data type " + type);
+                break;
+        }
+        return value;
+    }
+    
+    protected Number validateNumber(DBTableColumn column, DataType type, Number n)
+    {
+        // Check Range
+        Object min = column.getAttribute(Column.COLATTR_MINVALUE);
+        Object max = column.getAttribute(Column.COLATTR_MAXVALUE);
+        if (min!=null && max!=null)
+        {   // Check Range
+            long minVal = ObjectUtils.getLong(min);
+            long maxVal = ObjectUtils.getLong(max);
+            if (n.longValue()<minVal || n.longValue()>maxVal)
+            {   // Out of Range
+                throw new FieldValueOutOfRangeException(column, minVal, maxVal);
+            }
+        }
+        else if (min!=null)
+        {   // Check Min Value
+            long minVal = ObjectUtils.getLong(min);
+            if (n.longValue()<minVal)
+            {   // Out of Range
+                throw new FieldValueOutOfRangeException(column, minVal, false);
+            }
+        }
+        else if (max!=null)
+        {   // Check Max Value
+            long maxVal = ObjectUtils.getLong(max);
+            if (n.longValue()>maxVal)
+            {   // Out of Range
+                throw new FieldValueOutOfRangeException(column, maxVal, true);
+            }
+        }
+        // Check overall
+        if (type==DataType.DECIMAL)
+        {   // Convert to Decimal
+            BigDecimal dv = ObjectUtils.toDecimal(n);
+            int prec = dv.precision();
+            int scale = dv.scale();
+            // check precision and scale
+            double size = column.getSize();
+            int reqPrec = (int)size;
+            int reqScale = column.getDecimalScale();
+            if (scale>reqScale)
+            {   // Round if scale is exceeded
+                dv = dv.setScale(reqScale, RoundingMode.HALF_UP);
+                prec  = dv.precision();
+                scale = dv.scale();
+                n = dv;
+            }
+            if ((prec-scale)>(reqPrec-reqScale))
+            {   
+                throw new FieldValueOutOfRangeException(column);
+            }
+        }
+        return n;
     }
     
     /**

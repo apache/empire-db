@@ -284,7 +284,7 @@ public abstract class DBCommandExpr extends DBExpr
          * Not applicable - always return the value.
          */
         @Override
-        public Object validate(Object value)
+        public Object validateValue(Object value)
         {   // Nothing to check.
             return value;
         }

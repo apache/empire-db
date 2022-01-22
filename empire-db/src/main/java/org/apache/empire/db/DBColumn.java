@@ -232,17 +232,11 @@ public abstract class DBColumn extends DBColumnExpr
      * If not, an exception is thrown
      */
     @Override
-    public abstract Object validate(Object value);
-    
+    public abstract Object validateValue(Object value);
+
     /**
-     * @deprecated use validate() instead 
+     * Appends column meta information to the parent element
      */
-    @Deprecated
-    public final void checkValue(Object value)
-    {
-        validate(value);
-    }
-    
     @Override
     public abstract Element addXml(Element parent, long flags);
 

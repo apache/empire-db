@@ -257,7 +257,7 @@ public class BeanRecordProxy<T> implements Record
     @Override
     public Object validateValue(Column column, Object value)
     {
-        return column.validate(value);
+        return column.validateValue(value);
     }
 
     /**

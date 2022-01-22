@@ -91,6 +91,6 @@ public interface Column extends ColumnExpr
      * If not, an exception is thrown
      * @return the value the validated and possibly converted value
      */
-    Object validate(Object value);
+    Object validateValue(Object value);
 
 }

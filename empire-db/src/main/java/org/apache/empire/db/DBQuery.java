@@ -461,7 +461,7 @@ public class DBQuery extends DBRowSet
                 if (col.isReadOnly() && log.isDebugEnabled())
                     log.debug("updateRecord: Read-only column '" + col.getName() + " has been modified!");
                 // Check the value
-                col.validate(fields[i]);
+                col.validateValue(fields[i]);
                 // Set
                 updCmd.set(col.to(fields[i]));
             }

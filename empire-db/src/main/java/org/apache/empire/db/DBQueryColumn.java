@@ -106,12 +106,12 @@ public class DBQueryColumn extends DBColumn
     }
 
     @Override
-    public Object validate(Object value)
+    public Object validateValue(Object value)
     {
         DBColumn column = expr.getUpdateColumn();
         if (column==null)
             return value;
-        return column.validate(value);
+        return column.validateValue(value);
     }
 
     @Override
