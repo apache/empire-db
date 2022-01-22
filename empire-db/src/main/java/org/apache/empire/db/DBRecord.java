@@ -732,24 +732,43 @@ public class DBRecord extends DBRecordData implements DBContextAware, Record, Cl
     }
 
     /**
+     * Returns whether or not RollbackHandling is enabled for this record
+     */
+    public boolean isRollbackHandlingEnabled() 
+    {
+		return this.enableRollbackHandling;
+	}
+
+    /**
+     * Set whether or not RollbackHandling will be performed for this record
+     * Since Rollback handling requires additional resources it should only be used if necessary
+     * Especially for bulk operations it should be disabled
+     * @param enabled flag whether to enable or disable RollbackHandling 
+     */
+	public void setRollbackHandlingEnabled(boolean enabled) 
+	{
+		this.enableRollbackHandling = enabled;
+	}
+
+    /**
      * Returns whether or not values are checked for validity when calling setValue().
      * If set to true validateValue() is called to check validity
      * @return true if the validity of values is checked or false otherwise
      */
     public boolean isValidateFieldValues() 
     {
-		return validateFieldValues;
-	}
+        return validateFieldValues;
+    }
 
     /**
      * Set whether or not values are checked for validity when calling setValue().
      * If set to true validateValue() is called to check validity, otherwise not.
      * @param validateFieldValues flag whether to check validity
      */
-	public void setValidateFieldValues(boolean validateFieldValues) 
-	{
-		this.validateFieldValues = validateFieldValues;
-	}
+    public void setValidateFieldValues(boolean validateFieldValues) 
+    {
+        this.validateFieldValues = validateFieldValues;
+    }
     
     /**
      * returns whether a field is visible to the client or not

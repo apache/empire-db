@@ -28,8 +28,9 @@ import org.slf4j.LoggerFactory;
 
 public class EmployeeDetailPage extends SamplePage
 {
+    // *Deprecated* private static final long serialVersionUID = 1L;
+
     private static final Logger               log               = LoggerFactory.getLogger(EmployeeDetailPage.class);
-    private static final long                 serialVersionUID  = 1L;
 
     private String                            idParam;
 

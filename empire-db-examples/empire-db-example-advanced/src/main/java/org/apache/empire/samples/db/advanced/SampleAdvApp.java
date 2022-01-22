@@ -470,6 +470,8 @@ public class SampleAdvApp
             reader.open(cmd);
             // Print output
             DBRecord record = new DBRecord(context, EMP);
+            // Disable rollback handling to improve performance
+            record.setRollbackHandlingEnabled(false);
             while (reader.moveNext())
             {
                 // Calculate sum

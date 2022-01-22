@@ -37,7 +37,6 @@ public class CodeGenTest
 	}
 
     @Test
-    @SuppressWarnings("serial")
     public void testCodeGen()
     {
         CodeGenConfig config = new CodeGenConfig();

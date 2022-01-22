@@ -42,10 +42,10 @@ import org.slf4j.LoggerFactory;
 
 public class EmployeeListPage extends SamplePage
 {
-    private static final long                      serialVersionUID  = 1L;
-    private static final Logger                    log               = LoggerFactory.getLogger(EmployeeListPage.class);
+    // *Deprecated* private static final long serialVersionUID = 1L;
 
-    
+    private static final Logger log = LoggerFactory.getLogger(EmployeeListPage.class);
+
     private BeanListPageElement<EmployeeListEntry> employees;
     
     public static class EmployeeListEntry extends ListPageElement.SelectableItem implements ParameterizedItem
