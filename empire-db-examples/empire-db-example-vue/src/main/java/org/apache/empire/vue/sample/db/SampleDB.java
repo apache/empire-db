@@ -26,7 +26,7 @@ import org.apache.empire.db.DBTableColumn;
 
 public class SampleDB extends DBDatabase
 {
-    private final static long       serialVersionUID = 1L;
+    // *Deprecated* private static final long serialVersionUID = 1L;
 
     // Declare all Tables
     public final TDepartments       T_DEPARTMENTS    = new TDepartments(this);
@@ -53,7 +53,7 @@ public class SampleDB extends DBDatabase
      */
     public static class TDepartments extends SampleTable
     {
-        private static final long  serialVersionUID = 1L;
+        // *Deprecated* private static final long serialVersionUID = 1L;
 
         public final DBTableColumn DEPARTMENT_ID;
         public final DBTableColumn NAME;
@@ -86,7 +86,7 @@ public class SampleDB extends DBDatabase
      */
     public static class TEmployees extends SampleTable
     {
-        private static final long  serialVersionUID = 1L;
+        // *Deprecated* private static final long serialVersionUID = 1L;
 
         public final DBTableColumn EMPLOYEE_ID;
         public final DBTableColumn SALUTATION;

@@ -43,13 +43,13 @@ import org.w3c.dom.Element;
  */
 public abstract class DBCommandExpr extends DBExpr
 {
-    private final static long serialVersionUID = 1L;
+    // *Deprecated* private static final long serialVersionUID = 1L;
     private static final Logger log = LoggerFactory.getLogger(DBCommandExpr.class);
 
     // Internal Classes
     protected static class DBCmdQuery extends DBRowSet
     {
-        private final static long serialVersionUID = 1L;
+        // *Deprecated* private static final long serialVersionUID = 1L;
         private DBCommandExpr cmd;
 
         /**
@@ -173,7 +173,7 @@ public abstract class DBCommandExpr extends DBExpr
      */
     protected static class DBCmdColumn extends DBColumn
     {
-        private final static long serialVersionUID = 1L;
+        // *Deprecated* private static final long serialVersionUID = 1L;
         private DBColumnExpr expr;
 
         /**

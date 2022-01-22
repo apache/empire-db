@@ -37,7 +37,7 @@ import org.apache.empire.vue.sample.db.SampleTable;
 
 public abstract class SampleRecord<T extends SampleTable> extends DBRecord {
 
-	private static final long serialVersionUID = 1L;
+	// *Deprecated* private static final long serialVersionUID = 1L;
 	
 	protected final T T; // The table
 	protected final RecordContext recordContext;

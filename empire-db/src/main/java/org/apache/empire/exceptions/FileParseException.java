@@ -22,9 +22,6 @@ import org.apache.empire.commons.ErrorType;
 
 public class FileParseException extends EmpireFileException
 {
-    /**
-     * Comment for <code>serialVersionUID</code>
-     */
     private static final long serialVersionUID = 1L;
     
     public static final ErrorType errorType = new ErrorType("error.fileParseError", "The file {0} has an invalid format.");

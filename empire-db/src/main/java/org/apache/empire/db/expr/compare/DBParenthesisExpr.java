@@ -29,7 +29,7 @@ import org.apache.empire.db.DBDatabase;
  */
 public class DBParenthesisExpr extends DBCompareExpr
 {
-    private static final long serialVersionUID = 1L;
+    // *Deprecated* private static final long serialVersionUID = 1L;
     private final DBCompareExpr wrap;
     
     public DBParenthesisExpr(DBCompareExpr wrap)

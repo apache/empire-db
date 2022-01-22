@@ -23,9 +23,6 @@ import org.apache.empire.data.Column;
 
 public class FieldValueOutOfRangeException extends FieldValueException
 {
-    /**
-     * Comment for <code>serialVersionUID</code>
-     */
     private static final long serialVersionUID = 1L;
     
     public static final ErrorType outOfRangeErrorType      = new ErrorType("error.db.fieldValueOutOfRange",   "The value supplied for field {0} is out of range.");

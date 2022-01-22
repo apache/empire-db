@@ -51,7 +51,7 @@ import org.w3c.dom.Element;
 public abstract class DBRecordData extends DBObject
 	implements RecordData
 {
-    private final static long   serialVersionUID = 1L;
+    // *Deprecated* private static final long serialVersionUID = 1L;
 
     // Logger
     private static final Logger log              = LoggerFactory.getLogger(DBRecordData.class);

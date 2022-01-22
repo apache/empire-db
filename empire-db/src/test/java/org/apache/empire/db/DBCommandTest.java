@@ -63,7 +63,7 @@ public class DBCommandTest
 	
 	private static class MockDB extends DBDatabase{
         
-	    private static final long serialVersionUID = 1L;
+	    // *Deprecated* private static final long serialVersionUID = 1L;
 	    
 	    private final MockDBTable TABLE = new MockDBTable(this);
 
@@ -71,7 +71,7 @@ public class DBCommandTest
 	
     private static class MockDBTable extends DBTable {
         
-        private static final long serialVersionUID = 1L;
+        // *Deprecated* private static final long serialVersionUID = 1L;
         
         private final DBColumn COL1; 
         private final DBColumn COL2; 

@@ -25,7 +25,7 @@ import org.w3c.dom.Element;
 
 public class DBQueryColumn extends DBColumn
 {
-    private final static long serialVersionUID = 1L;
+    // *Deprecated* private static final long serialVersionUID = 1L;
     
     protected final DBColumnExpr expr;
 

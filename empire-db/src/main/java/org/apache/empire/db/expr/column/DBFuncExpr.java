@@ -41,7 +41,7 @@ import org.apache.empire.db.DBExpr;
  */
 public class DBFuncExpr extends DBAbstractFuncExpr
 {
-    private final static long serialVersionUID = 1L;
+    // *Deprecated* private static final long serialVersionUID = 1L;
   
     protected final int          phrase;
     protected final Object[]     params;

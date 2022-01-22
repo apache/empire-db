@@ -24,13 +24,10 @@ import org.slf4j.LoggerFactory;
 
 public class BeanPropertySetException extends EmpireException
 {
+    private static final long serialVersionUID = 1L;
+
     // Logger
     private static final Logger log = LoggerFactory.getLogger(BeanPropertySetException.class);
-    
-    /**
-     * Comment for <code>serialVersionUID</code>
-     */
-    private static final long serialVersionUID = 1L;
     
     public static final ErrorType errorType = new ErrorType("error.propertySetError", "The property {0} cannot be set on type {1}.");
     

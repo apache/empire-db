@@ -18,25 +18,14 @@
  */
 package org.apache.empire.db;
 
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-// java.sql
-import java.io.Serializable;
-
-import org.apache.empire.commons.StringUtils;
-
-
 /**
  * Base class for all objects that directly or indirectly belong to a database including the database object itself.
  * Examples are: tables, views, columns, indexes, relations etc.
  * Not included are: drivers, helper classes
  */
-public abstract class DBObject implements Serializable
+public abstract class DBObject // *Deprecated* implements Serializable
 {
-    private static final long serialVersionUID = 1L;
-    // Logger
-    // private static final Logger log = LoggerFactory.getLogger(DBObject.class);
+    // *Deprecated* private static final long serialVersionUID = 1L;
 
     /**
      * Returns the database object to which this object belongs to.
@@ -45,39 +34,10 @@ public abstract class DBObject implements Serializable
      * @return the database object
      */
     public abstract <T extends DBDatabase> T getDatabase();
-    
-    
-    /**
-     * Serialize transient database
-     * @param strm the stream
-     * @param db
-     * @throws IOException
-     */
-    protected void writeDatabase(ObjectOutputStream strm, DBDatabase db) throws IOException
-    {
-        String dbid = (db!=null ? db.getIdentifier() : ""); 
-        strm.writeObject(dbid);
-    }
-    
-    /**
-     * Serialize transient database
-     * @param strm the stream
-     * @param db
-     * @throws IOException
-     */
-    protected DBDatabase readDatabase(ObjectInputStream strm) throws IOException, ClassNotFoundException
-    {
-        String dbid = String.valueOf(strm.readObject());
-        if (StringUtils.isEmpty(dbid))
-            return null; // No Database
-        // find database
-        DBDatabase sdb = DBDatabase.findById(dbid);
-        if (sdb==null)
-            throw new ClassNotFoundException(dbid);
-        return sdb;
-    }
 
     /*
+     * Custom serialization
+     * 
     private void readObject(ObjectInputStream strm) throws IOException, ClassNotFoundException,
         SecurityException, IllegalArgumentException 
     {
@@ -92,5 +52,5 @@ public abstract class DBObject implements Serializable
         //perform the default serialization for all non-transient, non-static fields
         strm.defaultWriteObject();
     }
-    */
+     */
 }

@@ -23,9 +23,6 @@ import org.apache.empire.data.Column;
 
 public class FieldIllegalValueException extends FieldValueException
 {
-    /**
-     * Comment for <code>serialVersionUID</code>
-     */
     private static final long serialVersionUID = 1L;
     
     public static final ErrorType errorType = new ErrorType("error.db.fieldIllegalValue",  "The value {1} for field {0} is invalid.");

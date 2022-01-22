@@ -25,9 +25,6 @@ import org.apache.empire.exceptions.EmpireException;
 
 public class NoPrimaryKeyException extends EmpireException
 {
-    /**
-     * Comment for <code>serialVersionUID</code>
-     */
     private static final long serialVersionUID = 1L;
     
     public static final ErrorType errorType = new ErrorType("error.db.noPrimaryKey", "No primary key is defined for {0}.");

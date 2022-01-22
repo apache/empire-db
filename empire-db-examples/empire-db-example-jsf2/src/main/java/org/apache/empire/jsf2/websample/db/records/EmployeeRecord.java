@@ -28,7 +28,7 @@ import org.apache.empire.jsf2.websample.web.SampleContext;
 
 public class EmployeeRecord extends SampleRecord<TEmployees>
 {
-    private final static long serialVersionUID = 1L;
+    // *Deprecated* private static final long serialVersionUID = 1L;
 
     public EmployeeRecord(SampleContext context)
     {

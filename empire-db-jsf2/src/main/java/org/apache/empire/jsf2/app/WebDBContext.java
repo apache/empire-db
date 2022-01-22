@@ -1,20 +1,14 @@
 package org.apache.empire.jsf2.app;
 
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.io.Serializable;
 import java.sql.Connection;
 
 import javax.faces.context.FacesContext;
 
-import org.apache.empire.commons.ClassUtils;
 import org.apache.empire.db.DBCommand;
 import org.apache.empire.db.DBDatabase;
 import org.apache.empire.db.DBDatabaseDriver;
 import org.apache.empire.db.context.DBContextBase;
 import org.apache.empire.db.context.DBRollbackManager;
-import org.apache.empire.exceptions.ItemNotFoundException;
 import org.apache.empire.exceptions.NotSupportedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,19 +21,19 @@ import org.slf4j.LoggerFactory;
  *
  * @param <DB>
  */
-public class WebDBContext<DB extends DBDatabase> extends DBContextBase implements Serializable
+public class WebDBContext<DB extends DBDatabase> extends DBContextBase // *Deprecated* implements Serializable
 {
-    private static final long serialVersionUID = 1L;
+    // *Deprecated* private static final long serialVersionUID = 1L;
 
     private static final Logger    log = LoggerFactory.getLogger(WebDBContext.class);
 
-    protected final transient WebApplication   app;
-    protected final transient DB               database;
-    protected final transient DBDatabaseDriver driver;
+    protected final WebApplication   app;       /* transient */
+    protected final DB               database;  /* transient */
+    protected final DBDatabaseDriver driver;    /* transient */
 
     /**
-    * Custom serialization for transient fields.
-    */
+     * Custom serialization for transient fields.
+     * 
     private void writeObject(ObjectOutputStream strm) throws IOException 
     {   // Database
         strm.writeObject((database!=null ? database.getIdentifier() : ""));
@@ -47,9 +41,6 @@ public class WebDBContext<DB extends DBDatabase> extends DBContextBase implement
         strm.defaultWriteObject();
     }
     
-    /**
-    * Custom deserialization for transient fields.
-    */
     private void readObject(ObjectInputStream strm) 
         throws IOException, ClassNotFoundException
     {   // WebApplication
@@ -64,6 +55,7 @@ public class WebDBContext<DB extends DBDatabase> extends DBContextBase implement
         // read the rest
         strm.defaultReadObject();
     }
+     */
     
     public WebDBContext(WebApplication app, DB db)
     {

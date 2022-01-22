@@ -50,7 +50,7 @@ public class EmployeeListPage extends SamplePage
     
     public static class EmployeeListEntry extends ListPageElement.SelectableItem implements ParameterizedItem
     {
-        private static final long serialVersionUID = 1L;
+        // *Deprecated* private static final long serialVersionUID = 1L;
 
         private int               employeeId;
         private String            name;

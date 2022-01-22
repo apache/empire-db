@@ -40,7 +40,7 @@ import org.w3c.dom.Element;
  */
 public class DBCalcExpr extends DBColumnExpr
 {
-    private final static long serialVersionUID = 1L;
+    // *Deprecated* private static final long serialVersionUID = 1L;
   
     private final DBColumnExpr expr;
     private final String       op;

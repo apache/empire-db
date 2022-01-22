@@ -45,7 +45,7 @@ import org.slf4j.LoggerFactory;
  */
 public class DBDatabaseDriverDerby extends DBDatabaseDriver
 {
-	private final static long serialVersionUID = 1L;
+	// *Deprecated* private static final long serialVersionUID = 1L;
     private static final Logger log = LoggerFactory.getLogger(DBDatabaseDriverDerby.class);
 
     /**
@@ -53,7 +53,7 @@ public class DBDatabaseDriverDerby extends DBDatabaseDriver
      */ 
     public static class DBCommandDerby extends DBCommand
     {
-        private final static long serialVersionUID = 1L;
+        // *Deprecated* private static final long serialVersionUID = 1L;
       
         public DBCommandDerby(DBDatabase db)
         {

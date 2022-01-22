@@ -36,6 +36,7 @@ public interface RecordContext extends DBContext
      * provide a JDBC connection for DB operations 
      * @return the JDBC connection
      */
+    @Override
     Connection getConnection();
 
     /**

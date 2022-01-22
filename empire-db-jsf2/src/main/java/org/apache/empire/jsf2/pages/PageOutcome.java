@@ -18,14 +18,13 @@
  */
 package org.apache.empire.jsf2.pages;
 
-import java.io.Serializable;
 
 import org.apache.empire.commons.StringUtils;
 import org.apache.empire.exceptions.InvalidArgumentException;
 
-public class PageOutcome implements Serializable
+public class PageOutcome // *Deprecated* implements Serializable
 {
-    private static final long serialVersionUID = 1L;
+    // *Deprecated* private static final long serialVersionUID = 1L;
     
     private String outcome;
     public PageOutcome(String outcome)

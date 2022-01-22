@@ -51,7 +51,7 @@ import org.slf4j.LoggerFactory;
  */
 public class DBDatabaseDriverPostgreSQL extends DBDatabaseDriver
 {
-    private final static long serialVersionUID = 1L;
+    // *Deprecated* private static final long serialVersionUID = 1L;
   
     private static final Logger log = LoggerFactory.getLogger(DBDatabaseDriverPostgreSQL.class);
     
@@ -79,7 +79,7 @@ public class DBDatabaseDriverPostgreSQL extends DBDatabaseDriver
      */ 
     public static class DBCommandPostreSQL extends DBCommand
     {
-        private final static long serialVersionUID = 1L;
+        // *Deprecated* private static final long serialVersionUID = 1L;
       
         protected int limit = -1;
         protected int skip  = -1;

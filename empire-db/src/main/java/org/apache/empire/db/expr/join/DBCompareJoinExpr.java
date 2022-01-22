@@ -39,7 +39,7 @@ import org.slf4j.LoggerFactory;
  */
 public class DBCompareJoinExpr extends DBColumnJoinExpr
 {
-    private final static long serialVersionUID = 1L;
+    // *Deprecated* private static final long serialVersionUID = 1L;
     private static final Logger log = LoggerFactory.getLogger(DBCompareJoinExpr.class);
     
     protected final DBCompareExpr cmp;

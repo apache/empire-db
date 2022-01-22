@@ -52,7 +52,7 @@ import org.slf4j.LoggerFactory;
  */
 public class DBDatabaseDriverMSSQL extends DBDatabaseDriver
 {
-    private final static long serialVersionUID = 1L;
+    // *Deprecated* private static final long serialVersionUID = 1L;
     private static final Logger log = LoggerFactory.getLogger(DBDatabaseDriverMSSQL.class);
   
     /**
@@ -60,7 +60,7 @@ public class DBDatabaseDriverMSSQL extends DBDatabaseDriver
      */ 
     public static class DBCommandMSSQL extends DBCommand
     {
-        private final static long serialVersionUID = 1L;
+        // *Deprecated* private static final long serialVersionUID = 1L;
         protected int limit = -1;
 
         public DBCommandMSSQL(DBDatabase db)

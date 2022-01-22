@@ -54,7 +54,7 @@ import org.slf4j.LoggerFactory;
 
 public class BeanListPageElement<T> extends ListPageElement<T> implements ListItemSelection
 {
-    private static final long   serialVersionUID     = 1L;
+    // *Deprecated* private static final long serialVersionUID = 1L;
 
     private static final Logger log                  = LoggerFactory.getLogger(BeanListPageElement.class);
     
@@ -77,7 +77,7 @@ public class BeanListPageElement<T> extends ListPageElement<T> implements ListIt
      */
     public static class BeanListTableInfo extends ListTableInfo
     {
-        private static final long serialVersionUID = 1L;
+        // *Deprecated* private static final long serialVersionUID = 1L;
 
         private DBCommand         queryCmd         = null;
 

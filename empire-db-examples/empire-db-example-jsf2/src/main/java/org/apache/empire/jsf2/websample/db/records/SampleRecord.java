@@ -25,7 +25,7 @@ import org.apache.empire.jsf2.websample.db.SampleTable;
 
 public abstract class SampleRecord<T extends SampleTable> extends DBRecord {
 
-	private static final long serialVersionUID = 1L;
+	// *Deprecated* private static final long serialVersionUID = 1L;
 	
 	protected T T; // The table
 

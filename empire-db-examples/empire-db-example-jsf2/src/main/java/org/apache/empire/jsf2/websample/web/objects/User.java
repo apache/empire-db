@@ -18,11 +18,10 @@
  */
 package org.apache.empire.jsf2.websample.web.objects;
 
-import java.io.Serializable;
 
-public class User implements Serializable
+public class User // *Deprecated* implements Serializable
 {
-    private static final long serialVersionUID = 1L;
+    // *Deprecated* private static final long serialVersionUID = 1L;
 
     private String            name             = "";
 

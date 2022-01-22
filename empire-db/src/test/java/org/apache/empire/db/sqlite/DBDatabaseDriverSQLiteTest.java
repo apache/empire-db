@@ -142,7 +142,7 @@ public class DBDatabaseDriverSQLiteTest{
      */
     private class SeqDB extends DBDatabase
     {
-        private final static long serialVersionUID = 1L;
+        // *Deprecated* private static final long serialVersionUID = 1L;
         public final Data DATA = new Data(this);
     }
     
@@ -151,7 +151,7 @@ public class DBDatabaseDriverSQLiteTest{
      */
     public static class Data extends DBTable
     {
-        private final static long serialVersionUID = 1L;
+        // *Deprecated* private static final long serialVersionUID = 1L;
         public final DBTableColumn ID;
         public final DBTableColumn VALUE;
 

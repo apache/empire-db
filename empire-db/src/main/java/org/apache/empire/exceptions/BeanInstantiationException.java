@@ -24,13 +24,10 @@ import org.slf4j.LoggerFactory;
 
 public class BeanInstantiationException extends EmpireException
 {
+    private static final long serialVersionUID = 1L;
+
     // Logger
     private static final Logger log = LoggerFactory.getLogger(BeanInstantiationException.class);
-    
-    /**
-     * Comment for <code>serialVersionUID</code>
-     */
-    private static final long serialVersionUID = 1L;
     
     public static final ErrorType errorType = new ErrorType("error.beanInstantiationFailed", "Unable create an instance of type {0}.");
     

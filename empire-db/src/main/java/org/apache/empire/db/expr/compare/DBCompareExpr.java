@@ -27,7 +27,7 @@ import org.apache.empire.db.DBExpr;
  */
 public abstract class DBCompareExpr extends DBExpr
 {
-  private final static long serialVersionUID = 1L;
+  // *Deprecated* private static final long serialVersionUID = 1L;
   
 	public abstract boolean isMutuallyExclusive(DBCompareExpr other);
 

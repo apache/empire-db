@@ -19,12 +19,11 @@
 package org.apache.empire.vue.sample.db.records;
 
 import org.apache.empire.vue.sample.db.RecordContext;
-import org.apache.empire.vue.sample.db.SampleDB;
 import org.apache.empire.vue.sample.db.SampleDB.TDepartments;
 
 public class DepartmentRecord extends SampleRecord<TDepartments>
 {
-    private final static long serialVersionUID = 1L;
+    // *Deprecated* private static final long serialVersionUID = 1L;
 
     public DepartmentRecord(RecordContext recordContext)
     {

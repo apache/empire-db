@@ -37,7 +37,7 @@ import org.w3c.dom.Element;
  */
 public class DBScalarExpr extends DBColumnExpr
 {
-    private final static long serialVersionUID = 1L;
+    // *Deprecated* private static final long serialVersionUID = 1L;
   
     public final DBDatabase   db;
     public final DataType     dataType;

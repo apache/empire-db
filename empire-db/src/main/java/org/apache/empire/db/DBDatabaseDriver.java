@@ -18,7 +18,6 @@
  */
 package org.apache.empire.db;
 
-import java.io.Serializable;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -50,9 +49,9 @@ import org.slf4j.LoggerFactory;
  * The DBDatabaseDriver class is an abstract base class for all database drivers.
  * Its purpose is to handle everything that is - or might be - database vendor specific. 
  */
-public abstract class DBDatabaseDriver implements Serializable
+public abstract class DBDatabaseDriver // *Deprecated* implements Serializable
 {
-    private final static long serialVersionUID = 1L;
+    // *Deprecated* private static final long serialVersionUID = 1L;
     private static final Logger log = LoggerFactory.getLogger(DBDatabaseDriver.class);
   
     // sql-phrases
@@ -142,7 +141,7 @@ public abstract class DBDatabaseDriver implements Serializable
      */
     public static class DBSeqTable extends DBTable
     {
-        private final static long serialVersionUID = 1L;
+        // *Deprecated* private static final long serialVersionUID = 1L;
       
         public DBColumn C_SEQNAME;
         public DBColumn C_SEQVALUE;

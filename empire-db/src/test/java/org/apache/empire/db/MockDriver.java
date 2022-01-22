@@ -23,10 +23,10 @@ import org.apache.empire.data.DataType;
 import java.sql.Connection;
 
 public class MockDriver extends DBDatabaseDriver{
-    private final static long serialVersionUID = 1L;
+    // *Deprecated* private static final long serialVersionUID = 1L;
   
     class MockCommand extends DBCommand{
-        private final static long serialVersionUID = 1L;
+        // *Deprecated* private static final long serialVersionUID = 1L;
         protected MockCommand(DBDatabase db)
         {
             super(db);

@@ -32,7 +32,7 @@ import java.util.Set;
  */
 public class DBCombinedCmd extends DBCommandExpr
 {
-   private final static long serialVersionUID = 1L;
+   // *Deprecated* private static final long serialVersionUID = 1L;
   
    // Members
    protected DBCommandExpr left;

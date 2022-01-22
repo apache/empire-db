@@ -40,7 +40,7 @@ import java.util.Set;
  */
 public class DBDecodeExpr extends DBAbstractFuncExpr
 {
-    private final static long serialVersionUID = 1L;
+    // *Deprecated* private static final long serialVersionUID = 1L;
   
     private final Map<?,?>  valueMap;
     private final Object    elseExpr;

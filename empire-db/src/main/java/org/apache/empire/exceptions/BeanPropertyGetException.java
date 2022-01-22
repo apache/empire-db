@@ -24,13 +24,10 @@ import org.slf4j.LoggerFactory;
 
 public class BeanPropertyGetException extends EmpireException
 {
+    private static final long serialVersionUID = 1L;
+
     // Logger
     private static final Logger log = LoggerFactory.getLogger(BeanPropertyGetException.class);
-    
-    /**
-     * Comment for <code>serialVersionUID</code>
-     */
-    private static final long serialVersionUID = 1L;
     
     public static final ErrorType errorType = new ErrorType("error.propertyGetError", "Unable to get the property {0} from type {1}.");
     

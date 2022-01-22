@@ -23,9 +23,6 @@ import org.apache.empire.data.Column;
 
 public class FieldNotNullException extends FieldValueException
 {
-    /**
-     * Comment for <code>serialVersionUID</code>
-     */
     private static final long serialVersionUID = 1L;
     
     public static final ErrorType errorType = new ErrorType("error.db.fieldNotNull",       "The field {0} must not be null.");

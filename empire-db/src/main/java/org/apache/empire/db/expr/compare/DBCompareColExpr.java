@@ -43,7 +43,7 @@ import org.apache.empire.db.expr.column.DBAliasExpr;
  */
 public class DBCompareColExpr extends DBCompareExpr
 {
-    private final static long serialVersionUID = 1L;
+    // *Deprecated* private static final long serialVersionUID = 1L;
   
     protected final DBColumnExpr expr;
     protected final DBCmpType    cmpop;

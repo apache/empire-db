@@ -22,9 +22,6 @@ import org.apache.empire.commons.ErrorType;
 
 public class NotImplementedException extends EmpireException
 {
-    /**
-     * Comment for <code>serialVersionUID</code>
-     */
     private static final long serialVersionUID = 1L;
     
     public static final ErrorType errorType = new ErrorType("error.notImplemented", "The function {0} is not implemented for type {1}.");

@@ -18,11 +18,10 @@
  */
 package org.apache.empire.jsf2.websample.web.objects;
 
-import java.io.Serializable;
 
-public class EmployeeSearchFilter implements Serializable
+public class EmployeeSearchFilter // *Deprecated* implements Serializable
 {
-    private static final long serialVersionUID = 1L;
+    // *Deprecated* private static final long serialVersionUID = 1L;
 
     private String            employeeId;
     private String            firstName;

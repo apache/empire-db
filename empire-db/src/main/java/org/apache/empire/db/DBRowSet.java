@@ -18,9 +18,6 @@
  */
 package org.apache.empire.db;
 
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.sql.Connection;
 import java.sql.Timestamp;
 import java.util.ArrayList;
@@ -31,7 +28,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.empire.commons.ClassUtils;
 import org.apache.empire.commons.ObjectUtils;
 import org.apache.empire.commons.StringUtils;
 import org.apache.empire.data.Column;
@@ -66,7 +62,7 @@ import org.slf4j.LoggerFactory;
  */
 public abstract class DBRowSet extends DBExpr
 {
-    private final static long serialVersionUID = 1L;
+    // *Deprecated* private static final long serialVersionUID = 1L;
 
     public enum PartialMode
     {
@@ -95,15 +91,17 @@ public abstract class DBRowSet extends DBExpr
     }
     
     // Logger
-    protected static final Logger log = LoggerFactory.getLogger(DBRowSet.class);
+    protected static final Logger     log              = LoggerFactory.getLogger(DBRowSet.class);
+    
     // Members
-    protected final transient DBDatabase db;
-    protected String        comment           = null;
-    protected DBIndex       primaryKey        = null;
-    protected DBColumn      timestampColumn   = null; // Use SetUpdateTimestamp!
+    protected final DBDatabase        db; /* transient */
+    protected String                  comment          = null;
+    protected DBIndex                 primaryKey       = null;
+    protected DBColumn                timestampColumn  = null;
     protected Map<DBColumn, DBColumn> columnReferences = null;
+    
     // The column List
-    protected List<DBColumn> columns          = new ArrayList<DBColumn>();
+    protected List<DBColumn>          columns          = new ArrayList<DBColumn>();
 
     /**
      * varArgs to Array
@@ -128,7 +126,7 @@ public abstract class DBRowSet extends DBExpr
      * Gets an identifier for this RowSet Object
      * @return the rowset identifier
      */
-    public String getId()
+    public String getIdent()
     {
         return db.getIdentifier()+"."+getName();
     }
@@ -137,7 +135,7 @@ public abstract class DBRowSet extends DBExpr
      * returns a rowset by its identifier
      * @param rowsetId the id of the rowset
      * @return the rowset object
-     */
+     * 
     public static DBRowSet findById(String rowsetId)
     {
         int i = rowsetId.lastIndexOf('.');
@@ -155,10 +153,11 @@ public abstract class DBRowSet extends DBExpr
             throw new ItemNotFoundException(rowsetId);
         return rset;
     }
+     */
     
     /**
-    * Custom serialization for transient database.
-    */
+     * Custom serialization for transient database.
+     * 
     private void writeObject(ObjectOutputStream strm) throws IOException 
     {   // Database
         strm.writeObject(db.getIdentifier());
@@ -166,9 +165,6 @@ public abstract class DBRowSet extends DBExpr
         strm.defaultWriteObject();
     }
 
-    /**
-    * Custom deserialization for transient database.
-    */
     private void readObject(ObjectInputStream strm) throws IOException, ClassNotFoundException
     {   // Database
         String dbid = String.valueOf(strm.readObject());
@@ -181,6 +177,7 @@ public abstract class DBRowSet extends DBExpr
         // read the rest
         strm.defaultReadObject();
     }
+     */
     
     @Override 
     public int hashCode() 

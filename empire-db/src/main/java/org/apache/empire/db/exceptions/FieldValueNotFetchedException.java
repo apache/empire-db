@@ -23,9 +23,6 @@ import org.apache.empire.data.Column;
 
 public class FieldValueNotFetchedException extends FieldValueException
 {
-    /**
-     * Comment for <code>serialVersionUID</code>
-     */
     private static final long serialVersionUID = 1L;
     
     public static final ErrorType errorType = new ErrorType("error.db.fieldValueNotFetched",    "The field {0} has not been fetched for this record.");

@@ -28,14 +28,14 @@ import org.apache.empire.data.DataType;
  */
 public class CompanyDB extends DBDatabase
 {
-    private final static long serialVersionUID = 1L;
+    // *Deprecated* private static final long serialVersionUID = 1L;
 
     /**
      * This class represents the definition of the Departments table.
      */
     public static class Departments extends DBTable
     {
-        private final static long serialVersionUID = 1L;
+        // *Deprecated* private static final long serialVersionUID = 1L;
         public final DBTableColumn ID;
         public final DBTableColumn NAME;
         public final DBTableColumn HEAD;
@@ -63,7 +63,7 @@ public class CompanyDB extends DBDatabase
      */
     public static class Employees extends DBTable
     {
-        private final static long serialVersionUID = 1L;
+        // *Deprecated* private static final long serialVersionUID = 1L;
         public final DBTableColumn ID;
         public final DBTableColumn SALUTATION;
         public final DBTableColumn FIRSTNAME;
@@ -112,7 +112,7 @@ public class CompanyDB extends DBDatabase
      */
     public static class Data extends DBTable
     {
-        private final static long serialVersionUID = 1L;
+        // *Deprecated* private static final long serialVersionUID = 1L;
         public final DBTableColumn ID;
         public final DBTableColumn DATA;
         public final DBTableColumn UPDATE_TIMESTAMP;

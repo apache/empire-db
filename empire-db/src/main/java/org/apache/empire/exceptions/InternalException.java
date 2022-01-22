@@ -24,13 +24,10 @@ import org.slf4j.LoggerFactory;
 
 public class InternalException extends EmpireException
 {
+    private static final long serialVersionUID = 1L;
+
     // Logger
     private static final Logger log = LoggerFactory.getLogger(InternalException.class);
-    
-    /**
-     * Comment for <code>serialVersionUID</code>
-     */
-    private static final long serialVersionUID = 1L;
     
     public static final ErrorType errorType = new ErrorType("error.exception", "An Exception of type {0} occurred.\n-->Message is: {1}\n-->at Position: {2}");
 

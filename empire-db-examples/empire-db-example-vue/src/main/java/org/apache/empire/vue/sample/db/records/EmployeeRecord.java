@@ -28,7 +28,7 @@ import org.apache.empire.vue.sample.db.SampleDB.TEmployees;
 
 public class EmployeeRecord extends SampleRecord<TEmployees>
 {
-    private final static long serialVersionUID = 1L;
+    // *Deprecated* private static final long serialVersionUID = 1L;
 
     public EmployeeRecord(RecordContext recordContext)
     {
@@ -69,7 +69,6 @@ public class EmployeeRecord extends SampleRecord<TEmployees>
     public DepartmentRecord getDepartmentRecord()
     {
         DepartmentRecord rec = new DepartmentRecord(recordContext);
-        SampleDB.TDepartments table = ((SampleDB)getDatabase()).T_DEPARTMENTS;
         rec.read(this.getInt(T.DEPARTMENT_ID));
         return rec;
     }

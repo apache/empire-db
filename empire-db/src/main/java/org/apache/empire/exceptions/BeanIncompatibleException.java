@@ -23,9 +23,6 @@ import org.apache.empire.db.DBRowSet;
 
 public class BeanIncompatibleException extends EmpireException
 {
-    /**
-     * Comment for <code>serialVersionUID</code>
-     */
     private static final long serialVersionUID = 1L;
     
     public static final ErrorType errorType = new ErrorType("error.beanIncompatible", "The class {0} is not compatible with {1}.");

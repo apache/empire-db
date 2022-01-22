@@ -18,9 +18,6 @@
  */
 package org.apache.empire.db;
 
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -30,7 +27,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.Vector;
 
-import org.apache.empire.commons.ClassUtils;
 import org.apache.empire.commons.StringUtils;
 import org.apache.empire.data.DataType;
 import org.apache.empire.db.expr.compare.DBCompareColExpr;
@@ -57,13 +53,13 @@ import org.slf4j.LoggerFactory;
 public abstract class DBCommand extends DBCommandExpr
     implements Cloneable
 {
-    private final static long serialVersionUID = 1L;
+    // *Deprecated* private static final long serialVersionUID = 1L;
 
     // Logger
     protected static final Logger log = LoggerFactory.getLogger(DBCommand.class);
 
     // Database
-    private final transient DBDatabase db;
+    private final DBDatabase         db; /* transient */  
     // Distinct Select
     protected boolean                selectDistinct = false;
     // Lists
@@ -88,8 +84,8 @@ public abstract class DBCommand extends DBCommandExpr
     }
 
     /**
-    * Custom serialization for transient database.
-    */
+     * Custom serialization for transient database.
+     * 
     private void writeObject(ObjectOutputStream strm) throws IOException 
     {   // Database
         strm.writeObject(db.getIdentifier());
@@ -97,9 +93,6 @@ public abstract class DBCommand extends DBCommandExpr
         strm.defaultWriteObject();
     }
 
-    /**
-    * Custom deserialization for transient database.
-    */
     private void readObject(ObjectInputStream strm) throws IOException, ClassNotFoundException
     {
         String dbid = String.valueOf(strm.readObject());
@@ -112,6 +105,7 @@ public abstract class DBCommand extends DBCommandExpr
         // read the rest
         strm.defaultReadObject();
     }
+     */
     
     /**
      * internally used to reset the command param usage count.

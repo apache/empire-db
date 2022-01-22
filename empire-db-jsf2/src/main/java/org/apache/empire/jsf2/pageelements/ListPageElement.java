@@ -18,7 +18,6 @@
  */
 package org.apache.empire.jsf2.pageelements;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -35,7 +34,7 @@ import org.slf4j.LoggerFactory;
 
 public abstract class ListPageElement<T> extends PageElement
 {
-    private static final long   serialVersionUID = 1L;
+    // *Deprecated* private static final long serialVersionUID = 1L;
 
     private static final Logger log              = LoggerFactory.getLogger(ListPageElement.class);
 
@@ -131,9 +130,9 @@ public abstract class ListPageElement<T> extends PageElement
     /**
      * Abstract superclass to make a list item selectable
      */
-    public static abstract class SelectableItem implements Serializable
+    public static abstract class SelectableItem // *Deprecated* implements Serializable
     {
-        private static final long serialVersionUID = 1L;
+        // *Deprecated* private static final long serialVersionUID = 1L;
 
         private SelectionSet      selectSet        = null;
 
@@ -169,9 +168,9 @@ public abstract class ListPageElement<T> extends PageElement
      * This class holds information about the list view to display.
      * This will be held on the session in order to maintain position and sorting when navigating back and forth. 
      */
-    public static class ListTableInfo implements Serializable
+    public static class ListTableInfo // *Deprecated* implements Serializable
     {
-        private static final long serialVersionUID = 1L;
+        // *Deprecated* private static final long serialVersionUID = 1L;
 
         /** Pagination **/
         /**

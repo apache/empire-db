@@ -32,9 +32,12 @@ import org.w3c.dom.Element;
  */
 public class Attributes extends AbstractSet<Attributes.Attribute> implements Cloneable, Serializable 
 {
+    private static final long serialVersionUID = 1L;
+    
 	public static final class Attribute implements Serializable 
 	{
         private static final long serialVersionUID = 1L;
+        
 	    private String name;
         private String namespace;
 	    private Object value;
@@ -96,7 +99,7 @@ public class Attributes extends AbstractSet<Attributes.Attribute> implements Clo
         }
 	}
 
-    private static final long serialVersionUID = 1L;
+    // *Deprecated* private static final long serialVersionUID = 1L;
     
 	private static final EmptyIterator emptyIterator = new EmptyIterator(); 
 	

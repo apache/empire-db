@@ -53,7 +53,7 @@ import org.slf4j.LoggerFactory;
 public class CodeGenParser {
 
 	public static class InMemoryDatabase extends DBDatabase {
-        private static final long serialVersionUID = 1L;
+        // *Deprecated* private static final long serialVersionUID = 1L;
         
         @Override
         public List<DBRelation> getRelations()
@@ -63,7 +63,7 @@ public class CodeGenParser {
 	}
 	
 	public static class InMemoryView extends DBView {
-    private final static long serialVersionUID = 1L;
+    // *Deprecated* private static final long serialVersionUID = 1L;
 
 		public InMemoryView(String name, DBDatabase db) {
 			super(name, db);

@@ -37,7 +37,7 @@ import org.w3c.dom.Element;
  */
 public abstract class DBView extends DBRowSet
 {
-    private final static long serialVersionUID = 1L;
+    // *Deprecated* private static final long serialVersionUID = 1L;
 
     /**
      * DBViewColumn
@@ -45,7 +45,7 @@ public abstract class DBView extends DBRowSet
      */
     public static class DBViewColumn extends DBColumn
     {
-        private final static long serialVersionUID = 1L;
+        // *Deprecated* private static final long serialVersionUID = 1L;
       
         protected final DBColumnExpr expr;
         protected final DBColumn     updateColumn;

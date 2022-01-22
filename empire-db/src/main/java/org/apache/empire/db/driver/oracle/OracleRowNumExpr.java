@@ -36,7 +36,7 @@ import org.w3c.dom.Element;
  */
 public class OracleRowNumExpr extends DBColumnExpr
 {
-    private final static long serialVersionUID = 1L;
+    // *Deprecated* private static final long serialVersionUID = 1L;
     private static final Logger log = LoggerFactory.getLogger(OracleRowNumExpr.class);
     
     public final DBDatabase   db;

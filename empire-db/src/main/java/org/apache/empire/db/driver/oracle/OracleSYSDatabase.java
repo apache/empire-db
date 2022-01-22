@@ -31,12 +31,12 @@ import org.apache.empire.db.*;
 public class OracleSYSDatabase extends DBDatabase
 {
 
-    private final static long serialVersionUID = 1L;
+    // *Deprecated* private static final long serialVersionUID = 1L;
 
     // Table for all tables of a schema with their comments
     public static class DBTabComments extends DBTable
     {
-        private static final long serialVersionUID = 1L;
+        // *Deprecated* private static final long serialVersionUID = 1L;
 
         public DBTableColumn      C_OWNER;
         public DBTableColumn      C_TABLE_NAME;
@@ -58,7 +58,7 @@ public class OracleSYSDatabase extends DBDatabase
     // Table for all constraints
     public static class DBConstraints extends DBTable
     {
-        private final static long serialVersionUID = 1L;
+        // *Deprecated* private static final long serialVersionUID = 1L;
 
         public DBTableColumn      C_CONSTRAINT_NAME;
         public DBTableColumn      C_TABLE_NAME;
@@ -83,7 +83,7 @@ public class OracleSYSDatabase extends DBDatabase
     // Table for Columns and Tables a constraint is associated to
     public static class DBUserConCol extends DBTable
     {
-        private final static long serialVersionUID = 1L;
+        // *Deprecated* private static final long serialVersionUID = 1L;
 
         public DBTableColumn      C_CONSTRAINT_NAME;
         public DBTableColumn      C_TABLE_NAME;
@@ -107,7 +107,7 @@ public class OracleSYSDatabase extends DBDatabase
     // Table for all columns of a schema with their comments
     public static class DBColInfo extends DBTable
     {
-        private final static long serialVersionUID = 1L;
+        // *Deprecated* private static final long serialVersionUID = 1L;
 
         public DBTableColumn      C_OWNER;
         public DBTableColumn      C_TABLE_NAME;
@@ -143,7 +143,7 @@ public class OracleSYSDatabase extends DBDatabase
     // Table for all columns of a schema with their comments
     public static class DBColComments extends DBTable
     {
-        private final static long serialVersionUID = 1L;
+        // *Deprecated* private static final long serialVersionUID = 1L;
 
         public DBTableColumn      C_OWNER;
         public DBTableColumn      C_TABLE_NAME;

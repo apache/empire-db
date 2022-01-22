@@ -21,7 +21,6 @@ package org.apache.empire.commons;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.Serializable;
 
 /**
  * The ErrorType class defines a type of error.
@@ -33,9 +32,9 @@ import java.io.Serializable;
  * The MessagePattern is a template containing the error message and placeholders for additional parameters.
  * The MessagePattern must be formated according to the {@link java.text.MessageFormat} rules.
  */
-public class ErrorType implements Serializable
+public class ErrorType // *Deprecated* implements Serializable
 {
-    private static final long serialVersionUID = 1L;
+    // *Deprecated* private static final long serialVersionUID = 1L;
     private static final Logger log = LoggerFactory.getLogger(ErrorType.class);
 
     private final String key;

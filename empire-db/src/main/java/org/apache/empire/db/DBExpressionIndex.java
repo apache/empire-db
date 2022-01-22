@@ -27,7 +27,7 @@ import org.apache.empire.exceptions.InvalidArgumentException;
  */
 public class DBExpressionIndex extends DBIndex
 {
-    private final static long serialVersionUID = 1L;
+    // *Deprecated* private static final long serialVersionUID = 1L;
     
     private DBExpr[] columnExpressions;
     

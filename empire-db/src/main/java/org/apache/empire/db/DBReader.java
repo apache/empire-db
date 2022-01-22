@@ -74,7 +74,7 @@ import org.w3c.dom.Element;
  */
 public class DBReader extends DBRecordData implements DBContextAware
 {
-    private final static long serialVersionUID = 1L;
+    // *Deprecated* private static final long serialVersionUID = 1L;
   
     /**
      * DBReaderIterator
@@ -1032,14 +1032,6 @@ public class DBReader extends DBRecordData implements DBContextAware
             openResultSets.remove(this);
         }
     }
-
-    /*
-    private void writeObject(ObjectOutputStream stream) throws IOException {
-        if (rset != null) {
-            throw new NotSerializableException(DBReader.class.getName() + " (due to attached ResultSet)");
-        }
-    }
-    */
 
     /**
      * copied from org.apache.commons.beanutils.ConstructorUtils since it's private there

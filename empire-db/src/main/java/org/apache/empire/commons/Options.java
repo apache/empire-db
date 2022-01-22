@@ -285,7 +285,7 @@ public class Options extends AbstractSet<OptionEntry> implements Cloneable, Seri
     /**
      * same as contains(), but IDE may not issue warning
      */
-    public boolean exists(Object value)
+    public boolean has(Object value)
     {   // Check if exits
         return (getEntry(value)!=null);
     }

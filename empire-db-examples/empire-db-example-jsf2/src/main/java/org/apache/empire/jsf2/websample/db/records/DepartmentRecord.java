@@ -23,7 +23,7 @@ import org.apache.empire.jsf2.websample.web.SampleContext;
 
 public class DepartmentRecord extends SampleRecord<TDepartments>
 {
-    private final static long serialVersionUID = 1L;
+    // *Deprecated* private static final long serialVersionUID = 1L;
 
     public DepartmentRecord(SampleContext context)
     {

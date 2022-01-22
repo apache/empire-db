@@ -18,7 +18,6 @@
  */
 package org.apache.empire.jsf2.pages;
 
-import java.io.Serializable;
 import java.util.Map;
 
 import javax.faces.context.FacesContext;
@@ -31,9 +30,9 @@ import org.apache.empire.db.DBRowSet;
 import org.apache.empire.exceptions.InvalidArgumentException;
 
 
-public class PageElement implements Serializable
+public class PageElement // *Deprecated* implements Serializable
 {
-    private static final long serialVersionUID = 1L;
+    // *Deprecated* private static final long serialVersionUID = 1L;
 
     private final Page  page;
 

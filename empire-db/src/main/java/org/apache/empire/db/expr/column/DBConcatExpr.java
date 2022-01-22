@@ -40,7 +40,7 @@ import java.util.Set;
  */
 public class DBConcatExpr extends DBColumnExpr
 {
-    private final static long serialVersionUID = 1L;
+    // *Deprecated* private static final long serialVersionUID = 1L;
   
     protected final DBColumnExpr left;
     protected final Object       right;

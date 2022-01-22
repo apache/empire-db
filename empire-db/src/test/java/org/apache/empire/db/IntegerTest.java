@@ -244,12 +244,12 @@ public class IntegerTest {
 
     public static class SampleDB extends DBDatabase {
 
-        private static final long serialVersionUID = 1L;
+        // *Deprecated* private static final long serialVersionUID = 1L;
         public final SampleTable SAMPLE = new SampleTable(this);
 
         public class SampleTable extends DBTable {
 
-            private static final long serialVersionUID = 1L;
+            // *Deprecated* private static final long serialVersionUID = 1L;
             public final DBTableColumn MY_INTEGER;
             public final DBTableColumn MY_LONG;
             public final DBTableColumn MY_SHORT;

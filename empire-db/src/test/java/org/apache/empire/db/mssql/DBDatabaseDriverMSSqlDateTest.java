@@ -152,11 +152,11 @@ public class DBDatabaseDriverMSSqlDateTest {
 
 	private static class DateTimeTestDB extends DBDatabase {
 
-		private static final long serialVersionUID = 1L;
+		// *Deprecated* private static final long serialVersionUID = 1L;
 
 		public static class UserInfoTable extends DBTable {
 
-            private static final long serialVersionUID = 1L;
+            // *Deprecated* private static final long serialVersionUID = 1L;
             
             public final DBTableColumn ID;
 			public final DBTableColumn USER;

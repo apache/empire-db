@@ -23,9 +23,6 @@ import org.apache.empire.commons.StringUtils;
 
 public class ItemNotFoundException extends EmpireException
 {
-    /**
-     * Comment for <code>serialVersionUID</code>
-     */
     private static final long serialVersionUID = 1L;
     
     public static final ErrorType errorType = new ErrorType("error.itemNotFound", "The element {0} was not found.");

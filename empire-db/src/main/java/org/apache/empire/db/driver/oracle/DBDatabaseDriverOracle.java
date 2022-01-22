@@ -58,7 +58,7 @@ import org.slf4j.LoggerFactory;
  */
 public class DBDatabaseDriverOracle extends DBDatabaseDriver
 {
-    private static final long serialVersionUID = 1L;
+    // *Deprecated* private static final long serialVersionUID = 1L;
     private static final Logger log = LoggerFactory.getLogger(DBDatabaseDriverOracle.class);
 
     // Implementation of boolean types

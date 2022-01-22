@@ -278,8 +278,8 @@ public class OptionsTest
         Options options = new Options();
         options.add(Integer.valueOf(1), "txt", false);
         options.add(Integer.valueOf(2), "txt", false);
-        assertTrue(options.contains(Integer.valueOf(1)));
-        assertTrue(options.contains(Integer.valueOf(2)));
+        assertTrue(options.has(Integer.valueOf(1)));
+        assertTrue(options.has(Integer.valueOf(2)));
     }
 
     /**
@@ -301,6 +301,7 @@ public class OptionsTest
     /**
      * Test method for {@link org.apache.empire.commons.Options#remove(java.lang.Object)}.
      */
+    @SuppressWarnings("unlikely-arg-type")
     @Test
     public void testRemoveObject()
     {
@@ -308,8 +309,8 @@ public class OptionsTest
         options.add(Integer.valueOf(1), "txt", false);
         options.add(Integer.valueOf(2), "txt2", false);
         options.remove(Integer.valueOf(1));
-        assertFalse(options.contains(Integer.valueOf(1)));
-        assertTrue(options.contains(Integer.valueOf(2)));
+        assertFalse(options.has(Integer.valueOf(1)));
+        assertTrue (options.has(Integer.valueOf(2)));
     }
 
     /**

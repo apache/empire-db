@@ -43,7 +43,7 @@ import org.w3c.dom.Element;
  */
 public class DBCaseWhenExpr extends DBColumnExpr
 {
-    private final static long serialVersionUID = 1L;
+    // *Deprecated* private static final long serialVersionUID = 1L;
   
     private final Map<DBCompareExpr, DBColumnExpr> whenMap;
     private final DBColumnExpr  elseExpr;

@@ -47,13 +47,14 @@ import org.apache.empire.exceptions.UnexpectedReturnValueException;
  */
 public class DBTable extends DBRowSet implements Cloneable
 {
+    // *Deprecated* private static final long serialVersionUID = 1L;
+    
     // Integer size definitions
     public static final int DEFAULT   = 0;
     public static final int SMALLINT  = 2;
     public static final int MEDIUMINT = 4;
     public static final int BIGINT    = 8;
 
-    private final static long    serialVersionUID    = 1L;
     private static AtomicInteger tableCount          = new AtomicInteger(0);
 
     private final String         name;

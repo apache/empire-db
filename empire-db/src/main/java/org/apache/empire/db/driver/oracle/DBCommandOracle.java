@@ -50,7 +50,7 @@ import org.apache.empire.exceptions.ObjectNotValidException;
  */
 public class DBCommandOracle extends DBCommand
 {
-    private final static long serialVersionUID = 1L;
+    // *Deprecated* private static final long serialVersionUID = 1L;
   
     // Oracle Connect By / Start With
     protected DBCompareExpr connectBy  = null;

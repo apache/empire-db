@@ -31,7 +31,8 @@ import org.apache.empire.db.DBTableColumn;
  */
 public class SampleTable extends DBTable
 {
-    private final static long serialVersionUID   = 1L;
+    // *Deprecated* private static final long serialVersionUID = 1L;
+    
     public final String       MESSAGE_KEY_PREFIX = "!field.title.";
 
     public SampleTable(String name, DBDatabase db)

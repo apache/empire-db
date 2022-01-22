@@ -34,7 +34,7 @@ import org.apache.empire.db.DBRowSet;
  */
 public abstract class DBJoinExpr extends DBExpr
 {
-    private final static long serialVersionUID = 1L;
+    // *Deprecated* private static final long serialVersionUID = 1L;
   
     protected DBJoinType    type;
 

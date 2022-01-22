@@ -26,16 +26,13 @@ import org.apache.empire.exceptions.EmpireException;
 
 public abstract class FieldValueException extends EmpireException
 {
-    /**
-     * Comment for <code>serialVersionUID</code>
-     */
     private static final long serialVersionUID = 1L;
     
     protected static String getColumnTitle(Column column)
     {
         String title = column.getTitle();
         if (StringUtils.isEmpty(title))
-            title = "!["+((column instanceof DBColumn) ? ((DBColumn)column).getId() : column.getName()) + "]";
+            title = "!["+((column instanceof DBColumn) ? ((DBColumn)column).getIdent() : column.getName()) + "]";
         return title;
     }
     

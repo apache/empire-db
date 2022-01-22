@@ -18,7 +18,6 @@
  */
 package org.apache.empire.db;
 
-import java.io.Serializable;
 
 import org.apache.empire.exceptions.InvalidArgumentException;
 import org.apache.empire.exceptions.UnexpectedReturnValueException;
@@ -30,7 +29,7 @@ import org.apache.empire.exceptions.UnexpectedReturnValueException;
  */
 public class DBRelation extends DBObject
 {
-    private final static long serialVersionUID = 1L;
+    // *Deprecated* private static final long serialVersionUID = 1L;
     
     /**
      * DBCascadeAction enum
@@ -56,9 +55,9 @@ public class DBRelation extends DBObject
         CASCADE_RECORDS
     }
 
-	public static class DBReference implements Serializable
+	public static class DBReference // *Deprecated* implements Serializable
 	{
-	    private final static long serialVersionUID = 1L;
+	    // *Deprecated* private static final long serialVersionUID = 1L;
 	    private DBTableColumn sourceColumn;
 	    private DBTableColumn targetColumn;
 	    

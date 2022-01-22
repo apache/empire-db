@@ -24,9 +24,6 @@ import org.apache.empire.commons.ErrorType;
 
 public class FileReadException extends EmpireFileException
 {
-    /**
-     * Comment for <code>serialVersionUID</code>
-     */
     private static final long serialVersionUID = 1L;
     
     public static final ErrorType errorType = new ErrorType("error.fileReadError", "Error reading the file {0}. Message is: {1}.");

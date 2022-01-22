@@ -30,7 +30,7 @@ import org.apache.empire.data.DataType;
  */
 public class DBCmdParam extends DBExpr
 {
-    private final static long serialVersionUID = 1L;
+    // *Deprecated* private static final long serialVersionUID = 1L;
     protected DBCommand cmd;
     protected DataType  type;
     protected Object    value;

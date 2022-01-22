@@ -39,7 +39,7 @@ import org.w3c.dom.Element;
  */
 public abstract class DBAbstractFuncExpr extends DBColumnExpr
 {
-    private final static long serialVersionUID = 1L;
+    // *Deprecated* private static final long serialVersionUID = 1L;
     private static final Logger log = LoggerFactory.getLogger(DBAbstractFuncExpr.class);
   
     protected final DBColumnExpr expr;

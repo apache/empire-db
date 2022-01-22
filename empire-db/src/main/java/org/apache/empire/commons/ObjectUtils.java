@@ -18,7 +18,6 @@
  */
 package org.apache.empire.commons;
 
-import java.io.Serializable;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.text.ParseException;
@@ -49,9 +48,9 @@ public final class ObjectUtils
      * This class explicitly defines that an Object has not been assigned a value.<BR>
      * This may be used in cases where the value of null may be a valid value.
      */
-    private static final class NoValue implements Serializable
+    private static final class NoValue // *Deprecated* implements Serializable
     {
-        private static final long serialVersionUID = 1L;
+        // *Deprecated* private static final long serialVersionUID = 1L;
         private NoValue()
         { /* dummy */
         }

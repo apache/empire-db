@@ -25,9 +25,6 @@ import org.apache.empire.exceptions.EmpireException;
 
 public class RecordUpdateFailedException extends EmpireException
 {
-    /**
-     * Comment for <code>serialVersionUID</code>
-     */
     private static final long serialVersionUID = 1L;
     
     public static final ErrorType errorType = new ErrorType("error.db.recordUpateInvalid", "Updating the record {0} in {1} failed. The given record key is ambiguous.");

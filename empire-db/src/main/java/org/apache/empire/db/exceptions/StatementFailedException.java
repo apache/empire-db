@@ -27,13 +27,10 @@ import org.slf4j.LoggerFactory;
 
 public class StatementFailedException extends EmpireSQLException
 {
+    private static final long serialVersionUID = 1L;
+
     // Logger
     private static final Logger log = LoggerFactory.getLogger(StatementFailedException.class);
-    
-    /**
-     * Comment for <code>serialVersionUID</code>
-     */
-    private static final long serialVersionUID = 1L;
     
     public static final ErrorType errorType = new ErrorType("error.db.statementFailed",  "Error executing statement {0}.\r\nNative error is: {1}");
     

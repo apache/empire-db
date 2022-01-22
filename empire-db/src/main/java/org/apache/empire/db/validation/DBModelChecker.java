@@ -47,7 +47,7 @@ public class DBModelChecker
 
     private static class RemoteDatabase extends DBDatabase
     {
-        private static final long serialVersionUID = 1L;
+        // *Deprecated* private static final long serialVersionUID = 1L;
     }
 
     private final Map<String, DBTable> tableMap = new HashMap<String, DBTable>();

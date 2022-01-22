@@ -28,6 +28,8 @@ import org.apache.empire.jsf2.websample.db.SampleDB;
  */
 public class SampleContext extends WebDBContext<SampleDB>
 {
+    // *Deprecated* private static final long serialVersionUID = 1L;
+    
     private final SampleSession session;
     
     public SampleContext(SampleApplication app, SampleSession session)
@@ -35,6 +37,11 @@ public class SampleContext extends WebDBContext<SampleDB>
         super(app, app.getDatabase());
         // the session
         this.session = session;
+    }
+    
+    public SampleApplication getApplication()
+    {
+        return (SampleApplication)app;
     }
 
     public SampleUser getUser()

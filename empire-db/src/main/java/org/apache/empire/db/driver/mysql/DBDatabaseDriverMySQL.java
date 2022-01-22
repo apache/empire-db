@@ -50,7 +50,7 @@ import org.slf4j.LoggerFactory;
  */
 public class DBDatabaseDriverMySQL extends DBDatabaseDriver
 {
-    private static final long serialVersionUID = 1L;
+    // *Deprecated* private static final long serialVersionUID = 1L;
     private static final Logger log = LoggerFactory.getLogger(DBDatabaseDriverMySQL.class);
 
     /**
@@ -58,7 +58,7 @@ public class DBDatabaseDriverMySQL extends DBDatabaseDriver
      */ 
     public static class DBCommandMySQL extends DBCommand
     {
-        private final static long serialVersionUID = 1L;
+        // *Deprecated* private static final long serialVersionUID = 1L;
       
         protected int limit = -1;
         protected int skip  = -1;
@@ -920,7 +920,7 @@ public class DBDatabaseDriverMySQL extends DBDatabaseDriver
     {
     	// Override CombinedCmd
     	return new DBCombinedCmd(left, keyWord, right) {
-			private static final long serialVersionUID = 1L;
+			// *Deprecated* private static final long serialVersionUID = 1L;
 			protected int limit = -1;
             protected int skip  = -1;
             @Override

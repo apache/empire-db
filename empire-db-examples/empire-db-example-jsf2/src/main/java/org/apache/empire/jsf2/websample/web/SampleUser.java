@@ -18,12 +18,12 @@
  */
 package org.apache.empire.jsf2.websample.web;
 
-import java.io.Serializable;
 import java.util.Locale;
 
-public class SampleUser implements Serializable
+public class SampleUser // *Deprecated* implements Serializable
 {
-    private static final long     serialVersionUID  = 1L;
+    // *Deprecated* private static final long serialVersionUID = 1L;
+
     protected static final String MANAGED_BEAN_NAME = "sampleUser";
 
     private String                userName          = "test";

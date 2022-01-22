@@ -41,7 +41,7 @@ import org.apache.empire.db.DBTableColumn;
  */
 public class SampleDB extends DBDatabase
 {
-    private final static long serialVersionUID = 1L;
+    // *Deprecated* private static final long serialVersionUID = 1L;
     
     public enum Gender
     {
@@ -66,7 +66,7 @@ public class SampleDB extends DBDatabase
      */
     public static class Departments extends DBTable
     {
-        private final static long serialVersionUID = 1L;
+        // *Deprecated* private static final long serialVersionUID = 1L;
       
         public final DBTableColumn DEPARTMENT_ID;
         public final DBTableColumn NAME;
@@ -96,7 +96,7 @@ public class SampleDB extends DBDatabase
      */
     public static class Employees extends DBTable
     {
-        private final static long serialVersionUID = 1L;
+        // *Deprecated* private static final long serialVersionUID = 1L;
       
         public final DBTableColumn EMPLOYEE_ID;
         public final DBTableColumn SALUTATION;

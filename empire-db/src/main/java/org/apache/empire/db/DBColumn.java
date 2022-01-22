@@ -18,20 +18,13 @@
  */
 package org.apache.empire.db;
 
-// Java
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.util.Set;
 
-import org.apache.empire.commons.ClassUtils;
 import org.apache.empire.commons.Options;
 import org.apache.empire.commons.StringUtils;
 import org.apache.empire.data.Column;
 import org.apache.empire.db.exceptions.DatabaseNotOpenException;
 import org.apache.empire.db.expr.set.DBSetExpr;
-import org.apache.empire.exceptions.InvalidArgumentException;
-import org.apache.empire.exceptions.ItemNotFoundException;
 import org.apache.empire.exceptions.ObjectNotValidException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -53,7 +46,7 @@ import org.w3c.dom.Element;
 public abstract class DBColumn extends DBColumnExpr
     implements Column
 {
-    private final static long serialVersionUID = 1L;
+    // *Deprecated* private static final long serialVersionUID = 1L;
   
     private static final Logger log = LoggerFactory.getLogger(DBColumn.class);
     
@@ -68,7 +61,7 @@ public abstract class DBColumn extends DBColumnExpr
     public static final String DBCOLATTR_SINGLEBYTECHARS  = "singleByteChars";
 
     // basic data
-    protected final transient DBRowSet rowset;
+    protected final DBRowSet  rowset; /* transient */
     protected final String    name;
     protected String          comment;
 
@@ -91,16 +84,15 @@ public abstract class DBColumn extends DBColumnExpr
      * Gets an identifier for this RowSet Object
      * @return the rowset identifier
      */
-    public String getId()
+    public String getIdent()
     {
-        return rowset.getId()+"."+name;
+        return rowset.getIdent()+"."+name;
     }
 
     /**
      * returns a rowset by its identifier
      * @param columnId the id of the column
      * @return the DBColumn object
-     */
     public static DBColumn findById(String columnId)
     {
         int i = columnId.lastIndexOf('.');
@@ -116,10 +108,11 @@ public abstract class DBColumn extends DBColumnExpr
             throw new ItemNotFoundException(columnId);
         return col;
     }
+     */
     
     /**
      * Custom serialization for transient rowset.
-     */
+     * 
     private void writeObject(ObjectOutputStream strm) throws IOException 
     {   // RowSet
         strm.writeObject(rowset.getDatabase().getIdentifier());
@@ -128,9 +121,6 @@ public abstract class DBColumn extends DBColumnExpr
         strm.defaultWriteObject();
     }
 
-    /**
-     * Custom serialization for transient rowset.
-     */
     private void readObject(ObjectInputStream strm) throws IOException, ClassNotFoundException 
     {
         String dbid = String.valueOf(strm.readObject());
@@ -148,6 +138,7 @@ public abstract class DBColumn extends DBColumnExpr
         // read the rest
         strm.defaultReadObject();
     }
+     */
 
     @Override
     public boolean equals(Object other)

@@ -47,7 +47,7 @@ import org.slf4j.LoggerFactory;
  */
 public class DBDatabaseDriverHSql extends DBDatabaseDriver
 {
-    private final static long serialVersionUID = 1L;
+    // *Deprecated* private static final long serialVersionUID = 1L;
     private static final Logger log = LoggerFactory.getLogger(DBDatabaseDriverHSql.class);
   
     /**
@@ -55,7 +55,7 @@ public class DBDatabaseDriverHSql extends DBDatabaseDriver
      */ 
 	public static class DBCommandHSql extends DBCommand
 	{
-        private static final long serialVersionUID = 1L;
+        // *Deprecated* private static final long serialVersionUID = 1L;
 
         /**
 	     * @param db the database

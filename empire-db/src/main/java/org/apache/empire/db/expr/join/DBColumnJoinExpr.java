@@ -31,7 +31,7 @@ import org.apache.empire.exceptions.InvalidPropertyException;
 
 public class DBColumnJoinExpr extends DBJoinExpr
 {
-    private final static long serialVersionUID = 1L;
+    // *Deprecated* private static final long serialVersionUID = 1L;
   
     protected DBColumnExpr  left;
     protected DBColumnExpr  right;

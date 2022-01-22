@@ -31,7 +31,7 @@ import org.apache.empire.jsf2.websample.web.SampleUtils;
 
 public class SamplePage extends Page
 {
-    private static final long serialVersionUID = 1L;
+    // *Deprecated* private static final long serialVersionUID = 1L;
 
     private SampleContext sampleContext = null;
 

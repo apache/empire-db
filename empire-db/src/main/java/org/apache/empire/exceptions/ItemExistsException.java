@@ -23,9 +23,6 @@ import org.apache.empire.commons.StringUtils;
 
 public class ItemExistsException extends EmpireException
 {
-    /**
-     * Comment for <code>serialVersionUID</code>
-     */
     private static final long serialVersionUID = 1L;
     
     public static final ErrorType errorType = new ErrorType("error.itemExists", "The element {0} already exists.");

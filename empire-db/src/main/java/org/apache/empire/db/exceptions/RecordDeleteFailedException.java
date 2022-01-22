@@ -25,9 +25,6 @@ import org.apache.empire.exceptions.EmpireException;
 
 public class RecordDeleteFailedException extends EmpireException
 {
-    /**
-     * Comment for <code>serialVersionUID</code>
-     */
     private static final long serialVersionUID = 1L;
     
     public static final ErrorType errorType = new ErrorType("error.db.recordDeleteFailed", "Deleting the record {0} in {1} failed. The record might have been deleted already by another user.");

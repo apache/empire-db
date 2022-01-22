@@ -18,7 +18,6 @@
  */
 package org.apache.empire.jsf2.utils;
 
-import java.io.Serializable;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.text.SimpleDateFormat;
@@ -40,9 +39,9 @@ import org.slf4j.LoggerFactory;
  * @author doebele
  *
  */
-public class ParameterMap implements Serializable
+public class ParameterMap // *Deprecated* implements Serializable
 {
-    private static final long             serialVersionUID = 1L;
+    // *Deprecated* private static final long serialVersionUID = 1L;
 
     private static final Logger           log              = LoggerFactory.getLogger(ParameterMap.class);
 

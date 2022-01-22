@@ -40,7 +40,7 @@ import java.util.Set;
  */
 public class DBCountExpr extends DBColumnExpr
 {
-    private final static long serialVersionUID = 1L;
+    // *Deprecated* private static final long serialVersionUID = 1L;
   
     private final DBRowSet rowset;
     private final DBColumnExpr column;

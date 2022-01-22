@@ -54,7 +54,7 @@ import org.w3c.dom.Element;
 public abstract class DBColumnExpr extends DBExpr
     implements ColumnExpr
 {
-    private final static long serialVersionUID = 1L;
+    // *Deprecated* private static final long serialVersionUID = 1L;
   
     // Predefined column expression attributes
     public static final String DBCOLATTR_TITLE     = "title";

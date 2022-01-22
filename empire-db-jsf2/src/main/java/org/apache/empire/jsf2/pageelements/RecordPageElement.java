@@ -35,7 +35,7 @@ import org.slf4j.LoggerFactory;
 
 public class RecordPageElement<T extends DBRecord> extends PageElement
 {
-    private static final long   serialVersionUID = 1L;
+    // *Deprecated* private static final long serialVersionUID = 1L;
 
     private static final Logger log              = LoggerFactory.getLogger(RecordPageElement.class);
 

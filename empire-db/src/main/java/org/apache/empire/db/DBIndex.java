@@ -27,7 +27,7 @@ package org.apache.empire.db;
  */
 public class DBIndex extends DBObject
 {
-    private final static long serialVersionUID = 1L;
+    // *Deprecated* private static final long serialVersionUID = 1L;
   
     public enum DBIndexType
     {

@@ -18,7 +18,6 @@
  */
 package org.apache.empire.jsf2.pages;
 
-import java.io.Serializable;
 import java.util.LinkedHashMap;
 
 import org.apache.empire.commons.StringUtils;
@@ -29,9 +28,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
-public abstract class PageDefinitions implements Serializable
+public abstract class PageDefinitions // *Deprecated* implements Serializable
 {
-	private static final long serialVersionUID = 1L;
+	// *Deprecated* private static final long serialVersionUID = 1L;
 
 	private static final Logger log = LoggerFactory.getLogger(PageDefinitions.class);
 

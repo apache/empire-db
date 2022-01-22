@@ -28,13 +28,10 @@ import org.slf4j.LoggerFactory;
 
 public class QueryFailedException extends EmpireSQLException
 {
+    private static final long serialVersionUID = 1L;
+
     // Logger
     private static final Logger log = LoggerFactory.getLogger(QueryFailedException.class);
-    
-    /**
-     * Comment for <code>serialVersionUID</code>
-     */
-    private static final long serialVersionUID = 1L;
     
     public static final ErrorType errorType = new ErrorType("error.db.queryFailed",  "Error executing query {0}.\r\nNative error is: {1}");
     

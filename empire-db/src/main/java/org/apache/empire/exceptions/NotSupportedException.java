@@ -22,9 +22,6 @@ import org.apache.empire.commons.ErrorType;
 
 public class NotSupportedException extends EmpireException
 {
-    /**
-     * Comment for <code>serialVersionUID</code>
-     */
     private static final long serialVersionUID = 1L;
     
     public static final ErrorType errorType = new ErrorType("error.notSupported", "The function {0} is not supported for type {1}.");

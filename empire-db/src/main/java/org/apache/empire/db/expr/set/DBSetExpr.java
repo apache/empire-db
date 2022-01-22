@@ -40,7 +40,7 @@ import org.apache.empire.db.DBRowSet;
  */
 public class DBSetExpr extends DBExpr
 {
-    private final static long serialVersionUID = 1L;
+    // *Deprecated* private static final long serialVersionUID = 1L;
   
     public final DBColumn column;
     public Object         value;

@@ -18,7 +18,6 @@
  */
 package org.apache.empire.jsf2.pages;
 
-import java.io.Serializable;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -46,9 +45,9 @@ import org.apache.empire.jsf2.utils.ParameterObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public abstract class Page implements Serializable
+public abstract class Page // *Deprecated* implements Serializable
 {
-    private static final long   serialVersionUID = 1L;
+    // *Deprecated* private static final long serialVersionUID = 1L;
 
     public static final String  SESSION_MESSAGE  = "PAGE_SESSION_MESSAGE";
 

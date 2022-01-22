@@ -29,10 +29,10 @@ import org.slf4j.LoggerFactory;
  */
 public class EmpireException extends RuntimeException
 {
+    private static final long serialVersionUID = 1L;
+
     // Logger
     private static final Logger log = LoggerFactory.getLogger(EmpireException.class);
-    
-    private static final long serialVersionUID = 1L;
     
     private final ErrorType errorType;
     private final String[]  errorParams;
@@ -144,7 +144,8 @@ public class EmpireException extends RuntimeException
     }
 
     /**
-     * when serializing, convert all params to strings (unnesessary after change from object[] to string[]
+     * when serializing, convert all params to strings 
+     * Obsolete after change from object[] to string[]
      * @param out
      * @throws IOException
     private void writeObject(ObjectOutputStream out) throws IOException

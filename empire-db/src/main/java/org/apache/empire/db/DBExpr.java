@@ -38,7 +38,7 @@ import org.slf4j.LoggerFactory;
  */
 public abstract class DBExpr extends DBObject
 {
-    private final static long serialVersionUID = 1L;
+    // *Deprecated* private static final long serialVersionUID = 1L;
     private static final Logger log = LoggerFactory.getLogger(DBExpr.class);
   
     // SQL Context Flags

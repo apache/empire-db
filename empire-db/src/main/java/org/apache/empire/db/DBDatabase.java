@@ -18,7 +18,6 @@
  */
 package org.apache.empire.db;
 
-import java.io.Serializable;
 import java.lang.ref.WeakReference;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -66,7 +65,7 @@ import org.slf4j.LoggerFactory;
  */
 public abstract class DBDatabase extends DBObject
 {
-    private final static long serialVersionUID = 1L;
+    // *Deprecated* private static final long serialVersionUID = 1L;
   
     /**
      * This class represents the database systems current date and time.
@@ -74,9 +73,9 @@ public abstract class DBDatabase extends DBObject
      * There is no need to use this class directly.<BR>
      * Instead you can use the constant {@link DBDatabase#SYSDATE}
      */
-    public static final class DBSystemDate implements Serializable
+    public static final class DBSystemDate // *Deprecated* implements Serializable
     {
-        private final static long serialVersionUID = 1L;
+        // *Deprecated* private static final long serialVersionUID = 1L;
         // System Date Class for internal use
         private DBSystemDate() 
         { 

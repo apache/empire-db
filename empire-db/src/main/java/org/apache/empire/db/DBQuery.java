@@ -57,7 +57,7 @@ import org.apache.empire.exceptions.NotSupportedException;
  */
 public class DBQuery extends DBRowSet
 {
-    private final static long serialVersionUID = 1L;
+    // *Deprecated* private static final long serialVersionUID = 1L;
 
     private static AtomicInteger queryCount = new AtomicInteger(0);
     
@@ -67,7 +67,7 @@ public class DBQuery extends DBRowSet
      */
     protected static class DBQueryExprColumn extends DBQueryColumn
     {
-        private static final long serialVersionUID = 1L;
+        // *Deprecated* private static final long serialVersionUID = 1L;
         
         protected DBQueryExprColumn(DBQuery q, String name, DBColumnExpr expr)
         {
