@@ -233,7 +233,7 @@ public class DBRecord extends DBRecordData implements DBContextAware, Record, Cl
         this.modified = null;
         this.rowsetData = null;
         // options                         
-        enableRollbackHandling = context.isEnableRollbackHandling();
+        enableRollbackHandling = context.isRollbackHandlingEnabled();
         validateFieldValues = true;
     }
 

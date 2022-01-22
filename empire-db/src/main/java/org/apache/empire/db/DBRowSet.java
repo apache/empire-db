@@ -961,7 +961,7 @@ public abstract class DBRowSet extends DBExpr
             return;
         }
         // Perform action
-        DBUtils utils = rec.getContext().getUtils();
+        DBUtils utils = context.getUtils();
         int affected = utils.executeSQL(sql, cmd.getParamValues(), setGenKey);
         if (affected < 0)
         {   // Update Failed
@@ -1047,7 +1047,7 @@ public abstract class DBRowSet extends DBExpr
             DBCommand cmd = db.createCommand();
             for (int i=0; i<parentKey.length; i++)
                 cmd.where(refs[i].getSourceColumn().is(parentKey[i]));
-            if (context.getUtils().executeSQL(cmd.getDelete((DBTable)this), cmd.getParamValues())<0)
+            if (context.executeDelete((DBTable)this, cmd)<0)
                 throw new UnexpectedReturnValueException(-1, "db.executeSQL()");
         }
         else

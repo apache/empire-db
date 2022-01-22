@@ -563,8 +563,8 @@ public class DBQuery extends DBRowSet
             }
             
             // Execute SQL
-            DBUtils utils = rec.getContext().getUtils(); 
-            int affected = utils.executeSQL(upd.getUpdate(), upd.getParamValues());
+            DBUtils utils = context.getUtils(); 
+            int affected = utils.executeSQL(upd.getUpdate(), upd.getParamValues(), null);
             if (affected<= 0)
             {   // Error
                 if (affected == 0)

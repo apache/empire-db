@@ -55,7 +55,7 @@ public class DBContextStatic extends DBContextBase
     }
 
     @Override
-    public boolean isEnableRollbackHandling()
+    public boolean isRollbackHandlingEnabled()
     {
         return enableRollbackHandling;
     }

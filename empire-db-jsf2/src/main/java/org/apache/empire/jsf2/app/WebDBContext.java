@@ -50,7 +50,7 @@ public class WebDBContext<DB extends DBDatabase> extends DBContextBase
     }
 
     @Override
-    public boolean isEnableRollbackHandling()
+    public boolean isRollbackHandlingEnabled()
     {
         return true;
     }

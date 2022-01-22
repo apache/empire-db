@@ -54,16 +54,7 @@ public class DBUtils implements DBContextAware
     {
         return ((T)context);
     }
-    
-    /**
-     * Creates a new Command object for the given database
-     * 
-     * @return the command object.
-     */
-    public final DBCommand createCommand(DBDatabase db)
-    {
-        return driver.createCommand(db);
-    }
+
     /**
      * Executes an update, insert or delete SQL-Statement.<BR>
      * We recommend to use a DBCommand object in order to build the sqlCmd.<BR>
@@ -101,58 +92,6 @@ public class DBUtils implements DBContextAware
             // Other error
             throw new StatementFailedException(driver, sqlCmd, sqle);
         }    
-    }
-
-    /**
-     * Executes an SQLStatment
-     * @param sqlCmd the SQL-Command
-     * @param sqlParams a list of objects to replace sql parameters
-     */
-    public final int executeSQL(String sqlCmd, Object[] sqlParams)
-    {
-        return executeSQL(sqlCmd, sqlParams, null); 
-    }
-
-    /**
-     * Executes an Insert statement from a command object
-     * @param cmd the command object containing the insert command
-     * @return the number of records that have been inserted with the supplied statement
-     */
-    public final int executeInsert(DBCommand cmd)
-    {
-        return executeSQL(cmd.getInsert(), cmd.getParamValues()); 
-    }
-
-    /**
-     * Executes an InsertInfo statement from a command object
-     * @param table the table into which to insert the selected data
-     * @param cmd the command object containing the selection command 
-     * @return the number of records that have been inserted with the supplied statement
-     */
-    public final int executeInsertInto(DBTable table, DBCommand cmd)
-    {
-        return executeSQL(cmd.getInsertInto(table), cmd.getParamValues()); 
-    }
-
-    /**
-     * Executes an Update statement from a command object
-     * @param cmd the command object containing the update command
-     * @return the number of records that have been updated with the supplied statement
-     */
-    public final int executeUpdate(DBCommand cmd)
-    {
-        return executeSQL(cmd.getUpdate(), cmd.getParamValues()); 
-    }
-
-    /**
-     * Executes a Delete statement from a command object
-     * @param from the database table from which to delete records
-     * @param cmd the command object containing the delete constraints
-     * @return the number of records that have been deleted with the supplied statement
-     */
-    public final int executeDelete(DBTable from, DBCommand cmd)
-    {
-        return executeSQL(cmd.getDelete(from), cmd.getParamValues()); 
     }
 
     /**

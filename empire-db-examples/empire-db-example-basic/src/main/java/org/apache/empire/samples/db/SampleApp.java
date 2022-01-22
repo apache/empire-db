@@ -33,7 +33,6 @@ import org.apache.empire.db.DBReader;
 import org.apache.empire.db.DBRecord;
 import org.apache.empire.db.DBRowSet.PartialMode;
 import org.apache.empire.db.DBSQLScript;
-import org.apache.empire.db.DBUtils;
 import org.apache.empire.db.context.DBContextStatic;
 import org.apache.empire.db.driver.derby.DBDatabaseDriverDerby;
 import org.apache.empire.db.driver.h2.DBDatabaseDriverH2;
@@ -289,12 +288,11 @@ public class SampleApp
 	 */
 	private static void clearDatabase()
     {
-	    DBUtils utils = context.getUtils();
-		DBCommand cmd = db.createCommand();
+		DBCommand cmd = context.createCommand(db);
 		// Delete all Employees (no constraints)
-		utils.executeDelete(db.EMPLOYEES, cmd);
+		context.executeDelete(db.EMPLOYEES, cmd);
 		// Delete all Departments (no constraints)
-		utils.executeDelete(db.DEPARTMENTS, cmd);
+		context.executeDelete(db.DEPARTMENTS, cmd);
 	}
 
 	/**

@@ -91,7 +91,7 @@ public class DBDatabaseDriverMSSqlTest
     {
 		DBCommand cmd = db.createCommand();
 		// Delete all Employees (no constraints)
-		context.getUtils().executeDelete(db.DEPARTMENT, cmd);
+		context.executeDelete(db.DEPARTMENT, cmd);
 	}
 	
 	/**

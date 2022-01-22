@@ -91,7 +91,7 @@ public abstract class Service {
         }
 
         @Override
-        public boolean isEnableRollbackHandling()
+        public boolean isRollbackHandlingEnabled()
         {
             return false; /* No Rollbacks allowed */
         }

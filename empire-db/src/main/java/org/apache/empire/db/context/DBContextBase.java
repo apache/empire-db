@@ -6,8 +6,11 @@ package org.apache.empire.db.context;
 import java.sql.Connection;
 import java.sql.SQLException;
 
+import org.apache.empire.db.DBCommand;
 import org.apache.empire.db.DBContext;
+import org.apache.empire.db.DBDatabase;
 import org.apache.empire.db.DBObject;
+import org.apache.empire.db.DBTable;
 import org.apache.empire.db.DBUtils;
 import org.apache.empire.db.context.DBRollbackManager.ReleaseAction;
 import org.apache.empire.db.exceptions.EmpireSQLException;
@@ -57,6 +60,79 @@ public abstract class DBContextBase implements DBContext
         return getConnection(true);
     }
     
+    /**
+     * Creates a new Command object for the given database
+     * 
+     * @return the command object.
+     */
+    @Override
+    public final DBCommand createCommand(DBDatabase db)
+    {
+        return getDriver().createCommand(db);
+    }
+
+    /**
+     * Executes an SQLStatment
+     * @param sqlCmd the SQL-Command
+     * @param sqlParams a list of objects to replace sql parameters
+     */
+    @Override
+    public final int executeSQL(String sqlCmd, Object[] sqlParams)
+    {
+        if (utils==null) getUtils(); 
+        return utils.executeSQL(sqlCmd, sqlParams, null); 
+    }
+
+    /**
+     * Executes an Insert statement from a command object
+     * @param cmd the command object containing the insert command
+     * @return the number of records that have been inserted with the supplied statement
+     */
+    @Override
+    public final int executeInsert(DBCommand cmd)
+    {
+        if (utils==null) getUtils(); 
+        return utils.executeSQL(cmd.getInsert(), cmd.getParamValues(), null); 
+    }
+
+    /**
+     * Executes an InsertInfo statement from a command object
+     * @param table the table into which to insert the selected data
+     * @param cmd the command object containing the selection command 
+     * @return the number of records that have been inserted with the supplied statement
+     */
+    @Override
+    public final int executeInsertInto(DBTable table, DBCommand cmd)
+    {
+        if (utils==null) getUtils(); 
+        return utils.executeSQL(cmd.getInsertInto(table), cmd.getParamValues(), null); 
+    }
+
+    /**
+     * Executes an Update statement from a command object
+     * @param cmd the command object containing the update command
+     * @return the number of records that have been updated with the supplied statement
+     */
+    @Override
+    public final int executeUpdate(DBCommand cmd)
+    {
+        if (utils==null) getUtils(); 
+        return utils.executeSQL(cmd.getUpdate(), cmd.getParamValues(), null); 
+    }
+
+    /**
+     * Executes a Delete statement from a command object
+     * @param from the database table from which to delete records
+     * @param cmd the command object containing the delete constraints
+     * @return the number of records that have been deleted with the supplied statement
+     */
+    @Override
+    public final int executeDelete(DBTable from, DBCommand cmd)
+    {
+        if (utils==null) getUtils(); 
+        return utils.executeSQL(cmd.getDelete(from), cmd.getParamValues(), null); 
+    }
+    
     @Override
     public void commit()
     {
@@ -71,7 +147,7 @@ public abstract class DBContextBase implements DBContext
             if (conn.getAutoCommit()==false)
                 conn.commit();
             // discard rollbacks
-            DBRollbackManager dbrm = (isEnableRollbackHandling() ? getRollbackManager(false) : null);
+            DBRollbackManager dbrm = (isRollbackHandlingEnabled() ? getRollbackManager(false) : null);
             if (dbrm!=null)
                 dbrm.releaseConnection(conn, ReleaseAction.Discard);
             // Done
@@ -103,7 +179,7 @@ public abstract class DBContextBase implements DBContext
             log.info("Database rollback issued!");
             conn.rollback();
             // perform Rollback
-            DBRollbackManager dbrm = (isEnableRollbackHandling() ? getRollbackManager(false) : null);
+            DBRollbackManager dbrm = (isRollbackHandlingEnabled() ? getRollbackManager(false) : null);
             if (dbrm!=null)
                 dbrm.releaseConnection(conn, ReleaseAction.Rollback);
             // Done
@@ -120,7 +196,7 @@ public abstract class DBContextBase implements DBContext
         if (handler==null || handler.getObject()==null)
             throw new InvalidArgumentException("handler", handler);
         // Check enabled
-        if (!isEnableRollbackHandling())
+        if (!isRollbackHandlingEnabled())
         {   log.warn("*** Rollback handling is disabled for this context. AppendRollbackHandler must not be called! ***");
             return;
         }
@@ -140,7 +216,7 @@ public abstract class DBContextBase implements DBContext
         if (object==null)
             throw new InvalidArgumentException("object", object);
         // Check enabled
-        if (!isEnableRollbackHandling())
+        if (!isRollbackHandlingEnabled())
         {   log.warn("*** Rollback handling is disabled for this context. RemoveRollbackHandler should not be called! ***");
             return;
         }

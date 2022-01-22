@@ -694,7 +694,7 @@ public class DBTable extends DBRowSet implements Cloneable
         setKeyConstraints(cmd, key);
         // Perform delete
         String sqlCmd = cmd.getDelete(this);
-        int affected  = context.getUtils().executeSQL(sqlCmd, cmd.getParamValues());
+        int affected  = context.executeSQL(sqlCmd, cmd.getParamValues());
         if (affected < 0)
         { // Delete Failed
             throw new UnexpectedReturnValueException(affected, "db.executeSQL()");

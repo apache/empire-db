@@ -38,7 +38,6 @@ import org.apache.empire.db.DBReader;
 import org.apache.empire.db.DBRecord;
 import org.apache.empire.db.DBSQLScript;
 import org.apache.empire.db.DBTableColumn;
-import org.apache.empire.db.DBUtils;
 import org.apache.empire.db.context.DBContextStatic;
 import org.apache.empire.db.driver.h2.DBDatabaseDriverH2;
 import org.apache.empire.db.driver.postgresql.DBDatabaseDriverPostgreSQL;
@@ -325,14 +324,13 @@ public class SampleAdvApp
      */
     private static void clearDatabase()
     {
-        DBUtils utils = context.getUtils();
-        DBCommand cmd = db.createCommand();
+        DBCommand cmd = context.createCommand(db);
         // Delete all Employee Department History records
-        utils.executeDelete(T_EDH, cmd);
+        context.executeDelete(T_EDH, cmd);
         // Delete all Employees (no constraints)
-        utils.executeDelete(T_EMP, cmd);
+        context.executeDelete(T_EMP, cmd);
         // Delete all Departments (no constraints)
-        utils.executeDelete(T_DEP, cmd);
+        context.executeDelete(T_DEP, cmd);
     }
 
     /**
