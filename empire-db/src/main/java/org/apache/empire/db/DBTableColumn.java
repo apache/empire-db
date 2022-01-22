@@ -397,12 +397,16 @@ public class DBTableColumn extends DBColumn
                 // Check for LocalDate
                 if (value instanceof LocalDate)
                     break;
+                if (value instanceof LocalDateTime)
+                {   value = ((LocalDateTime)value).toLocalDate();
+                    break;
+                }
             case DATETIME:
             case TIMESTAMP:
                 // Check whether value is a valid date/time value!
                 if (!(value instanceof LocalDateTime) && !(value instanceof Date) && !DBDatabase.SYSDATE.equals(value))
-                {   // Parse Date
-                    try {
+                {   try {
+                        // Parse Date
                         value = ObjectUtils.toDate(value);
                     } catch(ParseException e) {
                         log.info("Parsing '{}' to Date failed for column {}. Message is "+e.toString(), value, getName());
@@ -420,7 +424,7 @@ public class DBTableColumn extends DBColumn
                 // check number
                 if (!(value instanceof java.lang.Number))
                 {   try
-                    {   // Convert to String and check
+                    {   // Convert to Decimal
                         value = ObjectUtils.toDecimal(value);
                         // throws NumberFormatException if not a number!
                     } catch (NumberFormatException e) {
@@ -435,11 +439,10 @@ public class DBTableColumn extends DBColumn
             case FLOAT:
                 if (!(value instanceof java.lang.Number))
                 {   try
-                    {   // Convert to String and check
+                    {   // Convert to Double
                         value = ObjectUtils.toDouble(value);
                         // throws NumberFormatException if not a number!
-                    } catch (NumberFormatException e)
-                    {
+                    } catch (NumberFormatException e) {
                         log.info("Parsing '{}' to Double failed for column {}. Message is "+e.toString(), value, getName());
                         throw new FieldIllegalValueException(this, String.valueOf(value), e);
                     }
@@ -457,11 +460,9 @@ public class DBTableColumn extends DBColumn
                 // check number
                 if (!(value instanceof java.lang.Number))
                 {   try
-                    {   // Convert to String and check
+                    {   // Convert to Long
                         value = ObjectUtils.toLong(value);
-                        // throws NumberFormatException if not an integer!
-                    } catch (NumberFormatException e)
-                    {
+                    } catch (NumberFormatException e) {
                         log.info("Parsing '{}' to Integer failed for column {}. Message is "+e.toString(), value, getName());
                         throw new FieldIllegalValueException(this, String.valueOf(value), e);
                     }

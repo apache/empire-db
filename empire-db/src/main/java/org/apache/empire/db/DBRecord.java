@@ -642,6 +642,11 @@ public class DBRecord extends DBRecordData implements DBContextAware, Record, Cl
             boolean numeric = column.getDataType().isNumeric();
             value = ObjectUtils.getEnumValue(enumVal, numeric);
         }
+        // Is Value valid?
+        if (this.validateFieldValues)
+        {   // validate
+            value = validateValue(column, value);
+        }
         // Has Value changed?
         if (ObjectUtils.compareEqual(current, value))
         {   // value has not changed!
@@ -651,11 +656,6 @@ public class DBRecord extends DBRecordData implements DBContextAware, Record, Cl
         if (!allowFieldChange(column))
         {   // Read Only column may be set
             throw new FieldIsReadOnlyException(column);
-        }
-        // Is Value valid?
-        if (this.validateFieldValues)
-        {   // validate
-            value = validateValue(column, value);
         }
         // Init original values
         modifyValue(index, value, true);

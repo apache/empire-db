@@ -657,6 +657,10 @@ public final class ObjectUtils
             return null;
         if (v instanceof java.util.Date)
             return ((java.util.Date)v);
+        if (v instanceof java.time.LocalDate)
+            return DateUtils.toDate((LocalDate)v);
+        if (v instanceof java.time.LocalDateTime)
+            return DateUtils.toDate((LocalDateTime)v);
         // Convert from String
         String str = v.toString();
         if (str.length() > 10)
@@ -680,6 +684,10 @@ public final class ObjectUtils
             return null;
         if (v instanceof Date)
             return ((Date)v);
+        if (v instanceof java.time.LocalDate)
+            return DateUtils.toDate((LocalDate)v);
+        if (v instanceof java.time.LocalDateTime)
+            return DateUtils.toDate((LocalDateTime)v);
         // Get Calendar
         if (v instanceof Number)
         {   // Get Date from a number
@@ -715,6 +723,10 @@ public final class ObjectUtils
             return null;
         if (v instanceof java.util.Date)
             return ((java.util.Date)v);
+        if (v instanceof java.time.LocalDate)
+            return DateUtils.toDate((LocalDate)v);
+        if (v instanceof java.time.LocalDateTime)
+            return DateUtils.toDate((LocalDateTime)v);
         // Convert from String
         String str = v.toString();
         try
