@@ -18,10 +18,12 @@ public interface DBContext
     void commit();
 
     void rollback();
+    
+    boolean isEnableRollbackHandling();
+    
+    void appendRollbackHandler(DBRollbackHandler handler);
 
     void removeRollbackHandler(DBObject object);
-    
-    void addRollbackHandler(DBRollbackHandler handler);
     
     void discard();
     

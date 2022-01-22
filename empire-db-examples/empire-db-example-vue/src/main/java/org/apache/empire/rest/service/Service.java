@@ -91,6 +91,12 @@ public abstract class Service {
         }
 
         @Override
+        public boolean isEnableRollbackHandling()
+        {
+            return false; /* No Rollbacks allowed */
+        }
+
+        @Override
         public TextResolver getTextResolver()
         {
             return textResolver;

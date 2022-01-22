@@ -90,7 +90,7 @@ public class SampleApp
 			DBDatabaseDriver driver = getDatabaseDriver(config.getDatabaseProvider(), conn);
 			
             // STEP 2.2: Create a Context
-			context = new DBContextStatic(driver, conn); 
+			context = new DBContextStatic(driver, conn, true, true); 
 
             // STEP 3: Open Database (and create if not existing)
             System.out.println("*** Step 3: openDatabase() ***");

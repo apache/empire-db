@@ -147,7 +147,12 @@
 		</logger>
 
 		<logger name="org.apache.empire.db" additivity="false">
-			<level value="warn"/>
+			<level value="info"/>
+			<appender-ref ref="default"/>
+		</logger>
+
+		<logger name="org.apache.empire.db.context" additivity="false">
+			<level value="debug"/>
 			<appender-ref ref="default"/>
 		</logger>
 

@@ -94,6 +94,12 @@ public class DBRecord extends DBRecordData implements DBContextAware, Record, Cl
         }
 
         @Override
+        public String getObjectInfo()
+        {
+            return "Record "+record.getRowSet().getName()+":"+StringUtils.arrayToString(record.getKey(), "|");
+        }
+
+        @Override
         public void combine(DBRollbackHandler successor)
         {
             if (record!=successor.getObject())
@@ -130,7 +136,8 @@ public class DBRecord extends DBRecordData implements DBContextAware, Record, Cl
             record.modified = this.modified;
             record.rowsetData = rowsetData;
             // done
-            log.info("Rollback for record {}[{}] performed", record.getRowSet().getName(), StringUtils.arrayToString(record.getKey(), "|"));
+            if (log.isInfoEnabled())
+                log.info("Rollback for {} performed.", getObjectInfo());
         }
 
         @Override
@@ -205,8 +212,8 @@ public class DBRecord extends DBRecordData implements DBContextAware, Record, Cl
     private Object          rowsetData; // Special Rowset Data (usually null)
 
     // options
-    protected boolean       enableRollbackHandling = true;
-    protected boolean       validateFieldValues = true;
+    protected boolean       enableRollbackHandling;
+    protected boolean       validateFieldValues;
     
     /**
      * Constructs a new DBRecord.<BR>
@@ -225,6 +232,9 @@ public class DBRecord extends DBRecordData implements DBContextAware, Record, Cl
         this.fields = null;
         this.modified = null;
         this.rowsetData = null;
+        // options                         
+        enableRollbackHandling = context.isEnableRollbackHandling();
+        validateFieldValues = true;
     }
 
     /**
@@ -817,7 +827,7 @@ public class DBRecord extends DBRecordData implements DBContextAware, Record, Cl
             return; /* Not modified. Nothing to do! */
         // allow rollback
         if (enableRollbackHandling)
-            context.addRollbackHandler(createRollbackHandler());
+            context.appendRollbackHandler(createRollbackHandler());
         // update
         rowset.updateRecord(this);
     }
@@ -838,7 +848,7 @@ public class DBRecord extends DBRecordData implements DBContextAware, Record, Cl
             throw new ObjectNotValidException(this);
         // allow rollback
         if (enableRollbackHandling)
-            context.addRollbackHandler(createRollbackHandler());
+            context.appendRollbackHandler(createRollbackHandler());
         // Delete only if record is not new
         if (!isNew())
         {

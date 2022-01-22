@@ -38,7 +38,7 @@ public class DBRollbackManager
      * @param conn
      * @param handler
      */
-    public synchronized void addHandler(Connection conn, DBRollbackHandler handler)
+    public synchronized void appendHandler(Connection conn, DBRollbackHandler handler)
     {
         Map<DBObject, DBRollbackHandler> handlerMap = connectionMap.get(conn.hashCode());
         if (handlerMap==null)
@@ -54,6 +54,9 @@ public class DBRollbackManager
             handlerMap.get(object).combine(handler);
         else
             handlerMap.put(object, handler);
+        // log
+        if (log.isDebugEnabled())
+            log.debug("Rollback handler for {} was added.", handler.getObjectInfo());
     }
     
     /**
@@ -75,8 +78,9 @@ public class DBRollbackManager
         DBRollbackHandler handler = handlerMap.remove(object); 
         if (handler==null)
             return; // No handler
-        // dispose
-        log.info("Rollback handler for object {} was removed", object.getClass().getSimpleName());
+        // discard
+        if (log.isDebugEnabled())
+            log.debug("Rollback handler for {} was removed.", handler.getObjectInfo());
         handler.discard();
     }
     
@@ -89,6 +93,7 @@ public class DBRollbackManager
         if (handlerMap==null)
             return; // Nothing to do
         // rollback
+        log.info("DBRollbackManager performes {} for {} objects.", action, handlerMap.size());
         for (DBRollbackHandler handler : handlerMap.values())
             if (action==ReleaseAction.Rollback)
                 handler.rollback();

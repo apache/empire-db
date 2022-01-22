@@ -27,7 +27,7 @@ public abstract class DBContextBase implements DBContext
     
     private DBUtils utils = null;
     
-    private boolean noRollbacksWarnOnce = true;
+    private boolean noRollbackManagerWarnOnce = true;
     
     /**
      * Factory function for Utils creation 
@@ -71,7 +71,7 @@ public abstract class DBContextBase implements DBContext
             if (conn.getAutoCommit()==false)
                 conn.commit();
             // discard rollbacks
-            DBRollbackManager dbrm = getRollbackManager(false);
+            DBRollbackManager dbrm = (isEnableRollbackHandling() ? getRollbackManager(false) : null);
             if (dbrm!=null)
                 dbrm.releaseConnection(conn, ReleaseAction.Discard);
             // Done
@@ -103,7 +103,7 @@ public abstract class DBContextBase implements DBContext
             log.info("Database rollback issued!");
             conn.rollback();
             // perform Rollback
-            DBRollbackManager dbrm = getRollbackManager(false);
+            DBRollbackManager dbrm = (isEnableRollbackHandling() ? getRollbackManager(false) : null);
             if (dbrm!=null)
                 dbrm.releaseConnection(conn, ReleaseAction.Rollback);
             // Done
@@ -115,17 +115,22 @@ public abstract class DBContextBase implements DBContext
     }
     
     @Override
-    public void addRollbackHandler(DBRollbackHandler handler)
+    public void appendRollbackHandler(DBRollbackHandler handler)
     {
         if (handler==null || handler.getObject()==null)
             throw new InvalidArgumentException("handler", handler);
+        // Check enabled
+        if (!isEnableRollbackHandling())
+        {   log.warn("*** Rollback handling is disabled for this context. AppendRollbackHandler must not be called! ***");
+            return;
+        }
         // Add handler
         DBRollbackManager dbrm = getRollbackManager(true);
         if (dbrm!=null)
-            dbrm.addHandler(getConnection(true), handler);
-        else if (noRollbacksWarnOnce)
-        {   log.warn("*** No DBRollbackManager provided. Rollbacks will be disabled! ***");
-            noRollbacksWarnOnce = false;
+            dbrm.appendHandler(getConnection(true), handler);
+        else if (noRollbackManagerWarnOnce)
+        {   log.warn("*** No DBRollbackManager provided! Rollbacks will be disabled. ***");
+            noRollbackManagerWarnOnce = false;
         }
     }
     
@@ -134,6 +139,11 @@ public abstract class DBContextBase implements DBContext
     {
         if (object==null)
             throw new InvalidArgumentException("object", object);
+        // Check enabled
+        if (!isEnableRollbackHandling())
+        {   log.warn("*** Rollback handling is disabled for this context. RemoveRollbackHandler should not be called! ***");
+            return;
+        }
         // Remove handler
         DBRollbackManager dbrm = getRollbackManager(false);
         if (dbrm!=null)

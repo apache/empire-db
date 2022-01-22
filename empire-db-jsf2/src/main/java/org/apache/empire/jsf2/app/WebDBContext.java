@@ -49,6 +49,12 @@ public class WebDBContext<DB extends DBDatabase> extends DBContextBase
         return driver;
     }
 
+    @Override
+    public boolean isEnableRollbackHandling()
+    {
+        return true;
+    }
+
     /**
      * Unclear weather this is any useful
      * Do not call, as the connections are managed by the Application

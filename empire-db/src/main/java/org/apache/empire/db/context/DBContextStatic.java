@@ -12,6 +12,7 @@ public class DBContextStatic extends DBContextBase
 {
     private final DBDatabaseDriver driver;
     private final Connection conn;
+    private final boolean enableRollbackHandling;
     private final boolean closeOnDiscard;
     
     /**
@@ -21,23 +22,42 @@ public class DBContextStatic extends DBContextBase
      *  initialObjectCapacity = 16
      */
     private static final DBRollbackManager staticRollbackManager = new DBRollbackManager(2, 16);
+
+    /**
+     * Creates a static DBContext with default options
+     * @param driver
+     * @param conn
+     */
+    public DBContextStatic(DBDatabaseDriver driver, Connection conn)
+    {
+        this(driver, conn, true, false);
+    }
     
-    public DBContextStatic(DBDatabaseDriver driver, Connection conn, boolean closeOnDiscard)
+    /**
+     * Creates a static DBContext with custom options
+     * @param driver
+     * @param conn
+     * @param enableRollbackHandling
+     * @param closeOnDiscard
+     */
+    public DBContextStatic(DBDatabaseDriver driver, Connection conn, boolean enableRollbackHandling, boolean closeOnDiscard)
     {
         this.driver = driver;
         this.conn = conn;
+        this.enableRollbackHandling = enableRollbackHandling;
         this.closeOnDiscard = closeOnDiscard;
-    }
-
-    public DBContextStatic(DBDatabaseDriver driver, Connection conn)
-    {
-        this(driver, conn, false);
     }
 
     @Override
     public DBDatabaseDriver getDriver()
     {
         return driver;
+    }
+
+    @Override
+    public boolean isEnableRollbackHandling()
+    {
+        return enableRollbackHandling;
     }
     
     @Override
@@ -48,7 +68,9 @@ public class DBContextStatic extends DBContextBase
         if (closeOnDiscard) 
         {   // Close the connection
             closeConnection();
-            staticRollbackManager.releaseConnection(conn, ReleaseAction.Discard);
+            // rollbackManager release
+            if (enableRollbackHandling)
+                staticRollbackManager.releaseConnection(conn, ReleaseAction.Discard);
         }
     }
 

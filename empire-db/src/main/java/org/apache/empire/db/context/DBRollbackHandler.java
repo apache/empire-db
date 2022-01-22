@@ -8,6 +8,7 @@ import org.apache.empire.db.DBObject;
 public interface DBRollbackHandler
 {
     DBObject getObject();
+    String getObjectInfo();
     void combine(DBRollbackHandler successor);
     void rollback();
     void discard();
