@@ -160,9 +160,8 @@ public abstract class DBRowSet extends DBExpr
     * Custom serialization for transient database.
     */
     private void writeObject(ObjectOutputStream strm) throws IOException 
-    {
-        String dbid = (db!=null ? db.getIdentifier() : ""); 
-        strm.writeObject(dbid);
+    {   // Database
+        strm.writeObject(db.getIdentifier());
         // write the rest
         strm.defaultWriteObject();
     }
@@ -171,11 +170,14 @@ public abstract class DBRowSet extends DBExpr
     * Custom deserialization for transient database.
     */
     private void readObject(ObjectInputStream strm) throws IOException, ClassNotFoundException
-    {
-        // Database
+    {   // Database
         String dbid = String.valueOf(strm.readObject());
-        DBDatabase database = DBDatabase.findById(dbid);
-        ClassUtils.setPrivateFieldValue(DBRowSet.class, this, "db", database);
+        // find database
+        DBDatabase dbo = DBDatabase.findById(dbid);
+        if (dbo==null)
+            throw new ItemNotFoundException(dbid);
+        // set final field
+        ClassUtils.setPrivateFieldValue(DBRowSet.class, this, "db", dbo);
         // read the rest
         strm.defaultReadObject();
     }

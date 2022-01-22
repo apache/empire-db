@@ -22,9 +22,9 @@ package org.apache.empire.db;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.lang.reflect.Field;
 import java.util.Set;
 
+import org.apache.empire.commons.ClassUtils;
 import org.apache.empire.commons.Options;
 import org.apache.empire.commons.StringUtils;
 import org.apache.empire.data.Column;
@@ -69,8 +69,8 @@ public abstract class DBColumn extends DBColumnExpr
 
     // basic data
     protected final transient DBRowSet rowset;
-    protected final String     name;
-    protected String           comment;
+    protected final String    name;
+    protected String          comment;
 
     private Boolean quoteName = null;
     
@@ -121,49 +121,30 @@ public abstract class DBColumn extends DBColumnExpr
      * Custom serialization for transient rowset.
      */
     private void writeObject(ObjectOutputStream strm) throws IOException 
-    {
-        if (rowset==null)
-        {   // No rowset
-            strm.writeObject("");
-            strm.defaultWriteObject();
-            return;
-        }
-        // write dbid and rowset-name
-        String dbid   = rowset.getDatabase().getIdentifier(); 
-        String rsname = rowset.getName(); 
-        strm.writeObject(dbid);
-        strm.writeObject(rsname);
-        if (log.isDebugEnabled())
-            log.debug("Serialization: writing DBColumn "+dbid+"."+rsname);
+    {   // RowSet
+        strm.writeObject(rowset.getDatabase().getIdentifier());
+        strm.writeObject(rowset.getName());
+        // write default
         strm.defaultWriteObject();
     }
 
     /**
      * Custom serialization for transient rowset.
      */
-    private void readObject(ObjectInputStream strm) throws IOException, ClassNotFoundException, 
-        SecurityException, NoSuchFieldException, IllegalArgumentException, IllegalAccessException
+    private void readObject(ObjectInputStream strm) throws IOException, ClassNotFoundException 
     {
         String dbid = String.valueOf(strm.readObject());
-        if (StringUtils.isNotEmpty(dbid))
-        {   // Find Rowset
-            String rsname = String.valueOf(strm.readObject());
-            if (log.isDebugEnabled())
-                log.debug("Serialization: reading DBColumn "+dbid+"."+rsname);
-            // find database
-            DBDatabase db = DBDatabase.findById(dbid);
-            if (db==null)
-                throw new ClassNotFoundException(dbid);
-            // find database
-            DBRowSet srs = db.getRowSet(rsname);
-            if (srs==null)
-                throw new ClassNotFoundException(dbid+"."+rsname);
-            // set final field
-            Field f = DBColumn.class.getDeclaredField("rowset");
-            f.setAccessible(true);
-            f.set(this, srs);
-            f.setAccessible(false);
-        }
+        String rsid = String.valueOf(strm.readObject());
+        // find database
+        DBDatabase dbo = DBDatabase.findById(dbid);
+        if (dbo==null)
+            throw new ClassNotFoundException(dbid);
+        // find rowset
+        DBRowSet rso = dbo.getRowSet(rsid);
+        if (rso==null)
+            throw new ClassNotFoundException(dbid+"."+rsid);
+        // set final field
+        ClassUtils.setPrivateFieldValue(DBColumn.class, this, "rowset", rso);
         // read the rest
         strm.defaultReadObject();
     }

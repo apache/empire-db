@@ -21,7 +21,6 @@ package org.apache.empire.db;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -31,6 +30,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.Vector;
 
+import org.apache.empire.commons.ClassUtils;
 import org.apache.empire.commons.StringUtils;
 import org.apache.empire.data.DataType;
 import org.apache.empire.db.expr.compare.DBCompareColExpr;
@@ -61,6 +61,9 @@ public abstract class DBCommand extends DBCommandExpr
 
     // Logger
     protected static final Logger log = LoggerFactory.getLogger(DBCommand.class);
+
+    // Database
+    private final transient DBDatabase db;
     // Distinct Select
     protected boolean                selectDistinct = false;
     // Lists
@@ -73,8 +76,6 @@ public abstract class DBCommand extends DBCommandExpr
     // Parameters for prepared Statements
     protected Vector<DBCmdParam>     cmdParams      = null;
     private int                      paramUsageCount= 0;
-    // Database
-    private transient DBDatabase     db;
 
     /**
      * Constructs a new DBCommand object and set the specified DBDatabase object.
@@ -90,17 +91,8 @@ public abstract class DBCommand extends DBCommandExpr
     * Custom serialization for transient database.
     */
     private void writeObject(ObjectOutputStream strm) throws IOException 
-    {
-        if (db==null)
-        {   // No database
-            strm.writeObject("");
-            strm.defaultWriteObject();
-            return;
-        }
-        String dbid = db.getIdentifier(); 
-        strm.writeObject(dbid);
-        if (log.isDebugEnabled())
-            log.debug("Serialization: writing DBCommand "+dbid);
+    {   // Database
+        strm.writeObject(db.getIdentifier());
         // write the rest
         strm.defaultWriteObject();
     }
@@ -108,24 +100,15 @@ public abstract class DBCommand extends DBCommandExpr
     /**
     * Custom deserialization for transient database.
     */
-    private void readObject(ObjectInputStream strm) throws IOException, ClassNotFoundException,
-        SecurityException, NoSuchFieldException, IllegalArgumentException, IllegalAccessException
+    private void readObject(ObjectInputStream strm) throws IOException, ClassNotFoundException
     {
         String dbid = String.valueOf(strm.readObject());
-        if (StringUtils.isNotEmpty(dbid))
-        {   // Find database
-            if (log.isDebugEnabled())
-                log.debug("Serialization: reading DBCommand "+dbid);
-            // find database
-            DBDatabase sdb = DBDatabase.findById(dbid);
-            if (sdb==null)
-                throw new ClassNotFoundException(dbid);
-            // set final field
-            Field f = DBCommand.class.getDeclaredField("db");
-            f.setAccessible(true);
-            f.set(this, sdb);
-            f.setAccessible(false);
-        }    
+        // find database
+        DBDatabase dbo = DBDatabase.findById(dbid);
+        if (dbo==null)
+            throw new ItemNotFoundException(dbid);
+        // set final field
+        ClassUtils.setPrivateFieldValue(DBCommand.class, this, "db", dbo);
         // read the rest
         strm.defaultReadObject();
     }
@@ -192,7 +175,6 @@ public abstract class DBCommand extends DBCommandExpr
         try 
         {
             DBCommand clone = (DBCommand)super.clone();
-            clone.db = db;
             // Clone lists
             if (select!=null)
                 clone.select = new ArrayList<DBColumnExpr>(select);

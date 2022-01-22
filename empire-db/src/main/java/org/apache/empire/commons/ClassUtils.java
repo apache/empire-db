@@ -53,7 +53,7 @@ public final class ClassUtils
      * @return
      */
     @SuppressWarnings("unchecked")
-    public static <T> T testSerialization(Class<T> clazz, Object objToSerialize)
+    public static <T> T testSerialization(Class<T> clazz, T objToSerialize)
     {
         try
         {   ByteArrayOutputStream baos = new ByteArrayOutputStream();
