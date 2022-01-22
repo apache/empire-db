@@ -69,7 +69,7 @@ public class DBOrderByExpr extends DBExpr
      * @see org.apache.empire.db.DBExpr#getDatabase()
      */
     @Override
-    public DBDatabase getDatabase()
+    public final <T extends DBDatabase> T getDatabase()
     {
         return expr.getDatabase();
     }

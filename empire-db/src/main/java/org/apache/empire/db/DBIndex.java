@@ -87,11 +87,12 @@ public class DBIndex extends DBObject
     {
         this.table = table;
     }
-
+    
+    @SuppressWarnings("unchecked")
     @Override
-    public DBDatabase getDatabase()
+    public <T extends DBDatabase> T getDatabase()
     {
-        return (table!=null) ? table.getDatabase() : null;
+        return (table!=null) ? (T)table.getDatabase() : null;
     }
 
     /**

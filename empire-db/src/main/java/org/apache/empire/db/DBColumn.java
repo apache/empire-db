@@ -244,7 +244,7 @@ public abstract class DBColumn extends DBColumnExpr
      * @return the current DBDatabase object
      */
     @Override
-    public DBDatabase getDatabase()
+    public final <T extends DBDatabase> T getDatabase()
     {
         return (rowset!=null ? rowset.getDatabase() : null);
     }

@@ -56,12 +56,12 @@ public class DBExpressionIndex extends DBIndex
     {
         this(name, (unique ? DBIndexType.UNIQUE : DBIndexType.STANDARD), columnExpressions);
     }
-
     
+    @SuppressWarnings("unchecked")
     @Override
-    public DBDatabase getDatabase()
+    public <T extends DBDatabase> T getDatabase()
     {
-        return columnExpressions[0].getDatabase();
+        return (T)(columnExpressions[0].getDatabase());
     }
 
     /**

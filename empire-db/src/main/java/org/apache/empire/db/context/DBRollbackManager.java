@@ -24,6 +24,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 import org.apache.empire.db.DBObject;
+import org.apache.empire.exceptions.InvalidArgumentException;
 import org.apache.empire.exceptions.ObjectNotValidException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -58,6 +59,10 @@ public class DBRollbackManager
      */
     public synchronized void appendHandler(Connection conn, DBRollbackHandler handler)
     {
+        if (conn==null)
+        {   // Oops, no connection
+            throw new InvalidArgumentException("conn", conn);
+        }
         Map<DBObject, DBRollbackHandler> handlerMap = connectionMap.get(conn.hashCode());
         if (handlerMap==null)
         {   handlerMap = new LinkedHashMap<DBObject, DBRollbackHandler>(this.initialObjectCapacity);
@@ -84,6 +89,10 @@ public class DBRollbackManager
      */
     public synchronized void removeHandler(Connection conn, DBObject object)
     {
+        if (conn==null)
+        {   // Oops, no connection
+            return;
+        }
         if (object==null)
         {   // Discard all
             releaseConnection(conn, ReleaseAction.Discard);
@@ -107,6 +116,10 @@ public class DBRollbackManager
      */
     public synchronized void releaseConnection(Connection conn, ReleaseAction action)
     {
+        if (conn==null)
+        {   // Oops, no connection
+            return;
+        }
         Map<DBObject, DBRollbackHandler> handlerMap = connectionMap.get(conn.hashCode());
         if (handlerMap==null)
             return; // Nothing to do

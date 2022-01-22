@@ -290,10 +290,12 @@ public class DBReader extends DBRecordData implements DBContextAware
      * 
      * @return the current DBDatabase object
      */
+    
+    @SuppressWarnings("unchecked")
     @Override
-    public DBDatabase getDatabase()
+    public final <T extends DBDatabase> T getDatabase()
     {
-        return this.db;
+        return (T)db;
     }
     
     public boolean getScrollable()

@@ -296,9 +296,9 @@ public class DBRecord extends DBRecordData implements DBContextAware, Record, Cl
      * @return the current DBDatabase object
      */
     @Override
-    public DBDatabase getDatabase()
+    public final <T extends DBDatabase> T getDatabase()
     {
-        return rowset.db;
+        return rowset.getDatabase();
     }
 
     /**
@@ -642,11 +642,6 @@ public class DBRecord extends DBRecordData implements DBContextAware, Record, Cl
             boolean numeric = column.getDataType().isNumeric();
             value = ObjectUtils.getEnumValue(enumVal, numeric);
         }
-        // Is Value valid?
-        if (this.validateFieldValues)
-        {   // validate
-            value = validateValue(column, value);
-        }
         // Has Value changed?
         if (ObjectUtils.compareEqual(current, value))
         {   // value has not changed!
@@ -656,6 +651,18 @@ public class DBRecord extends DBRecordData implements DBContextAware, Record, Cl
         if (!allowFieldChange(column))
         {   // Read Only column may be set
             throw new FieldIsReadOnlyException(column);
+        }
+        // Is Value valid?
+        if (this.validateFieldValues)
+        {   // validate
+            Object validated = validateValue(column, value);
+            if (value != validated)
+            {   // Value has been converted, check again
+                if (ObjectUtils.compareEqual(current, validated))
+                    return; 
+                // user converted value
+                value = validated;
+            }
         }
         // Init original values
         modifyValue(index, value, true);

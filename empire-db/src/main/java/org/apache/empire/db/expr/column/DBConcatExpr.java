@@ -58,7 +58,7 @@ public class DBConcatExpr extends DBColumnExpr
     }
 
     @Override
-    public DBDatabase getDatabase()
+    public final <T extends DBDatabase> T getDatabase()
     {
         return left.getDatabase();
     }

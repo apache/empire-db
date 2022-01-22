@@ -61,7 +61,7 @@ public class DBColumnJoinExpr extends DBJoinExpr
      * @return the current DBDatabase object
      */
     @Override
-    public DBDatabase getDatabase()
+    public final <T extends DBDatabase> T getDatabase()
     {
         return left.getDatabase();
     }

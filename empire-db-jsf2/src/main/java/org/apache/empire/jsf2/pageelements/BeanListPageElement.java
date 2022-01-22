@@ -638,9 +638,8 @@ public class BeanListPageElement<T> extends ListPageElement<T> implements ListIt
                 keyExpr = keyExpr.append(pk[i]);
             }
             
-            String[] keys = new String[items.size()];
+            Object[] keys = new Object[items.size()];
             int i = 0;
-
             for (Object[] item : items)
             {
                 keys[i++] = StringUtils.arrayToString(item, "");

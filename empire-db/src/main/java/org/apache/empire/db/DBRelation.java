@@ -162,11 +162,11 @@ public class DBRelation extends DBObject
         return (DBTable)references[0].getTargetColumn().getRowSet();
     }
     
-
+    @SuppressWarnings("unchecked")
     @Override
-    public DBDatabase getDatabase()
+    public final <T extends DBDatabase> T getDatabase()
     {
-        return db;
+        return (T)db;
     }
     
     /**

@@ -101,10 +101,11 @@ public class DBValueExpr extends DBColumnExpr
      * 
      * @return the current DBDatabase object
      */
+    @SuppressWarnings("unchecked")
     @Override
-    public DBDatabase getDatabase()
+    public final <T extends DBDatabase> T getDatabase()
     {
-        return db;
+        return (T)db;
     }
 
     /**

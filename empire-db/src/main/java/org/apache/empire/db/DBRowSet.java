@@ -21,7 +21,6 @@ package org.apache.empire.db;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.lang.reflect.Field;
 import java.sql.Connection;
 import java.sql.Timestamp;
 import java.util.ArrayList;
@@ -32,6 +31,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.empire.commons.ClassUtils;
 import org.apache.empire.commons.ObjectUtils;
 import org.apache.empire.commons.StringUtils;
 import org.apache.empire.data.Column;
@@ -161,16 +161,8 @@ public abstract class DBRowSet extends DBExpr
     */
     private void writeObject(ObjectOutputStream strm) throws IOException 
     {
-        if (db==null)
-        {   // No database
-            strm.writeObject("");
-            strm.defaultWriteObject();
-            return;
-        }
-        String dbid = db.getIdentifier(); 
+        String dbid = (db!=null ? db.getIdentifier() : ""); 
         strm.writeObject(dbid);
-        if (log.isDebugEnabled())
-            log.debug("Serialization: writing DBRowSet "+dbid);
         // write the rest
         strm.defaultWriteObject();
     }
@@ -178,24 +170,12 @@ public abstract class DBRowSet extends DBExpr
     /**
     * Custom deserialization for transient database.
     */
-    private void readObject(ObjectInputStream strm) throws IOException, ClassNotFoundException,
-        SecurityException, NoSuchFieldException, IllegalArgumentException, IllegalAccessException
+    private void readObject(ObjectInputStream strm) throws IOException, ClassNotFoundException
     {
+        // Database
         String dbid = String.valueOf(strm.readObject());
-        if (StringUtils.isNotEmpty(dbid))
-        {   // Find database
-            if (log.isDebugEnabled())
-                log.debug("Serialization: reading DBRowSet "+dbid);
-            // find database
-            DBDatabase sdb = DBDatabase.findById(dbid);
-            if (sdb==null)
-                throw new ClassNotFoundException(dbid);
-            // set final field
-            Field f = DBRowSet.class.getDeclaredField("db");
-            f.setAccessible(true);
-            f.set(this, sdb);
-            f.setAccessible(false);
-        }    
+        DBDatabase database = DBDatabase.findById(dbid);
+        ClassUtils.setPrivateFieldValue(DBRowSet.class, this, "db", database);
         // read the rest
         strm.defaultReadObject();
     }
@@ -280,10 +260,11 @@ public abstract class DBRowSet extends DBExpr
      * <P>
      * @return the current DBDatabase object
      */
+    @SuppressWarnings("unchecked")
     @Override
-    public final DBDatabase getDatabase()
+    public final <T extends DBDatabase> T getDatabase()
     {
-        return db;
+        return (T)db;
     }
 
     /**

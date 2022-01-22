@@ -45,7 +45,7 @@ public class DBContextStatic extends DBContextBase
      */
     public DBContextStatic(DBDatabaseDriver driver, Connection conn)
     {
-        this(driver, conn, true, false);
+        this(driver, conn, (conn!=null), false);
     }
     
     /**

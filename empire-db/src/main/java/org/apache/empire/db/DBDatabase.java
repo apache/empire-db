@@ -412,10 +412,11 @@ public abstract class DBDatabase extends DBObject
     /**
      * @see org.apache.empire.db.DBObject#getDatabase()
      */
+    @SuppressWarnings("unchecked")
     @Override
-    public DBDatabase getDatabase()
+    public final <T extends DBDatabase> T getDatabase()
     {
-        return this;
+        return (T)(this);
     }
 
     /**

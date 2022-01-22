@@ -58,7 +58,7 @@ public class DBCaseExpr extends DBColumnExpr
     }
 
     @Override
-    public DBDatabase getDatabase()
+    public final <T extends DBDatabase> T getDatabase()
     {
         return trueExpr.getDatabase();
     }

@@ -21,7 +21,7 @@ package org.apache.empire.jsf2.utils;
 import javax.el.ValueExpression;
 import javax.el.VariableMapper;
 
-import org.apache.empire.commons.ObjectUtils;
+import org.apache.empire.commons.ClassUtils;
 import org.apache.empire.commons.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -84,15 +84,15 @@ public class ValueExpressionUnwrapper
             {   // expected: ve = org.apache.el.ValueExpressionImpl
                 if (ve.getClass().getName().equals("org.apache.el.ValueExpressionImpl"))
                 {   // get the Node
-                    Object node = ObjectUtils.invokeSimplePrivateMethod(ve, "getNode");
+                    Object node = ClassUtils.invokeSimplePrivateMethod(ve, "getNode");
                     if (node!=null)
                     {   // We have a Node
                         // Now get the Image
-                        String image = StringUtils.toString(ObjectUtils.invokeSimpleMethod(node, "getImage"));
+                        String image = StringUtils.toString(ClassUtils.invokeSimpleMethod(node, "getImage"));
                         if (StringUtils.isNotEmpty(image)) 
                         {   // We have an image
                             // Now find the varMapper
-                            VariableMapper varMapper = (VariableMapper)ObjectUtils.getPrivateFieldValue(ve, "varMapper");
+                            VariableMapper varMapper = (VariableMapper)ClassUtils.getPrivateFieldValue(ve, "varMapper");
                             if (varMapper!=null)
                             {   // Resolve variable using mapper
                                 ve = varMapper.resolveVariable(image);

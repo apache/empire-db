@@ -106,7 +106,7 @@ public class DBCmdParam extends DBExpr
     }
     
     @Override
-    public DBDatabase getDatabase()
+    public final <T extends DBDatabase> T getDatabase()
     {
         return cmd.getDatabase();
     }

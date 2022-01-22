@@ -18,8 +18,13 @@
  */
 package org.apache.empire.db;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 // java.sql
 import java.io.Serializable;
+
+import org.apache.empire.commons.StringUtils;
 
 
 /**
@@ -39,7 +44,38 @@ public abstract class DBObject implements Serializable
      * 
      * @return the database object
      */
-    public abstract DBDatabase getDatabase();
+    public abstract <T extends DBDatabase> T getDatabase();
+    
+    
+    /**
+     * Serialize transient database
+     * @param strm the stream
+     * @param db
+     * @throws IOException
+     */
+    protected void writeDatabase(ObjectOutputStream strm, DBDatabase db) throws IOException
+    {
+        String dbid = (db!=null ? db.getIdentifier() : ""); 
+        strm.writeObject(dbid);
+    }
+    
+    /**
+     * Serialize transient database
+     * @param strm the stream
+     * @param db
+     * @throws IOException
+     */
+    protected DBDatabase readDatabase(ObjectInputStream strm) throws IOException, ClassNotFoundException
+    {
+        String dbid = String.valueOf(strm.readObject());
+        if (StringUtils.isEmpty(dbid))
+            return null; // No Database
+        // find database
+        DBDatabase sdb = DBDatabase.findById(dbid);
+        if (sdb==null)
+            throw new ClassNotFoundException(dbid);
+        return sdb;
+    }
 
     /*
     private void readObject(ObjectInputStream strm) throws IOException, ClassNotFoundException,

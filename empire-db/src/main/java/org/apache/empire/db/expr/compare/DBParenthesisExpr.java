@@ -43,7 +43,7 @@ public class DBParenthesisExpr extends DBCompareExpr
     }
 
     @Override
-    public DBDatabase getDatabase()
+    public final <T extends DBDatabase> T getDatabase()
     {
         return wrap.getDatabase();
     }
