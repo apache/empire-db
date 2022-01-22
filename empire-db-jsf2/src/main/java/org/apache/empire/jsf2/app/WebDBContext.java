@@ -4,6 +4,7 @@ import java.sql.Connection;
 
 import javax.faces.context.FacesContext;
 
+import org.apache.empire.db.DBCommand;
 import org.apache.empire.db.DBDatabase;
 import org.apache.empire.db.DBDatabaseDriver;
 import org.apache.empire.db.context.DBContextBase;
@@ -41,6 +42,11 @@ public class WebDBContext<DB extends DBDatabase> extends DBContextBase
     public DB getDatabase()
     {
         return database;
+    }
+
+    public DBCommand createCommand()
+    {
+        return super.createCommand(database);
     }
 
     @Override

@@ -24,7 +24,12 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeParseException;
+import java.time.temporal.Temporal;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
@@ -35,6 +40,7 @@ import org.apache.commons.beanutils.MethodUtils;
 import org.apache.empire.exceptions.EmpireException;
 import org.apache.empire.exceptions.InternalException;
 import org.apache.empire.exceptions.InvalidArgumentException;
+import org.apache.empire.exceptions.InvalidValueException;
 import org.apache.empire.exceptions.ItemNotFoundException;
 import org.apache.empire.exceptions.NotSupportedException;
 import org.slf4j.Logger;
@@ -110,8 +116,10 @@ public final class ObjectUtils
      */
     public static boolean isEmpty(Object o)
     {
-        if (o==null || o==ObjectUtils.NO_VALUE)
+        if (o==null)
             return true;
+        if (o==NO_VALUE)
+            throw new InvalidValueException(o);
         if ((o instanceof String) && ((String)o).length()==0)
             return true;
         // not empty
@@ -167,7 +175,7 @@ public final class ObjectUtils
      */
     public static int lengthOf(Object o)
     {
-        if (o==null || o==ObjectUtils.NO_VALUE)
+        if (o==null || o==NO_VALUE)
             return 0;
         if ((o instanceof String))
             return ((String)o).length();
@@ -213,6 +221,15 @@ public final class ObjectUtils
             double d2 = ((Number)o2).doubleValue(); 
             return (d1==d2);
         }
+        // Compare Date with LocalDate / LocalDateTime
+        if (o1 instanceof Temporal && o2 instanceof Date)
+        {   // swap
+            Object tmp = o2; o2 = o1; o1 = tmp; 
+        }
+        if (o1 instanceof Date && o2 instanceof LocalDate)
+            return o1.equals(DateUtils.toDate((LocalDate)o2));
+        if (o1 instanceof Date && o2 instanceof LocalDateTime)
+            return o1.equals(DateUtils.toDate((LocalDateTime)o2));
         // Enum
         if (o1 instanceof Enum<?>)
         {   // Special enum handling   
@@ -302,8 +319,7 @@ public final class ObjectUtils
         try
         {   // Try to convert
             return toInteger(v);
-        } catch (Exception e)
-        {
+        } catch (NumberFormatException e) {
         	log.warn(String.format("Cannot convert value [%s] to int!", v));
             return defValue;
         }
@@ -354,8 +370,7 @@ public final class ObjectUtils
         try
         {   // Try to convert
             return toLong(v);
-        } catch (Exception e)
-        {
+        } catch (NumberFormatException e) {
         	log.warn(String.format("Cannot convert value [%s] to long!", v));
             return defValue;
         }
@@ -406,8 +421,7 @@ public final class ObjectUtils
         try
         {   // Try to convert
             return toDouble(v);
-        } catch (Exception e)
-        {
+        } catch (NumberFormatException e) {
             log.warn(String.format("Cannot convert value [%s] to double!", v));
             return defValue;
         }
@@ -470,8 +484,7 @@ public final class ObjectUtils
         try
         {   // Try to convert
             return toDecimal(v);
-        } catch (Exception e)
-        {   // Error
+        } catch (NumberFormatException e) {
             log.warn(String.format("Cannot convert value [%s] to BigDecimal!", v));
             return defValue;
         }
@@ -619,15 +632,37 @@ public final class ObjectUtils
             return null;
         if (value instanceof String)
             return (String)value;
-        // convert
         if (value==NO_VALUE)
-            throw new NotSupportedException(value, "getString");
+            throw new InvalidValueException(value);
+        // convert
         if (value instanceof Enum<?>)
             return getString((Enum<?>)value);
         if (value instanceof Date)
             return formatDate((Date)value, true);
         // default
         return value.toString();
+    }
+    
+    /**
+     * Converts an object value to a Date.
+     * <P>
+     * @param v the object to convert
+     * @return the Date value of o or null
+     */
+    public static Date toDate(Object v)
+        throws ParseException
+    {
+        // Get DateTime value
+        if (ObjectUtils.isEmpty(v))
+            return null;
+        if (v instanceof java.util.Date)
+            return ((java.util.Date)v);
+        // Convert from String
+        String str = v.toString();
+        if (str.length() > 10)
+            return dateTimeFormatter.get().parse(str);
+        else
+            return dateOnlyFormatter.get().parse(str);
     }
     
     /**
@@ -681,15 +716,78 @@ public final class ObjectUtils
         if (v instanceof java.util.Date)
             return ((java.util.Date)v);
         // Convert from String
+        String str = v.toString();
         try
-        {   String str = v.toString();
-            if (str.length() > 10)
+        {   if (str.length() > 10)
                 return dateTimeFormatter.get().parse(str);
             else
                 return dateOnlyFormatter.get().parse(str);
-        } catch (Exception e)
-        {
-            log.error("Cannot convert value to date!", e);
+        } catch (ParseException e) {
+            log.error("Cannot convert \""+str+"\" to Date!", e);
+            return null;
+        }
+    }
+    
+    /**
+     * Converts an object value to a Date.
+     * <P>
+     * @param v the object to convert
+     * @return the Date value of o or null
+     */
+    public static LocalDate getLocalDate(Object v)
+    {
+        // Get DateTime value
+        if (ObjectUtils.isEmpty(v))
+            return null;
+        if (v instanceof java.time.LocalDate)
+            return (LocalDate)v;
+        if (v instanceof java.time.LocalDateTime)
+            return ((LocalDateTime)v).toLocalDate();
+        if (v instanceof java.sql.Timestamp)
+            return ((java.sql.Timestamp)v).toLocalDateTime().toLocalDate();
+        if (v instanceof java.sql.Date)
+            return ((java.sql.Date)v).toLocalDate();
+        if (v instanceof java.util.Date)
+            return DateUtils.toLocalDate((Date)v);
+        // Convert from String
+        try
+        {   // DateTimeFormatter ISO_LOCAL_DATE
+            String str = v.toString();
+            return LocalDate.parse(str);
+        } catch (DateTimeParseException e) {
+            log.error("Cannot convert value to LocalDate!", e);
+            return null;
+        }
+    }
+    
+    /**
+     * Converts an object value to a Date.
+     * <P>
+     * @param v the object to convert
+     * @return the Date value of o or null
+     */
+    public static LocalDateTime getLocalDateTime(Object v)
+    {
+        // Get DateTime value
+        if (ObjectUtils.isEmpty(v))
+            return null;
+        if (v instanceof java.time.LocalDate)
+            return ((LocalDate)v).atStartOfDay();
+        if (v instanceof java.time.LocalDateTime)
+            return (LocalDateTime)v;
+        if (v instanceof java.sql.Timestamp)
+            return ((java.sql.Timestamp)v).toLocalDateTime();
+        if (v instanceof java.sql.Date)
+            return ((java.sql.Date)v).toLocalDate().atStartOfDay();
+        if (v instanceof java.util.Date)
+            return DateUtils.toLocalDateTime((Date)v);
+        // Convert from String
+        try
+        {   // DateTimeFormatter.ISO_LOCAL_DATE_TIME
+            String str = v.toString();
+            return LocalDateTime.parse(str);
+        } catch (DateTimeParseException e) {
+            log.error("Cannot convert value to LocalDateTime!", e);
             return null;
         }
     }
@@ -728,6 +826,8 @@ public final class ObjectUtils
     {
         if (v==null || c.isInstance(v))
             return (T)v;
+        if (v==NO_VALUE)
+            throw new InvalidValueException(v);
         // Get Class form Primitive Type
         if (c.isPrimitive())
         {   // Get's the Java Class representing the primitive type

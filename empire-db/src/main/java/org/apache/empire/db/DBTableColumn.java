@@ -22,14 +22,14 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.sql.Connection;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Date;
 
 import org.apache.empire.commons.Attributes;
 import org.apache.empire.commons.ObjectUtils;
 import org.apache.empire.commons.OptionEntry;
 import org.apache.empire.commons.Options;
-import org.apache.empire.commons.StringUtils;
 import org.apache.empire.data.Column;
 import org.apache.empire.data.DataType;
 import org.apache.empire.db.exceptions.FieldIllegalValueException;
@@ -394,27 +394,18 @@ public class DBTableColumn extends DBColumn
         switch (type)
         {
             case DATE:
+                // Check for LocalDate
+                if (value instanceof LocalDate)
+                    break;
             case DATETIME:
             case TIMESTAMP:
                 // Check whether value is a valid date/time value!
-                if (!(value instanceof Date) && !DBDatabase.SYSDATE.equals(value))
-                {   // Parse String
-                    String dateValue = value.toString();
-                    if (dateValue.length()==0)
-                        return null;
-                    // Convert through SimpleDateFormat
-                    String datePattern = StringUtils.coalesce(StringUtils.toString(getAttribute(Column.COLATTR_DATETIMEPATTERN)), "yyyy-MM-dd HH:mm:ss");
-                    if ((type==DataType.DATE || dateValue.length()<=12) && datePattern.indexOf(' ')>0)
-                        datePattern = datePattern.substring(0, datePattern.indexOf(' ')); // Strip off time
-                    try
-                    {   // Parse date time value
-                        SimpleDateFormat sdFormat = new SimpleDateFormat(datePattern);
-                        sdFormat.setLenient(true);
-                        value = sdFormat.parse(dateValue);
-                        // OK
-                    } catch (ParseException e)
-                    {   // Error
-                        log.info("Parsing '{}' to Date ("+datePattern+") failed for column {}. Message is "+e.toString(), value, getName());
+                if (!(value instanceof LocalDateTime) && !(value instanceof Date) && !DBDatabase.SYSDATE.equals(value))
+                {   // Parse Date
+                    try {
+                        value = ObjectUtils.toDate(value);
+                    } catch(ParseException e) {
+                        log.info("Parsing '{}' to Date failed for column {}. Message is "+e.toString(), value, getName());
                         throw new FieldIllegalValueException(this, String.valueOf(value), e);
                     }
                 }    
@@ -432,8 +423,7 @@ public class DBTableColumn extends DBColumn
                     {   // Convert to String and check
                         value = ObjectUtils.toDecimal(value);
                         // throws NumberFormatException if not a number!
-                    } catch (NumberFormatException e)
-                    {
+                    } catch (NumberFormatException e) {
                         log.info("Parsing '{}' to Decimal failed for column {}. Message is "+e.toString(), value, getName());
                         throw new FieldIllegalValueException(this, String.valueOf(value), e);
                     }

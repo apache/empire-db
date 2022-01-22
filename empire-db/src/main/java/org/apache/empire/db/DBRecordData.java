@@ -20,6 +20,8 @@ package org.apache.empire.db;
 // XML
 import java.lang.reflect.InvocationTargetException;
 import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.Date;
 
@@ -307,6 +309,54 @@ public abstract class DBRecordData extends DBObject
     public final Date getDateTime(ColumnExpr column)
     {
         return getDateTime(getFieldIndex(column));
+    }
+
+    /**
+     * Returns a data value identified by the column index.
+     * The data value is converted to a Date if necessary.
+     * 
+     * @param index index of the column
+     * @return the value
+     */
+    public final LocalDate getLocalDate(int index)
+    {
+        return ObjectUtils.getLocalDate(getValue(index));
+    }
+    
+    /**
+     * Returns a data value for the desired column.
+     * The data value is converted to a Date if necessary.
+     * 
+     * @param column identifying the column
+     * @return the value
+     */
+    public final LocalDate getLocalDate(ColumnExpr column)
+    {
+        return getLocalDate(getFieldIndex(column));
+    }
+
+    /**
+     * Returns a data value identified by the column index.
+     * The data value is converted to a Date if necessary.
+     * 
+     * @param index index of the column
+     * @return the value
+     */
+    public final LocalDateTime getLocalDateTime(int index)
+    {
+        return ObjectUtils.getLocalDateTime(getValue(index));
+    }
+    
+    /**
+     * Returns a data value for the desired column.
+     * The data value is converted to a Date if necessary.
+     * 
+     * @param column identifying the column
+     * @return the value
+     */
+    public final LocalDateTime getLocalDateTime(ColumnExpr column)
+    {
+        return getLocalDateTime(getFieldIndex(column));
     }
 
     /**

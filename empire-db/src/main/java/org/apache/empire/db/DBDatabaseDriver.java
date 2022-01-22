@@ -26,6 +26,8 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
@@ -898,6 +900,14 @@ public abstract class DBDatabaseDriver implements Serializable
         else if ((value instanceof Date))
         {   // Convert Date to Timestamp
             ts = new Timestamp(((Date)value).getTime());
+        }
+        else if ((value instanceof LocalDate))
+        {   // Convert LocalDate to Timestamp
+            ts = java.sql.Timestamp.valueOf(((LocalDate)value).atStartOfDay());
+        }
+        else if ((value instanceof LocalDateTime))
+        {   // Convert LocalDateTime to Timestamp
+            ts = java.sql.Timestamp.valueOf((LocalDateTime)value);
         }
         else 
         {   // "Timestamp format must be yyyy-mm-dd hh:mm:ss[.fffffffff]"

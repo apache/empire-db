@@ -21,6 +21,11 @@ package org.apache.empire.commons;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+import java.time.format.FormatStyle;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
@@ -118,6 +123,28 @@ public class DateUtils
         calendar.set(Calendar.SECOND, 0);
         calendar.set(Calendar.MILLISECOND, 0);
         return calendar.getTime();
+    }
+    
+    public static Date getDateTime(int year, int month, int day, int hours, int minutes, int seconds, int millis)
+    {
+        Calendar calendar = Calendar.getInstance();
+        if (year>0)
+            calendar.set(Calendar.YEAR, year);
+        if (month>0)
+            calendar.set(Calendar.MONTH, month-1);
+        if (day>0)
+            calendar.set(Calendar.DAY_OF_MONTH, day);
+        // No Time
+        calendar.set(Calendar.HOUR_OF_DAY, hours);
+        calendar.set(Calendar.MINUTE, minutes);
+        calendar.set(Calendar.SECOND, seconds);
+        calendar.set(Calendar.MILLISECOND, millis);
+        return calendar.getTime();
+    }
+    
+    public static Date getDateTime(int year, int month, int day, int hours, int minutes, int seconds)
+    {
+        return getDateTime(year, month, day, hours, minutes, seconds, 0);
     }
 
     public static Date setTime(Date date, int hours, int minutes, int seconds, int millis)
@@ -234,4 +261,96 @@ public class DateUtils
         c.setTime(d);
         return sdf.format(d);
     }
+    
+    /*
+     * LocalDate
+     */
+    
+    public static LocalDate toLocalDate(java.sql.Date date)
+    {
+        return date.toLocalDate();
+    }
+    
+    public static LocalDate toLocalDate(java.sql.Timestamp timestamp)
+    {
+        return timestamp.toLocalDateTime().toLocalDate();
+    }
+    
+    public static LocalDateTime toLocalDateTime(java.sql.Date date)
+    {
+        return date.toLocalDate().atStartOfDay();
+    }
+    
+    public static LocalDateTime toLocalDateTime(java.sql.Timestamp timestamp)
+    {
+        return timestamp.toLocalDateTime();
+    }
+    
+    public static LocalDate toLocalDate(Date date)
+    {   // return Instant.ofEpochMilli(date.getTime()).atZone(ZoneId.systemDefault()).toLocalDate();
+        return date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+    }
+
+    public static LocalDateTime toLocalDateTime(Date date) {
+        // return Instant.ofEpochMilli(date.getTime()).atZone(ZoneId.systemDefault()).toLocalDateTime();
+        return date.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
+    }
+    
+    public static Date toDate(LocalDate localDate) {
+        // return java.util.Date.from(localDate.atStartOfDay().atZone(ZoneId.systemDefault()).toInstant());        
+        return java.sql.Date.valueOf(localDate);
+    }
+    
+    public static Date toDate(LocalDateTime localDateTime) {
+        // return java.util.Date.from(localDateTime.atZone(ZoneId.systemDefault()).toInstant());        
+        return java.sql.Timestamp.valueOf(localDateTime);
+    }
+    
+    public static LocalDate parseLocalDate(String date) {
+        // DateTimeFormatter ISO_LOCAL_DATE
+        return LocalDate.parse(date);
+    }
+    
+    public static LocalDate parseLocalDate(String date, DateTimeFormatter formatter) {
+        return LocalDate.parse(date, formatter);
+    }
+    
+    public static LocalDateTime parseLocalDateTime(String date) {
+        //  DateTimeFormatter.ISO_LOCAL_DATE_TIME
+        return LocalDateTime.parse(date);
+    }
+    
+    public static LocalDateTime parseLocalDateTime(String date, DateTimeFormatter formatter) {
+        return LocalDateTime.parse(date, formatter);
+    }
+    
+    /*
+     * Local Date formatting
+     */
+
+    public static DateTimeFormatter getLocalDateFormatter(Locale locale)
+    {
+        return DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM).withLocale(getSafeLocale(locale));
+    }
+    
+    public static DateTimeFormatter getLocalDateTimeFormatter(Locale locale, boolean withSeconds)
+    {
+        return DateTimeFormatter.ofLocalizedDateTime((withSeconds ? FormatStyle.MEDIUM : FormatStyle.SHORT)).withLocale(getSafeLocale(locale));
+    }
+    
+    public static String formatDate(LocalDate localDate, Locale locale)
+    {
+        return getLocalDateFormatter(locale).format(localDate);
+    }
+    
+    public static String formatDate(LocalDateTime localDateTime, Locale locale)
+    {
+        return getLocalDateFormatter(locale).format(localDateTime.toLocalDate());
+    }
+    
+    public static String formatDateTime(LocalDateTime localDateTime, Locale locale, boolean withSeconds)
+    {
+        return getLocalDateTimeFormatter(locale, withSeconds).format(localDateTime);
+    }
+    
 }
