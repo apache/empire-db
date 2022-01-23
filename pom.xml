@@ -682,6 +682,21 @@
 										<ignore />
 									</action>
 								</pluginExecution>
+								<!-- maven-remote-resources-plugin -->
+								<!-- Eclipse: avoid message "maven-remote-resources-plugin (goal "process") is ignored by m2e." -->
+								<pluginExecution>
+									<pluginExecutionFilter>
+										<groupId>org.apache.maven.plugins</groupId>
+										<artifactId>maven-remote-resources-plugin</artifactId>
+										<versionRange>[1.0,)</versionRange>
+										<goals>
+											<goal>process</goal>
+										</goals>
+									</pluginExecutionFilter>
+									<action>
+										<ignore />
+									</action>
+								</pluginExecution>
 							</pluginExecutions>
 						</lifecycleMappingMetadata>
 					</configuration>

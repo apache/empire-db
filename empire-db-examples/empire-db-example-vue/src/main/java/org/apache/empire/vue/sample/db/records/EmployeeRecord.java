@@ -28,7 +28,7 @@ import org.apache.empire.vue.sample.db.SampleDB.TEmployees;
 
 public class EmployeeRecord extends SampleRecord<TEmployees>
 {
-    // *Deprecated* private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
     public EmployeeRecord(RecordContext recordContext)
     {

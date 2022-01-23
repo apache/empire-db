@@ -23,7 +23,7 @@ import org.apache.empire.vue.sample.db.SampleDB.TDepartments;
 
 public class DepartmentRecord extends SampleRecord<TDepartments>
 {
-    // *Deprecated* private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
     public DepartmentRecord(RecordContext recordContext)
     {

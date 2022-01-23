@@ -125,12 +125,13 @@ public interface DBDatabaseDriver
     
     /**
      * Executes an select SQL-command that returns only one scalar value
+     * if no row are returned by the query then ObjectUtils.NO_VALUE is returned
      * 
      * @param sqlCmd the SQL-Command
      * @param sqlParams array of sql command parameters used for prepared statements (Optional).
      * @param dataType the requested return type
      * @param conn a valid connection to the database.
-     * @return the scalar result value
+     * @return the scalar result value or ObjectUtils.NO_VALUE if no row are returned by the query
      */
     public Object querySingleValue(String sqlCmd, Object[] sqlParams, DataType dataType, Connection conn);
     
