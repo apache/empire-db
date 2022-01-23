@@ -545,10 +545,6 @@ public class SampleAdvApp
      */
     private static void ddlSample(int idTestPerson)
     {
-        // Enable Column default for the database 
-        // This is needed for adding required fields to non-empty tables
-        db.getDriver().setDDLColumnDefaults(true);
-
         // First, add a new column to the Table object
         DBTableColumn C_FOO = db.T_EMPLOYEES.addColumn("FOO", DataType.VARCHAR, 20, false);
 

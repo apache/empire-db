@@ -138,7 +138,7 @@ public class DBResource extends ExternalResource
         
         private DB(final String jdbcClass, final String jdbcURL, final Class<? extends DBDatabaseDriver> driver)
         {
-        	this(jdbcClass, jdbcURL, driver, null, null);
+            this(jdbcClass, jdbcURL, driver, null, null);
         }
         
         private DB(final String jdbcClass, final String jdbcURL, final Class<? extends DBDatabaseDriver> driver, final String username, final String password)

@@ -172,7 +172,7 @@ public class DBAliasExpr extends DBColumnExpr
             if (asExpr!=null)
             {
                 buf.append(asExpr);
-                driver.appendElementName(buf, alias);
+                driver.appendElementName(buf, alias, null);
             }
         } 
         else

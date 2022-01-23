@@ -146,7 +146,7 @@ public class OracleDDLGenerator extends DBDDLGenerator<DBDatabaseDriverOracle>
         sql.append(c.getFullName());
         sql.append(" --\r\n");
         sql.append("CREATE SEQUENCE ");
-        db.appendQualifiedName(sql, seqName, detectQuoteName(seqName));
+        db.appendQualifiedName(sql, seqName, null);
         sql.append(" INCREMENT BY 1 START WITH 1 MINVALUE 0 NOCYCLE NOCACHE NOORDER");
         // executeDLL
         script.addStmt(sql);

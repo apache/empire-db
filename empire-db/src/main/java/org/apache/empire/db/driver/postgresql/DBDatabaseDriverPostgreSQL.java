@@ -36,6 +36,7 @@ import org.apache.empire.db.DBDriverFeature;
 import org.apache.empire.db.DBObject;
 import org.apache.empire.db.DBSQLScript;
 import org.apache.empire.db.DBTableColumn;
+import org.apache.empire.db.driver.DBDatabaseDriverBase;
 import org.apache.empire.db.exceptions.EmpireSQLException;
 import org.apache.empire.db.exceptions.QueryNoResultException;
 import org.apache.empire.db.expr.column.DBValueExpr;
@@ -49,7 +50,7 @@ import org.slf4j.LoggerFactory;
  * 
  *
  */
-public class DBDatabaseDriverPostgreSQL extends DBDatabaseDriver
+public class DBDatabaseDriverPostgreSQL extends DBDatabaseDriverBase
 {
     // *Deprecated* private static final long serialVersionUID = 1L;
   
@@ -429,7 +430,7 @@ public class DBDatabaseDriverPostgreSQL extends DBDatabaseDriver
         // Use PostgreSQL Sequences
         StringBuilder sql = new StringBuilder(80);
         sql.append("SELECT nextval('");
-        db.appendQualifiedName(sql, seqName, detectQuoteName(seqName));
+        db.appendQualifiedName(sql, seqName, null);
         sql.append("')");
         // Query next sequence value
         String sqlCmd = sql.toString();
@@ -456,7 +457,7 @@ public class DBDatabaseDriverPostgreSQL extends DBDatabaseDriver
             throw new InvalidArgumentException("column", column);
         StringBuilder sql = new StringBuilder(80);
         sql.append("nextval('");
-        column.getDatabase().appendQualifiedName(sql, seqName, false);
+        column.getDatabase().appendQualifiedName(sql, seqName, null);
         sql.append("')");
         return new DBValueExpr(column.getDatabase(), sql.toString(), DataType.UNKNOWN);
     }

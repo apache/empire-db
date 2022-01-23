@@ -114,7 +114,7 @@ public class HSqlDDLGenerator extends DBDDLGenerator<DBDatabaseDriverHSql>
         sql.append(c.toString());
         sql.append(" --\r\n");
         sql.append("CREATE SEQUENCE ");
-        db.appendQualifiedName(sql, seqName, detectQuoteName(seqName));
+        db.appendQualifiedName(sql, seqName, null);
         sql.append(" START WITH 1");
         // executeDLL
         script.addStmt(sql);

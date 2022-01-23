@@ -378,11 +378,7 @@ public abstract class DBView extends DBRowSet
     {
         // Append Name
         if ((context & CTX_NAME|CTX_FULLNAME)!=0)
-        {   // Append the name
-            DBDatabaseDriver driver = getDatabase().getDriver();
-            if (quoteName==null)
-                quoteName = driver.detectQuoteName(name);
-            // append Qualified Name 
+        {   // append Qualified Name 
             db.appendQualifiedName(buf, name, quoteName);
         }
         // Append Alias

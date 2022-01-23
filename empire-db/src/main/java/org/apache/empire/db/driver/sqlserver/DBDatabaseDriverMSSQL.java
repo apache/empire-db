@@ -39,6 +39,7 @@ import org.apache.empire.db.DBRelation;
 import org.apache.empire.db.DBSQLScript;
 import org.apache.empire.db.DBTable;
 import org.apache.empire.db.DBTableColumn;
+import org.apache.empire.db.driver.DBDatabaseDriverBase;
 import org.apache.empire.db.exceptions.EmpireSQLException;
 import org.apache.empire.exceptions.NotSupportedException;
 import org.slf4j.Logger;
@@ -50,7 +51,7 @@ import org.slf4j.LoggerFactory;
  *
  * 
  */
-public class DBDatabaseDriverMSSQL extends DBDatabaseDriver
+public class DBDatabaseDriverMSSQL extends DBDatabaseDriverBase
 {
     // *Deprecated* private static final long serialVersionUID = 1L;
     private static final Logger log = LoggerFactory.getLogger(DBDatabaseDriverMSSQL.class);
@@ -221,7 +222,7 @@ public class DBDatabaseDriverMSSQL extends DBDatabaseDriver
     /** {@inheritDoc} */
     @SuppressWarnings("unused")
     @Override
-    protected void attachDatabase(DBDatabase db, Connection conn)
+    public void attachDatabase(DBDatabase db, Connection conn)
     {
         // Prepare
         try

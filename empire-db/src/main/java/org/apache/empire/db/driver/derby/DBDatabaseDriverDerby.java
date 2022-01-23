@@ -33,6 +33,7 @@ import org.apache.empire.db.DBObject;
 import org.apache.empire.db.DBSQLScript;
 import org.apache.empire.db.DBTable;
 import org.apache.empire.db.DBTableColumn;
+import org.apache.empire.db.driver.DBDatabaseDriverBase;
 import org.apache.empire.exceptions.NotSupportedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,7 +44,7 @@ import org.slf4j.LoggerFactory;
  * 
  *
  */
-public class DBDatabaseDriverDerby extends DBDatabaseDriver
+public class DBDatabaseDriverDerby extends DBDatabaseDriverBase
 {
 	// *Deprecated* private static final long serialVersionUID = 1L;
     private static final Logger log = LoggerFactory.getLogger(DBDatabaseDriverDerby.class);

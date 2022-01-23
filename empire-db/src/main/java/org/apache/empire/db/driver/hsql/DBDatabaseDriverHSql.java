@@ -33,6 +33,7 @@ import org.apache.empire.db.DBDriverFeature;
 import org.apache.empire.db.DBObject;
 import org.apache.empire.db.DBSQLScript;
 import org.apache.empire.db.DBTableColumn;
+import org.apache.empire.db.driver.DBDatabaseDriverBase;
 import org.apache.empire.db.exceptions.QueryNoResultException;
 import org.apache.empire.exceptions.NotSupportedException;
 import org.slf4j.Logger;
@@ -45,7 +46,7 @@ import org.slf4j.LoggerFactory;
  *
  * 
  */
-public class DBDatabaseDriverHSql extends DBDatabaseDriver
+public class DBDatabaseDriverHSql extends DBDatabaseDriverBase
 {
     // *Deprecated* private static final long serialVersionUID = 1L;
     private static final Logger log = LoggerFactory.getLogger(DBDatabaseDriverHSql.class);
@@ -241,7 +242,7 @@ public class DBDatabaseDriverHSql extends DBDatabaseDriver
         StringBuilder sql = new StringBuilder(80);
         sql.append("SELECT ");
         sql.append("NEXT VALUE FOR ");
-        db.appendQualifiedName(sql, seqName, detectQuoteName(seqName));
+        db.appendQualifiedName(sql, seqName, null);
         sql.append(" FROM INFORMATION_SCHEMA.SYSTEM_SEQUENCES WHERE SEQUENCE_NAME='").append(seqName).append("'");
         // Query next sequence value
         String sqlCmd = sql.toString();

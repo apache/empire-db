@@ -486,9 +486,9 @@ public abstract class DBDatabase extends DBObject
      * 
      * @param buf the string buffer to which to append the qualified object name
      * @param name the object's name
-     * @param quoteName use quotes or not
+     * @param quoteName use quotes or not. If null detectQuoteName() is called
      */
-    public void appendQualifiedName(StringBuilder buf, String name, boolean quoteName)
+    public void appendQualifiedName(StringBuilder buf, String name, Boolean quoteName)
     {
         // Check driver
         if (driver==null)

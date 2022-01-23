@@ -26,11 +26,11 @@ import org.apache.empire.db.DBColumn;
 import org.apache.empire.db.DBDDLGenerator;
 import org.apache.empire.db.DBDatabase;
 import org.apache.empire.db.DBExpr;
-import org.apache.empire.db.DBDatabaseDriver.DBSeqTable;
 import org.apache.empire.db.DBIndex;
 import org.apache.empire.db.DBIndex.DBIndexType;
 import org.apache.empire.db.DBSQLScript;
 import org.apache.empire.db.DBTableColumn;
+import org.apache.empire.db.driver.DBDatabaseDriverBase.DBSeqTable;
 
 public class MSSqlDDLGenerator extends DBDDLGenerator<DBDatabaseDriverMSSQL>
 {

@@ -42,6 +42,7 @@ import org.apache.empire.db.DBJoinType;
 import org.apache.empire.db.DBObject;
 import org.apache.empire.db.DBSQLScript;
 import org.apache.empire.db.DBTableColumn;
+import org.apache.empire.db.driver.DBDatabaseDriverBase;
 import org.apache.empire.db.expr.join.DBColumnJoinExpr;
 import org.apache.empire.db.expr.join.DBJoinExpr;
 import org.apache.empire.exceptions.NotImplementedException;
@@ -54,7 +55,7 @@ import org.slf4j.LoggerFactory;
  * This class provides support for the SQLite database system.<br>
  * 
  */
-public class DBDatabaseDriverSQLite extends DBDatabaseDriver
+public class DBDatabaseDriverSQLite extends DBDatabaseDriverBase
 {
     // *Deprecated* private static final long serialVersionUID = 1L;
     private static final Logger log              = LoggerFactory.getLogger(DBDatabaseDriverSQLite.class);

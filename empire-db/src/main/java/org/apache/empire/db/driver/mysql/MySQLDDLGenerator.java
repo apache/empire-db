@@ -33,7 +33,7 @@ import org.apache.empire.db.DBSQLScript;
 import org.apache.empire.db.DBTable;
 import org.apache.empire.db.DBTableColumn;
 import org.apache.empire.db.DBView;
-import org.apache.empire.db.DBDatabaseDriver.DBSeqTable;
+import org.apache.empire.db.driver.DBDatabaseDriverBase.DBSeqTable;
 import org.apache.empire.exceptions.NotSupportedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

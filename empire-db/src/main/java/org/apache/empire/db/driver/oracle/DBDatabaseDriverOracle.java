@@ -44,6 +44,7 @@ import org.apache.empire.db.DBTable;
 import org.apache.empire.db.DBTableColumn;
 import org.apache.empire.db.DBView;
 import org.apache.empire.db.context.DBContextStatic;
+import org.apache.empire.db.driver.DBDatabaseDriverBase;
 import org.apache.empire.db.exceptions.EmpireSQLException;
 import org.apache.empire.db.exceptions.QueryNoResultException;
 import org.apache.empire.db.expr.column.DBValueExpr;
@@ -56,7 +57,7 @@ import org.slf4j.LoggerFactory;
  * This class provides support for the Oracle database system.<br>
  * Oracle Version 9 or higher is required.
  */
-public class DBDatabaseDriverOracle extends DBDatabaseDriver
+public class DBDatabaseDriverOracle extends DBDatabaseDriverBase
 {
     // *Deprecated* private static final long serialVersionUID = 1L;
     private static final Logger log = LoggerFactory.getLogger(DBDatabaseDriverOracle.class);
@@ -325,7 +326,7 @@ public class DBDatabaseDriverOracle extends DBDatabaseDriver
     { // Use Oracle Sequences
         StringBuilder sql = new StringBuilder(80);
         sql.append("SELECT ");
-        db.appendQualifiedName(sql, seqName, detectQuoteName(seqName));
+        db.appendQualifiedName(sql, seqName, null);
         sql.append(".NEXTVAL FROM DUAL");
         // Query next sequence value
         String sqlCmd = sql.toString();
@@ -351,7 +352,7 @@ public class DBDatabaseDriverOracle extends DBDatabaseDriver
         if (StringUtils.isEmpty(seqName))
             throw new InvalidArgumentException("column", column);
         StringBuilder sql = new StringBuilder(80);
-        column.getDatabase().appendQualifiedName(sql, seqName, detectQuoteName(seqName));
+        column.getDatabase().appendQualifiedName(sql, seqName, null);
         sql.append(".NEXTVAL");
         return new DBValueExpr(column.getDatabase(), sql.toString(), DataType.UNKNOWN);
     }
