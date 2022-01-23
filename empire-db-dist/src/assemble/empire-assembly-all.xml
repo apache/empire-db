@@ -37,8 +37,6 @@
 				<include>empire-db-jsf2/**</include>
 				<include>empire-db-maven-plugin/**</include>
 				<include>empire-db-codegen/**</include>
-				<include>empire-db-spring/**</include>
-				<include>empire-db-struts2/**</include>
 				<include>empire-db-examples/**</include>
 			</includes>
 			<excludes>
@@ -81,9 +79,7 @@
 			<useStrictFiltering>true</useStrictFiltering>
 			<includes>
 				<include>org.apache.empire-db:empire-db:*:javadoc</include>
-				<include>org.apache.empire-db:empire-db-struts2:*:javadoc</include>
 				<include>org.apache.empire-db:empire-db-jsf2:*:javadoc</include>
-				<include>org.apache.empire-db:empire-db-spring:*:javadoc</include>
 			</includes>
 		</dependencySet>
 		<dependencySet>
@@ -91,9 +87,7 @@
             <useStrictFiltering>true</useStrictFiltering>
             <includes>
                 <include>org.apache.empire-db:empire-db:jar</include>
-                <include>org.apache.empire-db:empire-db-struts2:jar</include>
                 <include>org.apache.empire-db:empire-db-jsf2:jar</include>
-				<include>org.apache.empire-db:empire-db-spring:jar</include>
             </includes>
 			<excludes>
 				<exclude>org.apache.empire-db:*:*:javadoc</exclude>

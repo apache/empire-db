@@ -27,8 +27,6 @@
 	<name>Apache Empire-db Java Server Faces 2.x extensions</name>
 	
 	<properties>
-		<maven.compile.source>1.6</maven.compile.source>
-		<maven.compile.target>1.6</maven.compile.target>
 	</properties>
 	
 	<dependencies>
@@ -38,8 +36,8 @@
 		</dependency> 
 		<!-- Servlet API -->
 		<dependency>
-			<groupId>javax.servlet</groupId>
-			<artifactId>servlet-api</artifactId>
+		    <groupId>javax.servlet</groupId>
+		    <artifactId>javax.servlet-api</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>com.sun.faces</groupId>

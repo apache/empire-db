@@ -254,19 +254,7 @@
 			</dependency>
 			<dependency>
 				<groupId>org.apache.empire-db</groupId>
-				<artifactId>empire-db-struts2</artifactId>
-				<version>${project.version}</version>
-				<type>jar</type>
-			</dependency>
-			<dependency>
-				<groupId>org.apache.empire-db</groupId>
 				<artifactId>empire-db-jsf2</artifactId>
-				<version>${project.version}</version>
-				<type>jar</type>
-			</dependency>
-			<dependency>
-				<groupId>org.apache.empire-db</groupId>
-				<artifactId>empire-db-spring</artifactId>
 				<version>${project.version}</version>
 				<type>jar</type>
 			</dependency>
@@ -323,44 +311,10 @@
 			</dependency>
 			<!-- web -->
 			<dependency>
-				<groupId>javax.servlet</groupId>
-				<artifactId>servlet-api</artifactId>
-				<version>2.5</version>
-				<scope>provided</scope>
-			</dependency>
-			<dependency>
-				<groupId>javax.servlet.jsp</groupId>
-				<artifactId>jsp-api</artifactId>
-				<version>2.0</version>
-				<scope>provided</scope>
-			</dependency> 
-	        <dependency>
-	            <groupId>javax.portlet</groupId>
-	            <artifactId>portlet-api</artifactId>
-	            <version>1.0</version>
-	            <scope>provided</scope>
-	        </dependency>
-			<!-- struts2 -->			
-			<dependency>
-				<groupId>org.apache.struts</groupId>
-				<artifactId>struts2-core</artifactId>
-				<version>2.2.1</version>
-			</dependency> 
-			<dependency>
-				<groupId>org.apache.struts</groupId>
-				<artifactId>struts2-portlet-plugin</artifactId>
-				<version>2.2.1</version>
-			</dependency>
-			<dependency>
-	            <groupId>org.apache.struts.xwork</groupId>
-	            <artifactId>xwork-core</artifactId>
-	            <version>2.2.1</version>
-	        </dependency>
-			<dependency>
-				<!-- DO NOT REMOVE: required for struts2 extentions! -->
-			    <groupId>javassist</groupId>
-			    <artifactId>javassist</artifactId>
-			    <version>3.8.0.GA</version>
+			    <groupId>javax.servlet</groupId>
+			    <artifactId>javax.servlet-api</artifactId>
+			    <version>4.0.0</version>
+			    <scope>provided</scope>
 			</dependency>
 			<!-- Sun Mojarra -->			
 			<dependency>
@@ -528,7 +482,7 @@
 				    <inherited>true</inherited>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-jar-plugin</artifactId>
-                    <version>3.1.2</version>
+                    <version>3.1.1</version>
                     <configuration>
                     	<!-- 
                         <useDefaultManifestFile>true</useDefaultManifestFile>
