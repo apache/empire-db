@@ -31,6 +31,7 @@ import org.apache.empire.db.DBDatabaseDriver;
 import org.apache.empire.db.DBDriverFeature;
 import org.apache.empire.db.DBObject;
 import org.apache.empire.db.DBSQLScript;
+import org.apache.empire.db.DBSqlPhrase;
 import org.apache.empire.db.DBTable;
 import org.apache.empire.db.DBTableColumn;
 import org.apache.empire.db.driver.DBDatabaseDriverBase;
@@ -176,12 +177,12 @@ public class DBDatabaseDriverDerby extends DBDatabaseDriverBase
      * @return the phrase template
      */
     @Override
-    public String getSQLPhrase(int phrase)
+    public String getSQLPhrase(DBSqlPhrase phrase)
     {
         switch (phrase)
         {
             // sql-phrases
-            case SQL_NULL_VALUE:              return "null";
+            case SQL_NULL:              return "null";
             case SQL_PARAMETER:               return " ? ";
             case SQL_RENAME_TABLE:            return " ";
             case SQL_RENAME_COLUMN:           return " AS ";
@@ -239,8 +240,8 @@ public class DBDatabaseDriverDerby extends DBDatabaseDriverBase
             case SQL_FUNC_DECODE_ELSE:        return "else {0}";
             // Not defined
             default:
-                log.error("SQL phrase " + phrase + " is not defined!");
-                return "";
+                // log.warn("SQL phrase " + phrase.name() + " is not defined!");
+                return phrase.getSqlDefault();
         }
     }
 

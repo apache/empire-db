@@ -225,7 +225,7 @@ public class DBRelation extends DBObject
             throw new InvalidArgumentException("context", context);
         // get Statement
         DBSQLScript script = new DBSQLScript(context);
-        context.getDriver().addEnableRelationStmt(this, enable, script);
+        context.getDriver().appendEnableRelationStmt(this, enable, script);
         if (script.getCount()!=1)
             throw new UnexpectedReturnValueException(script.getCount(), "driver.addEnableRelationStatement");
         return script.getStmt(0);

@@ -251,7 +251,7 @@ public abstract class DBColumn extends DBColumnExpr
         if (driver==null)
         	throw new DatabaseNotOpenException(getDatabase());
         // Append the name
-        driver.appendElementName(buf, name, quoteName);
+        driver.appendObjectName(buf, name, quoteName);
     }
 
     /**

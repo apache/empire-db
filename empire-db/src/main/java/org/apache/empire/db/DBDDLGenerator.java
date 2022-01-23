@@ -612,7 +612,7 @@ public abstract class DBDDLGenerator<T extends DBDatabaseDriver>
 
     protected void appendElementName(StringBuilder sql, String name)
     {
-        driver.appendElementName(sql, name, null);
+        driver.appendObjectName(sql, name, null);
     }
 
 }

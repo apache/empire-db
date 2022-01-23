@@ -39,8 +39,8 @@ import org.apache.empire.db.expr.set.DBSetExpr;
 import org.apache.empire.exceptions.InternalException;
 import org.apache.empire.exceptions.InvalidArgumentException;
 import org.apache.empire.exceptions.ItemNotFoundException;
-import org.apache.empire.exceptions.UnspecifiedErrorException;
 import org.apache.empire.exceptions.ObjectNotValidException;
+import org.apache.empire.exceptions.UnspecifiedErrorException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -1385,7 +1385,7 @@ public abstract class DBCommand extends DBCommandExpr
         }
         if (sep==false)
         {   // add pseudo table or omitt from
-            String pseudoTable = db.getDriver().getSQLPhrase(DBDatabaseDriver.SQL_PSEUDO_TABLE);
+            String pseudoTable = db.getDriver().getSQLPhrase(DBSqlPhrase.SQL_PSEUDO_TABLE);
             if (StringUtils.isNotEmpty(pseudoTable))
             {   // add pseudo table
                 buf.append(pseudoTable);

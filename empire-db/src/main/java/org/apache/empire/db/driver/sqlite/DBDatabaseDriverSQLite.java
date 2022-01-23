@@ -41,6 +41,7 @@ import org.apache.empire.db.DBDriverFeature;
 import org.apache.empire.db.DBJoinType;
 import org.apache.empire.db.DBObject;
 import org.apache.empire.db.DBSQLScript;
+import org.apache.empire.db.DBSqlPhrase;
 import org.apache.empire.db.DBTableColumn;
 import org.apache.empire.db.driver.DBDatabaseDriverBase;
 import org.apache.empire.db.expr.join.DBColumnJoinExpr;
@@ -303,13 +304,12 @@ public class DBDatabaseDriverSQLite extends DBDatabaseDriverBase
      * @return the phrase template
      */
     @Override
-    public String getSQLPhrase(int phrase)
+    public String getSQLPhrase(DBSqlPhrase phrase)
     {
         switch (phrase)
         {
-
             // sql-phrases
-            case SQL_NULL_VALUE:            return "null";
+            case SQL_NULL:            return "null";
             case SQL_PARAMETER:             return " ? ";
             case SQL_RENAME_TABLE:          return " ";
             case SQL_RENAME_COLUMN:         return " AS ";
@@ -367,8 +367,8 @@ public class DBDatabaseDriverSQLite extends DBDatabaseDriverBase
             case SQL_FUNC_DECODE_ELSE:      return "else {0}";
             // Not defined
             default:
-                log.error("SQL phrase " + String.valueOf(phrase) + " is not defined!");
-                return "";
+                // log.warn("SQL phrase " + phrase.name() + " is not defined!");
+                return phrase.getSqlDefault();
         }
     }
 
@@ -421,7 +421,7 @@ public class DBDatabaseDriverSQLite extends DBDatabaseDriverBase
         if (dataType == DataType.DATETIME || dataType == DataType.TIMESTAMP)
         {
             // SQLite does not have a Date type, or any kind of type :(
-            String datePattern = getSQLPhrase(SQL_DATETIME_PATTERN);
+            String datePattern = getSQLPhrase(DBSqlPhrase.SQL_DATETIME_PATTERN);
             DateFormat dateFormat = new SimpleDateFormat(datePattern);
             try
             {

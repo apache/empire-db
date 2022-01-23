@@ -59,7 +59,7 @@ public class MockDriver extends DBDatabaseDriverBase {
     }
 
     @Override
-    public String getSQLPhrase(int phrase)
+    public String getSQLPhrase(DBSqlPhrase phrase)
     {
         return null;
     }

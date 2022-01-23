@@ -25,6 +25,7 @@ import org.apache.empire.data.DataType;
 import org.apache.empire.db.DBColumn;
 import org.apache.empire.db.DBColumnExpr;
 import org.apache.empire.db.DBExpr;
+import org.apache.empire.db.DBSqlPhrase;
 
 
 /**
@@ -43,7 +44,7 @@ public class DBFuncExpr extends DBAbstractFuncExpr
 {
     // *Deprecated* private static final long serialVersionUID = 1L;
   
-    protected final int          phrase;
+    protected final DBSqlPhrase  phrase;
     protected final Object[]     params;
     protected String             template;
 
@@ -61,7 +62,7 @@ public class DBFuncExpr extends DBAbstractFuncExpr
      * @param isAggregate indicates whether the function is an aggregate function (sum, min, max, avg, ...)
      * @param dataType indicates the data type of the function result 
      */
-    public DBFuncExpr(DBColumnExpr expr, int phrase, Object[] params, DBColumn updateColumn, boolean isAggregate, DataType dataType)
+    public DBFuncExpr(DBColumnExpr expr, DBSqlPhrase phrase, Object[] params, DBColumn updateColumn, boolean isAggregate, DataType dataType)
     {
         super(expr, updateColumn, isAggregate, dataType);
         // Set Phrase and Params
@@ -87,7 +88,7 @@ public class DBFuncExpr extends DBAbstractFuncExpr
     {
         super(expr, updateColumn, isAggregate, dataType);
         // Set Phrase and Params
-        this.phrase = 0;
+        this.phrase = null;
         this.params = params;
         this.template = template;
     }

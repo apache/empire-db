@@ -20,8 +20,6 @@ package org.apache.empire.db;
 
 /**
  * This enum is used with the DBDatabaseDriver::isSupported method to query database driver capabilities.
- *
- *
  */
 public enum DBDriverFeature {
     // Support Flags used by DBDatabaseDriver::isSupported()

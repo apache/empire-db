@@ -52,6 +52,7 @@ import org.apache.empire.db.DBExpr;
 import org.apache.empire.db.DBObject;
 import org.apache.empire.db.DBRelation;
 import org.apache.empire.db.DBSQLScript;
+import org.apache.empire.db.DBSqlPhrase;
 import org.apache.empire.db.DBTable;
 import org.apache.empire.db.DBTableColumn;
 import org.apache.empire.db.exceptions.EmpireSQLException;
@@ -297,30 +298,19 @@ public abstract class DBDatabaseDriverBase implements DBDatabaseDriver
      * @param useQuotes use quotes or not
      */
     @Override
-    public void appendElementName(StringBuilder sql, String name, Boolean useQuotes)
+    public void appendObjectName(StringBuilder sql, String name, Boolean useQuotes)
     {
         if (useQuotes==null)
             useQuotes = detectQuoteName(name);
         // Check whether to use quotes or not
         if (useQuotes)
-            sql.append(getSQLPhrase(DBDatabaseDriver.SQL_QUOTES_OPEN));
+            sql.append(getSQLPhrase(DBSqlPhrase.SQL_QUOTES_OPEN));
         // Append Name
         sql.append(name);
         // End Quotes
         if (useQuotes)
-            sql.append(getSQLPhrase(DBDatabaseDriver.SQL_QUOTES_CLOSE));
+            sql.append(getSQLPhrase(DBSqlPhrase.SQL_QUOTES_CLOSE));
     }
-    
-    /**
-     * Returns an sql phrase template for this database system.<br>
-     * Templates for sql function expressions must contain a '?' character which will be 
-     * replaced by the current column expression.<br>
-     * If other parameters are necessary the template must contain placeholders like {0}, {1} etc. 
-     * @param phrase the identifier of the phrase  
-     * @return the phrase template
-     */
-    @Override
-    public abstract String getSQLPhrase(int phrase);
 
     /**
      * Returns the next value of a named sequence The numbers are used for fields of type DBExpr.DT_AUTOINC.<BR>
@@ -775,30 +765,28 @@ public abstract class DBDatabaseDriverBase implements DBDatabaseDriver
         }
         if (ObjectUtils.isEmpty(value))
         {   // null
-            return getSQLPhrase(SQL_NULL_VALUE);
+            return getSQLPhrase(DBSqlPhrase.SQL_NULL);
         }
         // set string buffer
         switch (type)
         {
             case DATE:
-                return getSQLDateTimeString(value, SQL_DATE_TEMPLATE, SQL_DATE_PATTERN, SQL_CURRENT_DATE);
+                return getSQLDateTimeString(value, DBSqlPhrase.SQL_DATE_TEMPLATE, DBSqlPhrase.SQL_DATE_PATTERN, DBSqlPhrase.SQL_CURRENT_DATE);
             case DATETIME:
                 // Only date (without time) provided?
                 if (!DBDatabase.SYSDATE.equals(value) && !(value instanceof Date) && ObjectUtils.lengthOf(value)<=10)
-                    return getSQLDateTimeString(value, SQL_DATE_TEMPLATE, SQL_DATE_PATTERN, SQL_CURRENT_TIMESTAMP);
+                    return getSQLDateTimeString(value, DBSqlPhrase.SQL_DATE_TEMPLATE, DBSqlPhrase.SQL_DATE_PATTERN, DBSqlPhrase.SQL_CURRENT_TIMESTAMP);
                 // Complete Date-Time Object with time 
-                return getSQLDateTimeString(value, SQL_DATETIME_TEMPLATE, SQL_DATETIME_PATTERN, SQL_CURRENT_TIMESTAMP);
+                return getSQLDateTimeString(value, DBSqlPhrase.SQL_DATETIME_TEMPLATE, DBSqlPhrase.SQL_DATETIME_PATTERN, DBSqlPhrase.SQL_CURRENT_TIMESTAMP);
             case TIMESTAMP:
-                return getSQLDateTimeString(value, SQL_TIMESTAMP_TEMPLATE, SQL_TIMESTAMP_PATTERN, SQL_CURRENT_TIMESTAMP);
+                return getSQLDateTimeString(value, DBSqlPhrase.SQL_TIMESTAMP_TEMPLATE, DBSqlPhrase.SQL_TIMESTAMP_PATTERN, DBSqlPhrase.SQL_CURRENT_TIMESTAMP);
             case VARCHAR:
             case CHAR:
             case CLOB:
             case UNIQUEID:
-            {   // Text value
                 return getSQLTextString(type, value);
-            }
             case BOOL:
-            {   // Get Boolean value   
+                // Get Boolean value   
                 boolean boolVal = false;
                 if (value instanceof Boolean)
                 {   boolVal = ((Boolean) value).booleanValue();
@@ -807,8 +795,7 @@ public abstract class DBDatabaseDriverBase implements DBDatabaseDriver
                 { // Boolean from String
                     boolVal = stringToBoolean(value.toString());
                 }
-                return getSQLPhrase((boolVal) ? SQL_BOOLEAN_TRUE : SQL_BOOLEAN_FALSE);
-            }
+                return getSQLPhrase((boolVal) ? DBSqlPhrase.SQL_BOOLEAN_TRUE : DBSqlPhrase.SQL_BOOLEAN_FALSE);
             case INTEGER:
             case DECIMAL:
             case FLOAT:
@@ -864,7 +851,7 @@ public abstract class DBDatabaseDriverBase implements DBDatabaseDriver
      * @param sqlCurrentDate
      * @return
      */
-    protected String getSQLDateTimeString(Object value, int sqlTemplate, int sqlPattern, int sqlCurrentDate)
+    protected String getSQLDateTimeString(Object value, DBSqlPhrase sqlTemplate, DBSqlPhrase sqlPattern, DBSqlPhrase sqlCurrentDate)
     {
         // is it a sysdate expression
         if (DBDatabase.SYSDATE.equals(value))
@@ -1000,7 +987,7 @@ public abstract class DBDatabaseDriverBase implements DBDatabaseDriver
      * @param script the script to which to add the DDL command(s)
      */
     @Override
-    public void addEnableRelationStmt(DBRelation r, boolean enable, DBSQLScript script)
+    public void appendEnableRelationStmt(DBRelation r, boolean enable, DBSQLScript script)
     {
         if (enable)
             getDDLScript(DBCmdType.CREATE, r, script);

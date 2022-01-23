@@ -30,65 +30,6 @@ import org.apache.empire.data.DataType;
  */
 public interface DBDatabaseDriver
 {
-    // sql-phrases
-    public static final int SQL_NULL_VALUE       = 1;   // Oracle: null
-    public static final int SQL_PARAMETER        = 2;   // Oracle: ?
-    public static final int SQL_RENAME_TABLE     = 3;   // Oracle: AS
-    public static final int SQL_RENAME_COLUMN    = 4;   // Oracle: AS
-    public static final int SQL_DATABASE_LINK    = 5;   // Oracle: @
-    public static final int SQL_QUOTES_OPEN      = 6;   // Oracle: "; MSSQL: [
-    public static final int SQL_QUOTES_CLOSE     = 7;   // Oracle: "; MSSQL: ]
-    public static final int SQL_CONCAT_EXPR      = 8;   // Oracle: ||
-    public static final int SQL_PSEUDO_TABLE     = 9;   // Oracle: "DUAL"
-    // data types
-    public static final int SQL_BOOLEAN_TRUE      = 10; // Oracle: "'Y'"; MSSQL: "1"
-    public static final int SQL_BOOLEAN_FALSE     = 11; // Oracle: "'N'"; MSSQL: "0"
-    public static final int SQL_CURRENT_DATE      = 20; // Oracle: "sysdate"
-    public static final int SQL_DATE_PATTERN      = 21; // "yyyy-MM-dd"  // SimpleDateFormat
-    public static final int SQL_DATE_TEMPLATE     = 22; // Oracle: "TO_DATE('{0}', 'YYYY-MM-DD')"
-    public static final int SQL_DATETIME_PATTERN  = 23; // "yyyy-MM-dd HH:mm:ss.SSS"  // SimpleDateFormat
-    public static final int SQL_DATETIME_TEMPLATE = 24; // Oracle: "TO_DATE('{0}', 'YYYY-MM-DD HH24:MI:SS')"
-    public static final int SQL_CURRENT_TIMESTAMP = 25; // Oracle: "systimestamp"
-    public static final int SQL_TIMESTAMP_PATTERN = 26; // "yyyy-MM-dd HH:mm:ss.SSS" // SimpleDateFormat
-    public static final int SQL_TIMESTAMP_TEMPLATE= 27; // Oracle: "TO_TIMESTAMP('{0}', 'YYYY.MM.DD HH24:MI:SS.FF')";
-    // functions
-    public static final int SQL_FUNC_COALESCE    = 100; // Oracle: nvl(?, {0})
-    public static final int SQL_FUNC_SUBSTRING   = 101; // Oracle: substr(?,{0})
-    public static final int SQL_FUNC_SUBSTRINGEX = 102; // Oracle: substr(?,{0},{1})
-    public static final int SQL_FUNC_REPLACE     = 103; // Oracle: replace(?,{0},{1})
-    public static final int SQL_FUNC_REVERSE     = 104; // Oracle: reverse(?) 
-    public static final int SQL_FUNC_STRINDEX    = 105; // Oracle: instr(?, {0})
-    public static final int SQL_FUNC_STRINDEXFROM= 106; // Oracle: instr(?, {0}, {1}) 
-    public static final int SQL_FUNC_LENGTH      = 107; // Oracle: length(?,{0})
-    public static final int SQL_FUNC_UPPER       = 110; // Oracle: upper(?)
-    public static final int SQL_FUNC_LOWER       = 111; // Oracle: lower(?)
-    public static final int SQL_FUNC_TRIM        = 112; // Oracle: trim(?)
-    public static final int SQL_FUNC_LTRIM       = 113; // Oracle: ltrim(?)
-    public static final int SQL_FUNC_RTRIM       = 114; // Oracle: rtrim(?)
-    public static final int SQL_FUNC_ESCAPE      = 119; // Oracle: ? escape '{0}'
-    // Numeric
-    public static final int SQL_FUNC_ABS         = 120; // Oracle: abs(?,{0})
-    public static final int SQL_FUNC_ROUND       = 121; // Oracle: round(?, {0})
-    public static final int SQL_FUNC_TRUNC       = 122; // Oracle: trunc(?, {0})
-    public static final int SQL_FUNC_FLOOR       = 123; // Oracle: floor(?)
-    public static final int SQL_FUNC_CEILING     = 124; // Oracle: ceil(?)
-    public static final int SQL_FUNC_MODULO      = 125; // Oracle: mod(?)
-    public static final int SQL_FUNC_FORMAT      = 126; // Oracle: TO_CHAR(?)
-    // Date
-    public static final int SQL_FUNC_DAY         = 132; // MSSQL: month(?)
-    public static final int SQL_FUNC_MONTH       = 133; // MSSQL: month(?)
-    public static final int SQL_FUNC_YEAR        = 134; // MSSQL: year (?)
-    // Aggregation
-    public static final int SQL_FUNC_SUM         = 140; // Oracle: sum(?)
-    public static final int SQL_FUNC_MAX         = 142; // Oracle: max(?)
-    public static final int SQL_FUNC_MIN         = 143; // Oracle: min(?)
-    public static final int SQL_FUNC_AVG         = 144; // Oracle: avg(?)
-    // Decode
-    public static final int SQL_FUNC_DECODE      = 150; // Oracle: "decode(? {0})" SQL: "case ?{0} end"
-    public static final int SQL_FUNC_DECODE_SEP  = 151; // Oracle: ","             SQL: " "
-    public static final int SQL_FUNC_DECODE_PART = 152; // Oracle: "{0}, {1}"      SQL: "when {0} then {1}"
-    public static final int SQL_FUNC_DECODE_ELSE = 153; // Oracle: "{0}"           SQL: "else {0}"
-    
     
     /**
      * Called when a database is opened
@@ -131,7 +72,7 @@ public interface DBDatabaseDriver
      * @param name the name of the object (table, view or column)
      * @param useQuotes use quotes or not. When null is passed then detectQuoteName() is called
      */
-    void appendElementName(StringBuilder sql, String name, Boolean useQuotes);
+    void appendObjectName(StringBuilder sql, String name, Boolean useQuotes);
     
     /**
      * Returns an sql phrase template for this database system.<br>
@@ -141,7 +82,7 @@ public interface DBDatabaseDriver
      * @param phrase the identifier of the phrase  
      * @return the phrase template
      */
-    String getSQLPhrase(int phrase);
+    String getSQLPhrase(DBSqlPhrase phrase);
 
     /**
      * Returns a data type convertion phrase template for this driver<br>
@@ -283,7 +224,7 @@ public interface DBDatabaseDriver
      * @param enable true to enable the relation or false to disable
      * @param script the script to which to add the DDL command(s)
      */
-    void addEnableRelationStmt(DBRelation r, boolean enable, DBSQLScript script);
+    void appendEnableRelationStmt(DBRelation r, boolean enable, DBSQLScript script);
      
     /**
      * Extracts native error message of an sqlExeption.

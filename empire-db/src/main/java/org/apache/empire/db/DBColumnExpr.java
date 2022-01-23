@@ -378,7 +378,7 @@ public abstract class DBColumnExpr extends DBExpr
     public DBCompareColExpr like(String value, char escape)
     {
         DBValueExpr  textExpr = new DBValueExpr(getDatabase(), value, DataType.VARCHAR);
-        DBFuncExpr escapeExpr = new DBFuncExpr(textExpr, DBDatabaseDriver.SQL_FUNC_ESCAPE, new Object[] { String.valueOf(escape) }, getUpdateColumn(), false, DataType.VARCHAR );
+        DBFuncExpr escapeExpr = new DBFuncExpr(textExpr, DBSqlPhrase.SQL_FUNC_ESCAPE, new Object[] { String.valueOf(escape) }, getUpdateColumn(), false, DataType.VARCHAR );
         return cmp(DBCmpType.LIKE, escapeExpr);
     }
 
@@ -658,12 +658,12 @@ public abstract class DBColumnExpr extends DBExpr
      * @param dataType the resulting data Type
      * @return the new DBCalcExpr object
      */
-    protected DBColumnExpr getExprFromPhrase(int phrase, Object[] params, DBColumn updateColumn, boolean isAggregate, DataType dataType)
+    protected DBColumnExpr getExprFromPhrase(DBSqlPhrase phrase, Object[] params, DBColumn updateColumn, boolean isAggregate, DataType dataType)
     {
         return new DBFuncExpr(this, phrase, params, updateColumn, isAggregate, dataType);
     }
 
-    protected DBColumnExpr getExprFromPhrase(int phrase, Object[] params, DBColumn updateColumn, boolean isAggregate)
+    protected DBColumnExpr getExprFromPhrase(DBSqlPhrase phrase, Object[] params, DBColumn updateColumn, boolean isAggregate)
     {
         return getExprFromPhrase(phrase, params, updateColumn, isAggregate, getDataType());
     }
@@ -687,7 +687,7 @@ public abstract class DBColumnExpr extends DBExpr
      */
     public DBColumnExpr coalesce(Object nullValue)
     {
-        return getExprFromPhrase(DBDatabaseDriver.SQL_FUNC_COALESCE, new Object[] { nullValue }, getUpdateColumn(), false);
+        return getExprFromPhrase(DBSqlPhrase.SQL_FUNC_COALESCE, new Object[] { nullValue }, getUpdateColumn(), false);
     }
 
     /**
@@ -698,7 +698,7 @@ public abstract class DBColumnExpr extends DBExpr
      */
     public DBColumnExpr modulo(Object divisor)
     {
-        return getExprFromPhrase(DBDatabaseDriver.SQL_FUNC_MODULO, new Object[] { divisor }, getUpdateColumn(), false);
+        return getExprFromPhrase(DBSqlPhrase.SQL_FUNC_MODULO, new Object[] { divisor }, getUpdateColumn(), false);
     }
 
     /**
@@ -724,7 +724,7 @@ public abstract class DBColumnExpr extends DBExpr
      */
     public DBColumnExpr substring(DBExpr pos)
     {   // Get Expression
-        return getExprFromPhrase(DBDatabaseDriver.SQL_FUNC_SUBSTRING, new Object[] { pos }, getUpdateColumn(), false);
+        return getExprFromPhrase(DBSqlPhrase.SQL_FUNC_SUBSTRING, new Object[] { pos }, getUpdateColumn(), false);
     }
 
     /**
@@ -749,7 +749,7 @@ public abstract class DBColumnExpr extends DBExpr
      */
     public DBColumnExpr substring(DBExpr pos, DBExpr count)
     {   // Get Expression
-        return getExprFromPhrase(DBDatabaseDriver.SQL_FUNC_SUBSTRINGEX, new Object[] { pos, count }, getUpdateColumn(), false);
+        return getExprFromPhrase(DBSqlPhrase.SQL_FUNC_SUBSTRINGEX, new Object[] { pos, count }, getUpdateColumn(), false);
     }
 
     /**
@@ -801,7 +801,7 @@ public abstract class DBColumnExpr extends DBExpr
      */
     public DBColumnExpr replace(Object match, Object replace)
     {
-        return getExprFromPhrase(DBDatabaseDriver.SQL_FUNC_REPLACE, new Object[] { match, replace }, getUpdateColumn(), false);
+        return getExprFromPhrase(DBSqlPhrase.SQL_FUNC_REPLACE, new Object[] { match, replace }, getUpdateColumn(), false);
     }
 
     /**
@@ -811,7 +811,7 @@ public abstract class DBColumnExpr extends DBExpr
      */
     public DBColumnExpr reverse()
     {
-        return getExprFromPhrase(DBDatabaseDriver.SQL_FUNC_REVERSE, null, getUpdateColumn(), false);
+        return getExprFromPhrase(DBSqlPhrase.SQL_FUNC_REVERSE, null, getUpdateColumn(), false);
     }
 
     /**
@@ -821,7 +821,7 @@ public abstract class DBColumnExpr extends DBExpr
      */
     public DBColumnExpr trim()
     {
-        return getExprFromPhrase(DBDatabaseDriver.SQL_FUNC_TRIM, null, getUpdateColumn(), false);
+        return getExprFromPhrase(DBSqlPhrase.SQL_FUNC_TRIM, null, getUpdateColumn(), false);
     }
 
     /**
@@ -831,7 +831,7 @@ public abstract class DBColumnExpr extends DBExpr
      */
     public DBColumnExpr trimLeft()
     {
-        return getExprFromPhrase(DBDatabaseDriver.SQL_FUNC_LTRIM, null, getUpdateColumn(), false);
+        return getExprFromPhrase(DBSqlPhrase.SQL_FUNC_LTRIM, null, getUpdateColumn(), false);
     }
 
     /**
@@ -841,7 +841,7 @@ public abstract class DBColumnExpr extends DBExpr
      */
     public DBColumnExpr trimRight()
     {
-        return getExprFromPhrase(DBDatabaseDriver.SQL_FUNC_RTRIM, null, getUpdateColumn(), false);
+        return getExprFromPhrase(DBSqlPhrase.SQL_FUNC_RTRIM, null, getUpdateColumn(), false);
     }
     
     /**
@@ -852,7 +852,7 @@ public abstract class DBColumnExpr extends DBExpr
      */
     public DBColumnExpr upper()
     {
-        return getExprFromPhrase(DBDatabaseDriver.SQL_FUNC_UPPER, null, getUpdateColumn(), false);
+        return getExprFromPhrase(DBSqlPhrase.SQL_FUNC_UPPER, null, getUpdateColumn(), false);
     }
 
     /**
@@ -863,7 +863,7 @@ public abstract class DBColumnExpr extends DBExpr
      */
     public DBColumnExpr lower()
     {
-        return getExprFromPhrase(DBDatabaseDriver.SQL_FUNC_LOWER, null, getUpdateColumn(), false);
+        return getExprFromPhrase(DBSqlPhrase.SQL_FUNC_LOWER, null, getUpdateColumn(), false);
     }
 
     /**
@@ -875,7 +875,7 @@ public abstract class DBColumnExpr extends DBExpr
      */
     public DBColumnExpr format(String format)
     {
-        return getExprFromPhrase(DBDatabaseDriver.SQL_FUNC_FORMAT, new Object[] { format }, getUpdateColumn(), false, DataType.VARCHAR);
+        return getExprFromPhrase(DBSqlPhrase.SQL_FUNC_FORMAT, new Object[] { format }, getUpdateColumn(), false, DataType.VARCHAR);
     }
     
     /**
@@ -885,7 +885,7 @@ public abstract class DBColumnExpr extends DBExpr
      */
     public DBColumnExpr length()
     {
-        return getExprFromPhrase(DBDatabaseDriver.SQL_FUNC_LENGTH, null, getUpdateColumn(), false, DataType.INTEGER);
+        return getExprFromPhrase(DBSqlPhrase.SQL_FUNC_LENGTH, null, getUpdateColumn(), false, DataType.INTEGER);
     }
 
     /**
@@ -897,7 +897,7 @@ public abstract class DBColumnExpr extends DBExpr
      */
     public DBColumnExpr indexOf(Object str)
     {
-        return getExprFromPhrase(DBDatabaseDriver.SQL_FUNC_STRINDEX, new Object[] { str }, getUpdateColumn(), false, DataType.INTEGER);
+        return getExprFromPhrase(DBSqlPhrase.SQL_FUNC_STRINDEX, new Object[] { str }, getUpdateColumn(), false, DataType.INTEGER);
     }
 
     /**
@@ -910,7 +910,7 @@ public abstract class DBColumnExpr extends DBExpr
      */
     public DBColumnExpr indexOf(Object str, DBExpr fromPos)
     {
-        return getExprFromPhrase(DBDatabaseDriver.SQL_FUNC_STRINDEXFROM, new Object[] { str, fromPos }, getUpdateColumn(), false, DataType.INTEGER);
+        return getExprFromPhrase(DBSqlPhrase.SQL_FUNC_STRINDEXFROM, new Object[] { str, fromPos }, getUpdateColumn(), false, DataType.INTEGER);
     }
 
     /**
@@ -933,7 +933,7 @@ public abstract class DBColumnExpr extends DBExpr
      */
     public DBColumnExpr abs()
     {
-        return getExprFromPhrase(DBDatabaseDriver.SQL_FUNC_ABS, null, getUpdateColumn(), false);
+        return getExprFromPhrase(DBSqlPhrase.SQL_FUNC_ABS, null, getUpdateColumn(), false);
     }
 
     /**
@@ -943,7 +943,7 @@ public abstract class DBColumnExpr extends DBExpr
      */
     public DBColumnExpr floor()
     {
-        return getExprFromPhrase(DBDatabaseDriver.SQL_FUNC_FLOOR, null, getUpdateColumn(), false);
+        return getExprFromPhrase(DBSqlPhrase.SQL_FUNC_FLOOR, null, getUpdateColumn(), false);
     }
 
     /**
@@ -953,7 +953,7 @@ public abstract class DBColumnExpr extends DBExpr
      */
     public DBColumnExpr ceiling()
     {
-        return getExprFromPhrase(DBDatabaseDriver.SQL_FUNC_CEILING, null, getUpdateColumn(), false);
+        return getExprFromPhrase(DBSqlPhrase.SQL_FUNC_CEILING, null, getUpdateColumn(), false);
     }
 
     /**
@@ -965,7 +965,7 @@ public abstract class DBColumnExpr extends DBExpr
      */
     public DBColumnExpr round(int decimals)
     {
-        return getExprFromPhrase(DBDatabaseDriver.SQL_FUNC_ROUND, new Object[] { new Integer(decimals) }, getUpdateColumn(), false);
+        return getExprFromPhrase(DBSqlPhrase.SQL_FUNC_ROUND, new Object[] { new Integer(decimals) }, getUpdateColumn(), false);
     }
 
     /**
@@ -977,7 +977,7 @@ public abstract class DBColumnExpr extends DBExpr
      */
     public DBColumnExpr trunc(int decimals)
     {
-        return getExprFromPhrase(DBDatabaseDriver.SQL_FUNC_TRUNC, new Object[] { new Integer(decimals) }, getUpdateColumn(), false);
+        return getExprFromPhrase(DBSqlPhrase.SQL_FUNC_TRUNC, new Object[] { new Integer(decimals) }, getUpdateColumn(), false);
     }
 
     /**
@@ -988,7 +988,7 @@ public abstract class DBColumnExpr extends DBExpr
      */
     public DBColumnExpr year()
     {
-        return getExprFromPhrase(DBDatabaseDriver.SQL_FUNC_YEAR, null, null, false);
+        return getExprFromPhrase(DBSqlPhrase.SQL_FUNC_YEAR, null, null, false);
     }
 
     /**
@@ -999,7 +999,7 @@ public abstract class DBColumnExpr extends DBExpr
      */
     public DBColumnExpr month()
     {
-        return getExprFromPhrase(DBDatabaseDriver.SQL_FUNC_MONTH, null, null, false);
+        return getExprFromPhrase(DBSqlPhrase.SQL_FUNC_MONTH, null, null, false);
     }
 
     /**
@@ -1010,7 +1010,7 @@ public abstract class DBColumnExpr extends DBExpr
      */
     public DBColumnExpr day()
     {
-        return getExprFromPhrase(DBDatabaseDriver.SQL_FUNC_DAY, null, null, false);
+        return getExprFromPhrase(DBSqlPhrase.SQL_FUNC_DAY, null, null, false);
     }
 
     /**
@@ -1021,7 +1021,7 @@ public abstract class DBColumnExpr extends DBExpr
      */
     public DBColumnExpr sum()
     {
-        return getExprFromPhrase(DBDatabaseDriver.SQL_FUNC_SUM, null, null, true);
+        return getExprFromPhrase(DBSqlPhrase.SQL_FUNC_SUM, null, null, true);
     }
 
     /**
@@ -1032,7 +1032,7 @@ public abstract class DBColumnExpr extends DBExpr
      */
     public DBColumnExpr min()
     {
-        return getExprFromPhrase(DBDatabaseDriver.SQL_FUNC_MIN, null, null, true);
+        return getExprFromPhrase(DBSqlPhrase.SQL_FUNC_MIN, null, null, true);
     }
 
     /**
@@ -1043,7 +1043,7 @@ public abstract class DBColumnExpr extends DBExpr
      */
     public DBColumnExpr max()
     {
-        return getExprFromPhrase(DBDatabaseDriver.SQL_FUNC_MAX, null, null, true);
+        return getExprFromPhrase(DBSqlPhrase.SQL_FUNC_MAX, null, null, true);
     }
 
     /**
@@ -1054,7 +1054,7 @@ public abstract class DBColumnExpr extends DBExpr
      */
     public DBColumnExpr avg()
     {
-        return getExprFromPhrase(DBDatabaseDriver.SQL_FUNC_AVG, null, null, true);
+        return getExprFromPhrase(DBSqlPhrase.SQL_FUNC_AVG, null, null, true);
     }
 
     /**

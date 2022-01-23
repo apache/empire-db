@@ -18,6 +18,8 @@
  */
 package org.apache.empire.db.expr.column;
 
+import java.util.Set;
+
 // Java
 import org.apache.empire.commons.StringUtils;
 import org.apache.empire.data.DataType;
@@ -25,9 +27,8 @@ import org.apache.empire.db.DBColumn;
 import org.apache.empire.db.DBColumnExpr;
 import org.apache.empire.db.DBDatabase;
 import org.apache.empire.db.DBDatabaseDriver;
+import org.apache.empire.db.DBSqlPhrase;
 import org.w3c.dom.Element;
-
-import java.util.Set;
 
 // XML
 
@@ -168,11 +169,11 @@ public class DBAliasExpr extends DBColumnExpr
             expr.addSQL(buf, context);
             // Rename
             DBDatabaseDriver driver = getDatabase().getDriver();
-            String asExpr = driver.getSQLPhrase(DBDatabaseDriver.SQL_RENAME_COLUMN);
+            String asExpr = driver.getSQLPhrase(DBSqlPhrase.SQL_RENAME_COLUMN);
             if (asExpr!=null)
             {
                 buf.append(asExpr);
-                driver.appendElementName(buf, alias, null);
+                driver.appendObjectName(buf, alias, null);
             }
         } 
         else

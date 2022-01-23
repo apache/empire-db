@@ -40,6 +40,7 @@ import org.apache.empire.db.DBRelation.DBCascadeAction;
 import org.apache.empire.db.exceptions.DatabaseNotOpenException;
 import org.apache.empire.db.exceptions.FieldIllegalValueException;
 import org.apache.empire.db.exceptions.FieldNotNullException;
+import org.apache.empire.db.exceptions.FieldValueException;
 import org.apache.empire.db.exceptions.FieldValueOutOfRangeException;
 import org.apache.empire.db.exceptions.FieldValueTooLongException;
 import org.apache.empire.db.expr.column.DBCaseWhenExpr;
@@ -47,9 +48,9 @@ import org.apache.empire.db.expr.column.DBValueExpr;
 import org.apache.empire.db.expr.compare.DBCompareExpr;
 import org.apache.empire.exceptions.InvalidArgumentException;
 import org.apache.empire.exceptions.ItemExistsException;
-import org.apache.empire.exceptions.UnspecifiedErrorException;
 import org.apache.empire.exceptions.NotSupportedException;
 import org.apache.empire.exceptions.PropertyReadOnlyException;
+import org.apache.empire.exceptions.UnspecifiedErrorException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -490,6 +491,12 @@ public abstract class DBDatabase extends DBObject
      */
     public void appendQualifiedName(StringBuilder buf, String name, Boolean quoteName)
     {
+        // Schema
+        if (schema != null)
+        { // Add Schema
+            buf.append(schema);
+            buf.append(".");
+        }
         // Check driver
         if (driver==null)
         {   // No driver attached!
@@ -497,18 +504,12 @@ public abstract class DBDatabase extends DBObject
             buf.append(name);
             return;
         }
-        // Schema
-        if (schema != null)
-        { // Add Schema
-            buf.append(schema);
-            buf.append(".");
-        }
         // Append the name
-        driver.appendElementName(buf, name, quoteName);
+        driver.appendObjectName(buf, name, quoteName);
         // Database Link
         if (linkName!=null)
-        { // Add Schema
-            buf.append(driver.getSQLPhrase(DBDatabaseDriver.SQL_DATABASE_LINK));
+        {   // Add Link
+            buf.append(driver.getSQLPhrase(DBSqlPhrase.SQL_DATABASE_LINK));
             buf.append(linkName);
         }
     }
