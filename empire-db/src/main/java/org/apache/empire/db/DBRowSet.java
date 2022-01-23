@@ -34,6 +34,8 @@ import org.apache.empire.data.Column;
 import org.apache.empire.data.DataType;
 import org.apache.empire.db.DBRelation.DBCascadeAction;
 import org.apache.empire.db.DBRelation.DBReference;
+import org.apache.empire.db.driver.DBDriverFeature;
+import org.apache.empire.db.driver.DBSqlPhrase;
 import org.apache.empire.db.exceptions.FieldNotNullException;
 import org.apache.empire.db.exceptions.InvalidKeyException;
 import org.apache.empire.db.exceptions.NoPrimaryKeyException;

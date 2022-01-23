@@ -1,4 +1,4 @@
-package org.apache.empire.db;
+package org.apache.empire.db.driver;
 
 /**
  * Enum for all SQL phrases that may be supplied by the driver

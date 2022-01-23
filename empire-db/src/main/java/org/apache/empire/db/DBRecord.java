@@ -52,11 +52,29 @@ import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-
 /**
+ * This class represents a record from a database table, view or query
  * 
- * This class handles one record from a database table. 
- *
+ * The class provides methods to create, read, update and delete records
+ * The class provides methods to obtain as well as to modify its fields
+ * 
+ * If an Idendity-column (AUTOINC) is defined, the value will be set upon creation by the driver to the next value
+ * If a Timestamp-column is defined the value will be automatically set and concurrent changes of the record will be detected
+ * 
+ * If changes to the record are made, but a rollback on the connection is performed, the changes will be reverted (Rollback-Handling)
+ * 
+ * The class provides methods that are useful for frontend-form development like
+ *   - providing information about the allowed values for a field (field options)
+ *   - providing information about whether or not a field is visible to the user    
+ *   - providing information about whether or not a field is required (mandantory)    
+ *   - providing information about whether or not a field is read-only    
+ *   - providing information about whether a particular field value is valid    
+ *   - providing information about whether a field was modified since it was read from the database
+ *   - providing information about whether the record was modified
+ * 
+ * Also, field value changes, can be handled using the onFieldChanged event.
+ * 
+ * The record is Serializable either if the provided DBContext is serializable, or if the Context is provided on deserialization in a derived class.
  */
 public class DBRecord extends DBRecordData implements DBContextAware, Record, Cloneable, Serializable
 {

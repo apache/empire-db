@@ -43,10 +43,11 @@ import org.w3c.dom.Element;
 
 
 /**
- * This interface defines for the classes DDRecordSet and DBRecord.
- * <P>
- * 
- *
+ * This class provides access to the fields of one data-row of a table, view or query
+ * The fields can be accessed either by Column or by index
+ * There are various accessor functions for many data types.
+ * The field values are converted to the desired type if possible.
+ * The field values can be transferred to a classical Java-bean (aka Pojo)
  */
 public abstract class DBRecordData extends DBObject
 	implements RecordData
@@ -54,7 +55,7 @@ public abstract class DBRecordData extends DBObject
     // *Deprecated* private static final long serialVersionUID = 1L;
 
     // Logger
-    private static final Logger log              = LoggerFactory.getLogger(DBRecordData.class);
+    private static final Logger log = LoggerFactory.getLogger(DBRecordData.class);
 
     // Field Info
     @Override

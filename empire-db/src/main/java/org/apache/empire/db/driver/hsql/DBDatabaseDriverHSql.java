@@ -23,18 +23,18 @@ import java.util.GregorianCalendar;
 
 import org.apache.empire.commons.ObjectUtils;
 import org.apache.empire.data.DataType;
-import org.apache.empire.db.DBCmdType;
 import org.apache.empire.db.DBColumnExpr;
 import org.apache.empire.db.DBCommand;
 import org.apache.empire.db.DBDDLGenerator;
+import org.apache.empire.db.DBDDLGenerator.DDLAlterType;
 import org.apache.empire.db.DBDatabase;
 import org.apache.empire.db.DBDatabaseDriver;
-import org.apache.empire.db.DBDriverFeature;
 import org.apache.empire.db.DBObject;
 import org.apache.empire.db.DBSQLScript;
-import org.apache.empire.db.DBSqlPhrase;
 import org.apache.empire.db.DBTableColumn;
 import org.apache.empire.db.driver.DBDatabaseDriverBase;
+import org.apache.empire.db.driver.DBDriverFeature;
+import org.apache.empire.db.driver.DBSqlPhrase;
 import org.apache.empire.db.exceptions.QueryNoResultException;
 import org.apache.empire.exceptions.NotSupportedException;
 import org.slf4j.Logger;
@@ -282,10 +282,10 @@ public class DBDatabaseDriverHSql extends DBDatabaseDriverBase
     }
 
     /**
-     * @see DBDatabaseDriver#getDDLScript(DBCmdType, DBObject, DBSQLScript)  
+     * @see DBDatabaseDriver#getDDLScript(DDLAlterType, DBObject, DBSQLScript)  
      */
     @Override
-    public void getDDLScript(DBCmdType type, DBObject dbo, DBSQLScript script)
+    public void getDDLScript(DDLAlterType type, DBObject dbo, DBSQLScript script)
     {
         if (ddlGenerator==null)
             ddlGenerator = new HSqlDDLGenerator(this);

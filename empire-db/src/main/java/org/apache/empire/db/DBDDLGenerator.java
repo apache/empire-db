@@ -22,15 +22,25 @@ import org.apache.empire.commons.StringUtils;
 import org.apache.empire.data.DataType;
 import org.apache.empire.db.DBIndex.DBIndexType;
 import org.apache.empire.exceptions.InvalidArgumentException;
-import org.apache.empire.exceptions.UnspecifiedErrorException;
 import org.apache.empire.exceptions.NotImplementedException;
 import org.apache.empire.exceptions.NotSupportedException;
+import org.apache.empire.exceptions.UnspecifiedErrorException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public abstract class DBDDLGenerator<T extends DBDatabaseDriver>
 {
     private static final Logger log = LoggerFactory.getLogger(DBDDLGenerator.class);
+
+    /**
+     * DDLAlterType for DDLScript generation
+     */
+    public enum DDLAlterType
+    {
+        CREATE, //  = 0;
+        DROP,   //  = 1;
+        ALTER,  //  = 2;
+    }
     
     protected T driver;
 
@@ -230,7 +240,7 @@ public abstract class DBDDLGenerator<T extends DBDatabaseDriver>
      * @param dbo the object for which to perform the operation (DBDatabase, DBTable, DBView, DBColumn, DBRelation) 
      * @param script the script to which to add the DDL command(s)
      */
-    public void getDDLScript(DBCmdType type, DBObject dbo, DBSQLScript script)
+    public void getDDLScript(DDLAlterType type, DBObject dbo, DBSQLScript script)
     {
         // The Object's database must be attached to this driver
         if (dbo==null || dbo.getDatabase().getDriver()!=driver)
@@ -519,7 +529,7 @@ public abstract class DBDDLGenerator<T extends DBDatabaseDriver>
      * @param type the type of operation to perform (CREATE | MODIFY | DROP)
      * @param script the sql script to which to append the dll command(s)
      */
-    protected void alterTable(DBTableColumn col, DBCmdType type, DBSQLScript script)
+    protected void alterTable(DBTableColumn col, DDLAlterType type, DBSQLScript script)
     {
         StringBuilder sql = new StringBuilder();
         sql.append("ALTER TABLE ");

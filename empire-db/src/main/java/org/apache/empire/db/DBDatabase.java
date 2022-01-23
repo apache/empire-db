@@ -36,7 +36,9 @@ import java.util.Set;
 import org.apache.empire.commons.ObjectUtils;
 import org.apache.empire.data.Column;
 import org.apache.empire.data.DataType;
+import org.apache.empire.db.DBDDLGenerator.DDLAlterType;
 import org.apache.empire.db.DBRelation.DBCascadeAction;
+import org.apache.empire.db.driver.DBSqlPhrase;
 import org.apache.empire.db.exceptions.DatabaseNotOpenException;
 import org.apache.empire.db.exceptions.FieldIllegalValueException;
 import org.apache.empire.db.exceptions.FieldNotNullException;
@@ -67,7 +69,7 @@ import org.slf4j.LoggerFactory;
 public abstract class DBDatabase extends DBObject
 {
     // *Deprecated* private static final long serialVersionUID = 1L;
-  
+    
     /**
      * This class represents the database systems current date and time.
      * <P>
@@ -406,7 +408,7 @@ public abstract class DBDatabase extends DBObject
      */
     protected void generateDDLScript(DBSQLScript script)
     {
-        this.driver.getDDLScript(DBCmdType.CREATE, this, script); 
+        this.driver.getDDLScript(DDLAlterType.CREATE, this, script); 
     }
     
     /**

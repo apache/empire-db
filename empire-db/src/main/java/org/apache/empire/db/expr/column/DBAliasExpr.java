@@ -27,7 +27,7 @@ import org.apache.empire.db.DBColumn;
 import org.apache.empire.db.DBColumnExpr;
 import org.apache.empire.db.DBDatabase;
 import org.apache.empire.db.DBDatabaseDriver;
-import org.apache.empire.db.DBSqlPhrase;
+import org.apache.empire.db.driver.DBSqlPhrase;
 import org.w3c.dom.Element;
 
 // XML

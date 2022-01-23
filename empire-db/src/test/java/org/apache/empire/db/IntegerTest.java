@@ -27,6 +27,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.empire.data.DataType;
+import org.apache.empire.db.DBDDLGenerator.DDLAlterType;
 import org.apache.empire.db.context.DBContextStatic;
 import org.apache.empire.db.driver.derby.DBDatabaseDriverDerby;
 import org.apache.empire.db.driver.h2.DBDatabaseDriverH2;
@@ -193,7 +194,7 @@ public class IntegerTest {
         DBSQLScript script2 = new DBSQLScript(context);
         for(DBTable table:db.getTables()){
             if(tables.contains(table.getName())){
-                db.getDriver().getDDLScript(DBCmdType.DROP, table, script2);
+                db.getDriver().getDDLScript(DDLAlterType.DROP, table, script2);
             }
         }
         script2.executeAll(false);

@@ -26,26 +26,26 @@ import java.sql.Statement;
 import org.apache.empire.commons.ObjectUtils;
 import org.apache.empire.commons.StringUtils;
 import org.apache.empire.data.DataType;
-import org.apache.empire.db.DBCmdType;
 import org.apache.empire.db.DBColumn;
 import org.apache.empire.db.DBColumnExpr;
 import org.apache.empire.db.DBCommand;
 import org.apache.empire.db.DBContext;
 import org.apache.empire.db.DBDDLGenerator;
+import org.apache.empire.db.DBDDLGenerator.DDLAlterType;
 import org.apache.empire.db.DBDatabase;
 import org.apache.empire.db.DBDatabaseDriver;
-import org.apache.empire.db.DBDriverFeature;
 import org.apache.empire.db.DBExpr;
 import org.apache.empire.db.DBObject;
 import org.apache.empire.db.DBReader;
 import org.apache.empire.db.DBRelation;
 import org.apache.empire.db.DBSQLScript;
-import org.apache.empire.db.DBSqlPhrase;
 import org.apache.empire.db.DBTable;
 import org.apache.empire.db.DBTableColumn;
 import org.apache.empire.db.DBView;
 import org.apache.empire.db.context.DBContextStatic;
 import org.apache.empire.db.driver.DBDatabaseDriverBase;
+import org.apache.empire.db.driver.DBDriverFeature;
+import org.apache.empire.db.driver.DBSqlPhrase;
 import org.apache.empire.db.exceptions.EmpireSQLException;
 import org.apache.empire.db.exceptions.QueryNoResultException;
 import org.apache.empire.db.expr.column.DBValueExpr;
@@ -392,10 +392,10 @@ public class DBDatabaseDriverOracle extends DBDatabaseDriverBase
     }
 
     /**
-     * @see DBDatabaseDriver#getDDLScript(DBCmdType, DBObject, DBSQLScript)  
+     * @see DBDatabaseDriver#getDDLScript(DDLAlterType, DBObject, DBSQLScript)  
      */
     @Override
-    public void getDDLScript(DBCmdType type, DBObject dbo, DBSQLScript script)
+    public void getDDLScript(DDLAlterType type, DBObject dbo, DBSQLScript script)
     {
         if (ddlGenerator==null)
             ddlGenerator = new OracleDDLGenerator(this);
@@ -423,7 +423,6 @@ public class DBDatabaseDriverOracle extends DBDatabaseDriverBase
     /**
      * Checks whether the database definition matches the real database structure.
      */
-    @Override
     public void checkDatabase(DBDatabase db, String owner, Connection conn)
     {
         DBContext context = new DBContextStatic(this, conn);

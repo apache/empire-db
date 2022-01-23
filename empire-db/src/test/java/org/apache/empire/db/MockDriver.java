@@ -21,7 +21,11 @@ package org.apache.empire.db;
 import java.sql.Connection;
 
 import org.apache.empire.data.DataType;
+import org.apache.empire.db.DBDDLGenerator.DDLAlterType;
 import org.apache.empire.db.driver.DBDatabaseDriverBase;
+import org.apache.empire.db.driver.DBDriverFeature;
+import org.apache.empire.db.driver.DBSqlPhrase;
+import org.apache.empire.exceptions.NotImplementedException;
 
 public class MockDriver extends DBDatabaseDriverBase {
     // *Deprecated* private static final long serialVersionUID = 1L;
@@ -62,6 +66,12 @@ public class MockDriver extends DBDatabaseDriverBase {
     public String getSQLPhrase(DBSqlPhrase phrase)
     {
         return null;
+    }
+
+    @Override
+    public void getDDLScript(DDLAlterType type, DBObject dbo, DBSQLScript script)
+    {
+        throw new NotImplementedException(this, "getDDLScript");
     }
 
     @Override

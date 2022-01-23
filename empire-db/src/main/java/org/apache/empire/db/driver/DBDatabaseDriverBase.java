@@ -39,26 +39,22 @@ import org.apache.empire.data.DataType;
 import org.apache.empire.db.DBBlobData;
 import org.apache.empire.db.DBClobData;
 import org.apache.empire.db.DBCmdParam;
-import org.apache.empire.db.DBCmdType;
 import org.apache.empire.db.DBColumn;
 import org.apache.empire.db.DBColumnExpr;
 import org.apache.empire.db.DBCombinedCmd;
 import org.apache.empire.db.DBCommand;
 import org.apache.empire.db.DBCommandExpr;
+import org.apache.empire.db.DBDDLGenerator.DDLAlterType;
 import org.apache.empire.db.DBDatabase;
 import org.apache.empire.db.DBDatabaseDriver;
-import org.apache.empire.db.DBDriverFeature;
 import org.apache.empire.db.DBExpr;
-import org.apache.empire.db.DBObject;
 import org.apache.empire.db.DBRelation;
 import org.apache.empire.db.DBSQLScript;
-import org.apache.empire.db.DBSqlPhrase;
 import org.apache.empire.db.DBTable;
 import org.apache.empire.db.DBTableColumn;
 import org.apache.empire.db.exceptions.EmpireSQLException;
 import org.apache.empire.db.exceptions.QueryFailedException;
 import org.apache.empire.exceptions.InvalidArgumentException;
-import org.apache.empire.exceptions.NotImplementedException;
 import org.apache.empire.exceptions.NotSupportedException;
 import org.apache.empire.exceptions.UnexpectedReturnValueException;
 import org.slf4j.Logger;
@@ -313,6 +309,19 @@ public abstract class DBDatabaseDriverBase implements DBDatabaseDriver
     }
 
     /**
+     * Returns a timestamp that is used for record updates.
+     * @param conn the connection that might be used 
+     * @return the current date and time.
+     */
+    @Override
+    public Timestamp getUpdateTimestamp(Connection conn)
+    {
+        // Default implementation
+        java.util.Date date = new java.util.Date();
+        return new java.sql.Timestamp(date.getTime());
+    }
+
+    /**
      * Returns the next value of a named sequence The numbers are used for fields of type DBExpr.DT_AUTOINC.<BR>
      * If a driver supports this function it must return true for isSupported(DBDriverFeature.SEQUENCES).
      * 
@@ -366,95 +375,6 @@ public abstract class DBDatabaseDriverBase implements DBDatabaseDriver
         // Other types
         throw new NotSupportedException(this, "getColumnAutoValue() for "+type);
     }
-
-    /**
-     * Prepares an sql statement by setting the supplied objects as parameters.
-     * 
-     * @param pstmt the prepared statement
-     * @param sqlParams list of objects
-     */
-    protected void prepareStatement(PreparedStatement pstmt, Object[] sqlParams) 
-        throws SQLException
-    {
-        for (int i=0; i<sqlParams.length; i++)
-        {
-            Object value = sqlParams[i];
-            try {
-                addStatementParam(pstmt, i+1, value); // , conn
-            } catch(SQLException e) {
-                log.error("SQLException: Unable to set prepared statement parameter {} to '{}'", i+1, StringUtils.toString(value));
-                throw e;
-            }
-        }
-    }
-
-    /**
-     * Adds a statement parameter to a prepared statement
-     * 
-     * @param pstmt the prepared statement
-     * @param paramIndex the parameter index
-     * @param value the parameter value
-     */
-    protected void addStatementParam(PreparedStatement pstmt, int paramIndex, Object value)
-        throws SQLException
-    {
-        if (value instanceof DBBlobData)
-        {
-            // handling for blobs
-            DBBlobData blobData = (DBBlobData)value;
-            pstmt.setBinaryStream(paramIndex, blobData.getInputStream(), blobData.getLength());
-            // log
-            if (log.isDebugEnabled())
-                log.debug("Statement param {} set to BLOB data", paramIndex);
-        }
-        else if(value instanceof DBClobData)
-        {
-            // handling for clobs
-            DBClobData clobData = (DBClobData)value;
-            pstmt.setCharacterStream(paramIndex, clobData.getReader(), clobData.getLength());
-            // log
-            if (log.isDebugEnabled())
-                log.debug("Statement param {} set to CLOB data", paramIndex);
-        }
-        else if(value instanceof Date && !(value instanceof Timestamp))
-        {
-            // handling for dates
-            Timestamp ts = new Timestamp(((Date)value).getTime());
-            pstmt.setObject(paramIndex, ts);
-            // log
-            if (log.isDebugEnabled())
-                log.debug("Statement param {} set to date '{}'", paramIndex, ts);
-        }
-        else if((value instanceof Character) 
-             || (value instanceof Enum<?>))
-        {
-            // Objects that need String conversion
-            String strval = value.toString();
-            pstmt.setObject(paramIndex, strval);
-            // log
-            if (log.isDebugEnabled())
-                log.debug("Statement param {} set to '{}'", paramIndex, strval);
-        }
-        else
-        {   // simple parameter value 
-            pstmt.setObject(paramIndex, value);
-            // log
-            if (log.isDebugEnabled())
-                log.debug("Statement param {} set to '{}'", paramIndex, value);
-        }
-    }
-    
-    /**
-     * Extracts native error message of an sqlExeption.
-     * 
-     * @param e the SQLException
-     * @return the error message of the database 
-     */
-    @Override
-    public String extractErrorMessage(SQLException e)
-    {
-        return e.getMessage();
-    }
     
     /**
      * <P>
@@ -493,6 +413,73 @@ public abstract class DBDatabaseDriverBase implements DBDatabaseDriver
         else
         {
             return rset.getObject(columnIndex);
+        }
+    }
+   
+    /**
+     * Returns a sql string for a given value. 
+     * Text will be enclosed in single quotes and existing single quotes will be doubled.
+     * Empty strings are treated as null.
+     * The syntax of Date, Datetime and Boolean values are DBMS specific.
+     * 
+     * @param value the value which is inserted to the new String
+     * @param type the sql data type of the supplied value
+     * @return the sql string representing this value
+     */
+    @Override
+    public String getValueString(Object value, DataType type)
+    { 
+        if (value instanceof Enum<?>)
+        {   // convert enum
+            log.warn("Enum of type {} supplied for getValueString. Converting value...", value.getClass().getName());
+            value = ObjectUtils.getEnumValue((Enum<?>)value, type.isNumeric());
+        }
+        if (ObjectUtils.isEmpty(value))
+        {   // null
+            return getSQLPhrase(DBSqlPhrase.SQL_NULL);
+        }
+        // set string buffer
+        switch (type)
+        {
+            case DATE:
+                return getSQLDateTimeString(value, DBSqlPhrase.SQL_DATE_TEMPLATE, DBSqlPhrase.SQL_DATE_PATTERN, DBSqlPhrase.SQL_CURRENT_DATE);
+            case DATETIME:
+                // Only date (without time) provided?
+                if (!DBDatabase.SYSDATE.equals(value) && !(value instanceof Date) && ObjectUtils.lengthOf(value)<=10)
+                    return getSQLDateTimeString(value, DBSqlPhrase.SQL_DATE_TEMPLATE, DBSqlPhrase.SQL_DATE_PATTERN, DBSqlPhrase.SQL_CURRENT_TIMESTAMP);
+                // Complete Date-Time Object with time 
+                return getSQLDateTimeString(value, DBSqlPhrase.SQL_DATETIME_TEMPLATE, DBSqlPhrase.SQL_DATETIME_PATTERN, DBSqlPhrase.SQL_CURRENT_TIMESTAMP);
+            case TIMESTAMP:
+                return getSQLDateTimeString(value, DBSqlPhrase.SQL_TIMESTAMP_TEMPLATE, DBSqlPhrase.SQL_TIMESTAMP_PATTERN, DBSqlPhrase.SQL_CURRENT_TIMESTAMP);
+            case VARCHAR:
+            case CHAR:
+            case CLOB:
+            case UNIQUEID:
+                return getSQLTextString(type, value);
+            case BOOL:
+                // Get Boolean value   
+                boolean boolVal = false;
+                if (value instanceof Boolean)
+                {   boolVal = ((Boolean) value).booleanValue();
+                } 
+                else
+                { // Boolean from String
+                    boolVal = stringToBoolean(value.toString());
+                }
+                return getSQLPhrase((boolVal) ? DBSqlPhrase.SQL_BOOLEAN_TRUE : DBSqlPhrase.SQL_BOOLEAN_FALSE);
+            case INTEGER:
+            case DECIMAL:
+            case FLOAT:
+                return getSQLNumberString(value, type);
+            case BLOB:
+                throw new NotSupportedException(this, "getValueString(?, DataType.BLOB)"); 
+            case AUTOINC:
+            case UNKNOWN:
+                /* Allow expressions */
+                return value.toString();
+            default:
+                log.warn("Unknown DataType {} for getValueString().", type);
+                return value.toString();
         }
     }
     
@@ -696,24 +683,33 @@ public abstract class DBDatabaseDriverBase implements DBDatabaseDriver
         }
     }
     
-     /**
-     * Convenience function for closing a JDBC Resultset<BR>
-     * Use it instead of stmt.close()<BR> 
-     * <P>
-     * @param stmt a Statement object
+    /**
+     * Appends a statement to enable or disable a foreign key relation.<br>
+     * The default is to drop or create the relation 
+     * Override this method to provide different behavior for your database.
+     * @param r the foreign key relation which should be enabled or disabled
+     * @param enable true to enable the relation or false to disable
+     * @param script the script to which to add the DDL command(s)
      */
-    public void closeStatement(Statement stmt)
+    @Override
+    public void appendEnableRelationStmt(DBRelation r, boolean enable, DBSQLScript script)
     {
-        try
-        { // Statement close
-            if (stmt != null)
-                stmt.close();
-            // done
-            return;
-        } catch (SQLException sqle) { 
-            // Commit failed!
-            throw new EmpireSQLException(this, sqle);
-        }
+        if (enable)
+            getDDLScript(DDLAlterType.CREATE, r, script);
+        else
+            getDDLScript(DDLAlterType.DROP, r, script);
+    }
+    
+    /**
+     * Extracts native error message of an sqlExeption.
+     * 
+     * @param e the SQLException
+     * @return the error message of the database 
+     */
+    @Override
+    public String extractErrorMessage(SQLException e)
+    {
+        return e.getMessage();
     }
 
     /**
@@ -744,71 +740,101 @@ public abstract class DBDatabaseDriverBase implements DBDatabaseDriver
             throw new EmpireSQLException(this, sqle);
         }
     }
-   
-    /**
-     * Creates a sql string for a given value. 
-     * Text will be enclosed in single quotes and existing single quotes will be doubled.
-     * Empty strings are treated as null.
-     * Syntax of Date, Datetime and Boolean values are vendor specific.
-     * 
-     * @param value the value which is inserted to the new String
-     * @param type the sql data type of the supplied value
-     * @return the sql string representing this value
+    
+     /**
+     * Convenience function for closing a JDBC Resultset<BR>
+     * Use it instead of stmt.close()<BR> 
+     * <P>
+     * @param stmt a Statement object
      */
-    @Override
-    public String getValueString(Object value, DataType type)
-    { 
-        if (value instanceof Enum<?>)
-        {   // convert enum
-            log.warn("Enum of type {} supplied for getValueString. Converting value...", value.getClass().getName());
-            value = ObjectUtils.getEnumValue((Enum<?>)value, type.isNumeric());
+    protected void closeStatement(Statement stmt)
+    {
+        try
+        { // Statement close
+            if (stmt != null)
+                stmt.close();
+            // done
+            return;
+        } catch (SQLException sqle) { 
+            // Commit failed!
+            throw new EmpireSQLException(this, sqle);
         }
-        if (ObjectUtils.isEmpty(value))
-        {   // null
-            return getSQLPhrase(DBSqlPhrase.SQL_NULL);
-        }
-        // set string buffer
-        switch (type)
+    }
+
+    /**
+     * Prepares an sql statement by setting the supplied objects as parameters.
+     * 
+     * @param pstmt the prepared statement
+     * @param sqlParams list of objects
+     */
+    protected void prepareStatement(PreparedStatement pstmt, Object[] sqlParams) 
+        throws SQLException
+    {
+        for (int i=0; i<sqlParams.length; i++)
         {
-            case DATE:
-                return getSQLDateTimeString(value, DBSqlPhrase.SQL_DATE_TEMPLATE, DBSqlPhrase.SQL_DATE_PATTERN, DBSqlPhrase.SQL_CURRENT_DATE);
-            case DATETIME:
-                // Only date (without time) provided?
-                if (!DBDatabase.SYSDATE.equals(value) && !(value instanceof Date) && ObjectUtils.lengthOf(value)<=10)
-                    return getSQLDateTimeString(value, DBSqlPhrase.SQL_DATE_TEMPLATE, DBSqlPhrase.SQL_DATE_PATTERN, DBSqlPhrase.SQL_CURRENT_TIMESTAMP);
-                // Complete Date-Time Object with time 
-                return getSQLDateTimeString(value, DBSqlPhrase.SQL_DATETIME_TEMPLATE, DBSqlPhrase.SQL_DATETIME_PATTERN, DBSqlPhrase.SQL_CURRENT_TIMESTAMP);
-            case TIMESTAMP:
-                return getSQLDateTimeString(value, DBSqlPhrase.SQL_TIMESTAMP_TEMPLATE, DBSqlPhrase.SQL_TIMESTAMP_PATTERN, DBSqlPhrase.SQL_CURRENT_TIMESTAMP);
-            case VARCHAR:
-            case CHAR:
-            case CLOB:
-            case UNIQUEID:
-                return getSQLTextString(type, value);
-            case BOOL:
-                // Get Boolean value   
-                boolean boolVal = false;
-                if (value instanceof Boolean)
-                {   boolVal = ((Boolean) value).booleanValue();
-                } 
-                else
-                { // Boolean from String
-                    boolVal = stringToBoolean(value.toString());
-                }
-                return getSQLPhrase((boolVal) ? DBSqlPhrase.SQL_BOOLEAN_TRUE : DBSqlPhrase.SQL_BOOLEAN_FALSE);
-            case INTEGER:
-            case DECIMAL:
-            case FLOAT:
-                return getSQLNumberString(value, type);
-            case BLOB:
-                throw new NotSupportedException(this, "getValueString(?, DataType.BLOB)"); 
-            case AUTOINC:
-            case UNKNOWN:
-                /* Allow expressions */
-                return value.toString();
-            default:
-                log.warn("Unknown DataType {} for getValueString().", type);
-                return value.toString();
+            Object value = sqlParams[i];
+            try {
+                addStatementParam(pstmt, i+1, value); // , conn
+            } catch(SQLException e) {
+                log.error("SQLException: Unable to set prepared statement parameter {} to '{}'", i+1, StringUtils.toString(value));
+                throw e;
+            }
+        }
+    }
+
+    /**
+     * Adds a statement parameter to a prepared statement
+     * 
+     * @param pstmt the prepared statement
+     * @param paramIndex the parameter index
+     * @param value the parameter value
+     */
+    protected void addStatementParam(PreparedStatement pstmt, int paramIndex, Object value)
+        throws SQLException
+    {
+        if (value instanceof DBBlobData)
+        {
+            // handling for blobs
+            DBBlobData blobData = (DBBlobData)value;
+            pstmt.setBinaryStream(paramIndex, blobData.getInputStream(), blobData.getLength());
+            // log
+            if (log.isDebugEnabled())
+                log.debug("Statement param {} set to BLOB data", paramIndex);
+        }
+        else if(value instanceof DBClobData)
+        {
+            // handling for clobs
+            DBClobData clobData = (DBClobData)value;
+            pstmt.setCharacterStream(paramIndex, clobData.getReader(), clobData.getLength());
+            // log
+            if (log.isDebugEnabled())
+                log.debug("Statement param {} set to CLOB data", paramIndex);
+        }
+        else if(value instanceof Date && !(value instanceof Timestamp))
+        {
+            // handling for dates
+            Timestamp ts = new Timestamp(((Date)value).getTime());
+            pstmt.setObject(paramIndex, ts);
+            // log
+            if (log.isDebugEnabled())
+                log.debug("Statement param {} set to date '{}'", paramIndex, ts);
+        }
+        else if((value instanceof Character) 
+             || (value instanceof Enum<?>))
+        {
+            // Objects that need String conversion
+            String strval = value.toString();
+            pstmt.setObject(paramIndex, strval);
+            // log
+            if (log.isDebugEnabled())
+                log.debug("Statement param {} set to '{}'", paramIndex, strval);
+        }
+        else
+        {   // simple parameter value 
+            pstmt.setObject(paramIndex, value);
+            // log
+            if (log.isDebugEnabled())
+                log.debug("Statement param {} set to '{}'", paramIndex, value);
         }
     }
     
@@ -952,60 +978,6 @@ public abstract class DBDatabaseDriverBase implements DBDatabaseDriver
         return "1".equals(value) ||
                "true".equalsIgnoreCase(value) ||
                "y".equalsIgnoreCase(value);
-    }
-
-    /**
-     * Checks the database whether or not it is consistent with the description.
-     * 
-     * @param db the database
-     * @param owner the owner
-     * @param conn the connection
-     */
-    public void checkDatabase(DBDatabase db, String owner, Connection conn)
-    {
-        throw new NotImplementedException(this, "checkDatabase");
-    }
-    
-    /**
-     * Appends the required DLL commands to create, drop or alter an object to the supplied DBDQLScript.
-     * @param type operation to perform (CREATE, DROP, ALTER)
-     * @param dbo the object for which to perform the operation (DBDatabase, DBTable, DBView, DBColumn, DBRelation) 
-     * @param script the script to which to add the DDL command(s)
-     */
-    @Override
-    public void getDDLScript(DBCmdType type, DBObject dbo, DBSQLScript script)
-    {
-        throw new NotImplementedException(this, "getDDLScript");
-    }
-    
-    /**
-     * Appends a statement to enable or disable a foreign key relation.<br>
-     * The default is to drop or create the relation 
-     * Override this method to provide different behavior for your database.
-     * @param r the foreign key relation which should be enabled or disabled
-     * @param enable true to enable the relation or false to disable
-     * @param script the script to which to add the DDL command(s)
-     */
-    @Override
-    public void appendEnableRelationStmt(DBRelation r, boolean enable, DBSQLScript script)
-    {
-        if (enable)
-            getDDLScript(DBCmdType.CREATE, r, script);
-        else
-            getDDLScript(DBCmdType.DROP, r, script);
-    }
-
-    /**
-     * Returns a timestamp that is used for record updates.
-     * @param conn the connection that might be used 
-     * @return the current date and time.
-     */
-    @Override
-    public Timestamp getUpdateTimestamp(Connection conn)
-    {
-        // Default implementation
-        java.util.Date date = new java.util.Date();
-        return new java.sql.Timestamp(date.getTime());
     }
 
 }

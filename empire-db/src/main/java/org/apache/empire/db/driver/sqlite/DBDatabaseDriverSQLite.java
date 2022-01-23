@@ -31,19 +31,19 @@ import java.util.GregorianCalendar;
 import java.util.List;
 
 import org.apache.empire.data.DataType;
-import org.apache.empire.db.DBCmdType;
 import org.apache.empire.db.DBColumnExpr;
 import org.apache.empire.db.DBCommand;
 import org.apache.empire.db.DBDDLGenerator;
+import org.apache.empire.db.DBDDLGenerator.DDLAlterType;
 import org.apache.empire.db.DBDatabase;
 import org.apache.empire.db.DBDatabaseDriver;
-import org.apache.empire.db.DBDriverFeature;
 import org.apache.empire.db.DBJoinType;
 import org.apache.empire.db.DBObject;
 import org.apache.empire.db.DBSQLScript;
-import org.apache.empire.db.DBSqlPhrase;
 import org.apache.empire.db.DBTableColumn;
 import org.apache.empire.db.driver.DBDatabaseDriverBase;
+import org.apache.empire.db.driver.DBDriverFeature;
+import org.apache.empire.db.driver.DBSqlPhrase;
 import org.apache.empire.db.expr.join.DBColumnJoinExpr;
 import org.apache.empire.db.expr.join.DBJoinExpr;
 import org.apache.empire.exceptions.NotImplementedException;
@@ -371,49 +371,6 @@ public class DBDatabaseDriverSQLite extends DBDatabaseDriverBase
                 return phrase.getSqlDefault();
         }
     }
-
-    @Override
-    public int executeSQL(String sqlCmd, Object[] sqlParams, Connection conn, DBSetGenKeys genKeys) throws SQLException
-    {
-        Statement stmt = null;
-        int count = 0;
-        try
-        {
-            if (sqlParams != null)
-            { // Use a prepared statement
-                PreparedStatement pstmt = conn.prepareStatement(sqlCmd);
-                stmt = pstmt;
-                prepareStatement(pstmt, sqlParams);
-                count = pstmt.executeUpdate();
-            }
-            else
-            { // Execute a simple statement
-                stmt = conn.createStatement();
-                count = stmt.executeUpdate(sqlCmd);
-            }
-            // Retrieve any auto-generated keys
-            if (genKeys != null && count > 0)
-            { // Return Keys
-                ResultSet rs = stmt.getGeneratedKeys();
-                try
-                {
-                    while (rs.next())
-                    {
-                        genKeys.set(rs.getObject(1));
-                    }
-                }
-                finally
-                {
-                    rs.close();
-                }
-            }
-        }
-        finally
-        {
-            closeStatement(stmt);
-        }
-        return count;
-    }
     
     @Override
     public Object getResultValue(ResultSet rset, int columnIndex, DataType dataType) throws SQLException
@@ -507,10 +464,10 @@ public class DBDatabaseDriverSQLite extends DBDatabaseDriverBase
     }
     
     /**
-     * @see DBDatabaseDriver#getDDLScript(DBCmdType, DBObject, DBSQLScript)
+     * @see DBDatabaseDriver#getDDLScript(DDLAlterType, DBObject, DBSQLScript)
      */
     @Override
-    public void getDDLScript(DBCmdType type, DBObject dbo, DBSQLScript script)
+    public void getDDLScript(DDLAlterType type, DBObject dbo, DBSQLScript script)
     {
         if (ddlGenerator == null)
             ddlGenerator = new SQLiteDDLGenerator(this);

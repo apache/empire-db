@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.empire.db;
+package org.apache.empire.db.driver;
 
 /**
  * This enum is used with the DBDatabaseDriver::isSupported method to query database driver capabilities.

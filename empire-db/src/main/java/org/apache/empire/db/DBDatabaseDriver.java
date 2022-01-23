@@ -24,6 +24,9 @@ import java.sql.SQLException;
 import java.sql.Timestamp;
 
 import org.apache.empire.data.DataType;
+import org.apache.empire.db.DBDDLGenerator.DDLAlterType;
+import org.apache.empire.db.driver.DBDriverFeature;
+import org.apache.empire.db.driver.DBSqlPhrase;
 
 /**
  * The DBDatabaseDriver interface implements all RDBMS specific logic
@@ -208,14 +211,14 @@ public interface DBDatabaseDriver
      * @param rset a ResultSet object
      */
     void closeResultSet(ResultSet rset);
-
+    
     /**
      * Appends the required DLL commands to create, drop or alter an object to the supplied DBDQLScript.
      * @param type operation to perform (CREATE, DROP, ALTER)
      * @param dbo the object for which to perform the operation (DBDatabase, DBTable, DBView, DBColumn, DBRelation) 
      * @param script the script to which to add the DDL command(s)
      */
-    void getDDLScript(DBCmdType type, DBObject dbo, DBSQLScript script);
+    void getDDLScript(DDLAlterType type, DBObject dbo, DBSQLScript script);
     
     /**
      * Appends a statement to enable or disable a foreign key relation.<br>

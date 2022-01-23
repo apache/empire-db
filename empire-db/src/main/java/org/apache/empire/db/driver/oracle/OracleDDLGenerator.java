@@ -19,7 +19,6 @@
 package org.apache.empire.db.driver.oracle;
 
 import org.apache.empire.data.DataType;
-import org.apache.empire.db.DBCmdType;
 import org.apache.empire.db.DBColumn;
 import org.apache.empire.db.DBDDLGenerator;
 import org.apache.empire.db.DBDatabase;
@@ -117,11 +116,11 @@ public class OracleDDLGenerator extends DBDDLGenerator<DBDatabaseDriverOracle>
     }
     
     @Override
-    public void getDDLScript(DBCmdType type, DBObject dbo, DBSQLScript script)
+    public void getDDLScript(DDLAlterType type, DBObject dbo, DBSQLScript script)
     {
         super.getDDLScript(type, dbo, script);
         // Additional tasks
-        if ((type==DBCmdType.DROP) && (dbo instanceof DBTable))
+        if ((type==DDLAlterType.DROP) && (dbo instanceof DBTable))
         {   // Drop Sequences
             for (DBColumn c : ((DBTable) dbo).getColumns())
             {

@@ -28,10 +28,10 @@ import org.apache.empire.commons.Options;
 import org.apache.empire.commons.StringUtils;
 import org.apache.empire.data.DataType;
 import org.apache.empire.db.DBCmdParam;
-import org.apache.empire.db.DBCmdType;
 import org.apache.empire.db.DBColumnExpr;
 import org.apache.empire.db.DBCommand;
 import org.apache.empire.db.DBContext;
+import org.apache.empire.db.DBDDLGenerator.DDLAlterType;
 import org.apache.empire.db.DBDatabaseDriver;
 import org.apache.empire.db.DBQuery;
 import org.apache.empire.db.DBReader;
@@ -191,7 +191,7 @@ public class SampleAdvApp
             	log.info("As H2 does not support changing a table with a view defined we remove the view");
             	System.out.println("*** drop EMPLOYEE_INFO_VIEW ***");
             	DBSQLScript script = new DBSQLScript(context);
-            	db.getDriver().getDDLScript(DBCmdType.DROP, db.V_EMPLOYEE_INFO, script);
+            	db.getDriver().getDDLScript(DDLAlterType.DROP, db.V_EMPLOYEE_INFO, script);
             	script.executeAll();
             }
             ddlSample(idEmp2);
@@ -199,7 +199,7 @@ public class SampleAdvApp
             	log.info("And put back the view");
             	System.out.println("*** create EMPLOYEE_INFO_VIEW ***");
             	DBSQLScript script = new DBSQLScript(context);
-            	db.getDriver().getDDLScript(DBCmdType.CREATE, db.V_EMPLOYEE_INFO, script);
+            	db.getDriver().getDDLScript(DDLAlterType.CREATE, db.V_EMPLOYEE_INFO, script);
             	script.executeAll();
             }
 
@@ -540,7 +540,7 @@ public class SampleAdvApp
     
     /**
      * This method demonstrates how to add, modify and delete a database column.<BR>
-     * This function demonstrates the use of the {@link DBDatabaseDriver#getDDLScript(org.apache.empire.db.DBCmdType, org.apache.empire.db.DBObject, DBSQLScript)}<BR>
+     * This function demonstrates the use of the {@link DBDatabaseDriver#getDDLScript(org.apache.empire.db.DDLAlterType, org.apache.empire.db.DBObject, DBSQLScript)}<BR>
      * 
      */
     private static void ddlSample(int idTestPerson)
@@ -551,7 +551,7 @@ public class SampleAdvApp
         // Now create the corresponding DDL statement 
         System.out.println("Creating new column named FOO as varchar(20) for the EMPLOYEES table:");
         DBSQLScript script = new DBSQLScript(context);
-        db.getDriver().getDDLScript(DBCmdType.CREATE, C_FOO, script);
+        db.getDriver().getDDLScript(DDLAlterType.CREATE, C_FOO, script);
         script.executeAll();
         
         // Now load a record from that table and set the value for foo
@@ -565,7 +565,7 @@ public class SampleAdvApp
         System.out.println("Extending size of column FOO to 40 characters:");
         C_FOO.setSize(40); 
         script.clear();
-        db.getDriver().getDDLScript(DBCmdType.ALTER, C_FOO, script);
+        db.getDriver().getDDLScript(DDLAlterType.ALTER, C_FOO, script);
         script.executeAll();
 
         // Now set a longer value for the record
@@ -576,7 +576,7 @@ public class SampleAdvApp
         // Finally, drop the column again
         System.out.println("Dropping the FOO column from the employee table:");
         script.clear();
-        db.getDriver().getDDLScript(DBCmdType.DROP, C_FOO, script);
+        db.getDriver().getDDLScript(DDLAlterType.DROP, C_FOO, script);
         script.executeAll();
     }
 

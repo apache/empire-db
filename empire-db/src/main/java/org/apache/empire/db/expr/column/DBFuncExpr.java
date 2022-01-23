@@ -25,7 +25,7 @@ import org.apache.empire.data.DataType;
 import org.apache.empire.db.DBColumn;
 import org.apache.empire.db.DBColumnExpr;
 import org.apache.empire.db.DBExpr;
-import org.apache.empire.db.DBSqlPhrase;
+import org.apache.empire.db.driver.DBSqlPhrase;
 
 
 /**

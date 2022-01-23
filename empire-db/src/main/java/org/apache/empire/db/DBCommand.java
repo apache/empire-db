@@ -29,6 +29,7 @@ import java.util.Vector;
 
 import org.apache.empire.commons.StringUtils;
 import org.apache.empire.data.DataType;
+import org.apache.empire.db.driver.DBSqlPhrase;
 import org.apache.empire.db.expr.compare.DBCompareColExpr;
 import org.apache.empire.db.expr.compare.DBCompareExpr;
 import org.apache.empire.db.expr.join.DBColumnJoinExpr;

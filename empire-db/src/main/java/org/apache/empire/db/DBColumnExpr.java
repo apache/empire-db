@@ -31,6 +31,7 @@ import org.apache.empire.commons.StringUtils;
 import org.apache.empire.data.Column;
 import org.apache.empire.data.ColumnExpr;
 import org.apache.empire.data.DataType;
+import org.apache.empire.db.driver.DBSqlPhrase;
 import org.apache.empire.db.expr.column.DBAliasExpr;
 import org.apache.empire.db.expr.column.DBCalcExpr;
 import org.apache.empire.db.expr.column.DBCaseExpr;

@@ -29,8 +29,8 @@ import org.apache.empire.DBResource;
 import org.apache.empire.DBResource.DB;
 import org.apache.empire.data.DataType;
 import org.apache.empire.db.CompanyDB;
-import org.apache.empire.db.DBCmdType;
 import org.apache.empire.db.DBContext;
+import org.apache.empire.db.DBDDLGenerator.DDLAlterType;
 import org.apache.empire.db.DBDatabase;
 import org.apache.empire.db.DBDatabaseDriver;
 import org.apache.empire.db.DBRecord;
@@ -97,8 +97,8 @@ public class DBDatabaseDriverSQLiteTest{
         assertEquals("123456", emp.getString(db.EMPLOYEE.PHONE_NUMBER));
         
         script = new DBSQLScript(context);
-        db.getDriver().getDDLScript(DBCmdType.DROP, db.EMPLOYEE, script);
-        db.getDriver().getDDLScript(DBCmdType.DROP, db.DEPARTMENT, script);
+        db.getDriver().getDDLScript(DDLAlterType.DROP, db.EMPLOYEE, script);
+        db.getDriver().getDDLScript(DDLAlterType.DROP, db.DEPARTMENT, script);
         script.executeAll(true);
     }
     
@@ -132,7 +132,7 @@ public class DBDatabaseDriverSQLiteTest{
         assertEquals("test", read.getString(db.DATA.VALUE));
         
         script = new DBSQLScript(context);
-        db.getDriver().getDDLScript(DBCmdType.DROP, db.DATA, script);
+        db.getDriver().getDDLScript(DDLAlterType.DROP, db.DATA, script);
         script.executeAll(true);
     }
     
