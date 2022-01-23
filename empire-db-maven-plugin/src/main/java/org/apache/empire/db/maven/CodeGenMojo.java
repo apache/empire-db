@@ -42,8 +42,7 @@ import org.codehaus.plexus.util.StringUtils;
 /**
  * Empire-DB Code generation by reading an existing database schema
  */
-@Mojo(
-        name = "codegen",
+@Mojo(  name = "codegen",
         defaultPhase = LifecyclePhase.GENERATE_SOURCES,
         requiresDependencyResolution = ResolutionScope.RUNTIME)
 public class CodeGenMojo extends AbstractMojo {

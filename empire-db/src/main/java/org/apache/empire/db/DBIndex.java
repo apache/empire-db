@@ -114,6 +114,16 @@ public class DBIndex extends DBObject
     {
         return columns;
     }
+
+    /**
+     * Returns the columns belonging to this index.
+     * 
+     * @return the columns belonging to this index
+     */
+    public DBColumn getColumn(int index)
+    {
+        return columns[index];
+    }
     
     /**
      * Returns the number of columns belonging to this index.
