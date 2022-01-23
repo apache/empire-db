@@ -53,7 +53,8 @@ public class WebDBContext<DB extends DBDatabase> extends DBContextBase implement
     private void readObject(ObjectInputStream strm) 
         throws IOException, ClassNotFoundException
     {   // WebApplication
-        ClassUtils.setPrivateFieldValue(WebDBContext.class, this, "app", WebApplication.getInstance());
+        WebApplication app = WebApplication.getInstance();
+        ClassUtils.setPrivateFieldValue(WebDBContext.class, this, "app", app);
         // Database
         String dbid = String.valueOf(strm.readObject());
         DBDatabase database = DBDatabase.findByIdentifier(dbid);
@@ -67,7 +68,7 @@ public class WebDBContext<DB extends DBDatabase> extends DBContextBase implement
     
     public WebDBContext(DB db)
     {
-        this.app    = WebApplication.getInstance();;
+        this.app    = WebApplication.getInstance();
         this.driver = db.getDriver();
         this.database = db;
         // check driver

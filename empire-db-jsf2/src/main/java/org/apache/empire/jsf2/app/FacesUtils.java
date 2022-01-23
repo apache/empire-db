@@ -209,7 +209,8 @@ public class FacesUtils
     
     /* Pages */
 
-    public static Page getPage(final FacesContext fc)
+    @SuppressWarnings("unchecked")
+    public static <T extends Page> T getPage(final FacesContext fc)
     {
         UIViewRoot vr = fc.getViewRoot();
         if (vr==null)
@@ -219,7 +220,7 @@ public class FacesUtils
         if (page==null)
             throw new ItemNotFoundException("page");
         // ok
-        return page; 
+        return (T)page; 
     }
 
     /* Parameter-map */

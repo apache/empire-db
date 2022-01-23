@@ -207,9 +207,9 @@ public class DBRecord extends DBRecordData implements DBContextAware, Record, Cl
         return parts;
     }
 
-    // the context
-    protected final DBContext context;
-    protected final transient DBRowSet rowset; /* transient for serialization */
+    // Context and RowSet
+    protected final transient DBContext context;  /* transient for serialization */
+    protected final transient DBRowSet  rowset;   /* transient for serialization */
     
     // This is the record data
     private State           state;
@@ -227,20 +227,48 @@ public class DBRecord extends DBRecordData implements DBContextAware, Record, Cl
      * 
      */
     private void writeObject(ObjectOutputStream strm) throws IOException 
-    {   // RowSet
+    {   // Context
+        writeContext(strm);
+        // RowSet
+        writeRowSet(strm);
+        // write object
+        strm.defaultWriteObject();
+    }
+    
+    protected void writeContext(ObjectOutputStream strm) throws IOException
+    {
+        strm.writeObject(context);
+    }
+    
+    protected void writeRowSet(ObjectOutputStream strm) throws IOException
+    {
         String dbid = rowset.getDatabase().getIdentifier(); 
         String rsid = rowset.getName(); 
         strm.writeObject(dbid);
         strm.writeObject(rsid);
-        // write object
-        strm.defaultWriteObject();
     }
     
     /**
      * Custom deserialization for transient rowset.
      */
     private void readObject(ObjectInputStream strm) throws IOException, ClassNotFoundException 
+    {   // Context
+        DBContext ctx = readContext(strm);
+        ClassUtils.setPrivateFieldValue(DBRecord.class, this, "context", ctx);
+        // set final field
+        DBRowSet rowset = readRowSet(strm);
+        ClassUtils.setPrivateFieldValue(DBRecord.class, this, "rowset", rowset);
+        // read the rest
+        strm.defaultReadObject();
+    }
+    
+    protected DBContext readContext(ObjectInputStream strm)  throws IOException, ClassNotFoundException
     {
+        return (DBContext)strm.readObject();
+    }
+    
+    protected DBRowSet readRowSet(ObjectInputStream strm)  throws IOException, ClassNotFoundException
+    {   // Rowset
         String dbid = String.valueOf(strm.readObject());
         String rsid = String.valueOf(strm.readObject());
         // find database
@@ -250,11 +278,9 @@ public class DBRecord extends DBRecordData implements DBContextAware, Record, Cl
         // find rowset
         DBRowSet rso = dbo.getRowSet(rsid);
         if (rso==null)
-            throw new ItemNotFoundException(dbid+"."+rsid);
-        // set final field
-        ClassUtils.setPrivateFieldValue(DBRecord.class, this, "rowset", rso);
-        // read the rest
-        strm.defaultReadObject();
+            throw new ItemNotFoundException(dbid);
+        // done
+        return rso;
     }
     
     /**
