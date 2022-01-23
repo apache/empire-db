@@ -46,7 +46,6 @@ public class ObjectUtilsTest
 	@Test
 	public void testIsEmpty()
 	{
-		assertTrue(ObjectUtils.isEmpty(ObjectUtils.NO_VALUE));
 		assertTrue(ObjectUtils.isEmpty(""));
 		assertTrue(ObjectUtils.isEmpty(null));
 		assertFalse(ObjectUtils.isEmpty(" "));

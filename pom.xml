@@ -528,9 +528,11 @@
 				    <inherited>true</inherited>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-jar-plugin</artifactId>
-                    <version>2.5</version>
+                    <version>3.1.2</version>
                     <configuration>
+                    	<!-- 
                         <useDefaultManifestFile>true</useDefaultManifestFile>
+                         -->
                         <archive>
                             <manifestEntries>
                                 <X-Compile-Source-JDK>${maven.compile.source}</X-Compile-Source-JDK>
@@ -543,9 +545,11 @@
                             <goals>
                                 <goal>test-jar</goal>
                             </goals>
+                            <!-- 
                             <configuration>
                                 <useDefaultManifestFile>false</useDefaultManifestFile>
                             </configuration>
+                             -->
                         </execution>
                     </executions>
                 </plugin>
@@ -589,7 +593,7 @@
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-enforcer-plugin</artifactId>
-					<version>3.0.0-M2</version>
+					<version>3.0.0</version>
 					<executions>
 						<execution>
 							<id>enforce-maven</id>
@@ -615,7 +619,7 @@
 				<plugin>
 					<groupId>org.codehaus.mojo</groupId>
 					<artifactId>animal-sniffer-maven-plugin</artifactId>
-					<version>1.14</version>
+					<version>1.20</version>
 					<executions>
 						<execution>
 							<id>check-api</id>
@@ -628,7 +632,7 @@
 					<configuration>
 						<signature>
 							<groupId>org.codehaus.mojo.signature</groupId>
-							<artifactId>java16</artifactId>
+							<artifactId>java18</artifactId>
 							<version>1.0</version>
 						</signature>
 					</configuration>
@@ -636,7 +640,7 @@
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-eclipse-plugin</artifactId>
-					<version>2.9</version>
+					<version>2.10</version>
 					<configuration>
 						<downloadSources>true</downloadSources>
 						<!-- downloadJavadocs>true</downloadJavadocs -->
@@ -645,7 +649,7 @@
 				<plugin>
 					<groupId>org.apache.felix</groupId>
 					<artifactId>maven-bundle-plugin</artifactId>
-					<version>2.5.0</version>
+					<version>3.5.1</version>
 					<executions>
 						<execution>
 							<id>bundle-manifest</id>
@@ -666,7 +670,7 @@
 				<plugin>
 				    <groupId>org.apache.maven.plugins</groupId>
 				    <artifactId>maven-surefire-plugin</artifactId>
-				    <version>2.17</version>
+				    <version>2.22.2</version>
 				    <configuration>
 				        <systemPropertyVariables>
 				            <derby.stream.error.file>target/derby.log</derby.stream.error.file>
@@ -740,7 +744,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-project-info-reports-plugin</artifactId>
-                <version>2.8</version>
+                <version>3.1.2</version>
                 <configuration>
                     <dependencyDetailsEnabled>false</dependencyDetailsEnabled>
                     <dependencyLocationsEnabled>false</dependencyLocationsEnabled>
@@ -768,9 +772,9 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-pmd-plugin</artifactId>
-				<version>3.1</version>
+				<version>3.15.0</version>
 				<configuration>
-					<targetJdk>1.6</targetJdk>
+					<targetJdk>1.8</targetJdk>
 				</configuration>
 			</plugin>
 			<!-- findbugs-maven-plugin -->
@@ -806,7 +810,7 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-jxr-plugin</artifactId>
-				<version>2.4</version>
+				<version>3.1.1</version>
 			</plugin>
 			<!-- maven-javadoc-plugin 
 			<plugin>

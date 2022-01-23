@@ -52,6 +52,7 @@ public class PreparedStatementTest{
         script.executeAll(false);
         
         DBRecord department = new DBRecord(context, db.DEPARTMENT);
+        department.create();
         department.setValue(db.DEPARTMENT.NAME, "junit");
         department.setValue(db.DEPARTMENT.BUSINESS_UNIT, "test");
         department.update();

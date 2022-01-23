@@ -72,11 +72,20 @@ public class DBDatabaseDriverHSqlTest{
         assertTrue("No departments", dep.getInt(db.DEPARTMENT.ID) > 0);
         
         DBRecord emp = new DBRecord(context, db.EMPLOYEE);
+        emp.create();
         emp.setValue(db.EMPLOYEE.FIRSTNAME, "junit");
         emp.setValue(db.EMPLOYEE.LASTNAME, "test");
         emp.setValue(db.EMPLOYEE.GENDER, "m");
         emp.setValue(db.EMPLOYEE.DEPARTMENT_ID, dep.getInt(db.DEPARTMENT.ID));
         emp.update();
+        
+        DBRecord emp2 = new DBRecord(context, db.EMPLOYEE);
+        emp2.init(null, true);
+        emp2.setValue(db.EMPLOYEE.FIRSTNAME, "junit2");
+        emp2.setValue(db.EMPLOYEE.LASTNAME, "test2");
+        emp2.setValue(db.EMPLOYEE.GENDER, "m");
+        emp2.setValue(db.EMPLOYEE.DEPARTMENT_ID, dep.getInt(db.DEPARTMENT.ID));
+        emp2.update();
         
         date = emp.getDateTime(db.EMPLOYEE.UPDATE_TIMESTAMP);
         assertNotNull("Date is null", date);

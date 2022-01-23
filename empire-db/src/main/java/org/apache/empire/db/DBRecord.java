@@ -838,6 +838,19 @@ public class DBRecord extends DBRecordData implements DBContextAware, Record, Cl
     public void init(Object[] key, boolean insert)
     {   // Init with keys
         rowset.initRecord(this, key, insert);
+        // fill default values
+        for (int i = 0; i < fields.length; i++)
+        {   // already set ?
+            if (fields[i]!=null)
+                continue; 
+            // check default
+            DBTableColumn col = (DBTableColumn) rowset.getColumn(i);
+            Object value = col.getRecordDefaultValue(null);
+            if (value==null)
+                continue;
+            // Modify value
+            modifyValue(i, value, true);
+        }
     }
 
     /**
@@ -1203,33 +1216,6 @@ public class DBRecord extends DBRecordData implements DBContextAware, Record, Cl
         // field changed event
         if (fireChangeEvent)
             onFieldChanged(index);
-    }
-
-    /**
-     * Set the record default value for the fields with 
-     * the value {@link ObjectUtils#NO_VALUE}
-     * 
-     * @param conn the sql connection
-     *  
-     * @return the number of fields set to default
-     */
-    protected int fillMissingDefaults(Connection conn)
-    {
-        int count = 0;
-        for (int i = 0; i < fields.length; i++)
-        {
-            if (fields[i] == ObjectUtils.NO_VALUE)
-            {
-                DBTableColumn col = (DBTableColumn) rowset.getColumn(i);
-                Object value = col.getRecordDefaultValue(conn);
-                if (value==null)
-                    continue;
-                // Modify value
-                modifyValue(i, value, true);
-                count++;
-            }
-        }
-        return count;
     }
 
     /*
