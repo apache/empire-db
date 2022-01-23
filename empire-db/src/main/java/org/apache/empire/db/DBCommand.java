@@ -97,7 +97,7 @@ public abstract class DBCommand extends DBCommandExpr
     {
         String dbid = String.valueOf(strm.readObject());
         // find database
-        DBDatabase dbo = DBDatabase.findById(dbid);
+        DBDatabase dbo = DBDatabase.findByIdentifier(dbid);
         if (dbo==null)
             throw new ItemNotFoundException(dbid);
         // set final field

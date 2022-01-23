@@ -93,17 +93,4 @@ public class SampleUtils extends FacesUtils
         FacesContext fc = getContext();
         return getFilePath(fc, path, file);
     }
-
-    /* Messages */
-
-    public static String getMessage(String messageKey)
-    {
-        return getMessage(getContext(), messageKey);
-    }
-
-    public static void addErrorMessage(String msg)
-    {
-        FacesContext fc = getContext();
-        addErrorMessage(fc, msg);
-    }
 }

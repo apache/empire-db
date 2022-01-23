@@ -69,6 +69,7 @@
 			<h:commandLink value="#{msg.employeeDetail_back}" action="#{page.doCancel}" immediate="true" />
 			<h:commandLink value="#{msg.employeeDetail_delete}" action="#{page.doDelete}" immediate="true" rendered="#{page.employeeRecord.exists}" />
 			<h:commandLink value="#{msg.employeeDetail_save}" action="#{page.doSave}" />
+			<h:commandLink value="#{msg.employeeDetail_test}" actionListener="#{page.doTestSerialization}" />
 		</h:panelGroup>
 
 		</h:form>

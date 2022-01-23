@@ -33,6 +33,7 @@ import javax.faces.component.visit.VisitContext;
 import javax.faces.context.FacesContext;
 
 import org.apache.empire.commons.ObjectUtils;
+import org.apache.empire.commons.OptionEntry;
 import org.apache.empire.commons.Options;
 import org.apache.empire.commons.StringUtils;
 import org.apache.empire.data.Column;
@@ -289,8 +290,15 @@ public class SelectTag extends UIInput implements NamingContainer
             UIInput inputComponent = getInputComponent();
 
             Object value = (inputComponent==null ? "" : inputComponent.getValue());
-            if (value == null)
-                value = "";
+            if (value != null)
+            {   // get the real value
+                Options options = this.getOptionList();
+                OptionEntry entry = options.getEntry(value);
+                if (entry!=null)
+                    value = entry.getValue();
+            }
+            else value = "";
+
             setValue(value);
         }
         super.updateModel(context);

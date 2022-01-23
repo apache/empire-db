@@ -134,9 +134,11 @@ public class SampleApp
 			// commit
 			context.commit();
 			
+			/*
             int idEmp = testTransactionCreate(idDevDep);
             testTransactionUpdate(idEmp);
             testTransactionDelete(idEmp);
+            */
 
 			// STEP 7: Update Records (by setting the phone Number)
 			System.out.println("*** Step 7: updateEmployee() ***");

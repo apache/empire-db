@@ -103,7 +103,7 @@ public abstract class DBDatabase extends DBObject
     /** 
      * find a database by id
      */
-    public static DBDatabase findById(String dbIdent)
+    public static DBDatabase findByIdentifier(String dbIdent)
     {
         WeakReference<DBDatabase> ref = databaseMap.get(dbIdent);
         if (ref==null)
@@ -229,7 +229,7 @@ public abstract class DBDatabase extends DBObject
         }
         invalidKeys.clear();
         // Find a unique key
-        if (findById(dbid)!=null)
+        if (findByIdentifier(dbid)!=null)
         {   int maxInstId=1;
             String instPrefix = dbid+":";
             for (String key : databaseMap.keySet())

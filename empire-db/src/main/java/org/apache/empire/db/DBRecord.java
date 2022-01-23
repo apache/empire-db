@@ -18,6 +18,10 @@
  */
 package org.apache.empire.db;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.Serializable;
 import java.lang.reflect.InvocationTargetException;
 import java.sql.Connection;
 import java.util.Collection;
@@ -25,6 +29,7 @@ import java.util.List;
 
 import org.apache.commons.beanutils.BeanUtilsBean;
 import org.apache.commons.beanutils.PropertyUtilsBean;
+import org.apache.empire.commons.ClassUtils;
 import org.apache.empire.commons.ObjectUtils;
 import org.apache.empire.commons.Options;
 import org.apache.empire.commons.StringUtils;
@@ -38,6 +43,7 @@ import org.apache.empire.db.exceptions.FieldValueNotFetchedException;
 import org.apache.empire.db.expr.compare.DBCompareExpr;
 import org.apache.empire.exceptions.BeanPropertyGetException;
 import org.apache.empire.exceptions.InvalidArgumentException;
+import org.apache.empire.exceptions.ItemNotFoundException;
 import org.apache.empire.exceptions.NotSupportedException;
 import org.apache.empire.exceptions.ObjectNotValidException;
 import org.apache.empire.xml.XMLUtil;
@@ -52,9 +58,9 @@ import org.w3c.dom.Element;
  * This class handles one record from a database table. 
  *
  */
-public class DBRecord extends DBRecordData implements DBContextAware, Record, Cloneable
+public class DBRecord extends DBRecordData implements DBContextAware, Record, Cloneable, Serializable
 {
-    // *Deprecated* private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
     
     private static final Logger log  = LoggerFactory.getLogger(DBRecord.class);
     
@@ -203,7 +209,7 @@ public class DBRecord extends DBRecordData implements DBContextAware, Record, Cl
 
     // the context
     protected final DBContext context;
-    protected final DBRowSet  rowset; /* transient */
+    protected final transient DBRowSet rowset; /* transient for serialization */
     
     // This is the record data
     private State           state;
@@ -219,6 +225,7 @@ public class DBRecord extends DBRecordData implements DBContextAware, Record, Cl
     /**
      * Custom serialization for transient rowset.
      * 
+     */
     private void writeObject(ObjectOutputStream strm) throws IOException 
     {   // RowSet
         String dbid = rowset.getDatabase().getIdentifier(); 
@@ -229,12 +236,15 @@ public class DBRecord extends DBRecordData implements DBContextAware, Record, Cl
         strm.defaultWriteObject();
     }
     
+    /**
+     * Custom deserialization for transient rowset.
+     */
     private void readObject(ObjectInputStream strm) throws IOException, ClassNotFoundException 
     {
         String dbid = String.valueOf(strm.readObject());
         String rsid = String.valueOf(strm.readObject());
         // find database
-        DBDatabase dbo = DBDatabase.findById(dbid);
+        DBDatabase dbo = DBDatabase.findByIdentifier(dbid);
         if (dbo==null)
             throw new ItemNotFoundException(dbid);
         // find rowset
@@ -246,8 +256,6 @@ public class DBRecord extends DBRecordData implements DBContextAware, Record, Cl
         // read the rest
         strm.defaultReadObject();
     }
-    
-     */
     
     /**
      * Constructs a new DBRecord.<BR>
@@ -838,19 +846,6 @@ public class DBRecord extends DBRecordData implements DBContextAware, Record, Cl
     public void init(Object[] key, boolean insert)
     {   // Init with keys
         rowset.initRecord(this, key, insert);
-        // fill default values
-        for (int i = 0; i < fields.length; i++)
-        {   // already set ?
-            if (fields[i]!=null)
-                continue; 
-            // check default
-            DBTableColumn col = (DBTableColumn) rowset.getColumn(i);
-            Object value = col.getRecordDefaultValue(null);
-            if (value==null)
-                continue;
-            // Modify value
-            modifyValue(i, value, true);
-        }
     }
 
     /**

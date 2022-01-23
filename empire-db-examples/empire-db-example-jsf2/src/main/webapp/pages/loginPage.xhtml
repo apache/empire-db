@@ -45,6 +45,9 @@
 				<sample:formInputRow for="password" label="#{msg.login_field_password}">
 					<h:inputSecret id="password" value="#{sampleUser.password}" required="true" />
 				</sample:formInputRow>
+				<sample:formInputRow for="password" label="#{msg.login_field_language}">
+					<e:select id="language" value="#{sampleUser.locale}" options="#{page.languageOptions}" />
+				</sample:formInputRow>
 				<!-- button bar -->
 				<sample:formButtonRow>
 					<h:commandLink action="#{page.doLogin}" value="#{msg.login_title}" />

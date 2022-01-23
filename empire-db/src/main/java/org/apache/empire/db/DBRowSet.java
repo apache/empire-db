@@ -126,7 +126,7 @@ public abstract class DBRowSet extends DBExpr
      * Gets an identifier for this RowSet Object
      * @return the rowset identifier
      */
-    public String getIdent()
+    public String getIdentifier()
     {
         return db.getIdentifier()+"."+getName();
     }
@@ -136,14 +136,14 @@ public abstract class DBRowSet extends DBExpr
      * @param rowsetId the id of the rowset
      * @return the rowset object
      * 
-    public static DBRowSet findById(String rowsetId)
+    public static DBRowSet findByIdentifier(String rowsetId)
     {
         int i = rowsetId.lastIndexOf('.');
         if (i<0)
             throw new InvalidArgumentException("rowsetId", rowsetId);
         // database suchen
         String dbid = rowsetId.substring(0, i);
-        DBDatabase db = DBDatabase.findById(dbid);
+        DBDatabase db = DBDatabase.findByIdentifier(dbid);
         if (db==null)
             throw new ItemNotFoundException(dbid);
         // rowset suchen
@@ -169,7 +169,7 @@ public abstract class DBRowSet extends DBExpr
     {   // Database
         String dbid = String.valueOf(strm.readObject());
         // find database
-        DBDatabase dbo = DBDatabase.findById(dbid);
+        DBDatabase dbo = DBDatabase.findByIdentifier(dbid);
         if (dbo==null)
             throw new ItemNotFoundException(dbid);
         // set final field

@@ -59,9 +59,9 @@ public class SampleUser // *Deprecated* implements Serializable
         return this.language;
     }
     
-    public void setLocale(Locale lo)
+    public void setLocale(Locale locale)
     {
-        this.language = lo;
+        this.language = locale;
     }
 
 }

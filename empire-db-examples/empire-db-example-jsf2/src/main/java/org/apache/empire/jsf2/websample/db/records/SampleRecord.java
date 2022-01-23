@@ -18,50 +18,53 @@
  */
 package org.apache.empire.jsf2.websample.db.records;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
+
+import org.apache.empire.commons.ClassUtils;
 import org.apache.empire.db.DBContext;
 import org.apache.empire.db.DBRecord;
 import org.apache.empire.jsf2.websample.db.SampleTable;
 
+public abstract class SampleRecord<T extends SampleTable> extends DBRecord
+{
+    private static final long   serialVersionUID = 1L;
 
-public abstract class SampleRecord<T extends SampleTable> extends DBRecord {
+    /*
+     * Store the table for convenience
+     */
+    protected final transient T T;
 
-	// *Deprecated* private static final long serialVersionUID = 1L;
-	
-	protected T T; // The table
-
-	public SampleRecord(DBContext context, T table) {
-		super(context, table);
-		this.T = table;
-	}
-
-	/**
-	 * Returns the table this record is based upon.
-	 * @return The table this record is based upon.
-	 */
-	public T getTable() {
-		return T;
-	}
-
-	/*
-    public void create(Connection conn)
-    {
-        super.create(getTable(), conn);
-    }
-    
-    public void create()
-    {
-        super.create(getTable());
-    }
-	
-    public void read(Object[] keys, Connection conn)
-    {
-        super.read(getTable(), keys, conn);
+    /**
+     * Custom deserialization for transient T.
+     */
+    private void readObject(ObjectInputStream strm)
+        throws IOException, ClassNotFoundException
+    {   // Restore T
+        T table = super.getRowSet();
+        ClassUtils.setPrivateFieldValue(SampleRecord.class, this, "T", table);
+        // read the rest
+        strm.defaultReadObject();
     }
 
-    public void read(Object id, Connection conn)
+    /**
+     * Constructor for SampleRecord
+     * @param context
+     * @param table
+     */
+    protected SampleRecord(DBContext context, T table)
     {
-        super.read(getTable(), id, conn);
+        super(context, table);
+        this.T = table;
     }
-    */
-	
+
+    /**
+     * Returns the table this record is based upon.
+     * @return The table this record is based upon.
+     */
+    public T getTable()
+    {
+        return T;
+    }
+
 }

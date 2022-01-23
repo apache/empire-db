@@ -19,6 +19,7 @@
 package org.apache.empire.jsf2.pages;
 
 import java.lang.reflect.Method;
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -26,6 +27,7 @@ import java.util.Map;
 
 import javax.faces.application.FacesMessage;
 import javax.faces.application.NavigationHandler;
+import javax.faces.application.FacesMessage.Severity;
 import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
 
@@ -278,7 +280,7 @@ public abstract class Page // *Deprecated* implements Serializable
     protected void setSessionError(Throwable e)
     {
         // Set Session Message
-        String msg = getErrorMessage(e);
+        String msg = extractErrorMessage(e);
         String detail = extractErrorMessageDetail(action, e, 1);
         if (log.isDebugEnabled())
             log.debug(msg + "\r\n" + detail, e);
@@ -289,7 +291,7 @@ public abstract class Page // *Deprecated* implements Serializable
     protected boolean handleActionError(String action, Throwable e)
     {
         // Set Faces Message
-        String msg = getErrorMessage(e);
+        String msg = extractErrorMessage(e);
         String detail = extractErrorMessageDetail(action, e, 1);
         log.error(msg + "\r\n" + detail);
         FacesMessage facesMsg = new FacesMessage(FacesMessage.SEVERITY_ERROR, msg, detail);
@@ -305,9 +307,40 @@ public abstract class Page // *Deprecated* implements Serializable
         return true;
     }
 
-    protected void setErrorMessage(Throwable e)
+    protected void addFacesMessage(Severity severity, String msg, Object... params)
     {
-        String msg = getErrorMessage(e);
+        TextResolver resolver = getTextResolver();
+        msg = resolver.resolveText(msg);
+        if (params.length>0)
+        {   // translate params
+            for (int i=0; i<params.length; i++)
+                if (params[i] instanceof String)
+                    params[i] = resolver.resolveText((String)params[i]);
+            // format
+            msg = MessageFormat.format(msg, params);
+        }
+        FacesMessage facesMsg = new FacesMessage(FacesMessage.SEVERITY_WARN, msg, msg);
+        FacesContext.getCurrentInstance().addMessage(getPageName(), facesMsg);
+    }
+
+    public final void addInfoMessage(String msg, Object... params)
+    {
+        addFacesMessage(FacesMessage.SEVERITY_INFO, msg, params);
+    }
+
+    public final void addWarnMessage(String msg, Object... params)
+    {
+        addFacesMessage(FacesMessage.SEVERITY_WARN, msg, params);
+    }
+
+    public final void addErrorMessage(String msg, Object... params)
+    {
+        addFacesMessage(FacesMessage.SEVERITY_ERROR, msg, params);
+    }
+
+    public void setErrorMessage(Throwable e)
+    {
+        String msg = extractErrorMessage(e);
         String detail = extractErrorMessageDetail(action, e, 1);
         if (log.isDebugEnabled())
             log.debug(msg + "\r\n" + detail, e);
@@ -315,7 +348,7 @@ public abstract class Page // *Deprecated* implements Serializable
         FacesContext.getCurrentInstance().addMessage(getPageName(), facesMsg);
     }
 
-    protected String getErrorMessage(Throwable e)
+    protected String extractErrorMessage(Throwable e)
     {   // Wrap Exception
         if (!(e instanceof EmpireException))
             e = new InternalException(e);

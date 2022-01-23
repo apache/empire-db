@@ -113,7 +113,7 @@ public class DBELResolver extends ELResolver
         else if (base==null)
         {   // LookupDatabase
             String name = StringUtils.toString(property);
-            DBDatabase db = DBDatabase.findById(name);
+            DBDatabase db = DBDatabase.findByIdentifier(name);
             if (db!=null)
                 context.setPropertyResolved(true);
             // done

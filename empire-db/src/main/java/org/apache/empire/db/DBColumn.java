@@ -84,23 +84,23 @@ public abstract class DBColumn extends DBColumnExpr
      * Gets an identifier for this RowSet Object
      * @return the rowset identifier
      */
-    public String getIdent()
+    public String getIdentifier()
     {
-        return rowset.getIdent()+"."+name;
+        return rowset.getIdentifier()+"."+name;
     }
 
     /**
      * returns a rowset by its identifier
      * @param columnId the id of the column
      * @return the DBColumn object
-    public static DBColumn findById(String columnId)
+    public static DBColumn findByIdentifier(String columnId)
     {
         int i = columnId.lastIndexOf('.');
         if (i<0)
             throw new InvalidArgumentException("columnId", columnId);
         // rowset suchen
         String rsid = columnId.substring(0, i);
-        DBRowSet rset = DBRowSet.findById(rsid);
+        DBRowSet rset = DBRowSet.findByIdentifier(rsid);
         // column suchen
         String colname = columnId.substring(i+1);
         DBColumn col = rset.getColumn(colname);
@@ -126,7 +126,7 @@ public abstract class DBColumn extends DBColumnExpr
         String dbid = String.valueOf(strm.readObject());
         String rsid = String.valueOf(strm.readObject());
         // find database
-        DBDatabase dbo = DBDatabase.findById(dbid);
+        DBDatabase dbo = DBDatabase.findByIdentifier(dbid);
         if (dbo==null)
             throw new ClassNotFoundException(dbid);
         // find rowset

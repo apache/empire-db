@@ -18,30 +18,56 @@
  */
 package org.apache.empire.jsf2.websample.web;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+
+import javax.faces.context.FacesContext;
+
+import org.apache.empire.commons.ClassUtils;
 import org.apache.empire.jsf2.app.WebDBContext;
 import org.apache.empire.jsf2.websample.db.SampleDB;
 
 /**
  * This is an example for a custom DBContext extension
  * @author rainer
- *
  */
 public class SampleContext extends WebDBContext<SampleDB>
 {
-    // *Deprecated* private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
     
-    private final SampleSession session;
+    private final transient SampleSession session;
     
-    public SampleContext(SampleApplication app, SampleSession session)
-    {
-        super(app, app.getDatabase());
-        // the session
-        this.session = session;
+    /**
+     * Custom serialization for transient fields.
+     * 
+     */
+    private void writeObject(ObjectOutputStream strm) throws IOException 
+    {   // write the object
+        strm.defaultWriteObject();
     }
     
-    public SampleApplication getApplication()
+    /**
+     * Custom deserialization for transient fields.
+     */
+    private void readObject(ObjectInputStream strm) 
+        throws IOException, ClassNotFoundException
+    {   // Restore Session
+        FacesContext fc = FacesContext.getCurrentInstance();
+        SampleSession session = SampleUtils.getSampleSession(fc);
+        ClassUtils.setPrivateFieldValue(SampleContext.class, this, "session", session);
+        // Read the object
+        strm.defaultReadObject();
+    }
+    
+    /**
+     * Constructs a SampleContext 
+     */
+    public SampleContext(SampleDB db, SampleSession session)
     {
-        return (SampleApplication)app;
+        super(db);
+        // the session
+        this.session = session;
     }
 
     public SampleUser getUser()

@@ -18,15 +18,12 @@
  */
 package org.apache.empire.jsf2.pageelements;
 
-import javax.faces.context.FacesContext;
-
 import org.apache.empire.db.DBRecord;
 import org.apache.empire.db.DBRowSet;
 import org.apache.empire.exceptions.EmpireException;
 import org.apache.empire.exceptions.InternalException;
 import org.apache.empire.exceptions.InvalidArgumentException;
 import org.apache.empire.exceptions.ObjectNotValidException;
-import org.apache.empire.jsf2.app.FacesUtils;
 import org.apache.empire.jsf2.pages.Page;
 import org.apache.empire.jsf2.pages.PageDefinition;
 import org.apache.empire.jsf2.pages.PageElement;
@@ -211,9 +208,7 @@ public class RecordPageElement<T extends DBRecord> extends PageElement
             if (!(e instanceof EmpireException))
                 e = new InternalException(e);
             // Set error Message
-            FacesContext fc = FacesUtils.getContext();
-            String msg = FacesUtils.getTextResolver(fc).getExceptionMessage(e);
-            FacesUtils.addErrorMessage(fc, msg);
+            getPage().setErrorMessage(e);
             return false; 
         }
     }

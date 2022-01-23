@@ -41,7 +41,7 @@ public class SamplePage extends Page
         {
             SampleApplication app = SampleUtils.getSampleApplication();
             SampleSession session = SampleUtils.getSampleSession();
-            this.sampleContext = new SampleContext(app, session);
+            this.sampleContext = new SampleContext(app.getDatabase(), session);
         }
         return this.sampleContext;
     }

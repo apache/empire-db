@@ -973,7 +973,7 @@ public class TagEncodingHelper implements NamingContainer
                 log.error("Invalid column expression '{}'!", name);
                 return null; // not found
             }
-            DBDatabase db = DBDatabase.findById(name.substring(0,dbix));
+            DBDatabase db = DBDatabase.findByIdentifier(name.substring(0,dbix));
             if (db==null)
             {
                 log.error("Database '{}' not found!", name.substring(0,dbix));

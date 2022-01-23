@@ -381,6 +381,7 @@ public class FacesUtils
         return getMessage(getContext(), messageKey);
     }
 
+    /*
     public static void addInfoMessage(FacesContext fc, String clientId, String msg)
     {
         fc.addMessage(clientId, new FacesMessage(FacesMessage.SEVERITY_INFO, msg, msg));
@@ -410,6 +411,7 @@ public class FacesUtils
     {
         addErrorMessage(fc, null, msg);
     }
+    */
 
     /**
      * indicates whether submitted values in InputControl should be cleared or preserved.

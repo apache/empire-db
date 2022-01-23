@@ -18,6 +18,9 @@
  */
 package org.apache.empire.jsf2.websample.web.pages;
 
+import java.util.Locale;
+
+import org.apache.empire.commons.Options;
 import org.apache.empire.jsf2.app.FacesUtils;
 import org.apache.empire.jsf2.pages.PageOutcome;
 import org.apache.empire.jsf2.websample.web.SampleSession;
@@ -26,6 +29,19 @@ import org.apache.empire.jsf2.websample.web.SampleUtils;
 public class LoginPage extends SamplePage {
 	
 	// *Deprecated* private static final long serialVersionUID = 1L;
+    
+    private static final Options languageOptions;
+    
+    static {
+        languageOptions = new Options();
+        languageOptions.set(Locale.US, "English");
+        languageOptions.set(Locale.GERMAN, "German");
+    }
+    
+    public Options getLanguageOptions()
+    {
+        return languageOptions;
+    }
 
 	public void doLogin() 
 	{

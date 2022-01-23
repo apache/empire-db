@@ -73,12 +73,17 @@ public abstract class WebApplication
     
     private static WebApplication appInstance         = null;
     
-    public static WebApplication getInstance()
+    /**
+     * Returns the one and only instance of the WebApplication (Singleton)
+     * @return the WebApplication instance
+     */
+    @SuppressWarnings("unchecked")
+    public static <T extends WebApplication> T getInstance()
     {
         if (appInstance==null)
             log.warn("No WebApplication instance available. Please add a PostConstructApplicationEvent using WebAppStartupListener in your faces-config.xml to create the WebApplication object.");
         // return instance
-        return appInstance;
+        return (T)appInstance;
     }
 
     protected abstract void init(ServletContext servletContext);
@@ -90,7 +95,7 @@ public abstract class WebApplication
         log.info("WebApplication {} created", getClass().getName());
         // Must be a singleton
         if (appInstance!=null) {
-            throw new RuntimeException("An attempt was made to create second instance of WebApplication. WebApplication must be a singleton!");
+            throw new RuntimeException("An attempt was made to create second instance of WebApplication. WebApplication must be a Singleton!");
         }
         // set Instance
         appInstance = this;

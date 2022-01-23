@@ -18,6 +18,9 @@
  */
 package org.apache.empire.jsf2.websample.web.pages;
 
+import javax.faces.event.ActionEvent;
+
+import org.apache.empire.commons.ClassUtils;
 import org.apache.empire.exceptions.MiscellaneousErrorException;
 import org.apache.empire.jsf2.pageelements.RecordPageElement;
 import org.apache.empire.jsf2.pages.PageOutcome;
@@ -101,17 +104,29 @@ public class EmployeeDetailPage extends SamplePage
     
     public PageOutcome doSave()
     {
-
         getEmployeeRecord().update();
         
-        getEmployeeRecord().getContext().getConnection();
-        
-        /* test transaction */  
+        /* test transaction 
         SampleDB db = this.getDatabase();
         if (getEmployeeRecord().isNull(db.T_EMPLOYEES.PHONE_NUMBER))
             throw new MiscellaneousErrorException("Phone number must not be empty!");
+        */  
         
         return getParentOutcome(true);
+    }
+    
+    public void doTestSerialization(ActionEvent ae)
+    {
+        /* test serialization */
+        EmployeeRecord before = getEmployeeRecord();
+        EmployeeRecord after  = ClassUtils.testSerialization(EmployeeRecord.class, before);
+        
+        addInfoMessage("!employeeDetail_testMessage");
+        addInfoMessage("Rowset is {0}",  (after.getRowSet() ==before.getRowSet())  ? "Same" : "Different");
+        addInfoMessage("Context is {0}", (after.getContext()==before.getContext()) ? "Same" : "Different");
+        after.read(before.getKey());
+
+        addInfoMessage("!global_status", after.isValid() ? "!global_valid" : "!global_invalid");
     }
 
     public PageOutcome doDelete()

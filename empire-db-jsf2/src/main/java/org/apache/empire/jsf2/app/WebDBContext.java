@@ -1,14 +1,20 @@
 package org.apache.empire.jsf2.app;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.Serializable;
 import java.sql.Connection;
 
 import javax.faces.context.FacesContext;
 
+import org.apache.empire.commons.ClassUtils;
 import org.apache.empire.db.DBCommand;
 import org.apache.empire.db.DBDatabase;
 import org.apache.empire.db.DBDatabaseDriver;
 import org.apache.empire.db.context.DBContextBase;
 import org.apache.empire.db.context.DBRollbackManager;
+import org.apache.empire.exceptions.ItemNotFoundException;
 import org.apache.empire.exceptions.NotSupportedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,19 +27,19 @@ import org.slf4j.LoggerFactory;
  *
  * @param <DB>
  */
-public class WebDBContext<DB extends DBDatabase> extends DBContextBase // *Deprecated* implements Serializable
+public class WebDBContext<DB extends DBDatabase> extends DBContextBase implements Serializable
 {
-    // *Deprecated* private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
     private static final Logger    log = LoggerFactory.getLogger(WebDBContext.class);
 
-    protected final WebApplication   app;       /* transient */
-    protected final DB               database;  /* transient */
-    protected final DBDatabaseDriver driver;    /* transient */
+    protected final transient WebApplication   app;
+    protected final transient DB               database;
+    protected final transient DBDatabaseDriver driver;
 
     /**
      * Custom serialization for transient fields.
-     * 
+     */ 
     private void writeObject(ObjectOutputStream strm) throws IOException 
     {   // Database
         strm.writeObject((database!=null ? database.getIdentifier() : ""));
@@ -41,13 +47,16 @@ public class WebDBContext<DB extends DBDatabase> extends DBContextBase // *Depre
         strm.defaultWriteObject();
     }
     
+    /**
+     * Custom deserialization for transient fields.
+     */ 
     private void readObject(ObjectInputStream strm) 
         throws IOException, ClassNotFoundException
     {   // WebApplication
         ClassUtils.setPrivateFieldValue(WebDBContext.class, this, "app", WebApplication.getInstance());
         // Database
         String dbid = String.valueOf(strm.readObject());
-        DBDatabase database = DBDatabase.findById(dbid);
+        DBDatabase database = DBDatabase.findByIdentifier(dbid);
         if (database==null)
             throw new ItemNotFoundException(dbid);
         ClassUtils.setPrivateFieldValue(WebDBContext.class, this, "database", database);
@@ -55,11 +64,10 @@ public class WebDBContext<DB extends DBDatabase> extends DBContextBase // *Depre
         // read the rest
         strm.defaultReadObject();
     }
-     */
     
-    public WebDBContext(WebApplication app, DB db)
+    public WebDBContext(DB db)
     {
-        this.app = app;
+        this.app    = WebApplication.getInstance();;
         this.driver = db.getDriver();
         this.database = db;
         // check driver
@@ -109,14 +117,14 @@ public class WebDBContext<DB extends DBDatabase> extends DBContextBase // *Depre
     protected Connection getConnection(boolean create)
     {
         FacesContext fc = FacesContext.getCurrentInstance();
-        return this.app.getConnectionForRequest(fc, database, create);
+        return app.getConnectionForRequest(fc, database, create);
     }
 
     @Override
     protected DBRollbackManager getRollbackManager(boolean create)
     {
         FacesContext fc = FacesContext.getCurrentInstance();
-        return this.app.getRollbackManagerForRequest(fc, create);
+        return app.getRollbackManagerForRequest(fc, create);
     }
     
 }
