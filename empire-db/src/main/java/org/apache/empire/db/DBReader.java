@@ -41,7 +41,7 @@ import org.apache.empire.db.exceptions.QueryNoResultException;
 import org.apache.empire.db.expr.join.DBJoinExpr;
 import org.apache.empire.exceptions.BeanInstantiationException;
 import org.apache.empire.exceptions.InvalidArgumentException;
-import org.apache.empire.exceptions.MiscellaneousErrorException;
+import org.apache.empire.exceptions.UnspecifiedErrorException;
 import org.apache.empire.exceptions.ObjectNotValidException;
 import org.apache.empire.xml.XMLUtil;
 import org.slf4j.Logger;
@@ -451,7 +451,7 @@ public class DBReader extends DBRecordData implements DBContextAware
             else if (paramValues.length!=subqueryParamValues.size())
             {   // number of params do not match
                 String msg = MessageFormat.format("Invalid number of parameters query: provided={0}, required={1}; query="+cmd.getSelect(), paramValues.length, subqueryParamValues.size());
-                throw new MiscellaneousErrorException(msg);
+                throw new UnspecifiedErrorException(msg);
             }
         }
         // Execute the query
@@ -1106,7 +1106,7 @@ public class DBReader extends DBRecordData implements DBContextAware
     {
         // check if enabled
         if (trackOpenResultSets==false)
-            throw new MiscellaneousErrorException("Open-ResultSet-Tracking has not been enabled. Use DBReader.enableOpenResultSetTracking() to enable or disable.");
+            throw new UnspecifiedErrorException("Open-ResultSet-Tracking has not been enabled. Use DBReader.enableOpenResultSetTracking() to enable or disable.");
         // Check map
         Map<DBReader, Exception> openResultSets = threadLocalOpenResultSets.get();
         if (openResultSets != null && openResultSets.isEmpty() == false)

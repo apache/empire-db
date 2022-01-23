@@ -38,7 +38,7 @@ import org.apache.empire.db.DBRowSet;
 import org.apache.empire.exceptions.EmpireException;
 import org.apache.empire.exceptions.InternalException;
 import org.apache.empire.exceptions.ItemNotFoundException;
-import org.apache.empire.exceptions.MiscellaneousErrorException;
+import org.apache.empire.exceptions.UnspecifiedErrorException;
 import org.apache.empire.jsf2.app.FacesUtils;
 import org.apache.empire.jsf2.app.TextResolver;
 import org.apache.empire.jsf2.app.WebApplication;
@@ -422,7 +422,7 @@ public abstract class Page // *Deprecated* implements Serializable
     {
         PageDefinition parentPage = getParentPage();
         if (parentPage == null)
-            throw new MiscellaneousErrorException("No Parent Page defined for " + getPageName());
+            throw new UnspecifiedErrorException("No Parent Page defined for " + getPageName());
         if (redirect)
             return parentPage.getRedirect(action);
         else

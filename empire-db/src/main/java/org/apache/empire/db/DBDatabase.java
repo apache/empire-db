@@ -47,7 +47,7 @@ import org.apache.empire.db.expr.column.DBValueExpr;
 import org.apache.empire.db.expr.compare.DBCompareExpr;
 import org.apache.empire.exceptions.InvalidArgumentException;
 import org.apache.empire.exceptions.ItemExistsException;
-import org.apache.empire.exceptions.MiscellaneousErrorException;
+import org.apache.empire.exceptions.UnspecifiedErrorException;
 import org.apache.empire.exceptions.NotSupportedException;
 import org.apache.empire.exceptions.PropertyReadOnlyException;
 import org.slf4j.Logger;
@@ -191,7 +191,7 @@ public abstract class DBDatabase extends DBObject
     public synchronized void discard()
     {
         if (isOpen())
-            throw new MiscellaneousErrorException("Database is open. Discard not possible.");
+            throw new UnspecifiedErrorException("Database is open. Discard not possible.");
         // unregister
         databaseMap.remove(this.instanceId);
         this.instanceId = null;
@@ -386,7 +386,7 @@ public abstract class DBDatabase extends DBObject
             // Set driver
             if (this.driver!=null && this.driver!=ddlDriver && ddlDriver!=null)
             {   // The database belongs to a different driver
-                throw new MiscellaneousErrorException("The database is attached to a different driver.");
+                throw new UnspecifiedErrorException("The database is attached to a different driver.");
             }
             // Temporarily change driver
             if (this.driver== null)

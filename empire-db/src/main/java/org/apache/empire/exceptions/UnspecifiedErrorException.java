@@ -20,13 +20,13 @@ package org.apache.empire.exceptions;
 
 import org.apache.empire.commons.ErrorType;
 
-public class MiscellaneousErrorException extends EmpireException
+public class UnspecifiedErrorException extends EmpireException
 {
     private static final long serialVersionUID = 1L;
     
     public static final ErrorType errorType = new ErrorType("error.internal", "Internal Error: {0}");
     
-    public MiscellaneousErrorException(String errorMessage)
+    public UnspecifiedErrorException(String errorMessage)
     {
         super(errorType, new String[] { errorMessage });
     }

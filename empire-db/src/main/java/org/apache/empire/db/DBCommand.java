@@ -39,7 +39,7 @@ import org.apache.empire.db.expr.set.DBSetExpr;
 import org.apache.empire.exceptions.InternalException;
 import org.apache.empire.exceptions.InvalidArgumentException;
 import org.apache.empire.exceptions.ItemNotFoundException;
-import org.apache.empire.exceptions.MiscellaneousErrorException;
+import org.apache.empire.exceptions.UnspecifiedErrorException;
 import org.apache.empire.exceptions.ObjectNotValidException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -124,7 +124,7 @@ public abstract class DBCommand extends DBCommandExpr
         int index = cmdParams.indexOf(param);
         if (index < paramUsageCount)
         {   // Error: parameter probably used twice in statement!
-            throw new MiscellaneousErrorException("A parameter may only be used once in a command.");
+            throw new UnspecifiedErrorException("A parameter may only be used once in a command.");
         }
         if (index > paramUsageCount)
         {   // Correct parameter order

@@ -22,7 +22,7 @@ import org.apache.empire.commons.StringUtils;
 import org.apache.empire.data.DataType;
 import org.apache.empire.db.DBIndex.DBIndexType;
 import org.apache.empire.exceptions.InvalidArgumentException;
-import org.apache.empire.exceptions.MiscellaneousErrorException;
+import org.apache.empire.exceptions.UnspecifiedErrorException;
 import org.apache.empire.exceptions.NotImplementedException;
 import org.apache.empire.exceptions.NotSupportedException;
 import org.slf4j.Logger;
@@ -172,7 +172,7 @@ public abstract class DBDDLGenerator<T extends DBDatabaseDriver>
                 break;
             default:
                 // Error: Unable to append column of type UNKNOWN
-                throw new MiscellaneousErrorException("Error: Unable to append column of type UNKNOWN");
+                throw new UnspecifiedErrorException("Error: Unable to append column of type UNKNOWN");
         }
         // done. Add more attributes (like e.g. NULLABLE or NOT NULL)
         return true;

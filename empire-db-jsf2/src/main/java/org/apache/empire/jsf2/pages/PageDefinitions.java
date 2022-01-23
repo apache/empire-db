@@ -22,7 +22,7 @@ import java.util.LinkedHashMap;
 
 import org.apache.empire.commons.StringUtils;
 import org.apache.empire.exceptions.ItemExistsException;
-import org.apache.empire.exceptions.MiscellaneousErrorException;
+import org.apache.empire.exceptions.UnspecifiedErrorException;
 import org.apache.empire.jsf2.impl.FacesImplementation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,7 +49,7 @@ public abstract class PageDefinitions // *Deprecated* implements Serializable
     {
         if (instance!=null) 
         {
-            throw new MiscellaneousErrorException("PageDefintions alreday defined. Only one Instance allowed!");
+            throw new UnspecifiedErrorException("PageDefintions alreday defined. Only one Instance allowed!");
         }
         // init
         instance = this;
