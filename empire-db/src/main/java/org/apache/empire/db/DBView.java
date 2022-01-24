@@ -297,7 +297,7 @@ public abstract class DBView extends DBRowSet
      * 
      * @param col a view column object
      */
-    void addColumn(DBViewColumn col)
+    protected void addColumn(DBViewColumn col)
     { // find column by name
         if (col == null || col.getRowSet() != this)
             throw new InvalidArgumentException("col", col);

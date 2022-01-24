@@ -18,7 +18,6 @@
  */
 package org.apache.empire.dbms.oracle;
 
-import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.SQLException;
 
@@ -29,6 +28,7 @@ import org.apache.empire.db.validation.DBModelChecker;
 import org.apache.empire.db.validation.DBModelErrorHandler;
 import org.apache.empire.dbms.DBMSHandler;
 import org.apache.empire.dbms.oracle.DBMSHandlerOracle.BooleanType;
+import org.apache.empire.exceptions.InvalidArgumentException;
 import org.apache.empire.exceptions.InvalidPropertyException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,11 +41,11 @@ public class OracleDBModelChecker extends DBModelChecker
     private static final Logger log = LoggerFactory.getLogger(OracleDBModelChecker.class);
     
     private BooleanType booleanType = BooleanType.NUMBER;
-
-    @Override
-    public void checkModel(DBDatabase db, Connection conn, String dbSchema, DBModelErrorHandler handler)
+    
+    public OracleDBModelChecker(DBDatabase db, String schemaName)
     {
-        // Get boolean type from dbms
+        super(db, null, schemaName);
+        // Detect boolean type
         DBMSHandler dbms = db.getDbms();
         if (dbms instanceof DBMSHandlerOracle)
         {
@@ -53,31 +53,29 @@ public class OracleDBModelChecker extends DBModelChecker
         }
         else
         {   // Illegal DBMSHandler
-            log.warn("The database is not attached to a DBMSHandlerOracle");
+            log.error("The database is not attached to a DBMSHandlerOracle");
+            throw new InvalidArgumentException("db", db);
         }
-        // check now
-        super.checkModel(db, conn, dbSchema, handler);
-        
     }
 
     /**
      * collects all column information at once
      */
     @Override
-    protected int collectColumns(DatabaseMetaData dbMeta, String dbSchema)
+    protected int collectColumns(DatabaseMetaData dbMeta)
             throws SQLException
     {
-        return super.collectColumns(dbMeta, dbSchema, null);
+        return super.collectColumns(dbMeta, null);
     }
 
     /**
      * collects all foreign keys at once
      */
     @Override
-    protected int collectForeignKeys(DatabaseMetaData dbMeta, String dbSchema)
+    protected int collectForeignKeys(DatabaseMetaData dbMeta)
             throws SQLException
     {
-        return super.collectForeignKeys(dbMeta, dbSchema, null);
+        return super.collectForeignKeys(dbMeta, null);
     }
     
     @Override

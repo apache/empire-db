@@ -46,11 +46,12 @@ import org.apache.empire.db.exceptions.EmpireSQLException;
 import org.apache.empire.db.exceptions.QueryNoResultException;
 import org.apache.empire.db.expr.column.DBValueExpr;
 import org.apache.empire.db.validation.DBModelChecker;
+import org.apache.empire.dbms.DBMSFeature;
 import org.apache.empire.dbms.DBMSHandler;
 import org.apache.empire.dbms.DBMSHandlerBase;
-import org.apache.empire.dbms.DBMSFeature;
 import org.apache.empire.dbms.DBSqlPhrase;
 import org.apache.empire.exceptions.InvalidArgumentException;
+import org.apache.empire.exceptions.InvalidPropertyException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -76,6 +77,8 @@ public class DBMSHandlerOracle extends DBMSHandlerBase
     private BooleanType booleanType = BooleanType.NUMBER;
     
     private DBDDLGenerator<?> ddlGenerator = null; // lazy creation
+    
+    private String schemaName;
 
     /**
      * Constructor for the Oracle database dbms.<br>
@@ -109,6 +112,16 @@ public class DBMSHandlerOracle extends DBMSHandlerBase
     {
         this.booleanType = booleanType;
         log.info("DBDatabaseDriverOracle Boolean Type set to " + booleanType);
+    }
+
+    public String getSchemaName()
+    {
+        return schemaName;
+    }
+
+    public void setSchemaName(String schemaName)
+    {
+        this.schemaName = schemaName;
     }
 
     /**
@@ -518,10 +531,14 @@ public class DBMSHandlerOracle extends DBMSHandlerBase
      * @return
      */
     @Override
-    public DBModelChecker createModelChecker()
+    public DBModelChecker createModelChecker(DBDatabase db)
     {
+        // detect schemaPattern
+        String schemaPattern = (db!=null ? StringUtils.coalesce(db.getSchema(), this.schemaName) : this.schemaName);
+        if (StringUtils.isEmpty(schemaPattern))
+            throw new InvalidPropertyException("schemaName", null);
         // the default model checker
-        return new OracleDBModelChecker();
+        return new OracleDBModelChecker(db, schemaPattern);
     }
 
 }

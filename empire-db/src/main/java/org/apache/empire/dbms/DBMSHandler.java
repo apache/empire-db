@@ -241,7 +241,7 @@ public interface DBMSHandler
      * Creates a DataModelChecker instance of this DBMSHandler
      * @return
      */
-    DBModelChecker createModelChecker();
+    DBModelChecker createModelChecker(DBDatabase db);
     
     /**
      * Extracts native error message of an sqlExeption.

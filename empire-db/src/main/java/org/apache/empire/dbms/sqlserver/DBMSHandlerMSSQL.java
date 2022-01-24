@@ -43,6 +43,7 @@ import org.apache.empire.dbms.DBMSFeature;
 import org.apache.empire.dbms.DBMSHandler;
 import org.apache.empire.dbms.DBMSHandlerBase;
 import org.apache.empire.dbms.DBSqlPhrase;
+import org.apache.empire.exceptions.InvalidPropertyException;
 import org.apache.empire.exceptions.NotSupportedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -541,10 +542,22 @@ public class DBMSHandlerMSSQL extends DBMSHandlerBase
      * @return
      */
     @Override
-    public DBModelChecker createModelChecker()
+    public DBModelChecker createModelChecker(DBDatabase db)
     {
+        // detect catalog
+        String catalog = (db!=null ? StringUtils.coalesce(db.getSchema(), this.databaseName) : this.databaseName);
+        if (StringUtils.isEmpty(catalog))
+            throw new InvalidPropertyException("databaseName", null);
+        // dtect schema
+        String schema = "DBO";
+        int schemaSep = catalog.indexOf('.');
+        if (schemaSep>0)
+        {   // split catalog and schema
+            catalog = catalog.substring(schemaSep);
+            schema  = catalog.substring(schemaSep+1);
+        }
         // the default model checker
-        return new MSSqlDBModelChecker();
+        return new MSSqlDBModelChecker(db, catalog, schema);
     }
 
 }

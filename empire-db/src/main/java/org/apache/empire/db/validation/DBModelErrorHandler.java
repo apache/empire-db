@@ -25,7 +25,6 @@ import org.apache.empire.db.DBObject;
 
 public interface DBModelErrorHandler
 {
-
     /**
      * This method is called when an object (e. g. table or column) is missing in
      * the database.
@@ -34,6 +33,15 @@ public interface DBModelErrorHandler
      *            The missing object
      */
     void itemNotFound(DBObject dbo);
+
+    /**
+     * This method is called when an object (e. g. table or column) is missing in
+     * the database.
+     * 
+     * @param dbo
+     *            The missing object
+     */
+    void objectTypeMismatch(DBObject object, String name, Class<?> expectedType);
 
     /**
      * This method is called when a column in a primary key of the Empire-db definition

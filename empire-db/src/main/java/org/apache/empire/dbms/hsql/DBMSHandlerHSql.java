@@ -32,6 +32,7 @@ import org.apache.empire.db.DBObject;
 import org.apache.empire.db.DBSQLScript;
 import org.apache.empire.db.DBTableColumn;
 import org.apache.empire.db.exceptions.QueryNoResultException;
+import org.apache.empire.db.validation.DBModelChecker;
 import org.apache.empire.dbms.DBMSHandler;
 import org.apache.empire.dbms.DBMSHandlerBase;
 import org.apache.empire.dbms.DBMSFeature;
@@ -291,6 +292,17 @@ public class DBMSHandlerHSql extends DBMSHandlerBase
             ddlGenerator = new HSqlDDLGenerator(this);
         // forward request
         ddlGenerator.getDDLScript(type, dbo, script); 
+    }
+
+    /**
+     * Creates a DataModelChecker instance of this DBMSHandler
+     * @return
+     */
+    @Override
+    public DBModelChecker createModelChecker(DBDatabase db)
+    {
+        // the default model checker
+        return new DBModelChecker(db, "PUBLIC", "PUBLIC");
     }
     
 }

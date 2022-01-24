@@ -20,7 +20,6 @@ package org.apache.empire.samples.db.advanced;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
-import java.text.MessageFormat;
 import java.util.Date;
 import java.util.HashMap;
 
@@ -334,15 +333,14 @@ public class SampleAdvApp
     
     private static void checkDataModel()
     {
-        DBModelChecker modelChecker = context.getDbms().createModelChecker();
+        DBModelChecker modelChecker = context.getDbms().createModelChecker(db);
         // Check data model   
         log.info("Checking DataModel for {} using {}", db.getClass().getSimpleName(), modelChecker.getClass().getSimpleName());
         // dbo schema
         DBModelErrorLogger logger = new DBModelErrorLogger();
-        modelChecker.checkModel(db, context.getConnection(), "DBSAMPLEADV", logger);
+        modelChecker.checkModel(context.getConnection(), logger);
         // show result
-        String msg = MessageFormat.format("Data model check done. Found {0} errors and {1} warnings.", logger.getErrorCount(), logger.getWarnCount());
-        System.out.println(msg);
+        log.info("Data model check done. Found {} errors and {} warnings.", logger.getErrorCount(), logger.getWarnCount());
     }
 
     /**

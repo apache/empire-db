@@ -21,6 +21,8 @@ package org.apache.empire.dbms.sqlserver;
 import java.sql.DatabaseMetaData;
 import java.sql.SQLException;
 
+import org.apache.empire.commons.StringUtils;
+import org.apache.empire.db.DBDatabase;
 import org.apache.empire.db.validation.DBModelChecker;
 
 /**
@@ -30,27 +32,24 @@ import org.apache.empire.db.validation.DBModelChecker;
  */
 public class MSSqlDBModelChecker extends DBModelChecker
 {
-    
-    @Override
-    protected String getMetaCatalog(String dbSchema)
+    /**
+     * create a MSSqlDBModelChecker
+     * @param db the database 
+     * @param catalog the catalog
+     */
+    public MSSqlDBModelChecker(DBDatabase db, String catalog, String schema)
     {
-        return dbSchema;
-    }
-    
-    @Override
-    protected String getMetaSchemaPattern(String dbSchema)
-    {
-        return "DBO";
+        super(db, catalog, StringUtils.coalesce(schema, "DBO"));
     }
 
     /**
      * collects all column information at once
      */
     @Override
-    protected int collectColumns(DatabaseMetaData dbMeta, String dbSchema)
+    protected int collectColumns(DatabaseMetaData dbMeta)
             throws SQLException
     {
-        return super.collectColumns(dbMeta, dbSchema, null);
+        return super.collectColumns(dbMeta, null);
     }
     
 }

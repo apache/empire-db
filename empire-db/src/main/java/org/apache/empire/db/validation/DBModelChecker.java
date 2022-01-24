@@ -30,28 +30,99 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.empire.commons.StringUtils;
 import org.apache.empire.data.DataType;
 import org.apache.empire.db.DBColumn;
+import org.apache.empire.db.DBCommandExpr;
 import org.apache.empire.db.DBDatabase;
 import org.apache.empire.db.DBRelation;
 import org.apache.empire.db.DBRelation.DBReference;
+import org.apache.empire.db.DBRowSet;
 import org.apache.empire.db.DBTable;
 import org.apache.empire.db.DBTableColumn;
 import org.apache.empire.db.DBView;
+import org.apache.empire.exceptions.InternalException;
+import org.apache.empire.exceptions.InvalidArgumentException;
+import org.apache.empire.exceptions.NotSupportedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class DBModelChecker
 {
-    private static final Logger        log      = LoggerFactory.getLogger(DBModelChecker.class);
+    private static final Logger log = LoggerFactory.getLogger(DBModelChecker.class);
 
+    /**
+     * The remote Database
+     * This will be populated by the ModelChecker
+     */
     private static class RemoteDatabase extends DBDatabase
     {
-        // *Deprecated* private static final long serialVersionUID = 1L;
+        /*
+         * Will be dynamically populated
+         */
+    }
+    
+    private static class RemoteView extends DBView
+    {
+        public RemoteView(String name, DBDatabase db)
+        {
+            super(name, db);
+        }
+
+        public DBColumn addColumn(String columnName, DataType dataType, double size, boolean dummy)
+        {
+            return super.addColumn(columnName, dataType, size);
+        }
+        
+        @Override
+        public DBCommandExpr createCommand()
+        {
+            throw new NotSupportedException(this, "createCommand");
+        }
     }
 
-    private final Map<String, DBTable> tableMap = new HashMap<String, DBTable>();
-    private final DBDatabase           remoteDb = new RemoteDatabase();
+    protected final DBDatabase db; // the database to check
+    protected final String catalog;
+    protected final String schemaPattern;
+
+    protected final String remoteName;
+    protected DBDatabase remoteDb = null;  /* will be recreated on every call to checkModel */
+
+    protected final Map<String, DBRowSet> tableMap = new HashMap<String, DBRowSet>();
+    
+    /**
+     * Creates a new Model Checker
+     * @param catalog
+     * @param schemaPattern
+     */
+    public DBModelChecker(DBDatabase db, String catalog, String schemaPattern)
+    {
+        this.db = db;
+        this.catalog = catalog;
+        this.schemaPattern = schemaPattern;
+        // set origin
+        StringBuilder b = new StringBuilder();
+        if (StringUtils.isNotEmpty(catalog))
+            b.append(catalog);
+        if (StringUtils.isNotEmpty(schemaPattern))
+        {   if (b.length()>0)
+                b.append(".");
+            b.append(schemaPattern);
+        }
+        if (b.length()==0)
+            b.append("[Unknown]");
+        this.remoteName = b.toString();
+    }
+
+    /**
+     * Returns the RemoteDatabase
+     * Only available after checkModel() is called 
+     * @return the remote Database
+     */
+    public DBDatabase getRemoteDatabase()
+    {
+        return remoteDb;
+    }
     
     /**
      * This method is used to check the database model
@@ -66,59 +137,59 @@ public class DBModelChecker
      *            The {@link DBModelErrorHandler} implementation that is called whenever an error
      *            occurs
      */
-    public synchronized void checkModel(DBDatabase db, Connection conn, String dbSchema, DBModelErrorHandler handler)
+    public synchronized void checkModel(Connection conn, DBModelErrorHandler handler)
     {
         try
-        {
+        {   // the chandler
+            if (handler==null && db!=null)
+                throw new InvalidArgumentException("handler", handler);
+            
+            // create remote db instance
+            remoteDb = new RemoteDatabase();
+            
             DatabaseMetaData dbMeta = conn.getMetaData();
+            populateRemoteDatabase(dbMeta);
 
-            // collect tables & views
-            int count = collectTables(dbMeta, dbSchema);
-            log.info("{} tables and views added for schema {}", count, dbSchema);
-
-            // Collect all columns
-            count = collectColumns(dbMeta, dbSchema);
-            log.info("{} columns added for schema {}", count, dbSchema);
-
-            // Collect PKs
-            count = collectPrimaryKeys(dbMeta, dbSchema);
-            log.info("{} primary keys added for schema {}", count, dbSchema);
-
-            // Collect FKs
-            count = collectForeignKeys(dbMeta, dbSchema);
-            log.info("{} foreign keys added for schema {}", count, dbSchema);
-
-            // check Tables
-            for (DBTable table : db.getTables())
-            {
-                checkTable(table, handler);
-            }
-
-            // check Views
-            for (DBView view : db.getViews())
-            {
-                checkView(view, conn, handler);
-            }
+            // if db is null then populate only
+            if (db==null)
+                return;
+            
+            // now check the database
+            checkDatabase(handler);
         }
         catch (SQLException e)
         {
-            e.printStackTrace();
+            log.error("checkModel failed for {}", remoteName);
+            throw new InternalException(e);
         } 
     }
 
-    /*
-     * overridables
+    protected void populateRemoteDatabase(DatabaseMetaData dbMeta)
+        throws SQLException
+    {
+        // collect tables & views
+        int count = collectTablesAndViews(dbMeta, null);
+        log.info("{} tables and views added for schema \"{}\"", count, remoteName);
+
+        // Collect all columns
+        count = collectColumns(dbMeta);
+        log.info("{} columns added for schema \"{}\"", count, remoteName);
+
+        // Collect PKs
+        count = collectPrimaryKeys(dbMeta);
+        log.info("{} primary keys added for schema \"{}\"", count, remoteName);
+
+        // Collect FKs
+        count = collectForeignKeys(dbMeta);
+        log.info("{} foreign keys added for schema \"{}\"", count, remoteName);
+    }
+
+    /**
+     * Checks if the tableName belongs to a system or hidden table
+     * @param tableName the table name
+     * @param tableMeta the table meta
+     * @return true if the table is hidden or false otherwise
      */
-    protected String getMetaCatalog(String dbSchema)
-    {
-        return null;
-    }
-    
-    protected String getMetaSchemaPattern(String dbSchema)
-    {
-        return dbSchema;
-    }
-    
     protected boolean isSystemTable(String tableName, ResultSet tableMeta)
     {   // system tables containing a '$' symbol (required for Oracle!)
         return (tableName.indexOf('$') >= 0);
@@ -130,22 +201,27 @@ public class DBModelChecker
      * @param dbSchema
      * @throws SQLException
      */
-    protected int collectTables(DatabaseMetaData dbMeta, String dbSchema)
+    protected int collectTablesAndViews(DatabaseMetaData dbMeta, String tablePattern)
         throws SQLException
     {
-        ResultSet dbTables = dbMeta.getTables(getMetaCatalog(dbSchema), getMetaSchemaPattern(dbSchema), null, new String[] { "TABLE", "VIEW" });
+        tableMap.clear();
+        ResultSet dbTables = dbMeta.getTables(catalog, schemaPattern, tablePattern, new String[] { "TABLE", "VIEW" });
         try {
             // ResultSet dbTables = dbMeta.getTables("PATOOL", "DBO", null, new String[] { "TABLE", "VIEW" });
             int count = 0;
             while (dbTables.next())
             {
                 String tableName = dbTables.getString("TABLE_NAME");
+                String tableType = dbTables.getString("TABLE_TYPE");
                 if (isSystemTable(tableName, dbTables))
                 {   // ignore system table
                     DBModelChecker.log.info("Ignoring system table " + tableName);
                     continue;
                 }
-                addTable(tableName);
+                if ("VIEW".equalsIgnoreCase(tableType))
+                    addView(tableName);
+                else
+                    addTable(tableName);
                 count++;
             }
             return count;
@@ -157,13 +233,13 @@ public class DBModelChecker
     /**
      * collects column information from database meta data for each table
      */
-    protected int collectColumns(DatabaseMetaData dbMeta, String dbSchema)
+    protected int collectColumns(DatabaseMetaData dbMeta)
             throws SQLException
     {
         int count = 0;
-        for (DBTable t : getTables())
+        for (DBRowSet t : getTables())
         {
-            ResultSet dbColumns = dbMeta.getColumns(getMetaCatalog(dbSchema), getMetaSchemaPattern(dbSchema), t.getName(), null);
+            ResultSet dbColumns = dbMeta.getColumns(catalog, schemaPattern, t.getName(), null);
             try {
                 while (dbColumns.next())
                 {   // add the column
@@ -180,16 +256,16 @@ public class DBModelChecker
     /**
      * collects column information from database meta data for whole schema
      */
-    protected int collectColumns(DatabaseMetaData dbMeta, String dbSchema, String tablePattern)
+    protected int collectColumns(DatabaseMetaData dbMeta, String tablePattern)
         throws SQLException
     {
-        ResultSet dbColumns = dbMeta.getColumns(getMetaCatalog(dbSchema), getMetaSchemaPattern(dbSchema), tablePattern, null);
+        ResultSet dbColumns = dbMeta.getColumns(catalog, schemaPattern, tablePattern, null);
         try {
             int count = 0;
             while (dbColumns.next())
             {
                 String tableName = dbColumns.getString("TABLE_NAME");
-                DBTable t = getTable(tableName);
+                DBRowSet t = getTable(tableName);
                 if (t == null)
                 {   log.error("Table not found: {}", tableName);
                     continue;
@@ -209,14 +285,18 @@ public class DBModelChecker
      * @param dbSchema
      * @throws SQLException
      */
-    protected int collectPrimaryKeys(DatabaseMetaData dbMeta, String dbSchema)
+    protected int collectPrimaryKeys(DatabaseMetaData dbMeta)
         throws SQLException
     {
         int count = 0;
-        for (DBTable t : getTables())
+        for (DBRowSet rs : getTables())
         {
+            if (!(rs instanceof DBTable))
+                continue; // not a table
+            // read pk
+            DBTable t = (DBTable)rs;
             List<String> pkCols = new ArrayList<String>();
-            ResultSet primaryKeys = dbMeta.getPrimaryKeys(getMetaCatalog(dbSchema), getMetaSchemaPattern(dbSchema), t.getName());
+            ResultSet primaryKeys = dbMeta.getPrimaryKeys(catalog, schemaPattern, t.getName());
             try {
                 while (primaryKeys.next())
                 {
@@ -243,13 +323,14 @@ public class DBModelChecker
      * collects foreign key information from database meta data
      * @throws SQLException
      */
-    protected int collectForeignKeys(DatabaseMetaData dbMeta, String dbSchema)
+    protected int collectForeignKeys(DatabaseMetaData dbMeta)
             throws SQLException
     {
         int count = 0;
-        for (DBTable t : getTables())
+        for (DBRowSet t : getTables())
         {
-            count += collectForeignKeys(dbMeta, dbSchema, t.getName());
+            if (t instanceof DBTable)
+                count += collectForeignKeys(dbMeta, t.getName());
         }
         return count;
     }
@@ -258,10 +339,10 @@ public class DBModelChecker
      * collects foreign key information from database meta data
      * @throws SQLException
      */
-    protected int collectForeignKeys(DatabaseMetaData dbMeta, String dbSchema, String tablePattern)
+    protected int collectForeignKeys(DatabaseMetaData dbMeta, String tablePattern)
         throws SQLException
     {
-        ResultSet foreignKeys = dbMeta.getImportedKeys(getMetaCatalog(dbSchema), getMetaSchemaPattern(dbSchema), tablePattern);
+        ResultSet foreignKeys = dbMeta.getImportedKeys(catalog, schemaPattern, tablePattern);
         try {
             int count = 0;
             while (foreignKeys.next())
@@ -305,22 +386,38 @@ public class DBModelChecker
         }
     }
 
+    protected void checkDatabase(DBModelErrorHandler handler)
+    {
+        // check Tables
+        for (DBTable table : db.getTables())
+        {
+            checkTable(table, handler);
+        }
+
+        // check Views
+        for (DBView view : db.getViews())
+        {
+            checkView(view, handler);
+        }
+    }
+
     protected void checkTable(DBTable table, DBModelErrorHandler handler)
     {
-        DBTable remoteTable = getTable(table.getName());
-
+        DBRowSet remoteTable = getTable(table.getName());
         if (remoteTable == null)
-        {
+        {   // Not found
             handler.itemNotFound(table);
             return;
         }
-
+        if (!(remoteTable instanceof DBTable))
+        {   // Not a DBTable
+            handler.objectTypeMismatch(remoteTable, table.getName(), DBTable.class);
+            return;
+        }
         // Check primary Key
-        checkPrimaryKey(table, remoteTable, handler);
-
+        checkPrimaryKey(table, (DBTable)remoteTable, handler);
         // check foreign keys
-        checkForeignKeys(table, remoteTable, handler);
-
+        checkForeignKeys(table, (DBTable)remoteTable, handler);
         // Check Columns
         for (DBColumn column : table.getColumns())
         {
@@ -418,16 +515,18 @@ public class DBModelChecker
 
     }
 
-    protected void checkView(DBView view, Connection conn, DBModelErrorHandler handler)
+    protected void checkView(DBView view, DBModelErrorHandler handler)
     {
-        DBTable remoteView = getTable(view.getName());
-
+        DBRowSet remoteView = getTable(view.getName());
         if (remoteView == null)
         {
             handler.itemNotFound(view);
             return;
         }
-
+        if (!(remoteView instanceof DBView))
+        {
+            handler.objectTypeMismatch(remoteView, view.getName(), DBView.class);
+        }
         for (DBColumn column : view.getColumns())
         {
             DBColumn remoteColumn = remoteView.getColumn(column.getName());
@@ -616,12 +715,12 @@ public class DBModelChecker
     /*
      * internal methods
      */
-    protected final Collection<DBTable> getTables()
+    protected final Collection<DBRowSet> getTables()
     {
         return this.tableMap.values();
     }
     
-    protected final DBTable getTable(String tableName)
+    protected final DBRowSet getTable(String tableName)
     {
         return this.tableMap.get(tableName.toUpperCase());
     }
@@ -631,12 +730,17 @@ public class DBModelChecker
         this.tableMap.put(tableName.toUpperCase(), new DBTable(tableName, this.remoteDb));
     }
     
+    protected void addView(String viewName)
+    {
+        this.tableMap.put(viewName.toUpperCase(), new RemoteView(viewName, this.remoteDb));
+    }
+    
     protected void addRelation(String relName, DBReference... references)
     {
         this.remoteDb.addRelation(relName, references);
     }
     
-    protected DBTableColumn addColumn(DBTable t, ResultSet rs)
+    protected DBColumn addColumn(DBRowSet t, ResultSet rs)
         throws SQLException
     {
         String name = rs.getString("COLUMN_NAME");
@@ -709,16 +813,29 @@ public class DBModelChecker
         // some AUTOINC meta data to the column to be used by
         // the ParserUtil and ultimately the template.
         //        DBModelChecker.log.info("\tCOLUMN:\t" + name + " (" + empireType + ")");
-        DBTableColumn col = t.addColumn(name, empireType, colSize, required, defaultValue);
-
-        // We still need to know the base data type for this AUTOINC
-        // because the Record g/setters need to know this, right?
-        // So, let's add it as meta data every time the column is AUTOINC
-        // and reference it in the template.
-        if (empireType.equals(DataType.AUTOINC))
+        DBColumn col;
+        if (t instanceof DBTable)
         {
-            col.setAttribute("AutoIncDataType", originalType);
+            col = ((DBTable)t).addColumn(name, empireType, colSize, required, defaultValue);
+            // We still need to know the base data type for this AUTOINC
+            // because the Record g/setters need to know this, right?
+            // So, let's add it as meta data every time the column is AUTOINC
+            // and reference it in the template.
+            if (empireType.equals(DataType.AUTOINC))
+            {
+                col.setAttribute("AutoIncDataType", originalType);
+            }
         }
+        else if (t instanceof RemoteView)
+        {
+           col = ((RemoteView)t).addColumn(name, empireType, colSize, false);
+        }
+        else
+        {   // Unknown type
+            log.error("Unknown Object Type {}", t.getClass().getName());
+            col = null;
+        }
+        // done
         return col;
 
     }

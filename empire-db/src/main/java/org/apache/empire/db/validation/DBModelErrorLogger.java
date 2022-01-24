@@ -90,6 +90,18 @@ public class DBModelErrorLogger implements DBModelErrorHandler
     }
 
     /**
+     * handle objectTypeMismatch errors
+     */
+    @Override
+    public void objectTypeMismatch(DBObject object, String name, Class<?> expectedType)
+    {
+        // log
+        DBModelErrorLogger.log.error("The oboject \"{}\" type of {} does not match the expected type of {}.", name, object.getClass().getSimpleName(), expectedType.getSimpleName());
+        // increase count
+        errorCount++;
+    }
+
+    /**
      * handle columnTypeMismatch errors
      */
     @Override

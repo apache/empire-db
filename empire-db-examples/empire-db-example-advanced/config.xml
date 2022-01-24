@@ -104,7 +104,7 @@
 		<!-- Empire-db driver configuration -->
 		<dbmsHandlerClass>org.apache.empire.dbms.oracle.DBMSHandlerOracle</dbmsHandlerClass>
 		<dbmsHandlerProperites>
-			<!-- no properties -->
+			<schemaName>DBSAMPLEADV</schemaName>
 		</dbmsHandlerProperites>
 	</properties-oracle>
 
