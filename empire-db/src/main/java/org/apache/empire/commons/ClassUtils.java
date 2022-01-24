@@ -23,10 +23,12 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
+import org.apache.commons.beanutils.ConstructorUtils;
 import org.apache.empire.exceptions.EmpireException;
 import org.apache.empire.exceptions.InternalException;
 import org.apache.empire.exceptions.InvalidArgumentException;
@@ -178,6 +180,44 @@ public final class ClassUtils
             log.error("Unable to modify private field '"+property+"* on class '"+clazz.getName()+"'", e);
             throw new InternalException(e);
         }
+    }
+
+    /**
+     * copied from org.apache.commons.beanutils.ConstructorUtils since it's private there
+     */
+    public static Constructor<?> findMatchingAccessibleConstructor(Class<?> clazz, Class<?>[] parameterTypes)
+    {
+        // search through all constructors 
+        int paramSize = parameterTypes.length;
+        Constructor<?>[] ctors = clazz.getConstructors();
+        for (int i = 0, size = ctors.length; i < size; i++)
+        {   // compare parameters
+            Class<?>[] ctorParams = ctors[i].getParameterTypes();
+            int ctorParamSize = ctorParams.length;
+            if (ctorParamSize == paramSize)
+            {   // Param Size matches
+                boolean match = true;
+                for (int n = 0; n < ctorParamSize; n++)
+                {
+                    if (!ObjectUtils.isAssignmentCompatible(ctorParams[n], parameterTypes[n]))
+                    {
+                        match = false;
+                        break;
+                    }
+                }
+                if (match) {
+                    // get accessible version of method
+                    Constructor<?> ctor = ConstructorUtils.getAccessibleConstructor(ctors[i]);
+                    if (ctor != null) {
+                        try {
+                            ctor.setAccessible(true);
+                        } catch (SecurityException se) { /* ignore */ }
+                        return ctor;
+                    }
+                }
+            }
+        }
+        return null;
     }
     
     /**

@@ -18,6 +18,7 @@
  */
 package org.apache.empire.db;
 
+import java.io.Closeable;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.sql.Connection;
@@ -31,7 +32,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.beanutils.ConstructorUtils;
+import org.apache.empire.commons.ClassUtils;
 import org.apache.empire.commons.ObjectUtils;
 import org.apache.empire.data.ColumnExpr;
 import org.apache.empire.data.DataType;
@@ -41,8 +42,8 @@ import org.apache.empire.db.exceptions.QueryNoResultException;
 import org.apache.empire.db.expr.join.DBJoinExpr;
 import org.apache.empire.exceptions.BeanInstantiationException;
 import org.apache.empire.exceptions.InvalidArgumentException;
-import org.apache.empire.exceptions.UnspecifiedErrorException;
 import org.apache.empire.exceptions.ObjectNotValidException;
+import org.apache.empire.exceptions.UnspecifiedErrorException;
 import org.apache.empire.xml.XMLUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -72,7 +73,7 @@ import org.w3c.dom.Element;
  *
  *
  */
-public class DBReader extends DBRecordData implements DBContextAware
+public class DBReader extends DBRecordData implements DBContextAware, Closeable
 {
     // *Deprecated* private static final long serialVersionUID = 1L;
   
@@ -509,13 +510,12 @@ public class DBReader extends DBRecordData implements DBContextAware
         try
         { // Dispose iterator
             if (iterator != null)
-            {
-                iterator.dispose();
+            {   iterator.dispose();
                 iterator = null;
             }
-            // Close Recordset
+            // Close JDBC-Resultset
             if (rset != null)
-            {
+            {   // call driver
                 context.getDriver().closeResultSet(rset);
                 // remove from tracking-list
                 endTrackingThisResultSet();
@@ -659,7 +659,7 @@ public class DBReader extends DBRecordData implements DBContextAware
         DBRowSet rowset = rec.getRowSet();
     	rowset.initRecord(rec, this, null);
     }
-
+    
     /**
      * Returns the result of a query as a list of objects restricted
      * to a maximum number of objects (unless maxCount is -1).
@@ -680,21 +680,16 @@ public class DBReader extends DBRecordData implements DBContextAware
         }
         // Query List
         try
-        {
-            // Check whether we can use a constructor
-            Class<?>[] paramTypes = new Class[getFieldCount()];
-            for (int i = 0; i < colList.length; i++)
-                paramTypes[i] = DBExpr.getValueClass(colList[i].getDataType()); 
-            // Find Constructor
-            Constructor<?> ctor = findMatchingAccessibleConstructor(t, paramTypes);
+        {   // Find Constructor
+            Constructor<?> ctor = findBeanConstructor(t);
             Object[] args = (ctor!=null) ? new Object[getFieldCount()] : null; 
+            Class<?>[] ctorParamTypes = (ctor!=null) ? ctor.getParameterTypes() : null;
             
             // Create a list of beans
             while (moveNext() && maxCount != 0)
             { // Create bean an init
                 if (ctor!=null)
                 {   // Use Constructor
-                    Class<?>[] ctorParamTypes = ctor.getParameterTypes();
                     for (int i = 0; i < getFieldCount(); i++)
                         args[i] = ObjectUtils.convert(ctorParamTypes[i], getValue(i));
                     T bean = (T)ctor.newInstance(args);
@@ -983,6 +978,23 @@ public class DBReader extends DBRecordData implements DBContextAware
     }
 
     /**
+     * Returns a constructor for a bean class for the set of parameters or null if no suitable constructor is found
+     * @param clazz the bean class
+     * @param parameterTypes
+     * @return a constructor for the readers columns or null if not suitable constructor is available
+     */
+    protected Constructor<?> findBeanConstructor(Class<?> beanClass)
+    {
+        // Check whether we can use a constructor
+        Class<?>[] paramTypes = new Class[getFieldCount()];
+        for (int i = 0; i < colList.length; i++)
+            paramTypes[i] = DBExpr.getValueClass(colList[i].getDataType()); 
+        // Find Constructor
+        Constructor<?> ctor = ClassUtils.findMatchingAccessibleConstructor(beanClass, paramTypes);
+        return ctor;
+    }
+
+    /**
      * Support for finding code errors where a DBRecordSet is opened but not closed.
      * 
      * @author bond
@@ -1031,56 +1043,6 @@ public class DBReader extends DBRecordData implements DBContextAware
         {
             openResultSets.remove(this);
         }
-    }
-
-    /**
-     * copied from org.apache.commons.beanutils.ConstructorUtils since it's private there
-     */
-    protected static Constructor<?> findMatchingAccessibleConstructor(Class<?> clazz, Class<?>[] parameterTypes)
-    {
-        // See if we can find the method directly
-        // probably faster if it works
-        // (I am not sure whether it's a good idea to run into Exceptions)
-        // try {
-        //     Constructor ctor = clazz.getConstructor(parameterTypes);
-        //     try {
-        //         // see comment in org.apache.commons.beanutils.ConstructorUtils
-        //         ctor.setAccessible(true);
-        //     } catch (SecurityException se) { /* ignore */ }
-        //     return ctor;
-        // } catch (NoSuchMethodException e) { /* SWALLOW */ }
-
-        // search through all constructors 
-        int paramSize = parameterTypes.length;
-        Constructor<?>[] ctors = clazz.getConstructors();
-        for (int i = 0, size = ctors.length; i < size; i++)
-        {   // compare parameters
-            Class<?>[] ctorParams = ctors[i].getParameterTypes();
-            int ctorParamSize = ctorParams.length;
-            if (ctorParamSize == paramSize)
-            {   // Param Size matches
-                boolean match = true;
-                for (int n = 0; n < ctorParamSize; n++)
-                {
-                    if (!ObjectUtils.isAssignmentCompatible(ctorParams[n], parameterTypes[n]))
-                    {
-                        match = false;
-                        break;
-                    }
-                }
-                if (match) {
-                    // get accessible version of method
-                    Constructor<?> ctor = ConstructorUtils.getAccessibleConstructor(ctors[i]);
-                    if (ctor != null) {
-                        try {
-                            ctor.setAccessible(true);
-                        } catch (SecurityException se) { /* ignore */ }
-                        return ctor;
-                    }
-                }
-            }
-        }
-        return null;
     }
 
     /**
