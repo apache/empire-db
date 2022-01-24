@@ -307,7 +307,6 @@ public final class ObjectUtils
         // Check empty
         if (ObjectUtils.isEmpty(v))
             return defValue;
-        // Try to convert
         try
         {   // Try to convert
             return toInteger(v);
@@ -358,7 +357,6 @@ public final class ObjectUtils
         // Check empty
         if (ObjectUtils.isEmpty(v))
             return defValue;
-        // Try to convert
         try
         {   // Try to convert
             return toLong(v);

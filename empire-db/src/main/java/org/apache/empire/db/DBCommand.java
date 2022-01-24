@@ -559,18 +559,48 @@ public abstract class DBCommand extends DBCommandExpr
         }
         joins.add(join);
     }
-    
+
     /**
-     * Adds a cross join for two tables or views 
-     * @param left the left RowSet
-     * @param right the right RowSet
-     * @return the join expression
+     * Adds an inner join based on two columns to the list of join expressions.
+     * 
+     * @param left the left join value
+     * @param right the right join
+     * 
+     * @return the join expresion 
      */
-    public final DBCrossJoinExpr join(DBRowSet left, DBRowSet right)
+    public final DBColumnJoinExpr join(DBColumnExpr left, DBColumn right)
     {
-        DBCrossJoinExpr join = new DBCrossJoinExpr(left, right);
-        join(join);
-        return join;
+        return join(left, right, DBJoinType.INNER);
+    }
+
+    /**
+     * Adds a left join based on two columns to the list of join expressions.
+     * Added for convenience
+     * Same as join(left, right, DBJoinType.LEFT);
+     * 
+     * @param left the left join value
+     * @param right the right join
+     * 
+     * @return the join expresion 
+     */
+    public final DBColumnJoinExpr leftJoin(DBColumnExpr left, DBColumn right)
+    {
+        return join(left, right, DBJoinType.LEFT);
+    }
+
+    /**
+     * Adds a right join based on two columns to the list of join expressions.
+     * Added for convenience
+     * Same as join(left, right, DBJoinType.RIGHT);
+     * 
+     * @param left the left join value
+     * @param right the right join
+     * 
+     * @return the join expresion 
+     */
+    public final DBColumnJoinExpr rightJoin(DBColumnExpr left, DBColumn right)
+    {
+        return join(left, right, DBJoinType.RIGHT);
     }
 
     /**
@@ -588,18 +618,18 @@ public abstract class DBCommand extends DBCommandExpr
         join(join);
         return join;
     }
-
+    
     /**
-     * Adds an inner join based on two columns to the list of join expressions.
-     * 
-     * @param left the left join value
-     * @param right the right join
-     * 
-     * @return the join expresion 
+     * Adds a cross join for two tables or views 
+     * @param left the left RowSet
+     * @param right the right RowSet
+     * @return the join expression
      */
-    public final DBColumnJoinExpr join(DBColumnExpr left, DBColumn right)
+    public final DBCrossJoinExpr join(DBRowSet left, DBRowSet right)
     {
-        return join(left, right, DBJoinType.INNER);
+        DBCrossJoinExpr join = new DBCrossJoinExpr(left, right);
+        join(join);
+        return join;
     }
 
     /**
