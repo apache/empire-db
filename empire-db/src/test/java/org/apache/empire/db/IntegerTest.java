@@ -27,16 +27,17 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.empire.data.DataType;
-import org.apache.empire.db.DBDDLGenerator.DDLAlterType;
+import org.apache.empire.db.DBDDLGenerator.DDLActionType;
 import org.apache.empire.db.context.DBContextStatic;
-import org.apache.empire.db.driver.derby.DBDatabaseDriverDerby;
-import org.apache.empire.db.driver.h2.DBDatabaseDriverH2;
-import org.apache.empire.db.driver.hsql.DBDatabaseDriverHSql;
-import org.apache.empire.db.driver.mysql.DBDatabaseDriverMySQL;
-import org.apache.empire.db.driver.oracle.DBDatabaseDriverOracle;
-import org.apache.empire.db.driver.postgresql.DBDatabaseDriverPostgreSQL;
-import org.apache.empire.db.driver.sqlite.DBDatabaseDriverSQLite;
-import org.apache.empire.db.driver.sqlserver.DBDatabaseDriverMSSQL;
+import org.apache.empire.dbms.DBMSHandler;
+import org.apache.empire.dbms.derby.DBMSHandlerDerby;
+import org.apache.empire.dbms.h2.DBMSHandlerH2;
+import org.apache.empire.dbms.hsql.DBMSHandlerHSql;
+import org.apache.empire.dbms.mysql.DBMSHandlerMySQL;
+import org.apache.empire.dbms.oracle.DBMSHandlerOracle;
+import org.apache.empire.dbms.postgresql.DBMSHandlerPostgreSQL;
+import org.apache.empire.dbms.sqlite.DBMSHandlerSQLite;
+import org.apache.empire.dbms.sqlserver.DBMSHandlerMSSQL;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -106,11 +107,11 @@ public class IntegerTest {
 
         Connection connection = getJDBCConnection(config);
 
-        DBDatabaseDriver driver = getDatabaseDriver(config, connection);
-        DBContext context = new DBContextStatic(driver, connection); 
+        DBMSHandler dbmsHandler = getDBMSHandler(config, connection);
+        DBContext context = new DBContextStatic(dbmsHandler, connection); 
 
         database.open(context);
-        createDatabase(database, driver, context);
+        createDatabase(database, context);
 
         DBRecord maxRec = new DBRecord(context, database.SAMPLE);
         maxRec.create();
@@ -146,55 +147,55 @@ public class IntegerTest {
         return conn;
     }
 
-    private DBDatabaseDriver getDatabaseDriver(SampleConfig config, Connection conn) {
+    private DBMSHandler getDBMSHandler(SampleConfig config, Connection conn) {
         if (config.databaseProvider.equalsIgnoreCase("sqlite")) {
-            DBDatabaseDriverSQLite driver = new DBDatabaseDriverSQLite();
-            return driver;
+            DBMSHandlerSQLite dbms = new DBMSHandlerSQLite();
+            return dbms;
         }
         if (config.databaseProvider.equalsIgnoreCase("mysql")) {
-            DBDatabaseDriverMySQL driver = new DBDatabaseDriverMySQL();
-            driver.setDatabaseName(config.schemaName);
-            return driver;
+            DBMSHandlerMySQL dbms = new DBMSHandlerMySQL();
+            dbms.setDatabaseName(config.schemaName);
+            return dbms;
         }
         if (config.databaseProvider.equalsIgnoreCase("oracle")) {
-            DBDatabaseDriverOracle driver = new DBDatabaseDriverOracle();
-            return driver;
+            DBMSHandlerOracle dbms = new DBMSHandlerOracle();
+            return dbms;
         }
         if (config.databaseProvider.equalsIgnoreCase("sqlserver")) {
-            DBDatabaseDriverMSSQL driver = new DBDatabaseDriverMSSQL();
-            driver.setDatabaseName(config.schemaName);
-            return driver;
+            DBMSHandlerMSSQL dbms = new DBMSHandlerMSSQL();
+            dbms.setDatabaseName(config.schemaName);
+            return dbms;
         }
         if (config.databaseProvider.equalsIgnoreCase("hsqldb")) {
-            DBDatabaseDriverHSql driver = new DBDatabaseDriverHSql();
-            return driver;
+            DBMSHandlerHSql dbms = new DBMSHandlerHSql();
+            return dbms;
         }
         if (config.databaseProvider.equalsIgnoreCase("postgresql")) {
-            DBDatabaseDriverPostgreSQL driver = new DBDatabaseDriverPostgreSQL();
-            driver.setDatabaseName(config.schemaName);
-            return driver;
+            DBMSHandlerPostgreSQL dbms = new DBMSHandlerPostgreSQL();
+            dbms.setDatabaseName(config.schemaName);
+            return dbms;
         }
         if (config.databaseProvider.equalsIgnoreCase("h2")) {
-            DBDatabaseDriverH2 driver = new DBDatabaseDriverH2();
-            driver.setDatabaseName(config.schemaName);
-            return driver;
+            DBMSHandlerH2 dbms = new DBMSHandlerH2();
+            dbms.setDatabaseName(config.schemaName);
+            return dbms;
         }
         if (config.databaseProvider.equalsIgnoreCase("derby")) {
-            DBDatabaseDriverDerby driver = new DBDatabaseDriverDerby();
-            driver.setDatabaseName(config.schemaName);
-            return driver;
+            DBMSHandlerDerby dbms = new DBMSHandlerDerby();
+            dbms.setDatabaseName(config.schemaName);
+            return dbms;
         }
 
         throw new RuntimeException("Unknown Database Provider " + config.databaseProvider);
     }
 
-    private void createDatabase(DBDatabase db, DBDatabaseDriver driver, DBContext context) {
+    private void createDatabase(DBDatabase db, DBContext context) {
         // try to remove previously existing tables
         List<String> tables = getTableNames(db, context.getConnection());
         DBSQLScript script2 = new DBSQLScript(context);
         for(DBTable table:db.getTables()){
             if(tables.contains(table.getName())){
-                db.getDriver().getDDLScript(DDLAlterType.DROP, table, script2);
+                db.getDbms().getDDLScript(DDLActionType.DROP, table, script2);
             }
         }
         script2.executeAll(false);

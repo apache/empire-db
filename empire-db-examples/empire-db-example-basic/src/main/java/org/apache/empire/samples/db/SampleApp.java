@@ -27,17 +27,17 @@ import org.apache.empire.data.bean.BeanResult;
 import org.apache.empire.db.DBColumnExpr;
 import org.apache.empire.db.DBCommand;
 import org.apache.empire.db.DBContext;
-import org.apache.empire.db.DBDatabaseDriver;
 import org.apache.empire.db.DBQuery;
 import org.apache.empire.db.DBReader;
 import org.apache.empire.db.DBRecord;
 import org.apache.empire.db.DBRowSet.PartialMode;
 import org.apache.empire.db.DBSQLScript;
 import org.apache.empire.db.context.DBContextStatic;
-import org.apache.empire.db.driver.derby.DBDatabaseDriverDerby;
-import org.apache.empire.db.driver.h2.DBDatabaseDriverH2;
-import org.apache.empire.db.driver.hsql.DBDatabaseDriverHSql;
-import org.apache.empire.db.driver.postgresql.DBDatabaseDriverPostgreSQL;
+import org.apache.empire.dbms.DBMSHandler;
+import org.apache.empire.dbms.derby.DBMSHandlerDerby;
+import org.apache.empire.dbms.h2.DBMSHandlerH2;
+import org.apache.empire.dbms.hsql.DBMSHandlerHSql;
+import org.apache.empire.dbms.postgresql.DBMSHandlerPostgreSQL;
 import org.apache.empire.samples.db.SampleDB.Gender;
 import org.apache.empire.xml.XMLWriter;
 import org.slf4j.Logger;
@@ -84,12 +84,12 @@ public class SampleApp
 			
 			Connection conn = getJDBCConnection();
 
-			// STEP 2: Choose a driver
+			// STEP 2: Choose a DBMSHandler
 			System.out.println("*** Step 2: getDatabaseProvider() ***");
-			DBDatabaseDriver driver = getDatabaseDriver(config.getDatabaseProvider(), conn);
+			DBMSHandler dbms = getDBMSHandler(config.getDatabaseProvider(), conn);
 			
             // STEP 2.2: Create a Context
-			context = new DBContextStatic(driver, conn, true, true); 
+			context = new DBContextStatic(dbms, conn, true, true); 
 
             // STEP 3: Open Database (and create if not existing)
             System.out.println("*** Step 3: openDatabase() ***");
@@ -104,12 +104,12 @@ public class SampleApp
                 // STEP 4: Create Database
                 System.out.println("*** Step 4: createDDL() ***");
                 // postgre does not support DDL in transaction
-                if(db.getDriver() instanceof DBDatabaseDriverPostgreSQL)
+                if(db.getDbms() instanceof DBMSHandlerPostgreSQL)
                 {
                 	conn.setAutoCommit(true);
                 }
                 createDatabase();
-                if(db.getDriver() instanceof DBDatabaseDriverPostgreSQL)
+                if(db.getDbms() instanceof DBMSHandlerPostgreSQL)
                 {
                 	conn.setAutoCommit(false);
                 }
@@ -214,30 +214,30 @@ public class SampleApp
 	}
 
 	/**
-	 * Creates an Empire-db DatabaseDriver for the given provider and applies driver specific configuration 
+	 * Creates an Empire-db DatabaseDriver for the given provider and applies dbms specific configuration 
 	 */
-    private static DBDatabaseDriver getDatabaseDriver(String provider, Connection conn)
+    private static DBMSHandler getDBMSHandler(String provider, Connection conn)
     {
         try
         {   // Get Driver Class Name
-            String driverClassName = config.getEmpireDBDriverClass();
-            if (StringUtils.isEmpty(driverClassName))
-                throw new RuntimeException("Configuration error: Element 'empireDBDriverClass' not found in node 'properties-"+provider+"'");
+            String dbmsHandlerClass = config.getDbmsHandlerClass();
+            if (StringUtils.isEmpty(dbmsHandlerClass))
+                throw new RuntimeException("Configuration error: Element 'dbmsHandlerClass' not found in node 'properties-"+provider+"'");
 
-            // Create driver
-            DBDatabaseDriver driver = (DBDatabaseDriver) Class.forName(driverClassName).newInstance();
+            // Create dbms
+            DBMSHandler dbms = (DBMSHandler) Class.forName(dbmsHandlerClass).newInstance();
 
-            // Configure driver
-            config.readProperties(driver, "properties-"+provider, "empireDBDriverProperites");
+            // Configure dbms
+            config.readProperties(dbms, "properties-"+provider, "dbmsHandlerProperites");
 
             // Special cases
-            if (driver instanceof DBDatabaseDriverPostgreSQL)
+            if (dbms instanceof DBMSHandlerPostgreSQL)
             {   // Create the reverse function that is needed by this sample
-                ((DBDatabaseDriverPostgreSQL)driver).createReverseFunction(conn);
+                ((DBMSHandlerPostgreSQL)dbms).createReverseFunction(conn);
             }
 
             // done
-            return driver;
+            return dbms;
             
         } catch (Exception e)
         {   // catch any checked exception and forward it
@@ -546,9 +546,9 @@ public class SampleApp
         // e.g. substr(PHONE_NUMBER, length(PHONE_NUMBER)-instr(reverse(PHONE_NUMBER), '-')+2) AS PHONE_EXTENSION
         // Hint: Since the reverse() function is not supported by HSQLDB there is special treatment for HSQL
         DBColumnExpr PHONE_LAST_DASH;
-        if ( db.getDriver() instanceof DBDatabaseDriverHSql 
-        		|| db.getDriver() instanceof DBDatabaseDriverDerby
-        		|| db.getDriver() instanceof DBDatabaseDriverH2)
+        if ( db.getDbms() instanceof DBMSHandlerHSql 
+        		|| db.getDbms() instanceof DBMSHandlerDerby
+        		|| db.getDbms() instanceof DBMSHandlerH2)
              PHONE_LAST_DASH = EMP.PHONE_NUMBER.indexOf("-", EMP.PHONE_NUMBER.indexOf("-").plus(1)).plus(1); // HSQLDB only
         else PHONE_LAST_DASH = EMP.PHONE_NUMBER.length().minus(EMP.PHONE_NUMBER.reverse().indexOf("-")).plus(2);  
         DBColumnExpr PHONE_EXT_NUMBER = EMP.PHONE_NUMBER.substring(PHONE_LAST_DASH).as("PHONE_EXTENSION");
@@ -566,10 +566,10 @@ public class SampleApp
 
         /*
         // Example for limitRows() and skipRows()
-        if (db.getDriver().isSupported(DBDriverFeature.QUERY_LIMIT_ROWS))
+        if (db.getDbms().isSupported(DBMSFeature.QUERY_LIMIT_ROWS))
         {	// set maximum number of rows
         	cmd.limitRows(20);
-            if (db.getDriver().isSupported(DBDriverFeature.QUERY_SKIP_ROWS))
+            if (db.getDbms().isSupported(DBMSFeature.QUERY_SKIP_ROWS))
                 cmd.skipRows(1);
         }
         */

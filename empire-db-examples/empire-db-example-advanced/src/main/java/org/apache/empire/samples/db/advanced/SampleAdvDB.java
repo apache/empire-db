@@ -216,7 +216,7 @@ public class SampleAdvDB extends DBDatabase
             // ID
             C_EMPLOYEE_ID     = addColumn(T_EMP.C_EMPLOYEE_ID);
             C_CURRENT_DEP_ID  = addColumn("CURRENT_DEP_ID", T_DEP.C_DEPARTMENT_ID); 
-            C_NAME_AND_DEP    = addColumn("NAME_AND_DEP", DataType.VARCHAR);
+            C_NAME_AND_DEP    = addColumn("NAME_AND_DEP",   DataType.VARCHAR);
 
             // set Key-column (if any)
             setKeyColumn(C_EMPLOYEE_ID);

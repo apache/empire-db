@@ -73,16 +73,20 @@ public class DBModelChecker
             DatabaseMetaData dbMeta = conn.getMetaData();
 
             // collect tables & views
-            collectTables(dbMeta, dbSchema, null);
+            int count = collectTables(dbMeta, dbSchema);
+            log.info("{} tables and views added for schema {}", count, dbSchema);
 
             // Collect all columns
-            collectColumns(dbMeta, dbSchema, null);
+            count = collectColumns(dbMeta, dbSchema);
+            log.info("{} columns added for schema {}", count, dbSchema);
 
             // Collect PKs
-            collectPrimaryKeys(dbMeta, dbSchema, null);
+            count = collectPrimaryKeys(dbMeta, dbSchema);
+            log.info("{} primary keys added for schema {}", count, dbSchema);
 
             // Collect FKs
-            collectForeignKeys(dbMeta, dbSchema, null);
+            count = collectForeignKeys(dbMeta, dbSchema);
+            log.info("{} foreign keys added for schema {}", count, dbSchema);
 
             // check Tables
             for (DBTable table : db.getTables())
@@ -126,122 +130,178 @@ public class DBModelChecker
      * @param dbSchema
      * @throws SQLException
      */
-    protected void collectTables(DatabaseMetaData dbMeta, String dbSchema, String tablePattern)
+    protected int collectTables(DatabaseMetaData dbMeta, String dbSchema)
         throws SQLException
     {
         ResultSet dbTables = dbMeta.getTables(getMetaCatalog(dbSchema), getMetaSchemaPattern(dbSchema), null, new String[] { "TABLE", "VIEW" });
-        // ResultSet dbTables = dbMeta.getTables("PATOOL", "DBO", null, new String[] { "TABLE", "VIEW" });
-        int count = 0;
-        while (dbTables.next())
-        {
-            String tableName = dbTables.getString("TABLE_NAME");
-            if (isSystemTable(tableName, dbTables))
-            {   // ignore system table
-                DBModelChecker.log.info("Ignoring system table " + tableName);
-                continue;
+        try {
+            // ResultSet dbTables = dbMeta.getTables("PATOOL", "DBO", null, new String[] { "TABLE", "VIEW" });
+            int count = 0;
+            while (dbTables.next())
+            {
+                String tableName = dbTables.getString("TABLE_NAME");
+                if (isSystemTable(tableName, dbTables))
+                {   // ignore system table
+                    DBModelChecker.log.info("Ignoring system table " + tableName);
+                    continue;
+                }
+                addTable(tableName);
+                count++;
             }
-            addTable(tableName);
-            count++;
+            return count;
+        } finally {
+            dbTables.close();
         }
-        log.info("{} tables added for schema {}", count, dbSchema);
     }
 
     /**
-     * collects column information from database meta data
-     * @param dbMeta
-     * @param dbSchema
-     * @throws SQLException
+     * collects column information from database meta data for each table
      */
-    protected void collectColumns(DatabaseMetaData dbMeta, String dbSchema, String tablePattern)
-        throws SQLException
+    protected int collectColumns(DatabaseMetaData dbMeta, String dbSchema)
+            throws SQLException
     {
-        ResultSet dbColumns = dbMeta.getColumns(getMetaCatalog(dbSchema), getMetaSchemaPattern(dbSchema), null, null);
-        while (dbColumns.next())
+        int count = 0;
+        for (DBTable t : getTables())
         {
-            String tableName = dbColumns.getString("TABLE_NAME");
-            DBTable t = getTable(tableName);
-            if (t == null)
-            {
-                DBModelChecker.log.error("Table not found: {}", tableName);
-                continue;
+            ResultSet dbColumns = dbMeta.getColumns(getMetaCatalog(dbSchema), getMetaSchemaPattern(dbSchema), t.getName(), null);
+            try {
+                while (dbColumns.next())
+                {   // add the column
+                    addColumn(t, dbColumns);
+                    count++;
+                }
+            } finally {
+                dbColumns.close();
             }
-            addColumn(t, dbColumns);
         }
+        return count;
     }
 
+    /**
+     * collects column information from database meta data for whole schema
+     */
+    protected int collectColumns(DatabaseMetaData dbMeta, String dbSchema, String tablePattern)
+        throws SQLException
+    {
+        ResultSet dbColumns = dbMeta.getColumns(getMetaCatalog(dbSchema), getMetaSchemaPattern(dbSchema), tablePattern, null);
+        try {
+            int count = 0;
+            while (dbColumns.next())
+            {
+                String tableName = dbColumns.getString("TABLE_NAME");
+                DBTable t = getTable(tableName);
+                if (t == null)
+                {   log.error("Table not found: {}", tableName);
+                    continue;
+                }
+                addColumn(t, dbColumns);
+                count++;
+            }
+            return count;
+        } finally {
+            dbColumns.close();
+        }
+    }
+    
     /**
      * collects primary key information from database meta data
      * @param dbMeta
      * @param dbSchema
      * @throws SQLException
      */
-    protected void collectPrimaryKeys(DatabaseMetaData dbMeta, String dbSchema, String tablePattern)
+    protected int collectPrimaryKeys(DatabaseMetaData dbMeta, String dbSchema)
         throws SQLException
     {
+        int count = 0;
         for (DBTable t : getTables())
         {
             List<String> pkCols = new ArrayList<String>();
             ResultSet primaryKeys = dbMeta.getPrimaryKeys(getMetaCatalog(dbSchema), getMetaSchemaPattern(dbSchema), t.getName());
-            while (primaryKeys.next())
-            {
-                pkCols.add(primaryKeys.getString("COLUMN_NAME"));
-            }
-            if (pkCols.size() > 0)
-            {
-                DBColumn[] keys = new DBColumn[pkCols.size()];
-                for (int i = 0; i < keys.length; i++)
+            try {
+                while (primaryKeys.next())
                 {
-                    keys[i] = t.getColumn(pkCols.get(i).toUpperCase());
+                    pkCols.add(primaryKeys.getString("COLUMN_NAME"));
                 }
-                t.setPrimaryKey(keys);
+                if (pkCols.size() > 0)
+                {
+                    DBColumn[] keys = new DBColumn[pkCols.size()];
+                    for (int i = 0; i < keys.length; i++)
+                    {
+                        keys[i] = t.getColumn(pkCols.get(i).toUpperCase());
+                    }
+                    t.setPrimaryKey(keys);
+                    count++;
+                }
+            } finally {
+                primaryKeys.close();
             }
         }
+        return count;
     }
 
     /**
      * collects foreign key information from database meta data
-     * @param dbMeta
-     * @param dbSchema
      * @throws SQLException
      */
-    protected void collectForeignKeys(DatabaseMetaData dbMeta, String dbSchema, String tablePattern)
+    protected int collectForeignKeys(DatabaseMetaData dbMeta, String dbSchema)
+            throws SQLException
+    {
+        int count = 0;
+        for (DBTable t : getTables())
+        {
+            count += collectForeignKeys(dbMeta, dbSchema, t.getName());
+        }
+        return count;
+    }
+    
+    /**
+     * collects foreign key information from database meta data
+     * @throws SQLException
+     */
+    protected int collectForeignKeys(DatabaseMetaData dbMeta, String dbSchema, String tablePattern)
         throws SQLException
     {
         ResultSet foreignKeys = dbMeta.getImportedKeys(getMetaCatalog(dbSchema), getMetaSchemaPattern(dbSchema), tablePattern);
-        while (foreignKeys.next())
-        {
-            String fkTable = foreignKeys.getString("FKTABLE_NAME");
-            String fkColumn = foreignKeys.getString("FKCOLUMN_NAME");
-
-            String pkTable = foreignKeys.getString("PKTABLE_NAME");
-            String pkColumn = foreignKeys.getString("PKCOLUMN_NAME");
-
-            String fkName = foreignKeys.getString("FK_NAME");
-
-            DBTableColumn c1 = (DBTableColumn) getTable(fkTable).getColumn(fkColumn.toUpperCase());
-            DBTableColumn c2 = (DBTableColumn) getTable(pkTable).getColumn(pkColumn.toUpperCase());
-
-            DBRelation relation = this.remoteDb.getRelation(fkName);
-            if (relation == null)
+        try {
+            int count = 0;
+            while (foreignKeys.next())
             {
-                addRelation(fkName, c1.referenceOn(c2));
-            }
-            else
-            {
-                // get existing references
-                DBReference[] refs = relation.getReferences();
-                // remove old
-                this.remoteDb.removeRelation(relation);
-                DBReference[] newRefs = new DBReference[refs.length + 1];
-                // copy existing
-                DBReference newRef = new DBReference(c1, c2);
-                for (int i = 0; i < refs.length; i++)
+                String fkTable = foreignKeys.getString("FKTABLE_NAME");
+                String fkColumn = foreignKeys.getString("FKCOLUMN_NAME");
+
+                String pkTable = foreignKeys.getString("PKTABLE_NAME");
+                String pkColumn = foreignKeys.getString("PKCOLUMN_NAME");
+
+                String fkName = foreignKeys.getString("FK_NAME");
+
+                DBTableColumn c1 = (DBTableColumn) getTable(fkTable).getColumn(fkColumn.toUpperCase());
+                DBTableColumn c2 = (DBTableColumn) getTable(pkTable).getColumn(pkColumn.toUpperCase());
+
+                DBRelation relation = this.remoteDb.getRelation(fkName);
+                if (relation == null)
                 {
-                    newRefs[i] = refs[i];
+                    addRelation(fkName, c1.referenceOn(c2));
+                    count++;
                 }
-                newRefs[newRefs.length - 1] = newRef;
-                addRelation(fkName, newRefs);
+                else
+                {   // get existing references
+                    DBReference[] refs = relation.getReferences();
+                    // remove old
+                    this.remoteDb.removeRelation(relation);
+                    DBReference[] newRefs = new DBReference[refs.length + 1];
+                    // copy existing
+                    DBReference newRef = new DBReference(c1, c2);
+                    for (int i = 0; i < refs.length; i++)
+                    {
+                        newRefs[i] = refs[i];
+                    }
+                    newRefs[newRefs.length - 1] = newRef;
+                    addRelation(fkName, newRefs);
+                }
             }
+            return count;
+        } finally {
+            foreignKeys.close();
         }
     }
 
@@ -454,7 +514,12 @@ public class DBModelChecker
 
     protected void checkColumnSize(DBColumn column, DBColumn remoteColumn, DBModelErrorHandler handler)
     {
-        if (((int) column.getSize() != (int) remoteColumn.getSize()))
+        int colSize = (int) column.getSize();
+        if (colSize== 0)
+        {   // When size is 0, don't check
+            return; 
+        }
+        if (colSize != (int) remoteColumn.getSize())
         {
             handler.columnSizeMismatch(column, (int) remoteColumn.getSize(), 0);
         }
@@ -611,10 +676,10 @@ public class DBModelChecker
             required = true;
         }
 
-        // The following is a hack for MySQL which currently gets sent a string "CURRENT_TIMESTAMP" from the Empire-db driver for MySQL.
-        // This will avoid the driver problem because CURRENT_TIMESTAMP in the db will just do the current datetime.
+        // The following is a hack for MySQL which currently gets sent a string "CURRENT_TIMESTAMP" from the Empire-db dbms for MySQL.
+        // This will avoid the dbms problem because CURRENT_TIMESTAMP in the db will just do the current datetime.
         // Essentially, Empire-db needs the concept of default values of one type that get mapped to another.
-        // In this case, MySQL "CURRENT_TIMESTAMP" for Types.TIMESTAMP needs to emit from the Empire-db driver the null value and not "CURRENT_TIMESTAMP".
+        // In this case, MySQL "CURRENT_TIMESTAMP" for Types.TIMESTAMP needs to emit from the Empire-db dbms the null value and not "CURRENT_TIMESTAMP".
         if (rs.getInt("DATA_TYPE") == Types.TIMESTAMP && defaultValue != null && defaultValue.equals("CURRENT_TIMESTAMP"))
         {
             required = false; // It is in fact not required even though MySQL schema is required because it has a default value. Generally, should Empire-db emit (required && defaultValue != null) to truly determine if a column is required?

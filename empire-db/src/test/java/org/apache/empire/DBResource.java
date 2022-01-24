@@ -23,14 +23,14 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.sql.Statement;
 
-import org.apache.empire.db.DBDatabaseDriver;
 import org.apache.empire.db.DBTools;
-import org.apache.empire.db.driver.derby.DBDatabaseDriverDerby;
-import org.apache.empire.db.driver.h2.DBDatabaseDriverH2;
-import org.apache.empire.db.driver.hsql.DBDatabaseDriverHSql;
-import org.apache.empire.db.driver.postgresql.DBDatabaseDriverPostgreSQL;
-import org.apache.empire.db.driver.sqlite.DBDatabaseDriverSQLite;
-import org.apache.empire.db.driver.sqlserver.DBDatabaseDriverMSSQL;
+import org.apache.empire.dbms.DBMSHandler;
+import org.apache.empire.dbms.derby.DBMSHandlerDerby;
+import org.apache.empire.dbms.h2.DBMSHandlerH2;
+import org.apache.empire.dbms.hsql.DBMSHandlerHSql;
+import org.apache.empire.dbms.postgresql.DBMSHandlerPostgreSQL;
+import org.apache.empire.dbms.sqlite.DBMSHandlerSQLite;
+import org.apache.empire.dbms.sqlserver.DBMSHandlerMSSQL;
 import org.junit.rules.ExternalResource;
 
 public class DBResource extends ExternalResource
@@ -44,10 +44,10 @@ public class DBResource extends ExternalResource
         this.db = db;
     }
     
-    public DBDatabaseDriver newDriver(){
+    public DBMSHandler newDriver(){
         try
         {
-            return db.driver.newInstance();
+            return db.dbms.newInstance();
         } 
         catch (InstantiationException e)
         {
@@ -101,49 +101,49 @@ public class DBResource extends ExternalResource
         SQLITE(
                 "org.sqlite.JDBC", 
                 "jdbc:sqlite::memory:",
-                DBDatabaseDriverSQLite.class),
+                DBMSHandlerSQLite.class),
         HSQL(
              "org.hsqldb.jdbcDriver", 
              "jdbc:hsqldb:mem:data/derby/test",
-             DBDatabaseDriverHSql.class),
+             DBMSHandlerHSql.class),
         DERBY(
               "org.apache.derby.jdbc.EmbeddedDriver", 
               "jdbc:derby:memory:data/derby/test;create=true",
-              DBDatabaseDriverDerby.class),
+              DBMSHandlerDerby.class),
         H2(
               "org.h2.Driver", 
               "jdbc:h2:mem:data/h2/test",
-              DBDatabaseDriverH2.class),
+              DBMSHandlerH2.class),
         POSTGRESQL(
               "org.postgresql.Driver", 
               "jdbc:postgresql://localhost",
-              DBDatabaseDriverPostgreSQL.class,
+              DBMSHandlerPostgreSQL.class,
               "postgres",
               "postgres"),
         MSSQL(
               "com.microsoft.sqlserver.jdbc.SQLServerDriver", 
               "jdbc:sqlserver://localhost:1433",
-              DBDatabaseDriverMSSQL.class),
+              DBMSHandlerMSSQL.class),
         MSSQL_JTDS(
               // http://jtds.sourceforge.net/faq.html#driverImplementation
               "net.sourceforge.jtds.jdbc.Driver",
               "jdbc:jtds:sqlserver://localhost/databasename;instance=sqlexpress;domain=mydomain",
-              DBDatabaseDriverMSSQL.class);
+              DBMSHandlerMSSQL.class);
 
         private final String jdbcClass;
         private final String jdbcURL;
         private final String username;
         private final String password;
-        private final Class<? extends DBDatabaseDriver> driver;
+        private final Class<? extends DBMSHandler> dbms;
         
-        private DB(final String jdbcClass, final String jdbcURL, final Class<? extends DBDatabaseDriver> driver)
+        private DB(final String jdbcClass, final String jdbcURL, final Class<? extends DBMSHandler> dbms)
         {
-            this(jdbcClass, jdbcURL, driver, null, null);
+            this(jdbcClass, jdbcURL, dbms, null, null);
         }
         
-        private DB(final String jdbcClass, final String jdbcURL, final Class<? extends DBDatabaseDriver> driver, final String username, final String password)
+        private DB(final String jdbcClass, final String jdbcURL, final Class<? extends DBMSHandler> dbms, final String username, final String password)
         {
-            this.driver = driver;
+            this.dbms = dbms;
             this.jdbcClass = jdbcClass;
             this.jdbcURL = jdbcURL;
             this.username = username;

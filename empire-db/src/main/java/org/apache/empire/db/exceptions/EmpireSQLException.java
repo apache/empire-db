@@ -21,8 +21,8 @@ package org.apache.empire.db.exceptions;
 import java.sql.SQLException;
 
 import org.apache.empire.commons.ErrorType;
-import org.apache.empire.db.DBDatabaseDriver;
 import org.apache.empire.db.DBObject;
+import org.apache.empire.dbms.DBMSHandler;
 import org.apache.empire.exceptions.EmpireException;
 
 public class EmpireSQLException extends EmpireException
@@ -33,25 +33,25 @@ public class EmpireSQLException extends EmpireException
     
     private final String nativeErrorMessage;
 
-    protected static String messageFromSQLException(DBDatabaseDriver driver, SQLException sqle)
+    protected static String messageFromSQLException(DBMSHandler dbms, SQLException sqle)
     {   // Set the error Message
-        return (driver!=null ? driver.extractErrorMessage(sqle) : sqle.getMessage());
+        return (dbms!=null ? dbms.extractErrorMessage(sqle) : sqle.getMessage());
     }
 
-	protected static DBDatabaseDriver driverFromObject(DBObject obj)
+	protected static DBMSHandler handlerFromObject(DBObject obj)
     {   // Set the error Message
-        return (obj.getDatabase()!=null ? obj.getDatabase().getDriver() : (DBDatabaseDriver)null);
+        return (obj.getDatabase()!=null ? obj.getDatabase().getDbms() : (DBMSHandler)null);
     }
     
-    public EmpireSQLException(DBDatabaseDriver driver, SQLException cause)
+    public EmpireSQLException(DBMSHandler dbms, SQLException cause)
     {
-        super(errorType, new String[] { messageFromSQLException(driver, cause) }, cause );
+        super(errorType, new String[] { messageFromSQLException(dbms, cause) }, cause );
         nativeErrorMessage = this.getErrorParams()[0];
     }
     
     public EmpireSQLException(DBObject obj, SQLException cause)
     {
-        this(driverFromObject(obj), cause);
+        this(handlerFromObject(obj), cause);
     }
     
     // Derived classes only

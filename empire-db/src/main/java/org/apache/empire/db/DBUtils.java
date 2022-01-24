@@ -16,6 +16,7 @@ import org.apache.empire.db.exceptions.ConstraintViolationException;
 import org.apache.empire.db.exceptions.QueryFailedException;
 import org.apache.empire.db.exceptions.QueryNoResultException;
 import org.apache.empire.db.exceptions.StatementFailedException;
+import org.apache.empire.dbms.DBMSHandler;
 import org.apache.empire.exceptions.InternalException;
 import org.apache.empire.exceptions.InvalidArgumentException;
 import org.apache.empire.exceptions.UnexpectedReturnValueException;
@@ -31,8 +32,8 @@ public class DBUtils implements DBContextAware
     protected long longRunndingStmtThreshold = 30000;
     // the context
     protected final DBContext context;
-    // the driver
-    protected final DBDatabaseDriver driver;
+    // the dbms
+    protected final DBMSHandler dbms;
     
     /**
      * Constructs an empty DBRecordSet object.
@@ -41,7 +42,7 @@ public class DBUtils implements DBContextAware
     public DBUtils(DBContext context)
     {
         this.context = context;
-        this.driver = context.getDriver();
+        this.dbms = context.getDbms();
     }
 
     /**
@@ -64,7 +65,7 @@ public class DBUtils implements DBContextAware
      * @param setGenKeys object to set the generated keys for
      * @return the row count for insert, update or delete or 0 for SQL statements that return nothing
      */
-    public int executeSQL(String sqlCmd, Object[] sqlParams, DBDatabaseDriver.DBSetGenKeys setGenKeys)
+    public int executeSQL(String sqlCmd, Object[] sqlParams, DBMSHandler.DBSetGenKeys setGenKeys)
     {
         try 
         {   // Debug
@@ -72,10 +73,10 @@ public class DBUtils implements DBContextAware
                 log.info("Executing: " + sqlCmd);
             // execute SQL
             long start = System.currentTimeMillis();
-            int affected = driver.executeSQL(sqlCmd, sqlParams, context.getConnection(), setGenKeys);
+            int affected = dbms.executeSQL(sqlCmd, sqlParams, context.getConnection(), setGenKeys);
             // number of affected records
             if (affected < 0)
-                throw new UnexpectedReturnValueException(affected, "driver.executeSQL()");
+                throw new UnexpectedReturnValueException(affected, "dbms.executeSQL()");
             // Log
             long execTime = (System.currentTimeMillis() - start);
             if (log.isInfoEnabled())
@@ -87,10 +88,10 @@ public class DBUtils implements DBContextAware
             
         } catch (SQLIntegrityConstraintViolationException sqle) {
             // ConstraintViolation
-            throw new ConstraintViolationException(driver, sqlCmd, sqle);
+            throw new ConstraintViolationException(dbms, sqlCmd, sqle);
         } catch (SQLException sqle) {
             // Other error
-            throw new StatementFailedException(driver, sqlCmd, sqle);
+            throw new StatementFailedException(dbms, sqlCmd, sqle);
         }    
     }
 
@@ -112,7 +113,7 @@ public class DBUtils implements DBContextAware
         if (log.isDebugEnabled())
             log.debug("Executing: " + sqlCmd);
         // Read value
-        Object result = driver.querySingleValue(sqlCmd, sqlParams, dataType, context.getConnection());
+        Object result = dbms.querySingleValue(sqlCmd, sqlParams, dataType, context.getConnection());
         if (result==ObjectUtils.NO_VALUE)
         {   // Query returned no result
             if (forceResult)
@@ -309,14 +310,14 @@ public class DBUtils implements DBContextAware
             if (log.isDebugEnabled())
                 log.debug("Executing: " + sqlCmd);
             // Get the next Value
-            rs = driver.executeQuery(sqlCmd, sqlParams, false, context.getConnection());
+            rs = dbms.executeQuery(sqlCmd, sqlParams, false, context.getConnection());
             if (rs == null)
-                throw new UnexpectedReturnValueException(rs, "driver.executeQuery()");
+                throw new UnexpectedReturnValueException(rs, "dbms.executeQuery()");
             // Check Result
             int count=0;
             while (rs.next() && (maxRows<0 || count<maxRows))
             {   
-                T item = ObjectUtils.convert(c, driver.getResultValue(rs, 1, dataType));
+                T item = ObjectUtils.convert(c, dbms.getResultValue(rs, 1, dataType));
                 result.add(item);
                 count++;
             }
@@ -333,10 +334,10 @@ public class DBUtils implements DBContextAware
             throw new InternalException(e);
         } catch (SQLException sqle) 
         {   // Error
-            throw new QueryFailedException(driver, sqlCmd, sqle);
+            throw new QueryFailedException(dbms, sqlCmd, sqle);
         } finally
         { // Cleanup
-            driver.closeResultSet(rs);
+            dbms.closeResultSet(rs);
         }
     }
     
@@ -401,9 +402,9 @@ public class DBUtils implements DBContextAware
             if (log.isDebugEnabled())
                 log.debug("Executing: " + sqlCmd);
             // Get the next Value
-            rs = driver.executeQuery(sqlCmd, sqlParams, false, context.getConnection());
+            rs = dbms.executeQuery(sqlCmd, sqlParams, false, context.getConnection());
             if (rs == null)
-                throw new UnexpectedReturnValueException(rs, "driver.executeQuery()");
+                throw new UnexpectedReturnValueException(rs, "dbms.executeQuery()");
             if (rs.getMetaData().getColumnCount()<2)
                 throw new InvalidArgumentException("sqlCmd", sqlCmd);
             // Check Result
@@ -425,10 +426,10 @@ public class DBUtils implements DBContextAware
             return count;
         } catch (SQLException sqle) 
         {   // Error
-            throw new QueryFailedException(driver, sqlCmd, sqle);
+            throw new QueryFailedException(dbms, sqlCmd, sqle);
         } finally
         { // Cleanup
-            driver.closeResultSet(rs);
+            dbms.closeResultSet(rs);
         }
     }
     
@@ -476,9 +477,9 @@ public class DBUtils implements DBContextAware
             if (log.isDebugEnabled())
                 log.debug("Executing: " + sqlCmd);
             // Get the next Value
-            rs = driver.executeQuery(sqlCmd, sqlParams, false, context.getConnection());
+            rs = dbms.executeQuery(sqlCmd, sqlParams, false, context.getConnection());
             if (rs == null)
-                throw new UnexpectedReturnValueException(rs, "driver.executeQuery()");
+                throw new UnexpectedReturnValueException(rs, "dbms.executeQuery()");
             // Read List
             int colCount = rs.getMetaData().getColumnCount();
             int count = 0;
@@ -487,7 +488,7 @@ public class DBUtils implements DBContextAware
                 Object[] item = new Object[colCount];
                 for (int i=0; i<colCount; i++)
                 {   // Read from Resultset
-                    item[i] = driver.getResultValue(rs, i+1, DataType.UNKNOWN);
+                    item[i] = dbms.getResultValue(rs, i+1, DataType.UNKNOWN);
                 }
                 result.add(item);
                 count++;
@@ -502,10 +503,10 @@ public class DBUtils implements DBContextAware
             return count;
         } catch (SQLException sqle) 
         {   // Error
-            throw new QueryFailedException(driver, sqlCmd, sqle);
+            throw new QueryFailedException(dbms, sqlCmd, sqle);
         } finally
         { // Cleanup
-            driver.closeResultSet(rs);
+            dbms.closeResultSet(rs);
         }
     } 
 
@@ -574,7 +575,7 @@ public class DBUtils implements DBContextAware
      * Instead of using this function directly you should use a DBReader object instead.<BR>
      * <P>
      * @param sqlCmd the SQL-Command
-     * @param sqlParams a list of parameters for parameter queries (may depend on driver)
+     * @param sqlParams a list of parameters for parameter queries (may depend on dbms)
      * @param scrollable true if the reader should be scrollable or false if not
      * @return the JDBC ResutSet
      */
@@ -586,9 +587,9 @@ public class DBUtils implements DBContextAware
                 log.debug("Executing: " + sqlCmd);
             // Execute the Statement
             long start = System.currentTimeMillis();
-            ResultSet rs = driver.executeQuery(sqlCmd, sqlParams, scrollable, context.getConnection());
+            ResultSet rs = dbms.executeQuery(sqlCmd, sqlParams, scrollable, context.getConnection());
             if (rs == null)
-                throw new UnexpectedReturnValueException(rs, "driver.executeQuery()");
+                throw new UnexpectedReturnValueException(rs, "dbms.executeQuery()");
             // Debug
             long queryTime = (System.currentTimeMillis() - start);
             if (log.isDebugEnabled())
@@ -600,9 +601,8 @@ public class DBUtils implements DBContextAware
 
         } catch (SQLException sqle) 
         {   // Error
-            throw new QueryFailedException(driver, sqlCmd, sqle);
+            throw new QueryFailedException(dbms, sqlCmd, sqle);
         } 
     }
-
 
 }

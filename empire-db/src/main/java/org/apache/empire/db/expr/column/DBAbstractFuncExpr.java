@@ -26,7 +26,7 @@ import org.apache.empire.data.DataType;
 import org.apache.empire.db.DBColumn;
 import org.apache.empire.db.DBColumnExpr;
 import org.apache.empire.db.DBDatabase;
-import org.apache.empire.db.DBDatabaseDriver;
+import org.apache.empire.dbms.DBMSHandler;
 import org.apache.empire.exceptions.InvalidArgumentException;
 import org.apache.empire.xml.XMLUtil;
 import org.slf4j.Logger;
@@ -71,13 +71,13 @@ public abstract class DBAbstractFuncExpr extends DBColumnExpr
     protected abstract String getFunctionName();
     
     /**
-     * returns the Database driver or null if the Expression is not attached to an open database<BR>
+     * returns the Database dbms or null if the Expression is not attached to an open database<BR>
      * This function is intended for convenience only.
      */
-    protected final DBDatabaseDriver getDatabaseDriver()
+    protected final DBMSHandler getDbms()
     {
         DBDatabase db = getDatabase();
-        return (db!=null) ? db.getDriver() : null;
+        return (db!=null) ? db.getDbms() : null;
     }
 
     /**

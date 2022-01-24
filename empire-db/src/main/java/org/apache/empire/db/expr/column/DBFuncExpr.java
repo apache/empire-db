@@ -25,7 +25,7 @@ import org.apache.empire.data.DataType;
 import org.apache.empire.db.DBColumn;
 import org.apache.empire.db.DBColumnExpr;
 import org.apache.empire.db.DBExpr;
-import org.apache.empire.db.driver.DBSqlPhrase;
+import org.apache.empire.dbms.DBSqlPhrase;
 
 
 /**
@@ -53,7 +53,7 @@ public class DBFuncExpr extends DBAbstractFuncExpr
      * Do not use directly - use any of the DBColumnExpr.??? factory functions instead!
      * 
      * The sql function string is built from a string template.
-     * The template string is identified by the phrase param and obtained from the driver. 
+     * The template string is identified by the phrase param and obtained from the dbms. 
      * 
      * @param expr the DBColumnExpr object
      * @param phrase the SQL-phrase
@@ -97,8 +97,8 @@ public class DBFuncExpr extends DBAbstractFuncExpr
     protected String getFunctionName()
     {
         // Get the template
-        if (template==null && getDatabaseDriver()!=null)
-            template = getDatabaseDriver().getSQLPhrase(phrase);
+        if (template==null && getDbms()!=null)
+            template = getDbms().getSQLPhrase(phrase);
         // Get the first word
         if (template!=null)
         {
@@ -143,7 +143,7 @@ public class DBFuncExpr extends DBAbstractFuncExpr
     {
         // Get the template
         if (template==null)
-            template = getDatabaseDriver().getSQLPhrase(phrase);
+            template = getDbms().getSQLPhrase(phrase);
         // Add SQL
         super.addSQL(sql, template, params, context);
     }

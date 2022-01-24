@@ -83,7 +83,7 @@ public abstract class DBContextBase implements DBContext
     @Override
     public final DBCommand createCommand(DBDatabase db)
     {
-        return getDriver().createCommand(db);
+        return getDbms().createCommand(db);
     }
 
     /**
@@ -169,7 +169,7 @@ public abstract class DBContextBase implements DBContext
             return;
         } catch (SQLException sqle) { 
             // Commit failed!
-            throw new EmpireSQLException(getDriver(), sqle);
+            throw new EmpireSQLException(getDbms(), sqle);
         }
     }
 
@@ -201,7 +201,7 @@ public abstract class DBContextBase implements DBContext
             return;
         } catch (SQLException sqle) { 
             // Commit failed!
-            throw new EmpireSQLException(getDriver(), sqle);
+            throw new EmpireSQLException(getDbms(), sqle);
         }
     }
     
@@ -261,7 +261,7 @@ public abstract class DBContextBase implements DBContext
             conn.close();
         } catch (SQLException sqle) { 
             // Commit failed!
-            throw new EmpireSQLException(getDriver(), sqle);
+            throw new EmpireSQLException(getDbms(), sqle);
         }
     }
     

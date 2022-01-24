@@ -32,10 +32,10 @@
 		<jdbcUser>sa</jdbcUser>
 		<jdbcPwd></jdbcPwd>
 		<!-- Empire-db driver configuration -->
-		<empireDBDriverClass>org.apache.empire.db.driver.hsql.DBDatabaseDriverHSql</empireDBDriverClass>
-		<empireDBDriverProperites>
+		<dbmsHandlerClass>org.apache.empire.dbms.hsql.DBMSHandlerHSql</dbmsHandlerClass>
+		<dbmsHandlerProperites>
 			<!-- no properties -->
-		</empireDBDriverProperites>
+		</dbmsHandlerProperites>
 	</properties-hsqldb>
 
 	<properties-mysql>
@@ -46,10 +46,10 @@
 		<jdbcUser>root</jdbcUser>
 		<jdbcPwd>esteam</jdbcPwd>
 		<!-- Empire-db driver configuration -->
-		<empireDBDriverClass>org.apache.empire.db.driver.mysql.DBDatabaseDriverMySQL</empireDBDriverClass>
-		<empireDBDriverProperites>
+		<dbmsHandlerClass>org.apache.empire.dbms.mysql.DBMSHandlerMySQL</dbmsHandlerClass>
+		<dbmsHandlerProperites>
 			<databaseName>DBSAMPLE</databaseName>
-		</empireDBDriverProperites>
+		</dbmsHandlerProperites>
 	</properties-mysql>
 	
 	<properties-postgresql>
@@ -60,10 +60,10 @@
 		<jdbcUser>postgres</jdbcUser>
 		<jdbcPwd>postgres</jdbcPwd>
 		<!-- Empire-db driver configuration -->
-		<empireDBDriverClass>org.apache.empire.db.driver.postgresql.DBDatabaseDriverPostgreSQL</empireDBDriverClass>
-		<empireDBDriverProperites>
+		<dbmsHandlerClass>org.apache.empire.dbms.postgresql.DBMSHandlerPostgreSQL</dbmsHandlerClass>
+		<dbmsHandlerProperites>
 			<databaseName>DBSAMPLE</databaseName>
-		</empireDBDriverProperites>
+		</dbmsHandlerProperites>
 	</properties-postgresql>
 	
 	<properties-h2>
@@ -74,10 +74,10 @@
 		<jdbcUser>sa</jdbcUser>
 		<jdbcPwd></jdbcPwd>
 		<!-- Empire-db driver configuration -->
-		<empireDBDriverClass>org.apache.empire.db.driver.h2.DBDatabaseDriverH2</empireDBDriverClass>
-		<empireDBDriverProperites>
+		<dbmsHandlerClass>org.apache.empire.dbms.h2.DBMSHandlerH2</dbmsHandlerClass>
+		<dbmsHandlerProperites>
 			<databaseName>DBSAMPLE</databaseName>
-		</empireDBDriverProperites>
+		</dbmsHandlerProperites>
 	</properties-h2>
 	
 	<properties-derby>
@@ -88,40 +88,40 @@
 		<jdbcUser></jdbcUser>
 		<jdbcPwd></jdbcPwd>
 		<!-- Empire-db driver configuration -->
-		<empireDBDriverClass>org.apache.empire.db.driver.derby.DBDatabaseDriverDerby</empireDBDriverClass>
-		<empireDBDriverProperites>
+		<dbmsHandlerClass>org.apache.empire.dbms.derby.DBMSHandlerDerby</dbmsHandlerClass>
+		<dbmsHandlerProperites>
 			<databaseName>DBSAMPLE</databaseName>
-		</empireDBDriverProperites>
+		</dbmsHandlerProperites>
 	</properties-derby>
 
 	<properties-oracle>
 		<!-- JDBC properties for an Oracle Database connection -->
 		<!-- Required jar file: ojdbc14.jar -->
 		<jdbcClass>oracle.jdbc.driver.OracleDriver</jdbcClass>
-		<jdbcURL>jdbc:oracle:thin:@192.168.0.2:1521:ora10</jdbcURL>
+		<jdbcURL>jdbc:oracle:thin:@esteams12:1521:ora12</jdbcURL>
 		<jdbcUser>DBSAMPLE</jdbcUser>
 		<jdbcPwd>DBSAMPLE</jdbcPwd>
 		<!-- Empire-db driver configuration -->
-		<empireDBDriverClass>org.apache.empire.db.driver.oracle.DBDatabaseDriverOracle</empireDBDriverClass>
-		<empireDBDriverProperites>
+		<dbmsHandlerClass>org.apache.empire.dbms.oracle.DBMSHandlerOracle</dbmsHandlerClass>
+		<dbmsHandlerProperites>
 			<!-- no properties -->
-		</empireDBDriverProperites>
+		</dbmsHandlerProperites>
 	</properties-oracle>
 
 	<properties-sqlserver>
 		<!-- JDBC properties for a Microsoft SQL-Server Database connection -->
 		<jdbcClass>com.microsoft.sqlserver.jdbc.SQLServerDriver</jdbcClass>
-		<jdbcURL>jdbc:sqlserver://esteamsvr12\sql14</jdbcURL>
+		<jdbcURL>jdbc:sqlserver://esteams12\sql17</jdbcURL>
 		<jdbcUser>jdbcUser</jdbcUser>
 		<jdbcPwd>jdbcPwd</jdbcPwd>
 		<!-- Empire-db driver configuration -->
-		<empireDBDriverClass>org.apache.empire.db.driver.sqlserver.DBDatabaseDriverMSSQL</empireDBDriverClass>
-		<empireDBDriverProperites>
+		<dbmsHandlerClass>org.apache.empire.dbms.sqlserver.DBMSHandlerMSSQL</dbmsHandlerClass>
+		<dbmsHandlerProperites>
 			<databaseName>DBSAMPLE</databaseName>
 			<useSequenceTable>false</useSequenceTable>
 			<!-- useDateTime2: set to false for databases using DATETIME for timestamps instead of DATETIME2 -->
 			<useDateTime2>true</useDateTime2>
-		</empireDBDriverProperites>
+		</dbmsHandlerProperites>
 	</properties-sqlserver>
 	
 	<!-- log4j configuration node -->

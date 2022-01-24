@@ -32,12 +32,12 @@ import javax.servlet.ServletContextListener;
 import org.apache.empire.commons.StringUtils;
 import org.apache.empire.db.DBCommand;
 import org.apache.empire.db.DBContext;
-import org.apache.empire.db.DBDatabaseDriver;
 import org.apache.empire.db.DBRecord;
 import org.apache.empire.db.DBSQLScript;
 import org.apache.empire.db.context.DBContextStatic;
-import org.apache.empire.db.driver.hsql.DBDatabaseDriverHSql;
 import org.apache.empire.db.exceptions.QueryFailedException;
+import org.apache.empire.dbms.DBMSHandler;
+import org.apache.empire.dbms.hsql.DBMSHandlerHSql;
 import org.apache.empire.rest.service.Service;
 import org.apache.empire.vue.sample.db.SampleDB;
 import org.apache.log4j.ConsoleAppender;
@@ -98,8 +98,8 @@ public class SampleServiceApp
         Connection conn = getJDBCConnection(ctx);
         try {
             // DB
-            DBDatabaseDriver driver = new DBDatabaseDriverHSql();
-            DBContext context = new DBContextStatic(driver, conn);
+            DBMSHandler dbms = new DBMSHandlerHSql();
+            DBContext context = new DBContextStatic(dbms, conn);
             SampleDB db = initDatabase(ctx, context);
             // Add to context
             ctx.setAttribute(Service.Consts.ATTRIBUTE_DB, db);
@@ -180,8 +180,8 @@ public class SampleServiceApp
     private SampleDB initDatabase(ServletContext ctx, DBContext context) {
         SampleDB db = new SampleDB();
         // Open Database (and create if not existing)
-        DBDatabaseDriver driver = context.getDriver();
-        log.info("Opening database '{}' using driver '{}'", db.getClass().getSimpleName(), driver.getClass().getSimpleName());
+        DBMSHandler dbms = context.getDbms();
+        log.info("Opening database '{}' using handler '{}'", db.getClass().getSimpleName(), dbms.getClass().getSimpleName());
         db.open(context);
         if (!databaseExists(db, context)) {
             // STEP 4: Create Database

@@ -20,6 +20,7 @@ package org.apache.empire.samples.db.advanced;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.text.MessageFormat;
 import java.util.Date;
 import java.util.HashMap;
 
@@ -31,17 +32,20 @@ import org.apache.empire.db.DBCmdParam;
 import org.apache.empire.db.DBColumnExpr;
 import org.apache.empire.db.DBCommand;
 import org.apache.empire.db.DBContext;
-import org.apache.empire.db.DBDDLGenerator.DDLAlterType;
-import org.apache.empire.db.DBDatabaseDriver;
+import org.apache.empire.db.DBDDLGenerator.DDLActionType;
 import org.apache.empire.db.DBQuery;
 import org.apache.empire.db.DBReader;
 import org.apache.empire.db.DBRecord;
 import org.apache.empire.db.DBSQLScript;
 import org.apache.empire.db.DBTableColumn;
 import org.apache.empire.db.context.DBContextStatic;
-import org.apache.empire.db.driver.h2.DBDatabaseDriverH2;
-import org.apache.empire.db.driver.postgresql.DBDatabaseDriverPostgreSQL;
 import org.apache.empire.db.exceptions.ConstraintViolationException;
+import org.apache.empire.db.exceptions.StatementFailedException;
+import org.apache.empire.db.validation.DBModelChecker;
+import org.apache.empire.db.validation.DBModelErrorLogger;
+import org.apache.empire.dbms.DBMSHandler;
+import org.apache.empire.dbms.h2.DBMSHandlerH2;
+import org.apache.empire.dbms.postgresql.DBMSHandlerPostgreSQL;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -83,14 +87,15 @@ public class SampleAdvApp
             System.out.println("*** Step 1: getJDBCConnection() ***");
             Connection conn = getJDBCConnection();
 
-            // STEP 2: Choose a driver
+            // STEP 2: Choose a dbms
             System.out.println("*** Step 2: getDatabaseProvider() ***");
-            DBDatabaseDriver driver = getDatabaseDriver(config.getDatabaseProvider());
+            DBMSHandler dbms = getDBMSHandler(config.getDatabaseProvider());
             
             // STEP 2.2: Create a Context
-            context = new DBContextStatic(driver, conn); 
+            context = new DBContextStatic(dbms, conn); 
 
             // STEP 3: Open Database (and create if not existing)
+            boolean checkDataModel = true;
             System.out.println("*** Step 3: openDatabase() ***");
             try {
                 // Enable the use of prepared statements for update and insert commands as well as for read operations on a DBRecord.
@@ -100,24 +105,31 @@ public class SampleAdvApp
                 db.open(context);
                 // Check whether database exists
                 databaseExists();
-                System.out.println("*** Database already exists. Skipping Step4 ***");
+                System.out.println("*** Database already exists. Checking data model... ***");
                 
             } catch(Exception e) {
                 // STEP 4: Create Database
                 System.out.println("*** Step 4: createDDL() ***");
                 // postgre does not support DDL in transaction
-                if(db.getDriver() instanceof DBDatabaseDriverPostgreSQL)
+                if(db.getDbms() instanceof DBMSHandlerPostgreSQL)
                 {
                 	conn.setAutoCommit(true);
                 }
                 createDatabase();
-                if(db.getDriver() instanceof DBDatabaseDriverPostgreSQL)
+                if(db.getDbms() instanceof DBMSHandlerPostgreSQL)
                 {
                 	conn.setAutoCommit(false);
                 }
                 // Open again
                 if (db.isOpen()==false)
                     db.open(context);
+                // don't check
+                checkDataModel = false;
+            }
+            
+            if (checkDataModel)
+            {   // Check the data model (SampleAdvDB) against the existing database
+                checkDataModel();
             }
 
             // STEP 5: Clear Database (Delete all records)
@@ -187,19 +199,19 @@ public class SampleAdvApp
             // STEP 12: ddlSample
             System.out.println("--------------------------------------------------------");
             System.out.println("*** ddlSample: shows how to add a column at runtime and update a record with the added column ***");
-            if (db.getDriver() instanceof DBDatabaseDriverH2) {
+            if (db.getDbms() instanceof DBMSHandlerH2) {
             	log.info("As H2 does not support changing a table with a view defined we remove the view");
             	System.out.println("*** drop EMPLOYEE_INFO_VIEW ***");
             	DBSQLScript script = new DBSQLScript(context);
-            	db.getDriver().getDDLScript(DDLAlterType.DROP, db.V_EMPLOYEE_INFO, script);
+            	db.getDbms().getDDLScript(DDLActionType.DROP, db.V_EMPLOYEE_INFO, script);
             	script.executeAll();
             }
             ddlSample(idEmp2);
-            if (db.getDriver() instanceof DBDatabaseDriverH2) {
+            if (db.getDbms() instanceof DBMSHandlerH2) {
             	log.info("And put back the view");
             	System.out.println("*** create EMPLOYEE_INFO_VIEW ***");
             	DBSQLScript script = new DBSQLScript(context);
-            	db.getDriver().getDDLScript(DDLAlterType.CREATE, db.V_EMPLOYEE_INFO, script);
+            	db.getDbms().getDDLScript(DDLActionType.CREATE, db.V_EMPLOYEE_INFO, script);
             	script.executeAll();
             }
 
@@ -232,11 +244,14 @@ public class SampleAdvApp
     {
         // Establish a new database connection
         Connection conn = null;
-        log.info("Connecting to Database'" + config.getJdbcURL() + "' / User=" + config.getJdbcUser());
         try
         {
             // Connect to the database
-            Class.forName(config.getJdbcClass()).newInstance();
+            String jdbcDriverClass = config.getJdbcClass();
+            log.info("Creating JDBC-Driver of type \"{}\"", jdbcDriverClass);
+            Class.forName(jdbcDriverClass).newInstance();
+
+            log.info("Connecting to Database'" + config.getJdbcURL() + "' / User=" + config.getJdbcUser());
             conn = DriverManager.getConnection(config.getJdbcURL(), config.getJdbcUser(), config.getJdbcPwd());
             log.info("Connected successfully");
             // set the AutoCommit to false this session. You must commit
@@ -246,7 +261,7 @@ public class SampleAdvApp
 
         } catch (Exception e)
         {
-            log.error("Failed to connect directly to '" + config.getJdbcURL() + "' / User=" + config.getJdbcUser());
+            log.error("Failed to connect to '" + config.getJdbcURL() + "' / User=" + config.getJdbcUser());
             log.error(e.toString());
             throw new RuntimeException(e);
         }
@@ -254,24 +269,24 @@ public class SampleAdvApp
     }
 
     /**
-     * Creates an Empire-db DatabaseDriver for the given provider and applies driver specific configuration 
+     * Creates an Empire-db DatabaseDriver for the given provider and applies dbms specific configuration 
      */
-    private static DBDatabaseDriver getDatabaseDriver(String provider)
+    private static DBMSHandler getDBMSHandler(String provider)
     {
         try
         {   // Get Driver Class Name
-            String driverClassName = config.getEmpireDBDriverClass();
-            if (StringUtils.isEmpty(driverClassName))
-                throw new RuntimeException("Configuration error: Element 'empireDBDriverClass' not found in node 'properties-"+provider+"'");
+            String dbmsHandlerClass = config.getDbmsHandlerClass();
+            if (StringUtils.isEmpty(dbmsHandlerClass))
+                throw new RuntimeException("Configuration error: Element 'dbmsHandlerClass' not found in node 'properties-"+provider+"'");
 
-            // Create driver
-            DBDatabaseDriver driver = (DBDatabaseDriver) Class.forName(driverClassName).newInstance();
+            // Create dbms
+            DBMSHandler dbms = (DBMSHandler) Class.forName(dbmsHandlerClass).newInstance();
 
-            // Configure driver
-            config.readProperties(driver, "properties-"+provider, "empireDBDriverProperites");
+            // Configure dbms
+            config.readProperties(dbms, "properties-"+provider, "dbmsHandlerProperites");
 
             // done
-            return driver;
+            return dbms;
             
         } catch (Exception e)
         {   // catch any checked exception and forward it
@@ -315,6 +330,19 @@ public class SampleAdvApp
         script.executeAll();
         // Commit
         context.commit();
+    }
+    
+    private static void checkDataModel()
+    {
+        DBModelChecker modelChecker = context.getDbms().createModelChecker();
+        // Check data model   
+        log.info("Checking DataModel for {} using {}", db.getClass().getSimpleName(), modelChecker.getClass().getSimpleName());
+        // dbo schema
+        DBModelErrorLogger logger = new DBModelErrorLogger();
+        modelChecker.checkModel(db, context.getConnection(), "DBSAMPLEADV", logger);
+        // show result
+        String msg = MessageFormat.format("Data model check done. Found {0} errors and {1} warnings.", logger.getErrorCount(), logger.getWarnCount());
+        System.out.println(msg);
     }
 
     /**
@@ -540,7 +568,7 @@ public class SampleAdvApp
     
     /**
      * This method demonstrates how to add, modify and delete a database column.<BR>
-     * This function demonstrates the use of the {@link DBDatabaseDriver#getDDLScript(org.apache.empire.db.DDLAlterType, org.apache.empire.db.DBObject, DBSQLScript)}<BR>
+     * This function demonstrates the use of the {@link DBMSHandler#getDDLScript(org.apache.empire.db.DDLActionType, org.apache.empire.db.DBObject, DBSQLScript)}<BR>
      * 
      */
     private static void ddlSample(int idTestPerson)
@@ -551,7 +579,7 @@ public class SampleAdvApp
         // Now create the corresponding DDL statement 
         System.out.println("Creating new column named FOO as varchar(20) for the EMPLOYEES table:");
         DBSQLScript script = new DBSQLScript(context);
-        db.getDriver().getDDLScript(DDLAlterType.CREATE, C_FOO, script);
+        db.getDbms().getDDLScript(DDLActionType.CREATE, C_FOO, script);
         script.executeAll();
         
         // Now load a record from that table and set the value for foo
@@ -565,7 +593,7 @@ public class SampleAdvApp
         System.out.println("Extending size of column FOO to 40 characters:");
         C_FOO.setSize(40); 
         script.clear();
-        db.getDriver().getDDLScript(DDLAlterType.ALTER, C_FOO, script);
+        db.getDbms().getDDLScript(DDLActionType.ALTER, C_FOO, script);
         script.executeAll();
 
         // Now set a longer value for the record
@@ -576,7 +604,7 @@ public class SampleAdvApp
         // Finally, drop the column again
         System.out.println("Dropping the FOO column from the employee table:");
         script.clear();
-        db.getDriver().getDDLScript(DDLAlterType.DROP, C_FOO, script);
+        db.getDbms().getDDLScript(DDLActionType.DROP, C_FOO, script);
         script.executeAll();
     }
 
@@ -655,6 +683,9 @@ public class SampleAdvApp
         try {
             db.T_DEPARTMENTS.deleteRecord(idDepartment, context);
         } catch(ConstraintViolationException e) {
+            System.out.println("Delete of department failed as expected due to existing depending records.");
+        } catch(StatementFailedException e) {
+            // Oops, the driver threw a SQLException instead
             System.out.println("Delete of department failed as expected due to existing depending records.");
         }
     }

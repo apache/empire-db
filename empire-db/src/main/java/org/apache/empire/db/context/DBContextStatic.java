@@ -20,12 +20,12 @@ package org.apache.empire.db.context;
 
 import java.sql.Connection;
 
-import org.apache.empire.db.DBDatabaseDriver;
 import org.apache.empire.db.context.DBRollbackManager.ReleaseAction;
+import org.apache.empire.dbms.DBMSHandler;
 
 public class DBContextStatic extends DBContextBase
 {
-    private final DBDatabaseDriver driver;
+    private final DBMSHandler dbms;
     private final Connection conn;
     private final boolean enableRollbackHandling;
     private final boolean closeOnDiscard;
@@ -40,33 +40,33 @@ public class DBContextStatic extends DBContextBase
 
     /**
      * Creates a static DBContext with default options
-     * @param driver
+     * @param dbmsHandler
      * @param conn
      */
-    public DBContextStatic(DBDatabaseDriver driver, Connection conn)
+    public DBContextStatic(DBMSHandler dbmsHandler, Connection conn)
     {
-        this(driver, conn, (conn!=null), false);
+        this(dbmsHandler, conn, (conn!=null), false);
     }
     
     /**
      * Creates a static DBContext with custom options
-     * @param driver
+     * @param dbmsHandler
      * @param conn
      * @param enableRollbackHandling
      * @param closeOnDiscard
      */
-    public DBContextStatic(DBDatabaseDriver driver, Connection conn, boolean enableRollbackHandling, boolean closeOnDiscard)
+    public DBContextStatic(DBMSHandler dbmsHandler, Connection conn, boolean enableRollbackHandling, boolean closeOnDiscard)
     {
-        this.driver = driver;
+        this.dbms = dbmsHandler;
         this.conn = conn;
         this.enableRollbackHandling = enableRollbackHandling;
         this.closeOnDiscard = closeOnDiscard;
     }
 
     @Override
-    public DBDatabaseDriver getDriver()
+    public DBMSHandler getDbms()
     {
-        return driver;
+        return dbms;
     }
 
     @Override

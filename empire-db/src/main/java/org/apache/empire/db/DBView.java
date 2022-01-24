@@ -48,6 +48,7 @@ public abstract class DBView extends DBRowSet
         // *Deprecated* private static final long serialVersionUID = 1L;
       
         protected final DBColumnExpr expr;
+        protected final DataType     dataType;
         protected final DBColumn     updateColumn;
         protected final double       size;
 
@@ -62,6 +63,11 @@ public abstract class DBView extends DBRowSet
             super(view, name);
             // set Expression
             this.expr = expr;
+            // set DataType
+            DataType exprType = expr.getDataType();
+            if (exprType==DataType.AUTOINC)
+                exprType= DataType.INTEGER;
+            this.dataType = exprType; 
             // Update Column
             this.updateColumn = expr.getUpdateColumn();
             // from update column
@@ -84,7 +90,7 @@ public abstract class DBView extends DBRowSet
         @Override
         public DataType getDataType()
         {
-            return expr.getDataType();
+            return dataType;
         }
 
         @Override

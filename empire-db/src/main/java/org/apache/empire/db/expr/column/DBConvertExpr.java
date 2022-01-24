@@ -20,11 +20,10 @@ package org.apache.empire.db.expr.column;
 
 import org.apache.empire.data.DataType;
 import org.apache.empire.db.DBColumnExpr;
-import org.apache.empire.db.DBDatabaseDriver;
 
 /**
  * This class is used to convert a value to a different data type.
- * This function uses the DBDatabaseDriver.getConvertPhrase function to obtain a conversion template.
+ * This function uses the DBMSHandler.getConvertPhrase function to obtain a conversion template.
  * <P>
  * There is no need to explicitly create instances of this class.<BR>
  * Instead use {@link DBColumnExpr#convertTo(DataType) }
@@ -59,9 +58,8 @@ public class DBConvertExpr extends DBAbstractFuncExpr
     @Override
     public void addSQL(StringBuilder sql, long context)
     {
-        DBDatabaseDriver driver = getDatabaseDriver();
         // Set Params
-        String template = driver.getConvertPhrase(dataType, expr.getDataType(), format);
+        String template = getDbms().getConvertPhrase(dataType, expr.getDataType(), format);
         super.addSQL(sql, template, null, context);
     }
 

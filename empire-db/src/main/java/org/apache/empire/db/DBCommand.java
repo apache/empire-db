@@ -29,7 +29,6 @@ import java.util.Vector;
 
 import org.apache.empire.commons.StringUtils;
 import org.apache.empire.data.DataType;
-import org.apache.empire.db.driver.DBSqlPhrase;
 import org.apache.empire.db.expr.compare.DBCompareColExpr;
 import org.apache.empire.db.expr.compare.DBCompareExpr;
 import org.apache.empire.db.expr.join.DBColumnJoinExpr;
@@ -37,6 +36,7 @@ import org.apache.empire.db.expr.join.DBCompareJoinExpr;
 import org.apache.empire.db.expr.join.DBCrossJoinExpr;
 import org.apache.empire.db.expr.join.DBJoinExpr;
 import org.apache.empire.db.expr.set.DBSetExpr;
+import org.apache.empire.dbms.DBSqlPhrase;
 import org.apache.empire.exceptions.InternalException;
 import org.apache.empire.exceptions.InvalidArgumentException;
 import org.apache.empire.exceptions.ItemNotFoundException;
@@ -1386,7 +1386,7 @@ public abstract class DBCommand extends DBCommandExpr
         }
         if (sep==false)
         {   // add pseudo table or omitt from
-            String pseudoTable = db.getDriver().getSQLPhrase(DBSqlPhrase.SQL_PSEUDO_TABLE);
+            String pseudoTable = db.getDbms().getSQLPhrase(DBSqlPhrase.SQL_PSEUDO_TABLE);
             if (StringUtils.isNotEmpty(pseudoTable))
             {   // add pseudo table
                 buf.append(pseudoTable);

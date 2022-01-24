@@ -217,7 +217,7 @@ public class DBRelation extends DBObject
     /**
      * Appends the required DLL command to enable or disable a foreign key constraint to the supplied DBDQLScript.
      * @param enable true if the constraint should be enabled or false to disable the constraint
-     * @param driver the driver for which to enable or disable the relation
+     * @param context the context for which to enable or disable the relation
      */
     public String getEnableDisableStmt(boolean enable, DBContext context)
     {
@@ -225,9 +225,9 @@ public class DBRelation extends DBObject
             throw new InvalidArgumentException("context", context);
         // get Statement
         DBSQLScript script = new DBSQLScript(context);
-        context.getDriver().appendEnableRelationStmt(this, enable, script);
+        context.getDbms().appendEnableRelationStmt(this, enable, script);
         if (script.getCount()!=1)
-            throw new UnexpectedReturnValueException(script.getCount(), "driver.addEnableRelationStatement");
+            throw new UnexpectedReturnValueException(script.getCount(), "dbms.addEnableRelationStatement");
         return script.getStmt(0);
     }
     

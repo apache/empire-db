@@ -30,15 +30,15 @@ import org.apache.empire.commons.StringUtils;
 import org.apache.empire.db.DBCommand;
 import org.apache.empire.db.DBContext;
 import org.apache.empire.db.DBDatabase;
-import org.apache.empire.db.DBDatabaseDriver;
 import org.apache.empire.db.DBRecord;
 import org.apache.empire.db.DBSQLScript;
 import org.apache.empire.db.context.DBContextStatic;
-import org.apache.empire.db.driver.hsql.DBDatabaseDriverHSql;
-import org.apache.empire.db.driver.mysql.DBDatabaseDriverMySQL;
-import org.apache.empire.db.driver.oracle.DBDatabaseDriverOracle;
-import org.apache.empire.db.driver.sqlserver.DBDatabaseDriverMSSQL;
 import org.apache.empire.db.exceptions.QueryFailedException;
+import org.apache.empire.dbms.DBMSHandler;
+import org.apache.empire.dbms.hsql.DBMSHandlerHSql;
+import org.apache.empire.dbms.mysql.DBMSHandlerMySQL;
+import org.apache.empire.dbms.oracle.DBMSHandlerOracle;
+import org.apache.empire.dbms.sqlserver.DBMSHandlerMSSQL;
 import org.apache.empire.jsf2.app.WebApplication;
 import org.apache.empire.jsf2.controls.InputControlManager;
 import org.apache.empire.jsf2.custom.controls.FileInputControl;
@@ -133,13 +133,13 @@ public class SampleApplication extends WebApplication {
 
 		// Open Database (and create if not existing)
 		String driverProvider = config.getDatabaseProvider();
-		DBDatabaseDriver driver = getDatabaseDriver(driverProvider);
-        log.info("Opening database '{}' using driver '{}'", sampleDB.getClass().getSimpleName(), driver.getClass().getSimpleName());
+		DBMSHandler dbmsHandler = getDBMSHandler(driverProvider);
+        log.info("Opening database '{}' using '{}'", sampleDB.getClass().getSimpleName(), dbmsHandler.getClass().getSimpleName());
 		Connection conn = null;
 		DBContext context = null;
 		try {
 			conn = getConnection(sampleDB);
-			context = new DBContextStatic(driver, conn);
+			context = new DBContextStatic(dbmsHandler, conn);
 			sampleDB.open(context);
 			if (!databaseExists(context)) {
 				// STEP 4: Create Database
@@ -155,25 +155,25 @@ public class SampleApplication extends WebApplication {
 	/*
 	 * getDatabaseDriver
 	 */
-	private DBDatabaseDriver getDatabaseDriver(String provider) {
+	private DBMSHandler getDBMSHandler(String provider) {
 		if (provider.equalsIgnoreCase("mysql")) {
-			DBDatabaseDriverMySQL driver = new DBDatabaseDriverMySQL();
+			DBMSHandlerMySQL dbms = new DBMSHandlerMySQL();
 			// Set Driver specific properties (if any)
-			driver.setDatabaseName(config.getSchemaName());
-			return driver;
+			dbms.setDatabaseName(config.getSchemaName());
+			return dbms;
 		} else if (provider.equalsIgnoreCase("oracle")) {
-			DBDatabaseDriverOracle driver = new DBDatabaseDriverOracle();
+			DBMSHandlerOracle dbms = new DBMSHandlerOracle();
 			// Set Driver specific properties (if any)
-			return driver;
+			return dbms;
 		} else if (provider.equalsIgnoreCase("sqlserver")) {
-			DBDatabaseDriverMSSQL driver = new DBDatabaseDriverMSSQL();
+			DBMSHandlerMSSQL dbms = new DBMSHandlerMSSQL();
 			// Set Driver specific properties (if any)
-			driver.setDatabaseName(config.getSchemaName());
-			return driver;
+			dbms.setDatabaseName(config.getSchemaName());
+			return dbms;
 		} else if (provider.equalsIgnoreCase("hsqldb")) {
-			DBDatabaseDriverHSql driver = new DBDatabaseDriverHSql();
+			DBMSHandlerHSql dbms = new DBMSHandlerHSql();
 			// Set Driver specific properties (if any)
-			return driver;
+			return dbms;
 		} else { // Unknown Provider
 			throw new RuntimeException("Unknown Database Provider " + provider);
 		}

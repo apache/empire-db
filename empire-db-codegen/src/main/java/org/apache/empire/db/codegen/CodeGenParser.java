@@ -124,7 +124,7 @@ public class CodeGenParser {
         try {
             Class.forName(config.getJdbcClass()).newInstance();
         }catch(Exception ex){
-        	throw new SQLException("Could not load database driver: " + config.getJdbcClass());
+        	throw new SQLException("Could not load database dbms: " + config.getJdbcClass());
         }
         conn = DriverManager.getConnection(config.getJdbcURL(), config.getJdbcUser(), config.getJdbcPwd());
         log.info("Connected successfully");
@@ -436,10 +436,10 @@ public class CodeGenParser {
 		if (rs.getString("IS_NULLABLE").equalsIgnoreCase("NO"))
 			required = true;
 		
-		// The following is a hack for MySQL which currently gets sent a string "CURRENT_TIMESTAMP" from the Empire-db driver for MySQL.
-		// This will avoid the driver problem because CURRENT_TIMESTAMP in the db will just do the current datetime.
+		// The following is a hack for MySQL which currently gets sent a string "CURRENT_TIMESTAMP" from the Empire-db dbms for MySQL.
+		// This will avoid the dbms problem because CURRENT_TIMESTAMP in the db will just do the current datetime.
 		// Essentially, Empire-db needs the concept of default values of one type that get mapped to another.
-		// In this case, MySQL "CURRENT_TIMESTAMP" for Types.TIMESTAMP needs to emit from the Empire-db driver the null value and not "CURRENT_TIMESTAMP".
+		// In this case, MySQL "CURRENT_TIMESTAMP" for Types.TIMESTAMP needs to emit from the Empire-db dbms the null value and not "CURRENT_TIMESTAMP".
 		if(rs.getInt("DATA_TYPE") == Types.TIMESTAMP && defaultValue != null && defaultValue.equals("CURRENT_TIMESTAMP")){
 			required = false; // It is in fact not required even though MySQL schema is required because it has a default value. Generally, should Empire-db emit (required && defaultValue != null) to truly determine if a column is required?
 			defaultValue = null; // If null (and required per schema?) MySQL will apply internal default value.

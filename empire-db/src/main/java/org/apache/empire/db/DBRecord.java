@@ -58,7 +58,7 @@ import org.w3c.dom.Element;
  * The class provides methods to create, read, update and delete records
  * The class provides methods to obtain as well as to modify its fields
  * 
- * If an Idendity-column (AUTOINC) is defined, the value will be set upon creation by the driver to the next value
+ * If an Idendity-column (AUTOINC) is defined, the value will be set upon creation by the dbms to the next value
  * If a Timestamp-column is defined the value will be automatically set and concurrent changes of the record will be detected
  * 
  * If changes to the record are made, but a rollback on the connection is performed, the changes will be reverted (Rollback-Handling)

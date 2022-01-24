@@ -145,7 +145,7 @@ public class DBTableColumn extends DBColumn
         		return null; // Create Later
             // Other auto-generated values
 	        DBDatabase db = rowset.getDatabase();
-            return db.getDriver().getColumnAutoValue(db, this, conn);
+            return db.getDbms().getColumnAutoValue(db, this, conn);
         }
         // Normal value
         return defaultValue;

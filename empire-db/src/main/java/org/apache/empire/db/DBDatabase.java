@@ -36,9 +36,8 @@ import java.util.Set;
 import org.apache.empire.commons.ObjectUtils;
 import org.apache.empire.data.Column;
 import org.apache.empire.data.DataType;
-import org.apache.empire.db.DBDDLGenerator.DDLAlterType;
+import org.apache.empire.db.DBDDLGenerator.DDLActionType;
 import org.apache.empire.db.DBRelation.DBCascadeAction;
-import org.apache.empire.db.driver.DBSqlPhrase;
 import org.apache.empire.db.exceptions.DatabaseNotOpenException;
 import org.apache.empire.db.exceptions.FieldIllegalValueException;
 import org.apache.empire.db.exceptions.FieldNotNullException;
@@ -48,6 +47,8 @@ import org.apache.empire.db.exceptions.FieldValueTooLongException;
 import org.apache.empire.db.expr.column.DBCaseWhenExpr;
 import org.apache.empire.db.expr.column.DBValueExpr;
 import org.apache.empire.db.expr.compare.DBCompareExpr;
+import org.apache.empire.dbms.DBMSHandler;
+import org.apache.empire.dbms.DBSqlPhrase;
 import org.apache.empire.exceptions.InvalidArgumentException;
 import org.apache.empire.exceptions.ItemExistsException;
 import org.apache.empire.exceptions.NotSupportedException;
@@ -145,7 +146,7 @@ public abstract class DBDatabase extends DBObject
     protected final List<DBRelation> relations = new ArrayList<DBRelation>();
     protected final List<DBView>     views     = new ArrayList<DBView>();
     
-    protected DBDatabaseDriver driver    = null;
+    protected DBMSHandler dbms    = null;
     
     /**   
      * Property that indicates whether to always use usePreparedStatements (Default is false!)
@@ -285,13 +286,13 @@ public abstract class DBDatabase extends DBObject
     // ------------------------------
 
     /**
-     * Returns the driver for this database.
+     * Returns the DBMS Handler for this database.
      * 
-     * @return Returns the driver for this database
+     * @return Returns the DBMS Handler for this database
      */
-    public DBDatabaseDriver getDriver()
+    public DBMSHandler getDbms()
     {
-        return driver;
+        return dbms;
     }
     
     /**
@@ -318,56 +319,53 @@ public abstract class DBDatabase extends DBObject
     }
 
     /**
-     * Sets the database driver for this database. This will
-     * set up the connection for use.<br>
+     * Attaches the Database to the DBMS Handler provided with the context  
+     * and allows the Database and the Handler to perform initialization tasks
      * 
-     * @param driver the database driver
-     * @param conn the connection
+     * @param context the DBContext
      */
     public void open(DBContext context)
     {
-        DBDatabaseDriver driver = context.getDriver();
-        if (driver==this.driver)
+        DBMSHandler dbms = context.getDbms();
+        if (dbms==this.dbms)
         {
-            log.warn("Database already attached to this driver");
+            log.warn("Database already attached to this dbms");
         }
-        else if (this.driver!=null)
+        else if (this.dbms!=null)
         {
-            log.error("Database already attached to another driver {}", this.driver.getClass().getName());
+            log.error("Database already attached to another dbms {}", this.dbms.getClass().getName());
             throw new NotSupportedException(this, "open");
         }
         else
-        {   // Attach to driver
-            driver.attachDatabase(this, context.getConnection());
-            // set latest driver
-            this.driver = driver;
+        {   // Attach to dbms
+            dbms.attachDatabase(this, context.getConnection());
+            // set latest dbms
+            this.dbms = dbms;
         }
     }
 
     /**
-     * closes this database object by detaching it from the driver
-     * this is a shortcut for calling
-     *  getDriver().closeDatabase(db, conn)
+     * Closes this database object by detaching it from the dbms
      *   
-     * @param conn the connection to close
+     * @param context the DBContext
      */
     public void close(DBContext context)
     {
-        DBDatabaseDriver driver = context.getDriver();
-        if (this.driver == null)
+        DBMSHandler dbms = context.getDbms();
+        if (this.dbms == null)
         {
-            log.warn("Database not attached to a driver");
+            log.warn("Database not attached to a dbms");
         }
-        else if (driver!=this.driver)
+        else if (dbms!=this.dbms)
         {
-            log.error("Database attached to another driver {}", this.driver.getClass().getName());
+            log.error("Database attached to another dbms {}", this.dbms.getClass().getName());
             throw new NotSupportedException(this, "close");
         }
         else
         {   // Detach
-            this.driver.detachDatabase(this, context.getConnection());
+            this.dbms.detachDatabase(this, context.getConnection());
             // No diver
-            this.driver = null;
+            this.dbms = null;
         }
     }
 
@@ -375,30 +373,30 @@ public abstract class DBDatabase extends DBObject
      * Creates a DDL Script for creating all database objects on the target database.<BR>
      * This function may be called even if the database has not been previously opened.<BR>
      * <P>
-     * Once the database is open you can use getDriver().getDLLCommand()
+     * Once the database is open you can use getDbms().getDLLCommand()
      * to create, alter or delete other database objects<BR>
      * <P>
-     * @param driver The driver for which to create a DDL Script
      * @param script the script object that will be completed
      */
     public synchronized void getCreateDDLScript(DBSQLScript script)
     {
-        DBDatabaseDriver prevDriver = this.driver;
-        DBDatabaseDriver ddlDriver = script.getContext().getDriver();
+        DBMSHandler orgHandler = this.dbms;
+        DBMSHandler ddlHandler = script.getContext().getDbms();
         try {
-            // Set driver
-            if (this.driver!=null && this.driver!=ddlDriver && ddlDriver!=null)
-            {   // The database belongs to a different driver
-                throw new UnspecifiedErrorException("The database is attached to a different driver.");
+            // Set dbms
+            if (this.dbms!=null && this.dbms!=ddlHandler && ddlHandler!=null)
+            {   // The database belongs to a different dbms
+                throw new UnspecifiedErrorException("The database is attached to a different dbms.");
             }
-            // Temporarily change driver
-            if (this.driver== null)
-                this.driver = ddlDriver;
+            // Temporarily change dbms
+            if (this.dbms== null)
+                this.dbms = ddlHandler;
             // Get DDL Command
             generateDDLScript(script);
             
         } finally {
-            this.driver = prevDriver; 
+            // restore original handler
+            this.dbms = orgHandler; 
         }
     }
 
@@ -408,7 +406,7 @@ public abstract class DBDatabase extends DBObject
      */
     protected void generateDDLScript(DBSQLScript script)
     {
-        this.driver.getDDLScript(DDLAlterType.CREATE, this, script); 
+        this.dbms.getDDLScript(DDLActionType.CREATE, this, script); 
     }
     
     /**
@@ -438,7 +436,7 @@ public abstract class DBDatabase extends DBObject
      */
     public void setSchema(String schema)
     {   // Database must not be open so far
-        if (driver != null)
+        if (dbms != null)
             throw new PropertyReadOnlyException("schema");
         // Set Schema 
         this.schema = schema;
@@ -476,7 +474,7 @@ public abstract class DBDatabase extends DBObject
      */
     public void setLinkName(String linkName)
     {   // Database must not be open so far
-        if (driver != null)
+        if (dbms != null)
             throw new PropertyReadOnlyException(linkName);
         // Set Link 
         this.linkName = linkName;
@@ -499,19 +497,19 @@ public abstract class DBDatabase extends DBObject
             buf.append(schema);
             buf.append(".");
         }
-        // Check driver
-        if (driver==null)
-        {   // No driver attached!
-            log.warn("No driver attached for appending qualified name {0}.", name);
+        // Check dbms
+        if (dbms==null)
+        {   // No dbms attached!
+            log.warn("No dbms attached for appending qualified name {0}.", name);
             buf.append(name);
             return;
         }
         // Append the name
-        driver.appendObjectName(buf, name, quoteName);
+        dbms.appendObjectName(buf, name, quoteName);
         // Database Link
         if (linkName!=null)
         {   // Add Link
-            buf.append(driver.getSQLPhrase(DBSqlPhrase.SQL_DATABASE_LINK));
+            buf.append(dbms.getSQLPhrase(DBSqlPhrase.SQL_DATABASE_LINK));
             buf.append(linkName);
         }
     }
@@ -822,7 +820,7 @@ public abstract class DBDatabase extends DBObject
      */
     public boolean isOpen()
     {
-        return (driver != null);
+        return (dbms != null);
     }
 
     /**
@@ -842,7 +840,7 @@ public abstract class DBDatabase extends DBObject
     public final DBCommand createCommand()
     {
         checkOpen(); 
-        return driver.createCommand(this);
+        return dbms.createCommand(this);
     }
     
     /**

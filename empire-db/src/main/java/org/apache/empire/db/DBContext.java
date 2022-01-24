@@ -21,6 +21,7 @@ package org.apache.empire.db;
 import java.sql.Connection;
 
 import org.apache.empire.db.context.DBRollbackHandler;
+import org.apache.empire.dbms.DBMSHandler;
 
 /**
  * DBContext 
@@ -29,7 +30,7 @@ import org.apache.empire.db.context.DBRollbackHandler;
  */
 public interface DBContext
 {
-    DBDatabaseDriver getDriver();
+    DBMSHandler getDbms();
     
     Connection getConnection();
     

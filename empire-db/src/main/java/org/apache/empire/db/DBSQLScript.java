@@ -24,6 +24,7 @@ import java.util.Iterator;
 
 import org.apache.empire.db.context.DBContextAware;
 import org.apache.empire.db.exceptions.EmpireSQLException;
+import org.apache.empire.dbms.DBMSHandler;
 import org.apache.empire.exceptions.InvalidArgumentException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,7 +33,7 @@ import org.slf4j.LoggerFactory;
  * DBSQLScript<br>
  * This class is a collection of sql command strings.<br>
  * The class is used for obtaining and executing DDL commands supplied by the
- * database driver (@see {@link DBDatabaseDriver#getDDLScript(DBCmdType, DBObject, DBSQLScript)})
+ * database dbms (@see {@link DBMSHandler#getDDLScript(DBCmdType, DBObject, DBSQLScript)})
  */
 public class DBSQLScript implements DBContextAware, Iterable<String>
 {
@@ -323,25 +324,24 @@ public class DBSQLScript implements DBContextAware, Iterable<String>
     }
 
     /**
-     * Executes all SQL Statements one by one using the supplied driver and connection.
+     * Executes all SQL Statements one by one using the supplied dbms and connection.
      * 
-     * @param driver the driver used for statement execution
-     * @param conn the connection
      * @param ignoreErrors true if errors should be ignored
+     * 
      * @return number of records affected
      */
     public int executeAll(boolean ignoreErrors)
     {
         log.debug("Running script containing " + String.valueOf(getCount()) + " statements.");
         int result = 0;
-        DBDatabaseDriver driver = context.getDriver(); 
+        DBMSHandler dbms = context.getDbms(); 
         for (SQLStmt stmt : sqlStmtList)
         {
             try
             {
                 // Execute Statement
                 log.debug("Executing: {}", stmt.getCmd());
-                int count = driver.executeSQL(stmt.getCmd(), stmt.getParams(), context.getConnection(), null);
+                int count = dbms.executeSQL(stmt.getCmd(), stmt.getParams(), context.getConnection(), null);
                 result += (count >= 0 ? count : 0);
             }
             catch (SQLException e)
@@ -350,7 +350,7 @@ public class DBSQLScript implements DBContextAware, Iterable<String>
                 log.error(e.toString(), e);
                 if (ignoreErrors == false)
                 { // forward exception
-                    throw new EmpireSQLException(driver, e);
+                    throw new EmpireSQLException(dbms, e);
                 }
                 // continue
                 log.debug("Ignoring error. Continuing with script...");
@@ -361,10 +361,8 @@ public class DBSQLScript implements DBContextAware, Iterable<String>
     }
 
     /**
-     * Executes all SQL Statements one by one using the supplied driver and connection.
-     * 
-     * @param driver the driver used for statement execution
-     * @param conn the connection
+     * Executes all SQL Statements one by one using the supplied dbms and connection.
+
      * @return number of records affected
      */
     public final int executeAll()
@@ -374,15 +372,11 @@ public class DBSQLScript implements DBContextAware, Iterable<String>
 
     /**
      * Executes all SQL Statements as a JDBC Batch Job.
-     * 
-     * @param driver the driver used for statement execution
-     * @param conn the connection
-     * @param ignoreErrors true if errors should be ignored
      */
     public int executeBatch()
     {
         log.debug("Running batch containing " + String.valueOf(getCount()) + " statements.");
-        DBDatabaseDriver driver = context.getDriver();
+        DBMSHandler dbms = context.getDbms();
         try
         {
             // Execute Statement
@@ -403,7 +397,7 @@ public class DBSQLScript implements DBContextAware, Iterable<String>
                 i++;
             }
             // Execute batch
-            int[] res = driver.executeBatch(cmdList, paramList, context.getConnection());
+            int[] res = dbms.executeBatch(cmdList, paramList, context.getConnection());
             for (count = 0, i = 0; i < (res != null ? res.length : 0); i++)
                 count += (res[i] >= 0 ? res[i] : 0);
             log.debug("Script completed. {} records affected.", count);
@@ -413,7 +407,7 @@ public class DBSQLScript implements DBContextAware, Iterable<String>
         {
             // SQLException
             log.error(e.toString(), e);
-            throw new EmpireSQLException(driver, e);
+            throw new EmpireSQLException(dbms, e);
         }
     }
 

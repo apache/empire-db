@@ -21,7 +21,7 @@ package org.apache.empire.db;
 /**
  * Base class for all objects that directly or indirectly belong to a database including the database object itself.
  * Examples are: tables, views, columns, indexes, relations etc.
- * Not included are: drivers, helper classes
+ * Not included are: DBMSHanlders, helper classes
  */
 public abstract class DBObject // *Deprecated* implements Serializable
 {
@@ -34,23 +34,4 @@ public abstract class DBObject // *Deprecated* implements Serializable
      * @return the database object
      */
     public abstract <T extends DBDatabase> T getDatabase();
-
-    /*
-     * Custom serialization
-     * 
-    private void readObject(ObjectInputStream strm) throws IOException, ClassNotFoundException,
-        SecurityException, IllegalArgumentException 
-    {
-        System.out.println("Serialization Reading Object "+getClass().getName());
-        //perform the default serialization for all non-transient, non-static fields
-        strm.defaultReadObject();
-    }
-
-    private void writeObject(ObjectOutputStream strm) throws IOException 
-    {
-        System.out.println("Serialization Writing Object "+getClass().getName());
-        //perform the default serialization for all non-transient, non-static fields
-        strm.defaultWriteObject();
-    }
-     */
 }

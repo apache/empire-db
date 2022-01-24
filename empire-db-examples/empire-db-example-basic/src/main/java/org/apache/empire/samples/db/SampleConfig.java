@@ -49,7 +49,7 @@ public class SampleConfig extends XMLConfiguration
 
     private String jdbcPwd = "";
 
-    private String empireDBDriverClass = "";
+    private String dbmsHandlerClass = "";
 
     /**
      * Initialize the configuration.
@@ -121,9 +121,9 @@ public class SampleConfig extends XMLConfiguration
         return jdbcURL;
     }
 
-    public String getEmpireDBDriverClass()
+    public String getDbmsHandlerClass()
     {
-        return empireDBDriverClass;
+        return dbmsHandlerClass;
     }
 
     // ------- Setters -------
@@ -148,9 +148,9 @@ public class SampleConfig extends XMLConfiguration
         this.jdbcUser = jdbcUser;
     }
 
-    public void setEmpireDBDriverClass(String empireDBDriverClass)
+    public void setDbmsHandlerClass(String dbmsHandlerClass)
     {
-        this.empireDBDriverClass = empireDBDriverClass;
+        this.dbmsHandlerClass = dbmsHandlerClass;
     }
 
 }

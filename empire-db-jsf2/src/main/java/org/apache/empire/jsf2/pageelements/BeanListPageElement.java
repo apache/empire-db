@@ -32,12 +32,12 @@ import org.apache.empire.db.DBColumn;
 import org.apache.empire.db.DBColumnExpr;
 import org.apache.empire.db.DBCommand;
 import org.apache.empire.db.DBContext;
-import org.apache.empire.db.DBDatabaseDriver;
 import org.apache.empire.db.DBReader;
 import org.apache.empire.db.DBRecordData;
 import org.apache.empire.db.DBRowSet;
-import org.apache.empire.db.driver.DBDriverFeature;
 import org.apache.empire.db.expr.order.DBOrderByExpr;
+import org.apache.empire.dbms.DBMSHandler;
+import org.apache.empire.dbms.DBMSFeature;
 import org.apache.empire.exceptions.InternalException;
 import org.apache.empire.exceptions.InvalidArgumentException;
 import org.apache.empire.exceptions.UnspecifiedErrorException;
@@ -356,10 +356,10 @@ public class BeanListPageElement<T> extends ListPageElement<T> implements ListIt
                 skipRows = position;
                 // constraint
                 queryCmd.clearLimit();
-                DBDatabaseDriver driver = queryCmd.getDatabase().getDriver(); 
-                if (driver.isSupported(DBDriverFeature.QUERY_LIMIT_ROWS))
+                DBMSHandler dbms = queryCmd.getDatabase().getDbms(); 
+                if (dbms.isSupported(DBMSFeature.QUERY_LIMIT_ROWS))
                 {   // let the database limit the rows
-                    if (driver.isSupported(DBDriverFeature.QUERY_SKIP_ROWS))
+                    if (dbms.isSupported(DBMSFeature.QUERY_SKIP_ROWS))
                     {   // let the database skip the rows
                         queryCmd.skipRows(skipRows);
                         skipRows = 0;

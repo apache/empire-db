@@ -35,6 +35,20 @@ import org.slf4j.LoggerFactory;
 public class DBModelErrorLogger implements DBModelErrorHandler
 {
     private static final Logger log = LoggerFactory.getLogger(DBModelErrorLogger.class);
+    
+    private int errorCount;
+
+    private int warnCount;
+    
+    public int getErrorCount()
+    {
+        return errorCount;
+    }
+
+    public int getWarnCount()
+    {
+        return warnCount;
+    }
 
     /**
      * handle itemNotFound errors
@@ -71,6 +85,8 @@ public class DBModelErrorLogger implements DBModelErrorHandler
         {
             DBModelErrorLogger.log.error("The object {} does not exist in the target database.", dbo.toString());
         }
+        // increase count
+        errorCount++;
     }
 
     /**
@@ -85,6 +101,8 @@ public class DBModelErrorLogger implements DBModelErrorHandler
         }
         // log
         DBModelErrorLogger.log.error("The column " + col.getFullName() + " type of {} does not match the database type of {}.", col.getDataType(), type);
+        // increase count
+        errorCount++;
     }
 
     /**
@@ -96,10 +114,14 @@ public class DBModelErrorLogger implements DBModelErrorHandler
         if (size>0 && size<col.getSize())
         {   // Database size is smaller: Error 
             DBModelErrorLogger.log.error("The column "+col.getFullName()+" size of {} does not match the database size of {}.", col.getSize(), size);
-        }
+            // increase count
+            errorCount++;
+   }
         else if (col.getDataType()!=DataType.INTEGER)
         {   // Database size is bigger or unknown: Warning only
             DBModelErrorLogger.log.warn("The column "+col.getFullName()+" size of {} does not match the database size of {}.", col.getSize(), size);
+            // increase count
+            warnCount++;
         }
     }
 
@@ -117,6 +139,8 @@ public class DBModelErrorLogger implements DBModelErrorHandler
         {
             DBModelErrorLogger.log.error("The column " + col.getFullName() + " must be nullable");
         }
+        // increase count
+        errorCount++;
     }
 
     /**
@@ -127,6 +151,8 @@ public class DBModelErrorLogger implements DBModelErrorHandler
     {
         DBModelErrorLogger.log.error("The primary key " + primaryKey.getName() + " of table " + primaryKey.getTable().getName()
                                      + " misses the column " + column.getName());
+        // increase count
+        errorCount++;
     }
 
 }

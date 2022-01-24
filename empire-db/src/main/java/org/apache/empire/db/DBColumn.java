@@ -25,6 +25,7 @@ import org.apache.empire.commons.StringUtils;
 import org.apache.empire.data.Column;
 import org.apache.empire.db.exceptions.DatabaseNotOpenException;
 import org.apache.empire.db.expr.set.DBSetExpr;
+import org.apache.empire.dbms.DBMSHandler;
 import org.apache.empire.exceptions.ObjectNotValidException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -247,11 +248,11 @@ public abstract class DBColumn extends DBColumnExpr
             buf.append(".");
         }
         // Append the name
-        DBDatabaseDriver driver = getDatabase().getDriver();
-        if (driver==null)
+        DBMSHandler dbms = getDatabase().getDbms();
+        if (dbms==null)
         	throw new DatabaseNotOpenException(getDatabase());
         // Append the name
-        driver.appendObjectName(buf, name, quoteName);
+        dbms.appendObjectName(buf, name, quoteName);
     }
 
     /**

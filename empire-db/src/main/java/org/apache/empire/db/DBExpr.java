@@ -26,6 +26,7 @@ import org.apache.empire.commons.ObjectUtils;
 import org.apache.empire.commons.OptionEntry;
 // java
 import org.apache.empire.data.DataType;
+import org.apache.empire.dbms.DBMSHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -115,14 +116,14 @@ public abstract class DBExpr extends DBObject
         } 
         else
         {   // Scalar Value from DB
-            DBDatabaseDriver driver = getDatabase().getDriver();
-            if (driver==null)
+            DBMSHandler dbms = getDatabase().getDbms();
+            if (dbms==null)
             {   // Convert to String
-                log.warn("No driver set for getting object value. Using default!");
+                log.warn("No dbms set for getting object value. Using default!");
                 return String.valueOf(value);
             }
-            // Get Value Expression from Driver
-            return driver.getValueString(value, dataType);
+            // Get Value Expression from dmbs
+            return dbms.getValueString(value, dataType);
         }
     }
     

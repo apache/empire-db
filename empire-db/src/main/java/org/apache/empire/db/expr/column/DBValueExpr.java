@@ -26,8 +26,8 @@ import org.apache.empire.data.DataType;
 import org.apache.empire.db.DBColumn;
 import org.apache.empire.db.DBColumnExpr;
 import org.apache.empire.db.DBDatabase;
-import org.apache.empire.db.DBDatabaseDriver;
 import org.apache.empire.db.DBExpr;
+import org.apache.empire.dbms.DBMSHandler;
 import org.apache.empire.xml.XMLUtil;
 import org.w3c.dom.Element;
 
@@ -199,8 +199,8 @@ public class DBValueExpr extends DBColumnExpr
             if (dataValue instanceof Enum<?>)
                 dataValue = ObjectUtils.getEnumValue((Enum<?>)dataValue, dataType.isNumeric());
             // convert value to sql literal
-            DBDatabaseDriver driver = db.getDriver();
-            String text = (driver!=null) ? driver.getValueString(dataValue, dataType) : ObjectUtils.getString(dataValue); 
+            DBMSHandler dbms = db.getDbms();
+            String text = (dbms!=null) ? dbms.getValueString(dataValue, dataType) : ObjectUtils.getString(dataValue); 
             buf.append(text);
         }
     }

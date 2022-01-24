@@ -27,7 +27,7 @@ import org.apache.empire.db.DBColumn;
 import org.apache.empire.db.DBColumnExpr;
 import org.apache.empire.db.DBDatabase;
 import org.apache.empire.db.DBExpr;
-import org.apache.empire.db.driver.DBSqlPhrase;
+import org.apache.empire.dbms.DBSqlPhrase;
 import org.apache.empire.xml.XMLUtil;
 import org.w3c.dom.Element;
 
@@ -142,7 +142,7 @@ public class DBConcatExpr extends DBColumnExpr
     @Override
     public void addSQL(StringBuilder buf, long context)
     { // Zusammenbauen
-        String template = getDatabase().getDriver().getSQLPhrase(DBSqlPhrase.SQL_CONCAT_EXPR);
+        String template = getDatabase().getDbms().getSQLPhrase(DBSqlPhrase.SQL_CONCAT_EXPR);
         context &= ~CTX_ALIAS; // No column aliases
         // Find Separator
         int sep = template.indexOf('?');

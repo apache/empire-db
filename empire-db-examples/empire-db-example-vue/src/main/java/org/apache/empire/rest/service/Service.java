@@ -29,9 +29,9 @@ import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 
-import org.apache.empire.db.DBDatabaseDriver;
 import org.apache.empire.db.context.DBContextBase;
 import org.apache.empire.db.context.DBRollbackManager;
+import org.apache.empire.dbms.DBMSHandler;
 import org.apache.empire.exceptions.EmpireException;
 import org.apache.empire.rest.app.SampleServiceApp;
 import org.apache.empire.rest.app.TextResolver;
@@ -85,9 +85,9 @@ public abstract class Service {
         }
 
         @Override
-        public DBDatabaseDriver getDriver()
+        public DBMSHandler getDbms()
         {
-            return db.getDriver();
+            return db.getDbms();
         }
 
         @Override

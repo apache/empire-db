@@ -143,7 +143,7 @@ public class DBReader extends DBRecordData implements DBContextAware, Closeable
                 return true;
             } catch (SQLException e) {
                 // Error
-                throw new EmpireSQLException(context.getDriver(), e);
+                throw new EmpireSQLException(context.getDbms(), e);
             }
         }
 
@@ -403,11 +403,11 @@ public class DBReader extends DBRecordData implements DBContextAware, Closeable
         try
         {   // Get Value from Resultset
             DataType dataType = colList[index].getDataType();
-            return context.getDriver().getResultValue(rset, index + 1, dataType);
+            return context.getDbms().getResultValue(rset, index + 1, dataType);
 
         } catch (SQLException e)
         { // Operation failed
-            throw new EmpireSQLException(context.getDriver(), e);
+            throw new EmpireSQLException(context.getDbms(), e);
         }
     }
 
@@ -515,8 +515,8 @@ public class DBReader extends DBRecordData implements DBContextAware, Closeable
             }
             // Close JDBC-Resultset
             if (rset != null)
-            {   // call driver
-                context.getDriver().closeResultSet(rset);
+            {   // call dbms
+                context.getDbms().closeResultSet(rset);
                 // remove from tracking-list
                 endTrackingThisResultSet();
             }
@@ -581,7 +581,7 @@ public class DBReader extends DBRecordData implements DBContextAware, Closeable
 
         } catch (SQLException e) {
             // an error occurred
-            throw new EmpireSQLException(context.getDriver(), e);
+            throw new EmpireSQLException(context.getDbms(), e);
         }
     }
 
@@ -606,7 +606,7 @@ public class DBReader extends DBRecordData implements DBContextAware, Closeable
 
         } catch (SQLException e) {
             // an error occurred
-            throw new EmpireSQLException(context.getDriver(), e);
+            throw new EmpireSQLException(context.getDbms(), e);
         }
     }
 

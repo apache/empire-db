@@ -545,7 +545,7 @@ public class DBQuery extends DBRowSet
                 timestampIndex = this.getColumnIndex(tsColumn);
                 if (timestampIndex>=0)
                 {   // The timestamp is availabe in the record
-                    timestampValue = context.getDriver().getUpdateTimestamp(conn); 
+                    timestampValue = context.getDbms().getUpdateTimestamp(conn); 
                     Object lastTS = fields[timestampIndex];
                     if (ObjectUtils.isEmpty(lastTS)==false)
                     {   // set timestamp constraint

@@ -26,6 +26,7 @@ import java.util.Set;
 import org.apache.empire.commons.Options;
 import org.apache.empire.data.DataType;
 import org.apache.empire.db.expr.order.DBOrderByExpr;
+import org.apache.empire.dbms.DBMSHandler;
 import org.apache.empire.exceptions.InvalidArgumentException;
 import org.apache.empire.exceptions.NotSupportedException;
 import org.apache.empire.exceptions.ObjectNotValidException;
@@ -396,9 +397,9 @@ public abstract class DBCommandExpr extends DBExpr
      * @return the new DBCombinedCmd object
      */
     public DBCommandExpr union(DBCommandExpr other)
-    {   // give driver a chance to subclass DBCombinedCmd
-    	DBDatabaseDriver driver = getDatabase().getDriver();
-    	return driver.createCombinedCommand(this, "UNION", other);
+    {   // give dbms a chance to subclass DBCombinedCmd
+    	DBMSHandler dbms = getDatabase().getDbms();
+    	return dbms.createCombinedCommand(this, "UNION", other);
     }
 
     /**
@@ -410,9 +411,9 @@ public abstract class DBCommandExpr extends DBExpr
      * @return the new DBCombinedCmd object
      */
     public DBCommandExpr unionAll(DBCommandExpr other)
-    {   // give driver a chance to subclass DBCombinedCmd
-        DBDatabaseDriver driver = getDatabase().getDriver();
-        return driver.createCombinedCommand(this, "UNION ALL", other);
+    {   // give dbms a chance to subclass DBCombinedCmd
+        DBMSHandler dbms = getDatabase().getDbms();
+        return dbms.createCombinedCommand(this, "UNION ALL", other);
     }
 
     /**
@@ -423,9 +424,9 @@ public abstract class DBCommandExpr extends DBExpr
      * @return the new DBCombinedCmd object
      */
     public DBCommandExpr intersect(DBCommandExpr other)
-    {   // give driver a chance to subclass DBCombinedCmd
-    	DBDatabaseDriver driver = getDatabase().getDriver();
-    	return driver.createCombinedCommand(this, "INTERSECT", other);
+    {   // give dbms a chance to subclass DBCombinedCmd
+    	DBMSHandler dbms = getDatabase().getDbms();
+    	return dbms.createCombinedCommand(this, "INTERSECT", other);
     }
     
     /**

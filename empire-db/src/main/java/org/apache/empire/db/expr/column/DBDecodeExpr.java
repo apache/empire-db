@@ -26,9 +26,9 @@ import org.apache.empire.commons.StringUtils;
 import org.apache.empire.data.DataType;
 import org.apache.empire.db.DBColumn;
 import org.apache.empire.db.DBColumnExpr;
-import org.apache.empire.db.DBDatabaseDriver;
 import org.apache.empire.db.DBExpr;
-import org.apache.empire.db.driver.DBSqlPhrase;
+import org.apache.empire.dbms.DBMSHandler;
+import org.apache.empire.dbms.DBSqlPhrase;
 
 /**
  * This class is used to decode a set of keys to the corresponding target values.
@@ -85,7 +85,7 @@ public class DBDecodeExpr extends DBAbstractFuncExpr
     @Override
     public void addSQL(StringBuilder sql, long context)
     {
-        DBDatabaseDriver driver = getDatabase().getDriver();
+        DBMSHandler dbms = getDatabase().getDbms();
         StringBuilder inner = new StringBuilder();
         // Generate parts
         for (Iterator<?> i = valueMap.keySet().iterator(); i.hasNext();)
@@ -93,25 +93,25 @@ public class DBDecodeExpr extends DBAbstractFuncExpr
             Object key = i.next();
             Object val = valueMap.get(key);
 
-            String part = driver.getSQLPhrase(DBSqlPhrase.SQL_FUNC_DECODE_PART);
+            String part = dbms.getSQLPhrase(DBSqlPhrase.SQL_FUNC_DECODE_PART);
             part = StringUtils.replaceAll(part, "{0}", getObjectValue(expr.getDataType(), key, DBExpr.CTX_DEFAULT, ""));
             part = StringUtils.replaceAll(part, "{1}", getObjectValue(this.getDataType(), val, DBExpr.CTX_DEFAULT, ""));
 
-            inner.append(driver.getSQLPhrase(DBSqlPhrase.SQL_FUNC_DECODE_SEP));
+            inner.append(dbms.getSQLPhrase(DBSqlPhrase.SQL_FUNC_DECODE_SEP));
             inner.append(part);
         }
         // Generate other
         if (elseExpr != null)
         { // Else
-            String other = driver.getSQLPhrase(DBSqlPhrase.SQL_FUNC_DECODE_ELSE);
+            String other = dbms.getSQLPhrase(DBSqlPhrase.SQL_FUNC_DECODE_ELSE);
             other = StringUtils.replaceAll(other, "{0}", getObjectValue(getDataType(), elseExpr, DBExpr.CTX_DEFAULT, ""));
 
-            inner.append(driver.getSQLPhrase(DBSqlPhrase.SQL_FUNC_DECODE_SEP));
+            inner.append(dbms.getSQLPhrase(DBSqlPhrase.SQL_FUNC_DECODE_SEP));
             inner.append(other);
         }
         DBValueExpr param = new DBValueExpr(getDatabase(), inner, DataType.UNKNOWN); 
         // Set Params
-        String template = driver.getSQLPhrase(DBSqlPhrase.SQL_FUNC_DECODE);
+        String template = dbms.getSQLPhrase(DBSqlPhrase.SQL_FUNC_DECODE);
         super.addSQL(sql, template, new Object[] { param }, context);
     }
 

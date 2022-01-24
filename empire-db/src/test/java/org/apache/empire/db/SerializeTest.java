@@ -30,6 +30,7 @@ import org.apache.empire.data.DataType;
 import org.apache.empire.db.context.DBContextBase;
 import org.apache.empire.db.context.DBContextStatic;
 import org.apache.empire.db.context.DBRollbackManager;
+import org.apache.empire.dbms.DBMSHandler;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -39,9 +40,9 @@ import org.junit.Test;
  */
 public class SerializeTest
 {
-    private static final MockDriver driver = new MockDriver();
+    private static final MockDriver dbms = new MockDriver();
 
-    private static final DBContext staticContext = new DBContextStatic(driver, null);
+    private static final DBContext staticContext = new DBContextStatic(dbms, null);
     
     private static DBContext getStaticContext()
     {
@@ -62,7 +63,7 @@ public class SerializeTest
     {
         final TestDatabase db = new TestDatabase();
         
-        DBContext context = new SerializableContext(driver, null);
+        DBContext context = new SerializableContext(dbms, null);
         db.open(context);
         
         DBRecord rec1Original = new DBRecord(context, db.T_TEST);
@@ -71,7 +72,7 @@ public class SerializeTest
         
         Assert.assertTrue(rec1Serial.isValid());
         Assert.assertNotNull(rec1Serial.getContext());
-        Assert.assertNotNull(rec1Serial.getContext().getDriver());
+        Assert.assertNotNull(rec1Serial.getContext().getDbms());
         Assert.assertNotSame(rec1Original.getContext(), rec1Serial.getContext());
     }
     
@@ -93,7 +94,7 @@ public class SerializeTest
 
         Assert.assertTrue(rec2Serial.isValid());
         Assert.assertNotNull(rec2Serial.getContext());
-        Assert.assertNotNull(rec2Serial.getContext().getDriver());
+        Assert.assertNotNull(rec2Serial.getContext().getDbms());
         Assert.assertEquals(rec2Original.getContext(), rec2Serial.getContext());
     }
     
@@ -125,7 +126,7 @@ public class SerializeTest
     {
         private static final long serialVersionUID = 1L;
         
-        private final transient DBDatabaseDriver driver;
+        private final transient DBMSHandler dbms;
         private final transient Connection conn;
         
         /**
@@ -133,7 +134,7 @@ public class SerializeTest
          */
         private void readObject(ObjectInputStream strm) throws IOException, ClassNotFoundException 
         {   // Driver
-            ClassUtils.setPrivateFieldValue(SerializableContext.class, this, "driver", SerializeTest.driver);
+            ClassUtils.setPrivateFieldValue(SerializableContext.class, this, "dbms", SerializeTest.dbms);
             // Context
             ClassUtils.setPrivateFieldValue(SerializableContext.class, this, "conn", getDBConnection());
             // read the rest
@@ -141,16 +142,16 @@ public class SerializeTest
         }
         
         
-        public SerializableContext(DBDatabaseDriver driver, Connection conn)
+        public SerializableContext(DBMSHandler dbms, Connection conn)
         {
-            this.driver = driver;
+            this.dbms = dbms;
             this.conn = conn;
         }
 
         @Override
-        public DBDatabaseDriver getDriver()
+        public DBMSHandler getDbms()
         {
-            return driver;
+            return dbms;
         }
     
         @Override

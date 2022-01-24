@@ -28,6 +28,7 @@ import org.apache.empire.DBResource;
 import org.apache.empire.DBResource.DB;
 import org.apache.empire.db.DBCmdParam;
 import org.apache.empire.db.context.DBContextStatic;
+import org.apache.empire.dbms.DBMSHandler;
 import org.junit.Rule;
 import org.junit.Test;
 
@@ -42,8 +43,8 @@ public class PreparedStatementTest{
     {
         Connection conn = dbResource.getConnection();
         
-        DBDatabaseDriver driver = dbResource.newDriver();
-        DBContext context = new DBContextStatic(driver, conn); 
+        DBMSHandler dbms = dbResource.newDriver();
+        DBContext context = new DBContextStatic(dbms, conn); 
         
         CompanyDB db = new CompanyDB();
         db.open(context);

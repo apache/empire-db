@@ -11,9 +11,9 @@ import javax.faces.context.FacesContext;
 import org.apache.empire.commons.ClassUtils;
 import org.apache.empire.db.DBCommand;
 import org.apache.empire.db.DBDatabase;
-import org.apache.empire.db.DBDatabaseDriver;
 import org.apache.empire.db.context.DBContextBase;
 import org.apache.empire.db.context.DBRollbackManager;
+import org.apache.empire.dbms.DBMSHandler;
 import org.apache.empire.exceptions.ItemNotFoundException;
 import org.apache.empire.exceptions.NotSupportedException;
 import org.slf4j.Logger;
@@ -33,9 +33,9 @@ public class WebDBContext<DB extends DBDatabase> extends DBContextBase implement
 
     private static final Logger    log = LoggerFactory.getLogger(WebDBContext.class);
 
-    protected final transient WebApplication   app;
-    protected final transient DB               database;
-    protected final transient DBDatabaseDriver driver;
+    protected final transient WebApplication app;
+    protected final transient DB             database;
+    protected final transient DBMSHandler    dbms;
 
     /**
      * Custom serialization for transient fields.
@@ -61,7 +61,7 @@ public class WebDBContext<DB extends DBDatabase> extends DBContextBase implement
         if (database==null)
             throw new ItemNotFoundException(dbid);
         ClassUtils.setPrivateFieldValue(WebDBContext.class, this, "database", database);
-        ClassUtils.setPrivateFieldValue(WebDBContext.class, this, "driver",   database.getDriver());
+        ClassUtils.setPrivateFieldValue(WebDBContext.class, this, "dbms",     database.getDbms());
         // read the rest
         strm.defaultReadObject();
     }
@@ -69,11 +69,11 @@ public class WebDBContext<DB extends DBDatabase> extends DBContextBase implement
     public WebDBContext(DB db)
     {
         this.app    = WebApplication.getInstance();
-        this.driver = db.getDriver();
+        this.dbms = db.getDbms();
         this.database = db;
-        // check driver
-        if (db.getDriver() == null)
-            log.warn("Database {} has no driver attached.", db.getClass().getSimpleName());
+        // check dbms
+        if (db.getDbms() == null)
+            log.warn("Database {} has no dbms attached.", db.getClass().getSimpleName());
     }
 
     public DB getDatabase()
@@ -87,9 +87,9 @@ public class WebDBContext<DB extends DBDatabase> extends DBContextBase implement
     }
 
     @Override
-    public DBDatabaseDriver getDriver()
+    public DBMSHandler getDbms()
     {
-        return driver;
+        return dbms;
     }
 
     @Override
