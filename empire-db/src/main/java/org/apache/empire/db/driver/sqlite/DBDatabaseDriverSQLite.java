@@ -372,40 +372,6 @@ public class DBDatabaseDriverSQLite extends DBDatabaseDriverBase
         }
     }
     
-    @Override
-    public Object getResultValue(ResultSet rset, int columnIndex, DataType dataType) throws SQLException
-    {
-        if (dataType == DataType.DATETIME || dataType == DataType.TIMESTAMP)
-        {
-            // SQLite does not have a Date type, or any kind of type :(
-            String datePattern = getSQLPhrase(DBSqlPhrase.SQL_DATETIME_PATTERN);
-            DateFormat dateFormat = new SimpleDateFormat(datePattern);
-            try
-            {
-                Date timestamp = dateFormat.parse(rset.getString(columnIndex));
-                return new java.sql.Timestamp(timestamp.getTime());
-            }
-            catch (ParseException e)
-            {
-                throw new UnexpectedReturnValueException(rset.getString(columnIndex), "getResultValue");
-            }
-        }
-        else if (dataType == DataType.CLOB)
-        {
-            java.sql.Clob clob = rset.getClob(columnIndex);
-            return ((clob != null) ? clob.getSubString(1, (int) clob.length()) : null);
-        }
-        else if (dataType == DataType.BLOB)
-        { // Get bytes of a binary large object
-            java.sql.Blob blob = rset.getBlob(columnIndex);
-            return ((blob != null) ? blob.getBytes(1, (int) blob.length()) : null);
-        }
-        else
-        {
-            return rset.getObject(columnIndex);
-        }
-    }
-    
     /**
      * @see DBDatabaseDriver#getConvertPhrase(DataType, DataType, Object)
      */
@@ -446,6 +412,89 @@ public class DBDatabaseDriverSQLite extends DBDatabaseDriverBase
             default:
                 log.error("getConvertPhrase: unknown type (" + String.valueOf(destType));
                 return "?";
+        }
+    }
+
+    /**
+     * Override since 
+     *      conn.prepareStatement(sqlCmd, Statement.RETURN_GENERATED_KEYS) 
+     * is not supported by SQLLite driver
+     */
+    @Override
+    public int executeSQL(String sqlCmd, Object[] sqlParams, Connection conn, DBSetGenKeys genKeys) throws SQLException
+    {
+        Statement stmt = null;
+        int count = 0;
+        try
+        {
+            if (sqlParams != null)
+            { // Use a prepared statement
+                PreparedStatement pstmt = conn.prepareStatement(sqlCmd);
+                stmt = pstmt;
+                prepareStatement(pstmt, sqlParams);
+                count = pstmt.executeUpdate();
+            }
+            else
+            { // Execute a simple statement
+                stmt = conn.createStatement();
+                count = stmt.executeUpdate(sqlCmd);
+            }
+            // Retrieve any auto-generated keys
+            if (genKeys != null && count > 0)
+            { // Return Keys
+                ResultSet rs = stmt.getGeneratedKeys();
+                try
+                {
+                    while (rs.next())
+                    {
+                        genKeys.set(rs.getObject(1));
+                    }
+                }
+                finally
+                {
+                    rs.close();
+                }
+            }
+        }
+        finally
+        {
+            closeStatement(stmt);
+        }
+        return count;
+    }
+    
+    
+    @Override
+    public Object getResultValue(ResultSet rset, int columnIndex, DataType dataType) throws SQLException
+    {
+        if (dataType == DataType.DATETIME || dataType == DataType.TIMESTAMP)
+        {
+            // SQLite does not have a Date type, or any kind of type :(
+            String datePattern = getSQLPhrase(DBSqlPhrase.SQL_DATETIME_PATTERN);
+            DateFormat dateFormat = new SimpleDateFormat(datePattern);
+            try
+            {
+                Date timestamp = dateFormat.parse(rset.getString(columnIndex));
+                return new java.sql.Timestamp(timestamp.getTime());
+            }
+            catch (ParseException e)
+            {
+                throw new UnexpectedReturnValueException(rset.getString(columnIndex), "getResultValue");
+            }
+        }
+        else if (dataType == DataType.CLOB)
+        {
+            java.sql.Clob clob = rset.getClob(columnIndex);
+            return ((clob != null) ? clob.getSubString(1, (int) clob.length()) : null);
+        }
+        else if (dataType == DataType.BLOB)
+        { // Get bytes of a binary large object
+            java.sql.Blob blob = rset.getBlob(columnIndex);
+            return ((blob != null) ? blob.getBytes(1, (int) blob.length()) : null);
+        }
+        else
+        {
+            return rset.getObject(columnIndex);
         }
     }
     
