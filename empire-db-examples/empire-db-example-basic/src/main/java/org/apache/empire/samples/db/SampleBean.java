@@ -18,6 +18,7 @@
  */
 package org.apache.empire.samples.db;
 
+import java.math.BigDecimal;
 
 /**
  * The SampleBean class is used to demonstrate JavaBean support for SQL-Queries.
@@ -31,12 +32,13 @@ public class SampleBean
     private String phoneNumber;
     private String department;
     private String businessUnit;
+    private BigDecimal paymentsLastYear;
 
     /*
      * Uncomment this if you want to use constructor instead of setters
-     * However, number of arguments and data types must match query!
+     * Number of arguments and data types must match query!
      *
-    public SampleBean(int employeeId, String fullName, String gender, String phoneNumber, String department, String businessUnit)
+    public SampleBean(int employeeId, String fullName, String gender, String phoneNumber, String department, String businessUnit, BigDecimal paymentsLastYear)
     {
         this.employeeId = employeeId;
         this.fullName = fullName;
@@ -44,6 +46,7 @@ public class SampleBean
         this.phoneNumber = phoneNumber;
         this.department = department;
         this.businessUnit = businessUnit;
+        this.paymentsLastYear = paymentsLastYear;
     }
     */
     
@@ -107,6 +110,16 @@ public class SampleBean
         this.businessUnit = businessUnit;
     }
 
+    public BigDecimal getPaymentsLastYear()
+    {
+        return paymentsLastYear;
+    }
+
+    public void setPaymentsLastYear(BigDecimal paymentsLastYear)
+    {
+        this.paymentsLastYear = paymentsLastYear;
+    }
+
     @Override
     public String toString()
     {
@@ -120,6 +133,8 @@ public class SampleBean
         buf.append(department);
         buf.append("\t");
         buf.append(businessUnit);
+        buf.append("\t");
+        buf.append(paymentsLastYear);
         return buf.toString();
     }
     

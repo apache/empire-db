@@ -18,8 +18,11 @@
  */
 package org.apache.empire.samples.db;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.time.LocalDate;
 import java.util.List;
 
 import org.apache.empire.commons.StringUtils;
@@ -89,7 +92,7 @@ public class SampleApp
 			DBMSHandler dbms = getDBMSHandler(config.getDatabaseProvider(), conn);
 			
             // STEP 2.2: Create a Context
-			context = new DBContextStatic(dbms, conn, true, true); 
+			context = new DBContextStatic(dbms, conn, false, true); 
 
             // STEP 3: Open Database (and create if not existing)
             System.out.println("*** Step 3: openDatabase() ***");
@@ -130,6 +133,9 @@ public class SampleApp
 			int idEmp1 = insertEmployee("Peter", "Sharp", Gender.M, idDevDep);
 			int idEmp2 = insertEmployee("Fred", "Bloggs", Gender.M, idDevDep);
 			int idEmp3 = insertEmployee("Emma", "White",  Gender.F, idSalDep);
+            // Insert Payments
+			insertPayments(idEmp1, new BigDecimal(2000));
+			insertPayments(idEmp3, new BigDecimal(2500));
 
 			// commit
 			context.commit();
@@ -291,6 +297,8 @@ public class SampleApp
 	private static void clearDatabase()
     {
 		DBCommand cmd = context.createCommand(db);
+        // Delete all Payments (no constraints)
+        context.executeDelete(db.PAYMENTS, cmd);
 		// Delete all Employees (no constraints)
 		context.executeDelete(db.EMPLOYEES, cmd);
 		// Delete all Departments (no constraints)
@@ -312,7 +320,7 @@ public class SampleApp
 		rec.setValue(DEP.BUSINESS_UNIT, businessUnit);
 		rec.update();
 		// Return Department ID
-		return rec.getInt(DEP.DEPARTMENT_ID);
+		return rec.getInt(DEP.ID);
 	}
 
 	/**
@@ -332,8 +340,32 @@ public class SampleApp
 		rec.setValue(EMP.DEPARTMENT_ID, departmentId);
 		rec.update();
 		// Return Employee ID
-		return rec.getInt(EMP.EMPLOYEE_ID);
+		return rec.getInt(EMP.ID);
 	}
+
+    /**
+     * <PRE>
+     * Inserts an Payments for a particular Employee
+     * </PRE>
+     */
+    private static void insertPayments(int employeeId, BigDecimal monthlySalary)
+    {
+        SampleDB.Payments PAY = db.PAYMENTS;
+        // Insert an Employee
+        LocalDate date = LocalDate.now();
+        date = date.minusDays(date.getDayOfMonth()-1); // first day of this month
+        // Add Payment for each month
+        DBRecord rec = new DBRecord(context, PAY);
+        for (LocalDate month=date.minusMonths(20); !month.isAfter(date); month=month.plusMonths(1))
+        {
+            BigDecimal variation = new BigDecimal((Math.random()*200) - 100.0);
+            variation = variation.setScale(2, RoundingMode.HALF_UP);
+            // insert
+            rec.create(DBRecord.key(employeeId, month.getYear(), month.getMonth()));
+            rec.setValue(PAY.AMOUNT, monthlySalary.add(variation));
+            rec.update();
+        }
+    }
 
 	/**
      * <PRE>
@@ -360,7 +392,7 @@ public class SampleApp
         // Shortcut for convenience
         SampleDB.Employees EMP = db.EMPLOYEES;
         // Update an Employee with partial record
-        // this will only load the EMPLOYEE_ID and the PHONE_NUMBER
+        // this will only load the EMPLOYEE ID and the PHONE_NUMBER
         DBRecord rec = new DBRecord(context, EMP);
         EMP.readRecord(rec, DBRecord.key(idEmp), PartialMode.INCLUDE, EMP.PHONE_NUMBER);
         // Set
@@ -383,8 +415,8 @@ public class SampleApp
         DBCommand cmd = db.createCommand();
         cmd.select(EMP.getColumns());
         cmd.select(DEP.getColumns());
-        cmd.join(EMP.DEPARTMENT_ID, DEP.DEPARTMENT_ID);
-        DBQuery query = new DBQuery(cmd, EMP.EMPLOYEE_ID);
+        cmd.join(EMP.DEPARTMENT_ID, DEP.ID);
+        DBQuery query = new DBQuery(cmd, EMP.ID);
 
         // Make employee Head of Department and update salary
         DBRecord rec = new DBRecord(context, query);
@@ -435,7 +467,7 @@ public class SampleApp
         log.info("testTransactionCreate performed OK");
         context.commit();
         
-        return rec.getInt(EMP.EMPLOYEE_ID);
+        return rec.getInt(EMP.ID);
     }
     /**
      * @param context
@@ -513,7 +545,7 @@ public class SampleApp
      *   SELECT t2.EMPLOYEE_ID, t2.LASTNAME || ', ' || t2.FIRSTNAME AS FULL_NAME, t2.GENDER, t2.PHONE_NUMBER, 
      *          substr(t2.PHONE_NUMBER, length(t2.PHONE_NUMBER)-instr(reverse(t2.PHONE_NUMBER), '-')+2) AS PHONE_EXTENSION, 
      *          t1.NAME AS DEPARTMENT, t1.BUSINESS_UNIT
-     *   FROM EMPLOYEES t2 INNER JOIN DEPARTMENTS t1 ON t1.DEPARTMENT_ID = t2.DEPARTMENT_ID
+     *   FROM EMPLOYEES t2 INNER JOIN DEPARTMENTS t1 ON t1.DEPARTMENT_ID = t2.ID
      *   WHERE length(t2.LASTNAME)>0
      *   ORDER BY t2.LASTNAME, t2.FIRSTNAME
      * 
@@ -533,14 +565,18 @@ public class SampleApp
 	 */
 	private static void queryRecords(QueryType queryType)
     {
+        int lastYear = LocalDate.now().getYear()-1;
+	    
 	    // Define the query
 	    DBCommand cmd = db.createCommand();
 	    // Define shortcuts for tables used - not necessary but convenient
 	    SampleDB.Employees   EMP = db.EMPLOYEES;
 	    SampleDB.Departments DEP = db.DEPARTMENTS;
+        SampleDB.Payments    PAY = db.PAYMENTS;
 
 	    // The following expression concats lastname + ', ' + firstname
         DBColumnExpr EMPLOYEE_FULLNAME = EMP.LASTNAME.append(", ").append(EMP.FIRSTNAME).as("FULL_NAME");
+        DBColumnExpr PAYMENTS_LAST_YEAR = PAY.AMOUNT.sum().as("PAYMENTS_LAST_YEAR");
         
         // The following expression extracts the extension number from the phone field
         // e.g. substr(PHONE_NUMBER, length(PHONE_NUMBER)-instr(reverse(PHONE_NUMBER), '-')+2) AS PHONE_EXTENSION
@@ -552,17 +588,22 @@ public class SampleApp
              PHONE_LAST_DASH = EMP.PHONE_NUMBER.indexOf("-", EMP.PHONE_NUMBER.indexOf("-").plus(1)).plus(1); // HSQLDB only
         else PHONE_LAST_DASH = EMP.PHONE_NUMBER.length().minus(EMP.PHONE_NUMBER.reverse().indexOf("-")).plus(2);  
         DBColumnExpr PHONE_EXT_NUMBER = EMP.PHONE_NUMBER.substring(PHONE_LAST_DASH).as("PHONE_EXTENSION");
-        
+
         // DBColumnExpr genderExpr = cmd.select(EMP.GENDER.decode(EMP.GENDER.getOptions()).as(EMP.GENDER.getName()));
         // Select required columns
-        cmd.select(EMP.EMPLOYEE_ID, EMPLOYEE_FULLNAME);
+        cmd.select(EMP.ID, EMPLOYEE_FULLNAME);
         cmd.select(EMP.GENDER, EMP.PHONE_NUMBER, PHONE_EXT_NUMBER);
         cmd.select(DEP.NAME.as("DEPARTMENT"));
         cmd.select(DEP.BUSINESS_UNIT);
-        cmd.join(EMP.DEPARTMENT_ID, DEP.DEPARTMENT_ID);
+        // add payment of current year
+        cmd.groupBy(cmd.getSelectExprList());
+        cmd.select(PAYMENTS_LAST_YEAR);
+        // join
+        cmd.join(EMP.DEPARTMENT_ID, DEP.ID);
+        cmd.joinLeft(EMP.ID, PAY.EMPLOYEE_ID).where(PAY.YEAR.is(lastYear));
         // Set constraints and order
         cmd.where(EMP.LASTNAME.length().isGreaterThan(0));
-        cmd.orderBy(EMP.LASTNAME, EMP.FIRSTNAME);
+        cmd.orderBy(EMPLOYEE_FULLNAME);
 
         /*
         // Example for limitRows() and skipRows()
@@ -590,11 +631,12 @@ public class SampleApp
 			        // Text-Output by iterating through all records.
 	                while (reader.moveNext())
                     {
-	                    System.out.println(reader.getString(EMP.EMPLOYEE_ID)
+	                    System.out.println(reader.getString(EMP.ID)
 	                            + "\t" + reader.getString(EMPLOYEE_FULLNAME)
 	                            + "\t" + EMP.GENDER.getOptions().get(reader.getString(EMP.GENDER))
                                 + "\t" + reader.getString(PHONE_EXT_NUMBER)
-	                            + "\t" + reader.getString(DEP.NAME));
+	                            + "\t" + reader.getString(DEP.NAME)
+	                            + "\t" + reader.getString(PAYMENTS_LAST_YEAR));
 	                }
 			        break;
                 case BeanList:

@@ -93,7 +93,7 @@ public abstract class SampleRecord<T extends SampleTable> extends DBRecord
         // load original record
         if (newRecord)
         {   // init a new record
-            super.init(key, true);
+            super.create(key);
         }
         else
         {   // read the current record

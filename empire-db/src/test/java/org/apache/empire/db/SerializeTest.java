@@ -67,7 +67,7 @@ public class SerializeTest
         db.open(context);
         
         DBRecord rec1Original = new DBRecord(context, db.T_TEST);
-        rec1Original.init(DBRecord.key(1), true);
+        rec1Original.create(DBRecord.key(1));
         DBRecord rec1Serial = ClassUtils.testSerialization(DBRecord.class, rec1Original);
         
         Assert.assertTrue(rec1Serial.isValid());
@@ -89,7 +89,7 @@ public class SerializeTest
         db.open(context);
         
         DBRecord rec2Original = new SerializableRecord(context, db.T_TEST);
-        rec2Original.init(DBRecord.key(1), true);
+        rec2Original.create(DBRecord.key(1));
         DBRecord rec2Serial = ClassUtils.testSerialization(DBRecord.class, rec2Original);
 
         Assert.assertTrue(rec2Serial.isValid());

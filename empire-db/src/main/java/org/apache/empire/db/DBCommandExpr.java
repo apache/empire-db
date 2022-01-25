@@ -33,14 +33,10 @@ import org.apache.empire.exceptions.ObjectNotValidException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Element;
-
-
 /**
  * This abstract class handles the creation of the SQL-Commands.
  * There are inner classes to construct different SQL-Commands.
  * <P>
- * 
- *
  */
 public abstract class DBCommandExpr extends DBExpr
 {
@@ -133,35 +129,28 @@ public abstract class DBCommandExpr extends DBExpr
             throw new NotSupportedException(this, "getRecordKey");
         }
 
-        /** Returns the error message: ERR_NOTSUPPORTED */
+        /** throws ERR_NOTSUPPORTED */
         @Override
-        public void initRecord(DBRecord rec, Object[] keyValues, boolean insert)
-        {
-            throw new NotSupportedException(this, "initRecord");
-        }
-
-        /** Returns the error message: ERR_NOTSUPPORTED */
-        @Override
-        public void createRecord(DBRecord rec, boolean deferredInit)
+        public void createRecord(DBRecord rec, Object[] initalKey, boolean deferredInit)
         {
             throw new NotSupportedException(this, "addRecord");
         }
 
-        /** Returns the error message: ERR_NOTSUPPORTED */
+        /** throws ERR_NOTSUPPORTED */
         @Override
         public void readRecord(DBRecord rec, Object[] keys)
         {
             throw new NotSupportedException(this, "getRecord");
         }
 
-        /** Returns the error message: ERR_NOTSUPPORTED */
+        /** throws ERR_NOTSUPPORTED */
         @Override
         public void updateRecord(DBRecord rec)
         {
             throw new NotSupportedException(this, "updateRecord");
         }
 
-        /** Returns the error message: ERR_NOTSUPPORTED */
+        /** throws ERR_NOTSUPPORTED */
         @Override
         public void deleteRecord(Object[] keys, DBContext context)
         {

@@ -337,34 +337,6 @@ public class DBQuery extends DBRowSet
             buf.append(alias);
         }
     }
-
-    /**
-     * Initialize specified DBRecord object with primary key
-     * columns (the Object[] keyValues).
-     * 
-     * @param rec the Record object
-     * @param keyValues an array of the primary key columns
-     */
-    @Override
-    public void initRecord(DBRecord rec, Object[] keyValues, boolean insert)
-    {
-        // Prepare
-        prepareInitRecord(rec, keyValues, insert);
-        // Initialize all Fields
-        Object[] fields = rec.getFields();
-        for (int i = 0; i < fields.length; i++)
-            fields[i] = ObjectUtils.NO_VALUE;
-        // Set primary key values
-        if (keyValues != null)
-        { // search for primary key fields
-            DBColumn[] keyColumns = getKeyColumns();
-            for (int i = 0; i < keyColumns.length; i++)
-                if (columns.contains(keyColumns[i]))
-                    fields[columns.indexOf(keyColumns[i])] = keyValues[i];
-        }
-        // Init
-        completeInitRecord(rec);
-    }
     
     /**
      * Returns an error, because it is not possible to add a record to a query.
@@ -374,7 +346,7 @@ public class DBQuery extends DBRowSet
      * @throws NotImplementedException because this is not implemented
      */
     @Override
-    public void createRecord(DBRecord rec, boolean deferredInit)
+    public void createRecord(DBRecord rec, Object[] initalKey, boolean deferredInit)
     {
         throw new NotImplementedException(this, "createRecord");
     }

@@ -883,13 +883,11 @@ public class DBRecord extends DBRecordData implements DBContextAware, Record, Cl
     }
 
     /**
-     * Initializes this record object 
-     * @param key the record key
-     * @param insert if true the record will be in the state NEW otherwise the state will be VALID
+     * Creates a new record
      */
-    public void init(Object[] key, boolean insert)
-    {   // Init with keys
-        rowset.initRecord(this, key, insert);
+    public void create(Object[] initalKey)
+    {
+        rowset.createRecord(this, initalKey, true);
     }
 
     /**
@@ -897,7 +895,7 @@ public class DBRecord extends DBRecordData implements DBContextAware, Record, Cl
      */
     public void create()
     {
-        rowset.createRecord(this, false);
+        rowset.createRecord(this, null, false);
     }
     
     /**

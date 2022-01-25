@@ -583,7 +583,7 @@ public abstract class DBCommand extends DBCommandExpr
      * 
      * @return the join expresion 
      */
-    public final DBColumnJoinExpr leftJoin(DBColumnExpr left, DBColumn right)
+    public final DBColumnJoinExpr joinLeft(DBColumnExpr left, DBColumn right)
     {
         return join(left, right, DBJoinType.LEFT);
     }
@@ -598,7 +598,7 @@ public abstract class DBCommand extends DBCommandExpr
      * 
      * @return the join expresion 
      */
-    public final DBColumnJoinExpr rightJoin(DBColumnExpr left, DBColumn right)
+    public final DBColumnJoinExpr joinRight(DBColumnExpr left, DBColumn right)
     {
         return join(left, right, DBJoinType.RIGHT);
     }

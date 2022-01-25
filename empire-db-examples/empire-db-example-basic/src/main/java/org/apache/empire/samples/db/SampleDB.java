@@ -27,7 +27,7 @@ import org.apache.empire.db.DBTableColumn;
 /**
  * <PRE>
  * This file contains the definition of the data model in Java.
- * The SampleDB data model consists of two tables and a foreign key relation.
+ * The SampleDB data model consists of three tables and a foreign key relation.
  * The tables are defined as nested classes here, but you may put them in separate files if you want to.
  *
  * PLEASE NOTE THE NAMING CONVENTION:
@@ -41,8 +41,9 @@ import org.apache.empire.db.DBTableColumn;
  */
 public class SampleDB extends DBDatabase
 {
-    // *Deprecated* private static final long serialVersionUID = 1L;
-    
+    /**
+     * Gender enum
+     */
     public enum Gender
     {
     	M("Male"),
@@ -62,13 +63,11 @@ public class SampleDB extends DBDatabase
     }
 
     /**
-     * This class represents the definition of the Departments table.
+     * This class represents the Departments table.
      */
     public static class Departments extends DBTable
     {
-        // *Deprecated* private static final long serialVersionUID = 1L;
-      
-        public final DBTableColumn DEPARTMENT_ID;
+        public final DBTableColumn ID;
         public final DBTableColumn NAME;
         public final DBTableColumn HEAD;
         public final DBTableColumn BUSINESS_UNIT;
@@ -78,7 +77,7 @@ public class SampleDB extends DBDatabase
         {
             super("DEPARTMENTS", db);
             // ID
-            DEPARTMENT_ID   = addColumn("DEPARTMENT_ID",    DataType.AUTOINC,       0, true, "DEP_ID_SEQUENCE");
+            ID              = addColumn("DEPARTMENT_ID",    DataType.AUTOINC,       0, true, "DEP_ID_SEQUENCE");  // Sequence name only required for some DBMS (e.g. Oracle)
             NAME            = addColumn("NAME",             DataType.VARCHAR,      80, true);
             HEAD            = addColumn("HEAD",             DataType.VARCHAR,      80, false);
             BUSINESS_UNIT   = addColumn("BUSINESS_UNIT",    DataType.VARCHAR,       4, true, "ITTK");
@@ -92,13 +91,11 @@ public class SampleDB extends DBDatabase
     }
 
     /**
-     * This class represents the definition of the Employees table.
+     * This class represents the Employees table.
      */
     public static class Employees extends DBTable
     {
-        // *Deprecated* private static final long serialVersionUID = 1L;
-      
-        public final DBTableColumn EMPLOYEE_ID;
+        public final DBTableColumn ID;
         public final DBTableColumn SALUTATION;
         public final DBTableColumn FIRSTNAME;
         public final DBTableColumn LASTNAME;
@@ -117,7 +114,7 @@ public class SampleDB extends DBDatabase
             super("EMPLOYEES", db);
             
             // ID
-            EMPLOYEE_ID     = addColumn("EMPLOYEE_ID",      DataType.AUTOINC,      0, true, "EMPLOYEE_ID_SEQUENCE");
+            ID              = addColumn("EMPLOYEE_ID",      DataType.AUTOINC,      0, true, "EMPLOYEE_ID_SEQUENCE");  // Sequence name only required for some DBMS (e.g. Oracle)
             SALUTATION      = addColumn("SALUTATION",       DataType.VARCHAR,     20, false);
             FIRSTNAME       = addColumn("FIRSTNAME",        DataType.VARCHAR,     40, true);
             LASTNAME        = addColumn("LASTNAME",         DataType.VARCHAR,     40, true);
@@ -138,19 +135,47 @@ public class SampleDB extends DBDatabase
         }
     }
 
+    /**
+     * This class represents the Payments table.
+     */
+    public static class Payments extends DBTable
+    {
+        public final DBTableColumn EMPLOYEE_ID;
+        public final DBTableColumn YEAR;
+        public final DBTableColumn MONTH;
+        public final DBTableColumn AMOUNT;
+
+        public Payments(DBDatabase db)
+        {
+            super("PAYMENTS", db);
+            
+            // ID
+            EMPLOYEE_ID     = addColumn("EMPLOYEE_ID",      DataType.INTEGER,      0, true);
+            YEAR            = addColumn("YEAR",             DataType.DECIMAL,    4.0, true);
+            MONTH           = addColumn("MONTH",            DataType.DECIMAL,    2.0, true);
+            AMOUNT          = addColumn("AMOUNT",           DataType.DECIMAL,    8.2, true);
+
+            // Primary Key (automatically set due to AUTOINC column)
+            setPrimaryKey(EMPLOYEE_ID, YEAR, MONTH);
+            // Set other Indexes
+        }
+    }
+    
     // Declare all Tables and Views here
     public final Departments  DEPARTMENTS = new Departments(this);
     public final Employees    EMPLOYEES   = new Employees(this);
+    public final Payments     PAYMENTS    = new Payments(this);
 
     /**
-     * Constructor of the SampleDB data model description
+     * Constructor of the SampleDB data model
      *
      * Put all foreign key relations here.
      */
     public SampleDB()
     {
         // Define Foreign-Key Relations
-        addRelation( EMPLOYEES.DEPARTMENT_ID.referenceOn( DEPARTMENTS.DEPARTMENT_ID ));
+        addRelation( EMPLOYEES.DEPARTMENT_ID.referenceOn( DEPARTMENTS.ID ));
+        addRelation( PAYMENTS.EMPLOYEE_ID   .referenceOn( EMPLOYEES.ID ));
     }
 
 }

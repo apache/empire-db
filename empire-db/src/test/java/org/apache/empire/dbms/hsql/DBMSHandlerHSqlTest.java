@@ -20,6 +20,7 @@ package org.apache.empire.dbms.hsql;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import java.sql.Connection;
@@ -73,6 +74,7 @@ public class DBMSHandlerHSqlTest{
         
         DBRecord emp = new DBRecord(context, db.EMPLOYEE);
         emp.create();
+        assertNotNull("Employee-ID is null", emp.getValue(db.EMPLOYEE.ID));
         emp.setValue(db.EMPLOYEE.FIRSTNAME, "junit");
         emp.setValue(db.EMPLOYEE.LASTNAME, "test");
         emp.setValue(db.EMPLOYEE.GENDER, "m");
@@ -80,7 +82,8 @@ public class DBMSHandlerHSqlTest{
         emp.update();
         
         DBRecord emp2 = new DBRecord(context, db.EMPLOYEE);
-        emp2.init(null, true);
+        emp2.create(null);
+        assertNull("Employee-ID is NOT null", emp2.getValue(db.EMPLOYEE.ID));
         emp2.setValue(db.EMPLOYEE.FIRSTNAME, "junit2");
         emp2.setValue(db.EMPLOYEE.LASTNAME, "test2");
         emp2.setValue(db.EMPLOYEE.GENDER, "m");

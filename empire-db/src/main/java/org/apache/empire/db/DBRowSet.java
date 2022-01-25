@@ -232,7 +232,7 @@ public abstract class DBRowSet extends DBExpr
     
     public abstract boolean isUpdateable();
 
-    public abstract void createRecord(DBRecord rec, boolean deferredInit);
+    public abstract void createRecord(DBRecord rec, Object[] initalKey, boolean deferredInit);
 
     public abstract void deleteRecord(Object[] keys, DBContext context);
     
@@ -507,23 +507,6 @@ public abstract class DBRowSet extends DBExpr
     {
         return columns.get(index);
     }
-    
-    /**
-     * Initialize this DBRowSet object and sets it's initial state.
-     * 
-     * @param rec the DBRecord object to initialize this DBRowSet object
-     * @param rowSetData any further RowSet specific data
-     * @param insert
-     */
-    protected void prepareInitRecord(DBRecord rec, Object rowSetData, boolean insert)
-    {
-        if (rec==null || rec.getRowSet()!=this)
-            throw new InvalidArgumentException("rec", rec);
-        if (columns.size() < 1)
-            throw new ObjectNotValidException(this);
-        // Init
-        rec.initData(rowSetData, insert);
-    }
 
     /**
      * Initializes a DBRecord for this RowSet and sets primary key values (the Object[] keyValues).
@@ -532,10 +515,10 @@ public abstract class DBRowSet extends DBExpr
      * @param rec the Record object
      * @param keyValues an array of the primary key columns
      */
-    public void initRecord(DBRecord rec, Object[] keyValues, boolean insert)
+    protected void initRecord(DBRecord rec, Object[] keyValues, Connection conn, boolean setDefaults, boolean newRecord)
     {
         // Prepare
-        prepareInitRecord(rec, null, insert);
+        prepareInitRecord(rec, null, newRecord);
         // Initialize all Fields
         Object[] fields = rec.getFields();
         /* 
@@ -553,7 +536,10 @@ public abstract class DBRowSet extends DBExpr
             }
         }
         // Set defaults (don't provide connection here)
-        initRecordDefaultValues(rec, null);
+        if (setDefaults)
+        {
+            initRecordDefaultValues(rec, conn);
+        }
         // Init
         completeInitRecord(rec);
     }
@@ -608,11 +594,37 @@ public abstract class DBRowSet extends DBExpr
      */
     protected void initRecordDefaultValues(DBRecord rec, Connection conn)
     {
-        /* 
-         * Implemented in DBTable
+        /**
+         * Overridden in DBTable
          * 
-         * Not useful for Views and Queries
+         * Set to NO_VALUE for Views and Queries
          */
+        Object[] fields = rec.getFields();
+        // Set Default values
+        for (int i = 0; i < fields.length; i++)
+        {   // already set ?
+            if (fields[i]!=null)
+                continue; 
+            // check default
+            fields[i] = ObjectUtils.NO_VALUE;
+        }
+    }
+    
+    /**
+     * Initialize this DBRowSet object and sets it's initial state.
+     * 
+     * @param rec the DBRecord object to initialize this DBRowSet object
+     * @param rowSetData any further RowSet specific data
+     * @param insert
+     */
+    protected void prepareInitRecord(DBRecord rec, Object rowSetData, boolean newRecord)
+    {
+        if (rec==null || rec.getRowSet()!=this)
+            throw new InvalidArgumentException("rec", rec);
+        if (columns.size() < 1)
+            throw new ObjectNotValidException(this);
+        // Init
+        rec.initData(rowSetData, newRecord);
     }
     
     /**
