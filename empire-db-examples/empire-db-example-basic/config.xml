@@ -131,7 +131,14 @@
 			<!-- layout class="org.apache.log4j.TTCCLayout"/ -->
 			<layout class="org.apache.log4j.PatternLayout">
 				<!-- param name="ConversionPattern" value="NSB(%c) %-5p %m	at %l%n"/ -->
-				<param name="ConversionPattern" value="%-5p [%d{yyyy/MM/dd HH:mm}]: %m		at %l %n"/>
+				<param name="ConversionPattern" value="%-5p : %m		at %l %n"/>
+			</layout>
+		</appender>
+
+		<appender name="sample" class="org.apache.log4j.ConsoleAppender">
+			<layout class="org.apache.log4j.PatternLayout">
+				<!-- param name="ConversionPattern" value="NSB(%c) %-5p %m	at %l%n"/ -->
+				<param name="ConversionPattern" value="%-5p : *** %m *** %n"/>
 			</layout>
 		</appender>
 	
@@ -164,7 +171,7 @@
 
 		<logger name="org.apache.empire.samples.db" additivity="false">
 			<level value="debug"/>
-			<appender-ref ref="default"/>
+			<appender-ref ref="sample"/>
 		</logger>
 
 		<root>

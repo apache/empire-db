@@ -215,7 +215,7 @@ public class XMLConfiguration
             log.error("Unable to set Property {}", name);
         } catch (NoSuchMethodException e)
         {
-            log.error("Property '{}' not found in {}", name, bean.getClass().getName());
+            log.warn("Property '{}' not found in {}. Will be ingored.", name, bean.getClass().getName());
         }
     }
     

@@ -45,7 +45,7 @@ public class DBContextStatic extends DBContextBase
      */
     public DBContextStatic(DBMSHandler dbmsHandler, Connection conn)
     {
-        this(dbmsHandler, conn, (conn!=null), false);
+        this(dbmsHandler, conn, false, false);
     }
     
     /**
@@ -81,11 +81,11 @@ public class DBContextStatic extends DBContextBase
         super.discard();
         // close
         if (closeOnDiscard) 
-        {   // Close the connection
-            closeConnection();
-            // rollbackManager release
+        {   // rollbackManager release
             if (enableRollbackHandling)
                 staticRollbackManager.releaseConnection(conn, ReleaseAction.Discard);
+            // Close the connection
+            closeConnection();
         }
     }
 
