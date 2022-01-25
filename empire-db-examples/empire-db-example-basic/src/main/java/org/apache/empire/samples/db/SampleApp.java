@@ -36,6 +36,8 @@ import org.apache.empire.db.DBRecord;
 import org.apache.empire.db.DBRowSet.PartialMode;
 import org.apache.empire.db.DBSQLScript;
 import org.apache.empire.db.context.DBContextStatic;
+import org.apache.empire.db.validation.DBModelChecker;
+import org.apache.empire.db.validation.DBModelErrorLogger;
 import org.apache.empire.dbms.DBMSHandler;
 import org.apache.empire.dbms.derby.DBMSHandlerDerby;
 import org.apache.empire.dbms.h2.DBMSHandlerH2;
@@ -101,7 +103,8 @@ public class SampleApp
                 db.open(context);
                 // Check whether database exists
 			    databaseExists();
-                log.info("Database already exists. Skipping Step4");
+                log.info("Database already exists. Checking data model...");
+                checkDataModel();
                 
 			} catch(Exception e) {
                 // STEP 4: Create Database
@@ -286,6 +289,22 @@ public class SampleApp
 		// Commit
 		context.commit();
 	}
+    
+    private static void checkDataModel()
+    {
+        try {
+            DBModelChecker modelChecker = context.getDbms().createModelChecker(db);
+            // Check data model   
+            log.info("Checking DataModel for {} using {}", db.getClass().getSimpleName(), modelChecker.getClass().getSimpleName());
+            // dbo schema
+            DBModelErrorLogger logger = new DBModelErrorLogger();
+            modelChecker.checkModel(context.getConnection(), logger);
+            // show result
+            log.info("Data model check done. Found {} errors and {} warnings.", logger.getErrorCount(), logger.getWarnCount());
+        } catch(Exception e) {
+            log.error("FATAL error when checking data model. Probably not properly implemented by DBMSHandler!");
+        }
+    }
 
 	/**
      * <PRE>
