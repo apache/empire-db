@@ -22,6 +22,7 @@ import org.apache.empire.commons.Attributes;
 import org.apache.empire.commons.ObjectUtils;
 import org.apache.empire.commons.Options;
 import org.apache.empire.data.Column;
+import org.apache.empire.data.ColumnExpr;
 import org.apache.empire.data.DataType;
 import org.apache.empire.db.exceptions.FieldNotNullException;
 
@@ -196,6 +197,16 @@ public class BeanProperty implements Column
     public Column getSourceColumn()
     {
         return this;
+    }
+
+    /**
+     * This helper function unwraps an alias expression
+     * @return the original expresion before renaming
+     */
+    @Override
+    public ColumnExpr unwrap()
+    {   // Nothing to unwrap
+        return this; 
     }
 
     // --- Column interface implementation ---

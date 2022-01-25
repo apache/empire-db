@@ -557,7 +557,7 @@ public class DBMSHandlerMSSQL extends DBMSHandlerBase
             schema  = catalog.substring(schemaSep+1);
         }
         // the default model checker
-        return new MSSqlDBModelChecker(db, catalog, schema);
+        return new MSSqlDBModelChecker(catalog, schema);
     }
 
 }

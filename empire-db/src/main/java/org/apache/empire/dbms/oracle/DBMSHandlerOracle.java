@@ -538,7 +538,7 @@ public class DBMSHandlerOracle extends DBMSHandlerBase
         if (StringUtils.isEmpty(schemaPattern))
             throw new InvalidPropertyException("schemaName", null);
         // the default model checker
-        return new OracleDBModelChecker(db, schemaPattern);
+        return new OracleDBModelChecker(schemaPattern, getBooleanType());
     }
 
 }

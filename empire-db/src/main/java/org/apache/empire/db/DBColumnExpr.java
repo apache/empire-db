@@ -110,6 +110,16 @@ public abstract class DBColumnExpr extends DBExpr
     public abstract Element addXml(Element parent, long flags);
 
     /**
+     * This helper function unwraps an alias expression
+     * @return the original expresion before renaming
+     */
+    @Override
+    public DBColumnExpr unwrap()
+    {   // Noting to unwrap
+        return this;
+    }
+
+    /**
      * Returns the value of a column attribute.
      * Column attributes are used to provide metadata for a column.
      * 

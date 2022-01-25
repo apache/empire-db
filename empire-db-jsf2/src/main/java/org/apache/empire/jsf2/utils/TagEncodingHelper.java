@@ -149,6 +149,12 @@ public class TagEncodingHelper implements NamingContainer
         }
 
         @Override
+        public ColumnExpr unwrap()
+        {
+            return expr.unwrap();  
+        }
+
+        @Override
         public double getSize()
         {
             return 0;

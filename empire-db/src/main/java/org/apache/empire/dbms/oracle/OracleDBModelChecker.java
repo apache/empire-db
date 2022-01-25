@@ -23,12 +23,9 @@ import java.sql.SQLException;
 
 import org.apache.empire.data.DataType;
 import org.apache.empire.db.DBColumn;
-import org.apache.empire.db.DBDatabase;
 import org.apache.empire.db.validation.DBModelChecker;
 import org.apache.empire.db.validation.DBModelErrorHandler;
-import org.apache.empire.dbms.DBMSHandler;
 import org.apache.empire.dbms.oracle.DBMSHandlerOracle.BooleanType;
-import org.apache.empire.exceptions.InvalidArgumentException;
 import org.apache.empire.exceptions.InvalidPropertyException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,22 +37,15 @@ public class OracleDBModelChecker extends DBModelChecker
 {
     private static final Logger log = LoggerFactory.getLogger(OracleDBModelChecker.class);
     
-    private BooleanType booleanType = BooleanType.NUMBER;
+    private final BooleanType booleanType;
     
-    public OracleDBModelChecker(DBDatabase db, String schemaName)
+    public OracleDBModelChecker(String schemaName, BooleanType booleanType)
     {
         super(null, schemaName);
         // Detect boolean type
-        DBMSHandler dbms = db.getDbms();
-        if (dbms instanceof DBMSHandlerOracle)
-        {
-            booleanType = ((DBMSHandlerOracle)dbms).getBooleanType();
-        }
-        else
-        {   // Illegal DBMSHandler
-            log.error("The database is not attached to a DBMSHandlerOracle");
-            throw new InvalidArgumentException("db", db);
-        }
+        this.booleanType = booleanType;
+        // ok
+        log.info("OracleDBModelChecker created for {} with booleanType {}", schemaName, booleanType);
     }
 
     /**

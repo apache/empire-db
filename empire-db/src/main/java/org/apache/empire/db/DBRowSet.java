@@ -32,6 +32,7 @@ import org.apache.empire.commons.ObjectUtils;
 import org.apache.empire.commons.StringUtils;
 import org.apache.empire.data.Column;
 import org.apache.empire.data.DataType;
+import org.apache.empire.data.Entity;
 import org.apache.empire.db.DBRelation.DBCascadeAction;
 import org.apache.empire.db.DBRelation.DBReference;
 import org.apache.empire.db.exceptions.FieldIsReadOnlyException;
@@ -64,7 +65,7 @@ import org.slf4j.LoggerFactory;
  * 
  *
  */
-public abstract class DBRowSet extends DBExpr
+public abstract class DBRowSet extends DBExpr implements Entity
 {
     // *Deprecated* private static final long serialVersionUID = 1L;
 
@@ -227,6 +228,7 @@ public abstract class DBRowSet extends DBExpr
 
     // ------- Abstract Methods -------
     
+    @Override
     public abstract String getName();
     
     public abstract String getAlias();
@@ -275,6 +277,7 @@ public abstract class DBRowSet extends DBExpr
      * <P>
      * @return all columns of this rowset
      */
+    @Override
     public List<DBColumn> getColumns()
     {
         return Collections.unmodifiableList(columns);
@@ -360,6 +363,7 @@ public abstract class DBRowSet extends DBExpr
      * 
      * @return an array of all primary key columns
      */
+    @Override
     public DBColumn[] getKeyColumns()
     {
         return ((primaryKey != null) ? primaryKey.getColumns() : null);

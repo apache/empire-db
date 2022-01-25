@@ -26,7 +26,6 @@ import org.apache.empire.commons.Options;
  */
 public interface ColumnExpr
 {
-
     /**
      * Returns the column's data type.
      * @see DataType
@@ -78,5 +77,10 @@ public interface ColumnExpr
      * @return the column on which this expression is based or null if not applicable.
      */
     Column getSourceColumn();
-
+    
+    /**
+     * This helper function unwraps an alias expression
+     * @return the original expresion before renaming
+     */
+    ColumnExpr unwrap();
 }

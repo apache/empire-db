@@ -27,6 +27,7 @@ import java.util.List;
 
 import org.apache.empire.commons.StringUtils;
 import org.apache.empire.data.bean.BeanResult;
+import org.apache.empire.data.list.DataListEntry;
 import org.apache.empire.db.DBColumnExpr;
 import org.apache.empire.db.DBCommand;
 import org.apache.empire.db.DBContext;
@@ -625,6 +626,14 @@ public class SampleApp
         cmd.where(EMP.LASTNAME.length().isGreaterThan(0));
         // Order by
         cmd.orderBy(EMPLOYEE_FULLNAME);
+        
+        /*
+        List<DataListEntry> list = context.getUtils().queryDataList(cmd);
+        for (DataListEntry dle : list)
+        {
+            System.out.println(dle.toString());
+        }
+        */
 
         /*
          * Example for limitRows() and skipRows()

@@ -369,6 +369,20 @@ public abstract class DBCommand extends DBCommandExpr
     }
     
     /**
+     * Checks whether or not there are any aggregate functions in the Select
+     * @return true if at least on of the selected expressions is an aggregate
+     */
+    public boolean hasAggegation() 
+    {
+        for (DBColumnExpr expr : this.select)
+        {
+            if (expr.isAggregate())
+                return true;
+        }
+        return false;
+    }
+    
+    /**
      * returns true if prepared statements are enabled for this database
      */
     protected boolean isPreparedStatementsEnabled()
@@ -985,7 +999,7 @@ public abstract class DBCommand extends DBCommandExpr
      * @return an array of all DBColumnExpr objects or <code>null</code> if there is nothing to select
      */
     @Override
-    protected DBColumnExpr[] getSelectExprList()
+    public DBColumnExpr[] getSelectExprList()
     {
         int count = (select != null) ? select.size() : 0;
         if (count < 1)

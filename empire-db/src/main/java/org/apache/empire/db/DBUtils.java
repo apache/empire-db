@@ -29,7 +29,10 @@ public class DBUtils implements DBContextAware
     protected static final Logger log = LoggerFactory.getLogger(DBDatabase.class);
     
     // Threshold for long running queries in milliseconds
-    protected long longRunndingStmtThreshold = 30000;
+    protected static long longRunndingStmtThreshold = 30000;
+    // Max-Rows for list queries
+    protected static int  MAX_QUERY_ROWS  = 999;
+    
     // the context
     protected final DBContext context;
     // the dbms
@@ -605,4 +608,113 @@ public class DBUtils implements DBContextAware
         } 
     }
 
+    /**
+     * Crates a default DataListHead for a DataListEntry class
+     * The DataListEntry class must provide the following constructor
+     *      DataListEntry(DataListHead<? extends DataListEntry> head, int rownum, Object values[])
+     * @param entryClass the entryClass for which to create the list head 
+     * @return
+    protected <T extends DataListEntry> DataListHead<T> createDefaultDataListHead(DBCommand cmd, Class<T> entryClass) 
+    {
+        return new DataListHead<T>(entryClass, cmd.getSelectExprList());
+    }
+     */
+    
+    /**
+     * Executes a query and returns a list of DataListEntry items
+     * @param sqlCmd the SQL-Command for the query
+     * @param listHead the HeadInfo to be used for each list item
+     * @param first the number of records to skip from the beginning of the result
+     * @param pageSize the maximum number of item to return
+     * @return the list 
+    public <T extends DataListEntry<?>> List<T> queryDataList(DBCommand cmd, DataListHead<T> listHead, int first, int pageSize)
+    {
+        DBReader r = new DBReader(context);
+        try
+        {   // check pageSize
+            if (pageSize==0)
+            {   log.warn("PageSize must not be 0. Setting to -1 for all records!");
+                pageSize = -1;
+            }
+            // set range
+            DBMSHandler dbms = cmd.getDatabase().getDbms();
+            if (pageSize>0 && dbms.isSupported(DBMSFeature.QUERY_LIMIT_ROWS))
+            {   // let the database limit the rows
+                if (first>0 && dbms.isSupported(DBMSFeature.QUERY_SKIP_ROWS))
+                {   // let the database skip the rows
+                    cmd.skipRows(first);
+                    // no need to skip rows
+                    first = 0;
+                }
+                cmd.limitRows(first+pageSize);
+            }
+            // Runquery
+            r.open(cmd);
+            if (first>0) 
+            {   // skip rows
+                r.skipRows(first);
+            }
+            // Create a list of data entries
+            int maxCount = (pageSize>=0) ? pageSize : MAX_QUERY_ROWS;
+            ArrayList<T> list = new ArrayList<T>((pageSize>=0) ? pageSize : 10);
+            // add data
+            int rownum = 0;
+            while (r.moveNext() && maxCount != 0)
+            {   // Create bean an init
+                T entry = listHead.newEntry(++rownum, r);
+                // add entry
+                list.add(entry);
+                // Decrease count
+                if (maxCount > 0)
+                    maxCount--;
+            }
+            // check
+            if (rownum==MAX_QUERY_ROWS)
+            {
+                log.warn("********************************************************");
+                log.warn("Query Result was limited to {} by MAX_QUERY_ROWS", rownum);
+                log.warn("********************************************************");
+            }
+            return list;
+        }
+        finally
+        {
+            r.close();
+        }
+    }
+     */
+    
+    /**
+     * Queries a list of DataListEntry items
+    public final <T extends DataListEntry<?>> List<T> queryDataList(DBCommand cmd, Class<T> entryClass)
+    {
+        return queryDataList(cmd, createDefaultDataListHead(cmd, entryClass), 0, -1);
+    }
+     */
+    
+    /**
+     * Queries a list of DataListEntry items
+    public final List<DataListEntry> queryDataList(DBCommand cmd)
+    {
+        return queryDataList(cmd, DataListEntry.class);
+    }
+     */
+    
+    /**
+     * Queries a single DataListEntry item
+    public final <T extends DataListEntry<?>> T queryDataEntry(DBCommand cmd, Class<T> entryClass)
+    {
+        List<T> dle = queryDataList(cmd, createDefaultDataListHead(cmd, entryClass), 0, 1);
+        return (dle.isEmpty() ? null : dle.get(0));
+    }
+     */
+    
+    /**
+     * Queries a single DataListEntry item
+    public final DataListEntry<?> queryDataEntry(DBCommand cmd)
+    {
+        return queryDataEntry(cmd, DataListEntry.class);
+    }
+     */
+    
 }

@@ -22,7 +22,6 @@ import java.sql.DatabaseMetaData;
 import java.sql.SQLException;
 
 import org.apache.empire.commons.StringUtils;
-import org.apache.empire.db.DBDatabase;
 import org.apache.empire.db.validation.DBModelChecker;
 
 /**
@@ -37,7 +36,7 @@ public class MSSqlDBModelChecker extends DBModelChecker
      * @param db the database 
      * @param catalog the catalog
      */
-    public MSSqlDBModelChecker(DBDatabase db, String catalog, String schema)
+    public MSSqlDBModelChecker(String catalog, String schema)
     {
         super(catalog, StringUtils.coalesce(schema, "DBO"));
     }

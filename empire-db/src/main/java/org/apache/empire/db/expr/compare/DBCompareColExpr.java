@@ -257,9 +257,9 @@ public class DBCompareColExpr extends DBCompareExpr
     		// unwrap
             DBColumnExpr texpr = expr;
             if (texpr instanceof DBAliasExpr)
-                texpr = ((DBAliasExpr) texpr).getExpr();
+                texpr = ((DBAliasExpr) texpr).unwrap();
             if (oexpr instanceof DBAliasExpr)
-                oexpr = ((DBAliasExpr) oexpr).getExpr();
+                oexpr = ((DBAliasExpr) oexpr).unwrap();
             // check function expression
             boolean tfunc = (texpr instanceof DBAbstractFuncExpr);
             boolean ofunc = (oexpr instanceof DBAbstractFuncExpr); 

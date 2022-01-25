@@ -30,9 +30,6 @@ import org.apache.empire.dbms.DBMSHandler;
 import org.apache.empire.dbms.DBSqlPhrase;
 import org.w3c.dom.Element;
 
-// XML
-
-
 /**
  * This class allows column renaming in SQL.
  * <P>
@@ -97,34 +94,6 @@ public class DBAliasExpr extends DBColumnExpr
     }
 
     /**
-     * This helper function returns the underlying column expression.
-     *
-     * @return the underlying column expression
-     */
-    public DBColumnExpr getExpr()
-    {
-        return expr;
-    }
-
-    /**
-     * This function set the alias name to the XML tag.
-     *
-     * @return the XML tag (with the alias name)
-     */
-    @Override
-    public Element addXml(Element parent, long flags)
-    { // Set name to Alias
-        Element field = expr.addXml(parent, flags);
-        if (field != null)
-        {   // Set Name
-            if (field.hasAttribute("name"))
-                field.setAttribute("source", StringUtils.toString(field.getAttribute("name")));
-            field.setAttribute("name", alias);
-        }
-        return field;
-    }
-
-    /**
      * Returns the DBColunm object.
      *
      * @return the DBColunm object
@@ -133,6 +102,17 @@ public class DBAliasExpr extends DBColumnExpr
     public DBColumn getUpdateColumn()
     {
         return expr.getUpdateColumn();
+    }
+
+    /**
+     * This helper function returns the underlying column expression.
+     *
+     * @return the underlying column expression
+     */
+    @Override
+    public DBColumnExpr unwrap()
+    {
+        return expr;
     }
 
     /**
@@ -181,7 +161,25 @@ public class DBAliasExpr extends DBColumnExpr
             expr.addSQL(buf, context);
         }
     }
-    
+
+    /**
+     * This function set the alias name to the XML tag.
+     *
+     * @return the XML tag (with the alias name)
+     */
+    @Override
+    public Element addXml(Element parent, long flags)
+    { // Set name to Alias
+        Element field = expr.addXml(parent, flags);
+        if (field != null)
+        {   // Set Name
+            if (field.hasAttribute("name"))
+                field.setAttribute("source", StringUtils.toString(field.getAttribute("name")));
+            field.setAttribute("name", alias);
+        }
+        return field;
+    }
+   
     /**
      * Overrides the equals method
      * 
@@ -197,7 +195,7 @@ public class DBAliasExpr extends DBColumnExpr
         {   // Compare with another alias expression
             DBAliasExpr otherExpr = ((DBAliasExpr)other);
             return this.alias.equalsIgnoreCase(otherExpr.getName()) &&
-                   this.expr.equals(otherExpr.getExpr());
+                   this.expr.equals(otherExpr.unwrap());
         }
         return false;
     }
