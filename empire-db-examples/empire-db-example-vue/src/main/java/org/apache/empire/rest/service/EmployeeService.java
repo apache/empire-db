@@ -69,7 +69,7 @@ public class EmployeeService extends Service {
         DBCommand cmd = db.createCommand();
         cmd.select(db.T_DEPARTMENTS.DEPARTMENT_ID, db.T_DEPARTMENTS.NAME);
         cmd.join  (db.T_DEPARTMENTS.DEPARTMENT_ID, db.T_EMPLOYEES.DEPARTMENT_ID);
-        cmd.groupBy(cmd.getSelectExprList());
+        cmd.groupBy(cmd.getSelectExpressions());
         cmd.orderBy(db.T_DEPARTMENTS.NAME);
         Options departmentOptions = ctx.getUtils().queryOptionList(cmd);
         
@@ -118,12 +118,12 @@ public class EmployeeService extends Service {
             cmd.where(TE.DEPARTMENT_ID.is(filter.getValue(TE.DEPARTMENT_ID)));
         
 
-        DBColumnExpr[] cols = cmd.getSelectExprList();
-        JsoColumnMeta[] meta = new JsoColumnMeta[cols.length]; 
+        List<DBColumnExpr> cols = cmd.getSelectExpressions();
+        JsoColumnMeta[] meta = new JsoColumnMeta[cols.size()]; 
         TextResolver txtres = SampleServiceApp.instance().getTextResolver(Locale.ENGLISH);
         for (int i=0; i<meta.length; i++)
         {
-            meta[i] = new JsoColumnMeta(cols[i], txtres);
+            meta[i] = new JsoColumnMeta(cols.get(i), txtres);
         }
         
         DBReader reader = new DBReader(getRecordContext());

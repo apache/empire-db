@@ -250,7 +250,7 @@ public class DBReader extends DBRecordData implements DBContextAware, Closeable
     
     // Object references
     private DBDatabase     db      = null;
-    private DBColumnExpr[] colList = null;
+    private DBColumnExpr[] columns = null;
     private ResultSet      rset    = null;
     // the field index map
     private Map<ColumnExpr, Integer> fieldIndexMap = null;
@@ -336,10 +336,10 @@ public class DBReader extends DBRecordData implements DBContextAware, Closeable
     @Override
     public DBColumnExpr getColumnExpr(int iColumn)
     {
-        if (colList == null || iColumn < 0 || iColumn >= colList.length)
+        if (columns == null || iColumn < 0 || iColumn >= columns.length)
             return null; // Index out of range
         // return column Expression
-        return colList[iColumn];
+        return columns[iColumn];
     }
 
     /**
@@ -351,10 +351,10 @@ public class DBReader extends DBRecordData implements DBContextAware, Closeable
     @Override
     public int getFieldIndex(String column)
     {
-        if (colList != null)
+        if (columns != null)
         {
-            for (int i = 0; i < colList.length; i++)
-                if (colList[i].getName().equalsIgnoreCase(column))
+            for (int i = 0; i < columns.length; i++)
+                if (columns[i].getName().equalsIgnoreCase(column))
                     return i;
         }
         // not found
@@ -372,7 +372,7 @@ public class DBReader extends DBRecordData implements DBContextAware, Closeable
     @Override
     public boolean isNull(int index)
     {
-        if (index < 0 || index >= colList.length)
+        if (index < 0 || index >= columns.length)
         { // Index out of range
             log.error("Index out of range: " + index);
             return true;
@@ -398,11 +398,11 @@ public class DBReader extends DBRecordData implements DBContextAware, Closeable
     public Object getValue(int index)
     {
         // Check params
-        if (index < 0 || index >= colList.length)
+        if (index < 0 || index >= columns.length)
             throw new InvalidArgumentException("index", index);
         try
         {   // Get Value from Resultset
-            DataType dataType = colList[index].getDataType();
+            DataType dataType = columns[index].getDataType();
             return context.getDbms().getResultValue(rset, index + 1, dataType);
 
         } catch (SQLException e)
@@ -521,7 +521,7 @@ public class DBReader extends DBRecordData implements DBContextAware, Closeable
                 endTrackingThisResultSet();
             }
             // Detach columns
-            colList = null;
+            columns = null;
             rset = null;
             // clear FieldIndexMap
             if (fieldIndexMap!=null)
@@ -747,13 +747,13 @@ public class DBReader extends DBRecordData implements DBContextAware, Closeable
     @Override
     public int getXmlMeta(Element parent)
     {
-        if (colList == null)
+        if (columns == null)
             throw new ObjectNotValidException(this);
         // Add Field Description
-        for (int i = 0; i < colList.length; i++)
-            colList[i].addXml(parent, 0);
+        for (int i = 0; i < columns.length; i++)
+            columns[i].addXml(parent, 0);
         // return count
-        return colList.length; 
+        return columns.length; 
     }
 
     /**
@@ -768,9 +768,9 @@ public class DBReader extends DBRecordData implements DBContextAware, Closeable
         if (rset == null)
             throw new ObjectNotValidException(this);
         // Add all children
-        for (int i = 0; i < colList.length; i++)
+        for (int i = 0; i < columns.length; i++)
         { // Read all
-            String name = colList[i].getName();
+            String name = columns[i].getName();
             String idColumnAttr = getXmlDictionary().getRowIdColumnAttribute();
             if (name.equalsIgnoreCase("id"))
             { // Add Attribute
@@ -785,7 +785,7 @@ public class DBReader extends DBRecordData implements DBContextAware, Closeable
             }
         }
         // return count
-        return colList.length; 
+        return columns.length; 
     }
 
     /**
@@ -843,19 +843,19 @@ public class DBReader extends DBRecordData implements DBContextAware, Closeable
     @Override
     public int getFieldCount()
     {
-        return (colList != null) ? colList.length : 0;
+        return (columns != null) ? columns.length : 0;
     }
 
     /**
      * Initialize the reader from an open JDBC-ResultSet 
      * @param db the database
-     * @param colList the query column expressions
+     * @param columns the query column expressions
      * @param rset the JDBC-ResultSet
      */
-    protected void init(DBDatabase db, DBColumnExpr[] colList, ResultSet rset)
+    protected void init(DBDatabase db, DBColumnExpr[] columns, ResultSet rset)
     {
         this.db = db;
-        this.colList = colList;
+        this.columns = columns;
         this.rset = rset;
         // clear fieldIndexMap         
         if (fieldIndexMap!=null)
@@ -870,7 +870,7 @@ public class DBReader extends DBRecordData implements DBContextAware, Closeable
      */
     protected final DBColumnExpr[] getColumnExprList()
     {
-        return colList;
+        return columns;
     }
 
     /**
@@ -889,20 +889,20 @@ public class DBReader extends DBRecordData implements DBContextAware, Closeable
      */
     protected int findFieldIndex(ColumnExpr column)
     {
-        if (colList == null)
+        if (columns == null)
             return -1;
         // First chance: Try to find an exact match
-        for (int i = 0; i < colList.length; i++)
+        for (int i = 0; i < columns.length; i++)
         {
-            if (colList[i].equals(column))
+            if (columns[i].equals(column))
                 return i;
         }
         // Second chance: Try Update Column
         if (column instanceof DBColumn)
         {
-            for (int i = 0; i < colList.length; i++)
+            for (int i = 0; i < columns.length; i++)
             {
-                DBColumn updColumn = colList[i].getUpdateColumn();                    
+                DBColumn updColumn = columns[i].getUpdateColumn();                    
                 if (updColumn!=null && updColumn.equals(column))
                     return i;
                  // Query Expression?
@@ -987,8 +987,8 @@ public class DBReader extends DBRecordData implements DBContextAware, Closeable
     {
         // Check whether we can use a constructor
         Class<?>[] paramTypes = new Class[getFieldCount()];
-        for (int i = 0; i < colList.length; i++)
-            paramTypes[i] = DBExpr.getValueClass(colList[i].getDataType()); 
+        for (int i = 0; i < columns.length; i++)
+            paramTypes[i] = DBExpr.getValueClass(columns[i].getDataType()); 
         // Find Constructor
         Constructor<?> ctor = ClassUtils.findMatchingAccessibleConstructor(beanClass, paramTypes);
         return ctor;

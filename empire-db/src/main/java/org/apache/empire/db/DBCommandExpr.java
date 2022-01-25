@@ -52,15 +52,15 @@ public abstract class DBCommandExpr extends DBExpr
         /**
          * Creates a new DBCmdQueryObject
          * @param cmd the command expression
-         * @param colList 
+         * @param exprList 
          */
-        public DBCmdQuery(DBCommandExpr cmd, DBColumnExpr[] colList)
+        public DBCmdQuery(DBCommandExpr cmd, DBColumnExpr[] exprList)
         { // Set the column expressions
             super(cmd.getDatabase());
             this.cmd = cmd;
-            // Add Expressions to vector
-            for (int i = 0; i < colList.length; i++)
-                columns.add(colList[i].getUpdateColumn());
+            // Add Expressions to list
+            for (int i = 0; i < exprList.length; i++)
+                columns.add(exprList[i].getUpdateColumn());
         }
 
         /** Not applicable - returns null */
@@ -300,40 +300,24 @@ public abstract class DBCommandExpr extends DBExpr
         // Default Constructor
     }
 
-    // get Select SQL
     public abstract boolean isValid();
 
-    public abstract void getSelect(StringBuilder buf);
-
-    public abstract DBColumnExpr[] getSelectExprList();
+    /**
+     * Returns the list of all select expressions as an array
+     * Used internally only
+     */
+    protected abstract DBColumnExpr[] getSelectExprList();
     
     /**
-     * returns an array holding all parameter values in the order of their occurrence.
-     * To ensure the correct order, getSelect() should be called first.
-     * @return an array of command parameter values 
+     * returns a list of expressions for the SELECT part of the sql statement
      */
-    public abstract Object[] getParamValues();
+    public abstract List<DBColumnExpr> getSelectExpressions();
 
     /**
-     * returns column expression that is specific for to this command and detached from its source.
+     * returns an SQL select command
+     * @param buf the string builder to add the command to
      */
-    protected DBColumnExpr getCmdColumn(DBColumnExpr col)
-    {
-        // Check the Instance of col
-        if ((col instanceof DBCmdColumn))
-        { // Check Owner
-            DBCmdColumn c = (DBCmdColumn) col;
-            if (c.getRowSet() == cmdQuery)
-                return col; // it's already a command column
-            // extract the expression
-            col = c.expr;
-        }
-        // Check if we already have a Command Query
-        if (cmdQuery == null)
-            cmdQuery = new DBCmdQuery(this, getSelectExprList());
-        // create a command column
-        return new DBCmdColumn(cmdQuery, col);
-    }
+    public abstract void getSelect(StringBuilder buf);
 
     /**
      * returns an SQL select command for querying records.
@@ -345,23 +329,13 @@ public abstract class DBCommandExpr extends DBExpr
         getSelect(sql);
         return sql.toString();
     }
-
+    
     /**
-     * Internally used to build a string from a list of database expressions
-     * @param buf the sql target buffer
-     * @param list list of database objects
-     * @param context the sql command context
-     * @param separator string to use as separator between list items
+     * returns an array holding all parameter values in the order of their occurrence.
+     * To ensure the correct order, getSelect() should be called first.
+     * @return an array of command parameter values 
      */
-    protected void addListExpr(StringBuilder buf, List<? extends DBExpr> list, long context, String separator)
-    {
-        for (int i = 0; i < list.size(); i++)
-        {   // assemble select columns
-            if (i > 0)
-                buf.append(separator);
-            list.get(i).addSQL(buf, context);
-        }
-    }
+    public abstract Object[] getParamValues();
 
     /**
      * Creates the SQL-Command.
@@ -476,33 +450,6 @@ public abstract class DBCommandExpr extends DBExpr
     }
 
     /**
-     * set the maximum number of rows to return when executing a query command
-     * A negative value will remove the limit.
-     *
-     */
-    public void limitRows(int numRows)
-    {
-        throw new NotSupportedException(this, "limitRows");
-    }
-
-    /**
-     * sets the offset of the first row to return when executing a query command.
-     * A negative value will remove the offset.
-     */
-    public void skipRows(int numRows)
-    {
-        throw new NotSupportedException(this, "skipRows");
-    }
-    
-    /**
-     * Clears a limit or offset set by calling limit() or offset()
-     */
-    public void clearLimit()
-    {
-        // Nothing to do!
-    }
-
-    /**
      * Adds a list of columns to the orderBy clause in ascending order
      * 
      * @param exprs vararg of column expressions
@@ -527,35 +474,30 @@ public abstract class DBCommandExpr extends DBExpr
     }
 
     /**
-     * Create the insert into SQL-Command which copies data
-     * from a select statement to a destination table.
-     * 
-     * @return the insert into SQL-Command
+     * set the maximum number of rows to return when executing a query command
+     * A negative value will remove the limit.
+     *
      */
-    protected String getInsertInto(DBTable table, DBColumnExpr[] select, List<DBColumnExpr> columns)
+    public void limitRows(int numRows)
     {
-        if (select == null)
-            throw new ObjectNotValidException(this);
-        // prepare buffer
-        StringBuilder buf = new StringBuilder("INSERT INTO ");
-        table.addSQL(buf, CTX_FULLNAME);
-        // destination columns
-        if (columns != null && columns.size() > 0)
-        { // Check Count
-            if (columns.size() != select.length)
-            {
-                throw new InvalidArgumentException("columns", "size()!=select.length");
-            }
-            // Append Names
-            buf.append(" (");
-            addListExpr(buf, columns, CTX_NAME, ", ");
-            buf.append(")");
-        }
-        // append select statement
-        buf.append("\r\n");
-        getSelect(buf);
-        // done
-        return buf.toString();
+        throw new NotSupportedException(this, "limitRows");
+    }
+
+    /**
+     * sets the offset of the first row to return when executing a query command.
+     * A negative value will remove the offset.
+     */
+    public void skipRows(int numRows)
+    {
+        throw new NotSupportedException(this, "skipRows");
+    }
+    
+    /**
+     * Clears a limit or offset set by calling limit() or offset()
+     */
+    public void clearLimit()
+    {
+        // Nothing to do!
     }
 
     /**
@@ -600,4 +542,75 @@ public abstract class DBCommandExpr extends DBExpr
         }
         return getInsertInto(table, select, inscols);
     }
+
+    /**
+     * returns column expression that is specific for to this command and detached from its source.
+     */
+    protected DBColumnExpr getCmdColumn(DBColumnExpr col)
+    {
+        // Check the Instance of col
+        if ((col instanceof DBCmdColumn))
+        { // Check Owner
+            DBCmdColumn c = (DBCmdColumn) col;
+            if (c.getRowSet() == cmdQuery)
+                return col; // it's already a command column
+            // extract the expression
+            col = c.expr;
+        }
+        // Check if we already have a Command Query
+        if (cmdQuery == null)
+            cmdQuery = new DBCmdQuery(this, getSelectExprList());
+        // create a command column
+        return new DBCmdColumn(cmdQuery, col);
+    }
+
+    /**
+     * Internally used to build a string from a list of database expressions
+     * @param buf the sql target buffer
+     * @param list list of database objects
+     * @param context the sql command context
+     * @param separator string to use as separator between list items
+     */
+    protected void addListExpr(StringBuilder buf, List<? extends DBExpr> list, long context, String separator)
+    {
+        for (int i = 0; i < list.size(); i++)
+        {   // assemble select columns
+            if (i > 0)
+                buf.append(separator);
+            list.get(i).addSQL(buf, context);
+        }
+    }
+
+    /**
+     * Create the insert into SQL-Command which copies data
+     * from a select statement to a destination table.
+     * 
+     * @return the insert into SQL-Command
+     */
+    protected String getInsertInto(DBTable table, DBColumnExpr[] select, List<DBColumnExpr> columns)
+    {
+        if (select == null)
+            throw new ObjectNotValidException(this);
+        // prepare buffer
+        StringBuilder buf = new StringBuilder("INSERT INTO ");
+        table.addSQL(buf, CTX_FULLNAME);
+        // destination columns
+        if (columns != null && columns.size() > 0)
+        { // Check Count
+            if (columns.size() != select.length)
+            {
+                throw new InvalidArgumentException("columns", "size()!=select.length");
+            }
+            // Append Names
+            buf.append(" (");
+            addListExpr(buf, columns, CTX_NAME, ", ");
+            buf.append(")");
+        }
+        // append select statement
+        buf.append("\r\n");
+        getSelect(buf);
+        // done
+        return buf.toString();
+    }
+    
 }

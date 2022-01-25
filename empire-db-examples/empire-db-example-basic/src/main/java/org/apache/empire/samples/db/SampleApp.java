@@ -596,7 +596,7 @@ public class SampleApp
         cmd.select(DEP.NAME.as("DEPARTMENT"));
         cmd.select(DEP.BUSINESS_UNIT);
         // add payment of current year
-        cmd.groupBy(cmd.getSelectExprList());
+        cmd.groupBy(cmd.getSelectExpressions());
         cmd.select(PAYMENTS_LAST_YEAR);
         // join
         cmd.join(EMP.DEPARTMENT_ID, DEP.ID);

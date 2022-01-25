@@ -25,7 +25,6 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
-import java.util.Vector;
 
 import org.apache.empire.commons.StringUtils;
 import org.apache.empire.data.DataType;
@@ -71,7 +70,7 @@ public abstract class DBCommand extends DBCommandExpr
     protected List<DBCompareExpr>    having         = null;
     protected List<DBColumnExpr>     groupBy        = null;
     // Parameters for prepared Statements
-    protected Vector<DBCmdParam>     cmdParams      = null;
+    protected List<DBCmdParam>       cmdParams      = null;
     private int                      paramUsageCount= 0;
 
     /**
@@ -120,7 +119,7 @@ public abstract class DBCommand extends DBCommandExpr
     /**
      * internally used to reorder the command params to match their order of occurance
      */
-    protected synchronized void notifyParamUsage(DBCmdParam param)
+    protected void notifyParamUsage(DBCmdParam param)
     {
         int index = cmdParams.indexOf(param);
         if (index < paramUsageCount)
@@ -130,7 +129,7 @@ public abstract class DBCommand extends DBCommandExpr
         if (index > paramUsageCount)
         {   // Correct parameter order
             cmdParams.remove(index);
-            cmdParams.insertElementAt(param, paramUsageCount);
+            cmdParams.add(paramUsageCount, param);
         }
         paramUsageCount++;
     }
@@ -186,7 +185,7 @@ public abstract class DBCommand extends DBCommandExpr
             if (cmdParams!=null)
             {   // clone params
                 clone.paramUsageCount = 0;
-                clone.cmdParams = new Vector<DBCmdParam>();
+                clone.cmdParams = new ArrayList<DBCmdParam>();
                 for (DBCmdParam p : cmdParams)
                 {
                     DBCmdParam param = new DBCmdParam(this, p.getDataType(), p.getValue());
@@ -492,12 +491,11 @@ public abstract class DBCommand extends DBCommandExpr
     public DBCmdParam addParam(DataType type, Object value)
     {
         if (cmdParams==null)
-            cmdParams= new Vector<DBCmdParam>();
-        // Adds the parameter 
+            cmdParams= new ArrayList<DBCmdParam>();
+        // Create and add the parameter to the parameter list 
         DBCmdParam param = new DBCmdParam(this, type, value);
-        if (cmdParams.add(param)==false)
-            return null; // unknown error
-        // Creates a Parameter expression
+        cmdParams.add(param);
+        // done
         return param;
     }
 
@@ -981,31 +979,13 @@ public abstract class DBCommand extends DBCommandExpr
         return (select!=null ? (select.indexOf(expr)>=0) : false);
     }
     
-    @Override
-    public synchronized void getSelect(StringBuilder buf)
-    {
-        resetParamUsage();
-        if (select == null)
-            throw new ObjectNotValidException(this); // invalid!
-        // Prepares statement
-        addSelect(buf);
-        // From clause
-        addFrom(buf);
-        // Add Where
-        addWhere(buf);
-        // Add Grouping
-        addGrouping(buf);
-        // Add Order
-        addOrder(buf);
-    }
-    
     /**
      * Returns an array of all select expressions
      * 
      * @return an array of all DBColumnExpr objects or <code>null</code> if there is nothing to select
      */
     @Override
-    public DBColumnExpr[] getSelectExprList()
+    protected DBColumnExpr[] getSelectExprList()
     {
         int count = (select != null) ? select.size() : 0;
         if (count < 1)
@@ -1022,6 +1002,7 @@ public abstract class DBCommand extends DBCommandExpr
      * Returns all select expressions as unmodifiable list
      * @return the list of DBColumnExpr used for select
      */
+    @Override
     public List<DBColumnExpr> getSelectExpressions()
     {
         return (this.select!=null ? Collections.unmodifiableList(this.select) : null);
@@ -1226,52 +1207,37 @@ public abstract class DBCommand extends DBCommandExpr
         // values
         return values;
     }
-
+    
     /**
-     * Creates the update SQL-Command.
+     * Creates a select SQL-Statement
      * 
-     * @return the update SQL-Command
+     * @return a select SQL-Statement
      */
-    public synchronized String getUpdate()
+    @Override
+    public void getSelect(StringBuilder buf)
     {
         resetParamUsage();
-        if (set == null)
-            return null;
-        StringBuilder buf = new StringBuilder("UPDATE ");
-        DBRowSet table =  set.get(0).getTable();
-        if (joins!=null && !joins.isEmpty())
-        {   // Join Update
-            buf.append( table.getAlias() );
-            long context = CTX_DEFAULT;
-            // Set Expressions
-            buf.append("\r\nSET ");
-            addListExpr(buf, set, context, ", ");
-            // From clause
-            addFrom(buf);
-            // Add Where
-            addWhere(buf, context);
-        }
-        else
-        {   // Simple Statement
-            table.addSQL(buf, CTX_FULLNAME);
-            long context = CTX_NAME | CTX_VALUE;
-            // Set Expressions
-            buf.append("\r\nSET ");
-            addListExpr(buf, set, context, ", ");
-            // Add Where
-            addWhere(buf, context);
-        }
-        // done
-        return buf.toString();
+        if (select == null)
+            throw new ObjectNotValidException(this); // invalid!
+        // Prepares statement
+        addSelect(buf);
+        // From clause
+        addFrom(buf);
+        // Add Where
+        addWhere(buf);
+        // Add Grouping
+        addGrouping(buf);
+        // Add Order
+        addOrder(buf);
     }
 
     /**
-     * Creates the insert SQL-Command.
+     * Creates an insert SQL-Statement
      * 
-     * @return the insert SQL-Command
+     * @return an insert SQL-Statement
      */
     // get Insert
-    public synchronized String getInsert()
+    public String getInsert()
     {
         resetParamUsage();
         if (set==null || set.get(0)==null)
@@ -1322,15 +1288,53 @@ public abstract class DBCommand extends DBCommandExpr
         buf.append(")");
         return buf.toString();
     }
+
+    /**
+     * Creates an update SQL-Statement
+     * 
+     * @return an update SQL-Statement
+     */
+    public String getUpdate()
+    {
+        resetParamUsage();
+        if (set == null)
+            return null;
+        StringBuilder buf = new StringBuilder("UPDATE ");
+        DBRowSet table =  set.get(0).getTable();
+        if (joins!=null && !joins.isEmpty())
+        {   // Join Update
+            buf.append( table.getAlias() );
+            long context = CTX_DEFAULT;
+            // Set Expressions
+            buf.append("\r\nSET ");
+            addListExpr(buf, set, context, ", ");
+            // From clause
+            addFrom(buf);
+            // Add Where
+            addWhere(buf, context);
+        }
+        else
+        {   // Simple Statement
+            table.addSQL(buf, CTX_FULLNAME);
+            long context = CTX_NAME | CTX_VALUE;
+            // Set Expressions
+            buf.append("\r\nSET ");
+            addListExpr(buf, set, context, ", ");
+            // Add Where
+            addWhere(buf, context);
+        }
+        // done
+        return buf.toString();
+    }
     
     /**
-     * Creates the delete SQL-Command.
+     * Creates a delete SQL-Statement
      * 
      * @param table the table object 
      * 
-     * @return the delete SQL-Command
+     * @return a delete SQL-Statement
      */
-    public synchronized String getDelete(DBTable table)
+    public String getDelete(DBTable table)
     {
         resetParamUsage();
         StringBuilder buf = new StringBuilder("DELETE ");

@@ -905,14 +905,14 @@ public abstract class DBDatabase extends DBObject
         }
         // Check for Command expression
         if (value instanceof DBCommandExpr)
-        {   DBColumnExpr[] exprList = ((DBCommandExpr)value).getSelectExprList();
-            if (exprList.length!=1)
+        {   List<DBColumnExpr> exprList = ((DBCommandExpr)value).getSelectExpressions();
+            if (exprList.size()!=1)
             {   // Incompatible data types
                 log.info("Invalid command expression for column {} using command {}!", column.getName(), ((DBCommandExpr)value).getSelect());
                 throw new FieldIllegalValueException(column, ((DBCommandExpr)value).getSelect());
             }
             // Compare types
-            if (!type.isCompatible(exprList[0].getDataType()))
+            if (!type.isCompatible(exprList.get(0).getDataType()))
             {   // Incompatible data types
                 log.info("Incompatible data types in expression for column {} using function {}!", column.getName(), value.toString());
                 throw new FieldIllegalValueException(column, String.valueOf(value));
