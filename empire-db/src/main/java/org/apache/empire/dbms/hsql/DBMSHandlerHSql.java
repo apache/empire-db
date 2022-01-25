@@ -302,7 +302,7 @@ public class DBMSHandlerHSql extends DBMSHandlerBase
     public DBModelChecker createModelChecker(DBDatabase db)
     {
         // the default model checker
-        return new DBModelChecker(db, "PUBLIC", "PUBLIC");
+        return new DBModelChecker("PUBLIC", "PUBLIC");
     }
     
 }

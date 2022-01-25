@@ -44,7 +44,7 @@ public class OracleDBModelChecker extends DBModelChecker
     
     public OracleDBModelChecker(DBDatabase db, String schemaName)
     {
-        super(db, null, schemaName);
+        super(null, schemaName);
         // Detect boolean type
         DBMSHandler dbms = db.getDbms();
         if (dbms instanceof DBMSHandlerOracle)

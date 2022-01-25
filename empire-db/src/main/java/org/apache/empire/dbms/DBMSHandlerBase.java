@@ -709,7 +709,7 @@ public abstract class DBMSHandlerBase implements DBMSHandler
     {
         log.warn("A general and possibly untested DBModelChecker is used for DBMSHandler {}. Please override to inklude DBMS specific features.", getClass().getSimpleName());
         // the default model checker
-        return new DBModelChecker(db, null, null);
+        return new DBModelChecker(null, null);
     }
     
     /**

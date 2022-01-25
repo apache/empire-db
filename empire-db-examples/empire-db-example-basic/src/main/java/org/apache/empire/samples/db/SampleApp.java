@@ -298,7 +298,7 @@ public class SampleApp
             log.info("Checking DataModel for {} using {}", db.getClass().getSimpleName(), modelChecker.getClass().getSimpleName());
             // dbo schema
             DBModelErrorLogger logger = new DBModelErrorLogger();
-            modelChecker.checkModel(context.getConnection(), logger);
+            modelChecker.checkModel(db, context.getConnection(), logger);
             // show result
             log.info("Data model check done. Found {} errors and {} warnings.", logger.getErrorCount(), logger.getWarnCount());
         } catch(Exception e) {
