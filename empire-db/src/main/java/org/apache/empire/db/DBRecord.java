@@ -46,6 +46,7 @@ import org.apache.empire.exceptions.InvalidArgumentException;
 import org.apache.empire.exceptions.ItemNotFoundException;
 import org.apache.empire.exceptions.NotSupportedException;
 import org.apache.empire.exceptions.ObjectNotValidException;
+import org.apache.empire.exceptions.UnspecifiedErrorException;
 import org.apache.empire.xml.XMLUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -799,6 +800,10 @@ public class DBRecord extends DBRecordData implements DBContextAware, Record, Cl
      */
 	public void setRollbackHandlingEnabled(boolean enabled) 
 	{
+	    // check
+	    if (enabled && !context.isRollbackHandlingEnabled())
+	        throw new UnspecifiedErrorException("Rollback handling cannot be enabled for this record since it is not supported for this context!");
+	    // enable now
 		this.enableRollbackHandling = enabled;
 	}
 

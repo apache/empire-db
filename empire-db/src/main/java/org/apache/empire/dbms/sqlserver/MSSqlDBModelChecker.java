@@ -39,7 +39,7 @@ public class MSSqlDBModelChecker extends DBModelChecker
      */
     public MSSqlDBModelChecker(DBDatabase db, String catalog, String schema)
     {
-        super(db, catalog, StringUtils.coalesce(schema, "DBO"));
+        super(catalog, StringUtils.coalesce(schema, "DBO"));
     }
 
     /**

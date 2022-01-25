@@ -94,7 +94,6 @@ public class SampleAdvApp
             context = new DBContextStatic(dbms, conn); 
 
             // STEP 3: Open Database (and create if not existing)
-            boolean checkDataModel = true;
             System.out.println("*** Step 3: openDatabase() ***");
             try {
                 // Enable the use of prepared statements for update and insert commands as well as for read operations on a DBRecord.
@@ -105,6 +104,7 @@ public class SampleAdvApp
                 // Check whether database exists
                 databaseExists();
                 System.out.println("*** Database already exists. Checking data model... ***");
+                checkDataModel();
                 
             } catch(Exception e) {
                 // STEP 4: Create Database
@@ -122,13 +122,6 @@ public class SampleAdvApp
                 // Open again
                 if (db.isOpen()==false)
                     db.open(context);
-                // don't check
-                checkDataModel = false;
-            }
-            
-            if (checkDataModel)
-            {   // Check the data model (SampleAdvDB) against the existing database
-                checkDataModel();
             }
 
             // STEP 5: Clear Database (Delete all records)
@@ -333,14 +326,18 @@ public class SampleAdvApp
     
     private static void checkDataModel()
     {
-        DBModelChecker modelChecker = context.getDbms().createModelChecker(db);
-        // Check data model   
-        log.info("Checking DataModel for {} using {}", db.getClass().getSimpleName(), modelChecker.getClass().getSimpleName());
-        // dbo schema
-        DBModelErrorLogger logger = new DBModelErrorLogger();
-        modelChecker.checkModel(context.getConnection(), logger);
-        // show result
-        log.info("Data model check done. Found {} errors and {} warnings.", logger.getErrorCount(), logger.getWarnCount());
+        try {
+            DBModelChecker modelChecker = context.getDbms().createModelChecker(db);
+            // Check data model   
+            log.info("Checking DataModel for {} using {}", db.getClass().getSimpleName(), modelChecker.getClass().getSimpleName());
+            // dbo schema
+            DBModelErrorLogger logger = new DBModelErrorLogger();
+            modelChecker.checkModel(db, context.getConnection(), logger);
+            // show result
+            log.info("Data model check done. Found {} errors and {} warnings.", logger.getErrorCount(), logger.getWarnCount());
+        } catch(Exception e) {
+            log.error("FATAL error when checking data model. Probably not properly implemented by DBMSHandler!");
+        }
     }
 
     /**

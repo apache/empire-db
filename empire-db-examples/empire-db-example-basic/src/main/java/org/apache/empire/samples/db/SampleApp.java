@@ -36,6 +36,8 @@ import org.apache.empire.db.DBRecord;
 import org.apache.empire.db.DBRowSet.PartialMode;
 import org.apache.empire.db.DBSQLScript;
 import org.apache.empire.db.context.DBContextStatic;
+import org.apache.empire.db.validation.DBModelChecker;
+import org.apache.empire.db.validation.DBModelErrorLogger;
 import org.apache.empire.dbms.DBMSHandler;
 import org.apache.empire.dbms.derby.DBMSHandlerDerby;
 import org.apache.empire.dbms.h2.DBMSHandlerH2;
@@ -80,32 +82,33 @@ public class SampleApp
 			// Init Configuration
 			config.init((args.length > 0 ? args[0] : "config.xml" ));
 
-			System.out.println("Running DB Sample...");
+			log.info("Running DB Sample...");
 
 			// STEP 1: Get a JDBC Connection
-			System.out.println("*** Step 1: getJDBCConnection() ***");
+			log.info("Step 1: getJDBCConnection()");
 			
 			Connection conn = getJDBCConnection();
 
 			// STEP 2: Choose a DBMSHandler
-			System.out.println("*** Step 2: getDatabaseProvider() ***");
+			log.info("Step 2: getDatabaseProvider()");
 			DBMSHandler dbms = getDBMSHandler(config.getDatabaseProvider(), conn);
 			
             // STEP 2.2: Create a Context
 			context = new DBContextStatic(dbms, conn, false, true); 
 
             // STEP 3: Open Database (and create if not existing)
-            System.out.println("*** Step 3: openDatabase() ***");
+            log.info("Step 3: openDatabase()");
 			try {
 			    // Open the database
                 db.open(context);
                 // Check whether database exists
 			    databaseExists();
-                System.out.println("*** Database already exists. Skipping Step4 ***");
+                log.info("Database already exists. Checking data model...");
+                checkDataModel();
                 
 			} catch(Exception e) {
                 // STEP 4: Create Database
-                System.out.println("*** Step 4: createDDL() ***");
+                log.info("Step 4: createDDL()");
                 // postgre does not support DDL in transaction
                 if(db.getDbms() instanceof DBMSHandlerPostgreSQL)
                 {
@@ -122,11 +125,11 @@ public class SampleApp
 			}
 
 			// STEP 5: Clear Database (Delete all records)
-			System.out.println("*** Step 5: clearDatabase() ***");
+			log.info("Step 5: clearDatabase()");
 			clearDatabase();
 
 			// STEP 6: Insert Departments
-			System.out.println("*** Step 6: insertDepartment() & insertEmployee() ***");
+			log.info("Step 6: insertDepartment() & insertEmployee()");
 			int idDevDep = insertDepartment("Development", "ITTK");
 			int idSalDep = insertDepartment("Sales", "ITTK");
 			// Insert Employees
@@ -147,7 +150,7 @@ public class SampleApp
             */
 
 			// STEP 7: Update Records (by setting the phone Number)
-			System.out.println("*** Step 7: updateEmployee() ***");
+			log.info("Step 7: updateEmployee()");
 			updateEmployee(idEmp1, "+49-7531-457160");
 			updateEmployee(idEmp2, "+49-5555-505050");
 			// Partial Record
@@ -159,28 +162,26 @@ public class SampleApp
 			context.commit();
 
 			// STEP 8: Option 1: Query Records and print tab-separated
-			System.out.println("*** Step 8 Option 1: queryRecords() / Tab-Output ***");
+			log.info("Step 8 Option 1: queryRecords() / Tab-Output");
 			queryRecords(QueryType.Reader); // Tab-Output
 
             // STEP 8: Option 2: Query Records as a list of java beans
-            System.out.println("*** Step 8 Option 2: queryRecords() / Bean-List-Output ***");
+            log.info("Step 8 Option 2: queryRecords() / Bean-List-Output");
             queryRecords(QueryType.BeanList); // Bean-List-Output
 
 			// STEP 8: Option 3: Query Records as XML
-			System.out.println("*** Step 8 Option 3: queryRecords() / XML-Output ***");
+			log.info("Step 8 Option 3: queryRecords() / XML-Output");
 			queryRecords(QueryType.XmlDocument); // XML-Output
 
 			// STEP 9: Use Bean Result to query beans
 			queryBeans(conn);
 			
 			// Done
-			System.out.println("DB Sample finished successfully.");
+			log.info("DB Sample finished successfully.");
 
 		} catch (Exception e)
-        {
-			// Error
-			System.out.println(e.toString());
-			e.printStackTrace();
+        {	// Error
+			log.error("Running SampleApp failed with Exception" + e.toString(), e);
 			
 		} finally {
 		    context.discard();
@@ -208,7 +209,7 @@ public class SampleApp
 			// set the AutoCommit to false for this connection. 
 			// commit must be called explicitly! 
 			conn.setAutoCommit(false);
-			log.info("AutoCommit is " + conn.getAutoCommit());
+			log.info("AutoCommit has been set to " + conn.getAutoCommit());
 
 		} catch (Exception e)
         {
@@ -266,7 +267,7 @@ public class SampleApp
 		DBCommand cmd = db.createCommand();
 		cmd.select(db.DEPARTMENTS.count());
 		// Check using "select count(*) from DEPARTMENTS"
-		System.out.println("Checking whether table DEPARTMENTS exists (SQLException will be logged if not - please ignore) ...");
+		log.info("Checking whether table DEPARTMENTS exists (SQLException will be logged if not - please ignore) ...");
 		return (context.getUtils().querySingleInt(cmd, -1) >= 0);
 	}
 
@@ -282,12 +283,28 @@ public class SampleApp
 	    DBSQLScript script = new DBSQLScript(context);
 		db.getCreateDDLScript(script);
 		// Show DDL Statement
-		System.out.println(script.toString());
+		log.info(script.toString());
 		// Execute Script
 		script.executeAll(false);
 		// Commit
 		context.commit();
 	}
+    
+    private static void checkDataModel()
+    {
+        try {
+            DBModelChecker modelChecker = context.getDbms().createModelChecker(db);
+            // Check data model   
+            log.info("Checking DataModel for {} using {}", db.getClass().getSimpleName(), modelChecker.getClass().getSimpleName());
+            // dbo schema
+            DBModelErrorLogger logger = new DBModelErrorLogger();
+            modelChecker.checkModel(db, context.getConnection(), logger);
+            // show result
+            log.info("Data model check done. Found {} errors and {} warnings.", logger.getErrorCount(), logger.getWarnCount());
+        } catch(Exception e) {
+            log.error("FATAL error when checking data model. Probably not properly implemented by DBMSHandler!");
+        }
+    }
 
 	/**
      * <PRE>
@@ -333,7 +350,7 @@ public class SampleApp
         SampleDB.Employees EMP = db.EMPLOYEES;
 		// Insert an Employee
 		DBRecord rec = new DBRecord(context, EMP);
-		rec.create();
+		rec.create(null);
 		rec.setValue(EMP.FIRSTNAME, firstName);
 		rec.setValue(EMP.LASTNAME, lastName);
 		rec.setValue(EMP.GENDER, gender);
@@ -567,8 +584,9 @@ public class SampleApp
     {
         int lastYear = LocalDate.now().getYear()-1;
 	    
-	    // Define the query
+	    // Create a command
 	    DBCommand cmd = db.createCommand();
+	    
 	    // Define shortcuts for tables used - not necessary but convenient
 	    SampleDB.Employees   EMP = db.EMPLOYEES;
 	    SampleDB.Departments DEP = db.DEPARTMENTS;
@@ -590,23 +608,28 @@ public class SampleApp
         DBColumnExpr PHONE_EXT_NUMBER = EMP.PHONE_NUMBER.substring(PHONE_LAST_DASH).as("PHONE_EXTENSION");
 
         // DBColumnExpr genderExpr = cmd.select(EMP.GENDER.decode(EMP.GENDER.getOptions()).as(EMP.GENDER.getName()));
-        // Select required columns
+
+        // Select Employee and Department columns
         cmd.select(EMP.ID, EMPLOYEE_FULLNAME);
         cmd.select(EMP.GENDER, EMP.PHONE_NUMBER, PHONE_EXT_NUMBER);
         cmd.select(DEP.NAME.as("DEPARTMENT"));
         cmd.select(DEP.BUSINESS_UNIT);
-        // add payment of current year
+        // Add payment of last year using a SUM aggregation
         cmd.groupBy(cmd.getSelectExpressions());
         cmd.select(PAYMENTS_LAST_YEAR);
-        // join
+        // Joins
         cmd.join(EMP.DEPARTMENT_ID, DEP.ID);
         cmd.joinLeft(EMP.ID, PAY.EMPLOYEE_ID).where(PAY.YEAR.is(lastYear));
-        // Set constraints and order
+        // Where constraints
+        cmd.where(EMP.RETIRED.is(false));
         cmd.where(EMP.LASTNAME.length().isGreaterThan(0));
+        // Order by
         cmd.orderBy(EMPLOYEE_FULLNAME);
 
         /*
-        // Example for limitRows() and skipRows()
+         * Example for limitRows() and skipRows()
+         * Uncomment if you wish
+         *
         if (db.getDbms().isSupported(DBMSFeature.QUERY_LIMIT_ROWS))
         {	// set maximum number of rows
         	cmd.limitRows(20);
@@ -619,9 +642,10 @@ public class SampleApp
 		DBReader reader = new DBReader(context);
 		try
         {
-			// Open Reader
-			System.out.println("Running Query:");
-			System.out.println(cmd.getSelect());
+		    // log select statement (but only once)
+		    if (queryType==QueryType.Reader)
+		        log.info("Running Query: {}", cmd.getSelect());
+		    // Open Reader 
 			reader.open(cmd);
 			// Print output
 			System.out.println("---------------------------------");
@@ -642,7 +666,7 @@ public class SampleApp
                 case BeanList:
                     // Text-Output using a list of Java Beans supplied by the DBReader
                     List<SampleBean> beanList = reader.getBeanList(SampleBean.class);
-                    System.out.println(String.valueOf(beanList.size()) + " SampleBeans returned from Query.");
+                    // log.info(String.valueOf(beanList.size()) + " SampleBeans returned from Query.");
                     for (SampleBean b : beanList)
                     {
                         System.out.println(b.toString());
@@ -655,10 +679,9 @@ public class SampleApp
                     XMLWriter.debug(doc);
                     break;
 			}
-
-		} finally
-        {
-			// always close Reader
+            System.out.println("---------------------------------");
+		} finally  {
+			// Always close Reader!
 			reader.close();
 		}
 	}
@@ -671,13 +694,13 @@ public class SampleApp
         result.getCommand().where(EMP.GENDER.is(Gender.M));
 	    result.fetch(context);
 	    
-	    System.out.println("Number of male employees is: "+result.size());
+	    log.info("Number of male employees is: "+result.size());
 
 	    // And now, the females
 	    result.getCommand().where(EMP.GENDER.is(Gender.F));
 	    result.fetch(context);
 	    
-        System.out.println("Number of female employees is: "+result.size());
+        log.info("Number of female employees is: "+result.size());
 	}
 	
 }

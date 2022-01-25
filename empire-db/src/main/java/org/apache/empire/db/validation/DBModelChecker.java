@@ -42,8 +42,8 @@ import org.apache.empire.db.DBTable;
 import org.apache.empire.db.DBTableColumn;
 import org.apache.empire.db.DBView;
 import org.apache.empire.exceptions.InternalException;
-import org.apache.empire.exceptions.InvalidArgumentException;
 import org.apache.empire.exceptions.NotSupportedException;
+import org.apache.empire.exceptions.ObjectNotValidException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -81,7 +81,6 @@ public class DBModelChecker
         }
     }
 
-    protected final DBDatabase db; // the database to check
     protected final String catalog;
     protected final String schemaPattern;
 
@@ -95,9 +94,8 @@ public class DBModelChecker
      * @param catalog
      * @param schemaPattern
      */
-    public DBModelChecker(DBDatabase db, String catalog, String schemaPattern)
+    public DBModelChecker(String catalog, String schemaPattern)
     {
-        this.db = db;
         this.catalog = catalog;
         this.schemaPattern = schemaPattern;
         // set origin
@@ -116,7 +114,7 @@ public class DBModelChecker
 
     /**
      * Returns the RemoteDatabase
-     * Only available after checkModel() is called 
+     * Only available after parseModel() is called 
      * @return the remote Database
      */
     public DBDatabase getRemoteDatabase()
@@ -125,43 +123,41 @@ public class DBModelChecker
     }
     
     /**
-     * This method is used to check the database model
-     * 
-     * @param db
-     *            The Empire-db definition to be checked
-     * @param conn
-     *            A connection to the database
-     * @param dbSchema
-     *            The database schema
-     * @param handler
-     *            The {@link DBModelErrorHandler} implementation that is called whenever an error
-     *            occurs
+     * Populates the remote database and compares it against the given database
+     * @param db the Database to be checked
+     * @param conn the connection for retrieving the remote database metadata
+     * @param handler the handler that is called to handle inconsistencies
      */
-    public synchronized void checkModel(Connection conn, DBModelErrorHandler handler)
+    public void checkModel(DBDatabase db, Connection conn, DBModelErrorHandler handler)
+    {
+        // parse first
+        parseModel(conn);
+        // check database
+        checkRemoteAgainst(db, handler);
+    }
+    
+    /**
+     * This method is used to parse the populate the remote database
+     * @param conn the connection for retrieving the remote database metadata
+     */
+    public void parseModel(Connection conn)
     {
         try
-        {   // the chandler
-            if (handler==null && db!=null)
-                throw new InvalidArgumentException("handler", handler);
-            
-            // create remote db instance
-            remoteDb = new RemoteDatabase();
-            
+        {   // create remote db instance
+            remoteDb = createRemoteDatabase();
+            // populate
             DatabaseMetaData dbMeta = conn.getMetaData();
             populateRemoteDatabase(dbMeta);
-
-            // if db is null then populate only
-            if (db==null)
-                return;
-            
-            // now check the database
-            checkDatabase(handler);
         }
         catch (SQLException e)
         {
             log.error("checkModel failed for {}", remoteName);
             throw new InternalException(e);
-        } 
+        }
+        finally 
+        {   // cleanup
+            tableMap.clear();            
+        }
     }
 
     protected void populateRemoteDatabase(DatabaseMetaData dbMeta)
@@ -386,8 +382,18 @@ public class DBModelChecker
         }
     }
 
-    protected void checkDatabase(DBModelErrorHandler handler)
+    /**
+     * Check the remote database against an existing model
+     * @param db the database to check the remote against
+     * @param handler
+     */
+    public void checkRemoteAgainst(DBDatabase db, DBModelErrorHandler handler)
     {
+        if (this.remoteDb==null)
+        {   // parseModel has not been called
+            throw new ObjectNotValidException(this);
+        }
+        
         // check Tables
         for (DBTable table : db.getTables())
         {
@@ -723,6 +729,11 @@ public class DBModelChecker
     protected final DBRowSet getTable(String tableName)
     {
         return this.tableMap.get(tableName.toUpperCase());
+    }
+
+    protected DBDatabase createRemoteDatabase()
+    {
+        return new RemoteDatabase();
     }
     
     protected void addTable(String tableName)
