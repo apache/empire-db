@@ -4,113 +4,29 @@
 package org.apache.empire.data.list;
 
 import java.io.Serializable;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
 
 import org.apache.empire.commons.ObjectUtils;
 import org.apache.empire.commons.Options;
 import org.apache.empire.commons.StringUtils;
 import org.apache.empire.data.ColumnExpr;
-import org.apache.empire.data.RecordData;
-import org.apache.empire.exceptions.InternalException;
-import org.apache.empire.exceptions.InvalidArgumentException;
-import org.apache.empire.exceptions.NotSupportedException;
-import org.apache.empire.exceptions.UnsupportedTypeException;
 
-public class DataListHead<T extends DataListEntry> implements Serializable
+public class DataListHead implements Serializable
 {
     private static final long serialVersionUID = 1L;
     // private static final Logger log  = LoggerFactory.getLogger(DataListHead.class);
     
-    final Constructor<T> constructor;
-    final ColumnExpr[] columns;
+    protected final ColumnExpr[] columns;
     
     protected String columnSeparator = "\t";
-    
-    /**
-     * findEntryConstructor
-     * @param listEntryClass
-     * @param listHeadClass
-     * @return the constructor
-     */
-    @SuppressWarnings("unchecked")
-    protected static <T extends DataListEntry> Constructor<T> findEntryConstructor(Class<?> listEntryClass, @SuppressWarnings("rawtypes") Class<? extends DataListHead> listHeadClass)
-    {
-        /*
-        Constructor<?> constructor = ClassUtils.findMatchingAccessibleConstructor(listEntryClass, new Class<?>[] { listHeadClass, int.class, Object[].class });
-        if (constructor==null)
-            throw new UnsupportedTypeException(listEntryClass);
-        return constructor;
-        */
-        try
-        {   // Find the constructor
-            return (Constructor<T>)listEntryClass.getDeclaredConstructor(listHeadClass, int.class, Object[].class);
-        }
-        catch (NoSuchMethodException e)
-        {
-            throw new UnsupportedTypeException(listEntryClass);
-        }
-        catch (SecurityException e)
-        {
-            throw new UnsupportedTypeException(listEntryClass);
-        }
-    }
 
     /**
      * Constructs a DataListHead based on an DataListEntry constructor
      * @param constructor the DataListEntry constructor
      * @param columns the list entry columns
      */
-    public DataListHead(Constructor<T> constructor, ColumnExpr[] columns) 
+    public DataListHead(ColumnExpr[] columns) 
     {
-        this.constructor = constructor;
         this.columns = columns;
-    }
-    
-    public DataListHead(Class<T> listEntryClass, ColumnExpr[] columns) 
-    {
-        this(findEntryConstructor(listEntryClass, DataListHead.class), columns);
-    }
-    
-    public T newEntry(int rownum, Object[] values)
-    {   try
-        {   // check
-            if (columns.length!=values.length)
-                throw new InvalidArgumentException("values", values);
-            // must override newEntry if no listEntryClass is provided
-            if (constructor==null)
-                throw new NotSupportedException(this, "newEntry");
-            // create item
-            return constructor.newInstance(this, rownum, values);
-        }
-        catch (InstantiationException e)
-        {
-            throw new InternalException(e);
-        }
-        catch (IllegalAccessException e)
-        {
-            throw new InternalException(e);
-        }
-        catch (IllegalArgumentException e)
-        {
-            throw new InternalException(e);
-        }
-        catch (InvocationTargetException e)
-        {
-            throw new InternalException(e);
-        }
-    }
-
-    public final T newEntry(int rownum, RecordData data)
-    {   // check
-        if (columns.length!=data.getFieldCount())
-            throw new InvalidArgumentException("data", data);
-        // copy values
-        Object[] values = new Object[columns.length];
-        for (int i=0; i<columns.length; i++)
-            values[i] = data.getValue(i);
-        // create
-        return newEntry(rownum, values);
     }
     
     public ColumnExpr[] getColumns()

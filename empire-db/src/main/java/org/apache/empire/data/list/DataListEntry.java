@@ -26,21 +26,21 @@ public class DataListEntry implements RecordData, Serializable
     
     private static final Logger log  = LoggerFactory.getLogger(DataListEntry.class);
     
-    protected final DataListHead<? extends DataListEntry> head;
+    protected final DataListHead head;
     protected final Object values[];
     protected int rownum;
     
-    public DataListEntry(DataListHead<? extends DataListEntry> head, int rownum, Object values[])
+    public DataListEntry(DataListHead head, int rownum, Object values[])
     {
         this.head = head;
         this.rownum = rownum;
         this.values = values;
     }
     
-    @SuppressWarnings({ "rawtypes", "unchecked" })
-    public <H extends DataListHead> H getHead()
+    @SuppressWarnings("unchecked")
+    public <T extends DataListHead> T getHead()
     {
-        return (H)this.head;
+        return (T)this.head;
     }
     
     public Object[] getKey(Entity entity)

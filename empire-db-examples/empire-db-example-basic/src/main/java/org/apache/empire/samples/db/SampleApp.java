@@ -131,12 +131,6 @@ public class SampleApp
             // SECTION 5 AND 6: Populate Database and modify Data
 			populateAndModify(clearExistingData);
 
-            /*
-            int idEmp = testTransactionCreate(idDevDep);
-            testTransactionUpdate(idEmp);
-            testTransactionDelete(idEmp);
-            */
-
             // SECTION 7: Option 1: Query Records and print tab-separated
             log.info("Step 8 Option 1: queryRecords() / Tab-Output");
             queryRecords(QueryType.Reader); // Tab-Output
@@ -157,6 +151,13 @@ public class SampleApp
 
 			// SECTION 10: Use Bean Result to query beans
 			queryBeans();
+			
+
+            /*
+            int idEmp = testTransactionCreate(idDevDep);
+            testTransactionUpdate(idEmp);
+            testTransactionDelete(idEmp);
+            */
 			
             // Finally, commit any changes
             context.commit();

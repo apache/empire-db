@@ -12,6 +12,8 @@ import org.apache.empire.commons.Options;
 import org.apache.empire.commons.StringUtils;
 import org.apache.empire.data.DataType;
 import org.apache.empire.data.list.DataListEntry;
+import org.apache.empire.data.list.DataListFactory;
+import org.apache.empire.data.list.DataListFactoryImpl;
 import org.apache.empire.data.list.DataListHead;
 import org.apache.empire.db.context.DBContextAware;
 import org.apache.empire.db.exceptions.ConstraintViolationException;
@@ -642,30 +644,33 @@ public class DBUtils implements DBContextAware
     }
 
     /**
-     * Crates a default DataListHead for a DataListEntry class
+     * Crates a default DataListFactory for a DataListEntry class
      * The DataListEntry class must provide the following constructor
-     *      DataListEntry(DataListHead<? extends DataListEntry> head, int rownum, Object values[])
+     *      DataListEntry(DataListFactory<? extends DataListEntry> head, int rownum, Object values[])
      * @param entryClass the entryClass for which to create the list head 
      * @return
      */
-    protected <T extends DataListEntry> DataListHead<T> createDefaultDataListHead(DBCommand cmd, Class<T> entryClass) 
+    protected <T extends DataListEntry> DataListFactory<T> createDefaultDataListFactory(Class<T> entryClass, DataListHead head) 
     {
-        return new DataListHead<T>(entryClass, cmd.getSelectExprList());
+        return new DataListFactoryImpl<T>(entryClass, head);
     }
     
     /**
      * Executes a query and returns a list of DataListEntry items
      * @param sqlCmd the SQL-Command for the query
-     * @param listHead the HeadInfo to be used for each list item
+     * @param factory the Factory to be used for each list item
      * @param first the number of records to skip from the beginning of the result
      * @param pageSize the maximum number of item to return
      * @return the list 
      */
-    public <T extends DataListEntry> List<T> queryDataList(DBCommand cmd, DataListHead<T> listHead, int first, int pageSize)
+    public <T extends DataListEntry> List<T> queryDataList(DBCommand cmd, DataListFactory<T> factory, int first, int pageSize)
     {
+        List<T> list = null;
         DBReader r = new DBReader(context);
         try
-        {   // check pageSize
+        {   // prepare
+            factory.prepareQuery();
+            // check pageSize
             if (pageSize==0)
             {   log.warn("PageSize must not be 0. Setting to -1 for all records!");
                 pageSize = -1;
@@ -690,12 +695,12 @@ public class DBUtils implements DBContextAware
             }
             // Create a list of data entries
             int maxCount = (pageSize>=0) ? pageSize : MAX_QUERY_ROWS;
-            ArrayList<T> list = new ArrayList<T>((pageSize>=0) ? pageSize : 10);
+            list = factory.newList((pageSize>=0) ? pageSize : 10);
             // add data
             int rownum = 0;
             while (r.moveNext() && maxCount != 0)
             {   // Create bean an init
-                T entry = listHead.newEntry(++rownum, r);
+                T entry = factory.newEntry(++rownum, r);
                 if (entry==null)
                     continue;
                 // add entry
@@ -714,9 +719,20 @@ public class DBUtils implements DBContextAware
             return list;
         }
         finally
-        {
+        {   // close reader
             r.close();
+            // complete
+            if (list!=null)
+                factory.completeQuery(list);
         }
+    }
+
+    /**
+     * Queries a list of DataListEntry items
+     */
+    public final <T extends DataListEntry> List<T> queryDataList(DBCommand cmd, Class<T> entryClass, DataListHead head)
+    {
+        return queryDataList(cmd, createDefaultDataListFactory(entryClass, head), 0, MAX_QUERY_ROWS);
     }
     
     /**
@@ -724,7 +740,7 @@ public class DBUtils implements DBContextAware
      */
     public final <T extends DataListEntry> List<T> queryDataList(DBCommand cmd, Class<T> entryClass)
     {
-        return queryDataList(cmd, createDefaultDataListHead(cmd, entryClass), 0, MAX_QUERY_ROWS);
+        return queryDataList(cmd, entryClass, new DataListHead(cmd.getSelectExprList()));
     }
     
     /**
@@ -741,7 +757,8 @@ public class DBUtils implements DBContextAware
      */
     public final <T extends DataListEntry> T queryDataEntry(DBCommand cmd, Class<T> entryClass, boolean forceResult)
     {
-        List<T> dle = queryDataList(cmd, createDefaultDataListHead(cmd, entryClass), 0, 1);
+        DataListHead head = new DataListHead(cmd.getSelectExprList());
+        List<T> dle = queryDataList(cmd, createDefaultDataListFactory(entryClass, head), 0, 1);
         if (dle.isEmpty())
         {   if (forceResult)
                 throw new QueryNoResultException(cmd.getSelect());
