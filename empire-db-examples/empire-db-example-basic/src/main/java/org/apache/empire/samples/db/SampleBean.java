@@ -26,7 +26,7 @@ import java.math.BigDecimal;
  */
 public class SampleBean
 {
-    private int    employeeId;
+    private int    id;
     private String fullName;
     private String gender;
     private String phoneNumber;
@@ -49,17 +49,17 @@ public class SampleBean
         this.paymentsLastYear = paymentsLastYear;
     }
     */
+
+    public int getId()
+    {
+        return id;
+    }
+
+    public void setId(int id)
+    {
+        this.id = id;
+    }
     
-    public int getEmployeeId()
-    {
-        return employeeId;
-    }
-
-    public void setEmployeeId(int employeeId)
-    {
-        this.employeeId = employeeId;
-    }
-
     public String getFullName()
     {
         return fullName;
@@ -124,7 +124,7 @@ public class SampleBean
     public String toString()
     {
         StringBuffer buf = new StringBuffer();
-        buf.append(employeeId);
+        buf.append(id);
         buf.append("\t");
         buf.append(fullName);
         buf.append("\t");

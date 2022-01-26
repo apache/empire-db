@@ -828,7 +828,10 @@ public class DBUtils implements DBContextAware
                 if (entry==null)
                     continue;
                 // add entry
-                list.add(entry);
+                if (entry.isValid())
+                    list.add(entry);
+                else
+                    log.warn("Record {} is not valid thus it will not be added to the RecordListQuery.", rownum);
                 // Decrease count
                 if (maxCount > 0)
                     maxCount--;

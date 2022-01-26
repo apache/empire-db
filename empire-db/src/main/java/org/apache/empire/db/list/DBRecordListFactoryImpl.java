@@ -14,8 +14,6 @@ import org.apache.empire.db.DBRecord;
 import org.apache.empire.db.DBRecordData;
 import org.apache.empire.db.DBRowSet;
 import org.apache.empire.exceptions.InternalException;
-import org.apache.empire.exceptions.InvalidArgumentException;
-import org.apache.empire.exceptions.NotSupportedException;
 import org.apache.empire.exceptions.UnsupportedTypeException;
 
 /**
@@ -30,37 +28,30 @@ public class DBRecordListFactoryImpl<T extends DBRecord> implements DBRecordList
      * @param listHeadClass
      * @return the constructor
      */
-    @SuppressWarnings("unchecked")
-    protected static <T extends DBRecord> Constructor<T> findEntryConstructor(Class<?> recordClass, Class<? extends DBContext> contextClass, Class<? extends DBRowSet> rowsetClass)
-    {
-        /*
-        Constructor<?> constructor = ClassUtils.findMatchingAccessibleConstructor(recordClass, new Class<?>[] { listHeadClass, int.class, Object[].class });
-        if (constructor==null)
-            throw new UnsupportedTypeException(recordClass);
-        return constructor;
-        */
-        try
-        {   // Find the constructor
-            return (Constructor<T>)recordClass.getDeclaredConstructor(contextClass, rowsetClass);
+    protected static <T extends DBRecord> Constructor<T> findRecordConstructor(Class<T> recordClass, Class<? extends DBContext> contextClass, Class<? extends DBRowSet> rowsetClass)
+    {   try
+        {   // find the constructor
+            // Alternatively use ClassUtils.findMatchingAccessibleConstructor() 
+            return recordClass.getDeclaredConstructor(contextClass, rowsetClass);
         }
-        catch (NoSuchMethodException e)
-        {
-            throw new UnsupportedTypeException(recordClass);
-        }
-        catch (SecurityException e)
+        catch (NoSuchMethodException | SecurityException e)
         {
             throw new UnsupportedTypeException(recordClass);
         }
     }
     
+    /*
+     * Members
+     */
     protected final Constructor<T> constructor;
     protected final DBContext context;
     protected final DBRowSet rowset;
 
     /**
-     * Constructs a DataListHead based on an DataListEntry constructor
-     * @param constructor the DataListEntry constructor
-     * @param columns the list entry columns
+     * Constructs a DBRecordListFactoryImpl based on an DBRecord constructor
+     * @param constructor the DBRecord constructor
+     * @param context the database context
+     * @param rowset the rowset for the created records
      */
     public DBRecordListFactoryImpl(Constructor<T> constructor, DBContext context, DBRowSet rowset) 
     {
@@ -69,9 +60,15 @@ public class DBRecordListFactoryImpl<T extends DBRecord> implements DBRecordList
         this.rowset = rowset;
     }
     
+    /**
+     * Constructs a DBRecordListFactoryImpl based on an DBRecord constructor
+     * @param recordClass the record Class to be created for this list
+     * @param context the database context
+     * @param rowset the rowset for the created records
+     */
     public DBRecordListFactoryImpl(Class<T> recordClass, DBContext context, DBRowSet rowset) 
     {
-        this(findEntryConstructor(recordClass, DBContext.class, DBRowSet.class), context, rowset);
+        this(findRecordConstructor(recordClass, DBContext.class, DBRowSet.class), context, rowset);
     }
     
     @Override
@@ -95,30 +92,12 @@ public class DBRecordListFactoryImpl<T extends DBRecord> implements DBRecordList
     @Override
     public T newRecord(int rownum, DBRecordData dataRow)
     {   try
-        {   // check
-            if (dataRow==null)
-                throw new InvalidArgumentException("data", dataRow);
-            // must override newEntry if no recordClass is provided
-            if (constructor==null)
-                throw new NotSupportedException(this, "newEntry");
-            // create item
+        {   // create item
             T record = constructor.newInstance(context, rowset);
             rowset.initRecord(record, dataRow);
             return record;
         }
-        catch (InstantiationException e)
-        {
-            throw new InternalException(e);
-        }
-        catch (IllegalAccessException e)
-        {
-            throw new InternalException(e);
-        }
-        catch (IllegalArgumentException e)
-        {
-            throw new InternalException(e);
-        }
-        catch (InvocationTargetException e)
+        catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e)
         {
             throw new InternalException(e);
         }

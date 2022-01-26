@@ -121,7 +121,7 @@ public class DataListHead<T extends DataListEntry> implements Serializable
     public int getColumnIndex(ColumnExpr column)
     {
         for (int i=0; i<columns.length; i++)
-            if (columns[i]==column)
+            if (columns[i]==column || columns[i].unwrap()==column)
                 return i; 
         // Not found, try by name
         return getColumnIndex(column.getName());

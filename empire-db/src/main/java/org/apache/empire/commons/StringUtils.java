@@ -192,6 +192,18 @@ public class StringUtils
         // Only one member
         return String.valueOf(array[0]);
     }
+
+    /**
+     * Converts an array of objects to a string.
+     * 
+     * @param array array of objects
+     * @param separator the separator to put between the object strings
+     * @return returns a String
+     */
+    public static String concat(String separator, Object... params)
+    {
+        return arrayToString(params, separator);
+    }
     
     /**
      * Checks if a string is empty

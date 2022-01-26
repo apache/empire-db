@@ -98,16 +98,16 @@ public class PostgreDDLGenerator extends DBDDLGenerator<DBMSHandlerPostgreSQL>
     /**
      * Appends the DDL-Script for creating a sequence to an SQL-Script<br>
      * @param db the database to create
-     * @param c the column for which to create the sequence
+     * @param column the column for which to create the sequence
      * @param script the sql script to which to append the dll command(s)
      */
-    protected void createSequence(DBDatabase db, DBTableColumn c, DBSQLScript script)
+    protected void createSequence(DBDatabase db, DBTableColumn column, DBSQLScript script)
     {
-    	String seqName = c.getSequenceName();
+    	String seqName = dbms.getColumnSequenceName(column);
         // createSQL
         StringBuilder sql = new StringBuilder();
         sql.append("-- creating sequence for column ");
-        sql.append(c.getFullName());
+        sql.append(column.getFullName());
         sql.append(" --\r\n");
         sql.append("CREATE SEQUENCE ");
         db.appendQualifiedName(sql, seqName, null);

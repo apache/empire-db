@@ -340,6 +340,30 @@ public abstract class DBMSHandlerBase implements DBMSHandler
      * @return an expression for the next sequence value
      */
     public abstract DBColumnExpr getNextSequenceValueExpr(DBTableColumn column);
+
+    /**
+     * Returns the sequence name of for a column of type AUTOINC
+     * The sequence name is usually provided as the default value
+     * If no Default value is provided the sequence name is generated from the table and the column name
+     */
+    public String getColumnSequenceName(DBTableColumn column)
+    {
+        if (column.getDataType()!=DataType.AUTOINC)
+            throw new InvalidArgumentException("column", column);
+        // return the sequence name
+        Object seqName = column.getDefaultValue(); 
+        if (seqName!=null)
+            return seqName.toString();
+        // Auto-generate the sequence name
+        StringBuilder b = new StringBuilder(column.getRowSet().getName());
+        b.append("_");
+        b.append(column.getName());
+        b.append("_SEQ");
+        seqName = b.toString();
+        // Store as default for later use
+        column.setDefaultValue(seqName);
+        return (String)seqName;
+    }
     
     /**
      * Returns an auto-generated value for a particular column
@@ -358,7 +382,7 @@ public abstract class DBMSHandlerBase implements DBMSHandler
         {   // Use a numeric sequence
             if (isSupported(DBMSFeature.SEQUENCES)==false)
                 return null; // Create Later
-            String sequenceName = column.getSequenceName();
+            String sequenceName = getColumnSequenceName(column);
             return getNextSequenceValue(db, sequenceName, 1, conn);
         }
         else if (type== DataType.UNIQUEID)

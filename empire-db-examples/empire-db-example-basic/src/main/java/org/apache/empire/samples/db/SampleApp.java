@@ -85,20 +85,21 @@ public class SampleApp
 
 			log.info("Running DB Sample...");
 
-			// STEP 1: Get a JDBC Connection
+			// SECTION 1: Get a JDBC Connection
 			log.info("Step 1: getJDBCConnection()");
 			
 			Connection conn = getJDBCConnection();
 
-			// STEP 2: Choose a DBMSHandler
+			// SECTION 2: Choose a DBMSHandler
 			log.info("Step 2: getDatabaseProvider()");
 			DBMSHandler dbms = getDBMSHandler(config.getDatabaseProvider(), conn);
 			
-            // STEP 2.2: Create a Context
+            // SECTION 2.2: Create a Context
 			context = new DBContextStatic(dbms, conn, false, true); 
 
-            // STEP 3: Open Database (and create if not existing)
+            // SECTION 3: Open Database (and create if not existing)
             log.info("Step 3: openDatabase()");
+            boolean clearExistingData = true;
 			try {
 			    // Open the database
                 db.open(context);
@@ -108,7 +109,7 @@ public class SampleApp
                 checkDataModel();
                 
 			} catch(Exception e) {
-                // STEP 4: Create Database
+                // SECTION 4: Create Database
                 log.info("Step 4: createDDL()");
                 // postgre does not support DDL in transaction
                 if(db.getDbms() instanceof DBMSHandlerPostgreSQL)
@@ -123,66 +124,50 @@ public class SampleApp
                 // Open again
                 if (db.isOpen()==false)
                     db.open(context);
+                // initial load
+                clearExistingData = false;
 			}
 
-			// STEP 5: Clear Database (Delete all records)
-			log.info("Step 5: clearDatabase()");
-			clearDatabase();
+            // SECTION 5 AND 6: Populate Database and modify Data
+			populateAndModify(clearExistingData);
 
-			// STEP 6: Insert Departments
-			log.info("Step 6: insertDepartment() & insertEmployee()");
-			int idDevDep = insertDepartment("Development", "ITTK");
-			int idSalDep = insertDepartment("Sales", "ITTK");
-			// Insert Employees
-			int idEmp1 = insertEmployee("Peter", "Sharp", Gender.M, idDevDep);
-			int idEmp2 = insertEmployee("Fred", "Bloggs", Gender.M, idDevDep);
-			int idEmp3 = insertEmployee("Emma", "White",  Gender.F, idSalDep);
-            // Insert Payments
-			insertPayments(idEmp1, new BigDecimal(2000));
-			insertPayments(idEmp3, new BigDecimal(2500));
-
-			// commit
-			context.commit();
-			
-			/*
+            /*
             int idEmp = testTransactionCreate(idDevDep);
             testTransactionUpdate(idEmp);
             testTransactionDelete(idEmp);
             */
 
-			// STEP 7: Update Records (by setting the phone Number)
-			log.info("Step 7: updateEmployee()");
-			updateEmployee(idEmp1, "+49-7531-457160");
-			updateEmployee(idEmp2, "+49-5555-505050");
-			// Partial Record
-            updatePartialRecord(idEmp3, "+49-040-125486");
-			// Update Joined Records (Make Fred Bloggs head of department and set salary)
-			updateJoinedRecords(idEmp2, 100000);
+            // SECTION 7: Option 1: Query Records and print tab-separated
+            log.info("Step 8 Option 1: queryRecords() / Tab-Output");
+            queryRecords(QueryType.Reader); // Tab-Output
 
-			// commit
-			context.commit();
-
-			// STEP 8: Option 1: Query Records and print tab-separated
-			log.info("Step 8 Option 1: queryRecords() / Tab-Output");
-			queryRecords(QueryType.Reader); // Tab-Output
-
-            // STEP 8: Option 2: Query Records as a list of java beans
+            // SECTION 7: Option 2: Query Records as a list of java beans
             log.info("Step 8 Option 2: queryRecords() / Bean-List-Output");
             queryRecords(QueryType.BeanList); // Bean-List-Output
 
-			// STEP 8: Option 3: Query Records as XML
-			log.info("Step 8 Option 3: queryRecords() / XML-Output");
-			queryRecords(QueryType.XmlDocument); // XML-Output
+            // SECTION 7: Option 3: Query Records as XML
+            log.info("Step 8 Option 3: queryRecords() / XML-Output");
+            queryRecords(QueryType.XmlDocument); // XML-Output
 
-			// STEP 9: Use Bean Result to query beans
-			queryBeans(conn);
+            // SECTION 8: Use DataList query
+            queryDataList();
+
+            // SECTION 9: Use RecordList query
+            queryRecordList();
+
+			// SECTION 10: Use Bean Result to query beans
+			queryBeans();
 			
+            // Finally, commit any changes
+            context.commit();
+            
 			// Done
 			log.info("DB Sample finished successfully.");
 
 		} catch (Exception e)
         {	// Error
 			log.error("Running SampleApp failed with Exception" + e.toString(), e);
+            context.rollback();
 			
 		} finally {
 		    context.discard();
@@ -306,7 +291,40 @@ public class SampleApp
             log.error("FATAL error when checking data model. Probably not properly implemented by DBMSHandler!");
         }
     }
+    
+    private static void populateAndModify(boolean clearExisting)
+    {
+        if (clearExisting)
+            clearDatabase();
 
+        log.info("Step 5: insertDepartment() & insertEmployee()");
+        int idDevDep = insertDepartment("Development", "ITTK");
+        int idSalDep = insertDepartment("Sales", "ITTK");
+        // Insert Employees
+        int idEmp1 = insertEmployee("Peter", "Sharp",  Gender.M, idDevDep);
+        int idEmp2 = insertEmployee("Fred",  "Bloggs", Gender.M, idDevDep);
+        int idEmp3 = insertEmployee("Emma",  "White",  Gender.F, idSalDep);
+        int idEmp4 = insertEmployee("John",  "Doe",    Gender.M, idSalDep);
+        int idEmp5 = insertEmployee("Sarah", "Smith",  Gender.F, idDevDep);
+        // Insert Payments
+        insertPayments(idEmp1, new BigDecimal(2000));
+        insertPayments(idEmp3, new BigDecimal(2500));
+        insertPayments(idEmp4, new BigDecimal(2200));
+        insertPayments(idEmp5, new BigDecimal(1500));
+
+        // commit
+        context.commit();
+        
+        // SECTION 6: Modify some data
+        log.info("Step 6: updateEmployee()");
+        updateEmployee(idEmp1, "+49-7531-457160");
+        updateEmployee(idEmp2, "+49-5555-505050");
+        // Partial Record
+        updatePartialRecord(idEmp3, "+49-040-125486");
+        // Update Joined Records (Make Fred Bloggs head of department and set salary)
+        updateJoinedRecords(idEmp2, 100000);
+    }
+    
 	/**
      * <PRE>
 	 * Empties all Tables.
@@ -626,30 +644,6 @@ public class SampleApp
         cmd.where(EMP.LASTNAME.length().isGreaterThan(0));
         // Order by
         cmd.orderBy(EMPLOYEE_FULLNAME);
-        
-        /*
-         * Test DataList
-         * 
-        List<DataListEntry> list = context.getUtils().queryDataList(cmd);
-        for (DataListEntry dle : list)
-        {
-            int empId = dle.getId(EMP);
-            int empId2 = dle.getInt(EMP.ID);
-            boolean test = dle.hasField(EMP.FIRSTNAME);
-            System.out.println(dle.toString());
-        }
-        */
-        
-        /*
-         * Test RecordList
-         */
-        List<DBRecord> list = context.getUtils().queryRecordList(cmd, new DBQuery(cmd, EMP.ID));
-        for (DBRecord record : list)
-        {
-            Object[] key = record.getKey();
-            boolean exists = record.isExists();
-            System.out.println(StringUtils.arrayToString(key, "|"));
-        }
 
         /*
          * Example for limitRows() and skipRows()
@@ -711,7 +705,7 @@ public class SampleApp
 		}
 	}
 	
-	private static void queryBeans(Connection conn)
+	private static void queryBeans()
 	{
 	    SampleDB.Employees EMP = db.EMPLOYEES;
         // Query all males
@@ -728,4 +722,102 @@ public class SampleApp
         log.info("Number of female employees is: "+result.size());
 	}
 	
+	private static void queryDataList()
+	{
+        int lastYear = LocalDate.now().getYear()-1;
+        
+        // Define shortcuts for tables used - not necessary but convenient
+        SampleDB.Employees   EMP = db.EMPLOYEES;
+        SampleDB.Departments DEP = db.DEPARTMENTS;
+        SampleDB.Payments    PAY = db.PAYMENTS;
+
+        // Employee total query
+        DBColumnExpr EMP_TOTAL = PAY.AMOUNT.sum().as("EMP_TOTAL");
+        DBCommand cmdEmpTotal = db.createCommand();
+        cmdEmpTotal.select(PAY.EMPLOYEE_ID, EMP_TOTAL);
+        cmdEmpTotal.where (PAY.YEAR.is(lastYear));
+        cmdEmpTotal.groupBy(PAY.EMPLOYEE_ID);
+        DBQuery qryEmpTotal = new DBQuery(cmdEmpTotal, "qet");
+        
+        // Department total query
+        DBColumnExpr DEP_TOTAL = PAY.AMOUNT.sum().as("DEP_TOTAL");
+        DBCommand cmdDepTotal  = db.createCommand();
+        cmdDepTotal.select(EMP.DEPARTMENT_ID, DEP_TOTAL);
+        cmdDepTotal.join  (PAY.EMPLOYEE_ID, EMP.ID);
+        cmdDepTotal.where (PAY.YEAR.is(lastYear));
+        cmdDepTotal.groupBy(EMP.DEPARTMENT_ID);
+        DBQuery qryDepTotal = new DBQuery(cmdDepTotal, "qdt");
+
+        DBColumnExpr PCT_OF_DEPARTMENT_COST = qryEmpTotal.column(EMP_TOTAL).multiplyWith(100).divideBy(qryDepTotal.column(DEP_TOTAL));
+        // Create the employee query
+        DBCommand cmd = db.createCommand();
+        cmd.select(EMP.ID, EMP.FIRSTNAME, EMP.LASTNAME);
+        cmd.select(DEP.ID, DEP.NAME.as("DEPARTMENT"));
+        cmd.select(qryEmpTotal.column(EMP_TOTAL));
+        cmd.select(PCT_OF_DEPARTMENT_COST.as("PCT_OF_DEPARTMENT_COST"));
+        // join Employee with Department
+        cmd.join  (EMP.DEPARTMENT_ID, DEP.ID);
+        // Join with Subqueries
+        cmd.joinLeft(EMP.ID, qryEmpTotal.column(PAY.EMPLOYEE_ID));
+        cmd.joinLeft(DEP.ID, qryDepTotal.column(EMP.DEPARTMENT_ID));
+        // Order by
+        cmd.orderBy(DEP.NAME.desc());
+        cmd.orderBy(EMP.LASTNAME);
+	    
+        List<DataListEntry> list = context.getUtils().queryDataList(cmd);
+        /* uncomment this to print full list
+        for (DataListEntry dle : list)
+            System.out.println(dle.toString());
+        */    
+        for (DataListEntry dle : list)
+        {
+            int empId = dle.getId(EMP);
+            // int depId = dle.getId(DEP);
+            String empName = StringUtils.concat(", ", dle.getString(EMP.LASTNAME), dle.getString(EMP.FIRSTNAME));
+            String depName = dle.getString(DEP.NAME);
+            boolean hasPayments =!dle.isNull(qryEmpTotal.column(EMP_TOTAL));
+            if (hasPayments)
+            {   // report
+                BigDecimal empTotal = dle.getDecimal(qryEmpTotal.column(EMP_TOTAL));
+                BigDecimal pctOfDep = dle.getDecimal(PCT_OF_DEPARTMENT_COST).setScale(1, RoundingMode.HALF_UP);
+                log.info("Eployee[{}]: {}\tDepartment: {}\tPayments: {} ({}% of Department)", empId, empName, depName, empTotal, pctOfDep);
+            }
+            else
+                log.info("Eployee[{}]: {}\tDepartment: {}\tPayments: [No data avaiable]", empId, empName, depName);
+        }
+	}
+
+	private static void queryRecordList()
+	{
+        SampleDB.Departments DEP = db.DEPARTMENTS;
+        SampleDB.Employees EMP = db.EMPLOYEES;
+        /*
+         * Test RecordList
+         */
+        DBCommand cmd = db.createCommand();
+        cmd.join(EMP.DEPARTMENT_ID, DEP.ID);
+        cmd.where(DEP.NAME.is("Development"));
+        // query now
+        List<DBRecord> list = context.getUtils().queryRecordList(cmd, EMP);
+        log.info("RecordList query found {} employees in Development department", list.size());
+        for (DBRecord record : list)
+        {
+            Object[] key = record.getKey();
+            // print info
+            String empName = StringUtils.concat(", ", record.getString(EMP.LASTNAME), record.getString(EMP.FIRSTNAME));
+            String phone   = record.getString(EMP.PHONE_NUMBER);
+            BigDecimal salary = record.getDecimal(EMP.SALARY);
+            log.info("Eployee[{}]: {}\tPhone: {}\tSalary: {}", StringUtils.toString(key), empName, phone, salary);
+            // modify salary
+            BigDecimal newSalary = new BigDecimal(2000 + ((Math.random()*200) - 100.0));
+            record.setValue(EMP.SALARY, newSalary);
+            // check
+            if (record.wasModified(EMP.SALARY))
+            {   // Salary was modified
+                log.info("Salary was modified for {}. New salary is {}", empName, record.getDecimal(EMP.SALARY));
+            }
+            // udpate the record
+            record.update();
+        }
+	}
 }

@@ -91,7 +91,8 @@ public class HSqlDDLGenerator extends DBDDLGenerator<DBMSHandlerHSql>
                 if (c.getDataType() == DataType.AUTOINC && (c instanceof DBTableColumn))
                 {   // SEQUENCE column
                     DBTableColumn column = (DBTableColumn) c;
-                    script.addStmt("DROP SEQUENCE " + column.getSequenceName());
+                    String seqName = dbms.getColumnSequenceName(column);
+                    script.addStmt("DROP SEQUENCE " + seqName);
                 }
             }
         }
@@ -100,17 +101,16 @@ public class HSqlDDLGenerator extends DBDDLGenerator<DBMSHandlerHSql>
     /**
      * Appends the DDL-Script for creating a sequence to an SQL-Script<br>
      * @param db the database to create
-     * @param c the column for which to create the sequence
+     * @param column the column for which to create the sequence
      * @param script the sql script to which to append the dll command(s)
      */
-    protected void createSequence(DBDatabase db, DBTableColumn c, DBSQLScript script)
+    protected void createSequence(DBDatabase db, DBTableColumn column, DBSQLScript script)
     {
-        Object defValue = c.getDefaultValue();
-        String seqName = (defValue != null) ? defValue.toString() : c.toString();
+        String seqName = dbms.getColumnSequenceName(column);
         // createSQL
         StringBuilder sql = new StringBuilder();
         sql.append("-- creating sequence for column ");
-        sql.append(c.toString());
+        sql.append(column.toString());
         sql.append(" --\r\n");
         sql.append("CREATE SEQUENCE ");
         db.appendQualifiedName(sql, seqName, null);

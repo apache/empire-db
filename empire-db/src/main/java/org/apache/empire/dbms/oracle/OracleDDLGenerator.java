@@ -126,7 +126,8 @@ public class OracleDDLGenerator extends DBDDLGenerator<DBMSHandlerOracle>
                 if (c.getDataType() == DataType.AUTOINC && (c instanceof DBTableColumn))
                 {   // SEQUENCE column
                     DBTableColumn column = (DBTableColumn) c;
-                    script.addStmt("DROP SEQUENCE " + column.getSequenceName());
+                    String seqName = dbms.getColumnSequenceName(column);
+                    script.addStmt("DROP SEQUENCE " + seqName);
                 }
             }
         }
@@ -135,13 +136,13 @@ public class OracleDDLGenerator extends DBDDLGenerator<DBMSHandlerOracle>
     /**
      * Returns true if the sequence has been created successfully.
      */
-    protected void createSequence(DBDatabase db, DBTableColumn c, DBSQLScript script)
+    protected void createSequence(DBDatabase db, DBTableColumn column, DBSQLScript script)
     {
-        String seqName = c.getSequenceName();
+        String seqName = dbms.getColumnSequenceName(column);
         // createSQL
         StringBuilder sql = new StringBuilder();
         sql.append("-- creating sequence for column ");
-        sql.append(c.getFullName());
+        sql.append(column.getFullName());
         sql.append(" --\r\n");
         sql.append("CREATE SEQUENCE ");
         db.appendQualifiedName(sql, seqName, null);

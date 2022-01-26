@@ -17,8 +17,10 @@
  * under the License.
  */
 package org.apache.empire.db;
+import java.beans.PropertyDescriptor;
 // XML
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -36,6 +38,7 @@ import org.apache.empire.db.exceptions.FieldIllegalValueException;
 import org.apache.empire.exceptions.BeanPropertySetException;
 import org.apache.empire.exceptions.InvalidArgumentException;
 import org.apache.empire.exceptions.ItemNotFoundException;
+import org.apache.empire.exceptions.PropertyReadOnlyException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
@@ -478,7 +481,15 @@ public abstract class DBRecordData extends DBObject
             }
             else
             {   // Don't convert, just set
-                PropertyUtils.setProperty(bean, property, null);
+                PropertyDescriptor pd = PropertyUtils.getPropertyDescriptor(bean, property);
+                if (pd==null)
+                    return; // No such property
+                // get the write method
+                final Method method = PropertyUtils.getWriteMethod(pd);
+                if (method == null)
+                    throw new PropertyReadOnlyException(property);
+                // invoke
+                method.invoke(bean, value);
             }
           // IllegalAccessException
         } catch (IllegalAccessException e)

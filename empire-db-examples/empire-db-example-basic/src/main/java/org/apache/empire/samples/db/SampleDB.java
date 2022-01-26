@@ -77,7 +77,7 @@ public class SampleDB extends DBDatabase
         {
             super("DEPARTMENTS", db);
             // ID
-            ID              = addColumn("DEPARTMENT_ID",    DataType.AUTOINC,       0, true, "DEP_ID_SEQUENCE");  // Sequence name only required for some DBMS (e.g. Oracle)
+            ID              = addColumn("ID",               DataType.AUTOINC,       0, true); // Optional Sequence name ("DEP_ID_SEQUENCE") for some DBMS (e.g. Oracle)
             NAME            = addColumn("NAME",             DataType.VARCHAR,      80, true);
             HEAD            = addColumn("HEAD",             DataType.VARCHAR,      80, false);
             BUSINESS_UNIT   = addColumn("BUSINESS_UNIT",    DataType.VARCHAR,       4, true, "ITTK");
@@ -114,7 +114,7 @@ public class SampleDB extends DBDatabase
             super("EMPLOYEES", db);
             
             // ID
-            ID              = addColumn("EMPLOYEE_ID",      DataType.AUTOINC,      0, true, "EMPLOYEE_ID_SEQUENCE");  // Sequence name only required for some DBMS (e.g. Oracle)
+            ID              = addColumn("ID",               DataType.AUTOINC,      0, true);  // Optional Sequence name ("EMPLOYEE_ID_SEQUENCE") for some DBMS (e.g. Oracle)
             SALUTATION      = addColumn("SALUTATION",       DataType.VARCHAR,     20, false);
             FIRSTNAME       = addColumn("FIRSTNAME",        DataType.VARCHAR,     40, true);
             LASTNAME        = addColumn("LASTNAME",         DataType.VARCHAR,     40, true);
