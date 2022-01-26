@@ -409,21 +409,19 @@ public class DBModelChecker
 
     protected void checkTable(DBTable table, DBModelErrorHandler handler)
     {
-        DBRowSet remoteTable = getTable(table.getName());
+        DBTable remoteTable = remoteDb.getTable(table.getName()); // getTable(table.getName());
         if (remoteTable == null)
-        {   // Not found
-            handler.itemNotFound(table);
-            return;
-        }
-        if (!(remoteTable instanceof DBTable))
-        {   // Not a DBTable
-            handler.objectTypeMismatch(remoteTable, table.getName(), DBTable.class);
+        {   // Check if it is a view instead
+            if (remoteDb.getView(table.getName())!=null)
+                handler.objectTypeMismatch(remoteTable, table.getName(), DBTable.class);
+            else
+                handler.itemNotFound(table);
             return;
         }
         // Check primary Key
-        checkPrimaryKey(table, (DBTable)remoteTable, handler);
+        checkPrimaryKey(table, remoteTable, handler);
         // check foreign keys
-        checkForeignKeys(table, (DBTable)remoteTable, handler);
+        checkForeignKeys(table, remoteTable, handler);
         // Check Columns
         for (DBColumn column : table.getColumns())
         {
@@ -434,6 +432,30 @@ public class DBModelChecker
                 continue;
             }
             checkColumn(column, remoteColumn, handler);
+        }
+    }
+
+    protected void checkView(DBView view, DBModelErrorHandler handler)
+    {
+        DBView remoteView = remoteDb.getView(view.getName());
+        if (remoteView == null)
+        {   // Check if it is a table instead
+            if (remoteDb.getTable(view.getName())!=null)
+                handler.objectTypeMismatch(remoteView, view.getName(), DBView.class);
+            else
+                handler.itemNotFound(view);
+            return;
+        }
+        for (DBColumn column : view.getColumns())
+        {
+            DBColumn remoteColumn = remoteView.getColumn(column.getName());
+            if (remoteColumn == null)
+            {
+                handler.itemNotFound(column);
+                continue;
+            }
+            // checkColumn(column, remoteColumn, handler);
+            checkColumnType(column, remoteColumn, handler);
         }
     }
 
@@ -519,31 +541,6 @@ public class DBModelChecker
 
         }
 
-    }
-
-    protected void checkView(DBView view, DBModelErrorHandler handler)
-    {
-        DBRowSet remoteView = getTable(view.getName());
-        if (remoteView == null)
-        {
-            handler.itemNotFound(view);
-            return;
-        }
-        if (!(remoteView instanceof DBView))
-        {
-            handler.objectTypeMismatch(remoteView, view.getName(), DBView.class);
-        }
-        for (DBColumn column : view.getColumns())
-        {
-            DBColumn remoteColumn = remoteView.getColumn(column.getName());
-            if (remoteColumn == null)
-            {
-                handler.itemNotFound(column);
-                continue;
-            }
-            // checkColumn(column, remoteColumn, handler);
-            checkColumnType(column, remoteColumn, handler);
-        }
     }
 
     protected void checkColumn(DBColumn column, DBColumn remoteColumn, DBModelErrorHandler handler)

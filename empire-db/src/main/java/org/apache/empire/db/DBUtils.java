@@ -654,6 +654,16 @@ public class DBUtils implements DBContextAware
     {
         return new DataListFactoryImpl<T>(entryClass, head);
     }
+
+    /**
+     * Crates a default DataListHead for a DataListEntry class
+     * @param cmd the cmd for which to create the DataListHead
+     * @return the DataListHead instance
+     */
+    protected DataListHead createDefaultDataListHead(DBCommand cmd) 
+    {
+        return new DataListHead(cmd.getSelectExprList());
+    }
     
     /**
      * Executes a query and returns a list of DataListEntry items
@@ -669,7 +679,7 @@ public class DBUtils implements DBContextAware
         DBReader r = new DBReader(context);
         try
         {   // prepare
-            factory.prepareQuery();
+            factory.prepareQuery(cmd, context);
             // check pageSize
             if (pageSize==0)
             {   log.warn("PageSize must not be 0. Setting to -1 for all records!");
@@ -740,7 +750,7 @@ public class DBUtils implements DBContextAware
      */
     public final <T extends DataListEntry> List<T> queryDataList(DBCommand cmd, Class<T> entryClass)
     {
-        return queryDataList(cmd, entryClass, new DataListHead(cmd.getSelectExprList()));
+        return queryDataList(cmd, entryClass, createDefaultDataListHead(cmd));
     }
     
     /**
@@ -757,7 +767,7 @@ public class DBUtils implements DBContextAware
      */
     public final <T extends DataListEntry> T queryDataEntry(DBCommand cmd, Class<T> entryClass, boolean forceResult)
     {
-        DataListHead head = new DataListHead(cmd.getSelectExprList());
+        DataListHead head = createDefaultDataListHead(cmd);
         List<T> dle = queryDataList(cmd, createDefaultDataListFactory(entryClass, head), 0, 1);
         if (dle.isEmpty())
         {   if (forceResult)
@@ -810,7 +820,7 @@ public class DBUtils implements DBContextAware
         DBReader r = new DBReader(context);
         try
         {   // prepare
-            factory.prepareQuery(cmd);
+            factory.prepareQuery(cmd, context);
             // check pageSize
             if (pageSize==0)
             {   log.warn("PageSize must not be 0. Setting to -1 for all records!");

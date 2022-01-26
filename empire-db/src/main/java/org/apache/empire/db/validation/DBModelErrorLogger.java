@@ -36,9 +36,9 @@ public class DBModelErrorLogger implements DBModelErrorHandler
 {
     private static final Logger log = LoggerFactory.getLogger(DBModelErrorLogger.class);
     
-    private int errorCount;
+    protected int errorCount;
 
-    private int warnCount;
+    protected int warnCount;
     
     public int getErrorCount()
     {
