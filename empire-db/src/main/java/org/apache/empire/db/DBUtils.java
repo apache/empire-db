@@ -102,6 +102,42 @@ public class DBUtils implements DBContextAware
     }
     
     /**
+     * Executes a select SQL-Statement and returns a ResultSet containing the query results.<BR>
+     * This function returns a JDBC ResultSet.<BR>
+     * Instead of using this function directly you should use a DBReader object instead.<BR>
+     * <P>
+     * @param sqlCmd the SQL-Command
+     * @param sqlParams a list of parameters for parameter queries (may depend on dbms)
+     * @param scrollable true if the reader should be scrollable or false if not
+     * @return the JDBC ResutSet
+     */
+    public ResultSet executeQuery(String sqlCmd, Object[] sqlParams, boolean scrollable)
+    {
+        try
+        {   // Debug
+            if (log.isDebugEnabled())
+                log.debug("Executing: " + sqlCmd);
+            // Execute the Statement
+            long start = System.currentTimeMillis();
+            ResultSet rs = dbms.executeQuery(sqlCmd, sqlParams, scrollable, context.getConnection());
+            if (rs == null)
+                throw new UnexpectedReturnValueException(rs, "dbms.executeQuery()");
+            // Debug
+            long queryTime = (System.currentTimeMillis() - start);
+            if (log.isDebugEnabled())
+                log.debug("executeQuery successful in {} ms", queryTime);
+            else if (queryTime>=longRunndingStmtThreshold)
+                log.warn("Long running query took {} seconds for statement {}.", queryTime / 1000, sqlCmd);
+            // Return number of affected records
+            return rs;
+    
+        } catch (SQLException sqle) 
+        {   // Error
+            throw new QueryFailedException(dbms, sqlCmd, sqle);
+        } 
+    }
+    
+    /**
      * Returns the value of the first row/column of a sql-query as an object.
      * If the query does not return a result the value ObjectUtils.NO_VALUE is returned.
      * 
@@ -397,7 +433,7 @@ public class DBUtils implements DBContextAware
      */
     public final <T> int querySimpleList(Class<T> c, DBCommand cmd, Collection<T> result)
     {
-        return querySimpleList(c, cmd.getSelect(), cmd.getParamValues(), DataType.UNKNOWN, result, -1); 
+        return querySimpleList(c, cmd.getSelect(), cmd.getParamValues(), DataType.UNKNOWN, result, MAX_QUERY_ROWS); 
     }
 
     /**
@@ -435,9 +471,10 @@ public class DBUtils implements DBContextAware
      * The option list is filled with the values of the first and second column.
      * 
      * @param sqlCmd the SQL statement
+     * @param options the option list to where the options are added
      * @return an Options object containing a set a of values and their corresponding names 
      */
-    public int queryOptionList(String sqlCmd, Object[] sqlParams, Options result)
+    public int queryOptionList(String sqlCmd, Object[] sqlParams, Options options)
     {   // Execute the  Statement
         ResultSet rs = null;
         try
@@ -457,7 +494,7 @@ public class DBUtils implements DBContextAware
             {
                 Object value = rs.getObject(1);
                 String text  = rs.getString(2);
-                result.add(value, text, true);
+                options.add(value, text, true);
                 count++;
             }
             // Debug
@@ -482,11 +519,12 @@ public class DBUtils implements DBContextAware
      * The option list is filled with the values of the first and second column.
      * 
      * @param cmd the Command object that contains the select statement
+     * @param options the option list to where the options are added
      * @return an Options object containing a set a of values and their corresponding names 
      */
-    public final int queryOptionList(DBCommand cmd, Options result)
+    public final int queryOptionList(DBCommand cmd, Options options)
     {   // Execute the  Statement
-        return queryOptionList(cmd.getSelect(), cmd.getParamValues(), result); 
+        return queryOptionList(cmd.getSelect(), cmd.getParamValues(), options); 
     }
 
     /**
@@ -510,7 +548,7 @@ public class DBUtils implements DBContextAware
      * Otherwise a DBReader should be used!</p>
      * 
      * @param sqlCmd the SQL statement
-     * @return a list of object arrays 
+     * @return a list of object arrays
      */
     public int queryObjectList(String sqlCmd, Object[] sqlParams, Collection<Object[]> result, int maxRows)
     {   // Perform query
@@ -555,30 +593,16 @@ public class DBUtils implements DBContextAware
     } 
 
     /**
-     * Adds the result of a query to a given collection.<br>
-     * The individual rows will be added as an array of objects (object[])
-     * <p>This function should only be used for small lists.
-     * Otherwise a DBReader should be used!</p>
-     * 
-     * @param cmd the Command object that contains the select statement
-     * @return a list of object arrays 
-     */
-    public final int queryObjectList(DBCommand cmd, Collection<Object[]> result)
-    {   // Perform query
-        return queryObjectList(cmd.getSelect(), cmd.getParamValues(), result, -1); 
-    }
-
-    /**
      * Returns the result of a query as a list Object-Arrays 
      * This function should only be used for small lists.
      * 
      * @param cmd the Command object that contains the select statement
-     * @return a list of object arrays 
+     * @return a list of object arrays
      */
     public final List<Object[]> queryObjectList(DBCommand cmd)
     {   // Execute the  Statement
         List<Object[]> result = new ArrayList<Object[]>();
-        queryObjectList(cmd.getSelect(), cmd.getParamValues(), result, -1);
+        queryObjectList(cmd.getSelect(), cmd.getParamValues(), result, MAX_QUERY_ROWS);
         return result;
     }
 
@@ -589,11 +613,11 @@ public class DBUtils implements DBContextAware
      * @param sqlCmd the SQL-Command
      * @param sqlParams list of query parameter values
      * 
-     * @return the values of the first row 
+     * @return the values of the first row
      */
     public Object[] querySingleRow(String sqlCmd, Object[] sqlParams)
     {
-        List<Object[]> result = new ArrayList<Object[]>();
+        List<Object[]> result = new ArrayList<Object[]>(1);
         queryObjectList(sqlCmd, sqlParams, result, 1);
         if (result.size()<1)
             throw new QueryNoResultException(sqlCmd);
@@ -611,42 +635,6 @@ public class DBUtils implements DBContextAware
     public final Object[] querySingleRow(DBCommand cmd)
     {
         return querySingleRow(cmd.getSelect(), cmd.getParamValues()); 
-    }
-        
-    /**
-     * Executes a select SQL-Statement and returns a ResultSet containing the query results.<BR>
-     * This function returns a JDBC ResultSet.<BR>
-     * Instead of using this function directly you should use a DBReader object instead.<BR>
-     * <P>
-     * @param sqlCmd the SQL-Command
-     * @param sqlParams a list of parameters for parameter queries (may depend on dbms)
-     * @param scrollable true if the reader should be scrollable or false if not
-     * @return the JDBC ResutSet
-     */
-    public ResultSet executeQuery(String sqlCmd, Object[] sqlParams, boolean scrollable)
-    {
-        try
-        {   // Debug
-            if (log.isDebugEnabled())
-                log.debug("Executing: " + sqlCmd);
-            // Execute the Statement
-            long start = System.currentTimeMillis();
-            ResultSet rs = dbms.executeQuery(sqlCmd, sqlParams, scrollable, context.getConnection());
-            if (rs == null)
-                throw new UnexpectedReturnValueException(rs, "dbms.executeQuery()");
-            // Debug
-            long queryTime = (System.currentTimeMillis() - start);
-            if (log.isDebugEnabled())
-                log.debug("executeQuery successful in {} ms", queryTime);
-            else if (queryTime>=longRunndingStmtThreshold)
-                log.warn("Long running query took {} seconds for statement {}.", queryTime / 1000, sqlCmd);
-            // Return number of affected records
-            return rs;
-
-        } catch (SQLException sqle) 
-        {   // Error
-            throw new QueryFailedException(dbms, sqlCmd, sqle);
-        } 
     }
 
     /**
@@ -685,7 +673,7 @@ public class DBUtils implements DBContextAware
                 if (first>0 && dbms.isSupported(DBMSFeature.QUERY_SKIP_ROWS))
                 {   // let the database skip the rows
                     cmd.skipRows(first);
-                    // no need to skip rows
+                    // no need to skip rows ourself
                     first = 0;
                 }
                 cmd.limitRows(first+pageSize);
@@ -730,7 +718,7 @@ public class DBUtils implements DBContextAware
      */
     public final <T extends DataListEntry> List<T> queryDataList(DBCommand cmd, Class<T> entryClass)
     {
-        return queryDataList(cmd, createDefaultDataListHead(cmd, entryClass), 0, -1);
+        return queryDataList(cmd, createDefaultDataListHead(cmd, entryClass), 0, MAX_QUERY_ROWS);
     }
     
     /**
@@ -741,14 +729,27 @@ public class DBUtils implements DBContextAware
     {
         return (List<T>)queryDataList(cmd, DataListEntry.class);
     }
+
+    /**
+     * Queries a single DataListEntry item
+     */
+    public final <T extends DataListEntry> T queryDataEntry(DBCommand cmd, Class<T> entryClass, boolean forceResult)
+    {
+        List<T> dle = queryDataList(cmd, createDefaultDataListHead(cmd, entryClass), 0, 1);
+        if (dle.isEmpty())
+        {   if (forceResult)
+                throw new QueryNoResultException(cmd.getSelect());
+            return null;
+        }
+        return dle.get(0);
+    }
     
     /**
      * Queries a single DataListEntry item
      */
     public final <T extends DataListEntry> T queryDataEntry(DBCommand cmd, Class<T> entryClass)
     {
-        List<T> dle = queryDataList(cmd, createDefaultDataListHead(cmd, entryClass), 0, 1);
-        return (dle.isEmpty() ? null : dle.get(0));
+        return queryDataEntry(cmd, entryClass, true);
     }
     
     /**

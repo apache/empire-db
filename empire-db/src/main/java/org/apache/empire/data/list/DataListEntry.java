@@ -27,8 +27,8 @@ public class DataListEntry implements RecordData, Serializable
     private static final Logger log  = LoggerFactory.getLogger(DataListEntry.class);
     
     protected final DataListHead<? extends DataListEntry> head;
-    protected final int rownum;
     protected final Object values[];
+    protected int rownum;
     
     public DataListEntry(DataListHead<? extends DataListEntry> head, int rownum, Object values[])
     {

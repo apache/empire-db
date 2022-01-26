@@ -14,16 +14,13 @@ import org.apache.empire.data.ColumnExpr;
 import org.apache.empire.data.RecordData;
 import org.apache.empire.exceptions.InternalException;
 import org.apache.empire.exceptions.InvalidArgumentException;
-import org.apache.empire.exceptions.ItemNotFoundException;
 import org.apache.empire.exceptions.NotSupportedException;
 import org.apache.empire.exceptions.UnsupportedTypeException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class DataListHead<T extends DataListEntry> implements Serializable
 {
     private static final long serialVersionUID = 1L;
-    private static final Logger log  = LoggerFactory.getLogger(DataListHead.class);
+    // private static final Logger log  = LoggerFactory.getLogger(DataListHead.class);
     
     final Constructor<T> constructor;
     final ColumnExpr[] columns;
@@ -156,6 +153,7 @@ public class DataListHead<T extends DataListEntry> implements Serializable
     /**
      * Escapes the formatted value
      * Default is a simple HTML escape
+     * Overwrite in order to change the behaviour
      */
     protected String escape(String text)
     {
