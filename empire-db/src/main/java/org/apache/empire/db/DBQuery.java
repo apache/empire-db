@@ -339,6 +339,29 @@ public class DBQuery extends DBRowSet
     }
     
     /**
+     * Add rowset data
+     */
+    @Override
+    protected void initRecord(DBRecord rec, DBRecordData recData, Object rowSetData)
+    {
+        if (keyColumns!=null)
+        {   // check
+            if (rowSetData!=null && !(rowSetData instanceof Object[]) && ((Object[])rowSetData).length!=keyColumns.length)
+                throw new InvalidArgumentException("rowSetData", rowSetData);
+            // create key if not already set
+            if (rowSetData==null)
+            {   // create key
+                Object[] recordKey = new Object[keyColumns.length];
+                for (int i=0; i<recordKey.length; i++)
+                    recordKey[i]=recData.getValue(keyColumns[i]);
+                rowSetData = recordKey;
+            }
+        }
+        // int
+        super.initRecord(rec, recData, rowSetData);
+    }
+    
+    /**
      * Returns an error, because it is not possible to add a record to a query.
      * 
      * @param rec the DBRecord object, contains all fields and the field properties

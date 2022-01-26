@@ -72,29 +72,6 @@ public class DataListHead<T extends DataListEntry> implements Serializable
         this(findEntryConstructor(listEntryClass, DataListHead.class), columns);
     }
     
-    public ColumnExpr[] getColumns()
-    {
-        return columns; 
-    }
-
-    public int getColumnIndex(ColumnExpr column)
-    {
-        for (int i=0; i<columns.length; i++)
-            if (columns[i]==column)
-                return i; 
-        // Not found, try by name
-        return getColumnIndex(column.getName());
-    }
-    
-    public int getColumnIndex(String columnName)
-    {
-        for (int i=0; i<columns.length; i++)
-            if (columnName.equalsIgnoreCase(columns[i].getName()))
-                return i; 
-        // not found
-        return -1;
-    }
-    
     public T newEntry(int rownum, Object[] values)
     {   try
         {   // check
@@ -134,6 +111,29 @@ public class DataListHead<T extends DataListEntry> implements Serializable
             values[i] = data.getValue(i);
         // create
         return newEntry(rownum, values);
+    }
+    
+    public ColumnExpr[] getColumns()
+    {
+        return columns; 
+    }
+
+    public int getColumnIndex(ColumnExpr column)
+    {
+        for (int i=0; i<columns.length; i++)
+            if (columns[i]==column)
+                return i; 
+        // Not found, try by name
+        return getColumnIndex(column.getName());
+    }
+    
+    public int getColumnIndex(String columnName)
+    {
+        for (int i=0; i<columns.length; i++)
+            if (columnName.equalsIgnoreCase(columns[i].getName()))
+                return i; 
+        // not found
+        return -1;
     }
     
     public String formatValue(int idx, Object value)

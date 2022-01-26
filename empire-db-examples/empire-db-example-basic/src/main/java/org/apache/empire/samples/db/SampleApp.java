@@ -628,7 +628,7 @@ public class SampleApp
         cmd.orderBy(EMPLOYEE_FULLNAME);
         
         /*
-         * Test data list entry
+         * Test DataList
          * 
         List<DataListEntry> list = context.getUtils().queryDataList(cmd);
         for (DataListEntry dle : list)
@@ -639,6 +639,17 @@ public class SampleApp
             System.out.println(dle.toString());
         }
         */
+        
+        /*
+         * Test RecordList
+         */
+        List<DBRecord> list = context.getUtils().queryRecordList(cmd, new DBQuery(cmd, EMP.ID));
+        for (DBRecord record : list)
+        {
+            Object[] key = record.getKey();
+            boolean exists = record.isExists();
+            System.out.println(StringUtils.arrayToString(key, "|"));
+        }
 
         /*
          * Example for limitRows() and skipRows()

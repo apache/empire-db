@@ -558,7 +558,17 @@ public abstract class DBRowSet extends DBExpr implements Entity
      * The record may then be modified and updated.<BR>
      * At least all primary key columns must be supplied.<BR>
      * We strongly recommend to supply the value of the update timestamp column in order to detect concurrent changes.<BR>
-     * Fields for which no value is supplied with the recData paramter are set to NO_VALUE<BR>
+     */ 
+    public void initRecord(DBRecord rec, DBRecordData recData)
+    {
+        initRecord(rec, recData, null);
+    }
+    
+    /**
+     * Initializes a DBRecord for this rowset using the record data provided (i.e. from a DBReader)<BR>
+     * The record may then be modified and updated.<BR>
+     * At least all primary key columns must be supplied.<BR>
+     * We strongly recommend to supply the value of the update timestamp column in order to detect concurrent changes.<BR>
      * <P>
      * @param rec the record object
      * @param recData the record data from which to initialized the record

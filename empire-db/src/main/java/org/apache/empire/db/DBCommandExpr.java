@@ -306,7 +306,7 @@ public abstract class DBCommandExpr extends DBExpr
      * Returns the list of all select expressions as an array
      * Used internally only
      */
-    protected abstract DBColumnExpr[] getSelectExprList();
+    public abstract DBColumnExpr[] getSelectExprList();
     
     /**
      * returns a list of expressions for the SELECT part of the sql statement

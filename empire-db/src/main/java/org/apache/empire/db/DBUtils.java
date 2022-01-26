@@ -18,6 +18,8 @@ import org.apache.empire.db.exceptions.ConstraintViolationException;
 import org.apache.empire.db.exceptions.QueryFailedException;
 import org.apache.empire.db.exceptions.QueryNoResultException;
 import org.apache.empire.db.exceptions.StatementFailedException;
+import org.apache.empire.db.list.DBRecordListFactory;
+import org.apache.empire.db.list.DBRecordListFactoryImpl;
 import org.apache.empire.dbms.DBMSFeature;
 import org.apache.empire.dbms.DBMSHandler;
 import org.apache.empire.exceptions.InternalException;
@@ -33,6 +35,8 @@ public class DBUtils implements DBContextAware
     
     // Threshold for long running queries in milliseconds
     protected static long longRunndingStmtThreshold = 30000;
+    // Default list capacity
+    protected static int  DEFAULT_LIST_CAPACITY  = 10;
     // Max-Rows for list queries
     protected static int  MAX_QUERY_ROWS  = 999;
     
@@ -692,6 +696,8 @@ public class DBUtils implements DBContextAware
             while (r.moveNext() && maxCount != 0)
             {   // Create bean an init
                 T entry = listHead.newEntry(++rownum, r);
+                if (entry==null)
+                    continue;
                 // add entry
                 list.add(entry);
                 // Decrease count
@@ -759,6 +765,97 @@ public class DBUtils implements DBContextAware
     public final <T extends DataListEntry> T queryDataEntry(DBCommand cmd)
     {
         return (T)queryDataEntry(cmd, DataListEntry.class);
+    }
+
+    /**
+     * Crates a default DBRecordListFactory for a DBRecord class
+     * The DBRecord class must provide the following constructor
+     *      DBRecord(DBContext context, DBRowSet rowset)
+     * @param recordClass the recordClass for which to create the list head 
+     * @return
+     */
+    protected <T extends DBRecord> DBRecordListFactory<T> createDefaultRecordListFactory(DBContext context, DBRowSet rowset, Class<T> recordClass) 
+    {
+        return new DBRecordListFactoryImpl<T>(recordClass, context, rowset);
+    }
+    
+    /**
+     * Executes a query and returns a list of DBRecord items
+     * @param sqlCmd the SQL-Command for the query
+     * @param listHead the HeadInfo to be used for each list item
+     * @param first the number of records to skip from the beginning of the result
+     * @param pageSize the maximum number of item to return
+     * @return the list 
+     */
+    public <T extends DBRecord> List<T> queryRecordList(DBCommand cmd, DBRecordListFactory<T> factory, int first, int pageSize)
+    {
+        List<T> list = null;
+        DBReader r = new DBReader(context);
+        try
+        {   // prepare
+            factory.prepareQuery(cmd);
+            // check pageSize
+            if (pageSize==0)
+            {   log.warn("PageSize must not be 0. Setting to -1 for all records!");
+                pageSize = -1;
+            }
+            // set range
+            DBMSHandler dbms = cmd.getDatabase().getDbms();
+            if (pageSize>0 && dbms.isSupported(DBMSFeature.QUERY_LIMIT_ROWS))
+            {   // let the database limit the rows
+                if (first>0 && dbms.isSupported(DBMSFeature.QUERY_SKIP_ROWS))
+                {   // let the database skip the rows
+                    cmd.skipRows(first);
+                    // no need to skip rows ourself
+                    first = 0;
+                }
+                cmd.limitRows(first+pageSize);
+            }
+            // Runquery
+            r.open(cmd);
+            if (first>0) 
+            {   // skip rows
+                r.skipRows(first);
+            }
+            // Create a list of data entries
+            int maxCount = (pageSize>=0) ? pageSize : MAX_QUERY_ROWS;
+            list = factory.newList((pageSize>=0) ? pageSize : DEFAULT_LIST_CAPACITY);
+            // add data
+            int rownum = 0;
+            while (r.moveNext() && maxCount != 0)
+            {   // Create bean an init
+                T entry = factory.newRecord(++rownum, r);
+                if (entry==null)
+                    continue;
+                // add entry
+                list.add(entry);
+                // Decrease count
+                if (maxCount > 0)
+                    maxCount--;
+            }
+            // check
+            if (rownum==MAX_QUERY_ROWS)
+            {
+                log.warn("********************************************************");
+                log.warn("Query Result was limited to {} by MAX_QUERY_ROWS", rownum);
+                log.warn("********************************************************");
+            }
+            return list;
+        }
+        finally
+        {   // close reader
+            r.close();
+            // complete
+            if (list!=null)
+                factory.completeQuery(list);
+        }
+    }
+
+    public final <T extends DBRecord> List<T> queryRecordList(DBCommand cmd, DBRowSet rowset)
+    {
+        @SuppressWarnings("unchecked")
+        DBRecordListFactory<T> factory = (DBRecordListFactory<T>)createDefaultRecordListFactory(context, rowset, DBRecord.class);
+        return queryRecordList(cmd, factory, 0, -1);
     }
     
 }

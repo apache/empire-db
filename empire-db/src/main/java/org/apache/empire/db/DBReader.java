@@ -657,7 +657,7 @@ public class DBReader extends DBRecordData implements DBContextAware, Closeable
     {
         // init Record
         DBRowSet rowset = rec.getRowSet();
-    	rowset.initRecord(rec, this, null);
+    	rowset.initRecord(rec, this);
     }
     
     /**
