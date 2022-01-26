@@ -22,9 +22,6 @@ import org.slf4j.LoggerFactory;
 
 public class DataListEntry implements RecordData, Serializable
 {
-    /**
-     * Comment for <code>serialVersionUID</code>
-     */
     private static final long serialVersionUID = 1L;
     
     private static final Logger log  = LoggerFactory.getLogger(DataListEntry.class);
@@ -38,6 +35,12 @@ public class DataListEntry implements RecordData, Serializable
         this.head = head;
         this.rownum = rownum;
         this.values = values;
+    }
+    
+    @SuppressWarnings({ "rawtypes", "unchecked" })
+    public <H extends DataListHead> H getHead()
+    {
+        return (H)this.head;
     }
     
     public Object[] getKey(Entity entity)
@@ -129,6 +132,11 @@ public class DataListEntry implements RecordData, Serializable
         return head.columns.length;
     }
     
+    public boolean hasField(ColumnExpr column)
+    {
+        return (head.getColumnIndex(column)>=0);
+    }
+    
     @Override
     public int getFieldIndex(ColumnExpr column)
     {
@@ -142,9 +150,11 @@ public class DataListEntry implements RecordData, Serializable
     }
     
     @Override
-    public ColumnExpr getColumnExpr(int i)
+    public ColumnExpr getColumnExpr(int index)
     {
-        return head.columns[i];
+        if (index<0 || index>=values.length)
+            throw new InvalidArgumentException("index", index);
+        return head.columns[index];
     }
     
     @Override
@@ -158,19 +168,21 @@ public class DataListEntry implements RecordData, Serializable
     @Override
     public Object getValue(ColumnExpr column)
     {
-        return getValue(getFieldIndex(column));
+        return getValue(indexOf(column));
     }
     
     @Override
     public boolean isNull(int index)
     {
+        if (index<0 || index>=values.length)
+            throw new InvalidArgumentException("index", index);
         return ObjectUtils.isEmpty(values[index]);
     }
     
     @Override
     public boolean isNull(ColumnExpr column)
     {
-        return isNull(getFieldIndex(column));
+        return isNull(indexOf(column));
     }
     
     @Override
@@ -186,7 +198,7 @@ public class DataListEntry implements RecordData, Serializable
     }
     
     /*
-     * Additional
+     * Conversion functions
      */
 
     public String getString(int index)
@@ -197,7 +209,7 @@ public class DataListEntry implements RecordData, Serializable
 
     public final String getString(ColumnExpr column)
     {
-        return getString(getFieldIndex(column));
+        return getString(indexOf(column));
     }
 
     public int getInt(int index)
@@ -208,7 +220,7 @@ public class DataListEntry implements RecordData, Serializable
     
     public final int getInt(ColumnExpr column)
     {
-        return getInt(getFieldIndex(column));
+        return getInt(indexOf(column));
     }
 
     public BigDecimal getDecimal(int index)
@@ -219,7 +231,7 @@ public class DataListEntry implements RecordData, Serializable
     
     public final BigDecimal getDecimal(ColumnExpr column)
     {
-        return getDecimal(getFieldIndex(column));
+        return getDecimal(indexOf(column));
     }
     
     public boolean getBoolean(int index)
@@ -230,7 +242,7 @@ public class DataListEntry implements RecordData, Serializable
     
     public final boolean getBoolean(ColumnExpr column)
     {
-        return getBoolean(getFieldIndex(column));
+        return getBoolean(indexOf(column));
     }
 
     public <T extends Enum<?>> T getEnum(int index, Class<T> enumType)
@@ -245,7 +257,7 @@ public class DataListEntry implements RecordData, Serializable
 
     public final <T extends Enum<?>> T getEnum(ColumnExpr column, Class<T> enumType)
     {
-        return getEnum(getFieldIndex(column), enumType);
+        return getEnum(indexOf(column), enumType);
     }
 
     @SuppressWarnings("unchecked")
@@ -256,7 +268,7 @@ public class DataListEntry implements RecordData, Serializable
         {   // Not an enum column (Attribute "enumType" has not been set)
             throw new InvalidArgumentException("column", column);
         }
-        return getEnum(getFieldIndex(column), enumType);
+        return getEnum(indexOf(column), enumType);
     }
     
     public Date getDate(int index)
@@ -267,8 +279,12 @@ public class DataListEntry implements RecordData, Serializable
         
     public final Date getDate(ColumnExpr column)
     {
-        return getDate(getFieldIndex(column));
+        return getDate(indexOf(column));
     }
+    
+    /*
+     * Miscellaneous functions
+     */
     
     @Override
     public String toString()
@@ -280,6 +296,14 @@ public class DataListEntry implements RecordData, Serializable
             b.append(head.columnSeparator);
         }
         return b.toString();
+    }
+
+    protected int indexOf(ColumnExpr column)
+    {
+        int index = head.getColumnIndex(column);
+        if (index<0)
+            throw new ItemNotFoundException(column.getName());
+        return index;
     }
     
 }

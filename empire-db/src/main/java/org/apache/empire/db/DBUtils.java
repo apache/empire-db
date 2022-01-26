@@ -11,11 +11,14 @@ import org.apache.empire.commons.ObjectUtils;
 import org.apache.empire.commons.Options;
 import org.apache.empire.commons.StringUtils;
 import org.apache.empire.data.DataType;
+import org.apache.empire.data.list.DataListEntry;
+import org.apache.empire.data.list.DataListHead;
 import org.apache.empire.db.context.DBContextAware;
 import org.apache.empire.db.exceptions.ConstraintViolationException;
 import org.apache.empire.db.exceptions.QueryFailedException;
 import org.apache.empire.db.exceptions.QueryNoResultException;
 import org.apache.empire.db.exceptions.StatementFailedException;
+import org.apache.empire.dbms.DBMSFeature;
 import org.apache.empire.dbms.DBMSHandler;
 import org.apache.empire.exceptions.InternalException;
 import org.apache.empire.exceptions.InvalidArgumentException;
@@ -97,7 +100,7 @@ public class DBUtils implements DBContextAware
             throw new StatementFailedException(dbms, sqlCmd, sqle);
         }    
     }
-
+    
     /**
      * Returns the value of the first row/column of a sql-query as an object.
      * If the query does not return a result the value ObjectUtils.NO_VALUE is returned.
@@ -291,7 +294,45 @@ public class DBUtils implements DBContextAware
         Object value = querySingleValue(cmd.getSelect(), cmd.getParamValues(), DataType.VARCHAR, true);
         return StringUtils.toString(value);
     }
-    
+
+    /**
+     * Returns the number of rows returned by executing the select statement
+     * @param cmd the select command
+     * @return the number of rows that will be returned
+     */
+    public int queryRowCount(DBCommand cmd)
+    {   // execute Native Query
+        if (cmd==null || !cmd.isValid())
+            return 0;
+        // Check for aggregation
+        boolean aggregate = false;
+        DBColumnExpr[] exprList = cmd.getSelectExprList();
+        for (int i=0; i<exprList.length; i++)
+        {
+            if (exprList[i].isAggregate())
+            {   aggregate = true;
+                break;
+            }
+        }
+        // check if aggregate 
+        if (aggregate)
+        {   // For Aggregations: Wrap  
+            DBCommand subCmd = cmd.clone();
+            subCmd.clearOrderBy();
+            String sql = "SELECT COUNT(*) FROM ("+subCmd.getSelect() + ") q";
+            return querySingleInt(sql, null, 0);
+        }
+        // find any rowset
+        DBRowSet rs = exprList[0].getUpdateColumn().getRowSet();
+        // create the count command
+        DBCommand countCmd = cmd.clone();
+        countCmd.clearSelect();
+        countCmd.clearOrderBy();
+        countCmd.select(rs.count());
+        // perform query
+        return querySingleInt(countCmd);
+    }
+
     /**
      * Adds the first column of a query result to a collection.
      * If the query has no result, an empty list is returned.
@@ -614,11 +655,11 @@ public class DBUtils implements DBContextAware
      *      DataListEntry(DataListHead<? extends DataListEntry> head, int rownum, Object values[])
      * @param entryClass the entryClass for which to create the list head 
      * @return
+     */
     protected <T extends DataListEntry> DataListHead<T> createDefaultDataListHead(DBCommand cmd, Class<T> entryClass) 
     {
         return new DataListHead<T>(entryClass, cmd.getSelectExprList());
     }
-     */
     
     /**
      * Executes a query and returns a list of DataListEntry items
@@ -627,7 +668,8 @@ public class DBUtils implements DBContextAware
      * @param first the number of records to skip from the beginning of the result
      * @param pageSize the maximum number of item to return
      * @return the list 
-    public <T extends DataListEntry<?>> List<T> queryDataList(DBCommand cmd, DataListHead<T> listHead, int first, int pageSize)
+     */
+    public <T extends DataListEntry> List<T> queryDataList(DBCommand cmd, DataListHead<T> listHead, int first, int pageSize)
     {
         DBReader r = new DBReader(context);
         try
@@ -682,39 +724,40 @@ public class DBUtils implements DBContextAware
             r.close();
         }
     }
-     */
     
     /**
      * Queries a list of DataListEntry items
-    public final <T extends DataListEntry<?>> List<T> queryDataList(DBCommand cmd, Class<T> entryClass)
+     */
+    public final <T extends DataListEntry> List<T> queryDataList(DBCommand cmd, Class<T> entryClass)
     {
         return queryDataList(cmd, createDefaultDataListHead(cmd, entryClass), 0, -1);
     }
-     */
     
     /**
      * Queries a list of DataListEntry items
-    public final List<DataListEntry> queryDataList(DBCommand cmd)
-    {
-        return queryDataList(cmd, DataListEntry.class);
-    }
      */
+    @SuppressWarnings("unchecked")
+    public final <T extends DataListEntry> List<T> queryDataList(DBCommand cmd)
+    {
+        return (List<T>)queryDataList(cmd, DataListEntry.class);
+    }
     
     /**
      * Queries a single DataListEntry item
-    public final <T extends DataListEntry<?>> T queryDataEntry(DBCommand cmd, Class<T> entryClass)
+     */
+    public final <T extends DataListEntry> T queryDataEntry(DBCommand cmd, Class<T> entryClass)
     {
         List<T> dle = queryDataList(cmd, createDefaultDataListHead(cmd, entryClass), 0, 1);
         return (dle.isEmpty() ? null : dle.get(0));
     }
-     */
     
     /**
      * Queries a single DataListEntry item
-    public final DataListEntry<?> queryDataEntry(DBCommand cmd)
-    {
-        return queryDataEntry(cmd, DataListEntry.class);
-    }
      */
+    @SuppressWarnings("unchecked")
+    public final <T extends DataListEntry> T queryDataEntry(DBCommand cmd)
+    {
+        return (T)queryDataEntry(cmd, DataListEntry.class);
+    }
     
 }

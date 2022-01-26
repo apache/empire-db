@@ -14,6 +14,7 @@ import org.apache.empire.data.ColumnExpr;
 import org.apache.empire.data.RecordData;
 import org.apache.empire.exceptions.InternalException;
 import org.apache.empire.exceptions.InvalidArgumentException;
+import org.apache.empire.exceptions.ItemNotFoundException;
 import org.apache.empire.exceptions.NotSupportedException;
 import org.apache.empire.exceptions.UnsupportedTypeException;
 import org.slf4j.Logger;
@@ -29,27 +30,49 @@ public class DataListHead<T extends DataListEntry> implements Serializable
     
     protected String columnSeparator = "\t";
     
+    /**
+     * findEntryConstructor
+     * @param listEntryClass
+     * @param listHeadClass
+     * @return the constructor
+     */
+    @SuppressWarnings("unchecked")
+    protected static <T extends DataListEntry> Constructor<T> findEntryConstructor(Class<?> listEntryClass, @SuppressWarnings("rawtypes") Class<? extends DataListHead> listHeadClass)
+    {
+        /*
+        Constructor<?> constructor = ClassUtils.findMatchingAccessibleConstructor(listEntryClass, new Class<?>[] { listHeadClass, int.class, Object[].class });
+        if (constructor==null)
+            throw new UnsupportedTypeException(listEntryClass);
+        return constructor;
+        */
+        try
+        {   // Find the constructor
+            return (Constructor<T>)listEntryClass.getDeclaredConstructor(listHeadClass, int.class, Object[].class);
+        }
+        catch (NoSuchMethodException e)
+        {
+            throw new UnsupportedTypeException(listEntryClass);
+        }
+        catch (SecurityException e)
+        {
+            throw new UnsupportedTypeException(listEntryClass);
+        }
+    }
+
+    /**
+     * Constructs a DataListHead based on an DataListEntry constructor
+     * @param constructor the DataListEntry constructor
+     * @param columns the list entry columns
+     */
+    public DataListHead(Constructor<T> constructor, ColumnExpr[] columns) 
+    {
+        this.constructor = constructor;
+        this.columns = columns;
+    }
+    
     public DataListHead(Class<T> listEntryClass, ColumnExpr[] columns) 
     {
-        if (listEntryClass!=null)
-        {   try
-            {   // Find the constructor
-                this.constructor = listEntryClass.getDeclaredConstructor(DataListHead.class, int.class, Object[].class);
-            }
-            catch (NoSuchMethodException e)
-            {
-                throw new UnsupportedTypeException(listEntryClass);
-            }
-            catch (SecurityException e)
-            {
-                throw new UnsupportedTypeException(listEntryClass);
-            }
-        }
-        else
-        {   // Must override newEntry for this to work
-            this.constructor = null;
-        }
-        this.columns = columns;
+        this(findEntryConstructor(listEntryClass, DataListHead.class), columns);
     }
     
     public ColumnExpr[] getColumns()
@@ -71,8 +94,7 @@ public class DataListHead<T extends DataListEntry> implements Serializable
         for (int i=0; i<columns.length; i++)
             if (columnName.equalsIgnoreCase(columns[i].getName()))
                 return i; 
-        // Not found
-        log.warn("Column \"{}\" not found in DataListEntry!", columnName);
+        // not found
         return -1;
     }
     

@@ -628,9 +628,14 @@ public class SampleApp
         cmd.orderBy(EMPLOYEE_FULLNAME);
         
         /*
+         * Test data list entry
+         * 
         List<DataListEntry> list = context.getUtils().queryDataList(cmd);
         for (DataListEntry dle : list)
         {
+            int empId = dle.getId(EMP);
+            int empId2 = dle.getInt(EMP.ID);
+            boolean test = dle.hasField(EMP.FIRSTNAME);
             System.out.println(dle.toString());
         }
         */
