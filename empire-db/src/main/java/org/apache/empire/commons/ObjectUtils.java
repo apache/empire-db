@@ -934,15 +934,36 @@ public final class ObjectUtils
     }
     
     /**
-     * returns wheter or not a array contains a certain item
+     * returns whether or not a array contains a certain item
+     * performs a simple (==) comparison (fast)
      * 
-     * @param <T> the ype of the objects in the array
      * @param array the array to search
      * @param item the item to search for
      * 
      * @return true if the array contains the item or false otherwise
      */
     public static <T> boolean contains(T[] array, T item)
+    {
+        if (array==null)
+            return false;
+        for (int i=0; i<array.length; i++)
+        {
+            if (array[i]==item)
+                return true;
+        }
+        return false;
+    }
+    
+    /**
+     * returns whether or not a array contains a certain item
+     * Uses the equals() operator to compare 
+     * 
+     * @param array the array to search
+     * @param item the item to search for
+     * 
+     * @return true if the array contains the item or false otherwise
+     */
+    public static <T> boolean containsElement(T[] array, T item)
     {
         if (array==null)
             return false;

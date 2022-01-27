@@ -1009,7 +1009,7 @@ public class DBRecord extends DBRecordData implements DBContextAware, Record, Cl
         if (!isValid())
             throw new ObjectNotValidException(this);
         // set row key
-        DBColumn[] keyColumns = rowset.getKeyColumns();
+        Column[] keyColumns = rowset.getKeyColumns();
         if (keyColumns != null && keyColumns.length > 0)
         { // key exits
             if (keyColumns.length > 1)

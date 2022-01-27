@@ -22,7 +22,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.empire.commons.Options;
 import org.apache.empire.data.DataType;
-import org.apache.empire.db.DBIndex.DBIndexType;
 import org.apache.empire.db.expr.column.DBValueExpr;
 import org.apache.empire.exceptions.InvalidArgumentException;
 import org.apache.empire.exceptions.ItemExistsException;
@@ -187,10 +186,11 @@ public abstract class DBView extends DBRowSet
 
     private static AtomicInteger viewCount = new AtomicInteger(0);
 
-    private String     name;
-    private String     alias;
-    private boolean    updateable;  // true if the view is updateable
-    private Boolean    quoteName  = null;
+    private String               name;
+    private String               alias;
+    private DBViewColumn[]       keyColumns;
+    private boolean              updateable;                      // true if the view is updateable
+    private Boolean              quoteName = null;
 
     /**
      * Creates a view object for a given view in the database.
@@ -221,6 +221,16 @@ public abstract class DBView extends DBRowSet
     { // Set the column expressions
         this(name, db, false);
     }
+
+    /**
+     * Returns an array of all key columns.
+     * @return an array of all key columns
+     */
+    @Override
+    public DBColumn[] getKeyColumns()
+    {
+        return this.keyColumns;
+    }
     
     /**
      * identifies the columns that uniquely identify a row in the view
@@ -228,8 +238,7 @@ public abstract class DBView extends DBRowSet
      */
     protected void setKeyColumns(DBViewColumn... keyColumns)
     { // Set Key Columns
-        if (keyColumns != null)
-            primaryKey = new DBIndex(null, DBIndexType.PRIMARY_KEY, keyColumns);
+        this.keyColumns = keyColumns;
     }
 
     /**

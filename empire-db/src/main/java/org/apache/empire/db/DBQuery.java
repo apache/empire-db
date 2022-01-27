@@ -314,7 +314,10 @@ public class DBQuery extends DBRowSet
         // get Key
         Object rowSetData = record.getRowSetData();
         if (rowSetData==null)
+        {
             log.warn("No Record-key provided for query record!");
+            return super.getRecordKey(record);
+        }
         return (Object[])rowSetData;
     }
 
@@ -344,6 +347,7 @@ public class DBQuery extends DBRowSet
     @Override
     protected void initRecord(DBRecord rec, DBRecordData recData, Object rowSetData)
     {
+        /*
         if (keyColumns!=null)
         {   // check
             if (rowSetData!=null && !(rowSetData instanceof Object[]) && ((Object[])rowSetData).length!=keyColumns.length)
@@ -357,6 +361,7 @@ public class DBQuery extends DBRowSet
                 rowSetData = recordKey;
             }
         }
+        */
         // int
         super.initRecord(rec, recData, rowSetData);
     }
@@ -401,7 +406,7 @@ public class DBQuery extends DBRowSet
         // Read Record
         try {
             // Read Record
-            readRecord(rec, cmd, key.clone()); 
+            readRecord(rec, cmd, null); // key.clone() 
         } catch (QueryNoResultException e) {
             // Record not found
             throw new RecordNotFoundException(this, key);

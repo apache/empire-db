@@ -59,6 +59,7 @@ public class DBTable extends DBRowSet implements Cloneable
 
     private final String         name;
     private String               alias;
+    private DBIndex              primaryKey          = null;
     private final List<DBIndex>  indexes             = new ArrayList<DBIndex>();
     private Boolean              quoteName           = null;
     private DBCascadeAction      cascadeDeleteAction = DBCascadeAction.NONE;
@@ -126,6 +127,17 @@ public class DBTable extends DBRowSet implements Cloneable
     public boolean isUpdateable()
     {
         return true;
+    }
+
+    /**
+     * Returns an array of all primary key columns.
+     * 
+     * @return an array of all primary key columns
+     */
+    @Override
+    public DBColumn[] getKeyColumns()
+    {
+        return ((primaryKey != null) ? primaryKey.getColumns() : null);
     }
 
     /**

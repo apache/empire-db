@@ -576,7 +576,7 @@ public class BeanListPageElement<T> extends ListPageElement<T> implements ListIt
 
     protected void generateIdParams(DBRowSet rowset, List<?> items)
     {
-        DBColumn[] keyCols = rowset.getKeyColumns();
+        Column[] keyCols = rowset.getKeyColumns();
         if (keyCols == null)
             return; // No Primary Key!
         // generate all
@@ -591,7 +591,7 @@ public class BeanListPageElement<T> extends ListPageElement<T> implements ListIt
         }
     }
 
-    protected Object[] getItemKey(DBColumn[] cols, Object item)
+    protected Object[] getItemKey(Column[] cols, Object item)
     {
         Object[] key = new Object[cols.length];
         for (int i = 0; i < cols.length; i++)
@@ -630,9 +630,8 @@ public class BeanListPageElement<T> extends ListPageElement<T> implements ListIt
         Set<Object[]> items = getSelectedItemKeys();
         if (items.size()>0)
         {
-            DBColumn[] pk = rowset.getKeyColumns();
+            DBColumn[] pk = (DBColumn[])rowset.getKeyColumns();
             DBColumnExpr keyExpr = pk[0];
-           
             for (int i=1; i<pk.length; i++)
             {
                 keyExpr = keyExpr.append(pk[i]);
