@@ -149,9 +149,18 @@ public class TagEncodingHelper implements NamingContainer
         }
 
         @Override
+        public boolean isWrapper()
+        { 
+            return true;
+        }
+
+        @Override
         public ColumnExpr unwrap()
-        {
-            return expr.unwrap();  
+        {   // unwrap the expression
+            if (expr.isWrapper())
+                return expr.unwrap();
+            // the wrapped expression
+            return expr;
         }
 
         @Override

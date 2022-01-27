@@ -103,10 +103,19 @@ public class DBAliasExpr extends DBColumnExpr
     {
         return expr.getUpdateColumn();
     }
+    
+    /**
+     * Indicates that we are actually an expression wrapper
+     * @return true
+     */
+    @Override
+    public boolean isWrapper()
+    {   // Yep
+        return true;
+    }
 
     /**
-     * This helper function returns the underlying column expression.
-     *
+     * Returns the underlying column expression.
      * @return the underlying column expression
      */
     @Override
@@ -188,7 +197,7 @@ public class DBAliasExpr extends DBColumnExpr
     @Override
     public boolean equals(Object other)
     {
-        if (other==this || expr.equals(other))
+        if (other==this)
             return true;
         // Check for another Alias Expression
         if (other instanceof DBAliasExpr)

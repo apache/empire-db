@@ -9,8 +9,8 @@ public enum DBSqlPhrase
     // sql-phrases
     SQL_NULL                ("null"),
     SQL_PARAMETER           ("?"),
-    SQL_RENAME_TABLE        ("AS"),
-    SQL_RENAME_COLUMN       ("AS"),
+    SQL_RENAME_TABLE        (" "),
+    SQL_RENAME_COLUMN       (" AS "),
     SQL_DATABASE_LINK       ("@"),          // Oracle
     SQL_QUOTES_OPEN         ("\""),         // MSSQL: [
     SQL_QUOTES_CLOSE        ("\""),         // MSSQL: ]

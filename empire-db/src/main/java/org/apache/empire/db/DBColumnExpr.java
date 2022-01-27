@@ -110,8 +110,16 @@ public abstract class DBColumnExpr extends DBExpr
     public abstract Element addXml(Element parent, long flags);
 
     /**
-     * This helper function unwraps an alias expression
-     * @return the original expresion before renaming
+     * @link {#org.apache.empire.commons.Unwrappable#isWrapper()}
+     */
+    @Override
+    public boolean isWrapper()
+    {   // Nope
+        return false;
+    }
+
+    /**
+     * @link {#org.apache.empire.commons.Unwrappable#unwrap()}
      */
     @Override
     public DBColumnExpr unwrap()

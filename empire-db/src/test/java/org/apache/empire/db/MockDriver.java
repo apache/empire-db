@@ -22,13 +22,16 @@ import java.sql.Connection;
 
 import org.apache.empire.data.DataType;
 import org.apache.empire.db.DBDDLGenerator.DDLActionType;
-import org.apache.empire.dbms.DBMSHandlerBase;
+import org.apache.empire.db.expr.column.DBFuncExpr;
 import org.apache.empire.dbms.DBMSFeature;
+import org.apache.empire.dbms.DBMSHandlerBase;
 import org.apache.empire.dbms.DBSqlPhrase;
 import org.apache.empire.exceptions.NotImplementedException;
 
 public class MockDriver extends DBMSHandlerBase {
     // *Deprecated* private static final long serialVersionUID = 1L;
+    
+    int seqValue = 0;
   
     class MockCommand extends DBCommand{
         // *Deprecated* private static final long serialVersionUID = 1L;
@@ -53,19 +56,19 @@ public class MockDriver extends DBMSHandlerBase {
     @Override
     public Object getNextSequenceValue(DBDatabase db, String SeqName, int minValue, Connection conn)
     {
-        return null;
+        return ++seqValue;
     }
 
     @Override
     public DBColumnExpr getNextSequenceValueExpr(DBTableColumn column)
     {
-        return null;
+        return new DBFuncExpr(column, "nextval()", null, column, false, DataType.INTEGER);
     }
 
     @Override
     public String getSQLPhrase(DBSqlPhrase phrase)
     {
-        return null;
+        return phrase.getSqlDefault();
     }
 
     @Override

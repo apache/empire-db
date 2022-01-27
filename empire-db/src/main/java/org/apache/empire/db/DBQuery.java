@@ -26,6 +26,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.empire.commons.ObjectUtils;
 import org.apache.empire.commons.StringUtils;
+import org.apache.empire.data.ColumnExpr;
 import org.apache.empire.db.exceptions.InvalidKeyException;
 import org.apache.empire.db.exceptions.NoPrimaryKeyException;
 import org.apache.empire.db.exceptions.QueryNoResultException;
@@ -121,7 +122,7 @@ public class DBQuery extends DBRowSet
             // add column
             DBColumn column = exprList[i].getUpdateColumn();
             if (column==null || (exprList[i] instanceof DBAliasExpr))
-            {   // user QueryColumn
+            {   // use QueryColumn
                 column = new DBQueryExprColumn(this, queryColumns[i].getName(), exprList[i]); 
             }
             columns.add(column);
@@ -655,6 +656,33 @@ public class DBQuery extends DBRowSet
             name = "COL_"+String.valueOf(index);
         // create wrapper
         return new DBQueryColumn(this, name, expr);
+    }
+    
+    /**
+     * Gets the index of a particular column expression.
+     * <P>
+     * @param column the Column to get the index for
+     * 
+     * @return the position of a column expression
+     */
+    @Override
+    public int getColumnIndex(ColumnExpr columnExpr)
+    {
+        if (columnExpr instanceof DBColumn)
+            return getColumnIndex((DBColumn)columnExpr);
+        else
+            for (int i=0; i<queryColumns.length; i++)
+            {   // find expression in QueryColumns
+                DBColumnExpr expr = queryColumns[i].getExpr();
+                if (expr.equals(columnExpr))
+                    return i; // found
+            }
+        // try unwrap
+        ColumnExpr unwrapped = columnExpr.unwrap();
+        if (unwrapped!=columnExpr)
+            return getColumnIndex(unwrapped);
+        // not found
+        return -1;
     }
 
     @Override

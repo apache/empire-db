@@ -942,35 +942,7 @@ public final class ObjectUtils
      * 
      * @return true if the array contains the item or false otherwise
      */
-    public static <T> boolean contains(T[] array, T item)
-    {
-        if (array==null)
-            return false;
-        // 1st try (quick)
-        for (int i=0; i<array.length; i++)
-        {
-            if (array[i]==item)
-                return true;
-        }
-        // 2nd try (thorough)
-        for (int i=0; i<array.length; i++)
-        {
-            if (array[i]!=null && array[i].equals(item))
-                return true;
-        }
-        // not found
-        return false;
-    }
-    
-    /**
-     * returns whether or not a array contains a certain item
-     * performs a simple (==) comparison (fast)
-     * 
-     * @param array the array to search
-     * @param item the item to search for
-     * 
-     * @return true if the array contains the item or false otherwise
-     */
+    @SuppressWarnings("unchecked")
     public static <T> int indexOf(T[] array, T item)
     {
         if (array==null)
@@ -984,11 +956,40 @@ public final class ObjectUtils
         // 2nd try (thorough)
         for (int i=0; i<array.length; i++)
         {
-            if (array[i]!=null && array[i].equals(item))
+            if (array[i]==null)
+                continue; // alredy checked
+            // compare directly
+            if (array[i].equals(item))                
                 return i;
+            // check wrapper
+            if ((array[i] instanceof Unwrappable) && ((Unwrappable<?>)array[i]).isWrapper())
+            {   // unwrap
+                Object unwrapped = ((Unwrappable<?>)array[i]).unwrap();
+                if (unwrapped==item || unwrapped.equals(item))
+                    return i;
+            }
+        }
+        // 3rd try (unwrap)
+        if ((item instanceof Unwrappable) && ((Unwrappable<?>)item).isWrapper())
+        {   // unwrap
+            return indexOf(array, ((Unwrappable<T>)item).unwrap());
         }
         // not found
         return -1;
+    }
+    
+    /**
+     * returns whether or not a array contains a certain item
+     * performs a simple (==) comparison (fast)
+     * 
+     * @param array the array to search
+     * @param item the item to search for
+     * 
+     * @return true if the array contains the item or false otherwise
+     */
+    public static <T> boolean contains(T[] array, T item)
+    {
+        return (indexOf(array, item)>=0);
     }
     
 }

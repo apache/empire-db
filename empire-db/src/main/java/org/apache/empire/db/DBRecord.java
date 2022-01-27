@@ -486,8 +486,7 @@ public class DBRecord extends DBRecordData implements DBContextAware, Record, Cl
     @Override
     public int getFieldIndex(ColumnExpr column)
     {
-        DBColumnExpr expr = (DBColumnExpr)column;
-        return (rowset != null) ? rowset.getColumnIndex(expr.getUpdateColumn()) : -1;
+        return (rowset != null) ? rowset.getColumnIndex(column) : -1;
     }
 
     /**

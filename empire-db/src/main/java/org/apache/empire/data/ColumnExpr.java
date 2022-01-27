@@ -19,12 +19,13 @@
 package org.apache.empire.data;
 
 import org.apache.empire.commons.Options;
+import org.apache.empire.commons.Unwrappable;
 
 /**
  * The column interface provides methods for accessing metadata that is relevant for managing
  * and displaying data available through the RecordData interface.
  */
-public interface ColumnExpr
+public interface ColumnExpr extends Unwrappable<ColumnExpr>
 {
     /**
      * Returns the column's data type.
@@ -77,10 +78,5 @@ public interface ColumnExpr
      * @return the column on which this expression is based or null if not applicable.
      */
     Column getSourceColumn();
-    
-    /**
-     * This helper function unwraps an alias expression
-     * @return the original expresion before renaming
-     */
     ColumnExpr unwrap();
 }

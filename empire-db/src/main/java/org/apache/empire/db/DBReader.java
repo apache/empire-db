@@ -891,7 +891,7 @@ public class DBReader extends DBRecordData implements DBContextAware, Closeable
     {
         if (columns == null)
             return -1;
-        // First chance: Try to find an exact match
+        // First chance: Try to find an expression match
         int index = ObjectUtils.indexOf(columns, column);
         if (index>= 0)
             return index;

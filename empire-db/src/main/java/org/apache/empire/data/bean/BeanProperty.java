@@ -199,10 +199,12 @@ public class BeanProperty implements Column
         return this;
     }
 
-    /**
-     * This helper function unwraps an alias expression
-     * @return the original expresion before renaming
-     */
+    @Override
+    public boolean isWrapper()
+    {   // Nope
+        return false; 
+    }
+
     @Override
     public ColumnExpr unwrap()
     {   // Nothing to unwrap
