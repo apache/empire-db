@@ -51,9 +51,10 @@ public class DataListHead implements Serializable
 
     public int getColumnIndex(ColumnExpr column)
     {
-        for (int i=0; i<columns.length; i++)
-            if (columns[i]==column || columns[i].unwrap()==column)
-                return i; 
+        // find
+        int i = ObjectUtils.indexOf(columns, column);
+        if (i>=0)
+            return i;
         // Not found, try by name
         return getColumnIndex(column.getName());
     }

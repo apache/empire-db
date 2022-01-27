@@ -892,11 +892,9 @@ public class DBReader extends DBRecordData implements DBContextAware, Closeable
         if (columns == null)
             return -1;
         // First chance: Try to find an exact match
-        for (int i = 0; i < columns.length; i++)
-        {
-            if (columns[i].equals(column))
-                return i;
-        }
+        int index = ObjectUtils.indexOf(columns, column);
+        if (index>= 0)
+            return index;
         // Second chance: Try Update Column
         if (column instanceof DBColumn)
         {

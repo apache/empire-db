@@ -312,13 +312,11 @@ public class DBQuery extends DBRowSet
         if (record == null || record.getRowSet() != this)
             throw new InvalidArgumentException("record", record);
         // get Key
-        Object rowSetData = record.getRowSetData();
-        if (rowSetData==null)
-        {
-            log.warn("No Record-key provided for query record!");
-            return super.getRecordKey(record);
-        }
-        return (Object[])rowSetData;
+        Object rowSetData = getRowsetData(record);
+        if (rowSetData instanceof Object[])
+            return (Object[])rowSetData;
+        // generate key now
+        return super.getRecordKey(record);
     }
 
     /**
@@ -345,25 +343,26 @@ public class DBQuery extends DBRowSet
      * Add rowset data
      */
     @Override
-    protected void initRecord(DBRecord rec, DBRecordData recData, Object rowSetData)
+    public void initRecord(DBRecord rec, DBRecordData recData)
     {
-        /*
+        // init
+        super.initRecord(rec, recData);
+        // set record key as rowset data (optional)
         if (keyColumns!=null)
         {   // check
-            if (rowSetData!=null && !(rowSetData instanceof Object[]) && ((Object[])rowSetData).length!=keyColumns.length)
-                throw new InvalidArgumentException("rowSetData", rowSetData);
+            Object rowsetData = getRowsetData(rec);
+            if (rowsetData!=null && !(rowsetData instanceof Object[]) && ((Object[])rowsetData).length!=keyColumns.length)
+                throw new InvalidArgumentException("rowSetData", rowsetData);
             // create key if not already set
-            if (rowSetData==null)
+            if (rowsetData==null)
             {   // create key
                 Object[] recordKey = new Object[keyColumns.length];
                 for (int i=0; i<recordKey.length; i++)
                     recordKey[i]=recData.getValue(keyColumns[i]);
-                rowSetData = recordKey;
+                rowsetData = recordKey;
+                setRowsetData(rec, rowsetData);
             }
         }
-        */
-        // int
-        super.initRecord(rec, recData, rowSetData);
     }
     
     /**
@@ -406,7 +405,8 @@ public class DBQuery extends DBRowSet
         // Read Record
         try {
             // Read Record
-            readRecord(rec, cmd, null); // key.clone() 
+            readRecord(rec, cmd);
+            // setRowsetData(rec, key.clone()); /* not required */
         } catch (QueryNoResultException e) {
             // Record not found
             throw new RecordNotFoundException(this, key);
@@ -590,7 +590,7 @@ public class DBQuery extends DBRowSet
             }
         }
         // success
-        rec.updateComplete(key);
+        rec.updateComplete();
     }
 
     /**

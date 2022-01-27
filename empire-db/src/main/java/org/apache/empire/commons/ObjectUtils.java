@@ -946,35 +946,49 @@ public final class ObjectUtils
     {
         if (array==null)
             return false;
+        // 1st try (quick)
         for (int i=0; i<array.length; i++)
         {
             if (array[i]==item)
                 return true;
         }
+        // 2nd try (thorough)
+        for (int i=0; i<array.length; i++)
+        {
+            if (array[i]!=null && array[i].equals(item))
+                return true;
+        }
+        // not found
         return false;
     }
     
     /**
      * returns whether or not a array contains a certain item
-     * Uses the equals() operator to compare 
+     * performs a simple (==) comparison (fast)
      * 
      * @param array the array to search
      * @param item the item to search for
      * 
      * @return true if the array contains the item or false otherwise
      */
-    public static <T> boolean containsElement(T[] array, T item)
+    public static <T> int indexOf(T[] array, T item)
     {
         if (array==null)
-            return false;
+            return -1;
+        // 1st try (quick)
         for (int i=0; i<array.length; i++)
         {
             if (array[i]==item)
-                return true;
-            if (array[i]!=null && array[i].equals(item))
-                return true;
+                return i;
         }
-        return false;
+        // 2nd try (thorough)
+        for (int i=0; i<array.length; i++)
+        {
+            if (array[i]!=null && array[i].equals(item))
+                return i;
+        }
+        // not found
+        return -1;
     }
     
 }

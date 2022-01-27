@@ -188,7 +188,7 @@ public class DBAliasExpr extends DBColumnExpr
     @Override
     public boolean equals(Object other)
     {
-        if (super.equals(other))
+        if (other==this || expr.equals(other))
             return true;
         // Check for another Alias Expression
         if (other instanceof DBAliasExpr)

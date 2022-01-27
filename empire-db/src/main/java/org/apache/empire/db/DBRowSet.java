@@ -503,7 +503,7 @@ public abstract class DBRowSet extends DBExpr implements Entity
     protected void initRecord(DBRecord rec, Object[] keyValues, Connection conn, boolean setDefaults, boolean newRecord)
     {
         // Prepare
-        prepareInitRecord(rec, null, newRecord);
+        prepareInitRecord(rec, newRecord);
         // Initialize all Fields
         Object[] fields = rec.getFields();
         /* 
@@ -536,17 +536,6 @@ public abstract class DBRowSet extends DBExpr implements Entity
         // Init
         completeInitRecord(rec);
     }
-
-    /**
-     * Initializes a DBRecord for this rowset using the record data provided (i.e. from a DBReader)<BR>
-     * The record may then be modified and updated.<BR>
-     * At least all primary key columns must be supplied.<BR>
-     * We strongly recommend to supply the value of the update timestamp column in order to detect concurrent changes.<BR>
-     */ 
-    public void initRecord(DBRecord rec, DBRecordData recData)
-    {
-        initRecord(rec, recData, null);
-    }
     
     /**
      * Initializes a DBRecord for this rowset using the record data provided (i.e. from a DBReader)<BR>
@@ -557,10 +546,10 @@ public abstract class DBRowSet extends DBExpr implements Entity
      * @param rec the record object
      * @param recData the record data from which to initialized the record
      */
-    protected void initRecord(DBRecord rec, DBRecordData recData, Object rowSetData)
+    public void initRecord(DBRecord rec, DBRecordData recData)
     {
         // Initialize the record
-        prepareInitRecord(rec, rowSetData, false);
+        prepareInitRecord(rec, false);
         // Get Record Field Values
         Object[] fields = rec.getFields();
         DBColumn[] keyColumns =(DBColumn[])getKeyColumns();
@@ -621,14 +610,14 @@ public abstract class DBRowSet extends DBExpr implements Entity
      * @param rowSetData any further RowSet specific data
      * @param insert
      */
-    protected void prepareInitRecord(DBRecord rec, Object rowSetData, boolean newRecord)
+    protected void prepareInitRecord(DBRecord rec, boolean newRecord)
     {
         if (rec==null || rec.getRowSet()!=this)
             throw new InvalidArgumentException("rec", rec);
         if (columns.size() < 1)
             throw new ObjectNotValidException(this);
         // Init
-        rec.initData(rowSetData, newRecord);
+        rec.initData(newRecord);
     }
     
     /**
@@ -676,30 +665,18 @@ public abstract class DBRowSet extends DBExpr implements Entity
      * @param cmd the SQL-Command used to query the record
      * @param rowSetData optional rowset specific data to be held on the record
      */
-    protected void readRecord(DBRecord rec, DBCommand cmd, Object rowSetData)
+    protected void readRecord(DBRecord rec, DBCommand cmd)
     {
         DBReader reader = null;
         try
         {   // read record using a DBReader
             reader = new DBReader(rec.getContext(), false);
             reader.getRecordData(cmd);
-            initRecord(rec, reader, rowSetData);
+            initRecord(rec, reader);
             
         } finally {
             reader.close();
         }
-    }
-
-    /**
-     * Reads a single record from the database using the given command object.<BR>
-     * If a record is found the DBRecord object will hold all record data. 
-     * <P>
-     * @param rec the DBRecord object which holds the record data
-     * @param cmd the SQL-Command used to query the record
-     */
-    protected final void readRecord(DBRecord rec, DBCommand cmd)
-    {
-        readRecord(rec, cmd, null);
     }
     
     /**
@@ -1005,7 +982,7 @@ public abstract class DBRowSet extends DBExpr implements Entity
                 fields[i] = timestamp;
         }
         // Change State
-        rec.updateComplete(ObjectUtils.NO_VALUE);        
+        rec.updateComplete();        
     }
     
     /**
@@ -1095,6 +1072,26 @@ public abstract class DBRowSet extends DBExpr implements Entity
             }
         }
         // Done
+    }
+
+    /**
+     * Returns additional data stored on a record by the RowSet
+     * @param record the record 
+     * @return the rowset data
+     */
+    protected Object getRowsetData(DBRecord record)
+    {
+        return record.rowsetData;
+    }
+    
+    /**
+     * May be used by a Rowset to store additional data on a record
+     * @param rec the record 
+     * @return the rowset data
+     */
+    protected void setRowsetData(DBRecord record, Object rowsetData)
+    {
+        record.rowsetData = rowsetData;
     }
     
 }

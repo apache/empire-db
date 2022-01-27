@@ -234,7 +234,7 @@ public class DBRecord extends DBRecordData implements DBContextAware, Record, Cl
     private State           state;
     private Object[]        fields;
     private boolean[]       modified;
-    private Object          rowsetData; // Special Rowset Data (usually null)
+    Object                  rowsetData; // Special Rowset Data (usually null)
 
     // options
     protected boolean       enableRollbackHandling;
@@ -1125,16 +1125,6 @@ public class DBRecord extends DBRecordData implements DBContextAware, Record, Cl
         Object[] key2 = other.getKey();
         return ObjectUtils.compareEqual(key1, key2);
     }
-
-    /**
-     * Returns the DBRowSet object.
-     * 
-     * @return the DBRowSet object
-     */
-    protected Object getRowSetData()
-    {
-        return rowsetData;
-    }
     
     /**
      * This function provides direct access to the record fields.<BR>
@@ -1179,7 +1169,7 @@ public class DBRecord extends DBRecordData implements DBContextAware, Record, Cl
      * @param rowsetData any further RowSet specific data
      * @param newRecord
      */
-    protected void initData(Object rowsetData, boolean newRecord)
+    protected void initData(boolean newRecord)
     {
         // Init rowset
         int colCount = rowset.getColumns().size();
@@ -1192,8 +1182,8 @@ public class DBRecord extends DBRecordData implements DBContextAware, Record, Cl
                     fields[i]=null;
         }
         // Set State
-        this.rowsetData = rowsetData;
         this.modified = null;
+        this.rowsetData = null;
         changeState((rowset==null ? State.Invalid : (newRecord ? State.New : State.Valid)));
     }
     
@@ -1202,11 +1192,8 @@ public class DBRecord extends DBRecordData implements DBContextAware, Record, Cl
      * This will set change the record's state to Valid
      * @param rowsetData additional data held by the rowset for this record (optional)
      */
-    protected void updateComplete(Object rowsetData)
+    protected void updateComplete()
     {
-        // change rowsetData
-        if (rowsetData!=ObjectUtils.NO_VALUE)
-            this.rowsetData = rowsetData;
         // Change state
         this.modified = null;
         changeState(State.Valid);
