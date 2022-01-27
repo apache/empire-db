@@ -36,6 +36,7 @@ import org.apache.empire.commons.StringUtils;
 import org.apache.empire.data.Column;
 import org.apache.empire.data.ColumnExpr;
 import org.apache.empire.data.Record;
+import org.apache.empire.db.DBRowSet.PartialMode;
 import org.apache.empire.db.context.DBContextAware;
 import org.apache.empire.db.context.DBRollbackHandler;
 import org.apache.empire.db.exceptions.FieldIsReadOnlyException;
@@ -928,6 +929,21 @@ public class DBRecord extends DBRecordData implements DBContextAware, Record, Cl
     public void read(DBCompareExpr whereConstraints)
     {
         rowset.readRecord(this, whereConstraints);
+    }
+    
+    /**
+     * Reads a record partially i.e. not with all but just some selected fields
+     * There are two modes:
+     *  1. PartialMode.INCLUDE reads only the fields provided with the column list
+     *  2. PartialMode.EXCLUDE reads all but the fields provided with the column list
+     * The primary key is always fetched implicitly
+     * @param key the primary key values
+     * @param mode flag whether to include only the given columns or whether to add all but the given columns
+     * @param columns the columns to include or exclude (depending on mode)
+     */
+    public void read(Object[] key, PartialMode mode, DBColumn... columns)
+    {
+        rowset.readRecord(this, key, mode, columns);
     }
 
     /**

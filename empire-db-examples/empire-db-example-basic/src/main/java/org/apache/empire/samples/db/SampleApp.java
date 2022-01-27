@@ -431,7 +431,7 @@ public class SampleApp
         // Update an Employee with partial record
         // this will only load the EMPLOYEE ID and the PHONE_NUMBER
         DBRecord rec = new DBRecord(context, EMP);
-        EMP.readRecord(rec, DBRecord.key(idEmp), PartialMode.INCLUDE, EMP.PHONE_NUMBER);
+        rec.read(DBRecord.key(idEmp), PartialMode.INCLUDE, EMP.PHONE_NUMBER);
         // Set
         rec.setValue(db.EMPLOYEES.PHONE_NUMBER, phoneNumber);
         rec.update();

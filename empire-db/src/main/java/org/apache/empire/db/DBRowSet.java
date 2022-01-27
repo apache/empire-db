@@ -694,7 +694,6 @@ public abstract class DBRowSet extends DBExpr implements Entity
      * <P>
      * @param rec the DBRecord object which will hold the record data
      * @param key the primary key values
-     * @param conn a valid JDBC connection.
      */
     public void readRecord(DBRecord rec, Object[] key)
     {
@@ -740,7 +739,6 @@ public abstract class DBRowSet extends DBExpr implements Entity
      * Reads the partial record for a given primary key from the database
      * @param rec the DBRecord object which will hold the record data
      * @param key the primary key values
-     * @param conn a valid JDBC connection.
      * @param mode flag whether to include only the given columns or whether to add all but the given columns
      * @param columns the columns to include or exclude (depending on mode)
      */
@@ -787,7 +785,7 @@ public abstract class DBRowSet extends DBExpr implements Entity
      * Returns true if the record exists in the database or false otherwise.
      * <P>
      * @param key an array of the primary key columns
-     * @param conn a valid JDBC connection.
+     * @param context the DBContext
      * @return true if the record exists or false otherwise
      */
     public boolean recordExists(Object[] key, DBContext context)
@@ -808,7 +806,7 @@ public abstract class DBRowSet extends DBExpr implements Entity
      * Returns true if the record exists in the database or false otherwise.
      * <P>
      * @param id id of the record
-     * @param conn a valid JDBC connection.
+     * @param context the DBContext
      * @return true if the record exists or false otherwise
      */
     public final boolean recordExists(Object id, DBContext context)
@@ -827,7 +825,6 @@ public abstract class DBRowSet extends DBExpr implements Entity
      * DBErrors.RecordUpdateFailed will be set.  
      * <P>
      * @param rec the DBRecord object. contains all fields and the field properties
-     * @param conn a valid JDBC connection.
      */
     public void updateRecord(DBRecord rec)
     {
@@ -998,7 +995,7 @@ public abstract class DBRowSet extends DBExpr implements Entity
      * Deletes a single record from the database.<BR>
      * <P>
      * @param id the record's primary key
-     * @param conn a valid JDBC connection
+     * @param context the DBContext
      */
     public final void deleteRecord(long id, DBContext context)
     {
@@ -1009,7 +1006,7 @@ public abstract class DBRowSet extends DBExpr implements Entity
      * Deletes all records which reference this table.
      * <P>
      * @param key the key the record to be deleted
-     * @param conn a valid connection
+     * @param context the DBContext
      */
     protected final void deleteAllReferences(Object[] key, DBContext context)
     {
@@ -1041,7 +1038,7 @@ public abstract class DBRowSet extends DBExpr implements Entity
      * <P>
      * @param refs the reference columns belonging to the relation
      * @param parentKey the key of the parent element
-     * @param conn a valid connection
+     * @param context the DBContext
      */
     protected void deleteReferenceRecords(DBReference[] refs, Object[] parentKey, DBContext context)
     {
