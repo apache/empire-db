@@ -256,9 +256,16 @@ public abstract class DBColumn extends DBColumnExpr
     }
 
     /**
-     * Returns this object.
-     *
-     * @return this object
+     * Returns itself as the source column.
+     */
+    @Override
+    public DBColumn getSourceColumn()
+    {
+        return this;
+    }
+
+    /**
+     * Returns itself as the update column.
      */
     @Override
     public DBColumn getUpdateColumn()

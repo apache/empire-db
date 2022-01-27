@@ -78,5 +78,4 @@ public interface ColumnExpr extends Unwrappable<ColumnExpr>
      * @return the column on which this expression is based or null if not applicable.
      */
     Column getSourceColumn();
-    ColumnExpr unwrap();
 }

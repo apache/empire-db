@@ -94,6 +94,15 @@ public class DBAliasExpr extends DBColumnExpr
     }
 
     /**
+     * Returns the expression the source column.
+     */
+    @Override
+    public DBColumn getSourceColumn()
+    {
+        return expr.getSourceColumn();
+    }
+
+    /**
      * Returns the DBColunm object.
      *
      * @return the DBColunm object

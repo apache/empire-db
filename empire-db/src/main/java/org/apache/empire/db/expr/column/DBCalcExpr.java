@@ -123,6 +123,15 @@ public class DBCalcExpr extends DBColumnExpr
         return parent;
     }
 
+    /**
+     * Returns the expression the source column.
+     */
+    @Override
+    public DBColumn getSourceColumn()
+    {
+        return expr.getSourceColumn();
+    }
+
     /** returns null */
     @Override
     public DBColumn getUpdateColumn()

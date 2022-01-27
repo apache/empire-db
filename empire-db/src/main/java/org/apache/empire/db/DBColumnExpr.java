@@ -28,7 +28,6 @@ import org.apache.empire.commons.ObjectUtils;
 import org.apache.empire.commons.OptionEntry;
 import org.apache.empire.commons.Options;
 import org.apache.empire.commons.StringUtils;
-import org.apache.empire.data.Column;
 import org.apache.empire.data.ColumnExpr;
 import org.apache.empire.data.DataType;
 import org.apache.empire.db.expr.column.DBAliasExpr;
@@ -92,6 +91,14 @@ public abstract class DBColumnExpr extends DBExpr
      */
     public abstract boolean isAggregate();
 
+    /**
+     * Returns the underlying physical column which was used for this expression
+     * For functions involving none or more than one physical column this function return the first one
+     * @return a column used for this expression
+     */
+    @Override
+    public abstract DBColumn getSourceColumn();
+    
     /**
      * Returns the underlying physical column which may be used for updates.
      * For functions involving none or more than one physical column this function returns null.
@@ -231,17 +238,6 @@ public abstract class DBColumnExpr extends DBExpr
     public final void setControlType(String controlType)
     { 
         setAttribute(DBCOLATTR_TYPE, controlType);
-    }
-
-    /**
-     * Returns the source column.
-     * This is equivalent to the "Update Column"
-     * see getUpdateColumn()
-     */
-    @Override
-    public final Column getSourceColumn()
-    {
-        return getUpdateColumn();
     }
     
     /**

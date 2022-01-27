@@ -76,6 +76,12 @@ public class DBCaseExpr extends DBColumnExpr
     }
 
     @Override
+    public DBColumn getSourceColumn()
+    {
+        return trueExpr.getUpdateColumn();
+    }
+
+    @Override
     public DBColumn getUpdateColumn()
     {
         return trueExpr.getUpdateColumn();

@@ -96,7 +96,16 @@ public class OracleRowNumExpr extends DBColumnExpr
 
     /**
      * Returns null.
-     * 
+     * @return null
+     */
+    @Override
+    public DBColumn getSourceColumn()
+    {
+        return null;
+    }
+
+    /**
+     * Returns null.
      * @return null
      */
     @Override

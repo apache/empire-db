@@ -158,9 +158,16 @@ public class DBValueExpr extends DBColumnExpr
     }
 
     /**
-     * Returns null.
-     * 
-     * @return null
+     * Returns the expression the source column.
+     */
+    @Override
+    public DBColumn getSourceColumn()
+    {
+        return (column != null) ? column.getSourceColumn() : null;
+    }
+
+    /**
+     * Returns the expression the update column.
      */
     @Override
     public DBColumn getUpdateColumn()

@@ -145,8 +145,16 @@ public class DBScalarExpr extends DBColumnExpr
     }
 
     /**
+     * Returns the expression the source column.
+     */
+    @Override
+    public DBColumn getSourceColumn()
+    {
+        return null;
+    }
+
+    /**
      * Returns null.
-     * 
      * @return null
      */
     @Override

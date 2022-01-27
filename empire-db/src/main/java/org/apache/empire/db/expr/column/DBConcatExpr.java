@@ -103,6 +103,12 @@ public class DBConcatExpr extends DBColumnExpr
     }
 
     @Override
+    public DBColumn getSourceColumn()
+    {
+        return left.getSourceColumn();
+    }
+
+    @Override
     public DBColumn getUpdateColumn()
     {
         return null;

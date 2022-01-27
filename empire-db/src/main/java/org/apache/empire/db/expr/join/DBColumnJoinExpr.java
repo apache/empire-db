@@ -85,7 +85,7 @@ public class DBColumnJoinExpr extends DBJoinExpr
     @Override
     public DBRowSet getLeftTable()
     {
-        DBColumn col = left.getUpdateColumn();
+        DBColumn col = left.getSourceColumn();
         if (col==null)
             throw new InvalidPropertyException("left", left);
         return col.getRowSet();
@@ -97,7 +97,7 @@ public class DBColumnJoinExpr extends DBJoinExpr
     @Override
     public DBRowSet getRightTable()
     {
-        DBColumn col = right.getUpdateColumn();
+        DBColumn col = right.getSourceColumn();
         if (col==null)
             throw new InvalidPropertyException("right", right);
         return col.getRowSet();
@@ -124,8 +124,8 @@ public class DBColumnJoinExpr extends DBJoinExpr
         if (column==null)
             return false;
         // Check Update Columns
-        if (column.equals(left.getUpdateColumn()) ||
-            column.equals(right.getUpdateColumn()))
+        if (column.equals(left.getSourceColumn()) ||
+            column.equals(right.getSourceColumn()))
             return true;
         if (compExpr!=null)
         {   // Check expression

@@ -82,6 +82,13 @@ public class DBCaseWhenExpr extends DBColumnExpr
     }
 
     @Override
+    public DBColumn getSourceColumn()
+    {
+        DBColumnExpr cexp = getFirstColumnExpr();
+        return cexp.getSourceColumn();
+    }
+
+    @Override
     public DBColumn getUpdateColumn()
     {
         return null;

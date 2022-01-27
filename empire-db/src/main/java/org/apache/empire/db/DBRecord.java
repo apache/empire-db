@@ -658,7 +658,7 @@ public class DBRecord extends DBRecordData implements DBContextAware, Record, Cl
      */
     public Options getFieldOptions(DBColumn column)
     {
-        // DBColumn col = ((colexpr instanceof DBColumn) ? ((DBColumn) colexpr) : colexpr.getUpdateColumn());
+        // DBColumn col = ((colexpr instanceof DBColumn) ? ((DBColumn) colexpr) : colexpr.getSourceColumn());
         return column.getOptions();
     }
 

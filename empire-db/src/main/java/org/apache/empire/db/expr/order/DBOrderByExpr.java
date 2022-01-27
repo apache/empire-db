@@ -52,7 +52,7 @@ public class DBOrderByExpr extends DBExpr
     
     public DBColumn getColumn()
     {
-        return expr.getUpdateColumn();
+        return expr.getSourceColumn();
     }
 
     public boolean isDescending()

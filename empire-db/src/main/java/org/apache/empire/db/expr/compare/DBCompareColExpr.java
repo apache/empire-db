@@ -275,8 +275,8 @@ public class DBCompareColExpr extends DBCompareExpr
                 }
             }
             // finally check update columns
-    		DBColumn tcol = texpr.getUpdateColumn();
-    		DBColumn ocol = oexpr.getUpdateColumn();
+    		DBColumn tcol = texpr.getSourceColumn();
+    		DBColumn ocol = oexpr.getSourceColumn();
     		return (tcol!=null) ? (tcol.equals(ocol)) : false;
     	}
     	return false;

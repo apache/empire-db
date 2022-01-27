@@ -365,7 +365,7 @@ public class DBUtils implements DBContextAware
             return querySingleInt(sql, null, 0);
         }
         // find any rowset
-        DBRowSet rs = exprList[0].getUpdateColumn().getRowSet();
+        DBRowSet rs = exprList[0].getSourceColumn().getRowSet();
         // create the count command
         DBCommand countCmd = cmd.clone();
         countCmd.clearSelect();
