@@ -41,11 +41,11 @@ import org.apache.empire.db.context.DBContextAware;
 import org.apache.empire.db.context.DBRollbackHandler;
 import org.apache.empire.db.exceptions.FieldIsReadOnlyException;
 import org.apache.empire.db.exceptions.FieldValueNotFetchedException;
+import org.apache.empire.db.exceptions.NoPrimaryKeyException;
 import org.apache.empire.db.expr.compare.DBCompareExpr;
 import org.apache.empire.exceptions.BeanPropertyGetException;
 import org.apache.empire.exceptions.InvalidArgumentException;
 import org.apache.empire.exceptions.ItemNotFoundException;
-import org.apache.empire.exceptions.NotSupportedException;
 import org.apache.empire.exceptions.ObjectNotValidException;
 import org.apache.empire.exceptions.UnspecifiedErrorException;
 import org.apache.empire.xml.XMLUtil;
@@ -304,15 +304,11 @@ public class DBRecord extends DBRecordData implements DBContextAware, Record, Cl
     }
     
     /**
-     * Constructs a new DBRecord.<BR>
-     * @param context the DBContext for this record
-     * @param rowset the corresponding RowSet(Table, View, Query, etc.)
+     * Internal constructor for DBRecord
+     * May be used by derived classes to provide special behaviour
      */
-    public DBRecord(DBContext context, DBRowSet rowset)
+    protected DBRecord(DBContext context, DBRowSet rowset, boolean enableRollbackHandling)
     {
-        // Check params
-        if (context==null || rowset==null)
-            throw new InvalidArgumentException("context|rowset", context);
         // init
         this.context = context;
         this.rowset = rowset;
@@ -320,11 +316,23 @@ public class DBRecord extends DBRecordData implements DBContextAware, Record, Cl
         this.fields = null;
         this.modified = null;
         this.rowsetData = null;
-        // options                         
-        enableRollbackHandling = context.isRollbackHandlingEnabled();
-        validateFieldValues = true;
+        // options
+        this.enableRollbackHandling = enableRollbackHandling;
+        this.validateFieldValues = true;
     }
 
+    /**
+     * Constructs a new DBRecord.<BR>
+     * @param context the DBContext for this record
+     * @param rowset the corresponding RowSet(Table, View, Query, etc.)
+     */
+    public DBRecord(DBContext context, DBRowSet rowset)
+    {
+        this(checkParamNull("context", context),
+             checkParamNull("rowset", rowset),
+             context.isRollbackHandlingEnabled());
+    }
+    
     /**
      * Closes the record by releasing all resources and resetting the record's state to invalid.
      */
@@ -349,8 +357,6 @@ public class DBRecord extends DBRecordData implements DBContextAware, Record, Cl
         try 
         {
             DBRecord rec = (DBRecord)super.clone();
-            if (rec.rowset!= this.rowset)
-                throw new NotSupportedException(this, "clone");
             rec.state = this.state;
             if (rec.fields == fields && fields!=null)
                 rec.fields = fields.clone();
@@ -375,18 +381,9 @@ public class DBRecord extends DBRecordData implements DBContextAware, Record, Cl
     @SuppressWarnings("unchecked")
     public <T extends DBContext> T  getContext()
     {
+        if (this.context==null)
+            throw new ObjectNotValidException(this);
         return ((T)context);
-    }
-
-    /**
-     * Returns the current DBDatabase object.
-     * 
-     * @return the current DBDatabase object
-     */
-    @Override
-    public final <T extends DBDatabase> T getDatabase()
-    {
-        return rowset.getDatabase();
     }
 
     /**
@@ -397,7 +394,20 @@ public class DBRecord extends DBRecordData implements DBContextAware, Record, Cl
     @SuppressWarnings("unchecked")
     public <T extends DBRowSet> T getRowSet()
     {
+        if (this.rowset==null)
+            throw new ObjectNotValidException(this);
         return (T)this.rowset;
+    }
+
+    /**
+     * Returns the current DBDatabase object.
+     * 
+     * @return the current DBDatabase object
+     */
+    @Override
+    public final <T extends DBDatabase> T getDatabase()
+    {
+        return getRowSet().getDatabase();
     }
 
     /**
@@ -487,7 +497,7 @@ public class DBRecord extends DBRecordData implements DBContextAware, Record, Cl
     @Override
     public int getFieldIndex(ColumnExpr column)
     {
-        return (rowset != null) ? rowset.getColumnIndex(column) : -1;
+        return getRowSet().getColumnIndex(column);
     }
 
     /**
@@ -498,30 +508,15 @@ public class DBRecord extends DBRecordData implements DBContextAware, Record, Cl
     @Override
     public int getFieldIndex(String column)
     {
-        if (rowset != null)
+        List<DBColumn> columns = getRowSet().getColumns();
+        for (int i = 0; i < columns.size(); i++)
         {
-            List<DBColumn> columns = rowset.getColumns();
-            for (int i = 0; i < columns.size(); i++)
-            {
-                DBColumn col = columns.get(i);
-                if (col.getName().equalsIgnoreCase(column))
-                    return i;
-            }
+            DBColumn col = columns.get(i);
+            if (col.getName().equalsIgnoreCase(column))
+                return i;
         }
         // not found
         return -1;
-    }
-
-    /**
-     * Returns the DBColumn for the field at the given index.
-     * 
-     * @param index the field index 
-     * 
-     * @return the index value
-     */
-    public DBColumn getDBColumn(int index)
-    {
-        return (rowset!=null ? rowset.getColumn(index) : null);
     }
 
     /**
@@ -530,9 +525,9 @@ public class DBRecord extends DBRecordData implements DBContextAware, Record, Cl
      * @return the Column at the specified index 
      */
     @Override
-    public final Column getColumn(int index)
+    public final DBColumn getColumn(int index)
     {
-        return getDBColumn(index);
+        return getRowSet().getColumn(index);
     }
     
     /**
@@ -542,7 +537,7 @@ public class DBRecord extends DBRecordData implements DBContextAware, Record, Cl
     @Override
     public final ColumnExpr getColumnExpr(int index)
     {
-        return getDBColumn(index);
+        return getColumn(index);
     }
     
     /**
@@ -597,17 +592,33 @@ public class DBRecord extends DBRecordData implements DBContextAware, Record, Cl
     @Override
     public Column[] getKeyColumns()
     {
-        return rowset.getKeyColumns();
+        return getRowSet().getKeyColumns();
     }
 
     /**
-     * Returns the array of primary key columns.
-     * @return the array of primary key columns
+     * Returns a array of primary key columns by a specified DBRecord object.
+     * 
+     * @param rec the DBRecord object, contains all fields and the field properties
+     * @return a array of primary key columns
      */
     @Override
     public Object[] getKey()
     {
-        return ((rowset != null) ? rowset.getRecordKey(this) : null);
+        // Check Columns
+        Column[] keyColumns = getKeyColumns();
+        if (keyColumns == null || keyColumns.length==0)
+            throw new NoPrimaryKeyException(getRowSet());
+        // create the key
+        Object[] keys = new Object[keyColumns.length];
+        for (int i = 0; i < keyColumns.length; i++)
+        {
+            keys[i] = getValue(keyColumns[i]);
+            if (keys[i] == null)
+            { // Primary Key not set
+                log.warn("DBRecord.getKey() failed: " + getRowSet().getName() + " primary key value is null!");
+            }
+        }
+        return keys;
     }
 
     /**
@@ -690,7 +701,7 @@ public class DBRecord extends DBRecordData implements DBContextAware, Record, Cl
             if (modified[index]==false || fields[index]==ObjectUtils.NO_VALUE)
                 continue;
             // Auto-generated ?
-            DBColumn column = rowset.getColumn(index);
+            DBColumn column = getColumn(index);
             if (column.isAutoGenerated())
                 continue;
             // validate this one
@@ -721,7 +732,7 @@ public class DBRecord extends DBRecordData implements DBContextAware, Record, Cl
         if (current==ObjectUtils.NO_VALUE)
             throw new FieldValueNotFetchedException(getColumn(index));
         // convert
-        DBColumn column = rowset.getColumn(index);
+        DBColumn column = getColumn(index);
         // must convert enums
         if (value instanceof Enum<?>)
         {   // convert enum
@@ -801,7 +812,7 @@ public class DBRecord extends DBRecordData implements DBContextAware, Record, Cl
 	public void setRollbackHandlingEnabled(boolean enabled) 
 	{
 	    // check
-	    if (enabled && !context.isRollbackHandlingEnabled())
+	    if (enabled && !getContext().isRollbackHandlingEnabled())
 	        throw new UnspecifiedErrorException("Rollback handling cannot be enabled for this record since it is not supported for this context!");
 	    // enable now
 		this.enableRollbackHandling = enabled;
@@ -837,13 +848,11 @@ public class DBRecord extends DBRecordData implements DBContextAware, Record, Cl
     @Override
     public boolean isFieldVisible(Column column)
     {
-        if (rowset==null)
-            return false;
     	// Check value
-        int index = rowset.getColumnIndex(column);
+        int index = getRowSet().getColumnIndex(column);
         if (index<0)
         {   // Column not found
-            log.warn("Column {} does not exist for record of {}", column.getName(), rowset.getName());
+            log.warn("Column {} does not exist for record of {}", column.getName(), getRowSet().getName());
         }
         return (index>=0 && isValueValid(index));
     }
@@ -858,8 +867,7 @@ public class DBRecord extends DBRecordData implements DBContextAware, Record, Cl
     @Override
     public boolean isFieldReadOnly(Column column)
     {
-        if (rowset==null)
-            throw new ObjectNotValidException(this);
+        DBRowSet rowset = getRowSet();
     	if (getFieldIndex(column)<0)
             throw new InvalidArgumentException("column", column);
     	// Check key column 
@@ -879,9 +887,7 @@ public class DBRecord extends DBRecordData implements DBContextAware, Record, Cl
     @Override
     public boolean isFieldRequired(Column column)
     {
-        if (rowset==null)
-            throw new ObjectNotValidException(this);
-    	if (rowset.getColumnIndex(column)<0)
+    	if (getRowSet().getColumnIndex(column)<0)
             throw new InvalidArgumentException("column", column);
         // from column definition
         return (column.isRequired());
@@ -892,7 +898,7 @@ public class DBRecord extends DBRecordData implements DBContextAware, Record, Cl
      */
     public void create(Object[] initalKey)
     {
-        rowset.createRecord(this, initalKey, true);
+        getRowSet().createRecord(this, initalKey, true);
     }
 
     /**
@@ -900,7 +906,7 @@ public class DBRecord extends DBRecordData implements DBContextAware, Record, Cl
      */
     public void create()
     {
-        rowset.createRecord(this, null, false);
+        getRowSet().createRecord(this, null, false);
     }
     
     /**
@@ -910,7 +916,7 @@ public class DBRecord extends DBRecordData implements DBContextAware, Record, Cl
      */
     public void read(Object[] key)
     {   // read
-        rowset.readRecord(this, key);
+        getRowSet().readRecord(this, key);
     }
 
     /**
@@ -928,7 +934,7 @@ public class DBRecord extends DBRecordData implements DBContextAware, Record, Cl
      */
     public void read(DBCompareExpr whereConstraints)
     {
-        rowset.readRecord(this, whereConstraints);
+        getRowSet().readRecord(this, whereConstraints);
     }
     
     /**
@@ -943,7 +949,7 @@ public class DBRecord extends DBRecordData implements DBContextAware, Record, Cl
      */
     public void read(Object[] key, PartialMode mode, DBColumn... columns)
     {
-        rowset.readRecord(this, key, mode, columns);
+        getRowSet().readRecord(this, key, mode, columns);
     }
 
     /**
@@ -957,9 +963,9 @@ public class DBRecord extends DBRecordData implements DBContextAware, Record, Cl
             return; /* Not modified. Nothing to do! */
         // allow rollback
         if (enableRollbackHandling)
-            context.appendRollbackHandler(createRollbackHandler());
+            getContext().appendRollbackHandler(createRollbackHandler());
         // update
-        rowset.updateRecord(this);
+        getRowSet().updateRecord(this);
     }
 
     /**
@@ -978,12 +984,12 @@ public class DBRecord extends DBRecordData implements DBContextAware, Record, Cl
             throw new ObjectNotValidException(this);
         // allow rollback
         if (enableRollbackHandling)
-            context.appendRollbackHandler(createRollbackHandler());
+            getContext().appendRollbackHandler(createRollbackHandler());
         // Delete only if record is not new
         if (!isNew())
         {
-            Object[] keys = rowset.getRecordKey(this);
-            rowset.deleteRecord(keys, context);
+            Object[] keys = getKey();
+            getRowSet().deleteRecord(keys, getContext());
         }
         close();
     }
@@ -1000,7 +1006,7 @@ public class DBRecord extends DBRecordData implements DBContextAware, Record, Cl
             throw new ObjectNotValidException(this);
         // Add Field Description
         int count = 0;
-        List<DBColumn> columns = rowset.getColumns();
+        List<DBColumn> columns = getRowSet().getColumns();
         for (int i = 0; i < columns.size(); i++)
         { // Add Field
             DBColumn column = columns.get(i);
@@ -1024,7 +1030,7 @@ public class DBRecord extends DBRecordData implements DBContextAware, Record, Cl
         if (!isValid())
             throw new ObjectNotValidException(this);
         // set row key
-        Column[] keyColumns = rowset.getKeyColumns();
+        Column[] keyColumns = getKeyColumns();
         if (keyColumns != null && keyColumns.length > 0)
         { // key exits
             if (keyColumns.length > 1)
@@ -1046,7 +1052,7 @@ public class DBRecord extends DBRecordData implements DBContextAware, Record, Cl
             parent.setAttribute("new", "1");
         // Add all children
         int count = 0;
-        List<DBColumn> columns = rowset.getColumns();
+        List<DBColumn> columns = getRowSet().getColumns();
         for (int i = 0; i < fields.length; i++)
         { // Read all
             DBColumn column = columns.get(i);
@@ -1077,6 +1083,7 @@ public class DBRecord extends DBRecordData implements DBContextAware, Record, Cl
         // Create Document
         DBXmlDictionary xmlDic = getXmlDictionary();
         Element root = XMLUtil.createDocument(xmlDic.getRowSetElementName());
+        DBRowSet rowset = getRowSet();
         if (rowset.getName() != null)
             root.setAttribute("name", rowset.getName());
         // Add Field Description
@@ -1100,7 +1107,7 @@ public class DBRecord extends DBRecordData implements DBContextAware, Record, Cl
         int count = 0;
         for (int i = 0; i < getFieldCount(); i++)
         { // Check Property
-            DBColumn column = getDBColumn(i);
+            DBColumn column = getColumn(i);
             if (column.isReadOnly())
                 continue;
             if (ignoreList != null && ignoreList.contains(column))
@@ -1133,7 +1140,7 @@ public class DBRecord extends DBRecordData implements DBContextAware, Record, Cl
         if (!isValid() || !other.isValid())
             return false;
         // compare table
-        if (!rowset.isSame(other.getRowSet()))
+        if (!getRowSet().isSame(other.getRowSet()))
             return false;
         // compare key
         Object[] key1 = getKey();
@@ -1187,6 +1194,7 @@ public class DBRecord extends DBRecordData implements DBContextAware, Record, Cl
     protected void initData(boolean newRecord)
     {
         // Init rowset
+        DBRowSet rowset = getRowSet();
         int colCount = rowset.getColumns().size();
         if (fields==null || fields.length!=colCount)
             fields = new Object[colCount];
@@ -1226,7 +1234,7 @@ public class DBRecord extends DBRecordData implements DBContextAware, Record, Cl
         if (column.isAutoGenerated() && (!isNew() || !isNull(column)))
             return false;
         // Check key Column
-        if (!isNew() && rowset.isKeyColumn(column))
+        if (!isNew() && getRowSet().isKeyColumn(column))
             return false;
         // done
         return true;
@@ -1369,7 +1377,7 @@ public class DBRecord extends DBRecordData implements DBContextAware, Record, Cl
             log.trace("Record has been changed");
         // Remove rollback (but not when close() is called!)
         if (enableRollbackHandling && fields!=null)
-            context.removeRollbackHandler(this);
+            getContext().removeRollbackHandler(this);
     }
     
     /**
@@ -1378,7 +1386,7 @@ public class DBRecord extends DBRecordData implements DBContextAware, Record, Cl
     protected void onFieldChanged(int i)
     {
         if (log.isDebugEnabled())
-            log.debug("Record field " + rowset.getColumn(i).getName() + " changed to " + String.valueOf(fields[i]));
+            log.debug("Record field " + getColumn(i).getName() + " changed to " + String.valueOf(fields[i]));
     }
     
 }

@@ -18,6 +18,8 @@
  */
 package org.apache.empire.db;
 
+import org.apache.empire.exceptions.InvalidArgumentException;
+
 /**
  * Base class for all objects that directly or indirectly belong to a database including the database object itself.
  * Examples are: tables, views, columns, indexes, relations etc.
@@ -27,6 +29,19 @@ public abstract class DBObject // *Deprecated* implements Serializable
 {
     // *Deprecated* private static final long serialVersionUID = 1L;
 
+    /**
+     * Internally used for parameter checking
+     * @param name
+     * @param param
+     * @return
+     */
+    public static <T extends Object> T checkParamNull(String name, T param)
+    {
+        if (param==null)
+            throw new InvalidArgumentException(name, param);
+        return param;
+    }
+    
     /**
      * Returns the database object to which this object belongs to.
      * For the database object itself this function will return the this pointer.

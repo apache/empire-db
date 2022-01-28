@@ -307,8 +307,7 @@ public class DBQuery extends DBRowSet
      * @param record the DBRecord object, contains all fields and the field properties
      * @return a array of primary key columns
      */
-    @Override
-    public Object[] getRecordKey(DBRecord record)
+    protected Object[] getRecordKey(DBRecord record)
     {
         if (record == null || record.getRowSet() != this)
             throw new InvalidArgumentException("record", record);
@@ -317,7 +316,7 @@ public class DBQuery extends DBRowSet
         if (rowSetData instanceof Object[])
             return (Object[])rowSetData;
         // generate key now
-        return super.getRecordKey(record);
+        return record.getKey();
     }
 
     /**

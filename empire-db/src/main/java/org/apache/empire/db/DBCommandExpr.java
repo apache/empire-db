@@ -118,17 +118,6 @@ public abstract class DBCommandExpr extends DBExpr
             throw new NotSupportedException(this, "getKeyColumns");
         }
 
-        /**
-         * Prints the error message: ERR_NOTSUPPORTED.
-         * 
-         * @return null
-         */
-        @Override
-        public Object[] getRecordKey(DBRecord rec)
-        {
-            throw new NotSupportedException(this, "getRecordKey");
-        }
-
         /** throws ERR_NOTSUPPORTED */
         @Override
         public void createRecord(DBRecord rec, Object[] initalKey, boolean deferredInit)
