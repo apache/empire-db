@@ -96,15 +96,12 @@ public class SampleDB extends DBDatabase
     public static class Employees extends DBTable
     {
         public final DBTableColumn ID;
-        public final DBTableColumn SALUTATION;
         public final DBTableColumn FIRSTNAME;
         public final DBTableColumn LASTNAME;
         public final DBTableColumn DATE_OF_BIRTH;
-        public final DBTableColumn DATE_WITH_TIME;
         public final DBTableColumn DEPARTMENT_ID;
         public final DBTableColumn GENDER;
         public final DBTableColumn PHONE_NUMBER;
-        public final DBTableColumn EMAIL;
         public final DBTableColumn SALARY;
         public final DBTableColumn RETIRED;
         public final DBTableColumn UPDATE_TIMESTAMP;
@@ -115,15 +112,12 @@ public class SampleDB extends DBDatabase
             
             // ID
             ID              = addColumn("ID",               DataType.AUTOINC,      0, true);  // Optional Sequence name ("EMPLOYEE_ID_SEQUENCE") for some DBMS (e.g. Oracle)
-            SALUTATION      = addColumn("SALUTATION",       DataType.VARCHAR,     20, false);
             FIRSTNAME       = addColumn("FIRSTNAME",        DataType.VARCHAR,     40, true);
             LASTNAME        = addColumn("LASTNAME",         DataType.VARCHAR,     40, true);
             DATE_OF_BIRTH   = addColumn("DATE_OF_BIRTH",    DataType.DATE,         0, false);
-            DATE_WITH_TIME  = addColumn("DATE_WITH_TIME",   DataType.DATETIME,     0, false);
             DEPARTMENT_ID   = addColumn("DEPARTMENT_ID",    DataType.INTEGER,      0, true);
             GENDER          = addColumn("GENDER",           DataType.VARCHAR,      1, false, Gender.class);
             PHONE_NUMBER    = addColumn("PHONE_NUMBER",     DataType.VARCHAR,     40, false);
-            EMAIL           = addColumn("EMAIL",            DataType.VARCHAR,     80, false);
             SALARY          = addColumn("SALARY",           DataType.DECIMAL,   10.2, false);
             RETIRED         = addColumn("RETIRED",          DataType.BOOL,         0, true, false);
             UPDATE_TIMESTAMP= addColumn("UPDATE_TIMESTAMP", DataType.TIMESTAMP,    0, true);

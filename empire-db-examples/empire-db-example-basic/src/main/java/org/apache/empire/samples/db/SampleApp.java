@@ -45,6 +45,8 @@ import org.apache.empire.dbms.h2.DBMSHandlerH2;
 import org.apache.empire.dbms.hsql.DBMSHandlerHSql;
 import org.apache.empire.dbms.postgresql.DBMSHandlerPostgreSQL;
 import org.apache.empire.samples.db.SampleDB.Gender;
+import org.apache.empire.samples.db.beans.Employee;
+import org.apache.empire.samples.db.beans.EmployeeQuery;
 import org.apache.empire.xml.XMLWriter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -133,15 +135,15 @@ public class SampleApp
 
             // SECTION 7: Option 1: Query Records and print tab-separated
             log.info("Step 8 Option 1: queryRecords() / Tab-Output");
-            queryRecords(QueryType.Reader); // Tab-Output
+            queryExample(QueryType.Reader); // Tab-Output
 
             // SECTION 7: Option 2: Query Records as a list of java beans
             log.info("Step 8 Option 2: queryRecords() / Bean-List-Output");
-            queryRecords(QueryType.BeanList); // Bean-List-Output
+            queryExample(QueryType.BeanList); // Bean-List-Output
 
             // SECTION 7: Option 3: Query Records as XML
             log.info("Step 8 Option 3: queryRecords() / XML-Output");
-            queryRecords(QueryType.XmlDocument); // XML-Output
+            queryExample(QueryType.XmlDocument); // XML-Output
 
             // SECTION 8: Use DataList query
             queryDataList();
@@ -601,7 +603,7 @@ public class SampleApp
      *     Please note, that the XML not only contains the data but also the field metadata.
      * </PRE>
 	 */
-	private static void queryRecords(QueryType queryType)
+	private static void queryExample(QueryType queryType)
     {
         int lastYear = LocalDate.now().getYear()-1;
 	    
@@ -631,7 +633,7 @@ public class SampleApp
         // DBColumnExpr genderExpr = cmd.select(EMP.GENDER.decode(EMP.GENDER.getOptions()).as(EMP.GENDER.getName()));
 
         // Select Employee and Department columns
-        cmd.select(EMP.ID, EMPLOYEE_FULLNAME);
+        cmd.select(EMP.ID.as("EMPLOYEE_ID"), EMPLOYEE_FULLNAME);
         cmd.select(EMP.GENDER, EMP.PHONE_NUMBER, PHONE_EXT_NUMBER);
         cmd.select(DEP.NAME.as("DEPARTMENT"));
         cmd.select(DEP.BUSINESS_UNIT);
@@ -686,9 +688,9 @@ public class SampleApp
 			        break;
                 case BeanList:
                     // Text-Output using a list of Java Beans supplied by the DBReader
-                    List<SampleBean> beanList = reader.getBeanList(SampleBean.class);
+                    List<EmployeeQuery> beanList = reader.getBeanList(EmployeeQuery.class);
                     // log.info(String.valueOf(beanList.size()) + " SampleBeans returned from Query.");
-                    for (SampleBean b : beanList)
+                    for (EmployeeQuery b : beanList)
                     {
                         System.out.println(b.toString());
                     }
@@ -711,7 +713,7 @@ public class SampleApp
 	{
 	    SampleDB.Employees EMP = db.EMPLOYEES;
         // Query all males
-	    BeanResult<SampleBean> result = new BeanResult<SampleBean>(SampleBean.class, EMP);
+	    BeanResult<Employee> result = new BeanResult<Employee>(Employee.class, EMP);
         result.getCommand().where(EMP.GENDER.is(Gender.M));
 	    result.fetch(context);
 	    
@@ -820,6 +822,11 @@ public class SampleApp
             }
             // udpate the record
             record.update();
+            
+            // convert to bean
+            Employee employee = new Employee();
+            record.setBeanProperties(employee);
+            System.out.println(employee.toString());
         }
 	}
 }

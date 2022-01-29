@@ -201,10 +201,12 @@ public class DateUtils
         return (locale==null) ? Locale.getDefault() : locale;        
     }
     
-    public static String formatDate(Date d, Locale locale)
+    public static String formatDate(Date date, Locale locale)
     {
+        if (date==null)
+            return StringUtils.EMPTY;
         DateFormat df = DateFormat.getDateInstance(DateFormat.MEDIUM, getSafeLocale(locale));
-        return df.format(d);
+        return df.format(date);
     }
     
     public static String formatTime(Date d, Locale locale, boolean withSeconds)

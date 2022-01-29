@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.empire.samples.db;
+package org.apache.empire.samples.db.beans;
 
 import java.math.BigDecimal;
 
@@ -24,9 +24,9 @@ import java.math.BigDecimal;
  * The SampleBean class is used to demonstrate JavaBean support for SQL-Queries.
  * The SampleBean is used in the SampleApp's queryRecords function.
  */
-public class SampleBean
+public class EmployeeQuery
 {
-    private int    id;
+    private int    employeeId;
     private String fullName;
     private String gender;
     private String phoneNumber;
@@ -50,14 +50,14 @@ public class SampleBean
     }
     */
 
-    public int getId()
+    public int getEmployeeId()
     {
-        return id;
+        return employeeId;
     }
 
-    public void setId(int id)
+    public void setEmployeeId(int employeeId)
     {
-        this.id = id;
+        this.employeeId = employeeId;
     }
     
     public String getFullName()
@@ -124,7 +124,7 @@ public class SampleBean
     public String toString()
     {
         StringBuffer buf = new StringBuffer();
-        buf.append(id);
+        buf.append(employeeId);
         buf.append("\t");
         buf.append(fullName);
         buf.append("\t");
