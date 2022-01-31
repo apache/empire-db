@@ -203,7 +203,7 @@ public class DBMSHandlerHSql extends DBMSHandlerBase
             // Convert to text
             case VARCHAR:
             case CHAR:
-                if (format != null)
+                if (format instanceof String)
                 { // Convert using a format string
                     if (srcType == DataType.INTEGER || srcType == DataType.AUTOINC)
                     {
@@ -215,7 +215,15 @@ public class DBMSHandlerHSql extends DBMSHandlerBase
                         return "to_char(?, '"+format.toString()+"')";
                     }
                 }
-                return "convert(?, CHAR)";
+                else if (format instanceof Number)
+                {   // size given
+                    int size = ((Number)format).intValue();
+                    return "convert(?, "+destType.name()+"("+String.valueOf(size)+"))";
+                }
+                else
+                {   // default
+                    return "convert(?, "+destType.name()+"(255))";
+                }
             case INTEGER:
             {
                 return "convert(?, BIGINT)";

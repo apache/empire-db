@@ -52,7 +52,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 
-
 public class SampleApp 
 {
     // Logger
@@ -616,7 +615,8 @@ public class SampleApp
         SampleDB.Payments    PAY = db.PAYMENTS;
 
 	    // The following expression concats lastname + ', ' + firstname
-        DBColumnExpr EMPLOYEE_FULLNAME = EMP.LASTNAME.append(", ").append(EMP.FIRSTNAME).as("FULL_NAME");
+        // DBColumnExpr EMPLOYEE_FULLNAME = EMP.LASTNAME.append(", ").append(EMP.FIRSTNAME).as("FULL_NAME");
+        DBColumnExpr EMPLOYEE_FULLNAME = EMP.LASTNAME.concat(", ", EMP.FIRSTNAME).as("FULL_NAME");
         DBColumnExpr PAYMENTS_LAST_YEAR = PAY.AMOUNT.sum().as("PAYMENTS_LAST_YEAR");
         
         // The following expression extracts the extension number from the phone field
@@ -755,8 +755,7 @@ public class SampleApp
         DBColumnExpr PCT_OF_DEPARTMENT_COST = qryEmpTotal.column(EMP_TOTAL).multiplyWith(100).divideBy(qryDepTotal.column(DEP_TOTAL));
         // Create the employee query
         DBCommand cmd = db.createCommand();
-        cmd.select(EMP.ID, EMP.FIRSTNAME, EMP.LASTNAME);
-        cmd.select(DEP.ID, DEP.NAME.as("DEPARTMENT"));
+        cmd.select(EMP.ID, EMP.FIRSTNAME, EMP.LASTNAME, DEP.NAME.as("DEPARTMENT"));
         cmd.select(qryEmpTotal.column(EMP_TOTAL));
         cmd.select(PCT_OF_DEPARTMENT_COST.as("PCT_OF_DEPARTMENT_COST"));
         // join Employee with Department

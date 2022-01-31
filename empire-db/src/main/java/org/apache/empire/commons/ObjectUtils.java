@@ -795,9 +795,8 @@ public final class ObjectUtils
     }
     
     /**
-     * Formats a given date object to a standard date string.
-     * The date string is locale independent and has the follwowing format:
-     *  "yyyy-MM-dd hh:mm:ss"      
+     * Formats a given date object to a standard ISO date string.
+     * The format is "yyyy-MM-dd hh:mm:ss"      
      * 
      * @param date the date to be formated
      * @param withTime indicates whether the date string should include the time or not
@@ -805,6 +804,8 @@ public final class ObjectUtils
      */
     public static String formatDate(Date date, boolean withTime)
     {
+        if (date==null)
+            return null;
     	if (withTime)
     		return dateTimeFormatter.get().format(date);
     	else

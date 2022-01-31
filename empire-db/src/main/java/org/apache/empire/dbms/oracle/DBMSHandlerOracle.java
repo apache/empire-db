@@ -205,6 +205,7 @@ public class DBMSHandlerOracle extends DBMSHandlerBase
             case SQL_FUNC_LTRIM:                return "ltrim(?)";
             case SQL_FUNC_RTRIM:                return "rtrim(?)";
             case SQL_FUNC_ESCAPE:               return "? escape '{0}'";
+            case SQL_FUNC_CONCAT:               return " || ";
             // Numeric
             case SQL_FUNC_ABS:                  return "abs(?)";
             case SQL_FUNC_ROUND:                return "round(?,{0})";
@@ -251,7 +252,7 @@ public class DBMSHandlerOracle extends DBMSHandlerBase
             case VARCHAR:
             case CHAR:
             case CLOB:
-                if (format != null)
+                if (format instanceof String)
                 { // Convert using a format string
                     return "to_char(?, '"+format.toString()+"')";
                 }
@@ -260,7 +261,7 @@ public class DBMSHandlerOracle extends DBMSHandlerBase
             case INTEGER:
             case FLOAT:
             case DECIMAL:
-                if (format != null)
+                if (format instanceof String)
                 { // Convert using a format string
                     return "to_number(?, '"+format.toString()+"')";
                 }
@@ -268,13 +269,13 @@ public class DBMSHandlerOracle extends DBMSHandlerBase
             // Convert to date
             case DATE:
             case DATETIME:
-                if (format != null)
+                if (format instanceof String)
                 { // Convert using a format string
                     return "to_date(?, '"+format.toString()+"')";
                 }
                 return "to_date(?)";
             case TIMESTAMP:
-                if (format != null)
+                if (format instanceof String)
                 { // Convert using a format string
                     return "to_timestamp(?, '"+format.toString()+"')";
                 }

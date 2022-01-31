@@ -44,6 +44,7 @@ public enum DBSqlPhrase
     SQL_FUNC_LTRIM          ("ltrim(?)"),
     SQL_FUNC_RTRIM          ("rtrim(?)"),
     SQL_FUNC_ESCAPE         ("? escape '{0}'"),
+    SQL_FUNC_CONCAT         ("concat(?)"),
     
     // Numeric
     SQL_FUNC_ABS            ("abs(?)"),

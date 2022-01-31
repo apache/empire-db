@@ -742,7 +742,7 @@ public class DBUtils implements DBContextAware
      */
     public final <T extends DataListEntry> List<T> queryDataList(DBCommand cmd, Class<T> entryClass, DataListHead head)
     {
-        return queryDataList(cmd, createDefaultDataListFactory(entryClass, head), 0, MAX_QUERY_ROWS);
+        return queryDataList(cmd, createDefaultDataListFactory(entryClass, head), 0, -1);
     }
     
     /**

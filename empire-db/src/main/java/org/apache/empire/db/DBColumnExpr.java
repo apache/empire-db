@@ -34,6 +34,7 @@ import org.apache.empire.db.expr.column.DBAliasExpr;
 import org.apache.empire.db.expr.column.DBCalcExpr;
 import org.apache.empire.db.expr.column.DBCaseExpr;
 import org.apache.empire.db.expr.column.DBConcatExpr;
+import org.apache.empire.db.expr.column.DBConcatFuncExpr;
 import org.apache.empire.db.expr.column.DBConvertExpr;
 import org.apache.empire.db.expr.column.DBCountExpr;
 import org.apache.empire.db.expr.column.DBDecodeExpr;
@@ -1309,6 +1310,27 @@ public abstract class DBColumnExpr extends DBExpr
     public DBOrderByExpr desc()
     {
         return new DBOrderByExpr(this, true);
+    }
+
+    /**
+     * concatenates a list of expressions to the current column 
+     * @param concatExprs the expressions to concat
+     * @return the concat expression
+     */
+    public DBColumnExpr concat(DBColumnExpr... concatExprs)
+    {
+        return new DBConcatFuncExpr(this, concatExprs);
+    }
+
+    /**
+     * concatenates a list of expressions to the current column 
+     * @param separator a string to insert between each of the expressions
+     * @param concatExprs the expressions to concat
+     * @return the concat expression
+     */
+    public DBColumnExpr concat(String separator, DBColumnExpr... concatExprs)
+    {
+        return new DBConcatFuncExpr(this, separator, concatExprs);
     }
     
 }
