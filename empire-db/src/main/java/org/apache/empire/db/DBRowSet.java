@@ -109,6 +109,20 @@ public abstract class DBRowSet extends DBExpr implements Entity
     protected List<DBColumn>          columns          = new ArrayList<DBColumn>();
 
     /**
+     * Internally used for parameter checking
+     * @param name the paramter name
+     * @param record the record
+     * @return the record
+     */
+    protected void checkParamRecord(String name, DBRecord record, boolean checkValid)
+    {
+        if (record==null || record.getRowSet()!=this)
+            throw new InvalidArgumentException(name, record);
+        if (checkValid && !record.isValid())
+            throw new ObjectNotValidException(record);
+    }
+    
+    /**
      * varArgs to Array
      * @param parts
      * @return
@@ -485,6 +499,8 @@ public abstract class DBRowSet extends DBExpr implements Entity
      */
     protected void initRecord(DBRecord record, Object[] keyValues, Connection conn, boolean setDefaults, boolean newRecord)
     {
+        // check param
+        checkParamRecord("record", record, false);
         // Prepare
         prepareInitRecord(record, newRecord);
         // Initialize all Fields
@@ -526,15 +542,17 @@ public abstract class DBRowSet extends DBExpr implements Entity
      * At least all primary key columns must be supplied.<BR>
      * We strongly recommend to supply the value of the update timestamp column in order to detect concurrent changes.<BR>
      * <P>
-     * @param rec the record object
+     * @param record the record object
      * @param recData the record data from which to initialized the record
      */
-    public void initRecord(DBRecord rec, DBRecordData recData)
+    public void initRecord(DBRecord record, DBRecordData recData)
     {
+        // check param
+        checkParamRecord("record", record, false);
         // Initialize the record
-        prepareInitRecord(rec, false);
+        prepareInitRecord(record, false);
         // Get Record Field Values
-        Object[] fields = rec.getFields();
+        Object[] fields = record.getFields();
         DBColumn[] keyColumns =(DBColumn[])getKeyColumns();
         for (int i = 0; i < fields.length; i++)
         {   // Read a value
@@ -560,7 +578,7 @@ public abstract class DBRowSet extends DBExpr implements Entity
         	}
         }
         // Done
-        completeInitRecord(rec);
+        completeInitRecord(record);
     }
     
     /**
@@ -650,6 +668,9 @@ public abstract class DBRowSet extends DBExpr implements Entity
      */
     protected void readRecord(DBRecord record, DBCommand cmd)
     {
+        // check param
+        checkParamRecord("record", record, false);
+        // read now
         DBReader reader = null;
         try
         {   // read record using a DBReader
@@ -675,7 +696,6 @@ public abstract class DBRowSet extends DBExpr implements Entity
     public void readRecord(DBRecord record, Object[] key)
     {
         // Check Arguments
-        checkParamNull("record", record);
         checkParamNull("key", key);
         // Select
         DBCommand cmd = db.createCommand();
@@ -693,7 +713,6 @@ public abstract class DBRowSet extends DBExpr implements Entity
     public void readRecord(DBRecord record, DBCompareExpr whereConstraints)
     {
         // Check Arguments
-        checkParamNull("record", record);
         checkParamNull("whereConstraints", whereConstraints);
         // check constraints
         Set<DBColumn> columns = new HashSet<DBColumn>();
@@ -718,7 +737,6 @@ public abstract class DBRowSet extends DBExpr implements Entity
     public void readRecord(DBRecord record, Object[] key, PartialMode mode, DBColumn... columns)
     {
         // Check Arguments
-        checkParamNull("record", record);
         checkParamNull("key", key);
         // create command
         DBCommand cmd = db.createCommand();        
@@ -800,9 +818,7 @@ public abstract class DBRowSet extends DBExpr implements Entity
         if (isUpdateable()==false)
             throw new NotSupportedException(this, "updateRecord");
         // Check Arguments
-        checkParamNull("record", record);
-        if (record.isValid()==false)
-            throw new ObjectNotValidException(record);
+        checkParamRecord("record", record, true);
         // the connection
         DBContext context = record.getContext();
         Connection conn = context.getConnection();
@@ -1052,7 +1068,7 @@ public abstract class DBRowSet extends DBExpr implements Entity
      * @param record the record 
      * @return the rowset data
      */
-    protected Object getRowsetData(DBRecord record)
+    protected final Object getRowsetData(DBRecord record)
     {
         return record.rowsetData;
     }
@@ -1062,7 +1078,7 @@ public abstract class DBRowSet extends DBExpr implements Entity
      * @param rec the record 
      * @return the rowset data
      */
-    protected void setRowsetData(DBRecord record, Object rowsetData)
+    protected final void setRowsetData(DBRecord record, Object rowsetData)
     {
         record.rowsetData = rowsetData;
     }

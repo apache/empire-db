@@ -21,7 +21,6 @@ package org.apache.empire.db.expr.column;
 import org.apache.empire.data.DataType;
 import org.apache.empire.db.DBColumnExpr;
 import org.apache.empire.dbms.DBSqlPhrase;
-import org.apache.empire.exceptions.InvalidValueException;
 
 /**
  * DBConcatExpression

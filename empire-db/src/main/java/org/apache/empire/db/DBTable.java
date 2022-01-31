@@ -574,14 +574,14 @@ public class DBTable extends DBRowSet implements Cloneable
      * Gets all table fields and the fields properties. 
      * Set this to the specified DBRecord object.
      * 
-     * @param rec the DBRecord object. contains all fields and the field properties
+     * @param record the DBRecord object. contains all fields and the field properties
      * @param conn a valid connection to the database.
      */
     @Override
-    public void createRecord(DBRecord rec, Object[] initalKey, boolean deferredInit)
+    public void createRecord(DBRecord record, Object[] initalKey, boolean deferredInit)
     {
-        Connection conn = (deferredInit ? null : rec.getContext().getConnection());
-        super.initRecord(rec, initalKey, conn, true, true);
+        Connection conn = (deferredInit ? null : record.getContext().getConnection());
+        super.initRecord(record, initalKey, conn, true, true);
     }
     
     /**
