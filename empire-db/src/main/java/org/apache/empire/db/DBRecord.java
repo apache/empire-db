@@ -525,7 +525,7 @@ public class DBRecord extends DBRecordData implements DBContextAware, Record, Cl
      * @return the Column at the specified index 
      */
     @Override
-    public final DBColumn getColumn(int index)
+    public DBColumn getColumn(int index)
     {
         return getRowSet().getColumn(index);
     }

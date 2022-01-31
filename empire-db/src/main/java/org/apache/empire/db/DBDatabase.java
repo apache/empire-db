@@ -290,9 +290,10 @@ public abstract class DBDatabase extends DBObject
      * 
      * @return Returns the DBMS Handler for this database
      */
-    public DBMSHandler getDbms()
+    @SuppressWarnings("unchecked")
+    public <T extends DBMSHandler> T getDbms()
     {
-        return dbms;
+        return (T)dbms;
     }
     
     /**

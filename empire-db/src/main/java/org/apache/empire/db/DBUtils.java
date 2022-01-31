@@ -881,11 +881,99 @@ public class DBUtils implements DBContextAware
         }
     }
 
+    /**
+     * Executes a query and returns a list of DBRecord items
+     * @param cmd the command holding the constraints and order or the query
+     * @param rowset the rowset for which to query the records
+     * @return the list of DBRecord items
+     */
     public final <T extends DBRecord> List<T> queryRecordList(DBCommand cmd, DBRowSet rowset)
     {
         @SuppressWarnings("unchecked")
         DBRecordListFactory<T> factory = (DBRecordListFactory<T>)createDefaultRecordListFactory(context, rowset, DBRecord.class);
         return queryRecordList(cmd, factory, 0, -1);
     }
+
+    /**#
+     * Query a list of simple Java objects (beans)
+     * @param cmd the comman
+     * @param type
+     * @param first
+     * @param pageSize
+     * @return
+     */
+    public <T> List<T> queryBeanList(DBCommand cmd, Class<T> type, int first, int pageSize)
+    {
+        DBReader r = new DBReader(context);
+        try
+        {   // check pageSize
+            if (pageSize==0)
+            {   log.warn("PageSize must not be 0. Setting to -1 for all records!");
+                pageSize = -1;
+            }
+            // set range
+            DBMSHandler dbms = cmd.getDatabase().getDbms();
+            if (pageSize>0 && dbms.isSupported(DBMSFeature.QUERY_LIMIT_ROWS))
+            {   // let the database limit the rows
+                if (first>0 && dbms.isSupported(DBMSFeature.QUERY_SKIP_ROWS))
+                {   // let the database skip the rows
+                    cmd.skipRows(first);
+                    // no need to skip rows ourself
+                    first = 0;
+                }
+                cmd.limitRows(first+pageSize);
+            }
+            // Runquery
+            r.open(cmd);
+            if (first>0) 
+            {   // skip rows
+                r.skipRows(first);
+            }
+            ArrayList<T> list = r.getBeanList(type, pageSize);
+            // check sortable
+            /*
+            if (EnumerableListEntry.class.isAssignableFrom(type))
+            {
+                int rownum = 0;
+                for (EnumerableListEntry sle : ((ArrayList<? extends EnumerableListEntry>)list))
+                {
+                    sle.setRownum(++rownum);
+                }
+            }
+            */
+            return list;
+        }
+        finally
+        {
+            r.close();
+        }
+    }
+
+    public <T> List<T> queryBeanList(DBCommand cmd, Class<T> type)
+    {
+        return queryBeanList(cmd, type, 0, -1);
+    }
+    
+    /**
+     * Query a single bean's properties
+     * @param cmd the bean query command
+     * @param bean the bean for which to set the properties
+    public int queryBeanProperties(DBCommand cmd, Object bean)
+    {
+        DBReader r = new DBReader(context);
+        try
+        {   // Runquery
+            r.getRecordData(cmd);
+            int count = r.setBeanProperties(bean);
+            if (count<= 0)
+                log.warn("No matching bean properties found!");
+           return count;
+        }
+        finally
+        {
+            r.close();
+        }
+    }
+     */
     
 }
