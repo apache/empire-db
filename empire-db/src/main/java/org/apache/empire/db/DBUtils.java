@@ -814,9 +814,9 @@ public class DBUtils implements DBContextAware
      * @param recordClass the recordClass for which to create the list head 
      * @return
      */
-    protected <T extends DBRecord> DBRecordListFactory<T> createDefaultRecordListFactory(DBContext context, DBRowSet rowset, Class<T> recordClass) 
+    protected <T extends DBRecord> DBRecordListFactory<T> createDefaultRecordListFactory(Class<T> recordClass, DBRowSet rowset) 
     {
-        return new DBRecordListFactoryImpl<T>(recordClass, context, rowset);
+        return new DBRecordListFactoryImpl<T>(recordClass, rowset);
     }
     
     /**
@@ -900,7 +900,7 @@ public class DBUtils implements DBContextAware
     public final <T extends DBRecord> List<T> queryRecordList(DBCommand cmd, DBRowSet rowset)
     {
         @SuppressWarnings("unchecked")
-        DBRecordListFactory<T> factory = (DBRecordListFactory<T>)createDefaultRecordListFactory(context, rowset, DBRecord.class);
+        DBRecordListFactory<T> factory = (DBRecordListFactory<T>)createDefaultRecordListFactory(DBRecord.class, rowset);
         return queryRecordList(cmd, factory, 0, -1);
     }
 

@@ -21,6 +21,7 @@ package org.apache.empire.data.bean;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 
+import org.apache.empire.data.DataType;
 import org.apache.empire.db.DBColumn;
 import org.apache.empire.db.DBCommand;
 import org.apache.empire.db.DBContext;
@@ -84,7 +85,7 @@ public class BeanResult<T> extends ArrayList<T>
         for (DBColumn col : rowset.getColumns())
         {   // obtain the bean property Name
             String property = col.getBeanPropertyName();
-            if (!isPropertyAcessible(methods, property)) {
+            if (!isPropertyAcessible(methods, property, col.getDataType())) {
                 // Property not found
                 log.debug("Unable to access the property {} on {}. Column will be ignored.", property, clazz.getName());
                 continue;
@@ -98,7 +99,7 @@ public class BeanResult<T> extends ArrayList<T>
             throw new BeanIncompatibleException(clazz, rowset);
     }
 
-    private boolean isPropertyAcessible(Method[] methods, String property)
+    protected boolean isPropertyAcessible(Method[] methods, String property, DataType dataType)
     {
         property = "et"+property.substring(0,1).toUpperCase()+property.substring(1);
         for (int i=0; i<methods.length; i++)
