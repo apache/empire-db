@@ -39,7 +39,6 @@ import org.apache.empire.db.DBTable;
 import org.apache.empire.db.DBTableColumn;
 import org.apache.empire.db.DBView;
 import org.apache.empire.db.DBView.DBViewColumn;
-import org.apache.empire.db.codegen.util.DBUtil;
 import org.apache.empire.exceptions.ItemNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -108,7 +107,7 @@ public class CodeGenParser {
         }
         finally 
         {
-            DBUtil.close(con, log);
+            close(con);
         }
         return db;
 	}
@@ -216,7 +215,7 @@ public class CodeGenParser {
 				log.info("Available schemata: " + getSchemata(dbMeta));
 			}
 		} finally {
-			DBUtil.close(tables, log);
+			close(tables);
 		}
 	}
 	
@@ -345,7 +344,7 @@ public class CodeGenParser {
 	        	t.setPrimaryKey(keys);
 	        }
 		} finally {
-			DBUtil.close(rs, log);
+			close(rs);
 		}
 	}
 	
@@ -363,7 +362,7 @@ public class CodeGenParser {
 				addColumn(v, rs);
 			}
 		} finally {
-			DBUtil.close(rs, log);
+			close(rs);
 		}
 	}
 
@@ -382,7 +381,7 @@ public class CodeGenParser {
 				cols.add(rs.getString("COLUMN_NAME"));
 			}
 		} finally {
-			DBUtil.close(rs, log);
+			close(rs);
 		}
 		return cols;
 	}
@@ -556,4 +555,35 @@ public class CodeGenParser {
 		return empireType;
 	}
 
+    /**
+     * Closes a sql resultset and logs exceptions.
+     * 
+     * @param rs the resultset to close
+     * @param log the logger instance to use for logging
+     * @return true on succes
+     */
+    protected boolean close(ResultSet rs)
+    {   try {
+            if (rs != null)
+                rs.close();
+            return true;
+        } catch (SQLException e) {
+            log.error("The resultset could not be closed!", e);
+            return false;
+        }
+    }
+
+    /**
+     * Closes a JDBC-Connection and logs exceptions.
+     */
+    protected void close(Connection conn)
+    {   try  {
+            log.info("Closing database connection");
+            if (conn != null)
+                conn.close();
+        } catch (Exception e) {
+            log.error("Error closing connection", e);
+        }
+    }
+	
 }
