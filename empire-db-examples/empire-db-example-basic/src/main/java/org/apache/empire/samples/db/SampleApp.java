@@ -718,7 +718,6 @@ public class SampleApp
 	    cmd.where(EMP.GENDER.is(Gender.M));
 	    cmd.orderBy(EMP.LASTNAME.desc());
 	    List<Employee> list = context.getUtils().queryBeanList(cmd, Employee.class, null);
-	    
 	    for (Employee emp : list)
 	    {
 	        

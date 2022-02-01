@@ -18,9 +18,10 @@
  */
 package org.apache.empire.db.list;
 
-import org.apache.empire.db.DBRecordData;
+import org.apache.empire.db.DBContext;
+import org.apache.empire.db.DBDatabase;
 
-public interface Bean
+public interface Bean<DB extends DBDatabase>
 {
-    void onBeanLoaded(DBRecordData dataRow, int rownum, Object parent);
+    void onBeanLoaded(DB db, DBContext context, int rownum, Object parent);
 }

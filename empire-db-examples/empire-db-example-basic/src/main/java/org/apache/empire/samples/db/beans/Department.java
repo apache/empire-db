@@ -21,11 +21,11 @@ package org.apache.empire.samples.db.beans;
 import java.util.List;
 
 import org.apache.empire.db.DBCommand;
-import org.apache.empire.db.DBRecordData;
+import org.apache.empire.db.DBContext;
 import org.apache.empire.db.list.Bean;
 import org.apache.empire.samples.db.SampleDB;
 
-public class Department implements Bean
+public class Department implements Bean<SampleDB>
 {
     private long   id;     // "ID" 
     private String name;   // "FIRSTNAME"
@@ -64,13 +64,12 @@ public class Department implements Bean
     }
     
     @Override
-    public void onBeanLoaded(DBRecordData dataRow, int rownum, Object parent)
+    public void onBeanLoaded(SampleDB db, DBContext context, int rownum, Object parent)
     {
-        SampleDB db = (SampleDB)dataRow.getDatabase();
         DBCommand cmd = db.createCommand();
         cmd.where(db.EMPLOYEES.DEPARTMENT_ID.is(this.id));
         cmd.orderBy(db.EMPLOYEES.FIRSTNAME, db.EMPLOYEES.LASTNAME);
-        employees = dataRow.getContext().getUtils().queryBeanList(cmd, Employee.class, this);
+        employees = context.getUtils().queryBeanList(cmd, Employee.class, this);
     }
     
 }

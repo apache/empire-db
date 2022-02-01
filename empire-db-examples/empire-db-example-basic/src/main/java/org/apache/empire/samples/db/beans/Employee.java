@@ -26,7 +26,8 @@ import java.util.Locale;
 
 import org.apache.empire.commons.DateUtils;
 import org.apache.empire.db.DBCommand;
-import org.apache.empire.db.DBRecordData;
+import org.apache.empire.db.DBContext;
+import org.apache.empire.db.DBRecord;
 import org.apache.empire.db.list.Bean;
 import org.apache.empire.samples.db.SampleDB;
 
@@ -35,7 +36,7 @@ import org.apache.empire.samples.db.SampleDB;
  * @author doebele
  *
  */
-public class Employee implements Bean
+public class Employee implements Bean<SampleDB>
 {
     private int    rownum;      // rownum
     private long   id;          // "ID" 
@@ -227,19 +228,18 @@ public class Employee implements Bean
     }
 
     @Override
-    public void onBeanLoaded(DBRecordData dataRow, int rownum, Object parent)
+    public void onBeanLoaded(SampleDB db, DBContext context, int rownum, Object parent)
     {
         if (parent instanceof Department)
             department = ((Department)parent); 
         // don't!
-        // else department = context.getUtils().queryBean(Department.class, DBRecord.key(this.departmentId));
+        else department = context.getUtils().queryBean(Department.class, db.DEPARTMENTS, DBRecord.key(this.departmentId));
         
-        SampleDB db = (SampleDB)dataRow.getDatabase();
         DBCommand cmd = db.createCommand();
         cmd.where(db.PAYMENTS.EMPLOYEE_ID.is(this.id));
         cmd.orderBy(db.PAYMENTS.YEAR.desc());
         cmd.orderBy(db.PAYMENTS.MONTH.desc());
-        payments = dataRow.getContext().getUtils().queryBeanList(cmd, Payment.class, this);
+        payments = context.getUtils().queryBeanList(cmd, Payment.class, this);
     }
 
 }

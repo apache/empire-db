@@ -981,8 +981,8 @@ public class DBUtils implements DBContextAware
                 if (item==null)
                     continue;
                 // post processing
-                if (item instanceof Bean)
-                    ((Bean)item).onBeanLoaded(r, rownum, parent);
+                if (item instanceof Bean<?>)
+                    ((Bean<?>)item).onBeanLoaded(r.getDatabase(), context, rownum, parent);
                 // add entry
                 list.add(item);
                 // Decrease count
@@ -1050,7 +1050,6 @@ public class DBUtils implements DBContextAware
      */
     public <T> T queryBean(DBCommand cmd, DBBeanListFactory<T> factory)
     {
-        List<T> list = null;
         DBReader r = new DBReader(context);
         try
         {   // prepare
@@ -1060,8 +1059,8 @@ public class DBUtils implements DBContextAware
             // add data
             T item = factory.newItem(-1, r);
             // post processing
-            if (item instanceof Bean)
-                ((Bean)item).onBeanLoaded(r, -1, null);
+            if (item instanceof Bean<?>)
+                ((Bean<?>)item).onBeanLoaded(r.getDatabase(), context, -1, null);
             // done
             return item;
         }
@@ -1069,8 +1068,7 @@ public class DBUtils implements DBContextAware
         {
             r.close();
             // complete
-            if (list!=null)
-                factory.completeQuery(list);
+            factory.completeQuery(null);
         }
     }
 
