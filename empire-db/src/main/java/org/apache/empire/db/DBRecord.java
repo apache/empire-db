@@ -37,7 +37,6 @@ import org.apache.empire.data.Column;
 import org.apache.empire.data.ColumnExpr;
 import org.apache.empire.data.Record;
 import org.apache.empire.db.DBRowSet.PartialMode;
-import org.apache.empire.db.context.DBContextAware;
 import org.apache.empire.db.context.DBRollbackHandler;
 import org.apache.empire.db.exceptions.FieldIsReadOnlyException;
 import org.apache.empire.db.exceptions.FieldValueNotFetchedException;
@@ -78,7 +77,7 @@ import org.w3c.dom.Element;
  * 
  * The record is Serializable either if the provided DBContext is serializable, or if the Context is provided on deserialization in a derived class.
  */
-public class DBRecord extends DBRecordData implements DBContextAware, Record, Cloneable, Serializable
+public class DBRecord extends DBRecordData implements Record, Cloneable, Serializable
 {
     private static final long serialVersionUID = 1L;
     

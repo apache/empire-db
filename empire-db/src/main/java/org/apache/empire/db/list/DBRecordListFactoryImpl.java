@@ -67,8 +67,6 @@ public class DBRecordListFactoryImpl<T extends DBRecord> implements DBRecordList
      */
     protected final Constructor<T> constructor;
     protected final DBRowSet rowset;
-
-    protected DBContext context;
     
     /**
      * Constructs a DBRecordListFactoryImpl based on an DBRecord constructor
@@ -96,8 +94,6 @@ public class DBRecordListFactoryImpl<T extends DBRecord> implements DBRecordList
     @Override
     public void prepareQuery(DBCommand cmd, DBContext context)
     {
-        // set context
-        this.context = context;
         // complete select
         if (cmd.hasSelectExpr())
         {   // Already has select expressions. 
@@ -118,7 +114,7 @@ public class DBRecordListFactoryImpl<T extends DBRecord> implements DBRecordList
     public T newRecord(int rownum, DBRecordData dataRow)
     {   try
         {   // create item
-            T record = constructor.newInstance(context, rowset);
+            T record = constructor.newInstance(dataRow.getContext(), rowset);
             rowset.initRecord(record, dataRow);
             return record;
         }
@@ -130,8 +126,8 @@ public class DBRecordListFactoryImpl<T extends DBRecord> implements DBRecordList
     
     @Override
     public void completeQuery(List<T> list)
-    {   // set context
-        this.context = null;
+    { 
+        /* Nothing */
     }
     
 }

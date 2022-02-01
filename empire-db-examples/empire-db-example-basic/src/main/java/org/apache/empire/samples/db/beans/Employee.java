@@ -26,8 +26,6 @@ import java.util.Locale;
 
 import org.apache.empire.commons.DateUtils;
 import org.apache.empire.db.DBCommand;
-import org.apache.empire.db.DBContext;
-import org.apache.empire.db.DBRecord;
 import org.apache.empire.db.DBRecordData;
 import org.apache.empire.db.list.Bean;
 import org.apache.empire.samples.db.SampleDB;
@@ -229,19 +227,19 @@ public class Employee implements Bean
     }
 
     @Override
-    public void onBeanLoaded(DBContext context, DBRecordData dataRow, int rownum, Object parent)
+    public void onBeanLoaded(DBRecordData dataRow, int rownum, Object parent)
     {
         if (parent instanceof Department)
             department = ((Department)parent); 
-        else
-            department = context.getUtils().queryBean(Department.class, DBRecord.key(this.departmentId));
+        // don't!
+        // else department = context.getUtils().queryBean(Department.class, DBRecord.key(this.departmentId));
         
         SampleDB db = (SampleDB)dataRow.getDatabase();
         DBCommand cmd = db.createCommand();
         cmd.where(db.PAYMENTS.EMPLOYEE_ID.is(this.id));
         cmd.orderBy(db.PAYMENTS.YEAR.desc());
         cmd.orderBy(db.PAYMENTS.MONTH.desc());
-        payments = context.getUtils().queryBeanList(cmd, Payment.class, this);
+        payments = dataRow.getContext().getUtils().queryBeanList(cmd, Payment.class, this);
     }
 
 }

@@ -81,7 +81,7 @@ public class DBBeanListFactoryImpl<T> implements DBBeanListFactory<T>
         this.constructor = constructor;
         this.constructorParams = constructorParams;
         // Check constructor
-        if (constructor.getParameterCount()>0 && (constructorParams==null || constructor.getParameterCount()<constructorParams.size()))
+        if (constructor!=null && constructor.getParameterCount()>0 && (constructorParams==null || constructor.getParameterCount()<constructorParams.size()))
             throw new InvalidArgumentException("constructor", constructor);
     }
     

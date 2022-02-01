@@ -36,7 +36,6 @@ import org.apache.empire.commons.ClassUtils;
 import org.apache.empire.commons.ObjectUtils;
 import org.apache.empire.data.ColumnExpr;
 import org.apache.empire.data.DataType;
-import org.apache.empire.db.context.DBContextAware;
 import org.apache.empire.db.exceptions.EmpireSQLException;
 import org.apache.empire.db.exceptions.QueryNoResultException;
 import org.apache.empire.db.expr.join.DBJoinExpr;
@@ -73,7 +72,7 @@ import org.w3c.dom.Element;
  *
  *
  */
-public class DBReader extends DBRecordData implements DBContextAware, Closeable
+public class DBReader extends DBRecordData implements Closeable
 {
     // *Deprecated* private static final long serialVersionUID = 1L;
   

@@ -20,7 +20,6 @@ package org.apache.empire.samples.db.beans;
 
 import java.math.BigDecimal;
 
-import org.apache.empire.db.DBContext;
 import org.apache.empire.db.DBRecordData;
 import org.apache.empire.db.list.Bean;
 
@@ -68,7 +67,7 @@ public class Payment implements Bean
     }
 
     @Override
-    public void onBeanLoaded(DBContext context, DBRecordData dataRow, int rownum, Object parent)
+    public void onBeanLoaded(DBRecordData dataRow, int rownum, Object parent)
     {
         if (parent instanceof Employee)
             this.employee = (Employee)parent;

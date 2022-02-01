@@ -34,6 +34,7 @@ import org.apache.empire.commons.StringUtils;
 import org.apache.empire.data.Column;
 import org.apache.empire.data.ColumnExpr;
 import org.apache.empire.data.RecordData;
+import org.apache.empire.db.context.DBContextAware;
 import org.apache.empire.db.exceptions.FieldIllegalValueException;
 import org.apache.empire.exceptions.BeanPropertySetException;
 import org.apache.empire.exceptions.InvalidArgumentException;
@@ -52,8 +53,8 @@ import org.w3c.dom.Element;
  * The field values are converted to the desired type if possible.
  * The field values can be transferred to a classical Java-bean (aka Pojo)
  */
-public abstract class DBRecordData extends DBObject
-	implements RecordData
+public abstract class DBRecordData extends DBObject 
+	implements DBContextAware, RecordData
 {
     // *Deprecated* private static final long serialVersionUID = 1L;
 

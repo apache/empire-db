@@ -982,7 +982,7 @@ public class DBUtils implements DBContextAware
                     continue;
                 // post processing
                 if (item instanceof Bean)
-                    ((Bean)item).onBeanLoaded(context, r, rownum, parent);
+                    ((Bean)item).onBeanLoaded(r, rownum, parent);
                 // add entry
                 list.add(item);
                 // Decrease count
@@ -1061,7 +1061,7 @@ public class DBUtils implements DBContextAware
             T item = factory.newItem(-1, r);
             // post processing
             if (item instanceof Bean)
-                ((Bean)item).onBeanLoaded(context, r, -1, null);
+                ((Bean)item).onBeanLoaded(r, -1, null);
             // done
             return item;
         }
