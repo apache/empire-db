@@ -744,7 +744,7 @@ public class DBReader extends DBRecordData implements Closeable
      * @return the number of column descriptions added to the Element
      */
     @Override
-    public int getXmlMeta(Element parent)
+    public int addXmlMeta(Element parent)
     {
         if (columns == null)
             throw new ObjectNotValidException(this);
@@ -762,7 +762,7 @@ public class DBReader extends DBRecordData implements Closeable
      * @return the number of row values added to the element
      */
     @Override
-    public int getXmlData(Element parent)
+    public int addXmlData(Element parent)
     {
         if (rset == null)
             throw new ObjectNotValidException(this);
@@ -802,7 +802,7 @@ public class DBReader extends DBRecordData implements Closeable
         String rowElementName = getXmlDictionary().getRowElementName();
         while (moveNext())
         {
-            getXmlData(XMLUtil.addElement(parent, rowElementName));
+            addXmlData(XMLUtil.addElement(parent, rowElementName));
             count++;
         }
         return count;
@@ -831,7 +831,7 @@ public class DBReader extends DBRecordData implements Closeable
         String rowsetElementName = getXmlDictionary().getRowSetElementName();
         Element root = XMLUtil.createDocument(rowsetElementName);
         // Add Field Description
-        getXmlMeta(root);
+        addXmlMeta(root);
         // Add row rset
         addRows(root);
         // return Document

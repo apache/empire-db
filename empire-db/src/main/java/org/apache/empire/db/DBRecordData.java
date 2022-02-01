@@ -76,8 +76,8 @@ public abstract class DBRecordData extends DBObject
     public abstract ColumnExpr getColumnExpr(int i);
 
     // xml
-    public abstract int getXmlMeta(Element parent);
-    public abstract int getXmlData(Element parent);
+    public abstract int addXmlMeta(Element parent);
+    public abstract int addXmlData(Element parent);
     public abstract Document getXmlDocument();
 
     // others

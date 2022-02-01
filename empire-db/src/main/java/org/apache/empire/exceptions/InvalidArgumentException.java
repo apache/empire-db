@@ -27,6 +27,11 @@ public class InvalidArgumentException extends EmpireException
     
     public static final ErrorType errorType = new ErrorType("error.invalidArgument", "Invalid Argument {0} for parameter {1}.");
     
+    protected InvalidArgumentException(ErrorType errorType, String[] params)
+    {
+        super(errorType, params);
+    }
+    
     public InvalidArgumentException(String param, Object value)
     {
         super(errorType, new String[] { StringUtils.valueOf(value), param } );

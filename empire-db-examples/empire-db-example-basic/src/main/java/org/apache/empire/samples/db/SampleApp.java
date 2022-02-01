@@ -26,6 +26,7 @@ import java.time.LocalDate;
 import java.util.List;
 
 import org.apache.empire.commons.StringUtils;
+import org.apache.empire.data.bean.BeanResult;
 import org.apache.empire.data.list.DataListEntry;
 import org.apache.empire.db.DBColumnExpr;
 import org.apache.empire.db.DBCommand;
@@ -723,13 +724,13 @@ public class SampleApp
 	        
 	        System.out.println(emp.toString());
 	    }
-
+	    
 	    // load department
 	    Department department = context.getUtils().queryBean(Department.class, db.DEPARTMENTS.NAME.is("Sales"));
 	    Payment first = department.getEmployees().get(0).getPayments().get(0);
 	    log.info("First payment amount is {}", first.getAmount());
-	    /*
-        // Query all males
+
+	    // Query all males
 	    BeanResult<Employee> result = new BeanResult<Employee>(Employee.class, EMP);
         result.getCommand().where(EMP.GENDER.is(Gender.M));
 	    result.fetch(context);

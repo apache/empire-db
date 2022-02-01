@@ -17,6 +17,7 @@ import org.apache.empire.data.list.DataListFactoryImpl;
 import org.apache.empire.data.list.DataListHead;
 import org.apache.empire.db.context.DBContextAware;
 import org.apache.empire.db.exceptions.ConstraintViolationException;
+import org.apache.empire.db.exceptions.CommandWithoutSelectException;
 import org.apache.empire.db.exceptions.QueryFailedException;
 import org.apache.empire.db.exceptions.QueryNoResultException;
 import org.apache.empire.db.exceptions.StatementFailedException;
@@ -919,17 +920,18 @@ public class DBUtils implements DBContextAware
     }
 
     /**
-     * Crates a default DBBeanListFactory for Java bean class
+     * gets or creates DBBeanListFactory for the given rowset
      * @param beanType the beanType for which to create the list head 
-     * @param constructorParams the columns to be used for the constructor (optional) 
+     * @param rowset the rowset for which to return the factory 
      * @return the bean factory
      */
-    protected final <T> DBBeanListFactory<T> createDefaultBeanListFactory(Class<T> beanType, DBColumnExpr[] constructorParams) 
+    protected <T> DBBeanListFactory<T> getRowsetBeanListFactory(Class<T> beanType, DBRowSet rowset) 
     {
-        List<DBColumnExpr> params = new ArrayList<DBColumnExpr>(constructorParams.length);
-        for (int i=0; i<constructorParams.length; i++)
-            params.add(constructorParams[i]);
-        return createDefaultBeanListFactory(beanType, params);
+        @SuppressWarnings("unchecked")
+        DBBeanListFactory<T> factory = (DBBeanListFactory<T>)rowset.getBeanFactory();
+        if (factory==null)
+            factory =createDefaultBeanListFactory(beanType, rowset.getColumns());
+        return factory;
     }
     
     /**
@@ -1005,43 +1007,61 @@ public class DBUtils implements DBContextAware
     }
 
     /**
-     * Queries a single Java Bean for a given command
-     * If the command has no select expressions then the beanType must be assigned to a DBRowSet via DBRowSet.setBeanType() 
+     * Queries a list of Java beans for a given command
      * @param cmd the query command
-     * @param beanType the beanType
-     * @param first first item of query (default is 0)
-     * @param pageSize the maximum number of items to add to the list or -1 (default) for all
+     * @param factory the beanType factory used to instantiate the bean
+     * @param parent (optional) the parent bean if any 
      * @return the list of java beans
      */
-    @SuppressWarnings("unchecked")
-    public <T> List<T> queryBeanList(DBCommand cmd, Class<T> beanType, Object parent, int first, int pageSize)
+    public final <T> List<T> queryBeanList(DBCommand cmd, DBBeanListFactory<T> factory, Object parent)
     {
-        DBBeanListFactory<T> factory;
-        if (cmd.hasSelectExpr()==false)
-        {
-            DBRowSet rowset = DBRowSet.getRowsetforType(beanType);
-            if (rowset==null)
-                throw new InvalidArgumentException("cmd", cmd);
-            // found, use factory of rowset
-            factory = (DBBeanListFactory<T>)rowset.getBeanFactory();
-        }
-        else
-        {   // use default rowset
-            factory = createDefaultBeanListFactory(beanType, cmd.getSelectExprList());
-        }
-        return queryBeanList(cmd, factory, parent, first, pageSize);
-    }
-    
-    public final <T> List<T> queryBeanList(DBCommand cmd, Class<T> beanType, List<? extends DBColumnExpr> constructorParams, Object parent)
-    {
-        return queryBeanList(cmd, createDefaultBeanListFactory(beanType, constructorParams), parent, 0, -1);
-    }
-    
-    public final <T> List<T> queryBeanList(DBCommand cmd, Class<T> beanType, Object parent)
-    {
-        return queryBeanList(cmd, beanType, parent, 0, -1);
+        return queryBeanList(cmd, factory, parent, 0, -1);
     }
 
+    /**
+     * Queries a list of Java beans for a given command
+     * @param cmd the query command
+     * @param beanType the beanType
+     * @param constructorParams the list of params used for the bean constructor (optional, may be null)
+     * @param parent (optional) the parent bean if any 
+     * @return the list of java beans
+     */
+    public <T> List<T> queryBeanList(DBCommand cmd, Class<T> beanType, DBRowSet rowset, Object parent)
+    {
+        return queryBeanList(cmd, getRowsetBeanListFactory(beanType, rowset), parent, 0, -1);
+    }
+
+    /**
+     * Queries a list of Java beans for a given command
+     * @param cmd the query command
+     * @param beanType the beanType
+     * @param constructorParams (optional) the params used for the bean constructor 
+     * @param parent (optional) the parent bean if any 
+     * @return the list of java beans
+     */
+    public <T> List<T> queryBeanList(DBCommand cmd, Class<T> beanType, List<? extends DBColumnExpr> constructorParams, Object parent)
+    {
+        if (cmd.hasSelectExpr()==false && (constructorParams==null || constructorParams.isEmpty()))
+            throw new CommandWithoutSelectException(cmd);
+        return queryBeanList(cmd, createDefaultBeanListFactory(beanType, constructorParams), parent, 0, -1);
+    }
+
+    /**
+     * Queries a list of Java beans for a given command
+     * @param cmd the query command
+     * @param beanType the beanType
+     * @param parent (optional) the parent bean if any 
+     * @return the list of java beans
+     */
+    public <T> List<T> queryBeanList(DBCommand cmd, Class<T> beanType, Object parent)
+    {
+        DBRowSet rowset = DBRowSet.getRowsetforType(beanType);
+        if (rowset!=null)
+            return queryBeanList(cmd, getRowsetBeanListFactory(beanType, rowset), parent);
+        else
+            return queryBeanList(cmd, beanType, cmd.getSelectExpressions(), parent);
+    }
+    
     /**
      * queries a single Java Bean for a given command 
      * @param cmd the query command
@@ -1074,73 +1094,97 @@ public class DBUtils implements DBContextAware
 
     /**
      * Queries a single Java Bean for a given command
-     * If the command has no select expressions then the beanType must be assigned to a DBRowSet via DBRowSet.setBeanType() 
      * @param cmd the query command
      * @param beanType the bean type
+     * @param constructorParams (optional) the params used for the bean constructor 
      * @return the bean instance
      */
-    @SuppressWarnings("unchecked")
+    public final <T> T queryBean(DBCommand cmd, Class<T> beanType, List<? extends DBColumnExpr> constructorParams)
+    {
+        if (cmd.hasSelectExpr()==false && (constructorParams==null || constructorParams.isEmpty()))
+            throw new CommandWithoutSelectException(cmd);
+        return queryBean(cmd, createDefaultBeanListFactory(beanType, constructorParams));
+    }
+
+    /**
+     * Queries a single Java Bean for a given command
+     * @param cmd the query command
+     * @param beanType the beanType
+     * @param parent (optional) the parent bean if any 
+     * @return the list of java beans
+     */
     public <T> T queryBean(DBCommand cmd, Class<T> beanType)
     {
-        DBBeanListFactory<T> factory;
-        if (cmd.hasSelectExpr()==false)
-        {
-            DBRowSet rowset = DBRowSet.getRowsetforType(beanType);
-            if (rowset==null)
-                throw new UnknownBeanTypeException(beanType);
-            // found, use factory of rowset
-            factory = (DBBeanListFactory<T>)rowset.getBeanFactory();
-        }
+        DBRowSet rowset = DBRowSet.getRowsetforType(beanType);
+        if (rowset!=null)
+            return queryBean(cmd, getRowsetBeanListFactory(beanType, rowset));
         else
-        {   // use default rowset
-            factory = createDefaultBeanListFactory(beanType, cmd.getSelectExprList());
-        }
-        return queryBean(cmd, factory);
-    }
-    
-    public final <T> T queryBean(DBCommand cmd, Class<T> beanType, List<? extends DBColumnExpr> constructorParams, Object parent)
-    {
-        return queryBean(cmd, createDefaultBeanListFactory(beanType, constructorParams));
+            return queryBean(cmd, beanType, cmd.getSelectExpressions());
     }
     
     /**
-     * Queries a single bean based on a set of where constraints
-     * @param beanType the beanType 
-     * @param whereConstraints
-     * @return
+     * Queries a single bean based on a where constraint
+     * @param beanType the beanType
+     * @param rowset the rowset used for the query 
+     * @param whereConstraints the constraints for the query
+     * @return the entity bean
      */
-    public final <T> T queryBean(Class<T> beanType, DBCompareExpr whereConstraints)
+    public final <T> T queryBean(Class<T> beanType, DBRowSet rowset, DBCompareExpr whereConstraints)
     {
-        if (whereConstraints==null)
-            throw new InvalidArgumentException("whereConstraints", whereConstraints);
+        DBObject.checkParamNull("rowset", rowset);
+        DBObject.checkParamNull("whereConstraints", whereConstraints);
         // find
         DBDatabase db = whereConstraints.getDatabase();
         DBCommand cmd = db.createCommand();
         cmd.where(whereConstraints);
-        return queryBean(cmd, beanType);
+        // use factory of rowset
+        return queryBean(cmd, getRowsetBeanListFactory(beanType, rowset));
     }
     
     /**
-     * Queries a single bean based on a set of where constraints
-     * @param beanType the beanType 
-     * @param whereConstraints
-     * @return
+     * Queries a single bean based on a where constraint
+     * @param beanType the beanType
+     * @param whereConstraints the constraints for the query
+     * @return the entity bean
      */
-    public final <T> T queryBean(Class<T> beanType, Object[] key)
+    public final <T> T queryBean(Class<T> beanType, DBCompareExpr whereConstraints)
     {
-        if (key==null)
-            throw new InvalidArgumentException("key", key);
-        // find rowset
         DBRowSet rowset = DBRowSet.getRowsetforType(beanType);
         if (rowset==null)
             throw new UnknownBeanTypeException(beanType);
+        return queryBean(beanType, rowset, whereConstraints);
+    }
+    
+    /**
+     * Queries a single bean based on primary key values
+     * @param beanType the beanType 
+     * @param rowset the rowset used for the query 
+     * @param key the primary key
+     * @return the entity bean
+     */
+    public final <T> T queryBean(Class<T> beanType, DBRowSet rowset, Object[] key)
+    {
+        DBObject.checkParamNull("rowset", rowset);
+        DBObject.checkParamNull("key", key);
         // set key constraints 
         DBCommand cmd = rowset.getDatabase().createCommand();
         rowset.setKeyConstraints(cmd, key);
         // use factory of rowset
-        @SuppressWarnings("unchecked")
-        DBBeanListFactory<T> factory = (DBBeanListFactory<T>)rowset.getBeanFactory();
-        return queryBean(cmd, factory);
+        return queryBean(cmd, getRowsetBeanListFactory(beanType, rowset));
+    }
+    
+    /**
+     * Queries a single bean based on primary key values
+     * @param beanType the beanType 
+     * @param key the primary key
+     * @return the entity bean
+     */
+    public final <T> T queryBean(Class<T> beanType, Object[] key)
+    {
+        DBRowSet rowset = DBRowSet.getRowsetforType(beanType);
+        if (rowset==null)
+            throw new UnknownBeanTypeException(beanType);
+        return queryBean(beanType, rowset, key);
     }
     
 }

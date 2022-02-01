@@ -999,7 +999,7 @@ public class DBRecord extends DBRecordData implements Record, Cloneable, Seriali
      * @return the number of column descriptions added to the element
      */
     @Override
-    public int getXmlMeta(Element parent)
+    public int addXmlMeta(Element parent)
     {
         if (!isValid())
             throw new ObjectNotValidException(this);
@@ -1024,7 +1024,7 @@ public class DBRecord extends DBRecordData implements Record, Cloneable, Seriali
      * @return the number of row values added to the element
      */
     @Override
-    public int getXmlData(Element parent)
+    public int addXmlData(Element parent)
     {
         if (!isValid())
             throw new ObjectNotValidException(this);
@@ -1086,9 +1086,9 @@ public class DBRecord extends DBRecordData implements Record, Cloneable, Seriali
         if (rowset.getName() != null)
             root.setAttribute("name", rowset.getName());
         // Add Field Description
-        if (getXmlMeta(root)>0)
+        if (addXmlMeta(root)>0)
         {   // Add row Values
-            getXmlData(XMLUtil.addElement(root, xmlDic.getRowElementName()));
+            addXmlData(XMLUtil.addElement(root, xmlDic.getRowElementName()));
         }
         // return Document
         return root.getOwnerDocument();

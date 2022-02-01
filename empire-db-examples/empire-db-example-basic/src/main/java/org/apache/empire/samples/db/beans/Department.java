@@ -69,7 +69,7 @@ public class Department implements Bean<SampleDB>
         DBCommand cmd = db.createCommand();
         cmd.where(db.EMPLOYEES.DEPARTMENT_ID.is(this.id));
         cmd.orderBy(db.EMPLOYEES.FIRSTNAME, db.EMPLOYEES.LASTNAME);
-        employees = context.getUtils().queryBeanList(cmd, Employee.class, this);
+        employees = context.getUtils().queryBeanList(cmd, Employee.class, db.EMPLOYEES, this);
     }
     
 }
