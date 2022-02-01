@@ -715,6 +715,7 @@ public class SampleApp
 	{
 	    SampleDB.Employees EMP = db.EMPLOYEES;
 	    
+	    /*
 	    DBCommand cmd = db.createCommand();
 	    cmd.where(EMP.GENDER.is(Gender.M));
 	    cmd.orderBy(EMP.LASTNAME.desc());
@@ -729,9 +730,10 @@ public class SampleApp
 	    Department department = context.getUtils().queryBean(Department.class, db.DEPARTMENTS.NAME.is("Sales"));
 	    Payment first = department.getEmployees().get(0).getPayments().get(0);
 	    log.info("First payment amount is {}", first.getAmount());
+	    */
 
-	    // Query all males
-	    BeanResult<Employee> result = new BeanResult<Employee>(Employee.class, EMP);
+        // Query all males
+	    BeanResult<Employee> result = new BeanResult<Employee>(Employee.class);
         result.getCommand().where(EMP.GENDER.is(Gender.M));
 	    result.fetch(context);
 	    
@@ -742,7 +744,6 @@ public class SampleApp
 	    result.fetch(context);
 	    
         log.info("Number of female employees is: "+result.size());
-        */
 	}
 	
 	private static void queryDataList()

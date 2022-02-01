@@ -16,12 +16,11 @@ import org.apache.empire.data.list.DataListFactory;
 import org.apache.empire.data.list.DataListFactoryImpl;
 import org.apache.empire.data.list.DataListHead;
 import org.apache.empire.db.context.DBContextAware;
-import org.apache.empire.db.exceptions.ConstraintViolationException;
 import org.apache.empire.db.exceptions.CommandWithoutSelectException;
+import org.apache.empire.db.exceptions.ConstraintViolationException;
 import org.apache.empire.db.exceptions.QueryFailedException;
 import org.apache.empire.db.exceptions.QueryNoResultException;
 import org.apache.empire.db.exceptions.StatementFailedException;
-import org.apache.empire.db.exceptions.UnknownBeanTypeException;
 import org.apache.empire.db.expr.compare.DBCompareExpr;
 import org.apache.empire.db.list.Bean;
 import org.apache.empire.db.list.DBBeanListFactory;
@@ -727,11 +726,12 @@ public class DBUtils implements DBContextAware
             int rownum = 0;
             while (r.moveNext() && maxCount != 0)
             {   // Create bean an init
-                T entry = factory.newEntry(++rownum, r);
+                T entry = factory.newEntry(rownum, r);
                 if (entry==null)
                     continue;
                 // add entry
                 list.add(entry);
+                rownum++;
                 // Decrease count
                 if (maxCount > 0)
                     maxCount--;
@@ -865,12 +865,15 @@ public class DBUtils implements DBContextAware
             int rownum = 0;
             while (r.moveNext() && maxCount != 0)
             {   // Create bean an init
-                T entry = factory.newRecord(++rownum, r);
+                T entry = factory.newRecord(rownum, r);
                 if (entry==null)
                     continue;
-                // add entry
+                // check
                 if (entry.isValid())
+                {   // add entry
                     list.add(entry);
+                    rownum++;
+                }
                 else
                     log.warn("Record {} is not valid thus it will not be added to the RecordListQuery.", rownum);
                 // Decrease count
@@ -979,14 +982,16 @@ public class DBUtils implements DBContextAware
             int rownum = 0;
             while (r.moveNext() && maxCount != 0)
             {   // Create bean an init
-                T item = factory.newItem(++rownum, r);
+                T item = factory.newItem(rownum, r);
                 if (item==null)
                     continue;
+                // add entry
+                list.add(item);
                 // post processing
                 if (item instanceof Bean<?>)
                     ((Bean<?>)item).onBeanLoaded(r.getDatabase(), context, rownum, parent);
-                // add entry
-                list.add(item);
+                // next
+                rownum++;
                 // Decrease count
                 if (maxCount > 0)
                     maxCount--;
@@ -1055,7 +1060,7 @@ public class DBUtils implements DBContextAware
      */
     public <T> List<T> queryBeanList(DBCommand cmd, Class<T> beanType, Object parent)
     {
-        DBRowSet rowset = DBRowSet.getRowsetforType(beanType);
+        DBRowSet rowset = DBRowSet.getRowsetforType(beanType, false);
         if (rowset!=null)
             return queryBeanList(cmd, getRowsetBeanListFactory(beanType, rowset), parent);
         else
@@ -1115,7 +1120,7 @@ public class DBUtils implements DBContextAware
      */
     public <T> T queryBean(DBCommand cmd, Class<T> beanType)
     {
-        DBRowSet rowset = DBRowSet.getRowsetforType(beanType);
+        DBRowSet rowset = DBRowSet.getRowsetforType(beanType, false);
         if (rowset!=null)
             return queryBean(cmd, getRowsetBeanListFactory(beanType, rowset));
         else
@@ -1149,9 +1154,7 @@ public class DBUtils implements DBContextAware
      */
     public final <T> T queryBean(Class<T> beanType, DBCompareExpr whereConstraints)
     {
-        DBRowSet rowset = DBRowSet.getRowsetforType(beanType);
-        if (rowset==null)
-            throw new UnknownBeanTypeException(beanType);
+        DBRowSet rowset = DBRowSet.getRowsetforType(beanType, true);
         return queryBean(beanType, rowset, whereConstraints);
     }
     
@@ -1181,9 +1184,7 @@ public class DBUtils implements DBContextAware
      */
     public final <T> T queryBean(Class<T> beanType, Object[] key)
     {
-        DBRowSet rowset = DBRowSet.getRowsetforType(beanType);
-        if (rowset==null)
-            throw new UnknownBeanTypeException(beanType);
+        DBRowSet rowset = DBRowSet.getRowsetforType(beanType, true);
         return queryBean(beanType, rowset, key);
     }
     

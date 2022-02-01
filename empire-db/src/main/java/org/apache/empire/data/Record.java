@@ -34,6 +34,15 @@ import org.apache.empire.commons.Options;
  */
 public interface Record extends RecordData
 {
+    /**
+     * varArgs to Array
+     * @param parts
+     * @return
+     */
+    public static Object[] key(Object... parts)
+    {
+        return parts;
+    }
 
     /**
      * returns true if the record is valid.

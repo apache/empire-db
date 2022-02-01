@@ -39,6 +39,7 @@ import org.apache.empire.data.DataType;
 import org.apache.empire.db.exceptions.EmpireSQLException;
 import org.apache.empire.db.exceptions.QueryNoResultException;
 import org.apache.empire.db.expr.join.DBJoinExpr;
+import org.apache.empire.db.list.Bean;
 import org.apache.empire.exceptions.BeanInstantiationException;
 import org.apache.empire.exceptions.InvalidArgumentException;
 import org.apache.empire.exceptions.ObjectNotValidException;
@@ -686,20 +687,24 @@ public class DBReader extends DBRecordData implements Closeable
             
             // Create a list of beans
             while (moveNext() && maxCount != 0)
-            { // Create bean an init
+            {   // Create bean an init
+                T bean;
                 if (ctor!=null)
                 {   // Use Constructor
                     for (int i = 0; i < getFieldCount(); i++)
                         args[i] = ObjectUtils.convert(ctorParamTypes[i], getValue(i));
-                    T bean = (T)ctor.newInstance(args);
-                    c.add(bean);
+                    bean = (T)ctor.newInstance(args);
                 }
                 else
                 {   // Use Property Setters
-                    T bean = t.newInstance();
+                    bean = t.newInstance();
                     setBeanProperties(bean);
-                    c.add(bean);
                 }
+                // add
+                c.add(bean);
+                // post processing
+                if (bean instanceof Bean<?>)
+                    ((Bean<?>)bean).onBeanLoaded(getDatabase(), context, c.size(), null);
                 // Decrease count
                 if (maxCount > 0)
                     maxCount--;

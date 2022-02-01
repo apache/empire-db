@@ -27,6 +27,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.empire.commons.ObjectUtils;
 import org.apache.empire.commons.StringUtils;
@@ -44,6 +45,7 @@ import org.apache.empire.db.exceptions.QueryNoResultException;
 import org.apache.empire.db.exceptions.RecordNotFoundException;
 import org.apache.empire.db.exceptions.RecordUpdateFailedException;
 import org.apache.empire.db.exceptions.RecordUpdateInvalidException;
+import org.apache.empire.db.exceptions.UnknownBeanTypeException;
 import org.apache.empire.db.expr.column.DBCountExpr;
 import org.apache.empire.db.expr.compare.DBCompareExpr;
 import org.apache.empire.db.list.DBBeanListFactory;
@@ -101,16 +103,19 @@ public abstract class DBRowSet extends DBExpr implements Entity
     // Logger
     protected static final Logger                log         = LoggerFactory.getLogger(DBRowSet.class);
 
-    private static final Map<Class<?>, DBRowSet> beanTypeMap = new HashMap<Class<?>, DBRowSet>(); /* ConcurrentHashMap ? */
+    private static final Map<Class<?>, DBRowSet> beanTypeMap = new ConcurrentHashMap<Class<?>, DBRowSet>();
    
     /**
      * Returns the DBRowSet instance assigned to a particular Java bean type
      * @param beanType the Java bean type
      * @return return the DBRowSet assigned to this type 
      */
-    public static synchronized DBRowSet getRowsetforType(Class<?> beanType)
-    {   
-        return beanTypeMap.get(beanType);
+    public static synchronized DBRowSet getRowsetforType(Class<?> beanType, boolean checkExists)
+    {
+        DBRowSet rowset = beanTypeMap.get(beanType); 
+        if (rowset==null && checkExists)
+            throw new UnknownBeanTypeException(beanType);
+        return rowset;
     }
 
     /**

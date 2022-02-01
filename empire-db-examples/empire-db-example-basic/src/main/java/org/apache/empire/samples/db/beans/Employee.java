@@ -27,7 +27,6 @@ import java.util.Locale;
 import org.apache.empire.commons.DateUtils;
 import org.apache.empire.db.DBCommand;
 import org.apache.empire.db.DBContext;
-import org.apache.empire.db.DBRecord;
 import org.apache.empire.db.list.Bean;
 import org.apache.empire.samples.db.SampleDB;
 
@@ -38,7 +37,6 @@ import org.apache.empire.samples.db.SampleDB;
  */
 public class Employee implements Bean<SampleDB>
 {
-    private int    rownum;      // rownum
     private long   id;          // "ID" 
     private String firstname;   // "FIRSTNAME"
     private String lastname;    // "LASTNAME"
@@ -52,9 +50,10 @@ public class Employee implements Bean<SampleDB>
     private Department department;
     private List<Payment> payments;
     
+    int rownum;
+    
     /**
-     * Creates a new Employee entity bean
-     * @param rownum
+     * Constructor using all fields from the table EMPLOYEES
      * @param id
      * @param firstname
      * @param lastname
@@ -65,10 +64,9 @@ public class Employee implements Bean<SampleDB>
      * @param salary
      * @param retired
      */
-    public Employee(int rownum, int id, String firstname, String lastname, Date dateOfBirth, int departmentId, String gender, String phoneNumber,
+    public Employee(int id, String firstname, String lastname, Date dateOfBirth, int departmentId, String gender, String phoneNumber,
                     BigDecimal salary, boolean retired, Timestamp timestamp)
     {
-        this.rownum = rownum;   
         this.id = id;
         this.firstname = firstname;
         this.lastname = lastname;
@@ -80,26 +78,18 @@ public class Employee implements Bean<SampleDB>
         this.retired = retired;
     }
 
+    /**
+     * Constructor using fields but without timestamp 
+     */
     public Employee(int id, String firstname, String lastname, Date dateOfBirth, int departmentId, String gender, String phoneNumber,
-                    BigDecimal salary, boolean retired, Timestamp timestamp)
+                    BigDecimal salary, boolean retired)
     {
-        this.rownum = -1;   
-        this.id = id;
-        this.firstname = firstname;
-        this.lastname = lastname;
-        this.dateOfBirth = dateOfBirth;
-        this.departmentId = departmentId;
-        this.gender = gender;
-        this.phoneNumber = phoneNumber;
-        this.salary = salary;
-        this.retired = retired;
+        this(id, firstname, lastname, dateOfBirth, departmentId, gender, phoneNumber, salary, retired, null);
     }
     
-    public Employee(int rownum)
-    {
-        this.rownum = rownum; 
-    }
-    
+    /**
+     * Standard Constructor 
+     */
     public Employee()
     {
         // Standard constructor 
@@ -230,10 +220,12 @@ public class Employee implements Bean<SampleDB>
     @Override
     public void onBeanLoaded(SampleDB db, DBContext context, int rownum, Object parent)
     {
+        this.rownum = rownum;
+        
         if (parent instanceof Department)
             department = ((Department)parent); 
         // don't!
-        else department = context.getUtils().queryBean(Department.class, db.DEPARTMENTS, DBRecord.key(this.departmentId));
+        // else department = context.getUtils().queryBean(Department.class, DBRecord.key(this.departmentId));
         
         DBCommand cmd = db.createCommand();
         cmd.where(db.PAYMENTS.EMPLOYEE_ID.is(this.id));

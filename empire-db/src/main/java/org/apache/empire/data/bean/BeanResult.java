@@ -26,10 +26,11 @@ import org.apache.empire.db.DBColumn;
 import org.apache.empire.db.DBCommand;
 import org.apache.empire.db.DBContext;
 import org.apache.empire.db.DBDatabase;
+import org.apache.empire.db.DBObject;
 import org.apache.empire.db.DBReader;
 import org.apache.empire.db.DBRowSet;
+import org.apache.empire.db.exceptions.CommandWithoutSelectException;
 import org.apache.empire.exceptions.BeanIncompatibleException;
-import org.apache.empire.exceptions.InvalidArgumentException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -50,80 +51,78 @@ public class BeanResult<T> extends ArrayList<T>
     private static final Logger log = LoggerFactory.getLogger(BeanResult.class);
 
     private DBCommand cmd;
-    private Class<T> clazz;
+    private Class<T> beanType;
 
     /**
      * Create a bean result from a command object.
      * No checks will be performed here whether the command is compatible with the supplied class.
-     * @param clazz
+     * @param beanType
      * @param cmd
      */
-    public BeanResult(Class<T> clazz, DBCommand cmd)
+    public BeanResult(Class<T> beanType, DBCommand cmd)
     {
-        this.clazz = clazz;
+        DBObject.checkParamNull("beanType", beanType);
+        DBObject.checkParamNull("cmd", cmd);
+        this.beanType = beanType;
         this.cmd = cmd;
-        // Invalid Argument
-        if (cmd==null || cmd.hasSelectExpr())
-            throw new InvalidArgumentException("cmd", cmd);
     }
     
     /**
      * Creates a bean result for a Table, View or Query from the supplied columns.
      * At least one column must match the given getters / setters on the supplied class otherwise an BeanIncompatibleException will be thrown.
-     * @param clazz the of T
+     * @param beanType the of T
      * @param rowset the rowset 
      */
-    public BeanResult(Class<T> clazz, DBRowSet rowset)
+    public BeanResult(Class<T> beanType, DBRowSet rowset)
     {
-        this.clazz = clazz;
+        DBObject.checkParamNull("beanType", beanType);
+        DBObject.checkParamNull("rowset", rowset);
+        this.beanType = beanType;
         // Create the command
         DBDatabase db = rowset.getDatabase();
         cmd = db.createCommand();
-        // Select all accessible columns
-        int count = 0;
-        Method[] methods = clazz.getMethods();
-        for (DBColumn col : rowset.getColumns())
-        {   // obtain the bean property Name
-            String property = col.getBeanPropertyName();
-            if (!isPropertyAcessible(methods, property, col.getDataType())) {
-                // Property not found
-                log.debug("Unable to access the property {} on {}. Column will be ignored.", property, clazz.getName());
-                continue;
-            }
-            // Select
-            cmd.select(col);
-            count++;
-        }    
-        // Check
-        if (count==0)
-            throw new BeanIncompatibleException(clazz, rowset);
-    }
-
-    protected boolean isPropertyAcessible(Method[] methods, String property, DataType dataType)
-    {
-        property = "et"+property.substring(0,1).toUpperCase()+property.substring(1);
-        for (int i=0; i<methods.length; i++)
-        {   // Find a matching getter or setter method
-            String name = methods[i].getName();
-            if (name.endsWith(property))
-                return true;
-        }
-        return false;
+        autoSelectColumns(rowset);
     }
     
+    /**
+     * Creates a bean result for a Table, View or Query from the supplied columns.
+     * A rowset must be registered for this beanType @see DBRowSet.getRowsetforType()
+     * At least one column must match the given getters / setters on the supplied class otherwise an BeanIncompatibleException will be thrown.
+     * @param beanType the of T
+     */
+    public BeanResult(Class<T> beanType)
+    {
+        this(beanType, DBRowSet.getRowsetforType(beanType, true));
+    }
+    
+    /**
+     * Returns the current command 
+     * Used to add constraints, order, grouping etc.
+     * @return the command
+     */
     public DBCommand getCommand()
     {
         return cmd;
     }
     
+    /**
+     * Executes the query and fetches the result
+     * @param context
+     * @param maxItems the maximum number of items to query
+     * @return the number of items fetched by the query
+     */
     public int fetch(DBContext context, int maxItems)
     {
+        // Check command
+        if (!cmd.hasSelectExpr())
+            throw new CommandWithoutSelectException(cmd); 
+        // OK, fetch now
         clear();
         DBReader reader = new DBReader(context);
         try {
             // Open and Read
             reader.open(cmd);
-            reader.getBeanList(this, clazz, maxItems);
+            reader.getBeanList(this, beanType, maxItems);
             return size();
             
         } finally {
@@ -131,9 +130,60 @@ public class BeanResult<T> extends ArrayList<T>
         }
     }
 
+    /**
+     * Executes the query and fetches the result
+     * @param context
+     * @return the number of items fetched by the query
+     */
     public final int fetch(DBContext context)
     {
         return fetch(context, -1);
+    }
+    
+    /**
+     * Selects all columns for a given rowset
+     * @param rowset
+     */
+    protected void autoSelectColumns(DBRowSet rowset)
+    {
+        // Select all accessible columns
+        int count = 0;
+        Method[] methods = beanType.getMethods();
+        for (DBColumn col : rowset.getColumns())
+        {   // obtain the bean property Name
+            String property = col.getBeanPropertyName();
+            if (!isPropertyAcessible(methods, property, col.getDataType())) {
+                // Property not found
+                log.info("Unable to access the property {} on {}. Column will be ignored.", property, beanType.getName());
+                continue;
+            }
+            // Select
+            cmd.select(col);
+            count++;
+        }    
+        log.debug("{} columns have been selected for beanType {}", count, beanType.getName());
+        // Check
+        if (count==0)
+            throw new BeanIncompatibleException(beanType, rowset);
+    }
+
+    /**
+     * Checks if the property is accessible i.e. has a getter method on the beanType
+     * @param methods the beanType methods
+     * @param propety the property to check
+     * @param dataType the dataType
+     */
+    protected boolean isPropertyAcessible(Method[] methods, String property, DataType dataType)
+    {
+        String prefix = (dataType.isBoolean() ? "is" : "et");
+        String getter = prefix+property.substring(0,1).toUpperCase()+property.substring(1);
+        for (int i=0; i<methods.length; i++)
+        {   // Find a matching getter or setter method
+            String name = methods[i].getName();
+            if (name.endsWith(getter))
+                return true;
+        }
+        return false;
     }
     
 }
