@@ -1332,5 +1332,15 @@ public abstract class DBColumnExpr extends DBExpr
     {
         return new DBConcatFuncExpr(this, separator, concatExprs);
     }
+ 
+    /**
+     * returns a corresponding Java type for this expression
+     * @param expr
+     * @return
+     */
+    public Class<?> getJavaType()
+    {
+        return this.getDatabase().getColumnJavaType(this);
+    }
     
 }

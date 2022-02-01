@@ -46,6 +46,8 @@ import org.apache.empire.db.exceptions.RecordUpdateFailedException;
 import org.apache.empire.db.exceptions.RecordUpdateInvalidException;
 import org.apache.empire.db.expr.column.DBCountExpr;
 import org.apache.empire.db.expr.compare.DBCompareExpr;
+import org.apache.empire.db.list.DBBeanListFactory;
+import org.apache.empire.db.list.DBBeanListFactoryImpl;
 import org.apache.empire.dbms.DBMSFeature;
 import org.apache.empire.dbms.DBMSHandler;
 import org.apache.empire.dbms.DBSqlPhrase;
@@ -95,18 +97,52 @@ public abstract class DBRowSet extends DBExpr implements Entity
             fields[index]=value;
         }
     }
-    
+
     // Logger
-    protected static final Logger     log              = LoggerFactory.getLogger(DBRowSet.class);
+    protected static final Logger                log         = LoggerFactory.getLogger(DBRowSet.class);
+
+    private static final Map<Class<?>, DBRowSet> beanTypeMap = new HashMap<Class<?>, DBRowSet>(); /* ConcurrentHashMap ? */
+   
+    /**
+     * Returns the DBRowSet instance assigned to a particular Java bean type
+     * @param beanType the Java bean type
+     * @return return the DBRowSet assigned to this type 
+     */
+    public static synchronized DBRowSet getRowsetforType(Class<?> beanType)
+    {   
+        return beanTypeMap.get(beanType);
+    }
+
+    /**
+     * sets the DBRowSet instance assigned to a particular Java bean type
+     * @param beanType the Java bean type
+     */
+    public static synchronized void setRowsetForType(Class<?> beanType, DBRowSet rowset)
+    {
+        if (rowset!=null)
+        {   // Check previous
+            DBRowSet prev = beanTypeMap.get(beanType);
+            if (prev!=null && prev!=rowset)
+                log.warn("The Java bean type '{}' has already been assigned to a different DBRowSet {}. Assiging now to {}", beanType.getName(), prev.getName(), rowset.getName());
+            // Assign now
+            beanTypeMap.put(beanType, rowset);
+        }
+        else
+            beanTypeMap.remove(beanType);
+    }
+    
     
     // Members
-    protected final DBDatabase        db; /* transient */
-    protected String                  comment          = null;
-    protected DBColumn                timestampColumn  = null;
-    protected Map<DBColumn, DBColumn> columnReferences = null;
-    
+    protected final DBDatabase         db;     /* transient ? */
+    protected String                   comment          = null;
+    protected DBColumn                 timestampColumn  = null;
+    protected Map<DBColumn, DBColumn>  columnReferences = null;
+
+    protected Class<?>                 beanType         = null;
+    protected DBBeanListFactory<?>     beanFactory      = null;
+
     // The column List
-    protected List<DBColumn>          columns          = new ArrayList<DBColumn>();
+    protected List<DBColumn>           columns          = new ArrayList<DBColumn>();
 
     /**
      * Internally used for parameter checking
@@ -263,6 +299,46 @@ public abstract class DBRowSet extends DBExpr implements Entity
         String  name   = getName();
         String  schema = db.getSchema();
         return (schema!=null) ? schema+"."+name : name;
+    }
+ 
+    /**
+     * returns the bean type for this rowset
+     * @return the bean type
+     */
+    @Override
+    public Class<?> getBeanType()
+    {
+        return beanType;
+    }
+ 
+    /**
+     * returns the bean factory for this rowset
+     * @return the bean factory
+     */
+    public DBBeanListFactory<?> getBeanFactory()
+    {
+        return beanFactory;
+    }
+    
+    /**
+     * sets the bean type for this rowset
+     * @param beanType
+     */
+    public void setBeanType(Class<?> beanType)
+    {
+        setBeanType(beanType, null);    
+    }
+    
+    /**
+     * sets the bean type for this rowset
+     * @param beanType
+     */
+    public <T> void setBeanType(Class<T> beanType, DBBeanListFactory<T> factory)
+    {
+        this.beanType = beanType;
+        this.beanFactory = (beanFactory!=null ? beanFactory : new DBBeanListFactoryImpl<T>(beanType, this.columns));
+        // set to global map
+        setRowsetForType(beanType, this);
     }
 
     /**

@@ -9,4 +9,6 @@ public interface Entity
     List<? extends Column> getColumns();
     
     Column[] getKeyColumns();
+    
+    Class<?> getBeanType();
 }

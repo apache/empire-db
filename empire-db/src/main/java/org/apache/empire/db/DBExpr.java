@@ -19,7 +19,6 @@
 package org.apache.empire.db;
 
 import java.util.Collection;
-import java.util.Date;
 import java.util.Set;
 
 import org.apache.empire.commons.ObjectUtils;
@@ -125,39 +124,5 @@ public abstract class DBExpr extends DBObject
             // Get Value Expression from dmbs
             return dbms.getValueString(value, dataType);
         }
-    }
-    
-    /**
-     * Returns the java class type for a given dataType
-     * @param type the data type
-     * @return return the java class used for storing values of this dataType 
-     */
-    public static final Class<?> getValueClass(DataType type)
-    {
-        switch(type)
-        {
-            case AUTOINC:
-            case INTEGER:
-                return Long.class;
-            case VARCHAR:
-            case CLOB:
-            case CHAR:
-                return String.class;
-            case DATE:
-            case DATETIME:
-            case TIMESTAMP:
-                return Date.class;
-            case FLOAT:
-                return Double.class;
-            case DECIMAL:
-                return java.math.BigDecimal.class;
-            case BOOL:
-                return Boolean.class;
-            case BLOB:
-                return byte[].class;
-            default:
-                return Object.class;
-        }
-    }
-    
+    }    
 }

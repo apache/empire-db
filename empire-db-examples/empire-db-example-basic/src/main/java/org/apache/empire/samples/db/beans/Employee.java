@@ -19,18 +19,27 @@
 package org.apache.empire.samples.db.beans;
 
 import java.math.BigDecimal;
+import java.sql.Timestamp;
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
 
 import org.apache.empire.commons.DateUtils;
+import org.apache.empire.db.DBCommand;
+import org.apache.empire.db.DBContext;
+import org.apache.empire.db.DBRecord;
+import org.apache.empire.db.DBRecordData;
+import org.apache.empire.db.list.Bean;
+import org.apache.empire.samples.db.SampleDB;
 
 /**
  * This is an employee entity bean
  * @author doebele
  *
  */
-public class Employee
+public class Employee implements Bean
 {
+    private int    rownum;      // rownum
     private long   id;          // "ID" 
     private String firstname;   // "FIRSTNAME"
     private String lastname;    // "LASTNAME"
@@ -41,8 +50,12 @@ public class Employee
     private BigDecimal salary;  // "SALARY"
     private boolean retired;    // "RETIRED" 
     
+    private Department department;
+    private List<Payment> payments;
+    
     /**
      * Creates a new Employee entity bean
+     * @param rownum
      * @param id
      * @param firstname
      * @param lastname
@@ -53,9 +66,10 @@ public class Employee
      * @param salary
      * @param retired
      */
-    public Employee(int id, String firstname, String lastname, Date dateOfBirth, int departmentId, String gender, String phoneNumber,
-                    BigDecimal salary, boolean retired)
+    public Employee(int rownum, int id, String firstname, String lastname, Date dateOfBirth, int departmentId, String gender, String phoneNumber,
+                    BigDecimal salary, boolean retired, Timestamp timestamp)
     {
+        this.rownum = rownum;   
         this.id = id;
         this.firstname = firstname;
         this.lastname = lastname;
@@ -65,6 +79,26 @@ public class Employee
         this.phoneNumber = phoneNumber;
         this.salary = salary;
         this.retired = retired;
+    }
+
+    public Employee(int id, String firstname, String lastname, Date dateOfBirth, int departmentId, String gender, String phoneNumber,
+                    BigDecimal salary, boolean retired, Timestamp timestamp)
+    {
+        this.rownum = -1;   
+        this.id = id;
+        this.firstname = firstname;
+        this.lastname = lastname;
+        this.dateOfBirth = dateOfBirth;
+        this.departmentId = departmentId;
+        this.gender = gender;
+        this.phoneNumber = phoneNumber;
+        this.salary = salary;
+        this.retired = retired;
+    }
+    
+    public Employee(int rownum)
+    {
+        this.rownum = rownum; 
     }
     
     public Employee()
@@ -162,10 +196,22 @@ public class Employee
         this.retired = retired;
     }
 
+    public Department getDepartment()
+    {
+        return department;
+    }
+
+    public List<Payment> getPayments()
+    {
+        return payments;
+    }
+
     @Override
     public String toString()
     {
         StringBuffer buf = new StringBuffer();
+        buf.append(rownum);
+        buf.append("\t");
         buf.append(id);
         buf.append("\t");
         buf.append(firstname);
@@ -180,6 +226,22 @@ public class Employee
         buf.append("\t");
         buf.append(retired);
         return buf.toString();
+    }
+
+    @Override
+    public void onBeanLoaded(DBContext context, DBRecordData dataRow, int rownum, Object parent)
+    {
+        if (parent instanceof Department)
+            department = ((Department)parent); 
+        else
+            department = context.getUtils().queryBean(Department.class, DBRecord.key(this.departmentId));
+        
+        SampleDB db = (SampleDB)dataRow.getDatabase();
+        DBCommand cmd = db.createCommand();
+        cmd.where(db.PAYMENTS.EMPLOYEE_ID.is(this.id));
+        cmd.orderBy(db.PAYMENTS.YEAR.desc());
+        cmd.orderBy(db.PAYMENTS.MONTH.desc());
+        payments = context.getUtils().queryBeanList(cmd, Payment.class, this);
     }
 
 }

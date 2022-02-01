@@ -21,6 +21,7 @@ package org.apache.empire.db;
 import java.lang.ref.WeakReference;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.sql.Timestamp;
 import java.text.ParseException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -514,7 +515,41 @@ public abstract class DBDatabase extends DBObject
             buf.append(linkName);
         }
     }
-    
+   
+    /**
+     * Returns the java class type for a given dataType
+     * @param type the data type
+     * @return return the java class used for storing values of this dataType 
+     */
+    public Class<?> getColumnJavaType(DBColumnExpr expr)
+    {
+        switch(expr.getDataType())
+        {
+            case AUTOINC:
+            case INTEGER:
+                return Long.class;
+            case VARCHAR:
+            case CLOB:
+            case CHAR:
+                return String.class;
+            case DATE:
+            case DATETIME:
+                return Date.class;
+            case TIMESTAMP:
+                return Timestamp.class;
+            case FLOAT:
+                return Double.class;
+            case DECIMAL:
+                return java.math.BigDecimal.class;
+            case BOOL:
+                return Boolean.class;
+            case BLOB:
+                return byte[].class;
+            default:
+                return Object.class;
+        }
+    }
+     
     /**
      * Creates and returns a value object for the database systems
      * current date and time.

@@ -23,6 +23,9 @@ import org.apache.empire.db.DBColumn;
 import org.apache.empire.db.DBDatabase;
 import org.apache.empire.db.DBTable;
 import org.apache.empire.db.DBTableColumn;
+import org.apache.empire.samples.db.beans.Department;
+import org.apache.empire.samples.db.beans.Employee;
+import org.apache.empire.samples.db.beans.Payment;
 
 /**
  * <PRE>
@@ -87,6 +90,9 @@ public class SampleDB extends DBDatabase
             // setPrimaryKey(DEPARTMENT_ID);
             // Set other Indexes
             addIndex("DEPARTMENT_NAME_IDX", true, new DBColumn[] { NAME });
+            
+            // Set beanType (optional)
+            setBeanType(Department.class);
         }
     }
 
@@ -126,6 +132,9 @@ public class SampleDB extends DBDatabase
             // setPrimaryKey(EMPLOYEE_ID);
             // Set other Indexes
             addIndex("EMPLOYEE_NAME_IDX", true, new DBColumn[] { FIRSTNAME, LASTNAME, DATE_OF_BIRTH });
+
+            // Set beanType (optional)
+            setBeanType(Employee.class);
         }
     }
 
@@ -152,6 +161,9 @@ public class SampleDB extends DBDatabase
             // Primary Key (automatically set due to AUTOINC column)
             setPrimaryKey(EMPLOYEE_ID, YEAR, MONTH);
             // Set other Indexes
+
+            // Set beanType (optional)
+            setBeanType(Payment.class);
         }
     }
     

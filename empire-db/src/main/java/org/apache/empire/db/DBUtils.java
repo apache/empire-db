@@ -20,6 +20,11 @@ import org.apache.empire.db.exceptions.ConstraintViolationException;
 import org.apache.empire.db.exceptions.QueryFailedException;
 import org.apache.empire.db.exceptions.QueryNoResultException;
 import org.apache.empire.db.exceptions.StatementFailedException;
+import org.apache.empire.db.exceptions.UnknownBeanTypeException;
+import org.apache.empire.db.expr.compare.DBCompareExpr;
+import org.apache.empire.db.list.Bean;
+import org.apache.empire.db.list.DBBeanListFactory;
+import org.apache.empire.db.list.DBBeanListFactoryImpl;
 import org.apache.empire.db.list.DBRecordListFactory;
 import org.apache.empire.db.list.DBRecordListFactoryImpl;
 import org.apache.empire.dbms.DBMSFeature;
@@ -643,6 +648,17 @@ public class DBUtils implements DBContextAware
         return querySingleRow(cmd.getSelect(), cmd.getParamValues()); 
     }
 
+
+    /**
+     * Called to inform that the limit for DataList, Record and Bean queries has exceeded the maximum value 
+     */
+    protected void queryRowLimitExeeded()
+    {
+        log.warn("********************************************************");
+        log.warn("Query Result was limited to {} by MAX_QUERY_ROWS", MAX_QUERY_ROWS);
+        log.warn("********************************************************");
+    }
+    
     /**
      * Crates a default DataListFactory for a DataListEntry class
      * The DataListEntry class must provide the following constructor
@@ -670,7 +686,7 @@ public class DBUtils implements DBContextAware
      * @param sqlCmd the SQL-Command for the query
      * @param factory the Factory to be used for each list item
      * @param first the number of records to skip from the beginning of the result
-     * @param pageSize the maximum number of item to return
+     * @param pageSize the maximum number of items to add to the list or -1 (default) for all
      * @return the list 
      */
     public <T extends DataListEntry> List<T> queryDataList(DBCommand cmd, DataListFactory<T> factory, int first, int pageSize)
@@ -721,11 +737,8 @@ public class DBUtils implements DBContextAware
             }
             // check
             if (rownum==MAX_QUERY_ROWS)
-            {
-                log.warn("********************************************************");
-                log.warn("Query Result was limited to {} by MAX_QUERY_ROWS", rownum);
-                log.warn("********************************************************");
-            }
+                queryRowLimitExeeded();
+            // done
             return list;
         }
         finally
@@ -811,7 +824,7 @@ public class DBUtils implements DBContextAware
      * @param sqlCmd the SQL-Command for the query
      * @param listHead the HeadInfo to be used for each list item
      * @param first the number of records to skip from the beginning of the result
-     * @param pageSize the maximum number of item to return
+     * @param pageSize the maximum number of items to add to the list or -1 (default) for all
      * @return the list 
      */
     public <T extends DBRecord> List<T> queryRecordList(DBCommand cmd, DBRecordListFactory<T> factory, int first, int pageSize)
@@ -865,11 +878,8 @@ public class DBUtils implements DBContextAware
             }
             // check
             if (rownum==MAX_QUERY_ROWS)
-            {
-                log.warn("********************************************************");
-                log.warn("Query Result was limited to {} by MAX_QUERY_ROWS", rownum);
-                log.warn("********************************************************");
-            }
+                queryRowLimitExeeded();
+            // done
             return list;
         }
         finally
@@ -894,19 +904,50 @@ public class DBUtils implements DBContextAware
         return queryRecordList(cmd, factory, 0, -1);
     }
 
-    /**#
+    /**
+     * Crates a default DBBeanListFactory for Java bean class
+     * The DBRecord class must provide   
+     *      either a standard construtor with correspondig property set fundtions
+     *      or a constructor using the fields of the query
+     * @param beanType the beanType for which to create the list head 
+     * @param constructorParams the columns to be used for the constructor (optional) 
+     * @return the bean factory
+     */
+    protected <T> DBBeanListFactory<T> createDefaultBeanListFactory(Class<T> beanType, List<? extends DBColumnExpr> constructorParams) 
+    {
+        return new DBBeanListFactoryImpl<T>(beanType, constructorParams);
+    }
+
+    /**
+     * Crates a default DBBeanListFactory for Java bean class
+     * @param beanType the beanType for which to create the list head 
+     * @param constructorParams the columns to be used for the constructor (optional) 
+     * @return the bean factory
+     */
+    protected final <T> DBBeanListFactory<T> createDefaultBeanListFactory(Class<T> beanType, DBColumnExpr[] constructorParams) 
+    {
+        List<DBColumnExpr> params = new ArrayList<DBColumnExpr>(constructorParams.length);
+        for (int i=0; i<constructorParams.length; i++)
+            params.add(constructorParams[i]);
+        return createDefaultBeanListFactory(beanType, params);
+    }
+    
+    /**
      * Query a list of simple Java objects (beans)
      * @param cmd the comman
      * @param type
      * @param first
-     * @param pageSize
+     * @param pageSize the maximum number of items to add to the list or -1 (default) for all
      * @return
      */
-    public <T> List<T> queryBeanList(DBCommand cmd, Class<T> type, int first, int pageSize)
+    public <T> List<T> queryBeanList(DBCommand cmd, DBBeanListFactory<T> factory, Object parent, int first, int pageSize)
     {
+        List<T> list = null;
         DBReader r = new DBReader(context);
         try
-        {   // check pageSize
+        {   // prepare
+            factory.prepareQuery(cmd, context);
+            // check pageSize
             if (pageSize==0)
             {   log.warn("PageSize must not be 0. Setting to -1 for all records!");
                 pageSize = -1;
@@ -929,51 +970,179 @@ public class DBUtils implements DBContextAware
             {   // skip rows
                 r.skipRows(first);
             }
-            ArrayList<T> list = r.getBeanList(type, pageSize);
-            // check sortable
-            /*
-            if (EnumerableListEntry.class.isAssignableFrom(type))
-            {
-                int rownum = 0;
-                for (EnumerableListEntry sle : ((ArrayList<? extends EnumerableListEntry>)list))
-                {
-                    sle.setRownum(++rownum);
-                }
+            // Create a list of data entries
+            int maxCount = (pageSize>=0) ? pageSize : MAX_QUERY_ROWS;
+            list = factory.newList((pageSize>=0) ? pageSize : DEFAULT_LIST_CAPACITY);
+            // add data
+            int rownum = 0;
+            while (r.moveNext() && maxCount != 0)
+            {   // Create bean an init
+                T item = factory.newItem(++rownum, r);
+                if (item==null)
+                    continue;
+                // post processing
+                if (item instanceof Bean)
+                    ((Bean)item).onBeanLoaded(context, r, rownum, parent);
+                // add entry
+                list.add(item);
+                // Decrease count
+                if (maxCount > 0)
+                    maxCount--;
             }
-            */
+            // check
+            if (rownum==MAX_QUERY_ROWS)
+                queryRowLimitExeeded();
+            // done
             return list;
         }
         finally
         {
             r.close();
+            // complete
+            if (list!=null)
+                factory.completeQuery(list);
         }
     }
 
-    public <T> List<T> queryBeanList(DBCommand cmd, Class<T> type)
+    /**
+     * Queries a single Java Bean for a given command
+     * If the command has no select expressions then the beanType must be assigned to a DBRowSet via DBRowSet.setBeanType() 
+     * @param cmd the query command
+     * @param beanType the beanType
+     * @param first first item of query (default is 0)
+     * @param pageSize the maximum number of items to add to the list or -1 (default) for all
+     * @return the list of java beans
+     */
+    @SuppressWarnings("unchecked")
+    public <T> List<T> queryBeanList(DBCommand cmd, Class<T> beanType, Object parent, int first, int pageSize)
     {
-        return queryBeanList(cmd, type, 0, -1);
+        DBBeanListFactory<T> factory;
+        if (cmd.hasSelectExpr()==false)
+        {
+            DBRowSet rowset = DBRowSet.getRowsetforType(beanType);
+            if (rowset==null)
+                throw new InvalidArgumentException("cmd", cmd);
+            // found, use factory of rowset
+            factory = (DBBeanListFactory<T>)rowset.getBeanFactory();
+        }
+        else
+        {   // use default rowset
+            factory = createDefaultBeanListFactory(beanType, cmd.getSelectExprList());
+        }
+        return queryBeanList(cmd, factory, parent, first, pageSize);
     }
     
-    /**
-     * Query a single bean's properties
-     * @param cmd the bean query command
-     * @param bean the bean for which to set the properties
-    public int queryBeanProperties(DBCommand cmd, Object bean)
+    public final <T> List<T> queryBeanList(DBCommand cmd, Class<T> beanType, List<? extends DBColumnExpr> constructorParams, Object parent)
     {
+        return queryBeanList(cmd, createDefaultBeanListFactory(beanType, constructorParams), parent, 0, -1);
+    }
+    
+    public final <T> List<T> queryBeanList(DBCommand cmd, Class<T> beanType, Object parent)
+    {
+        return queryBeanList(cmd, beanType, parent, 0, -1);
+    }
+
+    /**
+     * queries a single Java Bean for a given command 
+     * @param cmd the query command
+     * @param factory the factory to create the bean instance
+     * @return the bean instance
+     */
+    public <T> T queryBean(DBCommand cmd, DBBeanListFactory<T> factory)
+    {
+        List<T> list = null;
         DBReader r = new DBReader(context);
         try
-        {   // Runquery
+        {   // prepare
+            factory.prepareQuery(cmd, context);
+            // Runquery
             r.getRecordData(cmd);
-            int count = r.setBeanProperties(bean);
-            if (count<= 0)
-                log.warn("No matching bean properties found!");
-           return count;
+            // add data
+            T item = factory.newItem(-1, r);
+            // post processing
+            if (item instanceof Bean)
+                ((Bean)item).onBeanLoaded(context, r, -1, null);
+            // done
+            return item;
         }
         finally
         {
             r.close();
+            // complete
+            if (list!=null)
+                factory.completeQuery(list);
         }
     }
+
+    /**
+     * Queries a single Java Bean for a given command
+     * If the command has no select expressions then the beanType must be assigned to a DBRowSet via DBRowSet.setBeanType() 
+     * @param cmd the query command
+     * @param beanType the bean type
+     * @return the bean instance
      */
+    @SuppressWarnings("unchecked")
+    public <T> T queryBean(DBCommand cmd, Class<T> beanType)
+    {
+        DBBeanListFactory<T> factory;
+        if (cmd.hasSelectExpr()==false)
+        {
+            DBRowSet rowset = DBRowSet.getRowsetforType(beanType);
+            if (rowset==null)
+                throw new UnknownBeanTypeException(beanType);
+            // found, use factory of rowset
+            factory = (DBBeanListFactory<T>)rowset.getBeanFactory();
+        }
+        else
+        {   // use default rowset
+            factory = createDefaultBeanListFactory(beanType, cmd.getSelectExprList());
+        }
+        return queryBean(cmd, factory);
+    }
+    
+    public final <T> T queryBean(DBCommand cmd, Class<T> beanType, List<? extends DBColumnExpr> constructorParams, Object parent)
+    {
+        return queryBean(cmd, createDefaultBeanListFactory(beanType, constructorParams));
+    }
+    
+    /**
+     * Queries a single bean based on a set of where constraints
+     * @param beanType the beanType 
+     * @param whereConstraints
+     * @return
+     */
+    public final <T> T queryBean(Class<T> beanType, DBCompareExpr whereConstraints)
+    {
+        if (whereConstraints==null)
+            throw new InvalidArgumentException("whereConstraints", whereConstraints);
+        // find
+        DBDatabase db = whereConstraints.getDatabase();
+        DBCommand cmd = db.createCommand();
+        cmd.where(whereConstraints);
+        return queryBean(cmd, beanType);
+    }
+    
+    /**
+     * Queries a single bean based on a set of where constraints
+     * @param beanType the beanType 
+     * @param whereConstraints
+     * @return
+     */
+    public final <T> T queryBean(Class<T> beanType, Object[] key)
+    {
+        if (key==null)
+            throw new InvalidArgumentException("key", key);
+        // find rowset
+        DBRowSet rowset = DBRowSet.getRowsetforType(beanType);
+        if (rowset==null)
+            throw new UnknownBeanTypeException(beanType);
+        // set key constraints 
+        DBCommand cmd = rowset.getDatabase().createCommand();
+        rowset.setKeyConstraints(cmd, key);
+        // use factory of rowset
+        @SuppressWarnings("unchecked")
+        DBBeanListFactory<T> factory = (DBBeanListFactory<T>)rowset.getBeanFactory();
+        return queryBean(cmd, factory);
+    }
     
 }

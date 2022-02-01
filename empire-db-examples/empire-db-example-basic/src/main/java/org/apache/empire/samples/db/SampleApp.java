@@ -26,7 +26,6 @@ import java.time.LocalDate;
 import java.util.List;
 
 import org.apache.empire.commons.StringUtils;
-import org.apache.empire.data.bean.BeanResult;
 import org.apache.empire.data.list.DataListEntry;
 import org.apache.empire.db.DBColumnExpr;
 import org.apache.empire.db.DBCommand;
@@ -45,8 +44,10 @@ import org.apache.empire.dbms.h2.DBMSHandlerH2;
 import org.apache.empire.dbms.hsql.DBMSHandlerHSql;
 import org.apache.empire.dbms.postgresql.DBMSHandlerPostgreSQL;
 import org.apache.empire.samples.db.SampleDB.Gender;
+import org.apache.empire.samples.db.beans.Department;
 import org.apache.empire.samples.db.beans.Employee;
 import org.apache.empire.samples.db.beans.EmployeeQuery;
+import org.apache.empire.samples.db.beans.Payment;
 import org.apache.empire.xml.XMLWriter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -712,6 +713,23 @@ public class SampleApp
 	private static void queryBeans()
 	{
 	    SampleDB.Employees EMP = db.EMPLOYEES;
+	    
+	    DBCommand cmd = db.createCommand();
+	    cmd.where(EMP.GENDER.is(Gender.M));
+	    cmd.orderBy(EMP.LASTNAME.desc());
+	    List<Employee> list = context.getUtils().queryBeanList(cmd, Employee.class, null);
+	    
+	    for (Employee emp : list)
+	    {
+	        
+	        System.out.println(emp.toString());
+	    }
+
+	    // load department
+	    Department department = context.getUtils().queryBean(Department.class, db.DEPARTMENTS.NAME.is("Sales"));
+	    Payment first = department.getEmployees().get(0).getPayments().get(0);
+	    log.info("First payment amount is {}", first.getAmount());
+	    /*
         // Query all males
 	    BeanResult<Employee> result = new BeanResult<Employee>(Employee.class, EMP);
         result.getCommand().where(EMP.GENDER.is(Gender.M));
@@ -724,6 +742,7 @@ public class SampleApp
 	    result.fetch(context);
 	    
         log.info("Number of female employees is: "+result.size());
+        */
 	}
 	
 	private static void queryDataList()

@@ -520,7 +520,7 @@ public abstract class DBRecordData extends DBObject
         // Add all Columns
         int count = 0;
         for (int i = 0; i < getFieldCount(); i++)
-        { // Check Property
+        {   // Check Property
             ColumnExpr column = getColumnExpr(i);
             if (ignoreList != null && ignoreList.contains(column))
                 continue; // ignore this property

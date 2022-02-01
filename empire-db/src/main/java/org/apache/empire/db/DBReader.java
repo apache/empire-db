@@ -986,7 +986,7 @@ public class DBReader extends DBRecordData implements DBContextAware, Closeable
         // Check whether we can use a constructor
         Class<?>[] paramTypes = new Class[getFieldCount()];
         for (int i = 0; i < columns.length; i++)
-            paramTypes[i] = DBExpr.getValueClass(columns[i].getDataType()); 
+            paramTypes[i] = columns[i].getJavaType(); 
         // Find Constructor
         Constructor<?> ctor = ClassUtils.findMatchingAccessibleConstructor(beanClass, paramTypes);
         return ctor;
