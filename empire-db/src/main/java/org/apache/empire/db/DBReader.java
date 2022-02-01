@@ -26,7 +26,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.MessageFormat;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -664,14 +663,14 @@ public class DBReader extends DBRecordData implements Closeable
      * Returns the result of a query as a list of objects restricted
      * to a maximum number of objects (unless maxCount is -1).
      * 
-     * @param c the collection to add the objects to
+     * @param list the collection to add the objects to
      * @param t the class type of the objects in the list
      * @param maxCount the maximum number of objects
      * 
      * @return the list of T
      */
     @SuppressWarnings("unchecked")
-    public <C extends Collection<T>, T> C getBeanList(C c, Class<T> t, int maxCount)
+    public <L extends List<T>, T> L getBeanList(L list, Class<T> t, Object parent, int maxCount)
     {
         // Check Recordset
         if (rset == null)
@@ -686,6 +685,7 @@ public class DBReader extends DBRecordData implements Closeable
             Class<?>[] ctorParamTypes = (ctor!=null) ? ctor.getParameterTypes() : null;
             
             // Create a list of beans
+            int rownum = 0;
             while (moveNext() && maxCount != 0)
             {   // Create bean an init
                 T bean;
@@ -701,16 +701,17 @@ public class DBReader extends DBRecordData implements Closeable
                     setBeanProperties(bean);
                 }
                 // add
-                c.add(bean);
+                list.add(bean);
+                rownum++;
                 // post processing
                 if (bean instanceof Bean<?>)
-                    ((Bean<?>)bean).onBeanLoaded(getDatabase(), context, c.size(), null);
+                    ((Bean<?>)bean).onBeanLoaded(getDatabase(), context, rownum, parent);
                 // Decrease count
                 if (maxCount > 0)
                     maxCount--;
             }
             // done
-            return c;
+            return list;
         } catch (InvocationTargetException e) {
             throw new BeanInstantiationException(t, e);
         } catch (IllegalAccessException e) {
@@ -728,8 +729,9 @@ public class DBReader extends DBRecordData implements Closeable
      * 
      * @return the list of T
      */
-    public final <T> ArrayList<T> getBeanList(Class<T> t, int maxItems) {
-        return getBeanList(new ArrayList<T>(), t, maxItems);
+    public final <T> List<T> getBeanList(Class<T> t, int maxItems) 
+    {
+        return getBeanList(new ArrayList<T>(), t, null, maxItems);
     }
     
     /**
@@ -739,7 +741,8 @@ public class DBReader extends DBRecordData implements Closeable
      * 
      * @return the list of T
      */
-    public final <T> ArrayList<T> getBeanList(Class<T> t) {
+    public final <T> List<T> getBeanList(Class<T> t) 
+    {
         return getBeanList(t, -1);
     }
     

@@ -122,7 +122,7 @@ public class BeanResult<T> extends ArrayList<T>
         try {
             // Open and Read
             reader.open(cmd);
-            reader.getBeanList(this, beanType, maxItems);
+            reader.getBeanList(this, beanType, null, maxItems);
             return size();
             
         } finally {

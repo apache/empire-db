@@ -1022,6 +1022,21 @@ public class DBUtils implements DBContextAware
     {
         return queryBeanList(cmd, factory, parent, 0, -1);
     }
+    
+    /**
+     * Queries a list of Java beans for a given command
+     * @param cmd the query command
+     * @param beanType the beanType
+     * @param constructorParams (optional) the list of params used for the bean constructor (optional, may be null)
+     * @param parent (optional) the parent bean if any 
+     * @return the list of java beans
+     */
+    public <T> List<T> queryBeanList(DBCommand cmd, Class<T> beanType, List<? extends DBColumnExpr> constructorParams, Object parent, int first, int pageSize)
+    {
+        if (!cmd.hasSelectExpr() && (constructorParams==null || constructorParams.isEmpty()))
+            throw new CommandWithoutSelectException(cmd);
+        return queryBeanList(cmd, createDefaultBeanListFactory(beanType, constructorParams), parent, first, pageSize);
+    }
 
     /**
      * Queries a list of Java beans for a given command
@@ -1046,7 +1061,7 @@ public class DBUtils implements DBContextAware
      */
     public <T> List<T> queryBeanList(DBCommand cmd, Class<T> beanType, List<? extends DBColumnExpr> constructorParams, Object parent)
     {
-        if (cmd.hasSelectExpr()==false && (constructorParams==null || constructorParams.isEmpty()))
+        if (!cmd.hasSelectExpr() && (constructorParams==null || constructorParams.isEmpty()))
             throw new CommandWithoutSelectException(cmd);
         return queryBeanList(cmd, createDefaultBeanListFactory(beanType, constructorParams), parent, 0, -1);
     }
@@ -1106,7 +1121,7 @@ public class DBUtils implements DBContextAware
      */
     public final <T> T queryBean(DBCommand cmd, Class<T> beanType, List<? extends DBColumnExpr> constructorParams)
     {
-        if (cmd.hasSelectExpr()==false && (constructorParams==null || constructorParams.isEmpty()))
+        if (!cmd.hasSelectExpr() && (constructorParams==null || constructorParams.isEmpty()))
             throw new CommandWithoutSelectException(cmd);
         return queryBean(cmd, createDefaultBeanListFactory(beanType, constructorParams));
     }
