@@ -188,7 +188,7 @@ public final class ClassUtils
     public static Constructor<?> findMatchingAccessibleConstructor(Class<?> clazz, Class<?>[] parameterTypes)
     {
         // search through all constructors 
-        int paramSize = parameterTypes.length;
+        int paramSize = (parameterTypes!=null ? parameterTypes.length : 0);
         Constructor<?>[] ctors = clazz.getConstructors();
         for (int i = 0, size = ctors.length; i < size; i++)
         {   // compare parameters

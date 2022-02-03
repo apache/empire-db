@@ -64,7 +64,7 @@ public class DBBeanListFactoryImpl<T> implements DBBeanListFactory<T>
     @SuppressWarnings("unchecked")
     protected static <T> Constructor<T> findBeanConstructor(Class<T> beanType)
     {   // find default constructor
-        return (Constructor<T>)ClassUtils.findMatchingAccessibleConstructor(beanType, new Class<?>[] {});
+        return (Constructor<T>)ClassUtils.findMatchingAccessibleConstructor(beanType, null);
     }
     
     /*
@@ -121,7 +121,7 @@ public class DBBeanListFactoryImpl<T> implements DBBeanListFactory<T>
      * @param keyColumns (optional) the columns to be used for the constructor
      * @param selectColumns (optional) the columns to be set through setter methods. List may include constructorParams
      */
-    public DBBeanListFactoryImpl(Class<T> beanType, List<? extends DBColumnExpr> keyColumns, List<? extends DBColumnExpr> selectColumns) 
+    protected DBBeanListFactoryImpl(Class<T> beanType, List<? extends DBColumnExpr> keyColumns, List<? extends DBColumnExpr> selectColumns) 
     {
         Constructor<T> constructor = findBeanConstructor(beanType, selectColumns);
         if (constructor!=null)
@@ -143,6 +143,7 @@ public class DBBeanListFactoryImpl<T> implements DBBeanListFactory<T>
             this.constructorParams = null;
             this.setterColumns = selectColumns;
         }
+        // found one
         this.constructor = constructor;
     }
     
