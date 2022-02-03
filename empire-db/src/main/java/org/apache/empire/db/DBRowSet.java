@@ -340,8 +340,12 @@ public abstract class DBRowSet extends DBExpr implements Entity
      */
     public <T> void setBeanType(Class<T> beanType, DBBeanListFactory<T> factory)
     {
+        // create default factory if not provided
+        if (factory==null)
+            factory = new DBBeanListFactoryImpl<T>(beanType, getKeyColumns(), getColumns());
+        // set
         this.beanType = beanType;
-        this.beanFactory = (beanFactory!=null ? beanFactory : new DBBeanListFactoryImpl<T>(beanType, this.columns));
+        this.beanFactory = factory;
         // set to global map
         setRowsetForType(beanType, this);
     }

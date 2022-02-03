@@ -10,13 +10,13 @@ import java.util.List;
 import org.apache.empire.commons.ObjectUtils;
 import org.apache.empire.commons.Options;
 import org.apache.empire.commons.StringUtils;
+import org.apache.empire.data.Column;
 import org.apache.empire.data.DataType;
 import org.apache.empire.data.list.DataListEntry;
 import org.apache.empire.data.list.DataListFactory;
 import org.apache.empire.data.list.DataListFactoryImpl;
 import org.apache.empire.data.list.DataListHead;
 import org.apache.empire.db.context.DBContextAware;
-import org.apache.empire.db.exceptions.CommandWithoutSelectException;
 import org.apache.empire.db.exceptions.ConstraintViolationException;
 import org.apache.empire.db.exceptions.QueryFailedException;
 import org.apache.empire.db.exceptions.QueryNoResultException;
@@ -917,9 +917,9 @@ public class DBUtils implements DBContextAware
      * @param constructorParams the columns to be used for the constructor (optional) 
      * @return the bean factory
      */
-    protected <T> DBBeanListFactory<T> createDefaultBeanListFactory(Class<T> beanType, List<? extends DBColumnExpr> constructorParams) 
+    protected <T> DBBeanListFactory<T> createDefaultBeanListFactory(Class<T> beanType, Column[] keyColumns, List<? extends DBColumnExpr> selectColumns) 
     {
-        return new DBBeanListFactoryImpl<T>(beanType, constructorParams);
+        return new DBBeanListFactoryImpl<T>(beanType, keyColumns, selectColumns);
     }
 
     /**
@@ -933,7 +933,7 @@ public class DBUtils implements DBContextAware
         @SuppressWarnings("unchecked")
         DBBeanListFactory<T> factory = (DBBeanListFactory<T>)rowset.getBeanFactory();
         if (factory==null)
-            factory =createDefaultBeanListFactory(beanType, rowset.getColumns());
+            factory =createDefaultBeanListFactory(beanType, rowset.getKeyColumns(), rowset.getColumns());
         return factory;
     }
     
@@ -1022,21 +1022,6 @@ public class DBUtils implements DBContextAware
     {
         return queryBeanList(cmd, factory, parent, 0, -1);
     }
-    
-    /**
-     * Queries a list of Java beans for a given command
-     * @param cmd the query command
-     * @param beanType the beanType
-     * @param constructorParams (optional) the list of params used for the bean constructor (optional, may be null)
-     * @param parent (optional) the parent bean if any 
-     * @return the list of java beans
-     */
-    public <T> List<T> queryBeanList(DBCommand cmd, Class<T> beanType, List<? extends DBColumnExpr> constructorParams, Object parent, int first, int pageSize)
-    {
-        if (!cmd.hasSelectExpr() && (constructorParams==null || constructorParams.isEmpty()))
-            throw new CommandWithoutSelectException(cmd);
-        return queryBeanList(cmd, createDefaultBeanListFactory(beanType, constructorParams), parent, first, pageSize);
-    }
 
     /**
      * Queries a list of Java beans for a given command
@@ -1055,21 +1040,6 @@ public class DBUtils implements DBContextAware
      * Queries a list of Java beans for a given command
      * @param cmd the query command
      * @param beanType the beanType
-     * @param constructorParams (optional) the params used for the bean constructor 
-     * @param parent (optional) the parent bean if any 
-     * @return the list of java beans
-     */
-    public <T> List<T> queryBeanList(DBCommand cmd, Class<T> beanType, List<? extends DBColumnExpr> constructorParams, Object parent)
-    {
-        if (!cmd.hasSelectExpr() && (constructorParams==null || constructorParams.isEmpty()))
-            throw new CommandWithoutSelectException(cmd);
-        return queryBeanList(cmd, createDefaultBeanListFactory(beanType, constructorParams), parent, 0, -1);
-    }
-
-    /**
-     * Queries a list of Java beans for a given command
-     * @param cmd the query command
-     * @param beanType the beanType
      * @param parent (optional) the parent bean if any 
      * @return the list of java beans
      */
@@ -1079,7 +1049,7 @@ public class DBUtils implements DBContextAware
         if (rowset!=null)
             return queryBeanList(cmd, getRowsetBeanListFactory(beanType, rowset), parent);
         else
-            return queryBeanList(cmd, beanType, cmd.getSelectExpressions(), parent);
+            return queryBeanList(cmd, createDefaultBeanListFactory(beanType, null, cmd.getSelectExpressions()), parent);
     }
     
     /**
@@ -1115,20 +1085,6 @@ public class DBUtils implements DBContextAware
     /**
      * Queries a single Java Bean for a given command
      * @param cmd the query command
-     * @param beanType the bean type
-     * @param constructorParams (optional) the params used for the bean constructor 
-     * @return the bean instance
-     */
-    public final <T> T queryBean(DBCommand cmd, Class<T> beanType, List<? extends DBColumnExpr> constructorParams)
-    {
-        if (!cmd.hasSelectExpr() && (constructorParams==null || constructorParams.isEmpty()))
-            throw new CommandWithoutSelectException(cmd);
-        return queryBean(cmd, createDefaultBeanListFactory(beanType, constructorParams));
-    }
-
-    /**
-     * Queries a single Java Bean for a given command
-     * @param cmd the query command
      * @param beanType the beanType
      * @param parent (optional) the parent bean if any 
      * @return the list of java beans
@@ -1139,7 +1095,7 @@ public class DBUtils implements DBContextAware
         if (rowset!=null)
             return queryBean(cmd, getRowsetBeanListFactory(beanType, rowset));
         else
-            return queryBean(cmd, beanType, cmd.getSelectExpressions());
+            return queryBean(cmd, createDefaultBeanListFactory(beanType, null, cmd.getSelectExpressions()));
     }
     
     /**

@@ -114,6 +114,10 @@ public final class ObjectUtils
             throw new InvalidValueException(o);
         if ((o instanceof String) && ((String)o).length()==0)
             return true;
+        if ((o instanceof Object[]) && ((Object[])o).length==0)
+            return true;
+        if ((o instanceof Collection<?>) && ((Collection<?>)o).isEmpty())
+            return true;
         // not empty
         return false;
     }
@@ -908,9 +912,29 @@ public final class ObjectUtils
      */
     public static <T> List<T> convert(Class<T> t, Collection<? extends T> source)
     {
-        List<T> target = new ArrayList<T>();
+        if (source==null)
+            return null;
+        List<T> target = new ArrayList<T>(source.size());
         target.addAll(source);
         return target;
+    }
+    
+    /**
+     * Converts an array to a list
+     * 
+     * @param t the type of the list items
+     * @param array the array to be converted
+     * 
+     * @return the list
+     */
+    public static <T> List<T> arrayToList(Class<T> t, T[] array)
+    {
+        if (array==null)
+            return null;
+        List<T> list = new ArrayList<T>(array.length);
+        for (int i=0; i<array.length; i++)
+            list.add(array[i]);
+        return list;
     }
     
     /**

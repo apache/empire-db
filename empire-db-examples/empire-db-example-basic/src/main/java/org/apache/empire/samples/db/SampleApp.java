@@ -26,7 +26,6 @@ import java.time.LocalDate;
 import java.util.List;
 
 import org.apache.empire.commons.StringUtils;
-import org.apache.empire.data.bean.BeanResult;
 import org.apache.empire.data.list.DataListEntry;
 import org.apache.empire.db.DBColumnExpr;
 import org.apache.empire.db.DBCommand;
@@ -715,14 +714,12 @@ public class SampleApp
 	{
 	    SampleDB.Employees EMP = db.EMPLOYEES;
 	    
-	    /*
 	    DBCommand cmd = db.createCommand();
 	    cmd.where(EMP.GENDER.is(Gender.M));
 	    cmd.orderBy(EMP.LASTNAME.desc());
 	    List<Employee> list = context.getUtils().queryBeanList(cmd, Employee.class, null);
 	    for (Employee emp : list)
 	    {
-	        
 	        System.out.println(emp.toString());
 	    }
 	    
@@ -730,8 +727,8 @@ public class SampleApp
 	    Department department = context.getUtils().queryBean(Department.class, db.DEPARTMENTS.NAME.is("Sales"));
 	    Payment first = department.getEmployees().get(0).getPayments().get(0);
 	    log.info("First payment amount is {}", first.getAmount());
-	    */
 
+        /*
         // Query all males
 	    BeanResult<Employee> result = new BeanResult<Employee>(Employee.class);
         result.getCommand().where(EMP.GENDER.is(Gender.M));
@@ -744,6 +741,7 @@ public class SampleApp
 	    result.fetch(context);
 	    
         log.info("Number of female employees is: "+result.size());
+        */
 	}
 	
 	private static void queryDataList()

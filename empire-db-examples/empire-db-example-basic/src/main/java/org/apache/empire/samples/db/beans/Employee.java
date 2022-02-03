@@ -19,7 +19,6 @@
 package org.apache.empire.samples.db.beans;
 
 import java.math.BigDecimal;
-import java.sql.Timestamp;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
@@ -29,6 +28,8 @@ import org.apache.empire.db.DBCommand;
 import org.apache.empire.db.DBContext;
 import org.apache.empire.db.list.Bean;
 import org.apache.empire.samples.db.SampleDB;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * This is an employee entity bean
@@ -37,6 +38,8 @@ import org.apache.empire.samples.db.SampleDB;
  */
 public class Employee implements Bean<SampleDB>
 {
+    private static final Logger log = LoggerFactory.getLogger(Employee.class);
+    
     private long   id;          // "ID" 
     private String firstname;   // "FIRSTNAME"
     private String lastname;    // "LASTNAME"
@@ -63,7 +66,6 @@ public class Employee implements Bean<SampleDB>
      * @param phoneNumber
      * @param salary
      * @param retired
-     */
     public Employee(int id, String firstname, String lastname, Date dateOfBirth, int departmentId, String gender, String phoneNumber,
                     BigDecimal salary, boolean retired, Timestamp timestamp)
     {
@@ -76,7 +78,10 @@ public class Employee implements Bean<SampleDB>
         this.phoneNumber = phoneNumber;
         this.salary = salary;
         this.retired = retired;
+     
+        log.info("Employee bean created using fields constructor");
     }
+     */
 
     /**
      * Constructor using fields but without timestamp 
@@ -84,7 +89,26 @@ public class Employee implements Bean<SampleDB>
     public Employee(int id, String firstname, String lastname, Date dateOfBirth, int departmentId, String gender, String phoneNumber,
                     BigDecimal salary, boolean retired)
     {
-        this(id, firstname, lastname, dateOfBirth, departmentId, gender, phoneNumber, salary, retired, null);
+        this.id = id;
+        this.firstname = firstname;
+        this.lastname = lastname;
+        this.dateOfBirth = dateOfBirth;
+        this.departmentId = departmentId;
+        this.gender = gender;
+        this.phoneNumber = phoneNumber;
+        this.salary = salary;
+        this.retired = retired;
+
+        log.info("Employee bean created using fields constructor without timestamp");
+    }
+
+    /**
+     * Constructor using primary key fields 
+     */
+    public Employee(int id)
+    {
+        this.id = id;
+        log.info("Employee bean created using primary key constructor");
     }
     
     /**
@@ -93,6 +117,7 @@ public class Employee implements Bean<SampleDB>
     public Employee()
     {
         // Standard constructor 
+        log.info("Employee bean created using standard constructor");
     }
 
     public long getId()
