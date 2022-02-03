@@ -89,11 +89,14 @@ public class BeanResult<T> extends ArrayList<T>
      * A rowset must be registered for this beanType @see DBRowSet.getRowsetforType()
      * At least one column must match the given getters / setters on the supplied class otherwise an BeanIncompatibleException will be thrown.
      * @param beanType the of T
-     */
+     * 
+     * Need to implement a BeanRowsetMap for this. @see DBRowSet
+     * 
     public BeanResult(Class<T> beanType)
     {
         this(beanType, DBRowSet.getRowsetforType(beanType, true));
     }
+     */
     
     /**
      * Returns the current command 

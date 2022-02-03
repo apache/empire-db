@@ -27,7 +27,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.empire.commons.ObjectUtils;
 import org.apache.empire.commons.StringUtils;
@@ -45,9 +44,9 @@ import org.apache.empire.db.exceptions.QueryNoResultException;
 import org.apache.empire.db.exceptions.RecordNotFoundException;
 import org.apache.empire.db.exceptions.RecordUpdateFailedException;
 import org.apache.empire.db.exceptions.RecordUpdateInvalidException;
-import org.apache.empire.db.exceptions.UnknownBeanTypeException;
 import org.apache.empire.db.expr.column.DBCountExpr;
 import org.apache.empire.db.expr.compare.DBCompareExpr;
+import org.apache.empire.db.list.DBBeanFactoryCache;
 import org.apache.empire.db.list.DBBeanListFactory;
 import org.apache.empire.db.list.DBBeanListFactoryImpl;
 import org.apache.empire.dbms.DBMSFeature;
@@ -103,51 +102,43 @@ public abstract class DBRowSet extends DBExpr implements Entity
     // Logger
     protected static final Logger                log         = LoggerFactory.getLogger(DBRowSet.class);
 
-    private static final Map<Class<?>, DBRowSet> beanTypeMap = new ConcurrentHashMap<Class<?>, DBRowSet>();
+    /*
+     * Do we need a BeanRowsetMap?
+     * 
+    private static final Map<Class<?>, DBRowSet> beanRowsetMap = new HashMap<Class<?>, DBRowSet>(); // Concurrent ?
    
-    /**
-     * Returns the DBRowSet instance assigned to a particular Java bean type
-     * @param beanType the Java bean type
-     * @return return the DBRowSet assigned to this type 
-     */
     public static synchronized DBRowSet getRowsetforType(Class<?> beanType, boolean checkExists)
     {
-        DBRowSet rowset = beanTypeMap.get(beanType); 
+        DBRowSet rowset = beanRowsetMap.get(beanType); 
         if (rowset==null && checkExists)
             throw new UnknownBeanTypeException(beanType);
         return rowset;
     }
 
-    /**
-     * sets the DBRowSet instance assigned to a particular Java bean type
-     * @param beanType the Java bean type
-     */
     public static synchronized void setRowsetForType(Class<?> beanType, DBRowSet rowset)
     {
         if (rowset!=null)
         {   // Check previous
-            DBRowSet prev = beanTypeMap.get(beanType);
+            DBRowSet prev = beanRowsetMap.get(beanType);
             if (prev!=null && prev!=rowset)
                 log.warn("The Java bean type '{}' has already been assigned to a different DBRowSet {}. Assiging now to {}", beanType.getName(), prev.getName(), rowset.getName());
             // Assign now
-            beanTypeMap.put(beanType, rowset);
+            beanRowsetMap.put(beanType, rowset);
         }
         else
-            beanTypeMap.remove(beanType);
+            beanRowsetMap.remove(beanType);
     }
-    
+     */
     
     // Members
     protected final DBDatabase         db;     /* transient ? */
     protected String                   comment          = null;
     protected DBColumn                 timestampColumn  = null;
     protected Map<DBColumn, DBColumn>  columnReferences = null;
-
-    protected Class<?>                 beanType         = null;
-    protected DBBeanListFactory<?>     beanFactory      = null;
-
-    // The column List
     protected List<DBColumn>           columns          = new ArrayList<DBColumn>();
+
+    // associated Entity Bean Class (optional)
+    protected Class<?>                 beanType         = null;
 
     /**
      * Internally used for parameter checking
@@ -315,15 +306,6 @@ public abstract class DBRowSet extends DBExpr implements Entity
     {
         return beanType;
     }
- 
-    /**
-     * returns the bean factory for this rowset
-     * @return the bean factory
-     */
-    public DBBeanListFactory<?> getBeanFactory()
-    {
-        return beanFactory;
-    }
     
     /**
      * sets the bean type for this rowset
@@ -340,14 +322,13 @@ public abstract class DBRowSet extends DBExpr implements Entity
      */
     public <T> void setBeanType(Class<T> beanType, DBBeanListFactory<T> factory)
     {
+        // set
+        this.beanType = beanType;
         // create default factory if not provided
         if (factory==null)
             factory = new DBBeanListFactoryImpl<T>(beanType, getKeyColumns(), getColumns());
-        // set
-        this.beanType = beanType;
-        this.beanFactory = factory;
         // set to global map
-        setRowsetForType(beanType, this);
+        DBBeanFactoryCache.setFactoryForType(beanType, factory);
     }
 
     /**

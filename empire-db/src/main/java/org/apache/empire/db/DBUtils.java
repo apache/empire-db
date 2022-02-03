@@ -17,12 +17,14 @@ import org.apache.empire.data.list.DataListFactory;
 import org.apache.empire.data.list.DataListFactoryImpl;
 import org.apache.empire.data.list.DataListHead;
 import org.apache.empire.db.context.DBContextAware;
+import org.apache.empire.db.exceptions.CommandWithoutSelectException;
 import org.apache.empire.db.exceptions.ConstraintViolationException;
 import org.apache.empire.db.exceptions.QueryFailedException;
 import org.apache.empire.db.exceptions.QueryNoResultException;
 import org.apache.empire.db.exceptions.StatementFailedException;
 import org.apache.empire.db.expr.compare.DBCompareExpr;
 import org.apache.empire.db.list.Bean;
+import org.apache.empire.db.list.DBBeanFactoryCache;
 import org.apache.empire.db.list.DBBeanListFactory;
 import org.apache.empire.db.list.DBBeanListFactoryImpl;
 import org.apache.empire.db.list.DBRecordListFactory;
@@ -928,12 +930,36 @@ public class DBUtils implements DBContextAware
      * @param rowset the rowset for which to return the factory 
      * @return the bean factory
      */
-    protected <T> DBBeanListFactory<T> getRowsetBeanListFactory(Class<T> beanType, DBRowSet rowset) 
+    protected synchronized <T> DBBeanListFactory<T> getRowsetBeanListFactory(Class<T> beanType, DBRowSet rowset) 
     {
-        @SuppressWarnings("unchecked")
-        DBBeanListFactory<T> factory = (DBBeanListFactory<T>)rowset.getBeanFactory();
+        DBBeanListFactory<T> factory = DBBeanFactoryCache.getFactoryForType(beanType, false);
         if (factory==null)
-            factory =createDefaultBeanListFactory(beanType, rowset.getKeyColumns(), rowset.getColumns());
+        {   // Create default factory
+            log.info("No factory found for bean type '{}' and rowset {}. Creating default", beanType.getName(), rowset.getName());
+            factory= createDefaultBeanListFactory(beanType, rowset.getKeyColumns(), rowset.getColumns());
+            DBBeanFactoryCache.setFactoryForType(beanType, factory);
+        }
+        return factory;
+    }
+
+    /**
+     * gets or creates DBBeanListFactory for the given rowset
+     * @param beanType the beanType for which to create the list head 
+     * @param rowset the rowset for which to return the factory 
+     * @return the bean factory
+     */
+    protected synchronized <T> DBBeanListFactory<T> getCommandBeanListFactory(Class<T> beanType, DBCommand cmd) 
+    {
+        DBBeanListFactory<T> factory = DBBeanFactoryCache.getFactoryForType(beanType, false);
+        if (factory==null) 
+        {   // Check command: Must have select!
+            if (!cmd.hasSelectExpr())
+                throw new CommandWithoutSelectException(cmd);
+            // Create default factory
+            log.info("No factory found for bean type '{}'. Creating default", beanType.getName());
+            factory= createDefaultBeanListFactory(beanType, null, cmd.getSelectExpressions());
+            DBBeanFactoryCache.setFactoryForType(beanType, factory);
+        }
         return factory;
     }
     
@@ -1045,11 +1071,7 @@ public class DBUtils implements DBContextAware
      */
     public <T> List<T> queryBeanList(DBCommand cmd, Class<T> beanType, Object parent)
     {
-        DBRowSet rowset = DBRowSet.getRowsetforType(beanType, false);
-        if (rowset!=null)
-            return queryBeanList(cmd, getRowsetBeanListFactory(beanType, rowset), parent);
-        else
-            return queryBeanList(cmd, createDefaultBeanListFactory(beanType, null, cmd.getSelectExpressions()), parent);
+        return queryBeanList(cmd, getCommandBeanListFactory(beanType, cmd), parent);
     }
     
     /**
@@ -1091,11 +1113,7 @@ public class DBUtils implements DBContextAware
      */
     public <T> T queryBean(DBCommand cmd, Class<T> beanType)
     {
-        DBRowSet rowset = DBRowSet.getRowsetforType(beanType, false);
-        if (rowset!=null)
-            return queryBean(cmd, getRowsetBeanListFactory(beanType, rowset));
-        else
-            return queryBean(cmd, createDefaultBeanListFactory(beanType, null, cmd.getSelectExpressions()));
+        return queryBean(cmd, getCommandBeanListFactory(beanType, cmd));
     }
     
     /**
@@ -1125,8 +1143,15 @@ public class DBUtils implements DBContextAware
      */
     public final <T> T queryBean(Class<T> beanType, DBCompareExpr whereConstraints)
     {
-        DBRowSet rowset = DBRowSet.getRowsetforType(beanType, true);
-        return queryBean(beanType, rowset, whereConstraints);
+        DBObject.checkParamNull("whereConstraints", whereConstraints);
+        // must have a factory
+        DBBeanListFactory<T> factory = DBBeanFactoryCache.getFactoryForType(beanType, true);
+        // add constraints
+        DBDatabase db = whereConstraints.getDatabase();
+        DBCommand cmd = db.createCommand();
+        cmd.where(whereConstraints);
+        // query now
+        return queryBean(cmd, factory);
     }
     
     /**
@@ -1146,17 +1171,4 @@ public class DBUtils implements DBContextAware
         // use factory of rowset
         return queryBean(cmd, getRowsetBeanListFactory(beanType, rowset));
     }
-    
-    /**
-     * Queries a single bean based on primary key values
-     * @param beanType the beanType 
-     * @param key the primary key
-     * @return the entity bean
-     */
-    public final <T> T queryBean(Class<T> beanType, Object[] key)
-    {
-        DBRowSet rowset = DBRowSet.getRowsetforType(beanType, true);
-        return queryBean(beanType, rowset, key);
-    }
-    
 }
