@@ -19,7 +19,7 @@
 package org.apache.empire.db.exceptions;
 
 import org.apache.empire.commons.ErrorType;
-import org.apache.empire.db.DBCommand;
+import org.apache.empire.db.DBCommandExpr;
 import org.apache.empire.exceptions.InvalidArgumentException;
 
 public class CommandWithoutSelectException extends InvalidArgumentException
@@ -28,7 +28,7 @@ public class CommandWithoutSelectException extends InvalidArgumentException
     
     public static final ErrorType errorType = new ErrorType("error.db.commandWithoutSelect",  "The command statement has no select expressions.");
     
-    public CommandWithoutSelectException(DBCommand cmd)
+    public CommandWithoutSelectException(DBCommandExpr cmd)
     {
         super(CommandWithoutSelectException.errorType, null);
     }

@@ -29,6 +29,7 @@ import org.apache.empire.data.Column;
 import org.apache.empire.db.DBColumn;
 import org.apache.empire.db.DBColumnExpr;
 import org.apache.empire.db.DBCommand;
+import org.apache.empire.db.DBCommandExpr;
 import org.apache.empire.db.DBContext;
 import org.apache.empire.db.DBRecordData;
 import org.apache.empire.db.exceptions.CommandWithoutSelectException;
@@ -158,7 +159,7 @@ public class DBBeanListFactoryImpl<T> implements DBBeanListFactory<T>
     }
 
     @Override
-    public void prepareQuery(DBCommand cmd, DBContext context)
+    public void prepareQuery(DBCommandExpr cmd, DBContext context)
     {
         boolean hasSelect = cmd.hasSelectExpr();
         // check if constructor params are selected and add if appropriate
@@ -167,18 +168,23 @@ public class DBBeanListFactoryImpl<T> implements DBBeanListFactory<T>
             for (DBColumnExpr expr : constructorParams)
             {
                 if (cmd.hasSelectExpr(expr)==false)
-                    cmd.select(expr);
+                {
+                    if (cmd instanceof DBCommand)
+                        ((DBCommand)cmd).select(expr);
+                    else
+                        throw new InvalidArgumentException("cmd", cmd);
+                }
             }
         }
         // check the rest of the columns, but only if no select is present
-        if (setterColumns!=null && !hasSelect)
+        if (setterColumns!=null && !hasSelect && (cmd instanceof DBCommand))
         {   // select all columns which are not already selected
             for (DBColumnExpr expr : setterColumns)
             {
                 if (constructorParams!=null && constructorParams.contains(expr))
                     continue; // already added
                 if (cmd.hasSelectExpr(expr)==false)
-                    cmd.select(expr);
+                    ((DBCommand)cmd).select(expr);
             }
         }
         // still no select ?

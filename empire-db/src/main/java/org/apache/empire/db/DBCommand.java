@@ -979,6 +979,7 @@ public abstract class DBCommand extends DBCommandExpr
      * returns whether or not the command has any select expression 
      * @return true if the command has any select expression of false otherwise
      */
+    @Override
     public boolean hasSelectExpr()
     {
         return (select!=null && !select.isEmpty());
@@ -988,6 +989,7 @@ public abstract class DBCommand extends DBCommandExpr
      * returns whether or not the command has a specific select expression 
      * @return true if the command contains the given select expression of false otherwise
      */
+    @Override
     public boolean hasSelectExpr(DBColumnExpr expr)
     {
         return (select!=null ? (select.indexOf(expr)>=0) : false);

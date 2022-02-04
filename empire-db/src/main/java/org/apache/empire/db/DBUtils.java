@@ -942,7 +942,7 @@ public class DBUtils implements DBContextAware
      * @param rowset the rowset for which to return the factory 
      * @return the bean factory
      */
-    protected synchronized <T> DBBeanListFactory<T> getRowsetBeanListFactory(Class<T> beanType, DBRowSet rowset) 
+    public synchronized <T> DBBeanListFactory<T> getRowsetBeanListFactory(Class<T> beanType, DBRowSet rowset) 
     {
         DBBeanListFactory<T> factory = DBBeanFactoryCache.getFactoryForType(beanType);
         if (factory==null)
@@ -960,7 +960,7 @@ public class DBUtils implements DBContextAware
      * @param rowset the rowset for which to return the factory 
      * @return the bean factory
      */
-    protected synchronized <T> DBBeanListFactory<T> getCommandBeanListFactory(Class<T> beanType, DBCommand cmd) 
+    public synchronized <T> DBBeanListFactory<T> getCommandBeanListFactory(Class<T> beanType, DBCommandExpr cmd) 
     {
         DBBeanListFactory<T> factory = DBBeanFactoryCache.getFactoryForType(beanType);
         if (factory==null) 
@@ -983,7 +983,7 @@ public class DBUtils implements DBContextAware
      * @param pageSize the maximum number of items to add to the list or -1 (default) for all
      * @return
      */
-    public <T> List<T> queryBeanList(DBCommand cmd, DBBeanListFactory<T> factory, Object parent, int first, int pageSize)
+    public <T> List<T> queryBeanList(DBCommandExpr cmd, DBBeanListFactory<T> factory, Object parent, int first, int pageSize)
     {
         List<T> list = null;
         DBReader r = new DBReader(context);
@@ -1056,7 +1056,7 @@ public class DBUtils implements DBContextAware
      * @param parent (optional) the parent bean if any 
      * @return the list of java beans
      */
-    public final <T> List<T> queryBeanList(DBCommand cmd, DBBeanListFactory<T> factory, Object parent)
+    public final <T> List<T> queryBeanList(DBCommandExpr cmd, DBBeanListFactory<T> factory, Object parent)
     {
         return queryBeanList(cmd, factory, parent, 0, -1);
     }
@@ -1069,7 +1069,7 @@ public class DBUtils implements DBContextAware
      * @param parent (optional) the parent bean if any 
      * @return the list of java beans
      */
-    public <T> List<T> queryBeanList(DBCommand cmd, Class<T> beanType, DBRowSet rowset, Object parent)
+    public <T> List<T> queryBeanList(DBCommandExpr cmd, Class<T> beanType, DBRowSet rowset, Object parent)
     {
         return queryBeanList(cmd, getRowsetBeanListFactory(beanType, rowset), parent, 0, -1);
     }
@@ -1081,7 +1081,7 @@ public class DBUtils implements DBContextAware
      * @param parent (optional) the parent bean if any 
      * @return the list of java beans
      */
-    public <T> List<T> queryBeanList(DBCommand cmd, Class<T> beanType, Object parent)
+    public <T> List<T> queryBeanList(DBCommandExpr cmd, Class<T> beanType, Object parent)
     {
         return queryBeanList(cmd, getCommandBeanListFactory(beanType, cmd), parent);
     }
@@ -1092,7 +1092,7 @@ public class DBUtils implements DBContextAware
      * @param factory the factory to create the bean instance
      * @return the bean instance
      */
-    public <T> T queryBean(DBCommand cmd, DBBeanListFactory<T> factory)
+    public <T> T queryBean(DBCommandExpr cmd, DBBeanListFactory<T> factory)
     {
         DBReader r = new DBReader(context);
         try
@@ -1123,7 +1123,7 @@ public class DBUtils implements DBContextAware
      * @param parent (optional) the parent bean if any 
      * @return the list of java beans
      */
-    public <T> T queryBean(DBCommand cmd, Class<T> beanType)
+    public <T> T queryBean(DBCommandExpr cmd, Class<T> beanType)
     {
         return queryBean(cmd, getCommandBeanListFactory(beanType, cmd));
     }

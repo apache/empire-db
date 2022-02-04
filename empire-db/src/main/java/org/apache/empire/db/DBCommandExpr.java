@@ -290,6 +290,18 @@ public abstract class DBCommandExpr extends DBExpr
     }
 
     public abstract boolean isValid();
+    
+    /**
+     * returns whether or not the command has any select expression 
+     * @return true if the command has any select expression of false otherwise
+     */
+    public abstract boolean hasSelectExpr();
+
+    /**
+     * returns whether or not the command has a specific select expression 
+     * @return true if the command contains the given select expression of false otherwise
+     */
+    public abstract boolean hasSelectExpr(DBColumnExpr expr);
 
     /**
      * Returns the list of all select expressions as an array

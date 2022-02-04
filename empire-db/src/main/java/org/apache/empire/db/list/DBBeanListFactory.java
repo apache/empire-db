@@ -20,13 +20,13 @@ package org.apache.empire.db.list;
 
 import java.util.List;
 
-import org.apache.empire.db.DBCommand;
+import org.apache.empire.db.DBCommandExpr;
 import org.apache.empire.db.DBContext;
 import org.apache.empire.db.DBRecordData;
 
 public interface DBBeanListFactory<T extends Object>
 {
-    void prepareQuery(DBCommand cmd, DBContext context);
+    void prepareQuery(DBCommandExpr cmd, DBContext context);
     
     List<T> newList(int capacity);
 

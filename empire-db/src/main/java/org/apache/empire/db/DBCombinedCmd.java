@@ -81,6 +81,26 @@ public class DBCombinedCmd extends DBCommandExpr
         left.addReferencedColumns(list);
         right.addReferencedColumns(list);
     }
+    
+    /**
+     * returns whether or not the command has any select expression 
+     * @return true if the command has any select expression of false otherwise
+     */
+    @Override
+    public boolean hasSelectExpr()
+    {
+        return left.hasSelectExpr();
+    }
+
+    /**
+     * returns whether or not the command has a specific select expression 
+     * @return true if the command contains the given select expression of false otherwise
+     */
+    @Override
+    public boolean hasSelectExpr(DBColumnExpr expr)
+    {
+        return left.hasSelectExpr(expr);
+    }
 
     /**
      * Returns all select expressions as unmodifiable list
