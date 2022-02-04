@@ -54,12 +54,10 @@ public final class DBBeanFactoryCache
      * @param beanType the Java bean type
      * @return return the DBRowSet assigned to this type 
      */
-    public static synchronized <T> DBBeanListFactory<T> getFactoryForType(Class<T> beanType, boolean checkExists)
+    public static synchronized <T> DBBeanListFactory<T> getFactoryForType(Class<T> beanType)
     {
         @SuppressWarnings("unchecked")
         DBBeanListFactory<T> factory = (DBBeanListFactory<T>)beanFactoryMap.get(beanType); 
-        if (factory==null && checkExists)
-            throw new UnknownBeanTypeException(beanType);
         return factory;
     }
 

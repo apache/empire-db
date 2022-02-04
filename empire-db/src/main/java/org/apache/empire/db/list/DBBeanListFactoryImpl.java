@@ -31,6 +31,7 @@ import org.apache.empire.db.DBColumnExpr;
 import org.apache.empire.db.DBCommand;
 import org.apache.empire.db.DBContext;
 import org.apache.empire.db.DBRecordData;
+import org.apache.empire.db.exceptions.CommandWithoutSelectException;
 import org.apache.empire.exceptions.InternalException;
 import org.apache.empire.exceptions.InvalidArgumentException;
 import org.apache.empire.exceptions.UnsupportedTypeException;
@@ -161,6 +162,7 @@ public class DBBeanListFactoryImpl<T> implements DBBeanListFactory<T>
     @Override
     public void prepareQuery(DBCommand cmd, DBContext context)
     {
+        boolean hasSelect = cmd.hasSelectExpr();
         // check if constructor params are selected and add if appropriate
         if (constructorParams!=null)
         {   // select all columns which are not already selected
@@ -170,8 +172,8 @@ public class DBBeanListFactoryImpl<T> implements DBBeanListFactory<T>
                     cmd.select(expr);
             }
         }
-        // check the rest of the columns
-        if (setterColumns!=null)
+        // check the rest of the columns, but only if no select is present
+        if (setterColumns!=null && !hasSelect)
         {   // select all columns which are not already selected
             for (DBColumnExpr expr : setterColumns)
             {
@@ -181,6 +183,9 @@ public class DBBeanListFactoryImpl<T> implements DBBeanListFactory<T>
                     cmd.select(expr);
             }
         }
+        // still no select ?
+        if (!cmd.hasSelectExpr())
+            throw new CommandWithoutSelectException(cmd); 
     }
     
     @Override

@@ -22,6 +22,7 @@ import org.apache.empire.db.exceptions.ConstraintViolationException;
 import org.apache.empire.db.exceptions.QueryFailedException;
 import org.apache.empire.db.exceptions.QueryNoResultException;
 import org.apache.empire.db.exceptions.StatementFailedException;
+import org.apache.empire.db.exceptions.UnknownBeanTypeException;
 import org.apache.empire.db.expr.compare.DBCompareExpr;
 import org.apache.empire.db.list.Bean;
 import org.apache.empire.db.list.DBBeanFactoryCache;
@@ -932,7 +933,7 @@ public class DBUtils implements DBContextAware
      */
     protected synchronized <T> DBBeanListFactory<T> getRowsetBeanListFactory(Class<T> beanType, DBRowSet rowset) 
     {
-        DBBeanListFactory<T> factory = DBBeanFactoryCache.getFactoryForType(beanType, false);
+        DBBeanListFactory<T> factory = DBBeanFactoryCache.getFactoryForType(beanType);
         if (factory==null)
         {   // Create default factory
             log.info("No factory found for bean type '{}' and rowset {}. Creating default", beanType.getName(), rowset.getName());
@@ -950,7 +951,7 @@ public class DBUtils implements DBContextAware
      */
     protected synchronized <T> DBBeanListFactory<T> getCommandBeanListFactory(Class<T> beanType, DBCommand cmd) 
     {
-        DBBeanListFactory<T> factory = DBBeanFactoryCache.getFactoryForType(beanType, false);
+        DBBeanListFactory<T> factory = DBBeanFactoryCache.getFactoryForType(beanType);
         if (factory==null) 
         {   // Check command: Must have select!
             if (!cmd.hasSelectExpr())
@@ -1145,7 +1146,9 @@ public class DBUtils implements DBContextAware
     {
         DBObject.checkParamNull("whereConstraints", whereConstraints);
         // must have a factory
-        DBBeanListFactory<T> factory = DBBeanFactoryCache.getFactoryForType(beanType, true);
+        DBBeanListFactory<T> factory = DBBeanFactoryCache.getFactoryForType(beanType);
+        if (factory==null)
+            throw new UnknownBeanTypeException(beanType);
         // add constraints
         DBDatabase db = whereConstraints.getDatabase();
         DBCommand cmd = db.createCommand();
