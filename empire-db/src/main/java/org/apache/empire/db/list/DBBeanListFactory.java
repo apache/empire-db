@@ -30,7 +30,7 @@ public interface DBBeanListFactory<T extends Object>
     
     List<T> newList(int capacity);
 
-    T newItem(int rownum, DBRecordData dataRow);
+    T newItem(int rownum, DBRecordData recData);
     
     void completeQuery(List<T> list);
 }

@@ -820,7 +820,7 @@ public class DBUtils implements DBContextAware
      */
     protected <T extends DBRecord> DBRecordListFactory<T> createDefaultRecordListFactory(Class<T> recordClass, DBRowSet rowset) 
     {
-        return new DBRecordListFactoryImpl<T>(recordClass, rowset);
+        return new DBRecordListFactoryImpl<T>(recordClass, context.getClass(), rowset);
     }
     
     /**
@@ -904,11 +904,22 @@ public class DBUtils implements DBContextAware
      * @param rowset the rowset for which to query the records
      * @return the list of DBRecord items
      */
-    public final <T extends DBRecord> List<T> queryRecordList(DBCommand cmd, DBRowSet rowset)
+    public final <T extends DBRecord> List<T> queryRecordList(DBCommand cmd, DBRowSet rowset, Class<T> recordType)
     {
-        @SuppressWarnings("unchecked")
-        DBRecordListFactory<T> factory = (DBRecordListFactory<T>)createDefaultRecordListFactory(DBRecord.class, rowset);
+        @SuppressWarnings("cast")
+        DBRecordListFactory<T> factory = (DBRecordListFactory<T>)createDefaultRecordListFactory(recordType, rowset);
         return queryRecordList(cmd, factory, 0, -1);
+    }
+
+    /**
+     * Executes a query and returns a list of DBRecord items
+     * @param cmd the command holding the constraints and order or the query
+     * @param rowset the rowset for which to query the records
+     * @return the list of DBRecord items
+     */
+    public final List<DBRecord> queryRecordList(DBCommand cmd, DBRowSet rowset)
+    {
+        return queryRecordList(cmd, rowset, DBRecord.class);
     }
 
     /**

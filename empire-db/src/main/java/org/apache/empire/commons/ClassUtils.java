@@ -185,24 +185,64 @@ public final class ClassUtils
     /**
      * copied from org.apache.commons.beanutils.ConstructorUtils since it's private there
      */
-    public static Constructor<?> findMatchingAccessibleConstructor(Class<?> clazz, Class<?>[] parameterTypes)
+    public static <T> Constructor<T> findMatchingAccessibleConstructor(Class<T> clazz, int minParams, Class<?>... parameterTypes)
     {
-        // search through all constructors 
+        // Minimum matching params
         int paramSize = (parameterTypes!=null ? parameterTypes.length : 0);
+        if (minParams<0 || minParams>paramSize)
+            minParams = paramSize;
+     
+        // see if we can find the method directly (faster)
+        /*
+        try {
+            final Constructor<T> ctor = (parameterTypes!=null ? clazz.getConstructor(parameterTypes) : clazz.getConstructor());
+            try {
+                // XXX Default access superclass workaround
+                ctor.setAccessible(true);
+            } catch (final SecurityException se) {
+                // SWALLOW, if workaround fails don't fret.
+            }
+            return ctor;
+        } catch (final NoSuchMethodException e) {
+            // ignore  
+        }
+        */
+        
+        // get all public constructors 
         Constructor<?>[] ctors = clazz.getConstructors();
-        for (int i = 0, size = ctors.length; i < size; i++)
-        {   // compare parameters
-            Class<?>[] ctorParams = ctors[i].getParameterTypes();
-            int ctorParamSize = ctorParams.length;
-            if (ctorParamSize == paramSize)
-            {   // Param Size matches
+
+        // Search through all valid lengths
+        for (int pLen = paramSize; pLen >= minParams; pLen--)
+        {   
+            // find longest valid constructor
+            for (int i = 0, size = ctors.length; i < size; i++)
+            {
+                // Check parameter counts
+                if (ctors[i].getParameterCount()!=pLen)
+                    continue;
+                
+                // Param count matches
                 boolean match = true;
-                for (int n = 0; n < ctorParamSize; n++)
-                {
-                    if (!ObjectUtils.isAssignmentCompatible(ctorParams[n], parameterTypes[n]))
+                if (pLen>0) {
+                    // Compare parameter types
+                    Class<?>[] ctorParams = ctors[i].getParameterTypes();
+                    for (int n = 0; n < pLen; n++)
                     {
-                        match = false;
-                        break;
+                        if (!ObjectUtils.isAssignmentCompatible(ctorParams[n], parameterTypes[n]))
+                        {
+                            /* --------------------
+                             * Allow down-casting ?
+                             * --------------------
+                            if (parameterTypes[n].isAssignableFrom(ctorParams[n]))
+                            {   // down-casting possible
+                                log.warn("down-casting may be possible.");
+                                continue;
+                            }
+                            */
+                            // No match
+                            match = false;
+                            break;
+                        }
                     }
                 }
                 if (match) {
@@ -210,9 +250,14 @@ public final class ClassUtils
                     Constructor<?> ctor = ConstructorUtils.getAccessibleConstructor(ctors[i]);
                     if (ctor != null) {
                         try {
+                            // XXX Default access superclass workaround
                             ctor.setAccessible(true);
-                        } catch (SecurityException se) { /* ignore */ }
-                        return ctor;
+                        } catch (SecurityException se) {
+                            // ignore 
+                        }
+                        @SuppressWarnings("unchecked")
+                        Constructor<T> typedCtor = (Constructor<T>) ctor;
+                        return typedCtor;
                     }
                 }
             }

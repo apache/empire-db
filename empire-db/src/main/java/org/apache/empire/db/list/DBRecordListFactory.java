@@ -31,7 +31,7 @@ public interface DBRecordListFactory<T extends DBRecord>
     
     List<T> newList(int capacity);
 
-    T newRecord(int rownum, DBRecordData dataRow);
+    T newRecord(int rownum, DBRecordData recData);
     
     void completeQuery(List<T> list);
 }

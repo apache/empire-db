@@ -30,7 +30,10 @@ import org.apache.empire.db.DBRecord;
 import org.apache.empire.db.DBRecordData;
 import org.apache.empire.db.DBRowSet;
 import org.apache.empire.exceptions.InternalException;
+import org.apache.empire.exceptions.InvalidPropertyException;
 import org.apache.empire.exceptions.UnsupportedTypeException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * DBRecordListFactoryImpl
@@ -39,6 +42,9 @@ import org.apache.empire.exceptions.UnsupportedTypeException;
  */
 public class DBRecordListFactoryImpl<T extends DBRecord> implements DBRecordListFactory<T>
 {
+    // Logger
+    protected static final Logger log = LoggerFactory.getLogger(DBRecordListFactoryImpl.class);
+    
     /**
      * Finds a constructor for recordClass
      * @param recordClass the DBRecord class to instantiate
@@ -48,18 +54,15 @@ public class DBRecordListFactoryImpl<T extends DBRecord> implements DBRecordList
      */
     @SuppressWarnings("unchecked")
     protected static <T extends DBRecord> Constructor<T> findRecordConstructor(Class<T> recordClass, Class<? extends DBContext> contextClass, Class<? extends DBRowSet> rowsetClass)
-    {   try
-        {   // find the constructor
-            return recordClass.getDeclaredConstructor(contextClass, rowsetClass);
+    {
+        // try (context+rowset or just context)
+        Constructor<?> constructor = ClassUtils.findMatchingAccessibleConstructor(recordClass, 1, contextClass, rowsetClass);
+        if (constructor==null)
+        {   // nothing suitable
+            throw new UnsupportedTypeException(recordClass);
         }
-        catch (NoSuchMethodException | SecurityException e)
-        {   // second try
-            Constructor<?> constructor = ClassUtils.findMatchingAccessibleConstructor(recordClass, new Class<?>[] { contextClass, rowsetClass });
-            if (constructor==null)
-                throw new UnsupportedTypeException(recordClass);
-            // found
-            return (Constructor<T>)constructor;
-        }
+        // found
+        return (Constructor<T>)constructor;
     }
     
     /*
@@ -86,9 +89,9 @@ public class DBRecordListFactoryImpl<T extends DBRecord> implements DBRecordList
      * @param context the database context
      * @param rowset the rowset for the created records
      */
-    public DBRecordListFactoryImpl(Class<T> recordClass, DBRowSet rowset) 
+    public DBRecordListFactoryImpl(Class<T> recordClass, Class<? extends DBContext> contextClass, DBRowSet rowset) 
     {
-        this(findRecordConstructor(recordClass, DBContext.class, DBRowSet.class), rowset);
+        this(findRecordConstructor(recordClass, contextClass, rowset.getClass()), rowset);
     }
     
     @Override
@@ -111,11 +114,24 @@ public class DBRecordListFactoryImpl<T extends DBRecord> implements DBRecordList
     }
     
     @Override
-    public T newRecord(int rownum, DBRecordData dataRow)
+    public T newRecord(int rownum, DBRecordData recData)
     {   try
         {   // create item
-            T record = constructor.newInstance(dataRow.getContext(), rowset);
-            rowset.initRecord(record, dataRow);
+            T record;
+            switch(constructor.getParameterCount())
+            {
+                case 2: record = constructor.newInstance(recData.getContext(), rowset);break;
+                case 1: record = constructor.newInstance(recData.getContext());break;
+                default:
+                    throw new UnsupportedTypeException(constructor.getClass()); 
+            }
+            // check
+            if (rowset.isSame(record.getRowSet())==false)
+            {   // log warning
+                log.warn("DBRecordListFactoryImpl rowset ({}) and actual record rowset ({}) don't match!", rowset.getName(), record.getRowSet().getName());
+                throw new InvalidPropertyException("rowset", record.getRowSet());
+            }
+            rowset.initRecord(record, recData);
             return record;
         }
         catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e)

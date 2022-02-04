@@ -49,7 +49,6 @@ public class DBBeanListFactoryImpl<T> implements DBBeanListFactory<T>
      * @param params the constructor params
      * @return the constructor
      */
-    @SuppressWarnings("unchecked")
     protected static <T> Constructor<T> findBeanConstructor(Class<T> beanType, List<? extends DBColumnExpr> params)
     {   // find a suitable constructor (but not the default constructor!)
         if (params==null || params.isEmpty())
@@ -59,13 +58,12 @@ public class DBBeanListFactoryImpl<T> implements DBBeanListFactory<T>
         for (int i=0; i<paramTypes.length; i++)
             paramTypes[i] = params.get(i).getJavaType(); 
         // find constructor
-        return (Constructor<T>) ClassUtils.findMatchingAccessibleConstructor(beanType, paramTypes);
+        return ClassUtils.findMatchingAccessibleConstructor(beanType, -1, paramTypes);
     }
 
-    @SuppressWarnings("unchecked")
     protected static <T> Constructor<T> findBeanConstructor(Class<T> beanType)
     {   // find default constructor
-        return (Constructor<T>)ClassUtils.findMatchingAccessibleConstructor(beanType, null);
+        return ClassUtils.findMatchingAccessibleConstructor(beanType, 0);
     }
     
     /*
@@ -195,7 +193,7 @@ public class DBBeanListFactoryImpl<T> implements DBBeanListFactory<T>
     }
     
     @Override
-    public T newItem(int rownum, DBRecordData dataRow)
+    public T newItem(int rownum, DBRecordData recData)
     {   try
         {   T bean;
             if (constructorParams!=null && constructor.getParameterCount()>0)
@@ -203,18 +201,18 @@ public class DBBeanListFactoryImpl<T> implements DBBeanListFactory<T>
                 Object[] params = new Object[constructor.getParameterCount()];
                 int i=0;
                 for (DBColumnExpr expr : constructorParams)
-                    params[i++] = dataRow.getValue(expr);
+                    params[i++] = recData.getValue(expr);
                 // create item
                 bean = constructor.newInstance(params);
                 // set remaining properties
-                if (params.length < dataRow.getFieldCount())
-                    dataRow.setBeanProperties(bean, constructorParams);
+                if (params.length < recData.getFieldCount())
+                    recData.setBeanProperties(bean, constructorParams);
             }
             else
             {   // Standard constructor
                 bean = constructor.newInstance();
                 // set the properties
-                dataRow.setBeanProperties(bean);
+                recData.setBeanProperties(bean);
             }
             return bean;
         }
