@@ -645,8 +645,9 @@ public class SampleApp
         cmd.join(EMP.DEPARTMENT_ID, DEP.ID);
         cmd.joinLeft(EMP.ID, PAY.EMPLOYEE_ID).where(PAY.YEAR.is(lastYear));
         // Where constraints
-        cmd.where(EMP.RETIRED.is(false));
         cmd.where(EMP.LASTNAME.length().isGreaterThan(0));
+        cmd.where(EMP.GENDER.in(Gender.M, Gender.F));
+        cmd.where(EMP.RETIRED.is(false));
         // Order by
         cmd.orderBy(EMPLOYEE_FULLNAME);
 

@@ -21,7 +21,6 @@ package org.apache.empire.db.list;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.empire.db.exceptions.UnknownBeanTypeException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

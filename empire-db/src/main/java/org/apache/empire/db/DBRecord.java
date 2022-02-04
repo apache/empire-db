@@ -404,7 +404,7 @@ public class DBRecord extends DBRecordData implements Record, Cloneable, Seriali
      * @return the current DBDatabase object
      */
     @Override
-    public final <T extends DBDatabase> T getDatabase()
+    public <T extends DBDatabase> T getDatabase()
     {
         return getRowSet().getDatabase();
     }

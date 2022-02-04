@@ -452,7 +452,8 @@ public abstract class DBColumnExpr extends DBExpr
      * @param values the values to compare this column with
      * @return a DBCompareColExpr for the "in" operator
      */
-    public final DBCompareColExpr in(Object... values)
+    @SafeVarargs
+    public final <T> DBCompareColExpr in(T... values)
     {
         if (values==null || values.length==0)
             return cmp(DBCmpType.EQUAL, null);
