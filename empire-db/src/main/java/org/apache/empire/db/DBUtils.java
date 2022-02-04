@@ -196,7 +196,7 @@ public class DBUtils implements DBContextAware
      * 
      * @return the value of the first column in the first row of the query 
      */
-    public final Object querySingleValue(DBCommand cmd, DataType dataType, boolean forceResult)
+    public final Object querySingleValue(DBCommandExpr cmd, DataType dataType, boolean forceResult)
     {
         return querySingleValue(cmd.getSelect(), cmd.getParamValues(), dataType, forceResult);
     }
@@ -209,7 +209,7 @@ public class DBUtils implements DBContextAware
      * 
      * @return the value of the first column in the first row of the query 
      */
-    public final Object querySingleValue(DBCommand cmd, boolean forceResult)
+    public final Object querySingleValue(DBCommandExpr cmd, boolean forceResult)
     {
         return querySingleValue(cmd, DataType.UNKNOWN, forceResult);  
     }
@@ -222,7 +222,7 @@ public class DBUtils implements DBContextAware
      * 
      * @return the value of the first column in the first row of the query 
      */
-    public final Object querySingleValue(DBCommand cmd)
+    public final Object querySingleValue(DBCommandExpr cmd)
     {
         return querySingleValue(cmd, DataType.UNKNOWN, true);  
     }
@@ -251,7 +251,7 @@ public class DBUtils implements DBContextAware
      *
      * @return the result as a int value
      */
-    public final int querySingleInt(DBCommand cmd, int defaultValue)
+    public final int querySingleInt(DBCommandExpr cmd, int defaultValue)
     { 
         Object value = querySingleValue(cmd.getSelect(), cmd.getParamValues(), DataType.INTEGER, false);
         return ObjectUtils.getInteger(value, defaultValue);
@@ -265,7 +265,7 @@ public class DBUtils implements DBContextAware
      *
      * @return the result as a int value
      */
-    public final int querySingleInt(DBCommand cmd)
+    public final int querySingleInt(DBCommandExpr cmd)
     { 
         Object value = querySingleValue(cmd.getSelect(), cmd.getParamValues(), DataType.INTEGER, true);
         return ObjectUtils.getInteger(value);
@@ -295,7 +295,7 @@ public class DBUtils implements DBContextAware
      * 
      * @return the result as a long value
      */
-    public final long querySingleLong(DBCommand cmd, long defaultValue)
+    public final long querySingleLong(DBCommandExpr cmd, long defaultValue)
     { 
         Object value = querySingleValue(cmd.getSelect(), cmd.getParamValues(), DataType.INTEGER, false);
         return ObjectUtils.getLong(value, defaultValue);
@@ -309,7 +309,7 @@ public class DBUtils implements DBContextAware
      *
      * @return the result as a long value
      */
-    public final long querySingleLong(DBCommand cmd)
+    public final long querySingleLong(DBCommandExpr cmd)
     { 
         Object value = querySingleValue(cmd.getSelect(), cmd.getParamValues(), DataType.INTEGER, true);
         return ObjectUtils.getLong(value);
@@ -324,7 +324,7 @@ public class DBUtils implements DBContextAware
      *
      * @return the result as a String object, if no result a empty String
      */
-    public final String querySingleString(DBCommand cmd, String defaultValue)
+    public final String querySingleString(DBCommandExpr cmd, String defaultValue)
     { 
         Object value = querySingleValue(cmd.getSelect(), cmd.getParamValues(), DataType.VARCHAR, false);
         return StringUtils.toString(value, defaultValue);
@@ -339,7 +339,7 @@ public class DBUtils implements DBContextAware
      *
      * @return the result as a String object, if no result a empty String
      */
-    public final String querySingleString(DBCommand cmd)
+    public final String querySingleString(DBCommandExpr cmd)
     { 
         Object value = querySingleValue(cmd.getSelect(), cmd.getParamValues(), DataType.VARCHAR, true);
         return StringUtils.toString(value);
@@ -445,7 +445,7 @@ public class DBUtils implements DBContextAware
      * 
      * @return the number of elements that have been added to the collection 
      */
-    public final <T> int querySimpleList(Class<T> c, DBCommand cmd, Collection<T> result)
+    public final <T> int querySimpleList(Class<T> c, DBCommandExpr cmd, Collection<T> result)
     {
         return querySimpleList(c, cmd.getSelect(), cmd.getParamValues(), DataType.UNKNOWN, result, MAX_QUERY_ROWS); 
     }
@@ -460,7 +460,7 @@ public class DBUtils implements DBContextAware
      * 
      * @return a list of the values of the first column of an sql query 
      */
-    public final <T> List<T> querySimpleList(Class<T> c, DBCommand cmd)
+    public final <T> List<T> querySimpleList(Class<T> c, DBCommandExpr cmd)
     {   // Execute the  Statement
         List<T> result = new ArrayList<T>();
         if (querySimpleList(c, cmd, result)<0)
@@ -475,7 +475,7 @@ public class DBUtils implements DBContextAware
      * @param cmd the Command object that contains the select statement
      * @return a list of values of type Object 
      */
-    public final List<Object> querySimpleList(DBCommand cmd)
+    public final List<Object> querySimpleList(DBCommandExpr cmd)
     {   // Execute the  Statement
         return querySimpleList(Object.class, cmd);
     }
@@ -536,7 +536,7 @@ public class DBUtils implements DBContextAware
      * @param options the option list to where the options are added
      * @return an Options object containing a set a of values and their corresponding names 
      */
-    public final int queryOptionList(DBCommand cmd, Options options)
+    public final int queryOptionList(DBCommandExpr cmd, Options options)
     {   // Execute the  Statement
         return queryOptionList(cmd.getSelect(), cmd.getParamValues(), options); 
     }
@@ -548,7 +548,7 @@ public class DBUtils implements DBContextAware
      * @param cmd the Command object that contains the select statement
      * @return an Options object containing a set a of values and their corresponding names 
      */
-    public final Options queryOptionList(DBCommand cmd)
+    public final Options queryOptionList(DBCommandExpr cmd)
     {   // Execute the  Statement
         Options options = new Options();
         queryOptionList(cmd.getSelect(), cmd.getParamValues(), options);
@@ -613,7 +613,7 @@ public class DBUtils implements DBContextAware
      * @param cmd the Command object that contains the select statement
      * @return a list of object arrays
      */
-    public final List<Object[]> queryObjectList(DBCommand cmd)
+    public final List<Object[]> queryObjectList(DBCommandExpr cmd)
     {   // Execute the  Statement
         List<Object[]> result = new ArrayList<Object[]>();
         queryObjectList(cmd.getSelect(), cmd.getParamValues(), result, MAX_QUERY_ROWS);
@@ -646,7 +646,7 @@ public class DBUtils implements DBContextAware
      * 
      * @return the values of the first row 
      */
-    public final Object[] querySingleRow(DBCommand cmd)
+    public final Object[] querySingleRow(DBCommandExpr cmd)
     {
         return querySingleRow(cmd.getSelect(), cmd.getParamValues()); 
     }
@@ -679,7 +679,7 @@ public class DBUtils implements DBContextAware
      * @param cmd the cmd for which to create the DataListHead
      * @return the DataListHead instance
      */
-    protected DataListHead createDefaultDataListHead(DBCommand cmd) 
+    protected DataListHead createDefaultDataListHead(DBCommandExpr cmd) 
     {
         return new DataListHead(cmd.getSelectExprList());
     }
@@ -692,7 +692,7 @@ public class DBUtils implements DBContextAware
      * @param pageSize the maximum number of items to add to the list or -1 (default) for all
      * @return the list 
      */
-    public <T extends DataListEntry> List<T> queryDataList(DBCommand cmd, DataListFactory<T> factory, int first, int pageSize)
+    public <T extends DataListEntry> List<T> queryDataList(DBCommandExpr cmd, DataListFactory<T> factory, int first, int pageSize)
     {
         List<T> list = null;
         DBReader r = new DBReader(context);
@@ -757,7 +757,7 @@ public class DBUtils implements DBContextAware
     /**
      * Queries a list of DataListEntry items
      */
-    public final <T extends DataListEntry> List<T> queryDataList(DBCommand cmd, Class<T> entryClass, DataListHead head)
+    public final <T extends DataListEntry> List<T> queryDataList(DBCommandExpr cmd, Class<T> entryClass, DataListHead head)
     {
         return queryDataList(cmd, createDefaultDataListFactory(entryClass, head), 0, -1);
     }
@@ -765,7 +765,7 @@ public class DBUtils implements DBContextAware
     /**
      * Queries a list of DataListEntry items
      */
-    public final <T extends DataListEntry> List<T> queryDataList(DBCommand cmd, Class<T> entryClass)
+    public final <T extends DataListEntry> List<T> queryDataList(DBCommandExpr cmd, Class<T> entryClass)
     {
         return queryDataList(cmd, entryClass, createDefaultDataListHead(cmd));
     }
@@ -774,7 +774,7 @@ public class DBUtils implements DBContextAware
      * Queries a list of DataListEntry items
      */
     @SuppressWarnings("unchecked")
-    public final <T extends DataListEntry> List<T> queryDataList(DBCommand cmd)
+    public final <T extends DataListEntry> List<T> queryDataList(DBCommandExpr cmd)
     {
         return (List<T>)queryDataList(cmd, DataListEntry.class);
     }
@@ -782,7 +782,7 @@ public class DBUtils implements DBContextAware
     /**
      * Queries a single DataListEntry item
      */
-    public final <T extends DataListEntry> T queryDataEntry(DBCommand cmd, Class<T> entryClass, boolean forceResult)
+    public final <T extends DataListEntry> T queryDataEntry(DBCommandExpr cmd, Class<T> entryClass, boolean forceResult)
     {
         DataListHead head = createDefaultDataListHead(cmd);
         List<T> dle = queryDataList(cmd, createDefaultDataListFactory(entryClass, head), 0, 1);
@@ -797,7 +797,7 @@ public class DBUtils implements DBContextAware
     /**
      * Queries a single DataListEntry item
      */
-    public final <T extends DataListEntry> T queryDataEntry(DBCommand cmd, Class<T> entryClass)
+    public final <T extends DataListEntry> T queryDataEntry(DBCommandExpr cmd, Class<T> entryClass)
     {
         return queryDataEntry(cmd, entryClass, true);
     }
@@ -806,7 +806,7 @@ public class DBUtils implements DBContextAware
      * Queries a single DataListEntry item
      */
     @SuppressWarnings("unchecked")
-    public final <T extends DataListEntry> T queryDataEntry(DBCommand cmd)
+    public final <T extends DataListEntry> T queryDataEntry(DBCommandExpr cmd)
     {
         return (T)queryDataEntry(cmd, DataListEntry.class);
     }
