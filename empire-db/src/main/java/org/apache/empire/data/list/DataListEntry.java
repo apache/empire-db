@@ -76,7 +76,7 @@ public class DataListEntry implements RecordData, Serializable
         return ObjectUtils.getLong(getValue(keyColumns[0]));
     }
     
-    public boolean compareKey(Column[] keyColumns, Object[] keyValues)
+    public boolean compareKey(Column[] keyColumns, Object[] key)
     {
         for (int i=0; i<keyColumns.length; i++)
         {   // find field
@@ -84,7 +84,7 @@ public class DataListEntry implements RecordData, Serializable
             if (index<0)
                 throw new ItemNotFoundException(keyColumns[i].getName());
             // compare
-            if (!ObjectUtils.compareEqual(values[index], keyValues[i]))
+            if (!ObjectUtils.compareEqual(values[index], key[i]))
                 return false; // not equal
         }
         // found

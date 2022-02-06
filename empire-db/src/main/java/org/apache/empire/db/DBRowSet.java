@@ -564,13 +564,15 @@ public abstract class DBRowSet extends DBExpr implements Entity
     }
 
     /**
-     * Initializes a DBRecord for this RowSet and sets primary key values (the Object[] keyValues).
+     * Initializes a DBRecord for this RowSet and sets primary key values.
      * The record may then be modified and updated.<BR>
      * <P>
      * @param record the Record object
-     * @param keyValues an array of the primary key columns
+     * @param key an array of the values for the primary key
+     * @param fieldInitMode indicates how to initializes the record fields
+     * @param newRecord true if the record is new or false if it is an existing record
      */
-    protected void initRecord(DBRecord record, Object[] keyValues, FieldInitMode fieldInitMode, boolean newRecord)
+    protected void initRecord(DBRecord record, Object[] key, FieldInitMode fieldInitMode, boolean newRecord)
     {
         // check param
         checkParamRecord("record", record, false);
@@ -583,13 +585,13 @@ public abstract class DBRowSet extends DBExpr implements Entity
          * ![fields[i] <> ObjectUtils.NO_VALUE];
          */    
         // Init Key Values
-        if (keyValues != null)
+        if (key != null)
         {   // Check Columns
             DBColumn[] keyColumns =(DBColumn[])getKeyColumns();
             if (keyColumns==null)
                 throw new NoPrimaryKeyException(this);
-            if (keyValues.length!=keyColumns.length)
-                throw new InvalidArgumentException("keyValues", keyValues);
+            if (key.length!=keyColumns.length)
+                throw new InvalidArgumentException("key", key);
             for (int i = 0; i < keyColumns.length; i++)
             {   // check
                 DBColumn keyColumn = keyColumns[i]; 
@@ -597,7 +599,7 @@ public abstract class DBRowSet extends DBExpr implements Entity
                     throw new FieldIsReadOnlyException(keyColumn);
                 // Ignore Validity Checks
                 int field = getColumnIndex(keyColumn);
-                fields[field] = keyValues[i];
+                fields[field] = key[i];
             }
         }
         // Set defaults (don't provide connection here)

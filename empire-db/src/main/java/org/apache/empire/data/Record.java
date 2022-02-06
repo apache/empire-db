@@ -21,6 +21,7 @@ package org.apache.empire.data;
 import java.util.Collection;
 
 import org.apache.empire.commons.Options;
+import org.apache.empire.exceptions.InvalidArgumentException;
 
 
 /**
@@ -39,9 +40,11 @@ public interface Record extends RecordData
      * @param parts
      * @return
      */
-    public static Object[] key(Object... parts)
+    public static Object[] key(Object... values)
     {
-        return parts;
+        if (values.length==0)
+            throw new InvalidArgumentException("values", values);
+        return values;
     }
 
     /**

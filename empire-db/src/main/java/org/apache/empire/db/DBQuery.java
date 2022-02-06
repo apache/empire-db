@@ -416,27 +416,27 @@ public class DBQuery extends DBRowSet
     /**
      * Updates a query record by creating individual update commands for each table.
      * 
-     * @param rec the DBRecord object. contains all fields and the field properties
+     * @param record the DBRecord object. contains all fields and the field properties
      * @param conn a valid connection to the database.
      */
     @Override
-    public void updateRecord(DBRecord rec)
+    public void updateRecord(DBRecord record)
     {
         // check updateable
         if (isUpdateable()==false)
             throw new NotSupportedException(this, "updateRecord");
         // check params
-        if (rec == null)
+        if (record == null)
             throw new InvalidArgumentException("record", null);
         // Has record been modified?
-        if (rec.isModified() == false)
+        if (record.isModified() == false)
             return; // Nothing to update
         // Must have key Columns
         DBColumn[] keyColumns = getKeyColumns();
         if (keyColumns==null)
             throw new NoPrimaryKeyException(this);
         // Get the fields and the flags
-        Object[] fields = rec.getFields();
+        Object[] fields = record.getFields();
         // Get all Update Commands
         Map<DBRowSet, DBCommand> updCmds = new HashMap<DBRowSet, DBCommand>(3);
         for (int i = 0; i < columns.size(); i++)
@@ -455,7 +455,7 @@ public class DBQuery extends DBRowSet
              * if (updateTimestampColumns.contains( col ) ) { // Check the update timestamp cmd.set( col.to( DBDatabase.SYSDATE ) ); }
              */
             // Set the field Value
-            boolean modified = rec.wasModified(i);
+            boolean modified = record.wasModified(i);
             if (modified == true)
             { // Update a field
                 if (col.isReadOnly() && log.isDebugEnabled())
@@ -467,11 +467,11 @@ public class DBQuery extends DBRowSet
             }
         }
         // the connection
-        DBContext context = rec.getContext();
+        DBContext context = record.getContext();
         Connection conn = context.getConnection();
         // the commands
         DBCommand cmd = getCommandFromExpression();
-        Object[] key  = getRecordKey(rec);
+        Object[] key  = getRecordKey(record);
         DBRowSet table= null;
         DBCommand upd = null;
         for(Entry<DBRowSet,DBCommand> entry:updCmds.entrySet())
@@ -493,10 +493,10 @@ public class DBQuery extends DBRowSet
                 DBColumn left  = join.getLeft() .getUpdateColumn();
                 DBColumn right = join.getRight().getUpdateColumn();
                 if (left.getRowSet()==table && table.isKeyColumn(left))
-                    if (!addJoinRestriction(upd, left, right, keyColumns, key, rec))
+                    if (!addJoinRestriction(upd, left, right, keyColumns, key, record))
                         throw new ItemNotFoundException(left.getFullName());
                 if (right.getRowSet()==table && table.isKeyColumn(right))
-                    if (!addJoinRestriction(upd, right, left, keyColumns, key, rec))
+                    if (!addJoinRestriction(upd, right, left, keyColumns, key, record))
                         throw new ItemNotFoundException(right.getFullName());
             }
             // Evaluate Existing restrictions
@@ -590,7 +590,7 @@ public class DBQuery extends DBRowSet
             }
         }
         // success
-        rec.updateComplete();
+        record.updateComplete();
     }
 
     /**
@@ -608,24 +608,24 @@ public class DBQuery extends DBRowSet
     /**
      * Adds join restrictions to the supplied command object.
      */
-    protected boolean addJoinRestriction(DBCommand upd, DBColumn updCol, DBColumn keyCol, DBColumn[] keyColumns, Object[] keyValues, DBRecord rec)
+    protected boolean addJoinRestriction(DBCommand cmd, DBColumn updCol, DBColumn joinCol, DBColumn[] keyColumns, Object[] key, DBRecord record)
     {   // Find key for foreign field
-        for (int i = 0; keyValues!=null && i < keyColumns.length; i++)
-            if (keyColumns[i]==keyCol)
+        for (int i = 0; key!=null && i < keyColumns.length; i++)
+            if (keyColumns[i]==joinCol)
             {   // Set Field from Key
-                upd.where(updCol.is(keyValues[i]));
+                cmd.where(updCol.is(key[i]));
                 return true;
             }
         // Not found, what about the record
         int index = this.getColumnIndex(updCol);
         if (index<0)
-            index = this.getColumnIndex(keyCol);
+            index = this.getColumnIndex(joinCol);
         if (index>=0)
         {   // Field Found
-            if (rec.wasModified(index))
+            if (record.wasModified(index))
                 return false; // Ooops, Key field has changed
             // Set Constraint
-            upd.where(updCol.is(rec.getValue(index)));
+            cmd.where(updCol.is(record.getValue(index)));
             return true;
         }
         return false;

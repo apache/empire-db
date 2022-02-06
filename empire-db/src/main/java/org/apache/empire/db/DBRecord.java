@@ -219,12 +219,14 @@ public class DBRecord extends DBRecordData implements Record, Cloneable, Seriali
 
     /**
      * varArgs to Array
-     * @param parts
+     * @param values
      * @return
      */
-    public static Object[] key(Object... parts)
+    public static Object[] key(Object... values)
     {
-        return parts;
+        if (values.length==0)
+            throw new InvalidArgumentException("values", values);
+        return values;
     }
 
     // Context and RowSet
