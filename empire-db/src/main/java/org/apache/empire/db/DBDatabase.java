@@ -227,7 +227,7 @@ public abstract class DBDatabase extends DBObject
                 invalidKeys.add(e.getKey());
             }
         }
-        // Remove all invalid keys
+        // Remove all invalid key
         for (String key : invalidKeys)
         {
             databaseMap.remove(key);

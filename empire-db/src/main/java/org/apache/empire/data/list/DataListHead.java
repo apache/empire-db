@@ -68,24 +68,55 @@ public class DataListHead implements Serializable
         return -1;
     }
     
+    /**
+     * Custom value formatting
+     * Default is to convert to a String and calls escape() 
+     * @param idx the field index
+     * @param value the value
+     * @return the formatted value
+     */
     public String formatValue(int idx, Object value)
     {   // check empty
         if (ObjectUtils.isEmpty(value))
             return StringUtils.EMPTY;
         // check options
+        String text;
         Options options = columns[idx].getOptions();
         if (options!=null && options.has(value))
         {   // lookup option
-            value = options.get(value);
+            text = options.get(value);
+        }
+        else if (value instanceof String)
+        {   // we already have a string
+            text = (String)value;
+        }
+        else if (columns[idx].getDataType().isText())
+        {   // we have a text expression, convert ourselves
+            text = ObjectUtils.getString(value);
+        }
+        else
+        {   // convert to String
+            text = convertToString(columns[idx], value);
         }
         // Escape
-        return escape(String.valueOf(value));
+        return escape(text);
+    }
+
+    /**
+     * Convert a non-string value to a string
+     * @param column the column expression 
+     * @param value the value to format
+     * @return the formatted string
+     */
+    protected String convertToString(ColumnExpr column, Object value)
+    {
+        return ObjectUtils.getString(value);
     }
     
     /**
      * Escapes the formatted value
      * Default is a simple HTML escape
-     * Overwrite in order to change the behaviour
+     * Overwrite in order to change the behavior
      */
     protected String escape(String text)
     {

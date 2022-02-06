@@ -38,7 +38,7 @@ public class OracleDDLGenerator extends DBDDLGenerator<DBMSHandlerOracle>
         databaseObjectName = "USER";
         // Alter Column Phrase
         alterColumnPhrase  = " MODIFY ";
-        // Name Primary Keys
+        // Name Primary Key
         namePrimaryKeyConstraint = true;
         // set Oracle specific data types
         initDataTypes();

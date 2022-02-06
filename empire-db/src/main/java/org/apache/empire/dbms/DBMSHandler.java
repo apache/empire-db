@@ -150,7 +150,7 @@ public interface DBMSHandler
      */
     public interface DBSetGenKeys
     {
-        void set(Object value);
+        void set(int rownum, Object value);
     }
     
     /**

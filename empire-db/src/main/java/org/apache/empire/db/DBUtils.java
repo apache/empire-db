@@ -82,7 +82,7 @@ public class DBUtils implements DBContextAware
      * <P>
      * @param sqlCmd the SQL-Command
      * @param sqlParams a list of objects to replace sql parameters
-     * @param setGenKeys object to set the generated keys for
+     * @param setGenKeys callback to set the generated key for a each new record
      * @return the row count for insert, update or delete or 0 for SQL statements that return nothing
      */
     public int executeSQL(String sqlCmd, Object[] sqlParams, DBMSHandler.DBSetGenKeys setGenKeys)
@@ -679,7 +679,7 @@ public class DBUtils implements DBContextAware
      * @param cmd the cmd for which to create the DataListHead
      * @return the DataListHead instance
      */
-    protected DataListHead createDefaultDataListHead(DBCommandExpr cmd) 
+    protected DataListHead createDefaultDataListHead(DBCommandExpr cmd, Class<? extends DataListEntry> entryClass) 
     {
         return new DataListHead(cmd.getSelectExprList());
     }
@@ -767,16 +767,15 @@ public class DBUtils implements DBContextAware
      */
     public final <T extends DataListEntry> List<T> queryDataList(DBCommandExpr cmd, Class<T> entryClass)
     {
-        return queryDataList(cmd, entryClass, createDefaultDataListHead(cmd));
+        return queryDataList(cmd, entryClass, createDefaultDataListHead(cmd, entryClass));
     }
     
     /**
      * Queries a list of DataListEntry items
      */
-    @SuppressWarnings("unchecked")
-    public final <T extends DataListEntry> List<T> queryDataList(DBCommandExpr cmd)
+    public final List<DataListEntry> queryDataList(DBCommandExpr cmd)
     {
-        return (List<T>)queryDataList(cmd, DataListEntry.class);
+        return queryDataList(cmd, DataListEntry.class);
     }
 
     /**
@@ -784,7 +783,7 @@ public class DBUtils implements DBContextAware
      */
     public final <T extends DataListEntry> T queryDataEntry(DBCommandExpr cmd, Class<T> entryClass, boolean forceResult)
     {
-        DataListHead head = createDefaultDataListHead(cmd);
+        DataListHead head = createDefaultDataListHead(cmd, entryClass);
         List<T> dle = queryDataList(cmd, createDefaultDataListFactory(entryClass, head), 0, 1);
         if (dle.isEmpty())
         {   if (forceResult)
@@ -805,10 +804,9 @@ public class DBUtils implements DBContextAware
     /**
      * Queries a single DataListEntry item
      */
-    @SuppressWarnings("unchecked")
-    public final <T extends DataListEntry> T queryDataEntry(DBCommandExpr cmd)
+    public final DataListEntry queryDataEntry(DBCommandExpr cmd)
     {
-        return (T)queryDataEntry(cmd, DataListEntry.class);
+        return queryDataEntry(cmd, DataListEntry.class);
     }
 
     /**

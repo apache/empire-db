@@ -419,7 +419,7 @@ public abstract class DBView extends DBRowSet
      * @see org.apache.empire.db.DBRowSet#addRecord(org.apache.empire.db.DBRecord, java.sql.Connection)
      */
     @Override
-    public void createRecord(DBRecord rec, Object[] initalKey, boolean deferredInit)
+    public void createRecord(DBRecord record, Object[] initalKey, boolean deferredInit)
     {
         throw new NotSupportedException(this, "createRecord");
     }
@@ -430,7 +430,7 @@ public abstract class DBView extends DBRowSet
      * @see org.apache.empire.db.DBRowSet#deleteRecord(java.lang.Object[], java.sql.Connection, boolean)
      */
     @Override
-    public void deleteRecord(Object[] keys, DBContext context)
+    public void deleteRecord(Object[] key, DBContext context)
     {
         throw new NotSupportedException(this, "deleteRecord");
     }

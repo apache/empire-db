@@ -301,14 +301,14 @@ public class SampleApp
             clearDatabase();
 
         log.info("Step 5: insertDepartment() & insertEmployee()");
-        int idDevDep = insertDepartment("Development", "ITTK");
-        int idSalDep = insertDepartment("Sales", "ITTK");
+        long idDevDep = insertDepartment("Development", "ITTK");
+        long idSalDep = insertDepartment("Sales", "ITTK");
         // Insert Employees
-        int idEmp1 = insertEmployee("Peter", "Sharp",  Gender.M, idDevDep);
-        int idEmp2 = insertEmployee("Fred",  "Bloggs", Gender.M, idDevDep);
-        int idEmp3 = insertEmployee("Emma",  "White",  Gender.F, idSalDep);
-        int idEmp4 = insertEmployee("John",  "Doe",    Gender.M, idSalDep);
-        int idEmp5 = insertEmployee("Sarah", "Smith",  Gender.F, idDevDep);
+        long idEmp1 = insertEmployee("Peter", "Sharp",  Gender.M, idDevDep);
+        long idEmp2 = insertEmployee("Fred",  "Bloggs", Gender.M, idDevDep);
+        long idEmp3 = insertEmployee("Emma",  "White",  Gender.F, idSalDep);
+        long idEmp4 = insertEmployee("John",  "Doe",    Gender.M, idSalDep);
+        long idEmp5 = insertEmployee("Sarah", "Smith",  Gender.F, idDevDep);
         // Insert Payments
         insertPayments(idEmp1, new BigDecimal(2000));
         insertPayments(idEmp3, new BigDecimal(2500));
@@ -349,7 +349,7 @@ public class SampleApp
 	 * Insert a Department into the Departments table.
      * </PRE>
 	 */
-	private static int insertDepartment(String departmentName, String businessUnit)
+	private static long insertDepartment(String departmentName, String businessUnit)
     {
         SampleDB.Departments DEP = db.DEPARTMENTS;
 		// Insert a Department
@@ -359,7 +359,7 @@ public class SampleApp
 		rec.setValue(DEP.BUSINESS_UNIT, businessUnit);
 		rec.update();
 		// Return Department ID
-		return rec.getInt(DEP.ID);
+        return rec.getId();
 	}
 
 	/**
@@ -367,7 +367,7 @@ public class SampleApp
 	 * Inserts an Employee into the Employees table.
      * </PRE>
 	 */
-	private static int insertEmployee(String firstName, String lastName, Gender gender, int departmentId)
+	private static long insertEmployee(String firstName, String lastName, Gender gender, long departmentId)
     {
         SampleDB.Employees EMP = db.EMPLOYEES;
 		// Insert an Employee
@@ -379,7 +379,7 @@ public class SampleApp
 		rec.setValue(EMP.DEPARTMENT_ID, departmentId);
 		rec.update();
 		// Return Employee ID
-		return rec.getInt(EMP.ID);
+		return rec.getId();
 	}
 
     /**
@@ -387,7 +387,7 @@ public class SampleApp
      * Inserts an Payments for a particular Employee
      * </PRE>
      */
-    private static void insertPayments(int employeeId, BigDecimal monthlySalary)
+    private static void insertPayments(long employeeId, BigDecimal monthlySalary)
     {
         SampleDB.Payments PAY = db.PAYMENTS;
         // Insert an Employee
@@ -411,7 +411,7 @@ public class SampleApp
 	 * Updates an employee record by setting the phone number.
      * </PRE>
 	 */
-	private static void updateEmployee(int idEmp, String phoneNumber)
+	private static void updateEmployee(long idEmp, String phoneNumber)
     {
 		// Update an Employee
 		DBRecord rec = new DBRecord(context, db.EMPLOYEES);
@@ -426,7 +426,7 @@ public class SampleApp
      * Updates an employee record by setting the phone number.
      * </PRE>
      */
-    private static void updatePartialRecord(int idEmp, String phoneNumber)
+    private static void updatePartialRecord(long idEmp, String phoneNumber)
     {
         // Shortcut for convenience
         SampleDB.Employees EMP = db.EMPLOYEES;
@@ -444,7 +444,7 @@ public class SampleApp
      * Updates an employee record by setting the phone number.
      * </PRE>
      */
-    private static void updateJoinedRecords(int idEmp, int salary)
+    private static void updateJoinedRecords(long idEmp, int salary)
     {
         // Shortcuts for convenience
         SampleDB.Employees EMP = db.EMPLOYEES;
@@ -793,7 +793,7 @@ public class SampleApp
         */    
         for (DataListEntry dle : list)
         {
-            int empId = dle.getId(EMP);
+            long empId = dle.getRecordId(EMP);
             // int depId = dle.getId(DEP);
             String empName = StringUtils.concat(", ", dle.getString(EMP.LASTNAME), dle.getString(EMP.FIRSTNAME));
             String depName = dle.getString(DEP.NAME);
@@ -807,6 +807,16 @@ public class SampleApp
             else
                 log.info("Eployee[{}]: {}\tDepartment: {}\tPayments: [No data avaiable]", empId, empName, depName);
         }
+        
+        /*
+        cmd.where(EMP.ID.is(list.get(0).getRecordId(EMP)));
+        DataListEntry emp1 = context.getUtils().queryDataEntry(cmd);
+        System.out.println(emp1.toString());
+
+        cmd.where(EMP.ID.is(list.get(1).getRecordId(EMP)));
+        DataListEntry emp2 = context.getUtils().queryDataEntry(cmd);
+        System.out.println(emp2.toString());
+        */
 	}
 
 	private static void queryRecordList()

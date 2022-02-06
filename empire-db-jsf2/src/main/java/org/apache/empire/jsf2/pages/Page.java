@@ -73,7 +73,7 @@ public abstract class Page // *Deprecated* implements Serializable
      * @param db the database for which to obtain a connection
      * @return the connection for the given database
      */
-    public abstract DBContext getDBContext(DBDatabase db);
+    public abstract <T extends DBContext> T getDBContext(DBDatabase db);
 
     public String getPageName()
     {

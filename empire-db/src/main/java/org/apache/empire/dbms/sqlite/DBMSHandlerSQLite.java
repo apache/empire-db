@@ -444,10 +444,10 @@ public class DBMSHandlerSQLite extends DBMSHandlerBase
             { // Return Keys
                 ResultSet rs = stmt.getGeneratedKeys();
                 try
-                {
+                {   int rownum = 0;
                     while (rs.next())
                     {
-                        genKeys.set(rs.getObject(1));
+                        genKeys.set(rownum++, rs.getObject(1));
                     }
                 }
                 finally

@@ -322,7 +322,7 @@ public class CodeGenParser {
     protected void populateTable(DBTable t) throws SQLException {
 		List<String> pkCols = this.findPkColumns(t.getName());
 		String lockColName = config.getTimestampColumn();
-		DBColumn[] keys = new DBColumn[pkCols.size()];
+		DBColumn[] key = new DBColumn[pkCols.size()];
 		ResultSet rs = null;
 		try {
 			rs = dbMeta.getColumns(config.getDbCatalog(), config.getDbSchema(),	t.getName(), null);
@@ -333,15 +333,15 @@ public class CodeGenParser {
 				    continue;
 				// check if it is a KeyColumn
 				if (pkCols.contains(c.getName()))
-					keys[i++] = c;
+					key[i++] = c;
 			}
 	        // Check whether all key columns have been set
-	        for (i=0; i<keys.length; i++)
-	            if (keys[i]==null){
+	        for (i=0; i<key.length; i++)
+	            if (key[i]==null){
 	            	throw new ItemNotFoundException(pkCols.get(i));
 	            }
-	        if(keys.length > 0){
-	        	t.setPrimaryKey(keys);
+	        if(key.length > 0){
+	        	t.setPrimaryKey(key);
 	        }
 		} finally {
 			close(rs);

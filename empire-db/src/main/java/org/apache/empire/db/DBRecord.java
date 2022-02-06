@@ -45,6 +45,7 @@ import org.apache.empire.db.expr.compare.DBCompareExpr;
 import org.apache.empire.exceptions.BeanPropertyGetException;
 import org.apache.empire.exceptions.InvalidArgumentException;
 import org.apache.empire.exceptions.ItemNotFoundException;
+import org.apache.empire.exceptions.NotSupportedException;
 import org.apache.empire.exceptions.ObjectNotValidException;
 import org.apache.empire.exceptions.UnspecifiedErrorException;
 import org.apache.empire.xml.XMLUtil;
@@ -608,16 +609,29 @@ public class DBRecord extends DBRecordData implements Record, Cloneable, Seriali
         if (keyColumns == null || keyColumns.length==0)
             throw new NoPrimaryKeyException(getRowSet());
         // create the key
-        Object[] keys = new Object[keyColumns.length];
+        Object[] key = new Object[keyColumns.length];
         for (int i = 0; i < keyColumns.length; i++)
         {
-            keys[i] = getValue(keyColumns[i]);
-            if (keys[i] == null)
+            key[i] = getValue(keyColumns[i]);
+            if (key[i] == null)
             { // Primary Key not set
                 log.warn("DBRecord.getKey() failed: " + getRowSet().getName() + " primary key value is null!");
             }
         }
-        return keys;
+        return key;
+    }
+    
+    public long getId()
+    {
+        // Check Columns
+        Column[] keyColumns = getKeyColumns();
+        if (keyColumns == null || keyColumns.length==0)
+            throw new NoPrimaryKeyException(getRowSet());
+        // Check Columns
+        if (keyColumns.length!=1 || !keyColumns[0].getDataType().isNumeric())
+            throw new NotSupportedException(this, "getId");
+        // the numeric id
+        return getLong(keyColumns[0]);
     }
 
     /**
@@ -987,8 +1001,8 @@ public class DBRecord extends DBRecordData implements Record, Cloneable, Seriali
         // Delete only if record is not new
         if (!isNew())
         {
-            Object[] keys = getKey();
-            getRowSet().deleteRecord(keys, getContext());
+            Object[] key = getKey();
+            getRowSet().deleteRecord(key, getContext());
         }
         close();
     }

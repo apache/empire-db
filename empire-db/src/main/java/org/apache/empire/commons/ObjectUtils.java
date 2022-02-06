@@ -315,7 +315,7 @@ public final class ObjectUtils
         {   // Try to convert
             return toInteger(v);
         } catch (NumberFormatException e) {
-        	log.warn(String.format("Cannot convert value [%s] to int!", v));
+        	log.error(String.format("Cannot convert value [%s] to int", v));
             return defValue;
         }
     }
@@ -365,7 +365,7 @@ public final class ObjectUtils
         {   // Try to convert
             return toLong(v);
         } catch (NumberFormatException e) {
-        	log.warn(String.format("Cannot convert value [%s] to long!", v));
+        	log.error(String.format("Cannot convert value [%s] to long", v));
             return defValue;
         }
     }
@@ -416,7 +416,7 @@ public final class ObjectUtils
         {   // Try to convert
             return toDouble(v);
         } catch (NumberFormatException e) {
-            log.warn(String.format("Cannot convert value [%s] to double!", v));
+            log.error(String.format("Cannot convert value [%s] to double", v));
             return defValue;
         }
     }
@@ -479,7 +479,7 @@ public final class ObjectUtils
         {   // Try to convert
             return toDecimal(v);
         } catch (NumberFormatException e) {
-            log.warn(String.format("Cannot convert value [%s] to BigDecimal!", v));
+            log.error(String.format("Cannot convert value [%s] to BigDecimal", v));
             return defValue;
         }
     }
@@ -729,7 +729,7 @@ public final class ObjectUtils
             else
                 return dateOnlyFormatter.get().parse(str);
         } catch (ParseException e) {
-            log.error("Cannot convert \""+str+"\" to Date!", e);
+            log.error(String.format("Cannot convert value [%s] to Date", str), e);
             return null;
         }
     }
@@ -756,12 +756,12 @@ public final class ObjectUtils
         if (v instanceof java.util.Date)
             return DateUtils.toLocalDate((Date)v);
         // Convert from String
+        String str = v.toString();
         try
         {   // DateTimeFormatter ISO_LOCAL_DATE
-            String str = v.toString();
             return LocalDate.parse(str);
         } catch (DateTimeParseException e) {
-            log.error("Cannot convert value to LocalDate!", e);
+            log.error(String.format("Cannot convert value [%s] to LocalDate", str), e);
             return null;
         }
     }
@@ -788,12 +788,12 @@ public final class ObjectUtils
         if (v instanceof java.util.Date)
             return DateUtils.toLocalDateTime((Date)v);
         // Convert from String
+        String str = v.toString();
         try
         {   // DateTimeFormatter.ISO_LOCAL_DATE_TIME
-            String str = v.toString();
             return LocalDateTime.parse(str);
         } catch (DateTimeParseException e) {
-            log.error("Cannot convert value to LocalDateTime!", e);
+            log.error(String.format("Cannot convert value [%s] to LocalDateTime", str), e);
             return null;
         }
     }

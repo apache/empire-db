@@ -58,7 +58,7 @@ public class DataListEntry implements RecordData, Serializable
         return (T)this.head;
     }
     
-    public Object[] getKey(Entity entity)
+    public Object[] getRecordKey(Entity entity)
     {
         Column[] keyColumns = entity.getKeyColumns();
         Object[] key = new Object[keyColumns.length];
@@ -67,13 +67,13 @@ public class DataListEntry implements RecordData, Serializable
         return key;
     }
 
-    public int getId(Entity entity)
+    public long getRecordId(Entity entity)
     {
         Column[] keyColumns = entity.getKeyColumns();
         if (keyColumns.length!=1)
             throw new InvalidArgumentException("entity", entity.getName());
         // return id
-        return ObjectUtils.getInteger(getValue(keyColumns[0]));
+        return ObjectUtils.getLong(getValue(keyColumns[0]));
     }
     
     public boolean compareKey(Column[] keyColumns, Object[] keyValues)
@@ -127,18 +127,6 @@ public class DataListEntry implements RecordData, Serializable
     public int getRownum()
     {
         return rownum;
-    }
-
-    public String val(String name)
-    {
-        int idx = getFieldIndex(name);
-        return head.formatValue(idx, values[idx]);
-    }
-
-    public String val(ColumnExpr col)
-    {
-        int idx = getFieldIndex(col);
-        return head.formatValue(idx, values[idx]);
     }
 
     @Override
@@ -300,6 +288,18 @@ public class DataListEntry implements RecordData, Serializable
     /*
      * Miscellaneous functions
      */
+
+    public String format(String name)
+    {
+        int idx = getFieldIndex(name);
+        return head.formatValue(idx, values[idx]);
+    }
+
+    public String format(ColumnExpr col)
+    {
+        int idx = getFieldIndex(col);
+        return head.formatValue(idx, values[idx]);
+    }
     
     @Override
     public String toString()

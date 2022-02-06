@@ -102,7 +102,7 @@ public class DBQuery extends DBRowSet
 
     /**
      * Constructor initializes the query object.
-     * Saves the columns and the primary keys of this query.
+     * Saves the columns and the primary key of this query.
      * 
      * @param cmd the SQL-Command
      * @param keyColumns an array of the primary key columns
@@ -133,7 +133,7 @@ public class DBQuery extends DBRowSet
 
     /**
      * Constructor initializes the query object.
-     * Saves the columns and the primary keys of this query.
+     * Saves the columns and the primary key of this query.
      * 
      * @param cmd the SQL-Command
      * @param keyColumns an array of the primary key columns
@@ -343,14 +343,14 @@ public class DBQuery extends DBRowSet
      * Add rowset data
      */
     @Override
-    public void initRecord(DBRecord rec, DBRecordData recData)
+    public void initRecord(DBRecord record, DBRecordData recData)
     {
         // init
-        super.initRecord(rec, recData);
+        super.initRecord(record, recData);
         // set record key as rowset data (optional)
         if (keyColumns!=null)
         {   // check
-            Object rowsetData = getRowsetData(rec);
+            Object rowsetData = getRowsetData(record);
             if (rowsetData!=null && !(rowsetData instanceof Object[]) && ((Object[])rowsetData).length!=keyColumns.length)
                 throw new InvalidArgumentException("rowSetData", rowsetData);
             // create key if not already set
@@ -360,7 +360,7 @@ public class DBQuery extends DBRowSet
                 for (int i=0; i<recordKey.length; i++)
                     recordKey[i]=recData.getValue(keyColumns[i]);
                 rowsetData = recordKey;
-                setRowsetData(rec, rowsetData);
+                setRowsetData(record, rowsetData);
             }
         }
     }
@@ -373,7 +373,7 @@ public class DBQuery extends DBRowSet
      * @throws NotImplementedException because this is not implemented
      */
     @Override
-    public void createRecord(DBRecord rec, Object[] initalKey, boolean deferredInit)
+    public void createRecord(DBRecord record, Object[] initalKey, boolean deferredInit)
     {
         throw new NotImplementedException(this, "createRecord");
     }
@@ -381,14 +381,14 @@ public class DBQuery extends DBRowSet
     /**
      * Creates a select SQL-Command of the query call the InitRecord method to execute the SQL-Command.
      * 
-     * @param rec the DBRecord object, contains all fields and the field properties
+     * @param record the DBRecord object, contains all fields and the field properties
      * @param key an array of the primary key columns
      * @param conn a valid connection to the database.
      */
     @Override
-    public void readRecord(DBRecord rec, Object[] key)
+    public void readRecord(DBRecord record, Object[] key)
     {
-        if (rec == null)
+        if (record == null)
             throw new InvalidArgumentException("conn|rec", null);
         DBColumn[] keyColumns = getKeyColumns();
         if (key == null || keyColumns.length != key.length)
@@ -405,7 +405,7 @@ public class DBQuery extends DBRowSet
         // Read Record
         try {
             // Read Record
-            readRecord(rec, cmd);
+            readRecord(record, cmd);
             // setRowsetData(rec, key.clone()); /* not required */
         } catch (QueryNoResultException e) {
             // Record not found
@@ -596,11 +596,11 @@ public class DBQuery extends DBRowSet
     /**
      * Deletes a record identified by its primary key from the database.
      * 
-     * @param keys array of primary key values
+     * @param key array of primary key values
      * @param conn a valid database connection
      */
     @Override
-    public void deleteRecord(Object[] keys, DBContext context)
+    public void deleteRecord(Object[] key, DBContext context)
     {
         throw new NotImplementedException(this, "deleteRecord()");
     }

@@ -117,15 +117,18 @@ public class WebDBContext<DB extends DBDatabase> extends DBContextBase implement
     @Override
     protected Connection getConnection(boolean create)
     {
-        FacesContext fc = FacesContext.getCurrentInstance();
-        return app.getConnectionForRequest(fc, database, create);
+        return app.getConnectionForRequest(getFacesContext(), database, create);
     }
 
     @Override
     protected DBRollbackManager getRollbackManager(boolean create)
     {
-        FacesContext fc = FacesContext.getCurrentInstance();
-        return app.getRollbackManagerForRequest(fc, create);
+        return app.getRollbackManagerForRequest(getFacesContext(), create);
+    }
+    
+    public FacesContext getFacesContext()
+    {
+        return FacesContext.getCurrentInstance();
     }
     
 }

@@ -258,7 +258,7 @@ public class DBMSHandlerHSql extends DBMSHandlerBase
         String sqlCmd = sql.toString();
         if (log.isDebugEnabled())
             log.debug("Executing: " + sqlCmd);
-        Object val = querySingleValue(sqlCmd, null, DataType.UNKNOWN, conn);
+        Object val = querySingleValue(sqlCmd, null, DataType.INTEGER, conn);
         if (ObjectUtils.isEmpty(val))
         {   // Error!
             log.error("getNextSequenceValue: Invalid sequence value for sequence " + seqName);
