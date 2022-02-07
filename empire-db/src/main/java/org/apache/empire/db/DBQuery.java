@@ -403,14 +403,7 @@ public class DBQuery extends DBRowSet
             cmd.where(keyColumns[i].is(value));
         }    
         // Read Record
-        try {
-            // Read Record
-            readRecord(record, cmd);
-            // setRowsetData(rec, key.clone()); /* not required */
-        } catch (QueryNoResultException e) {
-            // Record not found
-            throw new RecordNotFoundException(this, key);
-        }
+        readRecord(record, cmd);
     }
 
     /**

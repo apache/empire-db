@@ -45,6 +45,7 @@ import org.apache.empire.db.exceptions.RecordNotFoundException;
 import org.apache.empire.db.exceptions.RecordUpdateFailedException;
 import org.apache.empire.db.exceptions.RecordUpdateInvalidException;
 import org.apache.empire.db.expr.column.DBCountExpr;
+import org.apache.empire.db.expr.compare.DBCompareColExpr;
 import org.apache.empire.db.expr.compare.DBCompareExpr;
 import org.apache.empire.db.list.DBBeanFactoryCache;
 import org.apache.empire.db.list.DBBeanListFactory;
@@ -756,8 +757,24 @@ public abstract class DBRowSet extends DBExpr implements Entity
             reader.getRecordData(cmd);
             initRecord(record, reader);
         } catch (QueryNoResultException e) {
-            // Translate exception
-            Object[] key = ((getKeyColumns()!=null) ? record.getKey() : null);
+            // extract key from command 
+            Object key[] = cmd.getParamValues();
+            if (key==null)
+            {   // extract key from where clause
+                List<DBCompareExpr> where = cmd.getWhereConstraints();
+                key = new Object[where.size()];
+                int i=0;
+                for (DBCompareExpr expr : where)
+                {   // get value of compare expr
+                    if (expr instanceof DBCompareColExpr)
+                        key[i] = ((DBCompareColExpr)expr).getValue();
+                    else
+                        key[i] = "?"; // unknown
+                    i++;
+                }
+            }
+            log.warn("Record [{}] not found in {}", StringUtils.toString(key, cmd.getSelect()), getName());
+            // throw RecordNotFoundException
             throw new RecordNotFoundException(this, key);
         } finally {
             reader.close();
