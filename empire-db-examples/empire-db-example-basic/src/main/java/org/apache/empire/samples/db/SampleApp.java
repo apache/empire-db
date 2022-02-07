@@ -469,8 +469,8 @@ public class SampleApp
 	 * testTransactionCreate
 	 * @param context
 	 * @param idDep
-	 */
-	private static int testTransactionCreate(int idDep)
+	 * 
+	private static int testTransactionCreate(long idDep)
     {
         // Shortcut for convenience
         SampleDB.Employees EMP = db.EMPLOYEES;
@@ -509,11 +509,13 @@ public class SampleApp
         
         return rec.getInt(EMP.ID);
     }
+     */
+
     /**
      * @param context
      * @param idDep
-     */
-    private static void testTransactionUpdate(int idEmp)
+     * 
+    private static void testTransactionUpdate(long idEmp)
     {
         // Shortcut for convenience
         SampleDB.Employees EMP = db.EMPLOYEES;
@@ -539,42 +541,41 @@ public class SampleApp
 
         log.info("Timestamp {}", rec.getString(EMP.UPDATE_TIMESTAMP));
         log.info("testTransactionUpdate performed OK");
-        context.commit();
-        
+        context.commit();        
     }
+     */
+
     /**
      * @param context
      * @param idDep
-     */
-    private static void testTransactionDelete(int idEmp)
+     *
+    private static void testTransactionDelete(long idEmp)
     {
         // Shortcut for convenience
         SampleDB.Employees T = db.EMPLOYEES;
 
         DBRecord rec = new DBRecord(context, T);
         rec.read(idEmp);
-        /*
-        log.info("Timestamp {}", rec.getString(T.UPDATE_TIMESTAMP));
-        rec.setValue(T.SALARY, "100.001");
-        rec.update();
-        log.info("Timestamp {}", rec.getString(T.UPDATE_TIMESTAMP));
-        */
+
+        // log.info("Timestamp {}", rec.getString(T.UPDATE_TIMESTAMP));
+        // rec.setValue(T.SALARY, "100.001");
+        // rec.update();
+        // log.info("Timestamp {}", rec.getString(T.UPDATE_TIMESTAMP));
+        
         rec.delete();
         
         context.rollback();
 
-        /*
-        DBCommand cmd = db.createCommand();
-        cmd.select(T.UPDATE_TIMESTAMP);
-        cmd.where (T.EMPLOYEE_ID.is(idEmp));
-        log.info("Timestamp {}", db.querySingleString(cmd, context.getConnection()));
-        */
+        // DBCommand cmd = db.createCommand();
+        // cmd.select(T.UPDATE_TIMESTAMP);
+        // cmd.where (T.EMPLOYEE_ID.is(idEmp));
+        // log.info("Timestamp {}", db.querySingleString(cmd, context.getConnection()));
         
         rec.update();
         
-        log.info("Transaction performed OK");
-        
+        log.info("Transaction performed OK");        
     }
+     */
 
 	/**
 	 * <PRE>

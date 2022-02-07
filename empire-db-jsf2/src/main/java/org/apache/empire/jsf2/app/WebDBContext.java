@@ -15,7 +15,6 @@ import org.apache.empire.db.context.DBContextBase;
 import org.apache.empire.db.context.DBRollbackManager;
 import org.apache.empire.dbms.DBMSHandler;
 import org.apache.empire.exceptions.ItemNotFoundException;
-import org.apache.empire.exceptions.NotSupportedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

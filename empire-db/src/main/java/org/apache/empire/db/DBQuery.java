@@ -29,8 +29,6 @@ import org.apache.empire.commons.StringUtils;
 import org.apache.empire.data.ColumnExpr;
 import org.apache.empire.db.exceptions.InvalidKeyException;
 import org.apache.empire.db.exceptions.NoPrimaryKeyException;
-import org.apache.empire.db.exceptions.QueryNoResultException;
-import org.apache.empire.db.exceptions.RecordNotFoundException;
 import org.apache.empire.db.exceptions.RecordUpdateAmbiguousException;
 import org.apache.empire.db.exceptions.RecordUpdateFailedException;
 import org.apache.empire.db.expr.column.DBAliasExpr;
