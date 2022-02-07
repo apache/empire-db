@@ -38,7 +38,7 @@ import org.apache.empire.data.DataType;
 import org.apache.empire.db.exceptions.EmpireSQLException;
 import org.apache.empire.db.exceptions.QueryNoResultException;
 import org.apache.empire.db.expr.join.DBJoinExpr;
-import org.apache.empire.db.list.Bean;
+import org.apache.empire.db.list.DataBean;
 import org.apache.empire.exceptions.BeanInstantiationException;
 import org.apache.empire.exceptions.InvalidArgumentException;
 import org.apache.empire.exceptions.ObjectNotValidException;
@@ -704,8 +704,8 @@ public class DBReader extends DBRecordData implements Closeable
                 list.add(bean);
                 rownum++;
                 // post processing
-                if (bean instanceof Bean<?>)
-                    ((Bean<?>)bean).onBeanLoaded(getDatabase(), context, rownum, parent);
+                if (bean instanceof DataBean<?>)
+                    ((DataBean<?>)bean).initialize(getDatabase(), context, rownum, parent);
                 // Decrease count
                 if (maxCount > 0)
                     maxCount--;

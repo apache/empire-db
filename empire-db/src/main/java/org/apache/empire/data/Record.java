@@ -89,6 +89,12 @@ public interface Record extends RecordData
      * @return the key value array
      */
     Object[] getKey();    
+    
+    /**
+     * Returns the entity this Record belongs to 
+     * @return the entity
+     */
+    Entity getEntity();
 
     /**
      * returns true if the field is visible to the client.

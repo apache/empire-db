@@ -21,7 +21,7 @@ package org.apache.empire.db.list;
 import org.apache.empire.db.DBContext;
 import org.apache.empire.db.DBDatabase;
 
-public interface Bean<DB extends DBDatabase>
+public interface DataBean<DB extends DBDatabase>
 {
-    void onBeanLoaded(DB db, DBContext context, int rownum, Object parent);
+    void initialize(DB db, DBContext context, int rownum, Object parent);
 }

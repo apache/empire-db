@@ -24,7 +24,7 @@ import org.apache.empire.db.exceptions.QueryNoResultException;
 import org.apache.empire.db.exceptions.StatementFailedException;
 import org.apache.empire.db.exceptions.UnknownBeanTypeException;
 import org.apache.empire.db.expr.compare.DBCompareExpr;
-import org.apache.empire.db.list.Bean;
+import org.apache.empire.db.list.DataBean;
 import org.apache.empire.db.list.DBBeanFactoryCache;
 import org.apache.empire.db.list.DBBeanListFactory;
 import org.apache.empire.db.list.DBBeanListFactoryImpl;
@@ -1024,8 +1024,8 @@ public class DBUtils implements DBContextAware
                 // add entry
                 list.add(item);
                 // post processing
-                if (item instanceof Bean<?>)
-                    ((Bean<?>)item).onBeanLoaded(r.getDatabase(), context, rownum, parent);
+                if (item instanceof DataBean<?>)
+                    ((DataBean<?>)item).initialize(r.getDatabase(), context, rownum, parent);
                 // next
                 rownum++;
                 // Decrease count
@@ -1101,8 +1101,8 @@ public class DBUtils implements DBContextAware
             // add data
             T item = factory.newItem(-1, r);
             // post processing
-            if (item instanceof Bean<?>)
-                ((Bean<?>)item).onBeanLoaded(r.getDatabase(), context, -1, null);
+            if (item instanceof DataBean<?>)
+                ((DataBean<?>)item).initialize(r.getDatabase(), context, -1, null);
             // done
             return item;
         }

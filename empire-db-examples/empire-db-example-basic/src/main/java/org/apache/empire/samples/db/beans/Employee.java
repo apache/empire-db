@@ -26,7 +26,7 @@ import java.util.Locale;
 import org.apache.empire.commons.DateUtils;
 import org.apache.empire.db.DBCommand;
 import org.apache.empire.db.DBContext;
-import org.apache.empire.db.list.Bean;
+import org.apache.empire.db.list.DataBean;
 import org.apache.empire.samples.db.SampleDB;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,7 +36,7 @@ import org.slf4j.LoggerFactory;
  * @author doebele
  *
  */
-public class Employee implements Bean<SampleDB>
+public class Employee implements DataBean<SampleDB>
 {
     private static final Logger log = LoggerFactory.getLogger(Employee.class);
     
@@ -243,7 +243,7 @@ public class Employee implements Bean<SampleDB>
     }
 
     @Override
-    public void onBeanLoaded(SampleDB db, DBContext context, int rownum, Object parent)
+    public void initialize(SampleDB db, DBContext context, int rownum, Object parent)
     {
         this.rownum = rownum;
         

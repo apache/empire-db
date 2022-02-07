@@ -30,6 +30,7 @@ import org.apache.empire.commons.ObjectUtils;
 import org.apache.empire.commons.Options;
 import org.apache.empire.data.Column;
 import org.apache.empire.data.ColumnExpr;
+import org.apache.empire.data.Entity;
 import org.apache.empire.data.Record;
 import org.apache.empire.exceptions.BeanPropertyGetException;
 import org.apache.empire.exceptions.BeanPropertySetException;
@@ -38,7 +39,6 @@ import org.apache.empire.exceptions.ItemNotFoundException;
 import org.apache.empire.exceptions.ObjectNotValidException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 
 /**
  * BeanRecordProxy
@@ -52,36 +52,37 @@ public class BeanRecordProxy<T> implements Record
 {
     protected static final Logger log = LoggerFactory.getLogger(BeanRecordProxy.class);
     
-    protected List<Column> columns;
-    protected Column[] keyColumns;
-    protected boolean[] modified;
+    protected final Entity entity;
+    protected final List<Column> columns;
+    protected final Column[] keyColumns;
 
     protected T data;
+    protected boolean[] modified;
 
-    public BeanRecordProxy(T data, List<Column> columns, Column[] keyColumns)
+    public BeanRecordProxy(T data, List<Column> columns, Column[] keyColumns, Entity entity)
     {
         this.data = data;
         this.columns = columns;
         this.keyColumns = keyColumns;
+        this.entity = entity;
     }
 
-    public BeanRecordProxy(List<Column> columns, Column[] keyColumns)
+    public BeanRecordProxy(List<Column> columns, Column[] keyColumns, Entity entity)
     {
-        this(null, columns, keyColumns);
+        this(null, columns, keyColumns, entity);
     }
 
     public BeanRecordProxy(T data, BeanClass beanClass)
     {
         this(data, 
              ObjectUtils.convert(Column.class, beanClass.getProperties()), 
-             beanClass.getKeyColumns());
+             beanClass.getKeyColumns(),
+             beanClass);
     }
 
     public BeanRecordProxy(BeanClass beanClass)
     {
-        this(null, 
-             ObjectUtils.convert(Column.class, beanClass.getProperties()), 
-             beanClass.getKeyColumns());
+        this(null, beanClass);
     }
     
     public T getBean()
@@ -210,6 +211,12 @@ public class BeanRecordProxy<T> implements Record
         }
         // Not new
         return false;
+    }
+    
+    @Override
+    public Entity getEntity()
+    {
+        return this.entity;
     }
 
     @Override

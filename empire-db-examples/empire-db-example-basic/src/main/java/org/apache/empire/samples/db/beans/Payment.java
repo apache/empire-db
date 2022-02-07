@@ -21,10 +21,10 @@ package org.apache.empire.samples.db.beans;
 import java.math.BigDecimal;
 
 import org.apache.empire.db.DBContext;
-import org.apache.empire.db.list.Bean;
+import org.apache.empire.db.list.DataBean;
 import org.apache.empire.samples.db.SampleDB;
 
-public class Payment implements Bean<SampleDB>
+public class Payment implements DataBean<SampleDB>
 {
     private long        employeeId;
     private BigDecimal  year;
@@ -68,7 +68,7 @@ public class Payment implements Bean<SampleDB>
     }
 
     @Override
-    public void onBeanLoaded(SampleDB db, DBContext context, int rownum, Object parent)
+    public void initialize(SampleDB db, DBContext context, int rownum, Object parent)
     {
         if (parent instanceof Employee)
             this.employee = (Employee)parent;

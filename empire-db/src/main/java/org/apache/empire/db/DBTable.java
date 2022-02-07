@@ -34,7 +34,7 @@ import org.apache.empire.db.DBIndex.DBIndexType;
 import org.apache.empire.db.DBRelation.DBCascadeAction;
 import org.apache.empire.db.exceptions.NoPrimaryKeyException;
 import org.apache.empire.db.exceptions.RecordDeleteFailedException;
-import org.apache.empire.db.exceptions.RecordUpdateInvalidException;
+import org.apache.empire.db.exceptions.RecordUpdateFailedException;
 import org.apache.empire.exceptions.InvalidArgumentException;
 import org.apache.empire.exceptions.ItemExistsException;
 import org.apache.empire.exceptions.UnexpectedReturnValueException;
@@ -686,7 +686,7 @@ public class DBTable extends DBRowSet implements Cloneable
         } 
         else if (affected > 1)
         { // Multiple Records affected
-            throw new RecordUpdateInvalidException(this, key);
+            throw new RecordUpdateFailedException(this, key);
         }
     }
     

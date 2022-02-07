@@ -31,8 +31,8 @@ import org.apache.empire.db.exceptions.InvalidKeyException;
 import org.apache.empire.db.exceptions.NoPrimaryKeyException;
 import org.apache.empire.db.exceptions.QueryNoResultException;
 import org.apache.empire.db.exceptions.RecordNotFoundException;
+import org.apache.empire.db.exceptions.RecordUpdateAmbiguousException;
 import org.apache.empire.db.exceptions.RecordUpdateFailedException;
-import org.apache.empire.db.exceptions.RecordUpdateInvalidException;
 import org.apache.empire.db.expr.column.DBAliasExpr;
 import org.apache.empire.db.expr.compare.DBCompareColExpr;
 import org.apache.empire.db.expr.compare.DBCompareExpr;
@@ -570,7 +570,7 @@ public class DBQuery extends DBRowSet
             } 
             else if (affected > 1)
             { // More than one record
-                throw new RecordUpdateInvalidException(this, key);
+                throw new RecordUpdateAmbiguousException(this, key);
             } 
             else
             { // success

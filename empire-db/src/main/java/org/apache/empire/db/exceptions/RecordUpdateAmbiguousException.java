@@ -19,18 +19,16 @@
 package org.apache.empire.db.exceptions;
 
 import org.apache.empire.commons.ErrorType;
-import org.apache.empire.commons.StringUtils;
 import org.apache.empire.db.DBRowSet;
-import org.apache.empire.exceptions.EmpireException;
 
-public class RecordUpdateInvalidException extends EmpireException
+public class RecordUpdateAmbiguousException extends RecordException
 {
     private static final long serialVersionUID = 1L;
     
-    public static final ErrorType errorType = new ErrorType("error.db.recordUpateFailed",  "Updating the record {0} in {1} failed. It might have been changed or deleted by another user.");
+    public static final ErrorType errorType = new ErrorType("error.db.recordUpateAmbiguous", "Updating the record {0} in {1} failed. The given record key is ambiguous.");
     
-    public RecordUpdateInvalidException(DBRowSet rowset, Object[] key)
+    public RecordUpdateAmbiguousException(DBRowSet rowset, Object[] key)
     {
-        super(errorType, new String[] { StringUtils.toString(key), StringUtils.coalesce(rowset.getName(), rowset.getAlias()) });
+        super(rowset, key, errorType, new String[] { keyToString(key), rowsetName(rowset) });
     }
 }

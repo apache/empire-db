@@ -22,10 +22,10 @@ import java.util.List;
 
 import org.apache.empire.db.DBCommand;
 import org.apache.empire.db.DBContext;
-import org.apache.empire.db.list.Bean;
+import org.apache.empire.db.list.DataBean;
 import org.apache.empire.samples.db.SampleDB;
 
-public class Department implements Bean<SampleDB>
+public class Department implements DataBean<SampleDB>
 {
     private long   id;     // "ID" 
     private String name;   // "FIRSTNAME"
@@ -64,7 +64,7 @@ public class Department implements Bean<SampleDB>
     }
     
     @Override
-    public void onBeanLoaded(SampleDB db, DBContext context, int rownum, Object parent)
+    public void initialize(SampleDB db, DBContext context, int rownum, Object parent)
     {
         DBCommand cmd = db.createCommand();
         cmd.where(db.EMPLOYEES.DEPARTMENT_ID.is(this.id));

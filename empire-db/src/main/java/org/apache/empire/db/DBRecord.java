@@ -35,12 +35,14 @@ import org.apache.empire.commons.Options;
 import org.apache.empire.commons.StringUtils;
 import org.apache.empire.data.Column;
 import org.apache.empire.data.ColumnExpr;
+import org.apache.empire.data.Entity;
 import org.apache.empire.data.Record;
 import org.apache.empire.db.DBRowSet.PartialMode;
 import org.apache.empire.db.context.DBRollbackHandler;
-import org.apache.empire.db.exceptions.FieldIsReadOnlyException;
+import org.apache.empire.db.exceptions.FieldReadOnlyException;
 import org.apache.empire.db.exceptions.FieldValueNotFetchedException;
 import org.apache.empire.db.exceptions.NoPrimaryKeyException;
+import org.apache.empire.db.exceptions.RecordReadOnlyException;
 import org.apache.empire.db.expr.compare.DBCompareExpr;
 import org.apache.empire.exceptions.BeanPropertyGetException;
 import org.apache.empire.exceptions.InvalidArgumentException;
@@ -402,6 +404,16 @@ public class DBRecord extends DBRecordData implements Record, Cloneable, Seriali
     }
 
     /**
+     * returns true if this record is a new record.
+     * @return true if this record is a new record
+     */
+    @Override
+    public Entity getEntity()
+    {
+        return getRowSet();
+    }
+
+    /**
      * Returns the current DBDatabase object.
      * 
      * @return the current DBDatabase object
@@ -735,10 +747,12 @@ public class DBRecord extends DBRecordData implements Record, Cloneable, Seriali
     @Override
     public void setValue(int index, Object value)
     {
-        if (state == State.Invalid)
+        if (!isValid())
             throw new ObjectNotValidException(this);
         if (index < 0 || index >= fields.length)
             throw new InvalidArgumentException("index", index);
+        // check updatable
+        checkUpdateable();
         // Strings special
         if ((value instanceof String) && ((String)value).length()==0)
             value = null;
@@ -763,7 +777,7 @@ public class DBRecord extends DBRecordData implements Record, Cloneable, Seriali
         // Check whether we can change this field
         if (!allowFieldChange(column))
         {   // Read Only column may be set
-            throw new FieldIsReadOnlyException(column);
+            throw new FieldReadOnlyException(column);
         }
         // Is Value valid?
         if (this.validateFieldValues)
@@ -791,10 +805,7 @@ public class DBRecord extends DBRecordData implements Record, Cloneable, Seriali
      */
     @Override
     public final void setValue(Column column, Object value)
-    {
-        if (!isValid())
-            throw new ObjectNotValidException(this);
-        // Get Column Index
+    {   
         setValue(getFieldIndex(column), value);
     }
 
@@ -976,6 +987,10 @@ public class DBRecord extends DBRecordData implements Record, Cloneable, Seriali
             throw new ObjectNotValidException(this);
         if (!isModified())
             return; /* Not modified. Nothing to do! */
+        if (isReadOnly())
+            throw new RecordReadOnlyException(this);
+        // check updatable
+        checkUpdateable();
         // allow rollback
         if (enableRollbackHandling)
             getContext().appendRollbackHandler(createRollbackHandler());
@@ -997,6 +1012,8 @@ public class DBRecord extends DBRecordData implements Record, Cloneable, Seriali
     {
         if (isValid()==false)
             throw new ObjectNotValidException(this);
+        // check updatable
+        checkUpdateable();
         // allow rollback
         if (enableRollbackHandling)
             getContext().appendRollbackHandler(createRollbackHandler());
@@ -1235,6 +1252,16 @@ public class DBRecord extends DBRecordData implements Record, Cloneable, Seriali
         // Change state
         this.modified = null;
         changeState(State.Valid);
+    }
+    
+    /**
+     * Checks whether the record is updateable  
+     * If its read-only a RecordReadOnlyException is thrown 
+     */
+    protected void checkUpdateable()
+    {
+        if (this.isReadOnly())
+            throw new RecordReadOnlyException(this);
     }
     
     /**

@@ -19,11 +19,9 @@
 package org.apache.empire.db.exceptions;
 
 import org.apache.empire.commons.ErrorType;
-import org.apache.empire.commons.StringUtils;
 import org.apache.empire.db.DBRowSet;
-import org.apache.empire.exceptions.EmpireException;
 
-public class RecordDeleteFailedException extends EmpireException
+public class RecordDeleteFailedException extends RecordException
 {
     private static final long serialVersionUID = 1L;
     
@@ -31,6 +29,6 @@ public class RecordDeleteFailedException extends EmpireException
     
     public RecordDeleteFailedException(DBRowSet rowset, Object[] key)
     {
-        super(errorType, new String[] { StringUtils.toString(key), StringUtils.coalesce(rowset.getName(), rowset.getAlias()) });
+        super(rowset, key, errorType, new String[] { keyToString(key), rowsetName(rowset) });
     }
 }
