@@ -635,6 +635,13 @@ public class DBRecord extends DBRecordData implements Record, Cloneable, Seriali
         return key;
     }
     
+    /**
+     * Returns the record id for tables which have a single numeric primary key
+     * This method is provided for convenience in additon to the the getKey() method
+     * @return the record id
+     * @throws NoPrimaryKeyException if the table has no primary key
+     * @throws NotSupportedException if the primary key is not a single column of if the column is not numeric
+     */
     public long getId()
     {
         // Check Columns
@@ -987,8 +994,6 @@ public class DBRecord extends DBRecordData implements Record, Cloneable, Seriali
             throw new ObjectNotValidException(this);
         if (!isModified())
             return; /* Not modified. Nothing to do! */
-        if (isReadOnly())
-            throw new RecordReadOnlyException(this);
         // check updatable
         checkUpdateable();
         // allow rollback
