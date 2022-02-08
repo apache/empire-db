@@ -240,7 +240,7 @@ public class SampleServiceApp
             return 0;
         }
         // Return Department ID
-        return rec.getInt(db.T_DEPARTMENTS.DEPARTMENT_ID);
+        return rec.getInt(db.T_DEPARTMENTS.ID);
     }
 
     /*
@@ -262,7 +262,7 @@ public class SampleServiceApp
             return 0;
         }
         // Return Employee ID
-        return rec.getInt(db.T_EMPLOYEES.EMPLOYEE_ID);
+        return rec.getInt(db.T_EMPLOYEES.ID);
     }
 
     private void initLogging() {

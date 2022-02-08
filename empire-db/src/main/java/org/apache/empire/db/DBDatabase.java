@@ -416,7 +416,7 @@ public abstract class DBDatabase extends DBObject
      */
     @SuppressWarnings("unchecked")
     @Override
-    public final <T extends DBDatabase> T getDatabase()
+    public <T extends DBDatabase> T getDatabase()
     {
         return (T)(this);
     }

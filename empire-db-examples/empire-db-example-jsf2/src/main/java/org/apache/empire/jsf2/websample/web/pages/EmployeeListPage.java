@@ -146,7 +146,7 @@ public class EmployeeListPage extends SamplePage
         TEmployees EMP = getDatabase().T_EMPLOYEES;
 
         // create the Employees List page element
-        employees = new BeanListPageElement<EmployeeListEntry>(this, EmployeeListEntry.class, EMP.EMPLOYEE_ID);
+        employees = new BeanListPageElement<EmployeeListEntry>(this, EmployeeListEntry.class, EMP.ID);
     }
 
     
@@ -184,12 +184,12 @@ public class EmployeeListPage extends SamplePage
 
         DBCommand queryCmd = createQueryCommand();
 
-        queryCmd.select(EMP.EMPLOYEE_ID, FULL_NAME);
+        queryCmd.select(EMP.ID, FULL_NAME);
         queryCmd.select(EMP.GENDER, EMP.DATE_OF_BIRTH, EMP.RETIRED);
         // queryCmd.select(EMP.RETIRED.decode(true, "X", "-"));
         queryCmd.select(DEPARTMENT);
 
-        queryCmd.join(DEP.DEPARTMENT_ID, EMP.DEPARTMENT_ID);
+        queryCmd.join(DEP.ID, EMP.DEPARTMENT_ID);
         queryCmd.orderBy(EMP.FIRST_NAME);
         
         addAllConstraints(queryCmd);
@@ -203,7 +203,7 @@ public class EmployeeListPage extends SamplePage
     	TDepartments DEP = getDatabase().T_DEPARTMENTS;
 
     	DBCommand queryCmd = createQueryCommand();
-    	queryCmd.select(DEP.DEPARTMENT_ID,DEP.NAME);
+    	queryCmd.select(DEP.ID, DEP.NAME);
     	
         return getSampleContext().getUtils().queryOptionList(queryCmd);
     }
@@ -214,7 +214,7 @@ public class EmployeeListPage extends SamplePage
         TEmployees EMP = getDatabase().T_EMPLOYEES;
         EmployeeSearchFilter filter = getSearchFilter();
         
-        addSearchConstraint(queryCmd, EMP.EMPLOYEE_ID, filter);
+        addSearchConstraint(queryCmd, EMP.ID, filter);
         addSearchConstraint(queryCmd, EMP.FIRST_NAME, filter);
         addSearchConstraint(queryCmd, EMP.LAST_NAME, filter);
         addSearchConstraint(queryCmd, EMP.GENDER, filter);

@@ -76,11 +76,11 @@ public class SampleDB extends DBDatabase
         public final DBTableColumn BUSINESS_UNIT;
         public final DBTableColumn UPDATE_TIMESTAMP;
 
-        public Departments(DBDatabase db)
+        public Departments(SampleDB db)
         {
             super("DEPARTMENTS", db);
             // ID
-            ID              = addColumn("ID",               DataType.AUTOINC,       0, true); // Optional Sequence name ("DEP_ID_SEQUENCE") for some DBMS (e.g. Oracle)
+            ID              = addColumn("ID",               DataType.AUTOINC,       0, true, "DEP_ID_SEQUENCE"); // Optional Sequence for some DBMS (e.g. Oracle)
             NAME            = addColumn("NAME",             DataType.VARCHAR,      80, true);
             HEAD            = addColumn("HEAD",             DataType.VARCHAR,      80, false);
             BUSINESS_UNIT   = addColumn("BUSINESS_UNIT",    DataType.VARCHAR,       4, true, "ITTK");
@@ -102,36 +102,40 @@ public class SampleDB extends DBDatabase
     public static class Employees extends DBTable
     {
         public final DBTableColumn ID;
-        public final DBTableColumn FIRSTNAME;
-        public final DBTableColumn LASTNAME;
+        public final DBTableColumn SALUTATION;
+        public final DBTableColumn FIRST_NAME;
+        public final DBTableColumn LAST_NAME;
         public final DBTableColumn DATE_OF_BIRTH;
         public final DBTableColumn DEPARTMENT_ID;
         public final DBTableColumn GENDER;
         public final DBTableColumn PHONE_NUMBER;
+        public final DBTableColumn EMAIL;
         public final DBTableColumn SALARY;
         public final DBTableColumn RETIRED;
         public final DBTableColumn UPDATE_TIMESTAMP;
 
-        public Employees(DBDatabase db)
+        public Employees(SampleDB db)
         {
             super("EMPLOYEES", db);
             
             // ID
-            ID              = addColumn("ID",               DataType.AUTOINC,      0, true);  // Optional Sequence name ("EMPLOYEE_ID_SEQUENCE") for some DBMS (e.g. Oracle)
-            FIRSTNAME       = addColumn("FIRSTNAME",        DataType.VARCHAR,     40, true);
-            LASTNAME        = addColumn("LASTNAME",         DataType.VARCHAR,     40, true);
+            ID              = addColumn("ID",               DataType.AUTOINC,      0, true, "EMPLOYEE_ID_SEQUENCE");  // Optional Sequence name for some DBMS (e.g. Oracle)
+            SALUTATION      = addColumn("SALUTATION",       DataType.VARCHAR,      5, false);
+            FIRST_NAME      = addColumn("FIRST_NAME",       DataType.VARCHAR,     40, true);
+            LAST_NAME       = addColumn("LAST_NAME",        DataType.VARCHAR,     40, true);
             DATE_OF_BIRTH   = addColumn("DATE_OF_BIRTH",    DataType.DATE,         0, false);
             DEPARTMENT_ID   = addColumn("DEPARTMENT_ID",    DataType.INTEGER,      0, true);
-            GENDER          = addColumn("GENDER",           DataType.VARCHAR,      1, false, Gender.class);
+            GENDER          = addColumn("GENDER",           DataType.VARCHAR,      1, true, Gender.class);
             PHONE_NUMBER    = addColumn("PHONE_NUMBER",     DataType.VARCHAR,     40, false);
+            EMAIL           = addColumn("EMAIL",            DataType.VARCHAR,     80, false);
             SALARY          = addColumn("SALARY",           DataType.DECIMAL,   10.2, false);
             RETIRED         = addColumn("RETIRED",          DataType.BOOL,         0, true, false);
             UPDATE_TIMESTAMP= addColumn("UPDATE_TIMESTAMP", DataType.TIMESTAMP,    0, true);
-
+            
             // Primary Key (automatically set due to AUTOINC column)
             // setPrimaryKey(EMPLOYEE_ID);
             // Set other Indexes
-            addIndex("EMPLOYEE_NAME_IDX", true, new DBColumn[] { FIRSTNAME, LASTNAME, DATE_OF_BIRTH });
+            addIndex("EMPLOYEE_NAME_IDX", true, new DBColumn[] { FIRST_NAME, LAST_NAME, DATE_OF_BIRTH });
 
             // Set beanType (optional)
             setBeanType(Employee.class);
@@ -148,7 +152,7 @@ public class SampleDB extends DBDatabase
         public final DBTableColumn MONTH;
         public final DBTableColumn AMOUNT;
 
-        public Payments(DBDatabase db)
+        public Payments(SampleDB db)
         {
             super("PAYMENTS", db);
             

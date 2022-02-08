@@ -38,7 +38,7 @@ public class SampleDB extends DBDatabase
     public SampleDB()
     {
         // Define Foreign-Key Relations
-        addRelation(T_EMPLOYEES.DEPARTMENT_ID.referenceOn(T_DEPARTMENTS.DEPARTMENT_ID));
+        addRelation(T_EMPLOYEES.DEPARTMENT_ID.referenceOn(T_DEPARTMENTS.ID));
     }
 
     // Needed for the DBELResolver
@@ -55,7 +55,7 @@ public class SampleDB extends DBDatabase
     {
         // *Deprecated* private static final long serialVersionUID = 1L;
 
-        public final DBTableColumn DEPARTMENT_ID;
+        public final DBTableColumn ID;
         public final DBTableColumn NAME;
         public final DBTableColumn HEAD;
         public final DBTableColumn BUSINESS_UNIT;
@@ -65,14 +65,14 @@ public class SampleDB extends DBDatabase
         {
             super("DEPARTMENTS", db);
             // ID
-            DEPARTMENT_ID 	= addColumn("DEPARTMENT_ID", 	DataType.AUTOINC,	 0, true, "DEP_ID_SEQUENCE");
+            ID              = addColumn("ID",               DataType.AUTOINC,    0, true, "DEP_ID_SEQUENCE"); // Optional Sequence for some DBMS (e.g. Oracle)
             NAME 			= addColumn("NAME", 			DataType.VARCHAR,   80, true);
             HEAD 			= addColumn("HEAD", 			DataType.VARCHAR,   80, false);
             BUSINESS_UNIT 	= addColumn("BUSINESS_UNIT", 	DataType.VARCHAR,    4, true, "ITTK");
             UPDATE_TIMESTAMP= addColumn("UPDATE_TIMESTAMP", DataType.TIMESTAMP,	 0, true);
 
-            // Primary Key
-            setPrimaryKey(DEPARTMENT_ID);
+            // Primary Key (automatically set due to AUTOINC column)
+            // setPrimaryKey(DEPARTMENT_ID);
             // Set other Indexes
             addIndex("DEARTMENT_NAME_IDX", true, new DBColumn[] { NAME });
         }
@@ -87,7 +87,7 @@ public class SampleDB extends DBDatabase
     {
         // *Deprecated* private static final long serialVersionUID = 1L;
 
-        public final DBTableColumn EMPLOYEE_ID;
+        public final DBTableColumn ID;
         public final DBTableColumn SALUTATION;
 //      public final DBTableColumn PICTURE;
         public final DBTableColumn FIRST_NAME;
@@ -103,7 +103,7 @@ public class SampleDB extends DBDatabase
         {
             super("EMPLOYEES", db);
             // ID
-            EMPLOYEE_ID 	= addColumn("EMPLOYEE_ID", 		DataType.AUTOINC, 	 0, true, "EMPLOYEE_ID_SEQUENCE");
+            ID              = addColumn("ID",               DataType.AUTOINC,    0, true, "EMPLOYEE_ID_SEQUENCE");  // Optional Sequence name for some DBMS (e.g. Oracle)
             SALUTATION 		= addColumn("SALUTATION", 		DataType.VARCHAR,	 5, false);
             FIRST_NAME 		= addColumn("FIRST_NAME", 		DataType.VARCHAR,	40, true);
             LAST_NAME 		= addColumn("LAST_NAME", 		DataType.VARCHAR,	40, true);
@@ -116,8 +116,8 @@ public class SampleDB extends DBDatabase
             // PICTURE 		= addColumn("PICTURE", 			DataType.BLOB, 		 0, false);
             UPDATE_TIMESTAMP= addColumn("UPDATE_TIMESTAMP", DataType.TIMESTAMP,	 0, true);
 
-            // Primary Key
-            setPrimaryKey(EMPLOYEE_ID);
+            // Primary Key (automatically set due to AUTOINC column)
+            // setPrimaryKey(EMPLOYEE_ID);
             // Set other Indexes
             addIndex("PERSON_NAME_IDX", true, new DBColumn[] { FIRST_NAME, LAST_NAME, DATE_OF_BIRTH });
 

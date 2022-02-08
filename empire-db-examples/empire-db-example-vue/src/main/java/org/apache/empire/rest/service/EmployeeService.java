@@ -67,8 +67,8 @@ public class EmployeeService extends Service {
         // Query Department options
         SampleDB db = getDatabase();
         DBCommand cmd = db.createCommand();
-        cmd.select(db.T_DEPARTMENTS.DEPARTMENT_ID, db.T_DEPARTMENTS.NAME);
-        cmd.join  (db.T_DEPARTMENTS.DEPARTMENT_ID, db.T_EMPLOYEES.DEPARTMENT_ID);
+        cmd.select(db.T_DEPARTMENTS.ID, db.T_DEPARTMENTS.NAME);
+        cmd.join  (db.T_DEPARTMENTS.ID, db.T_EMPLOYEES.DEPARTMENT_ID);
         cmd.groupBy(cmd.getSelectExpressions());
         cmd.orderBy(db.T_DEPARTMENTS.NAME);
         Options departmentOptions = ctx.getUtils().queryOptionList(cmd);
@@ -76,7 +76,7 @@ public class EmployeeService extends Service {
         // Create Metadata
         TEmployees TE = db.T_EMPLOYEES;
         JsoColumnMeta[] meta = new JsoColumnMeta[] { 
-          new JsoColumnMeta(TE.EMPLOYEE_ID, textResolver),
+          new JsoColumnMeta(TE.ID, textResolver),
           new JsoColumnMeta(TE.FIRST_NAME, textResolver),
           new JsoColumnMeta(TE.LAST_NAME, textResolver),
           new JsoColumnMeta(TE.DEPARTMENT_ID, textResolver, departmentOptions, false, false, false),
@@ -104,8 +104,8 @@ public class EmployeeService extends Service {
         log.info("Providing employee list...");
 
         DBCommand cmd = db.createCommand();
-        cmd.select(TE.EMPLOYEE_ID, FULL_NAME, DEPARTMENT, TE.GENDER, TE.DATE_OF_BIRTH, TE.RETIRED);
-        cmd.join  (TE.DEPARTMENT_ID, TD.DEPARTMENT_ID, DBJoinType.LEFT);
+        cmd.select(TE.ID, FULL_NAME, DEPARTMENT, TE.GENDER, TE.DATE_OF_BIRTH, TE.RETIRED);
+        cmd.join  (TE.DEPARTMENT_ID, TD.ID, DBJoinType.LEFT);
 
         // apply all filters
         if (filter.hasNonNullValue(TE.FIRST_NAME))

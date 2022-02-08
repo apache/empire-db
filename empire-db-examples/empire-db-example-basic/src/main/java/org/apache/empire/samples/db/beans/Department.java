@@ -68,7 +68,7 @@ public class Department implements DataBean<SampleDB>
     {
         DBCommand cmd = db.createCommand();
         cmd.where(db.EMPLOYEES.DEPARTMENT_ID.is(this.id));
-        cmd.orderBy(db.EMPLOYEES.FIRSTNAME, db.EMPLOYEES.LASTNAME);
+        cmd.orderBy(db.EMPLOYEES.FIRST_NAME, db.EMPLOYEES.LAST_NAME);
         employees = context.getUtils().queryBeanList(cmd, Employee.class, db.EMPLOYEES, this);
     }
     

@@ -56,7 +56,7 @@ public class EmployeeRecord extends SampleRecord<TEmployees>
         {
             SampleDB db = (SampleDB) getDatabase();
             DBCommand cmd = db.createCommand();
-            cmd.select(db.T_DEPARTMENTS.DEPARTMENT_ID);
+            cmd.select(db.T_DEPARTMENTS.ID);
             cmd.select(db.T_DEPARTMENTS.NAME);
             cmd.orderBy(db.T_DEPARTMENTS.NAME);
             return context.getUtils().queryOptionList(cmd);

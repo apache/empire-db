@@ -25,9 +25,10 @@ import org.apache.empire.db.DBColumnExpr;
 import org.apache.empire.db.DBCommand;
 import org.apache.empire.db.DBCommandExpr;
 import org.apache.empire.db.DBDatabase;
-import org.apache.empire.db.DBTable;
 import org.apache.empire.db.DBTableColumn;
-import org.apache.empire.db.DBView;
+import org.apache.empire.db.generic.TDatabase;
+import org.apache.empire.db.generic.TTable;
+import org.apache.empire.db.generic.TView;
 
 /**
  * <PRE>
@@ -44,14 +45,14 @@ import org.apache.empire.db.DBView;
  * You may declare other database tables or views in the same way.
  * </PRE>
  */
-public class SampleAdvDB extends DBDatabase
+public class SampleAdvDB extends TDatabase<SampleAdvDB>
 {
     // *Deprecated* private static final long serialVersionUID = 1L;
 
     /**
      * This class represents the definition of the Departments table.
      */
-    public static class Departments extends DBTable
+    public static class Departments extends TTable<SampleAdvDB>
     {
         // *Deprecated* private static final long serialVersionUID = 1L;
 
@@ -61,7 +62,7 @@ public class SampleAdvDB extends DBDatabase
         public final DBTableColumn C_BUSINESS_UNIT;
         public final DBTableColumn C_UPDATE_TIMESTAMP;
 
-        public Departments(DBDatabase db)
+        public Departments(SampleAdvDB db)
         {
             super("DEPARTMENTS", db);
             // ID
@@ -81,7 +82,7 @@ public class SampleAdvDB extends DBDatabase
     /**
      * This class represents the definition of the Employees table.
      */
-    public static class Employees extends DBTable
+    public static class Employees extends TTable<SampleAdvDB>
     {
         // *Deprecated* private static final long serialVersionUID = 1L;
       
@@ -100,7 +101,7 @@ public class SampleAdvDB extends DBDatabase
         // Useful column expressions
         public final DBColumnExpr  C_FULLNAME;
         
-        public Employees(DBDatabase db)
+        public Employees(SampleAdvDB db)
         {
             super("EMPLOYEES", db);
             // ID
@@ -136,7 +137,7 @@ public class SampleAdvDB extends DBDatabase
     /**
      * This class represents the definition of the Departments table.
      */
-    public static class EmployeeDepartmentHistory extends DBTable
+    public static class EmployeeDepartmentHistory extends TTable<SampleAdvDB>
     {
         // *Deprecated* private static final long serialVersionUID = 1L;
       
@@ -144,7 +145,7 @@ public class SampleAdvDB extends DBDatabase
         public final DBTableColumn C_DEPARTMENT_ID;
         public final DBTableColumn C_DATE_FROM;
 
-        public EmployeeDepartmentHistory(DBDatabase db)
+        public EmployeeDepartmentHistory(SampleAdvDB db)
         {
             super("EMPLOYEE_DEPARTMENT_HIST", db);
             // ID
@@ -160,14 +161,14 @@ public class SampleAdvDB extends DBDatabase
     /**
      * This class represents the definition of the EmployeeDepSinceView table.
      */
-    public static class EmployeeDepSinceView extends DBView
+    public static class EmployeeDepSinceView extends TView<SampleAdvDB>
     {
         // *Deprecated* private static final long serialVersionUID = 1L;
       
         public final DBViewColumn C_EMPLOYEE_ID;
         public final DBViewColumn C_MAX_DATE_FROM;
         
-        public EmployeeDepSinceView(DBDatabase db, EmployeeDepartmentHistory T_EDH)
+        public EmployeeDepSinceView(SampleAdvDB db, EmployeeDepartmentHistory T_EDH)
         {
             super("EMPLOYEE_DEP_SINCE_VIEW", db);
             // ID
@@ -187,14 +188,13 @@ public class SampleAdvDB extends DBDatabase
                 FROM EMPLOYEE_DEPARTMENT_HIST t3
                 GROUP BY t3.EMPLOYEE_ID);
             */
-            
-            SampleAdvDB db = (SampleAdvDB)getDatabase();
-            SampleAdvDB.EmployeeDepartmentHistory T_EDH = db.T_EMP_DEP_HIST;
+
+            SampleAdvDB.EmployeeDepartmentHistory EDH = DB.T_EMP_DEP_HIST;
             
             // Define the sub query
             DBCommand cmd = db.createCommand();
-            cmd.select (T_EDH.C_EMPLOYEE_ID, T_EDH.C_DATE_FROM.max());
-            cmd.groupBy(T_EDH.C_EMPLOYEE_ID);
+            cmd.select (EDH.C_EMPLOYEE_ID, EDH.C_DATE_FROM.max());
+            cmd.groupBy(EDH.C_EMPLOYEE_ID);
             return cmd;
         }
     }
@@ -202,7 +202,7 @@ public class SampleAdvDB extends DBDatabase
     /**
      * This class represents the definition of the EmployeeInfoView table.
      */
-    public static class EmployeeInfoView extends DBView
+    public static class EmployeeInfoView extends TView<SampleAdvDB>
     {
         // *Deprecated* private static final long serialVersionUID = 1L;
       
@@ -210,7 +210,7 @@ public class SampleAdvDB extends DBDatabase
         public final DBViewColumn C_CURRENT_DEP_ID;
         public final DBViewColumn C_NAME_AND_DEP;
 
-        public EmployeeInfoView(DBDatabase db, Employees T_EMP, Departments T_DEP)
+        public EmployeeInfoView(SampleAdvDB db, Employees T_EMP, Departments T_DEP)
         {
             super("EMPLOYEE_INFO_VIEW", db);
             // ID
@@ -234,25 +234,24 @@ public class SampleAdvDB extends DBDatabase
                 INNER JOIN DEPARTMENTS t1 ON t1.DEPARTMENT_ID = t3.DEPARTMENT_ID);
             */
             
-            SampleAdvDB db = (SampleAdvDB)getDatabase();
-            SampleAdvDB.Employees   T_EMP = db.T_EMPLOYEES;
-            SampleAdvDB.EmployeeDepartmentHistory T_EDH = db.T_EMP_DEP_HIST;
-            SampleAdvDB.EmployeeDepSinceView V_EDS = db.V_EMP_DEP_SINCE_VIEW;
-            SampleAdvDB.Departments T_DEP = db.T_DEPARTMENTS;
+            SampleAdvDB.Employees   EMP = DB.T_EMPLOYEES;
+            SampleAdvDB.EmployeeDepartmentHistory EDH = DB.T_EMP_DEP_HIST;
+            SampleAdvDB.EmployeeDepSinceView EDS = DB.V_EMP_DEP_SINCE_VIEW;
+            SampleAdvDB.Departments DEP = DB.T_DEPARTMENTS;
 
             // Define the query
             DBCommand cmd = db.createCommand();
             // Select required columns
-            cmd.select(T_EMP.C_EMPLOYEE_ID);
-            cmd.select(T_DEP.C_DEPARTMENT_ID);
-            cmd.select(T_EMP.C_LASTNAME.append(", ")
-                       .append(T_EMP.C_FIRSTNAME.coalesce(DBDatabase.EMPTY_STRING))
-                       .append(" (").append(T_DEP.C_NAME).append(")"));
+            cmd.select(EMP.C_EMPLOYEE_ID);
+            cmd.select(DEP.C_DEPARTMENT_ID);
+            cmd.select(EMP.C_LASTNAME.append(", ")
+                       .append(EMP.C_FIRSTNAME.coalesce(DBDatabase.EMPTY_STRING))
+                       .append(" (").append(DEP.C_NAME).append(")"));
             // Set Joins
-            cmd.join(T_EDH.C_EMPLOYEE_ID, V_EDS.C_EMPLOYEE_ID)
-              .where(T_EDH.C_DATE_FROM.is(V_EDS.C_MAX_DATE_FROM));
-            cmd.join(T_EMP.C_EMPLOYEE_ID, T_EDH.C_EMPLOYEE_ID);
-            cmd.join(T_DEP.C_DEPARTMENT_ID, T_EDH.C_DEPARTMENT_ID);
+            cmd.join(EDH.C_EMPLOYEE_ID, EDS.C_EMPLOYEE_ID)
+              .where(EDH.C_DATE_FROM.is(EDS.C_MAX_DATE_FROM));
+            cmd.join(EMP.C_EMPLOYEE_ID, EDH.C_EMPLOYEE_ID);
+            cmd.join(DEP.C_DEPARTMENT_ID, EDH.C_DEPARTMENT_ID);
             // done
             return cmd;
         }

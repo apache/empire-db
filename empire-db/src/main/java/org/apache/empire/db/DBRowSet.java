@@ -362,7 +362,7 @@ public abstract class DBRowSet extends DBExpr implements Entity
      */
     @SuppressWarnings("unchecked")
     @Override
-    public final <T extends DBDatabase> T getDatabase()
+    public <T extends DBDatabase> T getDatabase()
     {
         return (T)db;
     }

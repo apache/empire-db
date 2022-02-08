@@ -41,12 +41,14 @@ public class Employee implements DataBean<SampleDB>
     private static final Logger log = LoggerFactory.getLogger(Employee.class);
     
     private long   id;          // "ID" 
-    private String firstname;   // "FIRSTNAME"
-    private String lastname;    // "LASTNAME"
+    private String salutation;  // "SALUTATION"
+    private String firstName;   // "FIRST_NAME"
+    private String lastName;    // "LAST_NAME"
     private Date   dateOfBirth; // "DATE_OF_BIRTH"
     private long   departmentId;// "DEPARTMENT_ID"
     private String gender;      // "GENDER"
     private String phoneNumber; // "PHONE_NUMBER"
+    private String email;       // "EMAIL"
     private BigDecimal salary;  // "SALARY"
     private boolean retired;    // "RETIRED" 
     
@@ -83,19 +85,22 @@ public class Employee implements DataBean<SampleDB>
     }
      */
 
+    
     /**
      * Constructor using fields but without timestamp 
      */
-    public Employee(int id, String firstname, String lastname, Date dateOfBirth, int departmentId, String gender, String phoneNumber,
-                    BigDecimal salary, boolean retired)
+    public Employee(long id, String salutation, String firstName, String lastName, Date dateOfBirth, long departmentId, String gender,
+                    String phoneNumber, String email, BigDecimal salary, boolean retired)
     {
         this.id = id;
-        this.firstname = firstname;
-        this.lastname = lastname;
+        this.salutation = salutation;
+        this.firstName = firstName;
+        this.lastName = lastName;
         this.dateOfBirth = dateOfBirth;
         this.departmentId = departmentId;
         this.gender = gender;
         this.phoneNumber = phoneNumber;
+        this.email = email;
         this.salary = salary;
         this.retired = retired;
 
@@ -105,7 +110,7 @@ public class Employee implements DataBean<SampleDB>
     /**
      * Constructor using primary key fields 
      */
-    public Employee(int id)
+    public Employee(long id)
     {
         this.id = id;
         log.info("Employee bean created using primary key constructor");
@@ -120,34 +125,36 @@ public class Employee implements DataBean<SampleDB>
         log.info("Employee bean created using standard constructor");
     }
 
-    public long getId()
+    
+    
+    public String getSalutation()
     {
-        return id;
+        return salutation;
     }
 
-    public void setId(long id)
+    public void setSalutation(String salutation)
     {
-        this.id = id;
-    }
- 
-    public String getFirstname()
-    {
-        return firstname;
+        this.salutation = salutation;
     }
 
-    public void setFirstname(String firstname)
+    public String getFirstName()
     {
-        this.firstname = firstname;
+        return firstName;
     }
 
-    public String getLastname()
+    public void setFirstName(String firstName)
     {
-        return lastname;
+        this.firstName = firstName;
     }
 
-    public void setLastname(String lastname)
+    public String getLastName()
     {
-        this.lastname = lastname;
+        return lastName;
+    }
+
+    public void setLastName(String lastName)
+    {
+        this.lastName = lastName;
     }
 
     public Date getDateOfBirth()
@@ -190,6 +197,16 @@ public class Employee implements DataBean<SampleDB>
         this.phoneNumber = phoneNumber;
     }
 
+    public String getEmail()
+    {
+        return email;
+    }
+
+    public void setEmail(String email)
+    {
+        this.email = email;
+    }
+
     public BigDecimal getSalary()
     {
         return salary;
@@ -210,6 +227,16 @@ public class Employee implements DataBean<SampleDB>
         this.retired = retired;
     }
 
+    public long getId()
+    {
+        return id;
+    }
+
+    public int getRownum()
+    {
+        return rownum;
+    }
+
     public Department getDepartment()
     {
         return department;
@@ -228,9 +255,9 @@ public class Employee implements DataBean<SampleDB>
         buf.append("\t");
         buf.append(id);
         buf.append("\t");
-        buf.append(firstname);
+        buf.append(firstName);
         buf.append("\t");
-        buf.append(lastname);
+        buf.append(lastName);
         buf.append("\t");
         buf.append(DateUtils.formatDate(dateOfBirth, Locale.US));
         buf.append("\t");

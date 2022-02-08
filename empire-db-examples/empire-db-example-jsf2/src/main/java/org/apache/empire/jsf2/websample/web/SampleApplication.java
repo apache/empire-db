@@ -246,7 +246,7 @@ public class SampleApplication extends WebApplication {
 			return 0;
 		}
 		// Return Department ID
-		return rec.getInt(sampleDB.T_DEPARTMENTS.DEPARTMENT_ID);
+		return rec.getInt(sampleDB.T_DEPARTMENTS.ID);
 	}
 
 	/*
@@ -268,7 +268,7 @@ public class SampleApplication extends WebApplication {
 			return 0;
 		}
 		// Return Employee ID
-		return rec.getInt(sampleDB.T_EMPLOYEES.EMPLOYEE_ID);
+		return rec.getInt(sampleDB.T_EMPLOYEES.ID);
 	}
 
 	@Override

@@ -26,6 +26,7 @@ import java.time.LocalDate;
 import java.util.List;
 
 import org.apache.empire.commons.StringUtils;
+import org.apache.empire.data.bean.BeanResult;
 import org.apache.empire.data.list.DataListEntry;
 import org.apache.empire.db.DBColumnExpr;
 import org.apache.empire.db.DBCommand;
@@ -37,6 +38,7 @@ import org.apache.empire.db.DBRecordBean;
 import org.apache.empire.db.DBRowSet.PartialMode;
 import org.apache.empire.db.DBSQLScript;
 import org.apache.empire.db.context.DBContextStatic;
+import org.apache.empire.db.generic.TRecord;
 import org.apache.empire.db.validation.DBModelChecker;
 import org.apache.empire.db.validation.DBModelErrorLogger;
 import org.apache.empire.dbms.DBMSHandler;
@@ -354,7 +356,7 @@ public class SampleApp
     {
         SampleDB.Departments DEP = db.DEPARTMENTS;
 		// Insert a Department
-		DBRecord rec = new DBRecord(context, DEP);
+		TRecord<SampleDB.Departments> rec = new TRecord<SampleDB.Departments>(context, DEP);
 		rec.create();
 		rec.setValue(DEP.NAME, departmentName);
 		rec.setValue(DEP.BUSINESS_UNIT, businessUnit);
@@ -374,8 +376,8 @@ public class SampleApp
 		// Insert an Employee
 		DBRecord rec = new DBRecord(context, EMP);
 		rec.create(null);
-		rec.setValue(EMP.FIRSTNAME, firstName);
-		rec.setValue(EMP.LASTNAME, lastName);
+		rec.setValue(EMP.FIRST_NAME, firstName);
+		rec.setValue(EMP.LAST_NAME, lastName);
 		rec.setValue(EMP.GENDER, gender);
 		rec.setValue(EMP.DEPARTMENT_ID, departmentId);
 		rec.update();
@@ -471,7 +473,7 @@ public class SampleApp
         DBRecord rec = new DBRecord(context, query);
         rec.read(idEmp);
         rec.setValue(EMP.SALARY, salary);
-        rec.setValue(DEP.HEAD, rec.getString(EMP.LASTNAME));
+        rec.setValue(DEP.HEAD, rec.getString(EMP.LAST_NAME));
         rec.update();
     }
 
@@ -628,7 +630,7 @@ public class SampleApp
 
 	    // The following expression concats lastname + ', ' + firstname
         // DBColumnExpr EMPLOYEE_FULLNAME = EMP.LASTNAME.append(", ").append(EMP.FIRSTNAME).as("FULL_NAME");
-        DBColumnExpr EMPLOYEE_FULLNAME = EMP.LASTNAME.concat(", ", EMP.FIRSTNAME).as("FULL_NAME");
+        DBColumnExpr EMPLOYEE_FULLNAME = EMP.LAST_NAME.concat(", ", EMP.FIRST_NAME).as("FULL_NAME");
         DBColumnExpr PAYMENTS_LAST_YEAR = PAY.AMOUNT.sum().as("PAYMENTS_LAST_YEAR");
         
         // The following expression extracts the extension number from the phone field
@@ -656,7 +658,7 @@ public class SampleApp
         cmd.join(EMP.DEPARTMENT_ID, DEP.ID);
         cmd.joinLeft(EMP.ID, PAY.EMPLOYEE_ID).where(PAY.YEAR.is(lastYear));
         // Where constraints
-        cmd.where(EMP.LASTNAME.length().isGreaterThan(0));
+        cmd.where(EMP.LAST_NAME.length().isGreaterThan(0));
         cmd.where(EMP.GENDER.in(Gender.M, Gender.F));
         cmd.where(EMP.RETIRED.is(false));
         // Order by
@@ -728,7 +730,7 @@ public class SampleApp
 	    
 	    DBCommand cmd = db.createCommand();
 	    cmd.where(EMP.GENDER.is(Gender.M));
-	    cmd.orderBy(EMP.LASTNAME.desc());
+	    cmd.orderBy(EMP.LAST_NAME.desc());
 	    List<Employee> list = context.getUtils().queryBeanList(cmd, Employee.class, null);
 	    for (Employee emp : list)
 	    {
@@ -740,9 +742,8 @@ public class SampleApp
 	    Payment first = department.getEmployees().get(0).getPayments().get(0);
 	    log.info("First payment amount is {}", first.getAmount());
 
-        /*
         // Query all males
-	    BeanResult<Employee> result = new BeanResult<Employee>(Employee.class);
+	    BeanResult<Employee> result = new BeanResult<Employee>(Employee.class, EMP);
         result.getCommand().where(EMP.GENDER.is(Gender.M));
 	    result.fetch(context);
 	    
@@ -753,7 +754,6 @@ public class SampleApp
 	    result.fetch(context);
 	    
         log.info("Number of female employees is: "+result.size());
-        */
 	}
 	
 	private static void queryDataList()
@@ -785,7 +785,7 @@ public class SampleApp
         DBColumnExpr PCT_OF_DEPARTMENT_COST = qryEmpTotal.column(EMP_TOTAL).multiplyWith(100).divideBy(qryDepTotal.column(DEP_TOTAL));
         // Create the employee query
         DBCommand cmd = db.createCommand();
-        cmd.select(EMP.ID, EMP.FIRSTNAME, EMP.LASTNAME, DEP.NAME.as("DEPARTMENT"));
+        cmd.select(EMP.ID, EMP.FIRST_NAME, EMP.LAST_NAME, DEP.NAME.as("DEPARTMENT"));
         cmd.select(qryEmpTotal.column(EMP_TOTAL));
         cmd.select(PCT_OF_DEPARTMENT_COST.as("PCT_OF_DEPARTMENT_COST"));
         // join Employee with Department
@@ -795,7 +795,7 @@ public class SampleApp
         cmd.joinLeft(DEP.ID, qryDepTotal.column(EMP.DEPARTMENT_ID));
         // Order by
         cmd.orderBy(DEP.NAME.desc());
-        cmd.orderBy(EMP.LASTNAME);
+        cmd.orderBy(EMP.LAST_NAME);
 	    
         List<DataListEntry> list = context.getUtils().queryDataList(cmd);
         /* uncomment this to print full list
@@ -806,7 +806,7 @@ public class SampleApp
         {
             long empId = dle.getRecordId(EMP);
             // int depId = dle.getId(DEP);
-            String empName = StringUtils.concat(", ", dle.getString(EMP.LASTNAME), dle.getString(EMP.FIRSTNAME));
+            String empName = StringUtils.concat(", ", dle.getString(EMP.LAST_NAME), dle.getString(EMP.FIRST_NAME));
             String depName = dle.getString(DEP.NAME);
             boolean hasPayments =!dle.isNull(qryEmpTotal.column(EMP_TOTAL));
             if (hasPayments)
@@ -847,7 +847,7 @@ public class SampleApp
         {
             Object[] key = record.getKey();
             // print info
-            String empName = StringUtils.concat(", ", record.getString(EMP.LASTNAME), record.getString(EMP.FIRSTNAME));
+            String empName = StringUtils.concat(", ", record.getString(EMP.LAST_NAME), record.getString(EMP.FIRST_NAME));
             String phone   = record.getString(EMP.PHONE_NUMBER);
             BigDecimal salary = record.getDecimal(EMP.SALARY);
             log.info("Eployee[{}]: {}\tPhone: {}\tSalary: {}", StringUtils.toString(key), empName, phone, salary);

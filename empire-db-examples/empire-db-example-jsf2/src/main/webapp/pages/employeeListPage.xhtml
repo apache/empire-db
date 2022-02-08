@@ -61,9 +61,9 @@
 				<h:dataTable id="employeeTable" value="#{page.employees.items}" var="item" rowClasses="odd,even">
 					<h:column>
 						<f:facet name="header">
-							<e:title column="#{db.EMPLOYEES.EMPLOYEE_ID}" value="ID" />
+							<e:title column="#{db.EMPLOYEES.ID}" value="ID" />
 						</f:facet>
-						<e:value record="#{item}" column="#{db.EMPLOYEES.EMPLOYEE_ID}"/>
+						<e:value record="#{item}" column="#{db.EMPLOYEES.ID}"/>
 					</h:column>
 					<h:column styleClass="item">
 						<f:facet name="header">
