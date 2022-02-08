@@ -22,10 +22,10 @@ import java.util.List;
 
 import org.apache.empire.db.DBCommand;
 import org.apache.empire.db.DBContext;
-import org.apache.empire.db.DBRecord;
+import org.apache.empire.db.DBRecordBase;
 import org.apache.empire.db.DBRecordData;
 
-public interface DBRecordListFactory<T extends DBRecord>
+public interface DBRecordListFactory<T extends DBRecordBase>
 {
     void prepareQuery(DBCommand cmd, DBContext context);
     

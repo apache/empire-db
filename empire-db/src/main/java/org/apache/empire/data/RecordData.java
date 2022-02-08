@@ -24,7 +24,7 @@ import java.util.Collection;
  * The RecordData interface provides methods for accessing data and context specific metadata.
  * <P>
  * The Record interface is implemented by the classes {@link org.apache.empire.db.DBReader}
- * and {@link org.apache.empire.db.DBRecord}.
+ * and {@link org.apache.empire.db.DBRecordData}.
  * <P>
  */
 public interface RecordData

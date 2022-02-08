@@ -27,6 +27,8 @@ import org.apache.empire.commons.ClassUtils;
 import org.apache.empire.db.DBCommand;
 import org.apache.empire.db.DBContext;
 import org.apache.empire.db.DBRecord;
+import org.apache.empire.db.DBRecordBase;
+import org.apache.empire.db.DBRecordBean;
 import org.apache.empire.db.DBRecordData;
 import org.apache.empire.db.DBRowSet;
 import org.apache.empire.exceptions.InternalException;
@@ -40,7 +42,7 @@ import org.slf4j.LoggerFactory;
  * Implements the DBRecordListFactory interface
  * @author rainer
  */
-public class DBRecordListFactoryImpl<T extends DBRecord> implements DBRecordListFactory<T>
+public class DBRecordListFactoryImpl<T extends DBRecordBase> implements DBRecordListFactory<T>
 {
     // Logger
     protected static final Logger log = LoggerFactory.getLogger(DBRecordListFactoryImpl.class);
@@ -53,13 +55,20 @@ public class DBRecordListFactoryImpl<T extends DBRecord> implements DBRecordList
      * @return the constructor
      */
     @SuppressWarnings("unchecked")
-    protected static <T extends DBRecord> Constructor<T> findRecordConstructor(Class<T> recordClass, Class<? extends DBContext> contextClass, Class<? extends DBRowSet> rowsetClass)
+    protected static <T extends DBRecordBase> Constructor<T> findRecordConstructor(Class<T> recordClass, Class<? extends DBContext> contextClass, Class<? extends DBRowSet> rowsetClass)
     {
-        // try (context+rowset or just context)
-        Constructor<?> constructor = ClassUtils.findMatchingAccessibleConstructor(recordClass, 1, contextClass, rowsetClass);
-        if (constructor==null)
-        {   // nothing suitable
-            throw new UnsupportedTypeException(recordClass);
+        Constructor<?> constructor;
+        if (DBRecordBean.class.isAssignableFrom(recordClass))
+        {   // find standard constructor 
+            constructor = ClassUtils.findMatchingAccessibleConstructor(recordClass, 0);
+        }
+        else
+        {   // try (context+rowset or just context)
+            constructor = ClassUtils.findMatchingAccessibleConstructor(recordClass, 1, contextClass, rowsetClass);
+            if (constructor==null)
+            {   // nothing suitable
+                throw new UnsupportedTypeException(recordClass);
+            }
         }
         // found
         return (Constructor<T>)constructor;
@@ -122,11 +131,12 @@ public class DBRecordListFactoryImpl<T extends DBRecord> implements DBRecordList
             {
                 case 2: record = constructor.newInstance(recData.getContext(), rowset);break;
                 case 1: record = constructor.newInstance(recData.getContext());break;
+                case 0: record = constructor.newInstance();break; 
                 default:
                     throw new UnsupportedTypeException(constructor.getClass()); 
             }
             // check
-            if (rowset.isSame(record.getRowSet())==false)
+            if ((record instanceof DBRecord) && !rowset.isSame(record.getRowSet()))
             {   // log warning
                 log.warn("DBRecordListFactoryImpl rowset ({}) and actual record rowset ({}) don't match!", rowset.getName(), record.getRowSet().getName());
                 throw new InvalidPropertyException("rowset", record.getRowSet());

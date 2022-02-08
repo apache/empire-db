@@ -305,7 +305,7 @@ public class DBQuery extends DBRowSet
      * @param record the DBRecord object, contains all fields and the field properties
      * @return a array of primary key columns
      */
-    protected Object[] getRecordKey(DBRecord record)
+    protected Object[] getRecordKey(DBRecordBase record)
     {
         if (record == null || record.getRowSet() != this)
             throw new InvalidArgumentException("record", record);
@@ -341,7 +341,7 @@ public class DBQuery extends DBRowSet
      * Add rowset data
      */
     @Override
-    public void initRecord(DBRecord record, DBRecordData recData)
+    public void initRecord(DBRecordBase record, DBRecordData recData)
     {
         // init
         super.initRecord(record, recData);
@@ -371,7 +371,7 @@ public class DBQuery extends DBRowSet
      * @throws NotImplementedException because this is not implemented
      */
     @Override
-    public void createRecord(DBRecord record, Object[] initalKey, boolean deferredInit)
+    public void createRecord(DBRecordBase record, Object[] initalKey, boolean deferredInit)
     {
         throw new NotImplementedException(this, "createRecord");
     }
@@ -384,7 +384,7 @@ public class DBQuery extends DBRowSet
      * @param conn a valid connection to the database.
      */
     @Override
-    public void readRecord(DBRecord record, Object[] key)
+    public void readRecord(DBRecordBase record, Object[] key)
     {
         if (record == null)
             throw new InvalidArgumentException("conn|rec", null);
@@ -411,7 +411,7 @@ public class DBQuery extends DBRowSet
      * @param conn a valid connection to the database.
      */
     @Override
-    public void updateRecord(DBRecord record)
+    public void updateRecord(DBRecordBase record)
     {
         // check updateable
         if (isUpdateable()==false)
@@ -599,7 +599,7 @@ public class DBQuery extends DBRowSet
     /**
      * Adds join restrictions to the supplied command object.
      */
-    protected boolean addJoinRestriction(DBCommand cmd, DBColumn updCol, DBColumn joinCol, DBColumn[] keyColumns, Object[] key, DBRecord record)
+    protected boolean addJoinRestriction(DBCommand cmd, DBColumn updCol, DBColumn joinCol, DBColumn[] keyColumns, Object[] key, DBRecordBase record)
     {   // Find key for foreign field
         for (int i = 0; key!=null && i < keyColumns.length; i++)
             if (keyColumns[i]==joinCol)

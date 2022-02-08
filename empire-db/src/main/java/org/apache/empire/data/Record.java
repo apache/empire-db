@@ -31,7 +31,7 @@ import org.apache.empire.exceptions.InvalidArgumentException;
  * <P>
  * This interface inherits from RecordData which provides further data access methods.
  * <P>
- * The Record interface is implemented by the class {@link org.apache.empire.db.DBRecord}
+ * The Record interface is implemented by the class {@link org.apache.empire.db.DBRecordBase}
  */
 public interface Record extends RecordData
 {

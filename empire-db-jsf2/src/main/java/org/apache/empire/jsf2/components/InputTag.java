@@ -31,7 +31,7 @@ import javax.faces.convert.ConverterException;
 import javax.faces.view.AttachedObjectHandler;
 
 import org.apache.empire.data.Column;
-import org.apache.empire.db.DBRecord;
+import org.apache.empire.db.DBRecordBase;
 import org.apache.empire.db.exceptions.FieldIllegalValueException;
 import org.apache.empire.exceptions.EmpireException;
 import org.apache.empire.exceptions.InvalidArgumentException;
@@ -152,12 +152,12 @@ public class InputTag extends UIInput implements NamingContainer
                 throw new InvalidArgumentException("column", null);
             // Check record
             Object record = helper.getRecord();
-            if (record!=null && (record instanceof DBRecord) && ((DBRecord)record).isValid())
+            if (record!=null && (record instanceof DBRecordBase) && ((DBRecordBase)record).isValid())
             {   // Check if column exists
-                if (((DBRecord)record).getFieldIndex(column)<0)
+                if (((DBRecordBase)record).getFieldIndex(column)<0)
                     throw new InvalidArgumentException("column", column.getName());
                 // not visible
-                log.info("Column {} is not visible for record of {} and will not be rendered!", column.getName(), ((DBRecord)record).getRowSet().getName());
+                log.info("Column {} is not visible for record of {} and will not be rendered!", column.getName(), ((DBRecordBase)record).getRowSet().getName());
             }    
             else
             {   // Record not valid

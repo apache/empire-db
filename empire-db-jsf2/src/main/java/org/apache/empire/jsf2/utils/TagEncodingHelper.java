@@ -51,7 +51,7 @@ import org.apache.empire.data.Record;
 import org.apache.empire.data.RecordData;
 import org.apache.empire.db.DBColumn;
 import org.apache.empire.db.DBDatabase;
-import org.apache.empire.db.DBRecord;
+import org.apache.empire.db.DBRecordBase;
 import org.apache.empire.db.DBRowSet;
 import org.apache.empire.db.exceptions.FieldNotNullException;
 import org.apache.empire.exceptions.BeanPropertyGetException;
@@ -554,11 +554,11 @@ public class TagEncodingHelper implements NamingContainer
             {   // Record has changed
                 if (log.isTraceEnabled())
                 {   // Debug output
-                    if ((rec instanceof DBRecord) && (this.record instanceof DBRecord))
+                    if ((rec instanceof DBRecordBase) && (this.record instanceof DBRecordBase))
                     {   // a database record change
-                        String keyOld = StringUtils.toString(((DBRecord)this.record).getKey());
-                        String keyNew = StringUtils.toString(((DBRecord)rec).getKey());
-                        String rowSet = StringUtils.valueOf(((DBRecord)rec).getRowSet().getName());
+                        String keyOld = StringUtils.toString(((DBRecordBase)this.record).getKey());
+                        String keyNew = StringUtils.toString(((DBRecordBase)rec).getKey());
+                        String rowSet = StringUtils.valueOf(((DBRecordBase)rec).getRowSet().getName());
                         log.trace("Changing "+component.getClass().getSimpleName()+" record of rowset "+rowSet+" from {} to {}", keyOld, keyNew);
                     }
                     else
@@ -760,7 +760,7 @@ public class TagEncodingHelper implements NamingContainer
                 }
                 // check whether to skip validation
                 boolean reenableValidation = false;
-                if (skipValidation && (record instanceof DBRecord))
+                if (skipValidation && (record instanceof DBRecordBase))
                 {   // Ignore read only values
                     if (this.isReadOnly())
                         return;
@@ -768,9 +768,9 @@ public class TagEncodingHelper implements NamingContainer
                     if (ObjectUtils.isEmpty(value) && ((Record) this.record).isFieldRequired(column))
                         return; // Cannot set required value to null
                     // Disable Validation
-                    reenableValidation = ((DBRecord)record).isValidateFieldValues();
+                    reenableValidation = ((DBRecordBase)record).isValidateFieldValues();
                     if (reenableValidation)
-                        ((DBRecord)record).setValidateFieldValues(false);
+                        ((DBRecordBase)record).setValidateFieldValues(false);
                     // Validation skipped for
                     if (log.isDebugEnabled())
                         log.debug("Input Validation skipped for {}.", column.getName());
@@ -782,7 +782,7 @@ public class TagEncodingHelper implements NamingContainer
                 } finally {
                     // re-enable validation
                     if (reenableValidation)
-                        ((DBRecord)record).setValidateFieldValues(true);
+                        ((DBRecordBase)record).setValidateFieldValues(true);
                 }
             }
             else if (record instanceof RecordData)
@@ -851,7 +851,7 @@ public class TagEncodingHelper implements NamingContainer
         if (this.record!=null)
         {   // Check attribute
             Object recordTagValue = getTagAttributeValue("record");
-            if ((recordTagValue instanceof DBRecord) && this.record!=recordTagValue)
+            if ((recordTagValue instanceof DBRecordBase) && this.record!=recordTagValue)
             {   // shoud not come here
                 log.warn("Record in call to IsVisible has unexpectedly changed!");
                 this.record=null;

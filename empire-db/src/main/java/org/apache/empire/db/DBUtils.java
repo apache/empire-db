@@ -816,9 +816,9 @@ public class DBUtils implements DBContextAware
      * @param recordClass the recordClass for which to create the list head 
      * @return
      */
-    protected <T extends DBRecord> DBRecordListFactory<T> createDefaultRecordListFactory(Class<T> recordClass, DBRowSet rowset) 
+    protected <R extends DBRecordBase> DBRecordListFactory<R> createDefaultRecordListFactory(Class<R> recordClass, DBRowSet rowset) 
     {
-        return new DBRecordListFactoryImpl<T>(recordClass, context.getClass(), rowset);
+        return new DBRecordListFactoryImpl<R>(recordClass, context.getClass(), rowset);
     }
     
     /**
@@ -829,9 +829,9 @@ public class DBUtils implements DBContextAware
      * @param pageSize the maximum number of items to add to the list or -1 (default) for all
      * @return the list 
      */
-    public <T extends DBRecord> List<T> queryRecordList(DBCommand cmd, DBRecordListFactory<T> factory, int first, int pageSize)
+    public <R extends DBRecordBase> List<R> queryRecordList(DBCommand cmd, DBRecordListFactory<R> factory, int first, int pageSize)
     {
-        List<T> list = null;
+        List<R> list = null;
         DBReader r = new DBReader(context);
         try
         {   // prepare
@@ -866,7 +866,7 @@ public class DBUtils implements DBContextAware
             int rownum = 0;
             while (r.moveNext() && maxCount != 0)
             {   // Create bean an init
-                T entry = factory.newRecord(rownum, r);
+                R entry = factory.newRecord(rownum, r);
                 if (entry==null)
                     continue;
                 // check
@@ -902,10 +902,10 @@ public class DBUtils implements DBContextAware
      * @param rowset the rowset for which to query the records
      * @return the list of DBRecord items
      */
-    public final <T extends DBRecord> List<T> queryRecordList(DBCommand cmd, DBRowSet rowset, Class<T> recordType)
+    public final <R extends DBRecordBase> List<R> queryRecordList(DBCommand cmd, DBRowSet rowset, Class<R> recordType)
     {
         @SuppressWarnings("cast")
-        DBRecordListFactory<T> factory = (DBRecordListFactory<T>)createDefaultRecordListFactory(recordType, rowset);
+        DBRecordListFactory<R> factory = (DBRecordListFactory<R>)createDefaultRecordListFactory(recordType, rowset);
         return queryRecordList(cmd, factory, 0, -1);
     }
 

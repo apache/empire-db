@@ -18,42 +18,32 @@
  */
 package org.apache.empire.db;
 
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.sql.Connection;
 
-import org.apache.empire.commons.ClassUtils;
 import org.apache.empire.commons.StringUtils;
 import org.apache.empire.data.Column;
 import org.apache.empire.db.DBRowSet.PartialMode;
 import org.apache.empire.db.exceptions.NoPrimaryKeyException;
 import org.apache.empire.db.expr.compare.DBCompareExpr;
 import org.apache.empire.exceptions.InvalidArgumentException;
-import org.apache.empire.exceptions.ItemNotFoundException;
 import org.apache.empire.exceptions.NotSupportedException;
 import org.apache.empire.exceptions.ObjectNotValidException;
-import org.apache.empire.exceptions.UnspecifiedErrorException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
  * This class represents a record from a database table, view or query
  * 
- * The class provides methods to create, read, update and delete records
+ * Other than DBRecord it is not permanently attached to a context or rowset
  * 
- * If an Idendity-column (AUTOINC) is defined, the value will be set upon creation by the dbms to the next value
- * If a Timestamp-column is defined the value will be automatically set and concurrent changes of the record will be detected
+ * Thus it has a Default constructor and is essentially a dynamic bean
  * 
- * If changes to the record are made, but a rollback on the connection is performed, the changes will be reverted (Rollback-Handling)
- * 
- * The record is Serializable either if the provided DBContext is serializable, or if the Context is provided on deserialization in a derived class.
  */
-public class DBRecord extends DBRecordBase
+public class DBRecordBean extends DBRecordBase
 {
     private static final long serialVersionUID = 1L;
     
-    private static final Logger log  = LoggerFactory.getLogger(DBRecord.class);
+    private static final Logger log  = LoggerFactory.getLogger(DBRecordBean.class);
     
     /**
      * varArgs to Array
@@ -68,96 +58,29 @@ public class DBRecord extends DBRecordBase
     }
 
     // Context and RowSet
-    protected final transient DBContext context;  /* transient for serialization */
-    protected final transient DBRowSet  rowset;   /* transient for serialization */
+    protected transient DBContext tempContext;
+    protected transient DBRowSet  rowset;   /* will be injected by DBRowset */
 
     // options
-    protected boolean       enableRollbackHandling;
-    
+    protected boolean enableRollbackHandling;
+
     /**
-     * Custom serialization for transient rowset.
-     * 
+     * Constructs a new DBRecordBean.<BR>
+     * @param enableRollbackHandling flag whether to enable rollback handing
      */
-    private void writeObject(ObjectOutputStream strm) throws IOException 
-    {   // Context
-        writeContext(strm);
-        // RowSet
-        writeRowSet(strm);
-        // write object
-        strm.defaultWriteObject();
-    }
-    
-    protected void writeContext(ObjectOutputStream strm) throws IOException
+    public DBRecordBean(boolean enableRollbackHandling)
     {
-        strm.writeObject(context);
-    }
-    
-    protected void writeRowSet(ObjectOutputStream strm) throws IOException
-    {
-        String dbid = rowset.getDatabase().getIdentifier(); 
-        String rsid = rowset.getName(); 
-        strm.writeObject(dbid);
-        strm.writeObject(rsid);
-    }
-    
-    /**
-     * Custom deserialization for transient rowset.
-     */
-    private void readObject(ObjectInputStream strm) throws IOException, ClassNotFoundException 
-    {   // Context
-        DBContext ctx = readContext(strm);
-        ClassUtils.setPrivateFieldValue(DBRecord.class, this, "context", ctx);
-        // set final field
-        DBRowSet rowset = readRowSet(strm);
-        ClassUtils.setPrivateFieldValue(DBRecord.class, this, "rowset", rowset);
-        // read the rest
-        strm.defaultReadObject();
-    }
-    
-    protected DBContext readContext(ObjectInputStream strm)  throws IOException, ClassNotFoundException
-    {
-        return (DBContext)strm.readObject();
-    }
-    
-    protected DBRowSet readRowSet(ObjectInputStream strm)  throws IOException, ClassNotFoundException
-    {   // Rowset
-        String dbid = String.valueOf(strm.readObject());
-        String rsid = String.valueOf(strm.readObject());
-        // find database
-        DBDatabase dbo = DBDatabase.findByIdentifier(dbid);
-        if (dbo==null)
-            throw new ItemNotFoundException(dbid);
-        // find rowset
-        DBRowSet rso = dbo.getRowSet(rsid);
-        if (rso==null)
-            throw new ItemNotFoundException(dbid);
-        // done
-        return rso;
-    }
-    
-    /**
-     * Internal constructor for DBRecord
-     * May be used by derived classes to provide special behaviour
-     */
-    protected DBRecord(DBContext context, DBRowSet rowset, boolean enableRollbackHandling)
-    {   // init
-        this.context = context;
-        this.rowset = rowset;
-        // options
         this.enableRollbackHandling = enableRollbackHandling;
-        this.validateFieldValues = true;
     }
 
     /**
-     * Constructs a new DBRecord.<BR>
+     * Constructs a new DBRecordBean.<BR>
      * @param context the DBContext for this record
      * @param rowset the corresponding RowSet(Table, View, Query, etc.)
      */
-    public DBRecord(DBContext context, DBRowSet rowset)
+    public DBRecordBean()
     {
-        this(checkParamNull("context", context),
-             checkParamNull("rowset", rowset),
-             context.isRollbackHandlingEnabled());
+        this(false);
     }
 
     /**
@@ -168,9 +91,9 @@ public class DBRecord extends DBRecordBase
     @SuppressWarnings("unchecked")
     public <T extends DBContext> T  getContext()
     {
-        if (this.context==null)
+        if (this.tempContext==null)
             throw new ObjectNotValidException(this);
-        return ((T)context);
+        return ((T)tempContext);
     }
 
     /**
@@ -204,9 +127,6 @@ public class DBRecord extends DBRecordBase
      */
     public void setRollbackHandlingEnabled(boolean enabled) 
     {
-        // check
-        if (enabled && !getContext().isRollbackHandlingEnabled())
-            throw new UnspecifiedErrorException("Rollback handling cannot be enabled for this record since it is not supported for this context!");
         // enable or disable
         this.enableRollbackHandling = enabled;
     }
@@ -230,21 +150,39 @@ public class DBRecord extends DBRecordBase
         // the numeric id
         return getLong(keyColumns[0]);
     }
-
-    /**
-     * Creates a new record
-     */
-    public void create(Object[] initalKey)
+    
+    @Override
+    public void close()
     {
-        getRowSet().createRecord(this, initalKey, true);
+        super.close();
+        // clear
+        this.rowset = null;
     }
 
     /**
      * Creates a new record
      */
-    public void create()
+    public void create(DBContext context, DBRowSet rowset, Object[] initalKey)
     {
-        getRowSet().createRecord(this, null, false);
+        try {
+            this.tempContext = context;
+            rowset.createRecord(this, initalKey, true);
+        } finally {
+            this.tempContext = null;
+        }
+    }
+
+    /**
+     * Creates a new record
+     */
+    public void create(DBContext context, DBRowSet rowset)
+    {
+        try {
+            this.tempContext = context;
+            rowset.createRecord(this, null, false);
+        } finally {
+            this.tempContext = null;
+        }
     }
     
     /**
@@ -252,27 +190,37 @@ public class DBRecord extends DBRecordBase
      * Hint: variable args param (Object...) caused problems with migration
      * @param key an array of the primary key values
      */
-    public void read(Object[] key)
+    public void read(DBContext context, DBRowSet rowset, Object[] key)
     {   // read
-        getRowSet().readRecord(this, key);
+        try {
+            this.tempContext = context;
+            rowset.readRecord(this, key);
+        } finally {
+            this.tempContext = null;
+        }
     }
 
     /**
      * Reads a record from the database
      * @param id the record id value
      */
-    public final void read(long id)
+    public final void read(DBContext context, DBRowSet rowset, long id)
     {
-        read(new Object[] {id});
+        read(context, rowset, new Object[] {id});
     }
     
     /**
      * Reads a record from the database
      * @param key an array of the primary key values
      */
-    public void read(DBCompareExpr whereConstraints)
-    {
-        getRowSet().readRecord(this, whereConstraints);
+    public void read(DBContext context, DBRowSet rowset, DBCompareExpr whereConstraints)
+    {   // read
+        try {
+            this.tempContext = context;
+            rowset.readRecord(this, whereConstraints);
+        } finally {
+            this.tempContext = null;
+        }
     }
     
     /**
@@ -285,27 +233,38 @@ public class DBRecord extends DBRecordBase
      * @param mode flag whether to include only the given columns or whether to add all but the given columns
      * @param columns the columns to include or exclude (depending on mode)
      */
-    public void read(Object[] key, PartialMode mode, DBColumn... columns)
-    {
-        getRowSet().readRecord(this, key, mode, columns);
+    public void read(DBContext context, DBRowSet rowset, Object[] key, PartialMode mode, DBColumn... columns)
+    {   // read
+        try {
+            this.tempContext = context;
+            rowset.readRecord(this, key, mode, columns);
+        } finally {
+            this.tempContext = null;
+        }
     }
-
+    
     /**
-     * Updates the record and saves all changes in the database.
+     * Updates the record in the database
+     * @param context the current context
      */
-    public void update()
-    {
-        if (!isValid())
+    public void update(DBContext context)
+    {   // update
+        if (isValid()==false)
             throw new ObjectNotValidException(this);
         if (!isModified())
             return; /* Not modified. Nothing to do! */
-        // check updatable
-        checkUpdateable();
-        // allow rollback
-        if (isRollbackHandlingEnabled())
-            getContext().appendRollbackHandler(createRollbackHandler());
-        // update
-        getRowSet().updateRecord(this);
+        try {
+            this.tempContext = context;
+            // check updatable
+            checkUpdateable();
+            // allow rollback
+            if (isRollbackHandlingEnabled())
+                context.appendRollbackHandler(createRollbackHandler());
+            // update
+            getRowSet().updateRecord(this);
+        } finally {
+            this.tempContext = null;
+        }
     }
 
     /**
@@ -316,9 +275,9 @@ public class DBRecord extends DBRecordBase
      * Implement delete logic in the table's deleteRecord method if possible
      * 
      * @see org.apache.empire.db.DBTable#deleteRecord(Object[], Connection)
-     * @param conn a valid connection to the database.
+     * @param context the current context
      */
-    public void delete()
+    public void delete(DBContext context)
     {
         if (isValid()==false)
             throw new ObjectNotValidException(this);
@@ -326,13 +285,13 @@ public class DBRecord extends DBRecordBase
         checkUpdateable();
         // allow rollback
         if (isRollbackHandlingEnabled())
-            getContext().appendRollbackHandler(createRollbackHandler());
+            context.appendRollbackHandler(createRollbackHandler());
         // Delete only if record is not new
         if (!isNew())
         {
             Object[] key = getKey();
             log.info("Deleting record {}", StringUtils.arrayToString(key, "|"));
-            getRowSet().deleteRecord(key, getContext());
+            getRowSet().deleteRecord(key, context);
         }
         close();
     }

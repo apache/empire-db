@@ -33,6 +33,7 @@ import org.apache.empire.db.DBContext;
 import org.apache.empire.db.DBQuery;
 import org.apache.empire.db.DBReader;
 import org.apache.empire.db.DBRecord;
+import org.apache.empire.db.DBRecordBean;
 import org.apache.empire.db.DBRowSet.PartialMode;
 import org.apache.empire.db.DBSQLScript;
 import org.apache.empire.db.context.DBContextStatic;
@@ -413,12 +414,21 @@ public class SampleApp
 	 */
 	private static void updateEmployee(long idEmp, String phoneNumber)
     {
+	    /*
 		// Update an Employee
 		DBRecord rec = new DBRecord(context, db.EMPLOYEES);
 		rec.read(idEmp);
 		// Set
 		rec.setValue(db.EMPLOYEES.PHONE_NUMBER, phoneNumber);
 		rec.update();
+		*/
+	    
+        DBRecordBean rec = new DBRecordBean();
+        rec.read(context, db.EMPLOYEES, idEmp);
+        // Set
+        rec.setValue(db.EMPLOYEES.PHONE_NUMBER, phoneNumber);
+        rec.update(context);
+	    
 	}
 
     /**
@@ -831,9 +841,9 @@ public class SampleApp
         cmd.join(EMP.DEPARTMENT_ID, DEP.ID);
         cmd.where(DEP.NAME.is("Development"));
         // query now
-        List<DBRecord> list = context.getUtils().queryRecordList(cmd, EMP);
+        List<DBRecordBean> list = context.getUtils().queryRecordList(cmd, EMP, DBRecordBean.class);
         log.info("RecordList query found {} employees in Development department", list.size());
-        for (DBRecord record : list)
+        for (DBRecordBean record : list)
         {
             Object[] key = record.getKey();
             // print info
@@ -850,7 +860,7 @@ public class SampleApp
                 log.info("Salary was modified for {}. New salary is {}", empName, record.getDecimal(EMP.SALARY));
             }
             // udpate the record
-            record.update();
+            record.update(context);
             
             // convert to bean
             Employee employee = new Employee();

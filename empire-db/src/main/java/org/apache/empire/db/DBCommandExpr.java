@@ -120,21 +120,21 @@ public abstract class DBCommandExpr extends DBExpr
 
         /** throws ERR_NOTSUPPORTED */
         @Override
-        public void createRecord(DBRecord record, Object[] initalKey, boolean deferredInit)
+        public void createRecord(DBRecordBase record, Object[] initalKey, boolean deferredInit)
         {
             throw new NotSupportedException(this, "addRecord");
         }
 
         /** throws ERR_NOTSUPPORTED */
         @Override
-        public void readRecord(DBRecord record, Object[] key)
+        public void readRecord(DBRecordBase record, Object[] key)
         {
             throw new NotSupportedException(this, "getRecord");
         }
 
         /** throws ERR_NOTSUPPORTED */
         @Override
-        public void updateRecord(DBRecord rec)
+        public void updateRecord(DBRecordBase rec)
         {
             throw new NotSupportedException(this, "updateRecord");
         }

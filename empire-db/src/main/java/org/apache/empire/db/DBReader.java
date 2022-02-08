@@ -65,7 +65,7 @@ import org.w3c.dom.Element;
  *  <li>access field values directly by using one of the get... functions (see {@link DBRecordData})</li> 
  *  <li>get the rows as a list of Java Beans using by using {@link DBReader#getBeanList(Class, int)}</li> 
  *  <li>get the rows as an XML-Document using {@link DBReader#getXmlDocument()} </li> 
- *  <li>initialize a DBRecord with the current row data using {@link DBReader#initRecord(DBRowSet, DBRecord)}<br>
+ *  <li>initialize a DBRecord with the current row data using {@link DBReader#initRecord(DBRowSet, DBRecordBase)}<br>
  *      This will allow you to modify and update the data. 
  *  </li> 
  * </ul>
@@ -647,12 +647,12 @@ public class DBReader extends DBRecordData implements Closeable
      * initializes a DBRecord object with the values of the current row.
      * At least all primary key columns of the target rowset must be provided by this reader.
      * This function is equivalent to calling rowset.initRecord(rec, reader) 
-     * set also {@link DBRowSet#initRecord(DBRecord, DBRecordData)});
+     * set also {@link DBRowSet#initRecord(DBRecordBase, DBRecordData)});
      * </PRE>
      * @param rowset the rowset to which to attach
      * @param rec the record which to initialize
      */
-    public void initRecord(DBRecord rec)
+    public void initRecord(DBRecordBase rec)
     {
         // init Record
         DBRowSet rowset = rec.getRowSet();

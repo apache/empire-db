@@ -19,7 +19,7 @@
 package org.apache.empire.db.exceptions;
 
 import org.apache.empire.commons.ErrorType;
-import org.apache.empire.db.DBRecord;
+import org.apache.empire.db.DBRecordBase;
 
 public class RecordReadOnlyException extends RecordException
 {
@@ -27,7 +27,7 @@ public class RecordReadOnlyException extends RecordException
     
     public static final ErrorType errorType = new ErrorType("error.db.recordIsReadOnly",    "The record {0} of {1} is read only.");
     
-    public RecordReadOnlyException(DBRecord record)
+    public RecordReadOnlyException(DBRecordBase record)
     {
         super(record, errorType, new String[] { keyToString(getKey(record)), entityName(getEntity(record)) });
     }

@@ -405,7 +405,7 @@ public abstract class DBView extends DBRowSet
     }
 
     @Override
-    public void updateRecord(DBRecord rec)
+    public void updateRecord(DBRecordBase rec)
     {
         if (updateable==false)
             throw new NotSupportedException(this, "updateRecord");
@@ -419,7 +419,7 @@ public abstract class DBView extends DBRowSet
      * @see org.apache.empire.db.DBRowSet#addRecord(org.apache.empire.db.DBRecord, java.sql.Connection)
      */
     @Override
-    public void createRecord(DBRecord record, Object[] initalKey, boolean deferredInit)
+    public void createRecord(DBRecordBase record, Object[] initalKey, boolean deferredInit)
     {
         throw new NotSupportedException(this, "createRecord");
     }
