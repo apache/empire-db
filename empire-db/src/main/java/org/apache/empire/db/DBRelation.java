@@ -163,9 +163,9 @@ public class DBRelation extends DBObject
     
     @SuppressWarnings("unchecked")
     @Override
-    public final <T extends DBDatabase> T getDatabase()
+    public final DBDatabase getDatabase()
     {
-        return (T)db;
+        return db;
     }
     
     /**

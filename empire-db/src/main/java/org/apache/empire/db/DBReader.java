@@ -293,9 +293,9 @@ public class DBReader extends DBRecordData implements Closeable
     
     @SuppressWarnings("unchecked")
     @Override
-    public final <T extends DBDatabase> T getDatabase()
+    public final DBDatabase getDatabase()
     {
-        return (T)db;
+        return db;
     }
     
     public boolean getScrollable()
@@ -705,7 +705,7 @@ public class DBReader extends DBRecordData implements Closeable
                 rownum++;
                 // post processing
                 if (bean instanceof DataBean<?>)
-                    ((DataBean<?>)bean).initialize(getDatabase(), context, rownum, parent);
+                    ((DataBean<?>)bean).initialize(((DBObject)this).getDatabase(), context, rownum, parent);
                 // Decrease count
                 if (maxCount > 0)
                     maxCount--;

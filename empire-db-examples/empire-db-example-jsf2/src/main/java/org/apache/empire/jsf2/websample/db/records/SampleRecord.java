@@ -46,7 +46,8 @@ public abstract class SampleRecord<T extends SampleTable> extends DBRecord
     private void readObject(ObjectInputStream strm)
         throws IOException, ClassNotFoundException
     {   // Restore T
-        T table = super.getRowSet();
+        @SuppressWarnings("unchecked")
+        T table = (T)super.getRowSet();
         ClassUtils.setPrivateFieldValue(SampleRecord.class, this, "T", table);
         // read the rest
         strm.defaultReadObject();

@@ -1025,7 +1025,7 @@ public class DBUtils implements DBContextAware
                 list.add(item);
                 // post processing
                 if (item instanceof DataBean<?>)
-                    ((DataBean<?>)item).initialize(r.getDatabase(), context, rownum, parent);
+                    ((DataBean<?>)item).initialize(((DBObject)r).getDatabase(), context, rownum, parent);
                 // next
                 rownum++;
                 // Decrease count
@@ -1102,7 +1102,7 @@ public class DBUtils implements DBContextAware
             T item = factory.newItem(-1, r);
             // post processing
             if (item instanceof DataBean<?>)
-                ((DataBean<?>)item).initialize(r.getDatabase(), context, -1, null);
+                ((DataBean<?>)item).initialize(((DBObject)r).getDatabase(), context, -1, null);
             // done
             return item;
         }

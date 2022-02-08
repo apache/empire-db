@@ -166,11 +166,11 @@ public class DBRecord extends DBRecordBase
      */
     @Override
     @SuppressWarnings("unchecked")
-    public <T extends DBContext> T  getContext()
+    public DBContext getContext()
     {
         if (this.context==null)
             throw new ObjectNotValidException(this);
-        return ((T)context);
+        return context;
     }
 
     /**
@@ -179,12 +179,11 @@ public class DBRecord extends DBRecordBase
      * @return the DBRowSet object
      */
     @Override
-    @SuppressWarnings("unchecked")
-    public <T extends DBRowSet> T getRowSet()
+    public DBRowSet getRowSet()
     {
         if (this.rowset==null)
             throw new ObjectNotValidException(this);
-        return (T)this.rowset;
+        return this.rowset;
     }
 
     /**

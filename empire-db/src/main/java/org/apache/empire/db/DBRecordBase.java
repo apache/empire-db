@@ -259,17 +259,10 @@ public abstract class DBRecordBase extends DBRecordData implements Record, Clone
     }
 
     /**
-     * Returns the current Context
-     * @return
-     */
-    @Override
-    public abstract <T extends DBContext> T  getContext();
-
-    /**
      * Returns the DBRowSet object.
      * @return the DBRowSet object
      */
-    public abstract <T extends DBRowSet> T getRowSet();
+    public abstract DBRowSet getRowSet();
     
     /**
      * Returns whether or not RollbackHandling is enabled for this record

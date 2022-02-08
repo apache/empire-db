@@ -49,9 +49,9 @@ public class DBVarArgsFuncExpr extends DBColumnExpr
 
     @SuppressWarnings("unchecked")
     @Override
-    public final <T extends DBDatabase> T getDatabase()
+    public final DBDatabase getDatabase()
     {
-        return (T) database;
+        return database;
     }
 
     @Override

@@ -57,9 +57,9 @@ public class OracleRowNumExpr extends DBColumnExpr
      */
     @SuppressWarnings("unchecked")
     @Override
-    public final <T extends DBDatabase> T getDatabase()
+    public final DBDatabase getDatabase()
     {
-        return (T)db;
+        return db;
     }
 
     /**

@@ -105,8 +105,9 @@ public class DBCmdParam extends DBExpr
         // Nothing to add
     }
     
+    @SuppressWarnings("unchecked")
     @Override
-    public final <T extends DBDatabase> T getDatabase()
+    public final DBDatabase getDatabase()
     {
         return cmd.getDatabase();
     }

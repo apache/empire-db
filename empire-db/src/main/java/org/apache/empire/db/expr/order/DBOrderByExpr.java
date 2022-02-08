@@ -68,8 +68,9 @@ public class DBOrderByExpr extends DBExpr
     /*
      * @see org.apache.empire.db.DBExpr#getDatabase()
      */
+    @SuppressWarnings("unchecked")
     @Override
-    public final <T extends DBDatabase> T getDatabase()
+    public final DBDatabase getDatabase()
     {
         return expr.getDatabase();
     }

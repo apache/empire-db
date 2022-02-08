@@ -42,8 +42,9 @@ public class DBParenthesisExpr extends DBCompareExpr
         return wrap;
     }
 
+    @SuppressWarnings("unchecked")
     @Override
-    public final <T extends DBDatabase> T getDatabase()
+    public final DBDatabase getDatabase()
     {
         return wrap.getDatabase();
     }

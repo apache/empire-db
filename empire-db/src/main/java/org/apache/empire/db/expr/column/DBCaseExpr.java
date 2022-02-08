@@ -57,8 +57,9 @@ public class DBCaseExpr extends DBColumnExpr
         this.elseExpr = elseExpr; 
     }
 
+    @SuppressWarnings("unchecked")
     @Override
-    public final <T extends DBDatabase> T getDatabase()
+    public final DBDatabase getDatabase()
     {
         return trueExpr.getDatabase();
     }

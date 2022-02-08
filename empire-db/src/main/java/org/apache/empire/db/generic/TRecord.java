@@ -55,7 +55,6 @@ public class TRecord<RS extends DBRowSet> extends DBRecord
      * finally we know the rowset
      */
     @Override
-    @SuppressWarnings("unchecked")
     public RS getRowSet()
     {
         return this.RS;

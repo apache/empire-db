@@ -85,8 +85,9 @@ public abstract class DBAbstractFuncExpr extends DBColumnExpr
      * 
      * @return the current DBDatabase object
      */
+    @SuppressWarnings("unchecked")
     @Override
-    public final <T extends DBDatabase> T getDatabase()
+    public final DBDatabase getDatabase()
     {
         return expr.getDatabase();
     }

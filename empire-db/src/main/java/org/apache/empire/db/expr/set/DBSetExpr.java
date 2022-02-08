@@ -62,8 +62,9 @@ public class DBSetExpr extends DBExpr
      * 
      * @return the current DBDatabase object
      */
+    @SuppressWarnings("unchecked")
     @Override
-    public final <T extends DBDatabase> T getDatabase()
+    public final DBDatabase getDatabase()
     {
         return column.getDatabase();
     }

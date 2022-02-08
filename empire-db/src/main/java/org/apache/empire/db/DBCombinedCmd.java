@@ -66,8 +66,9 @@ public class DBCombinedCmd extends DBCommandExpr
      * 
      * @return the current DBDatabase object
      */
+    @SuppressWarnings("unchecked")
     @Override
-    public final <T extends DBDatabase> T getDatabase()
+    public final DBDatabase getDatabase()
     {
         return left.getDatabase();
     }

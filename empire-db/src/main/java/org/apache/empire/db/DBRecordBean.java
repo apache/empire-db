@@ -87,13 +87,13 @@ public class DBRecordBean extends DBRecordBase
      * Returns the current Context
      * @return
      */
-    @Override
     @SuppressWarnings("unchecked")
-    public <T extends DBContext> T  getContext()
+    @Override
+    public DBContext getContext()
     {
         if (this.tempContext==null)
             throw new ObjectNotValidException(this);
-        return ((T)tempContext);
+        return tempContext;
     }
 
     /**
@@ -102,12 +102,11 @@ public class DBRecordBean extends DBRecordBase
      * @return the DBRowSet object
      */
     @Override
-    @SuppressWarnings("unchecked")
-    public <T extends DBRowSet> T getRowSet()
+    public DBRowSet getRowSet()
     {
         if (this.rowset==null)
             throw new ObjectNotValidException(this);
-        return (T)this.rowset;
+        return this.rowset;
     }
 
     /**
