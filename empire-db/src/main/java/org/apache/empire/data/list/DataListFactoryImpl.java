@@ -47,7 +47,7 @@ public class DataListFactoryImpl<T extends DataListEntry> implements DataListFac
     @SuppressWarnings("unchecked")
     protected static <T extends DataListEntry> Constructor<T> findEntryConstructor(Class<?> listEntryClass, Class<? extends DataListHead> listHeadClass)
     {
-        Constructor<?> constructor = ClassUtils.findMatchingAccessibleConstructor(listEntryClass, -1, listHeadClass, int.class, Object[].class);
+        Constructor<?> constructor = ClassUtils.findMatchingConstructor(listEntryClass, -1, listHeadClass, int.class, Object[].class);
         if (constructor==null)
             throw new UnsupportedTypeException(listEntryClass);
         // found

@@ -92,11 +92,15 @@ public final class ClassUtils
             return null;
         // the class
         Class<?> clazz = obj.getClass();
-        // simple check
-        if (clazz.isInterface() || clazz.isAnnotation())
+        // class check
+        if (clazz.isInterface() || clazz.isAnnotation()) {
+            log.warn("Unable to copy Interface or Annotation {}", clazz.getName());
             return null; // not supported
-        if (clazz.isPrimitive() || clazz.isEnum())
-            return obj; // no need to copy
+        }
+        if (clazz.isPrimitive() || clazz.isEnum()) 
+        {   // no need to copy
+            return obj; 
+        }
         // try clonable
         if (obj instanceof Cloneable)
         {   try {
@@ -121,31 +125,33 @@ public final class ClassUtils
                 log.error("Copy through Serialization failed for : "+clazz.getName(), e);
             }
         }
-        // find standard constructor
-        int i=0;
-        final Constructor<?>[] ctors = clazz.getConstructors();
-        for (; i<ctors.length; i++)
-            if (ctors[i].getParameterCount()==0)
-                break;
-        if (i<ctors.length)
+        // try copy through Instantiation
+        Constructor<?> ctor = findMatchingConstructor(clazz, 0, clazz);
+        if (ctor!=null)
         {   try
-            {   // Try standard constructor
-                Object copy = clazz.newInstance();
-                Field[] fields = copy.getClass().getDeclaredFields();
-                for (Field field : fields) {
-                    // make acessible
-                    boolean accessible = field.isAccessible();
-                    if (!accessible)
-                        field.setAccessible(true);
-                    // copy
-                    Object value = field.get(obj); // recurse ?
-                    field.set(copy, value);
-                    // restore
-                    if (!accessible)
-                        field.setAccessible(false);
+            {   if (ctor.getParameterCount()==1)
+                {   // try copy constructor
+                    return ctor.newInstance(obj);
                 }
-                return copy;
-            } catch (InstantiationException | IllegalAccessException e) {
+                else
+                {   // Try default constructor and copy fields
+                    Object copy = ctor.newInstance();
+                    Field[] fields = copy.getClass().getDeclaredFields();
+                    for (Field field : fields) {
+                        // make accessible
+                        boolean accessible = field.isAccessible();
+                        if (!accessible)
+                            field.setAccessible(true);
+                        // copy
+                        Object value = field.get(obj); // recurse ?
+                        field.set(copy, value);
+                        // restore
+                        if (!accessible)
+                            field.setAccessible(false);
+                    }
+                    return copy;
+                }
+            } catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
                 log.error("Copy through Instantiation failed for : "+clazz.getName(), e);
             }
         }
@@ -258,7 +264,7 @@ public final class ClassUtils
     /**
      * copied from org.apache.commons.beanutils.ConstructorUtils since it's private there
      */
-    public static <T> Constructor<T> findMatchingAccessibleConstructor(Class<T> clazz, int minParams, Class<?>... parameterTypes)
+    public static <T> Constructor<T> findMatchingConstructor(Class<T> clazz, int minParams, Class<?>... parameterTypes)
     {
         // Minimum matching params
         int paramSize = (parameterTypes!=null ? parameterTypes.length : 0);

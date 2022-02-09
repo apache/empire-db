@@ -995,7 +995,7 @@ public class DBReader extends DBRecordData implements Closeable
         for (int i = 0; i < columns.length; i++)
             paramTypes[i] = columns[i].getJavaType(); 
         // Find Constructor
-        Constructor<?> ctor = ClassUtils.findMatchingAccessibleConstructor(beanClass, -1, paramTypes);
+        Constructor<?> ctor = ClassUtils.findMatchingConstructor(beanClass, -1, paramTypes);
         return ctor;
     }
 

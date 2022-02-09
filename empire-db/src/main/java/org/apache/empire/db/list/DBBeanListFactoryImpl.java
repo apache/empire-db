@@ -59,12 +59,12 @@ public class DBBeanListFactoryImpl<T> implements DBBeanListFactory<T>
         for (int i=0; i<paramTypes.length; i++)
             paramTypes[i] = params.get(i).getJavaType(); 
         // find constructor
-        return ClassUtils.findMatchingAccessibleConstructor(beanType, -1, paramTypes);
+        return ClassUtils.findMatchingConstructor(beanType, -1, paramTypes);
     }
 
     protected static <T> Constructor<T> findBeanConstructor(Class<T> beanType)
     {   // find default constructor
-        return ClassUtils.findMatchingAccessibleConstructor(beanType, 0);
+        return ClassUtils.findMatchingConstructor(beanType, 0);
     }
     
     /*

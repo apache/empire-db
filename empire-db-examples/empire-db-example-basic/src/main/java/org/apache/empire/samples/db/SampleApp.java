@@ -22,6 +22,7 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -61,11 +62,11 @@ public class SampleApp
     // Logger
     private static final Logger log = LoggerFactory.getLogger(SampleApp.class);
 
-	private static final SampleDB db = new SampleDB();
-
     private static SampleConfig config = new SampleConfig();
-	
-	private static DBContext context;
+    
+	private final SampleDB db = new SampleDB();
+
+	private DBContext context = null;
 
 	private enum QueryType
     {
@@ -74,112 +75,118 @@ public class SampleApp
 	    XmlDocument
 	}
 
-	/**
+    /**
      * <PRE>
-	 * This is the entry point of the Empire-DB Sample Application
-	 * Please check the config.xml configuration file for Database and Connection settings.
+     * This is the entry point of the Empire-DB Sample Application
+     * Please check the config.xml configuration file for Database and Connection settings.
      * </PRE>
-	 * @param args arguments
-	 */
-	public static void main(String[] args)
+     * @param args arguments
+     */
+    public static void main(String[] args)
     {
-		try
-        {
-			// Init Configuration
-			config.init((args.length > 0 ? args[0] : "config.xml" ));
+        SampleApp app = new SampleApp();
+        try
+        {   // Init Configuration
+            config.init((args.length > 0 ? args[0] : "config.xml" ));
+            // Run
+            log.info("Running DB Sample...");
+            app.run();
+            // Done
+            log.info("DB Sample finished successfully.");
+        } catch (Exception e) {
+            // Error
+            log.error("Running SampleApp failed with Exception" + e.toString(), e);
+            if (app.context!=null)
+                app.context.rollback();
+        } finally {
+            if (app.context!=null)
+                app.context.discard();
+        }
+    }
 
-			log.info("Running DB Sample...");
+    /**
+     * This method runs all the example code
+     */
+    public void run()
+    {
+        // SECTION 1: Get a JDBC Connection
+        log.info("Step 1: getJDBCConnection()");
+        
+        Connection conn = getJDBCConnection();
 
-			// SECTION 1: Get a JDBC Connection
-			log.info("Step 1: getJDBCConnection()");
-			
-			Connection conn = getJDBCConnection();
+        // SECTION 2: Choose a DBMSHandler
+        log.info("Step 2: getDatabaseProvider()");
+        DBMSHandler dbms = getDBMSHandler(config.getDatabaseProvider(), conn);
+        
+        // SECTION 2.2: Create a Context
+        context = new DBContextStatic(dbms, conn, false, true); 
 
-			// SECTION 2: Choose a DBMSHandler
-			log.info("Step 2: getDatabaseProvider()");
-			DBMSHandler dbms = getDBMSHandler(config.getDatabaseProvider(), conn);
-			
-            // SECTION 2.2: Create a Context
-			context = new DBContextStatic(dbms, conn, false, true); 
-
-            // SECTION 3: Open Database (and create if not existing)
-            log.info("Step 3: openDatabase()");
-            boolean clearExistingData = true;
-			try {
-			    // Open the database
-                db.open(context);
-                // Check whether database exists
-			    databaseExists();
-                log.info("Database already exists. Checking data model...");
-                checkDataModel();
-                
-			} catch(Exception e) {
-                // SECTION 4: Create Database
-                log.info("Step 4: createDDL()");
-                // postgre does not support DDL in transaction
-                if(db.getDbms() instanceof DBMSHandlerPostgreSQL)
-                {
-                	conn.setAutoCommit(true);
-                }
-                createDatabase();
-                if(db.getDbms() instanceof DBMSHandlerPostgreSQL)
-                {
-                	conn.setAutoCommit(false);
-                }
-                // Open again
-                if (db.isOpen()==false)
-                    db.open(context);
-                // initial load
-                clearExistingData = false;
-			}
-
-            // SECTION 5 AND 6: Populate Database and modify Data
-			populateAndModify(clearExistingData);
-
-            // SECTION 7: Option 1: Query Records and print tab-separated
-            log.info("Step 8 Option 1: queryRecords() / Tab-Output");
-            queryExample(QueryType.Reader); // Tab-Output
-
-            // SECTION 7: Option 2: Query Records as a list of java beans
-            log.info("Step 8 Option 2: queryRecords() / Bean-List-Output");
-            queryExample(QueryType.BeanList); // Bean-List-Output
-
-            // SECTION 7: Option 3: Query Records as XML
-            log.info("Step 8 Option 3: queryRecords() / XML-Output");
-            queryExample(QueryType.XmlDocument); // XML-Output
-
-            // SECTION 8: Use DataList query
-            queryDataList();
-
-            // SECTION 9: Use RecordList query
-            queryRecordList();
-
-			// SECTION 10: Use Bean Result to query beans
-			queryBeans();
-			
-
-            /*
-            int idEmp = testTransactionCreate(idDevDep);
-            testTransactionUpdate(idEmp);
-            testTransactionDelete(idEmp);
-            */
-			
-            // Finally, commit any changes
-            context.commit();
+        // SECTION 3: Open Database (and create if not existing)
+        log.info("Step 3: openDatabase()");
+        boolean clearExistingData = true;
+        try {
+            // Open the database
+            db.open(context);
+            // Check whether database exists
+            databaseExists();
+            log.info("Database already exists. Checking data model...");
+            checkDataModel();
             
-			// Done
-			log.info("DB Sample finished successfully.");
+        } catch(Exception e) {
+            // SECTION 4: Create Database
+            log.info("Step 4: createDDL()");
+            // postgre does not support DDL in transaction
+            if(db.getDbms() instanceof DBMSHandlerPostgreSQL)
+            {
+                setAutoCommit(conn, true);
+            }
+            createDatabase();
+            if(db.getDbms() instanceof DBMSHandlerPostgreSQL)
+            {
+                setAutoCommit(conn, false);
+            }
+            // Open again
+            if (db.isOpen()==false)
+                db.open(context);
+            // initial load
+            clearExistingData = false;
+        }
 
-		} catch (Exception e)
-        {	// Error
-			log.error("Running SampleApp failed with Exception" + e.toString(), e);
-            context.rollback();
-			
-		} finally {
-		    context.discard();
-		}
-	}
+        // SECTION 5 AND 6: Populate Database and modify Data
+        populateAndModify(clearExistingData);
 
+        // SECTION 7: Option 1: Query Records and print tab-separated
+        log.info("Step 8 Option 1: queryRecords() / Tab-Output");
+        queryExample(QueryType.Reader); // Tab-Output
+
+        // SECTION 7: Option 2: Query Records as a list of java beans
+        log.info("Step 8 Option 2: queryRecords() / Bean-List-Output");
+        queryExample(QueryType.BeanList); // Bean-List-Output
+
+        // SECTION 7: Option 3: Query Records as XML
+        log.info("Step 8 Option 3: queryRecords() / XML-Output");
+        queryExample(QueryType.XmlDocument); // XML-Output
+
+        // SECTION 8: Use DataList query
+        queryDataList();
+
+        // SECTION 9: Use RecordList query
+        queryRecordList();
+
+        // SECTION 10: Use Bean Result to query beans
+        queryBeans();
+        
+
+        /*
+        int idEmp = testTransactionCreate(idDevDep);
+        testTransactionUpdate(idEmp);
+        testTransactionDelete(idEmp);
+        */
+        
+        // Finally, commit any changes
+        context.commit();        
+    }
+	
 	/**
      * <PRE>
 	 * Opens and returns a JDBC-Connection.
@@ -187,7 +194,7 @@ public class SampleApp
 	 * Please use the config.xml file to change connection params.
      * </PRE>
 	 */
-	private static Connection getJDBCConnection()
+	private Connection getJDBCConnection()
     {
 		// Establish a new database connection
 		Connection conn = null;
@@ -211,11 +218,20 @@ public class SampleApp
 		}
 		return conn;
 	}
+	
+	private void setAutoCommit(Connection conn, boolean enable)
+	{
+        try {
+            conn.setAutoCommit(enable);
+        } catch (SQLException e) {
+            log.error("Unable to set AutoCommit on Connection", e);
+        }
+	}
 
 	/**
 	 * Creates an Empire-db DatabaseDriver for the given provider and applies dbms specific configuration 
 	 */
-    private static DBMSHandler getDBMSHandler(String provider, Connection conn)
+    private DBMSHandler getDBMSHandler(String provider, Connection conn)
     {
         try
         {   // Get Driver Class Name
@@ -253,7 +269,7 @@ public class SampleApp
 	 * Please note that in this case an error will appear in the log which can be ignored.
      * </PRE>
 	 */
-	private static boolean databaseExists()
+	private boolean databaseExists()
     {
 		// Check whether DB exists
 		DBCommand cmd = db.createCommand();
@@ -269,7 +285,7 @@ public class SampleApp
 	 * Please make sure you uses the correct DatabaseDriver for your target DBMS.
      * </PRE>
 	 */
-	private static void createDatabase()
+	private void createDatabase()
     {
 		// create DDL for Database Definition
 	    DBSQLScript script = new DBSQLScript(context);
@@ -282,7 +298,7 @@ public class SampleApp
 		context.commit();
 	}
     
-    private static void checkDataModel()
+    private void checkDataModel()
     {
         try {
             DBModelChecker modelChecker = context.getDbms().createModelChecker(db);
@@ -298,7 +314,7 @@ public class SampleApp
         }
     }
     
-    private static void populateAndModify(boolean clearExisting)
+    private void populateAndModify(boolean clearExisting)
     {
         if (clearExisting)
             clearDatabase();
@@ -336,7 +352,7 @@ public class SampleApp
 	 * Empties all Tables.
      * </PRE>
 	 */
-	private static void clearDatabase()
+	private void clearDatabase()
     {
 		DBCommand cmd = context.createCommand(db);
         // Delete all Payments (no constraints)
@@ -352,7 +368,7 @@ public class SampleApp
 	 * Insert a Department into the Departments table.
      * </PRE>
 	 */
-	private static long insertDepartment(String departmentName, String businessUnit)
+	private long insertDepartment(String departmentName, String businessUnit)
     {
         SampleDB.Departments DEP = db.DEPARTMENTS;
 		// Insert a Department
@@ -370,7 +386,7 @@ public class SampleApp
 	 * Inserts an Employee into the Employees table.
      * </PRE>
 	 */
-	private static long insertEmployee(String firstName, String lastName, Gender gender, long departmentId)
+	private long insertEmployee(String firstName, String lastName, Gender gender, long departmentId)
     {
         SampleDB.Employees EMP = db.EMPLOYEES;
 		// Insert an Employee
@@ -390,7 +406,7 @@ public class SampleApp
      * Inserts an Payments for a particular Employee
      * </PRE>
      */
-    private static void insertPayments(long employeeId, BigDecimal monthlySalary)
+    private void insertPayments(long employeeId, BigDecimal monthlySalary)
     {
         SampleDB.Payments PAY = db.PAYMENTS;
         // Insert an Employee
@@ -414,7 +430,7 @@ public class SampleApp
 	 * Updates an employee record by setting the phone number.
      * </PRE>
 	 */
-	private static void updateEmployee(long idEmp, String phoneNumber)
+	private void updateEmployee(long idEmp, String phoneNumber)
     {
 	    /*
 		// Update an Employee
@@ -438,7 +454,7 @@ public class SampleApp
      * Updates an employee record by setting the phone number.
      * </PRE>
      */
-    private static void updatePartialRecord(long idEmp, String phoneNumber)
+    private void updatePartialRecord(long idEmp, String phoneNumber)
     {
         // Shortcut for convenience
         SampleDB.Employees EMP = db.EMPLOYEES;
@@ -456,7 +472,7 @@ public class SampleApp
      * Updates an employee record by setting the phone number.
      * </PRE>
      */
-    private static void updateJoinedRecords(long idEmp, int salary)
+    private void updateJoinedRecords(long idEmp, int salary)
     {
         // Shortcuts for convenience
         SampleDB.Employees EMP = db.EMPLOYEES;
@@ -482,7 +498,7 @@ public class SampleApp
 	 * @param context
 	 * @param idDep
 	 * 
-	private static int testTransactionCreate(long idDep)
+	private int testTransactionCreate(long idDep)
     {
         // Shortcut for convenience
         SampleDB.Employees EMP = db.EMPLOYEES;
@@ -527,7 +543,7 @@ public class SampleApp
      * @param context
      * @param idDep
      * 
-    private static void testTransactionUpdate(long idEmp)
+    private void testTransactionUpdate(long idEmp)
     {
         // Shortcut for convenience
         SampleDB.Employees EMP = db.EMPLOYEES;
@@ -561,7 +577,7 @@ public class SampleApp
      * @param context
      * @param idDep
      *
-    private static void testTransactionDelete(long idEmp)
+    private void testTransactionDelete(long idEmp)
     {
         // Shortcut for convenience
         SampleDB.Employees T = db.EMPLOYEES;
@@ -616,7 +632,7 @@ public class SampleApp
      *     Please note, that the XML not only contains the data but also the field metadata.
      * </PRE>
 	 */
-	private static void queryExample(QueryType queryType)
+	private void queryExample(QueryType queryType)
     {
         int lastYear = LocalDate.now().getYear()-1;
 	    
@@ -724,7 +740,7 @@ public class SampleApp
 		}
 	}
 	
-	private static void queryBeans()
+	private void queryBeans()
 	{
 	    SampleDB.Employees EMP = db.EMPLOYEES;
 	    
@@ -756,7 +772,7 @@ public class SampleApp
         log.info("Number of female employees is: "+result.size());
 	}
 	
-	private static void queryDataList()
+	private void queryDataList()
 	{
         int lastYear = LocalDate.now().getYear()-1;
         
@@ -830,7 +846,7 @@ public class SampleApp
         */
 	}
 
-	private static void queryRecordList()
+	private void queryRecordList()
 	{
         SampleDB.Departments DEP = db.DEPARTMENTS;
         SampleDB.Employees EMP = db.EMPLOYEES;

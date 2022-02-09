@@ -60,11 +60,11 @@ public class DBRecordListFactoryImpl<T extends DBRecordBase> implements DBRecord
         Constructor<?> constructor;
         if (DBRecordBean.class.isAssignableFrom(recordClass))
         {   // find standard constructor 
-            constructor = ClassUtils.findMatchingAccessibleConstructor(recordClass, 0);
+            constructor = ClassUtils.findMatchingConstructor(recordClass, 0);
         }
         else
         {   // try (context+rowset or just context)
-            constructor = ClassUtils.findMatchingAccessibleConstructor(recordClass, 1, contextClass, rowsetClass);
+            constructor = ClassUtils.findMatchingConstructor(recordClass, 1, contextClass, rowsetClass);
             if (constructor==null)
             {   // nothing suitable
                 throw new UnsupportedTypeException(recordClass);
