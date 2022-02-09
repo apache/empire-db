@@ -262,7 +262,7 @@ public abstract class DBRecordBase extends DBRecordData implements Record, Clone
                 rec.fields = fields.clone();
             if (rec.modified == modified && modified!=null)
                 rec.modified = modified.clone();
-            rec.rowsetData = this.rowsetData;
+            rec.rowsetData = ClassUtils.copy(this.rowsetData);
             return rec;
             
         } catch (CloneNotSupportedException e)

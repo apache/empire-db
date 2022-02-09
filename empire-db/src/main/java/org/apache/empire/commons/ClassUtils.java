@@ -86,12 +86,13 @@ public final class ClassUtils
      * @param obj the object to copy
      * @return either a copy of the object or null if copy is not supported
      */
-    public static Object copy(Object obj)
+    @SuppressWarnings("unchecked")
+    public static <T> T copy(T obj)
     {
         if (obj==null)
             return null;
         // the class
-        Class<?> clazz = obj.getClass();
+        Class<T> clazz = (Class<T>)obj.getClass();
         // class check
         if (clazz.isInterface() || clazz.isAnnotation()) {
             log.warn("Unable to copy Interface or Annotation {}", clazz.getName());
@@ -104,7 +105,7 @@ public final class ClassUtils
         // try clonable
         if (obj instanceof Cloneable)
         {   try {
-                return invokeSimpleMethod(java.lang.Object.class, obj, "clone", true);
+                return (T)invokeSimpleMethod(java.lang.Object.class, obj, "clone", true);
             } catch (Exception e) {
                 log.error("Copy through Cloning failed for : "+clazz.getName(), e);
             }
@@ -120,13 +121,13 @@ public final class ClassUtils
                 ObjectInputStream oin = new ObjectInputStream(new ByteArrayInputStream(baos.toByteArray()));
                 Object copy = oin.readObject();
                 // return result
-                return copy;
+                return (T)copy;
             } catch (IOException | ClassNotFoundException e) {
                 log.error("Copy through Serialization failed for : "+clazz.getName(), e);
             }
         }
         // try copy through Instantiation
-        Constructor<?> ctor = findMatchingConstructor(clazz, 0, clazz);
+        Constructor<T> ctor = findMatchingConstructor(clazz, 0, clazz);
         if (ctor!=null)
         {   try
             {   if (ctor.getParameterCount()==1)
@@ -135,19 +136,23 @@ public final class ClassUtils
                 }
                 else
                 {   // Try default constructor and copy fields
-                    Object copy = ctor.newInstance();
-                    Field[] fields = copy.getClass().getDeclaredFields();
-                    for (Field field : fields) {
-                        // make accessible
-                        boolean accessible = field.isAccessible();
-                        if (!accessible)
-                            field.setAccessible(true);
-                        // copy
-                        Object value = field.get(obj); // recurse ?
-                        field.set(copy, value);
-                        // restore
-                        if (!accessible)
-                            field.setAccessible(false);
+                    T copy = ctor.newInstance();
+                    // copy fields of this class and all superclasses
+                    for (Class<?> cl = clazz; (cl!=null && cl!=Object.class); cl=cl.getSuperclass())  
+                    {
+                        Field[] fields = cl.getDeclaredFields();
+                        for (Field field : fields) {
+                            // make accessible
+                            boolean accessible = field.isAccessible();
+                            if (!accessible)
+                                field.setAccessible(true);
+                            // copy
+                            Object value = field.get(obj); // recurse ?
+                            field.set(copy, copy(value));
+                            // restore
+                            if (!accessible)
+                                field.setAccessible(false);
+                        }
                     }
                     return copy;
                 }
