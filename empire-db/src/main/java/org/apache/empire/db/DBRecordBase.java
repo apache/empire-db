@@ -18,6 +18,7 @@
  */
 package org.apache.empire.db;
 
+import java.io.Serializable;
 import java.lang.reflect.InvocationTargetException;
 import java.sql.Connection;
 import java.util.Collection;
@@ -61,8 +62,10 @@ import org.w3c.dom.Element;
  * 
  * Also, field value changes, can be handled using the onFieldChanged event.
  */
-public abstract class DBRecordBase extends DBRecordData implements Record, Cloneable
+public abstract class DBRecordBase extends DBRecordData implements Record, Cloneable, Serializable
 {
+    private static final long serialVersionUID = 1L;
+    
     private static final Logger log  = LoggerFactory.getLogger(DBRecordBase.class);
     
     /**

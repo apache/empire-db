@@ -21,7 +21,6 @@ package org.apache.empire.db;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.io.Serializable;
 import java.sql.Connection;
 import java.util.HashMap;
 import java.util.Map;
@@ -53,7 +52,7 @@ import org.slf4j.LoggerFactory;
  * 
  * The record is Serializable either if the provided DBContext is serializable, or if the Context is provided on deserialization in a derived class.
  */
-public class DBRecord extends DBRecordBase implements Serializable // really Serializable?
+public class DBRecord extends DBRecordBase
 {
     private static final long serialVersionUID = 1L;
     

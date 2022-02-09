@@ -18,7 +18,6 @@
  */
 package org.apache.empire.db;
 
-import java.io.Serializable;
 import java.sql.Connection;
 
 import org.apache.empire.commons.StringUtils;
@@ -40,7 +39,7 @@ import org.slf4j.LoggerFactory;
  * Thus it has a Default constructor and is essentially a dynamic bean
  * 
  */
-public class DBRecordBean extends DBRecordBase implements Serializable
+public class DBRecordBean extends DBRecordBase
 {
     private static final long serialVersionUID = 1L;
     
