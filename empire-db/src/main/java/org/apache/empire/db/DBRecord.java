@@ -23,8 +23,11 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.sql.Connection;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.apache.empire.commons.ClassUtils;
+import org.apache.empire.commons.ObjectUtils;
 import org.apache.empire.commons.StringUtils;
 import org.apache.empire.data.Column;
 import org.apache.empire.db.DBRowSet.PartialMode;
@@ -73,7 +76,10 @@ public class DBRecord extends DBRecordBase implements Serializable // really Ser
     protected final transient DBRowSet  rowset;   /* transient for serialization */
 
     // options
-    protected boolean       enableRollbackHandling;
+    private boolean enableRollbackHandling;
+    
+    // Parent-Record-Map for deferred identity setting 
+    private Map<DBColumn, DBRecordBase> parentRecordMap;
     
     /**
      * Custom serialization for transient rowset.
@@ -304,6 +310,9 @@ public class DBRecord extends DBRecordBase implements Serializable // really Ser
         // allow rollback
         if (isRollbackHandlingEnabled())
             getContext().appendRollbackHandler(createRollbackHandler());
+        // set parent record identity
+        if (ObjectUtils.isNotEmpty(parentRecordMap))
+            assignParentIdentities();
         // update
         getRowSet().updateRecord(this);
     }
@@ -329,7 +338,7 @@ public class DBRecord extends DBRecordBase implements Serializable // really Ser
             getContext().appendRollbackHandler(createRollbackHandler());
         // Delete only if record is not new
         if (!isNew())
-        {
+        {   // Delete existing record
             Object[] key = getKey();
             log.info("Deleting record {}", StringUtils.arrayToString(key, "|"));
             getRowSet().deleteRecord(key, getContext());
@@ -337,4 +346,85 @@ public class DBRecord extends DBRecordBase implements Serializable // really Ser
         close();
     }
     
+    /**
+     * Overridden for special deferred parent record handling 
+     */
+    @Override
+    public void setValue(int index, Object value)
+    {
+        if (value instanceof DBRecordBase)
+        {   // Special case: Value contains parent record
+            setParentRecord(getColumn(index), (DBRecordBase)value);
+            return;
+        }
+        super.setValue(index, value);
+    }
+    
+    /**
+     * For DBMS with IDENTITY-columns defer setting the parent-id until the record is inserted
+     * The parent record must have a one-column primary key
+     * @param parentIdColumn the column for which to set the parent
+     * @param record the parent record to be set for the column
+     */
+    public void setParentRecord(DBColumn parentIdColumn, DBRecordBase record)
+    {
+        if (!isValid())
+            throw new ObjectNotValidException(this);
+        // check column
+        checkParamNull("parentIdColumn", parentIdColumn);
+        // check updateable
+        checkUpdateable();
+        // remove
+        if (record==null)
+        {   // clear parent 
+            if (parentRecordMap!=null)
+                parentRecordMap.remove(parentIdColumn);
+            setValue(parentIdColumn, null);
+            return;
+        }
+        // set key or record
+        Object[] key = record.getKey();
+        if (key.length!=1)
+            throw new NotSupportedException(this, "setParentRecord");
+        if (key[0]==null)
+        {   // preserve until later
+            if (parentRecordMap==null)
+                parentRecordMap = new HashMap<DBColumn, DBRecordBase>(1);
+            // add record to map
+            log.info("Deffering setting of {} until the record is saved!", parentIdColumn.getName());
+            parentRecordMap.put(parentIdColumn, record);
+        }
+        else
+        {   // set directly
+            int index = getFieldIndex(parentIdColumn);
+            Object id = getValue(index);
+            if (!ObjectUtils.compareEqual(id, key[0]))
+            {   // set parent-id
+                modifyValue(index, key[0], true);
+            }
+        }
+    }
+    
+    /**
+     * For DBMS with IDENTITY-columns the deferred parent-keys are set by this functions
+     * The parent records must have been previously set using setParentRecord
+     */
+    protected void assignParentIdentities()
+    {
+        // Check map
+        if (parentRecordMap==null)
+            return;
+        // Apply map
+        for (Map.Entry<DBColumn, DBRecordBase> e : parentRecordMap.entrySet())
+        {
+            DBColumn parentIdColumn = e.getKey();
+            Object keyValue = e.getValue().getKey()[0];
+            if (keyValue==null)
+                throw new ObjectNotValidException(e.getValue());
+            // Set key
+            log.info("Deffered setting of {} to {}!", parentIdColumn.getName(), keyValue);
+            setValue(parentIdColumn, keyValue);
+        }
+        parentRecordMap.clear();
+    }
 }
