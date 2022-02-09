@@ -18,6 +18,8 @@
  */
 package org.apache.empire.db.context;
 
+import java.sql.Connection;
+
 import org.apache.empire.db.DBObject;
 
 public interface DBRollbackHandler
@@ -25,6 +27,6 @@ public interface DBRollbackHandler
     DBObject getObject();
     String getObjectInfo();
     void combine(DBRollbackHandler successor);
-    void rollback();
-    void discard();
+    void rollback(Connection conn);
+    void discard(Connection conn);
 }

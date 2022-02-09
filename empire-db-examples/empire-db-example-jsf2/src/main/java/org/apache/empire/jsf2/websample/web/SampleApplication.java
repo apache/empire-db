@@ -33,6 +33,8 @@ import org.apache.empire.db.DBDatabase;
 import org.apache.empire.db.DBRecord;
 import org.apache.empire.db.DBSQLScript;
 import org.apache.empire.db.context.DBContextStatic;
+import org.apache.empire.db.context.DBRollbackManager;
+import org.apache.empire.db.context.DBRollbackManager.ReleaseAction;
 import org.apache.empire.db.exceptions.QueryFailedException;
 import org.apache.empire.dbms.DBMSHandler;
 import org.apache.empire.dbms.hsql.DBMSHandlerHSql;
@@ -139,7 +141,7 @@ public class SampleApplication extends WebApplication {
 		DBContext context = null;
 		try {
 			conn = getConnection(sampleDB);
-			context = new DBContextStatic(dbmsHandler, conn);
+			context = new DBContextStatic(dbmsHandler, conn, false, false);
 			sampleDB.open(context);
 			if (!databaseExists(context)) {
 				// STEP 4: Create Database
@@ -148,7 +150,7 @@ public class SampleApplication extends WebApplication {
 			}
 		} finally {
 		    context.discard();
-			releaseConnection(sampleDB, conn, true);
+			releaseConnection(conn, true, null);
 		}
 	}
 
@@ -295,7 +297,7 @@ public class SampleApplication extends WebApplication {
      * As the sample does not use connection pooling, only a commit or rollback is performed
      */
     @Override
-    protected void releaseConnection(DBDatabase db, Connection conn, boolean commit)
+    protected void releaseConnection(Connection conn, boolean commit, DBRollbackManager dbrm)
     {
         try
         { // release connection
@@ -303,19 +305,27 @@ public class SampleApplication extends WebApplication {
             {
                 return;
             }
+            log.trace("releasing Connection {}", conn.hashCode());
             // Commit or rollback connection depending on the exit code
             if (commit)
-            { // success: commit all changes
+            {   // success: commit all changes
+                if (dbrm!=null)
+                    dbrm.releaseConnection(conn, ReleaseAction.Discard);  // before commit
                 conn.commit();
                 log.debug("REQUEST commited.");
             }
             else
-            { // failure: rollback all changes
+            {   // failure: rollback all changes
                 conn.rollback();
+                if (dbrm!=null)
+                    dbrm.releaseConnection(conn, ReleaseAction.Rollback); // after rollback
                 log.debug("REQUEST rolled back.");
             }
-            // Don't Release Connection
+            // Release Connection (don't do that here!)
             // conn.close();
+            // done
+            if (log.isDebugEnabled())
+                log.debug("Connection released but not closed.");
         }
         catch (SQLException e)
         {

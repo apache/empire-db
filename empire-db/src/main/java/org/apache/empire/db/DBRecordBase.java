@@ -19,6 +19,7 @@
 package org.apache.empire.db;
 
 import java.lang.reflect.InvocationTargetException;
+import java.sql.Connection;
 import java.util.Collection;
 import java.util.List;
 
@@ -134,7 +135,7 @@ public abstract class DBRecordBase extends DBRecordData implements Record, Clone
         }
 
         @Override
-        public void rollback()
+        public void rollback(Connection conn)
         {
             // rollback
             record.state = this.state;
@@ -147,7 +148,7 @@ public abstract class DBRecordBase extends DBRecordData implements Record, Clone
         }
 
         @Override
-        public void discard()
+        public void discard(Connection conn)
         {
             /* nothing */
         }

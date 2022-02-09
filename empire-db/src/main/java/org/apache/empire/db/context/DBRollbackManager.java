@@ -108,7 +108,7 @@ public class DBRollbackManager
         // discard
         if (log.isDebugEnabled())
             log.debug("Rollback handler for {} was removed.", handler.getObjectInfo());
-        handler.discard();
+        handler.discard(conn);
     }
     
     /**
@@ -127,9 +127,9 @@ public class DBRollbackManager
         log.info("DBRollbackManager performes {} for {} objects.", action, handlerMap.size());
         for (DBRollbackHandler handler : handlerMap.values())
             if (action==ReleaseAction.Rollback)
-                handler.rollback();
+                handler.rollback(conn);
             else
-                handler.discard();
+                handler.discard(conn);
         // cleanup
         connectionMap.remove(conn.hashCode());        
     }

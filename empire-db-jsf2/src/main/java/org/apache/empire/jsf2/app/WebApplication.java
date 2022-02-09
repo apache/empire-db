@@ -429,24 +429,27 @@ public abstract class WebApplication
     /**
      * Releases a JDBC-Connection from the connection pool
      */
-    protected synchronized void releaseConnection(DBDatabase db, Connection conn, boolean commit)
+    protected synchronized void releaseConnection(Connection conn, boolean commit, DBRollbackManager dbrm)
     {
         try
-        { // release connection
+        {   // check
             if (conn == null)
-            {
                 return;
-            }
+            // release connection
             log.trace("releasing Connection {}", conn.hashCode());
             // Commit or rollback connection depending on the exit code
             if (commit)
-            { // success: commit all changes
+            {   // success: commit all changes
+                if (dbrm!=null)
+                    dbrm.releaseConnection(conn, ReleaseAction.Discard);  // before commit
                 conn.commit();
                 log.debug("REQUEST commited.");
             }
             else
-            { // failure: rollback all changes
+            {   // failure: rollback all changes
                 conn.rollback();
+                if (dbrm!=null)
+                    dbrm.releaseConnection(conn, ReleaseAction.Rollback); // after rollback
                 log.debug("REQUEST rolled back.");
             }
             // Release Connection
@@ -526,14 +529,9 @@ public abstract class WebApplication
             return; // Nothing to do
         // Walk the connection map
         DBRollbackManager dbrm = getRollbackManagerForRequest(fc, false);
-        ReleaseAction action = (commit ? ReleaseAction.Discard : ReleaseAction.Rollback);
-        for (Map.Entry<DBDatabase, Connection> e : connMap.entrySet())
+        for (Connection conn : connMap.values())
         {
-            Connection conn = e.getValue();
-            releaseConnection(e.getKey(), conn, commit);
-            // release connection
-            if (dbrm!=null)
-                dbrm.releaseConnection(conn, action);
+            releaseConnection(conn, commit, dbrm);
         }
         // remove from request map
         FacesUtils.setRequestAttribute(fc, REQUEST_CONNECTION_MAP, null);
@@ -561,13 +559,11 @@ public abstract class WebApplication
         Map<DBDatabase, Connection> connMap = (Map<DBDatabase, Connection>) FacesUtils.getRequestAttribute(fc, REQUEST_CONNECTION_MAP);
         if (connMap == null || !connMap.containsKey(db))
             return; // Nothing to do;
+        // Get RollbackManager   
+        DBRollbackManager dbrm = getRollbackManagerForRequest(fc, false);
         // Release Connection   
         Connection conn = connMap.get(db);
-        releaseConnection(db, conn, commit);
-        // release connection
-        DBRollbackManager dbrm = getRollbackManagerForRequest(fc, false);
-        if (dbrm!=null)
-            dbrm.releaseConnection(conn, (commit ? ReleaseAction.Discard : ReleaseAction.Rollback));
+        releaseConnection(conn, commit, dbrm);
         // Remove from map
         connMap.remove(db);
     }

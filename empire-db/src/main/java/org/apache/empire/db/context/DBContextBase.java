@@ -158,13 +158,13 @@ public abstract class DBContextBase implements DBContext
             {   log.info("No Connection to commmit changes");
                 return; // Nothing to do
             }
-            // Commit
-            if (conn.getAutoCommit()==false)
-                conn.commit();
-            // discard rollbacks
+            // Perform Discard before commit
             DBRollbackManager dbrm = (isRollbackHandlingEnabled() ? getRollbackManager(false) : null);
             if (dbrm!=null)
                 dbrm.releaseConnection(conn, ReleaseAction.Discard);
+            // Commit
+            if (conn.getAutoCommit()==false)
+                conn.commit();
             // Done
             return;
         } catch (SQLException sqle) { 
@@ -193,7 +193,7 @@ public abstract class DBContextBase implements DBContext
             // rollback
             log.info("Database rollback issued!");
             conn.rollback();
-            // perform Rollback
+            // Perform Rollback
             DBRollbackManager dbrm = (isRollbackHandlingEnabled() ? getRollbackManager(false) : null);
             if (dbrm!=null)
                 dbrm.releaseConnection(conn, ReleaseAction.Rollback);
