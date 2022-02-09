@@ -23,6 +23,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.io.Serializable;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
@@ -78,6 +79,78 @@ public final class ClassUtils
             log.error("Class not Found: "+e.getMessage(), e);
             throw new InternalException(e);
         }
+    }
+    
+    /**
+     * Makes a copy of an object if possible or returns null 
+     * @param obj the object to copy
+     * @return either a copy of the object or null if copy is not supported
+     */
+    public static Object copy(Object obj)
+    {
+        if (obj==null)
+            return null;
+        // the class
+        Class<?> clazz = obj.getClass();
+        // simple check
+        if (clazz.isInterface() || clazz.isAnnotation())
+            return null; // not supported
+        if (clazz.isPrimitive() || clazz.isEnum())
+            return obj; // no need to copy
+        // try clonable
+        if (obj instanceof Cloneable)
+        {   try {
+                return invokeSimpleMethod(java.lang.Object.class, obj, "clone", true);
+            } catch (Exception e) {
+                log.error("Copy through Cloning failed for : "+clazz.getName(), e);
+            }
+        }
+        // try serializable
+        if (obj instanceof Serializable)
+        {   try
+            {   ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                // Write the object
+                ObjectOutputStream oos = new ObjectOutputStream(baos);
+                oos.writeObject(obj);
+                // Read the object
+                ObjectInputStream oin = new ObjectInputStream(new ByteArrayInputStream(baos.toByteArray()));
+                Object copy = oin.readObject();
+                // return result
+                return copy;
+            } catch (IOException | ClassNotFoundException e) {
+                log.error("Copy through Serialization failed for : "+clazz.getName(), e);
+            }
+        }
+        // find standard constructor
+        int i=0;
+        final Constructor<?>[] ctors = clazz.getConstructors();
+        for (; i<ctors.length; i++)
+            if (ctors[i].getParameterCount()==0)
+                break;
+        if (i<ctors.length)
+        {   try
+            {   // Try standard constructor
+                Object copy = clazz.newInstance();
+                Field[] fields = copy.getClass().getDeclaredFields();
+                for (Field field : fields) {
+                    // make acessible
+                    boolean accessible = field.isAccessible();
+                    if (!accessible)
+                        field.setAccessible(true);
+                    // copy
+                    Object value = field.get(obj); // recurse ?
+                    field.set(copy, value);
+                    // restore
+                    if (!accessible)
+                        field.setAccessible(false);
+                }
+                return copy;
+            } catch (InstantiationException | IllegalAccessException e) {
+                log.error("Copy through Instantiation failed for : "+clazz.getName(), e);
+            }
+        }
+        // not supported
+        return null;
     }
     
     /**

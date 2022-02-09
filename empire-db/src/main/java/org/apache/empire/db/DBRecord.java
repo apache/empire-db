@@ -21,6 +21,7 @@ package org.apache.empire.db;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.io.Serializable;
 import java.sql.Connection;
 
 import org.apache.empire.commons.ClassUtils;
@@ -49,7 +50,7 @@ import org.slf4j.LoggerFactory;
  * 
  * The record is Serializable either if the provided DBContext is serializable, or if the Context is provided on deserialization in a derived class.
  */
-public class DBRecord extends DBRecordBase
+public class DBRecord extends DBRecordBase implements Serializable // really Serializable?
 {
     private static final long serialVersionUID = 1L;
     
@@ -212,8 +213,8 @@ public class DBRecord extends DBRecordBase
     
     /**
      * Returns the record id for tables which have a single numeric primary key
-     * This method is provided for convenience in additon to the the getKey() method
-     * @return the record id
+     * This method is provided for convenience in addition to the the getKey() method
+     * @return the record id or 0 if the key is null
      * @throws NoPrimaryKeyException if the table has no primary key
      * @throws NotSupportedException if the primary key is not a single column of if the column is not numeric
      */

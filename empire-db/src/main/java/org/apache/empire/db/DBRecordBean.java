@@ -18,6 +18,7 @@
  */
 package org.apache.empire.db;
 
+import java.io.Serializable;
 import java.sql.Connection;
 
 import org.apache.empire.commons.StringUtils;
@@ -39,7 +40,7 @@ import org.slf4j.LoggerFactory;
  * Thus it has a Default constructor and is essentially a dynamic bean
  * 
  */
-public class DBRecordBean extends DBRecordBase
+public class DBRecordBean extends DBRecordBase implements Serializable
 {
     private static final long serialVersionUID = 1L;
     
@@ -132,8 +133,8 @@ public class DBRecordBean extends DBRecordBase
     
     /**
      * Returns the record id for tables which have a single numeric primary key
-     * This method is provided for convenience in additon to the the getKey() method
-     * @return the record id
+     * This method is provided for convenience in addition to the the getKey() method
+     * @return the record id or 0 if the key is null
      * @throws NoPrimaryKeyException if the table has no primary key
      * @throws NotSupportedException if the primary key is not a single column of if the column is not numeric
      */
@@ -257,7 +258,7 @@ public class DBRecordBean extends DBRecordBase
             // check updatable
             checkUpdateable();
             // allow rollback
-            if (isRollbackHandlingEnabled())
+            if (this.enableRollbackHandling && context.isRollbackHandlingEnabled())
                 context.appendRollbackHandler(createRollbackHandler());
             // update
             getRowSet().updateRecord(this);
@@ -283,7 +284,7 @@ public class DBRecordBean extends DBRecordBase
         // check updatable
         checkUpdateable();
         // allow rollback
-        if (isRollbackHandlingEnabled())
+        if (this.enableRollbackHandling && context.isRollbackHandlingEnabled())
             context.appendRollbackHandler(createRollbackHandler());
         // Delete only if record is not new
         if (!isNew())

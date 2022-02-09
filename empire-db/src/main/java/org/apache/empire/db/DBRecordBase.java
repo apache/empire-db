@@ -18,13 +18,13 @@
  */
 package org.apache.empire.db;
 
-import java.io.Serializable;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Collection;
 import java.util.List;
 
 import org.apache.commons.beanutils.BeanUtilsBean;
 import org.apache.commons.beanutils.PropertyUtilsBean;
+import org.apache.empire.commons.ClassUtils;
 import org.apache.empire.commons.ObjectUtils;
 import org.apache.empire.commons.Options;
 import org.apache.empire.commons.StringUtils;
@@ -60,10 +60,8 @@ import org.w3c.dom.Element;
  * 
  * Also, field value changes, can be handled using the onFieldChanged event.
  */
-public abstract class DBRecordBase extends DBRecordData implements Record, Cloneable, Serializable
+public abstract class DBRecordBase extends DBRecordData implements Record, Cloneable
 {
-    private static final long serialVersionUID = 1L;
-    
     private static final Logger log  = LoggerFactory.getLogger(DBRecordBase.class);
     
     /**
@@ -90,9 +88,9 @@ public abstract class DBRecordBase extends DBRecordData implements Record, Clone
                 throw new ObjectNotValidException(record);
             // save state
             this.state = record.state;            
-            this.modified = copy(record.modified);
-            this.fields   = copy(record.fields);
-            this.rowsetData = record.rowsetData;
+            this.modified   = copy(record.modified);
+            this.fields     = copy(record.fields);
+            this.rowsetData = copy(record.rowsetData);
         }
 
         @Override
@@ -176,6 +174,18 @@ public abstract class DBRecordBase extends DBRecordData implements Record, Clone
                 copy[i] = other[i]; 
             }
             return copy;
+        }
+        
+        protected Object copy(Object other)
+        {   
+            if (other==null)
+                return null;
+            if (other instanceof Object[])
+                return copy((Object[])other);
+            Object copy = ClassUtils.copy(other);
+            if (copy!=null)
+                return copy;
+            return other;
         }
     }
   
