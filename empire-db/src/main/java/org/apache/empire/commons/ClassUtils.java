@@ -127,7 +127,7 @@ public final class ClassUtils
         // class check
         if (clazz.isInterface() || clazz.isAnnotation()) {
             log.warn("Unable to copy Interface or Annotation {}", clazz.getName());
-            return null; // not supported
+            return (Copy.has(flags, Copy.RET_NULL) ? null : obj); // not supported
         }
         if (clazz.isPrimitive() || clazz.isEnum()) 
         {   // no need to copy
