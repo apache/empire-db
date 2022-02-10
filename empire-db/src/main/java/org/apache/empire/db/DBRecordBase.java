@@ -186,10 +186,7 @@ public abstract class DBRecordBase extends DBRecordData implements Record, Clone
                 return null;
             if (other instanceof Object[])
                 return copy((Object[])other);
-            Object copy = ClassUtils.copy(other);
-            if (copy!=null)
-                return copy;
-            return other;
+            return ClassUtils.copy(other);
         }
     }
   

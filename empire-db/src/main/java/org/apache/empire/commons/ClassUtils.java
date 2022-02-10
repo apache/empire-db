@@ -82,12 +82,43 @@ public final class ClassUtils
     }
     
     /**
-     * Makes a copy of an object if possible or returns null 
+     * Namespace for Copy flags
+     * @author rainer
+     */
+    public static class Copy
+    {
+        public static final int RET_SELF        = 0x00; /* default */
+        public static final int RET_NULL        = 0x01;
+
+        public static final int RECURSE_SHALLOW = 0x02; /* only for default constructor cloning */
+
+        public static final int SKIP_CLONE      = 0x10;
+        public static final int SKIP_SERIAL     = 0x20;
+        public static final int SKIP_INST       = 0x40;
+        
+        public static boolean has(int flags, int flag)
+        {
+            return ((flags & flag)!=0);
+        }
+    }
+
+    /**
+     * Makes a copy of an object if possible or returns the object itself if copy is not supported 
      * @param obj the object to copy
-     * @return either a copy of the object or null if copy is not supported
+     * @return either a copy of the object or the object itself if copy is not supported
+     */
+    public static <T> T copy(T obj)
+    {
+        return copy(obj, Copy.RET_SELF | Copy.SKIP_SERIAL); /* Serial is too hot */
+    }
+    
+    /**
+     * Makes a copy of an object if possible or returns null or self (depending on flags) 
+     * @param obj the object to copy
+     * @return either a copy of the object or null the object itself
      */
     @SuppressWarnings("unchecked")
-    public static <T> T copy(T obj)
+    public static <T> T copy(T obj, int flags)
     {
         if (obj==null)
             return null;
@@ -103,7 +134,7 @@ public final class ClassUtils
             return obj; 
         }
         // try clonable
-        if (obj instanceof Cloneable)
+        if ((obj instanceof Cloneable) && !Copy.has(flags, Copy.SKIP_CLONE))
         {   try {
                 return (T)invokeSimpleMethod(java.lang.Object.class, obj, "clone", true);
             } catch (Exception e) {
@@ -111,7 +142,7 @@ public final class ClassUtils
             }
         }
         // try serializable
-        if (obj instanceof Serializable)
+        if ((obj instanceof Serializable) && !Copy.has(flags, Copy.SKIP_SERIAL))
         {   try
             {   ByteArrayOutputStream baos = new ByteArrayOutputStream();
                 // Write the object
@@ -127,7 +158,7 @@ public final class ClassUtils
             }
         }
         // try copy through Instantiation
-        Constructor<T> ctor = findMatchingConstructor(clazz, 0, clazz);
+        Constructor<T> ctor = (Copy.has(flags, Copy.SKIP_INST) ? null : findMatchingConstructor(clazz, 0, clazz));
         if (ctor!=null)
         {   try
             {   if (ctor.getParameterCount()==1)
@@ -147,8 +178,10 @@ public final class ClassUtils
                             if (!accessible)
                                 field.setAccessible(true);
                             // copy
-                            Object value = field.get(obj); // recurse ?
-                            field.set(copy, copy(value));
+                            Object value = field.get(obj);
+                            if (!Copy.has(flags, Copy.RECURSE_SHALLOW))
+                                value = copy(value, (flags & ~Copy.RET_NULL) | Copy.RECURSE_SHALLOW);
+                            field.set(copy, value);
                             // restore
                             if (!accessible)
                                 field.setAccessible(false);
@@ -161,7 +194,7 @@ public final class ClassUtils
             }
         }
         // not supported
-        return null;
+        return (Copy.has(flags, Copy.RET_NULL) ? null : obj);
     }
     
     /**
