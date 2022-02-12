@@ -71,15 +71,17 @@ public class DBMSHandlerMySQL extends DBMSHandlerBase
         }
         
         @Override
-        public void limitRows(int numRows)
+        public DBCommand limitRows(int numRows)
         {
             limit = numRows;
+            return this;
         }
 
         @Override
-        public void skipRows(int numRows)
+        public DBCommand skipRows(int numRows)
         {
             skip = numRows;
+            return this;
         }
          
         @Override
@@ -926,14 +928,16 @@ public class DBMSHandlerMySQL extends DBMSHandlerBase
 			protected int limit = -1;
             protected int skip  = -1;
             @Override
-            public void limitRows(int numRows)
+            public DBCommandExpr limitRows(int numRows)
             {
                 limit = numRows;
+                return this;
             }
             @Override
-            public void skipRows(int numRows)
+            public DBCommandExpr skipRows(int numRows)
             {
                 skip = numRows;
+                return this;
             }
             @Override
             public void clearLimit()

@@ -239,17 +239,19 @@ public class DBRecord extends DBRecordBase
     /**
      * Creates a new record
      */
-    public void create(Object[] initalKey)
+    public DBRecord create(Object[] initalKey)
     {
         getRowSet().createRecord(this, initalKey, true);
+        return this;
     }
 
     /**
      * Creates a new record
      */
-    public void create()
+    public DBRecord create()
     {
         getRowSet().createRecord(this, null, false);
+        return this;
     }
     
     /**
@@ -257,27 +259,29 @@ public class DBRecord extends DBRecordBase
      * Hint: variable args param (Object...) caused problems with migration
      * @param key an array of the primary key values
      */
-    public void read(Object[] key)
+    public DBRecord read(Object[] key)
     {   // read
         getRowSet().readRecord(this, key);
+        return this;
     }
 
     /**
      * Reads a record from the database
      * @param id the record id value
      */
-    public final void read(long id)
+    public final DBRecord read(long id)
     {
-        read(new Object[] {id});
+        return read(new Object[] {id});
     }
     
     /**
      * Reads a record from the database
      * @param key an array of the primary key values
      */
-    public void read(DBCompareExpr whereConstraints)
+    public DBRecord read(DBCompareExpr whereConstraints)
     {
         getRowSet().readRecord(this, whereConstraints);
+        return this;
     }
     
     /**
@@ -290,9 +294,35 @@ public class DBRecord extends DBRecordBase
      * @param mode flag whether to include only the given columns or whether to add all but the given columns
      * @param columns the columns to include or exclude (depending on mode)
      */
-    public void read(Object[] key, PartialMode mode, DBColumn... columns)
+    public DBRecord read(Object[] key, PartialMode mode, DBColumn... columns)
     {
         getRowSet().readRecord(this, key, mode, columns);
+        return this;
+    }
+
+    /**
+     * Sets the value of a column in the record.
+     * Same as getValue but provided in conjunction with set(...)
+
+     * @param column a DBColumn object
+     * @param value the value
+     */
+    public final Object get(Column column)
+    {   
+        return getValue(column);
+    }
+
+    /**
+     * Sets the value of a column in the record.
+     * Same as setValue but allows chaining as it returns itself
+
+     * @param column a DBColumn object
+     * @param value the value
+     */
+    public final DBRecord set(Column column, Object value)
+    {   
+        setValue(getFieldIndex(column), value);
+        return this;
     }
 
     /**

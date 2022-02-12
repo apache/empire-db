@@ -161,11 +161,12 @@ public class DBRecordBean extends DBRecordBase
     /**
      * Creates a new record
      */
-    public void create(DBContext context, DBRowSet rowset, Object[] initalKey)
+    public DBRecordBean create(DBContext context, DBRowSet rowset, Object[] initalKey)
     {
         try {
             this.tempContext = context;
             rowset.createRecord(this, initalKey, true);
+            return this;
         } finally {
             this.tempContext = null;
         }
@@ -174,11 +175,12 @@ public class DBRecordBean extends DBRecordBase
     /**
      * Creates a new record
      */
-    public void create(DBContext context, DBRowSet rowset)
+    public DBRecordBean create(DBContext context, DBRowSet rowset)
     {
         try {
             this.tempContext = context;
             rowset.createRecord(this, null, false);
+            return this;
         } finally {
             this.tempContext = null;
         }
@@ -189,11 +191,12 @@ public class DBRecordBean extends DBRecordBase
      * Hint: variable args param (Object...) caused problems with migration
      * @param key an array of the primary key values
      */
-    public void read(DBContext context, DBRowSet rowset, Object[] key)
+    public DBRecordBean read(DBContext context, DBRowSet rowset, Object[] key)
     {   // read
         try {
             this.tempContext = context;
             rowset.readRecord(this, key);
+            return this;
         } finally {
             this.tempContext = null;
         }
@@ -203,20 +206,21 @@ public class DBRecordBean extends DBRecordBase
      * Reads a record from the database
      * @param id the record id value
      */
-    public final void read(DBContext context, DBRowSet rowset, long id)
+    public final DBRecordBean read(DBContext context, DBRowSet rowset, long id)
     {
-        read(context, rowset, new Object[] {id});
+        return read(context, rowset, new Object[] {id});
     }
     
     /**
      * Reads a record from the database
      * @param key an array of the primary key values
      */
-    public void read(DBContext context, DBRowSet rowset, DBCompareExpr whereConstraints)
+    public DBRecordBean read(DBContext context, DBRowSet rowset, DBCompareExpr whereConstraints)
     {   // read
         try {
             this.tempContext = context;
             rowset.readRecord(this, whereConstraints);
+            return this;
         } finally {
             this.tempContext = null;
         }
@@ -232,14 +236,40 @@ public class DBRecordBean extends DBRecordBase
      * @param mode flag whether to include only the given columns or whether to add all but the given columns
      * @param columns the columns to include or exclude (depending on mode)
      */
-    public void read(DBContext context, DBRowSet rowset, Object[] key, PartialMode mode, DBColumn... columns)
+    public DBRecordBean read(DBContext context, DBRowSet rowset, Object[] key, PartialMode mode, DBColumn... columns)
     {   // read
         try {
             this.tempContext = context;
             rowset.readRecord(this, key, mode, columns);
+            return this;
         } finally {
             this.tempContext = null;
         }
+    }
+
+    /**
+     * Sets the value of a column in the record.
+     * Same as getValue but provided in conjunction with set(...)
+
+     * @param column a DBColumn object
+     * @param value the value
+     */
+    public final Object get(Column column)
+    {   
+        return getValue(column);
+    }
+
+    /**
+     * Sets the value of a column in the record.
+     * Same as setValue but allows chaining as it returns itself
+
+     * @param column a DBColumn object
+     * @param value the value
+     */
+    public final DBRecordBean set(Column column, Object value)
+    {   
+        setValue(getFieldIndex(column), value);
+        return this;
     }
     
     /**

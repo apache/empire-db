@@ -240,7 +240,7 @@ public class DBQuery extends DBRowSet
      * @param expr the DBColumnExpr object
      * @return the query column
      */
-    public DBQueryColumn findQueryColumn(DBColumnExpr expr)
+    public DBQueryColumn findColumn(DBColumnExpr expr)
     {
         for (int i = 0; i < queryColumns.length; i++)
         {
@@ -257,7 +257,7 @@ public class DBQuery extends DBRowSet
      * @param the column name
      * @return the query column
      */
-    public DBQueryColumn findQueryColumn(String name)
+    public DBQueryColumn findColumn(String name)
     {
         for (int i = 0; i < queryColumns.length; i++)
         {
@@ -276,7 +276,10 @@ public class DBQuery extends DBRowSet
      */
     public DBQueryColumn column(DBColumnExpr expr)
     {
-        return findQueryColumn(expr);
+        DBQueryColumn col = findColumn(expr);
+        if (col==null)
+            throw new ItemNotFoundException(expr);
+        return col;
     }
     
     /**
@@ -287,7 +290,10 @@ public class DBQuery extends DBRowSet
      */
     public DBQueryColumn column(String name)
     {
-        return findQueryColumn(name);
+        DBQueryColumn col = findColumn(name);
+        if (col==null)
+            throw new ItemNotFoundException(name);
+        return col;
     }
     
     /**

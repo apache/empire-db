@@ -92,15 +92,17 @@ public class DBMSHandlerPostgreSQL extends DBMSHandlerBase
         }
         
         @Override
-        public void limitRows(int numRows)
+        public DBCommand limitRows(int numRows)
         {
             limit = numRows;
+            return this;
         }
 
         @Override
-        public void skipRows(int numRows)
+        public DBCommand skipRows(int numRows)
         {
             skip = numRows;
+            return this;
         }
          
         @Override

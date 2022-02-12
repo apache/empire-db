@@ -632,8 +632,8 @@ public class SampleAdvApp
         cmd.select(T_DEP.C_DEPARTMENT_ID, T_DEP.C_NAME, T_DEP.C_BUSINESS_UNIT);
         cmd.select(T_EMP.C_UPDATE_TIMESTAMP, T_DEP.C_UPDATE_TIMESTAMP);
         // Set Joins
-        cmd.join(T_EDH.C_EMPLOYEE_ID, Q_MAX_DATE.findQueryColumn(T_EDH.C_EMPLOYEE_ID))
-          .where(T_EDH.C_DATE_FROM.is(Q_MAX_DATE.findQueryColumn(MAX_DATE_FROM)));
+        cmd.join(T_EDH.C_EMPLOYEE_ID, Q_MAX_DATE.column(T_EDH.C_EMPLOYEE_ID),
+                 T_EDH.C_DATE_FROM.is(Q_MAX_DATE.column(MAX_DATE_FROM)));
         cmd.join(T_EMP.C_EMPLOYEE_ID, T_EDH.C_EMPLOYEE_ID);
         cmd.join(T_DEP.C_DEPARTMENT_ID, T_EDH.C_DEPARTMENT_ID);
         // Set Constraints

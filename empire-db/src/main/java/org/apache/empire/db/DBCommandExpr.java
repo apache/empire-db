@@ -421,12 +421,11 @@ public abstract class DBCommandExpr extends DBExpr
 
     /**
      * Adds an order by expression the command
-     * 
      * @param exprs vararg of orderBy expressions
      * 
      * @see org.apache.empire.db.DBCommandExpr#orderBy(DBColumnExpr, boolean)
      */
-    public void orderBy(DBOrderByExpr... exprs)
+    public DBCommandExpr orderBy(DBOrderByExpr... exprs)
     {
         if (orderBy == null)
             orderBy = new ArrayList<DBOrderByExpr>();
@@ -448,6 +447,7 @@ public abstract class DBCommandExpr extends DBExpr
                 orderBy.add(expr);
             }
         }
+        return this;
     }
 
     /**
@@ -455,12 +455,13 @@ public abstract class DBCommandExpr extends DBExpr
      * 
      * @param exprs vararg of column expressions
      */
-    public final void orderBy(DBColumnExpr... exprs)
+    public DBCommandExpr orderBy(DBColumnExpr... exprs)
     {
         for (DBColumnExpr expr : exprs)
         {
             orderBy(new DBOrderByExpr(expr, false));
         }
+        return this;
     }
 
     /**
@@ -469,9 +470,9 @@ public abstract class DBCommandExpr extends DBExpr
      * @param expr the DBColumnExpr object
      * @param desc if true, the results from select statement will sort top down
      */
-    public final void orderBy(DBColumnExpr expr, boolean desc)
+    public DBCommandExpr orderBy(DBColumnExpr expr, boolean desc)
     {
-        orderBy(new DBOrderByExpr(expr, desc));
+        return orderBy(new DBOrderByExpr(expr, desc));
     }
 
     /**
@@ -479,7 +480,7 @@ public abstract class DBCommandExpr extends DBExpr
      * A negative value will remove the limit.
      *
      */
-    public void limitRows(int numRows)
+    public DBCommandExpr limitRows(int numRows)
     {
         throw new NotSupportedException(this, "limitRows");
     }
@@ -488,7 +489,7 @@ public abstract class DBCommandExpr extends DBExpr
      * sets the offset of the first row to return when executing a query command.
      * A negative value will remove the offset.
      */
-    public void skipRows(int numRows)
+    public DBCommandExpr skipRows(int numRows)
     {
         throw new NotSupportedException(this, "skipRows");
     }

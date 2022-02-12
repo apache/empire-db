@@ -646,7 +646,7 @@ public abstract class DBDatabase extends DBObject
      */
     protected void addTable(DBTable table)
     { // find column by name
-        if (table == null || table.getDatabase() != this)
+        if (table == null || table.db != this)
             throw new InvalidArgumentException("table", table);
         if (tables.contains(table)==true)
             throw new ItemExistsException(table.getName());
@@ -814,7 +814,7 @@ public abstract class DBDatabase extends DBObject
      */
     protected void addView(DBView view)
     { // find column by name
-        if (view == null || view.getDatabase() != this)
+        if (view == null || view.db != this)
             throw new InvalidArgumentException("view", view);
         if (views.contains(view) == true)
             throw new ItemExistsException(view.getName());

@@ -621,7 +621,7 @@ public abstract class DBRecordBase extends DBRecordData implements Record, Clone
     }
 
     /**
-     * Sets the value of the column in the record.
+     * Sets the value of a column in the record.
      * The functions checks if the column and the value are valid and whether the
      * value has changed.
      * 
@@ -680,7 +680,7 @@ public abstract class DBRecordBase extends DBRecordData implements Record, Clone
     }
 
     /**
-     * Sets the value of the column in the record.
+     * Sets the value of a column in the record.
      * The functions checks if the column and the value are valid and whether the
      * value has changed.
      * 

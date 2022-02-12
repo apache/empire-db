@@ -70,9 +70,10 @@ public class DBMSHandlerMSSQL extends DBMSHandlerBase
     	}
         
         @Override
-        public void limitRows(int numRows)
+        public DBCommand limitRows(int numRows)
         {
             limit = numRows;
+            return this;
         }
          
         @Override

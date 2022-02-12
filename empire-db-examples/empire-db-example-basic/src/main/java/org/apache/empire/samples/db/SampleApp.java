@@ -373,10 +373,10 @@ public class SampleApp
         SampleDB.Departments DEP = db.DEPARTMENTS;
 		// Insert a Department
 		TRecord<SampleDB.Departments> rec = new TRecord<SampleDB.Departments>(context, DEP);
-		rec.create();
-		rec.setValue(DEP.NAME, departmentName);
-		rec.setValue(DEP.BUSINESS_UNIT, businessUnit);
-		rec.update();
+		rec.create()
+		   .set(DEP.NAME, departmentName)
+		   .set(DEP.BUSINESS_UNIT, businessUnit)
+		   .update();
 		// Return Department ID
         return rec.getId();
 	}
@@ -391,12 +391,12 @@ public class SampleApp
         SampleDB.Employees EMP = db.EMPLOYEES;
 		// Insert an Employee
 		DBRecord rec = new DBRecord(context, EMP);
-		rec.create(null);
-		rec.setValue(EMP.FIRST_NAME, firstName);
-		rec.setValue(EMP.LAST_NAME, lastName);
-		rec.setValue(EMP.GENDER, gender);
-		rec.setValue(EMP.DEPARTMENT_ID, departmentId);
-		rec.update();
+		rec.create(null)
+		   .set(EMP.FIRST_NAME, firstName)
+		   .set(EMP.LAST_NAME, lastName)
+		   .set(EMP.GENDER, gender)
+		   .set(EMP.DEPARTMENT_ID, departmentId)
+	       .update();
 		// Return Employee ID
 		return rec.getId();
 	}
@@ -420,7 +420,7 @@ public class SampleApp
             variation = variation.setScale(2, RoundingMode.HALF_UP);
             // insert
             rec.create(DBRecord.key(employeeId, month.getYear(), month.getMonth()));
-            rec.setValue(PAY.AMOUNT, monthlySalary.add(variation));
+            rec.set(PAY.AMOUNT, monthlySalary.add(variation));
             rec.update();
         }
     }
@@ -437,14 +437,14 @@ public class SampleApp
 		DBRecord rec = new DBRecord(context, db.EMPLOYEES);
 		rec.read(idEmp);
 		// Set
-		rec.setValue(db.EMPLOYEES.PHONE_NUMBER, phoneNumber);
+		rec.set(db.EMPLOYEES.PHONE_NUMBER, phoneNumber);
 		rec.update();
 		*/
 	    
         DBRecordBean rec = new DBRecordBean();
         rec.read(context, db.EMPLOYEES, idEmp);
         // Set
-        rec.setValue(db.EMPLOYEES.PHONE_NUMBER, phoneNumber);
+        rec.set(db.EMPLOYEES.PHONE_NUMBER, phoneNumber);
         rec.update(context);
 	    
 	}
@@ -463,7 +463,7 @@ public class SampleApp
         DBRecord rec = new DBRecord(context, EMP);
         rec.read(DBRecord.key(idEmp), PartialMode.INCLUDE, EMP.PHONE_NUMBER);
         // Set
-        rec.setValue(db.EMPLOYEES.PHONE_NUMBER, phoneNumber);
+        rec.set(db.EMPLOYEES.PHONE_NUMBER, phoneNumber);
         rec.update();
     }
 
@@ -488,8 +488,8 @@ public class SampleApp
         // Make employee Head of Department and update salary
         DBRecord rec = new DBRecord(context, query);
         rec.read(idEmp);
-        rec.setValue(EMP.SALARY, salary);
-        rec.setValue(DEP.HEAD, rec.getString(EMP.LAST_NAME));
+        rec.set(EMP.SALARY, salary);
+        rec.set(DEP.HEAD, rec.getString(EMP.LAST_NAME));
         rec.update();
     }
 
@@ -505,22 +505,22 @@ public class SampleApp
 
         DBRecord rec = new DBRecord(context, EMP);
         rec.create();
-        rec.setValue(EMP.FIRSTNAME, "Foo");
-        rec.setValue(EMP.LASTNAME, "Manchoo");
-        rec.setValue(EMP.GENDER, Gender.M);
-        rec.setValue(EMP.DEPARTMENT_ID, idDep);
+        rec.set(EMP.FIRSTNAME, "Foo");
+        rec.set(EMP.LASTNAME, "Manchoo");
+        rec.set(EMP.GENDER, Gender.M);
+        rec.set(EMP.DEPARTMENT_ID, idDep);
         rec.update();
         log.info("Timestamp {}", rec.getString(EMP.UPDATE_TIMESTAMP));
         
-        rec.setValue(EMP.FIRSTNAME, "Foo 2");
-        rec.setValue(EMP.LASTNAME, "Manchu");
-        rec.setValue(EMP.PHONE_NUMBER, "0815/4711");
+        rec.set(EMP.FIRSTNAME, "Foo 2");
+        rec.set(EMP.LASTNAME, "Manchu");
+        rec.set(EMP.PHONE_NUMBER, "0815/4711");
         rec.update();
         log.info("Timestamp {}", rec.getString(EMP.UPDATE_TIMESTAMP));
         
         context.rollback();
         
-        rec.setValue(EMP.FIRSTNAME, "Dr. Foo");
+        rec.set(EMP.FIRSTNAME, "Dr. Foo");
         rec.update();
         log.info("Timestamp {}", rec.getString(EMP.UPDATE_TIMESTAMP));
 
@@ -550,15 +550,15 @@ public class SampleApp
         
         DBRecord rec = new DBRecord(context, EMP);        
         rec.read(idEmp);
-        rec.setValue(EMP.PHONE_NUMBER, null);
-        rec.setValue(EMP.SALARY, "100.000");
+        rec.set(EMP.PHONE_NUMBER, null);
+        rec.set(EMP.SALARY, "100.000");
         rec.update();
 
         log.info("Timestamp {}", rec.getString(EMP.UPDATE_TIMESTAMP));
         
         context.rollback();
         
-        rec.setValue(EMP.PHONE_NUMBER, "07531-45716-0");
+        rec.set(EMP.PHONE_NUMBER, "07531-45716-0");
         rec.update();
 
         log.info("Timestamp {}", rec.getString(EMP.UPDATE_TIMESTAMP));
@@ -586,7 +586,7 @@ public class SampleApp
         rec.read(idEmp);
 
         // log.info("Timestamp {}", rec.getString(T.UPDATE_TIMESTAMP));
-        // rec.setValue(T.SALARY, "100.001");
+        // rec.set(T.SALARY, "100.001");
         // rec.update();
         // log.info("Timestamp {}", rec.getString(T.UPDATE_TIMESTAMP));
         
@@ -636,9 +636,6 @@ public class SampleApp
     {
         int lastYear = LocalDate.now().getYear()-1;
 	    
-	    // Create a command
-	    DBCommand cmd = db.createCommand();
-	    
 	    // Define shortcuts for tables used - not necessary but convenient
 	    SampleDB.Employees   EMP = db.EMPLOYEES;
 	    SampleDB.Departments DEP = db.DEPARTMENTS;
@@ -663,22 +660,24 @@ public class SampleApp
         // DBColumnExpr genderExpr = cmd.select(EMP.GENDER.decode(EMP.GENDER.getOptions()).as(EMP.GENDER.getName()));
 
         // Select Employee and Department columns
-        cmd.select(EMP.ID.as("EMPLOYEE_ID"), EMPLOYEE_FULLNAME);
-        cmd.select(EMP.GENDER, EMP.PHONE_NUMBER, PHONE_EXT_NUMBER);
-        cmd.select(DEP.NAME.as("DEPARTMENT"));
-        cmd.select(DEP.BUSINESS_UNIT);
+        DBCommand cmd = db.createCommand()
+           .select(EMP.ID.as("EMPLOYEE_ID"), EMPLOYEE_FULLNAME)
+           .select(EMP.GENDER, EMP.PHONE_NUMBER, PHONE_EXT_NUMBER)
+           .select(DEP.NAME.as("DEPARTMENT"))
+           .select(DEP.BUSINESS_UNIT)
+           // Joins
+           .join(EMP.DEPARTMENT_ID, DEP.ID)
+           .joinLeft(EMP.ID, PAY.EMPLOYEE_ID, PAY.YEAR.is(lastYear))
+           // Where constraints
+           .where(EMP.LAST_NAME.length().isGreaterThan(0))
+           .where(EMP.GENDER.in(Gender.M, Gender.F))
+           .where(EMP.RETIRED.is(false))
+           // Order by
+           .orderBy(EMPLOYEE_FULLNAME);
+
         // Add payment of last year using a SUM aggregation
         cmd.groupBy(cmd.getSelectExpressions());
         cmd.select(PAYMENTS_LAST_YEAR);
-        // Joins
-        cmd.join(EMP.DEPARTMENT_ID, DEP.ID);
-        cmd.joinLeft(EMP.ID, PAY.EMPLOYEE_ID).where(PAY.YEAR.is(lastYear));
-        // Where constraints
-        cmd.where(EMP.LAST_NAME.length().isGreaterThan(0));
-        cmd.where(EMP.GENDER.in(Gender.M, Gender.F));
-        cmd.where(EMP.RETIRED.is(false));
-        // Order by
-        cmd.orderBy(EMPLOYEE_FULLNAME);
 
         /*
          * Example for limitRows() and skipRows()
@@ -783,35 +782,36 @@ public class SampleApp
 
         // Employee total query
         DBColumnExpr EMP_TOTAL = PAY.AMOUNT.sum().as("EMP_TOTAL");
-        DBCommand cmdEmpTotal = db.createCommand();
-        cmdEmpTotal.select(PAY.EMPLOYEE_ID, EMP_TOTAL);
-        cmdEmpTotal.where (PAY.YEAR.is(lastYear));
-        cmdEmpTotal.groupBy(PAY.EMPLOYEE_ID);
-        DBQuery qryEmpTotal = new DBQuery(cmdEmpTotal, "qet");
+        DBCommand cmdEmpTotal = db.createCommand()
+           .select(PAY.EMPLOYEE_ID, EMP_TOTAL)
+           .where (PAY.YEAR.is(lastYear))
+           .groupBy(PAY.EMPLOYEE_ID);
+        DBQuery Q_EMP_TOTAL = new DBQuery(cmdEmpTotal, "qet");
         
         // Department total query
         DBColumnExpr DEP_TOTAL = PAY.AMOUNT.sum().as("DEP_TOTAL");
-        DBCommand cmdDepTotal  = db.createCommand();
-        cmdDepTotal.select(EMP.DEPARTMENT_ID, DEP_TOTAL);
-        cmdDepTotal.join  (PAY.EMPLOYEE_ID, EMP.ID);
-        cmdDepTotal.where (PAY.YEAR.is(lastYear));
-        cmdDepTotal.groupBy(EMP.DEPARTMENT_ID);
-        DBQuery qryDepTotal = new DBQuery(cmdDepTotal, "qdt");
+        DBCommand cmdDepTotal  = db.createCommand()
+           .select(EMP.DEPARTMENT_ID, DEP_TOTAL)
+           .join  (PAY.EMPLOYEE_ID, EMP.ID)
+           .where (PAY.YEAR.is(lastYear))
+           .groupBy(EMP.DEPARTMENT_ID);
+        DBQuery Q_DEP_TOTAL = new DBQuery(cmdDepTotal, "qdt");
 
-        DBColumnExpr PCT_OF_DEPARTMENT_COST = qryEmpTotal.column(EMP_TOTAL).multiplyWith(100).divideBy(qryDepTotal.column(DEP_TOTAL));
+        // Percentage of department
+        DBColumnExpr PCT_OF_DEP_COST = Q_EMP_TOTAL.column(EMP_TOTAL).multiplyWith(100).divideBy(Q_DEP_TOTAL.column(DEP_TOTAL));
         // Create the employee query
-        DBCommand cmd = db.createCommand();
-        cmd.select(EMP.ID, EMP.FIRST_NAME, EMP.LAST_NAME, DEP.NAME.as("DEPARTMENT"));
-        cmd.select(qryEmpTotal.column(EMP_TOTAL));
-        cmd.select(PCT_OF_DEPARTMENT_COST.as("PCT_OF_DEPARTMENT_COST"));
-        // join Employee with Department
-        cmd.join  (EMP.DEPARTMENT_ID, DEP.ID);
-        // Join with Subqueries
-        cmd.joinLeft(EMP.ID, qryEmpTotal.column(PAY.EMPLOYEE_ID));
-        cmd.joinLeft(DEP.ID, qryDepTotal.column(EMP.DEPARTMENT_ID));
-        // Order by
-        cmd.orderBy(DEP.NAME.desc());
-        cmd.orderBy(EMP.LAST_NAME);
+        DBCommand cmd = db.createCommand()
+           .select(EMP.ID, EMP.FIRST_NAME, EMP.LAST_NAME, DEP.NAME.as("DEPARTMENT"))
+           .select(Q_EMP_TOTAL.column(EMP_TOTAL))
+           .select(PCT_OF_DEP_COST.as("PCT_OF_DEPARTMENT_COST"))
+           // join Employee with Department
+           .join(EMP.DEPARTMENT_ID, DEP.ID)
+           // Join with Subqueries
+           .joinLeft(EMP.ID, Q_EMP_TOTAL.column(PAY.EMPLOYEE_ID))
+           .joinLeft(DEP.ID, Q_DEP_TOTAL.column(EMP.DEPARTMENT_ID))
+           // Order by
+           .orderBy(DEP.NAME.desc())
+           .orderBy(EMP.LAST_NAME);
 	    
         List<DataListEntry> list = context.getUtils().queryDataList(cmd);
         /* uncomment this to print full list
@@ -824,11 +824,11 @@ public class SampleApp
             // int depId = dle.getId(DEP);
             String empName = StringUtils.concat(", ", dle.getString(EMP.LAST_NAME), dle.getString(EMP.FIRST_NAME));
             String depName = dle.getString(DEP.NAME);
-            boolean hasPayments =!dle.isNull(qryEmpTotal.column(EMP_TOTAL));
+            boolean hasPayments =!dle.isNull(Q_EMP_TOTAL.column(EMP_TOTAL));
             if (hasPayments)
             {   // report
-                BigDecimal empTotal = dle.getDecimal(qryEmpTotal.column(EMP_TOTAL));
-                BigDecimal pctOfDep = dle.getDecimal(PCT_OF_DEPARTMENT_COST).setScale(1, RoundingMode.HALF_UP);
+                BigDecimal empTotal = dle.getDecimal(Q_EMP_TOTAL.column(EMP_TOTAL));
+                BigDecimal pctOfDep = dle.getDecimal(PCT_OF_DEP_COST).setScale(1, RoundingMode.HALF_UP);
                 log.info("Eployee[{}]: {}\tDepartment: {}\tPayments: {} ({}% of Department)", empId, empName, depName, empTotal, pctOfDep);
             }
             else
@@ -869,7 +869,7 @@ public class SampleApp
             log.info("Eployee[{}]: {}\tPhone: {}\tSalary: {}", StringUtils.toString(key), empName, phone, salary);
             // modify salary
             BigDecimal newSalary = new BigDecimal(2000 + ((Math.random()*200) - 100.0));
-            record.setValue(EMP.SALARY, newSalary);
+            record.set(EMP.SALARY, newSalary);
             // check
             if (record.wasModified(EMP.SALARY))
             {   // Salary was modified

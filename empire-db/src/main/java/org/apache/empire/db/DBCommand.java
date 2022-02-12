@@ -34,6 +34,7 @@ import org.apache.empire.db.expr.join.DBColumnJoinExpr;
 import org.apache.empire.db.expr.join.DBCompareJoinExpr;
 import org.apache.empire.db.expr.join.DBCrossJoinExpr;
 import org.apache.empire.db.expr.join.DBJoinExpr;
+import org.apache.empire.db.expr.order.DBOrderByExpr;
 import org.apache.empire.db.expr.set.DBSetExpr;
 import org.apache.empire.dbms.DBSqlPhrase;
 import org.apache.empire.exceptions.InternalException;
@@ -201,11 +202,6 @@ public abstract class DBCommand extends DBCommandExpr
         }
     }
 
-    /**
-     * Returns the current DBDatabase object.
-     * 
-     * @return the current DBDatabase object
-     */
     @SuppressWarnings("unchecked")
     @Override
     public final DBDatabase getDatabase()
@@ -213,39 +209,23 @@ public abstract class DBCommand extends DBCommandExpr
         return db;
     }
 
+    /**
+     * Returns true if the this command has either Select or Set expressions
+     */
     @Override
     public boolean isValid()
     {
-    	return isValidQuery() || isValidUpdate();
-    }
-
-    /**
-     * Returns whether the command object can produce a select sql-statement.
-     * 
-     * @return true if at least one select expression has been set
-     */
-    public boolean isValidQuery()
-    {
-    	return (select != null);
-    }
-
-    /**
-     * Returns whether the command object can produce a update sql-statement.
-     * 
-     * @return true if a set expression has been set.
-     */
-    public boolean isValidUpdate()
-    {
-        return (set != null);
+    	return hasSelectExpr() || hasSetExpr();
     }
 
     /**
      * Sets whether or not the select statement should contain
      * the distinct directive .
      */
-    public void selectDistinct()
+    public DBCommand selectDistinct()
     {
     	this.selectDistinct = true;
+    	return this;
     }
 
     /**
@@ -259,16 +239,37 @@ public abstract class DBCommand extends DBCommandExpr
     }
     
     /**
+     * returns whether or not the command has any select expression 
+     * @return true if the command has any select expression of false otherwise
+     */
+    @Override
+    public boolean hasSelectExpr()
+    {
+        return (select!=null && !select.isEmpty());
+    }
+
+    /**
+     * returns whether or not the command has a specific select expression 
+     * @return true if the command contains the given select expression of false otherwise
+     */
+    @Override
+    public boolean hasSelectExpr(DBColumnExpr expr)
+    {
+        return (select!=null ? (select.indexOf(expr)>=0) : false);
+    }
+    
+    /**
      * Adds a DBColumnExpr object to the Vector: 'select'.
      * 
      * @param expr the DBColumnExpr object
      */
-    public void select(DBColumnExpr expr)
+    public DBCommand select(DBColumnExpr expr)
     {   // Select this column
         if (select == null)
             select = new ArrayList<DBColumnExpr>();
         if (expr != null && select.contains(expr) == false)
             select.add(expr);
+        return this;
     }
 
     /**
@@ -276,12 +277,13 @@ public abstract class DBCommand extends DBCommandExpr
      * 
      * @param exprs an vararg of DBColumnExpr's to select
      */
-    public final void select(DBColumnExpr... exprs)
+    public final DBCommand select(DBColumnExpr... exprs)
     {
         for (DBColumnExpr expr : exprs)
         {
             select(expr);
         }
+        return this;
     }
 
     /**
@@ -289,12 +291,13 @@ public abstract class DBCommand extends DBCommandExpr
      * 
      * @param columns the column expressions to add
      */
-    public final void select(Collection<? extends DBColumnExpr> columns)
+    public final DBCommand select(Collection<? extends DBColumnExpr> columns)
     {
         for (DBColumnExpr expr : columns)
         {
             select(expr);
         }
+        return this;
     }
 
     /**
@@ -302,12 +305,13 @@ public abstract class DBCommand extends DBCommandExpr
      * 
      * @param exprs one or more columns to select
      */
-    public void selectQualified(DBColumn... columns)
+    public DBCommand selectQualified(DBColumn... columns)
     {
         for (DBColumn col : columns)
         {
             select(col.qualified());
         }
+        return this;
     }
 
     /**
@@ -315,22 +319,42 @@ public abstract class DBCommand extends DBCommandExpr
      * 
      * @param columns the column expressions to add
      */
-    public final void selectQualified(Collection<? extends DBColumn> columns)
+    public final DBCommand selectQualified(Collection<? extends DBColumn> columns)
     {
         for (DBColumn col : columns)
         {
             select(col.qualified());
         }
+        return this;
+    }
+    
+    /**
+     * Returns an array of all select expressions
+     * 
+     * @return an array of all DBColumnExpr objects or <code>null</code> if there is nothing to select
+     */
+    @Override
+    public DBColumnExpr[] getSelectExprList()
+    {
+        int count = (select != null) ? select.size() : 0;
+        if (count < 1)
+            return null;
+        // The List
+        DBColumnExpr[] exprList = new DBColumnExpr[count];
+        for (int i = 0; i < count; i++)
+            exprList[i] = select.get(i);
+        // The expression List
+        return exprList;
     }
 
     /**
-     * returns whether or not a command contains a select expression
-     * @return true if the expression is contained in the select 
+     * Returns all select expressions as unmodifiable list
+     * @return the list of DBColumnExpr used for select
      */
-    public boolean containsSelect(DBColumnExpr selExpr)
+    @Override
+    public List<DBColumnExpr> getSelectExpressions()
     {
-        int idx = (select != null ? select.indexOf(selExpr) : -1);
-        return (idx<0);
+        return (this.select!=null ? Collections.unmodifiableList(this.select) : null);
     }
 
     /**
@@ -383,35 +407,11 @@ public abstract class DBCommand extends DBCommandExpr
     }
     
     /**
-     * returns true if prepared statements are enabled for this database
-     */
-    protected boolean isPreparedStatementsEnabled()
-    {
-        return db.isPreparedStatementsEnabled();
-    }
-    
-    /**
-     * returns true if a cmdParam should be used for the given column or false otherwise
-     */
-    protected boolean useCmdParam(DBColumn col, Object value)
-    {
-        // Cannot wrap DBExpr or DBSystemDate
-        if (value==null || value instanceof DBExpr || value instanceof DBDatabase.DBSystemDate)
-            return false;
-        // Check if prepared statements are enabled
-        if (isPreparedStatementsEnabled())
-            return true;
-        // Only use a command param if column is of type BLOB or CLOB
-        DataType dt = col.getDataType();
-        return ( dt==DataType.BLOB || dt==DataType.CLOB );
-    }
-    
-    /**
      * Adds a single set expressions to this command
      * Use column.to(...) to create a set expression 
      * @param expr the DBSetExpr object(s)
      */
-    public void set(DBSetExpr expr)
+    public DBCommand set(DBSetExpr expr)
     {
         if (set == null)
             set = new ArrayList<DBSetExpr>();
@@ -436,7 +436,7 @@ public abstract class DBCommand extends DBCommandExpr
                     // replace value
                     chk.value = expr.value;
                 }
-                return;
+                return this;
             }
         }
         // Replace with parameter 
@@ -444,6 +444,7 @@ public abstract class DBCommand extends DBCommandExpr
             expr.value = addParam(expr.column.getDataType(), expr.value);
         // new Value!
         set.add(expr);
+        return this;
     }
     
     /**
@@ -451,10 +452,11 @@ public abstract class DBCommand extends DBCommandExpr
      * Use column.to(...) to create a set expression 
      * @param expr the DBSetExpr object(s)
      */
-    public final void set(DBSetExpr... exprs)
+    public final DBCommand set(DBSetExpr... exprs)
     {
         for (int i=0; i<exprs.length; i++)
             set(exprs[i]);
+        return this;
     }
     
     /**
@@ -554,7 +556,7 @@ public abstract class DBCommand extends DBCommandExpr
      * 
      * @param join the join expression
      */
-    public void join(DBJoinExpr join)
+    public DBCommand join(DBJoinExpr join)
     {
         // check tables
         if (join.getLeftTable().equals(join.getRightTable()))
@@ -567,9 +569,10 @@ public abstract class DBCommand extends DBCommandExpr
         { // Check whether join exists
             DBJoinExpr item = joins.get(i);
             if (item.equals(join))
-                return;
+                return this;
         }
         joins.add(join);
+        return this;
     }
 
     /**
@@ -580,9 +583,9 @@ public abstract class DBCommand extends DBCommandExpr
      * 
      * @return the join expresion 
      */
-    public final DBColumnJoinExpr join(DBColumnExpr left, DBColumn right)
+    public final DBCommand join(DBColumnExpr left, DBColumn right, DBCompareExpr... addlConstraints)
     {
-        return join(left, right, DBJoinType.INNER);
+        return join(left, right, DBJoinType.INNER, addlConstraints);
     }
 
     /**
@@ -595,9 +598,9 @@ public abstract class DBCommand extends DBCommandExpr
      * 
      * @return the join expresion 
      */
-    public final DBColumnJoinExpr joinLeft(DBColumnExpr left, DBColumn right)
+    public final DBCommand joinLeft(DBColumnExpr left, DBColumn right, DBCompareExpr... addlConstraints)
     {
-        return join(left, right, DBJoinType.LEFT);
+        return join(left, right, DBJoinType.LEFT, addlConstraints);
     }
 
     /**
@@ -610,13 +613,15 @@ public abstract class DBCommand extends DBCommandExpr
      * 
      * @return the join expresion 
      */
-    public final DBColumnJoinExpr joinRight(DBColumnExpr left, DBColumn right)
+    public final DBCommand joinRight(DBColumnExpr left, DBColumn right, DBCompareExpr... addlConstraints)
     {
-        return join(left, right, DBJoinType.RIGHT);
+        return join(left, right, DBJoinType.RIGHT, addlConstraints);
     }
 
     /**
      * Adds a join based on two columns to the list of join expressions.
+     * 
+     * Migration hint from 2.x -> replace ").where(" with just "," 
      * 
      * @param left the left join value
      * @param right the right join
@@ -624,11 +629,18 @@ public abstract class DBCommand extends DBCommandExpr
      * 
      * @return the join expression 
      */
-    public final DBColumnJoinExpr join(DBColumnExpr left, DBColumnExpr right, DBJoinType joinType)
+    public final DBCommand join(DBColumnExpr left, DBColumnExpr right, DBJoinType joinType, DBCompareExpr... addlConstraints)
     {
         DBColumnJoinExpr join = new DBColumnJoinExpr(left, right, joinType);
         join(join);
-        return join;
+        // additional constraints
+        DBCompareExpr where = null;
+        for (int i=0; i<addlConstraints.length; i++)
+            where = (where!=null ? where.and(addlConstraints[i]) : addlConstraints[i]);
+        if (where!=null)
+            join.where(where);
+        // done
+        return this;
     }
     
     /**
@@ -637,11 +649,12 @@ public abstract class DBCommand extends DBCommandExpr
      * @param right the right RowSet
      * @return the join expression
      */
-    public final DBCrossJoinExpr join(DBRowSet left, DBRowSet right)
+    public final DBCommand join(DBRowSet left, DBRowSet right)
     {
         DBCrossJoinExpr join = new DBCrossJoinExpr(left, right);
         join(join);
-        return join;
+        // done
+        return this;
     }
 
     /**
@@ -653,11 +666,11 @@ public abstract class DBCommand extends DBCommandExpr
      * 
      * @return the join expresion 
      */
-    public final DBCompareJoinExpr join(DBRowSet rowset, DBCompareExpr cmp, DBJoinType joinType)
+    public final DBCommand join(DBRowSet rowset, DBCompareExpr cmp, DBJoinType joinType)
     {
         DBCompareJoinExpr join = new DBCompareJoinExpr(rowset, cmp, joinType); 
         join(join);
-        return join;
+        return this;
     }
 
     /**
@@ -668,7 +681,7 @@ public abstract class DBCommand extends DBCommandExpr
      * 
      * @return the join expresion 
      */
-    public final DBCompareJoinExpr join(DBRowSet rowset, DBCompareExpr cmp)
+    public final DBCommand join(DBRowSet rowset, DBCompareExpr cmp)
     {
         return join(rowset, cmp, DBJoinType.INNER);
     }
@@ -812,11 +825,12 @@ public abstract class DBCommand extends DBCommandExpr
      * 
      * @param expr the DBCompareExpr object
      */
-    public void where(DBCompareExpr expr)
+    public DBCommand where(DBCompareExpr expr)
     {
         if (where == null)
             where = new ArrayList<DBCompareExpr>();
         setConstraint(where, expr);
+        return this;
     }
     
     /**
@@ -825,10 +839,11 @@ public abstract class DBCommand extends DBCommandExpr
      * 
      * @param expr the DBCompareExpr object
      */
-    public final void where(DBCompareExpr... exprs)
+    public final DBCommand where(DBCompareExpr... exprs)
     {
         for (int i=0; i<exprs.length; i++)
             where(exprs[i]);
+        return this;
     }
 
     /**
@@ -889,11 +904,12 @@ public abstract class DBCommand extends DBCommandExpr
      * adds a constraint to the having clause.
      * @param expr the DBCompareExpr object
      */
-    public void having(DBCompareExpr expr)
+    public DBCommand having(DBCompareExpr expr)
     {
         if (having == null)
             having = new ArrayList<DBCompareExpr>();
         setConstraint(having, expr);
+        return this;
     }
 
     /**
@@ -950,7 +966,7 @@ public abstract class DBCommand extends DBCommandExpr
      * 
      * @param exprs vararg of columns by which to group the rows
      */
-    public void groupBy(DBColumnExpr...exprs)
+    public DBCommand groupBy(DBColumnExpr...exprs)
     {
         if (groupBy == null)
             groupBy = new ArrayList<DBColumnExpr>();
@@ -960,6 +976,7 @@ public abstract class DBCommand extends DBCommandExpr
             if (expr.isAggregate()==false && groupBy.contains(expr)==false)
                 groupBy.add(expr);
         }
+        return this;
     }
 
     /**
@@ -967,61 +984,13 @@ public abstract class DBCommand extends DBCommandExpr
      * 
      * @param columns the column expressions to add
      */
-    public final void groupBy(Collection<? extends DBColumnExpr> columns)
+    public final DBCommand groupBy(Collection<? extends DBColumnExpr> columns)
     {
         for (DBColumnExpr expr : columns)
         {
             groupBy(expr);
         }
-    }
-    
-    /**
-     * returns whether or not the command has any select expression 
-     * @return true if the command has any select expression of false otherwise
-     */
-    @Override
-    public boolean hasSelectExpr()
-    {
-        return (select!=null && !select.isEmpty());
-    }
-
-    /**
-     * returns whether or not the command has a specific select expression 
-     * @return true if the command contains the given select expression of false otherwise
-     */
-    @Override
-    public boolean hasSelectExpr(DBColumnExpr expr)
-    {
-        return (select!=null ? (select.indexOf(expr)>=0) : false);
-    }
-    
-    /**
-     * Returns an array of all select expressions
-     * 
-     * @return an array of all DBColumnExpr objects or <code>null</code> if there is nothing to select
-     */
-    @Override
-    public DBColumnExpr[] getSelectExprList()
-    {
-        int count = (select != null) ? select.size() : 0;
-        if (count < 1)
-            return null;
-        // The List
-        DBColumnExpr[] exprList = new DBColumnExpr[count];
-        for (int i = 0; i < count; i++)
-            exprList[i] = select.get(i);
-        // The expression List
-        return exprList;
-    }
-
-    /**
-     * Returns all select expressions as unmodifiable list
-     * @return the list of DBColumnExpr used for select
-     */
-    @Override
-    public List<DBColumnExpr> getSelectExpressions()
-    {
-        return (this.select!=null ? Collections.unmodifiableList(this.select) : null);
+        return this;
     }
 
     /**
@@ -1084,6 +1053,51 @@ public abstract class DBCommand extends DBCommandExpr
     }
 
     /**
+     * Overridden to change return type from DBCommandExpr to DBCommand
+     */
+    @Override
+    public DBCommand orderBy(DBOrderByExpr... exprs)
+    {
+        return (DBCommand)super.orderBy(exprs);
+    }
+
+    /**
+     * Overridden to change return type from DBCommandExpr to DBCommand
+     */
+    @Override
+    public DBCommand orderBy(DBColumnExpr... exprs)
+    {
+        return (DBCommand)super.orderBy(exprs);
+    }
+
+    /**
+     * Overridden to change return type from DBCommandExpr to DBCommand
+     */
+    @Override
+    public DBCommand orderBy(DBColumnExpr expr, boolean desc)
+    {
+        return (DBCommand)super.orderBy(expr, desc);
+    }
+
+    /**
+     * Overridden to change return type from DBCommandExpr to DBCommand
+     */
+    @Override
+    public DBCommand limitRows(int limitRows)
+    {
+        return (DBCommand)super.limitRows(limitRows);
+    }
+
+    /**
+     * Overridden to change return type from DBCommandExpr to DBCommand
+     */
+    @Override
+    public DBCommand skipRows(int skipRows)
+    {
+        return (DBCommand)super.skipRows(skipRows);
+    }
+    
+    /**
      * Clears the entire command object.
      */
     public void clear()
@@ -1099,6 +1113,30 @@ public abstract class DBCommand extends DBCommandExpr
         clearOrderBy();
         clearLimit();
         resetParamUsage();
+    }
+    
+    /**
+     * returns true if prepared statements are enabled for this database
+     */
+    protected boolean isPreparedStatementsEnabled()
+    {
+        return db.isPreparedStatementsEnabled();
+    }
+    
+    /**
+     * returns true if a cmdParam should be used for the given column or false otherwise
+     */
+    protected boolean useCmdParam(DBColumn col, Object value)
+    {
+        // Cannot wrap DBExpr or DBSystemDate
+        if (value==null || value instanceof DBExpr || value instanceof DBDatabase.DBSystemDate)
+            return false;
+        // Check if prepared statements are enabled
+        if (isPreparedStatementsEnabled())
+            return true;
+        // Only use a command param if column is of type BLOB or CLOB
+        DataType dt = col.getDataType();
+        return ( dt==DataType.BLOB || dt==DataType.CLOB );
     }
 
     /**

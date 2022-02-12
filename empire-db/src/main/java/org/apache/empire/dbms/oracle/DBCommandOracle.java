@@ -128,19 +128,21 @@ public class DBCommandOracle extends DBCommand
     }
     
     @Override
-    public void limitRows(int limitRows)
+    public DBCommandOracle limitRows(int limitRows)
     {
         // set limit
         this.limitRows = limitRows;
+        return this;
     }
 
     @Override
-    public void skipRows(int skipRows)
+    public DBCommandOracle skipRows(int skipRows)
     {
         if (skipRows<0)
             throw new InvalidArgumentException("skipRows", skipRows);
         // set skip
-        this.skipRows = skipRows; 
+        this.skipRows = skipRows;
+        return this;
     }
      
     @Override

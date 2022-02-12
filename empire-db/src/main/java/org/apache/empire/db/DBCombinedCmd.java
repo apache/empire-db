@@ -193,7 +193,7 @@ public class DBCombinedCmd extends DBCommandExpr
     }
 
     @Override
-    public void orderBy(DBOrderByExpr... exprs)
+    public DBCommandExpr orderBy(DBOrderByExpr... exprs)
     {
         if (orderBy == null)
             orderBy = new ArrayList<DBOrderByExpr>();
@@ -203,6 +203,7 @@ public class DBCombinedCmd extends DBCommandExpr
             DBColumnExpr c = getCmdColumn(obe.getColumnExpr());
             orderBy.add(new DBOrderByExpr(c, obe.isDescending()));
         }
+        return this;
     }
 
 }

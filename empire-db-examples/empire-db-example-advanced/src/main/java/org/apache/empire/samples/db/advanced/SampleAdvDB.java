@@ -248,8 +248,7 @@ public class SampleAdvDB extends TDatabase<SampleAdvDB>
                        .append(EMP.C_FIRSTNAME.coalesce(DBDatabase.EMPTY_STRING))
                        .append(" (").append(DEP.C_NAME).append(")"));
             // Set Joins
-            cmd.join(EDH.C_EMPLOYEE_ID, EDS.C_EMPLOYEE_ID)
-              .where(EDH.C_DATE_FROM.is(EDS.C_MAX_DATE_FROM));
+            cmd.join(EDH.C_EMPLOYEE_ID, EDS.C_EMPLOYEE_ID, EDH.C_DATE_FROM.is(EDS.C_MAX_DATE_FROM));
             cmd.join(EMP.C_EMPLOYEE_ID, EDH.C_EMPLOYEE_ID);
             cmd.join(DEP.C_DEPARTMENT_ID, EDH.C_DEPARTMENT_ID);
             // done

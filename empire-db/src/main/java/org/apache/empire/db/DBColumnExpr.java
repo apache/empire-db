@@ -1343,5 +1343,17 @@ public abstract class DBColumnExpr extends DBExpr
     {
         return this.getDatabase().getColumnJavaType(this);
     }
-    
+ 
+    /**
+     * For Debugging
+     */
+    @Override
+    public String toString()
+    {
+        String name = getName();
+        if (StringUtils.isNotEmpty(name))
+            return getClass().getSimpleName() + "[" + name + "]";
+        // default
+        return super.toString();
+    }
 }

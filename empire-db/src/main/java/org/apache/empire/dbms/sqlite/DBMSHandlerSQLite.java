@@ -79,13 +79,14 @@ public class DBMSHandlerSQLite extends DBMSHandlerBase
         }
         
         @Override
-		public void join(DBJoinExpr join)
+		public DBCommandSQLite join(DBJoinExpr join)
         {
             // http://www.sqlite.org/omitted.html
             if (join.getType() != DBJoinType.LEFT) {
                 throw new NotImplementedException(join.getType(), join.getLeftTable().getName() + " join " + join.getRightTable().getName()); 
             }
             super.join(join);
+            return this;
         }
         
         @Override
