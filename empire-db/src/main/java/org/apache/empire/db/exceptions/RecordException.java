@@ -21,7 +21,7 @@ package org.apache.empire.db.exceptions;
 import org.apache.empire.commons.ErrorType;
 import org.apache.empire.commons.ObjectUtils;
 import org.apache.empire.commons.StringUtils;
-import org.apache.empire.data.Entity;
+import org.apache.empire.data.EntityType;
 import org.apache.empire.data.Record;
 import org.apache.empire.db.DBRowSet;
 import org.apache.empire.exceptions.EmpireException;
@@ -43,10 +43,10 @@ public abstract class RecordException extends EmpireException
         }
     }
     
-    protected static Entity getEntity(Record record)
+    protected static EntityType getEntityType(Record record)
     {
         try {
-            return record.getEntity();
+            return record.getEntityType();
         } catch(Exception e) {
             return null;
         }
@@ -57,9 +57,9 @@ public abstract class RecordException extends EmpireException
         return (key==null ? "["+StringUtils.arrayToString(key, "|")+"]" : "[]");
     }
     
-    protected static String entityName(Entity entity)
+    protected static String entityName(EntityType entity)
     {
-        return (entity!=null ? entity.getName() : "{Null}"); 
+        return (entity!=null ? entity.getEntityName() : "{Null}"); 
     }
     
     protected static String rowsetName(DBRowSet rowset)
@@ -67,30 +67,30 @@ public abstract class RecordException extends EmpireException
         return (rowset!=null ? StringUtils.coalesce(rowset.getName(), rowset.getAlias()) : "{Null}");        
     }
     
-    private transient final Entity entity;
+    private transient final EntityType entityType;
     private transient final Object[] key;
     
-    public RecordException(Entity entity, Object[] key, final ErrorType errType, final String[] params, final Throwable cause)
+    public RecordException(EntityType entityType, Object[] key, final ErrorType errType, final String[] params, final Throwable cause)
     {
         super(errType, params, cause);
         // save type and params for custom message formatting
-        this.entity = entity;
+        this.entityType = entityType;
         this.key = key;
     }
 
-    public RecordException(Entity entity, Object[] key, final ErrorType errType, final String[] params)
+    public RecordException(EntityType entity, Object[] key, final ErrorType errType, final String[] params)
     {
         this(entity, key, errType, params, null);
     }
     
     public RecordException(final Record record, final ErrorType errType, final String[] params)
     {
-        this(getEntity(record), getKey(record), errType, params, null);
+        this(getEntityType(record), getKey(record), errType, params, null);
     }
 
-    public Entity getRecord()
+    public EntityType getEntityType()
     {
-        return entity;
+        return entityType;
     }
 
     public Object[] getKey()

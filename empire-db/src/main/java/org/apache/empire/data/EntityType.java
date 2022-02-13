@@ -2,9 +2,9 @@ package org.apache.empire.data;
 
 import java.util.List;
 
-public interface Entity
+public interface EntityType
 {
-    String getName(); 
+    String getEntityName(); 
 
     List<? extends Column> getColumns();
     

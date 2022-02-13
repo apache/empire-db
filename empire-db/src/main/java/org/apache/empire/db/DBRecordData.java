@@ -107,9 +107,9 @@ public abstract class DBRecordData extends DBObject
      * @Deprecated Renamed to get(...)   
      */
     @Deprecated
-    public final Object[] getValue(ColumnExpr... columns)
+    public final Object[] getValues(ColumnExpr... columns)
     {
-        return get(columns);
+        return getArray(columns);
     }
     
     /**
@@ -144,7 +144,7 @@ public abstract class DBRecordData extends DBObject
      * @param column the column expressions
      * @return the corresponding record values
      */
-    public final Object[] get(ColumnExpr... columns)
+    public final Object[] getArray(ColumnExpr... columns)
     {
         Object[] values = new Object[columns.length];
         for (int i=0; i<columns.length; i++)

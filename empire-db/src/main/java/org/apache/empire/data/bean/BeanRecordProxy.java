@@ -30,7 +30,7 @@ import org.apache.empire.commons.ObjectUtils;
 import org.apache.empire.commons.Options;
 import org.apache.empire.data.Column;
 import org.apache.empire.data.ColumnExpr;
-import org.apache.empire.data.Entity;
+import org.apache.empire.data.EntityType;
 import org.apache.empire.data.Record;
 import org.apache.empire.exceptions.BeanPropertyGetException;
 import org.apache.empire.exceptions.BeanPropertySetException;
@@ -52,14 +52,14 @@ public class BeanRecordProxy<T> implements Record
 {
     protected static final Logger log = LoggerFactory.getLogger(BeanRecordProxy.class);
     
-    protected final Entity entity;
+    protected final EntityType entity;
     protected final List<Column> columns;
     protected final Column[] keyColumns;
 
     protected T data;
     protected boolean[] modified;
 
-    public BeanRecordProxy(T data, List<Column> columns, Column[] keyColumns, Entity entity)
+    public BeanRecordProxy(T data, List<Column> columns, Column[] keyColumns, EntityType entity)
     {
         this.data = data;
         this.columns = columns;
@@ -67,7 +67,7 @@ public class BeanRecordProxy<T> implements Record
         this.entity = entity;
     }
 
-    public BeanRecordProxy(List<Column> columns, Column[] keyColumns, Entity entity)
+    public BeanRecordProxy(List<Column> columns, Column[] keyColumns, EntityType entity)
     {
         this(null, columns, keyColumns, entity);
     }
@@ -208,7 +208,7 @@ public class BeanRecordProxy<T> implements Record
     }
     
     @Override
-    public Entity getEntity()
+    public EntityType getEntityType()
     {
         return this.entity;
     }
@@ -231,7 +231,7 @@ public class BeanRecordProxy<T> implements Record
         if (!isValid())
             throw new ObjectNotValidException(this);
         // getBeanPropertyValue 
-        return getBeanPropertyValue(data, column);
+        return getBeanProperty(data, column);
     }
 
     @Override
@@ -279,7 +279,7 @@ public class BeanRecordProxy<T> implements Record
         // validate
         value = validateValue(column, value);
         // Set Value
-        setBeanPropertyValue(data, column, value);
+        setBeanProperty(data, column, value);
         return this;
     }
 
@@ -333,7 +333,7 @@ public class BeanRecordProxy<T> implements Record
             if (ignoreList != null && ignoreList.contains(column))
                 continue; // ignore this property
             // Get Property Name
-            setBeanPropertyValue(bean, column, getValue(i));
+            setBeanProperty(bean, column, getValue(i));
         }
         return count;
     }
@@ -352,7 +352,7 @@ public class BeanRecordProxy<T> implements Record
                 continue; // ignore this property
             // Get Property Name
             String property = column.getBeanPropertyName();
-            Object value = getBeanPropertyValue(bean, property);
+            Object value = getBeanProperty(bean, property);
             set(column, value);
             count++;
         }
@@ -367,7 +367,7 @@ public class BeanRecordProxy<T> implements Record
 
     // --------------- protected ------------------
 
-    protected Object getBeanPropertyValue(Object bean, ColumnExpr column)
+    protected final Object getBeanProperty(Object bean, ColumnExpr column)
     {
         // Check Params
         if (bean==null)
@@ -375,10 +375,10 @@ public class BeanRecordProxy<T> implements Record
         if (column==null)
             throw new InvalidArgumentException("column", column);
         // getBeanPropertyValue 
-        return getBeanPropertyValue(bean, column.getBeanPropertyName()); 
+        return getBeanProperty(bean, column.getBeanPropertyName()); 
     }
 
-    protected Object getBeanPropertyValue(Object bean, String property)
+    protected Object getBeanProperty(Object bean, String property)
     {
         // Check Params
         if (bean==null)
@@ -402,7 +402,7 @@ public class BeanRecordProxy<T> implements Record
         }
     }
 
-    protected void setBeanPropertyValue(Object bean, Column column, Object value)
+    protected void setBeanProperty(Object bean, Column column, Object value)
     {
         // Check Params
         if (bean==null)

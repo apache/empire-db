@@ -27,7 +27,7 @@ import org.apache.empire.commons.ObjectUtils;
 import org.apache.empire.commons.StringUtils;
 import org.apache.empire.data.Column;
 import org.apache.empire.data.ColumnExpr;
-import org.apache.empire.data.Entity;
+import org.apache.empire.data.EntityType;
 import org.apache.empire.data.RecordData;
 import org.apache.empire.exceptions.InvalidArgumentException;
 import org.apache.empire.exceptions.ItemNotFoundException;
@@ -58,7 +58,7 @@ public class DataListEntry implements RecordData, Serializable
         return (T)this.head;
     }
     
-    public Object[] getRecordKey(Entity entity)
+    public Object[] getRecordKey(EntityType entity)
     {
         Column[] keyColumns = entity.getKeyColumns();
         Object[] key = new Object[keyColumns.length];
@@ -67,11 +67,11 @@ public class DataListEntry implements RecordData, Serializable
         return key;
     }
 
-    public long getRecordId(Entity entity)
+    public long getRecordId(EntityType entity)
     {
         Column[] keyColumns = entity.getKeyColumns();
         if (keyColumns.length!=1)
-            throw new InvalidArgumentException("entity", entity.getName());
+            throw new InvalidArgumentException("entity", entity.getEntityName());
         // return id
         return ObjectUtils.getLong(get(keyColumns[0]));
     }
@@ -188,7 +188,7 @@ public class DataListEntry implements RecordData, Serializable
         return ObjectUtils.convert(returnType, get(column));
     }
 
-    public final Object[] get(ColumnExpr... columns)
+    public final Object[] getArray(ColumnExpr... columns)
     {
         Object[] values = new Object[columns.length];
         for (int i=0; i<columns.length; i++)

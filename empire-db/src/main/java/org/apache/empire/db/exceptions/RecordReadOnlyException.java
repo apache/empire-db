@@ -29,6 +29,6 @@ public class RecordReadOnlyException extends RecordException
     
     public RecordReadOnlyException(DBRecordBase record)
     {
-        super(record, errorType, new String[] { keyToString(getKey(record)), entityName(getEntity(record)) });
+        super(record, errorType, new String[] { keyToString(getKey(record)), entityName(getEntityType(record)) });
     }
 }

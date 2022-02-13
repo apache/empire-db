@@ -33,7 +33,7 @@ import org.apache.empire.commons.StringUtils;
 import org.apache.empire.data.Column;
 import org.apache.empire.data.ColumnExpr;
 import org.apache.empire.data.DataType;
-import org.apache.empire.data.Entity;
+import org.apache.empire.data.EntityType;
 import org.apache.empire.db.DBRelation.DBCascadeAction;
 import org.apache.empire.db.DBRelation.DBReference;
 import org.apache.empire.db.exceptions.FieldReadOnlyException;
@@ -70,7 +70,7 @@ import org.slf4j.LoggerFactory;
  * 
  *
  */
-public abstract class DBRowSet extends DBExpr implements Entity
+public abstract class DBRowSet extends DBExpr implements EntityType
 {
     // *Deprecated* private static final long serialVersionUID = 1L;
 
@@ -290,7 +290,6 @@ public abstract class DBRowSet extends DBExpr implements Entity
 
     // ------- Abstract Methods -------
     
-    @Override
     public abstract String getName();
     
     public abstract String getAlias();
@@ -314,10 +313,11 @@ public abstract class DBRowSet extends DBExpr implements Entity
     }
 
     /**
-     * Returns the entity name for creating qualified names. 
+     * Returns the entity name creating qualified names. 
      * This is usually the same as "getName()" but it may be overridden to return singular instead of plural
      * @return the entity name
      */
+    @Override
     public String getEntityName()
     {
         return StringUtils.coalesce(entityName, getName());

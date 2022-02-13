@@ -24,7 +24,7 @@ import java.util.List;
 
 import org.apache.empire.data.Column;
 import org.apache.empire.data.DataType;
-import org.apache.empire.data.Entity;
+import org.apache.empire.data.EntityType;
 
 /**
  * BeanObject
@@ -33,7 +33,7 @@ import org.apache.empire.data.Entity;
  * A metadata definition consists primarily of the class name and a list of properties.  
  * @author Rainer
  */
-public abstract class BeanClass implements Entity
+public abstract class BeanClass implements EntityType
 {
     private final String name;
     private final List<BeanProperty> properties = new ArrayList<BeanProperty>();
@@ -103,7 +103,7 @@ public abstract class BeanClass implements Entity
      * @return the class name
      */
     @Override
-    public String getName() 
+    public String getEntityName() 
     {
         return name;
     }
