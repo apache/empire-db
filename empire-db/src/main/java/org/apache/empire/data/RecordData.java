@@ -71,7 +71,7 @@ public interface RecordData
      * @param column the column for which to return the value
      * @return the record value for the given column
      */
-    Object getValue(ColumnExpr column);
+    Object get(ColumnExpr column);
     
     /**
      * checks if the field at the given index position contains no value (null) 

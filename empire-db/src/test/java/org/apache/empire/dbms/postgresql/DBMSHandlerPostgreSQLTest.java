@@ -109,7 +109,7 @@ public class DBMSHandlerPostgreSQLTest
 		
 		DBRecord emp = new DBRecord(context, db.DATA);
         emp.create();
-        emp.setValue(db.DATA.DATA, new byte[]{1,2,3});
+        emp.set(db.DATA.DATA, new byte[]{1,2,3});
         emp.update();
 		
 		// read a value
@@ -119,7 +119,7 @@ public class DBMSHandlerPostgreSQLTest
 		try {
 	        reader.open(cmd);
 	        while(reader.moveNext()){
-	            byte[] value = (byte[]) reader.getValue(db.DATA.DATA);
+	            byte[] value = (byte[]) reader.get(db.DATA.DATA);
 	            Assert.assertArrayEquals(new byte[]{1,2,3}, value);
 	        }
 		} finally {

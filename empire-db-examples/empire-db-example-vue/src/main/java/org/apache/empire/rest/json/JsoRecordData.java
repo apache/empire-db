@@ -85,7 +85,7 @@ public class JsoRecordData extends LinkedHashMap<String, Object>
         super(rec.getFieldCount());
         for (int i=0; i<rec.getFieldCount(); i++)
         {
-            String prop = rec.getColumnExpr(i).getBeanPropertyName();
+            String prop = rec.getColumn(i).getBeanPropertyName();
             if (prop==null)
                 continue;
             put(prop, rec.getValue(i));

@@ -239,8 +239,8 @@ public class SampleApplication extends WebApplication {
 		// Insert a Department
 		DBRecord rec = new DBRecord(context, sampleDB.T_DEPARTMENTS);
 		rec.create();
-		rec.setValue(sampleDB.T_DEPARTMENTS.NAME, department_name);
-		rec.setValue(sampleDB.T_DEPARTMENTS.BUSINESS_UNIT, businessUnit);
+		rec.set(sampleDB.T_DEPARTMENTS.NAME, department_name);
+		rec.set(sampleDB.T_DEPARTMENTS.BUSINESS_UNIT, businessUnit);
 		try {
 			rec.update();
 		} catch (Exception e) {
@@ -258,11 +258,11 @@ public class SampleApplication extends WebApplication {
 		// Insert an Employee
 		DBRecord rec = new DBRecord(context, sampleDB.T_EMPLOYEES);
 		rec.create();
-		rec.setValue(sampleDB.T_EMPLOYEES.SALUTATION, salutation);
-		rec.setValue(sampleDB.T_EMPLOYEES.FIRST_NAME, firstName);
-		rec.setValue(sampleDB.T_EMPLOYEES.LAST_NAME, lastName);
-		rec.setValue(sampleDB.T_EMPLOYEES.GENDER, gender);
-		rec.setValue(sampleDB.T_EMPLOYEES.DEPARTMENT_ID, depID);
+		rec.set(sampleDB.T_EMPLOYEES.SALUTATION, salutation);
+		rec.set(sampleDB.T_EMPLOYEES.FIRST_NAME, firstName);
+		rec.set(sampleDB.T_EMPLOYEES.LAST_NAME, lastName);
+		rec.set(sampleDB.T_EMPLOYEES.GENDER, gender);
+		rec.set(sampleDB.T_EMPLOYEES.DEPARTMENT_ID, depID);
 		try {
 			rec.update();
 		} catch (Exception e) {

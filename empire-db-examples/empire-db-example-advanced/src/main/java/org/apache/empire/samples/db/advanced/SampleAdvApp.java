@@ -167,7 +167,7 @@ public class SampleAdvApp
         System.out.println("*** bulkReadRecords: reads employee records into a hashmap, reads employee from hashmap and updates employee ***");
         HashMap<Integer, DBRecord> employeeMap = bulkReadRecords(conn);
         DBRecord rec = employeeMap.get(idEmp2);
-        rec.setValue(db.T_EMPLOYEES.C_SALUTATION, "Mr.");
+        rec.set(db.T_EMPLOYEES.C_SALUTATION, "Mr.");
         rec.update();
 
         // STEP 10: bulkProcessRecords
@@ -297,8 +297,8 @@ public class SampleAdvApp
         // Insert a Department
         DBRecord rec = new DBRecord(context, T_DEP);
         rec.create();
-        rec.setValue(T_DEP.C_NAME, departmentName);
-        rec.setValue(T_DEP.C_BUSINESS_UNIT, businessUnit);
+        rec.set(T_DEP.C_NAME, departmentName);
+        rec.set(T_DEP.C_BUSINESS_UNIT, businessUnit);
         rec.update();
         // Return Department ID
         return rec.getInt(T_DEP.C_DEPARTMENT_ID);
@@ -314,9 +314,9 @@ public class SampleAdvApp
         // Insert an Employee
         DBRecord rec = new DBRecord(context, T_EMP);
         rec.create();
-        rec.setValue(T_EMP.C_FIRSTNAME, firstName);
-        rec.setValue(T_EMP.C_LASTNAME, lastName);
-        rec.setValue(T_EMP.C_GENDER, gender);
+        rec.set(T_EMP.C_FIRSTNAME, firstName);
+        rec.set(T_EMP.C_LASTNAME, lastName);
+        rec.set(T_EMP.C_GENDER, gender);
         rec.update();
         // Return Employee ID
         return rec.getInt(T_EMP.C_EMPLOYEE_ID);
@@ -435,7 +435,7 @@ public class SampleAdvApp
                 // Init updateable record
                 reader.initRecord(record);
                 // reader
-                record.setValue(T_EMP.C_CHECKSUM, sum);
+                record.set(T_EMP.C_CHECKSUM, sum);
                 record.update();
             }
             // Done
@@ -512,7 +512,7 @@ public class SampleAdvApp
         System.out.println("Changing the value for the FOO field of a particular employee:");
         DBRecord rec = new DBRecord(context, db.T_EMPLOYEES);
         rec.read(idTestPerson);
-        rec.setValue(C_FOO, "Hello World");
+        rec.set(C_FOO, "Hello World");
         rec.update();
         
         // Now extend the size of the field from 20 to 40 characters
@@ -524,7 +524,7 @@ public class SampleAdvApp
 
         // Now set a longer value for the record
         System.out.println("Changing the value for the FOO field for the above employee to a longer string:");
-        rec.setValue(C_FOO, "This is a very long field value!");
+        rec.set(C_FOO, "This is a very long field value!");
         rec.update();
 
         // Finally, drop the column again
@@ -581,8 +581,8 @@ public class SampleAdvApp
         DBRecord rec = new DBRecord(context, Q_EMP_DEP);
         rec.read(employeeId);
         // Modify and Update fields from both Employee and Department
-        rec.setValue(T_EMP.C_PHONE_NUMBER, "0815-4711");
-        rec.setValue(T_DEP.C_BUSINESS_UNIT, "AUTO");
+        rec.set(T_EMP.C_PHONE_NUMBER, "0815-4711");
+        rec.set(T_DEP.C_BUSINESS_UNIT, "AUTO");
         rec.update();
         // Successfully updated
         System.out.println("The employee has been sucessfully updated");

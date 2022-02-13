@@ -362,7 +362,7 @@ public class DBQuery extends DBRowSet
             {   // create key
                 Object[] recordKey = new Object[keyColumns.length];
                 for (int i=0; i<recordKey.length; i++)
-                    recordKey[i]=recData.getValue(keyColumns[i]);
+                    recordKey[i]=recData.get(keyColumns[i]);
                 rowsetData = recordKey;
                 setRowsetData(record, rowsetData);
             }

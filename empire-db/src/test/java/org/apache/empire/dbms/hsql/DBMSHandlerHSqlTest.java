@@ -64,8 +64,8 @@ public class DBMSHandlerHSqlTest{
         
         DBRecord dep = new DBRecord(context, db.DEPARTMENT);
         dep.create();
-        dep.setValue(db.DEPARTMENT.NAME, "junit");
-        dep.setValue(db.DEPARTMENT.BUSINESS_UNIT, "test");
+        dep.set(db.DEPARTMENT.NAME, "junit");
+        dep.set(db.DEPARTMENT.BUSINESS_UNIT, "test");
         dep.update();
         
         Date date = dep.getDateTime(db.DEPARTMENT.UPDATE_TIMESTAMP);
@@ -74,20 +74,20 @@ public class DBMSHandlerHSqlTest{
         
         DBRecord emp = new DBRecord(context, db.EMPLOYEE);
         emp.create();
-        assertNotNull("Employee-ID is null", emp.getValue(db.EMPLOYEE.ID));
-        emp.setValue(db.EMPLOYEE.FIRSTNAME, "junit");
-        emp.setValue(db.EMPLOYEE.LASTNAME, "test");
-        emp.setValue(db.EMPLOYEE.GENDER, "m");
-        emp.setValue(db.EMPLOYEE.DEPARTMENT_ID, dep.getInt(db.DEPARTMENT.ID));
+        assertNotNull("Employee-ID is null", emp.get(db.EMPLOYEE.ID));
+        emp.set(db.EMPLOYEE.FIRSTNAME, "junit");
+        emp.set(db.EMPLOYEE.LASTNAME, "test");
+        emp.set(db.EMPLOYEE.GENDER, "m");
+        emp.set(db.EMPLOYEE.DEPARTMENT_ID, dep.getInt(db.DEPARTMENT.ID));
         emp.update();
         
         DBRecord emp2 = new DBRecord(context, db.EMPLOYEE);
         emp2.create(null);
-        assertNull("Employee-ID is NOT null", emp2.getValue(db.EMPLOYEE.ID));
-        emp2.setValue(db.EMPLOYEE.FIRSTNAME, "junit2");
-        emp2.setValue(db.EMPLOYEE.LASTNAME, "test2");
-        emp2.setValue(db.EMPLOYEE.GENDER, "m");
-        emp2.setValue(db.EMPLOYEE.DEPARTMENT_ID, dep.getInt(db.DEPARTMENT.ID));
+        assertNull("Employee-ID is NOT null", emp2.get(db.EMPLOYEE.ID));
+        emp2.set(db.EMPLOYEE.FIRSTNAME, "junit2");
+        emp2.set(db.EMPLOYEE.LASTNAME, "test2");
+        emp2.set(db.EMPLOYEE.GENDER, "m");
+        emp2.set(db.EMPLOYEE.DEPARTMENT_ID, dep.getInt(db.DEPARTMENT.ID));
         emp2.update();
         
         date = emp.getDateTime(db.EMPLOYEE.UPDATE_TIMESTAMP);
@@ -100,7 +100,7 @@ public class DBMSHandlerHSqlTest{
         emp = new DBRecord(context, db.EMPLOYEE);
         emp.read(id);
         // Set
-        emp.setValue(db.EMPLOYEE.PHONE_NUMBER, "123456");
+        emp.set(db.EMPLOYEE.PHONE_NUMBER, "123456");
         emp.update();
         
         emp = new DBRecord(context, db.EMPLOYEE);
@@ -132,7 +132,7 @@ public class DBMSHandlerHSqlTest{
         
         DBRecord data = new DBRecord(context, db.DATA);
         data.create();
-        data.setValue(db.DATA.VALUE, "test");
+        data.set(db.DATA.VALUE, "test");
         data.update();
         
         final long id = data.getLong(db.DATA.ID);

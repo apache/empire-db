@@ -115,16 +115,16 @@ public class IntegerTest {
 
         DBRecord maxRec = new DBRecord(context, database.SAMPLE);
         maxRec.create();
-        maxRec.setValue(database.SAMPLE.MY_INTEGER, Integer.MAX_VALUE);
-        maxRec.setValue(database.SAMPLE.MY_LONG, Long.MAX_VALUE);
-        maxRec.setValue(database.SAMPLE.MY_SHORT, Short.MAX_VALUE);
+        maxRec.set(database.SAMPLE.MY_INTEGER, Integer.MAX_VALUE);
+        maxRec.set(database.SAMPLE.MY_LONG, Long.MAX_VALUE);
+        maxRec.set(database.SAMPLE.MY_SHORT, Short.MAX_VALUE);
         maxRec.update();
         
         DBRecord minRec = new DBRecord(context, database.SAMPLE);
         minRec.create();
-        minRec.setValue(database.SAMPLE.MY_INTEGER, Integer.MIN_VALUE);
-        minRec.setValue(database.SAMPLE.MY_LONG, Long.MIN_VALUE);
-        minRec.setValue(database.SAMPLE.MY_SHORT, Short.MIN_VALUE);
+        minRec.set(database.SAMPLE.MY_INTEGER, Integer.MIN_VALUE);
+        minRec.set(database.SAMPLE.MY_LONG, Long.MIN_VALUE);
+        minRec.set(database.SAMPLE.MY_SHORT, Short.MIN_VALUE);
         minRec.update();
     }
 

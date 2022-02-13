@@ -119,7 +119,7 @@ public class BeanRecordProxy<T> implements Record
         // Get key values
         Object[] key = new Object[keyColumns.length];
         for (int i=0; i<keyColumns.length; i++)
-            key[i] = this.getValue(keyColumns[i]);
+            key[i] = this.get(keyColumns[i]);
         // the key
         return key;
     }
@@ -196,7 +196,7 @@ public class BeanRecordProxy<T> implements Record
         {   // Check all Key Columns
             for (int i=0; i<keyColumns.length; i++)
             {
-                Object value = getValue(keyColumns[i]);
+                Object value = get(keyColumns[i]);
                 if ((value instanceof Number) && ((Number)value).longValue()==0)
                     return true;
                 if (ObjectUtils.isEmpty(value))
@@ -226,7 +226,7 @@ public class BeanRecordProxy<T> implements Record
     }
 
     @Override
-    public Object getValue(ColumnExpr column)
+    public Object get(ColumnExpr column)
     {
         if (!isValid())
             throw new ObjectNotValidException(this);
@@ -237,13 +237,13 @@ public class BeanRecordProxy<T> implements Record
     @Override
     public Object getValue(int index)
     {
-        return getValue(getColumn(index));
+        return get(getColumn(index));
     }
 
     @Override
     public boolean isNull(ColumnExpr column)
     {
-        return ObjectUtils.isEmpty(getValue(column));
+        return ObjectUtils.isEmpty(get(column));
     }
 
     @Override
@@ -265,12 +265,12 @@ public class BeanRecordProxy<T> implements Record
      * sets the value of a field.
      */
     @Override
-    public void setValue(Column column, Object value)
+    public BeanRecordProxy<T> set(Column column, Object value)
     {
         if (!isValid())
             throw new ObjectNotValidException(this);
         // Track modification status
-        if (ObjectUtils.compareEqual(getValue(column), value)==false)
+        if (ObjectUtils.compareEqual(get(column), value)==false)
         {
             if (modified== null)
                 modified = new boolean[columns.size()]; 
@@ -280,6 +280,7 @@ public class BeanRecordProxy<T> implements Record
         value = validateValue(column, value);
         // Set Value
         setBeanPropertyValue(data, column, value);
+        return this;
     }
 
     /**
@@ -288,7 +289,7 @@ public class BeanRecordProxy<T> implements Record
     @Override
     public final void setValue(int i, Object value)
     {
-        setValue(getColumn(i), value);
+        set(getColumn(i), value);
     }
 
     /**
@@ -353,7 +354,7 @@ public class BeanRecordProxy<T> implements Record
             // Get Property Name
             String property = column.getBeanPropertyName();
             Object value = getBeanPropertyValue(bean, property);
-            setValue(column, value);
+            set(column, value);
             count++;
         }
         return count;

@@ -54,8 +54,8 @@ public class PreparedStatementTest{
         
         DBRecord department = new DBRecord(context, db.DEPARTMENT);
         department.create();
-        department.setValue(db.DEPARTMENT.NAME, "junit");
-        department.setValue(db.DEPARTMENT.BUSINESS_UNIT, "test");
+        department.set(db.DEPARTMENT.NAME, "junit");
+        department.set(db.DEPARTMENT.BUSINESS_UNIT, "test");
         department.update();
 
         int id = department.getInt(db.DEPARTMENT.ID);

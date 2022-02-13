@@ -598,7 +598,7 @@ public class BeanListPageElement<T> extends ListPageElement<T> implements ListIt
         {
             if (item instanceof DBRecordData)
             {
-                key[i] = ((DBRecordData) item).getValue(cols[i]);
+                key[i] = ((DBRecordData) item).get(cols[i]);
             }
             else
             { // Bean Property Name

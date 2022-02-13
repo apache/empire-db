@@ -94,9 +94,9 @@ public class DBMSHandlerMSSqlDateTest {
 			dbms.executeSQL("SET DATEFORMAT " + dbDateFormat, null, conn, null);
 			DBRecord rec = new DBRecord(context, db.USER_INFO);
 			rec.create();
-			rec.setValue(db.USER_INFO.USER, "john.doe");
-			rec.setValue(db.USER_INFO.REG_DATE, regDate);
-			rec.setValue(db.USER_INFO.LAST_LOGIN, lastLoginTs);
+			rec.set(db.USER_INFO.USER, "john.doe");
+			rec.set(db.USER_INFO.REG_DATE, regDate);
+			rec.set(db.USER_INFO.LAST_LOGIN, lastLoginTs);
 			rec.update();
 
 			int id = rec.getInt(db.USER_INFO.ID);

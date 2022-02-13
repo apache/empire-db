@@ -136,7 +136,7 @@ public interface Record extends RecordData
      * @param column the requested column
      * @param value the new record value for the given column
      */
-    void setValue(Column column, Object value);
+    Record set(Column column, Object value);
 
     /**
      * Validates a value before it is set in the record.

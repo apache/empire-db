@@ -300,23 +300,19 @@ public class DBRecord extends DBRecordBase
 
      * @param column a DBColumn object
      * @param value the value
-     */
     public final Object get(Column column)
     {   
         return getValue(column);
     }
+     */
 
     /**
-     * Sets the value of a column in the record.
-     * Same as setValue but allows chaining as it returns itself
-
-     * @param column a DBColumn object
-     * @param value the value
+     * Overridden to change return type from DBCommandExpr to DBCommand
      */
-    public final DBRecord set(Column column, Object value)
-    {   
-        setValue(getFieldIndex(column), value);
-        return this;
+    @Override
+    public DBRecord set(Column column, Object value)
+    {
+        return (DBRecord)super.set(column, value);
     }
 
     /**

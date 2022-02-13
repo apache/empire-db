@@ -86,13 +86,40 @@ public abstract class DBRecordData extends DBObject
     public abstract Object getValue(int index);
     
     /**
+     * @Deprecated Renamed to get(...)   
+     */
+    @Deprecated
+    public Object getValue(ColumnExpr column)
+    {
+        return get(column);
+    }
+
+    /**
+     * @Deprecated Renamed to get(...)   
+     */
+    @Deprecated
+    public final <T> T getValue(Column column, Class<T> returnType)
+    {
+        return get(column, returnType);
+    }
+
+    /**
+     * @Deprecated Renamed to get(...)   
+     */
+    @Deprecated
+    public final Object[] getValue(ColumnExpr... columns)
+    {
+        return get(columns);
+    }
+    
+    /**
      * Returns a data value for the desired column .
      * 
      * @param column the column for which to obtain the value
      * @return the record value
      */
     @Override
-    public final Object getValue(ColumnExpr column)
+    public final Object get(ColumnExpr column)
     {
         int index = getFieldIndex(column);
         if (index<0)
@@ -102,27 +129,13 @@ public abstract class DBRecordData extends DBObject
 
     /**
      * Returns the value of a field as an object of a given (wrapper)type
-     * @param index index of the field
-     * @param returnType the type of the returned value
-     * @return the value
-     */
-    public <T> T getValue(int index, Class<T> returnType)
-    {
-        return ObjectUtils.convert(returnType, getValue(index));
-    }
-
-    /**
-     * Returns the value of a field as an object of a given (wrapper)type
      * @param column the column for which to retrieve the value
      * @param returnType the type of the returned value
      * @return the value
      */
-    public final <T> T getValue(Column column, Class<T> returnType)
+    public final <T> T get(Column column, Class<T> returnType)
     {
-        int index = getFieldIndex(column);
-        if (index<0)
-            throw new ItemNotFoundException(column.getName()); 
-        return getValue(index, returnType);
+        return ObjectUtils.convert(returnType, get(column));
     }
 
     /**
@@ -131,7 +144,7 @@ public abstract class DBRecordData extends DBObject
      * @param column the column expressions
      * @return the corresponding record values
      */
-    public final Object[] getValues(ColumnExpr... columns)
+    public final Object[] get(ColumnExpr... columns)
     {
         Object[] values = new Object[columns.length];
         for (int i=0; i<columns.length; i++)
@@ -427,7 +440,7 @@ public abstract class DBRecordData extends DBObject
     @Override
     public boolean isNull(int index)
     {
-        return (getValue(index) == null);
+        return ObjectUtils.isEmpty(getValue(index));
     }
 
     /**

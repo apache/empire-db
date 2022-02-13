@@ -62,8 +62,8 @@ public class DBMSHandlerSQLiteTest{
         
         DBRecord dep = new DBRecord(context, db.DEPARTMENT);
         dep.create();
-        dep.setValue(db.DEPARTMENT.NAME, "junit");
-        dep.setValue(db.DEPARTMENT.BUSINESS_UNIT, "test");
+        dep.set(db.DEPARTMENT.NAME, "junit");
+        dep.set(db.DEPARTMENT.BUSINESS_UNIT, "test");
         dep.update();
         
         Date date = dep.getDateTime(db.DEPARTMENT.UPDATE_TIMESTAMP);
@@ -72,10 +72,10 @@ public class DBMSHandlerSQLiteTest{
         
         DBRecord emp = new DBRecord(context, db.EMPLOYEE);
         emp.create();
-        emp.setValue(db.EMPLOYEE.FIRSTNAME, "junit");
-        emp.setValue(db.EMPLOYEE.LASTNAME, "test");
-        emp.setValue(db.EMPLOYEE.GENDER, "m");
-        emp.setValue(db.EMPLOYEE.DEPARTMENT_ID, dep.getInt(db.DEPARTMENT.ID));
+        emp.set(db.EMPLOYEE.FIRSTNAME, "junit");
+        emp.set(db.EMPLOYEE.LASTNAME, "test");
+        emp.set(db.EMPLOYEE.GENDER, "m");
+        emp.set(db.EMPLOYEE.DEPARTMENT_ID, dep.getInt(db.DEPARTMENT.ID));
         emp.update();
         
         date = emp.getDateTime(db.EMPLOYEE.UPDATE_TIMESTAMP);
@@ -88,7 +88,7 @@ public class DBMSHandlerSQLiteTest{
         emp = new DBRecord(context, db.EMPLOYEE);
         emp.read(id);
         // Set
-        emp.setValue(db.EMPLOYEE.PHONE_NUMBER, "123456");
+        emp.set(db.EMPLOYEE.PHONE_NUMBER, "123456");
         emp.update();
         
         emp = new DBRecord(context, db.EMPLOYEE);
@@ -121,7 +121,7 @@ public class DBMSHandlerSQLiteTest{
         
         DBRecord data = new DBRecord(context, db.DATA);
         data.create();
-        data.setValue(db.DATA.VALUE, "test");
+        data.set(db.DATA.VALUE, "test");
         data.update();
         
         final long id = data.getLong(db.DATA.ID);

@@ -613,7 +613,7 @@ public class DBTable extends DBRowSet implements Cloneable
             cmd.select(count());
             for (DBColumn c : idx.getColumns())
             {
-                Object value = rec.getValue(c);
+                Object value = rec.get(c);
                 cmd.where(c.is(value));
             }
             DBUtils utils = rec.getContext().getUtils();

@@ -68,8 +68,8 @@ public class DBMSHandlerMSSqlTest
 		clearDatabase(context, db);
 
 		DBRecord dep = new DBRecord(context, db.DEPARTMENT);
-		dep.setValue(db.DEPARTMENT.NAME, "junit");
-		dep.setValue(db.DEPARTMENT.BUSINESS_UNIT, "中文");
+		dep.set(db.DEPARTMENT.NAME, "junit");
+		dep.set(db.DEPARTMENT.BUSINESS_UNIT, "中文");
 		dep.update();
 
 		int id = dep.getInt(db.DEPARTMENT.ID);

@@ -63,7 +63,7 @@ public class DataListEntry implements RecordData, Serializable
         Column[] keyColumns = entity.getKeyColumns();
         Object[] key = new Object[keyColumns.length];
         for (int i=0; i<key.length; i++)
-            key[i] = this.getValue(keyColumns[i]);
+            key[i] = this.get(keyColumns[i]);
         return key;
     }
 
@@ -73,7 +73,7 @@ public class DataListEntry implements RecordData, Serializable
         if (keyColumns.length!=1)
             throw new InvalidArgumentException("entity", entity.getName());
         // return id
-        return ObjectUtils.getLong(getValue(keyColumns[0]));
+        return ObjectUtils.getLong(get(keyColumns[0]));
     }
     
     public boolean compareKey(Column[] keyColumns, Object[] key)
@@ -169,21 +169,37 @@ public class DataListEntry implements RecordData, Serializable
     }
     
     @Override
-    public Object getValue(ColumnExpr column)
+    public final Object get(ColumnExpr column)
     {
         return getValue(indexOf(column));
+    }
+
+    public final <T> T get(Column column, Class<T> returnType)
+    {
+        return ObjectUtils.convert(returnType, get(column));
+    }
+
+    public final Object[] get(ColumnExpr... columns)
+    {
+        Object[] values = new Object[columns.length];
+        for (int i=0; i<columns.length; i++)
+        {
+            int index = getFieldIndex(columns[i]);
+            if (index<0)
+                throw new ItemNotFoundException(columns[i].getName()); 
+            values[i] = getValue(index);
+        }
+        return values;
     }
     
     @Override
     public boolean isNull(int index)
     {
-        if (index<0 || index>=values.length)
-            throw new InvalidArgumentException("index", index);
-        return ObjectUtils.isEmpty(values[index]);
+        return ObjectUtils.isEmpty(getValue(index));
     }
     
     @Override
-    public boolean isNull(ColumnExpr column)
+    public final boolean isNull(ColumnExpr column)
     {
         return isNull(indexOf(column));
     }

@@ -541,7 +541,7 @@ public abstract class DBRecordBase extends DBRecordData implements Record, Clone
         Object[] key = new Object[keyColumns.length];
         for (int i = 0; i < keyColumns.length; i++)
         {
-            key[i] = getValue(keyColumns[i]);
+            key[i] = get(keyColumns[i]);
             if (key[i] == null)
             { // Primary Key not set
                 log.warn("DBRecord.getKey() failed: " + getRowSet().getName() + " primary key value is null!");
@@ -690,6 +690,15 @@ public abstract class DBRecordBase extends DBRecordData implements Record, Clone
     }
 
     /**
+     * @Deprecated Renamed to set(...)   
+     */
+    @Deprecated
+    public DBRecordBase setValue(Column column, Object value)
+    {
+        return set(column, value);
+    }
+
+    /**
      * Sets the value of a column in the record.
      * The functions checks if the column and the value are valid and whether the
      * value has changed.
@@ -698,9 +707,10 @@ public abstract class DBRecordBase extends DBRecordData implements Record, Clone
      * @param value the value
      */
     @Override
-    public final void setValue(Column column, Object value)
+    public DBRecordBase set(Column column, Object value)
     {   
         setValue(getFieldIndex(column), value);
+        return this;
     }
 
     /**
@@ -823,7 +833,7 @@ public abstract class DBRecordBase extends DBRecordData implements Record, Clone
         {   // clear parent 
             if (parentRecordMap!=null)
                 parentRecordMap.remove(parentIdColumn);
-            setValue(parentIdColumn, null);
+            set(parentIdColumn, null);
             return;
         }
         // set key or record
@@ -1125,7 +1135,7 @@ public abstract class DBRecordBase extends DBRecordData implements Record, Clone
             PropertyUtilsBean pub = BeanUtilsBean.getInstance().getPropertyUtils();
             Object value = pub.getSimpleProperty(bean, property);
             // Now, set the record value
-            setValue( column, value ); 
+            set( column, value ); 
             // done
         } catch (IllegalAccessException e)
         {   log.error(bean.getClass().getName() + ": unable to get property '" + property + "'");
@@ -1157,7 +1167,7 @@ public abstract class DBRecordBase extends DBRecordData implements Record, Clone
                 throw new ObjectNotValidException(e.getValue());
             // Set key
             log.info("Deffered setting of {} to {}!", parentIdColumn.getName(), keyValue);
-            setValue(parentIdColumn, keyValue);
+            set(parentIdColumn, keyValue);
         }
         parentRecordMap.clear();
     }

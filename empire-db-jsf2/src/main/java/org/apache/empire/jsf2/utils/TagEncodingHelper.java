@@ -709,7 +709,7 @@ public class TagEncodingHelper implements NamingContainer
             if (record instanceof RecordData)
             { // a record
                 ColumnExpr col = unwrapColumnExpr(getColumn());
-                mostRecentValue = ((RecordData) record).getValue(col);
+                mostRecentValue = ((RecordData) record).get(col);
                 return mostRecentValue;
             }   
             else
@@ -751,7 +751,7 @@ public class TagEncodingHelper implements NamingContainer
                 */
                 if (mostRecentValue!=null && isDetectFieldChange())
                 {   // DetectFieldChange by comparing current and most recent value
-                    Object currentValue = ((Record) record).getValue(column);
+                    Object currentValue = ((Record) record).get(column);
                     if (!ObjectUtils.compareEqual(currentValue, mostRecentValue))
                     {   // Value has been changed by someone else!
                         log.info("Concurrent data change for "+column.getName()+". Current Value is {}. Ignoring new value {}", currentValue, value);
@@ -777,7 +777,7 @@ public class TagEncodingHelper implements NamingContainer
                 }
                 // Now, set the value
                 try {
-                    ((Record) record).setValue(column, value);
+                    ((Record) record).set(column, value);
                     mostRecentValue = value;
                 } finally {
                     // re-enable validation
@@ -1251,7 +1251,7 @@ public class TagEncodingHelper implements NamingContainer
             {   // value
                 if (record instanceof RecordData)
                 { // a record
-                    value = ((RecordData) record).getValue(ttc);
+                    value = ((RecordData) record).get(ttc);
                 }
                 else
                 { // a normal bean
@@ -1370,7 +1370,7 @@ public class TagEncodingHelper implements NamingContainer
             Column col = ((Column)value);
             Object rec = getRecord();
             if (rec instanceof Record)
-                return ((Record)rec).getValue(col);
+                return ((Record)rec).get(col);
             else if (rec!=null)
             {   // Get Value from a bean
                 String property = col.getBeanPropertyName();

@@ -227,7 +227,7 @@ public class DBBeanListFactoryImpl<T> implements DBBeanListFactory<T>
                     if (enumType!=null)
                         params[i++] = recData.getEnum(expr, enumType);
                     else
-                        params[i++] = recData.getValue(expr);
+                        params[i++] = recData.get(expr);
                     // log
                     if (log.isTraceEnabled())
                         log.trace("{}: constructor param '{}' is {}", constructor.getDeclaringClass().getName(), StringUtils.coalesce(expr.getName(), String.valueOf(i-1)), params[i-1]);

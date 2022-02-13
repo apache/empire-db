@@ -248,28 +248,12 @@ public class DBRecordBean extends DBRecordBase
     }
 
     /**
-     * Sets the value of a column in the record.
-     * Same as getValue but provided in conjunction with set(...)
-
-     * @param column a DBColumn object
-     * @param value the value
+     * Overridden to change return type from DBCommandExpr to DBCommand
      */
-    public final Object get(Column column)
-    {   
-        return getValue(column);
-    }
-
-    /**
-     * Sets the value of a column in the record.
-     * Same as setValue but allows chaining as it returns itself
-
-     * @param column a DBColumn object
-     * @param value the value
-     */
-    public final DBRecordBean set(Column column, Object value)
-    {   
-        setValue(getFieldIndex(column), value);
-        return this;
+    @Override
+    public DBRecordBean set(Column column, Object value)
+    {
+        return (DBRecordBean)super.set(column, value);
     }
     
     /**
