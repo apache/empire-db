@@ -315,7 +315,6 @@ public class BeanRecordProxy<T> implements Record
 
     // --------------- Bean support ------------------
 
-    @Override
     public int setBeanProperties(Object bean)
     {
         return setBeanProperties(bean, null);

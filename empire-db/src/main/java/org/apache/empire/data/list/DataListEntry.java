@@ -173,6 +173,15 @@ public class DataListEntry implements RecordData, Serializable
     {
         return getValue(indexOf(column));
     }
+    
+    /**
+     * @Deprecated Renamed to get(...)   
+     */
+    @Deprecated
+    public Object getValue(ColumnExpr column)
+    {
+        return get(column);
+    }
 
     public final <T> T get(Column column, Class<T> returnType)
     {
@@ -196,24 +205,6 @@ public class DataListEntry implements RecordData, Serializable
     public boolean isNull(int index)
     {
         return ObjectUtils.isEmpty(getValue(index));
-    }
-    
-    @Override
-    public final boolean isNull(ColumnExpr column)
-    {
-        return isNull(indexOf(column));
-    }
-    
-    @Override
-    public int setBeanProperties(Object bean, Collection<? extends ColumnExpr> ignoreList)
-    {
-        throw new NotImplementedException(this, "setBeanProperties");
-    }
-    
-    @Override
-    public int setBeanProperties(Object bean)
-    {
-        return setBeanProperties(bean, null);
     }
     
     /*
@@ -299,6 +290,23 @@ public class DataListEntry implements RecordData, Serializable
     public final Date getDate(ColumnExpr column)
     {
         return getDate(indexOf(column));
+    }
+    
+    @Override
+    public final boolean isNull(ColumnExpr column)
+    {
+        return isNull(indexOf(column));
+    }
+    
+    @Override
+    public int setBeanProperties(Object bean, Collection<? extends ColumnExpr> ignoreList)
+    {
+        throw new NotImplementedException(this, "setBeanProperties");
+    }
+    
+    public int setBeanProperties(Object bean)
+    {
+        return setBeanProperties(bean, null);
     }
     
     /*

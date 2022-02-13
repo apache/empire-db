@@ -100,13 +100,4 @@ public interface RecordData
      */
     int setBeanProperties(Object bean, Collection<? extends ColumnExpr> ignoreList);
 
-    /**
-     * copies all field values into a static Java Bean.
-     * <P>
-     * In order to map column names to property names 
-     * the property name is detected by ColumnExpr.getBeanPropertyName()     
-     * @param bean the Java Bean for which to set the properties
-     */
-    int setBeanProperties(Object bean);
-
 }

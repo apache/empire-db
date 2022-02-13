@@ -544,7 +544,6 @@ public abstract class DBRecordData extends DBObject
      * 
      * @return the number of bean properties set on the supplied bean
      */
-    @Override
     public final int setBeanProperties(Object bean)
     {
         return setBeanProperties(bean, null);
