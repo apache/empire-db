@@ -102,12 +102,6 @@ public class BeanRecordProxy<T> implements Record
     }
 
     @Override
-    public ColumnExpr getColumnExpr(int index)
-    {
-        return columns.get(index);
-    }
-
-    @Override
     public Column[] getKeyColumns()
     {
         return keyColumns;

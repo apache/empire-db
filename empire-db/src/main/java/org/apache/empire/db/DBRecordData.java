@@ -71,10 +71,6 @@ public abstract class DBRecordData extends DBObject
     @Override
     public abstract int getFieldIndex(String column);
 
-    // Column lookup
-    @Override
-    public abstract ColumnExpr getColumnExpr(int i);
-
     // xml
     public abstract int addXmlMeta(Element parent);
     public abstract int addXmlData(Element parent);
@@ -377,7 +373,7 @@ public abstract class DBRecordData extends DBObject
         if (isNull(index))
             return null;
         // convert
-        ColumnExpr col = getColumnExpr(index);
+        ColumnExpr col = getColumn(index);
         try {
             // Convert to enum, depending on DataType
             boolean numeric = col.getDataType().isNumeric();
@@ -518,7 +514,7 @@ public abstract class DBRecordData extends DBObject
         int count = 0;
         for (int i = 0; i < getFieldCount(); i++)
         {   // Check Property
-            ColumnExpr column = getColumnExpr(i);
+            ColumnExpr column = getColumn(i);
             if (ignoreList != null && ignoreList.contains(column))
                 continue; // ignore this property
             // Get Property Name

@@ -333,7 +333,7 @@ public class DBReader extends DBRecordData implements Closeable
     
     /** Get the column Expression at position */
     @Override
-    public DBColumnExpr getColumnExpr(int iColumn)
+    public DBColumnExpr getColumn(int iColumn)
     {
         if (columns == null || iColumn < 0 || iColumn >= columns.length)
             return null; // Index out of range

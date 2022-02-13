@@ -153,7 +153,7 @@ public class DataListEntry implements RecordData, Serializable
     }
     
     @Override
-    public ColumnExpr getColumnExpr(int index)
+    public ColumnExpr getColumn(int index)
     {
         if (index<0 || index>=values.length)
             throw new InvalidArgumentException("index", index);
@@ -253,7 +253,7 @@ public class DataListEntry implements RecordData, Serializable
         if (isNull(index))
             return null;
         // check column data type
-        ColumnExpr col = getColumnExpr(index);
+        ColumnExpr col = getColumn(index);
         boolean numeric = col.getDataType().isNumeric();
         return ObjectUtils.getEnum(enumType, (numeric ? getInt(index) : getValue(index)));
     }

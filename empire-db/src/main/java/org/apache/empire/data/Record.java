@@ -72,10 +72,9 @@ public interface Record extends RecordData
     boolean isNew();
 
     /**
-     * returns the column at the specified index.
-     * @param index index of a requested column
-     * @return the column on the specified index
+     * Overridden to change return type from ColumnExpr to Column
      */
+    @Override
     Column getColumn(int index);
     
     /**

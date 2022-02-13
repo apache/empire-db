@@ -453,16 +453,6 @@ public abstract class DBRecordBase extends DBRecordData implements Record, Clone
     }
     
     /**
-     * Returns a DBColumnExpr object by a specified index value.
-     * @return the index value
-     */
-    @Override
-    public final ColumnExpr getColumnExpr(int index)
-    {
-        return getColumn(index);
-    }
-    
-    /**
      * Returns true if the field was modified.
      * 
      * @param index the field index

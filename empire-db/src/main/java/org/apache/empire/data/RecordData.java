@@ -56,7 +56,7 @@ public interface RecordData
      * @param i field index of the column expression
      * @return the column expression object or null if the index is out of range
      */
-    ColumnExpr getColumnExpr(int i);
+    ColumnExpr getColumn(int i);
 
     /**
      * returns the value of the field at the given index position 

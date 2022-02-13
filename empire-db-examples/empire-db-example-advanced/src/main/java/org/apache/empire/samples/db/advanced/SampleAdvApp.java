@@ -635,7 +635,7 @@ public class SampleAdvApp
             int count = reader.getFieldCount();
             for (int i=0; i<count; i++)
             {   // Print all column names
-                DBColumnExpr c = reader.getColumnExpr(i);
+                DBColumnExpr c = reader.getColumn(i);
                 if (i>0)
                     System.out.print("\t");
                 System.out.print(c.getName());
@@ -650,7 +650,7 @@ public class SampleAdvApp
                     if (i>0)
                         System.out.print("\t");
                     // Check if conversion is necessary
-                    DBColumnExpr c = reader.getColumnExpr(i);
+                    DBColumnExpr c = reader.getColumn(i);
                     Options opt = c.getOptions();
                     if (opt!=null)
                     {   // Option Lookup
