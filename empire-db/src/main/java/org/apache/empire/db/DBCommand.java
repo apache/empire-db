@@ -636,10 +636,14 @@ public abstract class DBCommand extends DBCommandExpr
      * @param joinType type of join ({@link DBJoinType#INNER}, {@link DBJoinType#LEFT}, {@link DBJoinType#RIGHT})
      * @return itself (this) 
      */
-    public final DBCommand join(DBColumnExpr left, DBColumnExpr right, DBJoinType joinType, DBCompareExpr... addlConstraints)
+    public final DBCommand join(DBColumnExpr left, DBColumn right, DBJoinType joinType, DBCompareExpr... addlConstraints)
     {
+        if (left==null || right==null || left.getSourceColumn()==null)
+            throw new InvalidArgumentException("left|right", left);
+        if (left.getSourceColumn().getRowSet()==right.getRowSet())
+            throw new InvalidArgumentException("rowset", left.getSourceColumn().getRowSet().getName()+"|"+right.getRowSet().getName());
+        // create the expression
         DBColumnJoinExpr join = new DBColumnJoinExpr(left, right, joinType);
-        join(join);
         // additional constraints
         DBCompareExpr where = null;
         for (int i=0; i<addlConstraints.length; i++)
@@ -647,6 +651,42 @@ public abstract class DBCommand extends DBCommandExpr
         if (where!=null)
             join.where(where);
         // done
+        join(join);
+        return this;
+    }
+
+    /**
+     * Multi-Column version of column based join expression
+     * @param left the columsn on the left
+     * @param right the columns on the right
+     * @param joinType the joinType
+     * @param addlConstraints addlConstraints
+     * @return itself (this) 
+     */
+    public final DBCommand join(DBColumn[] left, DBColumn[] right, DBJoinType joinType, DBCompareExpr... addlConstraints)
+    {
+        // check params
+        if (left==null || right==null || left.length==0 || left.length!=right.length)
+            throw new InvalidArgumentException("left|right", left);
+        if (left[0].getRowSet()==right[0].getRowSet())
+            throw new InvalidArgumentException("rowset", left[0].getSourceColumn().getRowSet().getName()+"|"+right[0].getRowSet().getName());
+        /*
+         * TODO: Find a better solution / Make DBColumnJoinExpr multi-column
+         */
+        DBColumnJoinExpr join = new DBColumnJoinExpr(left[0], right[0], joinType);
+        // additional constraints
+        DBCompareExpr where = null;
+        for (int i=1; i<left.length; i++)
+        {   // add to where list
+            DBCompareExpr cmpExpr = right[i].is(left[i]);
+            where = (where!=null ? where.and(cmpExpr) : cmpExpr);
+        }
+        for (int i=0; i<addlConstraints.length; i++)
+            where = (where!=null ? where.and(addlConstraints[i]) : addlConstraints[i]);
+        if (where!=null)
+            join.where(where);
+        // done
+        join(join);
         return this;
     }
     

@@ -33,6 +33,7 @@ import java.util.List;
 import java.util.Locale;
 
 import org.apache.commons.beanutils.MethodUtils;
+import org.apache.empire.exceptions.InvalidArgumentException;
 import org.apache.empire.exceptions.InvalidValueException;
 import org.apache.empire.exceptions.ItemNotFoundException;
 import org.slf4j.Logger;
@@ -917,6 +918,22 @@ public final class ObjectUtils
         List<T> target = new ArrayList<T>(source.size());
         target.addAll(source);
         return target;
+    }
+    
+    /**
+     * Converts varArgs to an array
+     * 
+     * @param t the type of the array
+     * @param values the array values
+     * 
+     * @return the array
+     */
+    @SafeVarargs
+    public static <T> T[] toArray(Class<T> t, T... values)
+    {
+        if (values.length==0)
+            throw new InvalidArgumentException("values", values);
+        return values;
     }
     
     /**

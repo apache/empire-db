@@ -29,6 +29,7 @@ import org.apache.empire.data.Column;
 import org.apache.empire.data.ColumnExpr;
 import org.apache.empire.data.EntityType;
 import org.apache.empire.data.RecordData;
+import org.apache.empire.db.exceptions.NoPrimaryKeyException;
 import org.apache.empire.exceptions.InvalidArgumentException;
 import org.apache.empire.exceptions.ItemNotFoundException;
 import org.apache.empire.exceptions.NotImplementedException;
@@ -58,24 +59,44 @@ public class DataListEntry implements RecordData, Serializable
         return (T)this.head;
     }
     
-    public Object[] getRecordKey(EntityType entity)
+    /**
+     * Returns the record key for a type of entity
+     * @param entityType the entity type or rowset for which to get key
+     * @return the record key
+     */
+    public Object[] getRecordKey(EntityType entityType)
     {
-        Column[] keyColumns = entity.getKeyColumns();
+        Column[] keyColumns = entityType.getKeyColumns();
+        if (keyColumns==null || keyColumns.length==0)
+            throw new NoPrimaryKeyException(entityType);
+        // Collect key
         Object[] key = new Object[keyColumns.length];
         for (int i=0; i<key.length; i++)
             key[i] = this.get(keyColumns[i]);
         return key;
     }
 
-    public long getRecordId(EntityType entity)
+    /**
+     * Returns the record id for a type of entity which has a single numeric primary key
+     * @param entityType the entity type or rowset for which to get key
+     * @return the record id
+     * @throws InvalidArgumentException if the entity has not a single numeric primary key
+     */
+    public long getRecordId(EntityType entityType)
     {
-        Column[] keyColumns = entity.getKeyColumns();
-        if (keyColumns.length!=1)
-            throw new InvalidArgumentException("entity", entity.getEntityName());
+        Column[] keyColumns = entityType.getKeyColumns();
+        if (keyColumns==null || keyColumns.length!=1)
+            throw new InvalidArgumentException("entityType", entityType.getEntityName());
         // return id
         return ObjectUtils.getLong(get(keyColumns[0]));
     }
     
+    /**
+     * Compares a given record key with the key of the entry 
+     * @param keyColumns the columns which make up the key
+     * @param key the key to compare the current entry to
+     * @return true if the keys match or false otherwise
+     */
     public boolean compareKey(Column[] keyColumns, Object[] key)
     {
         for (int i=0; i<keyColumns.length; i++)
@@ -91,6 +112,10 @@ public class DataListEntry implements RecordData, Serializable
         return true;
     }
     
+    /**
+     * Updates the fields of the entry with the corresponding fields of a record.
+     * @param recData the record with the updated (newer) fields
+     */
     public void updateData(RecordData recData)
     {
         ColumnExpr[] cols = head.getColumns(); 
