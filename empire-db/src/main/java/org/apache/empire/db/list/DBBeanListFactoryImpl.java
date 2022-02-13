@@ -25,6 +25,7 @@ import java.util.List;
 
 import org.apache.empire.commons.ClassUtils;
 import org.apache.empire.commons.ObjectUtils;
+import org.apache.empire.commons.StringUtils;
 import org.apache.empire.data.Column;
 import org.apache.empire.db.DBColumn;
 import org.apache.empire.db.DBColumnExpr;
@@ -36,6 +37,8 @@ import org.apache.empire.db.exceptions.CommandWithoutSelectException;
 import org.apache.empire.exceptions.InternalException;
 import org.apache.empire.exceptions.InvalidArgumentException;
 import org.apache.empire.exceptions.UnsupportedTypeException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * DBRecordListFactoryImpl
@@ -44,6 +47,9 @@ import org.apache.empire.exceptions.UnsupportedTypeException;
  */
 public class DBBeanListFactoryImpl<T> implements DBBeanListFactory<T>
 {
+    // Logger
+    private static final Logger log = LoggerFactory.getLogger(DBBeanListFactoryImpl.class);
+    
     /**
      * Finds a suitable constructor for the beanClass
      * @param beanType the bean class to instantiate
@@ -88,6 +94,9 @@ public class DBBeanListFactoryImpl<T> implements DBBeanListFactory<T>
         // Check constructor
         if (constructor!=null && constructor.getParameterCount()>0 && (constructorParams==null || constructor.getParameterCount()<constructorParams.size()))
             throw new InvalidArgumentException("constructor||constructorParams", constructor);
+        // log
+        if (constructor!=null && log.isDebugEnabled())
+            log.debug("{}: using constructor with {} params", constructor.getDeclaringClass().getName(), constructor.getParameterCount());
     }
     
     /**
@@ -113,6 +122,9 @@ public class DBBeanListFactoryImpl<T> implements DBBeanListFactory<T>
             this.setterColumns = selectColumns;
         }
         this.constructor = constructor;
+        // log
+        if (constructor!=null && log.isDebugEnabled())
+            log.debug("{}: using bean constructor with {} params", beanType.getName(), constructor.getParameterCount());
     }
     
     /**
@@ -145,6 +157,9 @@ public class DBBeanListFactoryImpl<T> implements DBBeanListFactory<T>
         }
         // found one
         this.constructor = constructor;
+        // log
+        if (constructor!=null && log.isDebugEnabled())
+            log.debug("{}: using bean constructor with {} params", beanType.getName(), constructor.getParameterCount());
     }
     
     /**
@@ -207,7 +222,16 @@ public class DBBeanListFactoryImpl<T> implements DBBeanListFactory<T>
                 Object[] params = new Object[constructor.getParameterCount()];
                 int i=0;
                 for (DBColumnExpr expr : constructorParams)
-                    params[i++] = recData.getValue(expr);
+                {
+                    Class<Enum<?>> enumType = expr.getEnumType();
+                    if (enumType!=null)
+                        params[i++] = recData.getEnum(expr, enumType);
+                    else
+                        params[i++] = recData.getValue(expr);
+                    // log
+                    if (log.isTraceEnabled())
+                        log.trace("{}: constructor param '{}' is {}", constructor.getDeclaringClass().getName(), StringUtils.coalesce(expr.getName(), String.valueOf(i-1)), params[i-1]);
+                }
                 // create item
                 bean = constructor.newInstance(params);
                 // set remaining properties

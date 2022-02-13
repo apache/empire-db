@@ -22,7 +22,9 @@ import java.io.Serializable;
 import java.lang.reflect.InvocationTargetException;
 import java.sql.Connection;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.beanutils.BeanUtilsBean;
 import org.apache.commons.beanutils.PropertyUtilsBean;
@@ -41,6 +43,7 @@ import org.apache.empire.db.exceptions.NoPrimaryKeyException;
 import org.apache.empire.db.exceptions.RecordReadOnlyException;
 import org.apache.empire.exceptions.BeanPropertyGetException;
 import org.apache.empire.exceptions.InvalidArgumentException;
+import org.apache.empire.exceptions.NotSupportedException;
 import org.apache.empire.exceptions.ObjectNotValidException;
 import org.apache.empire.xml.XMLUtil;
 import org.slf4j.Logger;
@@ -217,6 +220,9 @@ public abstract class DBRecordBase extends DBRecordData implements Record, Clone
     Object                  rowsetData; // Special Rowset Data (usually null)
     protected boolean       validateFieldValues;
     
+    // Parent-Record-Map for deferred identity setting 
+    private Map<DBColumn, DBRecordBase> parentRecordMap;
+    
     /**
      * Internal constructor for DBRecord
      * May be used by derived classes to provide special behaviour
@@ -228,6 +234,31 @@ public abstract class DBRecordBase extends DBRecordData implements Record, Clone
         this.fields = null;
         this.modified = null;
         this.rowsetData = null;
+        this.validateFieldValues = true;
+        this.parentRecordMap = null;
+    }
+
+    /**
+     * helper to check if the object is valid
+     * @throws an ObjectNotValidException if the object is not valid
+     */
+    protected void checkValid()
+    {
+        if (!isValid())
+            throw new ObjectNotValidException(this);
+    }
+
+    /**
+     * helper to check if the object is valid
+     * @throws an ObjectNotValidException if the object is not valid
+     */
+    protected void checkValid(int fieldIndex)
+    {
+        if (!isValid())
+            throw new ObjectNotValidException(this);
+        // Check index
+        if (fieldIndex < 0 || fieldIndex>= fields.length)
+            throw new InvalidArgumentException("index", fieldIndex);
     }
     
     /**
@@ -440,10 +471,7 @@ public abstract class DBRecordBase extends DBRecordData implements Record, Clone
      */
     public boolean wasModified(int index)
     {
-        if (!isValid())
-            throw new ObjectNotValidException(this);
-        if (index < 0 || index >= fields.length)
-            throw new InvalidArgumentException("index", index);
+        checkValid(index);
         // Check modified
         if (modified == null)
             return false;
@@ -539,11 +567,7 @@ public abstract class DBRecordBase extends DBRecordData implements Record, Clone
     @Override
     public Object getValue(int index)
     {   // Check state
-        if (fields == null)
-            throw new ObjectNotValidException(this);
-        // Check index
-        if (index < 0 || index>= fields.length)
-            throw new InvalidArgumentException("index", index);
+        checkValid(index);
         // Special check for NO_VALUE 
         if (fields[index] == ObjectUtils.NO_VALUE)
             throw new FieldValueNotFetchedException(getColumn(index));
@@ -561,13 +585,7 @@ public abstract class DBRecordBase extends DBRecordData implements Record, Clone
      */
     public boolean isValueValid(int index)
     {   // Check state
-        if (fields == null)
-            throw new ObjectNotValidException(this);
-        // Check index
-        if (index < 0 || index>= fields.length)
-        {   // Index out of range
-            throw new InvalidArgumentException("index", index);
-        }
+        checkValid(index);
         // Special check for NO_VALUE
         return (fields[index] != ObjectUtils.NO_VALUE);
     }
@@ -601,8 +619,7 @@ public abstract class DBRecordBase extends DBRecordData implements Record, Clone
      */
     public void validateAllValues()
     {
-        if (!this.isValid())
-            throw new ObjectNotValidException(this);
+        checkValid();
         // Modified
         if (modified == null)
             return; // nothing to do
@@ -631,12 +648,15 @@ public abstract class DBRecordBase extends DBRecordData implements Record, Clone
     @Override
     public void setValue(int index, Object value)
     {
-        if (!isValid())
-            throw new ObjectNotValidException(this);
-        if (index < 0 || index >= fields.length)
-            throw new InvalidArgumentException("index", index);
+        checkValid(index);
         // check updatable
         checkUpdateable();
+        // Special case ParentRecord
+        if (value instanceof DBRecordBase)
+        {   // Special case: Value contains parent record
+            setParentRecord(getColumn(index), (DBRecordBase)value);
+            return;
+        }
         // Strings special
         if ((value instanceof String) && ((String)value).length()==0)
             value = null;
@@ -794,6 +814,50 @@ public abstract class DBRecordBase extends DBRecordData implements Record, Clone
     {
         return setRecordValues(bean, null);
     }
+    
+    /**
+     * For DBMS with IDENTITY-columns defer setting the parent-id until the record is inserted
+     * The parent record must have a one-column primary key
+     * @param parentIdColumn the column for which to set the parent
+     * @param record the parent record to be set for the column
+     */
+    public void setParentRecord(DBColumn parentIdColumn, DBRecordBase record)
+    {
+        checkValid();
+        // check column
+        checkParamNull("parentIdColumn", parentIdColumn);
+        // check updateable
+        checkUpdateable();
+        // remove
+        if (record==null)
+        {   // clear parent 
+            if (parentRecordMap!=null)
+                parentRecordMap.remove(parentIdColumn);
+            setValue(parentIdColumn, null);
+            return;
+        }
+        // set key or record
+        Object[] key = record.getKey();
+        if (key.length!=1)
+            throw new NotSupportedException(this, "setParentRecord");
+        if (key[0]==null)
+        {   // preserve until later
+            if (parentRecordMap==null)
+                parentRecordMap = new HashMap<DBColumn, DBRecordBase>(1);
+            // add record to map
+            log.info("Deffering setting of {} until the record is saved!", parentIdColumn.getName());
+            parentRecordMap.put(parentIdColumn, record);
+        }
+        else
+        {   // set directly
+            int index = getFieldIndex(parentIdColumn);
+            Object id = getValue(index);
+            if (!ObjectUtils.compareEqual(id, key[0]))
+            {   // set parent-id
+                modifyValue(index, key[0], true);
+            }
+        }
+    }
 
     /**
      * Compares the record to another one
@@ -821,8 +885,7 @@ public abstract class DBRecordBase extends DBRecordData implements Record, Clone
     @Override
     public int addXmlMeta(Element parent)
     {
-        if (!isValid())
-            throw new ObjectNotValidException(this);
+        checkValid();
         // Add Field Description
         int count = 0;
         List<DBColumn> columns = getRowSet().getColumns();
@@ -846,8 +909,7 @@ public abstract class DBRecordBase extends DBRecordData implements Record, Clone
     @Override
     public int addXmlData(Element parent)
     {
-        if (!isValid())
-            throw new ObjectNotValidException(this);
+        checkValid();
         // set row key
         Column[] keyColumns = getKeyColumns();
         if (keyColumns != null && keyColumns.length > 0)
@@ -897,8 +959,7 @@ public abstract class DBRecordBase extends DBRecordData implements Record, Clone
     @Override
     public Document getXmlDocument()
     {
-        if (!isValid())
-            throw new ObjectNotValidException(this);
+        checkValid();
         // Create Document
         DBXmlDictionary xmlDic = getXmlDictionary();
         Element root = XMLUtil.createDocument(xmlDic.getRowSetElementName());
@@ -1016,10 +1077,7 @@ public abstract class DBRecordBase extends DBRecordData implements Record, Clone
      */
     protected void modifyValue(int index, Object value, boolean fireChangeEvent)
     {   // Check valid
-        if (state == State.Invalid)
-            throw new ObjectNotValidException(this);
-        if (index < 0 || index >= fields.length)
-            throw new InvalidArgumentException("index", index);
+        checkValid(index);
         // modified state array
         if (modified == null)
         {   modified = new boolean[fields.length];
@@ -1089,6 +1147,29 @@ public abstract class DBRecordBase extends DBRecordData implements Record, Clone
         {   log.warn(bean.getClass().getName() + ": no getter available for property '" + property + "'");
             throw new BeanPropertyGetException(bean, property, e);
         }
+    }
+    
+    /**
+     * For DBMS with IDENTITY-columns the deferred parent-keys are set by this functions
+     * The parent records must have been previously set using setParentRecord
+     */
+    protected void assignParentIdentities()
+    {
+        // Check map
+        if (parentRecordMap==null)
+            return;
+        // Apply map
+        for (Map.Entry<DBColumn, DBRecordBase> e : parentRecordMap.entrySet())
+        {
+            DBColumn parentIdColumn = e.getKey();
+            Object keyValue = e.getValue().getKey()[0];
+            if (keyValue==null)
+                throw new ObjectNotValidException(e.getValue());
+            // Set key
+            log.info("Deffered setting of {} to {}!", parentIdColumn.getName(), keyValue);
+            setValue(parentIdColumn, keyValue);
+        }
+        parentRecordMap.clear();
     }
     
     /**

@@ -28,6 +28,7 @@ import org.apache.empire.db.DBCommand;
 import org.apache.empire.db.DBContext;
 import org.apache.empire.db.list.DataBean;
 import org.apache.empire.samples.db.SampleDB;
+import org.apache.empire.samples.db.SampleDB.Gender;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -46,7 +47,7 @@ public class Employee implements DataBean<SampleDB>
     private String lastName;    // "LAST_NAME"
     private Date   dateOfBirth; // "DATE_OF_BIRTH"
     private long   departmentId;// "DEPARTMENT_ID"
-    private String gender;      // "GENDER"
+    private Gender gender;      // "GENDER"
     private String phoneNumber; // "PHONE_NUMBER"
     private String email;       // "EMAIL"
     private BigDecimal salary;  // "SALARY"
@@ -68,16 +69,18 @@ public class Employee implements DataBean<SampleDB>
      * @param phoneNumber
      * @param salary
      * @param retired
-    public Employee(int id, String firstname, String lastname, Date dateOfBirth, int departmentId, String gender, String phoneNumber,
-                    BigDecimal salary, boolean retired, Timestamp timestamp)
+    public Employee(long id, String salutation, String firstName, String lastName, Date dateOfBirth, long departmentId, Gender gender,
+                    String phoneNumber, String email, BigDecimal salary, boolean retired, Timestamp timestamp)
     {
         this.id = id;
-        this.firstname = firstname;
-        this.lastname = lastname;
+        this.salutation = salutation;
+        this.firstName = firstName;
+        this.lastName = lastName;
         this.dateOfBirth = dateOfBirth;
         this.departmentId = departmentId;
         this.gender = gender;
         this.phoneNumber = phoneNumber;
+        this.email = email;
         this.salary = salary;
         this.retired = retired;
      
@@ -85,11 +88,10 @@ public class Employee implements DataBean<SampleDB>
     }
      */
 
-    
     /**
      * Constructor using fields but without timestamp 
      */
-    public Employee(long id, String salutation, String firstName, String lastName, Date dateOfBirth, long departmentId, String gender,
+    public Employee(long id, String salutation, String firstName, String lastName, Date dateOfBirth, long departmentId, Gender gender,
                     String phoneNumber, String email, BigDecimal salary, boolean retired)
     {
         this.id = id;
@@ -124,8 +126,6 @@ public class Employee implements DataBean<SampleDB>
         // Standard constructor 
         log.info("Employee bean created using standard constructor");
     }
-
-    
     
     public String getSalutation()
     {
@@ -176,13 +176,13 @@ public class Employee implements DataBean<SampleDB>
     {
         this.departmentId = departmentId;
     }
-
-    public String getGender()
+    
+    public Gender getGender()
     {
         return gender;
     }
 
-    public void setGender(String gender)
+    public void setGender(Gender gender)
     {
         this.gender = gender;
     }

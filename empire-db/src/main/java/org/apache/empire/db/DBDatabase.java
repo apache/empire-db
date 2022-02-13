@@ -321,6 +321,16 @@ public abstract class DBDatabase extends DBObject
     }
 
     /**
+     * Checks if the database exists
+     * The implementation depends on the DBMSHandler
+     * @return true if the database exists or false otherwise 
+     */
+    public boolean checkExists(DBContext context)
+    {
+        return context.getDbms().checkExists(this, context.getConnection());
+    }
+    
+    /**
      * Attaches the Database to the DBMS Handler provided with the context  
      * and allows the Database and the Handler to perform initialization tasks
      * 

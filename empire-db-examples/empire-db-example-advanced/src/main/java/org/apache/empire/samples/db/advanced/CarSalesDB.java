@@ -20,6 +20,7 @@ package org.apache.empire.samples.db.advanced;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -33,6 +34,9 @@ import org.apache.empire.db.DBSQLScript;
 import org.apache.empire.db.DBTableColumn;
 import org.apache.empire.db.generic.TDatabase;
 import org.apache.empire.db.generic.TTable;
+import org.apache.empire.db.validation.DBModelChecker;
+import org.apache.empire.db.validation.DBModelErrorLogger;
+import org.apache.empire.dbms.postgresql.DBMSHandlerPostgreSQL;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -179,18 +183,38 @@ public class CarSalesDB extends TDatabase<CarSalesDB>
         addRelation( MODEL.BRAND_ID.referenceOn( BRAND.ID ));
         addRelation( SALES.MODEL_ID.referenceOn( MODEL.ID ));
     }
-
-    public boolean checkExists(DBContext context)
+    
+    @Override
+    public void open(DBContext context)
     {
-        // Check whether DB exists
-        DBCommand cmd = createCommand();
-        cmd.select(BRAND.count());
-        // Check using "select count(*) from DEPARTMENTS"
-        log.info("Checking whether table DEPARTMENTS exists (SQLException will be logged if not - please ignore) ...");
-        return (context.getUtils().querySingleInt(cmd, -1) >= 0);
+        // Enable prepared statements
+        setPreparedStatementsEnabled(true);
+        // Check exists
+        if (checkExists(context))
+        {   // attach to driver
+            super.open(context);
+            // yes, it exists, then check the model
+            checkDataModel(context);
+        } 
+        else
+        {   // PostgreSQL does not support DDL in transaction
+            if(getDbms() instanceof DBMSHandlerPostgreSQL)
+                setAutoCommit(context, true);
+            // create the database
+            createDatabase(context);
+            // PostgreSQL does not support DDL in transaction
+            if(getDbms() instanceof DBMSHandlerPostgreSQL)
+                setAutoCommit(context, false);
+            // attach to driver
+            super.open(context);
+            // populate 
+            populate(context);
+            // Commit
+            context.commit();
+        }
     }
 
-    public void createDatabase(DBContext context)
+    private void createDatabase(DBContext context)
     {
         // create DDL for Database Definition
         DBSQLScript script = new DBSQLScript(context);
@@ -199,10 +223,29 @@ public class CarSalesDB extends TDatabase<CarSalesDB>
         log.info(script.toString());
         // Execute Script
         script.executeAll(false);
-        // populate 
-        populate(context);
-        // Commit
-        context.commit();
+    }
+    
+    private void checkDataModel(DBContext context)
+    {   try {
+            DBModelChecker modelChecker = context.getDbms().createModelChecker(this);
+            // Check data model   
+            log.info("Checking DataModel for {} using {}", getClass().getSimpleName(), modelChecker.getClass().getSimpleName());
+            // dbo schema
+            DBModelErrorLogger logger = new DBModelErrorLogger();
+            modelChecker.checkModel(this, context.getConnection(), logger);
+            // show result
+            log.info("Data model check done. Found {} errors and {} warnings.", logger.getErrorCount(), logger.getWarnCount());
+        } catch(Exception e) {
+            log.error("FATAL error when checking data model. Probably not properly implemented by DBMSHandler!");
+        }
+    }
+    
+    private void setAutoCommit(DBContext context, boolean enable)
+    {   try {
+            context.getConnection().setAutoCommit(enable);
+        } catch (SQLException e) {
+            log.error("Unable to set AutoCommit on Connection", e);
+        }
     }
     
     private void populate(DBContext context)
@@ -271,7 +314,7 @@ public class CarSalesDB extends TDatabase<CarSalesDB>
            .orderBy(BRAND.NAME.desc(), MODEL.NAME.asc());
         */
         DBCommand cmd = createCommand()
-           .select  (BRAND.NAME.as("BRAND"), MODEL.CONFIG_NAME.as("MODEL"), MODEL.BASE_PRICE)
+           .selectQualified(BRAND.NAME, MODEL.CONFIG_NAME, MODEL.BASE_PRICE)
            .select  (SALES.MODEL_ID.count().as("SALES_COUNT"), SALES.PRICE.avg().as("AVG_SALES_PRICE"))
            .select  (SALES.PRICE.avg().minus(MODEL.BASE_PRICE.avg()).round(2).as("DIFFERENCE"))
            .join    (MODEL.BRAND_ID, BRAND.ID)

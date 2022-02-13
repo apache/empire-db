@@ -101,6 +101,15 @@ public class DBCalcExpr extends DBColumnExpr
         return type;
     }
 
+    /**
+     * Not an Enum. Returns null
+     */
+    @Override
+    public Class<Enum<?>> getEnumType()
+    {
+        return null;
+    }
+
     /** Returns the given expression name. */
     @Override
     public String getName()

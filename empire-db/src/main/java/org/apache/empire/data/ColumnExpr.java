@@ -60,6 +60,13 @@ public interface ColumnExpr extends Unwrappable<ColumnExpr>
     Object getAttribute(String name);
 
     /**
+     * Returns the enum type for this column
+     * <P>
+     * @return the enum type
+     */
+    Class<Enum<?>> getEnumType();
+
+    /**
      * Returns an option set with possible column values and their
      * corresponding display text.
      * @return option set with possible column values and their corresponding display text

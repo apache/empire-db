@@ -120,6 +120,20 @@ public class DBValueExpr extends DBColumnExpr
     }
 
     /**
+     * Returns the EnumType if the value is an Enum
+     */
+    @Override
+    public Class<Enum<?>> getEnumType()
+    {
+        if (value!=null && value.getClass().isEnum())
+        {   @SuppressWarnings("unchecked")
+            Class<Enum<?>> enumType = (Class<Enum<?>>)value.getClass(); 
+            return enumType; 
+        }
+        return null;
+    }
+
+    /**
      * Returns the column name.
      * 
      * @return the column name

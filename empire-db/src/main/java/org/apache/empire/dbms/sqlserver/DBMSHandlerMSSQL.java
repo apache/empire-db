@@ -220,6 +220,27 @@ public class DBMSHandlerMSSQL extends DBMSHandlerBase
         this.useDateTime2 = useDateTime2;
     }
 
+    /**
+     * checks if the database exists
+     * The default implementation performs a simple count query on the first table or view
+     *  SELECT count(*) FROM table
+     * @return true if the database exists or false otherwise 
+     */
+    @Override
+    public boolean checkExists(DBDatabase db, Connection conn)
+    {
+        try
+        {   // Set Database
+            if (StringUtils.isNotEmpty(databaseName))
+                executeSQL("USE " + databaseName, null, conn, null);
+            // Perform a query
+            return super.checkExists(db, conn);
+        } catch (SQLException e) {
+            // No, database does not exist
+            return false;
+        }
+    }
+
     /** {@inheritDoc} */
     @SuppressWarnings("unused")
     @Override

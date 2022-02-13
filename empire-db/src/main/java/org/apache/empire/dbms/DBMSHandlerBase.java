@@ -29,6 +29,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
@@ -48,6 +49,7 @@ import org.apache.empire.db.DBDDLGenerator.DDLActionType;
 import org.apache.empire.db.DBDatabase;
 import org.apache.empire.db.DBExpr;
 import org.apache.empire.db.DBRelation;
+import org.apache.empire.db.DBRowSet;
 import org.apache.empire.db.DBSQLScript;
 import org.apache.empire.db.DBTable;
 import org.apache.empire.db.DBTableColumn;
@@ -208,6 +210,45 @@ public abstract class DBMSHandlerBase implements DBMSHandler
         reservedSQLKeywords = new HashSet<String>(GENERAL_SQL_KEYWORDS.length);
         for (String keyWord:GENERAL_SQL_KEYWORDS){
              reservedSQLKeywords.add(keyWord);
+        }
+    }
+
+    /**
+     * checks if the database exists
+     * The default implementation performs a simple count query on the first table or view
+     *  SELECT count(*) FROM table
+     * @return true if the database exists or false otherwise 
+     */
+    @Override
+    public boolean checkExists(DBDatabase db, Connection conn)
+    {
+        // Default implementation: 
+        // Select the count from ANY table or view
+        List<DBTable> tables = db.getTables();
+        DBRowSet any = (tables.isEmpty() ? db.getViews().get(0) : tables.get(0));
+        String schema   = db.getSchema();
+        String linkName = db.getLinkName();
+        // build the statement
+        StringBuilder sql = new StringBuilder("SELECT count(*) from ");
+        if (schema != null)
+        {   // Add Schema
+            sql.append(schema);
+            sql.append(".");
+        }
+        // Append the name
+        appendObjectName(sql, any.getName(), null);
+        if (linkName!=null)
+        {   // Database Link
+            sql.append(getSQLPhrase(DBSqlPhrase.SQL_DATABASE_LINK));
+            sql.append(linkName);
+        }
+        // Select now
+        try {
+            querySingleValue(sql.toString(), null, DataType.INTEGER, conn);
+            return true;
+        } catch(QueryFailedException e) {
+            // Database does not exist
+            return false;
         }
     }
     
@@ -835,8 +876,8 @@ public abstract class DBMSHandlerBase implements DBMSHandler
             DBBlobData blobData = (DBBlobData)value;
             pstmt.setBinaryStream(paramIndex, blobData.getInputStream(), blobData.getLength());
             // log
-            if (log.isDebugEnabled())
-                log.debug("Statement param {} set to BLOB data", paramIndex);
+            if (log.isTraceEnabled())
+                log.trace("Statement param {} set to BLOB data", paramIndex);
         }
         else if(value instanceof DBClobData)
         {
@@ -844,8 +885,8 @@ public abstract class DBMSHandlerBase implements DBMSHandler
             DBClobData clobData = (DBClobData)value;
             pstmt.setCharacterStream(paramIndex, clobData.getReader(), clobData.getLength());
             // log
-            if (log.isDebugEnabled())
-                log.debug("Statement param {} set to CLOB data", paramIndex);
+            if (log.isTraceEnabled())
+                log.trace("Statement param {} set to CLOB data", paramIndex);
         }
         else if(value instanceof Date && !(value instanceof Timestamp))
         {
@@ -853,8 +894,8 @@ public abstract class DBMSHandlerBase implements DBMSHandler
             Timestamp ts = new Timestamp(((Date)value).getTime());
             pstmt.setObject(paramIndex, ts);
             // log
-            if (log.isDebugEnabled())
-                log.debug("Statement param {} set to date '{}'", paramIndex, ts);
+            if (log.isTraceEnabled())
+                log.trace("Statement param {} set to date '{}'", paramIndex, ts);
         }
         else if((value instanceof Character) 
              || (value instanceof Enum<?>))
@@ -863,15 +904,15 @@ public abstract class DBMSHandlerBase implements DBMSHandler
             String strval = value.toString();
             pstmt.setObject(paramIndex, strval);
             // log
-            if (log.isDebugEnabled())
-                log.debug("Statement param {} set to '{}'", paramIndex, strval);
+            if (log.isTraceEnabled())
+                log.trace("Statement param {} set to '{}'", paramIndex, strval);
         }
         else
         {   // simple parameter value 
             pstmt.setObject(paramIndex, value);
             // log
-            if (log.isDebugEnabled())
-                log.debug("Statement param {} set to '{}'", paramIndex, value);
+            if (log.isTraceEnabled())
+                log.trace("Statement param {} set to '{}'", paramIndex, value);
         }
     }
     

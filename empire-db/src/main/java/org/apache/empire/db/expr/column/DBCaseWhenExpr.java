@@ -74,6 +74,13 @@ public class DBCaseWhenExpr extends DBColumnExpr
     }
 
     @Override
+    public Class<Enum<?>> getEnumType()
+    {
+        DBColumnExpr cexp = getFirstColumnExpr();
+        return cexp.getEnumType();
+    }
+
+    @Override
     public String getName()
     {
         DBCompareExpr firstCmpExpr = whenMap.keySet().iterator().next();

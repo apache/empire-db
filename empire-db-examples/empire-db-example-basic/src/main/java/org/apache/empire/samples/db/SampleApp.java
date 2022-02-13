@@ -22,11 +22,11 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.sql.Connection;
 import java.sql.DriverManager;
-import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.List;
 
 import org.apache.empire.commons.StringUtils;
+import org.apache.empire.data.Record;
 import org.apache.empire.data.bean.BeanResult;
 import org.apache.empire.data.list.DataListEntry;
 import org.apache.empire.db.DBColumnExpr;
@@ -37,15 +37,9 @@ import org.apache.empire.db.DBReader;
 import org.apache.empire.db.DBRecord;
 import org.apache.empire.db.DBRecordBean;
 import org.apache.empire.db.DBRowSet.PartialMode;
-import org.apache.empire.db.DBSQLScript;
 import org.apache.empire.db.context.DBContextStatic;
 import org.apache.empire.db.generic.TRecord;
-import org.apache.empire.db.validation.DBModelChecker;
-import org.apache.empire.db.validation.DBModelErrorLogger;
 import org.apache.empire.dbms.DBMSHandler;
-import org.apache.empire.dbms.derby.DBMSHandlerDerby;
-import org.apache.empire.dbms.h2.DBMSHandlerH2;
-import org.apache.empire.dbms.hsql.DBMSHandlerHSql;
 import org.apache.empire.dbms.postgresql.DBMSHandlerPostgreSQL;
 import org.apache.empire.samples.db.SampleDB.Gender;
 import org.apache.empire.samples.db.beans.Department;
@@ -64,7 +58,7 @@ public class SampleApp
 
     private static SampleConfig config = new SampleConfig();
     
-	private final SampleDB db = new SampleDB();
+	private SampleDB db = new SampleDB();
 
 	private DBContext context = null;
 
@@ -84,11 +78,12 @@ public class SampleApp
      */
     public static void main(String[] args)
     {
+        // Init Configuration
+        config.init((args.length > 0 ? args[0] : "config.xml" ));
+        // create the app
         SampleApp app = new SampleApp();
         try
-        {   // Init Configuration
-            config.init((args.length > 0 ? args[0] : "config.xml" ));
-            // Run
+        {   // Run
             log.info("Running DB Sample...");
             app.run();
             // Done
@@ -121,39 +116,18 @@ public class SampleApp
         // SECTION 2.2: Create a Context
         context = new DBContextStatic(dbms, conn, false, true); 
 
-        // SECTION 3: Open Database (and create if not existing)
-        log.info("Step 3: openDatabase()");
-        boolean clearExistingData = true;
-        try {
-            // Open the database
-            db.open(context);
-            // Check whether database exists
-            databaseExists();
-            log.info("Database already exists. Checking data model...");
-            checkDataModel();
-            
-        } catch(Exception e) {
-            // SECTION 4: Create Database
-            log.info("Step 4: createDDL()");
-            // postgre does not support DDL in transaction
-            if(db.getDbms() instanceof DBMSHandlerPostgreSQL)
-            {
-                setAutoCommit(conn, true);
-            }
-            createDatabase();
-            if(db.getDbms() instanceof DBMSHandlerPostgreSQL)
-            {
-                setAutoCommit(conn, false);
-            }
-            // Open again
-            if (db.isOpen()==false)
-                db.open(context);
-            // initial load
-            clearExistingData = false;
-        }
+        // SECTION 3: Open Database 
+        log.info("Step 3: Open database (and create if not existing)");
+        // Open the database (and create if not existing)
+        db.open(context);
 
         // SECTION 5 AND 6: Populate Database and modify Data
-        populateAndModify(clearExistingData);
+        DBCommand cmd = db.createCommand();
+        cmd.select(db.EMPLOYEES.count());
+        if (context.getUtils().querySingleInt(cmd)==0)
+        {   // Employess table is empty. Populate now
+            populateAndModify();
+        }
 
         // SECTION 7: Option 1: Query Records and print tab-separated
         log.info("Step 8 Option 1: queryRecords() / Tab-Output");
@@ -218,15 +192,6 @@ public class SampleApp
 		}
 		return conn;
 	}
-	
-	private void setAutoCommit(Connection conn, boolean enable)
-	{
-        try {
-            conn.setAutoCommit(enable);
-        } catch (SQLException e) {
-            log.error("Unable to set AutoCommit on Connection", e);
-        }
-	}
 
 	/**
 	 * Creates an Empire-db DatabaseDriver for the given provider and applies dbms specific configuration 
@@ -260,79 +225,21 @@ public class SampleApp
             throw new RuntimeException(e);
         }
     }
-
-	/**
-     * <PRE>
-	 * Checks whether the database exists or not by executing
-	 *     select count(*) from DEPARTMENTS
-	 * If the Departments table does not exist the querySingleInt() function return -1 for failure.
-	 * Please note that in this case an error will appear in the log which can be ignored.
-     * </PRE>
-	 */
-	private boolean databaseExists()
-    {
-		// Check whether DB exists
-		DBCommand cmd = db.createCommand();
-		cmd.select(db.DEPARTMENTS.count());
-		// Check using "select count(*) from DEPARTMENTS"
-		log.info("Checking whether table DEPARTMENTS exists (SQLException will be logged if not - please ignore) ...");
-		return (context.getUtils().querySingleInt(cmd, -1) >= 0);
-	}
-
-	/**
-     * <PRE>
-	 * Creates a DDL Script for entire SampleDB Database and executes it line by line.
-	 * Please make sure you uses the correct DatabaseDriver for your target DBMS.
-     * </PRE>
-	 */
-	private void createDatabase()
-    {
-		// create DDL for Database Definition
-	    DBSQLScript script = new DBSQLScript(context);
-		db.getCreateDDLScript(script);
-		// Show DDL Statement
-		log.info(script.toString());
-		// Execute Script
-		script.executeAll(false);
-		// Commit
-		context.commit();
-	}
     
-    private void checkDataModel()
+    @SuppressWarnings("unused")
+    private void populateAndModify()
     {
-        try {
-            DBModelChecker modelChecker = context.getDbms().createModelChecker(db);
-            // Check data model   
-            log.info("Checking DataModel for {} using {}", db.getClass().getSimpleName(), modelChecker.getClass().getSimpleName());
-            // dbo schema
-            DBModelErrorLogger logger = new DBModelErrorLogger();
-            modelChecker.checkModel(db, context.getConnection(), logger);
-            // show result
-            log.info("Data model check done. Found {} errors and {} warnings.", logger.getErrorCount(), logger.getWarnCount());
-        } catch(Exception e) {
-            log.error("FATAL error when checking data model. Probably not properly implemented by DBMSHandler!");
-        }
-    }
-    
-    private void populateAndModify(boolean clearExisting)
-    {
-        if (clearExisting)
-            clearDatabase();
-
+        clearDatabase();
+        
         log.info("Step 5: insertDepartment() & insertEmployee()");
         long idDevDep = insertDepartment("Development", "ITTK");
         long idSalDep = insertDepartment("Sales", "ITTK");
         // Insert Employees
-        long idEmp1 = insertEmployee("Peter", "Sharp",  Gender.M, idDevDep);
-        long idEmp2 = insertEmployee("Fred",  "Bloggs", Gender.M, idDevDep);
-        long idEmp3 = insertEmployee("Emma",  "White",  Gender.F, idSalDep);
-        long idEmp4 = insertEmployee("John",  "Doe",    Gender.M, idSalDep);
-        long idEmp5 = insertEmployee("Sarah", "Smith",  Gender.F, idDevDep);
-        // Insert Payments
-        insertPayments(idEmp1, new BigDecimal(2000));
-        insertPayments(idEmp3, new BigDecimal(2500));
-        insertPayments(idEmp4, new BigDecimal(2200));
-        insertPayments(idEmp5, new BigDecimal(1500));
+        long idEmp1 = insertEmployee(idDevDep, "Peter", "Sharp",  Gender.M, 25000);
+        long idEmp2 = insertEmployee(idDevDep, "Fred",  "Bloggs", Gender.M, 32000);
+        long idEmp3 = insertEmployee(idSalDep, "Emma",  "White",  Gender.F, 19500);
+        long idEmp4 = insertEmployee(idSalDep, "John",  "Doe",    Gender.M, 18800);
+        long idEmp5 = insertEmployee(idDevDep, "Sarah", "Smith",  Gender.F, 44000);
 
         // commit
         context.commit();
@@ -361,6 +268,8 @@ public class SampleApp
 		context.executeDelete(db.EMPLOYEES, cmd);
 		// Delete all Departments (no constraints)
 		context.executeDelete(db.DEPARTMENTS, cmd);
+        // commit
+        context.commit();
 	}
 
 	/**
@@ -386,17 +295,20 @@ public class SampleApp
 	 * Inserts an Employee into the Employees table.
      * </PRE>
 	 */
-	private long insertEmployee(String firstName, String lastName, Gender gender, long departmentId)
+	private long insertEmployee(long departmentId, String firstName, String lastName, Gender gender, int salary)
     {
         SampleDB.Employees EMP = db.EMPLOYEES;
 		// Insert an Employee
 		DBRecord rec = new DBRecord(context, EMP);
 		rec.create(null)
+           .set(EMP.DEPARTMENT_ID, departmentId)
 		   .set(EMP.FIRST_NAME, firstName)
 		   .set(EMP.LAST_NAME, lastName)
 		   .set(EMP.GENDER, gender)
-		   .set(EMP.DEPARTMENT_ID, departmentId)
+		   .set(EMP.SALARY, salary)
 	       .update();
+		// insert payments
+		insertPayments(rec);
 		// Return Employee ID
 		return rec.getId();
 	}
@@ -406,20 +318,24 @@ public class SampleApp
      * Inserts an Payments for a particular Employee
      * </PRE>
      */
-    private void insertPayments(long employeeId, BigDecimal monthlySalary)
+    private void insertPayments(DBRecord employee)
     {
-        SampleDB.Payments PAY = db.PAYMENTS;
+        if (employee.isNull(db.EMPLOYEES.SALARY))
+            return; // No salary
+        // monthlySalary
+        BigDecimal monthlySalary = employee.getDecimal(db.EMPLOYEES.SALARY).divide(new BigDecimal(12), 2, RoundingMode.HALF_UP);
         // Insert an Employee
         LocalDate date = LocalDate.now();
         date = date.minusDays(date.getDayOfMonth()-1); // first day of this month
         // Add Payment for each month
+        SampleDB.Payments PAY = db.PAYMENTS;
         DBRecord rec = new DBRecord(context, PAY);
         for (LocalDate month=date.minusMonths(20); !month.isAfter(date); month=month.plusMonths(1))
         {
             BigDecimal variation = new BigDecimal((Math.random()*200) - 100.0);
             variation = variation.setScale(2, RoundingMode.HALF_UP);
             // insert
-            rec.create(DBRecord.key(employeeId, month.getYear(), month.getMonth()));
+            rec.create(DBRecord.key(employee.getId(), month.getYear(), month.getMonth()));
             rec.set(PAY.AMOUNT, monthlySalary.add(variation));
             rec.update();
         }
@@ -454,14 +370,14 @@ public class SampleApp
      * Updates an employee record by setting the phone number.
      * </PRE>
      */
-    private void updatePartialRecord(long idEmp, String phoneNumber)
+    private void updatePartialRecord(long employeeId, String phoneNumber)
     {
         // Shortcut for convenience
         SampleDB.Employees EMP = db.EMPLOYEES;
         // Update an Employee with partial record
         // this will only load the EMPLOYEE ID and the PHONE_NUMBER
         DBRecord rec = new DBRecord(context, EMP);
-        rec.read(DBRecord.key(idEmp), PartialMode.INCLUDE, EMP.PHONE_NUMBER);
+        rec.read(Record.key(employeeId), PartialMode.INCLUDE, EMP.SALUTATION, EMP.FIRST_NAME, EMP.LAST_NAME, EMP.PHONE_NUMBER, EMP.EMAIL);
         // Set
         rec.set(db.EMPLOYEES.PHONE_NUMBER, phoneNumber);
         rec.update();
@@ -642,11 +558,11 @@ public class SampleApp
         SampleDB.Payments    PAY = db.PAYMENTS;
 
 	    // The following expression concats lastname + ', ' + firstname
-        // DBColumnExpr EMPLOYEE_FULLNAME = EMP.LASTNAME.append(", ").append(EMP.FIRSTNAME).as("FULL_NAME");
-        DBColumnExpr EMPLOYEE_FULLNAME = EMP.LAST_NAME.concat(", ", EMP.FIRST_NAME).as("FULL_NAME");
+        DBColumnExpr EMPLOYEE_NAME = EMP.LAST_NAME.append(", ").append(EMP.FIRST_NAME).as("EMPLOYEE_NAME");
         DBColumnExpr PAYMENTS_LAST_YEAR = PAY.AMOUNT.sum().as("PAYMENTS_LAST_YEAR");
         
-        // The following expression extracts the extension number from the phone field
+        /*
+        // Example: Extracts the extension number from the phone field
         // e.g. substr(PHONE_NUMBER, length(PHONE_NUMBER)-instr(reverse(PHONE_NUMBER), '-')+2) AS PHONE_EXTENSION
         // Hint: Since the reverse() function is not supported by HSQLDB there is special treatment for HSQL
         DBColumnExpr PHONE_LAST_DASH;
@@ -656,24 +572,29 @@ public class SampleApp
              PHONE_LAST_DASH = EMP.PHONE_NUMBER.indexOf("-", EMP.PHONE_NUMBER.indexOf("-").plus(1)).plus(1); // HSQLDB only
         else PHONE_LAST_DASH = EMP.PHONE_NUMBER.length().minus(EMP.PHONE_NUMBER.reverse().indexOf("-")).plus(2);  
         DBColumnExpr PHONE_EXT_NUMBER = EMP.PHONE_NUMBER.substring(PHONE_LAST_DASH).as("PHONE_EXTENSION");
+        */
 
-        // DBColumnExpr genderExpr = cmd.select(EMP.GENDER.decode(EMP.GENDER.getOptions()).as(EMP.GENDER.getName()));
+        /*
+        // Example: Select the Gender-Enum as String
+        // e.g. case t2.GENDER when 'U' then 'Unknown' when 'M' then 'Male' when 'F' then 'Female' end
+        DBColumnExpr GENDER_NAME = EMP.GENDER.decode(EMP.GENDER.getOptions()).as("GENDER_NAME");
+        */
 
         // Select Employee and Department columns
         DBCommand cmd = db.createCommand()
-           .select(EMP.ID.as("EMPLOYEE_ID"), EMPLOYEE_FULLNAME)
-           .select(EMP.GENDER, EMP.PHONE_NUMBER, PHONE_EXT_NUMBER)
-           .select(DEP.NAME.as("DEPARTMENT"))
-           .select(DEP.BUSINESS_UNIT)
+           .selectQualified(EMP.ID) // select "EMPLOYEE_ID"
+           .select(EMPLOYEE_NAME, EMP.GENDER, EMP.PHONE_NUMBER, EMP.SALARY)
+           .selectQualified(DEP.NAME) // "DEPARMENT_NAME"
+           .select(DEP.BUSINESS_UNIT) // "BUSINESS_UNIT" 
            // Joins
            .join(EMP.DEPARTMENT_ID, DEP.ID)
            .joinLeft(EMP.ID, PAY.EMPLOYEE_ID, PAY.YEAR.is(lastYear))
            // Where constraints
-           .where(EMP.LAST_NAME.length().isGreaterThan(0))
-           .where(EMP.GENDER.in(Gender.M, Gender.F))
-           .where(EMP.RETIRED.is(false))
+           .where(EMP.LAST_NAME.length().isGreaterThan(0))  // always true, just for show
+           .where(EMP.GENDER.in(Gender.M, Gender.F))        // always true, just for show
+           .where(EMP.RETIRED.is(false))                    // always true, just for show
            // Order by
-           .orderBy(EMPLOYEE_FULLNAME);
+           .orderBy(EMPLOYEE_NAME);
 
         // Add payment of last year using a SUM aggregation
         cmd.groupBy(cmd.getSelectExpressions());
@@ -709,11 +630,11 @@ public class SampleApp
 	                while (reader.moveNext())
                     {
 	                    System.out.println(reader.getString(EMP.ID)
-	                            + "\t" + reader.getString(EMPLOYEE_FULLNAME)
+	                            + "\t" + reader.getString(EMPLOYEE_NAME)
 	                            + "\t" + EMP.GENDER.getOptions().get(reader.getString(EMP.GENDER))
-                                + "\t" + reader.getString(PHONE_EXT_NUMBER)
-	                            + "\t" + reader.getString(DEP.NAME)
-	                            + "\t" + reader.getString(PAYMENTS_LAST_YEAR));
+                                + "\t" + reader.getString(EMP.SALARY)
+                                + "\t" + reader.getString(PAYMENTS_LAST_YEAR)
+	                            + "\t" + reader.getString(DEP.NAME));
 	                }
 			        break;
                 case BeanList:

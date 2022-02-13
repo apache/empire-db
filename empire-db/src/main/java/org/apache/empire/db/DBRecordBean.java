@@ -289,6 +289,8 @@ public class DBRecordBean extends DBRecordBase
             // allow rollback
             if (this.enableRollbackHandling && context.isRollbackHandlingEnabled())
                 context.appendRollbackHandler(createRollbackHandler());
+            // set parent record identity
+            assignParentIdentities();
             // update
             getRowSet().updateRecord(this);
         } finally {

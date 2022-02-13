@@ -325,7 +325,7 @@ public abstract class DBColumn extends DBColumnExpr
     {
         if (rowset==null)
             throw new ObjectNotValidException(this);
-        String rsName = rowset.getName();
+        String rsName = rowset.getEntityName();
         if (StringUtils.isEmpty(rsName))
             return name;
         return rsName + "_" + name;
@@ -377,6 +377,16 @@ public abstract class DBColumn extends DBColumnExpr
     public Class<Enum<?>> getEnumType()
     {
         return (attributes!=null ? (Class<Enum<?>>)getAttribute(COLATTR_ENUMTYPE) : null);
+    }
+    
+    @Override
+    public Class<?> getJavaType()
+    {
+        Class<Enum<?>> enumType = getEnumType();
+        if (enumType!=null)
+            return enumType;
+        // default
+        return super.getJavaType();
     }
 
     /**

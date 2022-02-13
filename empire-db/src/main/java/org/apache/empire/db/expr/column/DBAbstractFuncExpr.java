@@ -104,6 +104,15 @@ public abstract class DBAbstractFuncExpr extends DBColumnExpr
     }
 
     /**
+     * Not an Enum. Returns null
+     */
+    @Override
+    public Class<Enum<?>> getEnumType()
+    {
+        return null;
+    }
+
+    /**
      * Returns the column name.
      * 
      * @return the column name

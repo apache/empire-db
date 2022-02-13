@@ -141,6 +141,7 @@ public abstract class DBRowSet extends DBExpr implements Entity
     // Members
     protected final DBDatabase         db;     /* transient ? */
     protected String                   comment          = null;
+    protected String                   entityName       = null;
     protected DBColumn                 timestampColumn  = null;
     protected Map<DBColumn, DBColumn>  columnReferences = null;
     protected List<DBColumn>           columns          = new ArrayList<DBColumn>();
@@ -311,6 +312,26 @@ public abstract class DBRowSet extends DBExpr implements Entity
         String  schema = db.getSchema();
         return (schema!=null) ? schema+"."+name : name;
     }
+
+    /**
+     * Returns the entity name for creating qualified names. 
+     * This is usually the same as "getName()" but it may be overridden to return singular instead of plural
+     * @return the entity name
+     */
+    public String getEntityName()
+    {
+        return StringUtils.coalesce(entityName, getName());
+    }
+
+    /**
+     * sets the entity name for creating qualified names. 
+     * This is usefull if the table or view name is plural but you want to qualifiy names in singular
+     * @param entityName the entity name
+     */
+    protected void setEntityName(String entityName)
+    {
+        this.entityName = entityName;
+    }
  
     /**
      * returns the bean type for this rowset
@@ -339,6 +360,9 @@ public abstract class DBRowSet extends DBExpr implements Entity
     {
         // set
         this.beanType = beanType;
+        // set the entity name (if not already set)
+        if (this.entityName==null)
+            this.setEntityName(beanType.getSimpleName().toUpperCase());
         // create default factory if not provided
         if (factory==null)
             factory = new DBBeanListFactoryImpl<T>(beanType, getKeyColumns(), getColumns());

@@ -116,6 +116,15 @@ public class DBScalarExpr extends DBColumnExpr
     }
 
     /**
+     * Returns null
+     */
+    @Override
+    public Class<Enum<?>> getEnumType()
+    {
+        return null;
+    }
+
+    /**
      * Returns the column name.
      * 
      * @return the column name

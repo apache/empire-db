@@ -61,6 +61,12 @@ public class DBVarArgsFuncExpr extends DBColumnExpr
     }
 
     @Override
+    public Class<Enum<?>> getEnumType()
+    {
+        return null;
+    }
+
+    @Override
     public String getName()
     {
         return getNameFromTemplate(template);

@@ -18,17 +18,26 @@
  */
 package org.apache.empire.samples.db.advanced;
 
+import java.sql.SQLException;
+
 import org.apache.empire.commons.Options;
 import org.apache.empire.data.DataType;
 import org.apache.empire.db.DBColumn;
 import org.apache.empire.db.DBColumnExpr;
 import org.apache.empire.db.DBCommand;
 import org.apache.empire.db.DBCommandExpr;
+import org.apache.empire.db.DBContext;
 import org.apache.empire.db.DBDatabase;
+import org.apache.empire.db.DBSQLScript;
 import org.apache.empire.db.DBTableColumn;
 import org.apache.empire.db.generic.TDatabase;
 import org.apache.empire.db.generic.TTable;
 import org.apache.empire.db.generic.TView;
+import org.apache.empire.db.validation.DBModelChecker;
+import org.apache.empire.db.validation.DBModelErrorLogger;
+import org.apache.empire.dbms.postgresql.DBMSHandlerPostgreSQL;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * <PRE>
@@ -48,6 +57,9 @@ import org.apache.empire.db.generic.TView;
 public class SampleAdvDB extends TDatabase<SampleAdvDB>
 {
     // *Deprecated* private static final long serialVersionUID = 1L;
+
+    // Logger
+    private static final Logger log = LoggerFactory.getLogger(SampleAdvDB.class);
 
     /**
      * This class represents the definition of the Departments table.
@@ -278,6 +290,68 @@ public class SampleAdvDB extends TDatabase<SampleAdvDB>
         // Define Foreign-Key Relations
         addRelation( T_EMP_DEP_HIST.C_EMPLOYEE_ID  .referenceOn( T_EMPLOYEES.C_EMPLOYEE_ID )).onDeleteCascade();
         addRelation( T_EMP_DEP_HIST.C_DEPARTMENT_ID.referenceOn( T_DEPARTMENTS.C_DEPARTMENT_ID ));
+    }
+    
+    @Override
+    public void open(DBContext context)
+    {
+        // Enable prepared statements
+        setPreparedStatementsEnabled(true);
+        // Check exists
+        if (checkExists(context))
+        {   // attach to driver
+            super.open(context);
+            // yes, it exists, then check the model
+            checkDataModel(context);
+        }
+        else
+        {   // PostgreSQL does not support DDL in transaction
+            if(getDbms() instanceof DBMSHandlerPostgreSQL)
+                setAutoCommit(context, true);
+            // create the database
+            createDatabase(context);
+            // PostgreSQL does not support DDL in transaction
+            if(getDbms() instanceof DBMSHandlerPostgreSQL)
+                setAutoCommit(context, false);
+            // attach to driver
+            super.open(context);
+        }
+    }
+
+    private void createDatabase(DBContext context)
+    {
+        // create DDL for Database Definition
+        DBSQLScript script = new DBSQLScript(context);
+        getCreateDDLScript(script);
+        // Show DDL Statement
+        log.info(script.toString());
+        // Execute Script
+        script.executeAll(false);
+        // Commit
+        context.commit();
+    }
+    
+    private void checkDataModel(DBContext context)
+    {   try {
+            DBModelChecker modelChecker = context.getDbms().createModelChecker(this);
+            // Check data model   
+            log.info("Checking DataModel for {} using {}", getClass().getSimpleName(), modelChecker.getClass().getSimpleName());
+            // dbo schema
+            DBModelErrorLogger logger = new DBModelErrorLogger();
+            modelChecker.checkModel(this, context.getConnection(), logger);
+            // show result
+            log.info("Data model check done. Found {} errors and {} warnings.", logger.getErrorCount(), logger.getWarnCount());
+        } catch(Exception e) {
+            log.error("FATAL error when checking data model. Probably not properly implemented by DBMSHandler!");
+        }
+    }
+    
+    private void setAutoCommit(DBContext context, boolean enable)
+    {   try {
+            context.getConnection().setAutoCommit(enable);
+        } catch (SQLException e) {
+            log.error("Unable to set AutoCommit on Connection", e);
+        }
     }
 
 }

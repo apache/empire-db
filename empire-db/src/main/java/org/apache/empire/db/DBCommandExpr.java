@@ -421,9 +421,10 @@ public abstract class DBCommandExpr extends DBExpr
 
     /**
      * Adds an order by expression the command
-     * @param exprs vararg of orderBy expressions
-     * 
      * @see org.apache.empire.db.DBCommandExpr#orderBy(DBColumnExpr, boolean)
+     * 
+     * @param exprs vararg of orderBy expressions
+     * @return itself (this)
      */
     public DBCommandExpr orderBy(DBOrderByExpr... exprs)
     {
@@ -454,6 +455,7 @@ public abstract class DBCommandExpr extends DBExpr
      * Adds a list of columns to the orderBy clause in ascending order
      * 
      * @param exprs vararg of column expressions
+     * @return itself (this)
      */
     public DBCommandExpr orderBy(DBColumnExpr... exprs)
     {
@@ -469,6 +471,7 @@ public abstract class DBCommandExpr extends DBExpr
      * 
      * @param expr the DBColumnExpr object
      * @param desc if true, the results from select statement will sort top down
+     * @return itself (this)
      */
     public DBCommandExpr orderBy(DBColumnExpr expr, boolean desc)
     {

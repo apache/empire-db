@@ -20,6 +20,8 @@ package org.apache.empire.samples.db.beans;
 
 import java.math.BigDecimal;
 
+import org.apache.empire.samples.db.SampleDB.Gender;
+
 /**
  * The SampleBean class is used to demonstrate JavaBean support for SQL-Queries.
  * The SampleBean is used in the SampleApp's queryRecords function.
@@ -27,10 +29,11 @@ import java.math.BigDecimal;
 public class EmployeeQuery
 {
     private int    employeeId;
-    private String fullName;
-    private String gender;
+    private String employeeName;
+    private Gender gender;
     private String phoneNumber;
-    private String department;
+    private BigDecimal salary;
+    private String departmentName;
     private String businessUnit;
     private BigDecimal paymentsLastYear;
 
@@ -38,17 +41,19 @@ public class EmployeeQuery
      * Uncomment this if you want to use constructor instead of setters
      * Number of arguments and data types must match query!
      *
-    public SampleBean(int employeeId, String fullName, String gender, String phoneNumber, String department, String businessUnit, BigDecimal paymentsLastYear)
+    public EmployeeQuery(int employeeId, String employeeName, Gender gender, String phoneNumber, BigDecimal salary
+                       , String departmentName, String businessUnit, BigDecimal paymentsLastYear)
     {
         this.employeeId = employeeId;
-        this.fullName = fullName;
+        this.employeeName = employeeName;
         this.gender = gender;
         this.phoneNumber = phoneNumber;
-        this.department = department;
+        this.salary = salary;
+        this.departmentName = departmentName;
         this.businessUnit = businessUnit;
         this.paymentsLastYear = paymentsLastYear;
     }
-    */
+     */
 
     public int getEmployeeId()
     {
@@ -60,22 +65,22 @@ public class EmployeeQuery
         this.employeeId = employeeId;
     }
     
-    public String getFullName()
+    public String getEmployeeName()
     {
-        return fullName;
+        return employeeName;
     }
 
-    public void setFullName(String fullName)
+    public void setEmployeeName(String employeeName)
     {
-        this.fullName = fullName;
+        this.employeeName = employeeName;
     }
 
-    public String getGender()
+    public Gender getGender()
     {
         return gender;
     }
 
-    public void setGender(String gender)
+    public void setGender(Gender gender)
     {
         this.gender = gender;
     }
@@ -90,14 +95,24 @@ public class EmployeeQuery
         this.phoneNumber = phoneNumber;
     }
 
-    public String getDepartment()
+    public BigDecimal getSalary()
     {
-        return department;
+        return salary;
     }
 
-    public void setDepartment(String department)
+    public void setSalary(BigDecimal salary)
     {
-        this.department = department;
+        this.salary = salary;
+    }
+    
+    public String getDepartmentName()
+    {
+        return departmentName;
+    }
+
+    public void setDepartmentName(String departmentName)
+    {
+        this.departmentName = departmentName;
     }
 
     public String getBusinessUnit()
@@ -126,13 +141,15 @@ public class EmployeeQuery
         StringBuffer buf = new StringBuffer();
         buf.append(employeeId);
         buf.append("\t");
-        buf.append(fullName);
+        buf.append(employeeName);
         buf.append("\t");
         buf.append(gender);
         buf.append("\t");
-        buf.append(department);
+        buf.append(departmentName);
         buf.append("\t");
         buf.append(businessUnit);
+        buf.append("\t");
+        buf.append(salary);
         buf.append("\t");
         buf.append(paymentsLastYear);
         return buf.toString();

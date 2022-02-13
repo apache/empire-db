@@ -75,6 +75,15 @@ public class DBConcatExpr extends DBColumnExpr
         return DataType.VARCHAR;
     }
 
+    /**
+     * Not an Enum. Returns null
+     */
+    @Override
+    public Class<Enum<?>> getEnumType()
+    {
+        return null;
+    }
+
     @Override
     public String getName()
     { // Get the expression name

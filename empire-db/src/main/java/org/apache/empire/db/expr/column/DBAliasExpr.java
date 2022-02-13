@@ -84,6 +84,16 @@ public class DBAliasExpr extends DBColumnExpr
     }
 
     /**
+     * Returns the enum type of this Expression (if any)
+     * @return the enum type or null
+     */
+    @Override
+    public Class<Enum<?>> getEnumType()
+    {
+        return expr.getEnumType();
+    }
+
+    /**
      * This helper function returns the alias name.
      *
      * @return the alias name

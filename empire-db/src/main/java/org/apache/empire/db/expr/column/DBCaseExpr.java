@@ -71,6 +71,12 @@ public class DBCaseExpr extends DBColumnExpr
     }
 
     @Override
+    public Class<Enum<?>> getEnumType()
+    {
+        return trueExpr.getEnumType();
+    }
+
+    @Override
     public String getName()
     {
         return trueExpr.getName();

@@ -40,11 +40,8 @@ import org.apache.empire.db.DBTableColumn;
 import org.apache.empire.db.context.DBContextStatic;
 import org.apache.empire.db.exceptions.ConstraintViolationException;
 import org.apache.empire.db.exceptions.StatementFailedException;
-import org.apache.empire.db.validation.DBModelChecker;
-import org.apache.empire.db.validation.DBModelErrorLogger;
 import org.apache.empire.dbms.DBMSHandler;
 import org.apache.empire.dbms.h2.DBMSHandlerH2;
-import org.apache.empire.dbms.postgresql.DBMSHandlerPostgreSQL;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -53,176 +50,163 @@ public class SampleAdvApp
 {
     // Logger
     private static final Logger log = LoggerFactory.getLogger(SampleAdvApp.class);
-
-    private static final SampleAdvDB db = new SampleAdvDB();
-
-    private static SampleAdvConfig config = new SampleAdvConfig();
     
-    private static DBContext context;
+    private static SampleAdvConfig config = new SampleAdvConfig();
+
+    private final SampleAdvDB db = new SampleAdvDB();
+
+    private final CarSalesDB carSales = new CarSalesDB();
+    
+    private DBContext context;
     
     // Shortcuts
-    private static SampleAdvDB.Employees T_EMP = db.T_EMPLOYEES;
-    private static SampleAdvDB.Departments T_DEP = db.T_DEPARTMENTS;
-    private static SampleAdvDB.EmployeeDepartmentHistory T_EDH = db.T_EMP_DEP_HIST;
+    private SampleAdvDB.Employees T_EMP = db.T_EMPLOYEES;
+    private SampleAdvDB.Departments T_DEP = db.T_DEPARTMENTS;
+    private SampleAdvDB.EmployeeDepartmentHistory T_EDH = db.T_EMP_DEP_HIST;
 
     /**
      * <PRE>
      * This is the entry point of the Empire-DB Sample Application
      * Please check the config.xml configuration file for Database and Connection settings.
      * </PRE>
-     * @param args command line arguments
+     * @param args arguments
      */
     public static void main(String[] args)
     {
+        // Init Configuration
+        config.init((args.length > 0 ? args[0] : "config.xml" ));
+        // create the app
+        SampleAdvApp app = new SampleAdvApp();
         try
-        {
-
-            // Init Configuration
-            config.init((args.length > 0 ? args[0] : "config.xml" ));
-
-            System.out.println("Running DB Sample Advanced...");
-
-            // STEP 1: Get a JDBC Connection
-            System.out.println("*** Step 1: getJDBCConnection() ***");
-            Connection conn = getJDBCConnection();
-
-            // STEP 2: Choose a dbms
-            System.out.println("*** Step 2: getDatabaseProvider() ***");
-            DBMSHandler dbms = getDBMSHandler(config.getDatabaseProvider());
-            
-            // STEP 2.2: Create a Context
-            context = new DBContextStatic(dbms, conn); 
-
-            // STEP 3: Open Database (and create if not existing)
-            System.out.println("*** Step 3: openDatabase() ***");
-            try {
-                // Enable the use of prepared statements for update and insert commands as well as for read operations on a DBRecord.
-                // Note: For custom SQL commands parameters must be explicitly declared using cmd.addCmdParam();   
-                db.setPreparedStatementsEnabled(true);
-                // Open the database
-                db.open(context);
-                // Check whether database exists
-                databaseExists();
-                System.out.println("*** Database already exists. Checking data model... ***");
-                checkDataModel();
-                
-            } catch(Exception e) {
-                // STEP 4: Create Database
-                System.out.println("*** Step 4: createDDL() ***");
-                // postgre does not support DDL in transaction
-                if(db.getDbms() instanceof DBMSHandlerPostgreSQL)
-                {
-                	conn.setAutoCommit(true);
-                }
-                createDatabase();
-                if(db.getDbms() instanceof DBMSHandlerPostgreSQL)
-                {
-                	conn.setAutoCommit(false);
-                }
-                // Open again
-                if (db.isOpen()==false)
-                    db.open(context);
-            }
-
-            // STEP 5: Clear Database (Delete all records)
-            System.out.println("*** Step 5: clearDatabase() ***");
-            clearDatabase();
-
-            // STEP 6: Insert Records
-            // Insert Departments
-            System.out.println("*** Step 6: inserting departments, employees and employee_department_history records ***");
-            int idDevDep  = insertDepartment("Development", "ITTK");
-            int idProdDep = insertDepartment("Production", "ITTK");
-            int idSalDep  = insertDepartment("Sales", "ITTK");
-
-            // Insert Employees
-            int idEmp1 = insertEmployee("Peter", "Sharp", "M");
-            int idEmp2 = insertEmployee("Fred", "Bloggs", "M");
-            int idEmp3 = insertEmployee("Emma", "White", "F");
-            
-            // Insert History as batch
-            DBSQLScript batch = new DBSQLScript(context);
-            insertEmpDepHistory(batch, idEmp1,  idDevDep,  DateUtils.getDate(2007, 12,  1));            
-            insertEmpDepHistory(batch, idEmp1,  idProdDep, DateUtils.getDate(2008,  9,  1));           
-            insertEmpDepHistory(batch, idEmp1,  idSalDep,  DateUtils.getDate(2009,  5, 15));           
-
-            insertEmpDepHistory(batch, idEmp2,  idSalDep,  DateUtils.getDate(2006,  3,  1));            
-            insertEmpDepHistory(batch, idEmp2,  idDevDep,  DateUtils.getDate(2008, 11, 15));
-            
-            insertEmpDepHistory(batch, idEmp3,  idDevDep,  DateUtils.getDate(2006,  9, 15));            
-            insertEmpDepHistory(batch, idEmp3,  idSalDep,  DateUtils.getDate(2007,  6,  1));           
-            insertEmpDepHistory(batch, idEmp3,  idProdDep, DateUtils.getDate(2008,  7, 31));
-            batch.executeBatch();
-            
-            // commit
-            context.commit();
-            
-            // STEP 7: read from Employee_Info_View
-            System.out.println("--------------------------------------------------------");
-            System.out.println("*** read from EMPLOYEE_INFO_VIEW ***");
-            DBCommand cmd = db.createCommand();
-            cmd.select (db.V_EMPLOYEE_INFO.getColumns());
-            cmd.orderBy(db.V_EMPLOYEE_INFO.C_NAME_AND_DEP);
-            printQueryResults(cmd);
-
-            // STEP 8: prepared Statement sample
-            System.out.println("--------------------------------------------------------");
-            System.out.println("*** commandParamsSample: shows how to use command parameters for the generation of prepared statements ***");
-            commandParamsSample(idProdDep, idDevDep);
-
-            // STEP 9: bulkReadRecords
-            System.out.println("--------------------------------------------------------");
-            System.out.println("*** bulkReadRecords: reads employee records into a hashmap, reads employee from hashmap and updates employee ***");
-            HashMap<Integer, DBRecord> employeeMap = bulkReadRecords(conn);
-            DBRecord rec = employeeMap.get(idEmp2);
-            rec.setValue(db.T_EMPLOYEES.C_SALUTATION, "Mr.");
-            rec.update();
-
-            // STEP 10: bulkProcessRecords
-            System.out.println("--------------------------------------------------------");
-            System.out.println("*** bulkProcessRecords: creates a checksum for every employee in the employees table ***");
-            bulkProcessRecords();
-
-            // STEP 11: querySample
-            System.out.println("--------------------------------------------------------");
-            System.out.println("*** querySample: shows how to use DBQuery class for subqueries and multi table records ***");
-            querySample(idEmp2);
-
-            // STEP 12: ddlSample
-            System.out.println("--------------------------------------------------------");
-            System.out.println("*** ddlSample: shows how to add a column at runtime and update a record with the added column ***");
-            if (db.getDbms() instanceof DBMSHandlerH2) {
-            	log.info("As H2 does not support changing a table with a view defined we remove the view");
-            	System.out.println("*** drop EMPLOYEE_INFO_VIEW ***");
-            	DBSQLScript script = new DBSQLScript(context);
-            	db.getDbms().getDDLScript(DDLActionType.DROP, db.V_EMPLOYEE_INFO, script);
-            	script.executeAll();
-            }
-            ddlSample(idEmp2);
-            if (db.getDbms() instanceof DBMSHandlerH2) {
-            	log.info("And put back the view");
-            	System.out.println("*** create EMPLOYEE_INFO_VIEW ***");
-            	DBSQLScript script = new DBSQLScript(context);
-            	db.getDbms().getDDLScript(DDLActionType.CREATE, db.V_EMPLOYEE_INFO, script);
-            	script.executeAll();
-            }
-
-            // STEP 13: delete records
-            System.out.println("--------------------------------------------------------");
-            System.out.println("*** deleteRecordSample: shows how to delete records (with and without cascade) ***");
-            deleteRecordSample(idEmp3, idSalDep);
-            
+        {   // Run
+            log.info("Running DB Sample...");
+            app.run();
             // Done
-            System.out.println("--------------------------------------------------------");
-            System.out.println("DB Sample Advanced finished successfully.");
-
-        } catch (Exception e)
-        {
+            log.info("DB Sample finished successfully.");
+        } catch (Exception e) {
             // Error
-            System.out.println(e.toString());
-            e.printStackTrace();
+            log.error("Running SampleApp failed with Exception" + e.toString(), e);
+            if (app.context!=null)
+                app.context.rollback();
+        } finally {
+            if (app.context!=null)
+                app.context.discard();
+        }
+    }
+
+    /**
+     * This method runs all the example code
+     */
+    public void run()
+    {
+        // STEP 1: Get a JDBC Connection
+        System.out.println("*** Step 1: getJDBCConnection() ***");
+        Connection conn = getJDBCConnection();
+
+        // STEP 2: Choose a dbms
+        System.out.println("*** Step 2: getDatabaseProvider() ***");
+        DBMSHandler dbms = getDBMSHandler(config.getDatabaseProvider());
+        
+        // STEP 2.2: Create a Context
+        context = new DBContextStatic(dbms, conn); 
+
+        // STEP 3: Open Database (and create if not existing)
+        System.out.println("*** Step 3: openDatabase() ***");
+        db.open(context);
+        carSales.open(context);
+        carSales.queryDemo(context);
+
+        // STEP 5: Clear Database (Delete all records)
+        System.out.println("*** Step 5: clearDatabase() ***");
+        clearDatabase();
+
+        // STEP 6: Insert Records
+        // Insert Departments
+        System.out.println("*** Step 6: inserting departments, employees and employee_department_history records ***");
+        int idDevDep  = insertDepartment("Development", "ITTK");
+        int idProdDep = insertDepartment("Production", "ITTK");
+        int idSalDep  = insertDepartment("Sales", "ITTK");
+
+        // Insert Employees
+        int idEmp1 = insertEmployee("Peter", "Sharp", "M");
+        int idEmp2 = insertEmployee("Fred", "Bloggs", "M");
+        int idEmp3 = insertEmployee("Emma", "White", "F");
+        
+        // Insert History as batch
+        DBSQLScript batch = new DBSQLScript(context);
+        insertEmpDepHistory(batch, idEmp1,  idDevDep,  DateUtils.getDate(2007, 12,  1));            
+        insertEmpDepHistory(batch, idEmp1,  idProdDep, DateUtils.getDate(2008,  9,  1));           
+        insertEmpDepHistory(batch, idEmp1,  idSalDep,  DateUtils.getDate(2009,  5, 15));           
+
+        insertEmpDepHistory(batch, idEmp2,  idSalDep,  DateUtils.getDate(2006,  3,  1));            
+        insertEmpDepHistory(batch, idEmp2,  idDevDep,  DateUtils.getDate(2008, 11, 15));
+        
+        insertEmpDepHistory(batch, idEmp3,  idDevDep,  DateUtils.getDate(2006,  9, 15));            
+        insertEmpDepHistory(batch, idEmp3,  idSalDep,  DateUtils.getDate(2007,  6,  1));           
+        insertEmpDepHistory(batch, idEmp3,  idProdDep, DateUtils.getDate(2008,  7, 31));
+        batch.executeBatch();
+        
+        // commit
+        context.commit();
+        
+        // STEP 7: read from Employee_Info_View
+        System.out.println("--------------------------------------------------------");
+        System.out.println("*** read from EMPLOYEE_INFO_VIEW ***");
+        DBCommand cmd = db.createCommand();
+        cmd.select (db.V_EMPLOYEE_INFO.getColumns());
+        cmd.orderBy(db.V_EMPLOYEE_INFO.C_NAME_AND_DEP);
+        printQueryResults(cmd);
+
+        // STEP 8: prepared Statement sample
+        System.out.println("--------------------------------------------------------");
+        System.out.println("*** commandParamsSample: shows how to use command parameters for the generation of prepared statements ***");
+        commandParamsSample(idProdDep, idDevDep);
+
+        // STEP 9: bulkReadRecords
+        System.out.println("--------------------------------------------------------");
+        System.out.println("*** bulkReadRecords: reads employee records into a hashmap, reads employee from hashmap and updates employee ***");
+        HashMap<Integer, DBRecord> employeeMap = bulkReadRecords(conn);
+        DBRecord rec = employeeMap.get(idEmp2);
+        rec.setValue(db.T_EMPLOYEES.C_SALUTATION, "Mr.");
+        rec.update();
+
+        // STEP 10: bulkProcessRecords
+        System.out.println("--------------------------------------------------------");
+        System.out.println("*** bulkProcessRecords: creates a checksum for every employee in the employees table ***");
+        bulkProcessRecords();
+
+        // STEP 11: querySample
+        System.out.println("--------------------------------------------------------");
+        System.out.println("*** querySample: shows how to use DBQuery class for subqueries and multi table records ***");
+        querySample(idEmp2);
+
+        // STEP 12: ddlSample
+        System.out.println("--------------------------------------------------------");
+        System.out.println("*** ddlSample: shows how to add a column at runtime and update a record with the added column ***");
+        if (db.getDbms() instanceof DBMSHandlerH2) {
+        	log.info("As H2 does not support changing a table with a view defined we remove the view");
+        	System.out.println("*** drop EMPLOYEE_INFO_VIEW ***");
+        	DBSQLScript script = new DBSQLScript(context);
+        	db.getDbms().getDDLScript(DDLActionType.DROP, db.V_EMPLOYEE_INFO, script);
+        	script.executeAll();
+        }
+        ddlSample(idEmp2);
+        if (db.getDbms() instanceof DBMSHandlerH2) {
+        	log.info("And put back the view");
+        	System.out.println("*** create EMPLOYEE_INFO_VIEW ***");
+        	DBSQLScript script = new DBSQLScript(context);
+        	db.getDbms().getDDLScript(DDLActionType.CREATE, db.V_EMPLOYEE_INFO, script);
+        	script.executeAll();
         }
 
+        // STEP 13: delete records
+        System.out.println("--------------------------------------------------------");
+        System.out.println("*** deleteRecordSample: shows how to delete records (with and without cascade) ***");
+        deleteRecordSample(idEmp3, idSalDep);
+        
+        // Done
+        System.out.println("--------------------------------------------------------");
+        System.out.println("DB Sample Advanced finished successfully.");
     }
 
     /**
@@ -289,63 +273,10 @@ public class SampleAdvApp
 
     /**
      * <PRE>
-     * Checks whether the database exists or not by executing
-     *     select count(*) from DEPARTMENTS
-     * If the Departments table does not exist the querySingleInt() function return -1 for failure.
-     * Please note that in this case an error will appear in the log wich can be ingored.
-     * </PRE>
-     */
-    private static boolean databaseExists()
-    {
-        // Check whether DB exists
-        DBCommand cmd = db.createCommand();
-        cmd.select(T_DEP.count());
-        // Check using "select count(*) from DEPARTMENTS"
-        System.out.println("Checking whether table DEPARTMENTS exists (SQLException will be logged if not - please ignore) ...");
-        return (context.getUtils().querySingleInt(cmd, -1) >= 0);
-    }
-
-    /**
-     * <PRE>
-     * Creates a DDL Script for entire SampleDB Database and executes it line by line.
-     * Please make sure you uses the correct DatabaseDriver for your target dbms.
-     * </PRE>
-     */
-    private static void createDatabase()
-    {
-        // create DLL for Database Definition
-        DBSQLScript script = new DBSQLScript(context);
-        db.getCreateDDLScript(script);
-        // Show DLL Statement
-        System.out.println(script.toString());
-        // Execute Script
-        script.executeAll();
-        // Commit
-        context.commit();
-    }
-    
-    private static void checkDataModel()
-    {
-        try {
-            DBModelChecker modelChecker = context.getDbms().createModelChecker(db);
-            // Check data model   
-            log.info("Checking DataModel for {} using {}", db.getClass().getSimpleName(), modelChecker.getClass().getSimpleName());
-            // dbo schema
-            DBModelErrorLogger logger = new DBModelErrorLogger();
-            modelChecker.checkModel(db, context.getConnection(), logger);
-            // show result
-            log.info("Data model check done. Found {} errors and {} warnings.", logger.getErrorCount(), logger.getWarnCount());
-        } catch(Exception e) {
-            log.error("FATAL error when checking data model. Probably not properly implemented by DBMSHandler!");
-        }
-    }
-
-    /**
-     * <PRE>
      * Empties all Tables.
      * </PRE>
      */
-    private static void clearDatabase()
+    private void clearDatabase()
     {
         DBCommand cmd = context.createCommand(db);
         // Delete all Employee Department History records
@@ -361,7 +292,7 @@ public class SampleAdvApp
      * Insert a Department into the Departments table.
      * </PRE>
      */
-    private static int insertDepartment(String departmentName, String businessUnit)
+    private int insertDepartment(String departmentName, String businessUnit)
     {
         // Insert a Department
         DBRecord rec = new DBRecord(context, T_DEP);
@@ -378,7 +309,7 @@ public class SampleAdvApp
      * Inserts an Employee into the Employees table.
      * </PRE>
      */
-    private static int insertEmployee(String firstName, String lastName, String gender)
+    private int insertEmployee(String firstName, String lastName, String gender)
     {
         // Insert an Employee
         DBRecord rec = new DBRecord(context, T_EMP);
@@ -396,7 +327,7 @@ public class SampleAdvApp
      * Inserts an Employee into the Employees table.
      * </PRE>
      */
-    private static void insertEmpDepHistory(DBSQLScript script, int employeeId, int departmentId, Date dateFrom)
+    private void insertEmpDepHistory(DBSQLScript script, int employeeId, int departmentId, Date dateFrom)
     {
         // Insert an Employee
     	/*
@@ -416,7 +347,7 @@ public class SampleAdvApp
     }
 
     /* This procedure demonstrates the use of command parameter for prepared statements */
-    private static void commandParamsSample(int idProdDep, int idDevDep)
+    private void commandParamsSample(int idProdDep, int idDevDep)
     {
         // create a command
         DBCommand cmd = db.createCommand();
@@ -472,7 +403,7 @@ public class SampleAdvApp
      * <P>
      * @param conn a connection to the database
      */
-    private static void bulkProcessRecords()
+    private void bulkProcessRecords()
     {
         // Define the query
         DBCommand cmd = db.createCommand();
@@ -517,7 +448,7 @@ public class SampleAdvApp
         }
     }
     
-	private static int calcCharSum(String value)
+	private int calcCharSum(String value)
     {
         int sum = 0;
         if (value!=null)
@@ -529,7 +460,7 @@ public class SampleAdvApp
         return sum;    
     }
 	
-    private static HashMap<Integer, DBRecord> bulkReadRecords(Connection conn)
+    private HashMap<Integer, DBRecord> bulkReadRecords(Connection conn)
     {
         // Define the query
         DBCommand cmd = db.createCommand();
@@ -566,7 +497,7 @@ public class SampleAdvApp
      * This function demonstrates the use of the {@link DBMSHandler#getDDLScript(org.apache.empire.db.DDLActionType, org.apache.empire.db.DBObject, DBSQLScript)}<BR>
      * 
      */
-    private static void ddlSample(int idTestPerson)
+    private void ddlSample(int idTestPerson)
     {
         // First, add a new column to the Table object
         DBTableColumn C_FOO = db.T_EMPLOYEES.addColumn("FOO", DataType.VARCHAR, 20, false);
@@ -615,7 +546,7 @@ public class SampleAdvApp
      * @param conn
      * @param employeeId
      */
-    private static void querySample(int employeeId)
+    private void querySample(int employeeId)
     {
         // Define the sub query
         DBCommand subCmd = db.createCommand();
@@ -665,7 +596,7 @@ public class SampleAdvApp
      * @param idDepartment the id of the department to delete
      * @param conn the connection
      */
-    private static void deleteRecordSample(int idEmployee, int idDepartment)
+    private void deleteRecordSample(int idEmployee, int idDepartment)
     {
         context.commit();
         // Delete an employee
@@ -690,7 +621,7 @@ public class SampleAdvApp
      * @param cmd the command to be used for performing the query
      * @param conn the connection
      */
-    private static void printQueryResults(DBCommand cmd)
+    private void printQueryResults(DBCommand cmd)
     {
         // Query Records and print output
         DBReader reader = new DBReader(context);

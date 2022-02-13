@@ -459,25 +459,21 @@ public abstract class DBRecordData extends DBObject
                 throw new InvalidArgumentException("bean", bean);
             if (StringUtils.isEmpty(property))
                 throw new InvalidArgumentException("property", property);
-            /*
             if (log.isTraceEnabled())
-                log.trace(bean.getClass().getName() + ": setting property '" + property + "' to " + String.valueOf(value));
-            */
+                log.trace("{}: setting property '{}' to {}", bean.getClass().getName(), property, value);
             /*
             if (value instanceof Date)
             {   // Patch for date bug in BeanUtils
                 value = DateUtils.addDate((Date)value, 0, 0, 0);
             }
             */
-            @SuppressWarnings("unchecked")
-            Class<Enum<?>> enumType = (Class<Enum<?>>)column.getAttribute(Column.COLATTR_ENUMTYPE);
-            if (enumType!=null && value!=null)
-            {   // value to enum
-                value = ObjectUtils.getEnum(enumType, value);
-            }
             // Set Property Value
             if (value!=null)
-            {   // Bean utils will convert if necessary
+            {   // Convert to enum
+                Class<Enum<?>> enumType = column.getEnumType();
+                if (enumType!=null)
+                    value = ObjectUtils.getEnum(enumType, value);
+                // Bean utils will convert if necessary
                 BeanUtils.setProperty(bean, property, value);
             }
             else

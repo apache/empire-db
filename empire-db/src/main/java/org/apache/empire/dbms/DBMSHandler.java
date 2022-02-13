@@ -40,6 +40,10 @@ import org.apache.empire.db.validation.DBModelChecker;
  */
 public interface DBMSHandler
 {
+    /**
+     * Checks if a database exists
+     */
+    boolean checkExists(DBDatabase db, Connection conn);
     
     /**
      * Called when a database is opened

@@ -221,6 +221,7 @@ public abstract class DBCommand extends DBCommandExpr
     /**
      * Sets whether or not the select statement should contain
      * the distinct directive .
+     * @return itself (this)
      */
     public DBCommand selectDistinct()
     {
@@ -259,9 +260,10 @@ public abstract class DBCommand extends DBCommandExpr
     }
     
     /**
-     * Adds a DBColumnExpr object to the Vector: 'select'.
+     * Adds a DBColumnExpr object to the Select collection
      * 
      * @param expr the DBColumnExpr object
+     * @return itself (this)
      */
     public DBCommand select(DBColumnExpr expr)
     {   // Select this column
@@ -276,6 +278,7 @@ public abstract class DBCommand extends DBCommandExpr
      * Adds a list of columns to the select phrase of an sql statement.
      * 
      * @param exprs an vararg of DBColumnExpr's to select
+     * @return itself (this)
      */
     public final DBCommand select(DBColumnExpr... exprs)
     {
@@ -290,6 +293,7 @@ public abstract class DBCommand extends DBCommandExpr
      * Adds a collection of columns to the select phrase of an sql statement.
      * 
      * @param columns the column expressions to add
+     * @return itself (this)
      */
     public final DBCommand select(Collection<? extends DBColumnExpr> columns)
     {
@@ -304,6 +308,7 @@ public abstract class DBCommand extends DBCommandExpr
      * Adds a list of columns with their qualified name to the select phrase of an sql statement.
      * 
      * @param exprs one or more columns to select
+     * @return itself (this)
      */
     public DBCommand selectQualified(DBColumn... columns)
     {
@@ -318,6 +323,7 @@ public abstract class DBCommand extends DBCommandExpr
      * Adds a collection of columns to the select phrase of an sql statement.
      * 
      * @param columns the column expressions to add
+     * @return itself (this)
      */
     public final DBCommand selectQualified(Collection<? extends DBColumn> columns)
     {
@@ -409,7 +415,9 @@ public abstract class DBCommand extends DBCommandExpr
     /**
      * Adds a single set expressions to this command
      * Use column.to(...) to create a set expression 
+     * 
      * @param expr the DBSetExpr object(s)
+     * @return itself (this)
      */
     public DBCommand set(DBSetExpr expr)
     {
@@ -449,8 +457,10 @@ public abstract class DBCommand extends DBCommandExpr
     
     /**
      * Adds a list of set expressions to this command
-     * Use column.to(...) to create a set expression 
+     * Use column.to(...) to create a set expression
+     *  
      * @param expr the DBSetExpr object(s)
+     * @return itself (this)
      */
     public final DBCommand set(DBSetExpr... exprs)
     {
@@ -555,6 +565,7 @@ public abstract class DBCommand extends DBCommandExpr
      * Adds a join to the list of join expressions.
      * 
      * @param join the join expression
+     * @return itself (this)
      */
     public DBCommand join(DBJoinExpr join)
     {
@@ -580,8 +591,7 @@ public abstract class DBCommand extends DBCommandExpr
      * 
      * @param left the left join value
      * @param right the right join
-     * 
-     * @return the join expresion 
+     * @return itself (this) 
      */
     public final DBCommand join(DBColumnExpr left, DBColumn right, DBCompareExpr... addlConstraints)
     {
@@ -595,8 +605,7 @@ public abstract class DBCommand extends DBCommandExpr
      * 
      * @param left the left join value
      * @param right the right join
-     * 
-     * @return the join expresion 
+     * @return itself (this) 
      */
     public final DBCommand joinLeft(DBColumnExpr left, DBColumn right, DBCompareExpr... addlConstraints)
     {
@@ -610,8 +619,7 @@ public abstract class DBCommand extends DBCommandExpr
      * 
      * @param left the left join value
      * @param right the right join
-     * 
-     * @return the join expresion 
+     * @return itself (this) 
      */
     public final DBCommand joinRight(DBColumnExpr left, DBColumn right, DBCompareExpr... addlConstraints)
     {
@@ -626,8 +634,7 @@ public abstract class DBCommand extends DBCommandExpr
      * @param left the left join value
      * @param right the right join
      * @param joinType type of join ({@link DBJoinType#INNER}, {@link DBJoinType#LEFT}, {@link DBJoinType#RIGHT})
-     * 
-     * @return the join expression 
+     * @return itself (this) 
      */
     public final DBCommand join(DBColumnExpr left, DBColumnExpr right, DBJoinType joinType, DBCompareExpr... addlConstraints)
     {
@@ -647,7 +654,7 @@ public abstract class DBCommand extends DBCommandExpr
      * Adds a cross join for two tables or views 
      * @param left the left RowSet
      * @param right the right RowSet
-     * @return the join expression
+     * @return itself (this) 
      */
     public final DBCommand join(DBRowSet left, DBRowSet right)
     {
@@ -663,8 +670,7 @@ public abstract class DBCommand extends DBCommandExpr
      * @param rowset table or view to join
      * @param cmp the compare expression with wich to join the table
      * @param joinType type of join ({@link DBJoinType#INNER}, {@link DBJoinType#LEFT}, {@link DBJoinType#RIGHT})
-     * 
-     * @return the join expresion 
+     * @return itself (this) 
      */
     public final DBCommand join(DBRowSet rowset, DBCompareExpr cmp, DBJoinType joinType)
     {
@@ -678,8 +684,7 @@ public abstract class DBCommand extends DBCommandExpr
      * 
      * @param rowset table of view which to join
      * @param cmp the compare expression with wich to join the table
-     * 
-     * @return the join expresion 
+     * @return itself (this) 
      */
     public final DBCommand join(DBRowSet rowset, DBCompareExpr cmp)
     {
@@ -824,6 +829,7 @@ public abstract class DBCommand extends DBCommandExpr
      * If another restriction already exists for the same column it will be replaced.
      * 
      * @param expr the DBCompareExpr object
+     * @return itself (this)
      */
     public DBCommand where(DBCompareExpr expr)
     {
@@ -838,6 +844,7 @@ public abstract class DBCommand extends DBCommandExpr
      * If another restriction already exists for the same column it will be replaced.
      * 
      * @param expr the DBCompareExpr object
+     * @return itself (this)
      */
     public final DBCommand where(DBCompareExpr... exprs)
     {
@@ -903,6 +910,7 @@ public abstract class DBCommand extends DBCommandExpr
     /**
      * adds a constraint to the having clause.
      * @param expr the DBCompareExpr object
+     * @return itself (this)
      */
     public DBCommand having(DBCompareExpr expr)
     {
@@ -965,6 +973,7 @@ public abstract class DBCommand extends DBCommandExpr
      * Adds a list of columns to the group by phrase of an sql statement.
      * 
      * @param exprs vararg of columns by which to group the rows
+     * @return itself (this)
      */
     public DBCommand groupBy(DBColumnExpr...exprs)
     {
@@ -983,6 +992,7 @@ public abstract class DBCommand extends DBCommandExpr
      * Adds a collection of columns to the group by phrase of an sql statement.
      * 
      * @param columns the column expressions to add
+     * @return itself (this)
      */
     public final DBCommand groupBy(Collection<? extends DBColumnExpr> columns)
     {
