@@ -20,6 +20,7 @@ package org.apache.empire.db.expr.column;
 
 import java.util.Set;
 
+import org.apache.empire.commons.StringUtils;
 import org.apache.empire.data.Column;
 // Java
 import org.apache.empire.data.DataType;
@@ -115,7 +116,8 @@ public class DBCountExpr extends DBColumnExpr
     @Override
     public String getName()
     {
-        return "count";
+        String colName = (column!=null ? column.getName() : rowset.getName()); 
+        return (StringUtils.isNotEmpty(colName) ? colName+"_COUNT" : "COUNT");
     }
 
     /**

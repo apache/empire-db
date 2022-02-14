@@ -22,6 +22,7 @@ package org.apache.empire.db.expr.column;
 import java.util.Date;
 import java.util.Set;
 
+import org.apache.empire.commons.StringUtils;
 import org.apache.empire.data.DataType;
 import org.apache.empire.db.DBColumn;
 import org.apache.empire.db.DBColumnExpr;
@@ -52,7 +53,7 @@ public class DBCalcExpr extends DBColumnExpr
      * 
      * @param expr an DBColumnExpr object, one column
      * @param op the mathematical operation ("+", "-", "*" or "/")
-     * @param value the multiply, divide, summate or subtract value
+     * @param value the value to multiply, divide, sum or subtract 
      */
     public DBCalcExpr(DBColumnExpr expr, String op, Object value)
     {
@@ -114,7 +115,11 @@ public class DBCalcExpr extends DBColumnExpr
     @Override
     public String getName()
     {   // Get the expression name
-        return expr.getName();
+        String exprName = expr.getName();
+        String valName  =((value instanceof DBColumnExpr) ? ((DBColumnExpr)value).getName() : null);
+        if (StringUtils.isNotEmpty(exprName))
+             return ((valName!=null) ? exprName+"_"+valName : exprName);
+        else return StringUtils.coalesce(valName, "CALC");
     }
 
     /**

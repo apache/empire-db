@@ -120,7 +120,9 @@ public abstract class DBAbstractFuncExpr extends DBColumnExpr
     @Override
     public String getName()
     {
-        return expr.getName();
+        String exprName = expr.getName();
+        String funcName = getFunctionName();
+        return (StringUtils.isNotEmpty(exprName) ? exprName+"_"+funcName : funcName);
     }
 
     /**

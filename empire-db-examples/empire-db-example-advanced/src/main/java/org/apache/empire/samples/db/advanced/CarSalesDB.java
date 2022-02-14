@@ -22,7 +22,6 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.sql.SQLException;
 import java.time.LocalDate;
-import java.util.List;
 
 import org.apache.empire.commons.ObjectUtils;
 import org.apache.empire.data.DataType;
@@ -299,6 +298,27 @@ public class CarSalesDB extends TDatabase<CarSalesDB>
         }
     }
     
+    public static class QueryResult 
+    {
+        private String brand;
+        private String model;
+        private BigDecimal basePrice;
+        private int salesCount;
+        private BigDecimal avgSalesPrice;
+        private BigDecimal priceDifference;
+        
+        public QueryResult(String brand, String model, BigDecimal basePrice
+                         , int salesCount, BigDecimal avgSalesPrice, BigDecimal priceDifference)
+        {
+            this.brand = brand;
+            this.model = model;
+            this.basePrice = basePrice;
+            this.salesCount = salesCount;
+            this.avgSalesPrice = avgSalesPrice;
+            this.priceDifference = priceDifference;
+        }
+    }
+    
     public void queryDemo(DBContext context)
     {
         /*
@@ -314,9 +334,10 @@ public class CarSalesDB extends TDatabase<CarSalesDB>
            .orderBy(BRAND.NAME.desc(), MODEL.NAME.asc());
         */
         DBCommand cmd = createCommand()
-           .selectQualified(BRAND.NAME, MODEL.CONFIG_NAME, MODEL.BASE_PRICE)
-           .select  (SALES.MODEL_ID.count().as("SALES_COUNT"), SALES.PRICE.avg().as("AVG_SALES_PRICE"))
-           .select  (SALES.PRICE.avg().minus(MODEL.BASE_PRICE.avg()).round(2).as("DIFFERENCE"))
+           .selectQualified(BRAND.NAME, MODEL.CONFIG_NAME) 
+           .select  (MODEL.BASE_PRICE)
+           .select  (SALES.MODEL_ID.count(), SALES.PRICE.avg())
+           .select  (SALES.PRICE.avg().minus(MODEL.BASE_PRICE.avg()).round(2))
            .join    (MODEL.BRAND_ID, BRAND.ID)
            .joinLeft(MODEL.ID, SALES.MODEL_ID, SALES.YEAR.is(2021))  // only year 2021
            .where   (MODEL.ENGINE_TYPE.in(EngineType.P, EngineType.H, EngineType.E)) // Petrol, Hybrid, Electric
@@ -325,9 +346,18 @@ public class CarSalesDB extends TDatabase<CarSalesDB>
            .having  (SALES.MODEL_ID.count().isGreaterThan(5))
            .orderBy (BRAND.NAME.desc(), MODEL.CONFIG_NAME.asc());
         
-     
+        /*
         List<DataListEntry> list = context.getUtils().queryDataList(cmd);
         for (DataListEntry dle : list)
+        {
             System.out.println(dle.toString());
+        }
+        */
+        DataListEntry entry = context.getUtils().queryDataEntry(cmd);
+        for (int i=0; i<entry.getFieldCount(); i++)
+            log.info("col {} -> {}", entry.getColumn(i).getName(), entry.getColumn(i).getBeanPropertyName());
+     
+        QueryResult res = context.getUtils().queryBean(cmd, QueryResult.class);
+        
     }
 }

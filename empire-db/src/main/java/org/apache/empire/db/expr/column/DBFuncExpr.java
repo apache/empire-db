@@ -97,12 +97,17 @@ public class DBFuncExpr extends DBAbstractFuncExpr
     protected String getFunctionName()
     {
         // Get the template
-        if (template==null && getDbms()!=null)
-            template = getDbms().getSQLPhrase(phrase);
+        if (phrase!=null)
+        {   // from phrase
+            int end = phrase.name().lastIndexOf('_');
+            if (end>0)
+                return phrase.name().substring(end+1);
+            // the phrase
+            return phrase.name();
+        }
         // Get the first word
         if (template!=null)
-        {
-            String s = template.trim();
+        {   String s = template.trim();
             int i=0;
             for (; i<s.length(); i++)
                 if (s.charAt(i)<'A')
@@ -111,8 +116,7 @@ public class DBFuncExpr extends DBAbstractFuncExpr
             if (i>0)
                 return s.substring(0,i);
         }
-        // default
-        return "func_" + String.valueOf(phrase);
+        return "FUNC";
     }
 
     /**

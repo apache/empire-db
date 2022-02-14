@@ -58,9 +58,21 @@ public class DBConcatFuncExpr extends DBAbstractFuncExpr
     }
 
     @Override
+    public String getName()
+    { // Get the expression name
+        String name = first.getName();
+        for (int i=0; i<others.length; i++)
+        { // add other names
+            name += "_";
+            name += others[i].getName();
+        }
+        return name;
+    }
+
+    @Override
     protected String getFunctionName()
     {
-        return "concat";
+        return "CONCAT";
     }
 
     @Override
