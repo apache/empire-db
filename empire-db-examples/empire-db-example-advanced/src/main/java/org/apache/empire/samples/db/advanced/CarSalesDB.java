@@ -22,6 +22,7 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.sql.SQLException;
 import java.time.LocalDate;
+import java.util.List;
 
 import org.apache.empire.commons.ObjectUtils;
 import org.apache.empire.data.DataType;
@@ -357,7 +358,21 @@ public class CarSalesDB extends TDatabase<CarSalesDB>
         for (int i=0; i<entry.getFieldCount(); i++)
             log.info("col {} -> {}", entry.getColumn(i).getName(), entry.getColumn(i).getBeanPropertyName());
      
-        QueryResult res = context.getUtils().queryBean(cmd, QueryResult.class);
+        List<QueryResult> list = context.getUtils().queryBeanList(cmd, QueryResult.class, null);
         
     }
+    
+    public void updateDemo(DBContext context)
+    {
+        
+        DBCommand cmd = createCommand()
+            .set  (MODEL.BASE_PRICE.to(55000))  // set the price-tag
+            .join (MODEL.BRAND_ID, BRAND.ID)
+            .where(BRAND.NAME.is("Tesla"))
+            .where(MODEL.NAME.is("Model 3").and(MODEL.TRIM.is("Performance")));
+
+        // and off you go...
+        context.executeUpdate(cmd);
+    }
+    
 }
