@@ -18,9 +18,12 @@
  */
 package org.apache.empire.db.expr.set;
 
-import java.util.*;
+import java.util.Set;
 
+import org.apache.empire.data.DataType;
+import org.apache.empire.db.DBCmdParam;
 import org.apache.empire.db.DBColumn;
+import org.apache.empire.db.DBCommand;
 import org.apache.empire.db.DBDatabase;
 import org.apache.empire.db.DBExpr;
 import org.apache.empire.db.DBRowSet;
@@ -108,6 +111,18 @@ public class DBSetExpr extends DBExpr
     public void addReferencedColumns(Set<DBColumn> list)
     {
         list.add(column);
+    }
+
+    /**
+     * Copy Command
+     * @param cmd
+     */
+    public DBSetExpr copyCommand(DBCommand cmd)
+    {
+        Object valueCopy = value;
+        if (value instanceof DBCmdParam) 
+            valueCopy = cmd.addParam(DataType.UNKNOWN, ((DBCmdParam)value).getValue());
+        return new DBSetExpr(column, valueCopy);
     }
 
     /**

@@ -48,7 +48,7 @@ public class DBCompareJoinExpr extends DBColumnJoinExpr
     {
         // DBParenthesisExpr
         if (expr instanceof DBParenthesisExpr)
-            return findFirstColumn(((DBParenthesisExpr)expr).getWrapped());
+            return findFirstColumn(((DBParenthesisExpr)expr).unwrap());
         // DBCompareORExpr
         if (expr instanceof DBCompareAndOrExpr)
             return findFirstColumn(((DBCompareAndOrExpr)expr).getLeft());

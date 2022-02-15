@@ -115,12 +115,29 @@ public abstract class DBCommand extends DBCommandExpr
     protected void resetParamUsage()
     {
         paramUsageCount = 0;
-        // clear subquery params
         if (cmdParams==null)
             return;
+        // clear subquery params
         for (int i=cmdParams.size()-1; i>=0 ;i--)
             if (cmdParams.get(i).getCmd()!=this)
                 cmdParams.remove(i);
+    }
+    
+    /**
+     * internally used to remove unused Command Params from list
+     * Note: Only one thread my generate an SQL statement 
+     */
+    protected void completeParamUsage()
+    {
+        if (cmdParams==null)
+            return;
+        // check whether all params have been used
+        if (paramUsageCount < cmdParams.size())
+        {   // Remove unused parameters
+            log.warn("DBCommand has {} unused Command params", cmdParams.size()-paramUsageCount);
+            for (int i=cmdParams.size()-1; i>=paramUsageCount; i--)
+                cmdParams.remove(i);
+        }
     }
     
     /**
@@ -189,18 +206,18 @@ public abstract class DBCommand extends DBCommandExpr
                 clone.groupBy = new ArrayList<DBColumnExpr>(groupBy);
             if (having!=null)
                 clone.having = new ArrayList<DBCompareExpr>(having);
-            if (cmdParams!=null)
+            if (cmdParams!=null && !cmdParams.isEmpty())
             {   // clone params
                 clone.paramUsageCount = 0;
                 clone.cmdParams = new ArrayList<DBCmdParam>();
-                for (DBCmdParam p : cmdParams)
-                {   // checkCmd
-                    if (p.getCmd()!=this)
-                        continue;
-                    // copy
-                    DBCmdParam param = new DBCmdParam(clone, p.getDataType(), p.getValue());
-                    clone.cmdParams.add(param);
-                }
+                // clone set
+                for (int i=0; (clone.set!=null && i<clone.set.size()); i++)
+                    clone.set.set(i, clone.set.get(i).copyCommand(clone));
+                // clone where and having
+                for (int i=0; (clone.where!=null && i<clone.where.size()); i++)
+                    clone.where.set(i, clone.where.get(i).copyCommand(clone));
+                for (int i=0; (clone.having!=null && i<clone.having.size()); i++)
+                    clone.having.set(i, clone.having.get(i).copyCommand(clone));
             }
             // done
             return clone;
@@ -1078,8 +1095,16 @@ public abstract class DBCommand extends DBCommandExpr
      */
     public void clearSet()
     {
+        if (set!=null && cmdParams!=null)
+        {   // remove params
+            for (DBSetExpr set : this.set)
+            {   // remove all
+                Object value = set.getValue();
+                if (value instanceof DBCmdParam)
+                    cmdParams.remove(value);
+            }
+        }
         set = null;
-        cmdParams = null;
     }
 
     /**
@@ -1353,6 +1378,8 @@ public abstract class DBCommand extends DBCommandExpr
         addGrouping(buf);
         // Add Order
         addOrder(buf);
+        // done
+        completeParamUsage();
     }
 
     /**
@@ -1410,6 +1437,8 @@ public abstract class DBCommand extends DBCommandExpr
             addListExpr(buf, set, CTX_VALUE, ", ");
         // End
         buf.append(")");
+        // done
+        completeParamUsage();
         return buf.toString();
     }
 
@@ -1448,6 +1477,7 @@ public abstract class DBCommand extends DBCommandExpr
             addWhere(buf, context);
         }
         // done
+        completeParamUsage();
         return buf.toString();
     }
     
@@ -1478,6 +1508,8 @@ public abstract class DBCommand extends DBCommandExpr
             // where
             addWhere(buf, CTX_NAME|CTX_VALUE);
         }
+        // done
+        completeParamUsage();
         return buf.toString();
     }
     

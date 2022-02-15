@@ -20,6 +20,7 @@ package org.apache.empire.db.expr.compare;
 
 import java.util.Set;
 
+import org.apache.empire.data.DataType;
 import org.apache.empire.db.DBCmdParam;
 import org.apache.empire.db.DBCmpType;
 import org.apache.empire.db.DBColumn;
@@ -141,6 +142,19 @@ public class DBCompareColExpr extends DBCompareExpr
                 // not supported
                 return;
         }
+    }
+
+    /**
+     * Copy Command
+     * @param cmd
+     */
+    @Override
+    public DBCompareExpr copyCommand(DBCommand cmd)
+    {
+        Object valueCopy = value;
+        if (value instanceof DBCmdParam) 
+            valueCopy = cmd.addParam(DataType.UNKNOWN, ((DBCmdParam)value).getValue());
+        return new DBCompareColExpr(expr, cmpop, valueCopy);
     }
     
     /**

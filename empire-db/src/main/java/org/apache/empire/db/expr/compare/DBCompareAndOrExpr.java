@@ -94,6 +94,16 @@ public class DBCompareAndOrExpr extends DBCompareExpr
     }
 
     /**
+     * Copy Command
+     * @param cmd
+     */
+    @Override
+    public DBCompareExpr copyCommand(DBCommand cmd)
+    {
+        return new DBCompareAndOrExpr(left.copyCommand(cmd), right.copyCommand(cmd), or);
+    }
+
+    /**
      * @see org.apache.empire.db.DBExpr#addReferencedColumns(Set)
      */
     @Override

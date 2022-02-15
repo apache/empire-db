@@ -20,6 +20,7 @@ package org.apache.empire.db.expr.compare;
 
 import java.util.Set;
 
+import org.apache.empire.commons.Unwrappable;
 import org.apache.empire.db.DBColumn;
 import org.apache.empire.db.DBCommand;
 import org.apache.empire.db.DBDatabase;
@@ -28,17 +29,24 @@ import org.apache.empire.db.DBDatabase;
  * This class wraps an existing compare expression with parenthesis.
  * <P>
  */
-public class DBParenthesisExpr extends DBCompareExpr
+public class DBParenthesisExpr extends DBCompareExpr implements Unwrappable<DBCompareExpr>
 {
     // *Deprecated* private static final long serialVersionUID = 1L;
     private final DBCompareExpr wrapped;
     
-    public DBParenthesisExpr(DBCompareExpr wrap)
+    public DBParenthesisExpr(DBCompareExpr expr)
     {
-        this.wrapped = wrap;
+        this.wrapped = expr;
     }
-    
-    public DBCompareExpr getWrapped()
+
+    @Override
+    public boolean isWrapper()
+    {
+        return true;
+    }
+
+    @Override
+    public DBCompareExpr unwrap()
     {
         return wrapped;
     }
@@ -60,6 +68,12 @@ public class DBParenthesisExpr extends DBCompareExpr
     public void prepareCommand(DBCommand cmd) 
     {
         wrapped.prepareCommand(cmd);
+    }
+
+    @Override
+    public DBCompareExpr copyCommand(DBCommand cmd)
+    {
+        return new DBParenthesisExpr(wrapped.copyCommand(cmd));
     }
 
     @Override

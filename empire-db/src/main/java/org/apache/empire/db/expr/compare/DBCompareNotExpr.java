@@ -18,11 +18,11 @@
  */
 package org.apache.empire.db.expr.compare;
 
+import java.util.Set;
+
 import org.apache.empire.db.DBColumn;
 import org.apache.empire.db.DBCommand;
 import org.apache.empire.db.DBDatabase;
-
-import java.util.Set;
 
 
 /**
@@ -69,6 +69,16 @@ public class DBCompareNotExpr extends DBCompareExpr
     public void prepareCommand(DBCommand cmd) 
     {
         expr.prepareCommand(cmd);
+    }
+
+    /**
+     * Copy Command
+     * @param cmd
+     */
+    @Override
+    public DBCompareExpr copyCommand(DBCommand cmd)
+    {
+        return new DBCompareNotExpr(expr.copyCommand(cmd));
     }
 
     /**
