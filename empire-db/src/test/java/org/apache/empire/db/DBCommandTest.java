@@ -38,25 +38,25 @@ public class DBCommandTest
 	@Test
 	public void testDBCommand()
 	{
-		MockDB mock = new MockDB();
+		MockDB MDB = new MockDB();
 		DBContext context = new DBContextStatic(new MockDriver(), null);
-		mock.open(context);
+		MDB.open(context);
 		
 		List<DBColumn> list = new ArrayList<DBColumn>();
-		DBCommand command = mock.createCommand();
+		DBCommand command = context.createCommand();
 	    command.select(list);
 	    assertNull(command.getSelectExprList());
 	    
 		List<DBColumnExpr> list2 = new ArrayList<DBColumnExpr>();
-		list2.add(mock.TABLE.COL1);
-		list2.add(mock.TABLE.COL3);
-		DBCommand command2 = mock.createCommand();
+		list2.add(MDB.TABLE.COL1);
+		list2.add(MDB.TABLE.COL3);
+		DBCommand command2 = context.createCommand();
 		command2.select(list2);
 		assertEquals(2, command2.getSelectExprList().length);
 		
-        DBCommand command3 = mock.createCommand();
-        command3.select (mock.TABLE.getColumns());
-        command3.groupBy(mock.TABLE.COL1, mock.TABLE.COL2, mock.TABLE.COL2);
+        DBCommand command3 = context.createCommand();
+        command3.select (MDB.TABLE.getColumns());
+        command3.groupBy(MDB.TABLE.COL1, MDB.TABLE.COL2, MDB.TABLE.COL2);
         assertEquals(3, command3.getSelectExprList().length);
         assertEquals(2, command3.groupBy.size());
 	}

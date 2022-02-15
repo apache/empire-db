@@ -433,6 +433,7 @@ public class DBQuery extends DBRowSet
         // Get the fields and the flags
         Object[] fields = record.getFields();
         // Get all Update Commands
+        DBContext context = record.getContext();
         Map<DBRowSet, DBCommand> updCmds = new HashMap<DBRowSet, DBCommand>(3);
         for (int i = 0; i < columns.size(); i++)
         { // get the table
@@ -443,7 +444,7 @@ public class DBQuery extends DBRowSet
             DBCommand updCmd = updCmds.get(table);
             if (updCmd == null)
             { // Add a new Command
-                updCmd = db.createCommand();
+                updCmd = createRecordCommand(context);
                 updCmds.put(table, updCmd);
             }
             /*
@@ -462,7 +463,6 @@ public class DBQuery extends DBRowSet
             }
         }
         // the connection
-        DBContext context = record.getContext();
         Connection conn = context.getConnection();
         // the commands
         DBCommand cmd = getCommandFromExpression();

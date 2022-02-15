@@ -193,7 +193,7 @@ public class SampleServiceApp
 
     private static boolean databaseExists(SampleDB db, DBContext context) {
         // Check wether DB exists
-        DBCommand cmd = db.createCommand();
+        DBCommand cmd = context.createCommand();
         cmd.select(db.T_DEPARTMENTS.count());
         try {
             return (context.getUtils().querySingleInt(cmd, -1) >= 0);
@@ -231,8 +231,8 @@ public class SampleServiceApp
         // Insert a Department
         DBRecord rec = new DBRecord(context, db.T_DEPARTMENTS);
         rec.create();
-        rec.setValue(db.T_DEPARTMENTS.NAME, department_name);
-        rec.setValue(db.T_DEPARTMENTS.BUSINESS_UNIT, businessUnit);
+        rec.set(db.T_DEPARTMENTS.NAME, department_name);
+        rec.set(db.T_DEPARTMENTS.BUSINESS_UNIT, businessUnit);
         try {
             rec.update();
         } catch (Exception e) {
@@ -250,11 +250,11 @@ public class SampleServiceApp
         // Insert an Employee
         DBRecord rec = new DBRecord(context, db.T_EMPLOYEES);
         rec.create();
-        rec.setValue(db.T_EMPLOYEES.SALUTATION, salutation);
-        rec.setValue(db.T_EMPLOYEES.FIRST_NAME, firstName);
-        rec.setValue(db.T_EMPLOYEES.LAST_NAME, lastName);
-        rec.setValue(db.T_EMPLOYEES.GENDER, gender);
-        rec.setValue(db.T_EMPLOYEES.DEPARTMENT_ID, depID);
+        rec.set(db.T_EMPLOYEES.SALUTATION, salutation);
+        rec.set(db.T_EMPLOYEES.FIRST_NAME, firstName);
+        rec.set(db.T_EMPLOYEES.LAST_NAME, lastName);
+        rec.set(db.T_EMPLOYEES.GENDER, gender);
+        rec.set(db.T_EMPLOYEES.DEPARTMENT_ID, depID);
         try {
             rec.update();
         } catch (Exception e) {

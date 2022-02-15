@@ -1164,8 +1164,7 @@ public class DBUtils implements DBContextAware
         DBObject.checkParamNull("rowset", rowset);
         DBObject.checkParamNull("whereConstraints", whereConstraints);
         // find
-        DBDatabase db = whereConstraints.getDatabase();
-        DBCommand cmd = db.createCommand();
+        DBCommand cmd = context.createCommand();
         cmd.where(whereConstraints);
         // use factory of rowset
         return queryBean(cmd, getRowsetBeanListFactory(beanType, rowset));
@@ -1185,8 +1184,7 @@ public class DBUtils implements DBContextAware
         if (factory==null)
             throw new UnknownBeanTypeException(beanType);
         // add constraints
-        DBDatabase db = whereConstraints.getDatabase();
-        DBCommand cmd = db.createCommand();
+        DBCommand cmd = context.createCommand();
         cmd.where(whereConstraints);
         // query now
         return queryBean(cmd, factory);
@@ -1204,7 +1202,7 @@ public class DBUtils implements DBContextAware
         DBObject.checkParamNull("rowset", rowset);
         DBObject.checkParamNull("key", key);
         // set key constraints 
-        DBCommand cmd = rowset.getDatabase().createCommand();
+        DBCommand cmd = context.createCommand();
         rowset.setKeyConstraints(cmd, key);
         // use factory of rowset
         return queryBean(cmd, getRowsetBeanListFactory(beanType, rowset));

@@ -445,7 +445,7 @@ public class DBMSHandlerOracle extends DBMSHandlerBase
         // Database definition
         OracleSYSDatabase sysDB = new OracleSYSDatabase(this);
         // Check Columns
-        DBCommand sysDBCommand = sysDB.createCommand();
+        DBCommand sysDBCommand = createCommand(false);
         sysDBCommand.select(sysDB.CI.getColumns());
         sysDBCommand.where (sysDB.CI.C_OWNER.is(owner));
         

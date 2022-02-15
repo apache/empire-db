@@ -55,7 +55,7 @@ public class EmployeeRecord extends SampleRecord<TEmployees>
         if (column.equals(T.DEPARTMENT_ID))
         {
             SampleDB db = (SampleDB) getDatabase();
-            DBCommand cmd = db.createCommand();
+            DBCommand cmd = context.createCommand();
             cmd.select(db.T_DEPARTMENTS.ID);
             cmd.select(db.T_DEPARTMENTS.NAME);
             cmd.orderBy(db.T_DEPARTMENTS.NAME);

@@ -62,7 +62,7 @@ public class AliasExpressionTest
         int numberIndex = record.getFieldIndex(t.C_NUMBER);
         Assert.assertEquals(record.getFieldIndex(AMOUNT), numberIndex);
         
-        DBCommand cmd = db.createCommand();
+        DBCommand cmd = context.createCommand();
         cmd.select(ALIAS_1, t.C_TEXT, ALIAS_2, ALIAS_2_NEU, AMOUNT); /* Don't select ALIAS_X */
         DBColumnExpr[] expr = cmd.getSelectExprList();
         // Hint: ALIAS_2_NEU is not a separate column

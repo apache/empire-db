@@ -74,6 +74,6 @@ public class SamplePage extends Page
 
     protected DBCommand createQueryCommand()
     {
-        return getDatabase().createCommand();
+        return getSampleContext().createCommand();
     }
 }

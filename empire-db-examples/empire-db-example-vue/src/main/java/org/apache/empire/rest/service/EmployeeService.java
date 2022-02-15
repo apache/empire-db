@@ -61,17 +61,17 @@ public class EmployeeService extends Service {
     @Produces(MediaType.APPLICATION_JSON)
     public Response getEmployeeFilter() {
 
-        RecordContext ctx = this.getRecordContext(); 
-	    TextResolver textResolver = ctx.getTextResolver();
+        RecordContext context = this.getRecordContext(); 
+	    TextResolver textResolver = context.getTextResolver();
 
         // Query Department options
         SampleDB db = getDatabase();
-        DBCommand cmd = db.createCommand();
+        DBCommand cmd = context.createCommand();
         cmd.select(db.T_DEPARTMENTS.ID, db.T_DEPARTMENTS.NAME);
         cmd.join  (db.T_DEPARTMENTS.ID, db.T_EMPLOYEES.DEPARTMENT_ID);
         cmd.groupBy(cmd.getSelectExpressions());
         cmd.orderBy(db.T_DEPARTMENTS.NAME);
-        Options departmentOptions = ctx.getUtils().queryOptionList(cmd);
+        Options departmentOptions = context.getUtils().queryOptionList(cmd);
         
         // Create Metadata
         TEmployees TE = db.T_EMPLOYEES;
@@ -103,7 +103,8 @@ public class EmployeeService extends Service {
 
         log.info("Providing employee list...");
 
-        DBCommand cmd = db.createCommand();
+        RecordContext context = getRecordContext();
+        DBCommand cmd = context.createCommand();
         cmd.select(TE.ID, FULL_NAME, DEPARTMENT, TE.GENDER, TE.DATE_OF_BIRTH, TE.RETIRED);
         cmd.join  (TE.DEPARTMENT_ID, TD.ID, DBJoinType.LEFT);
 
@@ -126,7 +127,7 @@ public class EmployeeService extends Service {
             meta[i] = new JsoColumnMeta(cols.get(i), txtres);
         }
         
-        DBReader reader = new DBReader(getRecordContext());
+        DBReader reader = new DBReader(context);
         List<JsoRecordData> list = new ArrayList<>();
         try {
             reader.open(cmd);

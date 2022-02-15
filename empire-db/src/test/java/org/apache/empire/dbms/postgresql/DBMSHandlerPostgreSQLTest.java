@@ -113,7 +113,7 @@ public class DBMSHandlerPostgreSQLTest
         emp.update();
 		
 		// read a value
-		DBCommand cmd = db.createCommand();
+		DBCommand cmd = context.createCommand();
 		cmd.select(db.DATA.DATA);
 		DBReader reader = new DBReader(context);
 		try {
@@ -137,7 +137,7 @@ public class DBMSHandlerPostgreSQLTest
 	private static boolean databaseExists(DBContext context, CompanyDB db)
     {
 		// Check whether DB exists
-		DBCommand cmd = db.createCommand();
+		DBCommand cmd = context.createCommand();
 		cmd.select(db.DEPARTMENT.count());
 		// Check using "select count(*) from DEPARTMENTS"
 		

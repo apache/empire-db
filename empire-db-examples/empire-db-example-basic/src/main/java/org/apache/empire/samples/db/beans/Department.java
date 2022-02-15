@@ -66,7 +66,7 @@ public class Department implements DataBean<SampleDB>
     @Override
     public void initialize(SampleDB db, DBContext context, int rownum, Object parent)
     {
-        DBCommand cmd = db.createCommand();
+        DBCommand cmd = context.createCommand();
         cmd.where(db.EMPLOYEES.DEPARTMENT_ID.is(this.id));
         cmd.orderBy(db.EMPLOYEES.FIRST_NAME, db.EMPLOYEES.LAST_NAME);
         employees = context.getUtils().queryBeanList(cmd, Employee.class, db.EMPLOYEES, this);

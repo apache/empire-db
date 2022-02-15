@@ -117,7 +117,7 @@ public abstract class SampleRecord<T extends SampleTable> extends DBRecord
             // set Value
             try {
                 // set the value
-                this.setValue(c, value);
+                this.set(c, value);
             } catch(FieldValueException e) {
                 // add exception to list
                 exptns.add(e);

@@ -282,7 +282,7 @@ public class Employee implements DataBean<SampleDB>
         // Don't to that: (because of recursion)
         // else department = context.getUtils().queryBean(Department.class, DBRecord.key(this.departmentId));
         
-        DBCommand cmd = db.createCommand();
+        DBCommand cmd = context.createCommand();
         cmd.where(db.PAYMENTS.EMPLOYEE_ID.is(this.id));
         cmd.orderBy(db.PAYMENTS.YEAR.desc());
         cmd.orderBy(db.PAYMENTS.MONTH.desc());

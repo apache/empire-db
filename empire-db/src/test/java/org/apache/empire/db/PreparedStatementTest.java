@@ -65,7 +65,7 @@ public class PreparedStatementTest{
         // Define shortcuts for tables used - not necessary but convenient
         CompanyDB.Departments DEP = db.DEPARTMENT;
         // Define the query
-        DBCommand cmd = db.createCommand();
+        DBCommand cmd = context.createCommand();
         // Create parameters
         DBCmdParam empIdParam  = cmd.addParam(null);
         // the previous line could be shorter

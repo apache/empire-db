@@ -204,7 +204,7 @@ public class SampleAdvDB extends TDatabase<SampleAdvDB>
             SampleAdvDB.EmployeeDepartmentHistory EDH = DB.T_EMP_DEP_HIST;
             
             // Define the sub query
-            DBCommand cmd = db.createCommand();
+            DBCommand cmd = newCommand();
             cmd.select (EDH.C_EMPLOYEE_ID, EDH.C_DATE_FROM.max());
             cmd.groupBy(EDH.C_EMPLOYEE_ID);
             return cmd;
@@ -252,7 +252,7 @@ public class SampleAdvDB extends TDatabase<SampleAdvDB>
             SampleAdvDB.Departments DEP = DB.T_DEPARTMENTS;
 
             // Define the query
-            DBCommand cmd = db.createCommand();
+            DBCommand cmd = newCommand();
             // Select required columns
             cmd.select(EMP.C_EMPLOYEE_ID);
             cmd.select(DEP.C_DEPARTMENT_ID);

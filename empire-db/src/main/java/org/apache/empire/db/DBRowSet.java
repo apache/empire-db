@@ -822,7 +822,7 @@ public abstract class DBRowSet extends DBExpr implements EntityType
         // Check Arguments
         checkParamNull("key", key);
         // Select
-        DBCommand cmd = db.createCommand();
+        DBCommand cmd = createRecordCommand(record.getContext());
         cmd.select(columns);
         // Set key constraints
         setKeyConstraints(cmd, key);
@@ -845,7 +845,7 @@ public abstract class DBRowSet extends DBExpr implements EntityType
             if (c.getRowSet().equals(this)==false)
                 throw new InvalidArgumentException("whereConstraints", c.getFullName());
         // read now
-        DBCommand cmd = getDatabase().createCommand();
+        DBCommand cmd = createRecordCommand(record.getContext());
         cmd.select(getColumns());
         cmd.where(whereConstraints);
         readRecord(record, cmd);
@@ -863,7 +863,7 @@ public abstract class DBRowSet extends DBExpr implements EntityType
         // Check Arguments
         checkParamNull("key", key);
         // create command
-        DBCommand cmd = db.createCommand();        
+        DBCommand cmd = createRecordCommand(record.getContext());
         for (DBColumn column : this.columns)
         {   // key column?
             if (isKeyColumn(column))
@@ -904,7 +904,7 @@ public abstract class DBRowSet extends DBExpr implements EntityType
         checkParamNull("key", key);
         checkParamNull("context", context);
         // Select
-        DBCommand cmd = db.createCommand();
+        DBCommand cmd = createRecordCommand(context);
         cmd.select(count());
         // Set key constraints
         setKeyConstraints(cmd, key);
@@ -953,7 +953,7 @@ public abstract class DBRowSet extends DBExpr implements EntityType
         // Get the fields and the flags
         Object[] fields = record.getFields();
         // Build SQL-Statement
-        DBCommand cmd = db.createCommand();
+        DBCommand cmd = createRecordCommand(context);
         String sql = null;
         int setCount = 0;
         // Perform action
@@ -1152,7 +1152,7 @@ public abstract class DBRowSet extends DBExpr implements EntityType
         DBColumn[] keyColumns =(DBColumn[])getKeyColumns();
         if (keyColumns==null || keyColumns.length==0)
         {   // No Primary Key
-            DBCommand cmd = db.createCommand();
+            DBCommand cmd = createRecordCommand(context);
             for (int i=0; i<parentKey.length; i++)
                 cmd.where(refs[i].getSourceColumn().is(parentKey[i]));
             if (context.executeDelete((DBTable)this, cmd)<0)
@@ -1160,7 +1160,7 @@ public abstract class DBRowSet extends DBExpr implements EntityType
         }
         else
         {   // Query all key
-            DBCommand cmd = db.createCommand();
+            DBCommand cmd = createRecordCommand(context);
             cmd.select(keyColumns);
             // Set constraints
             for (int i=0; i<parentKey.length; i++)
@@ -1181,6 +1181,18 @@ public abstract class DBRowSet extends DBExpr implements EntityType
             }
         }
         // Done
+    }
+    
+    /**
+     *  Mabe use Prepared statements even if disabled in context 
+     */
+    protected DBCommand createRecordCommand(DBContext context)
+    {
+        /** 
+         * alternative is:
+         *    return context.getDbms().createCommand(true); 
+         */
+        return context.createCommand();
     }
 
     /**

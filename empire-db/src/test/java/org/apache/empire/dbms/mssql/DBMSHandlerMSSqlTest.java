@@ -89,7 +89,7 @@ public class DBMSHandlerMSSqlTest
 	 */
 	private static void clearDatabase(DBContext context, CompanyDB db)
     {
-		DBCommand cmd = db.createCommand();
+		DBCommand cmd = context.createCommand();
 		// Delete all Employees (no constraints)
 		context.executeDelete(db.DEPARTMENT, cmd);
 	}
@@ -105,7 +105,7 @@ public class DBMSHandlerMSSqlTest
 	private static boolean databaseExists(DBContext context, CompanyDB db)
     {
 		// Check whether DB exists
-		DBCommand cmd = db.createCommand();
+		DBCommand cmd = context.createCommand();
 		cmd.select(db.DEPARTMENT.count());
 		// Check using "select count(*) from DEPARTMENTS"
 		System.out.println("Checking whether table DEPARTMENTS exists (SQLException will be logged if not - please ignore) ...");

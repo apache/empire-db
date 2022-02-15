@@ -192,7 +192,7 @@ public class SampleApplication extends WebApplication {
 
 	private boolean databaseExists(DBContext context) {
 		// Check wether DB exists
-		DBCommand cmd = sampleDB.createCommand();
+		DBCommand cmd = context.createCommand();
 		cmd.select(sampleDB.T_DEPARTMENTS.count());
 		try {
 			return (context.getUtils().querySingleInt(cmd, -1) >= 0);

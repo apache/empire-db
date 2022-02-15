@@ -44,21 +44,21 @@ public class DBMSHandlerMySQLTest {
 
         Departments TD = db.DEPARTMENT;
         
-		DBCommand cmd = db.createCommand();
+		DBCommand cmd = context.createCommand();
 
 		// Test 1
 		cmd.select(TD.count());
 		cmd.where(TD.NAME.is("\\LCI\\"));
 		assertTrue(cmd.getSelect().endsWith(("`NAME`='\\\\LCI\\\\'"))); // Must be double escaped
 		
-		cmd = db.createCommand();
+		cmd = context.createCommand();
 
 		// Test 2
 		cmd.select(TD.count());
 		cmd.where(TD.NAME.is("'"));
 		assertTrue(cmd.getSelect().contains("`NAME`=''''"));
 
-		cmd = db.createCommand();
+		cmd = context.createCommand();
 		
 		// \ and '
 		cmd.select(TD.count());

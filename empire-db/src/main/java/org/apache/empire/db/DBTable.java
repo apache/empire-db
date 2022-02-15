@@ -590,18 +590,18 @@ public class DBTable extends DBRowSet implements Cloneable
      * @param id the record's primary key
      * @param conn a valid JDBC connection
      */
-    public DBIndex checkUniqueConstraints(DBRecordBase rec)
+    public DBIndex checkUniqueConstraints(DBRecordBase record)
     {
         for (DBIndex idx : getIndexes())
         {
             if (idx.getType()==DBIndexType.PRIMARY_KEY)
             {   // Only for new records
-                if (!rec.isNew())
+                if (!record.isNew())
                     continue; // not new
             }
             else if (idx.getType().isUnique())
             {   // check if any of the fields were actually changed
-                if (!rec.isNew() && !rec.wasAnyModified(idx.getColumns()))
+                if (!record.isNew() && !record.wasAnyModified(idx.getColumns()))
                     continue; // not modified
             }
             else 
@@ -609,14 +609,14 @@ public class DBTable extends DBRowSet implements Cloneable
                 continue;
             }
             // Check index
-            DBCommand cmd = db.createCommand();
+            DBCommand cmd = createRecordCommand(record.getContext());
             cmd.select(count());
             for (DBColumn c : idx.getColumns())
             {
-                Object value = rec.get(c);
+                Object value = record.get(c);
                 cmd.where(c.is(value));
             }
-            DBUtils utils = rec.getContext().getUtils();
+            DBUtils utils = record.getContext().getUtils();
             int count = utils.querySingleInt(cmd);
             if (count>0)
             {   // Index is violated
@@ -670,7 +670,7 @@ public class DBTable extends DBRowSet implements Cloneable
         deleteAllReferences(key, context);
         
         // Build SQL-Statement
-        DBCommand cmd = db.createCommand();
+        DBCommand cmd = createRecordCommand(context);
         // Set key constraints
         setKeyConstraints(cmd, key);
         // Perform delete

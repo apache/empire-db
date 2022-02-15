@@ -121,7 +121,7 @@ public class DBMSHandlerMSSqlDateTest {
 	 * </PRE>
 	 */
 	private static void clearDatabase(DBContext context, DateTimeTestDB db) {
-		DBCommand cmd = db.createCommand();
+		DBCommand cmd = context.createCommand();
 		// Delete all Employees (no constraints)
 		context.executeDelete(db.USER_INFO, cmd);
 	}
@@ -136,7 +136,7 @@ public class DBMSHandlerMSSqlDateTest {
 	 */
 	private static boolean databaseExists(DBContext context, DateTimeTestDB db) {
 		// Check whether DB exists
-		DBCommand cmd = db.createCommand();
+		DBCommand cmd = context.createCommand();
 		cmd.select(db.USER_INFO.count());
 		// Check using "select count(*) from DEPARTMENTS"
 

@@ -252,6 +252,15 @@ public abstract class DBView extends DBRowSet
         else
             setKeyColumns((DBViewColumn[]) null);
     }
+    
+    /**
+     * Use this to create a new View command inside the createCommand() method!
+     * @return a new command for this view
+     */
+    protected DBCommand newCommand()
+    {
+        return db.getDbms().createCommand(false);
+    }
 
     /**
      * Returns the command required to create the view<br>
