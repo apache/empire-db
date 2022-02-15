@@ -72,10 +72,30 @@ public class DBUtils implements DBContextAware
      * @return
      */
     @Override
-    @SuppressWarnings("unchecked")
-    public <T extends DBContext> T  getContext()
+    public DBContext getContext()
     {
-        return ((T)context);
+        return context;
+    }
+    
+    /**
+     * Param count checker
+     */
+    protected void checkStatementParamCount(String sqlCmd, Object[] sqlParams)
+    {
+        if (sqlCmd==null || sqlCmd.length()==0)
+            throw new InvalidArgumentException("sqlCmd", sqlCmd);
+        // count params
+        int paramCount = 0;
+        int pos = -1;
+        while ((pos=sqlCmd.indexOf('?', ++pos))>0)
+            paramCount++;
+        // check now
+        if (paramCount!=(sqlParams!=null ? sqlParams.length : 0))
+        {   // Wrong number of params
+            String msg = MessageFormat.format("Invalid number of parameters query: provided={0}, required={1}; query="+sqlCmd, paramCount, sqlParams.length);
+            log.error(msg);
+            throw new UnspecifiedErrorException(msg);
+        }
     }
 
     /**
@@ -90,7 +110,9 @@ public class DBUtils implements DBContextAware
     public int executeSQL(String sqlCmd, Object[] sqlParams, DBMSHandler.DBSetGenKeys setGenKeys)
     {
         try 
-        {   // Debug
+        {   // check
+            checkStatementParamCount(sqlCmd, sqlParams);
+            // Debug
             if (log.isInfoEnabled())
                 log.info("Executing: " + sqlCmd);
             // execute SQL
@@ -118,18 +140,6 @@ public class DBUtils implements DBContextAware
     }
     
     /**
-     * internally used
-     */
-    private int getSelectParamsCount(String select)
-    {
-        int count = 0;
-        int pos = -1;
-        while ((pos=select.indexOf('?', ++pos))>0)
-            count++;
-        return count;
-    }
-    
-    /**
      * Executes a select SQL-Statement and returns a ResultSet containing the query results.<BR>
      * This function returns a JDBC ResultSet.<BR>
      * Instead of using this function directly you should use a DBReader object instead.<BR>
@@ -143,13 +153,7 @@ public class DBUtils implements DBContextAware
     {
         try
         {   // check
-            int paramCount = getSelectParamsCount(sqlCmd);
-            if (paramCount!=(sqlParams!=null ? sqlParams.length : 0))
-            {   // Wrong number of params
-                String msg = MessageFormat.format("Invalid number of parameters query: provided={0}, required={1}; query="+sqlCmd, paramCount, sqlParams.length);
-                log.error(msg);
-                throw new UnspecifiedErrorException(msg);
-            }
+            checkStatementParamCount(sqlCmd, sqlParams);
             // Debug
             if (log.isDebugEnabled())
                 log.debug("Executing: " + sqlCmd);
@@ -727,7 +731,7 @@ public class DBUtils implements DBContextAware
                 pageSize = -1;
             }
             // set range
-            DBMSHandler dbms = cmd.getDatabase().getDbms();
+            DBMSHandler dbms = context.getDbms();
             if (pageSize>0 && dbms.isSupported(DBMSFeature.QUERY_LIMIT_ROWS))
             {   // let the database limit the rows
                 if (first>0 && dbms.isSupported(DBMSFeature.QUERY_SKIP_ROWS))
@@ -864,7 +868,7 @@ public class DBUtils implements DBContextAware
                 pageSize = -1;
             }
             // set range
-            DBMSHandler dbms = cmd.getDatabase().getDbms();
+            DBMSHandler dbms = context.getDbms();
             if (pageSize>0 && dbms.isSupported(DBMSFeature.QUERY_LIMIT_ROWS))
             {   // let the database limit the rows
                 if (first>0 && dbms.isSupported(DBMSFeature.QUERY_SKIP_ROWS))
@@ -1016,7 +1020,7 @@ public class DBUtils implements DBContextAware
                 pageSize = -1;
             }
             // set range
-            DBMSHandler dbms = cmd.getDatabase().getDbms();
+            DBMSHandler dbms = context.getDbms();
             if (pageSize>0 && dbms.isSupported(DBMSFeature.QUERY_LIMIT_ROWS))
             {   // let the database limit the rows
                 if (first>0 && dbms.isSupported(DBMSFeature.QUERY_SKIP_ROWS))

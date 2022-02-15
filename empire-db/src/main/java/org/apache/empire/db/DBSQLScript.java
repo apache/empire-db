@@ -134,10 +134,9 @@ public class DBSQLScript implements DBContextAware, Iterable<String>
      * @return
      */
     @Override
-    @SuppressWarnings("unchecked")
-    public <T extends DBContext> T  getContext()
+    public DBContext getContext()
     {
-        return ((T)context);
+        return context;
     }
 
     /**

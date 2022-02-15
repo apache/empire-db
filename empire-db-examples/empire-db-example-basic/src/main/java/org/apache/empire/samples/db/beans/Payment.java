@@ -23,9 +23,13 @@ import java.math.BigDecimal;
 import org.apache.empire.db.DBContext;
 import org.apache.empire.db.list.DataBean;
 import org.apache.empire.samples.db.SampleDB;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class Payment implements DataBean<SampleDB>
 {
+    private static final Logger log = LoggerFactory.getLogger(Payment.class);
+    
     private long        employeeId;
     private BigDecimal  year;
     private BigDecimal  month;
@@ -72,6 +76,8 @@ public class Payment implements DataBean<SampleDB>
     {
         if (parent instanceof Employee)
             this.employee = (Employee)parent;
+        else
+            log.warn("Employee Entity has not been provided.");
     }
 
 }

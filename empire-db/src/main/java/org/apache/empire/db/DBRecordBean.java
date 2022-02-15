@@ -87,7 +87,6 @@ public class DBRecordBean extends DBRecordBase
      * Returns the current Context
      * @return
      */
-    @SuppressWarnings("unchecked")
     @Override
     public DBContext getContext()
     {

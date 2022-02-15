@@ -239,7 +239,7 @@ public class SampleApp
         long idSalDep = insertDepartment("Sales", "ITTK");
         // Insert Employees
         long idEmp1 = insertEmployee(idDevDep, "Peter", "Sharp",  Gender.M, 25000);
-        long idEmp2 = insertEmployee(idDevDep, "Fred",  "Bloggs", Gender.M, 32000);
+        long idEmp2 = insertEmployee(idDevDep, "Fred",  "Bloggs", Gender.M, 0);
         long idEmp3 = insertEmployee(idSalDep, "Emma",  "White",  Gender.F, 19500);
         long idEmp4 = insertEmployee(idSalDep, "John",  "Doe",    Gender.M, 18800);
         long idEmp5 = insertEmployee(idDevDep, "Sarah", "Smith",  Gender.F, 44000);
@@ -311,7 +311,8 @@ public class SampleApp
 		   .set(EMP.SALARY, salary)
 	       .update();
 		// insert payments
-		insertPayments(rec);
+		if (salary>0)
+		    insertPayments(rec);
 		// Return Employee ID
 		return rec.getId();
 	}
@@ -333,7 +334,8 @@ public class SampleApp
         // Add Payment for each month
         SampleDB.Payments PAY = db.PAYMENTS;
         DBRecord rec = new DBRecord(context, PAY);
-        for (LocalDate month=date.minusMonths(20); !month.isAfter(date); month=month.plusMonths(1))
+        int months = (int)(Math.random()*6)+17;
+        for (LocalDate month=date.minusMonths(months); !month.isAfter(date); month=month.plusMonths(1))
         {
             BigDecimal variation = new BigDecimal((Math.random()*200) - 100.0);
             variation = variation.setScale(2, RoundingMode.HALF_UP);

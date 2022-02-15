@@ -41,7 +41,6 @@ public class TTable<DB extends TDatabase<DB>> extends DBTable
     /**
      * finally we know the database type
      */
-    @SuppressWarnings("unchecked")
     @Override
     public final DB getDatabase()
     {

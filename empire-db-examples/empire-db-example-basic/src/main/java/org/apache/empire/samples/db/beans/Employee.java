@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.Locale;
 
 import org.apache.empire.commons.DateUtils;
+import org.apache.empire.commons.StringUtils;
 import org.apache.empire.db.DBCommand;
 import org.apache.empire.db.DBContext;
 import org.apache.empire.db.list.DataBean;
@@ -276,7 +277,9 @@ public class Employee implements DataBean<SampleDB>
         
         if (parent instanceof Department)
             department = ((Department)parent); 
-        // don't!
+        else
+            log.warn("Department Entity has not been provided.");
+        // Don't to that: (because of recursion)
         // else department = context.getUtils().queryBean(Department.class, DBRecord.key(this.departmentId));
         
         DBCommand cmd = db.createCommand();
@@ -284,6 +287,7 @@ public class Employee implements DataBean<SampleDB>
         cmd.orderBy(db.PAYMENTS.YEAR.desc());
         cmd.orderBy(db.PAYMENTS.MONTH.desc());
         payments = context.getUtils().queryBeanList(cmd, Payment.class, this);
+        log.info("{} Payments have been loaded for Employee {}.", payments.size(), StringUtils.concat(" ", this.firstName, this.lastName));
     }
 
 }

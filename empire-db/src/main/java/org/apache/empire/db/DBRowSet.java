@@ -386,9 +386,9 @@ public abstract class DBRowSet extends DBExpr implements EntityType
      */
     @SuppressWarnings("unchecked")
     @Override
-    public <T extends DBDatabase> T getDatabase()
+	public DBDatabase getDatabase()
     {
-        return (T)db;
+        return db;
     }
 
     /**

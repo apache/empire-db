@@ -209,7 +209,7 @@ public abstract class DBCommand extends DBCommandExpr
             if (cmdParams!=null && !cmdParams.isEmpty())
             {   // clone params
                 clone.paramUsageCount = 0;
-                clone.cmdParams = new ArrayList<DBCmdParam>();
+                clone.cmdParams = new ArrayList<DBCmdParam>(cmdParams.size());
                 // clone set
                 for (int i=0; (clone.set!=null && i<clone.set.size()); i++)
                     clone.set.set(i, clone.set.get(i).copyCommand(clone));
@@ -230,14 +230,19 @@ public abstract class DBCommand extends DBCommandExpr
 
     @SuppressWarnings("unchecked")
     @Override
-    public final DBDatabase getDatabase()
+	public final DBDatabase getDatabase()
     {
         if (hasSelectExpr())
             return this.select.get(0).getDatabase();
         if (hasSetExpr())
             return this.set.get(0).getDatabase();
+        // two more chances (should we?)
+        if (where!=null && !where.isEmpty())
+            return where.get(0).getDatabase();
+        if (orderBy!=null && !orderBy.isEmpty())
+            return orderBy.get(0).getDatabase();
         // not valid yet
-        return null;
+        throw new ObjectNotValidException(this);
     }
 
     /**
@@ -1564,11 +1569,11 @@ public abstract class DBCommand extends DBCommandExpr
                  // Merge subquery params
                  Object[] qryParams = join.getSubqueryParams();
                  if (qryParams!=null && qryParams.length>0)
-                 {
+                 {   // Subquery has parameters
+                     if (cmdParams==null)
+                         cmdParams= new ArrayList<DBCmdParam>(qryParams.length);
                      for (int p=0; p<qryParams.length; p++)
-                     {
                          cmdParams.add(paramUsageCount++, new DBCmdParam(null, DataType.UNKNOWN, qryParams[p]));
-                     }
                  }
                  // add CRLF
                  if( i!=joins.size()-1 )

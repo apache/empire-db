@@ -90,9 +90,9 @@ public class DBIndex extends DBObject
     
     @SuppressWarnings("unchecked")
     @Override
-    public <T extends DBDatabase> T getDatabase()
+	public DBDatabase getDatabase()
     {
-        return (table!=null) ? (T)table.getDatabase() : null;
+        return (table!=null) ? table.getDatabase() : null;
     }
 
     /**

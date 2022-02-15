@@ -326,8 +326,9 @@ public abstract class DBRecordBase extends DBRecordData implements Record, Clone
      * 
      * @return the current DBDatabase object
      */
+    @SuppressWarnings("unchecked")
     @Override
-    public <T extends DBDatabase> T getDatabase()
+	public DBDatabase getDatabase()
     {
         return getRowSet().getDatabase();
     }

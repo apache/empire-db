@@ -165,7 +165,6 @@ public class DBRecord extends DBRecordBase
      * @return
      */
     @Override
-    @SuppressWarnings("unchecked")
     public DBContext getContext()
     {
         if (this.context==null)

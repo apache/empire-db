@@ -22,5 +22,5 @@ import org.apache.empire.db.DBContext;
 
 public interface DBContextAware
 {
-    <T extends DBContext> T  getContext();
+    DBContext getContext();
 }

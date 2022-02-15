@@ -356,7 +356,7 @@ public class BeanListPageElement<T> extends ListPageElement<T> implements ListIt
                 skipRows = position;
                 // constraint
                 queryCmd.clearLimit();
-                DBMSHandler dbms = queryCmd.getDatabase().getDbms(); 
+                DBMSHandler dbms = r.getContext().getDbms(); 
                 if (dbms.isSupported(DBMSFeature.QUERY_LIMIT_ROWS))
                 {   // let the database limit the rows
                     if (dbms.isSupported(DBMSFeature.QUERY_SKIP_ROWS))
