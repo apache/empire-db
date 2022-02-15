@@ -427,7 +427,7 @@ public abstract class DBCommand extends DBCommandExpr
         {
             DBSetExpr chk = set.get(i);
             if (chk.column.equals(expr.column))
-            { // Overwrite existing value
+            {   // Overwrite existing value
                 if (useCmdParam(expr.column, expr.value))
                 {   // replace parameter value
                     // int index = ((DBCommandParam) chk.value).index;
@@ -1176,7 +1176,7 @@ public abstract class DBCommand extends DBCommandExpr
     /**
      * returns true if a cmdParam should be used for the given column or false otherwise
      */
-    protected boolean useCmdParam(DBColumn col, Object value)
+    protected boolean useCmdParam(DBColumnExpr col, Object value)
     {
         // Cannot wrap DBExpr or DBSystemDate
         if (value==null || value instanceof DBExpr || value instanceof DBDatabase.DBSystemDate)
@@ -1195,9 +1195,15 @@ public abstract class DBCommand extends DBCommandExpr
      * @param expr the DBCompareExpr object
      */
     protected void setConstraint(List<DBCompareExpr> list, DBCompareExpr expr)
-    { // adds a comparison to the where or having list
+    {
+        // Check if prepared statements are enabled
+        if (isPreparedStatementsEnabled())
+        {   // use command params
+            expr.prepareCommand(this);
+        }
+        // adds a comparison to the where or having list
         for (int i = 0; i < list.size(); i++)
-        { // check expression
+        {   // check expression
         	DBCompareExpr other = list.get(i);
             if (expr.isMutuallyExclusive(other)==false)
                 continue;

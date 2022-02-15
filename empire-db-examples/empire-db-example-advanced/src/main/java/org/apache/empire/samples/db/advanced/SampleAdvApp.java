@@ -115,6 +115,7 @@ public class SampleAdvApp
         db.open(context);
         carSales.open(context);
         carSales.queryDemo(context);
+        carSales.updateDemo(context);
 
         // STEP 5: Clear Database (Delete all records)
         System.out.println("*** Step 5: clearDatabase() ***");

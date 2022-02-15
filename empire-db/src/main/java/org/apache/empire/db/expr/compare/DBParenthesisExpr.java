@@ -21,6 +21,7 @@ package org.apache.empire.db.expr.compare;
 import java.util.Set;
 
 import org.apache.empire.db.DBColumn;
+import org.apache.empire.db.DBCommand;
 import org.apache.empire.db.DBDatabase;
 
 /**
@@ -30,42 +31,48 @@ import org.apache.empire.db.DBDatabase;
 public class DBParenthesisExpr extends DBCompareExpr
 {
     // *Deprecated* private static final long serialVersionUID = 1L;
-    private final DBCompareExpr wrap;
+    private final DBCompareExpr wrapped;
     
     public DBParenthesisExpr(DBCompareExpr wrap)
     {
-        this.wrap = wrap;
+        this.wrapped = wrap;
     }
     
     public DBCompareExpr getWrapped()
     {
-        return wrap;
+        return wrapped;
     }
 
     @SuppressWarnings("unchecked")
     @Override
     public final DBDatabase getDatabase()
     {
-        return wrap.getDatabase();
+        return wrapped.getDatabase();
     }
     
     @Override
     public boolean isMutuallyExclusive(DBCompareExpr other)
     {
-        return wrap.isMutuallyExclusive(other);
+        return wrapped.isMutuallyExclusive(other);
+    }
+
+    @Override
+    public void prepareCommand(DBCommand cmd) 
+    {
+        wrapped.prepareCommand(cmd);
     }
 
     @Override
     public void addReferencedColumns(Set<DBColumn> list)
     {
-        wrap.addReferencedColumns(list);
+        wrapped.addReferencedColumns(list);
     }
 
     @Override
     public void addSQL(StringBuilder buf, long context)
     {
         buf.append("(");
-        wrap.addSQL(buf, context|CTX_NOPARENTHESES);
+        wrapped.addSQL(buf, context|CTX_NOPARENTHESES);
         buf.append(")");
     }
 }

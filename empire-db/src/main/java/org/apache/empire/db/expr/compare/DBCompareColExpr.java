@@ -20,9 +20,11 @@ package org.apache.empire.db.expr.compare;
 
 import java.util.Set;
 
+import org.apache.empire.db.DBCmdParam;
 import org.apache.empire.db.DBCmpType;
 import org.apache.empire.db.DBColumn;
 import org.apache.empire.db.DBColumnExpr;
+import org.apache.empire.db.DBCommand;
 import org.apache.empire.db.DBDatabase;
 import org.apache.empire.db.DBExpr;
 import org.apache.empire.db.expr.column.DBAbstractFuncExpr;
@@ -111,6 +113,36 @@ public class DBCompareColExpr extends DBCompareExpr
         this.value = value;
     }
 
+    /**
+     * Prepare function
+     * @param cmd
+     */
+    @Override
+    public void prepareCommand(DBCommand cmd) 
+    {
+        // Cannot user DBExpr or DBSystemDate as parameter
+        if (value==null || value instanceof DBCmdParam || value instanceof DBExpr || value instanceof DBDatabase.DBSystemDate)
+            return;
+        // check operator
+        switch(cmpop)
+        {
+            case EQUAL:
+            case NOTEQUAL:
+            case LESSTHAN:
+            case MOREOREQUAL:
+            case GREATERTHAN:
+            case LESSOREQUAL:
+            case LIKE:
+            case NOTLIKE:
+                // create command param
+                value = cmd.addParam(expr.getDataType(), value);
+                break;
+            default:
+                // not supported
+                return;
+        }
+    }
+    
     /**
      * @see org.apache.empire.db.DBExpr#addReferencedColumns(Set)
      */

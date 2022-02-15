@@ -761,8 +761,6 @@ public abstract class DBRowSet extends DBExpr implements EntityType
         {   // prepare key value
             DBColumn column = keyColumns[i];
             Object value = key[i];
-            if (db.isPreparedStatementsEnabled())
-                value = cmd.addParam(column, value);
             // set key column constraint
             cmd.where(column.is(value));
         }    
@@ -1034,16 +1032,12 @@ public abstract class DBRowSet extends DBExpr implements EntityType
                         log.warn("updateRecord: " + name + " primary has been modified!");
                     }
                     // set pk constraint
-                    if (db.isPreparedStatementsEnabled())
-                        value = cmd.addParam(col, value);
                     cmd.where(col.is(value));
                 } 
                 else if (timestampColumn == col)
                 {   // Check the update-timestamp
                 	if (empty==false) 
                 	{   // set timestamp constraint
-                        if (db.isPreparedStatementsEnabled())
-                            value = cmd.addParam(col, value);
                         cmd.where(col.is(value));
                 	}    
                 	// set new timestamp

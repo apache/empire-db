@@ -18,6 +18,7 @@
  */
 package org.apache.empire.db.expr.compare;
 
+import org.apache.empire.db.DBCommand;
 import org.apache.empire.db.DBExpr;
 
 /**
@@ -63,5 +64,11 @@ public abstract class DBCompareExpr extends DBExpr
 	{
 		return new DBCompareNotExpr(this);
 	}
+	
+	/**
+	 * internally used for preapred statement generation
+	 * @param cmd
+	 */
+	public abstract void prepareCommand(DBCommand cmd); 
 
 }

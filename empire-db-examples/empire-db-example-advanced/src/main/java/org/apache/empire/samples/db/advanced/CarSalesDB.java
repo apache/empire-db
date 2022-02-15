@@ -334,7 +334,7 @@ public class CarSalesDB extends TDatabase<CarSalesDB>
            .having(SALES.MODEL_ID.count().isGreaterThan(10))
            .orderBy(BRAND.NAME.desc(), MODEL.NAME.asc());
         */
-        DBCommand cmd = createCommand()
+        DBCommand cmd = context.createCommand(this)
            .selectQualified(BRAND.NAME, MODEL.CONFIG_NAME) 
            .select  (MODEL.BASE_PRICE)
            .select  (SALES.MODEL_ID.count(), SALES.PRICE.avg())
@@ -365,7 +365,7 @@ public class CarSalesDB extends TDatabase<CarSalesDB>
     public void updateDemo(DBContext context)
     {
         
-        DBCommand cmd = createCommand()
+        DBCommand cmd = context.createCommand(this)
             .set  (MODEL.BASE_PRICE.to(55000))  // set the price-tag
             .join (MODEL.BRAND_ID, BRAND.ID)
             .where(BRAND.NAME.is("Tesla"))

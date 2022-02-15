@@ -21,6 +21,7 @@ package org.apache.empire.db.expr.compare;
 import java.util.Set;
 
 import org.apache.empire.db.DBColumn;
+import org.apache.empire.db.DBCommand;
 import org.apache.empire.db.DBDatabase;
 
 
@@ -79,6 +80,17 @@ public class DBCompareAndOrExpr extends DBCompareExpr
     public final DBDatabase getDatabase()
     {
         return left.getDatabase();
+    }
+
+    /**
+     * Prepare function
+     * @param cmd
+     */
+    @Override
+    public void prepareCommand(DBCommand cmd) 
+    {
+        left.prepareCommand(cmd);
+        right.prepareCommand(cmd);
     }
 
     /**

@@ -77,6 +77,16 @@ public class DBExistsExpr extends DBCompareExpr
     }
 
     /**
+     * Prepare function
+     * @param cmd
+     */
+    @Override
+    public void prepareCommand(DBCommand cmd) 
+    {
+        /* nothing yet */
+    }
+
+    /**
      * @see org.apache.empire.db.DBExpr#addReferencedColumns(Set)
      */
     @Override
