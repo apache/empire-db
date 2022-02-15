@@ -39,7 +39,6 @@ import org.apache.empire.data.EntityType;
 import org.apache.empire.db.exceptions.EmpireSQLException;
 import org.apache.empire.db.exceptions.NoPrimaryKeyException;
 import org.apache.empire.db.exceptions.QueryNoResultException;
-import org.apache.empire.db.expr.join.DBJoinExpr;
 import org.apache.empire.db.list.DataBean;
 import org.apache.empire.exceptions.BeanInstantiationException;
 import org.apache.empire.exceptions.InvalidArgumentException;
@@ -962,7 +961,6 @@ public class DBReader extends DBRecordData implements Closeable
      * internal helper function to find parameterized subqueries
      * @param cmd the command
      * @return a list of parameter arrays, one for each subquery
-     */
     protected List<Object> findSubQueryParams(DBCommand cmd)
     {
         List<Object> subQueryParams = null;
@@ -985,13 +983,13 @@ public class DBReader extends DBRecordData implements Closeable
         }
         return subQueryParams; 
     }
+     */
     
     /**
      * Adds any subquery params to the supplied list
      * @param query the subquery
      * @param list the current list of parameters
      * @return the new list of parameters
-     */
     private List<Object> addSubQueryParams(DBQuery query, List<Object> list)
     {
         DBCommandExpr sqcmd = query.getCommandExpr();
@@ -1017,6 +1015,7 @@ public class DBReader extends DBRecordData implements Closeable
         }
         return list;
     }
+     */
 
     /**
      * Returns a constructor for a bean class for the set of parameters or null if no suitable constructor is found

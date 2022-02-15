@@ -120,7 +120,7 @@ public class DBCompareColExpr extends DBCompareExpr
     @Override
     public void prepareCommand(DBCommand cmd) 
     {
-        // Cannot user DBExpr or DBSystemDate as parameter
+        // Cannot use DBExpr or DBSystemDate as parameter
         if (value==null || value instanceof DBCmdParam || value instanceof DBExpr || value instanceof DBDatabase.DBSystemDate)
             return;
         // check operator

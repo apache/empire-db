@@ -108,7 +108,10 @@ public class SampleAdvApp
         DBMSHandler dbms = getDBMSHandler(config.getDatabaseProvider());
         
         // STEP 2.2: Create a Context
-        context = new DBContextStatic(dbms, conn); 
+        context = new DBContextStatic(dbms, conn)
+            // set optional context features
+            .setPreparedStatementsEnabled(true)
+            .setRollbackHandlingEnabled(true);
 
         // STEP 3: Open Database (and create if not existing)
         System.out.println("*** Step 3: openDatabase() ***");
@@ -153,7 +156,7 @@ public class SampleAdvApp
         // STEP 7: read from Employee_Info_View
         System.out.println("--------------------------------------------------------");
         System.out.println("*** read from EMPLOYEE_INFO_VIEW ***");
-        DBCommand cmd = db.createCommand();
+        DBCommand cmd = context.createCommand();
         cmd.select (db.V_EMPLOYEE_INFO.getColumns());
         cmd.orderBy(db.V_EMPLOYEE_INFO.C_NAME_AND_DEP);
         printQueryResults(cmd);
@@ -339,7 +342,7 @@ public class SampleAdvApp
         rec.setValue(T_EDH.C_DATE_FROM, dateFrom);
         rec.update();
         */
-        DBCommand cmd = db.createCommand();
+        DBCommand cmd = context.createCommand();
     	cmd.set(T_EDH.C_EMPLOYEE_ID.to(employeeId));
     	cmd.set(T_EDH.C_DEPARTMENT_ID.to(departmentId));
     	cmd.set(T_EDH.C_DATE_FROM.to(dateFrom));
@@ -351,7 +354,7 @@ public class SampleAdvApp
     private void commandParamsSample(int idProdDep, int idDevDep)
     {
         // create a command
-        DBCommand cmd = db.createCommand();
+        DBCommand cmd = context.createCommand();
         // Create cmd parameters
         DBCmdParam curDepParam = cmd.addParam(); // Current Department
         DBCmdParam genderParam = cmd.addParam(); // Gender ('M' or 'F')
@@ -407,7 +410,7 @@ public class SampleAdvApp
     private void bulkProcessRecords()
     {
         // Define the query
-        DBCommand cmd = db.createCommand();
+        DBCommand cmd = context.createCommand();
         // Define shortcuts for tables used - not necessary but convenient
         SampleAdvDB.Employees EMP = T_EMP;
         // Select required columns
@@ -464,7 +467,7 @@ public class SampleAdvApp
     private HashMap<Integer, DBRecord> bulkReadRecords(Connection conn)
     {
         // Define the query
-        DBCommand cmd = db.createCommand();
+        DBCommand cmd = context.createCommand();
         // Select required columns
         cmd.select(T_EMP.getColumns());
         // Set Constraints
@@ -550,14 +553,14 @@ public class SampleAdvApp
     private void querySample(int employeeId)
     {
         // Define the sub query
-        DBCommand subCmd = db.createCommand();
+        DBCommand subCmd = context.createCommand();
         DBColumnExpr MAX_DATE_FROM = T_EDH.C_DATE_FROM.max().as(T_EDH.C_DATE_FROM);
         subCmd.select(T_EDH.C_EMPLOYEE_ID, MAX_DATE_FROM);
         subCmd.groupBy(T_EDH.C_EMPLOYEE_ID);
         DBQuery Q_MAX_DATE = new DBQuery(subCmd);
 
         // Define the query
-        DBCommand cmd = db.createCommand();
+        DBCommand cmd = context.createCommand();
         // Select required columns
         cmd.select(T_EMP.C_EMPLOYEE_ID, T_EMP.C_FULLNAME);
         cmd.select(T_EMP.C_GENDER, T_EMP.C_PHONE_NUMBER);

@@ -107,27 +107,25 @@ public class SampleApp
         // SECTION 1: Get a JDBC Connection
         log.info("Step 1: getJDBCConnection()");
 
-        db.setPreparedStatementsEnabled(true);
-        
         Connection conn = getJDBCConnection();
 
         // SECTION 2: Choose a DBMSHandler
         log.info("Step 2: getDatabaseProvider()");
         DBMSHandler dbms = getDBMSHandler(config.getDatabaseProvider(), conn);
-        
-        // SECTION 2.2: Create a Context
+
+        // SECTION 3: Create a Context
         context = new DBContextStatic(dbms, conn, true)
             // set optional context features
-            .setPreparedStatementsEnabled(db.isPreparedStatementsEnabled())
+            .setPreparedStatementsEnabled(false)
             .setRollbackHandlingEnabled(false);
 
-        // SECTION 3: Open Database 
+        // SECTION 4: Open Database 
         log.info("Step 3: Open database (and create if not existing)");
         // Open the database (and create if not existing)
         db.open(context);
 
         // SECTION 5 AND 6: Populate Database and modify Data
-        DBCommand cmd = db.createCommand();
+        DBCommand cmd = context.createCommand();
         cmd.select(db.EMPLOYEES.count());
         if (context.getUtils().querySingleInt(cmd)==0)
         {   // Employess table is empty. Populate now
@@ -400,7 +398,7 @@ public class SampleApp
         SampleDB.Departments DEP = db.DEPARTMENTS;
 
         // Create DBQuery from command
-        DBCommand cmd = db.createCommand();
+        DBCommand cmd = context.createCommand();
         cmd.select(EMP.getColumns());
         cmd.select(DEP.getColumns());
         cmd.join(EMP.DEPARTMENT_ID, DEP.ID);
@@ -515,7 +513,7 @@ public class SampleApp
         
         context.rollback();
 
-        // DBCommand cmd = db.createCommand();
+        // DBCommand cmd = context.createCommand();
         // cmd.select(T.UPDATE_TIMESTAMP);
         // cmd.where (T.EMPLOYEE_ID.is(idEmp));
         // log.info("Timestamp {}", db.querySingleString(cmd, context.getConnection()));
@@ -586,7 +584,7 @@ public class SampleApp
         */
 
         // Select Employee and Department columns
-        DBCommand cmd = db.createCommand()
+        DBCommand cmd = context.createCommand()
            .selectQualified(EMP.ID) // select "EMPLOYEE_ID"
            .select(EMPLOYEE_NAME, EMP.GENDER, EMP.PHONE_NUMBER, EMP.SALARY)
            .selectQualified(DEP.NAME) // "DEPARMENT_NAME"
@@ -669,7 +667,7 @@ public class SampleApp
 	{
 	    SampleDB.Employees EMP = db.EMPLOYEES;
 	    
-	    DBCommand cmd = db.createCommand();
+	    DBCommand cmd = context.createCommand();
 	    cmd.where(EMP.GENDER.is(Gender.M));
 	    cmd.orderBy(EMP.LAST_NAME.desc());
 	    List<Employee> list = context.getUtils().queryBeanList(cmd, Employee.class, null);
@@ -708,7 +706,7 @@ public class SampleApp
 
         // Employee total query
         DBColumnExpr EMP_TOTAL = PAY.AMOUNT.sum().as("EMP_TOTAL");
-        DBCommand cmdEmpTotal = db.createCommand()
+        DBCommand cmdEmpTotal = context.createCommand()
            .select(PAY.EMPLOYEE_ID, EMP_TOTAL)
            .where (PAY.YEAR.is(lastYear))
            .groupBy(PAY.EMPLOYEE_ID);
@@ -716,7 +714,7 @@ public class SampleApp
         
         // Department total query
         DBColumnExpr DEP_TOTAL = PAY.AMOUNT.sum().as("DEP_TOTAL");
-        DBCommand cmdDepTotal  = db.createCommand()
+        DBCommand cmdDepTotal  = context.createCommand()
            .select(EMP.DEPARTMENT_ID, DEP_TOTAL)
            .join  (PAY.EMPLOYEE_ID, EMP.ID)
            .where (PAY.YEAR.is(lastYear))
@@ -726,7 +724,7 @@ public class SampleApp
         // Percentage of department
         DBColumnExpr PCT_OF_DEP_COST = Q_EMP_TOTAL.column(EMP_TOTAL).multiplyWith(100).divideBy(Q_DEP_TOTAL.column(DEP_TOTAL));
         // Create the employee query
-        DBCommand cmd = db.createCommand()
+        DBCommand cmd = context.createCommand()
            .select(EMP.ID, EMP.FIRST_NAME, EMP.LAST_NAME, DEP.NAME.as("DEPARTMENT"))
            .select(Q_EMP_TOTAL.column(EMP_TOTAL))
            .select(PCT_OF_DEP_COST.as("PCT_OF_DEPARTMENT_COST"))
@@ -779,7 +777,7 @@ public class SampleApp
         /*
          * Test RecordList
          */
-        DBCommand cmd = db.createCommand();
+        DBCommand cmd = context.createCommand();
         cmd.join(EMP.DEPARTMENT_ID, DEP.ID);
         cmd.where(DEP.NAME.is("Development"));
         // query now
