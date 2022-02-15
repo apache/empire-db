@@ -155,6 +155,12 @@ public class SerializeTest
         }
     
         @Override
+        public boolean isPreparedStatementsEnabled()
+        {
+            return false;
+        }
+    
+        @Override
         public boolean isRollbackHandlingEnabled()
         {
             return false;

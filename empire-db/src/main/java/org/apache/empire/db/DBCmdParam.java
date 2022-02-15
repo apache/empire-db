@@ -113,6 +113,15 @@ public class DBCmdParam extends DBExpr
     }
     
     /**
+     * Returns the command this parameter belongs to
+     * @return the command
+     */
+    public DBCommand getCmd()
+    {
+        return cmd;
+    }
+
+    /**
      * Returns the data type of the command parameter
      * @return the data type
      */

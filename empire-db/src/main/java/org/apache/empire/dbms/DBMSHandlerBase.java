@@ -80,6 +80,19 @@ public abstract class DBMSHandlerBase implements DBMSHandler
                                                            "select", "udpate", "insert", "alter", "delete", 
                                                            "order" };        
     protected final Set<String> reservedSQLKeywords;
+    
+    /**
+     * DBMSCommand
+     * A Default DBCommand implementation with no additional features
+     * @author doebele
+     */
+    public static final class DBMSCommand extends DBCommand 
+    {
+        protected DBMSCommand(boolean preparedStatementsEnabled)
+        {
+            super(preparedStatementsEnabled);
+        }
+    }
 
     /**
      * This class is used to emulate sequences by using a sequence table.
@@ -118,7 +131,7 @@ public abstract class DBMSHandlerBase implements DBMSHandler
             PreparedStatement stmt = null;
             try
             {   // The select Statement
-                DBCommand cmd = dbms.createCommand(db);
+                DBCommand cmd = dbms.createCommand(db.isPreparedStatementsEnabled());
                 DBCmdParam nameParam = cmd.addParam(SeqName);
                 cmd.select(C_SEQVALUE);
                 cmd.select(C_TIMESTAMP);
@@ -276,7 +289,10 @@ public abstract class DBMSHandlerBase implements DBMSHandler
      * @return a DBCommand object
      */
     @Override
-    public abstract DBCommand createCommand(DBDatabase db);
+    public DBCommand createCommand(boolean preparedStatementsEnabled)
+    {
+        return new DBMSCommand(preparedStatementsEnabled);
+    }
 
     /**
      * This function gives the dbms a chance to provide a custom implementation 

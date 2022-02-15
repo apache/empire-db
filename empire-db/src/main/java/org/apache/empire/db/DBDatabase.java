@@ -886,7 +886,7 @@ public abstract class DBDatabase extends DBObject
     public final DBCommand createCommand()
     {
         checkOpen(); 
-        return dbms.createCommand(this);
+        return dbms.createCommand(this.isPreparedStatementsEnabled());
     }
     
     /**

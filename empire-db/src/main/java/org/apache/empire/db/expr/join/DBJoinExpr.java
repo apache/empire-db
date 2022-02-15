@@ -98,6 +98,13 @@ public abstract class DBJoinExpr extends DBExpr
     public abstract DBRowSet getOuterTable();
 
     /**
+     * Returns the subquery Params
+     * Valid only directly after addSQL() has been called! 
+     * @return the subquery params;
+     */
+    public abstract Object[] getSubqueryParams();
+    
+    /**
      * This function swaps the left and the right statements of the join expression.
      */
     public abstract void reverse();

@@ -86,9 +86,9 @@ public class DBMSHandlerPostgreSQL extends DBMSHandlerBase
         protected int limit = -1;
         protected int skip  = -1;
         
-        public DBCommandPostreSQL(DBDatabase db)
+        public DBCommandPostreSQL(boolean preparedStatementsEnabled)
         {
-            super(db);
+            super(preparedStatementsEnabled);
         }
         
         @Override
@@ -293,12 +293,10 @@ public class DBMSHandlerPostgreSQL extends DBMSHandlerBase
      * @return the new DBCommandPostgreSQL object
      */
     @Override
-    public DBCommand createCommand(DBDatabase db)
+    public DBCommand createCommand(boolean preparedStatementsEnabled)
     {
-        if (db == null)
-            return null;
         // create command object
-        return new DBCommandPostreSQL(db);
+        return new DBCommandPostreSQL(preparedStatementsEnabled);
     }
 
     /**

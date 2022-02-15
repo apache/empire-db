@@ -59,8 +59,6 @@ public abstract class DBCommand extends DBCommandExpr
     // Logger
     protected static final Logger log = LoggerFactory.getLogger(DBCommand.class);
 
-    // Database
-    private final DBDatabase         db; /* transient */  
     // Distinct Select
     protected boolean                selectDistinct = false;
     // Lists
@@ -70,7 +68,9 @@ public abstract class DBCommand extends DBCommandExpr
     protected List<DBCompareExpr>    where          = null;
     protected List<DBCompareExpr>    having         = null;
     protected List<DBColumnExpr>     groupBy        = null;
+    
     // Parameters for prepared Statements
+    protected boolean                preparedStatementsEnabled = false; /* flag for automatic prepared statements */
     protected List<DBCmdParam>       cmdParams      = null;
     private int                      paramUsageCount= 0;
 
@@ -79,9 +79,9 @@ public abstract class DBCommand extends DBCommandExpr
      * 
      * @param db the current database object
      */
-    protected DBCommand(DBDatabase db)
+    protected DBCommand(boolean preparedStatementsEnabled)
     {
-        this.db = db;
+        this.preparedStatementsEnabled = preparedStatementsEnabled;
     }
 
     /**
@@ -115,6 +115,12 @@ public abstract class DBCommand extends DBCommandExpr
     protected void resetParamUsage()
     {
         paramUsageCount = 0;
+        // clear subquery params
+        if (cmdParams==null)
+            return;
+        for (int i=cmdParams.size()-1; i>=0 ;i--)
+            if (cmdParams.get(i).getCmd()!=this)
+                cmdParams.remove(i);
     }
     
     /**
@@ -188,8 +194,11 @@ public abstract class DBCommand extends DBCommandExpr
                 clone.paramUsageCount = 0;
                 clone.cmdParams = new ArrayList<DBCmdParam>();
                 for (DBCmdParam p : cmdParams)
-                {
-                    DBCmdParam param = new DBCmdParam(this, p.getDataType(), p.getValue());
+                {   // checkCmd
+                    if (p.getCmd()!=this)
+                        continue;
+                    // copy
+                    DBCmdParam param = new DBCmdParam(clone, p.getDataType(), p.getValue());
                     clone.cmdParams.add(param);
                 }
             }
@@ -206,7 +215,12 @@ public abstract class DBCommand extends DBCommandExpr
     @Override
     public final DBDatabase getDatabase()
     {
-        return db;
+        if (hasSelectExpr())
+            return this.select.get(0).getDatabase();
+        if (hasSetExpr())
+            return this.set.get(0).getDatabase();
+        // not valid yet
+        return null;
     }
 
     /**
@@ -1166,11 +1180,11 @@ public abstract class DBCommand extends DBCommandExpr
     }
     
     /**
-     * returns true if prepared statements are enabled for this database
+     * returns true if prepared statements are enabled for this command
      */
     protected boolean isPreparedStatementsEnabled()
     {
-        return db.isPreparedStatementsEnabled();
+        return this.preparedStatementsEnabled;
     }
     
     /**
@@ -1279,7 +1293,7 @@ public abstract class DBCommand extends DBCommandExpr
                 continue;
             }
             if (tables.contains(table) == false && table != null)
-            { // Add table
+            {   // Add table
                 tables.add(table);
             }
         }
@@ -1515,6 +1529,15 @@ public abstract class DBCommand extends DBCommandExpr
                      buf.append( "\t" );
                  }
                  join.addSQL(buf, context);
+                 // Merge subquery params
+                 Object[] qryParams = join.getSubqueryParams();
+                 if (qryParams!=null && qryParams.length>0)
+                 {
+                     for (int p=0; p<qryParams.length; p++)
+                     {
+                         cmdParams.add(paramUsageCount++, new DBCmdParam(null, DataType.UNKNOWN, qryParams[p]));
+                     }
+                 }
                  // add CRLF
                  if( i!=joins.size()-1 )
                      buf.append("\r\n");
@@ -1530,7 +1553,7 @@ public abstract class DBCommand extends DBCommandExpr
         }
         if (sep==false)
         {   // add pseudo table or omitt from
-            String pseudoTable = db.getDbms().getSQLPhrase(DBSqlPhrase.SQL_PSEUDO_TABLE);
+            String pseudoTable = getDatabase().getDbms().getSQLPhrase(DBSqlPhrase.SQL_PSEUDO_TABLE);
             if (StringUtils.isNotEmpty(pseudoTable))
             {   // add pseudo table
                 buf.append(pseudoTable);

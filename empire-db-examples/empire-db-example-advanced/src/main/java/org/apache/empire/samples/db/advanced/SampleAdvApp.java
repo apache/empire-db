@@ -279,7 +279,7 @@ public class SampleAdvApp
      */
     private void clearDatabase()
     {
-        DBCommand cmd = context.createCommand(db);
+        DBCommand cmd = context.createCommand();
         // Delete all Employee Department History records
         context.executeDelete(T_EDH, cmd);
         // Delete all Employees (no constraints)

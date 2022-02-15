@@ -29,7 +29,6 @@ import org.apache.empire.data.DataType;
 import org.apache.empire.db.DBColumn;
 import org.apache.empire.db.DBColumnExpr;
 import org.apache.empire.db.DBCommand;
-import org.apache.empire.db.DBDatabase;
 import org.apache.empire.db.DBIndex;
 import org.apache.empire.db.DBRowSet;
 import org.apache.empire.db.DBTable;
@@ -68,9 +67,9 @@ public class DBCommandOracle extends DBCommand
      * 
      * @param db the oracle database object this command belongs to
      */
-    public DBCommandOracle(DBDatabase db)
+    public DBCommandOracle(boolean preparedStatementsEnabled)
     {
-        super(db);
+        super(preparedStatementsEnabled);
     }
 
     public String getOptimizerHint()
@@ -228,7 +227,7 @@ public class DBCommandOracle extends DBCommand
     public Object[] getParamValues()
     {
         Object[] params = super.getParamValues();
-        if (limitRows<0 || !getDatabase().isPreparedStatementsEnabled())
+        if (limitRows<0 || !isPreparedStatementsEnabled())
             return params;
         // add limit and skip params
         int newSize = (params!=null ? params.length : 0)+(skipRows>0 ? 2 : 1);

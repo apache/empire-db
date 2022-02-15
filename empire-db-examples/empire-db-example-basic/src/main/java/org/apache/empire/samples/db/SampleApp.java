@@ -106,6 +106,8 @@ public class SampleApp
     {
         // SECTION 1: Get a JDBC Connection
         log.info("Step 1: getJDBCConnection()");
+
+        db.setPreparedStatementsEnabled(true);
         
         Connection conn = getJDBCConnection();
 
@@ -114,7 +116,10 @@ public class SampleApp
         DBMSHandler dbms = getDBMSHandler(config.getDatabaseProvider(), conn);
         
         // SECTION 2.2: Create a Context
-        context = new DBContextStatic(dbms, conn, false, true); 
+        context = new DBContextStatic(dbms, conn, true)
+            // set optional context features
+            .setPreparedStatementsEnabled(db.isPreparedStatementsEnabled())
+            .setRollbackHandlingEnabled(false);
 
         // SECTION 3: Open Database 
         log.info("Step 3: Open database (and create if not existing)");
@@ -261,7 +266,7 @@ public class SampleApp
 	 */
 	private void clearDatabase()
     {
-		DBCommand cmd = context.createCommand(db);
+		DBCommand cmd = context.createCommand();
         // Delete all Payments (no constraints)
         context.executeDelete(db.PAYMENTS, cmd);
 		// Delete all Employees (no constraints)

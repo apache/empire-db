@@ -141,7 +141,7 @@ public class SampleApplication extends WebApplication {
 		DBContext context = null;
 		try {
 			conn = getConnection(sampleDB);
-			context = new DBContextStatic(dbmsHandler, conn, false, false);
+			context = new DBContextStatic(dbmsHandler, conn);
 			sampleDB.open(context);
 			if (!databaseExists(context)) {
 				// STEP 4: Create Database

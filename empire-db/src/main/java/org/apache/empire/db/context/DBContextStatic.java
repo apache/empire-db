@@ -22,13 +22,19 @@ import java.sql.Connection;
 
 import org.apache.empire.db.context.DBRollbackManager.ReleaseAction;
 import org.apache.empire.dbms.DBMSHandler;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class DBContextStatic extends DBContextBase
-{
+{    // Logger
+    private static final Logger log = LoggerFactory.getLogger(DBContextStatic.class);
+
     private final DBMSHandler dbms;
     private final Connection conn;
-    private final boolean enableRollbackHandling;
     private final boolean closeOnDiscard;
+    // features
+    private boolean enableRollbackHandling = false;
+    private boolean preparedStatementsEnabled = false;
     
     /**
      *  Global DBRollbackManager
@@ -45,7 +51,7 @@ public class DBContextStatic extends DBContextBase
      */
     public DBContextStatic(DBMSHandler dbmsHandler, Connection conn)
     {
-        this(dbmsHandler, conn, false, false);
+        this(dbmsHandler, conn, false);
     }
     
     /**
@@ -55,11 +61,10 @@ public class DBContextStatic extends DBContextBase
      * @param enableRollbackHandling
      * @param closeOnDiscard
      */
-    public DBContextStatic(DBMSHandler dbmsHandler, Connection conn, boolean enableRollbackHandling, boolean closeOnDiscard)
+    public DBContextStatic(DBMSHandler dbmsHandler, Connection conn, boolean closeOnDiscard)
     {
         this.dbms = dbmsHandler;
         this.conn = conn;
-        this.enableRollbackHandling = enableRollbackHandling;
         this.closeOnDiscard = closeOnDiscard;
     }
 
@@ -70,9 +75,36 @@ public class DBContextStatic extends DBContextBase
     }
 
     @Override
+    public boolean isPreparedStatementsEnabled()
+    {
+        return preparedStatementsEnabled;
+    }
+    
+    /**
+     * enables or disables the use of prepared statements for update and insert commands as well as for read operations on a DBRecord.
+     * Note: For custom SQL commands parameters must be explicitly declared using cmd.addCmdParam();   
+     * @param preparedStatementsEnabled
+     */
+    public DBContextStatic setPreparedStatementsEnabled(boolean enabled)
+    {
+        this.preparedStatementsEnabled = enabled;
+        // log prepared statement 
+        log.info("PreparedStatementsEnabled has been set to " + preparedStatementsEnabled);
+        return this;
+    }
+
+    @Override
     public boolean isRollbackHandlingEnabled()
     {
         return enableRollbackHandling;
+    }
+    
+    public DBContextStatic setRollbackHandlingEnabled(boolean enabled)
+    {
+        this.enableRollbackHandling = enabled;
+        // log prepared statement 
+        log.info("RollbackHandlingEnabled has been set to " + enableRollbackHandling);
+        return this;
     }
     
     @Override

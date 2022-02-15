@@ -9,7 +9,6 @@ import java.sql.Connection;
 import javax.faces.context.FacesContext;
 
 import org.apache.empire.commons.ClassUtils;
-import org.apache.empire.db.DBCommand;
 import org.apache.empire.db.DBDatabase;
 import org.apache.empire.db.context.DBContextBase;
 import org.apache.empire.db.context.DBRollbackManager;
@@ -80,15 +79,16 @@ public class WebDBContext<DB extends DBDatabase> extends DBContextBase implement
         return database;
     }
 
-    public DBCommand createCommand()
-    {
-        return super.createCommand(database);
-    }
-
     @Override
     public DBMSHandler getDbms()
     {
         return dbms;
+    }
+    
+    @Override
+    public boolean isPreparedStatementsEnabled()
+    {
+        return database.isPreparedStatementsEnabled();
     }
 
     @Override

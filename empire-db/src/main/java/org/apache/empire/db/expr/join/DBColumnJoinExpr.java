@@ -25,6 +25,7 @@ import org.apache.empire.db.DBColumn;
 import org.apache.empire.db.DBColumnExpr;
 import org.apache.empire.db.DBDatabase;
 import org.apache.empire.db.DBJoinType;
+import org.apache.empire.db.DBQuery;
 import org.apache.empire.db.DBRowSet;
 import org.apache.empire.db.expr.compare.DBCompareExpr;
 import org.apache.empire.exceptions.InvalidPropertyException;
@@ -247,6 +248,31 @@ public class DBColumnJoinExpr extends DBJoinExpr
                 compExpr.addSQL(buf, CTX_DEFAULT);
             }
         }
+    }
+
+    /**
+     * Returns the subquery Params
+     * Valid only directly after addSQL() has been called! 
+     * @return the subquery params;
+     */
+    @Override
+    public Object[] getSubqueryParams()
+    {
+        DBRowSet left = getLeftTable();
+        DBRowSet right = getRightTable();
+        Object[] leftParams  = (left  instanceof DBQuery) ? ((DBQuery)left ).getCommandExpr().getParamValues() : null;
+        Object[] rightParams = (right instanceof DBQuery) ? ((DBQuery)right).getCommandExpr().getParamValues() : null;
+        if (leftParams!=null && rightParams!=null)
+        {   // combine
+            Object[] both = new Object[leftParams.length+rightParams.length];
+            int index = 0;
+            for (int i=0; i<leftParams.length; i++)
+                both[index++] = leftParams[i];
+            for (int i=0; i<rightParams.length; i++)
+                both[index++] = rightParams[i];
+            return both;
+        }
+        return (leftParams!=null ? leftParams : rightParams);
     }
 
     /**

@@ -334,7 +334,7 @@ public class CarSalesDB extends TDatabase<CarSalesDB>
            .having(SALES.MODEL_ID.count().isGreaterThan(10))
            .orderBy(BRAND.NAME.desc(), MODEL.NAME.asc());
         */
-        DBCommand cmd = context.createCommand(this)
+        DBCommand cmd = context.createCommand()
            .selectQualified(BRAND.NAME, MODEL.CONFIG_NAME) 
            .select  (MODEL.BASE_PRICE)
            .select  (SALES.MODEL_ID.count(), SALES.PRICE.avg())
@@ -359,13 +359,14 @@ public class CarSalesDB extends TDatabase<CarSalesDB>
             log.info("col {} -> {}", entry.getColumn(i).getName(), entry.getColumn(i).getBeanPropertyName());
      
         List<QueryResult> list = context.getUtils().queryBeanList(cmd, QueryResult.class, null);
+        log.info("queryBeanList returnes {} items", list.size());
         
     }
     
     public void updateDemo(DBContext context)
     {
         
-        DBCommand cmd = context.createCommand(this)
+        DBCommand cmd = context.createCommand()
             .set  (MODEL.BASE_PRICE.to(55000))  // set the price-tag
             .join (MODEL.BRAND_ID, BRAND.ID)
             .where(BRAND.NAME.is("Tesla"))

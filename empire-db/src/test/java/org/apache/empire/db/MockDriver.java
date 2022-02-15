@@ -32,20 +32,6 @@ public class MockDriver extends DBMSHandlerBase {
     // *Deprecated* private static final long serialVersionUID = 1L;
     
     int seqValue = 0;
-  
-    class MockCommand extends DBCommand{
-        // *Deprecated* private static final long serialVersionUID = 1L;
-        protected MockCommand(DBDatabase db)
-        {
-            super(db);
-        }
-    }
-
-    @Override
-    public DBCommand createCommand(DBDatabase db)
-    {
-        return new MockCommand(db);
-    }
 
     @Override
     public String getConvertPhrase(DataType destType, DataType srcType, Object format)

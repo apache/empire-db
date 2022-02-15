@@ -36,7 +36,7 @@ public interface DBContext
     
     <T extends DBUtils> T getUtils();
 
-    DBCommand createCommand(DBDatabase db); 
+    DBCommand createCommand(); 
     
     int executeSQL(String sqlCmd, Object[] sqlParams);
     

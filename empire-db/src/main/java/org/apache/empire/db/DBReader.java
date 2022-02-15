@@ -24,7 +24,6 @@ import java.lang.reflect.InvocationTargetException;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -474,8 +473,9 @@ public class DBReader extends DBRecordData implements Closeable
             close();
         // Get the query statement
         String sqlCmd = cmd.getSelect();
-        // Collect the query parameters
         Object[] paramValues = cmd.getParamValues();
+        // Collect the query parameters
+        /*
         List<Object> subqueryParamValues = (cmd instanceof DBCommand) ? findSubQueryParams((DBCommand)cmd) : null;
         if (subqueryParamValues!=null && !subqueryParamValues.isEmpty())
         {   // Check Count
@@ -489,6 +489,7 @@ public class DBReader extends DBRecordData implements Closeable
                 throw new UnspecifiedErrorException(msg);
             }
         }
+        */
         // Execute the query
         DBUtils utils = context.getUtils();
         ResultSet queryRset = utils.executeQuery(sqlCmd, paramValues, scrollable);

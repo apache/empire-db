@@ -3,6 +3,7 @@ package org.apache.empire.db;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.SQLIntegrityConstraintViolationException;
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -24,17 +25,18 @@ import org.apache.empire.db.exceptions.QueryNoResultException;
 import org.apache.empire.db.exceptions.StatementFailedException;
 import org.apache.empire.db.exceptions.UnknownBeanTypeException;
 import org.apache.empire.db.expr.compare.DBCompareExpr;
-import org.apache.empire.db.list.DataBean;
 import org.apache.empire.db.list.DBBeanFactoryCache;
 import org.apache.empire.db.list.DBBeanListFactory;
 import org.apache.empire.db.list.DBBeanListFactoryImpl;
 import org.apache.empire.db.list.DBRecordListFactory;
 import org.apache.empire.db.list.DBRecordListFactoryImpl;
+import org.apache.empire.db.list.DataBean;
 import org.apache.empire.dbms.DBMSFeature;
 import org.apache.empire.dbms.DBMSHandler;
 import org.apache.empire.exceptions.InternalException;
 import org.apache.empire.exceptions.InvalidArgumentException;
 import org.apache.empire.exceptions.UnexpectedReturnValueException;
+import org.apache.empire.exceptions.UnspecifiedErrorException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -116,6 +118,18 @@ public class DBUtils implements DBContextAware
     }
     
     /**
+     * internally used
+     */
+    private int getSelectParamsCount(String select)
+    {
+        int count = 0;
+        int pos = -1;
+        while ((pos=select.indexOf('?', ++pos))>0)
+            count++;
+        return count;
+    }
+    
+    /**
      * Executes a select SQL-Statement and returns a ResultSet containing the query results.<BR>
      * This function returns a JDBC ResultSet.<BR>
      * Instead of using this function directly you should use a DBReader object instead.<BR>
@@ -128,7 +142,15 @@ public class DBUtils implements DBContextAware
     public ResultSet executeQuery(String sqlCmd, Object[] sqlParams, boolean scrollable)
     {
         try
-        {   // Debug
+        {   // check
+            int paramCount = getSelectParamsCount(sqlCmd);
+            if (paramCount!=(sqlParams!=null ? sqlParams.length : 0))
+            {   // Wrong number of params
+                String msg = MessageFormat.format("Invalid number of parameters query: provided={0}, required={1}; query="+sqlCmd, paramCount, sqlParams.length);
+                log.error(msg);
+                throw new UnspecifiedErrorException(msg);
+            }
+            // Debug
             if (log.isDebugEnabled())
                 log.debug("Executing: " + sqlCmd);
             // Execute the Statement

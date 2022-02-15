@@ -24,7 +24,6 @@ import java.util.GregorianCalendar;
 import org.apache.empire.commons.ObjectUtils;
 import org.apache.empire.data.DataType;
 import org.apache.empire.db.DBColumnExpr;
-import org.apache.empire.db.DBCommand;
 import org.apache.empire.db.DBDDLGenerator;
 import org.apache.empire.db.DBDDLGenerator.DDLActionType;
 import org.apache.empire.db.DBDatabase;
@@ -33,9 +32,9 @@ import org.apache.empire.db.DBSQLScript;
 import org.apache.empire.db.DBTableColumn;
 import org.apache.empire.db.exceptions.QueryNoResultException;
 import org.apache.empire.db.validation.DBModelChecker;
+import org.apache.empire.dbms.DBMSFeature;
 import org.apache.empire.dbms.DBMSHandler;
 import org.apache.empire.dbms.DBMSHandlerBase;
-import org.apache.empire.dbms.DBMSFeature;
 import org.apache.empire.dbms.DBSqlPhrase;
 import org.apache.empire.exceptions.NotSupportedException;
 import org.slf4j.Logger;
@@ -52,23 +51,6 @@ public class DBMSHandlerHSql extends DBMSHandlerBase
 {
     // *Deprecated* private static final long serialVersionUID = 1L;
     private static final Logger log = LoggerFactory.getLogger(DBMSHandlerHSql.class);
-  
-    /**
-     * Defines the HSQLDB command type.
-     */ 
-	public static class DBCommandHSql extends DBCommand
-	{
-        // *Deprecated* private static final long serialVersionUID = 1L;
-
-        /**
-	     * @param db the database
-	     * @see org.apache.empire.db.DBCommand
-	     */
-	    public DBCommandHSql(DBDatabase db)
-	    {
-	        super(db);
-	    }
-	}
     
     private DBDDLGenerator<?> ddlGenerator = null; // lazy creation
 	
@@ -79,20 +61,6 @@ public class DBMSHandlerHSql extends DBMSHandlerBase
     {
         // Add "count" to list of reserved keywords
         reservedSQLKeywords.add("count");
-    }
-
-    /**
-     * Creates a new HSQLDB command object.
-     * 
-     * @return the new DBCommandHSql object
-     */
-    @Override
-    public DBCommand createCommand(DBDatabase db)
-    {
-        if (db == null)
-            return null;
-        // create command object
-        return new DBCommandHSql(db);
     }
 
     /**

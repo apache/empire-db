@@ -65,9 +65,9 @@ public class DBMSHandlerMySQL extends DBMSHandlerBase
         protected int limit = -1;
         protected int skip  = -1;
         
-        public DBCommandMySQL(DBDatabase db)
+        public DBCommandMySQL(boolean preparedStatementsEnabled)
         {
-            super(db);
+            super(preparedStatementsEnabled);
         }
         
         @Override
@@ -904,12 +904,10 @@ public class DBMSHandlerMySQL extends DBMSHandlerBase
      * @return the new DBCommandMySQL object
      */
     @Override
-    public DBCommand createCommand(DBDatabase db)
+    public DBCommand createCommand(boolean preparedStatementsEnabled)
     {
-        if (db == null)
-            return null;
         // create command object
-        return new DBCommandMySQL(db);
+        return new DBCommandMySQL(preparedStatementsEnabled);
     }
 
     @Override

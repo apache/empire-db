@@ -402,8 +402,6 @@ public class DBQuery extends DBRowSet
         for (int i = 0; i < keyColumns.length; i++)
         {   // Set key column constraint
             Object value = key[i];
-            if (db.isPreparedStatementsEnabled())
-                value = cmd.addParam(keyColumns[i], value);
             cmd.where(keyColumns[i].is(value));
         }    
         // Read Record
@@ -527,8 +525,6 @@ public class DBQuery extends DBRowSet
                 if (keyColumns[i].getRowSet() == table)
                 {   // Set key column constraint
                     Object value = key[i];
-                    if (db.isPreparedStatementsEnabled())
-                        value = upd.addParam(keyColumns[i], value);
                     upd.where(keyColumns[i].is(value));
                 }
             }    
@@ -546,8 +542,6 @@ public class DBQuery extends DBRowSet
                     Object lastTS = fields[timestampIndex];
                     if (ObjectUtils.isEmpty(lastTS)==false)
                     {   // set timestamp constraint
-                        if (db.isPreparedStatementsEnabled())
-                            lastTS = upd.addParam(tsColumn, lastTS);
                         upd.where(tsColumn.is(lastTS));
                     }    
                     // Set new Timestamp

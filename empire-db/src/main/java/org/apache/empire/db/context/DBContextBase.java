@@ -23,7 +23,6 @@ import java.sql.SQLException;
 
 import org.apache.empire.db.DBCommand;
 import org.apache.empire.db.DBContext;
-import org.apache.empire.db.DBDatabase;
 import org.apache.empire.db.DBObject;
 import org.apache.empire.db.DBTable;
 import org.apache.empire.db.DBUtils;
@@ -76,14 +75,21 @@ public abstract class DBContextBase implements DBContext
     }
     
     /**
+     * returns whether DBCommmand should automatically create a prepared statement with command params (?) 
+     * Event if this is false, is still possible to manually add command params using cmd.addCmdParam();   
+     * @return true if automatic prepared Statements are enabled or false if not
+     */
+    public abstract boolean isPreparedStatementsEnabled();
+    
+    /**
      * Creates a new Command object for the given database
      * 
      * @return the command object.
      */
     @Override
-    public final DBCommand createCommand(DBDatabase db)
+    public final DBCommand createCommand()
     {
-        return getDbms().createCommand(db);
+        return getDbms().createCommand(isPreparedStatementsEnabled());
     }
 
     /**

@@ -151,12 +151,10 @@ public class DBMSHandlerOracle extends DBMSHandlerBase
      * @return the new DBCommandOracle object
      */
     @Override
-    public DBCommand createCommand(DBDatabase db)
+    public DBCommand createCommand(boolean preparedStatementsEnabled)
     {
-        if (db == null)
-            return null;
         // create oracle command
-        return new DBCommandOracle(db);
+        return new DBCommandOracle(preparedStatementsEnabled);
     }
 
     /**

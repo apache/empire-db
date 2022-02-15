@@ -60,7 +60,7 @@ public interface DBMSHandler
      * @param db the database for which to create a command object for
      * @return a DBCommand object
      */
-    DBCommand createCommand(DBDatabase db);
+    DBCommand createCommand(boolean preparedStatementsEnabled);
 
     /**
      * This function gives the dbms a chance to provide a custom implementation 

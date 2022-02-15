@@ -89,6 +89,12 @@ public abstract class Service {
         {
             return db.getDbms();
         }
+        
+        @Override
+        public boolean isPreparedStatementsEnabled()
+        {
+            return false;
+        }
 
         @Override
         public boolean isRollbackHandlingEnabled()

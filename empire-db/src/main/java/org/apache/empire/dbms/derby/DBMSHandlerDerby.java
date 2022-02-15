@@ -23,18 +23,17 @@ import java.util.GregorianCalendar;
 
 import org.apache.empire.data.DataType;
 import org.apache.empire.db.DBColumnExpr;
-import org.apache.empire.db.DBCommand;
 import org.apache.empire.db.DBDDLGenerator;
 import org.apache.empire.db.DBDDLGenerator.DDLActionType;
-import org.apache.empire.dbms.DBMSHandler;
-import org.apache.empire.dbms.DBMSHandlerBase;
-import org.apache.empire.dbms.DBMSFeature;
-import org.apache.empire.dbms.DBSqlPhrase;
 import org.apache.empire.db.DBDatabase;
 import org.apache.empire.db.DBObject;
 import org.apache.empire.db.DBSQLScript;
 import org.apache.empire.db.DBTable;
 import org.apache.empire.db.DBTableColumn;
+import org.apache.empire.dbms.DBMSFeature;
+import org.apache.empire.dbms.DBMSHandler;
+import org.apache.empire.dbms.DBMSHandlerBase;
+import org.apache.empire.dbms.DBSqlPhrase;
 import org.apache.empire.exceptions.NotSupportedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,19 +48,6 @@ public class DBMSHandlerDerby extends DBMSHandlerBase
 {
 	// *Deprecated* private static final long serialVersionUID = 1L;
     private static final Logger log = LoggerFactory.getLogger(DBMSHandlerDerby.class);
-
-    /**
-     * Defines the Derby command type.
-     */ 
-    public static class DBCommandDerby extends DBCommand
-    {
-        // *Deprecated* private static final long serialVersionUID = 1L;
-      
-        public DBCommandDerby(DBDatabase db)
-        {
-            super(db);
-        }
-    }
     
     // Properties
     private String databaseName = null;
@@ -139,20 +125,6 @@ public class DBMSHandlerDerby extends DBMSHandlerBase
     public void setSequenceTableName(String sequenceTableName)
     {
         this.sequenceTableName = sequenceTableName;
-    }
-
-    /**
-     * Creates a new Derby command object.
-     * 
-     * @return the new DBCommandDerby object
-     */
-    @Override
-    public DBCommand createCommand(DBDatabase db)
-    {
-        if (db == null)
-            return null;
-        // create command object
-        return new DBCommandDerby(db);
     }
 
     /**
