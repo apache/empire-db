@@ -117,11 +117,11 @@ public class DBSetExpr extends DBExpr
      * Copy Command
      * @param cmd
      */
-    public DBSetExpr copyCommand(DBCommand cmd)
+    public DBSetExpr copy(DBCommand newCmd)
     {
         Object valueCopy = value;
         if (value instanceof DBCmdParam) 
-            valueCopy = cmd.addParam(DataType.UNKNOWN, ((DBCmdParam)value).getValue());
+            valueCopy = newCmd.addParam(DataType.UNKNOWN, ((DBCmdParam)value).getValue());
         return new DBSetExpr(column, valueCopy);
     }
 

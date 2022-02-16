@@ -411,6 +411,47 @@ public class DBTable extends DBRowSet implements Cloneable
         col.setEnumOptions(enumValue.getClass());
         return col;
     }
+    
+    /**
+     * Adds a new ForgeinKey table column the column list
+     * The foreign table must have a single column foreign key
+     * @param target the table on which to reference
+     * @param name the name of the new column
+     * @param required true if the value is required
+     * @param options (optional) a set of allowed values for this column
+     * @return the new column
+     */
+    public DBTableColumn addForgeinKey(DBTable target, String name, boolean required, Options options)
+    {
+        DBColumn[] keyCols = target.getKeyColumns();
+        if (keyCols==null || keyCols.length!=1)
+            throw new InvalidArgumentException("target", target);
+        // add column
+        DBTableColumn keyCol = (DBTableColumn)keyCols[0];
+        DataType keyDataType = keyCol.getDataType();
+        if (keyDataType==DataType.AUTOINC)
+            keyDataType =DataType.INTEGER;
+        DBTableColumn referenceColumn = addColumn(name, keyDataType, keyCol.getSize(), required, options); 
+        // Adapter foreign key
+        String fkName = getName() + "_" + name.replace("_ID", "_FK");
+        db.addRelation(fkName, referenceColumn.referenceOn(keyCol));
+        return referenceColumn;
+    }
+    
+    /**
+     * Adds a new ForgeinKey table column the column list
+     * The foreign table must have a single column foreign key
+     * @param target the table on which to reference
+     * @param name the name of the new column
+     * @param required true if the value is required
+     * @param options (optional) a set of allowed values for this column
+     * @return the new column
+     */
+    public final DBTableColumn addForgeinKey(DBTable target, String name, boolean required)
+    {
+        return addForgeinKey(target, name, required, null);
+    }
+
 
     /**
      * Returns the primary key.

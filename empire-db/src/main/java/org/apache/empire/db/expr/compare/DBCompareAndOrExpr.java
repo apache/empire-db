@@ -98,9 +98,9 @@ public class DBCompareAndOrExpr extends DBCompareExpr
      * @param cmd
      */
     @Override
-    public DBCompareExpr copyCommand(DBCommand cmd)
+    public DBCompareExpr copy(DBCommand newCmd)
     {
-        return new DBCompareAndOrExpr(left.copyCommand(cmd), right.copyCommand(cmd), or);
+        return new DBCompareAndOrExpr(left.copy(newCmd), right.copy(newCmd), or);
     }
 
     /**

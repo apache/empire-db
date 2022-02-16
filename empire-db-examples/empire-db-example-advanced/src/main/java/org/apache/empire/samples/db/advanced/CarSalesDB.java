@@ -37,6 +37,7 @@ import org.apache.empire.db.generic.TTable;
 import org.apache.empire.db.validation.DBModelChecker;
 import org.apache.empire.db.validation.DBModelErrorLogger;
 import org.apache.empire.dbms.postgresql.DBMSHandlerPostgreSQL;
+import org.apache.empire.samples.db.advanced.records.BrandRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -83,11 +84,34 @@ public class CarSalesDB extends TDatabase<CarSalesDB>
     }
 
     /**
-     * This class represents the Departments table.
+     * EngineType enum
+     */
+    public enum DealershipType
+    {
+        B("Brand"),
+        I("Independent"),
+        F("Franchise"),
+        U("Used cars"),
+        G("Small garage");
+        
+        private final String title;
+        private DealershipType(String title)
+        {
+            this.title = title;
+        }
+        @Override
+        public String toString()
+        {
+            return title;
+        }
+    }
+
+    /**
+     * This class represents the Brand table.
      */
     public static class Brand extends TTable<CarSalesDB>
     {
-        public final DBTableColumn ID;
+        public final DBTableColumn WMI;
         public final DBTableColumn NAME;
         public final DBTableColumn COUNTRY;
         public final DBTableColumn UPDATE_TIMESTAMP;
@@ -96,25 +120,25 @@ public class CarSalesDB extends TDatabase<CarSalesDB>
         {
             super("BRAND", db);
             // ID
-            ID              = addColumn("ID",               DataType.AUTOINC,       0, true, "BRAND_ID_SEQUENCE"); // Optional Sequence for some DBMS (e.g. Oracle)
+            WMI             = addColumn("WMI",              DataType.VARCHAR,       3, true); // World Manufacturer code
             NAME            = addColumn("NAME",             DataType.VARCHAR,      80, true);
             COUNTRY         = addColumn("COUNTRY",          DataType.VARCHAR,      80, false);
             UPDATE_TIMESTAMP= addColumn("UPDATE_TIMESTAMP", DataType.TIMESTAMP,     0, true);
 
             // Primary Key (automatically set due to AUTOINC column)
-            // setPrimaryKey(ID);
+            setPrimaryKey(WMI);
         }
     }
 
     /**
-     * This class represents the Employees table.
+     * This class represents the Model table.
      */
     public static class Model extends TTable<CarSalesDB>
     {
         public final DBTableColumn ID;
         public final DBTableColumn NAME;
         public final DBTableColumn CONFIG_NAME;
-        public final DBTableColumn BRAND_ID;
+        public final DBTableColumn WMI;
         public final DBTableColumn TRIM;
         public final DBTableColumn ENGINE_TYPE;
         public final DBTableColumn ENGINE_POWER;
@@ -129,7 +153,7 @@ public class CarSalesDB extends TDatabase<CarSalesDB>
             ID              = addColumn("ID",               DataType.AUTOINC,      0, true, "MODEL_ID_SEQUENCE");  // Optional Sequence name for some DBMS (e.g. Oracle)
             NAME            = addColumn("NAME",             DataType.VARCHAR,     20, true);
             CONFIG_NAME     = addColumn("CONFIGURATION",    DataType.VARCHAR,     40, true);
-            BRAND_ID        = addColumn("BRAND_ID",         DataType.INTEGER,      0, true);
+            WMI             = addColumn("WMI",              DataType.VARCHAR,      3, true);
             TRIM            = addColumn("TRIM",             DataType.VARCHAR,     20, true);
             ENGINE_TYPE     = addColumn("ENGINE_TYPE",      DataType.CHAR,         1, true, EngineType.class);
             ENGINE_POWER    = addColumn("ENGINE_POWER",     DataType.DECIMAL,    4.0, true);
@@ -142,7 +166,58 @@ public class CarSalesDB extends TDatabase<CarSalesDB>
     }
 
     /**
-     * This class represents the Payments table.
+     * This class represents the Dealer table.
+     */
+    public static class Dealer extends TTable<CarSalesDB>
+    {
+        public final DBTableColumn ID;
+        public final DBTableColumn COMPANY_NAME;
+        public final DBTableColumn STREET;
+        public final DBTableColumn CITY;
+        public final DBTableColumn YEAR_FOUNDED;
+        public final DBTableColumn UPDATE_TIMESTAMP;
+
+        public Dealer(CarSalesDB db)
+        {
+            super("DEALER", db);
+            
+            // ID
+            ID              = addColumn("ID",               DataType.AUTOINC,      0, true, "DEALER_ID_SEQUENCE");  // Optional Sequence name for some DBMS (e.g. Oracle)
+            COMPANY_NAME    = addColumn("COMPANY_NAME",     DataType.VARCHAR,     40, true);
+            STREET          = addColumn("ADDRESS",          DataType.VARCHAR,     40, false);
+            CITY            = addColumn("CITY",             DataType.VARCHAR,     20, true);
+            YEAR_FOUNDED    = addColumn("YEAR_FOUNDED",     DataType.DECIMAL,    4.0, false);
+            UPDATE_TIMESTAMP= addColumn("UPDATE_TIMESTAMP", DataType.TIMESTAMP,    0, true);
+            
+            // Primary Key (automatically set due to AUTOINC column)
+            // setPrimaryKey(ID);
+        }
+    }
+
+    /**
+     * This class represents the Dealer table.
+     */
+    public static class DealerBrands extends TTable<CarSalesDB>
+    {
+        public final DBTableColumn DEALER_ID;
+        public final DBTableColumn BRAND_WMI;
+        public final DBTableColumn TYPE;
+
+        public DealerBrands(CarSalesDB db)
+        {
+            super("DEALER_BRANDS", db);
+            
+            // ID
+            DEALER_ID       = addForgeinKey(db.DEALER, "DEALER_ID", true);
+            BRAND_WMI       = addForgeinKey(db.BRAND,  "BRAND_WMI", true);
+            TYPE            = addColumn("TYPE",        DataType.CHAR,     1, true, DealershipType.class);
+            // Primary Key (automatically set due to AUTOINC column)
+            // setPrimaryKey(ID);
+        }
+    }
+
+    /**
+     * This class represents the Sales table.
      */
     public static class Sales extends TTable<CarSalesDB>
     {
@@ -168,9 +243,14 @@ public class CarSalesDB extends TDatabase<CarSalesDB>
     }
     
     // Declare all Tables and Views here
-    public final Brand  BRAND = new Brand(this);
-    public final Model  MODEL = new Model(this);
-    public final Sales  SALES = new Sales(this);
+    public final Brand   BRAND = new Brand(this);
+    public final Model   MODEL = new Model(this);
+    public final Dealer  DEALER = new Dealer(this);
+    public final DealerBrands DEALER_BRANDS = new DealerBrands(this);
+    public final Sales   SALES = new Sales(this);
+    
+    private boolean wasCreated;
+
 
     /**
      * Constructor of the SampleDB data model
@@ -180,10 +260,15 @@ public class CarSalesDB extends TDatabase<CarSalesDB>
     public CarSalesDB()
     {
         // Define Foreign-Key Relations
-        addRelation( MODEL.BRAND_ID.referenceOn( BRAND.ID ));
+        addRelation( MODEL.WMI.referenceOn( BRAND.WMI ));
         addRelation( SALES.MODEL_ID.referenceOn( MODEL.ID ));
     }
     
+    public boolean wasCreated()
+    {
+        return wasCreated;
+    }
+
     @Override
     public void open(DBContext context)
     {
@@ -193,6 +278,8 @@ public class CarSalesDB extends TDatabase<CarSalesDB>
         if (checkExists(context))
         {   // attach to driver
             super.open(context);
+            // remember
+            wasCreated = false;
             // yes, it exists, then check the model
             checkDataModel(context);
         } 
@@ -207,8 +294,8 @@ public class CarSalesDB extends TDatabase<CarSalesDB>
                 setAutoCommit(context, false);
             // attach to driver
             super.open(context);
-            // populate 
-            populate(context);
+            // populate
+            wasCreated = true;
             // Commit
             context.commit();
         }
@@ -248,33 +335,32 @@ public class CarSalesDB extends TDatabase<CarSalesDB>
         }
     }
     
-    private void populate(DBContext context)
+    public void populate(SampleAdvContext context)
     {
-        DBRecord brand = new DBRecord(context, BRAND);
-        brand.create().set(BRAND.NAME, "VW").set(BRAND.COUNTRY, "Germany").update();  long idVW = brand.getId();
-        brand.create().set(BRAND.NAME, "Ford").set(BRAND.COUNTRY, "USA").update();    long idFord = brand.getId();
-        brand.create().set(BRAND.NAME, "Tesla").set(BRAND.COUNTRY, "USA").update();   long idTesla = brand.getId();
-        brand.create().set(BRAND.NAME, "Toyota").set(BRAND.COUNTRY, "Japan").update();long idToy = brand.getId();
+        BrandRecord brandVW    = new BrandRecord(context); brandVW   .insert("WVW", "VW",     "Germany");
+        BrandRecord brandFord  = new BrandRecord(context); brandFord .insert("1F",  "Ford",   "USA");
+        BrandRecord brandTesla = new BrandRecord(context); brandTesla.insert("5YJ", "Tesla",  "USA");
+        BrandRecord brandToy   = new BrandRecord(context); brandToy  .insert("JT",  "Toyota", "Japan");
         
         DBRecord model = new DBRecord(context, MODEL);
         // VW
-        model.create().set(MODEL.BRAND_ID, idVW).set(MODEL.NAME, "Golf").set(MODEL.CONFIG_NAME, "Golf Style 1,5 l TSI").set(MODEL.TRIM, "Style").set(MODEL.ENGINE_TYPE, EngineType.P).set(MODEL.ENGINE_POWER, 130).set(MODEL.BASE_PRICE,30970).update();generateRandomSales(model);
-        model.create().set(MODEL.BRAND_ID, idVW).set(MODEL.NAME, "Golf").set(MODEL.CONFIG_NAME, "Golf R-Line 2,0 l TSI 4MOTION").set(MODEL.TRIM, "R-Line").set(MODEL.ENGINE_TYPE, EngineType.P).set(MODEL.ENGINE_POWER, 190).set(MODEL.BASE_PRICE,38650).update();generateRandomSales(model);
-        model.create().set(MODEL.BRAND_ID, idVW).set(MODEL.NAME, "Tiguan").set(MODEL.CONFIG_NAME, "Tiguan Life 1,5 l TSI").set(MODEL.TRIM, "Life").set(MODEL.ENGINE_TYPE, EngineType.P).set(MODEL.ENGINE_POWER, 150).set(MODEL.BASE_PRICE,32545).update();generateRandomSales(model);
-        model.create().set(MODEL.BRAND_ID, idVW).set(MODEL.NAME, "Tiguan").set(MODEL.CONFIG_NAME, "Tiguan Elegance 2,0 l TDI SCR").set(MODEL.TRIM, "Elegance").set(MODEL.ENGINE_TYPE, EngineType.D).set(MODEL.ENGINE_POWER, 150).set(MODEL.BASE_PRICE,40845).update();generateRandomSales(model);
-        model.create().set(MODEL.BRAND_ID, idVW).set(MODEL.NAME, "Tiguan").set(MODEL.CONFIG_NAME, "Tiguan R-Line 1,4 l eHybrid").set(MODEL.TRIM, "R-Line").set(MODEL.ENGINE_TYPE, EngineType.H).set(MODEL.ENGINE_POWER, 150).set(MODEL.BASE_PRICE,48090).update();generateRandomSales(model);
+        model.create().set(MODEL.WMI, brandVW).set(MODEL.NAME, "Golf").set(MODEL.CONFIG_NAME, "Golf Style 1,5 l TSI").set(MODEL.TRIM, "Style").set(MODEL.ENGINE_TYPE, EngineType.P).set(MODEL.ENGINE_POWER, 130).set(MODEL.BASE_PRICE,30970).update();generateRandomSales(model);
+        model.create().set(MODEL.WMI, brandVW).set(MODEL.NAME, "Golf").set(MODEL.CONFIG_NAME, "Golf R-Line 2,0 l TSI 4MOTION").set(MODEL.TRIM, "R-Line").set(MODEL.ENGINE_TYPE, EngineType.P).set(MODEL.ENGINE_POWER, 190).set(MODEL.BASE_PRICE,38650).update();generateRandomSales(model);
+        model.create().set(MODEL.WMI, brandVW).set(MODEL.NAME, "Tiguan").set(MODEL.CONFIG_NAME, "Tiguan Life 1,5 l TSI").set(MODEL.TRIM, "Life").set(MODEL.ENGINE_TYPE, EngineType.P).set(MODEL.ENGINE_POWER, 150).set(MODEL.BASE_PRICE,32545).update();generateRandomSales(model);
+        model.create().set(MODEL.WMI, brandVW).set(MODEL.NAME, "Tiguan").set(MODEL.CONFIG_NAME, "Tiguan Elegance 2,0 l TDI SCR").set(MODEL.TRIM, "Elegance").set(MODEL.ENGINE_TYPE, EngineType.D).set(MODEL.ENGINE_POWER, 150).set(MODEL.BASE_PRICE,40845).update();generateRandomSales(model);
+        model.create().set(MODEL.WMI, brandVW).set(MODEL.NAME, "Tiguan").set(MODEL.CONFIG_NAME, "Tiguan R-Line 1,4 l eHybrid").set(MODEL.TRIM, "R-Line").set(MODEL.ENGINE_TYPE, EngineType.H).set(MODEL.ENGINE_POWER, 150).set(MODEL.BASE_PRICE,48090).update();generateRandomSales(model);
         // Tesla
-        model.create().set(MODEL.BRAND_ID, idTesla).set(MODEL.NAME, "Model 3").set(MODEL.CONFIG_NAME, "Model 3 LR").set(MODEL.TRIM, "Long Range").set(MODEL.ENGINE_TYPE, EngineType.E).set(MODEL.ENGINE_POWER, 261).set(MODEL.BASE_PRICE,45940).update();generateRandomSales(model);
-        model.create().set(MODEL.BRAND_ID, idTesla).set(MODEL.NAME, "Model 3").set(MODEL.CONFIG_NAME, "Model 3 Performance").set(MODEL.TRIM, "Performance").set(MODEL.ENGINE_TYPE, EngineType.E).set(MODEL.ENGINE_POWER, 487).set(MODEL.BASE_PRICE,53940).update();generateRandomSales(model);
-        model.create().set(MODEL.BRAND_ID, idTesla).set(MODEL.NAME, "Model Y").set(MODEL.CONFIG_NAME, "Model Y LR").set(MODEL.TRIM, "Long Range").set(MODEL.ENGINE_TYPE, EngineType.E).set(MODEL.ENGINE_POWER, 345).set(MODEL.BASE_PRICE,53940).update();generateRandomSales(model);
-        model.create().set(MODEL.BRAND_ID, idTesla).set(MODEL.NAME, "Model Y").set(MODEL.CONFIG_NAME, "Model Y Performance").set(MODEL.TRIM, "Performance").set(MODEL.ENGINE_TYPE, EngineType.E).set(MODEL.ENGINE_POWER, 450).set(MODEL.BASE_PRICE,58940).update();generateRandomSales(model);
-        model.create().set(MODEL.BRAND_ID, idTesla).set(MODEL.NAME, "Model S").set(MODEL.CONFIG_NAME, "Model S Plaid").set(MODEL.TRIM, "Plaid").set(MODEL.ENGINE_TYPE, EngineType.E).set(MODEL.ENGINE_POWER, 1020).set(MODEL.BASE_PRICE,126990).update(); // no sales
+        model.create().set(MODEL.WMI, brandTesla).set(MODEL.NAME, "Model 3").set(MODEL.CONFIG_NAME, "Model 3 LR").set(MODEL.TRIM, "Long Range").set(MODEL.ENGINE_TYPE, EngineType.E).set(MODEL.ENGINE_POWER, 261).set(MODEL.BASE_PRICE,45940).update();generateRandomSales(model);
+        model.create().set(MODEL.WMI, brandTesla).set(MODEL.NAME, "Model 3").set(MODEL.CONFIG_NAME, "Model 3 Performance").set(MODEL.TRIM, "Performance").set(MODEL.ENGINE_TYPE, EngineType.E).set(MODEL.ENGINE_POWER, 487).set(MODEL.BASE_PRICE,53940).update();generateRandomSales(model);
+        model.create().set(MODEL.WMI, brandTesla).set(MODEL.NAME, "Model Y").set(MODEL.CONFIG_NAME, "Model Y LR").set(MODEL.TRIM, "Long Range").set(MODEL.ENGINE_TYPE, EngineType.E).set(MODEL.ENGINE_POWER, 345).set(MODEL.BASE_PRICE,53940).update();generateRandomSales(model);
+        model.create().set(MODEL.WMI, brandTesla).set(MODEL.NAME, "Model Y").set(MODEL.CONFIG_NAME, "Model Y Performance").set(MODEL.TRIM, "Performance").set(MODEL.ENGINE_TYPE, EngineType.E).set(MODEL.ENGINE_POWER, 450).set(MODEL.BASE_PRICE,58940).update();generateRandomSales(model);
+        model.create().set(MODEL.WMI, brandTesla).set(MODEL.NAME, "Model S").set(MODEL.CONFIG_NAME, "Model S Plaid").set(MODEL.TRIM, "Plaid").set(MODEL.ENGINE_TYPE, EngineType.E).set(MODEL.ENGINE_POWER, 1020).set(MODEL.BASE_PRICE,126990).update(); // no sales
         // Ford
-        model.create().set(MODEL.BRAND_ID, idFord).set(MODEL.NAME, "Mustang").set(MODEL.CONFIG_NAME, "Mustang GT 5,0 l Ti-VCT V8").set(MODEL.TRIM, "GT").set(MODEL.ENGINE_TYPE, EngineType.P).set(MODEL.ENGINE_POWER, 449).set(MODEL.BASE_PRICE,54300).update();generateRandomSales(model);
-        model.create().set(MODEL.BRAND_ID, idFord).set(MODEL.NAME, "Mustang").set(MODEL.CONFIG_NAME, "Mustang Mach1 5,0 l Ti-VCT V8").set(MODEL.TRIM, "Mach1").set(MODEL.ENGINE_TYPE, EngineType.P).set(MODEL.ENGINE_POWER, 460).set(MODEL.BASE_PRICE,62800).update();generateRandomSales(model);
+        model.create().set(MODEL.WMI, brandFord).set(MODEL.NAME, "Mustang").set(MODEL.CONFIG_NAME, "Mustang GT 5,0 l Ti-VCT V8").set(MODEL.TRIM, "GT").set(MODEL.ENGINE_TYPE, EngineType.P).set(MODEL.ENGINE_POWER, 449).set(MODEL.BASE_PRICE,54300).update();generateRandomSales(model);
+        model.create().set(MODEL.WMI, brandFord).set(MODEL.NAME, "Mustang").set(MODEL.CONFIG_NAME, "Mustang Mach1 5,0 l Ti-VCT V8").set(MODEL.TRIM, "Mach1").set(MODEL.ENGINE_TYPE, EngineType.P).set(MODEL.ENGINE_POWER, 460).set(MODEL.BASE_PRICE,62800).update();generateRandomSales(model);
         // Toyota
-        model.create().set(MODEL.BRAND_ID, idToy).set(MODEL.NAME, "Prius").set(MODEL.CONFIG_NAME, "Prius Hybrid 1,8-l-VVT-i").set(MODEL.TRIM, "Basis").set(MODEL.ENGINE_TYPE, EngineType.H).set(MODEL.ENGINE_POWER, 122).set(MODEL.BASE_PRICE,38000).update();generateRandomSales(model);
-        model.create().set(MODEL.BRAND_ID, idToy).set(MODEL.NAME, "Supra").set(MODEL.CONFIG_NAME, "GR Supra Pure 2,0 l Twin-Scroll Turbo").set(MODEL.TRIM, "Pure").set(MODEL.ENGINE_TYPE, EngineType.P).set(MODEL.ENGINE_POWER, 258).set(MODEL.BASE_PRICE,49290).update();generateRandomSales(model);
+        model.create().set(MODEL.WMI, brandToy).set(MODEL.NAME, "Prius").set(MODEL.CONFIG_NAME, "Prius Hybrid 1,8-l-VVT-i").set(MODEL.TRIM, "Basis").set(MODEL.ENGINE_TYPE, EngineType.H).set(MODEL.ENGINE_POWER, 122).set(MODEL.BASE_PRICE,38000).update();generateRandomSales(model);
+        model.create().set(MODEL.WMI, brandToy).set(MODEL.NAME, "Supra").set(MODEL.CONFIG_NAME, "GR Supra Pure 2,0 l Twin-Scroll Turbo").set(MODEL.TRIM, "Pure").set(MODEL.ENGINE_TYPE, EngineType.P).set(MODEL.ENGINE_POWER, 258).set(MODEL.BASE_PRICE,49290).update();generateRandomSales(model);
     }
     
     private void generateRandomSales(DBRecord model)
@@ -326,7 +412,7 @@ public class CarSalesDB extends TDatabase<CarSalesDB>
         DBCommand cmd = this.createCommand()
            .select(BRAND.NAME.as("BRAND"), MODEL.NAME.as("MODEL"), MODEL.BASE_PRICE.avg(), SALES.MODEL_ID.count(), SALES.PRICE.avg())
            .select(SALES.PRICE.avg().minus(MODEL.BASE_PRICE.avg()).round(2).as("DIFFERENCE"))
-           .join(MODEL.BRAND_ID, BRAND.ID)
+           .join(MODEL.WMI, BRAND.ID)
            .joinLeft(MODEL.ID, SALES.MODEL_ID, SALES.YEAR.is(2021))
            .where(MODEL.ENGINE_TYPE.in(EngineType.H, EngineType.E)) // Hybrid and Electric
            .where(MODEL.BASE_PRICE.isGreaterThan(30000))
@@ -339,7 +425,7 @@ public class CarSalesDB extends TDatabase<CarSalesDB>
            .select  (MODEL.BASE_PRICE)
            .select  (SALES.MODEL_ID.count(), SALES.PRICE.avg())
            .select  (SALES.PRICE.avg().minus(MODEL.BASE_PRICE.avg()).round(2))
-           .join    (MODEL.BRAND_ID, BRAND.ID)
+           .join    (MODEL.WMI, BRAND.WMI)
            .joinLeft(MODEL.ID, SALES.MODEL_ID, SALES.YEAR.is(2021))  // only year 2021
            .where   (MODEL.ENGINE_TYPE.in(EngineType.P, EngineType.H, EngineType.E)) // Petrol, Hybrid, Electric
            .where   (MODEL.BASE_PRICE.isGreaterThan(30000))
@@ -368,9 +454,18 @@ public class CarSalesDB extends TDatabase<CarSalesDB>
         
         DBCommand cmd = context.createCommand()
             .set  (MODEL.BASE_PRICE.to(55000))  // set the price-tag
-            .join (MODEL.BRAND_ID, BRAND.ID)
+            .join (MODEL.WMI, BRAND.WMI)
             .where(BRAND.NAME.is("Tesla"))
             .where(MODEL.NAME.is("Model 3").and(MODEL.TRIM.is("Performance")));
+
+        /*
+         * Clone test
+        DBCommand cl1 = cmd.clone();
+        cl1.set(MODEL.BASE_PRICE.to(66000));  // set the price-tag
+        cl1.where(BRAND.NAME.is("Foo"));
+        log.info("cmd= {} params={}", cmd.getUpdate(), cmd.getParamValues());
+        log.info("cmd= {} params={}", cl1.getUpdate(), cl1.getParamValues());
+         */
 
         // and off you go...
         context.executeUpdate(cmd);

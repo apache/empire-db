@@ -212,12 +212,12 @@ public abstract class DBCommand extends DBCommandExpr
                 clone.cmdParams = new ArrayList<DBCmdParam>(cmdParams.size());
                 // clone set
                 for (int i=0; (clone.set!=null && i<clone.set.size()); i++)
-                    clone.set.set(i, clone.set.get(i).copyCommand(clone));
+                    clone.set.set(i, clone.set.get(i).copy(clone));
                 // clone where and having
                 for (int i=0; (clone.where!=null && i<clone.where.size()); i++)
-                    clone.where.set(i, clone.where.get(i).copyCommand(clone));
+                    clone.where.set(i, clone.where.get(i).copy(clone));
                 for (int i=0; (clone.having!=null && i<clone.having.size()); i++)
-                    clone.having.set(i, clone.having.get(i).copyCommand(clone));
+                    clone.having.set(i, clone.having.get(i).copy(clone));
             }
             // done
             return clone;
@@ -457,6 +457,7 @@ public abstract class DBCommand extends DBCommandExpr
      */
     public DBCommand set(DBSetExpr expr)
     {
+        // add to list
         if (set == null)
             set = new ArrayList<DBSetExpr>();
         for (int i = 0; i < set.size(); i++)
@@ -465,21 +466,25 @@ public abstract class DBCommand extends DBCommandExpr
             if (chk.column.equals(expr.column))
             {   // Overwrite existing value
                 if (useCmdParam(expr.column, expr.value))
-                {   // replace parameter value
-                    // int index = ((DBCommandParam) chk.value).index;
-                    // this.setCmdParam(index, getCmdParamValue(expr.column, expr.value));
+                {   // Use parameter value
                     if (chk.value instanceof DBCmdParam)
+                    {   // reuse the old paramter
                         ((DBCmdParam)chk.value).setValue(expr.value);
+                        expr.value = chk.value;
+                        chk.value = null;
+                    }
                     else
-                        chk.value = addParam(expr.column.getDataType(), expr.value);
+                    {   // create new one
+                        expr.value = addParam(expr.column.getDataType(), expr.value);
+                    }
                 } 
                 else
                 {   // remove from parameter list (if necessary)
-                    if (cmdParams!=null && chk.value instanceof DBCmdParam)
+                    if (cmdParams!=null && (chk.value instanceof DBCmdParam))
                         cmdParams.remove(chk.value);
-                    // replace value
-                    chk.value = expr.value;
                 }
+                // replace now
+                set.set(i, expr);
                 return this;
             }
         }

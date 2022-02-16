@@ -71,9 +71,9 @@ public class DBParenthesisExpr extends DBCompareExpr implements Unwrappable<DBCo
     }
 
     @Override
-    public DBCompareExpr copyCommand(DBCommand cmd)
+    public DBCompareExpr copy(DBCommand newCmd)
     {
-        return new DBParenthesisExpr(wrapped.copyCommand(cmd));
+        return new DBParenthesisExpr(wrapped.copy(newCmd));
     }
 
     @Override

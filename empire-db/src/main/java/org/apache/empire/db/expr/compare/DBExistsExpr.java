@@ -92,11 +92,11 @@ public class DBExistsExpr extends DBCompareExpr
      * @param cmd
      */
     @Override
-    public DBCompareExpr copyCommand(DBCommand newCmd)
+    public DBCompareExpr copy(DBCommand newCmd)
     {
         if (compareExpr==null)
             return this;
-        return new DBExistsExpr(cmd, compareExpr.copyCommand(newCmd));
+        return new DBExistsExpr(cmd, compareExpr.copy(newCmd));
     }
 
     /**

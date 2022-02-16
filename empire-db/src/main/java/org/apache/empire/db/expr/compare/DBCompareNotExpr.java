@@ -76,9 +76,9 @@ public class DBCompareNotExpr extends DBCompareExpr
      * @param cmd
      */
     @Override
-    public DBCompareExpr copyCommand(DBCommand cmd)
+    public DBCompareExpr copy(DBCommand newCmd)
     {
-        return new DBCompareNotExpr(expr.copyCommand(cmd));
+        return new DBCompareNotExpr(expr.copy(newCmd));
     }
 
     /**

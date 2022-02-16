@@ -72,9 +72,9 @@ public abstract class DBCompareExpr extends DBExpr
 	public abstract void prepareCommand(DBCommand cmd); 
     
     /**
-     * internally used for parameter cloning
+     * internally used for command cloning
      * @param cmd
      */
-    public abstract DBCompareExpr copyCommand(DBCommand cmd); 
+    public abstract DBCompareExpr copy(DBCommand newCmd); 
 
 }

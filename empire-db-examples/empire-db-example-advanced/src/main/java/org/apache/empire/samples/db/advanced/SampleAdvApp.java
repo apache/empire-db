@@ -30,14 +30,12 @@ import org.apache.empire.data.DataType;
 import org.apache.empire.db.DBCmdParam;
 import org.apache.empire.db.DBColumnExpr;
 import org.apache.empire.db.DBCommand;
-import org.apache.empire.db.DBContext;
 import org.apache.empire.db.DBDDLGenerator.DDLActionType;
 import org.apache.empire.db.DBQuery;
 import org.apache.empire.db.DBReader;
 import org.apache.empire.db.DBRecord;
 import org.apache.empire.db.DBSQLScript;
 import org.apache.empire.db.DBTableColumn;
-import org.apache.empire.db.context.DBContextStatic;
 import org.apache.empire.db.exceptions.ConstraintViolationException;
 import org.apache.empire.db.exceptions.StatementFailedException;
 import org.apache.empire.dbms.DBMSHandler;
@@ -57,7 +55,7 @@ public class SampleAdvApp
 
     private final CarSalesDB carSales = new CarSalesDB();
     
-    private DBContext context;
+    private SampleAdvContext context;
     
     // Shortcuts
     private SampleAdvDB.Employees T_EMP = db.T_EMPLOYEES;
@@ -108,15 +106,19 @@ public class SampleAdvApp
         DBMSHandler dbms = getDBMSHandler(config.getDatabaseProvider());
         
         // STEP 2.2: Create a Context
-        context = new DBContextStatic(dbms, conn)
-            // set optional context features
-            .setPreparedStatementsEnabled(true)
-            .setRollbackHandlingEnabled(true);
+        context = new SampleAdvContext(carSales, dbms, conn);
+        // set optional context features
+        context.setPreparedStatementsEnabled(false);
+        context.setRollbackHandlingEnabled(true);
 
         // STEP 3: Open Database (and create if not existing)
         System.out.println("*** Step 3: openDatabase() ***");
         db.open(context);
         carSales.open(context);
+        if (carSales.wasCreated())
+        {   // newly created
+            carSales.populate(context);            
+        }
         carSales.queryDemo(context);
         carSales.updateDemo(context);
 
@@ -583,14 +585,127 @@ public class SampleAdvApp
         // Define an updateable query
         DBQuery Q_EMP_DEP = new DBQuery(cmd, T_EMP.C_EMPLOYEE_ID);
         DBRecord rec = new DBRecord(context, Q_EMP_DEP);
-        rec.read(employeeId);
         // Modify and Update fields from both Employee and Department
-        rec.set(T_EMP.C_PHONE_NUMBER, "0815-4711");
-        rec.set(T_DEP.C_BUSINESS_UNIT, "AUTO");
-        rec.update();
+        rec.read(employeeId)
+           .set(T_EMP.C_PHONE_NUMBER, "0815-4711")
+           .set(T_DEP.C_BUSINESS_UNIT, "AUTO")
+           .update();
         // Successfully updated
         System.out.println("The employee has been sucessfully updated");
     }    
+    
+
+    /**
+     * testTransactionCreate
+     * @param context
+     * @param idDep
+     * 
+    private int testTransactionCreate(long idDep)
+    {
+        // Shortcut for convenience
+        SampleDB.Employees EMP = db.EMPLOYEES;
+
+        DBRecord rec = new DBRecord(context, EMP);
+        rec.create();
+        rec.set(EMP.FIRSTNAME, "Foo");
+        rec.set(EMP.LASTNAME, "Manchoo");
+        rec.set(EMP.GENDER, Gender.M);
+        rec.set(EMP.DEPARTMENT_ID, idDep);
+        rec.update();
+        log.info("Timestamp {}", rec.getString(EMP.UPDATE_TIMESTAMP));
+        
+        rec.set(EMP.FIRSTNAME, "Foo 2");
+        rec.set(EMP.LASTNAME, "Manchu");
+        rec.set(EMP.PHONE_NUMBER, "0815/4711");
+        rec.update();
+        log.info("Timestamp {}", rec.getString(EMP.UPDATE_TIMESTAMP));
+        
+        context.rollback();
+        
+        rec.set(EMP.FIRSTNAME, "Dr. Foo");
+        rec.update();
+        log.info("Timestamp {}", rec.getString(EMP.UPDATE_TIMESTAMP));
+
+        rec.delete();
+        
+        context.rollback();
+
+        // insert final
+        rec.update();
+        log.info("Timestamp {}", rec.getString(EMP.UPDATE_TIMESTAMP));
+        
+        log.info("testTransactionCreate performed OK");
+        context.commit();
+        
+        return rec.getInt(EMP.ID);
+    }
+     */
+
+    /**
+     * @param context
+     * @param idDep
+     * 
+    private void testTransactionUpdate(long idEmp)
+    {
+        // Shortcut for convenience
+        SampleDB.Employees EMP = db.EMPLOYEES;
+        
+        DBRecord rec = new DBRecord(context, EMP);        
+        rec.read(idEmp);
+        rec.set(EMP.PHONE_NUMBER, null);
+        rec.set(EMP.SALARY, "100.000");
+        rec.update();
+
+        log.info("Timestamp {}", rec.getString(EMP.UPDATE_TIMESTAMP));
+        
+        context.rollback();
+        
+        rec.set(EMP.PHONE_NUMBER, "07531-45716-0");
+        rec.update();
+
+        log.info("Timestamp {}", rec.getString(EMP.UPDATE_TIMESTAMP));
+        
+        context.rollback();
+
+        rec.update();
+
+        log.info("Timestamp {}", rec.getString(EMP.UPDATE_TIMESTAMP));
+        log.info("testTransactionUpdate performed OK");
+        context.commit();        
+    }
+     */
+
+    /**
+     * @param context
+     * @param idDep
+     *
+    private void testTransactionDelete(long idEmp)
+    {
+        // Shortcut for convenience
+        SampleDB.Employees T = db.EMPLOYEES;
+
+        DBRecord rec = new DBRecord(context, T);
+        rec.read(idEmp);
+
+        // log.info("Timestamp {}", rec.getString(T.UPDATE_TIMESTAMP));
+        // rec.set(T.SALARY, "100.001");
+        // rec.update();
+        // log.info("Timestamp {}", rec.getString(T.UPDATE_TIMESTAMP));
+        
+        rec.delete();
+        
+        context.rollback();
+
+        // DBCommand cmd = context.createCommand();
+        // cmd.select(T.UPDATE_TIMESTAMP);
+        // cmd.where (T.EMPLOYEE_ID.is(idEmp));
+        // log.info("Timestamp {}", db.querySingleString(cmd, context.getConnection()));
+        
+        rec.update();
+        
+        log.info("Transaction performed OK");        
+    }
+     */
     
     /**
      * This function demonstrates cascaded deletes.

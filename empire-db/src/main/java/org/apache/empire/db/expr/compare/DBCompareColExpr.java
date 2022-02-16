@@ -149,11 +149,11 @@ public class DBCompareColExpr extends DBCompareExpr
      * @param cmd
      */
     @Override
-    public DBCompareExpr copyCommand(DBCommand cmd)
+    public DBCompareExpr copy(DBCommand newCmd)
     {
         Object valueCopy = value;
         if (value instanceof DBCmdParam) 
-            valueCopy = cmd.addParam(DataType.UNKNOWN, ((DBCmdParam)value).getValue());
+            valueCopy = newCmd.addParam(DataType.UNKNOWN, ((DBCmdParam)value).getValue());
         return new DBCompareColExpr(expr, cmpop, valueCopy);
     }
     
