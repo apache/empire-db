@@ -34,7 +34,7 @@ public class DBContextStatic extends DBContextBase
     private final boolean closeOnDiscard;
     // features
     private boolean enableRollbackHandling = false;
-    private boolean preparedStatementsEnabled = false;
+    private boolean autoPrepareStmt = false;
     
     /**
      *  Global DBRollbackManager
@@ -77,7 +77,7 @@ public class DBContextStatic extends DBContextBase
     @Override
     public boolean isPreparedStatementsEnabled()
     {
-        return preparedStatementsEnabled;
+        return autoPrepareStmt;
     }
     
     /**
@@ -87,9 +87,9 @@ public class DBContextStatic extends DBContextBase
      */
     public DBContextStatic setPreparedStatementsEnabled(boolean enabled)
     {
-        this.preparedStatementsEnabled = enabled;
+        this.autoPrepareStmt = enabled;
         // log prepared statement 
-        log.info("PreparedStatementsEnabled has been set to " + preparedStatementsEnabled);
+        log.info("PreparedStatementsEnabled has been set to " + autoPrepareStmt);
         return this;
     }
 

@@ -73,9 +73,9 @@ public class DBMSHandlerSQLite extends DBMSHandlerBase
          *            the database
          * @see org.apache.empire.db.DBCommand
          */
-        public DBCommandSQLite(boolean preparedStatementsEnabled)
+        public DBCommandSQLite(boolean autoPrepareStmt)
         {
-            super(preparedStatementsEnabled);
+            super(autoPrepareStmt);
         }
         
         @Override
@@ -268,10 +268,10 @@ public class DBMSHandlerSQLite extends DBMSHandlerBase
      * @return the new DBCommandSQLite object
      */
     @Override
-    public DBCommand createCommand(boolean preparedStatementsEnabled)
+    public DBCommand createCommand(boolean autoPrepareStmt)
     {
         // create command object
-        return new DBCommandSQLite(preparedStatementsEnabled);
+        return new DBCommandSQLite(autoPrepareStmt);
     }
     
     /**

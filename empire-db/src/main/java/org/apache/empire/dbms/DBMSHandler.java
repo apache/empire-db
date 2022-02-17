@@ -56,11 +56,11 @@ public interface DBMSHandler
     void detachDatabase(DBDatabase db, Connection conn);
     
     /**
-     * This function creates a DBCommand derived object this database
-     * @param db the database for which to create a command object for
-     * @return a DBCommand object
+     * This function creates a DBCommand for this DBMS
+     * @param autoPrepareStmt whether or not the Command should automatically generate a prepared statement (using ?)
+     * @return a DBMS specific DBCommand object
      */
-    DBCommand createCommand(boolean preparedStatementsEnabled);
+    DBCommand createCommand(boolean autoPrepareStmt);
 
     /**
      * This function gives the dbms a chance to provide a custom implementation 

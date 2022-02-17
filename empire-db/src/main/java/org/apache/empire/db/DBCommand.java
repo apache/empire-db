@@ -57,31 +57,31 @@ public abstract class DBCommand extends DBCommandExpr
     // *Deprecated* private static final long serialVersionUID = 1L;
 
     // Logger
-    protected static final Logger log = LoggerFactory.getLogger(DBCommand.class);
+    protected static final Logger log             = LoggerFactory.getLogger(DBCommand.class);
 
     // Distinct Select
-    protected boolean                selectDistinct = false;
+    protected boolean             selectDistinct  = false;
     // Lists
-    protected List<DBColumnExpr>     select         = null;
-    protected List<DBSetExpr>        set            = null;
-    protected List<DBJoinExpr>       joins          = null; // Join Info
-    protected List<DBCompareExpr>    where          = null;
-    protected List<DBCompareExpr>    having         = null;
-    protected List<DBColumnExpr>     groupBy        = null;
-    
-    // Parameters for prepared Statements
-    protected boolean                preparedStatementsEnabled = false; /* flag for automatic prepared statements */
-    protected List<DBCmdParam>       cmdParams      = null;
-    private int                      paramUsageCount= 0;
+    protected List<DBColumnExpr>  select          = null;
+    protected List<DBSetExpr>     set             = null;
+    protected List<DBJoinExpr>    joins           = null;
+    protected List<DBCompareExpr> where           = null;
+    protected List<DBCompareExpr> having          = null;
+    protected List<DBColumnExpr>  groupBy         = null;
+
+    // Parameters for prepared Statements generation
+    protected boolean             autoPrepareStmt = false;
+    protected List<DBCmdParam>    cmdParams       = null;
+    private int                   paramUsageCount = 0;
 
     /**
      * Constructs a new DBCommand object and set the specified DBDatabase object.
      * 
      * @param db the current database object
      */
-    protected DBCommand(boolean preparedStatementsEnabled)
+    protected DBCommand(boolean autoPrepareStmt)
     {
-        this.preparedStatementsEnabled = preparedStatementsEnabled;
+        this.autoPrepareStmt = autoPrepareStmt;
     }
 
     /**
@@ -1219,7 +1219,7 @@ public abstract class DBCommand extends DBCommandExpr
      */
     protected boolean isPreparedStatementsEnabled()
     {
-        return this.preparedStatementsEnabled;
+        return this.autoPrepareStmt;
     }
     
     /**

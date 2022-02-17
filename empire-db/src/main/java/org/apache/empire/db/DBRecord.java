@@ -26,6 +26,7 @@ import java.sql.Connection;
 import org.apache.empire.commons.ClassUtils;
 import org.apache.empire.commons.StringUtils;
 import org.apache.empire.data.Column;
+import org.apache.empire.data.Record;
 import org.apache.empire.db.DBRowSet.PartialMode;
 import org.apache.empire.db.exceptions.NoPrimaryKeyException;
 import org.apache.empire.db.expr.compare.DBCompareExpr;
@@ -58,12 +59,25 @@ public class DBRecord extends DBRecordBase
     /**
      * varArgs to Array
      * @param values
-     * @return
+     * @return the key
      */
     public static Object[] key(Object... values)
     {
         if (values.length==0)
             throw new InvalidArgumentException("values", values);
+        // check values
+        for (int i=0; i<values.length; i++) {
+            // Replace record with key
+            if (values[i] instanceof Record)
+                values[i]=((Record)values[i]).getKey();
+            // Replace key with value
+            if (values[i] instanceof Object[]) {   
+               Object[] key = (Object[])values[i];
+               if (key.length!=1)
+                   throw new InvalidArgumentException("values", values[i]);
+               values[i]=key[0];
+            }
+        }
         return values;
     }
 

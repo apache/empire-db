@@ -61,9 +61,9 @@ public class DBMSHandlerH2 extends DBMSHandlerBase
 	    protected int limitRows = -1;
 	    protected int skipRows  =  0;
         
-        public DBCommandH2(boolean preparedStatementsEnabled)
+        public DBCommandH2(boolean autoPrepareStmt)
         {
-            super(preparedStatementsEnabled);
+            super(autoPrepareStmt);
         }
     
 	    @Override
@@ -192,10 +192,10 @@ public class DBMSHandlerH2 extends DBMSHandlerBase
      * @return the new DBCommandDerby object
      */
     @Override
-    public DBCommand createCommand(boolean preparedStatementsEnabled)
+    public DBCommand createCommand(boolean autoPrepareStmt)
     {
         // create command object
-        return new DBCommandH2(preparedStatementsEnabled);
+        return new DBCommandH2(autoPrepareStmt);
     }
 
     /**

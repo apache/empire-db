@@ -22,12 +22,13 @@ import java.sql.Connection;
 
 import org.apache.empire.db.context.DBContextStatic;
 import org.apache.empire.dbms.DBMSHandler;
+import org.apache.empire.samples.db.advanced.db.CarSalesDB;
 
-public class SampleAdvContext extends DBContextStatic
+public class SampleContext extends DBContextStatic
 {
     private final CarSalesDB database;
     
-    public SampleAdvContext(CarSalesDB db, DBMSHandler dbmsHandler, Connection conn)
+    public SampleContext(CarSalesDB db, DBMSHandler dbmsHandler, Connection conn)
     {
         super(dbmsHandler, conn);
         // set database

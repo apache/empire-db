@@ -44,6 +44,19 @@ public interface Record extends RecordData
     {
         if (values.length==0)
             throw new InvalidArgumentException("values", values);
+        // check values
+        for (int i=0; i<values.length; i++) {
+            // Replace record with key
+            if (values[i] instanceof Record)
+                values[i]=((Record)values[i]).getKey();
+            // Replace key with value
+            if (values[i] instanceof Object[]) {   
+               Object[] key = (Object[])values[i];
+               if (key.length!=1)
+                   throw new InvalidArgumentException("values", values[i]);
+               values[i]=key[0];
+            }
+        }
         return values;
     }
 

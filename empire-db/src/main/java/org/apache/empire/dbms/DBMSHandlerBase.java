@@ -88,9 +88,9 @@ public abstract class DBMSHandlerBase implements DBMSHandler
      */
     public static final class DBMSCommand extends DBCommand 
     {
-        protected DBMSCommand(boolean preparedStatementsEnabled)
+        protected DBMSCommand(boolean autoPrepareStmt)
         {
-            super(preparedStatementsEnabled);
+            super(autoPrepareStmt);
         }
     }
 
@@ -289,9 +289,9 @@ public abstract class DBMSHandlerBase implements DBMSHandler
      * @return a DBCommand object
      */
     @Override
-    public DBCommand createCommand(boolean preparedStatementsEnabled)
+    public DBCommand createCommand(boolean autoPrepareStmt)
     {
-        return new DBMSCommand(preparedStatementsEnabled);
+        return new DBMSCommand(autoPrepareStmt);
     }
 
     /**
@@ -623,10 +623,10 @@ public abstract class DBMSHandlerBase implements DBMSHandler
 
     /**
      * Executes a list of sql statements as batch
-     * @param sqlCmd
-     * @param sqlCmdParams
-     * @param conn
-     * @return
+     * @param sqlCmd an array of sql statements
+     * @param sqlCmdParams and array of statement parameters
+     * @param conn a JDBC connection
+     * @return an array containing the number of records affected by each statement
      * @throws SQLException
      */
     @Override
@@ -660,7 +660,8 @@ public abstract class DBMSHandlerBase implements DBMSHandler
                         if (cmd==null)
                             break;
                         // new statement
-                        log.debug("Creating prepared statement for batch: "+cmd);
+                        if (log.isTraceEnabled())
+                            log.trace("Creating prepared statement for batch: {}", cmd);
                         pstmt = conn.prepareStatement(cmd);
                         lastCmd = cmd;
                     }
@@ -669,7 +670,8 @@ public abstract class DBMSHandlerBase implements DBMSHandler
                     {   
                         prepareStatement(pstmt, sqlCmdParams[i]); 
                     }   
-                    log.debug("Adding batch with {} params.", (sqlCmdParams[i]!=null ? sqlCmdParams[i].length : 0));
+                    if (log.isTraceEnabled())
+                        log.trace("Adding batch with {} params.", (sqlCmdParams[i]!=null ? sqlCmdParams[i].length : 0));
                     pstmt.addBatch();
                 }
                 return result; 
@@ -684,7 +686,8 @@ public abstract class DBMSHandlerBase implements DBMSHandler
                 for (int i=0; i<sqlCmd.length; i++)
                 {
                     String cmd = sqlCmd[i];
-                    log.debug("Adding statement to batch: "+cmd);
+                    if (log.isTraceEnabled())
+                        log.trace("Adding statement to batch: {}", cmd);
                     stmt.addBatch(cmd);
                 }
                 log.debug("Executing batch containing {} statements", sqlCmd.length);
@@ -751,7 +754,7 @@ public abstract class DBMSHandlerBase implements DBMSHandler
             // Check Result
             if (rs.next() == false)
             {   // no result
-                log.debug("querySingleValue returned no result");
+                log.trace("querySingleValue for {} returned no result", sqlCmd);
                 return ObjectUtils.NO_VALUE;
             }
             // Read value

@@ -19,25 +19,27 @@
 package org.apache.empire.samples.db.advanced.records;
 
 import org.apache.empire.db.generic.TRecord;
-import org.apache.empire.samples.db.advanced.CarSalesDB;
-import org.apache.empire.samples.db.advanced.SampleAdvContext;
+import org.apache.empire.samples.db.advanced.SampleContext;
+import org.apache.empire.samples.db.advanced.db.CarSalesDB;
 
 public class BrandRecord extends TRecord<CarSalesDB.Brand>
 {
     private static final long serialVersionUID = 1L;
 
-    public BrandRecord(SampleAdvContext context)
+    public BrandRecord(SampleContext context)
     {
         super(context, context.getDatabase().BRAND);
     }
     
-    public void insert(String wmi, String name, String country)
+    public BrandRecord insert(String wmi, String name, String country)
     {
+        // RS = RowSet
         create();
         set(RS.WMI,     wmi);
         set(RS.NAME,    name);
         set(RS.COUNTRY, country);
         update();
+        return this;
     }
 
 }

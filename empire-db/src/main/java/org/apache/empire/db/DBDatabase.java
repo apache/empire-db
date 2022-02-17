@@ -154,7 +154,7 @@ public abstract class DBDatabase extends DBObject
      * Note: This will only apply for update and insert commands as well as for read operations on a DBRecord.
      * For custom SQL commands parameters must be explicitly declared using cmd.addCmdParam();   
      */
-    private boolean preparedStatementsEnabled = false;
+    private boolean autoPrepareStmt = false;
 
     /**
      * Constructs a new DBDatabase object and sets the specified schema object.
@@ -305,7 +305,7 @@ public abstract class DBDatabase extends DBObject
      */
     public boolean isPreparedStatementsEnabled()
     {
-        return preparedStatementsEnabled;
+        return autoPrepareStmt;
     }
 
     /**
@@ -313,11 +313,11 @@ public abstract class DBDatabase extends DBObject
      * Note: For custom SQL commands parameters must be explicitly declared using cmd.addCmdParam();   
      * @param preparedStatementsEnabled
      */
-    public void setPreparedStatementsEnabled(boolean preparedStatementsEnabled)
+    public void setPreparedStatementsEnabled(boolean autoPrepareStmt)
     {
-        this.preparedStatementsEnabled = preparedStatementsEnabled;
+        this.autoPrepareStmt = autoPrepareStmt;
         // log prepared statement 
-        log.info("PreparedStatementsEnabled is " + preparedStatementsEnabled);
+        log.info("PreparedStatementsEnabled is " + autoPrepareStmt);
     }
 
     /**

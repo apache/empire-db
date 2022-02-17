@@ -21,6 +21,7 @@ package org.apache.empire.db;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.empire.commons.Options;
+import org.apache.empire.data.Column;
 import org.apache.empire.data.DataType;
 import org.apache.empire.db.expr.column.DBValueExpr;
 import org.apache.empire.exceptions.InvalidArgumentException;
@@ -66,11 +67,15 @@ public abstract class DBView extends DBRowSet
             DataType exprType = expr.getDataType();
             if (exprType==DataType.AUTOINC)
                 exprType= DataType.INTEGER;
-            this.dataType = exprType; 
-            // Update Column
+            this.dataType = exprType;
+            // Source Column
             this.sourceColumn = expr.getSourceColumn();
             // from update column
             this.size = (sourceColumn!=null ? sourceColumn.getSize() : size);
+            // Copy enumType
+            Class<Enum<?>> enumType = expr.getEnumType();
+            if (enumType!=null)
+                setAttribute(Column.COLATTR_ENUMTYPE, enumType);
             // Add to view
             if (view != null)
                 view.addColumn(this);

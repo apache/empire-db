@@ -18,15 +18,21 @@
  */
 package org.apache.empire.samples.db.advanced;
 
+import java.io.Serializable;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.time.LocalDate;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 
-import org.apache.empire.commons.DateUtils;
+import org.apache.empire.commons.ObjectUtils;
 import org.apache.empire.commons.Options;
 import org.apache.empire.commons.StringUtils;
 import org.apache.empire.data.DataType;
+import org.apache.empire.data.list.DataListEntry;
 import org.apache.empire.db.DBCmdParam;
 import org.apache.empire.db.DBColumnExpr;
 import org.apache.empire.db.DBCommand;
@@ -39,7 +45,13 @@ import org.apache.empire.db.DBTableColumn;
 import org.apache.empire.db.exceptions.ConstraintViolationException;
 import org.apache.empire.db.exceptions.StatementFailedException;
 import org.apache.empire.dbms.DBMSHandler;
-import org.apache.empire.dbms.h2.DBMSHandlerH2;
+import org.apache.empire.samples.db.advanced.db.CarSalesDB;
+import org.apache.empire.samples.db.advanced.db.CarSalesDB.DealershipType;
+import org.apache.empire.samples.db.advanced.db.CarSalesDB.EngineType;
+import org.apache.empire.samples.db.advanced.db.DealerSalesView;
+import org.apache.empire.samples.db.advanced.records.BrandRecord;
+import org.apache.empire.samples.db.advanced.records.DealerRecord;
+import org.apache.empire.samples.db.advanced.records.ModelRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -51,13 +63,13 @@ public class SampleAdvApp
     
     private static SampleAdvConfig config = new SampleAdvConfig();
 
-    private final SampleAdvDB db = new SampleAdvDB();
 
     private final CarSalesDB carSales = new CarSalesDB();
     
-    private SampleAdvContext context;
+    private SampleContext context;
     
     // Shortcuts
+    private final SampleAdvDB db = new SampleAdvDB();
     private SampleAdvDB.Employees T_EMP = db.T_EMPLOYEES;
     private SampleAdvDB.Departments T_DEP = db.T_DEPARTMENTS;
     private SampleAdvDB.EmployeeDepartmentHistory T_EDH = db.T_EMP_DEP_HIST;
@@ -106,22 +118,27 @@ public class SampleAdvApp
         DBMSHandler dbms = getDBMSHandler(config.getDatabaseProvider());
         
         // STEP 2.2: Create a Context
-        context = new SampleAdvContext(carSales, dbms, conn);
+        context = new SampleContext(carSales, dbms, conn);
         // set optional context features
         context.setPreparedStatementsEnabled(false);
         context.setRollbackHandlingEnabled(true);
 
         // STEP 3: Open Database (and create if not existing)
         System.out.println("*** Step 3: openDatabase() ***");
-        db.open(context);
+        // db.open(context);
         carSales.open(context);
         if (carSales.wasCreated())
         {   // newly created
-            carSales.populate(context);            
+            populateDatabase();            
+            insertSalesUsingBatch();
+            context.commit();
         }
-        carSales.queryDemo(context);
-        carSales.updateDemo(context);
+        // do simple stuff
+        queryViewDemo();
+        simpleQueryDemo();
+        simpleUpdateDemo();
 
+        /*
         // STEP 5: Clear Database (Delete all records)
         System.out.println("*** Step 5: clearDatabase() ***");
         clearDatabase();
@@ -209,12 +226,260 @@ public class SampleAdvApp
         System.out.println("--------------------------------------------------------");
         System.out.println("*** deleteRecordSample: shows how to delete records (with and without cascade) ***");
         deleteRecordSample(idEmp3, idSalDep);
+        */
         
         // Done
         System.out.println("--------------------------------------------------------");
         System.out.println("DB Sample Advanced finished successfully.");
     }
 
+    public void populateDatabase()
+    {
+        // Add some brands
+        BrandRecord brandVW    = (new BrandRecord(context)).insert("WVW", "Volkswagen", "Germany");
+        BrandRecord brandFord  = (new BrandRecord(context)).insert("1F",  "Ford",       "USA");
+        BrandRecord brandTesla = (new BrandRecord(context)).insert("5YJ", "Tesla",      "USA");
+        BrandRecord brandToy   = (new BrandRecord(context)).insert("JT",  "Toyota",     "Japan");
+        
+        // Add some models
+        ModelRecord model = new ModelRecord(context);
+        model.insert(brandVW,   "Golf",     "Golf Style 1,5 l TSI",         "Style",         EngineType.P, 130, 30970d);
+        model.insert(brandVW,   "Golf",     "Golf R-Line 2,0 l TSI 4MOTION","R-Line",        EngineType.P, 190, 38650d);
+        model.insert(brandVW,   "Tiguan",   "Tiguan Life 1,5 l TSI",        "Life",          EngineType.P, 150, 32545d);
+        model.insert(brandVW,   "Tiguan",   "Tiguan Elegance 2,0 l TDI SCR","Elegance",      EngineType.D, 150, 40845d);
+        model.insert(brandVW,   "Tiguan",   "Tiguan R-Line 1,4 l eHybrid",  "R-Line",        EngineType.H, 150, 48090d);
+        // Tesla
+        model.insert(brandTesla,"Model 3",  "Model 3 LR",                   "Long Range",    EngineType.E, 261, 45940d);
+        model.insert(brandTesla,"Model 3",  "Model 3 Performance",          "Performance",   EngineType.E, 487, 53940d);
+        model.insert(brandTesla,"Model Y",  "Model Y LR",                   "Long Range",    EngineType.E, 345, 53940d);
+        model.insert(brandTesla,"Model Y",  "Model Y Performance",          "Performance",   EngineType.E, 450, 58940d);
+        model.insert(brandTesla,"Model S",  "Model S Plaid",                "Plaid",         EngineType.E, 1020,0d);
+        // Ford
+        model.insert(brandFord, "Mustang",  "Mustang GT 5,0 l Ti-VCT V8",           "GT",    EngineType.P, 449, 54300d);
+        model.insert(brandFord, "Mustang",  "Mustang Mach1 5,0 l Ti-VCT V8",        "Mach1", EngineType.P, 460, 62800d);
+        // Toyota
+        model.insert(brandToy,  "Prius",    "Prius Hybrid 1,8-l-VVT-i",             "Basis", EngineType.H, 122, 38000d);    
+        model.insert(brandToy,  "Supra",    "GR Supra Pure 2,0 l Twin-Scroll Turbo","Pure",  EngineType.P, 258, 49290d);
+        
+        // Add some dealers
+        DealerRecord dealerDE = (new DealerRecord(context)).insert("Autozentrum Schmitz",      "Munich",       "Germany");
+        DealerRecord dealerUK = (new DealerRecord(context)).insert("Beadles Volkswagen",       "Dartford",     "United Kingdom");
+        DealerRecord dealerUS = (new DealerRecord(context)).insert("Auto Nation",              "Los Angeles",  "USA");
+        DealerRecord dealerFR = (new DealerRecord(context)).insert("Vauban Motors Argenteuil", "Paris",        "France");
+        DealerRecord dealerIT = (new DealerRecord(context)).insert("Autorigoldi S.p.A.",       "Milan",        "Italy");
+        
+        // Add brands to dealers
+        CarSalesDB.DealerBrands DB = carSales.DEALER_BRANDS;
+        DBRecord rec = new DBRecord(context, DB);
+        rec.create(DBRecord.key(dealerDE, brandTesla)).set(DB.DEALERSHIP_TYPE, DealershipType.B).update();
+        rec.create(DBRecord.key(dealerDE, brandVW))   .set(DB.DEALERSHIP_TYPE, DealershipType.U).update();
+        rec.create(DBRecord.key(dealerUK, brandVW))   .set(DB.DEALERSHIP_TYPE, DealershipType.B).update();
+        rec.create(DBRecord.key(dealerUK, brandFord)) .set(DB.DEALERSHIP_TYPE, DealershipType.I).update();
+        rec.create(DBRecord.key(dealerUS, brandFord)) .set(DB.DEALERSHIP_TYPE, DealershipType.B).update();
+        rec.create(DBRecord.key(dealerUS, brandTesla)).set(DB.DEALERSHIP_TYPE, DealershipType.I).update();
+        rec.create(DBRecord.key(dealerFR, brandToy))  .set(DB.DEALERSHIP_TYPE, DealershipType.B).update();
+        rec.create(DBRecord.key(dealerIT, brandToy))  .set(DB.DEALERSHIP_TYPE, DealershipType.G).update();
+        rec.create(DBRecord.key(dealerIT, brandVW))   .set(DB.DEALERSHIP_TYPE, DealershipType.B).update();
+        
+    }
+    
+    private void insertSalesUsingBatch()
+    {
+        CarSalesDB db = this.carSales;
+        DBSQLScript batch = new DBSQLScript(context);
+        // get list of all dealers
+        DBCommand cmd = context.createCommand();
+        cmd.select(db.DEALER.ID);
+        List<Long> dealerIdList = context.getUtils().querySimpleList(Long.class, cmd);
+        // get all models
+        cmd.clear();
+        cmd.select(db.MODEL.ID, db.MODEL.CONFIG_NAME, db.MODEL.BASE_PRICE);  // select the ones we need (optional)
+        // no constraints on model
+        List<DataListEntry> modelList = context.getUtils().queryDataList(cmd);
+        for (DataListEntry model : modelList)
+        {
+            int count = generateRandomSales(batch, model, dealerIdList);
+            log.info("{} Sales added for Model {}", count, model.getString(db.MODEL.CONFIG_NAME));
+        }
+        // execute the batch
+        int count = batch.executeBatch();
+        log.info("{} Sales added with batch", count);
+    }
+    
+    private int generateRandomSales(DBSQLScript batch, DataListEntry model, List<Long> dealerIdList)
+    {
+        CarSalesDB db = this.carSales;
+        BigDecimal price = model.getDecimal(db.MODEL.BASE_PRICE);
+        if (ObjectUtils.isEmpty(price))
+            return 0;
+        int count = 0;
+        int baseYear = LocalDate.now().getYear()-3;
+        DBCommand cmd = context.createCommand();
+        for (int i = (int)(Math.random()*99)+25; i>0; i--)
+        {
+            int dealIdx = (int)(Math.random()*dealerIdList.size());
+            int year  = (int)(Math.random()*3)+baseYear;
+            int month = (int)(Math.random()*12)+1;
+            BigDecimal variation = new BigDecimal((Math.random()*200) - 100.0);
+            variation = variation.setScale(2, RoundingMode.HALF_UP);
+            cmd.set(db.SALES.MODEL_ID.to(model.getRecordId(db.MODEL)))
+               .set(db.SALES.DEALER_ID.to(dealerIdList.get(dealIdx)))
+               .set(db.SALES.YEAR.to(year))
+               .set(db.SALES.MONTH.to(month))
+               .set(db.SALES.PRICE.to(price.add(variation)));
+            // add to batch
+            batch.addInsert(cmd);
+            count++;
+        }
+        return count;
+    }
+    
+    /**
+     * The result Bean for the query Example
+     * @author rainer
+     */
+    public static class QueryResult implements Serializable
+    {
+        private static final long serialVersionUID = 1L;
+        
+        private String brand;
+        private String model;
+        private BigDecimal basePrice;
+        private int salesCount;
+        private BigDecimal avgSalesPrice;
+        private BigDecimal priceDifference;
+        
+        public QueryResult(String brand, String model, BigDecimal basePrice
+                         , int salesCount, BigDecimal avgSalesPrice, BigDecimal priceDifference)
+        {
+            this.brand = brand;
+            this.model = model;
+            this.basePrice = basePrice;
+            this.salesCount = salesCount;
+            this.avgSalesPrice = avgSalesPrice;
+            this.priceDifference = priceDifference;
+        }
+
+        public String getBrand()
+        {
+            return brand;
+        }
+
+        public String getModel()
+        {
+            return model;
+        }
+
+        public BigDecimal getBasePrice()
+        {
+            return basePrice;
+        }
+
+        public int getSalesCount()
+        {
+            return salesCount;
+        }
+
+        public BigDecimal getAvgSalesPrice()
+        {
+            return avgSalesPrice;
+        }
+
+        public BigDecimal getPriceDifference()
+        {
+            return priceDifference;
+        }
+    }
+    
+    public void simpleQueryDemo()
+    {
+        // shortcuts (for convenience)
+        CarSalesDB.Brand BRAND = carSales.BRAND;
+        CarSalesDB.Model MODEL = carSales.MODEL;
+        CarSalesDB.Sales SALES = carSales.SALES;
+        // create command
+        DBCommand cmd = context.createCommand()
+           .selectQualified(BRAND.NAME, MODEL.CONFIG_NAME) 
+           .select  (MODEL.BASE_PRICE)
+           .select  (SALES.MODEL_ID.count(), SALES.PRICE.avg())
+           .select  (SALES.PRICE.avg().minus(MODEL.BASE_PRICE.avg()).round(2))
+           .join    (MODEL.WMI, BRAND.WMI)
+           .joinLeft(MODEL.ID, SALES.MODEL_ID, SALES.YEAR.is(2021))  // only year 2021
+           .where   (MODEL.ENGINE_TYPE.in(EngineType.P, EngineType.H, EngineType.E)) // Petrol, Hybrid, Electric
+           .where   (MODEL.BASE_PRICE.isGreaterThan(30000))
+           .groupBy (BRAND.NAME, MODEL.CONFIG_NAME, MODEL.BASE_PRICE)
+           .having  (SALES.MODEL_ID.count().isGreaterThan(5))
+           .orderBy (BRAND.NAME.desc(), MODEL.CONFIG_NAME.asc());
+        
+        /*
+        List<DataListEntry> list = context.getUtils().queryDataList(cmd);
+        for (DataListEntry dle : list)
+        {
+            System.out.println(dle.toString());
+        }
+        */
+        DataListEntry entry = context.getUtils().queryDataEntry(cmd);
+        for (int i=0; i<entry.getFieldCount(); i++)
+            log.info("col {} -> {}", entry.getColumn(i).getName(), entry.getColumn(i).getBeanPropertyName());
+     
+        List<QueryResult> list = context.getUtils().queryBeanList(cmd, QueryResult.class, null);
+        log.info("queryBeanList returnes {} items", list.size());
+        
+    }
+    
+    public void simpleUpdateDemo()
+    {
+        // shortcuts (for convenience)
+        CarSalesDB.Brand BRAND = carSales.BRAND;
+        CarSalesDB.Model MODEL = carSales.MODEL;
+        // create command
+        DBCommand cmd = context.createCommand()
+            .set  (MODEL.BASE_PRICE.to(55000))  // set the price-tag
+            .join (MODEL.WMI, BRAND.WMI)
+            .where(BRAND.NAME.is("Tesla"))
+            .where(MODEL.NAME.is("Model 3").and(MODEL.TRIM.is("Performance")));
+
+        /*
+         * Clone test
+        DBCommand cl1 = cmd.clone();
+        cl1.set(MODEL.BASE_PRICE.to(66000));  // set the price-tag
+        cl1.where(BRAND.NAME.is("Foo"));
+        log.info("cmd= {} params={}", cmd.getUpdate(), cmd.getParamValues());
+        log.info("cmd= {} params={}", cl1.getUpdate(), cl1.getParamValues());
+         */
+
+        // and off you go...
+        context.executeUpdate(cmd);
+    }
+    
+    private void queryViewDemo()
+    {
+        /*
+        DBRecord rec = new DBRecord(context, carSales.DEALER_BRANDS);
+        rec.read(DBRecord.key(1, "5YJ"));
+        DealershipType dst1 = rec.getEnum(carSales.DEALER_BRANDS.DEALERSHIP_TYPE);
+        String dsn1 = rec.getString(carSales.DEALER_BRANDS.DEALERSHIP_TYPE);
+        log.info("DealershipType {}", dsn1);
+        */
+        
+        // shortcuts (for convenience)
+        DealerSalesView DSV = carSales.DEALER_SALES_VIEW;
+        // create command
+        DBCommand cmd = context.createCommand()
+           .select  (DSV.getColumns())
+           .orderBy (DSV.SALE_YEAR, DSV.DEALER_COUNTRY);
+        
+        List<DataListEntry> list = context.getUtils().queryDataList(cmd);
+        for (DataListEntry dle : list)
+        {
+            DealershipType dst = dle.getEnum(DSV.DEALERSHIP_TYPE);
+            Options opt = DSV.DEALERSHIP_TYPE.getOptions();
+            String dsn = dle.getString(DSV.DEALERSHIP_TYPE);
+            log.info("DealershipType {}-->{}", dsn, dle.format(DSV.DEALERSHIP_TYPE));
+            System.out.println(dle.toString());
+        }
+    }
+    
     /**
      * <PRE>
      * Opens and returns a JDBC-Connection.

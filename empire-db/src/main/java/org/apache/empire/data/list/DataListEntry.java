@@ -24,7 +24,6 @@ import java.util.Collection;
 import java.util.Date;
 
 import org.apache.empire.commons.ObjectUtils;
-import org.apache.empire.commons.StringUtils;
 import org.apache.empire.data.Column;
 import org.apache.empire.data.ColumnExpr;
 import org.apache.empire.data.EntityType;
@@ -239,7 +238,7 @@ public class DataListEntry implements RecordData, Serializable
     public String getString(int index)
     {   // Get String value
         Object o = getValue(index);
-        return StringUtils.toString(o);
+        return ObjectUtils.getString(o);
     }
 
     public final String getString(ColumnExpr column)
