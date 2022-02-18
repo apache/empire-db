@@ -54,7 +54,7 @@ public class DBCompareJoinExpr extends DBColumnJoinExpr
             return findFirstColumn(((DBCompareAndOrExpr)expr).getLeft());
         // Get Colum Expr
         if (expr instanceof DBCompareColExpr)
-            return ((DBCompareColExpr)expr).getColumnExpr();
+            return ((DBCompareColExpr)expr).getColumn();
         // Error
         log.error("Unknown class found for building a valid JOIN Expression");
         return null;

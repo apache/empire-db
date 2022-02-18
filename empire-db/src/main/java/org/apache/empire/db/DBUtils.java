@@ -1203,7 +1203,7 @@ public class DBUtils implements DBContextAware
         DBObject.checkParamNull("key", key);
         // set key constraints 
         DBCommand cmd = context.createCommand();
-        rowset.setKeyConstraints(cmd, key);
+        cmd.where(rowset.getKeyConstraints(key));
         // use factory of rowset
         return queryBean(cmd, getRowsetBeanListFactory(beanType, rowset));
     }

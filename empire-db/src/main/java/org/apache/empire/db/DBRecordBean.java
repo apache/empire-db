@@ -130,13 +130,13 @@ public class DBRecordBean extends DBRecordBase
     }
     
     /**
-     * Returns the record id for tables which have a single numeric primary key
+     * Returns the record identity for tables which have a single numeric primary key like AUTOINC
      * This method is provided for convenience in addition to the the getKey() method
      * @return the record id or 0 if the key is null
      * @throws NoPrimaryKeyException if the table has no primary key
      * @throws NotSupportedException if the primary key is not a single column of if the column is not numeric
      */
-    public long getId()
+    public long getIdentity()
     {
         // Check Columns
         Column[] keyColumns = getKeyColumns();
@@ -144,7 +144,7 @@ public class DBRecordBean extends DBRecordBase
             throw new NoPrimaryKeyException(getRowSet());
         // Check Columns
         if (keyColumns.length!=1 || !keyColumns[0].getDataType().isNumeric())
-            throw new NotSupportedException(this, "getId");
+            throw new NotSupportedException(this, "getIdentity");
         // the numeric id
         return getLong(keyColumns[0]);
     }
@@ -194,7 +194,8 @@ public class DBRecordBean extends DBRecordBase
     {   // read
         try {
             this.tempContext = context;
-            rowset.readRecord(this, key);
+            DBCompareExpr keyConstraints = rowset.getKeyConstraints(key);
+            rowset.readRecord(this, keyConstraints);
             return this;
         } finally {
             this.tempContext = null;
@@ -203,11 +204,11 @@ public class DBRecordBean extends DBRecordBase
 
     /**
      * Reads a record from the database
-     * @param id the record id value
+     * @param identity the record id value
      */
-    public final DBRecordBean read(DBContext context, DBRowSet rowset, long id)
+    public final DBRecordBean read(DBContext context, DBRowSet rowset, long identity)
     {
-        return read(context, rowset, new Object[] {id});
+        return read(context, rowset, new Object[] { identity });
     }
     
     /**
@@ -239,7 +240,8 @@ public class DBRecordBean extends DBRecordBase
     {   // read
         try {
             this.tempContext = context;
-            rowset.readRecord(this, key, mode, columns);
+            DBCompareExpr keyConstraints = rowset.getKeyConstraints(key);
+            rowset.readRecord(this, keyConstraints, mode, columns);
             return this;
         } finally {
             this.tempContext = null;

@@ -16,15 +16,15 @@ public class ModelRecord extends TRecord<CarSalesDB.Model>
     
     public void insert(BrandRecord brand, String modelName, String configName, String trim, EngineType engineType, int enginePower, double basePrice)
     {
-        // RS = RowSet
+        // T = RowSet (Table/View)
         create();
-        set(RS.WMI             , brand);
-        set(RS.NAME            , modelName);
-        set(RS.CONFIG_NAME     , configName);
-        set(RS.TRIM            , trim);
-        set(RS.ENGINE_TYPE     , engineType);
-        set(RS.ENGINE_POWER    , enginePower);
-        set(RS.BASE_PRICE      , basePrice);
+        set(T.WMI             , brand);
+        set(T.NAME            , modelName);
+        set(T.CONFIG_NAME     , configName);
+        set(T.TRIM            , trim);
+        set(T.ENGINE_TYPE     , engineType);
+        set(T.ENGINE_POWER    , enginePower);
+        set(T.BASE_PRICE      , basePrice);
         update();
     }
 }

@@ -1281,7 +1281,7 @@ public abstract class DBCommand extends DBCommandExpr
             if (!(cmp instanceof DBCompareColExpr))
             	continue;
             // Compare columns
-            DBColumnExpr c = ((DBCompareColExpr)cmp).getColumnExpr();
+            DBColumnExpr c = ((DBCompareColExpr)cmp).getColumn();
             DBColumn udc = c.getUpdateColumn();
             if (c.equals(col) || (udc!=null && udc.equals(col.getUpdateColumn())))
             {   // Check if we replace a DBCommandParam
@@ -1416,7 +1416,7 @@ public abstract class DBCommand extends DBCommandExpr
             compexpr = new ArrayList<DBCompareColExpr>(where.size());
             for (DBCompareExpr expr : where)
             {   if (expr instanceof DBCompareColExpr)
-                {   DBColumn column = ((DBCompareColExpr)expr).getColumnExpr().getUpdateColumn();
+                {   DBColumn column = ((DBCompareColExpr)expr).getColumn().getUpdateColumn();
                     if (column!=null && hasSetExprOn(column)==false)
                         compexpr.add((DBCompareColExpr)expr);
                 }

@@ -82,7 +82,7 @@ public class DBCompareColExpr extends DBCompareExpr
      * Gets the DBColumnExpr object 
      * @return the DBColumnExpr object 
      */
-    public DBColumnExpr getColumnExpr()
+    public DBColumnExpr getColumn()
     {
         return expr;
     }
@@ -91,7 +91,7 @@ public class DBCompareColExpr extends DBCompareExpr
      * Gets the comparison operator
      * @return the comparison operator
      */
-    public DBCmpType getCmpop()
+    public DBCmpType getCmpOperator()
     {
         return cmpop;
     }
@@ -298,7 +298,7 @@ public class DBCompareColExpr extends DBCompareExpr
     	if (other instanceof DBCompareColExpr)
     	{
     		DBCompareColExpr o = (DBCompareColExpr)other;
-    		DBColumnExpr oexpr = o.getColumnExpr();
+    		DBColumnExpr oexpr = o.getColumn();
     		if (expr.equals(oexpr))
     			return true;
     		// unwrap

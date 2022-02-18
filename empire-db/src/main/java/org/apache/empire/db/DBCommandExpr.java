@@ -25,6 +25,7 @@ import java.util.Set;
 
 import org.apache.empire.commons.Options;
 import org.apache.empire.data.DataType;
+import org.apache.empire.db.expr.compare.DBCompareExpr;
 import org.apache.empire.db.expr.order.DBOrderByExpr;
 import org.apache.empire.dbms.DBMSHandler;
 import org.apache.empire.exceptions.InvalidArgumentException;
@@ -127,7 +128,7 @@ public abstract class DBCommandExpr extends DBExpr
 
         /** throws ERR_NOTSUPPORTED */
         @Override
-        public void readRecord(DBRecordBase record, Object[] key)
+        public void readRecord(DBRecordBase record, DBCompareExpr whereConstraints)
         {
             throw new NotSupportedException(this, "getRecord");
         }
@@ -435,7 +436,7 @@ public abstract class DBCommandExpr extends DBExpr
         {   // find existing
             for (DBOrderByExpr ob : orderBy)
             {   // Compare expression
-                if (ob.getColumnExpr().equals(expr.getColumnExpr()))
+                if (ob.getColumn().equals(expr.getColumn()))
                 {   // already there, replace
                     ob.setDescending(expr.isDescending());
                     expr = null;

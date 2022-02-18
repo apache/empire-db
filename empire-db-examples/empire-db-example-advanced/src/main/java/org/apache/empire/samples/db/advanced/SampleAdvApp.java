@@ -44,6 +44,7 @@ import org.apache.empire.db.DBSQLScript;
 import org.apache.empire.db.DBTableColumn;
 import org.apache.empire.db.exceptions.ConstraintViolationException;
 import org.apache.empire.db.exceptions.StatementFailedException;
+import org.apache.empire.db.expr.compare.DBCompareExpr;
 import org.apache.empire.dbms.DBMSHandler;
 import org.apache.empire.samples.db.advanced.db.CarSalesDB;
 import org.apache.empire.samples.db.advanced.db.CarSalesDB.DealershipType;
@@ -454,30 +455,41 @@ public class SampleAdvApp
     
     private void queryViewDemo()
     {
+        // query all
         /*
-        DBRecord rec = new DBRecord(context, carSales.DEALER_BRANDS);
-        rec.read(DBRecord.key(1, "5YJ"));
-        DealershipType dst1 = rec.getEnum(carSales.DEALER_BRANDS.DEALERSHIP_TYPE);
-        String dsn1 = rec.getString(carSales.DEALER_BRANDS.DEALERSHIP_TYPE);
-        log.info("DealershipType {}", dsn1);
+        DBCommand cmd = context.createCommand()
+           .select  (DSV.getColumns())
+           .orderBy (DSV.SALE_YEAR, DSV.DEALER_COUNTRY);
+        List<DataListEntry> list = context.getUtils().queryDataList(cmd);
+        for (DataListEntry dle : list)
+        {
+            System.out.println(dle.toString());
+        }
         */
         
         // shortcuts (for convenience)
         DealerSalesView DSV = carSales.DEALER_SALES_VIEW;
-        // create command
-        DBCommand cmd = context.createCommand()
-           .select  (DSV.getColumns())
-           .orderBy (DSV.SALE_YEAR, DSV.DEALER_COUNTRY);
-        
+
+        DBCommand cmd = context.createCommand();
+        // Detect if Brand sold is the Dealer's Brand
+        DBCompareExpr IS_DEALER_BRAND = DSV.DEALERSHIP_TYPE.in(DealershipType.B, DealershipType.F);
+        // select
+        cmd.select(DSV.SALE_YEAR, DSV.DEALER_NAME, DSV.DEALER_COUNTRY);
+        cmd.select(DSV.SALE_COUNT.sum().as("TOTAL_SALES"));
+        cmd.select(carSales.caseWhen(IS_DEALER_BRAND, DSV.TURNOVER, 0).sum().as("TURNOVER_BRAND"));
+        cmd.select(DSV.TURNOVER.sum().as("TURNOVER_TOTAL"));
+        // group
+        cmd.groupBy(DSV.SALE_YEAR, DSV.DEALER_NAME, DSV.DEALER_COUNTRY);
+        // order
+        cmd.orderBy(DSV.SALE_YEAR, DSV.DEALER_NAME);
+
+        // query and print result
         List<DataListEntry> list = context.getUtils().queryDataList(cmd);
         for (DataListEntry dle : list)
         {
-            DealershipType dst = dle.getEnum(DSV.DEALERSHIP_TYPE);
-            Options opt = DSV.DEALERSHIP_TYPE.getOptions();
-            String dsn = dle.getString(DSV.DEALERSHIP_TYPE);
-            log.info("DealershipType {}-->{}", dsn, dle.format(DSV.DEALERSHIP_TYPE));
             System.out.println(dle.toString());
         }
+
     }
     
     /**

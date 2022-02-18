@@ -27,7 +27,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.empire.commons.ObjectUtils;
 import org.apache.empire.commons.StringUtils;
 import org.apache.empire.data.ColumnExpr;
-import org.apache.empire.db.exceptions.InvalidKeyException;
 import org.apache.empire.db.exceptions.NoPrimaryKeyException;
 import org.apache.empire.db.exceptions.RecordUpdateAmbiguousException;
 import org.apache.empire.db.exceptions.RecordUpdateFailedException;
@@ -390,20 +389,13 @@ public class DBQuery extends DBRowSet
      * @param conn a valid connection to the database.
      */
     @Override
-    public void readRecord(DBRecordBase record, Object[] key)
+    public void readRecord(DBRecordBase record, DBCompareExpr whereConstraints)
     {
-        if (record == null)
-            throw new InvalidArgumentException("conn|rec", null);
-        DBColumn[] keyColumns = getKeyColumns();
-        if (key == null || keyColumns.length != key.length)
-            throw new InvalidKeyException(this, key);
+        if (record==null || whereConstraints==null)
+            throw new InvalidArgumentException("record|key", null);
         // Select
         DBCommand cmd = getCommandFromExpression();
-        for (int i = 0; i < keyColumns.length; i++)
-        {   // Set key column constraint
-            Object value = key[i];
-            cmd.where(keyColumns[i].is(value));
-        }    
+        cmd.where(whereConstraints);
         // Read Record
         readRecord(record, cmd);
     }
@@ -501,15 +493,15 @@ public class DBQuery extends DBRowSet
                 if (cmp instanceof DBCompareColExpr)
                 { 	// Check whether constraint belongs to update table
                     DBCompareColExpr cmpExpr = (DBCompareColExpr) cmp;
-                    DBColumn col = cmpExpr.getColumnExpr().getUpdateColumn();
+                    DBColumn col = cmpExpr.getColumn().getUpdateColumn();
                     if (col!=null && col.getRowSet() == table)
                     {	// add the constraint
                     	if (cmpExpr.getValue() instanceof DBCmdParam)
                     	{	// Create a new command param
-                    		DBColumnExpr colExpr = cmpExpr.getColumnExpr();
+                    		DBColumnExpr colExpr = cmpExpr.getColumn();
                     		DBCmdParam param =(DBCmdParam)cmpExpr.getValue(); 
                     		DBCmdParam value = upd.addParam(colExpr, param.getValue());
-                    		cmp = new DBCompareColExpr(colExpr, cmpExpr.getCmpop(), value);
+                    		cmp = new DBCompareColExpr(colExpr, cmpExpr.getCmpOperator(), value);
                     	}
                         upd.where(cmp);
                     }    

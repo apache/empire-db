@@ -15,11 +15,11 @@ public class DealerRecord extends TRecord<CarSalesDB.Dealer>
     
     public DealerRecord insert(String companyName, String city, String country)
     {
-        // RS = RowSet
+        // T = RowSet (Table/View)
         create();
-        set(RS.COMPANY_NAME, companyName);
-        set(RS.CITY,         city);
-        set(RS.COUNTRY,      country);
+        set(T.COMPANY_NAME, companyName);
+        set(T.CITY,         city);
+        set(T.COUNTRY,      country);
         update();
         return this;
     }

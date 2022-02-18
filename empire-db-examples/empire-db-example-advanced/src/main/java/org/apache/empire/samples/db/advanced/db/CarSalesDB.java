@@ -106,17 +106,17 @@ public class CarSalesDB extends TDatabase<CarSalesDB>
         public final DBTableColumn NAME;
         public final DBTableColumn COUNTRY;
         public final DBTableColumn UPDATE_TIMESTAMP;
-
+        
         public Brand(CarSalesDB db)
         {
-            super("BRANDS", db);
+            super("BRAND", db);
             // ID
             WMI             = addColumn("WMI",              DataType.VARCHAR,       3, true); // World Manufacturer Index (see Wikipedia)
             NAME            = addColumn("NAME",             DataType.VARCHAR,      80, true);
             COUNTRY         = addColumn("COUNTRY",          DataType.VARCHAR,      40, false);
-            UPDATE_TIMESTAMP= addColumn("UPDATE_TIMESTAMP", DataType.TIMESTAMP,     0, true);
+            UPDATE_TIMESTAMP= addTimestamp("UPDATE_TIMESTAMP");
 
-            // Primary Key (automatically set due to AUTOINC column)
+            // Set Primary Key
             setPrimaryKey(WMI);
         }
     }
@@ -138,21 +138,21 @@ public class CarSalesDB extends TDatabase<CarSalesDB>
 
         public Model(CarSalesDB db)
         {
-            super("MODELS", db);
+            super("MODEL", db);
             
             // ID
-            ID              = addColumn("ID",               DataType.AUTOINC,      0, true, "MODEL_ID_SEQUENCE");  // Optional Sequence name for some DBMS (e.g. Oracle)
-            NAME            = addColumn("NAME",             DataType.VARCHAR,     20, true);
-            CONFIG_NAME     = addColumn("CONFIGURATION",    DataType.VARCHAR,     40, true);
-            WMI             = addForgeinKey(db.BRAND, "WMI", true);
-            TRIM            = addColumn("TRIM",             DataType.VARCHAR,     20, true);
-            ENGINE_TYPE     = addColumn("ENGINE_TYPE",      DataType.CHAR,         1, true, EngineType.class);
-            ENGINE_POWER    = addColumn("ENGINE_POWER",     DataType.DECIMAL,    4.0, true);
-            BASE_PRICE      = addColumn("BASE_PRICE",       DataType.DECIMAL,    8.2, false);
-            UPDATE_TIMESTAMP= addColumn("UPDATE_TIMESTAMP", DataType.TIMESTAMP,    0, true);
+            ID              = addIdentity  ("ID",               "MODEL_ID_SEQUENCE");  // Optional Sequence name for some DBMS (e.g. Oracle)
+            NAME            = addColumn    ("NAME",             DataType.VARCHAR,     20, true);
+            CONFIG_NAME     = addColumn    ("CONFIGURATION",    DataType.VARCHAR,     40, true);
+            WMI             = addForeignKey("WMI",              db.BRAND,                 true);
+            TRIM            = addColumn    ("TRIM",             DataType.VARCHAR,     20, true);
+            ENGINE_TYPE     = addColumn    ("ENGINE_TYPE",      DataType.CHAR,         1, true, EngineType.class);
+            ENGINE_POWER    = addColumn    ("ENGINE_POWER",     DataType.DECIMAL,    4.0, true);
+            BASE_PRICE      = addColumn    ("BASE_PRICE",       DataType.DECIMAL,    8.2, false);
+            UPDATE_TIMESTAMP= addTimestamp ("UPDATE_TIMESTAMP");
             
-            // Primary Key (automatically set due to AUTOINC column, but we'll set it anyway)
-            setPrimaryKey(ID);
+            // Primary Key (automatically set due to addIdentity()) otherwise use 
+            // setPrimaryKey(...);
         }
     }
 
@@ -171,19 +171,19 @@ public class CarSalesDB extends TDatabase<CarSalesDB>
 
         public Dealer(CarSalesDB db)
         {
-            super("DEALERS", db);
+            super("DEALER", db);
             
             // ID
-            ID              = addColumn("ID",               DataType.AUTOINC,      0, true, "DEALER_ID_SEQUENCE");  // Optional Sequence name for some DBMS (e.g. Oracle)
-            COMPANY_NAME    = addColumn("COMPANY_NAME",     DataType.VARCHAR,     40, true);
-            STREET          = addColumn("ADDRESS",          DataType.VARCHAR,     40, false);
-            CITY            = addColumn("CITY",             DataType.VARCHAR,     20, true);
-            COUNTRY         = addColumn("COUNTRY",          DataType.VARCHAR,     40, true);
-            YEAR_FOUNDED    = addColumn("YEAR_FOUNDED",     DataType.DECIMAL,    4.0, false);
-            UPDATE_TIMESTAMP= addColumn("UPDATE_TIMESTAMP", DataType.TIMESTAMP,    0, true);
+            ID              = addIdentity ("ID",               "DEALER_ID_SEQUENCE");  // Optional Sequence name for some DBMS (e.g. Oracle)
+            COMPANY_NAME    = addColumn   ("COMPANY_NAME",     DataType.VARCHAR,     40, true);
+            STREET          = addColumn   ("ADDRESS",          DataType.VARCHAR,     40, false);
+            CITY            = addColumn   ("CITY",             DataType.VARCHAR,     20, true);
+            COUNTRY         = addColumn   ("COUNTRY",          DataType.VARCHAR,     40, true);
+            YEAR_FOUNDED    = addColumn   ("YEAR_FOUNDED",     DataType.DECIMAL,    4.0, false);
+            UPDATE_TIMESTAMP= addTimestamp("UPDATE_TIMESTAMP");
             
-            // Primary Key (automatically set due to AUTOINC column, but we'll set it anyway)
-            setPrimaryKey(ID);
+            // Primary Key (automatically set due to addIdentity()) otherwise use 
+            // setPrimaryKey(...);
         }
     }
 
@@ -202,8 +202,8 @@ public class CarSalesDB extends TDatabase<CarSalesDB>
             super("DEALER_BRANDS", db);
             
             // Key columns
-            DEALER_ID       = addForgeinKey(db.DEALER,  "DEALER_ID", true);
-            WMI             = addForgeinKey(db.BRAND,   "WMI", true);
+            DEALER_ID       = addForeignKey("DEALER_ID", db.DEALER,  true);
+            WMI             = addForeignKey("WMI",       db.BRAND,   true);
             // Data columns
             DEALERSHIP_TYPE = addColumn("DEALERSHIP_TYPE",   DataType.CHAR,      1, true, DealershipType.class);
             YEAR_BEGIN      = addColumn("YEAR_BEGIN",        DataType.DECIMAL, 4.0, false);
@@ -229,8 +229,8 @@ public class CarSalesDB extends TDatabase<CarSalesDB>
             super("SALES", db);
             
             // ID
-            MODEL_ID        = addForgeinKey(db.MODEL,  "MODEL_ID",  true);
-            DEALER_ID       = addForgeinKey(db.DEALER, "DEALER_ID", true);
+            MODEL_ID        = addForeignKey("MODEL_ID",  db.MODEL,  true);
+            DEALER_ID       = addForeignKey("DEALER_ID", db.DEALER, true);
             YEAR            = addColumn("YEAR",             DataType.DECIMAL,    4.0, true);
             MONTH           = addColumn("MONTH",            DataType.DECIMAL,    2.0, true);
             CAR_COLOR       = addColumn("CAR_COLOR",        DataType.VARCHAR,     20, false);
@@ -260,10 +260,11 @@ public class CarSalesDB extends TDatabase<CarSalesDB>
      */
     public CarSalesDB()
     {
-        // Define other Foreign-Key Relations
+        // Define additional Foreign-Key Relations here
         // e.g. Multicolum etc.
         // addRelation( SALES.MODEL_ID.referenceOn( MODEL.ID )
         //            , SALES.MODEL_ID.referenceOn( target ));
+        log.info("CarSalesDB has been created with {} Tables, {} Views and {} Relations", getTables().size(), getViews().size(), getRelations().size());
     }
     
     /**

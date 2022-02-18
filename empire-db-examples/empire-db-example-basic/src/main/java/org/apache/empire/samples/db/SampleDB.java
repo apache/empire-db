@@ -92,11 +92,11 @@ public class SampleDB extends DBDatabase
         {
             super("DEPARTMENTS", db);
             // ID
-            ID              = addColumn("ID",               DataType.AUTOINC,       0, true, "DEP_ID_SEQUENCE"); // Optional Sequence for some DBMS (e.g. Oracle)
-            NAME            = addColumn("NAME",             DataType.VARCHAR,      80, true);
-            HEAD            = addColumn("HEAD",             DataType.VARCHAR,      80, false);
-            BUSINESS_UNIT   = addColumn("BUSINESS_UNIT",    DataType.VARCHAR,       4, true, "ITTK");
-            UPDATE_TIMESTAMP= addColumn("UPDATE_TIMESTAMP", DataType.TIMESTAMP,     0, true);
+            ID              = addIdentity ("ID",               "DEP_ID_SEQUENCE"); // Optional Sequence for some DBMS (e.g. Oracle)
+            NAME            = addColumn   ("NAME",             DataType.VARCHAR,      80, true);
+            HEAD            = addColumn   ("HEAD",             DataType.VARCHAR,      80, false);
+            BUSINESS_UNIT   = addColumn   ("BUSINESS_UNIT",    DataType.VARCHAR,       4, true, "ITTK");
+            UPDATE_TIMESTAMP= addTimestamp("UPDATE_TIMESTAMP");
 
             // Primary Key (automatically set due to AUTOINC column)
             // setPrimaryKey(DEPARTMENT_ID);
@@ -131,18 +131,18 @@ public class SampleDB extends DBDatabase
             super("EMPLOYEES", db);
             
             // ID
-            ID              = addColumn("ID",               DataType.AUTOINC,      0, true, "EMPLOYEE_ID_SEQUENCE");  // Optional Sequence name for some DBMS (e.g. Oracle)
-            SALUTATION      = addColumn("SALUTATION",       DataType.VARCHAR,      5, false);
-            FIRST_NAME      = addColumn("FIRST_NAME",       DataType.VARCHAR,     40, true);
-            LAST_NAME       = addColumn("LAST_NAME",        DataType.VARCHAR,     40, true);
-            DATE_OF_BIRTH   = addColumn("DATE_OF_BIRTH",    DataType.DATE,         0, false);
-            DEPARTMENT_ID   = addColumn("DEPARTMENT_ID",    DataType.INTEGER,      0, true);
-            GENDER          = addColumn("GENDER",           DataType.VARCHAR,      1, true, Gender.class);
-            PHONE_NUMBER    = addColumn("PHONE_NUMBER",     DataType.VARCHAR,     40, false);
-            EMAIL           = addColumn("EMAIL",            DataType.VARCHAR,     80, false);
-            SALARY          = addColumn("SALARY",           DataType.DECIMAL,   10.2, false);
-            RETIRED         = addColumn("RETIRED",          DataType.BOOL,         0, true, false);
-            UPDATE_TIMESTAMP= addColumn("UPDATE_TIMESTAMP", DataType.TIMESTAMP,    0, true);
+            ID              = addIdentity  ("ID",               "EMPLOYEE_ID_SEQUENCE");  // Optional Sequence name for some DBMS (e.g. Oracle)
+            SALUTATION      = addColumn    ("SALUTATION",       DataType.VARCHAR,      5, false);
+            FIRST_NAME      = addColumn    ("FIRST_NAME",       DataType.VARCHAR,     40, true);
+            LAST_NAME       = addColumn    ("LAST_NAME",        DataType.VARCHAR,     40, true);
+            DATE_OF_BIRTH   = addColumn    ("DATE_OF_BIRTH",    DataType.DATE,         0, false);
+            DEPARTMENT_ID   = addForeignKey("DEPARTMENT_ID",    db.DEPARTMENTS,           true);
+            GENDER          = addColumn    ("GENDER",           DataType.VARCHAR,      1, true, Gender.class);
+            PHONE_NUMBER    = addColumn    ("PHONE_NUMBER",     DataType.VARCHAR,     40, false);
+            EMAIL           = addColumn    ("EMAIL",            DataType.VARCHAR,     80, false);
+            SALARY          = addColumn    ("SALARY",           DataType.DECIMAL,   10.2, false);
+            RETIRED         = addColumn    ("RETIRED",          DataType.BOOL,         0, true, false);
+            UPDATE_TIMESTAMP= addTimestamp ("UPDATE_TIMESTAMP");
             
             // Primary Key (automatically set due to AUTOINC column)
             // setPrimaryKey(EMPLOYEE_ID);
@@ -169,7 +169,7 @@ public class SampleDB extends DBDatabase
             super("PAYMENTS", db);
             
             // ID
-            EMPLOYEE_ID     = addColumn("EMPLOYEE_ID",      DataType.INTEGER,      0, true);
+            EMPLOYEE_ID     = addForeignKey("EMPLOYEE_ID",  db.EMPLOYEES,             true);
             YEAR            = addColumn("YEAR",             DataType.DECIMAL,    4.0, true);
             MONTH           = addColumn("MONTH",            DataType.DECIMAL,    2.0, true);
             AMOUNT          = addColumn("AMOUNT",           DataType.DECIMAL,    8.2, true);
@@ -195,9 +195,10 @@ public class SampleDB extends DBDatabase
      */
     public SampleDB()
     {
-        // Define Foreign-Key Relations
-        addRelation( EMPLOYEES.DEPARTMENT_ID.referenceOn( DEPARTMENTS.ID ));
-        addRelation( PAYMENTS.EMPLOYEE_ID   .referenceOn( EMPLOYEES.ID ));
+        // Define additional Foreign-Key Relations here
+        // which have not already been defined by addForeignKey()
+        // addRelation( {Source Column}.referenceOn( {Target Column} ));
+        log.info("SampleDB has been created with {} Tables and {} Relations", getTables().size(), getRelations().size());
     }
     
     @Override

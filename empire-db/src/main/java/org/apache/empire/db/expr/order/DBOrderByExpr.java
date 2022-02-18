@@ -45,14 +45,9 @@ public class DBOrderByExpr extends DBExpr
         this.desc = desc;
     }
     
-    public DBColumnExpr getColumnExpr()
+    public DBColumnExpr getColumn()
     {
         return expr;
-    }
-    
-    public DBColumn getColumn()
-    {
-        return expr.getSourceColumn();
     }
 
     public boolean isDescending()

@@ -33,11 +33,11 @@ public class BrandRecord extends TRecord<CarSalesDB.Brand>
     
     public BrandRecord insert(String wmi, String name, String country)
     {
-        // RS = RowSet
+        // T = RowSet (Table/View)
         create();
-        set(RS.WMI,     wmi);
-        set(RS.NAME,    name);
-        set(RS.COUNTRY, country);
+        set(T.WMI,     wmi);
+        set(T.NAME,    name);
+        set(T.COUNTRY, country);
         update();
         return this;
     }

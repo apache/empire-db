@@ -224,13 +224,13 @@ public class DBRecord extends DBRecordBase
     }
     
     /**
-     * Returns the record id for tables which have a single numeric primary key
+     * Returns the record identity for tables which have a single numeric primary key like AUTOINC
      * This method is provided for convenience in addition to the the getKey() method
      * @return the record id or 0 if the key is null
      * @throws NoPrimaryKeyException if the table has no primary key
      * @throws NotSupportedException if the primary key is not a single column of if the column is not numeric
      */
-    public long getId()
+    public long getIdentity()
     {
         // Check Columns
         Column[] keyColumns = getKeyColumns();
@@ -238,7 +238,7 @@ public class DBRecord extends DBRecordBase
             throw new NoPrimaryKeyException(getRowSet());
         // Check Columns
         if (keyColumns.length!=1 || !keyColumns[0].getDataType().isNumeric())
-            throw new NotSupportedException(this, "getId");
+            throw new NotSupportedException(this, "getIdentity");
         // the numeric id
         return getLong(keyColumns[0]);
     }
@@ -268,17 +268,19 @@ public class DBRecord extends DBRecordBase
      */
     public DBRecord read(Object[] key)
     {   // read
-        getRowSet().readRecord(this, key);
+        DBRowSet rs = getRowSet(); 
+        DBCompareExpr keyConstraints = rs.getKeyConstraints(key);
+        rs.readRecord(this, keyConstraints);
         return this;
     }
 
     /**
      * Reads a record from the database
-     * @param id the record id value
+     * @param identity the record id value
      */
-    public final DBRecord read(long id)
+    public final DBRecord read(long identity)
     {
-        return read(new Object[] {id});
+        return read(new Object[] { identity });
     }
     
     /**
@@ -303,7 +305,9 @@ public class DBRecord extends DBRecordBase
      */
     public DBRecord read(Object[] key, PartialMode mode, DBColumn... columns)
     {
-        getRowSet().readRecord(this, key, mode, columns);
+        DBRowSet rs = getRowSet(); 
+        DBCompareExpr keyConstraints = rs.getKeyConstraints(key);
+        rs.readRecord(this, keyConstraints, mode, columns);
         return this;
     }
 

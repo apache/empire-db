@@ -34,10 +34,11 @@ import org.apache.empire.data.Column;
 import org.apache.empire.data.ColumnExpr;
 import org.apache.empire.data.DataType;
 import org.apache.empire.data.EntityType;
+import org.apache.empire.data.Record;
 import org.apache.empire.db.DBRelation.DBCascadeAction;
 import org.apache.empire.db.DBRelation.DBReference;
-import org.apache.empire.db.exceptions.FieldReadOnlyException;
 import org.apache.empire.db.exceptions.FieldNotNullException;
+import org.apache.empire.db.exceptions.FieldReadOnlyException;
 import org.apache.empire.db.exceptions.InvalidKeyException;
 import org.apache.empire.db.exceptions.NoPrimaryKeyException;
 import org.apache.empire.db.exceptions.QueryNoResultException;
@@ -58,6 +59,7 @@ import org.apache.empire.exceptions.ItemNotFoundException;
 import org.apache.empire.exceptions.NotSupportedException;
 import org.apache.empire.exceptions.ObjectNotValidException;
 import org.apache.empire.exceptions.UnexpectedReturnValueException;
+import org.apache.empire.exceptions.UnspecifiedErrorException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -511,6 +513,7 @@ public abstract class DBRowSet extends DBExpr implements EntityType
     {
         this.comment = comment;
     }
+    
     /**
      * @return Returns the timestampColumn.
      */
@@ -527,11 +530,13 @@ public abstract class DBRowSet extends DBExpr implements EntityType
         if (timestampColumn!=null && timestampColumn.getRowSet()!=this)
             throw new InvalidArgumentException("timestampColumn", timestampColumn);
         if (timestampColumn!=null && this.timestampColumn!=null && this.timestampColumn!=timestampColumn)
-            log.warn("Timestamp column has already been set for rowset {}. Replacing with {}", getName(), timestampColumn.getName());
+            throw new UnspecifiedErrorException("A Timestamp column has already been set for rowset "+getName());
         if (timestampColumn instanceof DBTableColumn)
             ((DBTableColumn) timestampColumn).setReadOnly(true);
         // set now
         this.timestampColumn = timestampColumn;
+        // log
+        log.debug("Timestamp column {} has been set for table {}", timestampColumn.getName(), getName());
     }
     
     /**
@@ -747,23 +752,25 @@ public abstract class DBRowSet extends DBExpr implements EntityType
      * @param cmd the command to which to add the constraints
      * @param key the record key
      */
-    protected void setKeyConstraints(DBCommand cmd, Object[] key)
+    protected DBCompareExpr getKeyConstraints(Object[] key)
     {
         // Check Primary key
         DBColumn[] keyColumns =(DBColumn[])getKeyColumns();
-        if (keyColumns == null ) 
+        if (keyColumns==null || keyColumns.length==0) 
             throw new NoPrimaryKeyException(this); // Invalid Argument
         // Check Columns
         if (key == null || key.length != keyColumns.length)
             throw new InvalidKeyException(this, key); // Invalid Argument
         // Add the key constraints
-        for (int i = 0; i < key.length; i++)
+        DBCompareExpr compareExpr = keyColumns[0].is(key[0]);
+        for (int i = 1; i < key.length; i++)
         {   // prepare key value
             DBColumn column = keyColumns[i];
             Object value = key[i];
             // set key column constraint
-            cmd.where(column.is(value));
-        }    
+            compareExpr = compareExpr.and(column.is(value));
+        }
+        return compareExpr;
     }
     
     /**
@@ -774,7 +781,7 @@ public abstract class DBRowSet extends DBExpr implements EntityType
      * @param cmd the SQL-Command used to query the record
      * @param rowSetData optional rowset specific data to be held on the record
      */
-    protected <R extends DBRecordBase> void readRecord(R record, DBCommand cmd)
+    protected void readRecord(DBRecordBase record, DBCommand cmd)
     {
         // check param
         checkParamRecord(record, false);
@@ -816,7 +823,6 @@ public abstract class DBRowSet extends DBExpr implements EntityType
      * <P>
      * @param record the DBRecord object which will hold the record data
      * @param key the primary key values
-     */
     public <R extends DBRecordBase> void readRecord(R record, Object[] key)
     {
         // Check Arguments
@@ -829,6 +835,7 @@ public abstract class DBRowSet extends DBExpr implements EntityType
         // Read Record
         readRecord(record, cmd);
     }
+     */
    
     /**
      * Reads a record from the database
@@ -858,10 +865,10 @@ public abstract class DBRowSet extends DBExpr implements EntityType
      * @param mode flag whether to include only the given columns or whether to add all but the given columns
      * @param columns the columns to include or exclude (depending on mode)
      */
-    public void readRecord(DBRecordBase record, Object[] key, PartialMode mode, DBColumn... columns)
+    public void readRecord(DBRecordBase record, DBCompareExpr whereConstraints, PartialMode mode, DBColumn... columns)
     {
         // Check Arguments
-        checkParamNull("key", key);
+        checkParamNull("whereConstraints", whereConstraints);
         // create command
         DBCommand cmd = createRecordCommand(record.getContext());
         for (DBColumn column : this.columns)
@@ -886,7 +893,7 @@ public abstract class DBRowSet extends DBExpr implements EntityType
             }
         }
         // Set key constraints
-        setKeyConstraints(cmd, key);
+        cmd.where(whereConstraints);
         // Read Record
         readRecord(record, cmd);
     }
@@ -907,7 +914,7 @@ public abstract class DBRowSet extends DBExpr implements EntityType
         DBCommand cmd = createRecordCommand(context);
         cmd.select(count());
         // Set key constraints
-        setKeyConstraints(cmd, key);
+        cmd.where(getKeyConstraints(key));
         // check exits
         return (context.getUtils().querySingleInt(cmd, 0)==1);
     }
@@ -921,7 +928,7 @@ public abstract class DBRowSet extends DBExpr implements EntityType
      */
     public final boolean recordExists(Object id, DBContext context)
     {
-        return recordExists(new Object[] { id }, context); 
+        return recordExists(Record.key(id), context); 
     }
     
     /**

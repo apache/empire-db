@@ -22,21 +22,21 @@ import org.apache.empire.db.DBContext;
 import org.apache.empire.db.DBRecord;
 import org.apache.empire.db.DBRowSet;
 
-public class TRecord<RS extends DBRowSet> extends DBRecord
+public class TRecord<T extends DBRowSet> extends DBRecord
 {
     private static final long serialVersionUID = 1L;
     
-    public final RS RS;
+    public final T T;   // provide access to RowSet via T
 
     /**
      * Internal constructor for DBRecord
      * May be used by derived classes to provide special behaviour
      */
-    protected TRecord(DBContext context, RS rowset, boolean enableRollbackHandling)
+    protected TRecord(DBContext context, T rowset, boolean enableRollbackHandling)
     {   
         super(context, rowset, enableRollbackHandling);
         // set the rowset for quick access
-        this.RS = rowset;
+        this.T = rowset;
     }
 
     /**
@@ -44,20 +44,20 @@ public class TRecord<RS extends DBRowSet> extends DBRecord
      * @param context the DBContext for this record
      * @param rowset the corresponding RowSet(Table, View, Query, etc.)
      */
-    public TRecord(DBContext context, RS rowset)
+    public TRecord(DBContext context, T rowset)
     {
         super(context, rowset);
         // set the rowset for quick access
-        this.RS = rowset;
+        this.T = rowset;
     }
     
     /**
      * finally we know the rowset
      */
     @Override
-    public RS getRowSet()
+    public T getRowSet()
     {
-        return this.RS;
+        return this.T;
     }
 
 }

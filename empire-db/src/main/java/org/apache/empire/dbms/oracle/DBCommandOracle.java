@@ -374,7 +374,7 @@ public class DBCommandOracle extends DBCommand
         for (DBCompareExpr we : this.where) 
         {
             DBCompareColExpr cce = (DBCompareColExpr)we;
-            DBColumn ccecol = cce.getColumnExpr().getUpdateColumn();
+            DBColumn ccecol = cce.getColumn().getUpdateColumn();
             if (table.isKeyColumn(ccecol)&& !isSetColumn(ccecol))  
             {
                 buf.append(" AND ");

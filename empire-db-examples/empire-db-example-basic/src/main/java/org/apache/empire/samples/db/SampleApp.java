@@ -290,7 +290,7 @@ public class SampleApp
 		   .set(DEP.BUSINESS_UNIT, businessUnit)
 		   .update();
 		// Return Department ID
-        return rec.getId();
+        return rec.getIdentity();
 	}
 
 	/**
@@ -314,7 +314,7 @@ public class SampleApp
 		if (salary>0)
 		    insertPayments(rec);
 		// Return Employee ID
-		return rec.getId();
+		return rec.getIdentity();
 	}
 
     /**
@@ -340,7 +340,7 @@ public class SampleApp
             BigDecimal variation = new BigDecimal((Math.random()*200) - 100.0);
             variation = variation.setScale(2, RoundingMode.HALF_UP);
             // insert
-            rec.create(DBRecord.key(employee.getId(), month.getYear(), month.getMonth()));
+            rec.create(DBRecord.key(employee.getIdentity(), month.getYear(), month.getMonth()));
             rec.set(PAY.AMOUNT, monthlySalary.add(variation));
             rec.update();
         }

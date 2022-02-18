@@ -11,20 +11,22 @@ public class DealerSalesView extends TView<CarSalesDB>
     public final DBViewColumn DEALER_NAME;
     public final DBViewColumn DEALER_COUNTRY;
     public final DBViewColumn BRAND_SOLD;
+    public final DBViewColumn DEALERSHIP_TYPE;
     public final DBViewColumn SALE_YEAR;
     public final DBViewColumn SALE_COUNT;
-    public final DBViewColumn DEALERSHIP_TYPE;
+    public final DBViewColumn TURNOVER;
 
     public DealerSalesView(CarSalesDB db)
     {
         super("DEALER_SALES_VIEW", db);
         // add columns
-        DEALER_NAME    = addColumn("DEALER_NAME",     db.DEALER.COMPANY_NAME);
-        DEALER_COUNTRY = addColumn("DEALER_COUNTRY",  db.DEALER.COUNTRY);
-        BRAND_SOLD     = addColumn("BRAND_SOLD",      db.BRAND.NAME);
-        DEALERSHIP_TYPE= addColumn("DEALERSHIP_TYPE", db.DEALER_BRANDS.DEALERSHIP_TYPE);
-        SALE_YEAR      = addColumn("SALE_YEAR",       db.SALES.YEAR);
-        SALE_COUNT     = addColumn("SALE_COUNT",      DataType.INTEGER);
+        DEALER_NAME     = addColumn("DEALER_NAME",     db.DEALER.COMPANY_NAME);
+        DEALER_COUNTRY  = addColumn("DEALER_COUNTRY",  db.DEALER.COUNTRY);
+        BRAND_SOLD      = addColumn("BRAND_SOLD",      db.BRAND.NAME);
+        DEALERSHIP_TYPE = addColumn("DEALERSHIP_TYPE", db.DEALER_BRANDS.DEALERSHIP_TYPE);
+        SALE_YEAR       = addColumn("SALE_YEAR",       db.SALES.YEAR);
+        SALE_COUNT      = addColumn("SALE_COUNT",      DataType.INTEGER);
+        TURNOVER        = addColumn("TURNOVER",        DataType.DECIMAL);
     }
 
     @Override
@@ -35,6 +37,7 @@ public class DealerSalesView extends TView<CarSalesDB>
         cmd.select(DB.DEALER.COMPANY_NAME, DB.DEALER.COUNTRY);
         cmd.select(DB.BRAND.NAME, DB.DEALER_BRANDS.DEALERSHIP_TYPE);
         cmd.select(DB.SALES.YEAR, DB.SALES.count());
+        cmd.select(DB.SALES.PRICE.sum().as(TURNOVER));
         // joins
         cmd.join (DB.DEALER.ID, DB.SALES.DEALER_ID);
         cmd.join (DB.SALES.MODEL_ID, DB.MODEL.ID);
