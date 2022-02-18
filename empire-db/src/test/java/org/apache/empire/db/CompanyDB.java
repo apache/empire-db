@@ -53,6 +53,7 @@ public class CompanyDB extends DBDatabase
             UPDATE_TIMESTAMP= addColumn("UPDATE_TIMESTAMP", DataType.TIMESTAMP,     0, true);
             // Primary Key
             setPrimaryKey(ID);
+            setTimestampColumn(UPDATE_TIMESTAMP);
             // Set other Indexes
             addIndex("DEARTMENT_NAME_IDX", true, new DBColumn[] { NAME });
         }
@@ -96,6 +97,7 @@ public class CompanyDB extends DBDatabase
 
             // Primary Key
             setPrimaryKey(ID);
+            setTimestampColumn(UPDATE_TIMESTAMP);
             // Set other Indexes
             addIndex("EMPLOYEE_NAME_IDX", true, new DBColumn[] { FIRSTNAME, LASTNAME, DATE_OF_BIRTH });
 
@@ -126,6 +128,7 @@ public class CompanyDB extends DBDatabase
             UPDATE_TIMESTAMP= addColumn("UPDATE_TIMESTAMP", DataType.TIMESTAMP,     0, true);
             // Primary Key
             setPrimaryKey(ID);
+            setTimestampColumn(UPDATE_TIMESTAMP);
         }
     }
 
