@@ -22,7 +22,6 @@
 		<version>2.5.2-SNAPSHOT</version>
 	</parent>
 	<artifactId>empire-db-dist</artifactId>
-  <version>2.4.7</version>
 	<name>Apache Empire-db Distribtion</name>
 	<packaging>pom</packaging>
 
@@ -88,12 +87,14 @@
 			<version>2.5.2-SNAPSHOT</version>
 			<classifier>javadoc</classifier>
 		</dependency>
+		<!-- removed due to CVE-2017-12611
 		<dependency>
 			<groupId>org.apache.empire-db</groupId>
 			<artifactId>empire-db-struts2</artifactId>
 			<version>2.5.2-SNAPSHOT</version>
 			<classifier>javadoc</classifier>
 		</dependency>
+		-->
 		<dependency>
 			<groupId>org.apache.empire-db</groupId>
 			<artifactId>empire-db-jsf2</artifactId>

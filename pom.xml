@@ -34,7 +34,9 @@
 	
 	<modules>
 		<module>empire-db</module>
+		<!-- removed due to CVE-2017-12611
 		<module>empire-db-struts2</module>
+		 -->
 		<module>empire-db-jsf2</module>
 		<module>empire-db-codegen</module>
 		<!-- excluded due to maven build error "Unqualified OSGi version 2.4.4.qualifier must match unqualified Maven version"
