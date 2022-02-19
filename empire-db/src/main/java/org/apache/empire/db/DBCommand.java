@@ -688,7 +688,16 @@ public abstract class DBCommand extends DBCommandExpr
         // additional constraints
         DBCompareExpr where = null;
         for (int i=0; i<addlConstraints.length; i++)
-            where = (where!=null ? where.and(addlConstraints[i]) : addlConstraints[i]);
+        {
+            DBCompareExpr cmpExpr = addlConstraints[i]; 
+            // Check if prepared statements are enabled
+            if (isPreparedStatementsEnabled())
+            {   // use command params
+                cmpExpr.prepareCommand(this);
+            }
+            // Chain with previouss
+            where = (where!=null ? where.and(cmpExpr) : cmpExpr);
+        }
         if (where!=null)
             join.where(where);
         // done
@@ -715,15 +724,29 @@ public abstract class DBCommand extends DBCommandExpr
          * TODO: Find a better solution / Make DBColumnJoinExpr multi-column
          */
         DBColumnJoinExpr join = new DBColumnJoinExpr(left[0], right[0], joinType);
-        // additional constraints
+        // compare the columns except the first
         DBCompareExpr where = null;
         for (int i=1; i<left.length; i++)
         {   // add to where list
             DBCompareExpr cmpExpr = right[i].is(left[i]);
+            // Check if prepared statements are enabled
+            if (isPreparedStatementsEnabled())
+            {   // use command params
+                cmpExpr.prepareCommand(this);
+            }
             where = (where!=null ? where.and(cmpExpr) : cmpExpr);
         }
+        // additional constraints
         for (int i=0; i<addlConstraints.length; i++)
-            where = (where!=null ? where.and(addlConstraints[i]) : addlConstraints[i]);
+        {
+            DBCompareExpr cmpExpr = addlConstraints[i];
+            // Check if prepared statements are enabled
+            if (isPreparedStatementsEnabled())
+            {   // use command params
+                cmpExpr.prepareCommand(this);
+            }
+            where = (where!=null ? where.and(cmpExpr) : cmpExpr);
+        }
         if (where!=null)
             join.where(where);
         // done

@@ -135,9 +135,10 @@ public class SampleAdvApp
             context.commit();
         }
         // do simple stuff
-        queryViewDemo();
-        simpleQueryDemo();
-        simpleUpdateDemo();
+        // simpleQueryDemo();
+        // simpleUpdateDemo();
+        // queryViewDemo();
+        paramQueryDemo();
 
         /*
         // STEP 5: Clear Database (Delete all records)
@@ -398,19 +399,33 @@ public class SampleAdvApp
         CarSalesDB.Brand BRAND = carSales.BRAND;
         CarSalesDB.Model MODEL = carSales.MODEL;
         CarSalesDB.Sales SALES = carSales.SALES;
+
+        // .selectQualified(BRAND.NAME, MODEL.CONFIG_NAME) 
+        
         // create command
         DBCommand cmd = context.createCommand()
-           .selectQualified(BRAND.NAME, MODEL.CONFIG_NAME) 
-           .select  (MODEL.BASE_PRICE)
+           .select  (BRAND.NAME, MODEL.CONFIG_NAME, MODEL.BASE_PRICE)
            .select  (SALES.MODEL_ID.count(), SALES.PRICE.avg())
-           .select  (SALES.PRICE.avg().minus(MODEL.BASE_PRICE.avg()).round(2))
+           .select  (SALES.PRICE.avg().minus(MODEL.BASE_PRICE.avg()).round(2).as("DIFFERENCE"))
            .join    (MODEL.WMI, BRAND.WMI)
            .joinLeft(MODEL.ID, SALES.MODEL_ID, SALES.YEAR.is(2021))  // only year 2021
            .where   (MODEL.ENGINE_TYPE.in(EngineType.P, EngineType.H, EngineType.E)) // Petrol, Hybrid, Electric
            .where   (MODEL.BASE_PRICE.isGreaterThan(30000))
            .groupBy (BRAND.NAME, MODEL.CONFIG_NAME, MODEL.BASE_PRICE)
-           .having  (SALES.MODEL_ID.count().isGreaterThan(5))
+           .having  (SALES.MODEL_ID.count().isGreaterThan(5))   // more than 5 sales
            .orderBy (BRAND.NAME.desc(), MODEL.CONFIG_NAME.asc());
+             
+        // Returns a list of Java beans (needs matching fields constructor or setter methods)           
+        // This is just one of several options to obtain an process query results          
+        List<QueryResult> list = context.getUtils().queryBeanList(cmd, QueryResult.class, null);
+        log.info("queryBeanList returnes {} items", list.size());
+        
+        Number[] literals = new Number[] { 2021, 30000 }; 
+        System.out.println("---------------------------------");
+        System.out.println(HtmlGenUtil.codeToHtml(carSales, HtmlGenUtil.codeModelQuery, literals));
+        System.out.println("---------------------------------");
+        System.out.println(HtmlGenUtil.sqlToHtml(carSales, cmd.getSelect(), literals));
+        System.out.println("---------------------------------");
         
         /*
         List<DataListEntry> list = context.getUtils().queryDataList(cmd);
@@ -419,12 +434,47 @@ public class SampleAdvApp
             System.out.println(dle.toString());
         }
         */
+        /*
         DataListEntry entry = context.getUtils().queryDataEntry(cmd);
         for (int i=0; i<entry.getFieldCount(); i++)
             log.info("col {} -> {}", entry.getColumn(i).getName(), entry.getColumn(i).getBeanPropertyName());
-     
-        List<QueryResult> list = context.getUtils().queryBeanList(cmd, QueryResult.class, null);
-        log.info("queryBeanList returnes {} items", list.size());
+        */    
+    }
+
+    public void paramQueryDemo()
+    {
+        // shortcuts (for convenience)
+        CarSalesDB.Brand BRAND = carSales.BRAND;
+        CarSalesDB.Model MODEL = carSales.MODEL;
+        
+        // create command
+        DBCommand cmd = context.createCommand();
+        // create params
+        DBCmdParam brandParam = cmd.addParam();
+        DBCmdParam engineTypeParam = cmd.addParam();
+                
+        // create the command
+        cmd.select  (BRAND.NAME, MODEL.CONFIG_NAME, MODEL.BASE_PRICE, MODEL.ENGINE_TYPE, MODEL.ENGINE_POWER)
+           .join    (MODEL.WMI, BRAND.WMI)
+           .where   (BRAND.NAME.is(brandParam))
+           .where   (MODEL.ENGINE_TYPE.is(engineTypeParam))
+           .orderBy (BRAND.NAME.desc(), MODEL.CONFIG_NAME.asc());
+
+        // set the params
+        brandParam.setValue("Tesla");
+        engineTypeParam.setValue(EngineType.E);
+        // and run
+        List<DataListEntry> list = context.getUtils().queryDataList(cmd);
+        for (DataListEntry dle : list)
+            System.out.println(dle.toString());
+        
+        // change params
+        brandParam.setValue("Volkswagen");
+        engineTypeParam.setValue(EngineType.P);
+        // and run again
+        list = context.getUtils().queryDataList(cmd);
+        for (DataListEntry dle : list)
+            System.out.println(dle.toString());
         
     }
     
@@ -434,12 +484,33 @@ public class SampleAdvApp
         CarSalesDB.Brand BRAND = carSales.BRAND;
         CarSalesDB.Model MODEL = carSales.MODEL;
         // create command
+        /*
         DBCommand cmd = context.createCommand()
             .set  (MODEL.BASE_PRICE.to(55000))  // set the price-tag
             .join (MODEL.WMI, BRAND.WMI)
             .where(BRAND.NAME.is("Tesla"))
             .where(MODEL.NAME.is("Model 3").and(MODEL.TRIM.is("Performance")));
+        */
 
+        // create command
+        DBCommand cmd = context.createCommand()
+            // increase model base prices by 5%
+            .set  (MODEL.BASE_PRICE.to(MODEL.BASE_PRICE.multiplyWith(105).divideBy(100).round(0)))
+            .join (MODEL.WMI, BRAND.WMI)
+            // on all Volkswagen Tiguan with Diesel engine
+            .where(BRAND.NAME.is("Volkswagen"))
+            .where(MODEL.NAME.is("Tiguan").and(MODEL.ENGINE_TYPE.is(EngineType.D)));
+        
+        // execute Update statement
+        int count = context.executeUpdate(cmd);
+        log.info("{} models affected", count);
+
+        System.out.println("---------------------------------");
+        System.out.println(HtmlGenUtil.codeToHtml(carSales, HtmlGenUtil.codePriceUpdate));
+        System.out.println("---------------------------------");
+        System.out.println(HtmlGenUtil.sqlToHtml(carSales, cmd.getUpdate()));
+        System.out.println("---------------------------------");
+        
         /*
          * Clone test
         DBCommand cl1 = cmd.clone();
@@ -449,8 +520,6 @@ public class SampleAdvApp
         log.info("cmd= {} params={}", cl1.getUpdate(), cl1.getParamValues());
          */
 
-        // and off you go...
-        context.executeUpdate(cmd);
     }
     
     private void queryViewDemo()
@@ -489,7 +558,6 @@ public class SampleAdvApp
         {
             System.out.println(dle.toString());
         }
-
     }
     
     /**
@@ -1065,4 +1133,6 @@ public class SampleAdvApp
             reader.close();
         }
     }
+    
+    
 }
