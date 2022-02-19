@@ -29,7 +29,7 @@
 	<description>Examples showing the use of empire-db with Spring.</description>
 
     <properties>
-        <spring.version>3.2.16.RELEASE</spring.version>
+        <spring.version>4.2.5.RELEASE</spring.version>
     </properties>
 
 	<dependencies>
@@ -116,11 +116,13 @@
 
     <!-- better would be to add this repository in your settings.xml -->
     <repositories>
+    	<!-- 
     	<repository>
 		    <id>spring-milestone</id>
 		    <name>Spring Portfolio Milestone Repository</name>
-		    <url>http://s3.amazonaws.com/maven.springframework.org/milestone</url>
+		    <url>https://s3.amazonaws.com/maven.springframework.org/milestone</url>
 		</repository>
+		 -->
     </repositories>
 
 	<build>

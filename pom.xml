@@ -206,22 +206,22 @@
 	</profiles>
 	
 	
-	<url>http://empire-db.apache.org/${project.artifactId}</url>
+	<url>https://empire-db.apache.org</url>
 	<organization>
 		<name>Apache Software Foundation</name>
-		<url>http://apache.org</url>
+		<url>https://apache.org</url>
 	</organization>
 	<licenses>
 		<license>
 			<name>The Apache Software License, Version 2.0</name>
-			<url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+			<url>https://www.apache.org/licenses/LICENSE-2.0.txt</url>
 			<distribution>repo</distribution>
 		</license>
 	</licenses>
 	<scm>
-		<connection>scm:git:http://git-wip-us.apache.org/repos/asf/empire-db.git</connection>
-		<developerConnection>scm:git:https://git-wip-us.apache.org/repos/asf/empire-db.git</developerConnection>
-		<url>http://git-wip-us.apache.org/repos/asf/wicket/repo?p=empire-db.git</url>
+		<connection>scm:git:https://gitbox.apache.org/repos/asf?p=empire-db.git</connection>
+		<developerConnection>scm:git:https://git-wip-us.apache.org/repos/asf?p=empire-db.git</developerConnection>
+		<url>https://gitbox.apache.org/repos/asf/wicket/repo?p=empire-db.git</url>
 		<tag>HEAD</tag>
 	</scm>
 
@@ -231,20 +231,20 @@
 			<post>user@empire-db.apache.org</post>
 			<subscribe>user-subscribe@empire-db.apache.org</subscribe>
 			<unsubscribe>user-unsubscribe@empire-db.apache.org</unsubscribe>
-			<archive>http://mail-archives.apache.org/mod_mbox/empire-user/</archive>
+			<archive>https://lists.apache.org/list.html?user@empire-db.apache.org</archive>
 		</mailingList>
 		<mailingList>
 			<name>Empire-db Development List</name>
 			<post>dev@empire-db.apache.org</post>
 			<subscribe>dev-subscribe@empire-db.apache.org</subscribe>
 			<unsubscribe>dev-unsubscribe@empire-db.apache.org</unsubscribe>
-			<archive>http://mail-archives.apache.org/mod_mbox/empire-dev/</archive>
+			<archive>https://lists.apache.org/list.html?dev@empire-db.apache.org</archive>
 		</mailingList>
 		<mailingList>
 			<name>Empire-db commit List</name>
 			<subscribe>commits-subscribe@empire-db.apache.org</subscribe>
 			<unsubscribe>commits-unsubscribe@empire-db.apache.org</unsubscribe>
-			<archive>http://mail-archives.apache.org/mod_mbox/empire-commits/</archive>
+			<archive>https://lists.apache.org/list.html?commits@empire-db.apache.org</archive>
 		</mailingList>
 	</mailingLists>
 	<issueManagement>
@@ -836,7 +836,7 @@
 			<id>people.apache.org.site</id>
 			<name>Empire-db Maven Site</name>
 			<!-- FIXME find a place for this -->
-			<url>scp://people.apache.org/home/francisdb/public_html/empire-db/site</url>
+			<url>https://svn.apache.org/repos/asf/empire-db/site</url>
 		</site>
 	</distributionManagement>
 
