@@ -21,8 +21,10 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Queue;
 import java.util.ResourceBundle;
 
 import javax.servlet.ServletContext;
@@ -33,16 +35,10 @@ import org.apache.empire.commons.StringUtils;
 import org.apache.empire.db.DBCommand;
 import org.apache.empire.db.DBContext;
 import org.apache.empire.db.DBRecord;
-import org.apache.empire.db.DBSQLScript;
 import org.apache.empire.db.context.DBContextStatic;
-import org.apache.empire.db.exceptions.QueryFailedException;
 import org.apache.empire.dbms.DBMSHandler;
-import org.apache.empire.dbms.hsql.DBMSHandlerHSql;
 import org.apache.empire.rest.service.Service;
 import org.apache.empire.vue.sample.db.SampleDB;
-import org.apache.log4j.ConsoleAppender;
-import org.apache.log4j.Level;
-import org.apache.log4j.PatternLayout;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -75,7 +71,7 @@ public class SampleServiceApp
             System.out.println("ServletContextListener:contextDestroyed");
         }
     }
-    
+        
     private static SampleServiceApp app;
     
     public static SampleServiceApp instance()
@@ -83,12 +79,14 @@ public class SampleServiceApp
         return app;
     }
 
+    private SampleConfig config = new SampleConfig();
+    
     private Map<Locale, ResourceTextResolver> textResolverMap = new HashMap<Locale, ResourceTextResolver>();
     
     protected SampleServiceApp(ServletContext ctx) 
     {
         // Logging
-        initLogging();
+        config.init(ctx.getRealPath("WEB-INF/config.xml"));
         
         String messageBundle ="lang.messages";
         textResolverMap.put(Locale.ENGLISH, new ResourceTextResolver(ResourceBundle.getBundle(messageBundle, Locale.ENGLISH)));
@@ -98,7 +96,7 @@ public class SampleServiceApp
         Connection conn = getJDBCConnection(ctx);
         try {
             // DB
-            DBMSHandler dbms = new DBMSHandlerHSql();
+            DBMSHandler dbms = getDBMSHandler(config.getDatabaseProvider(), conn);
             DBContext context = new DBContextStatic(dbms, conn);
             SampleDB db = initDatabase(ctx, context);
             // Add to context
@@ -115,34 +113,70 @@ public class SampleServiceApp
         return (tr!=null ? tr : textResolverMap.get(Locale.ENGLISH));
     }
     
-    public Connection getJDBCConnection(ServletContext appContext) {
-        // Establish a new database connection
-        Connection conn = null;
+    /**
+     * Creates an Empire-db DatabaseDriver for the given provider and applies dbms specific configuration 
+     */
+    private DBMSHandler getDBMSHandler(String provider, Connection conn)
+    {
+        try
+        {   // Get Driver Class Name
+            String dbmsHandlerClass = config.getDbmsHandlerClass();
+            if (StringUtils.isEmpty(dbmsHandlerClass))
+                throw new RuntimeException("Configuration error: Element 'dbmsHandlerClass' not found in node 'properties-"+provider+"'");
 
-        String jdbcURL = "jdbc:hsqldb:file:hsqldb/sample;shutdown=true";
-        String jdbcUser = "sa";
-        String jdbcPwd = "";
+            // Create dbms
+            DBMSHandler dbms = (DBMSHandler) Class.forName(dbmsHandlerClass).newInstance();
 
-        if (jdbcURL.indexOf("file:") > 0) {
-            jdbcURL = StringUtils.replace(jdbcURL, "file:", "file:" + appContext.getRealPath("/"));
+            // Configure dbms
+            config.readProperties(dbms, "properties-"+provider, "dbmsHandlerProperites");
+
+            // done
+            return dbms;
+            
+        } catch (Exception e)
+        {   // catch any checked exception and forward it
+            e.printStackTrace();
+            throw new RuntimeException(e);
         }
+    }
+    
+    /*
+     * Our own simple Connection pool 
+     */
+    private final Queue<Connection> connPool = new LinkedList<Connection>(); 
+    
+    /*
+     * getJDBCConnection
+     */
+    public Connection getJDBCConnection(ServletContext appContext)
+    {
+        Connection conn = connPool.poll();
+        if (conn!=null)
+            return conn;
+        
+        // Establish a new database connection
+        String jdbcURL = config.getJdbcURL();
+        if (jdbcURL.indexOf("file:") > 0)
+            jdbcURL = StringUtils.replace(jdbcURL, "file:", "file:" + appContext.getRealPath("/"));
         // Connect
-        log.info("Connecting to Database'" + jdbcURL + "' / User=" + jdbcUser);
-        try { // Connect to the databse
-            Class.forName("org.hsqldb.jdbcDriver").newInstance();
-            conn = DriverManager.getConnection(jdbcURL, jdbcUser, jdbcPwd);
+        log.info("Connecting to Database'" + jdbcURL + "' / User=" + config.getJdbcUser());
+        try
+        { // Connect to the database
+            Class.forName(config.getJdbcClass()).newInstance();
+            conn = DriverManager.getConnection(jdbcURL, config.getJdbcUser(), config.getJdbcPwd());
             log.info("Connected successfully");
             // set the AutoCommit to false this session. You must commit
             // explicitly now
             conn.setAutoCommit(false);
             log.info("AutoCommit is " + conn.getAutoCommit());
-
-        } catch (Exception e) {
-            log.error("Failed to connect directly to '" + jdbcURL + "' / User=" + jdbcUser);
+            return conn;
+        }
+        catch (Exception e)
+        {
+            log.error("Failed to connect directly to '" + config.getJdbcURL() + "' / User=" + config.getJdbcUser());
             log.error(e.toString());
             throw new RuntimeException(e);
         }
-        return conn;
     }
 
     public void releaseConnection(Connection conn, boolean commit) {
@@ -165,7 +199,8 @@ public class SampleServiceApp
                 log.debug("REQUEST rolled back.");
             }
             // close connection / return to pool
-            conn.close();
+            // conn.close();
+            connPool.add(conn);
         }
         catch (SQLException e)
         {
@@ -183,38 +218,17 @@ public class SampleServiceApp
         DBMSHandler dbms = context.getDbms();
         log.info("Opening database '{}' using handler '{}'", db.getClass().getSimpleName(), dbms.getClass().getSimpleName());
         db.open(context);
-        if (!databaseExists(db, context)) {
-            // STEP 4: Create Database
-            log.info("Creating database {}", db.getClass().getSimpleName());
-            createSampleDatabase(db, context);
+        // check if database was just created 
+        DBCommand cmd = context.createCommand();
+        cmd.select(db.EMPLOYEES.count());
+        if (context.getUtils().querySingleInt(cmd)==0)
+        {   // Populate Database
+            populateDatabase(db, context);
         }
         return db;
     }
 
-    private static boolean databaseExists(SampleDB db, DBContext context) {
-        // Check wether DB exists
-        DBCommand cmd = context.createCommand();
-        cmd.select(db.T_DEPARTMENTS.count());
-        try {
-            return (context.getUtils().querySingleInt(cmd, -1) >= 0);
-        } catch (QueryFailedException e) {
-            return false;
-        }
-    }
-
-    private static void createSampleDatabase(SampleDB db, DBContext context) {
-        // create DLL for Database Definition
-        DBSQLScript script = new DBSQLScript(context);
-        db.getCreateDDLScript(script);
-        // Show DLL Statements
-        System.out.println(script.toString());
-        // Execute Script
-        script.executeAll(false);
-        context.commit();
-        // Open again
-        if (!db.isOpen()) {
-            db.open(context);
-        }
+    private static void populateDatabase(SampleDB db, DBContext context) {
         // Insert Sample Departments
         insertDepartmentSampleRecord(db, context, "Procurement", "ITTK");
         int idDevDep = insertDepartmentSampleRecord(db, context, "Development", "ITTK");
@@ -229,10 +243,10 @@ public class SampleServiceApp
 
     private static int insertDepartmentSampleRecord(SampleDB db, DBContext context, String department_name, String businessUnit) {
         // Insert a Department
-        DBRecord rec = new DBRecord(context, db.T_DEPARTMENTS);
+        DBRecord rec = new DBRecord(context, db.DEPARTMENTS);
         rec.create();
-        rec.set(db.T_DEPARTMENTS.NAME, department_name);
-        rec.set(db.T_DEPARTMENTS.BUSINESS_UNIT, businessUnit);
+        rec.set(db.DEPARTMENTS.NAME, department_name);
+        rec.set(db.DEPARTMENTS.BUSINESS_UNIT, businessUnit);
         try {
             rec.update();
         } catch (Exception e) {
@@ -240,7 +254,7 @@ public class SampleServiceApp
             return 0;
         }
         // Return Department ID
-        return rec.getInt(db.T_DEPARTMENTS.ID);
+        return rec.getInt(db.DEPARTMENTS.ID);
     }
 
     /*
@@ -248,13 +262,13 @@ public class SampleServiceApp
      */
     private static int insertEmployeeSampleRecord(SampleDB db, DBContext context, String salutation, String firstName, String lastName, String gender, int depID) {
         // Insert an Employee
-        DBRecord rec = new DBRecord(context, db.T_EMPLOYEES);
+        DBRecord rec = new DBRecord(context, db.EMPLOYEES);
         rec.create();
-        rec.set(db.T_EMPLOYEES.SALUTATION, salutation);
-        rec.set(db.T_EMPLOYEES.FIRST_NAME, firstName);
-        rec.set(db.T_EMPLOYEES.LAST_NAME, lastName);
-        rec.set(db.T_EMPLOYEES.GENDER, gender);
-        rec.set(db.T_EMPLOYEES.DEPARTMENT_ID, depID);
+        rec.set(db.EMPLOYEES.SALUTATION, salutation);
+        rec.set(db.EMPLOYEES.FIRST_NAME, firstName);
+        rec.set(db.EMPLOYEES.LAST_NAME, lastName);
+        rec.set(db.EMPLOYEES.GENDER, gender);
+        rec.set(db.EMPLOYEES.DEPARTMENT_ID, depID);
         try {
             rec.update();
         } catch (Exception e) {
@@ -262,9 +276,10 @@ public class SampleServiceApp
             return 0;
         }
         // Return Employee ID
-        return rec.getInt(db.T_EMPLOYEES.ID);
+        return rec.getInt(db.EMPLOYEES.ID);
     }
 
+    /*
     private void initLogging() {
 
         // Init Logging
@@ -289,7 +304,7 @@ public class SampleServiceApp
         // Vue.js Sample
         org.apache.log4j.Logger miLog = org.apache.log4j.Logger.getLogger("org.apache.empire.rest");
         miLog.setLevel(loglevel);
-
     }
+    */
     
 }

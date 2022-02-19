@@ -477,6 +477,7 @@
 			       			<exclude>**/.classpath</exclude>
 			       			<exclude>**/.tomcatplugin</exclude>
 							<exclude>**/empire-db-example-vue/src/main/vue/.*</exclude>
+			       			<exclude>**/_eslintrc.js.bak</exclude>
 			       			<exclude>release.properties</exclude>
 			       			<!-- should the sample databases be created in target? -->
 			       			<exclude>**/hsqldb/sample.*</exclude>
@@ -553,6 +554,7 @@
                             <exclude>**/.idea/**</exclude>
 			       			<exclude>**/*.json</exclude>
 			       			<exclude>**/*.vue</exclude>
+			       			<exclude>**/_eslintrc.js.bak</exclude>
 			       			<exclude>**/static/js/*.js</exclude>
 			       			<exclude>**/app.*.css</exclude>
 			       			<exclude>**/readme.txt</exclude>

@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.empire.jsf2.websample.web;
+package org.apache.empire.rest.app;
 
 import org.apache.empire.xml.XMLConfiguration;
 import org.apache.empire.xml.XMLUtil;
@@ -47,7 +47,7 @@ public class SampleConfig extends XMLConfiguration
     private String jdbcPwd          = "DBSAMPLE";
 
     private String dbmsHandlerClass = "";
-    
+
     /**
      * Initialize the configuration
      * 

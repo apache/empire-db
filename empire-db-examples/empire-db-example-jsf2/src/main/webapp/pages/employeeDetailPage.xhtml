@@ -51,13 +51,37 @@
 					<tr><e:control column="#{db.EMPLOYEES.GENDER}"   /> </tr>
 					<tr><e:control column="#{db.EMPLOYEES.PHONE_NUMBER}" /></tr>
 					<tr><e:control column="#{db.EMPLOYEES.EMAIL}" /></tr>
+					<tr><e:control column="#{db.EMPLOYEES.SALARY}" /></tr>
 					<tr><e:control column="#{db.EMPLOYEES.RETIRED}" /></tr>
 					<tr><e:control column="#{db.EMPLOYEES.UPDATE_TIMESTAMP}" format="date-format:full" readonly="true" rendered="#{page.idParam != null}" /></tr> 
 				</sample:formPanel>
 				</e:record>
 				
 			</e:tabPage>
+			
 			<e:tabPage title="#{msg.employeeDetail_tab_extended}" id="tabExtended" disabled="#{not page.employeeRecord.exists}">
+				<h3><h:outputText value="#{msg.employeeDetail_payments}"/></h3>
+				<!-- Payment data -->
+				<h:dataTable id="paymentData" value="#{page.payments}" var="item" rowClasses="odd,even">
+					<h:column>
+						<f:facet name="header">
+							<e:title column="#{db.PAYMENTS.YEAR}" />
+						</f:facet>
+						<e:value record="#{item}" column="#{db.PAYMENTS.YEAR}"/>
+					</h:column>
+					<h:column>
+						<f:facet name="header">
+							<e:title column="#{db.PAYMENTS.MONTH}" />
+						</f:facet>
+						<e:value record="#{item}" column="#{db.PAYMENTS.MONTH}"/>
+					</h:column>
+					<h:column>
+						<f:facet name="header">
+							<e:title column="#{db.PAYMENTS.AMOUNT}" />
+						</f:facet>
+						<e:value record="#{item}" column="#{db.PAYMENTS.AMOUNT}"/>
+					</h:column>
+				</h:dataTable>
 				<h:panelGroup layout="block" styleClass="info-msg">
 					<h:outputText value="#{msg.employeeDetail_msg_extended}"/>
 				</h:panelGroup>

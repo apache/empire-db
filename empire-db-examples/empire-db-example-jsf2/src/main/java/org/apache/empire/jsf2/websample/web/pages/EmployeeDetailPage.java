@@ -18,12 +18,18 @@
  */
 package org.apache.empire.jsf2.websample.web.pages;
 
+import java.util.List;
+
 import javax.faces.event.ActionEvent;
 
 import org.apache.empire.commons.ClassUtils;
+import org.apache.empire.data.list.DataListEntry;
+import org.apache.empire.db.DBCommand;
 import org.apache.empire.jsf2.pageelements.RecordPageElement;
 import org.apache.empire.jsf2.pages.PageOutcome;
+import org.apache.empire.jsf2.websample.db.SampleDB;
 import org.apache.empire.jsf2.websample.db.records.EmployeeRecord;
+import org.apache.empire.jsf2.websample.web.SampleContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -38,6 +44,8 @@ public class EmployeeDetailPage extends SamplePage
     private RecordPageElement<EmployeeRecord> employee;
 
     private int                               activeTab         = 0;
+    
+    private List<DataListEntry>               payments;
     
     public EmployeeDetailPage()
     {
@@ -68,6 +76,11 @@ public class EmployeeDetailPage extends SamplePage
         return employee.getRecord();
     }
 
+    public List<DataListEntry> getPayments()
+    {
+        return payments;
+    }
+
     public int getActiveTab()
     {
         return activeTab;
@@ -84,6 +97,8 @@ public class EmployeeDetailPage extends SamplePage
         if (!employee.getRecord().isValid())
         {
             employee.reloadRecord();
+            // Load payment data
+            loadPaymentData();
         }
     }
 
@@ -92,11 +107,14 @@ public class EmployeeDetailPage extends SamplePage
         log.info("EmployeeDetailPage Loading entryId {}.", this.idParam);
         // load the record
         this.employee.loadRecord(this.idParam);
+        // Load payment data
+        loadPaymentData();
     }
 
     public void doCreate()
     {
-        getEmployeeRecord().create();
+        // use create(null) to defer primaryKey generation
+        getEmployeeRecord().create(null);
         doRefresh();
     }
     
@@ -141,6 +159,21 @@ public class EmployeeDetailPage extends SamplePage
     public void onTabChanged(int newPage)
     {
         log.debug("onTabChanged " + newPage);
+    }
+    
+    private void loadPaymentData()
+    {
+        SampleContext context = getSampleContext();
+        SampleDB db = this.getDatabase();
+        SampleDB.TPayments PAY = db.PAYMENTS;
+        
+        DBCommand cmd = context.createCommand();
+        cmd.select(PAY.YEAR, PAY.MONTH, PAY.AMOUNT);
+        cmd.where(PAY.EMPLOYEE_ID.is(employee.getRecord().getIdentity()));
+        cmd.orderBy(PAY.YEAR.desc(), PAY.MONTH.desc());
+
+        this.payments = context.getUtils().queryDataList(cmd); 
+        log.info("{} payments have been loaded", this.payments.size());
     }
     
 }

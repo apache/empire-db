@@ -18,9 +18,12 @@
  */
 package org.apache.empire.jsf2.websample.web;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.time.LocalDate;
 import java.util.Locale;
 
 import javax.servlet.ServletContext;
@@ -31,20 +34,15 @@ import org.apache.empire.db.DBCommand;
 import org.apache.empire.db.DBContext;
 import org.apache.empire.db.DBDatabase;
 import org.apache.empire.db.DBRecord;
-import org.apache.empire.db.DBSQLScript;
 import org.apache.empire.db.context.DBContextStatic;
 import org.apache.empire.db.context.DBRollbackManager;
 import org.apache.empire.db.context.DBRollbackManager.ReleaseAction;
-import org.apache.empire.db.exceptions.QueryFailedException;
 import org.apache.empire.dbms.DBMSHandler;
-import org.apache.empire.dbms.hsql.DBMSHandlerHSql;
-import org.apache.empire.dbms.mysql.DBMSHandlerMySQL;
-import org.apache.empire.dbms.oracle.DBMSHandlerOracle;
-import org.apache.empire.dbms.sqlserver.DBMSHandlerMSSQL;
 import org.apache.empire.jsf2.app.WebApplication;
 import org.apache.empire.jsf2.controls.InputControlManager;
 import org.apache.empire.jsf2.custom.controls.FileInputControl;
 import org.apache.empire.jsf2.websample.db.SampleDB;
+import org.apache.empire.jsf2.websample.db.SampleDBwithMeta;
 import org.apache.empire.jsf2.websample.web.pages.SamplePages;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -98,44 +96,44 @@ public class SampleApplication extends WebApplication {
 		// Done
 	}
 
-	/*
-	 * getJDBCConnection
-	 */
-	private Connection getJDBCConnection(ServletContext appContext) {
-		// Establish a new database connection
-		Connection conn = null;
-		String jdbcURL = config.getJdbcURL();
-		if (jdbcURL.indexOf("file:") > 0)
-			jdbcURL = StringUtils.replace(jdbcURL, "file:", "file:"
-					+ appContext.getRealPath("/"));
-		// Connect
-		log.info("Connecting to Database'" + jdbcURL + "' / User="
-				+ config.getJdbcUser());
-		try { // Connect to the databse
-			Class.forName(config.getJdbcClass()).newInstance();
-			conn = DriverManager.getConnection(jdbcURL, config.getJdbcUser(),
-					config.getJdbcPwd());
-			log.info("Connected successfully");
-			// set the AutoCommit to false this session. You must commit
-			// explicitly now
-			conn.setAutoCommit(false);
-			log.info("AutoCommit is " + conn.getAutoCommit());
+    /*
+     * getJDBCConnection
+     */
+    private Connection getJDBCConnection(ServletContext appContext)
+    {
+        // Establish a new database connection
+        Connection conn = null;
+        String jdbcURL = config.getJdbcURL();
+        if (jdbcURL.indexOf("file:") > 0)
+            jdbcURL = StringUtils.replace(jdbcURL, "file:", "file:" + appContext.getRealPath("/"));
+        // Connect
+        log.info("Connecting to Database'" + jdbcURL + "' / User=" + config.getJdbcUser());
+        try
+        { // Connect to the database
+            Class.forName(config.getJdbcClass()).newInstance();
+            conn = DriverManager.getConnection(jdbcURL, config.getJdbcUser(), config.getJdbcPwd());
+            log.info("Connected successfully");
+            // set the AutoCommit to false this session. You must commit
+            // explicitly now
+            conn.setAutoCommit(false);
+            log.info("AutoCommit is " + conn.getAutoCommit());
 
-		} catch (Exception e) {
-			log.error("Failed to connect directly to '" + config.getJdbcURL()
-					+ "' / User=" + config.getJdbcUser());
-			log.error(e.toString());
-			throw new RuntimeException(e);
-		}
-		return conn;
-	}
+        }
+        catch (Exception e)
+        {
+            log.error("Failed to connect directly to '" + config.getJdbcURL() + "' / User=" + config.getJdbcUser());
+            log.error(e.toString());
+            throw new RuntimeException(e);
+        }
+        return conn;
+    }
 
 	private void initDatabase() {
-		sampleDB = new SampleDB();
+	    // Create Database with Metadata!
+		sampleDB = new SampleDBwithMeta();
 
 		// Open Database (and create if not existing)
-		String driverProvider = config.getDatabaseProvider();
-		DBMSHandler dbmsHandler = getDBMSHandler(driverProvider);
+        DBMSHandler dbmsHandler = getDBMSHandler(config.getDatabaseProvider(), conn);
         log.info("Opening database '{}' using '{}'", sampleDB.getClass().getSimpleName(), dbmsHandler.getClass().getSimpleName());
 		Connection conn = null;
 		DBContext context = null;
@@ -143,43 +141,45 @@ public class SampleApplication extends WebApplication {
 			conn = getConnection(sampleDB);
 			context = new DBContextStatic(dbmsHandler, conn);
 			sampleDB.open(context);
-			if (!databaseExists(context)) {
-				// STEP 4: Create Database
-				log.info("Creating database {}", sampleDB.getClass().getSimpleName());
-				createSampleDatabase(context);
-			}
+	        // check if database was just created 
+	        DBCommand cmd = context.createCommand();
+	        cmd.select(sampleDB.EMPLOYEES.count());
+	        if (context.getUtils().querySingleInt(cmd)==0)
+	        {   // Populate Database
+	            populateDatabase(context);
+	        }
 		} finally {
 		    context.discard();
 			releaseConnection(conn, true, null);
 		}
 	}
 
-	/*
-	 * getDatabaseDriver
-	 */
-	private DBMSHandler getDBMSHandler(String provider) {
-		if (provider.equalsIgnoreCase("mysql")) {
-			DBMSHandlerMySQL dbms = new DBMSHandlerMySQL();
-			// Set Driver specific properties (if any)
-			dbms.setDatabaseName(config.getSchemaName());
-			return dbms;
-		} else if (provider.equalsIgnoreCase("oracle")) {
-			DBMSHandlerOracle dbms = new DBMSHandlerOracle();
-			// Set Driver specific properties (if any)
-			return dbms;
-		} else if (provider.equalsIgnoreCase("sqlserver")) {
-			DBMSHandlerMSSQL dbms = new DBMSHandlerMSSQL();
-			// Set Driver specific properties (if any)
-			dbms.setDatabaseName(config.getSchemaName());
-			return dbms;
-		} else if (provider.equalsIgnoreCase("hsqldb")) {
-			DBMSHandlerHSql dbms = new DBMSHandlerHSql();
-			// Set Driver specific properties (if any)
-			return dbms;
-		} else { // Unknown Provider
-			throw new RuntimeException("Unknown Database Provider " + provider);
-		}
-	}
+    /**
+     * Creates an Empire-db DatabaseDriver for the given provider and applies dbms specific configuration 
+     */
+    private DBMSHandler getDBMSHandler(String provider, Connection conn)
+    {
+        try
+        {   // Get Driver Class Name
+            String dbmsHandlerClass = config.getDbmsHandlerClass();
+            if (StringUtils.isEmpty(dbmsHandlerClass))
+                throw new RuntimeException("Configuration error: Element 'dbmsHandlerClass' not found in node 'properties-"+provider+"'");
+
+            // Create dbms
+            DBMSHandler dbms = (DBMSHandler) Class.forName(dbmsHandlerClass).newInstance();
+
+            // Configure dbms
+            config.readProperties(dbms, "properties-"+provider, "dbmsHandlerProperites");
+
+            // done
+            return dbms;
+            
+        } catch (Exception e)
+        {   // catch any checked exception and forward it
+            e.printStackTrace();
+            throw new RuntimeException(e);
+        }
+    }
 
 	private void initPages(ServletContext sc) {
 		// register Page Beans
@@ -190,44 +190,21 @@ public class SampleApplication extends WebApplication {
 		return sampleDB;
 	}
 
-	private boolean databaseExists(DBContext context) {
-		// Check wether DB exists
-		DBCommand cmd = context.createCommand();
-		cmd.select(sampleDB.T_DEPARTMENTS.count());
-		try {
-			return (context.getUtils().querySingleInt(cmd, -1) >= 0);
-		} catch (QueryFailedException e) {
-			return false;
-		}
-	}
-
 	/*
 	 * creates a DDL Script for the entire SampleDB Database then checks if the
 	 * department table exists by running "select count(*) from DEPARTMENTS" if
 	 * the department tables does not exist, the entire dll-script is executed
 	 * line by line
 	 */
-	private void createSampleDatabase(DBContext context) {
-		// create DLL for Database Definition
-		DBSQLScript script = new DBSQLScript(context);
-		sampleDB.getCreateDDLScript(script);
-		// Show DLL Statements
-		System.out.println(script.toString());
-		// Execute Script
-		script.executeAll(false);
-		context.commit();
-		// Open again
-		if (!sampleDB.isOpen()) {
-			sampleDB.open(context);
-		}
+	private void populateDatabase(DBContext context) {
 		// Insert Sample Departments
 		insertDepartmentSampleRecord(context, "Procurement", "ITTK");
 		int idDevDep = insertDepartmentSampleRecord(context, "Development", "ITTK");
 		int idSalDep = insertDepartmentSampleRecord(context, "Sales", 		 "ITTK");
 		// Insert Sample Employees
-		insertEmployeeSampleRecord(context, "Mr.", "Eugen", "Miller", "M",		idDevDep);
-		insertEmployeeSampleRecord(context, "Mr.", "Max", "Mc. Callahan", "M",	idDevDep);
-		insertEmployeeSampleRecord(context, "Mrs.", "Anna", "Smith", "F", 		idSalDep);
+		insertEmployeeSampleRecord(context, "Mr.", "Eugen", "Miller", "M",		30000, idDevDep);
+		insertEmployeeSampleRecord(context, "Mr.", "Max", "Mc. Callahan", "M",	22500, idDevDep);
+		insertEmployeeSampleRecord(context, "Mrs.", "Anna", "Smith", "F", 		44250, idSalDep);
 		// Commit
         context.commit();
 	}
@@ -237,41 +214,64 @@ public class SampleApplication extends WebApplication {
 	 */
 	private int insertDepartmentSampleRecord(DBContext context, String department_name, String businessUnit) {
 		// Insert a Department
-		DBRecord rec = new DBRecord(context, sampleDB.T_DEPARTMENTS);
-		rec.create();
-		rec.set(sampleDB.T_DEPARTMENTS.NAME, department_name);
-		rec.set(sampleDB.T_DEPARTMENTS.BUSINESS_UNIT, businessUnit);
-		try {
-			rec.update();
-		} catch (Exception e) {
-			log.error(e.getLocalizedMessage());
-			return 0;
-		}
+		DBRecord rec = new DBRecord(context, sampleDB.DEPARTMENTS);
+		rec.create()
+		   .set(sampleDB.DEPARTMENTS.NAME, department_name)
+		   .set(sampleDB.DEPARTMENTS.BUSINESS_UNIT, businessUnit)
+		   .update();
 		// Return Department ID
-		return rec.getInt(sampleDB.T_DEPARTMENTS.ID);
+		return rec.getInt(sampleDB.DEPARTMENTS.ID);
 	}
 
 	/*
 	 * Insert a person
 	 */
-	private int insertEmployeeSampleRecord(DBContext context, String salutation, String firstName, String lastName, String gender, int depID) {
+	private int insertEmployeeSampleRecord(DBContext context, String salutation, String firstName, String lastName, String gender, int salary, int depID) {
 		// Insert an Employee
-		DBRecord rec = new DBRecord(context, sampleDB.T_EMPLOYEES);
-		rec.create();
-		rec.set(sampleDB.T_EMPLOYEES.SALUTATION, salutation);
-		rec.set(sampleDB.T_EMPLOYEES.FIRST_NAME, firstName);
-		rec.set(sampleDB.T_EMPLOYEES.LAST_NAME, lastName);
-		rec.set(sampleDB.T_EMPLOYEES.GENDER, gender);
-		rec.set(sampleDB.T_EMPLOYEES.DEPARTMENT_ID, depID);
-		try {
-			rec.update();
-		} catch (Exception e) {
-			log.error(e.getLocalizedMessage());
-			return 0;
-		}
+	    SampleDB.TEmployees EMP = sampleDB.EMPLOYEES;
+		DBRecord rec = new DBRecord(context, sampleDB.EMPLOYEES);
+		rec.create()
+		   .set(EMP.SALUTATION, salutation)
+		   .set(EMP.FIRST_NAME, firstName)
+		   .set(EMP.LAST_NAME, lastName)
+		   .set(EMP.GENDER, gender)
+		   .set(EMP.DEPARTMENT_ID, depID)
+           .set(EMP.SALARY, salary)
+		   .update();
+		// insert Payments
+		insertPayments(rec);		
 		// Return Employee ID
-		return rec.getInt(sampleDB.T_EMPLOYEES.ID);
+		return rec.getInt(sampleDB.EMPLOYEES.ID);
 	}
+
+    /**
+     * <PRE>
+     * Inserts an Payments for a particular Employee
+     * </PRE>
+     */
+    private void insertPayments(DBRecord employee)
+    {
+        if (employee.isNull(sampleDB.EMPLOYEES.SALARY))
+            return; // No salary
+        // monthlySalary
+        BigDecimal monthlySalary = employee.getDecimal(sampleDB.EMPLOYEES.SALARY).divide(new BigDecimal(12), 2, RoundingMode.HALF_UP);
+        // Insert an Employee
+        LocalDate date = LocalDate.now();
+        date = date.minusDays(date.getDayOfMonth()-1); // first day of this month
+        // Add Payment for each month
+        SampleDB.TPayments PAY = sampleDB.PAYMENTS;
+        DBRecord rec = new DBRecord(employee.getContext(), PAY);
+        int months = (int)(Math.random()*6)+11;
+        for (LocalDate month=date.minusMonths(months); !month.isAfter(date); month=month.plusMonths(1))
+        {
+            BigDecimal variation = new BigDecimal((Math.random()*200) - 100.0);
+            variation = variation.setScale(2, RoundingMode.HALF_UP);
+            // insert
+            rec.create(DBRecord.key(employee.getIdentity(), month.getYear(), month.getMonth()));
+            rec.set(PAY.AMOUNT, monthlySalary.add(variation));
+            rec.update();
+        }
+    }
 
 	@Override
 	/**

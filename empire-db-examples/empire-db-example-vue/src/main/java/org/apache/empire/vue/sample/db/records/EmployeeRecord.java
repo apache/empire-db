@@ -32,7 +32,7 @@ public class EmployeeRecord extends SampleRecord<TEmployees>
 
     public EmployeeRecord(RecordContext recordContext)
     {
-        super(recordContext.getDb().T_EMPLOYEES, recordContext);
+        super(recordContext.getDb().EMPLOYEES, recordContext);
     }
     
 	/*
@@ -56,9 +56,9 @@ public class EmployeeRecord extends SampleRecord<TEmployees>
         {
             SampleDB db = (SampleDB) getDatabase();
             DBCommand cmd = context.createCommand();
-            cmd.select(db.T_DEPARTMENTS.ID);
-            cmd.select(db.T_DEPARTMENTS.NAME);
-            cmd.orderBy(db.T_DEPARTMENTS.NAME);
+            cmd.select(db.DEPARTMENTS.ID);
+            cmd.select(db.DEPARTMENTS.NAME);
+            cmd.orderBy(db.DEPARTMENTS.NAME);
             return recordContext.getUtils().queryOptionList(cmd);
         }
         // base class implementation

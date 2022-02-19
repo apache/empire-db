@@ -67,14 +67,14 @@ public class EmployeeService extends Service {
         // Query Department options
         SampleDB db = getDatabase();
         DBCommand cmd = context.createCommand();
-        cmd.select(db.T_DEPARTMENTS.ID, db.T_DEPARTMENTS.NAME);
-        cmd.join  (db.T_DEPARTMENTS.ID, db.T_EMPLOYEES.DEPARTMENT_ID);
+        cmd.select(db.DEPARTMENTS.ID, db.DEPARTMENTS.NAME);
+        cmd.join  (db.DEPARTMENTS.ID, db.EMPLOYEES.DEPARTMENT_ID);
         cmd.groupBy(cmd.getSelectExpressions());
-        cmd.orderBy(db.T_DEPARTMENTS.NAME);
+        cmd.orderBy(db.DEPARTMENTS.NAME);
         Options departmentOptions = context.getUtils().queryOptionList(cmd);
         
         // Create Metadata
-        TEmployees TE = db.T_EMPLOYEES;
+        TEmployees TE = db.EMPLOYEES;
         JsoColumnMeta[] meta = new JsoColumnMeta[] { 
           new JsoColumnMeta(TE.ID, textResolver),
           new JsoColumnMeta(TE.FIRST_NAME, textResolver),
@@ -95,8 +95,8 @@ public class EmployeeService extends Service {
 
         SampleDB db = getDatabase();
 
-        TEmployees TE = db.T_EMPLOYEES;
-        TDepartments TD = db.T_DEPARTMENTS;
+        TEmployees TE = db.EMPLOYEES;
+        TDepartments TD = db.DEPARTMENTS;
         DBColumnExpr FULL_NAME  = TE.LAST_NAME.append(", ").append(TE.FIRST_NAME).as("NAME");
         DBColumnExpr DEPARTMENT = TD.NAME.as("DEPARTMENT");
         FULL_NAME.setTitle("!field.title.employees.fullname");
@@ -105,7 +105,8 @@ public class EmployeeService extends Service {
 
         RecordContext context = getRecordContext();
         DBCommand cmd = context.createCommand();
-        cmd.select(TE.ID, FULL_NAME, DEPARTMENT, TE.GENDER, TE.DATE_OF_BIRTH, TE.RETIRED);
+        cmd.select(TE.ID.as("EMPLOYEE_ID"));
+        cmd.select(FULL_NAME, DEPARTMENT, TE.GENDER, TE.DATE_OF_BIRTH, TE.RETIRED);
         cmd.join  (TE.DEPARTMENT_ID, TD.ID, DBJoinType.LEFT);
 
         // apply all filters
@@ -169,7 +170,7 @@ public class EmployeeService extends Service {
         try {
             // return a record
             EmployeeRecord rec = new EmployeeRecord(ctx);
-            rec.create();
+            rec.create(null);
             JsoRecordData emp = new JsoRecordData(rec);
             return Response.ok(new JsoResultWithMeta(emp, rec.getMeta())).build();
             
@@ -212,7 +213,7 @@ public class EmployeeService extends Service {
         try {
             // return a record
             SampleDB db = getDatabase();
-            db.T_EMPLOYEES.deleteRecord(employeeId, ctx);
+            db.EMPLOYEES.deleteRecord(employeeId, ctx);
             return Response.ok().build();
             
         } catch(EmpireException e) {

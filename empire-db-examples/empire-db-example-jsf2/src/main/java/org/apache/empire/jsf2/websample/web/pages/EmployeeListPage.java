@@ -52,7 +52,7 @@ public class EmployeeListPage extends SamplePage
     {
         // *Deprecated* private static final long serialVersionUID = 1L;
 
-        private int               employeeId;
+        private int               id; // employeeId;
         private String            name;
         private String            gender;
         private Date              dateOfBirth;
@@ -80,14 +80,14 @@ public class EmployeeListPage extends SamplePage
             this.idParam = idParam;
         }
 
-        public int getEmployeeId()
+        public int getId()
         {
-            return employeeId;
+            return id;
         }
 
-        public void setEmployeeId(int employeeId)
+        public void setId(int id)
         {
-            this.employeeId = employeeId;
+            this.id = id;
         }
 
         public String getName()
@@ -143,7 +143,7 @@ public class EmployeeListPage extends SamplePage
     public EmployeeListPage()
     {
         EmployeeListPage.log.trace("EmployeeListPage created");
-        TEmployees EMP = getDatabase().T_EMPLOYEES;
+        TEmployees EMP = getDatabase().EMPLOYEES;
 
         // create the Employees List page element
         employees = new BeanListPageElement<EmployeeListEntry>(this, EmployeeListEntry.class, EMP.ID);
@@ -176,8 +176,8 @@ public class EmployeeListPage extends SamplePage
     
     public void doSearch()
     {
-        TDepartments DEP = getDatabase().T_DEPARTMENTS;
-        TEmployees EMP = getDatabase().T_EMPLOYEES;
+        TDepartments DEP = getDatabase().DEPARTMENTS;
+        TEmployees EMP = getDatabase().EMPLOYEES;
 
         DBColumnExpr FULL_NAME = EMP.LAST_NAME.append(", ").append(EMP.FIRST_NAME).as("NAME");
         DBColumnExpr DEPARTMENT = DEP.NAME.as("DEPARTMENT");
@@ -200,7 +200,7 @@ public class EmployeeListPage extends SamplePage
 
     public Options getDepartmentOptions()
     {
-    	TDepartments DEP = getDatabase().T_DEPARTMENTS;
+    	TDepartments DEP = getDatabase().DEPARTMENTS;
 
     	DBCommand queryCmd = createQueryCommand();
     	queryCmd.select(DEP.ID, DEP.NAME);
@@ -211,7 +211,7 @@ public class EmployeeListPage extends SamplePage
     
     protected void addAllConstraints(DBCommand queryCmd)
     {
-        TEmployees EMP = getDatabase().T_EMPLOYEES;
+        TEmployees EMP = getDatabase().EMPLOYEES;
         EmployeeSearchFilter filter = getSearchFilter();
         
         addSearchConstraint(queryCmd, EMP.ID, filter);

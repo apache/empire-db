@@ -16,7 +16,7 @@
 <template>
   <div class="page-content">
 
-    <h1>Employee-Details</h1>
+    <h1>Employee-Details ({{employeeId}})</h1>
 
     <e-record styleClass="formPanel" :record="employeeRecord">
       <table class="inputForm" style="width:400px">

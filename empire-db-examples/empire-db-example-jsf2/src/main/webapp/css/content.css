@@ -166,6 +166,7 @@ table.eTabPanel {
 table.eTabPanel tr td.eTabPage {
 	padding: 8px;
 	background-color: #F8F8F8;
+	vertical-align: top;
 }
 table.eTabPanel tr td.eTabPage div.formPanel {
 	border: 0;
@@ -173,4 +174,7 @@ table.eTabPanel tr td.eTabPage div.formPanel {
 div.info-msg {
 	padding: 12px;
 	background-color: #FFFFCA;
+}
+.paymentData {
+	border: 2px gray solid;
 }

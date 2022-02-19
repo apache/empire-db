@@ -42,13 +42,14 @@
 			<artifactId>hsqldb</artifactId>
 		</dependency>
 
-		<!-- Tomcat JDBC Connection Pool -->
+		<!-- Tomcat JDBC Connection Pool 
 		<dependency>
 			<groupId>org.apache.tomcat</groupId>
 			<artifactId>tomcat-dbcp</artifactId>
 			<version>8.0.39</version>
 			<scope>provided</scope>
 		</dependency>
+		-->
 
 		<!-- Empire-db -->
 		<dependency>
@@ -60,19 +61,19 @@
 		<dependency>
 			<groupId>javax.ws.rs</groupId>
 			<artifactId>javax.ws.rs-api</artifactId>
-			<version>2.0</version>
+			<version>2.1.1</version>
 		</dependency>
 
 		<!-- JSON -->
 		<dependency>
 			<groupId>javax.json</groupId>
 			<artifactId>javax.json-api</artifactId>
-			<version>1.0</version>
+			<version>1.1.4</version>
 		</dependency>
 		<dependency>
 			<groupId>org.glassfish</groupId>
 			<artifactId>javax.json</artifactId>
-			<version>1.0.4</version>
+			<version>1.1.4</version>
 		</dependency>
 
 		<!-- Jersey -->
@@ -81,11 +82,54 @@
 			<artifactId>jersey-container-servlet-core</artifactId>
 			<version>2.25.1</version>
 		</dependency>
-
 		<dependency>
 			<groupId>org.glassfish.jersey.media</groupId>
 			<artifactId>jersey-media-json-jackson</artifactId>
 			<version>2.25.1</version>
+		</dependency>
+
+		<!-- All Databases (scope: runtime) -->
+		<!-- hsqldb -->
+		<dependency>
+		    <groupId>org.hsqldb</groupId>
+		    <artifactId>hsqldb</artifactId>
+		    <scope>runtime</scope>
+		</dependency> 
+		<!-- dh2 -->
+		<dependency>
+		    <groupId>com.h2database</groupId>
+		    <artifactId>h2</artifactId>
+		    <scope>runtime</scope>
+		</dependency> 
+		<!-- derby -->
+		<dependency>
+		    <groupId>org.apache.derby</groupId>
+		    <artifactId>derby</artifactId>
+		    <scope>runtime</scope>
+		</dependency> 
+		<!-- mysql -->
+		<dependency>
+		    <groupId>mysql</groupId>
+		    <artifactId>mysql-connector-java</artifactId>
+		    <scope>runtime</scope>
+		</dependency>
+		<!-- postgresql -->
+		<dependency>
+		    <groupId>org.postgresql</groupId>
+		    <artifactId>postgresql</artifactId>
+		    <scope>runtime</scope>
+		</dependency>
+		<!-- msssql -->
+		<dependency>
+		    <groupId>com.microsoft.sqlserver</groupId>
+		    <artifactId>mssql-jdbc</artifactId>
+		    <scope>runtime</scope>
+		</dependency>
+		<!-- oracle -->
+		<dependency>
+		    <groupId>com.oracle.database.jdbc</groupId>
+		    <artifactId>ojdbc8</artifactId>
+		    <scope>runtime</scope>
 		</dependency>
 
 		<!-- common io -->
@@ -99,9 +143,6 @@
 			<groupId>org.slf4j</groupId>
 			<artifactId>slf4j-log4j12</artifactId>
 		</dependency>
-
-		<!-- Test <dependency> <groupId>junit</groupId> <artifactId>junit</artifactId> 
-			<version>4.12</version> </dependency> -->
 
 	</dependencies>
 

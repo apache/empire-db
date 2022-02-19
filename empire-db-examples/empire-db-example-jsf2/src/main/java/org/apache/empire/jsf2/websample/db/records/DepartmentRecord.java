@@ -27,7 +27,7 @@ public class DepartmentRecord extends SampleRecord<TDepartments>
 
     public DepartmentRecord(SampleContext context)
     {
-        super(context, context.getDatabase().T_DEPARTMENTS);
+        super(context, context.getDatabase().DEPARTMENTS);
     }
   
 }

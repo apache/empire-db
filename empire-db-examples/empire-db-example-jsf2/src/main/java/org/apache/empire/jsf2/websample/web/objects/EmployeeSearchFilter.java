@@ -43,6 +43,15 @@ public class EmployeeSearchFilter // *Deprecated* implements Serializable
         gender = "";
     }
 
+    /**
+     * Additional getter for addSearchConstraint(queryCmd, EMP.ID, filter);
+     * @return the employeeId
+     */
+    public String getId()
+    {
+        return employeeId;
+    }
+
     public String getEmployeeId()
     {
         return employeeId;

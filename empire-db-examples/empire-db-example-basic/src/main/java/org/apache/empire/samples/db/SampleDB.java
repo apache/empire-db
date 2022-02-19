@@ -39,14 +39,14 @@ import org.slf4j.LoggerFactory;
 /**
  * <PRE>
  * This file contains the definition of the data model in Java.
- * The SampleDB data model consists of three tables and a foreign key relation.
+ * The SampleDB data model consists of three tables and two foreign key relations.
  * The tables are defined as nested classes here, but you may put them in separate files if you want to.
+ * 
+ * The class also provided methods to create the database (if it doesn't exist) 
+ * and to check the datamodel i.e. to compare this definition to the database in the DBMS
  *
  * PLEASE NOTE THE NAMING CONVENTION:
- * Since all tables, views and columns are declared as "final" constants they are all in upper case.
- * We recommend using a prefix of T_ for tables and C_ for columns in order to keep them together
- * when listed in your IDE's code completion.
- * There is no need to stick to this convention but it makes life just another little bit easier.
+ * Since all tables, views and columns are declared as "final" constants we have all put them in upper case.
  *
  * You may declare other database tables or views in the same way.
  * </PRE>
@@ -98,8 +98,9 @@ public class SampleDB extends DBDatabase
             BUSINESS_UNIT   = addColumn   ("BUSINESS_UNIT",    DataType.VARCHAR,       4, true, "ITTK");
             UPDATE_TIMESTAMP= addTimestamp("UPDATE_TIMESTAMP");
 
-            // Primary Key (automatically set due to AUTOINC column)
-            // setPrimaryKey(DEPARTMENT_ID);
+            // Primary Key (automatically set due to addIdentity()) otherwise use 
+            // setPrimaryKey(...);
+
             // Set other Indexes
             addIndex("DEPARTMENT_NAME_IDX", true, new DBColumn[] { NAME });
             
@@ -144,8 +145,9 @@ public class SampleDB extends DBDatabase
             RETIRED         = addColumn    ("RETIRED",          DataType.BOOL,         0, true, false);
             UPDATE_TIMESTAMP= addTimestamp ("UPDATE_TIMESTAMP");
             
-            // Primary Key (automatically set due to AUTOINC column)
-            // setPrimaryKey(EMPLOYEE_ID);
+            // Primary Key (automatically set due to addIdentity()) otherwise use 
+            // setPrimaryKey(...);
+
             // Set other Indexes
             addIndex("EMPLOYEE_NAME_IDX", true, new DBColumn[] { FIRST_NAME, LAST_NAME, DATE_OF_BIRTH });
 
@@ -174,9 +176,8 @@ public class SampleDB extends DBDatabase
             MONTH           = addColumn("MONTH",            DataType.DECIMAL,    2.0, true);
             AMOUNT          = addColumn("AMOUNT",           DataType.DECIMAL,    8.2, true);
 
-            // Primary Key (automatically set due to AUTOINC column)
+            // Primary Key 
             setPrimaryKey(EMPLOYEE_ID, YEAR, MONTH);
-            // Set other Indexes
 
             // Set beanType (optional)
             setBeanType(Payment.class);
