@@ -202,8 +202,8 @@ public class CarSalesDB extends TDatabase<CarSalesDB>
             super("DEALER_BRANDS", db);
             
             // Key columns
-            DEALER_ID       = addForeignKey("DEALER_ID", db.DEALER,  true);
-            WMI             = addForeignKey("WMI",       db.BRAND,   true);
+            DEALER_ID       = addForeignKey("DEALER_ID", db.DEALER,  true,  true );  // Delete Cascade on
+            WMI             = addForeignKey("WMI",       db.BRAND,   true,  false);  // Delete Cascade off
             // Data columns
             DEALERSHIP_TYPE = addColumn("DEALERSHIP_TYPE",   DataType.CHAR,      1, true, DealershipType.class);
             YEAR_BEGIN      = addColumn("YEAR_BEGIN",        DataType.DECIMAL, 4.0, false);
@@ -229,8 +229,8 @@ public class CarSalesDB extends TDatabase<CarSalesDB>
             super("SALES", db);
             
             // ID
-            MODEL_ID        = addForeignKey("MODEL_ID",  db.MODEL,  true);
-            DEALER_ID       = addForeignKey("DEALER_ID", db.DEALER, true);
+            MODEL_ID        = addForeignKey("MODEL_ID",  db.MODEL,  true, false);  // Delete Cascade off
+            DEALER_ID       = addForeignKey("DEALER_ID", db.DEALER, true, true );  // Delete Cascade on
             YEAR            = addColumn("YEAR",             DataType.DECIMAL,    4.0, true);
             MONTH           = addColumn("MONTH",            DataType.DECIMAL,    2.0, true);
             CAR_COLOR       = addColumn("CAR_COLOR",        DataType.VARCHAR,     20, false);

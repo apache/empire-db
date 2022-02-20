@@ -54,7 +54,7 @@ public abstract class RecordException extends EmpireException
     
     protected static String keyToString(Object[] key)
     {
-        return (key==null ? "["+StringUtils.arrayToString(key, "|")+"]" : "[]");
+        return (key!=null ? "["+StringUtils.arrayToString(key, "|")+"]" : "[]");
     }
     
     protected static String entityName(EntityType entity)

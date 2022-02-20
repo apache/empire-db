@@ -19,12 +19,16 @@ In order to run the vue example please do the following:
 
 1. Start the REST-Service via "Debug on Server" using Tomcat
 
-2. Go to the directory "src/main/vue" (or open in WebStorm)
+2. Browse to: 	http://localhost:8080/empvue
 
-3. Rename file "_eslintrc.js.bak" to ".eslintrc.js" (must start with .)
+In order to debug and develop the vue example please do the following:
 
-4. Run the command:	npm install
+3. Go to the directory "src/main/vue" (or open in WebStorm)
 
-5. Run the command:	npm run dev
+4. Rename file "_eslintrc.js.bak" to ".eslintrc.js" (must start with .)
 
-6. Open Url:  http://localhost:8088/
+5. Run the command:	npm install
+
+6. Run the command:	npm run dev
+
+7. Open Url:  http://localhost:8088/

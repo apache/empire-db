@@ -160,11 +160,13 @@ public abstract class DBColumnExpr extends DBExpr
      * @param name the attribute name
      * @param value the value of the attribute
      */
-    public synchronized void setAttribute(String name, Object value)
+    @SuppressWarnings("unchecked")
+    public synchronized <T extends DBColumnExpr> T setAttribute(String name, Object value)
     {
         if (attributes== null)
             attributes = new Attributes();
         attributes.set(name, value);
+        return (T)this;
     }
 
     /**
@@ -190,9 +192,11 @@ public abstract class DBColumnExpr extends DBExpr
      * 
      * @param options the list of options
      */
-    public synchronized void setOptions(Options options)
+    @SuppressWarnings("unchecked")
+    public synchronized <T extends DBColumnExpr> T setOptions(Options options)
     {
         this.options = options;
+        return (T)this;
     }
 
     /**
@@ -212,9 +216,9 @@ public abstract class DBColumnExpr extends DBExpr
      * 
      * @param title the column title
      */
-    public final void setTitle(String title)
+    public <T extends DBColumnExpr> T setTitle(String title)
     { 
-        setAttribute(DBCOLATTR_TITLE, title);
+        return setAttribute(DBCOLATTR_TITLE, title);
     }
 
     /**
@@ -236,9 +240,9 @@ public abstract class DBColumnExpr extends DBExpr
      * 
      * @param controlType the column control type
      */
-    public final void setControlType(String controlType)
+    public final <T extends DBColumnExpr> T setControlType(String controlType)
     { 
-        setAttribute(DBCOLATTR_TYPE, controlType);
+        return setAttribute(DBCOLATTR_TYPE, controlType);
     }
     
     /**
@@ -249,7 +253,7 @@ public abstract class DBColumnExpr extends DBExpr
      * @return the name of the bean property used to get and set values 
      */
     @Override
-    public String getBeanPropertyName()
+    public synchronized String getBeanPropertyName()
     {
         if (beanPropertyName==null)
         {   // Compute bean property name
@@ -295,9 +299,11 @@ public abstract class DBColumnExpr extends DBExpr
      *
      * @param propertyName
      */
-    public void setBeanPropertyName(String propertyName)
+    @SuppressWarnings("unchecked")
+    public synchronized <T extends DBColumnExpr> T setBeanPropertyName(String propertyName)
     {
         this.beanPropertyName = propertyName; 
+        return (T)this;
     }
 
     /**

@@ -24,8 +24,6 @@ import java.math.RoundingMode;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.time.LocalDate;
-import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 
 import org.apache.empire.commons.ObjectUtils;
@@ -43,6 +41,7 @@ import org.apache.empire.db.DBRecord;
 import org.apache.empire.db.DBSQLScript;
 import org.apache.empire.db.DBTableColumn;
 import org.apache.empire.db.exceptions.ConstraintViolationException;
+import org.apache.empire.db.exceptions.RecordUpdateFailedException;
 import org.apache.empire.db.exceptions.StatementFailedException;
 import org.apache.empire.db.expr.compare.DBCompareExpr;
 import org.apache.empire.dbms.DBMSHandler;
@@ -122,7 +121,7 @@ public class SampleAdvApp
         context = new SampleContext(carSales, dbms, conn);
         // set optional context features
         context.setPreparedStatementsEnabled(false);
-        context.setRollbackHandlingEnabled(true);
+        context.setRollbackHandlingEnabled(false);
 
         // STEP 3: Open Database (and create if not existing)
         System.out.println("*** Step 3: openDatabase() ***");
@@ -134,11 +133,28 @@ public class SampleAdvApp
             insertSalesUsingBatch();
             context.commit();
         }
+        
         // do simple stuff
-        // simpleQueryDemo();
-        // simpleUpdateDemo();
-        // queryViewDemo();
+        simpleQueryDemo();
+        simpleUpdateDemo();
+        queryViewDemo();
         paramQueryDemo();
+        
+        // Remember RollbackHandling
+        boolean prevRBHandling = context.isRollbackHandlingEnabled(); 
+        try {
+            // commit pending operations (just to be sure)
+            context.commit();
+            // run transaction demo
+            transactionDemo();
+        } finally {
+            context.setRollbackHandlingEnabled(prevRBHandling);
+        }
+        
+        cascadeDeleteDemo();
+        
+        ddlDemo("Beadles Volkswagen", "www.group1auto.co.uk", "https://www.group1auto.co.uk/volkswagen/locations/beadles-volkswagen-dartford");
+        
 
         /*
         // STEP 5: Clear Database (Delete all records)
@@ -350,7 +366,17 @@ public class SampleAdvApp
         private int salesCount;
         private BigDecimal avgSalesPrice;
         private BigDecimal priceDifference;
-        
+
+        /**
+         * Fields constructor for QueryResult
+         * Must match the SELECT phrase and will be used by queryBeanList()
+         * @param brand
+         * @param model
+         * @param basePrice
+         * @param salesCount
+         * @param avgSalesPrice
+         * @param priceDifference
+         */
         public QueryResult(String brand, String model, BigDecimal basePrice
                          , int salesCount, BigDecimal avgSalesPrice, BigDecimal priceDifference)
         {
@@ -623,131 +649,6 @@ public class SampleAdvApp
     }
 
     /**
-     * <PRE>
-     * Empties all Tables.
-     * </PRE>
-     */
-    private void clearDatabase()
-    {
-        DBCommand cmd = context.createCommand();
-        // Delete all Employee Department History records
-        context.executeDelete(T_EDH, cmd);
-        // Delete all Employees (no constraints)
-        context.executeDelete(T_EMP, cmd);
-        // Delete all Departments (no constraints)
-        context.executeDelete(T_DEP, cmd);
-    }
-
-    /**
-     * <PRE>
-     * Insert a Department into the Departments table.
-     * </PRE>
-     */
-    private int insertDepartment(String departmentName, String businessUnit)
-    {
-        // Insert a Department
-        DBRecord rec = new DBRecord(context, T_DEP);
-        rec.create();
-        rec.set(T_DEP.C_NAME, departmentName);
-        rec.set(T_DEP.C_BUSINESS_UNIT, businessUnit);
-        rec.update();
-        // Return Department ID
-        return rec.getInt(T_DEP.C_DEPARTMENT_ID);
-    }
-
-    /**
-     * <PRE>
-     * Inserts an Employee into the Employees table.
-     * </PRE>
-     */
-    private int insertEmployee(String firstName, String lastName, String gender)
-    {
-        // Insert an Employee
-        DBRecord rec = new DBRecord(context, T_EMP);
-        rec.create();
-        rec.set(T_EMP.C_FIRSTNAME, firstName);
-        rec.set(T_EMP.C_LASTNAME, lastName);
-        rec.set(T_EMP.C_GENDER, gender);
-        rec.update();
-        // Return Employee ID
-        return rec.getInt(T_EMP.C_EMPLOYEE_ID);
-    }
-
-    /**
-     * <PRE>
-     * Inserts an Employee into the Employees table.
-     * </PRE>
-     */
-    private void insertEmpDepHistory(DBSQLScript script, int employeeId, int departmentId, Date dateFrom)
-    {
-        // Insert an Employee
-    	/*
-        DBRecord rec = new DBRecord(context);
-        rec.create(T_EDH);
-        rec.setValue(T_EDH.C_EMPLOYEE_ID, employeeId);
-        rec.setValue(T_EDH.C_DEPARTMENT_ID, departmentId);
-        rec.setValue(T_EDH.C_DATE_FROM, dateFrom);
-        rec.update();
-        */
-        DBCommand cmd = context.createCommand();
-    	cmd.set(T_EDH.C_EMPLOYEE_ID.to(employeeId));
-    	cmd.set(T_EDH.C_DEPARTMENT_ID.to(departmentId));
-    	cmd.set(T_EDH.C_DATE_FROM.to(dateFrom));
-    	// Add to script for batch execution
-    	script.addInsert(cmd);
-    }
-
-    /* This procedure demonstrates the use of command parameter for prepared statements */
-    private void commandParamsSample(int idProdDep, int idDevDep)
-    {
-        // create a command
-        DBCommand cmd = context.createCommand();
-        // Create cmd parameters
-        DBCmdParam curDepParam = cmd.addParam(); // Current Department
-        DBCmdParam genderParam = cmd.addParam(); // Gender ('M' or 'F')
-        // Define the query
-        cmd.select(T_EMP.C_FULLNAME);
-        cmd.join  (T_EMP.C_EMPLOYEE_ID, db.V_EMPLOYEE_INFO.C_EMPLOYEE_ID);
-        cmd.where (T_EMP.C_GENDER.is(genderParam));
-        cmd.where (db.V_EMPLOYEE_INFO.C_CURRENT_DEP_ID.is(curDepParam));
-
-        System.out.println("Perfoming two queries using a the same command with different parameter values.");
-        
-        DBReader r = new DBReader(context);
-        try {
-            // Query all females currently working in the Production department
-            System.out.println("1. Query all females currently working in the production department");
-            // Set command parameter values
-            genderParam.setValue('F'); // set gender to female
-            curDepParam.setValue(idProdDep); // set department id to production department
-            // Open reader using a prepared statement (due to command parameters!)
-            r.open(cmd);
-            // print all results
-            System.out.println("Females working in the production department are:");
-            while (r.moveNext())
-                System.out.println("    " + r.getString(T_EMP.C_FULLNAME));
-            r.close();   
-
-            // Second query
-            // Now query all males currently working in the development department
-            System.out.println("2. Query all males currently working in the development department");
-            // Set command parameter values
-            genderParam.setValue('M'); // set gender to female
-            curDepParam.setValue(idDevDep); // set department id to production department
-            // Open reader using a prepared statement (due to command parameters!)
-            r.open(cmd);
-            // print all results
-            System.out.println("Males currently working in the development department are:");
-            while (r.moveNext())
-                System.out.println("    " + r.getString(T_EMP.C_FULLNAME));
-
-        } finally {
-            r.close();
-        }
-        
-    }
-
-    /**
      * This function performs a query to select non-retired employees,<BR>
      * then it calculates a checksum for every record<BR>
      * and writes that checksum back to the database.<BR>
@@ -810,78 +711,50 @@ public class SampleAdvApp
         }
         return sum;    
     }
-	
-    private HashMap<Integer, DBRecord> bulkReadRecords(Connection conn)
-    {
-        // Define the query
-        DBCommand cmd = context.createCommand();
-        // Select required columns
-        cmd.select(T_EMP.getColumns());
-        // Set Constraints
-        cmd.where(T_EMP.C_RETIRED.is(false));
-
-        // Query Records and print output
-        DBReader reader = new DBReader(context);
-        try
-        {   // Open Reader
-            System.out.println("Running Query:");
-            System.out.println(cmd.getSelect());
-            reader.open(cmd);
-            // Print output
-            HashMap<Integer, DBRecord> employeeMap = new HashMap<Integer, DBRecord>();
-            while (reader.moveNext())
-            {
-                DBRecord rec = new DBRecord(context, T_EMP);
-                reader.initRecord(rec);
-                employeeMap.put(reader.getInt(T_EMP.C_EMPLOYEE_ID), rec);
-            }
-            return employeeMap;
-
-        } finally
-        {   // always close Reader
-            reader.close();
-        }
-    }
     
     /**
      * This method demonstrates how to add, modify and delete a database column.<BR>
      * This function demonstrates the use of the {@link DBMSHandler#getDDLScript(org.apache.empire.db.DDLActionType, org.apache.empire.db.DBObject, DBSQLScript)}<BR>
      * 
      */
-    private void ddlSample(int idTestPerson)
+    private void ddlDemo(String dealerName, String websiteDomain, String websiteUrl)
     {
+        // create shortcuts
+        DBMSHandler dbms = context.getDbms();
+        CarSalesDB.Dealer DEALER = carSales.DEALER;
+
         // First, add a new column to the Table object
-        DBTableColumn C_FOO = db.T_EMPLOYEES.addColumn("FOO", DataType.VARCHAR, 20, false);
+        DBTableColumn WEBSITE = DEALER.addColumn("WEBSITE", DataType.VARCHAR, 20, false);
 
         // Now create the corresponding DDL statement 
-        System.out.println("Creating new column named FOO as varchar(20) for the EMPLOYEES table:");
+        log.info("Create new column named WEBSITE as varchar(20) for the DEALER table");
         DBSQLScript script = new DBSQLScript(context);
-        db.getDbms().getDDLScript(DDLActionType.CREATE, C_FOO, script);
+        dbms.getDDLScript(DDLActionType.CREATE, WEBSITE, script);
         script.executeAll();
         
-        // Now load a record from that table and set the value for foo
-        System.out.println("Changing the value for the FOO field of a particular employee:");
-        DBRecord rec = new DBRecord(context, db.T_EMPLOYEES);
-        rec.read(idTestPerson);
-        rec.set(C_FOO, "Hello World");
+        // Now load a record from that table and set the value for the website
+        log.info("Set the value for the WEBSITE field for dealer \"{}\"", dealerName);
+        DealerRecord rec = new DealerRecord(context);
+        rec.read(DEALER.COMPANY_NAME.is(dealerName));
+        rec.set (WEBSITE, websiteDomain);
         rec.update();
         
-        // Now extend the size of the field from 20 to 40 characters
-        System.out.println("Extending size of column FOO to 40 characters:");
-        C_FOO.setSize(40); 
+        // Now extend the size of the field from 40 to 80 characters
+        log.info("Extend the size of column WEBSITE from 20 to 80 characters");
+        WEBSITE.setSize(80); 
         script.clear();
-        db.getDbms().getDDLScript(DDLActionType.ALTER, C_FOO, script);
+        dbms.getDDLScript(DDLActionType.ALTER, WEBSITE, script);
         script.executeAll();
 
         // Now set a longer value for the record
-        System.out.println("Changing the value for the FOO field for the above employee to a longer string:");
-        rec.set(C_FOO, "This is a very long field value!");
+        log.info("Change the value for the WEBSITE to a longer string \"{}\"", websiteUrl);
+        rec.set(WEBSITE, websiteUrl);
         rec.update();
 
         // Finally, drop the column again
-        System.out.println("Dropping the FOO column from the employee table:");
+        log.info("Drop the WEBSITE column from the DEALER table:");
         script.clear();
-        db.getDbms().getDDLScript(DDLActionType.DROP, C_FOO, script);
+        dbms.getDDLScript(DDLActionType.DROP, WEBSITE, script);
         script.executeAll();
     }
 
@@ -944,114 +817,118 @@ public class SampleAdvApp
      * testTransactionCreate
      * @param context
      * @param idDep
-     * 
-    private int testTransactionCreate(long idDep)
+     */
+    private void transactionDemo()
     {
-        // Shortcut for convenience
-        SampleDB.Employees EMP = db.EMPLOYEES;
+        // Set RollbackHandlingEnabled to false if you want to play with fire!
+        // Note: You must set the RollbackHandling flag before creating a Record instance 
+        context.setRollbackHandlingEnabled(true);
 
-        DBRecord rec = new DBRecord(context, EMP);
-        rec.create();
-        rec.set(EMP.FIRSTNAME, "Foo");
-        rec.set(EMP.LASTNAME, "Manchoo");
-        rec.set(EMP.GENDER, Gender.M);
-        rec.set(EMP.DEPARTMENT_ID, idDep);
-        rec.update();
-        log.info("Timestamp {}", rec.getString(EMP.UPDATE_TIMESTAMP));
+        // User a model record
+        CarSalesDB.Model MODEL = carSales.MODEL;
+        ModelRecord model = new ModelRecord(context);
         
-        rec.set(EMP.FIRSTNAME, "Foo 2");
-        rec.set(EMP.LASTNAME, "Manchu");
-        rec.set(EMP.PHONE_NUMBER, "0815/4711");
-        rec.update();
-        log.info("Timestamp {}", rec.getString(EMP.UPDATE_TIMESTAMP));
+        /*
+         * Part 1
+         */
         
+        // Insert a new model
+        log.info("Insert a new Model");
+        model.create()
+            .set(MODEL.WMI             , "WVW")  // = Volkswagen
+            .set(MODEL.NAME            , "ID.4")
+            .set(MODEL.CONFIG_NAME     , "ID.4 Pro Performance 150 kW 77 kWh")
+            .set(MODEL.TRIM            , "Pro")
+            .set(MODEL.ENGINE_TYPE     , EngineType.E)
+            .set(MODEL.ENGINE_POWER    , 204);
+        // State and timestampe before and after insert
+        log.debug("Record state={}, key={}, Timestamp={}", model.getState(), model.getKey(), model.get(MODEL.UPDATE_TIMESTAMP));
+        model.update();
+        log.debug("Record state={}, key={}, Timestamp={}", model.getState(), model.getKey(), model.get(MODEL.UPDATE_TIMESTAMP));
+
+        // Update even once again without committing
+        model.set(MODEL.BASE_PRICE, 44915);
+        model.update();
+        log.debug("Record state={}, key={}, Timestamp={}", model.getState(), model.getKey(), model.get(MODEL.UPDATE_TIMESTAMP));
+        
+        // now, do the rollback
+        log.info("Performing rollback");
         context.rollback();
+        log.debug("Record state={}, key={}, Timestamp={}", model.getState(), model.getKey(), model.get(MODEL.UPDATE_TIMESTAMP));
         
-        rec.set(EMP.FIRSTNAME, "Dr. Foo");
-        rec.update();
-        log.info("Timestamp {}", rec.getString(EMP.UPDATE_TIMESTAMP));
+        log.info("Update Model again, even though its not in the database because of the rollback, hence Model will be inserted again.");
+        log.info("This will fail, if Rollback handling is not enabled!");
+        try {
+            model.set(MODEL.BASE_PRICE, 44900); // Only to mark the record as modified if RollbackHandling is disabled!
+            model.update();
+        } catch(RecordUpdateFailedException e) {
+            log.error("Model update failed since rollback handling was not enabled for this context!", e);
+            return; // the rest will fail too
+        }
+        log.debug("Record state={}, key={}, Timestamp={}", model.getState(), model.getKey(), model.get(MODEL.UPDATE_TIMESTAMP));
 
-        rec.delete();
+        /*
+         * Part 2
+         */
         
+        // Delete the model
+        model.delete();
+        log.debug("Record state={}", model.getState());
+        
+        log.info("Performing rollback again");
         context.rollback();
+        log.debug("Record state={}, key={}, Timestamp={}", model.getState(), model.getKey(), model.get(MODEL.UPDATE_TIMESTAMP));
 
-        // insert final
-        rec.update();
-        log.info("Timestamp {}", rec.getString(EMP.UPDATE_TIMESTAMP));
+        // Final update
+        log.info("Update Model again, even though a delete was executed but was not committed.");
+        log.info("This will once again lead to an insert as the insert was still not committed");
+        log.info("This will also fail, if Rollback handling is not enabled!");
+        try {
+            model.update();
+        } catch(RecordUpdateFailedException e) {
+            log.error("Model update failed since rollback handling was not enabled for this context!", e);
+            return; // the rest will fail too
+        }
+        log.debug("Record state={}, key={}, Timestamp={}", model.getState(), model.getKey(), model.get(MODEL.UPDATE_TIMESTAMP));
         
-        log.info("testTransactionCreate performed OK");
+        // Finally commit
+        log.info("Finally commit the transaction in order to finalize the Model insert");
         context.commit();
+        log.debug("Record state={}, key={}, Timestamp={}", model.getState(), model.getKey(), model.get(MODEL.UPDATE_TIMESTAMP));
         
-        return rec.getInt(EMP.ID);
-    }
-     */
-
-    /**
-     * @param context
-     * @param idDep
-     * 
-    private void testTransactionUpdate(long idEmp)
-    {
-        // Shortcut for convenience
-        SampleDB.Employees EMP = db.EMPLOYEES;
+        /*
+         * Part 3
+         */
         
-        DBRecord rec = new DBRecord(context, EMP);        
-        rec.read(idEmp);
-        rec.set(EMP.PHONE_NUMBER, null);
-        rec.set(EMP.SALARY, "100.000");
-        rec.update();
-
-        log.info("Timestamp {}", rec.getString(EMP.UPDATE_TIMESTAMP));
+        // Update example with two consecutive updates
+        log.info("Fist update will change the timestamp");
+        model.set(MODEL.BASE_PRICE, 44000);
+        model.update();
+        log.debug("Record state={}, key={}, Timestamp={}", model.getState(), model.getKey(), model.get(MODEL.UPDATE_TIMESTAMP));
         
+        log.info("Second update will change the timestamp again");
+        model.set(MODEL.BASE_PRICE, 42660);
+        model.update();
+        log.debug("Record state={}, key={}, Timestamp={}", model.getState(), model.getKey(), model.get(MODEL.UPDATE_TIMESTAMP));
+        
+        log.info("Performing rollback for the previous two updates");
         context.rollback();
+        log.debug("Record state={}, key={}, Timestamp={}", model.getState(), model.getKey(), model.get(MODEL.UPDATE_TIMESTAMP));
         
-        rec.set(EMP.PHONE_NUMBER, "07531-45716-0");
-        rec.update();
-
-        log.info("Timestamp {}", rec.getString(EMP.UPDATE_TIMESTAMP));
+        log.info("Update Model again, even though the previous two updates have been rolled back");
+        log.info("This will again fail, if Rollback handling is not enabled!");
+        try {
+            model.update();
+        } catch(RecordUpdateFailedException e) {
+            log.error("Model update failed since rollback handling was not enabled for this context!", e);
+        }
+        log.debug("Record state={}, key={}, Timestamp={}", model.getState(), model.getKey(), model.get(MODEL.UPDATE_TIMESTAMP));
         
-        context.rollback();
-
-        rec.update();
-
-        log.info("Timestamp {}", rec.getString(EMP.UPDATE_TIMESTAMP));
-        log.info("testTransactionUpdate performed OK");
-        context.commit();        
+        // But now delete the model again, so we can rerun the example later
+        model.delete();
+        context.commit();
     }
-     */
-
-    /**
-     * @param context
-     * @param idDep
-     *
-    private void testTransactionDelete(long idEmp)
-    {
-        // Shortcut for convenience
-        SampleDB.Employees T = db.EMPLOYEES;
-
-        DBRecord rec = new DBRecord(context, T);
-        rec.read(idEmp);
-
-        // log.info("Timestamp {}", rec.getString(T.UPDATE_TIMESTAMP));
-        // rec.set(T.SALARY, "100.001");
-        // rec.update();
-        // log.info("Timestamp {}", rec.getString(T.UPDATE_TIMESTAMP));
-        
-        rec.delete();
-        
-        context.rollback();
-
-        // DBCommand cmd = context.createCommand();
-        // cmd.select(T.UPDATE_TIMESTAMP);
-        // cmd.where (T.EMPLOYEE_ID.is(idEmp));
-        // log.info("Timestamp {}", db.querySingleString(cmd, context.getConnection()));
-        
-        rec.update();
-        
-        log.info("Transaction performed OK");        
-    }
-     */
-    
+   
     /**
      * This function demonstrates cascaded deletes.
      * See DBRelation.setOnDeleteAction()
@@ -1060,23 +937,35 @@ public class SampleAdvApp
      * @param idDepartment the id of the department to delete
      * @param conn the connection
      */
-    private void deleteRecordSample(int idEmployee, int idDepartment)
+    private void cascadeDeleteDemo()
     {
-        context.commit();
-        // Delete an employee
-        // This statement is designed to succeed since cascaded deletes are enabled for this relation.
-        db.T_EMPLOYEES.deleteRecord(idEmployee, context);
-        System.out.println("The employee has been sucessfully deleted");
+        // Read a brand record
+        BrandRecord brand = new BrandRecord(context);
+        brand.read(carSales.BRAND.WMI.is("WVW")); // = Volkswagen
+        
+        // Read dealer record
+        DealerRecord dealer = new DealerRecord(context);
+        dealer.read(carSales.DEALER.COMPANY_NAME.is("Autorigoldi S.p.A."));
 
-        // Delete a department
-        // This statement is designed to fail since cascaded deletes are not on!
         try {
-            db.T_DEPARTMENTS.deleteRecord(idDepartment, context);
+            // This delete is designed to succeed since cascaded deletes are enabled for this relation.
+            // see DEALER_BRANDS and SALES foreign key definition in CarSalesDB:
+            //   DEALER_ID = addForeignKey("DEALER_ID", db.DEALER,  true,  true );  // Delete Cascade on
+            log.info("Deleting DEALER expecting to succeed since relationship to DEALER_BRANDS and SALES is cascading");
+            dealer.delete();
+
+            // This delete is designed to succeed since cascaded deletes are enabled for this relation.
+            log.info("Deleting BRAND expecting to fail since relationship to DEALER_BRANDS and MODEL is NOT cascading");
+            brand.delete();
+            
         } catch(ConstraintViolationException e) {
-            System.out.println("Delete of department failed as expected due to existing depending records.");
+            log.info("Delete operation failed due to existing depending records.");
         } catch(StatementFailedException e) {
             // Oops, the driver threw a SQLException instead
-            System.out.println("Delete of department failed as expected due to existing depending records.");
+            log.info("Delete operation failed with SQLException {}", e.getMessage());
+        } finally {
+            // we don't really want to do this
+            context.rollback();
         }
     }
 

@@ -124,20 +124,26 @@ public abstract class DBRecordBase extends DBRecordData implements Record, Clone
             {
                 return; // not modified!
             }
+            // Make sure we have a modified array 
+            if (modified==null)
+                modified = new boolean[fields.length];
+            // special case Timestamp
+            DBRowSet rowset = record.getRowSet();
+            DBColumn tsColumn = record.getRowSet().getTimestampColumn();
             // copy
             for (int i=0; i<fields.length; i++)
-            {
-                if (fields[i]!= s.fields[i])
-                    fields[i] = s.fields[i]; 
-                // not modified
-                if (modified==null)
+            {   // ignore timestamp and key columns
+                DBColumn column = record.getColumn(i);
+                if (column==tsColumn || rowset.isKeyColumn(column))
                     continue;
-                if (modified[i]==false && s.modified[i])
-                    modified[i] = s.modified[i]; 
+                // copy modified fields
+                if (s.modified[i]==false)
+                    continue;
+                // field was modified
+                fields[i] = s.fields[i];
+                if (modified!=null)
+                    modified[i] = true;
             }
-            // check modified
-            if (modified==null && s.modified!=null)
-                modified = copy(s.modified);
         }
 
         @Override

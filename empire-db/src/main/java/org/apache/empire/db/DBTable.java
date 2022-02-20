@@ -440,7 +440,7 @@ public class DBTable extends DBRowSet implements Cloneable
      * @param options (optional) a set of allowed values for this column
      * @return the new column
      */
-    public DBTableColumn addForeignKey(String name, DBTable target, boolean required, Options options)
+    public DBTableColumn addForeignKey(String name, DBTable target, boolean required, Options options, DBCascadeAction cascadeAction)
     {
         // Check target: If null then Table has not been defined yet!
         if (target==null)
@@ -457,8 +457,24 @@ public class DBTable extends DBRowSet implements Cloneable
         DBTableColumn referenceColumn = addColumn(name, keyDataType, keyCol.getSize(), required, options); 
         // Adapter foreign key
         String fkName = getName() + "_" + name.replace("_ID", "_FK");
-        db.addRelation(fkName, referenceColumn.referenceOn(keyCol));
+        DBRelation relation = db.addRelation(fkName, referenceColumn.referenceOn(keyCol));
+        if (cascadeAction!=null)
+            relation.setOnDeleteAction(cascadeAction);
         return referenceColumn;
+    }
+    
+    /**
+     * Adds a new ForgeinKey table column the column list
+     * The foreign table must have a single column foreign key
+     * @param name the name of the new column
+     * @param target the table on which to reference
+     * @param required true if the value is required
+     * @param cascade whether or not to cascade deletes for this relation 
+     * @return the new column
+     */
+    public final DBTableColumn addForeignKey(String name, DBTable target, boolean required, boolean cascade)
+    {
+        return addForeignKey(name, target, required, null, (cascade  ? DBCascadeAction.CASCADE : DBCascadeAction.NONE));
     }
     
     /**
@@ -471,7 +487,7 @@ public class DBTable extends DBRowSet implements Cloneable
      */
     public final DBTableColumn addForeignKey(String name, DBTable target, boolean required)
     {
-        return addForeignKey(name, target, required, null);
+        return addForeignKey(name, target, required, false);
     }
     
     /**
