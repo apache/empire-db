@@ -55,13 +55,12 @@ public abstract class DBContextBase implements DBContext
         return new DBUtils(this);
     }
 
-    @SuppressWarnings("unchecked")
     @Override
-    public <T extends DBUtils> T getUtils()
+    public DBUtils getUtils()
     {
         if (utils==null)
             utils = createUtils();
-        return ((T)utils);
+        return utils;
     }
 
     protected abstract Connection getConnection(boolean required);

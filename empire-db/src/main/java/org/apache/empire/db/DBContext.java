@@ -34,7 +34,7 @@ public interface DBContext
     
     Connection getConnection();
     
-    <T extends DBUtils> T getUtils();
+    DBUtils getUtils();
 
     DBCommand createCommand(); 
     
