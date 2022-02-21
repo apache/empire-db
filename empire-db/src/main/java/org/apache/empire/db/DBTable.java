@@ -842,10 +842,10 @@ public class DBTable extends DBRowSet implements Cloneable
             DBColumn column = columns.get(i);
             // getDefaultValue
             Object value = ((DBTableColumn)column).getRecordDefaultValue(conn);
-            if (value==null)
+            if (ObjectUtils.isEmpty(value))
                 continue;
             // Initial value
-            fields[i] = value;
+            record.modifyValue(i, value, false);
         }
     }
     

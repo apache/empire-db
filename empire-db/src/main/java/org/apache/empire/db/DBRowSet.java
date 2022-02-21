@@ -615,8 +615,6 @@ public abstract class DBRowSet extends DBExpr implements EntityType
         checkParamRecord(record, false);
         // Prepare
         prepareInitRecord(record, newRecord);
-        // Initialize all Fields
-        Object[] fields = record.getFields();
         /* 
          * DO NOT fill with ObjectUtils.NO_VALUE!
          */    
@@ -628,6 +626,8 @@ public abstract class DBRowSet extends DBExpr implements EntityType
                 throw new NoPrimaryKeyException(this);
             if (key.length!=keyColumns.length)
                 throw new InvalidArgumentException("key", key);
+            // Set key
+            Object[] fields = record.getFields();
             for (int i = 0; i < keyColumns.length; i++)
             {   // ignore null (important!)
                 if (key[i]==null)
@@ -687,8 +687,8 @@ public abstract class DBRowSet extends DBExpr implements EntityType
                 fields[i] = ObjectUtils.NO_VALUE;
         	}
         	else
-        	{   // Get Field value
-                fields[i] = recData.getValue(rdi);
+        	{   // Copy field value (do not set to modified!)
+        	    fields[i] = recData.getValue(rdi);
         	}
         }
         // Done
@@ -716,7 +716,7 @@ public abstract class DBRowSet extends DBExpr implements EntityType
         {   // already set ?
             if (fields[i]!=null)
                 continue; 
-            // check default
+            // Set to NO_VALUE
             fields[i] = ObjectUtils.NO_VALUE;
         }
     }
