@@ -483,7 +483,7 @@ public class DBMSHandlerPostgreSQL extends DBMSHandlerBase
     public void getDDLScript(DDLActionType type, DBObject dbo, DBSQLScript script)
     {
         if (ddlGenerator==null)
-            ddlGenerator = new PostgreDDLGenerator(this);
+            ddlGenerator = new PostgreSQLDDLGenerator(this);
         // forward request
         ddlGenerator.getDDLScript(type, dbo, script); 
     }

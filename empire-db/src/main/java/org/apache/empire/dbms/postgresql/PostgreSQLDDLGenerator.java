@@ -27,9 +27,9 @@ import org.apache.empire.db.DBSQLScript;
 import org.apache.empire.db.DBTable;
 import org.apache.empire.db.DBTableColumn;
 
-public class PostgreDDLGenerator extends DBDDLGenerator<DBMSHandlerPostgreSQL>
+public class PostgreSQLDDLGenerator extends DBDDLGenerator<DBMSHandlerPostgreSQL>
 {
-    public PostgreDDLGenerator(DBMSHandlerPostgreSQL dbms)
+    public PostgreSQLDDLGenerator(DBMSHandlerPostgreSQL dbms)
     {
         super(dbms);
         // set Oracle specific data types
