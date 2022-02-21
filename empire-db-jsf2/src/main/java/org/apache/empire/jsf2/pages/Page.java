@@ -319,7 +319,7 @@ public abstract class Page // *Deprecated* implements Serializable
             // format
             msg = MessageFormat.format(msg, params);
         }
-        FacesMessage facesMsg = new FacesMessage(FacesMessage.SEVERITY_WARN, msg, msg);
+        FacesMessage facesMsg = new FacesMessage(severity, msg, msg);
         FacesContext.getCurrentInstance().addMessage(getPageName(), facesMsg);
     }
 
