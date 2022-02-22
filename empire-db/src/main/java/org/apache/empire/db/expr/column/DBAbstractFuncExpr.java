@@ -109,8 +109,8 @@ public abstract class DBAbstractFuncExpr extends DBColumnExpr
     @Override
     public Class<Enum<?>> getEnumType()
     {
-    	// TODO maybe find a better solution? (allow/denylist for functions?)
-        return expr.getEnumType();
+        // Override to set EnumType 
+        return null; 
     }
 
     /**

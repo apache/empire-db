@@ -118,6 +118,16 @@ public class DBFuncExpr extends DBAbstractFuncExpr
         }
         return "FUNC";
     }
+    
+    @Override
+    public Class<Enum<?>> getEnumType()
+    {
+        // check for functions which preserve the enumType 
+        if (phrase==DBSqlPhrase.SQL_FUNC_COALESCE)
+            return expr.getEnumType();
+        // Check SQL-Phrase
+        return super.getEnumType();
+    }
 
     /**
      * @see org.apache.empire.db.DBExpr#addReferencedColumns(Set)

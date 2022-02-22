@@ -68,6 +68,15 @@ public class DBDecodeExpr extends DBAbstractFuncExpr
     }
 
     @Override
+    public Class<Enum<?>> getEnumType()
+    {
+        DBColumnExpr firstExpr = getFirstColumnExpr();
+        if (firstExpr!=null)
+            return firstExpr.getEnumType();
+        return super.getEnumType();
+    }
+    
+    @Override
     public void addReferencedColumns(Set<DBColumn> list)
     {
         expr.addReferencedColumns(list);
@@ -113,6 +122,19 @@ public class DBDecodeExpr extends DBAbstractFuncExpr
         // Set Params
         String template = dbms.getSQLPhrase(DBSqlPhrase.SQL_FUNC_DECODE);
         super.addSQL(sql, template, new Object[] { param }, context);
+    }
+    
+    private DBColumnExpr getFirstColumnExpr()
+    {
+        for (Object val : valueMap.values())
+        {
+            if (val instanceof DBColumnExpr)
+                return (DBColumnExpr)val;
+        }
+        if (elseExpr instanceof DBColumnExpr)
+            return (DBColumnExpr)elseExpr;
+        // No DBColumnExpr found
+        return null;
     }
 
 }
