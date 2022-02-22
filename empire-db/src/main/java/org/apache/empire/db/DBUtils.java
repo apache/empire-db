@@ -3,7 +3,6 @@ package org.apache.empire.db;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.SQLIntegrityConstraintViolationException;
-import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -36,7 +35,6 @@ import org.apache.empire.dbms.DBMSHandler;
 import org.apache.empire.exceptions.InternalException;
 import org.apache.empire.exceptions.InvalidArgumentException;
 import org.apache.empire.exceptions.UnexpectedReturnValueException;
-import org.apache.empire.exceptions.UnspecifiedErrorException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -76,27 +74,6 @@ public class DBUtils implements DBContextAware
     {
         return context;
     }
-    
-    /**
-     * Param count checker
-     */
-    protected void checkStatementParamCount(String sqlCmd, Object[] sqlParams)
-    {
-        if (sqlCmd==null || sqlCmd.length()==0)
-            throw new InvalidArgumentException("sqlCmd", sqlCmd);
-        // count params
-        int paramCount = 0;
-        int pos = -1;
-        while ((pos=sqlCmd.indexOf('?', ++pos))>0)
-            paramCount++;
-        // check now
-        if (paramCount!=(sqlParams!=null ? sqlParams.length : 0))
-        {   // Wrong number of params
-            String msg = MessageFormat.format("Invalid number of parameters query: provided={0}, required={1}; query="+sqlCmd, paramCount, sqlParams.length);
-            log.error(msg);
-            throw new UnspecifiedErrorException(msg);
-        }
-    }
 
     /**
      * Executes an update, insert or delete SQL-Statement.<BR>
@@ -110,9 +87,7 @@ public class DBUtils implements DBContextAware
     public int executeSQL(String sqlCmd, Object[] sqlParams, DBMSHandler.DBSetGenKeys setGenKeys)
     {
         try 
-        {   // check
-            checkStatementParamCount(sqlCmd, sqlParams);
-            // Debug
+        {   // Debug
             if (log.isInfoEnabled())
                 log.info("Executing: " + sqlCmd);
             // execute SQL
@@ -152,9 +127,7 @@ public class DBUtils implements DBContextAware
     public ResultSet executeQuery(String sqlCmd, Object[] sqlParams, boolean scrollable)
     {
         try
-        {   // check
-            checkStatementParamCount(sqlCmd, sqlParams);
-            // Debug
+        {   // Debug
             if (log.isDebugEnabled())
                 log.debug("Executing: " + sqlCmd);
             // Execute the Statement
