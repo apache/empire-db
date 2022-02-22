@@ -44,11 +44,11 @@ public class DBUtils implements DBContextAware
     protected static final Logger log = LoggerFactory.getLogger(DBDatabase.class);
     
     // Threshold for long running queries in milliseconds
-    protected static long longRunndingStmtThreshold = 30000;
+    protected long longRunndingStmtThreshold = 30000;
     // Default list capacity
-    protected static int  DEFAULT_LIST_CAPACITY  = 10;
+    protected int  DEFAULT_LIST_CAPACITY  = 10;
     // Max-Rows for list queries
-    protected static int  MAX_QUERY_ROWS  = 999;
+    protected int  MAX_QUERY_ROWS  = 999;
     
     // the context
     protected final DBContext context;
