@@ -104,12 +104,13 @@ public abstract class DBAbstractFuncExpr extends DBColumnExpr
     }
 
     /**
-     * Not an Enum. Returns null
+     * Maybe an Enum...
      */
     @Override
     public Class<Enum<?>> getEnumType()
     {
-        return null;
+    	// TODO maybe find a better solution? (allow/denylist for functions?)
+        return expr.getEnumType();
     }
 
     /**
