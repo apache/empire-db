@@ -24,6 +24,8 @@ import org.apache.empire.commons.ObjectUtils;
 import org.apache.empire.commons.Options;
 import org.apache.empire.commons.StringUtils;
 import org.apache.empire.data.ColumnExpr;
+import org.apache.empire.db.DBDatabase;
+import org.apache.empire.db.DBObject;
 
 public class DataListHead implements Serializable
 {
@@ -66,6 +68,27 @@ public class DataListHead implements Serializable
                 return i; 
         // not found
         return -1;
+    }
+    
+    /**
+     * Returns the database instance associated with this DataList (if any)
+     * The database is extracted from the column list 
+     * @param dbClass the desired subclass of DBDatabase
+     * @return the database instance or null if no Database instance of this type could be found
+     */
+    @SuppressWarnings("unchecked")
+    public <T extends DBDatabase> T getDatabase(Class<T> dbClass)
+    {
+        for (int i=0; i<columns.length; i++)
+        {
+            if (columns[i] instanceof DBObject)
+            {
+                DBDatabase db = ((DBObject)columns[i]).getDatabase();
+                if (db!=null && dbClass.isAssignableFrom(db.getClass()))
+                    return (T)db;
+            }
+        }
+        return null;
     }
     
     /**
