@@ -30,6 +30,7 @@ import java.util.Date;
 import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.empire.commons.ObjectUtils;
+import org.apache.empire.commons.Options;
 import org.apache.empire.commons.StringUtils;
 import org.apache.empire.data.Column;
 import org.apache.empire.data.ColumnExpr;
@@ -454,7 +455,57 @@ public abstract class DBRecordData extends DBObject
     {
         return isNull(getFieldIndex(column));
     }
+    
+    /**
+     * Returns the value of a column as a formatted text
+     * This converts the value to a string if necessary and performs an options lookup
+     * To customize conversion please override convertToString()
+     * @param column the column for which to get the formatted value
+     * @return the formatted value
+     */
+    public String getText(ColumnExpr column)
+    {   
+        String text;
+        Object value = get(column);
+        // check options first
+        Options options = column.getOptions();
+        if (options!=null && options.has(value))
+        {   // lookup option
+            text = options.get(value);
+        }
+        else if (ObjectUtils.isEmpty(value))
+        {   // empty
+            value = column.getAttribute(Column.COLATTR_NULLTEXT);
+            text = (value!=null ? value.toString() : StringUtils.EMPTY);
+        }
+        else if (value instanceof String)
+        {   // we already have a string
+            text = (String)value;
+        }
+        else if (value instanceof Enum<?>)
+        {   // convert from enum
+            value = ObjectUtils.getEnumValue((Enum<?>)value, column.getDataType().isNumeric());
+            text  = StringUtils.toString(value, StringUtils.EMPTY);
+        }
+        else
+        {   // convert to String
+            text = convertToString(column, value);
+        }
+        // done
+        return text;
+    }
 
+    /**
+     * Convert a non-string value to a string
+     * @param column the column expression 
+     * @param value the value to format
+     * @return the formatted string
+     */
+    protected String convertToString(ColumnExpr column, Object value)
+    {
+        return ObjectUtils.getString(value);
+    }
+    
     /**
      * Set a single property value of a java bean object used by readProperties.
      */

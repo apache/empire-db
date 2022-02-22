@@ -34,6 +34,7 @@ public interface Column extends ColumnExpr
     public static final String COLATTR_TOOLTIP   = "tooltip";
     public static final String COLATTR_TYPE      = "type";
     public static final String COLATTR_ENUMTYPE  = "enumType";
+    public static final String COLATTR_NULLTEXT  = "nullText";
 
     public static final String COLATTR_MINLENGTH = "minLength";
     public static final String COLATTR_MINVALUE  = "minValue";

@@ -33,6 +33,7 @@ import org.apache.empire.data.DataType;
 import org.apache.empire.db.expr.column.DBAliasExpr;
 import org.apache.empire.db.expr.column.DBCalcExpr;
 import org.apache.empire.db.expr.column.DBCaseExpr;
+import org.apache.empire.db.expr.column.DBCoalesceExpr;
 import org.apache.empire.db.expr.column.DBConcatExpr;
 import org.apache.empire.db.expr.column.DBConcatFuncExpr;
 import org.apache.empire.db.expr.column.DBConvertExpr;
@@ -710,7 +711,8 @@ public abstract class DBColumnExpr extends DBExpr
      */
     public DBColumnExpr coalesce(Object nullValue)
     {
-        return getExprFromPhrase(DBSqlPhrase.SQL_FUNC_COALESCE, new Object[] { nullValue }, getUpdateColumn(), false);
+        // return getExprFromPhrase(DBSqlPhrase.SQL_FUNC_COALESCE, new Object[] { nullValue }, getUpdateColumn(), false);
+        return new DBCoalesceExpr(this, nullValue);
     }
 
     /**

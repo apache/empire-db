@@ -391,7 +391,7 @@ public class DBTableColumn extends DBColumn
             attributes.addXml(elem, flags);
         // add All Options
         if (options!=null)
-            options.addXml(elem, flags);
+            options.addXml(elem, this.type);
         // done
         return elem;
     }

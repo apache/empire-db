@@ -522,12 +522,12 @@ public class SampleApp
 			        // Text-Output by iterating through all records.
 	                while (reader.moveNext())
                     {
-	                    System.out.println(reader.getString(EMP.ID)
-	                            + "\t" + reader.getString(EMPLOYEE_NAME)
-	                            + "\t" + EMP.GENDER.getOptions().get(reader.getString(EMP.GENDER))
-                                + "\t" + reader.getString(EMP.SALARY)
-                                + "\t" + reader.getString(PAYMENTS_LAST_YEAR)
-	                            + "\t" + reader.getString(DEP.NAME));
+	                    System.out.println(reader.getText(EMP.ID)
+	                            + "\t" + reader.getText(EMPLOYEE_NAME)
+	                            + "\t" + reader.getText(EMP.GENDER)
+                                + "\t" + reader.getText(EMP.SALARY)
+                                + "\t" + reader.getText(PAYMENTS_LAST_YEAR)
+	                            + "\t" + reader.getText(DEP.NAME));
 	                }
 			        break;
                 case BeanList:

@@ -170,7 +170,7 @@ public class DBCaseWhenExpr extends DBColumnExpr
             attributes.addXml(elem, flags);
         // add All Options
         if (options!=null)
-            options.addXml(elem, flags);
+            options.addXml(elem, getDataType());
         // Done
         elem.setAttribute("function", "case");
         return elem;

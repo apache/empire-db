@@ -40,7 +40,7 @@ import org.w3c.dom.Element;
 public abstract class DBAbstractFuncExpr extends DBColumnExpr
 {
     // *Deprecated* private static final long serialVersionUID = 1L;
-    private static final Logger log = LoggerFactory.getLogger(DBAbstractFuncExpr.class);
+    protected static final Logger log = LoggerFactory.getLogger(DBAbstractFuncExpr.class);
   
     protected final DBColumnExpr expr;
     protected final DBColumn     updateColumn; // optional
@@ -60,7 +60,7 @@ public abstract class DBAbstractFuncExpr extends DBColumnExpr
     {
         this.expr = expr;
         this.updateColumn = updateColumn;
-        this.isAggregate = isAggregate;
+        this.isAggregate = isAggregate || expr.isAggregate(); 
         this.dataType = dataType;
     }
 
@@ -155,7 +155,7 @@ public abstract class DBAbstractFuncExpr extends DBColumnExpr
     @Override
     public boolean isAggregate()
     {
-        return isAggregate || expr.isAggregate();
+        return isAggregate ;
     }
 
     /**
@@ -270,7 +270,7 @@ public abstract class DBAbstractFuncExpr extends DBColumnExpr
                 attributes.addXml(elem, flags);
             // add All Options
             if (options!=null)
-                options.addXml(elem, flags);
+                options.addXml(elem, this.dataType);
         }
         // Done
         elem.setAttribute("function", getFunctionName());

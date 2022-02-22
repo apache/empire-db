@@ -164,7 +164,7 @@ public class DBValueExpr extends DBColumnExpr
                 attributes.addXml(elem, flags);
             // add All Options
             if (options!=null)
-                options.addXml(elem, flags);
+                options.addXml(elem, this.type);
         }
         // Done
         elem.setAttribute("function", "value");

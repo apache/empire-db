@@ -337,16 +337,16 @@ public class DataListEntry implements RecordData, Serializable
      * Miscellaneous functions
      */
 
-    public String format(String name)
+    public String getText(String name)
     {
         int idx = getFieldIndex(name);
-        return head.formatValue(idx, values[idx]);
+        return head.getText(idx, values[idx]);
     }
 
-    public String format(ColumnExpr col)
+    public String getText(ColumnExpr col)
     {
         int idx = getFieldIndex(col);
-        return head.formatValue(idx, values[idx]);
+        return head.getText(idx, values[idx]);
     }
     
     @Override
@@ -355,7 +355,7 @@ public class DataListEntry implements RecordData, Serializable
         StringBuilder b = new StringBuilder();
         for (int i=0; i<values.length; i++)
         {
-            b.append(head.formatValue(i, values[i]));
+            b.append(head.getText(i, values[i]));
             b.append(head.columnSeparator);
         }
         return b.toString();

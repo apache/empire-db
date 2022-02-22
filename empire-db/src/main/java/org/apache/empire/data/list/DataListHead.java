@@ -23,6 +23,7 @@ import java.io.Serializable;
 import org.apache.empire.commons.ObjectUtils;
 import org.apache.empire.commons.Options;
 import org.apache.empire.commons.StringUtils;
+import org.apache.empire.data.Column;
 import org.apache.empire.data.ColumnExpr;
 import org.apache.empire.db.DBDatabase;
 import org.apache.empire.db.DBObject;
@@ -92,37 +93,43 @@ public class DataListHead implements Serializable
     }
     
     /**
-     * Custom value formatting
-     * Default is to convert to a String and calls escape() 
-     * @param idx the field index
-     * @param value the value
+     * Returns the value of a column as a formatted text
+     * This converts the value to a string if necessary and performs an options lookup
+     * To customize conversion please override convertToString()
+     * @param column the column for which to get the formatted value
+     * @param value the value to format
      * @return the formatted value
      */
-    public String formatValue(int idx, Object value)
-    {   // check empty
-        if (ObjectUtils.isEmpty(value))
-            return StringUtils.EMPTY;
-        // check options
+    public String getText(int idx, Object value)
+    {   // find text
         String text;
-        Options options = columns[idx].getOptions();
+        ColumnExpr column = columns[idx];
+        // check options first
+        Options options = column.getOptions();
         if (options!=null && options.has(value))
         {   // lookup option
             text = options.get(value);
+        }
+        else if (ObjectUtils.isEmpty(value))
+        {   // empty
+            value = column.getAttribute(Column.COLATTR_NULLTEXT);
+            text = (value!=null ? value.toString() : StringUtils.EMPTY);
         }
         else if (value instanceof String)
         {   // we already have a string
             text = (String)value;
         }
-        else if (columns[idx].getDataType().isText())
-        {   // we have a text expression, convert ourselves
-            text = ObjectUtils.getString(value);
+        else if (value instanceof Enum<?>)
+        {   // convert from enum
+            value = ObjectUtils.getEnumValue((Enum<?>)value, column.getDataType().isNumeric());
+            text  = StringUtils.toString(value, StringUtils.EMPTY);
         }
         else
         {   // convert to String
-            text = convertToString(columns[idx], value);
+            text = convertToString(column, value);
         }
-        // Escape
-        return escape(text);
+        // Done
+        return text;
     }
 
     /**
@@ -134,28 +141,6 @@ public class DataListHead implements Serializable
     protected String convertToString(ColumnExpr column, Object value)
     {
         return ObjectUtils.getString(value);
-    }
-    
-    /**
-     * Escapes the formatted value
-     * Default is a simple HTML escape
-     * Overwrite in order to change the behavior
-     */
-    protected String escape(String text)
-    {
-        if (text==null || text.length()==0)
-            return StringUtils.EMPTY;
-        // &amp;
-        if (text.indexOf('&')>=0)
-            text = StringUtils.replaceAll(text, "&", "&amp;");
-        // &lt;
-        if (text.indexOf('<')>=0)
-            text = StringUtils.replaceAll(text, "<", "&lt;");
-        // &gt;
-        if (text.indexOf('>')>=0)
-            text = StringUtils.replaceAll(text, ">", "&gt;");
-        // done
-        return text;
     }
     
 }

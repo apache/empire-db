@@ -26,6 +26,7 @@ import java.util.Iterator;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import org.apache.empire.data.DataType;
 import org.apache.empire.exceptions.InvalidArgumentException;
 import org.apache.empire.xml.XMLUtil;
 import org.w3c.dom.Element;
@@ -352,14 +353,18 @@ public class Options extends AbstractSet<OptionEntry> implements Cloneable, Seri
      * @param element the element to add the option tags to
      * @param flags not used for now
      */
-    public void addXml(Element element, long flags)
+    public void addXml(Element element, DataType dataType)
     { 
         // add All Options
         for(OptionEntry e:list){
-            String value = String.valueOf(e.getValue());
+            Object value = e.getValue();
+            if (value instanceof Enum<?>)
+            {   // Take either the name or the ordinal
+                value = ObjectUtils.getEnumValue((Enum<?>)value, dataType.isNumeric());
+            }
             // Create Option Element
             Element opt = XMLUtil.addElement(element, "option", e.getText());
-            opt.setAttribute("value", value);
+            opt.setAttribute("value", String.valueOf(value));
             if (e.isActive()==false)
                 opt.setAttribute("disabled", "true");
         }

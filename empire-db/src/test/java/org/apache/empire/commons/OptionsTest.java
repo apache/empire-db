@@ -31,6 +31,7 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.apache.empire.commons.Options.InsertPos;
+import org.apache.empire.data.DataType;
 import org.junit.Test;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -342,8 +343,7 @@ public class OptionsTest
         Element root = doc.createElement("root");
         doc.appendChild(root);
 
-        // TODO get rid of flags param??
-        options.addXml(root, 0);
+        options.addXml(root, DataType.VARCHAR);
         Node node = root.getFirstChild();
         assertNotNull("no child was added", node);
         assertEquals("option", node.getNodeName());

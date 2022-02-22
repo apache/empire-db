@@ -43,7 +43,7 @@ import org.apache.empire.dbms.DBSqlPhrase;
 public class DBFuncExpr extends DBAbstractFuncExpr
 {
     // *Deprecated* private static final long serialVersionUID = 1L;
-  
+
     protected final DBSqlPhrase  phrase;
     protected final Object[]     params;
     protected String             template;
@@ -69,6 +69,9 @@ public class DBFuncExpr extends DBAbstractFuncExpr
         this.phrase = phrase;
         this.params = params;
         this.template = null;
+        // check
+        if (phrase==DBSqlPhrase.SQL_FUNC_COALESCE)
+            log.warn("DBFuncExpr should not be used for SQL_FUNC_COALESCE. Use DBCoalesceExpr instead.");
     }
 
     /**

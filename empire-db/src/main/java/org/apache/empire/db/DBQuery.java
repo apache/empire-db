@@ -30,7 +30,6 @@ import org.apache.empire.data.ColumnExpr;
 import org.apache.empire.db.exceptions.NoPrimaryKeyException;
 import org.apache.empire.db.exceptions.RecordUpdateAmbiguousException;
 import org.apache.empire.db.exceptions.RecordUpdateFailedException;
-import org.apache.empire.db.expr.column.DBAliasExpr;
 import org.apache.empire.db.expr.compare.DBCompareColExpr;
 import org.apache.empire.db.expr.compare.DBCompareExpr;
 import org.apache.empire.db.expr.join.DBColumnJoinExpr;
@@ -117,9 +116,13 @@ public class DBQuery extends DBRowSet
         {   // Init Columns 
             queryColumns[i] = createQueryColumn(exprList[i], i);
             // add column
-            DBColumn column = exprList[i].getUpdateColumn();
-            if (column==null || (exprList[i] instanceof DBAliasExpr))
-            {   // use QueryColumn
+            DBColumn column;
+            if (exprList[i] instanceof DBColumn)
+            {   // use directly
+                column = (DBColumn)exprList[i];
+            }
+            else
+            {   // create Wrapper
                 column = new DBQueryExprColumn(this, queryColumns[i].getName(), exprList[i]); 
             }
             columns.add(column);

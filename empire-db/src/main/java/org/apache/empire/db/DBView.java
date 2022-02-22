@@ -182,7 +182,7 @@ public abstract class DBView extends DBRowSet
             // add All Options
             Options fieldOptions = getOptions();
             if (fieldOptions != null)
-                fieldOptions.addXml(elem, flags);
+                fieldOptions.addXml(elem, this.dataType);
             // done
             return elem;
         }
