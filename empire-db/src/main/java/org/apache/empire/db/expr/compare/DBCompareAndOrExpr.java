@@ -191,7 +191,7 @@ public class DBCompareAndOrExpr extends DBCompareExpr
 	public DBCompareExpr parenthesis()
 	{
 		// create parenthesis Expression
-		return new DBParenthesisExpr(this);
+		return new DBCompareParenthesisExpr(this);
 	}
     
 }

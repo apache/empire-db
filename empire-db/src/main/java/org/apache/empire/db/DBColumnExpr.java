@@ -40,6 +40,7 @@ import org.apache.empire.db.expr.column.DBConvertExpr;
 import org.apache.empire.db.expr.column.DBCountExpr;
 import org.apache.empire.db.expr.column.DBDecodeExpr;
 import org.apache.empire.db.expr.column.DBFuncExpr;
+import org.apache.empire.db.expr.column.DBParenthesisExpr;
 import org.apache.empire.db.expr.column.DBValueExpr;
 import org.apache.empire.db.expr.compare.DBCompareColExpr;
 import org.apache.empire.db.expr.compare.DBCompareExpr;
@@ -47,7 +48,6 @@ import org.apache.empire.db.expr.order.DBOrderByExpr;
 import org.apache.empire.dbms.DBSqlPhrase;
 import org.apache.empire.exceptions.InvalidArgumentException;
 import org.w3c.dom.Element;
-
 
 /**
  * This class is the base class for all expressions that represent a single value.
@@ -700,7 +700,7 @@ public abstract class DBColumnExpr extends DBExpr
      */
     public DBColumnExpr parenthesis()
     { 
-        return new DBFuncExpr(this, "(?)", null, getUpdateColumn(), false, getDataType());
+        return new DBParenthesisExpr(this);
     }
 
     /**
@@ -711,7 +711,6 @@ public abstract class DBColumnExpr extends DBExpr
      */
     public DBColumnExpr coalesce(Object nullValue)
     {
-        // return getExprFromPhrase(DBSqlPhrase.SQL_FUNC_COALESCE, new Object[] { nullValue }, getUpdateColumn(), false);
         return new DBCoalesceExpr(this, nullValue);
     }
 

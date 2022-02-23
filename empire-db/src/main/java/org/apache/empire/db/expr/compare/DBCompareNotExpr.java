@@ -51,6 +51,16 @@ public class DBCompareNotExpr extends DBCompareExpr
     }
 
     /**
+     * Returns the wrapped expression
+     * 
+     * @return the expression wrapped by not()
+     */
+    public DBCompareExpr getExpr()
+    {
+        return expr;
+    }
+
+    /**
      * Returns the current DBDatabase object.
      * 
      * @return the current DBDatabase object

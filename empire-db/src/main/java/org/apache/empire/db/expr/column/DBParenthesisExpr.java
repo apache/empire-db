@@ -20,14 +20,10 @@ package org.apache.empire.db.expr.column;
 
 import java.util.Set;
 
-// Java
-import org.apache.empire.commons.StringUtils;
 import org.apache.empire.data.DataType;
 import org.apache.empire.db.DBColumn;
 import org.apache.empire.db.DBColumnExpr;
 import org.apache.empire.db.DBDatabase;
-import org.apache.empire.dbms.DBMSHandler;
-import org.apache.empire.dbms.DBSqlPhrase;
 import org.w3c.dom.Element;
 
 /**
@@ -36,12 +32,11 @@ import org.w3c.dom.Element;
  * There is no need to explicitly create instances of this class.<BR>
  * Instead use {@link DBColumnExpr#as(String) }
  */
-public class DBAliasExpr extends DBColumnExpr
+public class DBParenthesisExpr extends DBColumnExpr
 {
     // *Deprecated* private static final long serialVersionUID = 1L;
   
-    private final DBColumnExpr expr;
-    private final String       alias;
+    private final DBColumnExpr wrapped;
 
     /**
      * Constructs a DBAliasExpr object combine the DBColumnExpr object with the alias name.
@@ -49,15 +44,13 @@ public class DBAliasExpr extends DBColumnExpr
      * @param expr an DBColumnExpr object, one column
      * @param alias the alias name of the column
      */
-    public DBAliasExpr(DBColumnExpr expr, String alias)
+    public DBParenthesisExpr(DBColumnExpr expr)
     {
         // Check whether already a AliasExpr
         if (expr.getClass().equals(getClass()))
-            this.expr = ((DBAliasExpr) expr).expr;
+            this.wrapped = ((DBParenthesisExpr) expr).wrapped;
         else
-            this.expr = expr;
-        // Set alias name
-        this.alias = alias; // .toUpperCase() Why?;
+            this.wrapped = expr;
     }
 
     /**
@@ -69,7 +62,7 @@ public class DBAliasExpr extends DBColumnExpr
     @Override
     public final DBDatabase getDatabase()
     {
-        return expr.getDatabase();
+        return wrapped.getDatabase();
     }
     
     /**
@@ -80,7 +73,7 @@ public class DBAliasExpr extends DBColumnExpr
     @Override
     public DataType getDataType()
     {
-        return expr.getDataType();
+        return wrapped.getDataType();
     }
 
     /**
@@ -90,7 +83,7 @@ public class DBAliasExpr extends DBColumnExpr
     @Override
     public Class<Enum<?>> getEnumType()
     {
-        return expr.getEnumType();
+        return wrapped.getEnumType();
     }
 
     /**
@@ -101,7 +94,7 @@ public class DBAliasExpr extends DBColumnExpr
     @Override
     public String getName()
     {
-        return alias;
+        return wrapped.getName();
     }
 
     /**
@@ -110,7 +103,7 @@ public class DBAliasExpr extends DBColumnExpr
     @Override
     public DBColumn getSourceColumn()
     {
-        return expr.getSourceColumn();
+        return wrapped.getSourceColumn();
     }
 
     /**
@@ -121,7 +114,7 @@ public class DBAliasExpr extends DBColumnExpr
     @Override
     public DBColumn getUpdateColumn()
     {
-        return expr.getUpdateColumn();
+        return wrapped.getUpdateColumn();
     }
     
     /**
@@ -141,7 +134,7 @@ public class DBAliasExpr extends DBColumnExpr
     @Override
     public DBColumnExpr unwrap()
     {
-        return expr;
+        return wrapped;
     }
 
     /**
@@ -152,7 +145,7 @@ public class DBAliasExpr extends DBColumnExpr
     @Override
     public boolean isAggregate()
     {
-        return expr.isAggregate();
+        return wrapped.isAggregate();
     }
     
     /**
@@ -164,13 +157,12 @@ public class DBAliasExpr extends DBColumnExpr
     {
         if (other==this)
             return true;
-        // Check for another Alias Expression
-        if (other instanceof DBAliasExpr)
-        {   // Compare with another alias expression
-            DBAliasExpr otherExpr = ((DBAliasExpr)other);
-            return this.alias.equalsIgnoreCase(otherExpr.getName()) &&
-                   this.expr.equals(otherExpr.expr);
-        }        
+        // Check for another expression
+        if (other instanceof DBParenthesisExpr)
+        {   // Compare expr
+            DBParenthesisExpr otherExpr = ((DBParenthesisExpr)other);
+            return wrapped.equals(otherExpr.wrapped);
+        }
         return false;
     }
 
@@ -180,7 +172,7 @@ public class DBAliasExpr extends DBColumnExpr
     @Override
     public void addReferencedColumns(Set<DBColumn> list)
     {
-        expr.addReferencedColumns(list);
+        wrapped.addReferencedColumns(list);
     }
 
     /**
@@ -191,51 +183,21 @@ public class DBAliasExpr extends DBColumnExpr
      */
     @Override
     public void addSQL(StringBuilder buf, long context)
-    { // Append alias
-        if((context & CTX_ALIAS)!=0)
-        {   // Add the column expression
-            expr.addSQL(buf, context);
-            // Rename
-            DBMSHandler dbms = getDatabase().getDbms();
-            String asExpr = dbms.getSQLPhrase(DBSqlPhrase.SQL_RENAME_COLUMN);
-            if (asExpr!=null)
-            {
-                buf.append(asExpr);
-                dbms.appendObjectName(buf, alias, null);
-            }
-        } 
-        else
-        {
-            expr.addSQL(buf, context);
-        }
+    {   // Append alias
+        buf.append("(");
+        wrapped.addSQL(buf, context); // |CTX_NOPARENTHESES
+        buf.append(")");
     }
 
     /**
      * This function set the alias name to the XML tag.
-     *
      * @return the XML tag (with the alias name)
      */
     @Override
     public Element addXml(Element parent, long flags)
     { // Set name to Alias
-        Element field = expr.addXml(parent, flags);
-        if (field != null)
-        {   // Set Name
-            if (field.hasAttribute("name"))
-                field.setAttribute("source", StringUtils.toString(field.getAttribute("name")));
-            field.setAttribute("name", alias);
-        }
+        Element field = wrapped.addXml(parent, flags);
+        field.setAttribute("parenthesis", String.valueOf(true));
         return field;
-    }
-
-    /**
-     * Overrides the toString method.
-     *
-     * @return the alias name
-     */
-    @Override
-    public String toString()
-    {
-        return alias;
     }
 }

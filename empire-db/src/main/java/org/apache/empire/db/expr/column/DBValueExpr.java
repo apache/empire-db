@@ -47,6 +47,7 @@ public class DBValueExpr extends DBColumnExpr
     public final DBDatabase   db;
     public final DataType     type;
     protected Object          value;
+    private String name;
 
     /**
      * Constructs a new DBValueExpr object.
@@ -78,6 +79,7 @@ public class DBValueExpr extends DBColumnExpr
     public void setValue(Object value)
     {
         this.value = value;
+        this.name = null;
     }
 
     /**
@@ -125,7 +127,33 @@ public class DBValueExpr extends DBColumnExpr
     @Override
     public String getName()
     {
-        return "VAL_"+String.valueOf(value); 
+        if (name==null)
+        {   // generate name
+            String str = String.valueOf(value);
+            int i = 0;
+            int l = Math.min(str.length(), 20);
+            for (boolean valid = true; i<l; i++)
+            {   char c = str.charAt(i);
+                if (c=='-' && i==0)
+                    continue;
+                valid = (c==' ' || (c>='0' && c<='9') || (c>='A' && c<='Z') || (c>='a' && c<='z'));
+                if (!valid)
+                    break;
+            }
+            str = str.substring((str.charAt(0)=='-' ? 1 : 0), i);
+            if (str.length()>0)
+            {   // generate from value string
+                char c = str.charAt(0);
+                if (c>='0' && c<='9')
+                    str = "N"+str;
+                name = "VAL_"+str.replace(' ','_').toUpperCase(); 
+            }
+            else
+            {   // default
+                name = "VALUE";
+            }
+        }
+        return name;
     }
 
     /** this helper function calls the DBColumnExpr.addXML(Element, long) method */

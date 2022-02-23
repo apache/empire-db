@@ -29,12 +29,12 @@ import org.apache.empire.db.DBDatabase;
  * This class wraps an existing compare expression with parenthesis.
  * <P>
  */
-public class DBParenthesisExpr extends DBCompareExpr implements Unwrappable<DBCompareExpr>
+public class DBCompareParenthesisExpr extends DBCompareExpr implements Unwrappable<DBCompareExpr>
 {
     // *Deprecated* private static final long serialVersionUID = 1L;
     private final DBCompareExpr wrapped;
     
-    public DBParenthesisExpr(DBCompareExpr expr)
+    public DBCompareParenthesisExpr(DBCompareExpr expr)
     {
         this.wrapped = expr;
     }
@@ -73,7 +73,7 @@ public class DBParenthesisExpr extends DBCompareExpr implements Unwrappable<DBCo
     @Override
     public DBCompareExpr copy(DBCommand newCmd)
     {
-        return new DBParenthesisExpr(wrapped.copy(newCmd));
+        return new DBCompareParenthesisExpr(wrapped.copy(newCmd));
     }
 
     @Override

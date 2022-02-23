@@ -473,23 +473,20 @@ public abstract class DBRecordData extends DBObject
         {   // lookup option
             text = options.get(value);
         }
+        else if (value instanceof String)
+        {   // we already have a string
+            text = (String)value;
+        }
         else if (ObjectUtils.isEmpty(value))
         {   // empty
             value = column.getAttribute(Column.COLATTR_NULLTEXT);
             text = (value!=null ? value.toString() : StringUtils.EMPTY);
         }
-        else if (value instanceof String)
-        {   // we already have a string
-            text = (String)value;
-        }
-        else if (value instanceof Enum<?>)
-        {   // convert from enum
-            value = ObjectUtils.getEnumValue((Enum<?>)value, column.getDataType().isNumeric());
-            text  = StringUtils.toString(value, StringUtils.EMPTY);
-        }
         else
-        {   // convert to String
+        {   // format value
             text = formatValue(column, value);
+            if (text== null)
+                text = StringUtils.EMPTY; 
         }
         // done
         return text;
