@@ -166,22 +166,28 @@ public abstract class DBAbstractFuncExpr extends DBColumnExpr
     {
         expr.addReferencedColumns(list);
     }
-
+    
     /**
-     * check if other function is the same and applies to the same column 
-     * @param other
-     * @return true if both functions are the same and on the same column or false otherwise
+     * Returns true if other is equal to this expression  
      */
-    public boolean isMutuallyExclusive(DBAbstractFuncExpr other)
+    @Override
+    public boolean equals(Object other)
     {
-        String tname = getFunctionName();
-        String oname = other.getFunctionName();
-        if (StringUtils.compareNotEqual(tname, oname))
-            return false;
-        // check update columns
-        DBColumn tcol = getUpdateColumn();
-        DBColumn ocol = other.getUpdateColumn();
-        return (tcol!=null) ? (tcol.equals(ocol)) : false;
+        if (other==this)
+            return true;
+        // Check Type
+        if (other instanceof DBAbstractFuncExpr)
+        {   // Compare
+            DBAbstractFuncExpr otherFunc = (DBAbstractFuncExpr)other;
+            // Expression must match
+            if (!expr.equals(otherFunc.expr))
+                return false;
+            // Function must match
+            String tname = getFunctionName();
+            String oname = otherFunc.getFunctionName();
+            return StringUtils.compareEqual(tname, oname);
+        }
+        return false;
     }
 
     /**

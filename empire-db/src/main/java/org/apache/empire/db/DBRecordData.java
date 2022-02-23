@@ -489,7 +489,7 @@ public abstract class DBRecordData extends DBObject
         }
         else
         {   // convert to String
-            text = convertToString(column, value);
+            text = formatValue(column, value);
         }
         // done
         return text;
@@ -501,7 +501,7 @@ public abstract class DBRecordData extends DBObject
      * @param value the value to format
      * @return the formatted string
      */
-    protected String convertToString(ColumnExpr column, Object value)
+    protected String formatValue(ColumnExpr column, Object value)
     {
         return ObjectUtils.getString(value);
     }

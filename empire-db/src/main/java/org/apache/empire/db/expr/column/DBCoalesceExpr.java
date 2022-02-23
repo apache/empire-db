@@ -23,12 +23,12 @@ public class DBCoalesceExpr extends DBAbstractFuncExpr
     }
 
     /**
-     * Should we return true here?
+     * This is a transparent wrapper
      */
     @Override
     public boolean isWrapper()
-    {   
-        return false; // Should we return true here?
+    {   // yep
+        return true;
     }
 
     @Override
@@ -62,31 +62,20 @@ public class DBCoalesceExpr extends DBAbstractFuncExpr
     }
     
     /**
-     * Compares true if the other is also a coalesce expr on the same column
+     * Returns true if other is equal to this expression  
      */
     @Override
     public boolean equals(Object other)
     {
         if (other==this)
             return true;
-        // Check for another Alias Expression
+        // Check Type
         if (other instanceof DBCoalesceExpr)
-        {   // Compare with another alias expression
+        {   // Compare expressions
             DBColumnExpr otherExpr = ((DBCoalesceExpr)other).expr;
             return this.expr.equals(otherExpr);
         }
         return false;
-    }
-
-    /**
-     * check if other function is the same and applies to the same column 
-     * @param other
-     * @return true if both functions are the same and on the same column or false otherwise
-     */
-    @Override
-    public boolean isMutuallyExclusive(DBAbstractFuncExpr other)
-    {
-        return equals(other);
     }
 
     /**

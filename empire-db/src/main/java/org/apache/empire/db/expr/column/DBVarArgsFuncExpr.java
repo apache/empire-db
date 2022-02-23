@@ -20,6 +20,7 @@ package org.apache.empire.db.expr.column;
 
 import java.util.Set;
 
+import org.apache.empire.commons.StringUtils;
 import org.apache.empire.data.DataType;
 import org.apache.empire.db.DBColumn;
 import org.apache.empire.db.DBColumnExpr;
@@ -77,6 +78,34 @@ public class DBVarArgsFuncExpr extends DBColumnExpr
     {
         return false;
     }
+    
+    /**
+     * Returns true if other is equal to this expression  
+     */
+    @Override
+    public boolean equals(Object other)
+    {
+        if (other==this)
+            return true;
+        // Check Type
+        if (other instanceof DBVarArgsFuncExpr)
+        {   // Compare with same type
+            DBVarArgsFuncExpr otherFunc = (DBVarArgsFuncExpr)other;
+            // DataTypes must match
+            if (!dataType.equals(otherFunc.dataType))
+                return false;
+            // Templates must match
+            if (!StringUtils.compareEqual(this.template, otherFunc.template))
+                return false;
+            // all parts must match
+            for (int i=0; i<cols.length; i++)
+                if (!cols[i].equals(otherFunc.cols[i]))
+                    return false;
+            // OK
+            return true;
+        }
+        return false;
+    }
 
     @Override
     public DBColumn getSourceColumn()
@@ -118,8 +147,7 @@ public class DBVarArgsFuncExpr extends DBColumnExpr
         String postfix = "";
         int sep = template.indexOf("?");
         if (sep >= 0)
-        {
-            prefix  = template.substring(0, sep);
+        {   prefix  = template.substring(0, sep);
             postfix = template.substring(sep + 1);
         } 
         // append

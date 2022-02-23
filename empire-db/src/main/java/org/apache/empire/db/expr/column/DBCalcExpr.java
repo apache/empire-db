@@ -22,6 +22,7 @@ package org.apache.empire.db.expr.column;
 import java.util.Date;
 import java.util.Set;
 
+import org.apache.empire.commons.ObjectUtils;
 import org.apache.empire.commons.StringUtils;
 import org.apache.empire.data.DataType;
 import org.apache.empire.db.DBColumn;
@@ -162,6 +163,30 @@ public class DBCalcExpr extends DBColumnExpr
     @Override
     public boolean isAggregate()
     {
+        return false;
+    }
+    
+    /**
+     * Returns true if other is equal to this expression  
+     */
+    @Override
+    public boolean equals(Object other)
+    {
+        if (other==this)
+            return true;
+        // Check Type
+        if (other instanceof DBCalcExpr)
+        {   // Compare
+            DBCalcExpr otherCalc = (DBCalcExpr)other;
+            // Expression must match
+            if (!expr.equals(otherCalc.expr))
+                return false;
+            // Operators must match
+            if (!StringUtils.compareEqual(this.op, otherCalc.op))
+                return false;
+            // Compare values
+            return ObjectUtils.compareEqual(this.value, otherCalc.value);
+        }
         return false;
     }
 

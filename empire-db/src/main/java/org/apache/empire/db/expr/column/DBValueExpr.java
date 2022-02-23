@@ -46,8 +46,6 @@ public class DBValueExpr extends DBColumnExpr
   
     public final DBDatabase   db;
     public final DataType     type;
-    public final DBColumnExpr column;
-    // the underlying value
     protected Object          value;
 
     /**
@@ -61,20 +59,6 @@ public class DBValueExpr extends DBColumnExpr
     {
         this.db = db;
         this.type = type;
-        this.column = null;
-        this.value = value;
-    }
-
-    /**
-     * Construct a new DBValueExpr object set the specified parameters to this object.
-     * @param col the column
-     * @param value the value
-     */
-    public DBValueExpr(DBColumnExpr col, Object value)
-    {
-        this.column = col;
-        this.type = col.getDataType();
-        this.db = col.getDatabase();
         this.value = value;
     }
 
@@ -141,31 +125,24 @@ public class DBValueExpr extends DBColumnExpr
     @Override
     public String getName()
     {
-        return (column != null) ? column.getName() : null;
+        return "VAL_"+String.valueOf(value); 
     }
 
     /** this helper function calls the DBColumnExpr.addXML(Element, long) method */
     @Override
     public Element addXml(Element parent, long flags)
     {
-        Element elem;
-        if (column!=null)
-        {   // Update Column
-            elem = column.addXml(parent, flags);
-        }
-        else
-        {   // Add a column expression for this function
-            elem = XMLUtil.addElement(parent, "column");
-            String name = getName();
-            if (name!=null)
-                elem.setAttribute("name", getName());
-            // Add Other Attributes
-            if (attributes!=null)
-                attributes.addXml(elem, flags);
-            // add All Options
-            if (options!=null)
-                options.addXml(elem, this.type);
-        }
+        // Add a column expression for this function
+        Element elem = XMLUtil.addElement(parent, "column");
+        String name = getName();
+        if (name!=null)
+            elem.setAttribute("name", getName());
+        // Add Other Attributes
+        if (attributes!=null)
+            attributes.addXml(elem, flags);
+        // add All Options
+        if (options!=null)
+            options.addXml(elem, this.type);
         // Done
         elem.setAttribute("function", "value");
         return elem;
@@ -177,7 +154,7 @@ public class DBValueExpr extends DBColumnExpr
     @Override
     public DBColumn getSourceColumn()
     {
-        return (column != null) ? column.getSourceColumn() : null;
+        return null;
     }
 
     /**
@@ -186,7 +163,7 @@ public class DBValueExpr extends DBColumnExpr
     @Override
     public DBColumn getUpdateColumn()
     {
-        return (column != null) ? column.getUpdateColumn() : null;
+        return null;
     }
 
     /**
@@ -197,6 +174,24 @@ public class DBValueExpr extends DBColumnExpr
     @Override
     public boolean isAggregate()
     {
+        return false;
+    }
+    
+    /**
+     * Returns true if other is equal to this expression  
+     */
+    @Override
+    public boolean equals(Object other)
+    {
+        if (other==this)
+            return true;
+        // Check Type
+        if (other instanceof DBValueExpr)
+        {   // Compare
+            Object otherValue = ((DBValueExpr)other).value;
+            // Values must match
+            return ObjectUtils.compareEqual(value, otherValue);
+        }
         return false;
     }
 

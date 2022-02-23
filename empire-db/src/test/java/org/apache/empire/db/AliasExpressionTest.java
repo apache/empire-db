@@ -19,10 +19,13 @@
 
 package org.apache.empire.db;
 
+import java.util.List;
+
 import org.apache.empire.data.DataType;
 import org.apache.empire.data.list.DataListEntry;
 import org.apache.empire.data.list.DataListHead;
 import org.apache.empire.db.context.DBContextStatic;
+import org.apache.empire.db.expr.compare.DBCompareExpr;
 import org.junit.Test;
 
 import junit.framework.Assert;
@@ -34,7 +37,7 @@ import junit.framework.Assert;
 public class AliasExpressionTest
 {
     /**
-     * Test Standard DBRecord with Serializable Context
+     * Test Alias Expression
      */
     @Test
     public void testAliasExpression()
@@ -67,6 +70,14 @@ public class AliasExpressionTest
         DBColumnExpr[] expr = cmd.getSelectExprList();
         // Hint: ALIAS_2_NEU is not a separate column
         Assert.assertEquals(expr.length, 4);
+        // where
+        cmd.where(ALIAS_1.isNot("Foo1"));
+        cmd.where(ALIAS_2.isNot("Foo2"));
+        cmd.where(ALIAS_2_NEU.isNot("Foo3"));
+        cmd.where(ALIAS_X.isNot("Foo4"));
+        // System.out.println(cmd.getSelect());
+        List<DBCompareExpr> list = cmd.getWhereConstraints();
+        Assert.assertEquals(list.size(), 1);
 
         // Query Record
         DBQuery q = new DBQuery(cmd);

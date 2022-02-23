@@ -28,8 +28,6 @@ import org.apache.empire.db.DBColumnExpr;
 import org.apache.empire.db.DBCommand;
 import org.apache.empire.db.DBDatabase;
 import org.apache.empire.db.DBExpr;
-import org.apache.empire.db.expr.column.DBAbstractFuncExpr;
-import org.apache.empire.db.expr.column.DBAliasExpr;
 
 
 /**
@@ -295,38 +293,30 @@ public class DBCompareColExpr extends DBCompareExpr
     @Override
     public boolean isMutuallyExclusive(DBCompareExpr other)
     {
+        // check type 
     	if (other instanceof DBCompareColExpr)
-    	{
-    		DBCompareColExpr o = (DBCompareColExpr)other;
-    		DBColumnExpr oexpr = o.getColumn();
-    		if (expr.equals(oexpr))
-    			return true;
-    		// unwrap
+    	{   // unwrap
             DBColumnExpr texpr = expr;
-            if (texpr instanceof DBAliasExpr)
-                texpr = ((DBAliasExpr) texpr).unwrap();
-            if (oexpr instanceof DBAliasExpr)
-                oexpr = ((DBAliasExpr) oexpr).unwrap();
-            // check function expression
-            boolean tfunc = (texpr instanceof DBAbstractFuncExpr);
-            boolean ofunc = (oexpr instanceof DBAbstractFuncExpr); 
-            if (tfunc || ofunc) 
-            {   // check if both are the same
-                if (tfunc && ofunc)
-                {   // both are functions
-                    return ((DBAbstractFuncExpr)texpr).isMutuallyExclusive((DBAbstractFuncExpr)oexpr);
-                }
-                else
-                {   // not the same
-                    return false; 
-                }
-            }
-            // finally check update columns
+            if (texpr.isWrapper())
+                texpr = texpr.unwrap();
+            // other
+            DBCompareColExpr o = (DBCompareColExpr)other;
+            DBColumnExpr oexpr = o.getColumn();
+            if (oexpr.isWrapper())
+                oexpr = oexpr.unwrap();
+    		// Compare
+    		if (texpr.equals(oexpr))
+    			return true;
+    		/*
+            // probably not a good idea to do this:
     		DBColumn tcol = texpr.getSourceColumn();
     		DBColumn ocol = oexpr.getSourceColumn();
     		return (tcol!=null) ? (tcol.equals(ocol)) : false;
+    		*/
+            return false;
     	}
-    	return false;
+    	// other types
+    	return equals(other);
     }
     
 }

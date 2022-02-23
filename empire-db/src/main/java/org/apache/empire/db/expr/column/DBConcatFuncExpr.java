@@ -74,6 +74,31 @@ public class DBConcatFuncExpr extends DBAbstractFuncExpr
     {
         return "CONCAT";
     }
+    
+    /**
+     * Returns true if other is equal to this expression  
+     */
+    @Override
+    public boolean equals(Object other)
+    {
+        if (other==this)
+            return true;
+        // Check Type
+        if (other instanceof DBConcatFuncExpr)
+        {   // Compare
+            DBConcatFuncExpr otherFunc = (DBConcatFuncExpr)other;
+            // Expression must match
+            if (!first.equals(otherFunc.first))
+                return false;
+            // all parts must match
+            for (int i=0; i<others.length; i++)
+                if (!others[i].equals(otherFunc.others[i]))
+                    return false;
+            // OK
+            return true;
+        }
+        return false;
+    }
 
     @Override
     public void addSQL(StringBuilder buf, long context)

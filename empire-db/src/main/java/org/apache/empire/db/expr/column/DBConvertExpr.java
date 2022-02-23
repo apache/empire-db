@@ -52,7 +52,7 @@ public class DBConvertExpr extends DBAbstractFuncExpr
     @Override
     protected String getFunctionName()
     {
-        return "convert";
+        return dataType.name();
     }
 
     @Override

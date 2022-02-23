@@ -157,6 +157,28 @@ public class DBCountExpr extends DBColumnExpr
     {
         return true;
     }
+    
+    /**
+     * Returns true if other is equal to this expression  
+     */
+    @Override
+    public boolean equals(Object other)
+    {
+        if (other==this)
+            return true;
+        // Check Type
+        if (other instanceof DBCountExpr)
+        {   // Compare
+            DBCountExpr otherCount = (DBCountExpr)other;
+            // Expression must match
+            if (this.column!=null)
+                return column.equals(otherCount.column);
+            if (this.rowset!=null)
+                return rowset.equals(otherCount.rowset);
+            // Should not come here
+        }
+        return false;
+    }
 
     /**
      * @see org.apache.empire.db.DBExpr#addReferencedColumns(Set)

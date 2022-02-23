@@ -182,6 +182,27 @@ public class DBScalarExpr extends DBColumnExpr
     {
         return false;
     }
+    
+    /**
+     * Returns true if other is equal to this expression  
+     */
+    @Override
+    public boolean equals(Object other)
+    {
+        if (other==this)
+            return true;
+        // Check Type
+        if (other instanceof DBScalarExpr)
+        {   // Compare with same type
+            DBScalarExpr otherFunc = (DBScalarExpr)other;
+            // DataTypes must match
+            if (!dataType.equals(otherFunc.dataType))
+                return false;
+            // Templates must match
+            return StringUtils.compareEqual(this.template, otherFunc.template);
+        }
+        return false;
+    }
 
     /**
      * @see org.apache.empire.db.DBExpr#addReferencedColumns(Set)

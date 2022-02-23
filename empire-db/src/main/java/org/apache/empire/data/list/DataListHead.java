@@ -126,7 +126,7 @@ public class DataListHead implements Serializable
         }
         else
         {   // convert to String
-            text = convertToString(column, value);
+            text = formatValue(column, value);
         }
         // Done
         return text;
@@ -138,7 +138,7 @@ public class DataListHead implements Serializable
      * @param value the value to format
      * @return the formatted string
      */
-    protected String convertToString(ColumnExpr column, Object value)
+    protected String formatValue(ColumnExpr column, Object value)
     {
         return ObjectUtils.getString(value);
     }

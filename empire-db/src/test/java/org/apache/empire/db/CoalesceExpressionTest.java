@@ -19,10 +19,13 @@
 
 package org.apache.empire.db;
 
+import java.util.List;
+
 import org.apache.empire.data.DataType;
 import org.apache.empire.data.list.DataListEntry;
 import org.apache.empire.data.list.DataListHead;
 import org.apache.empire.db.context.DBContextStatic;
+import org.apache.empire.db.expr.compare.DBCompareExpr;
 import org.junit.Test;
 
 import junit.framework.Assert;
@@ -34,7 +37,7 @@ import junit.framework.Assert;
 public class CoalesceExpressionTest
 {
     /**
-     * Test Standard DBRecord with Serializable Context
+     * Test Coalesce Expression
      */
     @Test
     public void testCoalesceExpression()
@@ -68,6 +71,15 @@ public class CoalesceExpressionTest
         DBColumnExpr[] expr = cmd.getSelectExprList();
         // Hint: COALESCE_2_NEU is not a separate column
         Assert.assertEquals(expr.length, 3);
+        // where
+        cmd.where(COALESCE_1.is("Foo1"));
+        cmd.where(COALESCE_2.is("Foo2"));
+        cmd.where(t.C_TEXT.is("Foo"));
+        cmd.where(AMOUNT.is(5));
+        cmd.where(t.C_NUMBER.coalesce(7).is(3));
+        // System.out.println(cmd.getSelect());
+        List<DBCompareExpr> list = cmd.getWhereConstraints();
+        Assert.assertEquals(list.size(), 2);
 
         // Query Record
         DBQuery q = new DBQuery(cmd);

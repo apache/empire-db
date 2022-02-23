@@ -18,6 +18,8 @@
  */
 package org.apache.empire.db.expr.column;
 
+import java.util.Set;
+
 import org.apache.empire.data.DataType;
 import org.apache.empire.db.DBColumn;
 import org.apache.empire.db.DBColumnExpr;
@@ -25,8 +27,6 @@ import org.apache.empire.db.DBDatabase;
 import org.apache.empire.db.expr.compare.DBCompareExpr;
 import org.apache.empire.xml.XMLUtil;
 import org.w3c.dom.Element;
-
-import java.util.Set;
 
 /**
  * This class is used to add the "case when ?=A then X else Y end" statement to the SQL-Command.
@@ -98,6 +98,31 @@ public class DBCaseExpr extends DBColumnExpr
     public boolean isAggregate()
     {
         return trueExpr.isAggregate();
+    }
+    
+    /**
+     * Returns true if other is equal to this expression  
+     */
+    @Override
+    public boolean equals(Object other)
+    {
+        if (other==this)
+            return true;
+        // Check Type
+        if (other instanceof DBCaseExpr)
+        {   // Compare
+            DBCaseExpr otherCase = (DBCaseExpr)other;
+            // Expression must match
+            if (!compExpr.equals(otherCase.compExpr))
+                return false;
+            if (!trueExpr.equals(otherCase.trueExpr))
+                return false;
+            // finally compare elseExpr
+            if (elseExpr==null)
+                return (otherCase.elseExpr==null);
+            return elseExpr.equals(otherCase.elseExpr);
+        }
+        return false;
     }
 
     @Override

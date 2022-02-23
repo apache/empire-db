@@ -154,6 +154,25 @@ public class DBAliasExpr extends DBColumnExpr
     {
         return expr.isAggregate();
     }
+    
+    /**
+     * Overrides the equals method
+     * @return true if alias name and expression match
+     */
+    @Override
+    public boolean equals(Object other)
+    {
+        if (other==this)
+            return true;
+        // Check for another Alias Expression
+        if (other instanceof DBAliasExpr)
+        {   // Compare with another alias expression
+            DBAliasExpr otherExpr = ((DBAliasExpr)other);
+            return this.alias.equalsIgnoreCase(otherExpr.getName()) &&
+                   this.expr.equals(otherExpr.unwrap());
+        }
+        return false;
+    }
 
     /**
      * @see org.apache.empire.db.DBExpr#addReferencedColumns(Set)
@@ -207,26 +226,6 @@ public class DBAliasExpr extends DBColumnExpr
             field.setAttribute("name", alias);
         }
         return field;
-    }
-   
-    /**
-     * Overrides the equals method
-     * 
-     * @return true if alias name and expression match
-     */
-    @Override
-    public boolean equals(Object other)
-    {
-        if (other==this)
-            return true;
-        // Check for another Alias Expression
-        if (other instanceof DBAliasExpr)
-        {   // Compare with another alias expression
-            DBAliasExpr otherExpr = ((DBAliasExpr)other);
-            return this.alias.equalsIgnoreCase(otherExpr.getName()) &&
-                   this.expr.equals(otherExpr.unwrap());
-        }
-        return false;
     }
 
     /**

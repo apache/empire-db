@@ -159,7 +159,7 @@ public class DBExistsExpr extends DBCompareExpr
     	if (other instanceof DBExistsExpr)
     	{
     		DBExistsExpr o = (DBExistsExpr)other;
-    		if (cmd==o.cmd && compareExpr==o.compareExpr)
+    		if (cmd.equals(o.cmd) && compareExpr.equals(o.compareExpr))
     			return true;
     	}
     	return false;

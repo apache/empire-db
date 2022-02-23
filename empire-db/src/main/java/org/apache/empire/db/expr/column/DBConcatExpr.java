@@ -134,6 +134,20 @@ public class DBConcatExpr extends DBColumnExpr
     {
         return false;
     }
+    
+    /**
+     * Returns true if other is equal to this expression  
+     */
+    @Override
+    public boolean equals(Object other)
+    {
+        if (other instanceof DBConcatExpr)
+        {   // Compare left and right
+            return left .equals(((DBConcatExpr)other).left)
+                && right.equals(((DBConcatExpr)other).right);
+        }
+        return false;
+    }
 
     /**
      * @see org.apache.empire.db.DBExpr#addReferencedColumns(Set)
@@ -176,16 +190,5 @@ public class DBConcatExpr extends DBColumnExpr
             buf.append(getObjectValue(getDataType(), right, context, template));
         }
         
-    }
-    
-    @Override
-    public boolean equals(Object other)
-    {
-    	if (other instanceof DBConcatExpr)
-    	{	// Compare left and right
-    		return left .equals(((DBConcatExpr)other).left)
-    		    && right.equals(((DBConcatExpr)other).right);
-    	}
-    	return false;
     }
 }

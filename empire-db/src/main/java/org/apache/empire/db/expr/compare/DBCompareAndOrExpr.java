@@ -20,6 +20,7 @@ package org.apache.empire.db.expr.compare;
 
 import java.util.Set;
 
+import org.apache.empire.commons.Unwrappable;
 import org.apache.empire.db.DBColumn;
 import org.apache.empire.db.DBCommand;
 import org.apache.empire.db.DBDatabase;
@@ -160,18 +161,24 @@ public class DBCompareAndOrExpr extends DBCompareExpr
     }
     
     /**
-     * Returns wheter the constraint should replace another one or not.
+     * Returns whether the constraint should replace another one or not.
      * 
      * @return true it the constraints are mutually exclusive or false otherwise
      */
+    @SuppressWarnings("unchecked")
     @Override
     public boolean isMutuallyExclusive(DBCompareExpr other)
     {
+        if (other instanceof Unwrappable<?>)
+        {
+            other = ((Unwrappable<DBCompareExpr>)other).unwrap();
+        }
     	if (other instanceof DBCompareAndOrExpr)
     	{
-    		DBCompareAndOrExpr o = (DBCompareAndOrExpr)other;
-    		if (left.equals(o.left) && right.equals(o.right))
-    			return true;
+    		DBCompareAndOrExpr otherExpr = (DBCompareAndOrExpr)other;
+            if (left .isMutuallyExclusive(otherExpr.left) &&
+                right.isMutuallyExclusive(otherExpr.right))
+                return (this.or==otherExpr.or);
     	}
     	return false;
     }
