@@ -137,6 +137,14 @@ public abstract class DBColumnExpr extends DBExpr
     }
 
     /**
+     * returns an expression that renames the column with its alias name
+     */
+    public DBColumnExpr qualified()
+    {
+        return this.as(getName());
+    }
+
+    /**
      * Returns the value of a column attribute.
      * Column attributes are used to provide metadata for a column.
      * 

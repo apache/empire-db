@@ -46,7 +46,7 @@ import org.apache.empire.exceptions.NotSupportedException;
  * <UL>
  *  <LI>In oder to define subqueries simply define a command object with the subquery and wrap it inside a DBQuery.
  *    Then in a second command object you can reference this Query to join with your other tables and views.
- *    In order to join other columns with your query use findQueryColumn(DBColumnExpr expr) to get the 
+ *    In order to join other columns with your query use findColumn(DBColumnExpr expr) to get the 
  *    query column object for a given column expression in the original select clause.</LI> 
  *  <LI>With a key supplied you can have an updateable query that will update several records at once.</LI>
  * </UL>
@@ -246,7 +246,7 @@ public class DBQuery extends DBRowSet
     {
         for (int i = 0; i < queryColumns.length; i++)
         {
-            if (queryColumns[i].expr.equals(expr))
+            if (queryColumns[i].exprEquals(expr))
                 return queryColumns[i];
         }
         // not found

@@ -346,9 +346,9 @@ public abstract class DBCommand extends DBCommandExpr
      * @param exprs one or more columns to select
      * @return itself (this)
      */
-    public DBCommand selectQualified(DBColumn... columns)
+    public DBCommand selectQualified(DBColumnExpr... columns)
     {
-        for (DBColumn col : columns)
+        for (DBColumnExpr col : columns)
         {
             select(col.qualified());
         }
@@ -361,9 +361,9 @@ public abstract class DBCommand extends DBCommandExpr
      * @param columns the column expressions to add
      * @return itself (this)
      */
-    public final DBCommand selectQualified(Collection<? extends DBColumn> columns)
+    public final DBCommand selectQualified(Collection<? extends DBColumnExpr> columns)
     {
-        for (DBColumn col : columns)
+        for (DBColumnExpr col : columns)
         {
             select(col.qualified());
         }

@@ -334,6 +334,7 @@ public abstract class DBColumn extends DBColumnExpr
     /**
      * returns an expression that renames the column with its alias name
      */
+    @Override
     public DBColumnExpr qualified()
     {
         return this.as(getAlias());
