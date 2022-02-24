@@ -385,6 +385,10 @@ public class CodeGenConfig extends XMLConfiguration {
 	}
 	
 	public String getTablePackageName() {
+	    // Not for nested tables
+	    if (isNestTables())
+	        return packageName;
+	    // tablePackageName
 		return fallback(tablePackageName, "tables");
 	}
 

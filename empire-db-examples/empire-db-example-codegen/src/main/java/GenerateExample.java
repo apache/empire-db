@@ -16,7 +16,7 @@ public final class GenerateExample
     public static void main(String[] args)
     {
         CodeGenConfig config = new CodeGenConfig();
-        config.init("generate-config.xml");
+        config.init("generate-example.xml");
         
         log.info("Creating code for {}", config.getJdbcURL());
         

@@ -18,6 +18,7 @@
  *#
 package ${recordPackageName};
 
+import org.apache.empire.db.DBContext;
 import org.apache.empire.db.DBRecord;
 #if($baseTableClassName.equals('DBTable'))
 import org.apache.empire.db.DBTable;
@@ -29,16 +30,21 @@ public abstract class ${baseRecordClassName}<T extends ${baseTableClassName}> ex
 
 	private static final long serialVersionUID = 1L;
 
-	public ${baseRecordClassName}(T table) {
-		super(table);
+    public final T T;   // provide access to RowSet via T
+
+	public ${baseRecordClassName}(DBContext context, T rowset) {
+		super(context, rowset);
+        // set the RowSet for quick access
+        this.T = rowset;
 	}
 
 	/**
-	 * Returns the table this record is based upon.
-	 * @return The table this record is based upon.
+	 * Returns the RowSet this record is based upon.
+	 * @return The RowSet this record is based upon.
 	 */
-	@SuppressWarnings("unchecked")
-	public T getTable() {
-		return (T)super.getRowSet();
-	}
+    @Override
+    public T getRowSet()
+    {
+        return this.T;
+    }
 }

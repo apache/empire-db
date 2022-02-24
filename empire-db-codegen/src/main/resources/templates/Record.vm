@@ -26,6 +26,7 @@ import java.math.BigDecimal;
 import java.util.Date;
 #end
 
+import org.apache.empire.db.DBContext;
 import ${basePackageName}.${dbClassName};
 import ${recordPackageName}.${baseRecordClassName};
 import ${tablePackageName}.$parser.getTableClassName($table.name);
@@ -45,8 +46,8 @@ public class $parser.getRecordClassName($table.name) extends ${baseRecordClassNa
 
 	private static final long serialVersionUID = 1L;
 
-	public $parser.getRecordClassName($table.name)() {
-		super(${dbClassName}.get().$parser.getTableName($table));
+	public $parser.getRecordClassName($table.name)(DBContext context) {
+		super(context, ${dbClassName}.get().$parser.getTableName($table));
 	}
 	
 #if($createRecordProperties == true)
@@ -54,10 +55,10 @@ public class $parser.getRecordClassName($table.name) extends ${baseRecordClassNa
 #foreach($col in $table.columns)
 
 	public $parser.getJavaType($col).getCanonicalName() $parser.getAccessorName($col)() {
-		return ($parser.getJavaType($col).getCanonicalName())super.getValue(getTable().${parser.getColumnName($col)});
+		return ($parser.getJavaType($col).getCanonicalName())super.get(T.${parser.getColumnName($col)});
 	}
 	public void $parser.getMutatorName($col)($parser.getJavaType($col).getCanonicalName() val) {
-		super.setValue(getTable().${parser.getColumnName($col)}, val);
+		super.set(T.${parser.getColumnName($col)}, val);
 	}
 #end
 #end

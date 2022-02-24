@@ -229,10 +229,12 @@ public class CodeGenWriter {
 	}
 
 	private File createBaseTableClass(DBDatabase db) {
-		File file = new File(tableDir, config.getTableBaseName() + ".java");
+		File file = new File(config.isNestTables() ? baseDir : tableDir, config.getTableBaseName() + ".java");
 		VelocityContext context = new VelocityContext();
+        context.put("basePackageName", config.getPackageName());
 		context.put("tablePackageName", config.getTablePackageName());
 		context.put("baseTableClassName", config.getTableBaseName());
+        context.put("dbClassName", config.getDbClassName());
 		writeFile(file, BASE_TABLE_TEMPLATE, context);
 		return file;
 	}
@@ -255,8 +257,10 @@ public class CodeGenWriter {
 	private File createBaseViewClass(DBDatabase db) {
 		File file = new File(viewDir, config.getViewBaseName() + ".java");
 		VelocityContext context = new VelocityContext();
+        context.put("basePackageName", config.getPackageName());
 		context.put("viewPackageName", config.getViewPackageName());
 		context.put("baseViewClassName", config.getViewBaseName());
+        context.put("dbClassName", config.getDbClassName());
 		writeFile(file, BASE_VIEW_TEMPLATE, context);
 		return file;
 	}

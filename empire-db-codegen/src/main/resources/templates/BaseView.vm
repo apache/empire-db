@@ -18,14 +18,26 @@
  *#
 package $viewPackageName;
 
-import org.apache.empire.db.DBDatabase;
 import org.apache.empire.db.DBView;
+import ${basePackageName}.${dbClassName};
 
 public abstract class ${baseViewClassName} extends DBView {
 
 	private static final long serialVersionUID = 1L;
 
-	public ${baseViewClassName}(String name, DBDatabase db) {
+    public final ${dbClassName} DB;
+
+	public ${baseViewClassName}(String name, ${dbClassName} db) {
 		super(name, db);
+        // set database
+        this.DB = db;
 	}
+    
+    /**
+     * returns the database
+     */
+    @Override
+    public final ${dbClassName} getDatabase() {
+        return this.DB;
+    }
 }
