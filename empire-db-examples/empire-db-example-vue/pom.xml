@@ -86,12 +86,10 @@
 		<dependency>
 		    <groupId>org.slf4j</groupId>
 		    <artifactId>slf4j-reload4j</artifactId>
-		    <scope>runtime</scope>
 		</dependency>
 		<dependency>
 		    <groupId>ch.qos.reload4j</groupId>
 		    <artifactId>reload4j</artifactId>
-		    <scope>runtime</scope>
 		</dependency>
 
 		<!-- All Databases (scope: runtime) -->

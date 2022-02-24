@@ -1,3 +1,5 @@
+package example;
+
 import org.apache.empire.db.codegen.CodeGenConfig;
 import org.apache.empire.db.codegen.CodeGenerator;
 import org.slf4j.Logger;

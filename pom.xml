@@ -409,28 +409,7 @@
 
 	<build>
 		<defaultGoal>install</defaultGoal>
-	
 		<plugins>
-			<!-- maven-enforcer-plugin -->
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-enforcer-plugin</artifactId>
-				<executions>
-					<execution>
-						<id>enforce-maven</id>
-						<goals>
-							<goal>enforce</goal>
-						</goals>
-						<configuration>
-							<rules>
-								<requireMavenVersion>
-									<version>3.0</version>
-								</requireMavenVersion>
-							</rules>
-						</configuration>
-					</execution>
-				</executions>
-			</plugin>
 			<!-- maven-remote-resources-plugin -->
 		 	<plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -523,6 +502,7 @@
                     <artifactId>maven-jar-plugin</artifactId>
                     <version>3.1.1</version>
                     <configuration>
+                    	<skipIfEmpty>true</skipIfEmpty>
                     	<!-- 
                         <useDefaultManifestFile>true</useDefaultManifestFile>
                          -->
@@ -583,33 +563,7 @@
 		                </execution>
 		            </executions>
 		        </plugin>
-		        <!-- When enforcer enabled this will make sure we compile using java 1.6.x using maven 3.x -->
-				<plugin>
-					<groupId>org.apache.maven.plugins</groupId>
-					<artifactId>maven-enforcer-plugin</artifactId>
-					<version>3.0.0</version>
-					<executions>
-						<execution>
-							<id>enforce-maven</id>
-							<goals>
-								<goal>enforce</goal>
-							</goals>
-							<configuration>
-								<rules>
-									<requireMavenVersion>
-										<version>3.0</version>
-									</requireMavenVersion>
-                                    <!-- we can no longer release with jdk6 because of certificate issues 
-									<requireJavaVersion>
-										<version>[1.6,1.8)</version>
-									</requireJavaVersion>
-									-->
-								</rules>
-							</configuration>
-						</execution>
-					</executions>
-				</plugin>		        
-				<!-- check that all api calls are java5 compatible -->
+				<!-- check that all api calls are java8 compatible -->
 				<plugin>
 					<groupId>org.codehaus.mojo</groupId>
 					<artifactId>animal-sniffer-maven-plugin</artifactId>
