@@ -26,9 +26,15 @@
 	<description>Example showing the use of the empire-db codegen maven plugin</description>
     
 	<dependencies>
+	
         <dependency>
 			<groupId>org.apache.empire-db</groupId>
 			<artifactId>empire-db</artifactId>
+		</dependency>
+
+        <dependency>
+			<groupId>org.apache.empire-db</groupId>
+			<artifactId>empire-db-codegen</artifactId>
 		</dependency>
 
 		<dependency>
