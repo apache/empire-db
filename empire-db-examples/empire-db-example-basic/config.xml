@@ -21,7 +21,7 @@
 
 	<properties>
 		<!-- provider name must match the property-section containing the connection data -->
-		<databaseProvider>hsqldb</databaseProvider>
+		<databaseProvider>sqlserver</databaseProvider>
 	</properties>
 
 	<properties-hsqldb>
@@ -128,17 +128,8 @@
 	<log4j:configuration xmlns:log4j="http://jakarta.apache.org/log4j/">
 
 		<appender name="default" class="org.apache.log4j.ConsoleAppender">
-			<!-- layout class="org.apache.log4j.TTCCLayout"/ -->
 			<layout class="org.apache.log4j.PatternLayout">
-				<!-- param name="ConversionPattern" value="NSB(%c) %-5p %m	at %l%n"/ -->
 				<param name="ConversionPattern" value="%-5p : %m		at %l %n"/>
-			</layout>
-		</appender>
-
-		<appender name="sample" class="org.apache.log4j.ConsoleAppender">
-			<layout class="org.apache.log4j.PatternLayout">
-				<!-- param name="ConversionPattern" value="NSB(%c) %-5p %m	at %l%n"/ -->
-				<param name="ConversionPattern" value="%-5p : *** %m *** %n"/>
 			</layout>
 		</appender>
 	

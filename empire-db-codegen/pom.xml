@@ -39,46 +39,61 @@
 			<version>1.7</version>
 		</dependency>
 
-		<!-- use log4j for logging -->
+		<!-- logging -->
 		<dependency>
-			<groupId>org.slf4j</groupId>
-			<artifactId>slf4j-log4j12</artifactId>
+		    <groupId>org.slf4j</groupId>
+		    <artifactId>slf4j-reload4j</artifactId>
+		    <scope>runtime</scope>
+		</dependency>
+		<dependency>
+		    <groupId>ch.qos.reload4j</groupId>
+		    <artifactId>reload4j</artifactId>
+		    <scope>runtime</scope>
 		</dependency>
 
-		<!--  Databases -->
-		<!-- hsql -->
+		<!-- This dependency should be declared as runtime but the exec plugin is broken atm... -->
+		<!-- hsqldb -->
 		<dependency>
 		    <groupId>org.hsqldb</groupId>
 		    <artifactId>hsqldb</artifactId>
-		    <scope>test</scope>
-		</dependency>
-
-        <!-- msssql -->
-		<!--   
-        <dependency>
-            <groupId>com.microsoft.sqlserver</groupId>
-            <artifactId>mssql-jdbc</artifactId>
-		    <version>9.4.1.jre8</version>
-        </dependency>
-		-->
-		
-		<!-- oracle -->
-		<!--   
+		    <scope>runtime</scope>
+		</dependency> 
+		<!-- dh2 -->
 		<dependency>
-		    <groupId>com.oracle</groupId>
-			<artifactId>ojdbc6</artifactId>
-			<version>11.2.0.3.0</version>
-		</dependency>
-		-->
-
+		    <groupId>com.h2database</groupId>
+		    <artifactId>h2</artifactId>
+		    <scope>runtime</scope>
+		</dependency> 
+		<!-- derby -->
+		<dependency>
+		    <groupId>org.apache.derby</groupId>
+		    <artifactId>derby</artifactId>
+		    <scope>runtime</scope>
+		</dependency> 
 		<!-- mysql -->
-		<!-- 
 		<dependency>
 		    <groupId>mysql</groupId>
 		    <artifactId>mysql-connector-java</artifactId>
-		    <version>5.1.6</version>
+		    <scope>runtime</scope>
 		</dependency>
-		-->
+		<!-- postgresql -->
+		<dependency>
+		    <groupId>org.postgresql</groupId>
+		    <artifactId>postgresql</artifactId>
+		    <scope>runtime</scope>
+		</dependency>
+		<!-- msssql -->
+		<dependency>
+		    <groupId>com.microsoft.sqlserver</groupId>
+		    <artifactId>mssql-jdbc</artifactId>
+		    <scope>runtime</scope>
+		</dependency>
+		<!-- oracle -->
+		<dependency>
+		    <groupId>com.oracle.database.jdbc</groupId>
+		    <artifactId>ojdbc8</artifactId>
+		    <scope>runtime</scope>
+		</dependency>
 		
 	</dependencies>
 

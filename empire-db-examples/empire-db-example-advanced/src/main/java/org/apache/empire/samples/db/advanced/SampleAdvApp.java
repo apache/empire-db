@@ -134,6 +134,8 @@ public class SampleAdvApp
             context.commit();
         }
         
+        subqueryQueryDemo();
+        
         // do simple stuff
         simpleQueryDemo();
         simpleUpdateDemo();
@@ -417,6 +419,32 @@ public class SampleAdvApp
         {
             return priceDifference;
         }
+    }
+
+    public void subqueryQueryDemo()
+    {
+        // shortcuts (for convenience)
+        CarSalesDB.Model MODEL = carSales.MODEL;
+        CarSalesDB.Sales SALES = carSales.SALES;
+
+        // create command
+        // DBColumnExpr SALES_COUNT = SALES.count();
+        DBCommand sub = context.createCommand()
+           .selectQualified(SALES.MODEL_ID, SALES.count())
+           .groupBy(SALES.MODEL_ID);
+        DBQuery q = new DBQuery(sub);
+        
+        // create command
+        DBCommand cmd = context.createCommand()
+           .select(MODEL.CONFIG_NAME, q.column(SALES.count()))
+           .join(MODEL.ID, q.column(SALES.MODEL_ID));
+        
+        List<DataListEntry> list = context.getUtils().queryDataList(cmd);
+        for (DataListEntry dle : list)
+        {
+            System.out.println(dle.toString());
+        }
+        
     }
     
     public void simpleQueryDemo()

@@ -61,13 +61,23 @@
 	
 	<log4j:configuration xmlns:log4j="http://jakarta.apache.org/log4j/">
 
-		<appender name="default" class="org.apache.log4j.ConsoleAppender">
+		<appender name="console" class="org.apache.log4j.ConsoleAppender">
 			<!-- layout class="org.apache.log4j.TTCCLayout"/ -->
 			<layout class="org.apache.log4j.PatternLayout">
 				<!-- param name="ConversionPattern" value="NSB(%c) %-5p %m	at %l%n"/ -->
 				<param name="ConversionPattern" value="%-5p [%d{yyyy/MM/dd HH:mm}]: %m		at %l %n"/>
 			</layout>
 		</appender>
+
+		<!-- File output  -->
+	    <appender name="default" class="org.apache.log4j.FileAppender">
+	        <param name="file" value="target/codegen.log" />
+	        <param name="append" value="false" />
+	        <param name="threshold" value="debug" />
+	        <layout class="org.apache.log4j.PatternLayout">
+	            <param name="ConversionPattern" value=" %-5p %d{ISO8601} [%c{1}] - %m%n" />
+	        </layout>
+	    </appender>
 	
 		<!-- log detail configuration -->
 		<logger name="org.apache.empire.commons" additivity="false">

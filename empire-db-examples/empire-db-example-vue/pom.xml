@@ -29,17 +29,17 @@
 
 	<dependencies>
 
+		<!-- Empire-db -->
+		<dependency>
+			<groupId>org.apache.empire-db</groupId>
+			<artifactId>empire-db</artifactId>
+		</dependency>
+
 		<!-- Servlet API -->
 		<dependency>
 		    <groupId>javax.servlet</groupId>
 		    <artifactId>javax.servlet-api</artifactId>
 			<scope>provided</scope>
-		</dependency>
-
-		<!-- hsql -->
-		<dependency>
-			<groupId>org.hsqldb</groupId>
-			<artifactId>hsqldb</artifactId>
 		</dependency>
 
 		<!-- Tomcat JDBC Connection Pool 
@@ -50,12 +50,6 @@
 			<scope>provided</scope>
 		</dependency>
 		-->
-
-		<!-- Empire-db -->
-		<dependency>
-			<groupId>org.apache.empire-db</groupId>
-			<artifactId>empire-db</artifactId>
-		</dependency>
 
 		<!-- RS API -->
 		<dependency>
@@ -86,6 +80,18 @@
 			<groupId>org.glassfish.jersey.media</groupId>
 			<artifactId>jersey-media-json-jackson</artifactId>
 			<version>2.25.1</version>
+		</dependency>
+
+		<!-- logging -->
+		<dependency>
+		    <groupId>org.slf4j</groupId>
+		    <artifactId>slf4j-reload4j</artifactId>
+		    <scope>runtime</scope>
+		</dependency>
+		<dependency>
+		    <groupId>ch.qos.reload4j</groupId>
+		    <artifactId>reload4j</artifactId>
+		    <scope>runtime</scope>
 		</dependency>
 
 		<!-- All Databases (scope: runtime) -->
@@ -136,12 +142,6 @@
 		<dependency>
 			<groupId>commons-io</groupId>
 			<artifactId>commons-io</artifactId>
-		</dependency>
-
-		<!-- Logging -->
-		<dependency>
-			<groupId>org.slf4j</groupId>
-			<artifactId>slf4j-log4j12</artifactId>
 		</dependency>
 
 	</dependencies>
