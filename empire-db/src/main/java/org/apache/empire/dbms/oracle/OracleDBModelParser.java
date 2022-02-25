@@ -35,7 +35,7 @@ public class OracleDBModelParser extends DBModelParser
      */
     public String getSchemaName()
     {
-        return schemaPattern;
+        return schema;
     }
 
     /**

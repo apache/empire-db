@@ -80,7 +80,7 @@ public class DBModelParser
     }
 
     protected final String catalog;
-    protected final String schemaPattern;
+    protected final String schema;
 
     protected final String remoteName;
     protected DBDatabase remoteDb = null;  /* will be recreated on every call to checkModel */
@@ -93,24 +93,34 @@ public class DBModelParser
     /**
      * Creates a new Model Checker
      * @param catalog
-     * @param schemaPattern
+     * @param schema
      */
-    public DBModelParser(String catalog, String schemaPattern)
+    public DBModelParser(String catalog, String schema)
     {
         this.catalog = catalog;
-        this.schemaPattern = schemaPattern;
+        this.schema = schema;
         // set origin
         StringBuilder b = new StringBuilder();
         if (StringUtils.isNotEmpty(catalog))
             b.append(catalog);
-        if (StringUtils.isNotEmpty(schemaPattern))
+        if (StringUtils.isNotEmpty(schema))
         {   if (b.length()>0)
                 b.append(".");
-            b.append(schemaPattern);
+            b.append(schema);
         }
         if (b.length()==0)
             b.append("[Unknown]");
         this.remoteName = b.toString();
+    }
+
+    public String getCatalog()
+    {
+        return catalog;
+    }
+
+    public String getSchema()
+    {
+        return schema;
     }
 
     public void setStandardIdentityColumnName(String standardIdentityColumnName)
@@ -198,7 +208,7 @@ public class DBModelParser
         throws SQLException
     {
         tableMap.clear();
-        ResultSet dbTables = dbMeta.getTables(catalog, schemaPattern, tablePattern, new String[] { "TABLE", "VIEW" });
+        ResultSet dbTables = dbMeta.getTables(catalog, schema, tablePattern, new String[] { "TABLE", "VIEW" });
         try {
             // ResultSet dbTables = dbMeta.getTables("PATOOL", "DBO", null, new String[] { "TABLE", "VIEW" });
             int count = 0;
@@ -232,7 +242,7 @@ public class DBModelParser
         int count = 0;
         for (DBRowSet t : getTables())
         {
-            ResultSet dbColumns = dbMeta.getColumns(catalog, schemaPattern, t.getName(), null);
+            ResultSet dbColumns = dbMeta.getColumns(catalog, schema, t.getName(), null);
             try {
                 while (dbColumns.next())
                 {   // add the column
@@ -252,7 +262,7 @@ public class DBModelParser
     protected int collectColumns(DatabaseMetaData dbMeta, String tablePattern)
         throws SQLException
     {
-        ResultSet dbColumns = dbMeta.getColumns(catalog, schemaPattern, tablePattern, null);
+        ResultSet dbColumns = dbMeta.getColumns(catalog, schema, tablePattern, null);
         try {
             int count = 0;
             while (dbColumns.next())
@@ -289,7 +299,7 @@ public class DBModelParser
             // read pk
             DBTable t = (DBTable)rs;
             List<String> pkCols = new ArrayList<String>();
-            ResultSet primaryKeys = dbMeta.getPrimaryKeys(catalog, schemaPattern, t.getName());
+            ResultSet primaryKeys = dbMeta.getPrimaryKeys(catalog, schema, t.getName());
             try {
                 while (primaryKeys.next())
                 {
@@ -335,7 +345,7 @@ public class DBModelParser
     protected int collectForeignKeys(DatabaseMetaData dbMeta, String tablePattern)
         throws SQLException
     {
-        ResultSet foreignKeys = dbMeta.getImportedKeys(catalog, schemaPattern, tablePattern);
+        ResultSet foreignKeys = dbMeta.getImportedKeys(catalog, schema, tablePattern);
         try {
             int count = 0;
             while (foreignKeys.next())
@@ -442,12 +452,12 @@ public class DBModelParser
             if (timestampColumn)
                 t.setTimestampColumn(col);
             // info
-            log.info("Added table column {}.{} of type {}", t.getName(), name, empireType);
+            log.debug("Added table column {}.{} of type {}", t.getName(), name, empireType);
         }
         else if (t instanceof DBView)
         {
             col = ((RemoteView)t).addColumn(name, empireType, colSize, false);
-            log.info("Added view column {}.{} of type {}", t.getName(), name, empireType);
+            log.debug("Added view column {}.{} of type {}", t.getName(), name, empireType);
         }
         else
         {   // Unknown type

@@ -133,7 +133,7 @@ public class FunctionExpressionTest
         Object[] values = new Object[head.getColumns().length];
         for (int i=0; i<values.length; i++)
             values[i] = head.getColumns()[i].getName();
-        DataListEntry dle = new DataListEntry(head, 0, values);
+        DataListEntry dle = new DataListEntry(head, values);
         Assert.assertEquals(dle.getFieldIndex(NUMBER), 0);
         Assert.assertEquals(dle.getFieldIndex(TEST_COUNT), 1);
         Assert.assertEquals(dle.getFieldIndex(TEST_2_COUNT), 2);

@@ -47,7 +47,7 @@ public class DataListFactoryImpl<T extends DataListEntry> implements DataListFac
     @SuppressWarnings("unchecked")
     protected static <T extends DataListEntry> Constructor<T> findEntryConstructor(Class<?> listEntryClass, Class<? extends DataListHead> listHeadClass)
     {
-        Constructor<?> constructor = ClassUtils.findMatchingConstructor(listEntryClass, -1, listHeadClass, int.class, Object[].class);
+        Constructor<?> constructor = ClassUtils.findMatchingConstructor(listEntryClass, 2, listHeadClass, Object[].class, int.class);
         if (constructor==null)
             throw new UnsupportedTypeException(listEntryClass);
         // found
@@ -110,7 +110,13 @@ public class DataListFactoryImpl<T extends DataListEntry> implements DataListFac
             if (constructor==null)
                 throw new NotSupportedException(this, "newEntry");
             // create item
-            return constructor.newInstance(head, rownum, values);
+            switch(constructor.getParameterCount())
+            {
+                case 3: return constructor.newInstance(head, values, rownum);
+                case 2: return constructor.newInstance(head, values);
+                default:
+                    throw new UnsupportedTypeException(constructor.getClass());
+            }
         }
         catch (InstantiationException e)
         {

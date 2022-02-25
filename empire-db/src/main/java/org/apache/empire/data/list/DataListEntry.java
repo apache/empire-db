@@ -44,12 +44,21 @@ public class DataListEntry implements RecordData, Serializable
     protected final DataListHead head;
     protected final Object values[];
     protected int rownum;
-    
-    public DataListEntry(DataListHead head, int rownum, Object values[])
+
+    public DataListEntry(DataListHead head, Object values[], int rownum)
     {
         this.head = head;
-        this.rownum = rownum;
         this.values = values;
+        this.rownum = rownum;
+        // check
+        int headColumnCount = head.getColumns().length;
+        if (values.length!=headColumnCount)
+            log.warn("DataListEntry number of values {} do not match number of head columns {}!", values.length, headColumnCount);
+    }
+    
+    public DataListEntry(DataListHead head, Object values[])
+    {
+        this(head, values, -1);
     }
     
     @SuppressWarnings("unchecked")
