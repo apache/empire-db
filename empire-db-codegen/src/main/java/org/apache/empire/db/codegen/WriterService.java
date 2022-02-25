@@ -226,6 +226,7 @@ public class WriterService {
 		// TODO might be better to add this to the enum
 		// TODO use primitives for non-nullable columns?
 		switch(type){
+        case AUTOINC:
 		case INTEGER:
 			return Long.class;
         case VARCHAR:
