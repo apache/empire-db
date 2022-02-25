@@ -26,6 +26,9 @@
 		<jdbcUser>sa</jdbcUser>
 		<jdbcPwd></jdbcPwd>
 		<packageName>org.apache.empire.db.example</packageName>
+
+		<!-- Empire-db DBMS Handler class -->
+		<dbmsHandlerClass>org.apache.empire.dbms.hsql.DBMSHandlerHSql</dbmsHandlerClass>
 		
 		<!-- Schema options -->
 		<dbCatalog></dbCatalog>
@@ -47,6 +50,10 @@
 		<nestViews>false</nestViews>
 		<createRecordProperties>true</createRecordProperties>
 	</properties>
+
+	<dbmsHandlerClass-properties>
+		<!-- add handler properties here (if any) -->
+	</dbmsHandlerClass-properties>
 	
 	<log4j:configuration xmlns:log4j="http://jakarta.apache.org/log4j/">
 
@@ -59,7 +66,7 @@
 		</appender>
 	
 		<!-- log detail configuration -->
-		<logger name="org.apache.empire.commons" additivity="false">
+		<logger name="org.apache.empire.dbms" additivity="false">
 			<level value="warn"/>
 			<appender-ref ref="default"/>
 		</logger>

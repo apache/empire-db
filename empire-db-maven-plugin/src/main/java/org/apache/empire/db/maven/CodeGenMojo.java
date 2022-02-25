@@ -20,10 +20,8 @@ package org.apache.empire.db.maven;
 
 import java.io.File;
 
-import org.apache.empire.db.DBDatabase;
 import org.apache.empire.db.codegen.CodeGenConfig;
-import org.apache.empire.db.codegen.CodeGenParser;
-import org.apache.empire.db.codegen.CodeGenWriter;
+import org.apache.empire.db.codegen.CodeGenerator;
 import org.apache.empire.exceptions.InvalidPropertyException;
 import org.apache.log4j.AppenderSkeleton;
 import org.apache.log4j.Level;
@@ -87,6 +85,12 @@ public class CodeGenMojo extends AbstractMojo {
 	 */
     @Parameter(property = "empiredb.jdbcPwd")
 	private String jdbcPwd;
+    
+    /**
+     * DBMSHandler class name
+     */
+    @Parameter(property = "empiredb.dbmsHandlerClass")
+    private String dbmsHandlerClass;
 	
 	/**
 	 * Code generator template directory, if not set the default templates
@@ -147,6 +151,7 @@ public class CodeGenMojo extends AbstractMojo {
 			config.setJdbcClass(jdbcClass);
 			config.setJdbcUser(jdbcUser);
 			config.setJdbcPwd(jdbcPwd);
+			config.setDbmsHandlerClass(dbmsHandlerClass);
 			config.setTargetFolder(targetDirectory.getAbsolutePath());
 			config.setTemplateFolder(templateDirectory);
 			config.setPackageName(packageName);
@@ -162,11 +167,9 @@ public class CodeGenMojo extends AbstractMojo {
 		
 		getLog().info("Generating code for " + jdbcURL + " ...");
 		
-		CodeGenParser parser = new CodeGenParser(config);
-		DBDatabase db = parser.loadDbModel();
-		
-		CodeGenWriter codeGen = new CodeGenWriter(config);
-		codeGen.generateCodeFiles(db);
+		// generate now
+		CodeGenerator codeGen = new CodeGenerator();
+		codeGen.generate(config);
 		
 		getLog().info("Code successfully generated in: " + targetDirectory);
 		

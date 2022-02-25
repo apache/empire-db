@@ -16,29 +16,26 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.empire.dbms.sqlserver;
+package org.apache.empire.dbms.oracle;
 
 import java.sql.DatabaseMetaData;
 import java.sql.SQLException;
 
-import org.apache.empire.commons.StringUtils;
-import org.apache.empire.db.validation.DBModelChecker;
+import org.apache.empire.db.validation.DBModelParser;
 
-/**
- * MSSqlDBModelChecker
- * DataModel checker implementation for Microsoft SQLServer
- * @author doebele
- */
-public class MSSqlDBModelChecker extends DBModelChecker
+public class OracleDBModelParser extends DBModelParser
 {
-    /**
-     * create a MSSqlDBModelChecker
-     * @param db the database 
-     * @param catalog the catalog
-     */
-    public MSSqlDBModelChecker(String catalog, String schema)
+    public OracleDBModelParser(String schemaName)    
     {
-        super(catalog, StringUtils.coalesce(schema, "DBO"));
+        super(null, schemaName);
+    }
+    
+    /**
+     * @return the database schema name
+     */
+    public String getSchemaName()
+    {
+        return schemaPattern;
     }
 
     /**
@@ -50,5 +47,15 @@ public class MSSqlDBModelChecker extends DBModelChecker
     {
         return super.collectColumns(dbMeta, null);
     }
-    
+
+    /**
+     * collects all foreign keys at once
+     */
+    @Override
+    protected int collectForeignKeys(DatabaseMetaData dbMeta)
+            throws SQLException
+    {
+        return super.collectForeignKeys(dbMeta, null);
+    }
+
 }

@@ -18,7 +18,13 @@
  */
 package org.apache.empire.db.codegen;
 
-import org.apache.empire.db.DBDatabase;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
+
+import org.apache.empire.commons.StringUtils;
+import org.apache.empire.db.validation.DBModelParser;
+import org.apache.empire.dbms.DBMSHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -44,34 +50,54 @@ public class CodeGenerator {
 		CodeGenerator app = new CodeGenerator();
 		app.generate((args.length > 0 ? args[0] : DEFAULT_CONFIG_FILE));
 	}	
+
+    /**
+     * Starts the actual generation according to the provided config file
+     */
+    public void generate(final String configFile) {
+        // load configuration file
+        CodeGenConfig config = loadConfig(configFile);
+        // generate now
+        generate(config);
+    }   
+
+    /**
+     * Starts the actual generation according to the provided config file
+     */
+    public void generate(final CodeGenConfig config) {
+        // get the DBMS
+        DBMSHandler dbms = getDBMSHandler(config);
+        // get the JDBC-Connection
+        Connection conn = getJDBCConnection(config);
+        // generate now
+        generate(dbms, conn, config);
+    }   
 	
 	/**
 	 * Starts the actual generation according to the provided configuration
 	 */
-	public void generate(CodeGenConfig config) {
-		// log all options
+	public void generate(DBMSHandler dbms, Connection conn, CodeGenConfig config) {
+		
+	    // log all options
 		listOptions(config);
 		
 		// read the database model
-		CodeGenParser parser = new CodeGenParser(config);
-		// CodeGenParser parser = new CodeGenParserMySQL(config);
-		DBDatabase db = parser.loadDbModel();
-		
+		// CodeGenParser parser = new CodeGenParser(config);
+		DBModelParser modelParser = dbms.createModelParser(config.getDbCatalog(), config.getDbSchema());
+		// set options
+		modelParser.setStandardIdentityColumnName (config.getIdentityColumn());
+		modelParser.setStandardTimestampColumnName(config.getTimestampColumn());
+		// parse now
+        modelParser.parseModel(conn);
+
+        log.info("Model parsing completed successfully!");
+        
 		// create the source-code for that database
 		CodeGenWriter codeGen = new CodeGenWriter(config);
-		codeGen.generateCodeFiles(db);
+		codeGen.generateCodeFiles(modelParser.getDatabase());
 		
 		log.info("Code generation completed successfully!");
 	}
-
-	/**
-	 * Starts the actual generation according to the provided config file
-	 */
-	public void generate(final String file) {
-		// load configuration file
-		CodeGenConfig config = loadConfig(file);
-		generate(config);
-	}	
 	
 	/**
 	 * Loads the configuration file and
@@ -87,7 +113,7 @@ public class CodeGenerator {
 	
 	protected void listOptions(CodeGenConfig config){
 		// List options
-		log.info("Database connection successful. Config options are:");
+		log.info("Config options are:");
 		log.info("SchemaName=" + String.valueOf(config.getDbSchema()));
 		log.info("TimestampColumn="	+ String.valueOf(config.getTimestampColumn()));
 		log.info("TargetFolder=" + config.getTargetFolder());
@@ -102,5 +128,75 @@ public class CodeGenerator {
 		log.info("NestViews=" + config.isNestViews());
 		log.info("CreateRecordProperties=" + config.isCreateRecordProperties());
 	}
+    
+    /**
+     * <PRE>
+     * Opens and returns a JDBC-Connection.
+     * JDBC url, user and password for the connection are obtained from the SampleConfig bean
+     * Please use the config.xml file to change connection params.
+     * </PRE>
+     */
+	protected Connection getJDBCConnection(CodeGenConfig config)
+    {
+        String jdbcDriverClass = config.getJdbcClass();
+        try
+        {   // Get Driver Class Name
+            if (StringUtils.isEmpty(jdbcDriverClass))
+                throw new CodeGenConfigInvalidException("jdbcClass", jdbcDriverClass);
+            // Getting the JDBC-Driver
+            Class.forName(jdbcDriverClass).newInstance();
+            // Connect to the database
+            String jdbcURL = config.getJdbcURL();
+            if (StringUtils.isEmpty(jdbcURL))
+                throw new CodeGenConfigInvalidException("jdbcURL", jdbcURL);
+            String jdbcUser = config.getJdbcUser();
+            if (StringUtils.isEmpty(jdbcUser))
+                throw new CodeGenConfigInvalidException("jdbcUser", jdbcUser);
+            log.info("Connecting to Database'" + jdbcURL + "' / User=" + jdbcUser);
+            Connection conn = DriverManager.getConnection(config.getJdbcURL(), config.getJdbcUser(), config.getJdbcPwd());
+            log.info("Connected successfully");
+            // set the AutoCommit to false for this connection. 
+            // commit must be called explicitly! 
+            conn.setAutoCommit(false);
+            log.info("AutoCommit has been set to " + conn.getAutoCommit());
+            return conn;
+        }
+        catch (InstantiationException | IllegalAccessException | ClassNotFoundException e)
+        {
+            throw new CodeGenConfigInvalidException("jdbcClass", jdbcDriverClass, e);
+        }
+        catch (SQLException e)
+        {
+            throw new CodeGenConfigInvalidException("jdbcURL/jdbUser", config.getJdbcURL()+"/"+config.getJdbcUser(), e);
+        }
+    }
+
+    /**
+     * Creates an Empire-db DatabaseDriver for the given provider and applies dbms specific configuration 
+     */
+	protected DBMSHandler getDBMSHandler(CodeGenConfig config)
+    {
+        // Create dbms
+        String dbmsHandlerClass = config.getDbmsHandlerClass();
+        try
+        {   // Get DBMSHandler class
+            if (StringUtils.isEmpty(dbmsHandlerClass))
+                throw new CodeGenConfigInvalidException("dbmsHandlerClass", dbmsHandlerClass);
+            // Find class
+            DBMSHandler dbms = (DBMSHandler) Class.forName(dbmsHandlerClass).newInstance();
+            // Configure dbms
+            try {
+                config.readProperties(dbms, "dbmsHandlerClass-properties");
+            } catch(Exception e) {
+                log.info("No DbmsHandlerClass-properties provieded.");
+            }
+            // done
+            return dbms;
+        }
+        catch (InstantiationException | IllegalAccessException | ClassNotFoundException e)
+        {
+            throw new CodeGenConfigInvalidException("dbmsHandlerClass", dbmsHandlerClass, e);
+        }
+    }
 
 }

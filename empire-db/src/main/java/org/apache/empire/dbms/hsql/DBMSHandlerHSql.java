@@ -92,7 +92,7 @@ public class DBMSHandlerHSql extends DBMSHandlerBase
         switch (phrase)
         {
             // sql-phrases
-            case SQL_NULL:        return "null";
+            case SQL_NULL:              return "null";
             case SQL_PARAMETER:         return " ? ";
             case SQL_RENAME_TABLE:      return " ";
             case SQL_RENAME_COLUMN:     return " AS ";
@@ -271,14 +271,14 @@ public class DBMSHandlerHSql extends DBMSHandlerBase
     }
 
     /**
-     * Creates a DataModelChecker instance of this DBMSHandler
-     * @return
+     * Creates a DBModelChecker instance of this DBMSHandler
+     * @return the DBModelChecker
      */
     @Override
     public DBModelChecker createModelChecker(DBDatabase db)
     {
         // the default model checker
-        return new DBModelChecker("PUBLIC", "PUBLIC");
+        return new DBModelChecker(createModelParser("PUBLIC", "PUBLIC")); 
     }
     
 }

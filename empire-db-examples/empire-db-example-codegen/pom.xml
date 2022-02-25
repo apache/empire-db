@@ -78,6 +78,7 @@
 					<jdbcURL>jdbc:hsqldb:file:${project.basedir}/src/test/resources/hsqldb/sample;shutdown=true</jdbcURL>
 					<jdbcUser>sa</jdbcUser>
 					<jdbcPwd></jdbcPwd>
+					<dbmsHandlerClass>org.apache.empire.dbms.hsql.DBMSHandlerHSql</dbmsHandlerClass>
 					<packageName>org.apache.empire.db.example</packageName>
 					<dbClassName>MyDatabase</dbClassName>
 					-->

@@ -25,6 +25,9 @@
 		<jdbcURL>jdbc:hsqldb:file:src/test/resources/hsqldb/sample;shutdown=true</jdbcURL>
 		<jdbcUser>sa</jdbcUser>
 		<jdbcPwd></jdbcPwd>
+		
+		<!-- Empire-db DBMS Handler class -->
+		<dbmsHandlerClass>org.apache.empire.dbms.hsql.DBMSHandlerHSql</dbmsHandlerClass>
 
 		<!-- Schema options -->
 		<dbCatalog></dbCatalog>

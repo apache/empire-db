@@ -42,6 +42,8 @@ public class CodeGenConfig extends XMLConfiguration {
 
 	private String jdbcPwd;
 
+    private String dbmsHandlerClass;
+	
 	// generation options
 	/**
 	 * name of the database catalog (may be null)
@@ -65,7 +67,13 @@ public class CodeGenConfig extends XMLConfiguration {
      * flag whether to parse and generate views
      */
     private boolean generateRecords = true;
-	/**
+
+    /**
+     * Name of the identity column used for Autoincrement
+     */
+    private String identityColumn = null;
+    
+    /**
 	 * Name of the timestamp column used for optimistic locking (may be null)
 	 * e.g. "UPDATE_TIMESTAMP";
 	 */
@@ -307,6 +315,18 @@ public class CodeGenConfig extends XMLConfiguration {
 	public void setJdbcPwd(String jdbcPwd) {
 		this.jdbcPwd = jdbcPwd;
 	}
+	
+	// ------- DBMS Handler -------
+
+    public String getDbmsHandlerClass()
+    {
+        return dbmsHandlerClass;
+    }
+
+    public void setDbmsHandlerClass(String dbmsHandlerClass)
+    {
+        this.dbmsHandlerClass = dbmsHandlerClass;
+    }
 
 	// ------- generation options -------
 
@@ -314,7 +334,7 @@ public class CodeGenConfig extends XMLConfiguration {
 		return dbCatalog;
 	}
 
-	public void setDbCatalog(String dbCatalog) {
+    public void setDbCatalog(String dbCatalog) {
 		this.dbCatalog = dbCatalog;
 	}
 
@@ -350,6 +370,16 @@ public class CodeGenConfig extends XMLConfiguration {
     public void setGenerateRecords(boolean generateRecords)
     {
         this.generateRecords = generateRecords;
+    }
+
+    public String getIdentityColumn()
+    {
+        return identityColumn;
+    }
+
+    public void setIdentityColumn(String identityColumn)
+    {
+        this.identityColumn = identityColumn;
     }
 
     public String getTimestampColumn() {

@@ -56,6 +56,7 @@ import org.apache.empire.db.DBTableColumn;
 import org.apache.empire.db.exceptions.EmpireSQLException;
 import org.apache.empire.db.exceptions.QueryFailedException;
 import org.apache.empire.db.validation.DBModelChecker;
+import org.apache.empire.db.validation.DBModelParser;
 import org.apache.empire.exceptions.InvalidArgumentException;
 import org.apache.empire.exceptions.NotSupportedException;
 import org.apache.empire.exceptions.UnexpectedReturnValueException;
@@ -786,6 +787,16 @@ public abstract class DBMSHandlerBase implements DBMSHandler
     }
 
     /**
+     * Creates a DataModelParser instance of this DBMSHandler
+     * @return
+     */
+    @Override
+    public DBModelParser createModelParser(String catalog, String schema)
+    {
+        return new DBModelParser(catalog, schema);
+    }
+    
+    /**
      * Creates a DataModelChecker instance of this DBMSHandler
      * @return
      */
@@ -794,7 +805,8 @@ public abstract class DBMSHandlerBase implements DBMSHandler
     {
         log.warn("A general and possibly untested DBModelChecker is used for DBMSHandler {}. Please override to inklude DBMS specific features.", getClass().getSimpleName());
         // the default model checker
-        return new DBModelChecker(null, null);
+        DBModelParser modelParser = createModelParser(null, db.getSchema());
+        return new DBModelChecker(modelParser);
     }
     
     /**

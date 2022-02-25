@@ -281,6 +281,21 @@ public class WriterService {
 		return "\"" + String.valueOf(val) + "\"";
 	}
 	
+    /**
+     * Returns the list of key columns
+     */
+    public String getKeyColumns(DBTable t)
+    {
+        DBColumn[] keyColumns =t.getKeyColumns();
+        StringBuilder b = new StringBuilder();
+        for (int i=0; i<keyColumns.length; i++)
+        {
+            if (i>0)
+                b.append(", ");
+            b.append(keyColumns[i].getName());
+        }
+        return b.toString();
+    }
 	
 	/**
 	 * Derives a java class name from a database table name.

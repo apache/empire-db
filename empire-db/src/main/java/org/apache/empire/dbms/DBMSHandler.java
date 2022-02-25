@@ -34,6 +34,7 @@ import org.apache.empire.db.DBRelation;
 import org.apache.empire.db.DBSQLScript;
 import org.apache.empire.db.DBTableColumn;
 import org.apache.empire.db.validation.DBModelChecker;
+import org.apache.empire.db.validation.DBModelParser;
 
 /**
  * The DBMSHandler interface implements all RDBMS specific logic
@@ -240,6 +241,12 @@ public interface DBMSHandler
      * @param script the script to which to add the DDL command(s)
      */
     void appendEnableRelationStmt(DBRelation r, boolean enable, DBSQLScript script);
+    
+    /**
+     * Creates a DataModelParser instance of this DBMSHandler
+     * @return
+     */
+    DBModelParser createModelParser(String catalog, String schema);
  
     /**
      * Creates a DataModelChecker instance of this DBMSHandler

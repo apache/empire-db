@@ -18,9 +18,6 @@
  */
 package org.apache.empire.dbms.oracle;
 
-import java.sql.DatabaseMetaData;
-import java.sql.SQLException;
-
 import org.apache.empire.data.DataType;
 import org.apache.empire.db.DBColumn;
 import org.apache.empire.db.validation.DBModelChecker;
@@ -39,33 +36,13 @@ public class OracleDBModelChecker extends DBModelChecker
     
     private final BooleanType booleanType;
     
-    public OracleDBModelChecker(String schemaName, BooleanType booleanType)
+    public OracleDBModelChecker(OracleDBModelParser modelParser, BooleanType booleanType)
     {
-        super(null, schemaName);
+        super(modelParser);
         // Detect boolean type
         this.booleanType = booleanType;
         // ok
-        log.info("OracleDBModelChecker created for {} with booleanType {}", schemaName, booleanType);
-    }
-
-    /**
-     * collects all column information at once
-     */
-    @Override
-    protected int collectColumns(DatabaseMetaData dbMeta)
-            throws SQLException
-    {
-        return super.collectColumns(dbMeta, null);
-    }
-
-    /**
-     * collects all foreign keys at once
-     */
-    @Override
-    protected int collectForeignKeys(DatabaseMetaData dbMeta)
-            throws SQLException
-    {
-        return super.collectForeignKeys(dbMeta, null);
+        log.info("OracleDBModelChecker created for {} with booleanType {}", modelParser.getSchemaName(), booleanType);
     }
     
     @Override

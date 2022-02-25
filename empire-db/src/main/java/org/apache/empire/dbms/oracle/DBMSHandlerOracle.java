@@ -524,6 +524,17 @@ public class DBMSHandlerOracle extends DBMSHandlerBase
             rd.close();
         }
     }
+    
+    @Override
+    public OracleDBModelParser createModelParser(String catalog, String schema)
+    {
+        // Check schema
+        String schemaPattern = StringUtils.coalesce(schema, this.schemaName);
+        if (StringUtils.isEmpty(schemaPattern))
+            throw new InvalidPropertyException("schemaName", null);
+        // create parser
+        return new OracleDBModelParser(schemaPattern);
+    }
 
     /**
      * Creates a DataModelChecker instance of this DBMSHandler
@@ -531,13 +542,9 @@ public class DBMSHandlerOracle extends DBMSHandlerBase
      */
     @Override
     public DBModelChecker createModelChecker(DBDatabase db)
-    {
-        // detect schemaPattern
-        String schemaPattern = (db!=null ? StringUtils.coalesce(db.getSchema(), this.schemaName) : this.schemaName);
-        if (StringUtils.isEmpty(schemaPattern))
-            throw new InvalidPropertyException("schemaName", null);
-        // the default model checker
-        return new OracleDBModelChecker(schemaPattern, getBooleanType());
+    {   // the default model checker
+        OracleDBModelParser modelParser = createModelParser(null, (db!=null ? db.getSchema() : null));
+        return new OracleDBModelChecker(modelParser, getBooleanType());
     }
 
 }

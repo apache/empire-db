@@ -95,7 +95,7 @@ public class DBUtils implements DBContextAware
             int affected = dbms.executeSQL(sqlCmd, sqlParams, context.getConnection(), setGenKeys);
             // number of affected records
             if (affected < 0)
-                throw new UnexpectedReturnValueException(affected, "dbms.executeSQL()");
+                log.warn("Unexpected return value {} from dbms.executeSQL(\"{}\")", affected, sqlCmd);
             // Log
             long execTime = (System.currentTimeMillis() - start);
             if (log.isInfoEnabled())

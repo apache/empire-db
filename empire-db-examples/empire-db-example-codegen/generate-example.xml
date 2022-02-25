@@ -20,35 +20,34 @@
 <config>
 
 	<properties>
-		<!-- provider name must match the property-section containing the connection data -->
+		<!-- JDBC-Connection to connect to server -->
 		<jdbcClass>org.hsqldb.jdbc.JDBCDriver</jdbcClass>
 		<jdbcURL>jdbc:hsqldb:file:src/test/resources/hsqldb/sample;shutdown=true</jdbcURL>
 		<jdbcUser>sa</jdbcUser>
 		<jdbcPwd></jdbcPwd>
+		
+		<!-- Empire-db DBMS Handler class -->
+		<dbmsHandlerClass>org.apache.empire.dbms.hsql.DBMSHandlerHSql</dbmsHandlerClass>
 
 		<!-- Schema options -->
 		<dbCatalog></dbCatalog>
 		<dbSchema></dbSchema>
 		<dbTablePattern></dbTablePattern>
-		<timestampColumn>UPDATE_TIMESTAMP</timestampColumn>
 		
-		<!-- generation options -->
-		<!-- 
-		<targetFolder>target/generated-sources/java</targetFolder>
-		 -->
+		<!-- generation options (required) -->
 		<targetFolder>src/main/java</targetFolder>
-		<packageName>org.apache.empire.example.db</packageName>
-		<dbClassName>CarSalesDB</dbClassName>
 		<nestTables>true</nestTables>
 		<nestViews>false</nestViews>
 		<createRecordProperties>true</createRecordProperties>
 		<preserverCharacterCase>false</preserverCharacterCase>
 		<preserveRelationNames>false</preserveRelationNames>
+		<packageName>org.apache.empire.example.db</packageName>
 		
 		<!-- generation options (optional) --> 
 		<tablePackageName></tablePackageName>
 		<viewPackageName></viewPackageName>
 		<recordPackageName></recordPackageName>
+		<dbClassName>CarSalesDB</dbClassName>
 		<tableBaseName>CarSalesTable</tableBaseName>
 		<viewBaseName>CarSalesView</viewBaseName>
 		<recordBaseName>CarSalesRecord</recordBaseName>
@@ -59,8 +58,13 @@
 		<viewClassPrefix></viewClassPrefix>
 		<viewClassSuffix></viewClassSuffix>
 		<columnNamePrefix></columnNamePrefix>
+		<timestampColumn>UPDATE_TIMESTAMP</timestampColumn>
 		
 	</properties>
+	
+	<dbmsHandlerClass-properties>
+		<!-- add handler properties here (if any) -->
+	</dbmsHandlerClass-properties>
 	
 	<log4j:configuration xmlns:log4j="http://jakarta.apache.org/log4j/">
 

@@ -27,6 +27,11 @@ public class InvalidPropertyException extends EmpireException
     
     public static final ErrorType errorType = new ErrorType("error.propertyInvalid", "The property {0} is not valid. Current value is {1}.");
     
+    public InvalidPropertyException(String property, Object value, Exception cause)
+    {
+        super(errorType, new String[] { property, StringUtils.valueOf(value) }, cause);
+    }
+    
     public InvalidPropertyException(String property, Object value)
     {
         super(errorType, new String[] { property, StringUtils.valueOf(value) });

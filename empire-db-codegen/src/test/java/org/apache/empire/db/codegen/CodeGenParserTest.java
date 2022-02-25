@@ -24,33 +24,61 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
 
+import java.sql.Connection;
 import java.util.List;
 
 import org.apache.empire.db.DBColumn;
 import org.apache.empire.db.DBDatabase;
 import org.apache.empire.db.DBRelation;
-import org.apache.empire.db.DBTable;
 import org.apache.empire.db.DBRelation.DBReference;
+import org.apache.empire.db.validation.DBModelParser;
+import org.apache.empire.dbms.DBMSHandler;
+import org.apache.empire.db.DBTable;
 import org.junit.Before;
 import org.junit.Test;
 
 
 public class CodeGenParserTest {
-    private transient CodeGenParser parser;
 
+    private static class TestCodeGenerator extends CodeGenerator
+    {
+        /**
+         * Starts the actual generation according to the provided config file
+         */
+        public DBDatabase parseModel(final CodeGenConfig config) {
+            // get the DBMS
+            DBMSHandler dbms = getDBMSHandler(config);
+            // get the JDBC-Connection
+            Connection conn = getJDBCConnection(config);
+            // read the database model
+            // CodeGenParser parser = new CodeGenParser(config);
+            DBModelParser modelParser = dbms.createModelParser(config.getDbCatalog(), config.getDbSchema());
+            // set options
+            modelParser.setStandardIdentityColumnName (config.getIdentityColumn());
+            modelParser.setStandardTimestampColumnName(config.getTimestampColumn());
+            // parse now
+            modelParser.parseModel(conn);
+            // done
+            return modelParser.getDatabase();
+        }
+    }
+    
+    private transient CodeGenConfig config; 
+    private transient TestCodeGenerator codeGen = new TestCodeGenerator();
+    
     @Before
     public void setUp() throws Exception {
-        final CodeGenConfig config = new CodeGenConfig();
+        config = new CodeGenConfig();
         config.init("src/test/resources/testconfig.xml");
         config.setDbSchema("PUBLIC");
         config.setDbTablePattern("DEPARTMENTS,EMPLOYEES,ORGANIZATIONS");
-        parser = new CodeGenParser(config);
     }
 
     @Test
     public void testLoadDbModel() {
-        final DBDatabase db = parser.loadDbModel();
-
+        
+        DBDatabase db = codeGen.parseModel(config);
+        
         final DBTable departments = db.getTable("DEPARTMENTS");
         final DBTable employees = db.getTable("EMPLOYEES");
 

@@ -39,6 +39,7 @@ import org.apache.empire.db.DBTable;
 import org.apache.empire.db.DBTableColumn;
 import org.apache.empire.db.exceptions.EmpireSQLException;
 import org.apache.empire.db.validation.DBModelChecker;
+import org.apache.empire.db.validation.DBModelParser;
 import org.apache.empire.dbms.DBMSFeature;
 import org.apache.empire.dbms.DBMSHandler;
 import org.apache.empire.dbms.DBMSHandlerBase;
@@ -562,6 +563,12 @@ public class DBMSHandlerMSSQL extends DBMSHandlerBase
      * @return
      */
     @Override
+    public DBModelParser createModelParser(String catalog, String schema)
+    {   // the default model checker
+        return new MSSqlDBModelParser(catalog, schema);
+    }
+    
+    @Override
     public DBModelChecker createModelChecker(DBDatabase db)
     {
         // detect catalog
@@ -576,8 +583,8 @@ public class DBMSHandlerMSSQL extends DBMSHandlerBase
             catalog = catalog.substring(schemaSep);
             schema  = catalog.substring(schemaSep+1);
         }
-        // the default model checker
-        return new MSSqlDBModelChecker(catalog, schema);
+        // create the checker
+        return new DBModelChecker(createModelParser(catalog, schema));
     }
 
 }

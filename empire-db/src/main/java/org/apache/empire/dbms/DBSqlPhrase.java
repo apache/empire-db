@@ -61,10 +61,10 @@ public enum DBSqlPhrase
     SQL_FUNC_YEAR           ("year(?)"),                // Oracle: extract(year from ?)
 
     // Aggregation
-    SQL_FUNC_SUM            ("sum(?)"),
-    SQL_FUNC_MAX            ("max(?)"),
-    SQL_FUNC_MIN            ("min(?)"),
-    SQL_FUNC_AVG            ("avg(?)"),
+    SQL_FUNC_SUM            ("sum(?)", true),
+    SQL_FUNC_MAX            ("max(?)", true),
+    SQL_FUNC_MIN            ("min(?)", true),
+    SQL_FUNC_AVG            ("avg(?)", true),
 
     // Decode
     SQL_FUNC_DECODE         ("case ? {0} end"),         // Oracle: decode(? {0})
@@ -72,15 +72,27 @@ public enum DBSqlPhrase
     SQL_FUNC_DECODE_PART    ("when {0} then {1}"),      // Oracle: {0}, {1}
     SQL_FUNC_DECODE_ELSE    ("else {0}");               // Oracle: {0}
 
-    private String sqlDefault;
+    private final String sqlDefault;
+    private final boolean aggregate;
+    
+    private DBSqlPhrase(String sqlDefault, boolean aggregate)
+    {
+        this.sqlDefault = sqlDefault;
+        this.aggregate = aggregate;
+    }
     
     private DBSqlPhrase(String sqlDefault)
     {
-        this.sqlDefault = sqlDefault;
+        this(sqlDefault, false);
     }
 
     public String getSqlDefault()
     {
         return sqlDefault;
+    }
+
+    public boolean isAggregate()
+    {
+        return aggregate;
     }
 }

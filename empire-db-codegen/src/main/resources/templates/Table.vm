@@ -55,21 +55,12 @@ public class $parser.getTableClassName($table.name) extends ${baseTableClassName
 
 #if($table.keyColumns && $table.keyColumns.size()>0)
 		// configure key columns (primary key)
-#if($table.keyColumns.size()==1)
-		setPrimaryKey(${parser.getColumnName($table.keyColumns[0])});
-#else
-		DBTableColumn[] keyColumns = new DBTableColumn[] {
-#foreach ($col in $table.keyColumns)
-#if($foreach.isLast()==false)
-			${parser.getColumnName($col)},
-#else
-			${parser.getColumnName($col)} };
-		setPrimaryKey(keyColumns);
+		setPrimaryKey($parser.getKeyColumns($table));
 #end
-#end
+#if($table.timestampColumn)
+		setTimestampColumn($table.getTimestampColumn().name);
 #end
 
-#end
 	}
 #if($nestTables == true)
   }

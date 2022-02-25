@@ -155,7 +155,7 @@ public class XMLConfiguration
             propertiesNode = XMLUtil.findFirstChild(propertiesNode, nodeName);
             if (propertiesNode == null)
             { // Configuration
-                log.error("Property-Node {} has not been found.", nodeName);
+                log.warn("Property-Node {} has not been found.", nodeName);
                 throw new ItemNotFoundException(nodeName);
             }
         }
