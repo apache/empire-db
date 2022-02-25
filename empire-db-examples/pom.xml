@@ -48,14 +48,21 @@
 	<build>
 		<pluginManagement>
 			<plugins>
+				<!-- skip install for all examples -->
 				<plugin>
-					<!-- skip deployment for all examples -->
-	               <artifactId>maven-deploy-plugin</artifactId>
-	               <configuration>
-	                 <skip>true</skip>
-	              </configuration>
-	            </plugin>
-            </plugins>
+					<artifactId>maven-install-plugin</artifactId>
+					<configuration>
+						<skip>true</skip>
+					</configuration>
+				</plugin>
+				<!-- skip deployment for all examples -->
+				<plugin>
+					<artifactId>maven-deploy-plugin</artifactId>
+					<configuration>
+						<skip>true</skip>
+					</configuration>
+				</plugin>
+			</plugins>
 		</pluginManagement>
 	</build>
 </project>
