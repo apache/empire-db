@@ -21,9 +21,11 @@
 		<artifactId>empire-db-examples</artifactId>
 		<version>3.0.0-SNAPSHOT</version>
 	</parent>
+	
     <artifactId>empire-db-example-codegen</artifactId>
 	<name>Apache Empire-db Maven Codegen Example</name>
 	<description>Example showing the use of the empire-db codegen maven plugin</description>
+	<packaging>pom</packaging>
     
 	<dependencies>
 	
@@ -62,21 +64,6 @@
 					<debug>true</debug>
 				</configuration>
 			</plugin>
-			<!-- skip some -->
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-jar-plugin</artifactId>
-				<configuration>
-					<skip>true</skip>
-				</configuration>
-			</plugin>
-			<plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-resources-plugin</artifactId>
-				<configuration>
-					<skip>true</skip>
-				</configuration>
-			</plugin>
             <!-- empire-db-maven-plugin -->
 			<plugin>
 				<groupId>org.apache.empire-db</groupId>
@@ -95,7 +82,9 @@
 					<dbClassName>MyDatabase</dbClassName>
 					-->
 				</configuration>
-				<!-- Don't define executions. Instead run with: mvn empire-db:codegen
+				<!-- Don't define executions. Instead run with: --> 
+				<!--   mvn empire-db:codegen    -->		
+				<!-- 
 				<executions>
 					<execution>
 						<goals>
@@ -113,6 +102,27 @@
 				</dependencies>
 			</plugin>
 		</plugins>
+		
+		<pluginManagement>
+			<plugins>
+				<!-- skip some -->
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-jar-plugin</artifactId>
+					<configuration>
+						<skip>true</skip>
+					</configuration>
+				</plugin>
+				<plugin>
+	                <groupId>org.apache.maven.plugins</groupId>
+	                <artifactId>maven-resources-plugin</artifactId>
+					<configuration>
+						<skip>true</skip>
+					</configuration>
+				</plugin>
+            </plugins>
+		</pluginManagement>
+		
 	</build>
 	
 </project>

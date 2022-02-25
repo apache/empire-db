@@ -49,9 +49,9 @@
 		<tablePackageName></tablePackageName>
 		<viewPackageName></viewPackageName>
 		<recordPackageName></recordPackageName>
-		<tableBaseName>CSTable</tableBaseName>
-		<viewBaseName>CSView</viewBaseName>
-		<recordBaseName>CSRecord</recordBaseName>
+		<tableBaseName>CarSalesTable</tableBaseName>
+		<viewBaseName>CarSalesView</viewBaseName>
+		<recordBaseName>CarSalesRecord</recordBaseName>
 		<tableNamePrefix></tableNamePrefix>
 		<tableClassPrefix></tableClassPrefix>
 		<tableClassSuffix></tableClassSuffix>
