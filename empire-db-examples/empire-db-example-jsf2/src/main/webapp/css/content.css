@@ -84,9 +84,9 @@ span.searchResult {
 	color: brown;
 	font-weight: bold;
 }
-
-span.required {
-	color: brown;
+label.eLabel.eInpReq:after {
+	content: "*";
+	color: #D00000;
 }
 select, 
 input[type=text],
@@ -95,13 +95,29 @@ input[type=password] {
 }
 select.eInpReq, 
 input[type=text].eInpReq {
-	border: 1px brown solid;
+/*	border: 1px brown solid; */
+	background-color: #FFFFE0;
 }
 select.eInpDis, 
 textarea.eInpDis,
 input[type=text].eInpDis {
 	border: 1px #C0C0C0 solid;
 	color: #808080;
+}
+.eInput {
+	width: 100%;
+}
+.eInput.eTypeBool {
+	width: auto;
+}
+select.eInput.eInpShort,
+input.eInput.eInpShort,
+input.eInput.eTypeDate {
+	width: 100px;
+}
+input.eInput.eInpDecimal {
+	width: 100px;
+	text-align: right;
 }
 span.eInpDis {
 	display: inline-block;

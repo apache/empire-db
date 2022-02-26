@@ -1498,7 +1498,7 @@ public class TagEncodingHelper implements NamingContainer
         if (column==null)
         {   // Get from LinkTag
             column = getColumn();
-            required = isValueRequired(); // does only check Attribute
+            required = !readOnly && isValueRequired(); // does only check Attribute
         }
             
         // Check column

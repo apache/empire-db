@@ -40,6 +40,18 @@ public class EmployeeRecord extends SampleRecord<TEmployees>
 	 * Make all fields read only if employee is retired (except the retired field itself!) 
 	 */
     @Override
+    public boolean isFieldVisible(Column column)
+    {
+        if (!super.isFieldVisible(column))
+            return false;
+        // UPDATE_TIMESTAMP
+        if (column==T.UPDATE_TIMESTAMP && isNew())
+            return false; // invisible for new records
+        // default
+        return true; 
+    }
+    
+    @Override
     public boolean isFieldReadOnly(Column column)
     {
     	if (column!=T.RETIRED && getBoolean(T.RETIRED))

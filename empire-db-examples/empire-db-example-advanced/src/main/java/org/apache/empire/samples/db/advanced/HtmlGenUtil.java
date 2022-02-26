@@ -61,28 +61,48 @@ public class HtmlGenUtil
             "int count = context.executeUpdate(cmd);\r\n" + 
             "log.info(\"{} models affected\", count);"; 
 
+    public static final String codeCodegen = "// create the config\r\n" + 
+            "CodeGenConfig config = new CodeGenConfig();\r\n" + 
+            "// use API or load from file using \r\n" + 
+            "config.setPackageName(\"com.mycompany.myproject.database\");\r\n" + 
+            "config.set(...)\r\n" + 
+            "// get the DBMS\r\n" + 
+            "DBMSHandler dbms = new DBMSHandlerOracle();\r\n" + 
+            "// get the JDBC-Connection\r\n" + 
+            "Connection conn = getJDBCConnection(config);\r\n" + 
+            "// Generate code from database\r\n" + 
+            "CodeGenerator app = new CodeGenerator();\r\n" + 
+            "app.generate(dbms, conn, config);\r\n";
     
-    public static String codeToHtml(DBDatabase db, String code, Number... literals)
+    public static String codeToHtml(DBDatabase db, String code, Object... literals)
     {
         code = prepareHtml(code);
-        // String Literals must go first
-        code = replaceFragment(code, '"', '"', true, "<span class=\"literal\">", "</span>", null);
-        // other literals
+        // replace literals
         for (int i=0; i<literals.length; i++)
-            code = replaceWord(code, literals[i].toString(), ' ', "<span class=\"literal\">", "</span>");
+        {
+            String literal;
+            if (literals[i] instanceof String)
+                literal = "\""+((String)literals[i])+"\"";
+            else
+                literal = String.valueOf(literals[i]);
+            code = replaceWord(code, literal, ' ', "<span class=\"literal\">", "</span>");
+        }
         // null
         code = replaceWord(code, "null", ' ', "<span class=\"literal\">", "</span>");
+        code = replaceWord(code, "new", ' ', "<span class=\"new\">", "</span>");
         // types
-        String[] types = new String[] { "CarSalesDB", "DBCommand", "QueryResult", "EngineType", "int ", "long ", "String " };
+        String[] types = new String[] { "CarSalesDB", "CodeGenerator", "CodeGenConfig", "DBMSHandlerOracle", "DBMSHandler ", "Connection ", "DBCommand", "QueryResult", "EngineType", "int ", "long ", "String " };
         for (int i=0; i<types.length; i++)
             code = replaceWord(code, types[i], ' ', "<span class=\"type\">", "</span>");
         // Tables and columns
-        for (DBTable t : db.getTables())
-        {
-            code = replaceWord(code, t.getName(), ' ', "<span class=\"obj\">", "</span>");
-            for (DBColumn c : t.getColumns())
+        if (db!=null)
+        {   for (DBTable t : db.getTables())
             {
-                code = replaceWord(code, "."+c.getName(), '.', "<span class=\"var\">", "</span>");
+                code = replaceWord(code, t.getName(), ' ', "<span class=\"obj\">", "</span>");
+                for (DBColumn c : t.getColumns())
+                {
+                    code = replaceWord(code, "."+c.getName(), '.', "<span class=\"var\">", "</span>");
+                }
             }
         }
         // functions
@@ -174,7 +194,14 @@ public class HtmlGenUtil
                     continue;
                 }
             }
-            int j = str.indexOf(end, ++i);
+            int n = str.indexOf('\n', i+1);
+            int j = str.indexOf(end,  ++i);
+            if (n<j)
+            {   // line-break: ignore
+                s.append(str.substring(p, n+1));
+                p = n+1;
+                continue;
+            }
             if (!include)
             {   // remove whitespace
                 while(str.charAt(j-1)==' ') j--;
