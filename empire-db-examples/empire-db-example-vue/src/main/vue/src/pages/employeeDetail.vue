@@ -32,6 +32,7 @@
         <tr><e-control column="gender"   /> </tr>
         <tr><e-control column="phoneNumber" /></tr>
         <tr><e-control column="email" /></tr>
+        <tr><e-control column="salary" /></tr>
         <tr><e-control column="retired" /></tr>
       </table>
     </e-record>

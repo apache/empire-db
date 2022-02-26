@@ -18,8 +18,10 @@
  */
 package org.apache.empire.db;
 
+import java.util.Collections;
 import java.util.Set;
 
+import org.apache.empire.commons.Attributes;
 import org.apache.empire.commons.Options;
 import org.apache.empire.commons.StringUtils;
 import org.apache.empire.data.Column;
@@ -347,6 +349,18 @@ public abstract class DBColumn extends DBColumnExpr
     public Object getAttribute(String name)
     {
         return (attributes != null ? attributes.get(name) : null);
+    }
+
+    /**
+     * Returns all metadata attributes.
+     * @return set of metadata attributes
+     */
+    @Override
+    @SuppressWarnings("unchecked")
+    public Set<Attributes.Attribute> getAttributes()
+    {
+        return (attributes!=null ? Collections.unmodifiableSet(attributes)
+                                 : Collections.EMPTY_SET);
     }
 
     /**

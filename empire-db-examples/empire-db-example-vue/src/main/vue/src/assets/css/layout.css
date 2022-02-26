@@ -162,7 +162,8 @@ input[type=password] {
 }
 select.eInpReq,
 input[type=text].eInpReq {
-	border: 1px brown solid;
+/*	border: 1px brown solid; */
+	background-color: #FFFFE0;
 }
 select.eInpDis,
 input[type=text].eInpDis {
@@ -183,8 +184,14 @@ span.eInpDis {
 .eSelect {
   width: 100%;
 }
-.eInpText.eTypeDATE {
-  width: 100px;
+select.eInput.eInpShort,
+input.eInput.eInpShort,
+input.eInput.eTypeDATE {
+	width: 100px;
+}
+input.eInput.eInpDecimal {
+	width: 100px;
+	text-align: right;
 }
 .eInputHint {
 	padding-left: 4px;

@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Iterator;
 import java.util.Locale;
+import java.util.Set;
 
 import javax.el.ValueExpression;
 import javax.faces.FacesWrapper;
@@ -41,6 +42,7 @@ import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.beanutils.BeanUtilsBean;
 import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.commons.beanutils.PropertyUtilsBean;
+import org.apache.empire.commons.Attributes;
 import org.apache.empire.commons.ObjectUtils;
 import org.apache.empire.commons.Options;
 import org.apache.empire.commons.StringUtils;
@@ -128,6 +130,12 @@ public class TagEncodingHelper implements NamingContainer
         public Object getAttribute(String name)
         {
             return expr.getAttribute(name);
+        }
+    
+        @Override
+        public Set<Attributes.Attribute> getAttributes()
+        {
+            return expr.getSourceColumn().getAttributes();
         }
 
         @Override

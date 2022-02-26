@@ -145,6 +145,9 @@
         if (meta.required) {
           cls += ' eInpReq'
         }
+        if (meta.styleClass) {
+          cls += ' ' + meta.styleClass
+        }
         return cls
       },
       inputValue (event) {

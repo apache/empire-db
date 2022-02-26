@@ -18,6 +18,10 @@
  */
 package org.apache.empire.data;
 
+import java.util.Set;
+
+import org.apache.empire.commons.Attributes;
+
 /**
  * The column interface provides methods for accessing metadata that is only relevant for updating records.
  * <P>
@@ -79,6 +83,12 @@ public interface Column extends ColumnExpr
      * @return Returns true if the values for this column are generally read-only
      */
     boolean isReadOnly();
+
+    /**
+     * Returns all metadata attributes.
+     * @return set of metadata attributes
+     */
+    Set<Attributes.Attribute> getAttributes();
 
     /**
      * Checks if the given value is a valid value for this column 

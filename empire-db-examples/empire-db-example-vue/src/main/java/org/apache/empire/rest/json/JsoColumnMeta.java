@@ -20,6 +20,7 @@ package org.apache.empire.rest.json;
 
 import java.util.LinkedHashMap;
 
+import org.apache.empire.commons.Attributes;
 import org.apache.empire.commons.OptionEntry;
 import org.apache.empire.commons.Options;
 import org.apache.empire.commons.StringUtils;
@@ -72,6 +73,19 @@ public class JsoColumnMeta extends LinkedHashMap<String, Object>
         if (column.getDataType()==DataType.VARCHAR || column.getDataType()==DataType.CHAR)
         {   // add maxLength
             put(_maxLength, (int)column.getSize());
+        }
+        for (Attributes.Attribute attr : column.getAttributes())
+        {
+            String name = attr.getName();
+            if (DBColumnExpr.DBCOLATTR_TITLE.equals(name) ||
+                DBColumnExpr.DBCOLATTR_TYPE.equals(name))
+                continue; // ignore
+            // add attribute
+            Object value = attr.getValue();
+            if ((value instanceof String) ||
+                (value instanceof Number) ||
+                (value instanceof Boolean))
+                put(name, value);
         }
         // ControlType And Options
         addControlTypeAndOptions(column.getControlType(), options, resolver);

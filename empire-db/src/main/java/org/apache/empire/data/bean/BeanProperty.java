@@ -18,6 +18,9 @@
  */
 package org.apache.empire.data.bean;
 
+import java.util.Collections;
+import java.util.Set;
+
 import org.apache.empire.commons.Attributes;
 import org.apache.empire.commons.ObjectUtils;
 import org.apache.empire.commons.Options;
@@ -126,6 +129,18 @@ public class BeanProperty implements Column
     public Object getAttribute(String name)
     {
         return (attributes!=null) ? attributes.get(name) : null;
+    }
+
+    /**
+     * Returns all metadata attributes.
+     * @return set of metadata attributes
+     */
+    @Override
+    @SuppressWarnings("unchecked")
+    public Set<Attributes.Attribute> getAttributes()
+    {
+        return (attributes!=null ? Collections.unmodifiableSet(attributes)
+                                 : Collections.EMPTY_SET);
     }
 
     /**

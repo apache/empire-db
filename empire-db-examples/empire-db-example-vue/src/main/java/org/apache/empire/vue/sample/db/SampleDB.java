@@ -20,6 +20,7 @@ package org.apache.empire.vue.sample.db;
 
 import java.sql.SQLException;
 
+import org.apache.empire.data.Column;
 import org.apache.empire.data.DataType;
 import org.apache.empire.db.DBColumn;
 import org.apache.empire.db.DBContext;
@@ -149,6 +150,15 @@ public class SampleDB extends DBDatabase
 
             // optional: set entity name for selectQualified() to singular since table is plural
             setEntityName("EMPLOYEE");
+            
+            // Set custom style for SALUTATION
+            SALUTATION.setAttribute("styleClass", "eInpShort");
+            // Salary special
+            SALARY.setAttribute("styleClass", "eInpDecimal")
+                  .setAttribute("format:unit", "USD")
+                  .setAttribute(Column.COLATTR_NUMBER_TYPE, "Decimal")
+                  .setAttribute(Column.COLATTR_FRACTION_DIGITS, 2)
+                  .setAttribute(Column.COLATTR_NUMBER_GROUPSEP, true);
         }
     }
 

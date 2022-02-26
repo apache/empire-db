@@ -53,9 +53,9 @@ public interface ColumnExpr extends Unwrappable<ColumnExpr>
     String getControlType();
 
     /**
-     * Returns futher metadata attributes.
+     * Returns a metadata attribute.
      * @param name the name of the attribute
-     * @return futher metadata attributes
+     * @return the metadata attribute
      */
     Object getAttribute(String name);
 
