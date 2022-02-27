@@ -474,13 +474,6 @@ public class SampleAdvApp
         List<QueryResult> list = context.getUtils().queryBeanList(cmd, QueryResult.class, null);
         log.info("queryBeanList returnes {} items", list.size());
         
-        Number[] literals = new Number[] { 2021, 30000 }; 
-        System.out.println("---------------------------------");
-        System.out.println(HtmlGenUtil.codeToHtml(carSales, HtmlGenUtil.codeModelQuery, literals));
-        System.out.println("---------------------------------");
-        System.out.println(HtmlGenUtil.sqlToHtml(carSales, cmd.getSelect(), literals));
-        System.out.println("---------------------------------");
-        
         /*
         List<DataListEntry> list = context.getUtils().queryDataList(cmd);
         for (DataListEntry dle : list)
@@ -558,12 +551,6 @@ public class SampleAdvApp
         // execute Update statement
         int count = context.executeUpdate(cmd);
         log.info("{} models affected", count);
-
-        System.out.println("---------------------------------");
-        System.out.println(HtmlGenUtil.codeToHtml(carSales, HtmlGenUtil.codePriceUpdate));
-        System.out.println("---------------------------------");
-        System.out.println(HtmlGenUtil.sqlToHtml(carSales, cmd.getUpdate()));
-        System.out.println("---------------------------------");
         
         /*
          * Clone test

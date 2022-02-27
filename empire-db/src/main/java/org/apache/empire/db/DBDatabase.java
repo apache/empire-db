@@ -674,6 +674,19 @@ public abstract class DBDatabase extends DBObject
     }
 
     /**
+     * Removes a table from the list of database tables
+     * @param table to remove
+     */
+    public void removeTable(DBTable table)
+    {
+        if (table==null || table.getDatabase()!=this)
+            throw new InvalidArgumentException("table", table);
+        // remove
+        if (tables.contains(table))
+            tables.remove(table);
+    }
+
+    /**
      * Returns the tables which have been defined in the database.
      * 
      * @return db tables.
@@ -681,20 +694,6 @@ public abstract class DBDatabase extends DBObject
     public List<DBTable> getTables()
     {
         return Collections.unmodifiableList(this.tables);        
-    }
-
-    /**
-     * Finds a DBRowSet object (DBTable or DBView) by name.
-     * <P>
-     * @param name the name of the table
-     * @return the located DBTable object
-     */
-    public DBRowSet getRowSet(String name)
-    { // find table by name
-        DBRowSet rset = getTable(name);
-        if (rset==null)
-            rset = getView(name);
-        return rset;
     }
 
     /**
@@ -712,6 +711,20 @@ public abstract class DBDatabase extends DBObject
                 return tab;
         }
         return null;
+    }
+
+    /**
+     * Finds a DBRowSet object (DBTable or DBView) by name.
+     * <P>
+     * @param name the name of the table
+     * @return the located DBTable object
+     */
+    public DBRowSet getRowSet(String name)
+    { // find table by name
+        DBRowSet rset = getTable(name);
+        if (rset==null)
+            rset = getView(name);
+        return rset;
     }
 
     /**
@@ -830,6 +843,19 @@ public abstract class DBDatabase extends DBObject
             throw new ItemExistsException(view.getName());
         // add now
         views.add(view);
+    }
+
+    /**
+     * Removes a view from the list of database views
+     * @param view to remove
+     */
+    public void removeView(DBView view)
+    {
+        if (view==null || view.getDatabase()!=this)
+            throw new InvalidArgumentException("view", view);
+        // remove
+        if (views.contains(view))
+            views.remove(view);
     }
 
     /**
