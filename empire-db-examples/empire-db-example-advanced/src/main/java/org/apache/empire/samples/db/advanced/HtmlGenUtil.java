@@ -22,6 +22,7 @@ import org.apache.empire.commons.StringUtils;
 import org.apache.empire.db.DBColumn;
 import org.apache.empire.db.DBDatabase;
 import org.apache.empire.db.DBTable;
+import org.apache.empire.exceptions.ItemNotFoundException;
 
 /**
  * Temporary class for HTML-generation of code and SQL
@@ -46,7 +47,7 @@ public class HtmlGenUtil
             "// Returns a list of Java beans (needs matching fields constructor or setter methods)           \r\n" + 
             "// This is just one of several options to obtain an process query results          \r\n" + 
             "List<QueryResult> list = context.getUtils().queryBeanList(cmd, QueryResult.class, null);\r\n" + 
-            "log.info(\"queryBeanList returnes {} items\", list.size());"; 
+            "log.info(\"queryBeanList returned {} items\", list.size());"; 
     
     public static final String codePriceUpdate = "// create command\r\n" + 
             "DBCommand cmd = context.createCommand()\r\n" + 
@@ -74,9 +75,29 @@ public class HtmlGenUtil
             "CodeGenerator app = new CodeGenerator();\r\n" + 
             "app.generate(dbms, conn, config);\r\n";
     
+    public static final Object[] codeRecordReadLiterals = new Object[] { 55, 2021, 12, "Anna", "Smith" };
+    public static final String codeRecordRead="DBRecord employee = new DBRecord(context, db.EMPLOYEES);\r\n" + 
+            "SampleDB.Employees EMP = db.EMPLOYEES;\r\n" + 
+            "// read record with identity column primary key\r\n" + 
+            "employee.read(55);\r\n" + 
+            "// read record with multiple column primary key \r\n" + 
+            "payment.read(DBRecord.key(55, 2021, 12));\r\n" + 
+            "// read with constraints \r\n" + 
+            "employee.read(EMP.FIRST_NAME.is(\"Anna\").and(EMP.LAST_NAME.is(\"Smith\")));\r\n" + 
+            "// read record identified by a subquery\r\n" + 
+            "DBCommand sel = context.createCommand();\r\n" + 
+            "sel.select(db.PAYMENTS.EMPLOYEE_ID);\r\n" + 
+            "sel.where(/* some constraints */);\r\n" + 
+            "employee.read(EMP.ID.is(sel));\r\n" + 
+            "// read record partially with only 3 columns\r\n" + 
+            "employee.read(DBRecord.key(55), PartialMode.INCLUDE, EMP.FIRST_NAME, EMP.LAST_NAME, EMP.SALARY);\r\n";
+    
     public static String codeToHtml(DBDatabase db, String code, Object... literals)
     {
         code = prepareHtml(code);
+        // comment
+        code = replaceFragment(code, "/*", "*/", "<span class=\"comment\">", "</span>");
+        code = replaceFragment(code, "//", "\r\n", "<span class=\"comment\">", "</span>");
         // replace literals
         for (int i=0; i<literals.length; i++)
         {
@@ -85,35 +106,43 @@ public class HtmlGenUtil
                 literal = "\""+((String)literals[i])+"\"";
             else
                 literal = String.valueOf(literals[i]);
-            code = replaceWord(code, literal, ' ', "<span class=\"literal\">", "</span>");
+            code = replaceWord(code, literal, false, "<span class=\"literal\">", "</span>");
         }
         // null
-        code = replaceWord(code, "null", ' ', "<span class=\"literal\">", "</span>");
-        code = replaceWord(code, "new", ' ', "<span class=\"new\">", "</span>");
+        code = replaceWord(code, "null", false, "<span class=\"literal\">", "</span>");
+        code = replaceWord(code, "new",  false, "<span class=\"keyword\">", "</span>");
+        code = replaceWord(code, ".class", true, "<span class=\"keyword\">", "</span>");
         // types
-        String[] types = new String[] { "CarSalesDB", "CodeGenerator", "CodeGenConfig", "DBMSHandlerOracle", "DBMSHandler ", "Connection ", "DBCommand", "QueryResult", "EngineType", "int ", "long ", "String " };
+        String[] types = new String[] { "int ", "CarSalesDB", "Connection ", "DBUtils", "DBCommand", "DBRecord", "PartialMode", "EngineType", "long ", "String ", "List<", "QueryResult" };
         for (int i=0; i<types.length; i++)
-            code = replaceWord(code, types[i], ' ', "<span class=\"type\">", "</span>");
+            code = replaceWord(code, types[i], true, "<span class=\"type\">", "</span>");
+        // variables
+        String[] variables = new String[] { "db_XXX", "context", "cmd", "record", "utils", "employee", "list", "result"};
+        for (int i=0; i<variables.length; i++)
+            code = replaceWord(code, variables[i], false, "<span class=\"var\">", "</span>");
         // Tables and columns
         if (db!=null)
         {   for (DBTable t : db.getTables())
             {
-                code = replaceWord(code, t.getName(), ' ', "<span class=\"obj\">", "</span>");
+                String table = t.getName();
+                code = replaceWord(code, table, false, "<span class=\"obj\">", "</span>");
+                code = replaceWord(code, table.substring(0,3)+"_XXX", false, "<span class=\"obj\">", "</span>");
                 for (DBColumn c : t.getColumns())
                 {
-                    code = replaceWord(code, "."+c.getName(), '.', "<span class=\"var\">", "</span>");
+                    code = replaceWord(code, "."+c.getName(), true, "<span class=\"field\">", "</span>");
                 }
             }
         }
         // functions
-        code = replaceFragment(code, '.', '(', false, "<span class=\"func\">", "</span>", new char[] { 'a', 'z' });
-        // literals
-        return replaceComment(code, "<span class=\"comment\">", "</span>"); 
+        code = replaceFunction(code, '.', '(', "<span class=\"func\">", "</span>");
+        // shorten
+        return code.replace("_XXX", "");
     }
     
-    public static String sqlToHtml(DBDatabase db, String sql, Number... literals)
+    public static String sqlToHtml(DBDatabase db, String sql, Object... literals)
     {
         sql = prepareHtml(sql);
+        sql = sql.replace("N'", "'");
         /*
         UPDATE t2
         SET BASE_PRICE=round(t2.BASE_PRICE*105/100,0)
@@ -122,19 +151,25 @@ public class HtmlGenUtil
         */
         String[] words = new String[] { "SELECT ", "UPDATE ", "INSERT ", "SET" , "FROM ", "WHERE ", "GROUP BY ", "HAVING ", "ORDER BY", " IN ", " ON ", " AND ", " INNER JOIN ", " LEFT JOIN ", " RIGHT_JOIN " };
         for (int i=0; i<words.length; i++)
-            sql = replaceWord(sql, words[i], ' ', "<span class=\"word\">", "</span>");
+            sql = replaceWord(sql, words[i], true, "<span class=\"word\">", "</span>");
         for (DBTable t : db.getTables())
-            sql = replaceWord(sql, t.getAlias(), ' ', "<span class=\"alias\">", "</span>");
+            sql = replaceWord(sql, t.getAlias(), false, "<span class=\"alias\">", "</span>");
         // functions
-        String[] func = new String[] { "count", "round", "avg" };
+        String[] func = new String[] { "count(", "round(", "avg(" };
         for (int i=0; i<func.length; i++)
-            sql = replaceWord(sql, func[i], ' ', "<span class=\"func\">", "</span>");
+            sql = replaceWord(sql, func[i], true, "<span class=\"func\">", "</span>");
         // finally literals
         for (int i=0; i<literals.length; i++)
-            sql = replaceWord(sql, literals[i].toString(), ' ', "<span class=\"literal\">", "</span>");
-        // String literals
-        sql = sql.replace("N'", "'");
-        return replaceFragment(sql, '\'', '\'', true, "<span class=\"param\"><span class=\"literal\">", "</span></span>", null);
+        {
+            String literal;
+            if (literals[i] instanceof String)
+                literal = "'"+((String)literals[i])+"'";
+            else
+                literal = String.valueOf(literals[i]);
+            sql = replaceWord(sql, literal, false, "<span class=\"param\"><span class=\"literal\">", "</span></span>");
+        }
+        // done
+        return sql;
     }
     
     /*
@@ -148,24 +183,53 @@ public class HtmlGenUtil
         str = StringUtils.replace(str, "<", "&lt;");
         return StringUtils.replace(str, ">", "&gt;");
     }
-    
-    public static String replaceWord(String str, String word, char intro, String htmlBeg, String htmlEnd) 
+
+    public static boolean isCommentLine(String str, int i) 
     {
+        for (;i>0;i--)
+        {
+            char c = str.charAt(i);
+            if (c=='\n')
+                break;
+            if (c=='/' && str.charAt(i-1)=='/')
+                return true;
+        }
+        return false;
+    }
+
+    public static char specialChar(char c) 
+    {
+        if ((c>='a' && c<='z') || (c>='A' && c<='Z'))
+            return 0;
+        return c;
+    }
+    
+    public static String replaceWord(String str, String word, boolean special, String htmlBeg, String htmlEnd) 
+    {
+        char intro = (special ? specialChar(word.charAt(0)) : 0); 
+        char extro = (special ? specialChar(word.charAt(word.length()-1)) : 0); 
         // not present
         if (str.indexOf(word)<0)
             return str;
         // replace
-        String wtrim = word.trim();
-        if (wtrim.charAt(0)==intro)
+        String wtrim = word;
+        if (intro>0)
             wtrim = wtrim.substring(1);
+        if (extro>0)
+            wtrim = wtrim.substring(0, wtrim.length()-1);
         StringBuilder s = new StringBuilder();
         int i = 0;
         int p = 0;
         while ((i=str.indexOf(word, p))>=0)
         {
-            if (word.charAt(0)==intro)
-                i++;
-            s.append(str.substring(p, i));
+            if (isCommentLine(str, i))
+            {   // comment: ignore
+                i += word.length();
+                s.append(str.substring(p, i));
+                p = i;
+                continue;
+            }
+            s.append(str.substring(p, (intro>0) ? ++i : i));
             s.append(htmlBeg);
             s.append(wtrim);
             s.append(htmlEnd);
@@ -176,7 +240,7 @@ public class HtmlGenUtil
         return s.toString();
     }
     
-    public static String replaceFragment(String str, char beg, char end, boolean include, String htmlBeg, String htmlEnd, char[] nextRange) 
+    public static String replaceFunction(String str, char beg, char end, String htmlBeg, String htmlEnd) 
     {
         StringBuilder s = new StringBuilder();
         int i = 0;
@@ -184,50 +248,26 @@ public class HtmlGenUtil
         while ((i=str.indexOf(beg, p))>=0)
         {
             // function special
-            if (nextRange!=null)
-            {   // check range of next char
-                char next = str.charAt(i+1);
-                if (next<nextRange[0] || next>nextRange[1])
-                {   // ignore
-                    s.append(str.substring(p, ++i));
-                    p = i;
-                    continue;
-                }
+            int j = ++i;
+            while(true)
+            {
+                char c = str.charAt(j);
+                boolean ok = (c>='a' && c<='z') || (c>='A' && c<='Z');
+                if (!ok)
+                    break;
+                j++;
             }
-            int n = str.indexOf('\n', i+1);
-            int j = str.indexOf(end,  ++i);
-            if (n<j)
-            {   // line-break: ignore
-                s.append(str.substring(p, n+1));
-                p = n+1;
+            // skip whitespace
+            int k = j;
+            while (str.charAt(k)==' ')
+                k++;
+            // check end
+            if (str.charAt(k)!=end)
+            {   // not found, something else
+                s.append(str.substring(p, j));
+                p = j;
                 continue;
             }
-            if (!include)
-            {   // remove whitespace
-                while(str.charAt(j-1)==' ') j--;
-            }
-            int o = (include) ? 1 : 0; 
-            s.append(str.substring(p, i-o));
-            s.append(htmlBeg);
-            s.append(str.substring(i-o, j+o));
-            s.append(htmlEnd);
-            // next
-            p = j + o;
-        }
-        s.append(str.substring(p));
-        return s.toString();
-    }
-    
-    public static String replaceComment(String str, String htmlBeg, String htmlEnd) 
-    {
-        StringBuilder s = new StringBuilder();
-        String beg = "//";
-        String end ="\r\n";
-        int i = 0;
-        int p = 0;
-        while ((i=str.indexOf(beg, p))>=0)
-        {
-            int j = str.indexOf(end, i+1);
             s.append(str.substring(p, i));
             s.append(htmlBeg);
             s.append(str.substring(i, j));
@@ -239,52 +279,27 @@ public class HtmlGenUtil
         return s.toString();
     }
     
-    /*
-    public static String replaceSqlWord(String sql, String word, String htmlBeg, String htmlEnd) 
-    {
-        // not present
-        if (sql.indexOf(word)<0)
-            return sql;
-        // replace
-        String wtrim = word.trim();
-        StringBuilder s = new StringBuilder();
-        int i = 0;
-        int p = 0;
-        while ((i=sql.indexOf(word, p))>=0)
-        {
-            if (word.charAt(0)==' ')
-                i++;
-            s.append(sql.substring(p, i));
-            s.append(htmlBeg);
-            s.append(wtrim);
-            s.append(htmlEnd);
-            // next
-            p = i + wtrim.length();
-        }
-        s.append(sql.substring(p));
-        return s.toString();
-    }
-    */
-    
-    /*
-    public static String replaceSqlStringLiteral(String sql, String htmlBeg, String htmlEnd) 
+    public static String replaceFragment(String str, String beg, String end, String htmlBeg, String htmlEnd) 
     {
         StringBuilder s = new StringBuilder();
         int i = 0;
         int p = 0;
-        while ((i=sql.indexOf('\'', p))>=0)
+        while ((i=str.indexOf(beg, p))>=0)
         {
-            int j = sql.indexOf('\'', ++i);
-            s.append(sql.substring(p, i-1));
+            int j = str.indexOf(end, i+1);
+            if (j<0)
+                throw new ItemNotFoundException(end);
+            if (!end.equals("\r\n"))
+                j+= end.length();
+            s.append(str.substring(p, i));
             s.append(htmlBeg);
-            s.append(sql.substring(i-1, j+1));
+            s.append(str.substring(i, j));
             s.append(htmlEnd);
             // next
-            p = j + 1;
+            p = j;
         }
-        s.append(sql.substring(p));
+        s.append(str.substring(p));
         return s.toString();
     }
-    */
 
 }

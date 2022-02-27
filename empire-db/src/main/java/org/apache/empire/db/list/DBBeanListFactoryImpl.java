@@ -23,6 +23,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.beanutils.MethodUtils;
 import org.apache.empire.commons.ClassUtils;
 import org.apache.empire.commons.ObjectUtils;
 import org.apache.empire.commons.StringUtils;
@@ -73,10 +74,24 @@ public class DBBeanListFactoryImpl<T> implements DBBeanListFactory<T>
         return ClassUtils.findMatchingConstructor(beanType, 0);
     }
     
+    protected static Class<?>[] getParameterTypes(Constructor<?> constructor)
+    {
+        if (constructor==null)
+            return null;
+        Class<?>[] parameterTypes = constructor.getParameterTypes();
+        for (int i=0; i<parameterTypes.length; i++)
+        {   // get wrapper for primitive types
+            if (parameterTypes[i].isPrimitive())
+                parameterTypes[i] = MethodUtils.getPrimitiveWrapper(parameterTypes[i]);
+        }
+        return parameterTypes;
+    }
+    
     /*
      * Members
      */
     protected final Constructor<T> constructor;
+    protected final Class<?>[] parameterTypes;
     protected final List<? extends DBColumnExpr> constructorParams;
     protected final List<? extends DBColumnExpr> setterColumns;
     
@@ -89,6 +104,7 @@ public class DBBeanListFactoryImpl<T> implements DBBeanListFactory<T>
     public DBBeanListFactoryImpl(Constructor<T> constructor, List<? extends DBColumnExpr> constructorParams, List<? extends DBColumnExpr> setterColumns) 
     {
         this.constructor = constructor;
+        this.parameterTypes = getParameterTypes(constructor);
         this.constructorParams = constructorParams;
         this.setterColumns = setterColumns;
         // Check constructor
@@ -122,6 +138,7 @@ public class DBBeanListFactoryImpl<T> implements DBBeanListFactory<T>
             this.setterColumns = selectColumns;
         }
         this.constructor = constructor;
+        this.parameterTypes = getParameterTypes(constructor);
         // log
         if (constructor!=null && log.isDebugEnabled())
             log.debug("{}: using bean constructor with {} params", beanType.getName(), constructor.getParameterCount());
@@ -157,6 +174,7 @@ public class DBBeanListFactoryImpl<T> implements DBBeanListFactory<T>
         }
         // found one
         this.constructor = constructor;
+        this.parameterTypes = getParameterTypes(constructor);
         // log
         if (constructor!=null && log.isDebugEnabled())
             log.debug("{}: using bean constructor with {} params", beanType.getName(), constructor.getParameterCount());
@@ -225,12 +243,26 @@ public class DBBeanListFactoryImpl<T> implements DBBeanListFactory<T>
                 {
                     Class<Enum<?>> enumType = expr.getEnumType();
                     if (enumType!=null)
-                        params[i++] = recData.getEnum(expr, enumType);
+                        params[i] = recData.getEnum(expr, enumType);
                     else
-                        params[i++] = recData.get(expr);
+                        params[i] = recData.get(expr);
+                    // check type
+                    if (params[i]!=null)
+                    {   // compare types
+                        Class<?> valueType = params[i].getClass();
+                        if (!parameterTypes[i].isAssignableFrom(valueType))
+                        {   // Param type does not match
+                            if (log.isDebugEnabled())
+                                log.debug("{} type of param {} doesn't match: expected \"{}\" got \"{}\"", constructor.getDeclaringClass().getName(), i, parameterTypes[i].getName(), valueType.getName());
+                            // convert
+                            params[i] = ObjectUtils.convert(parameterTypes[i], params[i]);
+                        }
+                    }
                     // log
                     if (log.isTraceEnabled())
-                        log.trace("{}: constructor param '{}' is {}", constructor.getDeclaringClass().getName(), StringUtils.coalesce(expr.getName(), String.valueOf(i-1)), params[i-1]);
+                        log.trace("{}: constructor param '{}' is {}", constructor.getDeclaringClass().getName(), StringUtils.coalesce(expr.getName(), String.valueOf(i)), params[i]);
+                    // next
+                    i++;
                 }
                 // create item
                 bean = constructor.newInstance(params);

@@ -24,6 +24,7 @@ import java.util.GregorianCalendar;
 import org.apache.empire.commons.ObjectUtils;
 import org.apache.empire.data.DataType;
 import org.apache.empire.db.DBColumnExpr;
+import org.apache.empire.db.DBCommand;
 import org.apache.empire.db.DBDDLGenerator;
 import org.apache.empire.db.DBDDLGenerator.DDLActionType;
 import org.apache.empire.db.DBDatabase;
@@ -72,13 +73,24 @@ public class DBMSHandlerHSql extends DBMSHandlerBase
     public boolean isSupported(DBMSFeature type)
     {
         switch (type)
-        {   // return support info 
-            case CREATE_SCHEMA: return false;
-            case SEQUENCES:     return true;    
+        {   // return support info
+            case CREATE_SCHEMA:     return false;
+            case SEQUENCES:         return true;
+            case QUERY_LIMIT_ROWS:  return true;
+            case QUERY_SKIP_ROWS:   return true;
             default:
                 // All other features are not supported by default
                 return false;
         }
+    }
+
+    /**
+     * Override standard command
+     */
+    @Override
+    public DBCommand createCommand(boolean autoPrepareStmt)
+    {
+        return new DBCommandHSql(autoPrepareStmt);
     }
     
     /**

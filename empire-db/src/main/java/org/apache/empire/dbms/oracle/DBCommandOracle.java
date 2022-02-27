@@ -373,12 +373,20 @@ public class DBCommandOracle extends DBCommand
         // More constraints
         for (DBCompareExpr we : this.where) 
         {
-            DBCompareColExpr cce = (DBCompareColExpr)we;
-            DBColumn ccecol = cce.getColumn().getUpdateColumn();
-            if (table.isKeyColumn(ccecol)&& !isSetColumn(ccecol))  
-            {
+            if (we instanceof DBCompareColExpr)
+            {   // a compare column expression
+                DBCompareColExpr cce = (DBCompareColExpr)we;
+                DBColumn ccecol = cce.getColumn().getUpdateColumn();
+                if (table.isKeyColumn(ccecol)&& !isSetColumn(ccecol))  
+                {
+                    buf.append(" AND ");
+                    cce.addSQL(buf, CTX_DEFAULT);
+                }
+            }
+            else
+            {   // just add
                 buf.append(" AND ");
-                cce.addSQL(buf, CTX_DEFAULT);
+                we.addSQL(buf, CTX_DEFAULT);
             }
         }
         // Set Expressions
