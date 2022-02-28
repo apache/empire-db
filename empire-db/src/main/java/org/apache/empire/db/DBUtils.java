@@ -772,9 +772,25 @@ public class DBUtils implements DBContextAware
     /**
      * Queries a list of DataListEntry items
      */
+    public final <T extends DataListEntry> List<T> queryDataList(DBCommandExpr cmd, Class<T> entryClass, int first, int maxItems)
+    {
+        return queryDataList(cmd, createDefaultDataListFactory(entryClass, createDefaultDataListHead(cmd, entryClass)), first, maxItems);
+    }
+    
+    /**
+     * Queries a list of DataListEntry items
+     */
     public final List<DataListEntry> queryDataList(DBCommandExpr cmd)
     {
         return queryDataList(cmd, DataListEntry.class);
+    }
+    
+    /**
+     * Queries a list of DataListEntry items
+     */
+    public final List<DataListEntry> queryDataList(DBCommandExpr cmd, int first, int maxItems)
+    {
+        return queryDataList(cmd, DataListEntry.class, first, maxItems);
     }
 
     /**

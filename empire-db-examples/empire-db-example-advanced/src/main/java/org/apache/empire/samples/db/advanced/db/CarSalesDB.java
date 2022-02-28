@@ -128,7 +128,7 @@ public class CarSalesDB extends TDatabase<CarSalesDB>
     {
         public final DBTableColumn ID;
         public final DBTableColumn NAME;
-        public final DBTableColumn CONFIG_NAME;
+        public final DBTableColumn SPECIFICATION;
         public final DBTableColumn WMI;
         public final DBTableColumn TRIM;
         public final DBTableColumn ENGINE_TYPE;
@@ -143,7 +143,7 @@ public class CarSalesDB extends TDatabase<CarSalesDB>
             // ID
             ID              = addIdentity  ("ID",               "MODEL_ID_SEQUENCE");  // Optional Sequence name for some DBMS (e.g. Oracle)
             NAME            = addColumn    ("NAME",             DataType.VARCHAR,     20, true);
-            CONFIG_NAME     = addColumn    ("CONFIGURATION",    DataType.VARCHAR,     40, true);
+            SPECIFICATION   = addColumn    ("SPECIFICATION",    DataType.VARCHAR,     40, true);
             WMI             = addForeignKey("WMI",              db.BRAND,                 true);
             TRIM            = addColumn    ("TRIM",             DataType.VARCHAR,     20, true);
             ENGINE_TYPE     = addColumn    ("ENGINE_TYPE",      DataType.CHAR,         1, true, EngineType.class);

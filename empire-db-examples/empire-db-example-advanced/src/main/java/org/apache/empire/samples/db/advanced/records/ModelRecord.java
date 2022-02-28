@@ -20,7 +20,7 @@ public class ModelRecord extends TRecord<CarSalesDB.Model>
         create();
         set(T.WMI             , brand);
         set(T.NAME            , modelName);
-        set(T.CONFIG_NAME     , configName);
+        set(T.SPECIFICATION   , configName);
         set(T.TRIM            , trim);
         set(T.ENGINE_TYPE     , engineType);
         set(T.ENGINE_POWER    , enginePower);

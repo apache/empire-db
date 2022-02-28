@@ -313,13 +313,13 @@ public class SampleAdvApp
         List<Long> dealerIdList = context.getUtils().querySimpleList(Long.class, cmd);
         // get all models
         cmd.clear();
-        cmd.select(db.MODEL.ID, db.MODEL.CONFIG_NAME, db.MODEL.BASE_PRICE);  // select the ones we need (optional)
+        cmd.select(db.MODEL.ID, db.MODEL.SPECIFICATION, db.MODEL.BASE_PRICE);  // select the ones we need (optional)
         // no constraints on model
         List<DataListEntry> modelList = context.getUtils().queryDataList(cmd);
         for (DataListEntry model : modelList)
         {
             int count = generateRandomSales(batch, model, dealerIdList);
-            log.info("{} Sales added for Model {}", count, model.getString(db.MODEL.CONFIG_NAME));
+            log.info("{} Sales added for Model {}", count, model.getString(db.MODEL.SPECIFICATION));
         }
         // execute the batch
         int count = batch.executeBatch();
@@ -436,7 +436,7 @@ public class SampleAdvApp
         
         // create command
         DBCommand cmd = context.createCommand()
-           .select(MODEL.CONFIG_NAME, q.column(SALES.count()))
+           .select(MODEL.SPECIFICATION, q.column(SALES.count()))
            .join(MODEL.ID, q.column(SALES.MODEL_ID));
         
         List<DataListEntry> list = context.getUtils().queryDataList(cmd);
@@ -456,20 +456,20 @@ public class SampleAdvApp
 
         // .selectQualified(BRAND.NAME, MODEL.CONFIG_NAME) 
         
-        // create command
+        // create a command
         DBCommand cmd = context.createCommand()
-           .select  (BRAND.NAME, MODEL.CONFIG_NAME, MODEL.BASE_PRICE)
+           .select  (BRAND.NAME, MODEL.SPECIFICATION, MODEL.BASE_PRICE)
            .select  (SALES.MODEL_ID.count(), SALES.PRICE.avg())
            .select  (SALES.PRICE.avg().minus(MODEL.BASE_PRICE.avg()).round(2).as("DIFFERENCE"))
            .join    (MODEL.WMI, BRAND.WMI)
            .joinLeft(MODEL.ID, SALES.MODEL_ID, SALES.YEAR.is(2021))  // only year 2021
            .where   (MODEL.ENGINE_TYPE.in(EngineType.P, EngineType.H, EngineType.E)) // Petrol, Hybrid, Electric
            .where   (MODEL.BASE_PRICE.isGreaterThan(30000))
-           .groupBy (BRAND.NAME, MODEL.CONFIG_NAME, MODEL.BASE_PRICE)
+           .groupBy (BRAND.NAME, MODEL.SPECIFICATION, MODEL.BASE_PRICE)
            .having  (SALES.MODEL_ID.count().isGreaterThan(5))   // more than 5 sales
-           .orderBy (BRAND.NAME.desc(), MODEL.CONFIG_NAME.asc());
+           .orderBy (BRAND.NAME.desc(), MODEL.SPECIFICATION.asc());
              
-        // Returns a list of Java beans (needs matching fields constructor or setter methods)           
+        // Return a list of Java beans (needs matching fields constructor or setter methods)           
         // This is just one of several options to obtain an process query results          
         List<QueryResult> list = context.getUtils().queryBeanList(cmd, QueryResult.class, null);
         log.info("queryBeanList returnes {} items", list.size());
@@ -501,11 +501,11 @@ public class SampleAdvApp
         DBCmdParam engineTypeParam = cmd.addParam();
                 
         // create the command
-        cmd.select  (BRAND.NAME, MODEL.CONFIG_NAME, MODEL.BASE_PRICE, MODEL.ENGINE_TYPE, MODEL.ENGINE_POWER)
+        cmd.select  (BRAND.NAME, MODEL.SPECIFICATION, MODEL.BASE_PRICE, MODEL.ENGINE_TYPE, MODEL.ENGINE_POWER)
            .join    (MODEL.WMI, BRAND.WMI)
            .where   (BRAND.NAME.is(brandParam))
            .where   (MODEL.ENGINE_TYPE.is(engineTypeParam))
-           .orderBy (BRAND.NAME.desc(), MODEL.CONFIG_NAME.asc());
+           .orderBy (BRAND.NAME.desc(), MODEL.SPECIFICATION.asc());
 
         // set the params
         brandParam.setValue("Tesla");
@@ -852,7 +852,7 @@ public class SampleAdvApp
         model.create()
             .set(MODEL.WMI             , "WVW")  // = Volkswagen
             .set(MODEL.NAME            , "ID.4")
-            .set(MODEL.CONFIG_NAME     , "ID.4 Pro Performance 150 kW 77 kWh")
+            .set(MODEL.SPECIFICATION     , "ID.4 Pro Performance 150 kW 77 kWh")
             .set(MODEL.TRIM            , "Pro")
             .set(MODEL.ENGINE_TYPE     , EngineType.E)
             .set(MODEL.ENGINE_POWER    , 204);

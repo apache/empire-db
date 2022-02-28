@@ -266,6 +266,17 @@ public class DataListEntry implements RecordData, Serializable
         return getInt(indexOf(column));
     }
 
+    public long getLong(int index)
+    {   // Get Long value
+        Object o = getValue(index);
+        return ObjectUtils.getLong(o);
+    }
+    
+    public final long getLong(ColumnExpr column)
+    {
+        return getLong(indexOf(column));
+    }
+
     public BigDecimal getDecimal(int index)
     {   // Get Integer value
         Object o = getValue(index);
