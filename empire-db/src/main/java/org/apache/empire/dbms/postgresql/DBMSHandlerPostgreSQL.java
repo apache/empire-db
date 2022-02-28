@@ -345,10 +345,10 @@ public class DBMSHandlerPostgreSQL extends DBMSHandlerBase
             case SQL_CURRENT_DATE:            return "CURRENT_DATE";
             case SQL_DATE_PATTERN:            return "yyyy-MM-dd";
             case SQL_DATE_TEMPLATE:           return "'{0}'";
-            case SQL_DATETIME_PATTERN:        return "yyyy-MM-dd HH:mm:ss";
+            case SQL_DATETIME_PATTERN:        return "yyyy-MM-dd HH:mm:ss.SSS";
             case SQL_DATETIME_TEMPLATE:       return "'{0}'";
             case SQL_CURRENT_TIMESTAMP:       return "NOW()";
-            case SQL_TIMESTAMP_PATTERN:       return "yyyy-MM-dd HH:mm:ss";
+            case SQL_TIMESTAMP_PATTERN:       return "yyyy-MM-dd HH:mm:ss.SSS";
             case SQL_TIMESTAMP_TEMPLATE:      return "'{0}'";
             // functions
             case SQL_FUNC_COALESCE:           return "coalesce(?, {0})";
