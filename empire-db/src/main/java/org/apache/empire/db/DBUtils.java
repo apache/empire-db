@@ -157,11 +157,11 @@ public class DBUtils implements DBContextAware
      * @param sqlCmd the SQL-Command
      * @param sqlParams list of query parameter values
      * @param dataType the expected data type
-     * @param forceResult if true a QueryNoResultException result is thrown if no record exists otherwise null is returned
+     * @param failOnNoResult if true a QueryNoResultException result is thrown if no record exists otherwise null is returned
      * 
      * @return the value of the first column in the first row of the query 
      */
-    public Object querySingleValue(String sqlCmd, Object[] sqlParams, DataType dataType, boolean forceResult)
+    public Object querySingleValue(String sqlCmd, Object[] sqlParams, DataType dataType, boolean failOnNoResult)
     {
         // Debug
         long start = System.currentTimeMillis();
@@ -171,7 +171,7 @@ public class DBUtils implements DBContextAware
         Object result = dbms.querySingleValue(sqlCmd, sqlParams, dataType, context.getConnection());
         if (result==ObjectUtils.NO_VALUE)
         {   // Query returned no result
-            if (forceResult)
+            if (failOnNoResult)
                 throw new QueryNoResultException(sqlCmd);
             else
                 result = null;
@@ -195,9 +195,10 @@ public class DBUtils implements DBContextAware
      * 
      * @return the value of the first column in the first row of the query 
      */
-    public final Object querySingleValue(DBCommandExpr cmd, DataType dataType, boolean forceResult)
+    public final <T> T querySingleValue(DBCommandExpr cmd, Class<T> resultType, boolean failOnNoResult)
     {
-        return querySingleValue(cmd.getSelect(), cmd.getParamValues(), dataType, forceResult);
+        Object value = querySingleValue(cmd.getSelect(), cmd.getParamValues(), DataType.fromJavaType(resultType), failOnNoResult); 
+        return ObjectUtils.convert(resultType, value);
     }
     
     /**
@@ -208,9 +209,11 @@ public class DBUtils implements DBContextAware
      * 
      * @return the value of the first column in the first row of the query 
      */
-    public final Object querySingleValue(DBCommandExpr cmd, boolean forceResult)
+    public final Object querySingleValue(DBCommandExpr cmd, boolean failOnNoResult)
     {
-        return querySingleValue(cmd, DataType.UNKNOWN, forceResult);  
+        DBColumnExpr[] selExpr = cmd.getSelectExprList();
+        DataType dataType = (selExpr!=null && selExpr.length>0 ? selExpr[0].getDataType() : DataType.UNKNOWN); 
+        return querySingleValue(cmd.getSelect(), cmd.getParamValues(), dataType, failOnNoResult);  
     }
     
     /**
@@ -223,7 +226,7 @@ public class DBUtils implements DBContextAware
      */
     public final Object querySingleValue(DBCommandExpr cmd)
     {
-        return querySingleValue(cmd, DataType.UNKNOWN, true);  
+        return querySingleValue(cmd, true);  
     }
 
     /**
@@ -796,12 +799,12 @@ public class DBUtils implements DBContextAware
     /**
      * Queries a single DataListEntry item
      */
-    public final <T extends DataListEntry> T queryDataEntry(DBCommandExpr cmd, Class<T> entryClass, boolean forceResult)
+    public final <T extends DataListEntry> T queryDataEntry(DBCommandExpr cmd, Class<T> entryClass, boolean failOnNoResult)
     {
         DataListHead head = createDefaultDataListHead(cmd, entryClass);
         List<T> dle = queryDataList(cmd, createDefaultDataListFactory(entryClass, head), 0, 1);
         if (dle.isEmpty())
-        {   if (forceResult)
+        {   if (failOnNoResult)
                 throw new QueryNoResultException(cmd.getSelect());
             return null;
         }

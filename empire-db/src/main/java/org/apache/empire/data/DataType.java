@@ -18,6 +18,13 @@
  */
 package org.apache.empire.data;
 
+import java.sql.Timestamp;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.Date;
+
+import org.apache.commons.beanutils.MethodUtils;
+
 /**
  * DataType is an enumeration of data types that are supported
  * with the empire-db component.
@@ -153,4 +160,45 @@ public enum DataType
         // no match
         return false;
     }
+    
+    /**
+     * Returns the DataType from a given Java Type
+     * If the type is not mapped, then DataType.UNKNOWN is returned
+     * @param javaType the Java Type
+     * @return the corresponding DataType
+     */
+    public static DataType fromJavaType(Class<?> javaType)
+    {
+        if (javaType.isPrimitive())
+            javaType = MethodUtils.getPrimitiveWrapper(javaType);
+        // String
+        if (javaType==String.class)
+            return DataType.VARCHAR;
+        if (javaType==Character.class ||
+            javaType==Character[].class)
+            return DataType.CHAR;
+        // Check integer
+        if (javaType == Integer.class || 
+            javaType == Long.class ||
+            javaType == Short.class)
+            return DataType.INTEGER;
+        if (Number.class.isAssignableFrom(javaType))
+            return DataType.DECIMAL;
+        // Check Dates
+        if (javaType == Timestamp.class)
+            return DataType.TIMESTAMP;
+        if (Date.class.isAssignableFrom(javaType) ||
+            javaType == LocalDateTime.class)
+            return DataType.DATETIME;
+        if (javaType == LocalDate.class)
+            return DataType.DATE;
+        // Other
+        if (javaType == Boolean.class)
+            return DataType.BOOL;
+        if (javaType == byte[].class)
+            return DataType.BLOB;
+        // Unknown
+        return DataType.UNKNOWN;
+    }
+    
 }
