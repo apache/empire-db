@@ -1595,14 +1595,9 @@ public abstract class DBCommand extends DBCommandExpr
                  }
                  join.addSQL(buf, context);
                  // Merge subquery params
-                 Object[] qryParams = join.getSubqueryParams();
-                 if (qryParams!=null && qryParams.length>0)
-                 {   // Subquery has parameters
-                     if (cmdParams==null)
-                         cmdParams= new ArrayList<DBCmdParam>(qryParams.length);
-                     for (int p=0; p<qryParams.length; p++)
-                         cmdParams.add(paramUsageCount++, new DBCmdParam(null, DataType.UNKNOWN, qryParams[p]));
-                 }
+                 Object[] subQueryParams = join.getSubqueryParams();
+                 if (subQueryParams!=null)
+                     mergeSubqueryParams(subQueryParams);
                  // add CRLF
                  if( i!=joins.size()-1 )
                      buf.append("\r\n");
@@ -1614,6 +1609,11 @@ public abstract class DBCommand extends DBCommandExpr
             if (sep) buf.append(", ");
             DBRowSet t = tables.get(i); 
             t.addSQL(buf, CTX_DEFAULT|CTX_ALIAS);
+            // check for query
+            if (t instanceof DBQuery)
+            {   // Merge subquery params
+                mergeSubqueryParams(((DBQuery)t).getCommandExpr().getParamValues());
+            }
             sep = true;
         }
         if (sep==false)
@@ -1628,6 +1628,17 @@ public abstract class DBCommand extends DBCommandExpr
                 buf.setLength(originalLength);
             }
         }
+    }
+    
+    protected void mergeSubqueryParams(Object[] subQueryParams)
+    {
+        if (subQueryParams==null || subQueryParams.length==0)
+            return;
+        // Subquery has parameters
+        if (cmdParams==null)
+            cmdParams= new ArrayList<DBCmdParam>(subQueryParams.length);
+        for (int p=0; p<subQueryParams.length; p++)
+            cmdParams.add(paramUsageCount++, new DBCmdParam(null, DataType.UNKNOWN, subQueryParams[p]));
     }
 
     protected void addWhere(StringBuilder buf, long context)
