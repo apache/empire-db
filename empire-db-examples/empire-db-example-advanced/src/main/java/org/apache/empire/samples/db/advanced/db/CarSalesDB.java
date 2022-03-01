@@ -28,6 +28,7 @@ import org.apache.empire.db.generic.TDatabase;
 import org.apache.empire.db.generic.TTable;
 import org.apache.empire.db.validation.DBModelChecker;
 import org.apache.empire.db.validation.DBModelErrorLogger;
+import org.apache.empire.dbms.DBMSHandler;
 import org.apache.empire.dbms.postgresql.DBMSHandlerPostgreSQL;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -291,13 +292,15 @@ public class CarSalesDB extends TDatabase<CarSalesDB>
             checkDataModel(context);
         } 
         else
-        {   // PostgreSQL does not support DDL in transaction
-            if(getDbms() instanceof DBMSHandlerPostgreSQL)
+        {   
+        	DBMSHandler dbms = context.getDbms();
+        	// PostgreSQL does not support DDL in transaction
+            if(dbms instanceof DBMSHandlerPostgreSQL)
                 setAutoCommit(context, true);
             // create the database
             createDatabase(context);
             // PostgreSQL does not support DDL in transaction
-            if(getDbms() instanceof DBMSHandlerPostgreSQL)
+            if(dbms instanceof DBMSHandlerPostgreSQL)
                 setAutoCommit(context, false);
             // attach to driver
             super.open(context);
