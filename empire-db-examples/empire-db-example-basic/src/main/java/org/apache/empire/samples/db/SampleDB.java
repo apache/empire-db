@@ -29,6 +29,7 @@ import org.apache.empire.db.DBTable;
 import org.apache.empire.db.DBTableColumn;
 import org.apache.empire.db.validation.DBModelChecker;
 import org.apache.empire.db.validation.DBModelErrorLogger;
+import org.apache.empire.dbms.DBMSHandler;
 import org.apache.empire.dbms.postgresql.DBMSHandlerPostgreSQL;
 import org.apache.empire.samples.db.beans.Department;
 import org.apache.empire.samples.db.beans.Employee;
@@ -216,12 +217,13 @@ public class SampleDB extends DBDatabase
         }
         else
         {   // PostgreSQL does not support DDL in transaction
-            if(getDbms() instanceof DBMSHandlerPostgreSQL)
+            DBMSHandler dbms = context.getDbms();
+            if (dbms instanceof DBMSHandlerPostgreSQL)
                 setAutoCommit(context, true);
             // create the database
             createDatabase(context);
             // PostgreSQL does not support DDL in transaction
-            if(getDbms() instanceof DBMSHandlerPostgreSQL)
+            if (dbms instanceof DBMSHandlerPostgreSQL)
                 setAutoCommit(context, false);
             // attach to driver
             super.open(context);
