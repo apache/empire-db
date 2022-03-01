@@ -253,15 +253,16 @@ public class DBColumnJoinExpr extends DBJoinExpr
     /**
      * Returns the subquery Params
      * Valid only directly after addSQL() has been called! 
+     * @param which: both (==0) | left (<=0) | right (>=0)   
      * @return the subquery params;
      */
     @Override
-    public Object[] getSubqueryParams()
+    public Object[] getSubqueryParams(int which)
     {
         DBRowSet left = getLeftTable();
         DBRowSet right = getRightTable();
-        Object[] leftParams  = (left  instanceof DBQuery) ? ((DBQuery)left ).getCommandExpr().getParamValues() : null;
-        Object[] rightParams = (right instanceof DBQuery) ? ((DBQuery)right).getCommandExpr().getParamValues() : null;
+        Object[] leftParams  = (which<=0 && (left  instanceof DBQuery)) ? ((DBQuery)left ).getCommandExpr().getParamValues() : null;
+        Object[] rightParams = (which>=0 && (right instanceof DBQuery)) ? ((DBQuery)right).getCommandExpr().getParamValues() : null;
         if (leftParams!=null && rightParams!=null)
         {   // combine
             Object[] both = new Object[leftParams.length+rightParams.length];

@@ -100,9 +100,10 @@ public abstract class DBJoinExpr extends DBExpr
     /**
      * Returns the subquery Params
      * Valid only directly after addSQL() has been called! 
+     * @param which: both (==0) | left (<=0) | right (>=0)   
      * @return the subquery params;
      */
-    public abstract Object[] getSubqueryParams();
+    public abstract Object[] getSubqueryParams(int which);
     
     /**
      * This function swaps the left and the right statements of the join expression.

@@ -1584,6 +1584,7 @@ public abstract class DBCommand extends DBCommandExpr
         buf.append("\r\nFROM ");
         // Join
         boolean sep = false;
+        int whichParams = 0;
         List<DBRowSet> tables = getRowSetList();
         if (joins!=null && joins.size()>0)
         {   // Join
@@ -1601,21 +1602,23 @@ public abstract class DBCommand extends DBCommandExpr
                      tables.remove(join.getRightTable());
                      // Context
                      context = CTX_NAME|CTX_VALUE;
+                     whichParams = 0;
                  }
                  else
                  {   // Extend the join                    
-                     if ( joinTables.contains(join.getRightTable()))
-                          join.reverse();
+                     if (joinTables.contains(join.getRightTable()))
+                         join.reverse();
                      // Add Right Table     
                      joinTables.add(join.getRightTable());
                      tables .remove(join.getRightTable());
                      // Context
                      context = CTX_VALUE;
                      buf.append( "\t" );
+                     whichParams = 1;
                  }
                  join.addSQL(buf, context);
                  // Merge subquery params
-                 Object[] subQueryParams = join.getSubqueryParams();
+                 Object[] subQueryParams = join.getSubqueryParams(whichParams);
                  if (subQueryParams!=null)
                      mergeSubqueryParams(subQueryParams);
                  // add CRLF
