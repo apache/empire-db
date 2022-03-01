@@ -197,7 +197,7 @@ public class DBUtils implements DBContextAware
      */
     public final <T> T querySingleValue(DBCommandExpr cmd, Class<T> resultType, boolean failOnNoResult)
     {
-        Object value = querySingleValue(cmd.getSelect(), cmd.getParamValues(), DataType.fromJavaType(resultType), failOnNoResult); 
+        Object value = querySingleValue(cmd.getSelect(), cmd.getParamValues(), cmd.getDataType(), failOnNoResult); 
         return ObjectUtils.convert(resultType, value);
     }
     
@@ -211,9 +211,7 @@ public class DBUtils implements DBContextAware
      */
     public final Object querySingleValue(DBCommandExpr cmd, boolean failOnNoResult)
     {
-        DBColumnExpr[] selExpr = cmd.getSelectExprList();
-        DataType dataType = (selExpr!=null && selExpr.length>0 ? selExpr[0].getDataType() : DataType.UNKNOWN); 
-        return querySingleValue(cmd.getSelect(), cmd.getParamValues(), dataType, failOnNoResult);  
+        return querySingleValue(cmd.getSelect(), cmd.getParamValues(), cmd.getDataType(), failOnNoResult);  
     }
     
     /**
@@ -449,7 +447,7 @@ public class DBUtils implements DBContextAware
      */
     public final <T> int querySimpleList(Class<T> c, DBCommandExpr cmd, Collection<T> result)
     {
-        return querySimpleList(c, cmd.getSelect(), cmd.getParamValues(), DataType.UNKNOWN, result, MAX_QUERY_ROWS); 
+        return querySimpleList(c, cmd.getSelect(), cmd.getParamValues(), cmd.getDataType(), result, MAX_QUERY_ROWS); 
     }
 
     /**

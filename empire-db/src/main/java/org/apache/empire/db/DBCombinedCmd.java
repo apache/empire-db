@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.empire.data.DataType;
 import org.apache.empire.db.expr.order.DBOrderByExpr;
 
 /**
@@ -151,6 +152,15 @@ public class DBCombinedCmd extends DBCommandExpr
         return allParams;
     }
 
+    /**
+    * @return the DataType of the selected expression or DataType.UNKNOWN
+    */
+    @Override
+    public DataType getDataType()
+    {
+        return left.getDataType();
+    }
+    
     /**
      * Creates the SQL-Command.
      * 

@@ -294,6 +294,17 @@ public abstract class DBCommand extends DBCommandExpr
     {
         return (select!=null ? (select.indexOf(expr)>=0) : false);
     }
+
+    /**
+    * @return the DataType of the selected expression or DataType.UNKNOWN
+    */
+    @Override
+    public DataType getDataType()
+    {
+        if (select==null || select.size()!=1)
+            return DataType.UNKNOWN;
+        return select.get(0).getDataType(); 
+    }
     
     /**
      * Adds a DBColumnExpr object to the Select collection

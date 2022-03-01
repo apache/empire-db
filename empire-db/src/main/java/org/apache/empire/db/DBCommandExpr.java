@@ -340,6 +340,13 @@ public abstract class DBCommandExpr extends DBExpr
     public abstract Object[] getParamValues();
 
     /**
+     * Returns the DataType selected by this command if only one column is returned
+     * If the command has more than one select expression DataType.UNKNOWN will be returned
+     * @return the DataType of the selected expression or DataType.UNKNOWN
+     */
+    public abstract DataType getDataType();
+    
+    /**
      * Creates the SQL-Command.
      * 
      * @param buf the SQL-Command
