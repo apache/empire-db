@@ -18,22 +18,12 @@
  */
 package org.apache.empire.dbms.oracle;
 
-import java.util.ArrayList;
-// Imports
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import org.apache.empire.commons.StringUtils;
-import org.apache.empire.data.DataType;
-import org.apache.empire.db.DBColumn;
-import org.apache.empire.db.DBColumnExpr;
 import org.apache.empire.db.DBCommand;
 import org.apache.empire.db.DBIndex;
 import org.apache.empire.db.DBRowSet;
-import org.apache.empire.db.expr.column.DBAliasExpr;
-import org.apache.empire.db.expr.column.DBValueExpr;
-import org.apache.empire.db.expr.compare.DBCompareColExpr;
 import org.apache.empire.db.expr.compare.DBCompareExpr;
 import org.apache.empire.db.expr.join.DBColumnJoinExpr;
 import org.apache.empire.db.expr.join.DBJoinExpr;
@@ -287,102 +277,13 @@ public class DBCommandOracle extends DBCommand
         }
         if (updateJoin==null)
             throw new ObjectNotValidException(this);
-        Set<DBColumn> joinColumns = new HashSet<DBColumn>();
-        updateJoin.addReferencedColumns(joinColumns);
         // using
-        buf.append("\r\nUSING ");
-        DBCommand inner = this.clone();
-        inner.clearSelect();
-        inner.clearOrderBy();
-        DBRowSet outerTable = updateJoin.getOuterTable();
-        if (outerTable==null)
-            outerTable=table;
-        for (DBColumn jcol : joinColumns)
-        {   // Select join columns
-            if (jcol.getRowSet().equals(outerTable)==false)
-                inner.select(jcol);
-        }
-        // find the source table
-        DBColumnExpr left  = updateJoin.getLeft();
-        DBColumnExpr right = updateJoin.getRight();
-        DBRowSet source = right.getUpdateColumn().getRowSet();
-        if (source==table)
-            source = left.getUpdateColumn().getRowSet();
-        // Add set expressions
-        String sourceAliasPrefix = source.getAlias()+".";
-        List<DBSetExpr> mergeSet = new ArrayList<DBSetExpr>(set.size());   
-        for (DBSetExpr sex : set)
-        {   // Select set expressions
-            Object val = sex.getValue();
-            if (val instanceof DBColumnExpr)
-            {
-                DBColumnExpr expr = ((DBColumnExpr)val);
-                if (!(expr instanceof DBColumn) && !(expr instanceof DBAliasExpr))
-                {   // rename column
-                    String name = "COL_"+String.valueOf(mergeSet.size());
-                    expr = expr.as(name);
-                }
-                // select
-                inner.select(expr);
-                // Name
-                DBValueExpr NAME_EXPR = getDatabase().getValueExpr(sourceAliasPrefix+expr.getName(), DataType.UNKNOWN);
-                mergeSet.add(sex.getColumn().to(NAME_EXPR));
-            }
-            else
-            {   // add original
-                mergeSet.add(sex);
-            }
-        }
-        // remove join (if not necessary)
-        if (inner.hasConstraintOn(table)==false)
-            inner.removeJoinsOn(table);
-        // add SQL for inner statement
-        inner.addSQL(buf, CTX_DEFAULT);
-        // add Alias
-        buf.append(" ");
-        buf.append(source.getAlias());
-        buf.append("\r\nON (");
-        left.addSQL(buf, CTX_DEFAULT);
-        buf.append(" = ");
-        right.addSQL(buf, CTX_DEFAULT);
-        // Compare Expression
-        if (updateJoin.getWhere() != null)
-        {   buf.append(" AND ");
-            updateJoin.getWhere().addSQL(buf, CTX_DEFAULT);
-        }
-        // More constraints
-        for (DBCompareExpr we : this.where) 
-        {
-            if (we instanceof DBCompareColExpr)
-            {   // a compare column expression
-                DBCompareColExpr cce = (DBCompareColExpr)we;
-                DBColumn ccecol = cce.getColumn().getUpdateColumn();
-                if (table.isKeyColumn(ccecol)&& !isSetColumn(ccecol))  
-                {
-                    buf.append(" AND ");
-                    cce.addSQL(buf, CTX_DEFAULT);
-                }
-            }
-            else
-            {   // just add
-                buf.append(" AND ");
-                we.addSQL(buf, CTX_DEFAULT);
-            }
-        }
+        DBMergeCommand merge = createMergeCommand();
+        List<DBSetExpr> mergeSet = merge.addUsing(buf, table, updateJoin);
         // Set Expressions
         buf.append(")\r\nWHEN MATCHED THEN UPDATE ");
         buf.append("\r\nSET ");
         addListExpr(buf, mergeSet, CTX_DEFAULT, ", ");
-    }
-        
-    protected boolean isSetColumn(DBColumn col)
-    {
-        for (DBSetExpr se : this.set)
-        {
-            if (se.getColumn().equals(col))
-                return true;
-        }
-        return false;
     }
     
     /**

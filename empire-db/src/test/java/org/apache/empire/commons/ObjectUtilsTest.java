@@ -60,7 +60,7 @@ public class ObjectUtilsTest
 	@Test
 	public void testCompareEqual()
 	{
-		assertTrue(ObjectUtils.compareEqual(null, null));
+		assertTrue(ObjectUtils.compareEqual((Object)null, null));
 		
 		Object object = new Object();
 		assertTrue(ObjectUtils.compareEqual(object, object));

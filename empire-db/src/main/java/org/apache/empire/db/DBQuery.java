@@ -246,7 +246,7 @@ public class DBQuery extends DBRowSet
     {
         for (int i = 0; i < queryColumns.length; i++)
         {
-            if (queryColumns[i].exprEquals(expr))
+            if (ObjectUtils.compareEqual(queryColumns[i].getExpr(), expr))
                 return queryColumns[i];
         }
         // not found

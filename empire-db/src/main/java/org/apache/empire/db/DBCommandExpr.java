@@ -26,8 +26,11 @@ import java.util.Set;
 import org.apache.empire.commons.Options;
 import org.apache.empire.data.DataType;
 import org.apache.empire.db.expr.compare.DBCompareExpr;
+import org.apache.empire.db.expr.join.DBJoinExpr;
 import org.apache.empire.db.expr.order.DBOrderByExpr;
+import org.apache.empire.db.expr.set.DBSetExpr;
 import org.apache.empire.dbms.DBMSHandler;
+import org.apache.empire.exceptions.InternalException;
 import org.apache.empire.exceptions.InvalidArgumentException;
 import org.apache.empire.exceptions.NotSupportedException;
 import org.apache.empire.exceptions.ObjectNotValidException;
@@ -290,6 +293,25 @@ public abstract class DBCommandExpr extends DBExpr
         // Default Constructor
     }
 
+    /**
+     * Creates a clone of this class.
+     */
+    @Override
+    public DBCommandExpr clone()
+    {
+        try 
+        {   DBCommandExpr clone = (DBCommandExpr)super.clone();
+            // Clone lists
+            if (orderBy!=null)
+                clone.orderBy = new ArrayList<DBOrderByExpr>(orderBy);
+            // done
+            return clone;
+        } catch (CloneNotSupportedException e) {
+            log.error("Cloning DBCommand object failed!", e);
+            throw new InternalException(e); 
+        }
+    }
+    
     public abstract boolean isValid();
     
     /**

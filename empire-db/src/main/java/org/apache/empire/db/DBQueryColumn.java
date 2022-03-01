@@ -46,16 +46,6 @@ public class DBQueryColumn extends DBColumn
     {
         return expr;
     }
-    
-    public boolean exprEquals(DBColumnExpr other)
-    {
-        if (other.isWrapper() && !expr.isWrapper())
-            return expr.equals(other.unwrap());
-        else if (!other.isWrapper() && expr.isWrapper())
-            return expr.unwrap().equals(other);
-        // both wrapped or both unwrapped
-        return expr.equals(other);
-    }
 
     @Override
     public DataType getDataType()

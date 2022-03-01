@@ -26,10 +26,16 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.empire.commons.ObjectUtils;
 import org.apache.empire.commons.StringUtils;
+import org.apache.empire.commons.Unwrappable;
 import org.apache.empire.data.DataType;
+import org.apache.empire.db.expr.column.DBAliasExpr;
+import org.apache.empire.db.expr.column.DBValueExpr;
+import org.apache.empire.db.expr.compare.DBCompareAndOrExpr;
 import org.apache.empire.db.expr.compare.DBCompareColExpr;
 import org.apache.empire.db.expr.compare.DBCompareExpr;
+import org.apache.empire.db.expr.compare.DBCompareNotExpr;
 import org.apache.empire.db.expr.join.DBColumnJoinExpr;
 import org.apache.empire.db.expr.join.DBCompareJoinExpr;
 import org.apache.empire.db.expr.join.DBCrossJoinExpr;
@@ -37,9 +43,9 @@ import org.apache.empire.db.expr.join.DBJoinExpr;
 import org.apache.empire.db.expr.order.DBOrderByExpr;
 import org.apache.empire.db.expr.set.DBSetExpr;
 import org.apache.empire.dbms.DBSqlPhrase;
-import org.apache.empire.exceptions.InternalException;
 import org.apache.empire.exceptions.InvalidArgumentException;
 import org.apache.empire.exceptions.ItemNotFoundException;
+import org.apache.empire.exceptions.NotSupportedException;
 import org.apache.empire.exceptions.ObjectNotValidException;
 import org.apache.empire.exceptions.UnspecifiedErrorException;
 import org.slf4j.Logger;
@@ -56,6 +62,172 @@ public abstract class DBCommand extends DBCommandExpr
 {
     // *Deprecated* private static final long serialVersionUID = 1L;
 
+    /**
+     * DBMergeCommand
+     * @author rainer
+     */
+    protected static class DBMergeCommand extends DBCommand
+    {
+        private final DBCommand parent;
+        
+        protected DBMergeCommand(DBCommand parent)
+        {
+            super(parent.isAutoPrepareStmt());
+            this.parent = parent;
+            // set 
+            List<DBSetExpr> set = parent.getSetExpressions();
+            if (set!=null)
+                this.set = new ArrayList<DBSetExpr>(set);
+            // joins
+            List<DBJoinExpr> joins = parent.getJoins();
+            if (joins!=null)
+                this.joins = new ArrayList<DBJoinExpr>(joins);
+            // where
+            List<DBCompareExpr> where = parent.getWhereConstraints();
+            if (where!=null)
+                this.where = new ArrayList<DBCompareExpr>(where);
+            // groupBy
+            List<DBColumnExpr> groupBy = parent.getGroupBy();
+            if (groupBy!=null)
+                this.groupBy = new ArrayList<DBColumnExpr>(groupBy);
+            // having
+            List<DBCompareExpr> having = parent.getHavingConstraints();
+            if (having!=null)
+                this.having = new ArrayList<DBCompareExpr>(having);
+        }   
+        
+        @Override
+        protected void notifyParamUsage(DBCmdParam param)
+        {
+            throw new NotSupportedException(this, "notifyParamUsage");
+        }
+        
+        @Override
+        protected void resetParamUsage()
+        {
+            /* Nothing */
+        }
+        
+        @Override
+        protected void completeParamUsage()
+        {
+            /* Nothing */
+        }
+        
+        @Override
+        protected void mergeSubqueryParams(Object[] subQueryParams)
+        {
+            parent.mergeSubqueryParams(subQueryParams);
+        }
+        
+        @Override
+        protected void addJoin(StringBuilder buf, DBJoinExpr join, long context, int whichParams)
+        {
+            parent.addJoin(buf, join, context, whichParams);
+        }
+        
+        public List<DBSetExpr> addUsing(StringBuilder buf, DBRowSet table, DBColumnJoinExpr updateJoin)
+        {
+            buf.append("\r\nUSING ");
+            // clearSelect();
+            // clearOrderBy();
+            DBRowSet outerTable = updateJoin.getOuterTable();
+            if (outerTable==null)
+                outerTable=table;
+            Set<DBColumn> joinColumns = new HashSet<DBColumn>();
+            updateJoin.addReferencedColumns(joinColumns);
+            for (DBColumn jcol : joinColumns)
+            {   // Select join columns
+                if (jcol.getRowSet().equals(outerTable)==false)
+                    select(jcol);
+            }
+            // find the source table
+            DBColumnExpr left  = updateJoin.getLeft();
+            DBColumnExpr right = updateJoin.getRight();
+            DBRowSet source = right.getUpdateColumn().getRowSet();
+            if (source==table)
+                source = left.getUpdateColumn().getRowSet();
+            // Add set expressions
+            String sourceAliasPrefix = source.getAlias()+".";
+            List<DBSetExpr> mergeSet = new ArrayList<DBSetExpr>(set.size());   
+            for (DBSetExpr sex : set)
+            {   // Select set expressions
+                Object val = sex.getValue();
+                if (val instanceof DBColumnExpr)
+                {
+                    DBColumnExpr expr = ((DBColumnExpr)val);
+                    if (!(expr instanceof DBColumn) && !(expr instanceof DBAliasExpr))
+                    {   // rename column
+                        String name = "COL_"+String.valueOf(mergeSet.size());
+                        expr = expr.as(name);
+                    }
+                    // select
+                    select(expr);
+                    // Name
+                    DBValueExpr NAME_EXPR = getDatabase().getValueExpr(sourceAliasPrefix+expr.getName(), DataType.UNKNOWN);
+                    mergeSet.add(sex.getColumn().to(NAME_EXPR));
+                }
+                else
+                {   // add original
+                    mergeSet.add(sex);
+                }
+            }
+            // remove join (if not necessary)
+            if (hasConstraintOn(table)==false)
+                removeJoinsOn(table);
+            // add SQL for inner statement
+            addSQL(buf, CTX_DEFAULT);
+            // add Alias
+            buf.append(" ");
+            buf.append(source.getAlias());
+            buf.append("\r\nON (");
+            left.addSQL(buf, CTX_DEFAULT);
+            buf.append(" = ");
+            right.addSQL(buf, CTX_DEFAULT);
+            // Compare Expression
+            if (updateJoin.getWhere() != null)
+                appendMergeConstraint(buf, table, updateJoin.getWhere());
+            // More constraints
+            for (DBCompareExpr cmpExpr : this.where) 
+            {
+                appendMergeConstraint(buf, table, cmpExpr);
+            }
+            // done
+            return mergeSet;
+        }
+    
+        protected void appendMergeConstraint(StringBuilder buf, DBRowSet table, DBCompareExpr cmpExpr)
+        {
+            if (cmpExpr instanceof DBCompareColExpr)
+            {   // a compare column expression
+                DBCompareColExpr cce = (DBCompareColExpr)cmpExpr;
+                DBColumn ccecol = cce.getColumn().getUpdateColumn();
+                if (table.isKeyColumn(ccecol)&& !isSetColumn(ccecol))  
+                {   // yes, add
+                    buf.append(" AND ");
+                    cce.addSQL(buf, CTX_DEFAULT);
+                }
+            }
+            // else if (cmpExpr instanceof DBCompareAndOrExpr)
+            // else if (cmpExpr instanceof DBCompareNotExpr)
+            else  
+            {   // just add
+                buf.append(" AND ");
+                cmpExpr.addSQL(buf, CTX_DEFAULT);
+            }
+        }
+            
+        protected boolean isSetColumn(DBColumn col)
+        {
+            for (DBSetExpr se : this.set)
+            {
+                if (se.getColumn().equals(col))
+                    return true;
+            }
+            return false;
+        }
+    }
+    
     // Logger
     protected static final Logger log             = LoggerFactory.getLogger(DBCommand.class);
 
@@ -74,15 +246,6 @@ public abstract class DBCommand extends DBCommandExpr
     protected List<DBCmdParam>    cmdParams       = null;
     private int                   paramUsageCount = 0;
 
-    /**
-     * Constructs a new DBCommand object and set the specified DBDatabase object.
-     * 
-     * @param db the current database object
-     */
-    protected DBCommand(boolean autoPrepareStmt)
-    {
-        this.autoPrepareStmt = autoPrepareStmt;
-    }
 
     /**
      * Custom serialization for transient database.
@@ -107,6 +270,78 @@ public abstract class DBCommand extends DBCommandExpr
         strm.defaultReadObject();
     }
      */
+    
+    /**
+     * Constructs a new DBCommand object and set the specified DBDatabase object.
+     * 
+     * @param db the current database object
+     */
+    protected DBCommand(boolean autoPrepareStmt)
+    {
+        this.autoPrepareStmt = autoPrepareStmt;
+    }
+
+    /**
+     * @return true if auto Prepared Statements is activated for this record
+     */
+    public final boolean isAutoPrepareStmt()
+    {
+        return autoPrepareStmt;
+    }
+    
+    /**
+     * Creates a clone of this class.
+     */
+    @Override
+    public DBCommand clone()
+    {
+        DBCommand clone = (DBCommand)super.clone();
+        // Clone lists
+        if (select!=null)
+            clone.select = new ArrayList<DBColumnExpr>(select);
+        if (set!=null)
+            clone.set = new ArrayList<DBSetExpr>(set);
+        if (joins!=null)
+            clone.joins = new ArrayList<DBJoinExpr>(joins);
+        if (where!=null)
+            clone.where = new ArrayList<DBCompareExpr>(where);
+        if (groupBy!=null)
+            clone.groupBy = new ArrayList<DBColumnExpr>(groupBy);
+        if (having!=null)
+            clone.having = new ArrayList<DBCompareExpr>(having);
+        if (cmdParams!=null && !cmdParams.isEmpty())
+        {   // clone params
+            clone.paramUsageCount = 0;
+            clone.cmdParams = new ArrayList<DBCmdParam>(cmdParams.size());
+            // clone set
+            for (int i=0; (clone.set!=null && i<clone.set.size()); i++)
+                clone.set.set(i, clone.set.get(i).copy(clone));
+            // clone where and having
+            for (int i=0; (clone.where!=null && i<clone.where.size()); i++)
+                clone.where.set(i, clone.where.get(i).copy(clone));
+            for (int i=0; (clone.having!=null && i<clone.having.size()); i++)
+                clone.having.set(i, clone.having.get(i).copy(clone));
+        }
+        // done
+        return clone;
+    }
+    
+    @SuppressWarnings("unchecked")
+    @Override
+    public final DBDatabase getDatabase()
+    {
+        if (hasSelectExpr())
+            return this.select.get(0).getDatabase();
+        if (hasSetExpr())
+            return this.set.get(0).getDatabase();
+        // two more chances (should we?)
+        if (where!=null && !where.isEmpty())
+            return where.get(0).getDatabase();
+        if (orderBy!=null && !orderBy.isEmpty())
+            return orderBy.get(0).getDatabase();
+        // not valid yet
+        throw new ObjectNotValidException(this);
+    }
     
     /**
      * internally used to reset the command param usage count.
@@ -136,7 +371,10 @@ public abstract class DBCommand extends DBCommandExpr
         {   // Remove unused parameters
             log.warn("DBCommand has {} unused Command params", cmdParams.size()-paramUsageCount);
             for (int i=cmdParams.size()-1; i>=paramUsageCount; i--)
-                cmdParams.remove(i);
+            {   // Remove temporary params
+                if (cmdParams.get(i).getCmd()!=this)
+                    cmdParams.remove(i);
+            }
         }
     }
     
@@ -146,11 +384,16 @@ public abstract class DBCommand extends DBCommandExpr
     protected void notifyParamUsage(DBCmdParam param)
     {
         int index = cmdParams.indexOf(param);
-        if (index < paramUsageCount)
+        if (index<0) 
         {   // Error: parameter probably used twice in statement!
-            throw new UnspecifiedErrorException("A parameter may only be used once in a command.");
+            throw new UnspecifiedErrorException("The CmdParam has not been found on this Command.");
         }
-        if (index > paramUsageCount)
+        if (index < paramUsageCount)
+        {   // Warn: parameter used twice in statement!
+            log.debug("The DBCmdParam already been used. Adding a temporary copy");
+            cmdParams.add(paramUsageCount, new DBCmdParam(null, param.getDataType(), param.getValue()));
+        }
+        else if (index > paramUsageCount)
         {   // Correct parameter order
             cmdParams.remove(index);
             cmdParams.add(paramUsageCount, param);
@@ -161,88 +404,42 @@ public abstract class DBCommand extends DBCommandExpr
     /**
      * internally used to remove the command param used in a constraint
      */
-   	private void removeCommandParam(DBCompareColExpr cmp) 
+   	protected void removeCommandParams(DBCompareExpr cmpExpr) 
    	{
-        if (cmdParams!=null && (cmp.getValue() instanceof DBCmdParam))
-   			cmdParams.remove(cmp.getValue());
+   	    if (cmdParams==null)
+   	        return; // Nothing to do
+   	    // unwrap
+   	    if (cmpExpr instanceof Unwrappable<?>)
+   	        cmpExpr = (DBCompareExpr)((Unwrappable<?>)cmpExpr).unwrap();
+   	    // check type
+   	    if (cmpExpr instanceof DBCompareColExpr)
+   	    {   // DBCompareColExpr
+   	        DBCompareColExpr cmp = ((DBCompareColExpr)cmpExpr);
+            if (cmp.getValue() instanceof DBCmdParam)
+                cmdParams.remove(cmp.getValue());
+   	    }
+        else if (cmpExpr instanceof DBCompareAndOrExpr) 
+        {   // DBCompareAndOrExpr
+            removeCommandParams(((DBCompareAndOrExpr)cmpExpr).getLeft());
+            removeCommandParams(((DBCompareAndOrExpr)cmpExpr).getRight());
+        }
+        else if (cmpExpr instanceof DBCompareNotExpr) 
+        {   // DBCompareNotExpr
+            removeCommandParams(((DBCompareNotExpr)cmpExpr).getExpr());
+        }
    	}
 
     /**
      * internally used to remove all command params used in a list of constraints
      */
-   	private void removeAllCommandParams(List<DBCompareExpr> list)
+   	protected void removeAllCommandParams(List<DBCompareExpr> list)
     {
         if (cmdParams == null)
         	return;
         for(DBCompareExpr cmp : list)
-        {	// Check whether it is a compare column expr.
-            if (!(cmp instanceof DBCompareColExpr))
-            	continue;
-            // Check the value is a DBCommandParam
-        	removeCommandParam((DBCompareColExpr)cmp);
+        {   // Check the value is a DBCommandParam
+        	removeCommandParams(cmp);
         }
-    }
-   	
-    
-    /**
-     * Creates a clone of this class.
-     */
-    @Override
-    public DBCommand clone()
-    {
-        try 
-        {
-            DBCommand clone = (DBCommand)super.clone();
-            // Clone lists
-            if (select!=null)
-                clone.select = new ArrayList<DBColumnExpr>(select);
-            if (set!=null)
-                clone.set = new ArrayList<DBSetExpr>(set);
-            if (joins!=null)
-                clone.joins = new ArrayList<DBJoinExpr>(joins);
-            if (where!=null)
-                clone.where = new ArrayList<DBCompareExpr>(where);
-            if (groupBy!=null)
-                clone.groupBy = new ArrayList<DBColumnExpr>(groupBy);
-            if (having!=null)
-                clone.having = new ArrayList<DBCompareExpr>(having);
-            if (cmdParams!=null && !cmdParams.isEmpty())
-            {   // clone params
-                clone.paramUsageCount = 0;
-                clone.cmdParams = new ArrayList<DBCmdParam>(cmdParams.size());
-                // clone set
-                for (int i=0; (clone.set!=null && i<clone.set.size()); i++)
-                    clone.set.set(i, clone.set.get(i).copy(clone));
-                // clone where and having
-                for (int i=0; (clone.where!=null && i<clone.where.size()); i++)
-                    clone.where.set(i, clone.where.get(i).copy(clone));
-                for (int i=0; (clone.having!=null && i<clone.having.size()); i++)
-                    clone.having.set(i, clone.having.get(i).copy(clone));
-            }
-            // done
-            return clone;
-            
-        } catch (CloneNotSupportedException e) {
-            log.error("Cloning DBCommand object failed!", e);
-            throw new InternalException(e); 
-        }
-    }
-
-    @SuppressWarnings("unchecked")
-    @Override
-	public final DBDatabase getDatabase()
-    {
-        if (hasSelectExpr())
-            return this.select.get(0).getDatabase();
-        if (hasSetExpr())
-            return this.set.get(0).getDatabase();
-        // two more chances (should we?)
-        if (where!=null && !where.isEmpty())
-            return where.get(0).getDatabase();
-        if (orderBy!=null && !orderBy.isEmpty())
-            return orderBy.get(0).getDatabase();
-        // not valid yet
-        throw new ObjectNotValidException(this);
     }
 
     /**
@@ -538,12 +735,11 @@ public abstract class DBCommand extends DBCommandExpr
     {
         if (set==null)
             return false;
-        Iterator<DBSetExpr> i = set.iterator();
-        while (i.hasNext())
-        {
-            DBSetExpr chk = i.next();
-            if (chk.column.equals(column))
+        for (DBSetExpr setExpr : set)
+        {   // Find column
+            if (setExpr.column.equals(column))
                 return true;
+            
         }
         return false;
     }
@@ -992,6 +1188,17 @@ public abstract class DBCommand extends DBCommandExpr
      * removes a constraint on a particular column from the where clause
      * @param col the column expression for which to remove the constraint
      */
+    public void removeWhereConstraint(DBCompareExpr cmpExpr)
+    {
+        if (where == null)
+            return;
+        removeConstraint(where, cmpExpr);
+    }
+    
+    /**
+     * removes a constraint on a particular column from the where clause
+     * @param col the column expression for which to remove the constraint
+     */
     public void removeWhereConstraintOn(DBColumnExpr col)
     {
         if (where == null)
@@ -1053,6 +1260,17 @@ public abstract class DBCommand extends DBCommandExpr
     public List<DBCompareExpr> getHavingConstraints()
     {
         return (this.having!=null ? Collections.unmodifiableList(this.having) : null);
+    }
+    
+    /**
+     * removes a constraint on a particular column from the where clause
+     * @param col the column expression for which to remove the constraint
+     */
+    public void removeHavingConstraint(DBCompareExpr cmpExpr)
+    {
+        if (having == null)
+            return;
+        removeConstraint(having, cmpExpr);
     }
     
     /**
@@ -1247,6 +1465,16 @@ public abstract class DBCommand extends DBCommandExpr
         clearLimit();
         resetParamUsage();
     }
+
+    /**
+     * Create a special Merge-command
+     * This forwards parameter usage to the parent command 
+     * @return the merge command
+     */
+    protected DBMergeCommand createMergeCommand()
+    {
+        return new DBMergeCommand(this); 
+    }
     
     /**
      * returns true if prepared statements are enabled for this command
@@ -1291,8 +1519,7 @@ public abstract class DBCommand extends DBCommandExpr
             if (expr.isMutuallyExclusive(other)==false)
                 continue;
             // Check if we replace a DBCommandParam
-            if (other instanceof DBCompareColExpr)
-            	removeCommandParam((DBCompareColExpr)other);
+            removeCommandParams(other);
             // columns match
             list.set(i, expr);
             return;
@@ -1306,23 +1533,51 @@ public abstract class DBCommand extends DBCommandExpr
      * @param list the 'where' or 'having' list
      * @param col the column expression for which to remove the constraint
      */
-    protected void removeConstraintOn(List<DBCompareExpr> list, DBColumnExpr col)
+    protected void removeConstraint(List<DBCompareExpr> list, DBCompareExpr cmpExpr)
+    {
+        if (list == null)
+            return;
+        for (DBCompareExpr cmp : list)
+        {   // Compare columns
+            if (cmp.isMutuallyExclusive(cmpExpr))
+            {   // Check if we replace a DBCommandParam
+                removeCommandParams(cmp);
+                // remove the constraint
+                list.remove(cmp);
+                return;
+            }
+        }
+    }
+    
+    /**
+     * removes a constraint on a particular column to the 'where' or 'having' collections 
+     * @param list the 'where' or 'having' list
+     * @param col the column expression for which to remove the constraint
+     */
+    protected void removeConstraintOn(List<DBCompareExpr> list, DBColumnExpr colExpr)
     {
         if (list == null)
         	return;
-        for(DBCompareExpr cmp : list)
+        for (DBCompareExpr cmp : list)
         {	// Check whether it is a compare column expr.
             if (!(cmp instanceof DBCompareColExpr))
             	continue;
             // Compare columns
-            DBColumnExpr c = ((DBCompareColExpr)cmp).getColumn();
-            DBColumn udc = c.getUpdateColumn();
-            if (c.equals(col) || (udc!=null && udc.equals(col.getUpdateColumn())))
+            DBColumnExpr cmpCol = ((DBCompareColExpr)cmp).getColumn();
+            if (ObjectUtils.compareEqual(cmpCol, colExpr))
             {   // Check if we replace a DBCommandParam
-            	removeCommandParam((DBCompareColExpr)cmp);
-            	// remove the constraint
-            	list.remove(cmp);
-            	return;
+                removeCommandParams(cmp);
+                // remove the constraint
+                list.remove(cmp);
+                return;
+            }
+            // Update column
+            if ((colExpr instanceof DBColumn) && !(cmpCol instanceof DBColumn) && colExpr.equals(colExpr.getUpdateColumn()))
+            {   // Check if we replace a DBCommandParam
+                removeCommandParams(cmp);
+                // remove the constraint
+                list.remove(cmp);
+                return;
             }
         }
     }
@@ -1381,20 +1636,20 @@ public abstract class DBCommand extends DBCommandExpr
     
     /**
      * Returns an array of parameter values for a prepared statement.
-     * To ensure that all values are in the order of their occurrence, getSelect() should be called first.
+     * The parameters are supplied only after getSelect(), getUpdate(), getInsert() or getDelete() have been called
      * @return an array of parameter values for a prepared statement 
      */
     @Override
     public Object[] getParamValues()
     {
-        if (cmdParams==null || cmdParams.size()==0)
+        if (cmdParams==null || paramUsageCount==0)
             return null;
         // Check whether all parameters have been used
-        if (paramUsageCount>0 && paramUsageCount!=cmdParams.size())
-	        log.warn("DBCommand parameter count ("+String.valueOf(cmdParams.size())
-	        	   + ") does not match parameter use count ("+String.valueOf(paramUsageCount)+")");
+        if (paramUsageCount!=cmdParams.size())
+	        log.info("DBCommand parameter count ("+String.valueOf(cmdParams.size())
+                   + ") does not match parameter use count ("+String.valueOf(paramUsageCount)+")");
         // Create result array
-        Object[] values = new Object[cmdParams.size()];
+        Object[] values = new Object[paramUsageCount];
         for (int i=0; i<values.length; i++)
             values[i]=cmdParams.get(i).getValue();
         // values
@@ -1449,11 +1704,8 @@ public abstract class DBCommand extends DBCommandExpr
         {   // Convert ColumnExpression List to Column List
             compexpr = new ArrayList<DBCompareColExpr>(where.size());
             for (DBCompareExpr expr : where)
-            {   if (expr instanceof DBCompareColExpr)
-                {   DBColumn column = ((DBCompareColExpr)expr).getColumn().getUpdateColumn();
-                    if (column!=null && hasSetExprOn(column)==false)
-                        compexpr.add((DBCompareColExpr)expr);
-                }
+            {
+                appendCompareColExprs(table, expr, compexpr);
             }
             // Add Column Names from where clause
             if (compexpr.size()>0)
@@ -1484,6 +1736,29 @@ public abstract class DBCommand extends DBCommandExpr
         // done
         completeParamUsage();
         return buf.toString();
+    }
+    
+    protected void appendCompareColExprs(DBRowSet table, DBCompareExpr expr, List<DBCompareColExpr> list)
+    {
+        // unwrap
+        if (expr instanceof Unwrappable<?>)
+            expr = (DBCompareExpr)((Unwrappable<?>)expr).unwrap();
+        // check type
+        if (expr instanceof DBCompareColExpr)
+        {   // DBCompareColExpr
+            DBColumn column = ((DBCompareColExpr)expr).getColumn().getUpdateColumn();
+            if (column!=null && column.getRowSet().equals(table) && !hasSetExprOn(column))
+                list.add((DBCompareColExpr)expr);
+        }
+        else if (expr instanceof DBCompareAndOrExpr) 
+        {   // DBCompareAndOrExpr
+            appendCompareColExprs(table, ((DBCompareAndOrExpr)expr).getLeft(),  list);
+            appendCompareColExprs(table, ((DBCompareAndOrExpr)expr).getRight(), list);
+        }
+        else if (expr instanceof DBCompareNotExpr) 
+        {   // DBCompareNotExpr
+            appendCompareColExprs(table, ((DBCompareNotExpr)expr).getExpr(),  list);
+        }
     }
 
     /**
@@ -1627,11 +1902,8 @@ public abstract class DBCommand extends DBCommandExpr
                      buf.append( "\t" );
                      whichParams = 1;
                  }
-                 join.addSQL(buf, context);
-                 // Merge subquery params
-                 Object[] subQueryParams = join.getSubqueryParams(whichParams);
-                 if (subQueryParams!=null)
-                     mergeSubqueryParams(subQueryParams);
+                 // check
+                 addJoin(buf, join, context, whichParams);
                  // add CRLF
                  if( i!=joins.size()-1 )
                      buf.append("\r\n");
@@ -1660,6 +1932,29 @@ public abstract class DBCommand extends DBCommandExpr
             else
             {   // remove from
                 buf.setLength(originalLength);
+            }
+        }
+    }
+    
+    protected void addJoin(StringBuilder buf, DBJoinExpr join, long context, int whichParams)
+    {
+        // remember insert pos
+        int paramInsertPos = paramUsageCount;
+        // now add the join
+        join.addSQL(buf, context);
+        // Merge subquery params
+        Object[] subQueryParams = join.getSubqueryParams(whichParams);
+        if (subQueryParams!=null)
+        {
+            if (paramInsertPos == paramUsageCount)
+                mergeSubqueryParams(subQueryParams);
+            else
+            {   // Some Params have been used in additional Join constraints
+                int tempCounter = paramUsageCount;
+                paramUsageCount = paramInsertPos;
+                mergeSubqueryParams(subQueryParams);
+                int insertCount = (paramUsageCount - paramInsertPos);
+                paramUsageCount = tempCounter + insertCount;
             }
         }
     }

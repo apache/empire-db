@@ -33,6 +33,7 @@ import java.util.List;
 import java.util.Locale;
 
 import org.apache.commons.beanutils.MethodUtils;
+import org.apache.empire.data.ColumnExpr;
 import org.apache.empire.exceptions.InvalidArgumentException;
 import org.apache.empire.exceptions.InvalidValueException;
 import org.apache.empire.exceptions.ItemNotFoundException;
@@ -249,7 +250,7 @@ public final class ObjectUtils
     }
 
     /**
-     * Compares two object arrrays for equality
+     * Compares two arrays for equality
      *
      * @param array1    the first array
      * @param array2    the second array
@@ -269,6 +270,24 @@ public final class ObjectUtils
                 return false;
         }
         return true;
+    }
+    
+    /**
+     * Compares two ColumnExpr for equality
+     *
+     * @param expr1
+     * @param expr2
+     *
+     * @return true if both expressions are equal or false otherwise
+     */
+    public static boolean compareEqual(ColumnExpr expr, ColumnExpr other)
+    {
+        if (other.isWrapper() && !expr.isWrapper())
+            return expr.equals(other.unwrap());
+        else if (!other.isWrapper() && expr.isWrapper())
+            return expr.unwrap().equals(other);
+        // both wrapped or both unwrapped
+        return expr.equals(other);
     }
     
     /**
