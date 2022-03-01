@@ -26,20 +26,23 @@ import java.util.GregorianCalendar;
 import org.apache.empire.commons.ObjectUtils;
 import org.apache.empire.commons.StringUtils;
 import org.apache.empire.data.DataType;
+import org.apache.empire.db.DBColumn;
 import org.apache.empire.db.DBColumnExpr;
 import org.apache.empire.db.DBCommand;
 import org.apache.empire.db.DBDDLGenerator;
 import org.apache.empire.db.DBDDLGenerator.DDLActionType;
 import org.apache.empire.db.DBDatabase;
 import org.apache.empire.db.DBObject;
+import org.apache.empire.db.DBRowSet;
 import org.apache.empire.db.DBSQLScript;
 import org.apache.empire.db.DBTableColumn;
 import org.apache.empire.db.exceptions.EmpireSQLException;
+import org.apache.empire.db.exceptions.NoPrimaryKeyException;
 import org.apache.empire.db.exceptions.QueryNoResultException;
 import org.apache.empire.db.expr.column.DBValueExpr;
+import org.apache.empire.dbms.DBMSFeature;
 import org.apache.empire.dbms.DBMSHandler;
 import org.apache.empire.dbms.DBMSHandlerBase;
-import org.apache.empire.dbms.DBMSFeature;
 import org.apache.empire.dbms.DBSqlPhrase;
 import org.apache.empire.exceptions.InvalidArgumentException;
 import org.slf4j.Logger;
@@ -125,6 +128,41 @@ public class DBMSHandlerPostgreSQL extends DBMSHandlerBase
                 {   buf.append(" OFFSET ");
                     buf.append(String.valueOf(skip));
                 }    
+            }
+        }
+        
+        @Override
+        protected void addUpdateWithJoins(StringBuilder buf, DBRowSet table)
+        {
+            DBColumn[] keyColumns = table.getKeyColumns();
+            if (keyColumns==null || keyColumns.length==0)
+                throw new NoPrimaryKeyException(table);
+            // Join Update
+            table.addSQL(buf, CTX_NAME);
+            buf.append(" t0");
+            long context = CTX_DEFAULT;
+            // Set Expressions
+            buf.append("\r\nSET ");
+            addListExpr(buf, set, context, ", ");
+            // From clause
+            addFrom(buf);
+            // Add Where
+            buf.append("\r\nWHERE");
+            // key columns
+            for (DBColumn col : keyColumns)
+            {   // compare 
+                buf.append(" t0.");
+                col.addSQL(buf, CTX_NAME);
+                buf.append("=");
+                buf.append(table.getAlias());
+                buf.append(".");
+                col.addSQL(buf, CTX_NAME);
+            }
+            // more constraints
+            if (where!=null && !where.isEmpty())
+            {   // add where expression
+                buf.append("\r\n  AND ");
+                addListExpr(buf, where, context, " AND ");
             }
         }
     }

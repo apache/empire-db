@@ -31,7 +31,6 @@ import org.apache.empire.db.DBColumnExpr;
 import org.apache.empire.db.DBCommand;
 import org.apache.empire.db.DBIndex;
 import org.apache.empire.db.DBRowSet;
-import org.apache.empire.db.DBTable;
 import org.apache.empire.db.expr.column.DBAliasExpr;
 import org.apache.empire.db.expr.column.DBValueExpr;
 import org.apache.empire.db.expr.compare.DBCompareColExpr;
@@ -221,6 +220,7 @@ public class DBCommandOracle extends DBCommand
                 buf.append(usePreparedStatements ? "?" : String.valueOf(skipRows));
             }
         }
+        completeParamUsage();
     }
 
     @Override
@@ -242,30 +242,12 @@ public class DBCommandOracle extends DBCommand
         newParams[--newSize]=skipRows+limitRows;    
         return newParams;
     }
-    
-    /**
-     * Creates an Oracle specific update statement.
-     * If a join is required, this method creates a "MERGE INTO" expression 
-     */
-    @Override
-    public synchronized String getUpdate()
-    {
-        // No Joins: Use Default
-        if (joins==null || set==null)
-            return getSimpleUpdate();
-        else
-            return getUpdateWithJoins();
-    }
 
-    protected String getSimpleUpdate()
+    @Override
+    protected void addUpdateForTable(StringBuilder buf, DBRowSet table)
     {
-        resetParamUsage();
-        if (set == null)
-            return null;
-        StringBuilder buf = new StringBuilder("UPDATE ");
-        DBRowSet table =  set.get(0).getTable();
-        long context = CTX_FULLNAME;
         // Optimizer Hint
+        long context = CTX_FULLNAME;
         if (StringUtils.isNotEmpty(optimizerHint))
         {   // Append an optimizer hint to the select statement e.g. SELECT /*+ RULE */
             buf.append("/*+ ").append(optimizerHint).append(" */ ");
@@ -282,16 +264,14 @@ public class DBCommandOracle extends DBCommand
         addListExpr(buf, set, context, ", ");
         // Add Where
         addWhere(buf, context);
-        // done
-        return buf.toString();
     }
     
-    protected String getUpdateWithJoins()
+    @Override
+    protected void addUpdateWithJoins(StringBuilder buf, DBRowSet table)
     {
         // Generate Merge expression
-        resetParamUsage();
-        StringBuilder buf = new StringBuilder("MERGE INTO ");
-        DBRowSet table =  set.get(0).getTable();
+        buf.setLength(0);
+        buf.append("MERGE INTO ");
         table.addSQL(buf, CTX_FULLNAME|CTX_ALIAS);
         // join (only one allowed yet)
         DBColumnJoinExpr updateJoin = null;
@@ -393,8 +373,6 @@ public class DBCommandOracle extends DBCommand
         buf.append(")\r\nWHEN MATCHED THEN UPDATE ");
         buf.append("\r\nSET ");
         addListExpr(buf, mergeSet, CTX_DEFAULT, ", ");
-        // done
-        return buf.toString();
     }
         
     protected boolean isSetColumn(DBColumn col)
@@ -411,25 +389,25 @@ public class DBCommandOracle extends DBCommand
      * Creates an Oracle specific delete statement.
      * @return the delete SQL-Command
      */
+    
     @Override
-    public synchronized String getDelete(DBTable table)
+    protected void addDeleteForTable(StringBuilder buf, DBRowSet table)
     {
-        resetParamUsage();
-        StringBuilder buf = new StringBuilder("DELETE ");
-        if (optimizerHint != null)
+        if (StringUtils.isNotEmpty(optimizerHint))
         {   // Append an optimizer hint to the select statement e.g. SELECT /*+ RULE */
             buf.append("/*+ ").append(optimizerHint).append(" */ ");
         }
-        buf.append("FROM ");
-        table.addSQL(buf, CTX_FULLNAME);
-        // Set Expressions
-        if (where != null || having != null)
-        { // add where condition
-            buf.append("\r\nWHERE ");
-            if (where != null)
-                addListExpr(buf, where, CTX_NAME|CTX_VALUE, " AND ");
+        super.addDeleteForTable(buf, table);
+    }
+    
+    @Override
+    protected void addDeleteWithJoins(StringBuilder buf, DBRowSet table)
+    {
+        if (StringUtils.isNotEmpty(optimizerHint))
+        {   // Append an optimizer hint to the select statement e.g. SELECT /*+ RULE */
+            buf.append("/*+ ").append(optimizerHint).append(" */ ");
         }
-        return buf.toString();
+        super.addDeleteWithJoins(buf, table);
     }
 
 }

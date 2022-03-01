@@ -32,6 +32,7 @@ import org.apache.empire.db.DBDDLGenerator;
 import org.apache.empire.db.DBDDLGenerator.DDLActionType;
 import org.apache.empire.db.DBDatabase;
 import org.apache.empire.db.DBObject;
+import org.apache.empire.db.DBRowSet;
 import org.apache.empire.db.DBSQLScript;
 import org.apache.empire.db.DBTable;
 import org.apache.empire.db.DBTableColumn;
@@ -112,21 +113,13 @@ public class DBMSHandlerMySQL extends DBMSHandlerBase
          * @return the delete SQL-Command
          */
         @Override
-        public synchronized String getDelete(DBTable table)
+        protected void addDeleteWithJoins(StringBuilder buf, DBRowSet table)
         {
-        	if (joins == null) {
-        		// Default
-        		return super.getDelete(table);
-        	}
-        	
-        	// DELETE with Multiple-Table Syntax
-        	// http://dev.mysql.com/doc/refman/5.7/en/delete.html
-            resetParamUsage();
-            StringBuilder buf = new StringBuilder("DELETE ");
+            // DELETE with Multiple-Table Syntax
+            // http://dev.mysql.com/doc/refman/5.7/en/delete.html
             buf.append(table.getAlias());
             addFrom(buf);
             addWhere(buf);
-            return buf.toString();
         }
     }
     

@@ -302,6 +302,9 @@ public abstract class DBRowSet extends DBExpr implements EntityType
 
     public abstract void deleteRecord(Object[] key, DBContext context);
     
+    @Override
+    public abstract DBColumn[] getKeyColumns();
+    
     /**
      * Returns the full qualified name of the rowset.
      * <P>
@@ -621,7 +624,7 @@ public abstract class DBRowSet extends DBExpr implements EntityType
         // Init Key Values
         if (key != null)
         {   // Check Columns
-            DBColumn[] keyColumns =(DBColumn[])getKeyColumns();
+            DBColumn[] keyColumns = getKeyColumns();
             if (keyColumns==null)
                 throw new NoPrimaryKeyException(this);
             if (key.length!=keyColumns.length)
@@ -667,7 +670,7 @@ public abstract class DBRowSet extends DBExpr implements EntityType
         prepareInitRecord(record, false);
         // Get Record Field Values
         Object[] fields = record.getFields();
-        DBColumn[] keyColumns =(DBColumn[])getKeyColumns();
+        DBColumn[] keyColumns = getKeyColumns();
         for (int i = 0; i < fields.length; i++)
         {   // Read a value
         	DBColumnExpr column = getColumnExprAt(i);
@@ -757,7 +760,7 @@ public abstract class DBRowSet extends DBExpr implements EntityType
     protected DBCompareExpr getKeyConstraints(Object[] key)
     {
         // Check Primary key
-        DBColumn[] keyColumns =(DBColumn[])getKeyColumns();
+        DBColumn[] keyColumns = getKeyColumns();
         if (keyColumns==null || keyColumns.length==0) 
             throw new NoPrimaryKeyException(this); // Invalid Argument
         // Check Columns
@@ -966,7 +969,7 @@ public abstract class DBRowSet extends DBExpr implements EntityType
         String sql = null;
         int setCount = 0;
         // Perform action
-        DBColumn[] keyColumns =(DBColumn[])getKeyColumns();
+        DBColumn[] keyColumns = getKeyColumns();
         DBRecordBase.State recordState = record.getState(); 
         if (recordState==DBRecordBase.State.New)
         {	// Insert Record
@@ -1124,7 +1127,7 @@ public abstract class DBRowSet extends DBExpr implements EntityType
     {
         // Merge Sub-Records
         List<DBRelation> relations = db.getRelations();
-        DBColumn[] keyColumns =(DBColumn[])getKeyColumns();
+        DBColumn[] keyColumns = getKeyColumns();
         if (keyColumns==null)
             return; // No primary key - no references!
         // Find all relations
@@ -1158,7 +1161,7 @@ public abstract class DBRowSet extends DBExpr implements EntityType
         if (refs.length!=parentKey.length)
             throw new InvalidArgumentException("refs", refs);
         // Rowset
-        DBColumn[] keyColumns =(DBColumn[])getKeyColumns();
+        DBColumn[] keyColumns = getKeyColumns();
         if (keyColumns==null || keyColumns.length==0)
         {   // No Primary Key
             DBCommand cmd = createRecordCommand(context);

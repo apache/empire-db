@@ -19,7 +19,6 @@
 package org.apache.empire.dbms.hsql;
 
 import java.util.ArrayList;
-// Imports
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -95,27 +94,13 @@ public class DBCommandHSql extends DBCommand
             }    
         }
     }
-    
-    /**
-     * Creates an update statement.
-     * If a join is required, this method creates a "MERGE INTO" expression 
-     */
+
     @Override
-    public synchronized String getUpdate()
-    {
-        // No Joins: Use Default
-        if (joins==null || set==null)
-            return super.getUpdate();
-        else
-            return getUpdateWithJoins();
-    }
-    
-    protected String getUpdateWithJoins()
+    protected void addUpdateWithJoins(StringBuilder buf, DBRowSet table)
     {
         // Generate Merge expression
-        resetParamUsage();
-        StringBuilder buf = new StringBuilder("MERGE INTO ");
-        DBRowSet table =  set.get(0).getTable();
+        buf.setLength(0);
+        buf.append("MERGE INTO ");
         table.addSQL(buf, CTX_FULLNAME|CTX_ALIAS);
         // join (only one allowed yet)
         DBColumnJoinExpr updateJoin = null;
@@ -217,8 +202,6 @@ public class DBCommandHSql extends DBCommand
         buf.append(")\r\nWHEN MATCHED THEN UPDATE ");
         buf.append("\r\nSET ");
         addListExpr(buf, mergeSet, CTX_DEFAULT, ", ");
-        // done
-        return buf.toString();
     }
         
     protected boolean isSetColumn(DBColumn col)

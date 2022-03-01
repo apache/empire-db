@@ -1480,7 +1480,7 @@ public abstract class DBCommand extends DBCommandExpr
      * 
      * @return an update SQL-Statement
      */
-    public String getUpdate()
+    public final String getUpdate()
     {
         resetParamUsage();
         if (set == null)
@@ -1489,29 +1489,39 @@ public abstract class DBCommand extends DBCommandExpr
         DBRowSet table =  set.get(0).getTable();
         if (joins!=null && !joins.isEmpty())
         {   // Join Update
-            buf.append( table.getAlias() );
-            long context = CTX_DEFAULT;
-            // Set Expressions
-            buf.append("\r\nSET ");
-            addListExpr(buf, set, context, ", ");
-            // From clause
-            addFrom(buf);
-            // Add Where
-            addWhere(buf, context);
+            addUpdateWithJoins(buf, table);
         }
         else
         {   // Simple Statement
-            table.addSQL(buf, CTX_FULLNAME);
-            long context = CTX_NAME | CTX_VALUE;
-            // Set Expressions
-            buf.append("\r\nSET ");
-            addListExpr(buf, set, context, ", ");
-            // Add Where
-            addWhere(buf, context);
+            addUpdateForTable(buf, table);
         }
         // done
         completeParamUsage();
         return buf.toString();
+    }
+
+    protected void addUpdateForTable(StringBuilder buf, DBRowSet table)
+    {   // Simple Statement
+        table.addSQL(buf, CTX_FULLNAME);
+        long context = CTX_NAME | CTX_VALUE;
+        // Set Expressions
+        buf.append("\r\nSET ");
+        addListExpr(buf, set, context, ", ");
+        // Add Where
+        addWhere(buf, context);
+    }
+    
+    protected void addUpdateWithJoins(StringBuilder buf, DBRowSet table)
+    {   // Join Update
+        buf.append( table.getAlias() );
+        long context = CTX_DEFAULT;
+        // Set Expressions
+        buf.append("\r\nSET ");
+        addListExpr(buf, set, context, ", ");
+        // From clause
+        addFrom(buf);
+        // Add Where
+        addWhere(buf, context);
     }
     
     /**
@@ -1521,29 +1531,39 @@ public abstract class DBCommand extends DBCommandExpr
      * 
      * @return a delete SQL-Statement
      */
-    public String getDelete(DBTable table)
+    public final String getDelete(DBTable table)
     {
         resetParamUsage();
         StringBuilder buf = new StringBuilder("DELETE ");
         // joins or simple
         if (joins!=null && !joins.isEmpty())
         {   // delete with joins
-            table.addSQL(buf, CTX_FULLNAME);
-            // From clause
-            addFrom(buf);
-            // Add Where
-            addWhere(buf, CTX_DEFAULT);
+            addDeleteWithJoins(buf, table);
         }
         else
         {   // Simple Statement
-            buf.append("FROM ");
-            table.addSQL(buf, CTX_FULLNAME);
-            // where
-            addWhere(buf, CTX_NAME|CTX_VALUE);
+            addDeleteForTable(buf, table);
         }
         // done
         completeParamUsage();
         return buf.toString();
+    }
+
+    protected void addDeleteForTable(StringBuilder buf, DBRowSet table)
+    {   // Simple Statement
+        buf.append("FROM ");
+        table.addSQL(buf, CTX_FULLNAME);
+        // where
+        addWhere(buf, CTX_NAME|CTX_VALUE);
+    }
+    
+    protected void addDeleteWithJoins(StringBuilder buf, DBRowSet table)
+    {   // delete with joins
+        table.addSQL(buf, CTX_FULLNAME);
+        // From clause
+        addFrom(buf);
+        // Add Where
+        addWhere(buf, CTX_DEFAULT);
     }
     
     // ------- Select Statement Parts -------
