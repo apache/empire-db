@@ -21,7 +21,7 @@
 
 	<properties>
 		<!-- provider name must match the property-section containing the connection data -->
-		<databaseProvider>postgresql</databaseProvider>
+		<databaseProvider>hsqldb</databaseProvider>
 	</properties>
 
 	<properties-hsqldb>
