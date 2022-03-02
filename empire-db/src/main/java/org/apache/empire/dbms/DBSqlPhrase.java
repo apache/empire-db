@@ -1,5 +1,10 @@
 package org.apache.empire.dbms;
 
+import org.apache.empire.data.DataType;
+import org.apache.empire.db.DBColumn;
+import org.apache.empire.db.DBColumnExpr;
+import org.apache.empire.db.expr.column.DBFuncExpr;
+
 /**
  * Enum for all SQL phrases that may be supplied by the dbms
  * @author rainer
@@ -65,6 +70,7 @@ public enum DBSqlPhrase
     SQL_FUNC_MAX            ("max(?)", true),
     SQL_FUNC_MIN            ("min(?)", true),
     SQL_FUNC_AVG            ("avg(?)", true),
+    SQL_FUNC_STRAGG         ("string_agg(?,{0})", true), // string_agg, LISTAGG
 
     // Decode
     SQL_FUNC_DECODE         ("case ? {0} end"),         // Oracle: decode(? {0})

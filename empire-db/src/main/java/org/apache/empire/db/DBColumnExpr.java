@@ -1090,6 +1090,16 @@ public abstract class DBColumnExpr extends DBExpr
     }
 
     /**
+     * Creates and returns string aggregation expression
+     * @param separator the separator between string
+     * @return the new DBFuncExpr object
+     */
+    public DBColumnExpr strAgg(String separator)
+    {
+        return getExprFromPhrase(DBSqlPhrase.SQL_FUNC_STRAGG, new Object[] { separator });
+    }
+    
+    /**
      * Creates and returns an expression for the SQL "count()" function
      * which returns the number of rows in the result set.
      *
