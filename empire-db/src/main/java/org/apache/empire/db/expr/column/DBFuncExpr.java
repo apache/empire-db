@@ -62,9 +62,9 @@ public class DBFuncExpr extends DBAbstractFuncExpr
      * @param isAggregate indicates whether the function is an aggregate function (sum, min, max, avg, ...)
      * @param dataType indicates the data type of the function result 
      */
-    public DBFuncExpr(DBColumnExpr expr, DBSqlPhrase phrase, Object[] params, DBColumn updateColumn, boolean isAggregate, DataType dataType)
+    public DBFuncExpr(DBColumnExpr expr, DBSqlPhrase phrase, Object[] params, DataType dataType)
     {
-        super(expr, updateColumn, isAggregate, dataType);
+        super(expr, phrase.isAggregate(), dataType);
         // Set Phrase and Params
         this.phrase = phrase;
         this.params = params;
@@ -87,9 +87,9 @@ public class DBFuncExpr extends DBAbstractFuncExpr
      * @param isAggregate indicates whether the function is an aggregate function (sum, min, max, avg, ...)
      * @param dataType indicates the data type of the function result 
      */
-    public DBFuncExpr(DBColumnExpr expr, String template, Object[] params, DBColumn updateColumn, boolean isAggregate, DataType dataType)
+    public DBFuncExpr(DBColumnExpr expr, String template, Object[] params, boolean isAggregate, DataType dataType)
     {
-        super(expr, updateColumn, isAggregate, dataType);
+        super(expr, isAggregate, dataType);
         // Set Phrase and Params
         this.phrase = null;
         this.params = params;

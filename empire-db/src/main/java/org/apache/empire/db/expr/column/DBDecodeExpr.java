@@ -55,7 +55,7 @@ public class DBDecodeExpr extends DBAbstractFuncExpr
      */
     public DBDecodeExpr(DBColumnExpr expr, Map<?,?> valueMap, Object elseExpr, DataType dataType)
     {
-        super(expr, expr.getUpdateColumn(), false, dataType);
+        super(expr, false, dataType);
         // Save Info
         this.valueMap = valueMap;
         this.elseExpr = elseExpr; 
@@ -64,7 +64,13 @@ public class DBDecodeExpr extends DBAbstractFuncExpr
     @Override
     protected String getFunctionName()
     {
-        return "decode";
+        return "DECODE";
+    }
+
+    @Override
+    public DBColumn getUpdateColumn()
+    {
+        return null;
     }
 
     @Override
@@ -136,5 +142,4 @@ public class DBDecodeExpr extends DBAbstractFuncExpr
         // No DBColumnExpr found
         return null;
     }
-
 }

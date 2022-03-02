@@ -97,22 +97,6 @@ public class DBConcatExpr extends DBColumnExpr
     }
 
     @Override
-    public Element addXml(Element parent, long flags)
-    {
-        Element elem = XMLUtil.addElement(parent, "column");
-        elem.setAttribute("name", getName());
-        elem.setAttribute("function", "concat");
-        // Add Other Attributes
-        if (attributes!=null)
-            attributes.addXml(elem, flags);
-        // add All Options
-        if (options!=null)
-            options.addXml(elem, getDataType());
-        // Done
-        return elem;
-    }
-
-    @Override
     public DBColumn getSourceColumn()
     {
         return left.getSourceColumn();
@@ -188,7 +172,44 @@ public class DBConcatExpr extends DBColumnExpr
             left.addSQL(buf, context);
             buf.append(template);
             buf.append(getObjectValue(getDataType(), right, context, template));
-        }
-        
+        }        
     }
+
+    @Override
+    public Element addXml(Element parent, long flags)
+    {
+        Element elem = XMLUtil.addElement(parent, "column");
+        elem.setAttribute("name", getName());
+        elem.setAttribute("function", "concat");
+        DBColumn source = getSourceColumn();
+        if (source!=null)
+        {   Element elemSource = XMLUtil.addElement(elem, "source");
+            source.addXml(elemSource, flags);
+            // more
+            Object with = right;
+            while (with instanceof DBExpr)
+            {
+                if (with instanceof DBConcatExpr)
+                {
+                   ((DBConcatExpr)with).getSourceColumn().addXml(elemSource, flags);
+                    with = ((DBConcatExpr)with).right;
+                    continue;
+                }
+                if (with instanceof DBColumnExpr)
+                {
+                    ((DBColumnExpr)with).addXml(elemSource, flags);
+                }
+                with = null;
+            }
+        }
+        // Add Other Attributes
+        if (attributes!=null)
+            attributes.addXml(elem, flags);
+        // add All Options
+        if (options!=null)
+            options.addXml(elem, getDataType());
+        // Done
+        return elem;
+    }
+    
 }

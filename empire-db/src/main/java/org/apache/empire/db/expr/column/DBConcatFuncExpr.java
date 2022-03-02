@@ -19,6 +19,7 @@
 package org.apache.empire.db.expr.column;
 
 import org.apache.empire.data.DataType;
+import org.apache.empire.db.DBColumn;
 import org.apache.empire.db.DBColumnExpr;
 import org.apache.empire.dbms.DBSqlPhrase;
 
@@ -40,7 +41,7 @@ public class DBConcatFuncExpr extends DBAbstractFuncExpr
      */
     public DBConcatFuncExpr(DBColumnExpr first, String separator, DBColumnExpr... others)
     {
-        super(first, null, false, DataType.VARCHAR);
+        super(first, false, DataType.VARCHAR);
         // remember
         this.first = first;
         this.separator = separator;
@@ -73,6 +74,12 @@ public class DBConcatFuncExpr extends DBAbstractFuncExpr
     protected String getFunctionName()
     {
         return "CONCAT";
+    }
+
+    @Override
+    public DBColumn getUpdateColumn()
+    {
+        return null;
     }
     
     /**

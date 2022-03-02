@@ -76,8 +76,8 @@ public class PreparedStatementTest{
         // set param value
         empIdParam.setValue(id);
         // check command
-        assertNotNull(cmd.getParamValues());
         assertTrue(cmd.getSelect().indexOf('?') > 0);
+        assertNotNull(cmd.getParamValues());
 
         DBReader r = new DBReader(context);
         try {

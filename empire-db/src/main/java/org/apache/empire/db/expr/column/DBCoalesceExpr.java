@@ -17,7 +17,7 @@ public class DBCoalesceExpr extends DBAbstractFuncExpr
     
     public DBCoalesceExpr(DBColumnExpr expr, Object nullValue)
     {
-        super(expr, expr.getUpdateColumn(), false, expr.getDataType());
+        super(expr, false, expr.getDataType());
         // set the null value
         this.nullValue = nullValue;
     }

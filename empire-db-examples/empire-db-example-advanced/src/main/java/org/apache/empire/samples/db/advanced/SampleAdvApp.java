@@ -120,7 +120,7 @@ public class SampleAdvApp
         // STEP 2.2: Create a Context
         context = new SampleContext(carSales, dbms, conn);
         // set optional context features
-        context.setPreparedStatementsEnabled(false);
+        context.setPreparedStatementsEnabled(true);
         context.setRollbackHandlingEnabled(false);
 
         // STEP 3: Open Database (and create if not existing)
@@ -134,12 +134,13 @@ public class SampleAdvApp
             context.commit();
         }
         
-        subqueryQueryDemo();
-        
         // do simple stuff
-        simpleQueryDemo();
         simpleUpdateDemo();
+
+        
+        simpleQueryDemo();
         queryViewDemo();
+        subqueryQueryDemo();
         paramQueryDemo();
         
         // Remember RollbackHandling
@@ -538,15 +539,35 @@ public class SampleAdvApp
             .where(BRAND.NAME.is("Tesla"))
             .where(MODEL.NAME.is("Model 3").and(MODEL.TRIM.is("Performance")));
         */
+        
+        DBCommand sub = context.createCommand();
+        sub.select(BRAND.WMI, BRAND.NAME);
+        sub.where (BRAND.COUNTRY.is("Deutschland"));
+        DBQuery qqry = new DBQuery(sub, "qt");
 
         // create command
         DBCommand cmd = context.createCommand()
             // increase model base prices by 5%
-            .set  (MODEL.BASE_PRICE.to(MODEL.BASE_PRICE.multiplyWith(105).divideBy(100).round(0)))
-            .join (MODEL.WMI, BRAND.WMI)
+            .select(MODEL.BASE_PRICE.multiplyWith(105).divideBy(100).round(0))
+            .set  (MODEL.BASE_PRICE.to(55225))
+            .join (MODEL.WMI, BRAND.WMI) // , BRAND.NAME.is("Tesla")
+            // .join (MODEL.WMI, qqry.column(BRAND.WMI), qqry.column(BRAND.NAME).like("V%"))
             // on all Volkswagen Tiguan with Diesel engine
-            .where(BRAND.NAME.is("Volkswagen"))
+            .where(BRAND.NAME.like("Volkswagen%"))
             .where(MODEL.NAME.is("Tiguan").and(MODEL.ENGINE_TYPE.is(EngineType.D)));
+        
+
+        String sql = cmd.getSelect();
+        Object[] params = cmd.getParamValues();
+        System.out.println(sql);
+        System.out.println(StringUtils.arrayToString(params, "|"));
+        
+        // cmd.removeWhereConstraint(MODEL.NAME.is("Tiguan").and(MODEL.ENGINE_TYPE.is(EngineType.D)));
+        // cmd.removeWhereConstraintOn(BRAND.NAME);
+        sql = cmd.getUpdate();
+        params = cmd.getParamValues();
+        System.out.println(sql);
+        System.out.println(StringUtils.arrayToString(params, "|"));
         
         // execute Update statement
         int count = context.executeUpdate(cmd);

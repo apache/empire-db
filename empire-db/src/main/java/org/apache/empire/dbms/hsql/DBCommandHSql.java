@@ -18,21 +18,10 @@
  */
 package org.apache.empire.dbms.hsql;
 
-import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
-import org.apache.empire.data.DataType;
-import org.apache.empire.db.DBCmdParam;
-import org.apache.empire.db.DBColumn;
-import org.apache.empire.db.DBColumnExpr;
 import org.apache.empire.db.DBCommand;
 import org.apache.empire.db.DBRowSet;
-import org.apache.empire.db.expr.column.DBAliasExpr;
-import org.apache.empire.db.expr.column.DBValueExpr;
-import org.apache.empire.db.expr.compare.DBCompareColExpr;
-import org.apache.empire.db.expr.compare.DBCompareExpr;
 import org.apache.empire.db.expr.join.DBColumnJoinExpr;
 import org.apache.empire.db.expr.join.DBJoinExpr;
 import org.apache.empire.db.expr.set.DBSetExpr;

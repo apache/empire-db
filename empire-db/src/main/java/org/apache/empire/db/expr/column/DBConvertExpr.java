@@ -44,7 +44,7 @@ public class DBConvertExpr extends DBAbstractFuncExpr
      */
     public DBConvertExpr(DBColumnExpr expr, DataType dataType, Object format)
     {
-        super(expr, expr.getUpdateColumn(), false, dataType);
+        super(expr, false, dataType);
         // Save Info
         this.format = format;
     }

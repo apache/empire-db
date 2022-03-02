@@ -43,7 +43,6 @@ public abstract class DBAbstractFuncExpr extends DBColumnExpr
     protected static final Logger log = LoggerFactory.getLogger(DBAbstractFuncExpr.class);
   
     protected final DBColumnExpr expr;
-    protected final DBColumn     updateColumn; // optional
     protected final boolean      isAggregate;
     protected final DataType     dataType;
 
@@ -56,10 +55,9 @@ public abstract class DBAbstractFuncExpr extends DBColumnExpr
      * @param isAggregate indicates whether the function is an aggregate function (sum, min, max, avg, ...)
      * @param dataType indicates the data type of the function result 
      */
-    public DBAbstractFuncExpr(DBColumnExpr expr, DBColumn updateColumn, boolean isAggregate, DataType dataType)
+    public DBAbstractFuncExpr(DBColumnExpr expr, boolean isAggregate, DataType dataType)
     {
         this.expr = expr;
-        this.updateColumn = updateColumn;
         this.isAggregate = isAggregate || expr.isAggregate(); 
         this.dataType = dataType;
     }
@@ -143,7 +141,7 @@ public abstract class DBAbstractFuncExpr extends DBColumnExpr
     @Override
     public DBColumn getUpdateColumn()
     {
-        return updateColumn;
+        return expr.getUpdateColumn();
     }
 
     /**
@@ -262,24 +260,24 @@ public abstract class DBAbstractFuncExpr extends DBColumnExpr
     @Override
     public Element addXml(Element parent, long flags)
     {
-        Element elem;
-        if (updateColumn!=null)
-        {   // Update Column
-            elem = updateColumn.addXml(parent, flags);
-        }
-        else
-        {   // Add a column expression for this function
-            elem = XMLUtil.addElement(parent, "column");
-            elem.setAttribute("name", getName());
-            // Add Other Attributes
-            if (attributes!=null)
-                attributes.addXml(elem, flags);
-            // add All Options
-            if (options!=null)
-                options.addXml(elem, this.dataType);
-        }
-        // Done
+        // Add a column expression for this function
+        Element elem = XMLUtil.addElement(parent, "column");
+        elem.setAttribute("name", getName());
         elem.setAttribute("function", getFunctionName());
+        elem.setAttribute("dataType", getDataType().name());
+        elem.setAttribute("aggregate", String.valueOf(isAggregate));
+        DBColumn source = getSourceColumn();
+        if (source!=null)
+        {   Element elemSource = XMLUtil.addElement(elem, "source");
+            source.addXml(elemSource, flags);
+        }
+        // Add Other Attributes
+        if (attributes!=null)
+            attributes.addXml(elem, flags);
+        // add All Options
+        if (options!=null)
+            options.addXml(elem, this.dataType);
+        // Done
         return elem;
     }
 }

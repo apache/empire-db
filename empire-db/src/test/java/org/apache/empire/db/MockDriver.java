@@ -48,7 +48,7 @@ public class MockDriver extends DBMSHandlerBase {
     @Override
     public DBColumnExpr getNextSequenceValueExpr(DBTableColumn column)
     {
-        return new DBFuncExpr(column, "nextval()", null, column, false, DataType.INTEGER);
+        return new DBFuncExpr(column, "nextval()", null, false, DataType.INTEGER);
     }
 
     @Override
