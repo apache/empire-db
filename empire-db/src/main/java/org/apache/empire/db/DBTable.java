@@ -37,6 +37,7 @@ import org.apache.empire.db.exceptions.RecordDeleteFailedException;
 import org.apache.empire.db.exceptions.RecordUpdateFailedException;
 import org.apache.empire.exceptions.InvalidArgumentException;
 import org.apache.empire.exceptions.ItemExistsException;
+import org.apache.empire.exceptions.NotSupportedException;
 import org.apache.empire.exceptions.ObjectNotValidException;
 import org.apache.empire.exceptions.UnexpectedReturnValueException;
 import org.apache.empire.exceptions.UnspecifiedErrorException;
@@ -52,10 +53,10 @@ public class DBTable extends DBRowSet implements Cloneable
     // *Deprecated* private static final long serialVersionUID = 1L;
     
     // Integer size definitions
-    public static final int DEFAULT   = 0;
-    public static final int SMALLINT  = 2;
-    public static final int MEDIUMINT = 4;
-    public static final int BIGINT    = 8;
+    public static final int INT_SIZE_DEFAULT = 0;
+    public static final int INT_SIZE_SMALL   = 2;
+    public static final int INT_SIZE_MEDIUM  = 4;
+    public static final int INT_SIZE_BIG     = 8;
 
     private static AtomicInteger tableCount          = new AtomicInteger(0);
 
@@ -428,7 +429,7 @@ public class DBTable extends DBRowSet implements Cloneable
      */
     public DBTableColumn addIdentity(String name, String seqName)
     {
-        return addColumn("ID", DataType.AUTOINC, 0, true, seqName);
+        return addColumn(name, DataType.AUTOINC, INT_SIZE_BIG, true, seqName);
     }
     
     /**
@@ -448,7 +449,7 @@ public class DBTable extends DBRowSet implements Cloneable
         // Check key
         DBColumn[] keyCols = target.getKeyColumns();
         if (keyCols==null || keyCols.length!=1)
-            throw new InvalidArgumentException("target", target);
+            throw new NotSupportedException(target, "addForeignKey");
         // add column
         DBTableColumn keyCol = (DBTableColumn)keyCols[0];
         DataType keyDataType = keyCol.getDataType();

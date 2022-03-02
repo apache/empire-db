@@ -1088,8 +1088,8 @@ public abstract class DBDatabase extends DBObject
                 break;
                 
             default:
-                if (log.isDebugEnabled())
-                    log.debug("No column validation has been implemented for data type " + type);
+                if (log.isTraceEnabled())
+                    log.trace("No column validation has been implemented for data type " + type);
                 break;
         }
         return value;

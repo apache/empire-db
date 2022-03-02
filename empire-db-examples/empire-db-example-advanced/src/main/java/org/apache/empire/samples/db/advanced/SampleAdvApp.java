@@ -25,14 +25,14 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Locale;
 
+import org.apache.empire.commons.DateUtils;
 import org.apache.empire.commons.ObjectUtils;
-import org.apache.empire.commons.Options;
 import org.apache.empire.commons.StringUtils;
 import org.apache.empire.data.DataType;
 import org.apache.empire.data.list.DataListEntry;
 import org.apache.empire.db.DBCmdParam;
-import org.apache.empire.db.DBColumnExpr;
 import org.apache.empire.db.DBCommand;
 import org.apache.empire.db.DBDDLGenerator.DDLActionType;
 import org.apache.empire.db.DBQuery;
@@ -46,6 +46,7 @@ import org.apache.empire.db.exceptions.StatementFailedException;
 import org.apache.empire.db.expr.compare.DBCompareExpr;
 import org.apache.empire.dbms.DBMSHandler;
 import org.apache.empire.samples.db.advanced.db.CarSalesDB;
+import org.apache.empire.samples.db.advanced.db.CarSalesDB.DealerRating;
 import org.apache.empire.samples.db.advanced.db.CarSalesDB.DealershipType;
 import org.apache.empire.samples.db.advanced.db.CarSalesDB.EngineType;
 import org.apache.empire.samples.db.advanced.db.DealerSalesView;
@@ -67,12 +68,6 @@ public class SampleAdvApp
     private final CarSalesDB carSales = new CarSalesDB();
     
     private SampleContext context;
-    
-    // Shortcuts
-    private final SampleAdvDB db = new SampleAdvDB();
-    private SampleAdvDB.Employees T_EMP = db.T_EMPLOYEES;
-    private SampleAdvDB.Departments T_DEP = db.T_DEPARTMENTS;
-    private SampleAdvDB.EmployeeDepartmentHistory T_EDH = db.T_EMP_DEP_HIST;
 
     /**
      * <PRE>
@@ -134,14 +129,16 @@ public class SampleAdvApp
             context.commit();
         }
         
-        // do simple stuff
-        simpleUpdateDemo();
-
-        
+        // DQL-Demos
         simpleQueryDemo();
         queryViewDemo();
         subqueryQueryDemo();
         paramQueryDemo();
+
+        // DML-Demos
+        modelPriceIncrease();
+        modelPriceDecrease();
+        dealerRatingUpdate();
         
         // Remember RollbackHandling
         boolean prevRBHandling = context.isRollbackHandlingEnabled(); 
@@ -158,100 +155,8 @@ public class SampleAdvApp
         
         ddlDemo("Beadles Volkswagen", "www.group1auto.co.uk", "https://www.group1auto.co.uk/volkswagen/locations/beadles-volkswagen-dartford");
         
-
-        /*
-        // STEP 5: Clear Database (Delete all records)
-        System.out.println("*** Step 5: clearDatabase() ***");
-        clearDatabase();
-
-        // STEP 6: Insert Records
-        // Insert Departments
-        System.out.println("*** Step 6: inserting departments, employees and employee_department_history records ***");
-        int idDevDep  = insertDepartment("Development", "ITTK");
-        int idProdDep = insertDepartment("Production", "ITTK");
-        int idSalDep  = insertDepartment("Sales", "ITTK");
-
-        // Insert Employees
-        int idEmp1 = insertEmployee("Peter", "Sharp", "M");
-        int idEmp2 = insertEmployee("Fred", "Bloggs", "M");
-        int idEmp3 = insertEmployee("Emma", "White", "F");
-        
-        // Insert History as batch
-        DBSQLScript batch = new DBSQLScript(context);
-        insertEmpDepHistory(batch, idEmp1,  idDevDep,  DateUtils.getDate(2007, 12,  1));            
-        insertEmpDepHistory(batch, idEmp1,  idProdDep, DateUtils.getDate(2008,  9,  1));           
-        insertEmpDepHistory(batch, idEmp1,  idSalDep,  DateUtils.getDate(2009,  5, 15));           
-
-        insertEmpDepHistory(batch, idEmp2,  idSalDep,  DateUtils.getDate(2006,  3,  1));            
-        insertEmpDepHistory(batch, idEmp2,  idDevDep,  DateUtils.getDate(2008, 11, 15));
-        
-        insertEmpDepHistory(batch, idEmp3,  idDevDep,  DateUtils.getDate(2006,  9, 15));            
-        insertEmpDepHistory(batch, idEmp3,  idSalDep,  DateUtils.getDate(2007,  6,  1));           
-        insertEmpDepHistory(batch, idEmp3,  idProdDep, DateUtils.getDate(2008,  7, 31));
-        batch.executeBatch();
-        
-        // commit
-        context.commit();
-        
-        // STEP 7: read from Employee_Info_View
-        System.out.println("--------------------------------------------------------");
-        System.out.println("*** read from EMPLOYEE_INFO_VIEW ***");
-        DBCommand cmd = context.createCommand();
-        cmd.select (db.V_EMPLOYEE_INFO.getColumns());
-        cmd.orderBy(db.V_EMPLOYEE_INFO.C_NAME_AND_DEP);
-        printQueryResults(cmd);
-
-        // STEP 8: prepared Statement sample
-        System.out.println("--------------------------------------------------------");
-        System.out.println("*** commandParamsSample: shows how to use command parameters for the generation of prepared statements ***");
-        commandParamsSample(idProdDep, idDevDep);
-
-        // STEP 9: bulkReadRecords
-        System.out.println("--------------------------------------------------------");
-        System.out.println("*** bulkReadRecords: reads employee records into a hashmap, reads employee from hashmap and updates employee ***");
-        HashMap<Integer, DBRecord> employeeMap = bulkReadRecords(conn);
-        DBRecord rec = employeeMap.get(idEmp2);
-        rec.set(db.T_EMPLOYEES.C_SALUTATION, "Mr.");
-        rec.update();
-
-        // STEP 10: bulkProcessRecords
-        System.out.println("--------------------------------------------------------");
-        System.out.println("*** bulkProcessRecords: creates a checksum for every employee in the employees table ***");
-        bulkProcessRecords();
-
-        // STEP 11: querySample
-        System.out.println("--------------------------------------------------------");
-        System.out.println("*** querySample: shows how to use DBQuery class for subqueries and multi table records ***");
-        querySample(idEmp2);
-
-        // STEP 12: ddlSample
-        System.out.println("--------------------------------------------------------");
-        System.out.println("*** ddlSample: shows how to add a column at runtime and update a record with the added column ***");
-        if (db.getDbms() instanceof DBMSHandlerH2) {
-        	log.info("As H2 does not support changing a table with a view defined we remove the view");
-        	System.out.println("*** drop EMPLOYEE_INFO_VIEW ***");
-        	DBSQLScript script = new DBSQLScript(context);
-        	db.getDbms().getDDLScript(DDLActionType.DROP, db.V_EMPLOYEE_INFO, script);
-        	script.executeAll();
-        }
-        ddlSample(idEmp2);
-        if (db.getDbms() instanceof DBMSHandlerH2) {
-        	log.info("And put back the view");
-        	System.out.println("*** create EMPLOYEE_INFO_VIEW ***");
-        	DBSQLScript script = new DBSQLScript(context);
-        	db.getDbms().getDDLScript(DDLActionType.CREATE, db.V_EMPLOYEE_INFO, script);
-        	script.executeAll();
-        }
-
-        // STEP 13: delete records
-        System.out.println("--------------------------------------------------------");
-        System.out.println("*** deleteRecordSample: shows how to delete records (with and without cascade) ***");
-        deleteRecordSample(idEmp3, idSalDep);
-        */
-        
         // Done
-        System.out.println("--------------------------------------------------------");
-        System.out.println("DB Sample Advanced finished successfully.");
+        log.info("DB Sample Advanced finished successfully.");
     }
 
     public void populateDatabase()
@@ -264,23 +169,24 @@ public class SampleAdvApp
         
         // Add some models
         ModelRecord model = new ModelRecord(context);
-        model.insert(brandVW,   "Golf",     "Golf Style 1,5 l TSI",         "Style",         EngineType.P, 130, 30970d);
-        model.insert(brandVW,   "Golf",     "Golf R-Line 2,0 l TSI 4MOTION","R-Line",        EngineType.P, 190, 38650d);
-        model.insert(brandVW,   "Tiguan",   "Tiguan Life 1,5 l TSI",        "Life",          EngineType.P, 150, 32545d);
-        model.insert(brandVW,   "Tiguan",   "Tiguan Elegance 2,0 l TDI SCR","Elegance",      EngineType.D, 150, 40845d);
-        model.insert(brandVW,   "Tiguan",   "Tiguan R-Line 1,4 l eHybrid",  "R-Line",        EngineType.H, 150, 48090d);
+        model.insert(brandVW,   "Golf",     "Golf Style 1,5 l TSI",         "Style",         EngineType.P, 130, 30970d, LocalDate.of(2019, 10, 24));
+        model.insert(brandVW,   "Golf",     "Golf R-Line 2,0 l TSI 4MOTION","R-Line",        EngineType.P, 190, 38650d, LocalDate.of(2019, 10, 24));
+        model.insert(brandVW,   "Tiguan",   "Tiguan Life 1,5 l TSI",        "Life",          EngineType.P, 150, 32545d, LocalDate.of(2016, 01, 01));
+        model.insert(brandVW,   "Tiguan",   "Tiguan Elegance 2,0 l TDI SCR","Elegance",      EngineType.D, 150, 40845d, LocalDate.of(2016, 01, 01));
+        model.insert(brandVW,   "Tiguan",   "Tiguan R-Line 1,4 l eHybrid",  "R-Line",        EngineType.H, 150, 48090d, LocalDate.of(2016, 01, 01));
+        model.insert(brandVW,   "Mulitvan", "Multivan 6.1 Highline 2.0TDI", "Highline",      EngineType.D, 204, 84269d, LocalDate.of(2019, 10, 21));
         // Tesla
-        model.insert(brandTesla,"Model 3",  "Model 3 LR",                   "Long Range",    EngineType.E, 261, 45940d);
-        model.insert(brandTesla,"Model 3",  "Model 3 Performance",          "Performance",   EngineType.E, 487, 53940d);
-        model.insert(brandTesla,"Model Y",  "Model Y LR",                   "Long Range",    EngineType.E, 345, 53940d);
-        model.insert(brandTesla,"Model Y",  "Model Y Performance",          "Performance",   EngineType.E, 450, 58940d);
-        model.insert(brandTesla,"Model S",  "Model S Plaid",                "Plaid",         EngineType.E, 1020,0d);
+        model.insert(brandTesla,"Model 3",  "Model 3 LR",                   "Long Range",    EngineType.E, 261, 45940d, LocalDate.of(2017, 07, 01));
+        model.insert(brandTesla,"Model 3",  "Model 3 Performance",          "Performance",   EngineType.E, 487, 53940d, LocalDate.of(2017, 07, 01));
+        model.insert(brandTesla,"Model Y",  "Model Y LR",                   "Long Range",    EngineType.E, 345, 53940d, LocalDate.of(2020, 03, 13));
+        model.insert(brandTesla,"Model Y",  "Model Y Performance",          "Performance",   EngineType.E, 450, 58940d, LocalDate.of(2020, 03, 13));
+        model.insert(brandTesla,"Model S",  "Model S Plaid",                "Plaid",         EngineType.E, 1020,    0d, LocalDate.of(2021, 12, 01));
         // Ford
-        model.insert(brandFord, "Mustang",  "Mustang GT 5,0 l Ti-VCT V8",           "GT",    EngineType.P, 449, 54300d);
-        model.insert(brandFord, "Mustang",  "Mustang Mach1 5,0 l Ti-VCT V8",        "Mach1", EngineType.P, 460, 62800d);
+        model.insert(brandFord, "Mustang",  "Mustang GT 5,0 l Ti-VCT V8",           "GT",    EngineType.P, 449, 54300d, LocalDate.of(2017, 01, 01));
+        model.insert(brandFord, "Mustang",  "Mustang Mach1 5,0 l Ti-VCT V8",        "Mach1", EngineType.P, 460, 62800d, LocalDate.of(2020, 10, 16));
         // Toyota
-        model.insert(brandToy,  "Prius",    "Prius Hybrid 1,8-l-VVT-i",             "Basis", EngineType.H, 122, 38000d);    
-        model.insert(brandToy,  "Supra",    "GR Supra Pure 2,0 l Twin-Scroll Turbo","Pure",  EngineType.P, 258, 49290d);
+        model.insert(brandToy,  "Prius",    "Prius Hybrid 1,8-l-VVT-i",             "Basis", EngineType.H, 122, 38000d, LocalDate.of(2017, 01, 01));    
+        model.insert(brandToy,  "Supra",    "GR Supra Pure 2,0 l Twin-Scroll Turbo","Pure",  EngineType.P, 258, 49290d, LocalDate.of(2020, 03, 31));
         
         // Add some dealers
         DealerRecord dealerDE = (new DealerRecord(context)).insert("Autozentrum Schmitz",      "Munich",       "Germany");
@@ -526,62 +432,123 @@ public class SampleAdvApp
         
     }
     
-    public void simpleUpdateDemo()
+    public void modelPriceIncrease()
     {
         // shortcuts (for convenience)
         CarSalesDB.Brand BRAND = carSales.BRAND;
         CarSalesDB.Model MODEL = carSales.MODEL;
         // create command
-        /*
-        DBCommand cmd = context.createCommand()
-            .set  (MODEL.BASE_PRICE.to(55000))  // set the price-tag
-            .join (MODEL.WMI, BRAND.WMI)
-            .where(BRAND.NAME.is("Tesla"))
-            .where(MODEL.NAME.is("Model 3").and(MODEL.TRIM.is("Performance")));
-        */
-        
-        DBCommand sub = context.createCommand();
-        sub.select(BRAND.WMI, BRAND.NAME);
-        sub.where (BRAND.COUNTRY.is("Deutschland"));
-        DBQuery qqry = new DBQuery(sub, "qt");
 
+        // Sales-Info
+        String salesInfo = "Price update "+DateUtils.formatDate(LocalDate.now(), Locale.US);
         // create command
         DBCommand cmd = context.createCommand()
             // increase model base prices by 5%
-            .select(MODEL.BASE_PRICE.multiplyWith(105).divideBy(100).round(0))
-            .set  (MODEL.BASE_PRICE.to(55225))
-            .join (MODEL.WMI, BRAND.WMI) // , BRAND.NAME.is("Tesla")
-            // .join (MODEL.WMI, qqry.column(BRAND.WMI), qqry.column(BRAND.NAME).like("V%"))
-            // on all Volkswagen Tiguan with Diesel engine
-            .where(BRAND.NAME.like("Volkswagen%"))
-            .where(MODEL.NAME.is("Tiguan").and(MODEL.ENGINE_TYPE.is(EngineType.D)));
+            .select(BRAND.NAME, MODEL.SPECIFICATION,  MODEL.BASE_PRICE, MODEL.BASE_PRICE.multiplyWith(105).divideBy(100).round(2).as("NEW_PRICE"))
+            // set update fields
+            .set   (MODEL.BASE_PRICE.to(MODEL.BASE_PRICE.multiplyWith(105).divideBy(100).round(2)))
+            .set   (MODEL.SALES_INFO.to(salesInfo))
+            // join with BRANDS
+            .join  (MODEL.WMI, BRAND.WMI) // , BRAND.NAME.is("Tesla")
+            // on all Volkswagen with Diesel engine
+            .where(BRAND.NAME.upper().like("VOLKSWAGEN"))
+            .where(MODEL.ENGINE_TYPE.is(EngineType.D)); // (MODEL.NAME.is("Tiguan").and(
         
+        // Preview the change
+        for (DataListEntry item : context.getUtils().queryDataList(cmd))
+            System.out.println(item.toString());
 
-        String sql = cmd.getSelect();
-        Object[] params = cmd.getParamValues();
-        System.out.println(sql);
-        System.out.println(StringUtils.arrayToString(params, "|"));
-        
+        /*
         // cmd.removeWhereConstraint(MODEL.NAME.is("Tiguan").and(MODEL.ENGINE_TYPE.is(EngineType.D)));
         // cmd.removeWhereConstraintOn(BRAND.NAME);
         sql = cmd.getUpdate();
         params = cmd.getParamValues();
         System.out.println(sql);
         System.out.println(StringUtils.arrayToString(params, "|"));
+        */
         
-        // execute Update statement
+        // Execute the change
         int count = context.executeUpdate(cmd);
         log.info("{} models affected", count);
-        
-        /*
-         * Clone test
-        DBCommand cl1 = cmd.clone();
-        cl1.set(MODEL.BASE_PRICE.to(66000));  // set the price-tag
-        cl1.where(BRAND.NAME.is("Foo"));
-        log.info("cmd= {} params={}", cmd.getUpdate(), cmd.getParamValues());
-        log.info("cmd= {} params={}", cl1.getUpdate(), cl1.getParamValues());
-         */
+        context.commit();
+    }
+    
+    public void modelPriceDecrease()
+    {
+        // shortcuts (for convenience)
+        CarSalesDB.Brand BRAND = carSales.BRAND;
+        CarSalesDB.Model MODEL = carSales.MODEL;
+        // create command
+        DBCommand cmd = context.createCommand()
+            .select(MODEL.getColumns())
+            .join (MODEL.WMI, BRAND.WMI)
+            .where(BRAND.NAME.upper().like("VOLKSWAGEN"))
+            .where(MODEL.ENGINE_TYPE.is(EngineType.D)); // (MODEL.NAME.is("Tiguan").and(
 
+        // Use DBReader to process query result
+        DBReader reader = new DBReader(context);
+        try
+        {   // Open Reader
+            log.info("running modelPriceDecrease for cmd {}", cmd.getSelect());
+            reader.open(cmd);
+            // Print output
+            ModelRecord record = new ModelRecord(context);
+            // Disable rollback handling to improve performance
+            record.setRollbackHandlingEnabled(false);
+            BigDecimal factor = (new BigDecimal(1.05d)).setScale(2, RoundingMode.HALF_UP);
+            while (reader.moveNext())
+            {   // Init updateable record
+                reader.initRecord(record);
+                // Calculate Base-Price
+                BigDecimal oldPrice = reader.getDecimal(MODEL.BASE_PRICE);
+                BigDecimal newPrice = oldPrice.divide(factor, 2, RoundingMode.HALF_UP);
+                record.set(MODEL.BASE_PRICE, newPrice);
+                // update
+                record.update();
+            }
+            // Done
+            context.commit();
+        } finally {
+            // always close Reader
+            reader.close();
+        }
+    }
+
+    private void dealerRatingUpdate()
+    {
+        CarSalesDB.Dealer DEALER = carSales.DEALER;
+        // Clear all dealer ratings
+        DBCommand cmd = context.createCommand()
+                .set(DEALER.RATING.to(DealerRating.X))
+                .where(DEALER.RATING.isNot(null));
+        context.executeUpdate(cmd);
+        context.commit();
+        
+        // Subquery to find TOP 3 dealers
+        CarSalesDB.Sales SALES = carSales.SALES;
+        DBCommand qryCmd = context.createCommand()
+            .select(SALES.DEALER_ID)
+            .where(SALES.YEAR.is(LocalDate.now().getYear()-1))
+            .groupBy(SALES.DEALER_ID)
+            .orderBy(SALES.PRICE.sum().desc())
+            .limitRows(3);
+        DBQuery qryTop = new DBQuery(qryCmd, "qtop");
+        
+        // Dealer-Query
+        cmd.clear();
+        cmd.join(DEALER.ID, qryTop.column(SALES.DEALER_ID));
+        
+        int index = 0;
+        List<DealerRecord> list = context.getUtils().queryRecordList(cmd, DEALER, DealerRecord.class);
+        for (DealerRecord dealer : list)
+        {
+             DealerRating oldRating = dealer.getEnum(DEALER.RATING);
+             DealerRating newRating = DealerRating.values()[index++];
+             log.info("Dealer \"{}\" rating changed from {} to {}", dealer.getString(DEALER.COMPANY_NAME), oldRating, newRating);
+             dealer.set(DEALER.RATING, newRating);
+             dealer.update();
+        }
+        context.commit();
     }
     
     private void queryViewDemo()
@@ -685,70 +652,6 @@ public class SampleAdvApp
     }
 
     /**
-     * This function performs a query to select non-retired employees,<BR>
-     * then it calculates a checksum for every record<BR>
-     * and writes that checksum back to the database.<BR>
-     * <P>
-     * @param conn a connection to the database
-     */
-    private void bulkProcessRecords()
-    {
-        // Define the query
-        DBCommand cmd = context.createCommand();
-        // Define shortcuts for tables used - not necessary but convenient
-        SampleAdvDB.Employees EMP = T_EMP;
-        // Select required columns
-        cmd.select(T_EMP.getColumns());
-        // Set Constraints
-        cmd.where(T_EMP.C_RETIRED.is(false));
-
-        // Query Records and print output
-        DBReader reader = new DBReader(context);
-        try
-        {
-            // Open Reader
-            System.out.println("Running Query:");
-            System.out.println(cmd.getSelect());
-            reader.open(cmd);
-            // Print output
-            DBRecord record = new DBRecord(context, EMP);
-            // Disable rollback handling to improve performance
-            record.setRollbackHandlingEnabled(false);
-            while (reader.moveNext())
-            {
-                // Calculate sum
-                int sum = 0;
-                for (int i=0; i<reader.getFieldCount(); i++)
-                    sum += calcCharSum(reader.getString(i));
-                // Init updateable record
-                reader.initRecord(record);
-                // reader
-                record.set(T_EMP.C_CHECKSUM, sum);
-                record.update();
-            }
-            // Done
-            context.commit();
-
-        } finally
-        {
-            // always close Reader
-            reader.close();
-        }
-    }
-    
-	private int calcCharSum(String value)
-    {
-        int sum = 0;
-        if (value!=null)
-        {	// calcCharSum
-            int len = value.length();
-            for (int i=0; i<len; i++)
-                sum += value.charAt(i);
-        }
-        return sum;    
-    }
-    
-    /**
      * This method demonstrates how to add, modify and delete a database column.<BR>
      * This function demonstrates the use of the {@link DBMSHandler#getDDLScript(org.apache.empire.db.DDLActionType, org.apache.empire.db.DBObject, DBSQLScript)}<BR>
      * 
@@ -795,61 +698,6 @@ public class SampleAdvApp
     }
 
     /**
-     * This function demonstrates the use of the DBQuery object.<BR>
-     * First a DBQuery is used to define a subquery that gets the latest employee department history record.<BR>
-     * This subquery is then used inside another query to list all employees with the current department.<BR>
-     * <P>
-     * In the second part, another DBQuery object is used to read a record that holds information from both 
-     * the employee and department table. When the information is modified and the record's update method is
-     * called, then both tables are updated.
-     * <P>
-     * @param conn
-     * @param employeeId
-     */
-    private void querySample(int employeeId)
-    {
-        // Define the sub query
-        DBCommand subCmd = context.createCommand();
-        DBColumnExpr MAX_DATE_FROM = T_EDH.C_DATE_FROM.max().as(T_EDH.C_DATE_FROM);
-        subCmd.select(T_EDH.C_EMPLOYEE_ID, MAX_DATE_FROM);
-        subCmd.groupBy(T_EDH.C_EMPLOYEE_ID);
-        DBQuery Q_MAX_DATE = new DBQuery(subCmd);
-
-        // Define the query
-        DBCommand cmd = context.createCommand();
-        // Select required columns
-        cmd.select(T_EMP.C_EMPLOYEE_ID, T_EMP.C_FULLNAME);
-        cmd.select(T_EMP.C_GENDER, T_EMP.C_PHONE_NUMBER);
-        cmd.select(T_DEP.C_DEPARTMENT_ID, T_DEP.C_NAME, T_DEP.C_BUSINESS_UNIT);
-        cmd.select(T_EMP.C_UPDATE_TIMESTAMP, T_DEP.C_UPDATE_TIMESTAMP);
-        // Set Joins
-        cmd.join(T_EDH.C_EMPLOYEE_ID, Q_MAX_DATE.column(T_EDH.C_EMPLOYEE_ID),
-                 T_EDH.C_DATE_FROM.is(Q_MAX_DATE.column(MAX_DATE_FROM)));
-        cmd.join(T_EMP.C_EMPLOYEE_ID, T_EDH.C_EMPLOYEE_ID);
-        cmd.join(T_DEP.C_DEPARTMENT_ID, T_EDH.C_DEPARTMENT_ID);
-        // Set Constraints
-        cmd.where(T_EMP.C_RETIRED.is(false));
-        // Set Order
-        cmd.orderBy(T_EMP.C_LASTNAME);
-        cmd.orderBy(T_EMP.C_FIRSTNAME);
-
-        // Query Records and print output
-        printQueryResults(cmd);
-        
-        // Define an updateable query
-        DBQuery Q_EMP_DEP = new DBQuery(cmd, T_EMP.C_EMPLOYEE_ID);
-        DBRecord rec = new DBRecord(context, Q_EMP_DEP);
-        // Modify and Update fields from both Employee and Department
-        rec.read(employeeId)
-           .set(T_EMP.C_PHONE_NUMBER, "0815-4711")
-           .set(T_DEP.C_BUSINESS_UNIT, "AUTO")
-           .update();
-        // Successfully updated
-        System.out.println("The employee has been sucessfully updated");
-    }    
-    
-
-    /**
      * testTransactionCreate
      * @param context
      * @param idDep
@@ -873,10 +721,11 @@ public class SampleAdvApp
         model.create()
             .set(MODEL.WMI             , "WVW")  // = Volkswagen
             .set(MODEL.NAME            , "ID.4")
-            .set(MODEL.SPECIFICATION     , "ID.4 Pro Performance 150 kW 77 kWh")
+            .set(MODEL.SPECIFICATION   , "ID.4 Pro Performance 150 kW 77 kWh")
             .set(MODEL.TRIM            , "Pro")
             .set(MODEL.ENGINE_TYPE     , EngineType.E)
-            .set(MODEL.ENGINE_POWER    , 204);
+            .set(MODEL.ENGINE_POWER    , 204)
+            .set(MODEL.FIRST_SALE      , LocalDate.of(2021, 04, 04));
         // State and timestampe before and after insert
         log.debug("Record state={}, key={}, Timestamp={}", model.getState(), model.getKey(), model.get(MODEL.UPDATE_TIMESTAMP));
         model.update();
@@ -1009,7 +858,6 @@ public class SampleAdvApp
      * This functions prints the results of a query which is performed using the supplied command
      * @param cmd the command to be used for performing the query
      * @param conn the connection
-     */
     private void printQueryResults(DBCommand cmd)
     {
         // Query Records and print output
@@ -1058,6 +906,7 @@ public class SampleAdvApp
             reader.close();
         }
     }
+     */
     
     
 }

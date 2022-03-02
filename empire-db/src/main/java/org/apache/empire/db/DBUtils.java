@@ -76,6 +76,34 @@ public class DBUtils implements DBContextAware
     }
 
     /**
+     * Log Query Statement
+     * @param sqlCmd
+     * @param sqlParams
+     */
+    protected void logQueryStatement(String sqlCmd, Object[] sqlParams)
+    {
+        if (log.isDebugEnabled())
+        {   log.debug("Executing DQL: " + sqlCmd);
+            if (sqlParams!=null && sqlParams.length>0)
+                log.debug("Parameters: " + StringUtils.arrayToString(sqlParams, "|"));
+        }
+    }
+
+    /**
+     * Log Update Statement
+     * @param sqlCmd
+     * @param sqlParams
+     */
+    protected void logUpdateStatement(String sqlCmd, Object[] sqlParams)
+    {
+        if (log.isInfoEnabled())
+        {   log.info("Executing DML: " + sqlCmd);
+            if (sqlParams!=null && sqlParams.length>0)
+                log.info("Parameters: " + StringUtils.arrayToString(sqlParams, "|"));
+        }
+    }
+
+    /**
      * Executes an update, insert or delete SQL-Statement.<BR>
      * We recommend to use a DBCommand object in order to build the sqlCmd.<BR>
      * <P>
@@ -88,8 +116,7 @@ public class DBUtils implements DBContextAware
     {
         try 
         {   // Debug
-            if (log.isInfoEnabled())
-                log.info("Executing: " + sqlCmd);
+            logUpdateStatement(sqlCmd, sqlParams);
             // execute SQL
             long start = System.currentTimeMillis();
             int affected = dbms.executeSQL(sqlCmd, sqlParams, context.getConnection(), setGenKeys);
@@ -128,8 +155,7 @@ public class DBUtils implements DBContextAware
     {
         try
         {   // Debug
-            if (log.isDebugEnabled())
-                log.debug("Executing: " + sqlCmd);
+            logQueryStatement(sqlCmd, sqlParams);
             // Execute the Statement
             long start = System.currentTimeMillis();
             ResultSet rs = dbms.executeQuery(sqlCmd, sqlParams, scrollable, context.getConnection());
@@ -164,10 +190,9 @@ public class DBUtils implements DBContextAware
     public Object querySingleValue(String sqlCmd, Object[] sqlParams, DataType dataType, boolean failOnNoResult)
     {
         // Debug
-        long start = System.currentTimeMillis();
-        if (log.isDebugEnabled())
-            log.debug("Executing: " + sqlCmd);
+        logQueryStatement(sqlCmd, sqlParams);
         // Read value
+        long start = System.currentTimeMillis();
         Object result = dbms.querySingleValue(sqlCmd, sqlParams, dataType, context.getConnection());
         if (result==ObjectUtils.NO_VALUE)
         {   // Query returned no result

@@ -20,6 +20,7 @@ package org.apache.empire.samples.db.advanced.db;
 
 import java.sql.SQLException;
 
+import org.apache.empire.commons.EnumValue;
 import org.apache.empire.data.DataType;
 import org.apache.empire.db.DBContext;
 import org.apache.empire.db.DBSQLScript;
@@ -59,7 +60,7 @@ public class CarSalesDB extends TDatabase<CarSalesDB>
     public enum EngineType
     {
         P("Petrol"),
-        D("Diese"),
+        D("Diesel"),
         H("Hybrid"),
         E("Electric");
         
@@ -99,6 +100,34 @@ public class CarSalesDB extends TDatabase<CarSalesDB>
     }
 
     /**
+     * Dealer Rating
+     */
+    public enum DealerRating implements EnumValue
+    {
+        A,
+        B,
+        C,
+        X;
+
+        /**
+         * Override to use Minus '-' instead of 'X' in Database
+         */
+        @Override
+        public Object toValue(boolean numeric)
+        {
+            if (this==X)
+                return "-"; 
+            return (numeric ? ordinal() : name());
+        }
+
+        @Override
+        public String toString()
+        {
+            return name();
+        }
+    }
+    
+    /**
      * This class represents the Brand table.
      */
     public static class Brand extends TTable<CarSalesDB>
@@ -135,6 +164,11 @@ public class CarSalesDB extends TDatabase<CarSalesDB>
         public final DBTableColumn ENGINE_TYPE;
         public final DBTableColumn ENGINE_POWER;
         public final DBTableColumn BASE_PRICE;
+        public final DBTableColumn FIRST_SALE;
+        public final DBTableColumn LAST_SALE;
+        public final DBTableColumn MODEL_BINARY;
+        public final DBTableColumn MODEL_XML;
+        public final DBTableColumn SALES_INFO;
         public final DBTableColumn UPDATE_TIMESTAMP;
 
         public Model(CarSalesDB db)
@@ -150,6 +184,11 @@ public class CarSalesDB extends TDatabase<CarSalesDB>
             ENGINE_TYPE     = addColumn    ("ENGINE_TYPE",      DataType.CHAR,         1, true, EngineType.class);
             ENGINE_POWER    = addColumn    ("ENGINE_POWER",     DataType.DECIMAL,    4.0, true);
             BASE_PRICE      = addColumn    ("BASE_PRICE",       DataType.DECIMAL,    8.2, false);
+            FIRST_SALE      = addColumn    ("FIRST_SALE",       DataType.DATE,         0, true);
+            LAST_SALE       = addColumn    ("LAST_SALE",        DataType.DATE,         0, false);
+            MODEL_BINARY    = addColumn    ("MODEL_BINARY",     DataType.BLOB,         0, false);
+            MODEL_XML       = addColumn    ("MODEL_XML",        DataType.CLOB,         0, false);
+            SALES_INFO      = addColumn    ("SALES_INFO",       DataType.VARCHAR,     80, false); 
             UPDATE_TIMESTAMP= addTimestamp ("UPDATE_TIMESTAMP");
             
             // Primary Key (automatically set due to addIdentity()) otherwise use 
@@ -168,6 +207,7 @@ public class CarSalesDB extends TDatabase<CarSalesDB>
         public final DBTableColumn CITY;
         public final DBTableColumn COUNTRY;
         public final DBTableColumn YEAR_FOUNDED;
+        public final DBTableColumn RATING;
         public final DBTableColumn UPDATE_TIMESTAMP;
 
         public Dealer(CarSalesDB db)
@@ -181,6 +221,7 @@ public class CarSalesDB extends TDatabase<CarSalesDB>
             CITY            = addColumn   ("CITY",             DataType.VARCHAR,     20, true);
             COUNTRY         = addColumn   ("COUNTRY",          DataType.VARCHAR,     40, true);
             YEAR_FOUNDED    = addColumn   ("YEAR_FOUNDED",     DataType.DECIMAL,    4.0, false);
+            RATING          = addColumn   ("RATING",           DataType.CHAR,         1, true, DealerRating.X);
             UPDATE_TIMESTAMP= addTimestamp("UPDATE_TIMESTAMP");
             
             // Primary Key (automatically set due to addIdentity()) otherwise use 

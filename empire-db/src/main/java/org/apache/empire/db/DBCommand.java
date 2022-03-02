@@ -30,8 +30,6 @@ import org.apache.empire.commons.ObjectUtils;
 import org.apache.empire.commons.StringUtils;
 import org.apache.empire.commons.Unwrappable;
 import org.apache.empire.data.DataType;
-import org.apache.empire.db.expr.column.DBAliasExpr;
-import org.apache.empire.db.expr.column.DBValueExpr;
 import org.apache.empire.db.expr.compare.DBCompareAndOrExpr;
 import org.apache.empire.db.expr.compare.DBCompareColExpr;
 import org.apache.empire.db.expr.compare.DBCompareExpr;
@@ -45,7 +43,6 @@ import org.apache.empire.db.expr.set.DBSetExpr;
 import org.apache.empire.dbms.DBSqlPhrase;
 import org.apache.empire.exceptions.InvalidArgumentException;
 import org.apache.empire.exceptions.ItemNotFoundException;
-import org.apache.empire.exceptions.NotSupportedException;
 import org.apache.empire.exceptions.ObjectNotValidException;
 import org.apache.empire.exceptions.UnspecifiedErrorException;
 import org.slf4j.Logger;
@@ -61,172 +58,6 @@ public abstract class DBCommand extends DBCommandExpr
     implements Cloneable
 {
     // *Deprecated* private static final long serialVersionUID = 1L;
-
-    /**
-     * DBMergeCommand
-     * @author rainer
-     */
-    protected static class DBMergeCommand extends DBCommand
-    {
-        private final DBCommand parent;
-        
-        protected DBMergeCommand(DBCommand parent)
-        {
-            super(parent.isAutoPrepareStmt());
-            this.parent = parent;
-            // set 
-            List<DBSetExpr> set = parent.getSetExpressions();
-            if (set!=null)
-                this.set = new ArrayList<DBSetExpr>(set);
-            // joins
-            List<DBJoinExpr> joins = parent.getJoins();
-            if (joins!=null)
-                this.joins = new ArrayList<DBJoinExpr>(joins);
-            // where
-            List<DBCompareExpr> where = parent.getWhereConstraints();
-            if (where!=null)
-                this.where = new ArrayList<DBCompareExpr>(where);
-            // groupBy
-            List<DBColumnExpr> groupBy = parent.getGroupBy();
-            if (groupBy!=null)
-                this.groupBy = new ArrayList<DBColumnExpr>(groupBy);
-            // having
-            List<DBCompareExpr> having = parent.getHavingConstraints();
-            if (having!=null)
-                this.having = new ArrayList<DBCompareExpr>(having);
-        }   
-        
-        @Override
-        protected void notifyParamUsage(DBCmdParam param)
-        {
-            throw new NotSupportedException(this, "notifyParamUsage");
-        }
-        
-        @Override
-        protected void resetParamUsage()
-        {
-            /* Nothing */
-        }
-        
-        @Override
-        protected void completeParamUsage()
-        {
-            /* Nothing */
-        }
-        
-        @Override
-        protected void mergeSubqueryParams(Object[] subQueryParams)
-        {
-            parent.mergeSubqueryParams(subQueryParams);
-        }
-        
-        @Override
-        protected void addJoin(StringBuilder buf, DBJoinExpr join, long context, int whichParams)
-        {
-            parent.addJoin(buf, join, context, whichParams);
-        }
-        
-        public List<DBSetExpr> addUsing(StringBuilder buf, DBRowSet table, DBColumnJoinExpr updateJoin)
-        {
-            buf.append("\r\nUSING ");
-            // clearSelect();
-            // clearOrderBy();
-            DBRowSet outerTable = updateJoin.getOuterTable();
-            if (outerTable==null)
-                outerTable=table;
-            Set<DBColumn> joinColumns = new HashSet<DBColumn>();
-            updateJoin.addReferencedColumns(joinColumns);
-            for (DBColumn jcol : joinColumns)
-            {   // Select join columns
-                if (jcol.getRowSet().equals(outerTable)==false)
-                    select(jcol);
-            }
-            // find the source table
-            DBColumnExpr left  = updateJoin.getLeft();
-            DBColumnExpr right = updateJoin.getRight();
-            DBRowSet source = right.getUpdateColumn().getRowSet();
-            if (source==table)
-                source = left.getUpdateColumn().getRowSet();
-            // Add set expressions
-            String sourceAliasPrefix = source.getAlias()+".";
-            List<DBSetExpr> mergeSet = new ArrayList<DBSetExpr>(set.size());   
-            for (DBSetExpr sex : set)
-            {   // Select set expressions
-                Object val = sex.getValue();
-                if (val instanceof DBColumnExpr)
-                {
-                    DBColumnExpr expr = ((DBColumnExpr)val);
-                    if (!(expr instanceof DBColumn) && !(expr instanceof DBAliasExpr))
-                    {   // rename column
-                        String name = "COL_"+String.valueOf(mergeSet.size());
-                        expr = expr.as(name);
-                    }
-                    // select
-                    select(expr);
-                    // Name
-                    DBValueExpr NAME_EXPR = getDatabase().getValueExpr(sourceAliasPrefix+expr.getName(), DataType.UNKNOWN);
-                    mergeSet.add(sex.getColumn().to(NAME_EXPR));
-                }
-                else
-                {   // add original
-                    mergeSet.add(sex);
-                }
-            }
-            // remove join (if not necessary)
-            if (hasConstraintOn(table)==false)
-                removeJoinsOn(table);
-            // add SQL for inner statement
-            addSQL(buf, CTX_DEFAULT);
-            // add Alias
-            buf.append(" ");
-            buf.append(source.getAlias());
-            buf.append("\r\nON (");
-            left.addSQL(buf, CTX_DEFAULT);
-            buf.append(" = ");
-            right.addSQL(buf, CTX_DEFAULT);
-            // Compare Expression
-            if (updateJoin.getWhere() != null)
-                appendMergeConstraint(buf, table, updateJoin.getWhere());
-            // More constraints
-            for (DBCompareExpr cmpExpr : this.where) 
-            {
-                appendMergeConstraint(buf, table, cmpExpr);
-            }
-            // done
-            return mergeSet;
-        }
-    
-        protected void appendMergeConstraint(StringBuilder buf, DBRowSet table, DBCompareExpr cmpExpr)
-        {
-            if (cmpExpr instanceof DBCompareColExpr)
-            {   // a compare column expression
-                DBCompareColExpr cce = (DBCompareColExpr)cmpExpr;
-                DBColumn ccecol = cce.getColumn().getUpdateColumn();
-                if (table.isKeyColumn(ccecol)&& !isSetColumn(ccecol))  
-                {   // yes, add
-                    buf.append(" AND ");
-                    cce.addSQL(buf, CTX_DEFAULT);
-                }
-            }
-            // else if (cmpExpr instanceof DBCompareAndOrExpr)
-            // else if (cmpExpr instanceof DBCompareNotExpr)
-            else  
-            {   // just add
-                buf.append(" AND ");
-                cmpExpr.addSQL(buf, CTX_DEFAULT);
-            }
-        }
-            
-        protected boolean isSetColumn(DBColumn col)
-        {
-            for (DBSetExpr se : this.set)
-            {
-                if (se.getColumn().equals(col))
-                    return true;
-            }
-            return false;
-        }
-    }
     
     // Logger
     protected static final Logger log             = LoggerFactory.getLogger(DBCommand.class);
@@ -1464,16 +1295,6 @@ public abstract class DBCommand extends DBCommandExpr
         clearOrderBy();
         clearLimit();
         resetParamUsage();
-    }
-
-    /**
-     * Create a special Merge-command
-     * This forwards parameter usage to the parent command 
-     * @return the merge command
-     */
-    protected DBMergeCommand createMergeCommand()
-    {
-        return new DBMergeCommand(this); 
     }
     
     /**

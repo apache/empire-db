@@ -163,7 +163,8 @@ public class XMLWriter
     public XMLWriter(Writer writer, String charsetEncoding)
     { 
         this.out = new PrintWriter(writer);
-        this.charsetEncoding = charsetEncoding; 
+        if (charsetEncoding!=null)
+            this.charsetEncoding = charsetEncoding; 
         this.canonical = false;
     }
 

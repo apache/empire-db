@@ -18,10 +18,17 @@
  */
 package org.apache.empire.dbms.hsql;
 
+import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.empire.data.DataType;
+import org.apache.empire.db.DBColumn;
+import org.apache.empire.db.DBColumnExpr;
 import org.apache.empire.db.DBCommand;
 import org.apache.empire.db.DBRowSet;
+import org.apache.empire.db.exceptions.NoPrimaryKeyException;
+import org.apache.empire.db.expr.column.DBAliasExpr;
+import org.apache.empire.db.expr.column.DBValueExpr;
 import org.apache.empire.db.expr.join.DBColumnJoinExpr;
 import org.apache.empire.db.expr.join.DBJoinExpr;
 import org.apache.empire.db.expr.set.DBSetExpr;
@@ -88,27 +95,65 @@ public class DBCommandHSql extends DBCommand
     @Override
     protected void addUpdateWithJoins(StringBuilder buf, DBRowSet table)
     {
+        // The update table
+        DBColumn[] keyColumns = table.getKeyColumns();
+        if (keyColumns==null || keyColumns.length==0)
+            throw new NoPrimaryKeyException(table);
         // Generate Merge expression
         buf.setLength(0);
         buf.append("MERGE INTO ");
         table.addSQL(buf, CTX_FULLNAME|CTX_ALIAS);
-        // join (only one allowed yet)
-        DBColumnJoinExpr updateJoin = null;
-        for (DBJoinExpr jex : joins)
-        {   // The join
-            if (!(jex instanceof DBColumnJoinExpr))
-                continue;
-            if (jex.isJoinOn(table)==false)
-                continue;
-            // found the join
-            updateJoin = (DBColumnJoinExpr)jex;
-            break;
+        // Using
+        buf.append("\r\nUSING (");
+        // Add set expressions
+        List<DBColumnExpr> using = new ArrayList<DBColumnExpr>();
+        // Add key columns
+        for (DBColumn col : keyColumns)
+            using.add(col);
+        // Select Set-Expressions
+        List<DBSetExpr> mergeSet = new ArrayList<DBSetExpr>(set.size());   
+        for (DBSetExpr sex : set)
+        {   // Select set expressions
+            Object val = sex.getValue();
+            if (val instanceof DBColumnExpr)
+            {
+                DBColumnExpr expr = ((DBColumnExpr)val);
+                if (!(expr instanceof DBColumn) && !(expr instanceof DBAliasExpr))
+                {   // rename column
+                    String name = "COL_"+String.valueOf(mergeSet.size());
+                    expr = expr.as(name);
+                }
+                // select
+                using.add(expr);
+                // Name
+                DBValueExpr NAME_EXPR = getDatabase().getValueExpr("q0."+expr.getName(), DataType.UNKNOWN);
+                mergeSet.add(sex.getColumn().to(NAME_EXPR));
+            }
+            else
+            {   // add original
+                mergeSet.add(sex);
+            }
         }
-        if (updateJoin==null)
-            throw new ObjectNotValidException(this);
-        // using
-        DBMergeCommand merge = createMergeCommand();
-        List<DBSetExpr> mergeSet = merge.addUsing(buf, table, updateJoin);
+        // Add select
+        buf.append("SELECT ");
+        addListExpr(buf, using, CTX_ALL, ", ");
+        // From clause
+        addFrom(buf);
+        // Add Where
+        addWhere(buf);
+        // Add Grouping
+        addGrouping(buf);
+        // on
+        buf.append(") q0\r\nON (");
+        for (DBColumn col : keyColumns)
+        {   // compare 
+            buf.append(" q0.");
+            col.addSQL(buf, CTX_NAME);
+            buf.append("=");
+            buf.append(table.getAlias());
+            buf.append(".");
+            col.addSQL(buf, CTX_NAME);
+        }
         // Set Expressions
         buf.append(")\r\nWHEN MATCHED THEN UPDATE ");
         buf.append("\r\nSET ");
