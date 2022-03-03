@@ -211,7 +211,7 @@ public class SampleApp
             DBMSHandler dbms = (DBMSHandler) Class.forName(dbmsHandlerClass).newInstance();
 
             // Configure dbms
-            config.readProperties(dbms, "properties-"+provider, "dbmsHandlerProperites");
+            config.readProperties(dbms, "properties-"+provider, "dbmsHandlerProperties");
 
             // Special cases
             if (dbms instanceof DBMSHandlerPostgreSQL)

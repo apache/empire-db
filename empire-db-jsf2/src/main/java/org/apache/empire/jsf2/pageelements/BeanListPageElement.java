@@ -630,7 +630,7 @@ public class BeanListPageElement<T> extends ListPageElement<T> implements ListIt
         Set<Object[]> items = getSelectedItemKeys();
         if (items.size()>0)
         {
-            DBColumn[] pk = (DBColumn[])rowset.getKeyColumns();
+            DBColumn[] pk = rowset.getKeyColumns();
             DBColumnExpr keyExpr = pk[0];
             for (int i=1; i<pk.length; i++)
             {

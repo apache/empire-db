@@ -25,9 +25,9 @@
 		<jdbcPwd></jdbcPwd>
 		<!-- Empire-db driver configuration -->
 		<dbmsHandlerClass>org.apache.empire.dbms.hsql.DBMSHandlerHSql</dbmsHandlerClass>
-		<dbmsHandlerProperites>
+		<dbmsHandlerProperties>
 			<!-- no properties -->
-		</dbmsHandlerProperites>
+		</dbmsHandlerProperties>
 	</properties-hsqldb>
 
 	<properties-mysql>
@@ -39,9 +39,9 @@
 		<jdbcPwd>esteam</jdbcPwd>
 		<!-- Empire-db driver configuration -->
 		<dbmsHandlerClass>org.apache.empire.dbms.mysql.DBMSHandlerMySQL</dbmsHandlerClass>
-		<dbmsHandlerProperites>
+		<dbmsHandlerProperties>
 			<databaseName>DBSAMPLE</databaseName>
-		</dbmsHandlerProperites>
+		</dbmsHandlerProperties>
 	</properties-mysql>
 	
 	<properties-postgresql>
@@ -53,9 +53,9 @@
 		<jdbcPwd>postgres</jdbcPwd>
 		<!-- Empire-db driver configuration -->
 		<dbmsHandlerClass>org.apache.empire.dbms.postgresql.DBMSHandlerPostgreSQL</dbmsHandlerClass>
-		<dbmsHandlerProperites>
+		<dbmsHandlerProperties>
 			<databaseName>DBSAMPLE</databaseName>
-		</dbmsHandlerProperites>
+		</dbmsHandlerProperties>
 	</properties-postgresql>
 	
 	<properties-h2>
@@ -67,9 +67,9 @@
 		<jdbcPwd></jdbcPwd>
 		<!-- Empire-db driver configuration -->
 		<dbmsHandlerClass>org.apache.empire.dbms.h2.DBMSHandlerH2</dbmsHandlerClass>
-		<dbmsHandlerProperites>
+		<dbmsHandlerProperties>
 			<databaseName>DBSAMPLE</databaseName>
-		</dbmsHandlerProperites>
+		</dbmsHandlerProperties>
 	</properties-h2>
 	
 	<properties-derby>
@@ -81,9 +81,9 @@
 		<jdbcPwd></jdbcPwd>
 		<!-- Empire-db driver configuration -->
 		<dbmsHandlerClass>org.apache.empire.dbms.derby.DBMSHandlerDerby</dbmsHandlerClass>
-		<dbmsHandlerProperites>
+		<dbmsHandlerProperties>
 			<databaseName>DBSAMPLE</databaseName>
-		</dbmsHandlerProperites>
+		</dbmsHandlerProperties>
 	</properties-derby>
 
 	<properties-oracle>
@@ -95,9 +95,9 @@
 		<jdbcPwd>DBSAMPLE</jdbcPwd>
 		<!-- Empire-db driver configuration -->
 		<dbmsHandlerClass>org.apache.empire.dbms.oracle.DBMSHandlerOracle</dbmsHandlerClass>
-		<dbmsHandlerProperites>
+		<dbmsHandlerProperties>
 			<!-- no properties -->
-		</dbmsHandlerProperites>
+		</dbmsHandlerProperties>
 	</properties-oracle>
 
 	<properties-sqlserver>
@@ -108,12 +108,12 @@
 		<jdbcPwd>jdbcPwd</jdbcPwd>
 		<!-- Empire-db driver configuration -->
 		<dbmsHandlerClass>org.apache.empire.dbms.sqlserver.DBMSHandlerMSSQL</dbmsHandlerClass>
-		<dbmsHandlerProperites>
+		<dbmsHandlerProperties>
 			<databaseName>DBSAMPLE</databaseName>
 			<useSequenceTable>false</useSequenceTable>
 			<!-- useDateTime2: set to false for databases using DATETIME for timestamps instead of DATETIME2 -->
 			<useDateTime2>true</useDateTime2>
-		</dbmsHandlerProperites>
+		</dbmsHandlerProperties>
 	</properties-sqlserver>
 
 	<log4j:configuration xmlns:log4j="http://jakarta.apache.org/log4j/">

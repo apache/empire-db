@@ -169,7 +169,7 @@ public class SampleApplication extends WebApplication {
             DBMSHandler dbms = (DBMSHandler) Class.forName(dbmsHandlerClass).newInstance();
 
             // Configure dbms
-            config.readProperties(dbms, "properties-"+provider, "dbmsHandlerProperites");
+            config.readProperties(dbms, "properties-"+provider, "dbmsHandlerProperties");
 
             // done
             return dbms;
