@@ -42,6 +42,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
@@ -184,8 +185,23 @@ public class XMLConfiguration
             if (item.getNodeType() != Node.ELEMENT_NODE)
                 continue;
             // Get the Text and set the Property
-            setPropertyValue(bean, item);
+            if (isProperty(item))
+                setPropertyValue(bean, item);
         }
+    }
+    
+    protected boolean isProperty(Node item)
+    {
+        NamedNodeMap map = item.getAttributes();
+        if (map==null)
+            return false; // not an element?
+        Node propAttr = map.getNamedItem("property");
+        if (propAttr==null)
+            return true; // assume yes
+        String value = propAttr.getNodeValue();
+        if (value==null)
+            return true; // assume yes
+        return ObjectUtils.getBoolean(value);
     }
     
     protected void setPropertyValue(Object bean, Node item)

@@ -33,7 +33,7 @@
 		<jdbcPwd></jdbcPwd>
 		<!-- Empire-db driver configuration -->
 		<dbmsHandlerClass>org.apache.empire.dbms.hsql.DBMSHandlerHSql</dbmsHandlerClass>
-		<dbmsHandlerProperties>
+		<dbmsHandlerProperties property="false">
 			<!-- no properties -->
 		</dbmsHandlerProperties>
 	</properties-hsqldb>
@@ -47,7 +47,7 @@
 		<jdbcPwd>esteam</jdbcPwd>
 		<!-- Empire-db driver configuration -->
 		<dbmsHandlerClass>org.apache.empire.dbms.mysql.DBMSHandlerMySQL</dbmsHandlerClass>
-		<dbmsHandlerProperties>
+		<dbmsHandlerProperties property="false">
 			<databaseName>DBSAMPLE</databaseName>
 		</dbmsHandlerProperties>
 	</properties-mysql>
@@ -61,7 +61,7 @@
 		<jdbcPwd>DBSAMPLE</jdbcPwd>
 		<!-- Empire-db driver configuration -->
 		<dbmsHandlerClass>org.apache.empire.dbms.postgresql.DBMSHandlerPostgreSQL</dbmsHandlerClass>
-		<dbmsHandlerProperties>
+		<dbmsHandlerProperties property="false">
 			<!-- no properties -->
 		</dbmsHandlerProperties>
 	</properties-postgresql>
@@ -75,7 +75,7 @@
 		<jdbcPwd></jdbcPwd>
 		<!-- Empire-db driver configuration -->
 		<dbmsHandlerClass>org.apache.empire.dbms.h2.DBMSHandlerH2</dbmsHandlerClass>
-		<dbmsHandlerProperties>
+		<dbmsHandlerProperties property="false">
 			<databaseName>DBSAMPLE</databaseName>
 		</dbmsHandlerProperties>
 	</properties-h2>
@@ -89,7 +89,7 @@
 		<jdbcPwd></jdbcPwd>
 		<!-- Empire-db driver configuration -->
 		<dbmsHandlerClass>org.apache.empire.dbms.derby.DBMSHandlerDerby</dbmsHandlerClass>
-		<dbmsHandlerProperties>
+		<dbmsHandlerProperties property="false">
 			<databaseName>DBSAMPLE</databaseName>
 		</dbmsHandlerProperties>
 	</properties-derby>
@@ -103,7 +103,7 @@
 		<jdbcPwd>DBSAMPLE</jdbcPwd>
 		<!-- Empire-db driver configuration -->
 		<dbmsHandlerClass>org.apache.empire.dbms.oracle.DBMSHandlerOracle</dbmsHandlerClass>
-		<dbmsHandlerProperties>
+		<dbmsHandlerProperties property="false">
 			<!-- no properties -->
 		</dbmsHandlerProperties>
 	</properties-oracle>
@@ -116,23 +116,32 @@
 		<jdbcPwd>jdbcPwd</jdbcPwd>
 		<!-- Empire-db driver configuration -->
 		<dbmsHandlerClass>org.apache.empire.dbms.sqlserver.DBMSHandlerMSSQL</dbmsHandlerClass>
-		<dbmsHandlerProperties>
+		<dbmsHandlerProperties property="false">
 			<databaseName>DBSAMPLE</databaseName>
 			<useSequenceTable>false</useSequenceTable>
 			<!-- useDateTime2: set to false for databases using DATETIME for timestamps instead of DATETIME2 -->
 			<useDateTime2>true</useDateTime2>
 		</dbmsHandlerProperties>
 	</properties-sqlserver>
-	
+
 	<!-- log4j configuration node -->
 	<log4j:configuration xmlns:log4j="http://jakarta.apache.org/log4j/">
 
+		<!-- Default Appender -->
 		<appender name="default" class="org.apache.log4j.ConsoleAppender">
 			<layout class="org.apache.log4j.PatternLayout">
 				<param name="ConversionPattern" value="%-5p : %m		at %l %n"/>
 			</layout>
 		</appender>
 	
+		<!-- Appender for DBUtils (SQL-Statements) -->
+		<appender name="utils" class="org.apache.log4j.ConsoleAppender">
+			<layout class="org.apache.log4j.PatternLayout">
+				<param name="ConversionPattern" value="--------------------------------%n%-5p : %m%n"/>
+			</layout>
+		</appender>
+	
+		<!-- Appender for SampleApp -->
 		<appender name="sample" class="org.apache.log4j.ConsoleAppender">
 			<layout class="org.apache.log4j.PatternLayout">
 				<param name="ConversionPattern" value="%-5p : *** %m *** %n"/>
@@ -140,33 +149,25 @@
 		</appender>
 	
 		<!-- log detail configuration -->
+		<logger name="org.apache.empire.db" additivity="false">
+			<level value="warn"/>
+			<appender-ref ref="default"/>
+		</logger>
+
+		<!-- Show Config-file settings -->
 		<logger name="org.apache.empire.xml" additivity="false">
 			<level value="info"/>
 			<appender-ref ref="default"/>
 		</logger>
 
-		<logger name="org.apache.empire.commons" additivity="false">
-			<level value="warn"/>
-			<appender-ref ref="default"/>
-		</logger>
-
-		<logger name="org.apache.empire.db" additivity="false">
-			<level value="info"/>
-			<appender-ref ref="default"/>
-		</logger>
-
-		<logger name="org.apache.empire.db.context" additivity="false">
+		<!-- Set this level to "debug" to log all SQL-Statements or to "info" to log DML-Statements only -->		
+		<logger name="org.apache.empire.db.DBUtils" additivity="false">
 			<level value="debug"/>
-			<appender-ref ref="default"/>
+			<appender-ref ref="utils"/>
 		</logger>
 
-		<!-- Set this level to "debug" to log all SQL-Statements -->		
-		<logger name="org.apache.empire.db.DBDatabase" additivity="false">
-			<level value="debug"/>
-			<appender-ref ref="default"/>
-		</logger>
-
-		<logger name="org.apache.empire.samples.db" additivity="false">
+		<!-- This is the log output of the SampleApp -->		
+		<logger name="org.apache.empire.samples" additivity="false">
 			<level value="debug"/>
 			<appender-ref ref="sample"/>
 		</logger>

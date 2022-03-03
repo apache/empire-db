@@ -733,7 +733,8 @@ public abstract class DBMSHandlerBase implements DBMSHandler
             }
         } catch(SQLException e) {
             // close statement (if not null)
-            log.error("Error executing query '"+sqlCmd+"' --> "+e.getMessage(), e);
+            if (log.isDebugEnabled())
+                log.debug("Error executeQuery '"+sqlCmd+"' --> "+e.getMessage(), e);
             closeStatement(stmt);
             throw e;
         }

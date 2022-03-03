@@ -157,6 +157,7 @@ public class SampleAdvApp
         
         // Done
         log.info("DB Sample Advanced finished successfully.");
+        context.commit();
     }
 
     public void populateDatabase()

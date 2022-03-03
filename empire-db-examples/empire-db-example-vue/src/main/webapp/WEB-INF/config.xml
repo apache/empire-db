@@ -1,14 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Licensed to the Apache Software Foundation (ASF) under one or more contributor 
-	license agreements. See the NOTICE file distributed with this work for additional 
-	information regarding copyright ownership. The ASF licenses this file to 
-	you under the Apache License, Version 2.0 (the "License"); you may not use 
-	this file except in compliance with the License. You may obtain a copy of 
-	the License at http://www.apache.org/licenses/LICENSE-2.0 Unless required 
-	by applicable law or agreed to in writing, software distributed under the 
-	License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS 
-	OF ANY KIND, either express or implied. See the License for the specific 
-	language governing permissions and limitations under the License. -->
+<!--
+  Licensed to the Apache Software Foundation (ASF) under one
+  or more contributor license agreements.  See the NOTICE file
+  distributed with this work for additional information
+  regarding copyright ownership.  The ASF licenses this file
+  to you under the Apache License, Version 2.0 (the
+  "License"); you may not use this file except in compliance
+  with the License.  You may obtain a copy of the License at
+  
+   http://www.apache.org/licenses/LICENSE-2.0
+  
+  Unless required by applicable law or agreed to in writing,
+  software distributed under the License is distributed on an
+  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+  KIND, either express or implied.  See the License for the
+  specific language governing permissions and limitations
+  under the License.
+-->
 <config>
 
 	<properties>
@@ -25,7 +33,7 @@
 		<jdbcPwd></jdbcPwd>
 		<!-- Empire-db driver configuration -->
 		<dbmsHandlerClass>org.apache.empire.dbms.hsql.DBMSHandlerHSql</dbmsHandlerClass>
-		<dbmsHandlerProperties>
+		<dbmsHandlerProperties property="false">
 			<!-- no properties -->
 		</dbmsHandlerProperties>
 	</properties-hsqldb>
@@ -39,7 +47,7 @@
 		<jdbcPwd>esteam</jdbcPwd>
 		<!-- Empire-db driver configuration -->
 		<dbmsHandlerClass>org.apache.empire.dbms.mysql.DBMSHandlerMySQL</dbmsHandlerClass>
-		<dbmsHandlerProperties>
+		<dbmsHandlerProperties property="false">
 			<databaseName>DBSAMPLE</databaseName>
 		</dbmsHandlerProperties>
 	</properties-mysql>
@@ -48,13 +56,13 @@
 		<!-- JDBC properties for a PostreSQL Database connection -->
 		<!-- Required jar file: postgresql-8.3-603.jdbc4.jar -->
 		<jdbcClass>org.postgresql.Driver</jdbcClass>
-		<jdbcURL>jdbc:postgresql://localhost</jdbcURL>
-		<jdbcUser>postgres</jdbcUser>
-		<jdbcPwd>postgres</jdbcPwd>
+		<jdbcURL>jdbc:postgresql://localhost/dbsample</jdbcURL>
+		<jdbcUser>dbsample</jdbcUser>
+		<jdbcPwd>DBSAMPLE</jdbcPwd>
 		<!-- Empire-db driver configuration -->
 		<dbmsHandlerClass>org.apache.empire.dbms.postgresql.DBMSHandlerPostgreSQL</dbmsHandlerClass>
-		<dbmsHandlerProperties>
-			<databaseName>DBSAMPLE</databaseName>
+		<dbmsHandlerProperties property="false">
+			<!-- no properties -->
 		</dbmsHandlerProperties>
 	</properties-postgresql>
 	
@@ -67,7 +75,7 @@
 		<jdbcPwd></jdbcPwd>
 		<!-- Empire-db driver configuration -->
 		<dbmsHandlerClass>org.apache.empire.dbms.h2.DBMSHandlerH2</dbmsHandlerClass>
-		<dbmsHandlerProperties>
+		<dbmsHandlerProperties property="false">
 			<databaseName>DBSAMPLE</databaseName>
 		</dbmsHandlerProperties>
 	</properties-h2>
@@ -81,7 +89,7 @@
 		<jdbcPwd></jdbcPwd>
 		<!-- Empire-db driver configuration -->
 		<dbmsHandlerClass>org.apache.empire.dbms.derby.DBMSHandlerDerby</dbmsHandlerClass>
-		<dbmsHandlerProperties>
+		<dbmsHandlerProperties property="false">
 			<databaseName>DBSAMPLE</databaseName>
 		</dbmsHandlerProperties>
 	</properties-derby>
@@ -95,7 +103,7 @@
 		<jdbcPwd>DBSAMPLE</jdbcPwd>
 		<!-- Empire-db driver configuration -->
 		<dbmsHandlerClass>org.apache.empire.dbms.oracle.DBMSHandlerOracle</dbmsHandlerClass>
-		<dbmsHandlerProperties>
+		<dbmsHandlerProperties property="false">
 			<!-- no properties -->
 		</dbmsHandlerProperties>
 	</properties-oracle>
@@ -108,7 +116,7 @@
 		<jdbcPwd>jdbcPwd</jdbcPwd>
 		<!-- Empire-db driver configuration -->
 		<dbmsHandlerClass>org.apache.empire.dbms.sqlserver.DBMSHandlerMSSQL</dbmsHandlerClass>
-		<dbmsHandlerProperties>
+		<dbmsHandlerProperties property="false">
 			<databaseName>DBSAMPLE</databaseName>
 			<useSequenceTable>false</useSequenceTable>
 			<!-- useDateTime2: set to false for databases using DATETIME for timestamps instead of DATETIME2 -->
@@ -116,41 +124,57 @@
 		</dbmsHandlerProperties>
 	</properties-sqlserver>
 
+	<!-- log4j configuration node -->
 	<log4j:configuration xmlns:log4j="http://jakarta.apache.org/log4j/">
 
+		<!-- Default Appender -->
 		<appender name="default" class="org.apache.log4j.ConsoleAppender">
-			<!-- layout class="org.apache.log4j.TTCCLayout"/ -->
 			<layout class="org.apache.log4j.PatternLayout">
-				<!-- param name="ConversionPattern" value="NSB(%c) %-5p %m at %l%n"/ -->
-				<param name="ConversionPattern" value="%-5p [%d{yyyy/MM/dd HH:mm}]: %m		at %l %n" />
+				<param name="ConversionPattern" value="%-5p : %m		at %l %n"/>
 			</layout>
 		</appender>
-
+	
+		<!-- Appender for DBUtils (SQL-Statements) -->
+		<appender name="utils" class="org.apache.log4j.ConsoleAppender">
+			<layout class="org.apache.log4j.PatternLayout">
+				<param name="ConversionPattern" value="--------------------------------%n%-5p : %m%n"/>
+			</layout>
+		</appender>
+	
+		<!-- Appender for SampleApp -->
+		<appender name="sample" class="org.apache.log4j.ConsoleAppender">
+			<layout class="org.apache.log4j.PatternLayout">
+				<param name="ConversionPattern" value="%-5p : *** %m *** %n"/>
+			</layout>
+		</appender>
+	
 		<!-- log detail configuration -->
-		<logger name="org.apache.empire.xml" additivity="false">
-			<level value="info" />
-			<appender-ref ref="default" />
-		</logger>
-
-		<logger name="org.apache.empire.commons" additivity="false">
-			<level value="warn" />
-			<appender-ref ref="default" />
-		</logger>
-
 		<logger name="org.apache.empire.db" additivity="false">
-			<level value="info" />
-			<appender-ref ref="default" />
+			<level value="warn"/>
+			<appender-ref ref="default"/>
 		</logger>
 
-		<!-- Set this level to "debug" to log all SQL-Statements -->
-		<logger name="org.apache.empire.db.DBDatabase" additivity="false">
-			<level value="debug" />
-			<appender-ref ref="default" />
+		<!-- Show Config-file settings -->
+		<logger name="org.apache.empire.xml" additivity="false">
+			<level value="info"/>
+			<appender-ref ref="default"/>
+		</logger>
+
+		<!-- Set this level to "debug" to log all SQL-Statements or to "info" to log DML-Statements only -->		
+		<logger name="org.apache.empire.db.DBUtils" additivity="false">
+			<level value="debug"/>
+			<appender-ref ref="utils"/>
+		</logger>
+
+		<!-- This is the log output of the SampleApp -->		
+		<logger name="org.apache.empire.rest" additivity="false">
+			<level value="info"/>
+			<appender-ref ref="sample"/>
 		</logger>
 
 		<root>
-			<priority value="info" />
-			<appender-ref ref="default" />
+			<priority value="info"/>
+			<appender-ref ref="default"/>
 		</root>
 
 	</log4j:configuration>

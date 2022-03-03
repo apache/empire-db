@@ -1,10 +1,5 @@
 package org.apache.empire.dbms;
 
-import org.apache.empire.data.DataType;
-import org.apache.empire.db.DBColumn;
-import org.apache.empire.db.DBColumnExpr;
-import org.apache.empire.db.expr.column.DBFuncExpr;
-
 /**
  * Enum for all SQL phrases that may be supplied by the dbms
  * @author rainer

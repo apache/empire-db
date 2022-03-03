@@ -18,6 +18,7 @@
  */
 package org.apache.empire.db;
 
+import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -331,31 +332,43 @@ public class DBSQLScript implements DBContextAware, Iterable<String>
      */
     public int executeAll(boolean ignoreErrors)
     {
-        log.debug("Running script containing " + String.valueOf(getCount()) + " statements.");
+        log.info("Running script containing " + String.valueOf(getCount()) + " statements.");
+        int errors = 0;
         int result = 0;
-        DBMSHandler dbms = context.getDbms(); 
+        DBMSHandler dbms = context.getDbms();
+        Connection  conn = context.getConnection();
+        DBUtils    utils = context.getUtils(); // Use DBUtils for log helpers only
         for (SQLStmt stmt : sqlStmtList)
-        {
-            try
-            {
+        {   try
+            {   // execute
+                String sqlCmd = stmt.getCmd();
+                Object[] sqlParams = stmt.getParams();
+                // Debug
+                if (log.isDebugEnabled())
+                {   // Log with or without parameters   
+                    if (sqlParams!=null && sqlParams.length>0)
+                        log.debug("Executing Stmt: {}{}{}Parameters: [{}]", utils.LOG_NEW_LINE, sqlCmd, utils.LOG_NEW_LINE, utils.paramsToString(sqlParams));
+                    else
+                        log.debug("Executing Stmt: {}{}", utils.LOG_NEW_LINE, sqlCmd);
+                }
                 // Execute Statement
-                log.debug("Executing: {}", stmt.getCmd());
-                int count = dbms.executeSQL(stmt.getCmd(), stmt.getParams(), context.getConnection(), null);
+                int count = dbms.executeSQL(sqlCmd, sqlParams, conn, null);
                 result += (count >= 0 ? count : 0);
             }
             catch (SQLException e)
-            {
-                // SQLException
-                log.error(e.toString(), e);
+            {   // SQLException
+                log.warn("Statement '"+stmt.getCmd()+"' failed with SQLException "+e.toString(), e);
                 if (ignoreErrors == false)
                 { // forward exception
                     throw new EmpireSQLException(dbms, e);
                 }
                 // continue
                 log.debug("Ignoring error. Continuing with script...");
+                errors++;
             }
         }
-        log.debug("Script completed. {} records affected.", result);
+        // done
+        log.info("Script completed with {} errors. {} records affected.", errors, result);
         return result;
     }
 
@@ -374,11 +387,9 @@ public class DBSQLScript implements DBContextAware, Iterable<String>
      */
     public int executeBatch()
     {
-        log.debug("Running batch containing " + String.valueOf(getCount()) + " statements.");
         DBMSHandler dbms = context.getDbms();
         try
-        {
-            // Execute Statement
+        {   // Execute Statement
             int count = sqlStmtList.size();
             String[] cmdList = new String[count];
             Object[][] paramList = null;
@@ -396,16 +407,16 @@ public class DBSQLScript implements DBContextAware, Iterable<String>
                 i++;
             }
             // Execute batch
+            log.info("Running batch containing " + String.valueOf(getCount()) + " statements.");
             int[] res = dbms.executeBatch(cmdList, paramList, context.getConnection());
             for (count = 0, i = 0; i < (res != null ? res.length : 0); i++)
-                count += (res[i] >= 0 ? res[i] : 0);
-            log.debug("Script completed. {} records affected.", count);
+                 count+= (res[i] >= 0 ? res[i] : 0);
+            log.info("Script completed. {} records affected.", count);
             return count;
         }
         catch (SQLException e)
-        {
-            // SQLException
-            log.error(e.toString(), e);
+        {   // SQLException
+            log.warn("Execute Batch failed with SQLException "+e.toString(), e);
             throw new EmpireSQLException(dbms, e);
         }
     }

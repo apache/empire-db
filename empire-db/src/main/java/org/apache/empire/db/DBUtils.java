@@ -41,7 +41,7 @@ import org.slf4j.LoggerFactory;
 public class DBUtils implements DBContextAware
 {
     // Logger (Use logger from DBDatabase.class)
-    protected static final Logger log = LoggerFactory.getLogger(DBDatabase.class);
+    protected static final Logger log = LoggerFactory.getLogger(DBUtils.class);
     
     // Threshold for long running queries in milliseconds
     protected long longRunndingStmtThreshold = 30000;
@@ -49,6 +49,10 @@ public class DBUtils implements DBContextAware
     protected int  DEFAULT_LIST_CAPACITY  = 10;
     // Max-Rows for list queries
     protected int  MAX_QUERY_ROWS  = 999;
+    // Log max String length
+    protected int LOG_MAX_STRING_LENGTH = 40;
+    // Log New-Line
+    protected String LOG_NEW_LINE = "\r\n";
     
     // the context
     protected final DBContext context;
@@ -76,6 +80,67 @@ public class DBUtils implements DBContextAware
     }
 
     /**
+     * Get single parameter as string (for logging only)
+     * @param param the parameter
+     */
+    protected String paramValueToString(Object param)
+    {
+        if (param==null)
+            return "NULL";
+        DataType dataType = DataType.fromJavaType(param.getClass());
+        if (dataType.isText())
+        {   // text handling
+            String str = param.toString();
+            // limit length
+            if (str.length()>LOG_MAX_STRING_LENGTH)
+            {   StringBuilder b = new StringBuilder(LOG_MAX_STRING_LENGTH+10);
+                b.append(str.substring(0, LOG_MAX_STRING_LENGTH));
+                b.append("~(");
+                b.append(String.valueOf(str.length()));
+                b.append(")");
+                str = b.toString();
+            }
+            // make sure param does not contain the separator
+            if (str.indexOf('|')>=0)
+                str = str.replace('|', '?');
+            // done
+            return str;
+        }
+        if (dataType==DataType.UNKNOWN ||
+            dataType==DataType.BLOB ||
+            dataType==DataType.CLOB)
+        {   // get the class name
+            return param.getClass().getName();
+        }
+        // just convert to String
+        return String.valueOf(param);
+    }
+    
+    /**
+     * Get all parameters as string (for logging only)
+     * @param params the parameter
+     */
+    protected String paramsToString(Object[] params)
+    {
+        if (params == null || params.length < 1)
+            return null; // Empty
+        if (params.length > 1)
+        {   // more than one
+            StringBuilder buf = new StringBuilder();
+            for (int i = 0; i < params.length; i++)
+            {
+                if (i>0)
+                    buf.append('|');
+                // append
+                buf.append(paramValueToString(params[i]));
+            }
+            return buf.toString();
+        }
+        // Only one parameter
+        return paramValueToString(params[0]);
+    }
+
+    /**
      * Log Query Statement
      * @param sqlCmd
      * @param sqlParams
@@ -83,9 +148,11 @@ public class DBUtils implements DBContextAware
     protected void logQueryStatement(String sqlCmd, Object[] sqlParams)
     {
         if (log.isDebugEnabled())
-        {   log.debug("Executing DQL: " + sqlCmd);
+        {   // Log with or without parameters   
             if (sqlParams!=null && sqlParams.length>0)
-                log.debug("Parameters: " + StringUtils.arrayToString(sqlParams, "|"));
+                log.debug("Executing DQL: {}{}{}Parameters: [{}]", LOG_NEW_LINE, sqlCmd, LOG_NEW_LINE, paramsToString(sqlParams));
+            else
+                log.debug("Executing DQL: {}{}", LOG_NEW_LINE, sqlCmd);
         }
     }
 
@@ -97,9 +164,11 @@ public class DBUtils implements DBContextAware
     protected void logUpdateStatement(String sqlCmd, Object[] sqlParams)
     {
         if (log.isInfoEnabled())
-        {   log.info("Executing DML: " + sqlCmd);
+        {   // Log with or without parameters   
             if (sqlParams!=null && sqlParams.length>0)
-                log.info("Parameters: " + StringUtils.arrayToString(sqlParams, "|"));
+                log.info("Executing DML: {}{}{}Parameters: [{}]", LOG_NEW_LINE, sqlCmd, LOG_NEW_LINE, paramsToString(sqlParams));
+            else
+                log.info("Executing DML: {}{}", LOG_NEW_LINE, sqlCmd);
         }
     }
 
@@ -424,10 +493,10 @@ public class DBUtils implements DBContextAware
     {   // Start query
         ResultSet rs = null;
         try
-        {   // Log performance
+        {
+            logQueryStatement(sqlCmd, sqlParams);
+            // Log performance
             long start = System.currentTimeMillis();
-            if (log.isDebugEnabled())
-                log.debug("Executing: " + sqlCmd);
             // Get the next Value
             rs = dbms.executeQuery(sqlCmd, sqlParams, false, context.getConnection());
             if (rs == null)
@@ -517,10 +586,10 @@ public class DBUtils implements DBContextAware
     {   // Execute the  Statement
         ResultSet rs = null;
         try
-        {   // Debug
+        {
+            logQueryStatement(sqlCmd, sqlParams);
+            // Debug
             long start = System.currentTimeMillis();
-            if (log.isDebugEnabled())
-                log.debug("Executing: " + sqlCmd);
             // Get the next Value
             rs = dbms.executeQuery(sqlCmd, sqlParams, false, context.getConnection());
             if (rs == null)
@@ -593,10 +662,10 @@ public class DBUtils implements DBContextAware
     {   // Perform query
         ResultSet rs = null;
         try
-        {   // Log performance
+        {
+            logQueryStatement(sqlCmd, sqlParams);
+            // Log performance
             long start = System.currentTimeMillis();
-            if (log.isDebugEnabled())
-                log.debug("Executing: " + sqlCmd);
             // Get the next Value
             rs = dbms.executeQuery(sqlCmd, sqlParams, false, context.getConnection());
             if (rs == null)
@@ -917,7 +986,7 @@ public class DBUtils implements DBContextAware
                     rownum++;
                 }
                 else
-                    log.warn("Record {} is not valid thus it will not be added to the RecordListQuery.", rownum);
+                    log.trace("Record {} is not valid thus it will not be added to the RecordListQuery.", rownum);
                 // Decrease count
                 if (maxCount > 0)
                     maxCount--;
@@ -986,7 +1055,7 @@ public class DBUtils implements DBContextAware
         DBBeanListFactory<T> factory = DBBeanFactoryCache.getFactoryForType(beanType);
         if (factory==null)
         {   // Create default factory
-            log.info("No factory found for bean type '{}' and rowset {}. Creating default", beanType.getName(), rowset.getName());
+            log.debug("No factory found for bean type '{}' and rowset {}. Creating default", beanType.getName(), rowset.getName());
             factory= createDefaultBeanListFactory(beanType, rowset.getKeyColumns(), rowset.getColumns());
             DBBeanFactoryCache.setFactoryForType(beanType, factory);
         }
@@ -1007,7 +1076,7 @@ public class DBUtils implements DBContextAware
             if (!cmd.hasSelectExpr())
                 throw new CommandWithoutSelectException(cmd);
             // Create default factory
-            log.info("No factory found for bean type '{}'. Creating default", beanType.getName());
+            log.debug("No factory found for bean type '{}'. Creating default", beanType.getName());
             factory= createDefaultBeanListFactory(beanType, null, cmd.getSelectExpressions());
             DBBeanFactoryCache.setFactoryForType(beanType, factory);
         }

@@ -29,10 +29,7 @@ import org.apache.empire.db.DBRowSet;
 import org.apache.empire.db.exceptions.NoPrimaryKeyException;
 import org.apache.empire.db.expr.column.DBAliasExpr;
 import org.apache.empire.db.expr.column.DBValueExpr;
-import org.apache.empire.db.expr.join.DBColumnJoinExpr;
-import org.apache.empire.db.expr.join.DBJoinExpr;
 import org.apache.empire.db.expr.set.DBSetExpr;
-import org.apache.empire.exceptions.ObjectNotValidException;
 
 /**
  * This class handles the special features of an HSqlDB database.
