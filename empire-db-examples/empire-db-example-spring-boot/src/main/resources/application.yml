@@ -1,0 +1,111 @@
+spring:
+  profiles:
+    active: hsqldb
+  datasource:
+    # Required jar file: hsqldb.jar
+    url: 'jdbc:hsqldb:file:hsqldb/sample;shutdown=true'
+    username: 'sa'
+    password: ''
+
+empiredb:
+  dbmsHandlerClass: 'org.apache.empire.dbms.hsql.DBMSHandlerHSql'
+
+---
+
+spring:
+  config:
+    activate:
+      on-profile: mysql
+  datasource:
+    # Required jar file: mysql-connector-java-5.1.6-bin.jar
+    url: 'jdbc:mysql://localhost'
+    username: 'root'
+    password: 'esteam'
+
+empiredb:
+  dbmsHandlerClass: 'org.apache.empire.dbms.mysql.DBMSHandlerMySQL'
+  dbmsHandlerProperties:
+    databaseName: 'DBSAMPLE'
+
+---
+
+spring:
+  config:
+    activate:
+      on-profile: postgresql
+  datasource:
+    # Required jar file: postgresql-8.3-603.jdbc4.jar
+    url: 'jdbc:postgresql://localhost/dbsample'
+    username: 'dbsample'
+    password: 'DBSAMPLE'
+
+empiredb:
+  dbmsHandlerClass: 'org.apache.empire.dbms.postgresql.DBMSHandlerPostgreSQL'
+
+---
+
+spring:
+  config:
+    activate:
+      on-profile: h2
+  datasource:
+    # Required jar file: h2-1.1.107.jar
+    url: 'jdbc:h2:h2/DBSAMPLE'
+    username: 'sa'
+    password: ''
+
+empiredb:
+  dbmsHandlerClass: 'org.apache.empire.dbms.h2.DBMSHandlerH2'
+  dbmsHandlerProperties:
+    databaseName: 'DBSAMPLE'
+
+---
+
+spring:
+  config:
+    activate:
+      on-profile: derby
+  datasource:
+    # Required jar file: derby-10.4.2.0.jar
+    url: 'jdbc:derby:derby/DBSAMPLE;create=true'
+    username: ''
+    password: ''
+
+empiredb:
+  dbmsHandlerClass: 'org.apache.empire.dbms.derby.DBMSHandlerDerby'
+  dbmsHandlerProperties:
+    databaseName: 'DBSAMPLE'
+
+---
+
+spring:
+  config:
+    activate:
+      on-profile: oracle
+  datasource:
+    # Required jar file: ojdbc14.jar
+    url: 'jdbc:oracle:thin:@esteams12:1521:ora12'
+    username: 'DBSAMPLE'
+    password: 'DBSAMPLE'
+
+empiredb:
+  dbmsHandlerClass: 'org.apache.empire.dbms.oracle.DBMSHandlerOracle'
+
+---
+
+spring:
+  config:
+    activate:
+      on-profile: sqlserver
+  datasource:
+    url: 'jdbc:sqlserver://esteams12\sql17'
+    username: 'jdbcUser'
+    password: 'jdbcPwd'
+
+empiredb:
+  dbmsHandlerClass: 'org.apache.empire.dbms.sqlserver.DBMSHandlerMSSQL'
+  dbmsHandlerProperties:
+    databaseName: 'DBSAMPLE'
+    # useDateTime2: set to false for databases using DATETIME for timestamps instead of DATETIME2
+    useDateTime2: true
+    useSequenceTable: false
