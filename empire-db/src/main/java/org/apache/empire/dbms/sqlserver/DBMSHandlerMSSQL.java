@@ -330,6 +330,9 @@ public class DBMSHandlerMSSQL extends DBMSHandlerBase
             case SQL_CURRENT_DATE:            return "convert(char, getdate(), 111)";
             case SQL_DATE_PATTERN:            return "yyyy-MM-dd";
             case SQL_DATE_TEMPLATE:           return "convert(date, '{0}', 111)";
+            case SQL_CURRENT_TIME:            return "convert(time, getdate())";
+            case SQL_TIME_PATTERN:            return "HH:mm:ss";
+            case SQL_TIME_TEMPLATE:           return "convert(time, '{0}')";
             case SQL_DATETIME_PATTERN:        return "yyyy-MM-dd HH:mm:ss.SSS";
             case SQL_DATETIME_TEMPLATE:       return isUseDateTime2() ? "convert(datetime2, '{0}', 121)"
                                                                       : "convert(datetime,  '{0}', 121)";
@@ -394,6 +397,7 @@ public class DBMSHandlerMSSQL extends DBMSHandlerBase
            case DECIMAL:   return "convert(decimal, ?)";
            case FLOAT:     return "convert(float, ?)";
            case DATE:      return "convert(date, ?, 111)";
+           case TIME:      return "convert(time, ?)";
            case DATETIME:
            case TIMESTAMP: return isUseDateTime2() ? "convert(datetime2, ?, 121)"
                                                    : "convert(datetime,  ?, 121)";

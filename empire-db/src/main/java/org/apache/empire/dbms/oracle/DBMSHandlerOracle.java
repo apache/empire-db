@@ -183,6 +183,9 @@ public class DBMSHandlerOracle extends DBMSHandlerBase
             case SQL_CURRENT_DATE:              return "sysdate";
             case SQL_DATE_PATTERN:              return "yyyy-MM-dd";
             case SQL_DATE_TEMPLATE:             return "TO_DATE('{0}', 'YYYY-MM-DD')";
+            case SQL_CURRENT_TIME:              return "TO_DATE('2000-01-01'||TO_CHAR(sysdate, 'HH24:MI:SS'), 'YYYY-MM-DD HH24:MI:SS')";
+            case SQL_TIME_PATTERN:              return "HH:mm:ss";
+            case SQL_TIME_TEMPLATE:             return "TO_DATE('2000-01-01 {0}'), 'YYYY-MM-DD HH24:MI:SS')";
             case SQL_CURRENT_TIMESTAMP:         return "systimestamp";
             case SQL_DATETIME_PATTERN:          
             case SQL_TIMESTAMP_PATTERN:         return "yyyy-MM-dd HH:mm:ss.SSS";
@@ -273,6 +276,8 @@ public class DBMSHandlerOracle extends DBMSHandlerBase
                     return "to_date(?, '"+format.toString()+"')";
                 }
                 return "to_date(?)";
+            case TIME:
+                return "to_date(?, 'HH24:mm:ss')";
             case TIMESTAMP:
                 if (format instanceof String)
                 { // Convert using a format string

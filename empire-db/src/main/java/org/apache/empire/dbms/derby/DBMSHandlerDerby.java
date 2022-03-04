@@ -165,9 +165,12 @@ public class DBMSHandlerDerby extends DBMSHandlerBase
             // data types
             case SQL_BOOLEAN_TRUE:            return "1";
             case SQL_BOOLEAN_FALSE:           return "0";
-            case SQL_CURRENT_DATE:            return "CURRENT_DATE()";
+            case SQL_CURRENT_DATE:            return "CURRENT_DATE";
             case SQL_DATE_PATTERN:            return "yyyy-MM-dd";
             case SQL_DATE_TEMPLATE:           return "'{0}'";
+            case SQL_CURRENT_TIME:            return "CURRENT_TIME";
+            case SQL_TIME_PATTERN:            return "HH:mm:ss";
+            case SQL_TIME_TEMPLATE:           return "'{0}'";            
             case SQL_DATETIME_PATTERN:        return "yyyy-MM-dd HH:mm:ss";
             case SQL_DATETIME_TEMPLATE:       return "'{0}'";
             case SQL_CURRENT_TIMESTAMP:       return "CURRENT_TIMESTAMP";
@@ -230,6 +233,7 @@ public class DBMSHandlerDerby extends DBMSHandlerBase
            case DECIMAL:   return "CAST(? AS DECIMAL)";
            case FLOAT:     return "CAST(? AS DECIMAL)";
            case DATE:      return "CAST(? AS DATE)";
+           case TIME:      return "CAST(? AS TIME)";
            case DATETIME:
            case TIMESTAMP: return "CAST(? AS TIMESTAMP)";
            // Convert to text

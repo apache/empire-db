@@ -164,6 +164,11 @@ public class DateUtils
         return setTime(date, 0, 0, 0, 0);
     }
 
+    public static Date getTimeOnly(Date date)
+    {
+        return setDate(date, 0, 0, 0);
+    }
+
     public static long compareDates(Date date1, Date date2)
     {
         long time1 = setTime(date1, 0, 0, 0, 0).getTime();

@@ -20,10 +20,13 @@ public enum DBSqlPhrase
     // data types
     SQL_BOOLEAN_TRUE        ("1"),          // Oracle Y
     SQL_BOOLEAN_FALSE       ("0"),          // Oracle N
-    SQL_CURRENT_DATE        ("sysdate"),    // Oracle
-    SQL_DATE_PATTERN        ("yyyy-MM-dd"), // SimpleDateFormat
-    SQL_DATE_TEMPLATE       ("TO_DATE('{0}', 'YYYY-MM-DD')"),   // MSSql: convert(date, '{0}', 111)
-    SQL_DATETIME_PATTERN    ("yyyy-MM-dd HH:mm:ss.SSS"),        // SimpleDateFormat
+    SQL_CURRENT_DATE        ("CURRENT_DATE"), 
+    SQL_DATE_PATTERN        ("yyyy-MM-dd"),   // SimpleDateFormat
+    SQL_DATE_TEMPLATE       ("TO_DATE('{0}', 'YYYY-MM-DD')"),  // MSSql: convert(date, '{0}', 111)
+    SQL_CURRENT_TIME        ("CURRENT_TIME"), // MSSql: CONVERT(time, getdate());
+    SQL_TIME_PATTERN        ("HH:mm:ss"),     // SimpleDateFormat
+    SQL_TIME_TEMPLATE       ("'{0}'"),        // MSSql: convert(time, '{0}')
+    SQL_DATETIME_PATTERN    ("yyyy-MM-dd HH:mm:ss.SSS"), // SimpleDateFormat        
     SQL_DATETIME_TEMPLATE   ("TO_DATE('{0}', 'YYYY-MM-DD HH24:MI:SS')"), // Oracle
     SQL_CURRENT_TIMESTAMP   ("systimestamp"),                   // Oracle
     SQL_TIMESTAMP_PATTERN   ("yyyy-MM-dd HH:mm:ss.SSS"),        // SimpleDateFormat

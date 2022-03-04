@@ -447,12 +447,16 @@ public abstract class DBMSHandlerBase implements DBMSHandler
         {   // emulate using java.util.UUID
             return UUID.randomUUID();
         }
-        else if (type==DataType.DATE || type==DataType.DATETIME || type==DataType.TIMESTAMP)
+        else if (type==DataType.DATE || type==DataType.TIME || type==DataType.DATETIME || type==DataType.TIMESTAMP)
         {   if (conn==null)
                 return null; // No connection
             // Get database system's date and time
             Date ts = getUpdateTimestamp(conn);
-            return (type==DataType.DATE ? DateUtils.getDateOnly(ts) : ts);
+            if (type==DataType.DATE)
+                return DateUtils.getDateOnly(ts);
+            if (type==DataType.TIME)
+                return DateUtils.getTimeOnly(ts);
+            return ts;
         }
         // Other types
         throw new NotSupportedException(this, "getColumnAutoValue() for "+type);
@@ -525,6 +529,8 @@ public abstract class DBMSHandlerBase implements DBMSHandler
         {
             case DATE:
                 return getSQLDateTimeString(value, DBSqlPhrase.SQL_DATE_TEMPLATE, DBSqlPhrase.SQL_DATE_PATTERN, DBSqlPhrase.SQL_CURRENT_DATE);
+            case TIME:
+                return getSQLDateTimeString(value, DBSqlPhrase.SQL_TIME_TEMPLATE, DBSqlPhrase.SQL_TIME_PATTERN, DBSqlPhrase.SQL_CURRENT_TIME);
             case DATETIME:
                 // Only date (without time) provided?
                 if (!DBDatabase.SYSDATE.equals(value) && !(value instanceof Date) && ObjectUtils.lengthOf(value)<=10)

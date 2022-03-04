@@ -552,8 +552,10 @@ public class DBModelParser
             case Types.DATE:
                 empireType = DataType.DATE;
                 break;
-            case Types.TIMESTAMP:
             case Types.TIME:
+                empireType = DataType.TIME;
+                break;
+            case Types.TIMESTAMP:
                 empireType = DataType.DATETIME;
                 break;
             case Types.CHAR:

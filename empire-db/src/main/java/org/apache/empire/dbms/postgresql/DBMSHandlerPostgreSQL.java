@@ -383,6 +383,9 @@ public class DBMSHandlerPostgreSQL extends DBMSHandlerBase
             case SQL_CURRENT_DATE:            return "CURRENT_DATE";
             case SQL_DATE_PATTERN:            return "yyyy-MM-dd";
             case SQL_DATE_TEMPLATE:           return "'{0}'";
+            case SQL_CURRENT_TIME:            return "CURRENT_TIME";
+            case SQL_TIME_PATTERN:            return "HH:mm:ss";
+            case SQL_TIME_TEMPLATE:           return "'{0}'";
             case SQL_DATETIME_PATTERN:        return "yyyy-MM-dd HH:mm:ss.SSS";
             case SQL_DATETIME_TEMPLATE:       return "'{0}'";
             case SQL_CURRENT_TIMESTAMP:       return "NOW()";
@@ -445,6 +448,7 @@ public class DBMSHandlerPostgreSQL extends DBMSHandlerBase
             case DECIMAL:  return "CAST(? AS DECIMAL)";
             case FLOAT:    return "CAST(? AS DOUBLE PRECISION)";
             case DATE:     return "CAST(? AS DATE)";
+            case TIME:     return "CAST(? AS TIME)";
             case DATETIME:
             case TIMESTAMP:return "CAST(? AS TIMESTAMP)";
                 // Convert to text

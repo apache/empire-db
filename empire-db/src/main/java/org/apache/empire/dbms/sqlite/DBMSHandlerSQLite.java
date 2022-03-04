@@ -319,9 +319,11 @@ public class DBMSHandlerSQLite extends DBMSHandlerBase
             // data types
             case SQL_BOOLEAN_TRUE:          return "1";
             case SQL_BOOLEAN_FALSE:         return "0";
-            case SQL_CURRENT_DATE:          return "SELECT date('now','localtime');";
+            case SQL_CURRENT_DATE:          return "date('now','localtime');";
             case SQL_DATE_PATTERN:          return "yyyy-MM-dd";
-            case SQL_DATE_TEMPLATE:         return "'{0}'";
+            case SQL_DATE_TEMPLATE:         return "date('{0}')";
+            case SQL_CURRENT_TIME:          return "time('now');";
+            case SQL_TIME_TEMPLATE:         return "time('{0}')";
             case SQL_DATETIME_PATTERN:      return "yyyy-MM-dd hh:mm:ss.sss";
             case SQL_DATETIME_TEMPLATE:     return "'{0}'";
             case SQL_CURRENT_TIMESTAMP:     return "NOW()";

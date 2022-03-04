@@ -25,6 +25,7 @@ import java.sql.Timestamp;
 import java.text.ParseException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -148,6 +149,8 @@ public abstract class DBDatabase extends DBObject
     protected final List<DBView>     views     = new ArrayList<DBView>();
     
     protected DBMSHandler dbms    = null;
+    
+    protected boolean legacyDate  = true; // When true not using Java8 Local???? Types
     
     /**   
      * Property that indicates whether to always use usePreparedStatements (Default is false!)
@@ -525,7 +528,7 @@ public abstract class DBDatabase extends DBObject
             buf.append(linkName);
         }
     }
-   
+    
     /**
      * Returns the java class type for a given dataType
      * @param type the data type
@@ -536,15 +539,28 @@ public abstract class DBDatabase extends DBObject
         switch(expr.getDataType())
         {
             case AUTOINC:
-            case INTEGER:
                 return Long.class;
+            case INTEGER:
+            {   // Check Integer size
+                DBColumn source = expr.getSourceColumn();
+                int size = (source!=null ? (int)source.getSize() : DBTable.INT_SIZE_BIG);
+                if (size<=DBTable.INT_SIZE_SMALL)
+                    return Short.class;
+                if (size<=DBTable.INT_SIZE_MEDIUM)
+                    return Integer.class;
+                // Default to Long
+                return Long.class;
+            }
             case VARCHAR:
             case CLOB:
             case CHAR:
                 return String.class;
             case DATE:
+                return (legacyDate ? Date.class : LocalDate.class);
+            case TIME:
+                return (legacyDate ? Date.class : LocalTime.class);
             case DATETIME:
-                return Date.class;
+                return (legacyDate ? Date.class : LocalDateTime.class);
             case TIMESTAMP:
                 return Timestamp.class;
             case FLOAT:

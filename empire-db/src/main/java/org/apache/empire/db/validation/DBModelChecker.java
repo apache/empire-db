@@ -254,6 +254,7 @@ public class DBModelChecker
                 checkTextColumn(column, remoteColumn, handler);
                 break;
             case DATE:
+            case TIME:
             case DATETIME:
             case TIMESTAMP:
                 checkDateColumn(column, remoteColumn, handler);
