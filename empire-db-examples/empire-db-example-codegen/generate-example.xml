@@ -21,16 +21,16 @@
 
 	<properties>
 		<!-- JDBC-Connection to connect to server -->
-		<jdbcClass>org.hsqldb.jdbc.JDBCDriver</jdbcClass>
-		<jdbcURL>jdbc:hsqldb:file:src/test/resources/hsqldb/sample;shutdown=true</jdbcURL>
-		<jdbcUser>sa</jdbcUser>
-		<jdbcPwd></jdbcPwd>
+		<jdbcClass>com.microsoft.sqlserver.jdbc.SQLServerDriver</jdbcClass>
+		<jdbcURL>jdbc:sqlserver://esteams12\sql17</jdbcURL>
+		<jdbcUser>jdbcUser</jdbcUser>
+		<jdbcPwd>jdbcPwd</jdbcPwd>
 		
 		<!-- Empire-db DBMS Handler class -->
-		<dbmsHandlerClass>org.apache.empire.dbms.hsql.DBMSHandlerHSql</dbmsHandlerClass>
+		<dbmsHandlerClass>org.apache.empire.dbms.sqlserver.DBMSHandlerMSSQL</dbmsHandlerClass>
 
 		<!-- Schema options -->
-		<dbCatalog></dbCatalog>
+		<dbCatalog>DBSAMPLEADV</dbCatalog>
 		<dbSchema></dbSchema>
 		<dbTablePattern></dbTablePattern>
 		

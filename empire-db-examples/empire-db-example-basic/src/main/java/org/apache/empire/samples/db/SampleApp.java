@@ -249,8 +249,8 @@ public class SampleApp
         
         // SECTION 6: Modify some data
         log.info("Step 6: updateEmployee()");
-        updateEmployee(idEmp1, "+49-7531-457160");
-        updateEmployee(idEmp2, "+49-5555-505050");
+        updateEmployee(idEmp1, "+49-7531-457160", true);
+        updateEmployee(idEmp2, "+49-5555-505050", false);
         // Partial Record
         updatePartialRecord(idEmp3, "+49-040-125486");
         // Update Joined Records (Make Fred Bloggs head of department and set salary)
@@ -351,23 +351,27 @@ public class SampleApp
 	 * Updates an employee record by setting the phone number.
      * </PRE>
 	 */
-	private void updateEmployee(long idEmp, String phoneNumber)
+	private void updateEmployee(long idEmp, String phoneNumber, boolean useRecord)
     {
-	    /*
-		// Update an Employee
-		DBRecord rec = new DBRecord(context, db.EMPLOYEES);
-		rec.read(idEmp);
-		// Set
-		rec.set(db.EMPLOYEES.PHONE_NUMBER, phoneNumber);
-		rec.update();
-		*/
-	    
-        DBRecordBean rec = new DBRecordBean();
-        rec.read(context, db.EMPLOYEES, idEmp);
-        // Set
-        rec.set(db.EMPLOYEES.PHONE_NUMBER, phoneNumber);
-        rec.update(context);
-	    
+	      // Update an Employee
+	      if (useRecord)
+	      {
+	          // Use a DBRecord (recommended)
+	          DBRecord rec = new DBRecord(context, db.EMPLOYEES);
+	          rec.read(idEmp);
+	          // Set
+	          rec.set(db.EMPLOYEES.PHONE_NUMBER, phoneNumber);
+	          rec.update();
+	          
+	      }
+	      else
+	      {   // Or use a DBRecordBean:
+	          DBRecordBean rec = new DBRecordBean();
+	          rec.read(context, db.EMPLOYEES, idEmp);
+	          // Set
+	          rec.set(db.EMPLOYEES.PHONE_NUMBER, phoneNumber);
+	          rec.update(context);
+	      }
 	}
 
     /**
