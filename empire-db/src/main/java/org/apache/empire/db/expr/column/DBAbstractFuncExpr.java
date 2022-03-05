@@ -26,6 +26,7 @@ import org.apache.empire.data.DataType;
 import org.apache.empire.db.DBColumn;
 import org.apache.empire.db.DBColumnExpr;
 import org.apache.empire.db.DBDatabase;
+import org.apache.empire.db.exceptions.DatabaseNotOpenException;
 import org.apache.empire.dbms.DBMSHandler;
 import org.apache.empire.exceptions.InvalidArgumentException;
 import org.apache.empire.xml.XMLUtil;
@@ -72,10 +73,15 @@ public abstract class DBAbstractFuncExpr extends DBColumnExpr
      * returns the Database dbms or null if the Expression is not attached to an open database<BR>
      * This function is intended for convenience only.
      */
-    protected final DBMSHandler getDbms()
+    protected DBMSHandler getDbms()
     {
-        DBDatabase db = getDatabase();
-        return (db!=null) ? db.getDbms() : null;
+        DBDatabase db = expr.getDatabase();
+        if (db==null)
+            throw new InvalidArgumentException("expr", expr);
+        DBMSHandler dbms = db.getDbms();
+        if (dbms==null)
+            throw new DatabaseNotOpenException(db);
+        return dbms;
     }
 
     /**
@@ -227,7 +233,7 @@ public abstract class DBAbstractFuncExpr extends DBColumnExpr
                     ph += template.substring(idx, end+1);
                     
                 } else {
-                    log.warn("No placeholder found in template {} for paramter {}", template, i);
+                    log.info("No placeholder found in template {} for paramter {}", template, i);
                     continue;
                 }
                 // get param and replace      

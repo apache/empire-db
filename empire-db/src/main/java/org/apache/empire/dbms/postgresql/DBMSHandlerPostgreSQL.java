@@ -26,18 +26,14 @@ import java.util.GregorianCalendar;
 import org.apache.empire.commons.ObjectUtils;
 import org.apache.empire.commons.StringUtils;
 import org.apache.empire.data.DataType;
-import org.apache.empire.db.DBColumn;
 import org.apache.empire.db.DBColumnExpr;
-import org.apache.empire.db.DBCommand;
 import org.apache.empire.db.DBDDLGenerator;
 import org.apache.empire.db.DBDDLGenerator.DDLActionType;
 import org.apache.empire.db.DBDatabase;
 import org.apache.empire.db.DBObject;
-import org.apache.empire.db.DBRowSet;
 import org.apache.empire.db.DBSQLScript;
 import org.apache.empire.db.DBTableColumn;
 import org.apache.empire.db.exceptions.EmpireSQLException;
-import org.apache.empire.db.exceptions.NoPrimaryKeyException;
 import org.apache.empire.db.exceptions.QueryNoResultException;
 import org.apache.empire.db.expr.column.DBValueExpr;
 import org.apache.empire.dbms.DBMSFeature;
@@ -79,93 +75,6 @@ public class DBMSHandlerPostgreSQL extends DBMSHandlerBase
         "END\n" +
         "$$ LANGUAGE plpgsql IMMUTABLE RETURNS NULL ON NULL INPUT";    
     
-    /**
-     * Defines the PostgreSQL command type.
-     */ 
-    public static class DBCommandPostreSQL extends DBCommand
-    {
-        // *Deprecated* private static final long serialVersionUID = 1L;
-      
-        protected int limit = -1;
-        protected int skip  = -1;
-        
-        public DBCommandPostreSQL(boolean autoPrepareStmt)
-        {
-            super(autoPrepareStmt);
-        }
-        
-        @Override
-        public DBCommand limitRows(int numRows)
-        {
-            limit = numRows;
-            return this;
-        }
-
-        @Override
-        public DBCommand skipRows(int numRows)
-        {
-            skip = numRows;
-            return this;
-        }
-         
-        @Override
-        public void clearLimit()
-        {
-            limit = -1;
-            skip  = -1;
-        }
-        
-        @Override
-        public void getSelect(StringBuilder buf)
-        {   // call base class
-            super.getSelect(buf);
-            // add limit and offset
-            if (limit>=0)
-            {   buf.append("\r\nLIMIT ");
-                buf.append(String.valueOf(limit));
-                // Offset
-                if (skip>=0) 
-                {   buf.append(" OFFSET ");
-                    buf.append(String.valueOf(skip));
-                }    
-            }
-        }
-        
-        @Override
-        protected void addUpdateWithJoins(StringBuilder buf, DBRowSet table)
-        {
-            DBColumn[] keyColumns = table.getKeyColumns();
-            if (keyColumns==null || keyColumns.length==0)
-                throw new NoPrimaryKeyException(table);
-            // Join Update
-            table.addSQL(buf, CTX_NAME);
-            buf.append(" t0");
-            long context = CTX_DEFAULT;
-            // Set Expressions
-            buf.append("\r\nSET ");
-            addListExpr(buf, set, context, ", ");
-            // From clause
-            addFrom(buf);
-            // Add Where
-            buf.append("\r\nWHERE");
-            // key columns
-            for (DBColumn col : keyColumns)
-            {   // compare 
-                buf.append(" t0.");
-                col.addSQL(buf, CTX_NAME);
-                buf.append("=");
-                buf.append(table.getAlias());
-                buf.append(".");
-                col.addSQL(buf, CTX_NAME);
-            }
-            // more constraints
-            if (where!=null && !where.isEmpty())
-            {   // add where expression
-                buf.append("\r\n  AND ");
-                addListExpr(buf, where, context, " AND ");
-            }
-        }
-    }
     
     private String databaseName;
 
@@ -331,10 +240,9 @@ public class DBMSHandlerPostgreSQL extends DBMSHandlerBase
      * @return the new DBCommandPostgreSQL object
      */
     @Override
-    public DBCommand createCommand(boolean autoPrepareStmt)
-    {
-        // create command object
-        return new DBCommandPostreSQL(autoPrepareStmt);
+    public DBCommandPostgres createCommand(boolean autoPrepareStmt)
+    {   // create command object
+        return new DBCommandPostgres(autoPrepareStmt);
     }
 
     /**
@@ -412,7 +320,7 @@ public class DBMSHandlerPostgreSQL extends DBMSHandlerBase
             case SQL_FUNC_TRUNC:              return "truncate(?,{0})";
             case SQL_FUNC_CEILING:            return "ceiling(?)";
             case SQL_FUNC_FLOOR:              return "floor(?)";
-            case SQL_FUNC_MODULO:             return "mod(?,{0})";
+            case SQL_FUNC_MOD:                return "mod(?,{0})";
             case SQL_FUNC_FORMAT:             return "format({0:VARCHAR}, ?)";
             // Date
 			case SQL_FUNC_DAY:                return "extract(day from ?)";
@@ -423,6 +331,7 @@ public class DBMSHandlerPostgreSQL extends DBMSHandlerBase
             case SQL_FUNC_MAX:                return "max(?)";
             case SQL_FUNC_MIN:                return "min(?)";
             case SQL_FUNC_AVG:                return "avg(?)";
+            case SQL_FUNC_STRAGG:             return "STRING_AGG(DISTINCT ? {0} ORDER BY {1})";
             // Others
             case SQL_FUNC_DECODE:             return "case ? {0} end";
             case SQL_FUNC_DECODE_SEP:         return " ";
@@ -525,7 +434,7 @@ public class DBMSHandlerPostgreSQL extends DBMSHandlerBase
     public void getDDLScript(DDLActionType type, DBObject dbo, DBSQLScript script)
     {
         if (ddlGenerator==null)
-            ddlGenerator = new PostgreSQLDDLGenerator(this);
+            ddlGenerator = new PostgresDDLGenerator(this);
         // forward request
         ddlGenerator.getDDLScript(type, dbo, script); 
     }

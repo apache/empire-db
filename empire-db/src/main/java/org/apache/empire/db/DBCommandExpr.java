@@ -25,6 +25,7 @@ import java.util.Set;
 
 import org.apache.empire.commons.Options;
 import org.apache.empire.data.DataType;
+import org.apache.empire.db.expr.column.DBCmdResultExpr;
 import org.apache.empire.db.expr.compare.DBCompareExpr;
 import org.apache.empire.db.expr.order.DBOrderByExpr;
 import org.apache.empire.dbms.DBMSHandler;
@@ -365,6 +366,19 @@ public abstract class DBCommandExpr extends DBExpr
      * @return the DataType of the selected expression or DataType.UNKNOWN
      */
     public abstract DataType getDataType();
+    
+    /**
+     * Returns a ColumnExpr for the result of the query
+     * If the command must have exactly one select column otherwise a NotSupportedException is thrown;
+     * @return the result expression
+     */
+    public DBColumnExpr result()
+    {   try {
+            return new DBCmdResultExpr(this);        
+        } catch(InvalidArgumentException e) {
+            throw new NotSupportedException(this, "result");
+        }
+    }
     
     /**
      * Creates the SQL-Command.

@@ -25,7 +25,9 @@ import org.apache.empire.commons.Attributes;
 import org.apache.empire.commons.Options;
 import org.apache.empire.commons.StringUtils;
 import org.apache.empire.data.Column;
+import org.apache.empire.data.DataType;
 import org.apache.empire.db.exceptions.DatabaseNotOpenException;
+import org.apache.empire.db.expr.column.DBValueExpr;
 import org.apache.empire.db.expr.set.DBSetExpr;
 import org.apache.empire.dbms.DBMSHandler;
 import org.apache.empire.exceptions.ObjectNotValidException;
@@ -306,6 +308,16 @@ public abstract class DBColumn extends DBColumnExpr
     public String getName()
     {
         return name;
+    }
+
+    /**
+     * Returns the name of the column as a value expression
+     * This may be used to reference a parent column in a subquery 
+     * @return the column value expression
+     */
+    public DBValueExpr value()
+    {
+        return new DBValueExpr(getDatabase(), this, DataType.UNKNOWN);    
     }
 
     /**

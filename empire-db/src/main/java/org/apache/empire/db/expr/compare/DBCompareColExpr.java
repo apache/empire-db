@@ -80,7 +80,7 @@ public class DBCompareColExpr extends DBCompareExpr
      * Gets the DBColumnExpr object 
      * @return the DBColumnExpr object 
      */
-    public DBColumnExpr getColumn()
+    public DBColumnExpr getColumnExpr()
     {
         return expr;
     }
@@ -301,7 +301,7 @@ public class DBCompareColExpr extends DBCompareExpr
                 texpr = texpr.unwrap();
             // other
             DBCompareColExpr o = (DBCompareColExpr)other;
-            DBColumnExpr oexpr = o.getColumn();
+            DBColumnExpr oexpr = o.getColumnExpr();
             if (oexpr.isWrapper())
                 oexpr = oexpr.unwrap();
     		// Compare

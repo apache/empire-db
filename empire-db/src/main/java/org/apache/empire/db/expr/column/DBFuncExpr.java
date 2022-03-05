@@ -20,12 +20,14 @@ package org.apache.empire.db.expr.column;
 
 import java.util.Set;
 
+import org.apache.empire.commons.StringUtils;
 // Java
 import org.apache.empire.data.DataType;
 import org.apache.empire.db.DBColumn;
 import org.apache.empire.db.DBColumnExpr;
 import org.apache.empire.db.DBExpr;
 import org.apache.empire.dbms.DBSqlPhrase;
+import org.apache.empire.exceptions.NotSupportedException;
 
 
 /**
@@ -46,7 +48,7 @@ public class DBFuncExpr extends DBAbstractFuncExpr
 
     protected final DBSqlPhrase  phrase;
     protected final Object[]     params;
-    protected String             template;
+    protected final String       template;
 
     /**
      * Constructs a new DBFuncExpr object set the specified parameters to this object.
@@ -58,8 +60,6 @@ public class DBFuncExpr extends DBAbstractFuncExpr
      * @param expr the DBColumnExpr object
      * @param phrase the SQL-phrase
      * @param params an array of params which will be replaced in the template
-     * @param updateColumn optional update column if any. This parameter may be null
-     * @param isAggregate indicates whether the function is an aggregate function (sum, min, max, avg, ...)
      * @param dataType indicates the data type of the function result 
      */
     public DBFuncExpr(DBColumnExpr expr, DBSqlPhrase phrase, Object[] params, DataType dataType)
@@ -68,7 +68,9 @@ public class DBFuncExpr extends DBAbstractFuncExpr
         // Set Phrase and Params
         this.phrase = phrase;
         this.params = params;
-        this.template = null;
+        this.template = getDbms().getSQLPhrase(phrase);
+        if (StringUtils.isEmpty(template))
+            throw new NotSupportedException(getDbms(), phrase.name());
         // check
         if (phrase==DBSqlPhrase.SQL_FUNC_COALESCE)
             log.warn("DBFuncExpr should not be used for SQL_FUNC_COALESCE. Use DBCoalesceExpr instead.");
@@ -102,11 +104,7 @@ public class DBFuncExpr extends DBAbstractFuncExpr
         // Get the template
         if (phrase!=null)
         {   // from phrase
-            int end = phrase.name().lastIndexOf('_');
-            if (end>0)
-                return phrase.name().substring(end+1);
-            // the phrase
-            return phrase.name();
+            return phrase.getFuncName();
         }
         // Get the first word
         if (template!=null)
@@ -157,12 +155,7 @@ public class DBFuncExpr extends DBAbstractFuncExpr
      */
     @Override
     public void addSQL(StringBuilder sql, long context)
-    {
-        // Get the template
-        if (template==null)
-            template = getDbms().getSQLPhrase(phrase);
-        // Add SQL
+    {        // Add SQL
         super.addSQL(sql, template, params, context);
     }
-    
 }

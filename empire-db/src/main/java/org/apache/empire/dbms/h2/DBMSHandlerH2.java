@@ -272,7 +272,7 @@ public class DBMSHandlerH2 extends DBMSHandlerBase
             case SQL_FUNC_TRUNC:              return "truncate(?,{0})";
             case SQL_FUNC_CEILING:            return "ceiling(?)";
             case SQL_FUNC_FLOOR:              return "floor(?)";
-            case SQL_FUNC_MODULO:             return "mod(?,{0})";
+            case SQL_FUNC_MOD:                return "mod(?,{0})";
             case SQL_FUNC_FORMAT:             return "format(?, {0:VARCHAR})";
             // Date
             case SQL_FUNC_DAY:                return "day(?)";

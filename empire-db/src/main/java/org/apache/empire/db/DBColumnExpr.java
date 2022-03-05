@@ -730,7 +730,7 @@ public abstract class DBColumnExpr extends DBExpr
      */
     public DBColumnExpr modulo(Object divisor)
     {
-        return getExprFromPhrase(DBSqlPhrase.SQL_FUNC_MODULO, new Object[] { divisor });
+        return getExprFromPhrase(DBSqlPhrase.SQL_FUNC_MOD, new Object[] { divisor });
     }
 
     /**
@@ -1094,9 +1094,19 @@ public abstract class DBColumnExpr extends DBExpr
      * @param separator the separator between string
      * @return the new DBFuncExpr object
      */
-    public DBColumnExpr strAgg(String separator)
+    public DBColumnExpr stringAgg(String separator, DBOrderByExpr orderBy)
     {
-        return getExprFromPhrase(DBSqlPhrase.SQL_FUNC_STRAGG, new Object[] { separator });
+        return getExprFromPhrase(DBSqlPhrase.SQL_FUNC_STRAGG, new Object[] { separator, orderBy });
+    }
+
+    /**
+     * Creates and returns string aggregation expression
+     * @param separator the separator between string
+     * @return the new DBFuncExpr object
+     */
+    public DBColumnExpr stringAgg(String separator)
+    {
+        return stringAgg(separator, this.asc());
     }
     
     /**

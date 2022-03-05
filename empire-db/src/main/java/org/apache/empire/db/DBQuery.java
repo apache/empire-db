@@ -496,12 +496,12 @@ public class DBQuery extends DBRowSet
                 if (cmp instanceof DBCompareColExpr)
                 { 	// Check whether constraint belongs to update table
                     DBCompareColExpr cmpExpr = (DBCompareColExpr) cmp;
-                    DBColumn col = cmpExpr.getColumn().getUpdateColumn();
+                    DBColumn col = cmpExpr.getColumnExpr().getUpdateColumn();
                     if (col!=null && col.getRowSet() == table)
                     {	// add the constraint
                     	if (cmpExpr.getValue() instanceof DBCmdParam)
                     	{	// Create a new command param
-                    		DBColumnExpr colExpr = cmpExpr.getColumn();
+                    		DBColumnExpr colExpr = cmpExpr.getColumnExpr();
                     		DBCmdParam param =(DBCmdParam)cmpExpr.getValue(); 
                     		DBCmdParam value = upd.addParam(colExpr, param.getValue());
                     		cmp = new DBCompareColExpr(colExpr, cmpExpr.getCmpOperator(), value);

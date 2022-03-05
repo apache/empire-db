@@ -239,9 +239,6 @@ public abstract class DBCommand extends DBCommandExpr
    	{
    	    if (cmdParams==null)
    	        return; // Nothing to do
-   	    // unwrap
-   	    if (cmpExpr instanceof Unwrappable<?>)
-   	        cmpExpr = (DBCompareExpr)((Unwrappable<?>)cmpExpr).unwrap();
    	    // check type
    	    if (cmpExpr instanceof DBCompareColExpr)
    	    {   // DBCompareColExpr
@@ -257,6 +254,10 @@ public abstract class DBCommand extends DBCommandExpr
         else if (cmpExpr instanceof DBCompareNotExpr) 
         {   // DBCompareNotExpr
             removeCommandParams(((DBCompareNotExpr)cmpExpr).getExpr());
+        }
+        else if ((cmpExpr instanceof Unwrappable<?>) && ((Unwrappable<?>)cmpExpr).isWrapper())
+        {   // unwrap
+            removeCommandParams((DBCompareExpr)((Unwrappable<?>)cmpExpr).unwrap());
         }
    	}
 
@@ -1384,7 +1385,7 @@ public abstract class DBCommand extends DBCommandExpr
             if (!(cmp instanceof DBCompareColExpr))
             	continue;
             // Compare columns
-            DBColumnExpr cmpCol = ((DBCompareColExpr)cmp).getColumn();
+            DBColumnExpr cmpCol = ((DBCompareColExpr)cmp).getColumnExpr();
             if (ObjectUtils.compareEqual(cmpCol, colExpr))
             {   // Check if we replace a DBCommandParam
                 removeCommandParams(cmp);
@@ -1559,15 +1560,12 @@ public abstract class DBCommand extends DBCommandExpr
         return buf.toString();
     }
     
+    @SuppressWarnings("unchecked")
     protected void appendCompareColExprs(DBRowSet table, DBCompareExpr expr, List<DBCompareColExpr> list)
     {
-        // unwrap
-        if (expr instanceof Unwrappable<?>)
-            expr = (DBCompareExpr)((Unwrappable<?>)expr).unwrap();
-        // check type
         if (expr instanceof DBCompareColExpr)
         {   // DBCompareColExpr
-            DBColumn column = ((DBCompareColExpr)expr).getColumn().getUpdateColumn();
+            DBColumn column = ((DBCompareColExpr)expr).getColumnExpr().getUpdateColumn();
             if (column!=null && column.getRowSet().equals(table) && !hasSetExprOn(column))
                 list.add((DBCompareColExpr)expr);
         }
@@ -1579,6 +1577,10 @@ public abstract class DBCommand extends DBCommandExpr
         else if (expr instanceof DBCompareNotExpr) 
         {   // DBCompareNotExpr
             appendCompareColExprs(table, ((DBCompareNotExpr)expr).getExpr(),  list);
+        }
+        else if ((expr instanceof Unwrappable<?>) && ((Unwrappable<?>)expr).isWrapper())
+        {   // unwrap
+            appendCompareColExprs(table, ((Unwrappable<DBCompareExpr>)expr).unwrap(), list);
         }
     }
 

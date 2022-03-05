@@ -361,7 +361,7 @@ public class DBMSHandlerMSSQL extends DBMSHandlerBase
             case SQL_FUNC_TRUNC:              return "trunc(?,{0})";
             case SQL_FUNC_CEILING:            return "ceiling(?)";
             case SQL_FUNC_FLOOR:              return "floor(?)";
-            case SQL_FUNC_MODULO:             return "((?) % {0})";
+            case SQL_FUNC_MOD:                return "((?) % {0})";
             case SQL_FUNC_FORMAT:             return "format(?, {0:VARCHAR})";
             // Date
             case SQL_FUNC_DAY:                return "day(?)";
@@ -372,6 +372,7 @@ public class DBMSHandlerMSSQL extends DBMSHandlerBase
             case SQL_FUNC_MAX:                return "max(?)";
             case SQL_FUNC_MIN:                return "min(?)";
             case SQL_FUNC_AVG:                return "avg(?)";
+            case SQL_FUNC_STRAGG:             return "string_agg(?,{0}) WITHIN GROUP (ORDER BY {1})";
             // Others
             case SQL_FUNC_DECODE:             return "case ? {0} end";
             case SQL_FUNC_DECODE_SEP:         return " ";

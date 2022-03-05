@@ -34,7 +34,7 @@ public enum DBSqlPhrase
 
     // functions
     SQL_FUNC_COALESCE       ("coalesce(?, {0})"),       // Oracle: nvl(?, {0})
-    SQL_FUNC_SUBSTRING      ("substring(?,{0})"),       // Oracle: substr(?,{0})
+    SQL_FUNC_SUBSTRING      ("substring(?, {0})"),      // Oracle: substr(?,{0})
     SQL_FUNC_SUBSTRINGEX    ("substring(?, {0}, {1})"), // Oracle: substr(?,{0},{1})
     SQL_FUNC_REPLACE        ("replace(?, {0}, {1})"),   // Oracle: replace(?,{0},{1})
     SQL_FUNC_REVERSE        ("reverse(?)"),             // Oracle: reverse(?) 
@@ -55,7 +55,7 @@ public enum DBSqlPhrase
     SQL_FUNC_TRUNC          ("trunc(?, {0})"),
     SQL_FUNC_FLOOR          ("floor(?)"),
     SQL_FUNC_CEILING        ("ceiling(?)"),             // Oracle: ceil(?)
-    SQL_FUNC_MODULO         ("((?) % {0})"),            // Oracle: mod(?)
+    SQL_FUNC_MOD            ("((?) % {0})"),            // Oracle: mod(?)
     SQL_FUNC_FORMAT         ("format(?, {0:VARCHAR})"), // Oracle: TO_CHAR(?, {0:VARCHAR})
 
     // Date
@@ -68,7 +68,7 @@ public enum DBSqlPhrase
     SQL_FUNC_MAX            ("max(?)", true),
     SQL_FUNC_MIN            ("min(?)", true),
     SQL_FUNC_AVG            ("avg(?)", true),
-    SQL_FUNC_STRAGG         ("string_agg(?,{0})", true), // string_agg, LISTAGG
+    SQL_FUNC_STRAGG         (null),                     // Not supported by default
 
     // Decode
     SQL_FUNC_DECODE         ("case ? {0} end"),         // Oracle: decode(? {0})
@@ -76,6 +76,11 @@ public enum DBSqlPhrase
     SQL_FUNC_DECODE_PART    ("when {0} then {1}"),      // Oracle: {0}, {1}
     SQL_FUNC_DECODE_ELSE    ("else {0}");               // Oracle: {0}
 
+    
+    private static final String PREFIX_SQL = "SQL_";
+    private static final String PREFIX_FUNC = "FUNC_";
+    
+    private final String funcName;
     private final String sqlDefault;
     private final boolean aggregate;
     
@@ -83,11 +88,23 @@ public enum DBSqlPhrase
     {
         this.sqlDefault = sqlDefault;
         this.aggregate = aggregate;
+        // get the function name
+        String name = name();
+        if (name.startsWith(PREFIX_SQL))
+            name = name.substring(PREFIX_SQL.length());
+        if (name.startsWith(PREFIX_FUNC))
+            name = name.substring(PREFIX_FUNC.length());
+        this.funcName = name;
     }
     
     private DBSqlPhrase(String sqlDefault)
     {
         this(sqlDefault, false);
+    }
+
+    public String getFuncName()
+    {
+        return funcName;
     }
 
     public String getSqlDefault()

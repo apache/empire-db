@@ -169,12 +169,12 @@ public class DBCompareAndOrExpr extends DBCompareExpr
     @Override
     public boolean isMutuallyExclusive(DBCompareExpr other)
     {
-        if (other instanceof Unwrappable<?>)
-        {
+        if ((other instanceof Unwrappable<?>) && ((Unwrappable<?>)other).isWrapper())
+        {   // unwrap
             other = ((Unwrappable<DBCompareExpr>)other).unwrap();
         }
     	if (other instanceof DBCompareAndOrExpr)
-    	{
+    	{   // check other
     		DBCompareAndOrExpr otherExpr = (DBCompareAndOrExpr)other;
             if (left .isMutuallyExclusive(otherExpr.left) &&
                 right.isMutuallyExclusive(otherExpr.right))

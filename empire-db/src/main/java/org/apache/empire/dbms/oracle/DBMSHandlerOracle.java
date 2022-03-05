@@ -213,7 +213,7 @@ public class DBMSHandlerOracle extends DBMSHandlerBase
             case SQL_FUNC_TRUNC:                return "trunc(?,{0})";
             case SQL_FUNC_CEILING:              return "ceil(?)";
             case SQL_FUNC_FLOOR:                return "floor(?)";
-            case SQL_FUNC_MODULO:               return "mod(?,{0})";
+            case SQL_FUNC_MOD:                  return "mod(?,{0})";
             case SQL_FUNC_FORMAT:               return "TO_CHAR(?, {0:VARCHAR})";
             // Date
             case SQL_FUNC_DAY:                  return oracle8Compatibilty ? "to_number(to_char(?,'DD'))"   : "extract(day from ?)";
@@ -224,7 +224,7 @@ public class DBMSHandlerOracle extends DBMSHandlerBase
             case SQL_FUNC_MAX:                  return "max(?)";
             case SQL_FUNC_MIN:                  return "min(?)";
             case SQL_FUNC_AVG:                  return "avg(?)";
-            case SQL_FUNC_STRAGG:               return "listagg(? {0})";
+            case SQL_FUNC_STRAGG:               return "listagg(? {0}) WITHIN GROUP (ORDER BY {1})";
             // Others
             case SQL_FUNC_DECODE:               return "decode(? {0})";
             case SQL_FUNC_DECODE_SEP:           return ",";
