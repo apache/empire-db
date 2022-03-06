@@ -81,6 +81,11 @@ public class DBCommandPostgres extends DBCommand
         return new PostgresBoolAndOrExpr(cmpExpr, true);
     }
     
+    public PostgresAtAt compareAtAt(DBColumnExpr left, DBColumnExpr right)
+    {
+        return new PostgresAtAt(left, right);
+    }
+    
     @Override
     public DBCommand limitRows(int numRows)
     {
