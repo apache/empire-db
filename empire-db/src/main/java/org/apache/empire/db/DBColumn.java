@@ -54,16 +54,6 @@ public abstract class DBColumn extends DBColumnExpr
     // *Deprecated* private static final long serialVersionUID = 1L;
   
     private static final Logger log = LoggerFactory.getLogger(DBColumn.class);
-    
-    /**
-     * Read only column (Boolean)
-     */
-    // private static final String DBCOLATTR_READONLY  = "readonly";
-    
-    /**
-     * Read only column (Boolean)
-     */
-    public static final String DBCOLATTR_SINGLEBYTECHARS  = "singleByteChars";
 
     // basic data
     protected final DBRowSet  rowset; /* transient */
@@ -311,11 +301,11 @@ public abstract class DBColumn extends DBColumnExpr
     }
 
     /**
-     * Returns the name of the column as a value expression
-     * This may be used to reference a parent column in a subquery 
+     * Returns a reference expression for this column
+     * This can be used to reference a parent column in a subquery 
      * @return the column value expression
      */
-    public DBValueExpr value()
+    public DBValueExpr reference()
     {
         return new DBValueExpr(getDatabase(), this, DataType.UNKNOWN);    
     }

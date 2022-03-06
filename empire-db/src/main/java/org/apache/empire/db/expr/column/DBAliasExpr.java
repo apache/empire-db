@@ -22,6 +22,7 @@ import java.util.Set;
 
 // Java
 import org.apache.empire.commons.StringUtils;
+import org.apache.empire.commons.Unwrappable;
 import org.apache.empire.data.DataType;
 import org.apache.empire.db.DBColumn;
 import org.apache.empire.db.DBColumnExpr;
@@ -36,7 +37,7 @@ import org.w3c.dom.Element;
  * There is no need to explicitly create instances of this class.<BR>
  * Instead use {@link DBColumnExpr#as(String) }
  */
-public class DBAliasExpr extends DBColumnExpr
+public class DBAliasExpr extends DBColumnExpr implements Unwrappable<DBColumnExpr>
 {
     // *Deprecated* private static final long serialVersionUID = 1L;
   

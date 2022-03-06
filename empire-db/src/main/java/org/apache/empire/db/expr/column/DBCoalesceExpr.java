@@ -6,12 +6,13 @@ package org.apache.empire.db.expr.column;
 import java.util.Set;
 
 import org.apache.empire.commons.StringUtils;
+import org.apache.empire.commons.Unwrappable;
 import org.apache.empire.db.DBColumn;
 import org.apache.empire.db.DBColumnExpr;
 import org.apache.empire.db.DBExpr;
 import org.apache.empire.dbms.DBSqlPhrase;
 
-public class DBCoalesceExpr extends DBAbstractFuncExpr
+public class DBCoalesceExpr extends DBAbstractFuncExpr implements Unwrappable<DBColumnExpr>
 {
     private final Object nullValue;
     

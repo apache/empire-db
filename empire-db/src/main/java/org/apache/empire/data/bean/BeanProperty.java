@@ -25,7 +25,6 @@ import org.apache.empire.commons.Attributes;
 import org.apache.empire.commons.ObjectUtils;
 import org.apache.empire.commons.Options;
 import org.apache.empire.data.Column;
-import org.apache.empire.data.ColumnExpr;
 import org.apache.empire.data.DataType;
 import org.apache.empire.db.exceptions.FieldNotNullException;
 
@@ -212,18 +211,6 @@ public class BeanProperty implements Column
     public Column getSourceColumn()
     {
         return this;
-    }
-
-    @Override
-    public boolean isWrapper()
-    {   // Nope
-        return false; 
-    }
-
-    @Override
-    public ColumnExpr unwrap()
-    {   // Nothing to unwrap
-        return this; 
     }
 
     // --- Column interface implementation ---

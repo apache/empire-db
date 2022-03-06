@@ -282,10 +282,10 @@ public final class ObjectUtils
      */
     public static boolean compareEqual(ColumnExpr expr, ColumnExpr other)
     {
-        if (other.isWrapper() && !expr.isWrapper())
-            return expr.equals(other.unwrap());
-        else if (!other.isWrapper() && expr.isWrapper())
-            return expr.unwrap().equals(other);
+        if (isWrapper(other) && !isWrapper(expr))
+            return expr.equals(unwrap(other));
+        else  if (!isWrapper(other) && isWrapper(expr))
+            return unwrap(expr).equals(other);
         // both wrapped or both unwrapped
         return expr.equals(other);
     }

@@ -663,7 +663,7 @@ public class DBQuery extends DBRowSet
                     return i; // found
             }
         // try unwrap
-        ColumnExpr unwrapped = columnExpr.unwrap();
+        ColumnExpr unwrapped = ObjectUtils.unwrap(columnExpr);
         if (unwrapped!=columnExpr)
             return getColumnIndex(unwrapped);
         // not found

@@ -47,6 +47,9 @@ public class DBTableColumn extends DBColumn
     // *Deprecated* private static final long serialVersionUID = 1L;
     private static final Logger log = LoggerFactory.getLogger(DBTableColumn.class);
     
+    // Additional Attributes
+    public static final String DBCOLATTR_SINGLEBYTECHARS  = "singleByteChars";
+    
     // Column Information
     protected DataType  type;
     protected double    size;

@@ -25,7 +25,7 @@ import org.apache.empire.commons.Unwrappable;
  * The column interface provides methods for accessing metadata that is relevant for managing
  * and displaying data available through the RecordData interface.
  */
-public interface ColumnExpr extends Unwrappable<ColumnExpr>
+public interface ColumnExpr
 {
     /**
      * Returns the column's data type.

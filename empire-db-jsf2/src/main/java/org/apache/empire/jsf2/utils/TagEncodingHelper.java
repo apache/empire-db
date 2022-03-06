@@ -46,6 +46,7 @@ import org.apache.empire.commons.Attributes;
 import org.apache.empire.commons.ObjectUtils;
 import org.apache.empire.commons.Options;
 import org.apache.empire.commons.StringUtils;
+import org.apache.empire.commons.Unwrappable;
 import org.apache.empire.data.Column;
 import org.apache.empire.data.ColumnExpr;
 import org.apache.empire.data.DataType;
@@ -88,7 +89,7 @@ public class TagEncodingHelper implements NamingContainer
      * wraps a ColumnExpr object into a Column interface object
      * @author doebele
      */
-    protected static class ColumnExprWrapper implements Column
+    protected static class ColumnExprWrapper implements Column, Unwrappable<ColumnExpr>
     {
         private final ColumnExpr expr;
 
@@ -164,10 +165,7 @@ public class TagEncodingHelper implements NamingContainer
 
         @Override
         public ColumnExpr unwrap()
-        {   // unwrap the expression
-            if (expr.isWrapper())
-                return expr.unwrap();
-            // the wrapped expression
+        {   // the wrapped expression
             return expr;
         }
 

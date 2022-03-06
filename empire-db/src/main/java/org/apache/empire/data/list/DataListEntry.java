@@ -129,7 +129,7 @@ public class DataListEntry implements RecordData, Serializable
         ColumnExpr[] cols = head.getColumns(); 
         for (int i=0; i<cols.length; i++)
         {
-            ColumnExpr col = cols[i].unwrap();
+            ColumnExpr col = ObjectUtils.unwrap(cols[i]);
             // must be a column!
             if (!(col instanceof Column))
             {   // not a true column

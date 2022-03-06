@@ -20,6 +20,7 @@ package org.apache.empire.db.expr.compare;
 
 import java.util.Set;
 
+import org.apache.empire.commons.ObjectUtils;
 import org.apache.empire.data.DataType;
 import org.apache.empire.db.DBCmdParam;
 import org.apache.empire.db.DBCmpType;
@@ -300,17 +301,11 @@ public class DBCompareColExpr extends DBCompareExpr
     {
         // check type 
     	if (other instanceof DBCompareColExpr)
-    	{   // unwrap
-            DBColumnExpr texpr = expr;
-            if (texpr.isWrapper())
-                texpr = texpr.unwrap();
-            // other
+    	{   // other
             DBCompareColExpr o = (DBCompareColExpr)other;
             DBColumnExpr oexpr = o.getColumnExpr();
-            if (oexpr.isWrapper())
-                oexpr = oexpr.unwrap();
     		// Compare
-    		if (texpr.equals(oexpr))
+    		if (ObjectUtils.compareEqual(expr, oexpr))
     			return true;
     		/*
             // probably not a good idea to do this:

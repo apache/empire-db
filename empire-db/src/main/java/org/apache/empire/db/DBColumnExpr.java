@@ -119,24 +119,6 @@ public abstract class DBColumnExpr extends DBExpr
     public abstract Element addXml(Element parent, long flags);
 
     /**
-     * @link {#org.apache.empire.commons.Unwrappable#isWrapper()}
-     */
-    @Override
-    public boolean isWrapper()
-    {   // Nope
-        return false;
-    }
-
-    /**
-     * @link {#org.apache.empire.commons.Unwrappable#unwrap()}
-     */
-    @Override
-    public DBColumnExpr unwrap()
-    {   // Noting to unwrap
-        return this;
-    }
-
-    /**
      * returns an expression that renames the column with its alias name
      */
     public DBColumnExpr qualified()
