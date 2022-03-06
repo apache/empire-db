@@ -26,6 +26,7 @@ import org.apache.empire.data.DataType;
 import org.apache.empire.db.DBColumn;
 import org.apache.empire.db.DBColumnExpr;
 import org.apache.empire.db.DBDatabase;
+import org.apache.empire.db.DBExpr;
 import org.apache.empire.db.exceptions.DatabaseNotOpenException;
 import org.apache.empire.dbms.DBMSHandler;
 import org.apache.empire.exceptions.InvalidArgumentException;
@@ -227,8 +228,10 @@ public abstract class DBAbstractFuncExpr extends DBColumnExpr
                         String typeName = ((end>=idx) ? template.substring(idx+1, end) : null);
                         if (StringUtils.isNotEmpty(typeName) && !typeName.equals("*"))
                             paramDataType = DataType.valueOf(typeName);
-                        else
+                        else if (typeName.equals("*") || params[i]==null || (params[i] instanceof DBExpr))
                             paramDataType = DataType.UNKNOWN;   /* use as literal */
+                        else
+                            paramDataType = DataType.fromJavaType(params[i].getClass());
                     }
                     // complete placeholder
                     ph += template.substring(idx, end+1);
