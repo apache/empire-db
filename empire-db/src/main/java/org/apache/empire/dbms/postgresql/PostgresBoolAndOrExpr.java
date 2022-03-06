@@ -20,7 +20,7 @@ package org.apache.empire.dbms.postgresql;
 
 import java.util.Set;
 
-import org.apache.empire.commons.Unwrappable;
+import org.apache.empire.commons.ObjectUtils;
 import org.apache.empire.data.DataType;
 import org.apache.empire.db.DBColumn;
 import org.apache.empire.db.DBColumnExpr;
@@ -126,11 +126,10 @@ public class PostgresBoolAndOrExpr extends DBColumnExpr
         return elem;
     }
     
-    @SuppressWarnings("unchecked")
     protected void appendName(StringBuilder buf, DBCompareExpr expr)
     {
-        if ((expr instanceof Unwrappable<?>) && ((Unwrappable<?>)expr).isWrapper())
-            appendName(buf, ((Unwrappable<DBCompareExpr>)expr).unwrap());
+        if (ObjectUtils.isWrapper(expr))
+            appendName(buf, ObjectUtils.unwrap(expr));
         else if (expr instanceof DBCompareNotExpr)
             appendName(buf, ((DBCompareNotExpr)expr).getExpr());
         else if (expr instanceof DBCompareAndOrExpr) {

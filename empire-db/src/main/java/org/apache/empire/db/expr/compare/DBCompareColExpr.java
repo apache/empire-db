@@ -28,6 +28,7 @@ import org.apache.empire.db.DBColumnExpr;
 import org.apache.empire.db.DBCommand;
 import org.apache.empire.db.DBDatabase;
 import org.apache.empire.db.DBExpr;
+import org.apache.empire.db.expr.column.DBAliasExpr;
 
 
 /**
@@ -59,6 +60,10 @@ public class DBCompareColExpr extends DBCompareExpr
      */
     public DBCompareColExpr(DBColumnExpr expr, DBCmpType op, Object value)
     {
+        // unwrap DBAliasExpr only
+        if (expr instanceof DBAliasExpr)
+            expr = ((DBAliasExpr)expr).unwrap();
+        // set
         this.expr = expr;
         this.cmpop = op;
         this.value = value;

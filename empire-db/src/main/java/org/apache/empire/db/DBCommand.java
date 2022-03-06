@@ -28,8 +28,8 @@ import java.util.Set;
 
 import org.apache.empire.commons.ObjectUtils;
 import org.apache.empire.commons.StringUtils;
-import org.apache.empire.commons.Unwrappable;
 import org.apache.empire.data.DataType;
+import org.apache.empire.db.expr.column.DBAliasExpr;
 import org.apache.empire.db.expr.compare.DBCompareAndOrExpr;
 import org.apache.empire.db.expr.compare.DBCompareColExpr;
 import org.apache.empire.db.expr.compare.DBCompareExpr;
@@ -255,9 +255,9 @@ public abstract class DBCommand extends DBCommandExpr
         {   // DBCompareNotExpr
             removeCommandParams(((DBCompareNotExpr)cmpExpr).getExpr());
         }
-        else if ((cmpExpr instanceof Unwrappable<?>) && ((Unwrappable<?>)cmpExpr).isWrapper())
+        else if (ObjectUtils.isWrapper(cmpExpr))
         {   // unwrap
-            removeCommandParams((DBCompareExpr)((Unwrappable<?>)cmpExpr).unwrap());
+            removeCommandParams(ObjectUtils.unwrap(cmpExpr));
         }
    	}
 
@@ -406,6 +406,28 @@ public abstract class DBCommand extends DBCommandExpr
         for (DBColumnExpr col : columns)
         {
             select(col.qualified());
+        }
+        return this;
+    }
+
+    /**
+     * Makes sure all selected columns are identified by their proper names (qualified)
+     * @return itself (this)
+     */
+    public DBCommand qualifyAll()
+    {
+        if (select == null)
+            return this;
+        // check select expression
+        for (int i=0; i<select.size(); i++)
+        {
+            DBColumnExpr expr = select.get(i);
+            if (expr instanceof DBColumn)
+                continue; // No need to qualify
+            if (expr instanceof DBAliasExpr)
+                continue; // Already qualified
+            // qualify now
+            select.set(i, expr.qualified());
         }
         return this;
     }
@@ -885,10 +907,6 @@ public abstract class DBCommand extends DBCommandExpr
         Set<DBColumn> columns = new HashSet<DBColumn>();
         for (i = 0; where != null && i < where.size(); i++)
             ((DBExpr) where.get(i)).addReferencedColumns(columns);
-        /*
-        for (i = 0; groupBy != null && i < groupBy.size(); i++)
-            ((DBExpr) groupBy.get(i)).addReferencedColumns(columns);
-        */
         for (i = 0; having != null && i < having.size(); i++)
             ((DBExpr) having.get(i)).addReferencedColumns(columns);
         // now we have all columns
@@ -1039,6 +1057,17 @@ public abstract class DBCommand extends DBCommandExpr
     }
     
     /**
+     * Checks whether the command has a constraint on a particular column expression
+     * @param col the column expression which to check
+     */
+    public boolean hasWhereConstraintOn(DBColumnExpr col)
+    {
+        if (where == null)
+            return false;
+        return hasConstraintOn(where, col);
+    }
+    
+    /**
      * Returns a copy of the defined joins.
      * 
      * @return the list of joins
@@ -1117,6 +1146,17 @@ public abstract class DBCommand extends DBCommandExpr
     }
     
     /**
+     * Checks whether the command has a constraint on a particular column expression
+     * @param col the column expression which to check
+     */
+    public boolean hasHavingConstraintOn(DBColumnExpr col)
+    {
+        if (where == null)
+            return false;
+        return hasConstraintOn(having, col);
+    }
+    
+    /**
      * Returns whether or not the command has group by set
      */
     public boolean hasGroupBy()
@@ -1133,28 +1173,49 @@ public abstract class DBCommand extends DBCommandExpr
     {
         return (this.groupBy!=null ? Collections.unmodifiableList(this.groupBy) : null);
     }
-
+    
     /**
-     * Adds a list of columns to the group by phrase of an sql statement.
+     * Adds a column expression to the Group By clause of an sql statement.
      * 
-     * @param exprs vararg of columns by which to group the rows
+     * @param columnExpr the column expression
      * @return itself (this)
      */
-    public DBCommand groupBy(DBColumnExpr...exprs)
+    public DBCommand groupBy(DBColumnExpr columnExpr)
     {
         if (groupBy == null)
             groupBy = new ArrayList<DBColumnExpr>();
         // Add all
+        if (columnExpr.isAggregate())
+            return this;
+        // Unwrap DBAliasExpr only
+        if (columnExpr instanceof DBAliasExpr)
+            columnExpr = ((DBAliasExpr)columnExpr).unwrap();
+        // Already present?
+        if (groupBy.contains(columnExpr))
+            return this;
+        // add
+        groupBy.add(columnExpr);
+        // done
+        return this;
+    }
+    
+    /**
+     * Adds a list of columns to the Group By clause of an sql statement.
+     * 
+     * @param exprs vararg of columns by which to group the rows
+     * @return itself (this)
+     */
+    public final DBCommand groupBy(DBColumnExpr...exprs)
+    {
         for(DBColumnExpr expr : exprs)
         {
-            if (expr.isAggregate()==false && groupBy.contains(expr)==false)
-                groupBy.add(expr);
+            groupBy(expr);
         }
         return this;
     }
 
     /**
-     * Adds a collection of columns to the group by phrase of an sql statement.
+     * Adds a collection of columns to the Group By clause of an sql statement.
      * 
      * @param columns the column expressions to add
      * @return itself (this)
@@ -1163,6 +1224,27 @@ public abstract class DBCommand extends DBCommandExpr
     {
         for (DBColumnExpr expr : columns)
         {
+            groupBy(expr);
+        }
+        return this;
+    }
+
+    /**
+     * Adds all select expressions which are not aggregates to the Group By clause
+     * @return itself (this)
+     */
+    public final DBCommand groupAll()
+    {
+        clearGroupBy();
+        // check select expression
+        if (select == null)
+            return this;
+        // make a group by array
+        for (DBColumnExpr expr : select)
+        {
+            if (expr.isAggregate())
+                continue; // ignore aggregates
+            // append
             groupBy(expr);
         }
         return this;
@@ -1185,7 +1267,7 @@ public abstract class DBCommand extends DBCommandExpr
     }
 
     /**
-     * Clears the list of set expressions.
+     * Clears the Set clause
      */
     public void clearSet()
     {
@@ -1202,7 +1284,7 @@ public abstract class DBCommand extends DBCommandExpr
     }
 
     /**
-     * Clears the list of join expressions.
+     * Clears the From / Join clause
      */
     public void clearJoin()
     {
@@ -1210,7 +1292,7 @@ public abstract class DBCommand extends DBCommandExpr
     }
 
     /**
-     * Clears the list of where constraints.
+     * Removes all constraints from the Where clause
      */
     public void clearWhere()
     {
@@ -1219,7 +1301,7 @@ public abstract class DBCommand extends DBCommandExpr
     }
 
     /**
-     * Clears the list of having constraints.
+     * Removes all constraints from the Having clause
      */
     public void clearHaving()
     {
@@ -1228,7 +1310,7 @@ public abstract class DBCommand extends DBCommandExpr
     }
 
     /**
-     * Clears the list of group by constraints.
+     * Clears the Group By clause
      */
     public void clearGroupBy()
     {
@@ -1369,6 +1451,30 @@ public abstract class DBCommand extends DBCommandExpr
                 return;
             }
         }
+    }
+    
+    /**
+     * removes a constraint on a particular column to the 'where' or 'having' collections 
+     * @param list the 'where' or 'having' list
+     * @param col the column expression for which to remove the constraint
+     */
+    protected boolean hasConstraintOn(List<DBCompareExpr> list, DBColumnExpr colExpr)
+    {
+        if (list == null)
+            return false;
+        for (DBCompareExpr cmp : list)
+        {   // Check whether it is a compare column expr.
+            if (!(cmp instanceof DBCompareColExpr))
+                continue;
+            // Compare columns
+            DBColumnExpr cmpCol = ((DBCompareColExpr)cmp).getColumnExpr();
+            if (ObjectUtils.compareEqual(cmpCol, colExpr))
+                return true;
+            // Update column
+            if ((colExpr instanceof DBColumn) && !(cmpCol instanceof DBColumn) && colExpr.equals(colExpr.getUpdateColumn()))
+                return true;
+        }
+        return false;
     }
     
     /**
@@ -1560,7 +1666,12 @@ public abstract class DBCommand extends DBCommandExpr
         return buf.toString();
     }
     
-    @SuppressWarnings("unchecked")
+    /**
+     * Appends all nested DBCompareColExpr for a particular RowSet to a list
+     * @param table the rowset for which to collect the DBCompareColExpr 
+     * @param expr a compare expression
+     * @param list
+     */
     protected void appendCompareColExprs(DBRowSet table, DBCompareExpr expr, List<DBCompareColExpr> list)
     {
         if (expr instanceof DBCompareColExpr)
@@ -1578,9 +1689,9 @@ public abstract class DBCommand extends DBCommandExpr
         {   // DBCompareNotExpr
             appendCompareColExprs(table, ((DBCompareNotExpr)expr).getExpr(),  list);
         }
-        else if ((expr instanceof Unwrappable<?>) && ((Unwrappable<?>)expr).isWrapper())
+        else if (ObjectUtils.isWrapper(expr))
         {   // unwrap
-            appendCompareColExprs(table, ((Unwrappable<DBCompareExpr>)expr).unwrap(), list);
+            appendCompareColExprs(table, ObjectUtils.unwrap(expr), list);
         }
     }
 
@@ -1811,7 +1922,7 @@ public abstract class DBCommand extends DBCommandExpr
     protected void addGrouping(StringBuilder buf)
     {
         if (groupBy!=null && !groupBy.isEmpty())
-        { // Having
+        { // Group by
             buf.append("\r\nGROUP BY ");
             addListExpr(buf, groupBy, CTX_DEFAULT, ", ");
         }

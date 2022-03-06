@@ -993,6 +993,33 @@ public final class ObjectUtils
         }
         return strArray;
     }
+
+    /**
+     * Checks whether a object implements the Unwrappable interface and is also a wrapper
+     * If the object does not Implement the Interface or is not a wrapper then false is returned 
+     * @param object the object to check
+     * @return true if the object is a wrapper or false otherwise
+     */
+    public static boolean isWrapper(Object object)
+    {
+        return ((object instanceof Unwrappable<?>)) && ((Unwrappable<?>)object).isWrapper();
+    }
+
+    /**
+     * Unwraps an object implementing the Unwrappable interface
+     * If the object does not Implement the Interface or is not a wrapper then the object itself is returned 
+     * @param object the object to unwrap
+     * @return the unwrapped object or the object itself
+     */
+    @SuppressWarnings("unchecked")
+    public static <T> T unwrap(T object)
+    {
+        if ((object instanceof Unwrappable<?>) && ((Unwrappable<?>)object).isWrapper())
+        {   // recursive
+            return unwrap(((Unwrappable<T>)object).unwrap());
+        }
+        return object;
+    }
     
     /**
      * returns whether or not a array contains a certain item
@@ -1052,5 +1079,4 @@ public final class ObjectUtils
     {
         return (indexOf(array, item)>=0);
     }
-    
 }

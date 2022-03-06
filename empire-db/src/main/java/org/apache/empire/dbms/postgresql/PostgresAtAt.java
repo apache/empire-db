@@ -20,7 +20,7 @@ package org.apache.empire.dbms.postgresql;
 
 import java.util.Set;
 
-import org.apache.empire.commons.Unwrappable;
+import org.apache.empire.commons.ObjectUtils;
 import org.apache.empire.db.DBColumn;
 import org.apache.empire.db.DBColumnExpr;
 import org.apache.empire.db.DBCommand;
@@ -61,13 +61,12 @@ public class PostgresAtAt extends DBCompareExpr
         return new PostgresAtAt(this.left, this.right);
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public boolean isMutuallyExclusive(DBCompareExpr other)
     {
-        if ((other instanceof Unwrappable<?>) && ((Unwrappable<?>)other).isWrapper())
+        if (ObjectUtils.isWrapper(other))
         {   // unwrap
-            other = ((Unwrappable<DBCompareExpr>)other).unwrap();
+            other = ObjectUtils.unwrap(other);
         }
         if (other instanceof PostgresAtAt)
         {   // compare
