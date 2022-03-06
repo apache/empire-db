@@ -301,19 +301,19 @@ public class DBMSHandlerPostgreSQL extends DBMSHandlerBase
             case SQL_TIMESTAMP_TEMPLATE:      return "'{0}'";
             // functions
             case SQL_FUNC_COALESCE:           return "coalesce(?, {0})";
-            case SQL_FUNC_SUBSTRING:          return "substring(?, {0})";
-            case SQL_FUNC_SUBSTRINGEX:        return "substring(?, {0}, {1})";
+            case SQL_FUNC_SUBSTRING:          return "substring(?, {0:INTEGER})";
+            case SQL_FUNC_SUBSTRINGEX:        return "substring(?, {0:INTEGER}, {1:INTEGER})";
             case SQL_FUNC_REPLACE:            return "replace(?, {0}, {1})";
             case SQL_FUNC_REVERSE:            return "reverse(?)"; // In order to use this function createReverseFunction() must be called first!
             case SQL_FUNC_STRINDEX:           return "strpos(?, {0})"; 
-            case SQL_FUNC_STRINDEXFROM:       return "strindexfrom_not_available_in_pgsql({0}, ?, {1})"; // "locate({0}, ?, {1})"; 
+            case SQL_FUNC_STRINDEXFROM:       return null;         // strindexfrom not available in pgsql 
             case SQL_FUNC_LENGTH:             return "length(?)";
             case SQL_FUNC_UPPER:              return "upper(?)";
             case SQL_FUNC_LOWER:              return "lower(?)";
             case SQL_FUNC_TRIM:               return "trim(?)";
             case SQL_FUNC_LTRIM:              return "ltrim(?)";
             case SQL_FUNC_RTRIM:              return "rtrim(?)";
-            case SQL_FUNC_ESCAPE:             return "? escape '{0}'";
+            case SQL_FUNC_ESCAPE:             return "? escape {0:VARCHAR}";
             // Numeric
             case SQL_FUNC_ABS:                return "abs(?)";
             case SQL_FUNC_ROUND:              return "round(?,{0})";

@@ -63,7 +63,9 @@ public class DBConcatFuncExpr extends DBAbstractFuncExpr
     { // Get the expression name
         String name = first.getName();
         for (int i=0; i<others.length; i++)
-        { // add other names
+        {   // add other names
+            if (others[i] instanceof DBValueExpr)
+                continue; // Ignore literals
             name += "_";
             name += others[i].getName();
         }

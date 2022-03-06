@@ -221,13 +221,14 @@ public abstract class DBAbstractFuncExpr extends DBColumnExpr
                     int end = template.indexOf('}', idx);
                     if (end<idx)
                         throw new InvalidArgumentException("template", template); 
-                    // check if type is specified
+                    // check if DataType is specified
                     if (template.charAt(idx)==':')
-                    {   // DataType is specified
+                    {   // Yes, get the DataType name and look it up
                         String typeName = ((end>=idx) ? template.substring(idx+1, end) : null);
-                        DataType dataType = ((typeName!=null) ? DataType.valueOf(typeName) : null);
-                        if (dataType!=null)
-                            paramDataType = dataType;
+                        if (StringUtils.isNotEmpty(typeName) && !typeName.equals("*"))
+                            paramDataType = DataType.valueOf(typeName);
+                        else
+                            paramDataType = DataType.UNKNOWN;   /* use as literal */
                     }
                     // complete placeholder
                     ph += template.substring(idx, end+1);

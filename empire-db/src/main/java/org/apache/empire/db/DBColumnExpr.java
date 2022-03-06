@@ -959,6 +959,31 @@ public abstract class DBColumnExpr extends DBExpr
     }
 
     /**
+     * concatenates a list of expressions to the current column 
+     * @param concatExprs the expressions to concat
+     * @return the concat expression
+     */
+    public DBColumnExpr concat(DBColumnExpr... concatExprs)
+    {
+        return new DBConcatFuncExpr(this, concatExprs);
+    }
+
+    /**
+     * concatenates a list of expressions to the current column 
+     * @param separator a string to insert between each of the expressions
+     * @param concatExprs the expressions to concat
+     * @return the concat expression
+     */
+    public DBColumnExpr concat(String separator, DBColumnExpr... concatExprs)
+    {
+        return new DBConcatFuncExpr(this, separator, concatExprs);
+    }
+    
+    /*
+     * Numeric functions
+     */
+
+    /**
      * Creates and returns a sql-expression for the absolute abs() function.
      * 
      * @return the new DBFuncExpr object
@@ -1045,6 +1070,10 @@ public abstract class DBColumnExpr extends DBExpr
         return getExprFromPhrase(DBSqlPhrase.SQL_FUNC_DAY, null);
     }
 
+    /*
+     * Aggregation functions
+     */
+    
     /**
      * Creates and returns an aggregation function object
      * which calculates the sum for the current expression over a group of rows.
@@ -1130,6 +1159,10 @@ public abstract class DBColumnExpr extends DBExpr
     {
         return new DBCountExpr(this, true);
     }
+    
+    /*
+     * Case functions
+     */
 
     /**
      * Creates and returns a sql-expression that maps enum values by name or ordinal to their string representation 
@@ -1275,9 +1308,9 @@ public abstract class DBColumnExpr extends DBExpr
         return new DBCaseExpr(compExpr, this, elseExpr);
     }
 
-    // ----------------------------------------------------------
-    // --------------------- Conversion -------------------------
-    // ----------------------------------------------------------
+    /*
+     * Type conversion functions
+     */
     
     /**
      * Creates a new DBFuncExpr object (to_char SQL statement)
@@ -1328,6 +1361,42 @@ public abstract class DBColumnExpr extends DBExpr
         return convertTo(dataType, null);
     }
 
+    /*
+     * DBMS Native functions
+     */
+
+    /**
+     * Creates and returns a function from an sql template
+     * The template may consist of the following placeholders:
+     *  ? = the expression on which the function is applied (usually a column expression)
+     *  {[param-index]:[DataType]} = a function parameter. The DataType name, if supplied, must match the name of a DataType enum value.
+     * @param template the sql phrase template (see above)
+     * @param dataType the returned DataType
+     * @return the function expression
+     */
+    public final DBColumnExpr function(String template, DataType returnType, Object... params)
+    {
+        return new DBFuncExpr(this, template, params, false, returnType);
+    }
+
+    /**
+     * Creates and returns a function from an sql template
+     * The template may consist of the following placeholders:
+     *  ? = the expression on which the function is applied (usually a column expression)
+     *  {[param-index]:[DataType]} = a function parameter. The DataType name, if supplied, must match the name of a DataType enum value.
+     * @param template the sql phrase template (see above)
+     * @param dataType the returned DataType
+     * @return the aggregate expression
+     */
+    public final DBColumnExpr aggregate(String template, DataType returnType, Object... params)
+    {
+        return new DBFuncExpr(this, template, params, true, returnType);
+    }
+    
+    /*
+     *  OrderByExpr functions 
+     */
+
     /**
      * creates a new DBOrderByExpr for ascending order 
      * <P>
@@ -1347,27 +1416,10 @@ public abstract class DBColumnExpr extends DBExpr
     {
         return new DBOrderByExpr(this, true);
     }
-
-    /**
-     * concatenates a list of expressions to the current column 
-     * @param concatExprs the expressions to concat
-     * @return the concat expression
+    
+    /*
+     * Other
      */
-    public DBColumnExpr concat(DBColumnExpr... concatExprs)
-    {
-        return new DBConcatFuncExpr(this, concatExprs);
-    }
-
-    /**
-     * concatenates a list of expressions to the current column 
-     * @param separator a string to insert between each of the expressions
-     * @param concatExprs the expressions to concat
-     * @return the concat expression
-     */
-    public DBColumnExpr concat(String separator, DBColumnExpr... concatExprs)
-    {
-        return new DBConcatFuncExpr(this, separator, concatExprs);
-    }
  
     /**
      * returns a corresponding Java type for this expression

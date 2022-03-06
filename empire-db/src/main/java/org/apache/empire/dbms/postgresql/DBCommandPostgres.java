@@ -24,7 +24,6 @@ import org.apache.empire.db.DBColumnExpr;
 import org.apache.empire.db.DBCommand;
 import org.apache.empire.db.DBRowSet;
 import org.apache.empire.db.exceptions.NoPrimaryKeyException;
-import org.apache.empire.db.expr.column.DBValueExpr;
 import org.apache.empire.db.expr.compare.DBCompareExpr;
 
 /**
@@ -49,13 +48,12 @@ public class DBCommandPostgres extends DBCommand
     
     public DBColumnExpr funcAge(DBColumnExpr expr1, DBColumnExpr expr2)
     {
-        return new PostgresFuncExpr(expr1, PostgresSqlPhrase.AGE_TWO, new Object[] { expr2 }, DataType.INTEGER);
+        return new PostgresFuncExpr(expr1, PostgresSqlPhrase.AGE_BETWEEN, new Object[] { expr2 }, DataType.INTEGER);
     }
     
     public DBColumnExpr funcExtract(PostgresExtractField field, DBColumnExpr expr)
     {
-        DBValueExpr fieldExpr = new DBValueExpr(expr.getDatabase(), field.name(), DataType.UNKNOWN);
-        return new PostgresFuncExpr(expr, PostgresSqlPhrase.EXTRACT, new Object[] { fieldExpr }, DataType.INTEGER);
+        return new PostgresFuncExpr(expr, PostgresSqlPhrase.EXTRACT, new Object[] { field.name() }, DataType.INTEGER);
     }
     
     public DBColumnExpr funcToTsquery(DBColumnExpr expr)

@@ -205,8 +205,8 @@ public class DBMSHandlerOracle extends DBMSHandlerBase
             case SQL_FUNC_TRIM:                 return "trim(?)";
             case SQL_FUNC_LTRIM:                return "ltrim(?)";
             case SQL_FUNC_RTRIM:                return "rtrim(?)";
-            case SQL_FUNC_ESCAPE:               return "? escape '{0}'";
-            case SQL_FUNC_CONCAT:               return " || ";
+            case SQL_FUNC_ESCAPE:               return "? escape {0:VARCHAR}";
+            case SQL_FUNC_CONCAT:               return "concat(?)"; // ATTENTION: only takes two parameters!
             // Numeric
             case SQL_FUNC_ABS:                  return "abs(?)";
             case SQL_FUNC_ROUND:                return "round(?,{0})";

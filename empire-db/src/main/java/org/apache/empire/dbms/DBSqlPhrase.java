@@ -2,6 +2,10 @@ package org.apache.empire.dbms;
 
 /**
  * Enum for all SQL phrases that may be supplied by the dbms
+ * The phase may consist of the following placeholders:
+ *  ? = the expression on which the function is applied (usually a column expression)
+ *  {[param-index]:[DataType]} = a function parameter. The DataType name, if supplied, must match the name of a DataType enum value.
+ * @param phrase
  * @author rainer
  */
 public enum DBSqlPhrase
@@ -34,19 +38,19 @@ public enum DBSqlPhrase
 
     // functions
     SQL_FUNC_COALESCE       ("coalesce(?, {0})"),       // Oracle: nvl(?, {0})
-    SQL_FUNC_SUBSTRING      ("substring(?, {0})"),      // Oracle: substr(?,{0})
-    SQL_FUNC_SUBSTRINGEX    ("substring(?, {0}, {1})"), // Oracle: substr(?,{0},{1})
+    SQL_FUNC_SUBSTRING      ("substring(?, {0:INTEGER})"),
+    SQL_FUNC_SUBSTRINGEX    ("substring(?, {0:INTEGER}, {1:INTEGER})"),
     SQL_FUNC_REPLACE        ("replace(?, {0}, {1})"),   // Oracle: replace(?,{0},{1})
     SQL_FUNC_REVERSE        ("reverse(?)"),             // Oracle: reverse(?) 
     SQL_FUNC_STRINDEX       ("charindex({0}, ?)"),      // Oracle: instr(?, {0})
-    SQL_FUNC_STRINDEXFROM   ("charindex({0}, ?, {1})"), // Oracle: instr(?, {0}, {1}) 
+    SQL_FUNC_STRINDEXFROM   ("charindex({0}, ?, {1:INTEGER})"), // Oracle: instr(?, {0}, {1}) 
     SQL_FUNC_LENGTH         ("length(?)"),              // MSSql: len(?)
     SQL_FUNC_UPPER          ("upper(?)"),
     SQL_FUNC_LOWER          ("lower(?)"),
     SQL_FUNC_TRIM           ("trim(?)"),
     SQL_FUNC_LTRIM          ("ltrim(?)"),
     SQL_FUNC_RTRIM          ("rtrim(?)"),
-    SQL_FUNC_ESCAPE         ("? escape '{0}'"),
+    SQL_FUNC_ESCAPE         ("? escape {0:VARCHAR}"),
     SQL_FUNC_CONCAT         ("concat(?)"),
     
     // Numeric
@@ -68,7 +72,7 @@ public enum DBSqlPhrase
     SQL_FUNC_MAX            ("max(?)", true),
     SQL_FUNC_MIN            ("min(?)", true),
     SQL_FUNC_AVG            ("avg(?)", true),
-    SQL_FUNC_STRAGG         (null),                     // Not supported by default
+    SQL_FUNC_STRAGG         (null),                     // Not supported by default, please supply in DBMSHandler
 
     // Decode
     SQL_FUNC_DECODE         ("case ? {0} end"),         // Oracle: decode(? {0})

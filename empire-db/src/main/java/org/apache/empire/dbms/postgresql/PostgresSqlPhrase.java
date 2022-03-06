@@ -26,8 +26,8 @@ public enum PostgresSqlPhrase
 {
     // functions
     AGE             ("AGE(?)"),
-    AGE_TWO         ("AGE(?, {0})"),
-    EXTRACT         ("EXTRACT({0} from ?)"),
+    AGE_BETWEEN     ("AGE(?, {0})"),
+    EXTRACT         ("EXTRACT({0:*} FROM ?)"),  // :* is important!
     TO_TSQUERY      ("to_tsquery(?)"),
     TO_TSVECTOR     ("to_tsvector(?)"),
     PLAINTO_TSQUERY ("plainto_tsquery(?)");

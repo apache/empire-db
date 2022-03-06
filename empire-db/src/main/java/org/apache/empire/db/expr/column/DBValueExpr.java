@@ -21,6 +21,7 @@ package org.apache.empire.db.expr.column;
 import java.util.Set;
 
 import org.apache.empire.commons.ObjectUtils;
+import org.apache.empire.commons.StringUtils;
 // Java
 import org.apache.empire.data.DataType;
 import org.apache.empire.db.DBColumn;
@@ -141,7 +142,7 @@ public class DBValueExpr extends DBColumnExpr
                     break;
             }
             str = str.substring((str.charAt(0)=='-' ? 1 : 0), i);
-            if (str.length()>0)
+            if (StringUtils.isNotEmpty(str))
             {   // generate from value string
                 char c = str.charAt(0);
                 if (c>='0' && c<='9')
