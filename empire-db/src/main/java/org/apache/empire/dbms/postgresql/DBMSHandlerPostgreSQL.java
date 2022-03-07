@@ -72,8 +72,6 @@ public class DBMSHandlerPostgreSQL extends DBMSHandlerBase
     public DBMSHandlerPostgreSQL()
     {
         setReservedKeywords();
-        // Set default Sequencen name Postfix
-        SEQUENCE_NAME_POSTFIX = "_SEQUENCE";
     }
 
     /**

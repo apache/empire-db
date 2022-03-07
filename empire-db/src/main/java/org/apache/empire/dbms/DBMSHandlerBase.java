@@ -83,7 +83,7 @@ public abstract class DBMSHandlerBase implements DBMSHandler
     protected final Set<String> reservedSQLKeywords;
 
     // Postfix for auto-generated Sequence names
-    protected String SEQUENCE_NAME_POSTFIX = "_SEQ";
+    protected String SEQUENCE_NAME_SUFFIX = "_SEQ";
     
     /**
      * DBMSCommand
@@ -419,7 +419,7 @@ public abstract class DBMSHandlerBase implements DBMSHandler
         StringBuilder b = new StringBuilder(column.getRowSet().getName());
         b.append("_");
         b.append(column.getName());
-        b.append(SEQUENCE_NAME_POSTFIX);
+        b.append(SEQUENCE_NAME_SUFFIX);
         seqName = b.toString();
         // Store as default for later use
         column.setDefaultValue(seqName);

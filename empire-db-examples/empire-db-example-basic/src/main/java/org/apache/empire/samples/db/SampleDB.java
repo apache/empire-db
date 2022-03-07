@@ -93,7 +93,7 @@ public class SampleDB extends DBDatabase
         {
             super("DEPARTMENTS", db);
             // ID
-            ID              = addIdentity ("ID",               "DEP_ID_SEQUENCE"); // Optional Sequence for some DBMS (e.g. Oracle)
+            ID              = addIdentity ("ID");
             NAME            = addColumn   ("NAME",             DataType.VARCHAR,      80, true);
             HEAD            = addColumn   ("HEAD",             DataType.VARCHAR,      80, false);
             BUSINESS_UNIT   = addColumn   ("BUSINESS_UNIT",    DataType.VARCHAR,       4, true, "ITTK");
@@ -133,7 +133,7 @@ public class SampleDB extends DBDatabase
             super("EMPLOYEES", db);
             
             // ID
-            ID              = addIdentity  ("ID",               "EMPLOYEE_ID_SEQUENCE");  // Optional Sequence name for some DBMS (e.g. Oracle)
+            ID              = addIdentity  ("ID");
             SALUTATION      = addColumn    ("SALUTATION",       DataType.VARCHAR,      5, false);
             FIRST_NAME      = addColumn    ("FIRST_NAME",       DataType.VARCHAR,     40, true);
             LAST_NAME       = addColumn    ("LAST_NAME",        DataType.VARCHAR,     40, true);

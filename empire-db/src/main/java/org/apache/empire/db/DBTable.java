@@ -433,6 +433,17 @@ public class DBTable extends DBRowSet implements Cloneable
     }
     
     /**
+     * Adds an Identity column to the table which also serves as the PrimaryKey
+     * An Identity Column is always an auto-generated Integer(Long) value
+     * @param name the name of the identity column
+     * @return the Identity column
+     */
+    public final DBTableColumn addIdentity(String name)
+    {
+        return addIdentity(name, null);
+    }
+    
+    /**
      * Adds a new ForgeinKey table column the column list
      * The foreign table must have a single column foreign key
      * @param name the name of the new column

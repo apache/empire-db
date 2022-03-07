@@ -176,7 +176,7 @@ public class CarSalesDB extends TDatabase<CarSalesDB>
             super("MODEL", db);
             
             // ID
-            ID              = addIdentity  ("ID",               "MODEL_ID_SEQUENCE");  // Optional Sequence name for some DBMS (e.g. Oracle)
+            ID              = addIdentity  ("ID",               "MODEL_ID_SEQ"); // Optional Sequence name for some DBMS (e.g. Oracle)
             NAME            = addColumn    ("NAME",             DataType.VARCHAR,     20, true);
             SPECIFICATION   = addColumn    ("SPECIFICATION",    DataType.VARCHAR,     40, true);
             WMI             = addForeignKey("WMI",              db.BRAND,                 true);
@@ -215,7 +215,7 @@ public class CarSalesDB extends TDatabase<CarSalesDB>
             super("DEALER", db);
             
             // ID
-            ID              = addIdentity ("ID",               "DEALER_ID_SEQUENCE");  // Optional Sequence name for some DBMS (e.g. Oracle)
+            ID              = addIdentity ("ID",               "DEALER_ID_SEQ"); // Optional Sequence name for some DBMS (e.g. Oracle)
             COMPANY_NAME    = addColumn   ("COMPANY_NAME",     DataType.VARCHAR,     40, true);
             STREET          = addColumn   ("ADDRESS",          DataType.VARCHAR,     40, false);
             CITY            = addColumn   ("CITY",             DataType.VARCHAR,     20, true);
