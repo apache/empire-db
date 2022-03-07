@@ -55,7 +55,7 @@ public class DBMSHandlerPostgreSQLTest
 	{
 		Connection conn = dbResource.getConnection();
 		DBMSHandler dbms = dbResource.newDriver();
-		((DBMSHandlerPostgreSQL)dbms).createReverseFunction(conn);
+		((DBMSHandlerPostgreSQL)dbms).getDDLGenerator().setCreateReverseFunction(true);
 		
 		Statement statement = conn.createStatement();
 		ResultSet resultSet = statement.executeQuery("SELECT reverse('reverseme')");

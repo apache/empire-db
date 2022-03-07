@@ -22,18 +22,21 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.GregorianCalendar;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.apache.empire.commons.ObjectUtils;
 import org.apache.empire.commons.StringUtils;
 import org.apache.empire.data.DataType;
+import org.apache.empire.db.DBColumn;
 import org.apache.empire.db.DBColumnExpr;
 import org.apache.empire.db.DBDDLGenerator;
 import org.apache.empire.db.DBDDLGenerator.DDLActionType;
 import org.apache.empire.db.DBDatabase;
 import org.apache.empire.db.DBObject;
 import org.apache.empire.db.DBSQLScript;
+import org.apache.empire.db.DBTable;
 import org.apache.empire.db.DBTableColumn;
-import org.apache.empire.db.exceptions.EmpireSQLException;
 import org.apache.empire.db.exceptions.QueryNoResultException;
 import org.apache.empire.db.expr.column.DBValueExpr;
 import org.apache.empire.dbms.DBMSFeature;
@@ -56,27 +59,10 @@ public class DBMSHandlerPostgreSQL extends DBMSHandlerBase
   
     private static final Logger log = LoggerFactory.getLogger(DBMSHandlerPostgreSQL.class);
     
-    private static final String CREATE_REVERSE_FUNCTION =
-        "CREATE OR REPLACE FUNCTION reverse(TEXT) RETURNS TEXT AS $$\n" +
-        "DECLARE\n" +
-        "   original ALIAS FOR $1;\n" +
-        "   reversed TEXT := '';\n" +
-        "   onechar  VARCHAR;\n" +
-        "   mypos    INTEGER;\n" +
-        "BEGIN\n" +
-        "   SELECT LENGTH(original) INTO mypos;\n" + 
-        "   LOOP\n" +
-        "      EXIT WHEN mypos < 1;\n" +
-        "      SELECT substring(original FROM mypos FOR 1) INTO onechar;\n" +
-        "      reversed := reversed || onechar;\n" +
-        "      mypos := mypos -1;\n" +
-        "   END LOOP;\n" +
-        "   RETURN reversed;\n" +
-        "END\n" +
-        "$$ LANGUAGE plpgsql IMMUTABLE RETURNS NULL ON NULL INPUT";    
-    
     
     private String databaseName;
+    
+    private boolean usePostgresSerialType = true;
 
     private DBDDLGenerator<?> ddlGenerator = null; // lazy creation
     
@@ -86,113 +72,8 @@ public class DBMSHandlerPostgreSQL extends DBMSHandlerBase
     public DBMSHandlerPostgreSQL()
     {
         setReservedKeywords();
-    }
-    
-    private void addReservedKeyWord(final String keyWord){
-        boolean added = reservedSQLKeywords.add(keyWord.toLowerCase());
-        if(!added){
-            log.debug("Existing keyWord added: " + keyWord);
-        }
-    }
-    
-    private void setReservedKeywords(){
-        // list of reserved keywords
-        // http://www.postgresql.org/docs/current/static/sql-keywords-appendix.html
-        addReservedKeyWord("ALL".toLowerCase());
-        addReservedKeyWord("ANALYSE".toLowerCase());
-        addReservedKeyWord("ANALYZE".toLowerCase());
-        addReservedKeyWord("AND".toLowerCase());
-        addReservedKeyWord("ANY".toLowerCase());
-        addReservedKeyWord("ARRAY".toLowerCase());
-        addReservedKeyWord("AS".toLowerCase());
-        addReservedKeyWord("ASC".toLowerCase());
-        addReservedKeyWord("ASYMMETRIC".toLowerCase());
-        addReservedKeyWord("AUTHORIZATION".toLowerCase());
-        addReservedKeyWord("BETWEEN".toLowerCase());
-        addReservedKeyWord("BINARY".toLowerCase());
-        addReservedKeyWord("BOTH".toLowerCase());
-        addReservedKeyWord("CASE".toLowerCase());
-        addReservedKeyWord("CAST".toLowerCase());
-        addReservedKeyWord("CHECK".toLowerCase());
-        addReservedKeyWord("COLLATE".toLowerCase());
-        //addReservedKeyWord("COLUMN".toLowerCase());
-        //addReservedKeyWord("CONSTRAINT".toLowerCase());
-        addReservedKeyWord("CREATE".toLowerCase());
-        addReservedKeyWord("CROSS".toLowerCase());
-        addReservedKeyWord("CURRENT_DATE".toLowerCase());
-        addReservedKeyWord("CURRENT_ROLE".toLowerCase());
-        addReservedKeyWord("CURRENT_TIME".toLowerCase());
-        addReservedKeyWord("CURRENT_TIMESTAMP".toLowerCase());
-        addReservedKeyWord("CURRENT_USER".toLowerCase());
-        addReservedKeyWord("DEFAULT".toLowerCase());
-        addReservedKeyWord("DEFERRABLE".toLowerCase());
-        addReservedKeyWord("DESC".toLowerCase());
-        addReservedKeyWord("DISTINCT".toLowerCase());
-        addReservedKeyWord("DO".toLowerCase());
-        addReservedKeyWord("ELSE".toLowerCase());
-        addReservedKeyWord("END".toLowerCase());
-        addReservedKeyWord("EXCEPT".toLowerCase());
-        addReservedKeyWord("FALSE".toLowerCase());
-        addReservedKeyWord("FOR".toLowerCase());
-        addReservedKeyWord("FOREIGN".toLowerCase());
-        addReservedKeyWord("FREEZE".toLowerCase());
-        addReservedKeyWord("FROM".toLowerCase());
-        addReservedKeyWord("FULL".toLowerCase());
-        addReservedKeyWord("GRANT".toLowerCase());
-        //addReservedKeyWord("GROUP".toLowerCase());
-        addReservedKeyWord("HAVING".toLowerCase());
-        addReservedKeyWord("ILIKE".toLowerCase());
-        addReservedKeyWord("IN".toLowerCase());
-        addReservedKeyWord("INITIALLY".toLowerCase());
-        addReservedKeyWord("INNER".toLowerCase());
-        addReservedKeyWord("INTERSECT".toLowerCase());
-        addReservedKeyWord("INTO".toLowerCase());
-        addReservedKeyWord("IS".toLowerCase());
-        addReservedKeyWord("ISNULL".toLowerCase());
-        addReservedKeyWord("JOIN".toLowerCase());
-        addReservedKeyWord("LEADING".toLowerCase());
-        addReservedKeyWord("LEFT".toLowerCase());
-        addReservedKeyWord("LIKE".toLowerCase());
-        addReservedKeyWord("LIMIT".toLowerCase());
-        addReservedKeyWord("LOCALTIME".toLowerCase());
-        addReservedKeyWord("LOCALTIMESTAMP".toLowerCase());
-        addReservedKeyWord("NATURAL".toLowerCase());
-        addReservedKeyWord("NEW".toLowerCase());
-        addReservedKeyWord("NOT".toLowerCase());
-        addReservedKeyWord("NOTNULL".toLowerCase());
-        addReservedKeyWord("NULL".toLowerCase());
-        addReservedKeyWord("OFF".toLowerCase());
-        addReservedKeyWord("OFFSET".toLowerCase());
-        addReservedKeyWord("OLD".toLowerCase());
-        addReservedKeyWord("ON".toLowerCase());
-        addReservedKeyWord("ONLY".toLowerCase());
-        addReservedKeyWord("OR".toLowerCase());
-        addReservedKeyWord("ORDER".toLowerCase());
-        addReservedKeyWord("OUTER".toLowerCase());
-        addReservedKeyWord("OVERLAPS".toLowerCase());
-        addReservedKeyWord("PLACING".toLowerCase());
-        addReservedKeyWord("PRIMARY".toLowerCase());
-        addReservedKeyWord("REFERENCES".toLowerCase());
-        addReservedKeyWord("RETURNING".toLowerCase());
-        addReservedKeyWord("RIGHT".toLowerCase());
-        //addReservedKeyWord("SELECT".toLowerCase());
-        addReservedKeyWord("SESSION_USER".toLowerCase());
-        addReservedKeyWord("SIMILAR".toLowerCase());
-        addReservedKeyWord("SOME".toLowerCase());
-        addReservedKeyWord("SYMMETRIC".toLowerCase());
-        //addReservedKeyWord("TABLE".toLowerCase());
-        addReservedKeyWord("THEN".toLowerCase());
-        addReservedKeyWord("TO".toLowerCase());
-        addReservedKeyWord("TRAILING".toLowerCase());
-        addReservedKeyWord("TRUE".toLowerCase());
-        addReservedKeyWord("UNION".toLowerCase());
-        addReservedKeyWord("UNIQUE".toLowerCase());
-        //addReservedKeyWord("USER".toLowerCase());
-        addReservedKeyWord("USING".toLowerCase());
-        addReservedKeyWord("VERBOSE".toLowerCase());
-        addReservedKeyWord("WHEN".toLowerCase());
-        addReservedKeyWord("WHERE".toLowerCase());
-        addReservedKeyWord("WITH".toLowerCase()); 
+        // Set default Sequencen name Postfix
+        SEQUENCE_NAME_POSTFIX = "_SEQUENCE";
     }
 
     /**
@@ -202,6 +83,24 @@ public class DBMSHandlerPostgreSQL extends DBMSHandlerBase
     public String getDatabaseName()
     {
         return databaseName;
+    }
+
+    /**
+     * Returns whether or not the Postgres Serial Type is used for Identity columns
+     * @return true if Postgres Serial Type is used or false if INTEGER is used
+     */
+    public boolean isUsePostgresSerialType()
+    {
+        return usePostgresSerialType;
+    }
+
+    /**
+     * Sets whether or not the Postgres Serial Type is used for Identity columns
+     * @param usePostgresSerialType true if Postgres Serial Type should be used or false if INTEGER should be used
+     */
+    public void setUsePostgresSerialType(boolean usePostgresSerialType)
+    {
+        this.usePostgresSerialType = usePostgresSerialType;
     }
 
     /**
@@ -216,22 +115,15 @@ public class DBMSHandlerPostgreSQL extends DBMSHandlerBase
     }
     
     /**
-     * Creates the reverse function in postgre sql that returns the reverse of a string value.
-     * The reverse function may be helpful in SQL to analyze a text field from its end.
-     * This function must be called manually by the application depending on whether it needs to use this function or not.<br>
-     * The current implementation does not check, whether the reverse function already exists.
-     * If the functions exists it will be replaced and true is returned.
-     * @param conn a valid database connection
+     * Initialize Database on open
      */
-    public void createReverseFunction(Connection conn)
+    @Override
+    public void attachDatabase(DBDatabase db, Connection conn)
     {
-        try {
-            log.info("Creating reverse function: " + CREATE_REVERSE_FUNCTION);
-            executeSQL(CREATE_REVERSE_FUNCTION, null, conn, null);
-        } catch(SQLException e) {
-            log.error("Unable to create reverse function!", e);
-            throw new EmpireSQLException(this, e);
-        }
+        super.attachDatabase(db, conn);
+        // set Sequence names
+        if (isUsePostgresSerialType())
+            initSerialSequenceNames(db, conn);
     }
     
     /**
@@ -426,6 +318,16 @@ public class DBMSHandlerPostgreSQL extends DBMSHandlerBase
         GregorianCalendar cal = new GregorianCalendar();
         return new java.sql.Timestamp(cal.getTimeInMillis());
     }
+    
+    /**
+     * Returns the Postgres DDL Generator
+     */
+    public PostgresDDLGenerator getDDLGenerator()
+    {
+        if (this.ddlGenerator==null)
+            this.ddlGenerator = new PostgresDDLGenerator(this);
+        return (PostgresDDLGenerator)this.ddlGenerator;
+    }
 
     /**
      * @see DBMSHandler#getDDLScript(DDLActionType, DBObject, DBSQLScript)  
@@ -433,10 +335,8 @@ public class DBMSHandlerPostgreSQL extends DBMSHandlerBase
     @Override
     public void getDDLScript(DDLActionType type, DBObject dbo, DBSQLScript script)
     {
-        if (ddlGenerator==null)
-            ddlGenerator = new PostgresDDLGenerator(this);
         // forward request
-        ddlGenerator.getDDLScript(type, dbo, script); 
+        getDDLGenerator().getDDLScript(type, dbo, script); 
     }
     
     /**
@@ -454,5 +354,158 @@ public class DBMSHandlerPostgreSQL extends DBMSHandlerBase
     	}
     }
 
+    
+    protected void addReservedKeyWord(final String keyWord){
+        boolean added = reservedSQLKeywords.add(keyWord.toLowerCase());
+        if(!added){
+            log.debug("Existing keyWord added: " + keyWord);
+        }
+    }
+    
+    protected void setReservedKeywords(){
+        // list of reserved keywords
+        // http://www.postgresql.org/docs/current/static/sql-keywords-appendix.html
+        addReservedKeyWord("ALL".toLowerCase());
+        addReservedKeyWord("ANALYSE".toLowerCase());
+        addReservedKeyWord("ANALYZE".toLowerCase());
+        addReservedKeyWord("AND".toLowerCase());
+        addReservedKeyWord("ANY".toLowerCase());
+        addReservedKeyWord("ARRAY".toLowerCase());
+        addReservedKeyWord("AS".toLowerCase());
+        addReservedKeyWord("ASC".toLowerCase());
+        addReservedKeyWord("ASYMMETRIC".toLowerCase());
+        addReservedKeyWord("AUTHORIZATION".toLowerCase());
+        addReservedKeyWord("BETWEEN".toLowerCase());
+        addReservedKeyWord("BINARY".toLowerCase());
+        addReservedKeyWord("BOTH".toLowerCase());
+        addReservedKeyWord("CASE".toLowerCase());
+        addReservedKeyWord("CAST".toLowerCase());
+        addReservedKeyWord("CHECK".toLowerCase());
+        addReservedKeyWord("COLLATE".toLowerCase());
+        //addReservedKeyWord("COLUMN".toLowerCase());
+        //addReservedKeyWord("CONSTRAINT".toLowerCase());
+        addReservedKeyWord("CREATE".toLowerCase());
+        addReservedKeyWord("CROSS".toLowerCase());
+        addReservedKeyWord("CURRENT_DATE".toLowerCase());
+        addReservedKeyWord("CURRENT_ROLE".toLowerCase());
+        addReservedKeyWord("CURRENT_TIME".toLowerCase());
+        addReservedKeyWord("CURRENT_TIMESTAMP".toLowerCase());
+        addReservedKeyWord("CURRENT_USER".toLowerCase());
+        addReservedKeyWord("DEFAULT".toLowerCase());
+        addReservedKeyWord("DEFERRABLE".toLowerCase());
+        addReservedKeyWord("DESC".toLowerCase());
+        addReservedKeyWord("DISTINCT".toLowerCase());
+        addReservedKeyWord("DO".toLowerCase());
+        addReservedKeyWord("ELSE".toLowerCase());
+        addReservedKeyWord("END".toLowerCase());
+        addReservedKeyWord("EXCEPT".toLowerCase());
+        addReservedKeyWord("FALSE".toLowerCase());
+        addReservedKeyWord("FOR".toLowerCase());
+        addReservedKeyWord("FOREIGN".toLowerCase());
+        addReservedKeyWord("FREEZE".toLowerCase());
+        addReservedKeyWord("FROM".toLowerCase());
+        addReservedKeyWord("FULL".toLowerCase());
+        addReservedKeyWord("GRANT".toLowerCase());
+        //addReservedKeyWord("GROUP".toLowerCase());
+        addReservedKeyWord("HAVING".toLowerCase());
+        addReservedKeyWord("ILIKE".toLowerCase());
+        addReservedKeyWord("IN".toLowerCase());
+        addReservedKeyWord("INITIALLY".toLowerCase());
+        addReservedKeyWord("INNER".toLowerCase());
+        addReservedKeyWord("INTERSECT".toLowerCase());
+        addReservedKeyWord("INTO".toLowerCase());
+        addReservedKeyWord("IS".toLowerCase());
+        addReservedKeyWord("ISNULL".toLowerCase());
+        addReservedKeyWord("JOIN".toLowerCase());
+        addReservedKeyWord("LEADING".toLowerCase());
+        addReservedKeyWord("LEFT".toLowerCase());
+        addReservedKeyWord("LIKE".toLowerCase());
+        addReservedKeyWord("LIMIT".toLowerCase());
+        addReservedKeyWord("LOCALTIME".toLowerCase());
+        addReservedKeyWord("LOCALTIMESTAMP".toLowerCase());
+        addReservedKeyWord("NATURAL".toLowerCase());
+        addReservedKeyWord("NEW".toLowerCase());
+        addReservedKeyWord("NOT".toLowerCase());
+        addReservedKeyWord("NOTNULL".toLowerCase());
+        addReservedKeyWord("NULL".toLowerCase());
+        addReservedKeyWord("OFF".toLowerCase());
+        addReservedKeyWord("OFFSET".toLowerCase());
+        addReservedKeyWord("OLD".toLowerCase());
+        addReservedKeyWord("ON".toLowerCase());
+        addReservedKeyWord("ONLY".toLowerCase());
+        addReservedKeyWord("OR".toLowerCase());
+        addReservedKeyWord("ORDER".toLowerCase());
+        addReservedKeyWord("OUTER".toLowerCase());
+        addReservedKeyWord("OVERLAPS".toLowerCase());
+        addReservedKeyWord("PLACING".toLowerCase());
+        addReservedKeyWord("PRIMARY".toLowerCase());
+        addReservedKeyWord("REFERENCES".toLowerCase());
+        addReservedKeyWord("RETURNING".toLowerCase());
+        addReservedKeyWord("RIGHT".toLowerCase());
+        //addReservedKeyWord("SELECT".toLowerCase());
+        addReservedKeyWord("SESSION_USER".toLowerCase());
+        addReservedKeyWord("SIMILAR".toLowerCase());
+        addReservedKeyWord("SOME".toLowerCase());
+        addReservedKeyWord("SYMMETRIC".toLowerCase());
+        //addReservedKeyWord("TABLE".toLowerCase());
+        addReservedKeyWord("THEN".toLowerCase());
+        addReservedKeyWord("TO".toLowerCase());
+        addReservedKeyWord("TRAILING".toLowerCase());
+        addReservedKeyWord("TRUE".toLowerCase());
+        addReservedKeyWord("UNION".toLowerCase());
+        addReservedKeyWord("UNIQUE".toLowerCase());
+        //addReservedKeyWord("USER".toLowerCase());
+        addReservedKeyWord("USING".toLowerCase());
+        addReservedKeyWord("VERBOSE".toLowerCase());
+        addReservedKeyWord("WHEN".toLowerCase());
+        addReservedKeyWord("WHERE".toLowerCase());
+        addReservedKeyWord("WITH".toLowerCase()); 
+    }
+    
+    /**
+     * Initializes the Sequence names of SERIAL and BIGSERIAL columns
+     * @param db the database for which to set the sequence names
+     * @param conn the connection
+     */
+    protected void initSerialSequenceNames(DBDatabase db, Connection conn)
+    {
+        // Find all identity columns
+        Map<String, DBTableColumn> identiyColumns = new HashMap<String, DBTableColumn>();
+        for (DBTable t : db.getTables())
+        {
+            DBColumn[] key = t.getKeyColumns();
+            if (key!=null && key.length>0 && key[0].getDataType()==DataType.AUTOINC)
+            {   // add to map
+                String name = key[0].getFullName();
+                DBTableColumn col = (DBTableColumn)key[0];
+                identiyColumns.put(name, col);
+                // show currently assigned sequence name
+                log.info("Initial sequence name for {} is {}", name, col.getDefaultValue());
+            }
+        }
+        // Query from database     
+        ResultSet rset = null;
+        try {
+            String sql = "SELECT column, seqname from ???";
+            rset = executeQuery(sql, null, false, conn);
+            while (rset.next())
+            {
+                String colName = rset.getString(1); // 1 = first column
+                String seqName = rset.getString(2); // 2 = second column
+                DBTableColumn col = identiyColumns.get(colName);
+                if (col!=null)
+                    col.setDefaultValue(seqName);  // set the sequence name
+                else
+                    log.warn("Table column {} not found.", colName);
+            }
+        }
+        catch (SQLException e)
+        {   // Don't know what to do
+            log.error("Failed to query Postgres Sequence names: "+e.getMessage(), e);
+        } finally {
+            if (rset!=null)
+                this.closeResultSet(rset);
+        }
+    }
     
 }

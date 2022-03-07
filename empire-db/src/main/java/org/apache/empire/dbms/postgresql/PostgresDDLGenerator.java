@@ -29,11 +29,51 @@ import org.apache.empire.db.DBTableColumn;
 
 public class PostgresDDLGenerator extends DBDDLGenerator<DBMSHandlerPostgreSQL>
 {
+    /*
+     * Script for creating the Reverse-Function
+     */
+    private static final String CREATE_REVERSE_FUNCTION =
+        "CREATE OR REPLACE FUNCTION reverse(TEXT) RETURNS TEXT AS $$\n" +
+        "DECLARE\n" +
+        "   original ALIAS FOR $1;\n" +
+        "   reversed TEXT := '';\n" +
+        "   onechar  VARCHAR;\n" +
+        "   mypos    INTEGER;\n" +
+        "BEGIN\n" +
+        "   SELECT LENGTH(original) INTO mypos;\n" + 
+        "   LOOP\n" +
+        "      EXIT WHEN mypos < 1;\n" +
+        "      SELECT substring(original FROM mypos FOR 1) INTO onechar;\n" +
+        "      reversed := reversed || onechar;\n" +
+        "      mypos := mypos -1;\n" +
+        "   END LOOP;\n" +
+        "   RETURN reversed;\n" +
+        "END\n" +
+        "$$ LANGUAGE plpgsql IMMUTABLE RETURNS NULL ON NULL INPUT";    
+    
+    private boolean createReverseFunction = false;
+    
     public PostgresDDLGenerator(DBMSHandlerPostgreSQL dbms)
     {
         super(dbms);
         // set Oracle specific data types
         initDataTypes();
+    }
+
+    /**
+     * Returns whether the reverse function should be created with the database
+     */
+    public boolean isCreateReverseFunction()
+    {
+        return createReverseFunction;
+    }
+
+    /**
+     * Set whether to create the reverse function with the database
+     */
+    public void setCreateReverseFunction(boolean createReverseFunction)
+    {
+        this.createReverseFunction = createReverseFunction;
     }
 
     /**
@@ -55,9 +95,9 @@ public class PostgresDDLGenerator extends DBDDLGenerator<DBMSHandlerPostgreSQL>
             { // Auto increment
                 int bytes = Math.abs((int)size);
                 if (bytes>= 8) {
-                    sql.append("BIGSERIAL");
+                    sql.append(dbms.isUsePostgresSerialType() ? "BIGSERIAL" : DATATYPE_INT_BIG);
                 } else {
-                    sql.append("SERIAL");
+                    sql.append(dbms.isUsePostgresSerialType() ? "SERIAL" : DATATYPE_INTEGER);
                 }
                 //String seqName = createSequenceName(c);
                 //sql.append(" DEFAULT nextval('"+seqName+"')");
@@ -81,16 +121,23 @@ public class PostgresDDLGenerator extends DBDDLGenerator<DBMSHandlerPostgreSQL>
     @Override
     protected void createDatabase(DBDatabase db, DBSQLScript script)
     {
-        // Create all Sequences
-        for (DBTable table : db.getTables())
-        {
-            for (DBColumn dbColumn : table.getColumns()) {
-                DBTableColumn c = (DBTableColumn) dbColumn;
-                if (c.getDataType() == DataType.AUTOINC) {
-                    createSequence(db, c, script);
+        // Use SERIAL DataType?
+        if (dbms.isUsePostgresSerialType()==false)
+        {   // Not using SERIAL
+            // Create all Sequences ourselves
+            for (DBTable table : db.getTables())
+            {
+                for (DBColumn dbColumn : table.getColumns()) {
+                    DBTableColumn c = (DBTableColumn) dbColumn;
+                    if (c.getDataType() == DataType.AUTOINC) {
+                        createSequence(db, c, script);
+                    }
                 }
             }
         }
+        // create reverse function
+        if (createReverseFunction)
+            script.addStmt(CREATE_REVERSE_FUNCTION);
         // default processing
         super.createDatabase(db, script);
     }
@@ -111,10 +158,6 @@ public class PostgresDDLGenerator extends DBDDLGenerator<DBMSHandlerPostgreSQL>
         sql.append(" --\r\n");
         sql.append("CREATE SEQUENCE ");
         db.appendQualifiedName(sql, seqName, null);
-        
-//        create sequence foo_id_seq;
-//        select setval('foo_id_seq', (select max(id) from foo));
-
         sql.append(" INCREMENT BY 1 START WITH 1 MINVALUE 0");
         // executeDLL
         script.addStmt(sql);

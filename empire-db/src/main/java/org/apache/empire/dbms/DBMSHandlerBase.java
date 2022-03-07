@@ -81,6 +81,9 @@ public abstract class DBMSHandlerBase implements DBMSHandler
                                                            "select", "udpate", "insert", "alter", "delete", 
                                                            "order" };        
     protected final Set<String> reservedSQLKeywords;
+
+    // Postfix for auto-generated Sequence names
+    protected String SEQUENCE_NAME_POSTFIX = "_SEQ";
     
     /**
      * DBMSCommand
@@ -416,7 +419,7 @@ public abstract class DBMSHandlerBase implements DBMSHandler
         StringBuilder b = new StringBuilder(column.getRowSet().getName());
         b.append("_");
         b.append(column.getName());
-        b.append("_SEQ");
+        b.append(SEQUENCE_NAME_POSTFIX);
         seqName = b.toString();
         // Store as default for later use
         column.setDefaultValue(seqName);
