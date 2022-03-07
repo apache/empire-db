@@ -25,7 +25,6 @@ import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.empire.commons.ObjectUtils;
 import org.apache.empire.commons.StringUtils;
 import org.apache.empire.data.DataType;
 import org.apache.empire.db.DBColumn;
@@ -37,7 +36,6 @@ import org.apache.empire.db.DBObject;
 import org.apache.empire.db.DBSQLScript;
 import org.apache.empire.db.DBTable;
 import org.apache.empire.db.DBTableColumn;
-import org.apache.empire.db.exceptions.QueryNoResultException;
 import org.apache.empire.db.expr.column.DBValueExpr;
 import org.apache.empire.dbms.DBMSFeature;
 import org.apache.empire.dbms.DBMSHandler;
@@ -269,23 +267,15 @@ public class DBMSHandlerPostgreSQL extends DBMSHandlerBase
     @Override
     public Object getNextSequenceValue(DBDatabase db, String seqName, int minValue, Connection conn)
     { 
-        // Use PostgreSQL Sequences
-        StringBuilder sql = new StringBuilder(80);
-        sql.append("SELECT nextval('");
-        db.appendQualifiedName(sql, seqName, null);
-        sql.append("')");
-        // Query next sequence value
-        String sqlCmd = sql.toString();
-        if (log.isDebugEnabled())
-            log.debug("Executing: " + sqlCmd);
-        Object val = querySingleValue(sqlCmd, null, DataType.UNKNOWN, conn);
-        if (ObjectUtils.isEmpty(val))
-        {   // Error!
-            log.error("getNextSequenceValue: Invalid sequence value for sequence " + seqName);
-            throw new QueryNoResultException(sqlCmd);
-        }
-        // Done
-        return val;
+		// Use PostgreSQL Sequences
+		String sqlCmd = "SELECT nextval(?)";
+		Object[] sqlParams = { seqName };
+		Object val = querySingleValue(sqlCmd, sqlParams, DataType.INTEGER, conn);
+		if (val == null)
+		{
+			log.error("getNextSequenceValue: Invalid sequence value for sequence " + seqName);
+		}
+		return val;
     }
 
     /**
@@ -296,12 +286,14 @@ public class DBMSHandlerPostgreSQL extends DBMSHandlerBase
     {
         String seqName = StringUtils.toString(column.getDefaultValue());
         if (StringUtils.isEmpty(seqName))
+        {
             throw new InvalidArgumentException("column", column);
+        }
         StringBuilder sql = new StringBuilder(80);
         sql.append("nextval('");
-        column.getDatabase().appendQualifiedName(sql, seqName, null);
+        column.getDatabase().appendQualifiedName(sql, seqName, false);
         sql.append("')");
-        return new DBValueExpr(column.getDatabase(), sql.toString(), DataType.UNKNOWN);
+        return new DBValueExpr(column.getDatabase(), sql.toString(), DataType.INTEGER);
     }
 
     /**
@@ -481,29 +473,30 @@ public class DBMSHandlerPostgreSQL extends DBMSHandlerBase
                 log.info("Initial sequence name for {} is {}", name, col.getDefaultValue());
             }
         }
-        // Query from database     
-        ResultSet rset = null;
-        try {
-            String sql = "SELECT column, seqname from ???";
-            rset = executeQuery(sql, null, false, conn);
-            while (rset.next())
-            {
-                String colName = rset.getString(1); // 1 = first column
-                String seqName = rset.getString(2); // 2 = second column
-                DBTableColumn col = identiyColumns.get(colName);
-                if (col!=null)
-                    col.setDefaultValue(seqName);  // set the sequence name
-                else
-                    log.warn("Table column {} not found.", colName);
-            }
+        // Query from database
+        if (conn == null)
+        {
+        	// no connection, no way to ask database
+        	return;
         }
-        catch (SQLException e)
-        {   // Don't know what to do
-            log.error("Failed to query Postgres Sequence names: "+e.getMessage(), e);
-        } finally {
-            if (rset!=null)
-                this.closeResultSet(rset);
+        for (DBTableColumn col : identiyColumns.values())
+        {
+        	String seqName = getSequenceName(col, conn);
+        	col.setDefaultValue(seqName);  // set the sequence name
         }
+
     }
+    
+	private String getSequenceName(DBTableColumn column, Connection conn)
+	{
+		// Use find PostgreSQL auto-generated sequence
+		String sqlCmd = "SELECT pg_get_serial_sequence(?, ?)";
+		Object[] sqlParams = { column.getRowSet().getName().toLowerCase(), column.getName().toLowerCase() };
+		String seqName = StringUtils.toString(querySingleValue(sqlCmd, sqlParams, DataType.VARCHAR, conn));
+		if (seqName == null) { // Error!
+			log.error("getNextSequenceName: Invalid sequence value for column " + column.getName());
+		}
+		return seqName;
+	}
     
 }
