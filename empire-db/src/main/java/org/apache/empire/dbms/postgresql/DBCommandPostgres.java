@@ -41,47 +41,74 @@ public class DBCommandPostgres extends DBCommand
         super(autoPrepareStmt);
     }
     
-    public DBColumnExpr funcAge(DBColumnExpr expr)
+    /**
+     * See https://www.postgresql.org/docs/current/functions-datetime.html
+     */
+    public DBColumnExpr pgAge(DBColumnExpr expr)
     {
         return new PostgresFuncExpr(expr, PostgresSqlPhrase.AGE, null, DataType.INTEGER);
     }
     
-    public DBColumnExpr funcAge(DBColumnExpr expr1, DBColumnExpr expr2)
+    /**
+     * See https://www.postgresql.org/docs/current/functions-datetime.html
+     */
+    public DBColumnExpr pgAge(DBColumnExpr expr1, DBColumnExpr expr2)
     {
         return new PostgresFuncExpr(expr1, PostgresSqlPhrase.AGE_BETWEEN, new Object[] { expr2 }, DataType.INTEGER);
     }
     
-    public DBColumnExpr funcExtract(PostgresExtractField field, DBColumnExpr expr)
+    /**
+     * See https://www.postgresql.org/docs/current/functions-datetime.html
+     */
+    public DBColumnExpr pgExtract(PostgresExtractField field, DBColumnExpr expr)
     {
         return new PostgresFuncExpr(expr, PostgresSqlPhrase.EXTRACT, new Object[] { field.name() }, DataType.INTEGER);
     }
     
-    public DBColumnExpr funcToTsquery(DBColumnExpr expr)
+    /**
+     * See https://www.postgresql.org/docs/current/textsearch-controls.html
+     */
+    public DBColumnExpr pgToTsquery(DBColumnExpr expr)
     {
         return new PostgresFuncExpr(expr, PostgresSqlPhrase.TO_TSQUERY, null, DataType.UNKNOWN);
     }
     
-    public DBColumnExpr funcToTsvector(DBColumnExpr expr)
+    /**
+     * See https://www.postgresql.org/docs/current/textsearch-controls.html
+     */
+    public DBColumnExpr pgToTsvector(DBColumnExpr expr)
     {
         return new PostgresFuncExpr(expr, PostgresSqlPhrase.TO_TSVECTOR, null, DataType.UNKNOWN);
     }
     
-    public DBColumnExpr funcPlaintoTsquery(DBColumnExpr expr)
+    /**
+     * See https://www.postgresql.org/docs/current/textsearch-controls.html
+     */
+    public DBColumnExpr pgPlaintoTsquery(DBColumnExpr expr)
     {
         return new PostgresFuncExpr(expr, PostgresSqlPhrase.PLAINTO_TSQUERY, null, DataType.UNKNOWN);
     }
     
-    public DBColumnExpr funcBoolAnd(DBCompareExpr cmpExpr)
+    /**
+     * See https://www.postgresql.org/docs/current/textsearch-controls.html
+     */
+    public DBColumnExpr pgBoolAnd(DBCompareExpr cmpExpr)
     {
         return new PostgresBoolAndOrExpr(cmpExpr, false);
     }
     
-    public DBColumnExpr funcBoolOr(DBCompareExpr cmpExpr)
+    /**
+     * See https://www.postgresql.org/docs/current/textsearch-controls.html
+     */
+    public DBColumnExpr pgBoolOr(DBCompareExpr cmpExpr)
     {
         return new PostgresBoolAndOrExpr(cmpExpr, true);
     }
     
-    public PostgresAtAt compareAtAt(DBColumnExpr left, DBColumnExpr right)
+    /**
+     * See https://www.postgresql.org/docs/current/textsearch-controls.html
+     */
+    public PostgresAtAt pgCompareAtAt(DBColumnExpr left, DBColumnExpr right)
     {
         return new PostgresAtAt(left, right);
     }
