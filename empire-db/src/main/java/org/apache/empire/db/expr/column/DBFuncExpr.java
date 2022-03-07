@@ -25,8 +25,10 @@ import org.apache.empire.commons.StringUtils;
 import org.apache.empire.data.DataType;
 import org.apache.empire.db.DBColumn;
 import org.apache.empire.db.DBColumnExpr;
+import org.apache.empire.db.DBDatabase;
 import org.apache.empire.db.DBExpr;
 import org.apache.empire.dbms.DBSqlPhrase;
+import org.apache.empire.exceptions.InvalidArgumentException;
 import org.apache.empire.exceptions.NotSupportedException;
 
 
@@ -48,7 +50,7 @@ public class DBFuncExpr extends DBAbstractFuncExpr
 
     protected final DBSqlPhrase  phrase;
     protected final Object[]     params;
-    protected final String       template;
+    protected String             template;
 
     /**
      * Constructs a new DBFuncExpr object set the specified parameters to this object.
@@ -68,9 +70,14 @@ public class DBFuncExpr extends DBAbstractFuncExpr
         // Set Phrase and Params
         this.phrase = phrase;
         this.params = params;
-        this.template = getDbms().getSQLPhrase(phrase);
-        if (StringUtils.isEmpty(template))
-            throw new NotSupportedException(getDbms(), phrase.name());
+        // If database is open, set template immediately
+        DBDatabase db = expr.getDatabase();
+        if (db.isOpen())
+        {   // Set template immediately
+            this.template = db.getDbms().getSQLPhrase(phrase);
+            if (StringUtils.isEmpty(template))
+                throw new NotSupportedException(getDbms(), phrase.name());
+        }
         // check
         if (phrase==DBSqlPhrase.SQL_FUNC_COALESCE)
             log.warn("DBFuncExpr should not be used for SQL_FUNC_COALESCE. Use DBCoalesceExpr instead.");
@@ -92,10 +99,13 @@ public class DBFuncExpr extends DBAbstractFuncExpr
     public DBFuncExpr(DBColumnExpr expr, String template, Object[] params, boolean isAggregate, DataType dataType)
     {
         super(expr, isAggregate, dataType);
+        // check
+        if (template==null)
+            throw new InvalidArgumentException("template", template);
         // Set Phrase and Params
-        this.phrase = null;
-        this.params = params;
         this.template = template;
+        this.params = params;
+        this.phrase = null;
     }
     
     @Override
@@ -155,7 +165,13 @@ public class DBFuncExpr extends DBAbstractFuncExpr
      */
     @Override
     public void addSQL(StringBuilder sql, long context)
-    {        // Add SQL
+    {   // Get Template
+        if (this.template==null)
+        {   this.template = getDbms().getSQLPhrase(phrase);
+            if (StringUtils.isEmpty(this.template))
+                throw new NotSupportedException(getDbms(), phrase.name());
+        }
+        // Add SQL
         super.addSQL(sql, template, params, context);
     }
 }

@@ -30,7 +30,7 @@ public class SampleContext extends DBContextStatic
     
     public SampleContext(CarSalesDB db, DBMSHandler dbmsHandler, Connection conn)
     {
-        super(dbmsHandler, conn);
+        super(dbmsHandler, conn, true);
         // set database
         this.database = db;
     }
