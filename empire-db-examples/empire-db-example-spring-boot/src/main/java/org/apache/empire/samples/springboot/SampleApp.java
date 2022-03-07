@@ -135,7 +135,7 @@ public class SampleApp implements ApplicationRunner {
       // Special cases
       if (dbms instanceof DBMSHandlerPostgreSQL) {
         // Create the reverse function that is needed by this sample
-        ((DBMSHandlerPostgreSQL) dbms).createReverseFunction(conn);
+        ((DBMSHandlerPostgreSQL) dbms).getDDLGenerator().setCreateReverseFunction(true);
       }
 
       // done
