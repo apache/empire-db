@@ -25,6 +25,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
 
 import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.List;
 
 import org.apache.empire.db.DBColumn;
@@ -48,8 +49,6 @@ public class CodeGenParserTest {
         public DBDatabase parseModel(final CodeGenConfig config) {
             // get the DBMS
             DBMSHandler dbms = getDBMSHandler(config);
-            // get the JDBC-Connection
-            Connection conn = getJDBCConnection(config);
             // read the database model
             // CodeGenParser parser = new CodeGenParser(config);
             DBModelParser modelParser = dbms.createModelParser(config.getDbCatalog(), config.getDbSchema());
@@ -57,7 +56,17 @@ public class CodeGenParserTest {
             modelParser.setStandardIdentityColumnName (config.getIdentityColumn());
             modelParser.setStandardTimestampColumnName(config.getTimestampColumn());
             // parse now
-            modelParser.parseModel(conn);
+            // get the JDBC-Connection
+            Connection conn = getJDBCConnection(config);
+            try {
+                modelParser.parseModel(conn);
+            } finally {
+                try {
+                    conn.close();
+                } catch (SQLException e) {
+                    System.err.println("Unable to close connection");
+                }
+            }
             // done
             return modelParser.getDatabase();
         }

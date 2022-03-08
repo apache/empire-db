@@ -40,6 +40,7 @@ import org.apache.empire.db.exceptions.EmpireSQLException;
 import org.apache.empire.db.exceptions.NoPrimaryKeyException;
 import org.apache.empire.db.exceptions.QueryNoResultException;
 import org.apache.empire.db.list.DataBean;
+import org.apache.empire.dbms.DBMSHandler;
 import org.apache.empire.exceptions.BeanInstantiationException;
 import org.apache.empire.exceptions.InvalidArgumentException;
 import org.apache.empire.exceptions.ObjectNotValidException;
@@ -252,6 +253,7 @@ public class DBReader extends DBRecordData implements Closeable
     private DBDatabase     db      = null;
     private DBColumnExpr[] columns = null;
     private ResultSet      rset    = null;
+    private DBMSHandler    dbms    = null;
     // the field index map
     private Map<ColumnExpr, Integer> fieldIndexMap = null;
 
@@ -402,10 +404,10 @@ public class DBReader extends DBRecordData implements Closeable
         try
         {   // Get Value from Resultset
             DataType dataType = columns[index].getDataType();
-            return context.getDbms().getResultValue(rset, index + 1, dataType);
+            return dbms.getResultValue(rset, index + 1, dataType);
 
-        } catch (SQLException e)
-        { // Operation failed
+        } catch (SQLException e) {
+            // Operation failed
             throw new EmpireSQLException(context.getDbms(), e);
         }
     }
@@ -556,6 +558,7 @@ public class DBReader extends DBRecordData implements Closeable
             // Detach columns
             columns = null;
             rset = null;
+            dbms = null;
             // clear FieldIndexMap
             if (fieldIndexMap!=null)
                 fieldIndexMap.clear();
@@ -896,6 +899,7 @@ public class DBReader extends DBRecordData implements Closeable
     protected void init(DBDatabase db, DBColumnExpr[] columns, ResultSet rset)
     {
         this.db = db;
+        this.dbms = db.getDbms();
         this.columns = columns;
         this.rset = rset;
         // clear fieldIndexMap         

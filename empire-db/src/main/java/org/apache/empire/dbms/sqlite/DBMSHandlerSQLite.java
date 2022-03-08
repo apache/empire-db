@@ -470,17 +470,21 @@ public class DBMSHandlerSQLite extends DBMSHandlerBase
     {
         if (dataType == DataType.DATETIME || dataType == DataType.TIMESTAMP)
         {
-            // SQLite does not have a Date type, or any kind of type :(
-            String datePattern = getSQLPhrase(DBSqlPhrase.SQL_DATETIME_PATTERN);
-            DateFormat dateFormat = new SimpleDateFormat(datePattern);
-            try
-            {
-                Date timestamp = dateFormat.parse(rset.getString(columnIndex));
-                return new java.sql.Timestamp(timestamp.getTime());
-            }
-            catch (ParseException e)
-            {
-                throw new UnexpectedReturnValueException(rset.getString(columnIndex), "getResultValue");
+            try {
+                // try timestamp
+                return rset.getTimestamp(columnIndex);
+            } catch(Exception ex) {
+                try
+                {   // try Convert from String
+                    String datePattern = getSQLPhrase(DBSqlPhrase.SQL_DATETIME_PATTERN);
+                    DateFormat dateFormat = new SimpleDateFormat(datePattern);
+                    Date timestamp = dateFormat.parse(rset.getString(columnIndex));
+                    return new java.sql.Timestamp(timestamp.getTime());
+                }
+                catch (ParseException e)
+                {   
+                    throw new UnexpectedReturnValueException(rset.getString(columnIndex), "getResultValue");
+                }
             }
         }
         else if (dataType == DataType.CLOB)

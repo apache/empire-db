@@ -55,6 +55,7 @@ public class DBMSHandlerSQLiteTest{
         DBContext context = new DBContextStatic(dbms, conn); 
         
         CompanyDB db = new CompanyDB();
+        
         db.open(context);
         DBSQLScript script = new DBSQLScript(context);
         db.getCreateDDLScript(script);
@@ -86,7 +87,11 @@ public class DBMSHandlerSQLiteTest{
         
         // Update an Employee
         emp = new DBRecord(context, db.EMPLOYEE);
-        emp.read(id);
+        try {
+            emp.read(id);
+        } catch(Throwable t) {
+            System.out.println(t.toString());
+        }
         // Set
         emp.set(db.EMPLOYEE.PHONE_NUMBER, "123456");
         emp.update();
