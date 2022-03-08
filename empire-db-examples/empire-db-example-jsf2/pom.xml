@@ -19,7 +19,7 @@
 	<parent>
 		<artifactId>empire-db-examples</artifactId>
 		<groupId>org.apache.empire-db</groupId>
-		<version>3.0.0</version>
+		<version>3.0.1-SNAPSHOT</version>
 	</parent>
 	<artifactId>empire-db-example-jsf2</artifactId>
 	<name>Apache Empire-db JSF2 Example</name>
