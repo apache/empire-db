@@ -20,7 +20,7 @@
 	<parent>
 		<artifactId>empire-db-examples</artifactId>
 		<groupId>org.apache.empire-db</groupId>
-		<version>3.0.0</version>
+		<version>3.0.0-SNAPSHOT</version>
 	</parent>
 	<name>Apache Empire-db Spring Boot Example</name>
 	<artifactId>empire-db-example-spring-boot</artifactId>
