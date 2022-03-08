@@ -442,26 +442,28 @@
 			       	<version>0.11</version>
 			       	<configuration>
 			       		<excludes>
-			       			<!-- folders -->
-			       			<exclude>**/target/**</exclude>
-                            <exclude>**/.idea/**</exclude>
-			       			<exclude>**/.settings/**</exclude>
-			       			<exclude>**/empire-db-example-vue/src/main/webapp/static/**</exclude>
-			       			<exclude>**/empire-db-example-vue/src/main/vue/node_modules/**</exclude>
-			       			<!-- file types -->
-                            <exclude>**/*.iml</exclude>
-			       			<exclude>**/*.json</exclude>
-			       			<exclude>**/*.jml</exclude>
-			       			<!-- specific files -->
-                            <exclude>**/META-INF/MANIFEST.MF</exclude>
-			       			<exclude>**/.project</exclude>
-			       			<exclude>**/.classpath</exclude>
-			       			<exclude>**/.tomcatplugin</exclude>
+							<!-- folders -->
+							<exclude>**/target/**</exclude>
+							<exclude>**/.idea/**</exclude>
+							<exclude>**/.settings/**</exclude>
+							<exclude>**/empire-db-example-vue/src/main/webapp/static/**</exclude>
+							<exclude>**/empire-db-example-vue/src/main/vue/node_modules/**</exclude>
+							<!-- file types -->
+							<exclude>**/*.iml</exclude>
+							<exclude>**/*.json</exclude>
+							<exclude>**/*.jml</exclude>
+							<!-- specific files -->
+							<exclude>**/META-INF/MANIFEST.MF</exclude>
+							<exclude>**/.factorypath</exclude>                            
+							<exclude>**/.project</exclude>
+							<exclude>**/.classpath</exclude>
+							<exclude>**/.tomcatplugin</exclude>
 							<exclude>**/empire-db-example-vue/src/main/vue/.*</exclude>
-			       			<exclude>**/_eslintrc.js.bak</exclude>
-			       			<exclude>release.properties</exclude>
-			       			<!-- should the sample databases be created in target? -->
-			       			<exclude>**/hsqldb/sample.*</exclude>
+							<exclude>**/_eslintrc.js.bak</exclude>
+							<exclude>**/application.yml</exclude>
+							<exclude>release.properties</exclude>
+							<!-- should the sample databases be created in target? -->
+							<exclude>**/hsqldb/sample.*</exclude>
 			       		</excludes>
 			       		<excludeSubProjects>false</excludeSubProjects>
 			       	</configuration>
