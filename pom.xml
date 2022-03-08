@@ -212,8 +212,8 @@
 		</license>
 	</licenses>
 	<scm>
-		<connection>scm:git:https://gitbox.apache.org/repos/asf?p=empire-db.git</connection>
-		<developerConnection>scm:git:https://gitbox.apache.org/repos/asf?p=empire-db.git</developerConnection>
+		<connection>scm:git:https://gitbox.apache.org/repos/asf/empire-db.git</connection>
+		<developerConnection>scm:git:https://gitbox.apache.org/repos/asf/empire-db.git</developerConnection>
 		<url>https://gitbox.apache.org/repos/asf/empire-db.git</url>
 		<tag>HEAD</tag>
 	</scm>
