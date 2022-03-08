@@ -42,7 +42,7 @@ public class DealerRecord extends TRecord<SampleContext, CarSalesDB.Dealer>
      */
     public String getBrands()
     {
-        DBCommand cmd = T.DB.createCommand()
+        DBCommand cmd = CTX.createCommand()
                 .select(T.DB.BRAND.NAME.stringAgg(", "))
                 .join(T.DB.DEALER_BRANDS.WMI, T.DB.BRAND.WMI)
                 .where(T.DB.DEALER_BRANDS.DEALER_ID.is(getIdentity()));
@@ -57,7 +57,7 @@ public class DealerRecord extends TRecord<SampleContext, CarSalesDB.Dealer>
     {
         if (brandList == null)
         {   // init brand list
-            DBCommand cmd = T.DB.createCommand()
+            DBCommand cmd = CTX.createCommand()
                     .join(T.DB.DEALER_BRANDS.WMI, T.DB.BRAND.WMI)
                     .where(T.DB.DEALER_BRANDS.DEALER_ID.is(getIdentity()));
             brandList = CTX.getUtils().queryRecordList(cmd, T.DB.BRAND, BrandRecord.class);

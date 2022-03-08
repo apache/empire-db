@@ -1,8 +1,38 @@
 Apache Empire-db
-Copyright 2008-2021 The Apache Software Foundation
+Copyright 2008-2022 The Apache Software Foundation
 
 For more Information about a particular issue please visit
 https://issues.apache.org/jira/browse/EMPIREDB
+
+--------------
+Release 3.0.0:
+--------------
+
+Summary: Release 3.0 features a complete API rework hence introduces breaking changes from the previous 2.x branch.
+
+** Improvement
+	EMPIREDB-382	Core:	Provide easy access to native DBMS functions
+	EMPIREDB-381	Core:	Improve PostgreSQL Handler / Add Postgres specific functions
+	EMPIREDB-380	Core:	Reintegrate spring-boot example for version 3
+	EMPIREDB-378	Core:	PostgeSQL: SQL Pattern for TIMESTAMP Columns
+	EMPIREDB-374	Core:	replace log4jv1 usage - EOL and with multiple security vulnerabilities
+	EMPIREDB-373	Core:	Improve Automatic prepared statements with DBCommand
+	EMPIREDB-372	Core:	Allow method chaining by returning this on some DBCommand and DBRecord methods
+	EMPIREDB-371	Core:	Deferred identiy setting for DBRecord
+	EMPIREDB-370	Core:	Allow alternative DBRecord implementations
+	EMPIREDB-369	Core:	Improve typesafety by using generics
+	EMPIREDB-368	Core:	New queryBean functions and Bean Rowset mapping
+	EMPIREDB-367	Core:	New query type DataList as bean replacement
+	EMPIREDB-366	Core:	Remove Serializable from DBObject
+	EMPIREDB-365	Core:	Add support for Java 8 time api
+	EMPIREDB-364	Core:	Handle rollback on DBRecord to restore state
+	EMPIREDB-363	Core:	New DBContext as replacement for Connection param
+	EMPIREDB-362	Core:	Version 3 Complete API Rework
+	
+** Bugfix / Other
+	EMPIREDB-375	Struts:	Removed support for Struts2 and all its modules due to outdated Struts version
+	EMPIREDB-376	Core:	Do not use insecure http endpoints when doing maven build
+	EMPIREDB-377	JSF:	Page - addFacesMessage always issues WARN-Message
 
 --------------
 Release 2.5.1:
