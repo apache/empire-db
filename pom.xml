@@ -213,8 +213,8 @@
 	</licenses>
 	<scm>
 		<connection>scm:git:https://gitbox.apache.org/repos/asf?p=empire-db.git</connection>
-		<developerConnection>scm:git:https://git-wip-us.apache.org/repos/asf?p=empire-db.git</developerConnection>
-		<url>https://gitbox.apache.org/repos/asf/wicket/repo?p=empire-db.git</url>
+		<developerConnection>scm:git:https://gitbox.apache.org/repos/asf?p=empire-db.git</developerConnection>
+		<url>https://gitbox.apache.org/repos/asf/empire-db.git</url>
 		<tag>HEAD</tag>
 	</scm>
 
