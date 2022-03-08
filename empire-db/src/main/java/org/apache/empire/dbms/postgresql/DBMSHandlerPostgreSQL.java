@@ -483,6 +483,7 @@ public class DBMSHandlerPostgreSQL extends DBMSHandlerBase
         {
         	String seqName = getSequenceName(col, conn);
         	col.setDefaultValue(seqName);  // set the sequence name
+        	log.info("New sequence name for {} is {}", col.getFullName(), seqName);
         }
 
     }
