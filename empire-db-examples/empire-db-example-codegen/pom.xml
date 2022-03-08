@@ -19,7 +19,7 @@
 	<parent>
 		<groupId>org.apache.empire-db</groupId>
 		<artifactId>empire-db-examples</artifactId>
-		<version>3.0.0-SNAPSHOT</version>
+		<version>3.0.0</version>
 	</parent>
 	
     <artifactId>empire-db-example-codegen</artifactId>
