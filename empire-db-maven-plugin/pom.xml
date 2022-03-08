@@ -20,7 +20,7 @@
 	<parent>
 		<artifactId>empire-db-parent</artifactId>
 		<groupId>org.apache.empire-db</groupId>
-		<version>3.0.0-SNAPSHOT</version>
+		<version>3.0.0</version>
 	</parent>
 	
 	<artifactId>empire-db-maven-plugin</artifactId>
