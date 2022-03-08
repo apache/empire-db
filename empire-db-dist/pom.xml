@@ -64,6 +64,7 @@
 	</build>
 	
 	<dependencies>
+		<!-- binary -->
 		<dependency>
 			<groupId>org.apache.empire-db</groupId>
 			<artifactId>empire-db</artifactId>
@@ -71,6 +72,19 @@
 		<dependency>
 			<groupId>org.apache.empire-db</groupId>
 			<artifactId>empire-db-jsf2</artifactId>
+		</dependency>
+		<!-- javadoc -->
+		<dependency>
+			<groupId>org.apache.empire-db</groupId>
+			<artifactId>empire-db</artifactId>
+			<version>3.0.0-SNAPSHOT</version>
+			<classifier>javadoc</classifier>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.empire-db</groupId>
+			<artifactId>empire-db-jsf2</artifactId>
+			<version>3.0.0-SNAPSHOT</version>
+			<classifier>javadoc</classifier>
 		</dependency>
 	</dependencies>
 
