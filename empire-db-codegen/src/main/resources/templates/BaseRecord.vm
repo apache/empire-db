@@ -26,21 +26,34 @@ import org.apache.empire.db.DBTable;
 import ${tablePackageName}.${baseTableClassName};
 #end
 
-public abstract class ${baseRecordClassName}<T extends ${baseTableClassName}> extends DBRecord {
+public abstract class ${baseRecordClassName}<CTX extends $contextClassName, T extends ${baseTableClassName}> extends DBRecord {
 
 	private static final long serialVersionUID = 1L;
 
+    public final CTX CTX;  // provide access to the context
+
     public final T T;   // provide access to RowSet via T
 
-	public ${baseRecordClassName}(DBContext context, T rowset) {
+	public ${baseRecordClassName}(CTX context, T rowset) {
 		super(context, rowset);
-        // set the RowSet for quick access
+        // set context and RowSet for quick access
+        this.CTX = context;
         this.T = rowset;
 	}
 
 	/**
-	 * Returns the RowSet this record is based upon.
-	 * @return The RowSet this record is based upon.
+	 * Returns the Context
+	 * @return The Context
+	 */
+    @Override
+    public CTX getContext()
+    {
+        return this.CTX;
+    }
+
+	/**
+	 * Returns the RowSet for this record
+	 * @return The RowSet for this record
 	 */
     @Override
     public T getRowSet()

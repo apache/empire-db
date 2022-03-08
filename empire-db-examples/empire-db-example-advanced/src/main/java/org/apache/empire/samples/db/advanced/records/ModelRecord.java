@@ -15,17 +15,30 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 
-public class ModelRecord extends TRecord<CarSalesDB.Model>
+public class ModelRecord extends TRecord<SampleContext, CarSalesDB.Model>
 {
     private static final Logger log = LoggerFactory.getLogger(ModelRecord.class);
 
     private static final long serialVersionUID = 1L;
+    
+    private BrandRecord brand = null; // Lazy initialization
 
     public ModelRecord(SampleContext context)
     {
         super(context, context.getDatabase().MODEL);
     }
     
+    /**
+     * Insert a new Model
+     * @param brand
+     * @param modelName
+     * @param configName
+     * @param trim
+     * @param engineType
+     * @param enginePower
+     * @param basePrice
+     * @param firstSale
+     */
     public void insert(BrandRecord brand, String modelName, String configName, String trim
                        , EngineType engineType, int enginePower, double basePrice, LocalDate firstSale)
     {
@@ -40,6 +53,19 @@ public class ModelRecord extends TRecord<CarSalesDB.Model>
         set(T.BASE_PRICE      , basePrice);
         set(T.FIRST_SALE      , firstSale);
         update();
+    }
+
+    /**
+     * Returns the Model's brand
+     * @return
+     */
+    public BrandRecord getBrand()
+    {
+        if (brand==null) {
+            brand = new BrandRecord(CTX);
+            brand.read(getString(T.WMI));
+        }
+        return brand;
     }
     
     @Override
@@ -57,6 +83,11 @@ public class ModelRecord extends TRecord<CarSalesDB.Model>
         super.update();
     }
     
+    /**
+     * Generates the Model-XML when Record is modified
+     * Only used to demonstrate the use of the CLOB-DataType
+     * @return the XML String
+     */
     private String getModelXml()
     {
         Document modelDoc = this.getXmlDocument();
@@ -66,6 +97,11 @@ public class ModelRecord extends TRecord<CarSalesDB.Model>
         return writer.toString();
     }
     
+    /**
+     * Serializes the Model-fields when Record is modified
+     * Only used to demonstrate the use of the BLOB-DataType
+     * @return the binary fields info
+     */
     private byte[] getModelBinary()
     {
         try

@@ -37,6 +37,7 @@ import org.apache.empire.data.EntityType;
 import org.apache.empire.data.Record;
 import org.apache.empire.db.DBRelation.DBCascadeAction;
 import org.apache.empire.db.DBRelation.DBReference;
+import org.apache.empire.db.context.DBContextBase;
 import org.apache.empire.db.exceptions.FieldNotNullException;
 import org.apache.empire.db.exceptions.FieldReadOnlyException;
 import org.apache.empire.db.exceptions.InvalidKeyException;
@@ -1200,10 +1201,15 @@ public abstract class DBRowSet extends DBExpr implements EntityType
      */
     protected DBCommand createRecordCommand(DBContext context)
     {
-        /** 
-         * alternative is:
-         *    return context.getDbms().createCommand(true); 
-         */
+        // Special behaviour for DBRecord operations
+        if ((context instanceof DBContextBase) && !((DBContextBase)context).isPreparedStatementsEnabled())
+        {   // Check PreparedStatementsEnabled in DBDatabase
+            if (getDatabase().isPreparedStatementsEnabled())
+            {   // Use PreparedStatement even though disabled in context
+                return context.getDbms().createCommand(true);
+            }
+        }
+        // just use the context
         return context.createCommand();
     }
 

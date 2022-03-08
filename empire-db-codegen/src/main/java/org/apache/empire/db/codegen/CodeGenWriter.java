@@ -287,6 +287,7 @@ public class CodeGenWriter {
 		context.put("basePackageName", config.getPackageName());
 		context.put("tablePackageName", config.getTablePackageName());
 		context.put("recordPackageName", config.getRecordPackageName());
+        context.put("contextClassName", config.getContextClassName());
 		context.put("baseTableClassName", config.getTableBaseName());
 		writeFile(file, BASE_RECORD_TEMPLATE, context);
 		return file;
@@ -304,6 +305,7 @@ public class CodeGenWriter {
 			context.put("tablePackageName", config.getTablePackageName());
 		context.put("recordPackageName", config.getRecordPackageName());
 		context.put("baseRecordClassName", config.getRecordBaseName());
+        context.put("contextClassName", config.getContextClassName());
 		context.put("dbClassName", config.getDbClassName());
 		context
 				.put("createRecordProperties", config

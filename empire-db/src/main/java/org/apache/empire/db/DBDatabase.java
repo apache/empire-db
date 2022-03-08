@@ -150,14 +150,18 @@ public abstract class DBDatabase extends DBObject
     
     protected DBMSHandler dbms    = null;
     
-    protected boolean legacyDate  = true; // When true not using Java8 Local???? Types
-    
     /**   
-     * Property that indicates whether to always use usePreparedStatements (Default is false!)
-     * Note: This will only apply for update and insert commands as well as for read operations on a DBRecord.
-     * For custom SQL commands parameters must be explicitly declared using cmd.addCmdParam();   
+     * Property that indicates whether to use Prepared Statements for the read and update operations in DBRecord (Default is true!).
+     * Note: This will not affect statements generated via DBContext.createCommand()
+     * However statement parameters can always be manually declared using cmd.addCmdParam();
      */
-    private boolean autoPrepareStmt = false;
+    private boolean autoPrepareStmt = true;
+
+    /**
+     * Flag indicating whether Bean getters / setters use java.util.Date or Java types (LocalDate, LocalDateTime)
+     * True (default) when java.util.Date is used
+     */
+    protected boolean legacyDate  = true; 
 
     /**
      * Constructs a new DBDatabase object and sets the specified schema object.
@@ -301,9 +305,10 @@ public abstract class DBDatabase extends DBObject
     }
     
     /**
-     * return whether prepared statements are preferred over normal statements (Default is false)
-     * Note: This will only apply for update and insert commands as well as for read operations on a DBRecord.
-     * For custom SQL commands parameters must be explicitly declared using cmd.addCmdParam();   
+     * Returns whether Prepared Statements are enabled for the read and update operations in DBRecord.
+     * Note: This will not affect statements generated via DBContext.createCommand()
+     * However statement parameters can always be manually declared using cmd.addCmdParam();
+     *    
      * @return true if prepared Statements are enabled or false if not
      */
     public boolean isPreparedStatementsEnabled()
@@ -312,8 +317,10 @@ public abstract class DBDatabase extends DBObject
     }
 
     /**
-     * enables or disables the use of prepared statements for update and insert commands as well as for read operations on a DBRecord.
-     * Note: For custom SQL commands parameters must be explicitly declared using cmd.addCmdParam();   
+     * Enables or Disables the use of Prepared Statements only for the read and update operations in DBRecord.
+     * For general use of Prepared Statements please use DBContext.createCommand()
+     * However statement parameters can always be manually declared using cmd.addCmdParam();   
+     *    
      * @param preparedStatementsEnabled
      */
     public void setPreparedStatementsEnabled(boolean autoPrepareStmt)
@@ -924,11 +931,14 @@ public abstract class DBDatabase extends DBObject
      * Creates a new Command object for this database
      * 
      * @return the command object.
+     *
+     * @Deprecated use context.createCommand();
      */
     public final DBCommand createCommand()
     {
         checkOpen(); 
-        return dbms.createCommand(isPreparedStatementsEnabled());
+        // For compatiblity with 2.x dont use isPreparedStatementsEnabled() 
+        return dbms.createCommand(false);
     }
     
     /**

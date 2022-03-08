@@ -36,7 +36,7 @@ import $basePackageName.${dbClassName};
 public class $parser.getViewClassName($view.name) extends ${baseViewClassName} {
 #end
 	
-	private static final long serialVersionUID = 1L;
+	// private static final long serialVersionUID = 1L;
 
 	// define columns
 #foreach ($col in $view.columns)

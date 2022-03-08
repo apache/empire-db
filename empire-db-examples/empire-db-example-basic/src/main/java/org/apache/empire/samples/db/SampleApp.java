@@ -38,7 +38,6 @@ import org.apache.empire.db.DBRecord;
 import org.apache.empire.db.DBRecordBean;
 import org.apache.empire.db.DBRowSet.PartialMode;
 import org.apache.empire.db.context.DBContextStatic;
-import org.apache.empire.db.generic.TRecord;
 import org.apache.empire.dbms.DBMSHandler;
 import org.apache.empire.dbms.postgresql.DBMSHandlerPostgreSQL;
 import org.apache.empire.samples.db.SampleDB.Gender;
@@ -284,7 +283,7 @@ public class SampleApp
     {
         SampleDB.Departments DEP = db.DEPARTMENTS;
 		// Insert a Department
-		TRecord<SampleDB.Departments> rec = new TRecord<SampleDB.Departments>(context, DEP);
+		DBRecord rec = new DBRecord(context, DEP);
 		rec.create()
 		   .set(DEP.NAME, departmentName)
 		   .set(DEP.BUSINESS_UNIT, businessUnit)

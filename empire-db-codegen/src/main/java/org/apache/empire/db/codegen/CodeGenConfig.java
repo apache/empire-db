@@ -138,6 +138,11 @@ public class CodeGenConfig extends XMLConfiguration {
 	 * <br/>
 	 */
 	private String recordBaseName = "BaseRecord";
+    
+    /**
+     * Name of the Context class
+     */
+    private String contextClassName = "DBContext";
 	
 	/**
 	 * Prefix used for table member declarations
@@ -473,7 +478,17 @@ public class CodeGenConfig extends XMLConfiguration {
 		this.recordBaseName = recordBaseName;
 	}
 	
-	public String getTableNamePrefix() {
+	public String getContextClassName()
+    {
+        return contextClassName;
+    }
+
+    public void setContextClassName(String contextClassName)
+    {
+        this.contextClassName = contextClassName;
+    }
+
+    public String getTableNamePrefix() {
 		return tableNamePrefix;
 	}
 

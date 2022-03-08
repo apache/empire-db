@@ -118,6 +118,12 @@ public class SampleAdvApp
         context.setPreparedStatementsEnabled(true);
         context.setRollbackHandlingEnabled(false);
 
+        /*
+        // optional: Disable PreparedStatements for DBRecord operations (not recommended)
+        if (!context.isPreparedStatementsEnabled())
+            carSales.setPreparedStatementsEnabled(false);
+        */    
+        
         // STEP 3: Open Database (and create if not existing)
         System.out.println("*** Step 3: openDatabase() ***");
         // db.open(context);
@@ -548,6 +554,11 @@ public class SampleAdvApp
              log.info("Dealer \"{}\" rating changed from {} to {}", dealer.getString(DEALER.COMPANY_NAME), oldRating, newRating);
              dealer.set(DEALER.RATING, newRating);
              dealer.update();
+             // Show brands
+             String brands = dealer.getBrands();
+             log.info("Dealer \"{}\" distributes the brands {}", dealer.getString(DEALER.COMPANY_NAME), brands);
+             // alternatively use  
+             // List<BrandRecord> brandList = dealer.getBrandList();
         }
         context.commit();
     }

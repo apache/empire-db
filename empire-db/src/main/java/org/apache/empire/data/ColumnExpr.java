@@ -19,7 +19,6 @@
 package org.apache.empire.data;
 
 import org.apache.empire.commons.Options;
-import org.apache.empire.commons.Unwrappable;
 
 /**
  * The column interface provides methods for accessing metadata that is relevant for managing

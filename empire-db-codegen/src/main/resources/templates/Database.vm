@@ -50,8 +50,9 @@ import $viewPackageName.*;
 
 public class $dbClassName extends DBDatabase {
 
+	// private static final long serialVersionUID = 1L;
+
 	private static $dbClassName instance;
-	private static final long serialVersionUID = 1L;
 
 #foreach($table in $database.tables)
 	#set($tblClass=$parser.getTableClassName($table.name))

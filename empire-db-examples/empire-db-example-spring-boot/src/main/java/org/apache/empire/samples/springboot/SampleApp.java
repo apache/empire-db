@@ -26,7 +26,9 @@ import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
+
 import javax.sql.DataSource;
+
 import org.apache.commons.beanutils.BeanUtils;
 import org.apache.empire.commons.ObjectUtils;
 import org.apache.empire.commons.StringUtils;
@@ -42,7 +44,6 @@ import org.apache.empire.db.DBRecord;
 import org.apache.empire.db.DBRecordBean;
 import org.apache.empire.db.DBRowSet;
 import org.apache.empire.db.context.DBContextStatic;
-import org.apache.empire.db.generic.TRecord;
 import org.apache.empire.dbms.DBMSHandler;
 import org.apache.empire.dbms.postgresql.DBMSHandlerPostgreSQL;
 import org.apache.empire.exceptions.InvalidArgumentException;
@@ -180,7 +181,7 @@ public class SampleApp implements ApplicationRunner {
   private long insertDepartment(String departmentName, String businessUnit) {
     SampleDB.Departments DEP = db.DEPARTMENTS;
     // Insert a Department
-    TRecord<SampleDB.Departments> rec = new TRecord<SampleDB.Departments>(context, DEP);
+    DBRecord rec = new DBRecord(context, DEP);
     rec.create()
             .set(DEP.NAME, departmentName)
             .set(DEP.BUSINESS_UNIT, businessUnit)

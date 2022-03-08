@@ -321,8 +321,6 @@ public class CarSalesDB extends TDatabase<CarSalesDB>
     @Override
     public void open(DBContext context)
     {
-        // Enable prepared statements
-        setPreparedStatementsEnabled(true);
         // Check exists
         if (checkExists(context))
         {   // attach to driver

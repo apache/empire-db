@@ -158,6 +158,8 @@ public class DBMSHandlerHSql extends DBMSHandlerBase
             case SQL_FUNC_MAX:          return "max(?)";
             case SQL_FUNC_MIN:          return "min(?)";
             case SQL_FUNC_AVG:          return "avg(?)";
+            case SQL_FUNC_STRAGG:       return "GROUP_CONCAT(DISTINCT ? ORDER BY {1} SEPARATOR {0})"; 
+            
             // Others
             case SQL_FUNC_DECODE:       return "case ?{0} end";
             case SQL_FUNC_DECODE_SEP:   return " ";

@@ -42,7 +42,7 @@ import ${tablePackageName}.$parser.getTableClassName($table.name);
  * This class provides protected method that subclasses should use to provide
  * access to related records.
  */
-public class $parser.getRecordClassName($table.name) extends ${baseRecordClassName}<$parser.getTableClassName($table.name)> {
+public class $parser.getRecordClassName($table.name) extends ${baseRecordClassName}<$contextClassName, $parser.getTableClassName($table.name)> {
 
 	private static final long serialVersionUID = 1L;
 
@@ -54,10 +54,10 @@ public class $parser.getRecordClassName($table.name) extends ${baseRecordClassNa
 	// Access methods for all columns
 #foreach($col in $table.columns)
 
-	public $parser.getJavaType($col).getCanonicalName() $parser.getAccessorName($col)() {
-		return ($parser.getJavaType($col).getCanonicalName())super.get(T.${parser.getColumnName($col)});
+	public $parser.getJavaType($col).getSimpleName() $parser.getAccessorName($col)() {
+		return ($parser.getJavaType($col).getSimpleName())super.get(T.${parser.getColumnName($col)});
 	}
-	public void $parser.getMutatorName($col)($parser.getJavaType($col).getCanonicalName() val) {
+	public void $parser.getMutatorName($col)($parser.getJavaType($col).getSimpleName() val) {
 		super.set(T.${parser.getColumnName($col)}, val);
 	}
 #end

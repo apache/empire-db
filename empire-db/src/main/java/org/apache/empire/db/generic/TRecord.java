@@ -22,42 +22,54 @@ import org.apache.empire.db.DBContext;
 import org.apache.empire.db.DBRecord;
 import org.apache.empire.db.DBRowSet;
 
-public class TRecord<T extends DBRowSet> extends DBRecord
+public class TRecord<CTX extends DBContext, T extends DBRowSet> extends DBRecord
 {
     private static final long serialVersionUID = 1L;
     
     public final T T;   // provide access to RowSet via T
+    
+    public final CTX CTX; // provide access to Context via CTX
 
     /**
-     * Internal constructor for DBRecord
+     * Internal constructor for TRecord
      * May be used by derived classes to provide special behaviour
      */
-    protected TRecord(DBContext context, T rowset, boolean enableRollbackHandling)
+    protected TRecord(CTX context, T rowset, boolean enableRollbackHandling)
     {   
         super(context, rowset, enableRollbackHandling);
         // set the rowset for quick access
         this.T = rowset;
+        this.CTX = context;
     }
 
     /**
-     * Constructs a new DBRecord.<BR>
+     * Constructs a new TRecord.<BR>
      * @param context the DBContext for this record
      * @param rowset the corresponding RowSet(Table, View, Query, etc.)
      */
-    public TRecord(DBContext context, T rowset)
+    public TRecord(CTX context, T rowset)
     {
         super(context, rowset);
         // set the rowset for quick access
         this.T = rowset;
+        this.CTX = context;
     }
     
     /**
-     * finally we know the rowset
+     * finally we know the Context class
+     */
+    @Override
+    public CTX getContext()
+    {
+        return this.CTX;
+    }
+    
+    /**
+     * finally we know the RowSet class
      */
     @Override
     public T getRowSet()
     {
         return this.T;
     }
-
 }

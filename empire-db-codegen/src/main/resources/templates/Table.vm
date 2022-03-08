@@ -33,7 +33,7 @@ import $basePackageName.${dbClassName};
 public class $parser.getTableClassName($table.name) extends ${baseTableClassName} {
 #end
 
-	private static final long serialVersionUID = 1L;
+	// private static final long serialVersionUID = 1L;
 	
 	// define columns
 #foreach ($col in $table.columns)
