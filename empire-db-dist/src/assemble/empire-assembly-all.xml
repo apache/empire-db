@@ -42,6 +42,7 @@
 			<excludes>
 				<exclude>**/empire-db/target/**</exclude>
 				<exclude>**/empire-db-*/target/**</exclude>			
+				<exclude>**/.factorypath</exclude>
 				<exclude>**/.classpath/**</exclude>
 				<exclude>**/.project/**</exclude>
 				<exclude>**/.settings/**</exclude>
@@ -49,7 +50,6 @@
 				<exclude>**/.tomcatplugin/**</exclude>
 				<exclude>**/.idea/**</exclude>
 				<exclude>**/empire-db-example-vue/src/main/vue/node_modules/**</exclude>
-				<exclude>empire-db-examples/tutorial.pdf</exclude>
 			</excludes>
 		</fileSet>
 		<fileSet>
@@ -62,13 +62,6 @@
 				<include>README.txt</include>
 				<include>CHANGELOG.txt</include>
 				<!-- <include>licenses/**</include> -->
-			</includes>
-		</fileSet>
-		<fileSet>
-			<directory>${basedir}/../empire-db-examples</directory>
-			<outputDirectory/>
-			<includes>
-				<include>tutorial.pdf</include>
 			</includes>
 		</fileSet>
 	</fileSets>
