@@ -18,7 +18,6 @@
  */
 package org.apache.empire.samples.db.advanced.records;
 
-import org.apache.empire.db.DBRecord;
 import org.apache.empire.db.generic.TRecord;
 import org.apache.empire.samples.db.advanced.SampleContext;
 import org.apache.empire.samples.db.advanced.db.CarSalesDB;
@@ -48,15 +47,6 @@ public class BrandRecord extends TRecord<SampleContext, CarSalesDB.Brand>
         set(T.COUNTRY, country);
         update();
         return this;
-    }
-
-    /**
-     * Overloaded read for convenience
-     * @param wmi
-     */
-    public void read(String wmi)
-    {
-        super.read(DBRecord.key(wmi));
     }
 
 }

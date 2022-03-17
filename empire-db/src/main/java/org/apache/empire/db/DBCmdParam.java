@@ -18,7 +18,6 @@
  */
 package org.apache.empire.db;
 
-import java.math.BigDecimal;
 import java.util.Set;
 
 import org.apache.empire.commons.ObjectUtils;

@@ -19,7 +19,9 @@
 package org.apache.empire.db;
 
 import java.sql.Connection;
+import java.util.Collection;
 
+import org.apache.empire.commons.ObjectUtils;
 import org.apache.empire.commons.StringUtils;
 import org.apache.empire.data.Column;
 import org.apache.empire.db.DBRowSet.PartialMode;
@@ -187,8 +189,10 @@ public class DBRecordBean extends DBRecordBase
     
     /**
      * Reads a record from the database
-     * Hint: variable args param (Object...) caused problems with migration
      * @param key an array of the primary key values
+     *
+     * @throws NoPrimaryKeyException if the associated RowSet has no primary key
+     * @throws InvalidKeyException if the key does not match the key columns of the associated RowSet
      */
     public DBRecordBean read(DBContext context, DBRowSet rowset, Object[] key)
     {   // read
@@ -204,11 +208,33 @@ public class DBRecordBean extends DBRecordBase
 
     /**
      * Reads a record from the database
-     * @param identity the record id value
+     * This method can only be used for tables with a single primary key
+     * @param id the primary key of the record
+     * 
+     * @throws NoPrimaryKeyException if the associated RowSet has no primary key
+     * @throws InvalidKeyException if the associated RowSet does not have a single column primary key
      */
-    public final DBRecordBean read(DBContext context, DBRowSet rowset, long identity)
+    public DBRecordBean read(DBContext context, DBRowSet rowset, Object id)
     {
-        return read(context, rowset, new Object[] { identity });
+        if (ObjectUtils.isEmpty(id))
+            throw new InvalidArgumentException("id", id);
+        // convert to array
+        Object[] key;
+        if (id instanceof Object[])
+        {   // Cast to array
+            key = (Object[])id;
+        } else if (id instanceof Collection<?>) {
+            // Convert collection to array
+            Collection<?> col = (Collection<?>)id;
+            key = new Object[col.size()];
+            int i=0;
+            for (Object v : col)
+                key[i++] = v;
+        } else {
+            // Single value
+            key = new Object[] { id };
+        }
+        return read(context, rowset, key);
     }
     
     /**

@@ -81,7 +81,7 @@ public class ModelRecord extends TRecord<SampleContext, CarSalesDB.Model>
     {
         if (brand==null) {
             brand = new BrandRecord(CTX);
-            brand.read(getString(T.WMI));
+            brand.read(get(T.WMI));
         }
         return brand;
     }
