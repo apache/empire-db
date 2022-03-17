@@ -220,16 +220,12 @@ public class DBRecordBean extends DBRecordBase
             throw new InvalidArgumentException("id", id);
         // convert to array
         Object[] key;
-        if (id instanceof Object[])
-        {   // Cast to array
+        if (id instanceof Object[]) {
+            // Cast to array
             key = (Object[])id;
         } else if (id instanceof Collection<?>) {
             // Convert collection to array
-            Collection<?> col = (Collection<?>)id;
-            key = new Object[col.size()];
-            int i=0;
-            for (Object v : col)
-                key[i++] = v;
+            key = ((Collection<?>)id).toArray();
         } else {
             // Single value
             key = new Object[] { id };
