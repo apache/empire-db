@@ -18,6 +18,7 @@
  */
 package org.apache.empire.db;
 
+import java.math.BigDecimal;
 import java.util.Set;
 
 import org.apache.empire.commons.ObjectUtils;
@@ -60,6 +61,11 @@ public class DBCmdParam extends DBExpr
         // check null
         if (value == null)
             return null;
+        // check for enum
+        if (value instanceof Enum<?>)
+        {   // convert enum
+            return ObjectUtils.getEnumValue((Enum<?>)value, type.isNumeric());
+        }
         // check type
         switch (type)
         {
@@ -77,12 +83,16 @@ public class DBCmdParam extends DBExpr
                 return new DBClobData(value.toString());
             case BOOL:
             	return ObjectUtils.getBoolean(value);
+            case INTEGER:
+                return (value instanceof Number) ? value : ObjectUtils.toLong(value);
+            case FLOAT:
+                return (value instanceof Number) ? value : ObjectUtils.toDouble(value);
+            case DECIMAL:
+                return (value instanceof Number) ? value : ObjectUtils.toDecimal(value);
+            case CHAR:
+            case VARCHAR:
+                return (value instanceof String) ? value : value.toString();
             default:
-                // check for enum
-                if (value instanceof Enum<?>)
-                {   // convert enum
-                    return ObjectUtils.getEnumValue((Enum<?>)value, type.isNumeric());
-                }
                 // use as is
                 return value;
         }
