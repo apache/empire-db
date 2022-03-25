@@ -305,7 +305,7 @@ public abstract class DBColumn extends DBColumnExpr
      * This can be used to reference a parent column in a subquery 
      * @return the column value expression
      */
-    public DBValueExpr reference()
+    public DBColumnExpr reference()
     {
         return new DBValueExpr(getDatabase(), this, DataType.UNKNOWN);    
     }
