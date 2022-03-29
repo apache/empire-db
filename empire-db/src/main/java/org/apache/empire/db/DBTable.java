@@ -21,6 +21,7 @@ package org.apache.empire.db;
 // java
 import java.lang.reflect.Field;
 import java.sql.Connection;
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -274,7 +275,7 @@ public class DBTable extends DBRowSet implements Cloneable
      * @param defValue a Object object
      * @return the new column object
      */
-    protected DBTableColumn crateAndAppendColumn(String columnName, DataType type, double size, boolean required, Object defValue)
+    protected DBTableColumn createAndAppendColumn(String columnName, DataType type, double size, boolean required, Object defValue)
     {
         // Check exists
         if (getColumn(columnName)!=null)
@@ -290,16 +291,7 @@ public class DBTable extends DBRowSet implements Cloneable
             else
                 throw new UnspecifiedErrorException("Table "+getName()+" already has a Primary-Key! No column of type AUTOINC can be added.");
         }
-        /*
-        // auto-set timestamp column
-        if (column.getDataType()==DataType.TIMESTAMP)
-        {   // Automatically set timestamp column
-            if (timestampColumn==null)
-                this.setTimestampColumn(column);
-            else
-                log.warn("Table {} already has a Timestamp column. DataType of column {} should be DATETIME.", getName(), column.getName());
-        }
-        */
+        // add now
         addColumn(column);
         return column;
     }
@@ -321,7 +313,7 @@ public class DBTable extends DBRowSet implements Cloneable
         {
             log.warn("Column {}: a class object of type \"{}\" has been passed as default value. Please check!", columnName, ((Class<?>)defValue).getName());
         }
-        return this.crateAndAppendColumn(columnName, type, size, required, defValue);
+        return this.createAndAppendColumn(columnName, type, size, required, defValue);
     }
 
     /**
@@ -335,7 +327,7 @@ public class DBTable extends DBRowSet implements Cloneable
      */
     public final DBTableColumn addColumn(String columnName, DataType type, double size, boolean required)
     { 
-        return this.crateAndAppendColumn(columnName, type, size, required, null);
+        return this.createAndAppendColumn(columnName, type, size, required, null);
     }
 
     /**
@@ -351,7 +343,7 @@ public class DBTable extends DBRowSet implements Cloneable
      */
     public final DBTableColumn addColumn(String columnName, DataType type, double size, boolean required, Options options)
     {
-        DBTableColumn col = this.crateAndAppendColumn(columnName, type, size, required, null);
+        DBTableColumn col = this.createAndAppendColumn(columnName, type, size, required, null);
         col.setOptions(options);
         return col;
     }
@@ -374,7 +366,7 @@ public class DBTable extends DBRowSet implements Cloneable
         if (defValue!=null && !options.contains(defValue))
             throw new InvalidArgumentException("devValue", defValue);
         // add
-        DBTableColumn col = this.crateAndAppendColumn(columnName, type, size, required, defValue);
+        DBTableColumn col = this.createAndAppendColumn(columnName, type, size, required, defValue);
         col.setOptions(options);
         return col;
     }
@@ -396,7 +388,7 @@ public class DBTable extends DBRowSet implements Cloneable
         {   // Class must be an enum type
             throw new InvalidArgumentException("enumType", enumType);
         }
-        DBTableColumn col = this.crateAndAppendColumn(columnName, type, size, required, null);
+        DBTableColumn col = this.createAndAppendColumn(columnName, type, size, required, null);
         col.setEnumOptions(enumType);
         return col;
     }
@@ -415,7 +407,7 @@ public class DBTable extends DBRowSet implements Cloneable
     public final DBTableColumn addColumn(String columnName, DataType type, double size, boolean required, Enum<?> enumValue)
     { 
         Object defValue = ObjectUtils.getEnumValue(enumValue, type.isNumeric());
-        DBTableColumn col = this.crateAndAppendColumn(columnName, type, size, required, defValue);
+        DBTableColumn col = this.createAndAppendColumn(columnName, type, size, required, defValue);
         col.setEnumOptions(enumValue.getClass());
         return col;
     }
@@ -503,13 +495,19 @@ public class DBTable extends DBRowSet implements Cloneable
     }
     
     /**
-     * Adds a Timestamp column to the current table
+     * Adds a Timestamp column to the current table which will be used for optimistic locking.
      * There can only be one timestamp column per table
      * @param name the name of the new column
      * @return the new column
      */
     public DBTableColumn addTimestamp(String name)
     {
+        // check
+        if (this.timestampColumn!=null) {
+            String msg = MessageFormat.format("A Timestamp column ({0}) already exists for table {1}", this.timestampColumn.getName(), this.getName());
+            throw new UnspecifiedErrorException(msg); 
+        }
+        // Add now
         DBTableColumn tsColumn = addColumn(name, DataType.TIMESTAMP, 0, true);
         this.setTimestampColumn(tsColumn);
         return tsColumn;
@@ -637,21 +635,6 @@ public class DBTable extends DBRowSet implements Cloneable
         // table
         indexes.remove(index);
         index.setTable(null);
-    }
-
-    /**
-     * Adds a timestamp column to the table used for optimistic locking.
-     * 
-     * @param columnName the column name
-     * 
-     * @return the timestamp table column object
-     */
-    public DBTableColumn addTimestampColumn(String columnName)
-    {
-        DBTableColumn col = addColumn(columnName, DataType.TIMESTAMP, 0, true, DBDatabase.SYSDATE);
-        if (this.timestampColumn!=col)
-            setTimestampColumn(col);    // make sure, this is the timestamp column, even if another one exists
-        return col;
     }
 
     /**
