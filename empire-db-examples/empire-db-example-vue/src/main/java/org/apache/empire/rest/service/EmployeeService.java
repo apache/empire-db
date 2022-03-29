@@ -51,6 +51,7 @@ import org.apache.empire.vue.sample.db.records.EmployeeRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@io.swagger.annotations.Api(value = "employee")
 @Path("/employee")
 public class EmployeeService extends Service {
 

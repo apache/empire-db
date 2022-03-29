@@ -36,6 +36,7 @@ import org.apache.empire.rest.json.JsoErrorInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@io.swagger.annotations.Api(value = "auth")
 @Path("/auth")
 public class AuthenticationService
 {

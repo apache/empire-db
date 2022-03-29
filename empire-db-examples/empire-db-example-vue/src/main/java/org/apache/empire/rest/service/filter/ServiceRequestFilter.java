@@ -44,7 +44,7 @@ public class ServiceRequestFilter implements ContainerRequestFilter
     private static final Logger log = LoggerFactory.getLogger(ServiceRequestFilter.class);
 
     @Context
-    private ServletContext      servletContext;
+    private ServletContext servletContext;
 
     @Override
     public void filter(ContainerRequestContext requestContext)
@@ -52,6 +52,11 @@ public class ServiceRequestFilter implements ContainerRequestFilter
     {
         String path = requestContext.getUriInfo().getPath();
         log.info("Filtering request path: " + path);
+        // swagger
+        if (path.startsWith("swagger."))
+        {
+            return;
+        }
         // Check authentication
         if (!path.startsWith("auth") && !requestContext.getMethod().equals("OPTIONS"))
         {

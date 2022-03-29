@@ -15,20 +15,26 @@ KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations
 under the License.
 
-In order to run the vue example please do the following:
+--------------------------------------------------------
+
+In order to run the Vue example please do the following:
 
 1. Start the REST-Service via "Debug on Server" using Tomcat
 
 2. Browse to: 	http://localhost:8080/empvue
 
-In order to debug and develop the vue example please do the following:
+3. API-Doc: 	http://localhost:8080/empvue/api/swagger.yaml
 
-3. Go to the directory "src/main/vue" (or open in WebStorm)
+----------------------------------------------------
 
-4. Rename file "_eslintrc.js.bak" to ".eslintrc.js" (must start with .)
+Here is how to to debug and develop the Vue example:
 
-5. Run the command:	npm install
+1. Go to the directory "src/main/vue" (or open in WebStorm)
 
-6. Run the command:	npm run dev
+2. Rename file "_eslintrc.js.bak" to ".eslintrc.js" (must start with .)
 
-7. Open Url:  http://localhost:8088/
+3. Run the command:	npm install
+
+4. Run the command:	npm run dev
+
+5. Open Url:  http://localhost:8088/
