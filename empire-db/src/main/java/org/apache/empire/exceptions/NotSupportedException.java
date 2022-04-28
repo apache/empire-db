@@ -24,16 +24,28 @@ public class NotSupportedException extends EmpireException
 {
     private static final long serialVersionUID = 1L;
     
-    public static final ErrorType errorType = new ErrorType("error.notSupported", "The function {0} is not supported for type {1}.");
+    public static final ErrorType errorType = new ErrorType("error.notSupported", "The operation {0} is not supported for type {1}.");
     
-    public NotSupportedException(Object object, String functionName, Exception e)
+    private static String typeFromObject(Object object) 
     {
-        super(errorType, new String[] { functionName, (object!=null ? object.getClass().getName() : "{unknown}") }, e);
+        if (object instanceof String)
+            return (String)object;
+        if (object instanceof Class<?>)
+            return ((Class<?>)object).getName();
+        if (object!=null)
+            return object.getClass().getName();
+        // null
+        return "-";
     }
     
-    public NotSupportedException(Object object, String functionName)
+    public NotSupportedException(Object object, String operationName, Exception e)
     {
-        super(errorType, new String[] { functionName, (object!=null ? object.getClass().getName() : "{unknown}") });
+        super(errorType, new String[] { operationName, typeFromObject(object) }, e);
+    }
+    
+    public NotSupportedException(Object object, String operationName)
+    {
+        this(object, operationName, null);
     }
 
 }

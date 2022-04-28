@@ -26,9 +26,14 @@ public class NotImplementedException extends EmpireException
     
     public static final ErrorType errorType = new ErrorType("error.notImplemented", "The function {0} is not implemented for type {1}.");
     
+    public NotImplementedException(Class<?> type, String functionName)
+    {
+        super(errorType, new String[] { functionName, (type!=null ? type.getName() : "-") });
+    }
+    
     public NotImplementedException(Object object, String functionName)
     {
-        super(errorType, new String[] { functionName, (object!=null ? object.getClass().getName() : "{unknown}") });
+        this((object!=null ? object.getClass() : null), functionName);
     }
 
 }
