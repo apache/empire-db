@@ -934,7 +934,7 @@ public abstract class DBDatabase extends DBObject
      *
      * @Deprecated use context.createCommand();
      */
-    public final DBCommand createCommand()
+    public DBCommand createCommand()
     {
         checkOpen(); 
         // For compatiblity with 2.x dont use isPreparedStatementsEnabled() 
