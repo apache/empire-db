@@ -750,7 +750,9 @@ public abstract class DBCommand extends DBCommandExpr
         DBCompareExpr where = null;
         for (int i=0; i<addlConstraints.length; i++)
         {
-            DBCompareExpr cmpExpr = addlConstraints[i]; 
+            DBCompareExpr cmpExpr = addlConstraints[i];
+            if (cmpExpr==null)
+                continue;
             // Check if prepared statements are enabled
             if (isPreparedStatementsEnabled())
             {   // use command params
