@@ -22,6 +22,7 @@ import java.util.Set;
 
 import org.apache.empire.db.DBColumn;
 import org.apache.empire.db.DBColumnExpr;
+import org.apache.empire.db.DBCommand;
 import org.apache.empire.db.DBDatabase;
 import org.apache.empire.db.DBJoinType;
 import org.apache.empire.db.DBQuery;
@@ -130,6 +131,17 @@ public class DBCrossJoinExpr extends DBJoinExpr
         DBRowSet swap = left;
         left = right;
         right = swap;
+    }
+    
+    /**
+     * Copy Command
+     * @param cmd
+     */
+    @Override
+    public DBJoinExpr copy(DBCommand newCmd)
+    {   // copy
+        // return new DBCrossJoinExpr(left, right);
+        return this; // not necessary
     }
 
     /**

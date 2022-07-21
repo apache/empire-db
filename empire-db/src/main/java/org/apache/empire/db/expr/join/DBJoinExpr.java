@@ -20,6 +20,7 @@ package org.apache.empire.db.expr.join;
 
 import org.apache.empire.db.DBColumn;
 import org.apache.empire.db.DBColumnExpr;
+import org.apache.empire.db.DBCommand;
 import org.apache.empire.db.DBExpr;
 import org.apache.empire.db.DBJoinType;
 import org.apache.empire.db.DBRowSet;
@@ -109,5 +110,11 @@ public abstract class DBJoinExpr extends DBExpr
      * This function swaps the left and the right statements of the join expression.
      */
     public abstract void reverse();
+
+    /**
+     * Copy Command
+     * @param cmd
+     */
+    public abstract DBJoinExpr copy(DBCommand newCmd);
 
 }

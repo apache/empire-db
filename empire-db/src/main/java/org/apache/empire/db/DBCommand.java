@@ -147,6 +147,9 @@ public abstract class DBCommand extends DBCommandExpr
             // clone set
             for (int i=0; (clone.set!=null && i<clone.set.size()); i++)
                 clone.set.set(i, clone.set.get(i).copy(clone));
+            // clone joins
+            for (int i=0; (clone.joins!=null && i<clone.joins.size()); i++)
+                clone.joins.set(i, clone.joins.get(i).copy(clone));
             // clone where and having
             for (int i=0; (clone.where!=null && i<clone.where.size()); i++)
                 clone.where.set(i, clone.where.get(i).copy(clone));

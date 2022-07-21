@@ -19,6 +19,7 @@
 package org.apache.empire.db.expr.join;
 
 import org.apache.empire.db.DBColumnExpr;
+import org.apache.empire.db.DBCommand;
 import org.apache.empire.db.DBJoinType;
 import org.apache.empire.db.DBQuery;
 import org.apache.empire.db.DBRowSet;
@@ -83,6 +84,18 @@ public class DBCompareJoinExpr extends DBColumnJoinExpr
     {
         super(firstRsetColumn(rset), findFirstColumn(cmp), joinType);
         this.cmp = cmp;
+    }
+    
+    /**
+     * Copy Command
+     * @param cmd
+     */
+    @Override
+    public DBJoinExpr copy(DBCommand newCmd)
+    {   // copy
+        DBCompareExpr newCmp = cmp.copy(newCmd);
+        DBCompareJoinExpr join = new DBCompareJoinExpr(this.getLeftTable(), newCmp, type);       
+        return join;
     }
     
     public DBCompareExpr getJoinConstraint()

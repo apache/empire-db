@@ -23,6 +23,7 @@ import java.util.Set;
 
 import org.apache.empire.db.DBColumn;
 import org.apache.empire.db.DBColumnExpr;
+import org.apache.empire.db.DBCommand;
 import org.apache.empire.db.DBDatabase;
 import org.apache.empire.db.DBJoinType;
 import org.apache.empire.db.DBQuery;
@@ -167,6 +168,21 @@ public class DBColumnJoinExpr extends DBJoinExpr
         left = right;
         right = swap;
         type = DBJoinType.reversed(type); // (type * -1);
+    }
+
+    /**
+     * Copy Command
+     * @param cmd
+     */
+    @Override
+    public DBJoinExpr copy(DBCommand newCmd)
+    {   // check additional compare expr
+        if (this.compExpr==null)
+            return this; // not necessary
+        // Copy compareExpr 
+        DBColumnJoinExpr join = new DBColumnJoinExpr(left, right, type);       
+        join.compExpr = compExpr.copy(newCmd);
+        return join;
     }
 
     /**
