@@ -1740,6 +1740,9 @@ public class TagEncodingHelper implements NamingContainer
             if (p instanceof UIData) {
                 this.insideUIData = true;
                 break;
+            } else if ("facelets.ui.Repeat".equals(p.getRendererType())) {
+                this.insideUIData = true;
+                break;
             }
         }
         return this.insideUIData;
