@@ -89,4 +89,15 @@ public class DBCompareParenthesisExpr extends DBCompareExpr implements Unwrappab
         wrapped.addSQL(buf, context|CTX_NOPARENTHESES);
         buf.append(")");
     }
+
+    /**
+     * Returns the subquery params if the compare expression
+     * @return the subquery params or null
+     */
+    @Override
+    public Object[] getSubqueryParams()
+    {
+        return wrapped.getSubqueryParams();
+    }
+    
 }

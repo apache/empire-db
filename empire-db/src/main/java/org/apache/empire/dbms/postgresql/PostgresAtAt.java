@@ -92,4 +92,10 @@ public class PostgresAtAt extends DBCompareExpr
         buf.append(" @@ ");
         this.right.addSQL(buf, context);
     }
+
+    @Override
+    public Object[] getSubqueryParams()
+    {
+        return null;
+    }
 }

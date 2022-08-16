@@ -27,6 +27,7 @@ import org.apache.empire.db.DBCmpType;
 import org.apache.empire.db.DBColumn;
 import org.apache.empire.db.DBColumnExpr;
 import org.apache.empire.db.DBCommand;
+import org.apache.empire.db.DBCommandExpr;
 import org.apache.empire.db.DBDatabase;
 import org.apache.empire.db.DBExpr;
 import org.apache.empire.db.expr.column.DBAliasExpr;
@@ -289,6 +290,19 @@ public class DBCompareColExpr extends DBCompareExpr
         // Add Compare Expression
         expr.addSQL(buf, context);
         addCompareExpr(buf, context);
+    }
+
+    /**
+     * Returns the subquery params if the comparison value is a DBCommand expression
+     * @return the subquery params or null
+     */
+    @Override
+    public Object[] getSubqueryParams()
+    {
+        if (value instanceof DBCommandExpr)
+            return ((DBCommandExpr)value).getParamValues();
+        // nothing
+        return null;
     }
 
     /**

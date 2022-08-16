@@ -27,6 +27,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeParseException;
 import java.time.temporal.Temporal;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
@@ -1078,5 +1079,23 @@ public final class ObjectUtils
     public static <T> boolean contains(T[] array, T item)
     {
         return (indexOf(array, item)>=0);
+    }
+
+    /**
+     * combines two arrays
+     * @param left
+     * @param right
+     * @return the combined array
+     */
+    public static <T> T[] combine(T[] left, T[] right)
+    {
+        if (left==null || left.length==0)
+            return right;
+        if (right==null || right.length==0)
+            return left;
+        // combine both
+        T[] result = Arrays.copyOf(left, left.length + right.length);
+        System.arraycopy(right, 0, result, left.length, right.length);
+        return result;
     }
 }

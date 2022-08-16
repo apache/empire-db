@@ -77,4 +77,11 @@ public abstract class DBCompareExpr extends DBExpr
      */
     public abstract DBCompareExpr copy(DBCommand newCmd); 
 
+    /**
+     * Returns the subquery Params
+     * Valid only directly after addSQL() has been called! 
+     * @return the subquery params;
+     */
+    public abstract Object[] getSubqueryParams();
+
 }

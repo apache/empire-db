@@ -1761,7 +1761,7 @@ public abstract class DBCommand extends DBCommandExpr
         resetParamUsage();
         StringBuilder buf = new StringBuilder("DELETE ");
         // joins or simple
-        if (joins!=null && !joins.isEmpty())
+         if (joins!=null && !joins.isEmpty())
         {   // delete with joins
             addDeleteWithJoins(buf, table);
         }
@@ -1922,6 +1922,18 @@ public abstract class DBCommand extends DBCommandExpr
     protected final void addWhere(StringBuilder buf)
     {
         addWhere(buf, CTX_DEFAULT);
+    }
+    
+    @Override
+    protected void addSqlExpr(StringBuilder buf, DBExpr expr, long context)
+    {
+        // append
+        super.addSqlExpr(buf, expr, context);
+        // check for DBCompareExpr
+        if (expr instanceof DBCompareExpr)
+        {   // merge
+            mergeSubqueryParams(((DBCompareExpr)expr).getSubqueryParams());
+        }
     }
 
     protected void addGrouping(StringBuilder buf)

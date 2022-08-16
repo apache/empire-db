@@ -614,7 +614,7 @@ public abstract class DBCommandExpr extends DBExpr
     /**
      * Internally used to build a string from a list of database expressions
      * @param buf the sql target buffer
-     * @param list list of database objects
+     * @param list the list of expressions to add to the sql
      * @param context the sql command context
      * @param separator string to use as separator between list items
      */
@@ -624,10 +624,22 @@ public abstract class DBCommandExpr extends DBExpr
         {   // assemble select columns
             if (i > 0)
                 buf.append(separator);
-            list.get(i).addSQL(buf, context);
+            // append
+            addSqlExpr(buf, list.get(i), context);
         }
     }
-
+    
+    /**
+     * Internally used to append a single DBExpr to a sql command builder
+     * @param buf the sql target buffer
+     * @param expr the expression to append
+     * @param context the sql command context
+     */
+    protected void addSqlExpr(StringBuilder buf, DBExpr expr, long context)
+    {
+        expr.addSQL(buf, context);
+    }
+    
     /**
      * Create the insert into SQL-Command which copies data
      * from a select statement to a destination table.
