@@ -26,6 +26,7 @@ import org.apache.empire.commons.OptionEntry;
 // java
 import org.apache.empire.data.DataType;
 import org.apache.empire.dbms.DBMSHandler;
+import org.apache.empire.exceptions.InvalidArgumentException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -67,22 +68,22 @@ public abstract class DBExpr extends DBObject
     public abstract void addReferencedColumns(Set<DBColumn> list);
 
     /**
-     * Returns the sql representation of a value.
+     * Appends the SQL representation of a value
      * 
+     * @param StringBuilder but the SQL builder
      * @param dataType the DataType
      * @param value an DBExpr object, array or a basis data type(e.g. int, String)
      * @param context the context of the DBColumnExpr object
      * @param arraySep the separator value
      * @return the new SQL-Command
      */
-    protected String getObjectValue(DataType dataType, Object value, long context, String arraySep)
+    protected void addSQLValue(StringBuilder buf, DataType dataType, Object value, long context, String arraySep)
     {
         // it's an Object
         if (value instanceof DBExpr)
-        { // it's an expression
-            StringBuilder buf = new StringBuilder();
+        {   // it's an expression
             ((DBExpr) value).addSQL(buf, context);
-            return buf.toString();
+            return;
         } 
         // check option entry
         if (value instanceof OptionEntry)
@@ -100,29 +101,72 @@ public abstract class DBExpr extends DBObject
         }
         // Check whether it is an array
         if (value!=null && value.getClass().isArray())
-        {
-            StringBuilder buf = new StringBuilder();
-            // An Array of Objects
+        {   // An Array of Objects
             Object[] array = (Object[]) value;
             for (int i = 0; i < array.length; i++)
-            { // Array Separator
+            {   // Array Separator
                 if (i > 0 && arraySep != null)
                     buf.append(arraySep);
                 // Append Value
-                buf.append(getObjectValue(dataType, array[i], context, arraySep));
+                addSQLValue(buf, dataType, array[i], context, arraySep);
             }
-            return buf.toString();
+            return;
         } 
         else
         {   // Scalar Value from DB
             DBMSHandler dbms = getDatabase().getDbms();
             if (dbms==null)
             {   // Convert to String
-                log.warn("No dbms set for getting object value. Using default!");
-                return String.valueOf(value);
+                log.warn("No DBMS set for getting object value. Using default!");
+                buf.append(String.valueOf(value));
             }
             // Get Value Expression from dmbs
-            return dbms.getValueString(value, dataType);
+            buf.append(dbms.getValueString(value, dataType));
         }
-    }    
+    }
+    
+    /**
+     * Expands an SQL template and adds it to the SQL command
+     * 
+     * @param StringBuilder but the SQL builder
+     * @param template the SQL template
+     * @param values an array of values to be inserted into the template
+     * @param dataType the DataType
+     * @param context the context of the DBColumnExpr object
+     * @param arraySep the separator value
+     * @return the new SQL-Command
+     */
+   protected void addSQLTemplate(StringBuilder sql, String template, Object[] values, DataType[] dataTypes, long context, String arraySep)
+    {
+        int pos = 0;
+        while (true)
+        {
+            // find begin
+            int beg = template.indexOf('{', pos);
+            if (beg < 0)
+                break;
+            // append
+            sql.append(template.substring(pos, beg));
+            // find end
+            int end = template.indexOf('}', ++beg);
+            if (end < 0)
+                throw new InvalidArgumentException("template", template);
+            // part
+            int iParam = Integer.parseInt(template.substring(beg, end));
+            if (iParam<0 || iParam>=values.length)
+                throw new InvalidArgumentException("params", values);
+            // add value
+            DataType dataType = (dataTypes.length>=iParam ? dataTypes[iParam] : dataTypes[0]);
+            addSQLValue(sql, dataType, values[iParam], context, arraySep);
+            // next
+            pos = end + 1;
+        }
+        if (pos < template.length())
+        {   // add the rest
+            sql.append(template.substring(pos));
+            // special case: Nothing added yet
+            if (pos==0 && values!=null && values.length>0)
+                log.warn("No Placeholder for found in template {}!", template);
+        }
+    }
 }

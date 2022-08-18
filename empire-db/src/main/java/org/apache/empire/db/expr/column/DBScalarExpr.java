@@ -27,6 +27,8 @@ import org.apache.empire.db.DBColumn;
 import org.apache.empire.db.DBColumnExpr;
 import org.apache.empire.db.DBDatabase;
 import org.apache.empire.xml.XMLUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.w3c.dom.Element;
 
 
@@ -38,7 +40,8 @@ import org.w3c.dom.Element;
 public class DBScalarExpr extends DBColumnExpr
 {
     // *Deprecated* private static final long serialVersionUID = 1L;
-  
+    protected static final Logger log = LoggerFactory.getLogger(DBScalarExpr.class);
+
     public final DBDatabase   db;
     public final DataType     dataType;
     public final String       template;
@@ -220,19 +223,8 @@ public class DBScalarExpr extends DBColumnExpr
      * @param context the current SQL-Command context
      */
     @Override
-    public void addSQL(StringBuilder buf, long context)
+    public void addSQL(StringBuilder sql, long context)
     {
-        // Get Text from Template
-        String text = this.template;
-        if (params != null)
-        {   // Replace Params
-            for (int i = 0; i < params.length; i++)
-            {   // String test  =(params[i] != null) ? params[i].toString() : "";
-                String value = getObjectValue(dataType, params[i], CTX_DEFAULT, ",");
-                text = StringUtils.replaceAll(template, "{"+ String.valueOf(i) + "}", value);
-            }
-        }
-        buf.append(text);
+        addSQLTemplate(sql, template, params, new DataType[] { dataType }, CTX_DEFAULT, ",");
     }
-
 }

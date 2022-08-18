@@ -221,7 +221,7 @@ public class DBCalcExpr extends DBColumnExpr
         if (type.isNumeric()==false && (value instanceof Number))
             type = DataType.DECIMAL;
         // append
-        buf.append(getObjectValue(type, value, context, op));
+        addSQLValue(buf, type, value, context, op);
     }
 
     @Override

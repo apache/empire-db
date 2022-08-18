@@ -182,8 +182,13 @@ public class DBCompareColExpr extends DBCompareExpr
      */
     public void addCompareExpr(StringBuilder buf, long context)
     {   // Assemble expression
-        String arraySep = "+";
         DBCmpType op = cmpop;
+        if (ObjectUtils.isEmpty(value))
+        { // Null oder Not Null!
+            op = DBCmpType.getNullType(op);
+        }
+        // Array Separator
+        String arraySep;
         switch (op)
         { // other than default:
             case BETWEEN:
@@ -195,16 +200,11 @@ public class DBCompareColExpr extends DBCompareExpr
                 arraySep = ", ";
                 break;
             default:
-                // Nothing to do
+                arraySep = "+";
                 break;
         }
-        // Value
-        String valsql = getObjectValue(expr.getDataType(), value, context, arraySep);
-        if (valsql == null || valsql.equalsIgnoreCase("null"))
-        { // Null oder Not Null!
-            op = DBCmpType.getNullType(op);
-        }
         // Add comparison operator and value
+        String suffix = null;
         switch (op)
         {
             case EQUAL:
@@ -233,12 +233,10 @@ public class DBCompareColExpr extends DBCompareExpr
                 break;
             case NULL:
                 buf.append(" IS NULL");
-                valsql = null;
-                break;
+                return;
             case NOTNULL:
                 buf.append(" IS NOT NULL");
-                valsql = null;
-                break;
+                return;
             case BETWEEN:
                 buf.append(" BETWEEN ");
                 break;
@@ -247,22 +245,21 @@ public class DBCompareColExpr extends DBCompareExpr
                 break;
             case IN:
                 buf.append(" IN (");
-                buf.append(valsql);
-                buf.append(")");
-                valsql = null;
+                suffix = ")";
                 break;
             case NOTIN:
                 buf.append(" NOT IN (");
-                buf.append(valsql);
-                buf.append(")");
-                valsql = null;
+                suffix = ")";
                 break;
             default:
                 // NONE
                 buf.append(" ");
         }
-        if (valsql != null)
-            buf.append(valsql);
+        // append value
+        addSQLValue(buf, expr.getDataType(), value, context, arraySep);
+        // append suffix
+        if (suffix != null)
+            buf.append(suffix);
     }
 
     /**
@@ -282,13 +279,13 @@ public class DBCompareColExpr extends DBCompareExpr
         }
         // Value Only ?
         if ((context & CTX_NAME) == 0)
-        {
-            String valsql = getObjectValue(expr.getDataType(), value, context, "+");
-            buf.append((valsql != null) ? valsql : "null");
+        {   // add SQL
+            addSQLValue(buf, expr.getDataType(), value, context, null);
             return;
         }
         // Add Compare Expression
         expr.addSQL(buf, context);
+        // Add Comparison Value
         addCompareExpr(buf, context);
     }
 

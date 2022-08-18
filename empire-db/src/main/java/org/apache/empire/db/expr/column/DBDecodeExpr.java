@@ -22,13 +22,13 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.empire.commons.StringUtils;
 import org.apache.empire.data.DataType;
 import org.apache.empire.db.DBColumn;
 import org.apache.empire.db.DBColumnExpr;
 import org.apache.empire.db.DBExpr;
 import org.apache.empire.dbms.DBMSHandler;
 import org.apache.empire.dbms.DBSqlPhrase;
+import org.apache.empire.exceptions.InvalidArgumentException;
 
 /**
  * This class is used to decode a set of keys to the corresponding target values.
@@ -101,33 +101,76 @@ public class DBDecodeExpr extends DBAbstractFuncExpr
     public void addSQL(StringBuilder sql, long context)
     {
         DBMSHandler dbms = getDatabase().getDbms();
-        StringBuilder inner = new StringBuilder();
-        // Generate parts
+        // decode
+        String template = dbms.getSQLPhrase(DBSqlPhrase.SQL_FUNC_DECODE);
+        // parse template
+        int pos=0, prev=0, len=template.length();
+        while (pos<len)
+        {
+            char c = template.charAt(pos);
+            // Expression
+            if (c=='?') {
+                if (prev<pos)
+                    sql.append(template.substring(prev, pos));
+                // expression
+                expr.addSQL(sql, (context & ~CTX_ALIAS));
+                // next
+                prev = ++pos;
+            }
+            // Placeholder
+            else if (c=='{') {
+                if (prev<pos)
+                    sql.append(template.substring(prev, pos));
+                // find end
+                int end = ++pos;
+                for (end=++pos;end<len;end++)
+                {   // find terminator
+                    if (template.charAt(end)=='}')
+                        break;
+                }
+                if (end>=len)
+                    throw new InvalidArgumentException("template", template);
+                // Add parts
+                addDecodeParts(dbms, sql);
+                // next
+                prev = pos = end+1;
+            }
+            else 
+                pos++; // next
+        }
+        if (prev < len)
+        {   // add the rest
+            sql.append(template.substring(prev));
+            // special case: Nothing added yet
+            if (prev==0)
+                log.warn("No Placeholder found in template {}", template);
+        }
+    }
+    
+    public void addDecodeParts(DBMSHandler dbms, StringBuilder sql)
+    {
+        // Append parts
         for (Iterator<?> i = valueMap.keySet().iterator(); i.hasNext();)
         {
             Object key = i.next();
             Object val = valueMap.get(key);
 
+            sql.append(dbms.getSQLPhrase(DBSqlPhrase.SQL_FUNC_DECODE_SEP));
+            
+            Object[] keyVal = new Object[] { key, val };
+            DataType[] dataTypes = new DataType[] { expr.getDataType(), this.getDataType() };
+            
             String part = dbms.getSQLPhrase(DBSqlPhrase.SQL_FUNC_DECODE_PART);
-            part = StringUtils.replaceAll(part, "{0}", getObjectValue(expr.getDataType(), key, DBExpr.CTX_DEFAULT, ""));
-            part = StringUtils.replaceAll(part, "{1}", getObjectValue(this.getDataType(), val, DBExpr.CTX_DEFAULT, ""));
-
-            inner.append(dbms.getSQLPhrase(DBSqlPhrase.SQL_FUNC_DECODE_SEP));
-            inner.append(part);
+            addSQLTemplate(sql, part, keyVal, dataTypes, CTX_DEFAULT, "");
         }
         // Generate other
         if (elseExpr != null)
         { // Else
+            sql.append(dbms.getSQLPhrase(DBSqlPhrase.SQL_FUNC_DECODE_SEP));
+            // else
             String other = dbms.getSQLPhrase(DBSqlPhrase.SQL_FUNC_DECODE_ELSE);
-            other = StringUtils.replaceAll(other, "{0}", getObjectValue(getDataType(), elseExpr, DBExpr.CTX_DEFAULT, ""));
-
-            inner.append(dbms.getSQLPhrase(DBSqlPhrase.SQL_FUNC_DECODE_SEP));
-            inner.append(other);
+            addSQLTemplate(sql, other, new Object[] { elseExpr }, new DataType[] { getDataType() }, CTX_DEFAULT, "");
         }
-        DBValueExpr param = new DBValueExpr(getDatabase(), inner, DataType.UNKNOWN); 
-        // Set Params
-        String template = dbms.getSQLPhrase(DBSqlPhrase.SQL_FUNC_DECODE);
-        super.addSQL(sql, template, new Object[] { param }, context);
     }
     
     private DBColumnExpr getFirstColumnExpr()

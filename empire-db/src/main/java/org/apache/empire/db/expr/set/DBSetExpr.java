@@ -128,17 +128,17 @@ public class DBSetExpr extends DBExpr
     /**
      * Creates the SQL-Command.
      * 
-     * @param buf the SQL-Command
+     * @param sql the SQL-Command
      * @param context the current SQL-Command context
      */
     @Override
-    public void addSQL(StringBuilder buf, long context)
+    public void addSQL(StringBuilder sql, long context)
     {
         if ((context & CTX_NAME) != 0)
-            column.addSQL(buf, CTX_NAME);
+            column.addSQL(sql, CTX_NAME);
         if ((context & CTX_NAME) != 0 && (context & CTX_VALUE) != 0)
-            buf.append("=");
+            sql.append("=");
         if ((context & CTX_VALUE) != 0)
-            buf.append(getObjectValue(column.getDataType(), value, context, "+"));
+            addSQLValue(sql, column.getDataType(), value, context, "+");
     }
 }

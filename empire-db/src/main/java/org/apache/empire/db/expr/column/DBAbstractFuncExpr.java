@@ -206,6 +206,7 @@ public abstract class DBAbstractFuncExpr extends DBColumnExpr
      * @param params an array of function parameters 
      * @param context the current SQL-Command context
      */
+    /*
     public final void addSQL(StringBuilder sql, String template, Object[] params, long context)
     {
         // Get Template
@@ -229,7 +230,7 @@ public abstract class DBAbstractFuncExpr extends DBColumnExpr
                         if (StringUtils.isNotEmpty(typeName) && !typeName.equals("*"))
                             paramDataType = DataType.valueOf(typeName);
                         else if (typeName.equals("*") || params[i]==null || (params[i] instanceof DBExpr))
-                            paramDataType = DataType.UNKNOWN;   /* use as literal */
+                            paramDataType = DataType.UNKNOWN;
                         else
                             paramDataType = DataType.fromJavaType(params[i].getClass());
                     }
@@ -266,7 +267,79 @@ public abstract class DBAbstractFuncExpr extends DBColumnExpr
                 log.warn("No Placeholder for Column found in function template.");
         }
     }
+    */
 
+    public final void addSQL(StringBuilder sql, String template, Object[] params, long context)
+    {
+        // parse template
+        int pos=0, prev=0, len=template.length();
+        while (pos<len)
+        {
+            char c = template.charAt(pos);
+            // Expression
+            if (c=='?') {
+                if (prev<pos)
+                    sql.append(template.substring(prev, pos));
+                // expression
+                expr.addSQL(sql, (context & ~CTX_ALIAS));
+                // next
+                prev = ++pos;
+            }
+            // Placeholder
+            else if (c=='{') {
+                if (prev<pos)
+                    sql.append(template.substring(prev, pos));
+                // find index
+                int end = ++pos;
+                for (;end<len;end++)
+                {   // check digit
+                    char digit = template.charAt(end);
+                    if (digit<'0' || digit>'9')
+                        break;
+                }
+                if (end>=len)
+                    throw new InvalidArgumentException("template", template);
+                // parse index
+                int iParam = Integer.parseInt(template.substring(pos, end));
+                if (iParam<0 || iParam>=params.length)
+                    throw new InvalidArgumentException("params", params);
+                // find end
+                for (end=++pos;end<len;end++)
+                {   // check terminator
+                    if (template.charAt(end)=='}')
+                        break;
+                }
+                if (end>=len)
+                    throw new InvalidArgumentException("template", template);
+                // DataType
+                DataType paramDataType = expr.getDataType();
+                if (template.charAt(pos)==':')
+                {   // Yes, get the DataType name and look it up
+                    String typeName = template.substring(pos+1, end);
+                    if (StringUtils.isNotEmpty(typeName) && !typeName.equals("*"))
+                        paramDataType = DataType.valueOf(typeName);
+                    else if (typeName.equals("*") || params[iParam]==null || (params[iParam] instanceof DBExpr))
+                        paramDataType = DataType.UNKNOWN;   /* use as literal */
+                    else
+                        paramDataType = DataType.fromJavaType(params[iParam].getClass());
+                }
+                // append value
+                addSQLValue(sql, paramDataType, params[iParam], CTX_DEFAULT, ",");
+                // next
+                prev = pos = end+1;
+            }
+            else 
+                pos++; // next
+        }
+        if (prev < len)
+        {   // add the rest
+            sql.append(template.substring(prev));
+            // special case: Nothing added yet
+            if (prev==0)
+                log.warn("No Placeholder found in template {}", template);
+        }
+    }
+    
     @Override
     public Element addXml(Element parent, long flags)
     {

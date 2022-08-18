@@ -18,7 +18,6 @@
  */
 package org.apache.empire.db.expr.column;
 
-import java.text.MessageFormat;
 import java.util.Set;
 
 // Java
@@ -164,14 +163,23 @@ public class DBConcatExpr extends DBColumnExpr
         {   // Complex Pattern with placeholder ? for this expression and {0} for the value
             buf.append(template.substring(0, sep));
             left.addSQL(buf, context);
-            String value = getObjectValue(getDataType(), right, context, ", ");
-            buf.append(MessageFormat.format(template.substring(sep + 1), value));
+            // template = template.substring(sep + 1)
+            int iph = template.indexOf("{0}", ++sep);
+            if (iph>0)
+                buf.append(template.substring(sep, iph));
+            else 
+                buf.append(template.substring(sep));
+            // value
+            addSQLValue(buf, getDataType(), right, context, template);
+            // rest
+            if (iph>0)
+                buf.append(template.substring(iph+3));
         } 
         else
         {   // Simple Pattern without placeholders
             left.addSQL(buf, context);
             buf.append(template);
-            buf.append(getObjectValue(getDataType(), right, context, template));
+            addSQLValue(buf, getDataType(), right, context, template);
         }        
     }
 
