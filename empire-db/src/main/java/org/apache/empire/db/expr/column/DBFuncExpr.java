@@ -27,6 +27,7 @@ import org.apache.empire.db.DBColumn;
 import org.apache.empire.db.DBColumnExpr;
 import org.apache.empire.db.DBDatabase;
 import org.apache.empire.db.DBExpr;
+import org.apache.empire.db.DBSQLBuilder;
 import org.apache.empire.dbms.DBSqlPhrase;
 import org.apache.empire.exceptions.InvalidArgumentException;
 import org.apache.empire.exceptions.NotSupportedException;
@@ -164,7 +165,7 @@ public class DBFuncExpr extends DBAbstractFuncExpr
      * @param context the current SQL-Command context
      */
     @Override
-    public void addSQL(StringBuilder sql, long context)
+    public void addSQL(DBSQLBuilder sql, long context)
     {   // Get Template
         if (this.template==null)
         {   this.template = getDbms().getSQLPhrase(phrase);

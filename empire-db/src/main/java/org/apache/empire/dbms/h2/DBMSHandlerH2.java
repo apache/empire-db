@@ -26,15 +26,16 @@ import org.apache.empire.db.DBColumnExpr;
 import org.apache.empire.db.DBCommand;
 import org.apache.empire.db.DBDDLGenerator;
 import org.apache.empire.db.DBDDLGenerator.DDLActionType;
-import org.apache.empire.dbms.DBMSHandler;
-import org.apache.empire.dbms.DBMSHandlerBase;
-import org.apache.empire.dbms.DBMSFeature;
-import org.apache.empire.dbms.DBSqlPhrase;
 import org.apache.empire.db.DBDatabase;
 import org.apache.empire.db.DBObject;
+import org.apache.empire.db.DBSQLBuilder;
 import org.apache.empire.db.DBSQLScript;
 import org.apache.empire.db.DBTable;
 import org.apache.empire.db.DBTableColumn;
+import org.apache.empire.dbms.DBMSFeature;
+import org.apache.empire.dbms.DBMSHandler;
+import org.apache.empire.dbms.DBMSHandlerBase;
+import org.apache.empire.dbms.DBSqlPhrase;
 import org.apache.empire.exceptions.InvalidArgumentException;
 import org.apache.empire.exceptions.NotSupportedException;
 import org.slf4j.Logger;
@@ -93,17 +94,17 @@ public class DBMSHandlerH2 extends DBMSHandlerBase
 	    }
         
         @Override
-        public void getSelect(StringBuilder buf)
+        public void getSelect(DBSQLBuilder sql)
         {   // Prepares statement
-        	super.getSelect(buf);
+        	super.getSelect(sql);
             // add limit and offset
             if (limitRows>=0)
-            {   buf.append("\r\nLIMIT ");
-                buf.append(String.valueOf(limitRows));
+            {   sql.append("\r\nLIMIT ");
+                sql.append(String.valueOf(limitRows));
                 // Offset
                 if (skipRows>0) 
-                {   buf.append(" OFFSET ");
-                    buf.append(String.valueOf(skipRows));
+                {   sql.append(" OFFSET ");
+                    sql.append(String.valueOf(skipRows));
                 }    
             }
         }

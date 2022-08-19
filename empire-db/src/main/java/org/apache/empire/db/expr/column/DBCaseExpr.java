@@ -24,6 +24,7 @@ import org.apache.empire.data.DataType;
 import org.apache.empire.db.DBColumn;
 import org.apache.empire.db.DBColumnExpr;
 import org.apache.empire.db.DBDatabase;
+import org.apache.empire.db.DBSQLBuilder;
 import org.apache.empire.db.expr.compare.DBCompareExpr;
 import org.apache.empire.xml.XMLUtil;
 import org.w3c.dom.Element;
@@ -135,7 +136,7 @@ public class DBCaseExpr extends DBColumnExpr
     }
 
     @Override
-    public void addSQL(StringBuilder sql, long context)
+    public void addSQL(DBSQLBuilder sql, long context)
     {
         context &= ~CTX_ALIAS; // No column aliases
         sql.append("CASE WHEN ");

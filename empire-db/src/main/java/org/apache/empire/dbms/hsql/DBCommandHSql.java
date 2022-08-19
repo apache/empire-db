@@ -26,6 +26,7 @@ import org.apache.empire.db.DBColumn;
 import org.apache.empire.db.DBColumnExpr;
 import org.apache.empire.db.DBCommand;
 import org.apache.empire.db.DBRowSet;
+import org.apache.empire.db.DBSQLBuilder;
 import org.apache.empire.db.exceptions.NoPrimaryKeyException;
 import org.apache.empire.db.expr.column.DBAliasExpr;
 import org.apache.empire.db.expr.column.DBValueExpr;
@@ -74,34 +75,34 @@ public class DBCommandHSql extends DBCommand
     }
         
     @Override
-    public void getSelect(StringBuilder buf)
+    public void getSelect(DBSQLBuilder sql)
     {   // call base class
-        super.getSelect(buf);
+        super.getSelect(sql);
         // add limit and offset
         if (limitRows>=0)
-        {   buf.append("\r\nLIMIT ");
-            buf.append(String.valueOf(limitRows));
+        {   sql.append("\r\nLIMIT ");
+            sql.append(String.valueOf(limitRows));
             // Offset
             if (skipRows>0) 
-            {   buf.append(" OFFSET ");
-                buf.append(String.valueOf(skipRows));
+            {   sql.append(" OFFSET ");
+                sql.append(String.valueOf(skipRows));
             }    
         }
     }
 
     @Override
-    protected void addUpdateWithJoins(StringBuilder buf, DBRowSet table)
+    protected void addUpdateWithJoins(DBSQLBuilder sql, DBRowSet table)
     {
         // The update table
         DBColumn[] keyColumns = table.getKeyColumns();
         if (keyColumns==null || keyColumns.length==0)
             throw new NoPrimaryKeyException(table);
         // Generate Merge expression
-        buf.setLength(0);
-        buf.append("MERGE INTO ");
-        table.addSQL(buf, CTX_FULLNAME|CTX_ALIAS);
+        sql.reset(0);
+        sql.append("MERGE INTO ");
+        table.addSQL(sql, CTX_FULLNAME|CTX_ALIAS);
         // Using
-        buf.append("\r\nUSING (");
+        sql.append("\r\nUSING (");
         // Add set expressions
         List<DBColumnExpr> using = new ArrayList<DBColumnExpr>();
         // Add key columns
@@ -132,28 +133,28 @@ public class DBCommandHSql extends DBCommand
             }
         }
         // Add select
-        buf.append("SELECT ");
-        addListExpr(buf, using, CTX_ALL, ", ");
+        sql.append("SELECT ");
+        addListExpr(sql, using, CTX_ALL, ", ");
         // From clause
-        addFrom(buf);
+        addFrom(sql);
         // Add Where
-        addWhere(buf);
+        addWhere(sql);
         // Add Grouping
-        addGrouping(buf);
+        addGrouping(sql);
         // on
-        buf.append(") q0\r\nON (");
+        sql.append(") q0\r\nON (");
         for (DBColumn col : keyColumns)
         {   // compare 
-            buf.append(" q0.");
-            col.addSQL(buf, CTX_NAME);
-            buf.append("=");
-            buf.append(table.getAlias());
-            buf.append(".");
-            col.addSQL(buf, CTX_NAME);
+            sql.append(" q0.");
+            col.addSQL(sql, CTX_NAME);
+            sql.append("=");
+            sql.append(table.getAlias());
+            sql.append(".");
+            col.addSQL(sql, CTX_NAME);
         }
         // Set Expressions
-        buf.append(")\r\nWHEN MATCHED THEN UPDATE ");
-        buf.append("\r\nSET ");
-        addListExpr(buf, mergeSet, CTX_DEFAULT, ", ");
+        sql.append(")\r\nWHEN MATCHED THEN UPDATE ");
+        sql.append("\r\nSET ");
+        addListExpr(sql, mergeSet, CTX_DEFAULT, ", ");
     }
 }

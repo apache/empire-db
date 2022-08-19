@@ -37,6 +37,7 @@ import org.apache.empire.db.DBExpr;
 import org.apache.empire.db.DBObject;
 import org.apache.empire.db.DBReader;
 import org.apache.empire.db.DBRelation;
+import org.apache.empire.db.DBSQLBuilder;
 import org.apache.empire.db.DBSQLScript;
 import org.apache.empire.db.DBTable;
 import org.apache.empire.db.DBTableColumn;
@@ -224,7 +225,7 @@ public class DBMSHandlerOracle extends DBMSHandlerBase
             case SQL_FUNC_MAX:                  return "max(?)";
             case SQL_FUNC_MIN:                  return "min(?)";
             case SQL_FUNC_AVG:                  return "avg(?)";
-            case SQL_FUNC_STRAGG:               return "listagg(? {0}) WITHIN GROUP (ORDER BY {1})";
+            case SQL_FUNC_STRAGG:               return "listagg(?,{0}) WITHIN GROUP (ORDER BY {1})";
             // Others
             case SQL_FUNC_DECODE:               return "decode(? {0})";
             case SQL_FUNC_DECODE_SEP:           return ",";
@@ -344,7 +345,7 @@ public class DBMSHandlerOracle extends DBMSHandlerBase
     @Override
     public Object getNextSequenceValue(DBDatabase db, String seqName, int minValue, Connection conn)
     { // Use Oracle Sequences
-        StringBuilder sql = new StringBuilder(80);
+        DBSQLBuilder sql = new DBSQLBuilder(this);
         sql.append("SELECT ");
         db.appendQualifiedName(sql, seqName, null);
         sql.append(".NEXTVAL FROM DUAL");
@@ -371,7 +372,7 @@ public class DBMSHandlerOracle extends DBMSHandlerBase
         String seqName = StringUtils.toString(column.getDefaultValue());
         if (StringUtils.isEmpty(seqName))
             throw new InvalidArgumentException("column", column);
-        StringBuilder sql = new StringBuilder(80);
+        DBSQLBuilder sql = new DBSQLBuilder(this);
         column.getDatabase().appendQualifiedName(sql, seqName, null);
         sql.append(".NEXTVAL");
         return new DBValueExpr(column.getDatabase(), sql.toString(), DataType.UNKNOWN);
@@ -429,14 +430,14 @@ public class DBMSHandlerOracle extends DBMSHandlerBase
     public void appendEnableRelationStmt(DBRelation r, boolean enable, DBSQLScript script)
     {
         // ALTER TABLE {table.name} {ENABLE|DISABLE} CONSTRAINT {relation.name}
-        StringBuilder b = new StringBuilder();
-        b.append("ALTER TABLE ");
-        r.getForeignKeyTable().addSQL(b, DBExpr.CTX_FULLNAME);
-        b.append(enable ? " ENABLE " : " DISABLE ");
-        b.append("CONSTRAINT ");
-        b.append(r.getName());
+        DBSQLBuilder sql = new DBSQLBuilder(this);
+        sql.append("ALTER TABLE ");
+        r.getForeignKeyTable().addSQL(sql, DBExpr.CTX_FULLNAME);
+        sql.append(enable ? " ENABLE " : " DISABLE ");
+        sql.append("CONSTRAINT ");
+        sql.append(r.getName());
         // add
-        script.addStmt(b);
+        script.addStmt(sql);
     }
     
     /**

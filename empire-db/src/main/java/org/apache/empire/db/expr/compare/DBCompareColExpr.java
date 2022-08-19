@@ -30,6 +30,7 @@ import org.apache.empire.db.DBCommand;
 import org.apache.empire.db.DBCommandExpr;
 import org.apache.empire.db.DBDatabase;
 import org.apache.empire.db.DBExpr;
+import org.apache.empire.db.DBSQLBuilder;
 import org.apache.empire.db.expr.column.DBAliasExpr;
 
 
@@ -177,10 +178,10 @@ public class DBCompareColExpr extends DBCompareExpr
     /**
      * Add the comparison operator and value to the SQL-Command.
      * 
-     * @param buf the SQL-Command
+     * @param sql the SQL-Command
      * @param context the comparative context e.g. (CMP_EQUAL, CMP_SMALLER)
      */
-    public void addCompareExpr(StringBuilder buf, long context)
+    public void addCompareExpr(DBSQLBuilder sql, long context)
     {   // Assemble expression
         DBCmpType op = cmpop;
         if (ObjectUtils.isEmpty(value))
@@ -208,85 +209,85 @@ public class DBCompareColExpr extends DBCompareExpr
         switch (op)
         {
             case EQUAL:
-                buf.append("=");
+                sql.append("=");
                 break;
             case NOTEQUAL:
-                buf.append("<>");
+                sql.append("<>");
                 break;
             case LESSTHAN:
-                buf.append("<");
+                sql.append("<");
                 break;
             case MOREOREQUAL:
-                buf.append(">=");
+                sql.append(">=");
                 break;
             case GREATERTHAN:
-                buf.append(">");
+                sql.append(">");
                 break;
             case LESSOREQUAL:
-                buf.append("<=");
+                sql.append("<=");
                 break;
             case LIKE:
-                buf.append(" LIKE ");
+                sql.append(" LIKE ");
                 break;
             case NOTLIKE:
-                buf.append(" NOT LIKE ");
+                sql.append(" NOT LIKE ");
                 break;
             case NULL:
-                buf.append(" IS NULL");
+                sql.append(" IS NULL");
                 return;
             case NOTNULL:
-                buf.append(" IS NOT NULL");
+                sql.append(" IS NOT NULL");
                 return;
             case BETWEEN:
-                buf.append(" BETWEEN ");
+                sql.append(" BETWEEN ");
                 break;
             case NOTBETWEEN:
-                buf.append(" NOT BETWEEN ");
+                sql.append(" NOT BETWEEN ");
                 break;
             case IN:
-                buf.append(" IN (");
+                sql.append(" IN (");
                 suffix = ")";
                 break;
             case NOTIN:
-                buf.append(" NOT IN (");
+                sql.append(" NOT IN (");
                 suffix = ")";
                 break;
             default:
                 // NONE
-                buf.append(" ");
+                sql.append(" ");
         }
         // append value
-        addSQLValue(buf, expr.getDataType(), value, context, arraySep);
+        sql.appendValue(expr.getDataType(), value, context, arraySep);
         // append suffix
         if (suffix != null)
-            buf.append(suffix);
+            sql.append(suffix);
     }
 
     /**
      * Creates the SQL-Command.
      * 
-     * @param buf the SQL-Command
+     * @param sql the SQL-Command
      * @param context the current SQL-Command context
      */
     @Override
-    public void addSQL(StringBuilder buf, long context)
+    public void addSQL(DBSQLBuilder sql, long context)
     {
         // Name Only ?
         if ((context & CTX_VALUE) == 0)
         {
-            expr.addSQL(buf, context);
+            expr.addSQL(sql, context);
             return;
         }
         // Value Only ?
         if ((context & CTX_NAME) == 0)
         {   // add SQL
-            addSQLValue(buf, expr.getDataType(), value, context, null);
+            sql.appendValue(expr.getDataType(), value, context, null);
             return;
         }
         // Add Compare Expression
-        expr.addSQL(buf, context);
+        expr.addSQL(sql, context);
         // Add Comparison Value
-        addCompareExpr(buf, context);
+        addCompareExpr(sql, context);
     }
 
     /**

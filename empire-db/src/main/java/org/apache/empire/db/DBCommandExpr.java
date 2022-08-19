@@ -99,15 +99,15 @@ public abstract class DBCommandExpr extends DBExpr
         /**
          * Creates the SQL-Command adds the select statement into the SQL-Command.
          * 
-         * @param buf the SQL-Command
+         * @param sql the SQL-Command
          * @param context the current SQL-Command context
          */
         @Override
-        public void addSQL(StringBuilder buf, long context)
+        public void addSQL(DBSQLBuilder sql, long context)
         {
-            buf.append("(");
-            buf.append(cmd.getSelect());
-            buf.append(")");
+            sql.append("(");
+            sql.append(cmd.getSelect());
+            sql.append(")");
         }
 
         /**
@@ -174,13 +174,13 @@ public abstract class DBCommandExpr extends DBExpr
         /**
          * create the SQL-Command set the expression name to the SQL-Command
          * 
-         * @param buf the SQL-Command
+         * @param sql the SQL-Command
          * @param context the current SQL-Command context
          */
         @Override
-        public void addSQL(StringBuilder buf, long context)
+        public void addSQL(DBSQLBuilder sql, long context)
         { // append UNQUALIFIED name only!
-            buf.append(expr.getName());
+            sql.append(expr.getName());
         }
 
         /**
@@ -340,7 +340,7 @@ public abstract class DBCommandExpr extends DBExpr
      * returns an SQL select command
      * @param buf the string builder to add the command to
      */
-    public abstract void getSelect(StringBuilder buf);
+    public abstract void getSelect(DBSQLBuilder sql);
 
     /**
      * returns an SQL select command for querying records.
@@ -348,7 +348,7 @@ public abstract class DBCommandExpr extends DBExpr
      */
     public final String getSelect()
     {
-        StringBuilder sql = new StringBuilder();
+        DBSQLBuilder sql = createSQLBuilder(null);
         getSelect(sql);
         return sql.toString();
     }
@@ -383,15 +383,15 @@ public abstract class DBCommandExpr extends DBExpr
     /**
      * Creates the SQL-Command.
      * 
-     * @param buf the SQL-Command
+     * @param sql the SQL-Command
      * @param context the current SQL-Command context
      */
     @Override
-    public void addSQL(StringBuilder buf, long context)
+    public void addSQL(DBSQLBuilder sql, long context)
     {
-        buf.append("(");
-        buf.append(getSelect());
-        buf.append(")");
+        sql.append("(");
+        sql.append(getSelect());
+        sql.append(")");
     }
 
     /**
@@ -589,7 +589,29 @@ public abstract class DBCommandExpr extends DBExpr
         }
         return getInsertInto(table, select, inscols);
     }
+    /**
+     * creates a new DBSQLBuilder 
+     * @param initalSQL
+     * @return the new DBSQLBuilder
+     */
+    protected DBMSHandler getDbms()
+    {
+        return this.getDatabase().getDbms();
+    }
 
+    /**
+     * creates a new DBSQLBuilder 
+     * @param initalSQL
+     * @return the new DBSQLBuilder
+     */
+    protected DBSQLBuilder createSQLBuilder(String initalSQL)
+    {
+        DBSQLBuilder sql = new DBSQLBuilder(getDbms());
+        if (initalSQL!=null)
+            sql.append(initalSQL);
+        return sql;
+    }
+    
     /**
      * returns column expression that is specific for to this command and detached from its source.
      */
@@ -613,31 +635,31 @@ public abstract class DBCommandExpr extends DBExpr
 
     /**
      * Internally used to build a string from a list of database expressions
-     * @param buf the sql target buffer
+     * @param sql the sql target buffer
      * @param list the list of expressions to add to the sql
      * @param context the sql command context
      * @param separator string to use as separator between list items
      */
-    protected void addListExpr(StringBuilder buf, List<? extends DBExpr> list, long context, String separator)
+    protected void addListExpr(DBSQLBuilder sql, List<? extends DBExpr> list, long context, String separator)
     {
         for (int i = 0; i < list.size(); i++)
         {   // assemble select columns
             if (i > 0)
-                buf.append(separator);
+                sql.append(separator);
             // append
-            addSqlExpr(buf, list.get(i), context);
+            addSqlExpr(sql, list.get(i), context);
         }
     }
     
     /**
      * Internally used to append a single DBExpr to a sql command builder
-     * @param buf the sql target buffer
+     * @param sql the sql target buffer
      * @param expr the expression to append
      * @param context the sql command context
      */
-    protected void addSqlExpr(StringBuilder buf, DBExpr expr, long context)
+    protected void addSqlExpr(DBSQLBuilder sql, DBExpr expr, long context)
     {
-        expr.addSQL(buf, context);
+        expr.addSQL(sql, context);
     }
     
     /**
@@ -651,8 +673,9 @@ public abstract class DBCommandExpr extends DBExpr
         if (select == null)
             throw new ObjectNotValidException(this);
         // prepare buffer
-        StringBuilder buf = new StringBuilder("INSERT INTO ");
-        table.addSQL(buf, CTX_FULLNAME);
+        DBSQLBuilder sql = new DBSQLBuilder(getDatabase().getDbms());
+        sql.append("INSERT INTO ");
+        table.addSQL(sql, CTX_FULLNAME);
         // destination columns
         if (columns != null && columns.size() > 0)
         { // Check Count
@@ -661,15 +684,15 @@ public abstract class DBCommandExpr extends DBExpr
                 throw new InvalidArgumentException("columns", "size()!=select.length");
             }
             // Append Names
-            buf.append(" (");
-            addListExpr(buf, columns, CTX_NAME, ", ");
-            buf.append(")");
+            sql.append(" (");
+            addListExpr(sql, columns, CTX_NAME, ", ");
+            sql.append(")");
         }
         // append select statement
-        buf.append("\r\n");
-        getSelect(buf);
+        sql.append("\r\n");
+        getSelect(sql);
         // done
-        return buf.toString();
+        return sql.toString();
     }
     
 }

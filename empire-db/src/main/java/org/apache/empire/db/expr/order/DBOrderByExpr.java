@@ -22,6 +22,7 @@ import org.apache.empire.db.DBColumn;
 import org.apache.empire.db.DBColumnExpr;
 import org.apache.empire.db.DBDatabase;
 import org.apache.empire.db.DBExpr;
+import org.apache.empire.db.DBSQLBuilder;
 
 import java.util.Set;
 
@@ -82,17 +83,17 @@ public class DBOrderByExpr extends DBExpr
     /**
      * Adds a column expression to the orderBy clause followed by the desc keyword if the order should be descending 
      * 
-     * @param buf the SQL-Command
+     * @param sql the SQL-Command
      * @param context the current SQL-Command context
      */
     @Override
-    public void addSQL(StringBuilder buf, long context)
+    public void addSQL(DBSQLBuilder sql, long context)
     {   // Set SQL-Order By
-        expr.addSQL(buf, context);
+        expr.addSQL(sql, context);
         // only need to add DESC as default is ASC
         if (desc)
         {
-            buf.append(" DESC");
+            sql.append(" DESC");
         }
     }
 

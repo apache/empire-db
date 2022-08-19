@@ -23,6 +23,7 @@ import org.apache.empire.db.DBColumn;
 import org.apache.empire.db.DBColumnExpr;
 import org.apache.empire.db.DBCommand;
 import org.apache.empire.db.DBRowSet;
+import org.apache.empire.db.DBSQLBuilder;
 import org.apache.empire.db.exceptions.NoPrimaryKeyException;
 import org.apache.empire.db.expr.compare.DBCompareExpr;
 
@@ -135,53 +136,53 @@ public class DBCommandPostgres extends DBCommand
     }
     
     @Override
-    public void getSelect(StringBuilder buf)
+    public void getSelect(DBSQLBuilder sql)
     {   // call base class
-        super.getSelect(buf);
+        super.getSelect(sql);
         // add limit and offset
         if (limit>=0)
-        {   buf.append("\r\nLIMIT ");
-            buf.append(String.valueOf(limit));
+        {   sql.append("\r\nLIMIT ");
+            sql.append(String.valueOf(limit));
             // Offset
             if (skip>=0) 
-            {   buf.append(" OFFSET ");
-                buf.append(String.valueOf(skip));
+            {   sql.append(" OFFSET ");
+                sql.append(String.valueOf(skip));
             }    
         }
     }
     
     @Override
-    protected void addUpdateWithJoins(StringBuilder buf, DBRowSet table)
+    protected void addUpdateWithJoins(DBSQLBuilder sql, DBRowSet table)
     {
         DBColumn[] keyColumns = table.getKeyColumns();
         if (keyColumns==null || keyColumns.length==0)
             throw new NoPrimaryKeyException(table);
         // Join Update
-        table.addSQL(buf, CTX_NAME);
-        buf.append(" t0");
+        table.addSQL(sql, CTX_NAME);
+        sql.append(" t0");
         long context = CTX_DEFAULT;
         // Set Expressions
-        buf.append("\r\nSET ");
-        addListExpr(buf, set, context, ", ");
+        sql.append("\r\nSET ");
+        addListExpr(sql, set, context, ", ");
         // From clause
-        addFrom(buf);
+        addFrom(sql);
         // Add Where
-        buf.append("\r\nWHERE");
+        sql.append("\r\nWHERE");
         // key columns
         for (DBColumn col : keyColumns)
         {   // compare 
-            buf.append(" t0.");
-            col.addSQL(buf, CTX_NAME);
-            buf.append("=");
-            buf.append(table.getAlias());
-            buf.append(".");
-            col.addSQL(buf, CTX_NAME);
+            sql.append(" t0.");
+            col.addSQL(sql, CTX_NAME);
+            sql.append("=");
+            sql.append(table.getAlias());
+            sql.append(".");
+            col.addSQL(sql, CTX_NAME);
         }
         // more constraints
         if (where!=null && !where.isEmpty())
         {   // add where expression
-            buf.append("\r\n  AND ");
-            addListExpr(buf, where, context, " AND ");
+            sql.append("\r\n  AND ");
+            addListExpr(sql, where, context, " AND ");
         }
     }
 }

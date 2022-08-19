@@ -98,9 +98,9 @@ public class DBCmdParam extends DBExpr
     }
     
     @Override
-    public void addSQL(StringBuilder buf, long context)
+    public void addSQL(DBSQLBuilder sql, long context)
     {
-        buf.append("?"); //$NON-NLS-1$
+        sql.append("?"); //$NON-NLS-1$
         // Move to current usage position
         cmd.notifyParamUsage(this);
     }

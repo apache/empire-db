@@ -34,6 +34,7 @@ import org.apache.empire.db.DBDatabase;
 import org.apache.empire.db.DBExpr;
 import org.apache.empire.db.DBObject;
 import org.apache.empire.db.DBRelation;
+import org.apache.empire.db.DBSQLBuilder;
 import org.apache.empire.db.DBSQLScript;
 import org.apache.empire.db.DBTable;
 import org.apache.empire.db.DBTableColumn;
@@ -84,21 +85,21 @@ public class DBMSHandlerMSSQL extends DBMSHandlerBase
         }
         
         @Override
-        protected void addSelect(StringBuilder buf)
+        protected void addSelect(DBSQLBuilder sql)
         {   
             // Prepares statement
-            buf.append("SELECT ");
+            sql.append("SELECT ");
             if (selectDistinct)
-                buf.append("DISTINCT ");
+                sql.append("DISTINCT ");
             // Add limit
             if (limit>=0)
             {   // Limit
-                buf.append("TOP ");
-                buf.append(String.valueOf(limit));
-                buf.append(" ");
+                sql.append("TOP ");
+                sql.append(String.valueOf(limit));
+                sql.append(" ");
             }
             // Add Select Expressions
-            addListExpr(buf, select, CTX_ALL, ", ");
+            addListExpr(sql, select, CTX_ALL, ", ");
         }
     }
     
@@ -458,13 +459,18 @@ public class DBMSHandlerMSSQL extends DBMSHandlerBase
     @Override
     protected String getSQLTextString(DataType type, Object value)
     {
-        StringBuilder valBuf = new StringBuilder();
+        if (value==null)
+            return getSQLPhrase(DBSqlPhrase.SQL_NULL);
+        // text
+        String text = value.toString();
+        StringBuilder valBuf = new StringBuilder(text.length()+4);
         // for SQLSERVER utf8 support, see EMPIREDB-122
         valBuf.append((useUnicodePrefix) ? "N'" : "'");
         if (DBDatabase.EMPTY_STRING.equals(value)==false)
-            appendSQLTextValue(valBuf, value.toString());
+            appendSQLTextValue(valBuf, text);
         valBuf.append("'");
         return valBuf.toString();
+        
     }
     
     /**
@@ -553,14 +559,14 @@ public class DBMSHandlerMSSQL extends DBMSHandlerBase
     public void appendEnableRelationStmt(DBRelation r, boolean enable, DBSQLScript script)
     {
         // ALTER TABLE {table.name} {CHECK|NOCHECK} CONSTRAINT {relation.name}
-        StringBuilder b = new StringBuilder();
-        b.append("ALTER TABLE ");
-        r.getForeignKeyTable().addSQL(b, DBExpr.CTX_FULLNAME);
-        b.append(enable ? " CHECK " : " NOCHECK ");
-        b.append("CONSTRAINT ");
-        b.append(r.getName());
+        DBSQLBuilder sql = new DBSQLBuilder(this);
+        sql.append("ALTER TABLE ");
+        r.getForeignKeyTable().addSQL(sql, DBExpr.CTX_FULLNAME);
+        sql.append(enable ? " CHECK " : " NOCHECK ");
+        sql.append("CONSTRAINT ");
+        sql.append(r.getName());
         // add
-        script.addStmt(b);
+        script.addStmt(sql);
     }
 
     /**

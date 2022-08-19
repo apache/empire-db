@@ -328,20 +328,20 @@ public class DBQuery extends DBRowSet
     /**
      * Adds the select SQL Command of this object to the specified StringBuilder object.
      * 
-     * @param buf the SQL-Command
+     * @param sql the SQL-Command
      * @param context the current SQL-Command context
      */
     @Override
-    public void addSQL(StringBuilder buf, long context)
+    public void addSQL(DBSQLBuilder sql, long context)
     {
-        buf.append("(");
-        buf.append(cmdExpr.getSelect());
-        buf.append(")");
+        sql.append("(");
+        sql.append(cmdExpr.getSelect());
+        sql.append(")");
         // Add Alias
         if ((context & CTX_ALIAS) != 0 && alias != null)
         { // append alias
-            buf.append(" ");
-            buf.append(alias);
+            sql.append(" ");
+            sql.append(alias);
         }
     }
     

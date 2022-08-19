@@ -20,6 +20,7 @@ package org.apache.empire.db.expr.column;
 
 import org.apache.empire.data.DataType;
 import org.apache.empire.db.DBColumnExpr;
+import org.apache.empire.db.DBSQLBuilder;
 
 /**
  * This class is used to convert a value to a different data type.
@@ -56,7 +57,7 @@ public class DBConvertExpr extends DBAbstractFuncExpr
     }
 
     @Override
-    public void addSQL(StringBuilder sql, long context)
+    public void addSQL(DBSQLBuilder sql, long context)
     {
         // Set Params
         String template = getDbms().getConvertPhrase(dataType, expr.getDataType(), format);

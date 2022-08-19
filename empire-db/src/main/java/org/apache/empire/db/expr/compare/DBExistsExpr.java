@@ -24,6 +24,7 @@ import org.apache.empire.db.DBColumn;
 import org.apache.empire.db.DBCommand;
 import org.apache.empire.db.DBCommandExpr;
 import org.apache.empire.db.DBDatabase;
+import org.apache.empire.db.DBSQLBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -111,11 +112,11 @@ public class DBExistsExpr extends DBCompareExpr
     /**
      * Creates the SQL-Command.
      * 
-     * @param buf the SQL-Command
+     * @param sql the SQL-Command
      * @param context the current SQL-Command context (CTX_DEFAULT, CTX_SELECT, CTX_NAME, CTX_VALUE)
      */
     @Override
-    public void addSQL(StringBuilder buf, long context)
+    public void addSQL(DBSQLBuilder sql, long context)
     {
         // Name Only ?
         if ((context & CTX_VALUE) == 0)
@@ -129,24 +130,24 @@ public class DBExistsExpr extends DBCompareExpr
             log.warn("cannot add value only of exits expression");
             return;
         }
-        buf.append(" exists (");
-        cmd.getSelect(buf);
+        sql.append(" exists (");
+        cmd.getSelect(sql);
 
         if (compareExpr != null)
         {
             if (cmd instanceof DBCommand && ((DBCommand) cmd).getWhereConstraints() == null)
             {
-                buf.append(" where ");
+                sql.append(" where ");
             } 
             else
             {
-                buf.append(" and ");
+                sql.append(" and ");
             }
-            buf.append("(");
-            compareExpr.addSQL(buf, context);
-            buf.append(") ");
+            sql.append("(");
+            compareExpr.addSQL(sql, context);
+            sql.append(") ");
         }
-        buf.append(") ");
+        sql.append(") ");
     }
 
     /**

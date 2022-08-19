@@ -25,6 +25,7 @@ import org.apache.empire.db.DBColumn;
 import org.apache.empire.db.DBColumnExpr;
 import org.apache.empire.db.DBCommand;
 import org.apache.empire.db.DBDatabase;
+import org.apache.empire.db.DBSQLBuilder;
 import org.apache.empire.db.expr.compare.DBCompareExpr;
 
 /**
@@ -86,11 +87,11 @@ public class PostgresAtAt extends DBCompareExpr
     }
 
     @Override
-    public void addSQL(StringBuilder buf, long context)
+    public void addSQL(DBSQLBuilder sql, long context)
     {
-        this.left.addSQL(buf, context);
-        buf.append(" @@ ");
-        this.right.addSQL(buf, context);
+        this.left.addSQL(sql, context);
+        sql.append(" @@ ");
+        this.right.addSQL(sql, context);
     }
 
     @Override

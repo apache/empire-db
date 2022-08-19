@@ -27,6 +27,7 @@ import org.apache.empire.db.DBCommand;
 import org.apache.empire.db.DBDatabase;
 import org.apache.empire.db.DBExpr;
 import org.apache.empire.db.DBRowSet;
+import org.apache.empire.db.DBSQLBuilder;
 
 
 /**
@@ -132,13 +133,13 @@ public class DBSetExpr extends DBExpr
      * @param context the current SQL-Command context
      */
     @Override
-    public void addSQL(StringBuilder sql, long context)
+    public void addSQL(DBSQLBuilder sql, long context)
     {
         if ((context & CTX_NAME) != 0)
             column.addSQL(sql, CTX_NAME);
         if ((context & CTX_NAME) != 0 && (context & CTX_VALUE) != 0)
             sql.append("=");
         if ((context & CTX_VALUE) != 0)
-            addSQLValue(sql, column.getDataType(), value, context, "+");
+            sql.appendValue(column.getDataType(), value, context, "+");
     }
 }

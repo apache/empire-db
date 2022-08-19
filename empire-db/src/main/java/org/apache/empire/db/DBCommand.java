@@ -1595,21 +1595,21 @@ public abstract class DBCommand extends DBCommandExpr
      * @return a select SQL-Statement
      */
     @Override
-    public void getSelect(StringBuilder buf)
+    public void getSelect(DBSQLBuilder sql)
     {
         resetParamUsage();
         if (select == null)
             throw new ObjectNotValidException(this); // invalid!
         // Prepares statement
-        addSelect(buf);
+        addSelect(sql);
         // From clause
-        addFrom(buf);
+        addFrom(sql);
         // Add Where
-        addWhere(buf);
+        addWhere(sql);
         // Add Grouping
-        addGrouping(buf);
+        addGrouping(sql);
         // Add Order
-        addOrder(buf);
+        addOrder(sql);
         // done
         completeParamUsage();
     }
@@ -1625,12 +1625,12 @@ public abstract class DBCommand extends DBCommandExpr
         resetParamUsage();
         if (set==null || set.get(0)==null)
             return null;
-        StringBuilder buf = new StringBuilder("INSERT INTO ");
-        // addTableExpr(buf, CTX_NAME);
+        DBSQLBuilder sql = createSQLBuilder("INSERT INTO ");
+        // addTableExpr(sql, CTX_NAME);
         DBRowSet table =  set.get(0).getTable();
-        table.addSQL(buf, CTX_FULLNAME);
+        table.addSQL(sql, CTX_FULLNAME);
         // Set Expressions
-        buf.append("( ");
+        sql.append("( ");
         // Set Expressions
         ArrayList<DBCompareColExpr> compexpr = null;
         if (where!=null && !where.isEmpty())
@@ -1644,10 +1644,10 @@ public abstract class DBCommand extends DBCommandExpr
             if (compexpr.size()>0)
             {
                 // add List
-                addListExpr(buf, compexpr, CTX_NAME, ", ");
+                addListExpr(sql, compexpr, CTX_NAME, ", ");
                 // add separator
                 if (set != null)
-                    buf.append(", ");
+                    sql.append(", ");
             }
             else
             {   // No columns to set
@@ -1655,20 +1655,20 @@ public abstract class DBCommand extends DBCommandExpr
             }
         }
         if (set != null)
-            addListExpr(buf, set, CTX_NAME, ", ");
+            addListExpr(sql, set, CTX_NAME, ", ");
         // Values
-        buf.append(") VALUES ( ");
+        sql.append(") VALUES ( ");
         if (compexpr != null)
-            addListExpr(buf, compexpr, CTX_VALUE, ", ");
+            addListExpr(sql, compexpr, CTX_VALUE, ", ");
         if (compexpr != null && set != null)
-            buf.append(", ");
+            sql.append(", ");
         if (set != null)
-            addListExpr(buf, set, CTX_VALUE, ", ");
+            addListExpr(sql, set, CTX_VALUE, ", ");
         // End
-        buf.append(")");
+        sql.append(")");
         // done
         completeParamUsage();
-        return buf.toString();
+        return sql.toString();
     }
     
     /**
@@ -1710,43 +1710,43 @@ public abstract class DBCommand extends DBCommandExpr
         resetParamUsage();
         if (set == null)
             return null;
-        StringBuilder buf = new StringBuilder("UPDATE ");
+        DBSQLBuilder sql = createSQLBuilder("UPDATE ");
         DBRowSet table =  set.get(0).getTable();
         if (joins!=null && !joins.isEmpty())
         {   // Join Update
-            addUpdateWithJoins(buf, table);
+            addUpdateWithJoins(sql, table);
         }
         else
         {   // Simple Statement
-            addUpdateForTable(buf, table);
+            addUpdateForTable(sql, table);
         }
         // done
         completeParamUsage();
-        return buf.toString();
+        return sql.toString();
     }
 
-    protected void addUpdateForTable(StringBuilder buf, DBRowSet table)
+    protected void addUpdateForTable(DBSQLBuilder sql, DBRowSet table)
     {   // Simple Statement
-        table.addSQL(buf, CTX_FULLNAME);
+        table.addSQL(sql, CTX_FULLNAME);
         long context = CTX_NAME | CTX_VALUE;
         // Set Expressions
-        buf.append("\r\nSET ");
-        addListExpr(buf, set, context, ", ");
+        sql.append("\r\nSET ");
+        addListExpr(sql, set, context, ", ");
         // Add Where
-        addWhere(buf, context);
+        addWhere(sql, context);
     }
     
-    protected void addUpdateWithJoins(StringBuilder buf, DBRowSet table)
+    protected void addUpdateWithJoins(DBSQLBuilder sql, DBRowSet table)
     {   // Join Update
-        buf.append( table.getAlias() );
+        sql.append( table.getAlias() );
         long context = CTX_DEFAULT;
         // Set Expressions
-        buf.append("\r\nSET ");
-        addListExpr(buf, set, context, ", ");
+        sql.append("\r\nSET ");
+        addListExpr(sql, set, context, ", ");
         // From clause
-        addFrom(buf);
+        addFrom(sql);
         // Add Where
-        addWhere(buf, context);
+        addWhere(sql, context);
     }
     
     /**
@@ -1759,54 +1759,54 @@ public abstract class DBCommand extends DBCommandExpr
     public final String getDelete(DBTable table)
     {
         resetParamUsage();
-        StringBuilder buf = new StringBuilder("DELETE ");
+        DBSQLBuilder sql = createSQLBuilder("DELETE ");
         // joins or simple
          if (joins!=null && !joins.isEmpty())
         {   // delete with joins
-            addDeleteWithJoins(buf, table);
+            addDeleteWithJoins(sql, table);
         }
         else
         {   // Simple Statement
-            addDeleteForTable(buf, table);
+            addDeleteForTable(sql, table);
         }
         // done
         completeParamUsage();
-        return buf.toString();
+        return sql.toString();
     }
 
-    protected void addDeleteForTable(StringBuilder buf, DBRowSet table)
+    protected void addDeleteForTable(DBSQLBuilder sql, DBRowSet table)
     {   // Simple Statement
-        buf.append("FROM ");
-        table.addSQL(buf, CTX_FULLNAME);
+        sql.append("FROM ");
+        table.addSQL(sql, CTX_FULLNAME);
         // where
-        addWhere(buf, CTX_NAME|CTX_VALUE);
+        addWhere(sql, CTX_NAME|CTX_VALUE);
     }
     
-    protected void addDeleteWithJoins(StringBuilder buf, DBRowSet table)
+    protected void addDeleteWithJoins(DBSQLBuilder sql, DBRowSet table)
     {   // delete with joins
-        table.addSQL(buf, CTX_FULLNAME);
+        table.addSQL(sql, CTX_FULLNAME);
         // From clause
-        addFrom(buf);
+        addFrom(sql);
         // Add Where
-        addWhere(buf, CTX_DEFAULT);
+        addWhere(sql, CTX_DEFAULT);
     }
     
     // ------- Select Statement Parts -------
 
-    protected void addSelect(StringBuilder buf)
+    protected void addSelect(DBSQLBuilder sql)
     {
         // Prepares statement
-        buf.append("SELECT ");
+        sql.append("SELECT ");
         if (selectDistinct)
-            buf.append("DISTINCT ");
+            sql.append("DISTINCT ");
         // Add Select Expressions
-        addListExpr(buf, select, CTX_ALL, ", ");
+        addListExpr(sql, select, CTX_ALL, ", ");
     }
 
-    protected void addFrom(StringBuilder buf)
+    protected void addFrom(DBSQLBuilder sql)
     {
-        int originalLength = buf.length();
-        buf.append("\r\nFROM ");
+        int originalLength = sql.length();
+        sql.append("\r\nFROM ");
         // Join
         boolean sep = false;
         int whichParams = 0;
@@ -1838,22 +1838,22 @@ public abstract class DBCommand extends DBCommandExpr
                      tables .remove(join.getRightTable());
                      // Context
                      context = CTX_VALUE;
-                     buf.append( "\t" );
+                     sql.append( "\t" );
                      whichParams = 1;
                  }
                  // check
-                 addJoin(buf, join, context, whichParams);
+                 addJoin(sql, join, context, whichParams);
                  // add CRLF
                  if( i!=joins.size()-1 )
-                     buf.append("\r\n");
+                     sql.append("\r\n");
             }
             sep = true;
         }
         for (int i=0; i<tables.size(); i++)
         {
-            if (sep) buf.append(", ");
+            if (sep) sql.append(", ");
             DBRowSet t = tables.get(i); 
-            t.addSQL(buf, CTX_DEFAULT|CTX_ALIAS);
+            t.addSQL(sql, CTX_DEFAULT|CTX_ALIAS);
             // check for query
             if (t instanceof DBQuery)
             {   // Merge subquery params
@@ -1866,21 +1866,21 @@ public abstract class DBCommand extends DBCommandExpr
             String pseudoTable = getDatabase().getDbms().getSQLPhrase(DBSqlPhrase.SQL_PSEUDO_TABLE);
             if (StringUtils.isNotEmpty(pseudoTable))
             {   // add pseudo table
-                buf.append(pseudoTable);
+                sql.append(pseudoTable);
             }    
             else
             {   // remove from
-                buf.setLength(originalLength);
+                sql.reset(originalLength);
             }
         }
     }
     
-    protected void addJoin(StringBuilder buf, DBJoinExpr join, long context, int whichParams)
+    protected void addJoin(DBSQLBuilder sql, DBJoinExpr join, long context, int whichParams)
     {
         // remember insert pos
         int paramInsertPos = paramUsageCount;
         // now add the join
-        join.addSQL(buf, context);
+        join.addSQL(sql, context);
         // Merge subquery params
         Object[] subQueryParams = join.getSubqueryParams(whichParams);
         if (subQueryParams!=null)
@@ -1909,26 +1909,26 @@ public abstract class DBCommand extends DBCommandExpr
             cmdParams.add(paramUsageCount++, new DBCmdParam(null, DataType.UNKNOWN, subQueryParams[p]));
     }
 
-    protected void addWhere(StringBuilder buf, long context)
+    protected void addWhere(DBSQLBuilder sql, long context)
     {
         if (where!=null && !where.isEmpty())
         {   
-            buf.append("\r\nWHERE ");
+            sql.append("\r\nWHERE ");
             // add where expression
-            addListExpr(buf, where, context, " AND ");
+            addListExpr(sql, where, context, " AND ");
         }
     }
 
-    protected final void addWhere(StringBuilder buf)
+    protected final void addWhere(DBSQLBuilder sql)
     {
-        addWhere(buf, CTX_DEFAULT);
+        addWhere(sql, CTX_DEFAULT);
     }
     
     @Override
-    protected void addSqlExpr(StringBuilder buf, DBExpr expr, long context)
+    protected void addSqlExpr(DBSQLBuilder sql, DBExpr expr, long context)
     {
         // append
-        super.addSqlExpr(buf, expr, context);
+        super.addSqlExpr(sql, expr, context);
         // check for DBCompareExpr
         if (expr instanceof DBCompareExpr)
         {   // merge
@@ -1936,26 +1936,26 @@ public abstract class DBCommand extends DBCommandExpr
         }
     }
 
-    protected void addGrouping(StringBuilder buf)
+    protected void addGrouping(DBSQLBuilder sql)
     {
         if (groupBy!=null && !groupBy.isEmpty())
         { // Group by
-            buf.append("\r\nGROUP BY ");
-            addListExpr(buf, groupBy, CTX_DEFAULT, ", ");
+            sql.append("\r\nGROUP BY ");
+            addListExpr(sql, groupBy, CTX_DEFAULT, ", ");
         }
         if (having!=null && !having.isEmpty())
         { // Having
-            buf.append("\r\nHAVING ");
-            addListExpr(buf, having, CTX_DEFAULT, " AND ");
+            sql.append("\r\nHAVING ");
+            addListExpr(sql, having, CTX_DEFAULT, " AND ");
         }
     }
 
-    protected void addOrder(StringBuilder buf)
+    protected void addOrder(DBSQLBuilder sql)
     {
         if (orderBy!=null && !orderBy.isEmpty())
         { // order By
-            buf.append("\r\nORDER BY ");
-            addListExpr(buf, orderBy, CTX_DEFAULT, ", ");
+            sql.append("\r\nORDER BY ");
+            addListExpr(sql, orderBy, CTX_DEFAULT, ", ");
         }
     }
    

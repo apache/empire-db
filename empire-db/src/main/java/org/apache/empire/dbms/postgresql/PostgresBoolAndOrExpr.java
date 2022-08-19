@@ -25,6 +25,7 @@ import org.apache.empire.data.DataType;
 import org.apache.empire.db.DBColumn;
 import org.apache.empire.db.DBColumnExpr;
 import org.apache.empire.db.DBDatabase;
+import org.apache.empire.db.DBSQLBuilder;
 import org.apache.empire.db.expr.compare.DBCompareAndOrExpr;
 import org.apache.empire.db.expr.compare.DBCompareColExpr;
 import org.apache.empire.db.expr.compare.DBCompareExpr;
@@ -105,13 +106,13 @@ public class PostgresBoolAndOrExpr extends DBColumnExpr
     }
 
     @Override
-    public void addSQL(StringBuilder buf, long context)
+    public void addSQL(DBSQLBuilder sql, long context)
     {
 
-        buf.append(or ? BOOL_OR : BOOL_AND);
-        buf.append("(");
-        cmpExpr.addSQL(buf, context);
-        buf.append(")");
+        sql.append(or ? BOOL_OR : BOOL_AND);
+        sql.append("(");
+        cmpExpr.addSQL(sql, context);
+        sql.append(")");
     }
 
     @Override

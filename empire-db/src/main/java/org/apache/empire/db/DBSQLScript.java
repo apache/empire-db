@@ -167,11 +167,11 @@ public class DBSQLScript implements DBContextAware, Iterable<String>
      * 
      * @param sql the statement
      */
-    public final void addStmt(StringBuilder sql)
+    public final void addStmt(DBSQLBuilder sql)
     {
         addStmt(sql.toString());
         // Clear Builder
-        sql.setLength(0);
+        sql.reset(0);
     }
 
     /**

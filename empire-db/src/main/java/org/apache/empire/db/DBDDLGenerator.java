@@ -94,27 +94,27 @@ public abstract class DBDDLGenerator<T extends DBMSHandler>
     }
 
     // Add statements
-    protected void addCreateTableStmt(DBTable table, StringBuilder sql, DBSQLScript script)
+    protected void addCreateTableStmt(DBTable table, DBSQLBuilder sql, DBSQLScript script)
     {
         log.info("Adding create statmement for table {}.", table.getName());
         script.addStmt(sql);
     }
-    protected void addCreateIndexStmt(DBIndex index, StringBuilder sql, DBSQLScript script)
+    protected void addCreateIndexStmt(DBIndex index, DBSQLBuilder sql, DBSQLScript script)
     {
         log.info("Adding create statmement for index {}.", index.getName());
         script.addStmt(sql);
     }
-    protected void addCreateRelationStmt(DBRelation rel, StringBuilder sql, DBSQLScript script)
+    protected void addCreateRelationStmt(DBRelation rel, DBSQLBuilder sql, DBSQLScript script)
     {
         log.info("Adding create statmement for relation {}.", rel.getName());
         script.addStmt(sql);
     }
-    protected void addCreateViewStmt(DBView v, StringBuilder sql, DBSQLScript script)
+    protected void addCreateViewStmt(DBView v, DBSQLBuilder sql, DBSQLScript script)
     {
         log.info("Adding create statmement for view {}.", v.getName());
         script.addStmt(sql);
     }
-    protected void addAlterTableStmt(DBColumn col, StringBuilder sql, DBSQLScript script)
+    protected void addAlterTableStmt(DBColumn col, DBSQLBuilder sql, DBSQLScript script)
     {
         log.info("Adding alter statmement for column {}.", col.getFullName());
         script.addStmt(sql);
@@ -128,7 +128,7 @@ public abstract class DBDDLGenerator<T extends DBMSHandler>
      * @param sql the builder that we will append to
      * @return true if further column attributes may be added or false otherwise
      */
-    protected boolean appendColumnDataType(DataType type, double size, DBTableColumn c, StringBuilder sql)
+    protected boolean appendColumnDataType(DataType type, double size, DBTableColumn c, DBSQLBuilder sql)
     {
         switch (type)
         {
@@ -221,7 +221,7 @@ public abstract class DBDDLGenerator<T extends DBMSHandler>
      * @param alter true if altering an existing column or false otherwise
      * @param sql the sql builder object
      */
-    protected void appendColumnDesc(DBTableColumn c, boolean alter, StringBuilder sql)
+    protected void appendColumnDesc(DBTableColumn c, boolean alter, DBSQLBuilder sql)
     {
         // Append name
         c.addSQL(sql, DBExpr.CTX_NAME);
@@ -383,7 +383,7 @@ public abstract class DBDDLGenerator<T extends DBMSHandler>
      */
     protected void createTable(DBTable t, DBSQLScript script)
     {
-        StringBuilder sql = new StringBuilder();
+        DBSQLBuilder sql = new DBSQLBuilder(dbms);
         sql.append("-- creating table ");
         sql.append(t.getName());
         sql.append(" --\r\n");
@@ -454,8 +454,7 @@ public abstract class DBDDLGenerator<T extends DBMSHandler>
      */
     protected void createIndex(DBTable t, DBIndex idx, DBSQLScript script)
     {
-        StringBuilder sql = new StringBuilder();
-
+        DBSQLBuilder sql = new DBSQLBuilder(dbms);
         // Create Index
         sql.append((idx.getType().isUnique()) ? "CREATE UNIQUE INDEX " : "CREATE INDEX ");
         appendElementName(sql, idx.getName());
@@ -488,7 +487,7 @@ public abstract class DBDDLGenerator<T extends DBMSHandler>
         DBTable sourceTable = (DBTable) r.getReferences()[0].getSourceColumn().getRowSet();
         DBTable targetTable = (DBTable) r.getReferences()[0].getTargetColumn().getRowSet();
 
-        StringBuilder sql = new StringBuilder();
+        DBSQLBuilder sql = new DBSQLBuilder(dbms);
         sql.append("-- creating foreign key constraint ");
         sql.append(r.getName());
         sql.append(" --\r\n");
@@ -536,7 +535,7 @@ public abstract class DBDDLGenerator<T extends DBMSHandler>
      */
     protected void alterTable(DBTableColumn col, DDLActionType type, DBSQLScript script)
     {
-        StringBuilder sql = new StringBuilder();
+        DBSQLBuilder sql = new DBSQLBuilder(dbms);
         sql.append("ALTER TABLE ");
         col.getRowSet().addSQL(sql, DBExpr.CTX_FULLNAME);
         switch(type)
@@ -581,7 +580,7 @@ public abstract class DBDDLGenerator<T extends DBMSHandler>
         cmd.clearOrderBy();
 
         // Build String
-        StringBuilder sql = new StringBuilder();
+        DBSQLBuilder sql = new DBSQLBuilder(dbms);
         sql.append( "CREATE VIEW ");
         v.addSQL(sql, DBExpr.CTX_FULLNAME);
         sql.append( " (" );
@@ -612,7 +611,7 @@ public abstract class DBDDLGenerator<T extends DBMSHandler>
         if (StringUtils.isEmpty(name))
             throw new InvalidArgumentException("name", name);
         // Create Drop Statement
-        StringBuilder sql = new StringBuilder();
+        DBSQLBuilder sql = new DBSQLBuilder(dbms);
         sql.append("DROP ");
         sql.append(objType);
         sql.append(" ");
@@ -625,7 +624,7 @@ public abstract class DBDDLGenerator<T extends DBMSHandler>
         script.addStmt(sql);
     }
 
-    protected void appendElementName(StringBuilder sql, String name)
+    protected void appendElementName(DBSQLBuilder sql, String name)
     {
         dbms.appendObjectName(sql, name, null);
     }

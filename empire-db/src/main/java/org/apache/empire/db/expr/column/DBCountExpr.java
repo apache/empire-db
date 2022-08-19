@@ -28,6 +28,7 @@ import org.apache.empire.db.DBColumn;
 import org.apache.empire.db.DBColumnExpr;
 import org.apache.empire.db.DBDatabase;
 import org.apache.empire.db.DBRowSet;
+import org.apache.empire.db.DBSQLBuilder;
 import org.apache.empire.xml.XMLUtil;
 import org.w3c.dom.Element;
 
@@ -199,7 +200,7 @@ public class DBCountExpr extends DBColumnExpr
      * @param context the current SQL-Command context
      */
     @Override
-    public void addSQL(StringBuilder sql, long context)
+    public void addSQL(DBSQLBuilder sql, long context)
     { 
         sql.append("count(");
         if (column!=null)

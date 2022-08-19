@@ -29,6 +29,7 @@ import org.apache.empire.db.DBColumn;
 import org.apache.empire.db.DBColumnExpr;
 import org.apache.empire.db.DBDatabase;
 import org.apache.empire.db.DBExpr;
+import org.apache.empire.db.DBSQLBuilder;
 import org.w3c.dom.Element;
 
 
@@ -207,21 +208,21 @@ public class DBCalcExpr extends DBColumnExpr
      * the specified DBColumnExpr object and value to the.
      * SQL-Command
      * 
-     * @param buf the SQL statment
+     * @param sql the SQL statment
      * @param context the current SQL-Command context
      */
     @Override
-    public void addSQL(StringBuilder buf, long context)
+    public void addSQL(DBSQLBuilder sql, long context)
     {
         // Zusammenbauen
-        expr.addSQL(buf, context);
-        buf.append(op);
+        expr.addSQL(sql, context);
+        sql.append(op);
         // Special treatment for adding days to dates
         DataType type = expr.getDataType();
         if (type.isNumeric()==false && (value instanceof Number))
             type = DataType.DECIMAL;
         // append
-        addSQLValue(buf, type, value, context, op);
+        sql.appendValue(type, value, context, op);
     }
 
     @Override

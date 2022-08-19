@@ -25,6 +25,7 @@ import org.apache.empire.data.DataType;
 import org.apache.empire.db.DBColumn;
 import org.apache.empire.db.DBColumnExpr;
 import org.apache.empire.db.DBDatabase;
+import org.apache.empire.db.DBSQLBuilder;
 import org.apache.empire.db.expr.compare.DBCompareExpr;
 import org.apache.empire.xml.XMLUtil;
 import org.w3c.dom.Element;
@@ -84,9 +85,10 @@ public class DBCaseWhenExpr extends DBColumnExpr
     public String getName()
     {
         DBCompareExpr firstCmpExpr = whenMap.keySet().iterator().next();
-        StringBuilder b = new StringBuilder("CASE_");
-        firstCmpExpr.addSQL(b, CTX_NAME);
-        return b.toString();
+        DBSQLBuilder sql = new DBSQLBuilder(getDatabase().getDbms());
+        sql.append("CASE_");
+        firstCmpExpr.addSQL(sql, CTX_NAME);
+        return sql.toString();
     }
 
     @Override
@@ -123,7 +125,7 @@ public class DBCaseWhenExpr extends DBColumnExpr
     }
 
     @Override
-    public void addSQL(StringBuilder sql, long context)
+    public void addSQL(DBSQLBuilder sql, long context)
     {
         context &= ~CTX_ALIAS; // No column aliases
         // append case 

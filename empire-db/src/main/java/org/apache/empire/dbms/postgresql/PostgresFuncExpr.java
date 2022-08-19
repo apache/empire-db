@@ -24,6 +24,7 @@ import org.apache.empire.data.DataType;
 import org.apache.empire.db.DBColumn;
 import org.apache.empire.db.DBColumnExpr;
 import org.apache.empire.db.DBExpr;
+import org.apache.empire.db.DBSQLBuilder;
 import org.apache.empire.db.expr.column.DBAbstractFuncExpr;
 
 public class PostgresFuncExpr extends DBAbstractFuncExpr
@@ -77,7 +78,7 @@ public class PostgresFuncExpr extends DBAbstractFuncExpr
      * @param context the current SQL-Command context
      */
     @Override
-    public void addSQL(StringBuilder sql, long context)
+    public void addSQL(DBSQLBuilder sql, long context)
     {
         // Add SQL
         super.addSQL(sql, phrase.getSQL(), params, context);

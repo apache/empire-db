@@ -23,6 +23,7 @@ import org.apache.empire.db.DBColumn;
 import org.apache.empire.db.DBDDLGenerator;
 import org.apache.empire.db.DBDatabase;
 import org.apache.empire.db.DBExpr;
+import org.apache.empire.db.DBSQLBuilder;
 import org.apache.empire.db.DBSQLScript;
 import org.apache.empire.db.DBTable;
 import org.apache.empire.db.DBTableColumn;
@@ -87,7 +88,7 @@ public class PostgresDDLGenerator extends DBDDLGenerator<DBMSHandlerPostgreSQL>
     }
 
     @Override
-    protected boolean appendColumnDataType(DataType type, double size, DBTableColumn c, StringBuilder sql)
+    protected boolean appendColumnDataType(DataType type, double size, DBTableColumn c, DBSQLBuilder sql)
     {
         switch (type)
         {
@@ -152,7 +153,7 @@ public class PostgresDDLGenerator extends DBDDLGenerator<DBMSHandlerPostgreSQL>
     {
     	String seqName = dbms.getColumnSequenceName(column);
         // createSQL
-        StringBuilder sql = new StringBuilder();
+        DBSQLBuilder sql = new DBSQLBuilder(dbms);
         sql.append("-- creating sequence for column ");
         sql.append(column.getFullName());
         sql.append(" --\r\n");
@@ -164,7 +165,7 @@ public class PostgresDDLGenerator extends DBDDLGenerator<DBMSHandlerPostgreSQL>
     }
 
     @Override
-    protected void appendColumnDesc(DBTableColumn c, boolean alter, StringBuilder sql)
+    protected void appendColumnDesc(DBTableColumn c, boolean alter, DBSQLBuilder sql)
     {
         // Append name
         c.addSQL(sql, DBExpr.CTX_NAME);

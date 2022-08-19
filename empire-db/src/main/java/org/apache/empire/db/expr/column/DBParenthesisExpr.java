@@ -25,6 +25,7 @@ import org.apache.empire.data.DataType;
 import org.apache.empire.db.DBColumn;
 import org.apache.empire.db.DBColumnExpr;
 import org.apache.empire.db.DBDatabase;
+import org.apache.empire.db.DBSQLBuilder;
 import org.w3c.dom.Element;
 
 /**
@@ -179,15 +180,15 @@ public class DBParenthesisExpr extends DBColumnExpr implements Unwrappable<DBCol
     /**
      * Creates the SQL-Command adds the alias name to the SQL-Command.
      *
-     * @param buf the SQL statment
+     * @param sql the SQL statment
      * @param context the current SQL-Command context
      */
     @Override
-    public void addSQL(StringBuilder buf, long context)
+    public void addSQL(DBSQLBuilder sql, long context)
     {   // Append alias
-        buf.append("(");
-        wrapped.addSQL(buf, context); // |CTX_NOPARENTHESES
-        buf.append(")");
+        sql.append("(");
+        wrapped.addSQL(sql, context); // |CTX_NOPARENTHESES
+        sql.append(")");
     }
 
     /**

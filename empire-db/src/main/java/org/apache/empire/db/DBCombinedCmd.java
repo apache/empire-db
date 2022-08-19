@@ -164,41 +164,41 @@ public class DBCombinedCmd extends DBCommandExpr
     /**
      * Creates the SQL-Command.
      * 
-     * @param buf the SQL-Command
+     * @param sql the SQL-Command
      */
     @Override
-    public void getSelect(StringBuilder buf)
+    public void getSelect(DBSQLBuilder sql)
     {
         // the left part
         left.clearOrderBy();
         if (!(left instanceof DBCombinedCmd))
         {
-            buf.append("(");
-            left.getSelect(buf);
-            buf.append(")");
+            sql.append("(");
+            left.getSelect(sql);
+            sql.append(")");
         }
         else
-            left.getSelect(buf);
+            left.getSelect(sql);
         // concat keyword
-        buf.append("\r\n");
-        buf.append(keyWord);
-        buf.append("\r\n");
+        sql.append("\r\n");
+        sql.append(keyWord);
+        sql.append("\r\n");
         // the right part
         right.clearOrderBy();
         if (!(right instanceof DBCombinedCmd))
         {
-            buf.append("(");
-            right.getSelect(buf);
-            buf.append(")");
+            sql.append("(");
+            right.getSelect(sql);
+            sql.append(")");
         }
         else
-            right.getSelect(buf);
+            right.getSelect(sql);
         // done
         // Add optional Order by statement
         if (orderBy != null)
         { // Having
-            buf.append("\r\nORDER BY ");
-            addListExpr(buf, orderBy, CTX_DEFAULT, ", ");
+            sql.append("\r\nORDER BY ");
+            addListExpr(sql, orderBy, CTX_DEFAULT, ", ");
         }
     }
 

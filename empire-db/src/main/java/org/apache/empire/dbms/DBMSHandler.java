@@ -31,6 +31,7 @@ import org.apache.empire.db.DBDatabase;
 import org.apache.empire.db.DBExpr;
 import org.apache.empire.db.DBObject;
 import org.apache.empire.db.DBRelation;
+import org.apache.empire.db.DBSQLBuilder;
 import org.apache.empire.db.DBSQLScript;
 import org.apache.empire.db.DBTableColumn;
 import org.apache.empire.db.validation.DBModelChecker;
@@ -87,7 +88,7 @@ public interface DBMSHandler
      * @param name the name of the object (table, view or column)
      * @param useQuotes use quotes or not. When null is passed then detectQuoteName() is called
      */
-    void appendObjectName(StringBuilder sql, String name, Boolean useQuotes);
+    void appendObjectName(DBSQLBuilder sql, String name, Boolean useQuotes);
     
     /**
      * Returns an sql phrase template for this database system.<br>

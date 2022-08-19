@@ -27,6 +27,7 @@ import org.apache.empire.db.DBDatabase;
 import org.apache.empire.db.DBJoinType;
 import org.apache.empire.db.DBQuery;
 import org.apache.empire.db.DBRowSet;
+import org.apache.empire.db.DBSQLBuilder;
 
 /**
  * This class is used for building a join expression of an SQL statement.
@@ -155,14 +156,14 @@ public class DBCrossJoinExpr extends DBJoinExpr
 
     /** Not allowed, this operation have to be done in the DBCommand object. */
     @Override
-    public void addSQL(StringBuilder buf, long context)
+    public void addSQL(DBSQLBuilder sql, long context)
     {
         if ((context & CTX_NAME) != 0)
-            left.addSQL(buf, CTX_DEFAULT | CTX_ALIAS);
+            left.addSQL(sql, CTX_DEFAULT | CTX_ALIAS);
         if ((context & CTX_VALUE) != 0)
         { // Join Type
-            buf.append(" CROSS JOIN ");
-            right.addSQL(buf, CTX_DEFAULT | CTX_ALIAS);
+            sql.append(" CROSS JOIN ");
+            right.addSQL(sql, CTX_DEFAULT | CTX_ALIAS);
         }
     }
 

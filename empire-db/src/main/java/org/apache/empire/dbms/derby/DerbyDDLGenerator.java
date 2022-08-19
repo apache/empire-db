@@ -21,6 +21,7 @@ package org.apache.empire.dbms.derby;
 import org.apache.empire.data.DataType;
 import org.apache.empire.db.DBDDLGenerator;
 import org.apache.empire.db.DBExpr;
+import org.apache.empire.db.DBSQLBuilder;
 import org.apache.empire.db.DBTableColumn;
 
 public class DerbyDDLGenerator extends DBDDLGenerator<DBMSHandlerDerby>
@@ -41,7 +42,7 @@ public class DerbyDDLGenerator extends DBDDLGenerator<DBMSHandlerDerby>
     }
 
     @Override
-    protected boolean appendColumnDataType(DataType type, double size, DBTableColumn c, StringBuilder sql)
+    protected boolean appendColumnDataType(DataType type, double size, DBTableColumn c, DBSQLBuilder sql)
     {
         switch (type)
         {
@@ -60,7 +61,7 @@ public class DerbyDDLGenerator extends DBDDLGenerator<DBMSHandlerDerby>
     }
     
     @Override
-    protected void appendColumnDesc(DBTableColumn c, boolean alter, StringBuilder sql)
+    protected void appendColumnDesc(DBTableColumn c, boolean alter, DBSQLBuilder sql)
     {
         // Append name
         c.addSQL(sql, DBExpr.CTX_NAME);

@@ -23,6 +23,7 @@ import org.apache.empire.db.DBColumn;
 import org.apache.empire.db.DBDDLGenerator;
 import org.apache.empire.db.DBDatabase;
 import org.apache.empire.db.DBObject;
+import org.apache.empire.db.DBSQLBuilder;
 import org.apache.empire.db.DBSQLScript;
 import org.apache.empire.db.DBTable;
 import org.apache.empire.db.DBTableColumn;
@@ -108,7 +109,7 @@ public class HSqlDDLGenerator extends DBDDLGenerator<DBMSHandlerHSql>
     {
         String seqName = dbms.getColumnSequenceName(column);
         // createSQL
-        StringBuilder sql = new StringBuilder();
+        DBSQLBuilder sql = new DBSQLBuilder(dbms);
         sql.append("-- creating sequence for column ");
         sql.append(column.toString());
         sql.append(" --\r\n");

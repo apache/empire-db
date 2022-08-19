@@ -26,6 +26,7 @@ import org.apache.empire.db.DBColumn;
 import org.apache.empire.db.DBColumnExpr;
 import org.apache.empire.db.DBDatabase;
 import org.apache.empire.db.DBExpr;
+import org.apache.empire.db.DBSQLBuilder;
 import org.apache.empire.dbms.DBSqlPhrase;
 import org.apache.empire.xml.XMLUtil;
 import org.w3c.dom.Element;
@@ -149,11 +150,11 @@ public class DBConcatExpr extends DBColumnExpr
      * a specified value sets the column with a specified value to
      * the SQL-Command.
      * 
-     * @param buf the SQL statment
+     * @param sql the SQL statment
      * @param context the current SQL-Command context
      */
     @Override
-    public void addSQL(StringBuilder buf, long context)
+    public void addSQL(DBSQLBuilder sql, long context)
     { // Zusammenbauen
         String template = getDatabase().getDbms().getSQLPhrase(DBSqlPhrase.SQL_CONCAT_EXPR);
         context &= ~CTX_ALIAS; // No column aliases
@@ -161,25 +162,25 @@ public class DBConcatExpr extends DBColumnExpr
         int sep = template.indexOf('?');
         if (sep >= 0)
         {   // Complex Pattern with placeholder ? for this expression and {0} for the value
-            buf.append(template.substring(0, sep));
-            left.addSQL(buf, context);
+            sql.append(template.substring(0, sep));
+            left.addSQL(sql, context);
             // template = template.substring(sep + 1)
             int iph = template.indexOf("{0}", ++sep);
             if (iph>0)
-                buf.append(template.substring(sep, iph));
+                sql.append(template.substring(sep, iph));
             else 
-                buf.append(template.substring(sep));
+                sql.append(template.substring(sep));
             // value
-            addSQLValue(buf, getDataType(), right, context, template);
+            sql.appendValue(getDataType(), right, context, template);
             // rest
             if (iph>0)
-                buf.append(template.substring(iph+3));
+                sql.append(template.substring(iph+3));
         } 
         else
         {   // Simple Pattern without placeholders
-            left.addSQL(buf, context);
-            buf.append(template);
-            addSQLValue(buf, getDataType(), right, context, template);
+            left.addSQL(sql, context);
+            sql.append(template);
+            sql.appendValue(getDataType(), right, context, template);
         }        
     }
 

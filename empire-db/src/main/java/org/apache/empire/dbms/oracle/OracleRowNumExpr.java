@@ -25,6 +25,7 @@ import org.apache.empire.data.DataType;
 import org.apache.empire.db.DBColumn;
 import org.apache.empire.db.DBColumnExpr;
 import org.apache.empire.db.DBDatabase;
+import org.apache.empire.db.DBSQLBuilder;
 import org.apache.empire.xml.XMLUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -136,17 +137,17 @@ public class OracleRowNumExpr extends DBColumnExpr
     /**
      * Creates the SQL-Command.
      * 
-     * @param buf the SQL-Command
+     * @param sql the SQL-Command
      * @param context the current SQL-Command context
      */
     @Override
-    public void addSQL(StringBuilder buf, long context)
+    public void addSQL(DBSQLBuilder sql, long context)
     {
     	if (!(db.getDbms() instanceof DBMSHandlerOracle))
     	{
     		log.warn("Oracle RowNumExpression can be used with Oracle databases only!");
     	}
-        buf.append("rownum");
+        sql.append("rownum");
     }
 
     /**

@@ -24,6 +24,7 @@ import org.apache.empire.db.DBDDLGenerator;
 import org.apache.empire.db.DBDatabase;
 import org.apache.empire.db.DBExpr;
 import org.apache.empire.db.DBObject;
+import org.apache.empire.db.DBSQLBuilder;
 import org.apache.empire.db.DBSQLScript;
 import org.apache.empire.db.DBTable;
 import org.apache.empire.db.DBTableColumn;
@@ -59,7 +60,7 @@ public class OracleDDLGenerator extends DBDDLGenerator<DBMSHandlerOracle>
     }
 
     @Override
-    protected boolean appendColumnDataType(DataType type, double size, DBTableColumn c, StringBuilder sql)
+    protected boolean appendColumnDataType(DataType type, double size, DBTableColumn c, DBSQLBuilder sql)
     {
         switch (type)
         {
@@ -140,7 +141,7 @@ public class OracleDDLGenerator extends DBDDLGenerator<DBMSHandlerOracle>
     {
         String seqName = dbms.getColumnSequenceName(column);
         // createSQL
-        StringBuilder sql = new StringBuilder();
+        DBSQLBuilder sql = new DBSQLBuilder(dbms);
         sql.append("-- creating sequence for column ");
         sql.append(column.getFullName());
         sql.append(" --\r\n");
@@ -170,7 +171,7 @@ public class OracleDDLGenerator extends DBDDLGenerator<DBMSHandlerOracle>
     {
         if (comment==null || comment.length()==0)
             return; // Nothing to do
-        StringBuilder sql = new StringBuilder();
+        DBSQLBuilder sql = new DBSQLBuilder(dbms);
         sql.append("COMMENT ON ");
         sql.append(type);
         sql.append(" ");

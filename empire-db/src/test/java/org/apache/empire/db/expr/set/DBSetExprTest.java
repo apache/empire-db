@@ -28,21 +28,24 @@ import org.apache.empire.db.CompanyDB;
 import org.apache.empire.db.DBColumn;
 import org.apache.empire.db.DBDatabase;
 import org.apache.empire.db.DBExpr;
+import org.apache.empire.db.DBSQLBuilder;
 import org.apache.empire.db.MockDriver;
 import org.apache.empire.db.context.DBContextStatic;
+import org.apache.empire.dbms.DBMSHandler;
 import org.junit.Before;
 import org.junit.Test;
 
 public class DBSetExprTest
 {
-    
+    private DBMSHandler dbms;
     private DBSetExpr expr;
     private CompanyDB testDB;
     
     @Before
     public void setup(){
+        dbms = new MockDriver();
         testDB = new CompanyDB();
-        testDB.open(new DBContextStatic(new MockDriver(), null));
+        testDB.open(new DBContextStatic(dbms, null));
         expr = new DBSetExpr(testDB.EMPLOYEE.FIRSTNAME, "JUnit");
     }
 
@@ -55,7 +58,7 @@ public class DBSetExprTest
     @Test
     public void testAddSQL()
     {
-        StringBuilder builder = new StringBuilder();
+        DBSQLBuilder builder = new DBSQLBuilder(dbms);
         expr.addSQL(builder, 0);
         assertEquals("", builder.toString());
         expr.addSQL(builder, DBExpr.CTX_DEFAULT);
@@ -65,7 +68,7 @@ public class DBSetExprTest
     @Test
     public void testAddSQLEmptyString()
     {
-        StringBuilder builder = new StringBuilder();
+        DBSQLBuilder builder = new DBSQLBuilder(dbms);
         DBSetExpr setExpr = new DBSetExpr(testDB.EMPLOYEE.FIRSTNAME, "");
         setExpr.addSQL(builder, DBExpr.CTX_DEFAULT);
         // Empire-DB by default sees '' as null
@@ -75,7 +78,7 @@ public class DBSetExprTest
     @Test
     public void testAddSQLEmptyStringConstant()
     {
-        StringBuilder builder = new StringBuilder();
+        DBSQLBuilder builder = new DBSQLBuilder(dbms);
         DBSetExpr setExpr = new DBSetExpr(testDB.EMPLOYEE.FIRSTNAME, DBDatabase.EMPTY_STRING);
         setExpr.addSQL(builder, DBExpr.CTX_DEFAULT);
         assertEquals("FIRSTNAME=''", builder.toString());

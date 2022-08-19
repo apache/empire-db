@@ -25,6 +25,7 @@ import org.apache.empire.commons.Unwrappable;
 import org.apache.empire.db.DBColumn;
 import org.apache.empire.db.DBColumnExpr;
 import org.apache.empire.db.DBExpr;
+import org.apache.empire.db.DBSQLBuilder;
 import org.apache.empire.dbms.DBSqlPhrase;
 
 public class DBCoalesceExpr extends DBAbstractFuncExpr implements Unwrappable<DBColumnExpr>
@@ -107,7 +108,7 @@ public class DBCoalesceExpr extends DBAbstractFuncExpr implements Unwrappable<DB
     }
 
     @Override
-    public void addSQL(StringBuilder sql, long context)
+    public void addSQL(DBSQLBuilder sql, long context)
     {
         // Get the template
         String template = getDbms().getSQLPhrase(DBSqlPhrase.SQL_FUNC_COALESCE);

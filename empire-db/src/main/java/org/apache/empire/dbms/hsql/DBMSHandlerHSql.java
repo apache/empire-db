@@ -29,6 +29,7 @@ import org.apache.empire.db.DBDDLGenerator;
 import org.apache.empire.db.DBDDLGenerator.DDLActionType;
 import org.apache.empire.db.DBDatabase;
 import org.apache.empire.db.DBObject;
+import org.apache.empire.db.DBSQLBuilder;
 import org.apache.empire.db.DBSQLScript;
 import org.apache.empire.db.DBTableColumn;
 import org.apache.empire.db.exceptions.QueryNoResultException;
@@ -234,7 +235,7 @@ public class DBMSHandlerHSql extends DBMSHandlerBase
     @Override
     public Object getNextSequenceValue(DBDatabase db, String seqName, int minValue, Connection conn)
     { 	//Use Oracle Sequences
-        StringBuilder sql = new StringBuilder(80);
+        DBSQLBuilder sql = new DBSQLBuilder(this);
         sql.append("SELECT ");
         sql.append("NEXT VALUE FOR ");
         db.appendQualifiedName(sql, seqName, null);

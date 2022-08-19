@@ -28,6 +28,7 @@ import org.apache.empire.db.DBDatabase;
 import org.apache.empire.db.DBJoinType;
 import org.apache.empire.db.DBQuery;
 import org.apache.empire.db.DBRowSet;
+import org.apache.empire.db.DBSQLBuilder;
 import org.apache.empire.db.expr.compare.DBCompareExpr;
 import org.apache.empire.exceptions.InvalidPropertyException;
 
@@ -236,32 +237,32 @@ public class DBColumnJoinExpr extends DBJoinExpr
 
     /** Not allowed, this operation have to be done in the DBCommand object. */
     @Override
-    public void addSQL(StringBuilder buf, long context)
+    public void addSQL(DBSQLBuilder sql, long context)
     {
         // left 
         if ((context & CTX_NAME) != 0)
-            getLeftTable().addSQL(buf, CTX_DEFAULT | CTX_ALIAS);
+            getLeftTable().addSQL(sql, CTX_DEFAULT | CTX_ALIAS);
         if ((context & CTX_VALUE) != 0)
         { // Join Type
             switch(type)
             {
-                case LEFT:  buf.append(" LEFT JOIN ");break;
-                case INNER: buf.append(" INNER JOIN ");break;
-                case RIGHT: buf.append(" RIGHT JOIN ");break;
-                case FULL:  buf.append(" FULL JOIN ");break;
-                default:    buf.append(" JOIN "); // should not come here!
+                case LEFT:  sql.append(" LEFT JOIN ");break;
+                case INNER: sql.append(" INNER JOIN ");break;
+                case RIGHT: sql.append(" RIGHT JOIN ");break;
+                case FULL:  sql.append(" FULL JOIN ");break;
+                default:    sql.append(" JOIN "); // should not come here!
             }
-            getRightTable().addSQL(buf, CTX_DEFAULT | CTX_ALIAS);
+            getRightTable().addSQL(sql, CTX_DEFAULT | CTX_ALIAS);
             // compare equal
-            buf.append(" ON ");
-            right.addSQL(buf, CTX_DEFAULT);
-            buf.append(" = ");
-            left.addSQL(buf, CTX_DEFAULT);
+            sql.append(" ON ");
+            right.addSQL(sql, CTX_DEFAULT);
+            sql.append(" = ");
+            left.addSQL(sql, CTX_DEFAULT);
             // Compare Expression
             if (compExpr != null)
             {
-                buf.append(" AND ");
-                compExpr.addSQL(buf, CTX_DEFAULT);
+                sql.append(" AND ");
+                compExpr.addSQL(sql, CTX_DEFAULT);
             }
         }
     }

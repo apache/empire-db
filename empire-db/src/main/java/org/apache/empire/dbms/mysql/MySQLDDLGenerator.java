@@ -29,6 +29,7 @@ import org.apache.empire.db.DBDDLGenerator;
 import org.apache.empire.db.DBDatabase;
 import org.apache.empire.db.DBExpr;
 import org.apache.empire.db.DBIndex;
+import org.apache.empire.db.DBSQLBuilder;
 import org.apache.empire.db.DBSQLScript;
 import org.apache.empire.db.DBTable;
 import org.apache.empire.db.DBTableColumn;
@@ -65,7 +66,7 @@ public class MySQLDDLGenerator extends DBDDLGenerator<DBMSHandlerMySQL>
     }
 
     @Override
-    protected boolean appendColumnDataType(DataType type, double size, DBTableColumn c, StringBuilder sql)
+    protected boolean appendColumnDataType(DataType type, double size, DBTableColumn c, DBSQLBuilder sql)
     {
         switch (type)
         {
@@ -140,7 +141,7 @@ public class MySQLDDLGenerator extends DBDDLGenerator<DBMSHandlerMySQL>
     @Override
     protected void createTable(DBTable t, DBSQLScript script)
     {
-        StringBuilder sql = new StringBuilder();
+        DBSQLBuilder sql = new DBSQLBuilder(dbms);
         sql.append("-- creating table ");
         sql.append(t.getName());
         sql.append(" --\r\n");
@@ -216,7 +217,7 @@ public class MySQLDDLGenerator extends DBDDLGenerator<DBMSHandlerMySQL>
         cmd.clearOrderBy();
 
         // Build String
-        StringBuilder sql = new StringBuilder();
+        DBSQLBuilder sql = new DBSQLBuilder(dbms);
         sql.append( "CREATE VIEW ");
         v.addSQL(sql, DBExpr.CTX_FULLNAME);
         sql.append( " (" );

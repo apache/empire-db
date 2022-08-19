@@ -24,6 +24,7 @@ import org.apache.empire.commons.Unwrappable;
 import org.apache.empire.db.DBColumn;
 import org.apache.empire.db.DBCommand;
 import org.apache.empire.db.DBDatabase;
+import org.apache.empire.db.DBSQLBuilder;
 
 /**
  * This class wraps an existing compare expression with parenthesis.
@@ -83,11 +84,11 @@ public class DBCompareParenthesisExpr extends DBCompareExpr implements Unwrappab
     }
 
     @Override
-    public void addSQL(StringBuilder buf, long context)
+    public void addSQL(DBSQLBuilder sql, long context)
     {
-        buf.append("(");
-        wrapped.addSQL(buf, context|CTX_NOPARENTHESES);
-        buf.append(")");
+        sql.append("(");
+        wrapped.addSQL(sql, context|CTX_NOPARENTHESES);
+        sql.append(")");
     }
 
     /**

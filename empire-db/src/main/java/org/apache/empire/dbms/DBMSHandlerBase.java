@@ -50,6 +50,7 @@ import org.apache.empire.db.DBDatabase;
 import org.apache.empire.db.DBExpr;
 import org.apache.empire.db.DBRelation;
 import org.apache.empire.db.DBRowSet;
+import org.apache.empire.db.DBSQLBuilder;
 import org.apache.empire.db.DBSQLScript;
 import org.apache.empire.db.DBTable;
 import org.apache.empire.db.DBTableColumn;
@@ -246,7 +247,8 @@ public abstract class DBMSHandlerBase implements DBMSHandler
         String schema   = db.getSchema();
         String linkName = db.getLinkName();
         // build the statement
-        StringBuilder sql = new StringBuilder("SELECT count(*) from ");
+        DBSQLBuilder sql = new DBSQLBuilder(this);
+        sql.append("SELECT count(*) from ");
         if (schema != null)
         {   // Add Schema
             sql.append(schema);
@@ -355,7 +357,7 @@ public abstract class DBMSHandlerBase implements DBMSHandler
      * @param useQuotes use quotes or not
      */
     @Override
-    public void appendObjectName(StringBuilder sql, String name, Boolean useQuotes)
+    public void appendObjectName(DBSQLBuilder sql, String name, Boolean useQuotes)
     {
         if (useQuotes==null)
             useQuotes = detectQuoteName(name);
@@ -1057,10 +1059,14 @@ public abstract class DBMSHandlerBase implements DBMSHandler
      */
     protected String getSQLTextString(DataType type, Object value)
     {
-        StringBuilder valBuf = new StringBuilder();
+        if (value==null)
+            return getSQLPhrase(DBSqlPhrase.SQL_NULL);
+        // text
+        String text = value.toString();
+        StringBuilder valBuf = new StringBuilder(text.length()+2);
         valBuf.append("'");
         if (DBDatabase.EMPTY_STRING.equals(value)==false)
-            appendSQLTextValue(valBuf, value.toString());
+            appendSQLTextValue(valBuf, text);
         valBuf.append("'");
         return valBuf.toString();
     }
@@ -1068,7 +1074,7 @@ public abstract class DBMSHandlerBase implements DBMSHandler
     /** 
      * this helper function doubles up single quotes for SQL 
      */
-    protected void appendSQLTextValue(StringBuilder buf, String value)
+    protected void appendSQLTextValue(StringBuilder sql, String value)
     {
         if (value.indexOf('\'') >= 0)
         { // a routine to double up single quotes for SQL
@@ -1076,14 +1082,14 @@ public abstract class DBMSHandlerBase implements DBMSHandler
             for (int i = 0; i < len; i++)
             {
                 if (value.charAt(i) == '\'')
-                    buf.append("''");
+                    sql.append("''");
                 else
-                    buf.append(value.charAt(i));
+                    sql.append(value.charAt(i));
             }
         } 
         else
         {
-            buf.append(value);
+            sql.append(value);
         }
     }
 

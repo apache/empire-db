@@ -28,9 +28,10 @@ import org.apache.empire.db.DBDatabase;
 import org.apache.empire.db.DBExpr;
 import org.apache.empire.db.DBIndex;
 import org.apache.empire.db.DBIndex.DBIndexType;
-import org.apache.empire.dbms.DBMSHandlerBase.DBSeqTable;
+import org.apache.empire.db.DBSQLBuilder;
 import org.apache.empire.db.DBSQLScript;
 import org.apache.empire.db.DBTableColumn;
+import org.apache.empire.dbms.DBMSHandlerBase.DBSeqTable;
 
 public class MSSqlDDLGenerator extends DBDDLGenerator<DBMSHandlerMSSQL>
 {
@@ -59,7 +60,7 @@ public class MSSqlDDLGenerator extends DBDDLGenerator<DBMSHandlerMSSQL>
     }
 
     @Override
-    protected boolean appendColumnDataType(DataType type, double size, DBTableColumn c, StringBuilder sql)
+    protected boolean appendColumnDataType(DataType type, double size, DBTableColumn c, DBSQLBuilder sql)
     {
         switch (type)
         {
@@ -129,7 +130,7 @@ public class MSSqlDDLGenerator extends DBDDLGenerator<DBMSHandlerMSSQL>
     }
     
     @Override
-    protected void addCreateIndexStmt(DBIndex index, StringBuilder sql, DBSQLScript script)
+    protected void addCreateIndexStmt(DBIndex index, DBSQLBuilder sql, DBSQLScript script)
     {
         // Check type
         if (index.getType()==DBIndexType.UNIQUE_ALLOW_NULL)

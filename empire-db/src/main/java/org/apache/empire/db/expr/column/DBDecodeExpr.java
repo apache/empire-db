@@ -26,7 +26,7 @@ import org.apache.empire.data.DataType;
 import org.apache.empire.db.DBColumn;
 import org.apache.empire.db.DBColumnExpr;
 import org.apache.empire.db.DBExpr;
-import org.apache.empire.dbms.DBMSHandler;
+import org.apache.empire.db.DBSQLBuilder;
 import org.apache.empire.dbms.DBSqlPhrase;
 import org.apache.empire.exceptions.InvalidArgumentException;
 
@@ -98,11 +98,10 @@ public class DBDecodeExpr extends DBAbstractFuncExpr
     }
 
     @Override
-    public void addSQL(StringBuilder sql, long context)
+    public void addSQL(DBSQLBuilder sql, long context)
     {
-        DBMSHandler dbms = getDatabase().getDbms();
         // decode
-        String template = dbms.getSQLPhrase(DBSqlPhrase.SQL_FUNC_DECODE);
+        String template = sql.getPhrase(DBSqlPhrase.SQL_FUNC_DECODE);
         // parse template
         int pos=0, prev=0, len=template.length();
         while (pos<len)
@@ -131,7 +130,7 @@ public class DBDecodeExpr extends DBAbstractFuncExpr
                 if (end>=len)
                     throw new InvalidArgumentException("template", template);
                 // Add parts
-                addDecodeParts(dbms, sql);
+                addDecodeParts(sql);
                 // next
                 prev = pos = end+1;
             }
@@ -147,7 +146,7 @@ public class DBDecodeExpr extends DBAbstractFuncExpr
         }
     }
     
-    public void addDecodeParts(DBMSHandler dbms, StringBuilder sql)
+    public void addDecodeParts(DBSQLBuilder sql)
     {
         // Append parts
         for (Iterator<?> i = valueMap.keySet().iterator(); i.hasNext();)
@@ -155,21 +154,21 @@ public class DBDecodeExpr extends DBAbstractFuncExpr
             Object key = i.next();
             Object val = valueMap.get(key);
 
-            sql.append(dbms.getSQLPhrase(DBSqlPhrase.SQL_FUNC_DECODE_SEP));
+            sql.append(DBSqlPhrase.SQL_FUNC_DECODE_SEP);
             
             Object[] keyVal = new Object[] { key, val };
             DataType[] dataTypes = new DataType[] { expr.getDataType(), this.getDataType() };
             
-            String part = dbms.getSQLPhrase(DBSqlPhrase.SQL_FUNC_DECODE_PART);
-            addSQLTemplate(sql, part, keyVal, dataTypes, CTX_DEFAULT, "");
+            String part = sql.getPhrase(DBSqlPhrase.SQL_FUNC_DECODE_PART);
+            sql.appendTemplate(part, keyVal, dataTypes, CTX_DEFAULT, "");
         }
         // Generate other
         if (elseExpr != null)
         { // Else
-            sql.append(dbms.getSQLPhrase(DBSqlPhrase.SQL_FUNC_DECODE_SEP));
+            sql.append(DBSqlPhrase.SQL_FUNC_DECODE_SEP);
             // else
-            String other = dbms.getSQLPhrase(DBSqlPhrase.SQL_FUNC_DECODE_ELSE);
-            addSQLTemplate(sql, other, new Object[] { elseExpr }, new DataType[] { getDataType() }, CTX_DEFAULT, "");
+            String other = sql.getPhrase(DBSqlPhrase.SQL_FUNC_DECODE_ELSE);
+            sql.appendTemplate(other, new Object[] { elseExpr }, new DataType[] { getDataType() }, CTX_DEFAULT, "");
         }
     }
     

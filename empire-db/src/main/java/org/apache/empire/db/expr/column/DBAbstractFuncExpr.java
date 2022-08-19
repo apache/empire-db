@@ -27,6 +27,7 @@ import org.apache.empire.db.DBColumn;
 import org.apache.empire.db.DBColumnExpr;
 import org.apache.empire.db.DBDatabase;
 import org.apache.empire.db.DBExpr;
+import org.apache.empire.db.DBSQLBuilder;
 import org.apache.empire.db.exceptions.DatabaseNotOpenException;
 import org.apache.empire.dbms.DBMSHandler;
 import org.apache.empire.exceptions.InvalidArgumentException;
@@ -269,7 +270,7 @@ public abstract class DBAbstractFuncExpr extends DBColumnExpr
     }
     */
 
-    public final void addSQL(StringBuilder sql, String template, Object[] params, long context)
+    public final void addSQL(DBSQLBuilder sql, String template, Object[] params, long context)
     {
         // parse template
         int pos=0, prev=0, len=template.length();
@@ -324,7 +325,7 @@ public abstract class DBAbstractFuncExpr extends DBColumnExpr
                         paramDataType = DataType.fromJavaType(params[iParam].getClass());
                 }
                 // append value
-                addSQLValue(sql, paramDataType, params[iParam], CTX_DEFAULT, ",");
+                sql.appendValue(paramDataType, params[iParam], CTX_DEFAULT, ",");
                 // next
                 prev = pos = end+1;
             }

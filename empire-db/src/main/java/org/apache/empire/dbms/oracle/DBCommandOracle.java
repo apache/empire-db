@@ -28,6 +28,7 @@ import org.apache.empire.db.DBColumnExpr;
 import org.apache.empire.db.DBCommand;
 import org.apache.empire.db.DBIndex;
 import org.apache.empire.db.DBRowSet;
+import org.apache.empire.db.DBSQLBuilder;
 import org.apache.empire.db.exceptions.NoPrimaryKeyException;
 import org.apache.empire.db.expr.column.DBAliasExpr;
 import org.apache.empire.db.expr.column.DBValueExpr;
@@ -150,10 +151,10 @@ public class DBCommandOracle extends DBCommand
      * Creates an Oracle specific select statement
      * that supports special features of the Oracle DBMS
      * like e.g. CONNECT BY PRIOR
-     * @param buf the SQL statement
+     * @param sql the SQL statement
      */
     @Override
-    public synchronized void getSelect(StringBuilder buf)
+    public synchronized void getSelect(DBSQLBuilder sql)
     {        
         resetParamUsage();
         if (select == null)
@@ -162,57 +163,57 @@ public class DBCommandOracle extends DBCommand
         boolean usePreparedStatements = isPreparedStatementsEnabled();
         if (limitRows>=0)
         {   // add limitRows and skipRows wrapper
-            buf.append("SELECT * FROM (");
+            sql.append("SELECT * FROM (");
             if (skipRows>0)
-                buf.append("SELECT row_.*, rownum rownum_ FROM (");
+                sql.append("SELECT row_.*, rownum rownum_ FROM (");
         }
         // Prepares statement
-        buf.append("SELECT ");
+        sql.append("SELECT ");
         if (StringUtils.isNotEmpty(optimizerHint))
         {   // Append an optimizer hint to the select statement e.g. SELECT /*+ RULE */
-            buf.append("/*+ ").append(optimizerHint).append(" */ ");
+            sql.append("/*+ ").append(optimizerHint).append(" */ ");
         }
         if (selectDistinct)
-            buf.append("DISTINCT ");
+            sql.append("DISTINCT ");
         // Add Select Expressions
-        addListExpr(buf, select, CTX_ALL, ", ");
+        addListExpr(sql, select, CTX_ALL, ", ");
         // Join
-        addFrom(buf);
+        addFrom(sql);
         // Where
-        addWhere(buf);
+        addWhere(sql);
         // Connect By
         if (connectBy != null)
         {   // Add 'Connect By Prior' Expression
-        	buf.append("\r\nCONNECT BY PRIOR ");
-            connectBy.addSQL(buf, CTX_DEFAULT | CTX_NOPARENTHESES);
+        	sql.append("\r\nCONNECT BY PRIOR ");
+            connectBy.addSQL(sql, CTX_DEFAULT | CTX_NOPARENTHESES);
             // Start With
             if (startWith != null)
             {	// Add 'Start With' Expression
-            	buf.append("\r\nSTART WITH ");
-                startWith.addSQL(buf, CTX_DEFAULT);
+            	sql.append("\r\nSTART WITH ");
+                startWith.addSQL(sql, CTX_DEFAULT);
             }
         }
         // Grouping
-        addGrouping(buf);
+        addGrouping(sql);
         // Order
         if (orderBy != null)
         { // Having
             if (connectBy != null)
-                buf.append("\r\nORDER SIBLINGS BY ");
+                sql.append("\r\nORDER SIBLINGS BY ");
             else
-                buf.append("\r\nORDER BY ");
+                sql.append("\r\nORDER BY ");
             // Add List of Order By Expressions
-            addListExpr(buf, orderBy, CTX_DEFAULT, ", ");
+            addListExpr(sql, orderBy, CTX_DEFAULT, ", ");
         }
         // limit rows end
         if (limitRows>=0)
         {   // add limitRows and skipRows constraints
-            buf.append(") row_ WHERE rownum<=");
-            buf.append(usePreparedStatements ? "?" : String.valueOf(skipRows+limitRows));
+            sql.append(") row_ WHERE rownum<=");
+            sql.append(usePreparedStatements ? "?" : String.valueOf(skipRows+limitRows));
             if (skipRows>0)
             {   // add skip rows
-                buf.append(") WHERE rownum_>");
-                buf.append(usePreparedStatements ? "?" : String.valueOf(skipRows));
+                sql.append(") WHERE rownum_>");
+                sql.append(usePreparedStatements ? "?" : String.valueOf(skipRows));
             }
         }
         completeParamUsage();
@@ -239,41 +240,41 @@ public class DBCommandOracle extends DBCommand
     }
 
     @Override
-    protected void addUpdateForTable(StringBuilder buf, DBRowSet table)
+    protected void addUpdateForTable(DBSQLBuilder sql, DBRowSet table)
     {
         // Optimizer Hint
         long context = CTX_FULLNAME;
         if (StringUtils.isNotEmpty(optimizerHint))
         {   // Append an optimizer hint to the select statement e.g. SELECT /*+ RULE */
-            buf.append("/*+ ").append(optimizerHint).append(" */ ");
+            sql.append("/*+ ").append(optimizerHint).append(" */ ");
             // Append alias (if necessary)
             if (optimizerHint.contains(table.getAlias()))
                 context |= CTX_ALIAS;
         }
         // table
-        table.addSQL(buf, context);
+        table.addSQL(sql, context);
         // Simple Statement
         context = CTX_NAME | CTX_VALUE;
         // Set Expressions
-        buf.append("\r\nSET ");
-        addListExpr(buf, set, context, ", ");
+        sql.append("\r\nSET ");
+        addListExpr(sql, set, context, ", ");
         // Add Where
-        addWhere(buf, context);
+        addWhere(sql, context);
     }
     
     @Override
-    protected void addUpdateWithJoins(StringBuilder buf, DBRowSet table)
+    protected void addUpdateWithJoins(DBSQLBuilder sql, DBRowSet table)
     {
         // The update table
         DBColumn[] keyColumns = table.getKeyColumns();
         if (keyColumns==null || keyColumns.length==0)
             throw new NoPrimaryKeyException(table);
         // Generate Merge expression
-        buf.setLength(0);
-        buf.append("MERGE INTO ");
-        table.addSQL(buf, CTX_FULLNAME|CTX_ALIAS);
+        sql.reset(0);
+        sql.append("MERGE INTO ");
+        table.addSQL(sql, CTX_FULLNAME|CTX_ALIAS);
         // Using
-        buf.append("\r\nUSING (");
+        sql.append("\r\nUSING (");
         // Add set expressions
         List<DBColumnExpr> using = new ArrayList<DBColumnExpr>();
         // Add key columns
@@ -304,29 +305,29 @@ public class DBCommandOracle extends DBCommand
             }
         }
         // Add select
-        buf.append("SELECT ");
-        addListExpr(buf, using, CTX_ALL, ", ");
+        sql.append("SELECT ");
+        addListExpr(sql, using, CTX_ALL, ", ");
         // From clause
-        addFrom(buf);
+        addFrom(sql);
         // Add Where
-        addWhere(buf);
+        addWhere(sql);
         // Add Grouping
-        addGrouping(buf);
+        addGrouping(sql);
         // on
-        buf.append(") q0\r\nON (");
+        sql.append(") q0\r\nON (");
         for (DBColumn col : keyColumns)
         {   // compare 
-            buf.append(" q0.");
-            col.addSQL(buf, CTX_NAME);
-            buf.append("=");
-            buf.append(table.getAlias());
-            buf.append(".");
-            col.addSQL(buf, CTX_NAME);
+            sql.append(" q0.");
+            col.addSQL(sql, CTX_NAME);
+            sql.append("=");
+            sql.append(table.getAlias());
+            sql.append(".");
+            col.addSQL(sql, CTX_NAME);
         }
         // Set Expressions
-        buf.append(")\r\nWHEN MATCHED THEN UPDATE ");
-        buf.append("\r\nSET ");
-        addListExpr(buf, mergeSet, CTX_DEFAULT, ", ");
+        sql.append(")\r\nWHEN MATCHED THEN UPDATE ");
+        sql.append("\r\nSET ");
+        addListExpr(sql, mergeSet, CTX_DEFAULT, ", ");
     }
     
     /**
@@ -335,23 +336,23 @@ public class DBCommandOracle extends DBCommand
      */
     
     @Override
-    protected void addDeleteForTable(StringBuilder buf, DBRowSet table)
+    protected void addDeleteForTable(DBSQLBuilder sql, DBRowSet table)
     {
         if (StringUtils.isNotEmpty(optimizerHint))
         {   // Append an optimizer hint to the select statement e.g. SELECT /*+ RULE */
-            buf.append("/*+ ").append(optimizerHint).append(" */ ");
+            sql.append("/*+ ").append(optimizerHint).append(" */ ");
         }
-        super.addDeleteForTable(buf, table);
+        super.addDeleteForTable(sql, table);
     }
     
     @Override
-    protected void addDeleteWithJoins(StringBuilder buf, DBRowSet table)
+    protected void addDeleteWithJoins(DBSQLBuilder sql, DBRowSet table)
     {
         if (StringUtils.isNotEmpty(optimizerHint))
         {   // Append an optimizer hint to the select statement e.g. SELECT /*+ RULE */
-            buf.append("/*+ ").append(optimizerHint).append(" */ ");
+            sql.append("/*+ ").append(optimizerHint).append(" */ ");
         }
-        super.addDeleteWithJoins(buf, table);
+        super.addDeleteWithJoins(sql, table);
     }
 
 }

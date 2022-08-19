@@ -33,13 +33,14 @@ import org.apache.empire.db.DBDDLGenerator.DDLActionType;
 import org.apache.empire.db.DBDatabase;
 import org.apache.empire.db.DBObject;
 import org.apache.empire.db.DBRowSet;
+import org.apache.empire.db.DBSQLBuilder;
 import org.apache.empire.db.DBSQLScript;
 import org.apache.empire.db.DBTable;
 import org.apache.empire.db.DBTableColumn;
 import org.apache.empire.db.exceptions.EmpireSQLException;
+import org.apache.empire.dbms.DBMSFeature;
 import org.apache.empire.dbms.DBMSHandler;
 import org.apache.empire.dbms.DBMSHandlerBase;
-import org.apache.empire.dbms.DBMSFeature;
 import org.apache.empire.dbms.DBSqlPhrase;
 import org.apache.empire.exceptions.NotSupportedException;
 import org.slf4j.Logger;
@@ -93,17 +94,17 @@ public class DBMSHandlerMySQL extends DBMSHandlerBase
         }
         
         @Override
-        public void getSelect(StringBuilder buf)
+        public void getSelect(DBSQLBuilder sql)
         {   // call base class
-            super.getSelect(buf);
+            super.getSelect(sql);
             // add limit and offset
             if (limit>=0)
-            {   buf.append("\r\nLIMIT ");
-                buf.append(String.valueOf(limit));
+            {   sql.append("\r\nLIMIT ");
+                sql.append(String.valueOf(limit));
                 // Offset
                 if (skip>=0) 
-                {   buf.append(" OFFSET ");
-                    buf.append(String.valueOf(skip));
+                {   sql.append(" OFFSET ");
+                    sql.append(String.valueOf(skip));
                 }    
             }
         }
@@ -113,13 +114,13 @@ public class DBMSHandlerMySQL extends DBMSHandlerBase
          * @return the delete SQL-Command
          */
         @Override
-        protected void addDeleteWithJoins(StringBuilder buf, DBRowSet table)
+        protected void addDeleteWithJoins(DBSQLBuilder sql, DBRowSet table)
         {
             // DELETE with Multiple-Table Syntax
             // http://dev.mysql.com/doc/refman/5.7/en/delete.html
-            buf.append(table.getAlias());
-            addFrom(buf);
-            addWhere(buf);
+            sql.append(table.getAlias());
+            addFrom(sql);
+            addWhere(sql);
         }
     }
     
@@ -937,17 +938,17 @@ public class DBMSHandlerMySQL extends DBMSHandlerBase
                 skip  = -1;
             }
             @Override
-            public void getSelect(StringBuilder buf)
+            public void getSelect(DBSQLBuilder sql)
             {   // Prepares statement
-            	super.getSelect(buf);
+            	super.getSelect(sql);
                 // add limit and offset
                 if (limit>=0)
-                {   buf.append("\r\nLIMIT ");
-                    buf.append(String.valueOf(limit));
+                {   sql.append("\r\nLIMIT ");
+                    sql.append(String.valueOf(limit));
                     // Offset
                     if (skip>=0) 
-                    {   buf.append(" OFFSET ");
-                        buf.append(String.valueOf(skip));
+                    {   sql.append(" OFFSET ");
+                        sql.append(String.valueOf(skip));
                     }    
                 }
             }

@@ -25,6 +25,7 @@ import org.apache.empire.data.DataType;
 import org.apache.empire.db.DBColumn;
 import org.apache.empire.db.DBColumnExpr;
 import org.apache.empire.db.DBDatabase;
+import org.apache.empire.db.DBSQLBuilder;
 import org.apache.empire.exceptions.InvalidArgumentException;
 import org.apache.empire.xml.XMLUtil;
 import org.w3c.dom.Element;
@@ -131,29 +132,27 @@ public class DBVarArgsFuncExpr extends DBColumnExpr
     }
 
     @Override
-    public void addSQL(StringBuilder sql, long context)
+    public void addSQL(DBSQLBuilder sql, long context)
     {
-        StringBuilder b = new StringBuilder();
-        for (int i=0; i<cols.length; i++)
-        {
-            if (i>0)
-                b.append(", ");
-            // add SQL
-            DBColumnExpr col = cols[i];
-            col.addSQL(b, CTX_DEFAULT);
-        }    
         // Get Template
-        String prefix  = template;
-        String postfix = "";
+        String prefix = template;
+        String suffix = "";
         int sep = template.indexOf("?");
         if (sep >= 0)
-        {   prefix  = template.substring(0, sep);
-            postfix = template.substring(sep + 1);
+        {   prefix = template.substring(0, sep);
+            suffix = template.substring(sep + 1);
         } 
         // append
         sql.append(prefix);
-        sql.append(b.toString());
-        sql.append(postfix);
+        for (int i=0; i<cols.length; i++)
+        {   // separator
+            if (i>0)
+                sql.append(", ");
+            // add SQL
+            DBColumnExpr col = cols[i];
+            col.addSQL(sql, CTX_DEFAULT);
+        }    
+        sql.append(suffix);
     }
 
     @Override

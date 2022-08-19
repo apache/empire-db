@@ -28,6 +28,7 @@ import org.apache.empire.db.DBColumn;
 import org.apache.empire.db.DBColumnExpr;
 import org.apache.empire.db.DBDatabase;
 import org.apache.empire.db.DBExpr;
+import org.apache.empire.db.DBSQLBuilder;
 import org.apache.empire.dbms.DBMSHandler;
 import org.apache.empire.xml.XMLUtil;
 import org.w3c.dom.Element;
@@ -227,15 +228,15 @@ public class DBValueExpr extends DBColumnExpr
     /**
      * Creates the SQL-Command.
      * 
-     * @param buf the SQL-Command
+     * @param sql the SQL-Command
      * @param context the current SQL-Command context
      */
     @Override
-    public void addSQL(StringBuilder buf, long context)
+    public void addSQL(DBSQLBuilder sql, long context)
     {
         if (value instanceof DBExpr)
         {   // its an expression
-            ((DBExpr)value).addSQL(buf, context);
+            ((DBExpr)value).addSQL(sql, context);
         }
         else
         {   // unpack
@@ -246,7 +247,7 @@ public class DBValueExpr extends DBColumnExpr
             // convert value to sql literal
             DBMSHandler dbms = db.getDbms();
             String text = (dbms!=null) ? dbms.getValueString(dataValue, dataType) : ObjectUtils.getString(dataValue); 
-            buf.append(text);
+            sql.append(text);
         }
     }
 

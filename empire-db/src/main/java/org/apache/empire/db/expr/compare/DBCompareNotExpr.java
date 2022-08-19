@@ -24,6 +24,7 @@ import org.apache.empire.commons.ObjectUtils;
 import org.apache.empire.db.DBColumn;
 import org.apache.empire.db.DBCommand;
 import org.apache.empire.db.DBDatabase;
+import org.apache.empire.db.DBSQLBuilder;
 
 
 /**
@@ -105,22 +106,22 @@ public class DBCompareNotExpr extends DBCompareExpr
      * Creates the SQL-Command sets the specified compare value
      * (the varible boolOP) between the two DBCompareExpr objects.
      * 
-     * @param buf the SQL statment
+     * @param sql the SQL statment
      * @param context the current SQL-Command context
      */
     @Override
-    public void addSQL(StringBuilder buf, long context)
+    public void addSQL(DBSQLBuilder sql, long context)
     {
         // Name Only ?
         if ((context & CTX_VALUE)==0)
         { // add both values separated by ","
-            expr.addSQL(buf, context);
+            expr.addSQL(sql, context);
             return;
         }
         // add SQL
-        buf .append(" NOT(");
-        expr.addSQL(buf, context);
-        buf .append(" )");
+        sql .append(" NOT(");
+        expr.addSQL(sql, context);
+        sql .append(" )");
     }
 
     /**

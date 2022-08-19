@@ -20,6 +20,7 @@ package org.apache.empire.dbms.h2;
 
 import org.apache.empire.data.DataType;
 import org.apache.empire.db.DBDDLGenerator;
+import org.apache.empire.db.DBSQLBuilder;
 import org.apache.empire.db.DBTableColumn;
 
 public class H2DDLGenerator extends DBDDLGenerator<DBMSHandlerH2>
@@ -41,7 +42,7 @@ public class H2DDLGenerator extends DBDDLGenerator<DBMSHandlerH2>
     }
 
     @Override
-    protected boolean appendColumnDataType(DataType type, double size, DBTableColumn c, StringBuilder sql)
+    protected boolean appendColumnDataType(DataType type, double size, DBTableColumn c, DBSQLBuilder sql)
     {
         switch (type)
         {

@@ -18,17 +18,7 @@
  */
 package org.apache.empire.db;
 
-import java.util.Collection;
 import java.util.Set;
-
-import org.apache.empire.commons.ObjectUtils;
-import org.apache.empire.commons.OptionEntry;
-// java
-import org.apache.empire.data.DataType;
-import org.apache.empire.dbms.DBMSHandler;
-import org.apache.empire.exceptions.InvalidArgumentException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 
 /**
@@ -40,7 +30,6 @@ import org.slf4j.LoggerFactory;
 public abstract class DBExpr extends DBObject
 {
     // *Deprecated* private static final long serialVersionUID = 1L;
-    private static final Logger log = LoggerFactory.getLogger(DBExpr.class);
   
     // SQL Context Flags
     public static final long CTX_DEFAULT       = 7;  // Default: FullyQualified + Value
@@ -55,10 +44,10 @@ public abstract class DBExpr extends DBObject
     /**
      * Used to build the SQL command. SQL for this expression must be appended to StringBuilder.
      * 
-     * @param buf the string buffer used to build the sql command
+     * @param sql the string buffer used to build the sql command
      * @param context context flag for this SQL-Command (see CTX_??? constants).
      */
-    public abstract void addSQL(StringBuilder buf, long context);
+    public abstract void addSQL(DBSQLBuilder sql, long context);
 
     /**
      * Internal function to obtain all DBColumnExpr-objects used by this expression. 
@@ -66,107 +55,4 @@ public abstract class DBExpr extends DBObject
      * @param list list to which all used column expressions must be added
      */
     public abstract void addReferencedColumns(Set<DBColumn> list);
-
-    /**
-     * Appends the SQL representation of a value
-     * 
-     * @param StringBuilder but the SQL builder
-     * @param dataType the DataType
-     * @param value an DBExpr object, array or a basis data type(e.g. int, String)
-     * @param context the context of the DBColumnExpr object
-     * @param arraySep the separator value
-     * @return the new SQL-Command
-     */
-    protected void addSQLValue(StringBuilder buf, DataType dataType, Object value, long context, String arraySep)
-    {
-        // it's an Object
-        if (value instanceof DBExpr)
-        {   // it's an expression
-            ((DBExpr) value).addSQL(buf, context);
-            return;
-        } 
-        // check option entry
-        if (value instanceof OptionEntry)
-        {   // option value
-            value = ((OptionEntry)value).getValue();
-        }
-        // check enum
-        if (value instanceof Enum<?>)
-        {   // check enum
-            value = ObjectUtils.getEnumValue((Enum<?>)value, dataType.isNumeric());
-        }
-        else if (value instanceof Collection<?>)
-        {   // collection 2 array
-        	value = ((Collection<?>)value).toArray();
-        }
-        // Check whether it is an array
-        if (value!=null && value.getClass().isArray())
-        {   // An Array of Objects
-            Object[] array = (Object[]) value;
-            for (int i = 0; i < array.length; i++)
-            {   // Array Separator
-                if (i > 0 && arraySep != null)
-                    buf.append(arraySep);
-                // Append Value
-                addSQLValue(buf, dataType, array[i], context, arraySep);
-            }
-            return;
-        } 
-        else
-        {   // Scalar Value from DB
-            DBMSHandler dbms = getDatabase().getDbms();
-            if (dbms==null)
-            {   // Convert to String
-                log.warn("No DBMS set for getting object value. Using default!");
-                buf.append(String.valueOf(value));
-            }
-            // Get Value Expression from dmbs
-            buf.append(dbms.getValueString(value, dataType));
-        }
-    }
-    
-    /**
-     * Expands an SQL template and adds it to the SQL command
-     * 
-     * @param StringBuilder but the SQL builder
-     * @param template the SQL template
-     * @param values an array of values to be inserted into the template
-     * @param dataType the DataType
-     * @param context the context of the DBColumnExpr object
-     * @param arraySep the separator value
-     * @return the new SQL-Command
-     */
-   protected void addSQLTemplate(StringBuilder sql, String template, Object[] values, DataType[] dataTypes, long context, String arraySep)
-    {
-        int pos = 0;
-        while (true)
-        {
-            // find begin
-            int beg = template.indexOf('{', pos);
-            if (beg < 0)
-                break;
-            // append
-            sql.append(template.substring(pos, beg));
-            // find end
-            int end = template.indexOf('}', ++beg);
-            if (end < 0)
-                throw new InvalidArgumentException("template", template);
-            // part
-            int iParam = Integer.parseInt(template.substring(beg, end));
-            if (iParam<0 || iParam>=values.length)
-                throw new InvalidArgumentException("params", values);
-            // add value
-            DataType dataType = (dataTypes.length>=iParam ? dataTypes[iParam] : dataTypes[0]);
-            addSQLValue(sql, dataType, values[iParam], context, arraySep);
-            // next
-            pos = end + 1;
-        }
-        if (pos < template.length())
-        {   // add the rest
-            sql.append(template.substring(pos));
-            // special case: Nothing added yet
-            if (pos==0 && values!=null && values.length>0)
-                log.warn("No Placeholder for found in template {}!", template);
-        }
-    }
 }

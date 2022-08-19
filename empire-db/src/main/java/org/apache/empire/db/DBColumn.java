@@ -230,24 +230,24 @@ public abstract class DBColumn extends DBColumnExpr
      * Adds the colunm name to the SQL-Command. <br>
      * This can be either a qualified or unqualified name depending on the context.
      *
-     * @param buf the SQL statment
+     * @param sql the SQL statment
      * @param context the current SQL-Command context
      */
     @Override
-    public void addSQL(StringBuilder buf, long context)
+    public void addSQL(DBSQLBuilder sql, long context)
     { 
         // Append rowset alias
         if ((context & CTX_FULLNAME) != 0)
         {   // Fully Qualified Name
-            buf.append(rowset.getAlias());
-            buf.append(".");
+            sql.append(rowset.getAlias());
+            sql.append(".");
         }
         // Append the name
         DBMSHandler dbms = getDatabase().getDbms();
         if (dbms==null)
         	throw new DatabaseNotOpenException(getDatabase());
         // Append the name
-        dbms.appendObjectName(buf, name, quoteName);
+        dbms.appendObjectName(sql, name, quoteName);
     }
 
     /**

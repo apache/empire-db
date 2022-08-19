@@ -25,6 +25,7 @@ import org.apache.empire.db.DBColumn;
 import org.apache.empire.db.DBColumnExpr;
 import org.apache.empire.db.DBCommandExpr;
 import org.apache.empire.db.DBDatabase;
+import org.apache.empire.db.DBSQLBuilder;
 import org.apache.empire.exceptions.InvalidArgumentException;
 import org.apache.empire.xml.XMLUtil;
 import org.w3c.dom.Element;
@@ -96,10 +97,10 @@ public class DBCmdResultExpr extends DBColumnExpr
     }
 
     @Override
-    public void addSQL(StringBuilder buf, long context)
+    public void addSQL(DBSQLBuilder sql, long context)
     {
         // simply forward
-        cmdExpr.addSQL(buf, context);
+        cmdExpr.addSQL(sql, context);
     }
 
     @Override

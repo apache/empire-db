@@ -507,32 +507,32 @@ public abstract class DBDatabase extends DBObject
      * and database link postfix (if any).
      * to the string buffer supplied
      * 
-     * @param buf the string buffer to which to append the qualified object name
+     * @param sql the SQL Builder to which to append the qualified object name
      * @param name the object's name
      * @param quoteName use quotes or not. If null detectQuoteName() is called
      */
-    public void appendQualifiedName(StringBuilder buf, String name, Boolean quoteName)
+    public void appendQualifiedName(DBSQLBuilder sql, String name, Boolean quoteName)
     {
         // Schema
         if (schema != null)
         { // Add Schema
-            buf.append(schema);
-            buf.append(".");
+            sql.append(schema);
+            sql.append(".");
         }
         // Check dbms
         if (dbms==null)
         {   // No dbms attached!
             log.warn("No dbms attached for appending qualified name {0}.", name);
-            buf.append(name);
+            sql.append(name);
             return;
         }
         // Append the name
-        dbms.appendObjectName(buf, name, quoteName);
+        dbms.appendObjectName(sql, name, quoteName);
         // Database Link
         if (linkName!=null)
         {   // Add Link
-            buf.append(dbms.getSQLPhrase(DBSqlPhrase.SQL_DATABASE_LINK));
-            buf.append(linkName);
+            sql.append(dbms.getSQLPhrase(DBSqlPhrase.SQL_DATABASE_LINK));
+            sql.append(linkName);
         }
     }
     

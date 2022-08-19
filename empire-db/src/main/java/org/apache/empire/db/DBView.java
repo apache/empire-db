@@ -399,22 +399,22 @@ public abstract class DBView extends DBRowSet
     /**
      * Creates the SQL-Command adds the alias name to the SQL-Command.
      * 
-     * @param buf the SQL-Command
+     * @param sql the SQL-Command
      * @param context the current SQL-Command context
      */
     @Override
-    public void addSQL(StringBuilder buf, long context)
+    public void addSQL(DBSQLBuilder sql, long context)
     {
         // Append Name
         if ((context & CTX_NAME|CTX_FULLNAME)!=0)
         {   // append Qualified Name 
-            db.appendQualifiedName(buf, name, quoteName);
+            db.appendQualifiedName(sql, name, quoteName);
         }
         // Append Alias
         if ((context & CTX_ALIAS)!=0 && alias!=null)
         {    // append alias
-             buf.append(getRenameTablePhrase());
-             buf.append(alias);
+             sql.append(getRenameTablePhrase());
+             sql.append(alias);
         }
     }
 

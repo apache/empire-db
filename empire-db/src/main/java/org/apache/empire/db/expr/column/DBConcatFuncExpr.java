@@ -21,6 +21,7 @@ package org.apache.empire.db.expr.column;
 import org.apache.empire.data.DataType;
 import org.apache.empire.db.DBColumn;
 import org.apache.empire.db.DBColumnExpr;
+import org.apache.empire.db.DBSQLBuilder;
 import org.apache.empire.dbms.DBSqlPhrase;
 
 /**
@@ -110,32 +111,32 @@ public class DBConcatFuncExpr extends DBAbstractFuncExpr
     }
 
     @Override
-    public void addSQL(StringBuilder buf, long context)
+    public void addSQL(DBSQLBuilder sql, long context)
     {
         // get template
         String template = getDatabase().getDbms().getSQLPhrase(DBSqlPhrase.SQL_FUNC_CONCAT);
         int placeholder = template.indexOf('?');
         if (placeholder>=0)
-            buf.append(template.substring(0, placeholder));
+            sql.append(template.substring(0, placeholder));
         // concat 
-        first.addSQL(buf, context);
+        first.addSQL(sql, context);
         for (int i=0; i<others.length; i++)
         {
             if (placeholder>=0)
-                buf.append(", ");
+                sql.append(", ");
             else 
-                buf.append(template);
+                sql.append(template);
             // insert separator string
             if (separator!=null && separator.length()>0)
             {   // add a separator
-                buf.append("'");
-                buf.append(separator);
-                buf.append("', ");
+                sql.append("'");
+                sql.append(separator);
+                sql.append("', ");
             }
-            others[i].addSQL(buf, context);
+            others[i].addSQL(sql, context);
         }
         if (placeholder>=0)
-            buf.append(template.substring(placeholder+1));
+            sql.append(template.substring(placeholder+1));
     }
 
 }

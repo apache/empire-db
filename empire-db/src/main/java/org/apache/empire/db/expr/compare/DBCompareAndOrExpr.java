@@ -24,6 +24,7 @@ import org.apache.empire.commons.ObjectUtils;
 import org.apache.empire.db.DBColumn;
 import org.apache.empire.db.DBCommand;
 import org.apache.empire.db.DBDatabase;
+import org.apache.empire.db.DBSQLBuilder;
 
 
 /**
@@ -118,46 +119,46 @@ public class DBCompareAndOrExpr extends DBCompareExpr
      * Creates the SQL-Command sets the specified compare value 
      * (the varible boolOP) between the two DBCompareExpr objects.
      * 
-     * @param buf the SQL statment
+     * @param sql the SQL statment
      * @param context the current SQL-Command context
      */
     @Override
-    public void addSQL(StringBuilder buf, long context)
+    public void addSQL(DBSQLBuilder sql, long context)
     {
         // Name or Value Only ?
         if ((context & CTX_NAME )==0 ||
             (context & CTX_VALUE)==0)
         { // add both values separated by ","
-            left.addSQL(buf, context);
-            buf.append(",");
-            right.addSQL(buf, context);
+            left.addSQL(sql, context);
+            sql.append(",");
+            right.addSQL(sql, context);
             return;
         }
         // Parenthesis
         boolean parenthesis = ((context & CTX_NOPARENTHESES) == 0) && or;
         boolean nested = ((left instanceof DBCompareAndOrExpr) && ((DBCompareAndOrExpr)left).or==false);
         if (parenthesis)
-            buf.append("(");
+            sql.append("(");
         if (parenthesis && nested)
-            buf.append("(");
+            sql.append("(");
         // the left expression
-        left.addSQL(buf, context);
+        left.addSQL(sql, context);
         // Parenthesis
         if (parenthesis && nested)
-            buf.append(")");
+            sql.append(")");
         // Combine operator
-        buf.append((or ? " OR " : " AND "));
+        sql.append((or ? " OR " : " AND "));
         // Parenthesis
         nested = ((right instanceof DBCompareAndOrExpr) && ((DBCompareAndOrExpr)right).or==false);
         if (parenthesis && nested)
-            buf.append("(");
+            sql.append("(");
         // the right expression
-        right.addSQL(buf, context);
+        right.addSQL(sql, context);
         if (parenthesis && nested)
-            buf.append(")");
+            sql.append(")");
         // Parenthesis
         if (parenthesis)
-            buf.append(")");
+            sql.append(")");
     }
 
     /**

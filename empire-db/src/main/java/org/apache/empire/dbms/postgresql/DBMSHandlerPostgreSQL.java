@@ -33,6 +33,7 @@ import org.apache.empire.db.DBDDLGenerator;
 import org.apache.empire.db.DBDDLGenerator.DDLActionType;
 import org.apache.empire.db.DBDatabase;
 import org.apache.empire.db.DBObject;
+import org.apache.empire.db.DBSQLBuilder;
 import org.apache.empire.db.DBSQLScript;
 import org.apache.empire.db.DBTable;
 import org.apache.empire.db.DBTableColumn;
@@ -289,7 +290,7 @@ public class DBMSHandlerPostgreSQL extends DBMSHandlerBase
         {
             throw new InvalidArgumentException("column", column);
         }
-        StringBuilder sql = new StringBuilder(80);
+        DBSQLBuilder sql = new DBSQLBuilder(this);
         sql.append("nextval('");
         column.getDatabase().appendQualifiedName(sql, seqName, false);
         sql.append("')");

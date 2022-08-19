@@ -27,6 +27,7 @@ import org.apache.empire.data.DataType;
 import org.apache.empire.db.DBColumn;
 import org.apache.empire.db.DBColumnExpr;
 import org.apache.empire.db.DBDatabase;
+import org.apache.empire.db.DBSQLBuilder;
 import org.apache.empire.dbms.DBMSHandler;
 import org.apache.empire.dbms.DBSqlPhrase;
 import org.w3c.dom.Element;
@@ -187,27 +188,27 @@ public class DBAliasExpr extends DBColumnExpr implements Unwrappable<DBColumnExp
     /**
      * Creates the SQL-Command adds the alias name to the SQL-Command.
      *
-     * @param buf the SQL statment
+     * @param sql the SQL statment
      * @param context the current SQL-Command context
      */
     @Override
-    public void addSQL(StringBuilder buf, long context)
+    public void addSQL(DBSQLBuilder sql, long context)
     { // Append alias
         if((context & CTX_ALIAS)!=0)
         {   // Add the column expression
-            expr.addSQL(buf, context);
+            expr.addSQL(sql, context);
             // Rename
             DBMSHandler dbms = getDatabase().getDbms();
             String asExpr = dbms.getSQLPhrase(DBSqlPhrase.SQL_RENAME_COLUMN);
             if (asExpr!=null)
             {
-                buf.append(asExpr);
-                dbms.appendObjectName(buf, alias, null);
+                sql.append(asExpr);
+                dbms.appendObjectName(sql, alias, null);
             }
         } 
         else
         {
-            expr.addSQL(buf, context);
+            expr.addSQL(sql, context);
         }
     }
 
