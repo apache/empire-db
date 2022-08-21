@@ -19,6 +19,7 @@
 package org.apache.empire.db;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
@@ -128,8 +129,43 @@ public class DBCombinedCmd extends DBCommandExpr
         return left.getSelectExprList();
     }
 
+    @Override
+    public DBCmdParams getParams()
+    {
+        DBCmdParams lp = left.getParams();
+        DBCmdParams rp = right.getParams();
+        if (lp.isEmpty())
+            return rp;
+        if (rp.isEmpty())
+            return lp;
+        // combine
+        DBCmdParams params = new DBCmdParams() {
+            final ArrayList<DBCmdParam> list = new ArrayList<DBCmdParam>(lp.size()+rp.size());
+            {
+                for (DBCmdParam p : lp)
+                    list.add(p);
+                for (DBCmdParam p : rp)
+                    list.add(p);
+            }
+            @Override
+            public boolean isEmpty() {
+                return list.isEmpty();
+            }
+            @Override
+            public int size() {
+                return list.size();
+            }
+            @Override
+            public Iterator<DBCmdParam> iterator() {
+                return list.iterator();
+            }
+        };
+        return params;
+    }
+
     /**
     * Returns the list of parameter values for a prepared statement.
+    * To ensure the correct order, getSelect() must be called first.
     * @return the list of parameter values for a prepared statement 
     */
     @Override
@@ -151,7 +187,7 @@ public class DBCombinedCmd extends DBCommandExpr
         // return Params
         return allParams;
     }
-
+    
     /**
     * @return the DataType of the selected expression or DataType.UNKNOWN
     */

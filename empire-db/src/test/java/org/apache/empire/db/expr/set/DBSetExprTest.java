@@ -58,7 +58,7 @@ public class DBSetExprTest
     @Test
     public void testAddSQL()
     {
-        DBSQLBuilder builder = new DBSQLBuilder(dbms);
+        DBSQLBuilder builder = dbms.createSQLBuilder();
         expr.addSQL(builder, 0);
         assertEquals("", builder.toString());
         expr.addSQL(builder, DBExpr.CTX_DEFAULT);
@@ -68,7 +68,7 @@ public class DBSetExprTest
     @Test
     public void testAddSQLEmptyString()
     {
-        DBSQLBuilder builder = new DBSQLBuilder(dbms);
+        DBSQLBuilder builder = dbms.createSQLBuilder();
         DBSetExpr setExpr = new DBSetExpr(testDB.EMPLOYEE.FIRSTNAME, "");
         setExpr.addSQL(builder, DBExpr.CTX_DEFAULT);
         // Empire-DB by default sees '' as null
@@ -78,7 +78,7 @@ public class DBSetExprTest
     @Test
     public void testAddSQLEmptyStringConstant()
     {
-        DBSQLBuilder builder = new DBSQLBuilder(dbms);
+        DBSQLBuilder builder = dbms.createSQLBuilder();
         DBSetExpr setExpr = new DBSetExpr(testDB.EMPLOYEE.FIRSTNAME, DBDatabase.EMPTY_STRING);
         setExpr.addSQL(builder, DBExpr.CTX_DEFAULT);
         assertEquals("FIRSTNAME=''", builder.toString());

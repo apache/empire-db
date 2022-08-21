@@ -235,7 +235,7 @@ public class DBMSHandlerHSql extends DBMSHandlerBase
     @Override
     public Object getNextSequenceValue(DBDatabase db, String seqName, int minValue, Connection conn)
     { 	//Use Oracle Sequences
-        DBSQLBuilder sql = new DBSQLBuilder(this);
+        DBSQLBuilder sql = createSQLBuilder();
         sql.append("SELECT ");
         sql.append("NEXT VALUE FOR ");
         db.appendQualifiedName(sql, seqName, null);

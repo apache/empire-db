@@ -25,7 +25,6 @@ import org.apache.empire.db.DBColumnExpr;
 import org.apache.empire.db.DBCommand;
 import org.apache.empire.db.DBDatabase;
 import org.apache.empire.db.DBJoinType;
-import org.apache.empire.db.DBQuery;
 import org.apache.empire.db.DBRowSet;
 import org.apache.empire.db.DBSQLBuilder;
 
@@ -172,7 +171,6 @@ public class DBCrossJoinExpr extends DBJoinExpr
      * Valid only directly after addSQL() has been called!
      * @param which: both (==0) | left (<=0) | right (>=0)   
      * @return the subquery params;
-     */
     @Override
     public Object[] getSubqueryParams(int which)
     {
@@ -190,6 +188,7 @@ public class DBCrossJoinExpr extends DBJoinExpr
         }
         return (leftParams!=null ? leftParams : rightParams);
     }
+     */
 
     /**
      * Compares two DBJoinExpr objects.

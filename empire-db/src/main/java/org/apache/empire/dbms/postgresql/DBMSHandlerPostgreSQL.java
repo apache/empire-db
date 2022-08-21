@@ -290,7 +290,7 @@ public class DBMSHandlerPostgreSQL extends DBMSHandlerBase
         {
             throw new InvalidArgumentException("column", column);
         }
-        DBSQLBuilder sql = new DBSQLBuilder(this);
+        DBSQLBuilder sql = createSQLBuilder();
         sql.append("nextval('");
         column.getDatabase().appendQualifiedName(sql, seqName, false);
         sql.append("')");

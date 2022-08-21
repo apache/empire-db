@@ -141,7 +141,7 @@ public class MySQLDDLGenerator extends DBDDLGenerator<DBMSHandlerMySQL>
     @Override
     protected void createTable(DBTable t, DBSQLScript script)
     {
-        DBSQLBuilder sql = new DBSQLBuilder(dbms);
+        DBSQLBuilder sql = dbms.createSQLBuilder();
         sql.append("-- creating table ");
         sql.append(t.getName());
         sql.append(" --\r\n");
@@ -217,7 +217,7 @@ public class MySQLDDLGenerator extends DBDDLGenerator<DBMSHandlerMySQL>
         cmd.clearOrderBy();
 
         // Build String
-        DBSQLBuilder sql = new DBSQLBuilder(dbms);
+        DBSQLBuilder sql = dbms.createSQLBuilder();
         sql.append( "CREATE VIEW ");
         v.addSQL(sql, DBExpr.CTX_FULLNAME);
         sql.append( " (" );

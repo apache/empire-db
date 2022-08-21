@@ -256,6 +256,8 @@ public class DBCompareColExpr extends DBCompareExpr
                 // NONE
                 sql.append(" ");
         }
+        if (value instanceof DBCommandExpr)
+            System.out.println("DBCommandExpr");
         // append value
         sql.appendValue(expr.getDataType(), value, context, arraySep);
         // append suffix
@@ -293,7 +295,6 @@ public class DBCompareColExpr extends DBCompareExpr
     /**
      * Returns the subquery params if the comparison value is a DBCommand expression
      * @return the subquery params or null
-     */
     @Override
     public Object[] getSubqueryParams()
     {
@@ -302,6 +303,7 @@ public class DBCompareColExpr extends DBCompareExpr
         // nothing
         return null;
     }
+     */
 
     /**
      * Returns whether the constraint should replace another one or not.

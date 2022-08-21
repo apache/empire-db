@@ -56,7 +56,7 @@ public class SQLiteDDLGenerator extends DBDDLGenerator<DBMSHandlerSQLite>
 	@Override
 	protected void createTable(DBTable t, DBSQLScript script)
 	{
-		DBSQLBuilder sql = new DBSQLBuilder(dbms);
+		DBSQLBuilder sql = dbms.createSQLBuilder();
 		sql.append("-- creating table ");
 		sql.append(t.getName());
 		sql.append(" --\r\n");

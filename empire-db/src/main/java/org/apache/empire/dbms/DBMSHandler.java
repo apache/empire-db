@@ -58,6 +58,12 @@ public interface DBMSHandler
     void detachDatabase(DBDatabase db, Connection conn);
     
     /**
+     * This function creates a DBSQLBuilder for this DBMS
+     * @return a DBMS specific DBSQLBuilder object
+     */
+    DBSQLBuilder createSQLBuilder();
+
+    /**
      * This function creates a DBCommand for this DBMS
      * @param autoPrepareStmt whether or not the Command should automatically generate a prepared statement (using ?)
      * @return a DBMS specific DBCommand object

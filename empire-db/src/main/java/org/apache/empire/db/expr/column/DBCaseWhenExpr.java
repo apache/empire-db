@@ -18,6 +18,7 @@
  */
 package org.apache.empire.db.expr.column;
 
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -85,10 +86,19 @@ public class DBCaseWhenExpr extends DBColumnExpr
     public String getName()
     {
         DBCompareExpr firstCmpExpr = whenMap.keySet().iterator().next();
-        DBSQLBuilder sql = new DBSQLBuilder(getDatabase().getDbms());
-        sql.append("CASE_");
-        firstCmpExpr.addSQL(sql, CTX_NAME);
-        return sql.toString();
+        Set<DBColumn> cols = new HashSet<DBColumn>(1);
+        firstCmpExpr.addReferencedColumns(cols);
+        // build name
+        StringBuilder name = new StringBuilder(); 
+        name.append("CASE");
+        for (DBColumn col : cols)
+        {
+            name.append("_");
+            // name.append(col.getRowSet().getName());
+            // name.append("_");
+            name.append(col.getName());
+        }
+        return name.toString();
     }
 
     @Override

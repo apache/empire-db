@@ -94,11 +94,11 @@ public class DBCompareParenthesisExpr extends DBCompareExpr implements Unwrappab
     /**
      * Returns the subquery params if the compare expression
      * @return the subquery params or null
-     */
     @Override
     public Object[] getSubqueryParams()
     {
         return wrapped.getSubqueryParams();
     }
+     */
     
 }

@@ -335,7 +335,7 @@ public class DBQuery extends DBRowSet
     public void addSQL(DBSQLBuilder sql, long context)
     {
         sql.append("(");
-        sql.append(cmdExpr.getSelect());
+        sql.append(cmdExpr);
         sql.append(")");
         // Add Alias
         if ((context & CTX_ALIAS) != 0 && alias != null)

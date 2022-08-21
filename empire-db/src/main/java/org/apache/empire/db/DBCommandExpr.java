@@ -106,7 +106,7 @@ public abstract class DBCommandExpr extends DBExpr
         public void addSQL(DBSQLBuilder sql, long context)
         {
             sql.append("(");
-            sql.append(cmd.getSelect());
+            sql.append(cmd);
             sql.append(")");
         }
 
@@ -353,9 +353,11 @@ public abstract class DBCommandExpr extends DBExpr
         return sql.toString();
     }
     
+    public abstract DBCmdParams getParams();
+
     /**
      * returns an array holding all parameter values in the order of their occurrence.
-     * To ensure the correct order, getSelect() should be called first.
+     * To ensure the correct order, getSelect() must be called first.
      * @return an array of command parameter values 
      */
     public abstract Object[] getParamValues();
@@ -390,7 +392,7 @@ public abstract class DBCommandExpr extends DBExpr
     public void addSQL(DBSQLBuilder sql, long context)
     {
         sql.append("(");
-        sql.append(getSelect());
+        sql.append(this);
         sql.append(")");
     }
 
@@ -606,7 +608,7 @@ public abstract class DBCommandExpr extends DBExpr
      */
     protected DBSQLBuilder createSQLBuilder(String initalSQL)
     {
-        DBSQLBuilder sql = new DBSQLBuilder(getDbms());
+        DBSQLBuilder sql = getDbms().createSQLBuilder();
         if (initalSQL!=null)
             sql.append(initalSQL);
         return sql;
@@ -647,19 +649,8 @@ public abstract class DBCommandExpr extends DBExpr
             if (i > 0)
                 sql.append(separator);
             // append
-            addSqlExpr(sql, list.get(i), context);
+            list.get(i).addSQL(sql, context);
         }
-    }
-    
-    /**
-     * Internally used to append a single DBExpr to a sql command builder
-     * @param sql the sql target buffer
-     * @param expr the expression to append
-     * @param context the sql command context
-     */
-    protected void addSqlExpr(DBSQLBuilder sql, DBExpr expr, long context)
-    {
-        expr.addSQL(sql, context);
     }
     
     /**
@@ -673,8 +664,7 @@ public abstract class DBCommandExpr extends DBExpr
         if (select == null)
             throw new ObjectNotValidException(this);
         // prepare buffer
-        DBSQLBuilder sql = new DBSQLBuilder(getDatabase().getDbms());
-        sql.append("INSERT INTO ");
+        DBSQLBuilder sql = createSQLBuilder("INSERT INTO ");
         table.addSQL(sql, CTX_FULLNAME);
         // destination columns
         if (columns != null && columns.size() > 0)

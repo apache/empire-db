@@ -457,20 +457,18 @@ public class DBMSHandlerMSSQL extends DBMSHandlerBase
      * @see DBMSHandler#getSQLTextString(DataType type, Object value)
      */
     @Override
-    protected String getSQLTextString(DataType type, Object value)
-    {
+    protected String getSQLStringLiteral(DataType type, Object value)
+    {   // text
         if (value==null)
-            return getSQLPhrase(DBSqlPhrase.SQL_NULL);
-        // text
+            return getSQLPhrase(DBSqlPhrase.SQL_NULL); 
         String text = value.toString();
-        StringBuilder valBuf = new StringBuilder(text.length()+4);
+        StringBuilder sql = new StringBuilder(text.length()+2);
         // for SQLSERVER utf8 support, see EMPIREDB-122
-        valBuf.append((useUnicodePrefix) ? "N'" : "'");
-        if (DBDatabase.EMPTY_STRING.equals(value)==false)
-            appendSQLTextValue(valBuf, text);
-        valBuf.append("'");
-        return valBuf.toString();
-        
+        sql.append((useUnicodePrefix) ? "N'" : "'");
+        if (DBDatabase.EMPTY_STRING.equals(text)==false)
+            appendSQLTextValue(sql, text);
+        sql.append(TEXT_DELIMITER);
+        return sql.toString();
     }
     
     /**
@@ -559,7 +557,7 @@ public class DBMSHandlerMSSQL extends DBMSHandlerBase
     public void appendEnableRelationStmt(DBRelation r, boolean enable, DBSQLScript script)
     {
         // ALTER TABLE {table.name} {CHECK|NOCHECK} CONSTRAINT {relation.name}
-        DBSQLBuilder sql = new DBSQLBuilder(this);
+        DBSQLBuilder sql = createSQLBuilder();
         sql.append("ALTER TABLE ");
         r.getForeignKeyTable().addSQL(sql, DBExpr.CTX_FULLNAME);
         sql.append(enable ? " CHECK " : " NOCHECK ");

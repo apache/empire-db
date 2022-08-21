@@ -27,6 +27,7 @@ import org.apache.empire.data.DataType;
 import org.apache.empire.db.DBColumn;
 import org.apache.empire.db.DBColumnExpr;
 import org.apache.empire.db.DBDatabase;
+import org.apache.empire.db.DBQuery;
 import org.apache.empire.db.DBRowSet;
 import org.apache.empire.db.DBSQLBuilder;
 import org.apache.empire.xml.XMLUtil;
@@ -189,6 +190,8 @@ public class DBCountExpr extends DBColumnExpr
     {
         if (column!=null)
             column.addReferencedColumns(list);
+        else if (rowset instanceof DBQuery)
+            list.add(((DBQuery)rowset).getQueryColumns()[0]);
         else
             list.add(rowset.getColumn(0)); // select any column
     }

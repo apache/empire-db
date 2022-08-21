@@ -31,10 +31,10 @@ import org.slf4j.LoggerFactory;
 
 /**
  * DBSQLBuilder
- * This class is used when building a single SQL-statement 
+ * This class is used for building a single SQL statement 
  * @author doebele
  */
-public class DBSQLBuilder implements Appendable
+public abstract class DBSQLBuilder implements Appendable
 {
     private static final Logger log = LoggerFactory.getLogger(DBSQLBuilder.class);
     
@@ -42,9 +42,20 @@ public class DBSQLBuilder implements Appendable
     
     private final StringBuilder sql = new StringBuilder(64);
     
-    public DBSQLBuilder(DBMSHandler dbms)
+    private DBCmdParamList cmdParamList;
+
+    /**
+     *  Don't use this directly
+     *  Use dbms.createSQLBuilder()
+     */
+    protected DBSQLBuilder(DBMSHandler dbms)
     {
         this.dbms = dbms;
+    }
+    
+    public void setCmdParams(DBCmdParamList cmdParamList)
+    {
+        this.cmdParamList = cmdParamList;
     }
     
     /*
@@ -98,6 +109,27 @@ public class DBSQLBuilder implements Appendable
     {
         sql.append(dbms.getSQLPhrase(phrase));
         return this;
+    }
+    
+    public void append(DBCommandExpr subQueryCmd)
+    {
+        // subQueryCmd.addSQL(this, DBExpr.CTX_DEFAULT);
+        sql.append(subQueryCmd.getSelect());
+        
+        DBCmdParams params = subQueryCmd.getParams();
+        if (params.isEmpty())
+            return;
+
+        cmdParamList.mergeSubqueryParams(params);
+        
+        /*
+        // Check CmdParams
+        Object[] paramValues = subQueryCmd.getParamValues();
+        if (paramValues!=null && paramValues.length>0)
+        {   // Params Available
+            cmdParamList.mergeSubqueryParams(paramValues);
+        }
+        */
     }
 
     @Override

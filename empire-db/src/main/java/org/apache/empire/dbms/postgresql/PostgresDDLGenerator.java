@@ -153,7 +153,7 @@ public class PostgresDDLGenerator extends DBDDLGenerator<DBMSHandlerPostgreSQL>
     {
     	String seqName = dbms.getColumnSequenceName(column);
         // createSQL
-        DBSQLBuilder sql = new DBSQLBuilder(dbms);
+        DBSQLBuilder sql = dbms.createSQLBuilder();
         sql.append("-- creating sequence for column ");
         sql.append(column.getFullName());
         sql.append(" --\r\n");

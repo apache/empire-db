@@ -71,6 +71,8 @@ import org.slf4j.LoggerFactory;
 public abstract class DBMSHandlerBase implements DBMSHandler
 {
     private static final Logger log = LoggerFactory.getLogger(DBMSHandler.class);
+    
+    protected static final char     TEXT_DELIMITER       = '\'';
       
     // Illegal name chars and reserved SQL keywords
     protected static final char[]   ILLEGAL_NAME_CHARS   = new char[] { '@', '?', '>', '=', '<', ';', ':', 
@@ -87,9 +89,20 @@ public abstract class DBMSHandlerBase implements DBMSHandler
     protected String SEQUENCE_NAME_SUFFIX = "_SEQ";
     
     /**
+     * DBMSBuilder
+     * A Default DBSQLBuilder implementation with no additional features
+     */
+    public static final class DBMSBuilder extends DBSQLBuilder 
+    {
+        protected DBMSBuilder(DBMSHandler dbms)
+        {
+            super(dbms);
+        }
+    }
+    
+    /**
      * DBMSCommand
      * A Default DBCommand implementation with no additional features
-     * @author doebele
      */
     public static final class DBMSCommand extends DBCommand 
     {
@@ -247,7 +260,7 @@ public abstract class DBMSHandlerBase implements DBMSHandler
         String schema   = db.getSchema();
         String linkName = db.getLinkName();
         // build the statement
-        DBSQLBuilder sql = new DBSQLBuilder(this);
+        DBSQLBuilder sql = createSQLBuilder();
         sql.append("SELECT count(*) from ");
         if (schema != null)
         {   // Add Schema
@@ -287,6 +300,16 @@ public abstract class DBMSHandlerBase implements DBMSHandler
     public void detachDatabase(DBDatabase db, Connection conn)
     {
         /* Nothing here */
+    }
+
+    /**
+     * This function creates a DBSQLBuilder for this DBMS
+     * @return a DBMS specific DBSQLBuilder object
+     */
+    @Override
+    public DBSQLBuilder createSQLBuilder()
+    {
+        return new DBMSBuilder(this);
     }
 
     /**
@@ -548,7 +571,7 @@ public abstract class DBMSHandlerBase implements DBMSHandler
             case CHAR:
             case CLOB:
             case UNIQUEID:
-                return getSQLTextString(type, value);
+                return getSQLStringLiteral(type, value);
             case BOOL:
                 // Get Boolean value   
                 boolean boolVal = false;
@@ -1054,21 +1077,20 @@ public abstract class DBMSHandlerBase implements DBMSHandler
     /**
      * encodes Text values for an SQL command string.
      * @param type date type (can only be TEXT, CHAR, CLOB and UNIQUEID)
-     * @param value the text to be encoded
+     * @param text the text to be encoded
      * @return the encoded sql value
      */
-    protected String getSQLTextString(DataType type, Object value)
-    {
+    protected String getSQLStringLiteral(DataType type, Object value)
+    {   // text
         if (value==null)
-            return getSQLPhrase(DBSqlPhrase.SQL_NULL);
-        // text
+            return getSQLPhrase(DBSqlPhrase.SQL_NULL); 
         String text = value.toString();
-        StringBuilder valBuf = new StringBuilder(text.length()+2);
-        valBuf.append("'");
-        if (DBDatabase.EMPTY_STRING.equals(value)==false)
-            appendSQLTextValue(valBuf, text);
-        valBuf.append("'");
-        return valBuf.toString();
+        StringBuilder sql = new StringBuilder(text.length()+2);
+        sql.append(TEXT_DELIMITER);
+        if (DBDatabase.EMPTY_STRING.equals(text)==false)
+            appendSQLTextValue(sql, text);
+        sql.append(TEXT_DELIMITER);
+        return sql.toString();
     }
 
     /** 
@@ -1076,21 +1098,22 @@ public abstract class DBMSHandlerBase implements DBMSHandler
      */
     protected void appendSQLTextValue(StringBuilder sql, String value)
     {
-        if (value.indexOf('\'') >= 0)
-        { // a routine to double up single quotes for SQL
-            int len = value.length();
-            for (int i = 0; i < len; i++)
-            {
-                if (value.charAt(i) == '\'')
-                    sql.append("''");
-                else
-                    sql.append(value.charAt(i));
-            }
-        } 
-        else
-        {
-            sql.append(value);
+        int pos = 0;
+        int delim;
+        // find delimiter
+        while ((delim = value.indexOf(TEXT_DELIMITER, pos))>=0)
+        {   // append
+            if (delim>pos)
+                sql.append(value.substring(pos, delim));
+            // double up
+            sql.append("''");
+            // next
+            pos = delim + 1;
         }
+        if (pos==0)
+            sql.append(value); // add entire string
+        else if (pos < value.length())
+            sql.append(value.substring(pos)); // add the rest
     }
 
     /**

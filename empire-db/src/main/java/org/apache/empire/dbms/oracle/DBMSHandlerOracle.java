@@ -345,7 +345,7 @@ public class DBMSHandlerOracle extends DBMSHandlerBase
     @Override
     public Object getNextSequenceValue(DBDatabase db, String seqName, int minValue, Connection conn)
     { // Use Oracle Sequences
-        DBSQLBuilder sql = new DBSQLBuilder(this);
+        DBSQLBuilder sql = createSQLBuilder();
         sql.append("SELECT ");
         db.appendQualifiedName(sql, seqName, null);
         sql.append(".NEXTVAL FROM DUAL");
@@ -372,7 +372,7 @@ public class DBMSHandlerOracle extends DBMSHandlerBase
         String seqName = StringUtils.toString(column.getDefaultValue());
         if (StringUtils.isEmpty(seqName))
             throw new InvalidArgumentException("column", column);
-        DBSQLBuilder sql = new DBSQLBuilder(this);
+        DBSQLBuilder sql = createSQLBuilder();
         column.getDatabase().appendQualifiedName(sql, seqName, null);
         sql.append(".NEXTVAL");
         return new DBValueExpr(column.getDatabase(), sql.toString(), DataType.UNKNOWN);
@@ -430,7 +430,7 @@ public class DBMSHandlerOracle extends DBMSHandlerBase
     public void appendEnableRelationStmt(DBRelation r, boolean enable, DBSQLScript script)
     {
         // ALTER TABLE {table.name} {ENABLE|DISABLE} CONSTRAINT {relation.name}
-        DBSQLBuilder sql = new DBSQLBuilder(this);
+        DBSQLBuilder sql = createSQLBuilder();
         sql.append("ALTER TABLE ");
         r.getForeignKeyTable().addSQL(sql, DBExpr.CTX_FULLNAME);
         sql.append(enable ? " ENABLE " : " DISABLE ");

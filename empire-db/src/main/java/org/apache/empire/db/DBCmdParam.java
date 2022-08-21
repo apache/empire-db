@@ -102,7 +102,7 @@ public class DBCmdParam extends DBExpr
     {
         sql.append("?"); //$NON-NLS-1$
         // Move to current usage position
-        cmd.notifyParamUsage(this);
+        cmd.cmdParams.notifyParamUsage(this);
     }
     
     /**

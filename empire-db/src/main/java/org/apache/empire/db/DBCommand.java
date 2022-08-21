@@ -44,7 +44,6 @@ import org.apache.empire.dbms.DBSqlPhrase;
 import org.apache.empire.exceptions.InvalidArgumentException;
 import org.apache.empire.exceptions.ItemNotFoundException;
 import org.apache.empire.exceptions.ObjectNotValidException;
-import org.apache.empire.exceptions.UnspecifiedErrorException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -62,21 +61,27 @@ public abstract class DBCommand extends DBCommandExpr
     // Logger
     protected static final Logger log             = LoggerFactory.getLogger(DBCommand.class);
 
+    @Override
+    protected DBSQLBuilder createSQLBuilder(String initalSQL)
+    {
+        DBSQLBuilder sql = super.createSQLBuilder(initalSQL);
+        sql.setCmdParams(this.cmdParams);
+        return sql;
+    }
+
     // Distinct Select
-    protected boolean             selectDistinct  = false;
+    protected boolean              selectDistinct  = false;
     // Lists
-    protected List<DBColumnExpr>  select          = null;
-    protected List<DBSetExpr>     set             = null;
-    protected List<DBJoinExpr>    joins           = null;
-    protected List<DBCompareExpr> where           = null;
-    protected List<DBCompareExpr> having          = null;
-    protected List<DBColumnExpr>  groupBy         = null;
+    protected List<DBColumnExpr>   select          = null;
+    protected List<DBSetExpr>      set             = null;
+    protected List<DBJoinExpr>     joins           = null;
+    protected List<DBCompareExpr>  where           = null;
+    protected List<DBCompareExpr>  having          = null;
+    protected List<DBColumnExpr>   groupBy         = null;
 
     // Parameters for prepared Statements generation
-    protected boolean             autoPrepareStmt = false;
-    protected List<DBCmdParam>    cmdParams       = null;
-    private int                   paramUsageCount = 0;
-
+    protected boolean              autoPrepareStmt = false;
+    protected DBCmdParamList       cmdParams;
 
     /**
      * Custom serialization for transient database.
@@ -107,11 +112,22 @@ public abstract class DBCommand extends DBCommandExpr
      * 
      * @param db the current database object
      */
-    protected DBCommand(boolean autoPrepareStmt)
+    protected DBCommand(boolean autoPrepareStmt, DBCmdParamList cmdParams)
     {
         this.autoPrepareStmt = autoPrepareStmt;
+        this.cmdParams = cmdParams;
     }
 
+    /**
+     * Constructs a new DBCommand object and set the specified DBDatabase object.
+     * 
+     * @param db the current database object
+     */
+    protected DBCommand(boolean autoPrepareStmt)
+    {
+        this(autoPrepareStmt, new DBCmdParamList());
+    }
+    
     /**
      * @return true if auto Prepared Statements is activated for this record
      */
@@ -140,11 +156,10 @@ public abstract class DBCommand extends DBCommandExpr
             clone.groupBy = new ArrayList<DBColumnExpr>(groupBy);
         if (having!=null)
             clone.having = new ArrayList<DBCompareExpr>(having);
-        if (cmdParams!=null && !cmdParams.isEmpty())
-        {   // clone params
-            clone.paramUsageCount = 0;
-            clone.cmdParams = new ArrayList<DBCmdParam>(cmdParams.size());
-            // clone set
+        // clone params
+        clone.cmdParams = new DBCmdParamList(cmdParams.size());
+        if (!cmdParams.isEmpty())
+        {   // clone set
             for (int i=0; (clone.set!=null && i<clone.set.size()); i++)
                 clone.set.set(i, clone.set.get(i).copy(clone));
             // clone joins
@@ -176,6 +191,12 @@ public abstract class DBCommand extends DBCommandExpr
         // not valid yet
         throw new ObjectNotValidException(this);
     }
+
+    @Override
+    public DBCmdParams getParams()
+    {
+        return cmdParams;
+    }
     
     /**
      * internally used to reset the command param usage count.
@@ -183,13 +204,7 @@ public abstract class DBCommand extends DBCommandExpr
      */
     protected void resetParamUsage()
     {
-        paramUsageCount = 0;
-        if (cmdParams==null)
-            return;
-        // clear subquery params
-        for (int i=cmdParams.size()-1; i>=0 ;i--)
-            if (cmdParams.get(i).getCmd()!=this)
-                cmdParams.remove(i);
+        cmdParams.resetParamUsage(this);
     }
     
     /**
@@ -198,56 +213,22 @@ public abstract class DBCommand extends DBCommandExpr
      */
     protected void completeParamUsage()
     {
-        if (cmdParams==null)
-            return;
-        // check whether all params have been used
-        if (paramUsageCount < cmdParams.size())
-        {   // Remove unused parameters
-            log.warn("DBCommand has {} unused Command params", cmdParams.size()-paramUsageCount);
-            for (int i=cmdParams.size()-1; i>=paramUsageCount; i--)
-            {   // Remove temporary params
-                if (cmdParams.get(i).getCmd()!=this)
-                    cmdParams.remove(i);
-            }
-        }
+        cmdParams.completeParamUsage(this);
     }
     
-    /**
-     * internally used to reorder the command params to match their order of occurance
-     */
-    protected void notifyParamUsage(DBCmdParam param)
-    {
-        int index = cmdParams.indexOf(param);
-        if (index<0) 
-        {   // Error: parameter probably used twice in statement!
-            throw new UnspecifiedErrorException("The CmdParam has not been found on this Command.");
-        }
-        if (index < paramUsageCount)
-        {   // Warn: parameter used twice in statement!
-            log.debug("The DBCmdParam already been used. Adding a temporary copy");
-            cmdParams.add(paramUsageCount, new DBCmdParam(null, param.getDataType(), param.getValue()));
-        }
-        else if (index > paramUsageCount)
-        {   // Correct parameter order
-            cmdParams.remove(index);
-            cmdParams.add(paramUsageCount, param);
-        }
-        paramUsageCount++;
-    }
-
     /**
      * internally used to remove the command param used in a constraint
      */
    	protected void removeCommandParams(DBCompareExpr cmpExpr) 
    	{
-   	    if (cmdParams==null)
+   	    if (cmdParams.isEmpty())
    	        return; // Nothing to do
    	    // check type
    	    if (cmpExpr instanceof DBCompareColExpr)
    	    {   // DBCompareColExpr
    	        DBCompareColExpr cmp = ((DBCompareColExpr)cmpExpr);
             if (cmp.getValue() instanceof DBCmdParam)
-                cmdParams.remove(cmp.getValue());
+                cmdParams.remove((DBCmdParam)cmp.getValue());
    	    }
         else if (cmpExpr instanceof DBCompareAndOrExpr) 
         {   // DBCompareAndOrExpr
@@ -269,7 +250,7 @@ public abstract class DBCommand extends DBCommandExpr
      */
    	protected void removeAllCommandParams(List<DBCompareExpr> list)
     {
-        if (cmdParams == null)
+        if (list==null)
         	return;
         for(DBCompareExpr cmp : list)
         {   // Check the value is a DBCommandParam
@@ -545,8 +526,8 @@ public abstract class DBCommand extends DBCommandExpr
                 } 
                 else
                 {   // remove from parameter list (if necessary)
-                    if (cmdParams!=null && (chk.value instanceof DBCmdParam))
-                        cmdParams.remove(chk.value);
+                    if (chk.value instanceof DBCmdParam)
+                        cmdParams.remove((DBCmdParam)chk.value);
                 }
                 // replace now
                 set.set(i, expr);
@@ -621,8 +602,6 @@ public abstract class DBCommand extends DBCommandExpr
      */
     public DBCmdParam addParam(DataType type, Object value)
     {
-        if (cmdParams==null)
-            cmdParams= new ArrayList<DBCmdParam>();
         // Create and add the parameter to the parameter list 
         DBCmdParam param = new DBCmdParam(this, type, value);
         cmdParams.add(param);
@@ -1276,13 +1255,13 @@ public abstract class DBCommand extends DBCommandExpr
      */
     public void clearSet()
     {
-        if (set!=null && cmdParams!=null)
+        if (set!=null && !cmdParams.isEmpty())
         {   // remove params
             for (DBSetExpr set : this.set)
             {   // remove all
                 Object value = set.getValue();
                 if (value instanceof DBCmdParam)
-                    cmdParams.remove(value);
+                    cmdParams.remove((DBCmdParam)value);
             }
         }
         set = null;
@@ -1372,7 +1351,7 @@ public abstract class DBCommand extends DBCommandExpr
      */
     public void clear()
     {
-        cmdParams = null;
+        cmdParams.clear(0);
         clearSelectDistinct();
         clearSelect();
         clearSet();
@@ -1382,7 +1361,7 @@ public abstract class DBCommand extends DBCommandExpr
         clearGroupBy();
         clearOrderBy();
         clearLimit();
-        resetParamUsage();
+        // cmdParams.resetParamUsage(this);
     }
     
     /**
@@ -1575,18 +1554,8 @@ public abstract class DBCommand extends DBCommandExpr
     @Override
     public Object[] getParamValues()
     {
-        if (cmdParams==null || paramUsageCount==0)
-            return null;
-        // Check whether all parameters have been used
-        if (paramUsageCount!=cmdParams.size())
-	        log.info("DBCommand parameter count ("+String.valueOf(cmdParams.size())
-                   + ") does not match parameter use count ("+String.valueOf(paramUsageCount)+")");
-        // Create result array
-        Object[] values = new Object[paramUsageCount];
-        for (int i=0; i<values.length; i++)
-            values[i]=cmdParams.get(i).getValue();
         // values
-        return values;
+        return cmdParams.getParamValues();
     }
     
     /**
@@ -1761,7 +1730,7 @@ public abstract class DBCommand extends DBCommandExpr
         resetParamUsage();
         DBSQLBuilder sql = createSQLBuilder("DELETE ");
         // joins or simple
-         if (joins!=null && !joins.isEmpty())
+        if (joins!=null && !joins.isEmpty())
         {   // delete with joins
             addDeleteWithJoins(sql, table);
         }
@@ -1809,7 +1778,7 @@ public abstract class DBCommand extends DBCommandExpr
         sql.append("\r\nFROM ");
         // Join
         boolean sep = false;
-        int whichParams = 0;
+        // int whichParams = 0;
         List<DBRowSet> tables = getRowSetList();
         if (joins!=null && joins.size()>0)
         {   // Join
@@ -1827,7 +1796,7 @@ public abstract class DBCommand extends DBCommandExpr
                      tables.remove(join.getRightTable());
                      // Context
                      context = CTX_NAME|CTX_VALUE;
-                     whichParams = 0;
+                     // whichParams = 0;
                  }
                  else
                  {   // Extend the join                    
@@ -1839,10 +1808,11 @@ public abstract class DBCommand extends DBCommandExpr
                      // Context
                      context = CTX_VALUE;
                      sql.append( "\t" );
-                     whichParams = 1;
+                     // whichParams = 1;
                  }
                  // check
-                 addJoin(sql, join, context, whichParams);
+                 join.addSQL(sql, context);
+                 // cmdParams.addJoin(sql, join, context, whichParams);
                  // add CRLF
                  if( i!=joins.size()-1 )
                      sql.append("\r\n");
@@ -1854,11 +1824,6 @@ public abstract class DBCommand extends DBCommandExpr
             if (sep) sql.append(", ");
             DBRowSet t = tables.get(i); 
             t.addSQL(sql, CTX_DEFAULT|CTX_ALIAS);
-            // check for query
-            if (t instanceof DBQuery)
-            {   // Merge subquery params
-                mergeSubqueryParams(((DBQuery)t).getCommandExpr().getParamValues());
-            }
             sep = true;
         }
         if (sep==false)
@@ -1874,40 +1839,6 @@ public abstract class DBCommand extends DBCommandExpr
             }
         }
     }
-    
-    protected void addJoin(DBSQLBuilder sql, DBJoinExpr join, long context, int whichParams)
-    {
-        // remember insert pos
-        int paramInsertPos = paramUsageCount;
-        // now add the join
-        join.addSQL(sql, context);
-        // Merge subquery params
-        Object[] subQueryParams = join.getSubqueryParams(whichParams);
-        if (subQueryParams!=null)
-        {
-            if (paramInsertPos == paramUsageCount)
-                mergeSubqueryParams(subQueryParams);
-            else
-            {   // Some Params have been used in additional Join constraints
-                int tempCounter = paramUsageCount;
-                paramUsageCount = paramInsertPos;
-                mergeSubqueryParams(subQueryParams);
-                int insertCount = (paramUsageCount - paramInsertPos);
-                paramUsageCount = tempCounter + insertCount;
-            }
-        }
-    }
-    
-    protected void mergeSubqueryParams(Object[] subQueryParams)
-    {
-        if (subQueryParams==null || subQueryParams.length==0)
-            return;
-        // Subquery has parameters
-        if (cmdParams==null)
-            cmdParams= new ArrayList<DBCmdParam>(subQueryParams.length);
-        for (int p=0; p<subQueryParams.length; p++)
-            cmdParams.add(paramUsageCount++, new DBCmdParam(null, DataType.UNKNOWN, subQueryParams[p]));
-    }
 
     protected void addWhere(DBSQLBuilder sql, long context)
     {
@@ -1922,18 +1853,6 @@ public abstract class DBCommand extends DBCommandExpr
     protected final void addWhere(DBSQLBuilder sql)
     {
         addWhere(sql, CTX_DEFAULT);
-    }
-    
-    @Override
-    protected void addSqlExpr(DBSQLBuilder sql, DBExpr expr, long context)
-    {
-        // append
-        super.addSqlExpr(sql, expr, context);
-        // check for DBCompareExpr
-        if (expr instanceof DBCompareExpr)
-        {   // merge
-            mergeSubqueryParams(((DBCompareExpr)expr).getSubqueryParams());
-        }
     }
 
     protected void addGrouping(DBSQLBuilder sql)

@@ -141,7 +141,7 @@ public class OracleDDLGenerator extends DBDDLGenerator<DBMSHandlerOracle>
     {
         String seqName = dbms.getColumnSequenceName(column);
         // createSQL
-        DBSQLBuilder sql = new DBSQLBuilder(dbms);
+        DBSQLBuilder sql = dbms.createSQLBuilder();
         sql.append("-- creating sequence for column ");
         sql.append(column.getFullName());
         sql.append(" --\r\n");
@@ -171,7 +171,7 @@ public class OracleDDLGenerator extends DBDDLGenerator<DBMSHandlerOracle>
     {
         if (comment==null || comment.length()==0)
             return; // Nothing to do
-        DBSQLBuilder sql = new DBSQLBuilder(dbms);
+        DBSQLBuilder sql = dbms.createSQLBuilder();
         sql.append("COMMENT ON ");
         sql.append(type);
         sql.append(" ");

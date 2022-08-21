@@ -383,7 +383,7 @@ public abstract class DBDDLGenerator<T extends DBMSHandler>
      */
     protected void createTable(DBTable t, DBSQLScript script)
     {
-        DBSQLBuilder sql = new DBSQLBuilder(dbms);
+        DBSQLBuilder sql = dbms.createSQLBuilder();
         sql.append("-- creating table ");
         sql.append(t.getName());
         sql.append(" --\r\n");
@@ -454,7 +454,7 @@ public abstract class DBDDLGenerator<T extends DBMSHandler>
      */
     protected void createIndex(DBTable t, DBIndex idx, DBSQLScript script)
     {
-        DBSQLBuilder sql = new DBSQLBuilder(dbms);
+        DBSQLBuilder sql = dbms.createSQLBuilder();
         // Create Index
         sql.append((idx.getType().isUnique()) ? "CREATE UNIQUE INDEX " : "CREATE INDEX ");
         appendElementName(sql, idx.getName());
@@ -487,7 +487,7 @@ public abstract class DBDDLGenerator<T extends DBMSHandler>
         DBTable sourceTable = (DBTable) r.getReferences()[0].getSourceColumn().getRowSet();
         DBTable targetTable = (DBTable) r.getReferences()[0].getTargetColumn().getRowSet();
 
-        DBSQLBuilder sql = new DBSQLBuilder(dbms);
+        DBSQLBuilder sql = dbms.createSQLBuilder();
         sql.append("-- creating foreign key constraint ");
         sql.append(r.getName());
         sql.append(" --\r\n");
@@ -535,7 +535,7 @@ public abstract class DBDDLGenerator<T extends DBMSHandler>
      */
     protected void alterTable(DBTableColumn col, DDLActionType type, DBSQLScript script)
     {
-        DBSQLBuilder sql = new DBSQLBuilder(dbms);
+        DBSQLBuilder sql = dbms.createSQLBuilder();
         sql.append("ALTER TABLE ");
         col.getRowSet().addSQL(sql, DBExpr.CTX_FULLNAME);
         switch(type)
@@ -580,7 +580,7 @@ public abstract class DBDDLGenerator<T extends DBMSHandler>
         cmd.clearOrderBy();
 
         // Build String
-        DBSQLBuilder sql = new DBSQLBuilder(dbms);
+        DBSQLBuilder sql = dbms.createSQLBuilder();
         sql.append( "CREATE VIEW ");
         v.addSQL(sql, DBExpr.CTX_FULLNAME);
         sql.append( " (" );
@@ -611,7 +611,7 @@ public abstract class DBDDLGenerator<T extends DBMSHandler>
         if (StringUtils.isEmpty(name))
             throw new InvalidArgumentException("name", name);
         // Create Drop Statement
-        DBSQLBuilder sql = new DBSQLBuilder(dbms);
+        DBSQLBuilder sql = dbms.createSQLBuilder();
         sql.append("DROP ");
         sql.append(objType);
         sql.append(" ");

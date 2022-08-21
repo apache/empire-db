@@ -153,13 +153,13 @@ public class DBExistsExpr extends DBCompareExpr
     /**
      * Returns the subquery params if the compare expression
      * @return the subquery params or null
-     */
     @Override
     public Object[] getSubqueryParams()
     {
         // none
         return cmd.getParamValues();
     }
+     */
    
     /**
      * Returns wheter the constraint should replace another one or not.

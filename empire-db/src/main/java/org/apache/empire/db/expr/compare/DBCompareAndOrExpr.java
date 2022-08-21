@@ -164,7 +164,6 @@ public class DBCompareAndOrExpr extends DBCompareExpr
     /**
      * Returns the subquery params if the two expressions to be combined
      * @return the subquery params or null
-     */
     @Override
     public Object[] getSubqueryParams()
     {
@@ -172,6 +171,7 @@ public class DBCompareAndOrExpr extends DBCompareExpr
         Object[] rParams = right.getSubqueryParams();
         return ObjectUtils.combine(lParams, rParams);
     }
+     */
     
     /**
      * Returns whether the constraint should replace another one or not.
