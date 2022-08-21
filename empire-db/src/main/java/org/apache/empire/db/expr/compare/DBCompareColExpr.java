@@ -293,19 +293,6 @@ public class DBCompareColExpr extends DBCompareExpr
     }
 
     /**
-     * Returns the subquery params if the comparison value is a DBCommand expression
-     * @return the subquery params or null
-    @Override
-    public Object[] getSubqueryParams()
-    {
-        if (value instanceof DBCommandExpr)
-            return ((DBCommandExpr)value).getParamValues();
-        // nothing
-        return null;
-    }
-     */
-
-    /**
      * Returns whether the constraint should replace another one or not.
      * 
      * @return true it the constraints are mutually exclusive or false otherwise

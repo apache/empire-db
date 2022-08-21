@@ -123,16 +123,6 @@ public class DBCompareNotExpr extends DBCompareExpr
         expr.addSQL(sql, context);
         sql .append(" )");
     }
-
-    /**
-     * Returns the subquery params if the compare expression
-     * @return the subquery params or null
-    @Override
-    public Object[] getSubqueryParams()
-    {
-        return expr.getSubqueryParams();
-    }
-     */
     
     /**
      * Returns whether the constraint should replace another one or not.

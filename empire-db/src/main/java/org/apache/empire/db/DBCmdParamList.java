@@ -144,6 +144,21 @@ public class DBCmdParamList implements DBCmdParams
     }
     
     /**
+     * Used to merge CmdParams from a subquery with the current command params list
+     * @param subQueryParams
+     */
+    public void mergeSubqueryParams(DBCmdParams subQueryParams)
+    {
+        if (subQueryParams==null || subQueryParams.isEmpty())
+            return;
+        // Subquery has parameters
+        if (cmdParams==null)
+            cmdParams= new ArrayList<DBCmdParam>(subQueryParams.size());
+        for (DBCmdParam p : subQueryParams)
+            cmdParams.add(paramUsageCount++, new DBCmdParam(null, DataType.UNKNOWN, p.getValue()));
+    }
+    
+    /**
      * internally used to reorder the command params to match their order of occurance
      */
     protected void notifyParamUsage(DBCmdParam param)
@@ -165,53 +180,4 @@ public class DBCmdParamList implements DBCmdParams
         }
         paramUsageCount++;
     }
-    
-    public void mergeSubqueryParams(DBCmdParams subQueryParams)
-    {
-        if (subQueryParams==null || subQueryParams.isEmpty())
-            return;
-        // Subquery has parameters
-        if (cmdParams==null)
-            cmdParams= new ArrayList<DBCmdParam>(subQueryParams.size());
-        for (DBCmdParam p : subQueryParams)
-            cmdParams.add(paramUsageCount++, new DBCmdParam(null, DataType.UNKNOWN, p.getValue()));
-    }
-
-    /*
-    protected void mergeSubqueryParamsObsolete(Object[] subQueryParams)
-    {
-        if (subQueryParams==null || subQueryParams.length==0)
-            return;
-        // Subquery has parameters
-        if (cmdParams==null)
-            cmdParams= new ArrayList<DBCmdParam>(subQueryParams.length);
-        for (int p=0; p<subQueryParams.length; p++)
-            cmdParams.add(paramUsageCount++, new DBCmdParam(null, DataType.UNKNOWN, subQueryParams[p]));
-        log.warn("mergeSubqueryParamsObsolete");
-    }
-    
-    public void addJoin(DBSQLBuilder sql, DBJoinExpr join, long context, int whichParams)
-    {
-        // remember insert pos
-        int paramInsertPos = paramUsageCount;
-        // now add the join
-        join.addSQL(sql, context);
-        // Merge subquery params
-        Object[] subQueryParams = join.getSubqueryParams(whichParams);
-        if (subQueryParams!=null)
-        {
-            if (paramInsertPos == paramUsageCount)
-                mergeSubqueryParamsObsolete(subQueryParams);
-            else
-            {   // Some Params have been used in additional Join constraints
-                int tempCounter = paramUsageCount;
-                paramUsageCount = paramInsertPos;
-                mergeSubqueryParamsObsolete(subQueryParams);
-                int insertCount = (paramUsageCount - paramInsertPos);
-                paramUsageCount = tempCounter + insertCount;
-            }
-        }
-    }
-    */
-    
 }

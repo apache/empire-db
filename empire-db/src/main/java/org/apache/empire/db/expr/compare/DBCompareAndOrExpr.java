@@ -160,18 +160,6 @@ public class DBCompareAndOrExpr extends DBCompareExpr
         if (parenthesis)
             sql.append(")");
     }
-
-    /**
-     * Returns the subquery params if the two expressions to be combined
-     * @return the subquery params or null
-    @Override
-    public Object[] getSubqueryParams()
-    {
-        Object[] lParams = left.getSubqueryParams();
-        Object[] rParams = right.getSubqueryParams();
-        return ObjectUtils.combine(lParams, rParams);
-    }
-     */
     
     /**
      * Returns whether the constraint should replace another one or not.

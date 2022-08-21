@@ -167,30 +167,6 @@ public class DBCrossJoinExpr extends DBJoinExpr
     }
 
     /**
-     * Returns the subquery Params
-     * Valid only directly after addSQL() has been called!
-     * @param which: both (==0) | left (<=0) | right (>=0)   
-     * @return the subquery params;
-    @Override
-    public Object[] getSubqueryParams(int which)
-    {
-        Object[] leftParams  = (which<=0 && (left  instanceof DBQuery)) ? ((DBQuery)left ).getCommandExpr().getParamValues() : null;
-        Object[] rightParams = (which>=0 && (right instanceof DBQuery)) ? ((DBQuery)right).getCommandExpr().getParamValues() : null;
-        if (leftParams!=null && rightParams!=null)
-        {   // combine
-            Object[] both = new Object[leftParams.length+rightParams.length];
-            int index = 0;
-            for (int i=0; i<leftParams.length; i++)
-                both[index++] = leftParams[i];
-            for (int i=0; i<rightParams.length; i++)
-                both[index++] = rightParams[i];
-            return both;
-        }
-        return (leftParams!=null ? leftParams : rightParams);
-    }
-     */
-
-    /**
      * Compares two DBJoinExpr objects.
      * 
      * @param obj other DBJoinExpr object
