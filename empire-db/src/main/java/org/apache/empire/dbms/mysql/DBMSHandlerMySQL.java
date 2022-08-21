@@ -124,6 +124,43 @@ public class DBMSHandlerMySQL extends DBMSHandlerBase
         }
     }
     
+    /**
+     * Provides a DBSQLBuilder implementation for MySQL
+     */
+    public static class DBSQLBuilderMySQL extends DBSQLBuilder 
+    {
+        public DBSQLBuilderMySQL(DBMSHandlerMySQL dbms)
+        {
+            super(dbms);
+        }
+        
+        @Override
+        protected void escapeAndAppendLiteral(String value)
+        {
+            if (value.indexOf('\'') >= 0 || value.indexOf('\\') >= 0)
+            {
+                int len = value.length();
+                for (int i = 0; i < len; i++)
+                {
+                    if (value.charAt(i) == '\'')
+                    {   // a routine to double up single quotes for SQL
+                        sql.append("''");
+                    }
+                    else if (value.charAt(i) == '\\')
+                    {   // a routine to double up backslashes for MySQL
+                        sql.append("\\\\");
+                    } 
+                    else
+                    {   // normal
+                        sql.append(value.charAt(i));
+                    }
+                }
+            } else {
+                sql.append(value);
+            }
+        }
+    }
+    
     // Properties
     private String databaseName = null;
     private String characterSet = "utf8";
@@ -904,6 +941,16 @@ public class DBMSHandlerMySQL extends DBMSHandlerBase
         return new DBCommandMySQL(autoPrepareStmt);
     }
 
+    /**
+     * Creates a new MySQL SQL-Builder.
+     * @return the new DBSQLBuilder object
+     */
+    @Override
+    public DBSQLBuilder createSQLBuilder()
+    {
+        return new DBSQLBuilderMySQL(this);
+    }
+
     @Override
     /**
      * Creates a combined command that supports limit() and skip()
@@ -1138,33 +1185,5 @@ public class DBMSHandlerMySQL extends DBMSHandlerBase
         ddlGenerator.getDDLScript(type, dbo, script); 
     }
 
-    /** 
-     * this helper function doubles up single quotes for SQL 
-     */
-    @Override
-    protected void appendSQLTextValue(StringBuilder buf, String value)
-    {
-        if (value.indexOf('\'') >= 0 || value.indexOf('\\') >= 0)
-        {
-        	int len = value.length();
-            for (int i = 0; i < len; i++)
-            {
-                if (value.charAt(i) == '\'')
-                { // a routine to double up single quotes for SQL
-                    buf.append("''");
-                }
-                else if (value.charAt(i) == '\\')
-                { // a routine to double up backslashes for MySQL
-                	buf.append("\\\\");
-                } else
-                {
-                	buf.append(value.charAt(i));
-                }
-            }
-        } else 
-        {
-            buf.append(value);
-        }
-    }
     
 }

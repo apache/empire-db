@@ -24,9 +24,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Timestamp;
-import java.text.SimpleDateFormat;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
@@ -71,8 +68,6 @@ import org.slf4j.LoggerFactory;
 public abstract class DBMSHandlerBase implements DBMSHandler
 {
     private static final Logger log = LoggerFactory.getLogger(DBMSHandler.class);
-    
-    protected static final char     TEXT_DELIMITER       = '\'';
       
     // Illegal name chars and reserved SQL keywords
     protected static final char[]   ILLEGAL_NAME_CHARS   = new char[] { '@', '?', '>', '=', '<', ';', ':', 
@@ -529,75 +524,6 @@ public abstract class DBMSHandlerBase implements DBMSHandler
             return rset.getObject(columnIndex);
         }
     }
-   
-    /**
-     * Returns a sql string for a given value. 
-     * Text will be enclosed in single quotes and existing single quotes will be doubled.
-     * Empty strings are treated as null.
-     * The syntax of Date, Datetime and Boolean values are DBMS specific.
-     * 
-     * @param value the value which is inserted to the new String
-     * @param type the sql data type of the supplied value
-     * @return the sql string representing this value
-     */
-    @Override
-    public String getValueString(Object value, DataType type)
-    { 
-        if (value instanceof Enum<?>)
-        {   // convert enum
-            log.warn("Enum of type {} supplied for getValueString. Converting value...", value.getClass().getName());
-            value = ObjectUtils.getEnumValue((Enum<?>)value, type.isNumeric());
-        }
-        if (ObjectUtils.isEmpty(value))
-        {   // null
-            return getSQLPhrase(DBSqlPhrase.SQL_NULL);
-        }
-        // set string buffer
-        switch (type)
-        {
-            case DATE:
-                return getSQLDateTimeString(value, DBSqlPhrase.SQL_DATE_TEMPLATE, DBSqlPhrase.SQL_DATE_PATTERN, DBSqlPhrase.SQL_CURRENT_DATE);
-            case TIME:
-                return getSQLDateTimeString(value, DBSqlPhrase.SQL_TIME_TEMPLATE, DBSqlPhrase.SQL_TIME_PATTERN, DBSqlPhrase.SQL_CURRENT_TIME);
-            case DATETIME:
-                // Only date (without time) provided?
-                if (!DBDatabase.SYSDATE.equals(value) && !(value instanceof Date) && ObjectUtils.lengthOf(value)<=10)
-                    return getSQLDateTimeString(value, DBSqlPhrase.SQL_DATE_TEMPLATE, DBSqlPhrase.SQL_DATE_PATTERN, DBSqlPhrase.SQL_CURRENT_TIMESTAMP);
-                // Complete Date-Time Object with time 
-                return getSQLDateTimeString(value, DBSqlPhrase.SQL_DATETIME_TEMPLATE, DBSqlPhrase.SQL_DATETIME_PATTERN, DBSqlPhrase.SQL_CURRENT_TIMESTAMP);
-            case TIMESTAMP:
-                return getSQLDateTimeString(value, DBSqlPhrase.SQL_TIMESTAMP_TEMPLATE, DBSqlPhrase.SQL_TIMESTAMP_PATTERN, DBSqlPhrase.SQL_CURRENT_TIMESTAMP);
-            case VARCHAR:
-            case CHAR:
-            case CLOB:
-            case UNIQUEID:
-                return getSQLStringLiteral(type, value);
-            case BOOL:
-                // Get Boolean value   
-                boolean boolVal = false;
-                if (value instanceof Boolean)
-                {   boolVal = ((Boolean) value).booleanValue();
-                } 
-                else
-                { // Boolean from String
-                    boolVal = stringToBoolean(value.toString());
-                }
-                return getSQLPhrase((boolVal) ? DBSqlPhrase.SQL_BOOLEAN_TRUE : DBSqlPhrase.SQL_BOOLEAN_FALSE);
-            case INTEGER:
-            case DECIMAL:
-            case FLOAT:
-                return getSQLNumberString(value, type);
-            case BLOB:
-                throw new NotSupportedException(this, "getValueString(?, DataType.BLOB)"); 
-            case AUTOINC:
-            case UNKNOWN:
-                /* Allow expressions */
-                return value.toString();
-            default:
-                log.warn("Unknown DataType {} for getValueString().", type);
-                return value.toString();
-        }
-    }
     
     /**
      * Executes the select, update or delete SQL-Command with a Statement object.
@@ -980,152 +906,6 @@ public abstract class DBMSHandlerBase implements DBMSHandler
             if (log.isTraceEnabled())
                 log.trace("Statement param {} set to '{}'", paramIndex, value);
         }
-    }
-    
-    /**
-     * encodes a numeric value for an SQL command string. 
-     * @param value the numeric value
-     * @param type the number data type
-     * @return the string reprentation of the number
-     */
-    protected String getSQLNumberString(Object value, DataType type)
-    {
-        // already a number
-        if (value instanceof Number)
-            return value.toString();
-        
-        // check if it is a number
-        String s = value.toString();
-        boolean integerOnly = (type==DataType.INTEGER);
-        for (int i=0; i<s.length(); i++)
-        {
-            char c = s.charAt(i);
-            if (c>='0' && c<='9')
-                continue; // OK
-            if (c=='-' || c=='+')
-                continue; // OK
-            if (c==' ' && i>0)
-                return s.substring(0,i);
-            // check 
-            if (integerOnly || (c!='.' && c!=','))
-                throw new NumberFormatException(s);
-        }
-        return s;
-    }
-
-    /**
-     * encodes a Date value for an SQL command string. 
-     * @param value
-     * @param sqlTemplate
-     * @param sqlPattern
-     * @param sqlCurrentDate
-     * @return
-     */
-    protected String getSQLDateTimeString(Object value, DBSqlPhrase sqlTemplate, DBSqlPhrase sqlPattern, DBSqlPhrase sqlCurrentDate)
-    {
-        // is it a sysdate expression
-        if (DBDatabase.SYSDATE.equals(value))
-            return getSQLPhrase(sqlCurrentDate);
-        // Format the date (ymd)
-        Timestamp ts; 
-        if ((value instanceof Timestamp)) 
-        {   // We have a timestamp
-            ts = (Timestamp)value;
-        }
-        else if ((value instanceof Date))
-        {   // Convert Date to Timestamp
-            ts = new Timestamp(((Date)value).getTime());
-        }
-        else if ((value instanceof LocalDate))
-        {   // Convert LocalDate to Timestamp
-            ts = java.sql.Timestamp.valueOf(((LocalDate)value).atStartOfDay());
-        }
-        else if ((value instanceof LocalDateTime))
-        {   // Convert LocalDateTime to Timestamp
-            ts = java.sql.Timestamp.valueOf((LocalDateTime)value);
-        }
-        else 
-        {   // "Timestamp format must be yyyy-mm-dd hh:mm:ss[.fffffffff]"
-            String dtValue = value.toString().trim();
-            try
-            {   // parse timestamp
-                ts = Timestamp.valueOf(dtValue);
-            } catch (Throwable e) {
-                // Invalid date
-                log.error("Unable to parse date value "+dtValue, e);
-                throw new InvalidArgumentException("value", value);
-            }
-        }
-        // Convert to String
-        String pattern = getSQLPhrase(sqlPattern);
-        SimpleDateFormat sqlFormat = new SimpleDateFormat(getSQLPhrase(sqlPattern));
-        String datetime = sqlFormat.format(ts);
-        // Add micro / nanoseconds
-        int nanos = (ts.getNanos() % 1000000);
-        if (pattern.endsWith(".SSS") && nanos>0)
-        {   // Add nanoseconds
-            if (((nanos) % 100)>0)
-                datetime += String.format("%06d", nanos);
-            else
-                datetime += String.format("%04d",(nanos/100));
-        }
-        // Now Build String
-        String template = getSQLPhrase(sqlTemplate);
-        return StringUtils.replace(template, "{0}", datetime);
-    }
-
-    /**
-     * encodes Text values for an SQL command string.
-     * @param type date type (can only be TEXT, CHAR, CLOB and UNIQUEID)
-     * @param text the text to be encoded
-     * @return the encoded sql value
-     */
-    protected String getSQLStringLiteral(DataType type, Object value)
-    {   // text
-        if (value==null)
-            return getSQLPhrase(DBSqlPhrase.SQL_NULL); 
-        String text = value.toString();
-        StringBuilder sql = new StringBuilder(text.length()+2);
-        sql.append(TEXT_DELIMITER);
-        if (DBDatabase.EMPTY_STRING.equals(text)==false)
-            appendSQLTextValue(sql, text);
-        sql.append(TEXT_DELIMITER);
-        return sql.toString();
-    }
-
-    /** 
-     * this helper function doubles up single quotes for SQL 
-     */
-    protected void appendSQLTextValue(StringBuilder sql, String value)
-    {
-        int pos = 0;
-        int delim;
-        // find delimiter
-        while ((delim = value.indexOf(TEXT_DELIMITER, pos))>=0)
-        {   // append
-            if (delim>pos)
-                sql.append(value.substring(pos, delim));
-            // double up
-            sql.append("''");
-            // next
-            pos = delim + 1;
-        }
-        if (pos==0)
-            sql.append(value); // add entire string
-        else if (pos < value.length())
-            sql.append(value.substring(pos)); // add the rest
-    }
-
-    /**
-     * this function converts a string containing a boolean expression to a boolean. 
-     * @param value the string containing a boolean expression
-     * @return true if the string contains either "true", "y" or "1" or false otherwise
-     */
-    protected boolean stringToBoolean(final String value) 
-    {
-        return "1".equals(value) ||
-               "true".equalsIgnoreCase(value) ||
-               "y".equalsIgnoreCase(value);
     }
 
 }

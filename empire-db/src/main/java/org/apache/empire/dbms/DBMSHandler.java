@@ -117,18 +117,6 @@ public interface DBMSHandler
     String getConvertPhrase(DataType destType, DataType srcType, Object format);
 
     /**
-     * Creates a sql string for a given value. 
-     * Text will be enclosed in single quotes and existing single quotes will be doubled.
-     * Empty strings are treated as null.
-     * Syntax of Date, Datetime and Boolean values are vendor specific.
-     * 
-     * @param value the value which is inserted to the new String
-     * @param type the sql data type of the supplied value
-     * @return the sql string representing this value
-     */
-    String getValueString(Object value, DataType type);
-
-    /**
      * Returns a DMBS-Timestamp that is used for record updates.
      * @param conn the connection that might be used 
      * @return the current date and time.

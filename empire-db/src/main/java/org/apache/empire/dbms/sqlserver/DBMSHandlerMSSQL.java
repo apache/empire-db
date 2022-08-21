@@ -59,8 +59,8 @@ public class DBMSHandlerMSSQL extends DBMSHandlerBase
     private static final Logger log = LoggerFactory.getLogger(DBMSHandlerMSSQL.class);
   
     /**
-     * Defines the Microsoft SQL-Server command type.
-     */ 
+     * Provides a DBCommand implementation for Microsoft SQL-Server
+     */
     public static class DBCommandMSSQL extends DBCommand
     {
         // *Deprecated* private static final long serialVersionUID = 1L;
@@ -100,6 +100,36 @@ public class DBMSHandlerMSSQL extends DBMSHandlerBase
             }
             // Add Select Expressions
             addListExpr(sql, select, CTX_ALL, ", ");
+        }
+    }
+    
+    /**
+     * Provides a DBSQLBuilder implementation for Microsoft SQL-Server
+     */
+    public static class DBSQLBuilderMSSQL extends DBSQLBuilder 
+    {
+        private final boolean useUnicodePrefix;
+        
+        public DBSQLBuilderMSSQL(DBMSHandlerMSSQL dbms)
+        {
+            super(dbms);
+            // init
+            this.useUnicodePrefix = dbms.useUnicodePrefix;
+        }
+        
+        @Override
+        protected void appendStringLiteral(DataType type, Object value)
+        {   // text
+            if (value==null)
+            {   append(DBSqlPhrase.SQL_NULL);
+                return;
+            }
+            String text = value.toString();
+            // for SQLSERVER utf8 support, see EMPIREDB-122
+            sql.append((useUnicodePrefix) ? "N'" : "'");
+            if (DBDatabase.EMPTY_STRING.equals(text)==false)
+                escapeAndAppendLiteral(text);
+            sql.append(TEXT_DELIMITER);
         }
     }
     
@@ -275,14 +305,23 @@ public class DBMSHandlerMSSQL extends DBMSHandlerBase
 
     /**
      * Creates a new Microsoft SQL-Server command object.
-     * 
-     * @return the new DBCommandMSSQL object
+     * @return the new DBCommand object
      */
     @Override
     public DBCommand createCommand(boolean autoPrepareStmt)
     {
         // create command object
         return new DBCommandMSSQL(autoPrepareStmt);
+    }
+    
+    /**
+     * Creates a new Microsoft SQL-Server SQL-Builder.
+     * @return the new DBSQLBuilder object
+     */
+    @Override
+    public DBSQLBuilder createSQLBuilder()
+    {
+        return new DBSQLBuilderMSSQL(this);
     }
 
     /**
@@ -451,24 +490,6 @@ public class DBMSHandlerMSSQL extends DBMSHandlerBase
             throw new NotSupportedException(this, "getNextSequenceValueExpr");
         // automatic identity management
         return null;
-    }
-
-    /**
-     * @see DBMSHandler#getSQLTextString(DataType type, Object value)
-     */
-    @Override
-    protected String getSQLStringLiteral(DataType type, Object value)
-    {   // text
-        if (value==null)
-            return getSQLPhrase(DBSqlPhrase.SQL_NULL); 
-        String text = value.toString();
-        StringBuilder sql = new StringBuilder(text.length()+2);
-        // for SQLSERVER utf8 support, see EMPIREDB-122
-        sql.append((useUnicodePrefix) ? "N'" : "'");
-        if (DBDatabase.EMPTY_STRING.equals(text)==false)
-            appendSQLTextValue(sql, text);
-        sql.append(TEXT_DELIMITER);
-        return sql.toString();
     }
     
     /**

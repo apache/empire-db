@@ -18,14 +18,21 @@
  */
 package org.apache.empire.db;
 
+import java.sql.Timestamp;
+import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Collection;
+import java.util.Date;
 
 import org.apache.empire.commons.ObjectUtils;
 import org.apache.empire.commons.OptionEntry;
+import org.apache.empire.commons.StringUtils;
 import org.apache.empire.data.DataType;
 import org.apache.empire.dbms.DBMSHandler;
 import org.apache.empire.dbms.DBSqlPhrase;
 import org.apache.empire.exceptions.InvalidArgumentException;
+import org.apache.empire.exceptions.NotSupportedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -36,13 +43,15 @@ import org.slf4j.LoggerFactory;
  */
 public abstract class DBSQLBuilder implements Appendable
 {
-    private static final Logger log = LoggerFactory.getLogger(DBSQLBuilder.class);
-    
-    private final DBMSHandler dbms;
-    
-    private final StringBuilder sql = new StringBuilder(64);
-    
-    private DBCmdParamList cmdParamList;
+    private static final Logger log            = LoggerFactory.getLogger(DBSQLBuilder.class);
+
+    protected static final char   TEXT_DELIMITER = '\'';
+
+    protected final DBMSHandler   dbms;
+
+    protected final StringBuilder sql            = new StringBuilder(64);
+
+    protected DBCmdParamList      cmdParamList;
 
     /**
      *  Don't use this directly
@@ -56,6 +65,15 @@ public abstract class DBSQLBuilder implements Appendable
     public void setCmdParams(DBCmdParamList cmdParamList)
     {
         this.cmdParamList = cmdParamList;
+    }
+    
+    /**
+     * returns the SQL as a String 
+     */
+    @Override
+    public String toString()
+    {
+        return sql.toString();
     }
     
     /*
@@ -104,6 +122,23 @@ public abstract class DBSQLBuilder implements Appendable
         sql.append(sqlLiteral, start, end);
         return this;
     }
+
+    @Override
+    public DBSQLBuilder append(char c)
+    {
+        sql.append(c);
+        return this;
+    }
+
+    public DBSQLBuilder append(long l) {
+        sql.append(l);
+        return this;
+    }
+
+    public DBSQLBuilder append(double d) {
+        sql.append(d);
+        return this;
+    }
     
     public DBSQLBuilder append(DBSqlPhrase phrase)
     {
@@ -113,66 +148,35 @@ public abstract class DBSQLBuilder implements Appendable
     
     public void append(DBCommandExpr subQueryCmd)
     {
-        // subQueryCmd.addSQL(this, DBExpr.CTX_DEFAULT);
+        // append select
         sql.append(subQueryCmd.getSelect());
-        
+        // check params
         DBCmdParams params = subQueryCmd.getParams();
         if (params.isEmpty())
             return;
-
+        // cmdParamList
+        if (cmdParamList==null)
+            throw new NotSupportedException(this, "append command with params");
+        // merge
         cmdParamList.mergeSubqueryParams(params);
-        
-        /*
-        // Check CmdParams
-        Object[] paramValues = subQueryCmd.getParamValues();
-        if (paramValues!=null && paramValues.length>0)
-        {   // Params Available
-            cmdParamList.mergeSubqueryParams(paramValues);
-        }
-        */
-    }
-
-    @Override
-    public DBSQLBuilder append(char c)
-    {
-        sql.append(c);
-        return this;
-    }
-    
-    public DBSQLBuilder append(boolean b) {
-        sql.append(b);
-        return this;
-    }
-
-    public DBSQLBuilder append(int i) {
-        sql.append(i);
-        return this;
-    }
-
-    public DBSQLBuilder append(long l) {
-        sql.append(l);
-        return this;
-    }
-
-    public DBSQLBuilder append(float f) {
-        sql.append(f);
-        return this;
-    }
-
-    public DBSQLBuilder append(double d) {
-        sql.append(d);
-        return this;
     }
 
     /**
      * Appends the SQL representation of a value
-     * 
-     * @param StringBuilder but the SQL builder
+     * @param dataType the DataType
+     * @param value an DBExpr object, array or a basis data type(e.g. int, String)
+     */
+    public void appendValue(DataType type, Object value)
+    {
+        appendValue(type, value, DBExpr.CTX_DEFAULT, "+");
+    }
+    
+    /**
+     * Appends the SQL representation of a value
      * @param dataType the DataType
      * @param value an DBExpr object, array or a basis data type(e.g. int, String)
      * @param context the context of the DBColumnExpr object
      * @param arraySep the separator value
-     * @return the new SQL-Command
      */
     public void appendValue(DataType dataType, Object value, long context, String arraySep)
     {
@@ -211,7 +215,7 @@ public abstract class DBSQLBuilder implements Appendable
         } 
         else
         {   // Get Value Expression from dmbs
-            sql.append(dbms.getValueString(value, dataType));
+            appendSimpleValue(dataType, value);
         }
     }
     
@@ -260,12 +264,233 @@ public abstract class DBSQLBuilder implements Appendable
         }
     }
     
-    /**
-     * returns the SQL as a String 
+    /*
+     * internal
      */
-    @Override
-    public String toString()
-    {
-        return sql.toString();
+    
+    /**
+     * Returns a sql string for a given value. 
+     * Text will be enclosed in single quotes and existing single quotes will be doubled.
+     * Empty strings are treated as null.
+     * The syntax of Date, Datetime and Boolean values are DBMS specific.
+     * 
+     * @param value the value which is inserted to the new String
+     * @param type the sql data type of the supplied value
+     * @return the sql string representing this value
+     */
+    protected void appendSimpleValue(DataType type, Object value)
+    { 
+        if (value instanceof Enum<?>)
+        {   // convert enum
+            log.warn("Enum of type {} supplied for getValueString. Converting value...", value.getClass().getName());
+            value = ObjectUtils.getEnumValue((Enum<?>)value, type.isNumeric());
+        }
+        if (ObjectUtils.isEmpty(value))
+        {   // null
+            sql.append(DBSqlPhrase.SQL_NULL);
+            return;
+        }
+        // set string buffer
+        switch (type)
+        {
+            case DATE:
+                sql.append(getDateTimeString(value, DBSqlPhrase.SQL_DATE_TEMPLATE, DBSqlPhrase.SQL_DATE_PATTERN, DBSqlPhrase.SQL_CURRENT_DATE));
+                return;
+            case TIME:
+                sql.append(getDateTimeString(value, DBSqlPhrase.SQL_TIME_TEMPLATE, DBSqlPhrase.SQL_TIME_PATTERN, DBSqlPhrase.SQL_CURRENT_TIME));
+                return;
+            case DATETIME:
+                String text;
+                // Only date (without time) provided?
+                if (!DBDatabase.SYSDATE.equals(value) && !(value instanceof Date) && ObjectUtils.lengthOf(value)<=10)
+                    text = getDateTimeString(value, DBSqlPhrase.SQL_DATE_TEMPLATE, DBSqlPhrase.SQL_DATE_PATTERN, DBSqlPhrase.SQL_CURRENT_TIMESTAMP);
+                else // Complete Date-Time Object with time
+                    text = getDateTimeString(value, DBSqlPhrase.SQL_DATETIME_TEMPLATE, DBSqlPhrase.SQL_DATETIME_PATTERN, DBSqlPhrase.SQL_CURRENT_TIMESTAMP);
+                sql.append(text);
+                return;
+            case TIMESTAMP:
+                sql.append(getDateTimeString(value, DBSqlPhrase.SQL_TIMESTAMP_TEMPLATE, DBSqlPhrase.SQL_TIMESTAMP_PATTERN, DBSqlPhrase.SQL_CURRENT_TIMESTAMP));
+                return;
+            case VARCHAR:
+            case CHAR:
+            case CLOB:
+            case UNIQUEID:
+                appendStringLiteral(type, value);
+                return;
+            case BOOL:
+                // Get Boolean value   
+                boolean boolVal = false;
+                if (value instanceof Boolean)
+                {   boolVal = ((Boolean) value).booleanValue();
+                } 
+                else
+                {   // Boolean from String
+                    boolVal = stringToBoolean(value.toString());
+                }
+                sql.append((boolVal) ? DBSqlPhrase.SQL_BOOLEAN_TRUE : DBSqlPhrase.SQL_BOOLEAN_FALSE);
+                return;
+            case INTEGER:
+            case DECIMAL:
+            case FLOAT:
+                sql.append(getNumberString(value, type));
+                return;
+            case BLOB:
+                throw new NotSupportedException(this, "appendSimpleValue(DataType.BLOB)"); 
+            case AUTOINC:
+            case UNKNOWN:
+                /* Allow expressions */
+                sql.append(value.toString());
+                return;
+            default:
+                log.warn("Unknown DataType {} for getValueString().", type);
+                sql.append(value.toString());
+        }
     }
+
+    /**
+     * encodes a Date value for an SQL command string. 
+     * @param value
+     * @param sqlTemplate
+     * @param sqlPattern
+     * @param sqlCurrentDate
+     * @return
+     */
+    protected String getDateTimeString(Object value, DBSqlPhrase sqlTemplate, DBSqlPhrase sqlPattern, DBSqlPhrase sqlCurrentDate)
+    {
+        // is it a sysdate expression
+        if (DBDatabase.SYSDATE.equals(value))
+            return dbms.getSQLPhrase(sqlCurrentDate);
+        // Format the date (ymd)
+        Timestamp ts; 
+        if ((value instanceof Timestamp)) 
+        {   // We have a timestamp
+            ts = (Timestamp)value;
+        }
+        else if ((value instanceof Date))
+        {   // Convert Date to Timestamp
+            ts = new Timestamp(((Date)value).getTime());
+        }
+        else if ((value instanceof LocalDate))
+        {   // Convert LocalDate to Timestamp
+            ts = java.sql.Timestamp.valueOf(((LocalDate)value).atStartOfDay());
+        }
+        else if ((value instanceof LocalDateTime))
+        {   // Convert LocalDateTime to Timestamp
+            ts = java.sql.Timestamp.valueOf((LocalDateTime)value);
+        }
+        else 
+        {   // "Timestamp format must be yyyy-mm-dd hh:mm:ss[.fffffffff]"
+            String dtValue = value.toString().trim();
+            try
+            {   // parse timestamp
+                ts = Timestamp.valueOf(dtValue);
+            } catch (Throwable e) {
+                // Invalid date
+                log.error("Unable to parse date value "+dtValue, e);
+                throw new InvalidArgumentException("value", value);
+            }
+        }
+        // Convert to String
+        String pattern = dbms.getSQLPhrase(sqlPattern);
+        SimpleDateFormat sqlFormat = new SimpleDateFormat(dbms.getSQLPhrase(sqlPattern));
+        String datetime = sqlFormat.format(ts);
+        // Add micro / nanoseconds
+        int nanos = (ts.getNanos() % 1000000);
+        if (pattern.endsWith(".SSS") && nanos>0)
+        {   // Add nanoseconds
+            if (((nanos) % 100)>0)
+                datetime += String.format("%06d", nanos);
+            else
+                datetime += String.format("%04d",(nanos/100));
+        }
+        // Now Build String
+        String template = dbms.getSQLPhrase(sqlTemplate);
+        return StringUtils.replace(template, "{0}", datetime);
+    }
+
+    /**
+     * encodes Text values for an SQL command string.
+     * @param type date type (can only be TEXT, CHAR, CLOB and UNIQUEID)
+     * @param text the text to be encoded
+     * @return the encoded sql value
+     */
+    protected void appendStringLiteral(DataType type, Object value)
+    {   // text
+        if (value==null)
+        {   append(DBSqlPhrase.SQL_NULL);
+            return;
+        }
+        String text = value.toString();
+        sql.append(TEXT_DELIMITER);
+        if (DBDatabase.EMPTY_STRING.equals(text)==false)
+            escapeAndAppendLiteral(text);
+        sql.append(TEXT_DELIMITER);
+    }
+
+    /** 
+     * this helper function doubles up single quotes for SQL 
+     */
+    protected void escapeAndAppendLiteral(String value)
+    {
+        int pos = 0;
+        int delim;
+        // find delimiter
+        while ((delim = value.indexOf(TEXT_DELIMITER, pos))>=0)
+        {   // append
+            if (delim>pos)
+                sql.append(value.substring(pos, delim));
+            // double up
+            sql.append("''");
+            // next
+            pos = delim + 1;
+        }
+        if (pos==0)
+            sql.append(value); // add entire string
+        else if (pos < value.length())
+            sql.append(value.substring(pos)); // add the rest
+    }
+    
+    /**
+     * encodes a numeric value for an SQL command string. 
+     * @param value the numeric value
+     * @param type the number data type
+     * @return the string representation of the number
+     */
+    protected String getNumberString(Object value, DataType type)
+    {
+        // already a number
+        if (value instanceof Number)
+            return value.toString();
+        
+        // check if it is a number
+        String s = value.toString();
+        boolean integerOnly = (type==DataType.INTEGER);
+        for (int i=0; i<s.length(); i++)
+        {
+            char c = s.charAt(i);
+            if (c>='0' && c<='9')
+                continue; // OK
+            if (c=='-' || c=='+')
+                continue; // OK
+            if (c==' ' && i>0)
+                return s.substring(0,i);
+            // check 
+            if (integerOnly || (c!='.' && c!=','))
+                throw new NumberFormatException(s);
+        }
+        return s;
+    }
+
+    /**
+     * this function converts a string containing a boolean expression to a boolean. 
+     * @param value the string containing a boolean expression
+     * @return true if the string contains either "true", "y" or "1" or false otherwise
+     */
+    protected boolean stringToBoolean(final String value) 
+    {
+        return "1".equals(value) ||
+               "true".equalsIgnoreCase(value) ||
+               "y".equalsIgnoreCase(value);
+    }
+    
 }

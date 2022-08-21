@@ -27,10 +27,10 @@ import org.apache.empire.data.DataType;
 import org.apache.empire.db.DBColumn;
 import org.apache.empire.db.DBColumnExpr;
 import org.apache.empire.db.DBDatabase;
-import org.apache.empire.db.DBExpr;
 import org.apache.empire.db.DBSQLBuilder;
-import org.apache.empire.dbms.DBMSHandler;
 import org.apache.empire.xml.XMLUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.w3c.dom.Element;
 
 
@@ -45,6 +45,7 @@ import org.w3c.dom.Element;
 public class DBValueExpr extends DBColumnExpr
 {
     // *Deprecated* private static final long serialVersionUID = 1L;
+    private static final Logger log = LoggerFactory.getLogger(DBValueExpr.class);
   
     public final DBDatabase   db;
     public final DataType     type;
@@ -234,21 +235,10 @@ public class DBValueExpr extends DBColumnExpr
     @Override
     public void addSQL(DBSQLBuilder sql, long context)
     {
-        if (value instanceof DBExpr)
-        {   // its an expression
-            ((DBExpr)value).addSQL(sql, context);
-        }
+        if ((context & CTX_VALUE)!=0)
+            sql.appendValue(getDataType(), value);
         else
-        {   // unpack
-            DataType dataType = getDataType();
-            Object dataValue = value;
-            if (dataValue instanceof Enum<?>)
-                dataValue = ObjectUtils.getEnumValue((Enum<?>)dataValue, dataType.isNumeric());
-            // convert value to sql literal
-            DBMSHandler dbms = db.getDbms();
-            String text = (dbms!=null) ? dbms.getValueString(dataValue, dataType) : ObjectUtils.getString(dataValue); 
-            sql.append(text);
-        }
+            log.warn("Cannot add SQL for DBValueExpr using context {}", context);
     }
 
     /**
