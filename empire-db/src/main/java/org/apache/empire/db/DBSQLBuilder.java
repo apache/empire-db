@@ -327,7 +327,7 @@ public abstract class DBSQLBuilder implements Appendable
                 {   // Boolean from String
                     boolVal = stringToBoolean(value.toString());
                 }
-                sql.append((boolVal) ? DBSqlPhrase.SQL_BOOLEAN_TRUE : DBSqlPhrase.SQL_BOOLEAN_FALSE);
+                append((boolVal) ? DBSqlPhrase.SQL_BOOLEAN_TRUE : DBSqlPhrase.SQL_BOOLEAN_FALSE);
                 return;
             case INTEGER:
             case DECIMAL:
