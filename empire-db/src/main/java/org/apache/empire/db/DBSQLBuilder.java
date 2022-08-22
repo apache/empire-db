@@ -287,7 +287,7 @@ public abstract class DBSQLBuilder implements Appendable
         }
         if (ObjectUtils.isEmpty(value))
         {   // null
-            sql.append(DBSqlPhrase.SQL_NULL);
+            append(DBSqlPhrase.SQL_NULL);
             return;
         }
         // set string buffer
