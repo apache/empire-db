@@ -292,6 +292,56 @@ public final class ObjectUtils
     }
     
     /**
+     * Compares two objects for equality 
+     * 
+     * @param o1 the first object
+     * @param o2 the second object
+     * 
+     * @return true if both objects are equal or false otherwise
+     */
+    @SuppressWarnings("unchecked")
+    public static int compare(Object o1, Object o2)
+    {
+        // simple case
+        if (o1==o2)
+            return 0;
+        // Check for Empty Values
+        if (isEmpty(o1))
+            return isEmpty(o2) ? 0 : -1;
+        if (isEmpty(o2))
+            return isEmpty(o1) ? 0 :  1;
+        // Check classes
+        if (o1.getClass().equals(o2.getClass()))
+        {   // Check if object implements comparable
+            if (o1 instanceof Comparable)
+                return ((Comparable<Object>)o1).compareTo(o2);
+            if (o2 instanceof Comparable)
+                return ((Comparable<Object>)o2).compareTo(o1);
+        }    
+        // Use equal check first
+        if (o1.equals(o2) || o2.equals(o1))
+            return 0;
+        // Compare Numbers
+        if (o1 instanceof Number && o2 instanceof Number)
+        {   // boolean test = obj1.equals(obj2);
+            double d1 = ((Number)o1).doubleValue();
+            double d2 = ((Number)o2).doubleValue();
+            return ((d1<d2) ? -1 : ((d1>d2) ? 1 : 0));
+        }
+        // Compare Date with LocalDate / LocalDateTime
+        if (o1 instanceof Temporal && o2 instanceof Date)
+        {   // swap
+            Object tmp = o2; o2 = o1; o1 = tmp; 
+        }
+        if (o1 instanceof Date && o2 instanceof LocalDate)
+            return compare(o1, DateUtils.toDate((LocalDate)o2));
+        if (o1 instanceof Date && o2 instanceof LocalDateTime)
+            return compare(o1, DateUtils.toDate((LocalDateTime)o2));
+        // Compare Strings
+        return o1.toString().compareTo(o2.toString());
+    }
+    
+    /**
      * Checks whether a preferred value is valid and returns an alternative value if not.
      * @param <T> the type of the values
      * @param preferred the preferred return value

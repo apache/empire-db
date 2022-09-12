@@ -1126,30 +1126,19 @@ public abstract class DBDatabase extends DBObject
         // Check Range
         Object min = column.getAttribute(Column.COLATTR_MINVALUE);
         Object max = column.getAttribute(Column.COLATTR_MAXVALUE);
-        if (min!=null && max!=null)
-        {   // Check Range
-            long minVal = ObjectUtils.getLong(min);
-            long maxVal = ObjectUtils.getLong(max);
-            if (n.longValue()<minVal || n.longValue()>maxVal)
-            {   // Out of Range
-                throw new FieldValueOutOfRangeException(column, minVal, maxVal);
-            }
+        boolean belowMin = (min instanceof Number) ? ObjectUtils.compare(n, min)<0 : false;
+        boolean aboveMax = (max instanceof Number) ? ObjectUtils.compare(n, max)>0 : false;
+        if (belowMin && aboveMax)
+        {   // Out of Range
+            throw new FieldValueOutOfRangeException(column, (Number)min, (Number)max);
         }
-        else if (min!=null)
+        else if (belowMin)
         {   // Check Min Value
-            long minVal = ObjectUtils.getLong(min);
-            if (n.longValue()<minVal)
-            {   // Out of Range
-                throw new FieldValueOutOfRangeException(column, minVal, false);
-            }
+            throw new FieldValueOutOfRangeException(column, (Number)min, false);
         }
-        else if (max!=null)
+        else if (aboveMax)
         {   // Check Max Value
-            long maxVal = ObjectUtils.getLong(max);
-            if (n.longValue()>maxVal)
-            {   // Out of Range
-                throw new FieldValueOutOfRangeException(column, maxVal, true);
-            }
+            throw new FieldValueOutOfRangeException(column, (Number)max, true);
         }
         // Check overall
         if (type==DataType.DECIMAL)
