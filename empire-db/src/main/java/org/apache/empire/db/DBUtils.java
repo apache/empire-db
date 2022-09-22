@@ -482,7 +482,7 @@ public class DBUtils implements DBContextAware
             DBCommand subCmd = cmd.clone();
             subCmd.clearOrderBy();
             String sql = "SELECT COUNT(*) FROM ("+subCmd.getSelect() + ") q";
-            return querySingleInt(sql, null, 0);
+            return querySingleInt(sql, subCmd.getParamValues(), 0);
         }
         // find any rowset
         DBRowSet rs = exprList[0].getSourceColumn().getRowSet();
