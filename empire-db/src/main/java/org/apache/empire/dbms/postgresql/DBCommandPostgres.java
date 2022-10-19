@@ -93,6 +93,14 @@ public class DBCommandPostgres extends DBCommand
     /**
      * See https://www.postgresql.org/docs/current/textsearch-controls.html
      */
+    public DBColumnExpr pgWebsearchToTsquery(DBColumnExpr expr)
+    {
+        return new PostgresFuncExpr(expr, PostgresSqlPhrase.WEBSEARCH_TO_TSQUERY, null, DataType.UNKNOWN);
+    }
+    
+    /**
+     * See https://www.postgresql.org/docs/current/textsearch-controls.html
+     */
     public DBColumnExpr pgBoolAnd(DBCompareExpr cmpExpr)
     {
         return new PostgresBoolAndOrExpr(cmpExpr, false);
