@@ -78,6 +78,8 @@ public abstract class DBCommand extends DBCommandExpr
     protected List<DBCompareExpr>  where           = null;
     protected List<DBCompareExpr>  having          = null;
     protected List<DBColumnExpr>   groupBy         = null;
+    
+    protected Set<DBRowSet>        parentTables    = null; // omit parent tables in subqueries
 
     // Parameters for prepared Statements generation
     protected boolean              autoPrepareStmt = false;
@@ -256,6 +258,22 @@ public abstract class DBCommand extends DBCommandExpr
         {   // Check the value is a DBCommandParam
         	removeCommandParams(cmp);
         }
+    }
+    
+    /**
+     * Set parent tables for subquery command generation.
+     * Parent tables will be omitted to the FROM clause.
+     * @param rowSets
+     */
+    public void setParentTables(DBRowSet... rowSets)
+    {
+        if (rowSets.length>0)
+        {   // add all rowsets
+            this.parentTables = new HashSet<DBRowSet>(rowSets.length);
+            for (DBRowSet r : rowSets)
+                this.parentTables.add(r);
+        }
+        else this.parentTables = null;
     }
 
     /**
@@ -1352,6 +1370,7 @@ public abstract class DBCommand extends DBCommandExpr
     public void clear()
     {
         cmdParams.clear(0);
+        parentTables = null;
         clearSelectDistinct();
         clearSelect();
         clearSet();
@@ -1821,8 +1840,12 @@ public abstract class DBCommand extends DBCommandExpr
         }
         for (int i=0; i<tables.size(); i++)
         {
+            DBRowSet t = tables.get(i);
+            // check whether it's a parent table
+            if (this.parentTables!=null && this.parentTables.contains(t))
+                continue; // yes, ignore
+            // append
             if (sep) sql.append(", ");
-            DBRowSet t = tables.get(i); 
             t.addSQL(sql, CTX_DEFAULT|CTX_ALIAS);
             sep = true;
         }
