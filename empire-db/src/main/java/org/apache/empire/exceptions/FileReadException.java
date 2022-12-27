@@ -18,17 +18,15 @@
  */
 package org.apache.empire.exceptions;
 
-import java.io.IOException;
-
 import org.apache.empire.commons.ErrorType;
 
 public class FileReadException extends EmpireFileException
 {
     private static final long serialVersionUID = 1L;
     
-    public static final ErrorType errorType = new ErrorType("error.fileReadError", "Error reading the file {0}. Message is: {1}.");
+    public static final ErrorType errorType = new ErrorType("error.fileReadError", "Error reading file {0}. Message is: {1}.");
     
-    public FileReadException(String fileName, IOException cause)
+    public FileReadException(String fileName, Exception cause)
     {
         super(errorType, new String[] { fileName, cause.toString() }, cause);
     }

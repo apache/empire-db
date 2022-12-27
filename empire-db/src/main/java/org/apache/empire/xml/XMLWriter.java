@@ -33,6 +33,7 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
+import org.apache.empire.exceptions.FileWriteException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Attr;
@@ -100,19 +101,13 @@ public class XMLWriter
             // write xml
             XMLWriter dbg = new XMLWriter(fileOutputStream);
             dbg.print(doc, styleSheet);
-        } catch (IOException ioe)
-        {
+        } catch (IOException ioe) {
             log.error("Error: Could not write XML to file: " + filename + " in directory: " + xmlWriterRoot);
-        } finally
-        {
-            try
-            {
+        } finally {
+            try {
                 if (fileOutputStream != null)
-                {
                     fileOutputStream.close();
-                }
-            } catch (IOException ioe)
-            {
+            } catch (IOException ioe) {
                 log.error("Cannot write Document file", ioe);
                 /* Ignore IOExceptions */
             }
@@ -120,19 +115,20 @@ public class XMLWriter
     }
 
     /**
-     * Prints out the DOM-Tree. The file will be truncated if it
-     * exists or created if if does not exist.
+     * Saves an XML-Document as file. 
+     * The file will be truncated if it exists or created if if does not exist.
      * 
      * @param doc The XML-Document to print
      * @param filename The name of the file to write the XML-Document to
+     * 
+     * @throws FileWriteException 
      */
     public static void saveAsFile(Document doc, String filename)
     {
         try
         {
             File file = new File(filename);
-            if (file.exists() == true)
-            {
+            if (file.exists() == true) {
                 file.delete();
             }
 
@@ -143,9 +139,9 @@ public class XMLWriter
             Transformer trf = transformerFactory.newTransformer();
             trf.transform(domSource, streamResult);
 
-        } catch (Exception ex)
-        {
-            log.error("Error: Could not write XML to file: " + filename);
+        } catch (Exception e) {
+            log.error("Could not write XML to file: " + filename);
+            throw new FileWriteException(filename, e);
         }
     }
 

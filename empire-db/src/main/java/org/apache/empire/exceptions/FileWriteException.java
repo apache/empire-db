@@ -18,17 +18,15 @@
  */
 package org.apache.empire.exceptions;
 
-import java.io.IOException;
-
 import org.apache.empire.commons.ErrorType;
 
 public class FileWriteException extends EmpireFileException
 {
     private static final long serialVersionUID = 1L;
     
-    public static final ErrorType errorType = new ErrorType("error.fileWriteError", "Error writing the file {0}. Message is: {1}.");
+    public static final ErrorType errorType = new ErrorType("error.fileWriteError", "Error writing file {0}. Message is: {1}.");
     
-    public FileWriteException(String fileName, IOException cause)
+    public FileWriteException(String fileName, Exception cause)
     {
         super(errorType, new String[] { fileName, cause.toString() }, cause);
     }

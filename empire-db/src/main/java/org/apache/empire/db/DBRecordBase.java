@@ -109,7 +109,10 @@ public abstract class DBRecordBase extends DBRecordData implements Record, Clone
         @Override
         public String getObjectInfo()
         {
-            return "Record "+record.getRowSet().getName()+":"+StringUtils.arrayToString(record.getKey(), "|");
+            String info = "Record "+record.getRowSet().getName();
+            if (record.getKeyColumns()==null)
+                return info;
+            return info+":"+StringUtils.arrayToString(record.getKey(), "|");
         }
 
         @Override
