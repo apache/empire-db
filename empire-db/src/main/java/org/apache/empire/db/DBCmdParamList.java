@@ -44,6 +44,20 @@ public class DBCmdParamList implements DBCmdParams
         cmdParams = null;
     }
 
+    public DBCmdParamList(DBCmdParams initial)
+    {
+        if (initial.isEmpty())
+        {   // empty
+            cmdParams = null;
+        }
+        else
+        {   // copy from initial
+            cmdParams = new ArrayList<>(initial.size());
+            for (DBCmdParam p : initial)
+                cmdParams.add(p);
+        }
+    }
+
     public DBCmdParamList(int size)
     {
         cmdParams = (size>0 ? new ArrayList<>(size) : null);
@@ -84,6 +98,11 @@ public class DBCmdParamList implements DBCmdParams
             cmdParams= new ArrayList<DBCmdParam>();
         // Create and add the parameter to the parameter list 
         cmdParams.add(param);
+    }
+    
+    public void add(DBCommand cmd, DataType type, Object value)
+    {
+        add(new DBCmdParam(cmd, type, value));
     }
     
     public void remove(DBCmdParam param)

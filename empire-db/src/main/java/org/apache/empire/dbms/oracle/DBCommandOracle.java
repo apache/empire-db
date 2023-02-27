@@ -23,6 +23,8 @@ import java.util.List;
 
 import org.apache.empire.commons.StringUtils;
 import org.apache.empire.data.DataType;
+import org.apache.empire.db.DBCmdParamList;
+import org.apache.empire.db.DBCmdParams;
 import org.apache.empire.db.DBColumn;
 import org.apache.empire.db.DBColumnExpr;
 import org.apache.empire.db.DBCommand;
@@ -217,6 +219,20 @@ public class DBCommandOracle extends DBCommand
             }
         }
         completeParamUsage();
+    }
+    
+    @Override
+    public DBCmdParams getParams()
+    {
+        DBCmdParams params = super.getParams();
+        if (limitRows<0 || !isPreparedStatementsEnabled())
+            return params;
+        // extended with limitRows and skipRows
+        DBCmdParamList extended = new DBCmdParamList(params);
+        extended.add(this, DataType.INTEGER, this.limitRows);
+        if (skipRows>0)
+            extended.add(this, DataType.INTEGER, this.skipRows);
+        return extended;
     }
 
     @Override
