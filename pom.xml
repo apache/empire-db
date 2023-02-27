@@ -335,7 +335,7 @@
 			<dependency>
 			    <groupId>com.oracle.database.jdbc</groupId>
 			    <artifactId>ojdbc8</artifactId>
-			    <version>19.13.0.0.1</version>
+ 				<version>21.8.0.0</version>
 			</dependency>
 			<!-- web -->
 			<dependency>
