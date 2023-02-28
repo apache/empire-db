@@ -262,8 +262,9 @@ public abstract class DBContextBase implements DBContext
     protected void closeConnection()
     {   try
         {   // close connection
-            Connection conn = getConnection();
-            conn.close();
+            Connection conn = getConnection(false);
+            if (conn!=null)
+                conn.close();
         } catch (SQLException sqle) { 
             // Commit failed!
             throw new EmpireSQLException(getDbms(), sqle);
