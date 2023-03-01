@@ -187,7 +187,7 @@ public class DBCommandOracle extends DBCommand
         if (connectBy != null)
         {   // Add 'Connect By Prior' Expression
         	sql.append("\r\nCONNECT BY PRIOR ");
-            connectBy.addSQL(sql, CTX_DEFAULT | CTX_NOPARENTHESES);
+            connectBy.addSQL(sql, CTX_DEFAULT | CTX_NOPARENTHESIS);
             // Start With
             if (startWith != null)
             {	// Add 'Start With' Expression

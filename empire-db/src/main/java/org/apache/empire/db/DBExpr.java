@@ -39,7 +39,7 @@ public abstract class DBExpr extends DBObject
     public static final long CTX_FULLNAME      = 2;  // Fully Qualified Name
     public static final long CTX_VALUE         = 4;  // Value Only
     public static final long CTX_ALIAS         = 8;  // Rename expression
-    public static final long CTX_NOPARENTHESES = 16; // No Parentheses
+    public static final long CTX_NOPARENTHESIS = 16; // No Parenthesis
     
     /**
      * Used to build the SQL command. SQL for this expression must be appended to StringBuilder.

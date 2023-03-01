@@ -391,9 +391,14 @@ public abstract class DBCommandExpr extends DBExpr
     @Override
     public void addSQL(DBSQLBuilder sql, long context)
     {
-        sql.append("(");
+        // parenthesis open
+        if ((context & CTX_NOPARENTHESIS)==0)
+            sql.append("(");
+        // append commaand
         sql.append(this);
-        sql.append(")");
+        // parenthesis close
+        if ((context & CTX_NOPARENTHESIS)==0)
+            sql.append(")");
     }
 
     /**

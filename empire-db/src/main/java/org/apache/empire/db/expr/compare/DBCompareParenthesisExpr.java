@@ -87,7 +87,7 @@ public class DBCompareParenthesisExpr extends DBCompareExpr implements Unwrappab
     public void addSQL(DBSQLBuilder sql, long context)
     {
         sql.append("(");
-        wrapped.addSQL(sql, context|CTX_NOPARENTHESES);
+        wrapped.addSQL(sql, context|CTX_NOPARENTHESIS);
         sql.append(")");
     }
 }

@@ -246,18 +246,20 @@ public class DBCompareColExpr extends DBCompareExpr
                 break;
             case IN:
                 sql.append(" IN (");
+                if (value instanceof DBCommandExpr)
+                    context |= CTX_NOPARENTHESIS;
                 suffix = ")";
                 break;
             case NOTIN:
                 sql.append(" NOT IN (");
+                if (value instanceof DBCommandExpr)
+                    context |= CTX_NOPARENTHESIS;
                 suffix = ")";
                 break;
             default:
                 // NONE
                 sql.append(" ");
         }
-        if (value instanceof DBCommandExpr)
-            System.out.println("DBCommandExpr");
         // append value
         sql.appendValue(expr.getDataType(), value, context, arraySep);
         // append suffix

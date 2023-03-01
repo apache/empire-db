@@ -135,7 +135,7 @@ public class DBCompareAndOrExpr extends DBCompareExpr
             return;
         }
         // Parenthesis
-        boolean parenthesis = ((context & CTX_NOPARENTHESES) == 0) && or;
+        boolean parenthesis = ((context & CTX_NOPARENTHESIS) == 0) && or;
         boolean nested = ((left instanceof DBCompareAndOrExpr) && ((DBCompareAndOrExpr)left).or==false);
         if (parenthesis)
             sql.append("(");
