@@ -55,6 +55,17 @@ public interface DBModelErrorHandler
     void primaryKeyColumnMissing(DBIndex primaryKey, DBColumn column);
 
     /**
+     * This method is called when the primary key of the Empire-db definition
+     * does not match the primary key of the existing table
+     * 
+     * @param primaryKey
+     *            The primary key as defined in the model
+     * @param column
+     *            The primary key of the existing table
+     */
+    void primaryKeyMismatch(DBIndex primaryKey, DBColumn[] tableKey);
+
+    /**
      * This method is called when the type of a column in the Empire-db
      * definition does not match the database.
      * 

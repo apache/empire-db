@@ -49,6 +49,16 @@ public class DBModelErrorLogger implements DBModelErrorHandler
     {
         return warnCount;
     }
+    
+    protected void logWarn(String msg, Object...params)
+    {
+        DBModelErrorLogger.log.warn(msg, params);
+    }
+    
+    protected void logError(String msg, Object...params)
+    {
+        DBModelErrorLogger.log.error(msg, params);
+    }
 
     /**
      * handle itemNotFound errors
@@ -59,31 +69,31 @@ public class DBModelErrorLogger implements DBModelErrorHandler
         if (dbo instanceof DBTable)
         {
             DBTable table = (DBTable)dbo;
-            DBModelErrorLogger.log.error("The table {} does not exist in the target database.", table.getName());
+            logError("The table {} does not exist in the target database.", table.getName());
         }
         else if (dbo instanceof DBColumn)
         {
             DBColumn column = (DBColumn) dbo;
-            DBModelErrorLogger.log.error("The column {} does not exist in the target database.", column.getFullName());
+            logError("The column {} does not exist in the target database.", column.getFullName());
         }
         else if (dbo instanceof DBIndex)
         {
             DBIndex dbi = (DBIndex) dbo;
-            DBModelErrorLogger.log.error("The primary key {} for table{} does not exist in the target database.", dbi.getName(), dbi.getTable().getName());
+            logError("The primary key {} for table{} does not exist in the target database.", dbi.getName(), dbi.getTable().getName());
         }
         else if (dbo instanceof DBView)
         {
             DBView view = (DBView)dbo;
-            DBModelErrorLogger.log.error("The view {} does not exist in the target database.", view.getName());
+            logError("The view {} does not exist in the target database.", view.getName());
         }
         else if (dbo instanceof DBRelation)
         {
             DBRelation relation = (DBRelation)dbo;
-            DBModelErrorLogger.log.error("The foreing key relation "+relation.getName()+" from table {} to table {} does not exist in the target database.", relation.getForeignKeyTable().getName(), relation.getReferencedTable().getName());
+            logError("The foreing key relation "+relation.getName()+" from table {} to table {} does not exist in the target database.", relation.getForeignKeyTable().getName(), relation.getReferencedTable().getName());
         }
         else
         {
-            DBModelErrorLogger.log.error("The object {} does not exist in the target database.", dbo.toString());
+            logError("The object {} does not exist in the target database.", dbo.toString());
         }
         // increase count
         errorCount++;
@@ -96,7 +106,7 @@ public class DBModelErrorLogger implements DBModelErrorHandler
     public void objectTypeMismatch(DBObject object, String name, Class<?> expectedType)
     {
         // log
-        DBModelErrorLogger.log.error("The oboject \"{}\" type of {} does not match the expected type of {}.", name, object.getClass().getSimpleName(), expectedType.getSimpleName());
+        logError("The oboject \"{}\" type of {} does not match the expected type of {}.", name, object.getClass().getSimpleName(), expectedType.getSimpleName());
         // increase count
         errorCount++;
     }
@@ -112,7 +122,7 @@ public class DBModelErrorLogger implements DBModelErrorHandler
             return;
         }
         // log
-        DBModelErrorLogger.log.error("The column " + col.getFullName() + " type of {} does not match the database type of {}.", col.getDataType(), type);
+        logError("The column " + col.getFullName() + " type of {} does not match the database type of {}.", col.getDataType(), type);
         // increase count
         errorCount++;
     }
@@ -125,13 +135,13 @@ public class DBModelErrorLogger implements DBModelErrorHandler
     {
         if (size>0 && size<col.getSize())
         {   // Database size is smaller: Error 
-            DBModelErrorLogger.log.error("The column "+col.getFullName()+" size of {} does not match the database size of {}.", col.getSize(), size);
+            logError("The column "+col.getFullName()+" size of {} does not match the database size of {}.", col.getSize(), size);
             // increase count
             errorCount++;
-   }
+        }
         else if (col.getDataType()!=DataType.INTEGER)
         {   // Database size is bigger or unknown: Warning only
-            DBModelErrorLogger.log.warn("The column "+col.getFullName()+" size of {} does not match the database size of {}.", col.getSize(), size);
+            logWarn("The column "+col.getFullName()+" size of {} does not match the database size of {}.", col.getSize(), size);
             // increase count
             warnCount++;
         }
@@ -145,11 +155,11 @@ public class DBModelErrorLogger implements DBModelErrorHandler
     {
         if (nullable)
         {
-            DBModelErrorLogger.log.error("The column " + col.getFullName() + " must not be nullable");
+            logError("The column " + col.getFullName() + " must not be nullable");
         }
         else
         {
-            DBModelErrorLogger.log.error("The column " + col.getFullName() + " must be nullable");
+            logError("The column " + col.getFullName() + " must be nullable");
         }
         // increase count
         errorCount++;
@@ -161,10 +171,33 @@ public class DBModelErrorLogger implements DBModelErrorHandler
     @Override
     public void primaryKeyColumnMissing(DBIndex primaryKey, DBColumn column)
     {
-        DBModelErrorLogger.log.error("The primary key " + primaryKey.getName() + " of table " + primaryKey.getTable().getName()
-                                     + " misses the column " + column.getName());
+        logError("The primary key of table {} misses the column {}", primaryKey.getTable().getName(), column.getName());
         // increase count
         errorCount++;
     }
 
+    @Override
+    public void primaryKeyMismatch(DBIndex primaryKey, DBColumn[] tableKey)
+    {
+        String defColumns;
+        String tblColumns;
+        StringBuilder b = new StringBuilder("[");
+        DBColumn[] keyColumns = primaryKey.getColumns();
+        for (int i=0; i<keyColumns.length; i++) {
+            if (i>0) b.append("|");
+            b.append(keyColumns[i].getName());
+        }
+        b.append("]");
+        defColumns = b.toString();
+        b.setLength(1);
+        for (int i=0; i<tableKey.length; i++) {
+            if (i>0) b.append("|");
+            b.append(tableKey[i].getName());
+        }
+        b.append("]");
+        tblColumns = b.toString();
+        logError("The primary key of table {} {} does not match the key of the existing table {}.", primaryKey.getTable().getName(), defColumns, tblColumns);
+        // increase count
+        warnCount++;
+    }
 }

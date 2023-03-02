@@ -21,6 +21,7 @@ package org.apache.empire.db.validation;
 import java.sql.Connection;
 import java.util.List;
 
+import org.apache.empire.data.DataType;
 import org.apache.empire.db.DBColumn;
 import org.apache.empire.db.DBDatabase;
 import org.apache.empire.db.DBRelation;
@@ -171,19 +172,27 @@ public class DBModelChecker
         DBColumn[] pk = table.getPrimaryKey().getColumns();
         DBColumn[] remotePk = remoteTable.getPrimaryKey().getColumns();
 
+        int pkColIdx = -1;
+        boolean hasOrderMismatch = false;
         pkColLoop: for (DBColumn pkCol : pk)
         {
+            pkColIdx++;
+            int remColIdx = -1;
             for (DBColumn remotePkCol : remotePk)
             {
-                if (pkCol.getFullName().equalsIgnoreCase(remotePkCol.getFullName()))
-                {
-                    // found
+                remColIdx++;
+                if (pkCol.getName().equalsIgnoreCase(remotePkCol.getName()))
+                {   // found
+                    hasOrderMismatch |= (pkColIdx!=remColIdx); 
                     continue pkColLoop;
                 }
             }
             // PK-Column not found
             handler.primaryKeyColumnMissing(table.getPrimaryKey(), pkCol);
         }
+        // order mismatch?
+        if (hasOrderMismatch || (remotePk.length>pk.length))
+            handler.primaryKeyMismatch(table.getPrimaryKey(), remotePk);
     }
 
     protected void checkForeignKeys(DBTable table, DBTable remoteTable, DBModelErrorHandler handler)
@@ -206,11 +215,8 @@ public class DBModelChecker
                     DBTable targetTable = (DBTable) reference.getTargetColumn().getRowSet();
                     DBTableColumn targetColumn = reference.getTargetColumn();
                     if (!targetTable.getPrimaryKey().contains(targetColumn))
-                    {
-                        DBModelChecker.log.info("The column "
-                                                        + targetColumn.getName()
-                                                        + " of foreign key {} is not a primary key of table {} and cant be checked because of a limitation in JDBC",
-                                                relation.getName(), targetTable.getName());
+                    {   // Target column is not the primary key of target table
+                        log.info("The column {} of foreign key {} is not a primary key of table {}", targetColumn.getName(), relation.getName(), targetTable.getName());
                         continue;
                     }
                 }
@@ -219,8 +225,8 @@ public class DBModelChecker
                 {
                     for (DBReference remoteReference : remoteRelation.getReferences())
                     {
-                        if (reference.getSourceColumn().getFullName().equalsIgnoreCase(remoteReference.getSourceColumn().getFullName())
-                            && reference.getTargetColumn().getFullName().equalsIgnoreCase(remoteReference.getTargetColumn().getFullName()))
+                        if (reference.getSourceColumn().toString().equalsIgnoreCase(remoteReference.getSourceColumn().toString())
+                         && reference.getTargetColumn().toString().equalsIgnoreCase(remoteReference.getTargetColumn().toString()))
                         {
                             // found
                             continue referenceLoop;
@@ -314,6 +320,10 @@ public class DBModelChecker
         int colSize = (int) column.getSize();
         if (colSize== 0)
         {   // When size is 0, don't check
+            return; 
+        }
+        if (column.getDataType()==DataType.AUTOINC)
+        {   // Don't check AutoInc
             return; 
         }
         if (colSize != (int) remoteColumn.getSize())
