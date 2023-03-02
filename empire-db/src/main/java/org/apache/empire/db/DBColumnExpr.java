@@ -44,9 +44,11 @@ import org.apache.empire.db.expr.column.DBParenthesisExpr;
 import org.apache.empire.db.expr.column.DBValueExpr;
 import org.apache.empire.db.expr.compare.DBCompareColExpr;
 import org.apache.empire.db.expr.compare.DBCompareExpr;
+import org.apache.empire.db.expr.join.DBColumnJoinExpr;
 import org.apache.empire.db.expr.order.DBOrderByExpr;
 import org.apache.empire.dbms.DBSqlPhrase;
 import org.apache.empire.exceptions.InvalidArgumentException;
+import org.apache.empire.exceptions.NotSupportedException;
 import org.w3c.dom.Element;
 
 /**
@@ -1398,6 +1400,21 @@ public abstract class DBColumnExpr extends DBExpr
     public DBOrderByExpr desc()
     {
         return new DBOrderByExpr(this, true);
+    }
+    
+    /*
+     * Joins
+     */
+    public DBColumnJoinExpr on(DBColumnExpr joinWith)
+    {
+        // Must have source column
+        if (getSourceColumn()==null)
+            throw new NotSupportedException(this, "join");
+        if (joinWith.getSourceColumn()==null)
+            throw new NotSupportedException(joinWith, "join");
+        // create the expression
+        DBColumnJoinExpr join = new DBColumnJoinExpr(this, joinWith, DBJoinType.INNER);
+        return join;
     }
     
     /*

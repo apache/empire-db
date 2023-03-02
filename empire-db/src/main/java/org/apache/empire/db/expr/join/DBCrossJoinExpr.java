@@ -134,6 +134,16 @@ public class DBCrossJoinExpr extends DBJoinExpr
     }
     
     /**
+     * prepareCommand
+     * Nothing to do here
+     */
+    @Override
+    public void prepareCommand(DBCommand cmd)
+    {
+        // not applicable
+    }
+
+    /**
      * Copy Command
      * @param cmd
      */

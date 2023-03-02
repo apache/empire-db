@@ -376,7 +376,7 @@ public class SampleAdvApp
            .select  (SALES.MODEL_ID.count(), SALES.PRICE.avg())
            .select  (SALES.PRICE.avg().minus(MODEL.BASE_PRICE.avg()).round(2).as("DIFFERENCE"))
            .join    (MODEL.WMI, BRAND.WMI)
-           .joinLeft(MODEL.ID, SALES.MODEL_ID, SALES.YEAR.is(2021))  // only year 2021
+           .joinLeft(MODEL.ID.on(SALES.MODEL_ID).and(SALES.YEAR.is(2021)))  // only year 2021
            .where   (MODEL.ENGINE_TYPE.in(EngineType.P, EngineType.H, EngineType.E)) // Petrol, Hybrid, Electric
            .where   (MODEL.BASE_PRICE.isGreaterThan(30000))
            .groupBy (BRAND.NAME, MODEL.SPECIFICATION, MODEL.BASE_PRICE)

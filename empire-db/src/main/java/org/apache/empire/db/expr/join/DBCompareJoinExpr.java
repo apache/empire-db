@@ -88,6 +88,16 @@ public class DBCompareJoinExpr extends DBColumnJoinExpr
     }
     
     /**
+     * prepareCommand
+     */
+    @Override
+    public void prepareCommand(DBCommand cmd)
+    {
+        cmp.prepareCommand(cmd);
+        super.prepareCommand(cmd);
+    }
+    
+    /**
      * Copy Command
      * @param cmd
      */

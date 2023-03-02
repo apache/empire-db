@@ -169,6 +169,16 @@ public class DBColumnJoinExpr extends DBJoinExpr
         right = swap;
         type = DBJoinType.reversed(type); // (type * -1);
     }
+    
+    /**
+     * prepareCommand
+     */
+    @Override
+    public void prepareCommand(DBCommand cmd)
+    {
+        if (compExpr!=null)
+            compExpr.prepareCommand(cmd);
+    }
 
     /**
      * Copy Command
@@ -212,13 +222,26 @@ public class DBColumnJoinExpr extends DBJoinExpr
      * 
      * @return the object itself
      */
-    public DBJoinExpr and(DBColumnExpr c1, DBColumnExpr c2)
-    {   // Set Compare Expression
+    public DBColumnJoinExpr and(DBCompareExpr expr)
+    {   // Add Compare Expression
         if (compExpr==null)
-            compExpr = c1.is(c2);
+            compExpr = expr;
         else
-            compExpr = compExpr.and(c1.is(c2));
+            compExpr = compExpr.and(expr);
         return this;
+    }
+
+    /**
+     * This function adds an additional constraint to the join.
+     * 
+     * @param c1 the first column
+     * @param c2 the second column
+     * 
+     * @return the object itself
+     */
+    public DBColumnJoinExpr and(DBColumnExpr c1, DBColumnExpr c2)
+    {   // Add Compare Expression
+        return and(c1.is(c2));
     }
 
     /**

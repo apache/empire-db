@@ -102,6 +102,12 @@ public abstract class DBJoinExpr extends DBExpr
      * This function swaps the left and the right statements of the join expression.
      */
     public abstract void reverse();
+    
+    /**
+     * internally used for preapred statement generation
+     * @param cmd
+     */
+    public abstract void prepareCommand(DBCommand cmd); 
 
     /**
      * Copy Command

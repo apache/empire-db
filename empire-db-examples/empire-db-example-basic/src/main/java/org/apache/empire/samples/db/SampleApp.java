@@ -483,8 +483,8 @@ public class SampleApp
            .selectQualified(DEP.NAME) // "DEPARMENT_NAME"
            .select(DEP.BUSINESS_UNIT) // "BUSINESS_UNIT" 
            // Joins
-           .join(EMP.DEPARTMENT_ID, DEP.ID)
-           .joinLeft(EMP.ID, PAY.EMPLOYEE_ID, PAY.YEAR.is(lastYear))
+           .join(EMP.DEPARTMENT_ID.on(DEP.ID))
+           .joinLeft(EMP.ID.on(PAY.EMPLOYEE_ID).and(PAY.YEAR.is(lastYear)))
            // Where constraints
            .where(EMP.LAST_NAME.length().isGreaterThan(0))  // always true, just for show
            .where(EMP.GENDER.in(Gender.M, Gender.F))        // always true, just for show
@@ -609,7 +609,7 @@ public class SampleApp
         DBColumnExpr DEP_TOTAL = PAY.AMOUNT.sum().as("DEP_TOTAL");
         DBCommand cmdDepTotal  = context.createCommand()
            .select(EMP.DEPARTMENT_ID, DEP_TOTAL)
-           .join  (PAY.EMPLOYEE_ID, EMP.ID)
+           .join  (PAY.EMPLOYEE_ID.on(EMP.ID))
            .where (PAY.YEAR.is(lastYear))
            .groupBy(EMP.DEPARTMENT_ID);
         DBQuery Q_DEP_TOTAL = new DBQuery(cmdDepTotal, "qdt");
@@ -622,10 +622,10 @@ public class SampleApp
            .select(Q_EMP_TOTAL.column(EMP_TOTAL))
            .select(PCT_OF_DEP_COST.as("PCT_OF_DEPARTMENT_COST"))
            // join Employee with Department
-           .join(EMP.DEPARTMENT_ID, DEP.ID)
+           .join(EMP.DEPARTMENT_ID.on(DEP.ID))
            // Join with Subqueries
-           .joinLeft(EMP.ID, Q_EMP_TOTAL.column(PAY.EMPLOYEE_ID))
-           .joinLeft(DEP.ID, Q_DEP_TOTAL.column(EMP.DEPARTMENT_ID))
+           .joinLeft(EMP.ID.on(Q_EMP_TOTAL.column(PAY.EMPLOYEE_ID)))
+           .joinLeft(DEP.ID.on(Q_DEP_TOTAL.column(EMP.DEPARTMENT_ID)))
            // Order by
            .orderBy(DEP.NAME.desc())
            .orderBy(EMP.LAST_NAME);
@@ -671,7 +671,7 @@ public class SampleApp
          * Test RecordList
          */
         DBCommand cmd = context.createCommand();
-        cmd.join(EMP.DEPARTMENT_ID, DEP.ID);
+        cmd.join(EMP.DEPARTMENT_ID.on(DEP.ID));
         cmd.where(DEP.NAME.is("Development"));
         // query now
         List<DBRecordBean> list = context.getUtils().queryRecordList(cmd, EMP, DBRecordBean.class);

@@ -677,14 +677,19 @@ public abstract class DBCommand extends DBCommandExpr
         // create list
         if (joins == null)
             joins = new ArrayList<DBJoinExpr>();
-        // Create a new join
+        // check join list
         for (int i = 0; i < joins.size(); i++)
-        { // Check whether join exists
+        { // Check whether join already exists
             DBJoinExpr item = joins.get(i);
             if (item.equals(join))
                 return this;
         }
         joins.add(join);
+        // Check if prepared statements are enabled
+        if (isPreparedStatementsEnabled())
+        {   // use command params
+            join.prepareCommand(this);
+        }
         return this;
     }
 
@@ -701,6 +706,16 @@ public abstract class DBCommand extends DBCommandExpr
     }
 
     /**
+     * Adds a left join to the list of join expressions.
+     * @return itself (this) 
+     */
+    public final DBCommand joinLeft(DBJoinExpr join)
+    {
+        join.setType(DBJoinType.LEFT);
+        return join(join);
+    }
+
+    /**
      * Adds a left join based on two columns to the list of join expressions.
      * Added for convenience
      * Same as join(left, right, DBJoinType.LEFT);
@@ -712,6 +727,16 @@ public abstract class DBCommand extends DBCommandExpr
     public final DBCommand joinLeft(DBColumnExpr left, DBColumn right, DBCompareExpr... addlConstraints)
     {
         return join(left, right, DBJoinType.LEFT, addlConstraints);
+    }
+
+    /**
+     * Adds a left join to the list of join expressions.
+     * @return itself (this) 
+     */
+    public final DBCommand joinRight(DBJoinExpr join)
+    {
+        join.setType(DBJoinType.RIGHT);
+        return join(join);
     }
 
     /**
@@ -753,11 +778,6 @@ public abstract class DBCommand extends DBCommandExpr
             DBCompareExpr cmpExpr = addlConstraints[i];
             if (cmpExpr==null)
                 continue;
-            // Check if prepared statements are enabled
-            if (isPreparedStatementsEnabled())
-            {   // use command params
-                cmpExpr.prepareCommand(this);
-            }
             // Chain with previouss
             where = (where!=null ? where.and(cmpExpr) : cmpExpr);
         }
@@ -792,22 +812,12 @@ public abstract class DBCommand extends DBCommandExpr
         for (int i=1; i<left.length; i++)
         {   // add to where list
             DBCompareExpr cmpExpr = right[i].is(left[i]);
-            // Check if prepared statements are enabled
-            if (isPreparedStatementsEnabled())
-            {   // use command params
-                cmpExpr.prepareCommand(this);
-            }
             where = (where!=null ? where.and(cmpExpr) : cmpExpr);
         }
         // additional constraints
         for (int i=0; i<addlConstraints.length; i++)
         {
             DBCompareExpr cmpExpr = addlConstraints[i];
-            // Check if prepared statements are enabled
-            if (isPreparedStatementsEnabled())
-            {   // use command params
-                cmpExpr.prepareCommand(this);
-            }
             where = (where!=null ? where.and(cmpExpr) : cmpExpr);
         }
         if (where!=null)
