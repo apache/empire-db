@@ -691,6 +691,11 @@ public class DBReader extends DBRecordData implements Closeable
      */
     public void initRecord(DBRecordBase rec)
     {
+        // Check Open
+        if (!isOpen())
+        {   // Resultset not available
+            throw new ObjectNotValidException(this);
+        }
         // init Record
         DBRowSet rowset = rec.getRowSet();
     	rowset.initRecord(rec, this);
@@ -709,8 +714,8 @@ public class DBReader extends DBRecordData implements Closeable
     @SuppressWarnings("unchecked")
     public <L extends List<T>, T> L getBeanList(L list, Class<T> t, Object parent, int maxCount)
     {
-        // Check Recordset
-        if (rset == null)
+        // Check Open
+        if (!isOpen())
         {   // Resultset not available
             throw new ObjectNotValidException(this);
         }
@@ -935,7 +940,7 @@ public class DBReader extends DBRecordData implements Closeable
     protected int findFieldIndex(ColumnExpr column)
     {
         if (columns == null)
-            return -1;
+            throw new ObjectNotValidException(this);
         // First chance: Try to find an expression match
         int index = ObjectUtils.indexOf(columns, column);
         if (index>= 0)

@@ -77,9 +77,6 @@ public abstract class DBRecordData extends DBObject
     public abstract int addXmlData(Element parent);
     public abstract Document getXmlDocument();
 
-    // others
-    public abstract void close();
-
     /**
      * Returns a value based on an index.
      */

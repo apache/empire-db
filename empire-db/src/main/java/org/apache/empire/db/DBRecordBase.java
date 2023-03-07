@@ -273,7 +273,6 @@ public abstract class DBRecordBase extends DBRecordData implements Record, Clone
     /**
      * Closes the record by releasing all resources and resetting the record's state to invalid.
      */
-    @Override
     public void close()
     {
         // clear fields
