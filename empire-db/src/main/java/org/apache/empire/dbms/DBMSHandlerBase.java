@@ -101,9 +101,9 @@ public abstract class DBMSHandlerBase implements DBMSHandler
      */
     public static final class DBMSCommand extends DBCommand 
     {
-        protected DBMSCommand(boolean autoPrepareStmt)
+        protected DBMSCommand(DBMSHandler dbms, boolean autoPrepareStmt)
         {
-            super(autoPrepareStmt);
+            super(dbms, autoPrepareStmt);
         }
     }
 
@@ -315,7 +315,7 @@ public abstract class DBMSHandlerBase implements DBMSHandler
     @Override
     public DBCommand createCommand(boolean autoPrepareStmt)
     {
-        return new DBMSCommand(autoPrepareStmt);
+        return new DBMSCommand(this, autoPrepareStmt);
     }
 
     /**

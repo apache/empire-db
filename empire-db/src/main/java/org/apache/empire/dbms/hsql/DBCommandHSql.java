@@ -45,9 +45,9 @@ public class DBCommandHSql extends DBCommand
     /**
      * Constructs an HSqlDB command object.
      */
-    public DBCommandHSql(boolean autoPrepareStmt)
+    public DBCommandHSql(DBMSHandlerHSql dbms, boolean autoPrepareStmt)
     {
-        super(autoPrepareStmt);
+        super(dbms, autoPrepareStmt);
     }
 
     @Override

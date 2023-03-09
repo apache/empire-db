@@ -73,9 +73,9 @@ public class DBMSHandlerSQLite extends DBMSHandlerBase
          *            the database
          * @see org.apache.empire.db.DBCommand
          */
-        public DBCommandSQLite(boolean autoPrepareStmt)
+        public DBCommandSQLite(DBMSHandlerSQLite dmbs, boolean autoPrepareStmt)
         {
-            super(autoPrepareStmt);
+            super(dmbs, autoPrepareStmt);
         }
         
         @Override
@@ -271,7 +271,7 @@ public class DBMSHandlerSQLite extends DBMSHandlerBase
     public DBCommand createCommand(boolean autoPrepareStmt)
     {
         // create command object
-        return new DBCommandSQLite(autoPrepareStmt);
+        return new DBCommandSQLite(this, autoPrepareStmt);
     }
     
     /**

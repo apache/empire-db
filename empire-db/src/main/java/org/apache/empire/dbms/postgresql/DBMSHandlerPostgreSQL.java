@@ -131,7 +131,7 @@ public class DBMSHandlerPostgreSQL extends DBMSHandlerBase
     @Override
     public DBCommandPostgres createCommand(boolean autoPrepareStmt)
     {   // create command object
-        return new DBCommandPostgres(autoPrepareStmt);
+        return new DBCommandPostgres(this, autoPrepareStmt);
     }
 
     /**

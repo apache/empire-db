@@ -40,6 +40,7 @@ import org.apache.empire.db.expr.join.DBCrossJoinExpr;
 import org.apache.empire.db.expr.join.DBJoinExpr;
 import org.apache.empire.db.expr.order.DBOrderByExpr;
 import org.apache.empire.db.expr.set.DBSetExpr;
+import org.apache.empire.dbms.DBMSHandler;
 import org.apache.empire.dbms.DBSqlPhrase;
 import org.apache.empire.exceptions.InvalidArgumentException;
 import org.apache.empire.exceptions.ItemNotFoundException;
@@ -114,8 +115,9 @@ public abstract class DBCommand extends DBCommandExpr
      * 
      * @param db the current database object
      */
-    protected DBCommand(boolean autoPrepareStmt, DBCmdParamList cmdParams)
+    protected DBCommand(DBMSHandler dbms, boolean autoPrepareStmt, DBCmdParamList cmdParams)
     {
+        super(dbms);
         this.autoPrepareStmt = autoPrepareStmt;
         this.cmdParams = cmdParams;
     }
@@ -125,9 +127,9 @@ public abstract class DBCommand extends DBCommandExpr
      * 
      * @param db the current database object
      */
-    protected DBCommand(boolean autoPrepareStmt)
+    protected DBCommand(DBMSHandler dbms, boolean autoPrepareStmt)
     {
-        this(autoPrepareStmt, new DBCmdParamList());
+        this(dbms, autoPrepareStmt, new DBCmdParamList());
     }
     
     /**

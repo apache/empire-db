@@ -66,9 +66,9 @@ public class DBMSHandlerMSSQL extends DBMSHandlerBase
         // *Deprecated* private static final long serialVersionUID = 1L;
         protected int limit = -1;
 
-        public DBCommandMSSQL(boolean autoPrepareStmt)
+        public DBCommandMSSQL(DBMSHandlerMSSQL dbms, boolean autoPrepareStmt)
     	{
-    		super(autoPrepareStmt);
+    		super(dbms, autoPrepareStmt);
     	}
         
         @Override
@@ -311,7 +311,7 @@ public class DBMSHandlerMSSQL extends DBMSHandlerBase
     public DBCommand createCommand(boolean autoPrepareStmt)
     {
         // create command object
-        return new DBCommandMSSQL(autoPrepareStmt);
+        return new DBCommandMSSQL(this, autoPrepareStmt);
     }
     
     /**

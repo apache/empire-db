@@ -52,6 +52,7 @@ public class DBCombinedCmd extends DBCommandExpr
      */
     public DBCombinedCmd(DBCommandExpr left, String keyWord, DBCommandExpr right)
     {
+        super(left.getDbms());
         this.left = left;
         this.right = right;
         this.keyWord = keyWord;

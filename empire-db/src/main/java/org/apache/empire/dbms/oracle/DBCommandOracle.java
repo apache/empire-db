@@ -64,9 +64,9 @@ public class DBCommandOracle extends DBCommand
      * 
      * @param db the oracle database object this command belongs to
      */
-    public DBCommandOracle(boolean autoPrepareStmt)
+    public DBCommandOracle(DBMSHandlerOracle dbms, boolean autoPrepareStmt)
     {
-        super(autoPrepareStmt);
+        super(dbms, autoPrepareStmt);
     }
 
     public String getOptimizerHint()

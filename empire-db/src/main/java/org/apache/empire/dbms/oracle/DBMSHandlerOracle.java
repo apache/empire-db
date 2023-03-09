@@ -155,7 +155,7 @@ public class DBMSHandlerOracle extends DBMSHandlerBase
     public DBCommand createCommand(boolean autoPrepareStmt)
     {
         // create oracle command
-        return new DBCommandOracle(autoPrepareStmt);
+        return new DBCommandOracle(this, autoPrepareStmt);
     }
 
     /**

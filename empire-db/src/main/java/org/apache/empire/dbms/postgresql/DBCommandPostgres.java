@@ -37,9 +37,9 @@ public class DBCommandPostgres extends DBCommand
     protected int limit = -1;
     protected int skip  = -1;
     
-    public DBCommandPostgres(boolean autoPrepareStmt)
+    public DBCommandPostgres(DBMSHandlerPostgreSQL dbms, boolean autoPrepareStmt)
     {
-        super(autoPrepareStmt);
+        super(dbms, autoPrepareStmt);
     }
     
     /**

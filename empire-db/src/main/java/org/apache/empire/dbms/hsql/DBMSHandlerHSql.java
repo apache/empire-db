@@ -91,7 +91,7 @@ public class DBMSHandlerHSql extends DBMSHandlerBase
     @Override
     public DBCommand createCommand(boolean autoPrepareStmt)
     {
-        return new DBCommandHSql(autoPrepareStmt);
+        return new DBCommandHSql(this, autoPrepareStmt);
     }
     
     /**

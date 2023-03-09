@@ -57,9 +57,9 @@ public abstract class DBCommandExpr extends DBExpr
          * @param cmd the command expression
          * @param exprList 
          */
-        public DBCmdQuery(DBCommandExpr cmd, DBColumnExpr[] exprList)
+        public DBCmdQuery(DBCommandExpr cmd, DBDatabase db, DBColumnExpr[] exprList)
         { // Set the column expressions
-            super(cmd.getDatabase());
+            super(db);
             this.cmd = cmd;
             // Add Expressions to list
             for (int i = 0; i < exprList.length; i++)
@@ -283,13 +283,24 @@ public abstract class DBCommandExpr extends DBExpr
     }
 
     // Members
+    private final DBMSHandler     dbms;
     protected DBCmdQuery          cmdQuery = null;
     protected List<DBOrderByExpr> orderBy  = null;
 
     /** Constructs an empty DBCommandExpr object */
-    public DBCommandExpr()
+    public DBCommandExpr(DBMSHandler dbms)
     {
         // Default Constructor
+        this.dbms = dbms;
+    }
+    
+    /**
+     * returns the DBMSHandler this command belongs to
+     * @return the DBMSHandler
+     */
+    public final DBMSHandler getDbms()
+    {
+        return dbms;
     }
 
     /**
@@ -411,7 +422,6 @@ public abstract class DBCommandExpr extends DBExpr
      */
     public DBCommandExpr union(DBCommandExpr other)
     {   // give dbms a chance to subclass DBCombinedCmd
-    	DBMSHandler dbms = getDatabase().getDbms();
     	return dbms.createCombinedCommand(this, "UNION", other);
     }
 
@@ -425,7 +435,6 @@ public abstract class DBCommandExpr extends DBExpr
      */
     public DBCommandExpr unionAll(DBCommandExpr other)
     {   // give dbms a chance to subclass DBCombinedCmd
-        DBMSHandler dbms = getDatabase().getDbms();
         return dbms.createCombinedCommand(this, "UNION ALL", other);
     }
 
@@ -438,7 +447,6 @@ public abstract class DBCommandExpr extends DBExpr
      */
     public DBCommandExpr intersect(DBCommandExpr other)
     {   // give dbms a chance to subclass DBCombinedCmd
-    	DBMSHandler dbms = getDatabase().getDbms();
     	return dbms.createCombinedCommand(this, "INTERSECT", other);
     }
     
@@ -596,15 +604,6 @@ public abstract class DBCommandExpr extends DBExpr
         }
         return getInsertInto(table, select, inscols);
     }
-    /**
-     * creates a new DBSQLBuilder 
-     * @param initalSQL
-     * @return the new DBSQLBuilder
-     */
-    protected DBMSHandler getDbms()
-    {
-        return this.getDatabase().getDbms();
-    }
 
     /**
      * creates a new DBSQLBuilder 
@@ -613,7 +612,7 @@ public abstract class DBCommandExpr extends DBExpr
      */
     protected DBSQLBuilder createSQLBuilder(String initalSQL)
     {
-        DBSQLBuilder sql = getDbms().createSQLBuilder();
+        DBSQLBuilder sql = dbms.createSQLBuilder();
         if (initalSQL!=null)
             sql.append(initalSQL);
         return sql;
@@ -635,7 +634,7 @@ public abstract class DBCommandExpr extends DBExpr
         }
         // Check if we already have a Command Query
         if (cmdQuery == null)
-            cmdQuery = new DBCmdQuery(this, getSelectExprList());
+            cmdQuery = new DBCmdQuery(this, col.getDatabase(), getSelectExprList());
         // create a command column
         return new DBCmdColumn(cmdQuery, col);
     }
