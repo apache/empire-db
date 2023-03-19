@@ -47,8 +47,9 @@ import org.slf4j.LoggerFactory;
 
 public class ControlTag extends UIInput implements NamingContainer
 {
-    public static String DEFAULT_LABEL_SEPARATOR_CLASS = "eCtlLabel";
-    public static String DEFAULT_INPUT_SEPARATOR_CLASS = "eCtlInput";
+    public static String CONTROL_CLASS = "eControl";
+    public static String LABEL_SEPARATOR_CLASS = "eCtlLabel";
+    public static String INPUT_SEPARATOR_CLASS = "eCtlInput";
 
     /**
      * ControlSeparatorComponent
@@ -134,9 +135,9 @@ public class ControlTag extends UIInput implements NamingContainer
         protected void writeAttributes(ResponseWriter writer, TagEncodingHelper helper)
             throws IOException
         {
-            String styleClass = helper.getTagAttributeString("labelClass", ControlTag.DEFAULT_LABEL_SEPARATOR_CLASS);
-            if (StringUtils.isNotEmpty(styleClass))
-                writer.writeAttribute("class", styleClass, null);
+            // style Class
+            String labelClass = helper.getTagAttributeString("labelClass");
+            helper.writeStyleClass(writer, ControlTag.LABEL_SEPARATOR_CLASS, labelClass);
         }
 
         @Override
@@ -162,10 +163,9 @@ public class ControlTag extends UIInput implements NamingContainer
         protected void writeAttributes(ResponseWriter writer, TagEncodingHelper helper)
             throws IOException
         {
-            String styleClass = helper.getTagAttributeString("inputClass", ControlTag.DEFAULT_INPUT_SEPARATOR_CLASS);
-            // styleClass
-            if (StringUtils.isNotEmpty(styleClass))
-                writer.writeAttribute("class", styleClass, null);
+            // style Class
+            String inputClass = helper.getTagAttributeString("inputClass");
+            helper.writeStyleClass(writer, ControlTag.INPUT_SEPARATOR_CLASS, inputClass);
             // colspan
             String colSpan = helper.getTagAttributeString("colspan");
             if (StringUtils.isNotEmpty(colSpan) && tagName.equalsIgnoreCase("td"))
@@ -239,7 +239,7 @@ public class ControlTag extends UIInput implements NamingContainer
 
     protected static final String     readOnlyState        = "readOnlyState";
 
-    protected final TagEncodingHelper helper               = TagEncodingHelperFactory.create(this, "eInput");
+    protected final TagEncodingHelper helper               = TagEncodingHelperFactory.create(this, CONTROL_CLASS);
 
     protected InputControl            control              = null;
     protected InputControl.InputInfo  inpInfo              = null;
@@ -331,8 +331,12 @@ public class ControlTag extends UIInput implements NamingContainer
         {   // control wrapper tag
             ResponseWriter writer = context.getResponseWriter();
             writer.startElement(renderInfo.CONTROL_TAG, this);
-            String styleClass = helper.getTagAttributeString("styleClass", "eControl"); 
-            helper.writeAttribute(writer, InputControl.HTML_ATTR_CLASS, styleClass);
+            // render id
+            helper.writeComponentId(writer, renderInfo.RENDER_AUTO_ID);
+            // style class
+            String controlClass = helper.getTagAttributeString("controlClass"); 
+            String styleClass   = helper.getControlContextStyleClass(); 
+            helper.writeStyleClass(writer, CONTROL_CLASS, controlClass, styleClass);
         }
         
         // LabelSeparatorComponent
@@ -393,15 +397,15 @@ public class ControlTag extends UIInput implements NamingContainer
             ResponseWriter writer = null;
             String tagName  = renderInfo.INPUT_WRAPPER_TAG;
             if (tagName!=null && tagName.length()>0)
-            {   // attributes
-                String inpClass = helper.getTagAttributeString("inputClass", ControlTag.DEFAULT_INPUT_SEPARATOR_CLASS);
-                String colSpan  = helper.getTagAttributeString("colspan");
-                // render tag
+            {   // render tag
                 writer = context.getResponseWriter();
                 writer.startElement(tagName, this);
-                if (StringUtils.isNotEmpty(inpClass))
-                    writer.writeAttribute("class", inpClass, null);
-                if (StringUtils.isNotEmpty(colSpan) && tagName.equalsIgnoreCase("td"))
+                // style Class
+                String inpClass = helper.getTagAttributeString("inputClass");
+                helper.writeStyleClass(writer, ControlTag.INPUT_SEPARATOR_CLASS, inpClass);
+                // write more
+                String colSpan = tagName.equalsIgnoreCase(InputControl.HTML_TAG_TD) ? helper.getTagAttributeString("colspan") : null;
+                if (StringUtils.isNotEmpty(colSpan))
                     writer.writeAttribute("colspan", colSpan, null);
             }
             // encode children

@@ -26,6 +26,7 @@ import javax.faces.component.UIOutput;
 import javax.faces.context.FacesContext;
 import javax.faces.context.ResponseWriter;
 
+import org.apache.empire.commons.ObjectUtils;
 import org.apache.empire.jsf2.controls.InputControl;
 import org.apache.empire.jsf2.utils.ControlRenderInfo;
 import org.apache.empire.jsf2.utils.TagEncodingHelper;
@@ -44,8 +45,8 @@ public class FormGridTag extends UIOutput implements NamingContainer
     private enum FormGridMode 
     {
         LEGACY(InputControl.HTML_TAG_DIV, null, InputControl.HTML_TAG_TD, InputControl.HTML_TAG_TD),
-        TABLE ("table", InputControl.HTML_TAG_TR,  InputControl.HTML_TAG_TD, InputControl.HTML_TAG_TD),
-        GRID  (InputControl.HTML_TAG_DIV, InputControl.HTML_TAG_DIV,  InputControl.HTML_TAG_DIV, InputControl.HTML_TAG_DIV);
+        TABLE (InputControl.HTML_TAG_TABLE, InputControl.HTML_TAG_TR, InputControl.HTML_TAG_TD, InputControl.HTML_TAG_TD),
+        GRID  (InputControl.HTML_TAG_DIV, InputControl.HTML_TAG_DIV, InputControl.HTML_TAG_DIV, InputControl.HTML_TAG_DIV);
         
         public final String GRID_TAG;
         public final String DEFAULT_CONTROL_TAG;
@@ -109,8 +110,10 @@ public class FormGridTag extends UIOutput implements NamingContainer
         // render components
         ResponseWriter writer = context.getResponseWriter();
         writer.startElement(tagName, this);
-        writer.writeAttribute(InputControl.HTML_ATTR_ID, getClientId(), null);
-        helper.writeAttribute(writer, InputControl.HTML_ATTR_CLASS, helper.getTagAttributeString("styleClass", "eFormGrid"));
+        // id
+        helper.writeComponentId(writer, getControlRenderInfo().RENDER_AUTO_ID);
+        // style class
+        helper.writeStyleClass(writer);
         helper.writeAttribute(writer, InputControl.HTML_ATTR_STYLE, helper.getTagAttributeString("style"));
     }
 
@@ -149,8 +152,9 @@ public class FormGridTag extends UIOutput implements NamingContainer
         String controlTag = helper.getTagAttributeString("controlTag", mode.DEFAULT_CONTROL_TAG);
         String labelTag   = helper.getTagAttributeString("labelTag",   mode.DEFAULT_LABEL_TAG);
         String inputTag   = helper.getTagAttributeString("inputTag",   mode.DEFAULT_INPUT_TAG);
+        boolean renderAutoId = ObjectUtils.getBoolean(helper.getTagAttributeString("renderAutoId"));
         // done
-        this.controlRenderInfo = new ControlRenderInfo(controlTag, labelTag, inputTag);
+        this.controlRenderInfo = new ControlRenderInfo(controlTag, labelTag, inputTag, renderAutoId);
         return controlRenderInfo;
     }
 }

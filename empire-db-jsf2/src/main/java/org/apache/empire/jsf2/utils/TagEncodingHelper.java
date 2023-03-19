@@ -1324,13 +1324,6 @@ public class TagEncodingHelper implements NamingContainer
         String f = vi.getFormat();
         return (f != null && f.indexOf(format) >= 0);
     }
-
-    public void writeAttribute(ResponseWriter writer, String attribute, Object value)
-        throws IOException
-    {
-        if (value != null)
-            writer.writeAttribute(attribute, value, null);
-    }
     
     public String getDisplayText(String text)
     {
@@ -1432,6 +1425,47 @@ public class TagEncodingHelper implements NamingContainer
     public String getTagAttributeString(String name)
     {
         return getTagAttributeString(name, null);
+    }
+    
+    public String getControlContextStyleClass()
+    {
+        return getContextStyleClass(getTagAttributeString("styleClass"));        
+    }
+
+    public void writeAttribute(ResponseWriter writer, String attribute, Object value)
+        throws IOException
+    {
+        if (value != null)
+            writer.writeAttribute(attribute, value, null);
+    }
+    
+    public void writeComponentId(ResponseWriter writer, boolean renderAutoId)
+        throws IOException
+    {
+        // render id
+        if (renderAutoId || !component.getId().startsWith("j_"))
+            writer.writeAttribute(InputControl.HTML_ATTR_ID, component.getClientId(), null);
+    }
+
+    public void writeStyleClass(ResponseWriter writer, String... styleClasses)
+        throws IOException
+    {
+        String styleClass = null;
+        if (styleClasses.length>2)
+            styleClass = assembleStyleClassString(styleClasses[0], null, styleClasses[1], styleClasses[2]);
+        else if (styleClasses.length>1)
+            styleClass = assembleStyleClassString(styleClasses[0], null, styleClasses[1], null);
+        else if (styleClasses.length==1)
+            styleClass = styleClasses[0];
+        if (styleClass != null)
+            writer.writeAttribute(InputControl.HTML_ATTR_CLASS, styleClass, null);
+    }
+
+    public void writeStyleClass(ResponseWriter writer)
+        throws IOException
+    {
+        String userStyle = getTagAttributeStringEx("styleClass");
+        writeStyleClass(writer, this.cssStyleClass, userStyle);
     }
     
     /* ********************** FormGridTag ********************** */
@@ -1735,7 +1769,7 @@ public class TagEncodingHelper implements NamingContainer
         return getTagStyleClass((String)null);
     }
     
-    protected String getContextStyleClass(String addlStyle)
+    public String getContextStyleClass(String addlStyle)
     {
         String contextStyle = null;
         if ((getRecord() instanceof TagContextInfo) && hasColumn())
