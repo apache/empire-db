@@ -39,6 +39,7 @@ import org.apache.empire.data.Column;
 import org.apache.empire.db.exceptions.FieldIllegalValueException;
 import org.apache.empire.exceptions.EmpireException;
 import org.apache.empire.jsf2.controls.InputControl;
+import org.apache.empire.jsf2.utils.ControlRenderInfo;
 import org.apache.empire.jsf2.utils.TagEncodingHelper;
 import org.apache.empire.jsf2.utils.TagEncodingHelperFactory;
 import org.slf4j.Logger;
@@ -46,17 +47,21 @@ import org.slf4j.LoggerFactory;
 
 public class ControlTag extends UIInput implements NamingContainer
 {
-    public static String DEFAULT_CONTROL_SEPARATOR_TAG = "td";
     public static String DEFAULT_LABEL_SEPARATOR_CLASS = "eCtlLabel";
     public static String DEFAULT_INPUT_SEPARATOR_CLASS = "eCtlInput";
 
+    /**
+     * ControlSeparatorComponent
+     */
     public static abstract class ControlSeparatorComponent extends javax.faces.component.UIComponentBase
     {
         private ControlTag control = null;
         
-        private String tagName = "td";
+        protected String tagName = null;
 
-        protected abstract void writeAttributes(ResponseWriter writer, TagEncodingHelper helper, String tagName)
+        protected abstract String getTagName(ControlRenderInfo renderInfo);
+        
+        protected abstract void writeAttributes(ResponseWriter writer, TagEncodingHelper helper)
             throws IOException;
 
         @Override
@@ -65,7 +70,7 @@ public class ControlTag extends UIInput implements NamingContainer
             return UINamingContainer.COMPONENT_FAMILY;
         }
 
-        protected ControlTag getControl()
+        protected final ControlTag getControl()
         {
             return control;
         }
@@ -85,25 +90,26 @@ public class ControlTag extends UIInput implements NamingContainer
             }
 
             this.control = (ControlTag) parent;
-            // Start
-            
-            // write end tag
-            TagEncodingHelper helper = this.control.helper;
-            this.tagName = helper.getTagAttributeString("tag", "td");
+            this.tagName = getTagName(control.renderInfo);
 
-            // render components
-            ResponseWriter writer = context.getResponseWriter();
-            writer.startElement(tagName, this);
-            writeAttributes(writer, helper, tagName);
+            // Start
+            if (tagName!=null && tagName.length()>0) 
+            {   // render tag
+                ResponseWriter writer = context.getResponseWriter();
+                writer.startElement(tagName, this);
+                writeAttributes(writer, this.control.helper);
+            }
         }
         
         @Override
         public void encodeEnd(FacesContext context)
             throws IOException
         {
-            // render components
-            ResponseWriter writer = context.getResponseWriter();
-            writer.endElement(tagName);
+            if (tagName!=null && tagName.length()>0) 
+            {   // render tag
+                ResponseWriter writer = context.getResponseWriter();
+                writer.endElement(tagName);
+            }
             // call default
             super.encodeEnd(context);
         }
@@ -119,7 +125,13 @@ public class ControlTag extends UIInput implements NamingContainer
     public static class LabelSeparatorComponent extends ControlSeparatorComponent
     {
         @Override
-        protected void writeAttributes(ResponseWriter writer, TagEncodingHelper helper, String tagName)
+        protected String getTagName(ControlRenderInfo renderInfo)
+        {
+            return renderInfo.LABEL_WRAPPER_TAG;
+        }
+        
+        @Override
+        protected void writeAttributes(ResponseWriter writer, TagEncodingHelper helper)
             throws IOException
         {
             String styleClass = helper.getTagAttributeString("labelClass", ControlTag.DEFAULT_LABEL_SEPARATOR_CLASS);
@@ -140,9 +152,14 @@ public class ControlTag extends UIInput implements NamingContainer
 
     public static class InputSeparatorComponent extends ControlSeparatorComponent
     {
+        @Override
+        protected String getTagName(ControlRenderInfo renderInfo)
+        {
+            return renderInfo.INPUT_WRAPPER_TAG;
+        }
 
         @Override
-        protected void writeAttributes(ResponseWriter writer, TagEncodingHelper helper, String tagName)
+        protected void writeAttributes(ResponseWriter writer, TagEncodingHelper helper)
             throws IOException
         {
             String styleClass = helper.getTagAttributeString("inputClass", ControlTag.DEFAULT_INPUT_SEPARATOR_CLASS);
@@ -226,6 +243,7 @@ public class ControlTag extends UIInput implements NamingContainer
 
     protected InputControl            control              = null;
     protected InputControl.InputInfo  inpInfo              = null;
+    protected ControlRenderInfo       renderInfo           = null;
     protected boolean                 hasRequiredFlagSet   = false;
     protected boolean                 encodeLabel          = true;
     private boolean                   creatingComponents   = false;
@@ -298,12 +316,25 @@ public class ControlTag extends UIInput implements NamingContainer
     {
         // add label and input components when the view is loaded for the first time
         super.encodeBegin(context);
+        
+        // renderInfo
+        if (this.renderInfo==null)
+            this.renderInfo=helper.getControlRenderInfo();
 
         // init
         helper.encodeBegin();
         this.control = helper.getInputControl();
         boolean isCustomInput = isCustomInput();
-
+        
+        // encodeBegin
+        if (renderInfo.CONTROL_TAG!=null)
+        {   // control wrapper tag
+            ResponseWriter writer = context.getResponseWriter();
+            writer.startElement(renderInfo.CONTROL_TAG, this);
+            String styleClass = helper.getTagAttributeString("styleClass", "eControl"); 
+            helper.writeAttribute(writer, InputControl.HTML_ATTR_CLASS, styleClass);
+        }
+        
         // LabelSeparatorComponent
         if (this.encodeLabel)
         {   // Create Label Separator Tag
@@ -359,20 +390,27 @@ public class ControlTag extends UIInput implements NamingContainer
     {
         if (isRendered() && isCustomInput())
         {   // Custom input
-            String tagName  = helper.getTagAttributeString("tag", ControlTag.DEFAULT_CONTROL_SEPARATOR_TAG);
-            String inpClass = helper.getTagAttributeString("inputClass", ControlTag.DEFAULT_INPUT_SEPARATOR_CLASS);
-            String colSpan  = helper.getTagAttributeString("colspan");
-
-            ResponseWriter writer = context.getResponseWriter();
-            writer.startElement(tagName, this);
-            if (StringUtils.isNotEmpty(inpClass))
-                writer.writeAttribute("class", inpClass, null);
-            if (StringUtils.isNotEmpty(colSpan) && tagName.equalsIgnoreCase("td"))
-                writer.writeAttribute("colspan", colSpan, null);
+            ResponseWriter writer = null;
+            String tagName  = renderInfo.INPUT_WRAPPER_TAG;
+            if (tagName!=null && tagName.length()>0)
+            {   // attributes
+                String inpClass = helper.getTagAttributeString("inputClass", ControlTag.DEFAULT_INPUT_SEPARATOR_CLASS);
+                String colSpan  = helper.getTagAttributeString("colspan");
+                // render tag
+                writer = context.getResponseWriter();
+                writer.startElement(tagName, this);
+                if (StringUtils.isNotEmpty(inpClass))
+                    writer.writeAttribute("class", inpClass, null);
+                if (StringUtils.isNotEmpty(colSpan) && tagName.equalsIgnoreCase("td"))
+                    writer.writeAttribute("colspan", colSpan, null);
+            }
             // encode children
             super.encodeChildren(context);
             // end of element
-            writer.endElement(tagName);
+            if (writer!=null)
+            {   // render tag
+                writer.endElement(tagName);
+            }
         }
     }
 
@@ -380,7 +418,14 @@ public class ControlTag extends UIInput implements NamingContainer
     public void encodeEnd(FacesContext context)
         throws IOException
     {
+        // call base
         super.encodeEnd(context);
+        // encodeEnd
+        if (renderInfo.CONTROL_TAG!=null)
+        {   // control wrapper tag
+            ResponseWriter writer = context.getResponseWriter();
+            writer.endElement(renderInfo.CONTROL_TAG);
+        }
     }
     
     @Override
@@ -417,7 +462,7 @@ public class ControlTag extends UIInput implements NamingContainer
             return ObjectUtils.getBoolean(custom);
         return false;
     }
-
+    
     /**
      * called from LabelSeparatorComponent
      * @param context

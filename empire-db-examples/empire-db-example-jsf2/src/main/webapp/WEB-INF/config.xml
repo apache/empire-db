@@ -21,7 +21,7 @@
 
 	<properties>
 		<!-- provider name must match the property-section containing the connection data -->
-		<databaseProvider>hsqldb</databaseProvider>
+		<databaseProvider>sqlserver</databaseProvider>
 	</properties>
 
 	<properties-hsqldb>
@@ -98,7 +98,7 @@
 		<!-- JDBC properties for an Oracle Database connection -->
 		<!-- Required jar file: ojdbc14.jar -->
 		<jdbcClass>oracle.jdbc.driver.OracleDriver</jdbcClass>
-		<jdbcURL>jdbc:oracle:thin:@esteams12:1521:ora12</jdbcURL>
+		<jdbcURL>jdbc:oracle:thin:@devserver:1521:ora19</jdbcURL>
 		<jdbcUser>DBSAMPLE</jdbcUser>
 		<jdbcPwd>DBSAMPLE</jdbcPwd>
 		<!-- Empire-db driver configuration -->
@@ -111,7 +111,7 @@
 	<properties-sqlserver>
 		<!-- JDBC properties for a Microsoft SQL-Server Database connection -->
 		<jdbcClass>com.microsoft.sqlserver.jdbc.SQLServerDriver</jdbcClass>
-		<jdbcURL>jdbc:sqlserver://esteams12\sql17</jdbcURL>
+		<jdbcURL>jdbc:sqlserver://devserver</jdbcURL>
 		<jdbcUser>jdbcUser</jdbcUser>
 		<jdbcPwd>jdbcPwd</jdbcPwd>
 		<!-- Empire-db driver configuration -->

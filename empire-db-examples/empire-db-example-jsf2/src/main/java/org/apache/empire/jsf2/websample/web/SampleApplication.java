@@ -68,9 +68,6 @@ public class SampleApplication extends WebApplication {
 		
 		// trace
 		SampleApplication.log.trace("SampleApplication created");
-
-		// register custom control types
-		InputControlManager.registerControl(new FileInputControl());
 	}
 
 	@Override
@@ -86,6 +83,9 @@ public class SampleApplication extends WebApplication {
 
 		log.info("*** initDatabase() ***");
 		initDatabase();
+		
+        log.info("*** initControls() ***");
+		initControls();
 
 		log.info("*** initPages() ***");
 		initPages(servletContext);
@@ -94,6 +94,15 @@ public class SampleApplication extends WebApplication {
 		servletContext.setAttribute("db", sampleDB);
 
 		// Done
+	}
+	
+    /**
+     * initializes JSF control components
+     */
+    private void initControls()
+    {
+        // register custom control types
+        InputControlManager.registerControl(new FileInputControl());
 	}
 
     /*

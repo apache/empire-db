@@ -33,6 +33,7 @@ import org.apache.empire.exceptions.BeanPropertyGetException;
 import org.apache.empire.jsf2.pageelements.BeanListPageElement;
 import org.apache.empire.jsf2.pageelements.ListPageElement;
 import org.apache.empire.jsf2.pageelements.ListPageElement.ParameterizedItem;
+import org.apache.empire.jsf2.websample.db.SampleDB.Gender;
 import org.apache.empire.jsf2.websample.db.SampleDB.TDepartments;
 import org.apache.empire.jsf2.websample.db.SampleDB.TEmployees;
 import org.apache.empire.jsf2.websample.web.SampleUtils;
@@ -54,7 +55,7 @@ public class EmployeeListPage extends SamplePage
 
         private int               id; // employeeId;
         private String            name;
-        private String            gender;
+        private Gender            gender;
         private Date              dateOfBirth;
         private String            department;
         private boolean	 	      retired;
@@ -100,12 +101,12 @@ public class EmployeeListPage extends SamplePage
             this.name = name;
         }
 
-        public String getGender()
+        public Gender getGender()
         {
             return gender;
         }
 
-        public void setGender(String gender)
+        public void setGender(Gender gender)
         {
             this.gender = gender;
         }

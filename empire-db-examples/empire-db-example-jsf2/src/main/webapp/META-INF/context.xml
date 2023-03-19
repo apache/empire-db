@@ -17,13 +17,12 @@
   under the License.
  -->
 <!-- This file is read by Tomcat 6 and creates the datasources required just by being in the META-INF directory -->
-<Context path="/empire-db" docBase="jsf-example" debug="5" reloadable="true" crossContext="true">
-
+<Context path="/empjsf" debug="5" reloadable="true" crossContext="true">
 
 	<!-- Connection pool definition - not used in sample 
 	<Resource name="jdbc/sampleDataSource" auth="Container" type="javax.sql.DataSource"
 		maxActive="20" maxIdle="10" maxWait="-1" driverClassName="oracle.jdbc.driver.OracleDriver"
-		url="jdbc:oracle:thin:@esteams2:1521:ora10" username="DBSAMPLE" password="DBSAMPLE" />
+		url="jdbc:oracle:thin:@devserver:1521:ora19" username="DBSAMPLE" password="DBSAMPLE" />
 	-->
 
 </Context>

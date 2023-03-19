@@ -91,6 +91,10 @@
 		<component-class>org.apache.empire.jsf2.components.InputTag</component-class>
 	</component>
 	<component>
+		<component-type>components.FormGridTag</component-type>
+		<component-class>org.apache.empire.jsf2.components.FormGridTag</component-class>
+	</component>
+	<component>
 		<component-type>components.LabelTag</component-type>
 		<component-class>org.apache.empire.jsf2.components.LabelTag</component-class>
 	</component>

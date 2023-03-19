@@ -67,6 +67,7 @@ import org.apache.empire.jsf2.app.FacesUtils;
 import org.apache.empire.jsf2.app.TextResolver;
 import org.apache.empire.jsf2.app.WebApplication;
 import org.apache.empire.jsf2.components.ControlTag;
+import org.apache.empire.jsf2.components.FormGridTag;
 import org.apache.empire.jsf2.components.InputTag;
 import org.apache.empire.jsf2.components.LabelTag;
 import org.apache.empire.jsf2.components.LinkTag;
@@ -418,6 +419,7 @@ public class TagEncodingHelper implements NamingContainer
     protected Object              record       = null;
     protected RecordTag           recordTag    = null;
     protected UIData              uiDataTag    = null;
+    protected FormGridTag         formGridTag  = null;
     // protected Boolean          tagRequired  = null;
     protected Boolean             hasValueExpr = null;
     protected InputControl        control      = null;
@@ -1430,6 +1432,34 @@ public class TagEncodingHelper implements NamingContainer
     public String getTagAttributeString(String name)
     {
         return getTagAttributeString(name, null);
+    }
+    
+    /* ********************** FormGridTag ********************** */
+
+    protected FormGridTag getFormGrid()
+    {
+        if (this.formGridTag!=null)
+            return formGridTag;
+        // walk upwards the parent component tree and return the first record component found (if any)
+        UIComponent parent = component;
+        while ((parent = parent.getParent()) != null)
+        {
+            if (parent instanceof FormGridTag)
+            {   // found
+                this.formGridTag = (FormGridTag) parent;
+                return this.formGridTag;
+            }
+        }
+        return null;
+    }
+    
+    public ControlRenderInfo getControlRenderInfo()
+    {
+        FormGridTag formGrid = getFormGrid();
+        if (formGrid!=null)
+            return formGrid.getControlRenderInfo();
+        else
+            return ControlRenderInfo.DEFAULT_CONTROL_RENDER_INFO;
     }
 
     /* ********************** label ********************** */
