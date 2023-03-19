@@ -37,61 +37,68 @@
 
 		<h:form id="employeeDetail">
 
+		<e:tabView minHeight="400px" activeIndex="#{page.activeTab}" tabChangedListener="#{page.onTabChanged}">
+			<e:tabPage title="#{msg.employeeDetail_tab_basic}" id="tabBasic">
+
 				<e:record value="#{page.employeeRecord}">
-				
-				<h2>mode="grid"</h2>
-				<div class="formPanel">
-				<e:formGrid mode="grid" styleClass="formGrid">
-					<e:control column="#{db.EMPLOYEES.SALUTATION}" />
-					<e:control column="#{db.EMPLOYEES.FIRST_NAME}" />
-					<e:control column="#{db.EMPLOYEES.SALARY}" custom="true">
-						<span style="display:inline-block;background-color:aqua">CUSTOM_CONTROL</span>
-					</e:control>
-				</e:formGrid>
-				</div>
-				
 				<!-- input form -->
-				<h2>mode="table"</h2>
 				<div class="formPanel">
-				<e:formGrid mode="table" styleClass="inputForm">
-					<e:control column="#{db.EMPLOYEES.SALUTATION}" />
-					<e:control column="#{db.EMPLOYEES.FIRST_NAME}" />
-					<e:control column="#{db.EMPLOYEES.SALARY}" custom="true">
-						<span style="display:inline-block;background-color:aqua">CUSTOM_CONTROL</span>
-					</e:control>
-					<!-- 
-					<tr><e:control column="#{db.EMPLOYEES.LAST_NAME}" /></tr>
-					<tr><e:control column="#{db.EMPLOYEES.DATE_OF_BIRTH}"/></tr>
-					<tr><e:control column="#{db.EMPLOYEES.DEPARTMENT_ID}" /></tr>
-					<tr><e:control column="#{db.EMPLOYEES.GENDER}"   /> </tr>
-					<tr><e:control column="#{db.EMPLOYEES.PHONE_NUMBER}" /></tr>
-					<tr><e:control column="#{db.EMPLOYEES.EMAIL}" /></tr>
-					<tr><e:control column="#{db.EMPLOYEES.SALARY}" /></tr>
-					<tr><e:control column="#{db.EMPLOYEES.RETIRED}" /></tr>
-					<tr><e:control column="#{db.EMPLOYEES.UPDATE_TIMESTAMP}"/></tr>
-					 -->
-				</e:formGrid>
+					<e:formGrid mode="table" styleClass="inputForm">
+						<e:control column="#{db.EMPLOYEES.SALUTATION}"/>
+						<e:control column="#{db.EMPLOYEES.FIRST_NAME}"/>
+						<e:control column="#{db.EMPLOYEES.LAST_NAME}"/>
+						<e:control column="#{db.EMPLOYEES.DATE_OF_BIRTH}"/>
+						<e:control column="#{db.EMPLOYEES.DEPARTMENT_ID}"/>
+						<e:control column="#{db.EMPLOYEES.GENDER}"/>
+						<e:control column="#{db.EMPLOYEES.PHONE_NUMBER}"/>
+						<e:control column="#{db.EMPLOYEES.EMAIL}"/>
+						<e:control column="#{db.EMPLOYEES.SALARY}"/>
+						<e:control column="#{db.EMPLOYEES.RETIRED}"/>
+						<e:control column="#{db.EMPLOYEES.UPDATE_TIMESTAMP}"/> 
+					</e:formGrid>
 				</div>
-				
-				<h2>legacy - neu</h2>
-				<e:formGrid styleClass="formPanel">
-					<table class="inputForm">
-						<tr><e:control column="#{db.EMPLOYEES.SALUTATION}" /></tr>
-						<tr><e:control column="#{db.EMPLOYEES.FIRST_NAME}" /></tr>
-						<tr><e:control column="#{db.EMPLOYEES.SALARY}" custom="true">
-							<span style="display:inline-block;background-color:aqua">CUSTOM_CONTROL</span>
-						</e:control></tr>
-					</table>
-				</e:formGrid>
-				
+				<!-- input form ende -->
 				</e:record>
+				
+			</e:tabPage>
+			
+			<e:tabPage title="#{msg.employeeDetail_tab_extended}" id="tabExtended" disabled="#{not page.employeeRecord.exists}">
+				<h3><h:outputText value="#{msg.employeeDetail_payments}"/></h3>
+				<!-- Payment data -->
+				<h:dataTable id="paymentData" value="#{page.payments}" var="item" rowClasses="odd,even">
+					<h:column>
+						<f:facet name="header">
+							<e:title column="#{db.PAYMENTS.YEAR}" />
+						</f:facet>
+						<e:value record="#{item}" column="#{db.PAYMENTS.YEAR}"/>
+					</h:column>
+					<h:column>
+						<f:facet name="header">
+							<e:title column="#{db.PAYMENTS.MONTH}" />
+						</f:facet>
+						<e:value record="#{item}" column="#{db.PAYMENTS.MONTH}"/>
+					</h:column>
+					<h:column>
+						<f:facet name="header">
+							<e:title column="#{db.PAYMENTS.AMOUNT}" />
+						</f:facet>
+						<e:value record="#{item}" column="#{db.PAYMENTS.AMOUNT}"/>
+					</h:column>
+				</h:dataTable>
+				<h:panelGroup layout="block" styleClass="info-msg">
+					<h:outputText value="#{msg.employeeDetail_msg_extended}"/>
+				</h:panelGroup>
+			</e:tabPage>
+		</e:tabView>	
 		
 		<!-- button bar -->
 		<h:panelGroup styleClass="buttonBar" layout="block">
 			<h:commandLink value="#{msg.employeeDetail_back}" action="#{page.doCancel}" immediate="true" />
 			<h:commandLink value="#{msg.employeeDetail_delete}" action="#{page.doDelete}" immediate="true" rendered="#{page.employeeRecord.exists}" />
 			<h:commandLink value="#{msg.employeeDetail_save}" action="#{page.doSave}" />
+			<!-- 
 			<h:commandLink value="#{msg.employeeDetail_test}" actionListener="#{page.doTestSerialization}" />
+			 -->
 		</h:panelGroup>
 
 		</h:form>
