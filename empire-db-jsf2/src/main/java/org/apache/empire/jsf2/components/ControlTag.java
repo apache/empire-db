@@ -239,7 +239,7 @@ public class ControlTag extends UIInput implements NamingContainer
 
     protected static final String     readOnlyState        = "readOnlyState";
 
-    protected final TagEncodingHelper helper               = TagEncodingHelperFactory.create(this, CONTROL_CLASS);
+    protected final TagEncodingHelper helper               = TagEncodingHelperFactory.create(this, "eInput"); // Must be "eInput" not "eControl"!
 
     protected InputControl            control              = null;
     protected InputControl.InputInfo  inpInfo              = null;
