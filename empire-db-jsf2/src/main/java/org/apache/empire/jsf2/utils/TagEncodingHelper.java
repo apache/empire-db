@@ -1284,8 +1284,8 @@ public class TagEncodingHelper implements NamingContainer
             value = getDataValue(true);
         // Check Options
         String text;
-        Options options = getValueOptions();
-        if (options != null && !hasFormat("notitlelookup"))
+        Options options;
+        if (!hasFormat("notitlelookup") && (options=getValueOptions())!=null)
         { // Lookup the title
             String optValue = options.get(value);
             text = getDisplayText(optValue);
@@ -1731,12 +1731,13 @@ public class TagEncodingHelper implements NamingContainer
         return b.toString();
     }
 
-    public static final String CSS_DATA_TYPE_NONE     = "";
-    public static final String CSS_DATA_TYPE_IDENT    = " eTypeIdent";
+    public static final String CSS_DATA_TYPE_NONE     = null;
+    public static final String CSS_DATA_TYPE_INT      = " eTypeInt";
     public static final String CSS_DATA_TYPE_NUMBER   = " eTypeNumber";
     public static final String CSS_DATA_TYPE_TEXT     = " eTypeText";
     public static final String CSS_DATA_TYPE_LONGTEXT = " eTypeLongText";
     public static final String CSS_DATA_TYPE_DATE     = " eTypeDate";
+    public static final String CSS_DATA_TYPE_DATETIME = " eTypeDateTime";
     public static final String CSS_DATA_TYPE_BOOL     = " eTypeBool";
 
     protected String getDataTypeClass(DataType type)
@@ -1744,18 +1745,20 @@ public class TagEncodingHelper implements NamingContainer
         switch (type)
         {
             case AUTOINC:
-                return CSS_DATA_TYPE_IDENT;
             case INTEGER:
+                return CSS_DATA_TYPE_INT;
             case DECIMAL:
+                return (getValueOptions()!=null) ? CSS_DATA_TYPE_TEXT : CSS_DATA_TYPE_NUMBER;
             case FLOAT:
                 return CSS_DATA_TYPE_NUMBER;
             case VARCHAR:
             case CHAR:
                 return CSS_DATA_TYPE_TEXT;
             case DATE:
+                return CSS_DATA_TYPE_DATE;
             case DATETIME:
             case TIMESTAMP:
-                return CSS_DATA_TYPE_DATE;
+                return CSS_DATA_TYPE_DATETIME;
             case BOOL:
                 return CSS_DATA_TYPE_BOOL;
             case CLOB:
