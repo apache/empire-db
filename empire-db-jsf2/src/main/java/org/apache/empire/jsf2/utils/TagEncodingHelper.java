@@ -1468,6 +1468,26 @@ public class TagEncodingHelper implements NamingContainer
         writeStyleClass(writer, this.cssStyleClass, userStyle);
     }
     
+    public String writeWrapperTag(FacesContext context, boolean renderId, boolean renderValue)
+        throws IOException
+    {
+        String wrapperClass = getTagAttributeStringEx("wrapperClass"); 
+        if (wrapperClass==null)
+            return null;
+        // start element
+        String tagName = InputControl.HTML_TAG_DIV;
+        ResponseWriter writer = context.getResponseWriter();
+        writer.startElement(tagName, this.component);
+        // render id
+        if (renderId)
+            writeComponentId(writer, false);
+        // style class
+        String wrapCtxClass = (renderValue ? "eWrapVal" : "eWrapInp");
+        writeStyleClass(writer, wrapCtxClass, StringUtils.nullIf(wrapperClass, '-'));
+        // return tagName
+        return tagName;
+    }
+    
     /* ********************** FormGridTag ********************** */
 
     protected FormGridTag getFormGrid()

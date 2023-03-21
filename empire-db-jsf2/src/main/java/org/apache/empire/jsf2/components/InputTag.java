@@ -189,16 +189,7 @@ public class InputTag extends UIInput implements NamingContainer
         setRenderInput(!renderValue);
 
         // wrapperTag
-        String wrapperClass = helper.getTagAttributeStringEx("wrapperClass"); 
-        if (wrapperClass!=null)
-        {   // control wrapper tag
-            ResponseWriter writer = context.getResponseWriter();
-            writer.startElement(InputControl.HTML_TAG_DIV, this);
-            // render id
-            helper.writeComponentId(writer, false);
-            // style class
-            helper.writeStyleClass(writer, wrapperClass);
-        }
+        String wrapperTag = helper.writeWrapperTag(context, true, renderValue);
         // render components
         if (renderValue)
         {   // render value
@@ -212,20 +203,12 @@ public class InputTag extends UIInput implements NamingContainer
             control.renderInput(this, inpInfo, context);
         }
         // wrapperTagEnd
-        if (wrapperClass!=null)
+        if (wrapperTag!=null)
         {   // control wrapper tag
             ResponseWriter writer = context.getResponseWriter();
-            writer.endElement(InputControl.HTML_TAG_DIV);
+            writer.endElement(wrapperTag);
         }
         saveState();
-    }
-
-    @Override
-    public void setId(String id)
-    {   // complete
-        id = helper.completeInputTagId(id); 
-        // setId
-        super.setId(id);
     }
 
     @Override
@@ -237,6 +220,14 @@ public class InputTag extends UIInput implements NamingContainer
             compId =  helper.completeInputTagId(null);
         // done
         return compId;
+    }
+
+    @Override
+    public void setId(String id)
+    {   // complete
+        id = helper.completeInputTagId(id); 
+        // setId
+        super.setId(id);
     }
 
     @Override

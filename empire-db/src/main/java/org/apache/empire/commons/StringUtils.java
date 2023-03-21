@@ -140,6 +140,18 @@ public class StringUtils
     }
 
     /**
+     * Returns null if the string supplied is null, an empty String or a specific character 
+     * 
+     * @param value the value to check 
+     * @param nullChar the char that indicates null
+     * @return null if the value supplied is null, an empty String or the nullChar 
+     */
+    public static String nullIf(String value, char nullChar)
+    {
+        return (value==null || value.length()==0 || (value.length()==1 && value.charAt(0)==nullChar) ? null : value);   
+    }
+
+    /**
      * Returns true if the given substring is part of the string provided by value 
      * 
      * @param value the value to check

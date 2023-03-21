@@ -553,21 +553,14 @@ public class ControlTag extends UIInput implements NamingContainer
                 child.setRendered((valueOutput ? renderValue : !renderValue));
             }
             // wrapperTag
-            String wrapperClass = helper.getTagAttributeStringEx("wrapperClass"); 
-            if (wrapperClass!=null)
-            {   // control wrapper tag
-                ResponseWriter writer = context.getResponseWriter();
-                writer.startElement(InputControl.HTML_TAG_DIV, this);
-                // style class
-                helper.writeStyleClass(writer, wrapperClass);
-            }
+            String wrapperTag = helper.writeWrapperTag(context, false, renderValue); 
             // render
             control.renderInput(parent, inpInfo, context);
             // wrapperTagEnd
-            if (wrapperClass!=null)
+            if (wrapperTag!=null)
             {   // control wrapper tag
                 ResponseWriter writer = context.getResponseWriter();
-                writer.endElement(InputControl.HTML_TAG_DIV);
+                writer.endElement(wrapperTag);
             }
         } finally {
             creatingComponents = false;

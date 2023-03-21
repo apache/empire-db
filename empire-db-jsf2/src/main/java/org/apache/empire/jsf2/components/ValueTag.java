@@ -22,6 +22,7 @@ import java.io.IOException;
 
 import javax.faces.component.UIOutput;
 import javax.faces.context.FacesContext;
+import javax.faces.context.ResponseWriter;
 
 import org.apache.empire.commons.StringUtils;
 import org.apache.empire.data.DataType;
@@ -51,6 +52,25 @@ public class ValueTag extends UIOutput // implements NamingContainer
     }
 
     @Override
+    public String getId()
+    {
+        String compId = super.getId();
+        // Mojarra-Patch since Id might have been set to "null"
+        if ("null".equals(compId))
+            compId =  helper.completeInputTagId(null);
+        // done
+        return compId;
+    }
+
+    @Override
+    public void setId(String id)
+    {   // complete
+        id = helper.completeInputTagId(id); 
+        // setId
+        super.setId(id);
+    }
+
+    @Override
     public void encodeBegin(FacesContext context)
         throws IOException
     {
@@ -62,7 +82,17 @@ public class ValueTag extends UIOutput // implements NamingContainer
         // render components
         InputControl control = helper.getInputControl();
         InputControl.ValueInfo vi = helper.getValueInfo(context);
+        
+        // wrapperTag
+        String wrapperTag = helper.writeWrapperTag(context, true, true); 
+        // render value
         renderControlValue(control, vi, context);
+        // wrapperTagEnd
+        if (wrapperTag!=null)
+        {   // control wrapper tag
+            ResponseWriter writer = context.getResponseWriter();
+            writer.endElement(wrapperTag);
+        }
     }
 
     protected void renderControlValue(InputControl control, InputControl.ValueInfo vi, FacesContext context)
