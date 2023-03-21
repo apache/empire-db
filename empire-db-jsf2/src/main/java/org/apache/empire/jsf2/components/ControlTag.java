@@ -34,7 +34,6 @@ import javax.faces.context.ResponseWriter;
 import javax.faces.convert.ConverterException;
 
 import org.apache.empire.commons.ObjectUtils;
-import org.apache.empire.commons.StringUtils;
 import org.apache.empire.data.Column;
 import org.apache.empire.db.exceptions.FieldIllegalValueException;
 import org.apache.empire.exceptions.EmpireException;
@@ -136,7 +135,7 @@ public class ControlTag extends UIInput implements NamingContainer
             throws IOException
         {
             // style Class
-            String labelClass = helper.getTagAttributeString("labelClass");
+            String labelClass = helper.getTagAttributeStringEx("labelClass");
             helper.writeStyleClass(writer, ControlTag.LABEL_SEPARATOR_CLASS, labelClass);
         }
 
@@ -164,11 +163,11 @@ public class ControlTag extends UIInput implements NamingContainer
             throws IOException
         {
             // style Class
-            String inputClass = helper.getTagAttributeString("inputClass");
+            String inputClass = helper.getTagAttributeStringEx("inputClass");
             helper.writeStyleClass(writer, ControlTag.INPUT_SEPARATOR_CLASS, inputClass);
             // colspan
-            String colSpan = helper.getTagAttributeString("colspan");
-            if (StringUtils.isNotEmpty(colSpan) && tagName.equalsIgnoreCase("td"))
+            String colSpan = tagName.equalsIgnoreCase(InputControl.HTML_TAG_TD) ? helper.getTagAttributeStringEx("colspan") : null;            
+            if (colSpan!=null)
                 writer.writeAttribute("colspan", colSpan, null);
         }
 
@@ -334,7 +333,7 @@ public class ControlTag extends UIInput implements NamingContainer
             // render id
             helper.writeComponentId(writer, renderInfo.RENDER_AUTO_ID);
             // style class
-            String controlClass = helper.getTagAttributeString("controlClass"); 
+            String controlClass = helper.getTagAttributeStringEx("controlClass"); 
             String styleClass   = helper.getControlContextStyleClass(); 
             helper.writeStyleClass(writer, CONTROL_CLASS, controlClass, styleClass);
         }
@@ -401,11 +400,11 @@ public class ControlTag extends UIInput implements NamingContainer
                 writer = context.getResponseWriter();
                 writer.startElement(tagName, this);
                 // style Class
-                String inpClass = helper.getTagAttributeString("inputClass");
+                String inpClass = helper.getTagAttributeStringEx("inputClass");
                 helper.writeStyleClass(writer, ControlTag.INPUT_SEPARATOR_CLASS, inpClass);
                 // write more
-                String colSpan = tagName.equalsIgnoreCase(InputControl.HTML_TAG_TD) ? helper.getTagAttributeString("colspan") : null;
-                if (StringUtils.isNotEmpty(colSpan))
+                String colSpan = tagName.equalsIgnoreCase(InputControl.HTML_TAG_TD) ? helper.getTagAttributeStringEx("colspan") : null;
+                if (colSpan!=null)
                     writer.writeAttribute("colspan", colSpan, null);
             }
             // encode children
@@ -473,27 +472,35 @@ public class ControlTag extends UIInput implements NamingContainer
      * @param parent the LabelSeparatorComponent
      */
     protected void encodeLabel(FacesContext context, UIComponentBase parent)
+        throws IOException
     {
-        // render components
-        try {
-            creatingComponents = true;
-            HtmlOutputLabel labelComponent = null;
-            if (parent.getChildCount() > 0)
-            {
-                labelComponent = (HtmlOutputLabel) parent.getChildren().get(0);
-                // update
-                helper.updateLabelComponent(context, labelComponent, null);
+        UIComponent labelFacet = getFacet("label");
+        if (labelFacet!=null)
+        {   // label facet
+            labelFacet.encodeAll(context);
+        }
+        else
+        {   // render components
+            try {
+                creatingComponents = true;
+                HtmlOutputLabel labelComponent = null;
+                if (parent.getChildCount() > 0)
+                {
+                    labelComponent = (HtmlOutputLabel) parent.getChildren().get(0);
+                    // update
+                    helper.updateLabelComponent(context, labelComponent, null);
+                }
+                if (labelComponent == null)
+                {
+                    String forInput = isCustomInput() ? helper.getTagAttributeString("for") : "*";
+                    // createLabelComponent 
+                    labelComponent = helper.createLabelComponent(context, forInput, "eLabel", null, getColon());
+                    parent.getChildren().add(0, labelComponent);
+                    helper.resetComponentId(labelComponent);
+                }
+            } finally {
+                creatingComponents = false;
             }
-            if (labelComponent == null)
-            {
-                String forInput = isCustomInput() ? helper.getTagAttributeString("for") : "*";
-                // createLabelComponent 
-                labelComponent = helper.createLabelComponent(context, forInput, "eLabel", null, getColon());
-                parent.getChildren().add(0, labelComponent);
-                helper.resetComponentId(labelComponent);
-            }
-        } finally {
-            creatingComponents = false;
         }
     }
 
@@ -545,9 +552,23 @@ public class ControlTag extends UIInput implements NamingContainer
                 boolean valueOutput = (child instanceof ValueOutputComponent);
                 child.setRendered((valueOutput ? renderValue : !renderValue));
             }
+            // wrapperTag
+            String wrapperClass = helper.getTagAttributeStringEx("wrapperClass"); 
+            if (wrapperClass!=null)
+            {   // control wrapper tag
+                ResponseWriter writer = context.getResponseWriter();
+                writer.startElement(InputControl.HTML_TAG_DIV, this);
+                // style class
+                helper.writeStyleClass(writer, wrapperClass);
+            }
             // render
             control.renderInput(parent, inpInfo, context);
-            // render
+            // wrapperTagEnd
+            if (wrapperClass!=null)
+            {   // control wrapper tag
+                ResponseWriter writer = context.getResponseWriter();
+                writer.endElement(InputControl.HTML_TAG_DIV);
+            }
         } finally {
             creatingComponents = false;
         }

@@ -46,7 +46,8 @@ public class FormGridTag extends UIOutput implements NamingContainer
     {
         LEGACY(InputControl.HTML_TAG_DIV, null, InputControl.HTML_TAG_TD, InputControl.HTML_TAG_TD),
         TABLE (InputControl.HTML_TAG_TABLE, InputControl.HTML_TAG_TR, InputControl.HTML_TAG_TD, InputControl.HTML_TAG_TD),
-        GRID  (InputControl.HTML_TAG_DIV, InputControl.HTML_TAG_DIV, InputControl.HTML_TAG_DIV, InputControl.HTML_TAG_DIV);
+        GRID  (InputControl.HTML_TAG_DIV, InputControl.HTML_TAG_DIV, InputControl.HTML_TAG_DIV, InputControl.HTML_TAG_DIV),
+        FLAT  (InputControl.HTML_TAG_DIV, InputControl.HTML_TAG_DIV, null, null);
         
         public final String GRID_TAG;
         public final String DEFAULT_CONTROL_TAG;
@@ -147,7 +148,7 @@ public class FormGridTag extends UIOutput implements NamingContainer
         if (controlRenderInfo!=null)
             return controlRenderInfo;
         // check mode
-        FormGridMode mode = FormGridMode.detect(helper.getTagAttributeString("mode")); 
+        FormGridMode mode = FormGridMode.detect(helper.getTagAttributeString("mode", FormGridMode.GRID.name())); 
         // override?
         String controlTag = helper.getTagAttributeString("controlTag", mode.DEFAULT_CONTROL_TAG);
         String labelTag   = helper.getTagAttributeString("labelTag",   mode.DEFAULT_LABEL_TAG);

@@ -1393,7 +1393,7 @@ public class TagEncodingHelper implements NamingContainer
     public String getTagAttributeStringEx(String name)
     {
         Object value = getAttributeValueEx(name);
-        return (value!=null) ? StringUtils.toString(value) : null;
+        return (value!=null) ? StringUtils.nullIfEmpty(value) : null;
     }
     
     public Object getTagAttributeValue(String name)

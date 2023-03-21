@@ -27,6 +27,7 @@ import javax.faces.component.UIInput;
 import javax.faces.component.visit.VisitCallback;
 import javax.faces.component.visit.VisitContext;
 import javax.faces.context.FacesContext;
+import javax.faces.context.ResponseWriter;
 import javax.faces.convert.ConverterException;
 import javax.faces.view.AttachedObjectHandler;
 
@@ -187,6 +188,17 @@ public class InputTag extends UIInput implements NamingContainer
         boolean renderValue = helper.isRenderValueComponent();
         setRenderInput(!renderValue);
 
+        // wrapperTag
+        String wrapperClass = helper.getTagAttributeStringEx("wrapperClass"); 
+        if (wrapperClass!=null)
+        {   // control wrapper tag
+            ResponseWriter writer = context.getResponseWriter();
+            writer.startElement(InputControl.HTML_TAG_DIV, this);
+            // render id
+            helper.writeComponentId(writer, false);
+            // style class
+            helper.writeStyleClass(writer, wrapperClass);
+        }
         // render components
         if (renderValue)
         {   // render value
@@ -198,6 +210,12 @@ public class InputTag extends UIInput implements NamingContainer
         else
         {   // render input
             control.renderInput(this, inpInfo, context);
+        }
+        // wrapperTagEnd
+        if (wrapperClass!=null)
+        {   // control wrapper tag
+            ResponseWriter writer = context.getResponseWriter();
+            writer.endElement(InputControl.HTML_TAG_DIV);
         }
         saveState();
     }
