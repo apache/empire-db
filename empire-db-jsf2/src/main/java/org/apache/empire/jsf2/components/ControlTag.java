@@ -41,15 +41,12 @@ import org.apache.empire.jsf2.controls.InputControl;
 import org.apache.empire.jsf2.utils.ControlRenderInfo;
 import org.apache.empire.jsf2.utils.TagEncodingHelper;
 import org.apache.empire.jsf2.utils.TagEncodingHelperFactory;
+import org.apache.empire.jsf2.utils.TagStyleClass;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class ControlTag extends UIInput implements NamingContainer
 {
-    public static String CONTROL_CLASS = "eControl";
-    public static String LABEL_SEPARATOR_CLASS = "eCtlLabel";
-    public static String INPUT_SEPARATOR_CLASS = "eCtlInput";
-
     /**
      * ControlSeparatorComponent
      */
@@ -136,7 +133,7 @@ public class ControlTag extends UIInput implements NamingContainer
         {
             // style Class
             String labelClass = helper.getTagAttributeStringEx("labelClass");
-            helper.writeStyleClass(writer, ControlTag.LABEL_SEPARATOR_CLASS, labelClass);
+            helper.writeStyleClass(writer, TagStyleClass.CONTROL_LABEL.get(), labelClass);
         }
 
         @Override
@@ -164,7 +161,7 @@ public class ControlTag extends UIInput implements NamingContainer
         {
             // style Class
             String inputClass = helper.getTagAttributeStringEx("inputClass");
-            helper.writeStyleClass(writer, ControlTag.INPUT_SEPARATOR_CLASS, inputClass);
+            helper.writeStyleClass(writer, TagStyleClass.CONTROL_INPUT.get(), inputClass);
             // colspan
             String colSpan = tagName.equalsIgnoreCase(InputControl.HTML_TAG_TD) ? helper.getTagAttributeStringEx("colspan") : null;            
             if (colSpan!=null)
@@ -225,7 +222,7 @@ public class ControlTag extends UIInput implements NamingContainer
             if (valInfo == null)
                 valInfo = helper.getValueInfo(context); // Oops, should not come here 
 
-            String styleClass = helper.getTagStyleClass("eInpDis");
+            String styleClass = helper.getTagStyleClass(TagStyleClass.INPUT_DIS.get());
             String tooltip = helper.getValueTooltip(helper.getTagAttributeValue("title"));
 
             // render components
@@ -238,7 +235,7 @@ public class ControlTag extends UIInput implements NamingContainer
 
     protected static final String     readOnlyState        = "readOnlyState";
 
-    protected final TagEncodingHelper helper               = TagEncodingHelperFactory.create(this, "eInput"); // Must be "eInput" not "eControl"!
+    protected final TagEncodingHelper helper               = TagEncodingHelperFactory.create(this, TagStyleClass.INPUT.get()); // Must be "INPUT" not "CONTROL"!
 
     protected InputControl            control              = null;
     protected InputControl.InputInfo  inpInfo              = null;
@@ -335,7 +332,7 @@ public class ControlTag extends UIInput implements NamingContainer
             // style class
             String controlClass = helper.getTagAttributeStringEx("controlClass"); 
             String styleClass   = helper.getControlContextStyleClass(); 
-            helper.writeStyleClass(writer, CONTROL_CLASS, controlClass, styleClass);
+            helper.writeStyleClass(writer, TagStyleClass.CONTROL.get(), controlClass, styleClass);
         }
         
         // LabelSeparatorComponent
@@ -401,7 +398,7 @@ public class ControlTag extends UIInput implements NamingContainer
                 writer.startElement(tagName, this);
                 // style Class
                 String inpClass = helper.getTagAttributeStringEx("inputClass");
-                helper.writeStyleClass(writer, ControlTag.INPUT_SEPARATOR_CLASS, inpClass);
+                helper.writeStyleClass(writer, TagStyleClass.CONTROL_INPUT.get(), inpClass);
                 // write more
                 String colSpan = tagName.equalsIgnoreCase(InputControl.HTML_TAG_TD) ? helper.getTagAttributeStringEx("colspan") : null;
                 if (colSpan!=null)

@@ -30,13 +30,14 @@ import javax.faces.context.ResponseWriter;
 import org.apache.empire.commons.StringUtils;
 import org.apache.empire.jsf2.utils.TagEncodingHelper;
 import org.apache.empire.jsf2.utils.TagEncodingHelperFactory;
+import org.apache.empire.jsf2.utils.TagStyleClass;
 
 public class MenuListTag extends UIOutput implements NamingContainer
 {
     // Logger
     // private static final Logger log = LoggerFactory.getLogger(MenuListTag.class);
     
-    protected final TagEncodingHelper helper = TagEncodingHelperFactory.create(this, "eMenuList");
+    protected final TagEncodingHelper helper = TagEncodingHelperFactory.create(this, TagStyleClass.MENU.get());
     
     private enum Properties
     {

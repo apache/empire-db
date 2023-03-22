@@ -44,6 +44,7 @@ import org.apache.empire.data.Column;
 import org.apache.empire.data.DataType;
 import org.apache.empire.exceptions.InvalidArgumentException;
 import org.apache.empire.exceptions.UnexpectedReturnValueException;
+import org.apache.empire.jsf2.utils.TagStyleClass;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -101,13 +102,13 @@ public class TextInputControl extends InputControl
         String unit = getUnitString(ii);
         if (StringUtils.isNotEmpty(unit))
         {   // add the unit
-            compList.add(createUnitLabel("eUnit", ii, unit));
+            compList.add(createUnitLabel(TagStyleClass.UNIT.get(), ii, unit));
         }
         // add hint
         String hint = StringUtils.toString(ii.getAttribute("hint"));
         if (StringUtils.isNotEmpty(hint) && !ii.isDisabled())
         {   // add the hint (if not an empty string!)
-            compList.add(createUnitLabel("eInputHint", ii, hint));
+            compList.add(createUnitLabel(TagStyleClass.INPUT_HINT.get(), ii, hint));
         }
         // update
         updateInputState(compList, ii, context, context.getCurrentPhaseId());
@@ -136,9 +137,9 @@ public class TextInputControl extends InputControl
             */
         }
         // required
-        addRemoveStyle(input, InputControl.STYLECLASS_REQUIRED, ii.isRequired());
+        addRemoveStyle(input, TagStyleClass.INPUT_REQ, ii.isRequired());
         // modified
-        addRemoveStyle(input, InputControl.STYLECLASS_MODIFIED, ii.isModified());
+        addRemoveStyle(input, TagStyleClass.INPUT_MOD, ii.isModified());
 
         // disabled
         DisabledType disabled = ii.getDisabled();

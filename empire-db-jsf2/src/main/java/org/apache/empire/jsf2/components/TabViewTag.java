@@ -44,6 +44,7 @@ import org.apache.empire.jsf2.controls.InputControl;
 import org.apache.empire.jsf2.controls.InputControlManager;
 import org.apache.empire.jsf2.utils.TagEncodingHelper;
 import org.apache.empire.jsf2.utils.TagEncodingHelperFactory;
+import org.apache.empire.jsf2.utils.TagStyleClass;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -53,15 +54,13 @@ public class TabViewTag extends UIOutput implements NamingContainer
     // private static final Logger log = LoggerFactory.getLogger(MenuTag.class);
     private static final Logger       log                    = LoggerFactory.getLogger(TabViewTag.class);
 
-    protected final String            TAB_STYLE_CLASS        = "eTabView";
-
     protected final String            TAB_ACTIVE_INDEX       = "activeIndex";
 
     protected final String            TABLINK_ID_PREFIX      = "tabLink";
 
     protected final String            TAB_RENDERED_ATTRIBUTE = "visible";
 
-    protected final TagEncodingHelper helper                 = TagEncodingHelperFactory.create(this, this.TAB_STYLE_CLASS);
+    protected final TagEncodingHelper helper                 = TagEncodingHelperFactory.create(this, TagStyleClass.TAB_VIEW.get());
 
     public static class TabPageActionListener implements ActionListener, StateHolder
     {
@@ -269,16 +268,16 @@ public class TabViewTag extends UIOutput implements NamingContainer
                 boolean disabled = ObjectUtils.getBoolean(TagEncodingHelper.getTagAttributeValue(page, "disabled"));
                 writer.startElement(InputControl.HTML_TAG_TD, this);
                 // tab label
-                String styleClass = "eTabLabel";
+                String styleClasses = TagStyleClass.TAB_LABEL.get();
                 if (active)
                 {
-                    styleClass += " eTabActive";
+                    styleClasses = TagStyleClass.TAB_ACTIVE.addTo(styleClasses);
                 }
                 else if (disabled)
                 {
-                    styleClass += " eTabDisabled";
+                    styleClasses = TagStyleClass.TAB_DISABLED.addTo(styleClasses);
                 }
-                writer.writeAttribute(InputControl.HTML_ATTR_CLASS, styleClass, null);
+                writer.writeAttribute(InputControl.HTML_ATTR_CLASS, styleClasses, null);
                 // encode Link
                 encodeTabLink(context, writer, index, page, (active || disabled));
                 writer.endElement(InputControl.HTML_TAG_TD);
@@ -326,8 +325,7 @@ public class TabViewTag extends UIOutput implements NamingContainer
         link.setValue(page.getTabLabel());
         link.setDisabled(disabled);
         // Set Style
-        String styleClass = "eTabLink";
-        link.setStyleClass(styleClass);
+        link.setStyleClass(TagStyleClass.TAB_LINK.get());
 
         // encode link
         link.setRendered(true);

@@ -43,6 +43,7 @@ import org.apache.empire.exceptions.InvalidArgumentException;
 import org.apache.empire.exceptions.ItemNotFoundException;
 import org.apache.empire.exceptions.UnexpectedReturnValueException;
 import org.apache.empire.jsf2.app.TextResolver;
+import org.apache.empire.jsf2.utils.TagStyleClass;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -76,10 +77,6 @@ public abstract class InputControl
     
     // HTML
     public static String HTML_EXPR_NBSP = "&nbsp;";
-    
-    // style classes
-    public static final String STYLECLASS_REQUIRED    = " eInpReq";
-    public static final String STYLECLASS_MODIFIED    = " eInpModified";
 
     public InputControl()
     {
@@ -643,14 +640,11 @@ public abstract class InputControl
         String addlStyles = null;
         if (ii.isRequired())
         {   // required
-            addlStyles = STYLECLASS_REQUIRED;
+            addlStyles = TagStyleClass.INPUT_REQ.get();
         }
         if (ii.isModified()) 
-        {   // modified only
-            if (addlStyles==null)
-                addlStyles = STYLECLASS_MODIFIED;
-            else
-                addlStyles+= STYLECLASS_MODIFIED;
+        {   // modified
+            addlStyles = TagStyleClass.INPUT_MOD.addTo(addlStyles);
         }
         copyAttributes(parent, ii, input, addlStyles);
     }
@@ -669,35 +663,40 @@ public abstract class InputControl
     
     public void addRemoveValueNullStyle(UIInput input, boolean nullValue)
     {
-        addRemoveStyle(input, " eValNull", nullValue);
+        addRemoveStyle(input, TagStyleClass.VALUE_NULL, nullValue);
     }
 
     public void addRemoveDisabledStyle(UIInput input, boolean disabled)
     {
-        addRemoveStyle(input, " eInpDis", disabled);
+        addRemoveStyle(input, TagStyleClass.INPUT_DIS, disabled);
     }
 
     public void addRemoveInvalidStyle(UIInput input, boolean invalid)
     {
-        addRemoveStyle(input, " eInvalid", invalid);
+        addRemoveStyle(input, TagStyleClass.VALUE_INVALID, invalid);
     }
-
+    
     public void addRemoveStyle(UIInput input, String styleName, boolean setStyle)
     {
-        String styleClass = StringUtils.toString(input.getAttributes().get("styleClass"), "");
-        boolean hasStyle = (styleClass.indexOf(styleName) >= 0);
+        String styleClasses = StringUtils.toString(input.getAttributes().get("styleClass"), "");
+        boolean hasStyle = TagStyleClass.existsIn(styleClasses, styleName);
         if (setStyle == hasStyle)
             return; // Nothing to do
         // Special IceFaces patch
-        if (styleClass.endsWith("-dis"))
-            styleClass = styleClass.substring(0, styleClass.length() - 4);
+        if (styleClasses.endsWith("-dis"))
+            styleClasses = styleClasses.substring(0, styleClasses.length() - 4);
         // add or remove disabled style
         if (setStyle)
-            styleClass += styleName;
+            styleClasses = TagStyleClass.addTo(styleClasses, styleName);
         else
-            styleClass = styleClass.replace(styleName, "");
+            styleClasses = TagStyleClass.removeFrom(styleClasses, styleName);
         // add Style
-        setInputStyleClass(input, styleClass);
+        setInputStyleClass(input, styleClasses);
+    }
+
+    public final void addRemoveStyle(UIInput input, TagStyleClass style, boolean setStyle)
+    {
+        this.addRemoveStyle(input, style.get(), setStyle);
     }
     
     /**

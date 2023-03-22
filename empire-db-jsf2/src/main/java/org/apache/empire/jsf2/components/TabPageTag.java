@@ -29,13 +29,14 @@ import javax.faces.context.ResponseWriter;
 import org.apache.empire.jsf2.controls.InputControl;
 import org.apache.empire.jsf2.utils.TagEncodingHelper;
 import org.apache.empire.jsf2.utils.TagEncodingHelperFactory;
+import org.apache.empire.jsf2.utils.TagStyleClass;
 
 public class TabPageTag extends UIOutput implements NamingContainer
 {
     // Logger
     // private static final Logger log = LoggerFactory.getLogger(MenuTag.class);
     
-    protected final TagEncodingHelper helper = TagEncodingHelperFactory.create(this, "eTabPage");
+    protected final TagEncodingHelper helper = TagEncodingHelperFactory.create(this, TagStyleClass.TAB_PAGE.get());
 
     @Override
     public String getFamily()

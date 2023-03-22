@@ -47,7 +47,7 @@ import org.apache.empire.jsf2.controls.InputControl.DisabledType;
 import org.apache.empire.jsf2.controls.InputControl.InputInfo;
 import org.apache.empire.jsf2.controls.InputControlManager;
 import org.apache.empire.jsf2.controls.SelectInputControl;
-import org.apache.empire.jsf2.utils.TagEncodingHelper;
+import org.apache.empire.jsf2.utils.TagStyleClass;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -425,7 +425,8 @@ public class SelectTag extends UIInput implements NamingContainer
         Map<String, Object> inputMap = input.getAttributes();
         // css style
         String userStyle = StringUtils.toString(tagMap.get("styleClass"));
-        String cssStyle = TagEncodingHelper.assembleStyleClassString("eSelect", null, null, userStyle);
+        // String cssStyle = TagEncodingHelper.assembleStyleClassString(TagStyleClass.SELECT.get(), null, null, userStyle);
+        String cssStyle = TagStyleClass.SELECT.append(userStyle);
         inputMap.put("styleClass", cssStyle);
         // other
         copyAttribute(inputMap, tagMap, "style");

@@ -38,6 +38,7 @@ import org.apache.empire.data.Column;
 import org.apache.empire.exceptions.InvalidArgumentException;
 import org.apache.empire.exceptions.UnexpectedReturnValueException;
 import org.apache.empire.jsf2.app.TextResolver;
+import org.apache.empire.jsf2.utils.TagStyleClass;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -126,7 +127,7 @@ public class SelectInputControl extends InputControl
         }
         UISelectOne input = (UISelectOne)comp;
         // required
-    	addRemoveStyle(input, InputControl.STYLECLASS_REQUIRED, ii.isRequired());
+    	addRemoveStyle(input, TagStyleClass.INPUT_REQ, ii.isRequired());
         // disabled
     	boolean disabled = setDisabled(input, ii);
         // check phase

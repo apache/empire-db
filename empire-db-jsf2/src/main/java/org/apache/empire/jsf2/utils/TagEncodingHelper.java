@@ -1671,26 +1671,10 @@ public class TagEncodingHelper implements NamingContainer
             label.getChildren().clear();
     }
 
-    protected String completeLabelStyleClass(String styleClass, boolean required)
+    protected String completeLabelStyleClass(String styleClasses, boolean required)
     {
-        final String LABEL_REQ_STYLE = InputControl.STYLECLASS_REQUIRED;
-
-        boolean hasRequired = StringUtils.contains(styleClass, LABEL_REQ_STYLE);
-        if (required==hasRequired)
-            return styleClass; // no change
-        // must be empty at least
-        if (styleClass==null)
-            styleClass="";
-        // add or remove
-        if (required) {
-            styleClass += LABEL_REQ_STYLE;
-        }    
-        else
-        {   // remove both   
-            styleClass = StringUtils.remove(styleClass, LABEL_REQ_STYLE);
-        }    
-        // done
-        return styleClass;
+        styleClasses = TagStyleClass.INPUT_REQ.addOrRemove(styleClasses, required);
+        return styleClasses;
     }
     
     protected void addRequiredMark(HtmlOutputLabel label)
@@ -1705,7 +1689,7 @@ public class TagEncodingHelper implements NamingContainer
     
     /* ********************** CSS-generation ********************** */
 
-    public static final String assembleStyleClassString(String tagCssStyle, String typeClass, String addlStyle, String userStyle)
+    protected String assembleStyleClassString(String tagCssStyle, String typeClass, String addlStyle, String userStyle)
     {
         // handle simple case
         if (StringUtils.isEmpty(userStyle) && StringUtils.isEmpty(addlStyle))

@@ -39,6 +39,7 @@ import org.apache.empire.data.Column;
 import org.apache.empire.exceptions.InvalidArgumentException;
 import org.apache.empire.exceptions.UnexpectedReturnValueException;
 import org.apache.empire.jsf2.app.TextResolver;
+import org.apache.empire.jsf2.utils.TagStyleClass;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -71,7 +72,7 @@ public class RadioInputControl extends InputControl
         throws IOException
     {
         Object value = vi.getValue(true);
-        String style = vi.getStyleClass("eCtlRadio")+" eInpDis";
+        String style = vi.getStyleClass(TagStyleClass.RADIO.append(TagStyleClass.INPUT_DIS.get()));
         writer.startElement(HTML_TAG_DIV, null);
         writer.writeAttribute(HTML_ATTR_CLASS, style, null);
         writer.startElement(HTML_TAG_TABLE, null);
@@ -90,7 +91,7 @@ public class RadioInputControl extends InputControl
             writer.endElement(HTML_TAG_INPUT);
             // label
             writer.startElement(HTML_TAG_LABEL, null);
-            writer.writeAttribute(HTML_ATTR_CLASS, "eCtlRadio", null);
+            writer.writeAttribute(HTML_ATTR_CLASS, TagStyleClass.RADIO.get(), null);
             String text = e.getText();
             text = vi.getTextResolver().resolveText(text);
             writer.writeText(text, null);
@@ -106,12 +107,8 @@ public class RadioInputControl extends InputControl
     @Override
     protected void copyAttributes(UIComponent parent, InputInfo ii, UIInput input, String additonalStyle)
     {
-        if (additonalStyle!=null)
-            additonalStyle = additonalStyle+" eCtlRadio";
-        else
-            additonalStyle = "eCtlRadio"; 
         // copy
-        super.copyAttributes(parent, ii, input, additonalStyle);
+        super.copyAttributes(parent, ii, input, TagStyleClass.RADIO.append(additonalStyle));
     }
 
     @Override

@@ -39,6 +39,7 @@ import org.apache.empire.exceptions.InvalidArgumentException;
 import org.apache.empire.jsf2.controls.InputControl;
 import org.apache.empire.jsf2.utils.TagEncodingHelper;
 import org.apache.empire.jsf2.utils.TagEncodingHelperFactory;
+import org.apache.empire.jsf2.utils.TagStyleClass;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -51,7 +52,7 @@ public class InputTag extends UIInput implements NamingContainer
     // private static final String inputInfoPropName = InputControl.InputInfo.class.getSimpleName();
     protected static final String     readOnlyState        = "readOnlyState";
 
-    protected final TagEncodingHelper helper               = TagEncodingHelperFactory.create(this, "eInput");
+    protected final TagEncodingHelper helper               = TagEncodingHelperFactory.create(this, TagStyleClass.INPUT.get());
 
     protected InputControl            control              = null;
     protected InputControl.InputInfo  inpInfo              = null;
@@ -194,7 +195,7 @@ public class InputTag extends UIInput implements NamingContainer
         if (renderValue)
         {   // render value
             String tagName = "span";
-            String styleClass = helper.getTagStyleClass("eInpDis");
+            String styleClass = helper.getTagStyleClass(TagStyleClass.INPUT_DIS.get());
             String tooltip = helper.getValueTooltip(helper.getTagAttributeValue("title"));
             control.renderValue(this, tagName, styleClass, tooltip, inpInfo, context);
         }

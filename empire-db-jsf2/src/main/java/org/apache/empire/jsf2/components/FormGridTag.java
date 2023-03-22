@@ -31,6 +31,7 @@ import org.apache.empire.jsf2.controls.InputControl;
 import org.apache.empire.jsf2.utils.ControlRenderInfo;
 import org.apache.empire.jsf2.utils.TagEncodingHelper;
 import org.apache.empire.jsf2.utils.TagEncodingHelperFactory;
+import org.apache.empire.jsf2.utils.TagStyleClass;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -85,7 +86,7 @@ public class FormGridTag extends UIOutput implements NamingContainer
         }
     }
     
-    protected final TagEncodingHelper helper = TagEncodingHelperFactory.create(this, "eFormGrid");
+    protected final TagEncodingHelper helper = TagEncodingHelperFactory.create(this, TagStyleClass.FORM_GRID.get());
     
     protected ControlRenderInfo controlRenderInfo = null;
     
