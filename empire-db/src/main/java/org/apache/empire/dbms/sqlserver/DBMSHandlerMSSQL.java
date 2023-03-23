@@ -435,7 +435,13 @@ public class DBMSHandlerMSSQL extends DBMSHandlerBase
         {
            case BOOL:      return "convert(bit, ?)";
            case INTEGER:   return "convert(int, ?)";
-           case DECIMAL:   return "convert(decimal, ?)";
+           case DECIMAL:
+               if (format instanceof Number)
+               {   // Format should be a float, double or BigDecimal with prec.scale
+                   return "convert(decimal("+format.toString().replace('.', ',')+"), ?)";
+               }
+               // plain
+               return "convert(decimal, ?)";
            case FLOAT:     return "convert(float, ?)";
            case DATE:      return "convert(date, ?, 111)";
            case TIME:      return "convert(time, ?)";
