@@ -34,22 +34,23 @@
 	<!-- content -->
 	<ui:define name="content">
 		<h:form id="employeeListFilter">
-			<sample:formPanel>
-				<!-- search settings -->
-				<sample:formPanelRow>
+		
+			<!-- search settings -->
+			<div class="formPanel">
+				<!-- search criteria -->
+				<e:formGrid mode="grid" styleClass="grid-columns-2">
 					<e:control column="#{db.EMPLOYEES.FIRST_NAME}" value="#{page.searchFilter.firstName}" />
 					<e:control column="#{db.EMPLOYEES.LAST_NAME}" value="#{page.searchFilter.lastName}" />
-				</sample:formPanelRow>
-				<sample:formPanelRow>
 					<e:control column="#{db.EMPLOYEES.DEPARTMENT_ID}" value="#{page.searchFilter.departmentId}"
 						       options="#{page.departmentOptions}" />
 					<e:control column="#{db.EMPLOYEES.GENDER}" value="#{page.searchFilter.gender}" />
-				</sample:formPanelRow>
-				<sample:formButtonRow>
+				</e:formGrid>
+				<!-- button bar -->
+				<div class="buttonBar">
 					<h:commandLink action="#{page.doResetSearch}" value="#{msg.employeeList_resetSearch}" immediate="true" />
 					<h:commandLink action="#{page.doSearch}" value="#{msg.employeeList_search}" />
-				</sample:formButtonRow>
-			</sample:formPanel>
+				</div>
+			</div>
 		</h:form>
 
 		<h:form id="employeeList">
@@ -100,10 +101,10 @@
 		</h:form>
 		
 		<!-- button bar -->
-		<h:panelGroup styleClass="buttonBar" layout="block">
+		<sample:pageButtons>
 			<e:link page="#{pages.LoginPage.doLogout}" value="#{msg.application_logout}"/>
 			<e:link page="#{pages.EmployeeDetailPage.doCreate}" value="#{msg.employeeList_create}" />
-		</h:panelGroup>
+		</sample:pageButtons>
 		
 	</ui:define>
 	

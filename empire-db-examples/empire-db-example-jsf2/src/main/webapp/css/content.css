@@ -17,49 +17,38 @@
  * under the License.
  */
  
-form {
+.margin-above {
+	margin-top: 10px;
 }
-
-div.formPanel {
+ 
+/* form panel */
+.formPanel {
 	border: 1px #8F99EF solid;
-	background-color: #F8F8F8;
+	background-color: var(--form-background-color);
 	padding: 8px 4px;
 }
-table.inputForm {
-	width: 100%;
-}
-table.inputForm td.eCtlLabel {
-	vertical-align:top;
-	width: 140px;
-	height: 24px;
-	padding-top: 3px;
-	font-weight: bold; 
-}
-table.inputForm td.eCtlInput {
-	vertical-align:top;
-}
-table.inputForm td.buttonBar {
-	padding-top: 8px;
-}
-
-div.buttonBar {
-	margin: 12px 0;
+.formPanel > .buttonBar {
+	padding: var(--control-v-pad) 0;
+	padding-left: var(--label-width);
+	margin-top: 10px;
 }
 
 .buttonBar a,
 .buttonBar a:visited {
 	display: inline-block;
-	border: 1px #8F99EF solid;
-	padding: 4px 12px;
+	border: var(--button-border-width) var(--button-border-color) solid;
+	padding: var(--input-v-pad) 12px;
 	color: black;
 	text-decoration: none;
 	margin-right: 16px;
 	background-color: white;
+	font-weight: bold;
 }
 .buttonBar a:hover {
 	background-color: #EFFBEF;
 }
 
+/* result table */
 div.searchResult,
 span.searchResult {
 	display: block;
@@ -73,7 +62,7 @@ span.searchResult {
 }
 .searchResult table tr th,
 .searchResult table tr td {
-	padding: 4px;
+	padding: var(--table-cell-v-pad) var(--table-cell-h-pad);
 }
 .searchResult table tr th {
 	background-color: #EFFBEF;
@@ -84,69 +73,9 @@ span.searchResult {
 	color: brown;
 	font-weight: bold;
 }
-label.eLabel.eInpReq:after {
-	content: "*";
-	color: #D00000;
-}
-select, 
-input[type=text],
-input[type=password] {
-	border: 1px #8f99ef solid;
-}
-select.eInpReq, 
-input[type=text].eInpReq {
-/*	border: 1px brown solid; */
-	background-color: #FFFFE0;
-}
-select.eInpDis, 
-textarea.eInpDis,
-input[type=text].eInpDis {
-	border: 1px #C0C0C0 solid;
-	color: #808080;
-}
-.eInput {
-	width: 100%;
-}
-.eInput.eTypeBool {
-	width: auto;
-}
-select.eInput.eInpShort,
-input.eInput.eInpShort,
-input.eInput.eTypeDate {
-	width: 100px;
-}
-input.eInput.eInpDecimal {
-	width: 100px;
-	text-align: right;
-}
-span.eInpDis {
-	display: inline-block;
-	padding-top: 3px;
-}
-.eUnit {
-	padding-left: 4px;
-	font-style: bold;
-}
-.eInputHint {
-	padding-left: 4px;
-	font-style: italic;
-}
-div.eTypeBoolFalse {
-	width: 12px;
-	height: 12px;
-	background-image:url('../img/boxes.gif');
-	background-repeat: no-repeat;
-	background-position: 0 0;
-}
-div.eTypeBoolTrue {
-	width: 12px;
-	height: 12px;
-	background-image:url('../img/boxes.gif');
-	background-repeat: no-repeat;
-	background-position: -12px 0;
-}
+
+/* tab view */
 div.eTabView {
-	width: 500px;
 }
 table.eTabBar {
 	width: 100%;

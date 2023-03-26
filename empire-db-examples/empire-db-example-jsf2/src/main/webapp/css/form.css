@@ -1,0 +1,206 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *  http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+
+label {
+	font-weight: bold; 
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+label.eLabel.eInpReq:after {
+	content: "*";
+	color: #D00000;
+}
+select, 
+input[type=text],
+input[type=password] {
+	padding: var(--input-v-pad) var(--input-h-pad);
+	border:  var(--input-border-width) var(--input-border-color) solid;
+}
+select.eInpReq, 
+input[type=text].eInpReq {
+	background-color: #FFFFE0;
+}
+select.eInpDis, 
+textarea.eInpDis,
+input[type=text].eInpDis {
+	border: 1px #C0C0C0 solid;
+	color: #808080;
+}
+select.eInput.eInpShort,
+input.eInput.eInpShort,
+input.eInput.eTypeDate {
+	width: 100px;
+}
+input.eInput.eInpDecimal {
+	width: 100px;
+	text-align: right;
+}
+
+/* general */
+.eCtlInput > .eInput {
+	width: 100%;
+}
+.eCtlInput > .eInput.eTypeBool {
+	width: auto;
+}
+.eCtlInput > span {
+	display: inline-block;
+	padding: var(--input-v-pad) 0;
+	border: var(--input-border-width) transparent solid;
+}
+.eCtlInput .eUnit {
+	padding-left: var(--input-h-pad);
+	font-weight: bold;
+}
+.eInputHint {
+	padding-left: 4px;
+	font-style: italic;
+}
+.eTypeBoolFalse {
+	width: 12px;
+	height: 12px;
+	background-image:url('../img/boxes.gif');
+	background-repeat: no-repeat;
+	background-position: 0 0;
+}
+.eTypeBoolTrue {
+	width: 12px;
+	height: 12px;
+	background-image:url('../img/boxes.gif');
+	background-repeat: no-repeat;
+	background-position: -12px 0;
+}
+.eControl > .eCtlLabel {
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+/* wrapper class styles */
+.eWrapInp {
+	/* general wrapper style */
+	display: flex;
+	padding: var(--input-v-pad) var(--input-h-pad);
+}
+.eWrapVal {
+	/* general wrapper style */
+	display: inline-block;
+}
+.checkboxWrapper {
+	/* special checkbox wrapper style */
+	/* background-color: #E8E8E8; */
+}
+
+/* formGrid in Grid mode */
+div.eFormGrid {
+	display: grid;
+	grid-template-columns: 1fr;
+	grid-gap: var(--grid-v-space) var(--grid-h-space);
+/*	background-color: white; */
+}
+
+/* grid-top-align */ 
+div.eFormGrid > .eControl {
+	display: flex;
+/*	background-color: #F8F8F8; */
+	min-height: var(--control-min-height);
+}
+div.eFormGrid > .eControl > .eCtlLabel {
+	width: var(--label-width);
+	padding: calc(var(--control-v-pad) + var(--input-v-pad) + 1px) var(--control-h-pad) var(--control-v-pad) var(--control-h-pad);
+}
+div.eFormGrid > .eControl > .eCtlInput {
+	width: calc(100% - var(--label-width));
+	padding: var(--control-v-pad) var(--control-h-pad);
+	padding-left: 0;
+}
+
+/* grid-v-align */ 
+div.eFormGrid.grid-v-align {
+}
+div.eFormGrid.grid-v-align > .eControl {
+	display: table;
+}
+div.eFormGrid.grid-v-align > .eControl > .eCtlLabel {
+	display: table-cell; 
+	vertical-align: middle;
+	padding: 0 var(--control-h-pad);
+	max-width: var(--label-width);
+}
+div.eFormGrid.grid-v-align > .eControl > .eCtlInput {
+	display: table-cell; 
+	vertical-align: middle;
+}
+
+/* extentions */
+@media (min-width: 800px) {
+	div.eFormGrid.grid-columns-2 {
+    	grid-template-columns: repeat(2, 1fr);
+	}	
+	div.eFormGrid > .eControl.grid-full-row {
+	    grid-column: 1 / -1;
+	}
+	div.eFormGrid > .eControl.grid-new-row {
+	    grid-column: 1 / 2;
+	}
+}
+
+/* formGrid in table mode */
+table.eFormGrid {
+	width: 100%;
+/*	max-width: 800px; */
+	table-layout: fixed;
+    border-spacing: 0 var(--grid-v-space);
+    border-collapse: separate;
+}
+table.eFormGrid td.eCtlLabel {
+	vertical-align: middle;
+	padding: 0 var(--control-h-pad);
+	width: var(--label-width);
+}
+table.eFormGrid td.eCtlInput {
+	vertical-align: middle;
+	padding: var(--control-v-pad) var(--control-h-pad);
+	padding-left: 0;
+}
+
+/* grid-white-gap */
+.grid-white-gap {
+	background-color: red;
+}
+.grid-white-gap .eCtlLabel {
+	/* optional */
+	background-color: var(--form-background-color);
+}
+.grid-white-gap .eCtlInput {
+	/* optional */
+	background-color: var(--form-background-color);
+}
+
+/* misc */
+.formSection {
+    grid-column: 1 / -1;
+    background-color: lightgray;
+	padding: var(--control-v-pad) 0;
+    text-align: center;
+    font-weight: bold;
+}
+.xSalaryWrapper {
+	background-color: yellow;
+}
+

@@ -16,9 +16,8 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-/* 
- * common 
- */
+
+/* common */
 * {
   -webkit-box-sizing: border-box;
      -moz-box-sizing: border-box;
@@ -31,10 +30,12 @@
           box-sizing: border-box;
 }
 html, body  {
-	width: 800px;
+	min-width: 400px;
+	max-width: 1200px;
     margin-left: 10px;
     margin-right: auto;
     margin-bottom: 5px;
+    padding-right: 20px;
     color: black;
     background-color: white;
     font-family: Verdana, Arial, sans-serif;

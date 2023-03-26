@@ -41,23 +41,23 @@
 			<e:tabPage title="#{msg.employeeDetail_tab_basic}" id="tabBasic">
 
 				<e:record value="#{page.employeeRecord}">
-				<!-- input form -->
+				<!-- formPanel -->
 				<div class="formPanel">
-					<e:formGrid mode="table" styleClass="inputForm">
+					<e:formGrid mode="grid" styleClass="grid-columns-2"><!--  grid-v-align grid-white-gap -->
 						<e:control column="#{db.EMPLOYEES.SALUTATION}"/>
-						<e:control column="#{db.EMPLOYEES.FIRST_NAME}"/>
+						<e:control column="#{db.EMPLOYEES.FIRST_NAME}" controlClass="grid-new-row"/>
 						<e:control column="#{db.EMPLOYEES.LAST_NAME}"/>
+						<e:control column="#{db.EMPLOYEES.GENDER}"/>
 						<e:control column="#{db.EMPLOYEES.DATE_OF_BIRTH}"/>
 						<e:control column="#{db.EMPLOYEES.DEPARTMENT_ID}"/>
-						<e:control column="#{db.EMPLOYEES.GENDER}"/>
-						<e:control column="#{db.EMPLOYEES.PHONE_NUMBER}"/>
-						<e:control column="#{db.EMPLOYEES.EMAIL}"/>
+						<e:control column="#{db.EMPLOYEES.PHONE_NUMBER}" controlClass="grid-new-row"/>
+						<e:control column="#{db.EMPLOYEES.EMAIL}" controlClass="grid-full-row"/>
 						<e:control column="#{db.EMPLOYEES.SALARY}"/>
 						<e:control column="#{db.EMPLOYEES.RETIRED}"/>
 						<e:control column="#{db.EMPLOYEES.UPDATE_TIMESTAMP}"/> 
 					</e:formGrid>
 				</div>
-				<!-- input form ende -->
+				<!-- formPanel -->
 				</e:record>
 				
 			</e:tabPage>
@@ -92,14 +92,14 @@
 		</e:tabView>	
 		
 		<!-- button bar -->
-		<h:panelGroup styleClass="buttonBar" layout="block">
+		<sample:pageButtons>
 			<h:commandLink value="#{msg.employeeDetail_back}" action="#{page.doCancel}" immediate="true" />
 			<h:commandLink value="#{msg.employeeDetail_delete}" action="#{page.doDelete}" immediate="true" rendered="#{page.employeeRecord.exists}" />
 			<h:commandLink value="#{msg.employeeDetail_save}" action="#{page.doSave}" />
 			<!-- 
 			<h:commandLink value="#{msg.employeeDetail_test}" actionListener="#{page.doTestSerialization}" />
 			 -->
-		</h:panelGroup>
+		</sample:pageButtons>
 
 		</h:form>
 

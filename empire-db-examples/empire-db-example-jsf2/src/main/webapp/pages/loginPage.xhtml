@@ -38,21 +38,24 @@
 		<h:form id="loginForm" method="post">
 			<p><h:outputText value="#{msg.login_hint}"/></p>
 			<!-- input form -->
-			<sample:formPanel>
-				<sample:formInputRow for="name" label="#{msg.login_field_name}">
-					<h:inputText id="name" value="#{sampleUser.userName}" required="true"/>
-				</sample:formInputRow>
-				<sample:formInputRow for="password" label="#{msg.login_field_password}">
-					<h:inputSecret id="password" value="#{sampleUser.password}" required="true" />
-				</sample:formInputRow>
-				<sample:formInputRow for="password" label="#{msg.login_field_language}">
-					<e:select id="language" value="#{sampleUser.locale}" options="#{page.languageOptions}" />
-				</sample:formInputRow>
+			<div class="formPanel">
+				<!-- search criteria -->
+				<e:formGrid mode="grid">
+					<sample:formControl for="name" label="#{msg.login_field_name}">
+						<h:inputText id="name" value="#{sampleUser.userName}" required="true"/>
+					</sample:formControl>
+					<sample:formControl for="password" label="#{msg.login_field_password}">
+						<h:inputSecret id="password" value="#{sampleUser.password}" required="true" />
+					</sample:formControl>
+					<sample:formControl for="password" label="#{msg.login_field_language}">
+						<e:select id="language" value="#{sampleUser.locale}" options="#{page.languageOptions}" />
+					</sample:formControl>
+				</e:formGrid>
 				<!-- button bar -->
-				<sample:formButtonRow>
+				<div class="buttonBar">
 					<h:commandLink action="#{page.doLogin}" value="#{msg.login_title}" />
-				</sample:formButtonRow>
-			</sample:formPanel>
+				</div>
+			</div>
 		</h:form>
 	</ui:define>
 	

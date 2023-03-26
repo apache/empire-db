@@ -59,8 +59,9 @@ public class SampleDBwithMeta extends SampleDB
         Options retired = new Options();
         retired.set(false, "!option.employee.active");
         retired.set(true,  "!option.employee.retired");
-        T.RETIRED.setOptions(retired);
-        T.RETIRED.setControlType("checkbox");
+        T.RETIRED.setOptions(retired)
+                 .setControlType("checkbox")
+                 .setAttribute("wrapperClass", "checkboxWrapper"); /* NEW: Wrapper class for <e:input> and <e:control>! */
 
         // Hint for DATE_OF_BIRTH
         T.DATE_OF_BIRTH.setAttribute("format:date", "yyyy-MM-dd");

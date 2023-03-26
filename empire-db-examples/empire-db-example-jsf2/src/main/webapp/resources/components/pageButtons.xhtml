@@ -17,25 +17,20 @@
   under the License.
  -->
 <html xmlns="http://www.w3.org/1999/xhtml"
-  	xmlns:cc="http://java.sun.com/jsf/composite"
-	xmlns:h="http://java.sun.com/jsf/html">
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:ice="http://www.icesoft.com/icefaces/component"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+  	xmlns:cc="http://java.sun.com/jsf/composite">
 
 	<!-- Interface -->
 	<cc:interface>
-		<cc:attribute name="label" />
-		<cc:attribute name="for" targets="outputLabel"/>
 	</cc:interface>
 	
 	<!-- Implementation -->
 	<cc:implementation>
-		<tr class="formButtonRow">
-			<td class="eCtlLabel">
-				<h:outputLabel id="outputLabel" value="#{cc.attrs.label}" />:
-			</td>
-			<td class="eCtlInput">
-				<cc:insertChildren/>
-			</td>
-		</tr>
+		<h:panelGroup styleClass="buttonBar margin-above" layout="block">
+			<cc:insertChildren />
+		</h:panelGroup>
 	</cc:implementation>
 	
 </html>
