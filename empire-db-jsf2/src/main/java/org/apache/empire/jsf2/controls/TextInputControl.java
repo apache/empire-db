@@ -100,7 +100,7 @@ public class TextInputControl extends InputControl
         compList.add(input);
         // add unit
         String unit = getUnitString(ii);
-        if (StringUtils.isNotEmpty(unit))
+        if (StringUtils.isNotEmpty(unit) && !hasFormatOption(ii, "nounit"))
         {   // add the unit
             compList.add(createUnitLabel(TagStyleClass.UNIT.get(), ii, unit));
         }
@@ -170,6 +170,7 @@ public class TextInputControl extends InputControl
         */
         span.getAttributes().put("styleClass", tagStyle);
         span.getChildren().add(text);
+        // done 
         return span;
     }
 
@@ -367,7 +368,7 @@ public class TextInputControl extends InputControl
         writer.append(text);
         // unit?
         String unit = getUnitString(vi);
-        if (StringUtils.isNotEmpty(unit))
+        if (StringUtils.isNotEmpty(unit) && !hasFormatOption(vi, "nounit"))
         { // append unit
             writer.append(" ");
             writer.append(unit);
