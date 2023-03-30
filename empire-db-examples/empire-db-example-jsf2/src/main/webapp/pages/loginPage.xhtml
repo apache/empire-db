@@ -42,10 +42,10 @@
 				<!-- search criteria -->
 				<e:formGrid mode="grid">
 					<sample:formControl for="name" label="#{msg.login_field_name}">
-						<h:inputText id="name" value="#{sampleUser.userName}" required="true"/>
+						<h:inputText id="name" value="#{sampleUser.userName}" required="true" requiredMessage="#{msg.login_field_name_required}" />
 					</sample:formControl>
 					<sample:formControl for="password" label="#{msg.login_field_password}">
-						<h:inputSecret id="password" value="#{sampleUser.password}" required="true" />
+						<h:inputSecret id="password" value="#{sampleUser.password}" required="true" requiredMessage="#{msg.login_field_password_required}" />
 					</sample:formControl>
 					<sample:formControl for="password" label="#{msg.login_field_language}">
 						<e:select id="language" value="#{sampleUser.locale}" options="#{page.languageOptions}" />
