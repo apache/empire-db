@@ -148,7 +148,7 @@ div.eFormGrid.grid-v-align > .eControl > .eCtlInput {
 }
 
 /* extentions */
-@media (min-width: 800px) {
+@media (min-width: 1024px) {
 	div.eFormGrid.grid-columns-2 {
     	grid-template-columns: repeat(2, 1fr);
 	}	
