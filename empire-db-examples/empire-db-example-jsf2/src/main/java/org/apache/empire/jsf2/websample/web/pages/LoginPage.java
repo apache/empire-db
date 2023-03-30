@@ -27,8 +27,6 @@ import org.apache.empire.jsf2.websample.web.SampleSession;
 import org.apache.empire.jsf2.websample.web.SampleUtils;
 
 public class LoginPage extends SamplePage {
-	
-	// *Deprecated* private static final long serialVersionUID = 1L;
     
     private static final Options languageOptions;
     

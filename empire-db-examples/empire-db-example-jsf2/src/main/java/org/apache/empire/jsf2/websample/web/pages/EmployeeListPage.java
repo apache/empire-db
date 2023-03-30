@@ -43,9 +43,8 @@ import org.slf4j.LoggerFactory;
 
 public class EmployeeListPage extends SamplePage
 {
-    // *Deprecated* private static final long serialVersionUID = 1L;
 
-    private static final Logger log = LoggerFactory.getLogger(EmployeeListPage.class);
+	private static final Logger log = LoggerFactory.getLogger(EmployeeListPage.class);
 
     private BeanListPageElement<EmployeeListEntry> employees;
     

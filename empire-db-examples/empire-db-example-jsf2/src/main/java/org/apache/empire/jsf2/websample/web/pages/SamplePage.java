@@ -30,9 +30,8 @@ import org.apache.empire.jsf2.websample.web.SampleUtils;
 
 public class SamplePage extends Page
 {
-    // *Deprecated* private static final long serialVersionUID = 1L;
 
-    private SampleContext sampleContext = null;
+	private SampleContext sampleContext = null;
 
     public synchronized SampleContext getSampleContext()
     {

@@ -21,7 +21,6 @@ package org.apache.empire.jsf2.websample.web.pages;
 
 public class ErrorPage extends SamplePage
 {
-    // *Deprecated* private static final long serialVersionUID = 1L;
     
     private boolean showDetails = false;
 

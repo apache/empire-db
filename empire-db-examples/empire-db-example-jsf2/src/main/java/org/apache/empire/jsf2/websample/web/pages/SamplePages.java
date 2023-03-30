@@ -23,7 +23,6 @@ import org.apache.empire.jsf2.pages.PageDefinitions;
 
 public final class SamplePages extends PageDefinitions
 {
-    // *Deprecated* private static final long serialVersionUID = 1L;
 
     public static final PageDefinition LoginPage          = new PageDefinition("/pages/loginPage.xhtml", LoginPage.class);
 
