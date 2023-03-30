@@ -181,7 +181,7 @@ table.eFormGrid td.eCtlInput {
 
 /* grid-white-gap */
 .grid-white-gap {
-	background-color: red;
+	background-color: white;
 }
 .grid-white-gap .eCtlLabel {
 	/* optional */
