@@ -38,23 +38,16 @@ import org.apache.empire.jsf2.websample.web.pages.SamplePages;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/*
+ * AppExceptionHandler
+ */
 public class AppExceptionHandler extends ExceptionHandlerWrapper
 {
-
     private static final Logger    log = LoggerFactory.getLogger(AppExceptionHandler.class);
-
-    private final ExceptionHandler wrapped;
 
     public AppExceptionHandler(ExceptionHandler delegate)
     {
-        // super(delegate);
-        this.wrapped = delegate;
-    }
-
-    @Override
-    public javax.faces.context.ExceptionHandler getWrapped()
-    {
-        return this.wrapped;
+        super(delegate);
     }
 
     @Override
