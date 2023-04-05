@@ -453,7 +453,12 @@ public abstract class DBColumn extends DBColumnExpr
     {
         if (rowset==null)
             return name;
-        return rowset.getName()+"."+name;
+        String rowsetName = rowset.getName();
+        StringBuilder b = new StringBuilder(rowsetName.length()+name.length()+1);
+        b.append(rowsetName);
+        b.append(".");
+        b.append(name);
+        return b.toString();
     }
 
     /**
