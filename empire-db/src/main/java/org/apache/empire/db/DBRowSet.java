@@ -315,7 +315,7 @@ public abstract class DBRowSet extends DBExpr implements EntityType
     {
         String  name   = getName();
         String  schema = db.getSchema();
-        return (schema!=null) ? schema+"."+name : name;
+        return (schema!=null) ? StringUtils.concat(schema, ".", name) : name;
     }
 
     /**

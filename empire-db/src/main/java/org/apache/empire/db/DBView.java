@@ -21,6 +21,7 @@ package org.apache.empire.db;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.empire.commons.Options;
+import org.apache.empire.commons.StringUtils;
 import org.apache.empire.data.Column;
 import org.apache.empire.data.DataType;
 import org.apache.empire.db.expr.column.DBValueExpr;
@@ -292,7 +293,7 @@ public abstract class DBView extends DBRowSet
     public String getFullName()
     {
         String schema = db.getSchema();
-        return (schema != null) ? schema + "." + name : name;
+        return (schema != null) ? StringUtils.concat(schema, ".", name) : name;
     }
 
     /**

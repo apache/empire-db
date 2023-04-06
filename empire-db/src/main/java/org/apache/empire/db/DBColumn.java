@@ -319,7 +319,8 @@ public abstract class DBColumn extends DBColumnExpr
     {
         if (rowset==null)
             throw new ObjectNotValidException(this);
-        return rowset.getFullName()+"."+name;
+        // concat
+        return StringUtils.concat(rowset.getFullName(), ".", name);
     }
 
     /**
@@ -332,7 +333,8 @@ public abstract class DBColumn extends DBColumnExpr
         String rsName = rowset.getEntityName();
         if (StringUtils.isEmpty(rsName))
             return name;
-        return rsName + "_" + name;
+        // concat
+        return StringUtils.concat(rsName, "_", name);
     }
 
     /**
@@ -453,12 +455,8 @@ public abstract class DBColumn extends DBColumnExpr
     {
         if (rowset==null)
             return name;
-        String rowsetName = rowset.getName();
-        StringBuilder b = new StringBuilder(rowsetName.length()+name.length()+1);
-        b.append(rowsetName);
-        b.append(".");
-        b.append(name);
-        return b.toString();
+        // concat
+        return StringUtils.concat(rowset.getName(), ".", name);
     }
 
     /**

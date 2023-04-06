@@ -206,15 +206,35 @@ public class StringUtils
     }
 
     /**
-     * Converts an array of objects to a string.
+     * Assembles a string from parts with a separator
      * 
-     * @param array array of objects
      * @param separator the separator to put between the object strings
+     * @param params array of objects
      * @return returns a String
      */
     public static String concat(String separator, Object... params)
     {
         return arrayToString(params, separator);
+    }
+
+    /**
+     * Assembles a string from several parts
+     * 
+     * @param parts the parts to concatenate
+     * @return returns a String
+     */
+    public static String concat(String... parts)
+    {
+        int totalLength=0;
+        for (int i=0; i<parts.length; i++)
+            if (parts[i]!=null)
+                totalLength+=parts[i].length();
+        // concat now
+        StringBuilder b = new StringBuilder(totalLength);
+        for (int i=0; i<parts.length; i++)
+            if (parts[i]!=null)
+                b.append(parts[i]);
+        return b.toString();
     }
     
     /**
