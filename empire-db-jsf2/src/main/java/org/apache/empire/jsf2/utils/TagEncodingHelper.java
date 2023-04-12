@@ -1752,6 +1752,12 @@ public class TagEncodingHelper implements NamingContainer
         }
     }
 
+    public String getSimpleStyleClass()
+    {
+        String userStyle = getTagAttributeStringEx("styleClass");
+        return assembleStyleClassString(cssStyleClass, null, null, userStyle);
+    }
+
     public String getTagStyleClass(DataType dataType, String addlStyle, String userStyle)
     {
         String typeClass = (dataType!=null) ? getDataTypeClass(dataType) : null;

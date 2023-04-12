@@ -21,23 +21,29 @@ package org.apache.empire.jsf2.components;
 import java.io.IOException;
 
 import javax.faces.component.NamingContainer;
+import javax.faces.component.UIComponent;
 import javax.faces.component.UINamingContainer;
 import javax.faces.component.UIOutput;
 import javax.faces.context.FacesContext;
 import javax.faces.context.ResponseWriter;
 
+import org.apache.empire.jsf2.components.TabViewTag.TabViewMode;
 import org.apache.empire.jsf2.controls.InputControl;
 import org.apache.empire.jsf2.utils.TagEncodingHelper;
 import org.apache.empire.jsf2.utils.TagEncodingHelperFactory;
 import org.apache.empire.jsf2.utils.TagStyleClass;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class TabPageTag extends UIOutput implements NamingContainer
 {
     // Logger
-    // private static final Logger log = LoggerFactory.getLogger(MenuTag.class);
+    private static final Logger log = LoggerFactory.getLogger(TabPageTag.class);
     
     protected final TagEncodingHelper helper = TagEncodingHelperFactory.create(this, TagStyleClass.TAB_PAGE.get());
 
+    private TabViewMode mode;
+    
     @Override
     public String getFamily()
     {
@@ -51,15 +57,23 @@ public class TabPageTag extends UIOutput implements NamingContainer
         // call base
         super.encodeBegin(context);
         
+        // TabViewMode 
+        this.mode = detectTabViewMode();
+        
         // render components
         ResponseWriter writer = context.getResponseWriter();
-        writer.startElement(InputControl.HTML_TAG_TR, this);
-        writer.writeAttribute(InputControl.HTML_ATTR_ID, getClientId(), null);
-        helper.writeAttribute(writer, InputControl.HTML_ATTR_CLASS, helper.getTagAttributeString("styleClass"));
-        helper.writeAttribute(writer, InputControl.HTML_ATTR_STYLE, helper.getTagAttributeString("style"));
+        if (mode.PAGE_WRAP_TAG!=null)
+        {   // render page wrap tag
+            writer.startElement(mode.PAGE_WRAP_TAG, this);
+            writer.writeAttribute(InputControl.HTML_ATTR_ID, getClientId(), null);
+        }
         // TabPage
-        writer.startElement(InputControl.HTML_TAG_TD, this);
-        writer.writeAttribute(InputControl.HTML_ATTR_CLASS, "eTabPage", null);
+        writer.startElement(mode.PAGE_TAG, this);
+        if (mode.PAGE_WRAP_TAG==null)
+        {   // no wrapper tag
+            writer.writeAttribute(InputControl.HTML_ATTR_ID, getClientId(), null);
+        }
+        writer.writeAttribute(InputControl.HTML_ATTR_CLASS, this.helper.getSimpleStyleClass(), null);
     }
 
     @Override
@@ -81,14 +95,32 @@ public class TabPageTag extends UIOutput implements NamingContainer
     {
         // call base
         super.encodeEnd(context);
-        // close
+        // close tags
         ResponseWriter writer = context.getResponseWriter();
-        writer.endElement(InputControl.HTML_TAG_TD);
-        writer.endElement(InputControl.HTML_TAG_TR);
+        writer.endElement(mode.PAGE_TAG);
+        // wrapper tag?
+        if (mode.PAGE_WRAP_TAG!=null)
+            writer.endElement(mode.PAGE_WRAP_TAG);
     }
 
     public String getTabLabel()
     {
         return helper.getTagAttributeString("title");
     }
+    
+    protected TabViewMode detectTabViewMode()
+    {
+        // walk upwards the parent component tree and return the first record component found (if any)
+        UIComponent parent = this;
+        while ((parent = parent.getParent()) != null)
+        {
+            if (parent instanceof TabViewTag)
+            {   // found
+                return ((TabViewTag) parent).getViewMode();
+            }
+        }
+        log.warn("TabViewTag not found! Unable to detect TabViewMode.");
+        return TabViewMode.GRID;
+    }
+    
 }

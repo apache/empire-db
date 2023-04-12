@@ -77,6 +77,9 @@ span.searchResult {
 /* tab view */
 div.eTabView {
 }
+div.eTabBar {
+	display: flex;
+}
 table.eTabBar {
 	width: 100%;
 	border-spacing: 0;
@@ -84,11 +87,13 @@ table.eTabBar {
 	table-layout: auto;
 	padding: 0;
 }
+div.eTabBar .eTabLabel,
 table.eTabBar tr td.eTabLabel {
 	border: 1px #8F99EF solid;
 	padding: 8px;	
 	white-space: nowrap;
 }
+div.eTabBar .eTabLabel.eTabActive,
 table.eTabBar tr td.eTabLabel.eTabActive {
 	border-bottom: 1px #F8F8F8 solid;
 	background-color: #F8F8F8;	
@@ -97,7 +102,7 @@ table.eTabBar tr td.eTabLabel.eTabDisabled {
 	color: gray;
 	font-style: italic;
 }
-table.eTabBar tr td.eTabBarEmpty {
+.eTabBar .eTabBarEmpty {
 	width: 99%;
 	border-bottom: 1px #8F99EF solid;	
 }
@@ -105,15 +110,20 @@ table.eTabPanel {
 	width: 100%;
 	border-spacing: 0;
 	border-collapse: collapse;
+}
+div.eTabPanel {
+	display: grid;
+}
+.eTabPanel {
 	border: 1px #8F99EF solid;
 	border-top: 0px;	
 }
-table.eTabPanel tr td.eTabPage {
+.eTabPanel .eTabPage {
 	padding: 8px;
 	background-color: #F8F8F8;
 	vertical-align: top;
 }
-table.eTabPanel tr td.eTabPage div.formPanel {
+.eTabPanel .eTabPage .formPanel {
 	border: 0;
 }
 div.info-msg {

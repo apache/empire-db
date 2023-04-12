@@ -18,6 +18,8 @@
  */
 package org.apache.empire.jsf2.utils;
 
+import org.apache.empire.commons.StringUtils;
+
 /**
  * Collection of TagStyleClasses
  */
@@ -43,6 +45,9 @@ public enum TagStyleClass
     MENU("eMenuList"),
     UNIT("eUnit"),
     TAB_VIEW("eTabView"),
+    TAB_BAR("eTabBar"),
+    TAB_BAR_PADDING("eTabBarEmpty"),
+    TAB_PANEL("eTabPanel"),
     TAB_PAGE("eTabPage"),
     TAB_LINK("eTabLink"),
     TAB_LABEL("eTabLabel"),
@@ -105,11 +110,7 @@ public enum TagStyleClass
         if (existsIn(styleClasses, styleClassName))
             return styleClasses;
         // add with space
-        StringBuilder b = new StringBuilder(styleClasses.length()+styleClassName.length()+1);
-        b.append(styleClasses);
-        b.append(" ");
-        b.append(styleClassName);
-        return b.toString();
+        return StringUtils.concat(styleClasses, " ", styleClassName);
     }
 
     public final String addTo(String styleClasses)
@@ -150,10 +151,7 @@ public enum TagStyleClass
         // in between
         int after  = idx + styleClassName.length();
         int before = idx - 1; // SPACE assumed!
-        StringBuilder b = new StringBuilder(styleClasses.length()-(after-before));
-        b.append(styleClasses.substring(0, before));
-        b.append(styleClasses.substring(after));
-        return b.toString();
+        return StringUtils.concat(styleClasses.substring(0, before), styleClasses.substring(after));
     }
 
     public final String removeFrom(String styleClasses)

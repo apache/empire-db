@@ -51,16 +51,16 @@ public class FormGridTag extends UIOutput implements NamingContainer
         FLAT  (InputControl.HTML_TAG_DIV, InputControl.HTML_TAG_DIV, null, null);
         
         public final String GRID_TAG;
-        public final String DEFAULT_CONTROL_TAG;
-        public final String DEFAULT_LABEL_TAG;
-        public final String DEFAULT_INPUT_TAG;
+        public final String CONTROL_TAG;
+        public final String LABEL_TAG;
+        public final String INPUT_TAG;
         
         private FormGridMode(String gridTag, String controlTag, String labelTag, String inputTag)
         {
             this.GRID_TAG = gridTag;
-            this.DEFAULT_CONTROL_TAG = controlTag;
-            this.DEFAULT_LABEL_TAG = labelTag;
-            this.DEFAULT_INPUT_TAG = inputTag;
+            this.CONTROL_TAG = controlTag;
+            this.LABEL_TAG = labelTag;
+            this.INPUT_TAG = inputTag;
         }
         
         public static FormGridMode detect(String mode)
@@ -90,7 +90,7 @@ public class FormGridTag extends UIOutput implements NamingContainer
     
     protected ControlRenderInfo controlRenderInfo = null;
     
-    private String tagName;
+    private FormGridMode mode;
 
     @Override
     public String getFamily()
@@ -106,12 +106,11 @@ public class FormGridTag extends UIOutput implements NamingContainer
         super.encodeBegin(context);
         
         // tagName
-        FormGridMode mode = FormGridMode.detect(helper.getTagAttributeString("mode")); 
-        this.tagName = helper.getTagAttributeString("tag", mode.GRID_TAG);
+        this.mode = FormGridMode.detect(helper.getTagAttributeString("mode", FormGridMode.GRID.name())); 
         
         // render components
         ResponseWriter writer = context.getResponseWriter();
-        writer.startElement(tagName, this);
+        writer.startElement(mode.GRID_TAG, this);
         // id
         helper.writeComponentId(writer, getControlRenderInfo().RENDER_AUTO_ID);
         // style class
@@ -140,7 +139,7 @@ public class FormGridTag extends UIOutput implements NamingContainer
         super.encodeEnd(context);
         // close
         ResponseWriter writer = context.getResponseWriter();
-        writer.endElement(this.tagName);
+        writer.endElement(mode.GRID_TAG);
     }
     
     public ControlRenderInfo getControlRenderInfo()
@@ -149,14 +148,12 @@ public class FormGridTag extends UIOutput implements NamingContainer
         if (controlRenderInfo!=null)
             return controlRenderInfo;
         // check mode
-        FormGridMode mode = FormGridMode.detect(helper.getTagAttributeString("mode", FormGridMode.GRID.name())); 
-        // override?
-        String controlTag = helper.getTagAttributeString("controlTag", mode.DEFAULT_CONTROL_TAG);
-        String labelTag   = helper.getTagAttributeString("labelTag",   mode.DEFAULT_LABEL_TAG);
-        String inputTag   = helper.getTagAttributeString("inputTag",   mode.DEFAULT_INPUT_TAG);
+        if (this.mode==null)
+            this.mode = FormGridMode.detect(helper.getTagAttributeString("mode", FormGridMode.GRID.name())); 
+        // additional
         boolean renderAutoId = ObjectUtils.getBoolean(helper.getTagAttributeString("renderAutoId"));
-        // done
-        this.controlRenderInfo = new ControlRenderInfo(controlTag, labelTag, inputTag, renderAutoId);
+        // create control info
+        this.controlRenderInfo = new ControlRenderInfo(mode.CONTROL_TAG, mode.LABEL_TAG, mode.INPUT_TAG, renderAutoId);
         return controlRenderInfo;
     }
 }

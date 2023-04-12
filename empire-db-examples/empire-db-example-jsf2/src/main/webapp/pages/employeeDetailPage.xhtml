@@ -38,8 +38,8 @@
 		<h:form id="employeeDetail">
 
 		<e:tabView minHeight="400px" activeIndex="#{page.activeTab}" tabChangedListener="#{page.onTabChanged}">
-			<e:tabPage title="#{msg.employeeDetail_tab_basic}" id="tabBasic">
-
+			<!-- first page -->
+			<e:tabPage id="tabBasic" title="#{msg.employeeDetail_tab_basic}">
 				<e:record value="#{page.employeeRecord}">
 				<!-- formPanel -->
 				<div class="formPanel">
@@ -57,12 +57,12 @@
 						<e:control column="#{db.EMPLOYEES.UPDATE_TIMESTAMP}"/> 
 					</e:formGrid>
 				</div>
-				<!-- formPanel -->
+				<!-- end formPanel -->
 				</e:record>
-				
 			</e:tabPage>
 			
-			<e:tabPage title="#{msg.employeeDetail_tab_extended}" id="tabExtended" disabled="#{not page.employeeRecord.exists}">
+			<!-- second page -->
+			<e:tabPage id="tabExtended" title="#{msg.employeeDetail_tab_extended}" disabled="#{not page.employeeRecord.exists}">
 				<h3><h:outputText value="#{msg.employeeDetail_payments}"/></h3>
 				<!-- Payment data -->
 				<h:dataTable id="paymentData" value="#{page.payments}" var="item" rowClasses="odd,even">
@@ -85,6 +85,7 @@
 						<e:value record="#{item}" column="#{db.PAYMENTS.AMOUNT}"/>
 					</h:column>
 				</h:dataTable>
+				<!-- info message -->
 				<h:panelGroup layout="block" styleClass="info-msg">
 					<h:outputText value="#{msg.employeeDetail_msg_extended}"/>
 				</h:panelGroup>

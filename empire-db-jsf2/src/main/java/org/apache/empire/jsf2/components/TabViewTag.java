@@ -126,6 +126,60 @@ public class TabViewTag extends UIOutput implements NamingContainer
         }
     }
 
+    /*
+     * TabViewMode
+     */
+    public enum TabViewMode 
+    {
+        TABLE (InputControl.HTML_TAG_TABLE, InputControl.HTML_TAG_TR,  InputControl.HTML_TAG_TD,  InputControl.HTML_TAG_TD
+             , InputControl.HTML_TAG_TABLE, InputControl.HTML_TAG_TR,  InputControl.HTML_TAG_TD),
+        GRID  (InputControl.HTML_TAG_DIV,   null,                      InputControl.HTML_TAG_DIV, InputControl.HTML_TAG_DIV
+             , InputControl.HTML_TAG_DIV,   null,                      InputControl.HTML_TAG_DIV);
+        
+        public final String BAR_TAG;        // InputControl.HTML_TAG_TABLE
+        public final String BAR_ROW_TAG;    // InputControl.HTML_TAG_TR
+        public final String BAR_ITEM_TAG;   // InputControl.HTML_TAG_TD
+        public final String BAR_PAD_TAG;    // InputControl.HTML_TAG_TD
+        public final String PANEL_TAG;      // InputControl.HTML_TAG_TABLE
+        public final String PAGE_WRAP_TAG;  // InputControl.HTML_TAG_TR
+        public final String PAGE_TAG;       // InputControl.HTML_TAG_TD
+        
+        private TabViewMode(String barTag, String barRowTag, String barItemTag, String barPadTag, String panelTag, String pageWrapTag, String pageTag)
+        {
+            this.BAR_TAG = barTag;          // InputControl.HTML_TAG_TABLE
+            this.BAR_ROW_TAG = barRowTag;   // InputControl.HTML_TAG_TR
+            this.BAR_ITEM_TAG = barItemTag; // InputControl.HTML_TAG_TD
+            this.BAR_PAD_TAG = barPadTag;   // InputControl.HTML_TAG_TD
+            this.PANEL_TAG = panelTag;      // InputControl.HTML_TAG_TABLE
+            this.PAGE_WRAP_TAG = pageWrapTag;   // InputControl.HTML_TAG_TR
+            this.PAGE_TAG = pageTag;            // InputControl.HTML_TAG_TD
+        }
+        
+        public static TabViewMode detect(String mode)
+        {
+            if (mode==null || mode.length()==0)
+                return TABLE;
+            // find
+            TabViewMode[] values = values();
+            for (int i=0; i<values.length; i++)
+            {
+                if (values[i].name().equalsIgnoreCase(mode))
+                    return values[i]; 
+            }
+            // not found
+            log.warn("TabViewMode \"{}\" not found. Using default!", mode);
+            return TABLE;
+        }
+        
+        @Override
+        public String toString()
+        {
+            return name();
+        }
+    }
+    
+    private TabViewMode mode;
+    
     public TabViewTag()
     {
         log.trace("TabViewTag created");
@@ -135,6 +189,11 @@ public class TabViewTag extends UIOutput implements NamingContainer
     public String getFamily()
     {
         return UINamingContainer.COMPONENT_FAMILY;
+    }
+
+    public TabViewMode getViewMode()
+    {
+        return mode;
     }
 
     @Override
@@ -147,11 +206,14 @@ public class TabViewTag extends UIOutput implements NamingContainer
         // registerTabViewBean
         // context.getExternalContext().getRequestMap().put("tabView", this);
 
+        // check mode
+        this.mode = TabViewMode.detect(helper.getTagAttributeString("mode", TabViewMode.TABLE.name())); 
+
         // render components
         ResponseWriter writer = context.getResponseWriter();
         writer.startElement(InputControl.HTML_TAG_DIV, this);
         writer.writeAttribute(InputControl.HTML_ATTR_ID, getClientId(), null);
-        writer.writeAttribute(InputControl.HTML_ATTR_CLASS, this.helper.getTagStyleClass(), null);
+        writer.writeAttribute(InputControl.HTML_ATTR_CLASS, this.helper.getSimpleStyleClass(), null);
         this.helper.writeAttribute(writer, InputControl.HTML_ATTR_STYLE, this.helper.getTagAttributeString("style"));
 
         // The Tabs
@@ -161,20 +223,28 @@ public class TabViewTag extends UIOutput implements NamingContainer
         }
         else
         {   // show bar
-            writer.startElement(InputControl.HTML_TAG_TABLE, this);
-            writer.writeAttribute(InputControl.HTML_ATTR_CLASS, "eTabBar", null);
-            writer.startElement(InputControl.HTML_TAG_TR, this);
+            writer.startElement(mode.BAR_TAG, this);
+            writer.writeAttribute(InputControl.HTML_ATTR_CLASS, TagStyleClass.TAB_BAR.get(), null);
+            if (mode.BAR_ROW_TAG!=null)
+                writer.startElement(mode.BAR_ROW_TAG, this);
+            // encode Tabs
             encodeTabs(context, writer);
-            writer.startElement(InputControl.HTML_TAG_TD, this);
-            writer.writeAttribute(InputControl.HTML_ATTR_CLASS, "eTabBarEmpty", null);
-            writer.endElement(InputControl.HTML_TAG_TD);
-            writer.endElement(InputControl.HTML_TAG_TR);
-            writer.endElement(InputControl.HTML_TAG_TABLE);
+            // Bar padding item
+            if (mode.BAR_PAD_TAG!=null)
+            {   // Bar padding item
+                writer.startElement(mode.BAR_PAD_TAG, this);
+                writer.writeAttribute(InputControl.HTML_ATTR_CLASS, TagStyleClass.TAB_BAR_PADDING.get(), null);
+                writer.endElement(mode.BAR_PAD_TAG);
+            }
+            // finish
+            if (mode.BAR_ROW_TAG!=null)
+                writer.endElement(mode.BAR_ROW_TAG);
+            writer.endElement(mode.BAR_TAG);
         }
         
         // The Pages
-        writer.startElement(InputControl.HTML_TAG_TABLE, this);
-        writer.writeAttribute(InputControl.HTML_ATTR_CLASS, "eTabPanel", null);
+        writer.startElement(mode.PANEL_TAG, this);
+        writer.writeAttribute(InputControl.HTML_ATTR_CLASS, TagStyleClass.TAB_PANEL.get(), null);
         String minHeight = this.helper.getTagAttributeString("minHeight");
         if (StringUtils.isNotEmpty(minHeight))
         {
@@ -203,7 +273,7 @@ public class TabViewTag extends UIOutput implements NamingContainer
         super.encodeEnd(context);
         // close
         ResponseWriter writer = context.getResponseWriter();
-        writer.endElement(InputControl.HTML_TAG_TABLE);
+        writer.endElement(mode.PANEL_TAG);
         writer.endElement(InputControl.HTML_TAG_DIV);
     }
 
@@ -266,7 +336,7 @@ public class TabViewTag extends UIOutput implements NamingContainer
             if (writer!=null)
             {   // encode Tab
                 boolean disabled = ObjectUtils.getBoolean(TagEncodingHelper.getTagAttributeValue(page, "disabled"));
-                writer.startElement(InputControl.HTML_TAG_TD, this);
+                writer.startElement(mode.BAR_ITEM_TAG, this);
                 // tab label
                 String styleClasses = TagStyleClass.TAB_LABEL.get();
                 if (active)
@@ -280,7 +350,7 @@ public class TabViewTag extends UIOutput implements NamingContainer
                 writer.writeAttribute(InputControl.HTML_ATTR_CLASS, styleClasses, null);
                 // encode Link
                 encodeTabLink(context, writer, index, page, (active || disabled));
-                writer.endElement(InputControl.HTML_TAG_TD);
+                writer.endElement(mode.BAR_ITEM_TAG);
             }
             // set rendered
             page.setRendered(active);
