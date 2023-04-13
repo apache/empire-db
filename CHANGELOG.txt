@@ -5,6 +5,37 @@ For more Information about a particular issue please visit
 https://issues.apache.org/jira/browse/EMPIREDB
 
 --------------
+Release 3.1.0:
+--------------
+
+Summary: Release 3.1 has some new core and jsf features as well as several bugfixes
+
+** Improvements
+	EMPIREDB-407	JSF:	Add "nounit" format option for eValue eInput
+	EMPIREDB-406	JSF:	Provide example CSS for formGrid with mode "grid"
+	EMPIREDB-405	JSF:	Make application of StyleClasses for JSF-tags more transparent and configurable
+	EMPIREDB-404	JSF:	Improve ControlTag rendering options
+	EMPIREDB-402	Core:	Allow Join definition using on(...) syntax
+	EMPIREDB-401	Core:	Improve DBModelChecker primary key check
+	EMPIREDB-398	Core:	DBCommand: Omit parent tables in subquery FROM clause
+	EMPIREDB-397	Core:	PostgreSQL: Add support for websearch_to_tsquery
+	EMPIREDB-395	JSF:	Field validation: allow min/max range constraints to be non-integers
+	EMPIREDB-394	Core:	Optimize SQL-generation
+	EMPIREDB-387	Core:	Update Vue Example Dependencies
+	EMPIREDB-384	Core:	Provide type conversion for DBCmdParam
+	
+** Bugfixes
+	EMPIREDB-403	Core:	SampleApp fails with DBCommandHSql
+	EMPIREDB-400	Core:	Oracle statement params missing for limitRows / skipRows in subqueries
+	EMPIREDB-399	Core:	XMLWriter saveAsFile swallows Exception
+	EMPIREDB-396	Core:	queryRowCount not working for parameterized aggregate queries
+	EMPIREDB-393	Core:	Query params missing for subquery constraints
+	EMPIREDB-392	JSF:	e:input inside ui:repeat does not work
+	EMPIREDB-391	Core:	DBCommand.clone does not copy join params
+	EMPIREDB-390	Core:	DBCommand.join ignore null as addlConstraint params
+	EMPIREDB-385	Core:	Change DBRecord.read param from long to object
+
+--------------
 Release 3.0.0:
 --------------
 
