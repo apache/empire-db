@@ -231,8 +231,12 @@ public abstract class DBCommand extends DBCommandExpr
    	    if (cmpExpr instanceof DBCompareColExpr)
    	    {   // DBCompareColExpr
    	        DBCompareColExpr cmp = ((DBCompareColExpr)cmpExpr);
-            if (cmp.getValue() instanceof DBCmdParam)
-                cmdParams.remove((DBCmdParam)cmp.getValue());
+            if (cmp.getValue() instanceof DBCmdParam) {
+                // remove param
+                DBCmdParam param = (DBCmdParam)cmp.getValue();
+                cmp.setValue(param.getValue());
+                cmdParams.remove(param);
+            }
    	    }
         else if (cmpExpr instanceof DBCompareAndOrExpr) 
         {   // DBCompareAndOrExpr
@@ -1061,22 +1065,19 @@ public abstract class DBCommand extends DBCommandExpr
      * removes a constraint on a particular column from the where clause
      * @param col the column expression for which to remove the constraint
      */
-    public void removeWhereConstraint(DBCompareExpr cmpExpr)
+    public boolean removeWhereConstraint(DBCompareExpr cmpExpr)
     {
-        if (where == null)
-            return;
-        removeConstraint(where, cmpExpr);
+        return removeConstraint(where, cmpExpr);
     }
     
     /**
      * removes a constraint on a particular column from the where clause
      * @param col the column expression for which to remove the constraint
+     * @return the constraint on the given column if present or null otherwise 
      */
-    public void removeWhereConstraintOn(DBColumnExpr col)
+    public DBCompareExpr removeWhereConstraintOn(DBColumnExpr col)
     {
-        if (where == null)
-        	return;
-        removeConstraintOn(where, col);
+        return removeConstraintOn(where, col);
     }
     
     /**
@@ -1085,9 +1086,7 @@ public abstract class DBCommand extends DBCommandExpr
      */
     public boolean hasWhereConstraintOn(DBColumnExpr col)
     {
-        if (where == null)
-            return false;
-        return hasConstraintOn(where, col);
+        return (findConstraintOn(where, col)!=null);
     }
     
     /**
@@ -1150,22 +1149,19 @@ public abstract class DBCommand extends DBCommandExpr
      * removes a constraint on a particular column from the where clause
      * @param col the column expression for which to remove the constraint
      */
-    public void removeHavingConstraint(DBCompareExpr cmpExpr)
+    public boolean removeHavingConstraint(DBCompareExpr cmpExpr)
     {
-        if (having == null)
-            return;
-        removeConstraint(having, cmpExpr);
+        return removeConstraint(having, cmpExpr);
     }
     
     /**
      * removes a constraint on a particular column from the having clause
      * @param col the column expression for which to remove the constraint
+     * @return the constraint on the given column if present or null otherwise 
      */
-    public void removeHavingConstraintOn(DBColumnExpr col)
+    public DBCompareExpr removeHavingConstraintOn(DBColumnExpr col)
     {
-        if (having == null)
-        	return;
-        removeConstraintOn(having, col);
+        return removeConstraintOn(having, col);
     }
     
     /**
@@ -1174,9 +1170,7 @@ public abstract class DBCommand extends DBCommandExpr
      */
     public boolean hasHavingConstraintOn(DBColumnExpr col)
     {
-        if (where == null)
-            return false;
-        return hasConstraintOn(having, col);
+        return (findConstraintOn(having, col)!=null);
     }
     
     /**
@@ -1461,10 +1455,10 @@ public abstract class DBCommand extends DBCommandExpr
      * @param list the 'where' or 'having' list
      * @param col the column expression for which to remove the constraint
      */
-    protected void removeConstraint(List<DBCompareExpr> list, DBCompareExpr cmpExpr)
+    protected boolean removeConstraint(List<DBCompareExpr> list, DBCompareExpr cmpExpr)
     {
         if (list == null)
-            return;
+            return false;
         for (DBCompareExpr cmp : list)
         {   // Compare columns
             if (cmp.isMutuallyExclusive(cmpExpr))
@@ -1472,31 +1466,8 @@ public abstract class DBCommand extends DBCommandExpr
                 removeCommandParams(cmp);
                 // remove the constraint
                 list.remove(cmp);
-                return;
+                return true;
             }
-        }
-    }
-    
-    /**
-     * removes a constraint on a particular column to the 'where' or 'having' collections 
-     * @param list the 'where' or 'having' list
-     * @param col the column expression for which to remove the constraint
-     */
-    protected boolean hasConstraintOn(List<DBCompareExpr> list, DBColumnExpr colExpr)
-    {
-        if (list == null)
-            return false;
-        for (DBCompareExpr cmp : list)
-        {   // Check whether it is a compare column expr.
-            if (!(cmp instanceof DBCompareColExpr))
-                continue;
-            // Compare columns
-            DBColumnExpr cmpCol = ((DBCompareColExpr)cmp).getColumnExpr();
-            if (ObjectUtils.compareEqual(cmpCol, colExpr))
-                return true;
-            // Update column
-            if ((colExpr instanceof DBColumn) && !(cmpCol instanceof DBColumn) && colExpr.equals(colExpr.getUpdateColumn()))
-                return true;
         }
         return false;
     }
@@ -1506,32 +1477,44 @@ public abstract class DBCommand extends DBCommandExpr
      * @param list the 'where' or 'having' list
      * @param col the column expression for which to remove the constraint
      */
-    protected void removeConstraintOn(List<DBCompareExpr> list, DBColumnExpr colExpr)
+    protected DBCompareExpr removeConstraintOn(List<DBCompareExpr> list, DBColumnExpr colExpr)
+    {
+        DBCompareExpr cmpExpr = findConstraintOn(list, colExpr);
+        if (cmpExpr!=null)
+        {   // Check if we replace a DBCommandParam
+            removeCommandParams(cmpExpr);
+            // remove the constraint
+            list.remove(cmpExpr);
+        }
+        return cmpExpr;
+    }
+    
+    /**
+     * finds a constraint on a particular column to the 'where' or 'having' collections 
+     * @param list the 'where' or 'having' list
+     * @param col the column expression for which to remove the constraint
+     */
+    protected DBCompareExpr findConstraintOn(List<DBCompareExpr> list, DBColumnExpr colExpr)
     {
         if (list == null)
-        	return;
+            return null;
         for (DBCompareExpr cmp : list)
-        {	// Check whether it is a compare column expr.
+        {   // Check whether it is a compare column expr.
             if (!(cmp instanceof DBCompareColExpr))
-            	continue;
+                continue;
             // Compare columns
             DBColumnExpr cmpCol = ((DBCompareColExpr)cmp).getColumnExpr();
             if (ObjectUtils.compareEqual(cmpCol, colExpr))
-            {   // Check if we replace a DBCommandParam
-                removeCommandParams(cmp);
-                // remove the constraint
-                list.remove(cmp);
-                return;
+            {   // found
+                return cmp;
             }
             // Update column
             if ((colExpr instanceof DBColumn) && !(cmpCol instanceof DBColumn) && colExpr.equals(colExpr.getUpdateColumn()))
-            {   // Check if we replace a DBCommandParam
-                removeCommandParams(cmp);
-                // remove the constraint
-                list.remove(cmp);
-                return;
+            {   // found
+                return cmp;
             }
         }
+        return null;
     }
     
     /**
