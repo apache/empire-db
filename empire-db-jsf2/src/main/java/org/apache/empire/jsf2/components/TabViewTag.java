@@ -193,6 +193,8 @@ public class TabViewTag extends UIOutput implements NamingContainer
 
     public TabViewMode getViewMode()
     {
+        if (this.mode==null)
+            this.mode = TabViewMode.detect(helper.getTagAttributeString("mode", TabViewMode.TABLE.name())); 
         return mode;
     }
 
@@ -205,9 +207,7 @@ public class TabViewTag extends UIOutput implements NamingContainer
 
         // registerTabViewBean
         // context.getExternalContext().getRequestMap().put("tabView", this);
-
-        // check mode
-        this.mode = TabViewMode.detect(helper.getTagAttributeString("mode", TabViewMode.TABLE.name())); 
+        getViewMode();
 
         // render components
         ResponseWriter writer = context.getResponseWriter();
