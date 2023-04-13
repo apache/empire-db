@@ -27,6 +27,7 @@ import org.apache.empire.db.DBDatabase;
 import org.apache.empire.db.DBJoinType;
 import org.apache.empire.db.DBRowSet;
 import org.apache.empire.db.DBSQLBuilder;
+import org.apache.empire.exceptions.NotSupportedException;
 
 /**
  * This class is used for building a join expression of an SQL statement.
@@ -120,6 +121,15 @@ public class DBCrossJoinExpr extends DBJoinExpr
     public DBRowSet getOuterTable()
     {
         return null; // no outer table!
+    }
+    
+    /**
+     * alters the join type for this join
+     */
+    @Override
+    public void setType(DBJoinType type)
+    {
+        throw new NotSupportedException(this, "joinType:"+type.name());
     }
 
     /**

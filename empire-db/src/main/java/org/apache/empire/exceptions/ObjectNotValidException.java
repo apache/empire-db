@@ -24,16 +24,21 @@ public class ObjectNotValidException extends EmpireException
 {
     private static final long serialVersionUID = 1L;
     
-    public static final ErrorType errorType = new ErrorType("error.objectNotValid", "The object of type {0} has not been initialized.");
+    public static final ErrorType errorType = new ErrorType("error.objectNotValid", "The object {0} is invalid: {1}");
 
-    public ObjectNotValidException(Class<?> clazz)
+    public ObjectNotValidException(Class<?> clazz, String message)
     {
-        super(errorType, new String[] { (clazz!=null) ? clazz.getName() : "{unknown}" } );
+        super(errorType, new String[] { (clazz!=null) ? clazz.getName() : "{unknown}", message } );
+    }
+    
+    public ObjectNotValidException(Object obj, String message)
+    {
+        this((obj!=null) ? obj.getClass() : null, message);
     }
     
     public ObjectNotValidException(Object obj)
     {
-        this((obj!=null) ? obj.getClass() : null);
+        this((obj!=null) ? obj.getClass() : null, "Not initialized");
     }
 
 }

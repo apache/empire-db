@@ -49,6 +49,8 @@ import org.apache.empire.db.exceptions.RecordUpdateFailedException;
 import org.apache.empire.db.expr.column.DBCountExpr;
 import org.apache.empire.db.expr.compare.DBCompareColExpr;
 import org.apache.empire.db.expr.compare.DBCompareExpr;
+import org.apache.empire.db.expr.join.DBCompareJoinExpr;
+import org.apache.empire.db.expr.join.DBCrossJoinExpr;
 import org.apache.empire.db.list.DBBeanFactoryCache;
 import org.apache.empire.db.list.DBBeanListFactory;
 import org.apache.empire.db.list.DBBeanListFactoryImpl;
@@ -602,6 +604,24 @@ public abstract class DBRowSet extends DBExpr implements EntityType
     protected DBColumnExpr getColumnExprAt(int index)
     {
         return columns.get(index);
+    }
+    
+    /**
+     * Creates a join expression based on a compare expression
+     */
+    public DBCompareJoinExpr on(DBCompareExpr cmp)
+    {
+        DBCompareJoinExpr join = new DBCompareJoinExpr(this, cmp, DBJoinType.INNER); 
+        return join;
+    }
+    
+    /**
+     * Creates a cross join expression
+     */
+    public DBCrossJoinExpr on(DBRowSet right)
+    {
+        DBCrossJoinExpr join = new DBCrossJoinExpr(this, right);
+        return join;
     }
 
     /**

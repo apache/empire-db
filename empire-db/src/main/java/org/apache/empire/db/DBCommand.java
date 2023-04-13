@@ -673,9 +673,9 @@ public abstract class DBCommand extends DBCommandExpr
      */
     public DBCommand join(DBJoinExpr join)
     {
-        // check tables
+        // Rowsets must be different
         if (join.getLeftTable().equals(join.getRightTable()))
-            throw new InvalidArgumentException("left|right", join.getLeftTable());
+            throw new ObjectNotValidException(join, "The rowsets of a join expression must not be the same!");     
         // create list
         if (joins == null)
             joins = new ArrayList<DBJoinExpr>();
@@ -696,18 +696,6 @@ public abstract class DBCommand extends DBCommandExpr
     }
 
     /**
-     * Adds an inner join based on two columns to the list of join expressions.
-     * 
-     * @param left the left join value
-     * @param right the right join
-     * @return itself (this) 
-     */
-    public final DBCommand join(DBColumnExpr left, DBColumn right, DBCompareExpr... addlConstraints)
-    {
-        return join(left, right, DBJoinType.INNER, addlConstraints);
-    }
-
-    /**
      * Adds a left join to the list of join expressions.
      * @return itself (this) 
      */
@@ -715,20 +703,6 @@ public abstract class DBCommand extends DBCommandExpr
     {
         join.setType(DBJoinType.LEFT);
         return join(join);
-    }
-
-    /**
-     * Adds a left join based on two columns to the list of join expressions.
-     * Added for convenience
-     * Same as join(left, right, DBJoinType.LEFT);
-     * 
-     * @param left the left join value
-     * @param right the right join
-     * @return itself (this) 
-     */
-    public final DBCommand joinLeft(DBColumnExpr left, DBColumn right, DBCompareExpr... addlConstraints)
-    {
-        return join(left, right, DBJoinType.LEFT, addlConstraints);
     }
 
     /**
@@ -742,9 +716,37 @@ public abstract class DBCommand extends DBCommandExpr
     }
 
     /**
+     * Adds an inner join based on two columns to the list of join expressions.
+     * 
+     * New in release 3.1: Use join(left.on(right).and(addlConstraint)) instead
+     * 
+     * @param left the left join value
+     * @param right the right join
+     * @return itself (this) 
+     */
+    public final DBCommand join(DBColumnExpr left, DBColumn right, DBCompareExpr... addlConstraints)
+    {
+        return join(left, right, DBJoinType.INNER, addlConstraints);
+    }
+
+    /**
+     * Adds a left join based on two columns to the list of join expressions.
+     * 
+     * New in release 3.1: Use joinLeft(left.on(right).and(addlConstraint)) instead
+     * 
+     * @param left the left join value
+     * @param right the right join
+     * @return itself (this) 
+     */
+    public final DBCommand joinLeft(DBColumnExpr left, DBColumn right, DBCompareExpr... addlConstraints)
+    {
+        return join(left, right, DBJoinType.LEFT, addlConstraints);
+    }
+
+    /**
      * Adds a right join based on two columns to the list of join expressions.
-     * Added for convenience
-     * Same as join(left, right, DBJoinType.RIGHT);
+     * 
+     * New in release 3.1: Use joinRight(left.on(right).and(addlConstraint)) instead
      * 
      * @param left the left join value
      * @param right the right join
@@ -831,6 +833,9 @@ public abstract class DBCommand extends DBCommandExpr
     
     /**
      * Adds a cross join for two tables or views 
+     * 
+     * New in release 3.1: Use left.on(right)) instead
+     * 
      * @param left the left RowSet
      * @param right the right RowSet
      * @return itself (this) 
@@ -846,6 +851,8 @@ public abstract class DBCommand extends DBCommandExpr
     /**
      * Adds a join based on a compare expression to the command.
      * 
+     * New in release 3.1: Use joinLeft(rowset.on(cmp)) instead
+     * 
      * @param rowset table or view to join
      * @param cmp the compare expression with which to join the table
      * @param joinType type of join ({@link DBJoinType#INNER}, {@link DBJoinType#LEFT}, {@link DBJoinType#RIGHT})
@@ -860,6 +867,8 @@ public abstract class DBCommand extends DBCommandExpr
 
     /**
      * Adds an inner join based on a compare expression to the command.
+     * 
+     * New in release 3.1: Use rowset.on(cmp) instead
      * 
      * @param rowset table of view which to join
      * @param cmp the compare expression with wich to join the table
