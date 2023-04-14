@@ -539,6 +539,7 @@ public class StringUtils
     /**
      * returns true if the first count characters of s are all upper case (or other non-case sensitive characters)
      * @param s the source string
+     * @param count number of characters to check
      * @return true if the first count characters of s are all upper case
      */
     public static boolean isUpper(String s, int count)
@@ -565,6 +566,7 @@ public class StringUtils
     /**
      * returns true if the first count characters of s are all lower case (or other non-case sensitive characters)
      * @param s the source string
+     * @param count number of characters to check
      * @return true if the first count characters of s are all lower case
      */
     public static boolean isLower(String s, int count)
@@ -615,7 +617,7 @@ public class StringUtils
     /**
      * truncates a string to a maximum number of chars 
      * @param s the source string
-     * @param the maximum number of chars
+     * @param maxChar the maximum number of chars
      * @return the result string
      */
     public static String truncate(String s, int maxChar)

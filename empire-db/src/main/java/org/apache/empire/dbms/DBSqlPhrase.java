@@ -23,7 +23,6 @@ package org.apache.empire.dbms;
  * The phase may consist of the following placeholders:
  *  ? = the expression on which the function is applied (usually a column expression)
  *  {[param-index]:[DataType]} = a function parameter. The DataType name, if supplied, must match the name of a DataType enum value.
- * @param phrase
  * @author rainer
  */
 public enum DBSqlPhrase

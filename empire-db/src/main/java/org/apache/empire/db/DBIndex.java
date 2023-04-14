@@ -177,7 +177,7 @@ public class DBIndex extends DBObject
     /**
      * Returns the index type.
      * 
-     * @return the type of this index ({@link #PRIMARYKEY}, {@link #UNIQUE}, {@link #STANDARD}) 
+     * @return the type of this index 
      */
     public DBIndexType getType()
     {

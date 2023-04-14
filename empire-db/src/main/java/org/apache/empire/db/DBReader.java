@@ -21,7 +21,6 @@ package org.apache.empire.db;
 import java.io.Closeable;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
-import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -67,7 +66,7 @@ import org.w3c.dom.Element;
  *  <li>access field values directly by using one of the get... functions (see {@link DBRecordData})</li> 
  *  <li>get the rows as a list of Java Beans using by using {@link DBReader#getBeanList(Class, int)}</li> 
  *  <li>get the rows as an XML-Document using {@link DBReader#getXmlDocument()} </li> 
- *  <li>initialize a DBRecord with the current row data using {@link DBReader#initRecord(DBRowSet, DBRecordBase)}<br>
+ *  <li>initialize a DBRecord with the current row data using {@link DBReader#initRecord(DBRecordBase)}<br>
  *      This will allow you to modify and update the data. 
  *  </li> 
  * </ul>
@@ -465,7 +464,6 @@ public class DBReader extends DBRecordData implements Closeable
      * <P>
      * @param cmd the SQL-Command with cmd.getSelect()
      * @param scrollable true if the reader should be scrollable or false if not
-     * @param conn a valid JDBC connection.
      */
     public void open(DBCommandExpr cmd, boolean scrollable)
     {
@@ -502,10 +500,9 @@ public class DBReader extends DBRecordData implements Closeable
     /**
      * Opens the reader by executing the given SQL command.<BR>
      * <P>
-     * see {@link DBReader#open(DBCommandExpr, boolean, Connection)}
+     * see {@link DBReader#open(DBCommandExpr, boolean)}
      * </P>
      * @param cmd the SQL-Command with cmd.getSelect()
-     * @param conn a valid JDBC connection.
      */
     public final void open(DBCommandExpr cmd)
     {
@@ -523,7 +520,6 @@ public class DBReader extends DBRecordData implements Closeable
      * Use <PRE>try { ... } finally { reader.close(); } </PRE> to make sure the reader is closed.<BR>
      * <P>
      * @param cmd the SQL-Command with cmd.getSelect()
-     * @param conn a valid JDBC connection.
      */
     public void getRecordData(DBCommandExpr cmd)
     { // Open the record
@@ -686,7 +682,6 @@ public class DBReader extends DBRecordData implements Closeable
      * This function is equivalent to calling rowset.initRecord(rec, reader) 
      * set also {@link DBRowSet#initRecord(DBRecordBase, DBRecordData)});
      * </PRE>
-     * @param rowset the rowset to which to attach
      * @param rec the record which to initialize
      */
     public void initRecord(DBRecordBase rec)
@@ -1027,8 +1022,7 @@ public class DBReader extends DBRecordData implements Closeable
 
     /**
      * Returns a constructor for a bean class for the set of parameters or null if no suitable constructor is found
-     * @param clazz the bean class
-     * @param parameterTypes
+     * @param beanClass the bean class
      * @return a constructor for the readers columns or null if not suitable constructor is available
      */
     protected Constructor<?> findBeanConstructor(Class<?> beanClass)

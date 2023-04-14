@@ -182,7 +182,7 @@ public class DBColumnJoinExpr extends DBJoinExpr
 
     /**
      * Copy Command
-     * @param cmd
+     * @param newCmd the new command object
      */
     @Override
     public DBJoinExpr copy(DBCommand newCmd)
@@ -216,10 +216,8 @@ public class DBColumnJoinExpr extends DBJoinExpr
 
     /**
      * This function adds an additional constraint to the join.
-     * 
-     * @param c1 the first column
-     * @param c2 the second column
-     * 
+
+     * @param expr the expression to add
      * @return the object itself
      */
     public DBColumnJoinExpr and(DBCompareExpr expr)
@@ -236,7 +234,6 @@ public class DBColumnJoinExpr extends DBJoinExpr
      * 
      * @param c1 the first column
      * @param c2 the second column
-     * 
      * @return the object itself
      */
     public DBColumnJoinExpr and(DBColumnExpr c1, DBColumnExpr c2)

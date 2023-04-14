@@ -54,7 +54,6 @@ public abstract class DBAbstractFuncExpr extends DBColumnExpr
      * Do not use directly - use any of the DBColumnExpr.??? factory functions instead!
      * 
      * @param expr the DBColumnExpr object
-     * @param updateColumn optional update column if any. This parameter may be null
      * @param isAggregate indicates whether the function is an aggregate function (sum, min, max, avg, ...)
      * @param dataType indicates the data type of the function result 
      */

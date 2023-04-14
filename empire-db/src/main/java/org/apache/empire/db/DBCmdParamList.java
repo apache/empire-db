@@ -130,6 +130,7 @@ public class DBCmdParamList implements DBCmdParams
     /**
      * internally used to reset the command param usage count.
      * Note: Only one thread my generate an SQL statement 
+     * @param cmd the command object
      */
     public void resetParamUsage(DBCommand cmd)
     {
@@ -145,6 +146,7 @@ public class DBCmdParamList implements DBCmdParams
     /**
      * internally used to remove unused Command Params from list
      * Note: Only one thread my generate an SQL statement 
+     * @param cmd the command object
      */
     public void completeParamUsage(DBCommand cmd)
     {
@@ -164,7 +166,7 @@ public class DBCmdParamList implements DBCmdParams
     
     /**
      * Used to merge CmdParams from a subquery with the current command params list
-     * @param subQueryParams
+     * @param subQueryParams the subquery params
      */
     public void mergeSubqueryParams(DBCmdParams subQueryParams)
     {
@@ -179,6 +181,7 @@ public class DBCmdParamList implements DBCmdParams
     
     /**
      * internally used to reorder the command params to match their order of occurance
+     * @param param the param being used
      */
     protected void notifyParamUsage(DBCmdParam param)
     {

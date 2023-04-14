@@ -77,7 +77,7 @@ public class DBValueExpr extends DBColumnExpr
 
     /**
      * set the value associated with this value expression
-     * @param the value
+     * @param value the value to set
      */
     public void setValue(Object value)
     {

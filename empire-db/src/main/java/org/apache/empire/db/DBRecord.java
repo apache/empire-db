@@ -21,7 +21,6 @@ package org.apache.empire.db;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.sql.Connection;
 import java.util.Collection;
 
 import org.apache.empire.commons.ClassUtils;
@@ -308,7 +307,7 @@ public class DBRecord extends DBRecordBase
     
     /**
      * Reads a record from the database
-     * @param key an array of the primary key values
+     * @param whereConstraints the compare expression for querying this record
      */
     public DBRecord read(DBCompareExpr whereConstraints)
     {
@@ -382,8 +381,7 @@ public class DBRecord extends DBRecordBase
      * WARING: There is no guarantee that it ist called
      * Implement delete logic in the table's deleteRecord method if possible
      * 
-     * @see org.apache.empire.db.DBTable#deleteRecord(Object[], Connection)
-     * @param conn a valid connection to the database.
+     * @see org.apache.empire.db.DBRowSet#deleteRecord(Object[], DBContext)
      */
     public void delete()
     {

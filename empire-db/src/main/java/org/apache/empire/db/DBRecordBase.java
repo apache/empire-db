@@ -249,7 +249,7 @@ public abstract class DBRecordBase extends DBRecordData implements Record, Clone
 
     /**
      * helper to check if the object is valid
-     * @throws an ObjectNotValidException if the object is not valid
+     * @throws ObjectNotValidException if the object is not valid
      */
     protected void checkValid()
     {
@@ -259,7 +259,7 @@ public abstract class DBRecordBase extends DBRecordData implements Record, Clone
 
     /**
      * helper to check if the object is valid
-     * @throws an ObjectNotValidException if the object is not valid
+     * @throws ObjectNotValidException if the object is not valid
      */
     protected void checkValid(int fieldIndex)
     {
@@ -534,10 +534,8 @@ public abstract class DBRecordBase extends DBRecordData implements Record, Clone
     }
 
     /**
-     * Returns a array of primary key columns by a specified DBRecord object.
-     * 
-     * @param rec the DBRecord object, contains all fields and the field properties
-     * @return a array of primary key columns
+     * Returns a array of key columns by a specified DBRecord object.
+     * @return a array of key columns
      */
     @Override
     public Object[] getKey()
@@ -699,7 +697,7 @@ public abstract class DBRecordBase extends DBRecordData implements Record, Clone
     }
 
     /**
-     * @Deprecated Renamed to set(...)   
+     * Deprecated Renamed to set(...)   
      */
     @Deprecated
     public DBRecordBase setValue(Column column, Object value)
@@ -870,7 +868,7 @@ public abstract class DBRecordBase extends DBRecordData implements Record, Clone
 
     /**
      * Compares the record to another one
-     * @param otherObject
+     * @param other the record to compare this record with
      * @return true if it is the same record (but maybe a different instance)
      */
     public boolean isSame(DBRecordBase other)
@@ -1014,9 +1012,7 @@ public abstract class DBRecordBase extends DBRecordData implements Record, Clone
     
     /**
      * This method is used internally by the RowSet to initialize the record's properties
-     * @param rowset the rowset to which to attach this record
-     * @param rowsetData any further RowSet specific data
-     * @param newRecord
+     * @param newRecord flag whether the record is new (non-existing) in the database
      */
     protected void initData(boolean newRecord)
     {
@@ -1040,7 +1036,6 @@ public abstract class DBRecordBase extends DBRecordData implements Record, Clone
     /**
      * This method is used internally to indicate that the record update has completed<BR>
      * This will set change the record's state to Valid
-     * @param rowsetData additional data held by the rowset for this record (optional)
      */
     protected void updateComplete()
     {
@@ -1052,6 +1047,7 @@ public abstract class DBRecordBase extends DBRecordData implements Record, Clone
     /**
      * Checks whether the record is updateable  
      * If its read-only a RecordReadOnlyException is thrown 
+     * @throws RecordReadOnlyException
      */
     protected void checkUpdateable()
     {

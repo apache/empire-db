@@ -38,8 +38,9 @@ public interface DBModelErrorHandler
      * This method is called when an object (e. g. table or column) is missing in
      * the database.
      * 
-     * @param dbo
-     *            The missing object
+     * @param object the missing object
+     * @param name the name of the object
+     * @param expectedType the expected type
      */
     void objectTypeMismatch(DBObject object, String name, Class<?> expectedType);
 
@@ -59,9 +60,9 @@ public interface DBModelErrorHandler
      * does not match the primary key of the existing table
      * 
      * @param primaryKey
-     *            The primary key as defined in the model
-     * @param column
-     *            The primary key of the existing table
+     *            The index key
+     * @param tableKey
+     *            The referenced table key
      */
     void primaryKeyMismatch(DBIndex primaryKey, DBColumn[] tableKey);
 

@@ -163,7 +163,7 @@ public abstract class DBSQLBuilder implements Appendable
 
     /**
      * Appends the SQL representation of a value
-     * @param dataType the DataType
+     * @param type the data type
      * @param value an DBExpr object, array or a basis data type(e.g. int, String)
      */
     public void appendValue(DataType type, Object value)
@@ -222,13 +222,11 @@ public abstract class DBSQLBuilder implements Appendable
     /**
      * Expands an SQL template and adds it to the SQL command
      * 
-     * @param StringBuilder but the SQL builder
      * @param template the SQL template
-     * @param values an array of values to be inserted into the template
-     * @param dataType the DataType
+     * @param values list of values to be inserted into the template
+     * @param dataTypes list of data types
      * @param context the context of the DBColumnExpr object
      * @param arraySep the separator value
-     * @return the new SQL-Command
      */
     public void appendTemplate(String template, Object[] values, DataType[] dataTypes, long context, String arraySep)
     {
@@ -274,9 +272,8 @@ public abstract class DBSQLBuilder implements Appendable
      * Empty strings are treated as null.
      * The syntax of Date, Datetime and Boolean values are DBMS specific.
      * 
+     * @param type the data type of the supplied value
      * @param value the value which is inserted to the new String
-     * @param type the sql data type of the supplied value
-     * @return the sql string representing this value
      */
     protected void appendSimpleValue(DataType type, Object value)
     { 
@@ -349,11 +346,11 @@ public abstract class DBSQLBuilder implements Appendable
 
     /**
      * encodes a Date value for an SQL command string. 
-     * @param value
-     * @param sqlTemplate
-     * @param sqlPattern
-     * @param sqlCurrentDate
-     * @return
+     * @param value the value to encode
+     * @param sqlTemplate the template
+     * @param sqlPattern the pattern
+     * @param sqlCurrentDate the current date phrase
+     * @return the date time string
      */
     protected String getDateTimeString(Object value, DBSqlPhrase sqlTemplate, DBSqlPhrase sqlPattern, DBSqlPhrase sqlCurrentDate)
     {
@@ -411,8 +408,7 @@ public abstract class DBSQLBuilder implements Appendable
     /**
      * encodes Text values for an SQL command string.
      * @param type date type (can only be TEXT, CHAR, CLOB and UNIQUEID)
-     * @param text the text to be encoded
-     * @return the encoded sql value
+     * @param value the literal to be encoded
      */
     protected void appendStringLiteral(DataType type, Object value)
     {   // text

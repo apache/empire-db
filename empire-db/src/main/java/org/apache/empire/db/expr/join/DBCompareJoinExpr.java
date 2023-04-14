@@ -99,7 +99,7 @@ public class DBCompareJoinExpr extends DBColumnJoinExpr
     
     /**
      * Copy Command
-     * @param cmd
+     * @param newCmd the new command object
      */
     @Override
     public DBJoinExpr copy(DBCommand newCmd)

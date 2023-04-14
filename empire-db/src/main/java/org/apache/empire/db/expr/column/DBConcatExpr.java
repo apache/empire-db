@@ -65,9 +65,9 @@ public class DBConcatExpr extends DBColumnExpr
     }
 
     /**
-     * Returns the data type: {@link DataType#TEXT}
+     * Returns the data type: {@link DataType#VARCHAR}
      * 
-     * @return {@link DataType#TEXT}
+     * @return {@link DataType#VARCHAR}
      */
     @Override
     public DataType getDataType()

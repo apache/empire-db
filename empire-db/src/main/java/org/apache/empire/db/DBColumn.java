@@ -312,7 +312,6 @@ public abstract class DBColumn extends DBColumnExpr
 
     /**
      * Returns the full qualified column name.
-     *
      * @return the full qualified column name
      */
     public String getFullName()
@@ -325,6 +324,7 @@ public abstract class DBColumn extends DBColumnExpr
 
     /**
      * returns the qualified alias name for this column
+     * @return the alias
      */
     public String getAlias()
     {
@@ -339,6 +339,7 @@ public abstract class DBColumn extends DBColumnExpr
 
     /**
      * returns an expression that renames the column with its alias name
+     * @return a qualified expression for this column
      */
     @Override
     public DBColumnExpr qualified()

@@ -19,7 +19,6 @@
 package org.apache.empire.db.expr.join;
 
 import org.apache.empire.db.DBColumn;
-import org.apache.empire.db.DBColumnExpr;
 import org.apache.empire.db.DBCommand;
 import org.apache.empire.db.DBExpr;
 import org.apache.empire.db.DBJoinType;
@@ -27,11 +26,8 @@ import org.apache.empire.db.DBRowSet;
 
 /**
  * This class is used for building a join expression of an SQL statement.
- * <P>
- * There is no need to explicitly create instances of this class.<BR>
- * Instead use @link {@link org.apache.empire.db.DBCommand#join(DBColumnExpr, DBColumn, DBJoinType)}
- * <P>
- *
+ * 
+ * There is no need to explicitly create instances of this class.
  */
 public abstract class DBJoinExpr extends DBExpr
 {
@@ -44,9 +40,7 @@ public abstract class DBJoinExpr extends DBExpr
      * the left and right column and the data type of the join
      * expression.
      * 
-     * @param left left value
-     * @param right right value
-     * @param type data type (JOIN_INNER, JOIN_LEFT or JOIN_RIGHT)
+     * @param type the join type (JOIN_INNER, JOIN_LEFT or JOIN_RIGHT)
      */
     protected DBJoinExpr(DBJoinType type)
     {
@@ -111,7 +105,7 @@ public abstract class DBJoinExpr extends DBExpr
 
     /**
      * Copy Command
-     * @param cmd
+     * @param newCmd the new command object
      */
     public abstract DBJoinExpr copy(DBCommand newCmd);
 

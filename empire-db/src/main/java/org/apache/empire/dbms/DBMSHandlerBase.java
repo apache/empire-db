@@ -44,7 +44,6 @@ import org.apache.empire.db.DBCommand;
 import org.apache.empire.db.DBCommandExpr;
 import org.apache.empire.db.DBDDLGenerator.DDLActionType;
 import org.apache.empire.db.DBDatabase;
-import org.apache.empire.db.DBExpr;
 import org.apache.empire.db.DBRelation;
 import org.apache.empire.db.DBRowSet;
 import org.apache.empire.db.DBSQLBuilder;
@@ -309,7 +308,7 @@ public abstract class DBMSHandlerBase implements DBMSHandler
 
     /**
      * This function creates a DBCommand derived object this database
-     * @param db the database for which to create a command object for
+     * @param autoPrepareStmt flag whether to automatically provide literal values as prepared statement params
      * @return a DBCommand object
      */
     @Override
@@ -417,7 +416,7 @@ public abstract class DBMSHandlerBase implements DBMSHandler
     /**
      * Returns an expression for creating a sequence value.
      * This is intended for the use with INSERT INTO statements where many records are affected. 
-     * @param col the column for which to obtain an expression providing the next sequence value
+     * @param column the column for which to obtain an expression providing the next sequence value
      * @return an expression for the next sequence value
      */
     public abstract DBColumnExpr getNextSequenceValueExpr(DBTableColumn column);
@@ -486,13 +485,11 @@ public abstract class DBMSHandlerBase implements DBMSHandler
     }
     
     /**
-     * <P>
      * Reads a single column value from the given JDBC ResultSet and returns a value object of desired data type.<BR> 
-     * See {@link DBExpr#getValueClass(DataType)} for java class type mapping.
-     * <P>
+     * 
      * This gives the dbms the opportunity to change the value
      * i.e. to simulate missing data types with other types.
-     * <P>
+     * 
      * @param rset the sql Resultset with the current data row
      * @param columnIndex one based column Index of the desired column
      * @param dataType the required data type

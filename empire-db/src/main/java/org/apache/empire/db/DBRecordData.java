@@ -84,7 +84,7 @@ public abstract class DBRecordData extends DBObject
     public abstract Object getValue(int index);
     
     /**
-     * @Deprecated Renamed to get(...)   
+     * Deprecated Renamed to get(...)   
      */
     @Deprecated
     public Object getValue(ColumnExpr column)
@@ -93,7 +93,7 @@ public abstract class DBRecordData extends DBObject
     }
 
     /**
-     * @Deprecated Renamed to get(...)   
+     * Deprecated Renamed to get(...)   
      */
     @Deprecated
     public final <T> T getValue(Column column, Class<T> returnType)
@@ -102,7 +102,7 @@ public abstract class DBRecordData extends DBObject
     }
 
     /**
-     * @Deprecated Renamed to get(...)   
+     * Deprecated Renamed to get(...)   
      */
     @Deprecated
     public final Object[] getValues(ColumnExpr... columns)
@@ -139,7 +139,7 @@ public abstract class DBRecordData extends DBObject
     /**
      * Returns an array of values for the given column expressions
      * 
-     * @param column the column expressions
+     * @param columns the column expressions
      * @return the corresponding record values
      */
     public final Object[] getArray(ColumnExpr... columns)

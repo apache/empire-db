@@ -200,8 +200,8 @@ public class DBModelParser
     
     /**
      * collects table and view information from database meta data
-     * @param dbMeta
-     * @param dbSchema
+     * @param dbMeta the database meta data
+     * @param tablePattern the table pattern
      * @throws SQLException
      */
     protected int collectTablesAndViews(DatabaseMetaData dbMeta, String tablePattern)
@@ -284,8 +284,7 @@ public class DBModelParser
     
     /**
      * collects primary key information from database meta data
-     * @param dbMeta
-     * @param dbSchema
+     * @param dbMeta the database meta data
      * @throws SQLException
      */
     protected int collectPrimaryKeys(DatabaseMetaData dbMeta)
@@ -324,6 +323,7 @@ public class DBModelParser
 
     /**
      * collects foreign key information from database meta data
+     * @param dbMeta the database meta data
      * @throws SQLException
      */
     protected int collectForeignKeys(DatabaseMetaData dbMeta)
@@ -340,6 +340,8 @@ public class DBModelParser
     
     /**
      * collects foreign key information from database meta data
+     * @param dbMeta the database meta data
+     * @param tablePattern the table pattern
      * @throws SQLException
      */
     protected int collectForeignKeys(DatabaseMetaData dbMeta, String tablePattern)

@@ -28,7 +28,6 @@ import org.apache.empire.db.DBCommand;
 import org.apache.empire.db.DBCommandExpr;
 import org.apache.empire.db.DBDDLGenerator.DDLActionType;
 import org.apache.empire.db.DBDatabase;
-import org.apache.empire.db.DBExpr;
 import org.apache.empire.db.DBObject;
 import org.apache.empire.db.DBRelation;
 import org.apache.empire.db.DBSQLBuilder;
@@ -193,13 +192,11 @@ public interface DBMSHandler
         throws SQLException;
 
     /**
-     * <P>
-     * Reads a single column value from the given JDBC ResultSet and returns a value object of desired data type.<BR> 
-     * See {@link DBExpr#getValueClass(DataType)} for java class type mapping.
-     * <P>
+     * Reads a single column value from the given JDBC ResultSet and returns a value object of desired data type. 
+     * 
      * This gives the dbms the opportunity to change the value
      * i.e. to simulate missing data types with other types.
-     * <P>
+     * 
      * @param rset the sql Resultset with the current data row
      * @param columnIndex one based column Index of the desired column
      * @param dataType the required data type

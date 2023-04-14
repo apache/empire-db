@@ -40,6 +40,7 @@ public class DataListFactoryImpl<T extends DataListEntry> implements DataListFac
 {
     /**
      * Finds a constructor for listEntryClass
+     * @param <T> the type of the DataListEntry
      * @param listEntryClass the listEntryClass to instantiate
      * @param listHeadClass the DataListHead class
      * @return the constructor

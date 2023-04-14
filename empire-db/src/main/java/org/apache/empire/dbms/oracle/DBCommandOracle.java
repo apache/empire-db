@@ -62,7 +62,8 @@ public class DBCommandOracle extends DBCommand
      * 
      * @see org.apache.empire.db.DBCommand
      * 
-     * @param db the oracle database object this command belongs to
+     * @param dbms the oracle database handler
+     * @param autoPrepareStmt flag whether to automatically use prepared statements 
      */
     public DBCommandOracle(DBMSHandlerOracle dbms, boolean autoPrepareStmt)
     {
@@ -345,11 +346,6 @@ public class DBCommandOracle extends DBCommand
         sql.append("\r\nSET ");
         addListExpr(sql, mergeSet, CTX_DEFAULT, ", ");
     }
-    
-    /**
-     * Creates an Oracle specific delete statement.
-     * @return the delete SQL-Command
-     */
     
     @Override
     protected void addDeleteForTable(DBSQLBuilder sql, DBRowSet table)

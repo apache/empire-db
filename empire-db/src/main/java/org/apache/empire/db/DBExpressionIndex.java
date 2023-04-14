@@ -35,7 +35,7 @@ public class DBExpressionIndex extends DBIndex
      * Constructs a DBExpresionIndex
      * 
      * @param name the index name
-     * @param unique true if the index has only unique values or false otherwise
+     * @param type the index type
      * @param columnExpressions an array of one or more column expressions of the index
      */
     public DBExpressionIndex(String name, DBIndexType type, DBExpr... columnExpressions)

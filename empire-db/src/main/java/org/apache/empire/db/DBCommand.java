@@ -113,7 +113,9 @@ public abstract class DBCommand extends DBCommandExpr
     /**
      * Constructs a new DBCommand object and set the specified DBDatabase object.
      * 
-     * @param db the current database object
+     * @param dbms the database handler
+     * @param autoPrepareStmt flag whether to automatically use literal values as prepared statement params
+     * @param cmdParams the command params list
      */
     protected DBCommand(DBMSHandler dbms, boolean autoPrepareStmt, DBCmdParamList cmdParams)
     {
@@ -125,7 +127,8 @@ public abstract class DBCommand extends DBCommandExpr
     /**
      * Constructs a new DBCommand object and set the specified DBDatabase object.
      * 
-     * @param db the current database object
+     * @param dbms the database handler
+     * @param autoPrepareStmt flag whether to automatically use literal values as prepared statement params
      */
     protected DBCommand(DBMSHandler dbms, boolean autoPrepareStmt)
     {
@@ -222,6 +225,7 @@ public abstract class DBCommand extends DBCommandExpr
     
     /**
      * internally used to remove the command param used in a constraint
+     * @param cmpExpr the compare expression 
      */
    	protected void removeCommandParams(DBCompareExpr cmpExpr) 
    	{
@@ -255,6 +259,7 @@ public abstract class DBCommand extends DBCommandExpr
 
     /**
      * internally used to remove all command params used in a list of constraints
+     * @param list the list of compare expressions
      */
    	protected void removeAllCommandParams(List<DBCompareExpr> list)
     {
@@ -269,7 +274,7 @@ public abstract class DBCommand extends DBCommandExpr
     /**
      * Set parent tables for subquery command generation.
      * Parent tables will be omitted to the FROM clause.
-     * @param rowSets
+     * @param rowSets the parent rowsets
      */
     public void setParentTables(DBRowSet... rowSets)
     {
@@ -391,7 +396,7 @@ public abstract class DBCommand extends DBCommandExpr
     /**
      * Adds a list of columns with their qualified name to the select phrase of an sql statement.
      * 
-     * @param exprs one or more columns to select
+     * @param columns one or more columns to select
      * @return itself (this)
      */
     public DBCommand selectQualified(DBColumnExpr... columns)
@@ -473,8 +478,8 @@ public abstract class DBCommand extends DBCommandExpr
      * replaces a select expression with another or removes a select expression
      * In order to remove the expression, set the replWith parameter to null
      * If the replace expression is not found, an ItemNotFoundException is thrown 
-     * @param replExpr
-     * @param replWith
+     * @param replExpr the expression to replace
+     * @param replWith the expression to replace with
      */
     public void replaceSelect(DBColumnExpr replExpr, DBColumnExpr replWith)
     {
@@ -570,7 +575,7 @@ public abstract class DBCommand extends DBCommandExpr
      * Adds a list of set expressions to this command
      * Use column.to(...) to create a set expression
      *  
-     * @param expr the DBSetExpr object(s)
+     * @param exprs the DBSetExpr object(s)
      * @return itself (this)
      */
     public final DBCommand set(DBSetExpr... exprs)
@@ -582,6 +587,7 @@ public abstract class DBCommand extends DBCommandExpr
     
     /**
      * Returns whether or not the command has group by set
+     * @return true if at least one set expression is present
      */
     public boolean hasSetExpr()
     {
@@ -590,7 +596,7 @@ public abstract class DBCommand extends DBCommandExpr
 
     /**
      * Checks whether a column is in the list of set expressions
-     * @param column
+     * @param column the column to check
      * @return <code>true</code> if there is a set expression 
      */
     protected boolean hasSetExprOn(DBColumn column)
@@ -650,7 +656,7 @@ public abstract class DBCommand extends DBCommandExpr
     /**
      * Adds an command parameter which will be used in a prepared statement.
      * The initial value of the command parameter is null but can be modified using the setValue method.
-     *  
+     * @param value the initial value of the added param
      * @return the command parameter object
      */
     public final DBCmdParam addParam(Object value)
@@ -701,6 +707,7 @@ public abstract class DBCommand extends DBCommandExpr
 
     /**
      * Adds a left join to the list of join expressions.
+     * @param join the join expression
      * @return itself (this) 
      */
     public final DBCommand joinLeft(DBJoinExpr join)
@@ -711,6 +718,7 @@ public abstract class DBCommand extends DBCommandExpr
 
     /**
      * Adds a left join to the list of join expressions.
+     * @param join the join expression
      * @return itself (this) 
      */
     public final DBCommand joinRight(DBJoinExpr join)
@@ -726,6 +734,7 @@ public abstract class DBCommand extends DBCommandExpr
      * 
      * @param left the left join value
      * @param right the right join
+     * @param addlConstraints additional compare expressions
      * @return itself (this) 
      */
     public final DBCommand join(DBColumnExpr left, DBColumn right, DBCompareExpr... addlConstraints)
@@ -740,6 +749,7 @@ public abstract class DBCommand extends DBCommandExpr
      * 
      * @param left the left join value
      * @param right the right join
+     * @param addlConstraints additional compare expressions
      * @return itself (this) 
      */
     public final DBCommand joinLeft(DBColumnExpr left, DBColumn right, DBCompareExpr... addlConstraints)
@@ -754,6 +764,7 @@ public abstract class DBCommand extends DBCommandExpr
      * 
      * @param left the left join value
      * @param right the right join
+     * @param addlConstraints additional compare expressions
      * @return itself (this) 
      */
     public final DBCommand joinRight(DBColumnExpr left, DBColumn right, DBCompareExpr... addlConstraints)
@@ -764,11 +775,12 @@ public abstract class DBCommand extends DBCommandExpr
     /**
      * Adds a join based on two columns to the list of join expressions.
      * 
-     * Migration hint from 2.x -> replace ").where(" with just "," 
+     * Migration hint from 2.x: replace ").where(" with just "," 
      * 
      * @param left the left join value
      * @param right the right join
      * @param joinType type of join ({@link DBJoinType#INNER}, {@link DBJoinType#LEFT}, {@link DBJoinType#RIGHT})
+     * @param addlConstraints additional compare expressions
      * @return itself (this) 
      */
     public final DBCommand join(DBColumnExpr left, DBColumn right, DBJoinType joinType, DBCompareExpr... addlConstraints)
@@ -801,7 +813,7 @@ public abstract class DBCommand extends DBCommandExpr
      * @param left the columsn on the left
      * @param right the columns on the right
      * @param joinType the joinType
-     * @param addlConstraints addlConstraints
+     * @param addlConstraints additional compare expressions
      * @return itself (this) 
      */
     public final DBCommand join(DBColumn[] left, DBColumn[] right, DBJoinType joinType, DBCompareExpr... addlConstraints)
@@ -1031,7 +1043,7 @@ public abstract class DBCommand extends DBCommandExpr
      * Adds a list of constraints to the where phrase of the sql statement
      * If another restriction already exists for the same column it will be replaced.
      * 
-     * @param expr the DBCompareExpr object
+     * @param exprs the DBCompareExpr object
      * @return itself (this)
      */
     public final DBCommand where(DBCompareExpr... exprs)
@@ -1063,7 +1075,8 @@ public abstract class DBCommand extends DBCommandExpr
     
     /**
      * removes a constraint on a particular column from the where clause
-     * @param col the column expression for which to remove the constraint
+     * @param cmpExpr the compare expression which to remove
+     * @return true if the constraint was removed
      */
     public boolean removeWhereConstraint(DBCompareExpr cmpExpr)
     {
@@ -1083,6 +1096,7 @@ public abstract class DBCommand extends DBCommandExpr
     /**
      * Checks whether the command has a constraint on a particular column expression
      * @param col the column expression which to check
+     * @return true if a where constraint for the given column exists
      */
     public boolean hasWhereConstraintOn(DBColumnExpr col)
     {
@@ -1147,7 +1161,8 @@ public abstract class DBCommand extends DBCommandExpr
     
     /**
      * removes a constraint on a particular column from the where clause
-     * @param col the column expression for which to remove the constraint
+     * @param cmpExpr the compare expression which to remove
+     * @return true if the constraint was removed
      */
     public boolean removeHavingConstraint(DBCompareExpr cmpExpr)
     {
@@ -1167,6 +1182,7 @@ public abstract class DBCommand extends DBCommandExpr
     /**
      * Checks whether the command has a constraint on a particular column expression
      * @param col the column expression which to check
+     * @return true if a having constraint for the given column exists
      */
     public boolean hasHavingConstraintOn(DBColumnExpr col)
     {
@@ -1175,6 +1191,7 @@ public abstract class DBCommand extends DBCommandExpr
     
     /**
      * Returns whether or not the command has group by set
+     * @return true if a group by expression exists
      */
     public boolean hasGroupBy()
     {
@@ -1400,6 +1417,7 @@ public abstract class DBCommand extends DBCommandExpr
     
     /**
      * returns true if prepared statements are enabled for this command
+     * @return true if prepared statements are enabled for this command
      */
     protected boolean isPreparedStatementsEnabled()
     {
@@ -1408,6 +1426,9 @@ public abstract class DBCommand extends DBCommandExpr
     
     /**
      * returns true if a cmdParam should be used for the given column or false otherwise
+     * @param col the column expression
+     * @param value the parameter value
+     * @return true if a cmdParam should be used for the given column
      */
     protected boolean useCmdParam(DBColumnExpr col, Object value)
     {
@@ -1453,7 +1474,8 @@ public abstract class DBCommand extends DBCommandExpr
     /**
      * removes a constraint on a particular column to the 'where' or 'having' collections 
      * @param list the 'where' or 'having' list
-     * @param col the column expression for which to remove the constraint
+     * @param cmpExpr the compare expression which to remove
+     * @return true if the constraint was removed
      */
     protected boolean removeConstraint(List<DBCompareExpr> list, DBCompareExpr cmpExpr)
     {
@@ -1475,7 +1497,8 @@ public abstract class DBCommand extends DBCommandExpr
     /**
      * removes a constraint on a particular column to the 'where' or 'having' collections 
      * @param list the 'where' or 'having' list
-     * @param col the column expression for which to remove the constraint
+     * @param colExpr the column expression for which to remove the constraint
+     * @return the removed constraint
      */
     protected DBCompareExpr removeConstraintOn(List<DBCompareExpr> list, DBColumnExpr colExpr)
     {
@@ -1492,7 +1515,8 @@ public abstract class DBCommand extends DBCommandExpr
     /**
      * finds a constraint on a particular column to the 'where' or 'having' collections 
      * @param list the 'where' or 'having' list
-     * @param col the column expression for which to remove the constraint
+     * @param colExpr the column expression for which to remove the constraint
+     * @return the constraint for the given column or null if not found
      */
     protected DBCompareExpr findConstraintOn(List<DBCompareExpr> list, DBColumnExpr colExpr)
     {
@@ -1583,8 +1607,6 @@ public abstract class DBCommand extends DBCommandExpr
     
     /**
      * Creates a select SQL-Statement
-     * 
-     * @return a select SQL-Statement
      */
     @Override
     public void getSelect(DBSQLBuilder sql)
@@ -1608,7 +1630,6 @@ public abstract class DBCommand extends DBCommandExpr
 
     /**
      * Creates an insert SQL-Statement
-     * 
      * @return an insert SQL-Statement
      */
     // get Insert
@@ -1667,7 +1688,7 @@ public abstract class DBCommand extends DBCommandExpr
      * Appends all nested DBCompareColExpr for a particular RowSet to a list
      * @param table the rowset for which to collect the DBCompareColExpr 
      * @param expr a compare expression
-     * @param list
+     * @param list the list of compare expressions
      */
     protected void appendCompareColExprs(DBRowSet table, DBCompareExpr expr, List<DBCompareColExpr> list)
     {

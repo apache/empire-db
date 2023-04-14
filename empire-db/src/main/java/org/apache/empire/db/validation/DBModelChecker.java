@@ -43,8 +43,7 @@ public class DBModelChecker
             
     /**
      * Creates a new Model Checker
-     * @param catalog
-     * @param schemaPattern
+     * @param modelParser the model parser
      */
     public DBModelChecker(DBModelParser modelParser)
     {

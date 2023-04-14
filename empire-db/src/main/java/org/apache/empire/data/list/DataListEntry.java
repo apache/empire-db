@@ -208,7 +208,9 @@ public class DataListEntry implements RecordData, Serializable
     }
     
     /**
-     * @Deprecated Renamed to get(...)   
+     * Deprecated Renamed to get(...)
+     * @param column the column
+     * @return the field value   
      */
     @Deprecated
     public Object getValue(ColumnExpr column)

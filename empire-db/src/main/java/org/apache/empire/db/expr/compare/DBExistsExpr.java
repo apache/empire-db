@@ -90,7 +90,7 @@ public class DBExistsExpr extends DBCompareExpr
 
     /**
      * Copy Command
-     * @param cmd
+     * @param newCmd the new command object
      */
     @Override
     public DBCompareExpr copy(DBCommand newCmd)

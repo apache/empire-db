@@ -52,8 +52,9 @@ public class DBScalarExpr extends DBColumnExpr
      * Constructs a new DBValueExpr object.
      * 
      * @param db the database
-     * @param value the value for this constant
-     * @param type the data type for this constant
+     * @param template the format template
+     * @param params the format params
+     * @param dataType the data type for this constant
      */
     public DBScalarExpr(DBDatabase db, String template, Object[] params, DataType dataType)
     {
@@ -67,8 +68,9 @@ public class DBScalarExpr extends DBColumnExpr
      * Constructs a new DBValueExpr object.
      * 
      * @param db the database
-     * @param value the value for this constant
-     * @param type the data type for this constant
+     * @param template the format template
+     * @param param a format param
+     * @param dataType the data type for this constant
      */
     public DBScalarExpr(DBDatabase db, String template, Object param, DataType dataType)
     {
@@ -89,7 +91,7 @@ public class DBScalarExpr extends DBColumnExpr
 
     /**
      * set the value associated with this value expression
-     * @param the value
+     * @param params the params array
      */
     public void setParams(Object[] params)
     {

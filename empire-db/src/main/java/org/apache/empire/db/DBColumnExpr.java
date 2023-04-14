@@ -434,7 +434,7 @@ public abstract class DBColumnExpr extends DBExpr
     /**
      * Creates and returns an expression for the SQL "in" operator. 
      * 
-     * @param list the values to compare this column with
+     * @param values the values to compare this column with
      * @return a DBCompareColExpr for the "in" operator
      */
     public final DBCompareColExpr in(Collection<?> values)
@@ -671,7 +671,6 @@ public abstract class DBColumnExpr extends DBExpr
      *
      * @param phrase the id of the SQL-phrase
      * @param params the params to replace in the template
-     * @param isAggregate indicates whether the Function creates an aggregate
      * @param dataType the resulting data Type
      * @return the new DBCalcExpr object
      */
@@ -1356,7 +1355,8 @@ public abstract class DBColumnExpr extends DBExpr
      *  ? = the expression on which the function is applied (usually a column expression)
      *  {[param-index]:[DataType]} = a function parameter. The DataType name, if supplied, must match the name of a DataType enum value.
      * @param template the sql phrase template (see above)
-     * @param dataType the returned DataType
+     * @param returnType the returned DataType
+     * @param params the list of function parameter values 
      * @return the function expression
      */
     public final DBColumnExpr function(String template, DataType returnType, Object... params)
@@ -1370,7 +1370,8 @@ public abstract class DBColumnExpr extends DBExpr
      *  ? = the expression on which the function is applied (usually a column expression)
      *  {[param-index]:[DataType]} = a function parameter. The DataType name, if supplied, must match the name of a DataType enum value.
      * @param template the sql phrase template (see above)
-     * @param dataType the returned DataType
+     * @param returnType the returned DataType
+     * @param params additional function parameters
      * @return the aggregate expression
      */
     public final DBColumnExpr aggregate(String template, DataType returnType, Object... params)
@@ -1403,7 +1404,13 @@ public abstract class DBColumnExpr extends DBExpr
     }
     
     /*
-     * Joins
+     * Join
+     */
+    
+    /**
+     * create a join expression for DBCommand.join()
+     * @param joinWith the column expression to join this expression with
+     * @return the join expression
      */
     public DBColumnJoinExpr on(DBColumnExpr joinWith)
     {
@@ -1423,8 +1430,7 @@ public abstract class DBColumnExpr extends DBExpr
  
     /**
      * returns a corresponding Java type for this expression
-     * @param expr
-     * @return
+     * @return the java type
      */
     public Class<?> getJavaType()
     {

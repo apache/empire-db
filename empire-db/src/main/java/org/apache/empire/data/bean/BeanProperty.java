@@ -52,12 +52,12 @@ public class BeanProperty implements Column
 
     /**
      * Constructs a bean property definition
-     * @param name
-     * @param dataType
-     * @param size
-     * @param required
-     * @param controlType
-     * @param readOnly
+     * @param name the name of the property
+     * @param dataType the type of the property
+     * @param size the size
+     * @param required flag true if required
+     * @param controlType string indication which type of control to use
+     * @param readOnly flag true if read-only
      */
     public BeanProperty(String name, DataType dataType, double size, boolean required, String controlType, boolean readOnly)
     {
@@ -71,12 +71,11 @@ public class BeanProperty implements Column
 
     /**
      * Constructs a bean property definition
-     * @param name
-     * @param dataType
-     * @param size
-     * @param required
-     * @param controlType
-     * @param readOnly
+     * @param name the name of the property
+     * @param dataType the type of the property
+     * @param size the size
+     * @param required flag true if required
+     * @param controlType string indication which type of control to use
      */
     public BeanProperty(String name, DataType dataType, double size, boolean required, String controlType)
     {
@@ -85,10 +84,10 @@ public class BeanProperty implements Column
     
     /**
      * Constructs a bean property definition
-     * @param name
-     * @param dataType
-     * @param size
-     * @param required
+     * @param name the name of the property
+     * @param dataType the type of the property
+     * @param size the size
+     * @param required flag true if required
      */
     public BeanProperty(String name, DataType dataType, double size, boolean required)
     {

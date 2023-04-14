@@ -22,6 +22,7 @@ public interface Unwrappable<T>
 {
     /**
      * Returns true if the object is a wrapper for another object
+     * @return true if its a wrapper or false otherwise
      */
     boolean isWrapper();
 

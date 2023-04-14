@@ -91,7 +91,7 @@ public abstract class BeanClass implements EntityType
 
     /**
      * Sets the key to a single column
-     * @param keyColumn
+     * @param keyColumn the key column
      */
     protected final void setKeyColumn(Column keyColumn)
     {

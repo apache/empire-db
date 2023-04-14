@@ -31,9 +31,10 @@ public abstract class DBObject // *Deprecated* implements Serializable
 
     /**
      * Internally used for parameter checking
-     * @param name
-     * @param param
-     * @return
+     * @param <T> the object type
+     * @param name the name of the param to check
+     * @param param the param vlaue to check
+     * @return the param value
      */
     public static <T extends Object> T checkParamNull(String name, T param)
     {
@@ -46,6 +47,7 @@ public abstract class DBObject // *Deprecated* implements Serializable
      * Returns the database object to which this object belongs to.
      * For the database object itself this function will return the this pointer.
      * 
+     * @param <T> the object type
      * @return the database object
      */
     public abstract <T extends DBDatabase> T getDatabase();

@@ -93,6 +93,7 @@ public interface Column extends ColumnExpr
     /**
      * Checks if the given value is a valid value for this column 
      * If not, an exception is thrown
+     * @param value the value to validate
      * @return the value the validated and possibly converted value
      */
     Object validateValue(Object value);

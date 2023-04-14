@@ -39,7 +39,6 @@ import org.w3c.dom.Element;
 /**
  * This abstract class handles the creation of the SQL-Commands.
  * There are inner classes to construct different SQL-Commands.
- * <P>
  */
 public abstract class DBCommandExpr extends DBExpr
 {
@@ -287,7 +286,10 @@ public abstract class DBCommandExpr extends DBExpr
     protected DBCmdQuery          cmdQuery = null;
     protected List<DBOrderByExpr> orderBy  = null;
 
-    /** Constructs an empty DBCommandExpr object */
+    /**
+     * Constructs an empty DBCommandExpr object 
+     * @param dbms the database handler
+     */
     public DBCommandExpr(DBMSHandler dbms)
     {
         // Default Constructor
@@ -331,7 +333,8 @@ public abstract class DBCommandExpr extends DBExpr
     public abstract boolean hasSelectExpr();
 
     /**
-     * returns whether or not the command has a specific select expression 
+     * returns whether or not the command has a specific select expression
+     * @param expr the column expr 
      * @return true if the command contains the given select expression of false otherwise
      */
     public abstract boolean hasSelectExpr(DBColumnExpr expr);
@@ -339,17 +342,19 @@ public abstract class DBCommandExpr extends DBExpr
     /**
      * Returns the list of all select expressions as an array
      * Used internally only
+     * @return the select expression array
      */
     public abstract DBColumnExpr[] getSelectExprList();
     
     /**
      * returns a list of expressions for the SELECT part of the sql statement
+     * @return the select expression list
      */
     public abstract List<DBColumnExpr> getSelectExpressions();
 
     /**
      * returns an SQL select command
-     * @param buf the string builder to add the command to
+     * @param sql the sql builder to add the command to
      */
     public abstract void getSelect(DBSQLBuilder sql);
 
@@ -452,6 +457,7 @@ public abstract class DBCommandExpr extends DBExpr
     
     /**
      * Returns whether or not the command has order by set
+     * @return flag whether an order by is provided
      */
     public boolean hasOrderBy()
     {
@@ -538,7 +544,9 @@ public abstract class DBCommandExpr extends DBExpr
     /**
      * set the maximum number of rows to return when executing a query command
      * A negative value will remove the limit.
-     *
+     * 
+     * @param numRows the number of rows to limit
+     * @return itself (this)
      */
     public DBCommandExpr limitRows(int numRows)
     {
@@ -548,6 +556,9 @@ public abstract class DBCommandExpr extends DBExpr
     /**
      * sets the offset of the first row to return when executing a query command.
      * A negative value will remove the offset.
+     * 
+     * @param numRows the number of rows to skip
+     * @return itself (this)
      */
     public DBCommandExpr skipRows(int numRows)
     {
@@ -619,7 +630,9 @@ public abstract class DBCommandExpr extends DBExpr
     }
     
     /**
-     * returns column expression that is specific for to this command and detached from its source.
+     * wraps a column expression such that is specific for to this command and detached from its source.
+     * @param col the column expression to wrap
+     * @return column expression that is specific for to this command
      */
     protected DBColumnExpr getCmdColumn(DBColumnExpr col)
     {
@@ -661,6 +674,9 @@ public abstract class DBCommandExpr extends DBExpr
      * Create the insert into SQL-Command which copies data
      * from a select statement to a destination table.
      * 
+     * @param table the table to insert 
+     * @param select the selected columns
+     * @param columns the list of column expressions
      * @return the insert into SQL-Command
      */
     protected String getInsertInto(DBTable table, DBColumnExpr[] select, List<DBColumnExpr> columns)

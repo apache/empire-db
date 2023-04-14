@@ -182,8 +182,6 @@ public abstract class DBContextBase implements DBContext
      * Discards all changes made since the previous commit/rollback
      * and releases any database locks currently held by this
      * Connection.
-     * <P>
-     * @param conn a valid database connection
      */
     @Override
     public void rollback()

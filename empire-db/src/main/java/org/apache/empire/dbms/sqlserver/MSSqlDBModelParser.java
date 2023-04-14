@@ -34,8 +34,8 @@ public class MSSqlDBModelParser extends DBModelParser
 {
     /**
      * create a MSSqlDBModelChecker
-     * @param db the database 
      * @param catalog the catalog
+     * @param schema the schema ("DBO" is the default)
      */
     public MSSqlDBModelParser(String catalog, String schema)
     {

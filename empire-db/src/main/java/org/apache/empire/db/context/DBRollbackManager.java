@@ -46,6 +46,11 @@ public class DBRollbackManager
     private final Map<Integer, Map<DBObject, DBRollbackHandler>> connectionMap;
     private final int initialObjectCapacity;
     
+    /**
+     * DBRollbackManager constructor
+     * @param initialConnectionCapacity initial capacity 
+     * @param initialObjectCapacity initial capacity
+     */
     public DBRollbackManager(int initialConnectionCapacity, int initialObjectCapacity)
     {
         this.connectionMap = new HashMap<Integer, Map<DBObject, DBRollbackHandler>>(initialConnectionCapacity);
@@ -54,8 +59,8 @@ public class DBRollbackManager
 
     /**
      * Add a rollback handler for a particular Connection
-     * @param conn
-     * @param handler
+     * @param conn the database connection
+     * @param handler the handler to append
      */
     public synchronized void appendHandler(Connection conn, DBRollbackHandler handler)
     {
@@ -84,8 +89,8 @@ public class DBRollbackManager
     
     /**
      * Remove the rollback handler for a particular Connection and Object
-     * @param conn
-     * @param object
+     * @param conn the database connection
+     * @param object the object for which to remove the handler
      */
     public synchronized void removeHandler(Connection conn, DBObject object)
     {
@@ -113,6 +118,8 @@ public class DBRollbackManager
     
     /**
      * releaseConnection from handler and perform 
+     * @param conn the database connection
+     * @param action the release action
      */
     public synchronized void releaseConnection(Connection conn, ReleaseAction action)
     {

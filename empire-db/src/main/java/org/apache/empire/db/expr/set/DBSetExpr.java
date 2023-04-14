@@ -116,7 +116,7 @@ public class DBSetExpr extends DBExpr
 
     /**
      * Copy Command
-     * @param cmd
+     * @param newCmd the new command object
      */
     public DBSetExpr copy(DBCommand newCmd)
     {

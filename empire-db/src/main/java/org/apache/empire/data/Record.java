@@ -37,8 +37,8 @@ public interface Record extends RecordData
 {
     /**
      * varArgs to Array
-     * @param parts
-     * @return
+     * @param values the list of key values
+     * @return the record key
      */
     public static Object[] key(Object... values)
     {
@@ -148,6 +148,7 @@ public interface Record extends RecordData
      * sets a record value based on a column.
      * @param column the requested column
      * @param value the new record value for the given column
+     * @return the record (this)
      */
     Record set(Column column, Object value);
 

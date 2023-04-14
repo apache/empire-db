@@ -93,7 +93,6 @@ public class DBFuncExpr extends DBAbstractFuncExpr
      * @param expr the DBColumnExpr object
      * @param template specifies a template for the expression. The template must contain a ? placeholder for the column expression
      * @param params an array of params which will be replaced in the template
-     * @param updateColumn optional update column if any. This parameter may be null
      * @param isAggregate indicates whether the function is an aggregate function (sum, min, max, avg, ...)
      * @param dataType indicates the data type of the function result 
      */

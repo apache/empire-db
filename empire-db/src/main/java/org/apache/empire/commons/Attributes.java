@@ -230,6 +230,7 @@ public class Attributes extends AbstractSet<Attributes.Attribute> implements Clo
     /**
      * @param name the attribute
      * @param value The attribute to set
+     * @return the attribute
      */
     public Attribute set(String name, Object value)
     {

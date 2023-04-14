@@ -321,7 +321,7 @@ public abstract class DBDatabase extends DBObject
      * For general use of Prepared Statements please use DBContext.createCommand()
      * However statement parameters can always be manually declared using cmd.addCmdParam();   
      *    
-     * @param preparedStatementsEnabled
+     * @param autoPrepareStmt flag whether to automatically convert literal values to prepared statement params
      */
     public void setPreparedStatementsEnabled(boolean autoPrepareStmt)
     {
@@ -538,7 +538,7 @@ public abstract class DBDatabase extends DBObject
     
     /**
      * Returns the java class type for a given dataType
-     * @param type the data type
+     * @param expr the column expression for witch to return the java type
      * @return return the java class used for storing values of this dataType 
      */
     public Class<?> getColumnJavaType(DBColumnExpr expr)
@@ -816,7 +816,7 @@ public abstract class DBDatabase extends DBObject
 
     /**
      * removes a relation from the list of relations
-     * @param name
+     * @param relation the relation to remove
      */
     public void removeRelation(DBRelation relation)
     {
@@ -829,7 +829,7 @@ public abstract class DBDatabase extends DBObject
     /**
      * Returns the relations which have been defined in the database.
      * 
-     * @return db relations.
+     * @return the list of relations.
      */
     public List<DBRelation> getRelations()
     {
@@ -930,9 +930,9 @@ public abstract class DBDatabase extends DBObject
     /**
      * Creates a new Command object for this database
      * 
+     * Deprecated instead use context.createCommand();
+     * 
      * @return the command object.
-     *
-     * @Deprecated use context.createCommand();
      */
     public DBCommand createCommand()
     {
@@ -1167,12 +1167,12 @@ public abstract class DBDatabase extends DBObject
     
     /**
      * Creates a case column expression
-     * "case when <condition> then <trueValue> else <falseValue> end"
+     * in the form "case when [condition] then [trueValue] else [falseValue] end"
      * This is a helper function to simplify client usage
-     * @param condition
+     * @param condition the compare expression
      * @param trueValue the value to select if the condition is true
      * @param falseValue the value to select if the condition is false
-     * @return an sql case expression
+     * @return the case expression
      */
     public DBColumnExpr caseWhen(DBCompareExpr condition, Object trueValue, Object falseValue)
     {
@@ -1189,7 +1189,7 @@ public abstract class DBDatabase extends DBObject
 
     /**
      * Creates a case column expression that check whether a column or column expression is null
-     * "case when <condition> is null then <trueValue> else <falseValue> end"
+     * "case when [condition] is null then [trueValue] else [falseValue] end"
      * This is a helper function to simplify client usage
      * @param expr a column or column expression
      * @param trueValue the value to select if the condition is true

@@ -44,7 +44,6 @@ public class DBParenthesisExpr extends DBColumnExpr implements Unwrappable<DBCol
      * Constructs a DBAliasExpr object combine the DBColumnExpr object with the alias name.
      *
      * @param expr an DBColumnExpr object, one column
-     * @param alias the alias name of the column
      */
     public DBParenthesisExpr(DBColumnExpr expr)
     {

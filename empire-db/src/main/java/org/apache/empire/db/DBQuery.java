@@ -102,7 +102,7 @@ public class DBQuery extends DBRowSet
      * 
      * @param cmd the SQL-Command
      * @param keyColumns an array of the primary key columns
-     * @param the query alias
+     * @param alias the query alias
      */
     public DBQuery(DBCommandExpr cmd, DBColumn[] keyColumns, String alias)
     { // Set the column expressions
@@ -149,7 +149,7 @@ public class DBQuery extends DBRowSet
      * 
      * @param cmd the SQL-Command
      * @param keyColumn the primary key column
-     * @param the query alias
+     * @param alias the query alias
      */
     public DBQuery(DBCommandExpr cmd, DBColumn keyColumn, String alias)
     { // Set the column expressions
@@ -172,7 +172,7 @@ public class DBQuery extends DBRowSet
      * Creaes a DBQuery object from a given command object.
      * 
      * @param cmd the command object representing an SQL-Command.
-     * @param the query alias
+     * @param alias the query alias
      */
     public DBQuery(DBCommandExpr cmd, String alias)
     { // Set the column expressions
@@ -256,7 +256,7 @@ public class DBQuery extends DBRowSet
     /**
      * This function provides the query column object for a particular query command expression 
      * 
-     * @param the column name
+     * @param name the column name
      * @return the query column
      */
     public DBQueryColumn findColumn(String name)
@@ -287,7 +287,7 @@ public class DBQuery extends DBRowSet
     /**
      * This is a convenience shortcut for findQueryColumn
      * 
-     * @param the column name
+     * @param name the column name
      * @return the located column
      */
     public DBQueryColumn column(String name)
@@ -374,8 +374,9 @@ public class DBQuery extends DBRowSet
     /**
      * Returns an error, because it is not possible to add a record to a query.
      * 
-     * @param rec the DBRecord object, contains all fields and the field properties
-     * @param conn a valid database connection
+     * @param record the DBRecord object, contains all fields and the field properties
+     * @param initalKey the initial record key
+     * @param deferredInit flag whether to defer record initialization
      * @throws NotImplementedException because this is not implemented
      */
     @Override
@@ -388,8 +389,7 @@ public class DBQuery extends DBRowSet
      * Creates a select SQL-Command of the query call the InitRecord method to execute the SQL-Command.
      * 
      * @param record the DBRecord object, contains all fields and the field properties
-     * @param key an array of the primary key columns
-     * @param conn a valid connection to the database.
+     * @param whereConstraints the constraint for querying the record
      */
     @Override
     public void readRecord(DBRecordBase record, DBCompareExpr whereConstraints)
@@ -407,7 +407,6 @@ public class DBQuery extends DBRowSet
      * Updates a query record by creating individual update commands for each table.
      * 
      * @param record the DBRecord object. contains all fields and the field properties
-     * @param conn a valid connection to the database.
      */
     @Override
     public void updateRecord(DBRecordBase record)
@@ -583,7 +582,7 @@ public class DBQuery extends DBRowSet
      * Deletes a record identified by its primary key from the database.
      * 
      * @param key array of primary key values
-     * @param conn a valid database connection
+     * @param context the database context
      */
     @Override
     public void deleteRecord(Object[] key, DBContext context)
@@ -593,6 +592,13 @@ public class DBQuery extends DBRowSet
 
     /**
      * Adds join restrictions to the supplied command object.
+     * @param cmd the command
+     * @param updCol the update column
+     * @param joinCol the join column
+     * @param keyColumns the key columns
+     * @param key the record key
+     * @param record the record
+     * @return flag whether the join restriction could be added
      */
     protected boolean addJoinRestriction(DBCommand cmd, DBColumn updCol, DBColumn joinCol, DBColumn[] keyColumns, Object[] key, DBRecordBase record)
     {   // Find key for foreign field
@@ -645,8 +651,8 @@ public class DBQuery extends DBRowSet
     
     /**
      * Gets the index of a particular column expression.
-     * <P>
-     * @param column the Column to get the index for
+     * 
+     * @param columnExpr the column expression for which to get the index of
      * 
      * @return the position of a column expression
      */

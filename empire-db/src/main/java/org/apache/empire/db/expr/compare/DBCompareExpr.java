@@ -73,7 +73,7 @@ public abstract class DBCompareExpr extends DBExpr
     
     /**
      * internally used for command cloning
-     * @param cmd
+     * @param newCmd the new command object
      */
     public abstract DBCompareExpr copy(DBCommand newCmd); 
 

@@ -25,7 +25,6 @@ import java.util.Collection;
  * <P>
  * The Record interface is implemented by the classes {@link org.apache.empire.db.DBReader}
  * and {@link org.apache.empire.db.DBRecordData}.
- * <P>
  */
 public interface RecordData
 {
@@ -97,6 +96,7 @@ public interface RecordData
      * the property name is detected by ColumnExpr.getBeanPropertyName()     
      * @param bean the Java Bean for which to set the properties
      * @param ignoreList list of columns to skip (optional)
+     * @return number of fields that have been copied
      */
     int setBeanProperties(Object bean, Collection<? extends ColumnExpr> ignoreList);
 

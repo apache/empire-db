@@ -18,13 +18,13 @@
  */
 package org.apache.empire.db;
 
-import java.sql.Connection;
 import java.util.Collection;
 
 import org.apache.empire.commons.ObjectUtils;
 import org.apache.empire.commons.StringUtils;
 import org.apache.empire.data.Column;
 import org.apache.empire.db.DBRowSet.PartialMode;
+import org.apache.empire.db.exceptions.InvalidKeyException;
 import org.apache.empire.db.exceptions.NoPrimaryKeyException;
 import org.apache.empire.db.expr.compare.DBCompareExpr;
 import org.apache.empire.exceptions.InvalidArgumentException;
@@ -77,8 +77,6 @@ public class DBRecordBean extends DBRecordBase
 
     /**
      * Constructs a new DBRecordBean.<BR>
-     * @param context the DBContext for this record
-     * @param rowset the corresponding RowSet(Table, View, Query, etc.)
      */
     public DBRecordBean()
     {
@@ -189,10 +187,9 @@ public class DBRecordBean extends DBRecordBase
     
     /**
      * Reads a record from the database
+     * @param context the database context
+     * @param rowset the rowset from which to read the record
      * @param key an array of the primary key values
-     *
-     * @throws NoPrimaryKeyException if the associated RowSet has no primary key
-     * @throws InvalidKeyException if the key does not match the key columns of the associated RowSet
      */
     public DBRecordBean read(DBContext context, DBRowSet rowset, Object[] key)
     {   // read
@@ -209,6 +206,8 @@ public class DBRecordBean extends DBRecordBase
     /**
      * Reads a record from the database
      * This method can only be used for tables with a single primary key
+     * @param context the database context
+     * @param rowset the rowset from which to read the record
      * @param id the primary key of the record
      * 
      * @throws NoPrimaryKeyException if the associated RowSet has no primary key
@@ -235,7 +234,9 @@ public class DBRecordBean extends DBRecordBase
     
     /**
      * Reads a record from the database
-     * @param key an array of the primary key values
+     * @param context the database context
+     * @param rowset the rowset from which to read the record
+     * @param whereConstraints the compare expression for querying the record
      */
     public DBRecordBean read(DBContext context, DBRowSet rowset, DBCompareExpr whereConstraints)
     {   // read
@@ -254,6 +255,8 @@ public class DBRecordBean extends DBRecordBase
      *  1. PartialMode.INCLUDE reads only the fields provided with the column list
      *  2. PartialMode.EXCLUDE reads all but the fields provided with the column list
      * The primary key is always fetched implicitly
+     * @param context the database context
+     * @param rowset the rowset from which to read the record
      * @param key the primary key values
      * @param mode flag whether to include only the given columns or whether to add all but the given columns
      * @param columns the columns to include or exclude (depending on mode)
@@ -281,7 +284,7 @@ public class DBRecordBean extends DBRecordBase
     
     /**
      * Updates the record in the database
-     * @param context the current context
+     * @param context the database context
      */
     public void update(DBContext context)
     {   // update
@@ -312,8 +315,8 @@ public class DBRecordBean extends DBRecordBase
      * WARING: There is no guarantee that it ist called
      * Implement delete logic in the table's deleteRecord method if possible
      * 
-     * @see org.apache.empire.db.DBTable#deleteRecord(Object[], Connection)
-     * @param context the current context
+     * @see org.apache.empire.db.DBRowSet#deleteRecord(Object[], DBContext)
+     * @param context the database context
      */
     public void delete(DBContext context)
     {

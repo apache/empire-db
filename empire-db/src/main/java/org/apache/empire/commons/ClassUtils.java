@@ -52,8 +52,10 @@ public final class ClassUtils
 
     /**
      * Used to test Serialization
-     * @param objToSerialize
-     * @return
+     * @param <T> the class type
+     * @param clazz class to serialize
+     * @param objToSerialize objedt to serialize
+     * @return the unserializedObject
      */
     @SuppressWarnings("unchecked")
     public static <T> T testSerialization(Class<T> clazz, T objToSerialize)
@@ -104,6 +106,7 @@ public final class ClassUtils
 
     /**
      * Makes a copy of an object if possible or returns the object itself if copy is not supported 
+     * @param <T> the class type
      * @param obj the object to copy
      * @return either a copy of the object or the object itself if copy is not supported
      */
@@ -114,7 +117,9 @@ public final class ClassUtils
     
     /**
      * Makes a copy of an object if possible or returns null or self (depending on flags) 
+     * @param <T> the class type
      * @param obj the object to copy
+     * @param flags options for the copy
      * @return either a copy of the object or null the object itself
      */
     @SuppressWarnings("unchecked")
@@ -301,6 +306,11 @@ public final class ClassUtils
 
     /**
      * copied from org.apache.commons.beanutils.ConstructorUtils since it's private there
+     * @param <T> the class type
+     * @param clazz the class of the object
+     * @param minParams minimum number of params
+     * @param parameterTypes the param types
+     * @return the constructor or null
      */
     public static <T> Constructor<T> findMatchingConstructor(Class<T> clazz, int minParams, Class<?>... parameterTypes)
     {

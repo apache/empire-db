@@ -56,8 +56,8 @@ public class BeanResult<T> extends ArrayList<T>
     /**
      * Create a bean result from a command object.
      * No checks will be performed here whether the command is compatible with the supplied class.
-     * @param beanType
-     * @param cmd
+     * @param beanType the bean type
+     * @param cmd the command
      */
     public BeanResult(Class<T> beanType, DBCommand cmd)
     {
@@ -71,7 +71,7 @@ public class BeanResult<T> extends ArrayList<T>
      * Creates a bean result for a Table, View or Query from the supplied columns.
      * At least one column must match the given getters / setters on the supplied class otherwise an BeanIncompatibleException will be thrown.
      * @param beanType the of T
-     * @param rowset the rowset 
+     * @param rowset the rowset
      */
     public BeanResult(Class<T> beanType, DBRowSet rowset)
     {
@@ -110,7 +110,7 @@ public class BeanResult<T> extends ArrayList<T>
     
     /**
      * Executes the query and fetches the result
-     * @param context
+     * @param context the database context
      * @param maxItems the maximum number of items to query
      * @return the number of items fetched by the query
      */
@@ -135,7 +135,7 @@ public class BeanResult<T> extends ArrayList<T>
 
     /**
      * Executes the query and fetches the result
-     * @param context
+     * @param context the database context
      * @return the number of items fetched by the query
      */
     public final int fetch(DBContext context)
@@ -145,7 +145,7 @@ public class BeanResult<T> extends ArrayList<T>
     
     /**
      * Selects all columns for a given rowset
-     * @param rowset
+     * @param rowset the rowset for which to select all columns
      */
     protected void autoSelectColumns(DBRowSet rowset)
     {
@@ -173,8 +173,9 @@ public class BeanResult<T> extends ArrayList<T>
     /**
      * Checks if the property is accessible i.e. has a getter method on the beanType
      * @param methods the beanType methods
-     * @param propety the property to check
+     * @param property the property to check
      * @param dataType the dataType
+     * @return true if the property is accessible or false otherwise
      */
     protected boolean isPropertyAcessible(Method[] methods, String property, DataType dataType)
     {

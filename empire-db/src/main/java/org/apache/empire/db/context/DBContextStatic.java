@@ -46,8 +46,8 @@ public class DBContextStatic extends DBContextBase
 
     /**
      * Creates a static DBContext with default options
-     * @param dbmsHandler
-     * @param conn
+     * @param dbmsHandler the database handler
+     * @param conn a database connection
      */
     public DBContextStatic(DBMSHandler dbmsHandler, Connection conn)
     {
@@ -56,10 +56,9 @@ public class DBContextStatic extends DBContextBase
     
     /**
      * Creates a static DBContext with custom options
-     * @param dbmsHandler
-     * @param conn
-     * @param enableRollbackHandling
-     * @param closeOnDiscard
+     * @param dbmsHandler the database handler
+     * @param conn a database connection
+     * @param closeOnDiscard flag whether to close the connection when calling discard()
      */
     public DBContextStatic(DBMSHandler dbmsHandler, Connection conn, boolean closeOnDiscard)
     {
@@ -81,9 +80,10 @@ public class DBContextStatic extends DBContextBase
     }
     
     /**
-     * enables or disables the use of prepared statements for update and insert commands as well as for read operations on a DBRecord.
+     * Enables or disables the use of prepared statements for update and insert commands as well as for read operations on a DBRecord.
      * Note: For custom SQL commands parameters must be explicitly declared using cmd.addCmdParam();   
-     * @param preparedStatementsEnabled
+     * @param enabled flag whether to enable prepared statements
+     * @return the context (this)
      */
     public DBContextStatic setPreparedStatementsEnabled(boolean enabled)
     {
@@ -98,7 +98,12 @@ public class DBContextStatic extends DBContextBase
     {
         return enableRollbackHandling;
     }
-    
+
+    /**
+     * Enables or disables rollback handling
+     * @param enabled flag whether to enable rollback handling
+     * @return the context (this)
+     */
     public DBContextStatic setRollbackHandlingEnabled(boolean enabled)
     {
         this.enableRollbackHandling = enabled;

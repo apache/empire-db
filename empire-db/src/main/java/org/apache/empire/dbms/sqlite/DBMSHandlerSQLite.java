@@ -69,8 +69,8 @@ public class DBMSHandlerSQLite extends DBMSHandlerBase
         // *Deprecated* private static final long serialVersionUID = 1L;
         
         /**
-         * @param db
-         *            the database
+         * @param dmbs the SQLLite database handler
+         * @param autoPrepareStmt flag whether to automatically prepare statements
          * @see org.apache.empire.db.DBCommand
          */
         public DBCommandSQLite(DBMSHandlerSQLite dmbs, boolean autoPrepareStmt)
@@ -299,7 +299,7 @@ public class DBMSHandlerSQLite extends DBMSHandlerBase
     /**
      * Gets an sql phrase template for this database system.<br>
      * 
-     * @see DBMSHandler#getSQLPhrase(int)
+     * @see DBMSHandler#getSQLPhrase(DBSqlPhrase)
      * @return the phrase template
      */
     @Override
@@ -536,7 +536,7 @@ public class DBMSHandlerSQLite extends DBMSHandlerBase
     }
 
     /**
-     * @see DBMSHandler#getNextSequenceValueExpr(DBTableColumn col)
+     * @see DBMSHandlerBase#getNextSequenceValueExpr(DBTableColumn col)
      */
     @Override
     public DBColumnExpr getNextSequenceValueExpr(DBTableColumn column)

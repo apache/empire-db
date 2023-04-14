@@ -96,7 +96,7 @@ public class DBMSHandlerHSql extends DBMSHandlerBase
     
     /**
      * Gets an sql phrase template for this database system.<br>
-     * @see DBMSHandler#getSQLPhrase(int)
+     * @see DBMSHandler#getSQLPhrase(DBSqlPhrase)
      * @return the phrase template
      */
     @Override
@@ -230,7 +230,7 @@ public class DBMSHandlerHSql extends DBMSHandlerBase
     }
 
     /**
-     * @see DBMSHandler#getNextSequenceValue(DBDatabase, String, int, Connection)
+     * @see DBMSHandlerBase#getNextSequenceValue(DBDatabase, String, int, Connection)
      */
     @Override
     public Object getNextSequenceValue(DBDatabase db, String seqName, int minValue, Connection conn)
@@ -255,7 +255,7 @@ public class DBMSHandlerHSql extends DBMSHandlerBase
     }
 
     /**
-     * @see DBMSHandler#getNextSequenceValueExpr(DBTableColumn col)
+     * @see DBMSHandlerBase#getNextSequenceValueExpr(DBTableColumn col)
      */
     @Override
     public DBColumnExpr getNextSequenceValueExpr(DBTableColumn column)

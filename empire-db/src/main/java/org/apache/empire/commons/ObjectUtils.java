@@ -276,8 +276,8 @@ public final class ObjectUtils
     /**
      * Compares two ColumnExpr for equality
      *
-     * @param expr1
-     * @param expr2
+     * @param expr a column expression
+     * @param other a column expression
      *
      * @return true if both expressions are equal or false otherwise
      */
@@ -590,6 +590,7 @@ public final class ObjectUtils
     
     /**
      * Converts an object to an enum of the given type
+     * @param <T> the type of the enum
      * @param enumType the enum type
      * @param value the value to convert
      * @return the enum
@@ -644,6 +645,7 @@ public final class ObjectUtils
 
     /**
      * find by name
+     * @param <T> the type of the enum
      * @param enumType the enum type
      * @param name the enum name
      * @return the enum
@@ -663,6 +665,9 @@ public final class ObjectUtils
     
     /**
      * Convert Enum to Object
+     * @param enumValue the enum
+     * @param isNumeric flag if number or string is required
+     * @return the number or string representing this enum
      */
     public static Object getEnumValue(Enum<?> enumValue, boolean isNumeric)
     {
@@ -674,7 +679,9 @@ public final class ObjectUtils
     }
     
     /**
-     * Convert Enum to String
+     * Converts an Enum to a String
+     * @param enumValue the enum
+     * @return the corresponding string value
      */
     public static String getString(Enum<?> enumValue)
     {
@@ -689,7 +696,9 @@ public final class ObjectUtils
     }
     
     /**
-     * Convert Object to String
+     * Converts an Object to a String
+     * @param value the value to convert
+     * @return the corresponding string value
      */
     public static String getString(Object value)
     {
@@ -713,6 +722,7 @@ public final class ObjectUtils
      * <P>
      * @param v the object to convert
      * @return the Date value of o or null
+     * @throws ParseException
      */
     public static Date toDate(Object v)
         throws ParseException
@@ -933,6 +943,12 @@ public final class ObjectUtils
         return c.cast(v);
     }
 
+    /**
+     * Checks if a class is assignment compatible with another class
+     * @param target the target class
+     * @param source the source class
+     * @return true if assignment compatible or false otherwise
+     */
     public static boolean isAssignmentCompatible(Class<?> target, Class<?> source)
     {
         // try plain assignment
@@ -993,6 +1009,7 @@ public final class ObjectUtils
     /**
      * Converts varArgs to an array
      * 
+     * @param <T> the type of elements
      * @param t the type of the array
      * @param values the array values
      * 
@@ -1009,6 +1026,7 @@ public final class ObjectUtils
     /**
      * Converts an array to a list
      * 
+     * @param <T> the type of elements
      * @param t the type of the list items
      * @param array the array to be converted
      * 
@@ -1059,6 +1077,7 @@ public final class ObjectUtils
     /**
      * Unwraps an object implementing the Unwrappable interface
      * If the object does not Implement the Interface or is not a wrapper then the object itself is returned 
+     * @param <T> the type of the object
      * @param object the object to unwrap
      * @return the unwrapped object or the object itself
      */
@@ -1076,6 +1095,7 @@ public final class ObjectUtils
      * returns whether or not a array contains a certain item
      * performs a simple (==) comparison (fast)
      * 
+     * @param <T> the type of the object
      * @param array the array to search
      * @param item the item to search for
      * 
@@ -1121,6 +1141,7 @@ public final class ObjectUtils
      * returns whether or not a array contains a certain item
      * performs a simple (==) comparison (fast)
      * 
+     * @param <T> the type of elements
      * @param array the array to search
      * @param item the item to search for
      * 
@@ -1133,8 +1154,9 @@ public final class ObjectUtils
 
     /**
      * combines two arrays
-     * @param left
-     * @param right
+     * @param <T> the type of the array items
+     * @param left the left array
+     * @param right the right array
      * @return the combined array
      */
     public static <T> T[] combine(T[] left, T[] right)

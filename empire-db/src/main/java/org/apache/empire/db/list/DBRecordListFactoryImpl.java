@@ -83,7 +83,6 @@ public class DBRecordListFactoryImpl<T extends DBRecordBase> implements DBRecord
     /**
      * Constructs a DBRecordListFactoryImpl based on an DBRecord constructor
      * @param constructor the DBRecord constructor
-     * @param context the database context
      * @param rowset the rowset for the created records
      */
     public DBRecordListFactoryImpl(Constructor<T> constructor, DBRowSet rowset) 
@@ -95,7 +94,7 @@ public class DBRecordListFactoryImpl<T extends DBRecordBase> implements DBRecord
     /**
      * Constructs a DBRecordListFactoryImpl based on an DBRecord class
      * @param recordClass the record class to be created for this list
-     * @param context the database context
+     * @param contextClass the database context class
      * @param rowset the rowset for the created records
      */
     public DBRecordListFactoryImpl(Class<T> recordClass, Class<? extends DBContext> contextClass, DBRowSet rowset) 

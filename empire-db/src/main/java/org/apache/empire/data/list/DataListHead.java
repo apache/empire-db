@@ -39,7 +39,6 @@ public class DataListHead implements Serializable
 
     /**
      * Constructs a DataListHead based on an DataListEntry constructor
-     * @param constructor the DataListEntry constructor
      * @param columns the list entry columns
      */
     public DataListHead(ColumnExpr[] columns) 
@@ -74,6 +73,7 @@ public class DataListHead implements Serializable
     /**
      * Returns the database instance associated with this DataList (if any)
      * The database is extracted from the column list 
+     * @param <T> the type of the database
      * @param dbClass the desired subclass of DBDatabase
      * @return the database instance or null if no Database instance of this type could be found
      */
@@ -96,7 +96,7 @@ public class DataListHead implements Serializable
      * Returns the value of a column as a formatted text
      * This converts the value to a string if necessary and performs an options lookup
      * To customize conversion please override convertToString()
-     * @param column the column for which to get the formatted value
+     * @param idx the field index for which to get the formatted value
      * @param value the value to format
      * @return the formatted value
      */

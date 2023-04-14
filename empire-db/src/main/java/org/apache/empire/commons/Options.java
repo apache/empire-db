@@ -37,7 +37,6 @@ import org.w3c.dom.Element;
  * Additionally the class provides a text string describing the value for display purposes.<BR>
  * The class is implemented as a set of OptionEntry objects 
  * where the entry value is used as the key for the set and thus must be unique.<BR>
- * <P> 
  */
 public class Options extends AbstractSet<OptionEntry> implements Cloneable, Serializable
 {
@@ -177,6 +176,7 @@ public class Options extends AbstractSet<OptionEntry> implements Cloneable, Seri
      * 
      * @param value the value object
      * @param text the text
+     * @param active flag if element is active (selectable)
      * @param pos the position, see {@link InsertPos}
      */
     public void set(Object value, String text, boolean active, InsertPos pos)
@@ -235,7 +235,7 @@ public class Options extends AbstractSet<OptionEntry> implements Cloneable, Seri
      * 
      * @param value the value
      * @param text the text
-     * @param noCheck set to true to skip testing for an existing key (handle with care!)
+     * @param active flag if element is active (selectable)
      */
     public void add(Object value, String text, boolean active)
     {
@@ -285,6 +285,8 @@ public class Options extends AbstractSet<OptionEntry> implements Cloneable, Seri
     
     /**
      * same as contains(), but IDE may not issue warning
+     * @param value the value to check
+     * @return true if it exists in the options list
      */
     public boolean has(Object value)
     {   // Check if exits
@@ -351,7 +353,7 @@ public class Options extends AbstractSet<OptionEntry> implements Cloneable, Seri
      * Adds all these options to the xml element
      * 
      * @param element the element to add the option tags to
-     * @param flags not used for now
+     * @param dataType the dataType of the element
      */
     public void addXml(Element element, DataType dataType)
     { 

@@ -56,6 +56,12 @@ import org.apache.empire.exceptions.UnexpectedReturnValueException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * DBUtils
+ * This class provides various query functions and functions for command execution. 
+ * It also performs logging
+ * @author doebele
+ */
 public class DBUtils implements DBContextAware
 {
     // Logger (Use logger from DBDatabase.class)
@@ -78,8 +84,8 @@ public class DBUtils implements DBContextAware
     protected final DBMSHandler dbms;
     
     /**
-     * Constructs an empty DBRecordSet object.
-     * @param useFieldIndexMap 
+     * DBUtils constructor
+     * @param context the database context 
      */
     public DBUtils(DBContext context)
     {
@@ -160,8 +166,8 @@ public class DBUtils implements DBContextAware
 
     /**
      * Log Query Statement
-     * @param sqlCmd
-     * @param sqlParams
+     * @param sqlCmd the sql command
+     * @param sqlParams the command params
      */
     protected void logQueryStatement(String sqlCmd, Object[] sqlParams)
     {
@@ -176,8 +182,8 @@ public class DBUtils implements DBContextAware
 
     /**
      * Log Update Statement
-     * @param sqlCmd
-     * @param sqlParams
+     * @param sqlCmd the sql command
+     * @param sqlParams the command params
      */
     protected void logUpdateStatement(String sqlCmd, Object[] sqlParams)
     {
@@ -303,7 +309,8 @@ public class DBUtils implements DBContextAware
      * If the query does not return a result a QueryNoResultException is thrown
      * 
      * @param cmd the Command object that contains the select statement
-     * @param dataType the expected data type
+     * @param resultType the expected data type
+     * @param failOnNoResult flag whether to fail on empty resultset
      * 
      * @return the value of the first column in the first row of the query 
      */
@@ -318,6 +325,7 @@ public class DBUtils implements DBContextAware
      * If the query does not return a result a QueryNoResultException is thrown
      * 
      * @param cmd the Command object that contains the select statement
+     * @param failOnNoResult flag whether to fail on empty resultset
      * 
      * @return the value of the first column in the first row of the query 
      */
@@ -343,8 +351,9 @@ public class DBUtils implements DBContextAware
      * Returns the value of the first row/column of a sql-query as an int.
      * If the query does not return a result or if the query result is NULL, then the defaultValue is returned
      * 
-     * @param cmd the Command object that contains the select statement
-     * @param defaultValue the default value if no value was returned by the database
+     * @param sqlCmd the sql command
+     * @param sqlParams the command params
+     * @param defaultValue the default value 
      *
      * @return the result as a int value
      */
@@ -387,8 +396,9 @@ public class DBUtils implements DBContextAware
      * Returns the value of the first row/column of a sql-query as an int.
      * If the query does not return a result or if the query result is NULL, then the defaultValue is returned
      * 
-     * @param cmd the Command object that contains the select statement
-     * @param defaultValue the default value if no value was returned by the database
+     * @param sqlCmd the sql command
+     * @param sqlParams the command params
+     * @param defaultValue the default value 
      *
      * @return the result as a int value
      */
@@ -499,10 +509,12 @@ public class DBUtils implements DBContextAware
      * Adds the first column of a query result to a collection.
      * If the query has no result, an empty list is returned.
      * 
-     * @param c the class type for the list 
      * @param <T> the type for the list
-     * @param sqlCmd the SQL statement
+     * @param c the class type for the list 
+     * @param sqlCmd the sql command
+     * @param sqlParams the command params
      * @param dataType the expected data type
+     * @param result the reusult colletion
      * @param maxRows maximum number of rows or -1 for all rows
      * 
      * @return the number of elements that have been added to the collection 
@@ -596,7 +608,8 @@ public class DBUtils implements DBContextAware
      * Fills an option list provided with the result from a query.
      * The option list is filled with the values of the first and second column.
      * 
-     * @param sqlCmd the SQL statement
+     * @param sqlCmd the sql command
+     * @param sqlParams the command params
      * @param options the option list to where the options are added
      * @return an Options object containing a set a of values and their corresponding names 
      */
@@ -673,8 +686,11 @@ public class DBUtils implements DBContextAware
      * <p>This function should only be used for small lists.
      * Otherwise a DBReader should be used!</p>
      * 
-     * @param sqlCmd the SQL statement
-     * @return a list of object arrays
+     * @param sqlCmd the sql command
+     * @param sqlParams the command params
+     * @param result the result colleciton
+     * @param maxRows the maximum number of rows
+     * @return the number of rows queried
      */
     public int queryObjectList(String sqlCmd, Object[] sqlParams, Collection<Object[]> result, int maxRows)
     {   // Perform query
@@ -777,7 +793,7 @@ public class DBUtils implements DBContextAware
     /**
      * Crates a default DataListFactory for a DataListEntry class
      * The DataListEntry class must provide the following constructor
-     *      DataListEntry(DataListFactory<? extends DataListEntry> head, int rownum, Object values[])
+     *      DataListEntry(DataListFactory&lt;? extends DataListEntry&gt; head, int rownum, Object values[])
      * @param entryClass the entryClass for which to create the list head 
      * @return
      */
@@ -798,7 +814,7 @@ public class DBUtils implements DBContextAware
     
     /**
      * Executes a query and returns a list of DataListEntry items
-     * @param sqlCmd the SQL-Command for the query
+     * @param cmd the command
      * @param factory the Factory to be used for each list item
      * @param first the number of records to skip from the beginning of the result
      * @param pageSize the maximum number of items to add to the list or -1 (default) for all
@@ -908,6 +924,7 @@ public class DBUtils implements DBContextAware
 
     /**
      * Queries a single DataListEntry item
+     * @param failOnNoResult flag whether to fail on empty resultset
      */
     public final <T extends DataListEntry> T queryDataEntry(DBCommandExpr cmd, Class<T> entryClass, boolean failOnNoResult)
     {
@@ -951,8 +968,8 @@ public class DBUtils implements DBContextAware
     
     /**
      * Executes a query and returns a list of DBRecord items
-     * @param sqlCmd the SQL-Command for the query
-     * @param listHead the HeadInfo to be used for each list item
+     * @param cmd the command
+     * @param factory the factory for creating record objects
      * @param first the number of records to skip from the beginning of the result
      * @param pageSize the maximum number of items to add to the list or -1 (default) for all
      * @return the list 
@@ -1054,7 +1071,8 @@ public class DBUtils implements DBContextAware
      *      either a standard construtor with correspondig property set fundtions
      *      or a constructor using the fields of the query
      * @param beanType the beanType for which to create the list head 
-     * @param constructorParams the columns to be used for the constructor (optional) 
+     * @param keyColumns the key columns
+     * @param selectColumns the select columns 
      * @return the bean factory
      */
     protected <T> DBBeanListFactory<T> createDefaultBeanListFactory(Class<T> beanType, Column[] keyColumns, List<? extends DBColumnExpr> selectColumns) 
@@ -1083,7 +1101,7 @@ public class DBUtils implements DBContextAware
     /**
      * gets or creates DBBeanListFactory for the given rowset
      * @param beanType the beanType for which to create the list head 
-     * @param rowset the rowset for which to return the factory 
+     * @param cmd the command 
      * @return the bean factory
      */
     public synchronized <T> DBBeanListFactory<T> getCommandBeanListFactory(Class<T> beanType, DBCommandExpr cmd) 
@@ -1103,9 +1121,10 @@ public class DBUtils implements DBContextAware
     
     /**
      * Query a list of simple Java objects (beans)
-     * @param cmd the comman
-     * @param type
-     * @param first
+     * @param cmd the command
+     * @param factory the bean factory
+     * @param parent the parent object for the created beans (optional)
+     * @param first the first row
      * @param pageSize the maximum number of items to add to the list or -1 (default) for all
      * @return
      */
@@ -1191,7 +1210,7 @@ public class DBUtils implements DBContextAware
      * Queries a list of Java beans for a given command
      * @param cmd the query command
      * @param beanType the beanType
-     * @param constructorParams the list of params used for the bean constructor (optional, may be null)
+     * @param rowset the rowset
      * @param parent (optional) the parent bean if any 
      * @return the list of java beans
      */
@@ -1246,7 +1265,6 @@ public class DBUtils implements DBContextAware
      * Queries a single Java Bean for a given command
      * @param cmd the query command
      * @param beanType the beanType
-     * @param parent (optional) the parent bean if any 
      * @return the list of java beans
      */
     public <T> T queryBean(DBCommandExpr cmd, Class<T> beanType)

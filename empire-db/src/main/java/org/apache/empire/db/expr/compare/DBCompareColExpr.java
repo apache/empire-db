@@ -152,7 +152,7 @@ public class DBCompareColExpr extends DBCompareExpr
 
     /**
      * Copy Command
-     * @param cmd
+     * @param newCmd the new command object
      */
     @Override
     public DBCompareExpr copy(DBCommand newCmd)

@@ -23,6 +23,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Iterator;
 
+import org.apache.empire.db.DBDDLGenerator.DDLActionType;
 import org.apache.empire.db.context.DBContextAware;
 import org.apache.empire.db.exceptions.EmpireSQLException;
 import org.apache.empire.dbms.DBMSHandler;
@@ -34,7 +35,7 @@ import org.slf4j.LoggerFactory;
  * DBSQLScript<br>
  * This class is a collection of sql command strings.<br>
  * The class is used for obtaining and executing DDL commands supplied by the
- * database dbms (@see {@link DBMSHandler#getDDLScript(DBCmdType, DBObject, DBSQLScript)})
+ * database dbms (@see {@link DBMSHandler#getDDLScript(DDLActionType, DBObject, DBSQLScript)})
  */
 public class DBSQLScript implements DBContextAware, Iterable<String>
 {

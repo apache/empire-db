@@ -37,10 +37,9 @@ import org.w3c.dom.Element;
  *           when {cond2} then {result2}
  *           ... 
  *      else {defaultResult} end"
- * <P>
+ * 
  * There is no need to explicitly create instances of this class.<BR>
- * Instead use {@link DBDatabase#caseWhen(Map<DBCompareExpr, DBColumnExpr>, DBColumnExpr) }
- * <P>
+ * 
  * @author doebele
  */
 public class DBCaseWhenExpr extends DBColumnExpr
