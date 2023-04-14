@@ -71,12 +71,8 @@ public class PageElement // *Deprecated* implements Serializable
         // Chance to init the page
     }
 
-    /**
-     * Session Object handling
-     * 
-     * @param type
-     * @return
-     */
+    /* Session Object handling */
+
     @SuppressWarnings("unchecked")
     protected <T> T getSessionObject(Class<T> type)
     {
@@ -114,7 +110,7 @@ public class PageElement // *Deprecated* implements Serializable
     
     /**
      * generates a default property name for the bean list
-     * @param rowset
+     * @param rowset the rowset
      * @return a propertyName
      */
     protected static String getDefaultPropertyName(DBRowSet rowset)

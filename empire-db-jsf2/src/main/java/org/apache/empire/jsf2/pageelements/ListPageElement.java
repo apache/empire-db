@@ -236,7 +236,7 @@ public abstract class ListPageElement<T> extends PageElement
             return this.pageSize;
         }
 
-        /*** sorting ***/
+        /* sorting */
 
         public String getSortColumnName()
         {
@@ -283,7 +283,7 @@ public abstract class ListPageElement<T> extends PageElement
             this.sortOrderChanged = sortOrderChanged;
         }
 
-        /*** pagination ***/
+        /* pagination */
 
         public int getPosition()
         {
@@ -334,6 +334,7 @@ public abstract class ListPageElement<T> extends PageElement
 
         /**
          * set the next x entries
+         * @param e the action event
          */
         public void nextPage(ActionEvent e)
         {
@@ -353,6 +354,7 @@ public abstract class ListPageElement<T> extends PageElement
 
         /**
          * set the prev x entries
+         * @param e the action event
          */
         public void prevPage(ActionEvent e)
         {

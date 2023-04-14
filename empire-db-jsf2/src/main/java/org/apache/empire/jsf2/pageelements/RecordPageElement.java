@@ -132,7 +132,8 @@ public class RecordPageElement<T extends DBRecord> extends PageElement
     }
     
     /**
-     * loads the record identified by the supplied key from the database<BR>
+     * loads the record identified by the supplied key from the database
+     * @param recKey the record key
      */
     public void loadRecord(Object[] recKey)
     {
@@ -150,7 +151,7 @@ public class RecordPageElement<T extends DBRecord> extends PageElement
 
     /**
      * loads an existing record
-     * @param idParam
+     * @param idParam the id param
      */
     public void loadRecord(String idParam)
     {
@@ -161,8 +162,8 @@ public class RecordPageElement<T extends DBRecord> extends PageElement
     /**
      * loads an existing record the the specified page
      * 
-     * @param page
-     * @param idParam
+     * @param page the page
+     * @param idParam the id param
      */
     public void loadRecord(PageDefinition page, String idParam) {
         Object[] key = getPage().getKeyFromParam(page, rowset, idParam);
@@ -182,6 +183,7 @@ public class RecordPageElement<T extends DBRecord> extends PageElement
 
     /**
      * updates or inserts the record in the database
+     * @return true if the record was modified and successfully udpated
      */
     public boolean updateRecord()
     {

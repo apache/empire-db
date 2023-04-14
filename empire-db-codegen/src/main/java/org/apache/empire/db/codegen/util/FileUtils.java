@@ -50,8 +50,9 @@ public class FileUtils {
 	
 	/**
 	 * Creates a directory structure due to a java package name within the specified folder.
-	 * @param target,	the target folder
-	 * @param pack,		the java package name
+	 * @param target the target folder
+	 * @param pack the java package name
+	 * @return the file
 	 */
 	public static File getFileFromPackage(File target, String pack) {
 		StringBuilder sb = new StringBuilder();
@@ -68,7 +69,7 @@ public class FileUtils {
 	 * Recursively cleans (removes) all files under the given 
 	 * directory.  Note that this removes all sub-directories
 	 * but not the parent directory.  
-	 * @param directory
+	 * @param directory the directory 
 	 */
 	public static void cleanDirectory(File directory) {
 		boolean success;
@@ -96,7 +97,7 @@ public class FileUtils {
 	/**
 	 * Recursively deletes a directory and everything under it.
 	 * 
-	 * @param directory
+     * @param directory the directory 
 	 * @return true on success
 	 */
 	public static boolean deleteDirectory(File directory) {
@@ -120,7 +121,7 @@ public class FileUtils {
 	/**
 	 * Non-recursive delete for all files in the given directory.
 	 * Files in sub-directories not deleted.
-	 * @param directory
+     * @param directory the directory 
 	 */
 	// TODO remove as not in use?
 	public static void deleteFiles(File directory) {
@@ -249,7 +250,7 @@ public class FileUtils {
 	
 	/**
 	 * Closes a closeable and logs exceptions
-	 * @param closeable
+	 * @param closeable a closeable object
 	 */
 	public static void close(Closeable closeable)
 	{

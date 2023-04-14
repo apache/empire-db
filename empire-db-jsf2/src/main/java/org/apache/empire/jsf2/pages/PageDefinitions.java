@@ -65,7 +65,7 @@ public abstract class PageDefinitions // *Deprecated* implements Serializable
     
     /**
      * Register page beans with the BeanManager
-     * @param facesImpl
+     * @param facesImpl the faces implementation
      */
     public void registerPageBeans(FacesImplementation facesImpl)
     {
@@ -82,7 +82,7 @@ public abstract class PageDefinitions // *Deprecated* implements Serializable
     
     /**
      * returns the page uri extension
-     * @return
+     * @return the page uri extension
      */
     public String getPageUriExtension() 
     {
@@ -105,7 +105,7 @@ public abstract class PageDefinitions // *Deprecated* implements Serializable
     
     /**
      * returns true if the view exists in the page map or false otherwise
-     * @param viewId
+     * @param viewId the view id
      * @return true if the view exists in the page map or false otherwise
      */
     public boolean containsView(String viewId)
@@ -126,7 +126,7 @@ public abstract class PageDefinitions // *Deprecated* implements Serializable
     
     /**
      * returns a page definition for a given viewId
-     * @param viewId
+     * @param viewId the view id
      * @return the page definition
      */
     public PageDefinition getPageFromViewId(String viewId)
@@ -148,7 +148,7 @@ public abstract class PageDefinitions // *Deprecated* implements Serializable
     /**
      * register a page. Called internally from PageDefinition constructor!
      * Do not call yourself.    
-     * @param pageDef
+     * @param pageDef the page definition
      */
     protected static void registerPage(PageDefinition pageDef)
     {

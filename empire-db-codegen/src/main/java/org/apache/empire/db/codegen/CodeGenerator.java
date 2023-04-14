@@ -53,6 +53,7 @@ public class CodeGenerator {
 
     /**
      * Starts the actual generation according to the provided config file
+     * @param configFile the config file name
      */
     public void generate(final String configFile) {
         // load configuration file
@@ -63,6 +64,7 @@ public class CodeGenerator {
 
     /**
      * Starts the actual generation according to the provided config file
+     * @param config the config object
      */
     public void generate(final CodeGenConfig config) {
         // get the DBMS
@@ -73,10 +75,13 @@ public class CodeGenerator {
         generate(dbms, conn, config);
     }   
 	
-	/**
-	 * Starts the actual generation according to the provided configuration
-	 */
-	public void generate(DBMSHandler dbms, Connection conn, CodeGenConfig config) {
+    /**
+     * Starts the actual generation according to the provided configuration
+     * @param dbms the database handler
+     * @param conn the database connection
+     * @param config the config object
+     */
+    public void generate(DBMSHandler dbms, Connection conn, CodeGenConfig config) {
 		
 	    // log all options
 		listOptions(config);
@@ -101,8 +106,8 @@ public class CodeGenerator {
 	
 	/**
 	 * Loads the configuration file and
-	 * @param configFile
-	 * @return
+	 * @param configFile the config file name
+	 * @return the config object
 	 */
 	protected CodeGenConfig loadConfig(String configFile){
 		// Init Configuration
@@ -135,6 +140,8 @@ public class CodeGenerator {
      * JDBC url, user and password for the connection are obtained from the SampleConfig bean
      * Please use the config.xml file to change connection params.
      * </PRE>
+     * @param config the config object
+     * @return the database connection
      */
 	protected Connection getJDBCConnection(CodeGenConfig config)
     {
@@ -173,6 +180,8 @@ public class CodeGenerator {
 
     /**
      * Creates an Empire-db DatabaseDriver for the given provider and applies dbms specific configuration 
+     * @param config the config object
+     * @return the database handler
      */
 	protected DBMSHandler getDBMSHandler(CodeGenConfig config)
     {

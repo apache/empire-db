@@ -70,6 +70,8 @@ public class WriterService {
 	
 	/**
 	 * Returns the instance name of a table
+	 * @param t the table
+	 * @return the table name
 	 */
 	public String getTableName(DBTable t) {
 		return StringUtils.toString(config.getTableNamePrefix(), "")
@@ -78,6 +80,8 @@ public class WriterService {
 	
 	/**
 	 * Returns the instance name of a view
+     * @param v the view
+     * @return the view name
 	 */
 	public String getViewName(DBView v) {
 		return StringUtils.toString(config.getViewNamePrefix(), "")
@@ -86,6 +90,8 @@ public class WriterService {
 	
 	/**
 	 * Returns the instance name of a rowset
+     * @param r the rowset
+     * @return the rowset name
 	 */
 	public String getRowsetName(DBRowSet r) {
 		// use same as table
@@ -95,6 +101,8 @@ public class WriterService {
 	
 	/**
 	 * Returns the instance name of a column
+     * @param c the column
+     * @return the column name
 	 */
 	public String getColumnName(DBColumn c) {
 		return StringUtils.toString(config.getColumnNamePrefix(), "")
@@ -103,6 +111,8 @@ public class WriterService {
 
 	/**
 	 * Returns the java table class name for a given table name.
+     * @param tableName the table name
+     * @return the table class name
 	 */
 	public String getTableClassName(String tableName)
 	{
@@ -113,6 +123,8 @@ public class WriterService {
 
 	/**
 	 * Returns the java table class name for a given view name.
+     * @param viewName the view name
+     * @return the view class name
 	 */
 	public String getViewClassName(String viewName)
 	{
@@ -123,8 +135,8 @@ public class WriterService {
 	
 	/**
 	 * Returns the java record class name for a given table name.
-	 * 
 	 * @param tableName the table name
+     * @return the record class name
 	 */
 	public String getRecordClassName(String tableName)
 	{
@@ -134,6 +146,7 @@ public class WriterService {
 	/**
 	 * Returns the "getter" name for a given DBColumn.
 	 * @param column the column
+     * @return the getter function name
 	 */
 	public String getAccessorName(DBColumn column) 
 	{
@@ -143,6 +156,7 @@ public class WriterService {
 	/**
 	 * Returns the "setter" name for a given DBColumn
 	 * @param column the column
+     * @return the setter function name
 	 */
 	public String getMutatorName(DBColumn column) 
 	{
@@ -162,6 +176,7 @@ public class WriterService {
 	 * uses this information to generate the neccessary import expression.
 	 * 
 	 * @param table the table to inspect
+	 * @return true if the table has a BigDecimal field
 	 */
 	public boolean hasBigDecimalField(DBTable table)
 	{	
@@ -180,6 +195,7 @@ public class WriterService {
 	 * uses this information to generate the neccessary import expression.
 	 * 
 	 * @param table the table to inspect
+     * @return true if the table has a Date field
 	 */
 	public boolean hasDateField(DBTable table)
 	{
@@ -197,6 +213,7 @@ public class WriterService {
 	 * Returns whether the given table has a locking column or not.
 	 * 
 	 * @param table the table to inspect
+     * @return true if the table has a locking column
 	 */
 	public boolean hasLockingColumn(DBTable table)
 	{
@@ -207,6 +224,7 @@ public class WriterService {
 	 * Returns the corresponding java type of the given empire DataType.
 	 * 
 	 * @param column the column to get the type for
+     * @return the column's java type
 	 */
 	public Class<?> getJavaType(DBColumn column)
 	{
@@ -257,6 +275,8 @@ public class WriterService {
 
 	/**
 	 * Returns the empire DataType of the given DBColumn.
+     * @param c the column
+     * @return the data type
 	 */
 	public DataType getDataType(DBColumn c)
 	{
@@ -266,6 +286,8 @@ public class WriterService {
 
 	/**
 	 * Returns the default value of the given DBColumn.
+     * @param c the column
+     * @return the default value
 	 */
 	protected String getDefaultValue(DBColumn c)
 	{
@@ -284,6 +306,8 @@ public class WriterService {
 	
     /**
      * Returns the list of key columns
+     * @param t the table
+     * @return the key columns
      */
     public String getKeyColumns(DBTable t)
     {
@@ -300,6 +324,8 @@ public class WriterService {
 	
 	/**
 	 * Derives a java class name from a database table name.
+     * @param name the table name
+     * @return the java class name
 	 */
 	protected String deriveClassName(String name)
 	{
@@ -339,9 +365,9 @@ public class WriterService {
 	/**
 	 * Derives the accessor method name based on the attribute name.
 	 * 
-	 * @param attribute
-	 * @param isBoolean
-	 * @return
+	 * @param attribute the attribute name
+	 * @param type the java type 
+	 * @return the accessor method name (get or is)
 	 */
 	protected String deriveAccessorName(String attribute, Class<?> type)
 	{
@@ -349,10 +375,14 @@ public class WriterService {
 	}
 	
 	/**
-	 * We need to alter both getter and setter if the method name will
-	 * conflict with existing methods DBRecord. This will check both
-	 * so that getter and setter have matching suffixes if one or 
-	 * the other conflicts with an existing method.
+     * We need to alter both getter and setter if the method name will
+     * conflict with existing methods DBRecord. This will check both
+     * so that getter and setter have matching suffixes if one or 
+     * the other conflicts with an existing method.
+	 * @param attribute the attribute
+	 * @param type the java type
+	 * @param isGetter flag whether getter or setter is required
+	 * @return the method name
 	 */
 	protected String deriveRecordMethodName(String attribute, Class<?> type, boolean isGetter) {
 		attribute = deriveAttributeName(attribute);
@@ -403,8 +433,9 @@ public class WriterService {
 	/**
 	 * Derives the mutator method name based on the attribute name.
 	 * 
-	 * @param attribute
-	 * @return
+	 * @param attribute the attribute
+	 * @param type the java type
+	 * @return the mutator method name
 	 */
 	protected String deriveMutatorName(String attribute, Class<?> type)
 	{
@@ -414,8 +445,8 @@ public class WriterService {
 	/**
 	 * Derives the attribute name based on the column name.
 	 * 
-	 * @param attribute
-	 * @return
+	 * @param column the column name
+	 * @return the attribute name
 	 */
 	protected String deriveAttributeName(String column)
 	{

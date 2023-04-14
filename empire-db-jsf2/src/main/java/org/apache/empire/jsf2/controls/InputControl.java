@@ -234,7 +234,7 @@ public abstract class InputControl
      * @param tooltip the title of the HTML wrapper tag (optional)
      * @param vi the value info
      * @param context the FacesContext
-     * @throws IOException
+     * @throws IOException from ResponseWriter
      */
     public void renderValue(UIComponent comp, String tagName, String styleClass, String tooltip, ValueInfo vi, FacesContext context)
         throws IOException
@@ -269,7 +269,7 @@ public abstract class InputControl
      * Renders the control value without a surrounding tag (Text only)
      * @param vi the value info
      * @param writer the output writer
-     * @throws IOException
+     * @throws IOException from ResponseWriter
      */
     public void renderValue(ValueInfo vi, ResponseWriter writer)
         throws IOException
@@ -283,7 +283,7 @@ public abstract class InputControl
      * @param comp the JSF component
      * @param ii the input info
      * @param context the FacesContext
-     * @throws IOException
+     * @throws IOException from ResponseWriter
      */
     public void renderInput(UIComponent comp, InputInfo ii, FacesContext context)
         throws IOException
@@ -396,10 +396,10 @@ public abstract class InputControl
     
     /**
      * adds style attributes related to the current value
-     * @param vi
+     * @param vi the value info
      * @param value the current value
-     * @param styleClass
-     * @return
+     * @param styleClass the style class
+     * @return the data value string
      */
     protected String addDataValueStyle(ValueInfo vi, Object value, String styleClass)
     {
@@ -496,13 +496,6 @@ public abstract class InputControl
             reqMap.remove(clientId);
     }
 
-    /**
-     * Override this to format a value for output
-     * 
-     * @param value
-     * @param ii
-     * @return
-     */
     protected Object formatInputValue(Object value, InputInfo ii)
     {
         return value;

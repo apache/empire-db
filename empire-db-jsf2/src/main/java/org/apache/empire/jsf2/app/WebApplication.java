@@ -75,6 +75,7 @@ public abstract class WebApplication
     
     /**
      * Returns the one and only instance of the WebApplication (Singleton)
+     * @param <T> the application type
      * @return the WebApplication instance
      */
     @SuppressWarnings("unchecked")
@@ -103,7 +104,8 @@ public abstract class WebApplication
 
     /**
      * Init the Application
-     * @param servletContext
+     * @param facesImpl the faces implementation
+     * @param startupContext the startup context
      */
     public final void init(FacesImplementation facesImpl, FacesContext startupContext)
     {
@@ -142,7 +144,7 @@ public abstract class WebApplication
     
     /**
      * handle request cleanup
-     * @param ctx
+     * @param ctx the faces context
      */
     public void onRequestComplete(final FacesContext ctx)
     {
@@ -151,8 +153,8 @@ public abstract class WebApplication
 
     /**
      * handle view not found
-     * @param fc
-     * @param HttpServletRequest
+     * @param fc the faces context
+     * @param req the request
      */
     public void onViewNotFound(final FacesContext fc, final HttpServletRequest req)
     {   // View not Found Error
@@ -161,8 +163,8 @@ public abstract class WebApplication
 
     /**
      * handle view change
-     * @param fc
-     * @param viewId
+     * @param fc the faces context
+     * @param viewId the view id
      */
     public void onChangeView(final FacesContext fc, String viewId)
     {   // allow custom view change logic
@@ -173,6 +175,11 @@ public abstract class WebApplication
             sm.remove(FacesUtils.PAGE_RESOURCE_MAP_ATTRIBUTE);
     }
 
+    /**
+     * adds a Javascript call to the request 
+     * @param fc the faces context
+     * @param function the javascript command
+     */
     public void addJavascriptCall(final FacesContext fc, String function)
     {
         throw new NotSupportedException(this, "addJavascriptCall");
@@ -181,6 +188,7 @@ public abstract class WebApplication
     /**
      * return the interface for Implementation specific features 
      * that are specific for Mojarra or MyFaces
+     * @return the faces implementation
      */
     public FacesImplementation getFacesImplementation() 
     {
@@ -189,6 +197,7 @@ public abstract class WebApplication
     
     /**
      * returns the web context path as returned from ServletContext.getContextPath()
+     * @return the web root
      */
     public String getWebRoot()
     {
@@ -197,6 +206,8 @@ public abstract class WebApplication
 
     /**
      * returns the active locale for a given FacesContext
+     * @param ctx the faces context
+     * @return the context locale
      */
     public Locale getContextLocale(final FacesContext ctx)
     {
@@ -406,8 +417,8 @@ public abstract class WebApplication
 
     /**
      * Obtains a JDBC-Connection from the connection pool
-     * 
-     * @return
+     * @param db the database for which to obtain a connection
+     * @return the connection
      */
     protected synchronized Connection getConnection(DBDatabase db)
     {
@@ -428,6 +439,9 @@ public abstract class WebApplication
 
     /**
      * Releases a JDBC-Connection from the connection pool
+     * @param conn the connection to release
+     * @param commit flag whether to commit changes
+     * @param dbrm the rollback manager
      */
     protected synchronized void releaseConnection(Connection conn, boolean commit, DBRollbackManager dbrm)
     {
@@ -469,6 +483,7 @@ public abstract class WebApplication
      * Obtains a DBRollbackManager for the current request
      * @param fc the FacesContext
      * @param create if true a DBRollbackManager will be created if not already present
+     * @return the rollback manager
      */
     public DBRollbackManager getRollbackManagerForRequest(FacesContext fc, boolean create)
     {
@@ -485,6 +500,7 @@ public abstract class WebApplication
      * @param fc the FacesContext
      * @param db the DBDatabase for which to obtain a connection
      * @param create if true a Connection will be created if not already present
+     * @return the connection
      */
     public Connection getConnectionForRequest(FacesContext fc, DBDatabase db, boolean create)
     {

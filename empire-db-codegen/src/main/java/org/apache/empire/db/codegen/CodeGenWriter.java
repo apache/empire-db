@@ -87,7 +87,9 @@ public class CodeGenWriter {
 	private File viewDir;
 
 	/**
-	 * Constructor
+     * Constructor
+	 * @param config the config object
+	 * @param writerService the writer service
 	 */
 	public CodeGenWriter(CodeGenConfig config, WriterService writerService) {
 		this.writerService = writerService;
@@ -116,7 +118,7 @@ public class CodeGenWriter {
 
 	/**
 	 * Overload using standard WriterService
-	 * @param config
+	 * @param config the config object
 	 */
     public CodeGenWriter(CodeGenConfig config) {
         this(config, new WriterService(config));
@@ -125,8 +127,8 @@ public class CodeGenWriter {
 	/**
 	 * Generates the java code files for the database
 	 * 
-	 * @param db
-	 *            the DBDatabase to generate files for
+	 * @param db the DBDatabase to generate files for
+	 * @return the generates files
 	 */
 	public List<File> generateCodeFiles(DBDatabase db) {
 		List<File> generatedFiles = new ArrayList<File>();

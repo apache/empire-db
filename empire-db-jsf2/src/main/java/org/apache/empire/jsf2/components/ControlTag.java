@@ -465,8 +465,9 @@ public class ControlTag extends UIInput implements NamingContainer
     
     /**
      * called from LabelSeparatorComponent
-     * @param context
+     * @param context the faces context
      * @param parent the LabelSeparatorComponent
+     * @throws IOException from ResponseWriter
      */
     protected void encodeLabel(FacesContext context, UIComponentBase parent)
         throws IOException
@@ -503,9 +504,9 @@ public class ControlTag extends UIInput implements NamingContainer
 
     /**
      * called from InputSeparatorComponent
-     * @param context
+     * @param context the faces context
      * @param parent the InputSeparatorComponent
-     * @throws IOException
+     * @throws IOException from ResponseWriter
      */
     protected void encodeInput(FacesContext context, UIComponent parent)
         throws IOException

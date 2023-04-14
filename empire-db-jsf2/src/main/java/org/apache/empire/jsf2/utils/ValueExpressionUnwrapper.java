@@ -36,17 +36,17 @@ import org.slf4j.LoggerFactory;
  * IMPORTANT: The expression in the Facelet-Tag must use a '$' character instead of a '#'
  *
  * Here is an example for such a tag
-    <ui:composition
+    &lt;ui:composition
         xmlns="http://www.w3.org/1999/xhtml"
-        xmlns:e="http://java.sun.com/jsf/composite/empire">
-        <tr>
-            <e:control
+        xmlns:e="http://java.sun.com/jsf/composite/empire"&gt;
+        &lt;tr&gt;
+            &lt;e:control
                 column="#{column}" 
                 record="#{record}"
                 value="${value}"
-            </e:control>         
-        </tr> 
-    </ui:composition>
+            &lt;/e:control&gt;         
+        &lt;/tr&gt; 
+    &lt;/ui:composition&gt;
  *   
  * In this example the "${value}" will be unwrapped from the TagEncodingHelper in order to dectect
  * whether or not an expression has been provided. 

@@ -53,6 +53,9 @@ public interface FacesImplementation
      *	mbi.setScope(scope);
      *	rc.addManagedBean(beanName, mbi);
      *  
+     *  @param beanName the bean name
+     *  @param beanClass the bean class
+     *  @param scope the scope
 	 */
 	void registerManagedBean(final String beanName, final String beanClass, final String scope);
 	
@@ -65,6 +68,9 @@ public interface FacesImplementation
      *  final Application application = fc.getApplication();
      *  return application.getELResolver().getValue(elcontext, null, beanName);
 	 * 
+     *  @param beanName the bean name
+     *  @param fc the faces context
+     *  @return the bean
 	 */
 	public Object getManagedBean(final String beanName, final FacesContext fc);
 	
@@ -82,6 +88,9 @@ public interface FacesImplementation
      *      // set Parent
      *      return cc;
      *  }
+     *
+     *  @param ve the value expression
+     *  @return the component
 	 */
 	UIComponent getValueParentComponent(final ValueExpression ve);
 

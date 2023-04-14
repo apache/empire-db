@@ -226,8 +226,8 @@ public class LinkTag extends UIOutput // implements NamingContainer
 
     /**
      * required for MenuItemTag
-     * @param context
-     * @throws IOException
+     * @param context the faces context
+     * @throws IOException from base
      */
     public void forceEncodeChildren(FacesContext context) throws IOException 
     {

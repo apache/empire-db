@@ -282,6 +282,11 @@ public class FacesUtils
     /* PageResource-map */
     public static final String PAGE_RESOURCE_MAP_ATTRIBUTE = "pageResources"; /** use el-expression: #{pageResources.xxx} **/
     
+    /**
+     * returns the page resource map
+     * @param fc the faces context
+     * @return the ressource map
+     */
     @SuppressWarnings("unchecked")
     public static Map<String, Object> getPageResourceMap(final FacesContext fc)
     {
@@ -414,7 +419,7 @@ public class FacesUtils
     }
     */
 
-    /**
+    /*
      * indicates whether submitted values in InputControl should be cleared or preserved.
      * Default is true.   
      * @param fc the faces context

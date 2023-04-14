@@ -123,7 +123,7 @@ public class BeanListPageElement<T> extends ListPageElement<T> implements ListIt
      * Overload that requires a default sort order to be provided
      * @param page the page element
      * @param beanClass the bean class
-     * @param defaultSortColumn
+     * @param defaultSortColumn the default sort column
      * @param propertyName the property name which is used to get and retrieve session information
      */
     public BeanListPageElement(Page page, Class<T> beanClass, DBColumn defaultSortColumn, String propertyName)
@@ -135,7 +135,7 @@ public class BeanListPageElement<T> extends ListPageElement<T> implements ListIt
      * Overload that requires a default sort order to be provided
      * @param page the page element
      * @param beanClass the bean class
-     * @param defaultSortColumn
+     * @param defaultSortColumn the default sort column
      */
     public BeanListPageElement(Page page, Class<T> beanClass, DBColumn defaultSortColumn)
     {
@@ -146,7 +146,7 @@ public class BeanListPageElement<T> extends ListPageElement<T> implements ListIt
      * Overload that requires a default sort order to be provided
      * @param page the page element
      * @param beanClass the bean class
-     * @param rowset required Table or View
+     * @param rowSet required Table or View
      */
     public BeanListPageElement(Page page, Class<T> beanClass, DBRowSet rowSet)
     {
@@ -242,8 +242,9 @@ public class BeanListPageElement<T> extends ListPageElement<T> implements ListIt
     /**
      * Init list items with pagination
      * 
-     * @param queryCmd
-     * @param pageSize
+     * @param queryCmd the query command
+     * @param countCmd the count command
+     * @param pageSize the page size
      */
     public void initItems(DBCommand queryCmd, DBCommand countCmd, int pageSize)
     {
@@ -285,7 +286,8 @@ public class BeanListPageElement<T> extends ListPageElement<T> implements ListIt
     /**
      * Init list items without pagination
      * 
-     * @param queryCmd
+     * @param queryCmd the query commmand
+     * @param pageSize the page size
      */
     public final void initItems(DBCommand queryCmd, int pageSize)
     {
@@ -296,7 +298,7 @@ public class BeanListPageElement<T> extends ListPageElement<T> implements ListIt
     /**
      * Init list items without pagination
      * 
-     * @param queryCmd
+     * @param queryCmd the query commmand
      */
     public final void initItems(DBCommand queryCmd)
     {
@@ -305,7 +307,7 @@ public class BeanListPageElement<T> extends ListPageElement<T> implements ListIt
 
     /**
      * Returns true if (and only if) items are valid but empty
-     * @return
+     * @return true if reault is empty
      */
     public boolean isResultEmpty()
     {
@@ -315,7 +317,7 @@ public class BeanListPageElement<T> extends ListPageElement<T> implements ListIt
 
     /**
      * loads all visible list items from the database
-     * @param initScrollbar
+     * @param initScrollbar flag whether to init the scrollbar
      */
     protected void loadItems(boolean initScrollbar)
     {
@@ -423,7 +425,7 @@ public class BeanListPageElement<T> extends ListPageElement<T> implements ListIt
     /**
      * set order by for db queries
      * 
-     * @param cmd
+     * @param cmd the command
      */
     protected void setOrderBy(DBCommand cmd)
     {

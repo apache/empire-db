@@ -40,8 +40,6 @@ import org.slf4j.LoggerFactory;
  * Important: The connection is obtained on HttpRequest scope and hot held by the context
  * The connection is automatically released via the FacesRequestPhaseListener
  * @author rainer
- *
- * @param <DB>
  */
 public class WebDBContext<DB extends DBDatabase> extends DBContextBase implements Serializable
 {
@@ -55,6 +53,8 @@ public class WebDBContext<DB extends DBDatabase> extends DBContextBase implement
 
     /**
      * Custom serialization for transient fields.
+     * @param strm the output stream
+     * @throws IOException from strm.defaultWriteObject
      */ 
     private void writeObject(ObjectOutputStream strm) throws IOException 
     {   // Database
@@ -65,6 +65,9 @@ public class WebDBContext<DB extends DBDatabase> extends DBContextBase implement
     
     /**
      * Custom deserialization for transient fields.
+     * @param strm the input stream
+     * @throws IOException from strm.defaultReadObject
+     * @throws ClassNotFoundException from strm.defaultReadObject
      */ 
     private void readObject(ObjectInputStream strm) 
         throws IOException, ClassNotFoundException

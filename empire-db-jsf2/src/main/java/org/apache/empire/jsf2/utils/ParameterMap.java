@@ -116,7 +116,7 @@ public class ParameterMap // *Deprecated* implements Serializable
 
     /**
      * gets a unique name for a given rowset  
-     * @param rowset
+     * @param rowset the rowset
      * @return a unique name for the given rowset
      */
     protected String getRowSetTypeName(DBRowSet rowset)
@@ -132,9 +132,9 @@ public class ParameterMap // *Deprecated* implements Serializable
 
     /**
      * puts an object into the parameter map
-     * @param typeName
-     * @param id
-     * @param value
+     * @param typeName the type name
+     * @param encodedId the id
+     * @param item the object
      */
     protected void putValue(String typeName, String encodedId, Object item)
     {   // put in Table
@@ -152,9 +152,10 @@ public class ParameterMap // *Deprecated* implements Serializable
     
     /**
      * encodes the objectKey and stores the item in the parameter map
-     * @param typeName
-     * @param id
-     * @param value
+     * @param typeName the type name
+     * @param objectKey the object key
+     * @param item the object
+     * @param useCache flag whether to cache the objectKey
      */
     protected String encodeAndStore(String typeName, String objectKey, Object item, boolean useCache)
     {   // Generate the id
@@ -173,8 +174,8 @@ public class ParameterMap // *Deprecated* implements Serializable
 
     /**
      * Puts an object into the paramter map that implements the ParameterObject interface  
-     * @param paramObject
-     * @return
+     * @param paramObject the param object
+     * @return the encoded object
      */
     public String put(ParameterObject paramObject)
     {
@@ -209,10 +210,10 @@ public class ParameterMap // *Deprecated* implements Serializable
     
     /**
      * Generates an idParam which is only valid for the given page.
-     * @param targetPage
-     * @param rowset
-     * @param key
-     * @return
+     * @param targetPage the target page
+     * @param rowset the rowset
+     * @param key the key
+     * @return the encoded object
      */
     public String put(PageDefinition targetPage, DBRowSet rowset, Object[] key) {
         // Generate id and put in map
@@ -242,9 +243,9 @@ public class ParameterMap // *Deprecated* implements Serializable
 
     /**
      * Puts an object into the paramter map that implements the ParameterObject interface  
-     * @param paramType
-     * @param id
-     * @return
+     * @param paramType the param type
+     * @param id the item id
+     * @return the object
      */
     @SuppressWarnings("unchecked")
     public <T extends ParameterObject> T get(Class<T> paramType, String id)
@@ -286,10 +287,10 @@ public class ParameterMap // *Deprecated* implements Serializable
 
     /**
      * returns an record key for a given page
-     * @param page
-     * @param rowset
-     * @param id
-     * @return
+     * @param page the page
+     * @param rowset the rowset
+     * @param id the object id
+     * @return the object key
      */
     public Object[] getKey(PageDefinition page, DBRowSet rowset, String id)
     {

@@ -76,7 +76,7 @@ public class WebAppStartupListener implements SystemEventListener
     /**
      * Detects the JSF Implementation and returns an implmentation handler class.
      * Supported Implementations are Sun Mojarra (2.2.x) and Apache MyFaces (2.2.x) 
-     * @return
+     * @return the faces implementation
      */
     protected FacesImplementation detectFacesImplementation()
     {

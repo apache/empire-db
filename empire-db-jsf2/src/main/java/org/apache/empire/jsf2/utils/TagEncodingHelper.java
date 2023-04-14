@@ -961,6 +961,7 @@ public class TagEncodingHelper implements NamingContainer
     
     /**
      * used for partial submits to detect whether the value of this field can be set to null
+     * @return true if the column is required of false otherwise
      */
     public boolean isTempoaryNullable()
     {
