@@ -28,6 +28,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 
 import org.apache.commons.beanutils.ConstructorUtils;
 import org.apache.empire.exceptions.EmpireException;
@@ -84,6 +85,21 @@ public final class ClassUtils
     }
     
     /**
+     * Checks if a class is a primitive class or a wrapper of a primitive class
+     * String is also considered to be a primitive class
+     * @param clazz the class to check
+     * @return
+     */
+    public static boolean isPrimitiveClass(Class<?> clazz) 
+    {
+        if (clazz.isPrimitive() && clazz != void.class)
+            return true;
+        return (clazz == String.class || clazz == Character.class || clazz == Byte.class 
+             || clazz == Integer.class || clazz == Long.class || clazz == Short.class 
+             || clazz == Double.class || clazz == Float.class || clazz == Boolean.class);
+    }
+    
+    /**
      * Namespace for Copy flags
      * @author rainer
      */
@@ -112,7 +128,7 @@ public final class ClassUtils
      */
     public static <T> T copy(T obj)
     {
-        return copy(obj, Copy.RET_SELF | Copy.SKIP_SERIAL); /* Serial is too hot */
+        return copy(obj, Copy.RET_SELF | Copy.RECURSE_SHALLOW | Copy.SKIP_SERIAL); /* Serial is too hot */
     }
     
     /**
@@ -128,15 +144,15 @@ public final class ClassUtils
         if (obj==null)
             return null;
         // the class
-        Class<T> clazz = (Class<T>)obj.getClass();
+        Class<T> clazz = (Class<T>)obj.getClass(); 
+        if (isPrimitiveClass(clazz) || clazz.isEnum()) 
+        {   // no need to copy
+            return obj; 
+        }
         // class check
         if (clazz.isInterface() || clazz.isAnnotation()) {
             log.warn("Unable to copy Interface or Annotation {}", clazz.getName());
             return (Copy.has(flags, Copy.RET_NULL) ? null : obj); // not supported
-        }
-        if (clazz.isPrimitive() || clazz.isEnum()) 
-        {   // no need to copy
-            return obj; 
         }
         // try clonable
         if ((obj instanceof Cloneable) && !Copy.has(flags, Copy.SKIP_CLONE))
@@ -178,6 +194,9 @@ public final class ClassUtils
                     {
                         Field[] fields = cl.getDeclaredFields();
                         for (Field field : fields) {
+                            // ignore static fields
+                            if (Modifier.isStatic(field.getModifiers()))
+                                continue;
                             // make accessible
                             boolean accessible = field.isAccessible();
                             if (!accessible)
