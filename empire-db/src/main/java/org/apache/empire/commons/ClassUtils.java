@@ -128,7 +128,7 @@ public final class ClassUtils
      */
     public static <T> T copy(T obj)
     {
-        return copy(obj, Copy.RET_SELF | Copy.RECURSE_SHALLOW | Copy.SKIP_SERIAL); /* Serial is too hot */
+        return copy(obj, Copy.RET_SELF | Copy.SKIP_SERIAL); /* Serial is too hot */
     }
     
     /**
