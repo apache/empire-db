@@ -86,17 +86,19 @@ public final class ClassUtils
     
     /**
      * Checks if a class is a primitive class or a wrapper of a primitive class
-     * String is also considered to be a primitive class
+     * String and Class are also considered to be a primitive classes
      * @param clazz the class to check
      * @return
      */
     public static boolean isPrimitiveClass(Class<?> clazz) 
     {
-        if (clazz.isPrimitive() && clazz != void.class)
+        if (clazz.isPrimitive() || clazz.isEnum())
             return true;
-        return (clazz == String.class || clazz == Character.class || clazz == Byte.class 
-             || clazz == Integer.class || clazz == Long.class || clazz == Short.class 
-             || clazz == Double.class || clazz == Float.class || clazz == Boolean.class);
+        // Check Standard types
+        return (clazz == String.class  || clazz == Character.class || clazz == Byte.class 
+             || clazz == Integer.class || clazz == Long.class  || clazz == Short.class 
+             || clazz == Double.class  || clazz == Float.class || clazz == Boolean.class
+             || clazz == Class.class);
     }
     
     /**
@@ -108,7 +110,8 @@ public final class ClassUtils
         public static final int RET_SELF        = 0x00; /* default */
         public static final int RET_NULL        = 0x01;
 
-        public static final int RECURSE_SHALLOW = 0x02; /* only for default constructor cloning */
+        public static final int RECURSE_FLAT    = 0x02; /* only for default constructor cloning */
+        public static final int RECURSE_DEEP    = 0x04; /* only for default constructor cloning */
 
         public static final int SKIP_CLONE      = 0x10;
         public static final int SKIP_SERIAL     = 0x20;
@@ -128,7 +131,7 @@ public final class ClassUtils
      */
     public static <T> T copy(T obj)
     {
-        return copy(obj, Copy.RET_SELF | Copy.SKIP_SERIAL); /* Serial is too hot */
+        return copy(obj, Copy.RET_SELF | Copy.RECURSE_FLAT | Copy.SKIP_SERIAL); /* Serial is too hot */
     }
     
     /**
@@ -145,7 +148,7 @@ public final class ClassUtils
             return null;
         // the class
         Class<T> clazz = (Class<T>)obj.getClass(); 
-        if (isPrimitiveClass(clazz) || clazz.isEnum()) 
+        if (isPrimitiveClass(clazz)) 
         {   // no need to copy
             return obj; 
         }
@@ -203,8 +206,8 @@ public final class ClassUtils
                                 field.setAccessible(true);
                             // copy
                             Object value = field.get(obj);
-                            if (!Copy.has(flags, Copy.RECURSE_SHALLOW))
-                                value = copy(value, (flags & ~Copy.RET_NULL) | Copy.RECURSE_SHALLOW);
+                            if (Copy.has(flags, Copy.RECURSE_FLAT | Copy.RECURSE_DEEP))
+                                value = copy(value, (flags & ~(Copy.RET_NULL | Copy.RECURSE_FLAT)));
                             field.set(copy, value);
                             // restore
                             if (!accessible)
