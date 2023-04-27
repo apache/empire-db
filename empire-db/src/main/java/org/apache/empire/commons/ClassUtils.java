@@ -85,12 +85,12 @@ public final class ClassUtils
     }
     
     /**
-     * Checks if a class is a primitive class or a wrapper of a primitive class
-     * String and Class are also considered to be a primitive classes
+     * Checks if a class is an immutable class such as a wrapper class of a primitive type
+     * String and Class are also considered to be a immutable classes
      * @param clazz the class to check
-     * @return
+     * @return true if the class is immutable
      */
-    public static boolean isPrimitiveClass(Class<?> clazz) 
+    public static boolean isImmutableClass(Class<?> clazz) 
     {
         if (clazz.isPrimitive() || clazz.isEnum())
             return true;
@@ -148,7 +148,7 @@ public final class ClassUtils
             return null;
         // the class
         Class<T> clazz = (Class<T>)obj.getClass(); 
-        if (isPrimitiveClass(clazz)) 
+        if (isImmutableClass(clazz)) 
         {   // no need to copy
             return obj; 
         }
@@ -157,7 +157,17 @@ public final class ClassUtils
             log.warn("Unable to copy Interface or Annotation {}", clazz.getName());
             return (Copy.has(flags, Copy.RET_NULL) ? null : obj); // not supported
         }
-        // try clonable
+        // array copy
+        if (clazz.isArray())
+        {   T[] cpy = ((T[])obj).clone();
+            if (Copy.has(flags, Copy.RECURSE_FLAT | Copy.RECURSE_DEEP))
+            {   // copy array items
+                for (int i=0; i<cpy.length; i++)
+                    cpy[i] = copy(cpy[i], (flags & ~(Copy.RET_NULL | Copy.RECURSE_FLAT)));
+            }
+            return (T)cpy;
+        }
+        // try clone
         if ((obj instanceof Cloneable) && !Copy.has(flags, Copy.SKIP_CLONE))
         {   try {
                 return (T)invokeSimpleMethod(java.lang.Object.class, obj, "clone", true);
@@ -165,7 +175,7 @@ public final class ClassUtils
                 log.error("Copy through Cloning failed for : "+clazz.getName(), e);
             }
         }
-        // try serializable
+        // try serialize
         if ((obj instanceof Serializable) && !Copy.has(flags, Copy.SKIP_SERIAL))
         {   try
             {   ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -181,7 +191,7 @@ public final class ClassUtils
                 log.error("Copy through Serialization failed for : "+clazz.getName(), e);
             }
         }
-        // try copy through Instantiation
+        // try copy through instantiation
         Constructor<T> ctor = (Copy.has(flags, Copy.SKIP_INST) ? null : findMatchingConstructor(clazz, 0, clazz));
         if (ctor!=null)
         {   try
