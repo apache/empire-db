@@ -107,15 +107,15 @@ public final class ClassUtils
      */
     public static class Copy
     {
-        public static final int RET_SELF        = 0x00; /* default */
-        public static final int RET_NULL        = 0x01;
+        public static final int RET_SELF        = 0x00; /* return self if copy fails */
+        public static final int RET_NULL        = 0x01; /* return null if copy fails */
 
         public static final int RECURSE_FLAT    = 0x02; /* only for default constructor cloning */
         public static final int RECURSE_DEEP    = 0x04; /* only for default constructor cloning */
 
         public static final int SKIP_CLONE      = 0x10;
-        public static final int SKIP_SERIAL     = 0x20;
-        public static final int SKIP_INST       = 0x40;
+        public static final int SKIP_SERIAL     = 0x20; /* try serialize and deserialize */
+        public static final int SKIP_INST       = 0x40; /* try copy constructor or default constructor */
         
         public static boolean has(int flags, int flag)
         {
@@ -157,24 +157,6 @@ public final class ClassUtils
             log.warn("Unable to copy Interface or Annotation {}", clazz.getName());
             return (Copy.has(flags, Copy.RET_NULL) ? null : obj); // not supported
         }
-        // array copy
-        if (clazz.isArray())
-        {   T[] cpy = ((T[])obj).clone();
-            if (Copy.has(flags, Copy.RECURSE_FLAT | Copy.RECURSE_DEEP))
-            {   // copy array items
-                for (int i=0; i<cpy.length; i++)
-                    cpy[i] = copy(cpy[i], (flags & ~(Copy.RET_NULL | Copy.RECURSE_FLAT)));
-            }
-            return (T)cpy;
-        }
-        // try clone
-        if ((obj instanceof Cloneable) && !Copy.has(flags, Copy.SKIP_CLONE))
-        {   try {
-                return (T)invokeSimpleMethod(java.lang.Object.class, obj, "clone", true);
-            } catch (Exception e) {
-                log.error("Copy through Cloning failed for : "+clazz.getName(), e);
-            }
-        }
         // try serialize
         if ((obj instanceof Serializable) && !Copy.has(flags, Copy.SKIP_SERIAL))
         {   try
@@ -189,6 +171,31 @@ public final class ClassUtils
                 return (T)copy;
             } catch (IOException | ClassNotFoundException e) {
                 log.error("Copy through Serialization failed for : "+clazz.getName(), e);
+            }
+        }
+        // array copy
+        if (clazz.isArray())
+        {   // check primitive array like int[] or boolean[]
+            if (!(obj instanceof Object[]))
+            {   if (Copy.has(flags, Copy.RECURSE_DEEP))
+                    log.warn("Copy.RECURSE_DEEP not supported for primitive arrays of type {}", clazz.getSimpleName());
+                return (T)invokeSimpleMethod(java.lang.Object.class, obj, "clone", true);
+            }
+            // Object-array: cast and clone
+            T[] cpy = ((T[])obj).clone();
+            if (Copy.has(flags, Copy.RECURSE_DEEP))
+            {   // copy array items
+                for (int i=0; i<cpy.length; i++)
+                    cpy[i] = copy(cpy[i], (flags & ~(Copy.RET_NULL)));
+            }
+            return (T)cpy;
+        }
+        // try clone
+        if ((obj instanceof Cloneable) && !Copy.has(flags, Copy.SKIP_CLONE))
+        {   try {
+                return (T)invokeSimpleMethod(java.lang.Object.class, obj, "clone", true);
+            } catch (Exception e) {
+                log.error("Copy through Cloning failed for : "+clazz.getName(), e);
             }
         }
         // try copy through instantiation
