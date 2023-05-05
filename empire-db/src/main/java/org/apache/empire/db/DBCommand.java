@@ -706,14 +706,26 @@ public abstract class DBCommand extends DBCommandExpr
     }
 
     /**
+     * Adds a join to the list of join expressions.
+     * 
+     * @param join the join expression
+     * @param joinType the type of join
+     * @return itself (this) 
+     */
+    public final DBCommand join(DBJoinExpr join, DBJoinType joinType)
+    {
+        join.setType(joinType);
+        return join(join);
+    }
+
+    /**
      * Adds a left join to the list of join expressions.
      * @param join the join expression
      * @return itself (this) 
      */
     public final DBCommand joinLeft(DBJoinExpr join)
     {
-        join.setType(DBJoinType.LEFT);
-        return join(join);
+        return join(join, DBJoinType.LEFT);
     }
 
     /**
@@ -723,8 +735,7 @@ public abstract class DBCommand extends DBCommandExpr
      */
     public final DBCommand joinRight(DBJoinExpr join)
     {
-        join.setType(DBJoinType.RIGHT);
-        return join(join);
+        return join(join, DBJoinType.RIGHT);
     }
 
     /**
