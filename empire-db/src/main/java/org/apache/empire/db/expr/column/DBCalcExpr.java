@@ -214,6 +214,7 @@ public class DBCalcExpr extends DBColumnExpr
     @Override
     public void addSQL(DBSQLBuilder sql, long context)
     {
+        context &= ~CTX_ALIAS; // No column aliases
         // Zusammenbauen
         expr.addSQL(sql, context);
         sql.append(op);

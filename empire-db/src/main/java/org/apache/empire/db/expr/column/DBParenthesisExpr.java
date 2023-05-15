@@ -47,8 +47,8 @@ public class DBParenthesisExpr extends DBColumnExpr implements Unwrappable<DBCol
      */
     public DBParenthesisExpr(DBColumnExpr expr)
     {
-        // Check whether already a AliasExpr
-        if (expr.getClass().equals(getClass()))
+        // Check whether already a DBParenthesisExpr
+        if (expr instanceof DBParenthesisExpr)
             this.wrapped = ((DBParenthesisExpr) expr).wrapped;
         else
             this.wrapped = expr;

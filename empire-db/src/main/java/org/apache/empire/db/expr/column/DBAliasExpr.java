@@ -54,7 +54,7 @@ public class DBAliasExpr extends DBColumnExpr implements Unwrappable<DBColumnExp
     public DBAliasExpr(DBColumnExpr expr, String alias)
     {
         // Check whether already a AliasExpr
-        if (expr.getClass().equals(getClass()))
+        if (expr instanceof DBAliasExpr)
             this.expr = ((DBAliasExpr) expr).expr;
         else
             this.expr = expr;
@@ -196,7 +196,7 @@ public class DBAliasExpr extends DBColumnExpr implements Unwrappable<DBColumnExp
     { // Append alias
         if((context & CTX_ALIAS)!=0)
         {   // Add the column expression
-            expr.addSQL(sql, context);
+            expr.addSQL(sql, (context & ~CTX_ALIAS));
             // Rename
             DBMSHandler dbms = getDatabase().getDbms();
             String asExpr = dbms.getSQLPhrase(DBSqlPhrase.SQL_RENAME_COLUMN);
