@@ -162,6 +162,18 @@ public class DBCompareAndOrExpr extends DBCompareExpr
     }
     
     /**
+     * For Debugging
+     */
+    @Override
+    public String toString()
+    {
+        StringBuilder b = new StringBuilder(left.toString());
+        b.append((or ? " OR " : " AND "));
+        b.append(right.toString());
+        return b.toString();
+    }
+   
+    /**
      * Returns whether the constraint should replace another one or not.
      * 
      * @return true it the constraints are mutually exclusive or false otherwise

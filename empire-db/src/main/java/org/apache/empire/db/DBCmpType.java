@@ -58,4 +58,45 @@ public enum DBCmpType
             default: return DBCmpType.NULL;
         }
     }
+    
+    /**
+     * For Debugging only
+     */
+    @Override
+    public String toString()
+    {
+        switch (this)
+        {
+            case EQUAL:
+                return "=";
+            case NOTEQUAL:
+                return "<>";
+            case LESSTHAN:
+                return "<";
+            case MOREOREQUAL:
+                return ">=";
+            case GREATERTHAN:
+                return ">";
+            case LESSOREQUAL:
+                return "<=";
+            case LIKE:
+                return " LIKE ";
+            case NOTLIKE:
+                return " NOT LIKE ";
+            case NULL:
+                return " IS NULL";
+            case NOTNULL:
+                return " IS NOT NULL";
+            case BETWEEN:
+                return " BETWEEN ";
+            case NOTBETWEEN:
+                return " NOT BETWEEN ";
+            case IN:
+                return " IN ";
+            case NOTIN:
+                return " NOT IN ";
+            default:
+                return " ";
+        }
+    }
 }

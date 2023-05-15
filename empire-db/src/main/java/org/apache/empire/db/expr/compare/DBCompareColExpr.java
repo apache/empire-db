@@ -293,6 +293,18 @@ public class DBCompareColExpr extends DBCompareExpr
         // Add Comparison Value
         addCompareExpr(sql, context);
     }
+    
+    /**
+     * For Debugging
+     */
+    @Override
+    public String toString()
+    {
+        StringBuilder b = new StringBuilder(expr.toString());
+        b.append(cmpop.toString());
+        b.append(value.toString());
+        return b.toString();
+    }
 
     /**
      * Returns whether the constraint should replace another one or not.

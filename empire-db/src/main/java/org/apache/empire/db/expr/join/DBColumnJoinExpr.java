@@ -39,22 +39,38 @@ public class DBColumnJoinExpr extends DBJoinExpr
     protected DBColumnExpr  right;
 
     // Additional
-    public DBCompareExpr compExpr = null;
+    public DBCompareExpr compExpr; // should be final but still used by where()
 
     /**
-     * Constructs a new DBJoinExpr object initialize this object with
-     * the left and right column and the data type of the join
-     * expression.
+     * Constructs a join expression based on two columns or column expressions
      * 
      * @param left left value
      * @param right right value
      * @param type data type (JOIN_INNER, JOIN_LEFT or JOIN_RIGHT)
+     * @param addlConstraint additional constraint
      */
-    public DBColumnJoinExpr(DBColumnExpr left, DBColumnExpr right, DBJoinType type)
+    public DBColumnJoinExpr(DBColumnExpr left, DBColumnExpr right, DBJoinType type, DBCompareExpr addlConstraint)
     {
         super(type);
         this.left = left;
         this.right = right;
+        this.compExpr = addlConstraint;
+    }
+
+    public DBColumnJoinExpr(DBColumnExpr left, DBColumnExpr right, DBJoinType type)
+    {
+        this(left, right, type, null);
+    }
+    
+    /**
+     * Copy and concat constructor
+     * 
+     * @param joinExpr the original joinExpr
+     * @param addlContraint additional constraint
+     */
+    public DBColumnJoinExpr(DBColumnJoinExpr joinExpr, DBCompareExpr addlConstraint)
+    {
+        this(joinExpr.left, joinExpr.right, joinExpr.type, (joinExpr.compExpr!=null ? joinExpr.compExpr.and(addlConstraint) : addlConstraint));
     }
 
     /**
@@ -190,8 +206,7 @@ public class DBColumnJoinExpr extends DBJoinExpr
         if (this.compExpr==null)
             return this; // not necessary
         // Copy compareExpr 
-        DBColumnJoinExpr join = new DBColumnJoinExpr(left, right, type);       
-        join.compExpr = compExpr.copy(newCmd);
+        DBColumnJoinExpr join = new DBColumnJoinExpr(left, right, type, compExpr.copy(newCmd));       
         return join;
     }
 
@@ -210,8 +225,8 @@ public class DBColumnJoinExpr extends DBJoinExpr
      * @param expr the compare expression
      */
     public void where(DBCompareExpr expr)
-    { // Set Compare Expression
-        compExpr = expr;
+    {   // Set Compare Expression
+        this.compExpr = expr;
     }
 
     /**
@@ -222,11 +237,9 @@ public class DBColumnJoinExpr extends DBJoinExpr
      */
     public DBColumnJoinExpr and(DBCompareExpr expr)
     {   // Add Compare Expression
-        if (compExpr==null)
-            compExpr = expr;
-        else
-            compExpr = compExpr.and(expr);
-        return this;
+        if (expr==null || expr.equals(this.compExpr))
+            return this; // no change
+        return new DBColumnJoinExpr(this, expr);
     }
 
     /**
@@ -284,6 +297,23 @@ public class DBColumnJoinExpr extends DBJoinExpr
                 compExpr.addSQL(sql, CTX_DEFAULT);
             }
         }
+    }
+    
+    /**
+     * For Debugging
+     */
+    @Override
+    public String toString()
+    {
+        StringBuilder b = new StringBuilder(left.toString());
+        b.append("=");
+        b.append(right.toString());
+        if (this.compExpr!=null)
+        {
+            b.append(" AND ");
+            b.append(this.compExpr.toString());
+        }
+        return b.toString();
     }
 
     /**

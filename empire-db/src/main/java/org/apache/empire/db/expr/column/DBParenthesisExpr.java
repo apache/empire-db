@@ -189,6 +189,18 @@ public class DBParenthesisExpr extends DBColumnExpr implements Unwrappable<DBCol
         wrapped.addSQL(sql, context); // |CTX_NOPARENTHESES
         sql.append(")");
     }
+    
+    /**
+     * For Debugging
+     */
+    @Override
+    public String toString()
+    {
+        StringBuilder b = new StringBuilder("(");
+        b.append(wrapped.toString());
+        b.append(")");
+        return b.toString();
+    }
 
     /**
      * This function set the alias name to the XML tag.

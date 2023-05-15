@@ -800,8 +800,6 @@ public abstract class DBCommand extends DBCommandExpr
             throw new InvalidArgumentException("left|right", left);
         if (left.getSourceColumn().getRowSet()==right.getRowSet())
             throw new InvalidArgumentException("rowset", left.getSourceColumn().getRowSet().getName()+"|"+right.getRowSet().getName());
-        // create the expression
-        DBColumnJoinExpr join = new DBColumnJoinExpr(left, right, joinType);
         // additional constraints
         DBCompareExpr where = null;
         for (int i=0; i<addlConstraints.length; i++)
@@ -812,9 +810,8 @@ public abstract class DBCommand extends DBCommandExpr
             // Chain with previouss
             where = (where!=null ? where.and(cmpExpr) : cmpExpr);
         }
-        if (where!=null)
-            join.where(where);
-        // done
+        // create the expression
+        DBColumnJoinExpr join = new DBColumnJoinExpr(left, right, joinType, where);
         join(join);
         return this;
     }
@@ -837,7 +834,6 @@ public abstract class DBCommand extends DBCommandExpr
         /*
          * TODO: Find a better solution / Make DBColumnJoinExpr multi-column
          */
-        DBColumnJoinExpr join = new DBColumnJoinExpr(left[0], right[0], joinType);
         // compare the columns except the first
         DBCompareExpr where = null;
         for (int i=1; i<left.length; i++)
@@ -851,9 +847,8 @@ public abstract class DBCommand extends DBCommandExpr
             DBCompareExpr cmpExpr = addlConstraints[i];
             where = (where!=null ? where.and(cmpExpr) : cmpExpr);
         }
-        if (where!=null)
-            join.where(where);
-        // done
+        // create the expression
+        DBColumnJoinExpr join = new DBColumnJoinExpr(left[0], right[0], joinType, where);
         join(join);
         return this;
     }
