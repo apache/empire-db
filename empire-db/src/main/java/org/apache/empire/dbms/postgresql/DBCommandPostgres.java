@@ -26,6 +26,7 @@ import org.apache.empire.db.DBRowSet;
 import org.apache.empire.db.DBSQLBuilder;
 import org.apache.empire.db.exceptions.NoPrimaryKeyException;
 import org.apache.empire.db.expr.compare.DBCompareExpr;
+import org.apache.empire.dbms.postgresql.PostgresIntervalExpr.PostgresIntervalUnitField;
 
 /**
  * Defines the PostgreSQL command type.
@@ -120,6 +121,10 @@ public class DBCommandPostgres extends DBCommand
     public PostgresAtAt pgCompareAtAt(DBColumnExpr left, DBColumnExpr right)
     {
         return new PostgresAtAt(left, right);
+    }
+    
+    public PostgresIntervalExpr pgInterval(int quantity, PostgresIntervalUnitField unit) {
+    	return new PostgresIntervalExpr(getDatabase(), quantity, unit) ;
     }
     
     @Override
