@@ -79,7 +79,7 @@ public class DBModelErrorLogger implements DBModelErrorHandler
         else if (dbo instanceof DBIndex)
         {
             DBIndex dbi = (DBIndex) dbo;
-            logError("The primary key {} for table{} does not exist in the target database.", dbi.getName(), dbi.getTable().getName());
+            logError("The primary key {} for table {} does not exist in the target database.", dbi.getName(), dbi.getTable().getName());
         }
         else if (dbo instanceof DBView)
         {
@@ -196,7 +196,7 @@ public class DBModelErrorLogger implements DBModelErrorHandler
         }
         b.append("]");
         tblColumns = b.toString();
-        logError("The primary key of table {} {} does not match the key of the existing table {}.", primaryKey.getTable().getName(), defColumns, tblColumns);
+        logWarn("The primary key of table {} {} does not match the key of the existing table {}.", primaryKey.getTable().getName(), defColumns, tblColumns);
         // increase count
         warnCount++;
     }
