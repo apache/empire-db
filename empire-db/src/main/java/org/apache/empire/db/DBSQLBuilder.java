@@ -22,6 +22,7 @@ import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.Collection;
 import java.util.Date;
 
@@ -374,6 +375,10 @@ public abstract class DBSQLBuilder implements Appendable
         else if ((value instanceof LocalDateTime))
         {   // Convert LocalDateTime to Timestamp
             ts = java.sql.Timestamp.valueOf((LocalDateTime)value);
+        }
+        else if ((value instanceof LocalTime))
+        {   // Convert LocalTime to Timestamp with current date
+            ts = java.sql.Timestamp.valueOf(((LocalTime)value).atDate(LocalDate.now()));
         }
         else 
         {   // "Timestamp format must be yyyy-mm-dd hh:mm:ss[.fffffffff]"
