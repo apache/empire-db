@@ -150,7 +150,7 @@ public final class ObjectUtils
         if (value instanceof Float)
             return (((Float) value).compareTo(0.0f)==0);
         if (value instanceof Double)
-            return (((Float) value).compareTo(0.0f)==0);
+            return (((Double) value).compareTo(0.0d)==0);
         if (value instanceof Long)
             return (value.longValue()==0l);
         // default: check int value

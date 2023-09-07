@@ -20,6 +20,7 @@ package org.apache.empire.commons;
 
 import static org.junit.Assert.*;
 
+import java.math.BigDecimal;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -51,6 +52,21 @@ public class ObjectUtilsTest
 		assertFalse(ObjectUtils.isEmpty(" "));
 		assertFalse(ObjectUtils.isEmpty(new Object()));
 	}
+
+	@Test
+    public void testIsZero()
+    {
+        assertTrue(ObjectUtils.isZero(BigDecimal.ZERO));
+        assertTrue(ObjectUtils.isZero(0f));
+        assertTrue(ObjectUtils.isZero(Float.valueOf("0")));
+        assertTrue(ObjectUtils.isZero(0d));
+        assertTrue(ObjectUtils.isZero(0l));
+        assertTrue(ObjectUtils.isZero(0));
+		assertTrue(ObjectUtils.isZero(null));
+		assertFalse(ObjectUtils.isZero(0.1d));
+        assertFalse(ObjectUtils.isZero(444l));
+        assertFalse(ObjectUtils.isZero(-0.01f));
+    }
 
 	/**
 	 * Test method for
