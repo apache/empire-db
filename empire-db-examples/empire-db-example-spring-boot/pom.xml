@@ -29,7 +29,7 @@
     <packaging>jar</packaging>
 
     <properties>
-        <spring-boot.version>2.6.6</spring-boot.version>
+        <spring-boot.version>2.7.17</spring-boot.version>
     </properties>
 
     <dependencyManagement>
@@ -54,7 +54,19 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter</artifactId>
+            <exclusions>
+            	<exclusion>
+            		<groupId>ch.qos.logback</groupId>
+            		<artifactId>logback-classic</artifactId>
+            	</exclusion>
+            </exclusions>
         </dependency>
+
+		<!-- logging -->
+		<dependency>
+		    <groupId>org.slf4j</groupId>
+		    <artifactId>slf4j-reload4j</artifactId>
+		</dependency>
 
         <dependency>
             <groupId>org.hsqldb</groupId>
