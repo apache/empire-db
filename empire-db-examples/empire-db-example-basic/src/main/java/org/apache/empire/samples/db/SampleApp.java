@@ -637,6 +637,12 @@ public class SampleApp
         */    
         for (DataListEntry dle : list)
         {
+
+        	if (dle.hasField(DEP.ID)) {
+        		int depId = dle.getInt(DEP.ID);
+        		// what?
+        	}
+        	
             long empId = dle.getRecordId(EMP);
             // int depId = dle.getId(DEP);
             String empName = StringUtils.concat(", ", dle.getString(EMP.LAST_NAME), dle.getString(EMP.FIRST_NAME));
