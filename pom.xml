@@ -17,11 +17,11 @@
 -->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
-	
+
 	<parent>
 		<groupId>org.apache</groupId>
 		<artifactId>apache</artifactId>
-		<version>23</version>
+		<version>31</version>
 	</parent>
 	
 	<groupId>org.apache.empire-db</groupId>
@@ -43,8 +43,8 @@
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-		<maven.compile.source>1.8</maven.compile.source>
-		<maven.compile.target>1.8</maven.compile.target>
+		<maven.compiler.source>1.8</maven.compiler.source>
+		<maven.compiler.target>1.8</maven.compiler.target>
 		<disclaimer.dir>{project.basedir}</disclaimer.dir>
 	</properties>
 
@@ -399,41 +399,7 @@
 	</dependencies>
 
 	<build>
-		<defaultGoal>install</defaultGoal>
-		<plugins>
-			<!-- maven-remote-resources-plugin -->
-		 	<plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-remote-resources-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>process</goal>
-                        </goals>
-                        <configuration>
-                            <resourceBundles>
-                                <resourceBundle>org.apache:apache-jar-resource-bundle:1.4</resourceBundle>
-                            </resourceBundles>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
-            	<!-- add osgi manifests -->
-				<groupId>org.apache.felix</groupId>
-				<artifactId>maven-bundle-plugin</artifactId>
-				<inherited>true</inherited>
-			</plugin>
-			<plugin>
-				<groupId>org.codehaus.mojo</groupId>
-				<artifactId>animal-sniffer-maven-plugin</artifactId>
-			</plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-site-plugin</artifactId>
-            </plugin>
-        </plugins>
-        
+		<defaultGoal>install</defaultGoal>        
 		<pluginManagement>
 			<plugins>
 				<!-- Release Audit Tool mvn rat:check -->
@@ -477,20 +443,20 @@
 						<autoVersionSubmodules>true</autoVersionSubmodules>
 					</configuration>
 				</plugin>
+				<!-- compiler plug-in -->
 				<plugin>
-					<inherited>true</inherited>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-compiler-plugin</artifactId>
 					<version>3.11.0</version>
-					<configuration>
-						<source>${maven.compile.source}</source>
-						<target>${maven.compile.target}</target>
-						<optimize>true</optimize>
-						<debug>true</debug>
-					</configuration>
 				</plugin>
+				<!-- WAR plug-in -->
 				<plugin>
-				    <inherited>true</inherited>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-war-plugin</artifactId>
+					<version>3.3.1</version>
+				</plugin>
+				<!-- JAR plug-in -->
+				<plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-jar-plugin</artifactId>
                     <version>3.1.1</version>
@@ -501,8 +467,8 @@
                          -->
                         <archive>
                             <manifestEntries>
-                                <X-Compile-Source-JDK>${maven.compile.source}</X-Compile-Source-JDK>
-                                <X-Compile-Target-JDK>${maven.compile.target}</X-Compile-Target-JDK>
+                                <X-Compile-Source-JDK>${maven.compiler.source}</X-Compile-Source-JDK>
+                                <X-Compile-Target-JDK>${maven.compiler.target}</X-Compile-Target-JDK>
                             </manifestEntries>
                         </archive>
                     </configuration>
@@ -691,6 +657,53 @@
 				</plugin>
 			</plugins>			
 		</pluginManagement>
+
+		<!-- plugin -->		
+		<plugins>
+			<!-- maven-compiler-plugin -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<configuration>
+					<source>${maven.compiler.source}</source>
+					<target>${maven.compiler.target}</target>
+					<optimize>true</optimize>
+					<debug>true</debug>
+				</configuration>
+			</plugin>
+			<!-- maven-remote-resources-plugin -->
+		 	<plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-remote-resources-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>process</goal>
+                        </goals>
+                        <configuration>
+                            <resourceBundles>
+                                <resourceBundle>org.apache:apache-jar-resource-bundle:1.4</resourceBundle>
+                            </resourceBundles>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+            	<!-- add osgi manifests -->
+				<groupId>org.apache.felix</groupId>
+				<artifactId>maven-bundle-plugin</artifactId>
+				<inherited>true</inherited>
+			</plugin>
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>animal-sniffer-maven-plugin</artifactId>
+			</plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-site-plugin</artifactId>
+            </plugin>
+        </plugins>
+		
 	</build>
 	
 	<reporting>
