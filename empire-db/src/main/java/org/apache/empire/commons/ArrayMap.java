@@ -128,11 +128,11 @@ public class ArrayMap<K,V> extends AbstractMap<K,V>
     
     /**
      * Builder method to build an ArrayMap
-     * @param key
-     * @param value
+     * @param key the Key
+     * @param value the Value
      * @return the ArrayMap
      */
-    public ArrayMap<K,V> append(K key, V value)
+    public ArrayMap<K,V> add(K key, V value)
     {
         put(key, value);
         return this;
@@ -168,12 +168,7 @@ public class ArrayMap<K,V> extends AbstractMap<K,V>
         return null;
     }
     
-    public void add(K key, V value)
-    {
-        this.put(key, value);
-    }
-    
-    public void add(K key, V value, int index)
+    public void put(K key, V value, int index)
     {
         if (index<0)
         {   // add to end

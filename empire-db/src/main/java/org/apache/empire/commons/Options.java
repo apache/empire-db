@@ -327,9 +327,22 @@ public class Options extends AbstractSet<OptionEntry> implements Cloneable, Seri
      * @param value the value object
      * @param text the text
      */
-    public void set(Object value, String text)
+    public Options set(Object value, String text, boolean active)
+    {
+        set(value, text, active, InsertPos.Bottom);
+        return this;
+    }
+    
+    /**
+     * Sets or adds Adds an option at the bottom
+     * 
+     * @param value the value object
+     * @param text the text
+     */
+    public Options set(Object value, String text)
     {
         set(value, text, InsertPos.Bottom);
+        return this;
     }
 
     /**
