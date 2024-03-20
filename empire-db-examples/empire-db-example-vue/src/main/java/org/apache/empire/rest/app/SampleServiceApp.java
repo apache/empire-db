@@ -63,7 +63,7 @@ public class SampleServiceApp
             ServletContext ctx = sce.getServletContext();
             app = new SampleServiceApp(ctx);
             // done
-            log.debug("SampleServiceApp created sucessfully!");
+            log.debug("SampleServiceApp created successfully!");
         }
     
         @Override

@@ -21,13 +21,15 @@ package org.apache.empire.commons;
 import java.io.Serializable;
 import java.util.AbstractSet;
 import java.util.ArrayList;
-import java.util.HashSet;
+import java.util.Collection;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
 import org.apache.empire.data.DataType;
 import org.apache.empire.exceptions.InvalidArgumentException;
+import org.apache.empire.exceptions.NotSupportedException;
 import org.apache.empire.xml.XMLUtil;
 import org.w3c.dom.Element;
 
@@ -43,7 +45,104 @@ public class Options extends AbstractSet<OptionEntry> implements Cloneable, Seri
 	private static final long serialVersionUID = 1L;
 
     private static final String EMPTY_STRING = "";
+    
+    /**
+     * Implements the Map interface for Options
+     */
+    private class ImmutableMap<T> implements Map<T,String>
+    {
+        @Override
+        public int size()
+        {
+            return Options.this.size();
+        }
 
+        @Override
+        public boolean isEmpty()
+        {
+            return Options.this.isEmpty();
+        }
+
+        @Override
+        public boolean containsKey(Object key)
+        {
+            return contains(key);
+        }
+    
+        @Override
+        public boolean containsValue(Object value)
+        {
+            for (OptionEntry e : Options.this.list)
+            {
+                if (ObjectUtils.compareEqual(value, e.getText()))
+                    return true;
+            }
+            return false;
+        }
+
+        @SuppressWarnings("unchecked")
+        @Override
+        public Set<T> keySet()
+        {
+            Set<T> keySet = new ArraySet<T>(this.size());
+            for (OptionEntry e : list)
+                keySet.add((T)e.getValue());
+            return keySet;
+        }
+    
+        @Override
+        public Collection<String> values()
+        {
+            Collection<String> textValues = new ArrayList<String>(this.size());
+            for (OptionEntry e : list)
+                textValues.add(e.getText());
+            return textValues;
+        }
+
+        @SuppressWarnings("unchecked")
+        @Override
+        public Set<Entry<T, String>> entrySet()
+        {
+            ArraySet<Entry<T, String>> set = new ArraySet<Entry<T, String>>(list.size());
+            for (OptionEntry e : list)
+                set.add(new ArrayMap.Entry<T,String>((T)e.getValue(), e.getText()));
+            return set.immutable();
+        }
+
+        @Override
+        public String get(Object key)
+        {
+            return Options.this.get(key);
+        }
+
+        @Override
+        public String put(Object key, String value)
+        {
+            throw new NotSupportedException(this, "put");
+        }
+    
+        @Override
+        public void putAll(Map<? extends T, ? extends String> map)
+        {
+            throw new NotSupportedException(this, "putAll");
+        }
+
+        @Override
+        public String remove(Object key)
+        {
+            throw new NotSupportedException(this, "remove");
+        }
+
+        @Override
+        public void clear()
+        {
+            throw new NotSupportedException(this, "clear");
+        }
+    }
+    
+    /**
+     * InsertPos enum
+     */
 	public enum InsertPos
     {
         Top, Bottom, Sort
@@ -163,9 +262,13 @@ public class Options extends AbstractSet<OptionEntry> implements Cloneable, Seri
         return (i>=0 && i<list.size() ? list.get(i).getText() : EMPTY_STRING);
     }
 
+    /**
+     * Returns all values as a set
+     * @return the value set
+     */
     public Set<Object> getValues()
     {
-        HashSet<Object> set = new HashSet<Object>(list.size());
+        ArraySet<Object> set = new ArraySet<Object>(list.size());
         for (OptionEntry e : list)
             set.add(e.getValue());
         return set;
@@ -328,6 +431,24 @@ public class Options extends AbstractSet<OptionEntry> implements Cloneable, Seri
     {
         return list.toArray();
     }
+    
+    /**
+     * Returns an immutable Map for the options 
+     * @return the map of options
+     */
+    public Map<Object, String> map()
+    {
+        return map(Object.class);
+    }
+    
+    /**
+     * Returns an immutable Map for the options 
+     * @return the map of options
+     */
+    public <T> Map<T, String> map(Class<T> type)
+    {
+        return new ImmutableMap<T>();
+    }
 
     @Override
     public String toString()
@@ -372,7 +493,7 @@ public class Options extends AbstractSet<OptionEntry> implements Cloneable, Seri
         }
     }
 
-    private int findInsertPos(String text)
+    protected int findInsertPos(String text)
     {
         int i = 0;
         for (; i < list.size(); i++)
@@ -383,4 +504,5 @@ public class Options extends AbstractSet<OptionEntry> implements Cloneable, Seri
         }
         return i;
     }
+
 }

@@ -219,6 +219,17 @@ public abstract class DBSQLBuilder implements Appendable
             appendSimpleValue(dataType, value);
         }
     }
+
+    /**
+     * Appends the SQL representation of a value
+     * @param dataType the DataType
+     * @param value an DBExpr object, array or a basis data type(e.g. int, String)
+     * @param context the context of the DBColumnExpr object
+     */
+    public final void appendValue(DataType dataType, Object value, long context)
+    {
+        appendValue(dataType, value, context, getPhrase(DBSqlPhrase.SQL_CONCAT_EXPR));
+    }
     
     /**
      * Expands an SQL template and adds it to the SQL command

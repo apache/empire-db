@@ -814,7 +814,7 @@ public abstract class DBRecordBase extends DBRecordData implements Record, Clone
 
     /**
      * Sets record values from the suppied java bean.
-     * @return true if at least one value has been set sucessfully
+     * @return true if at least one value has been set successfully
      */
     @Override
     public final int setRecordValues(Object bean)

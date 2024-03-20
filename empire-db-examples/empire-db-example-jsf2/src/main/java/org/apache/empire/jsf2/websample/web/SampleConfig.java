@@ -162,7 +162,7 @@ public class SampleConfig extends XMLConfiguration
         // Init Log4J
         DOMConfigurator.configure(loggingNode);
         // done
-        SampleConfig.log.info("Logging sucessfully configured from node {}.", loggingNodeName);
+        SampleConfig.log.info("Logging successfully configured from node {}.", loggingNodeName);
         return true;
     }
 

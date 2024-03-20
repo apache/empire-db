@@ -89,7 +89,7 @@ public class SampleAdvConfig extends XMLConfiguration
         // Init Log4J
         DOMConfigurator.configure(loggingNode);
         // done
-        log.info("Logging sucessfully configured from node {}.", loggingNodeName);
+        log.info("Logging successfully configured from node {}.", loggingNodeName);
     }
 
     public String getDatabaseProvider()

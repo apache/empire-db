@@ -18,18 +18,18 @@
  */
 package org.apache.empire.db.expr.column;
 
-import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.empire.data.DataType;
+import org.apache.empire.commons.ArrayMap;
+import org.apache.empire.commons.ArraySet;
+import org.apache.empire.commons.ObjectUtils;
 import org.apache.empire.db.DBColumn;
 import org.apache.empire.db.DBColumnExpr;
-import org.apache.empire.db.DBDatabase;
 import org.apache.empire.db.DBSQLBuilder;
 import org.apache.empire.db.expr.compare.DBCompareExpr;
-import org.apache.empire.xml.XMLUtil;
-import org.w3c.dom.Element;
+import org.apache.empire.exceptions.InvalidArgumentException;
 
 /**
  * This class is used to create a SQL CASE constraint in the form of 
@@ -42,95 +42,110 @@ import org.w3c.dom.Element;
  * 
  * @author doebele
  */
-public class DBCaseWhenExpr extends DBColumnExpr
+public class DBCaseWhenExpr extends DBCaseExpr
 {
     // *Deprecated* private static final long serialVersionUID = 1L;
   
-    private final Map<DBCompareExpr, DBColumnExpr> whenMap;
-    private final DBColumnExpr  elseExpr;
+    private final Map<DBCompareExpr, Object> whenMap;
+    private final Object elseValue;
     
     /**
      * Constructs a DBCaseExpr
      * @param whenMap a map of compareExpressions with the corresponding result values
-     * @param elseExpr the expression returned if no condition is true (may be null)
+     * @param elseValue the expression returned if no condition is true (may be null)
      */
-    public DBCaseWhenExpr(Map<DBCompareExpr, DBColumnExpr> whenMap, DBColumnExpr elseExpr)
-    {
+    public DBCaseWhenExpr(Map<DBCompareExpr, Object> whenMap, Object elseValue)
+    {   // check params
+        if (whenMap==null || (whenMap.isEmpty() && ObjectUtils.isEmpty(elseValue)))
+            throw new InvalidArgumentException("whenMap | elseValue", null);
+        // set
         this.whenMap  = whenMap;
-        this.elseExpr = elseExpr; 
+        this.elseValue = elseValue; 
+        // init
+        init(null, whenMap, elseValue);
     }
-
-    @SuppressWarnings("unchecked")
-    @Override
-    public final DBDatabase getDatabase()
-    {
-        return getFirstColumnExpr().getDatabase();
+    
+    public DBCaseWhenExpr(DBCompareExpr cmpExpr, Object trueExpr, Object elseValue)
+    {   // check params
+        if (cmpExpr==null || (isNull(trueExpr) && isNull(elseValue)))
+            throw new InvalidArgumentException("cmpExpr | trueExpr | elseValue", null);
+        // set
+        this.whenMap  = new ArrayMap<DBCompareExpr, Object>(1);
+        this.whenMap.put(cmpExpr, trueExpr);
+        this.elseValue = elseValue;
+        // init
+        init(null, whenMap, elseValue);
     }
-
-    @Override
-    public DataType getDataType()
-    {
-        DBColumnExpr cexp = getFirstColumnExpr();
-        return cexp.getDataType();
-    }
-
-    @Override
-    public Class<Enum<?>> getEnumType()
-    {
-        DBColumnExpr cexp = getFirstColumnExpr();
-        return cexp.getEnumType();
-    }
-
+    
     @Override
     public String getName()
     {
-        DBCompareExpr firstCmpExpr = whenMap.keySet().iterator().next();
-        Set<DBColumn> cols = new HashSet<DBColumn>(1);
-        firstCmpExpr.addReferencedColumns(cols);
-        // build name
-        StringBuilder name = new StringBuilder(); 
+        StringBuilder name = new StringBuilder(40); 
         name.append("CASE");
-        for (DBColumn col : cols)
-        {
-            name.append("_");
-            // name.append(col.getRowSet().getName());
-            // name.append("_");
-            name.append(col.getName());
+        if (!whenMap.isEmpty())
+        {   // All columns of first compare expression
+            DBCompareExpr firstCmpExpr = whenMap.keySet().iterator().next();
+            Set<DBColumn> cols = new ArraySet<DBColumn>(1);
+            firstCmpExpr.addReferencedColumns(cols);
+            // build name
+            for (DBColumn col : cols)
+            {
+                name.append("_");
+                // name.append(col.getRowSet().getName());
+                // name.append("_");
+                name.append(col.getName());
+            }
         }
         return name.toString();
     }
-
+    
+    /**
+     * Returns true if other is equal to this expression  
+     */
     @Override
-    public DBColumn getSourceColumn()
+    public boolean equals(Object other)
     {
-        DBColumnExpr cexp = getFirstColumnExpr();
-        return cexp.getSourceColumn();
-    }
-
-    @Override
-    public DBColumn getUpdateColumn()
-    {
-        return null;
-    }
-
-    @Override
-    public boolean isAggregate()
-    {
-        return getFirstColumnExpr().isAggregate();
+        if (other==this)
+            return true;
+        // Check Type
+        if (other instanceof DBCaseWhenExpr)
+        {   // Compare
+            DBCaseWhenExpr otherCase = (DBCaseWhenExpr)other;
+            // Expression must match
+            if (whenMap.size()!=otherCase.whenMap.size())
+                return false;
+            // empty
+            if (whenMap.isEmpty())
+            {   // compare elseValue
+                return ObjectUtils.compareEqual(elseValue, otherCase.elseValue);
+            }
+            // check all keys
+            Iterator<DBCompareExpr> thisIterator  = whenMap.keySet().iterator();
+            Iterator<DBCompareExpr> otherIterator = otherCase.whenMap.keySet().iterator();
+            while (thisIterator.hasNext())
+            {   // Compare
+                DBCompareExpr thisCmpExpr = thisIterator.next();
+                DBCompareExpr otherCmpExpr = otherIterator.next();
+                if (!thisCmpExpr.equals(otherCmpExpr))
+                    return false;
+            }
+            return true;
+        }
+        return false;
     }
 
     @Override
     public void addReferencedColumns(Set<DBColumn> list)
     {
-        for (Map.Entry<DBCompareExpr, DBColumnExpr> entry : whenMap.entrySet())
+        for (Map.Entry<DBCompareExpr, Object> entry : whenMap.entrySet())
         {
             if (entry.getKey()!=null)
                 entry.getKey().addReferencedColumns(list);
-            if (entry.getValue()!=null)
-                entry.getValue().addReferencedColumns(list);
+            if (entry.getValue() instanceof DBColumnExpr)
+                ((DBColumnExpr)entry.getValue()).addReferencedColumns(list);
         }
-        if (elseExpr!=null)
-            elseExpr.addReferencedColumns(list);
+        if (elseValue instanceof DBColumnExpr)
+            ((DBColumnExpr)elseValue).addReferencedColumns(list);
     }
 
     @Override
@@ -141,60 +156,23 @@ public class DBCaseWhenExpr extends DBColumnExpr
         if (!whenMap.isEmpty())
         {   // add case
             sql.append("CASE");
-            for (Map.Entry<DBCompareExpr, DBColumnExpr> entry : whenMap.entrySet())
+            for (Map.Entry<DBCompareExpr, Object> entry : whenMap.entrySet())
             {
                 sql.append(" WHEN ");
                 DBCompareExpr compExpr = entry.getKey();
                 compExpr.addSQL(sql, context);
-                sql.append( " THEN ");
-                DBColumnExpr trueExpr = entry.getValue();
-                if (trueExpr!=null)
-                    trueExpr.addSQL(sql, context);
-                else
-                    sql.append("NULL");
+                sql.append(" THEN ");
+                sql.appendValue(getDataType(), entry.getValue(), context);
             }
             sql.append(" ELSE ");
         }
         // append else
-        if (elseExpr!=null)
-        {   // Else
-            elseExpr.addSQL(sql, context);
-        }
-        else
-        {   // Append NULL
-            sql.append("NULL");
-        }
+        sql.appendValue(getDataType(), elseValue, context);
         // append end
         if (!whenMap.isEmpty())
         {
             sql.append(" END");
         }
-    }
-
-    @Override
-    public Element addXml(Element parent, long flags)
-    {
-        Element elem = XMLUtil.addElement(parent, "column");
-        elem.setAttribute("name", getName());
-        // Add Other Attributes
-        if (attributes!=null)
-            attributes.addXml(elem, flags);
-        // add All Options
-        if (options!=null)
-            options.addXml(elem, getDataType());
-        // Done
-        elem.setAttribute("function", "case");
-        return elem;
-    }
-    
-    private DBColumnExpr getFirstColumnExpr()
-    {
-        for (DBColumnExpr expr : whenMap.values())
-        {
-            if (expr!=null)
-                return expr;
-        }
-        return this.elseExpr;
     }
 
 }

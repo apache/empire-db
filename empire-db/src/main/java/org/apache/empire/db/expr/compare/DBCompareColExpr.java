@@ -32,6 +32,7 @@ import org.apache.empire.db.DBDatabase;
 import org.apache.empire.db.DBExpr;
 import org.apache.empire.db.DBSQLBuilder;
 import org.apache.empire.db.expr.column.DBAliasExpr;
+import org.apache.empire.dbms.DBSqlPhrase;
 
 
 /**
@@ -201,7 +202,7 @@ public class DBCompareColExpr extends DBCompareExpr
                 arraySep = ", ";
                 break;
             default:
-                arraySep = "+";
+                arraySep = (expr.getDataType().isNumeric() ? "+" : sql.getPhrase(DBSqlPhrase.SQL_CONCAT_EXPR));
                 break;
         }
         // Add comparison operator and value

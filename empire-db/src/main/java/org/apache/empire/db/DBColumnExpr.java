@@ -33,6 +33,7 @@ import org.apache.empire.data.DataType;
 import org.apache.empire.db.expr.column.DBAliasExpr;
 import org.apache.empire.db.expr.column.DBCalcExpr;
 import org.apache.empire.db.expr.column.DBCaseExpr;
+import org.apache.empire.db.expr.column.DBCaseWhenExpr;
 import org.apache.empire.db.expr.column.DBCoalesceExpr;
 import org.apache.empire.db.expr.column.DBConcatExpr;
 import org.apache.empire.db.expr.column.DBConcatFuncExpr;
@@ -1289,7 +1290,7 @@ public abstract class DBColumnExpr extends DBExpr
             elseExpr = new DBValueExpr(getDatabase(), otherwise, getDataType());
         }
         // Create DBCaseExpr
-        return new DBCaseExpr(compExpr, this, elseExpr);
+        return new DBCaseWhenExpr(compExpr, this, elseExpr);
     }
 
     /*

@@ -18,13 +18,14 @@
  */
 package org.apache.empire.db.expr.column;
 
-import java.util.Set;
+import java.util.Map;
 
 import org.apache.empire.data.DataType;
 import org.apache.empire.db.DBColumn;
 import org.apache.empire.db.DBColumnExpr;
 import org.apache.empire.db.DBDatabase;
-import org.apache.empire.db.DBSQLBuilder;
+import org.apache.empire.db.DBExpr;
+import org.apache.empire.db.expr.compare.DBCompareColExpr;
 import org.apache.empire.db.expr.compare.DBCompareExpr;
 import org.apache.empire.xml.XMLUtil;
 import org.w3c.dom.Element;
@@ -37,122 +38,54 @@ import org.w3c.dom.Element;
  * <P>
  * @author doebele
  */
-public class DBCaseExpr extends DBColumnExpr
+public abstract class DBCaseExpr extends DBColumnExpr
 {
-    // *Deprecated* private static final long serialVersionUID = 1L;
-  
-    private final DBCompareExpr compExpr;
-    private final DBColumnExpr  trueExpr;
-    private final DBColumnExpr  elseExpr;
+    // detect 
+    private DBColumn sourceColumn = null;
+    private DataType dataType = DataType.UNKNOWN;
+    private Class<Enum<?>> enumType = null;
+    private boolean aggregateFunc = false;
     
-    /**
-     * Constructs a DBCaseExpr
-     * @param compExpr the condition to be evaluated
-     * @param trueExpr the expression returned if the condition is true
-     * @param elseExpr the expression returned if the condition is false (may be null)
-     */
-    public DBCaseExpr(DBCompareExpr compExpr, DBColumnExpr trueExpr, DBColumnExpr elseExpr)
+    protected DBCaseExpr()
     {
-        this.compExpr = compExpr;
-        this.trueExpr = trueExpr;
-        this.elseExpr = elseExpr; 
+        /* Nothing yet */
     }
 
     @SuppressWarnings("unchecked")
     @Override
     public final DBDatabase getDatabase()
     {
-        return trueExpr.getDatabase();
+        return sourceColumn.getDatabase();
     }
 
     @Override
     public DataType getDataType()
     {
-        return trueExpr.getDataType();
+        return dataType;
     }
 
     @Override
     public Class<Enum<?>> getEnumType()
     {
-        return trueExpr.getEnumType();
-    }
-
-    @Override
-    public String getName()
-    {
-        return trueExpr.getName();
+        return enumType;
     }
 
     @Override
     public DBColumn getSourceColumn()
     {
-        return trueExpr.getUpdateColumn();
+        return sourceColumn;
     }
 
     @Override
     public DBColumn getUpdateColumn()
     {
-        return trueExpr.getUpdateColumn();
+        return null;
     }
 
     @Override
     public boolean isAggregate()
     {
-        return trueExpr.isAggregate();
-    }
-    
-    /**
-     * Returns true if other is equal to this expression  
-     */
-    @Override
-    public boolean equals(Object other)
-    {
-        if (other==this)
-            return true;
-        // Check Type
-        if (other instanceof DBCaseExpr)
-        {   // Compare
-            DBCaseExpr otherCase = (DBCaseExpr)other;
-            // Expression must match
-            if (!compExpr.equals(otherCase.compExpr))
-                return false;
-            if (!trueExpr.equals(otherCase.trueExpr))
-                return false;
-            // finally compare elseExpr
-            if (elseExpr==null)
-                return (otherCase.elseExpr==null);
-            return elseExpr.equals(otherCase.elseExpr);
-        }
-        return false;
-    }
-
-    @Override
-    public void addReferencedColumns(Set<DBColumn> list)
-    {
-        trueExpr.addReferencedColumns(list);
-        compExpr.addReferencedColumns(list);
-        if (elseExpr!=null)
-            elseExpr.addReferencedColumns(list);
-    }
-
-    @Override
-    public void addSQL(DBSQLBuilder sql, long context)
-    {
-        context &= ~CTX_ALIAS; // No column aliases
-        sql.append("CASE WHEN ");
-        compExpr.addSQL(sql, context);
-        sql.append( " THEN ");
-        trueExpr.addSQL(sql, context);
-        sql.append(" ELSE ");
-        if (elseExpr!=null)
-        {   // Else
-            elseExpr.addSQL(sql, context);
-        }
-        else
-        {   // Append NULL
-            sql.append("NULL");
-        }
-        sql.append(" END");
+        return aggregateFunc;
     }
 
     @Override
@@ -171,4 +104,80 @@ public class DBCaseExpr extends DBColumnExpr
         return elem;
     }
 
+    /**
+     * helper to check if an expression is null
+     * @param value
+     * @return true if null or false otherwise
+     */
+    protected boolean isNull(Object value)
+    {
+        return (value==null || ((value instanceof DBValueExpr) && ((DBValueExpr)value).getValue()==null));
+    }
+
+    /**
+     * helper to check if an expression is not null
+     * @param value
+     * @return true if not null or false otherwise
+     */
+    protected boolean isNotNull(Object value)
+    {
+        return !isNull(value);
+    }
+
+    /**
+     * Init case expression. 
+     * Must be called from all constructors!
+     * @param sourceColumn
+     * @param valueMap
+     * @param elseValue
+     */
+    protected void init(DBColumn sourceColumn, Map<?,?> valueMap, Object elseValue)
+    {
+        this.sourceColumn = sourceColumn;
+        for (Map.Entry<?, ?> entry : valueMap.entrySet())
+        {   // check compare expr
+            registerCompareValue(entry.getKey());
+            registerTargetValue (entry.getValue());
+        }
+        registerTargetValue(elseValue);
+    }
+    
+    private void registerCompareValue(Object value)
+    {
+        if (value instanceof DBCompareColExpr)
+            value = ((DBCompareColExpr)value).getColumnExpr();
+        if (!(value instanceof DBColumnExpr))
+            return; // not a function
+        DBColumnExpr colExpr = (DBColumnExpr)value;
+        if (this.sourceColumn==null && colExpr.getSourceColumn()!=null)
+            this.sourceColumn = colExpr.getSourceColumn();
+        if (colExpr.isAggregate())
+            this.aggregateFunc = true;
+    }
+
+    @SuppressWarnings("unchecked")
+    private void registerTargetValue(Object value)
+    {
+        if (isNull(value))
+            return;
+        // check
+        if (value instanceof DBColumnExpr)
+        {   // Column Expression
+            DBColumnExpr colExpr = ((DBColumnExpr)value);
+            if (this.dataType==DataType.UNKNOWN)
+                this.dataType = colExpr.getDataType();
+            if (this.enumType== null && colExpr.getEnumType()!=null)
+                this.enumType = colExpr.getEnumType();
+            if (colExpr.isAggregate())
+                this.aggregateFunc = true;
+        }
+        else if (!(value instanceof DBExpr))
+        {   // Simple Value
+            if (this.dataType==DataType.UNKNOWN)
+                this.dataType = DataType.fromJavaType(value.getClass());
+            if (this.enumType== null && (value instanceof Enum<?>))
+                this.enumType = (Class<Enum<?>>)value.getClass();
+        }
+    }
+    
 }

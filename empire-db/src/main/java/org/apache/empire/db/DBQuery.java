@@ -566,7 +566,7 @@ public class DBQuery extends DBRowSet
             } 
             else
             { // success
-                log.info("Record for table '" + table.getName() + " sucessfully updated!");
+                log.info("Record for table '" + table.getName() + " successfully updated!");
             }
             // Correct Timestamp
             if (timestampIndex >= 0)
