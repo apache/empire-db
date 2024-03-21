@@ -44,8 +44,6 @@ public class Options extends AbstractSet<OptionEntry> implements Cloneable, Seri
 {
 	private static final long serialVersionUID = 1L;
 
-    private static final String EMPTY_STRING = "";
-    
     /**
      * Implements the Map interface for Options
      */
@@ -138,6 +136,12 @@ public class Options extends AbstractSet<OptionEntry> implements Cloneable, Seri
         {
             throw new NotSupportedException(this, "clear");
         }
+        
+        @Override
+        public String toString()
+        {
+            return Options.this.toString();
+        }
     }
     
     /**
@@ -153,6 +157,11 @@ public class Options extends AbstractSet<OptionEntry> implements Cloneable, Seri
     public Options()
     {   // Default constructor
         this.list = new ArrayList<OptionEntry>();
+    }
+    
+    public Options(int initialCapacity)
+    {   // Default constructor
+        this.list = new ArrayList<OptionEntry>(initialCapacity);
     }
     
     public Options(Options other)
@@ -183,6 +192,14 @@ public class Options extends AbstractSet<OptionEntry> implements Cloneable, Seri
             Enum<?> item = items[i];
             add(item, item.toString(), true);
         }
+    }
+
+    @Override
+    public boolean addAll(Collection<? extends OptionEntry> source)
+    {
+        for (OptionEntry e : source)
+            add((OptionEntry)e.clone());
+        return true;
     }
 
     @Override
@@ -229,7 +246,7 @@ public class Options extends AbstractSet<OptionEntry> implements Cloneable, Seri
     public String get(Object value)
     {
         OptionEntry oe = getEntry(value);
-        return (oe!=null ? oe.getText() : EMPTY_STRING);
+        return (oe!=null ? oe.getText() : StringUtils.EMPTY);
     }
 
     public boolean isActive(Object value)
@@ -259,19 +276,57 @@ public class Options extends AbstractSet<OptionEntry> implements Cloneable, Seri
      */
     public String getTextAt(int i)
     {
-        return (i>=0 && i<list.size() ? list.get(i).getText() : EMPTY_STRING);
+        return (i>=0 && i<list.size() ? list.get(i).getText() : StringUtils.EMPTY);
     }
 
     /**
      * Returns all values as a set
+     * boolean activeOnly flag whether to return the active items only
      * @return the value set
      */
-    public Set<Object> getValues()
+    public Set<Object> getValues(boolean activeOnly)
     {
-        ArraySet<Object> set = new ArraySet<Object>(list.size());
+        int count = (activeOnly ? getActiveCount() : list.size());
+        ArraySet<Object> values = new ArraySet<Object>(count);
         for (OptionEntry e : list)
-            set.add(e.getValue());
-        return set;
+            if (activeOnly==false || e.isActive())
+                values.add(e.getValue());
+        return values;
+    }
+    
+    /**
+     * Returns all values as a set
+     * @return the value set
+     */
+    public final Set<Object> getValues()
+    {
+        return getValues(false);
+    }
+
+    /**
+     * Returns the number of active elements
+     * @return the number of active elements
+     */
+    public int getActiveCount()
+    {
+        int count = 0;
+        for (OptionEntry e : list)
+            if (e.isActive())
+                count++;
+        return count;
+    }
+    
+    /**
+     * Returns the subset of active options 
+     * @return the active options
+     */
+    public Options getActive()
+    {
+        Options o = new Options(getActiveCount());
+        for (OptionEntry e : list)
+            if (e.isActive())
+                o.list.add(e);
+        return o;
     }
 
     /**
@@ -282,19 +337,18 @@ public class Options extends AbstractSet<OptionEntry> implements Cloneable, Seri
      * @param active flag if element is active (selectable)
      * @param pos the position, see {@link InsertPos}
      */
-    public void set(Object value, String text, boolean active, InsertPos pos)
+    public void set(Object value, String text, Boolean active, InsertPos pos)
     {
         if (text == null)
-        { // text must not be null!
-            return;
-        }
+            text = StringUtils.EMPTY;
         // Find Entry
         OptionEntry oe = getEntry(value);
         if (oe!=null)
-        {   // already present
+        {   // replace
             oe.setText(text);
-            oe.setActive(active);
-        } 
+            if (active!=null)
+                oe.setActive(active);
+        }
         else
         {   // find insert pos
             int index;
@@ -305,7 +359,7 @@ public class Options extends AbstractSet<OptionEntry> implements Cloneable, Seri
             else // bottom is default
                 index = list.size();
             // add entry now
-            list.add(index, createOptionEntry(value, text, active));
+            list.add(index, createOptionEntry(value, text, (active!=null ? active :true )));
         }
     }
 
@@ -316,9 +370,9 @@ public class Options extends AbstractSet<OptionEntry> implements Cloneable, Seri
      * @param text the text
      * @param pos the position, see {@link InsertPos}
      */
-    public void set(Object value, String text, InsertPos pos)
+    public final void set(Object value, String text, InsertPos pos)
     {
-        set(value, text, true, pos);
+        set(value, text, (Boolean)null, pos);
     }
     
     /**
@@ -327,10 +381,22 @@ public class Options extends AbstractSet<OptionEntry> implements Cloneable, Seri
      * @param value the value object
      * @param text the text
      */
-    public Options set(Object value, String text, boolean active)
+    public void set(Object value, String text, Boolean active)
     {
-        set(value, text, active, InsertPos.Bottom);
-        return this;
+        if (text == null)
+            text = StringUtils.EMPTY;
+        // check if it exists
+        OptionEntry oe = getEntry(value);
+        if (oe!=null)
+        {   // replace
+            oe.setText(text);
+            if (active!=null)
+                oe.setActive(active);
+        }
+        else
+        {   // add new Option
+            list.add(createOptionEntry(value, text, (active!=null ? active :true )));
+        }
     }
     
     /**
@@ -339,41 +405,42 @@ public class Options extends AbstractSet<OptionEntry> implements Cloneable, Seri
      * @param value the value object
      * @param text the text
      */
-    public Options set(Object value, String text)
+    public final void set(Object value, String text)
     {
-        set(value, text, InsertPos.Bottom);
+        set(value, text, (Boolean)null);
+    }
+
+    /**
+     * Adds or updates an option
+     * Same as set() but allows Option building 
+     * @param value the value
+     * @param text the text for this value
+     * @param active flag if element is active (selectable)
+     */
+    public final Options add(Object value, String text, boolean active)
+    {
+        set(value, text, active);
         return this;
     }
 
     /**
-     * Adds an object, the check for an existing can be skipped for
-     * performance issues (not recommended!)
-     * 
+     * Adds or updates an option
+     * Same as set() but allows Option building 
      * @param value the value
-     * @param text the text
-     * @param active flag if element is active (selectable)
+     * @param text the text for this value
      */
-    public void add(Object value, String text, boolean active)
+    public final Options add(Object value, String text)
     {
-        OptionEntry oe = getEntry(value);
-        if (oe!=null)
-        {
-            oe.setText(text);
-            oe.setActive(active);
-        }
-        else
-        {
-            list.add(createOptionEntry(value, text, active));
-        }
+        set(value, text, (Boolean)null);
+        return this;
     }
 
     @Override
     public boolean add(OptionEntry option)
     {
-        if (option.getText() == null)
-        { // text must not be null!
-            return false;
-        }
+        if (option==null || option.getText() == null)
+            throw new InvalidArgumentException("option", option);
+        // find and add or replace
         OptionEntry oe = getEntry(option.getValue());
         if (oe!=null)
             list.set(getIndex(oe), option);
@@ -394,9 +461,13 @@ public class Options extends AbstractSet<OptionEntry> implements Cloneable, Seri
         return (getEntry(value)!=null);
     }
 
+    /**
+     * Checks if the Option list contains an empty value
+     * @return true if it contains an empty value or false otherwise
+     */
     public boolean containsNull()
     {   // Check if exits
-        return (getEntry("")!=null);
+        return (getEntry(StringUtils.EMPTY)!=null);
     }
     
     /**

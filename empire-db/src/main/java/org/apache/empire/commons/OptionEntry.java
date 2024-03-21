@@ -20,13 +20,15 @@ package org.apache.empire.commons;
 
 import java.io.Serializable;
 
+import org.apache.empire.exceptions.InternalException;
+
 /**
  * This class defines one possible value of a field and it's description<BR>
  * This class is used by the Options class to implement a set of options 
  * where the option value us used as the key for the set.<BR>
  * The text should only be used for display purposes e.g. to display a drop-down in a user interface.<BR>
  */
-public class OptionEntry implements Serializable
+public class OptionEntry implements Cloneable, Serializable
 {
 	private static final long serialVersionUID = 1L;
 	
@@ -55,6 +57,19 @@ public class OptionEntry implements Serializable
     {
         return ObjectUtils.compareEqual(this.value, value);
     }
+    
+    @Override
+    public Object clone()
+    {
+        try
+        {
+            return super.clone();
+        }
+        catch (CloneNotSupportedException e)
+        {
+            throw new InternalException(e);
+        }
+    }
 
     /**
      * Gets the value as string
@@ -65,7 +80,7 @@ public class OptionEntry implements Serializable
     {
         // check null
         if (value==null)
-            return "";
+            return StringUtils.EMPTY;
         // check enum
         if (value instanceof Enum<?>)
             return ObjectUtils.getString((Enum<?>)value);
