@@ -19,6 +19,7 @@
 package org.apache.empire.dbms.oracle;
 
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -290,6 +291,20 @@ public class DBMSHandlerOracle extends DBMSHandlerBase
                 log.error("getConvertPhrase: unknown type " + destType);
                 return "?";
         }
+    }
+
+    /**
+     * Adds a statement parameter to a prepared statement
+     */
+    @Override
+    protected void addStatementParam(PreparedStatement pstmt, int paramIndex, Object value)
+        throws SQLException
+    {
+        if ((value instanceof Boolean) && (booleanType==BooleanType.CHAR))
+        {   // for BooleanType.CHAR
+            value = ((Boolean)value) ? 'Y' : 'N';
+        }
+        super.addStatementParam(pstmt, paramIndex, value);
     }
 
     /**
