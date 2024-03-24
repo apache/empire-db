@@ -1191,7 +1191,7 @@ public abstract class DBDatabase extends DBObject
      * @param elseValue the else expression
      * @return the expression
      */
-    public DBColumnExpr caseWhen(Map<DBCompareExpr, Object> whenMap, Object elseValue)
+    public DBColumnExpr caseWhen(Map<DBCompareExpr, ? extends Object> whenMap, Object elseValue)
     {
         return new DBCaseWhenExpr(whenMap, elseValue);
     }
@@ -1217,7 +1217,7 @@ public abstract class DBDatabase extends DBObject
      * @param elseValue the else expression
      * @return the expression
      */
-    public DBColumnExpr caseMap(DBColumnExpr column, Map<Object, Object> valueMap, Object elseValue)
+    public DBColumnExpr caseMap(DBColumnExpr column, Map< ? extends Object,  ? extends Object> valueMap, Object elseValue)
     {
         return new DBCaseMapExpr(column, valueMap, elseValue);
     }

@@ -54,12 +54,13 @@ public class DBCaseWhenExpr extends DBCaseExpr
      * @param whenMap a map of compareExpressions with the corresponding result values
      * @param elseValue the expression returned if no condition is true (may be null)
      */
-    public DBCaseWhenExpr(Map<DBCompareExpr, Object> whenMap, Object elseValue)
+    @SuppressWarnings("unchecked")
+    public DBCaseWhenExpr(Map<DBCompareExpr, ? extends Object> whenMap, Object elseValue)
     {   // check params
         if (whenMap==null || (whenMap.isEmpty() && ObjectUtils.isEmpty(elseValue)))
             throw new InvalidArgumentException("whenMap | elseValue", null);
         // set
-        this.whenMap  = whenMap;
+        this.whenMap  = (Map<DBCompareExpr, Object>)whenMap;
         this.elseValue = elseValue; 
         // init
         init(null, whenMap, elseValue);
