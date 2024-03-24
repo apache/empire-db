@@ -19,7 +19,6 @@
 package org.apache.empire.db;
 
 import org.apache.empire.commons.Options;
-import org.apache.empire.data.Column;
 import org.apache.empire.data.DataType;
 import org.w3c.dom.Element;
 
@@ -90,17 +89,12 @@ public class DBQueryColumn extends DBColumn
     }
 
     @Override
-    @SuppressWarnings("unchecked")
     public Class<Enum<?>> getEnumType()
     {
-        // check expression attribute
-        Object enumType = expr.getAttribute(Column.COLATTR_ENUMTYPE);
+        // enum type of expression
+        Class<Enum<?>> enumType = expr.getEnumType();
         if (enumType!=null)
-            return ((Class<Enum<?>>)enumType);        
-        // otherwise check update column
-        DBColumn col = expr.getSourceColumn();
-        if (col!=null)
-            return col.getEnumType();
+            return enumType;  
         // otherwise 
         return super.getEnumType();
     }

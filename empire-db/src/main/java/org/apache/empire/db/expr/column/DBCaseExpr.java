@@ -26,21 +26,22 @@ import org.apache.empire.db.DBColumnExpr;
 import org.apache.empire.db.DBDatabase;
 import org.apache.empire.db.DBExpr;
 import org.apache.empire.db.expr.compare.DBCompareColExpr;
-import org.apache.empire.db.expr.compare.DBCompareExpr;
 import org.apache.empire.xml.XMLUtil;
 import org.w3c.dom.Element;
 
 /**
- * This class is used to add the "case when ?=A then X else Y end" statement to the SQL-Command.
+ * This class represents a SQL case expression
+ * like "case when ?=A then X else Y end"
+ *   or "case ? when A then X else Y end"
  * <P>
- * There is no need to explicitly create instances of this class.<BR>
- * Instead use {@link DBColumnExpr#when(DBCompareExpr, Object) }
+ * This abstract class is implemented by DBCaseMapExpr and DBCaseWhenExpr
  * <P>
  * @author doebele
  */
 public abstract class DBCaseExpr extends DBColumnExpr
 {
     // detect 
+    private DBDatabase database = null;
     private DBColumn sourceColumn = null;
     private DataType dataType = DataType.UNKNOWN;
     private Class<Enum<?>> enumType = null;
@@ -55,7 +56,7 @@ public abstract class DBCaseExpr extends DBColumnExpr
     @Override
     public final DBDatabase getDatabase()
     {
-        return sourceColumn.getDatabase();
+        return database;
     }
 
     @Override
@@ -127,13 +128,17 @@ public abstract class DBCaseExpr extends DBColumnExpr
     /**
      * Init case expression. 
      * Must be called from all constructors!
-     * @param sourceColumn
-     * @param valueMap
-     * @param elseValue
+     * @param caseColumn the case expression column (if any)
+     * @param valueMap the value or conditions map
+     * @param elseValue the else value
      */
-    protected void init(DBColumn sourceColumn, Map<?,?> valueMap, Object elseValue)
+    protected void init(DBColumn caseColumn, Map<?,?> valueMap, Object elseValue)
     {
-        this.sourceColumn = sourceColumn;
+        /*
+         * Important: caseColumn is not the sourceColumn
+         * sourceColumn must be set from target values!
+         */
+        this.database = (caseColumn!=null ? caseColumn.getDatabase() : null);
         for (Map.Entry<?, ?> entry : valueMap.entrySet())
         {   // check compare expr
             registerCompareValue(entry.getKey());
@@ -144,14 +149,12 @@ public abstract class DBCaseExpr extends DBColumnExpr
     
     private void registerCompareValue(Object value)
     {
+        // set properties from value
+        if (this.database==null && (value instanceof DBExpr) && ((DBExpr)value).getDatabase()!=null)
+            this.database=((DBExpr)value).getDatabase();
         if (value instanceof DBCompareColExpr)
             value = ((DBCompareColExpr)value).getColumnExpr();
-        if (!(value instanceof DBColumnExpr))
-            return; // not a function
-        DBColumnExpr colExpr = (DBColumnExpr)value;
-        if (this.sourceColumn==null && colExpr.getSourceColumn()!=null)
-            this.sourceColumn = colExpr.getSourceColumn();
-        if (colExpr.isAggregate())
+        if (value instanceof DBColumnExpr && ((DBColumnExpr)value).isAggregate())
             this.aggregateFunc = true;
     }
 
@@ -164,6 +167,10 @@ public abstract class DBCaseExpr extends DBColumnExpr
         if (value instanceof DBColumnExpr)
         {   // Column Expression
             DBColumnExpr colExpr = ((DBColumnExpr)value);
+            if (this.database==null)
+                this.database=colExpr.getDatabase();
+            if (this.sourceColumn==null && colExpr.getSourceColumn()!=null)
+                this.sourceColumn = colExpr.getSourceColumn();
             if (this.dataType==DataType.UNKNOWN)
                 this.dataType = colExpr.getDataType();
             if (this.enumType== null && colExpr.getEnumType()!=null)
