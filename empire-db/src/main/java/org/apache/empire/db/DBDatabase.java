@@ -47,6 +47,7 @@ import org.apache.empire.db.exceptions.FieldNotNullException;
 import org.apache.empire.db.exceptions.FieldValueException;
 import org.apache.empire.db.exceptions.FieldValueOutOfRangeException;
 import org.apache.empire.db.exceptions.FieldValueTooLongException;
+import org.apache.empire.db.expr.column.DBCaseExpr;
 import org.apache.empire.db.expr.column.DBCaseMapExpr;
 import org.apache.empire.db.expr.column.DBCaseWhenExpr;
 import org.apache.empire.db.expr.column.DBValueExpr;
@@ -1170,7 +1171,7 @@ public abstract class DBDatabase extends DBObject
     }
     
     /**
-     * Creates a case column expression
+     * Creates a SQL case expression
      * in the form "case when [condition] then [trueValue] else [falseValue] end"
      * This is a helper function to simplify client usage
      * @param condition the compare expression
@@ -1178,7 +1179,7 @@ public abstract class DBDatabase extends DBObject
      * @param falseValue the value to select if the condition is false
      * @return the case expression
      */
-    public DBColumnExpr caseWhen(DBCompareExpr condition, Object trueValue, Object falseValue)
+    public DBCaseExpr caseWhen(DBCompareExpr condition, Object trueValue, Object falseValue)
     {
         DataType dataType = detectDataType((trueValue!=null ? trueValue : falseValue)); 
         DBColumnExpr trueExpr = ((trueValue instanceof DBColumnExpr) ? (DBColumnExpr)trueValue : this.getValueExpr(trueValue, dataType));
@@ -1186,18 +1187,19 @@ public abstract class DBDatabase extends DBObject
     }
     
     /**
-     * Creates a case column expression
+     * Creates a SQL case expression
+     * in the form "case when [mapKey] then [mapValue] else [elseValue] end"
      * @param whenMap the map with constraints
      * @param elseValue the else expression
      * @return the expression
      */
-    public DBColumnExpr caseWhen(Map<DBCompareExpr, ? extends Object> whenMap, Object elseValue)
+    public DBCaseExpr caseWhen(Map<DBCompareExpr, ? extends Object> whenMap, Object elseValue)
     {
         return new DBCaseWhenExpr(whenMap, elseValue);
     }
 
     /**
-     * Creates a case column expression that check whether a column or column expression is null
+     * Creates a SQL case expression that check whether a column or column expression is null
      * "case when [condition] is null then [trueValue] else [falseValue] end"
      * This is a helper function to simplify client usage
      * @param expr a column or column expression
@@ -1205,41 +1207,44 @@ public abstract class DBDatabase extends DBObject
      * @param falseValue the value to select if the condition is false
      * @return an sql case expression
      */
-    public DBColumnExpr caseWhenNull(DBColumnExpr column, Object trueValue, Object falseValue)
+    public DBCaseExpr caseWhenNull(DBColumnExpr column, Object trueValue, Object falseValue)
     {
         // return caseMap(column, null, trueValue, falseValue);
         return caseWhen(column.is(null), trueValue, falseValue);
     }
     
     /**
-     * Creates a case column expression
+     * Creates a SQL case expression
+     * in the form "case [Expr] when [mapKey] then [mapValue] else [elseValue] end"
      * @param valueMap map of key value pairs
      * @param elseValue the else expression
      * @return the expression
      */
-    public DBColumnExpr caseMap(DBColumnExpr column, Map< ? extends Object,  ? extends Object> valueMap, Object elseValue)
+    public DBCaseExpr caseMap(DBColumnExpr column, Map< ? extends Object,  ? extends Object> valueMap, Object elseValue)
     {
         return new DBCaseMapExpr(column, valueMap, elseValue);
     }
     
     /**
-     * Creates a case column expression
+     * Creates a SQL case expression
+     * in the form "case [Expr] when [optionValue] then [optionText] else [elseValue] end"
      * @param Options the options to map
      * @param elseValue the else expression
      * @return the expression
      */
-    public DBColumnExpr caseMap(DBColumnExpr column, Options options, Object elseValue)
+    public DBCaseExpr caseMap(DBColumnExpr column, Options options, Object elseValue)
     {
         return new DBCaseMapExpr(column, options.map(), elseValue);
     }
     
     /**
-     * Creates a case column expression
+     * Creates a SQL case expression
+     * in the form "case [Expr] when [compareValue] then [trueValue] else [elseValue] end"
      * @param whenMap the map with constraints
      * @param elseValue the else expression
      * @return the expression
      */
-    public DBColumnExpr caseMap(DBColumnExpr column, Object cmpValue, Object trueValue, Object falseValue)
+    public DBCaseExpr caseMap(DBColumnExpr column, Object cmpValue, Object trueValue, Object falseValue)
     {
         return new DBCaseMapExpr(column, cmpValue, trueValue, falseValue);
     }

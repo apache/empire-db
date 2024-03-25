@@ -18,6 +18,7 @@
  */
 package org.apache.empire.db.expr.column;
 
+import java.util.Collection;
 import java.util.Map;
 
 import org.apache.empire.data.DataType;
@@ -128,62 +129,74 @@ public abstract class DBCaseExpr extends DBColumnExpr
     /**
      * Init case expression. 
      * Must be called from all constructors!
-     * @param caseColumn the case expression column (if any)
+     * @param caseExpr the case expr (if any)
      * @param valueMap the value or conditions map
      * @param elseValue the else value
      */
-    protected void init(DBColumn caseColumn, Map<?,?> valueMap, Object elseValue)
+    protected void init(DBColumnExpr caseExpr, Map<?,?> valueMap, Object elseValue)
     {
         /*
-         * Important: caseColumn is not the sourceColumn
+         * Important: caseExpr is not the sourceColumn
          * sourceColumn must be set from target values!
          */
-        this.database = (caseColumn!=null ? caseColumn.getDatabase() : null);
-        for (Map.Entry<?, ?> entry : valueMap.entrySet())
-        {   // check compare expr
-            registerCompareValue(entry.getKey());
-            registerTargetValue (entry.getValue());
+        if (caseExpr!=null)
+        {   // init from caseExpr
+            this.database = caseExpr.getDatabase();
+            this.aggregateFunc = caseExpr.isAggregate();
         }
-        registerTargetValue(elseValue);
+        // find source column
+        DBColumnExpr sourceExpr = getSourceColumnExpr(valueMap.values(), elseValue);
+        if (sourceExpr!=null)
+        {   // set type
+            this.database = sourceExpr.getDatabase();
+            this.sourceColumn = sourceExpr.getSourceColumn();
+            this.dataType = sourceExpr.getDataType();
+            this.enumType = sourceExpr.getEnumType();
+        }
+        // Check rest
+        for (Map.Entry<?, ?> entry : valueMap.entrySet())
+        {   // key
+            Object key = entry.getValue();
+            if (key instanceof DBCompareColExpr)
+                key = ((DBCompareColExpr)key).getColumnExpr();
+            if (key instanceof DBColumnExpr && ((DBColumnExpr)key).isAggregate())
+                this.aggregateFunc = true;
+            // value
+            Object value = entry.getValue(); 
+            if ((value instanceof DBColumnExpr) && ((DBColumnExpr)entry.getValue()).isAggregate())
+                this.aggregateFunc = true;
+            if (dataType==DataType.UNKNOWN)
+                initDataTypeFromValue(value);
+        }
+        if (dataType==DataType.UNKNOWN)
+            initDataTypeFromValue(elseValue);
     }
     
-    private void registerCompareValue(Object value)
+    protected DBColumnExpr getSourceColumnExpr(Collection<?> values, Object elseValue)
     {
-        // set properties from value
-        if (this.database==null && (value instanceof DBExpr) && ((DBExpr)value).getDatabase()!=null)
-            this.database=((DBExpr)value).getDatabase();
-        if (value instanceof DBCompareColExpr)
-            value = ((DBCompareColExpr)value).getColumnExpr();
-        if (value instanceof DBColumnExpr && ((DBColumnExpr)value).isAggregate())
-            this.aggregateFunc = true;
-    }
-
-    @SuppressWarnings("unchecked")
-    private void registerTargetValue(Object value)
-    {
-        if (isNull(value))
-            return;
-        // check
-        if (value instanceof DBColumnExpr)
-        {   // Column Expression
-            DBColumnExpr colExpr = ((DBColumnExpr)value);
-            if (this.database==null)
-                this.database=colExpr.getDatabase();
-            if (this.sourceColumn==null && colExpr.getSourceColumn()!=null)
-                this.sourceColumn = colExpr.getSourceColumn();
-            if (this.dataType==DataType.UNKNOWN)
-                this.dataType = colExpr.getDataType();
-            if (this.enumType== null && colExpr.getEnumType()!=null)
-                this.enumType = colExpr.getEnumType();
-            if (colExpr.isAggregate())
-                this.aggregateFunc = true;
+        for (Object val : values)
+        {
+            if (val instanceof DBColumnExpr)
+                return (DBColumnExpr)val;
         }
-        else if (!(value instanceof DBExpr))
-        {   // Simple Value
-            if (this.dataType==DataType.UNKNOWN)
-                this.dataType = DataType.fromJavaType(value.getClass());
-            if (this.enumType== null && (value instanceof Enum<?>))
-                this.enumType = (Class<Enum<?>>)value.getClass();
+        if (elseValue instanceof DBColumnExpr)
+            return (DBColumnExpr)elseValue;
+        // No DBColumnExpr found
+        return null;
+    }
+    
+    @SuppressWarnings("unchecked")
+    protected void initDataTypeFromValue(Object value)
+    {
+        // check enum
+        if (value instanceof Enum)
+        {   // Enum
+            this.enumType = (Class<Enum<?>>)value.getClass();
+            this.dataType = DataType.VARCHAR;
+        }
+        else if (!isNull(value) && !(value instanceof DBExpr))
+        {   // normal type
+            this.dataType = DataType.fromJavaType(value.getClass());
         }
     }
     

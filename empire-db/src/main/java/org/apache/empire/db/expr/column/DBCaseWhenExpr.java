@@ -26,7 +26,7 @@ import org.apache.empire.commons.ArrayMap;
 import org.apache.empire.commons.ArraySet;
 import org.apache.empire.commons.ObjectUtils;
 import org.apache.empire.db.DBColumn;
-import org.apache.empire.db.DBColumnExpr;
+import org.apache.empire.db.DBExpr;
 import org.apache.empire.db.DBSQLBuilder;
 import org.apache.empire.db.expr.compare.DBCompareExpr;
 import org.apache.empire.exceptions.InvalidArgumentException;
@@ -142,11 +142,11 @@ public class DBCaseWhenExpr extends DBCaseExpr
         {
             if (entry.getKey()!=null)
                 entry.getKey().addReferencedColumns(list);
-            if (entry.getValue() instanceof DBColumnExpr)
-                ((DBColumnExpr)entry.getValue()).addReferencedColumns(list);
+            if (entry.getValue() instanceof DBExpr)
+                ((DBExpr)entry.getValue()).addReferencedColumns(list);
         }
-        if (elseValue instanceof DBColumnExpr)
-            ((DBColumnExpr)elseValue).addReferencedColumns(list);
+        if (elseValue instanceof DBExpr)
+            ((DBExpr)elseValue).addReferencedColumns(list);
     }
 
     @Override

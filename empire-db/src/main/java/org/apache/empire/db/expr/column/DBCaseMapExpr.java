@@ -25,6 +25,7 @@ import org.apache.empire.commons.ArrayMap;
 import org.apache.empire.db.DBColumn;
 import org.apache.empire.db.DBColumnExpr;
 import org.apache.empire.db.DBDatabase;
+import org.apache.empire.db.DBExpr;
 import org.apache.empire.db.DBSQLBuilder;
 import org.apache.empire.exceptions.InvalidArgumentException;
 
@@ -45,7 +46,7 @@ public class DBCaseMapExpr extends DBCaseExpr
 {
     // *Deprecated* private static final long serialVersionUID = 1L;
   
-    private final DBColumnExpr columnExpr;
+    private final DBColumnExpr caseExpr;
     private final Map<Object, Object> valueMap;
     private final Object elseValue;
     
@@ -56,53 +57,53 @@ public class DBCaseMapExpr extends DBCaseExpr
      * @param elseValue the else Expression
      */
     @SuppressWarnings("unchecked")
-    public DBCaseMapExpr(DBColumnExpr columnExpr, Map<? extends Object, ? extends Object> valueMap, Object elseValue)
+    public DBCaseMapExpr(DBColumnExpr caseExpr, Map<? extends Object, ? extends Object> valueMap, Object elseValue)
     {
-        if (columnExpr==null)
-            throw new InvalidArgumentException("colExpr", columnExpr);
+        if (caseExpr==null)
+            throw new InvalidArgumentException("colExpr", caseExpr);
         if (valueMap==null || (valueMap.isEmpty() && isNull(elseValue)))
             throw new InvalidArgumentException("valueMap", valueMap);
         // set
-        this.columnExpr = columnExpr;
+        this.caseExpr = caseExpr;
         this.valueMap = (Map<Object, Object>)valueMap;
         this.elseValue = elseValue;
         // init
-        init(columnExpr.getSourceColumn(), valueMap, elseValue);
+        init(caseExpr, valueMap, elseValue);
     }
 
-    public DBCaseMapExpr(DBColumnExpr columnExpr, Object cmpVal, Object trueValue, Object elseValue)
+    public DBCaseMapExpr(DBColumnExpr caseExpr, Object cmpVal, Object trueValue, Object elseValue)
     {
-        if (columnExpr==null)
-            throw new InvalidArgumentException("colExpr", columnExpr);
+        if (caseExpr==null)
+            throw new InvalidArgumentException("colExpr", caseExpr);
         if (isNull(trueValue) && isNull(elseValue))
-            throw new InvalidArgumentException("colExpr", columnExpr);
-        this.columnExpr = columnExpr;
+            throw new InvalidArgumentException("colExpr", caseExpr);
+        this.caseExpr = caseExpr;
         this.valueMap = new ArrayMap<Object, Object>(1);
         this.valueMap.put(cmpVal, trueValue);
         this.elseValue = elseValue; 
         // init
-        init(columnExpr.getSourceColumn(), valueMap, elseValue);
+        init(caseExpr, valueMap, elseValue);
     }
 
-    public DBCaseMapExpr(DBColumnExpr columnExpr, Object cmpVal1, Object trueValue1, Object cmpVal2, Object trueValue2, Object elseValue)
+    public DBCaseMapExpr(DBColumnExpr caseExpr, Object cmpVal1, Object trueValue1, Object cmpVal2, Object trueValue2, Object elseValue)
     {
-        if (columnExpr==null)
-            throw new InvalidArgumentException("colExpr", columnExpr);
+        if (caseExpr==null)
+            throw new InvalidArgumentException("colExpr", caseExpr);
         if (isNull(trueValue1) && isNull(trueValue2) && isNull(elseValue))
-            throw new InvalidArgumentException("colExpr", columnExpr);
-        this.columnExpr = columnExpr;
+            throw new InvalidArgumentException("colExpr", caseExpr);
+        this.caseExpr = caseExpr;
         this.valueMap = new ArrayMap<Object, Object>(2);
         this.valueMap.put(cmpVal1, trueValue1);
         this.valueMap.put(cmpVal2, trueValue2);
         this.elseValue = elseValue; 
         // init
-        init(columnExpr.getSourceColumn(), valueMap, elseValue);
+        init(caseExpr, valueMap, elseValue);
     }
 
     @Override
     public String getName()
     {
-        return "CASE_"+columnExpr.getName();
+        return "CASE_"+caseExpr.getName();
     }
     
     /**
@@ -118,7 +119,7 @@ public class DBCaseMapExpr extends DBCaseExpr
         {   // Compare
             DBCaseMapExpr otherCase = (DBCaseMapExpr)other;
             // Expression must match
-            if (!columnExpr.equals(otherCase.columnExpr))
+            if (!caseExpr.equals(otherCase.caseExpr))
                 return false;
         }
         return false;
@@ -127,13 +128,15 @@ public class DBCaseMapExpr extends DBCaseExpr
     @Override
     public void addReferencedColumns(Set<DBColumn> list)
     {
-        columnExpr.addReferencedColumns(list);
-        for (Object expr : valueMap.values())
-        {
-            if (expr instanceof DBColumnExpr)
-               ((DBColumnExpr)expr).addReferencedColumns(list);
+        caseExpr.addReferencedColumns(list);
+        for (Map.Entry<?,?> e : valueMap.entrySet())
+        {   // Check Key of Value for Expressions
+            if (e.getKey() instanceof DBExpr)
+                ((DBExpr)e.getKey()).addReferencedColumns(list);
+            if (e.getValue() instanceof DBExpr)
+                ((DBExpr)e.getValue()).addReferencedColumns(list);
         }
-        if (elseValue instanceof DBColumnExpr)
+        if (elseValue instanceof DBExpr)
            ((DBColumnExpr)elseValue).addReferencedColumns(list);
     }
 
@@ -145,13 +148,13 @@ public class DBCaseMapExpr extends DBCaseExpr
         if (!valueMap.isEmpty())
         {   // append case 
             sql.append("CASE ");
-            columnExpr.addSQL(sql, context);
+            caseExpr.addSQL(sql, context);
             // add values
             for (Map.Entry<Object, Object> entry : valueMap.entrySet())
             {
                 // append value
                 sql.append(" WHEN ");
-                sql.appendValue(columnExpr.getDataType(), entry.getKey(), context);
+                sql.appendValue(caseExpr.getDataType(), entry.getKey(), context);
                 sql.append(" THEN ");
                 sql.appendValue(getDataType(), entry.getValue(), context);
             }
