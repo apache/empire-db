@@ -331,9 +331,13 @@ public class DBCommandOracle extends DBCommand
         // Add Grouping
         addGrouping(sql);
         // on
+        int count = 0;
         sql.append(") q0\r\nON (");
         for (DBColumn col : keyColumns)
-        {   // compare 
+        {
+            if (count++>0)
+                sql.append(" AND ");
+            // add constraint 
             sql.append(" q0.");
             col.addSQL(sql, CTX_NAME);
             sql.append("=");
