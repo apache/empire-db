@@ -20,6 +20,7 @@ package org.apache.empire.db.expr.compare;
 
 import org.apache.empire.db.DBCommand;
 import org.apache.empire.db.DBExpr;
+import org.apache.empire.db.DBRowSet;
 
 /**
  * This class is a common base class for all SQL filter constraints classes<br>
@@ -64,6 +65,13 @@ public abstract class DBCompareExpr extends DBExpr
 	{
 		return new DBCompareNotExpr(this);
 	}
+
+    /**
+     * Returns the underlying rowset containing this column
+     * For functions involving none or more than one physical column this function return the first one
+     * @return a column used for this expression
+     */
+    public abstract DBRowSet getRowSet();
 	
 	/**
 	 * internally used for preapred statement generation

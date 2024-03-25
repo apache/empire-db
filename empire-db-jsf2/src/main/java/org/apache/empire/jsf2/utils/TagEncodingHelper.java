@@ -111,6 +111,12 @@ public class TagEncodingHelper implements NamingContainer
         }
 
         @Override
+        public Class<Enum<?>> getEnumType()
+        {
+            return expr.getEnumType();
+        }
+
+        @Override
         public String getName()
         {
             return expr.getName();
@@ -137,7 +143,7 @@ public class TagEncodingHelper implements NamingContainer
         @Override
         public Set<Attributes.Attribute> getAttributes()
         {
-            return expr.getSourceColumn().getAttributes();
+            return expr.getUpdateColumn().getAttributes();
         }
 
         @Override
@@ -153,9 +159,16 @@ public class TagEncodingHelper implements NamingContainer
         }
 
         @Override
+        public Column getUpdateColumn()
+        {
+            return expr.getUpdateColumn();
+        }
+        
+        @Override
+        @Deprecated
         public Column getSourceColumn()
         {
-            return expr.getSourceColumn();
+            return getUpdateColumn();
         }
 
         @Override
@@ -192,12 +205,6 @@ public class TagEncodingHelper implements NamingContainer
         public boolean isReadOnly()
         {
             return true;
-        }
-
-        @Override
-        public Class<Enum<?>> getEnumType()
-        {
-            return getSourceColumn().getEnumType();
         }
 
         @Override
@@ -1043,7 +1050,7 @@ public class TagEncodingHelper implements NamingContainer
         // Column expression supplied?
         if (col instanceof ColumnExpr)
         { // Use source column instead 
-            Column source = ((ColumnExpr) col).getSourceColumn();
+            Column source = ((ColumnExpr) col).getUpdateColumn();
             if (source != null)
                 return source;
             // No source column? --> wrap 
@@ -1067,7 +1074,7 @@ public class TagEncodingHelper implements NamingContainer
     protected Column unwrapColumn(Column col)
     {
         if (col instanceof ColumnExprWrapper)
-            return ((ColumnExprWrapper) col).getSourceColumn();
+            return ((ColumnExprWrapper) col).getUpdateColumn();
         return col;
     }
 

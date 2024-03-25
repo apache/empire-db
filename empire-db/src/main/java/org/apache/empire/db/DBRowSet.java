@@ -425,10 +425,11 @@ public abstract class DBRowSet extends DBExpr implements EntityType
      */
     public int getColumnIndex(ColumnExpr columnExpr)
     {
+        columnExpr = ObjectUtils.unwrap(columnExpr);
         if (columnExpr instanceof DBColumn)
             return getColumnIndex((DBColumn)columnExpr);
         else {
-            Column source = columnExpr.getSourceColumn();
+            Column source = columnExpr.getUpdateColumn();
             if (source instanceof DBColumn)
                 return getColumnIndex((DBColumn)source);
         }

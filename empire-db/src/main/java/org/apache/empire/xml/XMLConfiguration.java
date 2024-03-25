@@ -217,26 +217,25 @@ public class XMLConfiguration
             if (item.getNodeType() != Node.ELEMENT_NODE)
                 continue;
             // Get the Text and set the Property
-            if (item instanceof Element)
+            if ((item instanceof Element) && isProperty((Element)item)) 
+            {
                 setPropertyValue(bean, (Element)item);
+            }
         }
     }
-    
-    /*
-    protected boolean isProperty(Node item)
+
+    /**
+     * Checks if the element is a property
+     * @param item the xml element
+     * @return true if the element is a property
+     */
+    protected boolean isProperty(Element item)
     {
-        NamedNodeMap map = item.getAttributes();
-        if (map==null)
-            return false; // not an element?
-        Node propAttr = map.getNamedItem("property");
-        if (propAttr==null)
-            return true; // assume yes
-        String value = propAttr.getNodeValue();
-        if (value==null)
-            return true; // assume yes
+        String value = item.getAttribute("property");
+        if (value==null || value.length()==0)
+            return true;  // assume yes
         return ObjectUtils.getBoolean(value);
     }
-    */
     
     /**
      * Sets the property value of an XML Element 
@@ -251,6 +250,11 @@ public class XMLConfiguration
         try
         {
             Class<?> valueType = PropertyUtils.getPropertyType(bean, name);
+            if (valueType==null)
+            {   // No property in class
+                log.info("Element <{}> has no Property in Class {}", name, bean.getClass().getName());
+                return;
+            }
             // Has Attributes?
             if (item.hasAttributes() && Map.class.isAssignableFrom(valueType))
             {   // It's a map type

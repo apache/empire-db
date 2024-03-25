@@ -8,6 +8,7 @@ import org.apache.empire.data.DataType;
 import org.apache.empire.db.DBColumn;
 import org.apache.empire.db.DBColumnExpr;
 import org.apache.empire.db.DBDatabase;
+import org.apache.empire.db.DBRowSet;
 import org.apache.empire.db.DBSQLBuilder;
 import org.w3c.dom.Element;
 
@@ -39,12 +40,25 @@ public class PostgresIntervalExpr extends DBColumnExpr {
 		this.db = db;
 		this.fields.put(unit, quantity);
 	}
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public final DBDatabase getDatabase()
+    {
+        return this.db;
+    }
 	
 	@Override
 	public DataType getDataType()
 	{
 		return DataType.UNKNOWN;
 	}
+
+    @Override
+    public Class<Enum<?>> getEnumType()
+    {
+        return null;
+    }
 
 	@Override
 	public String getName()
@@ -53,16 +67,22 @@ public class PostgresIntervalExpr extends DBColumnExpr {
 	}
 
 	@Override
-	public boolean isAggregate()
-	{
-		return false;
-	}
+    public DBRowSet getRowSet()
+    {
+        return null;
+    }
 
 	@Override
 	public DBColumn getUpdateColumn()
 	{
 		return null;
 	}
+
+    @Override
+    public boolean isAggregate()
+    {
+        return false;
+    }
 
 	@Override
 	public Element addXml(Element parent, long flags)
@@ -105,28 +125,6 @@ public class PostgresIntervalExpr extends DBColumnExpr {
 	@Override
 	public void addReferencedColumns(Set<DBColumn> list)
 	{
-	}
-
-	@SuppressWarnings("unchecked")
-	@Override
-	public final DBDatabase getDatabase()
-	{
-		return this.db;
-	}
-
-	/**
-	 * Not an Enum. Returns null
-	 */
-	@Override
-	public Class<Enum<?>> getEnumType()
-	{
-		return null;
-	}
-
-	@Override
-	public DBColumn getSourceColumn()
-	{
-		return null;
 	}
 	
 }

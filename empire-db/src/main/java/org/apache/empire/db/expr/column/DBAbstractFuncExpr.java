@@ -27,6 +27,7 @@ import org.apache.empire.db.DBColumn;
 import org.apache.empire.db.DBColumnExpr;
 import org.apache.empire.db.DBDatabase;
 import org.apache.empire.db.DBExpr;
+import org.apache.empire.db.DBRowSet;
 import org.apache.empire.db.DBSQLBuilder;
 import org.apache.empire.db.exceptions.DatabaseNotOpenException;
 import org.apache.empire.dbms.DBMSHandler;
@@ -132,12 +133,12 @@ public abstract class DBAbstractFuncExpr extends DBColumnExpr
     }
 
     /**
-     * Returns the expression the source column.
+     * Returns the underlying rowset
      */
     @Override
-    public DBColumn getSourceColumn()
+    public DBRowSet getRowSet()
     {
-        return expr.getSourceColumn();
+        return expr.getRowSet();
     }
 
     /**
@@ -349,10 +350,10 @@ public abstract class DBAbstractFuncExpr extends DBColumnExpr
         elem.setAttribute("function", getFunctionName());
         elem.setAttribute("dataType", getDataType().name());
         elem.setAttribute("aggregate", String.valueOf(isAggregate));
-        DBColumn source = getSourceColumn();
-        if (source!=null)
+        DBColumn column = getUpdateColumn();
+        if (column!=null)
         {   Element elemSource = XMLUtil.addElement(elem, "source");
-            source.addXml(elemSource, flags);
+            column.addXml(elemSource, flags);
         }
         // Add Other Attributes
         if (attributes!=null)

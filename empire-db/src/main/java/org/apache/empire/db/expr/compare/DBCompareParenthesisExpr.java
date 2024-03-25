@@ -24,6 +24,7 @@ import org.apache.empire.commons.Unwrappable;
 import org.apache.empire.db.DBColumn;
 import org.apache.empire.db.DBCommand;
 import org.apache.empire.db.DBDatabase;
+import org.apache.empire.db.DBRowSet;
 import org.apache.empire.db.DBSQLBuilder;
 
 /**
@@ -57,6 +58,12 @@ public class DBCompareParenthesisExpr extends DBCompareExpr implements Unwrappab
     public final DBDatabase getDatabase()
     {
         return wrapped.getDatabase();
+    }
+    
+    @Override
+    public DBRowSet getRowSet()
+    {
+        return wrapped.getRowSet();
     }
     
     @Override

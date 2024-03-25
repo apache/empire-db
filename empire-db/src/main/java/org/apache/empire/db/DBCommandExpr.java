@@ -62,7 +62,7 @@ public abstract class DBCommandExpr extends DBExpr
             this.cmd = cmd;
             // Add Expressions to list
             for (int i = 0; i < exprList.length; i++)
-                columns.add(exprList[i].getSourceColumn());
+                columns.add(exprList[i].getUpdateColumn());
         }
 
         /** Not applicable - returns null */
@@ -240,10 +240,7 @@ public abstract class DBCommandExpr extends DBExpr
             if (attributes != null && attributes.indexOf(name)>=0)
                 return attributes.get(name);
             // Otherwise ask expression
-            DBColumn column = expr.getSourceColumn();
-            if (column!=null)
-                return column.getAttribute(name);
-            return null;
+            return expr.getAttribute(name);
         }
 
         /**
@@ -255,10 +252,7 @@ public abstract class DBCommandExpr extends DBExpr
             if (options != null)
                 return options;
             // Otherwise ask expression
-            DBColumn column = expr.getSourceColumn();
-            if (column!=null)
-                return column.getOptions();
-            return null;
+            return expr.getOptions();
         }
 
         /**

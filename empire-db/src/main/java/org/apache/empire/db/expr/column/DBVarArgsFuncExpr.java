@@ -25,6 +25,7 @@ import org.apache.empire.data.DataType;
 import org.apache.empire.db.DBColumn;
 import org.apache.empire.db.DBColumnExpr;
 import org.apache.empire.db.DBDatabase;
+import org.apache.empire.db.DBRowSet;
 import org.apache.empire.db.DBSQLBuilder;
 import org.apache.empire.exceptions.InvalidArgumentException;
 import org.apache.empire.xml.XMLUtil;
@@ -108,15 +109,22 @@ public class DBVarArgsFuncExpr extends DBColumnExpr
         return false;
     }
 
+    /**
+     * Returns the underlying rowset
+     */
     @Override
-    public DBColumn getSourceColumn()
+    public DBRowSet getRowSet()
     {
-        return cols[0].getSourceColumn();
+        return cols[0].getRowSet();
     }
 
+    /**
+     * Returns the underlying column
+     */
     @Override
     public DBColumn getUpdateColumn()
     {
+        // cols[0].getUpdateColumn();
         return null;
     }
 

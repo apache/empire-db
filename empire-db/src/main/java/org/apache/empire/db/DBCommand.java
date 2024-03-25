@@ -796,10 +796,10 @@ public abstract class DBCommand extends DBCommandExpr
      */
     public final DBCommand join(DBColumnExpr left, DBColumn right, DBJoinType joinType, DBCompareExpr... addlConstraints)
     {
-        if (left==null || right==null || left.getSourceColumn()==null)
+        if (left==null || right==null || left.getRowSet()==null)
             throw new InvalidArgumentException("left|right", left);
-        if (left.getSourceColumn().getRowSet()==right.getRowSet())
-            throw new InvalidArgumentException("rowset", left.getSourceColumn().getRowSet().getName()+"|"+right.getRowSet().getName());
+        if (left.getRowSet()==right.getRowSet())
+            throw new InvalidArgumentException("rowset", left.getRowSet().getName()+"|"+right.getRowSet().getName());
         // additional constraints
         DBCompareExpr where = null;
         for (int i=0; i<addlConstraints.length; i++)
@@ -830,7 +830,7 @@ public abstract class DBCommand extends DBCommandExpr
         if (left==null || right==null || left.length==0 || left.length!=right.length)
             throw new InvalidArgumentException("left|right", left);
         if (left[0].getRowSet()==right[0].getRowSet())
-            throw new InvalidArgumentException("rowset", left[0].getSourceColumn().getRowSet().getName()+"|"+right[0].getRowSet().getName());
+            throw new InvalidArgumentException("rowset", left[0].getRowSet().getName()+"|"+right[0].getRowSet().getName());
         /*
          * TODO: Find a better solution / Make DBColumnJoinExpr multi-column
          */

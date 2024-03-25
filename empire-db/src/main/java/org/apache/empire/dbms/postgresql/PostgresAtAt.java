@@ -25,6 +25,7 @@ import org.apache.empire.db.DBColumn;
 import org.apache.empire.db.DBColumnExpr;
 import org.apache.empire.db.DBCommand;
 import org.apache.empire.db.DBDatabase;
+import org.apache.empire.db.DBRowSet;
 import org.apache.empire.db.DBSQLBuilder;
 import org.apache.empire.db.expr.compare.DBCompareExpr;
 
@@ -78,6 +79,13 @@ public class PostgresAtAt extends DBCompareExpr
         return false;
     }
 
+    @Override
+    public DBRowSet getRowSet()
+    {
+        DBRowSet rowset = left.getRowSet(); 
+        return (rowset!=null ? rowset : right.getRowSet());
+    }
+    
     @Override
     public void addReferencedColumns(Set<DBColumn> list)
     {

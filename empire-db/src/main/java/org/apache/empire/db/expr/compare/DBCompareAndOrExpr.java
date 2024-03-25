@@ -24,6 +24,7 @@ import org.apache.empire.commons.ObjectUtils;
 import org.apache.empire.db.DBColumn;
 import org.apache.empire.db.DBCommand;
 import org.apache.empire.db.DBDatabase;
+import org.apache.empire.db.DBRowSet;
 import org.apache.empire.db.DBSQLBuilder;
 
 
@@ -82,6 +83,16 @@ public class DBCompareAndOrExpr extends DBCompareExpr
     public final DBDatabase getDatabase()
     {
         return left.getDatabase();
+    }
+    
+    /**
+     * Returns the underlying rowset containing this column
+     */
+    @Override
+    public DBRowSet getRowSet()
+    {
+        DBRowSet rowset = left.getRowSet(); 
+        return (rowset!=null ? rowset : right.getRowSet());
     }
 
     /**

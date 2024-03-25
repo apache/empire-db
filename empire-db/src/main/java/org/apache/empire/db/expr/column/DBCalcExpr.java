@@ -29,6 +29,7 @@ import org.apache.empire.db.DBColumn;
 import org.apache.empire.db.DBColumnExpr;
 import org.apache.empire.db.DBDatabase;
 import org.apache.empire.db.DBExpr;
+import org.apache.empire.db.DBRowSet;
 import org.apache.empire.db.DBSQLBuilder;
 import org.w3c.dom.Element;
 
@@ -125,35 +126,21 @@ public class DBCalcExpr extends DBColumnExpr
     }
 
     /**
-     * This function set the specified mathematical operations to the XML tag.
-     * 
-     * @return the XML tag (with the mathematical operations)
+     * Returns the underlying rowset
      */
     @Override
-    public Element addXml(Element parent, long flags)
-    { // Add Expressions
-        expr.addXml(parent, flags);
-        // Add Vaue
-        if (value instanceof DBColumnExpr)
-            ((DBColumnExpr) value).addXml(parent, flags);
-        // done
-        return parent;
+    public DBRowSet getRowSet()
+    {
+        return expr.getRowSet();
     }
 
     /**
-     * Returns the expression the source column.
+     * Returns the underlying column
      */
-    @Override
-    public DBColumn getSourceColumn()
-    {
-        return expr.getSourceColumn();
-    }
-
-    /** returns null */
     @Override
     public DBColumn getUpdateColumn()
     {
-        return null;
+        return expr.getUpdateColumn();
     }
     
     /**
@@ -224,6 +211,22 @@ public class DBCalcExpr extends DBColumnExpr
             type = DataType.DECIMAL;
         // append
         sql.appendValue(type, value, context, op);
+    }
+
+    /**
+     * This function set the specified mathematical operations to the XML tag.
+     * 
+     * @return the XML tag (with the mathematical operations)
+     */
+    @Override
+    public Element addXml(Element parent, long flags)
+    { // Add Expressions
+        expr.addXml(parent, flags);
+        // Add Vaue
+        if (value instanceof DBColumnExpr)
+            ((DBColumnExpr) value).addXml(parent, flags);
+        // done
+        return parent;
     }
 
     @Override

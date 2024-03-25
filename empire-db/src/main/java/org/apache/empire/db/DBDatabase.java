@@ -552,7 +552,7 @@ public abstract class DBDatabase extends DBObject
                 return Long.class;
             case INTEGER:
             {   // Check Integer size
-                DBColumn source = expr.getSourceColumn();
+                DBColumn source = expr.getUpdateColumn();
                 int size = (source!=null ? (int)source.getSize() : DBTable.INT_SIZE_BIG);
                 if (size<=DBTable.INT_SIZE_SMALL)
                     return Short.class;

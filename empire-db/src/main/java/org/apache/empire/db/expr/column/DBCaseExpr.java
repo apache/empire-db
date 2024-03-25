@@ -26,7 +26,10 @@ import org.apache.empire.db.DBColumn;
 import org.apache.empire.db.DBColumnExpr;
 import org.apache.empire.db.DBDatabase;
 import org.apache.empire.db.DBExpr;
+import org.apache.empire.db.DBRowSet;
 import org.apache.empire.db.expr.compare.DBCompareColExpr;
+import org.apache.empire.db.expr.compare.DBCompareExpr;
+import org.apache.empire.exceptions.InvalidPropertyException;
 import org.apache.empire.xml.XMLUtil;
 import org.w3c.dom.Element;
 
@@ -42,8 +45,8 @@ import org.w3c.dom.Element;
 public abstract class DBCaseExpr extends DBColumnExpr
 {
     // detect 
-    private DBDatabase database = null;
-    private DBColumn sourceColumn = null;
+    private DBRowSet rowset = null;
+    private DBColumn updateColumn = null;
     private DataType dataType = DataType.UNKNOWN;
     private Class<Enum<?>> enumType = null;
     private boolean aggregateFunc = false;
@@ -57,7 +60,7 @@ public abstract class DBCaseExpr extends DBColumnExpr
     @Override
     public final DBDatabase getDatabase()
     {
-        return database;
+        return rowset.getDatabase();
     }
 
     @Override
@@ -73,15 +76,15 @@ public abstract class DBCaseExpr extends DBColumnExpr
     }
 
     @Override
-    public DBColumn getSourceColumn()
+    public DBRowSet getRowSet()
     {
-        return sourceColumn;
+        return rowset;
     }
 
     @Override
     public DBColumn getUpdateColumn()
     {
-        return null;
+        return updateColumn;
     }
 
     @Override
@@ -141,22 +144,24 @@ public abstract class DBCaseExpr extends DBColumnExpr
          */
         if (caseExpr!=null)
         {   // init from caseExpr
-            this.database = caseExpr.getDatabase();
+            this.rowset = caseExpr.getRowSet();
             this.aggregateFunc = caseExpr.isAggregate();
         }
         // find source column
         DBColumnExpr sourceExpr = getSourceColumnExpr(valueMap.values(), elseValue);
         if (sourceExpr!=null)
         {   // set type
-            this.database = sourceExpr.getDatabase();
-            this.sourceColumn = sourceExpr.getSourceColumn();
+            this.rowset = sourceExpr.getRowSet();
+            this.updateColumn = sourceExpr.getUpdateColumn();
             this.dataType = sourceExpr.getDataType();
             this.enumType = sourceExpr.getEnumType();
         }
         // Check rest
         for (Map.Entry<?, ?> entry : valueMap.entrySet())
         {   // key
-            Object key = entry.getValue();
+            Object key = entry.getKey();
+            if (key instanceof DBCompareExpr && this.rowset==null)
+                this.rowset = ((DBCompareExpr)key).getRowSet();
             if (key instanceof DBCompareColExpr)
                 key = ((DBCompareColExpr)key).getColumnExpr();
             if (key instanceof DBColumnExpr && ((DBColumnExpr)key).isAggregate())
@@ -170,6 +175,9 @@ public abstract class DBCaseExpr extends DBColumnExpr
         }
         if (dataType==DataType.UNKNOWN)
             initDataTypeFromValue(elseValue);
+        // Check
+        if (this.rowset==null)
+            throw new InvalidPropertyException("rowset", rowset);
     }
     
     protected DBColumnExpr getSourceColumnExpr(Collection<?> values, Object elseValue)

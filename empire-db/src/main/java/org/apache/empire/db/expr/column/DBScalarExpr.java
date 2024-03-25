@@ -26,6 +26,7 @@ import org.apache.empire.data.DataType;
 import org.apache.empire.db.DBColumn;
 import org.apache.empire.db.DBColumnExpr;
 import org.apache.empire.db.DBDatabase;
+import org.apache.empire.db.DBRowSet;
 import org.apache.empire.db.DBSQLBuilder;
 import org.apache.empire.xml.XMLUtil;
 import org.slf4j.Logger;
@@ -160,10 +161,11 @@ public class DBScalarExpr extends DBColumnExpr
     }
 
     /**
-     * Returns the expression the source column.
+     * Returns null.
+     * @return null
      */
     @Override
-    public DBColumn getSourceColumn()
+    public DBRowSet getRowSet()
     {
         return null;
     }

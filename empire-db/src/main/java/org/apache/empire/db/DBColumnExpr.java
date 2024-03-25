@@ -89,28 +89,39 @@ public abstract class DBColumnExpr extends DBExpr
      */
     @Override
     public abstract String getName();
+
+    /**
+     * Returns the underlying rowset containing this column
+     * For functions involving none or more than one physical column this function return the first one
+     * @return a column used for this expression
+     */
+    public abstract DBRowSet getRowSet();
+    
+    /**
+     * Returns the underlying physical column.
+     * For functions involving none or more than one physical column this function returns null.
+     * @return the underlying column
+     */
+    @Override
+    public abstract DBColumn getUpdateColumn();
+
+    /**
+     * @Deprecated
+     * Use getUpdateColumn() instead!
+     */
+    @Override
+    @Deprecated
+    public final DBColumn getSourceColumn()
+    {
+        return getUpdateColumn();
+    }
     
     /**
      * Indicates whether this function is an aggregate (sum, min, max, avg, ...) or not
      * @return true if the column expression represents an aggregate
      */
     public abstract boolean isAggregate();
-
-    /**
-     * Returns the underlying physical column which was used for this expression
-     * For functions involving none or more than one physical column this function return the first one
-     * @return a column used for this expression
-     */
-    @Override
-    public abstract DBColumn getSourceColumn();
     
-    /**
-     * Returns the underlying physical column which may be used for updates.
-     * For functions involving none or more than one physical column this function returns null.
-     * @return the column to be used for updates if any.
-     */
-    public abstract DBColumn getUpdateColumn();
-
     /**
      * Add a description of this column with relevant metadata 
      * to the supplied parent XML Element.
@@ -174,7 +185,7 @@ public abstract class DBColumnExpr extends DBExpr
     {
         if (options != null)
             return options;
-        // Otherwise ask expression
+        // Otherwise try column
         DBColumn column = getUpdateColumn();
         if (column==null || column==this)
             return null;
@@ -1415,10 +1426,10 @@ public abstract class DBColumnExpr extends DBExpr
      */
     public DBColumnJoinExpr on(DBColumnExpr joinWith)
     {
-        // Must have source column
-        if (getSourceColumn()==null)
+        // Must have rowsets
+        if (getRowSet()==null)
             throw new NotSupportedException(this, "join");
-        if (joinWith.getSourceColumn()==null)
+        if (joinWith.getRowSet()==null)
             throw new NotSupportedException(joinWith, "join");
         // create the expression
         DBColumnJoinExpr join = new DBColumnJoinExpr(this, joinWith, DBJoinType.INNER);

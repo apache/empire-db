@@ -21,7 +21,6 @@ package org.apache.empire.db.expr.column;
 import java.util.Set;
 
 import org.apache.empire.commons.StringUtils;
-import org.apache.empire.data.Column;
 // Java
 import org.apache.empire.data.DataType;
 import org.apache.empire.db.DBColumn;
@@ -123,30 +122,21 @@ public class DBCountExpr extends DBColumnExpr
     }
 
     /**
-     * Returns the expression the source column.
+     * Returns the underlying rowset
      */
     @Override
-    public DBColumn getSourceColumn()
+    public DBRowSet getRowSet()
     {
-        if (column!=null)
-            return column.getSourceColumn();
-        // key cols
-        Column[] keyCols = rowset.getKeyColumns(); 
-        if (keyCols!=null)
-            return (DBColumn)keyCols[0].getSourceColumn();
-        // none
-        return null;
+        return (rowset!=null ? rowset : column.getRowSet());
     }
 
     /**
-     * Returns null.
-     * 
-     * @return null
+     * Returns the underlying column
      */
     @Override
     public DBColumn getUpdateColumn()
     {
-        return null;
+        return (column!=null ? column.getUpdateColumn() : null);
     }
 
     /**

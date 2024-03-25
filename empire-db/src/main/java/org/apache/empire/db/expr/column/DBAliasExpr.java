@@ -27,6 +27,7 @@ import org.apache.empire.data.DataType;
 import org.apache.empire.db.DBColumn;
 import org.apache.empire.db.DBColumnExpr;
 import org.apache.empire.db.DBDatabase;
+import org.apache.empire.db.DBRowSet;
 import org.apache.empire.db.DBSQLBuilder;
 import org.apache.empire.dbms.DBMSHandler;
 import org.apache.empire.dbms.DBSqlPhrase;
@@ -107,12 +108,12 @@ public class DBAliasExpr extends DBColumnExpr implements Unwrappable<DBColumnExp
     }
 
     /**
-     * Returns the expression the source column.
+     * Returns the underlying rowset
      */
     @Override
-    public DBColumn getSourceColumn()
+    public DBRowSet getRowSet()
     {
-        return expr.getSourceColumn();
+        return expr.getRowSet();
     }
 
     /**

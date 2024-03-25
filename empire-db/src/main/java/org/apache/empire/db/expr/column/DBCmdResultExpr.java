@@ -25,6 +25,7 @@ import org.apache.empire.db.DBColumn;
 import org.apache.empire.db.DBColumnExpr;
 import org.apache.empire.db.DBCommandExpr;
 import org.apache.empire.db.DBDatabase;
+import org.apache.empire.db.DBRowSet;
 import org.apache.empire.db.DBSQLBuilder;
 import org.apache.empire.exceptions.InvalidArgumentException;
 import org.apache.empire.xml.XMLUtil;
@@ -79,9 +80,9 @@ public class DBCmdResultExpr extends DBColumnExpr
     }
 
     @Override
-    public DBColumn getSourceColumn()
+    public DBRowSet getRowSet()
     {
-        return null;
+        return result.getRowSet();
     }
 
     @Override

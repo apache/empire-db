@@ -30,6 +30,7 @@ import org.apache.empire.db.DBCommand;
 import org.apache.empire.db.DBCommandExpr;
 import org.apache.empire.db.DBDatabase;
 import org.apache.empire.db.DBExpr;
+import org.apache.empire.db.DBRowSet;
 import org.apache.empire.db.DBSQLBuilder;
 import org.apache.empire.db.expr.column.DBAliasExpr;
 import org.apache.empire.dbms.DBSqlPhrase;
@@ -83,6 +84,15 @@ public class DBCompareColExpr extends DBCompareExpr
     public final DBDatabase getDatabase()
     {
         return expr.getDatabase();
+    }
+    
+    /**
+     * Returns the underlying rowset containing this column
+     */
+    @Override
+    public DBRowSet getRowSet()
+    {
+        return expr.getRowSet();
     }
 
     /** 

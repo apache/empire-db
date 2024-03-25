@@ -25,6 +25,7 @@ import org.apache.empire.data.DataType;
 import org.apache.empire.db.DBColumn;
 import org.apache.empire.db.DBColumnExpr;
 import org.apache.empire.db.DBDatabase;
+import org.apache.empire.db.DBRowSet;
 import org.apache.empire.db.DBSQLBuilder;
 import org.apache.empire.db.expr.compare.DBCompareAndOrExpr;
 import org.apache.empire.db.expr.compare.DBCompareColExpr;
@@ -68,12 +69,6 @@ public class PostgresBoolAndOrExpr extends DBColumnExpr
     }
 
     @Override
-    public DBColumn getSourceColumn()
-    {
-        return null;
-    }
-
-    @Override
     public String getName()
     {
         if (name==null)
@@ -91,6 +86,17 @@ public class PostgresBoolAndOrExpr extends DBColumnExpr
     public boolean isAggregate()
     {
         return true;
+    }
+
+    @Override
+    public DBRowSet getRowSet()
+    {
+        if (cmpExpr instanceof DBCompareColExpr)
+        {   // Rowset from column   
+            DBColumnExpr colExpr = ((DBCompareColExpr)cmpExpr).getColumnExpr();
+            return (colExpr!=null ? colExpr.getRowSet() : null);
+        }
+        return null;
     }
 
     @Override

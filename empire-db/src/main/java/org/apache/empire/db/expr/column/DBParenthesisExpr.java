@@ -25,6 +25,7 @@ import org.apache.empire.data.DataType;
 import org.apache.empire.db.DBColumn;
 import org.apache.empire.db.DBColumnExpr;
 import org.apache.empire.db.DBDatabase;
+import org.apache.empire.db.DBRowSet;
 import org.apache.empire.db.DBSQLBuilder;
 import org.w3c.dom.Element;
 
@@ -99,12 +100,12 @@ public class DBParenthesisExpr extends DBColumnExpr implements Unwrappable<DBCol
     }
 
     /**
-     * Returns the expression the source column.
+     * Returns the underlying rowset
      */
     @Override
-    public DBColumn getSourceColumn()
+    public DBRowSet getRowSet()
     {
-        return wrapped.getSourceColumn();
+        return wrapped.getRowSet();
     }
 
     /**

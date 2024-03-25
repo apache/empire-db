@@ -251,16 +251,29 @@ public abstract class DBColumn extends DBColumnExpr
     }
 
     /**
-     * Returns itself as the source column.
+     * Returns the column name.
+     *
+     * @return the column name
      */
     @Override
-    public DBColumn getSourceColumn()
+    public String getName()
     {
-        return this;
+        return name;
     }
 
     /**
-     * Returns itself as the update column.
+     * Returns DBTable, DBQuery or DBView object.
+     *
+     * @return the DBTable, DBQuery or DBView object
+     */
+    @Override
+    public DBRowSet getRowSet()
+    {
+        return rowset;
+    }
+
+    /**
+     * Returns itself as the underlying column.
      */
     @Override
     public DBColumn getUpdateColumn()
@@ -277,27 +290,6 @@ public abstract class DBColumn extends DBColumnExpr
     public boolean isAggregate()
     {
         return false;
-    }
-
-    /**
-     * Returns DBTable, DBQuery or DBView object.
-     *
-     * @return the DBTable, DBQuery or DBView object
-     */
-    public DBRowSet getRowSet()
-    {
-        return rowset;
-    }
-
-    /**
-     * Returns the column name.
-     *
-     * @return the column name
-     */
-    @Override
-    public String getName()
-    {
-        return name;
     }
 
     /**

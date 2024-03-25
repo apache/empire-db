@@ -83,5 +83,9 @@ public interface ColumnExpr
      * If an expression is based not based on a particutlar column this function returns null.
      * @return the column on which this expression is based or null if not applicable.
      */
+    Column getUpdateColumn();
+    
+    @Deprecated
     Column getSourceColumn();
+    
 }

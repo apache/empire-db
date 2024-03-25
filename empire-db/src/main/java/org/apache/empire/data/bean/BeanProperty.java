@@ -201,15 +201,21 @@ public class BeanProperty implements Column
         return name;
     }
 
-    /**
-     * Returns the column 
-     * This function should return the same string as getName()
-     * @return the name of the bean property 
-     */
     @Override
-    public Column getSourceColumn()
+    public Column getUpdateColumn()
     {
         return this;
+    }
+
+    /**
+     * @Deprecated
+     * Use getUpdateColumn() instead!
+     */
+    @Override
+    @Deprecated
+    public final Column getSourceColumn()
+    {
+        return getUpdateColumn();
     }
 
     // --- Column interface implementation ---

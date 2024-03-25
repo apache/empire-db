@@ -29,7 +29,6 @@ import org.apache.empire.db.DBJoinType;
 import org.apache.empire.db.DBRowSet;
 import org.apache.empire.db.DBSQLBuilder;
 import org.apache.empire.db.expr.compare.DBCompareExpr;
-import org.apache.empire.exceptions.InvalidPropertyException;
 
 public class DBColumnJoinExpr extends DBJoinExpr
 {
@@ -104,10 +103,7 @@ public class DBColumnJoinExpr extends DBJoinExpr
     @Override
     public DBRowSet getLeftTable()
     {
-        DBColumn col = left.getSourceColumn();
-        if (col==null)
-            throw new InvalidPropertyException("left", left);
-        return col.getRowSet();
+        return left.getRowSet();
     }
     
     /**
@@ -116,10 +112,7 @@ public class DBColumnJoinExpr extends DBJoinExpr
     @Override
     public DBRowSet getRightTable()
     {
-        DBColumn col = right.getSourceColumn();
-        if (col==null)
-            throw new InvalidPropertyException("right", right);
-        return col.getRowSet();
+        return right.getRowSet();
     }
     
     /**
@@ -143,8 +136,8 @@ public class DBColumnJoinExpr extends DBJoinExpr
         if (column==null)
             return false;
         // Check Update Columns
-        if (column.equals(left.getSourceColumn()) ||
-            column.equals(right.getSourceColumn()))
+        if (column.equals(left.getUpdateColumn()) ||
+            column.equals(right.getUpdateColumn()))
             return true;
         if (compExpr!=null)
         {   // Check expression

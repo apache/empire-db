@@ -394,7 +394,7 @@ public abstract class DBRecordData extends DBObject
             // Illegal value
             String value = StringUtils.valueOf(getValue(index));
             log.error("Unable to resolve enum value of '{}' for type {}", value, enumType.getName());
-            throw new FieldIllegalValueException(col.getSourceColumn(), value, e);
+            throw new FieldIllegalValueException(col.getUpdateColumn(), value, e);
         }
     }
 

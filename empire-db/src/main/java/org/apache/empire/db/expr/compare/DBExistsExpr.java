@@ -24,6 +24,7 @@ import org.apache.empire.db.DBColumn;
 import org.apache.empire.db.DBCommand;
 import org.apache.empire.db.DBCommandExpr;
 import org.apache.empire.db.DBDatabase;
+import org.apache.empire.db.DBRowSet;
 import org.apache.empire.db.DBSQLBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -75,6 +76,15 @@ public class DBExistsExpr extends DBCompareExpr
     public final DBDatabase getDatabase()
     {
         return cmd.getDatabase();
+    }
+    
+    /**
+     * Returns the underlying rowset containing this column
+     */
+    @Override
+    public DBRowSet getRowSet()
+    {
+        return (compareExpr!=null ? compareExpr.getRowSet() : null);
     }
 
     /**

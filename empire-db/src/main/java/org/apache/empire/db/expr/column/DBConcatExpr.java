@@ -26,6 +26,7 @@ import org.apache.empire.db.DBColumn;
 import org.apache.empire.db.DBColumnExpr;
 import org.apache.empire.db.DBDatabase;
 import org.apache.empire.db.DBExpr;
+import org.apache.empire.db.DBRowSet;
 import org.apache.empire.db.DBSQLBuilder;
 import org.apache.empire.dbms.DBSqlPhrase;
 import org.apache.empire.xml.XMLUtil;
@@ -96,12 +97,18 @@ public class DBConcatExpr extends DBColumnExpr
         return name;
     }
 
+    /**
+     * Returns the underlying rowset
+     */
     @Override
-    public DBColumn getSourceColumn()
+    public DBRowSet getRowSet()
     {
-        return left.getSourceColumn();
+        return left.getRowSet();
     }
 
+    /**
+     * Returns the underlying column
+     */
     @Override
     public DBColumn getUpdateColumn()
     {
@@ -190,7 +197,7 @@ public class DBConcatExpr extends DBColumnExpr
         Element elem = XMLUtil.addElement(parent, "column");
         elem.setAttribute("name", getName());
         elem.setAttribute("function", "concat");
-        DBColumn source = getSourceColumn();
+        DBColumn source = getUpdateColumn();
         if (source!=null)
         {   Element elemSource = XMLUtil.addElement(elem, "source");
             source.addXml(elemSource, flags);
@@ -200,7 +207,7 @@ public class DBConcatExpr extends DBColumnExpr
             {
                 if (with instanceof DBConcatExpr)
                 {
-                   ((DBConcatExpr)with).getSourceColumn().addXml(elemSource, flags);
+                   ((DBConcatExpr)with).left.addXml(elemSource, flags);
                     with = ((DBConcatExpr)with).right;
                     continue;
                 }
