@@ -54,6 +54,14 @@ public abstract class DBContextBase implements DBContext
     {
         return new DBUtils(this);
     }
+    
+    protected void setUtils(DBUtils utils)
+    {
+        if (utils==null)
+            throw new InvalidArgumentException("utils", utils);
+        if (this.utils!=utils)
+            this.utils= utils;
+    }
 
     @Override
     public DBUtils getUtils()
@@ -99,7 +107,7 @@ public abstract class DBContextBase implements DBContext
     @Override
     public final int executeSQL(String sqlCmd, Object[] sqlParams)
     {
-        if (utils==null) getUtils(); 
+        if (utils==null) setUtils(getUtils()); 
         return utils.executeSQL(sqlCmd, sqlParams, null); 
     }
 
@@ -111,7 +119,7 @@ public abstract class DBContextBase implements DBContext
     @Override
     public final int executeInsert(DBCommand cmd)
     {
-        if (utils==null) getUtils(); 
+        if (utils==null) setUtils(getUtils()); 
         return utils.executeSQL(cmd.getInsert(), cmd.getParamValues(), null); 
     }
 
@@ -124,7 +132,7 @@ public abstract class DBContextBase implements DBContext
     @Override
     public final int executeInsertInto(DBTable table, DBCommand cmd)
     {
-        if (utils==null) getUtils(); 
+        if (utils==null) setUtils(getUtils()); 
         return utils.executeSQL(cmd.getInsertInto(table), cmd.getParamValues(), null); 
     }
 
@@ -136,7 +144,7 @@ public abstract class DBContextBase implements DBContext
     @Override
     public final int executeUpdate(DBCommand cmd)
     {
-        if (utils==null) getUtils(); 
+        if (utils==null) setUtils(getUtils()); 
         return utils.executeSQL(cmd.getUpdate(), cmd.getParamValues(), null); 
     }
 
@@ -149,7 +157,7 @@ public abstract class DBContextBase implements DBContext
     @Override
     public final int executeDelete(DBTable from, DBCommand cmd)
     {
-        if (utils==null) getUtils(); 
+        if (utils==null) setUtils(getUtils()); 
         return utils.executeSQL(cmd.getDelete(from), cmd.getParamValues(), null); 
     }
     
