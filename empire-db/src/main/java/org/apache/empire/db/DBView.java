@@ -135,6 +135,9 @@ public abstract class DBView extends DBRowSet
             return updateColumn.isRequired();
         }    
 
+        /* 
+         * Obsolete: Type is copied in constructor
+         *         
         @Override
         public Class<Enum<?>> getEnumType()
         {
@@ -144,6 +147,7 @@ public abstract class DBView extends DBRowSet
             // otherwise 
             return expr.getEnumType(); 
         }
+         */
 
         @Override
         public Object getAttribute(String name)

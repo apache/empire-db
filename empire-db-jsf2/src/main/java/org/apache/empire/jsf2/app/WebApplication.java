@@ -26,9 +26,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.ResourceBundle;
 
-import javax.faces.FactoryFinder;
 import javax.faces.application.Application;
-import javax.faces.application.ApplicationFactory;
 import javax.faces.application.FacesMessage;
 import javax.faces.application.FacesMessage.Severity;
 import javax.faces.component.NamingContainer;
@@ -124,11 +122,12 @@ public abstract class WebApplication
         servletContext.setAttribute("app", this);
         // Init
         init(servletContext);
-        // text resolvers
-        log.info("*** initTextResolvers() ***");
-        ApplicationFactory appFactory = (ApplicationFactory) FactoryFinder.getFactory(FactoryFinder.APPLICATION_FACTORY);
-        Application app = appFactory.getApplication();
-        initTextResolvers(app);
+        // post init
+        if (this.textResolvers==null)
+        {   // text resolvers
+            log.info("*** initTextResolvers() ***");
+            initTextResolvers(startupContext.getApplication());
+        }
         // Log info
         log.info("*** WebApplication initialization complete ***");
         log.info("JSF-Implementation is '{}'", facesImpl.getClass().getName());

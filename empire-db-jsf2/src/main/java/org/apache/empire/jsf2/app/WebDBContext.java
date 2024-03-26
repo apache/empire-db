@@ -50,6 +50,8 @@ public class WebDBContext<DB extends DBDatabase> extends DBContextBase implement
     protected final transient WebApplication app;
     protected final transient DB             database;
     protected final transient DBMSHandler    dbms;
+    
+    private final boolean rollbackHandlingEnabled;
 
     /**
      * Custom serialization for transient fields.
@@ -85,14 +87,30 @@ public class WebDBContext<DB extends DBDatabase> extends DBContextBase implement
         strm.defaultReadObject();
     }
     
-    public WebDBContext(DB db)
+    /**
+     * Constructor
+     * @param db the database
+     * @param rollbackHandlingEnabled flag whether to enable rollback handling
+     */
+    public WebDBContext(DB db, boolean rollbackHandlingEnabled)
     {
-        this.app    = WebApplication.getInstance();
+        this.app  = WebApplication.getInstance();
         this.dbms = db.getDbms();
         this.database = db;
+        // more
+        this.rollbackHandlingEnabled = rollbackHandlingEnabled;
         // check dbms
         if (db.getDbms() == null)
             log.warn("Database {} has no dbms attached.", db.getClass().getSimpleName());
+    }
+    
+    /**
+     * Constructor
+     * @param db the database
+     */
+    public WebDBContext(DB db)
+    {
+        this(db, true);
     }
 
     public DB getDatabase()
@@ -115,7 +133,7 @@ public class WebDBContext<DB extends DBDatabase> extends DBContextBase implement
     @Override
     public boolean isRollbackHandlingEnabled()
     {
-        return true;
+        return rollbackHandlingEnabled;
     }
 
     /**

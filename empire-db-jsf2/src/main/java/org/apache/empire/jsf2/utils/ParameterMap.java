@@ -166,10 +166,30 @@ public class ParameterMap // *Deprecated* implements Serializable
         return encodedId;
     }
 
+    /**
+     * puts a key of a particular type into the parameter map 
+     * @param type the type name
+     * @param key the key string
+     * @param useCache true if the keys should be cached
+     * @return the encoded key
+     */
     public String put(String type, String key, boolean useCache)
     {
         // Generate id and put in map
         return encodeAndStore(type, key, key, useCache);
+    }
+
+    public Object get(String type, String id)
+    {
+        Hashtable<String, Object> map = typeMap.get(type);
+        return (map!=null ? map.get(id) : null);
+    }
+
+    public void clear(String type)
+    {
+        Hashtable<String, Object> map = typeMap.get(type);
+        if (map!=null)
+            map.clear();
     }
 
     /**
@@ -188,61 +208,8 @@ public class ParameterMap // *Deprecated* implements Serializable
         return encodeAndStore(type, objectKey, paramObject, false);
     }
 
-    public String put(DBRowSet rowset, Object[] key)
-    {
-        // Generate id and put in map
-        String rowKey = StringUtils.valueOf(key);
-        String type = getRowSetTypeName(rowset);
-        return encodeAndStore(type, rowKey, key, false);
-    }
-
-    /*
-     * do we really need this?
-     * 
-    public String put(Class<? extends Object> c, Object[] key)
-    {
-        // Generate id and put in map
-        String ref = StringUtils.valueOf(key);
-        String type = c.getName();
-        return encodeAndStore(type, ref, key, false);
-    }
-    */
-    
     /**
-     * Generates an idParam which is only valid for the given page.
-     * @param targetPage the target page
-     * @param rowset the rowset
-     * @param key the key
-     * @return the encoded object
-     */
-    public String put(PageDefinition targetPage, DBRowSet rowset, Object[] key) {
-        // Generate id and put in map
-        String ref  = StringUtils.valueOf(key);
-        String type = targetPage.getPageBeanName() + "$" + getRowSetTypeName(rowset);
-        return encodeAndStore(type, ref, key, false);
-    }
-
-    /**
-     * Gets an object from the parameter map for a given type and id
-     * @param type the object type (typically the class name)
-     * @param id the encoded idParam
-     * @return the object
-     */
-    public Object get(String type, String id)
-    {
-        Hashtable<String, Object> map = typeMap.get(type);
-        return (map!=null ? map.get(id) : null);
-    }
-
-    public void clear(String type)
-    {
-        Hashtable<String, Object> map = typeMap.get(type);
-        if (map!=null)
-            map.clear();
-    }
-
-    /**
-     * Puts an object into the paramter map that implements the ParameterObject interface  
+     * Returns the ParameterObject for the given encoded id
      * @param paramType the param type
      * @param id the item id
      * @return the object
@@ -255,23 +222,32 @@ public class ParameterMap // *Deprecated* implements Serializable
         return (T)(map!=null ? map.get(id) : null);
     }
 
-    public void clear(Class<? extends ParameterObject> paramType)
+    public void clear(Class<? extends Object> paramType)
     {
         String type = paramType.getName();
         clear(type);
     }
-
-    /*
-     * do we really need this?
-     * 
-    public Object[] getKey(Class<? extends Object> c, String id)
+    
+    /**
+     * Puts a RowSet key into the parameter map  
+     * @param rowset the rowset
+     * @param key the record key
+     * @return the encoded key
+     */
+    public String put(DBRowSet rowset, Object[] key)
     {
-        String type = c.getName();
-        Hashtable<String, Object> map = typeMap.get(type);
-        return (map!=null ? ((Object[])map.get(id)) : null);
+        // Generate id and put in map
+        String rowKey = StringUtils.valueOf(key);
+        String type = getRowSetTypeName(rowset);
+        return encodeAndStore(type, rowKey, key, false);
     }
-    */
 
+    /**
+     * Returns a record key for a given RowSet from an encoded id 
+     * @param rowset the RowSet for which to get the key
+     * @param id the encoded id
+     * @return the record key
+     */
     public Object[] getKey(DBRowSet rowset, String id)
     {
         String type = getRowSetTypeName(rowset);
@@ -286,7 +262,48 @@ public class ParameterMap // *Deprecated* implements Serializable
     }
 
     /**
-     * returns an record key for a given page
+     * Puts a key for a given class into the parameter map 
+     * @param c the class 
+     * @param key the key for this class
+     * @return the encoded key
+     */
+    public String put(Class<? extends Object> c, Object[] key)
+    {
+        // Generate id and put in map
+        String ref = StringUtils.valueOf(key);
+        String type = c.getName();
+        return encodeAndStore(type, ref, key, false);
+    }
+
+    /**
+     * Returns a class key from an encoded id
+     * @param c the class for which to retrieve the key
+     * @param id the encoded id
+     * @return the class key
+     */
+    public Object[] getKey(Class<? extends Object> c, String id)
+    {
+        String type = c.getName();
+        Hashtable<String, Object> map = typeMap.get(type);
+        return (map!=null ? ((Object[])map.get(id)) : null);
+    }
+    
+    /**
+     * Generates an idParam which is only valid for the given page.
+     * @param targetPage the target page
+     * @param rowset the rowset
+     * @param key the key
+     * @return the encoded object
+     */
+    public String put(PageDefinition page, DBRowSet rowset, Object[] key) {
+        // Generate id and put in map
+        String ref  = StringUtils.valueOf(key);
+        String type = StringUtils.concat(page.getPageBeanName(), "$", getRowSetTypeName(rowset));
+        return encodeAndStore(type, ref, key, false);
+    }
+
+    /**
+     * Returns an record key for a given page and rowset
      * @param page the page
      * @param rowset the rowset
      * @param id the object id
@@ -294,8 +311,14 @@ public class ParameterMap // *Deprecated* implements Serializable
      */
     public Object[] getKey(PageDefinition page, DBRowSet rowset, String id)
     {
-        String type = page.getPageBeanName() + "$" + getRowSetTypeName(rowset);
+        String type = StringUtils.concat(page.getPageBeanName(), "$", getRowSetTypeName(rowset));
         Hashtable<String, Object> map = typeMap.get(type);
         return (map!=null ? ((Object[])map.get(id)) : null);
+    }
+
+    public void clear(PageDefinition page, DBRowSet rowset)
+    {
+        String type = StringUtils.concat(page.getPageBeanName(), "$", getRowSetTypeName(rowset));
+        clear(type);
     }
 }
