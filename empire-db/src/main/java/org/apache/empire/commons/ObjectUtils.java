@@ -35,6 +35,7 @@ import java.util.Locale;
 
 import org.apache.commons.beanutils.MethodUtils;
 import org.apache.empire.data.ColumnExpr;
+import org.apache.empire.db.expr.column.DBValueExpr;
 import org.apache.empire.exceptions.InvalidArgumentException;
 import org.apache.empire.exceptions.InvalidValueException;
 import org.apache.empire.exceptions.ItemNotFoundException;
@@ -121,6 +122,8 @@ public final class ObjectUtils
             return true;
         if ((o instanceof Collection<?>) && ((Collection<?>)o).isEmpty())
             return true;
+        if (o instanceof DBValueExpr)
+            return isEmpty(((DBValueExpr)o).getValue());
         // not empty
         return false;
     }

@@ -59,8 +59,8 @@ public class DBCaseMapExpr extends DBCaseExpr
     @SuppressWarnings("unchecked")
     public DBCaseMapExpr(DBColumnExpr caseExpr, Map<? extends Object, ? extends Object> valueMap, Object elseValue)
     {
-        if (caseExpr==null)
-            throw new InvalidArgumentException("colExpr", caseExpr);
+        super(caseExpr);
+        // check
         if (valueMap==null || (valueMap.isEmpty() && isNull(elseValue)))
             throw new InvalidArgumentException("valueMap", valueMap);
         // set
@@ -68,13 +68,13 @@ public class DBCaseMapExpr extends DBCaseExpr
         this.valueMap = (Map<Object, Object>)valueMap;
         this.elseValue = elseValue;
         // init
-        init(caseExpr, valueMap, elseValue);
+        init(valueMap, elseValue);
     }
 
     public DBCaseMapExpr(DBColumnExpr caseExpr, Object cmpVal, Object trueValue, Object elseValue)
     {
-        if (caseExpr==null)
-            throw new InvalidArgumentException("colExpr", caseExpr);
+        super(caseExpr);
+        // check
         if (isNull(trueValue) && isNull(elseValue))
             throw new InvalidArgumentException("colExpr", caseExpr);
         this.caseExpr = caseExpr;
@@ -82,13 +82,13 @@ public class DBCaseMapExpr extends DBCaseExpr
         this.valueMap.put(cmpVal, trueValue);
         this.elseValue = elseValue; 
         // init
-        init(caseExpr, valueMap, elseValue);
+        init(valueMap, elseValue);
     }
 
     public DBCaseMapExpr(DBColumnExpr caseExpr, Object cmpVal1, Object trueValue1, Object cmpVal2, Object trueValue2, Object elseValue)
     {
-        if (caseExpr==null)
-            throw new InvalidArgumentException("colExpr", caseExpr);
+        super(caseExpr);
+        // check
         if (isNull(trueValue1) && isNull(trueValue2) && isNull(elseValue))
             throw new InvalidArgumentException("colExpr", caseExpr);
         this.caseExpr = caseExpr;
@@ -97,7 +97,7 @@ public class DBCaseMapExpr extends DBCaseExpr
         this.valueMap.put(cmpVal2, trueValue2);
         this.elseValue = elseValue; 
         // init
-        init(caseExpr, valueMap, elseValue);
+        init(valueMap, elseValue);
     }
 
     @Override

@@ -29,7 +29,7 @@ import org.apache.empire.db.DBExpr;
 import org.apache.empire.db.DBRowSet;
 import org.apache.empire.db.expr.compare.DBCompareColExpr;
 import org.apache.empire.db.expr.compare.DBCompareExpr;
-import org.apache.empire.exceptions.InvalidPropertyException;
+import org.apache.empire.exceptions.InvalidArgumentException;
 import org.apache.empire.xml.XMLUtil;
 import org.w3c.dom.Element;
 
@@ -45,22 +45,39 @@ import org.w3c.dom.Element;
 public abstract class DBCaseExpr extends DBColumnExpr
 {
     // detect 
-    private DBRowSet rowset = null;
+    private final DBDatabase database;
+    private DBRowSet rowset;
+    private boolean aggregateFunc;
     private DBColumn updateColumn = null;
     private DataType dataType = DataType.UNKNOWN;
     private Class<Enum<?>> enumType = null;
-    private boolean aggregateFunc = false;
     
-    protected DBCaseExpr()
+    protected DBCaseExpr(DBDatabase db)
     {
-        /* Nothing yet */
+        this.database = db;
+        this.rowset = null;
+        this.aggregateFunc = false;
+    }
+    
+    protected DBCaseExpr(DBColumnExpr caseExpr)
+    {
+        /*
+         * Important: caseExpr is not the sourceColumn
+         * sourceColumn must be set from target values!
+         */
+        if (caseExpr==null)
+            throw new InvalidArgumentException("caseExpr", caseExpr);
+        // set initial values
+        this.database = caseExpr.getDatabase();
+        this.rowset = caseExpr.getRowSet();
+        this.aggregateFunc = caseExpr.isAggregate();
     }
 
     @SuppressWarnings("unchecked")
     @Override
     public final DBDatabase getDatabase()
     {
-        return rowset.getDatabase();
+        return database;
     }
 
     @Override
@@ -136,17 +153,8 @@ public abstract class DBCaseExpr extends DBColumnExpr
      * @param valueMap the value or conditions map
      * @param elseValue the else value
      */
-    protected void init(DBColumnExpr caseExpr, Map<?,?> valueMap, Object elseValue)
+    protected void init(Map<?,?> valueMap, Object elseValue)
     {
-        /*
-         * Important: caseExpr is not the sourceColumn
-         * sourceColumn must be set from target values!
-         */
-        if (caseExpr!=null)
-        {   // init from caseExpr
-            this.rowset = caseExpr.getRowSet();
-            this.aggregateFunc = caseExpr.isAggregate();
-        }
         // find source column
         DBColumnExpr sourceExpr = getSourceColumnExpr(valueMap.values(), elseValue);
         if (sourceExpr!=null)
@@ -175,19 +183,16 @@ public abstract class DBCaseExpr extends DBColumnExpr
         }
         if (dataType==DataType.UNKNOWN)
             initDataTypeFromValue(elseValue);
-        // Check
-        if (this.rowset==null)
-            throw new InvalidPropertyException("rowset", rowset);
     }
     
     protected DBColumnExpr getSourceColumnExpr(Collection<?> values, Object elseValue)
     {
         for (Object val : values)
         {
-            if (val instanceof DBColumnExpr)
+            if ((val instanceof DBColumnExpr) && !(val instanceof DBValueExpr))
                 return (DBColumnExpr)val;
         }
-        if (elseValue instanceof DBColumnExpr)
+        if ((elseValue instanceof DBColumnExpr) && !(elseValue instanceof DBValueExpr))
             return (DBColumnExpr)elseValue;
         // No DBColumnExpr found
         return null;
@@ -201,6 +206,11 @@ public abstract class DBCaseExpr extends DBColumnExpr
         {   // Enum
             this.enumType = (Class<Enum<?>>)value.getClass();
             this.dataType = DataType.VARCHAR;
+        }
+        else if (value instanceof DBColumnExpr)
+        {
+            this.dataType = ((DBColumnExpr)value).getDataType();
+            this.enumType = ((DBColumnExpr)value).getEnumType();
         }
         else if (!isNull(value) && !(value instanceof DBExpr))
         {   // normal type

@@ -26,6 +26,7 @@ import org.apache.empire.commons.ArrayMap;
 import org.apache.empire.commons.ArraySet;
 import org.apache.empire.commons.ObjectUtils;
 import org.apache.empire.db.DBColumn;
+import org.apache.empire.db.DBDatabase;
 import org.apache.empire.db.DBExpr;
 import org.apache.empire.db.DBSQLBuilder;
 import org.apache.empire.db.expr.compare.DBCompareExpr;
@@ -55,27 +56,31 @@ public class DBCaseWhenExpr extends DBCaseExpr
      * @param elseValue the expression returned if no condition is true (may be null)
      */
     @SuppressWarnings("unchecked")
-    public DBCaseWhenExpr(Map<DBCompareExpr, ? extends Object> whenMap, Object elseValue)
-    {   // check params
+    public DBCaseWhenExpr(DBDatabase db, Map<DBCompareExpr, ? extends Object> whenMap, Object elseValue)
+    {
+        super(db);
+        // check params
         if (whenMap==null || (whenMap.isEmpty() && ObjectUtils.isEmpty(elseValue)))
             throw new InvalidArgumentException("whenMap | elseValue", null);
         // set
         this.whenMap  = (Map<DBCompareExpr, Object>)whenMap;
         this.elseValue = elseValue; 
         // init
-        init(null, whenMap, elseValue);
+        init(whenMap, elseValue);
     }
     
     public DBCaseWhenExpr(DBCompareExpr cmpExpr, Object trueExpr, Object elseValue)
-    {   // check params
-        if (cmpExpr==null || (isNull(trueExpr) && isNull(elseValue)))
-            throw new InvalidArgumentException("cmpExpr | trueExpr | elseValue", null);
+    {
+        super(cmpExpr.getDatabase());
+        // check params
+        if (isNull(trueExpr) && isNull(elseValue))
+            throw new InvalidArgumentException("trueExpr | elseValue", null);
         // set
         this.whenMap  = new ArrayMap<DBCompareExpr, Object>(1);
         this.whenMap.put(cmpExpr, trueExpr);
         this.elseValue = elseValue;
         // init
-        init(null, whenMap, elseValue);
+        init(whenMap, elseValue);
     }
     
     @Override

@@ -642,6 +642,17 @@ public abstract class DBDatabase extends DBObject
     }
 
     /**
+     * Creates and returns a value object for the given string value.
+     * 
+     * @param value the String value
+     * @return the new DBValueExpr object
+     */
+    public DBValueExpr getValueExpr(BigDecimal value)
+    {
+        return new DBValueExpr(this, value, DataType.DECIMAL);
+    }
+
+    /**
      * Creates and returns a value object for the given scalar value.
      * 
      * @param value the scalar value
@@ -1181,9 +1192,7 @@ public abstract class DBDatabase extends DBObject
      */
     public DBCaseExpr caseWhen(DBCompareExpr condition, Object trueValue, Object falseValue)
     {
-        DataType dataType = detectDataType((trueValue!=null ? trueValue : falseValue)); 
-        DBColumnExpr trueExpr = ((trueValue instanceof DBColumnExpr) ? (DBColumnExpr)trueValue : this.getValueExpr(trueValue, dataType));
-        return trueExpr.when(condition, falseValue);
+        return new DBCaseWhenExpr(condition, trueValue, falseValue);
     }
     
     /**
@@ -1195,7 +1204,7 @@ public abstract class DBDatabase extends DBObject
      */
     public DBCaseExpr caseWhen(Map<DBCompareExpr, ? extends Object> whenMap, Object elseValue)
     {
-        return new DBCaseWhenExpr(whenMap, elseValue);
+        return new DBCaseWhenExpr(this, whenMap, elseValue);
     }
 
     /**
