@@ -146,7 +146,7 @@ public class EmployeeListPage extends SamplePage
         TEmployees EMP = getDatabase().EMPLOYEES;
 
         // create the Employees List page element
-        employees = new BeanListPageElement<EmployeeListEntry>(this, EmployeeListEntry.class, EMP.ID);
+        employees = new BeanListPageElement<EmployeeListEntry>(this, EmployeeListEntry.class, getSampleContext(), EMP.ID);
     }
 
     

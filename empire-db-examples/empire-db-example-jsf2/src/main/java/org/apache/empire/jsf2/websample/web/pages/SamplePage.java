@@ -19,7 +19,6 @@
 package org.apache.empire.jsf2.websample.web.pages;
 
 import org.apache.empire.db.DBCommand;
-import org.apache.empire.db.DBDatabase;
 import org.apache.empire.jsf2.pages.Page;
 import org.apache.empire.jsf2.websample.db.SampleDB;
 import org.apache.empire.jsf2.websample.web.SampleApplication;
@@ -42,13 +41,6 @@ public class SamplePage extends Page
             this.sampleContext = new SampleContext(app.getDatabase(), session);
         }
         return this.sampleContext;
-    }
-
-    @SuppressWarnings("unchecked")
-    @Override
-    public SampleContext getDBContext(DBDatabase db)
-    {
-        return getSampleContext();
     }
 
     protected SampleApplication getApplication()
