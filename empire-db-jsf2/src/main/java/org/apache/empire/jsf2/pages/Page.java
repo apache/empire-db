@@ -26,14 +26,12 @@ import java.util.List;
 import java.util.Map;
 
 import javax.faces.application.FacesMessage;
-import javax.faces.application.NavigationHandler;
 import javax.faces.application.FacesMessage.Severity;
+import javax.faces.application.NavigationHandler;
 import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
 
 import org.apache.empire.commons.StringUtils;
-import org.apache.empire.db.DBContext;
-import org.apache.empire.db.DBDatabase;
 import org.apache.empire.db.DBRowSet;
 import org.apache.empire.exceptions.EmpireException;
 import org.apache.empire.exceptions.InternalException;
@@ -69,12 +67,11 @@ public abstract class Page // *Deprecated* implements Serializable
     }
 
     /**
-     * return a DBContext for a particular database
-     * @param db the database for which to obtain a connection
-     * @return the connection for the given database
+     * Removed with EMPIREDB-421:
+     * 
+     * public abstract <T extends DBContext> T getDBContext(DBDatabase db);
      */
-    public abstract <T extends DBContext> T getDBContext(DBDatabase db);
-
+    
     public String getPageName()
     {
         return (pageDefinition != null ? pageDefinition.getPageBeanName() : "{" + getClass().getSimpleName() + "}");

@@ -57,20 +57,22 @@ public class BeanListPageElement<T> extends ListPageElement<T> implements ListIt
     // *Deprecated* private static final long serialVersionUID = 1L;
 
     private static final Logger log                  = LoggerFactory.getLogger(BeanListPageElement.class);
-    
+
     public static final String  NO_RESULT_ATTRIBUTE  = "noQueryResult";
 
     private ListTableInfo       listTableInfo        = null;
 
-    protected DBRowSet          rowset;
+    protected final DBContext   context;
+
+    protected final DBRowSet    rowset;
 
     protected Column            defaultSortColumn;
 
     protected boolean           defaultSortAscending = true;
 
     protected DBOrderByExpr     secondarySortOrder   = null;
-    
-    protected int               maxItemCount = 1000;
+
+    protected int               maxItemCount         = 1000;
     
     /**
      * Extended ListTableInfo
@@ -100,7 +102,7 @@ public class BeanListPageElement<T> extends ListPageElement<T> implements ListIt
      * @param defaultSortColumn sort column that must belong to rowset
      * @param propertyName the property name which is used to get and retrieve session information
      */
-    public BeanListPageElement(Page page, Class<T> beanClass, DBRowSet rowset, DBColumn defaultSortColumn, String propertyName)
+    public BeanListPageElement(Page page, Class<T> beanClass, DBContext context, DBRowSet rowset, DBColumn defaultSortColumn, String propertyName)
     {
         super(page, beanClass, propertyName);
         // Check
@@ -116,6 +118,7 @@ public class BeanListPageElement<T> extends ListPageElement<T> implements ListIt
         }
         // Set Bean Class and more
         this.rowset = rowset;
+        this.context = context;
         this.defaultSortColumn = defaultSortColumn;
     }
 
@@ -126,9 +129,9 @@ public class BeanListPageElement<T> extends ListPageElement<T> implements ListIt
      * @param defaultSortColumn the default sort column
      * @param propertyName the property name which is used to get and retrieve session information
      */
-    public BeanListPageElement(Page page, Class<T> beanClass, DBColumn defaultSortColumn, String propertyName)
+    public BeanListPageElement(Page page, Class<T> beanClass, DBContext context, DBColumn defaultSortColumn, String propertyName)
     {
-        this(page, beanClass, defaultSortColumn.getRowSet(), defaultSortColumn, propertyName);
+        this(page, beanClass, context, defaultSortColumn.getRowSet(), defaultSortColumn, propertyName);
     }
 
     /**
@@ -137,9 +140,9 @@ public class BeanListPageElement<T> extends ListPageElement<T> implements ListIt
      * @param beanClass the bean class
      * @param defaultSortColumn the default sort column
      */
-    public BeanListPageElement(Page page, Class<T> beanClass, DBColumn defaultSortColumn)
+    public BeanListPageElement(Page page, Class<T> beanClass, DBContext context, DBColumn defaultSortColumn)
     {
-        this(page, beanClass, defaultSortColumn.getRowSet(), defaultSortColumn, getDefaultPropertyName(defaultSortColumn.getRowSet()));
+        this(page, beanClass, context, defaultSortColumn.getRowSet(), defaultSortColumn, getDefaultPropertyName(defaultSortColumn.getRowSet()));
     }
 
     /**
@@ -148,9 +151,9 @@ public class BeanListPageElement<T> extends ListPageElement<T> implements ListIt
      * @param beanClass the bean class
      * @param rowSet required Table or View
      */
-    public BeanListPageElement(Page page, Class<T> beanClass, DBRowSet rowSet)
+    public BeanListPageElement(Page page, Class<T> beanClass, DBContext context, DBRowSet rowSet)
     {
-        this(page, beanClass, rowSet, null, getDefaultPropertyName(rowSet));
+        this(page, beanClass, context, rowSet, null, getDefaultPropertyName(rowSet));
     }
     
     @Override
@@ -249,7 +252,6 @@ public class BeanListPageElement<T> extends ListPageElement<T> implements ListIt
     public void initItems(DBCommand queryCmd, DBCommand countCmd, int pageSize)
     {
         clearItems();
-        DBContext context = getDBContext(rowset);
         // Init List Table Info
         BeanListTableInfo lti = (BeanListTableInfo) getTableInfo();
         lti.setQueryCmd(queryCmd);
@@ -323,7 +325,7 @@ public class BeanListPageElement<T> extends ListPageElement<T> implements ListIt
     {
         // DBReader
         BeanListTableInfo lti = (BeanListTableInfo) getTableInfo();
-        DBReader r = new DBReader(getDBContext(rowset));
+        DBReader r = new DBReader(context);
         try
         { // Check command
             DBCommand queryCmd = lti.getQueryCmd();

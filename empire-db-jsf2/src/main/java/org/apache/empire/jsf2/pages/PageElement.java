@@ -23,9 +23,6 @@ import java.util.Map;
 import javax.faces.context.FacesContext;
 
 import org.apache.empire.commons.StringUtils;
-import org.apache.empire.db.DBContext;
-import org.apache.empire.db.DBDatabase;
-import org.apache.empire.db.DBObject;
 import org.apache.empire.db.DBRowSet;
 import org.apache.empire.exceptions.InvalidArgumentException;
 
@@ -96,6 +93,9 @@ public class PageElement // *Deprecated* implements Serializable
         setSessionObject(type, null);
     }
 
+    /*
+     * Removed with EMPIREDB-421:
+     * 
     public DBContext getDBContext(DBDatabase db)
     {
         return page.getDBContext(db);
@@ -107,6 +107,7 @@ public class PageElement // *Deprecated* implements Serializable
             throw new InvalidArgumentException("dbo", dbo);
         return getDBContext(dbo.getDatabase());
     }
+    */
     
     /**
      * generates a default property name for the bean list
