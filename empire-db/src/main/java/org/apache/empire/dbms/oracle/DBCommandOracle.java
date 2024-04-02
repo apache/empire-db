@@ -320,9 +320,17 @@ public class DBCommandOracle extends DBCommand
             {   // add original
                 mergeSet.add(sex);
             }
+            // remove column from using list (if present)
+            DBColumn setColum = sex.getColumn();
+            if (using.contains(setColum))
+                using.remove(setColum);
         }
         // Add select
         sql.append("SELECT ");
+        // Add optimizer hint
+        if (StringUtils.isNotEmpty(optimizerHint))
+            sql.append("/*+ ").append(optimizerHint).append(" */ ");
+        // Add select columns
         addListExpr(sql, using, CTX_ALL, ", ");
         // From clause
         addFrom(sql);
@@ -334,7 +342,10 @@ public class DBCommandOracle extends DBCommand
         int count = 0;
         sql.append(") q0\r\nON (");
         for (DBColumn col : keyColumns)
-        {
+        {   // skip set columns
+            if (using.contains(col)==false)
+                continue;
+            // add separator 
             if (count++>0)
                 sql.append(" AND ");
             // add constraint 
