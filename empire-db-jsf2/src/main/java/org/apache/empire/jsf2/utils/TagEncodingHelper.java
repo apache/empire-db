@@ -74,6 +74,8 @@ import org.apache.empire.jsf2.components.LinkTag;
 import org.apache.empire.jsf2.components.RecordTag;
 import org.apache.empire.jsf2.controls.InputControl;
 import org.apache.empire.jsf2.controls.InputControl.DisabledType;
+import org.apache.empire.jsf2.controls.InputControl.InputInfo;
+import org.apache.empire.jsf2.controls.InputControl.ValueInfo;
 import org.apache.empire.jsf2.controls.InputControlManager;
 import org.apache.empire.jsf2.controls.SelectInputControl;
 import org.apache.empire.jsf2.controls.TextAreaInputControl;
@@ -342,7 +344,7 @@ public class TagEncodingHelper implements NamingContainer
         public void validate(Object value)
         {
             // skip?
-            if (skipValidation)
+            if (TagEncodingHelper.this.skipValidation)
                 return;
             // Make sure null values are not forced to be required
             boolean isNull = ObjectUtils.isEmpty(value);
@@ -396,7 +398,8 @@ public class TagEncodingHelper implements NamingContainer
         @Override
         public boolean hasError()
         {
-            return hasError;
+            // only when needed
+            return TagEncodingHelper.this.detectError(FacesContext.getCurrentInstance());
         }
 
         @Override
@@ -420,21 +423,24 @@ public class TagEncodingHelper implements NamingContainer
     public static final String COLATTR_TOOLTIP        = "TOOLTIP";          // Column tooltip
     public static final String COLATTR_ABBR_TITLE     = "ABBR_TITLE";       // Column title for abbreviations
     
-    protected final UIOutput      component;
-    protected final String        cssStyleClass;
-    protected Column              column       = null;
-    protected Object              record       = null;
-    protected RecordTag           recordTag    = null;
-    protected UIData              uiDataTag    = null;
-    protected FormGridTag         formGridTag  = null;
-    // protected Boolean          tagRequired  = null;
-    protected Boolean             hasValueExpr = null;
-    protected InputControl        control      = null;
-    protected TextResolver        textResolver = null;
-    protected Object              mostRecentValue = null;
-    protected boolean             skipValidation = false;
-    protected boolean             hasError     = false;
-    protected Boolean             insideUIData = null;
+    protected final UIOutput    component;
+    protected final String      cssStyleClass;
+    protected Column            column                = null;
+    protected Object            record                = null;
+    protected RecordTag         recordTag             = null;
+    protected UIData            uiDataTag             = null;
+    protected FormGridTag       formGridTag           = null;
+    protected InputControl      control               = null;
+    protected TextResolver      textResolver          = null;
+    protected byte              hasValueExpr          = -1;
+    protected byte              insideUIData          = -1;
+
+    // temporary
+    protected byte              readOnly              = -1;
+    protected byte              valueRequired         = -1;
+    protected ValueInfo         valueInfo             = null;
+    protected boolean           skipValidation        = false;
+    protected Object            mostRecentValue       = null;
 
     protected TagEncodingHelper(UIOutput component, String cssStyleClass)
     {
@@ -605,17 +611,20 @@ public class TagEncodingHelper implements NamingContainer
 
     public InputControl.ValueInfo getValueInfo(FacesContext ctx)
     {
-        return new ValueInfoImpl(getColumn(), getTextResolver(ctx));
+        if (this.valueInfo==null)
+            this.valueInfo = new ValueInfoImpl(getColumn(), getTextResolver(ctx)); 
+        return this.valueInfo;
     }
 
-    public InputControl.InputInfo getInputInfo(FacesContext ctx)
+    public InputInfo getInputInfo(FacesContext ctx)
     {
-        // Skip validate
-        skipValidation = FacesUtils.isSkipInputValidation(ctx);
-        // check whether we have got an error
-        hasError = detectError(ctx);            
-        // create
-        return new InputInfoImpl(getColumn(), getTextResolver(ctx));
+        if (!(this.valueInfo instanceof InputInfo))
+        {   // Skip validate
+            this.skipValidation = FacesUtils.isSkipInputValidation(ctx);
+            // create
+            this.valueInfo = new InputInfoImpl(getColumn(), getTextResolver(ctx));
+        }
+        return (InputInfo)this.valueInfo;
     }
     
     public boolean isPartialSubmit(FacesContext ctx)
@@ -667,15 +676,32 @@ public class TagEncodingHelper implements NamingContainer
 
     public Object getRecord()
     {
-        if (record == null && (record=findRecord())!=null)
-            setRecord(record);
+        if (record == null)
+        {   // Find a record
+            Object found=findRecord();
+            if (found!=null)
+                setRecord(found);
+        }
         return record;
     }
 
     public void setRecord(Object record)
     {
+        if (this.record!=null)
+            reset();
+        // set new record
         this.record = record;
-        this.mostRecentValue = null; 
+    }
+    
+    public void reset()
+    {
+        this.readOnly        = -1;
+        this.valueRequired   = -1;
+        /*
+        this.valueInfo       = null;
+        this.skipValidation  = false;
+        */
+        this.mostRecentValue = null;
     }
     
     public Object findRecordComponent()
@@ -697,12 +723,13 @@ public class TagEncodingHelper implements NamingContainer
             if (parent instanceof RecordTag)
             {
                 this.recordTag = (RecordTag) parent;
+                // Don't set insideUIData to 0 here!
                 return this.recordTag.getRecord();
             }
             if (parent instanceof UIData)
             {
                 this.uiDataTag = (UIData)parent;
-                this.insideUIData = true;
+                this.insideUIData = (byte)1;
                 return (this.uiDataTag.isRowAvailable() ? this.uiDataTag.getRowData() : null);
             }
         }
@@ -769,7 +796,7 @@ public class TagEncodingHelper implements NamingContainer
                     Object currentValue = ((Record) record).get(column);
                     if (!ObjectUtils.compareEqual(currentValue, mostRecentValue))
                     {   // Value has been changed by someone else!
-                        log.info("Concurrent data change for "+column.getName()+". Current Value is {}. Ignoring new value {}", currentValue, value);
+                        log.info("Concurrent data change for column {}. Current Value is \"{}\". Ignoring new value \"{}\"", column.getName(), currentValue, value);
                         return;
                     }
                 }
@@ -882,11 +909,18 @@ public class TagEncodingHelper implements NamingContainer
         return true;
     }
 
-    public boolean isReadOnly()
+    public final boolean isReadOnly()
+    {
+        if (this.readOnly<0)
+            this.readOnly=(detectReadOnly() ? (byte)1 : (byte)0);
+        return (readOnly>0);
+    }
+    
+    protected boolean detectReadOnly()
     {
         // component 
         if (!(component instanceof UIInput))
-        {   log.warn("Component is not of type UIInput");
+        {   log.info("Component for {} is not of type UIInput", getColumn().getName());
             return true;
         }
         // Check Record
@@ -901,6 +935,35 @@ public class TagEncodingHelper implements NamingContainer
         }
         // column
         return getColumn().isReadOnly();
+    }
+    
+    public final boolean isValueRequired()
+    {
+        if (this.valueRequired<0)
+            this.valueRequired=(detectValueRequired() ? (byte)1 : (byte)0);
+        return (valueRequired>0);
+    }
+
+    protected boolean detectValueRequired()
+    {
+        // See if the tag is required (don't use the "required" attribute or tag.isRequired()!)
+        Object mandatory = getTagAttributeValue("mandatory");
+        if (mandatory!=null)
+            return ObjectUtils.getBoolean(mandatory);
+        // Check Read-Only first
+        if (isReadOnly())
+            return false;
+        // Check Record
+        if ((getRecord() instanceof Record))
+        {   // Ask Record
+            Record r = (Record) record;
+            return r.isFieldRequired(getColumn());
+        }
+        // Check Value Attribute
+        if (hasValueExpression())
+            return false;
+        // Required
+        return getColumn().isRequired();
     }
     
     public DisabledType getDisabled()
@@ -922,25 +985,6 @@ public class TagEncodingHelper implements NamingContainer
             return DisabledType.READONLY;
         // other
         return (ObjectUtils.getBoolean(dis) ? DisabledType.DISABLED : DisabledType.NO);
-    }
-
-    public boolean isValueRequired()
-    {
-        // See if the tag is required (don't use the "required" attribute or tag.isRequired()!)
-        Object mandatory = getTagAttributeValue("mandatory");
-        if (mandatory!=null)
-            return ObjectUtils.getBoolean(mandatory);
-        // Check Record
-        if ((getRecord() instanceof Record))
-        {   // Ask Record
-            Record r = (Record) record;
-            return r.isFieldRequired(getColumn());
-        }
-        // Check Value Attribute
-        if (hasValueExpression())
-            return false;
-        // Required
-        return getColumn().isRequired();
     }
     
     public boolean isValueModified()
@@ -1101,26 +1145,26 @@ public class TagEncodingHelper implements NamingContainer
     protected boolean hasValueExpression()
     {
         // Find expression
-        if (hasValueExpr != null)
-            return hasValueExpr.booleanValue();
-        // Find expression
-        ValueExpression ve = findValueExpression("value", false);
-        if (ve != null)
-        {   // We have a ValueExpression!
-            // Now unwrap for Facelet-Tags to work
-            String originalExpr = (log.isDebugEnabled() ? ve.getExpressionString() : null);
-            ve = FacesUtils.getFacesImplementation().unwrapValueExpression(ve);
-            if (originalExpr!=null)
-            {   // log result
-                if (ve!=null && !originalExpr.equals(ve.getExpressionString()))
-                    log.debug("ValueExpression \"{}\" has been resolved to \"{}\" from class {}", originalExpr, ve.getExpressionString(), ve.getClass().getName());
-                else if (ve==null)
-                    log.debug("ValueExpression \"{}\" has been resolved to NULL", originalExpr);
+        if (this.hasValueExpr<0)
+        {   // Find expression
+            ValueExpression ve = findValueExpression("value", false);
+            if (ve != null)
+            {   // We have a ValueExpression!
+                // Now unwrap for Facelet-Tags to work
+                String originalExpr = (log.isDebugEnabled() ? ve.getExpressionString() : null);
+                ve = FacesUtils.getFacesImplementation().unwrapValueExpression(ve);
+                if (originalExpr!=null)
+                {   // log result
+                    if (ve!=null && !originalExpr.equals(ve.getExpressionString()))
+                        log.debug("ValueExpression \"{}\" has been resolved to \"{}\" from class {}", originalExpr, ve.getExpressionString(), ve.getClass().getName());
+                    else if (ve==null)
+                        log.debug("ValueExpression \"{}\" has been resolved to NULL", originalExpr);
+                }
             }
+            // store result to avoid multiple detection 
+            hasValueExpr = ((ve!=null) ? (byte)1 : (byte)0);
         }
-        // store result to avoid multiple detection 
-        hasValueExpr = Boolean.valueOf(ve!=null);
-        return hasValueExpr.booleanValue();
+        return (hasValueExpr>0);
     }
         
     protected static final String CC_ATTR_EXPR = "#{cc.attrs.";
@@ -1555,9 +1599,6 @@ public class TagEncodingHelper implements NamingContainer
     
     public HtmlOutputLabel createLabelComponent(FacesContext context, String forInput, String styleClass, String style, boolean colon)
     {
-        Column column = null;
-        boolean readOnly=false;
-        boolean required=false;
         // forInput provided
         if (StringUtils.isNotEmpty(forInput))
         {   // find the component
@@ -1565,11 +1606,11 @@ public class TagEncodingHelper implements NamingContainer
             {   // Set Label input Id
                 UIComponent input = FacesUtils.getWebApplication().findComponent(context, forInput, component);
                 if (input!=null && (input instanceof InputTag))
-                {   // Check Read-Only
+                {   // Copy from InputTag
                     InputTag inputTag = ((InputTag)input);
-                    column = inputTag.getInputColumn();
-                    readOnly = inputTag.isInputReadOnly();
-                    required = inputTag.isInputRequired();
+                    this.column = inputTag.getInputColumn();
+                    this.readOnly = (inputTag.isInputReadOnly() ? (byte)1 : (byte)0);
+                    this.valueRequired = (inputTag.isInputRequired() ? (byte)1 : (byte)0);
                 }
                 else
                 {   // Not found (<e:input id="ABC"...> must match <e:label for="ABC"...>
@@ -1582,43 +1623,26 @@ public class TagEncodingHelper implements NamingContainer
                 // readOnly
                 Object val = getAttributeValueEx("readOnly");
                 if (val!=null)
-                    readOnly = ObjectUtils.getBoolean(val);
-                else 
-                    readOnly = this.isReadOnly();
-            }
-            else 
-            {   // for ControlTag
-                readOnly = this.isReadOnly();
+                    this.readOnly = (ObjectUtils.getBoolean(val) ? (byte)1 : (byte)0);
             }
         }
-        
-        // Column provided?
-        if (column==null)
-        {   // Get from LinkTag
-            column = getColumn();
-            required = !readOnly && isValueRequired(); // does only check Attribute
-        }
-            
-        // Check column
-        if (column==null)
-            throw new InvalidArgumentException("column", column);
 
         // create label now
         HtmlOutputLabel label = InputControlManager.createComponent(context, InputControlManager.getLabelComponentClass());
-        
-        // value
-        String labelText = getLabelValue(column, colon);
+
+        // set label text
+        String labelText = getLabelValue(getColumn(), colon);
         if (StringUtils.isEmpty(labelText))
             label.setRendered(false);
         else
             label.setValue(labelText);
 
-        // styleClass
+        // set styleClass
         if (StringUtils.isNotEmpty(styleClass))
-            label.setStyleClass(completeLabelStyleClass(styleClass, required));
+            label.setStyleClass(completeLabelStyleClass(styleClass, isValueRequired()));
         
         // for 
-        if (StringUtils.isNotEmpty(forInput) && !readOnly)
+        if (StringUtils.isNotEmpty(forInput) && !isReadOnly())
         {   // Set Label input Id
             InputControl.InputInfo ii = getInputInfo(context);
             String inputId = getInputControl().getLabelForId(ii);
@@ -1645,7 +1669,7 @@ public class TagEncodingHelper implements NamingContainer
             label.setTitle(title);
         
         // required
-        if (required && InputControlManager.isShowLabelRequiredMark())
+        if (isValueRequired() && InputControlManager.isShowLabelRequiredMark())
             addRequiredMark(label);
 
         return label;
@@ -1655,12 +1679,22 @@ public class TagEncodingHelper implements NamingContainer
     {
         // Find Input Control (only if forInput Attribute has been set!)
         InputTag inputTag = null;
-        if (StringUtils.isNotEmpty(forInput) && !forInput.equals("*"))
-        {   // Set Label input Id
-            UIComponent input = FacesUtils.getWebApplication().findComponent(context, forInput, component);
-            if (input!=null && (input instanceof InputTag))
-            {   // Check Read-Only
-                inputTag = ((InputTag)input);
+        // forInput provided
+        if (StringUtils.isNotEmpty(forInput))
+        {   // find the component
+            if (!forInput.equals("*"))
+            {   // Set Label input Id
+                UIComponent input = FacesUtils.getWebApplication().findComponent(context, forInput, component);
+                if (input!=null && (input instanceof InputTag))
+                {   // Set Input Tag
+                    inputTag = ((InputTag)input);
+                }
+            }
+            else if (component instanceof LabelTag)
+            {   // update readOnly
+                Object val = getAttributeValueEx("readOnly");
+                if (val!=null)
+                    this.readOnly = (ObjectUtils.getBoolean(val) ? (byte)1 : (byte)0);
             }
         }
         // Is the Mark required?
@@ -1811,31 +1845,33 @@ public class TagEncodingHelper implements NamingContainer
         }
         return addlStyle + SPACE + contextStyle;
     }
-    
-    public boolean isInsideUIData()
+
+    public final boolean isInsideUIData()
     {
         if (component==null)
             return false;
-        if (this.insideUIData!=null)
-            return this.insideUIData;
+        if (this.insideUIData<0)
+            this.insideUIData=(detectInsideUIData() ? (byte)1 : (byte)0);
+        return (this.insideUIData>0);
+    }
+    
+    protected boolean detectInsideUIData()
+    {
         // detect
-        this.insideUIData = false;
         for (UIComponent p = component.getParent(); p!=null; p=p.getParent())
-        {   // Single record?
-            if (p instanceof RecordTag) {
-                this.insideUIData = false;
-                break;
-            }
+        {   /* Don't do this:
+             * Detect must return true if RecordTag is inside a UIData
+            if (p instanceof RecordTag)
+                return false;
+            */
             // Check whether inside UIData
             if (p instanceof UIData) {
-                this.insideUIData = true;
-                break;
+                return true;
             } else if ("facelets.ui.Repeat".equals(p.getRendererType())) {
-                this.insideUIData = true;
-                break;
+                return true;
             }
         }
-        return this.insideUIData;
+        return false;
     }
     
     public void saveComponentId(UIComponent comp)

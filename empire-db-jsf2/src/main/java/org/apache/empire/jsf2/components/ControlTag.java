@@ -243,6 +243,7 @@ public class ControlTag extends UIInput implements NamingContainer
     protected boolean                 hasRequiredFlagSet   = false;
     protected boolean                 encodeLabel          = true;
     private boolean                   creatingComponents   = false;
+    protected boolean                 valueValidated       = false;
 
     public ControlTag()
     {
@@ -638,10 +639,38 @@ public class ControlTag extends UIInput implements NamingContainer
         // get submitted value and validate
         if (log.isDebugEnabled())
             log.debug("Validating input for {}.", this.inpInfo.getColumn().getName());
-        // Validate value
+
+        // Will internally call getSubmittedValue() and validateValue()
+        this.valueValidated = false;
+        super.validate(context);
+        // post check
+        if (!this.valueValidated && !helper.isReadOnly())
+        {   // New since 2024-04-04
+            // Validate Record value
+            Object value = helper.getDataValue(true);
+            log.warn("No Submitted value for {}. Validating Record value of \"{}\" instead.", helper.getColumnName(), value);
+            if (value!=null)
+                validateValue(context, value);
+        }
+    }
+
+    @Override
+    public void validateValue(FacesContext context, Object value)
+    {   // Validate value
         try
-        {   // Will internally call getSubmittedValue() and validateValue() 
-            super.validate(context);
+        {   // Check state
+            if (this.inpInfo == null || !isValid())
+                return;
+            // Skip Null values if not required
+            if (UIInput.isEmpty(value) && isPartialSubmit(context)) //  && helper.isValueRequired()
+            { // Value is null
+                log.debug("Skipping validation for {} due to Null value.", inpInfo.getColumn().getName());
+                return;
+            }
+            inpInfo.validate(value);
+            setValid(true);
+            // don't call base class!
+            // super.validateValue(context, value);
 
         } catch (Exception e) {
             // Value is not valid
@@ -650,25 +679,10 @@ public class ControlTag extends UIInput implements NamingContainer
             // Add error message
             helper.addErrorMessage(context, e);
             setValid(false);
-        }
-    }
 
-    @Override
-    public void validateValue(FacesContext context, Object value)
-    { // Check state
-        if (this.inpInfo == null || !isValid())
-            return;
-        // Skip Null values on partial submit
-        if (UIInput.isEmpty(value) && isPartialSubmit(context)) //  && helper.isValueRequired()
-        { // Value is null
-            log.debug("Skipping validation for {} due to Null value.", this.inpInfo.getColumn().getName());
-            return;
+        } finally {
+            this.valueValidated = true;
         }
-        // Validate value
-        this.inpInfo.validate(value);
-        setValid(true);
-        // don't call base class!
-        // super.validateValue(context, value);
     }
 
     @Override
