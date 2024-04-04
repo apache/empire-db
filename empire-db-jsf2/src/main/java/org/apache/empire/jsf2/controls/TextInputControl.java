@@ -259,16 +259,13 @@ public class TextInputControl extends InputControl
 
     protected String formatValue(Object value, ValueInfo vi, boolean escapeHTML)
     {
-        // Lookup and Print value
+        // Lookup and return text
         Options options = vi.getOptions();
-        if (options != null && !options.isEmpty() && !hasFormatOption(vi, "nolookup"))
-        { // Check for Options
-            String text = options.get(value);
-            if (StringUtils.isNotEmpty(text))
-                return vi.getText(text);
-            // Error
-            if (value!=null)
-                TextInputControl.log.error("The element '" + String.valueOf(value) + "' is not part of the supplied option list.");
+        if (options != null && !hasFormatOption(vi, "nolookup"))
+        {   // getOptionText
+            String text = getOptionText(options, value, vi);
+            if (text!=null)
+                return text;
         }
         // Check Value
         if (value == null)

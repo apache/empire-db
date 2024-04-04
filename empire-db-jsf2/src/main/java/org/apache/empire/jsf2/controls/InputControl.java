@@ -298,12 +298,12 @@ public abstract class InputControl
     
     public void updateInputState(UIComponent parent, InputInfo ii, FacesContext context, PhaseId phaseId)
     {
-        List<UIComponent> cl = parent.getChildren(); 
-        if (cl.isEmpty())
+        List<UIComponent> children = parent.getChildren(); 
+        if (children.isEmpty())
             return;
-        updateInputState(cl, ii, context, phaseId);
+        // update state
+        updateInputState(children, ii, context, phaseId);
         // update attached objects
-        List<UIComponent> children = parent.getChildren();
         while (!(parent instanceof UIInput))
             parent = parent.getParent();
         for (UIComponent child : children)
@@ -715,26 +715,47 @@ public abstract class InputControl
             // Error
             InputControl.log.error("The enum '" + ((Enum<?>) value).name() + "' has no text!");
         }
-        // Lookup and Print value
+        // Lookup and return text
         Options options = vi.getOptions();
-        if (options != null && !options.isEmpty() && !hasFormatOption(vi, "nolookup"))
-        {   // Check for Options
-            OptionEntry entry = options.getEntry(value);
-            if (entry!=null)
-                return vi.getText(entry.getText());
-            // Error
-            if (value!=null)
-                InputControl.log.error("The element '" + String.valueOf(value) + "' is not part of the supplied option list.");
+        if (options != null && !hasFormatOption(vi, "nolookup"))
+        {   // getOptionText
+            String text = getOptionText(options, value, vi);
+            if (text!=null)
+                return text;
         }
         // value
         if (value == null)
             value = getFormatOption(vi, InputControl.FORMAT_NULL, InputControl.FORMAT_NULL_ATTRIBUTE);
         // Convert to String
-        String s = StringUtils.toString(value, "");
+        String s = StringUtils.toString(value, StringUtils.EMPTY);
         if (hasFormatOption(vi, "noencode"))
             return s;
         // Encode Html
         return escapeHTML(s);
+    }
+
+    /**
+     * Returns the display text for an option
+     * @param options
+     * @param value
+     * @param vi
+     * @return the display text or null if the option value could not be resolved
+     */
+    protected String getOptionText(Options options, Object value, ValueInfo vi)
+    {
+        if (options == null)
+            throw new InvalidArgumentException("options", options);
+        // Check for Options
+        OptionEntry entry = options.getEntry(value);
+        if (entry!=null)
+            return vi.getText(entry.getText());
+        // Check empty
+        if (ObjectUtils.isEmpty(value))
+            return StringUtils.EMPTY;
+        // Error: Value not found! 
+        String column = (vi.getColumn()!=null ? vi.getColumn().getName() : "?");
+        log.error("The element \"{}\" is not part of the supplied option list for column {}", value, column);
+        return null; 
     }
 
     /**

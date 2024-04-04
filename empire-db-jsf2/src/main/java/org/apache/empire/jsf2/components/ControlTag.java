@@ -726,7 +726,8 @@ public class ControlTag extends UIInput implements NamingContainer
         if (inpInfo==null)
             inpInfo = helper.getInputInfo(context);
         // update control
-        control.updateInputState(this, inpInfo, context, context.getCurrentPhaseId());
+        ControlSeparatorComponent inputSepTag = (ControlSeparatorComponent) getChildren().get(1);
+        control.updateInputState(inputSepTag, inpInfo, context, context.getCurrentPhaseId());
     }
 
     protected void setRenderInput(boolean renderInput)

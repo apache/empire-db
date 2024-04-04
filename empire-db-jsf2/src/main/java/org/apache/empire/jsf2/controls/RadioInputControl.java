@@ -34,7 +34,6 @@ import javax.faces.event.PhaseId;
 import org.apache.empire.commons.ObjectUtils;
 import org.apache.empire.commons.OptionEntry;
 import org.apache.empire.commons.Options;
-import org.apache.empire.commons.StringUtils;
 import org.apache.empire.data.Column;
 import org.apache.empire.exceptions.InvalidArgumentException;
 import org.apache.empire.exceptions.UnexpectedReturnValueException;
@@ -299,12 +298,9 @@ public class RadioInputControl extends InputControl
                 Object attrValue = column.getAttribute(RadioInputControl.COLATTR_ABBR_OPTIONS);
                 if (attrValue instanceof Options)
                 { // Check for Options
-                    String text = ((Options) attrValue).get(value);
-                    if (StringUtils.isNotEmpty(text))
-                        return vi.getText(text);
-                    // Error
-                    if (value!=null)
-                        RadioInputControl.log.error("The element '" + String.valueOf(value) + "' is not part of the supplied option list.");
+                    String text = getOptionText(((Options) attrValue), value, vi);
+                    if (text!=null)
+                        return text;
                 }
             }
         }

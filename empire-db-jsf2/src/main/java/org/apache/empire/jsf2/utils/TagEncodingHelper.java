@@ -1821,7 +1821,12 @@ public class TagEncodingHelper implements NamingContainer
         // detect
         this.insideUIData = false;
         for (UIComponent p = component.getParent(); p!=null; p=p.getParent())
-        {   // Check whether inside UIData
+        {   // Single record?
+            if (p instanceof RecordTag) {
+                this.insideUIData = false;
+                break;
+            }
+            // Check whether inside UIData
             if (p instanceof UIData) {
                 this.insideUIData = true;
                 break;
