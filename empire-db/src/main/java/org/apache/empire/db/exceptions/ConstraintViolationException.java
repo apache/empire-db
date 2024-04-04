@@ -25,7 +25,7 @@ import org.apache.empire.dbms.DBMSHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class ConstraintViolationException extends EmpireSQLException
+public class ConstraintViolationException extends StatementFailedException
 {
     private static final long serialVersionUID = 1L;
 
@@ -34,6 +34,12 @@ public class ConstraintViolationException extends EmpireSQLException
     
     public static final ErrorType errorType = new ErrorType("error.db.statementFailed",  "Error executing statement {0}.\r\nNative error is: {1}");
     
+    /**
+     * Constructor for ConstraintViolationException
+     * @param dbms the DBMS
+     * @param sqlCmd the failed SQL command
+     * @param cause the SQLException
+     */
     public ConstraintViolationException(DBMSHandler dbms, String sqlCmd, SQLException cause)
     {
         super(ConstraintViolationException.errorType, new String[] { sqlCmd, messageFromSQLException(dbms, cause) }, 1, cause);

@@ -33,10 +33,24 @@ public class StatementFailedException extends EmpireSQLException
     private static final Logger log = LoggerFactory.getLogger(StatementFailedException.class);
     
     public static final ErrorType errorType = new ErrorType("error.db.statementFailed",  "Error executing statement {0}.\r\nNative error is: {1}");
-    
+
+    /**
+     * Constructor for StatementFailedException
+     * @param dbms the DBMS 
+     * @param sqlCmd the failed SQL command
+     * @param cause the SQLException
+     */
     public StatementFailedException(DBMSHandler dbms, String sqlCmd, SQLException cause)
     {
         super(StatementFailedException.errorType, new String[] { sqlCmd, messageFromSQLException(dbms, cause) }, 1, cause);
+    }
+    
+    /**
+     * Constructor for derived classes only
+     */
+    protected StatementFailedException(ErrorType type, String[] params, int nativeErrorIndex, SQLException cause)
+    {
+        super(type, params, nativeErrorIndex, cause);
     }
     
     /**
