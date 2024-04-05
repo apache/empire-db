@@ -277,9 +277,10 @@ public class InputTag extends UIInput implements NamingContainer
         if (helper.isInsideUIData() && getChildCount()>0)
         {   // update input state
             updateControlInputState(context);
-            // Set readOnly and disabled for each row
-            boolean readOnly = helper.isRecordReadOnly();
-            setRenderInput(!readOnly);
+            // Set Rendered (changed 2024-04-05)
+            // boolean readOnly = helper.isRecordReadOnly();
+            boolean renderValue = helper.isRenderValueComponent();
+            setRenderInput(!renderValue);
         }
         // default
         super.processDecodes(context);

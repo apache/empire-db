@@ -78,7 +78,6 @@ import org.apache.empire.jsf2.controls.InputControl.InputInfo;
 import org.apache.empire.jsf2.controls.InputControl.ValueInfo;
 import org.apache.empire.jsf2.controls.InputControlManager;
 import org.apache.empire.jsf2.controls.SelectInputControl;
-import org.apache.empire.jsf2.controls.TextAreaInputControl;
 import org.apache.empire.jsf2.controls.TextInputControl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -438,16 +437,26 @@ public class TagEncodingHelper implements NamingContainer
     // temporary
     protected byte              readOnly              = -1;
     protected byte              valueRequired         = -1;
+    protected boolean           optionsDetected       = false;
+    protected Options           options               = null;
     protected ValueInfo         valueInfo             = null;
     protected boolean           skipValidation        = false;
     protected Object            mostRecentValue       = null;
 
+    /**
+     * Constructor
+     * @param component the UIComponent
+     * @param cssStyleClass the basic cssStyleClass
+     */
     protected TagEncodingHelper(UIOutput component, String cssStyleClass)
     {
         this.component = component;
         this.cssStyleClass = cssStyleClass;
     }
 
+    /**
+     * Called from UIComponent.encodeBegin()
+     */
     public void encodeBegin()
     {
         if (component instanceof UIInput)
@@ -473,6 +482,9 @@ public class TagEncodingHelper implements NamingContainer
         checkRecord();
     }
 
+    /**
+     * Prepares the control for decoding, validating and updating
+     */
     public void prepareData()
     {
         checkRecord();
@@ -543,14 +555,7 @@ public class TagEncodingHelper implements NamingContainer
                 controlType = SelectInputControl.NAME;
             else
             {   // get from data type
-                switch (dataType)
-                {
-                    case CLOB:
-                        controlType = TextAreaInputControl.NAME;
-                        break;
-                    default:
-                        controlType = TextInputControl.NAME;
-                }
+                controlType = WebApplication.getInstance().getDefaultControlType(dataType);
             }
             // get default control
             control = InputControlManager.getControl(controlType);
@@ -697,6 +702,8 @@ public class TagEncodingHelper implements NamingContainer
     {
         this.readOnly        = -1;
         this.valueRequired   = -1;
+        this.optionsDetected = false;
+        this.options = null;
         /*
         this.valueInfo       = null;
         this.skipValidation  = false;
@@ -1218,7 +1225,17 @@ public class TagEncodingHelper implements NamingContainer
         return ve;
     }
     
-    protected Options getValueOptions()
+    protected final Options getValueOptions()
+    {
+        if (this.optionsDetected==false)
+        {   // detect Options
+            this.options = detectValueOptions();
+            this.optionsDetected = true;
+        }
+        return this.options;
+    }
+    
+    protected Options detectValueOptions()
     {
         // null value
         Object attr = getTagAttributeValue("options");
