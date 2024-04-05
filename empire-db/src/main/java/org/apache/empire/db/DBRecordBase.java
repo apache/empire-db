@@ -228,6 +228,7 @@ public abstract class DBRecordBase extends DBRecordData implements Record, Clone
     private boolean[]       modified;
     Object                  rowsetData; // Special Rowset Data (usually null)
     protected boolean       validateFieldValues;
+    protected boolean       allowReadOnlyUpdate;
     
     // Parent-Record-Map for deferred identity setting 
     private Map<DBColumn, DBRecordBase> parentRecordMap;
@@ -244,6 +245,7 @@ public abstract class DBRecordBase extends DBRecordData implements Record, Clone
         this.modified = null;
         this.rowsetData = null;
         this.validateFieldValues = true;
+        this.allowReadOnlyUpdate = false;
         this.parentRecordMap = null;
     }
 
@@ -1052,7 +1054,10 @@ public abstract class DBRecordBase extends DBRecordData implements Record, Clone
     protected void checkUpdateable()
     {
         if (this.isReadOnly())
-            throw new RecordReadOnlyException(this);
+        {   // Check allowReadOnlyUpdate
+            if (!allowReadOnlyUpdate)
+                throw new RecordReadOnlyException(this);
+        }
     }
     
     /**
