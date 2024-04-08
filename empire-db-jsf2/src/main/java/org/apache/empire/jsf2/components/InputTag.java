@@ -277,7 +277,7 @@ public class InputTag extends UIInput implements NamingContainer
         if (helper.isInsideUIData() && getChildCount()>0)
         {   // update input state
             updateControlInputState(context);
-            // Set Rendered (changed 2024-04-05)
+            // Set Rendered for children (changed 2024-04-05)
             // boolean readOnly = helper.isRecordReadOnly();
             boolean renderValue = helper.isRenderValueComponent();
             setRenderInput(!renderValue);
@@ -293,6 +293,8 @@ public class InputTag extends UIInput implements NamingContainer
         if (helper.isInsideUIData() && getChildCount()>0)
         {   // update input state
             updateControlInputState(context);
+            // No need to processValidators for children
+            setRenderInput(false);
         }
         // process all validators (including children)
         super.processValidators(context);

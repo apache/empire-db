@@ -927,7 +927,9 @@ public class TagEncodingHelper implements NamingContainer
     {
         // component 
         if (!(component instanceof UIInput))
-        {   log.info("Component for {} is not of type UIInput", getColumn().getName());
+        {   // from LabelTag ?
+            if (!(component instanceof LabelTag))
+                log.warn("Component for {} is not of type UIInput but {}", getColumn().getName(), component.getClass().getName());
             return true;
         }
         // Check Record
@@ -1919,18 +1921,11 @@ public class TagEncodingHelper implements NamingContainer
         if (comp==null || comp.getId()==null)
             return;
         if (isInsideUIData()) 
-        {
+        {   // reset component-id
             String resetId = comp.getId();
             if (log.isInfoEnabled())
                 log.info("Resetting Component-id inside UIData to {}", resetId);
             comp.setId(resetId);
-            
-            /* needed ? 
-            for (UIComponent c : comp.getChildren())
-            {
-                resetComponentId(c);
-            }
-            */
         }
     }
     
