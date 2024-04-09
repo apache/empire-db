@@ -21,6 +21,7 @@ package org.apache.empire.db.validation;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Types;
 import java.util.ArrayList;
@@ -299,11 +300,27 @@ public class DBModelParser
             DBTable t = (DBTable)rs;
             List<String> pkCols = new ArrayList<String>();
             ResultSet primaryKeys = dbMeta.getPrimaryKeys(catalog, schema, t.getName());
+            
             try {
+                // get column names (in order)
                 while (primaryKeys.next())
                 {
-                    pkCols.add(primaryKeys.getString("COLUMN_NAME"));
+                    String columnName = primaryKeys.getString("COLUMN_NAME");
+                    int keyIndex = primaryKeys.getInt("KEY_SEQ")-1;
+                    if (keyIndex<pkCols.size())
+                    {   // insert to previously allocated position
+                        pkCols.set(keyIndex, columnName);
+                        continue;
+                    }
+                    else if (keyIndex>pkCols.size())
+                    {   // alloc placeholders
+                        while(keyIndex>pkCols.size())
+                            pkCols.add(null); // placeholder
+                    }
+                    // append
+                    pkCols.add(columnName);
                 }
+                // resolve columns from names
                 if (pkCols.size() > 0)
                 {
                     DBColumn[] keys = new DBColumn[pkCols.size()];

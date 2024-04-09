@@ -83,6 +83,16 @@ public class OracleDBModelChecker extends DBModelChecker
         {   // Accept all numeric types as Integer
             return;
         }
+        if (column.getDataType()==DataType.BOOL)
+        {   // Boolean check
+            if (booleanType==BooleanType.CHAR) {
+                if (!remoteColumn.getDataType().isText())
+                    handler.columnTypeMismatch(column, DataType.CHAR);
+            } else
+                if (!remoteColumn.getDataType().isNumeric())
+                    handler.columnTypeMismatch(column, DataType.DECIMAL);
+            return;
+        }
         super.checkColumnType(column, remoteColumn, handler);
     }
     
