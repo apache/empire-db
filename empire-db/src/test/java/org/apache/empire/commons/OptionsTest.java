@@ -52,9 +52,9 @@ public class OptionsTest
     {
         Options options = new Options();
         assertEquals(0, options.size());
-        options.add(new Object(), "text", true);
+        options.add(new Object(), "text");
         assertEquals(1, options.size());
-        options.add(new Object(), "text", true);
+        options.add(new Object(), "text");
         assertEquals(2, options.size());
     }
 
@@ -66,7 +66,7 @@ public class OptionsTest
     {
         Options options = new Options();
         assertTrue(options.isEmpty());
-        options.add(new Object(), "text", true);
+        options.add(new Object(), "text");
         assertFalse(options.isEmpty());
     }
 
@@ -77,7 +77,7 @@ public class OptionsTest
     public void testClear()
     {
         Options options = new Options();
-        options.add(new Object(), "text", true);
+        options.add(new Object(), "text");
         options.clear();
         assertTrue(options.isEmpty());
     }
@@ -99,7 +99,7 @@ public class OptionsTest
     public void testOptionsOptions()
     {
         Options options = new Options();
-        options.add(new Object(), "text", true);
+        options.add(new Object(), "text");
         Options options2 = new Options(options);
         assertEquals(1, options2.size());
     }
@@ -124,8 +124,8 @@ public class OptionsTest
     {
         Options options = new Options();
         assertEquals(-1, options.getIndex(new Object()));
-        options.add(Integer.valueOf(123), "text", true);
-        options.add(Integer.valueOf(456), "text", true);
+        options.add(Integer.valueOf(123), "text");
+        options.add(Integer.valueOf(456), "text");
         assertEquals(0, options.getIndex(Integer.valueOf(123)));
         assertEquals(1, options.getIndex(Integer.valueOf(456)));
     }
@@ -149,7 +149,7 @@ public class OptionsTest
     public void testGetEntry()
     {
         Options options = new Options();
-        options.add(Integer.valueOf("123"), "text", true);
+        options.add(Integer.valueOf("123"), "text");
         OptionEntry entry = options.getEntry(Integer.valueOf("123"));
         assertNotNull(entry);
         assertEquals("text", entry.getText());
@@ -163,7 +163,7 @@ public class OptionsTest
     public void testGet()
     {
         Options options = new Options();
-        options.add(Integer.valueOf("123"), "text", true);
+        options.add(Integer.valueOf("123"), "text");
         String text = options.get(Integer.valueOf("123"));
         assertNotNull(text);
         assertEquals("text", text);
@@ -177,8 +177,8 @@ public class OptionsTest
     {
         Options options = new Options();
         assertEquals(null, options.getValueAt(10));
-        options.add(Integer.valueOf(123), "text", true);
-        options.add(Integer.valueOf(456), "text2", true);
+        options.add(Integer.valueOf(123), "text");
+        options.add(Integer.valueOf(456), "text2");
         assertEquals(Integer.valueOf(456), options.getValueAt(1));
     }
 
@@ -190,8 +190,8 @@ public class OptionsTest
     {
         Options options = new Options();
         assertEquals("", options.getTextAt(10));
-        options.add(Integer.valueOf(123), "text", true);
-        options.add(Integer.valueOf(456), "text2", true);
+        options.add(Integer.valueOf(123), "text");
+        options.add(Integer.valueOf(456), "text2");
         assertEquals("text2", options.getTextAt(1));
     }
 
@@ -203,8 +203,8 @@ public class OptionsTest
     {
         Options options = new Options();
         assertEquals(0, options.getValues().size());
-        options.add(Integer.valueOf(123), "text", true);
-        options.add(Integer.valueOf(456), "text2", true);
+        options.add(Integer.valueOf(123), "text");
+        options.add(Integer.valueOf(456), "text2");
         Set<Object> values = options.getValues();
         assertTrue(values.contains(Integer.valueOf(123)));
         assertTrue(values.contains(Integer.valueOf(456)));
@@ -217,7 +217,7 @@ public class OptionsTest
     public void testSetObjectStringInsertPos()
     {
         Options options = new Options();
-        options.add(Integer.valueOf(123), "text", true);
+        options.add(Integer.valueOf(123), "text");
         options.set(Integer.valueOf(456), "text2", InsertPos.Top);
         options.set(Integer.valueOf(789), "text3", InsertPos.Bottom);
         assertEquals(Integer.valueOf(456), options.getValueAt(0));
@@ -231,7 +231,7 @@ public class OptionsTest
     public void testSetObjectString()
     {
         Options options = new Options();
-        options.add(Integer.valueOf(1), "text", true);
+        options.add(Integer.valueOf(1), "text");
         options.set(Integer.valueOf(2), "text2");
         assertEquals(Integer.valueOf(2), options.getValueAt(1));
     }
@@ -243,15 +243,9 @@ public class OptionsTest
     public void testAddObjectStringBoolean()
     {
         Options options = new Options();
-        options.add(Integer.valueOf(1), "text", true);
+        options.add(Integer.valueOf(1), "text");
         assertEquals(Integer.valueOf(1), options.getValueAt(0));
-        options.add(Integer.valueOf(1), "text", true);
-        assertEquals(Integer.valueOf(1), options.getValueAt(0));
-        
-        options = new Options();
-        options.add(Integer.valueOf(1), "text", false);
-        assertEquals(Integer.valueOf(1), options.getValueAt(0));
-        options.add(Integer.valueOf(1), "text2", false);
+        options.add(Integer.valueOf(1), "text2");
         assertEquals(null, options.getValueAt(1));
         assertEquals("text2", options.getTextAt(0));
     }
@@ -277,8 +271,8 @@ public class OptionsTest
     public void testContainsObject()
     {
         Options options = new Options();
-        options.add(Integer.valueOf(1), "txt", false);
-        options.add(Integer.valueOf(2), "txt", false);
+        options.add(Integer.valueOf(1), "txt");
+        options.add(Integer.valueOf(2), "txt");
         assertTrue(options.has(Integer.valueOf(1)));
         assertTrue(options.has(Integer.valueOf(2)));
     }
@@ -290,8 +284,8 @@ public class OptionsTest
     public void testIterator()
     {
         Options options = new Options();
-        options.add(Integer.valueOf(1), "txt", false);
-        options.add(Integer.valueOf(2), "txt2", false);
+        options.add(Integer.valueOf(1), "txt");
+        options.add(Integer.valueOf(2), "txt2");
         Iterator<OptionEntry> it = options.iterator();
         it.next();
         assertEquals("txt2", it.next().getText());
@@ -307,8 +301,8 @@ public class OptionsTest
     public void testRemoveObject()
     {
         Options options = new Options();
-        options.add(Integer.valueOf(1), "txt", false);
-        options.add(Integer.valueOf(2), "txt2", false);
+        options.add(Integer.valueOf(1), "txt");
+        options.add(Integer.valueOf(2), "txt2");
         options.remove(Integer.valueOf(1));
         assertFalse(options.has(Integer.valueOf(1)));
         assertTrue (options.has(Integer.valueOf(2)));
@@ -321,8 +315,8 @@ public class OptionsTest
     public void testToArray()
     {
         Options options = new Options();
-        options.add(Integer.valueOf(1), "txt", false);
-        options.add(Integer.valueOf(2), "txt2", false);
+        options.add(Integer.valueOf(1), "txt");
+        options.add(Integer.valueOf(2), "txt2");
         assertEquals(2, options.toArray().length);
     }
 
@@ -334,8 +328,8 @@ public class OptionsTest
     public void testAddXml() throws ParserConfigurationException
     {
         Options options = new Options();
-        options.add(Integer.valueOf(1), "txt", false);
-        options.add(Integer.valueOf(2), "txt2", false);
+        options.add(Integer.valueOf(1), "txt");
+        options.add(Integer.valueOf(2), "txt2");
 
         
         DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();

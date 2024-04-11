@@ -607,6 +607,9 @@ public class DBUtils implements DBContextAware
     /**
      * Fills an option list provided with the result from a query.
      * The option list is filled with the values of the first and second column.
+     * Optionally a third column may provide a boolean value for active or disabled.
+     *
+     * IMPORTANT: The query must contain unique values in the first column!
      * 
      * @param sqlCmd the sql command
      * @param sqlParams the command params
@@ -625,15 +628,15 @@ public class DBUtils implements DBContextAware
             rs = dbms.executeQuery(sqlCmd, sqlParams, false, context.getConnection());
             if (rs == null)
                 throw new UnexpectedReturnValueException(rs, "dbms.executeQuery()");
-            if (rs.getMetaData().getColumnCount()<2)
-                throw new InvalidArgumentException("sqlCmd", sqlCmd);
-            // Check Result
+            // Load options
+            int colCount = rs.getMetaData().getColumnCount();
             int count = 0;
             while (rs.next())
             {
                 Object value = rs.getObject(1);
-                String text  = rs.getString(2);
-                options.add(value, text, true);
+                String text  = rs.getString((colCount>=2) ? 2 : 1);
+                boolean active = (colCount>=3) ? ObjectUtils.getBoolean(rs.getObject(3)) : true;
+                options.append(value, text, active);
                 count++;
             }
             // Debug

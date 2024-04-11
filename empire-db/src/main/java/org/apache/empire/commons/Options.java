@@ -190,7 +190,7 @@ public class Options extends AbstractSet<OptionEntry> implements Cloneable, Seri
         for (int i=0; i<items.length; i++)
         {
             Enum<?> item = items[i];
-            add(item, item.toString(), true);
+            append(item, item.toString(), true);
         }
     }
 
@@ -447,6 +447,21 @@ public class Options extends AbstractSet<OptionEntry> implements Cloneable, Seri
         else
             list.add(option);
         return true;
+    }
+    
+    /**
+     * Appends an option
+     * Useful for fast loading when it is certain that there are no duplicates
+     * WARNING: Does not check if the entry already exists 
+     * @param value the value object
+     * @param text the text
+     * @param active the flag whether or not this item is active
+     */
+    public void append(Object value, String text, boolean active)
+    {
+        if (text == null)
+            text = StringUtils.EMPTY;
+        list.add(createOptionEntry(value, text, active));
     }
 
     @Override
