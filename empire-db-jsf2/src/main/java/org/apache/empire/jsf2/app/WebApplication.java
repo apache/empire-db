@@ -29,9 +29,11 @@ import java.util.ResourceBundle;
 import javax.faces.application.Application;
 import javax.faces.application.FacesMessage;
 import javax.faces.application.FacesMessage.Severity;
+import javax.faces.application.ViewExpiredException;
 import javax.faces.component.NamingContainer;
 import javax.faces.component.UIComponent;
 import javax.faces.component.UIViewRoot;
+import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
@@ -42,6 +44,7 @@ import org.apache.empire.data.DataType;
 import org.apache.empire.db.DBDatabase;
 import org.apache.empire.db.context.DBRollbackManager;
 import org.apache.empire.db.context.DBRollbackManager.ReleaseAction;
+import org.apache.empire.db.exceptions.UserLevelException;
 import org.apache.empire.exceptions.InternalException;
 import org.apache.empire.exceptions.InvalidArgumentException;
 import org.apache.empire.exceptions.NotSupportedException;
@@ -50,6 +53,7 @@ import org.apache.empire.jsf2.controls.TextAreaInputControl;
 import org.apache.empire.jsf2.controls.TextInputControl;
 import org.apache.empire.jsf2.impl.FacesImplementation;
 import org.apache.empire.jsf2.impl.ResourceTextResolver;
+import org.apache.myfaces.lifecycle.ViewNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -268,6 +272,48 @@ public abstract class WebApplication
         return false;
     }
 
+    /**
+     * Logs an exception as Error with additional information 
+     * @param message the message to log
+     * @param e the underlying exception
+     */
+    public void logException(Logger logger, String message, Throwable e)
+    {
+        if (logger==null)
+            logger=log;
+        // View Exceptions
+        if ((e instanceof ViewExpiredException) || (e instanceof ViewNotFoundException))
+        {   // Session expired
+            logger.warn(message+": "+e.getMessage());
+            return;
+        }
+        // Get Session Info
+        String addlInfo;
+        try {
+            FacesContext fc = FacesContext.getCurrentInstance();
+            ExternalContext ec = (fc!=null ? fc.getExternalContext() : null);
+            String sessionInfo = (ec!=null ? getExceptionSessionInfo(ec.getSessionMap()) : "[NoSession]");
+            addlInfo = StringUtils.coalesce(sessionInfo, "[NoSessionInfo]");
+        } catch(Exception ex) {
+            addlInfo = "[Error:"+ex.getMessage()+"] ";
+        }
+        // Log now
+        if (e instanceof UserLevelException)
+            logger.info(StringUtils.concat(addlInfo, e.getClass().getSimpleName(), ": ", e.getMessage()));
+        else
+            logger.error(StringUtils.concat(addlInfo, message), e);                
+    }
+    
+    /**
+     * Override this to provide additonal session info for an exception
+     * @param sessionMap
+     * @return the additional session info
+     */
+    protected String getExceptionSessionInfo(Map<String, Object> sessionMap)
+    {
+        return null;
+    }
+    
     /**
      * returns true if a form input element has been partially submitted
      * @param fc the Faces Context

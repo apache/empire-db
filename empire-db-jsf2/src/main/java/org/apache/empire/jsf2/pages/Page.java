@@ -461,13 +461,34 @@ public abstract class Page // *Deprecated* implements Serializable
         FacesContext fc = FacesUtils.getContext();
         return FacesUtils.getParameterMap(fc).put(page, rowset, key);
     }
-    
+
+    /**
+     * Adds a Javascript call to the current request
+     * @param function the javascript function to be called
+     */
     public void addJavascriptCall(String function)
     {
         // Add Call
         FacesContext fc = FacesUtils.getContext();
         WebApplication app = FacesUtils.getWebApplication();
         app.addJavascriptCall(fc, function);
+    }
+
+    /**
+     * Adds a Javascript call to the current request
+     * @param function the function call template 
+     * @param args the call arguments to be replaced in the function template
+     */
+    public void addJavascriptCall(String function, Object... args)
+    {
+        // template and arguments?
+        for (int i=0; i<args.length; i++)
+        {
+            String placeholder = "{"+String.valueOf(i)+"}";
+            function = StringUtils.replace(function, placeholder, String.valueOf(args[i]));
+        }
+        // Add Call
+        this.addJavascriptCall(function);
     }
     
     /* Page Resources */

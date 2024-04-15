@@ -31,6 +31,7 @@ import javax.faces.component.UIInput;
 import javax.faces.component.UIViewRoot;
 import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
+import javax.faces.event.ActionEvent;
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 
@@ -119,6 +120,12 @@ public class FacesUtils
         return getHttpRequest(fc).getAttribute(key);
     }
 
+    public static <T> T getRequestAttribute(final FacesContext fc, final String key, Class<T> clazz)
+    {
+        Object requestValue = getRequestAttribute(fc, key);
+        return (requestValue != null ? ObjectUtils.convert(clazz, requestValue) : null);
+    }
+
     public static void setRequestAttribute(final String key, Object value)
     {
         FacesContext fc = getContext();
@@ -155,6 +162,12 @@ public class FacesUtils
     {
         FacesContext fc = getContext();
         return isSkipInputValidation(fc); 
+    }
+
+    public static <T> T getActionEventAttribute(ActionEvent ae, String name, Class<T> clazz)
+    {
+        Object item = ae.getComponent().getAttributes().get(name);
+        return ObjectUtils.convert(clazz, item);
     }
 
     /* Navigation */
