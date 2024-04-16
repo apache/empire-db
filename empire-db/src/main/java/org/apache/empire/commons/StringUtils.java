@@ -629,5 +629,54 @@ public class StringUtils
         // trunc
         return s.substring(0, maxChar);
     }
+
+    /**
+     * Pads a String to the left
+     * @param s the string to pad
+     * @param size the desired size
+     * @param padChar the padding char
+     * @return the padded string
+     */
+    public static String padLeft(String s, int size, char padChar)
+    {
+        if (s==null)
+            s=EMPTY;
+        if (s.length()>=size)
+            return s;
+        // padding required
+        int padCount = size-s.length(); 
+        if (padCount==1)
+            return String.valueOf(padChar)+s;
+        // more than one
+        StringBuilder b = new StringBuilder(size);
+        while (b.length()<padCount) 
+               b.append(padChar);
+        b.append(s);
+        return b.toString();
+    }
+
+    /**
+     * Pads a String to the right
+     * @param s the string to pad
+     * @param size the desired size
+     * @param padChar the padding char
+     * @return the padded string
+     */
+    public static String padRight(String s, int size, char padChar)
+    {
+        if (s==null)
+            s=EMPTY;
+        if (s.length()>=size)
+            return s;
+        // padding required
+        if (size-s.length()==1)
+            return s+String.valueOf(padChar);
+        // more than one
+        StringBuilder b = new StringBuilder(size);
+        b.append(s);
+        while (b.length()<size) 
+               b.append(padChar);
+        return b.toString();
+    }
     
 }

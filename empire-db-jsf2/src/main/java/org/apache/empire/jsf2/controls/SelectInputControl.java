@@ -18,17 +18,19 @@
  */
 package org.apache.empire.jsf2.controls;
 
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
 import javax.el.ValueExpression;
 import javax.faces.component.UIComponent;
-import javax.faces.component.UISelectItem;
+import javax.faces.component.UISelectItems;
 import javax.faces.component.UISelectOne;
 import javax.faces.component.html.HtmlSelectOneListbox;
 import javax.faces.component.html.HtmlSelectOneMenu;
 import javax.faces.context.FacesContext;
 import javax.faces.event.PhaseId;
+import javax.faces.model.SelectItem;
 
 import org.apache.empire.commons.ObjectUtils;
 import org.apache.empire.commons.OptionEntry;
@@ -219,9 +221,9 @@ public class SelectInputControl extends InputControl
     {
         // get the options
         Options options = ii.getOptions();
-        if (options==null)
-        {   // clear or not?
-            if (ii.getValue(false)!=null)
+        if (options == null)
+        { // clear or not?
+            if (ii.getValue(false) != null)
                 log.warn("No options have been set for column {}", ii.getColumn().getName());
             else
                 input.getChildren().clear();
@@ -233,55 +235,67 @@ public class SelectInputControl extends InputControl
         // Compare child-items with options
         Iterator<OptionEntry> ioe = options.iterator();
         OptionEntry oe = (ioe.hasNext() ? ioe.next() : null);
+
+        // get UISelectItems
         List<UIComponent> childList = input.getChildren();
-        Iterator<UIComponent> ico = childList.iterator();
+        if (childList.isEmpty())
+            childList.add(new UISelectItems());
+        else if (childList.size()>1)
+            log.warn("Unexpected number of child items ({}) for SelectInputControl of column {}", childList.size(), ii.getColumn().getName());
+        UISelectItems items = (UISelectItems) childList.get(0);
+        // get SelectItem list
+        @SuppressWarnings("unchecked")
+        List<SelectItem> selectItemList = (List<SelectItem>) items.getValue();
+        if (selectItemList==null)
+        {   selectItemList = new ArrayList<SelectItem>();
+            items.setValue(selectItemList);
+        }
+        Iterator<SelectItem> ico = selectItemList.iterator();
         int lastIndex = 0;
         boolean emptyPresent = false;
         while (ico.hasNext())
         {
             lastIndex++;
-            UIComponent co = ico.next();
-            if (!(co instanceof UISelectItem))
-                continue;
-            UISelectItem si = (UISelectItem) co;
-            Object ov = si.getItemValue();
+            SelectItem si = ico.next();
+            Object ov = si.getValue();
+            // check empty
             if (ObjectUtils.isEmpty(ov) && hasEmpty)
             {   emptyPresent = true;
                 continue;
             }
             // skip inactive
-            while (oe!=null && !oe.isActive())
-            {   // check for current
+            while (oe != null && !oe.isActive())
+            { // check for current
                 if (ObjectUtils.compareEqual(oe.getValue(), currentValue))
                     break;
                 // next oe
                 oe = (ioe.hasNext() ? ioe.next() : null);
             }
             if (oe == null)
-            {   // remove obsolete items
+            { // remove obsolete items
                 lastIndex--;
-                for (int index = childList.size() - 1; index >= lastIndex; index--)
-                    childList.remove(index);
+                for (int index = selectItemList.size() - 1; index >= lastIndex; index--)
+                    selectItemList.remove(index);
                 // done
                 return;
             }
             if (ObjectUtils.compareEqual(ov, oe.getValue()))
-            {   // next
-                String label = oe.getText();
-                si.setItemLabel(textResolver.resolveText(label));
+            { // next
+                si.setLabel(oe.getText());
                 oe = (ioe.hasNext() ? ioe.next() : null);
                 continue;
             }
             // Not equal - do a full reload
             input.getChildren().clear();
-            if (hasEmpty) {
+            if (hasEmpty)
+            {
                 // add empty entry
                 addSelectItem(input, textResolver, new OptionEntry("", getNullText(ii)));
             }
             for (OptionEntry opt : options)
-            {   // Option entries
+            { // Option entries
                 if (opt.isActive() || ObjectUtils.compareEqual(opt.getValue(), currentValue))
-                {   // add active or current item
+                { // add active or current item
                     addSelectItem(input, textResolver, opt);
                 }
             }
@@ -290,44 +304,62 @@ public class SelectInputControl extends InputControl
         }
         // check empty entry
         if (hasEmpty && !emptyPresent)
-        {   // add missing empty entry
+        { // add missing empty entry
             addSelectItem(input, textResolver, new OptionEntry("", getNullText(ii)), 0);
         }
         // Are there any items left?
         while (oe != null)
-        {   // add missing item
+        { // add missing item
             if (oe.isActive() || ObjectUtils.compareEqual(oe.getValue(), currentValue))
-            {   // add item
+            { // add item
                 addSelectItem(input, textResolver, oe);
             }
             oe = (ioe.hasNext() ? ioe.next() : null);
         }
     }
     
+    @SuppressWarnings("unchecked")
     public void addSelectItem(UIComponent input, TextResolver textResolver, OptionEntry e, int pos)
     {
-        UISelectItem selectItem = new UISelectItem();
+        List<UIComponent> children = input.getChildren();
+        // UISelectItems
+        UISelectItems items;
+        List<SelectItem> list;
+        if (children.isEmpty())
+        {   // create and add UISelectItems
+            items = new UISelectItems();
+            children.add(items);
+            list = new ArrayList<SelectItem>();
+            items.setValue(list);
+        }
+        else
+        {   // use existing UISelectItems
+            items = ((UISelectItems) children.get(0));
+            list = ((List<SelectItem>) items.getValue());
+        }
         // set value
         Object value;
         Object valueExpressionFlag = input.getAttributes().get(SelectInputControl.VALUE_EXPRESSION_FLAG);
         if (ObjectUtils.getBoolean(valueExpressionFlag))
-        {   // Use formatted value
+        { // Use formatted value
             value = formatInputValue(e.getValue());
         }
         else
         { // Convert to String
             value = e.getValueString();
         }
-        selectItem.setItemValue(value);
+        // create and add item
+        SelectItem selectItem = new SelectItem();
+        selectItem.setValue(value);
         // set text
         String text = e.getText();
         text = textResolver.resolveText(text);
-        selectItem.setItemLabel(text);
+        selectItem.setLabel(text);
         // add item
         if (pos>=0)
-            input.getChildren().add(pos, selectItem);
+            list.add(pos, selectItem);
         else
-            input.getChildren().add(selectItem);
+            list.add(selectItem);
     }
 
     public void addSelectItem(UIComponent input, TextResolver textResolver, OptionEntry e)

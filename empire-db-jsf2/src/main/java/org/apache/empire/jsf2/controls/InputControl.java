@@ -78,10 +78,12 @@ public abstract class InputControl
     // HTML
     public static String HTML_EXPR_NBSP = "&nbsp;";
 
+    /*
     public InputControl()
     {
         InputControl.log.info("InputControl of class {} created.", getClass().getName());
     }
+    */
 
     /**
      * DisabledType
