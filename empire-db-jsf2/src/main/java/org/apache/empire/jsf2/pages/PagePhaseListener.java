@@ -108,64 +108,26 @@ public class PagePhaseListener implements PhaseListener
         {   // No page definition available
             if (log.isDebugEnabled())
                 log.debug("No page definition available for viewId {}.", viewId);
+            // terminate
+            return;
         }    
 
-        // Check Request context path 
-        /*
-        if (viewChanged)
-        {
-            log.debug("Checking view context path");
-            HttpServletRequest req = FacesUtils.getHttpRequest(fc);
-            String reqURI = req.getRequestURI();
-            viewId = pageDef.getPath();
-            int vix = viewId.lastIndexOf('.');
-            int rix = reqURI.lastIndexOf('.');
-            if (rix<vix || !viewId.regionMatches(true, 0, reqURI, rix-vix, vix))
-            {   // redirect to view page
-                String ctxPath = fc.getExternalContext().getRequestContextPath();
-                String pageURI = ctxPath + viewId.substring(0,vix) + ".iface";
-                log.warn("Invalid RequestURI '" + reqURI + "'. Redirecting to '"+pageURI+"'.");
-                FacesUtils.redirectDirectly(fc, pageURI);
-                return;
-            }
-            // Save current viewId
-        }
-        */
-        
         // Obtain PageBean from BeanManager
         String name = pageDef.getPageBeanName();
         Map<String, Object> viewMap = vr.getViewMap();
         Page pageBean = (Page) viewMap.get(name);
         if (pageBean == null)
         {   // Not available yet
-            Class<? extends Page> pageClass = pageDef.getPageBeanClass();
             if (log.isDebugEnabled())
-                log.debug("Creating page bean {} for {} in Phase {}.", new Object[] { pageClass.getName(), viewId, pe.getPhaseId() });
-            // Use Bean Manager
-            pageBean = (Page)FacesUtils.getManagedBean(fc, name);
-            if (pageBean==null)
-            {   // Create Instance ourselves
-                log.warn("Unable to obtain page bean '{}' from BeanManager. Page bean probably not registered. Creating new instance but Injection might not work! ", name);
-                try
-                {   // Create Instance
-                    pageBean = pageClass.newInstance();
-                    viewMap.put(name, pageBean);
-                }
-                catch (Exception e)
-                {
-                    log.error("Error creating instance of page bean " + pageClass.getName(), e);
-                    throw new InternalException(e);
-                }
-            }
-            else if (!pageClass.isInstance(pageBean))
-            {   // Wrong class
-                log.warn("Page bean '"+name+"' is not an instance of class {} as expected. Detected class is {}", pageClass.getName(), pageBean.getClass().getName());
-            }
+                log.debug("Creating page bean of type {} for {} in Phase {}.", pageDef.getPageBeanClass().getName(), viewId, pe.getPhaseId());
+            // Create Page Bean
+            pageBean = createPageBean(name, pageDef, fc);
+            viewMap.put(name, pageBean);
+            // set definition
+            pageBean.setPageDefinition(pageDef);
             // Add 'page' to map 
             viewMap.put("page", pageBean);
         }
-        // set definition
-        pageBean.setPageDefinition(pageDef);
 
         // Init PageBean
         if (pe.getPhaseId() == PhaseId.RENDER_RESPONSE)
@@ -180,7 +142,32 @@ public class PagePhaseListener implements PhaseListener
         */
     }
 
-    private void initPageBean(Page pageBean, FacesContext fc, Map<String, Object> viewMap)
+    protected Page createPageBean(String name, PageDefinition pageDef, FacesContext fc)
+    {
+        Class<? extends Page> pageClass = pageDef.getPageBeanClass();
+        // Use Bean Manager first
+        Page pageBean = (Page)FacesUtils.getManagedBean(fc, name);
+        if (pageBean==null)
+        {   // Create Instance ourselves
+            log.warn("Unable to obtain page bean \"{}\" from BeanManager. Page bean probably not registered. Creating new instance but Injection might not work! ", name);
+            try
+            {   // Create Instance
+                pageBean = pageClass.newInstance();
+            }
+            catch (Exception e)
+            {
+                log.error("Error creating instance of page bean " + pageClass.getName(), e);
+                throw new InternalException(e);
+            }
+        }
+        else if (!pageClass.isInstance(pageBean))
+        {   // Wrong class
+            log.warn("Page bean \"{}\" is not an instance of class {} as expected. Detected class is {}", name, pageClass.getName(), pageBean.getClass().getName());
+        }
+        return pageBean;
+    }
+    
+    protected void initPageBean(Page pageBean, FacesContext fc, Map<String, Object> viewMap)
     {
         if (!pageBean.isInitialized())
         { // Not yet initialized 
@@ -193,22 +180,7 @@ public class PagePhaseListener implements PhaseListener
             {
                 @SuppressWarnings("unchecked")
                 Map<String, String> pageParams = (Map<String, String>) viewMap.remove(FORWARD_PAGE_PARAMS);
-                // TODO: Set view metadata
-                if (!setViewMetadata(pageParams))
-                { // instead set properties directly
-                    for (String name : pageParams.keySet())
-                    {
-                        String value = pageParams.get(name);
-                        try
-                        {
-                            BeanUtils.setProperty(pageBean, name, value);
-                        }
-                        catch (Exception e)
-                        {
-                            log.error("Unable to set PageParam " + name + " on " + pageBean.getClass().getName() + ".", e);
-                        }
-                    }
-                }
+                setPageParams(pageBean, pageParams);
             }
             // page prepared
         }
@@ -217,61 +189,24 @@ public class PagePhaseListener implements PhaseListener
     }
 
     /**
-     * TODO: Find a way to set the view Metadata. Don't know how to do it.
-     * 
+     * Sets the view Metadata
      * @param pageParams
      * @return
      */
-    private boolean setViewMetadata(Map<String, String> pageParams)
+    protected void setPageParams(Page pageBean, Map<String, String> pageParams)
     {
-        // Getting the metadata facet of the view
-        /*
-        FacesContext fc = FacesContext.getCurrentInstance();
-        UIViewRoot   vr = fc.getViewRoot();
-        UIComponent metadataFacet = vr.getFacet(UIViewRoot.METADATA_FACET_NAME);
-        */
-
-        /*
-        String viewId = vr.getViewId();        
-        ViewDeclarationLanguage vdl = fc.getApplication().getViewHandler().getViewDeclarationLanguage(fc, viewId);
-        ViewMetadata viewMetadata = vdl.getViewMetadata(fc, viewId);
-        Collection<UIViewParameter> viewParams = ViewMetadata.getViewParameters(vr);
-        for (UIComponent child : metadataFacet.getChildren())
-        */
-
-        /*
-        UIComponent metadata = vr.getFacet(UIViewRoot.METADATA_FACET_NAME);
-        if (metadata == null)
+        for (String name : pageParams.keySet())
         {
-            metadata = fc.getApplication().createComponent(UIPanel.COMPONENT_TYPE);
-            vr.getFacets().put(UIViewRoot.METADATA_FACET_NAME, metadata);
-
-            Collection<UIViewParameter> viewParams = ViewMetadata.getViewParameters(vr);
-            int size = viewParams.size();
-            
-            for (String name : pageParams.keySet())
+            String value = pageParams.get(name);
+            try
             {
-                String value = pageParams.get(name);
-                UIViewParameter uivp = new UIViewParameter();
-                uivp.setName(name);
-                uivp.setValue(value);
-                // uivp.setParent(vr);
-                metadata.getChildren().add(uivp);
+                BeanUtils.setProperty(pageBean, name, value);
+            }
+            catch (Exception e)
+            {
+                log.error("Unable to set PageParam " + name + " on " + pageBean.getClass().getName() + ".", e);
             }
         }
-        for (UIComponent child : metadata.getChildren())
-        {
-            if (child instanceof UIViewParameter)
-            {
-                UIViewParameter viewParam = (UIViewParameter) child;
-                String value = pageParams.get(viewParam.getName());
-                if (value != null)
-                    viewParam.setValue(value);
-            }
-        }
-        */
-
-        return false;
     }
 
     @Override
