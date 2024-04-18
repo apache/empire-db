@@ -344,6 +344,43 @@ public final class ClassUtils
     }
 
     /**
+     * Creates a new Object instance
+     * @param typeClass the class of the object to instantiate
+     * @return the instance
+     */
+    public static <T> T newInstance(Class<T> typeClass)
+    {
+        try
+        {
+            return typeClass.newInstance();
+        }
+        catch (InstantiationException | IllegalAccessException e)
+        {
+            throw new InternalException(e);
+        }
+    }
+
+    /**
+     * Creates a new Object instance
+     * @param typeConstructor the constructor of the object to instantiate
+     * @return the instance
+     */
+    public static <T> T newInstance(Constructor<T> typeConstructor, Object... params)
+    {
+        try
+        {   // Check number of arguments
+            if (typeConstructor.getParameterCount()!=params.length)
+                throw new InvalidArgumentException("typeConstructor|params", new Object[] { typeConstructor.getParameterCount(), params.length });
+            // create
+            return typeConstructor.newInstance(params);
+        }
+        catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e)
+        {
+            throw new InternalException(e);
+        }
+    }
+
+    /**
      * copied from org.apache.commons.beanutils.ConstructorUtils since it's private there
      * @param <T> the class type
      * @param clazz the class of the object
