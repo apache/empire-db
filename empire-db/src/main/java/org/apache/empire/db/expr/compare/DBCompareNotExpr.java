@@ -129,9 +129,9 @@ public class DBCompareNotExpr extends DBCompareExpr
             return;
         }
         // add SQL
-        sql .append(" NOT(");
+        sql .append("NOT(");
         expr.addSQL(sql, context);
-        sql .append(" )");
+        sql .append(")");
     }
     
     /**
