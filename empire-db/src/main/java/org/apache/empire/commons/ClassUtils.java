@@ -34,6 +34,7 @@ import org.apache.commons.beanutils.ConstructorUtils;
 import org.apache.empire.exceptions.EmpireException;
 import org.apache.empire.exceptions.InternalException;
 import org.apache.empire.exceptions.InvalidArgumentException;
+import org.apache.empire.exceptions.NotImplementedException;
 import org.apache.empire.exceptions.NotSupportedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -469,44 +470,57 @@ public final class ClassUtils
     }
     
     /**
-     * Invoke a simple method (without parameters) on an object using reflection
+     * Invoke a method on an object using reflection
      * @param clazz the class from which to obtain the field
      * @param object the object instance on which to invoke the method
-     * @param methodName the name of the method to invoke 
-     * @param includePrivateMethods flag whether or not to include private methods
+     * @param methodName the name of the method to invoke
+     * @param paramTypes the list of parameter types 
+     * @param paramValues the list of parameter values 
+     * @param makeAccessible flag whether to make private methods accessible
      * @return the return value of the method
      */
-    public static synchronized Object invokeSimpleMethod(Class<?> clazz, Object object, String methodName, boolean includePrivateMethods)
+    public static Object invokeMethod(Class<?> clazz, Object object, String methodName, Class<?>[] paramTypes, Object[] paramValues, boolean makeAccessible)
     {
         // check arguments
-        if (object==null)
-            throw new InvalidArgumentException("object", object);
         if (clazz==null || !clazz.isInstance(object))
             throw new InvalidArgumentException("clazz", clazz);
         if (StringUtils.isEmpty(methodName))
             throw new InvalidArgumentException("methodName", methodName);
+        // method parameters
+        boolean hasMethodParams = (paramTypes!=null && paramTypes.length>0); 
+        if (hasMethodParams && (paramValues==null || paramValues.length!=paramTypes.length))
+            throw new InvalidArgumentException("paramValues", paramValues);
         // begin
         boolean accessible = true; 
         Method method = null;
         try
-        { // find and invoke
-            method = (includePrivateMethods ? clazz.getDeclaredMethod(methodName) : clazz.getMethod(methodName));
+        {   // find method and invoke
+            if (hasMethodParams)
+                method = (makeAccessible ? clazz.getDeclaredMethod(methodName, paramTypes) : clazz.getMethod(methodName, paramTypes));
+            else
+                method = (makeAccessible ? clazz.getDeclaredMethod(methodName) : clazz.getMethod(methodName));
+            // set Accessible
             accessible = method.isAccessible();
-            if (includePrivateMethods && accessible==false)
+            if (makeAccessible && accessible==false)
                 method.setAccessible(true);
             // invoke
-            return method.invoke(object);
+            if (hasMethodParams)
+                return method.invoke(object, paramValues);
+            else
+                return method.invoke(object);
         }
         catch (NoSuchMethodException e)
         {   // No such Method
-            if (includePrivateMethods)
+            if (makeAccessible)
             {   // try superclass
                 clazz = clazz.getSuperclass();
                 if (clazz!=null && !clazz.equals(java.lang.Object.class))
-                    return invokeSimpleMethod(clazz, object, methodName, true);
+                    return invokeMethod(clazz, object, methodName, paramTypes, paramValues, true);
             }
             // not found
-            return null;
+            if (hasMethodParams)
+                methodName += StringUtils.concat("({", String.valueOf(paramTypes.length), " params})");
+            throw new NotImplementedException(object, methodName);
         }
         catch (SecurityException e)
         {   // Invalid Method definition   
@@ -535,6 +549,45 @@ public final class ClassUtils
         }
     }
 
+    /**
+     * Invokes a method with one parameter on an object using reflection
+     * @param object the object instance on which to invoke the method
+     * @param methodName the name of the method to invoke 
+     * @param paramType the method parameter type
+     * @param paramValue the method parameter value
+     * @return the return value of the method
+     */
+    public static Object invokeMethod(Object object, String methodName, Class<?> paramType, Object paramValue)
+    {
+        try
+        {   // find and invoke method
+            Class<?> clazz = object.getClass();
+            return invokeMethod(clazz, object, methodName, new Class<?>[] { paramType }, new Object[] { paramValue }, false);
+        }
+        catch (NotImplementedException e)
+        {   // second chance: try superclass of parameter
+            paramType = paramType.getSuperclass();
+            if (paramType!=null && paramType!=java.lang.Object.class)
+            {   // try superclass
+                return invokeMethod(object, methodName, paramType, paramValue);
+            }
+            // not found
+            throw e;
+        }
+    }
+
+    /**
+     * Invoke a simple method (without parameters) on an object using reflection
+     * @param clazz
+     * @param object the object instance on which to invoke the method
+     * @param methodName the name of the method to invoke 
+     * @return the return value of the method
+     */
+    public static Object invokeSimpleMethod(Class<?> clazz, Object object, String methodName, boolean makeAccessible)
+    {
+        return invokeMethod(clazz, object, methodName, null, null, makeAccessible);
+    }
+    
     /**
      * Invoke a simple method (without parameters) on an object using reflection
      * @param object the object instance on which to invoke the method

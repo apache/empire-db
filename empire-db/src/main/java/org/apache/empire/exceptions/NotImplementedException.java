@@ -24,7 +24,7 @@ public class NotImplementedException extends EmpireException
 {
     private static final long serialVersionUID = 1L;
     
-    public static final ErrorType errorType = new ErrorType("error.notImplemented", "The function {0} is not implemented for type {1}.");
+    public static final ErrorType errorType = new ErrorType("error.notImplemented", "The method {0} is not implemented by the type {1}.");
     
     public NotImplementedException(Class<?> type, String functionName)
     {
