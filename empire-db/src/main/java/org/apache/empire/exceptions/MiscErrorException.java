@@ -20,14 +20,12 @@ package org.apache.empire.exceptions;
 
 /**
  * MiscellaneousErrorException
- * @deprecated use UnspecifiedErrorException
  */
-@Deprecated
-public final class MiscellaneousErrorException extends UnspecifiedErrorException
+public final class MiscErrorException extends UnspecifiedErrorException
 {
     private static final long serialVersionUID = 1L;
 
-    public MiscellaneousErrorException(String errorMessage)
+    public MiscErrorException(String errorMessage)
     {
         super(errorMessage);
     }

@@ -36,6 +36,24 @@ import org.slf4j.LoggerFactory;
 public class WebAppStartupListener implements SystemEventListener
 {
     private static final Logger log = LoggerFactory.getLogger(WebAppStartupListener.class);
+    
+    private final Class<? extends FacesConfiguration> facesConfigClass;
+
+    /**
+     * Default Constructor with no initialization
+     */
+    public WebAppStartupListener()
+    {
+        this.facesConfigClass = null;
+    }
+
+    /**
+     * Default Constructor with additional configuration
+     */
+    public WebAppStartupListener(Class<? extends FacesConfiguration> facesConfigClass)
+    {
+        this.facesConfigClass = facesConfigClass;
+    }
 
     @Override
     public boolean isListenerForSource(Object source)
@@ -51,8 +69,11 @@ public class WebAppStartupListener implements SystemEventListener
         if (event instanceof PostConstructApplicationEvent)
         {
             FacesContext startupContext = FacesContext.getCurrentInstance();
-            // detect implementation
+            // Detect implementation
             FacesImplementation facesImplementation = detectFacesImplementation();
+            // Init Configuration
+            initFacesConfiguration(startupContext, facesImplementation);
+            // Create Application
             Object app = facesImplementation.getManagedBean(WebApplication.APPLICATION_BEAN_NAME, startupContext);
             if (!(app instanceof WebApplication))
                 throw new AbortProcessingException("Error: Application is not a "+WebApplication.class.getName()+" instance. Please create a ApplicationFactory!");
@@ -98,6 +119,19 @@ public class WebAppStartupListener implements SystemEventListener
         // Not found
         log.error("JSF-Implementation missing or unknown. Please make sure either Apache MyFaces or Sun Mojarra implementation is provided");
         throw new UnsupportedOperationException(); 
+    }
+
+    /**
+     * Allows to programmatically extend the faces configuration
+     * @param impl
+     */
+    protected void initFacesConfiguration(FacesContext startupContext, FacesImplementation impl)
+    {
+        // Init FacesExtentions
+        if (facesConfigClass!=null) {
+            log.info("Initializing FacesExtentions");
+            FacesConfiguration.initialize(facesConfigClass, startupContext, impl);
+        }
     }
     
 }

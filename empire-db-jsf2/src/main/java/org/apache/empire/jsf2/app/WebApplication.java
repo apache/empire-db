@@ -465,7 +465,7 @@ public abstract class WebApplication
      * @param db the database for which to obtain a connection
      * @return the connection
      */
-    protected synchronized Connection getConnection(DBDatabase db)
+    protected Connection getConnection(DBDatabase db)
     {
         // Get From Pool
         try
@@ -488,7 +488,7 @@ public abstract class WebApplication
      * @param commit flag whether to commit changes
      * @param dbrm the rollback manager
      */
-    protected synchronized void releaseConnection(Connection conn, boolean commit, DBRollbackManager dbrm)
+    protected void releaseConnection(Connection conn, boolean commit, DBRollbackManager dbrm)
     {
         try
         {   // check

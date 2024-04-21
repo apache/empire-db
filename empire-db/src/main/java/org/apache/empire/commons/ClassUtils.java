@@ -29,6 +29,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.net.URISyntaxException;
 
 import org.apache.commons.beanutils.ConstructorUtils;
 import org.apache.empire.exceptions.EmpireException;
@@ -321,29 +322,56 @@ public final class ClassUtils
     }
 
     /**
-     * Retrieve a field value using reflection 
+     * Modifies a private field value using reflection 
      * @param clazz the class of the object
      * @param object the object or null if static fields are to be changed
      * @param property the field name
      * @param value the field value
      */
-    public static synchronized void setPrivateFieldValue(Class<?> clazz, Object object, String property, Object value)
+    public static void setPrivateFieldValue(Class<?> clazz, Object object, String property, Object value)
     {
+        Field field = null;
+        boolean accessible = true; 
         try
-        {
-            Field field = clazz.getDeclaredField(property);
-            field.setAccessible(true);
-            // Object val = field.get(object);
+        {   // Find field
+            field = clazz.getDeclaredField(property);
+            accessible = field.isAccessible();
+            if (accessible==false)
+                field.setAccessible(true);
+            // Set value 
             field.set(object, value);
-            field.setAccessible(false);
         }
-        catch (Exception e)
-        {   // Access Error
-            log.error("Unable to modify private field '"+property+"* on class '"+clazz.getName()+"'", e);
+        catch (NoSuchFieldException e)
+        {   // try superclass
+            clazz = clazz.getSuperclass();
+            if (clazz!=null && !clazz.equals(java.lang.Object.class))
+                setPrivateFieldValue(clazz, object, property, value);
+            // not found
+            log.error("Field \""+property+"\" not found on class "+clazz.getName());
             throw new InternalException(e);
+        }
+        catch (SecurityException | IllegalArgumentException | IllegalAccessException e)
+        {   // Access Error
+            log.error("Failed to modify private field \""+property+"\" on class "+clazz.getName(), e);
+            throw new InternalException(e);
+        } finally {
+            // restore accessible
+            if (field!=null && accessible==false)
+                field.setAccessible(false);
         }
     }
 
+    /**
+     * Modifies a private field value using reflection 
+     * @param object the object or null if static fields are to be changed
+     * @param property the field name
+     * @param value the field value
+     */
+    public static void setPrivateFieldValue(Object object, String property, Object value)
+    {
+        setPrivateFieldValue(object.getClass(), object, property, value);
+    }
+    
     /**
      * Creates a new Object instance
      * @param typeClass the class of the object to instantiate
@@ -616,4 +644,53 @@ public final class ClassUtils
         return invokeSimpleMethod(object.getClass(), object, methodName, true);
     }
 
+    /**
+     * Returns the JAR name that contains the implementation of a specific class
+     * @param clazz the class 
+     * @return the JAR File Name
+     */
+    public static String getImplemenationJarName(Class<?> clazz)
+    {
+        String implJar;
+        try
+        {   // detect
+            implJar = clazz.getProtectionDomain()
+                    .getCodeSource()
+                    .getLocation()
+                    .toURI()
+                    .getPath();
+            // return JAR name
+            return implJar.substring(implJar.lastIndexOf('/')+1);
+        }
+        catch (URISyntaxException e)
+        {
+            log.error("getImplemenationJarName failed.", e);
+            return "[URISyntaxException]";
+        }
+        catch (NullPointerException e)
+        {
+            log.error("getImplemenationJarName failed.", e);
+            return "[NullPointerException]";
+        }
+    }
+
+    /**
+     * Returns the JAR name that contains the implementation of a specific class
+     * @param className the class Name of the class 
+     * @return the JAR File Name or "[ClassNotFoundException]" if the class is not available
+     */
+    public static String getImplemenationJarName(String className)
+    {
+        try
+        {   // Find the Class for the given name
+            Class<?> clazz = Class.forName(className);
+            return getImplemenationJarName(clazz);
+        }
+        catch (ClassNotFoundException e)
+        {
+            log.info("Class \"{}\" not found", className);
+            return "[ClassNotFoundException]";
+        }
+    }
+    
 }
