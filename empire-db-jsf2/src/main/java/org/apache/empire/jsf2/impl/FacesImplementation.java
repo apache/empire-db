@@ -18,12 +18,17 @@
  */
 package org.apache.empire.jsf2.impl;
 
+import javax.el.ELResolver;
 import javax.el.ValueExpression;
 import javax.faces.component.UIComponent;
+import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
 
 public interface FacesImplementation 
 {
+    
+    boolean registerElResolver(Class<? extends ELResolver> resolverClass);
+    
 	/**
 	 *	Registers a managed bean	
 	 *
@@ -100,5 +105,17 @@ public interface FacesImplementation
 	 * @return the unwrapped ValueExpression (may be null)
 	 */
 	ValueExpression unwrapValueExpression(ValueExpression ve);
-	
+
+    /**
+     * BeanStorageProvider
+     * @author rainer
+     */
+	public interface BeanStorageProvider
+    {
+        void injectBean(Object bean);
+    }
+    
+    BeanStorageProvider getBeanStorageProvider(ExternalContext externalContext);
+
+    void configComplete();	
 }

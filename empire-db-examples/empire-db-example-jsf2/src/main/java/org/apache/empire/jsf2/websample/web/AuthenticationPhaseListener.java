@@ -32,15 +32,15 @@ import org.apache.empire.jsf2.websample.web.pages.SamplePages;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class AutheticationPhaseListener implements PhaseListener
+public class AuthenticationPhaseListener implements PhaseListener
 {
     private static final long   serialVersionUID = 1L;
-    private static final Logger log              = LoggerFactory.getLogger(AutheticationPhaseListener.class);
+    private static final Logger log              = LoggerFactory.getLogger(AuthenticationPhaseListener.class);
 
     private static final String LOGOUT_PARAM     = "logout";    // must be ?logout=true
 //    private static final String LANGUAGE_PARAM   = "prefLanguage";    // must be ?logout=true
     
-    public AutheticationPhaseListener()
+    public AuthenticationPhaseListener()
     {
     }
 

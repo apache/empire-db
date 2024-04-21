@@ -46,7 +46,6 @@ import org.apache.empire.jsf2.utils.StringResponseWriter;
 import org.apache.empire.jsf2.utils.TagEncodingHelper;
 import org.apache.empire.jsf2.utils.TagEncodingHelperFactory;
 import org.apache.empire.jsf2.utils.TagStyleClass;
-import org.apache.myfaces.shared.renderkit.html.HTML;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -68,6 +67,8 @@ public class LinkTag extends UIOutput // implements NamingContainer
     
     protected final TagEncodingHelper helper = TagEncodingHelperFactory.create(this, TagStyleClass.LINK.get());
 
+    public final static String SPAN_ELEM = "span";
+    
     private boolean creatingComponents = false;
     
     private boolean encodeLinkChildren = false;
@@ -242,7 +243,7 @@ public class LinkTag extends UIOutput // implements NamingContainer
             if (isLinkDisabled())
             {   // Disabled
                 ResponseWriter writer = context.getResponseWriter();
-                writer.endElement(StringUtils.coalesce(this.disabledTagName, HTML.SPAN_ELEM));
+                writer.endElement(StringUtils.coalesce(this.disabledTagName, SPAN_ELEM));
             }
             else
             {   // Enabled

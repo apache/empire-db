@@ -21,7 +21,12 @@
 	<application>
 	    <!-- System event listener --> 
 	    <system-event-listener>
+	    	<!-- (StartupListener for manual configuration)
 			<system-event-listener-class>org.apache.empire.jsf2.app.WebAppStartupListener</system-event-listener-class>
+			-->
+	    	<!-- (StartupListener for programmatic configuration) -->
+			<system-event-listener-class>org.apache.empire.jsf2.websample.web.SampleAppStartupListener</system-event-listener-class>
+			<!-- Faces Event -->
 			<system-event-class>javax.faces.event.PostConstructApplicationEvent</system-event-class>
 	    </system-event-listener>
 	    <!-- locales -->
@@ -37,18 +42,21 @@
 			<base-name>lang.messages</base-name>
 			<var>msg</var>
 		</resource-bundle>
-		<!-- EL resolver -->
+		<!-- EL-Resolvers (Cannot be added programmatically in Mojarra!) -->
 		<el-resolver>org.apache.empire.jsf2.app.DBELResolver</el-resolver>
 		<el-resolver>org.apache.empire.jsf2.pages.PagesELResolver</el-resolver>
-		<!-- Navigation handler -->
+		<!-- Navigation handler (added programmatically)
 		<navigation-handler>org.apache.empire.jsf2.pages.PageNavigationHandler</navigation-handler>
+		 -->
 	</application>
 
 	<!-- Lifecycle -->
 	<lifecycle>
+		<!-- (added programmatically)
 		<phase-listener>org.apache.empire.jsf2.app.FacesRequestPhaseListener</phase-listener>
 		<phase-listener>org.apache.empire.jsf2.pages.PagePhaseListener</phase-listener>
-		<phase-listener>org.apache.empire.jsf2.websample.web.AutheticationPhaseListener</phase-listener>
+		 -->
+		<phase-listener>org.apache.empire.jsf2.websample.web.AuthenticationPhaseListener</phase-listener>
 	</lifecycle>
 
 	<!-- Application bean (MUST be named 'webApplication' for WebAppStartupListener!) -->
@@ -77,58 +85,59 @@
 		<managed-bean-scope>session</managed-bean-scope>
 	</managed-bean>
 
-	<!-- Empire-JSF components -->
+	<!-- Empire-JSF components (added programmatically)
 	<component>
-		<component-type>components.RecordTag</component-type>
+		<component-type>org.apache.empire.component.RecordTag</component-type>
 		<component-class>org.apache.empire.jsf2.components.RecordTag</component-class>
 	</component>
 	<component>
-		<component-type>components.ControlTag</component-type>
+		<component-type>org.apache.empire.component.ControlTag</component-type>
 		<component-class>org.apache.empire.jsf2.components.ControlTag</component-class>
 	</component>
 	<component>
-		<component-type>components.InputTag</component-type>
+		<component-type>org.apache.empire.component.InputTag</component-type>
 		<component-class>org.apache.empire.jsf2.components.InputTag</component-class>
 	</component>
 	<component>
-		<component-type>components.FormGridTag</component-type>
+		<component-type>org.apache.empire.component.FormGridTag</component-type>
 		<component-class>org.apache.empire.jsf2.components.FormGridTag</component-class>
 	</component>
 	<component>
-		<component-type>components.LabelTag</component-type>
+		<component-type>org.apache.empire.component.LabelTag</component-type>
 		<component-class>org.apache.empire.jsf2.components.LabelTag</component-class>
 	</component>
 	<component>
-		<component-type>components.LinkTag</component-type>
+		<component-type>org.apache.empire.component.LinkTag</component-type>
 		<component-class>org.apache.empire.jsf2.components.LinkTag</component-class>
 	</component>
 	<component>
-		<component-type>components.SelectTag</component-type>
+		<component-type>org.apache.empire.component.SelectTag</component-type>
 		<component-class>org.apache.empire.jsf2.components.SelectTag</component-class>
 	</component>	
 	<component>
-		<component-type>components.TitleTag</component-type>
+		<component-type>org.apache.empire.component.TitleTag</component-type>
 		<component-class>org.apache.empire.jsf2.components.TitleTag</component-class>
 	</component>
 	<component>
-		<component-type>components.ValueTag</component-type>
+		<component-type>org.apache.empire.component.ValueTag</component-type>
 		<component-class>org.apache.empire.jsf2.components.ValueTag</component-class>
 	</component>
 	<component>
-		<component-type>components.MenuListTag</component-type>
+		<component-type>org.apache.empire.component.MenuListTag</component-type>
 		<component-class>org.apache.empire.jsf2.components.MenuListTag</component-class>
 	</component>
 	<component>
-		<component-type>components.MenuItemTag</component-type>
+		<component-type>org.apache.empire.component.MenuItemTag</component-type>
 		<component-class>org.apache.empire.jsf2.components.MenuItemTag</component-class>
 	</component>
 	<component>
-		<component-type>components.TabViewTag</component-type>
+		<component-type>org.apache.empire.component.TabViewTag</component-type>
 		<component-class>org.apache.empire.jsf2.components.TabViewTag</component-class>
 	</component>
 	<component>
-		<component-type>components.TabPageTag</component-type>
+		<component-type>org.apache.empire.component.TabPageTag</component-type>
 		<component-class>org.apache.empire.jsf2.components.TabPageTag</component-class>
 	</component>
+	 -->
 
 </faces-config>

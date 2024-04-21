@@ -18,32 +18,46 @@
  */
 package org.apache.empire.jsf2.impl;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.el.ELResolver;
 import javax.el.ValueExpression;
+import javax.faces.FacesException;
 import javax.faces.component.UIComponent;
+import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
+import javax.servlet.ServletContext;
 
 import org.apache.empire.exceptions.ItemExistsException;
+import org.apache.empire.exceptions.NotSupportedException;
 import org.apache.empire.jsf2.utils.ValueExpressionUnwrapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.sun.faces.application.ApplicationAssociate;
+import com.sun.faces.application.ApplicationInstanceFactoryMetadataMap;
 import com.sun.faces.component.CompositeComponentStackManager;
+import com.sun.faces.config.ConfigManager;
+import com.sun.faces.config.processor.ApplicationConfigProcessor;
 import com.sun.faces.facelets.el.ContextualCompositeValueExpression;
 import com.sun.faces.facelets.el.TagValueExpression;
 import com.sun.faces.mgbean.BeanManager;
 import com.sun.faces.mgbean.ManagedBeanInfo;
+import com.sun.faces.spi.InjectionProvider;
+import com.sun.faces.spi.InjectionProviderException;
 
 public class MojarraImplementation implements FacesImplementation 
 {
     // Logger
     private static final Logger log = LoggerFactory.getLogger(FacesImplementation.class);
-
-    private BeanManager bm;
     
-    public MojarraImplementation()
+    private final ApplicationAssociate applAssociate;
+
+    public MojarraImplementation(ExternalContext externalContext)
 	{
 	    log.debug("MojarraImplementation created");
+	    this.applAssociate = ApplicationAssociate.getInstance(externalContext);
 	}
 		
 	/*
@@ -62,10 +76,38 @@ public class MojarraImplementation implements FacesImplementation
 	}
 	*/
 
+    @Override
+    public boolean registerElResolver(Class<? extends ELResolver> resolverClass)
+    {
+        List<ELResolver> list =applAssociate.getELResolversFromFacesConfig();
+        if (list!=null) {
+            for (ELResolver resolver : list)
+            {
+                if (resolver.getClass().equals(resolverClass))
+                    return false; // already there
+            }
+        } else {
+            list = new ArrayList<ELResolver>();
+            applAssociate.setELResolversFromFacesConfig(list);
+        }
+        /*
+        // create
+        ELResolver elResolver = ClassUtils.newInstance(resolverClass);
+        // Add to bean storage
+        getBeanStorageProvider(null).injectBean(elResolver);
+        // Add to RuntimeConfig
+        list.add(elResolver);
+        return true;
+        */
+        log.error("registerElResolver is not supported for Mojarra! Reason is, that is is too late and the ElResolver chain has already been built. Plase put it in faces-config.xml");
+        throw new NotSupportedException(this, "registerElResolver");
+    }
+
 	@Override
 	public void registerManagedBean(final String beanName,final String beanClass,final String scope) 
 	{
 		// check
+        BeanManager bm = applAssociate.getBeanManager();
         if (bm.getRegisteredBeans().containsKey(beanName))
         {
             throw new ItemExistsException(beanName);
@@ -79,8 +121,7 @@ public class MojarraImplementation implements FacesImplementation
 	public Object getManagedBean(final String beanName, final FacesContext fc)
 	{
 	    // Find Bean
-	    if (bm==null)
-            bm = ApplicationAssociate.getInstance(fc.getExternalContext()).getBeanManager();
+        BeanManager bm = applAssociate.getBeanManager();
 		Object mbean = bm.getBeanFromScope(beanName, fc);
 		if (mbean==null)
 			mbean= bm.create(beanName, fc);
@@ -113,5 +154,68 @@ public class MojarraImplementation implements FacesImplementation
         // now unwrap using the ValueExpressionUnwrapper 
         return ValueExpressionUnwrapper.getInstance().unwrap(ve);
     }
-	
+    
+    private BeanStorageProvider beanStorage = null;
+    
+    @Override
+    public BeanStorageProvider getBeanStorageProvider(ExternalContext externalContext)
+    {
+        if (beanStorage==null) {
+            if (externalContext==null)
+                externalContext = FacesContext.getCurrentInstance().getExternalContext();
+            beanStorage = new MojarraBeanStorageProvider(externalContext); 
+        }
+        return beanStorage; 
+    }
+    
+    @Override
+    public void configComplete()
+    {
+        beanStorage = null;
+    }
+    
+    /**
+      * BeanStorageProvider
+      * @author doebele
+      */
+    protected static class MojarraBeanStorageProvider implements BeanStorageProvider
+    {
+        private final ApplicationInstanceFactoryMetadataMap<String,Object> classMetadataMap;
+        private final InjectionProvider injectionProvider;
+
+        @SuppressWarnings("unchecked")
+        public MojarraBeanStorageProvider(ExternalContext externalContext)
+        {
+            final String METADATA_MAP_KEY = ApplicationConfigProcessor.class.getName()+".METADATA";
+            ServletContext sc = (ServletContext)externalContext.getContext();
+            this.classMetadataMap = (ApplicationInstanceFactoryMetadataMap<String,Object>) sc.getAttribute(METADATA_MAP_KEY);
+            this.injectionProvider = (InjectionProvider) FacesContext.getCurrentInstance().getAttributes().get(ConfigManager.INJECTION_PROVIDER_KEY);
+        }
+        
+        @Override
+        public void injectBean(Object bean)
+        {
+            if (classMetadataMap==null)
+                return;
+            // put first
+            String className = bean.getClass().getName();
+            classMetadataMap.put(className, bean.getClass());
+            // check annotations
+            if (classMetadataMap.hasAnnotations(className)) {
+                try {
+                    injectionProvider.inject(bean);
+                } catch (InjectionProviderException ex) {
+                    log.error("Unable to inject instance" + className, ex);
+                    throw new FacesException(ex);
+                }
+                try {
+                    injectionProvider.invokePostConstruct(bean);
+                } catch (InjectionProviderException ex) {
+                    log.error("Unable to invoke @PostConstruct annotated method on instance " + className, ex);
+                    throw new FacesException(ex);
+                }
+            }
+        }
+    }
+    
 }

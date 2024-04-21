@@ -19,7 +19,6 @@
 package org.apache.empire.jsf2.app;
 
 import java.util.Iterator;
-import java.util.List;
 
 import javax.el.ELResolver;
 import javax.faces.FactoryFinder;
@@ -45,14 +44,10 @@ import org.apache.empire.exceptions.ItemNotFoundException;
 import org.apache.empire.exceptions.ObjectNotValidException;
 import org.apache.empire.exceptions.UnspecifiedErrorException;
 import org.apache.empire.jsf2.impl.FacesImplementation;
+import org.apache.empire.jsf2.impl.FacesImplementation.BeanStorageProvider;
 import org.apache.empire.jsf2.pages.PageNavigationHandler;
 import org.apache.empire.jsf2.pages.PagePhaseListener;
 import org.apache.empire.jsf2.pages.PagesELResolver;
-import org.apache.myfaces.cdi.util.BeanEntry;
-import org.apache.myfaces.config.RuntimeConfig;
-import org.apache.myfaces.spi.InjectionProvider;
-import org.apache.myfaces.spi.InjectionProviderException;
-import org.apache.myfaces.spi.InjectionProviderFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -125,7 +120,6 @@ public class FacesConfiguration
      * Temp Variables
      */
     protected Application application;
-    protected RuntimeConfig runtimeConfig;
     protected BeanStorageProvider beanStorage;
 
     public FacesConfiguration()
@@ -139,8 +133,7 @@ public class FacesConfiguration
         {   // Set temporary variables
             ExternalContext externalContext = context.getExternalContext();
             this.application = context.getApplication();
-            this.runtimeConfig = RuntimeConfig.getCurrentInstance(externalContext);
-            this.beanStorage = new BeanStorageProvider(externalContext);
+            this.beanStorage = facesImpl.getBeanStorageProvider(externalContext);
             
             // Set ProjectStage
             projectStage = externalContext.getInitParameter(PROJECT_STAGE_PARAM);
@@ -154,8 +147,8 @@ public class FacesConfiguration
         finally
         {   // cleanup
             this.beanStorage = null;
-            this.runtimeConfig = null;
             this.application = null;
+            this.facesImpl.configComplete();
         }
     }
     
@@ -279,7 +272,7 @@ public class FacesConfiguration
     
     protected RenderKit getApplicationRenderKit(FacesContext context)
     {
-        String renderKitId = application.getDefaultRenderKitId(); 
+        String renderKitId = StringUtils.coalesce(application.getDefaultRenderKitId(), RenderKitFactory.HTML_BASIC_RENDER_KIT); 
         return ((RenderKitFactory)FactoryFinder.getFactory(FactoryFinder.RENDER_KIT_FACTORY)).getRenderKit(context, renderKitId);
     }
     
@@ -326,20 +319,9 @@ public class FacesConfiguration
     
     protected void addELResolver(Class<? extends ELResolver> resolverClass)
     {
-        List<ELResolver> list = runtimeConfig.getFacesConfigElResolvers();
-        if (list!=null) {
-            for (ELResolver resolver : list)
-            {
-                if (resolver.getClass().equals(resolverClass))
-                    return; // already there
-            }
-        }
-        log.info("Adding FacesConfigElResolver {}", resolverClass.getName());
-        ELResolver elResolver = ClassUtils.newInstance(resolverClass);
-        // Add to bean storage
-        beanStorage.injectBean(elResolver);
-        // Add to RuntimeConfig
-        runtimeConfig.addFacesConfigElResolver(elResolver);
+        boolean added = facesImpl.registerElResolver(resolverClass);
+        if (added)
+            log.info("Adding FacesConfigElResolver {}", resolverClass.getName());
     }
     
     /*
@@ -449,39 +431,6 @@ public class FacesConfiguration
             return null;
         }
         
-    }
-
-    /**
-    * BeanStorageProvider
-    * @author doebele
-    */
-    protected static class BeanStorageProvider
-    {
-        private final List<BeanEntry> injectedBeanStorage;
-        private final InjectionProvider injectionProvider;
-
-        @SuppressWarnings("unchecked")
-        public BeanStorageProvider(ExternalContext ec)
-        {
-           this.injectionProvider = InjectionProviderFactory.getInjectionProviderFactory(ec).getInjectionProvider(ec);
-           final String INJECTED_BEAN_STORAGE_KEY = "org.apache.myfaces.spi.BEAN_ENTRY_STORAGE";
-           this.injectedBeanStorage = (List<BeanEntry>)ec.getApplicationMap().get(INJECTED_BEAN_STORAGE_KEY);
-           if (this.injectedBeanStorage==null)
-               throw new ItemNotFoundException(INJECTED_BEAN_STORAGE_KEY);
-        }
-        
-        public void injectBean(Object bean)
-        {   try
-            {   // Add to bean storage
-                Object creationMetaData = injectionProvider.inject(bean);
-                injectedBeanStorage.add(new BeanEntry(bean, creationMetaData));
-                injectionProvider.postConstruct(bean, creationMetaData);
-            }
-            catch (InjectionProviderException e)
-            {
-                throw new InternalException(e);
-            }
-        }
     }
     
     /**

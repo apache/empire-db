@@ -44,10 +44,19 @@ import org.slf4j.LoggerFactory;
 public class AppExceptionHandler extends ExceptionHandlerWrapper
 {
     private static final Logger    log = LoggerFactory.getLogger(AppExceptionHandler.class);
+    
+    private final ExceptionHandler delegate;
 
     public AppExceptionHandler(ExceptionHandler delegate)
     {
-        super(delegate);
+        // super(delegate);  --- Use this in MyFaces 2.3.x
+        this.delegate = delegate;
+    }
+    
+    @Override
+    public ExceptionHandler getWrapped()
+    {
+        return delegate;
     }
 
     @Override

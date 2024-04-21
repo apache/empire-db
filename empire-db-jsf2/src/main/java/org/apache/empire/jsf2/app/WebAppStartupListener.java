@@ -19,6 +19,7 @@
 package org.apache.empire.jsf2.app;
 
 import javax.faces.application.Application;
+import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
 import javax.faces.event.AbortProcessingException;
 import javax.faces.event.PostConstructApplicationEvent;
@@ -69,19 +70,16 @@ public class WebAppStartupListener implements SystemEventListener
         if (event instanceof PostConstructApplicationEvent)
         {
             FacesContext startupContext = FacesContext.getCurrentInstance();
+            ExternalContext externalContext = startupContext.getExternalContext();
             // Detect implementation
-            FacesImplementation facesImplementation = detectFacesImplementation();
+            FacesImplementation facesImplementation = detectFacesImplementation(externalContext);
             // Init Configuration
             initFacesConfiguration(startupContext, facesImplementation);
-            // Create Application
-            Object app = facesImplementation.getManagedBean(WebApplication.APPLICATION_BEAN_NAME, startupContext);
-            if (!(app instanceof WebApplication))
-                throw new AbortProcessingException("Error: Application is not a "+WebApplication.class.getName()+" instance. Please create a ApplicationFactory!");
             // Create and Init application
-            WebApplication facesApp = (WebApplication)app;
-            facesApp.init(facesImplementation, startupContext);
+            WebApplication facesApp = createWebApplication(startupContext, facesImplementation);
+            initWebApplication(facesApp, startupContext, facesImplementation);
             // Set Servlet Attribute
-            ServletContext servletContext = (ServletContext) startupContext.getExternalContext().getContext();
+            ServletContext servletContext = (ServletContext) externalContext.getContext();
             if (servletContext.getAttribute(WebApplication.APPLICATION_BEAN_NAME)!=facesApp)
             {
                 log.warn("WARNING: Ambiguous application definition. An object of name '{}' already exists on application scope!", WebApplication.APPLICATION_BEAN_NAME);
@@ -99,20 +97,20 @@ public class WebAppStartupListener implements SystemEventListener
      * Supported Implementations are Sun Mojarra (2.2.x) and Apache MyFaces (2.2.x) 
      * @return the faces implementation
      */
-    protected FacesImplementation detectFacesImplementation()
+    protected FacesImplementation detectFacesImplementation(ExternalContext externalContext)
     {
         log.debug("Detecting JSF-Implementation...");
         // Test for Apache MyFaces
         try {
             Class.forName("org.apache.myfaces.application.ApplicationFactoryImpl");
-            return new MyFacesImplementation();
+            return new MyFacesImplementation(externalContext);
         } catch (ClassNotFoundException e) {
             // It's not MyFaces
         }
         // Test for Sun Mojarra
         try {
             Class.forName("com.sun.faces.application.ApplicationFactoryImpl");
-            return new MojarraImplementation();
+            return new MojarraImplementation(externalContext);
         } catch (ClassNotFoundException e) {
             // It's not Mojarra
         }
@@ -123,15 +121,43 @@ public class WebAppStartupListener implements SystemEventListener
 
     /**
      * Allows to programmatically extend the faces configuration
-     * @param impl
+     * @param facesImplementation the Faces Implementation
+     * @param startupContext the Startup Context
      */
-    protected void initFacesConfiguration(FacesContext startupContext, FacesImplementation impl)
+    protected void initFacesConfiguration(FacesContext startupContext, FacesImplementation facesImplementation)
     {
         // Init FacesExtentions
         if (facesConfigClass!=null) {
             log.info("Initializing FacesExtentions");
-            FacesConfiguration.initialize(facesConfigClass, startupContext, impl);
+            FacesConfiguration.initialize(facesConfigClass, startupContext, facesImplementation);
         }
+    }
+
+    /**
+     * Creates a WebApplication instance
+     * @param facesImplementation the Faces Implementation
+     * @param startupContext the Startup Context
+     * @return the WebApplication instance
+     */
+    protected WebApplication createWebApplication(FacesContext startupContext, FacesImplementation facesImplementation)
+    {
+        // Create Application
+        Object app = facesImplementation.getManagedBean(WebApplication.APPLICATION_BEAN_NAME, startupContext);
+        if (!(app instanceof WebApplication))
+            throw new AbortProcessingException("Error: Application is not a "+WebApplication.class.getName()+" instance. Please create an ApplicationFactory!");
+        // done
+        return (WebApplication)app;
+    }
+    
+    /**
+     * Initializes a WebApplication instance
+     * @param facesApp the WebApplication instance
+     * @param facesImplementation the Faces Implementation
+     * @param startupContext the Startup Context
+     */
+    protected void initWebApplication(WebApplication facesApp, FacesContext startupContext, FacesImplementation facesImplementation)
+    {
+        facesApp.init(facesImplementation, startupContext);
     }
     
 }

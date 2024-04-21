@@ -55,7 +55,7 @@ public class SampleApplication extends WebApplication {
 	protected static final String MANAGED_BEAN_NAME = "sampleApplication";
 	protected static final Locale DEFAULT_LOCALE = Locale.ENGLISH;
 	// Non-Static
-	private SampleConfig config = new SampleConfig();
+	private SampleConfig config = null; // SampleAppStartupListener.config;
 	private SampleDB sampleDB = null;
 
 	private Connection conn = null;
@@ -69,13 +69,21 @@ public class SampleApplication extends WebApplication {
 		// trace
 		SampleApplication.log.trace("SampleApplication created");
 	}
+	
+	/**
+	 * Sets the Configuration
+	 * Called only from SampleAppStartupListener
+	 */
+	void setConfig(SampleConfig config) 
+	{
+	    this.config = config;
+	}
 
 	@Override
 	public void init(ServletContext servletContext) {
 		// register all controls
 		// InputControlManager.registerControl("myType", new
 		// MyTypeInputControl());
-		config.init(servletContext.getRealPath("WEB-INF/config.xml"));
 
 		// Get a JDBC Connection
 		log.info("*** getJDBCConnection() ***");

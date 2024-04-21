@@ -53,7 +53,6 @@ import org.apache.empire.jsf2.controls.TextAreaInputControl;
 import org.apache.empire.jsf2.controls.TextInputControl;
 import org.apache.empire.jsf2.impl.FacesImplementation;
 import org.apache.empire.jsf2.impl.ResourceTextResolver;
-import org.apache.myfaces.lifecycle.ViewNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -282,7 +281,7 @@ public abstract class WebApplication
         if (logger==null)
             logger=log;
         // View Exceptions
-        if ((e instanceof ViewExpiredException) || (e instanceof ViewNotFoundException))
+        if ((e instanceof ViewExpiredException)) // || (e instanceof ViewNotFoundException)) -- MyFaces only
         {   // Session expired
             logger.warn(message+": "+e.getMessage());
             return;

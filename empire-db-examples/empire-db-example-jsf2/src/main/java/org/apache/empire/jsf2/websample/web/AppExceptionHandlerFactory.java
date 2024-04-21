@@ -26,9 +26,17 @@ import javax.faces.context.ExceptionHandlerFactory;
  */
 public class AppExceptionHandlerFactory extends ExceptionHandlerFactory
 {
+    private final ExceptionHandlerFactory delegate;
     public AppExceptionHandlerFactory(ExceptionHandlerFactory delegate)
     {
-        super(delegate);
+        // super(delegate);  --- Use this in MyFaces 2.3.x
+        this.delegate = delegate;
+    }
+    
+    @Override
+    public ExceptionHandlerFactory getWrapped()
+    {
+        return delegate;
     }
 
     @Override

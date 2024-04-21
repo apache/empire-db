@@ -18,16 +18,27 @@
  */
 package org.apache.empire.jsf2.impl;
 
+import java.util.List;
+
 import javax.el.ELContext;
+import javax.el.ELResolver;
 import javax.el.ValueExpression;
 import javax.faces.application.Application;
 import javax.faces.component.UIComponent;
+import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
 
+import org.apache.empire.commons.ClassUtils;
+import org.apache.empire.exceptions.InternalException;
 import org.apache.empire.exceptions.ItemExistsException;
+import org.apache.empire.exceptions.ItemNotFoundException;
 import org.apache.empire.jsf2.utils.ValueExpressionUnwrapper;
+import org.apache.myfaces.cdi.util.BeanEntry;
 import org.apache.myfaces.config.RuntimeConfig;
 import org.apache.myfaces.config.impl.digester.elements.ManagedBeanImpl;
+import org.apache.myfaces.spi.InjectionProvider;
+import org.apache.myfaces.spi.InjectionProviderException;
+import org.apache.myfaces.spi.InjectionProviderFactory;
 import org.apache.myfaces.view.facelets.el.ContextAwareTagValueExpression;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,9 +48,12 @@ public class MyFacesImplementation implements FacesImplementation
     // Logger
     private static final Logger log = LoggerFactory.getLogger(FacesImplementation.class);
 
-    public MyFacesImplementation()
+    private final RuntimeConfig runtimeConfig;
+    
+    public MyFacesImplementation(ExternalContext externalContext)
     {
         log.debug("MyFacesImplementation created");
+        this.runtimeConfig = RuntimeConfig.getCurrentInstance(externalContext);
     }
     
     /*
@@ -53,14 +67,30 @@ public class MyFacesImplementation implements FacesImplementation
 	}
 	*/
 
+    @Override
+    public boolean registerElResolver(Class<? extends ELResolver> resolverClass)
+    {
+        List<ELResolver> list = runtimeConfig.getFacesConfigElResolvers();
+        if (list!=null) {
+            for (ELResolver resolver : list)
+            {
+                if (resolver.getClass().equals(resolverClass))
+                    return false; // already there
+            }
+        }
+        // create
+        ELResolver elResolver = ClassUtils.newInstance(resolverClass);
+        // Add to bean storage
+        getBeanStorageProvider(null).injectBean(elResolver);
+        // Add to RuntimeConfig
+        runtimeConfig.addFacesConfigElResolver(elResolver);
+        return true;
+    }
+    
 	@Override
-	public void registerManagedBean(final String beanName, final String beanClass, final String scope) {
-		
-        // get Runtime Config
-		FacesContext  fc = FacesContext.getCurrentInstance();
-		RuntimeConfig rc = RuntimeConfig.getCurrentInstance(fc.getExternalContext());
-		// check
-        if (rc.getManagedBeans().containsKey(beanName))
+	public void registerManagedBean(final String beanName, final String beanClass, final String scope) 
+	{	// check
+        if (runtimeConfig.getManagedBeans().containsKey(beanName))
         {
             throw new ItemExistsException(beanName);
         }
@@ -70,7 +100,7 @@ public class MyFacesImplementation implements FacesImplementation
         mbi.setName(beanName);
         mbi.setBeanClass(beanClass);
         mbi.setScope(scope);
-        rc.addManagedBean(beanName, mbi);
+        runtimeConfig.addManagedBean(beanName, mbi);
 	}
 
 	@Override
@@ -85,7 +115,6 @@ public class MyFacesImplementation implements FacesImplementation
 	@Override
 	public UIComponent getValueParentComponent(final ValueExpression ve)
 	{
-		/* No implmentation for MyFaces currently available */
 		return null;
 	}
 
@@ -101,4 +130,56 @@ public class MyFacesImplementation implements FacesImplementation
         return ValueExpressionUnwrapper.getInstance().unwrap(ve);
     }
 
+    private BeanStorageProvider beanStorage = null;
+
+    @Override
+    public BeanStorageProvider getBeanStorageProvider(ExternalContext externalContext)
+    {
+        if (beanStorage==null) {
+            if (externalContext==null)
+                externalContext = FacesContext.getCurrentInstance().getExternalContext();
+            beanStorage = new MyFacesBeanStorageProvider(externalContext); 
+        }
+        return beanStorage; 
+    }
+
+    @Override
+    public void configComplete()
+    {
+        beanStorage = null;
+    }
+    
+    /**
+     * BeanStorageProvider
+     */
+    protected static class MyFacesBeanStorageProvider implements BeanStorageProvider
+    {
+        private final List<BeanEntry> injectedBeanStorage;
+        private final InjectionProvider injectionProvider;
+
+        @SuppressWarnings("unchecked")
+        public MyFacesBeanStorageProvider(ExternalContext ec)
+        {
+           this.injectionProvider = InjectionProviderFactory.getInjectionProviderFactory(ec).getInjectionProvider(ec);
+           final String INJECTED_BEAN_STORAGE_KEY = "org.apache.myfaces.spi.BEAN_ENTRY_STORAGE";
+           this.injectedBeanStorage = (List<BeanEntry>)ec.getApplicationMap().get(INJECTED_BEAN_STORAGE_KEY);
+           if (this.injectedBeanStorage==null)
+               throw new ItemNotFoundException(INJECTED_BEAN_STORAGE_KEY);
+        }
+        
+        @Override
+        public void injectBean(Object bean)
+        {   try
+            {   // Add to bean storage
+                Object creationMetaData = injectionProvider.inject(bean);
+                injectedBeanStorage.add(new BeanEntry(bean, creationMetaData));
+                injectionProvider.postConstruct(bean, creationMetaData);
+            }
+            catch (InjectionProviderException e)
+            {
+                throw new InternalException(e);
+            }
+        }
+    }
+    
 }
