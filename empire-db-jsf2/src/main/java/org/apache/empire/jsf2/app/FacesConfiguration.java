@@ -317,7 +317,6 @@ public class FacesConfiguration
         if (ProjectStage.PROJECT_STAGE_PARAM_NAME.equals(paramName))
             throw new UnspecifiedErrorException(ProjectStage.PROJECT_STAGE_PARAM_NAME+" cannot be changed!");
         // get map
-        Map<String,String> paramMap = (Map<String,String>)this.externalContext.getInitParameterMap();
         String paramVal = StringUtils.toString(paramValue);
         String orgValue = this.externalContext.getInitParameter(paramName);
         if (ObjectUtils.compareEqual(paramVal, orgValue))
@@ -331,6 +330,10 @@ public class FacesConfiguration
             log.info("Setting FacesParam \"{}\" to \"{}\". Original value was \"{}\"", paramName, paramVal, orgValue);
         else
             log.info("Setting FacesParam \"{}\" to \"{}\".", paramName, paramVal);
+        // add to map
+        @SuppressWarnings("unchecked")
+        Map<String,String> paramMap = this.externalContext.getInitParameterMap();
+        paramMap.put(paramName, paramVal);
     }
 
     protected void setFacesInitParam(String paramName, Object paramValue)
