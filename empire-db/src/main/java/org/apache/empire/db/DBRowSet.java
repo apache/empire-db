@@ -822,7 +822,7 @@ public abstract class DBRowSet extends DBExpr implements EntityType
                     i++;
                 }
             }
-            log.warn("Record [{}] not found in {}", StringUtils.toString(key, cmd.getSelect()), getName());
+            log.warn("Record {} not found in {}", StringUtils.toString(key), getName());
             // throw RecordNotFoundException
             throw new RecordNotFoundException(this, key);
         } finally {

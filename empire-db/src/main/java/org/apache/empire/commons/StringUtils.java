@@ -18,6 +18,8 @@
  */
 package org.apache.empire.commons;
 
+import java.util.Collection;
+
 /**
  * This class contains common functions for comparing and converting values of type String. 
  * 
@@ -41,6 +43,16 @@ public class StringUtils
     public static final String SPACE = " ";
 
     /**
+     * Null String
+     */
+    public static final String NULL = "null";
+
+    /**
+     * Default Array Separator
+     */
+    public static String DEFAULT_ARRAY_SEPARATOR = "|";
+
+    /**
      * Converts a value to a string.
      * If the value is null then the default value is returned.
      * 
@@ -50,6 +62,19 @@ public class StringUtils
      */
     public static String toString(Object value, String defValue)
     {
+        // Special cases
+        if (value instanceof Enum<?>) {
+            return ((Enum<?>)value).name();
+        }
+        if (value instanceof Object[]) {
+            String result = arrayToString((Object[])value, DEFAULT_ARRAY_SEPARATOR);
+            return (result!=null ? concat("[", result, "]") : defValue);
+        }
+        if (value instanceof Collection<?>) {
+            String result = listToString((Collection<?>)value, DEFAULT_ARRAY_SEPARATOR);
+            return (result!=null ? concat("[", result, "]") : defValue);
+        }
+        // default
         return ((value!=null) ? value.toString() : defValue);
     }
 
@@ -66,30 +91,6 @@ public class StringUtils
     }
 
     /**
-     * Converts an array of objects to a string.
-     * 
-     * @param array array of objects
-     * @param defValue default value which to return if array is null
-     * @return returns a String representation of the array or the defaultValue if array is null
-     */
-    public static String toString(Object[] array, String defValue)
-    {
-        String s = arrayToString(array, "/");
-        return (s!=null ? s : defValue);
-    }
-
-    /**
-     * Converts an array of objects to a string.
-     * 
-     * @param array array of objects
-     * @return returns a String representation of the array or null if the array is null
-     */
-    public static String toString(Object[] array)
-    {
-        return toString(array, null);
-    }
-
-    /**
      * Converts a value to a string.
      * if the value is null an empty string is returned.
      * 
@@ -98,18 +99,7 @@ public class StringUtils
      */
     public static String valueOf(Object value)
     {
-        return toString(value, "null");
-    }
-
-    /**
-     * Converts an objects to a string.
-     * 
-     * @param array array of objects
-     * @return returns a String representation of the array or an empty String if the array is null
-     */
-    public static String valueOf(Object[] array)
-    {
-        return toString(array, "null");
+        return toString(value, EMPTY);
     }
     
     /**
@@ -189,20 +179,47 @@ public class StringUtils
     public static String arrayToString(Object[] array, String separator)
     {
         if (array == null || array.length < 1)
-            return null; // Empty
+            return null;
         if (array.length > 1)
-        { // multi Column Key
+        {   // build the list
             StringBuilder buf = new StringBuilder();
             for (int i = 0; i < array.length; i++)
             {
                 if (i>0 && separator!=null)
                     buf.append(separator);
-                buf.append(array[i]);
+                buf.append(toString(array[i], EMPTY));
             }
             return buf.toString();
         }
         // Only one member
-        return String.valueOf(array[0]);
+        return toString(array[0], EMPTY);
+    }
+    
+    /**
+     * Converts a list (Collection) of objects to a string.
+     * 
+     * @param list the collection of objects
+     * @param separator the separator to put between the object strings
+     * @return returns a String
+     */
+    public static String listToString(Collection<?> list, String separator)
+    {
+        if (list == null || list.isEmpty())
+            return null;
+        if (list.size() > 1)
+        {   // build the list
+            int count=0;
+            StringBuilder buf = new StringBuilder();
+            for (Object item : list)
+            {
+                if (count++>0 && separator!=null)
+                    buf.append(separator);
+                buf.append(toString(item, EMPTY));
+            }
+            return buf.toString();
+        }
+        // Only one member
+        return toString(list.iterator().next(), EMPTY);
     }
 
     /**
