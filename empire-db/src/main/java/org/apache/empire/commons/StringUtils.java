@@ -126,18 +126,6 @@ public class StringUtils
     }
 
     /**
-     * Returns null if the string supplied is null, an empty String or a specific character 
-     * 
-     * @param value the value to check 
-     * @param nullChar the char that indicates null
-     * @return null if the value supplied is null, an empty String or the nullChar 
-     */
-    public static String nullIf(String value, char nullChar)
-    {
-        return (value==null || value.length()==0 || (value.length()==1 && value.charAt(0)==nullChar) ? null : value);   
-    }
-
-    /**
      * Returns true if the given substring is part of the string provided by value 
      * 
      * @param value the value to check
@@ -170,9 +158,10 @@ public class StringUtils
      * 
      * @param array array of objects
      * @param separator the separator to put between the object strings
+     * @param defValue the default item value
      * @return returns a String
      */
-    public static String arrayToString(Object[] array, String separator)
+    public static String arrayToString(Object[] array, String separator, String defValue)
     {
         if (array == null || array.length < 1)
             return null;
@@ -183,12 +172,24 @@ public class StringUtils
             {
                 if (i>0 && separator!=null)
                     buf.append(separator);
-                buf.append(toString(array[i], EMPTY));
+                buf.append(toString(array[i], defValue));
             }
             return buf.toString();
         }
         // Only one member
-        return toString(array[0], EMPTY);
+        return toString(array[0], defValue);
+    }
+
+    /**
+     * Converts an array of objects to a string.
+     * 
+     * @param array array of objects
+     * @param separator the separator to put between the object strings
+     * @return returns a String
+     */
+    public static String arrayToString(Object[] array, String separator)
+    {
+        return arrayToString(array, separator, NULL);
     }
     
     /**
@@ -196,9 +197,10 @@ public class StringUtils
      * 
      * @param list the collection of objects
      * @param separator the separator to put between the object strings
+     * @param defValue the default item value
      * @return returns a String
      */
-    public static String listToString(Collection<?> list, String separator)
+    public static String listToString(Collection<?> list, String separator, String defValue)
     {
         if (list == null || list.isEmpty())
             return null;
@@ -210,12 +212,24 @@ public class StringUtils
             {
                 if (count++>0 && separator!=null)
                     buf.append(separator);
-                buf.append(toString(item, EMPTY));
+                buf.append(toString(item, defValue));
             }
             return buf.toString();
         }
         // Only one member
-        return toString(list.iterator().next(), EMPTY);
+        return toString(list.iterator().next(), defValue);
+    }
+    
+    /**
+     * Converts a list (Collection) of objects to a string.
+     * 
+     * @param list the collection of objects
+     * @param separator the separator to put between the object strings
+     * @return returns a String
+     */
+    public static String listToString(Collection<?> list, String separator)
+    {
+        return listToString(list, separator, NULL);
     }
 
     /**

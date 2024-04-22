@@ -1554,9 +1554,14 @@ public class TagEncodingHelper implements NamingContainer
             writeComponentId(writer, false);
         // style class
         String wrapCtxClass = (renderValue ? "eWrapVal" : "eWrapInp");
-        writeStyleClass(writer, wrapCtxClass, StringUtils.nullIf(wrapperClass, '-'));
+        writeStyleClass(writer, wrapCtxClass, nullIf(wrapperClass, '-'));
         // return tagName
         return tagName;
+    }
+
+    protected String nullIf(String value, char nullChar)
+    {
+        return (value==null || value.length()==0 || (value.length()==1 && value.charAt(0)==nullChar) ? null : value);   
     }
     
     /* ********************** FormGridTag ********************** */
