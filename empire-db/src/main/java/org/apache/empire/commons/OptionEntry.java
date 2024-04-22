@@ -111,6 +111,6 @@ public class OptionEntry implements Cloneable, Serializable
     @Override
     public String toString()
     {
-        return StringUtils.concat("[", StringUtils.toString(value, StringUtils.NULL), "=", text, "]");
+        return StringUtils.concat("{", StringUtils.toString(value, StringUtils.NULL), "=", text, "}");
     }
 }

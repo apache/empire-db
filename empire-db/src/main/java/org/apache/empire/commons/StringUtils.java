@@ -63,17 +63,13 @@ public class StringUtils
     public static String toString(Object value, String defValue)
     {
         // Special cases
-        if (value instanceof Enum<?>) {
+        if (value instanceof Enum<?>)
             return ((Enum<?>)value).name();
-        }
-        if (value instanceof Object[]) {
-            String result = arrayToString((Object[])value, DEFAULT_ARRAY_SEPARATOR);
-            return (result!=null ? concat("[", result, "]") : defValue);
-        }
-        if (value instanceof Collection<?>) {
-            String result = listToString((Collection<?>)value, DEFAULT_ARRAY_SEPARATOR);
-            return (result!=null ? concat("[", result, "]") : defValue);
-        }
+        // Collections
+        if (value instanceof Object[])
+            value = arrayToString((Object[])value, DEFAULT_ARRAY_SEPARATOR);
+        else if (value instanceof Collection<?>)
+            value = listToString((Collection<?>)value, DEFAULT_ARRAY_SEPARATOR);
         // default
         return ((value!=null) ? value.toString() : defValue);
     }
