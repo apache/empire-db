@@ -51,7 +51,6 @@ import org.apache.empire.db.list.DataBean;
 import org.apache.empire.dbms.DBMSFeature;
 import org.apache.empire.dbms.DBMSHandler;
 import org.apache.empire.exceptions.InternalException;
-import org.apache.empire.exceptions.InvalidArgumentException;
 import org.apache.empire.exceptions.UnexpectedReturnValueException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

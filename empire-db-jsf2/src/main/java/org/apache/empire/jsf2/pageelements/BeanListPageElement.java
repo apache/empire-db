@@ -40,7 +40,7 @@ import org.apache.empire.dbms.DBMSHandler;
 import org.apache.empire.dbms.DBMSFeature;
 import org.apache.empire.exceptions.InternalException;
 import org.apache.empire.exceptions.InvalidArgumentException;
-import org.apache.empire.exceptions.UnspecifiedErrorException;
+import org.apache.empire.exceptions.InvalidOperationException;
 import org.apache.empire.exceptions.NotSupportedException;
 import org.apache.empire.exceptions.ObjectNotValidException;
 import org.apache.empire.exceptions.UnexpectedReturnValueException;
@@ -608,7 +608,7 @@ public class BeanListPageElement<T> extends ListPageElement<T> implements ListIt
             { // Bean Property Name
                 String propName = cols[i].getBeanPropertyName();
                 if (propName == null || propName.length() == 0)
-                    throw new UnspecifiedErrorException("Invalid Bean Property Name");
+                    throw new InvalidOperationException("Invalid Bean Property Name");
                 // Get Property value
                 try
                 {

@@ -36,7 +36,7 @@ import org.apache.empire.exceptions.InvalidArgumentException;
 import org.apache.empire.exceptions.ItemNotFoundException;
 import org.apache.empire.exceptions.NotSupportedException;
 import org.apache.empire.exceptions.ObjectNotValidException;
-import org.apache.empire.exceptions.UnspecifiedErrorException;
+import org.apache.empire.exceptions.InvalidOperationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -220,7 +220,7 @@ public class DBRecord extends DBRecordBase
     {
         // check
         if (enabled && !getContext().isRollbackHandlingEnabled())
-            throw new UnspecifiedErrorException("Rollback handling cannot be enabled for this record since it is not supported for this context!");
+            throw new InvalidOperationException("Rollback handling cannot be enabled for this record since it is not supported for this context!");
         // enable or disable
         this.enableRollbackHandling = enabled;
     }

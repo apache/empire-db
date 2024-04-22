@@ -41,7 +41,7 @@ import org.apache.empire.exceptions.ItemExistsException;
 import org.apache.empire.exceptions.NotSupportedException;
 import org.apache.empire.exceptions.ObjectNotValidException;
 import org.apache.empire.exceptions.UnexpectedReturnValueException;
-import org.apache.empire.exceptions.UnspecifiedErrorException;
+import org.apache.empire.exceptions.InvalidOperationException;
 
 
 /**
@@ -289,7 +289,7 @@ public class DBTable extends DBRowSet implements Cloneable
             if (this.primaryKey==null)
                 this.setPrimaryKey(column);
             else
-                throw new UnspecifiedErrorException("Table "+getName()+" already has a Primary-Key! No column of type AUTOINC can be added.");
+                throw new InvalidOperationException("Table "+getName()+" already has a Primary-Key! No column of type AUTOINC can be added.");
         }
         // add now
         addColumn(column);
@@ -505,7 +505,7 @@ public class DBTable extends DBRowSet implements Cloneable
         // check
         if (this.timestampColumn!=null) {
             String msg = MessageFormat.format("A Timestamp column ({0}) already exists for table {1}", this.timestampColumn.getName(), this.getName());
-            throw new UnspecifiedErrorException(msg); 
+            throw new InvalidOperationException(msg); 
         }
         // Add now
         DBTableColumn tsColumn = addColumn(name, DataType.TIMESTAMP, 0, true);

@@ -27,7 +27,7 @@ import javax.el.ELResolver;
 import javax.faces.component.UIViewRoot;
 import javax.faces.context.FacesContext;
 
-import org.apache.empire.exceptions.UnspecifiedErrorException;
+import org.apache.empire.exceptions.InvalidOperationException;
 import org.apache.empire.jsf2.app.FacesUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -70,7 +70,7 @@ public class PageELResolver extends ELResolver
             UIViewRoot vr = FacesContext.getCurrentInstance().getViewRoot();
             if (vr==null)
             {   // Error: No view root     
-                RuntimeException e = new UnspecifiedErrorException("ViewRoot not available. Unable to get Page Bean.");
+                RuntimeException e = new InvalidOperationException("ViewRoot not available. Unable to get Page Bean.");
                 log.error(e.getMessage());
                 throw e; 
             }
@@ -78,7 +78,7 @@ public class PageELResolver extends ELResolver
             Page page = (vmap!=null ? (Page)vmap.get("page") : null);
             if (page==null)
             {   // Error: No page bean      
-                RuntimeException e = new UnspecifiedErrorException("Page bean not available for current view.");
+                RuntimeException e = new InvalidOperationException("Page bean not available for current view.");
                 log.error(e.getMessage());
                 throw e; 
             }

@@ -58,7 +58,7 @@ import org.apache.empire.exceptions.InvalidArgumentException;
 import org.apache.empire.exceptions.ItemExistsException;
 import org.apache.empire.exceptions.NotSupportedException;
 import org.apache.empire.exceptions.PropertyReadOnlyException;
-import org.apache.empire.exceptions.UnspecifiedErrorException;
+import org.apache.empire.exceptions.InvalidOperationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -206,7 +206,7 @@ public abstract class DBDatabase extends DBObject
     public synchronized void discard()
     {
         if (isOpen())
-            throw new UnspecifiedErrorException("Database is open. Discard not possible.");
+            throw new InvalidOperationException("Database is open. Discard not possible.");
         // unregister
         databaseMap.remove(this.instanceId);
         this.instanceId = null;
@@ -411,7 +411,7 @@ public abstract class DBDatabase extends DBObject
             // Set dbms
             if (this.dbms!=null && this.dbms!=ddlHandler && ddlHandler!=null)
             {   // The database belongs to a different dbms
-                throw new UnspecifiedErrorException("The database is attached to a different dbms.");
+                throw new InvalidOperationException("The database is attached to a different dbms.");
             }
             // Temporarily change dbms
             if (this.dbms== null)

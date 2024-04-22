@@ -25,7 +25,7 @@ import org.apache.empire.dbms.DBMSHandler;
 import org.apache.empire.exceptions.InvalidArgumentException;
 import org.apache.empire.exceptions.NotImplementedException;
 import org.apache.empire.exceptions.NotSupportedException;
-import org.apache.empire.exceptions.UnspecifiedErrorException;
+import org.apache.empire.exceptions.InvalidOperationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -209,7 +209,7 @@ public abstract class DBDDLGenerator<T extends DBMSHandler>
                 break;
             default:
                 // Error: Unable to append column of type UNKNOWN
-                throw new UnspecifiedErrorException("Error: Unable to append column of type UNKNOWN");
+                throw new InvalidOperationException("Error: Unable to append column of type UNKNOWN");
         }
         // done. Add more attributes (like e.g. NULLABLE or NOT NULL)
         return true;

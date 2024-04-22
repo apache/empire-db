@@ -18,17 +18,28 @@
  */
 package org.apache.empire.exceptions;
 
+import java.text.MessageFormat;
+
 import org.apache.empire.commons.ErrorType;
 
-public class UnspecifiedErrorException extends EmpireException
+/**
+ * InvalidOperationException
+ * Indicates that an operation cannot be performed due to requirements not met.
+ */
+public class InvalidOperationException extends EmpireException
 {
     private static final long serialVersionUID = 1L;
     
     public static final ErrorType errorType = new ErrorType("error.internal", "Internal Error: {0}");
     
-    public UnspecifiedErrorException(String errorMessage)
+    public InvalidOperationException(String errorMessage)
     {
         super(errorType, new String[] { errorMessage });
+    }
+    
+    public InvalidOperationException(String msgTemplate, Object... msgArgs)
+    {
+        super(errorType, new String[] { MessageFormat.format(msgTemplate, msgArgs) });
     }
 
 }

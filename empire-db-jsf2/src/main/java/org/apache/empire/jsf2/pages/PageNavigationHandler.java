@@ -49,7 +49,7 @@ public class PageNavigationHandler extends ConfigurableNavigationHandler
         this.parent = parent;
         initialized = true;
         // Log
-        log.info("PageNavigatonHandler successfully established.");
+        log.debug("PageNavigatonHandler created.");
     }
 
     @Override

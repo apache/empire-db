@@ -46,7 +46,7 @@ import org.apache.empire.exceptions.InvalidArgumentException;
 import org.apache.empire.exceptions.ItemExistsException;
 import org.apache.empire.exceptions.ItemNotFoundException;
 import org.apache.empire.exceptions.ObjectNotValidException;
-import org.apache.empire.exceptions.UnspecifiedErrorException;
+import org.apache.empire.exceptions.InvalidOperationException;
 import org.apache.empire.jsf2.impl.FacesImplementation;
 import org.apache.empire.jsf2.impl.FacesImplementation.BeanStorageProvider;
 import org.apache.empire.jsf2.pages.PageNavigationHandler;
@@ -112,7 +112,7 @@ public class FacesConfiguration
     public static <T extends FacesConfiguration> void initialize(Class<T> configClass, FacesContext startupContext, FacesImplementation facesImpl)
     {
         if (initialized)
-            throw new UnspecifiedErrorException("FacesConfiguration already initialized!"); 
+            throw new InvalidOperationException("FacesConfiguration already initialized!"); 
         try
         { // Create Instance an initialize
             FacesConfiguration fConfig = configClass.newInstance();
@@ -315,7 +315,7 @@ public class FacesConfiguration
     {
         // special case
         if (ProjectStage.PROJECT_STAGE_PARAM_NAME.equals(paramName))
-            throw new UnspecifiedErrorException(ProjectStage.PROJECT_STAGE_PARAM_NAME+" cannot be changed!");
+            throw new InvalidOperationException(ProjectStage.PROJECT_STAGE_PARAM_NAME+" cannot be changed!");
         // get map
         String paramVal = StringUtils.toString(paramValue);
         String orgValue = this.externalContext.getInitParameter(paramName);

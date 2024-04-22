@@ -18,15 +18,26 @@
  */
 package org.apache.empire.exceptions;
 
+import org.apache.empire.commons.ErrorType;
+
 /**
- * MiscellaneousErrorException
+ * OperationFailedException
+ * Indicates that an operation has failed
  */
-public final class MiscErrorException extends UnspecifiedErrorException
+public class OperationFailedException extends EmpireException
 {
     private static final long serialVersionUID = 1L;
-
-    public MiscErrorException(String errorMessage)
+    
+    public static final ErrorType errorType = new ErrorType("error.operationFailed", "The operation {0} has failed. Reason given is: {1}") ;
+    
+    public OperationFailedException(String operation, String reason)
     {
-        super(errorMessage);
+        super(errorType, new String[] { operation, reason });
     }
+    
+    public OperationFailedException(String operation, Exception e)
+    {
+        super(errorType, new String[] { operation, e.getMessage() }, e);
+    }
+
 }

@@ -62,7 +62,7 @@ import org.apache.empire.exceptions.ItemNotFoundException;
 import org.apache.empire.exceptions.NotSupportedException;
 import org.apache.empire.exceptions.ObjectNotValidException;
 import org.apache.empire.exceptions.UnexpectedReturnValueException;
-import org.apache.empire.exceptions.UnspecifiedErrorException;
+import org.apache.empire.exceptions.InvalidOperationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -525,7 +525,7 @@ public abstract class DBRowSet extends DBExpr implements EntityType
         if (timestampColumn!=null && timestampColumn.getRowSet()!=this)
             throw new InvalidArgumentException("timestampColumn", timestampColumn);
         if (timestampColumn!=null && this.timestampColumn!=null && this.timestampColumn!=timestampColumn)
-            throw new UnspecifiedErrorException("A Timestamp column has already been set for rowset "+getName());
+            throw new InvalidOperationException("A Timestamp column has already been set for rowset "+getName());
         if (timestampColumn instanceof DBTableColumn)
             ((DBTableColumn) timestampColumn).setReadOnly(true);
         // set now

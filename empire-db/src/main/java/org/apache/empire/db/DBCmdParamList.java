@@ -23,7 +23,7 @@ import java.util.Iterator;
 
 import org.apache.empire.data.DataType;
 import org.apache.empire.exceptions.NotSupportedException;
-import org.apache.empire.exceptions.UnspecifiedErrorException;
+import org.apache.empire.exceptions.InvalidOperationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -188,7 +188,7 @@ public class DBCmdParamList implements DBCmdParams
         int index = cmdParams.indexOf(param);
         if (index<0) 
         {   // Error: parameter probably used twice in statement!
-            throw new UnspecifiedErrorException("The CmdParam has not been found on this Command.");
+            throw new InvalidOperationException("The CmdParam has not been found on this Command.");
         }
         if (index < paramUsageCount)
         {   // Warn: parameter used twice in statement!

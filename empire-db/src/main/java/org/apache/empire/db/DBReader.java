@@ -43,7 +43,7 @@ import org.apache.empire.dbms.DBMSHandler;
 import org.apache.empire.exceptions.BeanInstantiationException;
 import org.apache.empire.exceptions.InvalidArgumentException;
 import org.apache.empire.exceptions.ObjectNotValidException;
-import org.apache.empire.exceptions.UnspecifiedErrorException;
+import org.apache.empire.exceptions.InvalidOperationException;
 import org.apache.empire.xml.XMLUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -1110,7 +1110,7 @@ public class DBReader extends DBRecordData implements Closeable
     {
         // check if enabled
         if (trackOpenResultSets==false)
-            throw new UnspecifiedErrorException("Open-ResultSet-Tracking has not been enabled. Use DBReader.enableOpenResultSetTracking() to enable or disable.");
+            throw new InvalidOperationException("Open-ResultSet-Tracking has not been enabled. Use DBReader.enableOpenResultSetTracking() to enable or disable.");
         // Check map
         Map<DBReader, Exception> openResultSets = threadLocalOpenResultSets.get();
         if (openResultSets != null && openResultSets.isEmpty() == false)
