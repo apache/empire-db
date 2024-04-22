@@ -584,12 +584,12 @@ public class TagEncodingHelper implements NamingContainer
                     {   // a database record change
                         String keyOld = StringUtils.toString(((DBRecordBase)this.record).getKey());
                         String keyNew = StringUtils.toString(((DBRecordBase)rec).getKey());
-                        String rowSet = StringUtils.valueOf(((DBRecordBase)rec).getRowSet().getName());
-                        log.trace("Changing "+component.getClass().getSimpleName()+" record of rowset "+rowSet+" from {} to {}", keyOld, keyNew);
+                        String rowSet =((DBRecordBase)rec).getRowSet().getName();
+                        log.trace("Changing {} record of rowset {} from {} to {}", component.getClass().getSimpleName() , rowSet, keyOld, keyNew);
                     }
                     else
                     {   // probably a bean change
-                        log.trace("Changing "+component.getClass().getSimpleName()+" record of class "+rec.getClass().getSimpleName());
+                        log.trace("Changing {} record of class {}", component.getClass().getSimpleName(), rec.getClass().getName());
                     }
                 }
                 // change now

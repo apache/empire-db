@@ -99,7 +99,7 @@ public class MojarraImplementation implements FacesImplementation
         list.add(elResolver);
         return true;
         */
-        log.error("registerElResolver is not supported for Mojarra! Reason is, that is is too late and the ElResolver chain has already been built. Plase put it in faces-config.xml");
+        log.error("registerElResolver is not supported for Mojarra! Reason is, that it's too late and the ElResolver chain has already been built. Please define in faces-config.xml");
         throw new NotSupportedException(this, "registerElResolver");
     }
 

@@ -32,7 +32,9 @@ import org.apache.empire.commons.ClassUtils;
 import org.apache.empire.exceptions.InternalException;
 import org.apache.empire.exceptions.ItemExistsException;
 import org.apache.empire.exceptions.ItemNotFoundException;
+import org.apache.empire.exceptions.NotSupportedException;
 import org.apache.empire.jsf2.utils.ValueExpressionUnwrapper;
+import org.apache.myfaces.application.ApplicationImpl;
 import org.apache.myfaces.cdi.util.BeanEntry;
 import org.apache.myfaces.config.RuntimeConfig;
 import org.apache.myfaces.config.impl.digester.elements.ManagedBeanImpl;
@@ -77,6 +79,13 @@ public class MyFacesImplementation implements FacesImplementation
                 if (resolver.getClass().equals(resolverClass))
                     return false; // already there
             }
+        }
+        // Check
+        Application app = FacesContext.getCurrentInstance().getApplication();
+        if ((app instanceof ApplicationImpl) && ClassUtils.getPrivateFieldValue(app, "elResolver")!=null)
+        {   // Too late: ElResolver chain has already been built
+            log.error("ElResolver chain has already been built. Please define in faces-config.xml");
+            throw new NotSupportedException(this, "registerElResolver");
         }
         // create
         ELResolver elResolver = ClassUtils.newInstance(resolverClass);

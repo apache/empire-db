@@ -19,11 +19,14 @@
 package org.apache.empire.jsf2.app;
 
 import java.util.Iterator;
+import java.util.Map;
 
 import javax.el.ELResolver;
 import javax.faces.FactoryFinder;
 import javax.faces.application.Application;
 import javax.faces.application.NavigationHandler;
+import javax.faces.application.ProjectStage;
+import javax.faces.application.ViewHandler;
 import javax.faces.component.UIComponent;
 import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
@@ -36,6 +39,7 @@ import javax.faces.render.RenderKitFactory;
 import javax.faces.render.Renderer;
 
 import org.apache.empire.commons.ClassUtils;
+import org.apache.empire.commons.ObjectUtils;
 import org.apache.empire.commons.StringUtils;
 import org.apache.empire.exceptions.InternalException;
 import org.apache.empire.exceptions.InvalidArgumentException;
@@ -82,10 +86,18 @@ public class FacesConfiguration
 
     /*
      * Project Stage
+     * see org.apache.myfaces.application.ApplicationImpl
+     * How to set:
+     *   set JVM-Parameter:     "org.apache.myfaces.PROJECT_STAGE"
+     *   set JNDI-Parameter:    "java:comp/env/jsf/ProjectStage"
+     *   set in web.inf:        
+     *      <context-param>
+     *          <param-name>javax.faces.PROJECT_STAGE</param-name>
+     *          <param-value>Development</param-value>
+     *      </context-param>
      */
-    private static final String PROJECT_STAGE_PARAM = "javax.faces.PROJECT_STAGE";
-    private static String projectStage;
-    public static String getProjectStage()
+    private static ProjectStage projectStage;
+    public static ProjectStage getProjectStage()
     {
         if (projectStage==null)
             throw new ObjectNotValidException(FacesConfiguration.class, "Not Initialized");
@@ -94,10 +106,10 @@ public class FacesConfiguration
     
     /**
      * Static Initializer
-     * @param clazz
-     * @param context
+     * @param clazz the configuration class
+     * @param startupContext the startupContext
      */
-    public static <T extends FacesConfiguration> void initialize(Class<T> configClass, FacesContext context, FacesImplementation facesImpl)
+    public static <T extends FacesConfiguration> void initialize(Class<T> configClass, FacesContext startupContext, FacesImplementation facesImpl)
     {
         if (initialized)
             throw new UnspecifiedErrorException("FacesConfiguration already initialized!"); 
@@ -105,7 +117,7 @@ public class FacesConfiguration
         { // Create Instance an initialize
             FacesConfiguration fConfig = configClass.newInstance();
             fConfig.facesImpl = facesImpl;
-            fConfig.initialize(context);
+            fConfig.initialize(startupContext);
             initialized = true;
         }
         catch (InstantiationException | IllegalAccessException e)
@@ -114,40 +126,47 @@ public class FacesConfiguration
         }
     }
 
+    /*
+     * Inject
+     */
     protected FacesImplementation facesImpl;
-
     /*
      * Temp Variables
      */
+    protected ExternalContext externalContext;
     protected Application application;
-    protected BeanStorageProvider beanStorage;
+    /*
+     * Lazy
+     */
+    private BeanStorageProvider beanStorage; // call getBeanStorageProvider() 
 
     public FacesConfiguration()
     {
         // Nothing
     }
 
-    public final void initialize(FacesContext context)
+    public final void initialize(FacesContext startupContext)
     {
         try
         {   // Set temporary variables
-            ExternalContext externalContext = context.getExternalContext();
-            this.application = context.getApplication();
-            this.beanStorage = facesImpl.getBeanStorageProvider(externalContext);
+            this.externalContext = startupContext.getExternalContext();
+            this.application = startupContext.getApplication();
+            this.beanStorage = null;
+
+            projectStage = application.getProjectStage();
+            log.info("Initializing Faces Configuration for ProjectStage {}", projectStage.name());
             
-            // Set ProjectStage
-            projectStage = externalContext.getInitParameter(PROJECT_STAGE_PARAM);
-            log.info("Initializing Faces Configuration for {}", projectStage);
-            
-            initAll(context);
+            // Init everything
+            initAll(startupContext);
 
             // done
-            log.info("Faces Configuration complete");
+            log.info("Faces Configuration complete.");
         }
         finally
         {   // cleanup
             this.beanStorage = null;
             this.application = null;
+            this.externalContext = null;
             this.facesImpl.configComplete();
         }
     }
@@ -158,35 +177,43 @@ public class FacesConfiguration
     
     protected void initAll(FacesContext context)
     {
-        log.info("Init NavigationHandler...");
+        log.debug("Init FacesParams...");
+        initFacesParams();
+
+        log.debug("Init NavigationHandler...");
         initNavigationHandler();
         
-        log.info("Init ResourceHandler...");
+        log.debug("Init ResourceHandler...");
         initResourceHandler();
 
-        log.info("Registrating Converters...");
+        log.debug("Registrating Converters...");
         initConverters();
 
-        log.info("Registrating EL-Resolvers...");
+        log.debug("Registrating EL-Resolvers...");
         initElResolvers();
         
-        log.info("Registrating Lifecycle...");
-        initLifecycle(new LifecycleUpdater(beanStorage));
+        log.debug("Registrating Lifecycle...");
+        initLifecycle(new LifecycleUpdater());
 
-        log.info("Registrating Search Expression Resolvers...");
+        log.debug("Registrating Search Expression Resolvers...");
         initSearchExpressionResolvers();
 
-        log.info("Registrating Components...");
+        log.debug("Registrating Components...");
         initComponents();
 
-        log.info("Registrating Renderers...");
+        log.debug("Registrating Renderers...");
         initRenderers(new RenderKitUpdater(getApplicationRenderKit(context)));
 
-        log.info("Registrating Managed Beans...");
+        log.debug("Registrating Managed Beans...");
         initManagedBeans();            
 
-        log.info("Registrating Controls...");
+        log.debug("Registrating Controls...");
         initControls();
+    }
+
+    protected void initFacesParams()
+    {   // set params
+        setFacesInitParam(ViewHandler.FACELETS_SKIP_COMMENTS_PARAM_NAME, true);
     }
     
     protected void initNavigationHandler()
@@ -212,6 +239,7 @@ public class FacesConfiguration
 
     protected void initElResolvers()
     {
+        // add
         addELResolver(DBELResolver.class);
         addELResolver(PagesELResolver.class);
     }
@@ -270,10 +298,49 @@ public class FacesConfiguration
      *  Helpers 
      */
     
+    protected BeanStorageProvider getBeanStorageProvider()
+    {
+        if (this.beanStorage==null)
+            this.beanStorage = facesImpl.getBeanStorageProvider(externalContext);
+        return this.beanStorage; 
+    }
+    
     protected RenderKit getApplicationRenderKit(FacesContext context)
     {
         String renderKitId = StringUtils.coalesce(application.getDefaultRenderKitId(), RenderKitFactory.HTML_BASIC_RENDER_KIT); 
         return ((RenderKitFactory)FactoryFinder.getFactory(FactoryFinder.RENDER_KIT_FACTORY)).getRenderKit(context, renderKitId);
+    }
+    
+    protected void setFacesInitParam(String paramName, Object paramValue, boolean overwriteExisting)
+    {
+        // special case
+        if (ProjectStage.PROJECT_STAGE_PARAM_NAME.equals(paramName))
+            throw new UnspecifiedErrorException(ProjectStage.PROJECT_STAGE_PARAM_NAME+" cannot be changed!");
+        // get map
+        Map<String,String> paramMap = (Map<String,String>)this.externalContext.getInitParameterMap();
+        String paramVal = StringUtils.toString(paramValue);
+        String orgValue = this.externalContext.getInitParameter(paramName);
+        if (ObjectUtils.compareEqual(paramVal, orgValue))
+            return; // No change
+        if (ObjectUtils.isNotEmpty(orgValue) && !overwriteExisting)
+        {   // Ingnore
+            log.info("Ignoring FacesParam \"{}\" (\"{}\"). Keeping current value of \"{}\"", paramName, paramVal, orgValue);
+            return;
+        }
+        if (orgValue!=null)
+            log.info("Setting FacesParam \"{}\" to \"{}\". Original value was \"{}\"", paramName, paramVal, orgValue);
+        else
+            log.info("Setting FacesParam \"{}\" to \"{}\".", paramName, paramVal);
+    }
+
+    protected void setFacesInitParam(String paramName, Object paramValue)
+    {
+        setFacesInitParam(paramName, paramValue, false);
+    }
+    
+    protected void setFacesInitParam(Enum<?> paramName, Object paramValue)
+    {
+        setFacesInitParam(paramName.toString(), paramValue, false);
     }
     
     protected void addConverter(Class<?> targetClass, Class<? extends Converter> converterClass)
@@ -344,7 +411,7 @@ public class FacesConfiguration
      * RenderKitReplacer
      * @author doebele
      */
-    protected static class RenderKitUpdater
+    protected class RenderKitUpdater
     {
         private final RenderKit renderKit;
         public RenderKitUpdater(RenderKit renderKit)
@@ -437,15 +504,13 @@ public class FacesConfiguration
     * LifecycleUpdater
     * @author doebele
     */
-    protected static class LifecycleUpdater
+    protected class LifecycleUpdater
     {
-        private final BeanStorageProvider beanStorage;
         private final Lifecycle lifecycle;
         private PhaseListener[] phaseListeners;
 
-        public LifecycleUpdater(BeanStorageProvider beanStorage)
+        public LifecycleUpdater()
         {
-           this.beanStorage = beanStorage;
            // The DEFAULT Lifecycle
            LifecycleFactory lifecycleFactory = (LifecycleFactory) FactoryFinder.getFactory(FactoryFinder.LIFECYCLE_FACTORY); 
            this.lifecycle = lifecycleFactory.getLifecycle(LifecycleFactory.DEFAULT_LIFECYCLE);
@@ -474,7 +539,7 @@ public class FacesConfiguration
             log.info("Adding Lifecycle PhaseListener {}", phaseListenerClass.getName());
             PhaseListener listener = ClassUtils.newInstance(phaseListenerClass);
             // Add to bean storage
-            beanStorage.injectBean(listener);
+            getBeanStorageProvider().injectBean(listener);
             // Add to lifecycle
             lifecycle.addPhaseListener(listener);
             // refresh
