@@ -48,30 +48,45 @@ public class StringUtilsTest
 	@Test
 	public void testToStringObjectArrayString()
 	{
-		assertEquals(null,StringUtils.toString((Object[])null, null));
+		assertEquals(null,StringUtils.toString((Object[])null));
+        assertEquals("",StringUtils.toString(new Number[]{}));
+        assertEquals("",StringUtils.toString(new Number[]{null}));
+        assertEquals("null",StringUtils.toString(new Number[]{null}, StringUtils.NULL));
 		assertEquals("default",StringUtils.toString((Object[])null, "default"));
-		assertEquals("default",StringUtils.toString(new Number[]{}, "default"));
-        assertEquals("null",StringUtils.toString(new Number[]{null}, "default"));
+		assertEquals("",StringUtils.toString(new Number[]{}, "default"));
+        assertEquals("default",StringUtils.toString(new Number[]{null}, "default"));
         assertEquals("123",StringUtils.toString(new Number[]{Integer.valueOf("123")}, "default"));
 		assertEquals("123|12.3",StringUtils.toString(new Number[]{Integer.valueOf("123"), Double.valueOf("12.3")}, "default"));
 	}
 
     @Test
+    public void testAsStringObjectArrayString()
+    {
+        assertEquals("",StringUtils.asString((Object[])null));
+        assertEquals("",StringUtils.asString(new Number[]{}));
+        assertEquals("[]",StringUtils.asString(new Number[]{null}));
+        assertEquals("[123]",StringUtils.asString(new Number[]{Integer.valueOf("123")}));
+        assertEquals("[123|12.3]",StringUtils.asString(new Number[]{Integer.valueOf("123"), Double.valueOf("12.3")}));
+        assertEquals("[123|[aaa|[bbb|xxx]|yyy]|12.3]", StringUtils.asString(new Object[]{Integer.valueOf("123"), new Object[]{ "aaa", new Object[]{ "bbb", "xxx" }, "yyy" }, Double.valueOf("12.3")}));
+    }
+
+    @Test
     public void testToStringCollections()
     {
         ArrayList<String> array = new ArrayList<String>();
-        assertEquals(null, StringUtils.toString(array, null));
+        assertEquals("", StringUtils.toString(array, null));
         array.add(null);
-        assertEquals("null", StringUtils.toString(array, null));
+        assertEquals("", StringUtils.toString(array, null));
+        assertEquals("null", StringUtils.toString(array, StringUtils.NULL));
         assertEquals("{null=empty}|{1=one}|{2=two}", StringUtils.toString(new Options().add(null, "empty").add("1", "one").add("2", "two")));
         array.add("end");
-        assertEquals("null|end",StringUtils.toString(array, "default"));
+        assertEquals("default|end",StringUtils.toString(array, "default"));
         array.clear();
         array.add("one");
         assertEquals("one",StringUtils.toString(array, "default"));
         array.add(null);
         array.add("end");
-        assertEquals("one|null|end",StringUtils.toString(array, "default"));
+        assertEquals("one|default|end",StringUtils.toString(array, "default"));
         assertEquals("one||end",StringUtils.listToString(array, "|", StringUtils.EMPTY));
     }
 
@@ -79,7 +94,7 @@ public class StringUtilsTest
 	public void testToStringObjectArray()
 	{
 		assertEquals(null,StringUtils.toString((Object[])null));
-		assertEquals(null,StringUtils.toString(new Number[]{}));
+		assertEquals("",StringUtils.toString(new Number[]{}));
 		assertEquals("123|12.3",StringUtils.toString(new Number[]{Integer.valueOf("123"), Double.valueOf("12.3")}));
 	}
 
@@ -97,7 +112,7 @@ public class StringUtilsTest
 	{
 		assertEquals("",StringUtils.valueOf((Object[])null));
         assertEquals("",StringUtils.valueOf(new Object[]{}));
-		assertEquals("null",StringUtils.valueOf(new Object[]{null}));
+		assertEquals("",StringUtils.valueOf(new Object[]{null}));
 		assertEquals("123|12.3",StringUtils.valueOf(new Number[]{Integer.valueOf("123"), Double.valueOf("12.3")}));
 	}
 
@@ -125,7 +140,8 @@ public class StringUtilsTest
 	{
 		assertEquals(null, StringUtils.arrayToString(null , null));
 		assertEquals(null, StringUtils.arrayToString(null , "/"));
-		assertEquals(null, StringUtils.arrayToString(new String[]{} , ""));
+		assertEquals("", StringUtils.arrayToString(new String[]{} , StringUtils.NULL));
+        assertEquals("null", StringUtils.arrayToString(new String[]{null} , StringUtils.NULL));
 		assertEquals("test", StringUtils.arrayToString(new String[]{"test"} , "|"));
 		assertEquals("12312.3", StringUtils.arrayToString(new Number[]{Integer.valueOf("123"), Double.valueOf("12.3")} , ""));
 		assertEquals("firstsecondthird", StringUtils.arrayToString(new String[]{"first", "second", "third"} , null));

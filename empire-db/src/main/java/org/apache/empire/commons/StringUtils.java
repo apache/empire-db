@@ -48,30 +48,50 @@ public class StringUtils
     public static final String NULL = "null";
 
     /**
-     * Default Array Separator
+     * Default Item Separator
      */
-    public static String DEFAULT_ARRAY_SEPARATOR = "|";
+    public static String DEFAULT_ITEM_SEPARATOR = "|";
 
+    /**
+     * Default List Template
+     */
+    public static String LIST_TEMPLATE = "[*|*]";
+    public static char   TEMPLATE_SEP_CHAR = '*';
+    
     /**
      * Converts a value to a string.
      * If the value is null then the default value is returned.
      * 
      * @param value the value to convert
+     * @param listTemplate the list template or item separator to be used for arrays and lists
      * @param defValue default value which to return if value is null
-     * @return returns a String representation of the value or null if value is null
+     * @return returns a string for the object or the defValue if null
      */
-    public static String toString(Object value, String defValue)
+    public static String toString(Object value, String listTemplate, String defValue)
     {
         // Special cases
         if (value instanceof Enum<?>)
             return ((Enum<?>)value).name();
         // Collections
         if (value instanceof Object[])
-            value = arrayToString((Object[])value, DEFAULT_ARRAY_SEPARATOR);
+            value = arrayToString((Object[])value, listTemplate, (defValue!=null ? defValue : EMPTY));
         else if (value instanceof Collection<?>)
-            value = listToString((Collection<?>)value, DEFAULT_ARRAY_SEPARATOR);
+            value = listToString((Collection<?>)value, listTemplate, (defValue!=null ? defValue : EMPTY));
         // default
         return ((value!=null) ? value.toString() : defValue);
+    }
+    
+    /**
+     * Converts a value to a string.
+     * If the value is null then the default value is returned.
+     * 
+     * @param value the value to convert
+     * @param defValue default value which to return if value is null
+     * @return returns a string for the object or the defValue if null
+     */
+    public static String toString(Object value, String defValue)
+    {
+        return toString(value, DEFAULT_ITEM_SEPARATOR, defValue);
     }
 
     /**
@@ -79,7 +99,7 @@ public class StringUtils
      * If the value is null then null will be returned.
      * 
      * @param value the value to convert
-     * @return returns a String representation of the value or null if value is null
+     * @return returns a string for the object or null
      */
     public static String toString(Object value)
     {
@@ -91,11 +111,24 @@ public class StringUtils
      * if the value is null an empty string is returned.
      * 
      * @param value the value to convert
-     * @return returns a String representation of the Object or an empty stringif o is null
+     * @return returns a string for the object or an empty string if null
      */
     public static String valueOf(Object value)
     {
         return toString(value, EMPTY);
+    }
+
+    /**
+     * Converts a value to a string.
+     * Almost same as toString() but Lists and Arrays are wrapped with the standard list template (LIST_TEMPLATE)
+     * if the value is null an empty string is returned.
+     * 
+     * @param value the value to convert
+     * @return returns a string for the object or an empty string if null
+     */
+    public static String asString(Object value)
+    {
+        return toString(value, LIST_TEMPLATE, EMPTY);
     }
     
     /**
@@ -157,27 +190,37 @@ public class StringUtils
      * Converts an array of objects to a string.
      * 
      * @param array array of objects
-     * @param separator the separator to put between the object strings
-     * @param defValue the default item value
-     * @return returns a String
+     * @param template the list template or item separator
+     * @param defItemValue the default item value
+     * @return returns a String or null if the array is null or empty
      */
-    public static String arrayToString(Object[] array, String separator, String defValue)
+    public static String arrayToString(Object[] array, String template, String defItemValue)
     {
-        if (array == null || array.length < 1)
+        if (array == null)
             return null;
-        if (array.length > 1)
+        if (array.length < 1)
+            return EMPTY;
+        // check 
+        int tbeg = (template!=null ? template.indexOf(TEMPLATE_SEP_CHAR) : -1);
+        if (array.length>1 || tbeg>0)
         {   // build the list
+            int tend =(tbeg>=0 ? template.lastIndexOf(TEMPLATE_SEP_CHAR) : -1);
+            String separator = ((tbeg>0) ? (tend>tbeg ? template.substring(tbeg+1, tend) : DEFAULT_ITEM_SEPARATOR) : template);
             StringBuilder buf = new StringBuilder();
+            if (tend>0)
+                buf.append(template.substring(0, tbeg));
             for (int i = 0; i < array.length; i++)
-            {
+            {   // append item
                 if (i>0 && separator!=null)
                     buf.append(separator);
-                buf.append(toString(array[i], defValue));
+                buf.append(toString(array[i], template, defItemValue));
             }
+            if (tend>0)
+                buf.append(template.substring(tend+1));
             return buf.toString();
         }
         // Only one member
-        return toString(array[0], defValue);
+        return toString(array[0], template, defItemValue);
     }
 
     /**
@@ -196,28 +239,38 @@ public class StringUtils
      * Converts a list (Collection) of objects to a string.
      * 
      * @param list the collection of objects
-     * @param separator the separator to put between the object strings
-     * @param defValue the default item value
-     * @return returns a String
+     * @param template the list template or item separator
+     * @param defItemValue the default item value
+     * @return returns a String or null if the list is null
      */
-    public static String listToString(Collection<?> list, String separator, String defValue)
+    public static String listToString(Collection<?> list, String template, String defItemValue)
     {
-        if (list == null || list.isEmpty())
+        if (list == null)
             return null;
-        if (list.size() > 1)
+        if (list.isEmpty())
+            return EMPTY;
+        // check 
+        int tbeg = (template!=null ? template.indexOf(TEMPLATE_SEP_CHAR) : -1);
+        if (list.size()>1 || tbeg>0)
         {   // build the list
             int count=0;
+            int tend =(tbeg>=0 ? template.lastIndexOf(TEMPLATE_SEP_CHAR) : -1);
+            String separator = ((tbeg>0) ? (tend>tbeg ? template.substring(tbeg+1, tend) : DEFAULT_ITEM_SEPARATOR) : template);
             StringBuilder buf = new StringBuilder();
+            if (tend>0)
+                buf.append(template.substring(0, tbeg));
             for (Object item : list)
-            {
+            {   // append item
                 if (count++>0 && separator!=null)
                     buf.append(separator);
-                buf.append(toString(item, defValue));
+                buf.append(toString(item, template, defItemValue));
             }
+            if (tend>0)
+                buf.append(template.substring(tend+1));
             return buf.toString();
         }
         // Only one member
-        return toString(list.iterator().next(), defValue);
+        return toString(list.iterator().next(), template, defItemValue);
     }
     
     /**
@@ -394,9 +447,7 @@ public class StringUtils
             replace="";
         // replace and find again
         int len = find.length();
-        return source.substring(0,index)
-             + replace
-             + replace(source.substring(index+len), find, replace); 
+        return concat(source.substring(0,index), replace, replace(source.substring(index+len), find, replace));
     }
 
     /**
