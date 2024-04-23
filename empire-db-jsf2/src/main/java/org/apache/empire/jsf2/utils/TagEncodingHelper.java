@@ -480,6 +480,8 @@ public class TagEncodingHelper implements NamingContainer
         }
         // check record
         checkRecord();
+        // Reset cache
+        reset();
     }
 
     /**
