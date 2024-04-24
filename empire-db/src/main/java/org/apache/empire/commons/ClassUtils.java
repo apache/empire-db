@@ -35,6 +35,7 @@ import org.apache.commons.beanutils.ConstructorUtils;
 import org.apache.empire.exceptions.EmpireException;
 import org.apache.empire.exceptions.InternalException;
 import org.apache.empire.exceptions.InvalidArgumentException;
+import org.apache.empire.exceptions.InvalidOperationException;
 import org.apache.empire.exceptions.NotImplementedException;
 import org.apache.empire.exceptions.NotSupportedException;
 import org.slf4j.Logger;
@@ -380,13 +381,31 @@ public final class ClassUtils
     public static <T> T newInstance(Class<T> typeClass)
     {
         try
-        {
-            return typeClass.newInstance();
+        {   // Find default constructor and create instance
+            Constructor<T> constructor = typeClass.getDeclaredConstructor();
+            return constructor.newInstance();
         }
-        catch (InstantiationException | IllegalAccessException e)
+        catch (NoSuchMethodException e)
+        {
+            throw new InvalidOperationException(typeClass.getName()+" has no default constructor.");
+        }
+        catch (InstantiationException | IllegalAccessException | IllegalArgumentException | SecurityException | InvocationTargetException e)
         {
             throw new InternalException(e);
         }
+    }
+    
+    /**
+     * Creates a new Object instance with a single parameter constructor
+     * @param typeClass the type of the object to instantiate
+     * @param paramClass the type of the constructor parameter
+     * @param typeClass the value of the constructor parameter 
+     * @return the instance
+     */
+    public static <T> T newInstance(Class<T> typeClass, Class<?> paramClass, Object paramValue)
+    {
+        Constructor<T> constructor = findMatchingConstructor(typeClass, 1, paramClass);
+        return newInstance(constructor, paramValue);
     }
 
     /**

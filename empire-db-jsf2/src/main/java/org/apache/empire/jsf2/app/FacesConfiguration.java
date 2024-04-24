@@ -41,12 +41,11 @@ import javax.faces.render.Renderer;
 import org.apache.empire.commons.ClassUtils;
 import org.apache.empire.commons.ObjectUtils;
 import org.apache.empire.commons.StringUtils;
-import org.apache.empire.exceptions.InternalException;
 import org.apache.empire.exceptions.InvalidArgumentException;
+import org.apache.empire.exceptions.InvalidOperationException;
 import org.apache.empire.exceptions.ItemExistsException;
 import org.apache.empire.exceptions.ItemNotFoundException;
 import org.apache.empire.exceptions.ObjectNotValidException;
-import org.apache.empire.exceptions.InvalidOperationException;
 import org.apache.empire.jsf2.impl.FacesImplementation;
 import org.apache.empire.jsf2.impl.FacesImplementation.BeanStorageProvider;
 import org.apache.empire.jsf2.pages.PageNavigationHandler;
@@ -111,25 +110,15 @@ public class FacesConfiguration
      */
     public static <T extends FacesConfiguration> void initialize(Class<T> configClass, FacesContext startupContext, FacesImplementation facesImpl)
     {
-        if (initialized)
-            throw new InvalidOperationException("FacesConfiguration already initialized!"); 
-        try
-        { // Create Instance an initialize
-            FacesConfiguration fConfig = configClass.newInstance();
-            fConfig.facesImpl = facesImpl;
-            fConfig.initialize(startupContext);
-            initialized = true;
-        }
-        catch (InstantiationException | IllegalAccessException e)
-        {
-            throw new InternalException(e);
-        }
+        // crate and initialize
+        FacesConfiguration fConfig = ClassUtils.newInstance(configClass, FacesImplementation.class, facesImpl);
+        fConfig.initialize(startupContext);
     }
 
     /*
      * Inject
      */
-    protected FacesImplementation facesImpl;
+    protected final FacesImplementation facesImpl;
     /*
      * Temp Variables
      */
@@ -140,13 +129,15 @@ public class FacesConfiguration
      */
     private BeanStorageProvider beanStorage; // call getBeanStorageProvider() 
 
-    public FacesConfiguration()
+    public FacesConfiguration(FacesImplementation facesImpl)
     {
-        // Nothing
+        this.facesImpl = facesImpl;
     }
 
     public final void initialize(FacesContext startupContext)
     {
+        if (initialized)
+            throw new InvalidOperationException("FacesConfiguration already initialized!"); 
         try
         {   // Set temporary variables
             this.externalContext = startupContext.getExternalContext();
@@ -168,6 +159,8 @@ public class FacesConfiguration
             this.application = null;
             this.externalContext = null;
             this.facesImpl.configComplete();
+            // set initialized (even if Exception has been thrown)
+            initialized = true;
         }
     }
     

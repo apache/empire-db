@@ -40,6 +40,8 @@ public class WebAppStartupListener implements SystemEventListener
     
     private final Class<? extends FacesConfiguration> facesConfigClass;
 
+    private FacesImplementation facesImplementation;
+    
     /**
      * Default Constructor with no initialization
      */
@@ -54,6 +56,16 @@ public class WebAppStartupListener implements SystemEventListener
     public WebAppStartupListener(Class<? extends FacesConfiguration> facesConfigClass)
     {
         this.facesConfigClass = facesConfigClass;
+    }
+
+    public FacesImplementation getFacesImplementation()
+    {
+        return facesImplementation;
+    }
+    
+    protected ServletContext getServletContext(FacesContext startupContext)
+    {
+        return (ServletContext)startupContext.getExternalContext().getContext();        
     }
 
     @Override
@@ -72,12 +84,12 @@ public class WebAppStartupListener implements SystemEventListener
             FacesContext startupContext = FacesContext.getCurrentInstance();
             ExternalContext externalContext = startupContext.getExternalContext();
             // Detect implementation
-            FacesImplementation facesImplementation = detectFacesImplementation(externalContext);
+            this.facesImplementation = detectFacesImplementation(externalContext);
             // Init Configuration
-            initFacesConfiguration(startupContext, facesImplementation);
-            // Create and Init application
-            WebApplication facesApp = createWebApplication(startupContext, facesImplementation);
-            initWebApplication(facesApp, startupContext, facesImplementation);
+            initFacesConfiguration(startupContext);
+            // Create and init application
+            WebApplication facesApp = createWebApplication(startupContext);
+            initWebApplication(facesApp, startupContext);
             // Set Servlet Attribute
             ServletContext servletContext = (ServletContext) externalContext.getContext();
             if (servletContext.getAttribute(WebApplication.APPLICATION_BEAN_NAME)!=facesApp)
@@ -124,12 +136,12 @@ public class WebAppStartupListener implements SystemEventListener
      * @param facesImplementation the Faces Implementation
      * @param startupContext the Startup Context
      */
-    protected void initFacesConfiguration(FacesContext startupContext, FacesImplementation facesImplementation)
+    protected void initFacesConfiguration(FacesContext startupContext)
     {
         // Init FacesExtentions
         if (facesConfigClass!=null) {
             log.info("Initializing FacesExtentions");
-            FacesConfiguration.initialize(facesConfigClass, startupContext, facesImplementation);
+            FacesConfiguration.initialize(facesConfigClass, startupContext, getFacesImplementation());
         }
     }
 
@@ -139,10 +151,10 @@ public class WebAppStartupListener implements SystemEventListener
      * @param startupContext the Startup Context
      * @return the WebApplication instance
      */
-    protected WebApplication createWebApplication(FacesContext startupContext, FacesImplementation facesImplementation)
+    protected WebApplication createWebApplication(FacesContext startupContext)
     {
         // Create Application
-        Object app = facesImplementation.getManagedBean(WebApplication.APPLICATION_BEAN_NAME, startupContext);
+        Object app = getFacesImplementation().getManagedBean(WebApplication.APPLICATION_BEAN_NAME, startupContext);
         if (!(app instanceof WebApplication))
             throw new AbortProcessingException("Error: Application is not a "+WebApplication.class.getName()+" instance. Please create an ApplicationFactory!");
         // done
@@ -155,9 +167,9 @@ public class WebAppStartupListener implements SystemEventListener
      * @param facesImplementation the Faces Implementation
      * @param startupContext the Startup Context
      */
-    protected void initWebApplication(WebApplication facesApp, FacesContext startupContext, FacesImplementation facesImplementation)
+    protected void initWebApplication(WebApplication facesApp, FacesContext startupContext)
     {
-        facesApp.init(facesImplementation, startupContext);
+        facesApp.init(getFacesImplementation(), startupContext);
     }
     
 }

@@ -24,7 +24,6 @@ import javax.servlet.ServletContext;
 import org.apache.empire.jsf2.app.FacesConfiguration;
 import org.apache.empire.jsf2.app.WebAppStartupListener;
 import org.apache.empire.jsf2.app.WebApplication;
-import org.apache.empire.jsf2.impl.FacesImplementation;
 
 /**
  * Custom StartupListener
@@ -41,20 +40,20 @@ public class SampleAppStartupListener extends WebAppStartupListener
     }
     
     @Override
-    protected void initFacesConfiguration(FacesContext startupContext, FacesImplementation facesImplementation)
+    protected void initFacesConfiguration(FacesContext startupContext)
     {
         ServletContext servletContext = (ServletContext)startupContext.getExternalContext().getContext();
         config.init(servletContext.getRealPath("WEB-INF/config.xml"));
         // Load Configuration
-        super.initFacesConfiguration(startupContext, facesImplementation);
+        super.initFacesConfiguration(startupContext);
     }
     
     @Override
-    protected void initWebApplication(WebApplication facesApp, FacesContext startupContext, FacesImplementation facesImplementation)
+    protected void initWebApplication(WebApplication facesApp, FacesContext startupContext)
     {
         // Set Configuration
         ((SampleApplication)facesApp).setConfig(config);
         // init now
-        super.initWebApplication(facesApp, startupContext, facesImplementation);
+        super.initWebApplication(facesApp, startupContext);
     }
 }
