@@ -22,12 +22,14 @@ import java.io.IOException;
 
 import javax.faces.component.UIComponent;
 import javax.faces.component.UINamingContainer;
+import javax.faces.component.UIPanel;
 import javax.faces.component.html.HtmlOutcomeTargetLink;
 import javax.faces.context.FacesContext;
 import javax.faces.context.ResponseWriter;
 
 import org.apache.empire.commons.ObjectUtils;
 import org.apache.empire.commons.StringUtils;
+import org.apache.empire.jsf2.utils.TagEncodingHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -49,14 +51,37 @@ public class MenuItemTag extends LinkTag
     {
         return UINamingContainer.COMPONENT_FAMILY; 
     }
-
+    
+    @Override
+    public void setParent(UIComponent parent)
+    {
+        super.setParent(parent);
+        // check
+        if (parent instanceof UIPanel)
+            parent = parent.getParent();
+        if (parent instanceof MenuListTag) {
+            parentMenu = ((MenuListTag)parent);
+            if (!helper.hasComponentId() && Boolean.TRUE==parentMenu.isAutoItemId())
+                setAutoComponentId();
+        }
+    }
+    
+    private void setAutoComponentId()
+    {
+        menuId = helper.getTagAttributeString("menuId");
+        String compId = TagEncodingHelper.buildComponentId(menuId);
+        super.setId(compId);
+        log.info("Auto-Setting compontent id to {}", compId);
+    }
+    
     @Override
     public void encodeBegin(FacesContext context)
         throws IOException
     {
         // Detect Parent Menu
         parentMenu = getParentMenu();
-        menuId = helper.getTagAttributeString("menuId"); 
+        if (menuId==null)
+            menuId = helper.getTagAttributeString("menuId");         
         
         if(!isRendered())
             return;
@@ -64,9 +89,15 @@ public class MenuItemTag extends LinkTag
         // render components
         ResponseWriter writer = context.getResponseWriter();
         writer.startElement("li", this);
-        writer.writeAttribute("id", getClientId(context), null);
+        
+        //Compoent-ID
+        if (helper.hasComponentId())    
+            writer.writeAttribute("id", getClientId(context), null);
+        
+        // Style Class
         helper.writeAttribute(writer, "class", getStyleClass());
 
+        // wrap
         String wrap = (parentMenu!=null ? parentMenu.getItemWrapTag() : null);
         if (StringUtils.isNotEmpty(wrap))
         {   // Wrap-Element

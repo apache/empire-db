@@ -306,10 +306,10 @@ public class LinkTag extends UIOutput // implements NamingContainer
         boolean hasColumn = helper.hasColumn();
         Object value = getLinkValue(hasColumn);
         link.setValue(value);
-        // id
-        String id = getId();
-        if (id.startsWith("j_")==false)
-            link.setId(id+"_a");
+        /*
+        if (helper.hasComponentId())
+            link.setId(getId()+"_a");
+        */    
         // css Style
         DataType dataType = (hasColumn ? helper.getColumn().getDataType() : DataType.UNKNOWN);
         link.setStyleClass(helper.getTagStyleClass(dataType, null, getLinkStyleClass()));

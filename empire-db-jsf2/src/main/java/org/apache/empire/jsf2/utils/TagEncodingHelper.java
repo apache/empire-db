@@ -1473,6 +1473,12 @@ public class TagEncodingHelper implements NamingContainer
     {
         return TagEncodingHelper.getTagAttributeValue(component, name);
     }
+    
+    public boolean hasComponentId()
+    {
+        String id = component.getId();
+        return (id!=null && !id.startsWith("j_"));        
+    }
 
     public static Object getTagAttributeValue(UIComponent comp, String name)
     {
@@ -1487,6 +1493,21 @@ public class TagEncodingHelper implements NamingContainer
             }
         }
         return value;
+    }
+
+    public static String buildComponentId(String s)
+    {
+        if (s==null || s.length()==0)
+            return null;
+        StringBuilder b = new StringBuilder(s.length());
+        for (int i=0; i<s.length(); i++)
+        {
+            char c = s.charAt(i);
+            if (c!='_' && !StringUtils.isCharBetween(c, 'A', 'Z') && !StringUtils.isCharBetween(c, 'a', 'z') && !StringUtils.isNumber(c))
+                c='-';
+            b.append(c);
+        }
+        return b.toString();
     }
     
     public String getTagAttributeString(String name, String defValue)
@@ -1516,7 +1537,7 @@ public class TagEncodingHelper implements NamingContainer
         throws IOException
     {
         // render id
-        if (renderAutoId || !component.getId().startsWith("j_"))
+        if (renderAutoId || hasComponentId())
             writer.writeAttribute(InputControl.HTML_ATTR_ID, component.getClientId(), null);
     }
 

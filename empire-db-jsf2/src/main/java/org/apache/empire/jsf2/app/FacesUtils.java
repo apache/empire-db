@@ -87,26 +87,33 @@ public class FacesUtils
         return (HttpServletRequest) fc.getExternalContext().getRequest();
     }
     
-    public static String getRequestUserAgent()
+    public static String getRequestUri(FacesContext context)
     {
-        String agent = null;
-        Object req = FacesContext.getCurrentInstance().getExternalContext().getRequest();
-        if (req instanceof HttpServletRequest)
-        {
-            agent = ((HttpServletRequest)req).getHeader("user-agent");
+        ExternalContext ec = context.getExternalContext();
+        Object req = (ec!=null ? ec.getRequest() : null);
+        if (req instanceof HttpServletRequest) {
+            HttpServletRequest hr = (HttpServletRequest)req;
+            return hr.getRequestURI(); 
         }
-        return (agent!=null ? agent : "");
+        return "{No HttpServletRequest}";
     }
     
-    public static boolean isRequestUserAgentIE()
+    public static String getRequestUserAgent(FacesContext context)
     {
-        String userAgent = getRequestUserAgent();
-        return (userAgent.indexOf("MSIE")>=0);
+        ExternalContext ec = context.getExternalContext();
+        Object req = (ec!=null ? ec.getRequest() : null);
+        if (req instanceof HttpServletRequest)
+        {   // get User-Agent
+            String agent = ((HttpServletRequest)req).getHeader("user-agent");
+            return agent;
+        }
+        return "{No HttpServletRequest}";
     }
 
     public static String getRequestContextPath()
     {
-        return FacesContext.getCurrentInstance().getExternalContext().getRequestContextPath();
+        ExternalContext ec = FacesContext.getCurrentInstance().getExternalContext();
+        return (ec!=null ? ec.getRequestContextPath() : null);
     }
 
     public static Object getRequestAttribute(final String key)

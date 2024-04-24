@@ -20,7 +20,6 @@ package org.apache.empire.jsf2.components;
 
 import java.io.IOException;
 
-import javax.faces.component.NamingContainer;
 import javax.faces.component.UIComponent;
 import javax.faces.component.UINamingContainer;
 import javax.faces.component.UIOutput;
@@ -32,7 +31,7 @@ import org.apache.empire.jsf2.utils.TagEncodingHelper;
 import org.apache.empire.jsf2.utils.TagEncodingHelperFactory;
 import org.apache.empire.jsf2.utils.TagStyleClass;
 
-public class MenuListTag extends UIOutput implements NamingContainer
+public class MenuListTag extends UIOutput // implements NamingContainer
 {
     // Logger
     // private static final Logger log = LoggerFactory.getLogger(MenuListTag.class);
@@ -47,7 +46,8 @@ public class MenuListTag extends UIOutput implements NamingContainer
         disabledClass,
         expandedClass,
         itemWrapTag,
-        defaultItemClass;
+        defaultItemClass,
+        autoItemId;
     }
     
     protected String currentId = null; 
@@ -57,7 +57,10 @@ public class MenuListTag extends UIOutput implements NamingContainer
     protected String expandedClass = null;
     protected String itemWrapTag = null;
     protected String defaultItemClass = null; // e.g. "level{}"
+    protected Boolean autoItemId = null;
     protected int level = 0;
+    
+    private MenuListTag parentMenu = null; 
 
     @Override
     public String getFamily()
@@ -123,42 +126,28 @@ public class MenuListTag extends UIOutput implements NamingContainer
         defaultItemClass = helper.getTagAttributeString(Properties.defaultItemClass.name());
 
         // find parent
-        MenuListTag parent = getParentMenu();
-        if (parent==null)
+        if (parentMenu==null)
+            parentMenu = getParentMenu();
+        if (parentMenu==null)
             return;
         
         if (currentId==null)
-            currentId = parent.getCurrentId();
+            currentId = parentMenu.getCurrentId();
         if (currentClass==null)
-            currentClass = parent.getCurrentClass();  
+            currentClass = parentMenu.getCurrentClass();  
         if (disabledClass==null)
-            disabledClass = parent.getDisabledClass();
+            disabledClass = parentMenu.getDisabledClass();
         if (parentClass==null)
-            parentClass = parent.getParentClass();
+            parentClass = parentMenu.getParentClass();
         if (expandedClass==null)
-            expandedClass = parent.getExpandedClass();
+            expandedClass = parentMenu.getExpandedClass();
         if (itemWrapTag==null)
-            itemWrapTag = parent.getItemWrapTag();
+            itemWrapTag = parentMenu.getItemWrapTag();
         if (defaultItemClass==null)
-            defaultItemClass = parent.defaultItemClass;
+            defaultItemClass = parentMenu.defaultItemClass;
         
         // Copy parent Info
-        level = parent.level + 1;
-    }
-
-    protected MenuListTag getParentMenu()
-    {
-        // walk upwards the parent component tree and return the first record component found (if
-        // any)
-        UIComponent parent = this;
-        while ((parent = parent.getParent()) != null)
-        {
-            if (parent instanceof MenuListTag)
-            {
-                return (MenuListTag) parent;
-            }
-        }
-        return null;
+        level = parentMenu.level + 1;
     }
     
     public String getCurrentId()
@@ -215,6 +204,20 @@ public class MenuListTag extends UIOutput implements NamingContainer
         // return default
         return defaultItemClass;
     }
+    
+    public Boolean isAutoItemId()
+    {
+        if (this.autoItemId == null) {
+            this.autoItemId = (Boolean)getStateHelper().get(Properties.autoItemId);
+            if (this.autoItemId==null) {
+                if (parentMenu==null)
+                    parentMenu = getParentMenu();
+                if (parentMenu!=null)
+                    return parentMenu.isAutoItemId();
+            }
+        }
+        return this.autoItemId;
+    }
 
     /* setters */
     
@@ -260,4 +263,30 @@ public class MenuListTag extends UIOutput implements NamingContainer
         getStateHelper().put(Properties.itemWrapTag, itemWrapTag);
     }
 
+    public void setAutoItemId(Boolean autoItemId)
+    {
+        this.autoItemId = autoItemId;
+        // save
+        getStateHelper().put(Properties.autoItemId, this.autoItemId);
+    }
+
+    /*
+     * helpers
+     */
+
+    protected MenuListTag getParentMenu()
+    {
+        // walk upwards the parent component tree and return the first record component found (if
+        // any)
+        UIComponent parent = this;
+        while ((parent = parent.getParent()) != null)
+        {
+            if (parent instanceof MenuListTag)
+            {
+                return (MenuListTag) parent;
+            }
+        }
+        return null;
+    }
+    
 }
