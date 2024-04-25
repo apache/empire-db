@@ -390,6 +390,11 @@ public abstract class ListPageElement<T> extends PageElement
             int pageNumber = new Double(Math.ceil(((double) this.position / this.pageSize))).intValue() + 1;
             return pageNumber;
         }
+        
+        public void setPageNumber(int newPageNumber) 
+        {
+            setPosition((--newPageNumber) * this.pageSize);
+        }
 
         public int getPageCount()
         {
