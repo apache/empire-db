@@ -80,8 +80,13 @@ public class MenuListTag extends UIOutput // implements NamingContainer
         // render components
         ResponseWriter writer = context.getResponseWriter();
         writer.startElement("ul", this);
-        // writeAttribute(writer, map, "id");
-        helper.writeAttribute(writer, "class", helper.getTagAttributeString("styleClass"));
+        
+        //Compoent-ID
+        if (helper.hasComponentId())    
+            writer.writeAttribute("id", getClientId(context), null);
+        
+        // Style class and style
+        helper.writeAttribute(writer, "class", getStyleClass());
         helper.writeAttribute(writer, "style", helper.getTagAttributeString("style"));
         // previousId
         /*
@@ -196,10 +201,20 @@ public class MenuListTag extends UIOutput // implements NamingContainer
     {
         return level;
     }
+    
+    protected String getStyleClass()
+    {
+        String styleClass = helper.getTagAttributeString("styleClass");
+        if (styleClass!=null && styleClass.indexOf("{}")>0)
+        {   // add level to style class
+            styleClass = StringUtils.replace(styleClass, "{}", String.valueOf(level));
+        }
+        return styleClass;
+    }
 
     public String getItemStyleClass()
     {
-        if (defaultItemClass!=null && defaultItemClass.indexOf("{}")>=0)
+        if (defaultItemClass!=null && defaultItemClass.indexOf("{}")>0)
             return StringUtils.replace(defaultItemClass, "{}", String.valueOf(level));
         // return default
         return defaultItemClass;

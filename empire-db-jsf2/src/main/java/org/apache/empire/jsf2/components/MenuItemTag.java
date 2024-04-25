@@ -61,17 +61,16 @@ public class MenuItemTag extends LinkTag
             parent = parent.getParent();
         if (parent instanceof MenuListTag) {
             parentMenu = ((MenuListTag)parent);
-            if (!helper.hasComponentId() && Boolean.TRUE==parentMenu.isAutoItemId())
-                setAutoComponentId();
+            if (!helper.hasComponentId() && Boolean.TRUE==parentMenu.isAutoItemId()) {
+                // setAutoComponentId
+                menuId = helper.getTagAttributeString("menuId");
+                String compId = TagEncodingHelper.buildComponentId(menuId);
+                if (compId!=null) {
+                    super.setId(compId);
+                    log.debug("Auto-Setting compontent id for menu-item \"{}\" to {}", menuId, compId);
+                }
+            }
         }
-    }
-    
-    private void setAutoComponentId()
-    {
-        menuId = helper.getTagAttributeString("menuId");
-        String compId = TagEncodingHelper.buildComponentId(menuId);
-        super.setId(compId);
-        log.info("Auto-Setting compontent id to {}", compId);
     }
     
     @Override
