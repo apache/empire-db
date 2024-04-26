@@ -36,8 +36,8 @@ import org.apache.empire.db.DBReader;
 import org.apache.empire.db.DBRecordData;
 import org.apache.empire.db.DBRowSet;
 import org.apache.empire.db.expr.order.DBOrderByExpr;
-import org.apache.empire.dbms.DBMSHandler;
 import org.apache.empire.dbms.DBMSFeature;
+import org.apache.empire.dbms.DBMSHandler;
 import org.apache.empire.exceptions.InternalException;
 import org.apache.empire.exceptions.InvalidArgumentException;
 import org.apache.empire.exceptions.InvalidOperationException;
@@ -433,7 +433,7 @@ public class BeanListPageElement<T> extends ListPageElement<T> implements ListIt
     {
         cmd.clearOrderBy();
         String sortColumnName = getTableInfo().getSortColumnName();
-        boolean sortAscending = getTableInfo().getSortAscending();
+        boolean sortAscending = getTableInfo().isSortAscending();
 
         // Find Column
         DBColumnExpr sortColumn = rowset.getColumn(sortColumnName);

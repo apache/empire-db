@@ -25,8 +25,11 @@ import java.util.List;
 import javax.faces.event.ActionEvent;
 
 import org.apache.empire.commons.ObjectUtils;
+import org.apache.empire.commons.StringUtils;
+import org.apache.empire.data.Column;
 import org.apache.empire.exceptions.NotSupportedException;
 import org.apache.empire.exceptions.ObjectNotValidException;
+import org.apache.empire.jsf2.app.FacesUtils;
 import org.apache.empire.jsf2.pages.Page;
 import org.apache.empire.jsf2.pages.PageElement;
 import org.slf4j.Logger;
@@ -256,7 +259,7 @@ public abstract class ListPageElement<T> extends PageElement
             this.sortOrderChanged = true;
         }
 
-        public boolean getSortAscending()
+        public boolean isSortAscending()
         {
             return this.sortAscending;
         }
@@ -281,6 +284,30 @@ public abstract class ListPageElement<T> extends PageElement
         public void setSortOrderChanged(boolean sortOrderChanged)
         {
             this.sortOrderChanged = sortOrderChanged;
+        }
+        
+        public void setSortColumn(ActionEvent ae)
+        {
+            // Get column
+            Object column = FacesUtils.getActionEventAttribute(ae, "item", Object.class);
+            if (column==null) {
+                log.warn("Unable to set sort column: Attribute \"item\" missing on command link component!");
+                return;
+            }
+            // Get columnName
+            String columnName;
+            if (column instanceof Column) {
+                columnName = ((Column)column).getName();
+            } else {
+                columnName = column.toString();
+            }
+            // Change Column or Sort Order
+            if (StringUtils.compareEqual(columnName, getSortColumnName(), true)) {
+                // change order only
+                setSortAscending(!isSortAscending());
+            } else {
+                setSortColumnName(columnName);
+            }
         }
 
         /* pagination */
