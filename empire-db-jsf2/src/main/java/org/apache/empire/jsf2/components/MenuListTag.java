@@ -46,8 +46,8 @@ public class MenuListTag extends UIOutput // implements NamingContainer
         disabledClass,
         expandedClass,
         itemWrapTag,
-        defaultItemClass,
-        autoItemId;
+        defaultItemClass;
+        // autoItemId
     }
     
     protected String currentId = null; 
@@ -57,7 +57,7 @@ public class MenuListTag extends UIOutput // implements NamingContainer
     protected String expandedClass = null;
     protected String itemWrapTag = null;
     protected String defaultItemClass = null; // e.g. "level{}"
-    protected Boolean autoItemId = null;
+    // protected Boolean autoItemId = null;
     protected int level = 0;
     
     private MenuListTag parentMenu = null; 
@@ -82,17 +82,11 @@ public class MenuListTag extends UIOutput // implements NamingContainer
         writer.startElement("ul", this);
         
         //Compoent-ID
-        if (helper.hasComponentId())    
-            writer.writeAttribute("id", getClientId(context), null);
+        helper.writeComponentId(writer, false);
         
         // Style class and style
         helper.writeAttribute(writer, "class", getStyleClass());
         helper.writeAttribute(writer, "style", helper.getTagAttributeString("style"));
-        // previousId
-        /*
-        if (prevMenuId!=null)
-            helper.writeAttribute(writer, "previousId", prevMenuId);
-        */    
     }
 
     @Override
@@ -132,7 +126,7 @@ public class MenuListTag extends UIOutput // implements NamingContainer
 
         // find parent
         if (parentMenu==null)
-            parentMenu = getParentMenu();
+            parentMenu = findParentMenu();
         if (parentMenu==null)
             return;
         
@@ -220,19 +214,21 @@ public class MenuListTag extends UIOutput // implements NamingContainer
         return defaultItemClass;
     }
     
+    /*
     public Boolean isAutoItemId()
     {
         if (this.autoItemId == null) {
             this.autoItemId = (Boolean)getStateHelper().get(Properties.autoItemId);
             if (this.autoItemId==null) {
                 if (parentMenu==null)
-                    parentMenu = getParentMenu();
+                    parentMenu = findParentMenu();
                 if (parentMenu!=null)
                     return parentMenu.isAutoItemId();
             }
         }
         return this.autoItemId;
     }
+    */
 
     /* setters */
     
@@ -278,18 +274,20 @@ public class MenuListTag extends UIOutput // implements NamingContainer
         getStateHelper().put(Properties.itemWrapTag, itemWrapTag);
     }
 
+    /*
     public void setAutoItemId(Boolean autoItemId)
     {
         this.autoItemId = autoItemId;
         // save
         getStateHelper().put(Properties.autoItemId, this.autoItemId);
     }
+    */
 
     /*
      * helpers
      */
 
-    protected MenuListTag getParentMenu()
+    protected MenuListTag findParentMenu()
     {
         // walk upwards the parent component tree and return the first record component found (if
         // any)

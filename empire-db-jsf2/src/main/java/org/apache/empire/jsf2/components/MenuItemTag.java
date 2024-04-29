@@ -22,7 +22,6 @@ import java.io.IOException;
 
 import javax.faces.component.UIComponent;
 import javax.faces.component.UINamingContainer;
-import javax.faces.component.UIPanel;
 import javax.faces.component.html.HtmlOutcomeTargetLink;
 import javax.faces.context.FacesContext;
 import javax.faces.context.ResponseWriter;
@@ -38,7 +37,7 @@ public class MenuItemTag extends LinkTag
     // Logger
     private static final Logger log = LoggerFactory.getLogger(MenuItemTag.class);
     
-    protected MenuListTag parentMenu = null;
+    protected MenuListTag parentMenu;
     protected String menuId;
 
     public MenuItemTag()
@@ -52,6 +51,10 @@ public class MenuItemTag extends LinkTag
         return UINamingContainer.COMPONENT_FAMILY; 
     }
     
+    /* 
+     * Auto-generate Menu item component id
+     * Works, but is too inflexible
+     * 
     @Override
     public void setParent(UIComponent parent)
     {
@@ -72,13 +75,29 @@ public class MenuItemTag extends LinkTag
             }
         }
     }
+    */
+    
+    @Override
+    public void setId(String id)
+    {
+        if (id.endsWith("@")) {
+            // Generate MenuItem component id from menuId
+            menuId = helper.getTagAttributeString("menuId");
+            if (StringUtils.isNotEmpty(menuId)) {
+                int idx = id.indexOf('@');
+                String ident = (idx>0) ? id.substring(0,idx)+menuId : menuId;
+                id = TagEncodingHelper.buildComponentId(ident);
+            }
+        }
+        super.setId(id);
+    }
     
     @Override
     public void encodeBegin(FacesContext context)
         throws IOException
     {
         // Detect Parent Menu
-        parentMenu = getParentMenu();
+        parentMenu = findParentMenu();
         if (menuId==null)
             menuId = helper.getTagAttributeString("menuId");         
         
@@ -90,8 +109,7 @@ public class MenuItemTag extends LinkTag
         writer.startElement("li", this);
         
         //Compoent-ID
-        if (helper.hasComponentId())    
-            writer.writeAttribute("id", getClientId(context), null);
+        helper.writeComponentId(writer, false);
         
         // Style Class
         helper.writeAttribute(writer, "class", getStyleClass());
@@ -174,7 +192,7 @@ public class MenuItemTag extends LinkTag
         return null;
     }
     
-    protected MenuListTag getParentMenu()
+    protected MenuListTag findParentMenu()
     {
         // walk upwards the parent component tree and return the first record component found (if
         // any)
