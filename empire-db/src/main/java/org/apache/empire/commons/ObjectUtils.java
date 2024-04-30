@@ -573,15 +573,18 @@ public final class ObjectUtils
     /**
      * Converts an object value to a boolean.
      * <P>
-     * If the object value supplied is null or if conversion is not possible then false is returned.
-     * @param v the object to convert
-     * @return the boolean value of o (true or false)
+     * If the object value supplied is empty then the defValue is returned 
+     * Numbers are considered true if they are not equal to zero
+     * String are considered true only if the string is "Y" or "true"
+     * @param value the object to convert
+     * @param defValue the default value
+     * @return the boolean value or defValue if v is null or empty
      */
-    public static boolean getBoolean(Object v)
+    public static boolean getBoolean(Object v, boolean defValue)
     {
         // Get Boolean value
         if (ObjectUtils.isEmpty(v))
-            return false;
+            return defValue;
         if (v instanceof Boolean)
             return ((Boolean)v).booleanValue();
         if (v instanceof Number)
@@ -589,6 +592,17 @@ public final class ObjectUtils
         // parse String for boolean value
         String  val = v.toString(); 
         return (val.equalsIgnoreCase("Y") || val.equalsIgnoreCase("true"));
+    }
+    
+    /**
+     * Converts an object value to a boolean.
+     * see getBoolean(Object v, boolean defValue) for details.
+     * @param value the object to convert
+     * @return the boolean value or false if v is null or empty
+     */
+    public static boolean getBoolean(Object v)
+    {
+        return getBoolean(v, false);
     }
     
     /**

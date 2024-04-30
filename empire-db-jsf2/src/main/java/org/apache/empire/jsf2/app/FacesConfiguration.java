@@ -73,6 +73,8 @@ import org.slf4j.LoggerFactory;
 public class FacesConfiguration
 {
     protected static final Logger log = LoggerFactory.getLogger(FacesConfiguration.class);
+
+    public final static String EMPIRE_COMPONENT_FAMILY = "org.apache.empire.component";
     
     /*
      * Initialized
@@ -252,21 +254,20 @@ public class FacesConfiguration
     protected void initComponents()
     {
         // Empire Components
-        String EMPIRE_FAMILY = "org.apache.empire.component";
-        addComponent(EMPIRE_FAMILY, org.apache.empire.jsf2.components.ControlTag.class);
-        addComponent(EMPIRE_FAMILY, org.apache.empire.jsf2.components.InputTag.class);
-        addComponent(EMPIRE_FAMILY, org.apache.empire.jsf2.components.FormGridTag.class);
-        addComponent(EMPIRE_FAMILY, org.apache.empire.jsf2.components.LabelTag.class);
-        addComponent(EMPIRE_FAMILY, org.apache.empire.jsf2.components.LinkTag.class);
-        addComponent(EMPIRE_FAMILY, org.apache.empire.jsf2.components.MenuItemTag.class);
-        addComponent(EMPIRE_FAMILY, org.apache.empire.jsf2.components.MenuListTag.class);
-        addComponent(EMPIRE_FAMILY, org.apache.empire.jsf2.components.RecordTag.class);
-        addComponent(EMPIRE_FAMILY, org.apache.empire.jsf2.components.SelectTag.class);
-        addComponent(EMPIRE_FAMILY, org.apache.empire.jsf2.components.TabPageTag.class);
-        addComponent(EMPIRE_FAMILY, org.apache.empire.jsf2.components.TabViewTag.class);
-        addComponent(EMPIRE_FAMILY, org.apache.empire.jsf2.components.TitleTag.class);
-        addComponent(EMPIRE_FAMILY, org.apache.empire.jsf2.components.UnitTag.class);
-        addComponent(EMPIRE_FAMILY, org.apache.empire.jsf2.components.ValueTag.class);
+        addComponent(EMPIRE_COMPONENT_FAMILY, org.apache.empire.jsf2.components.ControlTag.class);
+        addComponent(EMPIRE_COMPONENT_FAMILY, org.apache.empire.jsf2.components.InputTag.class);
+        addComponent(EMPIRE_COMPONENT_FAMILY, org.apache.empire.jsf2.components.FormGridTag.class);
+        addComponent(EMPIRE_COMPONENT_FAMILY, org.apache.empire.jsf2.components.LabelTag.class);
+        addComponent(EMPIRE_COMPONENT_FAMILY, org.apache.empire.jsf2.components.LinkTag.class);
+        addComponent(EMPIRE_COMPONENT_FAMILY, org.apache.empire.jsf2.components.MenuItemTag.class);
+        addComponent(EMPIRE_COMPONENT_FAMILY, org.apache.empire.jsf2.components.MenuListTag.class);
+        addComponent(EMPIRE_COMPONENT_FAMILY, org.apache.empire.jsf2.components.RecordTag.class);
+        addComponent(EMPIRE_COMPONENT_FAMILY, org.apache.empire.jsf2.components.SelectTag.class);
+        addComponent(EMPIRE_COMPONENT_FAMILY, org.apache.empire.jsf2.components.TabPageTag.class);
+        addComponent(EMPIRE_COMPONENT_FAMILY, org.apache.empire.jsf2.components.TabViewTag.class);
+        addComponent(EMPIRE_COMPONENT_FAMILY, org.apache.empire.jsf2.components.TitleTag.class);
+        addComponent(EMPIRE_COMPONENT_FAMILY, org.apache.empire.jsf2.components.UnitTag.class);
+        addComponent(EMPIRE_COMPONENT_FAMILY, org.apache.empire.jsf2.components.ValueTag.class);
     }
 
     protected void initRenderers(RenderKitUpdater rku)
@@ -357,15 +358,26 @@ public class FacesConfiguration
         facesImpl.registerManagedBean(beanName, beanClass.getName(), scope);
     }
 
-    protected void replaceComponent(Class<? extends UIComponent> primeComponent, Class<? extends UIComponent> overrideComponent)
+    protected void replaceComponent(String componentType, Class<? extends UIComponent> overrideComponent)
     {
-        String type = (String) ClassUtils.getFieldValue(primeComponent, null, "COMPONENT_TYPE", true);
-        if (StringUtils.isEmpty(type))
-            throw new InvalidArgumentException("primeComponent", primeComponent.getName());
+        if (StringUtils.isEmpty(componentType))
+            throw new InvalidArgumentException("componentType", componentType);
         // check
-        checkComponentTypeExists(type);
-        log.info("Replacing component type \"{}\" with {}", type, overrideComponent.getName());
-        application.addComponent(type, overrideComponent.getName());
+        checkComponentTypeExists(componentType);
+        log.info("Replacing component type \"{}\" with {}", componentType, overrideComponent.getName());
+        application.addComponent(componentType, overrideComponent.getName());
+    }
+
+    protected void replaceComponent(Class<? extends UIComponent> componentClassWithType, Class<? extends UIComponent> overrideComponent)
+    {
+        String componentType = (String) ClassUtils.getFieldValue(componentClassWithType, null, "COMPONENT_TYPE", true);
+        replaceComponent(componentType, overrideComponent);
+    }
+
+    protected void replaceComponent(String componentFamily, Class<? extends UIComponent> componentClassToReplace, Class<? extends UIComponent> overrideComponent)
+    {
+        String componentType = StringUtils.concat(componentFamily, ".", componentClassToReplace.getSimpleName());
+        replaceComponent(componentType, overrideComponent);
     }
     
     protected void checkComponentTypeExists(String componentType)

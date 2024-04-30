@@ -24,7 +24,6 @@ import java.util.List;
 
 import javax.el.MethodExpression;
 import javax.el.ValueExpression;
-import javax.faces.component.NamingContainer;
 import javax.faces.component.StateHolder;
 import javax.faces.component.UIComponent;
 import javax.faces.component.UINamingContainer;
@@ -48,7 +47,7 @@ import org.apache.empire.jsf2.utils.TagStyleClass;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class TabViewTag extends UIOutput implements NamingContainer
+public class TabViewTag extends UIOutput // implements NamingContainer
 {
     // Logger
     // private static final Logger log = LoggerFactory.getLogger(MenuTag.class);
@@ -212,9 +211,12 @@ public class TabViewTag extends UIOutput implements NamingContainer
         // render components
         ResponseWriter writer = context.getResponseWriter();
         writer.startElement(InputControl.HTML_TAG_DIV, this);
-        writer.writeAttribute(InputControl.HTML_ATTR_ID, getClientId(), null);
-        writer.writeAttribute(InputControl.HTML_ATTR_CLASS, this.helper.getSimpleStyleClass(), null);
-        this.helper.writeAttribute(writer, InputControl.HTML_ATTR_STYLE, this.helper.getTagAttributeString("style"));
+        helper.writeComponentId(writer, true);
+        helper.writeStyleClass(writer);
+        // style
+        String style = this.helper.getTagAttributeString("style");
+        if (StringUtils.isNotEmpty(style))
+            this.helper.writeAttribute(writer, InputControl.HTML_ATTR_STYLE, style);
 
         // The Tabs
         if (ObjectUtils.getBoolean(this.helper.getTagAttributeValue("hideTabBar")))

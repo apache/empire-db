@@ -47,6 +47,7 @@ import org.apache.empire.jsf2.controls.InputControl.DisabledType;
 import org.apache.empire.jsf2.controls.InputControl.InputInfo;
 import org.apache.empire.jsf2.controls.InputControlManager;
 import org.apache.empire.jsf2.controls.SelectInputControl;
+import org.apache.empire.jsf2.utils.TagEncodingHelper;
 import org.apache.empire.jsf2.utils.TagStyleClass;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -408,8 +409,8 @@ public class SelectTag extends UIInput implements NamingContainer
     {
         // set id
         String inputId = this.getId();
-        if (StringUtils.isNotEmpty(inputId) && !inputId.startsWith("j_"))
-        { // remove trailing underscore (workaround since parent and child may not have the same name)
+        if (TagEncodingHelper.hasComponentId(inputId))
+        {   // remove trailing underscore (workaround since parent and child may not have the same name)
             if (inputId.endsWith("_"))
             {
                 inputId = inputId.substring(0, inputId.length() - 1);

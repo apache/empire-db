@@ -84,6 +84,8 @@ import org.slf4j.LoggerFactory;
 
 public class TagEncodingHelper implements NamingContainer
 {
+    public static final String FACES_ID_PREFIX = "j_id";  // Standard Faces ID Prefix
+
     private final static String SPACE = " ";
     
     /**
@@ -1477,7 +1479,12 @@ public class TagEncodingHelper implements NamingContainer
     public boolean hasComponentId()
     {
         String id = component.getId();
-        return (id!=null && !id.startsWith("j_"));        
+        return (id!=null && id.length()>0 && !id.startsWith(FACES_ID_PREFIX));        
+    }
+    
+    public static boolean hasComponentId(String id)
+    {
+        return (id!=null && id.length()>0 && !id.startsWith(FACES_ID_PREFIX));        
     }
 
     public static Object getTagAttributeValue(UIComponent comp, String name)
