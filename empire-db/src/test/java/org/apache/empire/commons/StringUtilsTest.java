@@ -155,6 +155,7 @@ public class StringUtilsTest
         assertEquals("null/null", StringUtils.arrayToString(new String[]{null, null} , "/", StringUtils.NULL));
 		assertEquals("null", StringUtils.arrayToString(new String[]{null} , "/", StringUtils.NULL));
         // Special case with SPACE
+        assertEquals("Hello", StringUtils.arrayToString(new Object[]{"Hello","",null," ","  "}, StringUtils.SPACE));
         assertEquals("Hello World", StringUtils.arrayToString(new Object[]{"Hello","",null," ","World"}, StringUtils.SPACE));
         assertEquals("Hello World", StringUtils.toString(new Object[]{"Hello","",null," ","World"}, StringUtils.SPACE, null));
 	}

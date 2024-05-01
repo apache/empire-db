@@ -207,7 +207,8 @@ public class StringUtils
             String separator = ((tbeg>0) ? (tend>tbeg ? template.substring(tbeg+1, tend) : DEFAULT_ITEM_SEPARATOR) : template);
             StringBuilder buf = new StringBuilder();
             if (tend>0)
-                buf.append(template.substring(0, tbeg));
+                buf.append(template.substring(0, tbeg)); // add template prefix
+            boolean isEmpty = true;
             boolean hasValue = false;
             for (int i = 0; i < array.length; i++)
             {   // append separator
@@ -216,11 +217,14 @@ public class StringUtils
                 // append value
                 String value = toString(array[i], template, defItemValue);
                 hasValue = !(ignoreEmpty && StringUtils.isEmpty(value));
+                isEmpty &= !hasValue;
                 if (hasValue && value!=null)
                     buf.append(value);
             }
+            if (hasValue==false && !isEmpty && separator!=null)
+                buf.setLength(buf.length()-separator.length()); // remove last separator
             if (tend>0)
-                buf.append(template.substring(tend+1));
+                buf.append(template.substring(tend+1)); // add template suffix
             return buf.toString();
         }
         // Only one member
@@ -276,7 +280,8 @@ public class StringUtils
             String separator = ((tbeg>0) ? (tend>tbeg ? template.substring(tbeg+1, tend) : DEFAULT_ITEM_SEPARATOR) : template);
             StringBuilder buf = new StringBuilder();
             if (tend>0)
-                buf.append(template.substring(0, tbeg));
+                buf.append(template.substring(0, tbeg)); // add template prefix
+            boolean isEmpty = true;
             boolean hasValue = false;
             for (Object item : list)
             {   // append separator
@@ -285,11 +290,14 @@ public class StringUtils
                 // append value
                 String value = toString(item, template, defItemValue);
                 hasValue = !(ignoreEmpty && StringUtils.isEmpty(value));
+                isEmpty &= !hasValue;
                 if (hasValue && value!=null)
                     buf.append(value);
             }
+            if (hasValue==false && !isEmpty && separator!=null)
+                buf.setLength(buf.length()-separator.length()); // remove last separator
             if (tend>0)
-                buf.append(template.substring(tend+1));
+                buf.append(template.substring(tend+1)); // add template suffix
             return buf.toString();
         }
         // Only one member
