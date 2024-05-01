@@ -589,9 +589,14 @@ public final class ObjectUtils
             return ((Boolean)v).booleanValue();
         if (v instanceof Number)
             return (((Number)v).intValue()!=0);
-        // parse String for boolean value
-        String  val = v.toString(); 
-        return (val.equalsIgnoreCase("Y") || val.equalsIgnoreCase("true"));
+        if (v instanceof String) {
+            String val = ((String)v);
+            if (StringUtils.isEmpty(val))
+                return defValue;
+            // check for allowed true values
+            return (val.equalsIgnoreCase("true") || val.equalsIgnoreCase("Y"));
+        }
+        return defValue;
     }
     
     /**
