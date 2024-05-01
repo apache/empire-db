@@ -49,11 +49,11 @@ public class StringUtilsTest
 	public void testToStringObjectArrayString()
 	{
 		assertEquals(null,StringUtils.toString((Object[])null));
-        assertEquals("",StringUtils.toString(new Number[]{}));
+        assertEquals(null,StringUtils.toString(new Number[]{}));
         assertEquals("",StringUtils.toString(new Number[]{null}));
         assertEquals("null",StringUtils.toString(new Number[]{null}, StringUtils.NULL));
 		assertEquals("default",StringUtils.toString((Object[])null, "default"));
-		assertEquals("",StringUtils.toString(new Number[]{}, "default"));
+		assertEquals("default",StringUtils.toString(new Number[]{}, "default"));
         assertEquals("default",StringUtils.toString(new Number[]{null}, "default"));
         assertEquals("123",StringUtils.toString(new Number[]{Integer.valueOf("123")}, "default"));
 		assertEquals("123|12.3",StringUtils.toString(new Number[]{Integer.valueOf("123"), Double.valueOf("12.3")}, "default"));
@@ -74,7 +74,7 @@ public class StringUtilsTest
     public void testToStringCollections()
     {
         ArrayList<String> array = new ArrayList<String>();
-        assertEquals("", StringUtils.toString(array, null));
+        assertEquals(null, StringUtils.toString(array, null));
         array.add(null);
         assertEquals("", StringUtils.toString(array, null));
         assertEquals("null", StringUtils.toString(array, StringUtils.NULL));
@@ -88,13 +88,18 @@ public class StringUtilsTest
         array.add("end");
         assertEquals("one|default|end",StringUtils.toString(array, "default"));
         assertEquals("one||end",StringUtils.listToString(array, "|", StringUtils.EMPTY));
+        // Special case with SPACE
+        assertEquals("one end",StringUtils.listToString(array, StringUtils.SPACE, StringUtils.EMPTY));
+        array.clear();
+        array.add("   ");
+        assertEquals("null",StringUtils.listToString(array, StringUtils.SPACE, StringUtils.NULL));
     }
 
 	@Test
 	public void testToStringObjectArray()
 	{
 		assertEquals(null,StringUtils.toString((Object[])null));
-		assertEquals("",StringUtils.toString(new Number[]{}));
+		assertEquals(null,StringUtils.toString(new Number[]{}));
 		assertEquals("123|12.3",StringUtils.toString(new Number[]{Integer.valueOf("123"), Double.valueOf("12.3")}));
 	}
 
@@ -140,14 +145,18 @@ public class StringUtilsTest
 	{
 		assertEquals(null, StringUtils.arrayToString(null , null));
 		assertEquals(null, StringUtils.arrayToString(null , "/"));
-		assertEquals("", StringUtils.arrayToString(new String[]{} , StringUtils.NULL));
-        assertEquals("null", StringUtils.arrayToString(new String[]{null} , StringUtils.NULL));
+		assertEquals(null, StringUtils.arrayToString(new String[]{} , StringUtils.NULL));
+        assertEquals("null", StringUtils.arrayToString(new String[]{null}, ",", StringUtils.NULL));
 		assertEquals("test", StringUtils.arrayToString(new String[]{"test"} , "|"));
 		assertEquals("12312.3", StringUtils.arrayToString(new Number[]{Integer.valueOf("123"), Double.valueOf("12.3")} , ""));
 		assertEquals("firstsecondthird", StringUtils.arrayToString(new String[]{"first", "second", "third"} , null));
 		assertEquals(" first \t second \t third ", StringUtils.arrayToString(new String[]{" first ", " second ", " third "} , "\t"));
-		assertEquals("null/null", StringUtils.arrayToString(new String[]{null, null} , "/"));
-		assertEquals("null", StringUtils.arrayToString(new String[]{null} , "/"));
+        assertEquals("/", StringUtils.arrayToString(new String[]{null, null} , "/"));
+        assertEquals("null/null", StringUtils.arrayToString(new String[]{null, null} , "/", StringUtils.NULL));
+		assertEquals("null", StringUtils.arrayToString(new String[]{null} , "/", StringUtils.NULL));
+        // Special case with SPACE
+        assertEquals("Hello World", StringUtils.arrayToString(new Object[]{"Hello","",null," ","World"}, StringUtils.SPACE));
+        assertEquals("Hello World", StringUtils.toString(new Object[]{"Hello","",null," ","World"}, StringUtils.SPACE, null));
 	}
 
 	@Test

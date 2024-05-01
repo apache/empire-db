@@ -20,6 +20,7 @@ package org.apache.empire.jsf2.app;
 
 import java.io.File;
 import java.io.IOException;
+import java.text.MessageFormat;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -407,6 +408,13 @@ public class FacesUtils
         return getMessage(getContext(), messageKey);
     }
 
+    public static String formatMessage(String msgKey, Object... params)
+    {
+        TextResolver tr = getTextResolver(FacesContext.getCurrentInstance());
+        String pattern = tr.resolveKey(msgKey);
+        return MessageFormat.format(pattern, params);
+    }
+
     /*
     public static void addInfoMessage(FacesContext fc, String clientId, String msg)
     {
@@ -480,7 +488,7 @@ public class FacesUtils
         // redirect to target page
         FacesMessage facesMsg = getFacesErrorMessage(fc, t);
         ExternalContext ec = fc.getExternalContext();
-        ec.getSessionMap().put("PAGE_SESSION_MESSAGE", facesMsg);
+        ec.getSessionMap().put(Page.SESSION_MESSAGE, facesMsg);
         // redirect
         FacesUtils.redirectDirectly(fc, pageTarget);
     }

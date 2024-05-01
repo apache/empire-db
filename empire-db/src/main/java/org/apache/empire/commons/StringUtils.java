@@ -192,14 +192,13 @@ public class StringUtils
      * @param array array of objects
      * @param template the list template or item separator
      * @param defItemValue the default item value
+     * @param ignoreEmpty check value for emptiness
      * @return returns a String or null if the array is null or empty
      */
-    public static String arrayToString(Object[] array, String template, String defItemValue)
+    public static String arrayToString(Object[] array, String template, String defItemValue, boolean ignoreEmpty)
     {
-        if (array == null)
+        if (array==null || array.length==0)
             return null;
-        if (array.length < 1)
-            return EMPTY;
         // check 
         int tbeg = (template!=null ? template.indexOf(TEMPLATE_SEP_CHAR) : -1);
         if (array.length>1 || tbeg>0)
@@ -209,18 +208,39 @@ public class StringUtils
             StringBuilder buf = new StringBuilder();
             if (tend>0)
                 buf.append(template.substring(0, tbeg));
+            boolean hasValue = false;
             for (int i = 0; i < array.length; i++)
-            {   // append item
-                if (i>0 && separator!=null)
+            {   // append separator
+                if (hasValue && separator!=null)
                     buf.append(separator);
-                buf.append(toString(array[i], template, defItemValue));
+                // append value
+                String value = toString(array[i], template, defItemValue);
+                hasValue = !(ignoreEmpty && StringUtils.isEmpty(value));
+                if (hasValue && value!=null)
+                    buf.append(value);
             }
             if (tend>0)
                 buf.append(template.substring(tend+1));
             return buf.toString();
         }
         // Only one member
-        return toString(array[0], template, defItemValue);
+        String value = toString(array[0], template, defItemValue);
+        if (ignoreEmpty && StringUtils.isEmpty(value))
+            return defItemValue;
+        return value;
+    }
+    
+    /**
+     * Converts an array of objects to a string.
+     * 
+     * @param array array of objects
+     * @param template the list template or item separator
+     * @param defItemValue the default item value
+     * @return returns a String or null if the array is null or empty
+     */
+    public static String arrayToString(Object[] array, String template, String defItemValue)
+    {
+        return arrayToString(array, template, defItemValue, SPACE.equals(template));
     }
 
     /**
@@ -232,7 +252,51 @@ public class StringUtils
      */
     public static String arrayToString(Object[] array, String separator)
     {
-        return arrayToString(array, separator, NULL);
+        return arrayToString(array, separator, EMPTY);
+    }
+    
+    /**
+     * Converts a list (Collection) of objects to a string.
+     * 
+     * @param list the collection of objects
+     * @param template the list template or item separator
+     * @param defItemValue the default item value
+     * @param ignoreEmpty check value for emptiness
+     * @return returns a String or null if the list is null
+     */
+    public static String listToString(Collection<?> list, String template, String defItemValue, boolean ignoreEmpty)
+    {
+        if (list==null || list.isEmpty())
+            return null;
+        // check 
+        int tbeg = (template!=null ? template.indexOf(TEMPLATE_SEP_CHAR) : -1);
+        if (list.size()>1 || tbeg>0)
+        {   // build the list
+            int tend =(tbeg>=0 ? template.lastIndexOf(TEMPLATE_SEP_CHAR) : -1);
+            String separator = ((tbeg>0) ? (tend>tbeg ? template.substring(tbeg+1, tend) : DEFAULT_ITEM_SEPARATOR) : template);
+            StringBuilder buf = new StringBuilder();
+            if (tend>0)
+                buf.append(template.substring(0, tbeg));
+            boolean hasValue = false;
+            for (Object item : list)
+            {   // append separator
+                if (hasValue && separator!=null)
+                    buf.append(separator);
+                // append value
+                String value = toString(item, template, defItemValue);
+                hasValue = !(ignoreEmpty && StringUtils.isEmpty(value));
+                if (hasValue && value!=null)
+                    buf.append(value);
+            }
+            if (tend>0)
+                buf.append(template.substring(tend+1));
+            return buf.toString();
+        }
+        // Only one member
+        String value = toString(list.iterator().next(), template, defItemValue);
+        if (ignoreEmpty && StringUtils.isEmpty(value))
+            return defItemValue;
+        return value;
     }
     
     /**
@@ -245,32 +309,7 @@ public class StringUtils
      */
     public static String listToString(Collection<?> list, String template, String defItemValue)
     {
-        if (list == null)
-            return null;
-        if (list.isEmpty())
-            return EMPTY;
-        // check 
-        int tbeg = (template!=null ? template.indexOf(TEMPLATE_SEP_CHAR) : -1);
-        if (list.size()>1 || tbeg>0)
-        {   // build the list
-            int count=0;
-            int tend =(tbeg>=0 ? template.lastIndexOf(TEMPLATE_SEP_CHAR) : -1);
-            String separator = ((tbeg>0) ? (tend>tbeg ? template.substring(tbeg+1, tend) : DEFAULT_ITEM_SEPARATOR) : template);
-            StringBuilder buf = new StringBuilder();
-            if (tend>0)
-                buf.append(template.substring(0, tbeg));
-            for (Object item : list)
-            {   // append item
-                if (count++>0 && separator!=null)
-                    buf.append(separator);
-                buf.append(toString(item, template, defItemValue));
-            }
-            if (tend>0)
-                buf.append(template.substring(tend+1));
-            return buf.toString();
-        }
-        // Only one member
-        return toString(list.iterator().next(), template, defItemValue);
+        return listToString(list, template, defItemValue, SPACE.equals(template));
     }
     
     /**
@@ -282,7 +321,7 @@ public class StringUtils
      */
     public static String listToString(Collection<?> list, String separator)
     {
-        return listToString(list, separator, NULL);
+        return listToString(list, separator, EMPTY);
     }
 
     /**
