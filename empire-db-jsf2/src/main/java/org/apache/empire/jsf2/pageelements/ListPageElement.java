@@ -345,6 +345,16 @@ public abstract class ListPageElement<T> extends PageElement
             return (this.pageSize > 0);
         }
 
+        public boolean isFirstPage()
+        {
+            return (isValid() && isAllowPagination() && this.position==0);
+        }
+
+        public boolean isLastPage()
+        {
+            return (isValid() && isAllowPagination() && this.position + this.pageSize >= this.itemCount);
+        }
+
         public boolean isHasNextPage()
         {
             if (isValid() && isAllowPagination())
@@ -404,6 +414,46 @@ public abstract class ListPageElement<T> extends PageElement
                 this.position = 0;
             }
             // modified
+            this.modified = true;
+        }
+
+        /**
+         * set the next x entries
+         * @param e the action event
+         */
+        public void firstPage(ActionEvent e)
+        {
+            if (!isAllowPagination())
+            {
+                throw new NotSupportedException(this, "nextPage");
+            }
+            // Check
+            if (this.position==0)
+            {
+                return; // Already on first Page
+            }
+            // First page
+            this.position = 0;
+            this.modified = true;
+        }
+
+        /**
+         * set the next x entries
+         * @param e the action event
+         */
+        public void lastPage(ActionEvent e)
+        {
+            if (!isAllowPagination())
+            {
+                throw new NotSupportedException(this, "nextPage");
+            }
+            // Check 
+            if (this.position == this.itemCount - this.pageSize)
+            {
+                return; // Already on last page
+            }
+            // One page forward
+            this.position = this.itemCount - this.pageSize;
             this.modified = true;
         }
 

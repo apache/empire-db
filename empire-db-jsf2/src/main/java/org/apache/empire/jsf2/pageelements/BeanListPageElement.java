@@ -319,9 +319,9 @@ public class BeanListPageElement<T> extends ListPageElement<T> implements ListIt
 
     /**
      * loads all visible list items from the database
-     * @param initScrollbar flag whether to init the scrollbar
+     * @param initialize flag whether to initialize or update the pagination / scrollbar
      */
-    protected void loadItems(boolean initScrollbar)
+    protected void loadItems(boolean initialize)
     {
         // DBReader
         BeanListTableInfo lti = (BeanListTableInfo) getTableInfo();
@@ -416,7 +416,7 @@ public class BeanListPageElement<T> extends ListPageElement<T> implements ListIt
             // Pagination
             if (lti.isAllowPagination())
             { // Scrollbar   
-                if (initScrollbar)
+                if (initialize)
                     initScrollbar();
                 else
                     updateScrollbar();
@@ -472,13 +472,14 @@ public class BeanListPageElement<T> extends ListPageElement<T> implements ListIt
         }
     }
     
-    /* Scrollbar relacted functions */
+    /* Scrollbar related functions */
 
     /**
-     * addJavascriptCall to initScrollbar
+     * Allows to initialize the scrollbar (if present)
      */
     public void initScrollbar()
     {
+        /*
         ListTableInfo lti = getTableInfo();
         // init Scrollbar on page
         int max = lti.getItemCount() - lti.getPageSize();
@@ -499,13 +500,15 @@ public class BeanListPageElement<T> extends ListPageElement<T> implements ListIt
         b.append(String.valueOf(lti.getPageSize()));
         b.append(");");
         getPage().addJavascriptCall(b.toString());
+        */
     }
 
     /**
-     * addJavascriptCall to updateScrollbar
+     * Allows to update the scrollbar (if present)
      */
     public void updateScrollbar()
     {
+        /*
         int pos = getScrollbarPosition();
         StringBuilder b = new StringBuilder();
         b.append("updateScrollbar('");
@@ -514,6 +517,7 @@ public class BeanListPageElement<T> extends ListPageElement<T> implements ListIt
         b.append(String.valueOf(pos));
         b.append(");");
         getPage().addJavascriptCall(b.toString());
+        */
     }
 
     public int getScrollbarPosition()
