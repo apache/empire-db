@@ -280,16 +280,15 @@ public class SelectInputControl extends InputControl
                 return;
             }
             if (ObjectUtils.compareEqual(ov, oe.getValue()))
-            { // next
-                si.setLabel(oe.getText());
+            {   // update label and continue
+                setItemLabel(si, textResolver, oe);
                 oe = (ioe.hasNext() ? ioe.next() : null);
                 continue;
             }
             // Not equal - do a full reload
             input.getChildren().clear();
             if (hasEmpty)
-            {
-                // add empty entry
+            {   // add empty entry
                 addSelectItem(input, textResolver, new OptionEntry("", getNullText(ii)));
             }
             for (OptionEntry opt : options)
@@ -319,7 +318,7 @@ public class SelectInputControl extends InputControl
     }
     
     @SuppressWarnings("unchecked")
-    public void addSelectItem(UIComponent input, TextResolver textResolver, OptionEntry e, int pos)
+    public void addSelectItem(UIComponent input, TextResolver textResolver, OptionEntry oe, int pos)
     {
         List<UIComponent> children = input.getChildren();
         // UISelectItems
@@ -342,19 +341,17 @@ public class SelectInputControl extends InputControl
         Object valueExpressionFlag = input.getAttributes().get(SelectInputControl.VALUE_EXPRESSION_FLAG);
         if (ObjectUtils.getBoolean(valueExpressionFlag))
         { // Use formatted value
-            value = formatInputValue(e.getValue());
+            value = formatInputValue(oe.getValue());
         }
         else
         { // Convert to String
-            value = e.getValueString();
+            value = oe.getValueString();
         }
         // create and add item
         SelectItem selectItem = new SelectItem();
         selectItem.setValue(value);
         // set text
-        String text = e.getText();
-        text = textResolver.resolveText(text);
-        selectItem.setLabel(text);
+        setItemLabel(selectItem, textResolver, oe);
         // add item
         if (pos>=0)
             list.add(pos, selectItem);
@@ -365,6 +362,17 @@ public class SelectInputControl extends InputControl
     public void addSelectItem(UIComponent input, TextResolver textResolver, OptionEntry e)
     {
         addSelectItem(input, textResolver, e, -1);
+    }
+    
+    protected void setItemLabel(SelectItem si, TextResolver textResolver, OptionEntry oe)
+    {
+        String text = oe.getText();
+        // only update if text is not a message key
+        if (si.getLabel()!=null && text!=null && text.startsWith(TextResolver.MSG_KEY_INDICATOR))
+            return;
+        // set label
+        text = textResolver.resolveText(text);
+        si.setLabel(text);
     }
     
     protected String getNullText(InputInfo ii)
