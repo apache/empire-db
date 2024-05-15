@@ -174,6 +174,9 @@ public class FacesConfiguration
     {
         log.debug("Init FacesParams...");
         initFacesParams();
+        
+        log.debug("Init Factories...");
+        initFactories();
 
         log.debug("Init NavigationHandler...");
         initNavigationHandler();
@@ -209,6 +212,18 @@ public class FacesConfiguration
     protected void initFacesParams()
     {   // set params
         setFacesInitParam(ViewHandler.FACELETS_SKIP_COMMENTS_PARAM_NAME, true);
+    }
+
+    protected void initFactories()
+    {
+        // Noting yet
+        /* example
+         *  log.info("Setting Factory {}", FactoryFinder.TAG_HANDLER_DELEGATE_FACTORY);
+            FactoryFinder.setFactory(FactoryFinder.TAG_HANDLER_DELEGATE_FACTORY, CustomTagHandlerDelegateFactory.class.getName());
+            // (check)
+            // TagHandlerDelegateFactory tagHandlerFactory = (TagHandlerDelegateFactory)FactoryFinder.getFactory(FactoryFinder.TAG_HANDLER_DELEGATE_FACTORY);
+            // log.info(tagHandlerFactory.getClass().getName());
+         */
     }
     
     protected void initNavigationHandler()
