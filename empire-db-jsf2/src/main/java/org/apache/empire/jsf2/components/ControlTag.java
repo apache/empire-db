@@ -329,7 +329,7 @@ public class ControlTag extends UIInput implements NamingContainer
             ResponseWriter writer = context.getResponseWriter();
             writer.startElement(renderInfo.CONTROL_TAG, this);
             // render id
-            helper.writeComponentId(writer, renderInfo.RENDER_AUTO_ID);
+            helper.writeComponentId(writer, false);
             // style class
             String controlClass = helper.getTagAttributeStringEx("controlClass"); 
             String styleClass   = helper.getControlContextStyleClass(); 
@@ -435,6 +435,23 @@ public class ControlTag extends UIInput implements NamingContainer
         id = helper.completeInputTagId(id); 
         // set
         super.setId(id);
+    }
+
+    @Override
+    public void setParent(UIComponent parent)
+    {
+        super.setParent(parent);
+        // check
+        if (helper.hasComponentId())
+            return;
+        if (this.renderInfo==null) {
+            this.renderInfo=helper.getControlRenderInfo();
+            if (this.renderInfo!=null && this.renderInfo.AUTO_CONTROL_ID!=null) {
+                String compId = helper.completeInputTagId(this.renderInfo.AUTO_CONTROL_ID.toString());
+                log.warn("Auto-Setting compontent id for control to {}", compId);
+                super.setId(compId);
+            }
+        }
     }
 
     @Override

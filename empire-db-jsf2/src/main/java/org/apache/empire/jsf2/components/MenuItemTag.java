@@ -109,7 +109,7 @@ public class MenuItemTag extends LinkTag
         writer.startElement("li", this);
         
         //Compoent-ID
-        helper.writeComponentId(writer, false);
+        helper.writeComponentId(writer);
         
         // Style Class
         helper.writeAttribute(writer, "class", getStyleClass());

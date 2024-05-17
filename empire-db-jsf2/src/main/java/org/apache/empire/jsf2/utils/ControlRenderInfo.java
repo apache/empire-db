@@ -32,20 +32,20 @@ public class ControlRenderInfo
     {
         public DefaultControlRenderInfo()
         {
-            super(null, InputControl.HTML_TAG_TD, InputControl.HTML_TAG_TD, true);
+            super(null, InputControl.HTML_TAG_TD, InputControl.HTML_TAG_TD, null);
         }
     }
     
     public final String CONTROL_TAG;
     public final String LABEL_WRAPPER_TAG;
     public final String INPUT_WRAPPER_TAG;
-    public final boolean RENDER_AUTO_ID;
+    public final Character AUTO_CONTROL_ID;
     
-    public ControlRenderInfo(String controlTag, String labelTag, String inputTag, boolean renderAutoId)
+    public ControlRenderInfo(String controlTag, String labelTag, String inputTag, Character autoControlId)
     {
         this.CONTROL_TAG = StringUtils.nullIfEmpty(controlTag);
         this.LABEL_WRAPPER_TAG = StringUtils.nullIfEmpty(labelTag);
         this.INPUT_WRAPPER_TAG = StringUtils.nullIfEmpty(inputTag);
-        this.RENDER_AUTO_ID = renderAutoId;
+        this.AUTO_CONTROL_ID = autoControlId;
     }
 }

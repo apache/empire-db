@@ -20,6 +20,7 @@ package org.apache.empire.jsf2.utils;
 
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Locale;
 import java.util.Set;
@@ -50,9 +51,9 @@ import org.apache.empire.commons.Unwrappable;
 import org.apache.empire.data.Column;
 import org.apache.empire.data.ColumnExpr;
 import org.apache.empire.data.DataType;
+import org.apache.empire.data.EntityType;
 import org.apache.empire.data.Record;
 import org.apache.empire.data.RecordData;
-import org.apache.empire.db.DBColumn;
 import org.apache.empire.db.DBDatabase;
 import org.apache.empire.db.DBRecordBase;
 import org.apache.empire.db.DBRowSet;
@@ -117,6 +118,13 @@ public class TagEncodingHelper implements NamingContainer
         public Class<Enum<?>> getEnumType()
         {
             return expr.getEnumType();
+        }
+        
+        @Override
+        public EntityType getEntityType()
+        {
+            Column column = getUpdateColumn();
+            return (column!=null ? column.getEntityType() : null);
         }
 
         @Override
@@ -494,31 +502,48 @@ public class TagEncodingHelper implements NamingContainer
         checkRecord();
     }
     
-    protected static final String PH_COLUMN_NAME = "@";  // placeholder for column name
-    protected static final String PH_COLUMN_FULL = "&";  // placeholder for column full name including table
+    public static final char PH_COLUMN_NAME  = '@';  // placeholder for column name
+    public static final char PH_COLUMN_FULL  = '$';  // placeholder for column full name including table
+    public static final char PH_COLUMN_SMART = '*';  // placeholder for column name smart mode
+    public static final char[] ALLOWED_COLUMN_PH = new char[] { PH_COLUMN_NAME, PH_COLUMN_FULL, PH_COLUMN_SMART };
+    public static final Set<String> SMART_COLUMN_NAME_SET;
+    static {
+        SMART_COLUMN_NAME_SET = new HashSet<String>();
+        SMART_COLUMN_NAME_SET.add("ID");
+        SMART_COLUMN_NAME_SET.add("NAME");
+        SMART_COLUMN_NAME_SET.add("STATUS");
+    }
 
     public String completeInputTagId(String id)
     {
         // EmptyString or AT
-        if (StringUtils.isEmpty(id) || PH_COLUMN_NAME.equals(id))
-            return getColumnName();
+        if (StringUtils.isEmpty(id))
+            id = "*"; // Smart
+        else if (id.startsWith(FACES_ID_PREFIX))
+            return id; // Faces-Auto-ID
         // replace placeholder
-        if (id.indexOf(PH_COLUMN_NAME)>=0)
+        int idx;
+        String name;
+        if ((idx=id.indexOf(PH_COLUMN_NAME))>=0)
         {   // column name only
-            id = id.replace(PH_COLUMN_NAME, getColumnName());
+            name = getColumnName();
         }
-        else if (id.indexOf(PH_COLUMN_FULL)>=0) 
+        else if ((idx=id.indexOf(PH_COLUMN_SMART))>=0)
+        {   // column name only
+            name = getColumnName();
+            if (SMART_COLUMN_NAME_SET.contains(name))
+                name= getColumnFullName();
+        }
+        else if ((idx=id.indexOf(PH_COLUMN_FULL))>=0) 
         {   // column full name including table
-            String name= null;
-            if (column==null)
-                column = findColumn();
-            if (column instanceof DBColumn)
-                name = ((DBColumn)column).getFullName().replace('.', '_');
-            else if (column!=null)
-                name = column.getName();
-            id = id.replace(PH_COLUMN_FULL, String.valueOf(name));
+            name= getColumnFullName();
+        }
+        else 
+        {   // No placeholder
+            return id;
         }
         // done 
+        id = (id.length()>1 ? StringUtils.concat(id.substring(0, idx), name, id.substring(idx+1)) : name); 
         return id;
     }
     
@@ -675,7 +700,21 @@ public class TagEncodingHelper implements NamingContainer
         // don't use hasColumn() or getColumn() here!
         if (column==null)
             column = findColumn(); 
-        return (column!=null ? column.getName() : "null");
+        return (column!=null ? column.getName() : StringUtils.NULL);
+    }
+    
+    public String getColumnFullName()
+    {
+        if (column==null)
+            column = findColumn();
+        if (column==null)
+            return StringUtils.NULL;
+        // Find Entity
+        EntityType entity = column.getEntityType();
+        if (entity!=null)
+            return StringUtils.concat(entity.getEntityName(), "_", column.getName());
+        // No Entity
+        return column.getName();
     }
 
     public void setColumn(Column column)
@@ -1547,6 +1586,12 @@ public class TagEncodingHelper implements NamingContainer
         if (renderAutoId || hasComponentId())
             writer.writeAttribute(InputControl.HTML_ATTR_ID, component.getClientId(), null);
     }
+    
+    public void writeComponentId(ResponseWriter writer)
+            throws IOException
+    {
+        writeComponentId(writer, (component instanceof NamingContainer));
+    }
 
     public void writeStyleClass(ResponseWriter writer, String... styleClasses)
         throws IOException
@@ -1581,7 +1626,7 @@ public class TagEncodingHelper implements NamingContainer
         writer.startElement(tagName, this.component);
         // render id
         if (renderId)
-            writeComponentId(writer, false);
+            writeComponentId(writer);
         // style class
         String wrapCtxClass = (renderValue ? "eWrapVal" : "eWrapInp");
         writeStyleClass(writer, wrapCtxClass, nullIf(wrapperClass, '-'));

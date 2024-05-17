@@ -20,13 +20,12 @@ package org.apache.empire.jsf2.components;
 
 import java.io.IOException;
 
-import javax.faces.component.NamingContainer;
 import javax.faces.component.UINamingContainer;
 import javax.faces.component.UIOutput;
 import javax.faces.context.FacesContext;
 import javax.faces.context.ResponseWriter;
 
-import org.apache.empire.commons.ObjectUtils;
+import org.apache.empire.commons.StringUtils;
 import org.apache.empire.jsf2.controls.InputControl;
 import org.apache.empire.jsf2.utils.ControlRenderInfo;
 import org.apache.empire.jsf2.utils.TagEncodingHelper;
@@ -35,7 +34,7 @@ import org.apache.empire.jsf2.utils.TagStyleClass;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class FormGridTag extends UIOutput implements NamingContainer
+public class FormGridTag extends UIOutput // implements NamingContainer
 {
     // Logger
     private static final Logger log = LoggerFactory.getLogger(FormGridTag.class);
@@ -112,7 +111,7 @@ public class FormGridTag extends UIOutput implements NamingContainer
         ResponseWriter writer = context.getResponseWriter();
         writer.startElement(mode.GRID_TAG, this);
         // id
-        helper.writeComponentId(writer, getControlRenderInfo().RENDER_AUTO_ID);
+        helper.writeComponentId(writer);
         // style class
         helper.writeStyleClass(writer);
         helper.writeAttribute(writer, InputControl.HTML_ATTR_STYLE, helper.getTagAttributeString("style"));
@@ -150,10 +149,21 @@ public class FormGridTag extends UIOutput implements NamingContainer
         // check mode
         if (this.mode==null)
             this.mode = FormGridMode.detect(helper.getTagAttributeString("mode", FormGridMode.GRID.name())); 
-        // additional
-        boolean renderAutoId = ObjectUtils.getBoolean(helper.getTagAttributeString("renderAutoId"));
+        // autoControlId
+        Character autoControlId = null;
+        Object autoId = helper.getTagAttributeString("autoControlId");
+        if (autoId!=null)
+        {   // check
+            String id = autoId.toString();
+            if ("true".equalsIgnoreCase(id))
+                autoControlId = TagEncodingHelper.PH_COLUMN_SMART;
+            else if (id.length()==1 && StringUtils.indexOfAny(id, TagEncodingHelper.ALLOWED_COLUMN_PH)>=0)
+                autoControlId = id.charAt(0);
+            else if (!"false".equalsIgnoreCase(id))
+                log.warn("FormGridTag: Invalid value \"{}\" for attribute \"autoControlId\". Allowed values are *|@|&", id);
+        }
         // create control info
-        this.controlRenderInfo = new ControlRenderInfo(mode.CONTROL_TAG, mode.LABEL_TAG, mode.INPUT_TAG, renderAutoId);
+        this.controlRenderInfo = new ControlRenderInfo(mode.CONTROL_TAG, mode.LABEL_TAG, mode.INPUT_TAG, autoControlId);
         return controlRenderInfo;
     }
 }

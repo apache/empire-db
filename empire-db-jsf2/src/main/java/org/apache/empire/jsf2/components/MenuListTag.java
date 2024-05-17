@@ -82,7 +82,7 @@ public class MenuListTag extends UIOutput // implements NamingContainer
         writer.startElement("ul", this);
         
         //Compoent-ID
-        helper.writeComponentId(writer, false);
+        helper.writeComponentId(writer);
         
         // Style class and style
         helper.writeAttribute(writer, "class", getStyleClass());
