@@ -26,6 +26,7 @@ import org.apache.empire.commons.ObjectUtils;
 import org.apache.empire.commons.Options;
 import org.apache.empire.data.Column;
 import org.apache.empire.data.DataType;
+import org.apache.empire.data.EntityType;
 import org.apache.empire.db.exceptions.FieldNotNullException;
 
 /**
@@ -94,6 +95,12 @@ public class BeanProperty implements Column
         this(name, dataType, size, required, "text", false);
     }
 
+    @Override
+    public EntityType getEntityType()
+    {
+        return beanClass;
+    }
+    
     /**
      * Returns the name of the property.
      * @return the property name

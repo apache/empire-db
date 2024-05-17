@@ -187,6 +187,48 @@ public class StringUtils
     }
 
     /**
+     * Returns the first index of any of the given characters in value starting from the beginning 
+     * 
+     * @param value the value to check
+     * @param chars the characters to search
+     * @return the index 
+     */
+    public static int indexOfAny(String value, char... chars)
+    {
+        if (value==null || chars.length==0)
+            return -1;
+        // search
+        for (int i=0; i<value.length(); i++) {
+            char c = value.charAt(i);
+            for (int j=0; j<chars.length; j++)
+                if (c==chars[j])
+                    return i;
+        }
+        return -1; // Not found
+    }
+
+    /**
+     * Returns the first index of any of the given characters in value starting from the end 
+     * 
+     * @param value the value to check
+     * @param chars the characters to search
+     * @return the index 
+     */
+    public static int lastIndexOfAny(String value, char... chars)
+    {
+        if (value==null || chars.length==0)
+            return -1;
+        // search
+        for (int i=value.length(); i>=0; i--) {
+            char c = value.charAt(i);
+            for (int j=0; j<chars.length; j++)
+                if (c==chars[j])
+                    return i;
+        }
+        return -1; // Not found
+    }
+
+    /**
      * Converts an array of objects to a string.
      * 
      * @param array array of objects

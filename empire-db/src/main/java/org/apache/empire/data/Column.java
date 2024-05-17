@@ -53,6 +53,12 @@ public interface Column extends ColumnExpr
     public static final String COLATTR_DATETIMEPATTERN  = "dateTimePattern";        // default is yyyy-MM-dd HH:mm:ss
 
     /**
+     * Returns the EntityType that this Column belongs to
+     * @return the EntityType if any
+     */
+    EntityType getEntityType();    
+    
+    /**
      * Returns the maximum size a value for this column is allowed to have.
      * <P>
      * For the data type DECIMAL the size defines the scale and precision of the value.

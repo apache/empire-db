@@ -26,6 +26,7 @@ import org.apache.empire.commons.Options;
 import org.apache.empire.commons.StringUtils;
 import org.apache.empire.data.Column;
 import org.apache.empire.data.DataType;
+import org.apache.empire.data.EntityType;
 import org.apache.empire.db.exceptions.DatabaseNotOpenException;
 import org.apache.empire.db.expr.column.DBValueExpr;
 import org.apache.empire.db.expr.set.DBSetExpr;
@@ -271,7 +272,17 @@ public abstract class DBColumn extends DBColumnExpr
     {
         return rowset;
     }
-
+    
+    /**
+     * Returns the Entity Type
+     * Same as getRowSet()
+     */
+    @Override
+    public EntityType getEntityType()
+    {
+        return rowset;
+    }
+    
     /**
      * Returns itself as the underlying column.
      */
