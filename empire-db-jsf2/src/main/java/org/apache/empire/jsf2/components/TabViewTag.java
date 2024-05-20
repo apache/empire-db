@@ -211,7 +211,7 @@ public class TabViewTag extends UIOutput // implements NamingContainer
         // render components
         ResponseWriter writer = context.getResponseWriter();
         writer.startElement(InputControl.HTML_TAG_DIV, this);
-        helper.writeComponentId(writer);
+        helper.writeComponentId(writer, true); /* must always render id! */
         helper.writeStyleClass(writer);
         // style
         String style = this.helper.getTagAttributeString("style");
