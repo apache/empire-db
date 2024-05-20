@@ -41,7 +41,7 @@ public class TextAreaInputControl extends InputControl
 
     public static final String FORMAT_ROWS = "rows:";
     public static final String FORMAT_ROWS_ATTRIBUTE = "format:rows";
-    
+
     private Class<? extends javax.faces.component.html.HtmlInputTextarea> inputComponentClass;
 
     public TextAreaInputControl(String name, Class<? extends HtmlInputTextarea> inputComponentClass)
@@ -59,14 +59,15 @@ public class TextAreaInputControl extends InputControl
     public void renderValue(UIComponent comp, String tagName, String styleClass, String tooltip, ValueInfo vi, FacesContext context)
             throws IOException
     {
+        styleClass += " textarea";
         // cols
         int cols = getFormatInteger(vi, FORMAT_COLS, FORMAT_COLS_ATTRIBUTE);
         if (cols>0)
-            styleClass += " cols"+String.valueOf(cols);
+            styleClass += " cols-"+String.valueOf(cols);
         // rows
         int rows = getFormatInteger(vi, FORMAT_ROWS, FORMAT_ROWS_ATTRIBUTE);
         if (rows>0)
-            styleClass += " rows"+String.valueOf(rows);
+            styleClass += " rows-"+String.valueOf(rows);
         // render
         super.renderValue(comp, tagName, styleClass, tooltip, vi, context);
     }
@@ -83,12 +84,16 @@ public class TextAreaInputControl extends InputControl
         copyAttributes(parent, ii, input);
         // cols
         int cols = getFormatInteger(ii, FORMAT_COLS, FORMAT_COLS_ATTRIBUTE);
-        if (cols>0)
+        if (cols>0) {
             input.setCols(cols);
+            input.setStyleClass(input.getStyleClass()+" cols-"+String.valueOf(cols)); 
+        }
         // rows
         int rows = getFormatInteger(ii, FORMAT_ROWS, FORMAT_ROWS_ATTRIBUTE);
-        if (rows>0)
+        if (rows>0) {
             input.setRows(rows);
+            input.setStyleClass(input.getStyleClass()+" rows-"+String.valueOf(rows)); 
+        }
         // add
         compList.add(input);
         // update
