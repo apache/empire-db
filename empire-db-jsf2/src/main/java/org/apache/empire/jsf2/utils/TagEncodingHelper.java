@@ -1661,10 +1661,7 @@ public class TagEncodingHelper implements NamingContainer
     public ControlRenderInfo getControlRenderInfo()
     {
         FormGridTag formGrid = getFormGrid();
-        if (formGrid!=null)
-            return formGrid.getControlRenderInfo();
-        else
-            return ControlRenderInfo.DEFAULT_CONTROL_RENDER_INFO;
+        return (formGrid!=null) ? formGrid.getControlRenderInfo() : null;  
     }
 
     /* ********************** label ********************** */

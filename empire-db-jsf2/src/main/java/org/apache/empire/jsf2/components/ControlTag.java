@@ -281,6 +281,46 @@ public class ControlTag extends UIInput implements NamingContainer
         return (this.control != null && this.inpInfo != null);
     }
 
+    @Override
+    public String getId()
+    {
+        String compId = super.getId();
+        // Mojarra-Patch since Id might have been set to "null"
+        if ("null".equals(compId))
+            compId =  helper.completeInputTagId(null);
+        // done
+        return compId;
+    }
+    
+    @Override
+    public void setId(String id) 
+    {   // complete
+        id = helper.completeInputTagId(id); 
+        // set
+        super.setId(id);
+    }
+
+    @Override
+    public void setParent(UIComponent parent)
+    {
+        super.setParent(parent);
+        // check
+        if (helper.hasComponentId())
+            return;
+        if (this.renderInfo==null) {
+            /*
+             * Attention: Only works if FormGrid is a direct parent of the Control.
+             * Does not work, if other components are between the Control and the FormGrid.
+             */
+            this.renderInfo=helper.getControlRenderInfo();
+            if (this.renderInfo!=null && this.renderInfo.AUTO_CONTROL_ID!=null) {
+                String compId = helper.completeInputTagId(this.renderInfo.AUTO_CONTROL_ID.toString());
+                log.warn("Auto-Setting compontent id for control to {}", compId);
+                super.setId(compId);
+            }
+        }
+    }
+
     /**
      * remember original clientId
      * necessary only inside UIData
@@ -315,8 +355,11 @@ public class ControlTag extends UIInput implements NamingContainer
         super.encodeBegin(context);
         
         // renderInfo
-        if (this.renderInfo==null)
+        if (this.renderInfo==null) {
             this.renderInfo=helper.getControlRenderInfo();
+            if (this.renderInfo==null)
+                this.renderInfo=ControlRenderInfo.DEFAULT_CONTROL_RENDER_INFO;  // No FormGrid found. Use Default!
+        }
 
         // init
         helper.encodeBegin();
@@ -427,42 +470,6 @@ public class ControlTag extends UIInput implements NamingContainer
             ResponseWriter writer = context.getResponseWriter();
             writer.endElement(renderInfo.CONTROL_TAG);
         }
-    }
-    
-    @Override
-    public void setId(String id) 
-    {   // complete
-        id = helper.completeInputTagId(id); 
-        // set
-        super.setId(id);
-    }
-
-    @Override
-    public void setParent(UIComponent parent)
-    {
-        super.setParent(parent);
-        // check
-        if (helper.hasComponentId())
-            return;
-        if (this.renderInfo==null) {
-            this.renderInfo=helper.getControlRenderInfo();
-            if (this.renderInfo!=null && this.renderInfo.AUTO_CONTROL_ID!=null) {
-                String compId = helper.completeInputTagId(this.renderInfo.AUTO_CONTROL_ID.toString());
-                log.warn("Auto-Setting compontent id for control to {}", compId);
-                super.setId(compId);
-            }
-        }
-    }
-
-    @Override
-    public String getId()
-    {
-        String compId = super.getId();
-        // Mojarra-Patch since Id might have been set to "null"
-        if ("null".equals(compId))
-            compId =  helper.completeInputTagId(null);
-        // done
-        return compId;
     }
 
     @Override
