@@ -18,7 +18,6 @@
  */
 package org.apache.empire.jsf2.pageelements;
 
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -41,7 +40,6 @@ import org.apache.empire.dbms.DBMSHandler;
 import org.apache.empire.exceptions.InternalException;
 import org.apache.empire.exceptions.InvalidArgumentException;
 import org.apache.empire.exceptions.InvalidOperationException;
-import org.apache.empire.exceptions.NotSupportedException;
 import org.apache.empire.exceptions.ObjectNotValidException;
 import org.apache.empire.exceptions.UnexpectedReturnValueException;
 import org.apache.empire.jsf2.app.FacesUtils;
@@ -545,37 +543,6 @@ public class BeanListPageElement<T> extends ListPageElement<T> implements ListIt
         lti.setPosition((pos > 0 ? pos : 0));
     }
 
-    // @Override
-    public Set<Object[]> getSelectedItemKeys()
-    {
-        if (selectedItems == null)
-            return null;
-        // Get the set
-        Set<Object[]> items = new HashSet<Object[]>(selectedItems.size());
-        for (Object[] key : selectedItems)
-        {
-            items.add(key);
-        }
-        return items;
-    }
-
-    public void setSelectedItems(Set<Object[]> items)
-    {
-        if (selectedItems == null)
-            throw new NotSupportedException(this, "setSelectedItems");
-        // Get the set
-        selectedItems = new SelectionSet(items.size());
-        for (Object[] key : items)
-        {
-            if (key == null || key.length == 0)
-            {
-                log.warn("Cannot select Null-Object.");
-                continue;
-            }
-            selectedItems.add(key);
-        }
-    }
-
     protected void initListItems(List<?> items)
     {
         Column[] keyCols = rowset.getKeyColumns();
@@ -597,7 +564,7 @@ public class BeanListPageElement<T> extends ListPageElement<T> implements ListIt
         }
         if (item instanceof SelectableItem)
         {
-            ((SelectableItem) item).initSelect(key, this.selectedItems);
+            ((SelectableItem) item).initSelect(key, this.selectedItemKeys);
         }
     }
     

@@ -20,6 +20,7 @@ package org.apache.empire.jsf2.pageelements;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import javax.faces.event.ActionEvent;
 
@@ -46,7 +47,7 @@ public abstract class ListPageElement<T> extends PageElement
 
     protected List<T>           items            = null;
 
-    protected SelectionSet      selectedItems    = null;
+    protected SelectionSet      selectedItemKeys = null;
     
     /**
      * SelectionSet
@@ -510,7 +511,7 @@ public abstract class ListPageElement<T> extends PageElement
         // selectable
         if (ListPageElement.isSelectableItem(beanClass))
         {
-            this.selectedItems = new SelectionSet();
+            this.selectedItemKeys = new SelectionSet();
         }
     }
 
@@ -595,34 +596,34 @@ public abstract class ListPageElement<T> extends PageElement
 
     public void clearSelection()
     {
-        if (this.selectedItems != null)
+        if (this.selectedItemKeys != null)
         {
-            this.selectedItems.clear();
+            this.selectedItemKeys.clear();
         }
     }
 
     public boolean isHasSelection()
     {
-        if (this.selectedItems==null)
+        if (this.selectedItemKeys==null)
             return false;
         // Has selected Items
-        return (selectedItems.size()>0 || selectedItems.isInvertSelection());
+        return (selectedItemKeys.size()>0 || selectedItemKeys.isInvertSelection());
     }
 
     public int getSelectedItemCount()
     {
-        if (this.selectedItems==null)
+        if (this.selectedItemKeys==null)
             return 0;
         // Item count
-        return this.selectedItems.size();
+        return this.selectedItemKeys.size();
     }
 
     public List<T> getSelectedItems()
     {
-        if (this.selectedItems==null)
+        if (this.selectedItemKeys==null)
             throw new NotSupportedException(this, "getSelectedItems");
         // find all items
-        List<T> selection = new ArrayList<T>(this.selectedItems.size());
+        List<T> selection = new ArrayList<T>(this.selectedItemKeys.size());
         for (T item : getItems())
         {
             if (((SelectableItem)item).isSelected())
@@ -630,57 +631,79 @@ public abstract class ListPageElement<T> extends PageElement
         }
         return selection;
     }
+
+    public Set<Object[]> getSelectedItemKeys()
+    {
+        return selectedItemKeys;
+    }
+
+    public void setSelectedItems(Set<Object[]> items)
+    {
+        if (selectedItemKeys == null)
+            throw new NotSupportedException(this, "setSelectedItems");
+        // Get the set
+        selectedItemKeys = new SelectionSet(items.size());
+        for (Object[] key : items)
+        {
+            if (key == null || key.length == 0)
+            {
+                log.warn("Cannot select Null-Object.");
+                continue;
+            }
+            selectedItemKeys.add(key);
+        }
+    }
     
     public boolean isInvertSelection()
     {
-        if (this.selectedItems==null)
+        if (this.selectedItemKeys==null)
             return false;
         // Invert selection
-        return this.selectedItems.isInvertSelection();
+        return this.selectedItemKeys.isInvertSelection();
     }
 
     public void setInvertSelection(boolean invertSelection)
     {
-        if (this.selectedItems==null)
+        if (this.selectedItemKeys==null)
             throw new NotSupportedException(this, "setInvertSelection");
         // Invert
-        this.selectedItems.setInvertSelection(invertSelection);
+        this.selectedItemKeys.setInvertSelection(invertSelection);
     }
     
     public boolean isSingleSelection()
     {
-        if (this.selectedItems==null)
+        if (this.selectedItemKeys==null)
             return false;
         // Invert selection
-        return this.selectedItems.isSingleSelection();
+        return this.selectedItemKeys.isSingleSelection();
     }
 
     public void setSingleSelection(boolean singleSelection)
     {
-        if (this.selectedItems==null)
+        if (this.selectedItemKeys==null)
             throw new NotSupportedException(this, "setSingleSelection");
         // Invert
-        this.selectedItems.setSingleSelection(singleSelection);
+        this.selectedItemKeys.setSingleSelection(singleSelection);
     }
 
     public void setSelection(SelectableItem item)
     {
-        if (this.selectedItems==null)
+        if (this.selectedItemKeys==null)
             throw new NotSupportedException(this, "setInvertSelection");
         // Invert
         if (item!=null)
-            this.selectedItems.set(item.getKey());
+            this.selectedItemKeys.set(item.getKey());
         else
-            this.selectedItems.clear();
+            this.selectedItemKeys.clear();
     }
 
     public void setSelection(SelectableItem[] items)
     {
-        if (this.selectedItems==null)
+        if (this.selectedItemKeys==null)
             throw new NotSupportedException(this, "setInvertSelection");
         // Invert
-        this.selectedItems.clear();
+        this.selectedItemKeys.clear();
         for (SelectableItem item : items)
-            this.selectedItems.add(item.getKey());
+            this.selectedItemKeys.add(item.getKey());
     }
 }
