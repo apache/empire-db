@@ -385,8 +385,9 @@ public class BeanListPageElement<T> extends ListPageElement<T> implements ListIt
             items = r.getBeanList(beanClass, maxItems);
             if (items == null)
                 throw new UnexpectedReturnValueException(items, "DBReader.getBeanList");
-            generateIdParams(rowset, items);
-            assignSelectionMap(items);
+            
+            // Init items
+            initListItems(items);
 
             // set position at session object
             if (loadPageFromPosition)
@@ -551,14 +552,8 @@ public class BeanListPageElement<T> extends ListPageElement<T> implements ListIt
             return null;
         // Get the set
         Set<Object[]> items = new HashSet<Object[]>(selectedItems.size());
-        for (String idParam : selectedItems)
+        for (Object[] key : selectedItems)
         {
-            Object[] key = getParameterMap().getKey(rowset, idParam);
-            if (key == null)
-            {
-                log.warn("Object does not exist in ParameterMap!");
-                continue;
-            }
             items.add(key);
         }
         return items;
@@ -577,12 +572,11 @@ public class BeanListPageElement<T> extends ListPageElement<T> implements ListIt
                 log.warn("Cannot select Null-Object.");
                 continue;
             }
-            String idParam = getParameterMap().put(rowset, key);
-            selectedItems.add(idParam);
+            selectedItems.add(key);
         }
     }
 
-    protected void generateIdParams(DBRowSet rowset, List<?> items)
+    protected void initListItems(List<?> items)
     {
         Column[] keyCols = rowset.getKeyColumns();
         if (keyCols == null)
@@ -590,15 +584,23 @@ public class BeanListPageElement<T> extends ListPageElement<T> implements ListIt
         // generate all
         for (Object item : items)
         {
-            if (!(item instanceof ParameterizedItem))
-                continue;
-            // set the idParam
-            Object[] key = getItemKey(keyCols, item);
-            String idparam = getParameterMap().put(rowset, key);
-            ((ParameterizedItem)item).setIdParam(idparam);
+            initListItem(item, getItemKey(keyCols, item));
         }
     }
 
+    protected void initListItem(Object item, Object[] key)
+    {
+        if ((item instanceof ParameterizedItem))
+        {   // set the idParam
+            String idparam = getParameterMap().put(rowset, key);
+            ((ParameterizedItem)item).setIdParam(idparam);
+        }
+        if (item instanceof SelectableItem)
+        {
+            ((SelectableItem) item).initSelect(key, this.selectedItems);
+        }
+    }
+    
     protected Object[] getItemKey(Column[] cols, Object item)
     {
         Object[] key = new Object[cols.length];

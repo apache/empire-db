@@ -160,7 +160,7 @@ public class ArraySet<E> extends ArrayList<E> implements Set<E>
     @Override
     public boolean add(E e)
     {
-        if (this.contains(e))
+        if (e==null || this.contains(e))
             return false;
         return super.add(e);
     }
@@ -168,8 +168,43 @@ public class ArraySet<E> extends ArrayList<E> implements Set<E>
     @Override
     public void add(int index, E element)
     {
-        this.remove(element);
+        if (element==null)
+            return;
+        remove(element);
         super.add(index, element);
+    }
+    
+    @Override
+    public int indexOf(Object item)
+    {
+        if (item instanceof Object[]) {
+            // Special Array Handling
+            return indexOfArray((Object[])item);
+        }
+        return super.indexOf(item);
+    }
+    
+    @Override
+    public int lastIndexOf(Object item)
+    {
+        if (item instanceof Object[]) {
+            // Special Array Handling
+            return indexOfArray((Object[])item);
+        }
+        return super.lastIndexOf(item);
+    }
+    
+    @Override
+    public boolean remove(Object item)
+    {
+        if (item instanceof Object[]) {
+            // Special Array Handling
+            int index = indexOfArray((Object[])item);
+            if (index>=0)
+                remove(index);
+            return (index>=0);
+        }
+        return super.remove(item);
     }
     
     /*
@@ -184,6 +219,19 @@ public class ArraySet<E> extends ArrayList<E> implements Set<E>
     protected void fastAdd(int index, E element)
     {
         super.add(index, element);
+    }
+    
+    protected int indexOfArray(Object[] item)
+    {
+        // Special Array Handling
+        for (int i = 0; i < size(); i++) {
+            Object element = get(i);
+            if (!(element instanceof Object[]))
+                continue; // not an Object[]
+            if (ObjectUtils.compareEqual(item, (Object[])element))
+                return i; // found
+        }
+        return -1; // not found
     }
 }
 

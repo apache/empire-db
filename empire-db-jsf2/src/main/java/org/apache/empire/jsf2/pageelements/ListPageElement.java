@@ -19,14 +19,15 @@
 package org.apache.empire.jsf2.pageelements;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 
 import javax.faces.event.ActionEvent;
 
+import org.apache.empire.commons.ArraySet;
 import org.apache.empire.commons.ObjectUtils;
 import org.apache.empire.commons.StringUtils;
 import org.apache.empire.data.Column;
+import org.apache.empire.exceptions.InvalidArgumentException;
 import org.apache.empire.exceptions.NotSupportedException;
 import org.apache.empire.exceptions.ObjectNotValidException;
 import org.apache.empire.jsf2.app.FacesUtils;
@@ -47,7 +48,11 @@ public abstract class ListPageElement<T> extends PageElement
 
     protected SelectionSet      selectedItems    = null;
     
-    public static class SelectionSet extends HashSet<String>
+    /**
+     * SelectionSet
+     * Contains the key of all items implementing "SelectableItem"
+     */
+    public static class SelectionSet extends ArraySet<Object[]>
     {
         private static final long serialVersionUID = 1L;
         
@@ -80,14 +85,14 @@ public abstract class ListPageElement<T> extends PageElement
             return invertSelection;
         }
 
-        public boolean set(String e)
+        public boolean set(Object[] e)
         {
             clear();
             return super.add(e);
         }
 
         @Override
-        public boolean add(String e)
+        public boolean add(Object[] e)
         {
             if (singleSelection)
                 return false;
@@ -137,34 +142,45 @@ public abstract class ListPageElement<T> extends PageElement
     {
         // *Deprecated* private static final long serialVersionUID = 1L;
 
-        private SelectionSet      selectSet        = null;
+        private Object[] key;
+        private SelectionSet selectSet = null;
 
-        protected void setSelectMap(SelectionSet selectSet)
+        protected void initSelect(Object[] key, SelectionSet selectSet)
         {
+            // check params
+            if (key==null || selectSet==null)
+                throw new InvalidArgumentException("key|selectSet", null);
+            // init
+            this.key = key;
             this.selectSet = selectSet;
         }
 
         public boolean isSelected()
         {
-            String id = getIdParam();
-            return this.selectSet.contains(id);
+            if (this.key==null)
+                throw new ObjectNotValidException(this);
+            return this.selectSet.contains(key);
         }
 
         public void setSelected(boolean selected)
         {
-            String id = getIdParam();
+            if (this.key==null)
+                throw new ObjectNotValidException(this);
+            // select or unselect
             if (selected != this.selectSet.isInvertSelection())
             {
-                this.selectSet.add(id);
+                this.selectSet.add(key);
             }
             else
             {
-                this.selectSet.remove(id);
+                this.selectSet.remove(key);
             }
         }
 
-        public abstract String getIdParam();
-
+        public Object[] getKey()
+        {
+            return key;
+        }
     }
 
     /**
@@ -653,7 +669,7 @@ public abstract class ListPageElement<T> extends PageElement
             throw new NotSupportedException(this, "setInvertSelection");
         // Invert
         if (item!=null)
-            this.selectedItems.set(item.getIdParam());
+            this.selectedItems.set(item.getKey());
         else
             this.selectedItems.clear();
     }
@@ -665,21 +681,6 @@ public abstract class ListPageElement<T> extends PageElement
         // Invert
         this.selectedItems.clear();
         for (SelectableItem item : items)
-            this.selectedItems.add(item.getIdParam());
-    }
-
-    protected void assignSelectionMap(List<?> items)
-    {
-        // Check selectable
-        if (this.selectedItems == null)
-            return;
-        // generate all
-        for (Object item : items)
-        {
-            if (item instanceof SelectableItem)
-            {
-                ((SelectableItem) item).setSelectMap(this.selectedItems);
-            }
-        }
+            this.selectedItems.add(item.getKey());
     }
 }
