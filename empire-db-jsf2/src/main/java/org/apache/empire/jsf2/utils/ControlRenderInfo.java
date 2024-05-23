@@ -26,7 +26,7 @@ import org.apache.empire.jsf2.controls.InputControl;
  */
 public class ControlRenderInfo
 {
-    public static final ControlRenderInfo DEFAULT_CONTROL_RENDER_INFO = new DefaultControlRenderInfo();
+    public static ControlRenderInfo DEFAULT_CONTROL_RENDER_INFO = new DefaultControlRenderInfo();
     
     private static class DefaultControlRenderInfo extends ControlRenderInfo
     {

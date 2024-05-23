@@ -314,9 +314,9 @@ public class ControlTag extends UIInput implements NamingContainer
              */
             this.renderInfo=helper.getControlRenderInfo();
             if (this.renderInfo!=null && this.renderInfo.AUTO_CONTROL_ID!=null) {
-                String compId = helper.completeInputTagId(this.renderInfo.AUTO_CONTROL_ID.toString());
-                log.warn("Auto-Setting compontent id for control to {}", compId);
-                super.setId(compId);
+                // Auto set component Id
+                setId(this.renderInfo.AUTO_CONTROL_ID.toString());
+                log.warn("Auto-Setting compontent id for control to {}", this.getId());
             }
         }
     }
