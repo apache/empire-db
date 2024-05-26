@@ -206,7 +206,10 @@ public final class ObjectUtils
             return isEmpty(o1);
         // Check classes
         if (o1.getClass().equals(o2.getClass()))
-        {   // Check if object implements comparable
+        {   // Check simple array
+            if ((o1 instanceof Object[]) && (o2 instanceof Object[])) 
+                return compareEqual((Object[])o1, (Object[])o2);
+            // Check if object implements comparable
             if (o1 instanceof Comparable)
                 return (((Comparable<Object>)o1).compareTo(o2)==0);
             else
@@ -250,7 +253,12 @@ public final class ObjectUtils
             return strVal.equals(getString(o1));
         }
         // Compare Strings
-        return o1.toString().equals(o2.toString());
+        if (o1 instanceof String)
+            return ((String)o1).equals(o2.toString());
+        if (o2 instanceof String)
+            return ((String)o2).equals(o1.toString());
+        // Not equal
+        return false;
     }
 
     /**
