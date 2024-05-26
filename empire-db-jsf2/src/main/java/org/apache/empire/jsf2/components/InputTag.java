@@ -56,7 +56,6 @@ public class InputTag extends UIInput implements NamingContainer
 
     protected InputControl            control              = null;
     protected InputControl.InputInfo  inpInfo              = null;
-    protected boolean                 hasRequiredFlagSet   = false;
     protected boolean                 valueValidated       = false;
 
     /*
@@ -173,8 +172,7 @@ public class InputTag extends UIInput implements NamingContainer
         this.control = helper.getInputControl();
         this.inpInfo = helper.getInputInfo(context);
         // set required
-        if (hasRequiredFlagSet == false)
-            super.setRequired(helper.isValueRequired());
+        super.setRequired(helper.isValueRequired());
         // create input
         if (this.getChildCount()==0)
         {   // create input
@@ -230,14 +228,6 @@ public class InputTag extends UIInput implements NamingContainer
         id = helper.completeInputTagId(id); 
         // setId
         super.setId(id);
-    }
-
-    @Override
-    public void setRequired(boolean required)
-    {
-        super.setRequired(required);
-        // flag has been set
-        hasRequiredFlagSet = true;
     }
 
     @Override
@@ -330,13 +320,9 @@ public class InputTag extends UIInput implements NamingContainer
         {   // Check state
             if (inpInfo == null)
                 return;
-            // Skip Null values if not required
-            if (UIInput.isEmpty(value) && isPartialSubmit(context)) //  && helper.isValueRequired()
-            { // Value is null
-                log.debug("Skipping validation for {} due to Null value.", inpInfo.getColumn().getName());
-                return;
-            }
-            inpInfo.validate(value);
+            // validateValue
+            if (helper.beginValidateValue(context, value))
+                inpInfo.validate(value);
             setValid(true);
             // don't call base class!
             // super.validateValue(context, value);
@@ -362,16 +348,14 @@ public class InputTag extends UIInput implements NamingContainer
         // No Action
         if (!isValid() || !isLocalValueSet())
             return;
-        // check required
+        // updateModel
         Object value = getLocalValue();
-        if (UIInput.isEmpty(value) && isPartialSubmit(context) && !helper.isTempoaryNullable())
-        { // Value is null, but required
-            log.debug("Skipping model update for {} due to Null value.", inpInfo.getColumn().getName());
-            return;
+        if (helper.beginUpdateModel(context, value)) 
+        {   // don't call base class!
+            // super.updateModel(context);
+            log.debug("Updating model input for {}.", this.inpInfo.getColumn().getName());
+            this.inpInfo.setValue(value);
         }
-        // super.updateModel(context);
-        log.debug("Updating model input for {}.", inpInfo.getColumn().getName());
-        inpInfo.setValue(value);
         setValue(null);
         setLocalValueSet(false);
         // Post update
@@ -416,15 +400,6 @@ public class InputTag extends UIInput implements NamingContainer
                 child.setRendered(renderInput);
             }    
         }
-    }
-    
-    protected boolean isPartialSubmit(FacesContext context)
-    {
-        // Check Required Flag
-        if (hasRequiredFlagSet && !isRequired())
-            return true;
-        // partial  
-        return helper.isPartialSubmit(context);
     }
     
     protected void attachEvents(FacesContext context)

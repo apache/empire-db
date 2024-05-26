@@ -283,6 +283,25 @@ public class SelectTag extends UIInput implements NamingContainer
     }
 
     @Override
+    public void validate(FacesContext context)
+    {
+        // nothing submitted (AJAX part request, e.g. calendar component) or readonly (won't be set
+        // in updateModel())?
+        UIInput inputComponent = getInputComponent();
+        if (inputComponent == null)
+        {
+            return;
+        }
+        // component itself already checked validity, was it successful?
+        if (!inputComponent.isValid() || isDisabled())
+        {
+            return;
+        }
+        // nothing to do
+        super.validate(context);
+    }
+
+    @Override
     public void updateModel(FacesContext context)
     {
         // check read only
@@ -303,25 +322,6 @@ public class SelectTag extends UIInput implements NamingContainer
             setValue(value);
         }
         super.updateModel(context);
-    }
-
-    @Override
-    public void validate(FacesContext context)
-    {
-        // nothing submitted (AJAX part request, e.g. calendar component) or readonly (won't be set
-        // in updateModel())?
-        UIInput inputComponent = getInputComponent();
-        if (inputComponent == null)
-        {
-            return;
-        }
-        // component itself already checked validity, was it successful?
-        if (!inputComponent.isValid() || isDisabled())
-        {
-            return;
-        }
-        // nothing to do
-        super.validate(context);
     }
 
     protected UIInput getInputComponent()

@@ -161,8 +161,8 @@ public class ControlTag extends UIInput implements NamingContainer
         {
             // style Class
             String inputClass = helper.getTagAttributeStringEx("inputClass");
-            String inputState =(helper.isRenderValueComponent() ? TagStyleClass.INPUT_DIS.get() : null); 
-            helper.writeStyleClass(writer, TagStyleClass.CONTROL_INPUT.get(), inputClass, inputState);
+            // String inputState =(helper.isRenderValueComponent() ? TagStyleClass.INPUT_DIS.get() : null); 
+            helper.writeStyleClass(writer, TagStyleClass.CONTROL_INPUT.get(), inputClass); // , inputState
             // colspan
             String colSpan = tagName.equalsIgnoreCase(InputControl.HTML_TAG_TD) ? helper.getTagAttributeStringEx("colspan") : null;            
             if (colSpan!=null)
@@ -241,7 +241,6 @@ public class ControlTag extends UIInput implements NamingContainer
     protected InputControl            control              = null;
     protected InputControl.InputInfo  inpInfo              = null;
     protected ControlRenderInfo       renderInfo           = null;
-    protected boolean                 hasRequiredFlagSet   = false;
     protected boolean                 encodeLabel          = true;
     private boolean                   creatingComponents   = false;
     protected boolean                 valueValidated       = false;
@@ -473,14 +472,6 @@ public class ControlTag extends UIInput implements NamingContainer
         }
     }
 
-    @Override
-    public void setRequired(boolean required)
-    {
-        super.setRequired(required);
-        // flag has been set
-        this.hasRequiredFlagSet = true;
-    }
-
     public boolean isCustomInput()
     {
         Object custom = getAttributes().get("custom");
@@ -547,8 +538,7 @@ public class ControlTag extends UIInput implements NamingContainer
             // continue
             this.inpInfo = helper.getInputInfo(context);
             // set required
-            if (this.hasRequiredFlagSet==false)
-                super.setRequired(helper.isValueRequired());
+            super.setRequired(helper.isValueRequired());
 	        // create Input Controls
             // boolean recordReadOnly = helper.isRecordReadOnly();
             if (count==0)
@@ -689,13 +679,9 @@ public class ControlTag extends UIInput implements NamingContainer
         {   // Check state
             if (this.inpInfo == null || !isValid())
                 return;
-            // Skip Null values if not required
-            if (UIInput.isEmpty(value) && isPartialSubmit(context)) //  && helper.isValueRequired()
-            { // Value is null
-                log.debug("Skipping validation for {} due to Null value.", inpInfo.getColumn().getName());
-                return;
-            }
-            inpInfo.validate(value);
+            // validateValue
+            if (helper.beginValidateValue(context, value))
+                inpInfo.validate(value);
             setValid(true);
             // don't call base class!
             // super.validateValue(context, value);
@@ -721,17 +707,14 @@ public class ControlTag extends UIInput implements NamingContainer
         // No Action
         if (!isValid() || !isLocalValueSet())
             return;
-        // check required?
+        // updateModel
         Object value = getLocalValue();
-        // check required
-        if (UIInput.isEmpty(value) && isPartialSubmit(context) && !helper.isTempoaryNullable())
-        { // Value is null, but required
-            log.debug("Skipping model update for {} due to Null value.", this.inpInfo.getColumn().getName());
-            return;
+        if (helper.beginUpdateModel(context, value)) 
+        {   // don't call base class!
+            // super.updateModel(context);
+            log.debug("Updating model input for {}.", this.inpInfo.getColumn().getName());
+            this.inpInfo.setValue(value);
         }
-        // super.updateModel(context);
-        log.debug("Updating model input for {}.", this.inpInfo.getColumn().getName());
-        this.inpInfo.setValue(value);
         setValue(null);
         setLocalValueSet(false);
         // Post update
@@ -804,13 +787,4 @@ public class ControlTag extends UIInput implements NamingContainer
             return ObjectUtils.getBoolean(colon);
         return true;
     }
-
-    protected boolean isPartialSubmit(FacesContext context)
-    {
-        // Check Required Flag
-        if (this.hasRequiredFlagSet && !isRequired())
-            return true;
-        // partial  
-        return helper.isPartialSubmit(context);
-    }    
 }

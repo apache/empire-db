@@ -39,6 +39,7 @@ import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.sql.DataSource;
 
+import org.apache.empire.commons.ObjectUtils;
 import org.apache.empire.commons.StringUtils;
 import org.apache.empire.data.DataType;
 import org.apache.empire.db.DBDatabase;
@@ -320,10 +321,9 @@ public abstract class WebApplication
      */
     public boolean isPartialSubmit(final FacesContext fc)
     {
-        // Override for your JSF component Framework. e.g. for IceFaces
-        // Map<String,String> parameterMap = fc.getExternalContext().getRequestParameterMap();
-        // return ObjectUtils.getBoolean(parameterMap.get("ice.submit.partial"));
-        return false;
+        // Detect Partial Submit
+        Map<String,String> parameterMap = fc.getExternalContext().getRequestParameterMap();
+        return ObjectUtils.getBoolean(parameterMap.get("javax.faces.partial.ajax"));
     }
 
     /**
@@ -333,10 +333,8 @@ public abstract class WebApplication
      */
     public String getPartialSubmitComponentId(final FacesContext fc)
     {
-        // Override for your JSF component Framework. e.g. for IceFaces
-        // Map<String,String> parameterMap = fc.getExternalContext().getRequestParameterMap();
-        // return parameterMap.get("ice.event.captured");
-        return null;
+        Map<String,String> parameterMap = fc.getExternalContext().getRequestParameterMap();
+        return parameterMap.get("javax.faces.source");  // or javax.faces.partial.execute ?
     }
 
     /**

@@ -556,20 +556,20 @@ public class TagEncodingHelper implements NamingContainer
         String controlType = getTagAttributeString("controlType");
         if (controlType==null)
         {   controlType = column.getControlType();
-            // Always use SelectInputControl
+            // Override standard "text" control type
             if (TextInputControl.NAME.equalsIgnoreCase(controlType))
             {   Object attr = getTagAttributeValue("options");
                 if (attr != null && (attr instanceof Options) && !((Options)attr).isEmpty())
-                    controlType = SelectInputControl.NAME;
+                    controlType = SelectInputControl.NAME; // Override to "select" control
             }
         }
         // detect Control
-        control = detectInputControl(controlType, column.getDataType(), column.getOptions()!=null);
+        control = detectInputControl(controlType, column.getDataType());
         // check record
         return control;
     }
 
-    protected InputControl detectInputControl(String controlType, DataType dataType, boolean hasOptions)
+    protected InputControl detectInputControl(String controlType, DataType dataType)
     {
         // Create
         if (dataType==null)
@@ -580,7 +580,7 @@ public class TagEncodingHelper implements NamingContainer
             control = InputControlManager.getControl(controlType);
         if (control == null)
         {   // Auto-detect
-            if (hasOptions)
+            if (getValueOptions()!=null)
                 controlType = SelectInputControl.NAME;
             else
             {   // get from data type
@@ -659,11 +659,6 @@ public class TagEncodingHelper implements NamingContainer
             this.valueInfo = new InputInfoImpl(getColumn(), getTextResolver(ctx));
         }
         return (InputInfo)this.valueInfo;
-    }
-    
-    public boolean isPartialSubmit(FacesContext ctx)
-    {
-        return FacesUtils.getWebApplication().isPartialSubmit(ctx);
     }
 
     public boolean isSkipValidation()
@@ -856,9 +851,10 @@ public class TagEncodingHelper implements NamingContainer
                 {   // Ignore read only values
                     if (this.isReadOnly())
                         return;
-                    // Column required?
+                    /* Why?
                     if (ObjectUtils.isEmpty(value) && ((Record) this.record).isFieldRequired(column))
                         return; // Cannot set required value to null
+                    */    
                     // Disable Validation
                     reenableValidation = ((DBRecordBase)record).isValidateFieldValues();
                     if (reenableValidation)
@@ -1062,15 +1058,35 @@ public class TagEncodingHelper implements NamingContainer
         return true;
     }
     
-    /**
-     * used for partial submits to detect whether the value of this field can be set to null
-     * @return true if the column is required of false otherwise
-     */
-    public boolean isTempoaryNullable()
+    public boolean beginValidateValue(FacesContext ctx, Object value)
     {
-        if (getColumn().isRequired())
+        if (UIInput.isEmpty(value) && FacesUtils.getWebApplication().isPartialSubmit(ctx))
+        {   // don't validate null values
             return false;
-        return true;        
+        }
+        // continue
+        return true;
+    }
+    
+    public boolean beginUpdateModel(FacesContext ctx, Object value)
+    {
+        if (UIInput.isEmpty(value) && FacesUtils.getWebApplication().isPartialSubmit(ctx))
+        {   // Value is null, but required
+            String partialCompId = FacesUtils.getWebApplication().getPartialSubmitComponentId(ctx);
+            String componentId = this.component.getClientId();
+            boolean isThisComponent = partialCompId.startsWith(componentId);
+            if (isThisComponent==false)
+            {   // Ignore other components
+                if (log.isInfoEnabled())
+                    log.info("Ignoring UpdateModel for PartialSubmit on column {}. ComponentId=\"{}\"", getColumnFullName(), partialCompId);
+                return false;
+            }
+            // Perform update on this component
+            if (log.isInfoEnabled())
+                log.info("Performing UpdateModel for PartialSubmit on column {}", getColumnFullName());
+        }
+        // continue
+        return true;
     }
 
     /* Helpers */
