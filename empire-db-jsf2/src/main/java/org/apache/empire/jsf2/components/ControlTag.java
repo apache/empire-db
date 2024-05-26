@@ -161,7 +161,8 @@ public class ControlTag extends UIInput implements NamingContainer
         {
             // style Class
             String inputClass = helper.getTagAttributeStringEx("inputClass");
-            helper.writeStyleClass(writer, TagStyleClass.CONTROL_INPUT.get(), inputClass);
+            String inputState =(helper.isRenderValueComponent() ? TagStyleClass.INPUT_DIS.get() : null); 
+            helper.writeStyleClass(writer, TagStyleClass.CONTROL_INPUT.get(), inputClass, inputState);
             // colspan
             String colSpan = tagName.equalsIgnoreCase(InputControl.HTML_TAG_TD) ? helper.getTagAttributeStringEx("colspan") : null;            
             if (colSpan!=null)
@@ -375,7 +376,7 @@ public class ControlTag extends UIInput implements NamingContainer
             helper.writeComponentId(writer, false);
             // style class
             String controlClass = helper.getTagAttributeStringEx("controlClass"); 
-            String styleClass   = helper.getControlContextStyleClass(); 
+            String styleClass   = helper.getControlContextStyleClass();
             helper.writeStyleClass(writer, TagStyleClass.CONTROL.get(), controlClass, styleClass);
         }
         

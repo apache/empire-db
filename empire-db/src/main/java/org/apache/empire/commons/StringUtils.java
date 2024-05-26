@@ -20,12 +20,18 @@ package org.apache.empire.commons;
 
 import java.util.Collection;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * This class contains common functions for comparing and converting values of type String. 
  * 
  */
 public class StringUtils
 {
+    // Logger
+    private static final Logger log = LoggerFactory.getLogger(StringUtils.class);
+    
     private StringUtils()
     {
         // Static Function only
@@ -227,7 +233,7 @@ public class StringUtils
         }
         return -1; // Not found
     }
-
+    
     /**
      * Converts an array of objects to a string.
      * 
@@ -247,7 +253,11 @@ public class StringUtils
         {   // build the list
             int tend =(tbeg>=0 ? template.lastIndexOf(TEMPLATE_SEP_CHAR) : -1);
             String separator = ((tbeg>0) ? (tend>tbeg ? template.substring(tbeg+1, tend) : DEFAULT_ITEM_SEPARATOR) : template);
-            StringBuilder buf = new StringBuilder();
+            // create StringBuilder
+            int bufferLen = estimateArrayBufferSize(array, (separator!=null ? separator.length() : 0));
+            if (template!=null && template.length()>separator.length())
+                bufferLen += template.length()-separator.length(); 
+            StringBuilder buf = new StringBuilder(bufferLen);
             if (tend>0)
                 buf.append(template.substring(0, tbeg)); // add template prefix
             boolean isEmpty = true;
@@ -267,6 +277,8 @@ public class StringUtils
                 buf.setLength(buf.length()-separator.length()); // remove last separator
             if (tend>0)
                 buf.append(template.substring(tend+1)); // add template suffix
+            if (buf.length()!=bufferLen)
+                log.debug("estimateArrayBufferSize returned {} but string length is {}", bufferLen, buf.length());
             return buf.toString();
         }
         // Only one member
@@ -300,6 +312,37 @@ public class StringUtils
     {
         return arrayToString(array, separator, EMPTY);
     }
+
+    /**
+     * Estimates the buffer size needed to convert an Array into a String
+     * @param array the array
+     * @return the estimated length of the array parts
+     */
+    public static int estimateArrayBufferSize(Object[] array, int seperatorLength)
+    {
+        int estimate = 0;
+        for (int i = 0; i < array.length; i++) 
+        {
+            Object item = array[i];
+            int len = 0;
+            if (item instanceof String) 
+                len = ((String)item).length();
+            else if (item instanceof Number)
+                len = 10; // assume 10
+            else if (item instanceof Object[])
+                len = estimateArrayBufferSize((Object[])item, seperatorLength);
+            else if (item instanceof Collection<?>)
+                len = estimateListBufferSize((Collection<?>)item, seperatorLength);
+            else if (item!=null)
+                len = 20; // unknown
+            if (len>0) {
+                if (estimate > 0)
+                    estimate += seperatorLength;
+                estimate += len;
+            }
+        }
+        return estimate; 
+    }
     
     /**
      * Converts a list (Collection) of objects to a string.
@@ -320,7 +363,11 @@ public class StringUtils
         {   // build the list
             int tend =(tbeg>=0 ? template.lastIndexOf(TEMPLATE_SEP_CHAR) : -1);
             String separator = ((tbeg>0) ? (tend>tbeg ? template.substring(tbeg+1, tend) : DEFAULT_ITEM_SEPARATOR) : template);
-            StringBuilder buf = new StringBuilder();
+            // create StringBuilder
+            int bufferLen = estimateListBufferSize(list, (separator!=null ? separator.length() : 0));
+            if (template!=null && template.length()>separator.length())
+                bufferLen += template.length()-separator.length(); 
+            StringBuilder buf = new StringBuilder(bufferLen);
             if (tend>0)
                 buf.append(template.substring(0, tbeg)); // add template prefix
             boolean isEmpty = true;
@@ -340,6 +387,8 @@ public class StringUtils
                 buf.setLength(buf.length()-separator.length()); // remove last separator
             if (tend>0)
                 buf.append(template.substring(tend+1)); // add template suffix
+            if (buf.length()!=bufferLen)
+                log.debug("estimateListBufferSize returned {} but string length is {}", bufferLen, buf.length());
             return buf.toString();
         }
         // Only one member
@@ -372,6 +421,36 @@ public class StringUtils
     public static String listToString(Collection<?> list, String separator)
     {
         return listToString(list, separator, EMPTY);
+    }
+
+    /**
+     * Estimates the buffer size needed to convert a Collection into a String
+     * @param array the array
+     * @return the estimated length of the collection parts
+     */
+    public static int estimateListBufferSize(Collection<?> list, int seperatorLength)
+    {
+        int estimate = 0;
+        for (Object item : list)
+        {
+            int len = 0;
+            if (item instanceof String) 
+                len = ((String)item).length();
+            else if (item instanceof Number)
+                len = 10; // assume 10
+            else if (item instanceof Object[])
+                len = estimateArrayBufferSize((Object[])item, seperatorLength);
+            else if (item instanceof Collection<?>)
+                len = estimateListBufferSize((Collection<?>)item, seperatorLength);
+            else if (item!=null)
+                len = 20; // unknown
+            if (len>0) {
+                if (estimate > 0)
+                    estimate += seperatorLength;
+                estimate += len;
+            }
+        }
+        return estimate; 
     }
 
     /**

@@ -1596,13 +1596,19 @@ public class TagEncodingHelper implements NamingContainer
     public void writeStyleClass(ResponseWriter writer, String... styleClasses)
         throws IOException
     {
+        // Check if there is only one
+        int i=0;
         String styleClass = null;
-        if (styleClasses.length>2)
-            styleClass = assembleStyleClassString(styleClasses[0], null, styleClasses[1], styleClasses[2]);
-        else if (styleClasses.length>1)
-            styleClass = assembleStyleClassString(styleClasses[0], null, styleClasses[1], null);
-        else if (styleClasses.length==1)
-            styleClass = styleClasses[0];
+        for (; i<styleClasses.length; i++) {
+            if (styleClasses[i]!=null) {
+                if (styleClass!=null) {
+                    break; // more than one!
+                }
+                styleClass = styleClasses[i];
+            }
+        }
+        if (i<styleClasses.length)
+            styleClass = StringUtils.arrayToString(styleClasses, StringUtils.SPACE, null, true);
         if (styleClass != null)
             writer.writeAttribute(InputControl.HTML_ATTR_CLASS, styleClass, null);
     }
