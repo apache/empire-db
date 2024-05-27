@@ -32,10 +32,8 @@ import javax.faces.convert.ConverterException;
 import javax.faces.view.AttachedObjectHandler;
 
 import org.apache.empire.data.Column;
-import org.apache.empire.db.DBRecordBase;
 import org.apache.empire.db.exceptions.FieldIllegalValueException;
 import org.apache.empire.exceptions.EmpireException;
-import org.apache.empire.exceptions.InvalidArgumentException;
 import org.apache.empire.jsf2.controls.InputControl;
 import org.apache.empire.jsf2.utils.TagEncodingHelper;
 import org.apache.empire.jsf2.utils.TagEncodingHelperFactory;
@@ -135,40 +133,23 @@ public class InputTag extends UIInput implements NamingContainer
     }
 
     @Override
+    public boolean getRendersChildren()
+    {
+        // render children ourselves using 
+        //     encodeChildren(FacesContext context)
+        return true;
+    }
+
+    @Override
     public void encodeBegin(FacesContext context)
         throws IOException
     {
-        // add label and input components when the view is loaded for the first time
         super.encodeBegin(context);
 
         // get Control (before checking visible)
         helper.encodeBegin();
         
-        // Check visibility
-        if (helper.isVisible() == false)
-        {   // not visible
-            setRendered(false);
-            // Check column
-            Column column = helper.getColumn();
-            if (column==null)
-                throw new InvalidArgumentException("column", null);
-            // Check record
-            Object record = helper.getRecord();
-            if (record!=null && (record instanceof DBRecordBase) && ((DBRecordBase)record).isValid())
-            {   // Check if column exists
-                if (((DBRecordBase)record).getFieldIndex(column)<0)
-                    throw new InvalidArgumentException("column", column.getName());
-                // not visible
-                log.info("Column {} is not visible for record of {} and will not be rendered!", column.getName(), ((DBRecordBase)record).getRowSet().getName());
-            }    
-            else
-            {   // Record not valid
-                log.warn("Invalid Record provided for column {}. Input will not be rendered!", column.getName());
-            }    
-            return; // not visible
-        }
-
-        // render
+        // create child components
         this.control = helper.getInputControl();
         this.inpInfo = helper.getInputInfo(context);
         // set required
@@ -184,31 +165,51 @@ public class InputTag extends UIInput implements NamingContainer
             control.updateInputState(this, inpInfo, context, context.getCurrentPhaseId());
         }
         
-        // set readonly
+        // Set Render Input
+        boolean controlVisible = helper.isVisible();
         boolean renderValue = helper.isRenderValueComponent();
-        setRenderInput(!renderValue);
-
-        // wrapperTag
-        String wrapperTag = helper.writeWrapperTag(context, true, renderValue);
-        // render components
-        if (renderValue)
-        {   // render value
-            String tagName = "span";
-            String styleClass = helper.getTagStyleClass(TagStyleClass.INPUT_DIS.get());
-            String tooltip = helper.getValueTooltip(helper.getTagAttributeValue("title"));
-            control.renderValue(this, tagName, styleClass, tooltip, inpInfo, context);
-        }
-        else
-        {   // render input
-            control.renderInput(this, inpInfo, context);
-        }
-        // wrapperTagEnd
-        if (wrapperTag!=null)
-        {   // control wrapper tag
-            ResponseWriter writer = context.getResponseWriter();
-            writer.endElement(wrapperTag);
+        setRenderInput(!renderValue && controlVisible);
+        // Render when visible
+        if (controlVisible)
+        {   // Render now
+            String wrapperTag = helper.writeWrapperTag(context, true, renderValue);
+            // render components
+            if (renderValue)
+            {   // render value
+                String tagName = "span";
+                String styleClass = helper.getTagStyleClass(TagStyleClass.INPUT_DIS.get());
+                String tooltip = helper.getValueTooltip(helper.getTagAttributeValue("title"));
+                control.renderValue(this, tagName, styleClass, tooltip, inpInfo, context);
+            }
+            else
+            {   // render input
+                control.renderInput(this, inpInfo, context);
+            }
+            // wrapperTagEnd
+            if (wrapperTag!=null)
+            {   // control wrapper tag
+                ResponseWriter writer = context.getResponseWriter();
+                writer.endElement(wrapperTag);
+            }
         }
         saveState();
+    }
+
+    @Override
+    public void encodeChildren(FacesContext context)
+        throws IOException
+    {
+        // Ignore this
+        // super.encodeChildren(context);
+        log.debug("InputTag:encodeChildren is ignored");
+    }
+
+    @Override
+    public void encodeEnd(FacesContext context)
+        throws IOException
+    {
+        // call base
+        super.encodeEnd(context);
     }
 
     @Override

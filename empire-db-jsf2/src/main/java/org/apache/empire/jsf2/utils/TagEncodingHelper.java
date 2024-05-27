@@ -1061,7 +1061,7 @@ public class TagEncodingHelper implements NamingContainer
     public boolean beginValidateValue(FacesContext ctx, Object value)
     {
         if (UIInput.isEmpty(value) && FacesUtils.getWebApplication().isPartialSubmit(ctx))
-        {   // don't validate null values
+        {   // don't validate empty values
             return false;
         }
         // continue
@@ -1071,19 +1071,10 @@ public class TagEncodingHelper implements NamingContainer
     public boolean beginUpdateModel(FacesContext ctx, Object value)
     {
         if (UIInput.isEmpty(value) && FacesUtils.getWebApplication().isPartialSubmit(ctx))
-        {   // Value is null, but required
+        {   // Partial submit for empty value
             String partialCompId = FacesUtils.getWebApplication().getPartialSubmitComponentId(ctx);
-            String componentId = this.component.getClientId();
-            boolean isThisComponent = partialCompId.startsWith(componentId);
-            if (isThisComponent==false)
-            {   // Ignore other components
-                if (log.isInfoEnabled())
-                    log.info("Ignoring UpdateModel for PartialSubmit on column {}. ComponentId=\"{}\"", getColumnFullName(), partialCompId);
-                return false;
-            }
-            // Perform update on this component
             if (log.isInfoEnabled())
-                log.info("Performing UpdateModel for PartialSubmit on column {}", getColumnFullName());
+                log.info("Performing UpdateModel for PartialSubmit on column {} from {}", getColumnFullName(), partialCompId);
         }
         // continue
         return true;

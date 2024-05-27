@@ -86,8 +86,9 @@ public class ControlTag extends UIInput implements NamingContainer
                 return;
             }
 
+            // Get Control and TagName
             this.control = (ControlTag) parent;
-            this.tagName = getTagName(control.renderInfo);
+            this.tagName = (this.control.controlVisible ? getTagName(control.renderInfo) : null);
 
             // Start
             if (tagName!=null && tagName.length()>0) 
@@ -214,6 +215,9 @@ public class ControlTag extends UIInput implements NamingContainer
             }
 
             ControlTag controlTag = (ControlTag) parent;
+            if (!controlTag.controlVisible)
+                return; // Not visible!
+            
             InputControl control = controlTag.control;
             InputControl.ValueInfo valInfo = controlTag.inpInfo;
 
@@ -244,6 +248,7 @@ public class ControlTag extends UIInput implements NamingContainer
     protected boolean                 encodeLabel          = true;
     private boolean                   creatingComponents   = false;
     protected boolean                 valueValidated       = false;
+    protected boolean                 controlVisible       = true;
 
     public ControlTag()
     {
@@ -348,11 +353,28 @@ public class ControlTag extends UIInput implements NamingContainer
     }
 
     @Override
+    public boolean getRendersChildren()
+    {
+        // render children ourselves using 
+        //     encodeChildren(FacesContext context)
+        return true;
+    }
+
+    /*
+     * Add label and input components when the view is loaded for the first time
+     */
+    @Override
     public void encodeBegin(FacesContext context)
         throws IOException
     {
-        // add label and input components when the view is loaded for the first time
         super.encodeBegin(context);
+
+        // init
+        helper.encodeBegin();
+
+        // set InputControl
+        if (this.control==null)
+            this.control = helper.getInputControl();
         
         // renderInfo
         if (this.renderInfo==null) {
@@ -361,13 +383,11 @@ public class ControlTag extends UIInput implements NamingContainer
                 this.renderInfo=ControlRenderInfo.DEFAULT_CONTROL_RENDER_INFO;  // No FormGrid found. Use Default!
         }
 
-        // init
-        helper.encodeBegin();
-        this.control = helper.getInputControl();
-        boolean isCustomInput = isCustomInput();
-        
-        // encodeBegin
-        if (renderInfo.CONTROL_TAG!=null)
+        // Check visiblity
+        this.controlVisible = helper.isVisible();
+
+        // Render
+        if (this.controlVisible && renderInfo.CONTROL_TAG!=null)
         {   // control wrapper tag
             ResponseWriter writer = context.getResponseWriter();
             writer.startElement(renderInfo.CONTROL_TAG, this);
@@ -379,7 +399,7 @@ public class ControlTag extends UIInput implements NamingContainer
             helper.writeStyleClass(writer, TagStyleClass.CONTROL.get(), controlClass, styleClass);
         }
         
-        // LabelSeparatorComponent
+        // Encode LabelSeparatorComponent
         if (this.encodeLabel)
         {   // Create Label Separator Tag
             ControlSeparatorComponent labelSepTag = null;
@@ -396,10 +416,13 @@ public class ControlTag extends UIInput implements NamingContainer
                 }
             }
             // encode
-            labelSepTag.encodeAll(context);
+            labelSepTag.setRendered(this.controlVisible);
+            if (this.controlVisible)
+                labelSepTag.encodeAll(context);
         }
         
-        // InputSeparatorComponent
+        // Encode InputSeparatorComponent
+        boolean isCustomInput = isCustomInput();
         if (!isCustomInput)
         {   // Create Input Separator Tag
             ControlSeparatorComponent inputSepTag = null;
@@ -416,23 +439,29 @@ public class ControlTag extends UIInput implements NamingContainer
                 }
             }
             // encode
-            inputSepTag.encodeAll(context);
+            inputSepTag.setRendered(this.controlVisible);
+            if (this.controlVisible)
+                inputSepTag.encodeAll(context);
         }
         // done
         saveState();
     }
 
     @Override
-    public boolean getRendersChildren()
-    {
-        return true;
-    }
-
-    @Override
     public void encodeChildren(FacesContext context)
         throws IOException
     {
-        if (isRendered() && isCustomInput())
+        /*
+         * Composite component renderer must render children for custom components
+         *   <cc:implementation>
+         *       <c:choose>
+         *           <c:when test="#{cc.attrs.custom == true}">
+         *               <cc:insertChildren/>
+         *           </c:when>
+         *       </c:choose>
+         *   </cc:implementation>
+         */
+        if (this.controlVisible && isCustomInput())
         {   // Custom input
             ResponseWriter writer = null;
             String tagName  = renderInfo.INPUT_WRAPPER_TAG;
@@ -462,14 +491,14 @@ public class ControlTag extends UIInput implements NamingContainer
     public void encodeEnd(FacesContext context)
         throws IOException
     {
-        // call base
-        super.encodeEnd(context);
         // encodeEnd
-        if (renderInfo.CONTROL_TAG!=null)
+        if (this.controlVisible && renderInfo.CONTROL_TAG!=null)
         {   // control wrapper tag
             ResponseWriter writer = context.getResponseWriter();
             writer.endElement(renderInfo.CONTROL_TAG);
         }
+        // call base
+        super.encodeEnd(context);
     }
 
     public boolean isCustomInput()
