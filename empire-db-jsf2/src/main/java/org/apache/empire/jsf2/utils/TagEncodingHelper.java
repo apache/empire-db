@@ -87,6 +87,8 @@ public class TagEncodingHelper implements NamingContainer
 {
     public static final String FACES_ID_PREFIX = "j_id";  // Standard Faces ID Prefix
 
+    public static boolean CSS_STYLE_USE_INPUT_TYPE_INSTEAD_OF_DATA_TYPE = true;
+
     private final static String SPACE = " ";
     
     /**
@@ -1076,6 +1078,12 @@ public class TagEncodingHelper implements NamingContainer
             if (log.isInfoEnabled())
                 log.info("Performing UpdateModel for PartialSubmit on column {} from {}", getColumnFullName(), partialCompId);
         }
+        /*
+        // do it ourselves
+        InputInfo ii = getInputInfo(ctx);
+        ii.setValue(value);
+        return false;
+        */
         // continue
         return true;
     }
@@ -1573,11 +1581,6 @@ public class TagEncodingHelper implements NamingContainer
     {
         return getTagAttributeString(name, null);
     }
-    
-    public String getControlContextStyleClass()
-    {
-        return getContextStyleClass(getTagAttributeString("styleClass"));        
-    }
 
     public void writeAttribute(ResponseWriter writer, String attribute, Object value)
         throws IOException
@@ -1840,29 +1843,44 @@ public class TagEncodingHelper implements NamingContainer
     
     /* ********************** CSS-generation ********************** */
 
-    protected String assembleStyleClassString(String tagCssStyle, String typeClass, String addlStyle, String userStyle)
+    protected String assembleStyleClassString(String... styles)
     {
-        // handle simple case
-        if (StringUtils.isEmpty(userStyle) && StringUtils.isEmpty(addlStyle))
-            return StringUtils.isEmpty(typeClass) ? tagCssStyle : tagCssStyle + typeClass;
-        // assemble 
-        StringBuilder b = new StringBuilder(tagCssStyle);
-        if (StringUtils.isNotEmpty(typeClass))
-        {   // type class must begin with a space!
-            b.append(typeClass);
+        int totalLength=0;
+        String current = null;
+        // Count total length
+        for (int i=0; i<styles.length; i++)
+        {   int len = (styles[i]!=null ? styles[i].length() : 0);
+            if (len>0) {
+                if (current!=null && current.equals(styles[i]))
+                    continue; // same style twice
+                current = styles[i];
+                if (totalLength>0 && !current.startsWith(SPACE))
+                    len++;
+                totalLength += len;
+            }
         }
-        if (StringUtils.isNotEmpty(addlStyle))
-        {   // add additional style class
-            if (!addlStyle.startsWith(SPACE))
-                b.append(SPACE);
-            b.append(addlStyle);
+        // only one?
+        if (current==null || current.length()==totalLength)
+            return current;
+        // concat now
+        current = null;
+        StringBuilder b = new StringBuilder(totalLength);
+        for (int i=0; i<styles.length; i++)
+        {   int len = (styles[i]!=null ? styles[i].length() : 0);
+            if (len>0) {
+                if (current!=null && current.equals(styles[i]))
+                    continue; // same style twice
+                current = styles[i];
+                if (b.length()>0 && !current.startsWith(SPACE))
+                    b.append(SPACE);
+                b.append(current);
+            }
         }
-        if (StringUtils.isNotEmpty(userStyle) && !StringUtils.compareEqual(userStyle, addlStyle, false))
-        {   // add user style class
-            if (!userStyle.startsWith(SPACE))
-                b.append(SPACE);
-            b.append(userStyle);
-        }
+        /* can never be
+        if (b.length()!=totalLength)
+            log.warn("Wrong calculation for assembleStyleClassString!");
+        */    
+        // done
         return b.toString();
     }
 
@@ -1875,6 +1893,11 @@ public class TagEncodingHelper implements NamingContainer
     public static final String CSS_DATA_TYPE_DATETIME = " eTypeDateTime";
     public static final String CSS_DATA_TYPE_BOOL     = " eTypeBool";
 
+    /*
+     * Removed with EMPIREDB-427 and replaced by 
+     *   control.getCssStyleClass()
+     */
+    @Deprecated
     protected String getDataTypeClass(DataType type)
     {
         switch (type)
@@ -1903,56 +1926,43 @@ public class TagEncodingHelper implements NamingContainer
         }
     }
 
+    public String getSimpleStyleClass(String userStyle)
+    {
+        return assembleStyleClassString(cssStyleClass, userStyle);
+    }
+
     public String getSimpleStyleClass()
     {
         String userStyle = getTagAttributeStringEx("styleClass");
-        return assembleStyleClassString(cssStyleClass, null, null, userStyle);
+        return getSimpleStyleClass(userStyle);
     }
 
-    public String getTagStyleClass(DataType dataType, String addlStyle, String userStyle)
+    public String getTagStyleClass(String typeClass, String addlStyle, String userStyle)
     {
-        String typeClass = (dataType!=null) ? getDataTypeClass(dataType) : null;
-        String contextStyle = getContextStyleClass(addlStyle);
-        return assembleStyleClassString(cssStyleClass, typeClass, contextStyle, userStyle);
+        // contextStyle
+        String contextStyle = getContextStyleClass();
+        return assembleStyleClassString(cssStyleClass, typeClass, addlStyle, userStyle, contextStyle);
     }
 
-    public String getTagStyleClass(DataType dataType, String addlStyle)
+    public String getTagStyleClass(String typeClass, String addlStyle)
     {
         String userStyle = getTagAttributeStringEx("styleClass");
-        return getTagStyleClass(dataType, addlStyle, userStyle);
+        return getTagStyleClass(typeClass, addlStyle, userStyle);
     }
 
     public String getTagStyleClass(String addlStyle)
     {
-        DataType dataType = (hasColumn() ? column.getDataType() : null);
-        return getTagStyleClass(dataType, addlStyle);
-    }
-
-    public final String getTagStyleClass()
-    {
-        return getTagStyleClass((String)null);
+        String typeClass = (this.control!=null ? this.control.getCssStyleClass() : null);
+        return getTagStyleClass(typeClass, addlStyle);
     }
     
-    public String getContextStyleClass(String addlStyle)
+    public String getContextStyleClass()
     {
-        String contextStyle = null;
         if ((getRecord() instanceof TagContextInfo) && hasColumn())
         {
-            contextStyle = ((TagContextInfo)getRecord()).getContextStyleClass(getColumn());
+            return ((TagContextInfo)getRecord()).getContextStyleClass(getColumn());
         }
-        if (StringUtils.isEmpty(addlStyle))
-        {
-            return contextStyle;
-        }
-        if (StringUtils.isEmpty(contextStyle))
-        {
-            return addlStyle;
-        }
-        if (contextStyle.startsWith(SPACE))
-        {
-            return addlStyle + contextStyle;
-        }
-        return addlStyle + SPACE + contextStyle;
+        return null;
     }
 
     public final boolean isInsideUIData()

@@ -394,9 +394,10 @@ public class ControlTag extends UIInput implements NamingContainer
             // render id
             helper.writeComponentId(writer, false);
             // style class
-            String controlClass = helper.getTagAttributeStringEx("controlClass"); 
-            String styleClass   = helper.getControlContextStyleClass();
-            helper.writeStyleClass(writer, TagStyleClass.CONTROL.get(), controlClass, styleClass);
+            String controlClass = helper.getTagAttributeStringEx("controlClass");
+            String styleClass   = helper.getTagAttributeString("styleClass");
+            String contextClass = helper.getContextStyleClass(); 
+            helper.writeStyleClass(writer, TagStyleClass.CONTROL.get(), controlClass, styleClass, contextClass);
         }
         
         // Encode LabelSeparatorComponent

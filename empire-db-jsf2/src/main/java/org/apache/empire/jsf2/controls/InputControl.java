@@ -168,16 +168,23 @@ public abstract class InputControl
         Object getAttributeEx(String name); /* check Column attributes too, and resolves references to other columns. */
     }
 
-    private String name;
+    private final String name;
+    private final String cssStyleClass;
 
     protected InputControl(String name)
     {
         this.name = name;
+        this.cssStyleClass = initCssStyleClass();
     }
 
     public final String getName()
     {
         return this.name;
+    }
+    
+    public final String getCssStyleClass() 
+    {
+        return this.cssStyleClass;
     }
 
     public String getLabelForId(InputInfo ii)
@@ -394,6 +401,11 @@ public abstract class InputControl
             return parseInputValue((String) submittedValue, ii);
         }            
         return submittedValue;
+    }
+    
+    protected String initCssStyleClass() 
+    {
+        return StringUtils.concat(TagStyleClass.INPUT_TYPE_PREFIX.get(), name.substring(0,1).toUpperCase(), name.substring(1));
     }
     
     /**

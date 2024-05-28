@@ -36,7 +36,6 @@ import javax.faces.context.ResponseWriter;
 
 import org.apache.empire.commons.ObjectUtils;
 import org.apache.empire.commons.StringUtils;
-import org.apache.empire.data.DataType;
 import org.apache.empire.exceptions.InvalidPropertyException;
 import org.apache.empire.jsf2.app.FacesUtils;
 import org.apache.empire.jsf2.controls.InputControl;
@@ -311,8 +310,8 @@ public class LinkTag extends UIOutput // implements NamingContainer
             link.setId(getId()+"_a");
         */    
         // css Style
-        DataType dataType = (hasColumn ? helper.getColumn().getDataType() : DataType.UNKNOWN);
-        link.setStyleClass(helper.getTagStyleClass(dataType, null, getLinkStyleClass()));
+        String cssStyle = helper.getSimpleStyleClass(getLinkStyleClass());
+        link.setStyleClass(cssStyle);
         // Set Attributes
         Map<String,Object> attr = getAttributes();
         // Set outcome
@@ -366,7 +365,7 @@ public class LinkTag extends UIOutput // implements NamingContainer
     {
         Map<String, Object> map = getAttributes();
         String tagName  = StringUtils.coalesce(StringUtils.toString(map.get("tag")), "span");
-        String cssClass = helper.getTagStyleClass();
+        String cssClass = helper.getTagStyleClass(null, null);        
         Object style = map.get("style");
         Object title = helper.getTagAttributeValue("title");
         // Write tag

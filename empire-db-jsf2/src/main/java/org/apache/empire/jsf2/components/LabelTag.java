@@ -27,7 +27,6 @@ import javax.faces.component.visit.VisitContext;
 import javax.faces.context.FacesContext;
 
 import org.apache.empire.commons.ObjectUtils;
-import org.apache.empire.data.DataType;
 import org.apache.empire.jsf2.utils.TagEncodingHelper;
 import org.apache.empire.jsf2.utils.TagEncodingHelperFactory;
 import org.apache.empire.jsf2.utils.TagStyleClass;
@@ -100,7 +99,7 @@ public class LabelTag extends UIOutput // implements NamingContainer
         {   try {
                 creatingComponents = true;
                 String forInput   = helper.getTagAttributeString("for");
-                String styleClass = helper.getTagStyleClass(DataType.UNKNOWN, null);
+                String styleClass = helper.getTagStyleClass(null, null);
                 String style      = helper.getTagAttributeString("style");
                 // createLabelComponent 
                 labelComponent = helper.createLabelComponent(context, forInput, styleClass, style, getColon());

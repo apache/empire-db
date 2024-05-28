@@ -34,6 +34,7 @@ public enum TagStyleClass
     INPUT_REQ("eInpReq"),
     INPUT_MOD("eInpModified"),
     INPUT_HINT("eInputHint"),
+    INPUT_TYPE_PREFIX("eInpType"),
     CONTROL("eControl"),
     CONTROL_LABEL("eCtlLabel"),
     CONTROL_INPUT("eCtlInput"),

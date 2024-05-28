@@ -25,7 +25,6 @@ import javax.faces.context.FacesContext;
 import javax.faces.context.ResponseWriter;
 
 import org.apache.empire.commons.StringUtils;
-import org.apache.empire.data.DataType;
 import org.apache.empire.jsf2.controls.InputControl;
 import org.apache.empire.jsf2.utils.TagEncodingHelper;
 import org.apache.empire.jsf2.utils.TagEncodingHelperFactory;
@@ -110,9 +109,8 @@ public class ValueTag extends UIOutput // implements NamingContainer
                 tagName="span";
             // Detect type and additional style
             String addlStyle = null;
-            DataType dataType = vi.getColumn().getDataType();
             // get style
-            styleClass = helper.getTagStyleClass(dataType, addlStyle);
+            styleClass = helper.getTagStyleClass(addlStyle);
         }
         // render now
         control.renderValue(this, tagName, styleClass, tooltip, vi, context);

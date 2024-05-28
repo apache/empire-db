@@ -105,8 +105,9 @@ public class TitleTag extends UIOutput // implements NamingContainer
         // Write tag
         if (StringUtils.isEmpty(tag))
             tag="span";
+        String cssClass = helper.getTagStyleClass(null, null);        
         writer.startElement(tag, this);
-        helper.writeAttribute(writer, "class", helper.getTagStyleClass());
+        helper.writeAttribute(writer, "class", cssClass);
         helper.writeAttribute(writer, "style", map.get("style"));
         helper.writeAttribute(writer, "title", title);
         return tag;
