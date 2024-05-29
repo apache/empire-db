@@ -60,6 +60,8 @@ public class TextInputControl extends InputControl
     public static final String  DATE_FORMAT           = "date-format:";
     public static final String  DATE_FORMAT_ATTRIBUTE = "format:date";
 
+    public static final String  FRACTION_DIGITS       = "fraction-digits:";
+    
     private Class<? extends HtmlInputText> inputComponentClass;
 
     public TextInputControl(String name, Class<? extends HtmlInputText> inputComponentClass)
@@ -297,7 +299,7 @@ public class TextInputControl extends InputControl
         }
         if (dataType == DataType.DECIMAL || dataType == DataType.FLOAT)
         { // Dezimal oder Double
-            NumberFormat nf = getNumberFormat(dataType, vi.getLocale(), column);
+            NumberFormat nf = getNumberFormat(dataType, vi, column);
             return nf.format(value);
         }
         if (dataType == DataType.DATE || dataType == DataType.DATETIME || dataType == DataType.TIMESTAMP)
@@ -515,8 +517,9 @@ public class TextInputControl extends InputControl
         return DataType.UNKNOWN;
     }
 
-    protected NumberFormat getNumberFormat(DataType dataType, Locale locale, Column column)
+    protected NumberFormat getNumberFormat(DataType dataType, ValueInfo vi, Column column)
     {
+        Locale locale = vi.getLocale();
         if (column == null)
             return NumberFormat.getNumberInstance(locale);
         // Column is supplied
@@ -530,7 +533,7 @@ public class TextInputControl extends InputControl
         Object groupSep = column.getAttribute(Column.COLATTR_NUMBER_GROUPSEP);
         nf.setGroupingUsed(groupSep != null && ObjectUtils.getBoolean(groupSep));
         // Fraction Digits?
-        Object fractDigit = column.getAttribute(Column.COLATTR_FRACTION_DIGITS);
+        Object fractDigit = getFormatOption(vi, FRACTION_DIGITS, Column.COLATTR_FRACTION_DIGITS);
         if (fractDigit != null)
         {   int fractionDigits = ObjectUtils.getInteger(fractDigit);
             int length = (int)column.getSize();
