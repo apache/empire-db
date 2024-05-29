@@ -24,6 +24,7 @@ import java.util.List;
 
 import javax.el.ValueExpression;
 import javax.faces.component.UIComponent;
+import javax.faces.component.UIParameter;
 import javax.faces.component.UISelectItems;
 import javax.faces.component.UISelectOne;
 import javax.faces.component.html.HtmlSelectOneListbox;
@@ -240,7 +241,7 @@ public class SelectInputControl extends InputControl
         List<UIComponent> childList = input.getChildren();
         if (childList.isEmpty())
             childList.add(new UISelectItems());
-        else if (childList.size()>1)
+        else if (childList.size()>1 && !(childList.get(1) instanceof UIParameter))
             log.warn("Unexpected number of child items ({}) for SelectInputControl of column {}", childList.size(), ii.getColumn().getName());
         UISelectItems items = (UISelectItems) childList.get(0);
         // get SelectItem list

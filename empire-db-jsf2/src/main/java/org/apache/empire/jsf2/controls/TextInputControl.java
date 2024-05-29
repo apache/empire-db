@@ -524,22 +524,48 @@ public class TextInputControl extends InputControl
             return NumberFormat.getNumberInstance(locale);
         // Column is supplied
         String type = StringUtils.valueOf(column.getAttribute(Column.COLATTR_NUMBER_TYPE));
-        NumberFormat nf = null;
-        if (type.equalsIgnoreCase("Integer"))
-            nf = NumberFormat.getIntegerInstance(locale);
-        else
-            nf = NumberFormat.getNumberInstance(locale);
+        boolean isInteger = "Integer".equalsIgnoreCase(type);
+        NumberFormat nf = (isInteger) ? NumberFormat.getIntegerInstance(locale)
+                                      : NumberFormat.getNumberInstance(locale); 
         // Groups Separator?
         Object groupSep = column.getAttribute(Column.COLATTR_NUMBER_GROUPSEP);
         nf.setGroupingUsed(groupSep != null && ObjectUtils.getBoolean(groupSep));
         // Fraction Digits?
-        Object fractDigit = getFormatOption(vi, FRACTION_DIGITS, Column.COLATTR_FRACTION_DIGITS);
-        if (fractDigit != null)
-        {   int fractionDigits = ObjectUtils.getInteger(fractDigit);
-            int length = (int)column.getSize();
-            int fractionColumn = (int)(column.getSize()*10)-(length*10);
-            nf.setMaximumFractionDigits(Math.max(fractionDigits, fractionColumn));
-            nf.setMinimumFractionDigits(fractionDigits);
+        Object limitFractionDigits = (isInteger ? null : getFormatOption(vi, FRACTION_DIGITS, Column.COLATTR_FRACTION_DIGITS));
+        if (limitFractionDigits != null)
+        {   // get column limits
+            int minFactionDigits = 0;
+            int maxFactionDigits = -1;
+            if (!(limitFractionDigits instanceof Number)) {
+                // not a number
+                String limit = limitFractionDigits.toString();
+                if (limit.startsWith("min:")) {
+                    minFactionDigits = ObjectUtils.getInteger(limit.substring(4), 0);
+                }
+                else if (limit.startsWith("max:")) {
+                    maxFactionDigits = ObjectUtils.getInteger(limit.substring(4), -1);
+                }
+                else if ("auto".equals(limitFractionDigits)) {
+                    minFactionDigits = 999; /* make equal to maxFactionDigits */
+                }
+                else if (!"limit".equals(limitFractionDigits)) {
+                    minFactionDigits = maxFactionDigits = ObjectUtils.getInteger(limit, -1);
+                }
+            }
+            else minFactionDigits = maxFactionDigits = ((Number)limitFractionDigits).intValue();
+            // check range
+            if (minFactionDigits<0)
+                minFactionDigits = 0;
+            if (maxFactionDigits<0) {
+                // Detect from column
+                int length = (int)column.getSize();
+                maxFactionDigits = (int)(column.getSize()*10)-(length*10);
+                if (minFactionDigits > maxFactionDigits)
+                    minFactionDigits = maxFactionDigits;
+            }
+            // Set 
+            nf.setMinimumFractionDigits(minFactionDigits);
+            nf.setMaximumFractionDigits(maxFactionDigits);
         }
         // IntegerDigits (left-padding)
         Object intDigits = column.getAttribute(Column.COLATTR_INTEGER_DIGITS);
