@@ -28,6 +28,7 @@ import javax.faces.context.ResponseWriter;
 
 import org.apache.empire.commons.ObjectUtils;
 import org.apache.empire.commons.StringUtils;
+import org.apache.empire.jsf2.controls.InputControl;
 import org.apache.empire.jsf2.utils.TagEncodingHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -272,7 +273,7 @@ public class MenuItemTag extends LinkTag
     
     protected String getStyleClass()
     {
-        String styleClass = helper.getTagAttributeString("styleClass");
+        String styleClass = helper.getTagAttributeString(InputControl.CSS_STYLE_CLASS);
         if (parentMenu!=null)
         {
             // Style Class

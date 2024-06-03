@@ -67,10 +67,9 @@ public class RadioInputControl extends InputControl
 
     /* Value */
     @Override
-    public void renderValue(ValueInfo vi, ResponseWriter writer)
+    public void renderValue(Object value, ValueInfo vi, ResponseWriter writer)
         throws IOException
     {
-        Object value = vi.getValue(true);
         String style = vi.getStyleClass(TagStyleClass.RADIO.append(TagStyleClass.INPUT_DIS.get()));
         writer.startElement(HTML_TAG_DIV, null);
         writer.writeAttribute(HTML_ATTR_CLASS, style, null);

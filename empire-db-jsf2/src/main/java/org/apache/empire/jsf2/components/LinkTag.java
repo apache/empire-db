@@ -257,7 +257,7 @@ public class LinkTag extends UIOutput // implements NamingContainer
     
     protected String getLinkStyleClass()
     {
-        return StringUtils.toString(getAttributes().get("styleClass"));
+        return StringUtils.toString(getAttributes().get(InputControl.CSS_STYLE_CLASS));
     }
     
     protected boolean isLinkDisabled()
@@ -281,7 +281,8 @@ public class LinkTag extends UIOutput // implements NamingContainer
             StringResponseWriter srw = new StringResponseWriter();
             try
             {
-                control.renderValue(vi, srw);
+                Object value = vi.getValue(true);
+                control.renderValue(value, vi, srw);
             }
             catch (IOException e)
             {   // Error rendering value

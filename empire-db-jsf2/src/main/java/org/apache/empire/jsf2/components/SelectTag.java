@@ -425,10 +425,10 @@ public class SelectTag extends UIInput implements NamingContainer
         Map<String, Object> tagMap = getAttributes();
         Map<String, Object> inputMap = input.getAttributes();
         // css style
-        String userStyle = StringUtils.toString(tagMap.get("styleClass"));
+        String userStyle = StringUtils.toString(tagMap.get(InputControl.CSS_STYLE_CLASS));
         // String cssStyle = TagEncodingHelper.assembleStyleClassString(TagStyleClass.SELECT.get(), null, null, userStyle);
         String cssStyle = TagStyleClass.SELECT.append(userStyle);
-        inputMap.put("styleClass", cssStyle);
+        inputMap.put(InputControl.CSS_STYLE_CLASS, cssStyle);
         // other
         copyAttribute(inputMap, tagMap, "style");
         copyAttribute(inputMap, tagMap, "tabindex");

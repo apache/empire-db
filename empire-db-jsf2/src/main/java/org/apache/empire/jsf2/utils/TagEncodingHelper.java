@@ -227,7 +227,7 @@ public class TagEncodingHelper implements NamingContainer
             return value;
         }
     }
-
+    
     /**
      * ValueInfoImpl
      * Provides information necessary to render a data value (non editable) 
@@ -235,6 +235,8 @@ public class TagEncodingHelper implements NamingContainer
      */
     protected class ValueInfoImpl implements InputControl.ValueInfo
     {
+        private String format = null;
+                    
         public ValueInfoImpl(Column column, TextResolver resolver)
         {
             if (column==null)
@@ -267,22 +269,6 @@ public class TagEncodingHelper implements NamingContainer
             return getValueOptions();
         }
 
-        /*
-        @Override
-        public Object getNullValue()
-        {
-            // null value
-            Object attr = getTagAttributeValue("default");
-            if (attr != null)
-                return attr;
-            // Use Column default
-            if (hasColumn())
-                return column.getAttribute("default");
-            // not available
-            return null;
-        }
-        */
-
         @Override
         public String getStyleClass(String addlStyle)
         {
@@ -293,19 +279,19 @@ public class TagEncodingHelper implements NamingContainer
         @Override
         public String getFormat()
         {
-            // null value
-            String attr = getTagAttributeString("format");
-            if (attr != null)
-                return attr;
-            // Use Column default
-            if (hasColumn())
-            { // from column
-                Object format = column.getAttribute("format");
-                if (format != null)
-                    return format.toString();
+            if (format == null) 
+            {   // null value
+                format = getTagAttributeString("format");
+                // Use Column default
+                if (format==null && hasColumn())
+                { // from column
+                    format = StringUtils.toString(column.getAttribute("format"));
+                }
+                if (format==null)
+                    format = StringUtils.EMPTY;
             }
             // not available
-            return null;
+            return format;
         }
 
         @Override
@@ -743,7 +729,7 @@ public class TagEncodingHelper implements NamingContainer
         this.readOnly        = -1;
         this.valueRequired   = -1;
         this.optionsDetected = false;
-        this.options = null;
+        this.options         = null;
         /*
         this.valueInfo       = null;
         this.skipValidation  = false;
@@ -1573,8 +1559,9 @@ public class TagEncodingHelper implements NamingContainer
     
     public String getTagAttributeString(String name, String defValue)
     {
-        Object  v = getTagAttributeValue(name);
-        return (v!=null) ? StringUtils.toString(v) : defValue;
+        Object value = getTagAttributeValue(name);
+        String sval = StringUtils.nullIfEmpty(value);
+        return (defValue!=null ? StringUtils.coalesce(sval, defValue) : sval);
     }
 
     public String getTagAttributeString(String name)
@@ -1626,7 +1613,7 @@ public class TagEncodingHelper implements NamingContainer
     public void writeStyleClass(ResponseWriter writer)
         throws IOException
     {
-        String userStyle = getTagAttributeStringEx("styleClass");
+        String userStyle = getTagAttributeStringEx(InputControl.CSS_STYLE_CLASS);
         writeStyleClass(writer, this.cssStyleClass, userStyle);
     }
     
@@ -1933,7 +1920,7 @@ public class TagEncodingHelper implements NamingContainer
 
     public String getSimpleStyleClass()
     {
-        String userStyle = getTagAttributeStringEx("styleClass");
+        String userStyle = getTagAttributeStringEx(InputControl.CSS_STYLE_CLASS);
         return getSimpleStyleClass(userStyle);
     }
 
@@ -1946,7 +1933,7 @@ public class TagEncodingHelper implements NamingContainer
 
     public String getTagStyleClass(String typeClass, String addlStyle)
     {
-        String userStyle = getTagAttributeStringEx("styleClass");
+        String userStyle = getTagAttributeStringEx(InputControl.CSS_STYLE_CLASS);
         return getTagStyleClass(typeClass, addlStyle, userStyle);
     }
 

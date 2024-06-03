@@ -147,7 +147,7 @@ public class StringUtils
      */
     public static String coalesce(String preferred, String alternative)
     {
-        return isNotEmpty(preferred) ? preferred : alternative;        
+        return isEmpty(preferred) ? alternative : preferred;        
     }
 
     /**

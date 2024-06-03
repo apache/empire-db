@@ -28,6 +28,7 @@ import javax.faces.context.ResponseWriter;
 import org.apache.empire.commons.StringUtils;
 import org.apache.empire.data.Column;
 import org.apache.empire.exceptions.InvalidArgumentException;
+import org.apache.empire.jsf2.controls.InputControl;
 import org.apache.empire.jsf2.utils.TagEncodingHelper;
 import org.apache.empire.jsf2.utils.TagEncodingHelperFactory;
 import org.apache.empire.jsf2.utils.TagStyleClass;
@@ -100,7 +101,7 @@ public class TitleTag extends UIOutput // implements NamingContainer
         Map<String, Object> map = getAttributes();
         String tag = StringUtils.toString(map.get("tag"));
         // Check
-        if (tag == null && title == null && !map.containsKey("styleClass"))
+        if (tag == null && title == null && !map.containsKey(InputControl.CSS_STYLE_CLASS))
             return null;
         // Write tag
         if (StringUtils.isEmpty(tag))

@@ -27,6 +27,7 @@ import javax.faces.context.FacesContext;
 import javax.faces.context.ResponseWriter;
 
 import org.apache.empire.commons.StringUtils;
+import org.apache.empire.jsf2.controls.InputControl;
 import org.apache.empire.jsf2.utils.TagEncodingHelper;
 import org.apache.empire.jsf2.utils.TagEncodingHelperFactory;
 import org.apache.empire.jsf2.utils.TagStyleClass;
@@ -198,7 +199,7 @@ public class MenuListTag extends UIOutput // implements NamingContainer
     
     protected String getStyleClass()
     {
-        String styleClass = helper.getTagAttributeString("styleClass");
+        String styleClass = helper.getTagAttributeString(InputControl.CSS_STYLE_CLASS);
         if (styleClass!=null && styleClass.indexOf("{}")>0)
         {   // add level to style class
             styleClass = StringUtils.replace(styleClass, "{}", String.valueOf(level));

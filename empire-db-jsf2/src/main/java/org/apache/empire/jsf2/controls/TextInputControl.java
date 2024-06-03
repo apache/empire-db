@@ -127,7 +127,7 @@ public class TextInputControl extends InputControl
         HtmlInputText input = (HtmlInputText) comp;
         if (ii.isInsideUIData())
         {   // always reset the style class inside UIData
-            String tagStyle = StringUtils.toString(ii.getAttribute("styleClass"), null);
+            String tagStyle = StringUtils.toString(ii.getAttribute(InputControl.CSS_STYLE_CLASS), null);
             String cssStyle = getInputStyleClass(ii, tagStyle);
             input.setStyleClass(cssStyle);
             /*
@@ -170,7 +170,7 @@ public class TextInputControl extends InputControl
         String dataTypeClass = TagEncodingHelper.getDataTypeClass(ii.getColumn().getDataType()); 
         String styleClass    = TagEncodingHelper.getTagStyleClass(tagStyle, dataTypeClass, null, null);
         */
-        span.getAttributes().put("styleClass", tagStyle);
+        span.getAttributes().put(InputControl.CSS_STYLE_CLASS, tagStyle);
         span.getChildren().add(text);
         // done 
         return span;
@@ -354,10 +354,10 @@ public class TextInputControl extends InputControl
     // ------- render -------
 
     @Override
-    public void renderValue(ValueInfo vi, ResponseWriter writer)
+    public void renderValue(Object value, ValueInfo vi, ResponseWriter writer)
         throws IOException
     {
-        String text = formatValue(vi);
+        String text = formatValue(value, vi);
         if (StringUtils.isEmpty(text))
         { // nothing
             writer.append(HTML_EXPR_NBSP);
@@ -436,7 +436,6 @@ public class TextInputControl extends InputControl
             if (ml > 0)
                 return ml;
         }
-
         Column col = ii.getColumn();
         // cast to DBTableColumn 
         DataType type = col.getDataType();

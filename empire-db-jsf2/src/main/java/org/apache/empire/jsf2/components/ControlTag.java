@@ -395,7 +395,7 @@ public class ControlTag extends UIInput implements NamingContainer
             helper.writeComponentId(writer, false);
             // style class
             String controlClass = helper.getTagAttributeStringEx("controlClass");
-            String styleClass   = helper.getTagAttributeString("styleClass");
+            String styleClass   = helper.getTagAttributeString(InputControl.CSS_STYLE_CLASS);
             String contextClass = helper.getContextStyleClass(); 
             helper.writeStyleClass(writer, TagStyleClass.CONTROL.get(), controlClass, styleClass, contextClass);
         }

@@ -50,33 +50,39 @@ import org.slf4j.LoggerFactory;
 public abstract class InputControl
 {
 
-    private static final Logger log                   = LoggerFactory.getLogger(InputControl.class);
-    
+    private static final Logger log                    = LoggerFactory.getLogger(InputControl.class);
+
+    // StyleClass 
+    public static final String  CSS_STYLE_CLASS        = "styleClass";
+
     // format attributes
-    public static final String  FORMAT_NULL                   = "null:";
-    public static final String  FORMAT_NULL_ATTRIBUTE         = "format:null";
+    public static final String  FORMAT_NULL            = "null:";
+    public static final String  FORMAT_NULL_ATTRIBUTE  = "format:null";
+    public static final String  FORMAT_NO_VALUE_STYLES = "noValueStyles";
+    /* obsolte from 2024-06-03
     public static final String  FORMAT_VALUE_STYLES           = "valueStyles";
     public static final String  FORMAT_VALUE_STYLES_ATTRIBUTE = "format:valueStyles";
-    
+    */
+
     // HTML-TAGS
-    public static final String  HTML_TAG_DIV          = "div"; 
-    public static final String  HTML_TAG_SPAN         = "span";
-    public static final String  HTML_TAG_TABLE        = "table";
-    public static final String  HTML_TAG_TR           = "tr";
-    public static final String  HTML_TAG_TD           = "td";
-    public static final String  HTML_TAG_INPUT        = "input";
-    public static final String  HTML_TAG_LABEL        = "label";
-    
+    public static final String  HTML_TAG_DIV           = "div";
+    public static final String  HTML_TAG_SPAN          = "span";
+    public static final String  HTML_TAG_TABLE         = "table";
+    public static final String  HTML_TAG_TR            = "tr";
+    public static final String  HTML_TAG_TD            = "td";
+    public static final String  HTML_TAG_INPUT         = "input";
+    public static final String  HTML_TAG_LABEL         = "label";
+
     // HTML-ATTRIBUTES
-    public static final String  HTML_ATTR_ID          = "id";
-    public static final String  HTML_ATTR_CLASS       = "class";
-    public static final String  HTML_ATTR_STYLE       = "style";
-    public static final String  HTML_ATTR_TYPE        = "type";
-    public static final String  HTML_ATTR_DISABLED    = "disabled";
-    public static final String  HTML_ATTR_CHECKED     = "checked";
-    
+    public static final String  HTML_ATTR_ID           = "id";
+    public static final String  HTML_ATTR_CLASS        = "class";
+    public static final String  HTML_ATTR_STYLE        = "style";
+    public static final String  HTML_ATTR_TYPE         = "type";
+    public static final String  HTML_ATTR_DISABLED     = "disabled";
+    public static final String  HTML_ATTR_CHECKED      = "checked";
+
     // HTML
-    public static String HTML_EXPR_NBSP = "&nbsp;";
+    public static String        HTML_EXPR_NBSP         = "&nbsp;";
 
     /*
     public InputControl()
@@ -251,11 +257,12 @@ public abstract class InputControl
         // writer
         ResponseWriter writer = context.getResponseWriter();
         // has tag?
+        Object value = vi.getValue(true);
         if (tagName!=null)
         {   // write start tag
             writer.startElement(tagName, comp);
-            if (hasFormatOption(vi, FORMAT_VALUE_STYLES, FORMAT_VALUE_STYLES_ATTRIBUTE))
-                styleClass = addDataValueStyle(vi, vi.getValue(true), styleClass);
+            if (!hasFormatOption(vi, FORMAT_NO_VALUE_STYLES))
+                styleClass = addDataValueStyle(vi, value, styleClass);
             if (StringUtils.isNotEmpty(styleClass))
                 writer.writeAttribute("class", styleClass, null);
             if (StringUtils.isNotEmpty(tooltip))
@@ -266,7 +273,7 @@ public abstract class InputControl
                 writer.writeAttribute("style", style, null);
         }
         // render Value
-        renderValue(vi, writer);
+        renderValue(value, vi, writer);
         // has tag?
         if (tagName!=null)
         {   // write end tag
@@ -280,10 +287,10 @@ public abstract class InputControl
      * @param writer the output writer
      * @throws IOException from ResponseWriter
      */
-    public void renderValue(ValueInfo vi, ResponseWriter writer)
+    public void renderValue(Object value, ValueInfo vi, ResponseWriter writer)
         throws IOException
     {
-        String text = formatValue(vi);
+        String text = formatValue(value, vi);
         writer.append((StringUtils.isEmpty(text) ? HTML_EXPR_NBSP : text));
     }
 
@@ -605,7 +612,7 @@ public abstract class InputControl
 
     protected void setInputStyleClass(UIInput input, String cssStyleClass)
     {
-        input.getAttributes().put("styleClass", cssStyleClass);
+        input.getAttributes().put(InputControl.CSS_STYLE_CLASS, cssStyleClass);
     }
 
     protected void copyAttributes(UIComponent parent, InputInfo ii, UIInput input, String additonalStyle)
@@ -685,7 +692,7 @@ public abstract class InputControl
     
     public void addRemoveStyle(UIInput input, String styleName, boolean setStyle)
     {
-        String styleClasses = StringUtils.toString(input.getAttributes().get("styleClass"), "");
+        String styleClasses = StringUtils.toString(input.getAttributes().get(InputControl.CSS_STYLE_CLASS), "");
         boolean hasStyle = TagStyleClass.existsIn(styleClasses, styleName);
         if (setStyle == hasStyle)
             return; // Nothing to do
@@ -776,12 +783,13 @@ public abstract class InputControl
      * Returns the value formated as a string
      * This is a shortcut for formatString(vi.getValue(), vi)
      * Derived classes may override formatString
-     */
+     
     protected final String formatValue(ValueInfo vi)
     {
         // boolean hasError = ((vi instanceof InputInfo) && !((InputInfo)vi).isValid()); 
         return formatValue(vi.getValue(true), vi);
     }
+    */
 
     /**
      * escapes a String for html
