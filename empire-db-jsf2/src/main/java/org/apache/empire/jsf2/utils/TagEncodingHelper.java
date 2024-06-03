@@ -658,6 +658,7 @@ public class TagEncodingHelper implements NamingContainer
     {
         if (column == null)
             column = findColumn();
+        /* removed 2024-06-03
         if (column == null)
         {   // @deprecated: for compatibility only!
             if (getTagAttributeValue("column")!=null)
@@ -665,8 +666,9 @@ public class TagEncodingHelper implements NamingContainer
             // find value
             column = findColumnFromValue();  
             if (column!=null)
-                log.warn("Providing the column as the value is deprecated. Use column attribute insteam. This might be removed in future versions!");
+                log.warn("Providing the column as the value is deprecated. Use column attribute instead. This might be removed in future versions!");
         }
+        */
         return (column != null);
     }
 
@@ -782,7 +784,10 @@ public class TagEncodingHelper implements NamingContainer
         if (getRecord() != null)
         {   // value
             if (record instanceof RecordData)
-            { // a record
+            {   // check record for validity
+                if ((record instanceof Record) && !((Record)record).isValid())
+                    return null;
+                // valid
                 ColumnExpr col = unwrapColumnExpr(getColumn());
                 mostRecentValue = ((RecordData) record).get(col);
                 return mostRecentValue;
@@ -937,7 +942,7 @@ public class TagEncodingHelper implements NamingContainer
         if ((getRecord() instanceof Record))
         {   // Ask Record
             Record r = (Record) record;
-            return r.isFieldVisible(getColumn());
+            return r.isValid() && r.isFieldVisible(getColumn());
         }
         // column
         return true;
@@ -967,7 +972,7 @@ public class TagEncodingHelper implements NamingContainer
         if ((getRecord() instanceof Record))
         { // Ask Record
             Record r = (Record) record;
-            return r.isFieldReadOnly(getColumn());
+            return r.isValid() && r.isFieldReadOnly(getColumn());
         }
         // column
         return getColumn().isReadOnly();
@@ -993,7 +998,7 @@ public class TagEncodingHelper implements NamingContainer
         if ((getRecord() instanceof Record))
         {   // Ask Record
             Record r = (Record) record;
-            return r.isFieldRequired(getColumn());
+            return r.isValid() && r.isFieldRequired(getColumn());
         }
         // Check Value Attribute
         if (hasValueExpression())
@@ -1032,7 +1037,7 @@ public class TagEncodingHelper implements NamingContainer
         if ((getRecord() instanceof Record))
         {   // Ask Record
             Record r = (Record) record;
-            return r.wasModified(getColumn());
+            return r.isValid() && r.wasModified(getColumn());
         }
         // not detectable
         return false;
@@ -1287,9 +1292,9 @@ public class TagEncodingHelper implements NamingContainer
         Object attr = getTagAttributeValue("options");
         if (attr != null && (attr instanceof Options))
             return ((Options) attr);
-        if (getColumn() != null)
-        { // Do we have a record?
-            if (getRecord() instanceof Record)
+        if (hasColumn())
+        {   // Do we have a record?
+            if ((getRecord() instanceof Record) && ((Record) record).isValid()) 
                 return ((Record) record).getFieldOptions(unwrapColumn(column));
             // get From Column
             return column.getOptions();
