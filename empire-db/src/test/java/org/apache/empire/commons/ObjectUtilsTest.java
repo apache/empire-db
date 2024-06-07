@@ -109,23 +109,8 @@ public class ObjectUtilsTest
 				return "JUnit";
 			}
 		};
-		Object oEq = new Object(){
-			@Override
-			public String toString()
-			{
-				return "JUnit";
-			}
-		};
-		Object oDiff = new Object(){
-			@Override
-			public String toString()
-			{
-				return "JUnitDiff";
-			}
-		};
-		
-		assertTrue(ObjectUtils.compareEqual(o1, oEq));
-		assertFalse(ObjectUtils.compareEqual(o1, oDiff));
+		assertTrue(ObjectUtils.compareEqual(o1, "JUnit"));
+		assertFalse(ObjectUtils.compareEqual(o1, "JUnitDiff"));
 	}
 
 	/**
