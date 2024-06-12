@@ -1,0 +1,87 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *  http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+
+/* common */
+* {
+  -webkit-box-sizing: border-box;
+     -moz-box-sizing: border-box;
+          box-sizing: border-box;
+}
+*:before,
+*:after {
+  -webkit-box-sizing: border-box;
+     -moz-box-sizing: border-box;
+          box-sizing: border-box;
+}
+html, body  {
+	min-width: 400px;
+	max-width: 1200px;
+    margin-left: 10px;
+    margin-right: auto;
+    margin-bottom: 5px;
+    padding-right: 20px;
+    color: black;
+    background-color: white;
+    font-family: Verdana, Arial, sans-serif;
+    font-size:12px;
+}
+.titleDiv {
+    background-color: #EFFBEF;
+    font-weight:bold;
+    font-size:18px;
+    text-align:left;
+    padding-left:10px;
+    padding-top:10px;
+    padding-bottom:10px;
+    border:2px solid #8F99EF;
+}
+h1 { font-weight:bold; color: brown; font-size:15px; text-align:left;}
+
+td { font-size:12px; padding-right:10px; }
+th { text-align:left; font-weight:bold; font-size:13px; padding-right:10px; }
+
+A:link { text-decoration:none;}
+A:visited { text-decoration:none;}
+A:hover { text-decoration:underline;}
+
+.even { background-color: #EFEFFB; 	text-align:left;}
+.odd { background-color:  #FFFFFF; 	text-align:left; }
+
+.nowrap { white-space:nowrap; }
+
+
+#messages ul {
+    background-color: #FBF0F0;
+    border:2px solid #8F99EF;
+	list-style-type: square;
+	padding: 8px;
+	padding-left: 24px;
+}
+#messages ul > li {
+	padding: 4px 0;
+/*
+	padding-left:18px;
+    padding-top:2px;
+    padding-bottom:10px;
+    padding-right:5px;
+*/    
+	color: #922727;
+    font-weight: bold;
+}
+

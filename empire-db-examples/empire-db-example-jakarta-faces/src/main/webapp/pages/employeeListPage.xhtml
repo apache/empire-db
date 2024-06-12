@@ -1,0 +1,111 @@
+<!-- 
+  Licensed to the Apache Software Foundation (ASF) under one
+  or more contributor license agreements.  See the NOTICE file
+  distributed with this work for additional information
+  regarding copyright ownership.  The ASF licenses this file
+  to you under the Apache License, Version 2.0 (the
+  "License"); you may not use this file except in compliance
+  with the License.  You may obtain a copy of the License at
+
+   http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing,
+  software distributed under the License is distributed on an
+  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+  KIND, either express or implied.  See the License for the
+  specific language governing permissions and limitations
+  under the License.
+ -->
+<ui:composition template="/WEB-INF/facelets/templates/layout.xhtml"
+	xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:e="http://java.sun.com/jsf/composite/empire"
+	xmlns:sample="http://java.sun.com/jsf/composite/components"
+	xmlns:h="http://java.sun.com/jsf/html">
+	<f:metadata>
+		<f:viewParam name="action" value="#{page.action}" />
+	</f:metadata>
+
+	<!-- parameters used in layout.xhtml -->
+	<ui:param name="pageTitle" value="#{msg.employeeList_title}" />
+	<ui:param name="contentStyle" value="unstyled" />
+
+	<!-- content -->
+	<ui:define name="content">
+		<h:form id="employeeListFilter">
+		
+			<!-- search settings -->
+			<div class="formPanel">
+				<!-- search criteria -->
+				<e:formGrid mode="grid" styleClass="grid-columns-2">
+					<e:control column="#{db.EMPLOYEES.FIRST_NAME}" value="#{page.searchFilter.firstName}" />
+					<e:control column="#{db.EMPLOYEES.LAST_NAME}" value="#{page.searchFilter.lastName}" />
+					<e:control column="#{db.EMPLOYEES.DEPARTMENT_ID}" value="#{page.searchFilter.departmentId}"
+						       options="#{page.departmentOptions}" />
+					<e:control column="#{db.EMPLOYEES.GENDER}" value="#{page.searchFilter.gender}" />
+				</e:formGrid>
+				<!-- button bar -->
+				<div class="buttonBar">
+					<h:commandLink action="#{page.doResetSearch}" value="#{msg.employeeList_resetSearch}" immediate="true" />
+					<h:commandLink action="#{page.doSearch}" value="#{msg.employeeList_search}" />
+				</div>
+			</div>
+		</h:form>
+
+		<h:form id="employeeList">
+			<h:panelGroup rendered="#{page.employees.resultEmpty}" styleClass="searchResult" layout="block">
+				<h:outputText value="#{msg.global_list_result_empty}" />
+			</h:panelGroup>
+			<!-- list -->
+			<h:panelGroup styleClass="searchResult" layout="block" rendered="#{page.employees.valid}">
+				<h:dataTable id="employeeTable" value="#{page.employees.items}" var="item" rowClasses="odd,even">
+					<h:column>
+						<f:facet name="header">
+							<e:title column="#{db.EMPLOYEES.ID}" value="ID" />
+						</f:facet>
+						<e:value record="#{item}" column="#{db.EMPLOYEES.ID}"/>
+					</h:column>
+					<h:column styleClass="item">
+						<f:facet name="header">
+							<h:outputText value="#{msg.employeeList_field_name}" />
+						</f:facet>
+						<e:link page="#{pages.EmployeeDetailPage.doLoad}" idparam="#{item.idParam}" value="#{item.name}" />
+					</h:column>
+					<h:column>
+						<f:facet name="header">
+							<e:title column="#{db.EMPLOYEES.DEPARTMENT_ID}" />
+						</f:facet>
+						<h:outputText value="#{item.department}" />
+					</h:column>
+					<h:column>
+						<f:facet name="header">
+							<e:title column="#{db.EMPLOYEES.GENDER}" />
+						</f:facet>
+						<e:value record="#{item}" column="#{db.EMPLOYEES.GENDER}" />
+					</h:column>
+					<h:column>
+						<f:facet name="header">
+							<e:title column="#{db.EMPLOYEES.DATE_OF_BIRTH}" />
+						</f:facet>
+						<e:value record="#{item}" column="#{db.EMPLOYEES.DATE_OF_BIRTH}" />
+					</h:column>
+					<h:column>
+						<f:facet name="header">
+							<e:title column="#{db.EMPLOYEES.RETIRED}" />
+						</f:facet>
+						<e:value record="#{item}" column="#{db.EMPLOYEES.RETIRED}" />
+					</h:column>
+				</h:dataTable>
+			</h:panelGroup>
+		</h:form>
+		
+		<!-- button bar -->
+		<sample:pageButtons>
+			<e:link page="#{pages.LoginPage.doLogout}" value="#{msg.application_logout}"/>
+			<e:link page="#{pages.EmployeeDetailPage.doCreate}" value="#{msg.employeeList_create}" />
+		</sample:pageButtons>
+		
+	</ui:define>
+	
+</ui:composition>

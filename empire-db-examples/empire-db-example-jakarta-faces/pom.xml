@@ -21,9 +21,9 @@
 		<groupId>org.apache.empire-db</groupId>
 		<version>3.1.1-SNAPSHOT</version>
 	</parent>
-	<artifactId>empire-db-example-jsf2</artifactId>
+	<artifactId>empire-db-example-jakarta-faces</artifactId>
 	<name>Apache Empire-db JSF2 Example</name>
-	<description>Example showing the use of the empire-db-jsf2 extensions</description>
+	<description>Example showing the use of the empire-db-jakarta-faces extensions</description>
 	<packaging>war</packaging>
 	
 	<properties>
@@ -38,46 +38,48 @@
 
 		<dependency>
 			<groupId>org.apache.empire-db</groupId>
-			<artifactId>empire-db-jsf2</artifactId>
+			<artifactId>empire-db-jakarta-faces</artifactId>
 		</dependency>
 
+		<!-- Servlet API -->
 		<dependency>
-		    <groupId>javax.servlet</groupId>
-		    <artifactId>javax.servlet-api</artifactId>
-			<scope>provided</scope>
+		    <groupId>jakarta.servlet</groupId>
+		    <artifactId>jakarta.servlet-api</artifactId>
+		    <version>5.0.0</version>
+		    <scope>provided</scope>
 		</dependency>
 
-		<!-- Sun Mojarra -->
+		<!-- Mojarra -->
 		<!--
 		<dependency>
-			<groupId>com.sun.faces</groupId>
-			<artifactId>jsf-api</artifactId>
-			<version>2.2.20</version>
+		    <groupId>jakarta.faces</groupId>
+		    <artifactId>jakarta.faces-api</artifactId>
+		    <version>3.0.0</version>
 		</dependency>
 		<dependency>
-			<groupId>com.sun.faces</groupId>
-			<artifactId>jsf-impl</artifactId>
-			<version>2.2.20</version>
-		</dependency>
+		    <groupId>org.glassfish</groupId>
+		    <artifactId>jakarta.faces</artifactId>
+		    <version>3.0.5</version>
+		</dependency>		 
 		 -->
 
 		<!-- Apache MyFaces -->
 		<dependency>
 			<groupId>org.apache.myfaces.core</groupId>
 			<artifactId>myfaces-api</artifactId>
-			<version>2.3.10</version>
+		    <version>3.0.2</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.myfaces.core</groupId>
 			<artifactId>myfaces-impl</artifactId>
-			<version>2.3.10</version>
+		    <version>3.0.2</version>
 		</dependency>
 
 		<!-- EL --> 
 		<dependency>
-		    <groupId>javax.el</groupId>
-		    <artifactId>javax.el-api</artifactId>
-		    <version>3.0.0</version>
+		    <groupId>jakarta.el</groupId>
+		    <artifactId>jakarta.el-api</artifactId>
+		    <version>4.0.0</version>
 			<scope>provided</scope>
 		</dependency>
 

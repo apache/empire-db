@@ -1,0 +1,62 @@
+<!-- 
+  Licensed to the Apache Software Foundation (ASF) under one
+  or more contributor license agreements.  See the NOTICE file
+  distributed with this work for additional information
+  regarding copyright ownership.  The ASF licenses this file
+  to you under the Apache License, Version 2.0 (the
+  "License"); you may not use this file except in compliance
+  with the License.  You may obtain a copy of the License at
+
+   http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing,
+  software distributed under the License is distributed on an
+  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+  KIND, either express or implied.  See the License for the
+  specific language governing permissions and limitations
+  under the License.
+ --> 
+<ui:composition
+	template="/WEB-INF/facelets/templates/layout.xhtml"
+	xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:e="http://java.sun.com/jsf/composite/empire"
+	xmlns:sample="http://java.sun.com/jsf/composite/components"
+	xmlns:h="http://java.sun.com/jsf/html">
+	<f:metadata>
+		<f:viewParam name="action" value="#{page.action}" />
+	</f:metadata>
+
+	<!-- parameters used in layout.xhtml -->
+	<ui:param name="pageTitle" value="#{msg.login_title}" />
+	<ui:param name="contentFooter" value="true" />
+	<ui:param name="contentStyle" value="unstyled" />
+
+	<!-- content -->
+	<ui:define name="content">
+		<h:form id="loginForm" method="post">
+			<p><h:outputText value="#{msg.login_hint}"/></p>
+			<!-- input form -->
+			<div class="formPanel">
+				<!-- search criteria -->
+				<e:formGrid mode="grid">
+					<sample:formControl for="name" label="#{msg.login_field_name}">
+						<h:inputText id="name" value="#{sampleUser.userName}" required="true" requiredMessage="#{msg.login_field_name_required}" />
+					</sample:formControl>
+					<sample:formControl for="password" label="#{msg.login_field_password}">
+						<h:inputSecret id="password" value="#{sampleUser.password}" required="true" requiredMessage="#{msg.login_field_password_required}" />
+					</sample:formControl>
+					<sample:formControl for="password" label="#{msg.login_field_language}">
+						<e:select id="language" value="#{sampleUser.locale}" options="#{page.languageOptions}" />
+					</sample:formControl>
+				</e:formGrid>
+				<!-- button bar -->
+				<div class="buttonBar">
+					<h:commandLink action="#{page.doLogin}" value="#{msg.login_title}" />
+				</div>
+			</div>
+		</h:form>
+	</ui:define>
+	
+</ui:composition>

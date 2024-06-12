@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Licensed to the Apache Software Foundation (ASF) under one or more contributor 
+	license agreements. See the NOTICE file distributed with this work for additional 
+	information regarding copyright ownership. The ASF licenses this file to 
+	you under the Apache License, Version 2.0 (the "License"); you may not use 
+	this file except in compliance with the License. You may obtain a copy of 
+	the License at http://www.apache.org/licenses/LICENSE-2.0 Unless required 
+	by applicable law or agreed to in writing, software distributed under the 
+	License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS 
+	OF ANY KIND, either express or implied. See the License for the specific 
+	language governing permissions and limitations under the License. -->
+<faces-config xmlns="http://java.sun.com/xml/ns/javaee"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-facesconfig_2_0.xsd"
+	version="2.0">
+
+	<factory>
+		<exception-handler-factory>org.apache.empire.jakarta.websample.web.AppExceptionHandlerFactory</exception-handler-factory>
+	</factory>
+
+	<application>
+	    <!-- System event listener --> 
+	    <system-event-listener>
+	    	<!-- (StartupListener for manual configuration)
+			<system-event-listener-class>org.apache.empire.jakarta.app.WebAppStartupListener</system-event-listener-class>
+			-->
+	    	<!-- (StartupListener for programmatic configuration) -->
+			<system-event-listener-class>org.apache.empire.jakarta.websample.web.SampleAppStartupListener</system-event-listener-class>
+			<!-- Faces Event -->
+			<system-event-class>jakarta.faces.event.PostConstructApplicationEvent</system-event-class>
+	    </system-event-listener>
+	    <!-- locales -->
+		<locale-config>
+			<default-locale>en</default-locale>
+			<supported-locale>en</supported-locale>
+			<supported-locale>de</supported-locale>
+		</locale-config>
+		<message-bundle>lang.messages</message-bundle>
+		<!-- messages -->
+		<message-bundle>lang.messages</message-bundle>
+		<resource-bundle>
+			<base-name>lang.messages</base-name>
+			<var>msg</var>
+		</resource-bundle>
+		<!-- EL-Resolvers (Cannot be added programmatically in Mojarra!) -->
+		<el-resolver>org.apache.empire.jakarta.app.DBELResolver</el-resolver>
+		<el-resolver>org.apache.empire.jakarta.pages.PagesELResolver</el-resolver>
+		<!-- Navigation handler (added programmatically)
+		<navigation-handler>org.apache.empire.jakarta.pages.PageNavigationHandler</navigation-handler>
+		 -->
+	</application>
+
+	<!-- Lifecycle -->
+	<lifecycle>
+		<!-- (added programmatically)
+		<phase-listener>org.apache.empire.jakarta.app.FacesRequestPhaseListener</phase-listener>
+		<phase-listener>org.apache.empire.jakarta.pages.PagePhaseListener</phase-listener>
+		 -->
+		<phase-listener>org.apache.empire.jakarta.websample.web.AuthenticationPhaseListener</phase-listener>
+	</lifecycle>
+
+	<!-- Application bean (MUST be named 'webApplication' for WebAppStartupListener!) -->
+	<managed-bean>
+		<managed-bean-name>webApplication</managed-bean-name>
+		<managed-bean-class>org.apache.empire.jakarta.websample.web.SampleApplication</managed-bean-class>
+		<managed-bean-scope>application</managed-bean-scope>
+	</managed-bean>
+
+	<!-- Session beans -->
+	<managed-bean>
+		<managed-bean-name>sampleSession</managed-bean-name>
+		<managed-bean-class>org.apache.empire.jakarta.websample.web.SampleSession</managed-bean-class>
+		<managed-bean-scope>session</managed-bean-scope>
+	</managed-bean>
+
+	<managed-bean>
+		<managed-bean-name>employeeSearchFilter</managed-bean-name>
+		<managed-bean-class>org.apache.empire.jakarta.websample.web.objects.EmployeeSearchFilter</managed-bean-class>
+		<managed-bean-scope>session</managed-bean-scope>
+	</managed-bean>
+
+	<managed-bean>
+		<managed-bean-name>sampleUser</managed-bean-name>
+		<managed-bean-class>org.apache.empire.jakarta.websample.web.SampleUser</managed-bean-class>
+		<managed-bean-scope>session</managed-bean-scope>
+	</managed-bean>
+
+	<!-- Empire-JSF components (added programmatically)
+	<component>
+		<component-type>org.apache.empire.component.RecordTag</component-type>
+		<component-class>org.apache.empire.jakarta.components.RecordTag</component-class>
+	</component>
+	<component>
+		<component-type>org.apache.empire.component.ControlTag</component-type>
+		<component-class>org.apache.empire.jakarta.components.ControlTag</component-class>
+	</component>
+	<component>
+		<component-type>org.apache.empire.component.InputTag</component-type>
+		<component-class>org.apache.empire.jakarta.components.InputTag</component-class>
+	</component>
+	<component>
+		<component-type>org.apache.empire.component.FormGridTag</component-type>
+		<component-class>org.apache.empire.jakarta.components.FormGridTag</component-class>
+	</component>
+	<component>
+		<component-type>org.apache.empire.component.LabelTag</component-type>
+		<component-class>org.apache.empire.jakarta.components.LabelTag</component-class>
+	</component>
+	<component>
+		<component-type>org.apache.empire.component.LinkTag</component-type>
+		<component-class>org.apache.empire.jakarta.components.LinkTag</component-class>
+	</component>
+	<component>
+		<component-type>org.apache.empire.component.SelectTag</component-type>
+		<component-class>org.apache.empire.jakarta.components.SelectTag</component-class>
+	</component>	
+	<component>
+		<component-type>org.apache.empire.component.TitleTag</component-type>
+		<component-class>org.apache.empire.jakarta.components.TitleTag</component-class>
+	</component>
+	<component>
+		<component-type>org.apache.empire.component.ValueTag</component-type>
+		<component-class>org.apache.empire.jakarta.components.ValueTag</component-class>
+	</component>
+	<component>
+		<component-type>org.apache.empire.component.MenuListTag</component-type>
+		<component-class>org.apache.empire.jakarta.components.MenuListTag</component-class>
+	</component>
+	<component>
+		<component-type>org.apache.empire.component.MenuItemTag</component-type>
+		<component-class>org.apache.empire.jakarta.components.MenuItemTag</component-class>
+	</component>
+	<component>
+		<component-type>org.apache.empire.component.TabViewTag</component-type>
+		<component-class>org.apache.empire.jakarta.components.TabViewTag</component-class>
+	</component>
+	<component>
+		<component-type>org.apache.empire.component.TabPageTag</component-type>
+		<component-class>org.apache.empire.jakarta.components.TabPageTag</component-class>
+	</component>
+	 -->
+
+</faces-config>

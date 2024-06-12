@@ -73,6 +73,10 @@
 			<groupId>org.apache.empire-db</groupId>
 			<artifactId>empire-db-jsf2</artifactId>
 		</dependency>
+		<dependency>
+			<groupId>org.apache.empire-db</groupId>
+			<artifactId>empire-db-jakarta-faces</artifactId>
+		</dependency>
 		<!-- javadoc -->
 		<dependency>
 			<groupId>org.apache.empire-db</groupId>
@@ -83,6 +87,12 @@
 		<dependency>
 			<groupId>org.apache.empire-db</groupId>
 			<artifactId>empire-db-jsf2</artifactId>
+			<version>3.1.1-SNAPSHOT</version>
+			<classifier>javadoc</classifier>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.empire-db</groupId>
+			<artifactId>empire-db-jakarta-faces</artifactId>
 			<version>3.1.1-SNAPSHOT</version>
 			<classifier>javadoc</classifier>
 		</dependency>

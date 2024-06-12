@@ -1,0 +1,8 @@
+/target/
+/.settings/
+/.classpath
+/.project
+/.tomcatplugin
+/.apt_generated/
+/.factorypath
+/.apt_generated_tests/

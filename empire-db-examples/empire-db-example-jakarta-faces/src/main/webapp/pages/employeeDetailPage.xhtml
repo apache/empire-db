@@ -1,0 +1,108 @@
+<!-- 
+  Licensed to the Apache Software Foundation (ASF) under one
+  or more contributor license agreements.  See the NOTICE file
+  distributed with this work for additional information
+  regarding copyright ownership.  The ASF licenses this file
+  to you under the Apache License, Version 2.0 (the
+  "License"); you may not use this file except in compliance
+  with the License.  You may obtain a copy of the License at
+
+   http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing,
+  software distributed under the License is distributed on an
+  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+  KIND, either express or implied.  See the License for the
+  specific language governing permissions and limitations
+  under the License.
+ -->
+<ui:composition template="/WEB-INF/facelets/templates/layout.xhtml"
+	xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:e="http://java.sun.com/jsf/composite/empire"
+	xmlns:sample="http://java.sun.com/jsf/composite/components"
+	xmlns:h="http://java.sun.com/jsf/html">
+	<f:metadata>
+		<f:viewParam name="action" value="#{page.action}" />
+		<f:viewParam name="id" value="#{page.idParam}" />
+	</f:metadata>
+
+	<!-- parameters used in layout.xhtml -->
+	<ui:param name="pageTitle" value="#{msg.employeeDetail_title}" />
+	<ui:param name="contentStyle" value="unstyled" />
+
+	<!-- content -->
+	<ui:define name="content">
+
+		<h:form id="employeeDetail">
+
+		<e:tabView minHeight="400px" activeIndex="#{page.activeTab}" tabChangedListener="#{page.onTabChanged}">
+			<!-- first page -->
+			<e:tabPage id="tabBasic" title="#{msg.employeeDetail_tab_basic}">
+				<e:record value="#{page.employeeRecord}">
+				<!-- formPanel -->
+				<div class="formPanel">
+					<e:formGrid mode="grid" styleClass="grid-columns-2"><!--  grid-v-align grid-white-gap -->
+						<e:control column="#{db.EMPLOYEES.SALUTATION}"/>
+						<e:control column="#{db.EMPLOYEES.FIRST_NAME}" controlClass="grid-new-row"/>
+						<e:control column="#{db.EMPLOYEES.LAST_NAME}"/>
+						<e:control column="#{db.EMPLOYEES.GENDER}"/>
+						<e:control column="#{db.EMPLOYEES.DATE_OF_BIRTH}"/>
+						<e:control column="#{db.EMPLOYEES.DEPARTMENT_ID}"/>
+						<e:control column="#{db.EMPLOYEES.PHONE_NUMBER}" controlClass="grid-new-row"/>
+						<e:control column="#{db.EMPLOYEES.EMAIL}" controlClass="grid-full-row"/>
+						<e:control column="#{db.EMPLOYEES.SALARY}"/>
+						<e:control column="#{db.EMPLOYEES.RETIRED}"/>
+						<e:control column="#{db.EMPLOYEES.UPDATE_TIMESTAMP}"/> 
+					</e:formGrid>
+				</div>
+				<!-- end formPanel -->
+				</e:record>
+			</e:tabPage>
+			
+			<!-- second page -->
+			<e:tabPage id="tabExtended" title="#{msg.employeeDetail_tab_extended}" disabled="#{not page.employeeRecord.exists}">
+				<h3><h:outputText value="#{msg.employeeDetail_payments}"/></h3>
+				<!-- Payment data -->
+				<h:dataTable id="paymentData" value="#{page.payments}" var="item" rowClasses="odd,even">
+					<h:column>
+						<f:facet name="header">
+							<e:title column="#{db.PAYMENTS.YEAR}" />
+						</f:facet>
+						<e:value record="#{item}" column="#{db.PAYMENTS.YEAR}"/>
+					</h:column>
+					<h:column>
+						<f:facet name="header">
+							<e:title column="#{db.PAYMENTS.MONTH}" />
+						</f:facet>
+						<e:value record="#{item}" column="#{db.PAYMENTS.MONTH}"/>
+					</h:column>
+					<h:column>
+						<f:facet name="header">
+							<e:title column="#{db.PAYMENTS.AMOUNT}" />
+						</f:facet>
+						<e:value record="#{item}" column="#{db.PAYMENTS.AMOUNT}"/>
+					</h:column>
+				</h:dataTable>
+				<!-- info message -->
+				<h:panelGroup layout="block" styleClass="info-msg">
+					<h:outputText value="#{msg.employeeDetail_msg_extended}"/>
+				</h:panelGroup>
+			</e:tabPage>
+		</e:tabView>	
+		
+		<!-- button bar -->
+		<sample:pageButtons>
+			<h:commandLink value="#{msg.employeeDetail_back}" action="#{page.doCancel}" immediate="true" />
+			<h:commandLink value="#{msg.employeeDetail_delete}" action="#{page.doDelete}" immediate="true" rendered="#{page.employeeRecord.exists}" />
+			<h:commandLink value="#{msg.employeeDetail_save}" action="#{page.doSave}" />
+			<!-- 
+			<h:commandLink value="#{msg.employeeDetail_test}" actionListener="#{page.doTestSerialization}" />
+			 -->
+		</sample:pageButtons>
+
+		</h:form>
+
+	</ui:define>
+</ui:composition>

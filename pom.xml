@@ -35,6 +35,7 @@
 	<modules>
 		<module>empire-db</module>
 		<module>empire-db-jsf2</module>
+		<module>empire-db-jakarta-faces</module>
 		<module>empire-db-codegen</module>
 		<module>empire-db-maven-plugin</module>
 		<module>empire-db-examples</module>
@@ -262,6 +263,12 @@
 			</dependency>
 			<dependency>
 				<groupId>org.apache.empire-db</groupId>
+				<artifactId>empire-db-jakarta-faces</artifactId>
+				<version>${project.version}</version>
+				<type>jar</type>
+			</dependency>
+			<dependency>
+				<groupId>org.apache.empire-db</groupId>
 				<artifactId>empire-db-codegen</artifactId>
 				<version>${project.version}</version>
 				<type>jar</type>
@@ -344,33 +351,6 @@
 			    <artifactId>javax.servlet-api</artifactId>
 			    <version>4.0.0</version>
 			    <scope>provided</scope>
-			</dependency>
-			<!-- Sun Mojarra -->			
-			<dependency>
-				<groupId>com.sun.faces</groupId>
-				<artifactId>jsf-api</artifactId>
-				<version>2.2.20</version>
-			</dependency>
-			<dependency>
-				<groupId>com.sun.faces</groupId>
-				<artifactId>jsf-impl</artifactId>
-				<version>2.2.20</version>
-			</dependency>
-			<!-- Apache MyFaces -->
-			<dependency>
-				<groupId>org.apache.myfaces.core</groupId>
-				<artifactId>myfaces-api</artifactId>
-				<version>2.3.10</version>
-			</dependency>
-			<dependency>
-				<groupId>org.apache.myfaces.core</groupId>
-				<artifactId>myfaces-impl</artifactId>
-				<version>2.3.10</version>
-			</dependency>
-			<dependency>
-			    <groupId>javax.el</groupId>
-			    <artifactId>javax.el-api</artifactId>
-			    <version>3.0.0</version>
 			</dependency>
 	        <!-- Misc -->
 			<dependency>

@@ -22,9 +22,9 @@
 		<groupId>org.apache.empire-db</groupId>
 		<version>3.1.1-SNAPSHOT</version>
 	</parent>
-	<artifactId>empire-db-jsf2</artifactId>
+	<artifactId>empire-db-jakarta-faces</artifactId>
 	<packaging>jar</packaging>
-	<name>Apache Empire-db Java Server Faces 2.x extensions</name>
+	<name>Apache Empire-db Jakarta Faces extensions</name>
 	
 	<properties>
 	</properties>
@@ -36,34 +36,42 @@
 		</dependency> 
 		<!-- Servlet API -->
 		<dependency>
-		    <groupId>javax.servlet</groupId>
-		    <artifactId>javax.servlet-api</artifactId>
+		    <groupId>jakarta.servlet</groupId>
+		    <artifactId>jakarta.servlet-api</artifactId>
+		    <version>5.0.0</version>
+		    <scope>provided</scope>
 		</dependency>
+		<!-- jakarta.faces -->
 		<dependency>
-			<groupId>com.sun.faces</groupId>
-			<artifactId>jsf-api</artifactId>
-			<version>2.2.20</version>
+		    <groupId>jakarta.faces</groupId>
+		    <artifactId>jakarta.faces-api</artifactId>
+		    <version>3.0.0</version>
 			<scope>provided</scope>
 		</dependency>
-		<!-- Mojarra --> 
 		<dependency>
-			<groupId>com.sun.faces</groupId>
-			<artifactId>jsf-impl</artifactId>
-			<version>2.2.20</version>
+		    <groupId>org.glassfish</groupId>
+		    <artifactId>jakarta.faces</artifactId>
+		    <version>3.0.5</version>
+			<scope>provided</scope>
+		</dependency>		 
+		<!-- MyFaces -->
+		<dependency>
+		    <groupId>org.apache.myfaces.core</groupId>
+		    <artifactId>myfaces-api</artifactId>
+		    <version>3.0.2</version>
 			<scope>provided</scope>
 		</dependency>
-		<!-- MyFaces --> 
 		<dependency>
 			<groupId>org.apache.myfaces.core</groupId>
 			<artifactId>myfaces-impl</artifactId>
-			<version>2.3.10</version>
+			<version>3.0.2</version>
 			<scope>provided</scope>
 		</dependency>
 		<!-- EL --> 
 		<dependency>
-		    <groupId>javax.el</groupId>
-		    <artifactId>javax.el-api</artifactId>
-		    <version>3.0.0</version>
+		    <groupId>jakarta.el</groupId>
+		    <artifactId>jakarta.el-api</artifactId>
+		    <version>4.0.0</version>
 			<scope>provided</scope>
 		</dependency>
 	</dependencies>

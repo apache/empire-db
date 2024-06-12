@@ -1,0 +1,135 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *  http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+ 
+.margin-above {
+	margin-top: 10px;
+}
+ 
+/* form panel */
+.formPanel {
+	border: 1px #8F99EF solid;
+	background-color: var(--form-background-color);
+	padding: 8px 4px;
+}
+.formPanel > .buttonBar {
+	padding: var(--control-v-pad) 0;
+	padding-left: var(--label-width);
+	margin-top: 10px;
+}
+
+.buttonBar a,
+.buttonBar a:visited {
+	display: inline-block;
+	border: var(--button-border-width) var(--button-border-color) solid;
+	padding: var(--input-v-pad) 12px;
+	color: black;
+	text-decoration: none;
+	margin-right: 16px;
+	background-color: white;
+	font-weight: bold;
+}
+.buttonBar a:hover {
+	background-color: #EFFBEF;
+}
+
+/* result table */
+div.searchResult,
+span.searchResult {
+	display: block;
+	margin: 12px 0;
+	padding: 4px 0;
+}
+.searchResult table {
+	width: 100%;
+	border: 1px #8F99EF solid;
+	border-collapse: collapse;
+}
+.searchResult table tr th,
+.searchResult table tr td {
+	padding: var(--table-cell-v-pad) var(--table-cell-h-pad);
+}
+.searchResult table tr th {
+	background-color: #EFFBEF;
+	border-bottom: 1px #8F99EF solid;
+}
+.searchResult table a.eLink,
+.searchResult table a.eLink:visited {
+	color: brown;
+	font-weight: bold;
+}
+
+/* tab view */
+div.eTabView {
+}
+div.eTabBar {
+	display: flex;
+}
+table.eTabBar {
+	width: 100%;
+	border-spacing: 0;
+	border-collapse: collapse;
+	table-layout: auto;
+	padding: 0;
+}
+div.eTabBar .eTabLabel,
+table.eTabBar tr td.eTabLabel {
+	border: 1px #8F99EF solid;
+	padding: 8px;	
+	white-space: nowrap;
+}
+div.eTabBar .eTabLabel.eTabActive,
+table.eTabBar tr td.eTabLabel.eTabActive {
+	border-bottom: 1px #F8F8F8 solid;
+	background-color: #F8F8F8;	
+}
+table.eTabBar tr td.eTabLabel.eTabDisabled {
+	color: gray;
+	font-style: italic;
+}
+.eTabBar .eTabBarEmpty {
+	width: 99%;
+	border-bottom: 1px #8F99EF solid;	
+}
+table.eTabPanel {
+	width: 100%;
+	border-spacing: 0;
+	border-collapse: collapse;
+}
+div.eTabPanel {
+	display: grid;
+}
+.eTabPanel {
+	border: 1px #8F99EF solid;
+	border-top: 0px;	
+}
+.eTabPanel .eTabPage {
+	padding: 8px;
+	background-color: #F8F8F8;
+	vertical-align: top;
+}
+.eTabPanel .eTabPage .formPanel {
+	border: 0;
+}
+div.info-msg {
+	padding: 12px;
+	background-color: #FFFFCA;
+}
+.paymentData {
+	border: 2px gray solid;
+}
