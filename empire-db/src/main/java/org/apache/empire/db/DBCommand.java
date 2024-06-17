@@ -1529,17 +1529,8 @@ public abstract class DBCommand extends DBCommandExpr
         if (list == null)
             return null;
         for (DBCompareExpr cmp : list)
-        {   // Check whether it is a compare column expr.
-            if (!(cmp instanceof DBCompareColExpr))
-                continue;
-            // Compare columns
-            DBColumnExpr cmpCol = ((DBCompareColExpr)cmp).getColumnExpr();
-            if (ObjectUtils.compareEqual(cmpCol, colExpr))
-            {   // found
-                return cmp;
-            }
-            // Update column
-            if ((colExpr instanceof DBColumn) && !(cmpCol instanceof DBColumn) && colExpr.equals(colExpr.getUpdateColumn()))
+        {   // Compare columns
+            if (cmp.isConstraintOn(colExpr))
             {   // found
                 return cmp;
             }

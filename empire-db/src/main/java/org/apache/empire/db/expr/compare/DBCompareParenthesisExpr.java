@@ -22,6 +22,7 @@ import java.util.Set;
 
 import org.apache.empire.commons.Unwrappable;
 import org.apache.empire.db.DBColumn;
+import org.apache.empire.db.DBColumnExpr;
 import org.apache.empire.db.DBCommand;
 import org.apache.empire.db.DBDatabase;
 import org.apache.empire.db.DBRowSet;
@@ -96,5 +97,11 @@ public class DBCompareParenthesisExpr extends DBCompareExpr implements Unwrappab
         sql.append("(");
         wrapped.addSQL(sql, context|CTX_NOPARENTHESIS);
         sql.append(")");
+    }
+
+    @Override
+    public boolean isConstraintOn(DBColumnExpr colExpr)
+    {
+        return wrapped.isConstraintOn(colExpr);
     }
 }

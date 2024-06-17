@@ -21,6 +21,7 @@ package org.apache.empire.db.expr.compare;
 import java.util.Set;
 
 import org.apache.empire.db.DBColumn;
+import org.apache.empire.db.DBColumnExpr;
 import org.apache.empire.db.DBCommand;
 import org.apache.empire.db.DBCommandExpr;
 import org.apache.empire.db.DBDatabase;
@@ -175,5 +176,15 @@ public class DBExistsExpr extends DBCompareExpr
     	}
     	return false;
     }
-    
+
+    /**
+     * Returns whether the constraint is on the given column
+     * @return true it the constraint is on the given column or false otherwise
+     */
+    @Override
+    public boolean isConstraintOn(DBColumnExpr colExpr)
+    {
+        return (compareExpr!=null ? compareExpr.isConstraintOn(colExpr) : false);
+    }
+   
 }

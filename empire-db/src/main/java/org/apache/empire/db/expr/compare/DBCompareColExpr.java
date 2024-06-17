@@ -21,6 +21,7 @@ package org.apache.empire.db.expr.compare;
 import java.util.Set;
 
 import org.apache.empire.commons.ObjectUtils;
+import org.apache.empire.commons.StringUtils;
 import org.apache.empire.data.DataType;
 import org.apache.empire.db.DBCmdParam;
 import org.apache.empire.db.DBCmpType;
@@ -313,7 +314,10 @@ public class DBCompareColExpr extends DBCompareExpr
     {
         StringBuilder b = new StringBuilder(expr.toString());
         b.append(cmpop.toString());
-        b.append(value.toString());
+        if (value instanceof DBCmdParam)
+            b.append("?");
+        else
+            b.append(StringUtils.toString(value, StringUtils.NULL));
         return b.toString();
     }
 
@@ -343,6 +347,24 @@ public class DBCompareColExpr extends DBCompareExpr
     	}
     	// other types
     	return equals(other);
+    }
+
+    /**
+     * Returns whether the constraint is on the given column
+     * 
+     * @return true it the constraint is on the given column or false otherwise
+     */
+    @Override
+    public boolean isConstraintOn(DBColumnExpr colExpr)
+    {
+        // compare columns
+        if (ObjectUtils.compareEqual(expr, colExpr))
+            return true;
+        // Update column
+        if ((colExpr instanceof DBColumn) && !(expr instanceof DBColumn) && colExpr.equals(expr.getUpdateColumn()))
+            return true;
+        // not found
+        return false;
     }
     
 }

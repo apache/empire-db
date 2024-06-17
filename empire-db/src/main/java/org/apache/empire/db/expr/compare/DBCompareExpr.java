@@ -18,6 +18,7 @@
  */
 package org.apache.empire.db.expr.compare;
 
+import org.apache.empire.db.DBColumnExpr;
 import org.apache.empire.db.DBCommand;
 import org.apache.empire.db.DBExpr;
 import org.apache.empire.db.DBRowSet;
@@ -33,6 +34,8 @@ public abstract class DBCompareExpr extends DBExpr
   
 	public abstract boolean isMutuallyExclusive(DBCompareExpr other);
 
+	public abstract boolean isConstraintOn(DBColumnExpr colExpr);
+	
 	/**
 	 * Creates a new DBCompareAndOrExpr object.
 	 * 

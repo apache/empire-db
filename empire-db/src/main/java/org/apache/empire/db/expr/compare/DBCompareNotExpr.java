@@ -22,6 +22,7 @@ import java.util.Set;
 
 import org.apache.empire.commons.ObjectUtils;
 import org.apache.empire.db.DBColumn;
+import org.apache.empire.db.DBColumnExpr;
 import org.apache.empire.db.DBCommand;
 import org.apache.empire.db.DBDatabase;
 import org.apache.empire.db.DBRowSet;
@@ -153,5 +154,15 @@ public class DBCompareNotExpr extends DBCompareExpr
         }
         return false;
     }
-    
+
+    /**
+     * Returns whether the constraint is on the given column
+     * @return true it the constraint is on the given column or false otherwise
+     */
+    @Override
+    public boolean isConstraintOn(DBColumnExpr colExpr)
+    {
+        return expr.isConstraintOn(colExpr);
+    }
+   
 }
