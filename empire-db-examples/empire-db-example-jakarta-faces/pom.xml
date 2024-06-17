@@ -22,7 +22,7 @@
 		<version>3.1.1-SNAPSHOT</version>
 	</parent>
 	<artifactId>empire-db-example-jakarta-faces</artifactId>
-	<name>Apache Empire-db JSF2 Example</name>
+	<name>Apache Empire-db Jakarta Faces Example</name>
 	<description>Example showing the use of the empire-db-jakarta-faces extensions</description>
 	<packaging>war</packaging>
 	
