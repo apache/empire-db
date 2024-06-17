@@ -80,6 +80,17 @@ public class PostgresAtAt extends DBCompareExpr
     }
 
     @Override
+    public boolean isConstraintOn(DBColumnExpr colExpr)
+    {
+        // compare columns
+        if (ObjectUtils.compareEqual(left, colExpr) ||
+            ObjectUtils.compareEqual(right, colExpr))
+            return true;
+        // not equal
+        return false;
+    }
+    
+    @Override
     public DBRowSet getRowSet()
     {
         DBRowSet rowset = left.getRowSet(); 
