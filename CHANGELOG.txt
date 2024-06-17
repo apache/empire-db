@@ -25,6 +25,7 @@ Summary: Release 3.2 has new features and improvements as well as several bugfix
 	EMPIREDB-408	Core:	Update dependencies
 	
 ** Bugfixes
+	EMPIREDB-429	Core:	DBCommand findConstraintOn not considering all constraint types
 	EMPIREDB-423	Core:	DBDataModelParser Primary Key column order fix
 	EMPIREDB-418	Core:	Oracle DBMS Handler fix for Boolean type CHAR and MERGE into
 	EMPIREDB-414	Core:	Unable to set time column values using LocalTime when Prepared Statements are disabled
