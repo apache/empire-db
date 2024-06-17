@@ -1,8 +1,36 @@
 Apache Empire-db
-Copyright 2008-2022 The Apache Software Foundation
+Copyright 2008-2024 The Apache Software Foundation
 
 For more Information about a particular issue please visit
 https://issues.apache.org/jira/browse/EMPIREDB
+
+--------------
+Release 3.2.0:
+--------------
+
+Summary: Release 3.2 has new features and improvements as well as several bugfixes
+
+** Improvements / Features
+	EMPIREDB-428	JSF:	Create Jakarta Faces Extension for Jakarta EE 9
+	EMPIREDB-427	JSF:	JSF CSS replace DataType style with InputControl style
+	EMPIREDB-426	JSF:	JSF Page and PageElements improvements
+	EMPIREDB-425	JSF:	Provide EntityType for Column
+	EMPIREDB-424	JSF:	Allow programmatic Faces Configuration
+	EMPIREDB-422	JSF:	JSF Input Control Improvements
+	EMPIREDB-421	JSF:	Remove abstract method getDBContext() on Page
+	EMPIREDB-420	Core:	API Cleanup DBColumExpr getSourceColumn() vs getUpdateColumn()
+	EMPIREDB-419	Core:	Extend XMLConfiguration allowing variables and Map properties
+	EMPIREDB-416	Core:	Improved SQL Case expressions
+	EMPIREDB-410	Core:	Various small improvments like new method overloads
+	EMPIREDB-408	Core:	Update dependencies
+	
+** Bugfixes
+	EMPIREDB-423	Core:	DBDataModelParser Primary Key column order fix
+	EMPIREDB-418	Core:	Oracle DBMS Handler fix for Boolean type CHAR and MERGE into
+	EMPIREDB-414	Core:	Unable to set time column values using LocalTime when Prepared Statements are disabled
+	EMPIREDB-412	Core:	DBColumnJoinExpr should not reuse additional constraints property.
+	EMPIREDB-411	Core:	DBCalcExpr should skip a column alias
+	EMPIREDB-409	Core:	ClassUtils.copy() fails for classes with static fields
 
 --------------
 Release 3.1.0:
