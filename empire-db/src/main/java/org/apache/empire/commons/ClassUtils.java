@@ -345,8 +345,10 @@ public final class ClassUtils
         catch (NoSuchFieldException e)
         {   // try superclass
             clazz = clazz.getSuperclass();
-            if (clazz!=null && !clazz.equals(java.lang.Object.class))
+            if (clazz!=null && !clazz.equals(java.lang.Object.class)) {
                 setPrivateFieldValue(clazz, object, property, value);
+                return;
+            }
             // not found
             log.error("Field \""+property+"\" not found on class "+clazz.getName());
             throw new InternalException(e);
