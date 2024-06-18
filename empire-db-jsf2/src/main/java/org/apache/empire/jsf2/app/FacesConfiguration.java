@@ -19,7 +19,6 @@
 package org.apache.empire.jsf2.app;
 
 import java.util.Iterator;
-import java.util.Map;
 
 import javax.el.ELResolver;
 import javax.faces.FactoryFinder;
@@ -37,6 +36,7 @@ import javax.faces.lifecycle.LifecycleFactory;
 import javax.faces.render.RenderKit;
 import javax.faces.render.RenderKitFactory;
 import javax.faces.render.Renderer;
+import javax.servlet.ServletContext;
 
 import org.apache.empire.commons.ClassUtils;
 import org.apache.empire.commons.ObjectUtils;
@@ -322,12 +322,15 @@ public class FacesConfiguration
     
     protected void setFacesInitParam(String paramName, Object paramValue, boolean overwriteExisting)
     {
+        if (StringUtils.isEmpty(paramName))
+            throw new InvalidArgumentException("paramName", paramName);
         // special case
         if (ProjectStage.PROJECT_STAGE_PARAM_NAME.equals(paramName))
             throw new InvalidOperationException(ProjectStage.PROJECT_STAGE_PARAM_NAME+" cannot be changed!");
         // get map
+        ServletContext sc = (ServletContext)this.externalContext.getContext();
         String paramVal = StringUtils.toString(paramValue);
-        String orgValue = this.externalContext.getInitParameter(paramName);
+        String orgValue = sc.getInitParameter(paramName);
         if (ObjectUtils.compareEqual(paramVal, orgValue))
             return; // No change
         if (ObjectUtils.isNotEmpty(orgValue) && !overwriteExisting)
@@ -340,9 +343,7 @@ public class FacesConfiguration
         else
             log.info("Setting FacesParam \"{}\" to \"{}\".", paramName, paramVal);
         // add to map
-        @SuppressWarnings("unchecked")
-        Map<String,String> paramMap = this.externalContext.getInitParameterMap();
-        paramMap.put(paramName, paramVal);
+        sc.setInitParameter(paramName, paramVal);
     }
 
     protected void setFacesInitParam(String paramName, Object paramValue)

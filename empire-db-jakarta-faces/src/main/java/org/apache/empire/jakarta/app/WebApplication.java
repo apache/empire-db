@@ -26,20 +26,8 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.ResourceBundle;
 
-import jakarta.faces.application.Application;
-import jakarta.faces.application.FacesMessage;
-import jakarta.faces.application.FacesMessage.Severity;
-import jakarta.faces.application.ViewExpiredException;
-import jakarta.faces.component.NamingContainer;
-import jakarta.faces.component.UIComponent;
-import jakarta.faces.component.UIViewRoot;
-import jakarta.faces.context.ExternalContext;
-import jakarta.faces.context.FacesContext;
-import jakarta.servlet.ServletContext;
-import jakarta.servlet.http.HttpServletRequest;
 import javax.sql.DataSource;
 
-import org.apache.empire.commons.ObjectUtils;
 import org.apache.empire.commons.StringUtils;
 import org.apache.empire.data.DataType;
 import org.apache.empire.db.DBDatabase;
@@ -56,6 +44,18 @@ import org.apache.empire.jakarta.impl.FacesImplementation;
 import org.apache.empire.jakarta.impl.ResourceTextResolver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import jakarta.faces.application.Application;
+import jakarta.faces.application.FacesMessage;
+import jakarta.faces.application.FacesMessage.Severity;
+import jakarta.faces.application.ViewExpiredException;
+import jakarta.faces.component.NamingContainer;
+import jakarta.faces.component.UIComponent;
+import jakarta.faces.component.UIViewRoot;
+import jakarta.faces.context.ExternalContext;
+import jakarta.faces.context.FacesContext;
+import jakarta.servlet.ServletContext;
+import jakarta.servlet.http.HttpServletRequest;
 
 public abstract class WebApplication
 {
@@ -321,9 +321,10 @@ public abstract class WebApplication
      */
     public boolean isPartialSubmit(final FacesContext fc)
     {
-        // Detect Partial Submit
-        Map<String,String> parameterMap = fc.getExternalContext().getRequestParameterMap();
-        return ObjectUtils.getBoolean(parameterMap.get("jakarta.faces.partial.ajax"));
+        // Override for your JSF component Framework. e.g. for IceFaces
+        // Map<String,String> parameterMap = fc.getExternalContext().getRequestParameterMap();
+        // return ObjectUtils.getBoolean(parameterMap.get("ice.submit.partial"));
+        return false;
     }
 
     /**

@@ -19,7 +19,22 @@
 package org.apache.empire.jakarta.app;
 
 import java.util.Iterator;
-import java.util.Map;
+
+import org.apache.empire.commons.ClassUtils;
+import org.apache.empire.commons.ObjectUtils;
+import org.apache.empire.commons.StringUtils;
+import org.apache.empire.exceptions.InvalidArgumentException;
+import org.apache.empire.exceptions.InvalidOperationException;
+import org.apache.empire.exceptions.ItemExistsException;
+import org.apache.empire.exceptions.ItemNotFoundException;
+import org.apache.empire.exceptions.ObjectNotValidException;
+import org.apache.empire.jakarta.impl.FacesImplementation;
+import org.apache.empire.jakarta.impl.FacesImplementation.BeanStorageProvider;
+import org.apache.empire.jakarta.pages.PageNavigationHandler;
+import org.apache.empire.jakarta.pages.PagePhaseListener;
+import org.apache.empire.jakarta.pages.PagesELResolver;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import jakarta.el.ELResolver;
 import jakarta.faces.FactoryFinder;
@@ -37,22 +52,7 @@ import jakarta.faces.lifecycle.LifecycleFactory;
 import jakarta.faces.render.RenderKit;
 import jakarta.faces.render.RenderKitFactory;
 import jakarta.faces.render.Renderer;
-
-import org.apache.empire.commons.ClassUtils;
-import org.apache.empire.commons.ObjectUtils;
-import org.apache.empire.commons.StringUtils;
-import org.apache.empire.exceptions.InvalidArgumentException;
-import org.apache.empire.exceptions.InvalidOperationException;
-import org.apache.empire.exceptions.ItemExistsException;
-import org.apache.empire.exceptions.ItemNotFoundException;
-import org.apache.empire.exceptions.ObjectNotValidException;
-import org.apache.empire.jakarta.impl.FacesImplementation;
-import org.apache.empire.jakarta.impl.FacesImplementation.BeanStorageProvider;
-import org.apache.empire.jakarta.pages.PageNavigationHandler;
-import org.apache.empire.jakarta.pages.PagePhaseListener;
-import org.apache.empire.jakarta.pages.PagesELResolver;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import jakarta.servlet.ServletContext;
 
 /**
  * FacesConfiguration
@@ -322,12 +322,15 @@ public class FacesConfiguration
     
     protected void setFacesInitParam(String paramName, Object paramValue, boolean overwriteExisting)
     {
+        if (StringUtils.isEmpty(paramName))
+            throw new InvalidArgumentException("paramName", paramName);
         // special case
         if (ProjectStage.PROJECT_STAGE_PARAM_NAME.equals(paramName))
             throw new InvalidOperationException(ProjectStage.PROJECT_STAGE_PARAM_NAME+" cannot be changed!");
         // get map
+        ServletContext sc = (ServletContext)this.externalContext.getContext();
         String paramVal = StringUtils.toString(paramValue);
-        String orgValue = this.externalContext.getInitParameter(paramName);
+        String orgValue = sc.getInitParameter(paramName);
         if (ObjectUtils.compareEqual(paramVal, orgValue))
             return; // No change
         if (ObjectUtils.isNotEmpty(orgValue) && !overwriteExisting)
@@ -340,9 +343,7 @@ public class FacesConfiguration
         else
             log.info("Setting FacesParam \"{}\" to \"{}\".", paramName, paramVal);
         // add to map
-        @SuppressWarnings("unchecked")
-        Map<String,String> paramMap = this.externalContext.getInitParameterMap();
-        paramMap.put(paramName, paramVal);
+        sc.setInitParameter(paramName, paramVal);
     }
 
     protected void setFacesInitParam(String paramName, Object paramValue)
@@ -355,7 +356,7 @@ public class FacesConfiguration
         setFacesInitParam(paramName.toString(), paramValue, false);
     }
     
-    protected void addConverter(Class<?> targetClass, Class<? extends Converter> converterClass)
+    protected void addConverter(Class<?> targetClass, Class<? extends Converter<?>> converterClass)
     {
         log.info("Adding Type-Converter for type \"{}\" using {}", targetClass.getName(), converterClass.getName());
         application.addConverter(targetClass, converterClass.getName());
