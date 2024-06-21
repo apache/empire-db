@@ -52,7 +52,7 @@ public class DBCaseMapExpr extends DBCaseExpr
     
     /**
      * constructs a DBCaseSelectExpr expr
-     * @param colExpr the source column
+     * @param caseExpr the case expression
      * @param valueMap the value Map
      * @param elseValue the else Expression
      */

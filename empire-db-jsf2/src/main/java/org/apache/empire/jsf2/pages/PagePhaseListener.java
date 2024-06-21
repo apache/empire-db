@@ -191,7 +191,6 @@ public class PagePhaseListener implements PhaseListener
     /**
      * Sets the view Metadata
      * @param pageParams
-     * @return
      */
     protected void setPageParams(Page pageBean, Map<String, String> pageParams)
     {

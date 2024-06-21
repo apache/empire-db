@@ -106,7 +106,6 @@ public abstract class DBColumnExpr extends DBExpr
     public abstract DBColumn getUpdateColumn();
 
     /**
-     * @Deprecated
      * Use getUpdateColumn() instead!
      */
     @Override

@@ -584,7 +584,7 @@ public final class ObjectUtils
      * If the object value supplied is empty then the defValue is returned 
      * Numbers are considered true if they are not equal to zero
      * String are considered true only if the string is "Y" or "true"
-     * @param value the object to convert
+     * @param v the object to convert
      * @param defValue the default value
      * @return the boolean value or defValue if v is null or empty
      */
@@ -610,7 +610,7 @@ public final class ObjectUtils
     /**
      * Converts an object value to a boolean.
      * see getBoolean(Object v, boolean defValue) for details.
-     * @param value the object to convert
+     * @param v the object to convert
      * @return the boolean value or false if v is null or empty
      */
     public static boolean getBoolean(Object v)

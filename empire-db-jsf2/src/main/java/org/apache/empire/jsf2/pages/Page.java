@@ -66,10 +66,10 @@ public abstract class Page // *Deprecated* implements Serializable
         }
     }
 
-    /**
+    /*
      * Removed with EMPIREDB-421:
      * 
-     * public abstract <T extends DBContext> T getDBContext(DBDatabase db);
+     * public abstract T getDBContext(DBDatabase db);
      */
     
     public String getPageName()

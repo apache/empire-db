@@ -1211,7 +1211,7 @@ public abstract class DBDatabase extends DBObject
      * Creates a SQL case expression that check whether a column or column expression is null
      * "case when [condition] is null then [trueValue] else [falseValue] end"
      * This is a helper function to simplify client usage
-     * @param expr a column or column expression
+     * @param column a column or column expression
      * @param trueValue the value to select if the condition is true
      * @param falseValue the value to select if the condition is false
      * @return an sql case expression
@@ -1237,7 +1237,8 @@ public abstract class DBDatabase extends DBObject
     /**
      * Creates a SQL case expression
      * in the form "case [Expr] when [optionValue] then [optionText] else [elseValue] end"
-     * @param Options the options to map
+     * @param column a column or column expression
+     * @param options the options to map
      * @param elseValue the else expression
      * @return the expression
      */
@@ -1249,8 +1250,10 @@ public abstract class DBDatabase extends DBObject
     /**
      * Creates a SQL case expression
      * in the form "case [Expr] when [compareValue] then [trueValue] else [elseValue] end"
-     * @param whenMap the map with constraints
-     * @param elseValue the else expression
+     * @param column a column or column expression
+     * @param cmpValue the value to compare the column value with
+     * @param trueValue the true expression
+     * @param falseValue the false expression
      * @return the expression
      */
     public DBCaseExpr caseMap(DBColumnExpr column, Object cmpValue, Object trueValue, Object falseValue)

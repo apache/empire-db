@@ -26,9 +26,7 @@ import java.util.Set;
 import org.apache.empire.exceptions.NotSupportedException;
 
 /**
- * This class is a lightweight Set<E> implementation using an ArrayList
- * @param <K>
- * @param <V>
+ * This class is a lightweight Set implementation using an ArrayList
  */
 public class ArraySet<E> extends ArrayList<E> implements Set<E>
 {

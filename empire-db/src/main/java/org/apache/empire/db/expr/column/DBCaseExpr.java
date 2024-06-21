@@ -128,7 +128,7 @@ public abstract class DBCaseExpr extends DBColumnExpr
 
     /**
      * helper to check if an expression is null
-     * @param value
+     * @param value the value to check
      * @return true if null or false otherwise
      */
     protected boolean isNull(Object value)
@@ -149,7 +149,6 @@ public abstract class DBCaseExpr extends DBColumnExpr
     /**
      * Init case expression. 
      * Must be called from all constructors!
-     * @param caseExpr the case expr (if any)
      * @param valueMap the value or conditions map
      * @param elseValue the else value
      */

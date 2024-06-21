@@ -133,7 +133,6 @@ public class WebAppStartupListener implements SystemEventListener
 
     /**
      * Allows to programmatically extend the faces configuration
-     * @param facesImplementation the Faces Implementation
      * @param startupContext the Startup Context
      */
     protected void initFacesConfiguration(FacesContext startupContext)
@@ -147,7 +146,6 @@ public class WebAppStartupListener implements SystemEventListener
 
     /**
      * Creates a WebApplication instance
-     * @param facesImplementation the Faces Implementation
      * @param startupContext the Startup Context
      * @return the WebApplication instance
      */
@@ -164,7 +162,6 @@ public class WebAppStartupListener implements SystemEventListener
     /**
      * Initializes a WebApplication instance
      * @param facesApp the WebApplication instance
-     * @param facesImplementation the Faces Implementation
      * @param startupContext the Startup Context
      */
     protected void initWebApplication(WebApplication facesApp, FacesContext startupContext)

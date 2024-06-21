@@ -25,16 +25,12 @@ import java.util.Set;
 import org.apache.empire.exceptions.InvalidArgumentException;
 
 /**
- * This class is a lightweight Map<K,V> implementation using an ArrayList
- * @param <K>
- * @param <V>
+ * This class is a lightweight Map implementation using an ArrayList
  */
 public class ArrayMap<K,V> extends AbstractMap<K,V>
 {    
     /**
      * The Entry class represents a map entry
-     * @param <K>
-     * @param <V>
      */
     public static class Entry<K,V> implements Map.Entry<K, V>
     {

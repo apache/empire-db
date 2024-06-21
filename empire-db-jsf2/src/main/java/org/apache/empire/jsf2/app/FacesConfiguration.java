@@ -68,7 +68,7 @@ import org.slf4j.LoggerFactory;
  *   {
  *      super(FacesExtensions.class);
  *   }
- * </pre> 
+ * </pre>
  */
 public class FacesConfiguration
 {
@@ -107,7 +107,7 @@ public class FacesConfiguration
     
     /**
      * Static Initializer
-     * @param clazz the configuration class
+     * @param configClass the configuration class
      * @param startupContext the startupContext
      */
     public static <T extends FacesConfiguration> void initialize(Class<T> configClass, FacesContext startupContext, FacesImplementation facesImpl)

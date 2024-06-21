@@ -316,9 +316,10 @@ public class StringUtils
     /**
      * Estimates the buffer size needed to convert an Array into a String
      * @param array the array
+     * @param separatorLength the separator length
      * @return the estimated length of the array parts
      */
-    public static int estimateArrayBufferSize(Object[] array, int seperatorLength)
+    public static int estimateArrayBufferSize(Object[] array, int separatorLength)
     {
         int estimate = 0;
         for (int i = 0; i < array.length; i++) 
@@ -330,14 +331,14 @@ public class StringUtils
             else if (item instanceof Number)
                 len = 10; // assume 10
             else if (item instanceof Object[])
-                len = estimateArrayBufferSize((Object[])item, seperatorLength);
+                len = estimateArrayBufferSize((Object[])item, separatorLength);
             else if (item instanceof Collection<?>)
-                len = estimateListBufferSize((Collection<?>)item, seperatorLength);
+                len = estimateListBufferSize((Collection<?>)item, separatorLength);
             else if (item!=null)
                 len = 20; // unknown
             if (len>0) {
                 if (estimate > 0)
-                    estimate += seperatorLength;
+                    estimate += separatorLength;
                 estimate += len;
             }
         }
@@ -425,10 +426,11 @@ public class StringUtils
 
     /**
      * Estimates the buffer size needed to convert a Collection into a String
-     * @param array the array
+     * @param list the list to estimate
+     * @param separatorLength the separator length
      * @return the estimated length of the collection parts
      */
-    public static int estimateListBufferSize(Collection<?> list, int seperatorLength)
+    public static int estimateListBufferSize(Collection<?> list, int separatorLength)
     {
         int estimate = 0;
         for (Object item : list)
@@ -439,14 +441,14 @@ public class StringUtils
             else if (item instanceof Number)
                 len = 10; // assume 10
             else if (item instanceof Object[])
-                len = estimateArrayBufferSize((Object[])item, seperatorLength);
+                len = estimateArrayBufferSize((Object[])item, separatorLength);
             else if (item instanceof Collection<?>)
-                len = estimateListBufferSize((Collection<?>)item, seperatorLength);
+                len = estimateListBufferSize((Collection<?>)item, separatorLength);
             else if (item!=null)
                 len = 20; // unknown
             if (len>0) {
                 if (estimate > 0)
-                    estimate += seperatorLength;
+                    estimate += separatorLength;
                 estimate += len;
             }
         }

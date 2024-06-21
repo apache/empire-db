@@ -290,7 +290,7 @@ public class ParameterMap // *Deprecated* implements Serializable
     
     /**
      * Generates an idParam which is only valid for the given page.
-     * @param targetPage the target page
+     * @param page the target page
      * @param rowset the rowset
      * @param key the key
      * @return the encoded object

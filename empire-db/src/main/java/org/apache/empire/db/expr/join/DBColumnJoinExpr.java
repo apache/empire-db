@@ -65,7 +65,7 @@ public class DBColumnJoinExpr extends DBJoinExpr
      * Copy and concat constructor
      * 
      * @param joinExpr the original joinExpr
-     * @param addlContraint additional constraint
+     * @param addlConstraint additional constraint
      */
     public DBColumnJoinExpr(DBColumnJoinExpr joinExpr, DBCompareExpr addlConstraint)
     {

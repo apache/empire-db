@@ -215,7 +215,6 @@ public class BeanProperty implements Column
     }
 
     /**
-     * @Deprecated
      * Use getUpdateColumn() instead!
      */
     @Override
