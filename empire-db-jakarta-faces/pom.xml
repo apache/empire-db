@@ -20,7 +20,7 @@
 	<parent>
 		<artifactId>empire-db-parent</artifactId>
 		<groupId>org.apache.empire-db</groupId>
-		<version>3.2.0</version>
+		<version>3.2.1-SNAPSHOT</version>
 	</parent>
 	<artifactId>empire-db-jakarta-faces</artifactId>
 	<packaging>jar</packaging>
