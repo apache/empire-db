@@ -245,6 +245,14 @@ public class TagEncodingHelper implements NamingContainer
                 throw new InvalidArgumentException("resolver", resolver);
         }
 
+        /*
+         * reset cached data
+         */
+        protected void reset()
+        {
+            this.format = null;
+        }
+
         /* Value Options */
         protected boolean hasColumn()
         {
@@ -732,11 +740,10 @@ public class TagEncodingHelper implements NamingContainer
         this.valueRequired   = -1;
         this.optionsDetected = false;
         this.options         = null;
-        /*
-        this.valueInfo       = null;
-        this.skipValidation  = false;
-        */
         this.mostRecentValue = null;
+        // Value Info
+        if (this.valueInfo!=null) 
+           ((ValueInfoImpl)this.valueInfo).reset();
     }
     
     public Object findRecordComponent()
