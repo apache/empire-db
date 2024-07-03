@@ -35,4 +35,9 @@ public abstract class UserLevelException extends EmpireException
     {
         super(errType, params);
     }
+
+    public UserLevelException(EmpireException e)
+    {
+        super(e.getErrorType(), e.getErrorParams(), e);
+    }
 }
