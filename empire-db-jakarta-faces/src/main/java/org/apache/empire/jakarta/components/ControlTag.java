@@ -21,6 +21,17 @@ package org.apache.empire.jakarta.components;
 import java.io.IOException;
 import java.util.List;
 
+import org.apache.empire.commons.ObjectUtils;
+import org.apache.empire.data.Column;
+import org.apache.empire.jakarta.controls.InputControl;
+import org.apache.empire.jakarta.utils.ControlRenderInfo;
+import org.apache.empire.jakarta.utils.TagEncodingHelper;
+import org.apache.empire.jakarta.utils.TagEncodingHelperFactory;
+import org.apache.empire.jakarta.utils.TagStyleClass;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import jakarta.faces.application.FacesMessage;
 import jakarta.faces.component.NamingContainer;
 import jakarta.faces.component.UIComponent;
 import jakarta.faces.component.UIComponentBase;
@@ -32,18 +43,6 @@ import jakarta.faces.component.visit.VisitContext;
 import jakarta.faces.context.FacesContext;
 import jakarta.faces.context.ResponseWriter;
 import jakarta.faces.convert.ConverterException;
-
-import org.apache.empire.commons.ObjectUtils;
-import org.apache.empire.data.Column;
-import org.apache.empire.db.exceptions.FieldIllegalValueException;
-import org.apache.empire.exceptions.EmpireException;
-import org.apache.empire.jakarta.controls.InputControl;
-import org.apache.empire.jakarta.utils.ControlRenderInfo;
-import org.apache.empire.jakarta.utils.TagEncodingHelper;
-import org.apache.empire.jakarta.utils.TagEncodingHelperFactory;
-import org.apache.empire.jakarta.utils.TagStyleClass;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class ControlTag extends UIInput implements NamingContainer
 {
@@ -644,9 +643,16 @@ public class ControlTag extends UIInput implements NamingContainer
         // Get Input Tag
         if (getChildCount() <= 1)
             return null;
-        // get Input Value
-        ControlSeparatorComponent inputSepTag = (ControlSeparatorComponent) getChildren().get(1);
-        return this.control.getConvertedValue(inputSepTag, this.inpInfo, newSubmittedValue);
+        // convert value
+        try {
+            // parse and convert value
+            ControlSeparatorComponent inputSepTag = (ControlSeparatorComponent) getChildren().get(1);
+            return this.control.getConvertedValue(inputSepTag, this.inpInfo, newSubmittedValue);
+        } catch (Exception e) {
+            // Add error message
+            FacesMessage msg = helper.getFieldValueErrorMessage(context, e, newSubmittedValue);
+            throw new ConverterException(msg);
+        }
     }
 
     @Override
@@ -718,11 +724,8 @@ public class ControlTag extends UIInput implements NamingContainer
             // super.validateValue(context, value);
 
         } catch (Exception e) {
-            // Value is not valid
-            if (!(e instanceof EmpireException))
-                e = new FieldIllegalValueException(helper.getColumn(), "", e);
             // Add error message
-            helper.addErrorMessage(context, e);
+            helper.addFieldValueErrorMessage(context, e, value);
             setValid(false);
 
         } finally {

@@ -21,6 +21,7 @@ package org.apache.empire.jsf2.components;
 import java.io.IOException;
 import java.util.List;
 
+import javax.faces.application.FacesMessage;
 import javax.faces.component.NamingContainer;
 import javax.faces.component.UIComponent;
 import javax.faces.component.UIInput;
@@ -32,8 +33,6 @@ import javax.faces.convert.ConverterException;
 import javax.faces.view.AttachedObjectHandler;
 
 import org.apache.empire.data.Column;
-import org.apache.empire.db.exceptions.FieldIllegalValueException;
-import org.apache.empire.exceptions.EmpireException;
 import org.apache.empire.jsf2.controls.InputControl;
 import org.apache.empire.jsf2.utils.TagEncodingHelper;
 import org.apache.empire.jsf2.utils.TagEncodingHelperFactory;
@@ -257,8 +256,15 @@ public class InputTag extends UIInput implements NamingContainer
     {   // Check state
         if (control == null || inpInfo == null || helper.isReadOnly())
             return null;
-        // parse and convert value
-        return this.control.getConvertedValue(this, this.inpInfo, newSubmittedValue);
+        // convert value
+        try {
+            // parse and convert value
+            return this.control.getConvertedValue(this, this.inpInfo, newSubmittedValue);
+        } catch (Exception e) {
+            // Add error message
+            FacesMessage msg = helper.getFieldValueErrorMessage(context, e, newSubmittedValue);
+            throw new ConverterException(msg);
+        }
     }
 
     @Override
@@ -330,11 +336,8 @@ public class InputTag extends UIInput implements NamingContainer
             // super.validateValue(context, value);
 
         } catch (Exception e) {
-            // Value is not valid
-            if (!(e instanceof EmpireException))
-                e = new FieldIllegalValueException(helper.getColumn(), "", e);
             // Add error message
-            helper.addErrorMessage(context, e);
+            helper.addFieldValueErrorMessage(context, e, value);
             setValid(false);
 
         } finally {

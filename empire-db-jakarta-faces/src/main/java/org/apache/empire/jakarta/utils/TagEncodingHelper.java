@@ -57,9 +57,11 @@ import org.apache.empire.data.RecordData;
 import org.apache.empire.db.DBDatabase;
 import org.apache.empire.db.DBRecordBase;
 import org.apache.empire.db.DBRowSet;
+import org.apache.empire.db.exceptions.FieldIllegalValueException;
 import org.apache.empire.db.exceptions.FieldNotNullException;
 import org.apache.empire.exceptions.BeanPropertyGetException;
 import org.apache.empire.exceptions.BeanPropertySetException;
+import org.apache.empire.exceptions.EmpireException;
 import org.apache.empire.exceptions.InvalidArgumentException;
 import org.apache.empire.exceptions.InvalidPropertyException;
 import org.apache.empire.exceptions.NotSupportedException;
@@ -1478,10 +1480,18 @@ public class TagEncodingHelper implements NamingContainer
         return false;
     }
     
-    public void addErrorMessage(FacesContext context, Exception e)
+    public FacesMessage getFieldValueErrorMessage(FacesContext context, Exception e, Object value)
     {
+        if (!(e instanceof EmpireException))
+            e = new FieldIllegalValueException(getColumn(), StringUtils.valueOf(value), e);
+        // create faces message
         String msgText = getTextResolver(context).getExceptionMessage(e);
-        FacesMessage msg = new FacesMessage(FacesMessage.SEVERITY_ERROR, msgText, msgText);
+        return new FacesMessage(FacesMessage.SEVERITY_ERROR, msgText, msgText);
+    }
+    
+    public void addFieldValueErrorMessage(FacesContext context, Exception e, Object value)
+    {
+        FacesMessage msg = getFieldValueErrorMessage(context, e, value);
         context.addMessage(component.getClientId(), msg);
     }
 

@@ -21,6 +21,15 @@ package org.apache.empire.jakarta.components;
 import java.io.IOException;
 import java.util.List;
 
+import org.apache.empire.data.Column;
+import org.apache.empire.jakarta.controls.InputControl;
+import org.apache.empire.jakarta.utils.TagEncodingHelper;
+import org.apache.empire.jakarta.utils.TagEncodingHelperFactory;
+import org.apache.empire.jakarta.utils.TagStyleClass;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import jakarta.faces.application.FacesMessage;
 import jakarta.faces.component.NamingContainer;
 import jakarta.faces.component.UIComponent;
 import jakarta.faces.component.UIInput;
@@ -30,16 +39,6 @@ import jakarta.faces.context.FacesContext;
 import jakarta.faces.context.ResponseWriter;
 import jakarta.faces.convert.ConverterException;
 import jakarta.faces.view.AttachedObjectHandler;
-
-import org.apache.empire.data.Column;
-import org.apache.empire.db.exceptions.FieldIllegalValueException;
-import org.apache.empire.exceptions.EmpireException;
-import org.apache.empire.jakarta.controls.InputControl;
-import org.apache.empire.jakarta.utils.TagEncodingHelper;
-import org.apache.empire.jakarta.utils.TagEncodingHelperFactory;
-import org.apache.empire.jakarta.utils.TagStyleClass;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class InputTag extends UIInput implements NamingContainer
 {
@@ -257,8 +256,15 @@ public class InputTag extends UIInput implements NamingContainer
     {   // Check state
         if (control == null || inpInfo == null || helper.isReadOnly())
             return null;
-        // parse and convert value
-        return this.control.getConvertedValue(this, this.inpInfo, newSubmittedValue);
+        // convert value
+        try {
+            // parse and convert value
+            return this.control.getConvertedValue(this, this.inpInfo, newSubmittedValue);
+        } catch (Exception e) {
+            // Add error message
+            FacesMessage msg = helper.getFieldValueErrorMessage(context, e, newSubmittedValue);
+            throw new ConverterException(msg);
+        }
     }
 
     @Override
@@ -330,11 +336,8 @@ public class InputTag extends UIInput implements NamingContainer
             // super.validateValue(context, value);
 
         } catch (Exception e) {
-            // Value is not valid
-            if (!(e instanceof EmpireException))
-                e = new FieldIllegalValueException(helper.getColumn(), "", e);
             // Add error message
-            helper.addErrorMessage(context, e);
+            helper.addFieldValueErrorMessage(context, e, value);
             setValid(false);
 
         } finally {
