@@ -284,8 +284,9 @@ public class InputTag extends UIInput implements NamingContainer
         if (helper.isInsideUIData() && getChildCount()>0)
         {   // update input state
             updateControlInputState(context);
-            // No need to processValidators for children
-            setRenderInput(false);
+            // Only if value was submitted
+            boolean hasValue = (getSubmittedValue()!=null);
+            setRenderInput(hasValue);
         }
         // process all validators (including children)
         super.processValidators(context);
