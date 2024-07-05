@@ -30,65 +30,103 @@ import org.slf4j.LoggerFactory;
 public class EmpireException extends RuntimeException
 {
     private static final long serialVersionUID = 1L;
-
+    
     // Logger
     private static final Logger log = LoggerFactory.getLogger(EmpireException.class);
+
+    /**
+     * ExceptionMessageFormatter
+     * returns a message text for an Exception from a given pattern and parameters 
+     */
+    public static class ExceptionMessageFormatter
+    {
+        protected String missingArgument = "?";
+        
+        public String format(final ErrorType errType, String pattern, String[] params)
+        {
+            // format error message
+            try {
+                // the pattern
+                if (pattern==null)
+                    pattern=errType.getMessagePattern();
+                // Check parameter count
+                int patParamCount = errType.getNumParams();
+                int extraParamIndex = -1;
+                // wildcard
+                if (pattern.contains("{*}")) 
+                {   pattern = pattern.replace("{*}", "{"+String.valueOf(patParamCount)+"}");
+                    extraParamIndex = patParamCount;
+                    patParamCount++;
+                }
+                // check params
+                int paramCount = (params!=null) ? params.length : 0;            
+                if (paramCount < patParamCount)
+                {   // Missing arguments
+                    log.warn("Invalid Number of arguments supplied for error {}: Arguments expected={} / Arguments supplied={}.", errType.getKey(), patParamCount, paramCount);
+                }
+                // more params than expected
+                else if (paramCount>patParamCount && extraParamIndex<0)
+                {   // Too many arguments
+                    log.info("Additional arguments supplied for error {}: Arguments expected={} / Arguments supplied={}.", errType.getKey(), patParamCount, paramCount);
+                }
+                // Build format list
+                Object[] messageArgs = new String[patParamCount];
+                for (int i=0; i<messageArgs.length; i++)
+                {
+                    if (i==extraParamIndex) {
+                        // summary of remaining params
+                        StringBuilder b = new StringBuilder();
+                        for (int j=extraParamIndex;j<paramCount;j++)
+                        {   if (b.length()>0)
+                                b.append(", ");
+                            b.append(formatParam(errType, i, params[j]));
+                        }
+                        messageArgs[i] = b.toString();
+                    }
+                    else if (i<paramCount)
+                        messageArgs[i] = formatParam(errType, i, params[i]);
+                    else
+                        messageArgs[i] = missingArgument;
+                }
+                // format now
+                String msg = MessageFormat.format(pattern, messageArgs);
+                return msg;
+            } catch(Exception e) {
+                log.error("Unable to format error message: "+pattern, e);
+                return pattern;
+            }
+        }
+        
+        protected Object formatParam(final ErrorType errType, int index, String param)
+        {
+            return param;
+        }
+    }
+    
+    private static ExceptionMessageFormatter messageFormatter = new ExceptionMessageFormatter();
+    
+    public static ExceptionMessageFormatter getMessageFormatter()
+    {
+        return messageFormatter;
+    }
+
+    public static void setMessageFormatter(ExceptionMessageFormatter messageFormatter)
+    {
+        if (messageFormatter==null)
+            throw new InvalidArgumentException("messageFormatter", messageFormatter);
+        // set formatter
+        EmpireException.messageFormatter = messageFormatter;
+    }
+
+    public static String formatErrorMessage(final ErrorType errType, String pattern, final String[] params)
+    {
+        return messageFormatter.format(errType, pattern, params);
+    }
     
     private final ErrorType errorType;
     private final String[]  errorParams;
     // private final String errorSourceClassname;
     
-    public static String formatErrorMessage(final ErrorType errType, String pattern, final String[] params)
-    {
-        // Log Error
-        try {
-            // the pattern
-            if (pattern==null)
-                pattern=errType.getMessagePattern();
-            // init format args
-            Object[] formatArgs = params;
-            // Check parameter count
-            int patParamCount = errType.getNumParams();
-            int paramCount = (params!=null) ? params.length : 0;            
-            if (paramCount < patParamCount)
-            {   // Number of parameters does not match
-                log.warn("Invalid Number of arguments supplied for error " + errType.getKey() 
-                       + "\nArguments supplied= " + String.valueOf(paramCount) + "; Arguments expected= " + String.valueOf(errType.getNumParams()));
-                // Return the pattern
-                return pattern;
-            }
-            // more params than expected
-            else if (paramCount>patParamCount)
-            {   // check for wildcard
-                if (pattern.contains("{*}")) 
-                {   pattern = pattern.replace("{*}", "{"+String.valueOf(patParamCount)+"}");
-                    patParamCount++;
-                }
-                // Build new array
-                if (patParamCount>0)
-                {	// reduce number of arguments
-	                formatArgs = new String[patParamCount];
-	                int i=0;
-	                for (; i<patParamCount-1; i++)
-	                    formatArgs[i]=params[i];
-	                // Build a array for the rest
-	                StringBuilder b = new StringBuilder();
-	                for (;i<paramCount;i++)
-	                {   if (b.length()>0)
-	                        b.append(", ");
-	                    b.append(String.valueOf(params[i]));
-	                }
-	            	formatArgs[patParamCount-1]=b.toString();
-                }
-            }
-            // format now
-            String msg = MessageFormat.format(pattern, formatArgs);
-            return msg;
-        } catch(Exception e) {
-            log.error("Unable to format error message: "+pattern, e);
-            return pattern;
-        }
-    }
     
     /**
      * Constructor for derived classes
@@ -98,7 +136,7 @@ public class EmpireException extends RuntimeException
      */
     protected EmpireException(final ErrorType errType, final String[] params, final Throwable cause)
     {
-        super(formatErrorMessage(errType, null, params), cause);
+        super(messageFormatter.format(errType, null, params), cause);
         // save type and params for custom message formatting
         this.errorType = errType;
         this.errorParams = params;

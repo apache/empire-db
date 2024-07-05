@@ -43,6 +43,7 @@ import org.apache.empire.exceptions.InvalidArgumentException;
 import org.apache.empire.exceptions.ItemNotFoundException;
 import org.apache.empire.exceptions.UnexpectedReturnValueException;
 import org.apache.empire.jsf2.app.TextResolver;
+import org.apache.empire.jsf2.utils.HtmlUtils;
 import org.apache.empire.jsf2.utils.TagStyleClass;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -799,19 +800,7 @@ public abstract class InputControl
      */
     protected String escapeHTML(String text)
     {
-        if (text==null || text.length()==0)
-            return text;
-        // &amp;
-        if (text.indexOf('&')>=0)
-            text = StringUtils.replaceAll(text, "&", "&amp;");
-        // &lt;
-        if (text.indexOf('<')>=0)
-            text = StringUtils.replaceAll(text, "<", "&lt;");
-        // &gt;
-        if (text.indexOf('>')>=0)
-            text = StringUtils.replaceAll(text, ">", "&gt;");
-        // done
-        return text;
+        return HtmlUtils.getInstance().escapeText(text);
     }
 
     /**

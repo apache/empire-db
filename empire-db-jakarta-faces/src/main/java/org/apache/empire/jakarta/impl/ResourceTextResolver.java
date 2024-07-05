@@ -24,6 +24,7 @@ import java.util.ResourceBundle;
 
 import org.apache.empire.exceptions.EmpireException;
 import org.apache.empire.jakarta.app.TextResolver;
+import org.apache.empire.jakarta.utils.HtmlUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -107,18 +108,29 @@ public class ResourceTextResolver implements TextResolver
             String[] params = ee.getErrorParams();
             if (params!=null)
             {   for (int i=0; i<params.length; i++)
-                    params[i] = resolveText(params[i]);
+                    params[i] = resolveExceptionParam(params[i]);
             }
             // Format message
             return EmpireException.formatErrorMessage(ee.getErrorType(), pattern, params);
         }
         else
-        {   // Other exception try to resolve by class name
+        {   // Other exceptions: try to resolve by class name
             String key = "exception."+e.getClass().getName();
             if (resBundle.containsKey(key))
                 return resBundle.getString(key);
             // not provided
             return e.getLocalizedMessage();
         }
+    }
+    
+    protected String resolveExceptionParam(String param)
+    {
+        if (param==null || param.length()==0)
+            return param;
+        // Translate
+        if (param.startsWith(MSG_KEY_INDICATOR))
+            return resolveText(param);
+        // Encode
+        return HtmlUtils.getInstance().escapeText(param);
     }
 }
