@@ -27,7 +27,7 @@ import org.apache.empire.exceptions.EmpireException;
  * and does not need to be logged 
  * @author doebele
  */
-public abstract class UserLevelException extends EmpireException
+public class UserLevelException extends EmpireException
 {
     private static final long serialVersionUID = 1L;
 
