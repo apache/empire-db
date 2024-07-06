@@ -108,7 +108,7 @@ public class ResourceTextResolver implements TextResolver
             String[] params = ee.getErrorParams();
             if (params!=null)
             {   for (int i=0; i<params.length; i++)
-                    params[i] = resolveExceptionParam(params[i]);
+                    params[i] = resolveExceptionParam(ee, i, params[i]);
             }
             // Format message
             return EmpireException.formatErrorMessage(ee.getErrorType(), pattern, params);
@@ -123,7 +123,7 @@ public class ResourceTextResolver implements TextResolver
         }
     }
     
-    protected String resolveExceptionParam(String param)
+    protected String resolveExceptionParam(EmpireException ee, int index, String param)
     {
         if (param==null || param.length()==0)
             return param;
