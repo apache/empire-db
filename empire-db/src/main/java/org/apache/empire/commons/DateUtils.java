@@ -305,12 +305,24 @@ public class DateUtils
     }
     
     public static LocalDate toLocalDate(Date date)
-    {   // return Instant.ofEpochMilli(date.getTime()).atZone(ZoneId.systemDefault()).toLocalDate();
+    {   // Sql Date
+        if (date instanceof java.sql.Date)
+            return toLocalDate((java.sql.Date)date);
+        // Sql Timestamp
+        if (date instanceof java.sql.Timestamp)
+            return toLocalDate((java.sql.Timestamp)date);
+        // other
         return date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
     }
 
-    public static LocalDateTime toLocalDateTime(Date date) {
-        // return Instant.ofEpochMilli(date.getTime()).atZone(ZoneId.systemDefault()).toLocalDateTime();
+    public static LocalDateTime toLocalDateTime(Date date) 
+    {   // Sql Date
+        if (date instanceof java.sql.Date)
+            return toLocalDateTime((java.sql.Date)date);
+        // Sql Timestamp
+        if (date instanceof java.sql.Timestamp)
+            return toLocalDateTime((java.sql.Timestamp)date);
+        // other
         return date.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
     }
     

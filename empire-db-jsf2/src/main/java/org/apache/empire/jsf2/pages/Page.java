@@ -253,7 +253,7 @@ public abstract class Page // *Deprecated* implements Serializable
         }
     }
 
-    private void logAndHandleActionException(String action, Throwable e)
+    protected void logAndHandleActionException(String action, Throwable e)
     {
         String msg = "Failed to perform action " + action + " on " + getPageName();
         // Message
