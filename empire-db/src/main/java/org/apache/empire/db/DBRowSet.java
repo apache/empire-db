@@ -1294,6 +1294,12 @@ public abstract class DBRowSet extends DBExpr implements EntityType
                 }
             }
         }
+        // timestamp column
+        if (this.timestampColumn!=null)
+        {   // set cloned update column
+            int updateColumnIndex = getColumnIndex(timestampColumn);
+            clone.timestampColumn = clone.getColumn(updateColumnIndex);
+        }
     }
 
     /**
