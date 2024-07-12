@@ -18,8 +18,6 @@
  */
 package org.apache.empire.db;
 
-// java
-import java.lang.reflect.Field;
 import java.sql.Connection;
 import java.text.MessageFormat;
 import java.util.ArrayList;
@@ -37,11 +35,11 @@ import org.apache.empire.db.exceptions.NoPrimaryKeyException;
 import org.apache.empire.db.exceptions.RecordDeleteFailedException;
 import org.apache.empire.db.exceptions.RecordUpdateFailedException;
 import org.apache.empire.exceptions.InvalidArgumentException;
+import org.apache.empire.exceptions.InvalidOperationException;
 import org.apache.empire.exceptions.ItemExistsException;
 import org.apache.empire.exceptions.NotSupportedException;
 import org.apache.empire.exceptions.ObjectNotValidException;
 import org.apache.empire.exceptions.UnexpectedReturnValueException;
-import org.apache.empire.exceptions.InvalidOperationException;
 
 
 /**
@@ -175,10 +173,13 @@ public class DBTable extends DBRowSet implements Cloneable
     {
         DBTable clone = (DBTable) super.clone();
         initClonedFields(clone);
+        // set primaryKey
+        clone.primaryKey = clonePrimaryKey(clone);
         // set new alias
         clone.alias = "t" + String.valueOf(tableCount.incrementAndGet());
         // done
         log.info("clone: Table " + name + " cloned! Alias old=" + alias + " new=" + clone.alias);
+        db.addTable(clone);
         return clone;
     }
     
@@ -188,6 +189,8 @@ public class DBTable extends DBRowSet implements Cloneable
         try {
             DBTable clone = (DBTable) super.clone();
             initClonedFields(clone);
+            // set primaryKey
+            clone.primaryKey = clonePrimaryKey(clone);
             // set new alias
             if (StringUtils.isEmpty(newAlias))
                 clone.alias = "t" + String.valueOf(tableCount.incrementAndGet());
@@ -195,6 +198,7 @@ public class DBTable extends DBRowSet implements Cloneable
                 clone.alias = newAlias;
             // done
             log.info("clone: Table " + name + " cloned! Alias old=" + alias + " new=" + clone.alias);
+            db.addTable(clone);
             return (T)clone;
         } catch (CloneNotSupportedException e) {
             // unable to clone table
@@ -203,53 +207,24 @@ public class DBTable extends DBRowSet implements Cloneable
         }
     }
     
-    protected <T extends DBTable> void initClonedFields(T clone) throws CloneNotSupportedException
+    @Override
+    protected DBColumn cloneColumn(DBRowSet clone, DBColumn sourceColumn)
     {
-        // clone all columns
-        Class<?> colClass = columns.get(0).getClass();
-        Class<?> colBase = colClass.getSuperclass();
-        clone.columns = new ArrayList<DBColumn>();
-        Field[] fields = getClass().getFields();
-        for (int i = 0; i < columns.size(); i++)
-        {
-            DBTableColumn srcCol = (DBTableColumn) columns.get(i);
-            DBTableColumn newCol = new DBTableColumn(clone, srcCol);
-            // Replace all references for oldCol to newCol
-            for (int j = 0; j < fields.length; j++)
-            {   // Find a class of Type DBColumn or DBTableColumn
-                Field f = fields[j];
-                Class<?> type = f.getType();
-                if (type == colClass || type == colBase)
-                {   try
-                    {   // Check if the field points to the old Value
-                        if (f.get(clone) == srcCol)
-                        {   // Check accessible
-                            if (f.isAccessible()==false) 
-                            {   // not accessible
-                                f.setAccessible(true);
-                                try {
-                                    f.set(clone, newCol);
-                                } finally {
-                                    f.setAccessible(false);
-                                }
-                            }
-                            else
-                            {   // already accessible
-                                f.set(clone, newCol);
-                            }
-                        }
-                    } catch (Exception e)  {
-                        // IllegalAccessException or IllegalArgumentException
-                        String fieldName = fields[j].getName();
-                        log.error("Failed to modify declared table field: " + fieldName + ". Reason is: " + e.toString());
-                        // throw CloneNotSupportedException
-                        CloneNotSupportedException cnse = new CloneNotSupportedException("Unable to replace field reference for field " + fieldName);
-                        cnse.initCause(e);
-                        throw cnse;
-                    }
-                }
-            }
-        }
+        DBTableColumn newCol = new DBTableColumn((DBTable)clone, (DBTableColumn)sourceColumn);
+        return newCol;
+    }
+
+    protected DBIndex clonePrimaryKey(DBRowSet clone)
+    {
+        if (this.primaryKey==null)
+            return null;
+        // clone columns
+        DBColumn[] source = this.primaryKey.getColumns(); 
+        DBColumn[] columns = new DBColumn[source.length];
+        for (int i=0; i<source.length; i++)
+            columns[i] = clone.getColumn(getColumnIndex(source[i]));
+        // Create clone
+        return new DBIndex(this.primaryKey.getName(), DBIndexType.PRIMARY_KEY, columns);
     }
 
     /**

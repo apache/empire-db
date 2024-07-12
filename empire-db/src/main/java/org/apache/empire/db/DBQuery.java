@@ -704,5 +704,11 @@ public class DBQuery extends DBRowSet
         // use column
         return column;
     }
+
+    @Override
+    protected DBColumn cloneColumn(DBRowSet clone, DBColumn scourceColumn)
+    {
+        throw new NotSupportedException(this, "cloneColumn");
+    }
   
 }

@@ -27,8 +27,10 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -37,6 +39,7 @@ import java.util.Set;
 
 import org.apache.empire.commons.ObjectUtils;
 import org.apache.empire.commons.Options;
+import org.apache.empire.commons.StringUtils;
 import org.apache.empire.data.Column;
 import org.apache.empire.data.DataType;
 import org.apache.empire.db.DBDDLGenerator.DDLActionType;
@@ -55,10 +58,11 @@ import org.apache.empire.db.expr.compare.DBCompareExpr;
 import org.apache.empire.dbms.DBMSHandler;
 import org.apache.empire.dbms.DBSqlPhrase;
 import org.apache.empire.exceptions.InvalidArgumentException;
+import org.apache.empire.exceptions.InvalidOperationException;
 import org.apache.empire.exceptions.ItemExistsException;
 import org.apache.empire.exceptions.NotSupportedException;
+import org.apache.empire.exceptions.ObjectNotValidException;
 import org.apache.empire.exceptions.PropertyReadOnlyException;
-import org.apache.empire.exceptions.InvalidOperationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -150,6 +154,8 @@ public abstract class DBDatabase extends DBObject
     protected final List<DBTable>    tables    = new ArrayList<DBTable>();
     protected final List<DBRelation> relations = new ArrayList<DBRelation>();
     protected final List<DBView>     views     = new ArrayList<DBView>();
+    // map of all Rowsets by alias
+    protected final Map<String, DBRowSet> rowsetAliasMap = new HashMap<String, DBRowSet>();
     
     protected DBMSHandler dbms    = null;
     
@@ -697,17 +703,23 @@ public abstract class DBDatabase extends DBObject
     { // find column by name
         if (table == null || table.db != this)
             throw new InvalidArgumentException("table", table);
-        if (tables.contains(table)==true)
-            throw new ItemExistsException(table.getName());
         // Check for second instances
         DBTable existing = getTable(table.getName()); 
+        if (existing==table)
+            return; // already there
         if (existing!=null)
         {   // Check classes
-            if (existing.getClass().equals(table.getClass()))
-                return; // Ignore other instances 
+            if (isSameRowSet(existing, table))
+            {   // Add instance to alias map
+                addRowsetToAliasMap(table);
+                // Ignore other instances
+                return;  
+            }
             // Table exists with different class
             throw new ItemExistsException(table.getName());
         }
+        // Add instance to alias map
+        addRowsetToAliasMap(table);
         // add now
         tables.add(table);
     }
@@ -723,6 +735,8 @@ public abstract class DBDatabase extends DBObject
         // remove
         if (tables.contains(table))
             tables.remove(table);
+        // Remove from RowSet map
+        removeRowsetFromAliasMap(table);
     }
 
     /**
@@ -764,6 +778,26 @@ public abstract class DBDatabase extends DBObject
         if (rset==null)
             rset = getView(name);
         return rset;
+    }
+
+    /**
+     * Finds a RowSet object by the alias name.
+     * <P>
+     * @param name the name of the table
+     * @return the located DBTable object
+     */
+    public DBRowSet getRowSetByAlias(String alias)
+    {   // find table by name
+        return this.rowsetAliasMap.get(alias);
+    }
+
+    /**
+     * Returns all DBRowSet instances currently created for this database
+     * @return all DBRowSet instances
+     */
+    public Collection<DBRowSet> getAllRowSets()
+    {   // find table by name
+        return this.rowsetAliasMap.values();
     }
 
     /**
@@ -878,9 +912,24 @@ public abstract class DBDatabase extends DBObject
     { // find column by name
         if (view == null || view.db != this)
             throw new InvalidArgumentException("view", view);
-        if (views.contains(view) == true)
+        // Check for second instances
+        DBView existing = getView(view.getName()); 
+        if (existing==view)
+            return; // already there
+        if (existing!=null)
+        {   // Check classes
+            if (isSameRowSet(existing, view))
+            {   // Add instance to alias map
+                addRowsetToAliasMap(view);
+                // Ignore other instances
+                return;  
+            }
+            // Table exists with different class
             throw new ItemExistsException(view.getName());
-        // add now
+        }
+        // Add instance to alias map
+        addRowsetToAliasMap(view);
+        // add view
         views.add(view);
     }
 
@@ -895,6 +944,8 @@ public abstract class DBDatabase extends DBObject
         // remove
         if (views.contains(view))
             views.remove(view);
+        // Remove from RowSet map
+        removeRowsetFromAliasMap(view);
     }
 
     /**
@@ -1261,4 +1312,47 @@ public abstract class DBDatabase extends DBObject
         return new DBCaseMapExpr(column, cmpValue, trueValue, falseValue);
     }
 
+    
+    /**
+     * Checks if two Rowsets with the same name are equal and just another instance
+     * @param first the first rowset
+     * @param second the second rowset
+     * @return true if both are the same and are just another instance
+     */
+    protected boolean isSameRowSet(DBRowSet first, DBRowSet second)
+    {
+        return first.getClass().equals(second.getClass());        
+    }
+   
+    /**
+     * adds a DBRowSet to the alias map
+     * @param rowset
+     */
+    protected void addRowsetToAliasMap(DBRowSet rowset)
+    {
+        String alias = rowset.getAlias();
+        if (StringUtils.isEmpty(alias))
+            throw new ObjectNotValidException(rowset); // alias must be valid
+        // find existing
+        DBRowSet existing = rowsetAliasMap.get(alias);
+        if (existing==rowset)
+            return; // already there
+        if (existing!=null) {
+            log.error("Rowset alias \"{}\" must be unqiue, but has alreaedy been used for {}", alias, existing.getClass().getName());
+            throw new ItemExistsException(alias); // Alias must be unique!
+        }
+        // add to map
+        rowsetAliasMap.put(alias, rowset);
+    }
+
+    /**
+     * removes a rowset from the alias map
+     * @param rowset
+     */
+    protected void removeRowsetFromAliasMap(DBRowSet rowset)
+    {
+        String alias = rowset.getAlias();
+        rowsetAliasMap.remove(alias);
+    }
+    
 }

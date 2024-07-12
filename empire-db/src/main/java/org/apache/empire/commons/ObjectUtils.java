@@ -1200,4 +1200,21 @@ public final class ObjectUtils
         System.arraycopy(right, 0, result, left.length, right.length);
         return result;
     }
+
+    /**
+     * appends an element to an array
+     * @param <T> the type of the array items
+     * @param array the array
+     * @param element the new element
+     * @return the combined array
+     */
+    public static <T> T[] append(T[] array, T element)
+    {
+        if (array==null)
+            throw new InvalidArgumentException("array", array);
+        // append element
+        T[] result = Arrays.copyOf(array, array.length + 1);
+        result[array.length] = element;
+        return result;
+    }
 }

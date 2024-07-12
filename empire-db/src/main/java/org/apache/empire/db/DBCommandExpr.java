@@ -147,6 +147,13 @@ public abstract class DBCommandExpr extends DBExpr
         {
             throw new NotSupportedException(this, "deleteRecord");
         }
+
+        /** throws ERR_NOTSUPPORTED */
+        @Override
+        protected DBColumn cloneColumn(DBRowSet clone, DBColumn scourceColumn)
+        {
+            throw new NotSupportedException(this, "cloneColumn");
+        }
     }
 
     /**

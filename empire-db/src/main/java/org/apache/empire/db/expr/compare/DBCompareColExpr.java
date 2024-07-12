@@ -56,7 +56,7 @@ public class DBCompareColExpr extends DBCompareExpr
     protected final DBColumnExpr expr;
     protected final DBCmpType    cmpop;
     protected Object value;
-
+    protected boolean parenthesis = false;
     /**
      * Constructs a DBCompareColExpr object set the specified parameters to this object.
      * 
@@ -132,6 +132,15 @@ public class DBCompareColExpr extends DBCompareExpr
         this.value = value;
     }
 
+    /**
+     * wraps the expression in parenthesises
+     */
+    public DBCompareColExpr parenthesis()
+    {
+        this.parenthesis = true;
+        return this;
+    }
+    
     /**
      * Prepare function
      * @param cmd
@@ -300,10 +309,16 @@ public class DBCompareColExpr extends DBCompareExpr
             sql.appendValue(expr.getDataType(), value, context, null);
             return;
         }
+        // begin
+        if (this.parenthesis)
+            sql.append("(");
         // Add Compare Expression
         expr.addSQL(sql, context);
         // Add Comparison Value
         addCompareExpr(sql, context);
+        // end
+        if (this.parenthesis)
+            sql.append(")");
     }
     
     /**

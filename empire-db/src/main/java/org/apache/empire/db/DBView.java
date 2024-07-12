@@ -36,7 +36,7 @@ import org.w3c.dom.Element;
  * This class represents a database view.
  * It contains methods to get and update records from the database
  */
-public abstract class DBView extends DBRowSet
+public abstract class DBView extends DBRowSet implements Cloneable
 {
     // *Deprecated* private static final long serialVersionUID = 1L;
 
@@ -75,6 +75,28 @@ public abstract class DBView extends DBRowSet
             this.size = (updateColumn!=null ? updateColumn.getSize() : size);
             // Copy enumType
             Class<Enum<?>> enumType = expr.getEnumType();
+            if (enumType!=null)
+                setAttribute(Column.COLATTR_ENUMTYPE, enumType);
+            // Add to view
+            if (view != null)
+                view.addColumn(this);
+        }
+
+        /**
+         * Copy constructor
+         * @param view
+         * @param other
+         */
+        protected DBViewColumn(DBView view, DBViewColumn other)
+        { // call base
+            super(view, other.getName());
+            // set Expression
+            this.expr = other.expr;
+            this.dataType = other.dataType;
+            this.updateColumn = other.updateColumn;
+            this.size = other.size;
+            // Copy enumType
+            Class<Enum<?>> enumType = other.getEnumType();
             if (enumType!=null)
                 setAttribute(Column.COLATTR_ENUMTYPE, enumType);
             // Add to view
@@ -260,6 +282,73 @@ public abstract class DBView extends DBRowSet
     public DBView(String name, DBDatabase db)
     { // Set the column expressions
         this(name, db, false);
+    }
+
+    /**
+     * Allows a second instance of a view with a different alias
+     * @return another instance of the view
+     */
+    @Override
+    public Object clone() throws CloneNotSupportedException 
+    {
+        DBView clone = (DBView) super.clone();
+        initClonedFields(clone);
+        // set key columns
+        clone.keyColumns = cloneKeyColumns(clone);
+        // set new alias
+        clone.alias = "v" + String.valueOf(viewCount.incrementAndGet());
+        // done
+        log.info("clone: Table " + name + " cloned! Alias old=" + alias + " new=" + clone.alias);
+        db.addView(clone);
+        return clone;
+    }
+    
+    /**
+     * Allows a second instance of a view with a different alias
+     * @param newAlias the new alias
+     * @return another instance of the view
+     */
+    @SuppressWarnings("unchecked")
+    public <T extends DBView> T clone(String newAlias) 
+    {
+        try {
+            DBView clone = (DBView) super.clone();
+            initClonedFields(clone);
+            // set key columns
+            clone.keyColumns = cloneKeyColumns(clone);
+            // set new alias
+            if (StringUtils.isEmpty(newAlias))
+                clone.alias = "t" + String.valueOf(viewCount.incrementAndGet());
+            else
+                clone.alias = newAlias;
+            // done
+            log.info("clone: Table " + name + " cloned! Alias old=" + alias + " new=" + clone.alias);
+            db.addView(clone);
+            return (T)clone;
+        } catch (CloneNotSupportedException e) {
+            // unable to clone table
+            log.error("Unable to clone table " + getName());
+            throw new RuntimeException(e);
+        }
+    }
+    
+    @Override
+    protected DBColumn cloneColumn(DBRowSet clone, DBColumn sourceColumn)
+    {
+        DBViewColumn newCol = new DBViewColumn((DBView)clone, (DBViewColumn)sourceColumn);
+        return newCol;
+    }
+
+    protected DBViewColumn[] cloneKeyColumns(DBView clone)
+    {
+        if (this.keyColumns==null)
+            return null;
+        // clone columns
+        DBViewColumn[] columns = new DBViewColumn[keyColumns.length];
+        for (int i=0; i<keyColumns.length; i++)
+            columns[i] = (DBViewColumn)clone.getColumn(getColumnIndex(keyColumns[i]));
+        // Create clone
+        return columns;
     }
 
     /**

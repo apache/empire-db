@@ -18,6 +18,7 @@
  */
 package org.apache.empire.db;
 
+import java.lang.reflect.Field;
 import java.sql.Connection;
 import java.sql.Timestamp;
 import java.util.ArrayList;
@@ -58,11 +59,11 @@ import org.apache.empire.dbms.DBMSFeature;
 import org.apache.empire.dbms.DBMSHandler;
 import org.apache.empire.dbms.DBSqlPhrase;
 import org.apache.empire.exceptions.InvalidArgumentException;
+import org.apache.empire.exceptions.InvalidOperationException;
 import org.apache.empire.exceptions.ItemNotFoundException;
 import org.apache.empire.exceptions.NotSupportedException;
 import org.apache.empire.exceptions.ObjectNotValidException;
 import org.apache.empire.exceptions.UnexpectedReturnValueException;
-import org.apache.empire.exceptions.InvalidOperationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -1240,6 +1241,68 @@ public abstract class DBRowSet extends DBExpr implements EntityType
     {
         record.rowsetData = rowsetData;
     }
+
+    /**
+     * Clone columns
+     * @param clone
+     * @throws CloneNotSupportedException
+     */
+    protected <T extends DBRowSet> void initClonedFields(T clone) throws CloneNotSupportedException
+    {
+        // clone all columns
+        Class<?> colClass = columns.get(0).getClass();
+        Class<?> colBase = colClass.getSuperclass();
+        clone.columns = new ArrayList<DBColumn>();
+        Field[] fields = getClass().getFields();
+        for (int i = 0; i < columns.size(); i++)
+        {
+            DBColumn srcCol = columns.get(i);
+            DBColumn newCol = cloneColumn(clone, srcCol);
+            // Replace all references for oldCol to newCol
+            for (int j = 0; j < fields.length; j++)
+            {   // Find a class of Type DBColumn or DBTableColumn
+                Field f = fields[j];
+                Class<?> type = f.getType();
+                if (type == colClass || type == colBase)
+                {   try
+                    {   // Check if the field points to the old Value
+                        if (f.get(clone) == srcCol)
+                        {   // Check accessible
+                            if (f.isAccessible()==false) 
+                            {   // not accessible
+                                f.setAccessible(true);
+                                try {
+                                    f.set(clone, newCol);
+                                } finally {
+                                    f.setAccessible(false);
+                                }
+                            }
+                            else
+                            {   // already accessible
+                                f.set(clone, newCol);
+                            }
+                        }
+                    } catch (Exception e)  {
+                        // IllegalAccessException or IllegalArgumentException
+                        String fieldName = fields[j].getName();
+                        log.error("Failed to modify declared table field: " + fieldName + ". Reason is: " + e.toString());
+                        // throw CloneNotSupportedException
+                        CloneNotSupportedException cnse = new CloneNotSupportedException("Unable to replace field reference for field " + fieldName);
+                        cnse.initCause(e);
+                        throw cnse;
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * Clones a RowSet column
+     * @param clone the clonded rowset
+     * @param scourceColumn
+     * @return the cloned column
+     */
+    protected abstract DBColumn cloneColumn(DBRowSet clone, DBColumn scourceColumn);
     
 }
 
