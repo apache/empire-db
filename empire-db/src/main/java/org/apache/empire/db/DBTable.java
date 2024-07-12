@@ -309,10 +309,10 @@ public class DBTable extends DBRowSet implements Cloneable
      */
     public final DBTableColumn addColumn(String columnName, DataType type, double size, boolean required, Object defValue)
     {
+        // Must not be a class
         if (defValue instanceof Class<?>)
-        {
-            log.warn("Column {}: a class object of type \"{}\" has been passed as default value. Please check!", columnName, ((Class<?>)defValue).getName());
-        }
+            throw new InvalidArgumentException("devValue", defValue);
+        // create
         return this.createAndAppendColumn(columnName, type, size, required, defValue);
     }
 
@@ -344,7 +344,8 @@ public class DBTable extends DBRowSet implements Cloneable
     public final DBTableColumn addColumn(String columnName, DataType type, double size, boolean required, Options options)
     {
         DBTableColumn col = this.createAndAppendColumn(columnName, type, size, required, null);
-        col.setOptions(options);
+        if (options!=null)
+            col.setOptions(options);
         return col;
     }
 
@@ -361,7 +362,10 @@ public class DBTable extends DBRowSet implements Cloneable
      * @return the new column object 
      */
     public final DBTableColumn addColumn(String columnName, DataType type, double size, boolean required, Options options, Object defValue)
-    { 
+    {
+        // Must not be a class
+        if (options==null)
+            throw new InvalidArgumentException("options", options);
         // defValue must be part of options
         if (defValue!=null && !options.contains(defValue))
             throw new InvalidArgumentException("devValue", defValue);
@@ -389,7 +393,8 @@ public class DBTable extends DBRowSet implements Cloneable
             throw new InvalidArgumentException("enumType", enumType);
         }
         DBTableColumn col = this.createAndAppendColumn(columnName, type, size, required, null);
-        col.setEnumOptions(enumType);
+        if (enumType!=null)
+            col.setEnumOptions(enumType);
         return col;
     }
 
@@ -408,7 +413,8 @@ public class DBTable extends DBRowSet implements Cloneable
     { 
         Object defValue = ObjectUtils.getEnumValue(enumValue, type.isNumeric());
         DBTableColumn col = this.createAndAppendColumn(columnName, type, size, required, defValue);
-        col.setEnumOptions(enumValue.getClass());
+        if (enumValue!=null)
+            col.setEnumOptions(enumValue.getClass());
         return col;
     }
     

@@ -197,7 +197,18 @@ public abstract class DBView extends DBRowSet
             // done
             return elem;
         }
-
+        
+        /**
+         * sets the options from an enum class
+         */
+        public void setEnumOptions(Class<?> enumType)
+        {
+            // Enum special treatment
+            log.debug("Adding enum options of type {} for column {}.", enumType.getName(), getName());            
+            this.options = new Options(enumType);
+            // set enumType
+            setAttribute(Column.COLATTR_ENUMTYPE, enumType);
+        }
     }
 
     private static AtomicInteger viewCount = new AtomicInteger(0);
@@ -214,17 +225,30 @@ public abstract class DBView extends DBRowSet
      * @param name the name of the view
      * @param db the database this view belongs to.
      * @param isUpdateable true if the records of this view can be updated 
+     * @param alias the view alias
      */
-    public DBView(String name, DBDatabase db, boolean isUpdateable)
+    public DBView(String name, DBDatabase db, boolean isUpdateable, String alias)
     { // Set the column expressions
         super(db);
         // Set Name and Alias
         this.name = name;
-        this.alias = "v" + String.valueOf(viewCount.incrementAndGet());
+        this.alias = alias;
         this.updateable = isUpdateable;
         // Add View to Database
         if (db != null && name != null)
             db.addView(this);
+    }
+    
+    /**
+     * Creates a view object for a given view in the database.
+     * 
+     * @param name the name of the view
+     * @param db the database this view belongs to.
+     * @param isUpdateable true if the records of this view can be updated 
+     */
+    public DBView(String name, DBDatabase db, boolean isUpdateable)
+    { // Set the column expressions
+        this(name, db, isUpdateable, "v" + String.valueOf(viewCount.incrementAndGet()));
     }
 
     /**
