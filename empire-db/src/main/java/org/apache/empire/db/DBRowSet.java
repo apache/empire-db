@@ -168,7 +168,7 @@ public abstract class DBRowSet extends DBExpr implements EntityType
             ((DBRecordBean)record).rowset = this;
         }
         // check param
-        if (record==null || record.getRowSet()!=this)
+        if (record==null || !isSame(record.getRowSet()))
             throw new InvalidArgumentException("record", record);
         // check valid
         if (checkValid && !record.isValid())
@@ -287,7 +287,7 @@ public abstract class DBRowSet extends DBExpr implements EntityType
     public boolean isSame(DBRowSet other)
     {
         // record
-        if (!getDatabase().equals(other.getDatabase()))
+        if (other==null || !getDatabase().equals(other.getDatabase()))
             return false;
         // compare names
         return StringUtils.compareEqual(getName(), other.getName(), true);
@@ -743,7 +743,7 @@ public abstract class DBRowSet extends DBExpr implements EntityType
      */
     protected void prepareInitRecord(DBRecordBase record, boolean newRecord)
     {
-        if (record==null || record.getRowSet()!=this)
+        if (record==null || !isSame(record.getRowSet()))
             throw new InvalidArgumentException("rec", record);
         if (columns.size() < 1)
             throw new ObjectNotValidException(this);
