@@ -783,7 +783,13 @@ public abstract class DBRowSet extends DBExpr implements EntityType
             DBColumn column = keyColumns[i];
             Object value = key[i];
             // set key column constraint
-            compareExpr = compareExpr.and(column.is(value));
+            DBCompareExpr colCmpExpr;
+            if (value instanceof DBCompareExpr)
+                colCmpExpr = ((DBCompareExpr)value);
+            else
+                colCmpExpr = column.is(value);
+            // append
+            compareExpr = compareExpr.and(colCmpExpr);
         }
         return compareExpr;
     }
