@@ -355,11 +355,19 @@ public abstract class DBCommand extends DBCommandExpr
      * @return itself (this)
      */
     public DBCommand select(DBColumnExpr expr)
-    {   // Select this column
+    {
+        if (expr==null)
+            return this; // ignore null
+        // Select this column
         if (select == null)
             select = new ArrayList<DBColumnExpr>();
-        if (expr != null && select.contains(expr) == false)
+        // find and replace
+        int index = select.indexOf(expr);
+        if (index>=0)
+            select.set(index, expr); // replace (added 2024-07-18 EMPIREDB-434)
+        else
             select.add(expr);
+        // done
         return this;
     }
 

@@ -167,12 +167,18 @@ public class DBAliasExpr extends DBColumnExpr implements Unwrappable<DBColumnExp
     {
         if (other==this)
             return true;
+        // column
+        if (other instanceof DBColumn)
+        {   // Compare with a DBColumn name (added 2024-07-18 EMPIREDB-434)
+            String otherName = ((DBColumn)other).getName();
+            if (alias.equalsIgnoreCase(otherName))
+                 return true;
+        }
         // Check for another Alias Expression
-        if (other instanceof DBAliasExpr)
-        {   // Compare with another alias expression
+        else if (other instanceof DBAliasExpr)
+        {   // Compare with another alias expression (changed 2024-07-18 EMPIREDB-434)
             DBAliasExpr otherExpr = ((DBAliasExpr)other);
-            return this.alias.equalsIgnoreCase(otherExpr.getName()) &&
-                   this.expr.equals(otherExpr.expr);
+            return alias.equalsIgnoreCase(otherExpr.getName());
         }        
         return false;
     }

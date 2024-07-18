@@ -21,6 +21,8 @@ package org.apache.empire.db;
 
 import java.util.List;
 
+import org.apache.empire.commons.DateUtils;
+import org.apache.empire.commons.StringUtils;
 import org.apache.empire.data.DataType;
 import org.apache.empire.data.list.DataListEntry;
 import org.apache.empire.data.list.DataListHead;
@@ -51,7 +53,8 @@ public class AliasExpressionTest
         TestDatabase.TestTable t = db.T_TEST;
         DBColumnExpr ALIAS_1 = t.C_TEXT.as("ALIAS_1");
         DBColumnExpr ALIAS_2 = t.C_TEXT.as("ALIAS_2");
-        DBColumnExpr ALIAS_2_NEU = t.C_TEXT.as("ALIAS_2");
+        DBColumnExpr ALIAS_2_NEW = t.C_TEXT.as("ALIAS_2");
+        DBColumnExpr ALIAS_2_NUM = t.C_NUMBER.as("ALIAS_2");
         DBColumnExpr ALIAS_X = t.C_TEXT.as("ALIAS_X");
         DBColumnExpr AMOUNT = t.C_NUMBER.as("AMOUNT");
 
@@ -60,20 +63,30 @@ public class AliasExpressionTest
         int textIndex = record.getFieldIndex(t.C_TEXT);
         Assert.assertEquals(record.getFieldIndex(ALIAS_1), textIndex);
         Assert.assertEquals(record.getFieldIndex(ALIAS_2), textIndex);
-        Assert.assertEquals(record.getFieldIndex(ALIAS_2_NEU), textIndex);
+        Assert.assertEquals(record.getFieldIndex(ALIAS_2_NEW), textIndex);
         Assert.assertEquals(record.getFieldIndex(ALIAS_X), textIndex);
         int numberIndex = record.getFieldIndex(t.C_NUMBER);
         Assert.assertEquals(record.getFieldIndex(AMOUNT), numberIndex);
         
+        /*
+         * (updated 2024-07-18 EMPIREDB-434)
+         */
         DBCommand cmd = context.createCommand();
-        cmd.select(ALIAS_1, t.C_TEXT, ALIAS_2, ALIAS_2_NEU, AMOUNT); /* Don't select ALIAS_X */
+         /* Don't select ALIAS_X */
+        cmd.select(t.C_ID.qualified(), t.C_ID.as("ID"), t.C_ID, ALIAS_1);  // three with single "ID"
+        cmd.select(t.C_TEXT, t.C_NUMBER.as(t.C_TEXT.name), t.C_TEXT.as(t.C_TEXT.name), t.C_TEXT); // only the last one
+        cmd.select(ALIAS_2_NUM, ALIAS_2, ALIAS_2_NEW);    // only the last one
+        cmd.select(AMOUNT, t.C_NUMBER); 
+        cmd.select(db.getValueExpr(DateUtils.getDateNow(), DataType.DATE).as(t.C_DATE)); // date as constant
         DBColumnExpr[] expr = cmd.getSelectExprList();
         // Hint: ALIAS_2_NEU is not a separate column
-        Assert.assertEquals(expr.length, 4);
+        Assert.assertEquals(expr.length, 8);
+        String exprNames = StringUtils.arrayToString(expr, StringUtils.LIST_TEMPLATE);
+        Assert.assertEquals(exprNames, "[testtable_id|testtable.id|ALIAS_1|testtable.TEXT|ALIAS_2|AMOUNT|testtable.NUMBER|DATE]");
         // where
         cmd.where(ALIAS_1.isNot("Foo1"));
         cmd.where(ALIAS_2.isNot("Foo2"));
-        cmd.where(ALIAS_2_NEU.isNot("Foo3"));
+        cmd.where(ALIAS_2_NEW.isNot("Foo3"));
         cmd.where(ALIAS_X.isNot("Foo4"));
         // System.out.println(cmd.getSelect());
         List<DBCompareExpr> list = cmd.getWhereConstraints();
@@ -82,24 +95,30 @@ public class AliasExpressionTest
         // Query Record
         DBQuery q = new DBQuery(cmd);
         record = new DBRecord(context, q);
-        Assert.assertEquals(record.getFieldIndex(t.C_TEXT), 1);
-        Assert.assertEquals(record.getFieldIndex(ALIAS_1), 0);
-        Assert.assertEquals(record.getFieldIndex(ALIAS_2), 2);
-        Assert.assertEquals(record.getFieldIndex(ALIAS_2_NEU), 2);
-        Assert.assertEquals(record.getFieldIndex(ALIAS_X), 1);
-        Assert.assertEquals(record.getFieldIndex(AMOUNT), 3);
-        Assert.assertEquals(record.getFieldIndex(t.C_NUMBER), 3);
+        Assert.assertEquals(record.getFieldIndex("testtable_id"), 0);
+        Assert.assertEquals(record.getFieldIndex(t.C_ID), 1);
+        Assert.assertEquals(record.getFieldIndex(ALIAS_1), 2);
+        Assert.assertEquals(record.getFieldIndex(t.C_TEXT), 3);
+        Assert.assertEquals(record.getFieldIndex(ALIAS_2), 4);
+        Assert.assertEquals(record.getFieldIndex(ALIAS_2_NEW), 4);
+        Assert.assertEquals(record.getFieldIndex(ALIAS_X), 3);
+        Assert.assertEquals(record.getFieldIndex(AMOUNT), 5);
+        Assert.assertEquals(record.getFieldIndex(t.C_NUMBER), 6);
+        Assert.assertEquals(record.getFieldIndex(t.C_DATE), 7);
 
         // Reader 
         DBReader reader = new MyReader(context);
         reader.open(cmd);
-        Assert.assertEquals(reader.getFieldIndex(t.C_TEXT), 1);
-        Assert.assertEquals(reader.getFieldIndex(ALIAS_1), 0);
-        Assert.assertEquals(reader.getFieldIndex(ALIAS_2), 2);
-        Assert.assertEquals(reader.getFieldIndex(ALIAS_2_NEU), 2);
-        Assert.assertEquals(reader.getFieldIndex(ALIAS_X), 1);
-        Assert.assertEquals(reader.getFieldIndex(AMOUNT), 3);
-        Assert.assertEquals(reader.getFieldIndex(t.C_NUMBER), 3);
+        Assert.assertEquals(reader.getFieldIndex("testtable_id"), 0);
+        Assert.assertEquals(reader.getFieldIndex(t.C_ID), 1);
+        Assert.assertEquals(reader.getFieldIndex(ALIAS_1), 2);
+        Assert.assertEquals(reader.getFieldIndex(t.C_TEXT), 3);
+        Assert.assertEquals(reader.getFieldIndex(ALIAS_2), 4);
+        Assert.assertEquals(reader.getFieldIndex(ALIAS_2_NEW), 4);
+        Assert.assertEquals(reader.getFieldIndex(ALIAS_X), 3);
+        Assert.assertEquals(reader.getFieldIndex(AMOUNT), 5);
+        Assert.assertEquals(reader.getFieldIndex(t.C_NUMBER), 6);
+        Assert.assertEquals(reader.getFieldIndex(t.C_DATE), 7);
         reader.close();
         
         // DataListEntry
@@ -108,13 +127,16 @@ public class AliasExpressionTest
         for (int i=0; i<values.length; i++)
             values[i] = head.getColumns()[i].getName();
         DataListEntry dle = new DataListEntry(head, values);
-        Assert.assertEquals(dle.getString(t.C_TEXT), values[1]);
-        Assert.assertEquals(dle.getString(ALIAS_1), values[0]);
-        Assert.assertEquals(dle.getString(ALIAS_2), values[2]);
-        Assert.assertEquals(dle.getString(ALIAS_2_NEU), values[2]);
-        Assert.assertEquals(dle.getString(ALIAS_X), values[1]);
-        Assert.assertEquals(dle.getString(AMOUNT), values[3]);
-        Assert.assertEquals(dle.getString(t.C_NUMBER), values[3]);
+        Assert.assertEquals(dle.getFieldIndex("testtable_id"), 0);
+        Assert.assertEquals(dle.getFieldIndex(t.C_ID), 1);
+        Assert.assertEquals(dle.getFieldIndex(ALIAS_1), 2);
+        Assert.assertEquals(dle.getFieldIndex(t.C_TEXT), 3);
+        Assert.assertEquals(dle.getFieldIndex(ALIAS_2), 4);
+        Assert.assertEquals(dle.getFieldIndex(ALIAS_2_NEW), 4);
+        Assert.assertEquals(dle.getFieldIndex(ALIAS_X), 3);
+        Assert.assertEquals(dle.getFieldIndex(AMOUNT), 5);
+        Assert.assertEquals(dle.getFieldIndex(t.C_NUMBER), 6);
+        Assert.assertEquals(dle.getFieldIndex(t.C_DATE), 7);
 
         // done
     }
@@ -144,6 +166,7 @@ public class AliasExpressionTest
             public final DBTableColumn C_ID;
             public final DBTableColumn C_TEXT;
             public final DBTableColumn C_NUMBER;
+            public final DBTableColumn C_DATE;
 
             TestTable(DBDatabase db)
             {
@@ -151,6 +174,7 @@ public class AliasExpressionTest
                 this.C_ID = addColumn("id", DataType.INTEGER, 0, true);
                 this.C_TEXT = addColumn("TEXT", DataType.VARCHAR, 255, false);
                 this.C_NUMBER = addColumn("NUMBER", DataType.DECIMAL, 10.2, false);
+                this.C_DATE = addColumn("DATE", DataType.DATE, 0, false);
                 setPrimaryKey(C_ID);
             }
         }

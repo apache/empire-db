@@ -20,6 +20,7 @@ package org.apache.empire.db;
 
 import org.apache.empire.commons.Options;
 import org.apache.empire.data.DataType;
+import org.apache.empire.db.expr.column.DBAliasExpr;
 import org.w3c.dom.Element;
 
 public class DBQueryColumn extends DBColumn
@@ -130,4 +131,21 @@ public class DBQueryColumn extends DBColumn
     {
         return expr.addXml(parent, flags);
     }
+    
+    /**
+     * Overrides the equals method
+     * @return true if alias name and expression match
+     */
+    @Override
+    public boolean equals(Object other)
+    {
+        // special for DBAliasExpr (added 2024-07-18 EMPIREDB-434)
+        if ((other instanceof DBColumn) && (expr instanceof DBAliasExpr))
+        {   // Compare DBAliasExpr with a DBColumn
+            if (expr.equals(other))
+                return true;
+        }
+        return super.equals(other);
+    }
+    
 }

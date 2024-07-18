@@ -1123,7 +1123,8 @@ public final class ObjectUtils
     
     /**
      * returns whether or not a array contains a certain item
-     * performs a simple (==) comparison (fast)
+     * performs a quick (==) comparison first
+     * if not found a second check is made using equals and unwrapping of items 
      * 
      * @param <T> the type of the object
      * @param array the array to search
@@ -1134,7 +1135,7 @@ public final class ObjectUtils
     @SuppressWarnings("unchecked")
     public static <T> int indexOf(T[] array, T item)
     {
-        if (array==null)
+        if (array==null || array.length==0)
             return -1;
         // 1st try (quick)
         for (int i=0; i<array.length; i++)
@@ -1142,18 +1143,21 @@ public final class ObjectUtils
             if (array[i]==item)
                 return i;
         }
-        // 2nd try (thorough)
+        // 2nd try (equals)
         for (int i=0; i<array.length; i++)
         {
-            if (array[i]==null)
-                continue; // alredy checked
-            // compare directly
-            if (array[i].equals(item))                
+            T ai = array[i];
+            if (ai!=null && ai.equals(item))                
                 return i;
+        }
+        // 3rd try (unwrap)
+        for (int i=0; i<array.length; i++)
+        {
+            T ai = array[i];
             // check wrapper
-            if ((array[i] instanceof Unwrappable) && ((Unwrappable<?>)array[i]).isWrapper())
+            if ((ai instanceof Unwrappable) && ((Unwrappable<?>)ai).isWrapper())
             {   // unwrap
-                Object unwrapped = ((Unwrappable<?>)array[i]).unwrap();
+                Object unwrapped = ((Unwrappable<?>)ai).unwrap();
                 if (unwrapped==item || unwrapped.equals(item))
                     return i;
             }

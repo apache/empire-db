@@ -28,6 +28,7 @@ import org.apache.empire.data.Column;
 import org.apache.empire.data.DataType;
 import org.apache.empire.data.EntityType;
 import org.apache.empire.db.exceptions.DatabaseNotOpenException;
+import org.apache.empire.db.expr.column.DBAliasExpr;
 import org.apache.empire.db.expr.column.DBValueExpr;
 import org.apache.empire.db.expr.set.DBSetExpr;
 import org.apache.empire.dbms.DBMSHandler;
@@ -151,6 +152,11 @@ public abstract class DBColumn extends DBColumnExpr
             // check for equal names
             return StringUtils.compareEqual(name, c.getName(), true);
         }
+        else if (other instanceof DBAliasExpr)
+        {   // Compare with an alias expression (added 2024-07-18 EMPIREDB-434)
+            DBAliasExpr otherExpr = ((DBAliasExpr)other);
+            return name.equalsIgnoreCase(otherExpr.getName());
+        }        
         return false;
     }
     

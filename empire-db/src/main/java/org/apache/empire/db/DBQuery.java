@@ -679,17 +679,23 @@ public class DBQuery extends DBRowSet
     @Override
     public int getColumnIndex(DBColumn column)
     {
-        int index = columns.indexOf(column);
-        if (index>=0)
-            return index;
-        // find by update column
-        index=0;
-        for (DBColumn c : columns)
+        // (changed 2024-07-18 EMPIREDB-434)
+        // 1st try: compare columns
+        int count = columns.size();
+        for (int index=0; index<count; index++)
         {   // check update column
-            if ((c instanceof DBQueryExprColumn) && column.equals(c.getUpdateColumn()))
-                 return index;
-            // next
-            index++;
+            if (columns.get(index).equals(column))
+                return index;
+        }
+        // 2nd try: Match update column
+        for (int index=0; index<count; index++)
+        {   // check update column
+            DBColumn c = columns.get(index);
+            if ((c instanceof DBQueryExprColumn))
+            {   // Update columns match
+                if (column.equals(c.getUpdateColumn()))
+                    return index;
+            }
         }
         // not found
         return -1;
