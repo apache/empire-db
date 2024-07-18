@@ -349,10 +349,10 @@ public class DBQuery extends DBRowSet
      * Add rowset data
      */
     @Override
-    public void initRecord(DBRecordBase record, DBRecordData recData)
+    public void initRecord(DBRecordBase record, DBRecordData recData, boolean newRecord)
     {
         // init
-        super.initRecord(record, recData);
+        super.initRecord(record, recData, newRecord);
         // set record key as rowset data (optional)
         if (keyColumns!=null)
         {   // check

@@ -672,13 +672,14 @@ public abstract class DBRowSet extends DBExpr implements EntityType
      * <P>
      * @param record the record object
      * @param recData the record data from which to initialized the record
+     * @param newRecord true if the record is new or false if it is an existing record
      */
-    public void initRecord(DBRecordBase record, DBRecordData recData)
+    public void initRecord(DBRecordBase record, DBRecordData recData, boolean newRecord)
     {
         // check param
         checkParamRecord(record, false);
         // Initialize the record
-        prepareInitRecord(record, false);
+        prepareInitRecord(record, newRecord);
         // Get Record Field Values
         Object[] fields = record.getFields();
         DBColumn[] keyColumns = getKeyColumns();
@@ -707,6 +708,17 @@ public abstract class DBRowSet extends DBExpr implements EntityType
         }
         // Done
         completeInitRecord(record);
+    }
+
+    /**
+     * Initializes a DBRecord for this rowset for an existing record
+     * @see org.apache.empire.db.DBRowSet#initRecord(DBRecordBase, DBRecordData, boolean)
+     * @param record the record object
+     * @param recData the record data from which to initialized the record
+     */
+    public final void initRecord(DBRecordBase record, DBRecordData recData)
+    {
+        initRecord(record, recData, false);
     }
     
     /**
