@@ -85,6 +85,8 @@ public class DBELResolver extends ELResolver
         {   // Lookup RowSet
             String   name = StringUtils.toString(property);
             DBRowSet rset = ((DBDatabase)base).getRowSet(name);
+            if (rset==null)
+                rset = ((DBDatabase)base).getRowSetByAlias(name); // 2nd chance
             if (rset!=null)
                 context.setPropertyResolved(true);
             else
