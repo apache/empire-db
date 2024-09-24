@@ -19,6 +19,7 @@
 package org.apache.empire.jakarta.pageelements;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
@@ -95,9 +96,26 @@ public abstract class ListPageElement<T> extends PageElement
         @Override
         public boolean add(Object[] e)
         {
+            if (!singleSelection && isInvertSelection()) 
+            {   // invert
+                if (this.contains(e))
+                    put(e);
+                return true;
+            }
+            // normal
             if (singleSelection)
                 return false;
             return super.add(e);
+        }
+
+        public void put(Object[] key)
+        {
+            fastAdd(key);
+        }
+
+        public void putAll(Collection<Object[]> list)
+        {
+            addAll(list);
         }
 
         @Override
