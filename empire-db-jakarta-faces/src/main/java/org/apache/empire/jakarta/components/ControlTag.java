@@ -732,6 +732,39 @@ public class ControlTag extends UIInput implements NamingContainer
             this.valueValidated = true;
         }
     }
+    
+    @Override
+    public void processUpdates(FacesContext context)
+    {
+        // Added for EMPIREDB-436 on 2024-09-27
+        try
+        {   
+            // setCachedFacesContext(context);
+            pushComponentToEL(context, this);
+            if (!isRendered())
+            {
+                return;
+            }
+            try
+            {
+                updateModel(context);
+            }
+            catch (RuntimeException e)
+            {
+                context.renderResponse();
+                throw e;
+            }
+            if (!isValid())
+            {
+                context.renderResponse();
+            }
+        }
+        finally
+        {
+            // setCachedFacesContext(null);
+            popComponentFromEL(context);
+        }
+    }
 
     @Override
     public void updateModel(FacesContext context)

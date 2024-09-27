@@ -339,6 +339,8 @@ public abstract class InputControl
             return; /* May want to override this */
         // Clear submitted value
         clearSubmittedValue(input);
+        // Clear local values
+        clearLocalValues(fc, input);
     }
     
     public Object getInputValue(UIComponent comp, InputInfo ii, boolean submitted)
@@ -516,6 +518,36 @@ public abstract class InputControl
         String clientId = input.getClientId();
         if (reqMap.containsKey(clientId))
             reqMap.remove(clientId);
+    }
+    
+    protected void clearLocalValues(FacesContext context, UIComponent comp)
+    {
+        // UIInput
+        if (comp instanceof UIInput)
+        {
+            UIInput input = (UIInput)comp; 
+            if (input.isLocalValueSet())
+            {   input.setValue(null);
+                input.setLocalValueSet(false);
+                // log.debug("clearLocalValues performed for {}", input.getClass().getName());
+            }
+        }
+        // clearLocalValues of all facets and children of this UIComponent
+        if (comp.getFacetCount() > 0)
+        {
+            for (UIComponent facet : comp.getFacets().values())
+            {
+                clearLocalValues(context, facet);
+            }
+        }
+        // clear children
+        if (comp.getChildCount() > 0)
+        {
+            for (UIComponent child : comp.getChildren())
+            {
+                clearLocalValues(context, child);
+            }
+        }
     }
 
     protected Object formatInputValue(Object value, InputInfo ii)

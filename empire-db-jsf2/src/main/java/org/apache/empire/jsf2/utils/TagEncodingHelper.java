@@ -1303,8 +1303,9 @@ public class TagEncodingHelper implements NamingContainer
             return ((Options) attr);
         if (hasColumn())
         {   // Do we have a record?
-            if ((getRecord() instanceof Record) && ((Record) record).isValid()) 
-                return ((Record) record).getFieldOptions(unwrapColumn(column));
+            Object rec = (this.record!=null ? this.record : findRecord());
+            if ((rec instanceof Record) && ((Record)rec).isValid()) 
+                return ((Record)rec).getFieldOptions(unwrapColumn(column));
             // get From Column
             return column.getOptions();
         }
