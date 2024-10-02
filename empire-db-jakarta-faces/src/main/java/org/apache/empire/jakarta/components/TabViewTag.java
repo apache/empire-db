@@ -22,9 +22,20 @@ import java.io.IOException;
 import java.util.Iterator;
 import java.util.List;
 
+import org.apache.empire.commons.ObjectUtils;
+import org.apache.empire.commons.StringUtils;
+import org.apache.empire.exceptions.InvalidArgumentException;
+import org.apache.empire.jakarta.app.FacesUtils;
+import org.apache.empire.jakarta.controls.InputControl;
+import org.apache.empire.jakarta.controls.InputControlManager;
+import org.apache.empire.jakarta.utils.TagEncodingHelper;
+import org.apache.empire.jakarta.utils.TagEncodingHelperFactory;
+import org.apache.empire.jakarta.utils.TagStyleClass;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import jakarta.el.MethodExpression;
 import jakarta.el.ValueExpression;
-import jakarta.faces.component.StateHolder;
 import jakarta.faces.component.UIComponent;
 import jakarta.faces.component.UINamingContainer;
 import jakarta.faces.component.UIOutput;
@@ -35,22 +46,9 @@ import jakarta.faces.event.AbortProcessingException;
 import jakarta.faces.event.ActionEvent;
 import jakarta.faces.event.ActionListener;
 
-import org.apache.empire.commons.ObjectUtils;
-import org.apache.empire.commons.StringUtils;
-import org.apache.empire.exceptions.UnexpectedReturnValueException;
-import org.apache.empire.jakarta.app.FacesUtils;
-import org.apache.empire.jakarta.controls.InputControl;
-import org.apache.empire.jakarta.controls.InputControlManager;
-import org.apache.empire.jakarta.utils.TagEncodingHelper;
-import org.apache.empire.jakarta.utils.TagEncodingHelperFactory;
-import org.apache.empire.jakarta.utils.TagStyleClass;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 public class TabViewTag extends UIOutput // implements NamingContainer
 {
     // Logger
-    // private static final Logger log = LoggerFactory.getLogger(MenuTag.class);
     private static final Logger       log                    = LoggerFactory.getLogger(TabViewTag.class);
 
     protected final String            TAB_ACTIVE_INDEX       = "activeIndex";
@@ -61,67 +59,34 @@ public class TabViewTag extends UIOutput // implements NamingContainer
 
     protected final TagEncodingHelper helper                 = TagEncodingHelperFactory.create(this, TagStyleClass.TAB_VIEW.get());
 
-    public static class TabPageActionListener implements ActionListener, StateHolder
+    /**
+     * TabPageActionListener
+     */
+    public static class TabPageActionListener implements ActionListener // , StateHolder
     {
-
-        // private static final Class<?>[] EMPTY_CLASS_ARRAY = new Class<?>[0];
-        // private static final Object[] EMPTY_PARAMS = new Object[0];
-
-        private String  clientId;
-        private boolean isTransient = false;
-
-        /** Creates a new instance of MethodExpressionActionListener */
         public TabPageActionListener()
         {
             // constructor for state-saving 
         }
 
-        public TabPageActionListener(String clientId)
+        public TabPageActionListener(TabViewTag tabViewTag)
         {
-            // constructor for state-saving
-            this.clientId = clientId;
+            // internal constructor from TabViewTag
         }
 
         @Override
         public void processAction(ActionEvent actionEvent)
             throws AbortProcessingException
         {
-            // UIComponent findBase = ComponentUtils.findComponent(null, clientId, separatorChar);
-            FacesContext fc = FacesContext.getCurrentInstance();
-            UIComponent tabView = FacesUtils.getWebApplication().findComponent(fc, this.clientId, null);
+            // tabView must be the parent of the component!
+            UIComponent tabView = actionEvent.getComponent().getParent();
             if (!(tabView instanceof TabViewTag))
             {
-                throw new UnexpectedReturnValueException(tabView, "findComponent");
+                throw new InvalidArgumentException("ActionEvent.component", (tabView!=null ? tabView.getClass().getName() : null));
             }
             // Invoke
             TabViewTag tvt = (TabViewTag) tabView;
             tvt.setActiveTab(actionEvent);
-        }
-
-        @Override
-        public void restoreState(FacesContext context, Object state)
-        {
-            // clientId = (String) ((Object[]) state)[0];
-            this.clientId = (String) state;
-        }
-
-        @Override
-        public Object saveState(FacesContext context)
-        {
-            // return new Object[] { clientId };
-            return this.clientId;
-        }
-
-        @Override
-        public void setTransient(boolean newTransientValue)
-        {
-            this.isTransient = newTransientValue;
-        }
-
-        @Override
-        public boolean isTransient()
-        {
-            return this.isTransient;
         }
     }
 
@@ -218,10 +183,24 @@ public class TabViewTag extends UIOutput // implements NamingContainer
         if (StringUtils.isNotEmpty(style))
             this.helper.writeAttribute(writer, InputControl.HTML_ATTR_STYLE, style);
 
+        // The Blind
+        String showTabBlindJs = null;
+        if (ObjectUtils.getBoolean(this.helper.getTagAttributeValue("showBlind")))
+        {   // hide bar
+            String tabBlindClass = TagStyleClass.TAB_BLIND.get();
+            writer.startElement(InputControl.HTML_TAG_DIV, this);
+            writer.writeAttribute(InputControl.HTML_ATTR_CLASS, tabBlindClass, null);
+            writer.writeAttribute(InputControl.HTML_ATTR_STYLE, "display:none", null);
+            writer.endElement(InputControl.HTML_TAG_DIV);
+            // showTabBlindJs
+            String tabViewClass = TagStyleClass.TAB_VIEW.get();
+            showTabBlindJs = StringUtils.concat("$(this).closest('.", tabViewClass,"').find('.", tabBlindClass,"').show()");
+        }
+        
         // The Tabs
         if (ObjectUtils.getBoolean(this.helper.getTagAttributeValue("hideTabBar")))
         {   // hide bar
-            encodeTabs(context, null);
+            encodeTabs(context, null, null);
         }
         else
         {   // show bar
@@ -230,7 +209,7 @@ public class TabViewTag extends UIOutput // implements NamingContainer
             if (mode.BAR_ROW_TAG!=null)
                 writer.startElement(mode.BAR_ROW_TAG, this);
             // encode Tabs
-            encodeTabs(context, writer);
+            encodeTabs(context, writer, showTabBlindJs);
             // Bar padding item
             if (mode.BAR_PAD_TAG!=null)
             {   // Bar padding item
@@ -297,7 +276,7 @@ public class TabViewTag extends UIOutput // implements NamingContainer
     }
     */
 
-    protected void encodeTabs(FacesContext context, ResponseWriter writer)
+    protected void encodeTabs(FacesContext context, ResponseWriter writer, String showTabBlindJs)
         throws IOException
     {
         Iterator<UIComponent> ci = getFacetsAndChildren();
@@ -351,7 +330,7 @@ public class TabViewTag extends UIOutput // implements NamingContainer
                 }
                 writer.writeAttribute(InputControl.HTML_ATTR_CLASS, styleClasses, null);
                 // encode Link
-                encodeTabLink(context, writer, index, page, (active || disabled));
+                encodeTabLink(context, writer, index, page, (active || disabled), showTabBlindJs);
                 writer.endElement(mode.BAR_ITEM_TAG);
             }
             // set rendered
@@ -361,7 +340,7 @@ public class TabViewTag extends UIOutput // implements NamingContainer
         }
     }
 
-    protected void encodeTabLink(FacesContext context, ResponseWriter writer, int index, TabPageTag page, boolean disabled)
+    protected void encodeTabLink(FacesContext context, ResponseWriter writer, int index, TabPageTag page, boolean disabled, String showTabBlindJs)
         throws IOException
     {
         // Add component
@@ -390,7 +369,7 @@ public class TabViewTag extends UIOutput // implements NamingContainer
             link = createCommandLink(context, linkId);
             tabLinks.add(index, link);
             // Set TabPageActionListener
-            TabPageActionListener tpal = new TabPageActionListener(this.getClientId());
+            TabPageActionListener tpal = new TabPageActionListener(this);
             link.addActionListener(tpal);
         }
         // init linkComponent
@@ -399,6 +378,10 @@ public class TabViewTag extends UIOutput // implements NamingContainer
         // Set Style
         link.setStyleClass(TagStyleClass.TAB_LINK.get());
 
+        // showTabBlindJs
+        if (showTabBlindJs!=null)
+            link.setOnclick(showTabBlindJs);
+            
         // encode link
         link.setRendered(true);
         link.encodeAll(context);

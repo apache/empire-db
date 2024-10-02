@@ -46,6 +46,7 @@ public enum TagStyleClass
     MENU("eMenuList"),
     UNIT("eUnit"),
     TAB_VIEW("eTabView"),
+    TAB_BLIND("eTabBlind"),
     TAB_BAR("eTabBar"),
     TAB_BAR_PADDING("eTabBarEmpty"),
     TAB_PANEL("eTabPanel"),
