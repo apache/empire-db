@@ -831,7 +831,7 @@ public class ControlTag extends UIInput implements NamingContainer
             // set rendered of children
             for (UIComponent child : parent.getChildren())
             {   // set rendered 
-                boolean rendered = (child instanceof ValueOutputComponent) ? renderInput : !renderInput;
+                boolean rendered = (child instanceof ValueOutputComponent) ? !renderInput : renderInput;
                 if (child.isRendered()!=rendered)
                 {   child.setRendered(rendered);
                     hasChanged = true;
