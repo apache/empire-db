@@ -43,17 +43,19 @@ import org.slf4j.LoggerFactory;
 public class InputTag extends UIInput implements NamingContainer
 {
     // Logger
-    private static final Logger       log                  = LoggerFactory.getLogger(InputTag.class);
+    private static final Logger       log                    = LoggerFactory.getLogger(InputTag.class);
 
     // private static final String inpControlPropName = InputControl.class.getSimpleName();
     // private static final String inputInfoPropName = InputControl.InputInfo.class.getSimpleName();
-    protected static final String     readOnlyState        = "readOnlyState";
+    protected static final String     readOnlyState          = "readOnlyState";
 
-    protected final TagEncodingHelper helper               = TagEncodingHelperFactory.create(this, TagStyleClass.INPUT.get());
+    protected final TagEncodingHelper helper                 = TagEncodingHelperFactory.create(this, TagStyleClass.INPUT.get());
 
-    protected InputControl            control              = null;
-    protected InputControl.InputInfo  inpInfo              = null;
-    protected boolean                 valueValidated       = false;
+    protected InputControl            control                = null;
+    protected InputControl.InputInfo  inpInfo                = null;
+    protected boolean                 submittedValueDetected = false;
+    protected Object                  submittedValue;
+    protected boolean                 valueValidated         = false;
 
     /*
     private static int itemIdSeq = 0;
@@ -243,11 +245,24 @@ public class InputTag extends UIInput implements NamingContainer
 
     @Override
     public Object getSubmittedValue()
-    { // Check state
+    {   // Already detected
+        if (this.submittedValueDetected)
+            return this.submittedValue; // already detected
+        // Check state
         if (control == null || inpInfo == null || helper.isReadOnly())
             return null;
         // get Input Value
-        return control.getInputValue(this, inpInfo, true);
+        this.submittedValue = control.getInputValue(this, inpInfo, true);
+        this.submittedValueDetected = true;
+        return this.submittedValue; 
+    }
+    
+    @Override
+    public void setSubmittedValue(Object submittedValue)
+    {
+        // super.setSubmittedValue(submittedValue);
+        this.submittedValue = submittedValue;
+        this.submittedValueDetected = true;
     }
 
     @Override
@@ -286,6 +301,7 @@ public class InputTag extends UIInput implements NamingContainer
     @Override
     public void processValidators(FacesContext context)
     {
+        resetSubmittedValue();
         // check UI-Data
         if (helper.isInsideUIData() && getChildCount()>0)
         {   // update input state
@@ -306,7 +322,8 @@ public class InputTag extends UIInput implements NamingContainer
         // get submitted value and validate
         if (log.isDebugEnabled())
             log.debug("Validating input for {}.", inpInfo.getColumn().getName());
-
+        // reset again (important!)
+        resetSubmittedValue();
         // Will internally call getSubmittedValue() and validateValue()
         this.valueValidated = false;
         super.validate(context);
@@ -413,6 +430,12 @@ public class InputTag extends UIInput implements NamingContainer
     public boolean isInputRequired()
     {
         return helper.isValueRequired();
+    }
+    
+    protected void resetSubmittedValue()
+    {
+        submittedValueDetected = false;
+        submittedValue = null;
     }
     
     protected void updateControlInputState(FacesContext context)

@@ -1764,7 +1764,7 @@ public class TagEncodingHelper implements NamingContainer
             label.setStyleClass(completeLabelStyleClass(styleClass, isValueRequired()));
         
         // for 
-        if (StringUtils.isNotEmpty(forInput) && !isReadOnly())
+        if (StringUtils.isNotEmpty(forInput)) // && !isReadOnly())
         {   // Set Label input Id
             InputControl.InputInfo ii = getInputInfo(context);
             String inputId = getInputControl().getLabelForId(ii);
