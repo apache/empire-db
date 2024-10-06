@@ -38,6 +38,7 @@ public enum TagStyleClass
     CONTROL("eControl"),
     CONTROL_LABEL("eCtlLabel"),
     CONTROL_INPUT("eCtlInput"),
+    CONTROL_PLACEHOLDER("eCtlPlaceholder"),
     FORM_GRID("eFormGrid"),
     SELECT("eSelect"),
     RADIO("eCtlRadio"),

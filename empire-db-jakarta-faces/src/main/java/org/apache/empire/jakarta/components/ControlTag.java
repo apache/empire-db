@@ -49,7 +49,7 @@ public class ControlTag extends UIInput implements NamingContainer
     /**
      * ControlSeparatorComponent
      */
-    public static abstract class ControlSeparatorComponent extends jakarta.faces.component.UIComponentBase
+    public static abstract class ControlSeparatorComponent extends UIComponentBase
     {
         private ControlTag control = null;
         
@@ -135,6 +135,21 @@ public class ControlTag extends UIInput implements NamingContainer
             String labelClass = helper.getTagAttributeStringEx("labelClass");
             helper.writeStyleClass(writer, TagStyleClass.CONTROL_LABEL.get(), labelClass);
         }
+
+        @Override
+        public void encodeChildren(FacesContext context)
+            throws IOException
+        {
+            UIComponent labelFacet = getControl().getFacet("label");
+            if (labelFacet!=null)
+            {   // label facet
+                labelFacet.encodeAll(context);
+            }
+            else
+            {   // default   
+                super.encodeChildren(context);
+            }
+        }
     }
 
     public static class InputSeparatorComponent extends ControlSeparatorComponent
@@ -169,7 +184,7 @@ public class ControlTag extends UIInput implements NamingContainer
         }
     }
 
-    public static class ValueOutputComponent extends jakarta.faces.component.UIComponentBase
+    public static class ValueOutputComponent extends UIComponentBase
     {
         private final String tagName = "span";
 
@@ -234,12 +249,11 @@ public class ControlTag extends UIInput implements NamingContainer
     protected InputControl            control                = null;
     protected InputControl.InputInfo  inpInfo                = null;
     protected ControlRenderInfo       renderInfo             = null;
-    protected boolean                 encodeLabel            = true;
     private boolean                   creatingComponents     = false;
     protected boolean                 submittedValueDetected = false;
     protected Object                  submittedValue;
     protected boolean                 valueValidated         = false;
-    protected boolean                 controlVisible         = true;
+    protected boolean                 controlVisible         = true;    // valid only during encoding / rendering
 
     public ControlTag()
     {
@@ -259,8 +273,11 @@ public class ControlTag extends UIInput implements NamingContainer
         getStateHelper().put(ControlTag.readOnlyState, (this.inpInfo == null));
     }
 
-    protected boolean initState(FacesContext context)
+    protected boolean initInputState(FacesContext context)
     {
+        // Custom input?
+        if (getChildCount() <= 1)
+            return false; // Ignore for custom input
         // Check read-Only
         Boolean ros = (Boolean) getStateHelper().get(ControlTag.readOnlyState);
         if (ros != null && ros.booleanValue())
@@ -371,7 +388,7 @@ public class ControlTag extends UIInput implements NamingContainer
         if (this.renderInfo==null) {
             this.renderInfo=helper.getControlRenderInfo();
             if (this.renderInfo==null)
-                this.renderInfo=ControlRenderInfo.DEFAULT_CONTROL_RENDER_INFO;  // No FormGrid found. Use Default!
+                this.renderInfo=ControlRenderInfo.getDefault();  // No FormGrid found. Use Default!
         }
 
         // Check visiblity
@@ -390,10 +407,17 @@ public class ControlTag extends UIInput implements NamingContainer
             String contextClass = helper.getContextStyleClass(); 
             helper.writeStyleClass(writer, TagStyleClass.CONTROL.get(), controlClass, styleClass, contextClass);
         }
+        else if (!this.controlVisible)
+        {   // render placeholder
+            renderInfo.renderPlaceholder(context, this);
+        }
+
+        // custom input?
+        boolean customInput = isCustomInput();
         
-        // Encode LabelSeparatorComponent
+        // Create LabelSeparatorComponent
         ControlSeparatorComponent labelSepTag = null;
-        if (this.encodeLabel)
+        if (true)
         {   // Create Label Separator Tag
             if (getChildCount() > 0)
                 labelSepTag = (ControlSeparatorComponent) getChildren().get(0);
@@ -409,14 +433,12 @@ public class ControlTag extends UIInput implements NamingContainer
             }
             // encode
             labelSepTag.setRendered(this.controlVisible);
-            if (this.controlVisible)
-                encodeLabel(context, labelSepTag);
+            encodeLabel(context, labelSepTag, customInput);
         }
         
-        // Encode InputSeparatorComponent
+        // Create InputSeparatorComponent
         ControlSeparatorComponent inputSepTag = null;
-        boolean isCustomInput = isCustomInput();
-        if (!isCustomInput)
+        if (!customInput)
         {   // Create Input Separator Tag
             if (getChildCount() > 1)
                 inputSepTag = (ControlSeparatorComponent) getChildren().get(1);
@@ -432,14 +454,17 @@ public class ControlTag extends UIInput implements NamingContainer
             }
             // encode
             inputSepTag.setRendered(this.controlVisible);
-            if (this.controlVisible)
-                encodeInput(context, inputSepTag);
+            encodeInput(context, inputSepTag);
+        }
+        else if (getChildCount() > 1) 
+        {   // custom has changed. 
+            getChildren().remove(1);
         }
         
         // Encode now
-        if (labelSepTag!=null && this.controlVisible)
+        if (labelSepTag!=null)
             labelSepTag.encodeAll(context);
-        if (inputSepTag!=null && this.controlVisible)
+        if (inputSepTag!=null)
             inputSepTag.encodeAll(context);
         
         // done
@@ -502,6 +527,7 @@ public class ControlTag extends UIInput implements NamingContainer
 
     public boolean isCustomInput()
     {
+        // detect from attribute
         Object custom = getAttributes().get("custom");
         if (custom != null)
             return ObjectUtils.getBoolean(custom);
@@ -514,32 +540,32 @@ public class ControlTag extends UIInput implements NamingContainer
      * @param parent the LabelSeparatorComponent
      * @throws IOException from ResponseWriter
      */
-    protected void encodeLabel(FacesContext context, UIComponentBase parent)
+    protected void encodeLabel(FacesContext context, UIComponentBase parent, boolean customInput)
         throws IOException
     {
         UIComponent labelFacet = getFacet("label");
         if (labelFacet!=null)
         {   // label facet
-            labelFacet.encodeAll(context);
+            return; // Noting to do here
         }
         else
         {   // render components
             try {
                 creatingComponents = true;
                 HtmlOutputLabel labelComponent = null;
-                if (parent.getChildCount() > 0)
-                {
-                    labelComponent = (HtmlOutputLabel) parent.getChildren().get(0);
-                    // update
-                    helper.updateLabelComponent(context, labelComponent, null);
-                }
-                if (labelComponent == null)
-                {
-                    String forInput = isCustomInput() ? helper.getTagAttributeString("for") : "*";
+                if (parent.getChildCount()==0)
+                {   // Create components
+                    String forInput = (customInput ? helper.getTagAttributeString("for") : "*");
                     // createLabelComponent 
                     labelComponent = helper.createLabelComponent(context, forInput, "eLabel", null, getColon());
                     parent.getChildren().add(0, labelComponent);
                     helper.resetComponentId(labelComponent);
+                }
+                else if (this.controlVisible)
+                {
+                    labelComponent = (HtmlOutputLabel) parent.getChildren().get(0);
+                    // update
+                    helper.updateLabelComponent(context, labelComponent, null);
                 }
             } finally {
                 creatingComponents = false;
@@ -566,8 +592,8 @@ public class ControlTag extends UIInput implements NamingContainer
             // continue
             this.inpInfo = helper.getInputInfo(context);
             // set required
-            super.setRequired(helper.isValueRequired());
-	        // create Input Controls
+            super.setRequired(this.controlVisible && helper.isValueRequired());
+            // create Input Controls
             // boolean recordReadOnly = helper.isRecordReadOnly();
             if (count==0)
             {   // Create components
@@ -579,7 +605,7 @@ public class ControlTag extends UIInput implements NamingContainer
                     parent.getChildren().add(valueComp);
                 }
             }
-            else
+            else if (this.controlVisible)
             {   // Update
                 control.updateInputState(parent, inpInfo, context, context.getCurrentPhaseId());
             }
@@ -631,11 +657,11 @@ public class ControlTag extends UIInput implements NamingContainer
     {   // Already detected
         if (this.submittedValueDetected)
             return this.submittedValue; // already detected
+        // Check children and custom input
+        if (getChildCount() <= 1)
+            return null; // No input available
         // Check state
         if (this.control == null || this.inpInfo == null || helper.isReadOnly())
-            return null;
-        // Get Input Tag
-        if (getChildCount() <= 1)
             return null;
         // get Input Value
         ControlSeparatorComponent inputSepTag = (ControlSeparatorComponent) getChildren().get(1);
@@ -678,7 +704,7 @@ public class ControlTag extends UIInput implements NamingContainer
     public void processDecodes(FacesContext context) 
     {
         // check UI-Data
-        if (helper.isInsideUIData() && getChildCount()>0)
+        if (getChildCount()>1 && helper.isInsideUIData())
         {   // update input state
             updateControlInputState(context);
             // Set Rendered for children (changed 2024-04-05)
@@ -695,7 +721,7 @@ public class ControlTag extends UIInput implements NamingContainer
     {
         resetSubmittedValue();
         // check UI-Data
-        if (helper.isInsideUIData() && getChildCount()>0)
+        if (getChildCount()>1 && helper.isInsideUIData())
         {   // update input state
             updateControlInputState(context);
             // Only if value was submitted
@@ -709,7 +735,7 @@ public class ControlTag extends UIInput implements NamingContainer
     @Override
     public void validate(FacesContext context)
     {   // init state
-        if (initState(context) == false)
+        if (initInputState(context) == false)
             return;
         // get submitted value and validate
         if (log.isDebugEnabled())
@@ -758,6 +784,11 @@ public class ControlTag extends UIInput implements NamingContainer
     public void processUpdates(FacesContext context)
     {
         // Added for EMPIREDB-436 on 2024-09-27
+        if (getChildCount() <= 1)
+        {   // custom input
+            super.processUpdates(context);
+            return;
+        }
         try
         {   
             // setCachedFacesContext(context);
@@ -790,7 +821,7 @@ public class ControlTag extends UIInput implements NamingContainer
     @Override
     public void updateModel(FacesContext context)
     {
-        if (initState(context) == false)
+        if (initInputState(context) == false)
             return;
         // No Action
         if (!isValid() || !isLocalValueSet())
@@ -838,6 +869,9 @@ public class ControlTag extends UIInput implements NamingContainer
     
     protected void updateControlInputState(FacesContext context)
     {
+        // custom input?
+        if (getChildCount() <= 1)
+            return; 
         // get control
         helper.prepareData();
         if (control==null)
@@ -851,7 +885,10 @@ public class ControlTag extends UIInput implements NamingContainer
 
     protected void setRenderInput(boolean renderInput)
     {
-        if (getChildCount()>1 && (getChildren().get(1) instanceof InputSeparatorComponent))
+        // custom input?
+        if (getChildCount() <= 1)
+            return; 
+        if (getChildren().get(1) instanceof InputSeparatorComponent)
         {   // Make sure all inputs are rendered
             boolean hasChanged = false;
             InputSeparatorComponent parent = (InputSeparatorComponent)getChildren().get(1);

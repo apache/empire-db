@@ -18,7 +18,14 @@
  */
 package org.apache.empire.jsf2.utils;
 
+import java.io.IOException;
+
+import javax.faces.context.FacesContext;
+import javax.faces.context.ResponseWriter;
+
+import org.apache.empire.commons.ObjectUtils;
 import org.apache.empire.commons.StringUtils;
+import org.apache.empire.jsf2.components.ControlTag;
 import org.apache.empire.jsf2.controls.InputControl;
 
 /**
@@ -26,13 +33,41 @@ import org.apache.empire.jsf2.controls.InputControl;
  */
 public class ControlRenderInfo
 {
-    public static ControlRenderInfo DEFAULT_CONTROL_RENDER_INFO = new DefaultControlRenderInfo();
+    /*
+     * Use setDefault(ControlRenderInfo renderInfo) in order to change the default
+     */
+    private static ControlRenderInfo DEFAULT_CONTROL_RENDER_INFO = new DefaultControlRenderInfo();
+
+    public static ControlRenderInfo getDefault()
+    {
+        return DEFAULT_CONTROL_RENDER_INFO;
+    }
+    
+    public static void setDefault(ControlRenderInfo renderInfo)
+    {
+        DEFAULT_CONTROL_RENDER_INFO = renderInfo;
+    }
     
     private static class DefaultControlRenderInfo extends ControlRenderInfo
     {
         public DefaultControlRenderInfo()
         {
             super(null, InputControl.HTML_TAG_TD, InputControl.HTML_TAG_TD, null);
+        }
+        
+        @Override
+        public void renderPlaceholder(FacesContext context, ControlTag controlTag)
+            throws IOException
+        {
+            // check attribute "placeholder"
+            if (ObjectUtils.getBoolean(controlTag.getAttributes().get("placeholder"), false))
+            {   // render placeholder for invisible controls 
+                ResponseWriter writer = context.getResponseWriter();
+                writer.startElement(InputControl.HTML_TAG_TD, controlTag);
+                writer.writeAttribute(InputControl.HTML_ATTR_CLASS, TagStyleClass.CONTROL_PLACEHOLDER.get(), null);
+                writer.writeAttribute("colspan", 2, null);
+                writer.endElement(InputControl.HTML_TAG_TD);
+            }
         }
     }
     
@@ -47,5 +82,12 @@ public class ControlRenderInfo
         this.LABEL_WRAPPER_TAG = StringUtils.nullIfEmpty(labelTag);
         this.INPUT_WRAPPER_TAG = StringUtils.nullIfEmpty(inputTag);
         this.AUTO_CONTROL_ID = autoControlId;
+    }
+    
+    @SuppressWarnings("unused")
+    public void renderPlaceholder(FacesContext context, ControlTag controlTag)
+        throws IOException
+    {
+        /* add code to render invisible controls */
     }
 }

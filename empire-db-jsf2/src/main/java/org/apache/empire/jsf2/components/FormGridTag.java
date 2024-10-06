@@ -20,11 +20,13 @@ package org.apache.empire.jsf2.components;
 
 import java.io.IOException;
 
+import javax.faces.component.UIComponent;
 import javax.faces.component.UINamingContainer;
 import javax.faces.component.UIOutput;
 import javax.faces.context.FacesContext;
 import javax.faces.context.ResponseWriter;
 
+import org.apache.empire.commons.ObjectUtils;
 import org.apache.empire.commons.StringUtils;
 import org.apache.empire.jsf2.controls.InputControl;
 import org.apache.empire.jsf2.utils.ControlRenderInfo;
@@ -82,6 +84,44 @@ public class FormGridTag extends UIOutput // implements NamingContainer
         public String toString()
         {
             return name();
+        }
+    }
+
+    /**
+     * FromGridRenderInfo
+     * Rendering the form Grid
+     */
+    protected static class FromGridRenderInfo extends ControlRenderInfo
+    {
+        private final UIComponent placeholderFacet;
+        private final boolean renderPlaceholder;
+        
+        public FromGridRenderInfo(FormGridMode mode, UIComponent placeholderFacet, boolean renderPlaceholder, Character autoControlId)
+        {
+            super(mode.CONTROL_TAG, mode.LABEL_TAG, mode.INPUT_TAG, autoControlId);
+            // set
+            this.placeholderFacet = placeholderFacet;
+            this.renderPlaceholder = renderPlaceholder; 
+        }
+        
+        @Override
+        public void renderPlaceholder(FacesContext context, ControlTag controlTag)
+            throws IOException
+        {
+            if (placeholderFacet!=null)
+            {   // label facet
+                placeholderFacet.encodeAll(context);
+            }
+            else if (renderPlaceholder)
+            {   // render placeholder   
+                ResponseWriter writer = context.getResponseWriter();
+                String placeholderTag = (CONTROL_TAG!=null ? CONTROL_TAG : INPUT_WRAPPER_TAG);
+                writer.startElement(placeholderTag, controlTag);
+                writer.writeAttribute(InputControl.HTML_ATTR_CLASS, TagStyleClass.CONTROL_PLACEHOLDER.get(), null);
+                if (InputControl.HTML_TAG_TD.equalsIgnoreCase(placeholderTag))
+                    writer.writeAttribute("colspan", 2, null);
+                writer.endElement(placeholderTag);
+            }
         }
     }
     
@@ -163,7 +203,9 @@ public class FormGridTag extends UIOutput // implements NamingContainer
                 log.warn("FormGridTag: Invalid value \"{}\" for attribute \"autoControlId\". Allowed values are *|@|&", id);
         }
         // create control info
-        this.controlRenderInfo = new ControlRenderInfo(mode.CONTROL_TAG, mode.LABEL_TAG, mode.INPUT_TAG, autoControlId);
+        UIComponent placeholderFacet = getFacet("placeholder");
+        boolean renderPlaceholder = (placeholderFacet==null ? ObjectUtils.getBoolean(getAttributes().get("placeholder"), false) : false);
+        this.controlRenderInfo = new FromGridRenderInfo(mode, placeholderFacet, renderPlaceholder, autoControlId);
         return controlRenderInfo;
     }
 }
