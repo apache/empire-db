@@ -190,7 +190,8 @@ public class MenuItemTag extends LinkTag
     @Override
     protected String getLinkStyleClass()
     {
-        return null;
+        Object linkStyle = getAttributes().get("linkStyle");
+        return (linkStyle!=null ? linkStyle.toString() : null);
     }
     
     protected MenuListTag findParentMenu()
