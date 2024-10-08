@@ -332,6 +332,13 @@ public class TabViewTag extends UIOutput // implements NamingContainer
         setRenderTabs(context);
         super.processValidators(context);
     }
+
+    @Override
+    public void processUpdates(FacesContext context)
+    {
+        setRenderTabs(context);
+        super.processUpdates(context);
+    }
     
     /*
      * internal
