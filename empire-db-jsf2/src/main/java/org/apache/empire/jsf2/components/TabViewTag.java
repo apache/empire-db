@@ -162,6 +162,57 @@ public class TabViewTag extends UIOutput // implements NamingContainer
         return mode;
     }
 
+    public int getActivePageIndex()
+    {
+        Object active = this.helper.getTagAttributeValue(this.TAB_ACTIVE_INDEX);
+        return ObjectUtils.getInteger(active);
+    }
+
+    public void setActivePageIndex(int activeIndex)
+    {
+        ValueExpression ve = this.getValueExpression(this.TAB_ACTIVE_INDEX);
+        if (ve != null)
+        { // set active index
+            FacesContext fc = FacesUtils.getContext();
+            ve.setValue(fc.getELContext(), activeIndex);
+        }
+        else
+        { // save activeIndex
+            getAttributes().put(this.TAB_ACTIVE_INDEX, activeIndex);
+        }
+    }
+
+    public void setActiveTab(ActionEvent event)
+    {
+        log.debug("setActiveTab");
+        // done
+        UIComponent comp = event.getComponent();
+        String tabNo = comp.getId().substring(this.TABLINK_ID_PREFIX.length());
+        int pageIndex = ObjectUtils.getInteger(tabNo);
+        if (pageIndex == getActivePageIndex())
+        {   // already set
+            log.warn("setActiveTab is called for active page!");
+            return;
+        }
+
+        // set new Page
+        setActivePageIndex(pageIndex);
+
+        // TabChangeListener
+        Object tcl = getAttributes().get("tabChangedListener");
+        if (tcl != null)
+        {
+            if (!(tcl instanceof MethodExpression))
+            {
+                log.error("tabChangedListener is not a valid method expression!");
+                return;
+            }
+            FacesContext fc = FacesUtils.getContext();
+            MethodExpression methodExpression = (MethodExpression) tcl;
+            methodExpression.invoke(fc.getELContext(), new Object[] { pageIndex });
+        }
+    }
+
     @Override
     public void encodeBegin(FacesContext context)
         throws IOException
@@ -268,13 +319,23 @@ public class TabViewTag extends UIOutput // implements NamingContainer
         super.decode(context);
     }
 
-    /*
     @Override
     public void processDecodes(FacesContext context)
     {
+        setRenderTabs(context);
         super.processDecodes(context);
     }
-    */
+
+    @Override
+    public void processValidators(FacesContext context)
+    {
+        setRenderTabs(context);
+        super.processValidators(context);
+    }
+    
+    /*
+     * internal
+     */
 
     protected void encodeTabs(FacesContext context, ResponseWriter writer, String showTabBlindJs)
         throws IOException
@@ -306,9 +367,9 @@ public class TabViewTag extends UIOutput // implements NamingContainer
             boolean active = (index == activeIndex);
             TabPageTag page = (TabPageTag) c;
 
-            // render tab-link? default is true
-            boolean rendered = ObjectUtils.getBoolean(ObjectUtils.coalesce(page.getAttributes().get(this.TAB_RENDERED_ATTRIBUTE), true));
-            if (!rendered)
+            // render tab-page? default is true
+            boolean visible = isPageVisible(page);
+            if (!visible)
             {
                 // dont render content
                 page.setRendered(false);
@@ -396,55 +457,33 @@ public class TabViewTag extends UIOutput // implements NamingContainer
         return link;
     }
 
-    public int getActivePageIndex()
+    protected void setRenderTabs(FacesContext context)
     {
-        Object active = this.helper.getTagAttributeValue(this.TAB_ACTIVE_INDEX);
-        return ObjectUtils.getInteger(active);
-    }
-
-    public void setActivePageIndex(int activeIndex)
-    {
-        ValueExpression ve = this.getValueExpression(this.TAB_ACTIVE_INDEX);
-        if (ve != null)
-        { // set active index
-            FacesContext fc = FacesUtils.getContext();
-            ve.setValue(fc.getELContext(), activeIndex);
-        }
-        else
-        { // save activeIndex
-            getAttributes().put(this.TAB_ACTIVE_INDEX, activeIndex);
-        }
-    }
-
-    public void setActiveTab(ActionEvent event)
-    {
-        log.debug("setActiveTab");
-        // done
-        UIComponent comp = event.getComponent();
-        String tabNo = comp.getId().substring(this.TABLINK_ID_PREFIX.length());
-        int pageIndex = ObjectUtils.getInteger(tabNo);
-        if (pageIndex == getActivePageIndex())
-        {   // already set
-            log.warn("setActiveTab is called for active page!");
-            return;
-        }
-
-        // set new Page
-        setActivePageIndex(pageIndex);
-
-        // TabChangeListener
-        Object tcl = getAttributes().get("tabChangedListener");
-        if (tcl != null)
+        if (getFacetCount()<1)
+            return; // No TabPages yet 
+        // the tab panel
+        UIComponent panel = getFacets().values().iterator().next();
+        int tabIndex=0;
+        int activeIndex = getActivePageIndex();
+        for (UIComponent page : panel.getChildren())
         {
-            if (!(tcl instanceof MethodExpression))
+            if (!(page instanceof TabPageTag) || !isPageVisible((TabPageTag)page))
             {
-                log.error("tabChangedListener is not a valid method expression!");
-                return;
+                continue;
             }
-            FacesContext fc = FacesUtils.getContext();
-            MethodExpression methodExpression = (MethodExpression) tcl;
-            methodExpression.invoke(fc.getELContext(), new Object[] { pageIndex });
+            // check active
+            boolean rendered = (tabIndex==activeIndex);
+            if (page.isRendered()!=rendered)
+            {
+                // log.debug("Tab-Page {} rendered has changed to {}", tabIndex, rendered);
+                page.setRendered(rendered);
+            }
+            tabIndex++;
         }
-
+    }
+    
+    protected boolean isPageVisible(TabPageTag page)
+    {
+        return ObjectUtils.getBoolean(ObjectUtils.coalesce(page.getAttributes().get(this.TAB_RENDERED_ATTRIBUTE), true));
     }
 }
