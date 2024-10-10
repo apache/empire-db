@@ -1943,7 +1943,7 @@ public class TagEncodingHelper implements NamingContainer
 
     public String getSimpleStyleClass()
     {
-        String userStyle = getTagAttributeStringEx(InputControl.CSS_STYLE_CLASS);
+        String userStyle = getTagAttributeString(InputControl.CSS_STYLE_CLASS);
         return getSimpleStyleClass(userStyle);
     }
 
