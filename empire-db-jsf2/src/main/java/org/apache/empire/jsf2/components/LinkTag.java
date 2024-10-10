@@ -36,6 +36,7 @@ import javax.faces.context.ResponseWriter;
 
 import org.apache.empire.commons.ObjectUtils;
 import org.apache.empire.commons.StringUtils;
+import org.apache.empire.exceptions.InvalidArgumentException;
 import org.apache.empire.exceptions.InvalidPropertyException;
 import org.apache.empire.jsf2.app.FacesUtils;
 import org.apache.empire.jsf2.controls.InputControl;
@@ -202,7 +203,7 @@ public class LinkTag extends UIOutput // implements NamingContainer
             }
             // set params
             setLinkProperties(linkComponent);
-            addOrSetParam(linkComponent, "idparam", "id");
+            addOrSetParams(linkComponent);
             // encode link
             this.encodeLinkChildren = isEncodeLinkChildren(linkComponent.getChildCount()>0 ? null : linkComponent.getValue());
             if (this.encodeLinkChildren)
@@ -333,13 +334,19 @@ public class LinkTag extends UIOutput // implements NamingContainer
         // include view param
         link.setIncludeViewParams(false);
     }
-    
-    protected void addOrSetParam(HtmlOutcomeTargetLink link, String attribute, String paramName)
+
+    protected void addOrSetParams(HtmlOutcomeTargetLink link)
     {
-        // Get Attribute
-        String paramValue = StringUtils.toString(getAttributes().get(attribute));
+        addOrSetParam(link, "id", StringUtils.toString(getAttributes().get("idparam")));
+    }
+    
+    protected void addOrSetParam(HtmlOutcomeTargetLink link, String paramName, String paramValue)
+    {
+        // Check params
         if (StringUtils.isEmpty(paramValue))
-            return; 
+            return; // nothing to do 
+        if (paramName==null || paramName.length()==0)
+            throw new InvalidArgumentException("paramName", paramName);
         // find attribute
         List<UIComponent> l = link.getChildren();
         for (UIComponent c : l)

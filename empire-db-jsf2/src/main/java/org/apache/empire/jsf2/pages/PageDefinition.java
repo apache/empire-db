@@ -33,6 +33,7 @@ public class PageDefinition // *Deprecated* implements Serializable
 	private static final Logger log = LoggerFactory.getLogger(PageDefinitions.class);
 
     private static final String ACTION_PARAMETER_TYPE = "ACTION";
+    private static final String ACTION_PARAMETER_NAME = "action";
     
     private final String path;
     private final String fileExtension;
@@ -62,12 +63,12 @@ public class PageDefinition // *Deprecated* implements Serializable
     }
     */
 
-    private static String encodeActionParam(String action)
+    private static String encodeActionParam(PageDefinition pageDef, String action)
     {
         ParameterMap pm = FacesUtils.getParameterMap(FacesUtils.getContext());
         if (pm==null)
             return action;
-        return pm.put(ACTION_PARAMETER_TYPE, action, true);
+        return pm.put(ACTION_PARAMETER_TYPE, StringUtils.concat(pageDef.getPageBeanName(), ":", action), action, true);
     }
     
     public static String decodeActionParam(String param)
@@ -184,7 +185,7 @@ public class PageDefinition // *Deprecated* implements Serializable
     {
         PageOutcome outcome = getOutcome();
         if (StringUtils.isNotEmpty(action))
-            outcome = outcome.addParam("action", encodeActionParam(action));
+            outcome = outcome.addParam(ACTION_PARAMETER_NAME, encodeActionParam(this, action));
         return outcome;
     }
     
@@ -199,7 +200,7 @@ public class PageDefinition // *Deprecated* implements Serializable
     {   
         PageOutcome outcome = getRedirect();
         if (StringUtils.isNotEmpty(action))
-            outcome = outcome.addParam("action", encodeActionParam(action));
+            outcome = outcome.addParam(ACTION_PARAMETER_NAME, encodeActionParam(this, action));
         return outcome;
     }
     
@@ -214,7 +215,7 @@ public class PageDefinition // *Deprecated* implements Serializable
     {
         PageOutcome outcome = getRedirectWithViewParams();
         if (StringUtils.isNotEmpty(action))
-            outcome = outcome.addParam("action", encodeActionParam(action));
+            outcome = outcome.addParam(ACTION_PARAMETER_NAME, encodeActionParam(this, action));
         return outcome;
     }
 
