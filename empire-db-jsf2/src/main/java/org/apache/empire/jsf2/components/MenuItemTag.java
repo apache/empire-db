@@ -173,19 +173,6 @@ public class MenuItemTag extends LinkTag
         ResponseWriter writer = context.getResponseWriter();
         writer.endElement("li");
     }
-    
-    /*
-    private void printChildTree(UIComponent comp, int level)
-    {
-        List<UIComponent> cl = comp.getChildren();
-        for (UIComponent c : cl)
-        {
-            boolean isRendered = c.isRendered();
-            log.info("-{}- rendering {} "+String.valueOf(isRendered), level, c.getClass().getSimpleName());
-            printChildTree(c, level+1);
-        }
-    }
-    */
 
     @Override
     protected String getLinkStyleClass()
@@ -313,16 +300,22 @@ public class MenuItemTag extends LinkTag
     {
         return false;
     }
+
+    
+    /* 
+     * Supports a "label" facet" e.g.
+     * <e:mitem menuId="..." page="..."><f:facet name="label"><span class="icon"/><label>...</label></f:facet></e:mitem>
+     */ 
     
     @Override
     protected void encodeLinkComponent(FacesContext context, HtmlOutcomeTargetLink linkComponent)
         throws IOException
     {
-        UIComponent linkFacet = this.getFacet("link");
-        if (linkFacet!=null)
+        UIComponent labelFacet = this.getFacet("label");
+        if (labelFacet!=null)
         {   // custom rendering
             linkComponent.encodeBegin(context);
-            linkFacet.encodeAll(context);
+            labelFacet.encodeAll(context);
             linkComponent.encodeEnd(context);
         }
         else
