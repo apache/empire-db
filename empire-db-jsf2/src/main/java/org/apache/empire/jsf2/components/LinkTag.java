@@ -211,7 +211,7 @@ public class LinkTag extends UIOutput // implements NamingContainer
             else
             {   // default rendering (no children)
                 linkComponent.setRendered(true);
-                linkComponent.encodeAll(context);
+                encodeLinkComponent(context, linkComponent);
                 linkComponent.setRendered(false); // Don't render twice!
             }
         }
@@ -391,35 +391,26 @@ public class LinkTag extends UIOutput // implements NamingContainer
         return link;
     }
     
-    protected HtmlGraphicImage encodeImage(FacesContext context, HtmlOutcomeTargetLink parent, String imagePath)
+    protected HtmlOutcomeTargetLink getLinkComponent()
     {
-        HtmlGraphicImage img = InputControlManager.createComponent(context, HtmlGraphicImage.class);
-        img.setValue(imagePath);
-        return img;
+        return (getChildCount()>0 ? (HtmlOutcomeTargetLink)getChildren().get(0) : null);
     }
-    
-    /*
-     * public String getLabelValue()
-     * {
-     * return StringUtils.toString(getValue());
-     * }
-     * public String getPageValue()
-     * {
-     * return (String) getAttributes().get("page");
-     * }
-     * public String getActionValue()
-     * {
-     * return (String) getAttributes().get("action");
-     * }
-     */
     
     protected boolean isEncodeLinkChildren(Object linkValue)
     {
         return ObjectUtils.isEmpty(linkValue);
     }
     
-    protected HtmlOutcomeTargetLink getLinkComponent()
+    protected void encodeLinkComponent(FacesContext context, HtmlOutcomeTargetLink linkComponent)
+        throws IOException
     {
-        return (getChildCount()>0 ? (HtmlOutcomeTargetLink)getChildren().get(0) : null);
+        linkComponent.encodeAll(context);
+    }
+    
+    protected HtmlGraphicImage encodeImage(FacesContext context, HtmlOutcomeTargetLink parent, String imagePath)
+    {
+        HtmlGraphicImage img = InputControlManager.createComponent(context, HtmlGraphicImage.class);
+        img.setValue(imagePath);
+        return img;
     }
 }

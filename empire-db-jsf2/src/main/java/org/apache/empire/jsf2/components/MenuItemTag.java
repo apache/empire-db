@@ -313,4 +313,22 @@ public class MenuItemTag extends LinkTag
     {
         return false;
     }
+    
+    @Override
+    protected void encodeLinkComponent(FacesContext context, HtmlOutcomeTargetLink linkComponent)
+        throws IOException
+    {
+        UIComponent linkFacet = this.getFacet("link");
+        if (linkFacet!=null)
+        {   // custom rendering
+            linkComponent.encodeBegin(context);
+            linkFacet.encodeAll(context);
+            linkComponent.encodeEnd(context);
+        }
+        else
+        {   // default
+            linkComponent.encodeAll(context);
+        }
+    }
+    
 }
