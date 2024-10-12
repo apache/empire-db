@@ -1547,12 +1547,12 @@ public class TagEncodingHelper implements NamingContainer
     
     public boolean hasComponentId()
     {
-        String id = component.getId();
-        return (id!=null && id.length()>0 && !id.startsWith(FACES_ID_PREFIX));        
+        return hasComponentId(this.component);        
     }
     
-    public static boolean hasComponentId(String id)
+    public static boolean hasComponentId(UIComponent component)
     {
+        String id = component.getId();
         return (id!=null && id.length()>0 && !id.startsWith(FACES_ID_PREFIX));        
     }
 

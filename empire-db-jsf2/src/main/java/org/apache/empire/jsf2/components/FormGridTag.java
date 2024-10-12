@@ -112,14 +112,20 @@ public class FormGridTag extends UIOutput // implements NamingContainer
             {   // label facet
                 placeholderFacet.encodeAll(context);
             }
-            else if (renderPlaceholder || ObjectUtils.getBoolean(controlTag.getAttributes().get("placeholder")))
+            else if (renderPlaceholder || ObjectUtils.getBoolean(controlTag.getAttributes().get("placeholder"), false))
             {   // render placeholder   
                 ResponseWriter writer = context.getResponseWriter();
                 String placeholderTag = (CONTROL_TAG!=null ? CONTROL_TAG : INPUT_WRAPPER_TAG);
                 writer.startElement(placeholderTag, controlTag);
+                // id attribute
+                if (CONTROL_TAG!=null && TagEncodingHelper.hasComponentId(controlTag))
+                    writer.writeAttribute(InputControl.HTML_ATTR_ID, controlTag.getClientId(), null);
+                // Style class
                 writer.writeAttribute(InputControl.HTML_ATTR_CLASS, TagStyleClass.CONTROL_PLACEHOLDER.get(), null);
-                if (InputControl.HTML_TAG_TD.equalsIgnoreCase(placeholderTag))
+                // Legacy two <td>
+                if (CONTROL_TAG==null && InputControl.HTML_TAG_TD.equalsIgnoreCase(placeholderTag))
                     writer.writeAttribute("colspan", 2, null);
+                // done
                 writer.endElement(placeholderTag);
             }
         }
