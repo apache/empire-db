@@ -161,7 +161,7 @@ public class StringUtils
         if (value==null)
             return null;
         String strval = value.toString();
-        return ((strval.length()==0) ? null : strval);   
+        return (isEmpty(strval) ? null : strval);   
     }
 
     /**
@@ -497,7 +497,7 @@ public class StringUtils
     public static boolean isEmpty(String s)
     {
         if (s!=null)
-        {   // find non-space character
+        {   // check for any non-space character
             for (int i=0; i<s.length(); i++)
                 if (s.charAt(i)>' ')
                     return false;

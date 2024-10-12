@@ -25,6 +25,7 @@ import org.apache.empire.commons.StringUtils;
 import org.apache.empire.jakarta.components.ControlTag;
 import org.apache.empire.jakarta.controls.InputControl;
 
+import jakarta.faces.component.UIComponent;
 import jakarta.faces.context.FacesContext;
 import jakarta.faces.context.ResponseWriter;
 
@@ -37,6 +38,8 @@ public class ControlRenderInfo
      * Use setDefault(ControlRenderInfo renderInfo) in order to change the default
      */
     private static ControlRenderInfo DEFAULT_CONTROL_RENDER_INFO = new DefaultControlRenderInfo();
+    
+    public static final String PLACEHOLDER_ATTRIBUTE = "placeholder";
 
     public static ControlRenderInfo getDefault()
     {
@@ -46,6 +49,11 @@ public class ControlRenderInfo
     public static void setDefault(ControlRenderInfo renderInfo)
     {
         DEFAULT_CONTROL_RENDER_INFO = renderInfo;
+    }
+    
+    public static boolean isRenderPlaceholder(UIComponent component)
+    {
+        return ObjectUtils.getBoolean(component.getAttributes().get(PLACEHOLDER_ATTRIBUTE), false);        
     }
     
     private static class DefaultControlRenderInfo extends ControlRenderInfo
@@ -60,7 +68,7 @@ public class ControlRenderInfo
             throws IOException
         {
             // check attribute "placeholder"
-            if (ObjectUtils.getBoolean(controlTag.getAttributes().get("placeholder"), false))
+            if (isRenderPlaceholder(controlTag))
             {   // render placeholder for invisible controls 
                 ResponseWriter writer = context.getResponseWriter();
                 writer.startElement(InputControl.HTML_TAG_TD, controlTag);

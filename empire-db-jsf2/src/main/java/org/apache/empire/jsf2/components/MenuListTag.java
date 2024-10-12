@@ -48,7 +48,6 @@ public class MenuListTag extends UIOutput // implements NamingContainer
         expandedClass,
         itemWrapTag,
         defaultItemClass;
-        // autoItemId
     }
     
     protected String currentId = null; 
@@ -58,7 +57,6 @@ public class MenuListTag extends UIOutput // implements NamingContainer
     protected String expandedClass = null;
     protected String itemWrapTag = null;
     protected String defaultItemClass = null; // e.g. "level{}"
-    // protected Boolean autoItemId = null;
     protected int level = 0;
     
     private MenuListTag parentMenu = null; 
@@ -144,17 +142,17 @@ public class MenuListTag extends UIOutput // implements NamingContainer
         else
         {   // copy from parent
             if (currentId==null)
-                currentId = parentMenu.getCurrentId();
+                currentId = parentMenu.getCurrentItemId();
             if (currentClass==null)
-                currentClass = parentMenu.getCurrentClass();  
+                currentClass = parentMenu.getCurrentItemClass();  
             if (parentClass==null)
-                parentClass = parentMenu.getParentClass();
+                parentClass = parentMenu.getParentItemClass();
             if (disabledClass==null)
-                disabledClass = parentMenu.getDisabledClass();
+                disabledClass = parentMenu.getItemDisabledClass();
             if (expandedClass==null)
-                expandedClass = parentMenu.getExpandedClass();
+                expandedClass = parentMenu.getItemExpandedClass();
             if (itemWrapTag==null)
-                itemWrapTag = parentMenu.getItemWrapTag();
+                itemWrapTag = parentMenu.getItemWrapperTagName();
             if (defaultItemClass==null)
                 defaultItemClass = parentMenu.defaultItemClass;
             // increase level
@@ -162,45 +160,33 @@ public class MenuListTag extends UIOutput // implements NamingContainer
         }
     }
     
-    public String getCurrentId()
+    public String getCurrentItemId()
     {
-        if (currentId==null)
-            currentId= StringUtils.toString(getStateHelper().get(MenuProperty.currentId));
         return currentId;
     }
 
-    public String getCurrentClass()
+    public String getCurrentItemClass()
     {
-        if (currentClass==null)
-            currentClass= StringUtils.toString(getStateHelper().get(MenuProperty.currentClass));
         return currentClass;
     }
 
-    public String getDisabledClass()
+    public String getParentItemClass()
     {
-        if (disabledClass==null)
-            disabledClass= StringUtils.toString(getStateHelper().get(MenuProperty.disabledClass));
-        return disabledClass;
-    }
-
-    public String getParentClass()
-    {
-        if (parentClass==null)
-            parentClass= StringUtils.toString(getStateHelper().get(MenuProperty.parentClass));
         return parentClass;
     }
 
-    public String getExpandedClass()
+    public String getItemDisabledClass()
     {
-        if (expandedClass==null)
-            expandedClass= StringUtils.toString(getStateHelper().get(MenuProperty.expandedClass));
+        return disabledClass;
+    }
+
+    public String getItemExpandedClass()
+    {
         return expandedClass;
     }
 
-    public String getItemWrapTag()
+    public String getItemWrapperTagName()
     {
-        if (itemWrapTag==null)
-            itemWrapTag= StringUtils.toString(getStateHelper().get(MenuProperty.itemWrapTag));
         return itemWrapTag;
     }
     
@@ -226,24 +212,53 @@ public class MenuListTag extends UIOutput // implements NamingContainer
         // return default
         return defaultItemClass;
     }
-    
-    /*
-    public Boolean isAutoItemId()
-    {
-        if (this.autoItemId == null) {
-            this.autoItemId = (Boolean)getStateHelper().get(Properties.autoItemId);
-            if (this.autoItemId==null) {
-                if (parentMenu==null)
-                    parentMenu = findParentMenu();
-                if (parentMenu!=null)
-                    return parentMenu.isAutoItemId();
-            }
-        }
-        return this.autoItemId;
-    }
-    */
 
-    /* setters */
+    /* 
+     * Getters and setter with getStateHelper()
+     * Removed with EMPIREDB-441 on 2024-10-12
+     * 
+    
+    public String getCurrentItemId()
+    {
+        if (currentId==null)
+            currentId= StringUtils.toString(getStateHelper().get(MenuProperty.currentId));
+        return currentId;
+    }
+
+    public String getCurrentItemClass()
+    {
+        if (currentClass==null)
+            currentClass= StringUtils.toString(getStateHelper().get(MenuProperty.currentClass));
+        return currentClass;
+    }
+
+    public String getParentItemClass()
+    {
+        if (parentClass==null)
+            parentClass= StringUtils.toString(getStateHelper().get(MenuProperty.parentClass));
+        return parentClass;
+    }
+
+    public String getItemDisabledClass()
+    {
+        if (disabledClass==null)
+            disabledClass= StringUtils.toString(getStateHelper().get(MenuProperty.disabledClass));
+        return disabledClass;
+    }
+
+    public String getItemExpandedClass()
+    {
+        if (expandedClass==null)
+            expandedClass= StringUtils.toString(getStateHelper().get(MenuProperty.expandedClass));
+        return expandedClass;
+    }
+
+    public String getItemWrapperTagName()
+    {
+        if (itemWrapTag==null)
+            itemWrapTag= StringUtils.toString(getStateHelper().get(MenuProperty.itemWrapTag));
+        return itemWrapTag;
+    }
     
     public void setCurrentId(String currentId)
     {
@@ -286,14 +301,7 @@ public class MenuListTag extends UIOutput // implements NamingContainer
         // save
         getStateHelper().put(MenuProperty.itemWrapTag, itemWrapTag);
     }
-
-    /*
-    public void setAutoItemId(Boolean autoItemId)
-    {
-        this.autoItemId = autoItemId;
-        // save
-        getStateHelper().put(Properties.autoItemId, this.autoItemId);
-    }
+    
     */
 
     /*

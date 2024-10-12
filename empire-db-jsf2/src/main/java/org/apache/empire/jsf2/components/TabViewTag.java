@@ -236,7 +236,7 @@ public class TabViewTag extends UIOutput // implements NamingContainer
 
         // The Blind
         String showTabBlindJs = null;
-        if (ObjectUtils.getBoolean(this.helper.getTagAttributeValue("showBlind")))
+        if (ObjectUtils.getBoolean(helper.getTagAttributeValue("showBlind")))
         {   // hide bar
             String tabBlindClass = TagStyleClass.TAB_BLIND.get();
             writer.startElement(InputControl.HTML_TAG_DIV, this);
@@ -384,7 +384,7 @@ public class TabViewTag extends UIOutput // implements NamingContainer
             }
             if (writer!=null)
             {   // encode Tab
-                boolean disabled = ObjectUtils.getBoolean(TagEncodingHelper.getTagAttributeValue(page, "disabled"));
+                boolean disabled = isPageDisabled(page);
                 writer.startElement(mode.BAR_ITEM_TAG, this);
                 // tab label
                 String styleClasses = TagStyleClass.TAB_LABEL.get();
@@ -491,6 +491,12 @@ public class TabViewTag extends UIOutput // implements NamingContainer
     
     protected boolean isPageVisible(TabPageTag page)
     {
-        return ObjectUtils.getBoolean(ObjectUtils.coalesce(page.getAttributes().get(this.TAB_RENDERED_ATTRIBUTE), true));
+        return ObjectUtils.getBoolean(page.getAttributes().get(this.TAB_RENDERED_ATTRIBUTE), true);
     }
+    
+    protected boolean isPageDisabled(TabPageTag page)
+    {
+        return ObjectUtils.getBoolean(page.getAttributes().get("disabled"), false);
+    }
+    
 }

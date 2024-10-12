@@ -26,7 +26,6 @@ import javax.faces.component.UIOutput;
 import javax.faces.context.FacesContext;
 import javax.faces.context.ResponseWriter;
 
-import org.apache.empire.commons.ObjectUtils;
 import org.apache.empire.commons.StringUtils;
 import org.apache.empire.jsf2.controls.InputControl;
 import org.apache.empire.jsf2.utils.ControlRenderInfo;
@@ -112,7 +111,7 @@ public class FormGridTag extends UIOutput // implements NamingContainer
             {   // label facet
                 placeholderFacet.encodeAll(context);
             }
-            else if (renderPlaceholder || ObjectUtils.getBoolean(controlTag.getAttributes().get("placeholder"), false))
+            else if (renderPlaceholder || isRenderPlaceholder(controlTag))
             {   // render placeholder   
                 ResponseWriter writer = context.getResponseWriter();
                 String placeholderTag = (CONTROL_TAG!=null ? CONTROL_TAG : INPUT_WRAPPER_TAG);
@@ -121,7 +120,8 @@ public class FormGridTag extends UIOutput // implements NamingContainer
                 if (CONTROL_TAG!=null && TagEncodingHelper.hasComponentId(controlTag))
                     writer.writeAttribute(InputControl.HTML_ATTR_ID, controlTag.getClientId(), null);
                 // Style class
-                writer.writeAttribute(InputControl.HTML_ATTR_CLASS, TagStyleClass.CONTROL_PLACEHOLDER.get(), null);
+                String controlStyle = controlTag.helper.getTagAttributeString(InputControl.CSS_STYLE_CLASS);
+                controlTag.helper.writeStyleClass(writer, TagStyleClass.CONTROL_PLACEHOLDER.get(), controlStyle);
                 // Legacy two <td>
                 if (CONTROL_TAG==null && InputControl.HTML_TAG_TD.equalsIgnoreCase(placeholderTag))
                     writer.writeAttribute("colspan", 2, null);
@@ -209,8 +209,8 @@ public class FormGridTag extends UIOutput // implements NamingContainer
                 log.warn("FormGridTag: Invalid value \"{}\" for attribute \"autoControlId\". Allowed values are *|@|&", id);
         }
         // create control info
-        UIComponent placeholderFacet = getFacet("placeholder");
-        boolean renderPlaceholder = (placeholderFacet==null ? ObjectUtils.getBoolean(getAttributes().get("placeholder"), false) : false);
+        UIComponent placeholderFacet = getFacet(ControlRenderInfo.PLACEHOLDER_ATTRIBUTE);
+        boolean renderPlaceholder = (placeholderFacet==null ? ControlRenderInfo.isRenderPlaceholder(this) : false);
         this.controlRenderInfo = new FromGridRenderInfo(mode, placeholderFacet, renderPlaceholder, autoControlId);
         return controlRenderInfo;
     }

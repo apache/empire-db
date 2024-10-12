@@ -20,7 +20,6 @@ package org.apache.empire.jakarta.components;
 
 import java.io.IOException;
 
-import org.apache.empire.commons.ObjectUtils;
 import org.apache.empire.commons.StringUtils;
 import org.apache.empire.jakarta.controls.InputControl;
 import org.apache.empire.jakarta.utils.ControlRenderInfo;
@@ -112,14 +111,21 @@ public class FormGridTag extends UIOutput // implements NamingContainer
             {   // label facet
                 placeholderFacet.encodeAll(context);
             }
-            else if (renderPlaceholder)
+            else if (renderPlaceholder || isRenderPlaceholder(controlTag))
             {   // render placeholder   
                 ResponseWriter writer = context.getResponseWriter();
                 String placeholderTag = (CONTROL_TAG!=null ? CONTROL_TAG : INPUT_WRAPPER_TAG);
                 writer.startElement(placeholderTag, controlTag);
-                writer.writeAttribute(InputControl.HTML_ATTR_CLASS, TagStyleClass.CONTROL_PLACEHOLDER.get(), null);
-                if (InputControl.HTML_TAG_TD.equalsIgnoreCase(placeholderTag))
+                // id attribute
+                if (CONTROL_TAG!=null && TagEncodingHelper.hasComponentId(controlTag))
+                    writer.writeAttribute(InputControl.HTML_ATTR_ID, controlTag.getClientId(), null);
+                // Style class
+                String controlStyle = controlTag.helper.getTagAttributeString(InputControl.CSS_STYLE_CLASS);
+                controlTag.helper.writeStyleClass(writer, TagStyleClass.CONTROL_PLACEHOLDER.get(), controlStyle);
+                // Legacy two <td>
+                if (CONTROL_TAG==null && InputControl.HTML_TAG_TD.equalsIgnoreCase(placeholderTag))
                     writer.writeAttribute("colspan", 2, null);
+                // done
                 writer.endElement(placeholderTag);
             }
         }
@@ -203,8 +209,8 @@ public class FormGridTag extends UIOutput // implements NamingContainer
                 log.warn("FormGridTag: Invalid value \"{}\" for attribute \"autoControlId\". Allowed values are *|@|&", id);
         }
         // create control info
-        UIComponent placeholderFacet = getFacet("placeholder");
-        boolean renderPlaceholder = (placeholderFacet==null ? ObjectUtils.getBoolean(getAttributes().get("placeholder"), false) : false);
+        UIComponent placeholderFacet = getFacet(ControlRenderInfo.PLACEHOLDER_ATTRIBUTE);
+        boolean renderPlaceholder = (placeholderFacet==null ? ControlRenderInfo.isRenderPlaceholder(this) : false);
         this.controlRenderInfo = new FromGridRenderInfo(mode, placeholderFacet, renderPlaceholder, autoControlId);
         return controlRenderInfo;
     }

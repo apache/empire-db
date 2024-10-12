@@ -22,20 +22,9 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
-import jakarta.faces.component.UIComponent;
-import jakarta.faces.component.UINamingContainer;
-import jakarta.faces.component.UIOutput;
-import jakarta.faces.component.UIPanel;
-import jakarta.faces.component.UIParameter;
-import jakarta.faces.component.html.HtmlGraphicImage;
-import jakarta.faces.component.html.HtmlOutcomeTargetLink;
-import jakarta.faces.component.visit.VisitCallback;
-import jakarta.faces.component.visit.VisitContext;
-import jakarta.faces.context.FacesContext;
-import jakarta.faces.context.ResponseWriter;
-
 import org.apache.empire.commons.ObjectUtils;
 import org.apache.empire.commons.StringUtils;
+import org.apache.empire.exceptions.InvalidArgumentException;
 import org.apache.empire.exceptions.InvalidPropertyException;
 import org.apache.empire.jakarta.app.FacesUtils;
 import org.apache.empire.jakarta.controls.InputControl;
@@ -47,6 +36,18 @@ import org.apache.empire.jakarta.utils.TagEncodingHelperFactory;
 import org.apache.empire.jakarta.utils.TagStyleClass;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import jakarta.faces.component.UIComponent;
+import jakarta.faces.component.UINamingContainer;
+import jakarta.faces.component.UIOutput;
+import jakarta.faces.component.UIPanel;
+import jakarta.faces.component.UIParameter;
+import jakarta.faces.component.html.HtmlGraphicImage;
+import jakarta.faces.component.html.HtmlOutcomeTargetLink;
+import jakarta.faces.component.visit.VisitCallback;
+import jakarta.faces.component.visit.VisitContext;
+import jakarta.faces.context.FacesContext;
+import jakarta.faces.context.ResponseWriter;
 
 public class LinkTag extends UIOutput // implements NamingContainer
 {
@@ -173,10 +174,10 @@ public class LinkTag extends UIOutput // implements NamingContainer
                     UIPanel facetComponent = (UIPanel)getFacets().get(UIComponent.COMPOSITE_FACET_NAME);
                     if (facetComponent==null)
                     {
-                        log.warn("WARN: component's facetComponent has not been set! Using Default (jakarta.faces.Panel).");
+                        log.warn("WARN: component's facetComponent has not been set! Using Default (javax.faces.Panel).");
                         log.warn("Problem might be related to Mojarra's state context saving for dynamic components (affects all versions > 2.1.6). See com.sun.faces.context.StateContext.java:AddRemoveListener");
-                        facetComponent = (UIPanel)context.getApplication().createComponent("jakarta.faces.Panel");
-                        facetComponent.setRendererType("jakarta.faces.Group");
+                        facetComponent = (UIPanel)context.getApplication().createComponent("javax.faces.Panel");
+                        facetComponent.setRendererType("javax.faces.Group");
                         getFacets().put(UIComponent.COMPOSITE_FACET_NAME, facetComponent);
                     }
                 }    
@@ -202,7 +203,7 @@ public class LinkTag extends UIOutput // implements NamingContainer
             }
             // set params
             setLinkProperties(linkComponent);
-            addOrSetParam(linkComponent, "idparam", "id");
+            addOrSetParams(linkComponent);
             // encode link
             this.encodeLinkChildren = isEncodeLinkChildren(linkComponent.getChildCount()>0 ? null : linkComponent.getValue());
             if (this.encodeLinkChildren)
@@ -210,7 +211,7 @@ public class LinkTag extends UIOutput // implements NamingContainer
             else
             {   // default rendering (no children)
                 linkComponent.setRendered(true);
-                linkComponent.encodeAll(context);
+                encodeLinkComponent(context, linkComponent);
                 linkComponent.setRendered(false); // Don't render twice!
             }
         }
@@ -333,13 +334,19 @@ public class LinkTag extends UIOutput // implements NamingContainer
         // include view param
         link.setIncludeViewParams(false);
     }
-    
-    protected void addOrSetParam(HtmlOutcomeTargetLink link, String attribute, String paramName)
+
+    protected void addOrSetParams(HtmlOutcomeTargetLink link)
     {
-        // Get Attribute
-        String paramValue = StringUtils.toString(getAttributes().get(attribute));
+        addOrSetParam(link, "id", StringUtils.toString(getAttributes().get("idparam")));
+    }
+    
+    protected void addOrSetParam(HtmlOutcomeTargetLink link, String paramName, String paramValue)
+    {
+        // Check params
         if (StringUtils.isEmpty(paramValue))
-            return; 
+            return; // nothing to do 
+        if (paramName==null || paramName.length()==0)
+            throw new InvalidArgumentException("paramName", paramName);
         // find attribute
         List<UIComponent> l = link.getChildren();
         for (UIComponent c : l)
@@ -384,35 +391,26 @@ public class LinkTag extends UIOutput // implements NamingContainer
         return link;
     }
     
-    protected HtmlGraphicImage encodeImage(FacesContext context, HtmlOutcomeTargetLink parent, String imagePath)
+    protected HtmlOutcomeTargetLink getLinkComponent()
     {
-        HtmlGraphicImage img = InputControlManager.createComponent(context, HtmlGraphicImage.class);
-        img.setValue(imagePath);
-        return img;
+        return (getChildCount()>0 ? (HtmlOutcomeTargetLink)getChildren().get(0) : null);
     }
-    
-    /*
-     * public String getLabelValue()
-     * {
-     * return StringUtils.toString(getValue());
-     * }
-     * public String getPageValue()
-     * {
-     * return (String) getAttributes().get("page");
-     * }
-     * public String getActionValue()
-     * {
-     * return (String) getAttributes().get("action");
-     * }
-     */
     
     protected boolean isEncodeLinkChildren(Object linkValue)
     {
         return ObjectUtils.isEmpty(linkValue);
     }
     
-    protected HtmlOutcomeTargetLink getLinkComponent()
+    protected void encodeLinkComponent(FacesContext context, HtmlOutcomeTargetLink linkComponent)
+        throws IOException
     {
-        return (getChildCount()>0 ? (HtmlOutcomeTargetLink)getChildren().get(0) : null);
+        linkComponent.encodeAll(context);
+    }
+    
+    protected HtmlGraphicImage encodeImage(FacesContext context, HtmlOutcomeTargetLink parent, String imagePath)
+    {
+        HtmlGraphicImage img = InputControlManager.createComponent(context, HtmlGraphicImage.class);
+        img.setValue(imagePath);
+        return img;
     }
 }

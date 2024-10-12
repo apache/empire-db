@@ -85,6 +85,10 @@ import org.apache.empire.jsf2.controls.TextInputControl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * TagEncodingHelper
+ * Used by all Empire Components to exchange data and render 
+ */
 public class TagEncodingHelper implements NamingContainer
 {
     public static final String FACES_ID_PREFIX = "j_id";  // Standard Faces ID Prefix
@@ -418,7 +422,7 @@ public class TagEncodingHelper implements NamingContainer
         @Override
         public Object getAttributeEx(String name)
         {
-            return getAttributeValueEx(name);
+            return getTagAttributeValueEx(name);
         }
     }
 
@@ -812,14 +816,13 @@ public class TagEncodingHelper implements NamingContainer
             if (evalExpression)
                 return component.getValue();
             else
-            {   // return value or value expression
+            {   // Check LocalValue and ValueExpression
                 Object value = component.getLocalValue();
                 if (value!=null && (component instanceof UIInput) && !((UIInput)component).isLocalValueSet())
                     value= null; /* should never come here! */
                 if (value==null)
-                    value = findValueExpression("value", false);
-                
-                // value = tag.getValue();
+                    value = findValueExpression("value");
+                // Return the local value or the ValueExpression if any
                 return value;
             }
         }
@@ -1030,7 +1033,7 @@ public class TagEncodingHelper implements NamingContainer
             return DisabledType.READONLY;
         }
         // Check attribute
-        Object dis = getAttributeValueEx("disabled");
+        Object dis = getTagAttributeValueEx("disabled");
         if (ObjectUtils.isEmpty(dis))
             return null; // not provided!
         // direct
@@ -1220,7 +1223,7 @@ public class TagEncodingHelper implements NamingContainer
         // Find expression
         if (this.hasValueExpr<0)
         {   // Find expression
-            ValueExpression ve = findValueExpression("value", false);
+            ValueExpression ve = findValueExpression("value");
             if (ve != null)
             {   // We have a ValueExpression!
                 // Now unwrap for Facelet-Tags to work
@@ -1239,17 +1242,18 @@ public class TagEncodingHelper implements NamingContainer
         }
         return (hasValueExpr>0);
     }
-        
+    
+    // composite component expression
     protected static final String CC_ATTR_EXPR = "#{cc.attrs.";
     
     @SuppressWarnings("unchecked")
-    protected ValueExpression findValueExpression(String attribute, boolean allowLiteral)
+    protected ValueExpression findValueExpression(String attribute)
     {
         // Check for expression
         ValueExpression ve = component.getValueExpression(attribute);
         if (ve == null)
             return null;
-        // Find expression
+        // Check for composite component expression
         UIComponent parent = component;
         String expr = ve.getExpressionString();
         while (expr.startsWith(CC_ATTR_EXPR))
@@ -1277,9 +1281,10 @@ public class TagEncodingHelper implements NamingContainer
             // find attribute
             ValueExpression next = parent.getValueExpression(attrib);
             if (next == null)
-            {   // allow literal
+            {   /* allow literal (obsolte 2024-10-12)
                 if (allowLiteral && (parent.getAttributes().get(attrib)!=null))
                     return ve;
+                */    
                 // not found
                 return null;
             }
@@ -1289,34 +1294,6 @@ public class TagEncodingHelper implements NamingContainer
         }
         // found
         return ve;
-    }
-    
-    protected final Options getValueOptions()
-    {
-        if (this.optionsDetected==false)
-        {   // detect Options
-            this.options = detectValueOptions();
-            this.optionsDetected = true;
-        }
-        return this.options;
-    }
-    
-    protected Options detectValueOptions()
-    {
-        // null value
-        Object attr = getTagAttributeValue("options");
-        if (attr != null && (attr instanceof Options))
-            return ((Options) attr);
-        if (hasColumn())
-        {   // Do we have a record?
-            Object rec = (this.record!=null ? this.record : findRecord());
-            if ((rec instanceof Record) && ((Record)rec).isValid()) 
-                return ((Record)rec).getFieldOptions(unwrapColumn(column));
-            // get From Column
-            return column.getOptions();
-        }
-        // not available
-        return null;
     }
 
     protected Object getBeanPropertyValue(Object bean, String property)
@@ -1381,6 +1358,34 @@ public class TagEncodingHelper implements NamingContainer
             log.error(bean.getClass().getName() + ": no setter available for property '" + property + "'");
             throw new BeanPropertySetException(bean, property, e);
         }
+    }
+    
+    protected final Options getValueOptions()
+    {
+        if (this.optionsDetected==false)
+        {   // detect Options
+            this.options = detectValueOptions();
+            this.optionsDetected = true;
+        }
+        return this.options;
+    }
+    
+    protected Options detectValueOptions()
+    {
+        // null value
+        Object attr = getTagAttributeValue("options");
+        if (attr != null && (attr instanceof Options))
+            return ((Options) attr);
+        if (hasColumn())
+        {   // Do we have a record?
+            Object rec = (this.record!=null ? this.record : findRecord());
+            if ((rec instanceof Record) && ((Record)rec).isValid()) 
+                return ((Record)rec).getFieldOptions(unwrapColumn(column));
+            // get From Column
+            return column.getOptions();
+        }
+        // not available
+        return null;
     }
     
     public String getValueTooltip(Object value)
@@ -1475,6 +1480,8 @@ public class TagEncodingHelper implements NamingContainer
         return textResolver;
     }
     
+    /* ********************** Error messages ********************** */
+    
     protected boolean detectError(FacesContext context)
     {
         Iterator<FacesMessage> iter = context.getMessages(component.getClientId());
@@ -1500,175 +1507,6 @@ public class TagEncodingHelper implements NamingContainer
     {
         FacesMessage msg = getFieldValueErrorMessage(context, e, value);
         context.addMessage(component.getClientId(), msg);
-    }
-
-    public Object getAttributeValueEx(String name)
-    { 
-        Object value = getTagAttributeValue(name);
-        if (value==null && hasColumn())
-        {   // Check Column
-            value = column.getAttribute(name);
-        }
-        // Checks whether it's another column    
-        if (value instanceof Column)
-        {   // Special case: Value is a column
-            Column col = ((Column)value);
-            Object rec = getRecord();
-            if (rec instanceof Record)
-                return ((Record)rec).get(col);
-            else if (rec!=null)
-            {   // Get Value from a bean
-                String property = col.getBeanPropertyName();
-                try
-                {   // Use Beanutils to get Property
-                    PropertyUtilsBean pub = BeanUtilsBean.getInstance().getPropertyUtils();
-                    return pub.getSimpleProperty(rec, property);
-                }
-                catch (Exception e)
-                {   log.error("BeanUtils.getSimpleProperty failed for "+property, e);
-                    return null;
-                }
-            }    
-            return null;
-        }
-        return value;
-    }
-
-    public String getTagAttributeStringEx(String name)
-    {
-        Object value = getAttributeValueEx(name);
-        return (value!=null) ? StringUtils.nullIfEmpty(value) : null;
-    }
-    
-    public Object getTagAttributeValue(String name)
-    {
-        return TagEncodingHelper.getTagAttributeValue(component, name);
-    }
-    
-    public boolean hasComponentId()
-    {
-        return hasComponentId(this.component);        
-    }
-    
-    public static boolean hasComponentId(UIComponent component)
-    {
-        String id = component.getId();
-        return (id!=null && id.length()>0 && !id.startsWith(FACES_ID_PREFIX));        
-    }
-
-    public static Object getTagAttributeValue(UIComponent comp, String name)
-    {
-        Object value = comp.getAttributes().get(name);
-        if (value==null)
-        {   // try value expression
-            ValueExpression ve = comp.getValueExpression(name);
-            if (ve!=null)
-            {   // It's a value expression
-                FacesContext ctx = FacesContext.getCurrentInstance();
-                value = ve.getValue(ctx.getELContext());
-            }
-        }
-        return value;
-    }
-
-    public static String buildComponentId(String s)
-    {
-        if (s==null || s.length()==0)
-            return null;
-        StringBuilder b = new StringBuilder(s.length());
-        for (int i=0; i<s.length(); i++)
-        {
-            char c = s.charAt(i);
-            if (c!='_' && !StringUtils.isCharBetween(c, 'A', 'Z') && !StringUtils.isCharBetween(c, 'a', 'z') && !StringUtils.isNumber(c))
-                c='-';
-            b.append(c);
-        }
-        return b.toString();
-    }
-    
-    public String getTagAttributeString(String name, String defValue)
-    {
-        Object value = getTagAttributeValue(name);
-        String sval = StringUtils.nullIfEmpty(value);
-        return (defValue!=null ? StringUtils.coalesce(sval, defValue) : sval);
-    }
-
-    public String getTagAttributeString(String name)
-    {
-        return getTagAttributeString(name, null);
-    }
-
-    public void writeAttribute(ResponseWriter writer, String attribute, Object value)
-        throws IOException
-    {
-        if (value != null)
-            writer.writeAttribute(attribute, value, null);
-    }
-    
-    public void writeComponentId(ResponseWriter writer, boolean renderAutoId)
-        throws IOException
-    {
-        // render id
-        if (renderAutoId || hasComponentId())
-            writer.writeAttribute(InputControl.HTML_ATTR_ID, component.getClientId(), null);
-    }
-    
-    public void writeComponentId(ResponseWriter writer)
-            throws IOException
-    {
-        writeComponentId(writer, (component instanceof NamingContainer));
-    }
-
-    public void writeStyleClass(ResponseWriter writer, String... styleClasses)
-        throws IOException
-    {
-        // Check if there is only one
-        int i=0;
-        String styleClass = null;
-        for (; i<styleClasses.length; i++) {
-            if (styleClasses[i]!=null) {
-                if (styleClass!=null) {
-                    break; // more than one!
-                }
-                styleClass = styleClasses[i];
-            }
-        }
-        if (i<styleClasses.length)
-            styleClass = StringUtils.arrayToString(styleClasses, StringUtils.SPACE, null, true);
-        if (styleClass != null)
-            writer.writeAttribute(InputControl.HTML_ATTR_CLASS, styleClass, null);
-    }
-
-    public void writeStyleClass(ResponseWriter writer)
-        throws IOException
-    {
-        String userStyle = getTagAttributeStringEx(InputControl.CSS_STYLE_CLASS);
-        writeStyleClass(writer, this.cssStyleClass, userStyle);
-    }
-    
-    public String writeWrapperTag(FacesContext context, boolean renderId, boolean renderValue)
-        throws IOException
-    {
-        String wrapperClass = getTagAttributeStringEx("wrapperClass"); 
-        if (wrapperClass==null)
-            return null;
-        // start element
-        String tagName = InputControl.HTML_TAG_DIV;
-        ResponseWriter writer = context.getResponseWriter();
-        writer.startElement(tagName, this.component);
-        // render id
-        if (renderId)
-            writeComponentId(writer);
-        // style class
-        String wrapCtxClass = (renderValue ? "eWrapVal" : "eWrapInp");
-        writeStyleClass(writer, wrapCtxClass, nullIf(wrapperClass, '-'));
-        // return tagName
-        return tagName;
-    }
-
-    protected String nullIf(String value, char nullChar)
-    {
-        return (value==null || value.length()==0 || (value.length()==1 && value.charAt(0)==nullChar) ? null : value);   
     }
     
     /* ********************** FormGridTag ********************** */
@@ -1696,7 +1534,7 @@ public class TagEncodingHelper implements NamingContainer
         return (formGrid!=null) ? formGrid.getControlRenderInfo() : null;  
     }
 
-    /* ********************** label ********************** */
+    /* ********************** Label ********************** */
 
     protected String getLabelValue(Column column, boolean colon)
     {
@@ -1749,7 +1587,7 @@ public class TagEncodingHelper implements NamingContainer
             {   // for LabelTag
                 forInput = this.getColumnName();
                 // readOnly
-                Object val = getAttributeValueEx("readOnly");
+                Object val = getTagAttributeValueEx("readOnly");
                 if (val!=null)
                     this.readOnly = (ObjectUtils.getBoolean(val) ? (byte)1 : (byte)0);
             }
@@ -1820,7 +1658,7 @@ public class TagEncodingHelper implements NamingContainer
             }
             else if (component instanceof LabelTag)
             {   // update readOnly
-                Object val = getAttributeValueEx("readOnly");
+                Object val = getTagAttributeValueEx("readOnly");
                 if (val!=null)
                     this.readOnly = (ObjectUtils.getBoolean(val) ? (byte)1 : (byte)0);
             }
@@ -1981,14 +1819,7 @@ public class TagEncodingHelper implements NamingContainer
         return null;
     }
 
-    public final boolean isInsideUIData()
-    {
-        if (component==null)
-            return false;
-        if (this.insideUIData<0)
-            this.insideUIData=(detectInsideUIData() ? (byte)1 : (byte)0);
-        return (this.insideUIData>0);
-    }
+    /* ********************** UIData detection ********************** */
     
     protected boolean detectInsideUIData()
     {
@@ -2007,6 +1838,43 @@ public class TagEncodingHelper implements NamingContainer
             }
         }
         return false;
+    }
+
+    public final boolean isInsideUIData()
+    {
+        if (component==null)
+            return false;
+        if (this.insideUIData<0)
+            this.insideUIData=(detectInsideUIData() ? (byte)1 : (byte)0);
+        return (this.insideUIData>0);
+    }
+    
+    /* ********************** Component id ********************** */
+
+    public static String buildComponentId(String s)
+    {
+        if (s==null || s.length()==0)
+            return null;
+        StringBuilder b = new StringBuilder(s.length());
+        for (int i=0; i<s.length(); i++)
+        {
+            char c = s.charAt(i);
+            if (c!='_' && !StringUtils.isCharBetween(c, 'A', 'Z') && !StringUtils.isCharBetween(c, 'a', 'z') && !StringUtils.isNumber(c))
+                c='-';
+            b.append(c);
+        }
+        return b.toString();
+    }
+    
+    public static boolean hasComponentId(UIComponent component)
+    {
+        String id = component.getId();
+        return (id!=null && id.length()>0 && !id.startsWith(FACES_ID_PREFIX));        
+    }
+
+    public boolean hasComponentId()
+    {
+        return hasComponentId(this.component);        
     }
     
     public void saveComponentId(UIComponent comp)
@@ -2043,6 +1911,155 @@ public class TagEncodingHelper implements NamingContainer
                 log.info("Resetting Component-id inside UIData to {}", resetId);
             comp.setId(resetId);
         }
+    }
+
+    /* ********************** Attribute value ********************** */
+    
+    public Object getTagAttributeValue(String name)
+    {
+        Object value = component.getAttributes().get(name);
+        /*
+         * Removed with EMPIREDB-441 on 2024-10-12
+         * ValueExpression expression is already checked internally by getAttributes()
+         * 
+        if (value==null)
+        {   // try value expression
+            ValueExpression ve = component.getValueExpression(name);
+            if (ve!=null)
+            {   // It's a value expression
+                FacesContext ctx = FacesContext.getCurrentInstance();
+                value = ve.getValue(ctx.getELContext());
+            }
+        }
+        */
+        return value;
+    }
+    
+    public String getTagAttributeString(String name, String defValue)
+    {
+        Object value = getTagAttributeValue(name);
+        String sval  = StringUtils.nullIfEmpty(value);
+        return (sval==null ? defValue : sval);
+    }
+
+    public String getTagAttributeString(String name)
+    {
+        return getTagAttributeString(name, null);
+    }
+
+    public Object getTagAttributeValueEx(String name)
+    { 
+        Object value = getTagAttributeValue(name);
+        if (value==null && hasColumn())
+        {   // Check Column
+            value = column.getAttribute(name);
+        }
+        // Checks whether it's another column    
+        if (value instanceof Column)
+        {   // Special case: Value is a column
+            Column col = ((Column)value);
+            Object rec = getRecord();
+            if (rec instanceof Record)
+                return ((Record)rec).get(col);
+            else if (rec!=null)
+            {   // Get Value from a bean
+                String property = col.getBeanPropertyName();
+                try
+                {   // Use Beanutils to get Property
+                    PropertyUtilsBean pub = BeanUtilsBean.getInstance().getPropertyUtils();
+                    return pub.getSimpleProperty(rec, property);
+                }
+                catch (Exception e)
+                {   log.error("BeanUtils.getSimpleProperty failed for "+property, e);
+                    return null;
+                }
+            }    
+            return null;
+        }
+        return value;
+    }
+
+    public String getTagAttributeStringEx(String name)
+    {
+        Object value = getTagAttributeValueEx(name);
+        return (value!=null) ? StringUtils.nullIfEmpty(value) : null;
+    }
+    
+    /* ********************** Response write helper ********************** */
+    
+    public void writeComponentId(ResponseWriter writer, boolean renderAutoId)
+        throws IOException
+    {
+        // render id
+        if (renderAutoId || hasComponentId())
+            writer.writeAttribute(InputControl.HTML_ATTR_ID, component.getClientId(), null);
+    }
+    
+    public void writeComponentId(ResponseWriter writer)
+        throws IOException
+    {
+        writeComponentId(writer, (component instanceof NamingContainer));
+    }
+
+    public void writeAttribute(ResponseWriter writer, String attribute, Object value)
+        throws IOException
+    {
+        if (value != null && !ObjectUtils.isEmpty(value))
+            writer.writeAttribute(attribute, value, null);
+    }
+
+    public void writeStyleClass(ResponseWriter writer, String... styleClasses)
+        throws IOException
+    {
+        // Check if there is only one
+        int i=0;
+        String styleClass = null;
+        for (; i<styleClasses.length; i++) {
+            if (styleClasses[i]!=null) {
+                if (styleClass!=null) {
+                    break; // more than one!
+                }
+                styleClass = styleClasses[i];
+            }
+        }
+        if (i<styleClasses.length)
+            styleClass = StringUtils.arrayToString(styleClasses, StringUtils.SPACE, null, true);
+        if (styleClass != null)
+            writer.writeAttribute(InputControl.HTML_ATTR_CLASS, styleClass, null);
+    }
+
+    public void writeStyleClass(ResponseWriter writer)
+        throws IOException
+    {
+        String userStyle = getTagAttributeStringEx(InputControl.CSS_STYLE_CLASS);
+        writeStyleClass(writer, this.cssStyleClass, userStyle);
+    }
+    
+    public String writeWrapperTag(FacesContext context, boolean renderId, boolean renderValue)
+        throws IOException
+    {
+        String wrapperClass = getTagAttributeStringEx("wrapperClass"); 
+        if (wrapperClass==null)
+            return null;
+        // start element
+        String tagName = InputControl.HTML_TAG_DIV;
+        ResponseWriter writer = context.getResponseWriter();
+        writer.startElement(tagName, this.component);
+        // render id
+        if (renderId)
+            writeComponentId(writer);
+        // style class
+        String wrapCtxClass = (renderValue ? "eWrapVal" : "eWrapInp");
+        writeStyleClass(writer, wrapCtxClass, nullIf(wrapperClass, '-'));
+        // return tagName
+        return tagName;
+    }
+    
+    /* ********************** Miscellaneous ********************** */
+
+    protected String nullIf(String value, char nullChar)
+    {
+        return (value==null || value.length()==0 || (value.length()==1 && value.charAt(0)==nullChar) ? null : value);   
     }
     
 }

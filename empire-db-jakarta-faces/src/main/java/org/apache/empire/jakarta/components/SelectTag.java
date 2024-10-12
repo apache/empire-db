@@ -408,9 +408,9 @@ public class SelectTag extends UIInput implements NamingContainer
     protected void copyAttributes(UISelectOne input)
     {
         // set id
-        String inputId = this.getId();
-        if (TagEncodingHelper.hasComponentId(inputId))
+        if (TagEncodingHelper.hasComponentId(this))
         {   // remove trailing underscore (workaround since parent and child may not have the same name)
+            String inputId = this.getId();
             if (inputId.endsWith("_"))
             {
                 inputId = inputId.substring(0, inputId.length() - 1);

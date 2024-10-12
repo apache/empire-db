@@ -116,7 +116,7 @@ public class MenuItemTag extends LinkTag
         helper.writeAttribute(writer, "class", getStyleClass());
 
         // wrap
-        String wrap = (parentMenu!=null ? parentMenu.getItemWrapTag() : null);
+        String wrap = (parentMenu!=null ? parentMenu.getItemWrapperTagName() : null);
         if (StringUtils.isNotEmpty(wrap))
         {   // Wrap-Element
             writer.startElement(wrap, this);
@@ -198,18 +198,18 @@ public class MenuItemTag extends LinkTag
     
     protected boolean isCurrent()
     {
-        if (menuId==null || parentMenu==null || parentMenu.getCurrentId()==null)
+        if (menuId==null || parentMenu==null || parentMenu.getCurrentItemId()==null)
             return false;
         // All present
-        return menuId.equals(parentMenu.getCurrentId());
+        return menuId.equals(parentMenu.getCurrentItemId());
     }
     
     protected boolean isParent()
     {
-        if (menuId==null || parentMenu==null || parentMenu.getCurrentId()==null)
+        if (menuId==null || parentMenu==null || parentMenu.getCurrentItemId()==null)
             return false;
         // All present
-        String  currentId = parentMenu.getCurrentId();
+        String  currentId = parentMenu.getCurrentItemId();
         return (currentId.length()>menuId.length() && currentId.startsWith(menuId));
     }
 
@@ -235,10 +235,10 @@ public class MenuItemTag extends LinkTag
                 return true;
         }
         // Check parent
-        if (menuId==null || parentMenu==null || parentMenu.getCurrentId()==null)
+        if (menuId==null || parentMenu==null || parentMenu.getCurrentItemId()==null)
             return auto;
         // All present
-        String currentId = parentMenu.getCurrentId();
+        String currentId = parentMenu.getCurrentItemId();
         return currentId.startsWith(menuId+".");
     }
     
@@ -251,7 +251,7 @@ public class MenuItemTag extends LinkTag
             currentOnly = ObjectUtils.getBoolean(value);
         
         // Check parent
-        if (currentOnly && menuId!=null && parentMenu!=null && parentMenu.getCurrentId()!=null)
+        if (currentOnly && menuId!=null && parentMenu!=null && parentMenu.getCurrentItemId()!=null)
         {    
             return isCurrent() || isParent();
         }
@@ -269,15 +269,15 @@ public class MenuItemTag extends LinkTag
                 styleClass = parentMenu.getItemStyleClass();
             // Menu Class
             if (isCurrent())
-                styleClass = appendStyleClass(styleClass, parentMenu.getCurrentClass());
+                styleClass = appendStyleClass(styleClass, parentMenu.getCurrentItemClass());
             else if (isParent())
-                styleClass = appendStyleClass(styleClass, parentMenu.getParentClass());
+                styleClass = appendStyleClass(styleClass, parentMenu.getParentItemClass());
             // expanded
             if (isExpanded())
-                styleClass = appendStyleClass(styleClass, parentMenu.getExpandedClass());            
+                styleClass = appendStyleClass(styleClass, parentMenu.getItemExpandedClass());            
             // Disabled / enabled
             if (isDisabled())
-                styleClass = appendStyleClass(styleClass, parentMenu.getDisabledClass());
+                styleClass = appendStyleClass(styleClass, parentMenu.getItemDisabledClass());
         }
         else
         {   // disabled

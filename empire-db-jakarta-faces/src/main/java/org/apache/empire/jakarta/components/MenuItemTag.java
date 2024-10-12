@@ -20,18 +20,18 @@ package org.apache.empire.jakarta.components;
 
 import java.io.IOException;
 
-import jakarta.faces.component.UIComponent;
-import jakarta.faces.component.UINamingContainer;
-import jakarta.faces.component.html.HtmlOutcomeTargetLink;
-import jakarta.faces.context.FacesContext;
-import jakarta.faces.context.ResponseWriter;
-
 import org.apache.empire.commons.ObjectUtils;
 import org.apache.empire.commons.StringUtils;
 import org.apache.empire.jakarta.controls.InputControl;
 import org.apache.empire.jakarta.utils.TagEncodingHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import jakarta.faces.component.UIComponent;
+import jakarta.faces.component.UINamingContainer;
+import jakarta.faces.component.html.HtmlOutcomeTargetLink;
+import jakarta.faces.context.FacesContext;
+import jakarta.faces.context.ResponseWriter;
 
 public class MenuItemTag extends LinkTag
 {
@@ -116,7 +116,7 @@ public class MenuItemTag extends LinkTag
         helper.writeAttribute(writer, "class", getStyleClass());
 
         // wrap
-        String wrap = (parentMenu!=null ? parentMenu.getItemWrapTag() : null);
+        String wrap = (parentMenu!=null ? parentMenu.getItemWrapperTagName() : null);
         if (StringUtils.isNotEmpty(wrap))
         {   // Wrap-Element
             writer.startElement(wrap, this);
@@ -173,19 +173,6 @@ public class MenuItemTag extends LinkTag
         ResponseWriter writer = context.getResponseWriter();
         writer.endElement("li");
     }
-    
-    /*
-    private void printChildTree(UIComponent comp, int level)
-    {
-        List<UIComponent> cl = comp.getChildren();
-        for (UIComponent c : cl)
-        {
-            boolean isRendered = c.isRendered();
-            log.info("-{}- rendering {} "+String.valueOf(isRendered), level, c.getClass().getSimpleName());
-            printChildTree(c, level+1);
-        }
-    }
-    */
 
     @Override
     protected String getLinkStyleClass()
@@ -211,18 +198,18 @@ public class MenuItemTag extends LinkTag
     
     protected boolean isCurrent()
     {
-        if (menuId==null || parentMenu==null || parentMenu.getCurrentId()==null)
+        if (menuId==null || parentMenu==null || parentMenu.getCurrentItemId()==null)
             return false;
         // All present
-        return menuId.equals(parentMenu.getCurrentId());
+        return menuId.equals(parentMenu.getCurrentItemId());
     }
     
     protected boolean isParent()
     {
-        if (menuId==null || parentMenu==null || parentMenu.getCurrentId()==null)
+        if (menuId==null || parentMenu==null || parentMenu.getCurrentItemId()==null)
             return false;
         // All present
-        String  currentId = parentMenu.getCurrentId();
+        String  currentId = parentMenu.getCurrentItemId();
         return (currentId.length()>menuId.length() && currentId.startsWith(menuId));
     }
 
@@ -248,10 +235,10 @@ public class MenuItemTag extends LinkTag
                 return true;
         }
         // Check parent
-        if (menuId==null || parentMenu==null || parentMenu.getCurrentId()==null)
+        if (menuId==null || parentMenu==null || parentMenu.getCurrentItemId()==null)
             return auto;
         // All present
-        String currentId = parentMenu.getCurrentId();
+        String currentId = parentMenu.getCurrentItemId();
         return currentId.startsWith(menuId+".");
     }
     
@@ -264,7 +251,7 @@ public class MenuItemTag extends LinkTag
             currentOnly = ObjectUtils.getBoolean(value);
         
         // Check parent
-        if (currentOnly && menuId!=null && parentMenu!=null && parentMenu.getCurrentId()!=null)
+        if (currentOnly && menuId!=null && parentMenu!=null && parentMenu.getCurrentItemId()!=null)
         {    
             return isCurrent() || isParent();
         }
@@ -282,15 +269,15 @@ public class MenuItemTag extends LinkTag
                 styleClass = parentMenu.getItemStyleClass();
             // Menu Class
             if (isCurrent())
-                styleClass = appendStyleClass(styleClass, parentMenu.getCurrentClass());
+                styleClass = appendStyleClass(styleClass, parentMenu.getCurrentItemClass());
             else if (isParent())
-                styleClass = appendStyleClass(styleClass, parentMenu.getParentClass());
+                styleClass = appendStyleClass(styleClass, parentMenu.getParentItemClass());
             // expanded
             if (isExpanded())
-                styleClass = appendStyleClass(styleClass, parentMenu.getExpandedClass());            
+                styleClass = appendStyleClass(styleClass, parentMenu.getItemExpandedClass());            
             // Disabled / enabled
             if (isDisabled())
-                styleClass = appendStyleClass(styleClass, parentMenu.getDisabledClass());
+                styleClass = appendStyleClass(styleClass, parentMenu.getItemDisabledClass());
         }
         else
         {   // disabled
@@ -313,4 +300,28 @@ public class MenuItemTag extends LinkTag
     {
         return false;
     }
+
+    
+    /* 
+     * Supports a "label" facet" e.g.
+     * <e:mitem menuId="..." page="..."><f:facet name="label"><span class="icon"/><label>...</label></f:facet></e:mitem>
+     */ 
+    
+    @Override
+    protected void encodeLinkComponent(FacesContext context, HtmlOutcomeTargetLink linkComponent)
+        throws IOException
+    {
+        UIComponent labelFacet = this.getFacet("label");
+        if (labelFacet!=null)
+        {   // custom rendering
+            linkComponent.encodeBegin(context);
+            labelFacet.encodeAll(context);
+            linkComponent.encodeEnd(context);
+        }
+        else
+        {   // default
+            linkComponent.encodeAll(context);
+        }
+    }
+    
 }
