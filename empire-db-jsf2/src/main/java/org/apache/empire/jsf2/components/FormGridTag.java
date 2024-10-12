@@ -112,7 +112,7 @@ public class FormGridTag extends UIOutput // implements NamingContainer
             {   // label facet
                 placeholderFacet.encodeAll(context);
             }
-            else if (renderPlaceholder)
+            else if (renderPlaceholder || ObjectUtils.getBoolean(controlTag.getAttributes().get("placeholder")))
             {   // render placeholder   
                 ResponseWriter writer = context.getResponseWriter();
                 String placeholderTag = (CONTROL_TAG!=null ? CONTROL_TAG : INPUT_WRAPPER_TAG);

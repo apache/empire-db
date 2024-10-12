@@ -937,6 +937,12 @@ public class TagEncodingHelper implements NamingContainer
 
     public boolean isVisible()
     {
+        // check attribute
+        Object val = getTagAttributeValue("visible");
+        if (!ObjectUtils.isEmpty(val))
+        {   // override
+            return ObjectUtils.getBoolean(val);
+        }
         // reset record
         if (this.record!=null)
         {   // Check attribute
