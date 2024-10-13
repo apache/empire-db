@@ -175,7 +175,7 @@ public class LinkTag extends UIOutput // implements NamingContainer
                     if (facetComponent==null)
                     {
                         log.warn("WARN: component's facetComponent has not been set! Using Default (javax.faces.Panel).");
-                        log.warn("Problem might be related to Mojarra's state context saving for dynamic components (affects all versions > 2.1.6). See com.sun.faces.context.StateContext.java:AddRemoveListener");
+                        log.warn("Problem might be related to Mojarra's state context saving for dynamic components. See com.sun.faces.context.StateContext.java:AddRemoveListener");
                         facetComponent = (UIPanel)context.getApplication().createComponent("javax.faces.Panel");
                         facetComponent.setRendererType("javax.faces.Group");
                         getFacets().put(UIComponent.COMPOSITE_FACET_NAME, facetComponent);

@@ -40,7 +40,11 @@ public class ControlRenderInfo
     private static ControlRenderInfo DEFAULT_CONTROL_RENDER_INFO = new DefaultControlRenderInfo();
     
     public static final String PLACEHOLDER_ATTRIBUTE = "placeholder";
+    
+    private static boolean renderPlaceholderDefault = false;
 
+    private static boolean renderExtraWrapperStyles = false;
+    
     public static ControlRenderInfo getDefault()
     {
         return DEFAULT_CONTROL_RENDER_INFO;
@@ -50,10 +54,30 @@ public class ControlRenderInfo
     {
         DEFAULT_CONTROL_RENDER_INFO = renderInfo;
     }
-    
+
+    public static boolean isRenderExtraWrapperStyles()
+    {
+        return renderExtraWrapperStyles;
+    }
+
+    public static void setRenderExtraWrapperStyles(boolean renderExtraWrapperStyles)
+    {
+        ControlRenderInfo.renderExtraWrapperStyles = renderExtraWrapperStyles;
+    }
+
+    public static boolean isRenderPlaceholderDefault()
+    {
+        return renderPlaceholderDefault;
+    }
+
+    public static void setRenderPlaceholderDefault(boolean renderPlaceholderDefault)
+    {
+        ControlRenderInfo.renderPlaceholderDefault = renderPlaceholderDefault;
+    }
+
     public static boolean isRenderPlaceholder(UIComponent component)
     {
-        return ObjectUtils.getBoolean(component.getAttributes().get(PLACEHOLDER_ATTRIBUTE), false);        
+        return ObjectUtils.getBoolean(component.getAttributes().get(PLACEHOLDER_ATTRIBUTE), renderPlaceholderDefault);        
     }
     
     private static class DefaultControlRenderInfo extends ControlRenderInfo
@@ -90,6 +114,26 @@ public class ControlRenderInfo
         this.LABEL_WRAPPER_TAG = StringUtils.nullIfEmpty(labelTag);
         this.INPUT_WRAPPER_TAG = StringUtils.nullIfEmpty(inputTag);
         this.AUTO_CONTROL_ID = autoControlId;
+    }
+    
+    public void writeLabelWrapperAttributes(ResponseWriter writer, TagEncodingHelper helper)
+        throws IOException
+    {
+        // style Class
+        String extraStyleClass = helper.getControlExtraLabelWrapperStyle();
+        helper.writeStyleClass(writer, TagStyleClass.CONTROL_LABEL.get(), extraStyleClass);
+    }
+
+    public void writeInputWrapperAttributes(ResponseWriter writer, TagEncodingHelper helper)
+        throws IOException
+    {
+        // style Class
+        String extraStyleClass = helper.getControlExtraInputWrapperStyle();
+        helper.writeStyleClass(writer, TagStyleClass.CONTROL_INPUT.get(), extraStyleClass);
+        // colspan
+        String colSpan = INPUT_WRAPPER_TAG.equalsIgnoreCase(InputControl.HTML_TAG_TD) ? helper.getTagAttributeStringEx("colspan") : null;            
+        if (colSpan!=null)
+            writer.writeAttribute("colspan", colSpan, null);
     }
     
     @SuppressWarnings("unused")

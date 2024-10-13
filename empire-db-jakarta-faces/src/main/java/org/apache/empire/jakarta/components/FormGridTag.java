@@ -120,8 +120,9 @@ public class FormGridTag extends UIOutput // implements NamingContainer
                 if (CONTROL_TAG!=null && TagEncodingHelper.hasComponentId(controlTag))
                     writer.writeAttribute(InputControl.HTML_ATTR_ID, controlTag.getClientId(), null);
                 // Style class
-                String controlStyle = controlTag.helper.getTagAttributeString(InputControl.CSS_STYLE_CLASS);
-                controlTag.helper.writeStyleClass(writer, TagStyleClass.CONTROL_PLACEHOLDER.get(), controlStyle);
+                String controlClass = controlTag.helper.getTagAttributeStringEx("controlClass");
+                String styleClass   = controlTag.helper.getTagAttributeString(InputControl.CSS_STYLE_CLASS);
+                controlTag.helper.writeStyleClass(writer, TagStyleClass.CONTROL_PLACEHOLDER.get(), controlClass, styleClass);
                 // Legacy two <td>
                 if (CONTROL_TAG==null && InputControl.HTML_TAG_TD.equalsIgnoreCase(placeholderTag))
                     writer.writeAttribute("colspan", 2, null);
@@ -209,9 +210,14 @@ public class FormGridTag extends UIOutput // implements NamingContainer
                 log.warn("FormGridTag: Invalid value \"{}\" for attribute \"autoControlId\". Allowed values are *|@|&", id);
         }
         // create control info
+        this.controlRenderInfo = createControlRenderInfo(mode, autoControlId);
+        return controlRenderInfo;
+    }
+    
+    protected ControlRenderInfo createControlRenderInfo(FormGridMode gridMode, Character autoControlId)
+    {
         UIComponent placeholderFacet = getFacet(ControlRenderInfo.PLACEHOLDER_ATTRIBUTE);
         boolean renderPlaceholder = (placeholderFacet==null ? ControlRenderInfo.isRenderPlaceholder(this) : false);
-        this.controlRenderInfo = new FromGridRenderInfo(mode, placeholderFacet, renderPlaceholder, autoControlId);
-        return controlRenderInfo;
+        return new FromGridRenderInfo(gridMode, placeholderFacet, renderPlaceholder, autoControlId);
     }
 }

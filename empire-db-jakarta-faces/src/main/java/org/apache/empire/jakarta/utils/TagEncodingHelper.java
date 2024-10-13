@@ -25,6 +25,20 @@ import java.util.Iterator;
 import java.util.Locale;
 import java.util.Set;
 
+import jakarta.el.ValueExpression;
+import jakarta.faces.FacesWrapper;
+import jakarta.faces.application.FacesMessage;
+import jakarta.faces.component.NamingContainer;
+import jakarta.faces.component.UIComponent;
+import jakarta.faces.component.UIData;
+import jakarta.faces.component.UIInput;
+import jakarta.faces.component.UIOutput;
+import jakarta.faces.component.html.HtmlOutputLabel;
+import jakarta.faces.component.html.HtmlOutputText;
+import jakarta.faces.component.html.HtmlPanelGroup;
+import jakarta.faces.context.FacesContext;
+import jakarta.faces.context.ResponseWriter;
+
 import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.beanutils.BeanUtilsBean;
 import org.apache.commons.beanutils.PropertyUtils;
@@ -70,20 +84,6 @@ import org.apache.empire.jakarta.controls.SelectInputControl;
 import org.apache.empire.jakarta.controls.TextInputControl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import jakarta.el.ValueExpression;
-import jakarta.faces.FacesWrapper;
-import jakarta.faces.application.FacesMessage;
-import jakarta.faces.component.NamingContainer;
-import jakarta.faces.component.UIComponent;
-import jakarta.faces.component.UIData;
-import jakarta.faces.component.UIInput;
-import jakarta.faces.component.UIOutput;
-import jakarta.faces.component.html.HtmlOutputLabel;
-import jakarta.faces.component.html.HtmlOutputText;
-import jakarta.faces.component.html.HtmlPanelGroup;
-import jakarta.faces.context.FacesContext;
-import jakarta.faces.context.ResponseWriter;
 
 /**
  * TagEncodingHelper
@@ -553,7 +553,7 @@ public class TagEncodingHelper implements NamingContainer
     {
         // Create
         if (getColumn() == null)
-            throw new NotSupportedException(this, "getInputControl");
+        	throw new NotSupportedException(this, "getInputControl");
         // Get Control from column
         String controlType = getTagAttributeString("controlType");
         if (controlType==null)
@@ -1264,8 +1264,8 @@ public class TagEncodingHelper implements NamingContainer
             // find parent
             UIComponent valueParent = FacesUtils.getFacesImplementation().getValueParentComponent(ve);
             if (valueParent!=null)
-            {   // use the value parent
-                parent = valueParent;
+            {	// use the value parent
+            	parent = valueParent;
             }
             else
             {   // find parent
@@ -1532,6 +1532,40 @@ public class TagEncodingHelper implements NamingContainer
     {
         FormGridTag formGrid = getFormGrid();
         return (formGrid!=null) ? formGrid.getControlRenderInfo() : null;  
+    }
+    
+    public String getControlExtraLabelWrapperStyle()
+    {
+        if (!ControlRenderInfo.isRenderExtraWrapperStyles())
+            return null;
+        // style Class
+        String labelClass = getTagAttributeStringEx("labelClass");
+        return labelClass;
+    }
+    
+    public String getControlExtraInputWrapperStyle()
+    {
+        if (!ControlRenderInfo.isRenderExtraWrapperStyles())
+            return null;
+        // input Wrapper Class
+        String inputClass = (isControlTagElementValid() ? getTagAttributeStringEx(InputControl.CSS_STYLE_CLASS) : getTagAttributeString("inputClass")); 
+        // append input state
+        if (isRenderValueComponent())
+            inputClass = (inputClass!=null ? StringUtils.concat(inputClass, " ", TagStyleClass.INPUT_DIS.get()) : TagStyleClass.INPUT_DIS.get());
+        // done
+        return inputClass;
+    }
+    
+    /**
+     * Returns whether a control element is rendered
+     * Use to detect legacy behavior with no separate control element 
+     * and only two <td> for label and input wrapper
+     * @return true if a control element is rendered or false in legacy case 
+     */
+    protected boolean isControlTagElementValid()
+    {
+        ControlRenderInfo cri = getControlRenderInfo();
+        return (cri!=null && cri.CONTROL_TAG!=null);
     }
 
     /* ********************** Label ********************** */
@@ -1948,11 +1982,34 @@ public class TagEncodingHelper implements NamingContainer
     }
 
     public Object getTagAttributeValueEx(String name)
-    { 
-        Object value = getTagAttributeValue(name);
-        if (value==null && hasColumn())
+    {
+        /* 
+         * Special handling of ControlTag "styleClass": Use it for control element only not for input element(s)
+         */
+        boolean isCssStyleClass = InputControl.CSS_STYLE_CLASS.equals(name);
+        boolean useControlTagOverride = (isCssStyleClass && (this.component instanceof ControlTag) && isControlTagElementValid());
+        Object value = getTagAttributeValue((useControlTagOverride ? "inputClass" : name));
+
+        // Special append with leading '+' (for StyleClass only)
+        boolean append = isCssStyleClass && (value instanceof String) && ((String)value).length()>0 && ((String)value).charAt(0)=='+';
+        if (append)
+            value = ((String)value).substring(1); // remove leadng '+'
+        
+        // Get column style
+        if ((value==null || append) && hasColumn())
         {   // Check Column
-            value = column.getAttribute(name);
+            Object colValue = column.getAttribute(name);
+            if (append) 
+            {   // append styles
+                if (ObjectUtils.isEmpty(value))
+                    value = colValue;
+                else if (ObjectUtils.isNotEmpty(colValue))
+                    value = StringUtils.concat(colValue.toString(), " ", value.toString());
+            }
+            else 
+            {   // replace
+                value = colValue;
+            }
         }
         // Checks whether it's another column    
         if (value instanceof Column)
@@ -2049,8 +2106,8 @@ public class TagEncodingHelper implements NamingContainer
         if (renderId)
             writeComponentId(writer);
         // style class
-        String wrapCtxClass = (renderValue ? "eWrapVal" : "eWrapInp");
-        writeStyleClass(writer, wrapCtxClass, nullIf(wrapperClass, '-'));
+        String contextClass = (renderValue ? TagStyleClass.VALUE_WRAPPER.get() : TagStyleClass.INPUT_WRAPPER.get());
+        writeStyleClass(writer, contextClass, nullIf(wrapperClass, '-'));
         // return tagName
         return tagName;
     }

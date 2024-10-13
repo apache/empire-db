@@ -35,6 +35,8 @@ public enum TagStyleClass
     INPUT_MOD("eInpModified"),
     INPUT_HINT("eInputHint"),
     INPUT_TYPE_PREFIX("eInpType"),
+    INPUT_WRAPPER("eWrapInp"),
+    VALUE_WRAPPER("eWrapVal"),
     CONTROL("eControl"),
     CONTROL_LABEL("eCtlLabel"),
     CONTROL_INPUT("eCtlInput"),

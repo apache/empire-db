@@ -57,7 +57,7 @@ public class ControlTag extends UIInput implements NamingContainer
 
         protected abstract String getTagName(ControlRenderInfo renderInfo);
         
-        protected abstract void writeAttributes(ResponseWriter writer, TagEncodingHelper helper)
+        protected abstract void writeAttributes(ResponseWriter writer, ControlRenderInfo renderInfo, TagEncodingHelper helper)
             throws IOException;
 
         @Override
@@ -94,7 +94,7 @@ public class ControlTag extends UIInput implements NamingContainer
             {   // render tag
                 ResponseWriter writer = context.getResponseWriter();
                 writer.startElement(tagName, this);
-                writeAttributes(writer, this.control.helper);
+                writeAttributes(writer, this.control.renderInfo, this.control.helper);
             }
         }
         
@@ -128,12 +128,11 @@ public class ControlTag extends UIInput implements NamingContainer
         }
         
         @Override
-        protected void writeAttributes(ResponseWriter writer, TagEncodingHelper helper)
+        protected void writeAttributes(ResponseWriter writer, ControlRenderInfo renderInfo, TagEncodingHelper helper)
             throws IOException
         {
-            // style Class
-            String labelClass = helper.getTagAttributeStringEx("labelClass");
-            helper.writeStyleClass(writer, TagStyleClass.CONTROL_LABEL.get(), labelClass);
+            // forward to renderInfo
+            renderInfo.writeLabelWrapperAttributes(writer, helper);
         }
 
         @Override
@@ -161,17 +160,11 @@ public class ControlTag extends UIInput implements NamingContainer
         }
 
         @Override
-        protected void writeAttributes(ResponseWriter writer, TagEncodingHelper helper)
+        protected void writeAttributes(ResponseWriter writer, ControlRenderInfo renderInfo, TagEncodingHelper helper)
             throws IOException
         {
-            // style Class
-            String inputClass = helper.getTagAttributeStringEx("inputClass");
-            // String inputState =(helper.isRenderValueComponent() ? TagStyleClass.INPUT_DIS.get() : null); 
-            helper.writeStyleClass(writer, TagStyleClass.CONTROL_INPUT.get(), inputClass); // , inputState
-            // colspan
-            String colSpan = tagName.equalsIgnoreCase(InputControl.HTML_TAG_TD) ? helper.getTagAttributeStringEx("colspan") : null;            
-            if (colSpan!=null)
-                writer.writeAttribute("colspan", colSpan, null);
+            // forward to renderInfo
+            renderInfo.writeInputWrapperAttributes(writer, helper);
         }
 
         @Override
