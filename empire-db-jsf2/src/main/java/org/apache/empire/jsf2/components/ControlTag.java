@@ -51,13 +51,13 @@ public class ControlTag extends UIInput implements NamingContainer
      */
     public static abstract class ControlSeparatorComponent extends UIComponentBase
     {
-        private ControlTag control = null;
+        protected ControlTag control = null;
         
         protected String tagName = null;
 
         protected abstract String getTagName(ControlRenderInfo renderInfo);
         
-        protected abstract void writeAttributes(ResponseWriter writer, ControlRenderInfo renderInfo, TagEncodingHelper helper)
+        protected abstract void writeAttributes(ResponseWriter writer)
             throws IOException;
 
         @Override
@@ -94,7 +94,7 @@ public class ControlTag extends UIInput implements NamingContainer
             {   // render tag
                 ResponseWriter writer = context.getResponseWriter();
                 writer.startElement(tagName, this);
-                writeAttributes(writer, this.control.renderInfo, this.control.helper);
+                writeAttributes(writer);
             }
         }
         
@@ -128,11 +128,11 @@ public class ControlTag extends UIInput implements NamingContainer
         }
         
         @Override
-        protected void writeAttributes(ResponseWriter writer, ControlRenderInfo renderInfo, TagEncodingHelper helper)
+        protected void writeAttributes(ResponseWriter writer)
             throws IOException
         {
             // forward to renderInfo
-            renderInfo.writeLabelWrapperAttributes(writer, helper);
+            control.renderInfo.writeLabelWrapperAttributes(writer, control.helper);
         }
 
         @Override
@@ -160,11 +160,11 @@ public class ControlTag extends UIInput implements NamingContainer
         }
 
         @Override
-        protected void writeAttributes(ResponseWriter writer, ControlRenderInfo renderInfo, TagEncodingHelper helper)
+        protected void writeAttributes(ResponseWriter writer)
             throws IOException
         {
             // forward to renderInfo
-            renderInfo.writeInputWrapperAttributes(writer, helper);
+            control.renderInfo.writeInputWrapperAttributes(writer, control.helper);
         }
 
         @Override
@@ -172,7 +172,7 @@ public class ControlTag extends UIInput implements NamingContainer
             throws IOException
         {
             // encode input components
-            getControl().renderInput(context, this);
+            control.renderInput(context, this);
             // don't call super.encodeChildren()!
         }
     }
