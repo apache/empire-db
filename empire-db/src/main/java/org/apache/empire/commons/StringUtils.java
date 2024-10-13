@@ -926,5 +926,48 @@ public class StringUtils
                b.append(padChar);
         return b.toString();
     }
+
+    /**
+     * Converts a String to camel case
+     * Words must be separated by underscore
+     * @param text the string to convert
+     * @param firstCharUpper flag wether the first character should be upper case (true) or lower case (false)
+     * @return the camel case string
+     */
+    public static String toCamelCase(String text, boolean firstCharUpper)
+    {
+        // remove spaces
+        if (text.indexOf(' ')>=0)
+            text = text.trim().replace(' ', '_');
+        // begin
+        StringBuilder b = new StringBuilder(text.length());
+        int beg=0;
+        while (beg<text.length())
+        {
+            int end = text.indexOf('_', beg);
+            if (end<0)
+                end = text.length();
+            // assemble
+            if (end>beg)
+            {
+                if (beg==0 && !firstCharUpper)
+                {   // begin with all lower cases
+                    b.append(text.substring(beg, end).toLowerCase());
+                }
+                else
+                {   // add word where first letter is upper case 
+                    b.append(text.substring(beg, beg+1).toUpperCase());
+                    if (end-beg>1)
+                    {
+                        b.append(text.substring(beg+1, end).toLowerCase());
+                    }
+                }
+            }
+            // next
+            beg = end + 1;
+        }
+        // Result
+        return b.toString();
+    }
     
 }

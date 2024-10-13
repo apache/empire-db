@@ -147,7 +147,7 @@ public abstract class DBColumnExpr extends DBExpr
      * @return value of the attribute if it exists or null otherwise
      */
     @Override
-    public synchronized Object getAttribute(String name)
+    public Object getAttribute(String name)
     {
         if (attributes != null && attributes.indexOf(name)>=0)
             return attributes.get(name);
@@ -180,7 +180,7 @@ public abstract class DBColumnExpr extends DBExpr
      * @return the list of options
      */
     @Override
-    public synchronized Options getOptions()
+    public Options getOptions()
     {
         if (options != null)
             return options;
@@ -197,7 +197,7 @@ public abstract class DBColumnExpr extends DBExpr
      * @param options the list of options
      */
     @SuppressWarnings("unchecked")
-    public synchronized <T extends DBColumnExpr> T setOptions(Options options)
+    public <T extends DBColumnExpr> T setOptions(Options options)
     {
         this.options = options;
         return (T)this;
@@ -257,44 +257,10 @@ public abstract class DBColumnExpr extends DBExpr
      * @return the name of the bean property used to get and set values 
      */
     @Override
-    public synchronized String getBeanPropertyName()
+    public String getBeanPropertyName()
     {
         if (beanPropertyName==null)
-        {   // Compute bean property name
-            String name = getName();
-            if (name==null)
-                return null; // no name provided!
-            // compute name
-            name = name.toLowerCase();        
-            String res = "";
-            int beg=0;
-            while (beg<name.length())
-            {
-                int end = name.indexOf('_', beg);
-                if (end<0)
-                    end = name.length();
-                // assemble
-                if (end>beg)
-                {
-                    if (beg==0)
-                    {   // begin with all lower cases
-                        res = name.substring(beg, end);
-                    }
-                    else
-                    {   // add word where first letter is upper case 
-                        res += name.substring(beg, beg+1).toUpperCase();
-                        if (end-beg>1)
-                        {
-                            res += name.substring(beg+1, end);
-                        }
-                    }
-                }
-                // next
-                beg = end + 1;
-            }
-            // Result
-            beanPropertyName = res;
-        }
+            beanPropertyName = StringUtils.toCamelCase(getName(), false); // Compute bean property name
         return beanPropertyName;
     }
 
@@ -304,7 +270,7 @@ public abstract class DBColumnExpr extends DBExpr
      * @param propertyName
      */
     @SuppressWarnings("unchecked")
-    public synchronized <T extends DBColumnExpr> T setBeanPropertyName(String propertyName)
+    public <T extends DBColumnExpr> T setBeanPropertyName(String propertyName)
     {
         this.beanPropertyName = propertyName; 
         return (T)this;
