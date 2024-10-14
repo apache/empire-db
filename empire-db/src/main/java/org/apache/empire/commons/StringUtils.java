@@ -950,7 +950,7 @@ public class StringUtils
             // assemble
             if (end>beg)
             {
-                if (beg==0 && !firstCharUpper)
+                if (b.length()==0 && !firstCharUpper)
                 {   // begin with all lower cases
                     b.append(text.substring(beg, end).toLowerCase());
                 }

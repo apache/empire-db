@@ -125,6 +125,7 @@ public class StringUtilsTest
 	public void testCoalesce()
 	{
 		assertEquals("ok",StringUtils.coalesce("ok", "fail"));
+        assertEquals("ok",StringUtils.coalesce(" ", "ok"));
 		assertEquals("ok",StringUtils.coalesce("   \r \n \t  ", "ok"));
 		assertEquals("ok",StringUtils.coalesce(null, "ok"));
 		assertEquals(null,StringUtils.coalesce(null, null));
@@ -135,8 +136,9 @@ public class StringUtilsTest
 	{
 		assertEquals(null, StringUtils.nullIfEmpty(null));
 		assertEquals(null, StringUtils.nullIfEmpty(""));
-		assertEquals(" ", StringUtils.nullIfEmpty(" "));
-		assertEquals("\r\n\t", StringUtils.nullIfEmpty("\r\n\t"));
+		assertEquals(null, StringUtils.nullIfEmpty("   "));
+		assertEquals(null, StringUtils.nullIfEmpty("\r\n\t"));
+        assertEquals("\r\nOk\t", StringUtils.nullIfEmpty("\r\nOk\t"));
 		assertEquals(" value ", StringUtils.nullIfEmpty(" value "));
 	}
 
@@ -213,5 +215,17 @@ public class StringUtilsTest
 		assertEquals("testoopsoopstest", StringUtils.replaceAll("test  test", " ", "oops"));
 		assertEquals("1-two-3", StringUtils.replaceAll("1 2 3", " 2 ", "-two-"));
 	}
+
+    @Test
+    public void testCamelCase()
+    {
+        assertEquals("helloWorld", StringUtils.toCamelCase("HELLO_WORLD", false));
+        assertEquals("helloWorld", StringUtils.toCamelCase(" HELLO WORLD ", false));
+        assertEquals("HelloWorld", StringUtils.toCamelCase(" HELLO WORLD ", true));
+        assertEquals("123Hello456", StringUtils.toCamelCase("123_hello_456", true));
+        assertEquals("", StringUtils.toCamelCase(" _ _ _ ", true));
+        assertEquals("ABC", StringUtils.toCamelCase(" _a_ _b_ _c_ ", true));
+        assertEquals("aBC", StringUtils.toCamelCase(" _a_ _b_ _c_ ", false));
+    }
 
 }
