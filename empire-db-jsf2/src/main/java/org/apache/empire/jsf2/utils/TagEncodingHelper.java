@@ -2092,11 +2092,20 @@ public class TagEncodingHelper implements NamingContainer
         writeStyleClass(writer, this.cssStyleClass, userStyle);
     }
     
+    /**
+     * Writes a wrapper tag for <e:value> and <e:input>
+     * Hint: For <e:control> the input separater tag acts as the wrapper
+     * @param context the faces context
+     * @param renderId flag whether or not to render the components client id
+     * @param renderValue flag whether to render and input wrapper (false) or a value wrapper (true)
+     * @return the tag name of the wrapper tag
+     * @throws IOException
+     */
     public String writeWrapperTag(FacesContext context, boolean renderId, boolean renderValue)
         throws IOException
     {
         String wrapperClass = getTagAttributeStringEx("wrapperClass"); 
-        if (wrapperClass==null)
+        if (wrapperClass==null || wrapperClass.equals("-"))
             return null;
         // start element
         String tagName = InputControl.HTML_TAG_DIV;
@@ -2107,16 +2116,9 @@ public class TagEncodingHelper implements NamingContainer
             writeComponentId(writer);
         // style class
         String contextClass = (renderValue ? TagStyleClass.VALUE_WRAPPER.get() : TagStyleClass.INPUT_WRAPPER.get());
-        writeStyleClass(writer, contextClass, nullIf(wrapperClass, '-'));
+        writeStyleClass(writer, contextClass, wrapperClass);
         // return tagName
         return tagName;
-    }
-    
-    /* ********************** Miscellaneous ********************** */
-
-    protected String nullIf(String value, char nullChar)
-    {
-        return (value==null || value.length()==0 || (value.length()==1 && value.charAt(0)==nullChar) ? null : value);   
     }
     
 }
