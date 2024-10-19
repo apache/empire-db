@@ -172,7 +172,7 @@ public class ControlTag extends UIInput implements NamingContainer
             throws IOException
         {
             // encode input components
-            control.renderInput(context, this);
+            control.renderInput(context, this, (this.tagName==null));
             // don't call super.encodeChildren()!
         }
     }
@@ -618,19 +618,26 @@ public class ControlTag extends UIInput implements NamingContainer
         }
     }
     
-    public void renderInput(FacesContext context, UIComponent parent)
+    public void renderInput(FacesContext context, UIComponent parent, boolean allowWrapper)
         throws IOException
     {
-        boolean renderValue = helper.isRenderValueComponent();
-        // wrapperTag
-        String wrapperTag = helper.writeWrapperTag(context, false, renderValue); 
-        // render
-        control.renderInput(parent, inpInfo, context);
-        // wrapperTagEnd
-        if (wrapperTag!=null)
-        {   // control wrapper tag
-            ResponseWriter writer = context.getResponseWriter();
-            writer.endElement(wrapperTag);
+        if (allowWrapper)
+        {   // render separate wrapper tag
+            boolean renderValue = helper.isRenderValueComponent();
+            // wrapperTag
+            String wrapperTag = helper.writeWrapperTag(context, false, renderValue); 
+            // render
+            control.renderInput(parent, inpInfo, context);
+            // wrapperTagEnd
+            if (wrapperTag!=null)
+            {   // control wrapper tag
+                ResponseWriter writer = context.getResponseWriter();
+                writer.endElement(wrapperTag);
+            }
+        }
+        else
+        {   // the InputSeparatorComponent acts as wrapper
+            control.renderInput(parent, inpInfo, context);
         }
     }
 

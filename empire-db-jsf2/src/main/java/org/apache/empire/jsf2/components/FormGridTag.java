@@ -48,6 +48,7 @@ public class FormGridTag extends UIOutput // implements NamingContainer
         LEGACY(InputControl.HTML_TAG_DIV, null, InputControl.HTML_TAG_TD, InputControl.HTML_TAG_TD),
         TABLE (InputControl.HTML_TAG_TABLE, InputControl.HTML_TAG_TR, InputControl.HTML_TAG_TD, InputControl.HTML_TAG_TD),
         GRID  (InputControl.HTML_TAG_DIV, InputControl.HTML_TAG_DIV, InputControl.HTML_TAG_DIV, InputControl.HTML_TAG_DIV),
+        LEAN  (InputControl.HTML_TAG_DIV, InputControl.HTML_TAG_DIV, null, InputControl.HTML_TAG_DIV),
         FLAT  (InputControl.HTML_TAG_DIV, InputControl.HTML_TAG_DIV, null, null);
         
         public final String GRID_TAG;

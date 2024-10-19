@@ -173,7 +173,7 @@ public class InputTag extends UIInput implements NamingContainer
         // Render when visible
         if (controlVisible)
         {   // Render now
-            String wrapperTag = helper.writeWrapperTag(context, true, renderValue);
+            String wrapperTag = helper.writeWrapperTag(context, helper.hasComponentId(), renderValue);
             // render components
             if (renderValue)
             {   // render value

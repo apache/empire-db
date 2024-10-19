@@ -127,11 +127,15 @@ public class ControlRenderInfo
     public void writeInputWrapperAttributes(ResponseWriter writer, TagEncodingHelper helper)
         throws IOException
     {
-        // style Class
+        // wrapper Class
+        String wrapperClass = helper.getTagAttributeStringEx("wrapperClass"); 
+        if (wrapperClass!=null && wrapperClass.equals("-"))
+            wrapperClass= null;
+        // extra
         String extraStyleClass = helper.getControlExtraInputWrapperStyle();
-        helper.writeStyleClass(writer, TagStyleClass.CONTROL_INPUT.get(), extraStyleClass);
-        // colspan
-        String colSpan = INPUT_WRAPPER_TAG.equalsIgnoreCase(InputControl.HTML_TAG_TD) ? helper.getTagAttributeStringEx("colspan") : null;            
+        helper.writeStyleClass(writer, TagStyleClass.CONTROL_INPUT.get(), wrapperClass, extraStyleClass);
+        // colspan for <td>
+        String colSpan = InputControl.HTML_TAG_TD.equalsIgnoreCase(INPUT_WRAPPER_TAG) ? helper.getTagAttributeStringEx("colspan") : null;            
         if (colSpan!=null)
             writer.writeAttribute("colspan", colSpan, null);
     }
