@@ -35,8 +35,8 @@ import org.apache.empire.commons.StringUtils;
 import org.apache.empire.db.DBRowSet;
 import org.apache.empire.exceptions.EmpireException;
 import org.apache.empire.exceptions.InternalException;
-import org.apache.empire.exceptions.ItemNotFoundException;
 import org.apache.empire.exceptions.InvalidOperationException;
+import org.apache.empire.exceptions.ItemNotFoundException;
 import org.apache.empire.jsf2.app.FacesUtils;
 import org.apache.empire.jsf2.app.TextResolver;
 import org.apache.empire.jsf2.app.WebApplication;
@@ -54,7 +54,7 @@ public abstract class Page // *Deprecated* implements Serializable
     private static final Logger log              = LoggerFactory.getLogger(Page.class);
 
     private String              action           = null;
-    private boolean             initialized      = false;
+    private short               initialized      = -1;   // -1=not initialized; 0=pending; 1=initialized
     private PageDefinition      pageDefinition   = null;
     private List<PageElement>   pageElements     = null;
 
@@ -87,7 +87,7 @@ public abstract class Page // *Deprecated* implements Serializable
 
     public boolean isInitialized()
     {
-        return initialized;
+        return (initialized>0);
     }
 
     public String getAction()
@@ -103,7 +103,7 @@ public abstract class Page // *Deprecated* implements Serializable
 
     public void setAction(String actionParam)
     {
-        if (!initialized)
+        if (initialized>0)
             Page.log.debug("Setting PageBean action {} for bean {}.", action, getPageName());
         else
             Page.log.trace("Re-setting PageBeanAction {} for bean {}.", action, getPageName());
@@ -135,12 +135,11 @@ public abstract class Page // *Deprecated* implements Serializable
 
     public void preRenderPage(FacesContext context)
     {
-        if (this.initialized)
-        {
-            // PageBean.log.error("PageBean {} is already initialized.", name());
-            try
-            {
-                Page.log.debug("PageBean {} is already initialized. Calling doRefresh().", getPageName());
+        // Check initialized
+        if (initialized>0)
+        {   try
+            {   // refresh
+                log.debug("PageBean {} is already initialized. Calling doRefresh().", getPageName());
                 doRefresh();
             }
             catch (Exception e)
@@ -150,6 +149,15 @@ public abstract class Page // *Deprecated* implements Serializable
             return; // already Initialized
         }
 
+        // Check pending
+        if (initialized==0)
+        {   // Initialization pending
+            Exception e = new InvalidOperationException("Page Initialization pending.");
+            WebApplication.getInstance().handleException(context, this, e);
+        }
+        // Initialization pending
+        initialized=0;
+        
         // Check access
         try
         {
@@ -171,9 +179,6 @@ public abstract class Page // *Deprecated* implements Serializable
             return;
         }
 
-        // Initialize
-        this.initialized = true;
-
         // String value of "null"?
         if (this.action!=null && "null".equals(this.action))
         {   log.warn("Invalid action name 'null' for {}", getClass().getName());
@@ -181,51 +186,62 @@ public abstract class Page // *Deprecated* implements Serializable
         }    
         
         // Execute Action
-        if (this.action != null)
-        {   try
-            {   // Process action
-                log.info("Processing action {} on {}.", String.valueOf(action), getPageName());
-                Method method = getClass().getMethod(action);
-                Object result = method.invoke(this);
-                if (result != null)
-                {
-                    String outcome = result.toString();
-                    // Retrieve the NavigationHandler instance..
-                    NavigationHandler navHandler = context.getApplication().getNavigationHandler();
-                    // Invoke nav handling..
-                    navHandler.handleNavigation(context, action, outcome);
-                    // Trigger a switch to Render Response if needed
-                    context.renderResponse();
-                    return;
-                }
-                restoreSessionMessage();
-            }
-            catch (NoSuchMethodException nsme)
-            {
-                logAndHandleActionException(action, nsme);
-            }
-            catch (Exception e)
-            {
-                logAndHandleActionException(action, e.getCause());
-            }
-            finally
-            {
+        if (this.action!=null && this.action.length()>0)
+        {   // process action
+            try
+            {   log.debug("Processing action {} on page {}.", action, getPageName());
+                processAction(action, context);
+            } finally {
                 // Clear action
-                this.action = null; // Page.INVALID_ACTION;
+                this.action = null;
             }
         }
         else
         {   // call default Action
             try
-            {
-                Page.log.debug("Initializing PageBean {}. Calling doInit()", getPageName());
+            {   log.debug("Initializing page {} using doInit()", getPageName());
                 doInit();
-                restoreSessionMessage();
+                // if not redirected, restore SessionMessage
+                if (!context.getResponseComplete())
+                    restoreSessionMessage();
             }
             catch (Exception e)
             {
                 logAndHandleActionException("doInit", e);
             }
+        }
+        
+        // Initialized unless redirected
+        this.initialized = (context.getResponseComplete() ? (short)-1 : 1);
+    }
+    
+    protected void processAction(String action, FacesContext context)
+    {
+        try
+        {   // Process action
+            Method method = getClass().getMethod(action);
+            Object result = method.invoke(this);
+            if (result != null)
+            {
+                String outcome = result.toString();
+                // Retrieve the NavigationHandler instance..
+                NavigationHandler navHandler = context.getApplication().getNavigationHandler();
+                // Invoke nav handling..
+                navHandler.handleNavigation(context, action, outcome);
+                // Trigger a switch to Render Response if needed
+                context.renderResponse();
+                return;
+            }
+            // OK, not redirected
+            restoreSessionMessage();
+        }
+        catch (NoSuchMethodException e)
+        {
+            logAndHandleActionException(action, e);
+        }
+        catch (Exception e)
+        {
+            logAndHandleActionException(action, e.getCause());
         }
     }
     
@@ -255,15 +271,14 @@ public abstract class Page // *Deprecated* implements Serializable
 
     protected void logAndHandleActionException(String action, Throwable e)
     {
+        // log
         String msg = "Failed to perform action " + action + " on " + getPageName();
-        // Message
-        Page.log.error(msg, e);
+        log.error(msg, e);
+        // handle
         if (!handleActionError(action, e))
-        {   // Not handled. Throw again
-            if (e instanceof EmpireException)
-                throw ((EmpireException)e);
-            else
-                throw new InternalException(e);
+        {   // Not handled: Forward to Application
+            FacesContext context = FacesContext.getCurrentInstance();
+            WebApplication.getInstance().handleException(context, this, e);
         }    
     }
     
@@ -290,7 +305,7 @@ public abstract class Page // *Deprecated* implements Serializable
         // Set Faces Message
         String msg = extractErrorMessage(e);
         String detail = extractErrorMessageDetail(action, e, 1);
-        log.error(msg + "\r\n" + detail);
+        // log.error(msg + "\r\n" + detail);
         FacesMessage facesMsg = new FacesMessage(FacesMessage.SEVERITY_ERROR, msg, detail);
         setSessionMessage(facesMsg);
         // Return to parent page

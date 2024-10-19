@@ -35,6 +35,8 @@ import javax.faces.component.UIComponent;
 import javax.faces.component.UIViewRoot;
 import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
+import javax.faces.event.ExceptionQueuedEvent;
+import javax.faces.event.ExceptionQueuedEventContext;
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.sql.DataSource;
@@ -53,6 +55,7 @@ import org.apache.empire.jsf2.controls.TextAreaInputControl;
 import org.apache.empire.jsf2.controls.TextInputControl;
 import org.apache.empire.jsf2.impl.FacesImplementation;
 import org.apache.empire.jsf2.impl.ResourceTextResolver;
+import org.apache.empire.jsf2.pages.Page;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -270,6 +273,38 @@ public abstract class WebApplication
         }
         return false;
     }
+    
+    /**
+     * Handles an exeption, that could not be handled on the page level
+     * The application should redirect to the error page.
+     * @param context the faces context
+     * @param page the page from which the exception originated
+     * @param the Exception
+     */
+    public void handleException(FacesContext context, Page source, Throwable e)
+    {
+        // log source
+        String origin = (source!=null ? source.getPageDefinition().getPageBeanName() : "[Unknown]");
+        log.error("Fatal error of type {} from \"{}\": {}: {}", e.getClass().getName(), origin, e.getMessage());
+
+        // For page errors, give the ExceptionHandler a chance to handle
+        if (source!=null)
+        {
+            // Queue event 
+            ExceptionQueuedEventContext event = new ExceptionQueuedEventContext(context, e, null, context.getCurrentPhaseId());
+            event.getAttributes().put (ExceptionQueuedEventContext.IN_BEFORE_PHASE_KEY, Boolean.TRUE);
+            context.getApplication().publishEvent (context, ExceptionQueuedEvent.class, event);
+            
+            // Handle Exception
+            context.getExceptionHandler().handle(); 
+            if (context.getResponseComplete())
+                return;
+        }
+            
+        // If all has failed, redirect to ContextPath (root)
+        String contextPath = context.getExternalContext().getRequestContextPath();
+        FacesUtils.redirectDirectly(context, contextPath);
+    }
 
     /**
      * Logs an exception as Error with additional information 
@@ -304,7 +339,7 @@ public abstract class WebApplication
     }
     
     /**
-     * Override this to provide additonal session info for an exception
+     * Override this to provide additional session info for an exception
      * @param sessionMap
      * @return the additional session info
      */
