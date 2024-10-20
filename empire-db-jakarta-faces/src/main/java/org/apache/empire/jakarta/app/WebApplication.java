@@ -33,7 +33,6 @@ import org.apache.empire.data.DataType;
 import org.apache.empire.db.DBDatabase;
 import org.apache.empire.db.context.DBRollbackManager;
 import org.apache.empire.db.context.DBRollbackManager.ReleaseAction;
-import org.apache.empire.db.exceptions.UserLevelException;
 import org.apache.empire.exceptions.InternalException;
 import org.apache.empire.exceptions.InvalidArgumentException;
 import org.apache.empire.exceptions.NotSupportedException;
@@ -49,11 +48,9 @@ import org.slf4j.LoggerFactory;
 import jakarta.faces.application.Application;
 import jakarta.faces.application.FacesMessage;
 import jakarta.faces.application.FacesMessage.Severity;
-import jakarta.faces.application.ViewExpiredException;
 import jakarta.faces.component.NamingContainer;
 import jakarta.faces.component.UIComponent;
 import jakarta.faces.component.UIViewRoot;
-import jakarta.faces.context.ExternalContext;
 import jakarta.faces.context.FacesContext;
 import jakarta.faces.event.ExceptionQueuedEvent;
 import jakarta.faces.event.ExceptionQueuedEventContext;
@@ -305,48 +302,6 @@ public abstract class WebApplication
         // If all has failed, redirect to ContextPath (root)
         String contextPath = context.getExternalContext().getRequestContextPath();
         FacesUtils.redirectDirectly(context, contextPath);
-    }
-
-    /**
-     * Logs an exception as Error with additional information 
-     * @param message the message to log
-     * @param e the underlying exception
-     */
-    public void logException(Logger logger, String message, Throwable e)
-    {
-        if (logger==null)
-            logger=log;
-        // View Exceptions
-        if ((e instanceof ViewExpiredException)) // || (e instanceof ViewNotFoundException)) -- MyFaces only
-        {   // Session expired
-            logger.warn(message+": "+e.getMessage());
-            return;
-        }
-        // Get Session Info
-        String addlInfo;
-        try {
-            FacesContext fc = FacesContext.getCurrentInstance();
-            ExternalContext ec = (fc!=null ? fc.getExternalContext() : null);
-            String sessionInfo = (ec!=null ? getExceptionSessionInfo(ec.getSessionMap()) : "[NoSession]");
-            addlInfo = StringUtils.coalesce(sessionInfo, "[NoSessionInfo]");
-        } catch(Exception ex) {
-            addlInfo = "[Error:"+ex.getMessage()+"] ";
-        }
-        // Log now
-        if (e instanceof UserLevelException)
-            logger.info(StringUtils.concat(addlInfo, e.getClass().getSimpleName(), ": ", e.getMessage()));
-        else
-            logger.error(StringUtils.concat(addlInfo, message), e);                
-    }
-    
-    /**
-     * Override this to provide additional session info for an exception
-     * @param sessionMap
-     * @return the additional session info
-     */
-    protected String getExceptionSessionInfo(Map<String, Object> sessionMap)
-    {
-        return null;
     }
     
     /**
