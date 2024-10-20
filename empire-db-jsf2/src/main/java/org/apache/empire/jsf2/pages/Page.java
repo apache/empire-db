@@ -190,7 +190,7 @@ public abstract class Page // *Deprecated* implements Serializable
         {   // process action
             try
             {   log.debug("Processing action {} on page {}.", action, getPageName());
-                processAction(action, context);
+                executeAction(action, context);
             } finally {
                 // Clear action
                 this.action = null;
@@ -215,7 +215,7 @@ public abstract class Page // *Deprecated* implements Serializable
         this.initialized = (context.getResponseComplete() ? (short)-1 : 1);
     }
     
-    protected void processAction(String action, FacesContext context)
+    protected void executeAction(String action, FacesContext context)
     {
         try
         {   // Process action

@@ -532,9 +532,7 @@ public class TagEncodingHelper implements NamingContainer
         }
         else if ((idx=id.indexOf(PH_COLUMN_SMART))>=0)
         {   // column name only
-            name = getColumnName();
-            if (SMART_COLUMN_NAME_SET.contains(name))
-                name= getColumnFullName();
+            name = getColumnSmartName();
         }
         else if ((idx=id.indexOf(PH_COLUMN_FULL))>=0) 
         {   // column full name including table
@@ -714,6 +712,14 @@ public class TagEncodingHelper implements NamingContainer
             return StringUtils.concat(entity.getEntityName(), "_", column.getName());
         // No Entity
         return column.getName();
+    }
+    
+    public String getColumnSmartName()
+    {
+        String name = getColumnName();
+        if (SMART_COLUMN_NAME_SET.contains(name))
+            name= getColumnFullName();
+        return name;
     }
 
     public void setColumn(Column column)

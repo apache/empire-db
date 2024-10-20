@@ -310,20 +310,18 @@ public class ControlTag extends UIInput implements NamingContainer
     public void setParent(UIComponent parent)
     {
         super.setParent(parent);
-        // check
+        // check whether already set
         if (helper.hasComponentId())
             return;
-        if (this.renderInfo==null) {
-            /*
-             * Attention: Only works if FormGrid is a direct parent of the Control.
-             * Does not work, if other components are between the Control and the FormGrid.
-             */
-            this.renderInfo=helper.getControlRenderInfo();
-            if (this.renderInfo!=null && this.renderInfo.AUTO_CONTROL_ID!=null) {
-                // Auto set component Id
-                setId(this.renderInfo.AUTO_CONTROL_ID.toString());
-                log.warn("Auto-Setting compontent id for control to {}", this.getId());
-            }
+        /*
+         * Attention: Only works if FormGrid is a direct parent of the Control.
+         * Does not work, if other components are between the Control and the FormGrid.
+         */
+        this.renderInfo = helper.getControlRenderInfo();
+        if (this.renderInfo!=null && this.renderInfo.AUTO_CONTROL_ID!=null) {
+            // Auto set component Id
+            setId(this.renderInfo.AUTO_CONTROL_ID.toString());
+            log.debug("Auto-Setting compontent id for Control to {}", this.getId());
         }
     }
 
