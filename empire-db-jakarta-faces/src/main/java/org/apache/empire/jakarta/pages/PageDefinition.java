@@ -28,48 +28,39 @@ import org.slf4j.LoggerFactory;
 
 public class PageDefinition // *Deprecated* implements Serializable
 {
-	// *Deprecated* private static final long serialVersionUID = 1L;
+    // *Deprecated* private static final long serialVersionUID = 1L;
 
-	private static final Logger log = LoggerFactory.getLogger(PageDefinitions.class);
+    private static final Logger log = LoggerFactory.getLogger(PageDefinitions.class);
 
     private static final String ACTION_PARAMETER_TYPE = "ACTION";
+    private static final String ACTION_PARAMETER_NAME = "action";
     
     private final String path;
     private final String fileExtension;
 
-	private final String pageBeanName;
+    private final String pageBeanName;
     private final Class<? extends Page> pageBeanClass;
     private final PageDefinition parent;
 
-    /*
-    private static Hashtable<String, String> actionCodeMap = new Hashtable<String, String>();
-    
-    private static Hashtable<String, String> actionMap = new Hashtable<String, String>();
-
-    private static String encodeActionParam(String action)
-    {
-        String param = ParameterMap.encodeString(action);
-        actionMap.put(param, action);
-        return param;
-    }
-    
-    public static String decodeActionParam(String param)
-    {
-        String action = actionMap.get(param);
-        if (action==null)
-            log.warn("no action available for param {}.", param);
-        return action;
-    }
-    */
-
-    private static String encodeActionParam(String action)
+    /**
+     * Encodes a page action method into a MD5 code and puts it on the session's action list.
+     * @param pageDef the page for which the action is provided
+     * @param action the name of the action method
+     * @return the encoded action
+     */
+    private static String encodeActionParam(PageDefinition pageDef, String action)
     {
         ParameterMap pm = FacesUtils.getParameterMap(FacesUtils.getContext());
         if (pm==null)
             return action;
-        return pm.put(ACTION_PARAMETER_TYPE, action, true);
+        return pm.put(ACTION_PARAMETER_TYPE, StringUtils.concat(pageDef.getPageBeanName(), ":", action), action, true);
     }
-    
+
+    /**
+     * Decodes a page action method from a MD5 code. 
+     * @param param the MD5 code for a page action method
+     * @return the action method name
+     */
     public static String decodeActionParam(String param)
     {
         ParameterMap pm = FacesUtils.getParameterMap(FacesUtils.getContext());
@@ -83,7 +74,7 @@ public class PageDefinition // *Deprecated* implements Serializable
     
     /**
      * Constructs a page definition
-     * @param path	the path of the view associated with this page
+     * @param path  the path of the view associated with this page
      * @param pageBeanClass the page bean class associated with this page
      * @param parent the parent page (if any). May be null
      * @param pageBeanName the page bean name. If null this will be calculated from the path
@@ -98,16 +89,16 @@ public class PageDefinition // *Deprecated* implements Serializable
         fileExtension = (ext>0) ? path.substring(ext) : null;
         // beanName
         if (pageBeanName==null) 
-        	this.pageBeanName = getPageBeanNameFromPath(path, fileExtension);
+            this.pageBeanName = getPageBeanNameFromPath(path, fileExtension);
         else
-        	this.pageBeanName = pageBeanName;
+            this.pageBeanName = pageBeanName;
         // add this view
         PageDefinitions.registerPage(this);
     }
 
     /**
      * Constructs a page definition
-     * @param path	the path of the view associated with this page
+     * @param path  the path of the view associated with this page
      * @param pageBeanClass the page bean class associated with this page
      * @param pageBeanName the page bean name. If null this will be calculated from the path
      */
@@ -118,7 +109,7 @@ public class PageDefinition // *Deprecated* implements Serializable
 
     /**
      * Constructs a page definition
-     * @param path	the path of the view associated with this page
+     * @param path  the path of the view associated with this page
      * @param pageBeanClass the page bean class associated with this page
      * @param parent the parent page (if any). May be null
      */
@@ -129,7 +120,7 @@ public class PageDefinition // *Deprecated* implements Serializable
 
     /**
      * Constructs a page definition
-     * @param path	the path of the view associated with this page
+     * @param path  the path of the view associated with this page
      * @param pageBeanClass the page bean class associated with this page
      */
     public PageDefinition(String path, Class<? extends Page> pageBeanClass)
@@ -143,7 +134,7 @@ public class PageDefinition // *Deprecated* implements Serializable
         int lastSlash = path.lastIndexOf('/');
         String name = path.substring(lastSlash + 1);
         if (extension!=null)
-        	name = name.substring(0,(name.length()-extension.length()));
+            name = name.substring(0,(name.length()-extension.length()));
         return name;
     }
     
@@ -154,8 +145,8 @@ public class PageDefinition // *Deprecated* implements Serializable
 
     public String getFileExtension() 
     {
-		return fileExtension;
-	}
+        return fileExtension;
+    }
     
     public String getPageBeanName()
     {
@@ -176,7 +167,7 @@ public class PageDefinition // *Deprecated* implements Serializable
     
     public PageOutcome getOutcome()
     {
-    	String uri = PageDefinitions.getInstance().getPageUri(this);
+        String uri = PageDefinitions.getInstance().getPageUri(this);
         return new PageOutcome(uri);
     }
     
@@ -184,7 +175,7 @@ public class PageDefinition // *Deprecated* implements Serializable
     {
         PageOutcome outcome = getOutcome();
         if (StringUtils.isNotEmpty(action))
-            outcome = outcome.addParam("action", encodeActionParam(action));
+            outcome = outcome.addParam(ACTION_PARAMETER_NAME, encodeActionParam(this, action));
         return outcome;
     }
     
@@ -199,7 +190,7 @@ public class PageDefinition // *Deprecated* implements Serializable
     {   
         PageOutcome outcome = getRedirect();
         if (StringUtils.isNotEmpty(action))
-            outcome = outcome.addParam("action", encodeActionParam(action));
+            outcome = outcome.addParam(ACTION_PARAMETER_NAME, encodeActionParam(this, action));
         return outcome;
     }
     
@@ -214,7 +205,7 @@ public class PageDefinition // *Deprecated* implements Serializable
     {
         PageOutcome outcome = getRedirectWithViewParams();
         if (StringUtils.isNotEmpty(action))
-            outcome = outcome.addParam("action", encodeActionParam(action));
+            outcome = outcome.addParam(ACTION_PARAMETER_NAME, encodeActionParam(this, action));
         return outcome;
     }
 

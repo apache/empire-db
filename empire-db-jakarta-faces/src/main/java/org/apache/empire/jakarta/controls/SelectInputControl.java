@@ -22,17 +22,6 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import jakarta.el.ValueExpression;
-import jakarta.faces.component.UIComponent;
-import jakarta.faces.component.UIParameter;
-import jakarta.faces.component.UISelectItems;
-import jakarta.faces.component.UISelectOne;
-import jakarta.faces.component.html.HtmlSelectOneListbox;
-import jakarta.faces.component.html.HtmlSelectOneMenu;
-import jakarta.faces.context.FacesContext;
-import jakarta.faces.event.PhaseId;
-import jakarta.faces.model.SelectItem;
-
 import org.apache.empire.commons.ObjectUtils;
 import org.apache.empire.commons.OptionEntry;
 import org.apache.empire.commons.Options;
@@ -44,13 +33,24 @@ import org.apache.empire.jakarta.utils.TagStyleClass;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import jakarta.el.ValueExpression;
+import jakarta.faces.component.UIComponent;
+import jakarta.faces.component.UIParameter;
+import jakarta.faces.component.UISelectItems;
+import jakarta.faces.component.UISelectOne;
+import jakarta.faces.component.html.HtmlSelectOneListbox;
+import jakarta.faces.component.html.HtmlSelectOneMenu;
+import jakarta.faces.context.FacesContext;
+import jakarta.faces.event.PhaseId;
+import jakarta.faces.model.SelectItem;
+
 public class SelectInputControl extends InputControl
 {
     private static final Logger log                   = LoggerFactory.getLogger(SelectInputControl.class);
 
     public static final String  COLATTR_ABBR_OPTIONS  = "ABBR_OPTIONS";                                   // Option list for abbreviations
 
-    public static final String  VALUE_EXPRESSION_FLAG = "VALUE_EXPRESSION_FLAG";
+    public static final String  VALUE_EXPRESSION_TYPE = "VALUE_EXPRESSION_TYPE";
 
     public static final String  FORMAT_SIZE           = "size:";
 
@@ -101,9 +101,13 @@ public class SelectInputControl extends InputControl
         // create list or menu
         Object formatSize = getFormatOption(ii, FORMAT_SIZE, FORMAT_SIZE_ATTR);
         UISelectOne input = createSelectComponent(parent, context, formatSize);
-        // setValueExpressionFlag
+        // set ValueExpressionType
         Object value = ii.getValue(false);
-        input.getAttributes().put(SelectInputControl.VALUE_EXPRESSION_FLAG, (value instanceof ValueExpression));
+        if (value instanceof ValueExpression)
+        {   // Set target class
+            Class<?> exprType = ((ValueExpression)value).getType(context.getELContext());
+            input.getAttributes().put(SelectInputControl.VALUE_EXPRESSION_TYPE, exprType);
+        }
         // copy Attributes
         copyAttributes(parent, ii, input);
         // disabled
@@ -129,9 +133,9 @@ public class SelectInputControl extends InputControl
         }
         UISelectOne input = (UISelectOne)comp;
         // required
-    	addRemoveStyle(input, TagStyleClass.INPUT_REQ, ii.isRequired());
+        addRemoveStyle(input, TagStyleClass.INPUT_REQ, ii.isRequired());
         // disabled
-    	boolean disabled = setDisabled(input, ii);
+        boolean disabled = setDisabled(input, ii);
         // check phase
         if (phaseId!=PhaseId.APPLY_REQUEST_VALUES)
         {   // Options (sync)
@@ -339,10 +343,10 @@ public class SelectInputControl extends InputControl
         }
         // set value
         Object value;
-        Object valueExpressionFlag = input.getAttributes().get(SelectInputControl.VALUE_EXPRESSION_FLAG);
-        if (ObjectUtils.getBoolean(valueExpressionFlag))
+        Class<?> exprType = (Class<?>)input.getAttributes().get(SelectInputControl.VALUE_EXPRESSION_TYPE);
+        if (exprType!=null)
         { // Use formatted value
-            value = formatInputValue(oe.getValue());
+            value = formatInputValue(oe.getValue(), exprType);
         }
         else
         { // Convert to String
@@ -423,13 +427,13 @@ public class SelectInputControl extends InputControl
             } 
         }
         // the value
-        return formatInputValue(value);
+        return formatInputValue(value, Object.class);
     }
 
-    protected Object formatInputValue(Object value)
+    protected Object formatInputValue(Object value, Class<?> targetClass)
     {
         // the enum Value
-        if (value instanceof Enum<?>)
+        if ((value instanceof Enum<?>) && !targetClass.isEnum())
             return ((Enum<?>) value).name();
         // the value
         return value;

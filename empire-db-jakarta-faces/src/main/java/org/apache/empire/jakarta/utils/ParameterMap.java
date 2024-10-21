@@ -173,10 +173,10 @@ public class ParameterMap // *Deprecated* implements Serializable
      * @param useCache true if the keys should be cached
      * @return the encoded key
      */
-    public String put(String type, String key, boolean useCache)
+    public String put(String type, String key, String value, boolean useCache)
     {
         // Generate id and put in map
-        return encodeAndStore(type, key, key, useCache);
+        return encodeAndStore(type, key, value, useCache);
     }
 
     public Object get(String type, String id)
@@ -195,9 +195,10 @@ public class ParameterMap // *Deprecated* implements Serializable
     /**
      * Puts an object into the paramter map that implements the ParameterObject interface  
      * @param paramObject the param object
+     * @param useCache flag whether to cache the objectKey
      * @return the encoded object
      */
-    public String put(ParameterObject paramObject)
+    public String put(ParameterObject paramObject, boolean useCache)
     {
         String objectKey;
         // check param
@@ -205,7 +206,17 @@ public class ParameterMap // *Deprecated* implements Serializable
             throw new InvalidArgumentException("paramObject", paramObject);
         // Generate id and put in map
         String type = paramObject.getClass().getName();
-        return encodeAndStore(type, objectKey, paramObject, false);
+        return encodeAndStore(type, objectKey, paramObject, useCache);
+    }
+    
+    /**
+     * Puts an object into the paramter map that implements the ParameterObject interface  
+     * @param paramObject the param object
+     * @return the encoded object
+     */
+    public String put(ParameterObject paramObject)
+    {
+        return put(paramObject, false);
     }
 
     /**

@@ -924,9 +924,13 @@ public class TagEncodingHelper implements NamingContainer
             if (!(record instanceof Record))
                 return true;
         }
-        else if (!hasValueExpression())
-        {   // No Value expression given
-            return true;
+        else 
+        {   // Value expression required
+            if (!hasValueExpression())
+                return true; // No Value expression given
+            // check attribute
+            Object val = getTagAttributeValue("readonly");
+            return ObjectUtils.getBoolean(val);
         }
         // check attribute
         Object val = getTagAttributeValue("readonly");
@@ -1018,15 +1022,15 @@ public class TagEncodingHelper implements NamingContainer
         // Check Read-Only first
         if (isReadOnly())
             return false;
+        // Check Value Attribute
+        if (hasValueExpression())
+            return false;
         // Check Record
         if ((getRecord() instanceof Record))
         {   // Ask Record
             Record r = (Record) record;
             return r.isValid() && r.isFieldRequired(getColumn());
         }
-        // Check Value Attribute
-        if (hasValueExpression())
-            return false;
         // Required
         return getColumn().isRequired();
     }
@@ -1211,7 +1215,7 @@ public class TagEncodingHelper implements NamingContainer
             return rec;
         // Value expression
         if (hasValueExpression())
-        {   // See if the record is in value
+        {   // Value expression is provided instead. 
             return null;
         }       
         // if parent is a record tag, get the record from there
