@@ -137,8 +137,6 @@ public abstract class DBView extends DBRowSet implements Cloneable
         @Override
         public boolean isReadOnly()
         {   
-            if (getView().isUpdateable()==false)
-                return true;
             // Check ReadOnly attribute 
             if (updateColumn!=null)
                 return updateColumn.isReadOnly();
@@ -149,8 +147,6 @@ public abstract class DBView extends DBRowSet implements Cloneable
         @Override
         public boolean isRequired()
         {   
-            if (getView().isUpdateable()==false)
-                return false;
             // Check update Column
             if (updateColumn==null)
                 return false;

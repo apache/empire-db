@@ -924,13 +924,9 @@ public class TagEncodingHelper implements NamingContainer
             if (!(record instanceof Record))
                 return true;
         }
-        else 
-        {   // Value expression required
-            if (!hasValueExpression())
-                return true; // No Value expression given
-            // check attribute
-            Object val = getTagAttributeValue("readonly");
-            return ObjectUtils.getBoolean(val);
+        else if (!hasValueExpression())
+        {   // No Value expression given
+            return true;
         }
         // check attribute
         Object val = getTagAttributeValue("readonly");
@@ -938,6 +934,9 @@ public class TagEncodingHelper implements NamingContainer
         {   // override
             return ObjectUtils.getBoolean(val);
         }
+        // if value expression, don't check further
+        if (hasValueExpression())
+            return null;
         // check record component
         if (recordTag != null && recordTag.isReadOnly())
             return true;

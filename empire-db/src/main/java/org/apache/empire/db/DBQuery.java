@@ -95,6 +95,7 @@ public class DBQuery extends DBRowSet
     protected final DBColumn[]      keyColumns;
     protected final DBQueryColumn[] queryColumns;
     protected final String          alias;
+    protected boolean               updateable;
 
     /**
      * Constructor initializes the query object.
@@ -129,6 +130,7 @@ public class DBQuery extends DBRowSet
         }
         // Set the key Column
         this.keyColumns = keyColumns;
+        this.updateable = false;
     }
 
     /**
@@ -169,7 +171,7 @@ public class DBQuery extends DBRowSet
     }
 
     /**
-     * Creaes a DBQuery object from a given command object.
+     * Creates a DBQuery object from a given command object.
      * 
      * @param cmd the command object representing an SQL-Command.
      * @param alias the query alias
@@ -223,7 +225,19 @@ public class DBQuery extends DBRowSet
     @Override
     public boolean isUpdateable()
     {
-        return (getKeyColumns()!=null);
+        return updateable;
+    }
+    
+    /**
+     * Makes the Query updateable. Queries are not updateable by default. 
+     * For a query to be updateable it must have key columns
+     */
+    public void setUpdateable(boolean updateable)
+    {
+        if (updateable && getKeyColumns()==null)
+            throw new NotSupportedException(this, "setUpdateable");
+        // set updateable
+        this.updateable = updateable;
     }
 
     /**
