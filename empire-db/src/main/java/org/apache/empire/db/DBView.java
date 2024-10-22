@@ -230,13 +230,22 @@ public abstract class DBView extends DBRowSet implements Cloneable
     }
 
     private static AtomicInteger viewCount = new AtomicInteger(0);
+    /**
+     * Automatically generates a new alias for this Object 
+     * @param prefix the alias prefix
+     * @return an alias consisting of the prefix and a unique number
+     */
+    protected String generateAlias(String prefix)
+    {
+        return prefix + String.valueOf(viewCount.incrementAndGet());
+    }
 
-    private String               name;
+    private final String         name;
     private String               alias;
     private DBViewColumn[]       keyColumns;
     private boolean              updateable;                      // true if the view is updateable
     private Boolean              quoteName = null;
-
+    
     /**
      * Creates a view object for a given view in the database.
      * 
@@ -248,6 +257,9 @@ public abstract class DBView extends DBRowSet implements Cloneable
     public DBView(String name, DBDatabase db, boolean isUpdateable, String alias)
     { // Set the column expressions
         super(db);
+        // generate alias
+        if (StringUtils.isEmpty(alias))
+            alias = generateAlias("v");
         // Set Name and Alias
         this.name = name;
         this.alias = alias;
@@ -266,7 +278,7 @@ public abstract class DBView extends DBRowSet implements Cloneable
      */
     public DBView(String name, DBDatabase db, boolean isUpdateable)
     { // Set the column expressions
-        this(name, db, isUpdateable, "v" + String.valueOf(viewCount.incrementAndGet()));
+        this(name, db, isUpdateable, null);
     }
 
     /**
@@ -292,7 +304,7 @@ public abstract class DBView extends DBRowSet implements Cloneable
         // set key columns
         clone.keyColumns = cloneKeyColumns(clone);
         // set new alias
-        clone.alias = "v" + String.valueOf(viewCount.incrementAndGet());
+        clone.alias = generateAlias("v");
         // done
         log.info("clone: Table " + name + " cloned! Alias old=" + alias + " new=" + clone.alias);
         db.addView(clone);
@@ -314,7 +326,7 @@ public abstract class DBView extends DBRowSet implements Cloneable
             clone.keyColumns = cloneKeyColumns(clone);
             // set new alias
             if (StringUtils.isEmpty(newAlias))
-                clone.alias = "t" + String.valueOf(viewCount.incrementAndGet());
+                clone.alias = generateAlias("v");
             else
                 clone.alias = newAlias;
             // done

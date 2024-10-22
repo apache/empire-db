@@ -57,7 +57,16 @@ public class DBQuery extends DBRowSet
     // *Deprecated* private static final long serialVersionUID = 1L;
 
     private static AtomicInteger queryCount = new AtomicInteger(0);
-    
+    /**
+     * Automatically generates a new alias for this Object 
+     * @param prefix the alias prefix
+     * @return an alias consisting of the prefix and a unique number
+     */
+    protected String generateAlias(String prefix)
+    {
+        return prefix + String.valueOf(queryCount.incrementAndGet());
+    }
+
     /**
      * DBQueryExprColumn 
      * @author doebele
@@ -108,6 +117,10 @@ public class DBQuery extends DBRowSet
     public DBQuery(DBCommandExpr cmd, DBColumn[] keyColumns, String alias)
     { // Set the column expressions
         super(cmd.getDatabase());
+        // generate alias
+        if (StringUtils.isEmpty(alias))
+            alias = generateAlias("q");
+        // set 
         this.cmdExpr = cmd;
         this.alias = alias;
         // Set Query Columns
@@ -142,7 +155,7 @@ public class DBQuery extends DBRowSet
      */
     public DBQuery(DBCommandExpr cmd, DBColumn[] keyColumns)
     {   // Set the column expressions
-        this(cmd, keyColumns, "q" + String.valueOf(queryCount.incrementAndGet()));
+        this(cmd, keyColumns, null);
     }
     
     /**
@@ -182,13 +195,22 @@ public class DBQuery extends DBRowSet
     }
 
     /**
-     * Creaes a DBQuery object from a given command object.
+     * Creates a DBQuery object from a given command object.
      * 
      * @param cmd the command object representing an SQL-Command.
      */
     public DBQuery(DBCommandExpr cmd)
     { // Set the column expressions
         this(cmd, (DBColumn[]) null);
+    }
+
+    /**
+     * Creates a copy of an existing DBQuery object.
+     */
+    public DBQuery(DBQuery other, String newAlias)
+    { 
+        this(other.cmdExpr, other.keyColumns, newAlias);
+        this.updateable = other.updateable;
     }
 
     /**

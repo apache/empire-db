@@ -58,6 +58,15 @@ public class DBTable extends DBRowSet implements Cloneable
     public static final int INT_SIZE_BIG     = 8;
 
     private static AtomicInteger tableCount          = new AtomicInteger(0);
+    /**
+     * Automatically generates a new alias for this Object 
+     * @param prefix the alias prefix
+     * @return an alias consisting of the prefix and a unique number
+     */
+    protected String generateAlias(String prefix)
+    {
+        return prefix + String.valueOf(tableCount.incrementAndGet());
+    }
 
     private final String         name;
     private String               alias;
@@ -77,8 +86,8 @@ public class DBTable extends DBRowSet implements Cloneable
     { 
         super(db);
         // generate alias
-        if (alias==null)
-            alias = "t" + String.valueOf(tableCount.incrementAndGet());
+        if (StringUtils.isEmpty(alias))
+            alias = generateAlias("t");
         // init
         this.name = name;
         this.alias = alias;
@@ -176,7 +185,7 @@ public class DBTable extends DBRowSet implements Cloneable
         // set primaryKey
         clone.primaryKey = clonePrimaryKey(clone);
         // set new alias
-        clone.alias = "t" + String.valueOf(tableCount.incrementAndGet());
+        clone.alias = generateAlias("t");
         // done
         log.info("clone: Table " + name + " cloned! Alias old=" + alias + " new=" + clone.alias);
         db.addTable(clone);
@@ -193,7 +202,7 @@ public class DBTable extends DBRowSet implements Cloneable
             clone.primaryKey = clonePrimaryKey(clone);
             // set new alias
             if (StringUtils.isEmpty(newAlias))
-                clone.alias = "t" + String.valueOf(tableCount.incrementAndGet());
+                clone.alias = generateAlias("t");
             else
                 clone.alias = newAlias;
             // done
