@@ -928,7 +928,7 @@ public abstract class DBColumnExpr extends DBExpr
     {
         return new DBConcatFuncExpr(this, concatExprs);
     }
-
+            
     /**
      * concatenates a list of expressions to the current column 
      * @param separator a string to insert between each of the expressions
@@ -938,6 +938,20 @@ public abstract class DBColumnExpr extends DBExpr
     public DBColumnExpr concat(String separator, DBColumnExpr... concatExprs)
     {
         return new DBConcatFuncExpr(this, separator, concatExprs);
+    }
+
+    /**
+     * Puts a value or expression before the current expression 
+     * @param value the expressions to prepend
+     * @return the combined value
+     */
+    public DBColumnExpr prepend(Object value)
+    {
+        String opertor  = (getDataType()==DataType.UNKNOWN ? "" 
+                        : (getDataType().isText() ? getDatabase().getDbms().getSQLPhrase(DBSqlPhrase.SQL_CONCAT_EXPR) 
+                        : "+"));
+        String template = StringUtils.concat("{0}",opertor,"?");
+        return new DBFuncExpr(this, template, new Object[] { value }, false, getDataType());
     }
     
     /*

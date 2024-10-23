@@ -29,6 +29,11 @@ public class OperationFailedException extends EmpireException
     private static final long serialVersionUID = 1L;
     
     public static final ErrorType errorType = new ErrorType("error.operationFailed", "The operation {0} has failed. Reason given is: {1}") ;
+
+    public OperationFailedException(String operation, String reason, Throwable cause)
+    {
+        super(errorType, new String[] { operation, reason }, cause);
+    }
     
     public OperationFailedException(String operation, String reason)
     {

@@ -37,9 +37,14 @@ public class InvalidOperationException extends EmpireException
         super(errorType, new String[] { errorMessage });
     }
     
+    public InvalidOperationException(String errorMessage, Throwable cause)
+    {
+        super(errorType, new String[] { errorMessage }, cause);
+    }
+    
     public InvalidOperationException(String msgTemplate, Object... msgArgs)
     {
-        super(errorType, new String[] { MessageFormat.format(msgTemplate, msgArgs) });
+        super(errorType, new String[] { MessageFormat.format(msgTemplate, msgArgs) }, (msgArgs.length>0 && (msgArgs[msgArgs.length-1] instanceof Exception)) ? (Exception)msgArgs[msgArgs.length-1] : null );
     }
 
 }
