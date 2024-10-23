@@ -33,6 +33,7 @@ import org.apache.empire.jakarta.impl.FacesImplementation.BeanStorageProvider;
 import org.apache.empire.jakarta.pages.PageNavigationHandler;
 import org.apache.empire.jakarta.pages.PagePhaseListener;
 import org.apache.empire.jakarta.pages.PagesELResolver;
+import org.apache.empire.jakarta.utils.BeanScope;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -369,9 +370,23 @@ public class FacesConfiguration
         application.addComponent(type, clazz.getName());
     }
     
-    protected void addManagedBean(String beanName, Class<?> beanClass, String scope)
+    protected void addManagedBean(String beanName, Class<?> beanClass, BeanScope beanScope)
     {
+        String scope = beanScope.name().toLowerCase();
         facesImpl.registerManagedBean(beanName, beanClass.getName(), scope);
+    }
+    
+    protected void addManagedBean(Class<?> beanClass, BeanScope scope)
+    {
+        // check
+        if (beanClass==null || scope==null)
+            throw new InvalidArgumentException("beanClass|scope", null);
+        // detect name
+        String className = beanClass.getName();
+        int    nameIndex = className.lastIndexOf('.')+1; 
+        String beanName  = className.substring(nameIndex, nameIndex+1).toLowerCase() + className.substring(nameIndex+1); 
+        // register now
+        addManagedBean(beanName, beanClass, scope);
     }
 
     protected void replaceComponent(String componentType, Class<? extends UIComponent> overrideComponent)

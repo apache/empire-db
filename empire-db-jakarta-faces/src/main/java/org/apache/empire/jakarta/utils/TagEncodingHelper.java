@@ -924,7 +924,7 @@ public class TagEncodingHelper implements NamingContainer
             if (!(record instanceof Record))
                 return true;
         }
-        else if (!hasValueExpression())
+        else if (record==null && !hasValueExpression())
         {   // No Value expression given
             return true;
         }
@@ -1029,6 +1029,12 @@ public class TagEncodingHelper implements NamingContainer
         {   // Ask Record
             Record r = (Record) record;
             return r.isValid() && r.isFieldRequired(getColumn());
+        }
+        else if (this.recordTag!=null)
+        {   // for a normal bean, check record Tag
+            mandatory = recordTag.getAttributes().get("mandatory");
+            if (mandatory!=null)
+                return ObjectUtils.getBoolean(mandatory);
         }
         // Required
         return getColumn().isRequired();
