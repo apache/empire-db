@@ -1088,8 +1088,6 @@ public abstract class DBRowSet extends DBExpr implements EntityType
                 { 	// Update a field
                     if (col.isReadOnly())
                         log.warn("updateRecord: Read-only column '" + col.getName() + " has been modified!");
-                    // *** unnecessary check removed 2.5.0 ***
-                    // col.validate(value);  
                     // Set the column
                     cmd.set(col.to(value));
                     setCount++;

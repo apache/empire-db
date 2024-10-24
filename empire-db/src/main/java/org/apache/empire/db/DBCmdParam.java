@@ -57,15 +57,11 @@ public class DBCmdParam extends DBExpr
      */
     protected Object getCmdParamValue(Object value)
     {
-        // check null
-        if (value == null)
-            return null;
-        // check for enum
-        if (value instanceof Enum<?>)
-        {   // convert enum
-            return ObjectUtils.getEnumValue((Enum<?>)value, type.isNumeric());
-        }
-        // check type
+        if (value!=null)
+            value = ObjectUtils.convertValue(type, value);
+        if (value==null)
+            return value;
+        // Check CLOB and BLOB
         switch (type)
         {
             case BLOB:
@@ -80,19 +76,8 @@ public class DBCmdParam extends DBExpr
                     return value;
                 // create a clob data
                 return new DBClobData(value.toString());
-            case BOOL:
-            	return ObjectUtils.getBoolean(value);
-            case INTEGER:
-                return (value instanceof Number) ? value : ObjectUtils.toLong(value);
-            case FLOAT:
-                return (value instanceof Number) ? value : ObjectUtils.toDouble(value);
-            case DECIMAL:
-                return (value instanceof Number) ? value : ObjectUtils.toDecimal(value);
-            case CHAR:
-            case VARCHAR:
-                return (value instanceof String) ? value : value.toString();
             default:
-                // use as is
+                // the value
                 return value;
         }
     }

@@ -18,14 +18,11 @@
  */
 package org.apache.empire.commons;
 
+import java.io.Serializable;
 import java.math.BigDecimal;
-import java.math.BigInteger;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeParseException;
-import java.time.temporal.Temporal;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -35,26 +32,31 @@ import java.util.Locale;
 
 import org.apache.commons.beanutils.MethodUtils;
 import org.apache.empire.data.ColumnExpr;
-import org.apache.empire.db.expr.column.DBValueExpr;
+import org.apache.empire.data.DataType;
 import org.apache.empire.exceptions.InvalidArgumentException;
-import org.apache.empire.exceptions.InvalidValueException;
-import org.apache.empire.exceptions.ItemNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * This class contains common functions for comparing and converting values of type Object. 
+ * This class contains common functions for comparing and converting values from and to the database
+ * As well as other useful Array and List related functions. 
  * 
+ * Value and value related conversion functions my be overridden by setting a customized version of the
+ * ValueUtils object via 
+ *      setValueUtils(ValueUtils valueUtils)
  */
 public final class ObjectUtils
 {
+    // Logger
+    private static final Logger log = LoggerFactory.getLogger(ObjectUtils.class);
+    
     /**
      * This class explicitly defines that an Object has not been assigned a value.<BR>
      * This may be used in cases where the value of null may be a valid value.
      */
-    private static final class NoValue // *Deprecated* implements Serializable
+    private static final class NoValue implements Serializable
     {
-        // *Deprecated* private static final long serialVersionUID = 1L;
+        private static final long serialVersionUID = 1L;
         private NoValue()
         { /* dummy */
         }
@@ -71,37 +73,28 @@ public final class ObjectUtils
      */
     public static final NoValue NO_VALUE = new NoValue();
     
-    // Logger
-    private static final Logger log = LoggerFactory.getLogger(ObjectUtils.class);
-
-    private static final String DATE_FORMAT = "yyyy-MM-dd";
-	private static final String DATETIME_FORMAT = "yyyy-MM-dd HH:mm:ss";
-	
-    // DateOnly Formatter
-    private static final ThreadLocal<SimpleDateFormat> dateOnlyFormatter = new ThreadLocal<SimpleDateFormat>() {
-        @Override
-        protected SimpleDateFormat initialValue()
-        {
-            return new SimpleDateFormat(DATE_FORMAT);
-        }
-    };
-
-    // DateTime Formatter
-    private static final ThreadLocal<SimpleDateFormat> dateTimeFormatter = new ThreadLocal<SimpleDateFormat>() {
-        @Override
-        protected SimpleDateFormat initialValue()
-        {
-            return new SimpleDateFormat(DATETIME_FORMAT);
-        }
-    };
-
-    // Interal literal for NULL
-    private static final String NULL = "NULL";
+    /**
+     * The instance of ValueUtils to be used for value type conversion
+     */
+    static private ValueUtils valueUtils = new ValueUtils();
     
+    public static ValueUtils getValueUtils()
+    {
+        return valueUtils;
+    }
+
+    public static void setValueUtils(ValueUtils valueUtils)
+    {
+        ObjectUtils.valueUtils = valueUtils;
+    }
+
+    /**
+     * Private Constructor
+     * Static functions only
+     * No instance may be created
+     */
     private ObjectUtils()
     {
-        // Static Function only
-        // No instance may be created
     }
     
     /**
@@ -112,20 +105,7 @@ public final class ObjectUtils
      */
     public static boolean isEmpty(Object o)
     {
-        if (o==null)
-            return true;
-        if (o==NO_VALUE)
-            throw new InvalidValueException(o);
-        if ((o instanceof String) && ((String)o).length()==0)
-            return true;
-        if ((o instanceof Object[]) && ((Object[])o).length==0)
-            return true;
-        if ((o instanceof Collection<?>) && ((Collection<?>)o).isEmpty())
-            return true;
-        if (o instanceof DBValueExpr)
-            return isEmpty(((DBValueExpr)o).getValue());
-        // not empty
-        return false;
+        return valueUtils.isEmpty(o);
     }
     
     /**
@@ -146,18 +126,7 @@ public final class ObjectUtils
      */
     public static boolean isZero(Number value)
     {
-        if (value==null)
-            return true;
-        if (value instanceof BigDecimal)
-            return (BigDecimal.ZERO.compareTo((BigDecimal)value) == 0);
-        if (value instanceof Float)
-            return (((Float) value).compareTo(0.0f)==0);
-        if (value instanceof Double)
-            return (((Double) value).compareTo(0.0d)==0);
-        if (value instanceof Long)
-            return (value.longValue()==0l);
-        // default: check int value
-        return (value.intValue()==0);
+        return valueUtils.isZero(value);
     }
 
     /**
@@ -177,12 +146,7 @@ public final class ObjectUtils
      */
     public static int lengthOf(Object o)
     {
-        if (o==null || o==NO_VALUE)
-            return 0;
-        if ((o instanceof String))
-            return ((String)o).length();
-        // convert
-        return o.toString().length();
+        return valueUtils.lengthOf(o);
     }
     
     /**
@@ -193,113 +157,9 @@ public final class ObjectUtils
      * 
      * @return true if both objects are equal or false otherwise
      */
-    @SuppressWarnings("unchecked")
     public static boolean compareEqual(Object o1, Object o2)
     {
-    	// simple case
-    	if (o1==o2)
-    		return true;
-        // Check for Empty Values
-        if (isEmpty(o1))
-            return isEmpty(o2);
-        if (isEmpty(o2))
-            return isEmpty(o1);
-        // Check classes
-        if (o1.getClass().equals(o2.getClass()))
-        {   // Check simple array
-            if ((o1 instanceof Object[]) && (o2 instanceof Object[])) 
-                return compareEqual((Object[])o1, (Object[])o2);
-            // Check if object implements comparable
-            if (o1 instanceof Comparable)
-                return (((Comparable<Object>)o1).compareTo(o2)==0);
-            else
-                return o1.equals(o2);
-        }
-        // Classes don't match
-        // Use equal check first
-        if (o1.equals(o2) || o2.equals(o1))
-            return true;
-        // Compare Numbers
-        if (o1 instanceof Number && o2 instanceof Number)
-        {   // boolean test = obj1.equals(obj2);
-            double d1 = ((Number)o1).doubleValue();
-            double d2 = ((Number)o2).doubleValue(); 
-            return (d1==d2);
-        }
-        // Compare Date with LocalDate / LocalDateTime
-        if (o1 instanceof Temporal && o2 instanceof Date)
-        {   // swap
-            Object tmp = o2; o2 = o1; o1 = tmp; 
-        }
-        if (o1 instanceof Date && o2 instanceof LocalDate)
-            return o1.equals(DateUtils.toDate((LocalDate)o2));
-        if (o1 instanceof Date && o2 instanceof LocalDateTime)
-            return o1.equals(DateUtils.toDate((LocalDateTime)o2));
-        // Enum
-        if (o1 instanceof Enum<?>)
-        {   // Special enum handling   
-            if (o2 instanceof Number)
-                return ((Enum<?>)o1).ordinal()==((Number)o2).intValue();
-            // Compare Strings
-            String strVal = StringUtils.coalesce(getString((Enum<?>)o1), NULL);
-            return strVal.equals(getString(o2));
-        }
-        else if (o2 instanceof Enum<?>)
-        {   // Special enum handling   
-            if (o1 instanceof Number)
-                return ((Enum<?>)o2).ordinal()==((Number)o1).intValue();
-            // Compare Strings
-            String strVal = StringUtils.coalesce(getString((Enum<?>)o2), NULL); 
-            return strVal.equals(getString(o1));
-        }
-        // Compare Strings
-        if (o1 instanceof String)
-            return ((String)o1).equals(o2.toString());
-        if (o2 instanceof String)
-            return ((String)o2).equals(o1.toString());
-        // Not equal
-        return false;
-    }
-
-    /**
-     * Compares two arrays for equality
-     *
-     * @param array1    the first array
-     * @param array2    the second array
-     *
-     * @return true if both arrays are equal or false otherwise
-     */
-    public static boolean compareEqual(Object[] array1, Object[] array2)
-    {   // Compare Length
-        int len1 = (array1!=null ? array1.length : 0);
-        int len2 = (array2!=null ? array2.length : 0);
-        if (len1!= len2)
-            return false;
-        // Compare Key Values
-        for (int i = 0; i < len1; i++)
-        {   // Check String Values
-            if (!ObjectUtils.compareEqual(array1[i], array2[i]))
-                return false;
-        }
-        return true;
-    }
-    
-    /**
-     * Compares two ColumnExpr for equality
-     *
-     * @param expr a column expression
-     * @param other a column expression
-     *
-     * @return true if both expressions are equal or false otherwise
-     */
-    public static boolean compareEqual(ColumnExpr expr, ColumnExpr other)
-    {
-        if (isWrapper(other) && !isWrapper(expr))
-            return expr.equals(unwrap(other));
-        else  if (!isWrapper(other) && isWrapper(expr))
-            return unwrap(expr).equals(other);
-        // both wrapped or both unwrapped
-        return expr.equals(other);
+        return valueUtils.compareEqual(o1, o2);
     }
     
     /**
@@ -310,46 +170,9 @@ public final class ObjectUtils
      * 
      * @return true if both objects are equal or false otherwise
      */
-    @SuppressWarnings("unchecked")
     public static int compare(Object o1, Object o2)
     {
-        // simple case
-        if (o1==o2)
-            return 0;
-        // Check for Empty Values
-        if (isEmpty(o1))
-            return isEmpty(o2) ? 0 : -1;
-        if (isEmpty(o2))
-            return isEmpty(o1) ? 0 :  1;
-        // Check classes
-        if (o1.getClass().equals(o2.getClass()))
-        {   // Check if object implements comparable
-            if (o1 instanceof Comparable)
-                return ((Comparable<Object>)o1).compareTo(o2);
-            if (o2 instanceof Comparable)
-                return ((Comparable<Object>)o2).compareTo(o1);
-        }    
-        // Use equal check first
-        if (o1.equals(o2) || o2.equals(o1))
-            return 0;
-        // Compare Numbers
-        if (o1 instanceof Number && o2 instanceof Number)
-        {   // boolean test = obj1.equals(obj2);
-            double d1 = ((Number)o1).doubleValue();
-            double d2 = ((Number)o2).doubleValue();
-            return ((d1<d2) ? -1 : ((d1>d2) ? 1 : 0));
-        }
-        // Compare Date with LocalDate / LocalDateTime
-        if (o1 instanceof Temporal && o2 instanceof Date)
-        {   // swap
-            Object tmp = o2; o2 = o1; o1 = tmp; 
-        }
-        if (o1 instanceof Date && o2 instanceof LocalDate)
-            return compare(o1, DateUtils.toDate((LocalDate)o2));
-        if (o1 instanceof Date && o2 instanceof LocalDateTime)
-            return compare(o1, DateUtils.toDate((LocalDateTime)o2));
-        // Compare Strings
-        return o1.toString().compareTo(o2.toString());
+        return valueUtils.compare(o1, o2);
     }
     
     /**
@@ -371,13 +194,7 @@ public final class ObjectUtils
      */
     public static int toInteger(Object v)
     {
-        if (ObjectUtils.isEmpty(v))
-            return 0;
-        if (v instanceof Number)
-            return ((Number)v).intValue();
-        // Try to convert
-        String str = v.toString();
-        return Integer.parseInt(str);
+        return valueUtils.toInteger(v);
     }
     
     /**
@@ -397,7 +214,7 @@ public final class ObjectUtils
         {   // Try to convert
             return toInteger(v);
         } catch (NumberFormatException e) {
-        	log.error(String.format("Cannot convert value [%s] to int", v));
+            log.error(String.format("Cannot convert value [%s] to int", v));
             return defValue;
         }
     }
@@ -421,13 +238,7 @@ public final class ObjectUtils
      */
     public static long toLong(Object v)
     {
-        if (ObjectUtils.isEmpty(v))
-            return 0;
-        if (v instanceof Number)
-            return ((Number)v).longValue();
-        // Try to convert
-        String str = v.toString();
-        return Long.parseLong(str);
+        return valueUtils.toLong(v);
     }
     
     /**
@@ -447,7 +258,7 @@ public final class ObjectUtils
         {   // Try to convert
             return toLong(v);
         } catch (NumberFormatException e) {
-        	log.error(String.format("Cannot convert value [%s] to long", v));
+            log.error(String.format("Cannot convert value [%s] to long", v));
             return defValue;
         }
     }
@@ -471,14 +282,7 @@ public final class ObjectUtils
      */
     public static double toDouble(Object v)
     {
-        // Get Double value
-        if (ObjectUtils.isEmpty(v))
-            return 0.0;
-        if (v instanceof Number)
-            return ((Number)v).doubleValue();
-        // parse String for Integer value
-        String val = v.toString(); 
-        return Double.parseDouble(val);
+        return valueUtils.toDouble(v);
     }
     
     /**
@@ -522,26 +326,7 @@ public final class ObjectUtils
      */
     public static BigDecimal toDecimal(Object v)
     {
-        // Get Double value
-        if (ObjectUtils.isEmpty(v))
-            return null;
-        if (v instanceof BigDecimal)
-            return ((BigDecimal)v);
-        // Find a suitable converter
-        if (v instanceof Number)
-        {   // check other number types
-            if (v instanceof BigInteger)
-                return new BigDecimal((BigInteger)v);
-            if (v instanceof Integer)
-                return BigDecimal.valueOf(((Number)v).intValue());
-            if (v instanceof Long)
-                return BigDecimal.valueOf(((Number)v).longValue());
-            // Default: convert via double
-            return BigDecimal.valueOf(((Number)v).doubleValue());
-        }
-        // parse String for Integer value
-        // Last-Chance > Try a string conversion
-        return new BigDecimal(v.toString());
+        return valueUtils.toDecimal(v);
     }
     
     /**
@@ -590,21 +375,7 @@ public final class ObjectUtils
      */
     public static boolean getBoolean(Object v, boolean defValue)
     {
-        // Get Boolean value
-        if (ObjectUtils.isEmpty(v))
-            return defValue;
-        if (v instanceof Boolean)
-            return ((Boolean)v).booleanValue();
-        if (v instanceof Number)
-            return (((Number)v).intValue()!=0);
-        if (v instanceof String) {
-            String val = ((String)v);
-            if (StringUtils.isEmpty(val))
-                return defValue;
-            // check for allowed true values
-            return (val.equalsIgnoreCase("true") || val.equalsIgnoreCase("Y"));
-        }
-        return defValue;
+        return valueUtils.getBoolean(v, defValue);
     }
     
     /**
@@ -625,52 +396,9 @@ public final class ObjectUtils
      * @param value the value to convert
      * @return the enum
      */
-    @SuppressWarnings("unchecked")
     public static <T extends Enum<?>> T getEnum(Class<T> enumType, Object value)
-    {   // check for null
-        if (isEmpty(value))
-            return null;
-        // check enum
-        if (value instanceof Enum<?>)
-        {   // already an enum: Check type
-            if (value.getClass().equals(enumType))
-                return (T)value;
-            // try to match names
-            value = ((Enum<?>)value).name();
-        }
-        // check column data type
-        boolean numeric = (value instanceof Number);
-        T[] items = enumType.getEnumConstants();
-        if (items.length>0 && (items[0] instanceof EnumValue))
-        {   // custom conversion
-            for (T e : items)
-            {
-                Object eVal = ((EnumValue)e).toValue(numeric);
-                if (ObjectUtils.compareEqual(eVal, value))
-                    return e;
-            }
-            // error: not found
-            throw new ItemNotFoundException(StringUtils.toString(value));
-        }
-        else if (numeric)
-        {   // by ordinal
-            int ordinal = ((Number)value).intValue();
-            // check range
-            if (ordinal<0 || ordinal>=items.length)
-                throw new ItemNotFoundException(String.valueOf(ordinal));
-            // return enum
-            return items[ordinal]; 
-        }
-        else
-        {   // by name
-            String name = StringUtils.toString(value);
-            // find name
-            for (T e : items)
-                if (e.name().equals(name))
-                    return e;
-            // error: not found
-            throw new ItemNotFoundException(name);
-        }
+    {
+        return valueUtils.getEnum(enumType, value);
     }
 
     /**
@@ -681,16 +409,8 @@ public final class ObjectUtils
      * @return the enum
      */
     public static <T extends Enum<?>> T getEnumByName(Class<T> enumType, String name)
-    {   // check for null
-        if (isEmpty(name))
-            return null;
-        // check column data type
-        T[] items = enumType.getEnumConstants();
-        for (T e : items)
-            if (e.name().equals(name))
-                return e;
-        // error: not found
-        throw new ItemNotFoundException(name);
+    {
+        return valueUtils.getEnumByName(enumType, name);
     }
     
     /**
@@ -701,11 +421,7 @@ public final class ObjectUtils
      */
     public static Object getEnumValue(Enum<?> enumValue, boolean isNumeric)
     {
-        // convert
-        if (enumValue instanceof EnumValue)
-            return ((EnumValue)enumValue).toValue(isNumeric);
-        // default
-        return (isNumeric ? enumValue.ordinal() : getString(enumValue));
+        return valueUtils.getEnumValue(enumValue, isNumeric);
     }
     
     /**
@@ -715,14 +431,7 @@ public final class ObjectUtils
      */
     public static String getString(Enum<?> enumValue)
     {
-        // convert
-        if (enumValue instanceof EnumValue)
-            return StringUtils.toString(((EnumValue)enumValue).toValue(false));
-        /* special case */
-        if (enumValue==null || enumValue.name().equals(NULL))
-            return null;
-        /* use name */
-        return enumValue.name();
+        return valueUtils.getString(enumValue);
     }
     
     /**
@@ -732,19 +441,7 @@ public final class ObjectUtils
      */
     public static String getString(Object value)
     {
-        if (value==null)
-            return null;
-        if (value instanceof String)
-            return (String)value;
-        if (value==NO_VALUE)
-            throw new InvalidValueException(value);
-        // convert
-        if (value instanceof Enum<?>)
-            return getString((Enum<?>)value);
-        if (value instanceof Date)
-            return formatDate((Date)value, true);
-        // default
-        return value.toString();
+        return valueUtils.getString(value);
     }
     
     /**
@@ -757,21 +454,7 @@ public final class ObjectUtils
     public static Date toDate(Object v)
         throws ParseException
     {
-        // Get DateTime value
-        if (ObjectUtils.isEmpty(v))
-            return null;
-        if (v instanceof java.util.Date)
-            return ((java.util.Date)v);
-        if (v instanceof java.time.LocalDate)
-            return DateUtils.toDate((LocalDate)v);
-        if (v instanceof java.time.LocalDateTime)
-            return DateUtils.toDate((LocalDateTime)v);
-        // Convert from String
-        String str = v.toString();
-        if (str.length() > 10)
-            return dateTimeFormatter.get().parse(str);
-        else
-            return dateOnlyFormatter.get().parse(str);
+        return valueUtils.toDate(v);
     }
     
     /**
@@ -784,35 +467,7 @@ public final class ObjectUtils
      */
     public static Date getDate(Object v, Locale locale)
     {
-        // Get DateTime value
-        if (ObjectUtils.isEmpty(v))
-            return null;
-        if (v instanceof Date)
-            return ((Date)v);
-        if (v instanceof java.time.LocalDate)
-            return DateUtils.toDate((LocalDate)v);
-        if (v instanceof java.time.LocalDateTime)
-            return DateUtils.toDate((LocalDateTime)v);
-        // Get Calendar
-        if (v instanceof Number)
-        {   // Get Date from a number
-            long l = ((Number)v).longValue();
-            if (l==0)
-                return DateUtils.getDateNow();
-            // Year or full date/time?
-            /*
-            if (l<10000)
-            {   // Year only
-                Calendar calendar = Calendar.getInstance(getSafeLocale(locale));
-                calendar.set((int)l, 1, 1);
-                return calendar.getTime();
-            }
-            */
-            // Date from long
-            return new Date(l);
-        }
-        // Try to parse
-        return DateUtils.parseDate(v.toString(), locale);
+        return valueUtils.getDate(v, locale);
     }
     
     /**
@@ -823,26 +478,7 @@ public final class ObjectUtils
      */
     public static Date getDate(Object v)
     {
-        // Get DateTime value
-        if (ObjectUtils.isEmpty(v))
-            return null;
-        if (v instanceof java.util.Date)
-            return ((java.util.Date)v);
-        if (v instanceof java.time.LocalDate)
-            return DateUtils.toDate((LocalDate)v);
-        if (v instanceof java.time.LocalDateTime)
-            return DateUtils.toDate((LocalDateTime)v);
-        // Convert from String
-        String str = v.toString();
-        try
-        {   if (str.length() > 10)
-                return dateTimeFormatter.get().parse(str);
-            else
-                return dateOnlyFormatter.get().parse(str);
-        } catch (ParseException e) {
-            log.error(String.format("Cannot convert value [%s] to Date", str), e);
-            return null;
-        }
+        return valueUtils.getDate(v);
     }
     
     /**
@@ -853,28 +489,7 @@ public final class ObjectUtils
      */
     public static LocalDate getLocalDate(Object v)
     {
-        // Get DateTime value
-        if (ObjectUtils.isEmpty(v))
-            return null;
-        if (v instanceof java.time.LocalDate)
-            return (LocalDate)v;
-        if (v instanceof java.time.LocalDateTime)
-            return ((LocalDateTime)v).toLocalDate();
-        if (v instanceof java.sql.Timestamp)
-            return ((java.sql.Timestamp)v).toLocalDateTime().toLocalDate();
-        if (v instanceof java.sql.Date)
-            return ((java.sql.Date)v).toLocalDate();
-        if (v instanceof java.util.Date)
-            return DateUtils.toLocalDate((Date)v);
-        // Convert from String
-        String str = v.toString();
-        try
-        {   // DateTimeFormatter ISO_LOCAL_DATE
-            return LocalDate.parse(str);
-        } catch (DateTimeParseException e) {
-            log.error(String.format("Cannot convert value [%s] to LocalDate", str), e);
-            return null;
-        }
+        return valueUtils.getLocalDate(v);
     }
     
     /**
@@ -885,28 +500,7 @@ public final class ObjectUtils
      */
     public static LocalDateTime getLocalDateTime(Object v)
     {
-        // Get DateTime value
-        if (ObjectUtils.isEmpty(v))
-            return null;
-        if (v instanceof java.time.LocalDate)
-            return ((LocalDate)v).atStartOfDay();
-        if (v instanceof java.time.LocalDateTime)
-            return (LocalDateTime)v;
-        if (v instanceof java.sql.Timestamp)
-            return ((java.sql.Timestamp)v).toLocalDateTime();
-        if (v instanceof java.sql.Date)
-            return ((java.sql.Date)v).toLocalDate().atStartOfDay();
-        if (v instanceof java.util.Date)
-            return DateUtils.toLocalDateTime((Date)v);
-        // Convert from String
-        String str = v.toString();
-        try
-        {   // DateTimeFormatter.ISO_LOCAL_DATE_TIME
-            return LocalDateTime.parse(str);
-        } catch (DateTimeParseException e) {
-            log.error(String.format("Cannot convert value [%s] to LocalDateTime", str), e);
-            return null;
-        }
+        return valueUtils.getLocalDateTime(v);
     }
     
     /**
@@ -919,12 +513,7 @@ public final class ObjectUtils
      */
     public static String formatDate(Date date, boolean withTime)
     {
-        if (date==null)
-            return null;
-    	if (withTime)
-    		return dateTimeFormatter.get().format(date);
-    	else
-    		return dateOnlyFormatter.get().format(date);
+        return valueUtils.formatDate(date, withTime);
     }
     
     /**
@@ -938,39 +527,22 @@ public final class ObjectUtils
      * 
      * @throws ClassCastException if the object is not null and is not assignable to the type T.
      */
-    @SuppressWarnings("unchecked")
     public static <T> T convert(Class<T> c, Object v)
         throws ClassCastException
     {
-        if (v==null || c.isInstance(v))
-            return (T)v;
-        if (v==NO_VALUE)
-            throw new InvalidValueException(v);
-        // Get Class form Primitive Type
-        if (c.isPrimitive())
-        {   // Get's the Java Class representing the primitive type
-            c = (Class<T>) MethodUtils.getPrimitiveWrapper(c);
-        }    
-        // Convert
-        if (c.isEnum())
-        {   // convert to enum
-            Object ev = getEnum((Class<? extends Enum<?>>)c, v); 
-            return (T)ev;
-        }
-        if (c.isAssignableFrom(Boolean.class))
-            return c.cast(getBoolean(v));
-        if (c.isAssignableFrom(Integer.class))
-            return c.cast(getInteger(v));
-        if (c.isAssignableFrom(Long.class))
-            return c.cast(getLong(v));
-        if(c.isAssignableFrom(Double.class))
-        	return c.cast(getDouble(v));
-        if(c.isAssignableFrom(BigDecimal.class))
-            return c.cast(getDecimal(v));
-        if (c.isAssignableFrom(String.class))
-            return c.cast(v.toString());
-        // other
-        return c.cast(v);
+        return valueUtils.convert(c, v);
+    }
+
+    /**
+     * Converts a value to a specific DataType
+     * The returned value is used for generating SQL statements
+     * @param dataType the target data type
+     * @param value the value to convert
+     * @return the value to be used in SQL statements
+     */
+    public static Object convertValue(DataType type, Object value)
+    {
+        return valueUtils.convertValue(type, value);
     }
 
     /**
@@ -1016,6 +588,47 @@ public final class ObjectUtils
         }    
         // Not compatible
         return false;
+    }
+
+    /**
+     * Compares two arrays for equality
+     *
+     * @param array1    the first array
+     * @param array2    the second array
+     *
+     * @return true if both arrays are equal or false otherwise
+     */
+    public static boolean compareEqual(Object[] array1, Object[] array2)
+    {   // Compare Length
+        int len1 = (array1!=null ? array1.length : 0);
+        int len2 = (array2!=null ? array2.length : 0);
+        if (len1!= len2)
+            return false;
+        // Compare Key Values
+        for (int i = 0; i < len1; i++)
+        {   // Check String Values
+            if (!ObjectUtils.compareEqual(array1[i], array2[i]))
+                return false;
+        }
+        return true;
+    }
+    
+    /**
+     * Compares two ColumnExpr for equality
+     *
+     * @param expr a column expression
+     * @param other a column expression
+     *
+     * @return true if both expressions are equal or false otherwise
+     */
+    public static boolean compareEqual(ColumnExpr expr, ColumnExpr other)
+    {
+        if (isWrapper(other) && !isWrapper(expr))
+            return expr.equals(unwrap(other));
+        else  if (!isWrapper(other) && isWrapper(expr))
+            return unwrap(expr).equals(other);
+        // both wrapped or both unwrapped
+        return expr.equals(other);
     }
     
     /**

@@ -27,7 +27,6 @@ import java.util.Collection;
 import java.util.Date;
 
 import org.apache.empire.commons.ObjectUtils;
-import org.apache.empire.commons.OptionEntry;
 import org.apache.empire.commons.StringUtils;
 import org.apache.empire.data.DataType;
 import org.apache.empire.dbms.DBMSHandler;
@@ -186,18 +185,9 @@ public abstract class DBSQLBuilder implements Appendable
         {   // it's an expression
             ((DBExpr) value).addSQL(this, context);
             return;
-        } 
-        // check option entry
-        if (value instanceof OptionEntry)
-        {   // option value
-            value = ((OptionEntry)value).getValue();
         }
-        // check enum
-        if (value instanceof Enum<?>)
-        {   // check enum
-            value = ObjectUtils.getEnumValue((Enum<?>)value, dataType.isNumeric());
-        }
-        else if (value instanceof Collection<?>)
+        // Check colletion
+        if (value instanceof Collection<?>)
         {   // collection 2 array
             value = ((Collection<?>)value).toArray();
         }
@@ -215,7 +205,10 @@ public abstract class DBSQLBuilder implements Appendable
             return;
         } 
         else
-        {   // Get Value Expression from dmbs
+        {   // Convert to database format
+            if (value!= null)
+                value = ObjectUtils.convertValue(dataType, value);
+            // append now
             appendSimpleValue(dataType, value);
         }
     }

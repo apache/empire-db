@@ -656,23 +656,15 @@ public abstract class DBRecordBase extends DBRecordData implements Record, Clone
             setParentRecord(getColumn(index), (DBRecordBase)value);
             return;
         }
-        // Strings special
-        if ((value instanceof String) && ((String)value).length()==0)
-            value = null;
         // Is value valid
         Object current = fields[index]; 
         if (current==ObjectUtils.NO_VALUE)
             throw new FieldValueNotFetchedException(getColumn(index));
         // convert
         DBColumn column = getColumn(index);
-        // must convert enums
-        if (value instanceof Enum<?>)
-        {   // convert enum
-            Enum<?> enumVal = ((Enum<?>)value);
-            boolean numeric = column.getDataType().isNumeric();
-            value = ObjectUtils.getEnumValue(enumVal, numeric);
-        }
         // Has Value changed?
+        if (value!= null)
+            value = ObjectUtils.convertValue(column.getDataType(), value);
         if (ObjectUtils.compareEqual(current, value))
         {   // value has not changed!
             return; 
