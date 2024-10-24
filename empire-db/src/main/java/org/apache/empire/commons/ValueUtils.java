@@ -20,28 +20,26 @@ package org.apache.empire.commons;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.sql.Timestamp;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeParseException;
 import java.time.temporal.Temporal;
 import java.util.Collection;
 import java.util.Date;
-import java.util.Locale;
 
 import org.apache.commons.beanutils.MethodUtils;
 import org.apache.empire.data.DataType;
+import org.apache.empire.db.DBExpr;
 import org.apache.empire.db.expr.column.DBValueExpr;
 import org.apache.empire.exceptions.InvalidValueException;
 import org.apache.empire.exceptions.ItemNotFoundException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.empire.exceptions.ValueConversionException;
 
 /**
  * This class allows to customize value type conversion as well as other value related functions.
- * The functions and methods are called indirectly via the corresponding static functions in the ObjectUtils class.
- * 
+ * The functions and methods are called indirectly via the corresponding static functions in the ObjectUtils class. * 
  * You may create your own derived class and overwrite the methods.
  * In order to activate your ValueUtils implementation use the static function
  * 
@@ -52,7 +50,7 @@ import org.slf4j.LoggerFactory;
 public class ValueUtils
 {
     // Logger
-    private static final Logger log = LoggerFactory.getLogger(ValueUtils.class);
+    // private static final Logger log = LoggerFactory.getLogger(ValueUtils.class);
 
     protected static final String DATE_FORMAT = "yyyy-MM-dd";
     protected static final String DATETIME_FORMAT = "yyyy-MM-dd HH:mm:ss";
@@ -159,6 +157,9 @@ public class ValueUtils
         // Use equal check first
         if (o1.equals(o2) || o2.equals(o1))
             return true;
+        // DBExpr 
+        if ((o1 instanceof DBExpr) || (o2 instanceof DBExpr))
+            return false;
         // Compare Numbers
         if (o1 instanceof Number && o2 instanceof Number)
         {   // boolean test = obj1.equals(obj2);
@@ -521,8 +522,15 @@ public class ValueUtils
             return DateUtils.toDate((LocalDate)v);
         if (v instanceof java.time.LocalDateTime)
             return DateUtils.toDate((LocalDateTime)v);
+        if (v instanceof Number)
+        {   // Get Date from a number
+            long l = ((Number)v).longValue();
+            return (l==0 ? null : new Date(l));
+        }
         // Convert from String
         String str = v.toString();
+        if (str.length() > 20)
+            return Timestamp.valueOf(str);
         if (str.length() > 10)
             return dateTimeFormatter.get().parse(str);
         else
@@ -532,81 +540,10 @@ public class ValueUtils
     /**
      * Converts an object value to a Date.
      * <P>
-     * If the object value supplied is null or if conversion is not possible then null is returned.
      * @param v the object to convert
-     * @param locale the locale used for conversion
-     * @return the Date value of o or null
+     * @return the LocalDate value of o or null
      */
-    public Date getDate(Object v, Locale locale)
-    {
-        // Get DateTime value
-        if (isEmpty(v))
-            return null;
-        if (v instanceof Date)
-            return ((Date)v);
-        if (v instanceof java.time.LocalDate)
-            return DateUtils.toDate((LocalDate)v);
-        if (v instanceof java.time.LocalDateTime)
-            return DateUtils.toDate((LocalDateTime)v);
-        // Get Calendar
-        if (v instanceof Number)
-        {   // Get Date from a number
-            long l = ((Number)v).longValue();
-            if (l==0)
-                return DateUtils.getDateNow();
-            // Year or full date/time?
-            /*
-            if (l<10000)
-            {   // Year only
-                Calendar calendar = Calendar.getInstance(getSafeLocale(locale));
-                calendar.set((int)l, 1, 1);
-                return calendar.getTime();
-            }
-            */
-            // Date from long
-            return new Date(l);
-        }
-        // Try to parse
-        return DateUtils.parseDate(v.toString(), locale);
-    }
-    
-    /**
-     * Converts an object value to a Date.
-     * <P>
-     * @param v the object to convert
-     * @return the Date value of o or null
-     */
-    public Date getDate(Object v)
-    {
-        // Get DateTime value
-        if (isEmpty(v))
-            return null;
-        if (v instanceof java.util.Date)
-            return ((java.util.Date)v);
-        if (v instanceof java.time.LocalDate)
-            return DateUtils.toDate((LocalDate)v);
-        if (v instanceof java.time.LocalDateTime)
-            return DateUtils.toDate((LocalDateTime)v);
-        // Convert from String
-        String str = v.toString();
-        try
-        {   if (str.length() > 10)
-                return dateTimeFormatter.get().parse(str);
-            else
-                return dateOnlyFormatter.get().parse(str);
-        } catch (ParseException e) {
-            log.error(String.format("Cannot convert value [%s] to Date", str), e);
-            return null;
-        }
-    }
-    
-    /**
-     * Converts an object value to a Date.
-     * <P>
-     * @param v the object to convert
-     * @return the Date value of o or null
-     */
-    public LocalDate getLocalDate(Object v)
+    public LocalDate toLocalDate(Object v)
     {
         // Get DateTime value
         if (isEmpty(v))
@@ -622,23 +559,18 @@ public class ValueUtils
         if (v instanceof java.util.Date)
             return DateUtils.toLocalDate((Date)v);
         // Convert from String
+        // DateTimeFormatter.ISO_LOCAL_DATE_TIME
         String str = v.toString();
-        try
-        {   // DateTimeFormatter ISO_LOCAL_DATE
-            return LocalDate.parse(str);
-        } catch (DateTimeParseException e) {
-            log.error(String.format("Cannot convert value [%s] to LocalDate", str), e);
-            return null;
-        }
+        return LocalDate.parse(str);
     }
     
     /**
      * Converts an object value to a Date.
      * <P>
      * @param v the object to convert
-     * @return the Date value of o or null
+     * @return the LocalDateTime value of o or null
      */
-    public LocalDateTime getLocalDateTime(Object v)
+    public LocalDateTime toLocalDateTime(Object v)
     {
         // Get DateTime value
         if (isEmpty(v))
@@ -654,14 +586,9 @@ public class ValueUtils
         if (v instanceof java.util.Date)
             return DateUtils.toLocalDateTime((Date)v);
         // Convert from String
+        // DateTimeFormatter.ISO_LOCAL_DATE_TIME
         String str = v.toString();
-        try
-        {   // DateTimeFormatter.ISO_LOCAL_DATE_TIME
-            return LocalDateTime.parse(str);
-        } catch (DateTimeParseException e) {
-            log.error(String.format("Cannot convert value [%s] to LocalDateTime", str), e);
-            return null;
-        }
+        return LocalDateTime.parse(str);
     }
     
     /**
@@ -741,18 +668,23 @@ public class ValueUtils
         // check null
         if (value == null)
             return null;
+        // Cannot convert DBEXpr, return as is
+        if (value instanceof DBExpr)
+            return value;
         // Strings special
         if ((value instanceof String) && ((String)value).length()==0)
             value = null;
-        // check for enum
-        if (value instanceof Enum<?>)
-        {   // convert enum
-            value = getEnumValue((Enum<?>)value, dataType.isNumeric());
-        }
         // check option entry
-        else if (value instanceof OptionEntry)
+        if (value instanceof OptionEntry)
         {   // option value
             value = ((OptionEntry)value).getValue();
+        }
+        // check for enum
+        if (value instanceof Enum<?>)
+        {   // Convert Enum now (optional)
+            // value = getEnumValue((Enum<?>)value, dataType.isNumeric());
+            // Otherwise Enum will be converted later
+            return value; 
         }
         // check type
         switch (dataType)
@@ -761,6 +693,18 @@ public class ValueUtils
                 return value; // unchanged
             case BOOL:
                 return getBoolean(value, false);
+            case DATE:
+            case DATETIME:
+            case TIMESTAMP:
+                // check type
+                if ((value instanceof Date) || (value instanceof Temporal))
+                    return value; // already a date or temporal
+                // try to convert
+                try {
+                    return toDate(value);
+                } catch (ParseException e) {
+                    throw new ValueConversionException(Date.class, value, e);
+                }
             case INTEGER:
                 return (value instanceof Number) ? value : toLong(value);
             case FLOAT:

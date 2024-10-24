@@ -395,7 +395,7 @@ public class DBTable extends DBRowSet implements Cloneable
      */
     public final DBTableColumn addColumn(String columnName, DataType type, double size, boolean required, Enum<?> enumValue)
     { 
-        Object defValue = ObjectUtils.getEnumValue(enumValue, type.isNumeric());
+        Object defValue = ObjectUtils.convertValue(type, enumValue);
         DBTableColumn col = this.createAndAppendColumn(columnName, type, size, required, defValue);
         if (enumValue!=null)
             col.setEnumOptions(enumValue.getClass());

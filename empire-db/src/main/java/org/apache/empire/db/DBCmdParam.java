@@ -22,6 +22,7 @@ import java.util.Set;
 
 import org.apache.empire.commons.ObjectUtils;
 import org.apache.empire.data.DataType;
+import org.apache.empire.exceptions.InvalidOperationException;
 
 /**
  * This class defines a parameter for a prepared statement query.
@@ -57,10 +58,15 @@ public class DBCmdParam extends DBExpr
      */
     protected Object getCmdParamValue(Object value)
     {
+        if (value instanceof DBExpr)
+            throw new InvalidOperationException("DBCmdParam does not accept DBExpr");
         if (value!=null)
             value = ObjectUtils.convertValue(type, value);
         if (value==null)
             return value;
+        // If still an Enum, convert now (Lazy conversion)
+        if (value instanceof Enum<?>)
+            value = ObjectUtils.getEnumValue((Enum<?>)value, type.isNumeric());
         // Check CLOB and BLOB
         switch (type)
         {

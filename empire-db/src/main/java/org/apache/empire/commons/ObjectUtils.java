@@ -23,17 +23,18 @@ import java.math.BigDecimal;
 import java.text.ParseException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
-import java.util.Locale;
 
 import org.apache.commons.beanutils.MethodUtils;
 import org.apache.empire.data.ColumnExpr;
 import org.apache.empire.data.DataType;
 import org.apache.empire.exceptions.InvalidArgumentException;
+import org.apache.empire.exceptions.ValueConversionException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -449,58 +450,46 @@ public final class ObjectUtils
      * <P>
      * @param v the object to convert
      * @return the Date value of o or null
-     * @throws ParseException
-     */
-    public static Date toDate(Object v)
-        throws ParseException
-    {
-        return valueUtils.toDate(v);
-    }
-    
-    /**
-     * Converts an object value to a Date.
-     * <P>
-     * If the object value supplied is null or if conversion is not possible then null is returned.
-     * @param v the object to convert
-     * @param locale the locale used for conversion
-     * @return the Date value of o or null
-     */
-    public static Date getDate(Object v, Locale locale)
-    {
-        return valueUtils.getDate(v, locale);
-    }
-    
-    /**
-     * Converts an object value to a Date.
-     * <P>
-     * @param v the object to convert
-     * @return the Date value of o or null
      */
     public static Date getDate(Object v)
     {
-        return valueUtils.getDate(v);
+        try {
+            return valueUtils.toDate(v);
+        } catch (ParseException e) {
+            throw new ValueConversionException(Date.class, v, e);
+        }
     }
     
     /**
-     * Converts an object value to a Date.
+     * Converts an object value to a LocalDate.
      * <P>
      * @param v the object to convert
-     * @return the Date value of o or null
+     * @return the LocalDate value of o or null
      */
     public static LocalDate getLocalDate(Object v)
     {
-        return valueUtils.getLocalDate(v);
+        try {   
+            // DateTimeFormatter.ISO_LOCAL_DATE_TIME
+            return valueUtils.toLocalDate(v);
+        } catch (DateTimeParseException e) {
+            throw new ValueConversionException(LocalDate.class, v, e);
+        }
     }
     
     /**
-     * Converts an object value to a Date.
+     * Converts an object value to a LocalDateTime.
      * <P>
      * @param v the object to convert
-     * @return the Date value of o or null
+     * @return the LocalDateTime value of o or null
      */
     public static LocalDateTime getLocalDateTime(Object v)
     {
-        return valueUtils.getLocalDateTime(v);
+        try {
+            // DateTimeFormatter.ISO_LOCAL_DATE_TIME
+            return valueUtils.toLocalDateTime(v);
+        } catch (DateTimeParseException e) {
+            throw new ValueConversionException(LocalDateTime.class, v, e);
+        }
     }
     
     /**
@@ -523,7 +512,7 @@ public final class ObjectUtils
      * @param c the class type to convert to
      * @param v the object to convert
      * 
-     * @return the Date value of o or null
+     * @return the converted value of o or null
      * 
      * @throws ClassCastException if the object is not null and is not assignable to the type T.
      */

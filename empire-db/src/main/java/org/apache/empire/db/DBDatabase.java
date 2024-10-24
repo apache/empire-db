@@ -22,7 +22,6 @@ import java.lang.ref.WeakReference;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.sql.Timestamp;
-import java.text.ParseException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -63,6 +62,7 @@ import org.apache.empire.exceptions.ItemExistsException;
 import org.apache.empire.exceptions.NotSupportedException;
 import org.apache.empire.exceptions.ObjectNotValidException;
 import org.apache.empire.exceptions.PropertyReadOnlyException;
+import org.apache.empire.exceptions.ValueConversionException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -1102,10 +1102,10 @@ public abstract class DBDatabase extends DBObject
                 if (!(value instanceof LocalDateTime) && !(value instanceof Date) && !DBDatabase.SYSDATE.equals(value))
                 {   try {
                         // Parse Date
-                        value = ObjectUtils.toDate(value);
-                    } catch(ParseException e) {
+                        value = ObjectUtils.getDate(value);
+                    } catch (ValueConversionException e) {
                         log.info("Parsing '{}' to Date failed for column {}. Message is "+e.toString(), value, column.getName());
-                        throw new FieldIllegalValueException(column, String.valueOf(value), e);
+                        throw new FieldIllegalValueException(column, String.valueOf(value), e.getCause());
                     }
                 }    
                 break;
@@ -1113,9 +1113,7 @@ public abstract class DBDatabase extends DBObject
             case DECIMAL:
                 // check enum
                 if (value instanceof Enum<?>)
-                {   // convert enum   
-                    value = ((Enum<?>)value).ordinal();
-                }
+                    break; // Convert later...
                 // check number
                 if (!(value instanceof java.lang.Number))
                 {   try
@@ -1149,9 +1147,7 @@ public abstract class DBDatabase extends DBObject
             case INTEGER:
                 // check enum
                 if (value instanceof Enum<?>)
-                {   // convert enum   
-                    value = ((Enum<?>)value).ordinal();
-                }
+                    break; // Convert later...
                 // check number
                 if (!(value instanceof java.lang.Number))
                 {   try
@@ -1170,9 +1166,7 @@ public abstract class DBDatabase extends DBObject
             case CHAR:
                 // check enum
                 if (value instanceof Enum<?>)
-                {   // convert enum   
-                    value = ObjectUtils.getString((Enum<?>)value);
-                }
+                    break; // Convert later...
                 // check length
                 if (value.toString().length() > (int)column.getSize())
                 {

@@ -283,8 +283,7 @@ public abstract class DBSQLBuilder implements Appendable
     protected void appendSimpleValue(DataType type, Object value)
     { 
         if (value instanceof Enum<?>)
-        {   // convert enum
-            log.warn("Enum of type {} supplied for getValueString. Converting value...", value.getClass().getName());
+        {   // If still an Enum, convert now (Lazy conversion)
             value = ObjectUtils.getEnumValue((Enum<?>)value, type.isNumeric());
         }
         if (ObjectUtils.isEmpty(value))
