@@ -673,7 +673,7 @@ public class ValueUtils
             return value;
         // Strings special
         if ((value instanceof String) && ((String)value).length()==0)
-            value = null;
+            return null;
         // check option entry
         if (value instanceof OptionEntry)
         {   // option value
