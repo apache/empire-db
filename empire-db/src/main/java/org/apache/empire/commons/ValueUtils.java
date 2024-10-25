@@ -31,6 +31,7 @@ import java.util.Date;
 
 import org.apache.commons.beanutils.MethodUtils;
 import org.apache.empire.data.DataType;
+import org.apache.empire.db.DBDatabase;
 import org.apache.empire.db.DBExpr;
 import org.apache.empire.db.expr.column.DBValueExpr;
 import org.apache.empire.exceptions.InvalidValueException;
@@ -699,6 +700,9 @@ public class ValueUtils
                 // check type
                 if ((value instanceof Date) || (value instanceof Temporal))
                     return value; // already a date or temporal
+                // sysdate
+                if (DBDatabase.SYSDATE.equals(value))
+                    return value; // leave SYSDATE as is
                 // try to convert
                 try {
                     return toDate(value);

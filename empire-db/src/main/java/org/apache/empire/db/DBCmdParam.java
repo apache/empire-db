@@ -20,6 +20,7 @@ package org.apache.empire.db;
 
 import java.util.Set;
 
+import org.apache.empire.commons.DateUtils;
 import org.apache.empire.commons.ObjectUtils;
 import org.apache.empire.data.DataType;
 import org.apache.empire.exceptions.InvalidOperationException;
@@ -82,6 +83,19 @@ public class DBCmdParam extends DBExpr
                     return value;
                 // create a clob data
                 return new DBClobData(value.toString());
+            case DATE:
+                if (DBDatabase.SYSDATE.equals(value))
+                    value = DateUtils.getDateNow();
+                return value;
+            case DATETIME:
+                if (DBDatabase.SYSDATE.equals(value))
+                    value = DateUtils.getTimeNow();
+                return value;
+            case TIMESTAMP:
+            case UNKNOWN:
+                if (DBDatabase.SYSDATE.equals(value))
+                    value = DateUtils.getTimestamp();
+                return value;
             default:
                 // the value
                 return value;

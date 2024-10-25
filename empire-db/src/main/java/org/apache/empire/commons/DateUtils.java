@@ -18,6 +18,7 @@
  */
 package org.apache.empire.commons;
 
+import java.sql.Timestamp;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -71,6 +72,15 @@ public class DateUtils
     public static Date getTimeNow()
     {
         return Calendar.getInstance().getTime();
+    }
+
+    /**
+     * Returns a Timestamp for now
+     * @return the Timestamp
+     */
+    public static Timestamp getTimestamp()
+    {
+        return Timestamp.valueOf(LocalDateTime.now());
     }
 
     /**
