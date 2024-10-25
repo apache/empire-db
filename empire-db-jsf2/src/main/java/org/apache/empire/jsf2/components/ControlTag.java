@@ -744,7 +744,7 @@ public class ControlTag extends UIInput implements NamingContainer
         this.valueValidated = false;
         super.validate(context);
         // post check
-        if (!this.valueValidated && !helper.isReadOnly())
+        if (!this.valueValidated && !helper.isReadOnly() && !helper.isDisabled())
         {   // New since 2024-04-04
             // Validate Record value
             Object value = helper.getDataValue(true);

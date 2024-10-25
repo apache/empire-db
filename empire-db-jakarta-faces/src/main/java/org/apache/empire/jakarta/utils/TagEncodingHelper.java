@@ -385,8 +385,7 @@ public class TagEncodingHelper implements NamingContainer
         @Override
         public boolean isDisabled()
         {
-            DisabledType disabled = TagEncodingHelper.this.getDisabled(); 
-            return (disabled!=null && disabled!=DisabledType.NO);
+            return TagEncodingHelper.this.isDisabled();
         }
         
         @Override
@@ -820,7 +819,14 @@ public class TagEncodingHelper implements NamingContainer
         else
         {   // Get from tag
             if (evalExpression)
-                return component.getValue();
+            {   
+                Object value = component.getValue();
+                /* Do we need to convert the value?
+                if (value!=null && (valueInfo instanceof InputInfo))
+                    value = getInputControl().getConvertedValue(component, (InputInfo)valueInfo, value);
+                */    
+                return value;
+            }
             else
             {   // Check LocalValue and ValueExpression
                 Object value = component.getLocalValue();
@@ -1038,6 +1044,12 @@ public class TagEncodingHelper implements NamingContainer
         }
         // Required
         return getColumn().isRequired();
+    }
+
+    public final boolean isDisabled()
+    {
+        DisabledType disabled = TagEncodingHelper.this.getDisabled(); 
+        return (disabled!=null && disabled!=DisabledType.NO);
     }
     
     public DisabledType getDisabled()
