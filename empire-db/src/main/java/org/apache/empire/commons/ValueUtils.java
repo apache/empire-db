@@ -99,6 +99,8 @@ public class ValueUtils
             return true;
         if (o instanceof DBValueExpr)
             return isEmpty(((DBValueExpr)o).getValue());
+        if (o instanceof Enum)
+            return isEmpty(getString((Enum<?>)o));
         // not empty
         return false;
     }
@@ -183,16 +185,16 @@ public class ValueUtils
             if (o2 instanceof Number)
                 return ((Enum<?>)o1).ordinal()==((Number)o2).intValue();
             // Compare Strings
-            String strVal = StringUtils.coalesce(getString((Enum<?>)o1), StringUtils.NULL);
-            return strVal.equals(getString(o2));
+            String strVal = getString((Enum<?>)o1);
+            return StringUtils.compareEqual(strVal, getString(o2));
         }
         else if (o2 instanceof Enum<?>)
         {   // Special enum handling   
             if (o1 instanceof Number)
                 return ((Enum<?>)o2).ordinal()==((Number)o1).intValue();
             // Compare Strings
-            String strVal = StringUtils.coalesce(getString((Enum<?>)o2), StringUtils.NULL); 
-            return strVal.equals(getString(o1));
+            String strVal = getString((Enum<?>)o2); 
+            return StringUtils.compareEqual(strVal, getString(o1));
         }
         // Compare Strings
         if (o1 instanceof String)
@@ -461,8 +463,8 @@ public class ValueUtils
         if (enumValue instanceof EnumValue)
             return StringUtils.toString(((EnumValue)enumValue).toValue(false));
         /* special case */
-        if (enumValue==null || enumValue.name().equals(StringUtils.NULL))
-            return null;
+        if (enumValue==null || enumValue.name().equalsIgnoreCase("NULL"))
+            return StringUtils.EMPTY;
         /* use name */
         return enumValue.name();
     }
