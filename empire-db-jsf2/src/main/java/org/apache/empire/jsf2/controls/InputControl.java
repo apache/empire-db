@@ -524,13 +524,19 @@ public abstract class InputControl
     {
         // UIInput
         if (comp instanceof UIInput)
-        {
+        {   // Check LocalValue set 
             UIInput input = (UIInput)comp; 
-            if (input.isLocalValueSet())
-            {   input.setValue(null);
-                input.setLocalValueSet(false);
-                // log.debug("clearLocalValues performed for {}", input.getClass().getName());
+            if (input.isValid() && input.isLocalValueSet())
+            {   // Check ValueExpression
+                // @see: UIInput:updateModel(FacesContext context)
+                ValueExpression expression = input.getValueExpression("value");
+                if (expression != null)
+                {   // Reset localValue if ValueExpression is set
+                    input.resetValue();
+                }
             }
+            // we're done here
+            return;
         }
         // clearLocalValues of all facets and children of this UIComponent
         if (comp.getFacetCount() > 0)
