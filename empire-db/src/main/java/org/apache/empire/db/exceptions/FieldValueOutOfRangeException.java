@@ -35,13 +35,23 @@ public class FieldValueOutOfRangeException extends FieldValueException
         super(col, outOfRangeErrorType, new String[] { getColumnTitle(col) });
     }
 
-    public FieldValueOutOfRangeException(Column col, Number min, Number max)
+    public FieldValueOutOfRangeException(Column col, String min, String max)
     {
         super(col, notInRangeErrorType, new String[] { getColumnTitle(col), String.valueOf(min), String.valueOf(max) });
     }
 
-    public FieldValueOutOfRangeException(Column col, Number minMax, boolean isMax)
+    public FieldValueOutOfRangeException(Column col, Number min, Number max)
+    {
+        this(col, String.valueOf(min), String.valueOf(max));
+    }
+
+    public FieldValueOutOfRangeException(Column col, String minMax, boolean isMax)
     {
         super(col, (isMax) ? valueTooBigErrorType : valueTooSmallErrorType, new String[] { getColumnTitle(col), String.valueOf(minMax) });
+    }
+
+    public FieldValueOutOfRangeException(Column col, Number minMax, boolean isMax)
+    {
+        this(col, String.valueOf(minMax), isMax);
     }
 }
