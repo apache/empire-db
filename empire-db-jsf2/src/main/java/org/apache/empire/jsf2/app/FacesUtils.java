@@ -41,6 +41,7 @@ import org.apache.empire.commons.StringUtils;
 import org.apache.empire.data.Column;
 import org.apache.empire.exceptions.EmpireException;
 import org.apache.empire.exceptions.InternalException;
+import org.apache.empire.exceptions.InvalidArgumentException;
 import org.apache.empire.exceptions.ItemNotFoundException;
 import org.apache.empire.jsf2.impl.FacesImplementation;
 import org.apache.empire.jsf2.pages.Page;
@@ -400,7 +401,10 @@ public class FacesUtils
     
     public static String getMessage(final FacesContext fc, String key)
     {
-        return getTextResolver(fc).resolveKey(key);
+        if (StringUtils.isEmpty(key))
+            throw new InvalidArgumentException("key", key);
+        TextResolver tr = getTextResolver(fc); 
+        return (key.startsWith(TextResolver.MSG_KEY_INDICATOR) ? tr.resolveText(key) : tr.resolveKey(key));
     }
     
     public static String getMessage(String messageKey)

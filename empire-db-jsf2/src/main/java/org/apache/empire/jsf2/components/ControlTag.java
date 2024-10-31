@@ -835,6 +835,8 @@ public class ControlTag extends UIInput implements NamingContainer
         setValue(null);
         setLocalValueSet(false);
         // Post update
+        if (getChildCount() <= 1)
+            return; // should never come here
         ControlSeparatorComponent inputSepTag = (ControlSeparatorComponent) getChildren().get(1);
         this.control.postUpdateModel(inputSepTag, this.inpInfo, context);
     }
