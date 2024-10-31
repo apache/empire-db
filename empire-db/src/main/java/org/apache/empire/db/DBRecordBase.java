@@ -1096,6 +1096,30 @@ public abstract class DBRecordBase extends DBRecordData implements Record, Clone
         if (fireChangeEvent)
             onFieldChanged(index);
     }
+
+    protected void setFieldModified(int index, boolean modifiedFlag)
+    {   // Check valid
+        checkValid(index);
+        if (modified == null && !modifiedFlag)
+            return; // Nothing to do
+        // modified state array
+        if (modified == null)
+        {   modified = new boolean[fields.length];
+            for (int j = 0; j < fields.length; j++)
+                modified[j] = false;
+        }
+        // set value and modified
+        modified[index] = modifiedFlag;
+        // set record state
+        boolean recordModified = modifiedFlag;
+        for (int j = 0; j < fields.length && !recordModified; j++)
+            recordModified |= modified[j];
+        // Change record state if necessary
+        if (recordModified && state.isLess(State.Modified))
+            changeState(State.Modified);
+        else if (recordModified==false && state==State.Modified)
+            changeState(State.Valid);
+    }
     
     /**
      * Override this to do extra handling when the record changes

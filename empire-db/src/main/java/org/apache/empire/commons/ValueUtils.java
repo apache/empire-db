@@ -266,6 +266,8 @@ public class ValueUtils
             return 0;
         if (v instanceof Number)
             return ((Number)v).intValue();
+        if (v instanceof Enum)
+            return toInteger(getEnumValue(((Enum<?>)v), true));
         // Try to convert
         String str = v.toString();
         return Integer.parseInt(str);
@@ -282,6 +284,8 @@ public class ValueUtils
             return 0;
         if (v instanceof Number)
             return ((Number)v).longValue();
+        if (v instanceof Enum)
+            return toLong(getEnumValue(((Enum<?>)v), true));
         // Try to convert
         String str = v.toString();
         return Long.parseLong(str);
@@ -299,6 +303,8 @@ public class ValueUtils
             return 0.0;
         if (v instanceof Number)
             return ((Number)v).doubleValue();
+        if (v instanceof Enum)
+            return toDouble(getEnumValue(((Enum<?>)v), true));
         // parse String for Integer value
         String val = v.toString(); 
         return Double.parseDouble(val);
@@ -328,6 +334,8 @@ public class ValueUtils
             // Default: convert via double
             return BigDecimal.valueOf(((Number)v).doubleValue());
         }
+        if (v instanceof Enum)
+            return toDecimal(getEnumValue(((Enum<?>)v), true));
         // parse String for Integer value
         // Last-Chance > Try a string conversion
         return new BigDecimal(v.toString());
