@@ -100,7 +100,7 @@ public class ValueUtils
         if (o instanceof DBValueExpr)
             return isEmpty(((DBValueExpr)o).getValue());
         if (o instanceof Enum)
-            return isEmpty(getString((Enum<?>)o));
+            return isEmpty(enumToString((Enum<?>)o));
         // not empty
         return false;
     }
@@ -185,16 +185,16 @@ public class ValueUtils
             if (o2 instanceof Number)
                 return ((Enum<?>)o1).ordinal()==((Number)o2).intValue();
             // Compare Strings
-            String strVal = getString((Enum<?>)o1);
-            return StringUtils.compareEqual(strVal, getString(o2));
+            String strVal = enumToString((Enum<?>)o1);
+            return StringUtils.compareEqual(strVal, toString(o2));
         }
         else if (o2 instanceof Enum<?>)
         {   // Special enum handling   
             if (o1 instanceof Number)
                 return ((Enum<?>)o2).ordinal()==((Number)o1).intValue();
             // Compare Strings
-            String strVal = getString((Enum<?>)o2); 
-            return StringUtils.compareEqual(strVal, getString(o1));
+            String strVal = enumToString((Enum<?>)o2); 
+            return StringUtils.compareEqual(strVal, toString(o1));
         }
         // Compare Strings
         if (o1 instanceof String)
@@ -267,7 +267,7 @@ public class ValueUtils
         if (v instanceof Number)
             return ((Number)v).intValue();
         if (v instanceof Enum)
-            return toInteger(getEnumValue(((Enum<?>)v), true));
+            return toInteger(enumToValue(((Enum<?>)v), true));
         // Try to convert
         String str = v.toString();
         return Integer.parseInt(str);
@@ -285,7 +285,7 @@ public class ValueUtils
         if (v instanceof Number)
             return ((Number)v).longValue();
         if (v instanceof Enum)
-            return toLong(getEnumValue(((Enum<?>)v), true));
+            return toLong(enumToValue(((Enum<?>)v), true));
         // Try to convert
         String str = v.toString();
         return Long.parseLong(str);
@@ -300,11 +300,11 @@ public class ValueUtils
     {
         // Get Double value
         if (isEmpty(v))
-            return 0.0;
+            return 0.0d;
         if (v instanceof Number)
             return ((Number)v).doubleValue();
         if (v instanceof Enum)
-            return toDouble(getEnumValue(((Enum<?>)v), true));
+            return toDouble(enumToValue(((Enum<?>)v), true));
         // parse String for Integer value
         String val = v.toString(); 
         return Double.parseDouble(val);
@@ -335,7 +335,7 @@ public class ValueUtils
             return BigDecimal.valueOf(((Number)v).doubleValue());
         }
         if (v instanceof Enum)
-            return toDecimal(getEnumValue(((Enum<?>)v), true));
+            return toDecimal(enumToValue(((Enum<?>)v), true));
         // parse String for Integer value
         // Last-Chance > Try a string conversion
         return new BigDecimal(v.toString());
@@ -351,7 +351,7 @@ public class ValueUtils
      * @param defValue the default value
      * @return the boolean value or defValue if v is null or empty
      */
-    public boolean getBoolean(Object v, boolean defValue)
+    public boolean toBoolean(Object v, boolean defValue)
     {
         // Get Boolean value
         if (isEmpty(v))
@@ -378,7 +378,7 @@ public class ValueUtils
      * @return the enum
      */
     @SuppressWarnings("unchecked")
-    public <T extends Enum<?>> T getEnum(Class<T> enumType, Object value)
+    public <T extends Enum<?>> T toEnum(Class<T> enumType, Object value)
     {   // check for null
         if (isEmpty(value))
             return null;
@@ -432,7 +432,7 @@ public class ValueUtils
      * @param name the enum name
      * @return the enum
      */
-    public <T extends Enum<?>> T getEnumByName(Class<T> enumType, String name)
+    public <T extends Enum<?>> T toEnumByName(Class<T> enumType, String name)
     {   // check for null
         if (isEmpty(name))
             return null;
@@ -451,13 +451,13 @@ public class ValueUtils
      * @param isNumeric flag if number or string is required
      * @return the number or string representing this enum
      */
-    public Object getEnumValue(Enum<?> enumValue, boolean isNumeric)
+    public Object enumToValue(Enum<?> enumValue, boolean isNumeric)
     {
         // convert
         if (enumValue instanceof EnumValue)
             return ((EnumValue)enumValue).toValue(isNumeric);
         // default
-        return (isNumeric ? enumValue.ordinal() : getString(enumValue));
+        return (isNumeric ? enumValue.ordinal() : enumToString(enumValue));
     }
     
     /**
@@ -465,7 +465,7 @@ public class ValueUtils
      * @param enumValue the enum
      * @return the corresponding string value
      */
-    public String getString(Enum<?> enumValue)
+    public String enumToString(Enum<?> enumValue)
     {
         // convert
         if (enumValue instanceof EnumValue)
@@ -482,7 +482,7 @@ public class ValueUtils
      * @param value the value to convert
      * @return the corresponding string value
      */
-    public String getString(Object value)
+    public String toString(Object value)
     {
         if (value==null)
             return null;
@@ -492,7 +492,7 @@ public class ValueUtils
             throw new InvalidValueException(value);
         // convert
         if (value instanceof Enum<?>)
-            return getString((Enum<?>)value);
+            return enumToString((Enum<?>)value);
         if (value instanceof Date)
             return formatDate((Date)value, true);
         // default
@@ -518,7 +518,7 @@ public class ValueUtils
      * Converts an object value to a Date.
      * <P>
      * @param v the object to convert
-     * @return the Date value of o or null
+     * @return the Date value of v or null
      * @throws ParseException
      */
     public Date toDate(Object v)
@@ -552,7 +552,7 @@ public class ValueUtils
      * Converts an object value to a Date.
      * <P>
      * @param v the object to convert
-     * @return the LocalDate value of o or null
+     * @return the LocalDate value of v or null
      */
     public LocalDate toLocalDate(Object v)
     {
@@ -579,7 +579,7 @@ public class ValueUtils
      * Converts an object value to a Date.
      * <P>
      * @param v the object to convert
-     * @return the LocalDateTime value of o or null
+     * @return the LocalDateTime value of v or null
      */
     public LocalDateTime toLocalDateTime(Object v)
     {
@@ -600,6 +600,33 @@ public class ValueUtils
         // DateTimeFormatter.ISO_LOCAL_DATE_TIME
         String str = v.toString();
         return LocalDateTime.parse(str);
+    }
+    
+    /**
+     * Converts an object value to a Timestamp.
+     * <P>
+     * @param v the object to convert
+     * @return the Timestamp or null
+     */
+    public Timestamp toTimestamp(Object v)
+    {
+        // Get DateTime value
+        if (isEmpty(v))
+            return null;
+        if (v instanceof java.sql.Timestamp)
+            return ((java.sql.Timestamp)v);
+        if (v instanceof java.time.LocalDate)
+            return Timestamp.valueOf(((LocalDate)v).atStartOfDay());
+        if (v instanceof java.time.LocalDateTime)
+            return Timestamp.valueOf((LocalDateTime)v);
+        if (v instanceof java.sql.Date)
+            return Timestamp.valueOf(((java.sql.Date)v).toLocalDate().atStartOfDay());
+        if (v instanceof java.util.Date)
+            return Timestamp.valueOf(DateUtils.toLocalDateTime((Date)v));
+        // Convert from String
+        // DateTimeFormatter.ISO_LOCAL_DATE_TIME
+        String str = v.toString();
+        return Timestamp.valueOf(str);
     }
     
     /**
@@ -633,7 +660,7 @@ public class ValueUtils
      * @throws ClassCastException if the object is not null and is not assignable to the type T.
      */
     @SuppressWarnings("unchecked")
-    public <T> T convert(Class<T> c, Object v)
+    public <T> T convertToJava(Class<T> c, Object v)
         throws ClassCastException
     {
         if (v==null || c.isInstance(v))
@@ -648,11 +675,11 @@ public class ValueUtils
         // Convert
         if (c.isEnum())
         {   // convert to enum
-            Object ev = getEnum((Class<? extends Enum<?>>)c, v); 
+            Object ev = toEnum((Class<? extends Enum<?>>)c, v); 
             return (T)ev;
         }
         if (c.isAssignableFrom(Boolean.class))
-            return c.cast(getBoolean(v, false));
+            return c.cast(toBoolean(v, false));
         if (c.isAssignableFrom(Integer.class))
             return c.cast(isEmpty(v) ? 0 : toInteger(v));
         if (c.isAssignableFrom(Long.class))
@@ -662,7 +689,7 @@ public class ValueUtils
         if(c.isAssignableFrom(BigDecimal.class))
             return c.cast(isEmpty(v) ? BigDecimal.ZERO : toDecimal(v));
         if (c.isAssignableFrom(String.class))
-            return c.cast(getString(v));
+            return c.cast(toString(v));
         // other
         return c.cast(v);
     }
@@ -674,7 +701,7 @@ public class ValueUtils
      * @param value the value to convert
      * @return the value to be used in SQL statements
      */
-    public Object convertValue(DataType dataType, Object value)
+    public Object convertToData(DataType dataType, Object value)
     {
         // check null
         if (value == null)
@@ -703,7 +730,7 @@ public class ValueUtils
             case BLOB:
                 return value; // unchanged
             case BOOL:
-                return getBoolean(value, false);
+                return toBoolean(value, false);
             case DATE:
             case DATETIME:
             case TIMESTAMP:

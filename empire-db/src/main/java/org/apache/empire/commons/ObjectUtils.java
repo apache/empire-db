@@ -20,6 +20,7 @@ package org.apache.empire.commons;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.sql.Timestamp;
 import java.text.ParseException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -189,10 +190,11 @@ public final class ObjectUtils
     }
 
     /**
-     * converts an object to an integer. If conversion is not possible, an error is thrown
+     * @Deprecated use getInteger() instead
      * @param v the value to convert
      * @return the integer value
      */
+    @Deprecated
     public static int toInteger(Object v)
     {
         return valueUtils.toInteger(v);
@@ -201,10 +203,22 @@ public final class ObjectUtils
     /**
      * Converts an object value to an integer.
      * <P>
+     * If the object value supplied is null or if conversion is not possible then 0 is returned.
+     * @param v the object value to convert
+     * @return the Integer value of v or 0
+     */
+    public static int getInteger(Object v)
+    {
+        return valueUtils.toInteger(v); 
+    }
+    
+    /**
+     * Converts an object value to an integer.
+     * <P>
      * If the object value supplied is null or if conversion is not possible then the default value is returned.
      * @param v the obect to convert
      * @param defValue the default value if o is null or conversion is not possible 
-     * @return the Integer value of o or a default value
+     * @return the Integer value of v or a default value
      */
     public static int getInteger(Object v, int defValue)
     {
@@ -213,30 +227,19 @@ public final class ObjectUtils
             return defValue;
         try
         {   // Try to convert
-            return toInteger(v);
+            return valueUtils.toInteger(v);
         } catch (NumberFormatException e) {
             log.error(String.format("Cannot convert value [%s] to int", v));
             return defValue;
         }
     }
-    
-    /**
-     * Converts an object value to an integer.
-     * <P>
-     * If the object value supplied is null or if conversion is not possible then 0 is returned.
-     * @param v the object value to convert
-     * @return the Integer value of o or 0
-     */
-    public static int getInteger(Object v)
-    {
-        return getInteger(v, 0); 
-    }
 
     /**
-     * converts an object to a long. If conversion is not possible, an error is thrown
+     * @Deprecated use getLong() instead
      * @param v the value to convert
      * @return the long value
-     */
+     */ 
+    @Deprecated
     public static long toLong(Object v)
     {
         return valueUtils.toLong(v);
@@ -245,10 +248,22 @@ public final class ObjectUtils
     /**
      * Converts an object value to a long.
      * <P>
+     * If the object value supplied is null or if conversion is not possible then 0 is returned.
+     * @param v the object value to convert
+     * @return the Long value of v or 0
+     */
+    public static long getLong(Object v)
+    {
+        return valueUtils.toLong(v); 
+    }
+    
+    /**
+     * Converts an object value to a long.
+     * <P>
      * If the object value supplied is null or if conversion is not possible then the default value is returned.
      * @param v the obect to convert
      * @param defValue the default value if o is null or conversion is not possible 
-     * @return the Integer value of o or a default value
+     * @return the Integer value of v or a default value
      */
     public static long getLong(Object v, long defValue)
     {
@@ -257,31 +272,32 @@ public final class ObjectUtils
             return defValue;
         try
         {   // Try to convert
-            return toLong(v);
+            return valueUtils.toLong(v);
         } catch (NumberFormatException e) {
             log.error(String.format("Cannot convert value [%s] to long", v));
             return defValue;
         }
     }
-    
-    /**
-     * Converts an object value to a long.
-     * <P>
-     * If the object value supplied is null or if conversion is not possible then 0 is returned.
-     * @param v the object value to convert
-     * @return the Long value of o or 0
-     */
-    public static long getLong(Object v)
-    {
-        return getLong(v, 0); 
-    }
 
     /**
-     * converts an object to a double. If conversion is not possible, an error is thrown
+     * @Deprecated use getDouble() instead
      * @param v the value to convert
      * @return the double value
      */
+    @Deprecated
     public static double toDouble(Object v)
+    {
+        return valueUtils.toDouble(v);
+    }
+
+    /**
+     * Converts an object value to a double.
+     * <P>
+     * If the object value supplied is null or if conversion is not possible then 0.0 is returned.
+     * @param v the object value to convert
+     * @return the Long value of v or 0
+     */
+    public static double getDouble(Object v)
     {
         return valueUtils.toDouble(v);
     }
@@ -292,7 +308,7 @@ public final class ObjectUtils
      * If the object value supplied is null or if conversion is not possible then defValue is returned.
      * @param v the object value to convert
      * @param defValue the default value
-     * @return the Long value of o or defValue
+     * @return the Long value of v or defValue
      */
     public static double getDouble(Object v, double defValue)
     {
@@ -301,7 +317,7 @@ public final class ObjectUtils
             return defValue;
         try
         {   // Try to convert
-            return toDouble(v);
+            return valueUtils.toDouble(v);
         } catch (NumberFormatException e) {
             log.error(String.format("Cannot convert value [%s] to double", v));
             return defValue;
@@ -309,23 +325,24 @@ public final class ObjectUtils
     }
 
     /**
-     * Converts an object value to a double.
-     * <P>
-     * If the object value supplied is null or if conversion is not possible then 0.0 is returned.
-     * @param v the object value to convert
-     * @return the Long value of o or 0
-     */
-    public static double getDouble(Object v)
-    {
-        return getDouble(v, 0.0);
-    }
-
-    /**
-     * converts an object to a decimal. If conversion is not possible, an error is thrown
+     * @Deprecated use getDecimal() instead
      * @param v the value to convert
      * @return the decimal value
      */
+    @Deprecated
     public static BigDecimal toDecimal(Object v)
+    {
+        return valueUtils.toDecimal(v);
+    }
+
+    /**
+     * Converts an object value to a BigDecimal.
+     * <P>
+     * If the object value supplied is null or if conversion is not possible then 0.0 is returned.
+     * @param v the object value to convert
+     * @return the Long value of v or 0
+     */
+    public static BigDecimal getDecimal(Object v)
     {
         return valueUtils.toDecimal(v);
     }
@@ -345,23 +362,11 @@ public final class ObjectUtils
             return defValue;
         try
         {   // Try to convert
-            return toDecimal(v);
+            return valueUtils.toDecimal(v);
         } catch (NumberFormatException e) {
             log.error(String.format("Cannot convert value [%s] to BigDecimal", v));
             return defValue;
         }
-    }
-
-    /**
-     * Converts an object value to a BigDecimal.
-     * <P>
-     * If the object value supplied is null or if conversion is not possible then 0.0 is returned.
-     * @param v the object value to convert
-     * @return the Long value of o or 0
-     */
-    public static BigDecimal getDecimal(Object v)
-    {
-        return getDecimal(v, BigDecimal.ZERO);
     }
     
     /**
@@ -376,7 +381,7 @@ public final class ObjectUtils
      */
     public static boolean getBoolean(Object v, boolean defValue)
     {
-        return valueUtils.getBoolean(v, defValue);
+        return valueUtils.toBoolean(v, defValue);
     }
     
     /**
@@ -387,7 +392,7 @@ public final class ObjectUtils
      */
     public static boolean getBoolean(Object v)
     {
-        return getBoolean(v, false);
+        return valueUtils.toBoolean(v, false);
     }
     
     /**
@@ -399,7 +404,7 @@ public final class ObjectUtils
      */
     public static <T extends Enum<?>> T getEnum(Class<T> enumType, Object value)
     {
-        return valueUtils.getEnum(enumType, value);
+        return valueUtils.toEnum(enumType, value);
     }
 
     /**
@@ -411,7 +416,7 @@ public final class ObjectUtils
      */
     public static <T extends Enum<?>> T getEnumByName(Class<T> enumType, String name)
     {
-        return valueUtils.getEnumByName(enumType, name);
+        return valueUtils.toEnumByName(enumType, name);
     }
     
     /**
@@ -422,7 +427,7 @@ public final class ObjectUtils
      */
     public static Object getEnumValue(Enum<?> enumValue, boolean isNumeric)
     {
-        return valueUtils.getEnumValue(enumValue, isNumeric);
+        return valueUtils.enumToValue(enumValue, isNumeric);
     }
     
     /**
@@ -432,7 +437,7 @@ public final class ObjectUtils
      */
     public static String getString(Enum<?> enumValue)
     {
-        return valueUtils.getString(enumValue);
+        return valueUtils.enumToString(enumValue);
     }
     
     /**
@@ -442,14 +447,14 @@ public final class ObjectUtils
      */
     public static String getString(Object value)
     {
-        return valueUtils.getString(value);
+        return valueUtils.toString(value);
     }
     
     /**
      * Converts an object value to a Date.
      * <P>
      * @param v the object to convert
-     * @return the Date value of o or null
+     * @return the Date value of v or null
      */
     public static Date getDate(Object v)
     {
@@ -464,7 +469,7 @@ public final class ObjectUtils
      * Converts an object value to a LocalDate.
      * <P>
      * @param v the object to convert
-     * @return the LocalDate value of o or null
+     * @return the LocalDate value of v or null
      */
     public static LocalDate getLocalDate(Object v)
     {
@@ -480,7 +485,7 @@ public final class ObjectUtils
      * Converts an object value to a LocalDateTime.
      * <P>
      * @param v the object to convert
-     * @return the LocalDateTime value of o or null
+     * @return the LocalDateTime value of v or null
      */
     public static LocalDateTime getLocalDateTime(Object v)
     {
@@ -489,6 +494,22 @@ public final class ObjectUtils
             return valueUtils.toLocalDateTime(v);
         } catch (DateTimeParseException e) {
             throw new ValueConversionException(LocalDateTime.class, v, e);
+        }
+    }
+    
+    /**
+     * Converts an object value to a LocalDateTime.
+     * <P>
+     * @param v the object to convert
+     * @return the LocalDateTime value of v or null
+     */
+    public static Timestamp getTimestamp(Object v)
+    {
+        try {
+            // DateTimeFormatter.ISO_LOCAL_DATE_TIME
+            return valueUtils.toTimestamp(v);
+        } catch (DateTimeParseException e) {
+            throw new ValueConversionException(Timestamp.class, v, e);
         }
     }
     
@@ -512,14 +533,14 @@ public final class ObjectUtils
      * @param c the class type to convert to
      * @param v the object to convert
      * 
-     * @return the converted value of o or null
+     * @return the converted value of v or null
      * 
      * @throws ClassCastException if the object is not null and is not assignable to the type T.
      */
     public static <T> T convert(Class<T> c, Object v)
         throws ClassCastException
     {
-        return valueUtils.convert(c, v);
+        return valueUtils.convertToJava(c, v);
     }
 
     /**
@@ -531,7 +552,7 @@ public final class ObjectUtils
      */
     public static Object convertValue(DataType type, Object value)
     {
-        return valueUtils.convertValue(type, value);
+        return valueUtils.convertToData(type, value);
     }
 
     /**
