@@ -756,16 +756,36 @@ public class DBUtils implements DBContextAware
      * 
      * @param sqlCmd the SQL-Command
      * @param sqlParams list of query parameter values
+     * @param failOnNoResult if true a QueryNoResultException is thrown when no result otherwise null is returned 
      * 
-     * @return the values of the first row
+     * @return the values of the first row or null
      */
-    public Object[] querySingleRow(String sqlCmd, Object[] sqlParams)
+    public Object[] querySingleRow(String sqlCmd, Object[] sqlParams, boolean failOnNoResult)
     {
         List<Object[]> result = new ArrayList<Object[]>(1);
         queryObjectList(sqlCmd, sqlParams, result, 1);
-        if (result.size()<1)
-            throw new QueryNoResultException(sqlCmd);
+        if (result.size()<1) {
+            // no result
+            if (failOnNoResult)
+                throw new QueryNoResultException(sqlCmd);
+            // null
+            return null;
+        }
         return result.get(0);
+    }
+
+    /**
+     * Returns all values of the first row of a sql-query as an array.
+     * If the query does not return a result a QueryNoResultException is thrown
+     * 
+     * @param sqlCmd the SQL-Command
+     * @param sqlParams list of query parameter values
+     * 
+     * @return the values of the first row
+     */
+    public final Object[] querySingleRow(String sqlCmd, Object[] sqlParams)
+    {
+        return querySingleRow(sqlCmd, sqlParams, true);
     }
     
     /**
@@ -790,6 +810,16 @@ public class DBUtils implements DBContextAware
         log.warn("********************************************************");
         log.warn("Query Result was limited to {} by MAX_QUERY_ROWS", MAX_QUERY_ROWS);
         log.warn("********************************************************");
+    }
+
+    /**
+     * Called when a query has no result
+     * @param cmd
+     */
+    protected void handleQueryNoResult(DBCommandExpr cmd, Class<?> resultType)
+    {
+        // throw new QueryNoResultException(cmd.getSelect());
+        log.debug("The query for \"{}\" returned no result.", resultType.getName());
     }
     
     /**
@@ -923,18 +953,16 @@ public class DBUtils implements DBContextAware
     {
         return queryDataList(cmd, DataListEntry.class, first, maxItems);
     }
-
+    
     /**
      * Queries a single DataListEntry item
-     * @param failOnNoResult flag whether to fail on empty resultset
      */
-    public final <T extends DataListEntry> T queryDataEntry(DBCommandExpr cmd, Class<T> entryClass, boolean failOnNoResult)
+    public final <T extends DataListEntry> T queryDataEntry(DBCommandExpr cmd, Class<T> entryClass, DataListHead head)
     {
-        DataListHead head = createDefaultDataListHead(cmd, entryClass);
         List<T> dle = queryDataList(cmd, createDefaultDataListFactory(entryClass, head), 0, 1);
         if (dle.isEmpty())
-        {   if (failOnNoResult)
-                throw new QueryNoResultException(cmd.getSelect());
+        {   // No result
+            handleQueryNoResult(cmd, entryClass);
             return null;
         }
         return dle.get(0);
@@ -942,14 +970,35 @@ public class DBUtils implements DBContextAware
     
     /**
      * Queries a single DataListEntry item
+     * @param cmd the query command
+     * @param entryClass the result class
+     * @return the result object
      */
     public final <T extends DataListEntry> T queryDataEntry(DBCommandExpr cmd, Class<T> entryClass)
     {
-        return queryDataEntry(cmd, entryClass, true);
+        DataListHead head = createDefaultDataListHead(cmd, entryClass);
+        return queryDataEntry(cmd, entryClass, head);
+    }
+
+    /**
+     * Queries a single DataListEntry item
+     * @Deprecated Please consider calling without the "failOnNoResult" parameter and overriding handleQueryNoResult()
+     * @param cmd the query command
+     * @param entryClass the result class
+     * @param failOnNoResult flag whether to fail on empty resultset
+     */
+    @Deprecated
+    public final <T extends DataListEntry> T queryDataEntry(DBCommandExpr cmd, Class<T> entryClass, boolean failOnNoResult)
+    {
+        T result = queryDataEntry(cmd, entryClass);
+        if (result==null && failOnNoResult)
+            throw new QueryNoResultException(cmd.getSelect());
+        return result;
     }
     
     /**
      * Queries a single DataListEntry item
+     * @param cmd the query command
      */
     public final DataListEntry queryDataEntry(DBCommandExpr cmd)
     {
@@ -1246,7 +1295,13 @@ public class DBUtils implements DBContextAware
         {   // prepare
             factory.prepareQuery(cmd, context);
             // Runquery
-            r.getRecordData(cmd);
+            r.open(cmd);
+            // Get First Record
+            if (!r.moveNext())
+            {   // No Result
+                handleQueryNoResult(cmd, factory.getBeanType());
+                return null;
+            }
             // add data
             T item = factory.newItem(-1, r);
             // post processing

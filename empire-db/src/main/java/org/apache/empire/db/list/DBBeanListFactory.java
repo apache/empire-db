@@ -33,4 +33,6 @@ public interface DBBeanListFactory<T extends Object>
     T newItem(int rownum, DBRecordData recData);
     
     void completeQuery(List<T> list);
+    
+    Class<?> getBeanType();
 }

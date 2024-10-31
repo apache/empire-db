@@ -438,6 +438,7 @@ public final class ClassUtils
      * @param parameterTypes the param types
      * @return the constructor or null
      */
+    @SuppressWarnings("unchecked")
     public static <T> Constructor<T> findMatchingConstructor(Class<T> clazz, int minParams, Class<?>... parameterTypes)
     {
         // Minimum matching params
@@ -463,7 +464,8 @@ public final class ClassUtils
         
         // get all public constructors 
         Constructor<?>[] ctors = clazz.getConstructors();
-
+        Constructor<T> foundCtor = null;
+        
         // Search through all valid lengths
         for (int pLen = paramSize; pLen >= minParams; pLen--)
         {   
@@ -508,14 +510,17 @@ public final class ClassUtils
                         } catch (SecurityException se) {
                             // ignore 
                         }
-                        @SuppressWarnings("unchecked")
                         Constructor<T> typedCtor = (Constructor<T>) ctor;
                         return typedCtor;
+                    }
+                    else
+                    {   // set as found constructor
+                        foundCtor = (Constructor<T>) ctors[i];
                     }
                 }
             }
         }
-        return null;
+        return foundCtor;
     }
     
     /**

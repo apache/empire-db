@@ -192,6 +192,12 @@ public class DBBeanListFactoryImpl<T> implements DBBeanListFactory<T>
     }
 
     @Override
+    public Class<?> getBeanType()
+    {
+        return constructor.getDeclaringClass();
+    }
+
+    @Override
     public void prepareQuery(DBCommandExpr cmd, DBContext context)
     {
         boolean hasSelect = cmd.hasSelectExpr();
