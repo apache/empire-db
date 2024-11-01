@@ -160,7 +160,7 @@ public class ObjectUtilsTest
 	{
 		assertEquals(0, ObjectUtils.getInteger(null));
 		assertEquals(0, ObjectUtils.getInteger(""));
-		assertEquals(0, ObjectUtils.getInteger("JUnit"));
+        assertThrows(NumberFormatException.class, () -> ObjectUtils.getInteger("JUnit"));
 		
 		assertEquals(456, ObjectUtils.getInteger("456"));
 		assertEquals(456, ObjectUtils.getInteger(Long.valueOf(456)));
@@ -246,7 +246,7 @@ public class ObjectUtilsTest
 	{
 		assertEquals(0, ObjectUtils.getDouble(null), 0);
 		assertEquals(0, ObjectUtils.getDouble(""), 0);
-		assertEquals(0, ObjectUtils.getDouble("JUnit"), 0);
+        assertThrows(NumberFormatException.class, () -> ObjectUtils.getDouble("JUnit"));
 		
 		assertEquals(456.123d, ObjectUtils.getDouble("456.123"),0);
 		assertEquals(456d, ObjectUtils.getDouble(Long.valueOf(456)),0);
