@@ -160,7 +160,8 @@ public class ObjectUtilsTest
 	{
 		assertEquals(0, ObjectUtils.getInteger(null));
 		assertEquals(0, ObjectUtils.getInteger(""));
-        assertThrows(NumberFormatException.class, () -> ObjectUtils.getInteger("JUnit"));
+        assertEquals(0, ObjectUtils.getInteger("JUnit"));
+        assertThrows(NumberFormatException.class, () -> ObjectUtils.getValueUtils().toInteger("JUnit"));
 		
 		assertEquals(456, ObjectUtils.getInteger("456"));
 		assertEquals(456, ObjectUtils.getInteger(Long.valueOf(456)));
@@ -204,7 +205,8 @@ public class ObjectUtilsTest
 	{
 		assertEquals(0, ObjectUtils.getLong(null));
 		assertEquals(0, ObjectUtils.getLong(""));
-		assertThrows(NumberFormatException.class, () -> ObjectUtils.getLong("JUnit"));
+        assertEquals(0, ObjectUtils.getLong("JUnit"));
+		assertThrows(NumberFormatException.class, () -> ObjectUtils.getValueUtils().toLong("JUnit"));
 		
 		assertEquals(456L, ObjectUtils.getLong("456"));
 		assertEquals(456L, ObjectUtils.getLong(Long.valueOf(456)));
@@ -244,9 +246,10 @@ public class ObjectUtilsTest
 	@Test
 	public void testGetDoubleObject()
 	{
-		assertEquals(0, ObjectUtils.getDouble(null), 0);
-		assertEquals(0, ObjectUtils.getDouble(""), 0);
-        assertThrows(NumberFormatException.class, () -> ObjectUtils.getDouble("JUnit"));
+		assertEquals(0.0d, ObjectUtils.getDouble(null), 0);
+		assertEquals(0.0d, ObjectUtils.getDouble(""), 0);
+        assertEquals(0.0d, ObjectUtils.getDouble("JUnit"), 0);
+        assertThrows(NumberFormatException.class, () -> ObjectUtils.getValueUtils().toDouble("JUnit"));
 		
 		assertEquals(456.123d, ObjectUtils.getDouble("456.123"),0);
 		assertEquals(456d, ObjectUtils.getDouble(Long.valueOf(456)),0);

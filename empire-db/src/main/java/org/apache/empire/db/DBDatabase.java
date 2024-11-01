@@ -1118,7 +1118,7 @@ public abstract class DBDatabase extends DBObject
                 if (!(value instanceof java.lang.Number))
                 {   try
                     {   // Convert to Decimal
-                        value = ObjectUtils.getDecimal(value);
+                        value = ObjectUtils.getValueUtils().toDecimal(value);
                         // throws NumberFormatException if not a number!
                     } catch (NumberFormatException e) {
                         log.info("Parsing '{}' to Decimal failed for column {}. Message is "+e.toString(), value, column.getName());
@@ -1133,7 +1133,7 @@ public abstract class DBDatabase extends DBObject
                 if (!(value instanceof java.lang.Number))
                 {   try
                     {   // Convert to Double
-                        value = ObjectUtils.getDouble(value);
+                        value = ObjectUtils.getValueUtils().toDouble(value);
                         // throws NumberFormatException if not a number!
                     } catch (NumberFormatException e) {
                         log.info("Parsing '{}' to Double failed for column {}. Message is "+e.toString(), value, column.getName());
@@ -1152,7 +1152,7 @@ public abstract class DBDatabase extends DBObject
                 if (!(value instanceof java.lang.Number))
                 {   try
                     {   // Convert to Long
-                        value = ObjectUtils.getLong(value);
+                        value = ObjectUtils.getValueUtils().toLong(value);
                     } catch (NumberFormatException e) {
                         log.info("Parsing '{}' to Integer failed for column {}. Message is "+e.toString(), value, column.getName());
                         throw new FieldIllegalValueException(column, String.valueOf(value), e);
@@ -1204,7 +1204,7 @@ public abstract class DBDatabase extends DBObject
         // Check overall
         if (type==DataType.DECIMAL)
         {   // Convert to Decimal
-            BigDecimal dv = ObjectUtils.getDecimal(n);
+            BigDecimal dv = ObjectUtils.getValueUtils().toDecimal(n);
             int prec = dv.precision();
             int scale = dv.scale();
             // check precision and scale

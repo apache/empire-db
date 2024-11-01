@@ -190,7 +190,7 @@ public final class ObjectUtils
     }
 
     /**
-     * @Deprecated use getInteger() instead
+     * @Deprecated use getValueUtils().toInteger() instead
      * @param v the value to convert
      * @return the integer value
      */
@@ -198,18 +198,6 @@ public final class ObjectUtils
     public static int toInteger(Object v)
     {
         return valueUtils.toInteger(v);
-    }
-    
-    /**
-     * Converts an object value to an integer.
-     * <P>
-     * If the object value supplied is null or if conversion is not possible then 0 is returned.
-     * @param v the object value to convert
-     * @return the Integer value of v or 0
-     */
-    public static int getInteger(Object v)
-    {
-        return valueUtils.toInteger(v); 
     }
     
     /**
@@ -233,9 +221,21 @@ public final class ObjectUtils
             return defValue;
         }
     }
+    
+    /**
+     * Converts an object value to an integer.
+     * <P>
+     * If the object value supplied is null or if conversion is not possible then 0 is returned.
+     * @param v the object value to convert
+     * @return the Integer value of v or 0
+     */
+    public static int getInteger(Object v)
+    {
+        return getInteger(v, 0); 
+    }
 
     /**
-     * @Deprecated use getLong() instead
+     * @Deprecated use getValueUtils().toLong() instead
      * @param v the value to convert
      * @return the long value
      */ 
@@ -243,18 +243,6 @@ public final class ObjectUtils
     public static long toLong(Object v)
     {
         return valueUtils.toLong(v);
-    }
-    
-    /**
-     * Converts an object value to a long.
-     * <P>
-     * If the object value supplied is null or if conversion is not possible then 0 is returned.
-     * @param v the object value to convert
-     * @return the Long value of v or 0
-     */
-    public static long getLong(Object v)
-    {
-        return valueUtils.toLong(v); 
     }
     
     /**
@@ -278,26 +266,26 @@ public final class ObjectUtils
             return defValue;
         }
     }
+    
+    /**
+     * Converts an object value to a long.
+     * <P>
+     * If the object value supplied is null or if conversion is not possible then 0 is returned.
+     * @param v the object value to convert
+     * @return the Long value of v or 0
+     */
+    public static long getLong(Object v)
+    {
+        return getLong(v, 0); 
+    }
 
     /**
-     * @Deprecated use getDouble() instead
+     * @Deprecated use getValueUtils().toDouble() instead
      * @param v the value to convert
      * @return the double value
      */
     @Deprecated
     public static double toDouble(Object v)
-    {
-        return valueUtils.toDouble(v);
-    }
-
-    /**
-     * Converts an object value to a double.
-     * <P>
-     * If the object value supplied is null or if conversion is not possible then 0.0 is returned.
-     * @param v the object value to convert
-     * @return the Long value of v or 0
-     */
-    public static double getDouble(Object v)
     {
         return valueUtils.toDouble(v);
     }
@@ -325,24 +313,24 @@ public final class ObjectUtils
     }
 
     /**
-     * @Deprecated use getDecimal() instead
-     * @param v the value to convert
-     * @return the decimal value
-     */
-    @Deprecated
-    public static BigDecimal toDecimal(Object v)
-    {
-        return valueUtils.toDecimal(v);
-    }
-
-    /**
-     * Converts an object value to a BigDecimal.
+     * Converts an object value to a double.
      * <P>
      * If the object value supplied is null or if conversion is not possible then 0.0 is returned.
      * @param v the object value to convert
      * @return the Long value of v or 0
      */
-    public static BigDecimal getDecimal(Object v)
+    public static double getDouble(Object v)
+    {
+        return getDouble(v, 0.0d);
+    }
+
+    /**
+     * @Deprecated use getValueUtils().toDecimal() instead
+     * @param v the value to convert
+     * @return the decimal value
+     */
+    @Deprecated
+    public static BigDecimal toDecimal(Object v)
     {
         return valueUtils.toDecimal(v);
     }
@@ -367,6 +355,18 @@ public final class ObjectUtils
             log.error(String.format("Cannot convert value [%s] to BigDecimal", v));
             return defValue;
         }
+    }
+
+    /**
+     * Converts an object value to a BigDecimal.
+     * <P>
+     * If the object value supplied is null or if conversion is not possible then 0.0 is returned.
+     * @param v the object value to convert
+     * @return the Long value of v or 0
+     */
+    public static BigDecimal getDecimal(Object v)
+    {
+        return getDecimal(v, BigDecimal.ZERO);
     }
     
     /**
