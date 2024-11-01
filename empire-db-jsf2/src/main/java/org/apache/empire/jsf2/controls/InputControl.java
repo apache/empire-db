@@ -432,7 +432,7 @@ public abstract class InputControl
         {   // Null
             styleClass += " eValNull";
         }
-        else if (dataType.isNumeric())
+        else if (dataType.isNumeric() && value instanceof Number)
         {   // Check negative
             if (ObjectUtils.getLong(value)<0)
                 styleClass += " eValNeg";
