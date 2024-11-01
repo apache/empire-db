@@ -204,7 +204,7 @@ public class ObjectUtilsTest
 	{
 		assertEquals(0, ObjectUtils.getLong(null));
 		assertEquals(0, ObjectUtils.getLong(""));
-		assertEquals(0, ObjectUtils.getLong("JUnit"));
+		assertThrows(NumberFormatException.class, () -> ObjectUtils.getLong("JUnit"));
 		
 		assertEquals(456L, ObjectUtils.getLong("456"));
 		assertEquals(456L, ObjectUtils.getLong(Long.valueOf(456)));
