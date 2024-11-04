@@ -2017,20 +2017,25 @@ public class TagEncodingHelper implements NamingContainer
         boolean useControlTagOverride = (isCssStyleClass && (this.component instanceof ControlTag) && isControlTagElementValid());
         Object value = getTagAttributeValue((useControlTagOverride ? "inputClass" : name));
 
-        // Special append with leading '+' (for StyleClass only)
-        boolean append = isCssStyleClass && (value instanceof String) && ((String)value).length()>0 && ((String)value).charAt(0)=='+';
-        if (append)
-            value = ((String)value).substring(1); // remove leadng '+'
+        // Special "styleClass" append column attribute unless leading '-'
+        boolean append = false;
+        if (isCssStyleClass && (value instanceof String) && ((String)value).length()>0)
+        {   // if value starts with '!' then do not append but replace
+            if (((String)value).charAt(0)=='!')
+                value = ((String)value).substring(1); // remove leadng '!'
+            else if (((String)value).equals("-"))
+                return null; // omit, if value is '-'
+            else
+                append = true; // append (default)
+        }
         
-        // Get column style
+        // Get column attribute
         if ((value==null || append) && hasColumn())
         {   // Check Column
             Object colValue = column.getAttribute(name);
             if (append) 
             {   // append styles
-                if (ObjectUtils.isEmpty(value))
-                    value = colValue;
-                else if (ObjectUtils.isNotEmpty(colValue))
+                if (ObjectUtils.isNotEmpty(colValue) && !colValue.equals(value))
                     value = StringUtils.concat(colValue.toString(), " ", value.toString());
             }
             else 
@@ -2038,6 +2043,7 @@ public class TagEncodingHelper implements NamingContainer
                 value = colValue;
             }
         }
+        
         // Checks whether it's another column    
         if (value instanceof Column)
         {   // Special case: Value is a column

@@ -101,12 +101,13 @@ public class ValueTag extends UIOutput // implements NamingContainer
         // Map<String, Object> map = getAttributes();
         String tagName = helper.getTagAttributeString("tag");
         String tooltip = helper.getValueTooltip(helper.getTagAttributeValue("title"));
-        String styleClass = helper.getTagAttributeString(InputControl.CSS_STYLE_CLASS);
-        // Check
+        String styleClass = helper.getTagAttributeStringEx(InputControl.CSS_STYLE_CLASS);
+
+        // Check whether tag is required
         if (StringUtils.isNotEmpty(tagName) || StringUtils.isNotEmpty(styleClass) || StringUtils.isNotEmpty(tooltip))
         {   // tagname
             if (StringUtils.isEmpty(tagName))
-                tagName="span";
+                tagName = InputControl.HTML_TAG_SPAN;
             // Detect type and additional style
             String addlStyle = null;
             // get style
