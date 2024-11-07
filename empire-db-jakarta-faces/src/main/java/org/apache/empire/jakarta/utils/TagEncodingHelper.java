@@ -941,8 +941,11 @@ public class TagEncodingHelper implements NamingContainer
             return ObjectUtils.getBoolean(val);
         }
         // if value expression, don't check further
-        if (hasValueExpression())
-            return null;
+        if (hasValueExpression()) 
+        {   // check readonly
+            ValueExpression ve = findValueExpression("value");
+            return (ve!=null ? ve.isReadOnly(FacesContext.getCurrentInstance().getELContext()) : null);
+        }
         // check record component
         if (recordTag != null && recordTag.isReadOnly())
             return true;
