@@ -421,9 +421,8 @@ public class SelectInputControl extends InputControl
         {   // Check whether it's an Enum
             Class<Enum<?>> enumType = ii.getColumn().getEnumType();
             if (enumType!=null) 
-            {   // Convert ordinal to name
-                Enum<?> enumVal = ObjectUtils.getEnum(enumType, value);
-                value = enumVal.name();
+            {   // Convert ordinal to enum
+                value = ObjectUtils.getEnum(enumType, value);
             } 
         }
         // the value
@@ -434,7 +433,7 @@ public class SelectInputControl extends InputControl
     {
         // the enum Value
         if ((value instanceof Enum<?>) && !targetClass.isEnum())
-            return ((Enum<?>) value).name();
+            return ObjectUtils.getString(value);
         // the value
         return value;
     }
@@ -445,7 +444,7 @@ public class SelectInputControl extends InputControl
         Class<Enum<?>> enumType = ii.getColumn().getEnumType();
         if (enumType!=null)
         {   // convert to enum
-            return ObjectUtils.getEnumByName(enumType, value);
+            return ObjectUtils.getEnum(enumType, value);
         }
         return value;
     }

@@ -311,7 +311,7 @@ public class RadioInputControl extends InputControl
     {
         // the enum Value
         if (value instanceof Enum<?>)
-            return ((Enum<?>) value).name();
+            return ObjectUtils.getString(value);
         // the value
         return value;
     }
@@ -322,7 +322,7 @@ public class RadioInputControl extends InputControl
         Class<Enum<?>> enumType = ii.getColumn().getEnumType();
         if (enumType!=null)
         {   // convert to enum
-            return ObjectUtils.getEnumByName(enumType, value);
+            return ObjectUtils.getEnum(enumType, value);
         }
         return value;
     }
