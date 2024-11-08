@@ -330,7 +330,7 @@ public class LinkTag extends UIOutput // implements NamingContainer
         // title
         String title = helper.getTagAttributeString("title");
         if (StringUtils.isNotEmpty(title))
-            link.setTitle(title);
+            link.setTitle(helper.getDisplayText(title));
         // include view param
         link.setIncludeViewParams(false);
     }

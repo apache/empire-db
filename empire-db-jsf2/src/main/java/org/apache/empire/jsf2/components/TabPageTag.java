@@ -24,9 +24,11 @@ import javax.faces.component.NamingContainer;
 import javax.faces.component.UIComponent;
 import javax.faces.component.UINamingContainer;
 import javax.faces.component.UIOutput;
+import javax.faces.component.UIPanel;
 import javax.faces.context.FacesContext;
 import javax.faces.context.ResponseWriter;
 
+import org.apache.empire.commons.StringUtils;
 import org.apache.empire.jsf2.components.TabViewTag.TabViewMode;
 import org.apache.empire.jsf2.controls.InputControl;
 import org.apache.empire.jsf2.utils.TagEncodingHelper;
@@ -48,6 +50,25 @@ public class TabPageTag extends UIOutput implements NamingContainer
     public String getFamily()
     {
         return UINamingContainer.COMPONENT_FAMILY; 
+    }
+    
+    @Override
+    public void setParent(UIComponent parent)
+    {
+        super.setParent(parent);
+        // TabViewTag
+        UIComponent tabView = parent;
+        if (parent instanceof UIPanel)
+            tabView = parent.getParent();
+        if ((tabView instanceof TabViewTag) && !helper.hasComponentId())
+        {   // We're inside a tabView
+            String tabViewId = tabView.getId();
+            if (tabViewId.startsWith(TagEncodingHelper.FACES_ID_PREFIX))
+                tabViewId="tab";
+            // Set tabId
+            String tabId = StringUtils.concat(tabViewId, "_", String.valueOf(parent.getChildCount()-1));
+            super.setId(tabId);
+        }
     }
         
     @Override

@@ -20,13 +20,7 @@ package org.apache.empire.jakarta.components;
 
 import java.io.IOException;
 
-import jakarta.faces.component.NamingContainer;
-import jakarta.faces.component.UIComponent;
-import jakarta.faces.component.UINamingContainer;
-import jakarta.faces.component.UIOutput;
-import jakarta.faces.context.FacesContext;
-import jakarta.faces.context.ResponseWriter;
-
+import org.apache.empire.commons.StringUtils;
 import org.apache.empire.jakarta.components.TabViewTag.TabViewMode;
 import org.apache.empire.jakarta.controls.InputControl;
 import org.apache.empire.jakarta.utils.TagEncodingHelper;
@@ -34,6 +28,14 @@ import org.apache.empire.jakarta.utils.TagEncodingHelperFactory;
 import org.apache.empire.jakarta.utils.TagStyleClass;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import jakarta.faces.component.NamingContainer;
+import jakarta.faces.component.UIComponent;
+import jakarta.faces.component.UINamingContainer;
+import jakarta.faces.component.UIOutput;
+import jakarta.faces.component.UIPanel;
+import jakarta.faces.context.FacesContext;
+import jakarta.faces.context.ResponseWriter;
 
 public class TabPageTag extends UIOutput implements NamingContainer
 {
@@ -48,6 +50,25 @@ public class TabPageTag extends UIOutput implements NamingContainer
     public String getFamily()
     {
         return UINamingContainer.COMPONENT_FAMILY; 
+    }
+    
+    @Override
+    public void setParent(UIComponent parent)
+    {
+        super.setParent(parent);
+        // TabViewTag
+        UIComponent tabView = parent;
+        if (parent instanceof UIPanel)
+            tabView = parent.getParent();
+        if ((tabView instanceof TabViewTag) && !helper.hasComponentId())
+        {   // We're inside a tabView
+            String tabViewId = tabView.getId();
+            if (tabViewId.startsWith(TagEncodingHelper.FACES_ID_PREFIX))
+                tabViewId="tab";
+            // Set tabId
+            String tabId = StringUtils.concat(tabViewId, "_", String.valueOf(parent.getChildCount()-1));
+            super.setId(tabId);
+        }
     }
         
     @Override
