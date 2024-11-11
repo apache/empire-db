@@ -145,10 +145,9 @@ public class TextInputControl extends InputControl
 
         // disabled
         DisabledType disabled = ii.getDisabled();
-        if (disabled!=null)
-        {   input.setReadonly((disabled==DisabledType.READONLY));
-            input.setDisabled((disabled==DisabledType.DISABLED));
-        }
+        input.setReadonly((disabled==DisabledType.READONLY));
+        input.setDisabled((disabled==DisabledType.DISABLED));
+        
         // set value
         if (phaseId==PhaseId.RENDER_RESPONSE)
         {   // style

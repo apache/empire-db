@@ -456,15 +456,15 @@ public class StringUtils
     }
 
     /**
-     * Assembles a string from parts with a separator
+     * Assembles a string from parts with a separator char
      * 
      * @param separator the separator to put between the object strings
      * @param params array of objects
      * @return returns a String
      */
-    public static String concat(String separator, Object... params)
+    public static String concatItems(char separator, Object... params)
     {
-        return arrayToString(params, separator);
+        return arrayToString(params, String.valueOf(separator));
     }
 
     /**

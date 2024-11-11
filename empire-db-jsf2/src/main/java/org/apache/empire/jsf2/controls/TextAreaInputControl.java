@@ -111,10 +111,9 @@ public class TextAreaInputControl extends InputControl
         HtmlInputTextarea input = (HtmlInputTextarea)comp;
         // disabled
         DisabledType disabled = ii.getDisabled();
-        if (disabled!=null)
-        {   input.setReadonly((disabled==DisabledType.READONLY));
-            input.setDisabled((disabled==DisabledType.DISABLED));
-        }
+        input.setReadonly((disabled==DisabledType.READONLY));
+        input.setDisabled((disabled==DisabledType.DISABLED));
+        
         // Set Value
         if (phaseId==PhaseId.RENDER_RESPONSE)
         {   // style
