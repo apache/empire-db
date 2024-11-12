@@ -30,6 +30,7 @@ import java.time.format.FormatStyle;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.empire.exceptions.InvalidArgumentException;
 import org.slf4j.Logger;
@@ -191,6 +192,17 @@ public class DateUtils
     public static boolean compareEqual(Date date1, Date date2)
     {
         return (compareDates(date1, date2)==0);
+    }
+    
+    public static int getDaysBetween(Date date1, Date date2)
+    {
+        if (date1==null)
+            date1= getDateNow();
+        if (date2==null)
+            date2= getDateNow();
+        // calc
+        long diffInMillies = date2.getTime() - date1.getTime();
+        return (int)TimeUnit.DAYS.convert(diffInMillies, TimeUnit.MILLISECONDS);
     }
     
     // ------- parsing functions -----
