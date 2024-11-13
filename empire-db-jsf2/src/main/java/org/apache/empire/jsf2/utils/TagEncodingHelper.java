@@ -1429,18 +1429,20 @@ public class TagEncodingHelper implements NamingContainer
             if (getRecord() != null)
             {   // value
                 if (record instanceof RecordData)
-                { // a record
+                {   // a record
                     value = ((RecordData) record).get(ttc);
+                    // convert to enum
+                    Class<Enum<?>> enumType = ttc.getEnumType();
+                    if (enumType!=null && !(value instanceof Enum))
+                        value = ObjectUtils.getEnum(enumType, value);
                 }
                 else
                 { // a normal bean
                     String prop = ttc.getBeanPropertyName();
                     value = getBeanPropertyValue(record, prop);
                 }
-                // translate
-                // ValueInfoImpl vi = new MiscValueInfoImpl(ttc, textResolver);
-                // InputControl ctrl = detectInputControl(ttc.getControlType(), ttc.getDataType(), ttc.getOptions()!=null);
-                return StringUtils.valueOf(value);
+                // convert to display text
+                return getDisplayText(value);
             } 
             else
             {   // Error
@@ -1454,7 +1456,7 @@ public class TagEncodingHelper implements NamingContainer
         if (valIndex >= 0)
             value = getDataValue(true);
         // Check Options
-        String text;
+        String text = null;
         Options options;
         if (!hasFormat("notitlelookup") && (options=getValueOptions())!=null)
         { // Lookup the title
@@ -1462,7 +1464,9 @@ public class TagEncodingHelper implements NamingContainer
             text = getDisplayText(optValue);
         }
         else
-            text = getDisplayText(StringUtils.toString(value));
+        {   // resolveText
+            text = getDisplayText(value);
+        }
         // Check for template
         if (valIndex >= 0 && text!=null)
             text = StringUtils.replace(templ, "{}", text);
@@ -1496,11 +1500,16 @@ public class TagEncodingHelper implements NamingContainer
         return (f != null && f.indexOf(format) >= 0);
     }
     
-    public String getDisplayText(String text)
+    public String getDisplayText(Object value)
     {
+        if (ObjectUtils.isEmpty(value))
+            return null;
+        if (value instanceof Number)
+            return String.valueOf(value);
+        // Resolve text
         if (textResolver==null)
             getTextResolver(FacesContext.getCurrentInstance());
-        return textResolver.resolveText(text);
+        return textResolver.resolveText(value.toString());
     }
 
     public TextResolver getTextResolver(FacesContext context)
