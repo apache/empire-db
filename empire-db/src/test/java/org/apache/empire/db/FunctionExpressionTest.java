@@ -19,6 +19,8 @@
 
 package org.apache.empire.db;
 
+import static org.junit.Assert.assertEquals;
+
 import java.util.List;
 
 import org.apache.empire.data.DataType;
@@ -27,8 +29,6 @@ import org.apache.empire.data.list.DataListHead;
 import org.apache.empire.db.context.DBContextStatic;
 import org.apache.empire.db.expr.compare.DBCompareExpr;
 import org.junit.Test;
-
-import junit.framework.Assert;
 
 /**
  * @author rainer
@@ -68,10 +68,10 @@ public class FunctionExpressionTest
         String name_count = NUM_COUNT_1.getName();
         String name_avg   = NUM_AVG_1.getName();
         String name_sum   = NUM_SUM_1.getName();
-        Assert.assertEquals(test_count, "TESTTABLE_COUNT");
-        Assert.assertEquals(name_count, "NUMBER_COUNT");
-        Assert.assertEquals(name_avg, "NUMBER_AVG");
-        Assert.assertEquals(name_sum, "NUMBER_SUM");
+        assertEquals(test_count, "TESTTABLE_COUNT");
+        assertEquals(name_count, "NUMBER_COUNT");
+        assertEquals(name_avg, "NUMBER_AVG");
+        assertEquals(name_sum, "NUMBER_SUM");
 
         DBCommand cmd = context.createCommand();
         cmd.select(NUMBER, TEST_COUNT, TEST_2_COUNT);
@@ -80,7 +80,7 @@ public class FunctionExpressionTest
         cmd.select(NUM_SUM_1, NUM_SUM_2, NUM_SUM_3);
         // System.out.println(cmd.getSelect());
         DBColumnExpr[] expr = cmd.getSelectExprList();
-        Assert.assertEquals(expr.length, 9);
+        assertEquals(expr.length, 9);
         // where
         cmd.where(NUM_AVG_1.isNot(0).or(NUM_SUM_1.isNot(0)).parenthesis());
         cmd.where(NUM_AVG_1.isNot(1).or(NUM_SUM_1.isNot(1)));
@@ -93,39 +93,39 @@ public class FunctionExpressionTest
         cmd.where(NUM_SUM_3.isSmallerThan(55));
         // System.out.println(cmd.getSelect());
         List<DBCompareExpr> list = cmd.getWhereConstraints();
-        Assert.assertEquals(list.size(), 6);
+        assertEquals(list.size(), 6);
 
         // Query Record
         DBQuery q = new DBQuery(cmd);
         DBRecord record = new DBRecord(context, q);
-        Assert.assertEquals(record.getFieldIndex(NUMBER), 0);
-        Assert.assertEquals(record.getFieldIndex(TEST_COUNT), 1);
-        Assert.assertEquals(record.getFieldIndex(TEST_2_COUNT), 2);
-        Assert.assertEquals(record.getFieldIndex(NUM_COUNT_1), 3);
-        Assert.assertEquals(record.getFieldIndex(NUM_COUNT_2), 3);
-        Assert.assertEquals(record.getFieldIndex(NUM_COUNT_3), 4);
-        Assert.assertEquals(record.getFieldIndex(NUM_AVG_1), 5);
-        Assert.assertEquals(record.getFieldIndex(NUM_AVG_2), 5);
-        Assert.assertEquals(record.getFieldIndex(NUM_AVG_3), 6);
-        Assert.assertEquals(record.getFieldIndex(NUM_SUM_1), 7);
-        Assert.assertEquals(record.getFieldIndex(NUM_SUM_2), 7);
-        Assert.assertEquals(record.getFieldIndex(NUM_SUM_3), 8);
+        assertEquals(record.getFieldIndex(NUMBER), 0);
+        assertEquals(record.getFieldIndex(TEST_COUNT), 1);
+        assertEquals(record.getFieldIndex(TEST_2_COUNT), 2);
+        assertEquals(record.getFieldIndex(NUM_COUNT_1), 3);
+        assertEquals(record.getFieldIndex(NUM_COUNT_2), 3);
+        assertEquals(record.getFieldIndex(NUM_COUNT_3), 4);
+        assertEquals(record.getFieldIndex(NUM_AVG_1), 5);
+        assertEquals(record.getFieldIndex(NUM_AVG_2), 5);
+        assertEquals(record.getFieldIndex(NUM_AVG_3), 6);
+        assertEquals(record.getFieldIndex(NUM_SUM_1), 7);
+        assertEquals(record.getFieldIndex(NUM_SUM_2), 7);
+        assertEquals(record.getFieldIndex(NUM_SUM_3), 8);
 
         // Reader 
         DBReader reader = new MyReader(context);
         reader.open(cmd);
-        Assert.assertEquals(reader.getFieldIndex(NUMBER), 0);
-        Assert.assertEquals(reader.getFieldIndex(TEST_COUNT), 1);
-        Assert.assertEquals(reader.getFieldIndex(TEST_2_COUNT), 2);
-        Assert.assertEquals(reader.getFieldIndex(NUM_COUNT_1), 3);
-        Assert.assertEquals(reader.getFieldIndex(NUM_COUNT_2), 3);
-        Assert.assertEquals(reader.getFieldIndex(NUM_COUNT_3), 4);
-        Assert.assertEquals(reader.getFieldIndex(NUM_AVG_1), 5);
-        Assert.assertEquals(reader.getFieldIndex(NUM_AVG_2), 5);
-        Assert.assertEquals(reader.getFieldIndex(NUM_AVG_3), 6);
-        Assert.assertEquals(reader.getFieldIndex(NUM_SUM_1), 7);
-        Assert.assertEquals(reader.getFieldIndex(NUM_SUM_2), 7);
-        Assert.assertEquals(reader.getFieldIndex(NUM_SUM_3), 8);
+        assertEquals(reader.getFieldIndex(NUMBER), 0);
+        assertEquals(reader.getFieldIndex(TEST_COUNT), 1);
+        assertEquals(reader.getFieldIndex(TEST_2_COUNT), 2);
+        assertEquals(reader.getFieldIndex(NUM_COUNT_1), 3);
+        assertEquals(reader.getFieldIndex(NUM_COUNT_2), 3);
+        assertEquals(reader.getFieldIndex(NUM_COUNT_3), 4);
+        assertEquals(reader.getFieldIndex(NUM_AVG_1), 5);
+        assertEquals(reader.getFieldIndex(NUM_AVG_2), 5);
+        assertEquals(reader.getFieldIndex(NUM_AVG_3), 6);
+        assertEquals(reader.getFieldIndex(NUM_SUM_1), 7);
+        assertEquals(reader.getFieldIndex(NUM_SUM_2), 7);
+        assertEquals(reader.getFieldIndex(NUM_SUM_3), 8);
         reader.close();
         
         // DataListEntry
@@ -134,18 +134,18 @@ public class FunctionExpressionTest
         for (int i=0; i<values.length; i++)
             values[i] = head.getColumns()[i].getName();
         DataListEntry dle = new DataListEntry(head, values);
-        Assert.assertEquals(dle.getFieldIndex(NUMBER), 0);
-        Assert.assertEquals(dle.getFieldIndex(TEST_COUNT), 1);
-        Assert.assertEquals(dle.getFieldIndex(TEST_2_COUNT), 2);
-        Assert.assertEquals(dle.getFieldIndex(NUM_COUNT_1), 3);
-        Assert.assertEquals(dle.getFieldIndex(NUM_COUNT_2), 3);
-        Assert.assertEquals(dle.getFieldIndex(NUM_COUNT_3), 4);
-        Assert.assertEquals(dle.getFieldIndex(NUM_AVG_1), 5);
-        Assert.assertEquals(dle.getFieldIndex(NUM_AVG_2), 5);
-        Assert.assertEquals(dle.getFieldIndex(NUM_AVG_3), 6);
-        Assert.assertEquals(dle.getFieldIndex(NUM_SUM_1), 7);
-        Assert.assertEquals(dle.getFieldIndex(NUM_SUM_2), 7);
-        Assert.assertEquals(dle.getFieldIndex(NUM_SUM_3), 8);
+        assertEquals(dle.getFieldIndex(NUMBER), 0);
+        assertEquals(dle.getFieldIndex(TEST_COUNT), 1);
+        assertEquals(dle.getFieldIndex(TEST_2_COUNT), 2);
+        assertEquals(dle.getFieldIndex(NUM_COUNT_1), 3);
+        assertEquals(dle.getFieldIndex(NUM_COUNT_2), 3);
+        assertEquals(dle.getFieldIndex(NUM_COUNT_3), 4);
+        assertEquals(dle.getFieldIndex(NUM_AVG_1), 5);
+        assertEquals(dle.getFieldIndex(NUM_AVG_2), 5);
+        assertEquals(dle.getFieldIndex(NUM_AVG_3), 6);
+        assertEquals(dle.getFieldIndex(NUM_SUM_1), 7);
+        assertEquals(dle.getFieldIndex(NUM_SUM_2), 7);
+        assertEquals(dle.getFieldIndex(NUM_SUM_3), 8);
 
         // done
     }

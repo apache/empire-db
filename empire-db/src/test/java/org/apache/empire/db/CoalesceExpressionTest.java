@@ -19,6 +19,8 @@
 
 package org.apache.empire.db;
 
+import static org.junit.Assert.assertEquals;
+
 import java.util.List;
 
 import org.apache.empire.data.DataType;
@@ -27,8 +29,6 @@ import org.apache.empire.data.list.DataListHead;
 import org.apache.empire.db.context.DBContextStatic;
 import org.apache.empire.db.expr.compare.DBCompareExpr;
 import org.junit.Test;
-
-import junit.framework.Assert;
 
 /**
  * @author rainer
@@ -54,23 +54,23 @@ public class CoalesceExpressionTest
         DBColumnExpr AMOUNT = t.C_NUMBER.coalesce(5);
         
         String propName = t.C_TEXT.getBeanPropertyName();
-        Assert.assertEquals(COALESCE_1.getBeanPropertyName(), propName);
+        assertEquals(COALESCE_1.getBeanPropertyName(), propName);
         propName = t.C_NUMBER.getBeanPropertyName();
-        Assert.assertEquals(AMOUNT.getBeanPropertyName(), propName);
+        assertEquals(AMOUNT.getBeanPropertyName(), propName);
 
         // Table Record
         DBRecord record = new DBRecord(context, t);
         int textIndex = record.getFieldIndex(t.C_TEXT);
-        Assert.assertEquals(record.getFieldIndex(COALESCE_1), textIndex);
-        Assert.assertEquals(record.getFieldIndex(COALESCE_2), textIndex);
+        assertEquals(record.getFieldIndex(COALESCE_1), textIndex);
+        assertEquals(record.getFieldIndex(COALESCE_2), textIndex);
         int numberIndex = record.getFieldIndex(t.C_NUMBER);
-        Assert.assertEquals(record.getFieldIndex(AMOUNT), numberIndex);
+        assertEquals(record.getFieldIndex(AMOUNT), numberIndex);
         
         DBCommand cmd = context.createCommand();
         cmd.select(COALESCE_1, t.C_TEXT, COALESCE_2, AMOUNT); /* Don't select COALESCE_2 */
         DBColumnExpr[] expr = cmd.getSelectExprList();
         // Hint: COALESCE_2_NEU is not a separate column
-        Assert.assertEquals(expr.length, 3);
+        assertEquals(expr.length, 3);
         // where
         cmd.where(COALESCE_1.is("Foo1"));
         cmd.where(COALESCE_2.is("Foo2"));
@@ -79,25 +79,25 @@ public class CoalesceExpressionTest
         cmd.where(t.C_NUMBER.coalesce(7).is(3));
         // System.out.println(cmd.getSelect());
         List<DBCompareExpr> list = cmd.getWhereConstraints();
-        Assert.assertEquals(list.size(), 2);
+        assertEquals(list.size(), 2);
 
         // Query Record
         DBQuery q = new DBQuery(cmd);
         record = new DBRecord(context, q);
-        Assert.assertEquals(record.getFieldIndex(t.C_TEXT), 1);
-        Assert.assertEquals(record.getFieldIndex(COALESCE_1), 0);
-        Assert.assertEquals(record.getFieldIndex(COALESCE_2), 0);
-        Assert.assertEquals(record.getFieldIndex(AMOUNT), 2);
-        Assert.assertEquals(record.getFieldIndex(t.C_NUMBER), 2);
+        assertEquals(record.getFieldIndex(t.C_TEXT), 1);
+        assertEquals(record.getFieldIndex(COALESCE_1), 0);
+        assertEquals(record.getFieldIndex(COALESCE_2), 0);
+        assertEquals(record.getFieldIndex(AMOUNT), 2);
+        assertEquals(record.getFieldIndex(t.C_NUMBER), 2);
 
         // Reader 
         DBReader reader = new MyReader(context);
         reader.open(cmd);
-        Assert.assertEquals(reader.getFieldIndex(t.C_TEXT), 1);
-        Assert.assertEquals(reader.getFieldIndex(COALESCE_1), 0);
-        Assert.assertEquals(reader.getFieldIndex(COALESCE_2), 0);
-        Assert.assertEquals(reader.getFieldIndex(AMOUNT), 2);
-        Assert.assertEquals(reader.getFieldIndex(t.C_NUMBER), 2);
+        assertEquals(reader.getFieldIndex(t.C_TEXT), 1);
+        assertEquals(reader.getFieldIndex(COALESCE_1), 0);
+        assertEquals(reader.getFieldIndex(COALESCE_2), 0);
+        assertEquals(reader.getFieldIndex(AMOUNT), 2);
+        assertEquals(reader.getFieldIndex(t.C_NUMBER), 2);
         reader.close();
         
         // DataListEntry
@@ -106,11 +106,11 @@ public class CoalesceExpressionTest
         for (int i=0; i<values.length; i++)
             values[i] = head.getColumns()[i].getName();
         DataListEntry dle = new DataListEntry(head, values);
-        Assert.assertEquals(dle.getString(t.C_TEXT), values[1]);
-        Assert.assertEquals(dle.getString(COALESCE_1), values[0]);
-        Assert.assertEquals(dle.getString(COALESCE_2), values[0]);
-        Assert.assertEquals(dle.getString(AMOUNT), values[2]);
-        Assert.assertEquals(dle.getString(t.C_NUMBER), values[2]);
+        assertEquals(dle.getString(t.C_TEXT), values[1]);
+        assertEquals(dle.getString(COALESCE_1), values[0]);
+        assertEquals(dle.getString(COALESCE_2), values[0]);
+        assertEquals(dle.getString(AMOUNT), values[2]);
+        assertEquals(dle.getString(t.C_NUMBER), values[2]);
 
         // done
     }
