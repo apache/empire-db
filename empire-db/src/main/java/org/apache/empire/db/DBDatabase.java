@@ -1031,6 +1031,8 @@ public abstract class DBDatabase extends DBObject
             return DataType.CHAR;
         if (value instanceof byte[])
             return DataType.BLOB;
+        if (value instanceof Enum)
+            return DataType.VARCHAR; // Assume VARCHAR 
         return DataType.UNKNOWN;
     }
     
