@@ -19,12 +19,15 @@
 package org.apache.empire.jakarta.controls;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.empire.commons.ObjectUtils;
 import org.apache.empire.commons.OptionEntry;
 import org.apache.empire.commons.Options;
+import org.apache.empire.commons.Options.OptionGroupResolver;
 import org.apache.empire.data.Column;
 import org.apache.empire.exceptions.InvalidArgumentException;
 import org.apache.empire.exceptions.UnexpectedReturnValueException;
@@ -43,6 +46,7 @@ import jakarta.faces.component.html.HtmlSelectOneMenu;
 import jakarta.faces.context.FacesContext;
 import jakarta.faces.event.PhaseId;
 import jakarta.faces.model.SelectItem;
+import jakarta.faces.model.SelectItemGroup;
 
 public class SelectInputControl extends InputControl
 {
@@ -188,6 +192,30 @@ public class SelectInputControl extends InputControl
         return ObjectUtils.isEmpty(currentValue);
     }
 
+    /**
+     * SelectGroup
+     * helper class for building SelectItemGroups
+     */
+    protected static class SelectGroup
+    {
+        private final SelectItemGroup  selectItemGroup;
+        private final List<SelectItem> groupItemList;
+        public SelectGroup(SelectItemGroup  selectItemGroup)
+        {
+            this.selectItemGroup = selectItemGroup;
+            this.groupItemList = new ArrayList<SelectItem>();
+        }
+        public List<SelectItem> getItemList()
+        {
+            return groupItemList;
+        }
+        public void peg()
+        {
+            SelectItem[] items = ObjectUtils.listToArray(SelectItem[].class, groupItemList);
+            selectItemGroup.setSelectItems(items);
+        }
+    }
+    
     public void initOptions(UISelectOne input, TextResolver textResolver, InputInfo ii)
     {
         // get the options
@@ -200,24 +228,56 @@ public class SelectInputControl extends InputControl
                 log.warn("No options given for select tag {}", input.getClientId());
             options = new Options();
         }
+        // list and type
+        Class<?> exprType = (Class<?>)input.getAttributes().get(SelectInputControl.VALUE_EXPRESSION_TYPE);
+        List<SelectItem> selectItemList = getSelectItemList(input);
         // current 
         Object currentValue = ii.getValue(true);
         if (isEmptyEntryRequired(input, options, ii, currentValue))
         {   // Empty entry
-            addSelectItem(input, textResolver, new OptionEntry(null, getNullText(ii)));
+            addSelectItem(selectItemList, textResolver, new OptionEntry(null, getNullText(ii)), exprType);
         }
         if (options != null && options.size() > 0)
-        {   // Add options
+        {   // Option grouping?
+            OptionGroupResolver optionGroupResolver = options.getOptionGroupResolver();
+            Map<Object, SelectGroup> groupMap = (optionGroupResolver!=null ? new HashMap<Object, SelectGroup>() : null);
+            // Add options
             for (OptionEntry oe : options)
             {   // Option entries
                 if (oe.isActive() || ObjectUtils.compareEqual(oe.getValue(), currentValue))
-                {   // add active or current item   
-                    addSelectItem(input, textResolver, oe);
+                {   // add active or current item
+                    List<SelectItem> list = selectItemList; 
+                    if (optionGroupResolver!=null)
+                    {   // get the option group
+                        Object group = optionGroupResolver.getGroup(oe);
+                        if (group!=null)
+                        {   // We have a group
+                            SelectGroup selectGroup = groupMap.get(group);
+                            if (selectGroup==null)
+                            {   // Create a new group
+                                String groupLabel = (group!=null ? textResolver.resolveText(group.toString()) : null); 
+                                SelectItemGroup selectItemGroup = new SelectItemGroup(groupLabel);
+                                selectItemList.add(selectItemGroup);
+                                // add group to map
+                                selectGroup = new SelectGroup(selectItemGroup);
+                                groupMap.put(group, selectGroup);
+                            }
+                            list = selectGroup.getItemList();
+                        }
+                    }
+                    addSelectItem(list, textResolver, oe, exprType);
                 }
                 else if (log.isDebugEnabled())
                 {   // not active, ignore this one
                     log.debug("Select item {} is not active.", oe.getValue());
                 }
+            }
+            // complete groups
+            if (groupMap!=null)
+            {   // Peg all SelectItemGroups
+                for (SelectGroup group : groupMap.values())
+                    group.peg();
+                groupMap.clear();
             }
         }
     }
@@ -234,27 +294,28 @@ public class SelectInputControl extends InputControl
                 input.getChildren().clear();
             return;
         }
+        
+        // check grouping
+        OptionGroupResolver optionGroupResolver = options.getOptionGroupResolver();
+        if (optionGroupResolver!=null)
+        {   // not (yet) supported
+            log.debug("SyncOptions is not supported for grouped SelectItems for column {}", ii.getColumn().getName());
+            return;
+        }
+        
+        // list and type
+        Class<?> exprType = (Class<?>)input.getAttributes().get(SelectInputControl.VALUE_EXPRESSION_TYPE);
+        List<SelectItem> selectItemList = getSelectItemList(input);
+
+        // prepare
         Object currentValue = ii.getValue(true);
         boolean hasEmpty = isEmptyEntryRequired(input, options, ii, currentValue);
         // boolean isInsideUIData = ii.isInsideUIData();
         // Compare child-items with options
         Iterator<OptionEntry> ioe = options.iterator();
         OptionEntry oe = (ioe.hasNext() ? ioe.next() : null);
-
-        // get UISelectItems
-        List<UIComponent> childList = input.getChildren();
-        if (childList.isEmpty())
-            childList.add(new UISelectItems());
-        else if (childList.size()>1 && !(childList.get(1) instanceof UIParameter))
-            log.warn("Unexpected number of child items ({}) for SelectInputControl of column {}", childList.size(), ii.getColumn().getName());
-        UISelectItems items = (UISelectItems) childList.get(0);
-        // get SelectItem list
-        @SuppressWarnings("unchecked")
-        List<SelectItem> selectItemList = (List<SelectItem>) items.getValue();
-        if (selectItemList==null)
-        {   selectItemList = new ArrayList<SelectItem>();
-            items.setValue(selectItemList);
-        }
+        
+        // sync
         Iterator<SelectItem> ico = selectItemList.iterator();
         int lastIndex = 0;
         boolean emptyPresent = false;
@@ -294,13 +355,13 @@ public class SelectInputControl extends InputControl
             input.getChildren().clear();
             if (hasEmpty)
             {   // add empty entry
-                addSelectItem(input, textResolver, new OptionEntry("", getNullText(ii)));
+                addSelectItem(selectItemList, textResolver, new OptionEntry("", getNullText(ii)), exprType);
             }
             for (OptionEntry opt : options)
             { // Option entries
                 if (opt.isActive() || ObjectUtils.compareEqual(opt.getValue(), currentValue))
                 { // add active or current item
-                    addSelectItem(input, textResolver, opt);
+                    addSelectItem(selectItemList, textResolver, opt, exprType);
                 }
             }
             // done
@@ -309,41 +370,42 @@ public class SelectInputControl extends InputControl
         // check empty entry
         if (hasEmpty && !emptyPresent)
         { // add missing empty entry
-            addSelectItem(input, textResolver, new OptionEntry("", getNullText(ii)), 0);
+            addSelectItem(selectItemList, textResolver, new OptionEntry("", getNullText(ii)), exprType, 0);
         }
         // Are there any items left?
         while (oe != null)
         { // add missing item
             if (oe.isActive() || ObjectUtils.compareEqual(oe.getValue(), currentValue))
             { // add item
-                addSelectItem(input, textResolver, oe);
+                addSelectItem(selectItemList, textResolver, oe, exprType);
             }
             oe = (ioe.hasNext() ? ioe.next() : null);
         }
     }
     
-    @SuppressWarnings("unchecked")
-    public void addSelectItem(UIComponent input, TextResolver textResolver, OptionEntry oe, int pos)
+    protected List<SelectItem> getSelectItemList(UISelectOne input)
     {
         List<UIComponent> children = input.getChildren();
         // UISelectItems
-        UISelectItems items;
-        List<SelectItem> list;
         if (children.isEmpty())
-        {   // create and add UISelectItems
-            items = new UISelectItems();
-            children.add(items);
-            list = new ArrayList<SelectItem>();
-            items.setValue(list);
+            children.add(new UISelectItems());
+        else if (children.size()>1 && !(children.get(1) instanceof UIParameter))
+            log.warn("Unexpected number of child items ({}) for SelectInputControl", children.size());
+        UISelectItems items = (UISelectItems) children.get(0);
+        // List<SelectItem>
+        @SuppressWarnings("unchecked")
+        List<SelectItem> selectItemList = (List<SelectItem>) items.getValue();
+        if (selectItemList==null)
+        {   selectItemList = new ArrayList<SelectItem>();
+            items.setValue(selectItemList);
         }
-        else
-        {   // use existing UISelectItems
-            items = ((UISelectItems) children.get(0));
-            list = ((List<SelectItem>) items.getValue());
-        }
+        return selectItemList;
+    }
+    
+    public void addSelectItem(List<SelectItem> list, TextResolver textResolver, OptionEntry oe, Class<?> exprType, int pos)
+    {
         // set value
         Object value;
-        Class<?> exprType = (Class<?>)input.getAttributes().get(SelectInputControl.VALUE_EXPRESSION_TYPE);
         if (exprType!=null)
         { // Use formatted value
             value = formatInputValue(oe.getValue(), exprType);
@@ -364,9 +426,9 @@ public class SelectInputControl extends InputControl
             list.add(selectItem);
     }
 
-    public void addSelectItem(UIComponent input, TextResolver textResolver, OptionEntry e)
+    public void addSelectItem(List<SelectItem> list, TextResolver textResolver, OptionEntry e, Class<?> exprType)
     {
-        addSelectItem(input, textResolver, e, -1);
+        addSelectItem(list, textResolver, e, exprType, -1);
     }
     
     protected void setItemLabel(SelectItem si, TextResolver textResolver, OptionEntry oe)

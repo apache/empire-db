@@ -1431,6 +1431,10 @@ public class TagEncodingHelper implements NamingContainer
                     String prop = ttc.getBeanPropertyName();
                     value = getBeanPropertyValue(record, prop);
                 }
+                // resolve options
+                Options options = (value==null || value instanceof Enum) ? null : ttc.getOptions();
+                if (options!=null && !hasFormat("notitlelookup"))
+                    value = options.get(value);
                 // convert to display text
                 return getDisplayText(value);
             } 
