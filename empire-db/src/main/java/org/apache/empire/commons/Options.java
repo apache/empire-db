@@ -43,6 +43,12 @@ import org.w3c.dom.Element;
 public class Options extends AbstractSet<OptionEntry> implements Cloneable, Serializable
 {
 	private static final long serialVersionUID = 1L;
+	
+	@FunctionalInterface
+	public interface OptionGroupResolver 
+	{
+	    Object getGroup(OptionEntry oe);
+	}
 
     /**
      * Implements the Map interface for Options
@@ -154,6 +160,8 @@ public class Options extends AbstractSet<OptionEntry> implements Cloneable, Seri
 
     private final ArrayList<OptionEntry> list;
     
+    private OptionGroupResolver optionGroupResolver;
+    
     public Options()
     {   // Default constructor
         this.list = new ArrayList<OptionEntry>();
@@ -206,6 +214,27 @@ public class Options extends AbstractSet<OptionEntry> implements Cloneable, Seri
     public Options clone()
     {
         return new Options(this);
+    }
+
+    /**
+     * Returns the function that determines the group to which an option entry belongs.
+     * @return the group resolver function or null
+     */
+    public OptionGroupResolver getOptionGroupResolver()
+    {
+        return optionGroupResolver;
+    }
+
+    /**
+     * Sets a function that determines the group to which an option entry belongs.
+     * e.g.:
+     * options.setOptionGroupResolver((oe) -> ((MyEnum)oe.getValue()).getCategory());
+     * 
+     * @param optionGroupResolver the group resolver function
+     */
+    public void setOptionGroupResolver(OptionGroupResolver optionGroupResolver)
+    {
+        this.optionGroupResolver = optionGroupResolver;
     }
 
     protected int getIndex(Object value)

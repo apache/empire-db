@@ -19,6 +19,7 @@
 package org.apache.empire.commons;
 
 import java.io.Serializable;
+import java.lang.reflect.Array;
 import java.math.BigDecimal;
 import java.sql.Timestamp;
 import java.text.ParseException;
@@ -677,6 +678,27 @@ public final class ObjectUtils
     }
     
     /**
+     * Converts an Object array to a String array.
+     * @param objArray the object array to convert
+     * @param defValue default value which will be set for all null objects 
+     * @return the String array
+     */
+    public static String[] toStringArray(Object[] objArray, String defValue)
+    {
+        if (objArray==null)
+            return null;
+        String[] strArray = new String[objArray.length];
+        for (int i=0; i<objArray.length; i++)
+        {
+            if (objArray[i]!=null)
+                strArray[i]=objArray[i].toString();
+            else 
+                strArray[i]=defValue;
+        }
+        return strArray;
+    }
+    
+    /**
      * Converts an array to a list
      * 
      * @param <T> the type of elements
@@ -696,24 +718,26 @@ public final class ObjectUtils
     }
     
     /**
-     * Converts an Object array to a String array.
-     * @param objArray the object array to convert
-     * @param defValue default value which will be set for all null objects 
-     * @return the String array
+     * Converts a list to an array
+     * e.g.:
+     * MyItem[] array = ObjectUtils.listToArray(MyItem[].class, myList)
+     * 
+     * @param type the array type
+     * @param list the item list
+     * 
+     * @return the array
      */
-    public static String[] toStringArray(Object[] objArray, String defValue)
+    @SuppressWarnings("unchecked")
+    public static <T> T[] listToArray(Class<? extends T[]> type, List<T> list)
     {
-        if (objArray==null)
+        if (list==null)
             return null;
-        String[] strArray = new String[objArray.length];
-        for (int i=0; i<objArray.length; i++)
-        {
-            if (objArray[i]!=null)
-                strArray[i]=objArray[i].toString();
-            else 
-                strArray[i]=defValue;
-        }
-        return strArray;
+        T[] arr = ((Object)type == (Object)Object[].class)
+                ? (T[]) new Object[list.size()]
+                : (T[]) Array.newInstance(type.getComponentType(), list.size());
+        for (int i=0; i<arr.length; i++)
+            arr[i] = list.get(i);
+        return arr;
     }
 
     /**
