@@ -668,18 +668,8 @@ public class TagEncodingHelper implements NamingContainer
     public boolean hasColumn()
     {
         if (column == null)
-            column = findColumn();
-        /* removed 2024-06-03
-        if (column == null)
-        {   // @deprecated: for compatibility only!
-            if (getTagAttributeValue("column")!=null)
-                return false; // provided but not found
-            // find value
-            column = findColumnFromValue();  
-            if (column!=null)
-                log.warn("Providing the column as the value is deprecated. Use column attribute instead. This might be removed in future versions!");
-        }
-        */
+            setColumn(findColumn());
+        // has column?
         return (column != null);
     }
 
@@ -695,14 +685,14 @@ public class TagEncodingHelper implements NamingContainer
     {
         // don't use hasColumn() or getColumn() here!
         if (column==null)
-            column = findColumn(); 
+            setColumn(findColumn()); 
         return (column!=null ? column.getName() : StringUtils.NULL);
     }
     
     public String getColumnFullName()
     {
         if (column==null)
-            column = findColumn();
+            setColumn(findColumn());
         if (column==null)
             return StringUtils.NULL;
         // Find Entity
@@ -1647,7 +1637,7 @@ public class TagEncodingHelper implements NamingContainer
                 if (input!=null && (input instanceof InputTag))
                 {   // Copy from InputTag
                     InputTag inputTag = ((InputTag)input);
-                    this.column = inputTag.getInputColumn();
+                    setColumn(inputTag.getInputColumn());
                     this.readOnly = (inputTag.isInputReadOnly() ? (byte)1 : (byte)0);
                     this.valueRequired = (inputTag.isInputRequired() ? (byte)1 : (byte)0);
                 }
