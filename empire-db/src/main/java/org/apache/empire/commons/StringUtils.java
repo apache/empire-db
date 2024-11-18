@@ -75,9 +75,6 @@ public class StringUtils
      */
     public static String toString(Object value, String listTemplate, String defValue)
     {
-        // Special cases
-        if (value instanceof Enum<?>)
-            return ((Enum<?>)value).name();
         // Collections
         if (value instanceof Object[])
             value = arrayToString((Object[])value, listTemplate, (defValue!=null ? defValue : EMPTY));

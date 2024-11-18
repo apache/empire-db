@@ -286,13 +286,13 @@ public class SelectInputControl extends InputControl
     {
         // get the options
         Options options = ii.getOptions();
-        if (options == null)
-        { // clear or not?
-            if (ii.getValue(false) != null)
-                log.warn("No options have been set for column {}", ii.getColumn().getName());
+        if (options==null)
+        {   // invalid options
+            if (ii.getColumn()!=null)
+                log.warn("No options given for column {}", ii.getColumn().getName());
             else
-                input.getChildren().clear();
-            return;
+                log.warn("No options given for select tag {}", input.getClientId());
+            options = new Options();
         }
         
         // check grouping
@@ -352,7 +352,7 @@ public class SelectInputControl extends InputControl
                 continue;
             }
             // Not equal - do a full reload
-            input.getChildren().clear();
+            selectItemList.clear();
             if (hasEmpty)
             {   // add empty entry
                 addSelectItem(selectItemList, textResolver, new OptionEntry("", getNullText(ii)), exprType);
