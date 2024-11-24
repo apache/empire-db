@@ -18,6 +18,7 @@
  */
 package org.apache.empire.commons;
 
+import java.math.BigDecimal;
 import java.util.Collection;
 
 import org.slf4j.Logger;
@@ -32,6 +33,91 @@ public class StringUtils
     // Logger
     private static final Logger log = LoggerFactory.getLogger(StringUtils.class);
     
+    /**
+     * ObjectStringifier
+     * Converts an object to a String
+     */
+    public static class ObjectStringifier
+    { 
+        /**
+         * Returns whether or not to ignore empty values in arrays
+         * @param separator the list separator
+         * @return true if empty values should be treated as non-existent or false otherwise
+         */
+        public boolean isIgnoreEmpty(String separator)
+        {
+            return SPACE.equals(separator);
+        }
+
+        /**
+         * Convert a single root element
+         * @param value the value to convert
+         * @param defValue the default value
+         * @return the value string 
+         */
+        public String toString(Object value, String defValue)
+        {
+            return toString(value, DEFAULT_ITEM_SEPARATOR, defValue);
+        }
+        
+        /**
+         * Convert a single element inside an array or collection
+         * @param value the value to convert
+         * @param listTemplate the list template
+         * @param defValue the default value
+         * @return the value string 
+         */
+        public String toString(Object value, String listTemplate, String defValue)
+        {
+            // Collections
+            if (value instanceof Object[])
+                value = arrayToString((Object[])value, listTemplate, (defValue!=null ? defValue : EMPTY), this);
+            else if (value instanceof Collection<?>)
+                value = listToString((Collection<?>)value, listTemplate, (defValue!=null ? defValue : EMPTY), this);
+            // default
+            return ((value!=null) ? value.toString() : defValue);
+        }
+        
+        /**
+         * Estimates the buffer size required for the target String
+         * This function should be fast and rather estimate to much than to little
+         * @param value the value for which to estimate
+         * @param defValueLength the length of the default value
+         * @return
+         */
+        public int estimateBufferSize(Object value, int defValueLength)
+        {
+            if (value instanceof String)
+                return ((String)value).length();
+            else if (value instanceof BigDecimal) { 
+                BigDecimal bd = (BigDecimal)value;
+                return bd.precision()+1;
+            }
+            else if (value instanceof Number) {
+                long lval =((Number)value).longValue();
+                long temp = 1;
+                int len =0;
+                while (temp <= lval) {
+                    len++;
+                    temp *= 10;
+                }
+                if ((value instanceof Double) || (value instanceof Float))
+                    len += 5; // add 4 for decimal places plus separator
+                return len;
+            }
+            else if (value instanceof Character)
+                return 1;
+            else if (value instanceof Enum<?>)
+                return value.toString().length(); // assume this is quick
+            else
+                return 20; // Unknown type
+        }
+    }
+    
+    /**
+     * StringUtils constructor
+     * No instances allowed
+     */
     private StringUtils()
     {
         // Static Function only
@@ -64,6 +150,20 @@ public class StringUtils
     public static String LIST_TEMPLATE = "[*|*]";
     public static char   TEMPLATE_SEP_CHAR = '*';
     
+    private static ObjectStringifier defaultStringifier = new ObjectStringifier(); 
+
+    public static ObjectStringifier getObjectStringifier()
+    {
+        return defaultStringifier; 
+    }
+    
+    public static ObjectStringifier setObjectStringifier(ObjectStringifier stringifier)
+    {
+        ObjectStringifier prev = defaultStringifier; 
+        defaultStringifier = stringifier; 
+        return prev;
+    }
+    
     /**
      * Converts a value to a string.
      * If the value is null then the default value is returned.
@@ -72,7 +172,7 @@ public class StringUtils
      * @param listTemplate the list template or item separator to be used for arrays and lists
      * @param defValue default value which to return if value is null
      * @return returns a string for the object or the defValue if null
-     */
+     
     public static String toString(Object value, String listTemplate, String defValue)
     {
         // Collections
@@ -83,6 +183,7 @@ public class StringUtils
         // default
         return ((value!=null) ? value.toString() : defValue);
     }
+    */
     
     /**
      * Converts a value to a string.
@@ -94,7 +195,7 @@ public class StringUtils
      */
     public static String toString(Object value, String defValue)
     {
-        return toString(value, DEFAULT_ITEM_SEPARATOR, defValue);
+        return defaultStringifier.toString(value, defValue);
     }
 
     /**
@@ -131,7 +232,23 @@ public class StringUtils
      */
     public static String asString(Object value)
     {
-        return toString(value, LIST_TEMPLATE, EMPTY);
+        if (value==null)
+            return EMPTY;
+        // array or list
+        if (value.getClass().isArray() || (value instanceof Collection<?>))
+            return defaultStringifier.toString(value, LIST_TEMPLATE, EMPTY);
+        // single value
+        return defaultStringifier.toString(value, EMPTY);
+    }
+    
+    /**
+     * Returns the length of a String
+     * @param value the string value
+     * @return length of the string value or 0
+     */
+    public static int length(String value)
+    {
+        return (value!=null ? value.length() : 0);
     }
     
     /**
@@ -240,7 +357,7 @@ public class StringUtils
      * @param ignoreEmpty check value for emptiness
      * @return returns a String or null if the array is null or empty
      */
-    public static String arrayToString(Object[] array, String template, String defItemValue, boolean ignoreEmpty)
+    public static String arrayToString(Object[] array, String template, String defItemValue, ObjectStringifier stringifier)
     {
         if (array==null || array.length==0)
             return null;
@@ -251,9 +368,15 @@ public class StringUtils
             int tend =(tbeg>=0 ? template.lastIndexOf(TEMPLATE_SEP_CHAR) : -1);
             String separator = ((tbeg>0) ? (tend>tbeg ? template.substring(tbeg+1, tend) : DEFAULT_ITEM_SEPARATOR) : template);
             // create StringBuilder
-            int bufferLen = estimateArrayBufferSize(array, (separator!=null ? separator.length() : 0));
+            boolean ignoreEmpty = stringifier.isIgnoreEmpty(separator);
+            int bufferLen = estimateArrayBufferSize(array, stringifier, length(separator), length(defItemValue), ignoreEmpty);
             if (template!=null && template.length()>separator.length())
-                bufferLen += template.length()-separator.length(); 
+            {   // template extra
+                if (tbeg>0)
+                    bufferLen += tbeg;
+                if (tend>0)
+                    bufferLen += (template.length()-tend-1); 
+            }
             StringBuilder buf = new StringBuilder(bufferLen);
             if (tend>0)
                 buf.append(template.substring(0, tbeg)); // add template prefix
@@ -264,10 +387,10 @@ public class StringUtils
                 if (hasValue && separator!=null)
                     buf.append(separator);
                 // append value
-                String value = toString(array[i], template, defItemValue);
-                hasValue = !(ignoreEmpty && StringUtils.isEmpty(value));
+                String value = stringifier.toString(array[i], template, defItemValue);
+                hasValue = (value!=null && !(ignoreEmpty && StringUtils.isEmpty(value)));
                 isEmpty &= !hasValue;
-                if (hasValue && value!=null)
+                if (hasValue)
                     buf.append(value);
             }
             if (hasValue==false && !isEmpty && separator!=null)
@@ -279,8 +402,8 @@ public class StringUtils
             return buf.toString();
         }
         // Only one member
-        String value = toString(array[0], template, defItemValue);
-        if (ignoreEmpty && StringUtils.isEmpty(value))
+        String value = stringifier.toString(array[0], template, defItemValue);
+        if (stringifier.isIgnoreEmpty(template) && StringUtils.isEmpty(value))
             return defItemValue;
         return value;
     }
@@ -295,7 +418,7 @@ public class StringUtils
      */
     public static String arrayToString(Object[] array, String template, String defItemValue)
     {
-        return arrayToString(array, template, defItemValue, SPACE.equals(template));
+        return arrayToString(array, template, defItemValue, defaultStringifier);
     }
 
     /**
@@ -311,33 +434,48 @@ public class StringUtils
     }
 
     /**
+     * Converts an array of objects to a string.
+     * 
+     * @param array array of objects
+     * @return returns a String
+     */
+    public static String arrayToString(Object[] array)
+    {
+        return arrayToString(array, DEFAULT_ITEM_SEPARATOR, EMPTY);
+    }
+
+    /**
      * Estimates the buffer size needed to convert an Array into a String
      * @param array the array
      * @param separatorLength the separator length
      * @return the estimated length of the array parts
      */
-    public static int estimateArrayBufferSize(Object[] array, int separatorLength)
+    public static int estimateArrayBufferSize(Object[] array, ObjectStringifier stringifier, int separatorLength, int defValueLength, boolean ignoreEmpty)
     {
         int estimate = 0;
         for (int i = 0; i < array.length; i++) 
         {
             Object item = array[i];
             int len = 0;
-            if (item instanceof String) 
-                len = ((String)item).length();
-            else if (item instanceof Number)
-                len = 10; // assume 10
-            else if (item instanceof Object[])
-                len = estimateArrayBufferSize((Object[])item, separatorLength);
-            else if (item instanceof Collection<?>)
-                len = estimateListBufferSize((Collection<?>)item, separatorLength);
-            else if (item!=null)
-                len = 20; // unknown
-            if (len>0) {
-                if (estimate > 0)
-                    estimate += separatorLength;
-                estimate += len;
+            if (item instanceof String) {
+                // when ignoreEmpty check string for emptyness
+                if (ignoreEmpty && StringUtils.isEmpty(((String)item)))
+                    len=0;
+                else
+                    len = ((String)item).length();
             }
+            else if (item instanceof Object[])
+                len = estimateArrayBufferSize((Object[])item, stringifier, separatorLength, defValueLength, ignoreEmpty) + 2;
+            else if (item instanceof Collection<?>)
+                len = estimateListBufferSize((Collection<?>)item, stringifier, separatorLength, defValueLength, ignoreEmpty) + 2;
+            else if (item!=null)
+                len = stringifier.estimateBufferSize(item, defValueLength);
+            else
+                len = defValueLength; // the default when null
+            // adjust estimate
+            if (i>0 && (len>0 || !ignoreEmpty))
+                estimate += separatorLength;
+            estimate += len;
         }
         return estimate; 
     }
@@ -348,10 +486,9 @@ public class StringUtils
      * @param list the collection of objects
      * @param template the list template or item separator
      * @param defItemValue the default item value
-     * @param ignoreEmpty check value for emptiness
      * @return returns a String or null if the list is null
      */
-    public static String listToString(Collection<?> list, String template, String defItemValue, boolean ignoreEmpty)
+    public static String listToString(Collection<?> list, String template, String defItemValue, ObjectStringifier stringifier)
     {
         if (list==null || list.isEmpty())
             return null;
@@ -362,9 +499,15 @@ public class StringUtils
             int tend =(tbeg>=0 ? template.lastIndexOf(TEMPLATE_SEP_CHAR) : -1);
             String separator = ((tbeg>0) ? (tend>tbeg ? template.substring(tbeg+1, tend) : DEFAULT_ITEM_SEPARATOR) : template);
             // create StringBuilder
-            int bufferLen = estimateListBufferSize(list, (separator!=null ? separator.length() : 0));
+            boolean ignoreEmpty = stringifier.isIgnoreEmpty(separator);
+            int bufferLen = estimateListBufferSize(list, stringifier, length(separator), length(defItemValue), ignoreEmpty);
             if (template!=null && template.length()>separator.length())
-                bufferLen += template.length()-separator.length(); 
+            {   // template extra
+                if (tbeg>0)
+                    bufferLen += tbeg;
+                if (tend>0)
+                    bufferLen += (template.length()-tend-1); 
+            }
             StringBuilder buf = new StringBuilder(bufferLen);
             if (tend>0)
                 buf.append(template.substring(0, tbeg)); // add template prefix
@@ -375,10 +518,10 @@ public class StringUtils
                 if (hasValue && separator!=null)
                     buf.append(separator);
                 // append value
-                String value = toString(item, template, defItemValue);
-                hasValue = !(ignoreEmpty && StringUtils.isEmpty(value));
+                String value = stringifier.toString(item, template, defItemValue);
+                hasValue = (value!=null && !(ignoreEmpty && StringUtils.isEmpty(value)));
                 isEmpty &= !hasValue;
-                if (hasValue && value!=null)
+                if (hasValue)
                     buf.append(value);
             }
             if (hasValue==false && !isEmpty && separator!=null)
@@ -390,8 +533,8 @@ public class StringUtils
             return buf.toString();
         }
         // Only one member
-        String value = toString(list.iterator().next(), template, defItemValue);
-        if (ignoreEmpty && StringUtils.isEmpty(value))
+        String value = stringifier.toString(list.iterator().next(), template, defItemValue);
+        if (stringifier.isIgnoreEmpty(template) && StringUtils.isEmpty(value))
             return defItemValue;
         return value;
     }
@@ -400,13 +543,13 @@ public class StringUtils
      * Converts a list (Collection) of objects to a string.
      * 
      * @param list the collection of objects
-     * @param template the list template or item separator
+     * @param separator the separator to put between the object strings
      * @param defItemValue the default item value
-     * @return returns a String or null if the list is null
+     * @return returns a String
      */
     public static String listToString(Collection<?> list, String template, String defItemValue)
     {
-        return listToString(list, template, defItemValue, SPACE.equals(template));
+        return listToString(list, template, defItemValue, defaultStringifier);
     }
     
     /**
@@ -420,6 +563,17 @@ public class StringUtils
     {
         return listToString(list, separator, EMPTY);
     }
+    
+    /**
+     * Converts a list (Collection) of objects to a string.
+     * 
+     * @param list the collection of objects
+     * @return returns a String
+     */
+    public static String listToString(Collection<?> list)
+    {
+        return listToString(list, DEFAULT_ITEM_SEPARATOR, EMPTY);
+    }
 
     /**
      * Estimates the buffer size needed to convert a Collection into a String
@@ -427,27 +581,33 @@ public class StringUtils
      * @param separatorLength the separator length
      * @return the estimated length of the collection parts
      */
-    public static int estimateListBufferSize(Collection<?> list, int separatorLength)
+    public static int estimateListBufferSize(Collection<?> list, ObjectStringifier stringifier, int separatorLength, int defValueLength, boolean ignoreEmpty)
     {
+        boolean first = true;
         int estimate = 0;
         for (Object item : list)
         {
             int len = 0;
-            if (item instanceof String) 
-                len = ((String)item).length();
-            else if (item instanceof Number)
-                len = 10; // assume 10
-            else if (item instanceof Object[])
-                len = estimateArrayBufferSize((Object[])item, separatorLength);
-            else if (item instanceof Collection<?>)
-                len = estimateListBufferSize((Collection<?>)item, separatorLength);
-            else if (item!=null)
-                len = 20; // unknown
-            if (len>0) {
-                if (estimate > 0)
-                    estimate += separatorLength;
-                estimate += len;
+            if (item instanceof String) {
+                // when ignoreEmpty check string for emptyness
+                if (ignoreEmpty && StringUtils.isEmpty(((String)item)))
+                    len=0;
+                else
+                    len = ((String)item).length();
             }
+            else if (item instanceof Object[])
+                len = estimateArrayBufferSize((Object[])item, stringifier, separatorLength, defValueLength, ignoreEmpty) + 2;
+            else if (item instanceof Collection<?>)
+                len = estimateListBufferSize((Collection<?>)item, stringifier, separatorLength, defValueLength, ignoreEmpty) + 2;
+            else if (item!=null)
+                len = stringifier.estimateBufferSize(item, defValueLength);
+            else
+                len = defValueLength; // the default when null
+            // adjust estimate
+            if (!first && (len>0 || !ignoreEmpty))
+                estimate += separatorLength;
+            estimate += len;
+            first = false;
         }
         return estimate; 
     }

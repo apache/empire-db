@@ -396,7 +396,7 @@ public class DBRecord extends DBRecordBase
         if (!isNew())
         {   // Delete existing record
             Object[] key = getKey();
-            log.info("Deleting record {}", StringUtils.arrayToString(key, "|"));
+            log.info("Deleting record {}", StringUtils.arrayToString(key));
             getRowSet().deleteRecord(key, getContext());
         }
         close();

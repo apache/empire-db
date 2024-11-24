@@ -248,7 +248,7 @@ public class ParameterMap // *Deprecated* implements Serializable
     public String put(DBRowSet rowset, Object[] key)
     {
         // Generate id and put in map
-        String rowKey = StringUtils.valueOf(key);
+        String rowKey = StringUtils.arrayToString(key);
         String type = getRowSetTypeName(rowset);
         return encodeAndStore(type, rowKey, key, false);
     }

@@ -112,7 +112,7 @@ public abstract class DBRecordBase extends DBRecordData implements Record, Clone
             String info = "Record "+record.getRowSet().getName();
             if (record.getKeyColumns()==null)
                 return info;
-            return info+":"+StringUtils.arrayToString(record.getKey(), "|");
+            return StringUtils.concat(info, ":", StringUtils.arrayToString(record.getKey()));
         }
 
         @Override

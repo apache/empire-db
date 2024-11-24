@@ -22,12 +22,31 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 
+import org.apache.empire.commons.StringUtils.ObjectStringifier;
 import org.junit.Test;
 
 public class StringUtilsTest
 {
+    enum TestEnum {
+        A("Alpha"),
+        B("Beta"),
+        G("Gamma");
+        
+        private final String title;
+        private TestEnum(String title)
+        {
+            this.title = title;
+        }
+
+        @Override
+        public String toString()
+        {
+            return title;
+        }
+    }
 
 	@Test
 	public void testToStringObjectString()
@@ -35,6 +54,7 @@ public class StringUtilsTest
 		assertEquals(null,StringUtils.toString((Object)null, null));
 		assertEquals("default",StringUtils.toString(null, "default"));
 		assertEquals("123",StringUtils.toString(Long.valueOf("123"), "456"));
+		assertEquals("Alpha",StringUtils.toString(TestEnum.A));
 	}
 
 	@Test
@@ -57,6 +77,7 @@ public class StringUtilsTest
         assertEquals("default",StringUtils.toString(new Number[]{null}, "default"));
         assertEquals("123",StringUtils.toString(new Number[]{Integer.valueOf("123")}, "default"));
 		assertEquals("123|12.3",StringUtils.toString(new Number[]{Integer.valueOf("123"), Double.valueOf("12.3")}, "default"));
+		assertEquals("1|Beta|X",StringUtils.toString(new Object[] { 1l, TestEnum.B, 'X' }));		
 	}
 
     @Test
@@ -68,6 +89,7 @@ public class StringUtilsTest
         assertEquals("[123]",StringUtils.asString(new Number[]{Integer.valueOf("123")}));
         assertEquals("[123|12.3]",StringUtils.asString(new Number[]{Integer.valueOf("123"), Double.valueOf("12.3")}));
         assertEquals("[123|[aaa|[bbb|xxx]|yyy]|12.3]", StringUtils.asString(new Object[]{Integer.valueOf("123"), new Object[]{ "aaa", new Object[]{ "bbb", "xxx" }, "yyy" }, Double.valueOf("12.3")}));
+        assertEquals("[222|Gamma||Y]",StringUtils.asString(new Object[] { 222l, TestEnum.G, null, 'Y' }));        
     }
 
     @Test
@@ -150,7 +172,7 @@ public class StringUtilsTest
 		assertEquals(null, StringUtils.arrayToString(new String[]{} , StringUtils.NULL));
         assertEquals("null", StringUtils.arrayToString(new String[]{null}, ",", StringUtils.NULL));
 		assertEquals("test", StringUtils.arrayToString(new String[]{"test"} , "|"));
-		assertEquals("12312.3", StringUtils.arrayToString(new Number[]{Integer.valueOf("123"), Double.valueOf("12.3")} , ""));
+		assertEquals("12312.3579", StringUtils.arrayToString(new Number[]{Integer.valueOf("123"), BigDecimal.valueOf(12.3579d)} , ""));
 		assertEquals("firstsecondthird", StringUtils.arrayToString(new String[]{"first", "second", "third"} , null));
 		assertEquals(" first \t second \t third ", StringUtils.arrayToString(new String[]{" first ", " second ", " third "} , "\t"));
         assertEquals("/", StringUtils.arrayToString(new String[]{null, null} , "/"));
@@ -159,8 +181,60 @@ public class StringUtilsTest
         // Special case with SPACE
         assertEquals("Hello", StringUtils.arrayToString(new Object[]{"Hello","",null," ","  "}, StringUtils.SPACE));
         assertEquals("Hello World", StringUtils.arrayToString(new Object[]{"Hello","",null," ","World"}, StringUtils.SPACE));
-        assertEquals("Hello World", StringUtils.toString(new Object[]{"Hello","",null," ","World"}, StringUtils.SPACE, null));
+        assertEquals("Hello World", StringUtils.getObjectStringifier().toString(new Object[]{"Hello","",null," ","World"}, StringUtils.SPACE, null));
 	}
+
+    @Test
+    public void testCustomStringifier()
+    {
+        // Custom Stringifier
+        ObjectStringifier custom = new ObjectStringifier() {
+            @Override
+            public String toString(Object value, String defValue)
+            {
+                if (value instanceof Enum)
+                    return value.toString(); // use toString() for simple value
+                if (value instanceof OptionEntry)
+                    return ((OptionEntry)value).getText();
+                if (value instanceof Options)
+                    return toString(value, StringUtils.LIST_TEMPLATE, defValue);
+                // default
+                return super.toString(value, defValue);
+            }
+            @Override
+            public String toString(Object value, String listTemplate, String defValue)
+            {
+                if (value instanceof Enum)
+                    return ((Enum<?>)value).name(); // use name() inside array or list
+                if (value instanceof OptionEntry)
+                    return ((OptionEntry)value).getValueString();
+                // default
+                return super.toString(value, listTemplate, defValue);
+            }
+            @Override
+            public int estimateBufferSize(Object value, int defValueLength)
+            {
+                // Special
+                if (value instanceof Enum)
+                    return ((Enum<?>)value).name().length();
+                if (value instanceof OptionEntry)
+                    return ((OptionEntry)value).getValueString().length();
+                // default
+                return super.estimateBufferSize(value, defValueLength);
+            }
+        };
+        ObjectStringifier prev = StringUtils.setObjectStringifier(custom);
+        // test now
+        assertEquals("Alpha",StringUtils.toString(TestEnum.A));
+        assertEquals("1|B|X",StringUtils.toString(new Object[] { 1l, TestEnum.B, 'X' }));        
+        assertEquals("2|G||Y",StringUtils.arrayToString(new Object[] { 2l, TestEnum.G, null, 'Y' }));        
+        assertEquals("Gamma",StringUtils.asString(TestEnum.G));        
+        assertEquals("[222|G||Y]",StringUtils.asString(new Object[] { 222l, TestEnum.G, null, 'Y' }));        
+        assertEquals("[|1|2]", StringUtils.toString(new Options().add(null, "empty").add(1, "one").add(2, "two")));
+        assertEquals("nine", StringUtils.toString(new Options().add(9, "nine").get(9)));
+        // reset
+        StringUtils.setObjectStringifier(prev);
+    }
 
 	@Test
 	public void testIsEmpty()

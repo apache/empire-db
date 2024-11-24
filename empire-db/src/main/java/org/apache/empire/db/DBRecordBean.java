@@ -331,7 +331,7 @@ public class DBRecordBean extends DBRecordBase
         if (!isNew())
         {
             Object[] key = getKey();
-            log.info("Deleting record {}", StringUtils.arrayToString(key, "|"));
+            log.info("Deleting record {}", StringUtils.arrayToString(key));
             getRowSet().deleteRecord(key, context);
         }
         close();

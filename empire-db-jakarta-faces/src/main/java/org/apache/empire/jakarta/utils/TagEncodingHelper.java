@@ -2119,7 +2119,7 @@ public class TagEncodingHelper implements NamingContainer
             }
         }
         if (i<styleClasses.length)
-            styleClass = StringUtils.arrayToString(styleClasses, StringUtils.SPACE, null, true);
+            styleClass = StringUtils.arrayToString(styleClasses, StringUtils.SPACE, null);
         if (styleClass != null)
             writer.writeAttribute(InputControl.HTML_ATTR_CLASS, styleClass, null);
     }
