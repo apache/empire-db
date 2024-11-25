@@ -64,6 +64,12 @@ public class ArrayMap<K,V> extends AbstractMap<K,V>
         }
         
         @Override
+        public int hashCode()
+        {
+            return (key!=null ? key.hashCode() : 0);
+        }
+        
+        @Override
         public boolean equals(Object obj)
         {
             if (super.equals(obj))

@@ -263,6 +263,23 @@ public class StringUtilsTest
 		assertEquals("azerty\r\n\tazerty", StringUtils.validate(" \r azerty\r\n\tazerty\t "));
 	}
 
+    @Test
+    public void testCompareEqual()
+    {
+        assertTrue(StringUtils.compareEqual(null, null));
+        assertTrue(StringUtils.compareEqual(null, ""));
+        assertTrue(StringUtils.compareEqual("", null));
+        assertTrue(StringUtils.compareEqual(" ", ""));
+        assertTrue(StringUtils.compareEqual(null, "\t\r\n"));
+        assertTrue(StringUtils.compareEqual("\t", " "));
+        assertTrue(StringUtils.compareEqual(" ", "    "));
+        assertTrue(StringUtils.compareEqual("", null, true));
+        assertTrue(StringUtils.compareEqual("a", "A", true));
+        
+        assertFalse(StringUtils.compareEqual(" ", "  -  "));
+        assertFalse(StringUtils.compareEqual(null, "_"));
+    }
+
 	@Test
 	public void testReplace()
 	{

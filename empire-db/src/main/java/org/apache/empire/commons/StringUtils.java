@@ -684,11 +684,11 @@ public class StringUtils
      */
     public static boolean compareEqual(String s1, String s2, boolean ignoreCase)
     {
-        if (s1==null || s2==null)
-            return (s1==s2);
         // Empty
-        if (isEmpty(s1) && isEmpty(s2))
-            return true;
+        if (isEmpty(s1))
+            return isEmpty(s2);
+        else if (isEmpty(s2))
+            return false;
         // Compare 
         return (ignoreCase) ? s1.equalsIgnoreCase(s2) : s1.equals(s2);
     }
@@ -701,8 +701,6 @@ public class StringUtils
      */
     public static boolean compareEqual(String s1, String s2)
     {
-        if (s1==s2)
-            return true;
         // Empty
         if (isEmpty(s1))
             return isEmpty(s2);

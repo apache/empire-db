@@ -82,8 +82,10 @@ public enum TagStyleClass
 
     private static final int find(String styleClasses, String styleClassName, int fromIdx)
     {
+        if (styleClasses==null)
+            return -1;
         // find
-        int idx = (styleClasses!=null ? styleClasses.indexOf(styleClassName, fromIdx) : -1);
+        int idx = styleClasses.indexOf(styleClassName, fromIdx);
         if (idx<0)
             return -1;
         // starts with space?
@@ -137,6 +139,9 @@ public enum TagStyleClass
     
     public static final String removeFrom(String styleClasses, String styleClassName)
     {
+        // Check name
+        if (styleClassName==null)
+            return styleClasses;
         // find
         int idx = find(styleClasses, styleClassName, 0);
         if (idx<0)
