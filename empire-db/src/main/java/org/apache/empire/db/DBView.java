@@ -79,7 +79,7 @@ public abstract class DBView extends DBRowSet implements Cloneable
                 setAttribute(Column.COLATTR_ENUMTYPE, enumType);
             // Add to view
             if (view != null)
-                view.addColumn(this);
+                view.addViewColumn(this);
         }
 
         /**
@@ -101,7 +101,7 @@ public abstract class DBView extends DBRowSet implements Cloneable
                 setAttribute(Column.COLATTR_ENUMTYPE, enumType);
             // Add to view
             if (view != null)
-                view.addColumn(this);
+                view.addViewColumn(this);
         }
         
         public DBColumnExpr getSourceColumnExpr()
@@ -452,7 +452,7 @@ public abstract class DBView extends DBRowSet implements Cloneable
      * 
      * @param col a view column object
      */
-    protected void addColumn(DBViewColumn col)
+    protected void addViewColumn(DBViewColumn col)
     { // find column by name
         if (col == null || col.getRowSet() != this)
             throw new InvalidArgumentException("col", col);
@@ -500,18 +500,29 @@ public abstract class DBView extends DBRowSet implements Cloneable
     }
 
     /**
-     * Adds a column to the view based on an existing column in another table or view.
+     * Adds a column to the view based on an existing column in another table.
      * 
-     * @param sourceColumn existing column in another table or view  
+     * @param sourceColumn existing column in another table  
      * @return the view column object
      */
     protected final DBViewColumn addColumn(DBTableColumn sourceColumn)
     {   // find column by name
-        return new DBViewColumn(this, sourceColumn.getName(), sourceColumn, 0.0d);
+        return new DBViewColumn(this, sourceColumn.getName(), sourceColumn, sourceColumn.getSize());
     }
 
     /**
-     * This function searchs for equal columns given by the specified DBColumnExpr object.
+     * Adds a column to the view based on an existing column in another view.
+     * 
+     * @param sourceColumn existing column in another view  
+     * @return the view column object
+     */
+    protected final DBViewColumn addColumn(DBViewColumn sourceColumn)
+    {   // find column by name
+        return new DBViewColumn(this, sourceColumn.getName(), sourceColumn, sourceColumn.getSize());
+    }
+
+    /**
+     * This function searches for equal columns given by the specified DBColumnExpr object.
      * 
      * @param expr the DBColumnExpr object
      * @return the located column (only DBViewColumn objects)

@@ -18,6 +18,7 @@
  */
 package org.apache.empire.dbms.oracle;
 
+import org.apache.empire.commons.StringUtils;
 import org.apache.empire.data.DataType;
 import org.apache.empire.db.DBColumn;
 import org.apache.empire.db.DBDDLGenerator;
@@ -28,6 +29,7 @@ import org.apache.empire.db.DBSQLBuilder;
 import org.apache.empire.db.DBSQLScript;
 import org.apache.empire.db.DBTable;
 import org.apache.empire.db.DBTableColumn;
+import org.apache.empire.db.DBView;
 import org.apache.empire.dbms.oracle.DBMSHandlerOracle.BooleanType;
 
 public class OracleDDLGenerator extends DBDDLGenerator<DBMSHandlerOracle>
@@ -165,6 +167,15 @@ public class OracleDDLGenerator extends DBDDLGenerator<DBMSHandlerOracle>
             if (com != null)
                 createComment(db, "COLUMN", c, com, script);
         }
+    }
+    
+    @Override
+    protected void addCreateViewStmt(DBView v, DBSQLBuilder sql, DBSQLScript script)
+    {
+        // log.info("Adding create statmement for view {}.", v.getName());
+        String stmt = sql.toString();
+        stmt = StringUtils.replace(stmt, "CREATE VIEW", "CREATE OR REPLACE VIEW");
+        script.addStmt(stmt);
     }
 
     protected void createComment(DBDatabase db, String type, DBExpr expr, String comment, DBSQLScript script)
