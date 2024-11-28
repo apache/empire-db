@@ -393,7 +393,7 @@ public class ControlTag extends UIInput implements NamingContainer
             // render id
             helper.writeComponentId(writer, false);
             // style class
-            String controlClass = helper.getTagAttributeStringEx("controlClass");
+            String controlClass = helper.getTagAttributeStringEx("controlClass", true);
             String styleClass   = helper.getTagAttributeString(InputControl.CSS_STYLE_CLASS);
             String contextClass = helper.getContextStyleClass(); 
             helper.writeStyleClass(writer, TagStyleClass.CONTROL.get(), controlClass, styleClass, contextClass);
@@ -485,10 +485,10 @@ public class ControlTag extends UIInput implements NamingContainer
                 writer = context.getResponseWriter();
                 writer.startElement(tagName, this);
                 // style Class
-                String inpClass = helper.getTagAttributeStringEx("inputClass");
+                String inpClass = helper.getTagAttributeStringEx("inputClass", true);
                 helper.writeStyleClass(writer, TagStyleClass.CONTROL_INPUT.get(), inpClass);
                 // write more
-                String colSpan = tagName.equalsIgnoreCase(InputControl.HTML_TAG_TD) ? helper.getTagAttributeStringEx("colspan") : null;
+                String colSpan = tagName.equalsIgnoreCase(InputControl.HTML_TAG_TD) ? helper.getTagAttributeStringEx("colspan", false) : null;
                 if (colSpan!=null)
                     writer.writeAttribute("colspan", colSpan, null);
             }
@@ -548,7 +548,8 @@ public class ControlTag extends UIInput implements NamingContainer
                 {   // Create components
                     String forInput = (customInput ? helper.getTagAttributeString("for") : "*");
                     // createLabelComponent 
-                    labelComponent = helper.createLabelComponent(context, forInput, "eLabel", null, getColon());
+                    String styleClass = TagStyleClass.LABEL.get();
+                    labelComponent = helper.createLabelComponent(context, forInput, styleClass, null, getColon());
                     parent.getChildren().add(0, labelComponent);
                     helper.resetComponentId(labelComponent);
                 }

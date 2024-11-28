@@ -421,7 +421,7 @@ public class TagEncodingHelper implements NamingContainer
         @Override
         public Object getAttributeEx(String name)
         {
-            return getTagAttributeValueEx(name);
+            return getTagAttributeValueEx(name, InputControl.CSS_STYLE_CLASS.equals(name));
         }
     }
 
@@ -548,6 +548,9 @@ public class TagEncodingHelper implements NamingContainer
     
     public InputControl getInputControl()
     {
+        // Already detected?
+        if (this.control!=null)
+            return this.control; 
         // Create
         if (getColumn() == null)
         	throw new NotSupportedException(this, "getInputControl");
@@ -1053,7 +1056,7 @@ public class TagEncodingHelper implements NamingContainer
             return DisabledType.READONLY;
         }
         // Check attribute
-        Object dis = getTagAttributeValueEx("disabled");
+        Object dis = getTagAttributeValueEx("disabled", false);
         if (ObjectUtils.isEmpty(dis))
             return null; // not provided!
         // direct
@@ -1572,7 +1575,7 @@ public class TagEncodingHelper implements NamingContainer
         if (!ControlRenderInfo.isRenderExtraWrapperStyles())
             return null;
         // style Class
-        String labelClass = getTagAttributeStringEx("labelClass");
+        String labelClass = getTagAttributeStringEx("labelClass", true);
         return labelClass;
     }
     
@@ -1581,7 +1584,7 @@ public class TagEncodingHelper implements NamingContainer
         if (!ControlRenderInfo.isRenderExtraWrapperStyles())
             return null;
         // input Wrapper Class
-        String inputClass = (isControlTagElementValid() ? getTagAttributeStringEx(InputControl.CSS_STYLE_CLASS) : getTagAttributeString("inputClass")); 
+        String inputClass = (isControlTagElementValid() ? getTagAttributeStringEx(InputControl.CSS_STYLE_CLASS, true) : getTagAttributeString("inputClass")); 
         // append input state
         if (isRenderValueComponent())
             inputClass = (inputClass!=null ? StringUtils.concat(inputClass, " ", TagStyleClass.INPUT_DIS.get()) : TagStyleClass.INPUT_DIS.get());
@@ -1654,7 +1657,7 @@ public class TagEncodingHelper implements NamingContainer
             {   // for LabelTag
                 forInput = this.getColumnName();
                 // readOnly
-                Object val = getTagAttributeValueEx("readOnly");
+                Object val = getTagAttributeValueEx("readOnly", false);
                 if (val!=null)
                     this.readOnly = (ObjectUtils.getBoolean(val) ? (byte)1 : (byte)0);
             }
@@ -1671,11 +1674,16 @@ public class TagEncodingHelper implements NamingContainer
             label.setValue(labelText);
 
         // set styleClass
+        String labelClass = null;
+        if (!ControlRenderInfo.isRenderExtraWrapperStyles())
+            labelClass = getTagAttributeStringEx("labelClass", true);
+        if (labelClass!=null)
+            styleClass = assembleStyleClassString(styleClass, labelClass);
         if (StringUtils.isNotEmpty(styleClass))
             label.setStyleClass(completeLabelStyleClass(styleClass, isValueRequired()));
         
         // for 
-        if (StringUtils.isNotEmpty(forInput)) // && !isReadOnly())
+        if (StringUtils.isNotEmpty(forInput) && !isReadOnly())
         {   // Set Label input Id
             InputControl.InputInfo ii = getInputInfo(context);
             String inputId = getInputControl().getLabelForId(ii);
@@ -1725,7 +1733,7 @@ public class TagEncodingHelper implements NamingContainer
             }
             else if (component instanceof LabelTag)
             {   // update readOnly
-                Object val = getTagAttributeValueEx("readOnly");
+                Object val = getTagAttributeValueEx("readOnly", false);
                 if (val!=null)
                     this.readOnly = (ObjectUtils.getBoolean(val) ? (byte)1 : (byte)0);
             }
@@ -1867,7 +1875,7 @@ public class TagEncodingHelper implements NamingContainer
 
     public String getTagStyleClass(String typeClass, String addlStyle)
     {
-        String userStyle = getTagAttributeStringEx(InputControl.CSS_STYLE_CLASS);
+        String userStyle = getTagAttributeStringEx(InputControl.CSS_STYLE_CLASS, true);
         return getTagStyleClass(typeClass, addlStyle, userStyle);
     }
 
@@ -2014,13 +2022,12 @@ public class TagEncodingHelper implements NamingContainer
         return getTagAttributeString(name, null);
     }
 
-    public Object getTagAttributeValueEx(String name)
+    public Object getTagAttributeValueEx(String name, boolean isCssStyleClass)
     {
         /* 
          * Special handling of ControlTag "styleClass": Use it for control element only not for input element(s)
          */
-        boolean isCssStyleClass = InputControl.CSS_STYLE_CLASS.equals(name);
-        boolean useControlTagOverride = (isCssStyleClass && (this.component instanceof ControlTag) && isControlTagElementValid());
+        boolean useControlTagOverride = (InputControl.CSS_STYLE_CLASS.equals(name) && (this.component instanceof ControlTag) && isControlTagElementValid());
         Object value = getTagAttributeValue((useControlTagOverride ? "inputClass" : name));
 
         // Special "styleClass" append column attribute unless leading '-'
@@ -2075,9 +2082,9 @@ public class TagEncodingHelper implements NamingContainer
         return value;
     }
 
-    public String getTagAttributeStringEx(String name)
+    public String getTagAttributeStringEx(String name, boolean isCssStyleClass)
     {
-        Object value = getTagAttributeValueEx(name);
+        Object value = getTagAttributeValueEx(name, isCssStyleClass);
         return (value!=null) ? StringUtils.nullIfEmpty(value) : null;
     }
     
@@ -2127,7 +2134,7 @@ public class TagEncodingHelper implements NamingContainer
     public void writeStyleClass(ResponseWriter writer)
         throws IOException
     {
-        String userStyle = getTagAttributeStringEx(InputControl.CSS_STYLE_CLASS);
+        String userStyle = getTagAttributeStringEx(InputControl.CSS_STYLE_CLASS, true);
         writeStyleClass(writer, this.cssStyleClass, userStyle);
     }
     
@@ -2143,7 +2150,7 @@ public class TagEncodingHelper implements NamingContainer
     public String writeWrapperTag(FacesContext context, boolean renderId, boolean renderValue)
         throws IOException
     {
-        String wrapperClass = getTagAttributeStringEx("wrapperClass"); 
+        String wrapperClass = getTagAttributeStringEx("wrapperClass", true); 
         if (wrapperClass==null || wrapperClass.equals("-"))
             return null;
         // start element

@@ -128,14 +128,14 @@ public class ControlRenderInfo
         throws IOException
     {
         // wrapper Class
-        String wrapperClass = helper.getTagAttributeStringEx("wrapperClass"); 
+        String wrapperClass = helper.getTagAttributeStringEx("wrapperClass", true); 
         if (wrapperClass!=null && wrapperClass.equals("-"))
             wrapperClass= null;
         // extra
         String extraStyleClass = helper.getControlExtraInputWrapperStyle();
         helper.writeStyleClass(writer, TagStyleClass.CONTROL_INPUT.get(), wrapperClass, extraStyleClass);
         // colspan for <td>
-        String colSpan = InputControl.HTML_TAG_TD.equalsIgnoreCase(INPUT_WRAPPER_TAG) ? helper.getTagAttributeStringEx("colspan") : null;            
+        String colSpan = InputControl.HTML_TAG_TD.equalsIgnoreCase(INPUT_WRAPPER_TAG) ? helper.getTagAttributeStringEx("colspan", false) : null;            
         if (colSpan!=null)
             writer.writeAttribute("colspan", colSpan, null);
     }

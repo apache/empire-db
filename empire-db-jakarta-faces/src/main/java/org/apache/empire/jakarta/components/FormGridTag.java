@@ -121,7 +121,7 @@ public class FormGridTag extends UIOutput // implements NamingContainer
                 if (CONTROL_TAG!=null && TagEncodingHelper.hasComponentId(controlTag))
                     writer.writeAttribute(InputControl.HTML_ATTR_ID, controlTag.getClientId(), null);
                 // Style class
-                String controlClass = controlTag.helper.getTagAttributeStringEx("controlClass");
+                String controlClass = controlTag.helper.getTagAttributeStringEx("controlClass", true);
                 String styleClass   = controlTag.helper.getTagAttributeString(InputControl.CSS_STYLE_CLASS);
                 controlTag.helper.writeStyleClass(writer, TagStyleClass.CONTROL_PLACEHOLDER.get(), controlClass, styleClass);
                 // Legacy two <td>
