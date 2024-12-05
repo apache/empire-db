@@ -728,7 +728,7 @@ public final class ObjectUtils
      * @return the array
      */
     @SuppressWarnings("unchecked")
-    public static <T> T[] listToArray(Class<? extends T[]> type, List<T> list)
+    public static <T> T[] listToArray(Class<? extends T[]> type, List<? extends T> list)
     {
         if (list==null)
             return null;

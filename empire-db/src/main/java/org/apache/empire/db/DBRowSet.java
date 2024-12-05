@@ -410,6 +410,15 @@ public abstract class DBRowSet extends DBExpr implements EntityType
     }
 
     /**
+     * Gets all columns of this rowset as an array
+     * @return all columns of this rowset
+     */
+    public DBColumn[] getAllColumns()
+    {
+        return ObjectUtils.listToArray(DBColumn[].class, columns);
+    }
+
+    /**
      * Gets the index of a particular column expression.
      * @param column column the DBColumn to get the index for
      * @return the position of a column expression

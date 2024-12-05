@@ -22,16 +22,6 @@ import java.io.IOException;
 import java.util.Locale;
 import java.util.Map;
 
-import jakarta.el.ValueExpression;
-import jakarta.faces.component.NamingContainer;
-import jakarta.faces.component.UIInput;
-import jakarta.faces.component.UISelectOne;
-import jakarta.faces.component.html.HtmlSelectOneListbox;
-import jakarta.faces.component.html.HtmlSelectOneMenu;
-import jakarta.faces.component.visit.VisitCallback;
-import jakarta.faces.component.visit.VisitContext;
-import jakarta.faces.context.FacesContext;
-
 import org.apache.empire.commons.ObjectUtils;
 import org.apache.empire.commons.OptionEntry;
 import org.apache.empire.commons.Options;
@@ -43,14 +33,23 @@ import org.apache.empire.jakarta.app.FacesUtils;
 import org.apache.empire.jakarta.app.TextResolver;
 import org.apache.empire.jakarta.controls.InputAttachedObjectsHandler;
 import org.apache.empire.jakarta.controls.InputControl;
-import org.apache.empire.jakarta.controls.InputControlManager;
-import org.apache.empire.jakarta.controls.SelectInputControl;
 import org.apache.empire.jakarta.controls.InputControl.DisabledType;
 import org.apache.empire.jakarta.controls.InputControl.InputInfo;
+import org.apache.empire.jakarta.controls.InputControlManager;
+import org.apache.empire.jakarta.controls.SelectInputControl;
 import org.apache.empire.jakarta.utils.TagEncodingHelper;
 import org.apache.empire.jakarta.utils.TagStyleClass;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import jakarta.faces.component.NamingContainer;
+import jakarta.faces.component.UIInput;
+import jakarta.faces.component.UISelectOne;
+import jakarta.faces.component.html.HtmlSelectOneListbox;
+import jakarta.faces.component.html.HtmlSelectOneMenu;
+import jakarta.faces.component.visit.VisitCallback;
+import jakarta.faces.component.visit.VisitContext;
+import jakarta.faces.context.FacesContext;
 
 public class SelectTag extends UIInput implements NamingContainer
 {
@@ -180,25 +179,16 @@ public class SelectTag extends UIInput implements NamingContainer
         @Override
         public Object getAttribute(String name)
         {
-            return null;
+            Object value = SelectTag.this.getAttributes().get(name);
+            return value;
         }
 
         @Override
         public Object getAttributeEx(String name)
         {
-            Object value = SelectTag.this.getAttributes().get(name);
-            if (value==null)
-            {   // try value expression
-                ValueExpression ve = SelectTag.this.getValueExpression(name);
-                if (ve!=null)
-                {   // It's a value expression
-                    FacesContext ctx = FacesContext.getCurrentInstance();
-                    value = ve.getValue(ctx.getELContext());
-                }
-            }
+            Object value = getAttribute(name);
             return value;
         }
-        
     }
     
     private SelectInputInfo selectInputInfo = new SelectInputInfo();

@@ -22,7 +22,6 @@ import java.io.IOException;
 import java.util.Locale;
 import java.util.Map;
 
-import javax.el.ValueExpression;
 import javax.faces.component.NamingContainer;
 import javax.faces.component.UIInput;
 import javax.faces.component.UISelectOne;
@@ -180,25 +179,16 @@ public class SelectTag extends UIInput implements NamingContainer
         @Override
         public Object getAttribute(String name)
         {
-            return null;
+            Object value = SelectTag.this.getAttributes().get(name);
+            return value;
         }
 
         @Override
         public Object getAttributeEx(String name)
         {
-            Object value = SelectTag.this.getAttributes().get(name);
-            if (value==null)
-            {   // try value expression
-                ValueExpression ve = SelectTag.this.getValueExpression(name);
-                if (ve!=null)
-                {   // It's a value expression
-                    FacesContext ctx = FacesContext.getCurrentInstance();
-                    value = ve.getValue(ctx.getELContext());
-                }
-            }
+            Object value = getAttribute(name);
             return value;
         }
-        
     }
     
     private SelectInputInfo selectInputInfo = new SelectInputInfo();
