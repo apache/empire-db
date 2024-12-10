@@ -42,6 +42,8 @@ public class TabPageTag extends UIOutput implements NamingContainer
     // Logger
     private static final Logger log = LoggerFactory.getLogger(TabPageTag.class);
     
+    public static final String  LABEL_FACET_NAME = "label";
+    
     protected final TagEncodingHelper helper = TagEncodingHelperFactory.create(this, TagStyleClass.TAB_PAGE.get());
 
     private TabViewMode mode;
@@ -126,6 +128,25 @@ public class TabPageTag extends UIOutput implements NamingContainer
 
     public String getTabLabel()
     {
+        /* 
+         * for backwards compatibilty use "title" as label when label is null and no facet is defined
+         */
+        String label = helper.getTagAttributeString("label");
+        if (label==null && getFacet(LABEL_FACET_NAME)==null) {
+            label = helper.getTagAttributeString("title");
+            if (label!=null)
+                log.info("TabPage \"{}\": attribute \"title\" was provided instead of \"label\". This is deprecated and may be removed in the future!", label);
+        }
+        // the label 
+        return label;
+    }
+
+    public String getTabTitle()
+    {
+        String label = helper.getTagAttributeString("label");
+        if (label==null && getFacet(LABEL_FACET_NAME)==null)
+            return null;
+        // the title
         return helper.getTagAttributeString("title");
     }
     

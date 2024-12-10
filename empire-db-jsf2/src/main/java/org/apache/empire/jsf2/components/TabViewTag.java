@@ -51,11 +51,11 @@ public class TabViewTag extends UIOutput // implements NamingContainer
     // Logger
     private static final Logger       log                    = LoggerFactory.getLogger(TabViewTag.class);
 
-    protected final String            TAB_ACTIVE_INDEX       = "activeIndex";
+    protected static String           TAB_ACTIVE_INDEX       = "activeIndex";
 
-    protected final String            TABLINK_ID_PREFIX      = "tabLink";
+    protected static String           TABLINK_ID_PREFIX      = "tabLink";
 
-    protected final String            TAB_RENDERED_ATTRIBUTE = "visible";
+    protected static String           TAB_RENDERED_ATTRIBUTE = "visible";
 
     protected final TagEncodingHelper helper                 = TagEncodingHelperFactory.create(this, TagStyleClass.TAB_VIEW.get());
 
@@ -164,13 +164,13 @@ public class TabViewTag extends UIOutput // implements NamingContainer
 
     public int getActivePageIndex()
     {
-        Object active = this.helper.getTagAttributeValue(this.TAB_ACTIVE_INDEX);
+        Object active = this.helper.getTagAttributeValue(TAB_ACTIVE_INDEX);
         return ObjectUtils.getInteger(active);
     }
 
     public void setActivePageIndex(int activeIndex)
     {
-        ValueExpression ve = this.getValueExpression(this.TAB_ACTIVE_INDEX);
+        ValueExpression ve = this.getValueExpression(TAB_ACTIVE_INDEX);
         if (ve != null)
         { // set active index
             FacesContext fc = FacesUtils.getContext();
@@ -178,7 +178,7 @@ public class TabViewTag extends UIOutput // implements NamingContainer
         }
         else
         { // save activeIndex
-            getAttributes().put(this.TAB_ACTIVE_INDEX, activeIndex);
+            getAttributes().put(TAB_ACTIVE_INDEX, activeIndex);
         }
     }
 
@@ -187,7 +187,7 @@ public class TabViewTag extends UIOutput // implements NamingContainer
         log.debug("setActiveTab");
         // done
         UIComponent comp = event.getComponent();
-        String tabNo = comp.getId().substring(this.TABLINK_ID_PREFIX.length());
+        String tabNo = comp.getId().substring(TABLINK_ID_PREFIX.length());
         int pageIndex = ObjectUtils.getInteger(tabNo);
         if (pageIndex == getActivePageIndex())
         {   // already set
@@ -244,8 +244,8 @@ public class TabViewTag extends UIOutput // implements NamingContainer
             writer.writeAttribute(InputControl.HTML_ATTR_STYLE, "display:none", null);
             writer.endElement(InputControl.HTML_TAG_DIV);
             // showTabBlindJs
-            String tabViewClass = TagStyleClass.TAB_VIEW.get();
-            showTabBlindJs = StringUtils.concat("$(this).closest('.", tabViewClass,"').find('.", tabBlindClass,"').show()");
+            String tabViewId = this.getClientId();
+            showTabBlindJs = StringUtils.concat("$(document.getElementById('", tabViewId, "')).find('.", tabBlindClass,"').show();");
         }
         
         // The Tabs
@@ -408,7 +408,7 @@ public class TabViewTag extends UIOutput // implements NamingContainer
         }
     }
 
-    protected void encodeTabLink(FacesContext context, ResponseWriter writer, int index, TabPageTag page, boolean disabled, String showTabBlindJs)
+    protected void encodeTabLink(FacesContext context, ResponseWriter writer, int index, TabPageTag pageTag, boolean disabled, String showTabBlindJs)
         throws IOException
     {
         // Add component
@@ -433,35 +433,59 @@ public class TabViewTag extends UIOutput // implements NamingContainer
         }
         if (link == null)
         { // create the tab-Link   
-            String linkId = this.TABLINK_ID_PREFIX + String.valueOf(index);
-            link = createCommandLink(context, linkId);
+            String linkId = TABLINK_ID_PREFIX + String.valueOf(index);
+            link = createTabCommandLink(context, pageTag, linkId);
             tabLinks.add(index, link);
+            // Set StyleClass
+            String styleClass = StringUtils.coalesce(link.getStyleClass(), TagStyleClass.TAB_LINK.get());
+            String extraClass = pageTag.helper.getTagAttributeString("labelClass");
+            if (StringUtils.isNotEmpty(extraClass))
+                styleClass = StringUtils.concat(styleClass, " ", extraClass);
+            link.setStyleClass(styleClass);
+            // showTabBlindJs
+            if (showTabBlindJs!=null)
+            {   // append showTabBlindJs
+                String onClick = link.getOnclick();
+                onClick = StringUtils.concat(onClick, showTabBlindJs);
+                link.setOnclick(onClick);
+            }
             // Set TabPageActionListener
             TabPageActionListener tpal = new TabPageActionListener(this);
             link.addActionListener(tpal);
         }
         // init linkComponent
-        link.setValue(page.getTabLabel());
+        link.setValue(pageTag.getTabLabel());
+        link.setTitle(pageTag.getTabTitle());
         link.setDisabled(disabled);
-        // Set Style
-        link.setStyleClass(TagStyleClass.TAB_LINK.get());
-
-        // showTabBlindJs
-        if (showTabBlindJs!=null)
-            link.setOnclick(showTabBlindJs);
             
         // encode link
         link.setRendered(true);
-        link.encodeAll(context);
+        encodeTabCommandLink(context, pageTag, link);
         link.setRendered(false); // Don't render twice!
     }
 
-    protected HtmlCommandLink createCommandLink(FacesContext context, String linkId)
+    protected HtmlCommandLink createTabCommandLink(FacesContext context, TabPageTag pageTag, String linkId)
     {
         // CommandLink link 
         HtmlCommandLink link = InputControlManager.createComponent(context, HtmlCommandLink.class);
         link.setId(linkId);
         return link;
+    }
+    
+    protected void encodeTabCommandLink(FacesContext context, TabPageTag pageTag, HtmlCommandLink link)
+            throws IOException
+    {
+        UIComponent labelFacet = pageTag.getFacet(TabPageTag.LABEL_FACET_NAME);
+        if (labelFacet!=null)
+        {   // custom rendering
+            link.encodeBegin(context);
+            labelFacet.encodeAll(context);
+            link.encodeEnd(context);
+        }
+        else
+        {   // default
+            link.encodeAll(context);
+        }
     }
 
     protected void setRenderTabs(FacesContext context)
@@ -491,7 +515,7 @@ public class TabViewTag extends UIOutput // implements NamingContainer
     
     protected boolean isPageVisible(TabPageTag page)
     {
-        return ObjectUtils.getBoolean(page.getAttributes().get(this.TAB_RENDERED_ATTRIBUTE), true);
+        return ObjectUtils.getBoolean(page.getAttributes().get(TAB_RENDERED_ATTRIBUTE), true);
     }
     
     protected boolean isPageDisabled(TabPageTag page)
