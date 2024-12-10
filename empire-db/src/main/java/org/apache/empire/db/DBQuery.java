@@ -263,6 +263,17 @@ public class DBQuery extends DBRowSet
     }
 
     /**
+     * Gets the query column by Index
+     * @return the query column of that index
+     */
+    public DBQueryColumn getQueryColumn(int iColumn)
+    {
+        if (iColumn < 0 || iColumn >= columns.size())
+            return null;
+        return queryColumns[iColumn];
+    }
+
+    /**
      * Gets all columns of this rowset (e.g. for cmd.select()).
      * 
      * @return all columns of this rowset
@@ -332,6 +343,17 @@ public class DBQuery extends DBRowSet
         if (col==null)
             throw new ItemNotFoundException(name);
         return col;
+    }
+
+    /**
+     * This is a convenience shortcut for getQueryColumn
+     * 
+     * @param name the column name
+     * @return the located column
+     */
+    public DBQueryColumn column(int iColumn)
+    {
+        return getQueryColumn(iColumn);
     }
     
     /**
