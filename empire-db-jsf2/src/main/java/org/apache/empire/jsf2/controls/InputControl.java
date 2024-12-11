@@ -791,7 +791,7 @@ public abstract class InputControl
         if (hasFormatOption(vi, "noencode"))
             return s;
         // Encode Html
-        return escapeHTML(s);
+        return escapeHtml(s);
     }
 
     /**
@@ -831,12 +831,11 @@ public abstract class InputControl
     */
 
     /**
-     * escapes a String for html
-     * 
-     * @param text
+     * Escapes a String for html
+     * @param text the text to escape
      * @return the escaped html String
      */
-    protected String escapeHTML(String text)
+    protected String escapeHtml(String text)
     {
         return HtmlUtils.getInstance().escapeText(text);
     }

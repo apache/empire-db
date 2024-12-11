@@ -432,7 +432,7 @@ public abstract class InputControl
         {   // Null
             styleClass += " eValNull";
         }
-        else if (dataType.isNumeric())
+        else if (dataType.isNumeric() && value instanceof Number)
         {   // Check negative
             if (ObjectUtils.getLong(value)<0)
                 styleClass += " eValNeg";
@@ -524,13 +524,19 @@ public abstract class InputControl
     {
         // UIInput
         if (comp instanceof UIInput)
-        {
+        {   // Check LocalValue set 
             UIInput input = (UIInput)comp; 
-            if (input.isLocalValueSet())
-            {   input.setValue(null);
-                input.setLocalValueSet(false);
-                // log.debug("clearLocalValues performed for {}", input.getClass().getName());
+            if (input.isValid() && input.isLocalValueSet())
+            {   // Check ValueExpression
+                // @see: UIInput:updateModel(FacesContext context)
+                ValueExpression expression = input.getValueExpression("value");
+                if (expression != null)
+                {   // Reset localValue if ValueExpression is set
+                    input.resetValue();
+                }
             }
+            // we're done here
+            return;
         }
         // clearLocalValues of all facets and children of this UIComponent
         if (comp.getFacetCount() > 0)
@@ -785,7 +791,7 @@ public abstract class InputControl
         if (hasFormatOption(vi, "noencode"))
             return s;
         // Encode Html
-        return escapeHTML(s);
+        return escapeHtml(s);
     }
 
     /**
@@ -825,12 +831,11 @@ public abstract class InputControl
     */
 
     /**
-     * escapes a String for html
-     * 
-     * @param text
+     * Escapes a String for html
+     * @param text the text to escape
      * @return the escaped html String
      */
-    protected String escapeHTML(String text)
+    protected String escapeHtml(String text)
     {
         return HtmlUtils.getInstance().escapeText(text);
     }

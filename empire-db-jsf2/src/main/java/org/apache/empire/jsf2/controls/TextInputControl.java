@@ -287,7 +287,7 @@ public class TextInputControl extends InputControl
                 return s;
             // Encoded text
             if (escapeHTML)
-                s = escapeHTML(s);
+                s = escapeHtml(s);
             return s;
         }
         if (dataType == DataType.INTEGER || dataType == DataType.AUTOINC)
@@ -316,7 +316,7 @@ public class TextInputControl extends InputControl
         // Convert to String
         if (escapeHTML)
         {
-            return escapeHTML(String.valueOf(value));
+            return escapeHtml(String.valueOf(value));
         }
         return String.valueOf(value);
     }

@@ -20,6 +20,7 @@ package org.apache.empire.jsf2.app;
 
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.text.MessageFormat;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Locale;
@@ -44,6 +45,7 @@ import org.apache.empire.data.DataType;
 import org.apache.empire.db.DBDatabase;
 import org.apache.empire.db.context.DBRollbackManager;
 import org.apache.empire.db.context.DBRollbackManager.ReleaseAction;
+import org.apache.empire.exceptions.EmpireException;
 import org.apache.empire.exceptions.InternalException;
 import org.apache.empire.exceptions.InvalidArgumentException;
 import org.apache.empire.exceptions.NotSupportedException;
@@ -249,6 +251,70 @@ public abstract class WebApplication
     public TextResolver getTextResolver(FacesContext ctx)
     {
         return getTextResolver(getContextLocale(ctx));
+    }
+
+    /**
+     * Returns a FacesMessage 
+     * @param ctx the FacesContext
+     * @param severity the message severity
+     * @param msg the message or message key
+     * @param params the message params
+     * @return the FacesMessage or null to ignore
+     */
+    public FacesMessage getFacesMessage(FacesContext ctx, Severity severity, String msg, Object... params)
+    {
+        TextResolver resolver = getTextResolver(getContextLocale(ctx));
+        msg = resolver.resolveText(msg);
+        if (params.length>0)
+        {   // translate params
+            for (int i=0; i<params.length; i++)
+                if (params[i] instanceof String)
+                    params[i] = resolver.resolveText((String)params[i]);
+                else if ((params[i] instanceof Integer) || (params[i] instanceof Long))
+                    params[i] = String.valueOf(params[i]); // avoid group separator
+            // format
+            msg = MessageFormat.format(msg, params);
+        }
+        return new FacesMessage(severity, msg, null);
+    }
+    
+    /**
+     * Returns a FacesMessage for an Exception 
+     * @param ctx the FacesContext
+     * @param errorContext the error context (optional)
+     * @param t the exception
+     * @return the FacesMessage or null to ignore
+     */
+    public FacesMessage getFacesErrorMessage(FacesContext ctx, String errorContext, Throwable t)
+    {
+        // Wrap exception if necessary
+        EmpireException e = (t instanceof EmpireException) ? ((EmpireException)t) : new InternalException(t); 
+        // Get Message
+        TextResolver tr = getTextResolver(ctx);
+        String msg = tr.getExceptionMessage(e);
+        String msgDetail = extractErrorMessageDetail(errorContext, t, 3);
+        // create Faces Message
+        return new FacesMessage(FacesMessage.SEVERITY_ERROR, msg, msgDetail);
+    }
+    
+    protected String extractErrorMessageDetail(String errorContext, Throwable e, int stackTraceElements)
+    {
+        StringBuilder b = new StringBuilder();
+        if (errorContext!=null)
+        {   // Append context String
+            b.append(errorContext);
+            b.append(": ");
+        }
+        b.append(e.toString());
+        b.append("\r\nat:");
+        StackTraceElement[] stack = e.getStackTrace();
+        int len = (stack.length>stackTraceElements) ? stackTraceElements : stack.length; 
+        for (int i=0; i<len; i++)
+        {
+            b.append(stack[i].toString());
+            b.append("\r\n");
+        }
+        return b.toString();
     }
 
     /**

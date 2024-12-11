@@ -23,10 +23,13 @@ import java.io.IOException;
 import java.text.MessageFormat;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Locale;
 import java.util.Map;
 
 import javax.el.ValueExpression;
 import javax.faces.application.FacesMessage;
+import javax.faces.application.FacesMessage.Severity;
+import javax.faces.application.ProjectStage;
 import javax.faces.component.UIComponent;
 import javax.faces.component.UIInput;
 import javax.faces.component.UIViewRoot;
@@ -39,7 +42,6 @@ import javax.servlet.http.HttpServletRequest;
 import org.apache.empire.commons.ObjectUtils;
 import org.apache.empire.commons.StringUtils;
 import org.apache.empire.data.Column;
-import org.apache.empire.exceptions.EmpireException;
 import org.apache.empire.exceptions.InternalException;
 import org.apache.empire.exceptions.InvalidArgumentException;
 import org.apache.empire.exceptions.ItemNotFoundException;
@@ -47,6 +49,7 @@ import org.apache.empire.jsf2.impl.FacesImplementation;
 import org.apache.empire.jsf2.pages.Page;
 import org.apache.empire.jsf2.pages.PageDefinition;
 import org.apache.empire.jsf2.pages.PageOutcome;
+import org.apache.empire.jsf2.utils.HtmlUtils;
 import org.apache.empire.jsf2.utils.ParameterMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -57,6 +60,12 @@ public class FacesUtils
     private static final Logger log = LoggerFactory.getLogger(FacesUtils.class);
     
     public static final String SKIP_INPUT_VALIDATION_PARAM = "empire.jsf.input.skipValidation";
+
+    /* Develpment stage */
+    public static boolean isDevelopmentStage(final FacesContext fc)
+    {
+        return fc.getApplication().getProjectStage()==ProjectStage.Development;
+    }
 
     /* App */
 
@@ -73,6 +82,11 @@ public class FacesUtils
     public static FacesContext getContext()
     {
         return FacesContext.getCurrentInstance();
+    }
+    
+    public static Locale getContextLocale(final FacesContext fc)
+    {
+        return getWebApplication().getContextLocale(fc);
     }
 
     /* Session */
@@ -399,6 +413,16 @@ public class FacesUtils
         return getWebApplication().getTextResolver(fc);
     }
     
+    public static String resolveText(final FacesContext fc, String text)
+    {
+        return getTextResolver(fc).resolveText(text);
+    }
+    
+    public static String resolveText(String text)
+    {
+        return getTextResolver(getContext()).resolveText(text);
+    }
+    
     public static String getMessage(final FacesContext fc, String key)
     {
         if (StringUtils.isEmpty(key))
@@ -412,44 +436,27 @@ public class FacesUtils
         return getMessage(getContext(), messageKey);
     }
 
-    public static String formatMessage(String msgKey, Object... params)
+    public static String formatMessage(final FacesContext fc, String msgKey, Object... params)
     {
-        TextResolver tr = getTextResolver(FacesContext.getCurrentInstance());
-        String pattern = tr.resolveKey(msgKey);
+        String pattern = getMessage(fc, msgKey);
         return MessageFormat.format(pattern, params);
     }
 
-    /*
-    public static void addInfoMessage(FacesContext fc, String clientId, String msg)
+    public static String formatMessage(String msgKey, Object... params)
     {
-        fc.addMessage(clientId, new FacesMessage(FacesMessage.SEVERITY_INFO, msg, msg));
-    }
-    
-    public static void addInfoMessage(FacesContext fc, String msg)
-    {
-        addInfoMessage(fc, null, msg);
+        return formatMessage(getContext(), msgKey, params);
     }
 
-    public static void addWarnMessage(FacesContext fc, String clientId, String msg)
+    /**
+     * Escapes Text for Html
+     * Uses HtmlUtils.getInstance() for escaping
+     * @param text the text to escape
+     * @return the escaped text
+     */
+    public static String escapeHtml(String text)
     {
-        fc.addMessage(clientId, new FacesMessage(FacesMessage.SEVERITY_WARN, msg, msg));
+        return HtmlUtils.getInstance().escapeText(text);
     }
-    
-    public static void addWarnMessage(FacesContext fc, String msg)
-    {
-        addWarnMessage(fc, null, msg);
-    }
-
-    public static void addErrorMessage(FacesContext fc, String clientId, String msg)
-    {
-        fc.addMessage(clientId, new FacesMessage(FacesMessage.SEVERITY_ERROR, msg, msg));
-    }
-
-    public static void addErrorMessage(FacesContext fc, String msg)
-    {
-        addErrorMessage(fc, null, msg);
-    }
-    */
 
     /*
      * indicates whether submitted values in InputControl should be cleared or preserved.
@@ -467,36 +474,77 @@ public class FacesUtils
         fc.getExternalContext().getRequestMap().put("CLEAR_SUBMITTED_VALUES", validate);
     }
     */
+
+    public static void addFacesMessage(FacesContext fc, UIComponent comp, FacesMessage facesMsg)
+    {
+        if (facesMsg==null)
+            return;
+        String clientId = (comp!=null ? comp.getClientId() : null);
+        fc.addMessage(clientId, facesMsg);
+    }
+    
+    public static void addFacesMessage(UIComponent comp, Severity severity, String message, Object... params)
+    {
+        FacesContext fc = getContext();
+        addFacesMessage(fc, comp, getWebApplication().getFacesMessage(fc, severity, message, params));
+    }
+
+    public static void addInfoMessage(String msg, Object... params)
+    {
+        addFacesMessage(null, FacesMessage.SEVERITY_INFO, msg, params);
+    }
+
+    public static void addWarnMessage(String msg, Object... params)
+    {
+        addFacesMessage(null, FacesMessage.SEVERITY_WARN, msg, params);
+    }
+
+    public static void addErrorMessage(String msg, Object... params)
+    {
+        addFacesMessage(null, FacesMessage.SEVERITY_ERROR, msg, params);
+    }
+
+    public static void addErrorMessage(UIComponent comp, Throwable t)
+    {
+        FacesContext fc = getContext();
+        addFacesMessage(fc, comp, getFacesErrorMessage(fc, t));
+    }
+
+    public static void addErrorMessage(Throwable t)
+    {
+        addErrorMessage(null, t);
+    }
     
     public static FacesMessage getFacesErrorMessage(FacesContext fc, Throwable t)
     {
-        if (!(t instanceof EmpireException))
-            t = new InternalException(t);
-        // Get Message
-        TextResolver tr = getWebApplication().getTextResolver(fc);
-        String msg = tr.getExceptionMessage((EmpireException)t);
-        // create Faces Message
-        return new FacesMessage(FacesMessage.SEVERITY_ERROR, msg, null);
+        return getWebApplication().getFacesErrorMessage(fc, null, t);
     }
     
-    public static void redirectFromError(Page page, Throwable t)
+    public static void redirectFromError(Page page, FacesMessage errorMsg)
     {
         PageOutcome pageTarget = page.getPageDefinition().getOutcome();
         // throw new InternalException(e);
         FacesContext fc = FacesUtils.getContext();
         boolean committed = fc.getExternalContext().isResponseCommitted();
         if (committed)
-        {   log.warn("Cannot redirect to {} from an already committed response! Error is {}.", pageTarget, t.getMessage());
+        {   log.warn("Cannot redirect to {} from an already committed response! Error is {}.", pageTarget, errorMsg.getSummary());
             return;
         }
         // redirect to target page
-        FacesMessage facesMsg = getFacesErrorMessage(fc, t);
-        ExternalContext ec = fc.getExternalContext();
-        ec.getSessionMap().put(Page.SESSION_MESSAGE, facesMsg);
+        if (errorMsg!=null) {
+            ExternalContext ec = fc.getExternalContext();
+            ec.getSessionMap().put(Page.SESSION_MESSAGE, errorMsg);
+        }
         // redirect
         FacesUtils.redirectDirectly(fc, pageTarget);
     }
-    
+
+    public static void redirectFromError(Page page, Throwable t)
+    {
+        FacesContext fc = FacesUtils.getContext();
+        FacesMessage facesMsg = getFacesErrorMessage(fc, t);
+        redirectFromError(page, facesMsg);
+    }
     
     /* Component search */
     public static UIInput findInputComponent(UIComponent parent, Column column)

@@ -19,7 +19,6 @@
 package org.apache.empire.jsf2.pages;
 
 import java.lang.reflect.Method;
-import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -33,8 +32,6 @@ import javax.faces.context.FacesContext;
 
 import org.apache.empire.commons.StringUtils;
 import org.apache.empire.db.DBRowSet;
-import org.apache.empire.exceptions.EmpireException;
-import org.apache.empire.exceptions.InternalException;
 import org.apache.empire.exceptions.InvalidOperationException;
 import org.apache.empire.exceptions.ItemNotFoundException;
 import org.apache.empire.jsf2.app.FacesUtils;
@@ -289,25 +286,22 @@ public abstract class Page // *Deprecated* implements Serializable
         ec.getSessionMap().put(SESSION_MESSAGE, facesMsg);
     }
     
-    protected void setSessionError(Throwable e)
+    protected void setSessionError(Throwable t)
     {
         // Set Session Message
-        String msg = extractErrorMessage(e);
-        String detail = extractErrorMessageDetail(action, e, 1);
-        if (log.isDebugEnabled())
-            log.debug(msg + "\r\n" + detail, e);
-        FacesMessage facesMsg = new FacesMessage(FacesMessage.SEVERITY_ERROR, msg, detail);
+        FacesContext fc = FacesContext.getCurrentInstance(); 
+        FacesMessage facesMsg = FacesUtils.getFacesErrorMessage(fc, t);
         setSessionMessage(facesMsg);
     }
 
-    protected boolean handleActionError(String action, Throwable e)
+    protected boolean handleActionError(String action, Throwable t)
     {
-        // Set Faces Message
-        String msg = extractErrorMessage(e);
-        String detail = extractErrorMessageDetail(action, e, 1);
-        // log.error(msg + "\r\n" + detail);
-        FacesMessage facesMsg = new FacesMessage(FacesMessage.SEVERITY_ERROR, msg, detail);
-        setSessionMessage(facesMsg);
+        // the error context
+        String errorContext = StringUtils.concat(getPageName(), ":", action);
+        // get Message
+        WebApplication app = FacesUtils.getWebApplication();
+        FacesContext fc = FacesContext.getCurrentInstance(); 
+        FacesMessage facesMsg = app.getFacesErrorMessage(fc, errorContext, t);
         // Return to parent page
         PageDefinition parentPage = getParentPage();
         if (parentPage == null)
@@ -315,24 +309,14 @@ public abstract class Page // *Deprecated* implements Serializable
             return false;
         }
         // redirect
+        setSessionMessage(facesMsg);
         navigateTo(parentPage.getRedirect());
         return true;
     }
 
     protected void addFacesMessage(Severity severity, String msg, Object... params)
     {
-        TextResolver resolver = getTextResolver();
-        msg = resolver.resolveText(msg);
-        if (params.length>0)
-        {   // translate params
-            for (int i=0; i<params.length; i++)
-                if (params[i] instanceof String)
-                    params[i] = resolver.resolveText((String)params[i]);
-            // format
-            msg = MessageFormat.format(msg, params);
-        }
-        FacesMessage facesMsg = new FacesMessage(severity, msg, msg);
-        FacesContext.getCurrentInstance().addMessage(getPageName(), facesMsg);
+        FacesUtils.addFacesMessage(null, severity, msg, params);
     }
 
     public final void addInfoMessage(String msg, Object... params)
@@ -350,16 +334,14 @@ public abstract class Page // *Deprecated* implements Serializable
         addFacesMessage(FacesMessage.SEVERITY_ERROR, msg, params);
     }
 
-    public void setErrorMessage(Throwable e)
+    public void setErrorMessage(Throwable t)
     {
-        String msg = extractErrorMessage(e);
-        String detail = extractErrorMessageDetail(action, e, 1);
-        if (log.isDebugEnabled())
-            log.debug(msg + "\r\n" + detail, e);
-        FacesMessage facesMsg = new FacesMessage(FacesMessage.SEVERITY_ERROR, msg, detail);
-        FacesContext.getCurrentInstance().addMessage(getPageName(), facesMsg);
+        FacesUtils.addErrorMessage(t);
     }
 
+    /* 
+     * obsolete, now in WebApplication
+     * 
     protected String extractErrorMessage(Throwable e)
     {   // Wrap Exception
         if (!(e instanceof EmpireException))
@@ -387,6 +369,7 @@ public abstract class Page // *Deprecated* implements Serializable
         }
         return b.toString();
     }
+    */
 
     /**
      * navigates to the desired page. Depending on the page outcome provided this is either a forward or a redirect.
