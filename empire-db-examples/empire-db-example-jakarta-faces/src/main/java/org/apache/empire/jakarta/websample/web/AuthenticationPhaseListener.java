@@ -18,19 +18,19 @@
  */
 package org.apache.empire.jakarta.websample.web;
 
+import org.apache.empire.commons.ObjectUtils;
+import org.apache.empire.commons.StringUtils;
+import org.apache.empire.jakarta.app.FacesUtils;
+import org.apache.empire.jakarta.pages.PageDefinition;
+import org.apache.empire.jakarta.websample.web.pages.SamplePages;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import jakarta.faces.context.FacesContext;
 import jakarta.faces.event.PhaseEvent;
 import jakarta.faces.event.PhaseId;
 import jakarta.faces.event.PhaseListener;
 import jakarta.servlet.http.HttpServletRequest;
-
-import org.apache.empire.commons.ObjectUtils;
-import org.apache.empire.commons.StringUtils;
-import org.apache.empire.exceptions.InvalidArgumentException;
-import org.apache.empire.jakarta.app.FacesUtils;
-import org.apache.empire.jakarta.websample.web.pages.SamplePages;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class AuthenticationPhaseListener implements PhaseListener
 {
@@ -74,8 +74,8 @@ public class AuthenticationPhaseListener implements PhaseListener
         catch (Exception e)
         {
             log.error("Authetication exception \"{}\" redirecting to error page!", e.getMessage(), e);
-            String errorPage = getPageUri(app.getSampleConfig().getAccessDeniedPage());
-            FacesUtils.redirectDirectly(pe.getFacesContext(), errorPage);
+            String errorPage = app.getSampleConfig().getAccessDeniedPage();
+            FacesUtils.getWebApplication().redirectDirectly(pe.getFacesContext(), errorPage);
         }
     }
     
@@ -100,11 +100,10 @@ public class AuthenticationPhaseListener implements PhaseListener
             int iSession = reqURI.indexOf(';');
             if (iSession>0)
             	reqURI = reqURI.substring(0,iSession);
-            
-            String loginPage = getPageUri(SamplePages.LoginPage.getOutcome().toString());
-            if (reqURI.equalsIgnoreCase(loginPage))
+            // Check if we already are on the login page
+            if (isPageUri(fc, reqURI, SamplePages.LoginPage))
             {   
-                log.debug("Showing login page {}.", loginPage);
+                log.debug("Showing login page {}.", SamplePages.LoginPage.getOutcome());
                 return;
             }
             FacesUtils.redirectDirectly(fc, SamplePages.LoginPage);
@@ -117,13 +116,10 @@ public class AuthenticationPhaseListener implements PhaseListener
             {   // Perform logout
                 doLogout(fc);
                 // return to login page
-                String redirectPage = req.getRequestURI();
-                log.info("User logout performed. Returning to start page {}!", redirectPage);
-                FacesUtils.redirectDirectly(fc, redirectPage);
+                log.info("User logout performed. Returning to start page!");
+                FacesUtils.getWebApplication().redirectDirectly(fc, StringUtils.EMPTY);
             }
         }
-        
-     
     }
     
     /******************************************************************************************/
@@ -132,23 +128,32 @@ public class AuthenticationPhaseListener implements PhaseListener
     {
         fc.getExternalContext().invalidateSession();
     }
-    
-   
-    
-    private String getPageUri(String page)
-    {
-        if (StringUtils.isEmpty(page))
-            throw new InvalidArgumentException("page", page);
-        if (page.startsWith("http"))
-            return page;
-        if (page.startsWith("/")==false)
-            page="/"+page;
-        // Detect page uri
-        String pathPrefix = SampleUtils.getContextPath();
-        String pageUri = pathPrefix + page;
-        return pageUri;
-    }
-
  
+    private boolean isPageUri(FacesContext fc, String uri1, PageDefinition page)
+    {
+        String uri2 = page.getOutcome().toString();
+        // find the end
+        int end1 = uri1.lastIndexOf('.');
+        if (end1<=0) end1=uri1.length(); 
+        int end2 = uri2.lastIndexOf('.');
+        if (end2<=0) end2=uri2.length();
+        // find the beginning
+        String contextPath = fc.getExternalContext().getRequestContextPath();
+        int beg1 = (uri1.startsWith(contextPath) ? contextPath.length() : 0);
+        int beg2 = (uri2.startsWith(contextPath) ? contextPath.length() : 0);
+        if (uri1.charAt(beg1)=='/') beg1++;
+        if (uri2.charAt(beg2)=='/') beg2++;
+        // compare length
+        if ((end1-beg1)!=(end2-beg2))
+            return false; // length is different
+        // compare now
+        for (int i=beg1, j=beg2; i<end1 && j<end2; i++,j++)
+        {
+            if (uri1.charAt(i) != uri2.charAt(j))
+                return false; // not equal
+        }
+        // yes, they are equal
+        return true;
+    }
     
 }
