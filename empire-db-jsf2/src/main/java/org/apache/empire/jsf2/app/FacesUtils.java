@@ -19,7 +19,6 @@
 package org.apache.empire.jsf2.app;
 
 import java.io.File;
-import java.io.IOException;
 import java.text.MessageFormat;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -126,11 +125,13 @@ public class FacesUtils
         return "{No HttpServletRequest}";
     }
 
+    /* Should not be necessary
     public static String getRequestContextPath()
     {
         ExternalContext ec = FacesContext.getCurrentInstance().getExternalContext();
         return (ec!=null ? ec.getRequestContextPath() : null);
     }
+    */
 
     public static Object getRequestAttribute(final String key)
     {
@@ -194,30 +195,10 @@ public class FacesUtils
     }
 
     /* Navigation */
-    
-    public static void redirectDirectly(final FacesContext fc, final String url)
-    {
-        try
-        {   // log
-            if (log.isDebugEnabled())
-                log.debug("Redirecting directly to {}.", url);
-            if (fc.getResponseComplete())
-                log.warn("Redirecting although response is already complete!");
-            // redirectDirectly
-            fc.getExternalContext().redirect(url);
-            fc.responseComplete();
-        }
-        catch (IOException e)
-        {
-            log.error("Unable to redirect to " + url);
-        }
-    }
 
     public static void redirectDirectly(final FacesContext fc, final PageOutcome outcome)
     {
-        String ctxPath = fc.getExternalContext().getRequestContextPath();
-        String pageURI = ctxPath + outcome.toString();
-        FacesUtils.redirectDirectly(fc, pageURI);
+        getWebApplication().redirectDirectly(fc, outcome.toString());
     }
 
     public static void redirectDirectly(final FacesContext fc, final PageDefinition page)

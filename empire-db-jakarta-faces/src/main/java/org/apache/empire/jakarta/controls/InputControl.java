@@ -243,6 +243,22 @@ public abstract class InputControl
     }
     
     /**
+     * Returns the formatted value
+     * Do not override this function, but override formatValue(Object, ValueInfo) instead.   
+     * @param value the value to format
+     * @param vi the valueInfo
+     * @param escapeHtml when true the value will be escaped for Html
+     * @return the formatted value
+     */
+    public String formatValue(Object value, ValueInfo vi, boolean escapeHtml)
+    {
+        String s = formatValue(value, vi);
+        if (escapeHtml)
+            s = HtmlUtils.getInstance().escapeText(s);
+        return s;
+    }
+    
+    /**
      * Renders the control value with a surrounding HTML tag, if a tagName is supplied
      * @param comp the JSF component
      * @param tagName the tag name of the HTML wrapper tag (optional)
@@ -291,7 +307,9 @@ public abstract class InputControl
     public void renderValue(Object value, ValueInfo vi, ResponseWriter writer)
         throws IOException
     {
-        String text = formatValue(value, vi);
+        // do we need this at all:
+        // boolean escapeHtml = !hasFormatOption(vi, "noencode"); 
+        String text = formatValue(value, vi, true);
         writer.append((StringUtils.isEmpty(text) ? HTML_EXPR_NBSP : text));
     }
 
@@ -787,11 +805,7 @@ public abstract class InputControl
         if (value == null)
             value = getFormatOption(vi, InputControl.FORMAT_NULL, InputControl.FORMAT_NULL_ATTRIBUTE);
         // Convert to String
-        String s = StringUtils.toString(value, StringUtils.EMPTY);
-        if (hasFormatOption(vi, "noencode"))
-            return s;
-        // Encode Html
-        return escapeHtml(s);
+        return StringUtils.toString(value, StringUtils.EMPTY);
     }
 
     /**
@@ -816,28 +830,6 @@ public abstract class InputControl
         String column = (vi.getColumn()!=null ? vi.getColumn().getName() : "?");
         log.error("The element \"{}\" is not part of the supplied option list for column {}", value, column);
         return null; 
-    }
-
-    /**
-     * Returns the value formated as a string
-     * This is a shortcut for formatString(vi.getValue(), vi)
-     * Derived classes may override formatString
-     
-    protected final String formatValue(ValueInfo vi)
-    {
-        // boolean hasError = ((vi instanceof InputInfo) && !((InputInfo)vi).isValid()); 
-        return formatValue(vi.getValue(true), vi);
-    }
-    */
-
-    /**
-     * Escapes a String for html
-     * @param text the text to escape
-     * @return the escaped html String
-     */
-    protected String escapeHtml(String text)
-    {
-        return HtmlUtils.getInstance().escapeText(text);
     }
 
     /**

@@ -30,7 +30,6 @@ import org.apache.empire.jakarta.app.FacesUtils;
 import org.apache.empire.jakarta.controls.InputControl;
 import org.apache.empire.jakarta.controls.InputControlManager;
 import org.apache.empire.jakarta.utils.ParameterMap;
-import org.apache.empire.jakarta.utils.StringResponseWriter;
 import org.apache.empire.jakarta.utils.TagEncodingHelper;
 import org.apache.empire.jakarta.utils.TagEncodingHelperFactory;
 import org.apache.empire.jakarta.utils.TagStyleClass;
@@ -278,18 +277,9 @@ public class LinkTag extends UIOutput // implements NamingContainer
             helper.prepareData();
             InputControl control = helper.getInputControl();
             InputControl.ValueInfo vi = helper.getValueInfo(FacesContext.getCurrentInstance());
-            // render value
-            StringResponseWriter srw = new StringResponseWriter();
-            try
-            {
-                Object value = vi.getValue(true);
-                control.renderValue(value, vi, srw);
-            }
-            catch (IOException e)
-            {   // Error rendering value
-                log.error("Failed to render value for "+vi.getColumn().getName()+" error is:"+e.getMessage(), e);
-            }
-            return srw.toString();
+            // return formatted value
+            Object value = vi.getValue(true);
+            return control.formatValue(value, vi, false);
         }
         else
         {   // An ordinary link

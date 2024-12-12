@@ -18,6 +18,7 @@
  */
 package org.apache.empire.jakarta.app;
 
+import java.io.IOException;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.text.MessageFormat;
@@ -37,6 +38,7 @@ import org.apache.empire.db.context.DBRollbackManager.ReleaseAction;
 import org.apache.empire.exceptions.EmpireException;
 import org.apache.empire.exceptions.InternalException;
 import org.apache.empire.exceptions.InvalidArgumentException;
+import org.apache.empire.exceptions.InvalidOperationException;
 import org.apache.empire.exceptions.NotSupportedException;
 import org.apache.empire.exceptions.UnexpectedReturnValueException;
 import org.apache.empire.jakarta.controls.TextAreaInputControl;
@@ -53,6 +55,7 @@ import jakarta.faces.application.FacesMessage.Severity;
 import jakarta.faces.component.NamingContainer;
 import jakarta.faces.component.UIComponent;
 import jakarta.faces.component.UIViewRoot;
+import jakarta.faces.context.ExternalContext;
 import jakarta.faces.context.FacesContext;
 import jakarta.faces.event.ExceptionQueuedEvent;
 import jakarta.faces.event.ExceptionQueuedEventContext;
@@ -164,6 +167,7 @@ public abstract class WebApplication
     public void onViewNotFound(final FacesContext fc, final HttpServletRequest req)
     {   // View not Found Error
         log.warn("No view found for request to '{}'. Use FacesUtils.redirectDirectly() to redirect to valid view.", req.getRequestURI());
+        redirectDirectly(fc, StringUtils.EMPTY);
     }
 
     /**
@@ -339,6 +343,50 @@ public abstract class WebApplication
     }
     
     /**
+     * Redirects to another page or url
+     * @param fc the FacesContext
+     * @param url the target url
+     */
+    public void redirectDirectly(final FacesContext fc, String url)
+    {
+        try
+        {   // check params
+            if (fc==null)
+                throw new InvalidArgumentException("fc", fc);
+            if (fc.getResponseComplete())
+                throw new InvalidOperationException("Unable to redirect. Response is already complete!");
+            if (url==null)
+                url = StringUtils.EMPTY; // redirect to root
+            // Prepend Context-Path
+            ExternalContext ec = fc.getExternalContext(); 
+            String ctxPath = ec.getRequestContextPath();
+            if (url.indexOf("://")>0)
+            {   // Should not contain the context-path
+                if (url.startsWith("http") && url.indexOf(ctxPath)>0)
+                    log.warn("Redirect url \"{}\" contains protokoll and context-path. Please remove.", url);
+                else
+                    log.info("Redirecting to absolute url {}", url);
+            }
+            else if (!url.startsWith(ctxPath))
+            {   // assemble url
+                String sep = (url.length()>0 && url.charAt(0)!='/' ? "/" : null);
+                url = StringUtils.concat(ctxPath, sep, url);
+                // relative
+                log.debug("Redirecting to relative url {}", url);
+            }
+            else
+                log.warn("Redirect url \"{}\" already contains context-path. Please remove.", url);
+            // redirectDirectly
+            ec.redirect(url);
+            fc.responseComplete();
+        }
+        catch (IOException e)
+        {   // What can we do now?
+            log.error("Failed to redirect to {}", url, e);
+        }
+    }
+    
+    /**
      * Handles an exeption, that could not be handled on the page level
      * The application should redirect to the error page.
      * @param context the faces context
@@ -366,8 +414,7 @@ public abstract class WebApplication
         }
             
         // If all has failed, redirect to ContextPath (root)
-        String contextPath = context.getExternalContext().getRequestContextPath();
-        FacesUtils.redirectDirectly(context, contextPath);
+        redirectDirectly(context, StringUtils.EMPTY);
     }
     
     /**

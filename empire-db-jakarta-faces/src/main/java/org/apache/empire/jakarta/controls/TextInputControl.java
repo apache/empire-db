@@ -255,11 +255,6 @@ public class TextInputControl extends InputControl
     @Override
     protected String formatValue(Object value, ValueInfo vi)
     {
-        return formatValue(value, vi, true);
-    }
-
-    protected String formatValue(Object value, ValueInfo vi, boolean escapeHTML)
-    {
         // Lookup and return text
         Options options = vi.getOptions();
         if (options != null && !hasFormatOption(vi, "nolookup"))
@@ -282,13 +277,7 @@ public class TextInputControl extends InputControl
         DataType dataType = getValueType(value, (column != null) ? column.getDataType() : DataType.UNKNOWN);
         if (dataType.isText() || dataType == DataType.UNKNOWN)
         { // String
-            String s = String.valueOf(value);
-            if (hasFormatOption(vi, "noencode"))
-                return s;
-            // Encoded text
-            if (escapeHTML)
-                s = escapeHtml(s);
-            return s;
+            return String.valueOf(value);
         }
         if (dataType == DataType.INTEGER || dataType == DataType.AUTOINC)
         { // Integer
@@ -314,10 +303,6 @@ public class TextInputControl extends InputControl
          *  }
          */
         // Convert to String
-        if (escapeHTML)
-        {
-            return escapeHtml(String.valueOf(value));
-        }
         return String.valueOf(value);
     }
 
@@ -347,7 +332,7 @@ public class TextInputControl extends InputControl
         if (options != null && !options.isEmpty())
             return value;
         // Format
-        return formatValue(value, ii, false);
+        return formatValue(value, ii);
     }
 
     // ------- render -------
