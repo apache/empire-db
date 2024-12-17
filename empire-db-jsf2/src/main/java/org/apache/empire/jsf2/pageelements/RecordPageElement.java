@@ -30,13 +30,13 @@ import org.apache.empire.jsf2.pages.PageElement;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class RecordPageElement<T extends DBRecord> extends PageElement
+public class RecordPageElement<T extends DBRecord> extends PageElement<Page>
 {
     // *Deprecated* private static final long serialVersionUID = 1L;
 
-    private static final Logger log              = LoggerFactory.getLogger(RecordPageElement.class);
+    private static final Logger log = LoggerFactory.getLogger(RecordPageElement.class);
 
-    protected DBRowSet rowset;
+    protected final DBRowSet rowset;
 
     protected T record;
     

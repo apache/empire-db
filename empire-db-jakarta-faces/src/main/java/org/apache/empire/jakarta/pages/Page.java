@@ -46,14 +46,14 @@ public abstract class Page // *Deprecated* implements Serializable
 {
     // *Deprecated* private static final long serialVersionUID = 1L;
 
-    public static final String  SESSION_MESSAGE  = "PAGE_SESSION_MESSAGE";
+    public static final String   SESSION_MESSAGE = "PAGE_SESSION_MESSAGE";
 
-    private static final Logger log              = LoggerFactory.getLogger(Page.class);
+    private static final Logger  log             = LoggerFactory.getLogger(Page.class);
 
-    private String              action           = null;
-    private short               initialized      = -1;   // -1=not initialized; 0=pending; 1=initialized
-    private PageDefinition      pageDefinition   = null;
-    private List<PageElement>   pageElements     = null;
+    private String               action          = null;
+    private short                initialized     = -1;  // -1=not initialized; 0=pending; 1=initialized
+    private PageDefinition       pageDefinition  = null;
+    private List<PageElement<?>> pageElements    = null;
 
     protected Page()
     {
@@ -395,10 +395,10 @@ public abstract class Page // *Deprecated* implements Serializable
      * 
      * @param element
      */
-    protected void registerPageElement(PageElement element)
+    protected void registerPageElement(PageElement<?> element)
     {
         if (pageElements == null)
-            pageElements = new ArrayList<PageElement>(1);
+            pageElements = new ArrayList<PageElement<?>>(1);
         // register now
         if (pageElements.contains(element) == false)
             pageElements.add(element);
@@ -525,7 +525,7 @@ public abstract class Page // *Deprecated* implements Serializable
     {
         if (pageElements != null)
         {   // Init Page Elements
-            for (PageElement pe : pageElements)
+            for (PageElement<?> pe : pageElements)
                 doInitElement(pe);
         }
     }
@@ -534,7 +534,7 @@ public abstract class Page // *Deprecated* implements Serializable
     {
         if (pageElements != null)
         {   // Refresh Page Elements
-            for (PageElement pe : pageElements)
+            for (PageElement<?> pe : pageElements)
                 doRefreshElement(pe);
         }
     }
@@ -543,7 +543,7 @@ public abstract class Page // *Deprecated* implements Serializable
      * called by doInit() to initialize a particular page element
      * @param pe the page element to initialize
      */
-    protected void doInitElement(PageElement pe)
+    protected void doInitElement(PageElement<?> pe)
     {
         pe.onInitPage();
     }
@@ -552,7 +552,7 @@ public abstract class Page // *Deprecated* implements Serializable
      * called by doRefresh() to refresh a particular page element
      * @param pe the page element to refresh
      */
-    protected void doRefreshElement(PageElement pe)
+    protected void doRefreshElement(PageElement<?> pe)
     {
         pe.onRefreshPage();
     }

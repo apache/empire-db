@@ -38,7 +38,7 @@ import org.apache.empire.jakarta.pages.PageElement;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public abstract class ListPageElement<T> extends PageElement
+public abstract class ListPageElement<T> extends PageElement<Page>
 {
     // *Deprecated* private static final long serialVersionUID = 1L;
 

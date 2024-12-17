@@ -137,6 +137,18 @@ public class ArraySet<E> extends ArrayList<E> implements Set<E>
     {
         super(initialCapacity);
     }
+
+    /**
+     * Constructor with initial list 
+     */
+    @SafeVarargs
+    public ArraySet(E... items)
+    {
+        super(items.length);
+        // add all
+        for (int i=0; i<items.length; i++)
+            add(items[i]);
+    }
     
     /**
      * Copy constructor
@@ -203,6 +215,12 @@ public class ArraySet<E> extends ArrayList<E> implements Set<E>
             return (index>=0);
         }
         return super.remove(item);
+    }
+    
+    @Override
+    public String toString()
+    {
+        return StringUtils.listToString(this, StringUtils.LIST_TEMPLATE);        
     }
     
     /*

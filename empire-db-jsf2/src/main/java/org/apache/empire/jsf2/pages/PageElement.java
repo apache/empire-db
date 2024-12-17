@@ -27,23 +27,23 @@ import org.apache.empire.db.DBRowSet;
 import org.apache.empire.exceptions.InvalidArgumentException;
 
 
-public class PageElement // *Deprecated* implements Serializable
+public class PageElement<P extends Page> // *Deprecated* implements Serializable
 {
     // *Deprecated* private static final long serialVersionUID = 1L;
 
-    private final Page  page;
+    protected final P page;
 
-    private final String    propertyName;
+    private final String propertyName;
 
-    protected PageElement(Page page, String propertyName)
+    protected PageElement(P page, String name)
     {
         if (page==null)
             throw new InvalidArgumentException("page", page);
-        if (StringUtils.isEmpty(propertyName))
-            throw new InvalidArgumentException("propertyName", propertyName);
+        if (StringUtils.isEmpty(name))
+            throw new InvalidArgumentException("name", name);
         // set params
         this.page = page;
-        this.propertyName = propertyName;
+        this.propertyName = name;
         // register with page
         page.registerPageElement(this);
     }
@@ -53,7 +53,7 @@ public class PageElement // *Deprecated* implements Serializable
         return propertyName;
     }
     
-    public Page getPage()
+    public P getPage()
     {
         return page;
     }
@@ -73,14 +73,14 @@ public class PageElement // *Deprecated* implements Serializable
     @SuppressWarnings("unchecked")
     protected <T> T getSessionObject(Class<T> type)
     {
-        String beanName = page.getPageName() + "." + propertyName + "." + type.getSimpleName();
+        String beanName = StringUtils.concat(page.getPageName(), ".", propertyName, ".", type.getSimpleName());
         Map<String, Object> map = FacesContext.getCurrentInstance().getExternalContext().getSessionMap();
         return (T) map.get(beanName);
     }
 
     protected <T> void setSessionObject(Class<T> type, T object)
     {
-        String beanName = page.getPageName() + "." + propertyName + "." + type.getSimpleName();
+        String beanName = StringUtils.concat(page.getPageName(), ".", propertyName, ".", type.getSimpleName());
         Map<String, Object> map = FacesContext.getCurrentInstance().getExternalContext().getSessionMap();
         if (object != null)
             map.put(beanName, object);
@@ -88,7 +88,7 @@ public class PageElement // *Deprecated* implements Serializable
             map.remove(beanName);
     }
 
-    protected <T> void removeSessionObject(Class<T> type)
+    protected final <T> void removeSessionObject(Class<T> type)
     {
         setSessionObject(type, null);
     }
@@ -151,13 +151,4 @@ public class PageElement // *Deprecated* implements Serializable
         return res;
     }
     
-    /**
-     * Javascript Call
-     * 
-     * @param function
-    protected void addJavascriptCall(String function)
-    {
-        page.addJavascriptCall(function);
-    }
-     */
 }
