@@ -1065,14 +1065,9 @@ public class DBUtils implements DBContextAware
                 R entry = factory.newRecord(rownum, r);
                 if (entry==null)
                     continue;
-                // check
-                if (entry.isValid())
-                {   // add entry
-                    list.add(entry);
-                    rownum++;
-                }
-                else
-                    log.trace("Record {} is not valid thus it will not be added to the RecordListQuery.", rownum);
+                // add entry
+                list.add(entry);
+                rownum++;
                 // Decrease count
                 if (maxCount > 0)
                     maxCount--;

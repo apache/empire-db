@@ -30,6 +30,7 @@ import org.apache.empire.commons.ObjectUtils;
 import org.apache.empire.commons.StringUtils;
 import org.apache.empire.data.DataType;
 import org.apache.empire.db.expr.column.DBAliasExpr;
+import org.apache.empire.db.expr.column.DBValueExpr;
 import org.apache.empire.db.expr.compare.DBCompareAndOrExpr;
 import org.apache.empire.db.expr.compare.DBCompareColExpr;
 import org.apache.empire.db.expr.compare.DBCompareExpr;
@@ -1238,6 +1239,9 @@ public abstract class DBCommand extends DBCommandExpr
         // Unwrap DBAliasExpr only
         if (columnExpr instanceof DBAliasExpr)
             columnExpr = ((DBAliasExpr)columnExpr).unwrap();
+        // Ignore Value expr (added 20241224)
+        if (columnExpr instanceof DBValueExpr)
+            return this;
         // Already present?
         if (groupBy.contains(columnExpr))
             return this;
@@ -1287,7 +1291,7 @@ public abstract class DBCommand extends DBCommandExpr
         // check select expression
         if (select == null)
             return this;
-        // make a group by array
+        // group all columns
         for (DBColumnExpr expr : select)
         {
             if (expr.isAggregate())

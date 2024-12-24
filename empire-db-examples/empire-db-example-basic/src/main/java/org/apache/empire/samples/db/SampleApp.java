@@ -493,7 +493,8 @@ public class SampleApp
            .orderBy(EMPLOYEE_NAME);
 
         // Add payment of last year using a SUM aggregation
-        cmd.groupBy(cmd.getSelectExpressions());
+        // cmd.groupBy(cmd.getSelectExpressions());
+        cmd.groupAll();
         cmd.select(PAYMENTS_LAST_YEAR);
 
         /*

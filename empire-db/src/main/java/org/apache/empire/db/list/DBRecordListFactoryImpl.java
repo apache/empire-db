@@ -24,10 +24,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.empire.commons.ClassUtils;
+import org.apache.empire.db.DBColumn;
 import org.apache.empire.db.DBCommand;
 import org.apache.empire.db.DBContext;
 import org.apache.empire.db.DBRecord;
 import org.apache.empire.db.DBRecordBase;
+import org.apache.empire.db.DBRecordBase.State;
 import org.apache.empire.db.DBRecordBean;
 import org.apache.empire.db.DBRecordData;
 import org.apache.empire.db.DBRowSet;
@@ -79,6 +81,7 @@ public class DBRecordListFactoryImpl<T extends DBRecordBase> implements DBRecord
      */
     protected final Constructor<T> constructor;
     protected final DBRowSet rowset;
+    protected final int timestampIndex;
     
     /**
      * Constructs a DBRecordListFactoryImpl based on an DBRecord constructor
@@ -89,6 +92,9 @@ public class DBRecordListFactoryImpl<T extends DBRecordBase> implements DBRecord
     {
         this.constructor = constructor;
         this.rowset = rowset;
+        // Timestamp column index
+        DBColumn timestampCol = rowset.getTimestampColumn();
+        this.timestampIndex = (timestampCol!=null ? rowset.getColumnIndex(timestampCol) : -1);
     }
     
     /**
@@ -124,7 +130,11 @@ public class DBRecordListFactoryImpl<T extends DBRecordBase> implements DBRecord
     @Override
     public T newRecord(int rownum, DBRecordData recData)
     {   try
-        {   // create item
+        {   // detect state
+            State state = detectRecordState(recData);
+            if (state==null)
+                return null; // ignore this record
+            // create item
             T record;
             switch(constructor.getParameterCount())
             {
@@ -140,7 +150,9 @@ public class DBRecordListFactoryImpl<T extends DBRecordBase> implements DBRecord
                 log.warn("DBRecordListFactoryImpl rowset ({}) and actual record rowset ({}) don't match!", rowset.getName(), record.getRowSet().getName());
                 throw new InvalidPropertyException("rowset", record.getRowSet());
             }
-            rowset.initRecord(record, recData);
+            // load data
+            if (state!=State.Invalid)
+                rowset.initRecord(record, recData, (state==State.New));
             return record;
         }
         catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e)
@@ -153,6 +165,15 @@ public class DBRecordListFactoryImpl<T extends DBRecordBase> implements DBRecord
     public void completeQuery(List<T> list)
     { 
         /* Nothing */
+    }
+    
+    protected State detectRecordState(DBRecordData recData)
+    {
+        // new or existing record?
+        if (timestampIndex>=0 && recData.isNull(timestampIndex))
+            return State.New;
+        // valid
+        return State.Valid;
     }
     
 }
