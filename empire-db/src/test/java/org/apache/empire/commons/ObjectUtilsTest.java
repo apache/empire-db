@@ -87,13 +87,24 @@ public class ObjectUtilsTest
 		assertTrue(ObjectUtils.compareEqual("", null));
 		assertTrue(ObjectUtils.compareEqual(null, ""));
 		assertFalse(ObjectUtils.compareEqual("", " "));
-		
+
+		// Numbers
+        int ival = 4711;
+        long lval = 4711l;
+        float fval= 4711f;
+        double dval = 4711d;
+        assertTrue(ObjectUtils.compareEqual(ival, lval));
+        assertTrue(ObjectUtils.compareEqual(ival, fval));
+        assertTrue(ObjectUtils.compareEqual(fval, lval));
+        assertTrue(ObjectUtils.compareEqual(dval, ival));
+        assertTrue(ObjectUtils.compareEqual(fval, dval));
+
 		assertTrue(ObjectUtils.compareEqual(Long.valueOf(100), Integer.valueOf(100)));
 		assertTrue(ObjectUtils.compareEqual(Float.valueOf(100), Integer.valueOf(100)));
 		assertTrue(ObjectUtils.compareEqual(Float.valueOf(100.0123f), Double.valueOf(100.0123f)));
-
 		assertFalse(ObjectUtils.compareEqual(Float.valueOf(100.0123f), Long.valueOf(100)));
 		
+		// Date
 		Date date = new Date();
 		Date dateEq = new Date(date.getTime());
 		Date dateDiff = new Date(123);
