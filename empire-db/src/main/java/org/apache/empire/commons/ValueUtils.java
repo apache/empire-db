@@ -747,11 +747,11 @@ public class ValueUtils
                     throw new ValueConversionException(Date.class, value, e);
                 }
             case INTEGER:
-                return (value instanceof Integer) ? value : toLong(value);
+                return (value instanceof Number) ? value : toLong(value);
             case FLOAT:
-                return toDouble(value);
+                return (value instanceof Number) ? value : toDouble(value);
             case DECIMAL:
-                return toDecimal(value);
+                return (value instanceof Number) ? value : toDecimal(value);
             case CHAR:
             case CLOB:
             case VARCHAR:                
