@@ -23,6 +23,7 @@ import java.util.Set;
 import org.apache.empire.commons.DateUtils;
 import org.apache.empire.commons.ObjectUtils;
 import org.apache.empire.data.DataType;
+import org.apache.empire.db.expr.column.DBValueExpr;
 import org.apache.empire.exceptions.InvalidOperationException;
 
 /**
@@ -48,6 +49,16 @@ public class DBCmdParam extends DBExpr
         this.cmd = cmd;
         this.type = type;
         this.value = getCmdParamValue(value);
+    }
+
+    /**
+     * Returns a value expression for this param
+     * @param db the database
+     * @return the value expression 
+     */
+    public DBValueExpr getValueExpr(DBDatabase db)
+    {
+        return db.getValueExpr(this, type);
     }
 
     /**

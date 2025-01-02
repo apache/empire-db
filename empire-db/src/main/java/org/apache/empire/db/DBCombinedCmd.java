@@ -37,10 +37,19 @@ public class DBCombinedCmd extends DBCommandExpr
 {
     // *Deprecated* private static final long serialVersionUID = 1L;
 
+    @Override
+    protected DBSQLBuilder createSQLBuilder(String initalSQL)
+    {
+        DBSQLBuilder sql = super.createSQLBuilder(initalSQL);
+        sql.setCmdParams(this.cmdParams);
+        return sql;
+    }
+
     // Members
-    protected DBCommandExpr left;
-    protected DBCommandExpr right;
-    protected String        keyWord;
+    protected DBCommandExpr  left;
+    protected DBCommandExpr  right;
+    protected String         keyWord;
+    protected DBCmdParamList cmdParams;
 
     /**
      * Constructs a new DBFuncExpr object and
@@ -56,6 +65,7 @@ public class DBCombinedCmd extends DBCommandExpr
         this.left = left;
         this.right = right;
         this.keyWord = keyWord;
+        this.cmdParams = new DBCmdParamList();
     }
 
     @Override
@@ -206,12 +216,13 @@ public class DBCombinedCmd extends DBCommandExpr
     @Override
     public void getSelect(DBSQLBuilder sql)
     {
+        cmdParams.clear(0);
         // the left part
         left.clearOrderBy();
         if (!(left instanceof DBCombinedCmd))
         {
             sql.append("(");
-            left.getSelect(sql);
+            sql.append(left);
             sql.append(")");
         }
         else
@@ -225,7 +236,7 @@ public class DBCombinedCmd extends DBCommandExpr
         if (!(right instanceof DBCombinedCmd))
         {
             sql.append("(");
-            right.getSelect(sql);
+            sql.append(right);
             sql.append(")");
         }
         else
