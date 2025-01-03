@@ -37,6 +37,7 @@ public class DBCmdParam extends DBExpr
     protected DBCommand cmd;
     protected DataType  type;
     protected Object    value;
+    protected Object    reference;
 
     /**
      * Protected constructor used e.g. by DBCommand.addParam(...) 
@@ -172,5 +173,25 @@ public class DBCmdParam extends DBExpr
     public void setValue(Object value)
     {
         this.value = getCmdParamValue(value);
+    }
+
+    /**
+     * Returns the reference object associated with this param
+     * @return the reference object or null
+     */
+    public Object getReference()
+    {
+        return reference;
+    }
+
+    /**
+     * Sets a reference object associated with this param
+     * @param reference the reference object
+     * @return this object 
+     */
+    public DBCmdParam setReference(Object reference)
+    {
+        this.reference = reference;
+        return this;
     }
 }
