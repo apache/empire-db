@@ -45,6 +45,8 @@ public final class ClassUtils
 {
     // Logger
     private static final Logger log = LoggerFactory.getLogger(ClassUtils.class);
+
+    public static final Object[] EMPTY_ARGS = new Object[0];
     
     /*
      * ClassUtils contains static methods only
@@ -670,6 +672,24 @@ public final class ClassUtils
         return invokeSimpleMethod(object.getClass(), object, methodName, true);
     }
 
+    /**
+     * Invoke a simple method (without parameters) on an object
+     * @param object the object on which to invoke the method
+     * @param method the method
+     * @return the return value
+     */
+    public static Object invokeSimpleMethod(Object object, Method method)
+    {
+        try
+        {
+            return method.invoke(object, EMPTY_ARGS);
+        }
+        catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e)
+        {
+            throw new NotSupportedException(object, method.getName(), e); 
+        } 
+    }
+    
     /**
      * Returns the JAR name that contains the implementation of a specific class
      * @param clazz the class 

@@ -18,6 +18,7 @@
  */
 package org.apache.empire.jsf2.impl;
 
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -153,6 +154,14 @@ public class MojarraImplementation implements FacesImplementation
         }
         // now unwrap using the ValueExpressionUnwrapper 
         return ValueExpressionUnwrapper.getInstance().unwrap(ve);
+    }
+    
+    @Override
+    public Method getAttributeMethod(final UIComponent component, String attribute, boolean writeMethod)
+    {
+        // Not yet implemented. 
+        // Is Implementation required?
+        return null;
     }
     
     private BeanStorageProvider beanStorage = null;

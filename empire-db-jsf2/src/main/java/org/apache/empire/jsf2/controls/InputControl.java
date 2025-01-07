@@ -508,7 +508,8 @@ public abstract class InputControl
         /* -------------------------------------- */
 
         // Assign value
-        Object value = ii.getValue(false);
+        boolean evalExpression = !InputControlManager.isInputValueExpressionEnabled();
+        Object value = ii.getValue(evalExpression);
         if (value instanceof ValueExpression)
         {
             input.setValue(null);

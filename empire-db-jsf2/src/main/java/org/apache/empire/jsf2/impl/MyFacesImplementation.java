@@ -18,7 +18,9 @@
  */
 package org.apache.empire.jsf2.impl;
 
+import java.lang.reflect.Method;
 import java.util.List;
+import java.util.Map;
 
 import javax.el.ELContext;
 import javax.el.ELResolver;
@@ -137,6 +139,25 @@ public class MyFacesImplementation implements FacesImplementation
         }
         // now unwrap using the ValueExpressionUnwrapper 
         return ValueExpressionUnwrapper.getInstance().unwrap(ve);
+    }
+    
+    @Override
+    public Method getAttributeMethod(final UIComponent component, String attribute, boolean writeMethod)
+    {
+        try {
+            // get the map
+            Map<String, Object> attrMap = component.getAttributes();
+            Object propDescHolder = ClassUtils.invokeMethod(attrMap.getClass(), attrMap, "getPropertyDescriptor", new Class<?>[] { String.class }, new Object[] { "value" }, true);
+            if (propDescHolder == null)
+                return null;
+            // Get the method
+            Method method = (Method)ClassUtils.invokeSimplePrivateMethod(propDescHolder, (writeMethod ? "getWriteMethod" : "getReadMethod"));
+            return method;
+        } catch(Exception e) {
+            // Not valid
+            log.warn("FacesImplementation.getAttributeMethod() for {} failed with exception: {}", attribute, e);
+            return null;
+        }
     }
 
     private BeanStorageProvider beanStorage = null;

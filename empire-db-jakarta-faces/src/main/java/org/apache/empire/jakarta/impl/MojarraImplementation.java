@@ -18,16 +18,9 @@
  */
 package org.apache.empire.jakarta.impl;
 
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
-
-import jakarta.el.ELResolver;
-import jakarta.el.ValueExpression;
-import jakarta.faces.FacesException;
-import jakarta.faces.component.UIComponent;
-import jakarta.faces.context.ExternalContext;
-import jakarta.faces.context.FacesContext;
-import jakarta.servlet.ServletContext;
 
 import org.apache.empire.exceptions.ItemExistsException;
 import org.apache.empire.exceptions.NotSupportedException;
@@ -46,6 +39,14 @@ import com.sun.faces.mgbean.BeanManager;
 import com.sun.faces.mgbean.ManagedBeanInfo;
 import com.sun.faces.spi.InjectionProvider;
 import com.sun.faces.spi.InjectionProviderException;
+
+import jakarta.el.ELResolver;
+import jakarta.el.ValueExpression;
+import jakarta.faces.FacesException;
+import jakarta.faces.component.UIComponent;
+import jakarta.faces.context.ExternalContext;
+import jakarta.faces.context.FacesContext;
+import jakarta.servlet.ServletContext;
 
 public class MojarraImplementation implements FacesImplementation 
 {
@@ -153,6 +154,14 @@ public class MojarraImplementation implements FacesImplementation
         }
         // now unwrap using the ValueExpressionUnwrapper 
         return ValueExpressionUnwrapper.getInstance().unwrap(ve);
+    }
+    
+    @Override
+    public Method getAttributeMethod(final UIComponent component, String attribute, boolean writeMethod)
+    {
+        // Not yet implemented. 
+        // Is Implementation required?
+        return null;
     }
     
     private BeanStorageProvider beanStorage = null;

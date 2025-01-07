@@ -20,6 +20,7 @@ package org.apache.empire.jsf2.utils;
 
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Locale;
@@ -44,6 +45,7 @@ import org.apache.commons.beanutils.BeanUtilsBean;
 import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.commons.beanutils.PropertyUtilsBean;
 import org.apache.empire.commons.Attributes;
+import org.apache.empire.commons.ClassUtils;
 import org.apache.empire.commons.ObjectUtils;
 import org.apache.empire.commons.Options;
 import org.apache.empire.commons.StringUtils;
@@ -82,6 +84,7 @@ import org.apache.empire.jsf2.controls.InputControl.ValueInfo;
 import org.apache.empire.jsf2.controls.InputControlManager;
 import org.apache.empire.jsf2.controls.SelectInputControl;
 import org.apache.empire.jsf2.controls.TextInputControl;
+import org.apache.empire.jsf2.impl.FacesImplementation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -826,7 +829,13 @@ public class TagEncodingHelper implements NamingContainer
                 if (value!=null && (component instanceof UIInput) && !((UIInput)component).isLocalValueSet())
                     value= null; /* should never come here! */
                 if (value==null)
+                {   // Check readMethod
+                    Method readMethod = FacesUtils.getFacesImplementation().getAttributeMethod(this.component, "value", false);
+                    if (readMethod!=null)
+                        return ClassUtils.invokeSimpleMethod(this.component, readMethod); // attribute is a javabean property!
+                    // use a value expression
                     value = findValueExpression("value");
+                }
                 // Return the local value or the ValueExpression if any
                 return value;
             }
@@ -936,6 +945,12 @@ public class TagEncodingHelper implements NamingContainer
         // if value expression, don't check further
         if (hasValueExpression()) 
         {   // check readonly
+            FacesImplementation impl = FacesUtils.getFacesImplementation();
+            if (impl.getAttributeMethod(this.component, "value", false)!=null)
+            {   // attribute is a javabean property! 
+                return (impl.getAttributeMethod(this.component, "value", true)==null);
+            }
+            // Check value expression
             ValueExpression ve = findValueExpression("value");
             return (ve!=null ? ve.isReadOnly(FacesContext.getCurrentInstance().getELContext()) : null);
         }

@@ -106,6 +106,18 @@ public final class InputControlManager
         InputControlManager.attachedObjectsHandler = attachedObjectsHandler;
     }
 
+    static boolean inputValueExpressionEnabled = true;
+    
+    public static boolean isInputValueExpressionEnabled()
+    {
+        return inputValueExpressionEnabled;
+    }
+
+    public static void setInputValueExpressionEnabled(boolean valueExpressionEnabled)
+    {
+        inputValueExpressionEnabled = valueExpressionEnabled;
+    }
+
     private static Map<Class<? extends UIComponent>, String> componentTypeMap = new HashMap<Class<? extends UIComponent>, String>();
 
     @SuppressWarnings("unchecked")

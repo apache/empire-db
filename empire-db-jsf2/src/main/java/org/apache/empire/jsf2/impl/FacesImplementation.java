@@ -18,6 +18,8 @@
  */
 package org.apache.empire.jsf2.impl;
 
+import java.lang.reflect.Method;
+
 import javax.el.ELResolver;
 import javax.el.ValueExpression;
 import javax.faces.component.UIComponent;
@@ -106,6 +108,15 @@ public interface FacesImplementation
 	 */
 	ValueExpression unwrapValueExpression(ValueExpression ve);
 
+    /**
+     * Returns a read or write method for an attribute
+     * @param component the component
+     * @param attribute the attribute name
+     * @param writeMethod flag wheter to the read or write method
+     * @return the method or null
+     */
+    Method getAttributeMethod(final UIComponent component, String attribute, boolean writeMethod);
+	
     /**
      * BeanStorageProvider
      * @author rainer
