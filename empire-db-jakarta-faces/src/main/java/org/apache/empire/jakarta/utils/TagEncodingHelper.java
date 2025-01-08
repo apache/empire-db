@@ -830,7 +830,7 @@ public class TagEncodingHelper implements NamingContainer
                     value= null; /* should never come here! */
                 if (value==null)
                 {   // Check readMethod
-                    Method readMethod = FacesUtils.getFacesImplementation().getAttributeMethod(this.component, "value", false);
+                    Method readMethod = FacesUtils.getFacesImplementation().getPropertyMethod(this.component, "value", false);
                     if (readMethod!=null)
                         return ClassUtils.invokeSimpleMethod(this.component, readMethod); // attribute is a javabean property!
                     // use a value expression
@@ -946,9 +946,9 @@ public class TagEncodingHelper implements NamingContainer
         if (hasValueExpression()) 
         {   // check readonly
             FacesImplementation impl = FacesUtils.getFacesImplementation();
-            if (impl.getAttributeMethod(this.component, "value", false)!=null)
+            if (impl.getPropertyMethod(this.component, "value", false)!=null)
             {   // attribute is a javabean property! 
-                return (impl.getAttributeMethod(this.component, "value", true)==null);
+                return (impl.getPropertyMethod(this.component, "value", true)==null);
             }
             // Check value expression
             ValueExpression ve = findValueExpression("value");

@@ -157,7 +157,7 @@ public class MojarraImplementation implements FacesImplementation
     }
     
     @Override
-    public Method getAttributeMethod(final UIComponent component, String attribute, boolean writeMethod)
+    public Method getPropertyMethod(final UIComponent component, String attribute, boolean writeMethod)
     {
         // Not yet implemented. 
         // Is Implementation required?

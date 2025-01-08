@@ -109,13 +109,13 @@ public interface FacesImplementation
 	ValueExpression unwrapValueExpression(ValueExpression ve);
 
     /**
-     * Returns a read or write method for an attribute
-     * @param component the component
+     * Returns a read or write method for an JavaBean property
+     * @param component the UIComponent
      * @param attribute the attribute name
-     * @param writeMethod flag wheter to the read or write method
+     * @param writeMethod flag whether to the read or write method
      * @return the method or null
      */
-    Method getAttributeMethod(final UIComponent component, String attribute, boolean writeMethod);
+    Method getPropertyMethod(final UIComponent component, String attribute, boolean writeMethod);
 	
     /**
      * BeanStorageProvider
