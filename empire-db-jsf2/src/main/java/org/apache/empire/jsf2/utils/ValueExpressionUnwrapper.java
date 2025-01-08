@@ -20,6 +20,7 @@ package org.apache.empire.jsf2.utils;
 
 import javax.el.ValueExpression;
 import javax.el.VariableMapper;
+import javax.faces.FacesWrapper;
 
 import org.apache.empire.commons.ClassUtils;
 import org.apache.empire.commons.StringUtils;
@@ -75,16 +76,20 @@ public class ValueExpressionUnwrapper
         log.debug("Instance of {} created", this.getClass().getName());
     }
     
-    public ValueExpression unwrap(ValueExpression ve)
+    @SuppressWarnings("unchecked")
+    public ValueExpression unwrap(ValueExpression ve, String exprPrefix)
     {   // now unwrap ValueExpressionImpl
         if (ve!=null && !ve.isLiteralText())
         {   // immediate evaluation?
             String expression = ve.getExpressionString();
-            if (expression.startsWith("${"))
+            if (expression.startsWith(exprPrefix))
             {   // expected: ve = org.apache.el.ValueExpressionImpl
-                if (ve.getClass().getName().equals("org.apache.el.ValueExpressionImpl"))
+                ValueExpression veImpl = ve;
+                if (veImpl instanceof FacesWrapper<?>)
+                    veImpl = ((FacesWrapper<ValueExpression>)veImpl).getWrapped();
+                if (veImpl.getClass().getName().equals("org.apache.el.ValueExpressionImpl"))
                 {   // get the Node
-                    Object node = ClassUtils.invokeSimplePrivateMethod(ve, "getNode");
+                    Object node = ClassUtils.invokeSimplePrivateMethod(veImpl, "getNode");
                     if (node!=null)
                     {   // We have a Node
                         // Now get the Image
@@ -92,7 +97,7 @@ public class ValueExpressionUnwrapper
                         if (StringUtils.isNotEmpty(image)) 
                         {   // We have an image
                             // Now find the varMapper
-                            VariableMapper varMapper = (VariableMapper)ClassUtils.getPrivateFieldValue(ve, "varMapper");
+                            VariableMapper varMapper = (VariableMapper)ClassUtils.getPrivateFieldValue(veImpl, "varMapper");
                             if (varMapper!=null)
                             {   // Resolve variable using mapper
                                 ve = varMapper.resolveVariable(image);

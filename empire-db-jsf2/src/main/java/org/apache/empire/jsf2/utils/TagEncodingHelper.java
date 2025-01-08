@@ -20,14 +20,12 @@ package org.apache.empire.jsf2.utils;
 
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Locale;
 import java.util.Set;
 
 import javax.el.ValueExpression;
-import javax.faces.FacesWrapper;
 import javax.faces.application.FacesMessage;
 import javax.faces.component.NamingContainer;
 import javax.faces.component.UIComponent;
@@ -45,7 +43,6 @@ import org.apache.commons.beanutils.BeanUtilsBean;
 import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.commons.beanutils.PropertyUtilsBean;
 import org.apache.empire.commons.Attributes;
-import org.apache.empire.commons.ClassUtils;
 import org.apache.empire.commons.ObjectUtils;
 import org.apache.empire.commons.Options;
 import org.apache.empire.commons.StringUtils;
@@ -84,7 +81,6 @@ import org.apache.empire.jsf2.controls.InputControl.ValueInfo;
 import org.apache.empire.jsf2.controls.InputControlManager;
 import org.apache.empire.jsf2.controls.SelectInputControl;
 import org.apache.empire.jsf2.controls.TextInputControl;
-import org.apache.empire.jsf2.impl.FacesImplementation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -815,27 +811,17 @@ public class TagEncodingHelper implements NamingContainer
         else
         {   // Get from tag
             if (evalExpression)
-            {   
+            {   // evaluate the value   
                 Object value = component.getValue();
-                /* Do we need to convert the value?
-                if (value!=null && (valueInfo instanceof InputInfo))
-                    value = getInputControl().getConvertedValue(component, (InputInfo)valueInfo, value);
-                */    
                 return value;
             }
             else
-            {   // Check LocalValue and ValueExpression
+            {   // Return the local value or the ValueExpression if any
                 Object value = component.getLocalValue();
                 if (value!=null && (component instanceof UIInput) && !((UIInput)component).isLocalValueSet())
                     value= null; /* should never come here! */
                 if (value==null)
-                {   // Check readMethod
-                    Method readMethod = FacesUtils.getFacesImplementation().getPropertyMethod(this.component, "value", false);
-                    if (readMethod!=null)
-                        return ClassUtils.invokeSimpleMethod(this.component, readMethod); // attribute is a javabean property!
-                    // use a value expression
-                    value = findValueExpression("value");
-                }
+                    value = getValueExpression();
                 // Return the local value or the ValueExpression if any
                 return value;
             }
@@ -903,12 +889,11 @@ public class TagEncodingHelper implements NamingContainer
             }
         }
         else
-        { // Get from tag
-          // tag.setValue(value);
-            ValueExpression ve = component.getValueExpression("value");
+        {   // Set Value attribute
+            ValueExpression ve = getValueExpression();
             if (ve == null)
                 throw new PropertyReadOnlyException("value");
-
+            // set value
             FacesContext ctx = FacesContext.getCurrentInstance();
             ve.setValue(ctx.getELContext(), value);
         }
@@ -945,13 +930,7 @@ public class TagEncodingHelper implements NamingContainer
         // if value expression, don't check further
         if (hasValueExpression()) 
         {   // check readonly
-            FacesImplementation impl = FacesUtils.getFacesImplementation();
-            if (impl.getPropertyMethod(this.component, "value", false)!=null)
-            {   // attribute is a javabean property! 
-                return (impl.getPropertyMethod(this.component, "value", true)==null);
-            }
-            // Check value expression
-            ValueExpression ve = findValueExpression("value");
+            ValueExpression ve = getValueExpression();
             return (ve!=null ? ve.isReadOnly(FacesContext.getCurrentInstance().getELContext()) : null);
         }
         // check record component
@@ -1256,6 +1235,10 @@ public class TagEncodingHelper implements NamingContainer
         return rec;
     }
     
+    /*
+     * Old code
+     * Replaced 2025-01-08 with EMPIREDB-453
+     *
     protected boolean hasValueExpression()
     {
         // Find expression
@@ -1302,8 +1285,8 @@ public class TagEncodingHelper implements NamingContainer
             // find parent
             UIComponent valueParent = FacesUtils.getFacesImplementation().getValueParentComponent(ve);
             if (valueParent!=null)
-            {	// use the value parent
-            	parent = valueParent;
+            {   // use the value parent
+                parent = valueParent;
             }
             else
             {   // find parent
@@ -1319,11 +1302,7 @@ public class TagEncodingHelper implements NamingContainer
             // find attribute
             ValueExpression next = parent.getValueExpression(attrib);
             if (next == null)
-            {   /* allow literal (obsolte 2024-10-12)
-                if (allowLiteral && (parent.getAttributes().get(attrib)!=null))
-                    return ve;
-                */    
-                // not found
+            {   // not found
                 return null;
             }
             // get new expression String
@@ -1331,6 +1310,95 @@ public class TagEncodingHelper implements NamingContainer
             expr = ve.getExpressionString();
         }
         // found
+        return ve;
+    }
+    */
+    
+    protected ValueExpression getValueExpression()
+    {
+        return component.getValueExpression("value"); 
+    }
+    
+    protected boolean hasValueExpression()
+    {
+        // Find expression
+        if (this.hasValueExpr<0)
+        {   // Find top expression
+            ValueExpression ve = findTopValueExpression("value");            
+            /* 
+             * Alternatively, check ValueReference
+             *
+            ValueExpression ve = this.component.getValueExpression("value");
+            while (ve!=null)
+            {   // check ValueReference
+                ValueReference vr = ve.getValueReference(FacesContext.getCurrentInstance().getELContext());
+                if (vr==null)
+                {   // No value reference 
+                    ve = null;
+                }
+                else if (vr.getBase().getClass().getName().endsWith("CompositeComponentAttributesMapWrapper"))
+                {   // CompositeComponentELResolver
+                    ve = (ValueExpression)ClassUtils.invokeMethod(vr.getBase().getClass(), vr.getBase(), "getExpression", new Class<?>[] { String.class }, new Object[] { vr.getProperty() }, true);
+                }
+                else
+                {   // found
+                    if (log.isDebugEnabled())
+                        log.debug("ValueReference of of type {}", vr.getBase().getClass().getName());
+                    break;
+                }
+            }
+            */
+            // store result to avoid multiple detection 
+            hasValueExpr = ((ve!=null) ? (byte)1 : (byte)0);
+        }
+        return (hasValueExpr>0);
+    }
+    
+    // composite component expression
+    protected static final String CC_ATTR_EXPR = "#{cc.attrs.";
+    protected static String TAGLIB_ATTR_PREFIX = "${";
+    
+    protected ValueExpression findTopValueExpression(String attribute)
+    {
+        // Check for expression
+        ValueExpression ve = this.component.getValueExpression(attribute);
+        UIComponent parent = this.component;
+        while (ve!=null)
+        {
+            String expr = ve.getExpressionString();
+            if (expr.startsWith(CC_ATTR_EXPR))
+            {   // Unwrap composite component attribute
+                parent = UIComponent.getCompositeComponentParent(parent);
+                if (parent == null)
+                {   log.error("No CompositeComponentParent for {} expression was {}", getColumnName(), expr);
+                    return null; // parent not found
+                }
+                // check expression
+                int end = expr.indexOf('}');
+                String attrib = expr.substring(CC_ATTR_EXPR.length(), end);
+                if (attrib.indexOf('.')>0)
+                    break; // do not investigate any further
+                // next expression
+                ve = parent.getValueExpression(attrib);
+            }
+            else
+            {   // Unwrap for Facelet-Tags to work
+                ValueExpression next = ValueExpressionUnwrapper.getInstance().unwrap(ve, TAGLIB_ATTR_PREFIX);
+                if (ve==next)
+                    break; // do not investigate any further
+                // log result
+                ve = next;
+                // debug
+                if (log.isDebugEnabled())
+                {   // log result
+                    if (ve!=null && !expr.equals(ve.getExpressionString()))
+                        log.debug("ValueExpression \"{}\" has been resolved to \"{}\" from class {}", expr, ve.getExpressionString(), ve.getClass().getName());
+                    else if (ve==null)
+                        log.debug("ValueExpression \"{}\" has been resolved to NULL", expr);
+                }
+            }
+        }
+        // top expression or null
         return ve;
     }
 

@@ -681,8 +681,34 @@ public final class ClassUtils
     public static Object invokeSimpleMethod(Object object, Method method)
     {
         try
-        {
+        {   // check params
+            if (object==null || method==null)
+                throw new InvalidArgumentException("object|method", null);
+            // invoke
             return method.invoke(object, EMPTY_ARGS);
+        }
+        catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e)
+        {
+            throw new NotSupportedException(object, method.getName(), e); 
+        } 
+    }
+
+    /**
+     * Invoke a method with parameters on an object
+     * @param object the object on which to invoke the method
+     * @param method the method
+     * @return the return value
+     */
+    public static Object invokeMethod(Object object, Method method, Object... params)
+    {
+        try
+        {   // check params
+            if (object==null || method==null)
+                throw new InvalidArgumentException("object|method", null);
+            if (method.getParameterCount()!=params.length)
+                throw new InvalidArgumentException("params.length", params.length);
+            // invoke
+            return method.invoke(object, params);
         }
         catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e)
         {

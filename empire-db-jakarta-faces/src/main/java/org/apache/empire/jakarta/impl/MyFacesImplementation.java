@@ -18,16 +18,13 @@
  */
 package org.apache.empire.jakarta.impl;
 
-import java.lang.reflect.Method;
 import java.util.List;
-import java.util.Map;
 
 import org.apache.empire.commons.ClassUtils;
 import org.apache.empire.exceptions.InternalException;
 import org.apache.empire.exceptions.ItemExistsException;
 import org.apache.empire.exceptions.ItemNotFoundException;
 import org.apache.empire.exceptions.NotSupportedException;
-import org.apache.empire.jakarta.utils.ValueExpressionUnwrapper;
 import org.apache.myfaces.application.ApplicationImpl;
 import org.apache.myfaces.cdi.util.BeanEntry;
 import org.apache.myfaces.config.RuntimeConfig;
@@ -35,15 +32,12 @@ import org.apache.myfaces.config.impl.digester.elements.ManagedBeanImpl;
 import org.apache.myfaces.spi.InjectionProvider;
 import org.apache.myfaces.spi.InjectionProviderException;
 import org.apache.myfaces.spi.InjectionProviderFactory;
-import org.apache.myfaces.view.facelets.el.ContextAwareTagValueExpression;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import jakarta.el.ELContext;
 import jakarta.el.ELResolver;
-import jakarta.el.ValueExpression;
 import jakarta.faces.application.Application;
-import jakarta.faces.component.UIComponent;
 import jakarta.faces.context.ExternalContext;
 import jakarta.faces.context.FacesContext;
 
@@ -123,6 +117,9 @@ public class MyFacesImplementation implements FacesImplementation
         return application.getELResolver().getValue(elcontext, null, beanName);
 	}
 
+	/*
+	 * Obsolete since 2025-01-08 with EMPIREDB-453
+	 * 
 	@Override
 	public UIComponent getValueParentComponent(final ValueExpression ve)
 	{
@@ -132,33 +129,9 @@ public class MyFacesImplementation implements FacesImplementation
     @Override
     public ValueExpression unwrapValueExpression(ValueExpression ve)
     {
-        // unwrap from org.apache.myfaces.view.facelets.el.ContextAwareTagValueExpression
-        if (ve instanceof ContextAwareTagValueExpression)
-        {   // cast and getWrapped
-            ve = ((ContextAwareTagValueExpression)ve).getWrapped();
-        }
-        // now unwrap using the ValueExpressionUnwrapper 
-        return ValueExpressionUnwrapper.getInstance().unwrap(ve);
+        return ValueExpressionUnwrapper.getInstance().unwrap(ve, "${");
     }
-    
-    @Override
-    public Method getPropertyMethod(final UIComponent component, String attribute, boolean writeMethod)
-    {
-        try {
-            // get the map
-            Map<String, Object> attrMap = component.getAttributes();
-            Object propDescHolder = ClassUtils.invokeMethod(attrMap.getClass(), attrMap, "getPropertyDescriptor", new Class<?>[] { String.class }, new Object[] { "value" }, true);
-            if (propDescHolder == null)
-                return null;
-            // Get the method
-            Method method = (Method)ClassUtils.invokeSimplePrivateMethod(propDescHolder, (writeMethod ? "getWriteMethod" : "getReadMethod"));
-            return method;
-        } catch(Exception e) {
-            // Not valid
-            log.warn("FacesImplementation.getAttributeMethod() for {} failed with exception: {}", attribute, e);
-            return null;
-        }
-    }
+    */
 
     private BeanStorageProvider beanStorage = null;
 

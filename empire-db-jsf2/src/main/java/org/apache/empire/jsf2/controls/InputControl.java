@@ -483,6 +483,11 @@ public abstract class InputControl
         throw new ItemNotFoundException("UIInput");
     }
     
+    protected boolean isInputValueExpressionEnabled()
+    {
+        return InputControlManager.isInputValueExpressionEnabled();
+    }
+    
     protected void setInputValue(UIInput input, InputInfo ii)
     {
         // Restore submitted value
@@ -508,7 +513,7 @@ public abstract class InputControl
         /* -------------------------------------- */
 
         // Assign value
-        boolean evalExpression = !InputControlManager.isInputValueExpressionEnabled();
+        boolean evalExpression = !isInputValueExpressionEnabled();
         Object value = ii.getValue(evalExpression);
         if (value instanceof ValueExpression)
         {

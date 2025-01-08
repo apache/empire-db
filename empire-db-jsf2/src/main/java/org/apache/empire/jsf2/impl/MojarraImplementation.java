@@ -18,31 +18,24 @@
  */
 package org.apache.empire.jsf2.impl;
 
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.el.ELResolver;
-import javax.el.ValueExpression;
 import javax.faces.FacesException;
-import javax.faces.component.UIComponent;
 import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
 import javax.servlet.ServletContext;
 
 import org.apache.empire.exceptions.ItemExistsException;
 import org.apache.empire.exceptions.NotSupportedException;
-import org.apache.empire.jsf2.utils.ValueExpressionUnwrapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.sun.faces.application.ApplicationAssociate;
 import com.sun.faces.application.ApplicationInstanceFactoryMetadataMap;
-import com.sun.faces.component.CompositeComponentStackManager;
 import com.sun.faces.config.ConfigManager;
 import com.sun.faces.config.processor.ApplicationConfigProcessor;
-import com.sun.faces.facelets.el.ContextualCompositeValueExpression;
-import com.sun.faces.facelets.el.TagValueExpression;
 import com.sun.faces.mgbean.BeanManager;
 import com.sun.faces.mgbean.ManagedBeanInfo;
 import com.sun.faces.spi.InjectionProvider;
@@ -129,9 +122,17 @@ public class MojarraImplementation implements FacesImplementation
         return mbean;
 	}
 	
+    /*
+     * Obsolete since 2025-01-08 with EMPIREDB-453
+     * 
 	@Override
-	public UIComponent getValueParentComponent(final ValueExpression ve) 
+    @SuppressWarnings("unchecked")
+	public UIComponent getValueParentComponent(ValueExpression ve) 
 	{
+        // Unwrap
+        if (ve instanceof FacesWrapper<?>)
+            ve = ((FacesWrapper<ValueExpression>)ve).getWrapped();
+        // ContextualCompositeValueExpression
         if (ve instanceof ContextualCompositeValueExpression)
         {
             FacesContext ctx = FacesContext.getCurrentInstance();
@@ -147,22 +148,9 @@ public class MojarraImplementation implements FacesImplementation
     @Override
     public ValueExpression unwrapValueExpression(ValueExpression ve)
     {
-        // unwrap from com.sun.faces.facelets.el.TagValueExpression
-        if (ve instanceof TagValueExpression)
-        {   // cast and getWrapped
-            ve = ((TagValueExpression)ve).getWrapped();
-        }
-        // now unwrap using the ValueExpressionUnwrapper 
-        return ValueExpressionUnwrapper.getInstance().unwrap(ve);
+        return ValueExpressionUnwrapper.getInstance().unwrap(ve, "${");
     }
-    
-    @Override
-    public Method getPropertyMethod(final UIComponent component, String attribute, boolean writeMethod)
-    {
-        // Not yet implemented. 
-        // Is Implementation required?
-        return null;
-    }
+    */
     
     private BeanStorageProvider beanStorage = null;
     

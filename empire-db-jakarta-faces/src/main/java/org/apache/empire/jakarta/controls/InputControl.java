@@ -23,16 +23,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
-import jakarta.el.ValueExpression;
-import jakarta.faces.component.UIComponent;
-import jakarta.faces.component.UIComponentBase;
-import jakarta.faces.component.UIData;
-import jakarta.faces.component.UIInput;
-import jakarta.faces.component.behavior.ClientBehaviorHolder;
-import jakarta.faces.context.FacesContext;
-import jakarta.faces.context.ResponseWriter;
-import jakarta.faces.event.PhaseId;
-
 import org.apache.empire.commons.ObjectUtils;
 import org.apache.empire.commons.OptionEntry;
 import org.apache.empire.commons.Options;
@@ -47,6 +37,16 @@ import org.apache.empire.jakarta.utils.HtmlUtils;
 import org.apache.empire.jakarta.utils.TagStyleClass;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import jakarta.el.ValueExpression;
+import jakarta.faces.component.UIComponent;
+import jakarta.faces.component.UIComponentBase;
+import jakarta.faces.component.UIData;
+import jakarta.faces.component.UIInput;
+import jakarta.faces.component.behavior.ClientBehaviorHolder;
+import jakarta.faces.context.FacesContext;
+import jakarta.faces.context.ResponseWriter;
+import jakarta.faces.event.PhaseId;
 
 public abstract class InputControl
 {
@@ -483,6 +483,11 @@ public abstract class InputControl
         throw new ItemNotFoundException("UIInput");
     }
     
+    protected boolean isInputValueExpressionEnabled()
+    {
+        return InputControlManager.isInputValueExpressionEnabled();
+    }
+    
     protected void setInputValue(UIInput input, InputInfo ii)
     {
         // Restore submitted value
@@ -508,7 +513,7 @@ public abstract class InputControl
         /* -------------------------------------- */
 
         // Assign value
-        boolean evalExpression = !InputControlManager.isInputValueExpressionEnabled();
+        boolean evalExpression = !isInputValueExpressionEnabled();
         Object value = ii.getValue(evalExpression);
         if (value instanceof ValueExpression)
         {

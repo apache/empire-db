@@ -18,11 +18,7 @@
  */
 package org.apache.empire.jsf2.impl;
 
-import java.lang.reflect.Method;
-
 import javax.el.ELResolver;
-import javax.el.ValueExpression;
-import javax.faces.component.UIComponent;
 import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
 
@@ -81,41 +77,27 @@ public interface FacesImplementation
 	 */
 	public Object getManagedBean(final String beanName, final FacesContext fc);
 	
-	/**
+	/*
 	 *	Return the parentComponent for a given ValueExpression.
+	 * 
+	 *  Obsolete since 2025-01-08 with EMPIREDB-453
 	 *
-	 *	Implementation for Mojarra:
-	 *	--------------------------- 
-	 *  if (ve instanceof ContextualCompositeValueExpression)
-     *  {
-     *      FacesContext ctx = FacesContext.getCurrentInstance();
-     *      ContextualCompositeValueExpression ccve = (ContextualCompositeValueExpression)ve;
-     *      CompositeComponentStackManager manager = CompositeComponentStackManager.getManager(ctx);
-     *      UIComponent cc = manager.findCompositeComponentUsingLocation(ctx, ccve.getLocation());
-     *      // set Parent
-     *      return cc;
-     *  }
-     *
      *  @param ve the value expression
      *  @return the component
-	 */
+	 *
 	UIComponent getValueParentComponent(final ValueExpression ve);
+	*/
 
-	/**
-	 * Returns the inner value expression
+	/*
+	 * Returns the inner value expression of a taglib attribute
+     * 
+     * Obsolete since 2025-01-08 with EMPIREDB-453
+     * 
 	 * @param ve the original ValueExpression
 	 * @return the unwrapped ValueExpression (may be null)
-	 */
+	 *
 	ValueExpression unwrapValueExpression(ValueExpression ve);
-
-    /**
-     * Returns a read or write method for an JavaBean property
-     * @param component the component
-     * @param attribute the attribute name
-     * @param writeMethod flag whether to the read or write method
-     * @return the method or null
-     */
-    Method getPropertyMethod(final UIComponent component, String attribute, boolean writeMethod);
+	*/
 	
     /**
      * BeanStorageProvider
