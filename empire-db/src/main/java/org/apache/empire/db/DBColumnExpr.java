@@ -675,8 +675,8 @@ public abstract class DBColumnExpr extends DBExpr
     /**
      * Creates a sql-expression for the nvl() or coalesce() function.
      * 
-     * @param nullValue the Object value
-     * @return the new DBFuncExpr object
+     * @param nullValue the alternative value when this expression is null
+     * @return the coalesce expression
      */
     public DBColumnExpr coalesce(Object nullValue)
     {

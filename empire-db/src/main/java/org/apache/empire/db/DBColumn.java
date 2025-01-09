@@ -357,6 +357,17 @@ public abstract class DBColumn extends DBColumnExpr
     }
 
     /**
+     * Creates a column expression with coalesce and renames it to this column
+     * 
+     * @param nullValue the alternative value when this column is null
+     * @return the coalesce and alias expression
+     */
+    public DBColumnExpr coalesceColumn(Object nullValue)
+    {
+        return coalesce(nullValue).as(this);
+    }
+
+    /**
      *  @see DBColumnExpr#getAttribute(String)
      */
     @Override
