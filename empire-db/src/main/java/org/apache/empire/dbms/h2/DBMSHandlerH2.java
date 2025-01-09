@@ -94,9 +94,9 @@ public class DBMSHandlerH2 extends DBMSHandlerBase
 	    }
         
         @Override
-        public void getSelect(DBSQLBuilder sql)
+        public void getSelect(DBSQLBuilder sql, short flags)
         {   // Prepares statement
-        	super.getSelect(sql);
+        	super.getSelect(sql, flags);
             // add limit and offset
             if (limitRows>=0)
             {   sql.append("\r\nLIMIT ");

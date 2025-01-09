@@ -45,6 +45,10 @@ public abstract class DBCommandExpr extends DBExpr
     // *Deprecated* private static final long serialVersionUID = 1L;
     private static final Logger log = LoggerFactory.getLogger(DBCommandExpr.class);
 
+    // Select Context Flags
+    public static final short SF_DEFAULT  = 0;  // Default 
+    public static final short SF_NO_ORDER = 1;  // No order by 
+
     // Internal Classes
     protected static class DBCmdQuery extends DBRowSet
     {
@@ -357,7 +361,18 @@ public abstract class DBCommandExpr extends DBExpr
      * returns an SQL select command
      * @param sql the sql builder to add the command to
      */
-    public abstract void getSelect(DBSQLBuilder sql);
+    public abstract void getSelect(DBSQLBuilder sql, short flags);
+
+    /**
+     * returns an SQL select command for querying records.
+     * @return the SQL-Command
+     */
+    public final String getSelect(short flags)
+    {
+        DBSQLBuilder sql = createSQLBuilder(null);
+        getSelect(sql, flags);
+        return sql.toString();
+    }
 
     /**
      * returns an SQL select command for querying records.
@@ -365,9 +380,7 @@ public abstract class DBCommandExpr extends DBExpr
      */
     public final String getSelect()
     {
-        DBSQLBuilder sql = createSQLBuilder(null);
-        getSelect(sql);
-        return sql.toString();
+        return getSelect(SF_DEFAULT);
     }
     
     public abstract DBCmdParams getParams();
@@ -701,7 +714,7 @@ public abstract class DBCommandExpr extends DBExpr
         }
         // append select statement
         sql.append("\r\n");
-        getSelect(sql);
+        getSelect(sql, SF_DEFAULT);
         // done
         return sql.toString();
     }

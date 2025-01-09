@@ -1618,7 +1618,7 @@ public abstract class DBCommand extends DBCommandExpr
      * Creates a select SQL-Statement
      */
     @Override
-    public void getSelect(DBSQLBuilder sql)
+    public void getSelect(DBSQLBuilder sql, short flags)
     {
         resetParamUsage();
         if (select == null)
@@ -1632,7 +1632,8 @@ public abstract class DBCommand extends DBCommandExpr
         // Add Grouping
         addGrouping(sql);
         // Add Order
-        addOrder(sql);
+        if ((flags & SF_NO_ORDER)==0)
+            addOrder(sql);
         // done
         completeParamUsage();
     }

@@ -157,7 +157,7 @@ public class DBCommandOracle extends DBCommand
      * @param sql the SQL statement
      */
     @Override
-    public synchronized void getSelect(DBSQLBuilder sql)
+    public synchronized void getSelect(DBSQLBuilder sql, short flags)
     {        
         resetParamUsage();
         if (select == null)
@@ -199,8 +199,8 @@ public class DBCommandOracle extends DBCommand
         // Grouping
         addGrouping(sql);
         // Order
-        if (orderBy != null)
-        { // Having
+        if (orderBy!=null && !orderBy.isEmpty() && (flags & SF_NO_ORDER)==0)
+        {   // add ORDER BY
             if (connectBy != null)
                 sql.append("\r\nORDER SIBLINGS BY ");
             else

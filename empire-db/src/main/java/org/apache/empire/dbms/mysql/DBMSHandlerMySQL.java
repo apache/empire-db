@@ -94,9 +94,9 @@ public class DBMSHandlerMySQL extends DBMSHandlerBase
         }
         
         @Override
-        public void getSelect(DBSQLBuilder sql)
+        public void getSelect(DBSQLBuilder sql, short flags)
         {   // call base class
-            super.getSelect(sql);
+            super.getSelect(sql, flags);
             // add limit and offset
             if (limit>=0)
             {   sql.append("\r\nLIMIT ");
@@ -981,9 +981,9 @@ public class DBMSHandlerMySQL extends DBMSHandlerBase
                 skip  = -1;
             }
             @Override
-            public void getSelect(DBSQLBuilder sql)
+            public void getSelect(DBSQLBuilder sql, short flags)
             {   // Prepares statement
-            	super.getSelect(sql);
+            	super.getSelect(sql, flags);
                 // add limit and offset
                 if (limit>=0)
                 {   sql.append("\r\nLIMIT ");

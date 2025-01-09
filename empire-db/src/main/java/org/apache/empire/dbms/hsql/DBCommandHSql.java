@@ -75,9 +75,9 @@ public class DBCommandHSql extends DBCommand
     }
         
     @Override
-    public void getSelect(DBSQLBuilder sql)
+    public void getSelect(DBSQLBuilder sql, short flags)
     {   // call base class
-        super.getSelect(sql);
+        super.getSelect(sql, flags);
         // add limit and offset
         if (limitRows>=0)
         {   sql.append("\r\nLIMIT ");

@@ -214,7 +214,7 @@ public class DBCombinedCmd extends DBCommandExpr
      * @param sql the SQL-Command
      */
     @Override
-    public void getSelect(DBSQLBuilder sql)
+    public void getSelect(DBSQLBuilder sql, short flags)
     {
         cmdParams.clear(0);
         // the left part
@@ -226,7 +226,7 @@ public class DBCombinedCmd extends DBCommandExpr
             sql.append(")");
         }
         else
-            left.getSelect(sql);
+            left.getSelect(sql, flags);
         // concat keyword
         sql.append("\r\n");
         sql.append(keyWord);
@@ -240,14 +240,14 @@ public class DBCombinedCmd extends DBCommandExpr
             sql.append(")");
         }
         else
-            right.getSelect(sql);
-        // done
+            right.getSelect(sql, flags);
         // Add optional Order by statement
-        if (orderBy != null)
-        { // Having
+        if (orderBy!=null && !orderBy.isEmpty() && (flags & SF_NO_ORDER)==0)
+        {   // add ORDER BY
             sql.append("\r\nORDER BY ");
             addListExpr(sql, orderBy, CTX_DEFAULT, ", ");
         }
+        // done
     }
 
     @Override
