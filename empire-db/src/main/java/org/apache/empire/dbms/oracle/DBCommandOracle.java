@@ -157,33 +157,40 @@ public class DBCommandOracle extends DBCommand
      * @param sql the SQL statement
      */
     @Override
-    public synchronized void getSelect(DBSQLBuilder sql, short flags)
+    public synchronized void getSelect(DBSQLBuilder sql, int flags)
     {        
+        // Prepare
         resetParamUsage();
-        if (select == null)
-            throw new ObjectNotValidException(this);
         // limit rows
         boolean usePreparedStatements = isPreparedStatementsEnabled();
-        if (limitRows>=0)
+        if (limitRows>=0 && not(flags, SF_SKIP_LIMIT))
         {   // add limitRows and skipRows wrapper
             sql.append("SELECT * FROM (");
             if (skipRows>0)
                 sql.append("SELECT row_.*, rownum rownum_ FROM (");
         }
         // Prepares statement
-        sql.append("SELECT ");
-        if (StringUtils.isNotEmpty(optimizerHint))
-        {   // Append an optimizer hint to the select statement e.g. SELECT /*+ RULE */
-            sql.append("/*+ ").append(optimizerHint).append(" */ ");
+        if (not(flags, SF_SKIP_SELECT))
+        {   // check select
+            if (select == null)
+                throw new ObjectNotValidException(this);
+            // Select
+            sql.append("SELECT ");
+            if (StringUtils.isNotEmpty(optimizerHint))
+            {   // Append an optimizer hint to the select statement e.g. SELECT /*+ RULE */
+                sql.append("/*+ ").append(optimizerHint).append(" */ ");
+            }
+            if (selectDistinct)
+                sql.append("DISTINCT ");
+            // Add Select Expressions
+            addListExpr(sql, select, CTX_ALL, ", ");
         }
-        if (selectDistinct)
-            sql.append("DISTINCT ");
-        // Add Select Expressions
-        addListExpr(sql, select, CTX_ALL, ", ");
         // Join
-        addFrom(sql);
+        if (not(flags, SF_SKIP_FROM))
+            addFrom(sql);
         // Where
-        addWhere(sql);
+        if (not(flags, SF_SKIP_WHERE))
+            addWhere(sql);
         // Connect By
         if (connectBy != null)
         {   // Add 'Connect By Prior' Expression
@@ -197,9 +204,10 @@ public class DBCommandOracle extends DBCommand
             }
         }
         // Grouping
-        addGrouping(sql);
+        if (not(flags, SF_SKIP_GROUP))
+            addGrouping(sql);
         // Order
-        if (orderBy!=null && !orderBy.isEmpty() && (flags & SF_NO_ORDER)==0)
+        if (notEmpty(orderBy) && not(flags, SF_SKIP_ORDER))
         {   // add ORDER BY
             if (connectBy != null)
                 sql.append("\r\nORDER SIBLINGS BY ");
@@ -209,7 +217,7 @@ public class DBCommandOracle extends DBCommand
             addListExpr(sql, orderBy, CTX_DEFAULT, ", ");
         }
         // limit rows end
-        if (limitRows>=0)
+        if (limitRows>=0 && not(flags, SF_SKIP_LIMIT))
         {   // add limitRows and skipRows constraints
             sql.append(") row_ WHERE rownum<=");
             sql.append(usePreparedStatements ? "?" : String.valueOf(skipRows+limitRows));
@@ -219,6 +227,7 @@ public class DBCommandOracle extends DBCommand
                 sql.append(usePreparedStatements ? "?" : String.valueOf(skipRows));
             }
         }
+        // done
         completeParamUsage();
     }
     

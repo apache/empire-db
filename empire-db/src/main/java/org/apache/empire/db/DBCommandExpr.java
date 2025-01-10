@@ -19,6 +19,7 @@
 package org.apache.empire.db;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
@@ -46,8 +47,29 @@ public abstract class DBCommandExpr extends DBExpr
     private static final Logger log = LoggerFactory.getLogger(DBCommandExpr.class);
 
     // Select Context Flags
-    public static final short SF_DEFAULT  = 0;  // Default 
-    public static final short SF_NO_ORDER = 1;  // No order by 
+    public static final int SF_DEFAULT     = 0;  // Default 
+    public static final int SF_SKIP_SELECT = 1;  // No select
+    public static final int SF_SKIP_FROM   = 2;  // No from / joins
+    public static final int SF_SKIP_WHERE  = 4;  // No where
+    public static final int SF_SKIP_GROUP  = 8;  // No group by / having
+    public static final int SF_SKIP_ORDER  = 16; // No order by 
+    public static final int SF_SKIP_LIMIT  = 32; // No limit
+
+    /**
+     * Checks if a flag is NOT set
+     */
+    protected final boolean not(int flags, int flag)
+    {
+        return ((flags & flag)==0);
+    }
+    
+    /**
+     * Checks if a collection is not null or empty
+     */
+    protected final boolean notEmpty(Collection<?> list)
+    {
+        return (list!=null && !list.isEmpty());
+    }
 
     // Internal Classes
     protected static class DBCmdQuery extends DBRowSet
@@ -361,13 +383,13 @@ public abstract class DBCommandExpr extends DBExpr
      * returns an SQL select command
      * @param sql the sql builder to add the command to
      */
-    public abstract void getSelect(DBSQLBuilder sql, short flags);
+    public abstract void getSelect(DBSQLBuilder sql, int flags);
 
     /**
      * returns an SQL select command for querying records.
      * @return the SQL-Command
      */
-    public final String getSelect(short flags)
+    public final String getSelect(int flags)
     {
         DBSQLBuilder sql = createSQLBuilder(null);
         getSelect(sql, flags);

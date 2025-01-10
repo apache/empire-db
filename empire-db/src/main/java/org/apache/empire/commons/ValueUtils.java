@@ -91,12 +91,12 @@ public class ValueUtils
             return true;
         if (o==ObjectUtils.NO_VALUE)
             throw new InvalidValueException(o);
-        if ((o instanceof String) && ((String)o).length()==0)
-            return true;
-        if ((o instanceof Object[]) && ((Object[])o).length==0)
-            return true;
-        if ((o instanceof Collection<?>) && ((Collection<?>)o).isEmpty())
-            return true;
+        if ((o instanceof String))
+            return ((String)o).length()==0;
+        if ((o instanceof Object[]))
+            return ((Object[])o).length==0;
+        if ((o instanceof Collection<?>))
+            return ((Collection<?>)o).isEmpty();
         if (o instanceof DBValueExpr)
             return isEmpty(((DBValueExpr)o).getValue());
         if (o instanceof Enum)

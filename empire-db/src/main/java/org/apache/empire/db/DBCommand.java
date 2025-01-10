@@ -45,6 +45,7 @@ import org.apache.empire.dbms.DBMSHandler;
 import org.apache.empire.dbms.DBSqlPhrase;
 import org.apache.empire.exceptions.InvalidArgumentException;
 import org.apache.empire.exceptions.ItemNotFoundException;
+import org.apache.empire.exceptions.NotSupportedException;
 import org.apache.empire.exceptions.ObjectNotValidException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -179,6 +180,12 @@ public abstract class DBCommand extends DBCommandExpr
             for (int i=0; (clone.having!=null && i<clone.having.size()); i++)
                 clone.having.set(i, clone.having.get(i).copy(clone));
         }
+        // check params
+        if (clone.cmdParams.size()!=this.cmdParams.size())
+        {   // Failed to copy all DBCmdParams
+            log.error("DBCommand.clone failed: Not all DBCmdParams could be replaced.");
+            throw new NotSupportedException(this, "clone");
+        }
         // done
         return clone;
     }
@@ -192,9 +199,9 @@ public abstract class DBCommand extends DBCommandExpr
         if (hasSetExpr())
             return this.set.get(0).getDatabase();
         // two more chances (should we?)
-        if (where!=null && !where.isEmpty())
+        if (notEmpty(where))
             return where.get(0).getDatabase();
-        if (orderBy!=null && !orderBy.isEmpty())
+        if (notEmpty(orderBy))
             return orderBy.get(0).getDatabase();
         // not valid yet
         throw new ObjectNotValidException(this);
@@ -325,7 +332,7 @@ public abstract class DBCommand extends DBCommandExpr
     @Override
     public boolean hasSelectExpr()
     {
-        return (select!=null && !select.isEmpty());
+        return notEmpty(select);
     }
 
     /**
@@ -600,7 +607,7 @@ public abstract class DBCommand extends DBCommandExpr
      */
     public boolean hasSetExpr()
     {
-        return (this.set!=null ? !this.set.isEmpty() : false);
+        return notEmpty(set);
     }
 
     /**
@@ -1210,7 +1217,7 @@ public abstract class DBCommand extends DBCommandExpr
      */
     public boolean hasGroupBy()
     {
-        return (this.groupBy!=null ? !this.groupBy.isEmpty() : false);
+        return notEmpty(groupBy);
     }
 
     /**
@@ -1618,21 +1625,29 @@ public abstract class DBCommand extends DBCommandExpr
      * Creates a select SQL-Statement
      */
     @Override
-    public void getSelect(DBSQLBuilder sql, short flags)
+    public void getSelect(DBSQLBuilder sql, int flags)
     {
-        resetParamUsage();
-        if (select == null)
-            throw new ObjectNotValidException(this); // invalid!
         // Prepares statement
-        addSelect(sql);
+        resetParamUsage();
+        // Select clause
+        if (not(flags, SF_SKIP_SELECT))
+        {   // check
+            if (select == null)
+                throw new ObjectNotValidException(this); // invalid!
+            // add select
+            addSelect(sql);
+        }
         // From clause
-        addFrom(sql);
+        if (not(flags, SF_SKIP_FROM))
+            addFrom(sql);
         // Add Where
-        addWhere(sql);
+        if (not(flags, SF_SKIP_WHERE))
+            addWhere(sql);
         // Add Grouping
-        addGrouping(sql);
+        if (not(flags, SF_SKIP_GROUP))
+            addGrouping(sql);
         // Add Order
-        if ((flags & SF_NO_ORDER)==0)
+        if (not(flags, SF_SKIP_ORDER))
             addOrder(sql);
         // done
         completeParamUsage();
@@ -1656,7 +1671,7 @@ public abstract class DBCommand extends DBCommandExpr
         sql.append("( ");
         // Set Expressions
         ArrayList<DBCompareColExpr> compexpr = null;
-        if (where!=null && !where.isEmpty())
+        if (notEmpty(where))
         {   // Convert ColumnExpression List to Column List
             compexpr = new ArrayList<DBCompareColExpr>(where.size());
             for (DBCompareExpr expr : where)
@@ -1735,7 +1750,7 @@ public abstract class DBCommand extends DBCommandExpr
             return null;
         DBSQLBuilder sql = createSQLBuilder("UPDATE ");
         DBRowSet table =  set.get(0).getTable();
-        if (joins!=null && !joins.isEmpty())
+        if (notEmpty(joins))
         {   // Join Update
             addUpdateWithJoins(sql, table);
         }
@@ -1784,7 +1799,7 @@ public abstract class DBCommand extends DBCommandExpr
         resetParamUsage();
         DBSQLBuilder sql = createSQLBuilder("DELETE ");
         // joins or simple
-        if (joins!=null && !joins.isEmpty())
+        if (notEmpty(joins))
         {   // delete with joins
             addDeleteWithJoins(sql, table);
         }
@@ -1900,7 +1915,7 @@ public abstract class DBCommand extends DBCommandExpr
 
     protected void addWhere(DBSQLBuilder sql, long context)
     {
-        if (where!=null && !where.isEmpty())
+        if (notEmpty(where))
         {   
             sql.append("\r\nWHERE ");
             // add where expression
@@ -1915,13 +1930,13 @@ public abstract class DBCommand extends DBCommandExpr
 
     protected void addGrouping(DBSQLBuilder sql)
     {
-        if (groupBy!=null && !groupBy.isEmpty())
-        { // Group by
+        if (notEmpty(groupBy))
+        {   // Group by
             sql.append("\r\nGROUP BY ");
             addListExpr(sql, groupBy, CTX_DEFAULT, ", ");
         }
-        if (having!=null && !having.isEmpty())
-        { // Having
+        if (notEmpty(having))
+        {   // Having
             sql.append("\r\nHAVING ");
             addListExpr(sql, having, CTX_DEFAULT, " AND ");
         }
@@ -1929,7 +1944,7 @@ public abstract class DBCommand extends DBCommandExpr
 
     protected void addOrder(DBSQLBuilder sql)
     {
-        if (orderBy!=null && !orderBy.isEmpty())
+        if (notEmpty(orderBy))
         { // order By
             sql.append("\r\nORDER BY ");
             addListExpr(sql, orderBy, CTX_DEFAULT, ", ");

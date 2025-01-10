@@ -94,11 +94,11 @@ public class DBMSHandlerH2 extends DBMSHandlerBase
 	    }
         
         @Override
-        public void getSelect(DBSQLBuilder sql, short flags)
+        public void getSelect(DBSQLBuilder sql, int flags)
         {   // Prepares statement
         	super.getSelect(sql, flags);
             // add limit and offset
-            if (limitRows>=0)
+            if (limitRows>=0 && not(flags, SF_SKIP_LIMIT))
             {   sql.append("\r\nLIMIT ");
                 sql.append(String.valueOf(limitRows));
                 // Offset

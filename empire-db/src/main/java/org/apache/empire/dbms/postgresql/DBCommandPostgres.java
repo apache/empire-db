@@ -149,11 +149,11 @@ public class DBCommandPostgres extends DBCommand
     }
     
     @Override
-    public void getSelect(DBSQLBuilder sql, short flags)
+    public void getSelect(DBSQLBuilder sql, int flags)
     {   // call base class
         super.getSelect(sql, flags);
         // add limit and offset
-        if (limit>=0)
+        if (limit>=0 && not(flags, SF_SKIP_LIMIT))
         {   sql.append("\r\nLIMIT ");
             sql.append(String.valueOf(limit));
             // Offset

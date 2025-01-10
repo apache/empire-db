@@ -488,23 +488,12 @@ public class DBUtils implements DBContextAware
         // check if aggregate 
         if (aggregate)
         {   // For Aggregations: Wrap  
-            String sql = "SELECT COUNT(*) FROM ("+cmd.getSelect(DBCommandExpr.SF_NO_ORDER) + ") q";
+            String sql = "SELECT COUNT(*) FROM ("+cmd.getSelect(DBCommandExpr.SF_SKIP_ORDER) + ") q";
             return querySingleInt(sql, cmd.getParamValues(), 0);
         }
-        // find any rowset
-        DBRowSet rs = exprList[0].getRowSet();
-        // create the count command
-        DBCommand countCmd = cmd.clone();
-        if (countCmd.getParams().size()!=cmd.getParams().size())
-        {   // Failed to copy all DBCmdParams
-            String sql = "SELECT COUNT(*) FROM ("+cmd.getSelect(DBCommandExpr.SF_NO_ORDER) + ") q";
-            return querySingleInt(sql, cmd.getParamValues(), 0);
-        }
-        countCmd.clearSelect();
-        countCmd.clearOrderBy();
-        countCmd.select(rs.count());
-        // perform query
-        return querySingleInt(countCmd);
+        // simple expression
+        String sql = "SELECT COUNT(*) "+cmd.getSelect(DBCommandExpr.SF_SKIP_SELECT | DBCommandExpr.SF_SKIP_ORDER);
+        return querySingleInt(sql, cmd.getParamValues(), 0);
     }
 
     /**

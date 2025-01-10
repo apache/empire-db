@@ -142,7 +142,7 @@ public class DBExistsExpr extends DBCompareExpr
             return;
         }
         sql.append(" exists (");
-        cmd.getSelect(sql, DBCommandExpr.SF_NO_ORDER);
+        cmd.getSelect(sql, DBCommandExpr.SF_SKIP_ORDER);
 
         if (compareExpr != null)
         {

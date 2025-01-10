@@ -214,7 +214,7 @@ public class DBCombinedCmd extends DBCommandExpr
      * @param sql the SQL-Command
      */
     @Override
-    public void getSelect(DBSQLBuilder sql, short flags)
+    public void getSelect(DBSQLBuilder sql, int flags)
     {
         cmdParams.clear(0);
         // the left part
@@ -242,7 +242,7 @@ public class DBCombinedCmd extends DBCommandExpr
         else
             right.getSelect(sql, flags);
         // Add optional Order by statement
-        if (orderBy!=null && !orderBy.isEmpty() && (flags & SF_NO_ORDER)==0)
+        if (notEmpty(orderBy) && not(flags, SF_SKIP_ORDER))
         {   // add ORDER BY
             sql.append("\r\nORDER BY ");
             addListExpr(sql, orderBy, CTX_DEFAULT, ", ");
