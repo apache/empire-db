@@ -29,6 +29,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.empire.commons.Attributes;
 import org.apache.empire.commons.ObjectUtils;
 import org.apache.empire.commons.StringUtils;
 import org.apache.empire.data.Column;
@@ -151,6 +152,7 @@ public abstract class DBRowSet extends DBExpr implements EntityType
     protected DBColumn                 timestampColumn  = null;
     protected Map<DBColumn, DBColumn>  columnReferences = null;
     protected List<DBColumn>           columns          = new ArrayList<DBColumn>();
+    protected Attributes               attributes       = null;
 
     // associated Entity Bean Class (optional)
     protected Class<?>                 beanType         = null;
@@ -200,7 +202,40 @@ public abstract class DBRowSet extends DBExpr implements EntityType
      */
     public String getIdentifier()
     {
-        return db.getIdentifier()+"."+getName();
+        return StringUtils.concat(db.getIdentifier(), ".", getName());
+    }
+
+    /**
+     * Returns a named attribute for this table
+     */
+    public Object getAttribute(String name)
+    {
+        return (attributes != null ? attributes.get(name) : null);
+    }
+
+    /**
+     * Returns all metadata attributes.
+     * @return set of metadata attributes
+     */
+    @SuppressWarnings("unchecked")
+    public Set<Attributes.Attribute> getAttributes()
+    {
+        return (attributes!=null ? Collections.unmodifiableSet(attributes)
+                                 : Collections.EMPTY_SET);
+    }
+
+    /**
+     * Sets the value of a attribute.
+     * @param name the attribute name
+     * @param value the value of the attribute
+     */
+    @SuppressWarnings("unchecked")
+    public synchronized <T extends DBTable> T setAttribute(String name, Object value)
+    {
+        if (attributes== null)
+            attributes = new Attributes();
+        attributes.set(name, value);
+        return (T)this;
     }
 
     /**

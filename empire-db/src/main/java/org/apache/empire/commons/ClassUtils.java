@@ -393,7 +393,15 @@ public final class ClassUtils
         {
             throw new InvalidOperationException(typeClass.getName()+" has no default constructor.");
         }
-        catch (InstantiationException | IllegalAccessException | IllegalArgumentException | SecurityException | InvocationTargetException e)
+        catch (InvocationTargetException e)
+        {   // Unwrap exception and re-throw the cause exception 
+            Throwable cause = e.getCause();
+            if (cause instanceof EmpireException)
+                throw (EmpireException)cause;
+            // wrap    
+            throw new InternalException(cause);
+        }
+        catch (InstantiationException | IllegalAccessException | IllegalArgumentException | SecurityException e)
         {
             throw new InternalException(e);
         }
@@ -426,7 +434,15 @@ public final class ClassUtils
             // create
             return typeConstructor.newInstance(params);
         }
-        catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e)
+        catch (InvocationTargetException e)
+        {   // Unwrap exception and re-throw the cause exception 
+            Throwable cause = e.getCause();
+            if (cause instanceof EmpireException)
+                throw (EmpireException)cause;
+            // wrap    
+            throw new InternalException(cause);
+        }
+        catch (InstantiationException | IllegalAccessException | IllegalArgumentException e)
         {
             throw new InternalException(e);
         }
@@ -687,7 +703,15 @@ public final class ClassUtils
             // invoke
             return method.invoke(object, EMPTY_ARGS);
         }
-        catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e)
+        catch (InvocationTargetException e)
+        {   // Unwrap exception and re-throw the cause exception 
+            Throwable cause = e.getCause();
+            if (cause instanceof EmpireException)
+                throw (EmpireException)cause;
+            // wrap    
+            throw new InternalException(cause);
+        }
+        catch (IllegalAccessException | IllegalArgumentException e)
         {
             throw new NotSupportedException(object, method.getName(), e); 
         } 
@@ -710,7 +734,15 @@ public final class ClassUtils
             // invoke
             return method.invoke(object, params);
         }
-        catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e)
+        catch (InvocationTargetException e)
+        {   // Unwrap exception and re-throw the cause exception 
+            Throwable cause = e.getCause();
+            if (cause instanceof EmpireException)
+                throw (EmpireException)cause;
+            // wrap    
+            throw new InternalException(cause);
+        }
+        catch (IllegalAccessException | IllegalArgumentException e)
         {
             throw new NotSupportedException(object, method.getName(), e); 
         } 
