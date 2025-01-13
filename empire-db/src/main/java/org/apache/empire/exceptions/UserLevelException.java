@@ -16,15 +16,21 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.empire.db.exceptions;
+package org.apache.empire.exceptions;
 
 import org.apache.empire.commons.ErrorType;
-import org.apache.empire.exceptions.EmpireException;
 
 /**
  * UserLevelException
- * An exception of this type indicates an error that should be displayed to the user only
- * and does not need to be logged 
+ * 
+ * This class may be used either a base class 
+ * or a wrapper class for other exceptions.
+ * 
+ * Its purpose is to serve as an indicator that an exception
+ * was caused by user input or user action and thus 
+ * should be directly displayed to the user
+ * and does not necessarily need to be logged.
+ *  
  * @author doebele
  */
 public class UserLevelException extends EmpireException
@@ -34,6 +40,11 @@ public class UserLevelException extends EmpireException
     protected UserLevelException(ErrorType errType, String[] params)
     {
         super(errType, params);
+    }
+
+    protected UserLevelException(ErrorType errType, String[] params, Throwable cause)
+    {
+        super(errType, params, cause);
     }
 
     public UserLevelException(EmpireException e)

@@ -22,9 +22,9 @@ import org.apache.empire.commons.ErrorType;
 import org.apache.empire.commons.StringUtils;
 import org.apache.empire.data.Column;
 import org.apache.empire.db.DBColumn;
-import org.apache.empire.exceptions.EmpireException;
+import org.apache.empire.exceptions.UserLevelException;
 
-public abstract class FieldValueException extends EmpireException
+public abstract class FieldValueException extends UserLevelException
 {
     private static final long serialVersionUID = 1L;
     
