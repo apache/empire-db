@@ -65,6 +65,7 @@ public class DBMSHandlerMSSQL extends DBMSHandlerBase
     {
         // *Deprecated* private static final long serialVersionUID = 1L;
         protected int limit = -1;
+        protected int skipRows = -1;
 
         public DBCommandMSSQL(DBMSHandlerMSSQL dbms, boolean autoPrepareStmt)
     	{
@@ -77,11 +78,38 @@ public class DBMSHandlerMSSQL extends DBMSHandlerBase
             limit = numRows;
             return this;
         }
-         
+
+        @Override
+        public DBCommand skipRows(int skipRows)
+        {
+            this.skipRows = skipRows;
+            return this;
+        }
+        
         @Override
         public void clearLimit()
         {
-            limit = -1;
+            this.limit = -1;
+            this.skipRows = -1;
+        }
+        
+        @Override
+        public void getSelect(DBSQLBuilder sql, int flags)
+        {
+            super.getSelect(sql, flags);
+            // add skip rows
+            if (skipRows>=0 && not(flags, SF_SKIP_LIMIT)) {
+                // OFFSET 50 ROWS FETCH NEXT 25 ROWS ONLY
+                sql.append("\r\nOFFSET ");
+                sql.append(String.valueOf(this.skipRows));
+                sql.append(" ROWS");
+                if (limit>=0)
+                {   // Limit
+                    sql.append(" FETCH NEXT ");
+                    sql.append(String.valueOf(limit));
+                    sql.append(" ROWS ONLY");
+                }
+            }
         }
         
         @Override
@@ -92,7 +120,7 @@ public class DBMSHandlerMSSQL extends DBMSHandlerBase
             if (selectDistinct)
                 sql.append("DISTINCT ");
             // Add limit
-            if (limit>=0)
+            if (limit>=0 && skipRows<0)
             {   // Limit
                 sql.append("TOP ");
                 sql.append(String.valueOf(limit));

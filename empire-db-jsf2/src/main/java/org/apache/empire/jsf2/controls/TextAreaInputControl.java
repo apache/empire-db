@@ -127,7 +127,10 @@ public class TextAreaInputControl extends InputControl
     @Override
     public String formatValue(Object value, ValueInfo vi, boolean escapeHtml)
     {
-        String strVal = super.formatValue(value, vi, true);
+        // escape
+        String strVal = super.formatValue(value, vi, escapeHtml);
+        if (!escapeHtml)
+            return strVal;
         // replace CR/LF by <BR/>
         if (strVal.indexOf("\r\n")>0)
         {   // replace CR with <BR/>
