@@ -253,7 +253,7 @@ public abstract class InputControl
     public String formatValue(Object value, ValueInfo vi, boolean escapeHtml)
     {
         String s = formatValue(value, vi);
-        if (escapeHtml)
+        if (escapeHtml && s!=null && s.length()!=0)
             s = HtmlUtils.getInstance().escapeText(s);
         return s;
     }
@@ -307,9 +307,9 @@ public abstract class InputControl
     public void renderValue(Object value, ValueInfo vi, ResponseWriter writer)
         throws IOException
     {
-        // do we need this at all:
-        // boolean escapeHtml = !hasFormatOption(vi, "noencode"); 
-        String text = formatValue(value, vi, true);
+        // check if html needs to be escaped
+        boolean escapeHtml = !hasFormatOption(vi, "noescape"); 
+        String text = formatValue(value, vi, escapeHtml);
         writer.append((StringUtils.isEmpty(text) ? HTML_EXPR_NBSP : text));
     }
 
