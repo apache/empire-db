@@ -158,9 +158,9 @@ public class Options extends AbstractSet<OptionEntry> implements Cloneable, Seri
         Top, Bottom, Sort
     }
 
-    private final ArrayList<OptionEntry> list;
+    protected final ArrayList<OptionEntry> list;
     
-    private OptionGroupResolver optionGroupResolver;
+    protected OptionGroupResolver optionGroupResolver;
     
     public Options()
     {   // Default constructor
@@ -424,7 +424,7 @@ public class Options extends AbstractSet<OptionEntry> implements Cloneable, Seri
         }
         else
         {   // add new Option
-            list.add(createOptionEntry(value, text, (active!=null ? active :true )));
+            append(value, text, (active!=null ? active :true ));
         }
     }
     
@@ -467,15 +467,26 @@ public class Options extends AbstractSet<OptionEntry> implements Cloneable, Seri
     @Override
     public boolean add(OptionEntry option)
     {
-        if (option==null || option.getText() == null)
+        if (option==null)
             throw new InvalidArgumentException("option", option);
         // find and add or replace
         OptionEntry oe = getEntry(option.getValue());
         if (oe!=null)
             list.set(getIndex(oe), option);
         else
-            list.add(option);
+            append(option);
         return true;
+    }
+    
+    /**
+     * Appends an option
+     * Useful for fast loading when it is certain that there are no duplicates
+     * WARNING: Does not check if the entry already exists 
+     * @param option the option to append
+     */
+    public void append(OptionEntry option)
+    {
+        list.add(option);
     }
     
     /**
@@ -490,7 +501,7 @@ public class Options extends AbstractSet<OptionEntry> implements Cloneable, Seri
     {
         if (text == null)
             text = StringUtils.EMPTY;
-        list.add(createOptionEntry(value, text, active));
+        append(createOptionEntry(value, text, active));
     }
 
     @Override
