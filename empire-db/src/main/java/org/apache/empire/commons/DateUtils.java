@@ -25,8 +25,10 @@ import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.FormatStyle;
+import java.time.temporal.ChronoField;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
@@ -203,6 +205,58 @@ public class DateUtils
         // calc
         long diffInMillies = date2.getTime() - date1.getTime();
         return (int)TimeUnit.DAYS.convert(diffInMillies, TimeUnit.MILLISECONDS);
+    }
+    
+    // ------- date-fields -----
+    
+    public static int getYear()
+    {
+        return Calendar.getInstance().get(Calendar.YEAR);    
+    }
+    
+    public static int getYear(Date date)
+    {
+        // Get the year from the ZonedDateTime
+        ZonedDateTime dateTime = date.toInstant().atZone(ZoneId.systemDefault()); 
+        return dateTime.get(ChronoField.YEAR);         
+    }
+    
+    public static int getMonth()
+    {
+        return Calendar.getInstance().get(Calendar.MONTH)+1;    
+    }
+    
+    public static int getMonth(Date date)
+    {
+        // Get the year from the ZonedDateTime
+        ZonedDateTime dateTime = date.toInstant().atZone(ZoneId.systemDefault()); 
+        return dateTime.get(ChronoField.MONTH_OF_YEAR);         
+    }
+    
+    public static int getDay()
+    {
+        return Calendar.getInstance().get(Calendar.DAY_OF_MONTH);    
+    }
+    
+    public static int getDay(Date date)
+    {
+        // Get the year from the ZonedDateTime
+        ZonedDateTime dateTime = date.toInstant().atZone(ZoneId.systemDefault()); 
+        return dateTime.get(ChronoField.DAY_OF_MONTH);         
+    }
+    
+    public static int getDayOfWeek()
+    {
+        // Monday (1) to Sunday (7)
+        int dow = Calendar.getInstance().get(Calendar.DAY_OF_WEEK)-1;
+        return (dow<=0 ? 7 : dow);    
+    }
+    
+    public static int getDayOfWeek(Date date)
+    {
+        // Get the year from the ZonedDateTime
+        ZonedDateTime dateTime = date.toInstant().atZone(ZoneId.systemDefault()); 
+        return dateTime.get(ChronoField.DAY_OF_WEEK);         
     }
     
     // ------- parsing functions -----
