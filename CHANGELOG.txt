@@ -1,8 +1,43 @@
 Apache Empire-db
-Copyright 2008-2024 The Apache Software Foundation
+Copyright 2008-2025 The Apache Software Foundation
 
 For more Information about a particular issue please visit
 https://issues.apache.org/jira/browse/EMPIREDB
+
+--------------
+Release 3.3.0:
+--------------
+
+Summary: Release 3.3 has new features and improvements as well as several bugfixes
+
+** Improvements / Features
+	EMPIREDB-454	Core:	DBCommand generate Select without OrderBy
+	EMPIREDB-451	JSF:	Improve FacesUtils and FacesMessage handling
+	EMPIREDB-450	JSF:	TabPageTag: allow label facet and label style class
+	EMPIREDB-449	JSF:	Allow extra control label style classes
+	EMPIREDB-448	Core:	StringUtils: allow custom Object stringifier
+	EMPIREDB-446	JSF:	SelectInputControl add support for SelectItemsGroups
+	EMPIREDB-445	JSF:	TagEncodingHelper: append control and input cssStyleClass by default
+	EMPIREDB-444	Core:	Allow custom value type conversion via ObjectUtils
+	EMPIREDB-443	Core:	DBTable, DBView, DBQuery make alias generation overridable
+	EMPIREDB-441	JSF:	JSF-Extensions code cleanup
+	EMPIREDB-440	JSF:	Improve ParameterMap
+	EMPIREDB-439	JSF:	Improve ControlTag and InputTag input processing and rendering
+	EMPIREDB-438	JSF:	TabViewTag show a blind div on tab change
+	EMPIREDB-434	Core:	Improved handling of DBAliasExpr
+	EMPIREDB-433	JSF:	Allow RowSet access by Alias
+	EMPIREDB-432	JSF:	Allow custom Exception message formatting and escaping
+	
+** Bugfixes
+	EMPIREDB-453	JSF:	InputControl value expressions bug in MyFaces
+	EMPIREDB-452	Core:	Command Params in union statements not working
+	EMPIREDB-447	JSF:	SelectInputControl: syncOptions fails when reloading whole list
+	EMPIREDB-442	JSF:	DBQuery not updateable and Views columns not readonly by default
+	EMPIREDB-437	JSF:	ControlTag not processing submitted values inside UIData
+	EMPIREDB-436	JSF:	InputControls should not set value expressions on updateModel()
+	EMPIREDB-435	JSF:	ListPageElement fix for invertSelection
+	EMPIREDB-430	JSF:	InputTag and ControlTag value not validated properly inside UIData or repeat
+	EMPIREDB-429	Core:	DBCommand findConstraintOn not considering all constraint types
 
 --------------
 Release 3.2.0:
