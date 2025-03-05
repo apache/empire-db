@@ -122,7 +122,15 @@ public class TextInputControl extends InputControl
         @Override
         public String getAsString(FacesContext context, UIComponent component, Object value)
         {
-            return (nf!=null ?  nf.format(value) : StringUtils.valueOf(value));
+            if (ObjectUtils.isEmpty(value))
+                return StringUtils.EMPTY;
+            // Check number
+            if (!(value instanceof Number)) {
+                log.error("getAsString: \"{}\" is not a number!", value.getClass().getName());
+                return value.toString();
+            }
+            // format
+            return (nf!=null ?  nf.format(value) : value.toString());
         }
 
         @Override

@@ -11,6 +11,7 @@ Release 3.3.0:
 Summary: Release 3.3 has new features and improvements as well as several bugfixes
 
 ** Improvements / Features
+	EMPIREDB-455	JSF:	TextInputControl: Add converter for numeric ValueExpressions
 	EMPIREDB-454	Core:	DBCommand generate Select without OrderBy
 	EMPIREDB-451	JSF:	Improve FacesUtils and FacesMessage handling
 	EMPIREDB-450	JSF:	TabPageTag: allow label facet and label style class
