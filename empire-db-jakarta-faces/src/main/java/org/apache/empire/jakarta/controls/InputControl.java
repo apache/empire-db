@@ -516,11 +516,10 @@ public abstract class InputControl
         boolean evalExpression = !isInputValueExpressionEnabled();
         Object value = ii.getValue(evalExpression);
         if (value instanceof ValueExpression)
-        {
-            input.setValue(null);
-            input.setLocalValueSet(false);
-            input.setValueExpression("value", (ValueExpression) value);
-
+        {   // set value expression
+            ValueExpression current = input.getValueExpression("value");
+            if (current!=value)
+                setInputValueExpression(input, (ValueExpression)value, ii);
             // Object check = ((ValueExpression)value).getValue(FacesContext.getCurrentInstance().getELContext());
             // log.info("Expression value is {}.", check);
         }
@@ -531,6 +530,13 @@ public abstract class InputControl
             // change the style
             addRemoveValueNullStyle(input, ObjectUtils.isEmpty(value));
         }
+    }
+    
+    protected void setInputValueExpression(UIInput input, ValueExpression value, InputInfo ii)
+    {
+        input.setValue(null);
+        input.setLocalValueSet(false);
+        input.setValueExpression("value", value);
     }
 
     protected void clearSubmittedValue(UIInput input)

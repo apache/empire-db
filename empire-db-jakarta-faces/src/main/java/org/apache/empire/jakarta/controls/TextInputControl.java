@@ -19,8 +19,11 @@
 package org.apache.empire.jakarta.controls;
 
 import java.io.IOException;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.sql.Timestamp;
 import java.text.DateFormat;
+import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -28,25 +31,33 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
-import jakarta.faces.component.UIComponent;
-import jakarta.faces.component.UIInput;
-import jakarta.faces.component.html.HtmlInputText;
-import jakarta.faces.component.html.HtmlOutputText;
-import jakarta.faces.component.html.HtmlPanelGroup;
-import jakarta.faces.context.FacesContext;
-import jakarta.faces.context.ResponseWriter;
-import jakarta.faces.event.PhaseId;
-
 import org.apache.empire.commons.ObjectUtils;
 import org.apache.empire.commons.Options;
 import org.apache.empire.commons.StringUtils;
 import org.apache.empire.data.Column;
 import org.apache.empire.data.DataType;
+import org.apache.empire.db.exceptions.FieldIllegalValueException;
 import org.apache.empire.exceptions.InvalidArgumentException;
+import org.apache.empire.exceptions.InvalidValueException;
 import org.apache.empire.exceptions.UnexpectedReturnValueException;
+import org.apache.empire.jakarta.components.ControlTag;
+import org.apache.empire.jakarta.components.InputTag;
 import org.apache.empire.jakarta.utils.TagStyleClass;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import jakarta.el.ValueExpression;
+import jakarta.faces.component.StateHolder;
+import jakarta.faces.component.UIComponent;
+import jakarta.faces.component.UIInput;
+import jakarta.faces.component.html.HtmlForm;
+import jakarta.faces.component.html.HtmlInputText;
+import jakarta.faces.component.html.HtmlOutputText;
+import jakarta.faces.component.html.HtmlPanelGroup;
+import jakarta.faces.context.FacesContext;
+import jakarta.faces.context.ResponseWriter;
+import jakarta.faces.convert.Converter;
+import jakarta.faces.event.PhaseId;
 
 public class TextInputControl extends InputControl
 {
@@ -61,6 +72,97 @@ public class TextInputControl extends InputControl
     public static final String  DATE_FORMAT_ATTRIBUTE = "format:date";
 
     public static final String  FRACTION_DIGITS       = "fraction-digits:";
+    
+    /**
+     * NumberInputConverter
+     * Formats a decimal value based on the NumberFormat
+     */
+    public static class NumberInputConverter implements Converter<Object>, StateHolder
+    {
+        private NumberFormat nf;
+        private boolean trans = false;
+        
+        /*
+         * Must have a default constructor!
+         */
+        public NumberInputConverter()
+        {
+            this.nf = null;
+        }
+        
+        public NumberInputConverter(NumberFormat nf)
+        {
+            this.nf = nf;
+        }
+
+        @Override
+        public Object saveState(FacesContext context)
+        {
+            return nf;
+        }
+
+        @Override
+        public void restoreState(FacesContext context, Object state)
+        {
+            this.nf = (NumberFormat)state;
+        }
+
+        @Override
+        public boolean isTransient()
+        {
+            return trans;
+        }
+
+        @Override
+        public void setTransient(boolean newTransientValue)
+        {
+            this.trans = newTransientValue;
+        }
+        
+        @Override
+        public String getAsString(FacesContext context, UIComponent component, Object value)
+        {
+            return (nf!=null ?  nf.format(value) : StringUtils.valueOf(value));
+        }
+
+        @Override
+        public Object getAsObject(FacesContext context, UIComponent component, String value)
+        {
+            if (ObjectUtils.isEmpty(value))
+                return null;
+            try
+            {   // parse
+                if (nf==null)
+                    return new BigDecimal(value);
+                // parse now
+                Number number = nf.parse(value);
+                if (number instanceof BigDecimal)
+                {   // Round to scale
+                    int scale = nf.getMaximumFractionDigits();
+                    number = ((BigDecimal)number).setScale(scale, RoundingMode.HALF_UP);
+                }
+                return number;
+            }
+            catch (ParseException e)
+            {   // find column
+                UIComponent inputComp = component.getParent();
+                while (inputComp!=null) {
+                    // set the tag
+                    if ((inputComp instanceof InputTag) || (inputComp instanceof ControlTag))
+                    {   // Found an InputTag or ControlTag
+                        Object column = inputComp.getAttributes().get("column");
+                        if (column instanceof Column)
+                            throw new FieldIllegalValueException((Column)column, value);
+                    }
+                    inputComp = inputComp.getParent();
+                    if (inputComp instanceof HtmlForm)
+                        break;
+                }
+                // Just throw an InvalidValueException
+                throw new InvalidValueException(value);
+            }
+        }
+    }
     
     private Class<? extends HtmlInputText> inputComponentClass;
 
@@ -184,6 +286,29 @@ public class TextInputControl extends InputControl
             super.setInputStyleClass(input, cssStyleClass);
     }
 
+    @Override
+    protected void setInputValueExpression(UIInput input, ValueExpression value, InputInfo ii)
+    {
+        super.setInputValueExpression(input, value, ii);
+        // establish converter for decimal
+        DataType dataType = ii.getColumn().getDataType();
+        if (dataType.isNumeric())
+        {   // get number format
+            NumberFormat nf;
+            if (dataType == DataType.INTEGER || dataType == DataType.AUTOINC)
+                nf = NumberFormat.getIntegerInstance(ii.getLocale()); // Integer only
+            else {
+                // Decimal or Float
+                nf = getNumberFormat(dataType, ii, ii.getColumn());
+                // ParseBigDecimal
+                if (nf instanceof DecimalFormat)
+                    ((DecimalFormat)nf).setParseBigDecimal((dataType==DataType.DECIMAL));
+            }
+            // create converter
+            input.setConverter(new NumberInputConverter(nf));
+        }
+    }
+    
     // ------- parsing -------
 
     @Override
@@ -203,12 +328,17 @@ public class TextInputControl extends InputControl
         }
         // Check other types
         if (type == DataType.INTEGER)
-        {
-        	return parseInteger(value, ii.getLocale());
+        {   // get IntegerFormat and parse
+            NumberFormat nf = NumberFormat.getIntegerInstance(ii.getLocale());
+        	return parseNumber(value, nf);
         }
         if (type == DataType.DECIMAL || type == DataType.FLOAT)
-        {
-        	return parseDecimal(value, ii.getLocale());
+        {   // get number format
+            NumberFormat nf = getNumberFormat(type, ii, column);
+            if (nf instanceof DecimalFormat)
+                ((DecimalFormat)nf).setParseBigDecimal((type==DataType.DECIMAL));
+            // parse
+            return parseNumber(value, nf);
         }
         if (type == DataType.DATE || type == DataType.DATETIME || type == DataType.TIMESTAMP)
         {
@@ -509,7 +639,7 @@ public class TextInputControl extends InputControl
         String type = StringUtils.valueOf(column.getAttribute(Column.COLATTR_NUMBER_TYPE));
         boolean isInteger = "Integer".equalsIgnoreCase(type);
         NumberFormat nf = (isInteger) ? NumberFormat.getIntegerInstance(locale)
-                                      : NumberFormat.getNumberInstance(locale); 
+                                      : NumberFormat.getNumberInstance(locale);
         // Groups Separator?
         Object groupSep = column.getAttribute(Column.COLATTR_NUMBER_GROUPSEP);
         nf.setGroupingUsed(groupSep != null && ObjectUtils.getBoolean(groupSep));
@@ -548,6 +678,12 @@ public class TextInputControl extends InputControl
             }
             // Set 
             nf.setMinimumFractionDigits(minFactionDigits);
+            nf.setMaximumFractionDigits(maxFactionDigits);
+        }
+        else if (!isInteger && dataType==DataType.DECIMAL) 
+        {   // Detect from column
+            int length = (int)column.getSize();
+            int maxFactionDigits = (int)(column.getSize()*10)-(length*10);
             nf.setMaximumFractionDigits(maxFactionDigits);
         }
         // IntegerDigits (left-padding)
@@ -633,36 +769,28 @@ public class TextInputControl extends InputControl
 
     // ------- value parsing -------
 
-    protected Object parseInteger(String value, Locale locale)
+    protected Object parseNumber(String value, NumberFormat nf)
     {
-        NumberFormat nf = NumberFormat.getIntegerInstance();
-        // Parse String
         try
+        {   // Parse Number
+            Number number = nf.parse(value);
+            if (number instanceof BigDecimal)
+            {   // Round to scale
+                int scale = nf.getMaximumFractionDigits();
+                number = ((BigDecimal)number).setScale(scale, RoundingMode.HALF_UP);
+            }
+            return number;
+        }
+        catch (ParseException pe)
         {
-            return nf.parseObject(value);
-        } catch (ParseException pe) {
-            throw new NumberFormatException("Not a number: " + value + " Exception: " + pe.toString());
-        }        
-    }
-
-    protected Object parseDecimal(String value, Locale locale)
-    {
-        NumberFormat nf = NumberFormat.getNumberInstance(locale);
-        // Parse String
-        try
-        {
-            return nf.parseObject(value);
-        } catch (ParseException pe) {
             throw new NumberFormatException("Not a number: " + value + " Exception: " + pe.toString());
         }
     }
 
     protected Object parseDate(String s, DateFormat df)
     {
-        // Try to convert
         try
-        {
-            // Parse Date
+        {   // Parse Date
             df.setLenient(true);
             return df.parseObject(s);
         } catch (ParseException pe) {
