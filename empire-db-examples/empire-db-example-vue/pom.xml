@@ -16,7 +16,7 @@
 	<parent>
 		<artifactId>empire-db-examples</artifactId>
 		<groupId>org.apache.empire-db</groupId>
-		<version>3.2.1-SNAPSHOT</version>
+		<version>3.3.0</version>
 	</parent>
 	<artifactId>empire-db-example-vue</artifactId>
 	<packaging>war</packaging>
