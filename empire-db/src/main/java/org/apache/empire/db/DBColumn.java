@@ -441,7 +441,7 @@ public abstract class DBColumn extends DBColumnExpr
 
     /**
      * Creates and returns a sql-expression that maps enum values from name to ordinal
-     * 
+     * @param defaultToEnd flag whether to put the default item to the end
      * @return a DBDecodeExpr object
      */
     public DBColumnExpr decodeSort(boolean defaultToEnd)

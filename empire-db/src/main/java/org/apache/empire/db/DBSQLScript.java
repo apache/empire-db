@@ -133,7 +133,7 @@ public class DBSQLScript implements DBContextAware, Iterable<String>
 
     /**
      * Returns the current Context
-     * @return
+     * @return the database context
      */
     @Override
     public DBContext getContext()
@@ -200,6 +200,7 @@ public class DBSQLScript implements DBContextAware, Iterable<String>
     /**
      * Adds an delete statement 
      * @param cmd the insert command
+     * @param table the table to delete
      */
     public void addDelete(DBCommand cmd, DBTable table)
     {
@@ -249,6 +250,7 @@ public class DBSQLScript implements DBContextAware, Iterable<String>
      * 
      * @param i index of the statement to replace
      * @param stmt the new statement for this index, or NULL to remove the statement
+     * @param params the statement params
      */
     public void insertStmt(int i, String stmt, Object[] params)
     {
@@ -385,6 +387,7 @@ public class DBSQLScript implements DBContextAware, Iterable<String>
 
     /**
      * Executes all SQL Statements as a JDBC Batch Job.
+     * @return the total number of affected records
      */
     public int executeBatch()
     {

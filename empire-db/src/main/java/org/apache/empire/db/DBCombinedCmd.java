@@ -27,11 +27,8 @@ import org.apache.empire.data.DataType;
 import org.apache.empire.db.expr.order.DBOrderByExpr;
 
 /**
- * This class is used for building up a partition of a SQL-Command.
- * It handles the insert from a specified key word between two DBCommandExpr objects.
- * <P>
- * 
- *
+ * This class is used for combining two DBCommandExpr objects to a new single DBCommandExpr
+ * This may be used to create "UNION" or "INTERSECT" queries 
  */
 public class DBCombinedCmd extends DBCommandExpr
 {

@@ -393,7 +393,7 @@ public abstract class Page // *Deprecated* implements Serializable
      * adds a page element to this page
      * DO NOT CALL yourself, this method is called from the PageElement constructor!
      * 
-     * @param element
+     * @param element the page element
      */
     protected void registerPageElement(PageElement<?> element)
     {
@@ -409,8 +409,8 @@ public abstract class Page // *Deprecated* implements Serializable
     /**
      * Helper methods for parent outcome
      * 
-     * @param action
-     * @param redirect
+     * @param action the action
+     * @param redirect flag whether to redirect
      * @return the parent outcome string
      */
     protected PageOutcome getParentOutcome(String action, boolean redirect)

@@ -74,6 +74,7 @@ public abstract class DBAbstractFuncExpr extends DBColumnExpr
     /**
      * returns the Database dbms or null if the Expression is not attached to an open database<BR>
      * This function is intended for convenience only.
+     * @return the dbms handler
      */
     protected DBMSHandler getDbms()
     {

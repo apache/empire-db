@@ -38,8 +38,6 @@ import org.apache.empire.db.DBSQLBuilder;
  * <P>
  * For the SQL fragment "set name="foo"<BR>
  * you should write: cmd.set( TABLE.NAME.to( "foo" ));
- * <P>
- * 
  *
  */
 public class DBSetExpr extends DBExpr

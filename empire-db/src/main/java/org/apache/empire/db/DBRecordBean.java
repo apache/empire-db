@@ -49,8 +49,8 @@ public class DBRecordBean extends DBRecordBase
     
     /**
      * varArgs to Array
-     * @param values
-     * @return
+     * @param values the key values
+     * @return the record key
      */
     public static Object[] key(Object... values)
     {
@@ -85,7 +85,7 @@ public class DBRecordBean extends DBRecordBase
 
     /**
      * Returns the current Context
-     * @return
+     * @return the database context
      */
     @Override
     public DBContext getContext()
@@ -159,6 +159,10 @@ public class DBRecordBean extends DBRecordBase
 
     /**
      * Creates a new record
+     * @param context the database context
+     * @param rowset the rowset from which to read the record
+     * @param initalKey the record key
+     * @return returns self (this)
      */
     public DBRecordBean create(DBContext context, DBRowSet rowset, Object[] initalKey)
     {
@@ -173,6 +177,9 @@ public class DBRecordBean extends DBRecordBase
 
     /**
      * Creates a new record
+     * @param context the database context
+     * @param rowset the rowset from which to read the record
+     * @return returns self (this)
      */
     public DBRecordBean create(DBContext context, DBRowSet rowset)
     {
@@ -190,6 +197,7 @@ public class DBRecordBean extends DBRecordBase
      * @param context the database context
      * @param rowset the rowset from which to read the record
      * @param key an array of the primary key values
+     * @return returns self (this)
      */
     public DBRecordBean read(DBContext context, DBRowSet rowset, Object[] key)
     {   // read
@@ -212,6 +220,8 @@ public class DBRecordBean extends DBRecordBase
      * 
      * @throws NoPrimaryKeyException if the associated RowSet has no primary key
      * @throws InvalidKeyException if the associated RowSet does not have a single column primary key
+     * 
+     * @return returns self (this)
      */
     public DBRecordBean read(DBContext context, DBRowSet rowset, Object id)
     {
@@ -237,6 +247,7 @@ public class DBRecordBean extends DBRecordBase
      * @param context the database context
      * @param rowset the rowset from which to read the record
      * @param whereConstraints the compare expression for querying the record
+     * @return returns self (this)
      */
     public DBRecordBean read(DBContext context, DBRowSet rowset, DBCompareExpr whereConstraints)
     {   // read
@@ -260,6 +271,7 @@ public class DBRecordBean extends DBRecordBase
      * @param key the primary key values
      * @param mode flag whether to include only the given columns or whether to add all but the given columns
      * @param columns the columns to include or exclude (depending on mode)
+     * @return returns self (this)
      */
     public DBRecordBean read(DBContext context, DBRowSet rowset, Object[] key, PartialMode mode, DBColumn... columns)
     {   // read

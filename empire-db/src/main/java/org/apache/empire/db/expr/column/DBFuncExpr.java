@@ -42,7 +42,6 @@ import org.apache.empire.exceptions.NotSupportedException;
  * {@link DBColumnExpr#decode(java.util.Map, Object) }, {@link DBColumnExpr#lower() }, {@link DBColumnExpr#min() }, 
  * {@link DBColumnExpr#max() }, {@link DBColumnExpr#month() }, {@link DBColumnExpr#sum() }, 
  * {@link DBColumnExpr#trim() }, {@link DBColumnExpr#upper() }, {@link DBColumnExpr#year() } 
- * <P>
  *
  */
 public class DBFuncExpr extends DBAbstractFuncExpr

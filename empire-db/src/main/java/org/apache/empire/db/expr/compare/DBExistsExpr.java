@@ -33,9 +33,6 @@ import org.slf4j.LoggerFactory;
 
 /**
  * This class is used for building up the SQL-Command for the EXISTS syntax.
- * <P>
- * 
- *
  */
 public class DBExistsExpr extends DBCompareExpr
 {
@@ -90,7 +87,7 @@ public class DBExistsExpr extends DBCompareExpr
 
     /**
      * Prepare function
-     * @param cmd
+     * @param cmd the command
      */
     @Override
     public void prepareCommand(DBCommand cmd) 

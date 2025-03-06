@@ -258,7 +258,8 @@ public class DBReader extends DBRecordData implements Closeable
 
     /**
      * Constructs an empty DBRecordSet object.
-     * @param useFieldIndexMap 
+     * @param context the database context
+     * @param useFieldIndexMap flag whether to use a fieldIndexMap
      */
     public DBReader(DBContext context, boolean useFieldIndexMap)
     {
@@ -269,6 +270,7 @@ public class DBReader extends DBRecordData implements Closeable
 
     /**
      * Constructs a default DBReader object with the fieldIndexMap enabled.
+     * @param context the database context
      */
     public DBReader(DBContext context)
     {
@@ -278,7 +280,7 @@ public class DBReader extends DBRecordData implements Closeable
 
     /**
      * Returns the current Context
-     * @return
+     * @return the database context
      */
     @Override
     public DBContext getContext()
@@ -700,8 +702,12 @@ public class DBReader extends DBRecordData implements Closeable
      * Returns the result of a query as a list of objects restricted
      * to a maximum number of objects (unless maxCount is -1).
      * 
+     * @param <L> the list type
+     * @param <T> the list item type
+     * 
      * @param list the collection to add the objects to
      * @param t the class type of the objects in the list
+     * @param parent the bean parent
      * @param maxCount the maximum number of objects
      * 
      * @return the list of T
@@ -760,10 +766,9 @@ public class DBReader extends DBRecordData implements Closeable
     
     /**
      * Returns the result of a query as a list of objects.
-     * 
+     * @param <T> the list item type
      * @param t the class type of the objects in the list
      * @param maxItems the maximum number of objects
-     * 
      * @return the list of T
      */
     public final <T> List<T> getBeanList(Class<T> t, int maxItems) 
@@ -773,9 +778,8 @@ public class DBReader extends DBRecordData implements Closeable
     
     /**
      * Returns the result of a query as a list of objects.
-     * 
+     * @param <T> the list item type
      * @param t the class type of the objects in the list
-     * 
      * @return the list of T
      */
     public final <T> List<T> getBeanList(Class<T> t) 
@@ -930,6 +934,7 @@ public class DBReader extends DBRecordData implements Closeable
     /**
      * finds the field Index of a given column expression
      * Internally used as helper for getFieldIndex()
+     * @param column the column to find
      * @return the index value
      */
     protected int findFieldIndex(ColumnExpr column)

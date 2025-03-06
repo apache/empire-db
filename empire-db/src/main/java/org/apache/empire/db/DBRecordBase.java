@@ -261,6 +261,7 @@ public abstract class DBRecordBase extends DBRecordData implements Record, Clone
 
     /**
      * helper to check if the object is valid
+     * @param fieldIndex the field index
      * @throws ObjectNotValidException if the object is not valid
      */
     protected void checkValid(int fieldIndex)
@@ -318,6 +319,7 @@ public abstract class DBRecordBase extends DBRecordData implements Record, Clone
     
     /**
      * Returns whether or not RollbackHandling is enabled for this record
+     * @return true if rollback handling is enabled or false otherwise
      */
     public abstract boolean isRollbackHandlingEnabled(); 
 
@@ -492,7 +494,7 @@ public abstract class DBRecordBase extends DBRecordData implements Record, Clone
 
     /**
      * Returns true if any of the given fields was modified.
-     * 
+     * @param columns the columns to check
      * @return true if any of the given fields were modified or false otherwise
      */
     public final boolean wasAnyModified(Column... columns)
@@ -692,6 +694,9 @@ public abstract class DBRecordBase extends DBRecordData implements Record, Clone
 
     /**
      * Deprecated Renamed to set(...)   
+     * @param column a DBColumn object
+     * @param value the value
+     * @return returns self (this)
      */
     @Deprecated
     public DBRecordBase setValue(Column column, Object value)
@@ -706,6 +711,7 @@ public abstract class DBRecordBase extends DBRecordData implements Record, Clone
      * 
      * @param column a DBColumn object
      * @param value the value
+     * @return returns self (this)
      */
     @Override
     public DBRecordBase set(Column column, Object value)
@@ -988,7 +994,7 @@ public abstract class DBRecordBase extends DBRecordData implements Record, Clone
     
     /**
      * changes the state of the record
-     * @param newState
+     * @param newState the new record state
      */
     protected void changeState(State newState)
     {
@@ -1041,7 +1047,7 @@ public abstract class DBRecordBase extends DBRecordData implements Record, Clone
     /**
      * Checks whether the record is updateable  
      * If its read-only a RecordReadOnlyException is thrown 
-     * @throws RecordReadOnlyException
+     * @throws RecordReadOnlyException exception thrown if record cannot be updated
      */
     protected void checkUpdateable()
     {
@@ -1076,6 +1082,7 @@ public abstract class DBRecordBase extends DBRecordData implements Record, Clone
      * 
      * @param index index of the column
      * @param value the column value
+     * @param fireChangeEvent flag whether to fire the onFieldChanged event
      */
     protected void modifyValue(int index, Object value, boolean fireChangeEvent)
     {   // Check valid
@@ -1135,6 +1142,7 @@ public abstract class DBRecordBase extends DBRecordData implements Record, Clone
     
     /**
      * Override this to get notified when a field value changes
+     * @param i the field index
      */
     protected void onFieldChanged(int i)
     {

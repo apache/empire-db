@@ -34,8 +34,6 @@ import org.apache.empire.db.DBSQLBuilder;
  * <P>
  * There is no need to explicitly create instances of this class.<BR>
  * Instead use {@link DBCompareExpr#not()}<BR>
- * <P>
- *
  */
 public class DBCompareNotExpr extends DBCompareExpr
 {

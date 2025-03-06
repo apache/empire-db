@@ -111,6 +111,7 @@ public class ArrayMap<K,V> extends AbstractMap<K,V>
 
     /**
      * Constructor with initialCapacity 
+     * @param initialCapacity the initial capacity
      */
     public ArrayMap(int initialCapacity)
     {
@@ -119,7 +120,7 @@ public class ArrayMap<K,V> extends AbstractMap<K,V>
     
     /**
      * Copy Constructor
-     * @param other
+     * @param other the map from which to copy
      */
     public ArrayMap(final Map<K,V> other)
     {

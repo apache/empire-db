@@ -60,7 +60,7 @@ public class DBRecord extends DBRecordBase
     
     /**
      * varArgs to Array
-     * @param values
+     * @param values the key values
      * @return the key
      */
     public static Object[] key(Object... values)
@@ -150,10 +150,14 @@ public class DBRecord extends DBRecordBase
         // done
         return rso;
     }
-    
+
     /**
      * Internal constructor for DBRecord
      * May be used by derived classes to provide special behaviour
+     *
+     * @param context the database context
+     * @param rowset the rowset to which this record belongs
+     * @param enableRollbackHandling flag whether to enable rollback handling
      */
     protected DBRecord(DBContext context, DBRowSet rowset, boolean enableRollbackHandling)
     {   // init
@@ -178,7 +182,7 @@ public class DBRecord extends DBRecordBase
 
     /**
      * Returns the current Context
-     * @return
+     * @return the database context
      */
     @Override
     public DBContext getContext()
@@ -247,6 +251,8 @@ public class DBRecord extends DBRecordBase
 
     /**
      * Creates a new record
+     * @param initalKey the record key
+     * @return returns self (this)
      */
     public DBRecord create(Object[] initalKey)
     {
@@ -256,6 +262,7 @@ public class DBRecord extends DBRecordBase
 
     /**
      * Creates a new record
+     * @return returns self (this)
      */
     public DBRecord create()
     {
@@ -269,6 +276,7 @@ public class DBRecord extends DBRecordBase
      *
      * @throws NoPrimaryKeyException if the associated RowSet has no primary key
      * @throws InvalidKeyException if the key does not match the key columns of the associated RowSet
+     * @return returns self (this)
      */
     public DBRecord read(Object[] key)
     {   // read
@@ -285,6 +293,7 @@ public class DBRecord extends DBRecordBase
      * 
      * @throws NoPrimaryKeyException if the associated RowSet has no primary key
      * @throws InvalidKeyException if the associated RowSet does not have a single column primary key
+     * @return returns self (this)
      */
     public DBRecord read(Object id)
     {
@@ -308,6 +317,7 @@ public class DBRecord extends DBRecordBase
     /**
      * Reads a record from the database
      * @param whereConstraints the compare expression for querying this record
+     * @return returns self (this)
      */
     public DBRecord read(DBCompareExpr whereConstraints)
     {
@@ -324,6 +334,7 @@ public class DBRecord extends DBRecordBase
      * @param key the primary key values
      * @param mode flag whether to include only the given columns or whether to add all but the given columns
      * @param columns the columns to include or exclude (depending on mode)
+     * @return returns self (this)
      */
     public DBRecord read(Object[] key, PartialMode mode, DBColumn... columns)
     {

@@ -344,6 +344,8 @@ public abstract class DBMSHandlerBase implements DBMSHandler
      * By default all reserved SQL keywords as well as names 
      * containing a "-", "/", "+" or " " require quoting.<br>
      * Overrides this function to add database specific keywords like "user" or "count"  
+     * @param name the name which to check
+     * @return true if the name needs to be quoted or false otherwise
      */
     public boolean detectQuoteName(String name)
     {
@@ -425,6 +427,8 @@ public abstract class DBMSHandlerBase implements DBMSHandler
      * Returns the sequence name of for a column of type AUTOINC
      * The sequence name is usually provided as the default value
      * If no Default value is provided the sequence name is generated from the table and the column name
+     * @param column the column for which to get a sequence
+     * @return the sequence name
      */
     public String getColumnSequenceName(DBTableColumn column)
     {
@@ -585,7 +589,7 @@ public abstract class DBMSHandlerBase implements DBMSHandler
      * @param sqlCmdParams and array of statement parameters
      * @param conn a JDBC connection
      * @return an array containing the number of records affected by each statement
-     * @throws SQLException
+     * @throws SQLException thrown if a database access error occurs
      */
     @Override
     public int[] executeBatch(String[] sqlCmd, Object[][] sqlCmdParams, Connection conn)
@@ -665,7 +669,7 @@ public abstract class DBMSHandlerBase implements DBMSHandler
      * @param scrollable true if scrollable or false otherwise
      * @param conn a valid connection to the database.
      * @return the JDBC resultset
-     * @throws SQLException
+     * @throws SQLException thrown if a database access error occurs
      */
     @Override
     public ResultSet executeQuery(String sqlCmd, Object[] sqlParams, boolean scrollable, Connection conn)
@@ -746,7 +750,7 @@ public abstract class DBMSHandlerBase implements DBMSHandler
 
     /**
      * Creates a DataModelParser instance of this DBMSHandler
-     * @return
+     * @return the model parser
      */
     @Override
     public DBModelParser createModelParser(String catalog, String schema)
@@ -756,7 +760,7 @@ public abstract class DBMSHandlerBase implements DBMSHandler
     
     /**
      * Creates a DataModelChecker instance of this DBMSHandler
-     * @return
+     * @return the model checker
      */
     @Override
     public DBModelChecker createModelChecker(DBDatabase db)
@@ -833,6 +837,7 @@ public abstract class DBMSHandlerBase implements DBMSHandler
      * 
      * @param pstmt the prepared statement
      * @param sqlParams list of objects
+     * @throws SQLException thrown if a database access error occurs
      */
     protected void prepareStatement(PreparedStatement pstmt, Object[] sqlParams) 
         throws SQLException
@@ -854,6 +859,7 @@ public abstract class DBMSHandlerBase implements DBMSHandler
      * 
      * @param pstmt the prepared statement
      * @param paramIndex the parameter index
+     * @throws SQLException thrown if a database access error occurs
      * @param value the parameter value
      */
     protected void addStatementParam(PreparedStatement pstmt, int paramIndex, Object value)

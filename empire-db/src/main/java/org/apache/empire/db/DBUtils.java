@@ -94,7 +94,7 @@ public class DBUtils implements DBContextAware
 
     /**
      * Returns the current Context
-     * @return
+     * @return the database context
      */
     @Override
     public DBContext getContext()
@@ -105,6 +105,7 @@ public class DBUtils implements DBContextAware
     /**
      * Get single parameter as string (for logging only)
      * @param param the parameter
+     * @return the formatted parameter value
      */
     protected String paramValueToString(Object param)
     {
@@ -142,6 +143,7 @@ public class DBUtils implements DBContextAware
     /**
      * Get all parameters as string (for logging only)
      * @param params the parameter
+     * @return the formatted parameters
      */
     protected String paramsToString(Object[] params)
     {
@@ -557,6 +559,7 @@ public class DBUtils implements DBContextAware
      * @param c the class type for the list 
      * @param <T> the type for the list
      * @param cmd the Command object that contains the select statement
+     * @param result the collection to which to add the result
      * 
      * @return the number of elements that have been added to the collection 
      */
@@ -806,7 +809,8 @@ public class DBUtils implements DBContextAware
 
     /**
      * Called when a query has no result
-     * @param cmd
+     * @param cmd the command
+     * @param resultType the result type class
      */
     protected void handleQueryNoResult(DBCommandExpr cmd, Class<?> resultType)
     {
@@ -819,7 +823,7 @@ public class DBUtils implements DBContextAware
      * The DataListEntry class must provide the following constructor
      *      DataListEntry(DataListFactory&lt;? extends DataListEntry&gt; head, int rownum, Object values[])
      * @param entryClass the entryClass for which to create the list head 
-     * @return
+     * @return the data list factory
      */
     protected <T extends DataListEntry> DataListFactory<T> createDefaultDataListFactory(Class<T> entryClass, DataListHead head) 
     {
@@ -829,6 +833,7 @@ public class DBUtils implements DBContextAware
     /**
      * Crates a default DataListHead for a DataListEntry class
      * @param cmd the cmd for which to create the DataListHead
+     * @param entryClass the entry type class
      * @return the DataListHead instance
      */
     protected DataListHead createDefaultDataListHead(DBCommandExpr cmd, Class<? extends DataListEntry> entryClass) 
@@ -908,6 +913,10 @@ public class DBUtils implements DBContextAware
 
     /**
      * Queries a list of DataListEntry items
+     * @param cmd the query command
+     * @param entryClass the entry type class
+     * @param head the list head
+     * @return the data list
      */
     public final <T extends DataListEntry> List<T> queryDataList(DBCommandExpr cmd, Class<T> entryClass, DataListHead head)
     {
@@ -916,6 +925,9 @@ public class DBUtils implements DBContextAware
     
     /**
      * Queries a list of DataListEntry items
+     * @param cmd the query command
+     * @param entryClass the entry type class
+     * @return the data list
      */
     public final <T extends DataListEntry> List<T> queryDataList(DBCommandExpr cmd, Class<T> entryClass)
     {
@@ -924,6 +936,11 @@ public class DBUtils implements DBContextAware
     
     /**
      * Queries a list of DataListEntry items
+     * @param cmd the query command
+     * @param entryClass the entry type class
+     * @param first the first record to add
+     * @param maxItems the maximum number of records to add
+     * @return the data list
      */
     public final <T extends DataListEntry> List<T> queryDataList(DBCommandExpr cmd, Class<T> entryClass, int first, int maxItems)
     {
@@ -932,6 +949,8 @@ public class DBUtils implements DBContextAware
     
     /**
      * Queries a list of DataListEntry items
+     * @param cmd the query command
+     * @return the data list
      */
     public final List<DataListEntry> queryDataList(DBCommandExpr cmd)
     {
@@ -940,6 +959,10 @@ public class DBUtils implements DBContextAware
     
     /**
      * Queries a list of DataListEntry items
+     * @param cmd the query command
+     * @param first the first record to add
+     * @param maxItems the maximum number of records to add
+     * @return the data list
      */
     public final List<DataListEntry> queryDataList(DBCommandExpr cmd, int first, int maxItems)
     {
@@ -948,6 +971,10 @@ public class DBUtils implements DBContextAware
     
     /**
      * Queries a single DataListEntry item
+     * @param cmd the query command
+     * @param entryClass the result class
+     * @param head the list head
+     * @return the data entry
      */
     public final <T extends DataListEntry> T queryDataEntry(DBCommandExpr cmd, Class<T> entryClass, DataListHead head)
     {
@@ -964,7 +991,7 @@ public class DBUtils implements DBContextAware
      * Queries a single DataListEntry item
      * @param cmd the query command
      * @param entryClass the result class
-     * @return the result object
+     * @return the data entry
      */
     public final <T extends DataListEntry> T queryDataEntry(DBCommandExpr cmd, Class<T> entryClass)
     {
@@ -974,10 +1001,11 @@ public class DBUtils implements DBContextAware
 
     /**
      * Queries a single DataListEntry item
-     * @Deprecated Please consider calling without the "failOnNoResult" parameter and overriding handleQueryNoResult()
+     * Deprecated. Please consider calling without the "failOnNoResult" parameter and overriding handleQueryNoResult()
      * @param cmd the query command
      * @param entryClass the result class
      * @param failOnNoResult flag whether to fail on empty resultset
+     * @return the data entry
      */
     @Deprecated
     public final <T extends DataListEntry> T queryDataEntry(DBCommandExpr cmd, Class<T> entryClass, boolean failOnNoResult)
@@ -991,6 +1019,7 @@ public class DBUtils implements DBContextAware
     /**
      * Queries a single DataListEntry item
      * @param cmd the query command
+     * @return the data entry
      */
     public final DataListEntry queryDataEntry(DBCommandExpr cmd)
     {
@@ -1002,7 +1031,7 @@ public class DBUtils implements DBContextAware
      * The DBRecord class must provide the following constructor
      *      DBRecord(DBContext context, DBRowSet rowset)
      * @param recordClass the recordClass for which to create the list head 
-     * @return
+     * @return the record factory
      */
     protected <R extends DBRecordBase> DBRecordListFactory<R> createDefaultRecordListFactory(Class<R> recordClass, DBRowSet rowset) 
     {
@@ -1083,6 +1112,7 @@ public class DBUtils implements DBContextAware
      * Executes a query and returns a list of DBRecord items
      * @param cmd the command holding the constraints and order or the query
      * @param rowset the rowset for which to query the records
+     * @param recordType the record class
      * @return the list of DBRecord items
      */
     public final <R extends DBRecordBase> List<R> queryRecordList(DBCommand cmd, DBRowSet rowset, Class<R> recordType)
@@ -1164,7 +1194,7 @@ public class DBUtils implements DBContextAware
      * @param parent the parent object for the created beans (optional)
      * @param first the first row
      * @param pageSize the maximum number of items to add to the list or -1 (default) for all
-     * @return
+     * @return the bean list
      */
     public <T> List<T> queryBeanList(DBCommandExpr cmd, DBBeanListFactory<T> factory, Object parent, int first, int pageSize)
     {

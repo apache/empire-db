@@ -92,8 +92,8 @@ public class DBModelParser
     
     /**
      * Creates a new Model Checker
-     * @param catalog
-     * @param schema
+     * @param catalog the catalog
+     * @param schema the schema
      */
     public DBModelParser(String catalog, String schema)
     {
@@ -202,7 +202,8 @@ public class DBModelParser
      * collects table and view information from database meta data
      * @param dbMeta the database meta data
      * @param tablePattern the table pattern
-     * @throws SQLException
+     * @throws SQLException thrown if a database access error occurs
+     * @return the table and view count
      */
     protected int collectTablesAndViews(DatabaseMetaData dbMeta, String tablePattern)
         throws SQLException
@@ -235,6 +236,9 @@ public class DBModelParser
 
     /**
      * collects column information from database meta data for each table
+     * @param dbMeta the database meta data
+     * @throws SQLException thrown if a database access error occurs
+     * @return the column count
      */
     protected int collectColumns(DatabaseMetaData dbMeta)
             throws SQLException
@@ -258,6 +262,10 @@ public class DBModelParser
 
     /**
      * collects column information from database meta data for whole schema
+     * @param dbMeta the database meta data
+     * @param tablePattern the table pattern
+     * @throws SQLException thrown if a database access error occurs
+     * @return the column count
      */
     protected int collectColumns(DatabaseMetaData dbMeta, String tablePattern)
         throws SQLException
@@ -285,7 +293,8 @@ public class DBModelParser
     /**
      * collects primary key information from database meta data
      * @param dbMeta the database meta data
-     * @throws SQLException
+     * @throws SQLException thrown if a database access error occurs
+     * @return the primary key count
      */
     protected int collectPrimaryKeys(DatabaseMetaData dbMeta)
         throws SQLException
@@ -340,7 +349,8 @@ public class DBModelParser
     /**
      * collects foreign key information from database meta data
      * @param dbMeta the database meta data
-     * @throws SQLException
+     * @throws SQLException thrown if a database access error occurs
+     * @return the foreign key count
      */
     protected int collectForeignKeys(DatabaseMetaData dbMeta)
             throws SQLException
@@ -358,7 +368,8 @@ public class DBModelParser
      * collects foreign key information from database meta data
      * @param dbMeta the database meta data
      * @param tablePattern the table pattern
-     * @throws SQLException
+     * @throws SQLException thrown if a database access error occurs
+     * @return the foreign key count
      */
     protected int collectForeignKeys(DatabaseMetaData dbMeta, String tablePattern)
         throws SQLException

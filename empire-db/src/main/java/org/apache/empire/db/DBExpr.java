@@ -23,9 +23,6 @@ import java.util.Set;
 
 /**
  * This abstract class is the base class for all database expression classes (e.g. DBAliasExpr or DBCalsExpr)
- * <P>
- * 
- *
  */
 public abstract class DBExpr extends DBObject
 {

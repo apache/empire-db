@@ -78,13 +78,17 @@ public abstract class DBRecordData extends DBObject
     public abstract Document getXmlDocument();
 
     /**
-     * Returns a value based on an index.
+     * Returns a value based on a field index.
+     * @param index the field index
+     * @return the field value
      */
     @Override
     public abstract Object getValue(int index);
     
     /**
      * Deprecated Renamed to get(...)   
+     * @param column the column for which to obtain the value
+     * @return the record value
      */
     @Deprecated
     public Object getValue(ColumnExpr column)
@@ -94,6 +98,10 @@ public abstract class DBRecordData extends DBObject
 
     /**
      * Deprecated Renamed to get(...)   
+     * @param <T> the value type
+     * @param column the column for which to retrieve the value
+     * @param returnType the type of the returned value
+     * @return the value
      */
     @Deprecated
     public final <T> T getValue(Column column, Class<T> returnType)
@@ -103,6 +111,8 @@ public abstract class DBRecordData extends DBObject
 
     /**
      * Deprecated Renamed to get(...)   
+     * @param columns the columns for which to obtain the values
+     * @return the record values
      */
     @Deprecated
     public final Object[] getValues(ColumnExpr... columns)
@@ -127,6 +137,7 @@ public abstract class DBRecordData extends DBObject
 
     /**
      * Returns the value of a field as an object of a given (wrapper)type
+     * @param <T> the value type
      * @param column the column for which to retrieve the value
      * @param returnType the type of the returned value
      * @return the value
@@ -376,7 +387,9 @@ public abstract class DBRecordData extends DBObject
      * For numeric columns the value is assumed to be an ordinal of the enumeration item
      * For non numeric columns the value is assumed to be the name of the enumeration item
      * 
+     * @param <T> the enum type
      * @param index index of the field
+     * @param enumType the enum type class
      * @return the enum value
      */
     public <T extends Enum<?>> T getEnum(int index, Class<T> enumType)
@@ -403,7 +416,9 @@ public abstract class DBRecordData extends DBObject
      * For numeric columns the value is assumed to be an ordinal of the enumeration item
      * For non numeric columns the value is assumed to be the name of the enumeration item
      * 
+     * @param <T> the enum type
      * @param column the column for which to retrieve the value
+     * @param enumType the enum type class
      * @return the enum value
      */
     public final <T extends Enum<?>> T getEnum(ColumnExpr column, Class<T> enumType)
@@ -502,6 +517,11 @@ public abstract class DBRecordData extends DBObject
     
     /**
      * Set a single property value of a java bean object used by readProperties.
+     *
+     * @param column the column expression
+     * @param bean the bean
+     * @param property the property
+     * @param value the value
      */
     protected void setBeanProperty(ColumnExpr column, Object bean, String property, Object value)
     {
@@ -586,7 +606,7 @@ public abstract class DBRecordData extends DBObject
 
     /**
      * Injects the current field values into a java bean.
-     * 
+     * @param bean the bean
      * @return the number of bean properties set on the supplied bean
      */
     public final int setBeanProperties(Object bean)

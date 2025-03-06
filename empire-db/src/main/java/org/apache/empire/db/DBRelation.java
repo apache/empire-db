@@ -218,6 +218,7 @@ public class DBRelation extends DBObject
      * Appends the required DLL command to enable or disable a foreign key constraint to the supplied DBDQLScript.
      * @param enable true if the constraint should be enabled or false to disable the constraint
      * @param context the context for which to enable or disable the relation
+     * @return the sql statement
      */
     public String getEnableDisableStmt(boolean enable, DBContext context)
     {

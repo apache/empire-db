@@ -300,6 +300,7 @@ public abstract class InputControl
     
     /**
      * Renders the control value without a surrounding tag (Text only)
+     * @param value the value to render
      * @param vi the value info
      * @param writer the output writer
      * @throws IOException from ResponseWriter
@@ -822,9 +823,9 @@ public abstract class InputControl
 
     /**
      * Returns the display text for an option
-     * @param options
-     * @param value
-     * @param vi
+     * @param options the options
+     * @param value the value
+     * @param vi the value info
      * @return the display text or null if the option value could not be resolved
      */
     protected String getOptionText(Options options, Object value, ValueInfo vi)

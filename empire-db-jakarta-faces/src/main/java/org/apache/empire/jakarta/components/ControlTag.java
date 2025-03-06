@@ -529,6 +529,7 @@ public class ControlTag extends UIInput implements NamingContainer
      * called from LabelSeparatorComponent
      * @param context the faces context
      * @param parent the LabelSeparatorComponent
+     * @param customInput flag whether a custom input component is used
      * @throws IOException from ResponseWriter
      */
     protected void encodeLabel(FacesContext context, UIComponentBase parent, boolean customInput)

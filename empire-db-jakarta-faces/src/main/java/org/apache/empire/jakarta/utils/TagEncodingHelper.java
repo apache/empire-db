@@ -1678,7 +1678,7 @@ public class TagEncodingHelper implements NamingContainer
     /**
      * Returns whether a control element is rendered
      * Use to detect legacy behavior with no separate control element 
-     * and only two <td> for label and input wrapper
+     * and only two &lt;td&gt; for label and input wrapper
      * @return true if a control element is rendered or false in legacy case 
      */
     protected boolean isControlTagElementValid()
@@ -2222,13 +2222,13 @@ public class TagEncodingHelper implements NamingContainer
     }
     
     /**
-     * Writes a wrapper tag for <e:value> and <e:input>
-     * Hint: For <e:control> the input separater tag acts as the wrapper
+     * Writes a wrapper tag for e:value and e:input
+     * Hint: For e:control the input separator tag acts as the wrapper
      * @param context the faces context
      * @param renderId flag whether or not to render the components client id
      * @param renderValue flag whether to render and input wrapper (false) or a value wrapper (true)
      * @return the tag name of the wrapper tag
-     * @throws IOException
+     * @throws IOException from ResponseWriter
      */
     public String writeWrapperTag(FacesContext context, boolean renderId, boolean renderValue)
         throws IOException

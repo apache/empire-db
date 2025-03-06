@@ -36,8 +36,6 @@ import org.w3c.dom.Element;
 
 /**
  * This class is used for declaring scalar functions in SQL (like e.g. random).
- * <P>
- *
  */
 public class DBScalarExpr extends DBColumnExpr
 {

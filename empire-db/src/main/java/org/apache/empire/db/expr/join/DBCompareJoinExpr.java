@@ -37,8 +37,6 @@ import org.slf4j.LoggerFactory;
  * <P>
  * There is no need to explicitly create instances of this class.<BR>
  * Instead use @link {@link org.apache.empire.db.DBCommand#join(DBRowSet, DBCompareExpr, DBJoinType)}
- * <P>
- *
  */
 public class DBCompareJoinExpr extends DBColumnJoinExpr
 {

@@ -125,6 +125,7 @@ public abstract class DBDDLGenerator<T extends DBMSHandler>
      * appends the data type of a column
      * @param type the type
      * @param size the size
+     * @param c the table column
      * @param sql the builder that we will append to
      * @return true if further column attributes may be added or false otherwise
      */
@@ -602,6 +603,7 @@ public abstract class DBDDLGenerator<T extends DBMSHandler>
     
     /**
      * Appends the DDL-Script for dropping a database object to an SQL-Script 
+     * @param schema the name of the schema
      * @param name the name of the object to delete
      * @param objType the type of object to delete (TABLE, COLUMN, VIEW, RELATION, etc)
      * @param script the sql script to which to append the dll command(s)

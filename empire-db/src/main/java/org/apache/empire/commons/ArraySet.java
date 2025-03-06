@@ -132,6 +132,7 @@ public class ArraySet<E> extends ArrayList<E> implements Set<E>
 
     /**
      * Constructor with initialCapacity 
+     * @param initialCapacity the initial capacity
      */
     public ArraySet(int initialCapacity)
     {
@@ -140,6 +141,7 @@ public class ArraySet<E> extends ArrayList<E> implements Set<E>
 
     /**
      * Constructor with initial list 
+     * @param items the initial items
      */
     @SafeVarargs
     public ArraySet(E... items)
@@ -152,7 +154,7 @@ public class ArraySet<E> extends ArrayList<E> implements Set<E>
     
     /**
      * Copy constructor
-     * @param other
+     * @param other the set from which to copy
      */
     public ArraySet(ArraySet<E> other)
     {

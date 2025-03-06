@@ -43,16 +43,23 @@ public interface DBMSHandler
 {
     /**
      * Checks if a database exists
+     * @param db the database
+     * @param conn the Jdbc connection
+     * @return true if database exists of false otherwise
      */
     boolean checkExists(DBDatabase db, Connection conn);
     
     /**
      * Called when a database is opened
+     * @param db the database
+     * @param conn the Jdbc connection
      */
     void attachDatabase(DBDatabase db, Connection conn);
 
     /**
      * Called when a database is closed
+     * @param db the database
+     * @param conn the Jdbc connection
      */
     void detachDatabase(DBDatabase db, Connection conn);
     
@@ -74,7 +81,7 @@ public interface DBMSHandler
      * for a combined command such as UNION or INTERSECT 
      * @param left the left command
      * @param keyWord the key word (either "UNION" or "INTERSECT")
-     * @param left the right command
+     * @param right the right command
      * @return a DBCommandExpr object
      */
     DBCommandExpr createCombinedCommand(DBCommandExpr left, String keyWord, DBCommandExpr right);
@@ -162,18 +169,18 @@ public interface DBMSHandler
      * 
      * @return the row count for insert, update or delete or 0 for SQL statements that return nothing
      * 
-     * @throws SQLException if a database access error occurs
+     * @throws SQLException thrown if a database access error occurs
      */
     int executeSQL(String sqlCmd, Object[] sqlParams, Connection conn, DBSetGenKeys genKeys)
         throws SQLException;
 
     /**
      * Executes a list of sql statements as batch
-     * @param sqlCmd
-     * @param sqlCmdParams
-     * @param conn
-     * @return
-     * @throws SQLException
+     * @param sqlCmd the sql command
+     * @param sqlCmdParams the command params
+     * @param conn the jdbc connection
+     * @return the number of affected records
+     * @throws SQLException thrown if a database access error occurs
      */
     public int[] executeBatch(String[] sqlCmd, Object[][] sqlCmdParams, Connection conn)
         throws SQLException;
@@ -186,7 +193,7 @@ public interface DBMSHandler
      * @param scrollable true if scrollable or false otherwise
      * @param conn a valid connection to the database.
      * @return the JDBC resultset
-     * @throws SQLException
+     * @throws SQLException thrown if a database access error occurs
      */
     public ResultSet executeQuery(String sqlCmd, Object[] sqlParams, boolean scrollable, Connection conn)
         throws SQLException;
@@ -236,13 +243,16 @@ public interface DBMSHandler
     
     /**
      * Creates a DataModelParser instance of this DBMSHandler
-     * @return
+     * @param catalog the database catalog
+     * @param schema the database schema
+     * @return the model parser
      */
     DBModelParser createModelParser(String catalog, String schema);
  
     /**
      * Creates a DataModelChecker instance of this DBMSHandler
-     * @return
+     * @param db the database
+     * @return the model checker
      */
     DBModelChecker createModelChecker(DBDatabase db);
     

@@ -156,6 +156,7 @@ public class ParameterMap // *Deprecated* implements Serializable
      * @param objectKey the object key
      * @param item the object
      * @param useCache flag whether to cache the objectKey
+     * @return the encoded identifier
      */
     protected String encodeAndStore(String typeName, String objectKey, Object item, boolean useCache)
     {   // Generate the id
@@ -170,6 +171,7 @@ public class ParameterMap // *Deprecated* implements Serializable
      * puts a key of a particular type into the parameter map 
      * @param type the type name
      * @param key the key string
+     * @param value the value
      * @param useCache true if the keys should be cached
      * @return the encoded key
      */
@@ -221,7 +223,8 @@ public class ParameterMap // *Deprecated* implements Serializable
 
     /**
      * Returns the ParameterObject for the given encoded id
-     * @param paramType the param type
+     * @param <T> the parameter type
+     * @param paramType the param type class
      * @param id the item id
      * @return the object
      */
@@ -248,7 +251,7 @@ public class ParameterMap // *Deprecated* implements Serializable
     public String put(DBRowSet rowset, Object[] key)
     {
         // Generate id and put in map
-        String rowKey = StringUtils.valueOf(key);
+        String rowKey = StringUtils.arrayToString(key);
         String type = getRowSetTypeName(rowset);
         return encodeAndStore(type, rowKey, key, false);
     }

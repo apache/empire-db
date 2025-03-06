@@ -389,8 +389,8 @@ public abstract class WebApplication
      * Handles an exeption, that could not be handled on the page level
      * The application should redirect to the error page.
      * @param context the faces context
-     * @param page the page from which the exception originated
-     * @param the Exception
+     * @param source the page from which the exception originated
+     * @param e the Exception to handle
      */
     public void handleException(FacesContext context, Page source, Throwable e)
     {
@@ -523,7 +523,7 @@ public abstract class WebApplication
     /**
      * returns the default input control type for a given data Type
      * @see org.apache.empire.jsf2.controls.InputControlManager
-     * @param dataType
+     * @param dataType the data type
      * @return an Input Cnotrol type
      */
     public String getDefaultControlType(DataType dataType)

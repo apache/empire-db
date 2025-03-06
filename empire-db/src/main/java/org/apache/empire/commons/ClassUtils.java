@@ -379,6 +379,7 @@ public final class ClassUtils
     
     /**
      * Creates a new Object instance
+     * @param <T> the class type
      * @param typeClass the class of the object to instantiate
      * @return the instance
      */
@@ -409,9 +410,10 @@ public final class ClassUtils
     
     /**
      * Creates a new Object instance with a single parameter constructor
+     * @param <T> the type of the new object
      * @param typeClass the type of the object to instantiate
      * @param paramClass the type of the constructor parameter
-     * @param typeClass the value of the constructor parameter 
+     * @param paramValue the value of the constructor parameter 
      * @return the instance
      */
     public static <T> T newInstance(Class<T> typeClass, Class<?> paramClass, Object paramValue)
@@ -422,7 +424,9 @@ public final class ClassUtils
 
     /**
      * Creates a new Object instance
+     * @param <T> the type of the new object
      * @param typeConstructor the constructor of the object to instantiate
+     * @param params the constructor params
      * @return the instance
      */
     public static <T> T newInstance(Constructor<T> typeConstructor, Object... params)
@@ -650,9 +654,10 @@ public final class ClassUtils
 
     /**
      * Invoke a simple method (without parameters) on an object using reflection
-     * @param clazz
+     * @param clazz the class on which to invoke the method
      * @param object the object instance on which to invoke the method
      * @param methodName the name of the method to invoke 
+     * @param makeAccessible flag whether or not to make the method accessible (eg. if private)
      * @return the return value of the method
      */
     public static Object invokeSimpleMethod(Class<?> clazz, Object object, String methodName, boolean makeAccessible)
@@ -721,6 +726,7 @@ public final class ClassUtils
      * Invoke a method with parameters on an object
      * @param object the object on which to invoke the method
      * @param method the method
+     * @param params the method params
      * @return the return value
      */
     public static Object invokeMethod(Object object, Method method, Object... params)

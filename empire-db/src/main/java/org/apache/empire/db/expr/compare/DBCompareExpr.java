@@ -25,8 +25,6 @@ import org.apache.empire.db.DBRowSet;
 
 /**
  * This class is a common base class for all SQL filter constraints classes<br>
- * <P>
- * 
  */
 public abstract class DBCompareExpr extends DBExpr
 {
@@ -78,7 +76,7 @@ public abstract class DBCompareExpr extends DBExpr
 	
 	/**
 	 * internally used for preapred statement generation
-	 * @param cmd
+     * @param cmd the command
 	 */
 	public abstract void prepareCommand(DBCommand cmd); 
     

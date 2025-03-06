@@ -30,7 +30,6 @@ import org.apache.empire.db.DBSQLBuilder;
 
 /**
  * This class wraps an existing compare expression with parenthesis.
- * <P>
  */
 public class DBCompareParenthesisExpr extends DBCompareExpr implements Unwrappable<DBCompareExpr>
 {

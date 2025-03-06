@@ -33,6 +33,9 @@ public class TRecord<CTX extends DBContext, T extends DBRowSet> extends DBRecord
     /**
      * Internal constructor for TRecord
      * May be used by derived classes to provide special behaviour
+     * @param context the DBContext for this record
+     * @param rowset the corresponding RowSet(Table, View, Query, etc.)
+     * @param enableRollbackHandling flag whether to enable rollback handling 
      */
     protected TRecord(CTX context, T rowset, boolean enableRollbackHandling)
     {   

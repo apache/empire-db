@@ -73,9 +73,6 @@ import org.slf4j.LoggerFactory;
  * This class is the base class for all the DBTable,
  * DBView and DBQuery classes this class contains all the columns of the
  * tables, views or queries
- * <P>
- * 
- *
  */
 public abstract class DBRowSet extends DBExpr implements EntityType
 {
@@ -207,6 +204,8 @@ public abstract class DBRowSet extends DBExpr implements EntityType
 
     /**
      * Returns a named attribute for this table
+     * @param name the attribute name
+     * @return the attribute value
      */
     public Object getAttribute(String name)
     {
@@ -226,8 +225,10 @@ public abstract class DBRowSet extends DBExpr implements EntityType
 
     /**
      * Sets the value of a attribute.
+     * @param <T> the table type
      * @param name the attribute name
      * @param value the value of the attribute
+     * @return returns self (this)
      */
     @SuppressWarnings("unchecked")
     public synchronized <T extends DBTable> T setAttribute(String name, Object value)
@@ -397,7 +398,9 @@ public abstract class DBRowSet extends DBExpr implements EntityType
     
     /**
      * sets the bean type for this rowset
+     * @param <T> the bean type
      * @param beanType the bean type for this rowset
+     * @param factory the bean factory
      */
     public <T> void setBeanType(Class<T> beanType, DBBeanListFactory<T> factory)
     {
@@ -632,7 +635,7 @@ public abstract class DBRowSet extends DBExpr implements EntityType
     /**
      * Returns the column expression at a given column index
      * Allow overrides in derived classes
-     * @param index
+     * @param index the index of the desired expression
      * @return the column expression
      */
     protected DBColumnExpr getColumnExprAt(int index)
@@ -642,6 +645,8 @@ public abstract class DBRowSet extends DBExpr implements EntityType
     
     /**
      * Creates a join expression based on a compare expression
+     * @param cmp the compare expression for the join
+     * @return the join expression
      */
     public DBCompareJoinExpr on(DBCompareExpr cmp)
     {
@@ -651,6 +656,8 @@ public abstract class DBRowSet extends DBExpr implements EntityType
     
     /**
      * Creates a cross join expression
+     * @param right the rowset which to cross join
+     * @return the cross join expression
      */
     public DBCrossJoinExpr on(DBRowSet right)
     {
@@ -1018,6 +1025,7 @@ public abstract class DBRowSet extends DBExpr implements EntityType
      * If the record has been modified by another user, an error of type 
      * DBErrors.RecordUpdateFailed will be set.  
      * <P>
+     * @param <R> the record type
      * @param record the DBRecord object. contains all fields and the field properties
      */
     public <R extends DBRecordBase> void updateRecord(R record)
@@ -1266,7 +1274,10 @@ public abstract class DBRowSet extends DBExpr implements EntityType
     }
     
     /**
-     *  Mabe use Prepared statements even if disabled in context 
+     *  Creates a new command object for record handing
+     *  May use Prepared statements even if disabled in context
+     *  @param context the db context
+     *  @return the command object 
      */
     protected DBCommand createRecordCommand(DBContext context)
     {
@@ -1304,8 +1315,9 @@ public abstract class DBRowSet extends DBExpr implements EntityType
 
     /**
      * Clone columns
-     * @param clone
-     * @throws CloneNotSupportedException
+     * @param <T> the rowset type
+     * @param clone the cloned rowset 
+     * @throws CloneNotSupportedException exception if cloning the fields fails
      */
     protected <T extends DBRowSet> void initClonedFields(T clone) throws CloneNotSupportedException
     {
@@ -1364,8 +1376,8 @@ public abstract class DBRowSet extends DBExpr implements EntityType
 
     /**
      * Clones a RowSet column
-     * @param clone the clonded rowset
-     * @param scourceColumn
+     * @param clone the cloned rowset
+     * @param scourceColumn the source column
      * @return the cloned column
      */
     protected abstract DBColumn cloneColumn(DBRowSet clone, DBColumn scourceColumn);

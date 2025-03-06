@@ -50,6 +50,9 @@ public class DBExpressionIndex extends DBIndex
 
     /**
      * Constructs a DBExpresionIndex
+     * @param name the index name
+     * @param unique flag whether the index is unique
+     * @param columnExpressions the index columns
      * Overload for convenience
      */
     public DBExpressionIndex(String name, boolean unique, DBExpr... columnExpressions)

@@ -38,7 +38,6 @@ import org.w3c.dom.Element;
  * <P>
  * There is no need to explicitly create instances of this class.<BR>
  * Instead use {@link DBRowSet#count() or @link DBColumnExpr#count() }
- * <P>
  *
  */
 public class DBCountExpr extends DBColumnExpr

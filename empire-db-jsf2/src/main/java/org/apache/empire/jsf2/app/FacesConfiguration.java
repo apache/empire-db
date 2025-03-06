@@ -61,7 +61,7 @@ import org.slf4j.LoggerFactory;
  * In order to provide custom configuration you must override the class WebAppStartupListener
  * and put it in the faces-config.xml
  * <pre> 
- *   <system-event-listener-class>de.volkswagen.jsf.FacesStartupListener</system-event-listener-class>
+ *   &lt;system-event-listener-class&gt;de.volkswagen.jsf.FacesStartupListener&lt;/system-event-listener-class&gt;
  * </pre>
  * Further you must call the super constructor with a FacesConfiguration class like this:
  * <pre>
@@ -110,6 +110,7 @@ public class FacesConfiguration
      * Static Initializer
      * @param configClass the configuration class
      * @param startupContext the startupContext
+     * @param facesImpl the Faces implementation
      */
     public static <T extends FacesConfiguration> void initialize(Class<T> configClass, FacesContext startupContext, FacesImplementation facesImpl)
     {

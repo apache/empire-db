@@ -37,7 +37,7 @@ public class HtmlUtils
     /**
      * escapes a String for html
      * 
-     * @param text
+     * @param text the text to escape
      * @return the escaped html String
      */
     public String escapeText(String text)

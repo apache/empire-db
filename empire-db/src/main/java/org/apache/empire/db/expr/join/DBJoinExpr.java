@@ -49,6 +49,7 @@ public abstract class DBJoinExpr extends DBExpr
 
     /**
      * returns the join type for this join
+     * @return the join type
      */
     public DBJoinType getType()
     {
@@ -57,6 +58,7 @@ public abstract class DBJoinExpr extends DBExpr
     
     /**
      * alters the join type for this join
+     * @param type the join type
      */
     public void setType(DBJoinType type)
     {
@@ -65,21 +67,25 @@ public abstract class DBJoinExpr extends DBExpr
 
     /**
      * returns the RowSet on the left of the join
+     * @return the rowset on the left
      */
     public abstract DBRowSet getLeftTable();
     
     /**
      * returns the RowSet on the right of the join
+     * @return the rowset on the right
      */
     public abstract DBRowSet getRightTable();
     
     /**
      * returns true if this join is using the given table or view or false otherwise
+     * @return true if the join is on the given rowset
      */
     public abstract boolean isJoinOn(DBRowSet rowset);
     
     /**
      * returns true if this join is using the given column or false otherwise
+     * @return true if the join is on the given column
      */
     public abstract boolean isJoinOn(DBColumn column);
 
@@ -99,13 +105,14 @@ public abstract class DBJoinExpr extends DBExpr
     
     /**
      * internally used for preapred statement generation
-     * @param cmd
+     * @param cmd the command
      */
     public abstract void prepareCommand(DBCommand cmd); 
 
     /**
      * Copy Command
      * @param newCmd the new command object
+     * @return the join expression
      */
     public abstract DBJoinExpr copy(DBCommand newCmd);
 

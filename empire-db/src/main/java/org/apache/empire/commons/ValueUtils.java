@@ -519,7 +519,7 @@ public class ValueUtils
      * <P>
      * @param v the object to convert
      * @return the Date value of v or null
-     * @throws ParseException
+     * @throws ParseException exception if date cannot be parsed from string 
      */
     public Date toDate(Object v)
         throws ParseException
@@ -652,6 +652,7 @@ public class ValueUtils
      * This function is intended to be used for converting values coming from the database
      * to be used by the program
      * 
+     * @param <T> the java type 
      * @param c the class type to convert to
      * @param v the value to convert
      * 

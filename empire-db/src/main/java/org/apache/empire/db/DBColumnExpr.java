@@ -133,6 +133,7 @@ public abstract class DBColumnExpr extends DBExpr
 
     /**
      * returns an expression that renames the column with its alias name
+     * @return the rename expression
      */
     public DBColumnExpr qualified()
     {
@@ -160,9 +161,10 @@ public abstract class DBColumnExpr extends DBExpr
 
     /**
      * Sets the value of a column attribute.
-     * 
+     * @param <T> the column expression type
      * @param name the attribute name
      * @param value the value of the attribute
+     * @return returns self (this)
      */
     @SuppressWarnings("unchecked")
     public synchronized <T extends DBColumnExpr> T setAttribute(String name, Object value)
@@ -193,8 +195,9 @@ public abstract class DBColumnExpr extends DBExpr
 
     /**
      * Sets the options for this column indicating all valid values.
-     * 
+     * @param <T> the column expression type
      * @param options the list of options
+     * @return returns self (this)
      */
     @SuppressWarnings("unchecked")
     public <T extends DBColumnExpr> T setOptions(Options options)
@@ -217,8 +220,9 @@ public abstract class DBColumnExpr extends DBExpr
 
     /**
      * Sets the title attribute.
-     * 
+     * @param <T> the column expression type
      * @param title the column title
+     * @return returns self (this)
      */
     public <T extends DBColumnExpr> T setTitle(String title)
     { 
@@ -241,8 +245,9 @@ public abstract class DBColumnExpr extends DBExpr
 
     /**
      * Sets the controlType attribute.
-     * 
+     * @param <T> the column expression type
      * @param controlType the column control type
+     * @return returns self (this)
      */
     public final <T extends DBColumnExpr> T setControlType(String controlType)
     { 
@@ -266,8 +271,9 @@ public abstract class DBColumnExpr extends DBExpr
 
     /**
      * Sets the Java bean property name for this column.
-     *
-     * @param propertyName
+     * @param <T> the column expression type
+     * @param propertyName the property name
+     * @return returns self (this)
      */
     @SuppressWarnings("unchecked")
     public <T extends DBColumnExpr> T setBeanPropertyName(String propertyName)
@@ -424,7 +430,7 @@ public abstract class DBColumnExpr extends DBExpr
 
     /**
      * Creates and returns an expression for the SQL "in" operator. 
-     * 
+     * @param <T> the value type
      * @param values the values to compare this column with
      * @return a DBCompareColExpr for the "in" operator
      */
@@ -464,7 +470,7 @@ public abstract class DBColumnExpr extends DBExpr
 
     /**
      * Creates and returns an expression for the SQL "not in" operator. 
-     *
+     * @param <T> the value type
      * @param values the values to compare this column with
      * @return a DBCompareColExpr for the "not in" operator
      */
@@ -1096,6 +1102,7 @@ public abstract class DBColumnExpr extends DBExpr
     /**
      * Creates and returns string aggregation expression
      * @param separator the separator between string
+     * @param orderBy the order by expression
      * @return the new DBFuncExpr object
      */
     public DBColumnExpr stringAgg(String separator, DBOrderByExpr orderBy)

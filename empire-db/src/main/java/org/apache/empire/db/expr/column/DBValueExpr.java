@@ -40,7 +40,6 @@ import org.w3c.dom.Element;
  * <P>
  * There is no need to explicitly create instances of this class.<BR>
  * Instead use {@link DBDatabase#getValueExpr(String)} or one of it's overloads
- * <P>
  *
  */
 public class DBValueExpr extends DBColumnExpr

@@ -36,9 +36,9 @@ public class DBConcatFuncExpr extends DBAbstractFuncExpr
 
     /**
      * create concat expression
-     * @param first
-     * @param separator
-     * @param others
+     * @param first the first expression
+     * @param separator the separator
+     * @param others the remaining expressions
      */
     public DBConcatFuncExpr(DBColumnExpr first, String separator, DBColumnExpr... others)
     {
@@ -51,8 +51,8 @@ public class DBConcatFuncExpr extends DBAbstractFuncExpr
 
     /**
      * create concat expression
-     * @param first
-     * @param others
+     * @param first the first expression
+     * @param others the remaining expressions
      */
     public DBConcatFuncExpr(DBColumnExpr first, DBColumnExpr... others)
     {

@@ -73,7 +73,6 @@ import org.slf4j.LoggerFactory;
  * It provides access to the various database objects such as tables, views and relations.
  * <P>
  * It also provides methods to execute DQL and DML SQL-commands.
- * <P>
  *
  */
 public abstract class DBDatabase extends DBObject
@@ -115,6 +114,8 @@ public abstract class DBDatabase extends DBObject
     
     /** 
      * find a database by id
+     * @param dbIdent the database id to look for
+     * @return the database or null if not found
      */
     public static DBDatabase findByIdentifier(String dbIdent)
     {
@@ -131,17 +132,19 @@ public abstract class DBDatabase extends DBObject
     }
     
     /** 
-     * find a database by id
+     * find a database by its Java type
+     * @param clazz the database class to look for
+     * @return the database or null if not found
      */
-    public static DBDatabase findByClass(Class<? extends DBDatabase> cls)
+    public static DBDatabase findByClass(Class<? extends DBDatabase> clazz)
     {
         for (WeakReference<DBDatabase> ref : databaseMap.values())
         {   // find database by class
             DBDatabase db = ref.get();
-            if (db!=null && cls.isInstance(db))
+            if (db!=null && clazz.isInstance(db))
                 return db;
         }
-        log.warn("Database of class {} not found!", cls.getSimpleName());
+        log.warn("Database of class {} not found!", clazz.getSimpleName());
         return null;
     }
 
@@ -224,7 +227,7 @@ public abstract class DBDatabase extends DBObject
     
     /**
      * registers the database in the global list of databases
-     * @param dbid
+     * @param dbid the database id
      */
     protected synchronized void register(String dbid)
     {
@@ -304,8 +307,8 @@ public abstract class DBDatabase extends DBObject
 
     /**
      * Returns the DBMS Handler for this database.
-     * 
-     * @return Returns the DBMS Handler for this database
+     * @param <T> the DBMSHandler type
+     * @return returns the DBMS Handler for this database
      */
     @SuppressWarnings("unchecked")
     public <T extends DBMSHandler> T getDbms()
@@ -342,6 +345,7 @@ public abstract class DBDatabase extends DBObject
     /**
      * Checks if the database exists
      * The implementation depends on the DBMSHandler
+     * @param context the database context
      * @return true if the database exists or false otherwise 
      */
     public boolean checkExists(DBContext context)
@@ -433,7 +437,7 @@ public abstract class DBDatabase extends DBObject
 
     /**
      * Override this to change or add DDL commands
-     * @param script
+     * @param script the script on which to add the DDL commands 
      */
     protected void generateDDLScript(DBSQLScript script)
     {
@@ -547,7 +551,7 @@ public abstract class DBDatabase extends DBObject
     
     /**
      * Returns the java class type for a given dataType
-     * @param expr the column expression for witch to return the java type
+     * @param expr the column expression for which to return the java type
      * @return return the java class used for storing values of this dataType 
      */
     public Class<?> getColumnJavaType(DBColumnExpr expr)
@@ -782,8 +786,8 @@ public abstract class DBDatabase extends DBObject
 
     /**
      * Finds a RowSet object by the alias name.
-     * <P>
-     * @param name the name of the table
+     *
+     * @param alias the alias of the desired table
      * @return the located DBTable object
      */
     public DBRowSet getRowSetByAlias(String alias)
@@ -802,8 +806,9 @@ public abstract class DBDatabase extends DBObject
 
     /**
      * Adds a foreign key relation to the database.
-     * <P>
+     *
      * @param reference a reference for a source and target column pair
+     * @return the relation object
      */
     public final DBRelation addRelation(DBRelation.DBReference reference)
     {
@@ -817,10 +822,11 @@ public abstract class DBDatabase extends DBObject
     }
 
     /**
-     * Add a foreign key relation to the database.
+     * Adds a foreign key relation to the database.
      * 
      * @param ref1 a reference for a source and target column pair
      * @param ref2 a reference for a source and target column pair
+     * @return the relation object
      */
     public final DBRelation addRelation(DBRelation.DBReference ref1, DBRelation.DBReference ref2)
     {
@@ -840,6 +846,7 @@ public abstract class DBDatabase extends DBObject
      * 
      * @param name the relation name
      * @param references a list of source and target column pairs
+     * @return the relation object
      */
     public DBRelation addRelation(String name, DBRelation.DBReference... references)
     {
@@ -888,7 +895,7 @@ public abstract class DBDatabase extends DBObject
 
     /**
      * Returns the relation of a given name
-     * 
+     * @param relationName the name of the relation
      * @return db the relation of the given name
      */
     public DBRelation getRelation(String relationName)
@@ -1046,7 +1053,7 @@ public abstract class DBDatabase extends DBObject
      * @param value the checked to check for validity
      * @return the (possibly converted) value
      * 
-     * @throws FieldValueException
+     * @throws FieldValueException exception thrown if value is not valid
      */
     protected Object validateValue(DBTableColumn column, Object value)
     {
@@ -1272,6 +1279,7 @@ public abstract class DBDatabase extends DBObject
     /**
      * Creates a SQL case expression
      * in the form "case [Expr] when [mapKey] then [mapValue] else [elseValue] end"
+     * @param column the column expression which to map
      * @param valueMap map of key value pairs
      * @param elseValue the else expression
      * @return the expression
@@ -1322,7 +1330,7 @@ public abstract class DBDatabase extends DBObject
    
     /**
      * adds a DBRowSet to the alias map
-     * @param rowset
+     * @param rowset the rowset to add to the map
      */
     protected void addRowsetToAliasMap(DBRowSet rowset)
     {
@@ -1343,7 +1351,7 @@ public abstract class DBDatabase extends DBObject
 
     /**
      * removes a rowset from the alias map
-     * @param rowset
+     * @param rowset the rowset to remove
      */
     protected void removeRowsetFromAliasMap(DBRowSet rowset)
     {

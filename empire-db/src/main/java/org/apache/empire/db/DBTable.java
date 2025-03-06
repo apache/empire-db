@@ -428,10 +428,13 @@ public class DBTable extends DBRowSet implements Cloneable
     /**
      * Adds a new ForgeinKey table column the column list
      * The foreign table must have a single column foreign key
+     * 
      * @param name the name of the new column
      * @param target the table on which to reference
      * @param required true if the value is required
      * @param options (optional) a set of allowed values for this column
+     * @param cascadeAction the cascade action
+     * 
      * @return the new column
      */
     public DBTableColumn addForeignKey(String name, DBTable target, boolean required, Options options, DBCascadeAction cascadeAction)
@@ -563,6 +566,7 @@ public class DBTable extends DBRowSet implements Cloneable
      * Adds an index.
      * 
      * @param index the index to add
+     * @return the Index object
      */
     public DBIndex addIndex(DBIndex index)
     {
@@ -607,6 +611,11 @@ public class DBTable extends DBRowSet implements Cloneable
     /**
      * Adds an index.
      * Overload for convenience
+     *
+     * @param name the index name
+     * @param unique flag whether the index is unique
+     * @param columns the index column
+     * @return the index object
      */
     public final DBIndex addIndex(String name, boolean unique, DBColumn... columns)
     {
@@ -668,6 +677,7 @@ public class DBTable extends DBRowSet implements Cloneable
      * Checks weather a unique constraint is violated when inserting or updating a record.<BR>
      * 
      * @param record the record to check
+     * @return the violated index
      */
     public DBIndex checkUniqueConstraints(DBRecordBase record)
     {

@@ -88,7 +88,9 @@ public class DBTableColumn extends DBColumn
     }
     
     /**
-     * Clone Constructor - use clone()
+     * Clone Constructor
+     * @param newTable the cloned table
+     * @param other the column to clone
      */
     protected DBTableColumn(DBTable newTable, DBTableColumn other)
     {
@@ -220,7 +222,8 @@ public class DBTableColumn extends DBColumn
     }
     
     /**
-     * Sets the scale of a decimal. The DataType must be set to DataType.DECIMAL otherwise an exception is thrown. 
+     * Sets the scale of a decimal. The DataType must be set to DataType.DECIMAL otherwise an exception is thrown.
+     * @param scale the number of fraction digits 
      */
     public void setDecimalScale(int scale)
     {
@@ -266,7 +269,8 @@ public class DBTableColumn extends DBColumn
     }
     
     /**
-     * sets whether this column is a single byte character or text column 
+     * sets whether this column is a single byte character or text column
+     * @param singleByteChars flag whether single byte chars should be used
      */
     public void setSingleByteChars(boolean singleByteChars)
     {
@@ -316,6 +320,7 @@ public class DBTableColumn extends DBColumn
     
     /**
      * sets the options from an enum class
+     * @param enumType the enum type
      */
     public void setEnumOptions(Class<?> enumType)
     {

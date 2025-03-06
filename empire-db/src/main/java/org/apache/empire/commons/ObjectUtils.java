@@ -191,7 +191,7 @@ public final class ObjectUtils
     }
 
     /**
-     * @Deprecated use getValueUtils().toInteger() instead
+     * Deprecated. Use getValueUtils().toInteger() instead
      * @param v the value to convert
      * @return the integer value
      */
@@ -236,7 +236,7 @@ public final class ObjectUtils
     }
 
     /**
-     * @Deprecated use getValueUtils().toLong() instead
+     * Deprecated. Use getValueUtils().toLong() instead
      * @param v the value to convert
      * @return the long value
      */ 
@@ -281,7 +281,7 @@ public final class ObjectUtils
     }
 
     /**
-     * @Deprecated use getValueUtils().toDouble() instead
+     * Deprecated. Use getValueUtils().toDouble() instead
      * @param v the value to convert
      * @return the double value
      */
@@ -326,7 +326,7 @@ public final class ObjectUtils
     }
 
     /**
-     * @Deprecated use getValueUtils().toDecimal() instead
+     * Deprecated. Use getValueUtils().toDecimal() instead
      * @param v the value to convert
      * @return the decimal value
      */
@@ -547,7 +547,7 @@ public final class ObjectUtils
     /**
      * Converts a value to a specific DataType
      * The returned value is used for generating SQL statements
-     * @param dataType the target data type
+     * @param type the target data type
      * @param value the value to convert
      * @return the value to be used in SQL statements
      */
@@ -722,6 +722,7 @@ public final class ObjectUtils
      * e.g.:
      * MyItem[] array = ObjectUtils.listToArray(MyItem[].class, myList)
      * 
+     * @param <T> the type of the items in the resulting array
      * @param type the array type
      * @param list the item list
      * 

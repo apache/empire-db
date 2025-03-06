@@ -57,7 +57,9 @@ public abstract class DBView extends DBRowSet implements Cloneable
          * Constructs a DBViewColumn object set the specified parameters to this object.
          * 
          * @param view the DBView object
+         * @param name the column name
          * @param expr the DBColumnExpr of the source table
+         * @param size the column size
          */
         protected DBViewColumn(DBView view, String name, DBColumnExpr expr, double size)
         { // call base
@@ -84,8 +86,8 @@ public abstract class DBView extends DBRowSet implements Cloneable
 
         /**
          * Copy constructor
-         * @param view
-         * @param other
+         * @param view the copied view
+         * @param other the column to copy
          */
         protected DBViewColumn(DBView view, DBViewColumn other)
         { // call base
@@ -218,6 +220,7 @@ public abstract class DBView extends DBRowSet implements Cloneable
         
         /**
          * sets the options from an enum class
+         * @param enumType the enum type
          */
         public void setEnumOptions(Class<?> enumType)
         {

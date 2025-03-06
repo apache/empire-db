@@ -47,6 +47,11 @@ public class StatementFailedException extends EmpireSQLException
     
     /**
      * Constructor for derived classes only
+     *
+     * @param type the error type
+     * @param params the error params
+     * @param nativeErrorIndex the navtive error index
+     * @param cause the causing exception
      */
     protected StatementFailedException(ErrorType type, String[] params, int nativeErrorIndex, SQLException cause)
     {

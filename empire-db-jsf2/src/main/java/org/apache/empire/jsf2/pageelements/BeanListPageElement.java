@@ -96,6 +96,7 @@ public class BeanListPageElement<T> extends ListPageElement<T> implements ListIt
      * Constructor for creating a BeanListPageElement
      * @param page the page element
      * @param beanClass the bean class
+     * @param context the database context
      * @param rowset required Table or View
      * @param defaultSortColumn sort column that must belong to rowset
      * @param propertyName the property name which is used to get and retrieve session information
@@ -124,6 +125,7 @@ public class BeanListPageElement<T> extends ListPageElement<T> implements ListIt
      * Overload that requires a default sort order to be provided
      * @param page the page element
      * @param beanClass the bean class
+     * @param context the database context
      * @param defaultSortColumn the default sort column
      * @param propertyName the property name which is used to get and retrieve session information
      */
@@ -136,6 +138,7 @@ public class BeanListPageElement<T> extends ListPageElement<T> implements ListIt
      * Overload that requires a default sort order to be provided
      * @param page the page element
      * @param beanClass the bean class
+     * @param context the database context
      * @param defaultSortColumn the default sort column
      */
     public BeanListPageElement(Page page, Class<T> beanClass, DBContext context, DBColumn defaultSortColumn)
@@ -147,6 +150,7 @@ public class BeanListPageElement<T> extends ListPageElement<T> implements ListIt
      * Overload that requires a default sort order to be provided
      * @param page the page element
      * @param beanClass the bean class
+     * @param context the database context
      * @param rowSet required Table or View
      */
     public BeanListPageElement(Page page, Class<T> beanClass, DBContext context, DBRowSet rowSet)

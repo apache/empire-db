@@ -83,7 +83,7 @@ public class StringUtils
          * This function should be fast and rather estimate to much than to little
          * @param value the value for which to estimate
          * @param defValueLength the length of the default value
-         * @return
+         * @return the estimated buffer size
          */
         public int estimateBufferSize(Object value, int defValueLength)
         {
@@ -354,7 +354,7 @@ public class StringUtils
      * @param array array of objects
      * @param template the list template or item separator
      * @param defItemValue the default item value
-     * @param ignoreEmpty check value for emptiness
+     * @param stringifier interface to convert an object to a string 
      * @return returns a String or null if the array is null or empty
      */
     public static String arrayToString(Object[] array, String template, String defItemValue, ObjectStringifier stringifier)
@@ -447,8 +447,11 @@ public class StringUtils
     /**
      * Estimates the buffer size needed to convert an Array into a String
      * @param array the array
+     * @param stringifier interface to convert an object to a string
      * @param separatorLength the separator length
-     * @return the estimated length of the array parts
+     * @param defValueLength the default length
+     * @param ignoreEmpty flag whether to ignore empty parts
+     * @return the estimated length of the collection parts
      */
     public static int estimateArrayBufferSize(Object[] array, ObjectStringifier stringifier, int separatorLength, int defValueLength, boolean ignoreEmpty)
     {
@@ -486,6 +489,7 @@ public class StringUtils
      * @param list the collection of objects
      * @param template the list template or item separator
      * @param defItemValue the default item value
+     * @param stringifier interface to convert an object to a string
      * @return returns a String or null if the list is null
      */
     public static String listToString(Collection<?> list, String template, String defItemValue, ObjectStringifier stringifier)
@@ -543,7 +547,7 @@ public class StringUtils
      * Converts a list (Collection) of objects to a string.
      * 
      * @param list the collection of objects
-     * @param separator the separator to put between the object strings
+     * @param template the list template or item separator
      * @param defItemValue the default item value
      * @return returns a String
      */
@@ -578,7 +582,10 @@ public class StringUtils
     /**
      * Estimates the buffer size needed to convert a Collection into a String
      * @param list the list to estimate
+     * @param stringifier interface to convert an object to a string
      * @param separatorLength the separator length
+     * @param defValueLength the default length
+     * @param ignoreEmpty flag whether to ignore empty parts
      * @return the estimated length of the collection parts
      */
     public static int estimateListBufferSize(Collection<?> list, ObjectStringifier stringifier, int separatorLength, int defValueLength, boolean ignoreEmpty)

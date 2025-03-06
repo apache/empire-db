@@ -228,7 +228,7 @@ public class Options extends AbstractSet<OptionEntry> implements Cloneable, Seri
     /**
      * Sets a function that determines the group to which an option entry belongs.
      * e.g.:
-     * options.setOptionGroupResolver((oe) -> ((MyEnum)oe.getValue()).getCategory());
+     * options.setOptionGroupResolver((oe) -&gt; ((MyEnum)oe.getValue()).getCategory());
      * 
      * @param optionGroupResolver the group resolver function
      */
@@ -310,7 +310,7 @@ public class Options extends AbstractSet<OptionEntry> implements Cloneable, Seri
 
     /**
      * Returns all values as a set
-     * boolean activeOnly flag whether to return the active items only
+     * @param activeOnly flag whether to return the active items only
      * @return the value set
      */
     public Set<Object> getValues(boolean activeOnly)
@@ -409,6 +409,7 @@ public class Options extends AbstractSet<OptionEntry> implements Cloneable, Seri
      * 
      * @param value the value object
      * @param text the text
+     * @param active flag whether or not the option is active
      */
     public void set(Object value, String text, Boolean active)
     {
@@ -445,6 +446,7 @@ public class Options extends AbstractSet<OptionEntry> implements Cloneable, Seri
      * @param value the value
      * @param text the text for this value
      * @param active flag if element is active (selectable)
+     * @return returns self (this)
      */
     public final Options add(Object value, String text, boolean active)
     {
@@ -457,6 +459,7 @@ public class Options extends AbstractSet<OptionEntry> implements Cloneable, Seri
      * Same as set() but allows Option building 
      * @param value the value
      * @param text the text for this value
+     * @return returns self (this)
      */
     public final Options add(Object value, String text)
     {
@@ -581,7 +584,9 @@ public class Options extends AbstractSet<OptionEntry> implements Cloneable, Seri
     }
     
     /**
-     * Returns an immutable Map for the options 
+     * Returns an immutable Map for the options
+     * @param <T> the type of the map
+     * @param type the map type 
      * @return the map of options
      */
     public <T> Map<T, String> map(Class<T> type)

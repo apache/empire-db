@@ -33,7 +33,8 @@ public class DBQueryColumn extends DBColumn
      * Constructs a DBQueryColumn object set the specified parameters to this object.
      * <P>
      * @param query the DBQuery object
-     * @param expr the concrete DBColumnExpr object
+     * @param name the column name
+     * @param expr the column expression object
      */
     public DBQueryColumn(DBQuery query, String name, DBColumnExpr expr)
     { // call base

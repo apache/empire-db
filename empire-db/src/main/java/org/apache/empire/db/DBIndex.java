@@ -21,9 +21,6 @@ package org.apache.empire.db;
 /**
  * This class handles the primary key for the tables.
  * The primary key contains one or more columns.
- * <P>
- * 
- *
  */
 public class DBIndex extends DBObject
 {
@@ -117,7 +114,7 @@ public class DBIndex extends DBObject
 
     /**
      * Returns the columns belonging to this index.
-     * 
+     * @param index the index of the desired column 
      * @return the columns belonging to this index
      */
     public DBColumn getColumn(int index)
@@ -137,7 +134,7 @@ public class DBIndex extends DBObject
     
     /**
      * checks whether the columns of this index match the supplied columns
-     * @param columns
+     * @param columns the columns
      * @return true if columns match or false otherwise
      */
     public boolean compareColumns(DBColumn[] columns)

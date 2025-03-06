@@ -547,7 +547,8 @@ public abstract class ListPageElement<T> extends PageElement<Page>
         return false;
     }
 
-    /** session scoped properties **/
+    /* session scoped properties */
+
     public abstract ListTableInfo getTableInfo();
     
     public List<T> getItems()

@@ -34,8 +34,6 @@ import org.apache.empire.db.DBSQLBuilder;
  * <P>
  * There is no need to explicitly create instances of this class.<BR>
  * Instead use {@link DBCompareExpr#and(DBCompareExpr)} or {@link DBCompareExpr#or(DBCompareExpr)} 
- * <P>
- *
  */
 public class DBCompareAndOrExpr extends DBCompareExpr
 {
@@ -98,7 +96,7 @@ public class DBCompareAndOrExpr extends DBCompareExpr
 
     /**
      * Prepare function
-     * @param cmd
+     * @param cmd the command
      */
     @Override
     public void prepareCommand(DBCommand cmd) 

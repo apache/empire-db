@@ -57,6 +57,9 @@ public abstract class DBCommandExpr extends DBExpr
 
     /**
      * Checks if a flag is NOT set
+     * @param flags the flags
+     * @param flag the flag to check in flags
+     * @return true if the bit provided in flag is not set in flags or false otherwise
      */
     protected final boolean not(int flags, int flag)
     {
@@ -65,6 +68,8 @@ public abstract class DBCommandExpr extends DBExpr
     
     /**
      * Checks if a collection is not null or empty
+     * @param list the collection to check
+     * @return true if the collection is not empty or false if empty
      */
     protected final boolean notEmpty(Collection<?> list)
     {
@@ -80,7 +85,8 @@ public abstract class DBCommandExpr extends DBExpr
         /**
          * Creates a new DBCmdQueryObject
          * @param cmd the command expression
-         * @param exprList 
+         * @param db the database to which the query belongs
+         * @param exprList the column expressions
          */
         public DBCmdQuery(DBCommandExpr cmd, DBDatabase db, DBColumnExpr[] exprList)
         { // Set the column expressions
@@ -382,11 +388,13 @@ public abstract class DBCommandExpr extends DBExpr
     /**
      * returns an SQL select command
      * @param sql the sql builder to add the command to
+     * @param flags bitwise context flags for sql building (see "Select Context Flags")
      */
     public abstract void getSelect(DBSQLBuilder sql, int flags);
 
     /**
      * returns an SQL select command for querying records.
+     * @param flags bitwise context flags for sql building (see "Select Context Flags")
      * @return the SQL-Command
      */
     public final String getSelect(int flags)
@@ -654,7 +662,7 @@ public abstract class DBCommandExpr extends DBExpr
 
     /**
      * creates a new DBSQLBuilder 
-     * @param initalSQL
+     * @param initalSQL the initial sql fragment
      * @return the new DBSQLBuilder
      */
     protected DBSQLBuilder createSQLBuilder(String initalSQL)

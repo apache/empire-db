@@ -56,6 +56,7 @@ public abstract class DBSQLBuilder implements Appendable
     /**
      *  Don't use this directly
      *  Use dbms.createSQLBuilder()
+     *  @param dbms the dbms handler
      */
     protected DBSQLBuilder(DBMSHandler dbms)
     {
@@ -432,7 +433,8 @@ public abstract class DBSQLBuilder implements Appendable
     }
 
     /** 
-     * this helper function doubles up single quotes for SQL 
+     * this helper function doubles up single quotes for SQL
+     * @param value the string to escape and append
      */
     protected void escapeAndAppendLiteral(String value)
     {

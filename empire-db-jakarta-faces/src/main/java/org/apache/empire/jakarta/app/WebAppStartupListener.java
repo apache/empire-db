@@ -52,6 +52,7 @@ public class WebAppStartupListener implements SystemEventListener
 
     /**
      * Default Constructor with additional configuration
+     * @param facesConfigClass the faces configuration
      */
     public WebAppStartupListener(Class<? extends FacesConfiguration> facesConfigClass)
     {
@@ -107,6 +108,7 @@ public class WebAppStartupListener implements SystemEventListener
     /**
      * Detects the JSF Implementation and returns an implmentation handler class.
      * Supported Implementations are Sun Mojarra (2.2.x) and Apache MyFaces (2.2.x) 
+     * @param externalContext the external context
      * @return the faces implementation
      */
     protected FacesImplementation detectFacesImplementation(ExternalContext externalContext)

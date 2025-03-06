@@ -52,6 +52,7 @@ public class DBCaseWhenExpr extends DBCaseExpr
     
     /**
      * Constructs a DBCaseExpr
+     * @param db the database
      * @param whenMap a map of compareExpressions with the corresponding result values
      * @param elseValue the expression returned if no condition is true (may be null)
      */

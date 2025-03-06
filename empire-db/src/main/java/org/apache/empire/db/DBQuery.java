@@ -206,6 +206,8 @@ public class DBQuery extends DBRowSet
 
     /**
      * Creates a copy of an existing DBQuery object.
+     * @param other the query which to copy
+     * @param newAlias the new alias for the cloned query 
      */
     public DBQuery(DBQuery other, String newAlias)
     { 
@@ -253,6 +255,7 @@ public class DBQuery extends DBRowSet
     /**
      * Makes the Query updateable. Queries are not updateable by default. 
      * For a query to be updateable it must have key columns
+     * @param updateable flag whether or not the column can be updated
      */
     public void setUpdateable(boolean updateable)
     {
@@ -264,6 +267,7 @@ public class DBQuery extends DBRowSet
 
     /**
      * Gets the query column by Index
+     * @param iColumn the column index
      * @return the query column of that index
      */
     public DBQueryColumn getQueryColumn(int iColumn)
@@ -348,7 +352,7 @@ public class DBQuery extends DBRowSet
     /**
      * This is a convenience shortcut for getQueryColumn
      * 
-     * @param name the column name
+     * @param iColumn the index of the query column
      * @return the located column
      */
     public DBQueryColumn column(int iColumn)
@@ -695,7 +699,8 @@ public class DBQuery extends DBRowSet
     
     /**
      * factory method for column expressions in order to allow overrides 
-     * @param expr
+     * @param expr the column expression for the query column
+     * @param index the column index
      * @return the query column
      */
     protected DBQueryColumn createQueryColumn(DBColumnExpr expr, int index)
