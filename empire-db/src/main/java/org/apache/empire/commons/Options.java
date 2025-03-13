@@ -187,13 +187,12 @@ public class Options extends AbstractSet<OptionEntry> implements Cloneable, Seri
         }
     }
     
-    public Options(Class<?> enumType)
+    public Options(Class<? extends Enum<?>> enumType)
     {   // must be an enum
-        if (enumType==null || !enumType.isEnum())
+        if (enumType==null)
             throw new InvalidArgumentException("enumType", enumType);
         // create options from enum
-        @SuppressWarnings("unchecked")
-        Enum<?>[] items = ((Class<Enum<?>>)enumType).getEnumConstants();
+        Enum<?>[] items = enumType.getEnumConstants();
         this.list = new ArrayList<OptionEntry>(items.length);
         for (int i=0; i<items.length; i++)
         {

@@ -322,7 +322,7 @@ public class DBTableColumn extends DBColumn
      * sets the options from an enum class
      * @param enumType the enum type
      */
-    public void setEnumOptions(Class<?> enumType)
+    public void setEnumOptions(Class<? extends Enum<?>> enumType)
     {
         // Enum special treatment
         log.debug("Adding enum options of type {} for column {}.", enumType.getName(), getName());            
