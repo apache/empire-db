@@ -298,7 +298,7 @@ public class TagEncodingHelper implements NamingContainer
                 // Use Column default
                 if (format==null && hasColumn())
                 { // from column
-                    format = StringUtils.toString(column.getAttribute("format"));
+                    format = getColumnAttributeString("format");
                 }
                 if (format==null)
                     format = StringUtils.EMPTY;
@@ -1557,11 +1557,11 @@ public class TagEncodingHelper implements NamingContainer
     {
         String title = getTagAttributeString("title");
         if (title == null)
-            title = StringUtils.toString(column.getAttribute(Column.COLATTR_TOOLTIP));
+            title = getColumnAttributeString(Column.COLATTR_TOOLTIP);
         if (title != null)
             return getDisplayText(title);
         // Check for short form
-        if (hasFormat("short") && !ObjectUtils.isEmpty(column.getAttribute(COLATTR_ABBR_TITLE)))
+        if (hasFormat("short") && !ObjectUtils.isEmpty(getColumnAttribute(COLATTR_ABBR_TITLE)))
             return getDisplayText(column.getTitle());
         
         // No Title
@@ -1696,7 +1696,7 @@ public class TagEncodingHelper implements NamingContainer
         {   // Check for short form    
             if (hasFormat("short"))
             {
-                label = StringUtils.toString(column.getAttribute(COLATTR_ABBR_TITLE));
+                label = getColumnAttributeString(COLATTR_ABBR_TITLE);
                 if (label==null)
                     log.warn("No Abbreviation available for column {}. Using normal title.", column.getName());
             }
@@ -2072,6 +2072,16 @@ public class TagEncodingHelper implements NamingContainer
     }
 
     /* ********************** Attribute value ********************** */
+
+    public Object getColumnAttribute(String name)
+    {
+        return (column!=null ? column.getAttribute(name) : null);
+    }
+
+    public String getColumnAttributeString(String name)
+    {
+        return StringUtils.nullIfEmpty(getColumnAttribute(name));
+    }
     
     public Object getTagAttributeValue(String name)
     {
@@ -2128,7 +2138,7 @@ public class TagEncodingHelper implements NamingContainer
         // Get column attribute
         if ((value==null || append) && hasColumn())
         {   // Check Column
-            Object colValue = column.getAttribute(name);
+            Object colValue = getColumnAttribute(name);
             if (append) 
             {   // append styles
                 if (ObjectUtils.isNotEmpty(colValue) && !colValue.equals(value))
