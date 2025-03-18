@@ -242,7 +242,6 @@ public class ControlTag extends UIInput implements NamingContainer
     protected InputControl            control                = null;
     protected InputControl.InputInfo  inpInfo                = null;
     protected ControlRenderInfo       renderInfo             = null;
-    private boolean                   creatingComponents     = false;
     protected boolean                 submittedValueDetected = false;
     protected Object                  submittedValue;
     protected boolean                 valueValidated         = false;
@@ -343,7 +342,8 @@ public class ControlTag extends UIInput implements NamingContainer
     public String getClientId(FacesContext context)
     {
         // Check if dynamic components are being created
-        if (this.treeClientId!=null && (this.creatingComponents || this.control!=null && this.control.isCreatingComponents()))
+        // Check for "this.creatingComponents" has been removed on 2025-03-18
+        if (this.treeClientId!=null && control!=null && control.isCreatingComponents())
         {   // return the original tree client id
             return treeClientId; 
         }
@@ -413,14 +413,9 @@ public class ControlTag extends UIInput implements NamingContainer
             if (getChildCount() > 0)
                 labelSepTag = (ControlSeparatorComponent) getChildren().get(0);
             if (labelSepTag == null)
-            {   try {
-                    creatingComponents = true;
-                    labelSepTag = new LabelSeparatorComponent();
-                    getChildren().add(labelSepTag);
-                    helper.resetComponentId(labelSepTag);
-                } finally {
-                    creatingComponents = false;
-                }
+            {   labelSepTag = new LabelSeparatorComponent();
+                getChildren().add(labelSepTag);
+                helper.resetComponentId(labelSepTag);
             }
             // encode
             labelSepTag.setRendered(this.controlVisible);
@@ -434,14 +429,9 @@ public class ControlTag extends UIInput implements NamingContainer
             if (getChildCount() > 1)
                 inputSepTag = (ControlSeparatorComponent) getChildren().get(1);
             if (inputSepTag == null)
-            {   try {
-                    creatingComponents = true;
-                    inputSepTag = new InputSeparatorComponent();
-                    getChildren().add(inputSepTag);
-                    helper.resetComponentId(inputSepTag);
-                } finally {
-                    creatingComponents = false;
-                }
+            {   inputSepTag = new InputSeparatorComponent();
+                getChildren().add(inputSepTag);
+                helper.resetComponentId(inputSepTag);
             }
             // encode
             inputSepTag.setRendered(this.controlVisible);
@@ -542,26 +532,21 @@ public class ControlTag extends UIInput implements NamingContainer
         }
         else
         {   // render components
-            try {
-                creatingComponents = true;
-                HtmlOutputLabel labelComponent = null;
-                if (parent.getChildCount()==0)
-                {   // Create components
-                    String forInput = (customInput ? helper.getTagAttributeString("for") : "*");
-                    // createLabelComponent 
-                    String styleClass = TagStyleClass.LABEL.get();
-                    labelComponent = helper.createLabelComponent(context, forInput, styleClass, null, getColon());
-                    parent.getChildren().add(0, labelComponent);
-                    helper.resetComponentId(labelComponent);
-                }
-                else if (this.controlVisible)
-                {
-                    labelComponent = (HtmlOutputLabel) parent.getChildren().get(0);
-                    // update
-                    helper.updateLabelComponent(context, labelComponent, null);
-                }
-            } finally {
-                creatingComponents = false;
+            HtmlOutputLabel labelComponent = null;
+            if (parent.getChildCount()==0)
+            {   // Create components
+                String forInput = (customInput ? helper.getTagAttributeString("for") : "*");
+                // createLabelComponent 
+                String styleClass = TagStyleClass.LABEL.get();
+                labelComponent = helper.createLabelComponent(context, forInput, styleClass, null, getColon());
+                parent.getChildren().add(0, labelComponent);
+                helper.resetComponentId(labelComponent);
+            }
+            else if (this.controlVisible)
+            {
+                labelComponent = (HtmlOutputLabel) parent.getChildren().get(0);
+                // update
+                helper.updateLabelComponent(context, labelComponent, null);
             }
         }
     }
@@ -575,46 +560,40 @@ public class ControlTag extends UIInput implements NamingContainer
     protected void encodeInput(FacesContext context, UIComponent parent)
         throws IOException
     {
-        // render components
-        try {
-            creatingComponents = true;
-            // check children
-            int count = parent.getChildCount();
-            UIComponent valueComp = (count>0 ? parent.getChildren().get(count-1) : null);
-            boolean resetChildId = (count==0);
-            // continue
-            this.inpInfo = helper.getInputInfo(context);
-            // set required
-            super.setRequired(this.controlVisible && helper.isValueRequired());
-            // create Input Controls
-            // boolean recordReadOnly = helper.isRecordReadOnly();
-            if (count==0)
-            {   // Create components
-                control.createInput(parent, inpInfo, context);
-                // create Value Component
-                if (valueComp == null)
-                {   // create ValueOutputComponent
-                    valueComp = new ValueOutputComponent();
-                    parent.getChildren().add(valueComp);
-                }
+        // check children
+        int count = parent.getChildCount();
+        UIComponent valueComp = (count>0 ? parent.getChildren().get(count-1) : null);
+        boolean resetChildId = (count==0);
+        // continue
+        this.inpInfo = helper.getInputInfo(context);
+        // set required
+        super.setRequired(this.controlVisible && helper.isValueRequired());
+        // create Input Controls
+        // boolean recordReadOnly = helper.isRecordReadOnly();
+        if (count==0)
+        {   // Create components
+            control.createInput(parent, inpInfo, context);
+            // create Value Component
+            if (valueComp == null)
+            {   // create ValueOutputComponent
+                valueComp = new ValueOutputComponent();
+                parent.getChildren().add(valueComp);
             }
-            else if (this.controlVisible)
-            {   // Update
-                control.updateInputState(parent, inpInfo, context, context.getCurrentPhaseId());
-            }
+        }
+        else if (this.controlVisible)
+        {   // Update
+            control.updateInputState(parent, inpInfo, context, context.getCurrentPhaseId());
+        }
+        // set rendered
+        boolean renderValue = helper.isRenderValueComponent();
+        List<UIComponent> children = parent.getChildren();
+        for (UIComponent child : children)
+        {   // reset child id
+            if (resetChildId && child.getId()!=null)
+                child.setId(child.getId());
             // set rendered
-            boolean renderValue = helper.isRenderValueComponent();
-            List<UIComponent> children = parent.getChildren();
-            for (UIComponent child : children)
-            {   // reset child id
-                if (resetChildId && child.getId()!=null)
-                    child.setId(child.getId());
-                // set rendered
-                boolean valueOutput = (child instanceof ValueOutputComponent);
-                child.setRendered((valueOutput ? renderValue : !renderValue));
-            }
-        } finally {
-            creatingComponents = false;
+            boolean valueOutput = (child instanceof ValueOutputComponent);
+            child.setRendered((valueOutput ? renderValue : !renderValue));
         }
     }
     

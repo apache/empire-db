@@ -126,7 +126,7 @@ public class InputTag extends UIInput implements NamingContainer
     public String getClientId(FacesContext context)
     {
         // Check if dynamic components are being created
-        if (this.treeClientId != null && control != null && control.isCreatingComponents())
+        if (this.treeClientId!=null && control!=null && control.isCreatingComponents())
         { // return the original tree client id
             return treeClientId;
         }
