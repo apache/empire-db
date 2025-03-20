@@ -412,6 +412,15 @@ public class DBReader extends DBRecordData implements Closeable
             throw new EmpireSQLException(context.getDbms(), e);
         }
     }
+
+    @Override
+    public boolean isValueValid(int index)
+    {   // Check state
+        if (index < 0 || index >= columns.length)
+            return false;
+        // Always valid
+        return true;
+    }
     
     /**
      * Returns the record key for a type of entity

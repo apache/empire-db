@@ -141,7 +141,8 @@ public class DataListEntry implements RecordData, Serializable
                 continue;
             // update
             try {
-                values[i] = recData.getValue(ri);
+                if (recData.isValueValid(ri))
+                    values[i] = recData.getValue(ri);
             } catch(Exception e) {
                 log.error("Failed to update value for column {}", cols[i].getName());
             }
@@ -199,6 +200,15 @@ public class DataListEntry implements RecordData, Serializable
         if (index<0 || index>=values.length)
             throw new InvalidArgumentException("index", index);
         return values[index];
+    }
+
+    @Override
+    public boolean isValueValid(int index)
+    {   // Check state
+        if (index<0 || index>=values.length)
+            return false;
+        // Special check for NO_VALUE
+        return (values[index] != ObjectUtils.NO_VALUE);
     }
     
     @Override

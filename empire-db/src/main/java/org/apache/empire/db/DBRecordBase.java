@@ -584,6 +584,7 @@ public abstract class DBRecordBase extends DBRecordData implements Record, Clone
      *  
      * @return true if a valid value is supplied for the given field or false if value is {@link ObjectUtils#NO_VALUE}  
      */
+    @Override
     public boolean isValueValid(int index)
     {   // Check state
         checkValid(index);

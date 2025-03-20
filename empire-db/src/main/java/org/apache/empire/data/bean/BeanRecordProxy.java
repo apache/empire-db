@@ -241,6 +241,15 @@ public class BeanRecordProxy<T> implements Record
     }
 
     @Override
+    public boolean isValueValid(int index)
+    {   // Check state
+        if (index < 0 || index >= columns.size())
+            return false;
+        // Always valid
+        return true;
+    }
+
+    @Override
     public boolean isNull(ColumnExpr column)
     {
         return ObjectUtils.isEmpty(get(column));
