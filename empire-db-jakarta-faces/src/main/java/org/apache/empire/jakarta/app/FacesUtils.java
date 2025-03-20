@@ -188,10 +188,15 @@ public class FacesUtils
         return isSkipInputValidation(fc); 
     }
 
+    public static <T> T getComponentAttribute(UIComponent component, String name, Class<T> clazz)
+    {
+        Object item = component.getAttributes().get(name);
+        return ObjectUtils.convert(clazz, item);
+    }
+
     public static <T> T getActionEventAttribute(ActionEvent ae, String name, Class<T> clazz)
     {
-        Object item = ae.getComponent().getAttributes().get(name);
-        return ObjectUtils.convert(clazz, item);
+        return getComponentAttribute(ae.getComponent(), name, clazz);
     }
 
     /* Navigation */
