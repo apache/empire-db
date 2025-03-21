@@ -71,14 +71,6 @@ public interface RecordData
      * @return the record value for the given column
      */
     Object get(ColumnExpr column);
-
-    /**
-     * checks if the field at the given index position is valid.
-     * This is useful for partial loading to check whether a value has been fetched 
-     * @param index the field index
-     * @return true if the field value is available or false otherwise
-     */
-    boolean isValueValid(int index);
     
     /**
      * checks if the field at the given index position contains no value (null) 
@@ -94,7 +86,7 @@ public interface RecordData
      * @return true if the value for the column is null or false otherwise
      */
     boolean isNull(ColumnExpr column);
-    
+
     // ------- Java Bean Support -------
 
     /**
