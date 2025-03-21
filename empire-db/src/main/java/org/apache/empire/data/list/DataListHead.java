@@ -96,14 +96,14 @@ public class DataListHead implements Serializable
      * Returns the value of a column as a formatted text
      * This converts the value to a string if necessary and performs an options lookup
      * To customize conversion please override convertToString()
-     * @param idx the field index for which to get the formatted value
+     * @param index the field index for which to get the formatted value
      * @param value the value to format
      * @return the formatted value
      */
-    public String getText(int idx, Object value)
+    public String getText(int index, Object value)
     {   // find text
         String text;
-        ColumnExpr column = columns[idx];
+        ColumnExpr column = columns[index];
         // check options first
         Options options = column.getOptions();
         if (options!=null && options.has(value))

@@ -18,6 +18,7 @@
  */
 package org.apache.empire.commons;
 
+import java.beans.PropertyDescriptor;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -31,13 +32,17 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.net.URISyntaxException;
 
+import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.beanutils.ConstructorUtils;
+import org.apache.commons.beanutils.PropertyUtils;
+import org.apache.empire.exceptions.BeanPropertySetException;
 import org.apache.empire.exceptions.EmpireException;
 import org.apache.empire.exceptions.InternalException;
 import org.apache.empire.exceptions.InvalidArgumentException;
 import org.apache.empire.exceptions.InvalidOperationException;
 import org.apache.empire.exceptions.NotImplementedException;
 import org.apache.empire.exceptions.NotSupportedException;
+import org.apache.empire.exceptions.PropertyReadOnlyException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -800,6 +805,59 @@ public final class ClassUtils
         {
             log.info("Class \"{}\" not found", className);
             return "[ClassNotFoundException]";
+        }
+    }
+    
+    /**
+     * Set a single property value of a java bean object used by readProperties.
+     *
+     * @param column the column expression
+     * @param bean the bean
+     * @param property the property
+     * @param value the value
+     */
+    public static void setBeanProperty(Object bean, String property, Object value)
+    {
+        try
+        {
+            if (bean==null)
+                throw new InvalidArgumentException("bean", bean);
+            if (StringUtils.isEmpty(property))
+                throw new InvalidArgumentException("property", property);
+            if (log.isTraceEnabled())
+                log.trace("{}: setting property '{}' to {}", bean.getClass().getName(), property, value);
+            // Set Property Value
+            if (value!=null)
+            {   // Bean utils will convert if necessary
+                BeanUtils.setProperty(bean, property, value);
+            }
+            else
+            {   // Don't convert, just set
+                PropertyDescriptor pd = PropertyUtils.getPropertyDescriptor(bean, property);
+                if (pd==null)
+                    return; // No such property
+                // get the write method
+                final Method method = PropertyUtils.getWriteMethod(pd);
+                if (method == null)
+                    throw new PropertyReadOnlyException(property);
+                // invoke
+                method.invoke(bean, value);
+            }
+          // IllegalAccessException
+        } catch (IllegalAccessException e)
+        {   log.error(bean.getClass().getName() + ": unable to set property '" + property + "'");
+            throw new BeanPropertySetException(bean, property, e);
+          // InvocationTargetException  
+        } catch (InvocationTargetException e)
+        {   log.error(bean.getClass().getName() + ": unable to set property '" + property + "'");
+            throw new BeanPropertySetException(bean, property, e);
+          // NoSuchMethodException   
+        } catch (NoSuchMethodException e)
+        {   log.error(bean.getClass().getName() + ": unable to set property '" + property + "'");
+            throw new BeanPropertySetException(bean, property, e);
+        } catch (NullPointerException e)
+        {   log.error(bean.getClass().getName() + ": unable to set property '" + property + "'");
+            throw new BeanPropertySetException(bean, property, e);
         }
     }
     

@@ -37,6 +37,7 @@ import org.apache.empire.data.ColumnExpr;
 import org.apache.empire.data.DataType;
 import org.apache.empire.data.EntityType;
 import org.apache.empire.data.Record;
+import org.apache.empire.data.RecordData;
 import org.apache.empire.db.DBRelation.DBCascadeAction;
 import org.apache.empire.db.DBRelation.DBReference;
 import org.apache.empire.db.context.DBContextBase;
@@ -1291,6 +1292,21 @@ public abstract class DBRowSet extends DBExpr implements EntityType
         }
         // just use the context
         return context.createCommand();
+    }
+    
+    /**
+     * Adds key constraints to a DBCommand object
+     * @param cmd the command to add the constraints to
+     * @param data the record from which to take the values
+     */
+    public void addKeyConstraints(DBCommand cmd, RecordData data)
+    {
+        DBColumn[] keyColumns = getKeyColumns();
+        if (keyColumns==null || keyColumns.length==0)
+            throw new NoPrimaryKeyException(this);
+        // Collect key
+        for (int i=0; i<keyColumns.length; i++)
+            cmd.where(keyColumns[i].is(data.get(keyColumns[i])));
     }
 
     /**

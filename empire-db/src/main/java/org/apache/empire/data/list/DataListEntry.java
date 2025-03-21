@@ -20,18 +20,24 @@ package org.apache.empire.data.list;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.sql.Timestamp;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.Date;
 
+import org.apache.empire.commons.ClassUtils;
 import org.apache.empire.commons.ObjectUtils;
+import org.apache.empire.commons.StringUtils;
 import org.apache.empire.data.Column;
 import org.apache.empire.data.ColumnExpr;
 import org.apache.empire.data.EntityType;
 import org.apache.empire.data.RecordData;
+import org.apache.empire.db.DBRecordBase;
+import org.apache.empire.db.exceptions.FieldIllegalValueException;
 import org.apache.empire.db.exceptions.NoPrimaryKeyException;
 import org.apache.empire.exceptions.InvalidArgumentException;
 import org.apache.empire.exceptions.ItemNotFoundException;
-import org.apache.empire.exceptions.NotImplementedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -127,6 +133,7 @@ public class DataListEntry implements RecordData, Serializable
     public void updateData(RecordData recData)
     {
         ColumnExpr[] cols = head.getColumns(); 
+        DBRecordBase dbrb =(recData instanceof DBRecordBase) ? (DBRecordBase)recData : null;
         for (int i=0; i<cols.length; i++)
         {
             ColumnExpr col = ObjectUtils.unwrap(cols[i]);
@@ -141,6 +148,10 @@ public class DataListEntry implements RecordData, Serializable
                 continue;
             // update
             try {
+                // check valid
+                if (dbrb!=null && !dbrb.isValueValid(ri))
+                    continue;
+                // set data
                 values[i] = recData.getValue(ri);
             } catch(Exception e) {
                 log.error("Failed to update value for column {}", cols[i].getName());
@@ -148,6 +159,11 @@ public class DataListEntry implements RecordData, Serializable
         }
     }
     
+    /**
+     * Modifies a particular value
+     * @param col the column to modify
+     * @param value the new value
+     */
     public void modifyValue(ColumnExpr col, Object value)
     {
         int i = getFieldIndex(col);
@@ -157,6 +173,11 @@ public class DataListEntry implements RecordData, Serializable
         values[i] = value;
     }
     
+    /**
+     * Returns the row-number
+     * This works only, if the row number has been set in the constructor
+     * @return the row number
+     */
     public int getRownum()
     {
         return rownum;
@@ -193,6 +214,11 @@ public class DataListEntry implements RecordData, Serializable
         return head.columns[index];
     }
     
+    /**
+     * Returns a value based on a field index.
+     * @param index the field index
+     * @return the field value
+     */
     @Override
     public Object getValue(int index)
     {
@@ -201,28 +227,388 @@ public class DataListEntry implements RecordData, Serializable
         return values[index];
     }
     
-    @Override
-    public final Object get(ColumnExpr column)
-    {
-        return getValue(indexOf(column));
-    }
-    
     /**
-     * Deprecated Renamed to get(...)
-     * @param column the column
-     * @return the field value   
+     * Deprecated Renamed to get(...)   
+     * @param column the column for which to obtain the value
+     * @return the record value
      */
     @Deprecated
     public Object getValue(ColumnExpr column)
     {
         return get(column);
     }
+    
+    /**
+     * Returns a data value for the desired column .
+     * 
+     * @param column the column for which to obtain the value
+     * @return the record value
+     */
+    @Override
+    public final Object get(ColumnExpr column)
+    {
+        return getValue(getFieldIndex(column));
+    }
 
+    /**
+     * Returns the value of a field as an object of a given (wrapper)type
+     * @param <T> the value type
+     * @param column the column for which to retrieve the value
+     * @param returnType the type of the returned value
+     * @return the value
+     */
     public final <T> T get(Column column, Class<T> returnType)
     {
         return ObjectUtils.convert(returnType, get(column));
     }
+    
+    /**
+     * Checks whether or not the value for the given column is null.
+     * 
+     * @param index index of the column
+     * @return true if the value is null or false otherwise
+     */
+    @Override
+    public boolean isNull(int index)
+    {
+        return ObjectUtils.isEmpty(getValue(index));
+    }
 
+    /**
+     * Checks whether or not the value for the given column is null.
+     * 
+     * @param column identifying the column
+     * @return true if the value is null or false otherwise
+     */
+    @Override
+    public final boolean isNull(ColumnExpr column)
+    {
+        return isNull(getFieldIndex(column));
+    }
+
+    /**
+     * Returns true if a numeric value is Zero
+     * For numeric columns only!
+     * @param column the column
+     * @return true if the value is zero or false otherwise 
+     */
+    public boolean isZero(ColumnExpr column)
+    {
+        if (column==null || column.getDataType().isNumeric())
+            throw new InvalidArgumentException("column", column);
+        // check for zero
+        Object v = get(column);
+        return (v instanceof Number) ? ObjectUtils.isZero((Number)v) : true;
+    }
+    
+    /*
+     * Conversion functions
+     */
+    
+    /**
+     * Returns a data value identified by the column index.
+     * The data value is converted to a string if necessary.
+     * 
+     * @param index index of the column
+     * @return the value
+     */
+    public final String getString(int index)
+    {
+        return ObjectUtils.getString(getValue(index));
+    }
+
+    /**
+     * Returns a data value for the desired column.
+     * The data value is converted to a string if necessary.
+     * 
+     * @param column identifying the column
+     * @return the value
+     */
+    public final String getString(ColumnExpr column)
+    {
+        return getString(getFieldIndex(column));
+    }
+
+    /**
+     * Returns a data value identified by the column index.
+     * The value is converted to integer if necessary .
+     * 
+     * @param index index of the column
+     * @return the record value
+     */
+    public final int getInt(int index)
+    {
+        return ObjectUtils.getInteger(getValue(index));
+    }
+    
+    /**
+     * Returns a data value for the desired column.
+     * The data value is converted to integer if necessary.
+     * 
+     * @param column identifying the column
+     * @return the value
+     */
+    public final int getInt(ColumnExpr column)
+    {
+        return getInt(getFieldIndex(column));
+    }
+
+    /**
+     * Returns a data value identified by the column index.
+     * The data value is converted to a long if necessary.
+     * 
+     * @param index index of the column
+     * @return the value
+     */
+    public final long getLong(int index)
+    {
+        return ObjectUtils.getLong(getValue(index));
+    }
+    
+    /**
+     * Returns a data value for the desired column.
+     * The data value is converted to a long if necessary.
+     * 
+     * @param column identifying the column
+     * @return the value
+     */
+    public final long getLong(ColumnExpr column)
+    {
+        return getLong(getFieldIndex(column));
+    }
+
+    /**
+     * Returns a data value identified by the column index.
+     * The data value is converted to double if necessary.
+     * 
+     * @param index index of the column
+     * @return the value
+     */
+    public double getDouble(int index)
+    {
+        return ObjectUtils.getDouble(getValue(index));
+    }
+
+    /**
+     * Returns a data value for the desired column.
+     * The data value is converted to double if necessary.
+     * 
+     * @param column identifying the column
+     * @return the value
+     */
+    public final double getDouble(ColumnExpr column)
+    {
+        return getDouble(getFieldIndex(column));
+    }
+
+    /**
+     * Returns a data value identified by the column index.
+     * The data value is converted to double if necessary.
+     * 
+     * @param index index of the column
+     * @return the value
+     */
+    public final BigDecimal getDecimal(int index)
+    {
+        return ObjectUtils.getDecimal(getValue(index));
+    }
+
+    /**
+     * Returns a data value for the desired column.
+     * The data value is converted to BigDecimal if necessary.
+     * 
+     * @param column identifying the column
+     * @return the value
+     */
+    public final BigDecimal getDecimal(ColumnExpr column)
+    {
+        return getDecimal(getFieldIndex(column));
+    }
+    
+    /**
+     * Returns a data value identified by the column index.
+     * The data value is converted to boolean if necessary.
+     * 
+     * @param index index of the column
+     * @return the value
+     */
+    public final boolean getBoolean(int index)
+    {
+        return ObjectUtils.getBoolean(getValue(index));
+    }
+    
+    /**
+     * Returns a data value for the desired column.
+     * The data value is converted to boolean if necessary.
+     * 
+     * @param column identifying the column
+     * @return the value
+     */
+    public final boolean getBoolean(ColumnExpr column)
+    { 
+        return getBoolean(getFieldIndex(column));
+    }
+    
+    /**
+     * Returns the value as as a java.util.Date object
+     * The data value is converted to a Date if necessary.
+     * 
+     * @param index index of the column
+     * @return the value
+     */
+    public final Date getDate(int index)
+    {
+        return ObjectUtils.getDate(getValue(index));
+    }
+    
+    /**
+     * Returns the value as as a java.util.Date object
+     * The data value is converted to a Date if necessary.
+     * 
+     * @param column identifying the column
+     * @return the value
+     */
+    public final Date getDate(ColumnExpr column)
+    {
+        return getDate(getFieldIndex(column));
+    }
+
+    /**
+     * Returns the value as as a java.sql.Timestamp object
+     * @return the Timestamp
+     */
+    public final Timestamp getTimestamp(int index)
+    {
+        return ObjectUtils.getTimestamp(getValue(index));
+    }
+
+    /**
+     * Returns the value as as a java.sql.Timestamp object
+     * @return the Timestamp
+     */
+    public final Timestamp getTimestamp(ColumnExpr column)
+    {
+        return getTimestamp(getFieldIndex(column));
+    }
+
+    /**
+     * Returns a data value identified by the column index.
+     * The data value is converted to a Date if necessary.
+     * 
+     * @param index index of the column
+     * @return the value
+     */
+    public final LocalDate getLocalDate(int index)
+    {
+        return ObjectUtils.getLocalDate(getValue(index));
+    }
+    
+    /**
+     * Returns a data value for the desired column.
+     * The data value is converted to a Date if necessary.
+     * 
+     * @param column identifying the column
+     * @return the value
+     */
+    public final LocalDate getLocalDate(ColumnExpr column)
+    {
+        return getLocalDate(getFieldIndex(column));
+    }
+
+    /**
+     * Returns a data value identified by the column index.
+     * The data value is converted to a Date if necessary.
+     * 
+     * @param index index of the column
+     * @return the value
+     */
+    public final LocalDateTime getLocalDateTime(int index)
+    {
+        return ObjectUtils.getLocalDateTime(getValue(index));
+    }
+    
+    /**
+     * Returns a data value for the desired column.
+     * The data value is converted to a Date if necessary.
+     * 
+     * @param column identifying the column
+     * @return the value
+     */
+    public final LocalDateTime getLocalDateTime(ColumnExpr column)
+    {
+        return getLocalDateTime(getFieldIndex(column));
+    }
+
+    /**
+     * Returns the value of a field as an enum
+     * For numeric columns the value is assumed to be an ordinal of the enumeration item
+     * For non numeric columns the value is assumed to be the name of the enumeration item
+     * 
+     * @param <T> the enum type
+     * @param index index of the field
+     * @param enumType the enum type class
+     * @return the enum value
+     */
+    public <T extends Enum<?>> T getEnum(int index, Class<T> enumType)
+    {   // check for null
+        if (isNull(index))
+            return null;
+        // convert
+        ColumnExpr col = getColumn(index);
+        try {
+            // Convert to enum, depending on DataType
+            boolean numeric = col.getDataType().isNumeric();
+            return ObjectUtils.getEnum(enumType, (numeric ? getInt(index) : getValue(index)));
+
+        } catch (Exception e) {
+            // Illegal value
+            String value = StringUtils.valueOf(getValue(index));
+            log.error("Unable to resolve enum value of '{}' for type {}", value, enumType.getName());
+            throw new FieldIllegalValueException(col.getUpdateColumn(), value, e);
+        }
+    }
+
+    /**
+     * Returns the value of a field as an enum
+     * For numeric columns the value is assumed to be an ordinal of the enumeration item
+     * For non numeric columns the value is assumed to be the name of the enumeration item
+     * 
+     * @param <T> the enum type
+     * @param column the column for which to retrieve the value
+     * @param enumType the enum type class
+     * @return the enum value
+     */
+    public final <T extends Enum<?>> T getEnum(ColumnExpr column, Class<T> enumType)
+    {
+        return getEnum(getFieldIndex(column), enumType);
+    }
+
+    /**
+     * Returns the value of a field as an enum
+     * This assumes that the column attribute "enumType" has been set to an enum type
+     * For numeric columns the value is assumed to be an ordinal of the enumeration item
+     * 
+     * @param <T> the enum type
+     * @param column the column for which to retrieve the value
+     * @return the enum value
+     */
+    @SuppressWarnings("unchecked")
+    public final <T extends Enum<?>> T getEnum(Column column)
+    {
+        Class<Enum<?>> enumType = column.getEnumType();
+        if (enumType==null)
+        {   // Not an enum column (Attribute "enumType" has not been set)
+            throw new InvalidArgumentException("column", column);
+        }
+        return getEnum(getFieldIndex(column), (Class<T>)enumType);
+    }
+
+    /**
+     * Returns an array of values for the given column expressions
+     * 
+     * @param columns the column expressions
+     * @return the corresponding record values
+     */
     public final Object[] getArray(ColumnExpr... columns)
     {
         Object[] values = new Object[columns.length];
@@ -235,141 +621,91 @@ public class DataListEntry implements RecordData, Serializable
         }
         return values;
     }
-    
-    @Override
-    public boolean isNull(int index)
-    {
-        return ObjectUtils.isEmpty(getValue(index));
-    }
-    
-    /*
-     * Conversion functions
+
+    /**
+     * Returns the value of a column as a formatted text
+     * This converts the value to a string if necessary and performs an options lookup
+     * To customize conversion please override convertToString()
+     * @param column the column for which to get the formatted value
+     * @return the formatted value
      */
-
-    public String getString(int index)
-    {   // Get String value
-        Object o = getValue(index);
-        return ObjectUtils.getString(o);
-    }
-
-    public final String getString(ColumnExpr column)
-    {
-        return getString(indexOf(column));
-    }
-
-    public int getInt(int index)
-    {   // Get Integer value
-        Object o = getValue(index);
-        return ObjectUtils.getInteger(o);
-    }
-    
-    public final int getInt(ColumnExpr column)
-    {
-        return getInt(indexOf(column));
-    }
-
-    public long getLong(int index)
-    {   // Get Long value
-        Object o = getValue(index);
-        return ObjectUtils.getLong(o);
-    }
-    
-    public final long getLong(ColumnExpr column)
-    {
-        return getLong(indexOf(column));
-    }
-
-    public BigDecimal getDecimal(int index)
-    {   // Get Integer value
-        Object o = getValue(index);
-        return ObjectUtils.getDecimal(o);
-    }
-    
-    public final BigDecimal getDecimal(ColumnExpr column)
-    {
-        return getDecimal(indexOf(column));
-    }
-    
-    public boolean getBoolean(int index)
-    {   // Get Integer value
-        Object o = getValue(index);
-        return ObjectUtils.getBoolean(o);
-    }
-    
-    public final boolean getBoolean(ColumnExpr column)
-    {
-        return getBoolean(indexOf(column));
-    }
-
-    public <T extends Enum<?>> T getEnum(int index, Class<T> enumType)
-    {   // check for null
-        if (isNull(index))
-            return null;
-        // check column data type
-        ColumnExpr col = getColumn(index);
-        boolean numeric = col.getDataType().isNumeric();
-        return ObjectUtils.getEnum(enumType, (numeric ? getInt(index) : getValue(index)));
-    }
-
-    public final <T extends Enum<?>> T getEnum(ColumnExpr column, Class<T> enumType)
-    {
-        return getEnum(indexOf(column), enumType);
-    }
-
-    @SuppressWarnings("unchecked")
-    public final <T extends Enum<?>> T getEnum(Column column)
-    {
-        Class<T> enumType = (Class<T>)column.getEnumType();
-        if (enumType==null)
-        {   // Not an enum column (Attribute "enumType" has not been set)
-            throw new InvalidArgumentException("column", column);
-        }
-        return getEnum(indexOf(column), enumType);
-    }
-    
-    public Date getDate(int index)
-    {
-        Object o = getValue(index);
-        return ObjectUtils.getDate(o);
-    }
-        
-    public final Date getDate(ColumnExpr column)
-    {
-        return getDate(indexOf(column));
-    }
-    
-    @Override
-    public final boolean isNull(ColumnExpr column)
-    {
-        return isNull(indexOf(column));
-    }
-    
-    @Override
-    public int setBeanProperties(Object bean, Collection<? extends ColumnExpr> ignoreList)
-    {
-        throw new NotImplementedException(this, "setBeanProperties");
-    }
-    
-    public int setBeanProperties(Object bean)
-    {
-        return setBeanProperties(bean, null);
-    }
-    
-    /*
-     * Miscellaneous functions
-     */
-
-    public String getText(String name)
-    {
-        int idx = getFieldIndex(name);
-        return head.getText(idx, values[idx]);
-    }
-
     public String getText(ColumnExpr col)
     {
         int idx = getFieldIndex(col);
         return head.getText(idx, values[idx]);
     }
+
+    /**
+     * Returns the value of a column as a formatted text
+     * This converts the value to a string if necessary and performs an options lookup
+     * To customize conversion please override convertToString()
+     * @param name the column for which to get the formatted value
+     * @return the formatted value
+     */
+    public final String getText(String name)
+    {
+        return getText(getColumn(getFieldIndex(name)));
+    }
+
+    /**
+     * Injects the current field values into a java bean.
+     * The property name is detected by ColumnExpr.getBeanPropertyName()
+     * @param bean the Java Bean for which to set the properties
+     * @param ignoreList list of columns to skip (optional)
+     * @return the number of bean properties set on the supplied bean
+     */
+    @Override
+    public int setBeanProperties(Object bean, Collection<? extends ColumnExpr> ignoreList)
+    {
+        // Add all Columns
+        int count = 0;
+        for (int i = 0; i < getFieldCount(); i++)
+        {   // Check Property
+            ColumnExpr column = getColumn(i);
+            if ((column instanceof Column) && ((Column)column).isReadOnly())
+                continue;
+            if (ignoreList != null && ignoreList.contains(column))
+                continue; // ignore this property
+            // Get Property Name
+            setBeanProperty(column, bean, this.getValue(i));
+            count++;
+        }
+        return count;
+    }
+
+    /**
+     * Injects the current field values into a java bean.
+     * The property name is detected by ColumnExpr.getBeanPropertyName()
+     * @param bean the Java Bean for which to set the properties
+     * @return the number of bean properties set on the supplied bean
+     */
+    public final int setBeanProperties(Object bean)
+    {
+        return setBeanProperties(bean, null);
+    }
+    
+    /**
+     * Set a single property value on a java bean object
+     *
+     * @param column the column expression
+     * @param bean the bean
+     * @param value the value
+     */
+    protected void setBeanProperty(ColumnExpr column, Object bean, Object value)
+    {
+        if (value!=null)
+        {   // Convert to enum
+            Class<Enum<?>> enumType = column.getEnumType();
+            if (enumType!=null)
+                value = ObjectUtils.getEnum(enumType, value);
+        }
+        String property = column.getBeanPropertyName();
+        ClassUtils.setBeanProperty(bean, property, value);
+    }
+    
+    /*
+     * Miscellaneous functions
+     */
     
     @Override
     public String toString()
@@ -383,6 +719,11 @@ public class DataListEntry implements RecordData, Serializable
         return b.toString();
     }
 
+    /**
+     * Returns the field index
+     * If the column cannot be found a ItemNotFoundException is thrown
+     * @param column the column for which to return the index
+     * @return the index
     protected int indexOf(ColumnExpr column)
     {
         int index = head.getColumnIndex(column);
@@ -390,5 +731,6 @@ public class DataListEntry implements RecordData, Serializable
             throw new ItemNotFoundException(column.getName());
         return index;
     }
+     */
     
 }

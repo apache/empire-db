@@ -17,18 +17,14 @@
  * under the License.
  */
 package org.apache.empire.db;
-import java.beans.PropertyDescriptor;
-// XML
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.math.BigDecimal;
+import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.Date;
 
-import org.apache.commons.beanutils.BeanUtils;
-import org.apache.commons.beanutils.PropertyUtils;
+import org.apache.empire.commons.ClassUtils;
 import org.apache.empire.commons.ObjectUtils;
 import org.apache.empire.commons.Options;
 import org.apache.empire.commons.StringUtils;
@@ -37,10 +33,8 @@ import org.apache.empire.data.ColumnExpr;
 import org.apache.empire.data.RecordData;
 import org.apache.empire.db.context.DBContextAware;
 import org.apache.empire.db.exceptions.FieldIllegalValueException;
-import org.apache.empire.exceptions.BeanPropertySetException;
 import org.apache.empire.exceptions.InvalidArgumentException;
 import org.apache.empire.exceptions.ItemNotFoundException;
-import org.apache.empire.exceptions.PropertyReadOnlyException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
@@ -95,30 +89,6 @@ public abstract class DBRecordData extends DBObject
     {
         return get(column);
     }
-
-    /**
-     * Deprecated Renamed to get(...)   
-     * @param <T> the value type
-     * @param column the column for which to retrieve the value
-     * @param returnType the type of the returned value
-     * @return the value
-     */
-    @Deprecated
-    public final <T> T getValue(Column column, Class<T> returnType)
-    {
-        return get(column, returnType);
-    }
-
-    /**
-     * Deprecated Renamed to get(...)   
-     * @param columns the columns for which to obtain the values
-     * @return the record values
-     */
-    @Deprecated
-    public final Object[] getValues(ColumnExpr... columns)
-    {
-        return getArray(columns);
-    }
     
     /**
      * Returns a data value for the desired column .
@@ -129,10 +99,7 @@ public abstract class DBRecordData extends DBObject
     @Override
     public final Object get(ColumnExpr column)
     {
-        int index = getFieldIndex(column);
-        if (index<0)
-            throw new ItemNotFoundException(column.getName()); 
-        return getValue(index);
+        return getValue(getFieldIndex(column));
     }
 
     /**
@@ -146,24 +113,72 @@ public abstract class DBRecordData extends DBObject
     {
         return ObjectUtils.convert(returnType, get(column));
     }
+    
+    /**
+     * Checks whether or not the value for the given column is null.
+     * 
+     * @param index index of the column
+     * @return true if the value is null or false otherwise
+     */
+    @Override
+    public boolean isNull(int index)
+    {
+        return ObjectUtils.isEmpty(getValue(index));
+    }
 
     /**
-     * Returns an array of values for the given column expressions
+     * Checks whether or not the value for the given column is null.
      * 
-     * @param columns the column expressions
-     * @return the corresponding record values
+     * @param column identifying the column
+     * @return true if the value is null or false otherwise
      */
-    public final Object[] getArray(ColumnExpr... columns)
+    @Override
+    public final boolean isNull(ColumnExpr column)
     {
-        Object[] values = new Object[columns.length];
-        for (int i=0; i<columns.length; i++)
-        {
-            int index = getFieldIndex(columns[i]);
-            if (index<0)
-                throw new ItemNotFoundException(columns[i].getName()); 
-            values[i] = getValue(index);
-        }
-        return values;
+        return isNull(getFieldIndex(column));
+    }
+
+    /**
+     * Returns true if a numeric value is Zero
+     * For numeric columns only!
+     * @param column the column
+     * @return true if the value is zero or false otherwise 
+     */
+    public boolean isZero(ColumnExpr column)
+    {
+        if (column==null || column.getDataType().isNumeric())
+            throw new InvalidArgumentException("column", column);
+        // check for zero
+        Object v = get(column);
+        return (v instanceof Number) ? ObjectUtils.isZero((Number)v) : true;
+    }
+    
+    /*
+     * Conversion functions
+     */
+    
+    /**
+     * Returns a data value identified by the column index.
+     * The data value is converted to a string if necessary.
+     * 
+     * @param index index of the column
+     * @return the value
+     */
+    public final String getString(int index)
+    {
+        return ObjectUtils.getString(getValue(index));
+    }
+
+    /**
+     * Returns a data value for the desired column.
+     * The data value is converted to a string if necessary.
+     * 
+     * @param column identifying the column
+     * @return the value
+     */
+    public final String getString(ColumnExpr column)
+    {
+        return getString(getFieldIndex(column));
     }
 
     /**
@@ -173,7 +188,7 @@ public abstract class DBRecordData extends DBObject
      * @param index index of the column
      * @return the record value
      */
-    public int getInt(int index)
+    public final int getInt(int index)
     {
         return ObjectUtils.getInteger(getValue(index));
     }
@@ -197,7 +212,7 @@ public abstract class DBRecordData extends DBObject
      * @param index index of the column
      * @return the value
      */
-    public long getLong(int index)
+    public final long getLong(int index)
     {
         return ObjectUtils.getLong(getValue(index));
     }
@@ -245,7 +260,7 @@ public abstract class DBRecordData extends DBObject
      * @param index index of the column
      * @return the value
      */
-    public BigDecimal getDecimal(int index)
+    public final BigDecimal getDecimal(int index)
     {
         return ObjectUtils.getDecimal(getValue(index));
     }
@@ -269,7 +284,7 @@ public abstract class DBRecordData extends DBObject
      * @param index index of the column
      * @return the value
      */
-    public boolean getBoolean(int index)
+    public final boolean getBoolean(int index)
     {
         return ObjectUtils.getBoolean(getValue(index));
     }
@@ -287,51 +302,63 @@ public abstract class DBRecordData extends DBObject
     }
     
     /**
-     * Returns a data value identified by the column index.
-     * The data value is converted to a string if necessary.
-     * 
-     * @param index index of the column
-     * @return the value
-     */
-    public String getString(int index)
-    {
-        return ObjectUtils.getString(getValue(index));
-    }
-
-    /**
-     * Returns a data value for the desired column.
-     * The data value is converted to a string if necessary.
-     * 
-     * @param column identifying the column
-     * @return the value
-     */
-    public final String getString(ColumnExpr column)
-    {
-        return getString(getFieldIndex(column));
-    }
-
-    /**
-     * Returns a data value identified by the column index.
+     * Returns the value as as a java.util.Date object
      * The data value is converted to a Date if necessary.
      * 
      * @param index index of the column
      * @return the value
      */
-    public final Date getDateTime(int index)
+    public final Date getDate(int index)
     {
         return ObjectUtils.getDate(getValue(index));
     }
     
     /**
-     * Returns a data value for the desired column.
+     * Returns the value as as a java.util.Date object
      * The data value is converted to a Date if necessary.
      * 
      * @param column identifying the column
      * @return the value
      */
+    public final Date getDate(ColumnExpr column)
+    {
+        return getDate(getFieldIndex(column));
+    }
+
+    /**
+     * Deprecated: Use getDate(index) instead.
+     */
+    @Deprecated
+    public final Date getDateTime(int index)
+    {
+        return getDate(index);
+    }
+    
+    /**
+     * Deprecated: Use getDate(column) instead.
+     */
+    @Deprecated
     public final Date getDateTime(ColumnExpr column)
     {
-        return getDateTime(getFieldIndex(column));
+        return getDate(column);
+    }
+
+    /**
+     * Returns the value as as a java.sql.Timestamp object
+     * @return the Timestamp
+     */
+    public final Timestamp getTimestamp(int index)
+    {
+        return ObjectUtils.getTimestamp(getValue(index));
+    }
+
+    /**
+     * Returns the value as as a java.sql.Timestamp object
+     * @return the Timestamp
+     */
+    public final Timestamp getTimestamp(ColumnExpr column)
+    {
+        return getTimestamp(getFieldIndex(column));
     }
 
     /**
@@ -429,7 +456,9 @@ public abstract class DBRecordData extends DBObject
     /**
      * Returns the value of a field as an enum
      * This assumes that the column attribute "enumType" has been set to an enum type
+     * For numeric columns the value is assumed to be an ordinal of the enumeration item
      * 
+     * @param <T> the enum type
      * @param column the column for which to retrieve the value
      * @return the enum value
      */
@@ -443,29 +472,24 @@ public abstract class DBRecordData extends DBObject
         }
         return getEnum(getFieldIndex(column), (Class<T>)enumType);
     }
-    
-    /**
-     * Checks whether or not the value for the given column is null.
-     * 
-     * @param index index of the column
-     * @return true if the value is null or false otherwise
-     */
-    @Override
-    public boolean isNull(int index)
-    {
-        return ObjectUtils.isEmpty(getValue(index));
-    }
 
     /**
-     * Checks whether or not the value for the given column is null.
+     * Returns an array of values for the given column expressions
      * 
-     * @param column identifying the column
-     * @return true if the value is null or false otherwise
+     * @param columns the column expressions
+     * @return the corresponding record values
      */
-    @Override
-    public final boolean isNull(ColumnExpr column)
+    public final Object[] getArray(ColumnExpr... columns)
     {
-        return isNull(getFieldIndex(column));
+        Object[] values = new Object[columns.length];
+        for (int i=0; i<columns.length; i++)
+        {
+            int index = getFieldIndex(columns[i]);
+            if (index<0)
+                throw new ItemNotFoundException(columns[i].getName()); 
+            values[i] = getValue(index);
+        }
+        return values;
     }
     
     /**
@@ -505,84 +529,22 @@ public abstract class DBRecordData extends DBObject
     }
 
     /**
-     * Convert a non-string value to a string
-     * @param column the column expression 
-     * @param value the value to format
-     * @return the formatted string
+     * Returns the value of a column as a formatted text
+     * This converts the value to a string if necessary and performs an options lookup
+     * To customize conversion please override convertToString()
+     * @param name the column for which to get the formatted value
+     * @return the formatted value
      */
-    protected String formatValue(ColumnExpr column, Object value)
+    public final String getText(String name)
     {
-        return ObjectUtils.getString(value);
-    }
-    
-    /**
-     * Set a single property value of a java bean object used by readProperties.
-     *
-     * @param column the column expression
-     * @param bean the bean
-     * @param property the property
-     * @param value the value
-     */
-    protected void setBeanProperty(ColumnExpr column, Object bean, String property, Object value)
-    {
-        if (StringUtils.isEmpty(property))
-            property = column.getBeanPropertyName();
-        try
-        {
-            if (bean==null)
-                throw new InvalidArgumentException("bean", bean);
-            if (StringUtils.isEmpty(property))
-                throw new InvalidArgumentException("property", property);
-            if (log.isTraceEnabled())
-                log.trace("{}: setting property '{}' to {}", bean.getClass().getName(), property, value);
-            /*
-            if (value instanceof Date)
-            {   // Patch for date bug in BeanUtils
-                value = DateUtils.addDate((Date)value, 0, 0, 0);
-            }
-            */
-            // Set Property Value
-            if (value!=null)
-            {   // Convert to enum
-                Class<Enum<?>> enumType = column.getEnumType();
-                if (enumType!=null)
-                    value = ObjectUtils.getEnum(enumType, value);
-                // Bean utils will convert if necessary
-                BeanUtils.setProperty(bean, property, value);
-            }
-            else
-            {   // Don't convert, just set
-                PropertyDescriptor pd = PropertyUtils.getPropertyDescriptor(bean, property);
-                if (pd==null)
-                    return; // No such property
-                // get the write method
-                final Method method = PropertyUtils.getWriteMethod(pd);
-                if (method == null)
-                    throw new PropertyReadOnlyException(property);
-                // invoke
-                method.invoke(bean, value);
-            }
-          // IllegalAccessException
-        } catch (IllegalAccessException e)
-        {   log.error(bean.getClass().getName() + ": unable to set property '" + property + "'");
-            throw new BeanPropertySetException(bean, property, e);
-          // InvocationTargetException  
-        } catch (InvocationTargetException e)
-        {   log.error(bean.getClass().getName() + ": unable to set property '" + property + "'");
-            throw new BeanPropertySetException(bean, property, e);
-          // NoSuchMethodException   
-        } catch (NoSuchMethodException e)
-        {   log.error(bean.getClass().getName() + ": unable to set property '" + property + "'");
-            throw new BeanPropertySetException(bean, property, e);
-        } catch (NullPointerException e)
-        {   log.error(bean.getClass().getName() + ": unable to set property '" + property + "'");
-            throw new BeanPropertySetException(bean, property, e);
-        }
+        return getText(getColumn(getFieldIndex(name)));
     }
 
     /**
      * Injects the current field values into a java bean.
-     * 
+     * The property name is detected by ColumnExpr.getBeanPropertyName()
+     * @param bean the Java Bean for which to set the properties
+     * @param ignoreList list of columns to skip (optional)
      * @return the number of bean properties set on the supplied bean
      */
     @Override
@@ -593,12 +555,12 @@ public abstract class DBRecordData extends DBObject
         for (int i = 0; i < getFieldCount(); i++)
         {   // Check Property
             ColumnExpr column = getColumn(i);
+            if ((column instanceof Column) && ((Column)column).isReadOnly())
+                continue;
             if (ignoreList != null && ignoreList.contains(column))
                 continue; // ignore this property
             // Get Property Name
-            String property = column.getBeanPropertyName();
-            if (property!=null)
-                setBeanProperty(column, bean, property, this.getValue(i));
+            setBeanProperty(column, bean, this.getValue(i));
             count++;
         }
         return count;
@@ -606,12 +568,47 @@ public abstract class DBRecordData extends DBObject
 
     /**
      * Injects the current field values into a java bean.
-     * @param bean the bean
+     * The property name is detected by ColumnExpr.getBeanPropertyName()
+     * @param bean the Java Bean for which to set the properties
      * @return the number of bean properties set on the supplied bean
      */
     public final int setBeanProperties(Object bean)
     {
         return setBeanProperties(bean, null);
+    }
+    
+    /**
+     * Set a single property value on a java bean object
+     *
+     * @param column the column expression
+     * @param bean the bean
+     * @param value the value
+     */
+    protected void setBeanProperty(ColumnExpr column, Object bean, Object value)
+    {
+        if (value!=null)
+        {   // Convert to enum
+            Class<Enum<?>> enumType = column.getEnumType();
+            if (enumType!=null)
+                value = ObjectUtils.getEnum(enumType, value);
+        }
+        String property = column.getBeanPropertyName();
+        ClassUtils.setBeanProperty(bean, property, value);
+    }
+    
+    /*
+     * Miscellaneous functions
+     */
+
+    /**
+     * Convert a non-string value to a string
+     * @param column the column expression 
+     * @param value the value to format
+     * @return the formatted string
+     */
+    protected String formatValue(ColumnExpr column, Object value)
+    {
+        return ObjectUtils.getString(value);
     }
     
 }
