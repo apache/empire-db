@@ -29,6 +29,8 @@ import java.util.Set;
 import org.apache.empire.commons.ObjectUtils;
 import org.apache.empire.commons.StringUtils;
 import org.apache.empire.data.DataType;
+import org.apache.empire.data.RecordData;
+import org.apache.empire.db.exceptions.NoPrimaryKeyException;
 import org.apache.empire.db.expr.column.DBAliasExpr;
 import org.apache.empire.db.expr.column.DBValueExpr;
 import org.apache.empire.db.expr.compare.DBCompareAndOrExpr;
@@ -932,6 +934,16 @@ public abstract class DBCommand extends DBCommandExpr
     }
     
     /**
+     * Returns a copy of the defined joins.
+     * 
+     * @return the list of joins
+     */
+    public List<DBJoinExpr> getJoins()
+    {
+        return (this.joins!=null ? Collections.unmodifiableList(this.joins) : null);
+    }
+    
+    /**
      * Returns true if the command has a join on the given table or false otherwise.
      * 
      * @param rowset rowset table or view to join
@@ -946,37 +958,6 @@ public abstract class DBCommand extends DBCommandExpr
         for (DBJoinExpr join : joins)
         {
             if (join.isJoinOn(rowset))
-                return true;
-        }
-        // not found
-        return false;
-    }
-    
-    /**
-     * Returns true if the command has a constraint on the given table or false otherwise.
-     * 
-     * @param rowset rowset table or view to join
-     * 
-     * @return true if the command has a join on the given table or false otherwise
-     */
-    public boolean hasConstraintOn(DBRowSet rowset)
-    {
-        if (where==null && having==null)
-            return false;
-        // Examine all constraints
-        int i = 0;
-        Set<DBColumn> columns = new HashSet<DBColumn>();
-        for (i = 0; where != null && i < where.size(); i++)
-            ((DBExpr) where.get(i)).addReferencedColumns(columns);
-        for (i = 0; having != null && i < having.size(); i++)
-            ((DBExpr) having.get(i)).addReferencedColumns(columns);
-        // now we have all columns
-        Iterator<DBColumn> iterator = columns.iterator();
-        while (iterator.hasNext())
-        { // get the table
-            DBColumn col = iterator.next();
-            DBRowSet table = col.getRowSet();
-            if (table.equals(rowset))
                 return true;
         }
         // not found
@@ -1124,16 +1105,6 @@ public abstract class DBCommand extends DBCommandExpr
     {
         return (findConstraintOn(where, col)!=null);
     }
-    
-    /**
-     * Returns a copy of the defined joins.
-     * 
-     * @return the list of joins
-     */
-    public List<DBJoinExpr> getJoins()
-    {
-        return (this.joins!=null ? Collections.unmodifiableList(this.joins) : null);
-    }
 
     /**
      * Adds a list of constraints to the command.
@@ -1146,6 +1117,21 @@ public abstract class DBCommand extends DBCommandExpr
             where = new ArrayList<DBCompareExpr>();
         // add
         this.where.addAll(constraints);
+    }
+    
+    /**
+     * Adds key constraints the command
+     * @param rowset the rowset for which to add constraints
+     * @param data the record data from which to take the key values
+     */
+    public void addKeyConstraints(DBRowSet rowset, RecordData data)
+    {
+        DBColumn[] keyColumns = rowset.getKeyColumns();
+        if (keyColumns==null || keyColumns.length==0)
+            throw new NoPrimaryKeyException(rowset);
+        // Collect key
+        for (int i=0; i<keyColumns.length; i++)
+            where(keyColumns[i].is(data.get(keyColumns[i])));
     }
 
     /**
@@ -1209,6 +1195,37 @@ public abstract class DBCommand extends DBCommandExpr
     public boolean hasHavingConstraintOn(DBColumnExpr col)
     {
         return (findConstraintOn(having, col)!=null);
+    }
+    
+    /**
+     * Returns true if the command has a constraint on the given table or false otherwise.
+     * 
+     * @param rowset rowset table or view to join
+     * 
+     * @return true if the command has a join on the given table or false otherwise
+     */
+    public boolean hasConstraintOn(DBRowSet rowset)
+    {
+        if (where==null && having==null)
+            return false;
+        // Examine all constraints
+        int i = 0;
+        Set<DBColumn> columns = new HashSet<DBColumn>();
+        for (i = 0; where != null && i < where.size(); i++)
+            ((DBExpr) where.get(i)).addReferencedColumns(columns);
+        for (i = 0; having != null && i < having.size(); i++)
+            ((DBExpr) having.get(i)).addReferencedColumns(columns);
+        // now we have all columns
+        Iterator<DBColumn> iterator = columns.iterator();
+        while (iterator.hasNext())
+        { // get the table
+            DBColumn col = iterator.next();
+            DBRowSet table = col.getRowSet();
+            if (table.equals(rowset))
+                return true;
+        }
+        // not found
+        return false;
     }
     
     /**
