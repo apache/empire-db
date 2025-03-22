@@ -26,7 +26,7 @@ import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.Date;
 
-import org.apache.empire.commons.ClassUtils;
+import org.apache.empire.commons.BeanPropertyUtils;
 import org.apache.empire.commons.ObjectUtils;
 import org.apache.empire.commons.StringUtils;
 import org.apache.empire.data.Column;
@@ -662,8 +662,6 @@ public class DataListEntry implements RecordData, Serializable
         for (int i = 0; i < getFieldCount(); i++)
         {   // Check Property
             ColumnExpr column = getColumn(i);
-            if ((column instanceof Column) && ((Column)column).isReadOnly())
-                continue;
             if (ignoreList != null && ignoreList.contains(column))
                 continue; // ignore this property
             // Get Property Name
@@ -699,8 +697,13 @@ public class DataListEntry implements RecordData, Serializable
             if (enumType!=null)
                 value = ObjectUtils.getEnum(enumType, value);
         }
+        // set property
         String property = column.getBeanPropertyName();
-        ClassUtils.setBeanProperty(bean, property, value);
+        if (!BeanPropertyUtils.setProperty(bean, property, value))
+        {   // Property has not been set
+            if (log.isDebugEnabled())
+                log.debug("The bean property \"{}\" coult not be set on {} and will be ignored!", property, bean.getClass().getName());
+        }
     }
     
     /*

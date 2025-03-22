@@ -23,7 +23,7 @@ import java.util.Set;
 
 import javax.faces.event.ValueChangeEvent;
 
-import org.apache.commons.beanutils.BeanUtils;
+import org.apache.empire.commons.BeanPropertyUtils;
 import org.apache.empire.commons.ObjectUtils;
 import org.apache.empire.commons.StringUtils;
 import org.apache.empire.data.Column;
@@ -589,7 +589,7 @@ public class BeanListPageElement<T> extends ListPageElement<T> implements ListIt
                 // Get Property value
                 try
                 {
-                    key[i] = BeanUtils.getSimpleProperty(item, propName);
+                    key[i] = BeanPropertyUtils.getProperty(item, propName);
                 }
                 catch (Exception e)
                 {

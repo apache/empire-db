@@ -26,7 +26,7 @@ import javax.faces.event.PhaseEvent;
 import javax.faces.event.PhaseId;
 import javax.faces.event.PhaseListener;
 
-import org.apache.commons.beanutils.BeanUtils;
+import org.apache.empire.commons.BeanPropertyUtils;
 import org.apache.empire.exceptions.InternalException;
 import org.apache.empire.exceptions.ObjectNotValidException;
 import org.apache.empire.jsf2.app.FacesUtils;
@@ -200,11 +200,12 @@ public class PagePhaseListener implements PhaseListener
             String value = pageParams.get(name);
             try
             {
-                BeanUtils.setProperty(pageBean, name, value);
+                if (!BeanPropertyUtils.setProperty(pageBean, name, value))
+                    log.error("Unable to set PageParam \"{}\" on {}", name, pageBean.getClass().getName());
             }
             catch (Exception e)
             {
-                log.error("Unable to set PageParam " + name + " on " + pageBean.getClass().getName() + ".", e);
+                log.error("Unable to set PageParam \"{}\" on {}", name, pageBean.getClass().getName(), e);
             }
         }
     }

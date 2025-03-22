@@ -23,7 +23,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.Collection;
 import java.util.Date;
 
-import org.apache.commons.beanutils.PropertyUtils;
+import org.apache.empire.commons.BeanPropertyUtils;
 import org.apache.empire.commons.ObjectUtils;
 import org.apache.empire.commons.Options;
 import org.apache.empire.db.DBColumn;
@@ -223,45 +223,28 @@ public class EmployeeListPage extends SamplePage
     
     private void addSearchConstraint(DBCommand cmd, DBColumn col, Object bean)
     {
-        Object value;
-        try
+        Object value = BeanPropertyUtils.getProperty(bean, col.getBeanPropertyName());
+        if (ObjectUtils.isEmpty(value))
+            return;
+        // is it an array
+        if (value instanceof Collection<?> || value.getClass().isArray())
         {
-            value = PropertyUtils.getProperty(bean, col.getBeanPropertyName());
-            if (ObjectUtils.isEmpty(value))
-                return;
-            // is it an array
-            if (value instanceof Collection<?> || value.getClass().isArray())
-            {
-                cmd.where(col.in(value));
-                return;
-            }
-            // text
-            if (col.getOptions() == null && col.getDataType().isText())
-            {
-                StringBuilder b = new StringBuilder();
-                b.append("%");
-                b.append(((String) value).toUpperCase());
-                b.append("%");
-                cmd.where(col.upper().like(b.toString()));
-                return;
-            }
-            // value
-            cmd.where(col.is(value));
+            cmd.where(col.in(value));
             return;
         }
-        catch (IllegalAccessException e)
+        // text
+        if (col.getOptions() == null && col.getDataType().isText())
         {
-            throw new BeanPropertyGetException(bean, col.getBeanPropertyName(), e);
+            StringBuilder b = new StringBuilder();
+            b.append("%");
+            b.append(((String) value).toUpperCase());
+            b.append("%");
+            cmd.where(col.upper().like(b.toString()));
+            return;
         }
-        catch (InvocationTargetException e)
-        {
-            throw new BeanPropertyGetException(bean, col.getBeanPropertyName(), e);
-        }
-        catch (NoSuchMethodException e)
-        {
-            throw new BeanPropertyGetException(bean, col.getBeanPropertyName(), e);
-        }
+        // value
+        cmd.where(col.is(value));
+        return;
     }
-
     
 }

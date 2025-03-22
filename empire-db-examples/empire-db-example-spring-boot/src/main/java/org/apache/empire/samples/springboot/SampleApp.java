@@ -18,7 +18,6 @@
  */
 package org.apache.empire.samples.springboot;
 
-import java.lang.reflect.InvocationTargetException;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.sql.Connection;
@@ -29,7 +28,7 @@ import java.util.Map;
 
 import javax.sql.DataSource;
 
-import org.apache.commons.beanutils.BeanUtils;
+import org.apache.empire.commons.BeanPropertyUtils;
 import org.apache.empire.commons.ObjectUtils;
 import org.apache.empire.commons.StringUtils;
 import org.apache.empire.data.Record;
@@ -555,21 +554,14 @@ public class SampleApp implements ApplicationRunner {
       for (Map.Entry<String, String> entry : dbmsHandlerProperties.entrySet()) {
         String name = entry.getKey();
         String newValue = entry.getValue();
-        try {
-          BeanUtils.setProperty(bean, name, newValue);
-
-          Object value = BeanUtils.getProperty(bean, name);
-          if (ObjectUtils.compareEqual(newValue, value)) {
+        // set property
+        BeanPropertyUtils.setProperty(bean, name, newValue);
+        // Check
+        Object value = BeanPropertyUtils.getProperty(bean, name);
+        if (ObjectUtils.compareEqual(newValue, value)) {
             LOGGER.info("Configuration property '{}' set to \"{}\"", name, newValue);
-          } else {
+        } else {
             LOGGER.error("Failed to set property '{}'. Value is \"{}\"", name, value);
-          }
-        } catch (IllegalAccessException ex) {
-          LOGGER.error(null, ex);
-        } catch (InvocationTargetException ex) {
-          LOGGER.error(null, ex);
-        } catch (NoSuchMethodException ex) {
-          LOGGER.error("Property '{}' not found in {}", name, bean.getClass().getName());
         }
       }
     }

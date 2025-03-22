@@ -18,25 +18,20 @@
  */
 package org.apache.empire.data.bean;
 
-import java.lang.reflect.InvocationTargetException;
 import java.util.Collection;
 import java.util.List;
 
-import org.apache.commons.beanutils.BeanUtils;
-import org.apache.commons.beanutils.BeanUtilsBean;
-import org.apache.commons.beanutils.PropertyUtils;
-import org.apache.commons.beanutils.PropertyUtilsBean;
+import org.apache.empire.commons.BeanPropertyUtils;
 import org.apache.empire.commons.ObjectUtils;
 import org.apache.empire.commons.Options;
 import org.apache.empire.data.Column;
 import org.apache.empire.data.ColumnExpr;
 import org.apache.empire.data.EntityType;
 import org.apache.empire.data.Record;
-import org.apache.empire.exceptions.BeanPropertyGetException;
-import org.apache.empire.exceptions.BeanPropertySetException;
 import org.apache.empire.exceptions.InvalidArgumentException;
 import org.apache.empire.exceptions.ItemNotFoundException;
 import org.apache.empire.exceptions.ObjectNotValidException;
+import org.apache.empire.exceptions.PropertyReadOnlyException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -380,63 +375,26 @@ public class BeanRecordProxy<T> implements Record
 
     protected Object getBeanProperty(Object bean, String property)
     {
-        // Check Params
-        if (bean==null)
-            throw new InvalidArgumentException("bean", bean);
-        if (property==null)
-            throw new InvalidArgumentException("property", property);
-        try
-        {   // Get Property Value
-            PropertyUtilsBean pub = BeanUtilsBean.getInstance().getPropertyUtils();
-            return pub.getSimpleProperty(bean, property);
-
-        } catch (IllegalAccessException e)
-        {   log.error(bean.getClass().getName() + ": unable to get property '" + property + "'");
-            throw new BeanPropertyGetException(bean, property, e);
-        } catch (InvocationTargetException e)
-        {   log.error(bean.getClass().getName() + ": unable to get property '" + property + "'");
-            throw new BeanPropertyGetException(bean, property, e);
-        } catch (NoSuchMethodException e)
-        {   log.warn(bean.getClass().getName() + ": no getter available for property '" + property + "'");
-            throw new BeanPropertyGetException(bean, property, e);
-        }
+        return BeanPropertyUtils.getProperty(bean, property);
     }
 
     protected void setBeanProperty(Object bean, Column column, Object value)
     {
-        // Check Params
-        if (bean==null)
-            throw new InvalidArgumentException("bean", bean);
-        if (column==null)
-            throw new InvalidArgumentException("column", column);
-        // Get Property Name
-        String property = column.getBeanPropertyName(); 
-        try
-        {   // Get Property Value
-            if (ObjectUtils.isEmpty(value))
-                value = null;
-            // Set Property Value
-            if (value!=null)
-            {   // Bean utils will convert if necessary
-                BeanUtils.setProperty(bean, property, value);
-            }
+        if (value!=null)
+        {   // Convert to enum
+            Class<Enum<?>> enumType = column.getEnumType();
+            if (enumType!=null)
+                value = ObjectUtils.getEnum(enumType, value);
+        }
+        // set property
+        String property = column.getBeanPropertyName();
+        if (!BeanPropertyUtils.setProperty(bean, property, value))
+        {   // Property has not been set
+            if (BeanPropertyUtils.hasProperty(bean, property, true)==0)
+                throw new PropertyReadOnlyException(property);
             else
-            {   // Don't convert, just set
-                PropertyUtils.setProperty(bean, property, null);
-            }
-        } catch (IllegalArgumentException e) {
-            log.error(bean.getClass().getName() + ": invalid argument for property '" + property + "'");
-            throw new BeanPropertySetException(bean, property, e);
-        } catch (IllegalAccessException e)
-        {   log.error(bean.getClass().getName() + ": unable to set property '" + property + "'");
-            throw new BeanPropertySetException(bean, property, e);
-        } catch (InvocationTargetException e)
-        {   log.error(bean.getClass().getName() + ": unable to set property '" + property + "'");
-            throw new BeanPropertySetException(bean, property, e);
-        } catch (NoSuchMethodException e) {
-            log.error(bean.getClass().getName() + ": no setter available for property '" + property + "'");
-            throw new BeanPropertySetException(bean, property, e);
-        }    
+                log.info("The bean property \"{}\" does not exist on {} and will be ignored!", property, bean.getClass().getName());
+        }
     }
     
 }

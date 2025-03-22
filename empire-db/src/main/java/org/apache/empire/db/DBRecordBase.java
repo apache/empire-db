@@ -19,15 +19,13 @@
 package org.apache.empire.db;
 
 import java.io.Serializable;
-import java.lang.reflect.InvocationTargetException;
 import java.sql.Connection;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.beanutils.BeanUtilsBean;
-import org.apache.commons.beanutils.PropertyUtilsBean;
+import org.apache.empire.commons.BeanPropertyUtils;
 import org.apache.empire.commons.ClassUtils;
 import org.apache.empire.commons.ObjectUtils;
 import org.apache.empire.commons.Options;
@@ -41,7 +39,6 @@ import org.apache.empire.db.exceptions.FieldReadOnlyException;
 import org.apache.empire.db.exceptions.FieldValueNotFetchedException;
 import org.apache.empire.db.exceptions.NoPrimaryKeyException;
 import org.apache.empire.db.exceptions.RecordReadOnlyException;
-import org.apache.empire.exceptions.BeanPropertyGetException;
 import org.apache.empire.exceptions.InvalidArgumentException;
 import org.apache.empire.exceptions.NotSupportedException;
 import org.apache.empire.exceptions.ObjectNotValidException;
@@ -805,8 +802,7 @@ public abstract class DBRecordBase extends DBRecordData implements Record, Clone
             if (ignoreList != null && ignoreList.contains(column))
                 continue; // ignore this property
             // Get Property Name
-            String property = column.getBeanPropertyName();
-            setRecordValue(column, bean, property);
+            setRecordValue(column, bean);
             count++;
         }
         return count;
@@ -1157,30 +1153,21 @@ public abstract class DBRecordBase extends DBRecordData implements Record, Clone
      *     setValue(column, bean.getFOO())
      * <P>
      * @param bean the Java Bean from which to read the value from
-     * @param property the name of the property
      * @param column the column for which to set the record value
      */
-    protected void setRecordValue(Column column, Object bean, String property)
+    protected void setRecordValue(Column column, Object bean)
     {
-        if (StringUtils.isEmpty(property))
-            property = column.getBeanPropertyName();
-        try
-        {   // Get Property Value
-            PropertyUtilsBean pub = BeanUtilsBean.getInstance().getPropertyUtils();
-            Object value = pub.getSimpleProperty(bean, property);
-            // Now, set the record value
-            set( column, value ); 
-            // done
-        } catch (IllegalAccessException e)
-        {   log.error(bean.getClass().getName() + ": unable to get property '" + property + "'");
-            throw new BeanPropertyGetException(bean, property, e);
-        } catch (InvocationTargetException e)
-        {   log.error(bean.getClass().getName() + ": unable to get property '" + property + "'");
-            throw new BeanPropertyGetException(bean, property, e);
-        } catch (NoSuchMethodException e)
-        {   log.warn(bean.getClass().getName() + ": no getter available for property '" + property + "'");
-            throw new BeanPropertyGetException(bean, property, e);
-        }
+        // check
+        if (column==null)
+            throw new InvalidArgumentException("column", column);
+        if (bean==null)
+            throw new InvalidArgumentException("bean", column);
+        // the property name
+        String property = column.getBeanPropertyName();
+        // Get Property Value
+        Object value = BeanPropertyUtils.getProperty(bean, property);
+        // Now, set the record value
+        set( column, value ); 
     }
     
     /**

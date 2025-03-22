@@ -19,7 +19,6 @@
 package org.apache.empire.jsf2.utils;
 
 import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Locale;
@@ -38,11 +37,8 @@ import javax.faces.component.html.HtmlPanelGroup;
 import javax.faces.context.FacesContext;
 import javax.faces.context.ResponseWriter;
 
-import org.apache.commons.beanutils.BeanUtils;
-import org.apache.commons.beanutils.BeanUtilsBean;
-import org.apache.commons.beanutils.PropertyUtils;
-import org.apache.commons.beanutils.PropertyUtilsBean;
 import org.apache.empire.commons.Attributes;
+import org.apache.empire.commons.BeanPropertyUtils;
 import org.apache.empire.commons.ObjectUtils;
 import org.apache.empire.commons.Options;
 import org.apache.empire.commons.StringUtils;
@@ -58,11 +54,10 @@ import org.apache.empire.db.DBRecordBase;
 import org.apache.empire.db.DBRowSet;
 import org.apache.empire.db.exceptions.FieldIllegalValueException;
 import org.apache.empire.db.exceptions.FieldNotNullException;
-import org.apache.empire.exceptions.BeanPropertyGetException;
-import org.apache.empire.exceptions.BeanPropertySetException;
 import org.apache.empire.exceptions.EmpireException;
 import org.apache.empire.exceptions.InvalidArgumentException;
 import org.apache.empire.exceptions.InvalidPropertyException;
+import org.apache.empire.exceptions.ItemNotFoundException;
 import org.apache.empire.exceptions.NotSupportedException;
 import org.apache.empire.exceptions.PropertyReadOnlyException;
 import org.apache.empire.jsf2.app.FacesUtils;
@@ -1404,65 +1399,21 @@ public class TagEncodingHelper implements NamingContainer
 
     protected Object getBeanPropertyValue(Object bean, String property)
     {
-        try
-        { // Get Property Value
-            PropertyUtilsBean pub = BeanUtilsBean.getInstance().getPropertyUtils();
-            return pub.getSimpleProperty(bean, property);
-
-        }
-        catch (IllegalAccessException e)
-        {
-            log.error(bean.getClass().getName() + ": unable to get property '" + property + "'");
-            throw new BeanPropertyGetException(bean, property, e);
-        }
-        catch (InvocationTargetException e)
-        {
-            log.error(bean.getClass().getName() + ": unable to get property '" + property + "'");
-            throw new BeanPropertyGetException(bean, property, e);
-        }
-        catch (NoSuchMethodException e)
-        {
-            log.warn(bean.getClass().getName() + ": no getter available for property '" + property + "'");
-            throw new BeanPropertyGetException(bean, property, e);
-        }
+        return BeanPropertyUtils.getProperty(bean, property);
     }
 
     protected void setBeanPropertyValue(Object bean, String property, Object value)
     {
-        // Get Property Name
-        try
-        { // Get Property Value
-            if (ObjectUtils.isEmpty(value))
-                value = null;
-            // Set Property Value
-            if (value != null)
-            { // Bean utils will convert if necessary
-                BeanUtils.setProperty(bean, property, value);
-            }
+        // set Property 
+        if (ObjectUtils.isEmpty(value))
+            value = null;
+        // Set Property Value
+        if (!BeanPropertyUtils.setProperty(bean, property, value))
+        {   // Property has not been set
+            if (BeanPropertyUtils.hasProperty(bean, property, true)==0)
+                throw new PropertyReadOnlyException(property);
             else
-            { // Don't convert, just set
-                PropertyUtils.setProperty(bean, property, null);
-            }
-        }
-        catch (IllegalArgumentException e)
-        {
-            log.error(bean.getClass().getName() + ": invalid argument for property '" + property + "'");
-            throw new BeanPropertySetException(bean, property, e);
-        }
-        catch (IllegalAccessException e)
-        {
-            log.error(bean.getClass().getName() + ": unable to set property '" + property + "'");
-            throw new BeanPropertySetException(bean, property, e);
-        }
-        catch (InvocationTargetException e)
-        {
-            log.error(bean.getClass().getName() + ": unable to set property '" + property + "'");
-            throw new BeanPropertySetException(bean, property, e);
-        }
-        catch (NoSuchMethodException e)
-        {
-            log.error(bean.getClass().getName() + ": no setter available for property '" + property + "'");
-            throw new BeanPropertySetException(bean, property, e);
+                throw new ItemNotFoundException(property);
         }
     }
     
@@ -2162,11 +2113,10 @@ public class TagEncodingHelper implements NamingContainer
                 String property = col.getBeanPropertyName();
                 try
                 {   // Use Beanutils to get Property
-                    PropertyUtilsBean pub = BeanUtilsBean.getInstance().getPropertyUtils();
-                    return pub.getSimpleProperty(rec, property);
+                    return BeanPropertyUtils.getProperty(rec, property);
                 }
                 catch (Exception e)
-                {   log.error("BeanUtils.getSimpleProperty failed for "+property, e);
+                {   log.error("BeanUtils.getProperty failed for property {} on {} ", property, rec.getClass().getName(), e);
                     return null;
                 }
             }    
