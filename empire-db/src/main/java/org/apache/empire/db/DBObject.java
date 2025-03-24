@@ -23,7 +23,7 @@ import org.apache.empire.exceptions.InvalidArgumentException;
 /**
  * Base class for all objects that directly or indirectly belong to a database including the database object itself.
  * Examples are: tables, views, columns, indexes, relations etc.
- * Not included are: DBMSHanlders, helper classes
+ * Not included are: DBMSHandlers, helper classes
  */
 public abstract class DBObject // *Deprecated* implements Serializable
 {

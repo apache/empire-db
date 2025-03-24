@@ -31,9 +31,14 @@ public class BeanPropertyGetException extends EmpireException
     
     public static final ErrorType errorType = new ErrorType("error.propertyGetError", "Unable to get the property {0} from type {1}.");
     
-    public BeanPropertyGetException(Object bean, String property, Throwable cause)
+    public BeanPropertyGetException(Object bean, String property, ReflectiveOperationException e)
     {
-        super(errorType, new String[] { property, (bean!=null ? bean.getClass().getName() : "{unknown}") }, cause);
+        super(errorType, new String[] { property, (bean!=null ? bean.getClass().getName() : "{unknown}") }, getCause(e));
+    }
+    
+    public BeanPropertyGetException(Object bean, String property, RuntimeException e)
+    {
+        super(errorType, new String[] { property, (bean!=null ? bean.getClass().getName() : "{unknown}") }, e);
     }
     
     /**

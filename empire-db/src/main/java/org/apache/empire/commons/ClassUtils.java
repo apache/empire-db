@@ -32,10 +32,9 @@ import java.lang.reflect.Modifier;
 import java.net.URISyntaxException;
 
 import org.apache.commons.beanutils.ConstructorUtils;
-import org.apache.empire.exceptions.EmpireException;
+import org.apache.empire.exceptions.BeanInstantiationException;
 import org.apache.empire.exceptions.InternalException;
 import org.apache.empire.exceptions.InvalidArgumentException;
-import org.apache.empire.exceptions.InvalidOperationException;
 import org.apache.empire.exceptions.NotImplementedException;
 import org.apache.empire.exceptions.NotSupportedException;
 import org.slf4j.Logger;
@@ -238,8 +237,10 @@ public final class ClassUtils
                     }
                     return copy;
                 }
-            } catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
-                log.error("Copy through Instantiation failed for : "+clazz.getName(), e);
+            } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
+                // ReflectiveOperationException
+                Throwable cause = (e.getCause()!=null ? e.getCause() : e);
+                log.error("Copy through Instantiation failed for {}: {}", clazz.getName(), cause);
             }
         }
         // not supported
@@ -390,21 +391,13 @@ public final class ClassUtils
             Constructor<T> constructor = typeClass.getDeclaredConstructor();
             return constructor.newInstance();
         }
-        catch (NoSuchMethodException e)
-        {
-            throw new InvalidOperationException(typeClass.getName()+" has no default constructor.");
+        catch (InstantiationException | NoSuchMethodException | IllegalAccessException | InvocationTargetException e)
+        {   // ReflectiveOperationException
+            throw new BeanInstantiationException(typeClass, e);            
         }
-        catch (InvocationTargetException e)
-        {   // Unwrap exception and re-throw the cause exception 
-            Throwable cause = e.getCause();
-            if (cause instanceof EmpireException)
-                throw (EmpireException)cause;
-            // wrap    
-            throw new InternalException(cause);
-        }
-        catch (InstantiationException | IllegalAccessException | IllegalArgumentException | SecurityException e)
-        {
-            throw new InternalException(e);
+        catch (SecurityException e)
+        {   // RuntimeException
+            throw new BeanInstantiationException(typeClass, e);            
         }
     }
     
@@ -438,17 +431,13 @@ public final class ClassUtils
             // create
             return typeConstructor.newInstance(params);
         }
-        catch (InvocationTargetException e)
-        {   // Unwrap exception and re-throw the cause exception 
-            Throwable cause = e.getCause();
-            if (cause instanceof EmpireException)
-                throw (EmpireException)cause;
-            // wrap    
-            throw new InternalException(cause);
+        catch (InstantiationException | IllegalAccessException | InvocationTargetException e)
+        {   // ReflectiveOperationException
+            throw new BeanInstantiationException(typeConstructor, e);            
         }
-        catch (InstantiationException | IllegalAccessException | IllegalArgumentException e)
-        {
-            throw new InternalException(e);
+        catch (SecurityException | IllegalArgumentException e)
+        {   // RuntimeException
+            throw new BeanInstantiationException(typeConstructor, e);            
         }
     }
 
@@ -598,25 +587,13 @@ public final class ClassUtils
                 methodName += StringUtils.concat("({", String.valueOf(paramTypes.length), " params})");
             throw new NotImplementedException(object, methodName);
         }
-        catch (SecurityException e)
-        {   // Invalid Method definition   
+        catch (IllegalAccessException | InvocationTargetException e)
+        {   // ReflectiveOperationException   
             throw new NotSupportedException(object, methodName, e);
         }
-        catch (IllegalAccessException e)
-        {   // Invalid Method definition   
+        catch (SecurityException | IllegalArgumentException e)
+        {   // RuntimeException   
             throw new NotSupportedException(object, methodName, e);
-        }
-        catch (IllegalArgumentException e)
-        {   // Invalid Method definition   
-            throw new NotSupportedException(object, methodName, e);
-        }
-        catch (InvocationTargetException e)
-        {   // Error inside Method
-            Throwable cause = e.getCause();
-            if (cause instanceof EmpireException)
-                throw (EmpireException)cause;
-            // wrap    
-            throw new InternalException(cause);
         }
         finally {
             // restore accessible
@@ -708,16 +685,12 @@ public final class ClassUtils
             // invoke
             return method.invoke(object, EMPTY_ARGS);
         }
-        catch (InvocationTargetException e)
-        {   // Unwrap exception and re-throw the cause exception 
-            Throwable cause = e.getCause();
-            if (cause instanceof EmpireException)
-                throw (EmpireException)cause;
-            // wrap    
-            throw new InternalException(cause);
+        catch (IllegalAccessException | InvocationTargetException e)
+        {   // ReflectiveOperationException 
+            throw new NotSupportedException(object, method.getName(), e); 
         }
-        catch (IllegalAccessException | IllegalArgumentException e)
-        {
+        catch (SecurityException | IllegalArgumentException e)
+        {   // RuntimeException
             throw new NotSupportedException(object, method.getName(), e); 
         } 
     }
@@ -740,16 +713,12 @@ public final class ClassUtils
             // invoke
             return method.invoke(object, params);
         }
-        catch (InvocationTargetException e)
-        {   // Unwrap exception and re-throw the cause exception 
-            Throwable cause = e.getCause();
-            if (cause instanceof EmpireException)
-                throw (EmpireException)cause;
-            // wrap    
-            throw new InternalException(cause);
+        catch (IllegalAccessException | InvocationTargetException e)
+        {   // ReflectiveOperationException 
+            throw new NotSupportedException(object, method.getName(), e); 
         }
-        catch (IllegalAccessException | IllegalArgumentException e)
-        {
+        catch (SecurityException | IllegalArgumentException e)
+        {   // RuntimeException
             throw new NotSupportedException(object, method.getName(), e); 
         } 
     }

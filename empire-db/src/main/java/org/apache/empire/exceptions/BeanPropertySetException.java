@@ -30,10 +30,15 @@ public class BeanPropertySetException extends EmpireException
     private static final Logger log = LoggerFactory.getLogger(BeanPropertySetException.class);
     
     public static final ErrorType errorType = new ErrorType("error.propertySetError", "The property {0} cannot be set on type {1}.");
-    
-    public BeanPropertySetException(Object bean, String property, Throwable cause)
+
+    public BeanPropertySetException(Object bean, String property, ReflectiveOperationException e)
     {
-        super(errorType, new String[] { property, (bean!=null ? bean.getClass().getName() : "{unknown}") }, cause);
+        super(errorType, new String[] { property, (bean!=null ? bean.getClass().getName() : "{unknown}") }, getCause(e));
+    }
+    
+    public BeanPropertySetException(Object bean, String property, RuntimeException e)
+    {
+        super(errorType, new String[] { property, (bean!=null ? bean.getClass().getName() : "{unknown}") }, e);
     }
     
     /**

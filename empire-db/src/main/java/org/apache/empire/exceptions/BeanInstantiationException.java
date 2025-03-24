@@ -18,6 +18,8 @@
  */
 package org.apache.empire.exceptions;
 
+import java.lang.reflect.Constructor;
+
 import org.apache.empire.commons.ErrorType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,9 +33,24 @@ public class BeanInstantiationException extends EmpireException
     
     public static final ErrorType errorType = new ErrorType("error.beanInstantiationFailed", "Unable create an instance of type {0}.");
     
-    public BeanInstantiationException(Class<?> clazz, Throwable cause)
+    public BeanInstantiationException(Class<?> clazz, ReflectiveOperationException e)
     {
-        super(errorType, new String[] { clazz.getName() }, cause);
+        super(errorType, new String[] { clazz.getName() }, getCause(e));
+    }
+    
+    public BeanInstantiationException(Class<?> clazz, RuntimeException e)
+    {
+        super(errorType, new String[] { clazz.getName() }, e);
+    }
+    
+    public BeanInstantiationException(Constructor<?> c, ReflectiveOperationException e)
+    {
+        this(c.getDeclaringClass(), e);
+    }
+    
+    public BeanInstantiationException(Constructor<?> c, RuntimeException e)
+    {
+        this(c.getDeclaringClass(), e);
     }
     
     /**

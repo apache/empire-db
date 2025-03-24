@@ -35,7 +35,7 @@ import org.apache.empire.db.DBCommandExpr;
 import org.apache.empire.db.DBContext;
 import org.apache.empire.db.DBRecordData;
 import org.apache.empire.db.exceptions.CommandWithoutSelectException;
-import org.apache.empire.exceptions.InternalException;
+import org.apache.empire.exceptions.BeanInstantiationException;
 import org.apache.empire.exceptions.InvalidArgumentException;
 import org.apache.empire.exceptions.UnsupportedTypeException;
 import org.slf4j.Logger;
@@ -284,9 +284,13 @@ public class DBBeanListFactoryImpl<T> implements DBBeanListFactory<T>
             }
             return bean;
         }
-        catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e)
-        {
-            throw new InternalException(e);
+        catch (InstantiationException | IllegalAccessException | InvocationTargetException e)
+        {   // ReflectiveOperationException
+            throw new BeanInstantiationException(constructor, e);            
+        }
+        catch (IllegalArgumentException e)
+        {   // RuntimeException
+            throw new BeanInstantiationException(constructor, e);            
         }
     }
     

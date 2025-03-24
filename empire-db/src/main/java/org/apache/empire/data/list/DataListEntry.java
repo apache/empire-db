@@ -294,7 +294,7 @@ public class DataListEntry implements RecordData, Serializable
      */
     public boolean isZero(ColumnExpr column)
     {
-        if (column==null || column.getDataType().isNumeric())
+        if (column==null || !column.getDataType().isNumeric())
             throw new InvalidArgumentException("column", column);
         // check for zero
         Object v = get(column);

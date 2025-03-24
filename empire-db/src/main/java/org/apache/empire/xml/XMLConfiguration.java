@@ -286,10 +286,11 @@ public class XMLConfiguration
             setPropertyValue(bean, name, newValue);
         } catch (IllegalAccessException e) {
             log.error("Config error: Access to '{}' in {} denied.", prop, bean.getClass().getName(), e);
-        } catch (InvocationTargetException e) {
-            log.error("Config error: Unable to set value for '{}' in {}", prop, bean.getClass().getName(), e);
         } catch (NoSuchMethodException e) {
             log.error("Config error: Property '{}' in {} not found. Property is ignored.", prop, bean.getClass().getName(), e);
+        } catch (InvocationTargetException e) {
+            Throwable cause = (e.getCause()!=null ? e.getCause() : e);
+            log.error("Config error: Unable to set value for '{}' in {}", prop, bean.getClass().getName(), cause);
         } catch (EmpireException e) {
             log.error("Config error: Invalid Value for '{}' in {}", prop, bean.getClass().getName(), e);
         }
@@ -435,9 +436,10 @@ public class XMLConfiguration
                 b.append(String.valueOf(value));
                 b.append(EOL);
             }
-            catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e)
+            catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e)
             {
-                log.warn("Field {} is ignored due to Exception {}", field.getName(), e.toString());
+                Throwable cause = (e.getCause()!=null ? e.getCause() : e);
+                log.warn("Field {} is ignored due to Exception {}", field.getName(), cause.toString());
             }
         }
         if (appendClassInfo==false)

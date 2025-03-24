@@ -26,7 +26,7 @@ import java.util.List;
 import org.apache.empire.commons.ClassUtils;
 import org.apache.empire.data.ColumnExpr;
 import org.apache.empire.data.RecordData;
-import org.apache.empire.exceptions.InternalException;
+import org.apache.empire.exceptions.BeanInstantiationException;
 import org.apache.empire.exceptions.InvalidArgumentException;
 import org.apache.empire.exceptions.NotSupportedException;
 import org.apache.empire.exceptions.UnsupportedTypeException;
@@ -119,21 +119,13 @@ public class DataListFactoryImpl<T extends DataListEntry> implements DataListFac
                     throw new UnsupportedTypeException(constructor.getClass());
             }
         }
-        catch (InstantiationException e)
-        {
-            throw new InternalException(e);
-        }
-        catch (IllegalAccessException e)
-        {
-            throw new InternalException(e);
+        catch (InstantiationException | IllegalAccessException | InvocationTargetException e)
+        {   // ReflectiveOperationException
+            throw new BeanInstantiationException(constructor, e);            
         }
         catch (IllegalArgumentException e)
-        {
-            throw new InternalException(e);
-        }
-        catch (InvocationTargetException e)
-        {
-            throw new InternalException(e);
+        {   // RuntimeException
+            throw new BeanInstantiationException(constructor, e);            
         }
     }
     

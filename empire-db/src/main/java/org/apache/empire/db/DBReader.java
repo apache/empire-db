@@ -755,11 +755,8 @@ public class DBReader extends DBRecordData implements Closeable
             }
             // done
             return list;
-        } catch (InvocationTargetException e) {
-            throw new BeanInstantiationException(t, e);
-        } catch (IllegalAccessException e) {
-            throw new BeanInstantiationException(t, e);
-        } catch (InstantiationException e) {
+        } catch (InvocationTargetException | IllegalAccessException | InstantiationException e) {
+            // ReflectiveOperationException
             throw new BeanInstantiationException(t, e);
         }
     }

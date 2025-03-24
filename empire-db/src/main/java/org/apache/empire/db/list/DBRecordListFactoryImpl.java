@@ -33,6 +33,7 @@ import org.apache.empire.db.DBRecordBase.State;
 import org.apache.empire.db.DBRecordBean;
 import org.apache.empire.db.DBRecordData;
 import org.apache.empire.db.DBRowSet;
+import org.apache.empire.exceptions.BeanInstantiationException;
 import org.apache.empire.exceptions.InternalException;
 import org.apache.empire.exceptions.InvalidPropertyException;
 import org.apache.empire.exceptions.UnsupportedTypeException;
@@ -155,9 +156,13 @@ public class DBRecordListFactoryImpl<T extends DBRecordBase> implements DBRecord
                 rowset.initRecord(record, recData, (state==State.New));
             return record;
         }
-        catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e)
-        {
-            throw new InternalException(e);
+        catch (InstantiationException | IllegalAccessException | InvocationTargetException e)
+        {   // ReflectiveOperationException
+            throw new BeanInstantiationException(constructor, e);            
+        }
+        catch (IllegalArgumentException e)
+        {   // RuntimeException
+            throw new BeanInstantiationException(constructor, e);            
         }
     }
     

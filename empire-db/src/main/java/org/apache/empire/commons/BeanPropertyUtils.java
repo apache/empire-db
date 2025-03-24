@@ -146,8 +146,10 @@ public final class BeanPropertyUtils
                     method = propUtils.getReadMethod(pd);
                 }
                 return (method!=null ? 1 : 0);
-            } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e)
-            {   log.warn("Property access not available for {} on {}", property, bean.getClass().getName());
+            } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
+                // ReflectiveOperationException
+                Throwable cause = (e.getCause()!=null ? e.getCause() : e); 
+                log.warn("Property access failed for {} on {}: {}", property, bean.getClass().getName(), cause.getMessage());
                 return 0;
             }
         }
@@ -167,14 +169,9 @@ public final class BeanPropertyUtils
                 PropertyUtilsBean pub = BeanUtilsBean.getInstance().getPropertyUtils();
                 return pub.getSimpleProperty(bean, property);
     
-            } catch (IllegalAccessException e)
-            {   log.error(bean.getClass().getName() + ": unable to get property '" + property + "'");
-                throw new BeanPropertyGetException(bean, property, e);
-            } catch (InvocationTargetException e)
-            {   log.error(bean.getClass().getName() + ": unable to get property '" + property + "'");
-                throw new BeanPropertyGetException(bean, property, e);
-            } catch (NoSuchMethodException e)
-            {   log.warn(bean.getClass().getName() + ": no getter available for property '" + property + "'");
+            } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
+                // ReflectiveOperationException
+                log.error(bean.getClass().getName() + ": unable to get property '" + property + "'");
                 throw new BeanPropertyGetException(bean, property, e);
             }
         }
@@ -221,20 +218,13 @@ public final class BeanPropertyUtils
                 else
                     method.invoke(bean, value);
                 return true;
-              // IllegalAccessException
-            } catch (IllegalAccessException e)
-            {   log.error(bean.getClass().getName() + ": unable to set property '" + property + "'");
-                throw new BeanPropertySetException(bean, property, e);
-              // InvocationTargetException  
-            } catch (InvocationTargetException e)
-            {   log.error(bean.getClass().getName() + ": unable to set property '" + property + "'");
-                throw new BeanPropertySetException(bean, property, e);
-              // NoSuchMethodException   
-            } catch (NoSuchMethodException e)
-            {   log.error(bean.getClass().getName() + ": unable to set property '" + property + "'");
-                throw new BeanPropertySetException(bean, property, e);
-            } catch (NullPointerException e)
-            {   log.error(bean.getClass().getName() + ": unable to set property '" + property + "'");
+            } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
+                // ReflectiveOperationException
+                log.error(bean.getClass().getName() + ": unable to set property '" + property + "'");
+                throw new BeanPropertySetException(bean, property, e);  
+            } catch (NullPointerException e) {
+                // RuntimeException
+                log.error(bean.getClass().getName() + ": unable to set property '" + property + "'");
                 throw new BeanPropertySetException(bean, property, e);
             }
         }
