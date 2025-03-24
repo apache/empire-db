@@ -33,10 +33,10 @@ import java.net.URISyntaxException;
 
 import org.apache.commons.beanutils.ConstructorUtils;
 import org.apache.empire.exceptions.BeanInstantiationException;
+import org.apache.empire.exceptions.BeanMethodInvokeException;
 import org.apache.empire.exceptions.InternalException;
 import org.apache.empire.exceptions.InvalidArgumentException;
 import org.apache.empire.exceptions.NotImplementedException;
-import org.apache.empire.exceptions.NotSupportedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -287,7 +287,7 @@ public final class ClassUtils
         }
         catch (IllegalAccessException e)
         {   // Invalid Method definition   
-            throw new NotSupportedException(object, property, e);
+            throw new BeanMethodInvokeException(object, property, e);
         }
         finally {
             // restore accessible
@@ -589,11 +589,11 @@ public final class ClassUtils
         }
         catch (IllegalAccessException | InvocationTargetException e)
         {   // ReflectiveOperationException   
-            throw new NotSupportedException(object, methodName, e);
+            throw new BeanMethodInvokeException(object, methodName, e);
         }
         catch (SecurityException | IllegalArgumentException e)
         {   // RuntimeException   
-            throw new NotSupportedException(object, methodName, e);
+            throw new BeanMethodInvokeException(object, methodName, e);
         }
         finally {
             // restore accessible
@@ -687,11 +687,11 @@ public final class ClassUtils
         }
         catch (IllegalAccessException | InvocationTargetException e)
         {   // ReflectiveOperationException 
-            throw new NotSupportedException(object, method.getName(), e); 
+            throw new BeanMethodInvokeException(object, method.getName(), e); 
         }
         catch (SecurityException | IllegalArgumentException e)
         {   // RuntimeException
-            throw new NotSupportedException(object, method.getName(), e); 
+            throw new BeanMethodInvokeException(object, method.getName(), e); 
         } 
     }
 
@@ -715,11 +715,11 @@ public final class ClassUtils
         }
         catch (IllegalAccessException | InvocationTargetException e)
         {   // ReflectiveOperationException 
-            throw new NotSupportedException(object, method.getName(), e); 
+            throw new BeanMethodInvokeException(object, method.getName(), e); 
         }
         catch (SecurityException | IllegalArgumentException e)
         {   // RuntimeException
-            throw new NotSupportedException(object, method.getName(), e); 
+            throw new BeanMethodInvokeException(object, method.getName(), e); 
         } 
     }
     

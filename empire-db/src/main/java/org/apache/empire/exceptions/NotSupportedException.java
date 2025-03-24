@@ -38,12 +38,7 @@ public class NotSupportedException extends EmpireException
         return "-";
     }
     
-    public NotSupportedException(Object object, String operationName, ReflectiveOperationException e)
-    {
-        super(errorType, new String[] { operationName, typeFromObject(object) }, getCause(e));
-    }
-    
-    public NotSupportedException(Object object, String operationName, RuntimeException e)
+    public NotSupportedException(Object object, String operationName, Exception e)
     {
         super(errorType, new String[] { operationName, typeFromObject(object) }, e);
     }

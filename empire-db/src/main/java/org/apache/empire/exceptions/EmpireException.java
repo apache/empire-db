@@ -123,24 +123,6 @@ public class EmpireException extends RuntimeException
         return messageFormatter.format(errType, pattern, params);
     }
     
-    /**
-     * Returns the root cause of a ReflectiveOperationException such as InvocationTargetException
-     * @param e the ReflectiveOperationException
-     * @return the causing exception
-     */
-    protected static Exception getCause(ReflectiveOperationException e)
-    {
-        Throwable cause = e.getCause();
-        /*
-        if (cause instanceof EmpireException)
-            return ((EmpireException)cause);
-        */
-        if (cause instanceof Exception)
-            return (Exception)cause;
-        // wrap    
-        return e;
-    }
-    
     private final ErrorType errorType;
     private final String[]  errorParams;
     // private final String errorSourceClassname;

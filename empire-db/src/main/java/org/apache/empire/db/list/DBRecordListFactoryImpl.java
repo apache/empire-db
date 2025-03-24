@@ -34,7 +34,6 @@ import org.apache.empire.db.DBRecordBean;
 import org.apache.empire.db.DBRecordData;
 import org.apache.empire.db.DBRowSet;
 import org.apache.empire.exceptions.BeanInstantiationException;
-import org.apache.empire.exceptions.InternalException;
 import org.apache.empire.exceptions.InvalidPropertyException;
 import org.apache.empire.exceptions.UnsupportedTypeException;
 import org.slf4j.Logger;

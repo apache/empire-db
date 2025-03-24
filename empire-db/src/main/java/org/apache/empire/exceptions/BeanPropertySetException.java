@@ -19,39 +19,21 @@
 package org.apache.empire.exceptions;
 
 import org.apache.empire.commons.ErrorType;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-public class BeanPropertySetException extends EmpireException
+public class BeanPropertySetException extends BeanException
 {
     private static final long serialVersionUID = 1L;
-
-    // Logger
-    private static final Logger log = LoggerFactory.getLogger(BeanPropertySetException.class);
     
     public static final ErrorType errorType = new ErrorType("error.propertySetError", "The property {0} cannot be set on type {1}.");
 
     public BeanPropertySetException(Object bean, String property, ReflectiveOperationException e)
     {
-        super(errorType, new String[] { property, (bean!=null ? bean.getClass().getName() : "{unknown}") }, getCause(e));
+        super(errorType, new String[] { property, getTypeName(bean) }, getCause(e));
     }
     
     public BeanPropertySetException(Object bean, String property, RuntimeException e)
     {
-        super(errorType, new String[] { property, (bean!=null ? bean.getClass().getName() : "{unknown}") }, e);
+        super(errorType, new String[] { property, getTypeName(bean) }, e);
     }
-    
-    /**
-     * log the error
-     */
-    @Override
-    protected void log()
-    {
-       if ( log.isErrorEnabled() )
-            log.error(getMessage());
-       else
-           super.log();
-    }
-    
     
 }

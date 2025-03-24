@@ -21,15 +21,10 @@ package org.apache.empire.exceptions;
 import java.lang.reflect.Constructor;
 
 import org.apache.empire.commons.ErrorType;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-public class BeanInstantiationException extends EmpireException
+public class BeanInstantiationException extends BeanException
 {
     private static final long serialVersionUID = 1L;
-
-    // Logger
-    private static final Logger log = LoggerFactory.getLogger(BeanInstantiationException.class);
     
     public static final ErrorType errorType = new ErrorType("error.beanInstantiationFailed", "Unable create an instance of type {0}.");
     
@@ -51,18 +46,6 @@ public class BeanInstantiationException extends EmpireException
     public BeanInstantiationException(Constructor<?> c, RuntimeException e)
     {
         this(c.getDeclaringClass(), e);
-    }
-    
-    /**
-     * log the error
-     */
-    @Override
-    protected void log()
-    {
-       if ( log.isErrorEnabled() )
-            log.error(getMessage());
-       else
-           super.log();
     }
     
     
