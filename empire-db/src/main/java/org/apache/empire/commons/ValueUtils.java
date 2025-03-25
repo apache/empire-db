@@ -771,44 +771,44 @@ public class ValueUtils
      * toString(), toInteger(), toDecimal(), toDate(), etc.
      * 
      * @param <T> the type to convert to
-     * @param column the column expression
-     * @param value the object to convert
-     * @param returnType the class type to convert to
+     * @param column the column expression for metadata access
+     * @param value the value to convert
+     * @param vt the desired value type
      * 
      * @return the converted value
      * 
      * @throws ClassCastException if the object is not null and is not assignable to the type T.
      */
     @SuppressWarnings("unchecked")
-    public <T> T convertColumnValue(ColumnExpr column, Object value, Class<T> rt)
+    public <T> T convertColumnValue(ColumnExpr column, Object value, Class<T> vt)
         throws ClassCastException
     {
         // check
         if (value==ObjectUtils.NO_VALUE)
             throw new InvalidValueException(value);
         // use a is
-        if (rt==Object.class)
+        if (vt==Object.class)
             return ((T)value);
         // convert
-        if (rt==String.class)
+        if (vt==String.class)
             return (T)toString(value);
-        if (rt==Integer.class)
+        if (vt==Integer.class)
             return (T)(value!=null ? toInteger(value) : INTEGER_ZERO);
-        if (rt==Long.class)
+        if (vt==Long.class)
             return (T)(value!=null ? toLong(value) : LONG_ZERO);
-        if (rt==Double.class)
+        if (vt==Double.class)
             return (T)(value!=null ? toDouble(value) : DOUBLE_ZERO);
-        if (rt==BigDecimal.class)
+        if (vt==BigDecimal.class)
             return (T)(value!=null ? toDecimal(value) : BigDecimal.ZERO); // required for compatibility
-        if (rt==Boolean.class)
+        if (vt==Boolean.class)
             return (T)(value!=null ? toBoolean(value, false) : Boolean.FALSE);
         // enum
-        if (rt.isEnum())
+        if (vt.isEnum())
         {   // Null
             if (value==null)
                 return null;
             // convert
-            Class<? extends Enum<?>> enumType = (Class<? extends Enum<?>>)rt;
+            Class<? extends Enum<?>> enumType = (Class<? extends Enum<?>>)vt;
             try {
                 // Convert to enum, depending on DataType
                 boolean numeric = column.getDataType().isNumeric();
@@ -823,19 +823,19 @@ public class ValueUtils
         // Date conversions
         try {
             // DateTimeFormatter.ISO_LOCAL_DATE_TIME
-            if (rt==Date.class)
+            if (vt==Date.class)
                 return (T)toDate(value);
-            if (rt==Timestamp.class)
+            if (vt==Timestamp.class)
                 return (T)toTimestamp(value);
-            if (rt==LocalDate.class)
+            if (vt==LocalDate.class)
                 return (T)toLocalDate(value);
-            if (rt==LocalDateTime.class)
+            if (vt==LocalDateTime.class)
                 return (T)toLocalDateTime(value);
         } catch (ParseException | DateTimeParseException e) {
             throw new ValueConversionException(Timestamp.class, value, e);
         }
         // something else?
-        return convertToJava(rt, value);
+        return convertToJava(vt, value);
     }
 
     /**

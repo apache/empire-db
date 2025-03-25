@@ -561,18 +561,18 @@ public final class ObjectUtils
      * Converts a column value to a Java type
      * 
      * @param <T> the type to convert to
-     * @param column the column expression
-     * @param value the object to convert
-     * @param returnType the class type to convert to
+     * @param column the column expression for metadata access
+     * @param value the value to convert
+     * @param valueType the desired value type
      * 
      * @return the converted value of v or null
      * 
      * @throws ClassCastException if the object is not null and is not assignable to the type T.
      */
-    public static <T> T convertColumnValue(ColumnExpr column, Object value, Class<T> returnType)
+    public static <T> T convertColumnValue(ColumnExpr column, Object value, Class<T> valueType)
         throws ClassCastException
     {
-        return valueUtils.convertColumnValue(column, value, returnType);
+        return valueUtils.convertColumnValue(column, value, valueType);
     }
 
     /**
