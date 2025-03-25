@@ -73,6 +73,22 @@ public interface RecordData
     Object get(ColumnExpr column);
     
     /**
+     * returns the record value for a particular column 
+     * @param index the field index for which to return the value
+     * @param valueType the desired value type
+     * @return the record value for the given column
+     */
+    <V> V get(int index, Class<V> valueType);
+    
+    /**
+     * returns the record value for a particular column 
+     * @param column the column for which to return the value
+     * @param valueType the desired value type
+     * @return the record value for the given column
+     */
+    <V> V get(ColumnExpr column, Class<V> valueType);
+    
+    /**
      * checks if the field at the given index position contains no value (null) 
      * Indexed operations provide better performance for bulk processing compared to isNull(ColumnExpr)  
      * @param index the field index

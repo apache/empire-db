@@ -25,18 +25,25 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeParseException;
 import java.time.temporal.Temporal;
 import java.util.Collection;
 import java.util.Date;
+import java.util.Locale;
 
 import org.apache.commons.beanutils.MethodUtils;
+import org.apache.empire.data.Column;
+import org.apache.empire.data.ColumnExpr;
 import org.apache.empire.data.DataType;
 import org.apache.empire.db.DBDatabase;
 import org.apache.empire.db.DBExpr;
+import org.apache.empire.db.exceptions.FieldIllegalValueException;
 import org.apache.empire.db.expr.column.DBValueExpr;
 import org.apache.empire.exceptions.InvalidValueException;
 import org.apache.empire.exceptions.ItemNotFoundException;
 import org.apache.empire.exceptions.ValueConversionException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * This class allows to customize value type conversion as well as other value related functions.
@@ -51,7 +58,7 @@ import org.apache.empire.exceptions.ValueConversionException;
 public class ValueUtils
 {
     // Logger
-    // private static final Logger log = LoggerFactory.getLogger(ValueUtils.class);
+    private static final Logger log = LoggerFactory.getLogger(ValueUtils.class);
 
     protected static final String DATE_FORMAT = "yyyy-MM-dd";
     protected static final String DATETIME_FORMAT = "yyyy-MM-dd HH:mm:ss";
@@ -260,7 +267,7 @@ public class ValueUtils
      * @param v the value to convert
      * @return the integer value
      */
-    public int toInteger(Object v)
+    public Integer toInteger(Object v)
     {
         if (isEmpty(v))
             return 0;
@@ -278,10 +285,10 @@ public class ValueUtils
      * @param v the value to convert
      * @return the long value
      */
-    public long toLong(Object v)
+    public Long toLong(Object v)
     {
         if (isEmpty(v))
-            return 0;
+            return 0l;
         if (v instanceof Number)
             return ((Number)v).longValue();
         if (v instanceof Enum)
@@ -296,7 +303,7 @@ public class ValueUtils
      * @param v the value to convert
      * @return the double value
      */
-    public double toDouble(Object v)
+    public Double toDouble(Object v)
     {
         // Get Double value
         if (isEmpty(v))
@@ -351,7 +358,7 @@ public class ValueUtils
      * @param defValue the default value
      * @return the boolean value or defValue if v is null or empty
      */
-    public boolean toBoolean(Object v, boolean defValue)
+    public Boolean toBoolean(Object v, boolean defValue)
     {
         // Get Boolean value
         if (isEmpty(v))
@@ -648,6 +655,60 @@ public class ValueUtils
     }
     
     /**
+     * formats a column value into a string
+     * @param column the column
+     * @param value the value to convert
+     * @param local the locale (optional)
+     * @return the corresponding string value
+     */
+    public String formatColumnValue(ColumnExpr column, Object value, Locale locale)
+    {
+        // check options first
+        Options options = column.getOptions();
+        if (options!=null && options.has(value))
+        {   // lookup option
+            return options.get(value);
+        }
+        else if (value instanceof String)
+        {   // we already have a string
+            return (String)value;
+        }
+        else if (ObjectUtils.isEmpty(value))
+        {   // empty
+            value = column.getAttribute(Column.COLATTR_NULLTEXT);
+            return (value!=null ? value.toString() : StringUtils.EMPTY);
+        }
+        else if ((value instanceof Date) || (value instanceof LocalDate) || (value instanceof LocalDateTime)) 
+        {   // format date
+            boolean dateOnly = column.getDataType().equals(DataType.DATE);
+            if (locale==null)
+            {   // standard ISO format
+                try {
+                    return formatDate(toDate(value), !dateOnly);
+                } catch (ParseException e) {
+                    // just use the sting
+                    return value.toString();
+                }
+            }
+            else
+            {   // format according to Locale
+                if (dateOnly)
+                    return DateUtils.formatDate(toLocalDate(value), locale);
+                else
+                    return DateUtils.formatDate(toLocalDateTime(value), locale);
+            }
+        }
+        else if (value instanceof Enum<?>)
+        {   // from enum
+            return enumToString((Enum<?>)value);
+        }
+        else
+        {   // all other types
+            return StringUtils.valueOf(value);
+        }
+    }
+    
+    /**
      * Generic conversion function that will convert a object to another value type.
      * This function is intended to be used for converting values coming from the database
      * to be used by the program
@@ -693,6 +754,88 @@ public class ValueUtils
             return c.cast(toString(v));
         // other
         return c.cast(v);
+    }
+
+    /*
+     * Primitive Wrapper defaults 
+     */
+    public static final Integer INTEGER_ZERO = new Integer(0);
+    public static final Long    LONG_ZERO = new Long(0l);
+    public static final Double  DOUBLE_ZERO = new Double(0.0d);
+    
+    /**
+     * Converts a column value to a Java type
+     * Allows custom conversions and handling of special cases.
+     * 
+     * For compatibility reasons we must use the old converter functions such as
+     * toString(), toInteger(), toDecimal(), toDate(), etc.
+     * 
+     * @param <T> the type to convert to
+     * @param column the column expression
+     * @param value the object to convert
+     * @param returnType the class type to convert to
+     * 
+     * @return the converted value
+     * 
+     * @throws ClassCastException if the object is not null and is not assignable to the type T.
+     */
+    @SuppressWarnings("unchecked")
+    public <T> T convertColumnValue(ColumnExpr column, Object value, Class<T> rt)
+        throws ClassCastException
+    {
+        // check
+        if (value==ObjectUtils.NO_VALUE)
+            throw new InvalidValueException(value);
+        // use a is
+        if (rt==Object.class)
+            return ((T)value);
+        // convert
+        if (rt==String.class)
+            return (T)toString(value);
+        if (rt==Integer.class)
+            return (T)(value!=null ? toInteger(value) : INTEGER_ZERO);
+        if (rt==Long.class)
+            return (T)(value!=null ? toLong(value) : LONG_ZERO);
+        if (rt==Double.class)
+            return (T)(value!=null ? toDouble(value) : DOUBLE_ZERO);
+        if (rt==BigDecimal.class)
+            return (T)(value!=null ? toDecimal(value) : BigDecimal.ZERO); // required for compatibility
+        if (rt==Boolean.class)
+            return (T)(value!=null ? toBoolean(value, false) : Boolean.FALSE);
+        // enum
+        if (rt.isEnum())
+        {   // Null
+            if (value==null)
+                return null;
+            // convert
+            Class<? extends Enum<?>> enumType = (Class<? extends Enum<?>>)rt;
+            try {
+                // Convert to enum, depending on DataType
+                boolean numeric = column.getDataType().isNumeric();
+                return (T)toEnum(enumType, (numeric ? toInteger(value) : value));
+        
+            } catch (Exception e) {
+                // Illegal value
+                log.error("Unable to resolve enum value of '{}' for type {}", value, enumType.getName());
+                throw new FieldIllegalValueException(column.getUpdateColumn(), String.valueOf(value), e);
+            }
+        }
+        // Date conversions
+        try {
+            // DateTimeFormatter.ISO_LOCAL_DATE_TIME
+            if (rt==Date.class)
+                return (T)toDate(value);
+            if (rt==Timestamp.class)
+                return (T)toTimestamp(value);
+            if (rt==LocalDate.class)
+                return (T)toLocalDate(value);
+            if (rt==LocalDateTime.class)
+                return (T)toLocalDateTime(value);
+        } catch (ParseException | DateTimeParseException e) {
+            throw new ValueConversionException(Timestamp.class, value, e);
+        }
+        // something else?
+        return convertToJava(rt, value);
     }
 
     /**

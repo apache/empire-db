@@ -26,13 +26,10 @@ import java.util.Date;
 
 import org.apache.empire.commons.BeanPropertyUtils;
 import org.apache.empire.commons.ObjectUtils;
-import org.apache.empire.commons.Options;
-import org.apache.empire.commons.StringUtils;
 import org.apache.empire.data.Column;
 import org.apache.empire.data.ColumnExpr;
 import org.apache.empire.data.RecordData;
 import org.apache.empire.db.context.DBContextAware;
-import org.apache.empire.db.exceptions.FieldIllegalValueException;
 import org.apache.empire.exceptions.InvalidArgumentException;
 import org.apache.empire.exceptions.ItemNotFoundException;
 import org.slf4j.Logger;
@@ -80,14 +77,27 @@ public abstract class DBRecordData extends DBObject
     public abstract Object getValue(int index);
     
     /**
-     * Deprecated Renamed to get(...)   
-     * @param column the column for which to obtain the value
-     * @return the record value
+     * returns the record value for a particular column 
+     * @param index the field index for which to return the value
+     * @param valueType the desired value type
+     * @return the record value for the given column
      */
-    @Deprecated
-    public Object getValue(ColumnExpr column)
+    @Override
+    public <V> V get(int index, Class<V> valueType)
     {
-        return get(column);
+        return ObjectUtils.convertColumnValue(getColumn(index), getValue(index), valueType);
+    }
+
+    /**
+     * returns the record value for a particular column 
+     * @param column the column for which to return the value
+     * @param valueType the desired value type
+     * @return the record value for the given column
+     */
+    @Override
+    public final <V> V get(ColumnExpr column, Class<V> valueType)
+    {
+        return get(getFieldIndex(column), valueType);
     }
     
     /**
@@ -99,19 +109,7 @@ public abstract class DBRecordData extends DBObject
     @Override
     public final Object get(ColumnExpr column)
     {
-        return getValue(getFieldIndex(column));
-    }
-
-    /**
-     * Returns the value of a field as an object of a given (wrapper)type
-     * @param <T> the value type
-     * @param column the column for which to retrieve the value
-     * @param returnType the type of the returned value
-     * @return the value
-     */
-    public final <T> T get(Column column, Class<T> returnType)
-    {
-        return ObjectUtils.convert(returnType, get(column));
+        return get(getFieldIndex(column), Object.class);
     }
     
     /**
@@ -166,7 +164,8 @@ public abstract class DBRecordData extends DBObject
      */
     public final String getString(int index)
     {
-        return ObjectUtils.getString(getValue(index));
+        // return ObjectUtils.getString(getValue(index));
+        return get(index, String.class);
     }
 
     /**
@@ -190,7 +189,9 @@ public abstract class DBRecordData extends DBObject
      */
     public final int getInt(int index)
     {
-        return ObjectUtils.getInteger(getValue(index));
+        // return ObjectUtils.getInteger(getValue(index));
+        Integer value = get(index, Integer.class); 
+        return (value!=null ? value : 0) ;
     }
     
     /**
@@ -214,7 +215,9 @@ public abstract class DBRecordData extends DBObject
      */
     public final long getLong(int index)
     {
-        return ObjectUtils.getLong(getValue(index));
+        // return ObjectUtils.getLong(getValue(index));
+        Long value = get(index, Long.class);
+        return (value!=null ? value : 0l) ;
     }
     
     /**
@@ -238,7 +241,9 @@ public abstract class DBRecordData extends DBObject
      */
     public double getDouble(int index)
     {
-        return ObjectUtils.getDouble(getValue(index));
+        // return ObjectUtils.getDouble(getValue(index));
+        Double value = get(index, Double.class);
+        return (value!=null ? value : 0.0d) ;
     }
 
     /**
@@ -262,7 +267,8 @@ public abstract class DBRecordData extends DBObject
      */
     public final BigDecimal getDecimal(int index)
     {
-        return ObjectUtils.getDecimal(getValue(index));
+        // return ObjectUtils.getDecimal(getValue(index));
+        return get(index, BigDecimal.class);
     }
 
     /**
@@ -286,7 +292,9 @@ public abstract class DBRecordData extends DBObject
      */
     public final boolean getBoolean(int index)
     {
-        return ObjectUtils.getBoolean(getValue(index));
+        // return ObjectUtils.getBoolean(getValue(index));
+        Boolean value = get(index, Boolean.class);
+        return (value!=null ? value : false); 
     }
     
     /**
@@ -310,7 +318,8 @@ public abstract class DBRecordData extends DBObject
      */
     public final Date getDate(int index)
     {
-        return ObjectUtils.getDate(getValue(index));
+        // return ObjectUtils.getDate(getValue(index));
+        return get(index, Date.class);
     }
     
     /**
@@ -349,7 +358,8 @@ public abstract class DBRecordData extends DBObject
      */
     public final Timestamp getTimestamp(int index)
     {
-        return ObjectUtils.getTimestamp(getValue(index));
+        // return ObjectUtils.getTimestamp(getValue(index));
+        return get(index, Timestamp.class);
     }
 
     /**
@@ -370,7 +380,8 @@ public abstract class DBRecordData extends DBObject
      */
     public final LocalDate getLocalDate(int index)
     {
-        return ObjectUtils.getLocalDate(getValue(index));
+        // return ObjectUtils.getLocalDate(getValue(index));
+        return get(index, LocalDate.class);
     }
     
     /**
@@ -394,7 +405,8 @@ public abstract class DBRecordData extends DBObject
      */
     public final LocalDateTime getLocalDateTime(int index)
     {
-        return ObjectUtils.getLocalDateTime(getValue(index));
+        // return ObjectUtils.getLocalDateTime(getValue(index));
+        return get(index, LocalDateTime.class);
     }
     
     /**
@@ -419,23 +431,9 @@ public abstract class DBRecordData extends DBObject
      * @param enumType the enum type class
      * @return the enum value
      */
-    public <T extends Enum<?>> T getEnum(int index, Class<T> enumType)
-    {   // check for null
-        if (isNull(index))
-            return null;
-        // convert
-        ColumnExpr col = getColumn(index);
-        try {
-            // Convert to enum, depending on DataType
-            boolean numeric = col.getDataType().isNumeric();
-            return ObjectUtils.getEnum(enumType, (numeric ? getInt(index) : getValue(index)));
-
-        } catch (Exception e) {
-            // Illegal value
-            String value = StringUtils.valueOf(getValue(index));
-            log.error("Unable to resolve enum value of '{}' for type {}", value, enumType.getName());
-            throw new FieldIllegalValueException(col.getUpdateColumn(), value, e);
-        }
+    public final <T extends Enum<?>> T getEnum(int index, Class<T> enumType)
+    {   
+        return get(index, enumType);
     }
 
     /**
@@ -501,31 +499,8 @@ public abstract class DBRecordData extends DBObject
      */
     public String getText(ColumnExpr column)
     {   
-        String text;
         Object value = get(column);
-        // check options first
-        Options options = column.getOptions();
-        if (options!=null && options.has(value))
-        {   // lookup option
-            text = options.get(value);
-        }
-        else if (value instanceof String)
-        {   // we already have a string
-            text = (String)value;
-        }
-        else if (ObjectUtils.isEmpty(value))
-        {   // empty
-            value = column.getAttribute(Column.COLATTR_NULLTEXT);
-            text = (value!=null ? value.toString() : StringUtils.EMPTY);
-        }
-        else
-        {   // format value
-            text = formatValue(column, value);
-            if (text== null)
-                text = StringUtils.EMPTY; 
-        }
-        // done
-        return text;
+        return formatValue(column, value);
     }
 
     /**
@@ -599,10 +574,6 @@ public abstract class DBRecordData extends DBObject
         }
     }
     
-    /*
-     * Miscellaneous functions
-     */
-
     /**
      * Convert a non-string value to a string
      * @param column the column expression 
@@ -611,7 +582,7 @@ public abstract class DBRecordData extends DBObject
      */
     protected String formatValue(ColumnExpr column, Object value)
     {
-        return ObjectUtils.getString(value);
+        return ObjectUtils.formatColumnValue(column, value, null);
     }
     
 }

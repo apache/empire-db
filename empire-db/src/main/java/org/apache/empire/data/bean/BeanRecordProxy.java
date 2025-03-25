@@ -221,18 +221,31 @@ public class BeanRecordProxy<T> implements Record
     }
 
     @Override
-    public Object get(ColumnExpr column)
+    public final Object getValue(int index)
+    {
+        return get(getColumn(index));
+    }
+
+    @Override
+    public final <V> V get(int index, Class<V> valueType)
+    {
+        return get(getColumn(index), valueType);
+    }
+
+    @Override
+    public <V> V get(ColumnExpr column, Class<V> valueType)
     {
         if (!isValid())
             throw new ObjectNotValidException(this);
         // getBeanPropertyValue 
-        return getBeanProperty(data, column);
+        Object value = getBeanProperty(data, column);
+        return ObjectUtils.convertColumnValue(column, value, valueType);
     }
 
     @Override
-    public Object getValue(int index)
+    public final Object get(ColumnExpr column)
     {
-        return get(getColumn(index));
+        return get(column, Object.class);
     }
 
     @Override
@@ -306,6 +319,19 @@ public class BeanRecordProxy<T> implements Record
     public void clearModified()
     {
         modified = null;
+    }
+
+    /**
+     * Returns the value of a column as a formatted text
+     * This converts the value to a string if necessary and performs an options lookup
+     * To customize conversion please override convertToString()
+     * @param column the column for which to get the formatted value
+     * @return the formatted value
+     */
+    public final String getText(ColumnExpr column)
+    {   
+        Object value = get(column);
+        return formatValue(column, value);
     }
 
     // --------------- Bean support ------------------
@@ -395,6 +421,17 @@ public class BeanRecordProxy<T> implements Record
             else
                 log.info("The bean property \"{}\" does not exist on {} and will be ignored!", property, bean.getClass().getName());
         }
+    }
+
+    /**
+     * Convert a non-string value to a string
+     * @param column the column expression 
+     * @param value the value to format
+     * @return the formatted string
+     */
+    protected String formatValue(ColumnExpr column, Object value)
+    {
+        return ObjectUtils.formatColumnValue(column, value, null);
     }
     
 }

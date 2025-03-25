@@ -31,6 +31,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 import org.apache.commons.beanutils.MethodUtils;
 import org.apache.empire.data.ColumnExpr;
@@ -452,6 +453,18 @@ public final class ObjectUtils
     }
     
     /**
+     * Returns a formatted column value 
+     * @param column the column
+     * @param value the value to convert
+     * @param local the locale (optional)
+     * @return the corresponding string value
+     */
+    public static String formatColumnValue(ColumnExpr column, Object value, Locale locale)
+    {
+        return valueUtils.formatColumnValue(column, value, locale);
+    }
+    
+    /**
      * Converts an object value to a Date.
      * <P>
      * @param v the object to convert
@@ -542,6 +555,24 @@ public final class ObjectUtils
         throws ClassCastException
     {
         return valueUtils.convertToJava(c, v);
+    }
+    
+    /**
+     * Converts a column value to a Java type
+     * 
+     * @param <T> the type to convert to
+     * @param column the column expression
+     * @param value the object to convert
+     * @param returnType the class type to convert to
+     * 
+     * @return the converted value of v or null
+     * 
+     * @throws ClassCastException if the object is not null and is not assignable to the type T.
+     */
+    public static <T> T convertColumnValue(ColumnExpr column, Object value, Class<T> returnType)
+        throws ClassCastException
+    {
+        return valueUtils.convertColumnValue(column, value, returnType);
     }
 
     /**

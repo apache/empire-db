@@ -21,9 +21,6 @@ package org.apache.empire.data.list;
 import java.io.Serializable;
 
 import org.apache.empire.commons.ObjectUtils;
-import org.apache.empire.commons.Options;
-import org.apache.empire.commons.StringUtils;
-import org.apache.empire.data.Column;
 import org.apache.empire.data.ColumnExpr;
 import org.apache.empire.db.DBDatabase;
 import org.apache.empire.db.DBObject;
@@ -100,44 +97,22 @@ public class DataListHead implements Serializable
      * @param value the value to format
      * @return the formatted value
      */
-    public String getText(int index, Object value)
+    public final String getText(int index, Object value)
     {   // find text
-        String text;
         ColumnExpr column = columns[index];
-        // check options first
-        Options options = column.getOptions();
-        if (options!=null && options.has(value))
-        {   // lookup option
-            text = options.get(value);
-        }
-        else if (value instanceof String)
-        {   // we already have a string
-            text = (String)value;
-        }
-        else if (ObjectUtils.isEmpty(value))
-        {   // empty
-            value = column.getAttribute(Column.COLATTR_NULLTEXT);
-            text = (value!=null ? value.toString() : StringUtils.EMPTY);
-        }
-        else
-        {   // format value
-            text = formatValue(column, value);
-            if (text== null)
-                text = StringUtils.EMPTY; 
-        }
-        // Done
-        return text;
+        return formatValue(column, value);
     }
 
     /**
      * Convert a non-string value to a string
+     * Overwrite this function in order to provide a locale
      * @param column the column expression 
      * @param value the value to format
      * @return the formatted string
      */
     protected String formatValue(ColumnExpr column, Object value)
     {
-        return ObjectUtils.getString(value);
+        return ObjectUtils.formatColumnValue(column, value, null);
     }
     
 }
