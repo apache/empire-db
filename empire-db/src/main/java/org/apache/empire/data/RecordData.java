@@ -58,19 +58,12 @@ public interface RecordData
     ColumnExpr getColumn(int i);
 
     /**
-     * returns the value of the field at the given index position 
-     * Indexed operations provide better performance for bulk processing compared to getValue(ColumnExpr)  
-     * @param index the field index for which to return the value
-     * @return the record value for the given field
+     * Returns the raw field value based on the field index.
+     * Indexed operations provide better performance for bulk processing compared to get(ColumnExpr)  
+     * @param index the field index
+     * @return the raw field value
      */
     Object getValue(int index);
-    
-    /**
-     * returns the record value for a particular column 
-     * @param column the column for which to return the value
-     * @return the record value for the given column
-     */
-    Object get(ColumnExpr column);
     
     /**
      * returns the record value for a particular column 
@@ -78,7 +71,14 @@ public interface RecordData
      * @param valueType the desired value type
      * @return the record value for the given column
      */
-    <V> V get(int index, Class<V> valueType);
+    <V> V getValue(int index, Class<V> valueType);
+    
+    /**
+     * returns the record value for a particular column 
+     * @param column the column for which to return the value
+     * @return the record value for the given column
+     */
+    Object get(ColumnExpr column);
     
     /**
      * returns the record value for a particular column 

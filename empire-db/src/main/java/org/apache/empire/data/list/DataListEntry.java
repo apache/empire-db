@@ -213,9 +213,9 @@ public class DataListEntry implements RecordData, Serializable
     }
     
     /**
-     * Returns a value based on a field index.
+     * Returns the raw field value based on the field index.
      * @param index the field index
-     * @return the field value
+     * @return the raw field value
      */
     @Override
     public Object getValue(int index)
@@ -232,7 +232,7 @@ public class DataListEntry implements RecordData, Serializable
      * @return the record value for the given column
      */
     @Override
-    public <V> V get(int index, Class<V> valueType)
+    public <V> V getValue(int index, Class<V> valueType)
     {
         return ObjectUtils.convertColumnValue(getColumn(index), getValue(index), valueType);
     }
@@ -246,7 +246,7 @@ public class DataListEntry implements RecordData, Serializable
     @Override
     public final <V> V get(ColumnExpr column, Class<V> valueType)
     {
-        return get(getFieldIndex(column), valueType);
+        return getValue(getFieldIndex(column), valueType);
     }
     
     /**
@@ -258,7 +258,7 @@ public class DataListEntry implements RecordData, Serializable
     @Override
     public final Object get(ColumnExpr column)
     {
-        return get(getFieldIndex(column), Object.class);
+        return getValue(getFieldIndex(column), Object.class);
     }
     
     /**
@@ -314,7 +314,7 @@ public class DataListEntry implements RecordData, Serializable
     public final String getString(int index)
     {
         // return ObjectUtils.getString(getValue(index));
-        return get(index, String.class);
+        return getValue(index, String.class);
     }
 
     /**
@@ -339,7 +339,7 @@ public class DataListEntry implements RecordData, Serializable
     public final int getInt(int index)
     {
         // return ObjectUtils.getInteger(getValue(index));
-        Integer value = get(index, Integer.class); 
+        Integer value = getValue(index, Integer.class); 
         return (value!=null ? value : 0) ;
     }
     
@@ -365,7 +365,7 @@ public class DataListEntry implements RecordData, Serializable
     public final long getLong(int index)
     {
         // return ObjectUtils.getLong(getValue(index));
-        Long value = get(index, Long.class);
+        Long value = getValue(index, Long.class);
         return (value!=null ? value : 0l) ;
     }
     
@@ -391,7 +391,7 @@ public class DataListEntry implements RecordData, Serializable
     public double getDouble(int index)
     {
         // return ObjectUtils.getDouble(getValue(index));
-        Double value = get(index, Double.class);
+        Double value = getValue(index, Double.class);
         return (value!=null ? value : 0.0d) ;
     }
 
@@ -417,7 +417,7 @@ public class DataListEntry implements RecordData, Serializable
     public final BigDecimal getDecimal(int index)
     {
         // return ObjectUtils.getDecimal(getValue(index));
-        return get(index, BigDecimal.class);
+        return getValue(index, BigDecimal.class);
     }
 
     /**
@@ -442,7 +442,7 @@ public class DataListEntry implements RecordData, Serializable
     public final boolean getBoolean(int index)
     {
         // return ObjectUtils.getBoolean(getValue(index));
-        Boolean value = get(index, Boolean.class);
+        Boolean value = getValue(index, Boolean.class);
         return (value!=null ? value : false); 
     }
     
@@ -468,7 +468,7 @@ public class DataListEntry implements RecordData, Serializable
     public final Date getDate(int index)
     {
         // return ObjectUtils.getDate(getValue(index));
-        return get(index, Date.class);
+        return getValue(index, Date.class);
     }
     
     /**
@@ -490,7 +490,7 @@ public class DataListEntry implements RecordData, Serializable
     public final Timestamp getTimestamp(int index)
     {
         // return ObjectUtils.getTimestamp(getValue(index));
-        return get(index, Timestamp.class);
+        return getValue(index, Timestamp.class);
     }
 
     /**
@@ -512,7 +512,7 @@ public class DataListEntry implements RecordData, Serializable
     public final LocalDate getLocalDate(int index)
     {
         // return ObjectUtils.getLocalDate(getValue(index));
-        return get(index, LocalDate.class);
+        return getValue(index, LocalDate.class);
     }
     
     /**
@@ -537,7 +537,7 @@ public class DataListEntry implements RecordData, Serializable
     public final LocalDateTime getLocalDateTime(int index)
     {
         // return ObjectUtils.getLocalDateTime(getValue(index));
-        return get(index, LocalDateTime.class);
+        return getValue(index, LocalDateTime.class);
     }
     
     /**
@@ -564,7 +564,7 @@ public class DataListEntry implements RecordData, Serializable
      */
     public final <T extends Enum<?>> T getEnum(int index, Class<T> enumType)
     {   
-        return get(index, enumType);
+        return getValue(index, enumType);
     }
 
     /**

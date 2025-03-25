@@ -227,7 +227,7 @@ public class BeanRecordProxy<T> implements Record
     }
 
     @Override
-    public final <V> V get(int index, Class<V> valueType)
+    public final <V> V getValue(int index, Class<V> valueType)
     {
         return get(getColumn(index), valueType);
     }
