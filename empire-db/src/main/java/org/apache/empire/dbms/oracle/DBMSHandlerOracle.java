@@ -228,8 +228,8 @@ public class DBMSHandlerOracle extends DBMSHandlerBase
             case SQL_FUNC_AVG:                  return "avg(?)";
             case SQL_FUNC_STRAGG:               return "listagg(?,{0}) WITHIN GROUP (ORDER BY {1})";
             // Others
-            case SQL_FUNC_DECODE:               return "decode(? {0})";
-            case SQL_FUNC_DECODE_SEP:           return ",";
+            case SQL_FUNC_DECODE:               return "decode(?{0})";
+            case SQL_FUNC_DECODE_SEP:           return ", ";
             case SQL_FUNC_DECODE_PART:          return "{0}, {1}";
             case SQL_FUNC_DECODE_ELSE:          return "{0}";
             // Not defined
