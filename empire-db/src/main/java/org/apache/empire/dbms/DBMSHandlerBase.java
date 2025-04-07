@@ -233,7 +233,7 @@ public abstract class DBMSHandlerBase implements DBMSHandler
     protected DBMSHandlerBase(String[] specificSqlKeywords)
     {
         // Initialize List of reserved Keywords
-        int capacity = GENERAL_SQL_KEYWORDS.length + (specificSqlKeywords!=null ? specificSqlKeywords.length : 0);
+        int capacity = GENERAL_SQL_KEYWORDS.length + specificSqlKeywords.length;
         reservedSQLKeywords = new HashSet<String>(capacity);
         for (String keyWord : GENERAL_SQL_KEYWORDS) {
             reservedSQLKeywords.add(keyWord);
@@ -249,7 +249,7 @@ public abstract class DBMSHandlerBase implements DBMSHandler
      */
     protected DBMSHandlerBase()
     {
-        this(null);
+        this(new String[0]);
     }
 
     /**
