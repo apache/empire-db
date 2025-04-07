@@ -73,10 +73,11 @@ public abstract class DBMSHandlerBase implements DBMSHandler
                                                                     '/', '.', '-', ',', '+', '*', ')', '(',
                                                                     '\'', '&', '%', '!', ' '
                                                                   };        
-    protected static final String[] GENERAL_SQL_KEYWORDS = new String[] { "user", "group", 
+    protected static final String[] GENERAL_SQL_KEYWORDS = new String[] {
                                                            "table", "column", "view", "index", "constraint", 
                                                            "select", "udpate", "insert", "alter", "delete", 
-                                                           "order" };        
+                                                           "join", "on", "group", "by", "order", "asc", "desc", "all", 
+                                                           "with", "user" };        
     protected final Set<String> reservedSQLKeywords;
 
     // Postfix for auto-generated Sequence names
@@ -229,13 +230,35 @@ public abstract class DBMSHandlerBase implements DBMSHandler
     /**
      * Constructor
      */
-    protected DBMSHandlerBase()
+    protected DBMSHandlerBase(String[] specificSqlKeywords)
     {
         // Initialize List of reserved Keywords
-        reservedSQLKeywords = new HashSet<String>(GENERAL_SQL_KEYWORDS.length);
-        for (String keyWord:GENERAL_SQL_KEYWORDS){
-             reservedSQLKeywords.add(keyWord);
+        int capacity = GENERAL_SQL_KEYWORDS.length + (specificSqlKeywords!=null ? specificSqlKeywords.length : 0);
+        reservedSQLKeywords = new HashSet<String>(capacity);
+        for (String keyWord : GENERAL_SQL_KEYWORDS) {
+            reservedSQLKeywords.add(keyWord);
         }
+        // Initialize List of reserved Keywords
+        for (String keyWord : specificSqlKeywords) {
+            addSQLKeyword(keyWord);
+        }
+    }
+    
+    /**
+     * Constructor
+     */
+    protected DBMSHandlerBase()
+    {
+        this(null);
+    }
+
+    /**
+     * Adds an additional SQL Keyword to the keyword list
+     * @param keyWord
+     */
+    protected void addSQLKeyword(String keyWord)
+    {
+        reservedSQLKeywords.add(keyWord.toLowerCase());
     }
 
     /**

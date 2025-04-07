@@ -438,7 +438,7 @@ public abstract class DBRowSet extends DBExpr implements EntityType
     }
 
     /**
-     * Gets all columns of this rowset (e.g. for cmd.select()).
+     * Returns a list of all columns of this rowset (e.g. for cmd.select()).
      * @return all columns of this rowset
      */
     @Override
@@ -448,7 +448,7 @@ public abstract class DBRowSet extends DBExpr implements EntityType
     }
 
     /**
-     * Gets all columns of this rowset as an array
+     * Returns an array of all columns of this rowset
      * @return all columns of this rowset
      */
     public DBColumn[] getAllColumns()

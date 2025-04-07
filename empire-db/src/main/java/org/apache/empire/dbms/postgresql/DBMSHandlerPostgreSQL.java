@@ -58,6 +58,16 @@ public class DBMSHandlerPostgreSQL extends DBMSHandlerBase
   
     private static final Logger log = LoggerFactory.getLogger(DBMSHandlerPostgreSQL.class);
     
+    // Additional Postgres Keywords
+    protected static final String[] POSTGRES_KEYWORDS = new String[] {     
+        "ALL", "ANALYSE", "ANALYZE", "AND", "ANY", "ARRAY", "AS", "ASC", "ASYMMETRIC", "AUTHORIZATION", "BETWEEN", "BINARY", "BOTH", 
+        "CASE", "CAST", "CHECK", "COLLATE", "CREATE", "CROSS", "CURRENT_DATE", "CURRENT_ROLE", "CURRENT_TIME", "CURRENT_TIMESTAMP", "CURRENT_USER", 
+        "DEFAULT", "DEFERRABLE", "DESC", "DISTINCT", "DO", "ELSE", "END", "EXCEPT", "FALSE", "FOR", "FOREIGN", "FREEZE", "FROM", "FULL", 
+        "GRANT", "HAVING", "ILIKE", "IN", "INITIALLY", "INNER", "INTERSECT", "INTO", "IS", "ISNULL", "JOIN", "LEADING", "LEFT", "LIKE", "LIMIT", "LOCALTIME", "LOCALTIMESTAMP", 
+        "NATURAL", "NEW", "NOT", "NOTNULL", "NULL", "OFF", "OFFSET", "OLD", "ON", "ONLY", "OR", "ORDER", "OUTER", "OVERLAPS", 
+        "PLACING", "PRIMARY", "REFERENCES", "RETURNING", "RIGHT", "SESSION_USER", "SIMILAR", "SOME", "SYMMETRIC", 
+        "THEN", "TO", "TRAILING", "TRUE", "UNION", "UNIQUE", "USING", "VERBOSE", "WHEN", "WHERE", "WITH"
+    };
     
     private String databaseName;
     
@@ -70,7 +80,8 @@ public class DBMSHandlerPostgreSQL extends DBMSHandlerBase
      */
     public DBMSHandlerPostgreSQL()
     {
-        setReservedKeywords();
+        // Add additional Keywords
+        super(POSTGRES_KEYWORDS);
     }
 
     /**
@@ -343,114 +354,6 @@ public class DBMSHandlerPostgreSQL extends DBMSHandlerBase
     		case CLOB:	return rset.getString(columnIndex);
     		default:   return super.getResultValue(rset, columnIndex, dataType);
     	}
-    }
-
-    
-    protected void addReservedKeyWord(final String keyWord){
-        boolean added = reservedSQLKeywords.add(keyWord.toLowerCase());
-        if(!added){
-            log.debug("Existing keyWord added: " + keyWord);
-        }
-    }
-    
-    protected void setReservedKeywords(){
-        // list of reserved keywords
-        // http://www.postgresql.org/docs/current/static/sql-keywords-appendix.html
-        addReservedKeyWord("ALL".toLowerCase());
-        addReservedKeyWord("ANALYSE".toLowerCase());
-        addReservedKeyWord("ANALYZE".toLowerCase());
-        addReservedKeyWord("AND".toLowerCase());
-        addReservedKeyWord("ANY".toLowerCase());
-        addReservedKeyWord("ARRAY".toLowerCase());
-        addReservedKeyWord("AS".toLowerCase());
-        addReservedKeyWord("ASC".toLowerCase());
-        addReservedKeyWord("ASYMMETRIC".toLowerCase());
-        addReservedKeyWord("AUTHORIZATION".toLowerCase());
-        addReservedKeyWord("BETWEEN".toLowerCase());
-        addReservedKeyWord("BINARY".toLowerCase());
-        addReservedKeyWord("BOTH".toLowerCase());
-        addReservedKeyWord("CASE".toLowerCase());
-        addReservedKeyWord("CAST".toLowerCase());
-        addReservedKeyWord("CHECK".toLowerCase());
-        addReservedKeyWord("COLLATE".toLowerCase());
-        //addReservedKeyWord("COLUMN".toLowerCase());
-        //addReservedKeyWord("CONSTRAINT".toLowerCase());
-        addReservedKeyWord("CREATE".toLowerCase());
-        addReservedKeyWord("CROSS".toLowerCase());
-        addReservedKeyWord("CURRENT_DATE".toLowerCase());
-        addReservedKeyWord("CURRENT_ROLE".toLowerCase());
-        addReservedKeyWord("CURRENT_TIME".toLowerCase());
-        addReservedKeyWord("CURRENT_TIMESTAMP".toLowerCase());
-        addReservedKeyWord("CURRENT_USER".toLowerCase());
-        addReservedKeyWord("DEFAULT".toLowerCase());
-        addReservedKeyWord("DEFERRABLE".toLowerCase());
-        addReservedKeyWord("DESC".toLowerCase());
-        addReservedKeyWord("DISTINCT".toLowerCase());
-        addReservedKeyWord("DO".toLowerCase());
-        addReservedKeyWord("ELSE".toLowerCase());
-        addReservedKeyWord("END".toLowerCase());
-        addReservedKeyWord("EXCEPT".toLowerCase());
-        addReservedKeyWord("FALSE".toLowerCase());
-        addReservedKeyWord("FOR".toLowerCase());
-        addReservedKeyWord("FOREIGN".toLowerCase());
-        addReservedKeyWord("FREEZE".toLowerCase());
-        addReservedKeyWord("FROM".toLowerCase());
-        addReservedKeyWord("FULL".toLowerCase());
-        addReservedKeyWord("GRANT".toLowerCase());
-        //addReservedKeyWord("GROUP".toLowerCase());
-        addReservedKeyWord("HAVING".toLowerCase());
-        addReservedKeyWord("ILIKE".toLowerCase());
-        addReservedKeyWord("IN".toLowerCase());
-        addReservedKeyWord("INITIALLY".toLowerCase());
-        addReservedKeyWord("INNER".toLowerCase());
-        addReservedKeyWord("INTERSECT".toLowerCase());
-        addReservedKeyWord("INTO".toLowerCase());
-        addReservedKeyWord("IS".toLowerCase());
-        addReservedKeyWord("ISNULL".toLowerCase());
-        addReservedKeyWord("JOIN".toLowerCase());
-        addReservedKeyWord("LEADING".toLowerCase());
-        addReservedKeyWord("LEFT".toLowerCase());
-        addReservedKeyWord("LIKE".toLowerCase());
-        addReservedKeyWord("LIMIT".toLowerCase());
-        addReservedKeyWord("LOCALTIME".toLowerCase());
-        addReservedKeyWord("LOCALTIMESTAMP".toLowerCase());
-        addReservedKeyWord("NATURAL".toLowerCase());
-        addReservedKeyWord("NEW".toLowerCase());
-        addReservedKeyWord("NOT".toLowerCase());
-        addReservedKeyWord("NOTNULL".toLowerCase());
-        addReservedKeyWord("NULL".toLowerCase());
-        addReservedKeyWord("OFF".toLowerCase());
-        addReservedKeyWord("OFFSET".toLowerCase());
-        addReservedKeyWord("OLD".toLowerCase());
-        addReservedKeyWord("ON".toLowerCase());
-        addReservedKeyWord("ONLY".toLowerCase());
-        addReservedKeyWord("OR".toLowerCase());
-        addReservedKeyWord("ORDER".toLowerCase());
-        addReservedKeyWord("OUTER".toLowerCase());
-        addReservedKeyWord("OVERLAPS".toLowerCase());
-        addReservedKeyWord("PLACING".toLowerCase());
-        addReservedKeyWord("PRIMARY".toLowerCase());
-        addReservedKeyWord("REFERENCES".toLowerCase());
-        addReservedKeyWord("RETURNING".toLowerCase());
-        addReservedKeyWord("RIGHT".toLowerCase());
-        //addReservedKeyWord("SELECT".toLowerCase());
-        addReservedKeyWord("SESSION_USER".toLowerCase());
-        addReservedKeyWord("SIMILAR".toLowerCase());
-        addReservedKeyWord("SOME".toLowerCase());
-        addReservedKeyWord("SYMMETRIC".toLowerCase());
-        //addReservedKeyWord("TABLE".toLowerCase());
-        addReservedKeyWord("THEN".toLowerCase());
-        addReservedKeyWord("TO".toLowerCase());
-        addReservedKeyWord("TRAILING".toLowerCase());
-        addReservedKeyWord("TRUE".toLowerCase());
-        addReservedKeyWord("UNION".toLowerCase());
-        addReservedKeyWord("UNIQUE".toLowerCase());
-        //addReservedKeyWord("USER".toLowerCase());
-        addReservedKeyWord("USING".toLowerCase());
-        addReservedKeyWord("VERBOSE".toLowerCase());
-        addReservedKeyWord("WHEN".toLowerCase());
-        addReservedKeyWord("WHERE".toLowerCase());
-        addReservedKeyWord("WITH".toLowerCase()); 
     }
     
     /**

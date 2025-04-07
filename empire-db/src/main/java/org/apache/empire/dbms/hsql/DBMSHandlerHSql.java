@@ -54,6 +54,9 @@ public class DBMSHandlerHSql extends DBMSHandlerBase
     // *Deprecated* private static final long serialVersionUID = 1L;
     private static final Logger log = LoggerFactory.getLogger(DBMSHandlerHSql.class);
     
+    // Additional HSql Keywords
+    protected static final String[] HSQL_KEYWORDS = new String[] { "count" };        
+    
     private DBDDLGenerator<?> ddlGenerator = null; // lazy creation
 	
     /**
@@ -61,8 +64,8 @@ public class DBMSHandlerHSql extends DBMSHandlerBase
      */
     public DBMSHandlerHSql()
     {
-        // Add "count" to list of reserved keywords
-        reservedSQLKeywords.add("count");
+        // Add additional Keywords
+        super(HSQL_KEYWORDS);
     }
 
     /**

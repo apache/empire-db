@@ -61,6 +61,16 @@ public class DBMSHandlerSQLite extends DBMSHandlerBase
     // *Deprecated* private static final long serialVersionUID = 1L;
     private static final Logger log              = LoggerFactory.getLogger(DBMSHandlerSQLite.class);
     
+    protected static final String[] SQLITE_KEYWORDS = new String[] {        
+        "ABORT", "ACTION", "ADD", "AFTER", "ALL", "ALTER", "ANALYZE", "AND", "AS", "ASC", "ATTACH", "AUTOINCREMENT", "BEFORE", "BEGIN", "BETWEEN", "BY", 
+        "CASCADE", "CASE", "CAST", "CHECK", "COLLATE", "COLUMN", "COMMIT", "CONFLICT", "CONSTRAINT", "CREATE", "CROSS", "CURRENT_DATE", "CURRENT_TIME", "CURRENT_DATETIME", 
+        "DATABASE", "DEFAULT", "DEFERRABLE", "DEFERRED", "DELETE", "DESC", "DETACH", "DISTINCT", "DROP", "EACH", "ELSE", "END", "ESCAPE", "EXCEPT", "EXCLUSIVE", "EXISTS", "EXPLAIN", 
+        "FAIL", "FOR", "FOREIGN", "FROM", "FULL", "GLOB", "GROUP", "HAVING", "IF", "IGNORE", "IMMEDIATE", "IN", "INDEX", "INDEXED", "INITIALLY", "INNER", "INSERT", "INSTEAD", "INTERSECT", "INTO", "IS", "ISNULL", 
+        "JOIN", "KEY", "LEFT", "LIKE", "LIMIT", "MATCH", "NATURAL", "NO", "NOT", "NOTNULL", "NULL", "OF", "OFFSET", "ON", "OR", "ORDER", "OUTER", "PLAN", "PRAGMA", "PRIMARY", 
+        "QUERY", "RAISE", "REFERENCES", "REGEXP", "REINDEX", "RELEASE", "RENAME", "REPLACE", "RESTRICT", "RIGHT", "ROLLBACK", "ROW", "SAVEPOINT", "SELECT", "SET", 
+        "TABLE", "TEMP", "TEMPORARY", "THEN", "TO", "TRANSACTION", "TRIGGER", "UNION", "UNIQUE", "UPDATE", "USING", "VACUUM", "VALUES", "VIEW", "VIRTUAL", "WHEN", "WHERE",
+    };
+    
     /**
      * Defines the SQLite command type.
      */
@@ -119,147 +129,8 @@ public class DBMSHandlerSQLite extends DBMSHandlerBase
      */
     public DBMSHandlerSQLite()
     {
-        setReservedKeywords();
-    }
-    
-    private void addReservedKeyWord(final String keyWord)
-    {
-        boolean added = reservedSQLKeywords.add(keyWord.toLowerCase());
-        if (!added)
-        {
-            log.debug("Existing keyWord added: " + keyWord);
-        }
-    }
-    
-    private void setReservedKeywords()
-    {
-        // list of reserved keywords
-        // http://www.sqlite.org/lang_keywords.html
-        addReservedKeyWord("ABORT".toLowerCase());
-        addReservedKeyWord("ACTION".toLowerCase());
-        addReservedKeyWord("ADD".toLowerCase());
-        addReservedKeyWord("AFTER".toLowerCase());
-        addReservedKeyWord("ALL".toLowerCase());
-        addReservedKeyWord("ALTER".toLowerCase());
-        addReservedKeyWord("ANALYZE".toLowerCase());
-        addReservedKeyWord("AND".toLowerCase());
-        addReservedKeyWord("AS".toLowerCase());
-        addReservedKeyWord("ASC".toLowerCase());
-        addReservedKeyWord("ATTACH".toLowerCase());
-        addReservedKeyWord("AUTOINCREMENT".toLowerCase());
-        addReservedKeyWord("BEFORE".toLowerCase());
-        addReservedKeyWord("BEGIN".toLowerCase());
-        addReservedKeyWord("BETWEEN".toLowerCase());
-        addReservedKeyWord("BY".toLowerCase());
-        addReservedKeyWord("CASCADE".toLowerCase());
-        addReservedKeyWord("CASE".toLowerCase());
-        addReservedKeyWord("CAST".toLowerCase());
-        addReservedKeyWord("CHECK".toLowerCase());
-        addReservedKeyWord("COLLATE".toLowerCase());
-        addReservedKeyWord("COLUMN".toLowerCase());
-        addReservedKeyWord("COMMIT".toLowerCase());
-        addReservedKeyWord("CONFLICT".toLowerCase());
-        addReservedKeyWord("CONSTRAINT".toLowerCase());
-        
-        addReservedKeyWord("CREATE".toLowerCase());
-        addReservedKeyWord("CROSS".toLowerCase());
-        addReservedKeyWord("CURRENT_DATE".toLowerCase());
-        addReservedKeyWord("CURRENT_TIME".toLowerCase());
-        addReservedKeyWord("CURRENT_DATETIME".toLowerCase());
-        addReservedKeyWord("DATABASE".toLowerCase());
-        addReservedKeyWord("DEFAULT".toLowerCase());
-        addReservedKeyWord("DEFERRABLE".toLowerCase());
-        addReservedKeyWord("DEFERRED".toLowerCase());
-        addReservedKeyWord("DELETE".toLowerCase());
-        addReservedKeyWord("DESC".toLowerCase());
-        addReservedKeyWord("DETACH".toLowerCase());
-        addReservedKeyWord("DISTINCT".toLowerCase());
-        addReservedKeyWord("DROP".toLowerCase());
-        addReservedKeyWord("EACH".toLowerCase());
-        addReservedKeyWord("ELSE".toLowerCase());
-        addReservedKeyWord("END".toLowerCase());
-        addReservedKeyWord("ESCAPE".toLowerCase());
-        addReservedKeyWord("EXCEPT".toLowerCase());
-        addReservedKeyWord("EXCLUSIVE".toLowerCase());
-        addReservedKeyWord("EXISTS".toLowerCase());
-        addReservedKeyWord("EXPLAIN".toLowerCase());
-        addReservedKeyWord("FAIL".toLowerCase());
-        addReservedKeyWord("FOR".toLowerCase());
-        addReservedKeyWord("FOREIGN".toLowerCase());
-        
-        addReservedKeyWord("FROM".toLowerCase());
-        addReservedKeyWord("FULL".toLowerCase());
-        addReservedKeyWord("GLOB".toLowerCase());
-        addReservedKeyWord("GROUP".toLowerCase());
-        addReservedKeyWord("HAVING".toLowerCase());
-        addReservedKeyWord("IF".toLowerCase());
-        addReservedKeyWord("IGNORE".toLowerCase());
-        addReservedKeyWord("IMMEDIATE".toLowerCase());
-        addReservedKeyWord("IN".toLowerCase());
-        addReservedKeyWord("INDEX".toLowerCase());
-        addReservedKeyWord("INDEXED".toLowerCase());
-        addReservedKeyWord("INITIALLY".toLowerCase());
-        addReservedKeyWord("INNER".toLowerCase());
-        addReservedKeyWord("INSERT".toLowerCase());
-        addReservedKeyWord("INSTEAD".toLowerCase());
-        addReservedKeyWord("INTERSECT".toLowerCase());
-        addReservedKeyWord("INTO".toLowerCase());
-        addReservedKeyWord("IS".toLowerCase());
-        addReservedKeyWord("ISNULL".toLowerCase());
-        addReservedKeyWord("JOIN".toLowerCase());
-        addReservedKeyWord("KEY".toLowerCase());
-        addReservedKeyWord("LEFT".toLowerCase());
-        addReservedKeyWord("LIKE".toLowerCase());
-        addReservedKeyWord("LIMIT".toLowerCase());
-        addReservedKeyWord("MATCH".toLowerCase());
-        
-        addReservedKeyWord("NATURAL".toLowerCase());
-        addReservedKeyWord("NO".toLowerCase());
-        addReservedKeyWord("NOT".toLowerCase());
-        addReservedKeyWord("NOTNULL".toLowerCase());
-        addReservedKeyWord("NULL".toLowerCase());
-        addReservedKeyWord("OF".toLowerCase());
-        addReservedKeyWord("OFFSET".toLowerCase());
-        addReservedKeyWord("ON".toLowerCase());
-        addReservedKeyWord("OR".toLowerCase());
-        addReservedKeyWord("ORDER".toLowerCase());
-        addReservedKeyWord("OUTER".toLowerCase());
-        addReservedKeyWord("PLAN".toLowerCase());
-        addReservedKeyWord("PRAGMA".toLowerCase());
-        addReservedKeyWord("PRIMARY".toLowerCase());
-        addReservedKeyWord("QUERY".toLowerCase());
-        addReservedKeyWord("RAISE".toLowerCase());
-        addReservedKeyWord("REFERENCES".toLowerCase());
-        addReservedKeyWord("REGEXP".toLowerCase());
-        addReservedKeyWord("REINDEX".toLowerCase());
-        addReservedKeyWord("RELEASE".toLowerCase());
-        addReservedKeyWord("RENAME".toLowerCase());
-        addReservedKeyWord("REPLACE".toLowerCase());
-        addReservedKeyWord("RESTRICT".toLowerCase());
-        addReservedKeyWord("RIGHT".toLowerCase());
-        addReservedKeyWord("ROLLBACK".toLowerCase());
-        
-        addReservedKeyWord("ROW".toLowerCase());
-        addReservedKeyWord("SAVEPOINT".toLowerCase());
-        addReservedKeyWord("SELECT".toLowerCase());
-        addReservedKeyWord("SET".toLowerCase());
-        addReservedKeyWord("TABLE".toLowerCase());
-        addReservedKeyWord("TEMP".toLowerCase());
-        addReservedKeyWord("TEMPORARY".toLowerCase());
-        addReservedKeyWord("THEN".toLowerCase());
-        addReservedKeyWord("TO".toLowerCase());
-        addReservedKeyWord("TRANSACTION".toLowerCase());
-        addReservedKeyWord("TRIGGER".toLowerCase());
-        addReservedKeyWord("UNION".toLowerCase());
-        addReservedKeyWord("UNIQUE".toLowerCase());
-        addReservedKeyWord("UPDATE".toLowerCase());
-        addReservedKeyWord("USING".toLowerCase());
-        addReservedKeyWord("VACUUM".toLowerCase());
-        addReservedKeyWord("VALUES".toLowerCase());
-        addReservedKeyWord("VIEW".toLowerCase());
-        addReservedKeyWord("VIRTUAL".toLowerCase());
-        addReservedKeyWord("WHEN".toLowerCase());
-        addReservedKeyWord("WHERE".toLowerCase());
+        // Add additional Keywords
+        super(SQLITE_KEYWORDS);
     }
     
     /**

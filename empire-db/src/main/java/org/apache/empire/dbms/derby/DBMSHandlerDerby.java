@@ -49,6 +49,8 @@ public class DBMSHandlerDerby extends DBMSHandlerBase
 	// *Deprecated* private static final long serialVersionUID = 1L;
     private static final Logger log = LoggerFactory.getLogger(DBMSHandlerDerby.class);
     
+    protected static final String[] DERBY_SQL_KEYWORDS = new String[] { "count", "year" };        
+    
     // Properties
     private String databaseName = null;
     // Sequence treatment
@@ -64,8 +66,7 @@ public class DBMSHandlerDerby extends DBMSHandlerBase
     public DBMSHandlerDerby()
     {
         // Add additional reserved keywords
-        reservedSQLKeywords.add("count");
-        reservedSQLKeywords.add("year");
+        super(DERBY_SQL_KEYWORDS);
     }
 
     /**

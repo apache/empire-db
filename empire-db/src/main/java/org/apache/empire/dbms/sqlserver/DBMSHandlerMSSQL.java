@@ -57,6 +57,9 @@ public class DBMSHandlerMSSQL extends DBMSHandlerBase
 {
     // *Deprecated* private static final long serialVersionUID = 1L;
     private static final Logger log = LoggerFactory.getLogger(DBMSHandlerMSSQL.class);
+
+    // Additional SQL-Server Keywords
+    protected static final String[] MSSQL_SQL_KEYWORDS = new String[] { "case", "when", "type", "key", "plan" };        
   
     /**
      * Provides a DBCommand implementation for Microsoft SQL-Server
@@ -172,18 +175,14 @@ public class DBMSHandlerMSSQL extends DBMSHandlerBase
     private boolean useDateTime2 = true;
     
     protected DBDDLGenerator<?> ddlGenerator = null; // lazy creation
-
-    protected static final String[] MSSQL_SQL_KEYWORDS = new String[] { "type", "key", "plan" };        
     
     /**
      * Constructor for the MSSQL database dbms.<br>
      */
     public DBMSHandlerMSSQL()
     {
-        // Initialize List of reserved Keywords
-        for (String keyWord:MSSQL_SQL_KEYWORDS){
-             reservedSQLKeywords.add(keyWord);
-        }
+        // Add additional Keywords
+        super(MSSQL_SQL_KEYWORDS);
     }
 
     public String getDatabaseName()

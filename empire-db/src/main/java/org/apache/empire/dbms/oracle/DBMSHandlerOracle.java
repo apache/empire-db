@@ -74,6 +74,9 @@ public class DBMSHandlerOracle extends DBMSHandlerBase
         NUMBER      // as NUMBER(1) with 1 for true and 0 for false
     }
     
+    // Additional Oracle Keywords
+    protected static final String[] ORACLE_KEYWORDS = new String[] { "date", "number" };        
+    
     private boolean oracle8Compatibilty = false;
 
     private BooleanType booleanType = BooleanType.NUMBER;
@@ -88,11 +91,10 @@ public class DBMSHandlerOracle extends DBMSHandlerBase
      */
     public DBMSHandlerOracle()
     {
+        // Add additional Keywords
+        super(ORACLE_KEYWORDS);
         // Info
         log.info("DBMSHandlerOracle created. Boolean Type is " + booleanType);
-        // Additional reserved names 
-        this.reservedSQLKeywords.add("date");
-        this.reservedSQLKeywords.add("number");
     }
 
     public boolean isOracle8Compatibilty()
