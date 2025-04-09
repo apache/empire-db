@@ -129,8 +129,13 @@ public class ControlRenderInfo
     {
         // wrapper Class
         String wrapperClass = helper.getTagAttributeStringEx("wrapperClass", true); 
-        if (wrapperClass!=null && wrapperClass.equals("-"))
-            wrapperClass= null;
+        if (wrapperClass!=null && wrapperClass.length()==1)
+        {   // special cases
+            if (wrapperClass.equals("-"))
+                wrapperClass=null; // ignore
+            else if (wrapperClass.equals("*"))
+                wrapperClass=TagStyleClass.INPUT_WRAPPER.get(); // use default style class
+        }
         // extra
         String extraStyleClass = helper.getControlExtraInputWrapperStyle();
         helper.writeStyleClass(writer, TagStyleClass.CONTROL_INPUT.get(), wrapperClass, extraStyleClass);

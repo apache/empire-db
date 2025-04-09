@@ -228,7 +228,7 @@ public class DBMSHandlerOracle extends DBMSHandlerBase
             case SQL_FUNC_MAX:                  return "max(?)";
             case SQL_FUNC_MIN:                  return "min(?)";
             case SQL_FUNC_AVG:                  return "avg(?)";
-            case SQL_FUNC_STRAGG:               return "listagg(?,{0}) WITHIN GROUP (ORDER BY {1})";
+            case SQL_FUNC_STRAGG:               return "listagg(?,{0:VARCHAR}) WITHIN GROUP (ORDER BY {1})";
             // Others
             case SQL_FUNC_DECODE:               return "decode(?{0})";
             case SQL_FUNC_DECODE_SEP:           return ", ";
