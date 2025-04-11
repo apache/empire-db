@@ -257,12 +257,14 @@ public class DBMSHandlerOracle extends DBMSHandlerBase
             // Convert to text
             case VARCHAR:
             case CHAR:
-            case CLOB:
                 if (format instanceof String)
                 { // Convert using a format string
                     return "to_char(?, '"+format.toString()+"')";
                 }
                 return "to_char(?)";
+            // convert to clob
+            case CLOB:
+                return "to_clob(?)";
             // Convert to number
             case INTEGER:
             case FLOAT:
