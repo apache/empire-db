@@ -481,12 +481,12 @@ public class TextInputControl extends InputControl
     {
         String text = formatValue(value, vi);
         if (StringUtils.isEmpty(text))
-        { // nothing
+        {   // nothing
             writer.append(HTML_EXPR_NBSP);
             return;
         }
         // append text
-        writer.append(text);
+        super.renderValue(value, vi, writer);
         // unit?
         String unit = getUnitString(vi);
         if (StringUtils.isNotEmpty(unit) && !hasFormatOption(vi, "nounit"))
