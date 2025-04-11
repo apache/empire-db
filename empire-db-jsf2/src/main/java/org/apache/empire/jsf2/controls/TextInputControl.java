@@ -479,12 +479,6 @@ public class TextInputControl extends InputControl
     public void renderValue(Object value, ValueInfo vi, ResponseWriter writer)
         throws IOException
     {
-        String text = formatValue(value, vi);
-        if (StringUtils.isEmpty(text))
-        {   // nothing
-            writer.append(HTML_EXPR_NBSP);
-            return;
-        }
         // append text
         super.renderValue(value, vi, writer);
         // unit?
