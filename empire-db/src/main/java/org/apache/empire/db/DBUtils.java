@@ -69,9 +69,9 @@ public class DBUtils implements DBContextAware
     // Threshold for long running queries in milliseconds
     protected long longRunndingStmtThreshold = 30000;
     // Default list capacity
-    protected int  DEFAULT_LIST_CAPACITY  = 10;
+    protected int DEFAULT_LIST_CAPACITY = 10; // Max-capacity before using ArrayList.DEFAULT_CAPACITY
     // Max-Rows for list queries
-    protected int  MAX_QUERY_ROWS  = 999;
+    protected int MAX_QUERY_ROWS  = 999;
     // Log max String length
     protected int LOG_MAX_STRING_LENGTH = 40;
     // Log New-Line
@@ -795,7 +795,18 @@ public class DBUtils implements DBContextAware
     {
         return querySingleRow(cmd.getSelect(), cmd.getParamValues()); 
     }
-
+    
+    /**
+     * Returns the initial array list capacity. 
+     * Usually returns 0 in order to use the ArrayList default.
+     * @param pageSize the designated page size
+     * @return the initial array list capacity or 0 to use the default
+     */
+    protected int getInitialListCapacity(int pageSize)
+    {
+        // return 0 in order to use ArrayList.DEFAULT_CAPACITY on first insert
+        return (pageSize>0 && pageSize<DEFAULT_LIST_CAPACITY) ? pageSize : 0;
+    }
 
     /**
      * Called to inform that the limit for DataList, Record and Bean queries has exceeded the maximum value 
@@ -846,7 +857,7 @@ public class DBUtils implements DBContextAware
      * @param cmd the command
      * @param factory the Factory to be used for each list item
      * @param first the number of records to skip from the beginning of the result
-     * @param pageSize the maximum number of items to add to the list or -1 (default) for all
+     * @param pageSize the maximum number of items to add to the list or -1 (default) for a maximum of MAX_QUERY_ROWS
      * @return the list 
      */
     public <T extends DataListEntry> List<T> queryDataList(DBCommandExpr cmd, DataListFactory<T> factory, int first, int pageSize)
@@ -858,12 +869,12 @@ public class DBUtils implements DBContextAware
             factory.prepareQuery(cmd, context);
             // check pageSize
             if (pageSize==0)
-            {   log.warn("PageSize must not be 0. Setting to -1 for all records!");
+            {   log.warn("PageSize should not be 0. Setting to -1 for a maximum of MAX_QUERY_ROWS records!");
                 pageSize = -1;
             }
             // set range
             DBMSHandler dbms = context.getDbms();
-            if (pageSize>0 && dbms.isSupported(DBMSFeature.QUERY_LIMIT_ROWS))
+            if (pageSize>0 && pageSize<Integer.MAX_VALUE && dbms.isSupported(DBMSFeature.QUERY_LIMIT_ROWS))
             {   // let the database limit the rows
                 if (first>0 && dbms.isSupported(DBMSFeature.QUERY_SKIP_ROWS))
                 {   // let the database skip the rows
@@ -880,24 +891,22 @@ public class DBUtils implements DBContextAware
                 r.skipRows(first);
             }
             // Create a list of data entries
-            int maxCount = (pageSize>=0) ? pageSize : MAX_QUERY_ROWS;
-            list = factory.newList((pageSize>=0) ? pageSize : 10);
+            int maxCount = (pageSize>0) ? pageSize : MAX_QUERY_ROWS;
+            list = factory.newList(getInitialListCapacity(pageSize));
             // add data
             int rownum = 0;
-            while (r.moveNext() && maxCount != 0)
+            while (r.moveNext() && rownum<maxCount)
             {   // Create bean an init
                 T entry = factory.newEntry(rownum, r);
                 if (entry==null)
                     continue;
                 // add entry
                 list.add(entry);
+                // next
                 rownum++;
-                // Decrease count
-                if (maxCount > 0)
-                    maxCount--;
             }
             // check
-            if (rownum==MAX_QUERY_ROWS)
+            if (rownum==maxCount && rownum==MAX_QUERY_ROWS)
                 queryRowLimitExeeded();
             // done
             return list;
@@ -1043,7 +1052,7 @@ public class DBUtils implements DBContextAware
      * @param cmd the command
      * @param factory the factory for creating record objects
      * @param first the number of records to skip from the beginning of the result
-     * @param pageSize the maximum number of items to add to the list or -1 (default) for all
+     * @param pageSize the maximum number of items to add to the list or -1 (default) for a maximum of MAX_QUERY_ROWS
      * @return the list 
      */
     public <R extends DBRecordBase> List<R> queryRecordList(DBCommand cmd, DBRecordListFactory<R> factory, int first, int pageSize)
@@ -1055,12 +1064,12 @@ public class DBUtils implements DBContextAware
             factory.prepareQuery(cmd, context);
             // check pageSize
             if (pageSize==0)
-            {   log.warn("PageSize must not be 0. Setting to -1 for all records!");
+            {   log.warn("PageSize should not be 0. Setting to -1 for a maximum of MAX_QUERY_ROWS records!");
                 pageSize = -1;
             }
             // set range
             DBMSHandler dbms = context.getDbms();
-            if (pageSize>0 && dbms.isSupported(DBMSFeature.QUERY_LIMIT_ROWS))
+            if (pageSize>0 && pageSize<Integer.MAX_VALUE && dbms.isSupported(DBMSFeature.QUERY_LIMIT_ROWS))
             {   // let the database limit the rows
                 if (first>0 && dbms.isSupported(DBMSFeature.QUERY_SKIP_ROWS))
                 {   // let the database skip the rows
@@ -1077,24 +1086,22 @@ public class DBUtils implements DBContextAware
                 r.skipRows(first);
             }
             // Create a list of data entries
-            int maxCount = (pageSize>=0) ? pageSize : MAX_QUERY_ROWS;
-            list = factory.newList((pageSize>=0) ? pageSize : DEFAULT_LIST_CAPACITY);
+            int maxCount = (pageSize>0) ? pageSize : MAX_QUERY_ROWS;
+            list = factory.newList(getInitialListCapacity(pageSize));
             // add data
             int rownum = 0;
-            while (r.moveNext() && maxCount != 0)
+            while (r.moveNext() && rownum<maxCount)
             {   // Create bean an init
                 R entry = factory.newRecord(rownum, r);
                 if (entry==null)
                     continue;
                 // add entry
                 list.add(entry);
+                // next
                 rownum++;
-                // Decrease count
-                if (maxCount > 0)
-                    maxCount--;
             }
             // check
-            if (rownum==MAX_QUERY_ROWS)
+            if (rownum==maxCount && rownum==MAX_QUERY_ROWS)
                 queryRowLimitExeeded();
             // done
             return list;
@@ -1193,7 +1200,7 @@ public class DBUtils implements DBContextAware
      * @param factory the bean factory
      * @param parent the parent object for the created beans (optional)
      * @param first the first row
-     * @param pageSize the maximum number of items to add to the list or -1 (default) for all
+     * @param pageSize the maximum number of items to add to the list or -1 (default) for a maximum of MAX_QUERY_ROWS
      * @return the bean list
      */
     public <T> List<T> queryBeanList(DBCommandExpr cmd, DBBeanListFactory<T> factory, Object parent, int first, int pageSize)
@@ -1205,12 +1212,12 @@ public class DBUtils implements DBContextAware
             factory.prepareQuery(cmd, context);
             // check pageSize
             if (pageSize==0)
-            {   log.warn("PageSize must not be 0. Setting to -1 for all records!");
+            {   log.warn("PageSize should not be 0. Setting to -1 for a maximum of MAX_QUERY_ROWS records!");
                 pageSize = -1;
             }
             // set range
             DBMSHandler dbms = context.getDbms();
-            if (pageSize>0 && dbms.isSupported(DBMSFeature.QUERY_LIMIT_ROWS))
+            if (pageSize>0 && pageSize<Integer.MAX_VALUE && dbms.isSupported(DBMSFeature.QUERY_LIMIT_ROWS))
             {   // let the database limit the rows
                 if (first>0 && dbms.isSupported(DBMSFeature.QUERY_SKIP_ROWS))
                 {   // let the database skip the rows
@@ -1227,11 +1234,11 @@ public class DBUtils implements DBContextAware
                 r.skipRows(first);
             }
             // Create a list of data entries
-            int maxCount = (pageSize>=0) ? pageSize : MAX_QUERY_ROWS;
-            list = factory.newList((pageSize>=0) ? pageSize : DEFAULT_LIST_CAPACITY);
+            int maxCount = (pageSize>0) ? pageSize : MAX_QUERY_ROWS;
+            list = factory.newList(getInitialListCapacity(pageSize));
             // add data
             int rownum = 0;
-            while (r.moveNext() && maxCount != 0)
+            while (r.moveNext() && rownum<maxCount)
             {   // Create bean an init
                 T item = factory.newItem(rownum, r);
                 if (item==null)
@@ -1243,12 +1250,9 @@ public class DBUtils implements DBContextAware
                     ((DataBean<?>)item).initialize(((DBObject)r).getDatabase(), context, rownum, parent);
                 // next
                 rownum++;
-                // Decrease count
-                if (maxCount > 0)
-                    maxCount--;
             }
             // check
-            if (rownum==MAX_QUERY_ROWS)
+            if (rownum==maxCount && rownum==MAX_QUERY_ROWS)
                 queryRowLimitExeeded();
             // done
             return list;
