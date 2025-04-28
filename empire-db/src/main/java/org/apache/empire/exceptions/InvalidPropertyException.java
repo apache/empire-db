@@ -25,15 +25,17 @@ public class InvalidPropertyException extends EmpireException
 {
     private static final long serialVersionUID = 1L;
     
+    private static final String NULL = "NULL";
+    
     public static final ErrorType errorType = new ErrorType("error.propertyInvalid", "The property {0} is not valid. Current value is {1}.");
     
     public InvalidPropertyException(String property, Object value, Exception cause)
     {
-        super(errorType, new String[] { property, StringUtils.valueOf(value) }, cause);
+        super(errorType, new String[] { property, StringUtils.toString(value, NULL) }, cause);
     }
     
     public InvalidPropertyException(String property, Object value)
     {
-        super(errorType, new String[] { property, StringUtils.valueOf(value) });
+        super(errorType, new String[] { property, StringUtils.toString(value, NULL) });
     }
 }

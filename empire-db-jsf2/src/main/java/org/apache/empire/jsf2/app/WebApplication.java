@@ -58,6 +58,7 @@ import org.apache.empire.jsf2.controls.TextInputControl;
 import org.apache.empire.jsf2.impl.FacesImplementation;
 import org.apache.empire.jsf2.impl.ResourceTextResolver;
 import org.apache.empire.jsf2.pages.Page;
+import org.apache.empire.jsf2.pages.PageDefinition;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -397,9 +398,12 @@ public abstract class WebApplication
         // log source
         String origin = (source!=null ? source.getPageDefinition().getPageBeanName() : "[Unknown]");
         log.error("Fatal error of type {} from \"{}\": {}: {}", e.getClass().getName(), origin, e.getMessage());
+        
+        // check handled
+        boolean handled = (context.getMaximumSeverity()==FacesMessage.SEVERITY_ERROR);
 
         // For page errors, give the ExceptionHandler a chance to handle
-        if (source!=null)
+        if (!handled && source!=null)
         {
             // Queue event 
             ExceptionQueuedEventContext event = new ExceptionQueuedEventContext(context, e, null, context.getCurrentPhaseId());
@@ -411,9 +415,29 @@ public abstract class WebApplication
             if (context.getResponseComplete())
                 return;
         }
-            
-        // If all has failed, redirect to ContextPath (root)
-        redirectDirectly(context, StringUtils.EMPTY);
+        
+        // Find message
+        FacesMessage facesMsg = null;
+        Iterator<FacesMessage> messages = context.getMessages();
+        while (messages.hasNext())
+        {
+            FacesMessage msg = messages.next();
+            if (msg.getSeverity()==FacesMessage.SEVERITY_ERROR)
+            {   // found
+                facesMsg = msg;
+                break;
+            }
+        }
+        if (facesMsg==null)
+            facesMsg = getFacesErrorMessage(context, origin, e);
+        // Set Session Message
+        ExternalContext ec = context.getExternalContext();
+        ec.getSessionMap().put(Page.SESSION_MESSAGE, facesMsg);
+
+        // If parentPage is null then redirect to ContextPath (root)
+        PageDefinition parentPage = (source!=null ? source.getParentPage() : null);
+        String redirectUrl = (parentPage!=null ? parentPage.getOutcome().toString() : StringUtils.EMPTY);
+        redirectDirectly(context, redirectUrl);
     }
     
     /**
