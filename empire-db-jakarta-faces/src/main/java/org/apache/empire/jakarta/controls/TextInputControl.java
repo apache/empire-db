@@ -479,14 +479,15 @@ public class TextInputControl extends InputControl
     public void renderValue(Object value, ValueInfo vi, ResponseWriter writer)
         throws IOException
     {
-        String text = formatValue(value, vi);
+        boolean escapeHtml = !hasFormatOption(vi, "noescape"); 
+        String text = formatValue(value, vi, escapeHtml);
         if (StringUtils.isEmpty(text))
-        { // nothing
+        {   // nothing
             writer.append(HTML_EXPR_NBSP);
             return;
         }
         // append text
-        writer.append(text);
+        super.renderValue(value, vi, writer);
         // unit?
         String unit = getUnitString(vi);
         if (StringUtils.isNotEmpty(unit) && !hasFormatOption(vi, "nounit"))
@@ -495,56 +496,6 @@ public class TextInputControl extends InputControl
             writer.append(unit);
         }
     }
-
-    /*
-    @Override
-    public void renderInput(Response writer, ControlInfo ci)
-    {
-        HtmlTag input = writer.startTag("input");
-        input.addAttribute("type", "text");
-        input.addAttribute("id",    ci.getId());
-        input.addAttribute("class", ci.getCssClass());
-        input.addAttribute("style", ci.getCssStyle());
-        if (ci.getDisabled()==false)
-        {   // Name of the field
-            input.addAttribute("name", ci.getName());
-            // Get Max Length
-            int maxLength = getMaxInputLength(ci.getColumn());
-            if (maxLength>0)
-            {
-                input.addAttribute("maxlength", maxLength);
-                input.addAttribute("size", String.valueOf(Math.min(maxLength, ci.getHSize())));
-            }   
-        }
-        else
-        {   // Disabled text control
-            input.addAttribute("disabled");
-            // Get Max Length
-            int maxLength = getMaxInputLength(ci.getColumn());
-            if (maxLength>0)
-            {
-                input.addAttribute("size", String.valueOf(Math.min(maxLength, ci.getHSize())));
-            }   
-        }
-        // Value
-        input.addAttribute("value", formatValue(ci, ci.getDisabled()));
-        // Event Attributes
-        input.addAttribute("onclick",   ci.getOnclick());
-        input.addAttribute("onchange",  ci.getOnchange());
-        input.addAttribute("onfocus",   ci.getOnfocus());
-        input.addAttribute("onblur",    ci.getOnblur());
-        input.endTag();
-        // Add Unit
-        if (ci.getDisabled()==false)
-        {   
-            String unit = getUnitString(ci);
-            if (unit != null)
-            {   writer.print(" ");
-                writer.print(unit);
-            }
-        }
-    }
-    */
 
     // ------- Input Helpers -------
 

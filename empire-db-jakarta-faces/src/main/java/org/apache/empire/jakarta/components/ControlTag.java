@@ -342,7 +342,7 @@ public class ControlTag extends UIInput implements NamingContainer
     public String getClientId(FacesContext context)
     {
         // Check if dynamic components are being created
-        // Check for "this.creatingComponents" has been removed 2025-03-18
+        // Check for "this.creatingComponents" has been removed on 2025-03-18
         if (this.treeClientId!=null && control!=null && control.isCreatingComponents())
         {   // return the original tree client id
             return treeClientId; 

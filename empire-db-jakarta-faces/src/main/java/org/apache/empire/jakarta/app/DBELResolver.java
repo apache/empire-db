@@ -70,7 +70,7 @@ public class DBELResolver extends ELResolver
         // Resolve database, table/view or column
         if (base instanceof DBRowSet)
         {   // Find matching column
-            String   name = StringUtils.toString(property);
+            String name = StringUtils.toString(property);
             DBColumnExpr column = ((DBRowSet)base).getColumn(name);
             if (column==null)
                 column = findExpressionField(base, name); 

@@ -134,17 +134,7 @@ public abstract class Page // *Deprecated* implements Serializable
     {
         // Check initialized
         if (initialized>0)
-        {   try
-            {   // refresh
-                log.debug("PageBean {} is already initialized. Calling doRefresh().", getPageName());
-                doRefresh();
-            }
-            catch (Exception e)
-            {
-                logAndHandleActionException("doRefresh", e);
-            }
             return; // already Initialized
-        }
 
         // Check pending
         if (initialized==0)

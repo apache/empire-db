@@ -2196,6 +2196,8 @@ public class TagEncodingHelper implements NamingContainer
         String wrapperClass = getTagAttributeStringEx("wrapperClass", true); 
         if (wrapperClass==null || wrapperClass.equals("-"))
             return null;
+        if (wrapperClass.equals("*"))
+            wrapperClass=null; // only use default style class
         // start element
         String tagName = InputControl.HTML_TAG_DIV;
         ResponseWriter writer = context.getResponseWriter();
