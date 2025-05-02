@@ -19,6 +19,10 @@
 package org.apache.empire.jakarta.utils;
 
 import java.io.IOException;
+import java.text.NumberFormat;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Locale;
@@ -26,6 +30,7 @@ import java.util.Set;
 
 import org.apache.empire.commons.Attributes;
 import org.apache.empire.commons.BeanPropertyUtils;
+import org.apache.empire.commons.DateUtils;
 import org.apache.empire.commons.ObjectUtils;
 import org.apache.empire.commons.Options;
 import org.apache.empire.commons.StringUtils;
@@ -1473,7 +1478,7 @@ public class TagEncodingHelper implements NamingContainer
                 if (options!=null && !hasFormat("notitlelookup"))
                     value = options.get(value);
                 // convert to display text
-                return getDisplayText(value);
+                return getDisplayText(ttc, value);
             } 
             else
             {   // Error
@@ -1492,11 +1497,11 @@ public class TagEncodingHelper implements NamingContainer
         if (!hasFormat("notitlelookup") && (options=getValueOptions())!=null)
         { // Lookup the title
             String optValue = options.get(value);
-            text = getDisplayText(optValue);
+            text = getDisplayText(column, optValue);
         }
         else
         {   // resolveText
-            text = getDisplayText(value);
+            text = getDisplayText(column, value);
         }
         // Check for template
         if (valIndex >= 0 && text!=null)
@@ -1510,11 +1515,10 @@ public class TagEncodingHelper implements NamingContainer
         if (title == null)
             title = getColumnAttributeString(Column.COLATTR_TOOLTIP);
         if (title != null)
-            return getDisplayText(title);
+            return getDisplayText(column, title);
         // Check for short form
         if (hasFormat("short") && !ObjectUtils.isEmpty(getColumnAttribute(COLATTR_ABBR_TITLE)))
-            return getDisplayText(column.getTitle());
-        
+            return getDisplayText(column, column.getTitle());
         // No Title
         return null;
     }
@@ -1531,23 +1535,59 @@ public class TagEncodingHelper implements NamingContainer
         return (f != null && f.indexOf(format) >= 0);
     }
     
-    public String getDisplayText(Object value)
+    public String getDisplayText(Column column, Object value)
     {
         if (ObjectUtils.isEmpty(value))
             return null;
-        if (value instanceof Number)
-            return String.valueOf(value);
+        // number
+        if (value instanceof Number) {
+            boolean isDecimal = (column!=null && (column.getDataType()==DataType.DECIMAL || column.getDataType()==DataType.FLOAT));
+            if (isDecimal) {
+                NumberFormat nf = NumberFormat.getIntegerInstance(getLocale());
+                return nf.format(value);
+            }
+            else
+                return String.valueOf(value);
+        }
+        // format date 
+        if (value instanceof Date) {
+            String date = DateUtils.formatDate((Date)value, getLocale());
+            if (column!=null && column.getDataType()!=DataType.DATE)
+                return StringUtils.concat(date, " ", DateUtils.formatTime((Date)value, getLocale(), (column.getDataType()==DataType.TIMESTAMP)));
+            else
+                return date;
+        }
+        if (value instanceof LocalDate)
+            return DateUtils.formatDate((LocalDate)value, getLocale());
+        if (value instanceof LocalDateTime) {
+            if (column!=null && column.getDataType()!=DataType.DATE)
+                return DateUtils.formatDateTime((LocalDateTime)value, getLocale(), (column.getDataType()==DataType.TIMESTAMP));
+            else
+                return DateUtils.formatDate((LocalDateTime)value, getLocale());
+        }
         // Resolve text
         if (textResolver==null)
             getTextResolver(FacesContext.getCurrentInstance());
         return textResolver.resolveText(value.toString());
     }
 
+    public final String getDisplayText(Object value)
+    {
+        return getDisplayText(this.column, value);
+    }
+    
     public TextResolver getTextResolver(FacesContext context)
     {
         if (textResolver==null)
             textResolver=WebApplication.getInstance().getTextResolver(context);
         return textResolver;
+    }
+    
+    public Locale getLocale()
+    {
+        if (textResolver==null)
+            getTextResolver(FacesContext.getCurrentInstance());
+        return textResolver.getLocale();
     }
     
     /* ********************** Error messages ********************** */
@@ -1655,7 +1695,7 @@ public class TagEncodingHelper implements NamingContainer
             if (label==null)
                 label=column.getTitle();
             // translate
-            label = getDisplayText(label);
+            label = getDisplayText(column, label);
         }    
         // handle empty string
         if (StringUtils.isEmpty(label))
