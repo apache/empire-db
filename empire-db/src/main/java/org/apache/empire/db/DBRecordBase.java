@@ -1030,6 +1030,23 @@ public abstract class DBRecordBase extends DBRecordData implements Record, Clone
     }
     
     /**
+     * This method may be used to copy the record in order to preserve its state
+     * @param other the record to be copied
+     */
+    protected void initData(DBRecordBase other)
+    {
+        this.state = other.state;
+        this.fields = other.fields;
+        this.modified = other.modified;
+        this.rowsetData = other.rowsetData;
+        this.validateFieldValues = other.validateFieldValues;
+        this.allowReadOnlyUpdate = other.allowReadOnlyUpdate;
+        // clone parent map
+        if (other.parentRecordMap!= null)
+            other.parentRecordMap = new HashMap<DBColumn, DBRecordBase>(other.parentRecordMap);
+    }
+    
+    /**
      * This method is used internally to indicate that the record update has completed<BR>
      * This will set change the record's state to Valid
      */

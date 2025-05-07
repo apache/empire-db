@@ -33,10 +33,10 @@ import org.apache.empire.db.exceptions.InvalidKeyException;
 import org.apache.empire.db.exceptions.NoPrimaryKeyException;
 import org.apache.empire.db.expr.compare.DBCompareExpr;
 import org.apache.empire.exceptions.InvalidArgumentException;
+import org.apache.empire.exceptions.InvalidOperationException;
 import org.apache.empire.exceptions.ItemNotFoundException;
 import org.apache.empire.exceptions.NotSupportedException;
 import org.apache.empire.exceptions.ObjectNotValidException;
-import org.apache.empire.exceptions.InvalidOperationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -411,5 +411,17 @@ public class DBRecord extends DBRecordBase
             getRowSet().deleteRecord(key, getContext());
         }
         close();
+    }
+    
+    /**
+     * This method may be used to copy the record in order to preserve its state
+     * @param other the record to be copied
+     */
+    protected void initData(DBRecord other)
+    {
+        if (this.rowset!=other.rowset)
+            throw new InvalidOperationException("Rowset of other record does not match this rowset!");
+        // init base data
+        super.initData(other);
     }
 }
