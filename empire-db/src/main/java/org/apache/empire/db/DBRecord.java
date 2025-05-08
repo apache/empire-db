@@ -412,16 +412,4 @@ public class DBRecord extends DBRecordBase
         }
         close();
     }
-    
-    /**
-     * This method may be used to copy the record in order to preserve its state
-     * @param other the record to be copied
-     */
-    protected void initData(DBRecord other)
-    {
-        if (this.rowset!=other.rowset)
-            throw new InvalidOperationException("Rowset of other record does not match this rowset!");
-        // init base data
-        super.initData(other);
-    }
 }

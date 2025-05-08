@@ -80,9 +80,10 @@ public abstract class DBRecordBase extends DBRecordData implements Record, Clone
         public final DBRecordBase   record;
         
         private final State     state;  /* the original state */
-        private Object[]        fields;
+        private final Object[]  fields;
         private boolean[]       modified;
-        private Object          rowsetData;
+        private final Object    rowsetData;
+        private final Map<DBColumn, DBRecordBase> parentRecordMap;
     
         public DBRecordRollbackHandler(DBRecordBase record)
         {
@@ -92,9 +93,10 @@ public abstract class DBRecordBase extends DBRecordData implements Record, Clone
                 throw new ObjectNotValidException(record);
             // save state
             this.state = record.state;            
-            this.modified   = copy(record.modified);
-            this.fields     = copy(record.fields);
-            this.rowsetData = copy(record.rowsetData);
+            this.modified   = ClassUtils.copy(record.modified);
+            this.fields     = ClassUtils.copy(record.fields);
+            this.rowsetData = ClassUtils.copySmart(record.rowsetData);
+            this.parentRecordMap = ClassUtils.copySmart(record.parentRecordMap);
         }
 
         @Override
@@ -153,7 +155,8 @@ public abstract class DBRecordBase extends DBRecordData implements Record, Clone
             record.state = this.state;
             record.fields = this.fields;
             record.modified = this.modified;
-            record.rowsetData = rowsetData;
+            record.rowsetData = this.rowsetData;
+            record.parentRecordMap = this.parentRecordMap;
             // done
             if (log.isInfoEnabled())
                 log.info("Rollback for {} performed.", getObjectInfo());
@@ -163,39 +166,6 @@ public abstract class DBRecordBase extends DBRecordData implements Record, Clone
         public void discard(Connection conn)
         {
             /* nothing */
-        }
-        
-        private boolean[] copy(boolean[] other)
-        {
-            if (other==null)
-                return null;
-            boolean[] copy = new boolean[other.length];
-            for (int i=0; i<copy.length; i++)
-            {
-                copy[i] = other[i]; 
-            }
-            return copy;
-        }
-        
-        private Object[] copy(Object[] other)
-        {
-            if (other==null)
-                return null;
-            Object[] copy = new Object[other.length];
-            for (int i=0; i<copy.length; i++)
-            {
-                copy[i] = other[i]; 
-            }
-            return copy;
-        }
-        
-        protected Object copy(Object other)
-        {   
-            if (other==null)
-                return null;
-            if (other instanceof Object[])
-                return copy((Object[])other);
-            return ClassUtils.copy(other);
         }
     }
   
@@ -290,19 +260,12 @@ public abstract class DBRecordBase extends DBRecordData implements Record, Clone
     @Override
     public DBRecordBase clone()
     {
-        try 
-        {
+        try {
+            // clone this record
             DBRecordBase rec = (DBRecordBase)super.clone();
-            rec.state = this.state;
-            if (rec.fields == fields && fields!=null)
-                rec.fields = fields.clone();
-            if (rec.modified == modified && modified!=null)
-                rec.modified = modified.clone();
-            rec.rowsetData = ClassUtils.copy(this.rowsetData);
+            rec.initData(this);
             return rec;
-            
-        } catch (CloneNotSupportedException e)
-        {
+        } catch (CloneNotSupportedException e) {
             log.error("Unable to clone record.", e);
             return null;
         }
@@ -1035,15 +998,17 @@ public abstract class DBRecordBase extends DBRecordData implements Record, Clone
      */
     protected void initData(DBRecordBase other)
     {
+        // rowsets must match!
+        if (other==null || !other.getRowSet().equals(getRowSet()))
+            throw new InvalidArgumentException("other", other);
+        // init fields from other record
         this.state = other.state;
-        this.fields = other.fields;
-        this.modified = other.modified;
-        this.rowsetData = other.rowsetData;
+        this.fields = ClassUtils.copy(other.fields);
+        this.modified = ClassUtils.copy(other.modified);
+        this.rowsetData = ClassUtils.copySmart(other.rowsetData);
+        this.parentRecordMap = ClassUtils.copySmart(other.parentRecordMap);
         this.validateFieldValues = other.validateFieldValues;
         this.allowReadOnlyUpdate = other.allowReadOnlyUpdate;
-        // clone parent map
-        if (other.parentRecordMap!= null)
-            other.parentRecordMap = new HashMap<DBColumn, DBRecordBase>(other.parentRecordMap);
     }
     
     /**
@@ -1117,6 +1082,11 @@ public abstract class DBRecordBase extends DBRecordData implements Record, Clone
             onFieldChanged(index);
     }
 
+    /**
+     * Sets a fields modified status
+     * @param index the field index
+     * @param modifiedFlag flag indicating whether or not the field was modified
+     */
     protected void setFieldModified(int index, boolean modifiedFlag)
     {   // Check valid
         checkValid(index);

@@ -30,6 +30,8 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.net.URISyntaxException;
+import java.util.Collection;
+import java.util.Map;
 
 import org.apache.commons.beanutils.ConstructorUtils;
 import org.apache.empire.exceptions.BeanInstantiationException;
@@ -104,9 +106,60 @@ public final class ClassUtils
              || clazz == Double.class  || clazz == Float.class || clazz == Boolean.class
              || clazz == Class.class);
     }
+
+    /**
+     * Copies a boolean array
+     * @param other array to copy
+     * @return the copy
+     */
+    public static boolean[] copy(boolean[] other)
+    {
+        if (other==null)
+            return null;
+        boolean[] copy = new boolean[other.length];
+        for (int i=0; i<copy.length; i++)
+        {
+            copy[i] = other[i]; 
+        }
+        return copy;
+    }
     
     /**
-     * Namespace for Copy flags
+     * Copies an Object array
+     * @param other array to copy
+     * @return the copy
+     */
+    public static Object[] copy(Object[] other)
+    {
+        if (other==null)
+            return null;
+        Object[] copy = new Object[other.length];
+        for (int i=0; i<copy.length; i++)
+        {
+            copy[i] = other[i]; 
+        }
+        return copy;
+    }
+    
+    /**
+     * Copies a String array
+     * @param other array to copy
+     * @return the copy
+     */
+    public static String[] copy(String[] other)
+    {
+        if (other==null)
+            return null;
+        String[] copy = new String[other.length];
+        for (int i=0; i<copy.length; i++)
+        {
+            copy[i] = other[i]; 
+        }
+        return copy;
+    }
+    
+    /**
+     * Definition of Copy flags
      * @author rainer
      */
     public static class Copy
@@ -245,6 +298,22 @@ public final class ClassUtils
         }
         // not supported
         return (Copy.has(flags, Copy.RET_NULL) ? null : obj);
+    }
+    
+    /**
+     * Makes a copy of an object if the object is an array or a collection (List,Set,Map,...)
+     * Otherwise the object itself is returned 
+     * @param <T> the class type
+     * @param obj the object to copy
+     * @return either a copy of the object or the object itself if copy is not supported
+     */
+    public static <T> T copySmart(T obj)
+    {
+        if (obj==null)
+            return null;
+        if ((obj instanceof Collection<?>) || (obj instanceof Map<?,?>) || (obj.getClass().isArray()))  
+            return copy(obj, Copy.RET_SELF | Copy.RECURSE_FLAT | Copy.SKIP_SERIAL);
+        return obj;
     }
     
     /**
