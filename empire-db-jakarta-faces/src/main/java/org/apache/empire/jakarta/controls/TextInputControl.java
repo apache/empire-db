@@ -223,7 +223,7 @@ public class TextInputControl extends InputControl
             compList.add(createUnitLabel(TagStyleClass.INPUT_HINT.get(), ii, hint));
         }
         // update
-        updateInputState(compList, ii, context, context.getCurrentPhaseId());
+        updateInputState(compList, ii, context, PhaseId.RENDER_RESPONSE);
     }
 
     @Override
@@ -235,34 +235,14 @@ public class TextInputControl extends InputControl
             throw new UnexpectedReturnValueException(comp.getClass().getName(), "compList.get(0)");
         }
         HtmlInputText input = (HtmlInputText) comp;
-        if (ii.isInsideUIData())
-        {   // always reset the style class inside UIData
-            String tagStyle = StringUtils.toString(ii.getAttribute(InputControl.CSS_STYLE_CLASS), null);
-            String cssStyle = getInputStyleClass(ii, tagStyle);
-            input.setStyleClass(cssStyle);
-            /*
-            String curStyle = input.getStyleClass();
-            if (curStyle==null || !curStyle.equals(cssStyle))
-            {   // log.info("{} ->  {} vs '{}'", ii.getColumn().getName(), inpStyle, reqStyle);
-                input.setStyleClass(cssStyle);
-            }
-            */
-        }
-        // required
-        addRemoveStyle(input, TagStyleClass.INPUT_REQ, ii.isRequired());
-        // modified
-        addRemoveStyle(input, TagStyleClass.INPUT_MOD, ii.isModified());
-
         // disabled
         DisabledType disabled = ii.getDisabled();
         input.setReadonly((disabled==DisabledType.READONLY));
         input.setDisabled((disabled==DisabledType.DISABLED));
-        
         // set value
         if (phaseId==PhaseId.RENDER_RESPONSE)
         {   // style
-            addRemoveDisabledStyle(input, (disabled!=null && disabled!=DisabledType.NO));
-            addRemoveInvalidStyle(input, ii.hasError());
+            setInputStyleClass(ii, input);
             // set value
             setInputValue(input, ii);
         }

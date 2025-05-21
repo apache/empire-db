@@ -675,27 +675,42 @@ public abstract class InputControl
         return inp;
     }
 
-    protected String getInputStyleClass(InputInfo ii, String additonalStyle)
-    {
-        return ii.getStyleClass(additonalStyle);
-    }
-
     protected void setInputStyleClass(UIInput input, String cssStyleClass)
     {
         input.getAttributes().put(InputControl.CSS_STYLE_CLASS, cssStyleClass);
     }
 
-    protected void copyAttributes(UIComponent parent, InputInfo ii, UIInput input, String additonalStyle)
+    protected final void setInputStyleClass(InputInfo ii, UIInput input)
+    {
+        String addlStyles = null;
+        if (ii.isRequired())
+        {   // required
+            addlStyles = TagStyleClass.INPUT_REQ.get();
+        }
+        if (ii.isModified()) 
+        {   // modified
+            addlStyles = TagStyleClass.INPUT_MOD.addTo(addlStyles);
+        }
+        if (ii.isDisabled())
+        {   // disabled
+            addlStyles = TagStyleClass.INPUT_DIS.addTo(addlStyles);
+        }
+        else if (ii.hasError())
+        {   // invalid
+            addlStyles = TagStyleClass.VALUE_INVALID.addTo(addlStyles);
+        }
+        // set style class
+        String styleClass = ii.getStyleClass(addlStyles);
+        setInputStyleClass(input, styleClass);
+    }
+
+    protected void copyAttributes(UIComponent parent, InputInfo ii, UIInput input)
     {
         String inputId = ii.getInputId();
         if (StringUtils.isNotEmpty(inputId))
         {
             input.getAttributes().put("id", inputId);
         }
-
-        // set style class
-        String styleClass = getInputStyleClass(ii, additonalStyle);
-        setInputStyleClass(input, styleClass);
 
         // copy standard attributes
         copyAttribute(ii, input, "style");
@@ -719,18 +734,15 @@ public abstract class InputControl
         // input.addValidator(new ColumnValueValidator(ii.getColumn()));
     }
 
-    protected final void copyAttributes(UIComponent parent, InputInfo ii, UIInput input)
+    /**
+     * Do not use any more since CSS style is no longer set here
+     * Hence param "additonalStyle" is obsolete
+     * @param additonalStyle this parameter is obsolete
+     */
+    @Deprecated
+    protected final void copyAttributes(UIComponent parent, InputInfo ii, UIInput input, String additonalStyle)
     {
-        String addlStyles = null;
-        if (ii.isRequired())
-        {   // required
-            addlStyles = TagStyleClass.INPUT_REQ.get();
-        }
-        if (ii.isModified()) 
-        {   // modified
-            addlStyles = TagStyleClass.INPUT_MOD.addTo(addlStyles);
-        }
-        copyAttributes(parent, ii, input, addlStyles);
+        copyAttributes(parent, ii, input);
     }
 
     protected void copyAttribute(InputInfo ii, UIInput input, String name)
@@ -745,22 +757,12 @@ public abstract class InputControl
             input.getAttributes().put(name, String.valueOf(value));
     }
     
-    public void addRemoveValueNullStyle(UIInput input, boolean nullValue)
+    protected void addRemoveValueNullStyle(UIInput input, boolean nullValue)
     {
-        addRemoveStyle(input, TagStyleClass.VALUE_NULL, nullValue);
-    }
-
-    public void addRemoveDisabledStyle(UIInput input, boolean disabled)
-    {
-        addRemoveStyle(input, TagStyleClass.INPUT_DIS, disabled);
-    }
-
-    public void addRemoveInvalidStyle(UIInput input, boolean invalid)
-    {
-        addRemoveStyle(input, TagStyleClass.VALUE_INVALID, invalid);
+        addRemoveStyle(input, TagStyleClass.VALUE_NULL.get(), nullValue);
     }
     
-    public void addRemoveStyle(UIInput input, String styleName, boolean setStyle)
+    protected void addRemoveStyle(UIInput input, String styleName, boolean setStyle)
     {
         String styleClasses = StringUtils.toString(input.getAttributes().get(InputControl.CSS_STYLE_CLASS), "");
         boolean hasStyle = TagStyleClass.existsIn(styleClasses, styleName);
@@ -776,11 +778,6 @@ public abstract class InputControl
             styleClasses = TagStyleClass.removeFrom(styleClasses, styleName);
         // add Style
         setInputStyleClass(input, styleClasses);
-    }
-
-    public final void addRemoveStyle(UIInput input, TagStyleClass style, boolean setStyle)
-    {
-        this.addRemoveStyle(input, style.get(), setStyle);
     }
     
     /**

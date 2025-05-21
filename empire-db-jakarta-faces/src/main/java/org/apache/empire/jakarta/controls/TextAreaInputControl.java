@@ -97,7 +97,7 @@ public class TextAreaInputControl extends InputControl
         // add
         compList.add(input);
         // update
-        updateInputState(compList, ii, context, context.getCurrentPhaseId());
+        updateInputState(compList, ii, context, PhaseId.RENDER_RESPONSE);
     }
     
     @Override
@@ -117,8 +117,7 @@ public class TextAreaInputControl extends InputControl
         // Set Value
         if (phaseId==PhaseId.RENDER_RESPONSE)
         {   // style
-            addRemoveDisabledStyle(input, (disabled!=null && disabled!=DisabledType.NO));
-            addRemoveInvalidStyle(input, ii.hasError());
+            setInputStyleClass(ii, input);
             // set value
             setInputValue(input, ii);
         }    

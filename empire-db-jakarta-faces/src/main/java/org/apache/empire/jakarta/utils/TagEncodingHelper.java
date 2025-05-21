@@ -1657,6 +1657,9 @@ public class TagEncodingHelper implements NamingContainer
     {
         if (!ControlRenderInfo.isRenderExtraWrapperStyles())
             return null;
+        /*
+         * Discarded due to missing use-case 
+         * 
         // input Wrapper Class
         String inputClass = (isControlTagElementValid() ? getTagAttributeStringEx(InputControl.CSS_STYLE_CLASS, true) : getTagAttributeString("inputClass")); 
         // append input state
@@ -1664,6 +1667,8 @@ public class TagEncodingHelper implements NamingContainer
             inputClass = (inputClass!=null ? StringUtils.concat(inputClass, " ", TagStyleClass.INPUT_DIS.get()) : TagStyleClass.INPUT_DIS.get());
         // done
         return inputClass;
+        */
+        return null;
     }
     
     /**

@@ -32,7 +32,6 @@ import org.apache.empire.data.Column;
 import org.apache.empire.exceptions.InvalidArgumentException;
 import org.apache.empire.exceptions.UnexpectedReturnValueException;
 import org.apache.empire.jakarta.app.TextResolver;
-import org.apache.empire.jakarta.utils.TagStyleClass;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -115,14 +114,13 @@ public class SelectInputControl extends InputControl
         // copy Attributes
         copyAttributes(parent, ii, input);
         // disabled
-        boolean disabled = setDisabled(input, ii);
+        setDisabled(input, ii);
         // Options
         initOptions(input, ii.getTextResolver(), ii);
         // add
         compList.add(input);
         // style
-        addRemoveDisabledStyle(input, disabled);
-        addRemoveInvalidStyle(input, ii.hasError());
+        setInputStyleClass(ii, input);
         // Set Value
         setInputValue(input, ii);
     }
@@ -136,10 +134,8 @@ public class SelectInputControl extends InputControl
             throw new UnexpectedReturnValueException(comp.getClass().getName(), "parent.getChildren()");
         }
         UISelectOne input = (UISelectOne)comp;
-        // required
-        addRemoveStyle(input, TagStyleClass.INPUT_REQ, ii.isRequired());
         // disabled
-        boolean disabled = setDisabled(input, ii);
+        setDisabled(input, ii);
         // check phase
         if (phaseId!=PhaseId.APPLY_REQUEST_VALUES)
         {   // Options (sync)
@@ -147,14 +143,13 @@ public class SelectInputControl extends InputControl
         }
         if (phaseId==PhaseId.RENDER_RESPONSE)
         {   // style
-            addRemoveDisabledStyle(input, disabled);
-            addRemoveInvalidStyle(input, ii.hasError());
+            setInputStyleClass(ii, input);
             // set value
             setInputValue(input, ii);
         }
     }
     
-    protected boolean setDisabled(UISelectOne input, InputInfo ii)
+    protected void setDisabled(UISelectOne input, InputInfo ii)
     {
         boolean disabled = ii.isDisabled();
         if (input instanceof HtmlSelectOneMenu)
@@ -163,7 +158,6 @@ public class SelectInputControl extends InputControl
             ((HtmlSelectOneListbox)input).setDisabled(disabled);
         else
             log.warn("Unable to set disabled attribute!");
-        return disabled;
     }
 
     protected boolean isEmptyEntryRequired(UISelectOne input, Options options, InputInfo ii, Object currentValue)
@@ -286,13 +280,13 @@ public class SelectInputControl extends InputControl
     {
         // get the options
         Options options = ii.getOptions();
-        if (options == null)
-        { // clear or not?
-            if (ii.getValue(false) != null)
-                log.warn("No options have been set for column {}", ii.getColumn().getName());
+        if (options==null)
+        {   // invalid options
+            if (ii.getColumn()!=null)
+                log.warn("No options given for column {}", ii.getColumn().getName());
             else
-                input.getChildren().clear();
-            return;
+                log.warn("No options given for select tag {}", input.getClientId());
+            options = new Options();
         }
         
         // check grouping
@@ -352,7 +346,7 @@ public class SelectInputControl extends InputControl
                 continue;
             }
             // Not equal - do a full reload
-            input.getChildren().clear();
+            selectItemList.clear();
             if (hasEmpty)
             {   // add empty entry
                 addSelectItem(selectItemList, textResolver, new OptionEntry("", getNullText(ii)), exprType);

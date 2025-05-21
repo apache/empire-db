@@ -83,7 +83,7 @@ public class CheckboxInputControl extends InputControl
         // add
         compList.add(input);
         // set style and value
-        updateInputState(compList, ii, context, context.getCurrentPhaseId());
+        updateInputState(compList, ii, context, PhaseId.RENDER_RESPONSE);
     }
 
     @Override
@@ -101,7 +101,7 @@ public class CheckboxInputControl extends InputControl
         // check phase
         if (phaseId==PhaseId.RENDER_RESPONSE)
         {   // style
-            addRemoveDisabledStyle(input, disabled);
+            setInputStyleClass(ii, input);
             // set value
             setInputValue(input, ii);
         }

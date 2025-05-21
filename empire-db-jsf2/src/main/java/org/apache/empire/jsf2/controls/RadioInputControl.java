@@ -103,10 +103,9 @@ public class RadioInputControl extends InputControl
     }
     
     @Override
-    protected void copyAttributes(UIComponent parent, InputInfo ii, UIInput input, String additonalStyle)
+    protected void setInputStyleClass(UIInput input, String cssStyleClass)
     {
-        // copy
-        super.copyAttributes(parent, ii, input, TagStyleClass.RADIO.append(additonalStyle));
+        super.setInputStyleClass(input, TagStyleClass.RADIO.append(cssStyleClass));
     }
 
     @Override
@@ -132,8 +131,7 @@ public class RadioInputControl extends InputControl
         // add
         compList.add(input);
         // style
-        addRemoveDisabledStyle(input, disabled);
-        addRemoveInvalidStyle(input, ii.hasError());
+        setInputStyleClass(ii, input);
         // Set Value
         setInputValue(input, ii);
     }
@@ -160,8 +158,7 @@ public class RadioInputControl extends InputControl
         }
         if (phaseId==PhaseId.RENDER_RESPONSE)
         {   // style
-            addRemoveDisabledStyle(input, disabled);
-            addRemoveInvalidStyle(input, ii.hasError());
+            setInputStyleClass(ii, input);
             // set value
             setInputValue(input, ii);
         }
