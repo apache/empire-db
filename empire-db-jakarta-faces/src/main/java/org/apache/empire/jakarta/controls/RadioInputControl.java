@@ -131,7 +131,7 @@ public class RadioInputControl extends InputControl
         // add
         compList.add(input);
         // style
-        setInputStyleClass(ii, input);
+        setInputStyleClass(input, ii);
         // Set Value
         setInputValue(input, ii);
     }
@@ -158,7 +158,7 @@ public class RadioInputControl extends InputControl
         }
         if (phaseId==PhaseId.RENDER_RESPONSE)
         {   // style
-            setInputStyleClass(ii, input);
+            setInputStyleClass(input, ii);
             // set value
             setInputValue(input, ii);
         }

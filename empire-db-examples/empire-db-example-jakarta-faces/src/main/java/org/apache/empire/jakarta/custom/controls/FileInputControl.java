@@ -65,7 +65,7 @@ public class FileInputControl extends InputControl
         }
         compList.add(input);
         // update
-        updateInputState(compList, ii, context, context.getCurrentPhaseId());
+        updateInputState(compList, ii, context, PhaseId.RENDER_RESPONSE);
     }
 
     @Override
@@ -81,7 +81,9 @@ public class FileInputControl extends InputControl
         input.setDisabled(ii.isDisabled());
         // set value
         if (phaseId==PhaseId.RENDER_RESPONSE)
-        {   // set value
+        {   // set styles
+            setInputStyleClass(input, ii);
+            // set value
             setInputValue(input, ii);
         }
     }

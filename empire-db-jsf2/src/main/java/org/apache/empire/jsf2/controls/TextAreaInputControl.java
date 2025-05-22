@@ -117,7 +117,7 @@ public class TextAreaInputControl extends InputControl
         // Set Value
         if (phaseId==PhaseId.RENDER_RESPONSE)
         {   // style
-            setInputStyleClass(ii, input);
+            setInputStyleClass(input, ii);
             // set value
             setInputValue(input, ii);
         }    

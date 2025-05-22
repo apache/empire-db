@@ -680,7 +680,7 @@ public abstract class InputControl
         input.getAttributes().put(InputControl.CSS_STYLE_CLASS, cssStyleClass);
     }
 
-    protected void setInputStyleClass(InputInfo ii, UIInput input)
+    protected void setInputStyleClass(UIInput input, InputInfo ii)
     {
         String addlStyles = null;
         if (ii.isRequired())
