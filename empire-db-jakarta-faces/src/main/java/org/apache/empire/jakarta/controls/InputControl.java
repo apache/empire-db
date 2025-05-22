@@ -683,21 +683,25 @@ public abstract class InputControl
     protected void setInputStyleClass(UIInput input, InputInfo ii)
     {
         String addlStyles = null;
-        if (ii.isRequired())
-        {   // required
-            addlStyles = TagStyleClass.INPUT_REQ.get();
-        }
-        if (ii.isModified()) 
-        {   // modified
-            addlStyles = TagStyleClass.INPUT_MOD.addTo(addlStyles);
-        }
         if (ii.isDisabled())
         {   // disabled
             addlStyles = TagStyleClass.INPUT_DIS.addTo(addlStyles);
         }
-        else if (ii.hasError())
-        {   // invalid
-            addlStyles = TagStyleClass.VALUE_INVALID.addTo(addlStyles);
+        else 
+        {   // only if not disabled   
+            if (ii.isRequired())
+            {   // required                
+                addlStyles = TagStyleClass.INPUT_REQ.addTo(addlStyles);
+            }
+            if (ii.hasError())
+            {   // invalid
+                addlStyles = TagStyleClass.VALUE_INVALID.addTo(addlStyles);
+            }
+        }
+        // other
+        if (ii.isModified()) 
+        {   // modified
+            addlStyles = TagStyleClass.INPUT_MOD.addTo(addlStyles);
         }
         // set style class
         String styleClass = ii.getStyleClass(addlStyles);
