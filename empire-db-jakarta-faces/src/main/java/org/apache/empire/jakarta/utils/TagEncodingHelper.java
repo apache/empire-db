@@ -93,8 +93,6 @@ public class TagEncodingHelper implements NamingContainer
     public static final String FACES_ID_PREFIX = "j_id";  // Standard Faces ID Prefix
 
     public static boolean CSS_STYLE_USE_INPUT_TYPE_INSTEAD_OF_DATA_TYPE = true;
-
-    private final static String SPACE = " ";
     
     /**
      * ColumnExprWrapper
@@ -283,10 +281,9 @@ public class TagEncodingHelper implements NamingContainer
         }
 
         @Override
-        public String getStyleClass(String addlStyle)
+        public StyleClass getStyleClass()
         {
-            String style = getTagStyleClass(addlStyle);
-            return style; 
+            return getTagStyleClass(); 
         }
 
         @Override
@@ -1712,7 +1709,7 @@ public class TagEncodingHelper implements NamingContainer
         return label;
     }
     
-    public HtmlOutputLabel createLabelComponent(FacesContext context, String forInput, String styleClass, String style, boolean colon)
+    public HtmlOutputLabel createLabelComponent(FacesContext context, String forInput, StyleClass styleClass, String style, boolean colon)
     {
         // forInput provided
         if (StringUtils.isNotEmpty(forInput))
@@ -1757,9 +1754,9 @@ public class TagEncodingHelper implements NamingContainer
         if (!ControlRenderInfo.isRenderExtraWrapperStyles())
             labelClass = getTagAttributeStringEx("labelClass", true);
         if (labelClass!=null)
-            styleClass = assembleStyleClassString(styleClass, labelClass);
-        if (StringUtils.isNotEmpty(styleClass))
-            label.setStyleClass(completeLabelStyleClass(styleClass, isValueRequired()));
+            styleClass.add(labelClass);
+        if (styleClass.isNotEmpty())
+            label.setStyleClass(completeLabelStyleClass(styleClass.build(), isValueRequired()));
         
         // for 
         if (StringUtils.isNotEmpty(forInput) && !isReadOnly())
@@ -1835,7 +1832,7 @@ public class TagEncodingHelper implements NamingContainer
 
     protected String completeLabelStyleClass(String styleClasses, boolean required)
     {
-        styleClasses = TagStyleClass.INPUT_REQ.addOrRemove(styleClasses, required);
+        styleClasses = StyleClass.addOrRemove(styleClasses, TagStyleClass.INPUT_REQ.get(), required);
         return styleClasses;
     }
     
@@ -1850,47 +1847,6 @@ public class TagEncodingHelper implements NamingContainer
     }
     
     /* ********************** CSS-generation ********************** */
-
-    protected String assembleStyleClassString(String... styles)
-    {
-        int totalLength=0;
-        String current = null;
-        // Count total length
-        for (int i=0; i<styles.length; i++)
-        {   int len = (styles[i]!=null ? styles[i].length() : 0);
-            if (len>0) {
-                if (current!=null && current.equals(styles[i]))
-                    continue; // same style twice
-                current = styles[i];
-                if (totalLength>0 && !current.startsWith(SPACE))
-                    len++;
-                totalLength += len;
-            }
-        }
-        // only one?
-        if (current==null || current.length()==totalLength)
-            return current;
-        // concat now
-        current = null;
-        StringBuilder b = new StringBuilder(totalLength);
-        for (int i=0; i<styles.length; i++)
-        {   int len = (styles[i]!=null ? styles[i].length() : 0);
-            if (len>0) {
-                if (current!=null && current.equals(styles[i]))
-                    continue; // same style twice
-                current = styles[i];
-                if (b.length()>0 && !current.startsWith(SPACE))
-                    b.append(SPACE);
-                b.append(current);
-            }
-        }
-        /* can never be
-        if (b.length()!=totalLength)
-            log.warn("Wrong calculation for assembleStyleClassString!");
-        */    
-        // done
-        return b.toString();
-    }
 
     public static final String CSS_DATA_TYPE_NONE     = null;
     public static final String CSS_DATA_TYPE_INT      = " eTypeInt";
@@ -1934,34 +1890,35 @@ public class TagEncodingHelper implements NamingContainer
         }
     }
 
-    public String getSimpleStyleClass(String userStyle)
+    public StyleClass getSimpleStyleClass(String userStyle)
     {
-        return assembleStyleClassString(cssStyleClass, userStyle);
+        StyleClass styleClass = new StyleClass(cssStyleClass);
+        return styleClass.add(userStyle);
     }
 
-    public String getSimpleStyleClass()
+    public StyleClass getSimpleStyleClass()
     {
         String userStyle = getTagAttributeString(InputControl.CSS_STYLE_CLASS);
         return getSimpleStyleClass(userStyle);
     }
 
-    public String getTagStyleClass(String typeClass, String addlStyle, String userStyle)
+    public StyleClass getTagStyleClass(String typeClass, String userStyle)
     {
-        // contextStyle
-        String contextStyle = getContextStyleClass();
-        return assembleStyleClassString(cssStyleClass, typeClass, addlStyle, userStyle, contextStyle);
+        StyleClass styleClass = new StyleClass(cssStyleClass);
+        styleClass.add(typeClass, userStyle, getContextStyleClass());
+        return styleClass;
     }
 
-    public String getTagStyleClass(String typeClass, String addlStyle)
+    public StyleClass getTagStyleClass(String typeClass)
     {
         String userStyle = getTagAttributeStringEx(InputControl.CSS_STYLE_CLASS, true);
-        return getTagStyleClass(typeClass, addlStyle, userStyle);
+        return getTagStyleClass(typeClass, userStyle);
     }
 
-    public String getTagStyleClass(String addlStyle)
+    public StyleClass getTagStyleClass()
     {
         String typeClass = (this.control!=null ? this.control.getCssStyleClass() : null);
-        return getTagStyleClass(typeClass, addlStyle);
+        return getTagStyleClass(typeClass);
     }
     
     public String getContextStyleClass()

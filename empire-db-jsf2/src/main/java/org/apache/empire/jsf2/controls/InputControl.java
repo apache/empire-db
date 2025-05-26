@@ -44,6 +44,7 @@ import org.apache.empire.exceptions.ItemNotFoundException;
 import org.apache.empire.exceptions.UnexpectedReturnValueException;
 import org.apache.empire.jsf2.app.TextResolver;
 import org.apache.empire.jsf2.utils.HtmlUtils;
+import org.apache.empire.jsf2.utils.StyleClass;
 import org.apache.empire.jsf2.utils.TagStyleClass;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -123,7 +124,7 @@ public abstract class InputControl
 
         TextResolver getTextResolver();
 
-        String getStyleClass(String addlStyle);
+        StyleClass getStyleClass();
 
         /*
         Object getNullValue();
@@ -268,7 +269,7 @@ public abstract class InputControl
      * @param context the FacesContext
      * @throws IOException from ResponseWriter
      */
-    public void renderValue(UIComponent comp, String tagName, String styleClass, String tooltip, ValueInfo vi, FacesContext context)
+    public void renderValue(UIComponent comp, String tagName, StyleClass styleClass, String tooltip, ValueInfo vi, FacesContext context)
         throws IOException
     {
         // writer
@@ -279,8 +280,8 @@ public abstract class InputControl
         {   // write start tag
             writer.startElement(tagName, comp);
             if (!hasFormatOption(vi, FORMAT_NO_VALUE_STYLES))
-                styleClass = addDataValueStyle(vi, value, styleClass);
-            if (StringUtils.isNotEmpty(styleClass))
+                addDataValueStyle(styleClass, vi, value);
+            if (styleClass.isNotEmpty())
                 writer.writeAttribute("class", styleClass, null);
             if (StringUtils.isNotEmpty(tooltip))
                 writer.writeAttribute("title", tooltip, null);
@@ -444,19 +445,18 @@ public abstract class InputControl
      * @param styleClass the style class
      * @return the data value string
      */
-    protected String addDataValueStyle(ValueInfo vi, Object value, String styleClass)
+    protected void addDataValueStyle(StyleClass styleClass, ValueInfo vi, Object value)
     {
         DataType dataType = vi.getColumn().getDataType();
         if (ObjectUtils.isEmpty(value))
         {   // Null
-            styleClass += " eValNull";
+            styleClass.add("eValNull");
         }
         else if (dataType.isNumeric() && value instanceof Number)
         {   // Check negative
             if (ObjectUtils.getLong(value)<0)
-                styleClass += " eValNeg";
+                styleClass.add("eValNeg");
         }
-        return styleClass;
     }
 
     protected void addAttachedObjects(UIComponent parent, FacesContext context, InputInfo ii, UIComponentBase inputComponent)
@@ -675,36 +675,35 @@ public abstract class InputControl
         return inp;
     }
 
-    protected void setInputStyleClass(UIInput input, String cssStyleClass)
+    protected void setInputStyleClass(UIInput input, StyleClass styleClass)
     {
-        input.getAttributes().put(InputControl.CSS_STYLE_CLASS, cssStyleClass);
+        input.getAttributes().put(InputControl.CSS_STYLE_CLASS, styleClass.build());
     }
 
     protected void setInputStyleClass(UIInput input, InputInfo ii)
     {
-        String addlStyles = null;
+        StyleClass styleClass = ii.getStyleClass();
         if (ii.isDisabled())
         {   // disabled
-            addlStyles = TagStyleClass.INPUT_DIS.addTo(addlStyles);
+            styleClass.add(TagStyleClass.INPUT_DIS);
         }
         else 
         {   // only if not disabled   
             if (ii.isRequired())
             {   // required                
-                addlStyles = TagStyleClass.INPUT_REQ.addTo(addlStyles);
+                styleClass.add(TagStyleClass.INPUT_REQ);
             }
             if (ii.hasError())
             {   // invalid
-                addlStyles = TagStyleClass.VALUE_INVALID.addTo(addlStyles);
+                styleClass.add(TagStyleClass.VALUE_INVALID);
             }
         }
         // other
         if (ii.isModified()) 
         {   // modified
-            addlStyles = TagStyleClass.INPUT_MOD.addTo(addlStyles);
+            styleClass.add(TagStyleClass.INPUT_MOD);
         }
         // set style class
-        String styleClass = ii.getStyleClass(addlStyles);
         setInputStyleClass(input, styleClass);
     }
 
@@ -768,8 +767,9 @@ public abstract class InputControl
     
     protected void addRemoveStyle(UIInput input, String styleName, boolean setStyle)
     {
-        String styleClasses = StringUtils.toString(input.getAttributes().get(InputControl.CSS_STYLE_CLASS), "");
-        boolean hasStyle = TagStyleClass.existsIn(styleClasses, styleName);
+        Map<String,Object> attributes = input.getAttributes();
+        String styleClasses = StringUtils.toString(attributes.get(InputControl.CSS_STYLE_CLASS), "");
+        boolean hasStyle = StyleClass.existsIn(styleClasses, styleName);
         if (setStyle == hasStyle)
             return; // Nothing to do
         // Special IceFaces patch
@@ -777,11 +777,11 @@ public abstract class InputControl
             styleClasses = styleClasses.substring(0, styleClasses.length() - 4);
         // add or remove disabled style
         if (setStyle)
-            styleClasses = TagStyleClass.addTo(styleClasses, styleName);
+            styleClasses = StyleClass.addTo(styleClasses, styleName);
         else
-            styleClasses = TagStyleClass.removeFrom(styleClasses, styleName);
+            styleClasses = StyleClass.removeFrom(styleClasses, styleName);
         // add Style
-        setInputStyleClass(input, styleClasses);
+        attributes.put(InputControl.CSS_STYLE_CLASS, styleClasses);
     }
     
     /**

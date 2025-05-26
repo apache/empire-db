@@ -35,6 +35,7 @@ import javax.faces.view.AttachedObjectHandler;
 import org.apache.empire.data.Column;
 import org.apache.empire.jsf2.controls.InputControl;
 import org.apache.empire.jsf2.utils.ControlRenderInfo;
+import org.apache.empire.jsf2.utils.StyleClass;
 import org.apache.empire.jsf2.utils.TagEncodingHelper;
 import org.apache.empire.jsf2.utils.TagEncodingHelperFactory;
 import org.apache.empire.jsf2.utils.TagStyleClass;
@@ -179,7 +180,8 @@ public class InputTag extends UIInput implements NamingContainer
             if (renderValue)
             {   // render value
                 String tagName = "span";
-                String styleClass = helper.getTagStyleClass(TagStyleClass.INPUT_DIS.get());
+                StyleClass styleClass = helper.getTagStyleClass();
+                styleClass.add(TagStyleClass.INPUT_DIS);
                 String tooltip = helper.getValueTooltip(helper.getTagAttributeValue("title"));
                 control.renderValue(this, tagName, styleClass, tooltip, inpInfo, context);
             }

@@ -25,6 +25,7 @@ import org.apache.empire.commons.ObjectUtils;
 import org.apache.empire.data.Column;
 import org.apache.empire.jakarta.controls.InputControl;
 import org.apache.empire.jakarta.utils.ControlRenderInfo;
+import org.apache.empire.jakarta.utils.StyleClass;
 import org.apache.empire.jakarta.utils.TagEncodingHelper;
 import org.apache.empire.jakarta.utils.TagEncodingHelperFactory;
 import org.apache.empire.jakarta.utils.TagStyleClass;
@@ -224,7 +225,9 @@ public class ControlTag extends UIInput implements NamingContainer
             if (valInfo == null)
                 valInfo = helper.getValueInfo(context); // Oops, should not come here 
 
-            String styleClass = helper.getTagStyleClass(TagStyleClass.INPUT_DIS.get());
+            StyleClass styleClass = helper.getTagStyleClass();
+            styleClass.add(TagStyleClass.INPUT_DIS);
+
             String tooltip = helper.getValueTooltip(helper.getTagAttributeValue("title"));
 
             // render components
@@ -537,7 +540,7 @@ public class ControlTag extends UIInput implements NamingContainer
             {   // Create components
                 String forInput = (customInput ? helper.getTagAttributeString("for") : "*");
                 // createLabelComponent 
-                String styleClass = TagStyleClass.LABEL.get();
+                StyleClass styleClass = new StyleClass(TagStyleClass.LABEL);
                 labelComponent = helper.createLabelComponent(context, forInput, styleClass, null, getColon());
                 parent.getChildren().add(0, labelComponent);
                 helper.resetComponentId(labelComponent);

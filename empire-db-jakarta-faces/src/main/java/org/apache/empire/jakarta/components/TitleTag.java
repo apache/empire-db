@@ -21,19 +21,20 @@ package org.apache.empire.jakarta.components;
 import java.io.IOException;
 import java.util.Map;
 
-import jakarta.faces.component.UIOutput;
-import jakarta.faces.context.FacesContext;
-import jakarta.faces.context.ResponseWriter;
-
 import org.apache.empire.commons.StringUtils;
 import org.apache.empire.data.Column;
 import org.apache.empire.exceptions.InvalidArgumentException;
 import org.apache.empire.jakarta.controls.InputControl;
+import org.apache.empire.jakarta.utils.StyleClass;
 import org.apache.empire.jakarta.utils.TagEncodingHelper;
 import org.apache.empire.jakarta.utils.TagEncodingHelperFactory;
 import org.apache.empire.jakarta.utils.TagStyleClass;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import jakarta.faces.component.UIOutput;
+import jakarta.faces.context.FacesContext;
+import jakarta.faces.context.ResponseWriter;
 
 public class TitleTag extends UIOutput // implements NamingContainer
 {
@@ -106,9 +107,9 @@ public class TitleTag extends UIOutput // implements NamingContainer
         // Write tag
         if (StringUtils.isEmpty(tag))
             tag="span";
-        String cssClass = helper.getTagStyleClass(null, null);        
+        StyleClass styleClass = helper.getTagStyleClass(null);        
         writer.startElement(tag, this);
-        helper.writeAttribute(writer, "class", cssClass);
+        helper.writeAttribute(writer, "class", styleClass);
         helper.writeAttribute(writer, "style", map.get("style"));
         helper.writeAttribute(writer, "title", title);
         return tag;

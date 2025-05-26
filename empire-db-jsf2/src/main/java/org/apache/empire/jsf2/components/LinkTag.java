@@ -42,6 +42,7 @@ import org.apache.empire.jsf2.app.FacesUtils;
 import org.apache.empire.jsf2.controls.InputControl;
 import org.apache.empire.jsf2.controls.InputControlManager;
 import org.apache.empire.jsf2.utils.ParameterMap;
+import org.apache.empire.jsf2.utils.StyleClass;
 import org.apache.empire.jsf2.utils.TagEncodingHelper;
 import org.apache.empire.jsf2.utils.TagEncodingHelperFactory;
 import org.apache.empire.jsf2.utils.TagStyleClass;
@@ -302,8 +303,8 @@ public class LinkTag extends UIOutput // implements NamingContainer
             link.setId(getId()+"_a");
         */    
         // css Style
-        String cssStyle = helper.getSimpleStyleClass(getLinkStyleClass());
-        link.setStyleClass(cssStyle);
+        StyleClass cssStyle = helper.getSimpleStyleClass(getLinkStyleClass());
+        link.setStyleClass(cssStyle.build());
         // Set Attributes
         Map<String,Object> attr = getAttributes();
         // Set outcome
@@ -363,7 +364,7 @@ public class LinkTag extends UIOutput // implements NamingContainer
     {
         Map<String, Object> map = getAttributes();
         String tagName  = StringUtils.coalesce(StringUtils.toString(map.get("tag")), "span");
-        String cssClass = helper.getTagStyleClass(null, null);        
+        StyleClass cssClass = helper.getTagStyleClass(null);        
         Object style = map.get("style");
         Object title = helper.getTagAttributeValue("title");
         // Write tag

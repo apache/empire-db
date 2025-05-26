@@ -28,6 +28,7 @@ import org.apache.empire.exceptions.InvalidArgumentException;
 import org.apache.empire.jakarta.app.FacesUtils;
 import org.apache.empire.jakarta.controls.InputControl;
 import org.apache.empire.jakarta.controls.InputControlManager;
+import org.apache.empire.jakarta.utils.StyleClass;
 import org.apache.empire.jakarta.utils.TagEncodingHelper;
 import org.apache.empire.jakarta.utils.TagEncodingHelperFactory;
 import org.apache.empire.jakarta.utils.TagStyleClass;
@@ -387,16 +388,16 @@ public class TabViewTag extends UIOutput // implements NamingContainer
                 boolean disabled = isPageDisabled(page);
                 writer.startElement(mode.BAR_ITEM_TAG, this);
                 // tab label
-                String styleClasses = TagStyleClass.TAB_LABEL.get();
+                StyleClass styleClass = new StyleClass(TagStyleClass.TAB_LABEL);
                 if (active)
                 {
-                    styleClasses = TagStyleClass.TAB_ACTIVE.addTo(styleClasses);
+                    styleClass.add(TagStyleClass.TAB_ACTIVE);
                 }
                 else if (disabled)
                 {
-                    styleClasses = TagStyleClass.TAB_DISABLED.addTo(styleClasses);
+                    styleClass.add(TagStyleClass.TAB_DISABLED);
                 }
-                writer.writeAttribute(InputControl.HTML_ATTR_CLASS, styleClasses, null);
+                writer.writeAttribute(InputControl.HTML_ATTR_CLASS, styleClass, null);
                 // encode Link
                 encodeTabLink(context, writer, index, page, (active || disabled), showTabBlindJs);
                 writer.endElement(mode.BAR_ITEM_TAG);

@@ -29,6 +29,7 @@ import org.apache.empire.commons.StringUtils;
 import org.apache.empire.data.Column;
 import org.apache.empire.exceptions.InvalidArgumentException;
 import org.apache.empire.jsf2.controls.InputControl;
+import org.apache.empire.jsf2.utils.StyleClass;
 import org.apache.empire.jsf2.utils.TagEncodingHelper;
 import org.apache.empire.jsf2.utils.TagEncodingHelperFactory;
 import org.apache.empire.jsf2.utils.TagStyleClass;
@@ -106,9 +107,9 @@ public class TitleTag extends UIOutput // implements NamingContainer
         // Write tag
         if (StringUtils.isEmpty(tag))
             tag="span";
-        String cssClass = helper.getTagStyleClass(null, null);        
+        StyleClass styleClass = helper.getTagStyleClass(null);        
         writer.startElement(tag, this);
-        helper.writeAttribute(writer, "class", cssClass);
+        helper.writeAttribute(writer, "class", styleClass);
         helper.writeAttribute(writer, "style", map.get("style"));
         helper.writeAttribute(writer, "title", title);
         return tag;

@@ -38,6 +38,7 @@ import org.apache.empire.data.Column;
 import org.apache.empire.exceptions.InvalidArgumentException;
 import org.apache.empire.exceptions.UnexpectedReturnValueException;
 import org.apache.empire.jsf2.app.TextResolver;
+import org.apache.empire.jsf2.utils.StyleClass;
 import org.apache.empire.jsf2.utils.TagStyleClass;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -70,11 +71,13 @@ public class RadioInputControl extends InputControl
     public void renderValue(Object value, ValueInfo vi, ResponseWriter writer)
         throws IOException
     {
-        String style = vi.getStyleClass(TagStyleClass.RADIO.append(TagStyleClass.INPUT_DIS.get()));
+        StyleClass styleClass = vi.getStyleClass();
+        styleClass.add(TagStyleClass.RADIO).add(TagStyleClass.INPUT_DIS);
+        String styleClassAttr = styleClass.build();
         writer.startElement(HTML_TAG_DIV, null);
-        writer.writeAttribute(HTML_ATTR_CLASS, style, null);
+        writer.writeAttribute(HTML_ATTR_CLASS, styleClassAttr, null);
         writer.startElement(HTML_TAG_TABLE, null);
-        writer.writeAttribute(HTML_ATTR_CLASS, style, null);
+        writer.writeAttribute(HTML_ATTR_CLASS, styleClassAttr, null);
         writer.startElement(HTML_TAG_TR, null);
         Options o = vi.getOptions();
         for (OptionEntry e : o)
@@ -103,9 +106,9 @@ public class RadioInputControl extends InputControl
     }
     
     @Override
-    protected void setInputStyleClass(UIInput input, String cssStyleClass)
+    protected void setInputStyleClass(UIInput input, StyleClass cssStyleClass)
     {
-        super.setInputStyleClass(input, TagStyleClass.RADIO.append(cssStyleClass));
+        super.setInputStyleClass(input, cssStyleClass.add(TagStyleClass.RADIO));
     }
 
     @Override

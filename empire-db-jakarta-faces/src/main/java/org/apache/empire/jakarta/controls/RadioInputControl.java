@@ -22,6 +22,18 @@ import java.io.IOException;
 import java.util.Iterator;
 import java.util.List;
 
+import org.apache.empire.commons.ObjectUtils;
+import org.apache.empire.commons.OptionEntry;
+import org.apache.empire.commons.Options;
+import org.apache.empire.data.Column;
+import org.apache.empire.exceptions.InvalidArgumentException;
+import org.apache.empire.exceptions.UnexpectedReturnValueException;
+import org.apache.empire.jakarta.app.TextResolver;
+import org.apache.empire.jakarta.utils.StyleClass;
+import org.apache.empire.jakarta.utils.TagStyleClass;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import jakarta.el.ValueExpression;
 import jakarta.faces.component.UIComponent;
 import jakarta.faces.component.UIInput;
@@ -30,17 +42,6 @@ import jakarta.faces.component.html.HtmlSelectOneRadio;
 import jakarta.faces.context.FacesContext;
 import jakarta.faces.context.ResponseWriter;
 import jakarta.faces.event.PhaseId;
-
-import org.apache.empire.commons.ObjectUtils;
-import org.apache.empire.commons.OptionEntry;
-import org.apache.empire.commons.Options;
-import org.apache.empire.data.Column;
-import org.apache.empire.exceptions.InvalidArgumentException;
-import org.apache.empire.exceptions.UnexpectedReturnValueException;
-import org.apache.empire.jakarta.app.TextResolver;
-import org.apache.empire.jakarta.utils.TagStyleClass;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class RadioInputControl extends InputControl
 {
@@ -70,11 +71,13 @@ public class RadioInputControl extends InputControl
     public void renderValue(Object value, ValueInfo vi, ResponseWriter writer)
         throws IOException
     {
-        String style = vi.getStyleClass(TagStyleClass.RADIO.append(TagStyleClass.INPUT_DIS.get()));
+        StyleClass styleClass = vi.getStyleClass();
+        styleClass.add(TagStyleClass.RADIO).add(TagStyleClass.INPUT_DIS);
+        String styleClassAttr = styleClass.build();
         writer.startElement(HTML_TAG_DIV, null);
-        writer.writeAttribute(HTML_ATTR_CLASS, style, null);
+        writer.writeAttribute(HTML_ATTR_CLASS, styleClassAttr, null);
         writer.startElement(HTML_TAG_TABLE, null);
-        writer.writeAttribute(HTML_ATTR_CLASS, style, null);
+        writer.writeAttribute(HTML_ATTR_CLASS, styleClassAttr, null);
         writer.startElement(HTML_TAG_TR, null);
         Options o = vi.getOptions();
         for (OptionEntry e : o)
@@ -103,9 +106,9 @@ public class RadioInputControl extends InputControl
     }
     
     @Override
-    protected void setInputStyleClass(UIInput input, String cssStyleClass)
+    protected void setInputStyleClass(UIInput input, StyleClass cssStyleClass)
     {
-        super.setInputStyleClass(input, TagStyleClass.RADIO.append(cssStyleClass));
+        super.setInputStyleClass(input, cssStyleClass.add(TagStyleClass.RADIO));
     }
 
     @Override

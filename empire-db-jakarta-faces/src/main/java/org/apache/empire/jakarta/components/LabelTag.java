@@ -22,6 +22,7 @@ import java.io.IOException;
 
 import org.apache.empire.commons.ObjectUtils;
 import org.apache.empire.jakarta.controls.InputControl;
+import org.apache.empire.jakarta.utils.StyleClass;
 import org.apache.empire.jakarta.utils.TagEncodingHelper;
 import org.apache.empire.jakarta.utils.TagEncodingHelperFactory;
 import org.apache.empire.jakarta.utils.TagStyleClass;
@@ -102,9 +103,9 @@ public class LabelTag extends UIOutput // implements NamingContainer
                 String forInput   = helper.getTagAttributeString("for");
                 String addlStyle  = helper.getColumnAttributeString("labelClass");
                 String userStyle  = helper.getTagAttributeString(InputControl.CSS_STYLE_CLASS);
-                String styleClass = helper.getTagStyleClass(null, addlStyle, userStyle);
                 String style      = helper.getTagAttributeString("style");
                 // createLabelComponent 
+                StyleClass styleClass = helper.getTagStyleClass(null, userStyle).add(addlStyle);
                 labelComponent = helper.createLabelComponent(context, forInput, styleClass, style, getColon());
                 this.getChildren().add(labelComponent);
                 helper.resetComponentId(labelComponent);

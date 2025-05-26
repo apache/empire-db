@@ -26,6 +26,7 @@ import javax.faces.context.ResponseWriter;
 
 import org.apache.empire.commons.StringUtils;
 import org.apache.empire.jsf2.controls.InputControl;
+import org.apache.empire.jsf2.utils.StyleClass;
 import org.apache.empire.jsf2.utils.TagEncodingHelper;
 import org.apache.empire.jsf2.utils.TagEncodingHelperFactory;
 import org.apache.empire.jsf2.utils.TagStyleClass;
@@ -101,17 +102,16 @@ public class ValueTag extends UIOutput // implements NamingContainer
         // Map<String, Object> map = getAttributes();
         String tagName = helper.getTagAttributeString("tag");
         String tooltip = helper.getValueTooltip(helper.getTagAttributeValue("title"));
-        String styleClass = helper.getTagAttributeStringEx(InputControl.CSS_STYLE_CLASS, true);
+        String cssStyle = helper.getTagAttributeStringEx(InputControl.CSS_STYLE_CLASS, true); // only check if present!
 
         // Check whether tag is required
-        if (StringUtils.isNotEmpty(tagName) || StringUtils.isNotEmpty(styleClass) || StringUtils.isNotEmpty(tooltip))
+        StyleClass styleClass = null;
+        if (StringUtils.isNotEmpty(tagName) || StringUtils.isNotEmpty(cssStyle) || StringUtils.isNotEmpty(tooltip))
         {   // tagname
             if (StringUtils.isEmpty(tagName))
                 tagName = InputControl.HTML_TAG_SPAN;
-            // Detect type and additional style
-            String addlStyle = null;
             // get style
-            styleClass = helper.getTagStyleClass(addlStyle);
+            styleClass = helper.getTagStyleClass();
         }
         // render now
         control.renderValue(this, tagName, styleClass, tooltip, vi, context);

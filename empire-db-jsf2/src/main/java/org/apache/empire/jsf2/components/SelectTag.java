@@ -46,6 +46,7 @@ import org.apache.empire.jsf2.controls.InputControl.DisabledType;
 import org.apache.empire.jsf2.controls.InputControl.InputInfo;
 import org.apache.empire.jsf2.controls.InputControlManager;
 import org.apache.empire.jsf2.controls.SelectInputControl;
+import org.apache.empire.jsf2.utils.StyleClass;
 import org.apache.empire.jsf2.utils.TagEncodingHelper;
 import org.apache.empire.jsf2.utils.TagStyleClass;
 import org.slf4j.Logger;
@@ -117,9 +118,9 @@ public class SelectTag extends UIInput implements NamingContainer
         }
 
         @Override
-        public String getStyleClass(String addlStyle)
+        public StyleClass getStyleClass()
         {
-            return null;
+            return new StyleClass();
         }
 
         @Override
@@ -390,19 +391,19 @@ public class SelectTag extends UIInput implements NamingContainer
     protected final void setInputStyleClass(UISelectOne input)
     {
         // css style
-        String userStyle = StringUtils.toString(getAttributes().get(InputControl.CSS_STYLE_CLASS));
+        StyleClass styleClass = new StyleClass(TagStyleClass.SELECT);
+        styleClass.add(getAttributes().get(InputControl.CSS_STYLE_CLASS));
         // additional style classes
         if (isDisabled())
         {   // disabled
-            userStyle = TagStyleClass.INPUT_DIS.addTo(userStyle);
+            styleClass.add(TagStyleClass.INPUT_DIS);
         }
         else if (input.isRequired() || !isAllowNull())
         {   // required
-            userStyle = TagStyleClass.INPUT_REQ.addTo(userStyle);
+            styleClass.add(TagStyleClass.INPUT_REQ);
         }
         // String cssStyle = TagEncodingHelper.assembleStyleClassString(TagStyleClass.SELECT.get(), null, null, userStyle);
-        String cssStyle = TagStyleClass.SELECT.append(userStyle);
-        input.getAttributes().put(InputControl.CSS_STYLE_CLASS, cssStyle);
+        input.getAttributes().put(InputControl.CSS_STYLE_CLASS, styleClass.build());
     }
 
     protected void setInputValue(UISelectOne input)

@@ -21,14 +21,15 @@ package org.apache.empire.jakarta.controls;
 import java.io.IOException;
 import java.util.List;
 
+import org.apache.empire.commons.StringUtils;
+import org.apache.empire.exceptions.InvalidArgumentException;
+import org.apache.empire.exceptions.UnexpectedReturnValueException;
+import org.apache.empire.jakarta.utils.StyleClass;
+
 import jakarta.faces.component.UIComponent;
 import jakarta.faces.component.html.HtmlInputTextarea;
 import jakarta.faces.context.FacesContext;
 import jakarta.faces.event.PhaseId;
-
-import org.apache.empire.commons.StringUtils;
-import org.apache.empire.exceptions.InvalidArgumentException;
-import org.apache.empire.exceptions.UnexpectedReturnValueException;
 
 public class TextAreaInputControl extends InputControl
 {
@@ -56,18 +57,18 @@ public class TextAreaInputControl extends InputControl
     }
 
     @Override
-    public void renderValue(UIComponent comp, String tagName, String styleClass, String tooltip, ValueInfo vi, FacesContext context)
+    public void renderValue(UIComponent comp, String tagName, StyleClass styleClass, String tooltip, ValueInfo vi, FacesContext context)
             throws IOException
     {
-        styleClass += " textarea";
+        styleClass.add("textarea");
         // cols
         int cols = getFormatInteger(vi, FORMAT_COLS, FORMAT_COLS_ATTRIBUTE);
         if (cols>0)
-            styleClass += " cols-"+String.valueOf(cols);
+            styleClass.add("cols-"+String.valueOf(cols));
         // rows
         int rows = getFormatInteger(vi, FORMAT_ROWS, FORMAT_ROWS_ATTRIBUTE);
         if (rows>0)
-            styleClass += " rows-"+String.valueOf(rows);
+            styleClass.add("rows-"+String.valueOf(rows));
         // render
         super.renderValue(comp, tagName, styleClass, tooltip, vi, context);
     }

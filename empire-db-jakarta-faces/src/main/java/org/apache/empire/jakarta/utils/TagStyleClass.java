@@ -18,8 +18,6 @@
  */
 package org.apache.empire.jakarta.utils;
 
-import org.apache.empire.commons.StringUtils;
-
 /**
  * Collection of TagStyleClasses
  */
@@ -59,8 +57,6 @@ public enum TagStyleClass
     TAB_ACTIVE("eTabActive"),
     TAB_DISABLED("eTabDisabled");
     
-    private static final char SPACE = ' ';
-    
     private String styleClassName;
     
     private TagStyleClass(String styleClassName)
@@ -76,111 +72,6 @@ public enum TagStyleClass
     public void set(String styleClassName)
     {
         this.styleClassName = styleClassName;
-    }
-    
-    /* operations */
-
-    private static final int find(String styleClasses, String styleClassName, int fromIdx)
-    {
-        if (styleClasses==null)
-            return -1;
-        // find
-        int idx = styleClasses.indexOf(styleClassName, fromIdx);
-        if (idx<0)
-            return -1;
-        // starts with space?
-        if (idx>0 && styleClasses.charAt(idx-1)!=SPACE)
-            return find(styleClasses, styleClassName, idx+1); // recurse
-        // ends with space?
-        int end = idx+styleClassName.length(); 
-        if (end<styleClasses.length() && styleClasses.charAt(end)!=SPACE)
-            return find(styleClasses, styleClassName, idx+1); // recurse
-        // found
-        return idx;
-    }
-    
-    public static final boolean existsIn(String styleClasses, String styleClassName)
-    {   // find
-        return (find(styleClasses, styleClassName, 0)>=0);
-    }
-
-    public final boolean existsIn(String styleClasses)
-    {
-        return existsIn(styleClasses, this.styleClassName);
-    }
-    
-    public static final String addTo(String styleClasses, String styleClassName)
-    {
-        // check 
-        if (styleClasses==null || styleClasses.length()==0)
-            return styleClassName;
-        if (existsIn(styleClasses, styleClassName))
-            return styleClasses;
-        // add with space
-        return StringUtils.concat(styleClasses, " ", styleClassName);
-    }
-
-    public final String addTo(String styleClasses)
-    {
-        return addTo(styleClasses, this.styleClassName);
-    }
-    
-    public final String append(String... appends)
-    {
-        String result = this.styleClassName;
-        for (int i=0; i<appends.length; i++)
-        {   // append
-            String append = appends[i];
-            if (append!=null && append.length()>0)
-                result = addTo(result, append);
-        }
-        return result;
-    }
-    
-    public static final String removeFrom(String styleClasses, String styleClassName)
-    {
-        // Check name
-        if (styleClassName==null)
-            return styleClasses;
-        // find
-        int idx = find(styleClasses, styleClassName, 0);
-        if (idx<0)
-            return styleClasses; // not contained
-        // remove now
-        if (idx<=1)
-        {   // remove from start
-            idx += styleClassName.length();
-            if (styleClasses.length()>idx && styleClasses.charAt(idx)==SPACE)
-                idx++;
-            return styleClasses.substring(idx);
-        }
-        if (idx+styleClassName.length()==styleClasses.length())
-        {   // remove from end
-            return styleClasses.substring(0, idx-1); // at the end
-        }
-        // in between
-        int after  = idx + styleClassName.length();
-        int before = idx - 1; // SPACE assumed!
-        return StringUtils.concat(styleClasses.substring(0, before), styleClasses.substring(after));
-    }
-
-    public final String removeFrom(String styleClasses)
-    {
-        return removeFrom(styleClasses, this.styleClassName);
-    }
-    
-    public final static String addOrRemove(String styleClasses, String styleClassName, boolean add)
-    {
-        // add or remove
-        if (add)
-            return TagStyleClass.addTo(styleClasses, styleClassName);
-        else
-            return TagStyleClass.removeFrom(styleClasses, styleClassName);
-    }
-    
-    public final String addOrRemove(String styleClasses, boolean add)
-    {
-        return addOrRemove(styleClasses, this.styleClassName, add);
     }
     
     @Override

@@ -42,6 +42,7 @@ import org.apache.empire.exceptions.InvalidValueException;
 import org.apache.empire.exceptions.UnexpectedReturnValueException;
 import org.apache.empire.jakarta.components.ControlTag;
 import org.apache.empire.jakarta.components.InputTag;
+import org.apache.empire.jakarta.utils.StyleClass;
 import org.apache.empire.jakarta.utils.TagStyleClass;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -266,12 +267,12 @@ public class TextInputControl extends InputControl
     }
 
     @Override
-    protected void setInputStyleClass(UIInput input, String cssStyleClass)
+    protected void setInputStyleClass(UIInput input, StyleClass styleClass)
     {
         if (input instanceof HtmlInputText)
-            ((HtmlInputText)input).setStyleClass(cssStyleClass);
+            ((HtmlInputText)input).setStyleClass(styleClass.build());
         else
-            super.setInputStyleClass(input, cssStyleClass);
+            super.setInputStyleClass(input, styleClass);
     }
 
     @Override

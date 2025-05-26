@@ -20,17 +20,18 @@ package org.apache.empire.jakarta.components;
 
 import java.io.IOException;
 
-import jakarta.faces.component.UIOutput;
-import jakarta.faces.context.FacesContext;
-import jakarta.faces.context.ResponseWriter;
-
 import org.apache.empire.commons.StringUtils;
 import org.apache.empire.jakarta.controls.InputControl;
+import org.apache.empire.jakarta.utils.StyleClass;
 import org.apache.empire.jakarta.utils.TagEncodingHelper;
 import org.apache.empire.jakarta.utils.TagEncodingHelperFactory;
 import org.apache.empire.jakarta.utils.TagStyleClass;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import jakarta.faces.component.UIOutput;
+import jakarta.faces.context.FacesContext;
+import jakarta.faces.context.ResponseWriter;
 
 public class ValueTag extends UIOutput // implements NamingContainer
 {
@@ -101,17 +102,16 @@ public class ValueTag extends UIOutput // implements NamingContainer
         // Map<String, Object> map = getAttributes();
         String tagName = helper.getTagAttributeString("tag");
         String tooltip = helper.getValueTooltip(helper.getTagAttributeValue("title"));
-        String styleClass = helper.getTagAttributeStringEx(InputControl.CSS_STYLE_CLASS, true);
+        String cssStyle = helper.getTagAttributeStringEx(InputControl.CSS_STYLE_CLASS, true); // only check if present!
 
         // Check whether tag is required
-        if (StringUtils.isNotEmpty(tagName) || StringUtils.isNotEmpty(styleClass) || StringUtils.isNotEmpty(tooltip))
+        StyleClass styleClass = null;
+        if (StringUtils.isNotEmpty(tagName) || StringUtils.isNotEmpty(cssStyle) || StringUtils.isNotEmpty(tooltip))
         {   // tagname
             if (StringUtils.isEmpty(tagName))
                 tagName = InputControl.HTML_TAG_SPAN;
-            // Detect type and additional style
-            String addlStyle = null;
             // get style
-            styleClass = helper.getTagStyleClass(addlStyle);
+            styleClass = helper.getTagStyleClass();
         }
         // render now
         control.renderValue(this, tagName, styleClass, tooltip, vi, context);
