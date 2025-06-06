@@ -60,15 +60,18 @@ public class TextAreaInputControl extends InputControl
     public void renderValue(UIComponent comp, String tagName, StyleClass styleClass, String tooltip, ValueInfo vi, FacesContext context)
             throws IOException
     {
-        styleClass.add("textarea");
-        // cols
-        int cols = getFormatInteger(vi, FORMAT_COLS, FORMAT_COLS_ATTRIBUTE);
-        if (cols>0)
-            styleClass.add("cols-"+String.valueOf(cols));
-        // rows
-        int rows = getFormatInteger(vi, FORMAT_ROWS, FORMAT_ROWS_ATTRIBUTE);
-        if (rows>0)
-            styleClass.add("rows-"+String.valueOf(rows));
+        if (styleClass!=null)
+        {   // Extend style class
+            styleClass.add("textarea");
+            // cols
+            int cols = getFormatInteger(vi, FORMAT_COLS, FORMAT_COLS_ATTRIBUTE);
+            if (cols>0)
+                styleClass.add("cols-"+String.valueOf(cols));
+            // rows
+            int rows = getFormatInteger(vi, FORMAT_ROWS, FORMAT_ROWS_ATTRIBUTE);
+            if (rows>0)
+                styleClass.add("rows-"+String.valueOf(rows));
+        }
         // render
         super.renderValue(comp, tagName, styleClass, tooltip, vi, context);
     }
