@@ -31,6 +31,7 @@ import org.apache.empire.db.DBIndex.DBIndexType;
 import org.apache.empire.db.DBSQLBuilder;
 import org.apache.empire.db.DBSQLScript;
 import org.apache.empire.db.DBTableColumn;
+import org.apache.empire.db.DBView;
 import org.apache.empire.dbms.DBMSHandlerBase.DBSeqTable;
 
 public class MSSqlDDLGenerator extends DBDDLGenerator<DBMSHandlerMSSQL>
@@ -150,6 +151,15 @@ public class MSSqlDDLGenerator extends DBDDLGenerator<DBMSHandlerMSSQL>
         }
         // done
         super.addCreateIndexStmt(index, sql, script);
+    }
+    
+    @Override
+    protected void addCreateViewStmt(DBView v, DBSQLBuilder sql, DBSQLScript script)
+    {
+        // log.info("Adding create statmement for view {}.", v.getName());
+        String stmt = sql.toString();
+        stmt = StringUtils.replace(stmt, "CREATE VIEW", "CREATE OR ALTER VIEW");
+        script.addStmt(stmt);
     }
     
 }

@@ -596,7 +596,7 @@ public abstract class DBDDLGenerator<T extends DBMSHandler>
             addSeparator = true;
         }
         sql.append(")\r\nAS\r\n");
-        cmd.addSQL( sql, DBExpr.CTX_DEFAULT);
+        cmd.addSQL( sql, DBExpr.CTX_DEFAULT | DBExpr.CTX_NOPARENTHESIS);
         // done
         addCreateViewStmt(v, sql, script);
     }
