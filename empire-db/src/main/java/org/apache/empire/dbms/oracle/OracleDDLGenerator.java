@@ -24,6 +24,7 @@ import org.apache.empire.db.DBColumn;
 import org.apache.empire.db.DBDDLGenerator;
 import org.apache.empire.db.DBDatabase;
 import org.apache.empire.db.DBExpr;
+import org.apache.empire.db.DBMaterializedView;
 import org.apache.empire.db.DBObject;
 import org.apache.empire.db.DBSQLBuilder;
 import org.apache.empire.db.DBSQLScript;
@@ -174,7 +175,12 @@ public class OracleDDLGenerator extends DBDDLGenerator<DBMSHandlerOracle>
     {
         // log.info("Adding create statmement for view {}.", v.getName());
         String stmt = sql.toString();
-        stmt = StringUtils.replace(stmt, "CREATE VIEW", "CREATE OR REPLACE VIEW");
+        if (v instanceof DBMaterializedView) {
+            script.addStmt("-- DROP MATERIALIZED VIEW " + v.getFullName());
+            stmt = StringUtils.replace(stmt, "CREATE VIEW", "CREATE MATERIALIZED VIEW");
+        }
+        else
+            stmt = StringUtils.replace(stmt, "CREATE VIEW", "CREATE OR REPLACE VIEW");
         script.addStmt(stmt);
     }
 

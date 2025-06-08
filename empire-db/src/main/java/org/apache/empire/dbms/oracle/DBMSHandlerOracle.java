@@ -35,6 +35,7 @@ import org.apache.empire.db.DBDDLGenerator;
 import org.apache.empire.db.DBDDLGenerator.DDLActionType;
 import org.apache.empire.db.DBDatabase;
 import org.apache.empire.db.DBExpr;
+import org.apache.empire.db.DBMaterializedView;
 import org.apache.empire.db.DBObject;
 import org.apache.empire.db.DBReader;
 import org.apache.empire.db.DBRelation;
@@ -571,6 +572,21 @@ public class DBMSHandlerOracle extends DBMSHandlerBase
     {   // the default model checker
         OracleDBModelParser modelParser = createModelParser(null, (db!=null ? db.getSchema() : null));
         return new OracleDBModelChecker(modelParser, getBooleanType());
+    }
+                             
+    /**
+     * Immediately refreshes a Materialized View
+     * @param matView the materialized view to refresh
+     * @param context the database context
+     */
+    public void refreshMView(DBMaterializedView matView, DBContext context)
+    {
+        // check param
+        if (matView==null || matView.getDatabase().getDbms()!=this)
+            throw new InvalidArgumentException("matView", matView);
+        // refresh command
+        String refreshSqlCmd = StringUtils.concat("BEGIN DBMS_MVIEW.REFRESH('", matView.getFullName() , "'); END;");
+        context.executeSQL(refreshSqlCmd, null);
     }
 
 }
