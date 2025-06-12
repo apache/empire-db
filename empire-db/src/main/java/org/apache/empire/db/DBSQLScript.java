@@ -44,6 +44,7 @@ public class DBSQLScript implements DBContextAware, Iterable<String>
     private static final String DEFAULT_COMMAND_SEPARATOR = ";\r\n\r\n";
     
     private static final String SQL_COMMENT_LINE  = "--";
+    private static final String SQL_COMMENT_LINE_END = "--\r\n";
     private static final String SQL_COMMENT_START = "/*";
     private static final String SQL_COMMENT_END   = "*/";
 
@@ -351,11 +352,11 @@ public class DBSQLScript implements DBContextAware, Iterable<String>
             {   // execute
                 String sqlCmd = stmt.getCmd().trim();
                 // Check for comment
-                if (comment || (sqlCmd.startsWith(SQL_COMMENT_LINE) || sqlCmd.startsWith(SQL_COMMENT_START)))
+                if (comment || (sqlCmd.startsWith(SQL_COMMENT_START) || (sqlCmd.startsWith(SQL_COMMENT_LINE) && sqlCmd.indexOf(SQL_COMMENT_LINE_END)<0)))
                 {   // It's a comment
                     logStmt(utils, sqlCmd, null, true);
                     // start of comment
-                    if (sqlCmd.startsWith(SQL_COMMENT_START))
+                    if (sqlCmd.startsWith(SQL_COMMENT_START) && !comment)
                         comment=true;
                     // check end of comment?
                     if (sqlCmd.endsWith(SQL_COMMENT_END))

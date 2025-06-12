@@ -67,7 +67,7 @@ public class DBMSHandlerSQLiteTest{
         dep.set(db.DEPARTMENT.BUSINESS_UNIT, "test");
         dep.update();
         
-        Date date = dep.getDateTime(db.DEPARTMENT.UPDATE_TIMESTAMP);
+        Date date = dep.getDate(db.DEPARTMENT.UPDATE_TIMESTAMP);
         assertNotNull("Date is null", date);
         assertTrue("No departments", dep.getInt(db.DEPARTMENT.ID) > 0);
         
@@ -79,7 +79,7 @@ public class DBMSHandlerSQLiteTest{
         emp.set(db.EMPLOYEE.DEPARTMENT_ID, dep.getInt(db.DEPARTMENT.ID));
         emp.update();
         
-        date = emp.getDateTime(db.EMPLOYEE.UPDATE_TIMESTAMP);
+        date = emp.getDate(db.EMPLOYEE.UPDATE_TIMESTAMP);
         assertNotNull("Date is null", date);
         assertTrue("Employee id O or less", emp.getInt(db.EMPLOYEE.ID) > 0);
 

@@ -106,10 +106,10 @@ public class DBMSHandlerMSSqlDateTest {
 
 			assertEquals(truncDateFmt.format(lastLoginTs),
 					truncDateFmt.format(recRead
-							.getDateTime(db.USER_INFO.LAST_LOGIN)));
+							.getDate(db.USER_INFO.LAST_LOGIN)));
 			assertEquals(truncDateFmt.format(regDate),
 					truncDateFmt.format(recRead
-							.getDateTime(db.USER_INFO.REG_DATE)));
+							.getDate(db.USER_INFO.REG_DATE)));
 
 		}
 
