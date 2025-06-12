@@ -42,6 +42,10 @@ public class DBSQLScript implements DBContextAware, Iterable<String>
     // Logger
     private static final Logger log = LoggerFactory.getLogger(DBSQLScript.class);
     private static final String DEFAULT_COMMAND_SEPARATOR = ";\r\n\r\n";
+    
+    private static final String SQL_COMMENT_LINE  = "--";
+    private static final String SQL_COMMENT_START = "/*";
+    private static final String SQL_COMMENT_END   = "*/";
 
     /**
      * SQLCmd
@@ -338,24 +342,31 @@ public class DBSQLScript implements DBContextAware, Iterable<String>
         log.info("Running script containing " + String.valueOf(getCount()) + " statements.");
         int errors = 0;
         int result = 0;
+        boolean comment = false; 
         DBMSHandler dbms = context.getDbms();
         Connection  conn = context.getConnection();
         DBUtils    utils = context.getUtils(); // Use DBUtils for log helpers only
         for (SQLStmt stmt : sqlStmtList)
         {   try
             {   // execute
-                String sqlCmd = stmt.getCmd();
-                Object[] sqlParams = stmt.getParams();
-                // Debug
-                if (log.isDebugEnabled())
-                {   // Log with or without parameters   
-                    if (sqlParams!=null && sqlParams.length>0)
-                        log.debug("Executing Stmt: {}{}{}Parameters: [{}]", utils.LOG_NEW_LINE, sqlCmd, utils.LOG_NEW_LINE, utils.paramsToString(sqlParams));
-                    else
-                        log.debug("Executing Stmt: {}{}", utils.LOG_NEW_LINE, sqlCmd);
+                String sqlCmd = stmt.getCmd().trim();
+                // Check for comment
+                if (comment || (sqlCmd.startsWith(SQL_COMMENT_LINE) || sqlCmd.startsWith(SQL_COMMENT_START)))
+                {   // It's a comment
+                    logStmt(utils, sqlCmd, null, true);
+                    // start of comment
+                    if (sqlCmd.startsWith(SQL_COMMENT_START))
+                        comment=true;
+                    // check end of comment?
+                    if (sqlCmd.endsWith(SQL_COMMENT_END))
+                        comment=false;
+                    // continue
+                    continue;
                 }
                 // Execute Statement
-                int count = dbms.executeSQL(sqlCmd, sqlParams, conn, null);
+                Object[] sqlParams = stmt.getParams();
+                logStmt(utils, sqlCmd, sqlParams, false);
+                int count = executeStmt(dbms, sqlCmd, sqlParams, conn);
                 result += (count >= 0 ? count : 0);
             }
             catch (SQLException e)
@@ -447,5 +458,42 @@ public class DBSQLScript implements DBContextAware, Iterable<String>
             script.append(commandSeparator);
         }
         return script.toString();
+    }
+
+    /**
+     * logs a statement before execution
+     * @param utils the DBUils
+     * @param sqlCmd the statement
+     * @param sqlParams the params
+     */
+    protected void logStmt(DBUtils utils, String sqlCmd, Object[] sqlParams, boolean comment)
+    {
+        // Debug
+        if (!log.isDebugEnabled())
+            return;
+        // Comment
+        if (comment)
+            log.debug("SQL Comment: {}{}", utils.LOG_NEW_LINE, sqlCmd);
+        // Log with or without parameters
+        else if (sqlParams!=null && sqlParams.length>0)
+            log.debug("Executing Stmt: {}{}{}Parameters: [{}]", utils.LOG_NEW_LINE, sqlCmd, utils.LOG_NEW_LINE, utils.paramsToString(sqlParams)); 
+        else
+            log.debug("Executing Stmt: {}{}", utils.LOG_NEW_LINE, sqlCmd);
+    }
+    
+    /**
+     * Executes a single statement 
+     * @param dbms the dbms
+     * @param sqlCmd the sql statement
+     * @param sqlParams the statement params
+     * @param conn the connection
+     * @return number of rows affected
+     * @throws SQLException
+     */
+    protected int executeStmt(DBMSHandler dbms, String sqlCmd, Object[] sqlParams, Connection conn) throws SQLException
+    {        
+        // Execute Statement
+        int count = dbms.executeSQL(sqlCmd, sqlParams, conn, null);
+        return count;
     }
 }
