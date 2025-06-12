@@ -24,8 +24,10 @@ import java.util.List;
 import org.apache.empire.data.DataType;
 import org.apache.empire.db.DBColumn;
 import org.apache.empire.db.DBDatabase;
+import org.apache.empire.db.DBMaterializedView;
 import org.apache.empire.db.DBRelation;
 import org.apache.empire.db.DBRelation.DBReference;
+import org.apache.empire.db.DBRowSet;
 import org.apache.empire.db.DBTable;
 import org.apache.empire.db.DBTableColumn;
 import org.apache.empire.db.DBView;
@@ -106,8 +108,9 @@ public class DBModelChecker
         DBTable remoteTable = remoteDb.getTable(table.getName()); // getTable(table.getName());
         if (remoteTable == null)
         {   // Check if it is a view instead
-            if (remoteDb.getView(table.getName())!=null)
-                handler.objectTypeMismatch(remoteTable, table.getName(), DBTable.class);
+            DBView remoteView = remoteDb.getView(table.getName()); 
+            if (remoteView!=null)
+                handler.objectTypeMismatch(remoteView, table.getName(), DBTable.class);
             else
                 handler.itemNotFound(table);
             return;
@@ -131,14 +134,19 @@ public class DBModelChecker
 
     protected void checkView(DBView view, DBModelErrorHandler handler)
     {
-        DBView remoteView = remoteDb.getView(view.getName());
+        DBRowSet remoteView = remoteDb.getView(view.getName());
         if (remoteView == null)
-        {   // Check if it is a table instead
-            if (remoteDb.getTable(view.getName())!=null)
-                handler.objectTypeMismatch(remoteView, view.getName(), DBView.class);
-            else
-                handler.itemNotFound(view);
-            return;
+        {   // Check if it's a table instead
+            DBTable remoteTable = remoteDb.getTable(view.getName());
+            if (remoteTable==null || !(view instanceof DBMaterializedView))
+            {   // not found or type mismatch
+                if (remoteTable!=null)
+                    handler.objectTypeMismatch(remoteTable, view.getName(), DBView.class);
+                else
+                    handler.itemNotFound(view);
+                return;
+            }
+            remoteView = remoteTable;
         }
         for (DBColumn column : view.getColumns())
         {

@@ -78,12 +78,20 @@ public class DateUtils
     }
 
     /**
-     * Returns a Timestamp for now
+     * Returns a Timestamp for now()
+     * The timstamp's nano seconds will be limited to 6 digits!
      * @return the Timestamp
      */
     public static Timestamp getTimestamp()
     {
-        return Timestamp.valueOf(LocalDateTime.now());
+        LocalDateTime ts = LocalDateTime.now();
+        // limit nano to 6 digits (999,999,000)
+        int nano = ts.getNano();
+        int remain = nano % 1000;
+        if (remain>0)
+            ts = LocalDateTime.of(ts.getYear(), ts.getMonth(), ts.getDayOfMonth(), ts.getHour(), ts.getMinute(), ts.getSecond(), nano - remain);
+        // convert to timestamp
+        return Timestamp.valueOf(ts);
     }
 
     /**
