@@ -529,24 +529,33 @@ public abstract class DBMSHandlerBase implements DBMSHandler
     public Object getResultValue(ResultSet rset, int columnIndex, DataType dataType)
         throws SQLException
     {
+        // Special handing of DATE, TIME, DATETIME and TIMESTAMP
+        if (dataType == DataType.DATE)
+        {   // use getDate() (do not use getObject()!)
+            return rset.getDate(columnIndex);
+        }
+        if (dataType == DataType.TIME)
+        {   // use getTime() (do not use getObject()!)
+            return rset.getTime(columnIndex);
+        }
         if (dataType == DataType.DATETIME || dataType == DataType.TIMESTAMP)
-        { // Get Timestamp (do not use getObject()!) 
+        {   // use getTimestamp() (do not use getObject()!) 
             return rset.getTimestamp(columnIndex);
         } 
-        else if (dataType == DataType.CLOB)
-        {
+        // Check for character large object
+        if (dataType == DataType.CLOB)
+        {   // Get string from character large object
             java.sql.Clob clob = rset.getClob(columnIndex);
             return ((clob != null) ? clob.getSubString(1, (int) clob.length()) : null);
         } 
-        else if (dataType == DataType.BLOB)
-        { // Get bytes of a binary large object
+        // Check for binary large object
+        if (dataType == DataType.BLOB)
+        {   // Get bytes of a binary large object
             java.sql.Blob blob = rset.getBlob(columnIndex);
             return ((blob != null) ? blob.getBytes(1, (int) blob.length()) : null);
-        } 
-        else
-        {
-            return rset.getObject(columnIndex);
         }
+        // default
+        return rset.getObject(columnIndex);
     }
     
     /**
