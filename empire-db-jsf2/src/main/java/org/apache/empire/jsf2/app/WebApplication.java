@@ -579,9 +579,15 @@ public abstract class WebApplication
         for (int i = 0; locales.hasNext(); i++)
         {
             Locale locale = locales.next();
-            textResolvers[i] = new ResourceTextResolver(ResourceBundle.getBundle(messageBundle, locale));
+            ResourceBundle bundle = ResourceBundle.getBundle(messageBundle, locale);
+            textResolvers[i] = createResourceTextResolver(bundle);
             log.info("added TextResolver for {} bundle='{}'", locale.getLanguage(), messageBundle);
         }
+    }
+    
+    protected ResourceTextResolver createResourceTextResolver(ResourceBundle bundle)
+    {
+        return new ResourceTextResolver(bundle);
     }
 
     /**
