@@ -47,7 +47,6 @@ import org.apache.empire.jsf2.controls.InputControl.InputInfo;
 import org.apache.empire.jsf2.controls.InputControlManager;
 import org.apache.empire.jsf2.controls.SelectInputControl;
 import org.apache.empire.jsf2.utils.StyleClass;
-import org.apache.empire.jsf2.utils.TagEncodingHelper;
 import org.apache.empire.jsf2.utils.TagStyleClass;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -422,6 +421,7 @@ public class SelectTag extends UIInput implements NamingContainer
     protected void copyAttributes(UISelectOne input)
     {
         // set id
+        /* removed 2025-06-19 to avoid doubling of given id
         if (TagEncodingHelper.hasComponentId(this))
         {   // remove trailing underscore (workaround since parent and child may not have the same name)
             String inputId = this.getId();
@@ -432,9 +432,12 @@ public class SelectTag extends UIInput implements NamingContainer
             input.setId(inputId);
         }
         else
-        {   // always set to CompoentID
+        {   // set to CompoentID
             input.setId(SELECT_COMPONENT_ID);
         }
+        */
+        // always set to CompoentID
+        input.setId(SELECT_COMPONENT_ID);
         // the map
         Map<String, Object> tagMap = getAttributes();
         Map<String, Object> inputMap = input.getAttributes();
