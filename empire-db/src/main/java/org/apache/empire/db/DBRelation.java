@@ -144,6 +144,27 @@ public class DBRelation extends DBObject
     }
     
     /**
+     * Checks if the relation references the given key 
+     * @param keyColumns the key columns (primary key) 
+     * @return true if the relation references the given key or false otherwise
+     */
+    public boolean isOnColumns(DBColumn[] keyColumns)
+    {
+        // check param
+        if (keyColumns==null || references.length!=keyColumns.length)
+            return false;
+        // Check all columns
+        for (int i=0; i<references.length; i++)
+        {
+            if (!references[i].getTargetColumn().equals(keyColumns[i]))
+            {   // found
+                return false;
+            }
+        }
+        return true;
+    }
+    
+    /**
      * Returns the table that is containing the foreign key (source table) 
      * @return true if the relation's source table is the given table 
      */

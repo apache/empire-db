@@ -31,6 +31,7 @@ import org.apache.empire.commons.StringUtils;
 import org.apache.empire.data.DataType;
 import org.apache.empire.db.DBIndex.DBIndexType;
 import org.apache.empire.db.DBRelation.DBCascadeAction;
+import org.apache.empire.db.DBRelation.DBReference;
 import org.apache.empire.db.exceptions.NoPrimaryKeyException;
 import org.apache.empire.db.exceptions.RecordDeleteFailedException;
 import org.apache.empire.db.exceptions.RecordUpdateFailedException;
@@ -794,6 +795,77 @@ public class DBTable extends DBRowSet implements Cloneable
         }
         return Collections.unmodifiableList(relations);        
     }
+    
+    /**
+     * Determines whether a record is references by other records through a foreign-key relation or not
+     * @param key the key the record to be deleted
+     * @param context the db context
+     * @returns true if the record is references or false otherwise
+     */
+    public boolean hasExistingReferences(Object[] key, DBContext context)
+    {
+        // Check all relations
+        if (getPrimaryKey()==null)
+            return false;
+        if (key==null || getPrimaryKey().getColumnCount()!=key.length)
+            throw new InvalidArgumentException("key", key);
+        // Find all relations
+        List<DBRelation> relations = db.findRelationsOn(this);
+        for (DBRelation rel : relations)
+        {   // Found a reference on RowSet
+            DBReference[] refs = rel.getReferences();
+            DBRowSet rs = refs[0].getSourceColumn().getRowSet();
+            if (getForeignRecordCount(rs, refs, key, context) > 0)
+                return true;
+        }
+        // no references
+        return false;
+    }
+    
+    /**
+     * Returns a list of all tables that contain records which reference this record
+     * @param key the key the record to be deleted
+     * @param context the db context
+     * @returns this list of all tables that contain a refernce to this record
+     */
+    public List<DBTable> getExistingReferenceTables(Object[] key, DBContext context)
+    {
+        // Check all relations
+        if (getPrimaryKey()==null)
+            return null;
+        if (key==null || getPrimaryKey().getColumnCount()!=key.length)
+            throw new InvalidArgumentException("key", key);
+        // Find all relations
+        List<DBTable> tables = new ArrayList<DBTable>();
+        List<DBRelation> relations = db.findRelationsOn(this);
+        for (DBRelation rel : relations)
+        {   // Found a reference on RowSet
+            DBReference[] refs = rel.getReferences();
+            DBRowSet rs = refs[0].getSourceColumn().getRowSet();
+            if (!(rs instanceof DBTable))
+            {   log.info("ForeignKey Rowset {} is not a DBTable", rs.getName());
+                continue;
+            }
+            if (getForeignRecordCount(rs, refs, key, context) > 0)
+            {
+                tables.add((DBTable)rs);
+            }
+        }
+        // no references
+        return tables;
+    }
+    
+    private int getForeignRecordCount(DBRowSet rs, DBReference[] refs, Object[] parentKey, DBContext context)
+    {
+        // SELECT count(*) FROM rs WHERE key=parentKey
+        DBCommand cmd = db.createCommand();
+        cmd.select(rs.count());
+        for (int i=0; i<parentKey.length; i++)
+        {
+            cmd.where(refs[i].getSourceColumn().is(parentKey[i]));
+        }
+        return context.getUtils().querySingleInt(cmd);
+    }
 
     /**
      * validates a column value
@@ -834,6 +906,5 @@ public class DBTable extends DBRowSet implements Cloneable
             // Don't set to modified: record.modifyValue(i, value, false); 
             fields[i] = value;
         }
-    }
-    
+    }    
 }

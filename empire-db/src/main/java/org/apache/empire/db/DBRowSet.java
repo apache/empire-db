@@ -1201,7 +1201,7 @@ public abstract class DBRowSet extends DBExpr implements EntityType
      * @param key the key the record to be deleted
      * @param context the DBContext
      */
-    protected final void deleteAllReferences(Object[] key, DBContext context)
+    protected void deleteAllReferences(Object[] key, DBContext context)
     {
         // Merge Sub-Records
         List<DBRelation> relations = db.getRelations();
@@ -1214,14 +1214,11 @@ public abstract class DBRowSet extends DBExpr implements EntityType
             if (rel.getOnDeleteAction()!=DBCascadeAction.CASCADE_RECORDS)
                 continue;
             // References
-            DBReference[] refs = rel.getReferences();
-            for (int i=0; i<refs.length; i++)
-            {
-                if (refs[i].getTargetColumn().equals(keyColumns[0]))
-                {   // Found a reference on RowSet
-                    DBRowSet rs = refs[0].getSourceColumn().getRowSet(); 
-                    rs.deleteReferenceRecords(refs, key, context);
-                }
+            if (rel.isOnColumns(keyColumns))
+            {   // Found a reference on RowSet
+                DBReference[] refs = rel.getReferences();
+                DBRowSet rs = refs[0].getSourceColumn().getRowSet(); 
+                rs.deleteReferenceRecords(refs, key, context);
             }
         }
     }

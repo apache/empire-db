@@ -908,6 +908,29 @@ public abstract class DBDatabase extends DBObject
         }
         return null;
     }
+    
+    /**
+     * Returns a list of foreign key relations on a given table
+     * @param table the table for which to find all foreign keys
+     * @return the list of all foreign key relations
+     */
+    public List<DBRelation> findRelationsOn(DBTable table)
+    {
+        List<DBRelation> result = new ArrayList<DBRelation>();
+        // get FK
+        DBColumn[] keyColumns = table.getKeyColumns();
+        if (keyColumns==null || keyColumns.length<1)
+            return result; // No primary key - no references!
+        // Check all relations
+        for (DBRelation rel : this.relations)
+        {   // References
+            if (rel.isOnColumns(keyColumns))
+            {   // Found a reference on RowSet
+                result.add(rel);
+            }
+        }
+        return result;
+    }
 
     /**
      * Adds a DBView object to list of database views.<BR>
