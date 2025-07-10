@@ -262,7 +262,12 @@ public class DBMSHandlerPostgreSQL extends DBMSHandlerBase
             case TIMESTAMP:return "CAST(? AS TIMESTAMP)";
                 // Convert to text
             case VARCHAR:  
-            case CHAR:     return "CAST(? AS CHAR)";
+            case CHAR:
+                if (format instanceof String)
+                { // Convert using a format string
+                    return "to_char(?, '"+format.toString()+"')";
+                }
+                return "?::text";
             case BLOB:     return "CAST(? AS bytea)";
             case CLOB:     return "CAST(? AS TEXT)";
                 // Unknown Type
