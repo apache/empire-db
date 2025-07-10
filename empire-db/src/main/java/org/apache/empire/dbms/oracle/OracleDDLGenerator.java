@@ -57,6 +57,8 @@ public class OracleDDLGenerator extends DBDDLGenerator<DBMSHandlerOracle>
         DATATYPE_INT_BIG    = "NUMBER(38)";
         DATATYPE_VARCHAR    = "VARCHAR2";
         DATATYPE_DECIMAL    = "NUMBER";
+        DATATYPE_TIME       = "DATE";   // There is not Datatype for TIME
+        DATATYPE_DATETIME   = "DATE";   // There is not Datatype for DATETIME
         if ( dbms.getBooleanType() == BooleanType.CHAR )
              DATATYPE_BOOLEAN = "CHAR(1)";
         else DATATYPE_BOOLEAN = "NUMBER(1,0)";

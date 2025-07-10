@@ -54,6 +54,7 @@ public class MSSqlDDLGenerator extends DBDDLGenerator<DBMSHandlerMSSQL>
         DATATYPE_CHAR       = "NCHAR";      // Fixed length chars (unicode)
         DATATYPE_VARCHAR    = "NVARCHAR";   // variable length characters (unicode)      
         DATATYPE_DATE       = "DATE";
+        DATATYPE_DATETIME   = (dbms.isUseDateTime2() ? "DATETIME2" : "DATETIME");
         DATATYPE_TIMESTAMP  = (dbms.isUseDateTime2() ? "DATETIME2" : "DATETIME");
         DATATYPE_CLOB       = "NTEXT";
         DATATYPE_BLOB       = "IMAGE";

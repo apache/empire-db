@@ -53,7 +53,8 @@ public abstract class DBDDLGenerator<T extends DBMSHandler>
     protected String DATATYPE_VARCHAR    = "VARCHAR";   // variable length characters (unicode)      
     protected String DATATYPE_DATE       = "DATE";
     protected String DATATYPE_TIME       = "TIME";    
-    protected String DATATYPE_TIMESTAMP  = "TIMESTAMP";
+    protected String DATATYPE_DATETIME   = "TIMESTAMP"; // Datetime without nanos 
+    protected String DATATYPE_TIMESTAMP  = "TIMESTAMP"; // Datetime with nanos
     protected String DATATYPE_BOOLEAN    = "BIT";
     protected String DATATYPE_DECIMAL    = "DECIMAL";
     protected String DATATYPE_FLOAT      = "FLOAT";     // floating point number (double precision 8 bytes)
@@ -164,6 +165,8 @@ public abstract class DBDDLGenerator<T extends DBMSHandler>
                 sql.append(DATATYPE_TIME);
                 break;
             case DATETIME:
+                sql.append(DATATYPE_DATETIME);
+                break;
             case TIMESTAMP:
                 sql.append(DATATYPE_TIMESTAMP);
                 break;
