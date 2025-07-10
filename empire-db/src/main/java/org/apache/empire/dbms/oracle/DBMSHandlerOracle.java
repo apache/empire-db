@@ -186,15 +186,11 @@ public class DBMSHandlerOracle extends DBMSHandlerBase
             case SQL_BOOLEAN_TRUE:              return (booleanType==BooleanType.CHAR) ? "'Y'" : "1";
             case SQL_BOOLEAN_FALSE:             return (booleanType==BooleanType.CHAR) ? "'N'" : "0";
             case SQL_CURRENT_DATE:              return "sysdate";
-            case SQL_DATE_PATTERN:              return "YYYY-MM-DD";
             case SQL_DATE_TEMPLATE:             return "TO_DATE('{0}', 'YYYY-MM-DD')";
-            case SQL_DATETIME_PATTERN:          return "YYYY-MM-DD HH24:MI:SS";
             case SQL_DATETIME_TEMPLATE:         return "TO_DATE('{0}', 'YYYY-MM-DD HH24:MI:SS')";
             case SQL_CURRENT_TIME:              return "TO_DATE('2000-01-01'||TO_CHAR(sysdate, 'HH24:MI:SS'), 'YYYY-MM-DD HH24:MI:SS')";
-            case SQL_TIME_PATTERN:              return "HH24:MI:SS";
             case SQL_TIME_TEMPLATE:             return "TO_DATE('2000-01-01 {0}'), 'YYYY-MM-DD HH24:MI:SS')";
             case SQL_CURRENT_TIMESTAMP:         return "systimestamp";
-            case SQL_TIMESTAMP_PATTERN:         return "YYYY-MM-DD HH24:MI:SS.FF";
             case SQL_TIMESTAMP_TEMPLATE:        return "TO_TIMESTAMP('{0}', 'YYYY-MM-DD HH24:MI:SS.FF')";
             // functions
             case SQL_FUNC_COALESCE:             return "nvl(?, {0})";

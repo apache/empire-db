@@ -120,15 +120,11 @@ public class DBMSHandlerHSql extends DBMSHandlerBase
             case SQL_BOOLEAN_TRUE:      return String.valueOf(Boolean.TRUE);
             case SQL_BOOLEAN_FALSE:     return String.valueOf(Boolean.FALSE);
             case SQL_CURRENT_DATE:      return "CURRENT_DATE";
-            case SQL_DATE_PATTERN:      return "yyyy-MM-dd";
             case SQL_DATE_TEMPLATE:     return "TO_DATE('{0}', 'YYYY-MM-DD')";
             case SQL_CURRENT_TIME:      return "CURRENT_TIME";
-            case SQL_TIME_PATTERN:      return "HH:mm:ss";
             case SQL_TIME_TEMPLATE:     return "'{0}'";
-            case SQL_DATETIME_PATTERN:  return "yyyy-MM-dd HH:mm:ss.S";
             case SQL_DATETIME_TEMPLATE: return "TO_DATE('{0}', 'YYYY-MM-DD HH24:MI:SS')";
             case SQL_CURRENT_TIMESTAMP: return "CURRENT_TIMESTAMP";
-            case SQL_TIMESTAMP_PATTERN: return "yyyy-MM-dd HH:mm:ss.S";
             case SQL_TIMESTAMP_TEMPLATE:return "TO_TIMESTAMP('{0}', 'YYYY-MM-DD HH24:MI:SS.FF')";
             // functions
             case SQL_FUNC_COALESCE:     return "coalesce(?, {0})";

@@ -640,9 +640,17 @@ public class StringUtils
     public static String concat(String... parts)
     {
         int totalLength=0;
+        int singleIndex=-1;
         for (int i=0; i<parts.length; i++)
-            if (parts[i]!=null)
+            if (parts[i]!=null && parts[i].length()>0) {
                 totalLength+=parts[i].length();
+                singleIndex=(singleIndex==-1 ? i : -2); 
+            }
+        // optimize
+        if (totalLength==0)
+            return EMPTY;
+        if (singleIndex>=0)
+            return parts[singleIndex];
         // concat now
         StringBuilder b = new StringBuilder(totalLength);
         for (int i=0; i<parts.length; i++)

@@ -19,13 +19,14 @@
 package org.apache.empire.db;
 
 import java.sql.Timestamp;
-import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Collection;
 import java.util.Date;
 
+import org.apache.empire.commons.DateUtils;
 import org.apache.empire.commons.ObjectUtils;
 import org.apache.empire.commons.StringUtils;
 import org.apache.empire.data.DataType;
@@ -363,33 +364,35 @@ public abstract class DBSQLBuilder implements Appendable
         if (DBDatabase.SYSDATE.equals(value))
             return dbms.getSQLPhrase(sqlCurrentDate);
         // Format the date (ymd)
-        Timestamp ts; 
+        LocalDateTime ts; 
+        int nanos = 0;
         if ((value instanceof Timestamp)) 
-        {   // We have a timestamp
-            ts = (Timestamp)value;
+        {   // Convert Timestamp
+            ts = ((Timestamp)value).toLocalDateTime();
+            nanos = (((Timestamp)value).getNanos() % 1000000);
         }
         else if ((value instanceof Date))
-        {   // Convert Date to Timestamp
-            ts = new Timestamp(((Date)value).getTime());
+        {   // Convert Date
+            ts = DateUtils.toLocalDateTime((Date)value);
         }
         else if ((value instanceof LocalDate))
-        {   // Convert LocalDate to Timestamp
-            ts = java.sql.Timestamp.valueOf(((LocalDate)value).atStartOfDay());
+        {   // Convert LocalDate
+            ts = ((LocalDate)value).atStartOfDay();
         }
         else if ((value instanceof LocalDateTime))
         {   // Convert LocalDateTime to Timestamp
-            ts = java.sql.Timestamp.valueOf((LocalDateTime)value);
+            ts = ((LocalDateTime)value);
         }
         else if ((value instanceof LocalTime))
         {   // Convert LocalTime to Timestamp with current date
-            ts = java.sql.Timestamp.valueOf(((LocalTime)value).atDate(LocalDate.now()));
+            ts = ((LocalTime)value).atDate(LocalDate.now());
         }
         else 
         {   // "Timestamp format must be yyyy-mm-dd hh:mm:ss[.fffffffff]"
             String dtValue = value.toString().trim();
             try
             {   // parse timestamp
-                ts = Timestamp.valueOf(dtValue);
+                ts = Timestamp.valueOf(dtValue).toLocalDateTime();
             } catch (Throwable e) {
                 // Invalid date
                 log.error("Unable to parse date value "+dtValue, e);
@@ -398,16 +401,17 @@ public abstract class DBSQLBuilder implements Appendable
         }
         // Convert to String
         String pattern = dbms.getSQLPhrase(sqlPattern);
-        SimpleDateFormat sqlFormat = new SimpleDateFormat(dbms.getSQLPhrase(sqlPattern));
+        DateTimeFormatter sqlFormat = DateTimeFormatter.ofPattern(pattern);
         String datetime = sqlFormat.format(ts);
         // Add micro / nanoseconds
-        int nanos = (ts.getNanos() % 1000000);
         if (pattern.endsWith(".SSS") && nanos>0)
         {   // Add nanoseconds
             if (((nanos) % 100)>0)
                 datetime += String.format("%06d", nanos);
-            else
+            else if (((nanos) % 1000)>0)
                 datetime += String.format("%04d",(nanos/100));
+            else
+                datetime += String.format("%03d",(nanos/1000));
         }
         // Now Build String
         String template = dbms.getSQLPhrase(sqlTemplate);
