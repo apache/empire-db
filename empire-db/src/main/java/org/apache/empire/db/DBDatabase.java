@@ -36,6 +36,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.empire.commons.DateUtils;
 import org.apache.empire.commons.ObjectUtils;
 import org.apache.empire.commons.Options;
 import org.apache.empire.commons.StringUtils;
@@ -1126,6 +1127,11 @@ public abstract class DBDatabase extends DBObject
                     break;
                 if (value instanceof LocalDateTime)
                 {   value = ((LocalDateTime)value).toLocalDate();
+                    break;
+                }
+                if ((value instanceof Date) && (((Date)value).getTime() % DateUtils.MILLIS_IN_DAY)!=0)
+                {   // remove time
+                    value = DateUtils.getDateOnly((Date)value);
                     break;
                 }
             case DATETIME:
