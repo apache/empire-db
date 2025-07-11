@@ -238,11 +238,11 @@ public class DateUtilsTest
 	public void testFormatMonthIntLocaleBoolean()
 	{
 		// month to big -> return ""
-		String formatted = DateUtils.formatMonth(12, Locale.ITALY, true);
+		String formatted = DateUtils.formatMonth(13, Locale.ITALY, true);
 		assertEquals("", formatted);
-		formatted = DateUtils.formatMonth(8, Locale.ITALY, true);
+		formatted = DateUtils.formatMonth(9, Locale.ITALY, true);
 		assertEquals("settembre", formatted);
-		formatted = DateUtils.formatMonth(5, Locale.ITALY, false);
+		formatted = DateUtils.formatMonth(6, Locale.ITALY, false);
 		assertEquals("giu", formatted);
 	}
 
