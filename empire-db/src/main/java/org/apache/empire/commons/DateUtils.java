@@ -29,6 +29,7 @@ import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.FormatStyle;
 import java.time.temporal.ChronoField;
+import java.time.temporal.Temporal;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
@@ -36,7 +37,6 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.empire.exceptions.InvalidArgumentException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -269,6 +269,14 @@ public class DateUtils
         return dateTime.get(ChronoField.DAY_OF_WEEK);         
     }
     
+    public static int getWeekOfYear(Date date, Locale locale)
+    {
+        // Gets the week of the year
+        Calendar c = Calendar.getInstance(getSafeLocale(locale));
+        c.setTime(date);
+        return c.get(Calendar.WEEK_OF_YEAR);
+    }
+    
     // ------- parsing functions -----
 
     public static Date parseDate(String sDate, Locale locale)
@@ -330,46 +338,60 @@ public class DateUtils
     {
         if (date==null)
             return StringUtils.EMPTY;
-        DateFormatSymbols dfs = getDateFormatSymbols(locale);
         Calendar c = Calendar.getInstance(getSafeLocale(locale));
         c.setTime(date);
-        int dayOfWeek = c.get(Calendar.DAY_OF_WEEK);
+        int dayOfWeek = c.get(Calendar.DAY_OF_WEEK)-1;
+        return formatDayOfWeek((dayOfWeek==0 ? 7 : dayOfWeek), locale, longFormat);
+    }
+    
+    public static String formatDayOfWeek(Temporal date, Locale locale, boolean longFormat)
+    {
+        if (date==null)
+            return StringUtils.EMPTY;
+        int dayOfWeek = date.get(ChronoField.DAY_OF_WEEK);
+        return formatDayOfWeek(dayOfWeek, locale, longFormat);
+    }
+    
+    public static String formatDayOfWeek(int dayOfWeek, Locale locale, boolean longFormat)
+    {
+        if (dayOfWeek<1 || dayOfWeek>7)
+            return StringUtils.EMPTY;
+        if (dayOfWeek==7)
+            dayOfWeek=0; // Sunday is Index 0
+        DateFormatSymbols dfs = getDateFormatSymbols(locale);
         if (longFormat)
-            return dfs.getWeekdays()[dayOfWeek];
+            return dfs.getWeekdays()[dayOfWeek+1];
         else
-            return dfs.getShortWeekdays()[dayOfWeek];
+            return dfs.getShortWeekdays()[dayOfWeek+1];
     }
     
     public static String formatMonth(Date date, Locale locale, boolean longFormat)
     {
         if (date==null)
             return StringUtils.EMPTY;
-        DateFormatSymbols dfs = getDateFormatSymbols(locale);
         Calendar c = Calendar.getInstance(getSafeLocale(locale));
         c.setTime(date);
-        int month = c.get(Calendar.MONTH);
-        if (longFormat)
-            return dfs.getMonths()[month];
-        else
-            return dfs.getShortMonths()[month];
+        int month = c.get(Calendar.MONTH)+1;
+        return formatMonth(month, locale, longFormat);
     }
     
-    public static int getWeekOfYear(Date date, Locale locale)
+    public static String formatMonth(Temporal date, Locale locale, boolean longFormat)
     {
         if (date==null)
-            throw new InvalidArgumentException("date", date);
-        Calendar c = Calendar.getInstance(getSafeLocale(locale));
-        c.setTime(date);
-        return c.get(Calendar.WEEK_OF_YEAR);
+            return StringUtils.EMPTY;
+        int month = date.get(ChronoField.MONTH_OF_YEAR);
+        return formatMonth(month, locale, longFormat);
     }
     
     public static String formatMonth(int month, Locale locale, boolean longFormat)
     {
+        if (month<1 || month>12)
+            return StringUtils.EMPTY;
         DateFormatSymbols dfs = getDateFormatSymbols(locale);
         if (longFormat)
-            return dfs.getMonths()[month];
+            return dfs.getMonths()[month-1];
         else
-            return dfs.getShortMonths()[month];
+            return dfs.getShortMonths()[month-1];
     }
     
     public static String formatYear(Date date, Locale locale)
