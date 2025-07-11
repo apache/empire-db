@@ -408,6 +408,7 @@ public class SampleApp
         cmd.select(DEP.getColumns());
         cmd.join(EMP.DEPARTMENT_ID, DEP.ID);
         DBQuery query = new DBQuery(cmd, EMP.ID);
+        query.setUpdateable(true); // Make records updateable
 
         // Make employee Head of Department and update salary
         DBRecord rec = new DBRecord(context, query);

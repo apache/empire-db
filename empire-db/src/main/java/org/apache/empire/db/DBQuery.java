@@ -143,7 +143,7 @@ public class DBQuery extends DBRowSet
         }
         // Set the key Column
         this.keyColumns = keyColumns;
-        this.updateable =(keyColumns!=null);
+        this.updateable = false; // initially false
     }
 
     /**
@@ -254,6 +254,7 @@ public class DBQuery extends DBRowSet
     
     /**
      * Sets whether or not records for this query can be updated 
+     * Initially DBQuery records are not updateable
      * For a query to be updateable it must have key columns
      * @param updateable flag whether or not the column can be updated
      */
