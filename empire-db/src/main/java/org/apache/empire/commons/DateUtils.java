@@ -20,8 +20,8 @@ package org.apache.empire.commons;
 
 import java.sql.Timestamp;
 import java.text.DateFormat;
+import java.text.DateFormatSymbols;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -31,7 +31,9 @@ import java.time.format.FormatStyle;
 import java.time.temporal.ChronoField;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Locale;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.empire.exceptions.InvalidArgumentException;
@@ -308,32 +310,48 @@ public class DateUtils
         return df.format(date);
     }
     
+    /**
+     * get DateFormatSymbols
+     */
+    private static Map<Locale, DateFormatSymbols> sdfMap = new HashMap<Locale, DateFormatSymbols>(); 
+    public static synchronized DateFormatSymbols getDateFormatSymbols(Locale locale)
+    {
+        if (locale==null)
+            locale = getSafeLocale(locale);
+        DateFormatSymbols dfs = sdfMap.get(locale);
+        if (dfs==null) {
+            dfs = new DateFormatSymbols(locale);
+            sdfMap.put(locale, dfs);
+        }
+        return dfs;
+    }
+    
     public static String formatDayOfWeek(Date date, Locale locale, boolean longFormat)
     {
         if (date==null)
             return StringUtils.EMPTY;
-        SimpleDateFormat sdf = new SimpleDateFormat("", getSafeLocale(locale));
+        DateFormatSymbols dfs = getDateFormatSymbols(locale);
         Calendar c = Calendar.getInstance(getSafeLocale(locale));
         c.setTime(date);
         int dayOfWeek = c.get(Calendar.DAY_OF_WEEK);
         if (longFormat)
-            return sdf.getDateFormatSymbols().getWeekdays()[dayOfWeek];
+            return dfs.getWeekdays()[dayOfWeek];
         else
-            return sdf.getDateFormatSymbols().getShortWeekdays()[dayOfWeek];
+            return dfs.getShortWeekdays()[dayOfWeek];
     }
     
     public static String formatMonth(Date date, Locale locale, boolean longFormat)
     {
         if (date==null)
             return StringUtils.EMPTY;
-        SimpleDateFormat sdf = new SimpleDateFormat("", getSafeLocale(locale));
+        DateFormatSymbols dfs = getDateFormatSymbols(locale);
         Calendar c = Calendar.getInstance(getSafeLocale(locale));
         c.setTime(date);
         int month = c.get(Calendar.MONTH);
         if (longFormat)
-            return sdf.getDateFormatSymbols().getMonths()[month];
+            return dfs.getMonths()[month];
         else
-            return sdf.getDateFormatSymbols().getShortMonths()[month];
+            return dfs.getShortMonths()[month];
     }
     
     public static int getWeekOfYear(Date date, Locale locale)
@@ -347,21 +365,20 @@ public class DateUtils
     
     public static String formatMonth(int month, Locale locale, boolean longFormat)
     {
-        SimpleDateFormat sdf = new SimpleDateFormat("", getSafeLocale(locale));
+        DateFormatSymbols dfs = getDateFormatSymbols(locale);
         if (longFormat)
-            return sdf.getDateFormatSymbols().getMonths()[month];
+            return dfs.getMonths()[month];
         else
-            return sdf.getDateFormatSymbols().getShortMonths()[month];
+            return dfs.getShortMonths()[month];
     }
     
     public static String formatYear(Date date, Locale locale)
     {
         if (date==null)
             return StringUtils.EMPTY;
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy", getSafeLocale(locale));
         Calendar c = Calendar.getInstance(getSafeLocale(locale));
         c.setTime(date);
-        return sdf.format(date);
+        return (String.format("%04d", c.get(Calendar.YEAR)));
     }
     
     /*
