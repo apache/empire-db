@@ -412,6 +412,37 @@ public abstract class DBCommand extends DBCommandExpr
     }
 
     /**
+     * Selects all set expressions
+     * i.e. converts all calls like  
+     *      cmd.set(COL.to(VALUE))
+     * into a select of the form
+     *      cmd.select(VALUE.as(COL))  
+     * @return itself (this)
+     */
+    public final DBCommand selectSetExpressions(List<DBSetExpr> setExprList)
+    {
+        // Check null or empty
+        if (setExprList==null || setExprList.isEmpty())
+            return this;
+        // convert set to select
+        for (DBSetExpr se : setExprList)
+        {
+            DBColumnExpr VAL = (DBColumnExpr)se.getValue();
+            select(VAL.as(se.getColumn()));
+        }
+        return this;
+    }
+
+    /**
+     * Selects all set expressions that have been set for this command
+     * @return itself (this)
+     */
+    public final DBCommand selectSetExpressions()
+    {
+        return selectSetExpressions(this.set);  
+    }
+    
+    /**
      * Adds a list of columns with their qualified name to the select phrase of an sql statement.
      * 
      * @param columns one or more columns to select
