@@ -428,6 +428,8 @@ public abstract class DBCommand extends DBCommandExpr
         for (DBSetExpr se : setExprList)
         {
             DBColumnExpr VAL = (DBColumnExpr)se.getValue();
+            if (VAL==null)
+                VAL= new DBValueExpr(se.getDatabase(), null, DataType.UNKNOWN);
             select(VAL.as(se.getColumn()));
         }
         return this;
