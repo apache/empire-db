@@ -58,17 +58,19 @@ public enum DataType
     DATE, //         = 4;
     
     /**
-     * Date value including time. Also knows a timestamp
+     * Time only (hh:mm:ss)
+     * Might be emulated by a DATE column with a fix date of 2000-01-01
      */
     TIME, //         = 5;
     
     /**
-     * Date value including time. Also knows a timestamp
+     * Date including time but without nanoseconds
      */
     DATETIME, //     = 6;
     
     /**
-     * Automatic Record timestamp (only one per table allowed)  
+     * Timestamp i.e. date including time and nanoseconds. 
+     * Must be used for the Timestamp column used for optimistic locking  
      */
     TIMESTAMP, //    = 7;
     
