@@ -570,16 +570,28 @@ public abstract class DBRowSet extends DBExpr implements EntityType
      */
     public void setTimestampColumn(DBColumn timestampColumn)
     {
-        if (timestampColumn!=null && timestampColumn.getRowSet()!=this)
-            throw new InvalidArgumentException("timestampColumn", timestampColumn);
-        if (timestampColumn!=null && this.timestampColumn!=null && this.timestampColumn!=timestampColumn)
-            throw new InvalidOperationException("A Timestamp column has already been set for rowset "+getName());
-        if (timestampColumn instanceof DBTableColumn)
-            ((DBTableColumn) timestampColumn).setReadOnly(true);
+        if (this.timestampColumn == timestampColumn)
+        {   // Not changed
+            return; 
+        }
+        if (timestampColumn!=null)
+        {   // check params
+            if (timestampColumn.getRowSet()!=this)
+                throw new InvalidArgumentException("timestampColumn", timestampColumn);
+            if (timestampColumn.getDataType()!=DataType.TIMESTAMP)
+                throw new InvalidOperationException("The Timestamp column "+timestampColumn.getFullName()+" must be of type TIMESTAMP!");
+            if (this.timestampColumn!=null && this.timestampColumn!=timestampColumn)
+                throw new InvalidOperationException("A Timestamp column has already been set for rowset "+getName());
+            if (timestampColumn instanceof DBTableColumn)
+                ((DBTableColumn) timestampColumn).setReadOnly(true);
+        }
         // set now
         this.timestampColumn = timestampColumn;
         // log
-        log.debug("Timestamp column {} has been set for table {}", timestampColumn.getName(), getName());
+        if (timestampColumn!=null)
+            log.debug("Timestamp column {} has been set for table {}", timestampColumn.getName(), getName());
+        else
+            log.debug("Timestamp column has been removed for table {}", getName());
     }
     
     /**
