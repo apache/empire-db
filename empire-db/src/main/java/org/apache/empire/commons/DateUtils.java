@@ -35,6 +35,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
@@ -483,6 +484,20 @@ public class DateUtils
     /*
      * Local Date formatting
      */
+    
+    public static final String FORMAT_PATTERN_ISO_DATE ="yyyy-MM-dd";  
+    public static final String FORMAT_PATTERN_ISO_TIME ="HH:mm:ss";
+    public static final String FORMAT_PATTERN_ISO_DATETIME ="yyyy-MM-dd HH:mm:ss";        
+    public static final String FORMAT_PATTERN_ISO_TIMESTAMP ="yyyy-MM-dd HH:mm:ss.SSS";
+    public static final String FORMAT_PATTERN_ISO_TIMESTAMP6 ="yyyy-MM-dd HH:mm:ss.SSSSSS";
+    public static final String FORMAT_PATTERN_ISO_TIMESTAMP9 ="yyyy-MM-dd HH:mm:ss.SSSSSSSSS";
+    
+    private static final Map<String, DateTimeFormatter> patternFormatterMap = new ConcurrentHashMap<String, DateTimeFormatter>();
+
+    public static DateTimeFormatter getPatternFormatter(String pattern) 
+    {
+        return patternFormatterMap.computeIfAbsent(pattern, DateTimeFormatter::ofPattern);
+    }
 
     public static DateTimeFormatter getLocalDateFormatter(Locale locale)
     {

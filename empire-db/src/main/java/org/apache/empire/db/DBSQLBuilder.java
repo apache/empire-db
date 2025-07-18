@@ -401,7 +401,7 @@ public abstract class DBSQLBuilder implements Appendable
         }
         // Convert to String
         String pattern = dbms.getSQLPhrase(sqlPattern);
-        DateTimeFormatter sqlFormat = DateTimeFormatter.ofPattern(pattern);
+        DateTimeFormatter sqlFormat = DateUtils.getPatternFormatter(pattern);
         String datetime = sqlFormat.format(ts);
         // Add micro / nanoseconds
         if (pattern.endsWith(".SSS") && nanos>0)
