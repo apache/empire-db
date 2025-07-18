@@ -123,7 +123,7 @@ public class DBMSHandlerHSql extends DBMSHandlerBase
             case SQL_DATE_TEMPLATE:     return "TO_DATE('{0}', 'YYYY-MM-DD')";
             case SQL_CURRENT_TIME:      return "CURRENT_TIME";
             case SQL_TIME_TEMPLATE:     return "'{0}'";
-            case SQL_CURRENT_DATETIME:  return "CURRENT_TIMESTAMP";
+            case SQL_CURRENT_DATETIME:  return "CURRENT_TIMESTAMP(0)";
             case SQL_DATETIME_TEMPLATE: return "TO_DATE('{0}', 'YYYY-MM-DD HH24:MI:SS')";
             case SQL_CURRENT_TIMESTAMP: return "CURRENT_TIMESTAMP";
             case SQL_TIMESTAMP_TEMPLATE:return "TO_TIMESTAMP('{0}', 'YYYY-MM-DD HH24:MI:SS.FF')";
