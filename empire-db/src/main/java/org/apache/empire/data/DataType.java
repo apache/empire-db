@@ -59,7 +59,7 @@ public enum DataType
     
     /**
      * Time only (hh:mm:ss)
-     * Might be emulated by a DATE column with a fix date of 2000-01-01
+     * Might be emulated by a DATE column with a fix date of 1970-01-01
      */
     TIME, //         = 5;
     

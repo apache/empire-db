@@ -442,6 +442,9 @@ public class DateUtils
     {   // Sql Date
         if (date instanceof java.sql.Date)
             return toLocalDateTime((java.sql.Date)date);
+        // Sql Time
+        if (date instanceof java.sql.Time)
+            return toLocalDateTime(new java.util.Date(((java.sql.Time)date).getTime()));
         // Sql Timestamp
         if (date instanceof java.sql.Timestamp)
             return toLocalDateTime((java.sql.Timestamp)date);

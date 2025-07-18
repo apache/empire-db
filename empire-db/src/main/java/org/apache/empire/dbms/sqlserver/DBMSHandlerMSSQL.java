@@ -394,10 +394,12 @@ public class DBMSHandlerMSSQL extends DBMSHandlerBase
             // data types
             case SQL_BOOLEAN_TRUE:            return "1";
             case SQL_BOOLEAN_FALSE:           return "0";
-            case SQL_CURRENT_DATE:            return "convert(char, getdate(), 111)";
+            case SQL_CURRENT_DATE:            return "convert(date, getdate())";
             case SQL_DATE_TEMPLATE:           return "convert(date, '{0}', 111)";
-            case SQL_CURRENT_TIME:            return "convert(time, getdate())";
-            case SQL_TIME_TEMPLATE:           return "convert(time, '{0}')";
+            case SQL_CURRENT_TIME:            return "convert(time, convert(varchar, getdate(), 120), 111)";
+            case SQL_TIME_TEMPLATE:           return "convert(time, '{0}', 108)";
+            case SQL_CURRENT_DATETIME:        return isUseDateTime2() ? "convert(datetime2, convert(varchar, getdate(), 120), 111)"
+                                                                      : "convert(datetime,  convert(varchar, getdate(), 120), 111)";
             case SQL_DATETIME_TEMPLATE:       return isUseDateTime2() ? "convert(datetime2, '{0}', 121)"
                                                                       : "convert(datetime,  '{0}', 121)";
             case SQL_CURRENT_TIMESTAMP:       return "getdate()";

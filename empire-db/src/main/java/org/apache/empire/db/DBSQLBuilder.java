@@ -308,7 +308,7 @@ public abstract class DBSQLBuilder implements Appendable
                 if (!DBDatabase.SYSDATE.equals(value) && !(value instanceof Date) && ObjectUtils.lengthOf(value)<=10)
                     text = getDateTimeString(value, DBSqlPhrase.SQL_DATE_TEMPLATE, DBSqlPhrase.SQL_DATE_PATTERN, DBSqlPhrase.SQL_CURRENT_TIMESTAMP);
                 else // Complete Date-Time Object with time
-                    text = getDateTimeString(value, DBSqlPhrase.SQL_DATETIME_TEMPLATE, DBSqlPhrase.SQL_DATETIME_PATTERN, DBSqlPhrase.SQL_CURRENT_TIMESTAMP);
+                    text = getDateTimeString(value, DBSqlPhrase.SQL_DATETIME_TEMPLATE, DBSqlPhrase.SQL_DATETIME_PATTERN, DBSqlPhrase.SQL_CURRENT_DATETIME);
                 sql.append(text);
                 return;
             case TIMESTAMP:

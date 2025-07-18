@@ -45,8 +45,9 @@ public enum DBSqlPhrase
     SQL_DATE_TEMPLATE       ("TO_DATE('{0}', 'YYYY-MM-DD')"),  // MSSql: convert(date, '{0}', 111)
     SQL_CURRENT_TIME        ("CURRENT_TIME"), // MSSql: CONVERT(time, getdate());
     SQL_TIME_TEMPLATE       ("'{0}'"),        // MSSql: convert(time, '{0}')
+    SQL_CURRENT_DATETIME    ("CURRENT_TIMESTAMP"),
     SQL_DATETIME_TEMPLATE   ("TO_DATE('{0}', 'YYYY-MM-DD HH24:MI:SS')"), // Oracle
-    SQL_CURRENT_TIMESTAMP   ("systimestamp"),                   // Oracle
+    SQL_CURRENT_TIMESTAMP   ("CURRENT_TIMESTAMP"),
     SQL_TIMESTAMP_TEMPLATE  ("TO_TIMESTAMP('{0}', 'YYYY.MM.DD HH24:MI:SS.FF')"), // Oracle
 
     // DateTimeFormatter patterns
