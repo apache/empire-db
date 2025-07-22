@@ -42,8 +42,8 @@ import org.apache.empire.db.list.DataBean;
 import org.apache.empire.dbms.DBMSHandler;
 import org.apache.empire.exceptions.BeanInstantiationException;
 import org.apache.empire.exceptions.InvalidArgumentException;
-import org.apache.empire.exceptions.ObjectNotValidException;
 import org.apache.empire.exceptions.InvalidOperationException;
+import org.apache.empire.exceptions.ObjectNotValidException;
 import org.apache.empire.xml.XMLUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -376,8 +376,8 @@ public class DBReader extends DBRecordData implements Closeable
     {
         if (index < 0 || index >= columns.length)
         { // Index out of range
-            log.error("Index out of range: " + index);
-            return true;
+            log.warn("Index {} is out of range", index);
+            throw new InvalidArgumentException("index", index);
         }
         try
         { // Check Value on Resultset

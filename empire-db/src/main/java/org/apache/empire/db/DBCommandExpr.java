@@ -651,8 +651,8 @@ public abstract class DBCommandExpr extends DBExpr
             DBColumnExpr expr = select[i];
             DBColumn col = table.getColumn(expr.getName());
             if (col == null)
-            { // Cannot find a match for that name
-                log.warn("InsertInto: Column " + expr.getName() + " not found!");
+            {   // Cannot find a match for that name
+                log.info("getInsertInto: column {} not found! Using index.", expr.getName());
                 col = table.getColumn(i);
             }
             inscols.add(col);

@@ -340,7 +340,7 @@ public class DBSQLScript implements DBContextAware, Iterable<String>
      */
     public int executeAll(boolean ignoreErrors)
     {
-        log.info("Running script containing " + String.valueOf(getCount()) + " statements.");
+        log.info("Running script containing {} statements.", getCount());
         int errors = 0;
         int result = 0;
         boolean comment = false; 
@@ -423,7 +423,7 @@ public class DBSQLScript implements DBContextAware, Iterable<String>
                 i++;
             }
             // Execute batch
-            log.info("Running batch containing " + String.valueOf(getCount()) + " statements.");
+            log.info("Running batch containing {} statements.", getCount());
             int[] res = dbms.executeBatch(cmdList, paramList, context.getConnection());
             for (count = 0, i = 0; i < (res != null ? res.length : 0); i++)
                  count+= (res[i] >= 0 ? res[i] : 0);

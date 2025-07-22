@@ -510,9 +510,9 @@ public class DBQuery extends DBRowSet
             // Set the field Value
             boolean modified = record.wasModified(i);
             if (modified == true)
-            { // Update a field
-                if (col.isReadOnly() && log.isDebugEnabled())
-                    log.debug("updateRecord: Read-only column '" + col.getName() + " has been modified!");
+            {   // Update a field
+                if (col.isReadOnly())
+                    log.debug("updateRecord: Read-only column {} has been modified!", col.getName());
                 // Check the value
                 col.validateValue(fields[i]);
                 // Set

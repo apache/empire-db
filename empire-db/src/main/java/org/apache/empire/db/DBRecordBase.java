@@ -514,8 +514,8 @@ public abstract class DBRecordBase extends DBRecordData implements Record, Clone
         {
             key[i] = get(keyColumns[i]);
             if (key[i] == null)
-            { // Primary Key not set
-                log.warn("DBRecord.getKey() failed: " + getRowSet().getName() + " primary key value is null!");
+            {   // Primary Key not set
+                log.info("Record key for {}: column {} is null!", getRowSet().getName(), keyColumns[i].getName());
             }
         }
         return key;
@@ -1130,7 +1130,7 @@ public abstract class DBRecordBase extends DBRecordData implements Record, Clone
     protected void onFieldChanged(int i)
     {
         if (log.isDebugEnabled())
-            log.debug("Record field " + getColumn(i).getName() + " changed to " + String.valueOf(fields[i]));
+            log.debug("Record field {} changed to {}", getColumn(i).getName(), fields[i]);
     }
 
     /**

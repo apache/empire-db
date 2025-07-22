@@ -309,7 +309,7 @@ public abstract class DBView extends DBRowSet implements Cloneable
         // set new alias
         clone.alias = generateAlias("v");
         // done
-        log.info("clone: Table " + name + " cloned! Alias old=" + alias + " new=" + clone.alias);
+        log.info("clone: View {} cloned! Alias old={} new={}", name, alias, clone.alias);
         db.addView(clone);
         return clone;
     }
@@ -333,12 +333,12 @@ public abstract class DBView extends DBRowSet implements Cloneable
             else
                 clone.alias = newAlias;
             // done
-            log.info("clone: Table " + name + " cloned! Alias old=" + alias + " new=" + clone.alias);
+            log.info("clone: View {} cloned! Alias old={} new={}", name, alias, clone.alias);
             db.addView(clone);
             return (T)clone;
         } catch (CloneNotSupportedException e) {
             // unable to clone table
-            log.error("Unable to clone table " + getName());
+            log.error("Unable to clone table {}", getName());
             throw new RuntimeException(e);
         }
     }

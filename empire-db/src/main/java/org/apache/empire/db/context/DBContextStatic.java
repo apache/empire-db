@@ -89,7 +89,7 @@ public class DBContextStatic extends DBContextBase
     {
         this.autoPrepareStmt = enabled;
         // log prepared statement 
-        log.info("PreparedStatementsEnabled has been set to " + autoPrepareStmt);
+        log.info("PreparedStatementsEnabled has been set to {}", autoPrepareStmt);
         return this;
     }
 
@@ -108,7 +108,7 @@ public class DBContextStatic extends DBContextBase
     {
         this.enableRollbackHandling = enabled;
         // log prepared statement 
-        log.info("RollbackHandlingEnabled has been set to " + enableRollbackHandling);
+        log.info("RollbackHandlingEnabled has been set to {}", enableRollbackHandling);
         return this;
     }
     

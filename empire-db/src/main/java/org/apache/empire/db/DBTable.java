@@ -188,7 +188,7 @@ public class DBTable extends DBRowSet implements Cloneable
         // set new alias
         clone.alias = generateAlias("t");
         // done
-        log.info("clone: Table " + name + " cloned! Alias old=" + alias + " new=" + clone.alias);
+        log.info("clone: Table {} cloned! Alias old={} new={}", name, alias, clone.alias);
         db.addTable(clone);
         return clone;
     }
@@ -207,12 +207,12 @@ public class DBTable extends DBRowSet implements Cloneable
             else
                 clone.alias = newAlias;
             // done
-            log.info("clone: Table " + name + " cloned! Alias old=" + alias + " new=" + clone.alias);
+            log.info("clone: Table {} cloned! Alias old={} new={}", name, alias, clone.alias);
             db.addTable(clone);
             return (T)clone;
         } catch (CloneNotSupportedException e) {
             // unable to clone table
-            log.error("Unable to clone table " + getName());
+            log.error("Unable to clone table {}", getName());
             throw new RuntimeException(e);
         }
     }
@@ -455,7 +455,7 @@ public class DBTable extends DBRowSet implements Cloneable
             keyDataType =DataType.INTEGER;
         DBTableColumn referenceColumn = addColumn(name, keyDataType, keyCol.getSize(), required, options); 
         // Adapter foreign key
-        String fkName = getName() + "_" + name.replace("_ID", "_FK");
+        String fkName = StringUtils.concat(getName(), "_", name.replace("_ID", "_FK"));
         DBRelation relation = db.addRelation(fkName, referenceColumn.referenceOn(keyCol));
         if (cascadeAction!=null)
             relation.setOnDeleteAction(cascadeAction);

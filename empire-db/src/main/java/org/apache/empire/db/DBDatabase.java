@@ -816,9 +816,9 @@ public abstract class DBDatabase extends DBObject
         String table = reference.getSourceColumn().getRowSet().getName();
         String col1 = reference.getSourceColumn().getName();
         // Create Relation Name
-        String name = table.substring(0, Math.min(table.length(), 14)) 
-                    + "_" + col1.substring(0, Math.min(col1.length(), 12))
-        			+ "_FK";
+        String name = StringUtils.concat(table.substring(0, Math.min(table.length(), 14)) 
+                    , "_" , col1.substring(0, Math.min(col1.length(), 12))
+        			, "_FK");
         return addRelation(name, new DBRelation.DBReference[] { reference });
     }
 
@@ -835,10 +835,10 @@ public abstract class DBDatabase extends DBObject
         String col1 = ref1.getSourceColumn().getName();
         String col2 = ref2.getSourceColumn().getName();
         // Create Relation Name
-        String name = table.substring(0, Math.min(table.length(), 9))
-                    + "_" + col1.substring(0, Math.min(col1.length(), 9))
-                    + "_" + col2.substring(0, Math.min(col2.length(), 9))
-                    + "_FK";
+        String name = StringUtils.concat(table.substring(0, Math.min(table.length(), 9))
+                    , "_" , col1.substring(0, Math.min(col1.length(), 9))
+                    , "_" , col2.substring(0, Math.min(col2.length(), 9))
+                    , "_FK");
         return addRelation(name, new DBRelation.DBReference[] { ref1, ref2 });
     }
 
@@ -1213,8 +1213,7 @@ public abstract class DBDatabase extends DBObject
                 break;
                 
             default:
-                if (log.isTraceEnabled())
-                    log.trace("No column validation has been implemented for data type " + type);
+                log.trace("No column validation has been implemented for data type {}", type);
                 break;
         }
         return value;

@@ -284,6 +284,18 @@ public class Options extends AbstractSet<OptionEntry> implements Cloneable, Seri
     }
 
     /**
+     * Gets the entry at index i
+     * 
+     * @param i the index
+     * 
+     * @return the OptionEntry or null
+     */
+    public OptionEntry getEntryAt(int i)
+    {
+        return (i>=0 && i<list.size() ? list.get(i) : null);
+    }
+
+    /**
      * Gets the value of the entry at index i
      * 
      * @param i the index

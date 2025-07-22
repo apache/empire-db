@@ -63,7 +63,7 @@ public class ErrorType // *Deprecated* implements Serializable
         }
         this.numParams = numParamCount;
         // Write error definition to log
-        log.debug("Error defined: " + key + "=" + msgPattern);
+        log.debug("Error defined: {}={}", key, msgPattern);
     }
 
     /**

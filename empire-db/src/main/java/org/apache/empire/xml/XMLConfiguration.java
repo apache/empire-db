@@ -128,14 +128,14 @@ public class XMLConfiguration
             Document doc = null;
             if (fromResource)
             {   // Open Resource
-                log.info("reading resource file: " + fileName);
+                log.info("reading resource file: {}", fileName);
                 inputStream = getClass().getClassLoader().getResourceAsStream(fileName);
                 // Parse File
                 doc = docBuilder.parse(inputStream);
             }
             else
             {   // Open File
-                log.info("reading configuration file: " + fileName);
+                log.info("reading configuration file: {}", fileName);
                 reader = new FileReader(fileName);
                 // Parse File
                 doc = docBuilder.parse(new InputSource(reader));

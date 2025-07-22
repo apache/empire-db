@@ -757,9 +757,9 @@ public abstract class DBRowSet extends DBExpr implements EntityType
         		    throw new ItemNotFoundException(column.getName());
         		}
                 if (timestampColumn == column)
-                { // Check the update Time Stamp
+                {   // Check the timestamp
                 	if (log.isInfoEnabled())
-                		log.info(getName() + "No record timestamp value has been provided. Hence concurrent changes will not be detected.");
+                		log.info("{}: No record timestamp value has been provided. Concurrent changes will not be detected.", getName());
                 } 
         		// Set to NO_VALUE
                 fields[i] = ObjectUtils.NO_VALUE;
@@ -904,7 +904,8 @@ public abstract class DBRowSet extends DBExpr implements EntityType
                     i++;
                 }
             }
-            log.warn("Record [{}] not found in {}", StringUtils.toString(key), getName());
+            if (log.isInfoEnabled())
+                log.info("Record [{}] not found in {}", StringUtils.toString(key), getName());
             // throw RecordNotFoundException
             throw new RecordNotFoundException(this, key);
         } finally {
@@ -1112,7 +1113,7 @@ public abstract class DBRowSet extends DBExpr implements EntityType
         {	// Update Record
             if (keyColumns == null)
             { // Requires a primary key
-                log.error("updateRecord: "  + name + " no primary key defined!");
+                log.error("updateRecord: {} no primary key defined!", name);
                 throw new NoPrimaryKeyException(this);
             }
             for (int i = 0; i < columns.size(); i++)
@@ -1122,7 +1123,7 @@ public abstract class DBRowSet extends DBExpr implements EntityType
             	if (value==ObjectUtils.NO_VALUE)
             	{   // Timestamp?
                     if (timestampColumn == columns.get(i))
-                        log.info("Record has no value for timestamp column. Concurrent changes will not be detected.");
+                        log.info("Record for {} has no timestamp. Concurrent changes will not be detected.", name);
                     // next
                     continue;
             	}
@@ -1133,7 +1134,7 @@ public abstract class DBRowSet extends DBExpr implements EntityType
                 { 	// Check for Modification
                     if (modified == true)
                     { // Requires a primary key
-                        log.warn("updateRecord: " + name + " primary has been modified!");
+                        log.warn("updateRecord: {} primary has been modified!", name);
                     }
                     // set pk constraint
                     cmd.where(col.is(value));
@@ -1151,7 +1152,7 @@ public abstract class DBRowSet extends DBExpr implements EntityType
                 else if (modified)
                 { 	// Update a field
                     if (col.isReadOnly())
-                        log.warn("updateRecord: Read-only column '" + col.getName() + " has been modified!");
+                        log.info("updateRecord: Read-only column {}.{} has been modified!", name, col.getName());
                     // Set the column
                     cmd.set(col.to(value));
                     setCount++;
@@ -1162,12 +1163,12 @@ public abstract class DBRowSet extends DBExpr implements EntityType
         }
         else
         {	// Not modified
-            log.info("updateRecord: " + name + " record has not been modified! ");
+            log.info("updateRecord: {} record has not been modified!", name);
             return;
         }
         if (setCount == 0)
         {   // Nothing to update
-            log.info("updateRecord: " + name + " nothing to update or insert!");
+            log.info("updateRecord: {} nothing to update or insert!", name);
             return;
         }
         // Perform action
@@ -1275,7 +1276,8 @@ public abstract class DBRowSet extends DBExpr implements EntityType
             List<Object[]> recKeys = context.getUtils().queryObjectList(cmd);
             for (Object[] recKey : recKeys)
             {   
-                log.info("Deleting Record " + StringUtils.valueOf(recKey) + " from table " + getName());
+                if (log.isInfoEnabled())
+                    log.info("Deleting record {} from table {}", StringUtils.arrayToString(recKey), getName());
                 deleteRecord(recKey, context);
             }
         }

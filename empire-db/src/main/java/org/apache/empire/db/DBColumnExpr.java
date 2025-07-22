@@ -1443,7 +1443,7 @@ public abstract class DBColumnExpr extends DBExpr
     {
         String name = getName();
         if (StringUtils.isNotEmpty(name))
-            return getClass().getSimpleName() + "[" + name + "]";
+            return StringUtils.concat(getClass().getSimpleName(), "[", name, "]");
         // default
         return super.toString();
     }
