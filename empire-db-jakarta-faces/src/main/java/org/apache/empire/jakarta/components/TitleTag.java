@@ -28,6 +28,7 @@ import org.apache.empire.jakarta.controls.InputControl;
 import org.apache.empire.jakarta.utils.StyleClass;
 import org.apache.empire.jakarta.utils.TagEncodingHelper;
 import org.apache.empire.jakarta.utils.TagEncodingHelperFactory;
+import org.apache.empire.jakarta.utils.TagEncodingHelperFactory.TagEncodingHolder;
 import org.apache.empire.jakarta.utils.TagStyleClass;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,7 +37,7 @@ import jakarta.faces.component.UIOutput;
 import jakarta.faces.context.FacesContext;
 import jakarta.faces.context.ResponseWriter;
 
-public class TitleTag extends UIOutput // implements NamingContainer
+public class TitleTag extends UIOutput implements TagEncodingHolder
 {
     // Logger
     private static final Logger log = LoggerFactory.getLogger(TitleTag.class);
@@ -51,7 +52,13 @@ public class TitleTag extends UIOutput // implements NamingContainer
     @Override
     public String getFamily()
     {
-        return "jakarta.faces.NamingContainer";
+        return TagEncodingHelper.COMPONENT_FAMILY;
+    }
+
+    @Override
+    public TagEncodingHelper getEncodingHelper()
+    {
+        return helper;
     }
 
     @Override

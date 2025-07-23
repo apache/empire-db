@@ -33,12 +33,12 @@ import org.apache.empire.jakarta.utils.ParameterMap;
 import org.apache.empire.jakarta.utils.StyleClass;
 import org.apache.empire.jakarta.utils.TagEncodingHelper;
 import org.apache.empire.jakarta.utils.TagEncodingHelperFactory;
+import org.apache.empire.jakarta.utils.TagEncodingHelperFactory.TagEncodingHolder;
 import org.apache.empire.jakarta.utils.TagStyleClass;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import jakarta.faces.component.UIComponent;
-import jakarta.faces.component.UINamingContainer;
 import jakarta.faces.component.UIOutput;
 import jakarta.faces.component.UIPanel;
 import jakarta.faces.component.UIParameter;
@@ -49,7 +49,7 @@ import jakarta.faces.component.visit.VisitContext;
 import jakarta.faces.context.FacesContext;
 import jakarta.faces.context.ResponseWriter;
 
-public class LinkTag extends UIOutput // implements NamingContainer
+public class LinkTag extends UIOutput implements TagEncodingHolder
 {
     // or HtmlOutcomeTargetLink
     // or HtmlOutputLink
@@ -83,7 +83,13 @@ public class LinkTag extends UIOutput // implements NamingContainer
     @Override
     public String getFamily()
     {
-        return UINamingContainer.COMPONENT_FAMILY; 
+        return TagEncodingHelper.COMPONENT_FAMILY;
+    }
+
+    @Override
+    public TagEncodingHelper getEncodingHelper()
+    {
+        return helper;
     }
     
     /**

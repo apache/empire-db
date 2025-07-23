@@ -23,7 +23,6 @@ import java.util.List;
 import java.util.Map;
 
 import javax.faces.component.UIComponent;
-import javax.faces.component.UINamingContainer;
 import javax.faces.component.UIOutput;
 import javax.faces.component.UIPanel;
 import javax.faces.component.UIParameter;
@@ -45,11 +44,12 @@ import org.apache.empire.jsf2.utils.ParameterMap;
 import org.apache.empire.jsf2.utils.StyleClass;
 import org.apache.empire.jsf2.utils.TagEncodingHelper;
 import org.apache.empire.jsf2.utils.TagEncodingHelperFactory;
+import org.apache.empire.jsf2.utils.TagEncodingHelperFactory.TagEncodingHolder;
 import org.apache.empire.jsf2.utils.TagStyleClass;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class LinkTag extends UIOutput // implements NamingContainer
+public class LinkTag extends UIOutput implements TagEncodingHolder
 {
     // or HtmlOutcomeTargetLink
     // or HtmlOutputLink
@@ -83,7 +83,13 @@ public class LinkTag extends UIOutput // implements NamingContainer
     @Override
     public String getFamily()
     {
-        return UINamingContainer.COMPONENT_FAMILY; 
+        return TagEncodingHelper.COMPONENT_FAMILY;
+    }
+
+    @Override
+    public TagEncodingHelper getEncodingHelper()
+    {
+        return helper;
     }
     
     /**

@@ -77,6 +77,7 @@ import jakarta.faces.component.NamingContainer;
 import jakarta.faces.component.UIComponent;
 import jakarta.faces.component.UIData;
 import jakarta.faces.component.UIInput;
+import jakarta.faces.component.UINamingContainer;
 import jakarta.faces.component.UIOutput;
 import jakarta.faces.component.html.HtmlOutputLabel;
 import jakarta.faces.component.html.HtmlOutputText;
@@ -90,6 +91,8 @@ import jakarta.faces.context.ResponseWriter;
  */
 public class TagEncodingHelper implements NamingContainer
 {
+    public static final String COMPONENT_FAMILY = UINamingContainer.COMPONENT_FAMILY;
+    
     public static final String FACES_ID_PREFIX = "j_id";  // Standard Faces ID Prefix
 
     public static boolean CSS_STYLE_USE_INPUT_TYPE_INSTEAD_OF_DATA_TYPE = true;
@@ -744,6 +747,12 @@ public class TagEncodingHelper implements NamingContainer
         // Value Info
         if (this.valueInfo!=null) 
            ((ValueInfoImpl)this.valueInfo).reset();
+    }
+
+    public void resetColumn()
+    {
+        this.column = null;
+        reset();
     }
     
     public Object findRecordComponent()

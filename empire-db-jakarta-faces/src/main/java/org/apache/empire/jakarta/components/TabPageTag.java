@@ -25,19 +25,19 @@ import org.apache.empire.jakarta.components.TabViewTag.TabViewMode;
 import org.apache.empire.jakarta.controls.InputControl;
 import org.apache.empire.jakarta.utils.TagEncodingHelper;
 import org.apache.empire.jakarta.utils.TagEncodingHelperFactory;
+import org.apache.empire.jakarta.utils.TagEncodingHelperFactory.TagEncodingHolder;
 import org.apache.empire.jakarta.utils.TagStyleClass;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import jakarta.faces.component.NamingContainer;
 import jakarta.faces.component.UIComponent;
-import jakarta.faces.component.UINamingContainer;
 import jakarta.faces.component.UIOutput;
 import jakarta.faces.component.UIPanel;
 import jakarta.faces.context.FacesContext;
 import jakarta.faces.context.ResponseWriter;
 
-public class TabPageTag extends UIOutput implements NamingContainer
+public class TabPageTag extends UIOutput implements NamingContainer, TagEncodingHolder
 {
     // Logger
     private static final Logger log = LoggerFactory.getLogger(TabPageTag.class);
@@ -51,7 +51,14 @@ public class TabPageTag extends UIOutput implements NamingContainer
     @Override
     public String getFamily()
     {
-        return UINamingContainer.COMPONENT_FAMILY; 
+        // return UINamingContainer.COMPONENT_FAMILY; 
+        return TagEncodingHelper.COMPONENT_FAMILY;
+    }
+
+    @Override
+    public TagEncodingHelper getEncodingHelper()
+    {
+        return helper;
     }
     
     @Override

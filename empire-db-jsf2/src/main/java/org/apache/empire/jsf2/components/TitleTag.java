@@ -33,10 +33,11 @@ import org.apache.empire.jsf2.utils.StyleClass;
 import org.apache.empire.jsf2.utils.TagEncodingHelper;
 import org.apache.empire.jsf2.utils.TagEncodingHelperFactory;
 import org.apache.empire.jsf2.utils.TagStyleClass;
+import org.apache.empire.jsf2.utils.TagEncodingHelperFactory.TagEncodingHolder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class TitleTag extends UIOutput // implements NamingContainer
+public class TitleTag extends UIOutput implements TagEncodingHolder
 {
     // Logger
     private static final Logger log = LoggerFactory.getLogger(TitleTag.class);
@@ -51,7 +52,13 @@ public class TitleTag extends UIOutput // implements NamingContainer
     @Override
     public String getFamily()
     {
-        return "javax.faces.NamingContainer";
+        return TagEncodingHelper.COMPONENT_FAMILY;
+    }
+
+    @Override
+    public TagEncodingHelper getEncodingHelper()
+    {
+        return helper;
     }
 
     @Override

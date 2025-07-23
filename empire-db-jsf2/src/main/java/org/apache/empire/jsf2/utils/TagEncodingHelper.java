@@ -34,6 +34,7 @@ import javax.faces.component.NamingContainer;
 import javax.faces.component.UIComponent;
 import javax.faces.component.UIData;
 import javax.faces.component.UIInput;
+import javax.faces.component.UINamingContainer;
 import javax.faces.component.UIOutput;
 import javax.faces.component.html.HtmlOutputLabel;
 import javax.faces.component.html.HtmlOutputText;
@@ -90,6 +91,8 @@ import org.slf4j.LoggerFactory;
  */
 public class TagEncodingHelper implements NamingContainer
 {
+    public static final String COMPONENT_FAMILY = UINamingContainer.COMPONENT_FAMILY;
+    
     public static final String FACES_ID_PREFIX = "j_id";  // Standard Faces ID Prefix
 
     public static boolean CSS_STYLE_USE_INPUT_TYPE_INSTEAD_OF_DATA_TYPE = true;
@@ -458,7 +461,7 @@ public class TagEncodingHelper implements NamingContainer
     protected TagEncodingHelper(UIOutput component, String cssStyleClass)
     {
         this.component = component;
-        this.cssStyleClass = cssStyleClass;
+        this.cssStyleClass = cssStyleClass;        
     }
 
     /**
@@ -744,6 +747,12 @@ public class TagEncodingHelper implements NamingContainer
         // Value Info
         if (this.valueInfo!=null) 
            ((ValueInfoImpl)this.valueInfo).reset();
+    }
+
+    public void resetColumn()
+    {
+        this.column = null;
+        reset();
     }
     
     public Object findRecordComponent()

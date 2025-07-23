@@ -20,12 +20,12 @@ package org.apache.empire.jakarta.components;
 
 import java.io.IOException;
 
-import jakarta.faces.component.UINamingContainer;
+import org.apache.empire.commons.ObjectUtils;
+import org.apache.empire.jakarta.utils.TagEncodingHelper;
+
 import jakarta.faces.component.UIOutput;
 import jakarta.faces.context.FacesContext;
 import jakarta.faces.context.ResponseWriter;
-
-import org.apache.empire.commons.ObjectUtils;
 
 public class NbspTag extends UIOutput // implements NamingContainer
 {
@@ -34,7 +34,7 @@ public class NbspTag extends UIOutput // implements NamingContainer
     @Override
     public String getFamily()
     {
-        return UINamingContainer.COMPONENT_FAMILY; 
+        return TagEncodingHelper.COMPONENT_FAMILY; 
     }
 
     @Override

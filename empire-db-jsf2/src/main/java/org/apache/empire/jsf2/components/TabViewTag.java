@@ -25,7 +25,6 @@ import java.util.List;
 import javax.el.MethodExpression;
 import javax.el.ValueExpression;
 import javax.faces.component.UIComponent;
-import javax.faces.component.UINamingContainer;
 import javax.faces.component.UIOutput;
 import javax.faces.component.html.HtmlCommandLink;
 import javax.faces.context.FacesContext;
@@ -43,11 +42,12 @@ import org.apache.empire.jsf2.controls.InputControlManager;
 import org.apache.empire.jsf2.utils.StyleClass;
 import org.apache.empire.jsf2.utils.TagEncodingHelper;
 import org.apache.empire.jsf2.utils.TagEncodingHelperFactory;
+import org.apache.empire.jsf2.utils.TagEncodingHelperFactory.TagEncodingHolder;
 import org.apache.empire.jsf2.utils.TagStyleClass;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class TabViewTag extends UIOutput // implements NamingContainer
+public class TabViewTag extends UIOutput implements TagEncodingHolder
 {
     // Logger
     private static final Logger       log                    = LoggerFactory.getLogger(TabViewTag.class);
@@ -153,7 +153,13 @@ public class TabViewTag extends UIOutput // implements NamingContainer
     @Override
     public String getFamily()
     {
-        return UINamingContainer.COMPONENT_FAMILY;
+        return TagEncodingHelper.COMPONENT_FAMILY;
+    }
+
+    @Override
+    public TagEncodingHelper getEncodingHelper()
+    {
+        return helper;
     }
 
     public TabViewMode getViewMode()

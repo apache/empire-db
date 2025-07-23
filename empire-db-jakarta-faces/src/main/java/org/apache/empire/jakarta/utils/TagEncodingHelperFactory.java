@@ -23,6 +23,14 @@ import jakarta.faces.component.UIOutput;
 public abstract class TagEncodingHelperFactory
 {
     /**
+     * TagEncodingHolder
+     */
+    public static interface TagEncodingHolder
+    {
+        TagEncodingHelper getEncodingHelper();
+    }
+    
+    /**
      * DefaultTagEncodingHelperFactory
      * Factory creating instances of TagEncodingHelper
      * @author doebele

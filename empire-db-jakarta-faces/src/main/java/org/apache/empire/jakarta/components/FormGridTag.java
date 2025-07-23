@@ -25,17 +25,17 @@ import org.apache.empire.jakarta.controls.InputControl;
 import org.apache.empire.jakarta.utils.ControlRenderInfo;
 import org.apache.empire.jakarta.utils.TagEncodingHelper;
 import org.apache.empire.jakarta.utils.TagEncodingHelperFactory;
+import org.apache.empire.jakarta.utils.TagEncodingHelperFactory.TagEncodingHolder;
 import org.apache.empire.jakarta.utils.TagStyleClass;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import jakarta.faces.component.UIComponent;
-import jakarta.faces.component.UINamingContainer;
 import jakarta.faces.component.UIOutput;
 import jakarta.faces.context.FacesContext;
 import jakarta.faces.context.ResponseWriter;
 
-public class FormGridTag extends UIOutput // implements NamingContainer
+public class FormGridTag extends UIOutput implements TagEncodingHolder
 {
     // Logger
     private static final Logger log = LoggerFactory.getLogger(FormGridTag.class);
@@ -142,7 +142,13 @@ public class FormGridTag extends UIOutput // implements NamingContainer
     @Override
     public String getFamily()
     {
-        return UINamingContainer.COMPONENT_FAMILY; 
+        return TagEncodingHelper.COMPONENT_FAMILY;
+    }
+
+    @Override
+    public TagEncodingHelper getEncodingHelper()
+    {
+        return helper;
     }
         
     @Override

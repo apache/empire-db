@@ -38,11 +38,12 @@ import org.apache.empire.jsf2.utils.ControlRenderInfo;
 import org.apache.empire.jsf2.utils.StyleClass;
 import org.apache.empire.jsf2.utils.TagEncodingHelper;
 import org.apache.empire.jsf2.utils.TagEncodingHelperFactory;
+import org.apache.empire.jsf2.utils.TagEncodingHelperFactory.TagEncodingHolder;
 import org.apache.empire.jsf2.utils.TagStyleClass;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class InputTag extends UIInput implements NamingContainer
+public class InputTag extends UIInput implements NamingContainer, TagEncodingHolder
 {
     // Logger
     private static final Logger       log                    = LoggerFactory.getLogger(InputTag.class);
@@ -78,7 +79,14 @@ public class InputTag extends UIInput implements NamingContainer
     @Override
     public String getFamily()
     {
-        return "javax.faces.NamingContainer";
+        // return UINamingContainer.COMPONENT_FAMILY;
+        return TagEncodingHelper.COMPONENT_FAMILY;
+    }
+
+    @Override
+    public TagEncodingHelper getEncodingHelper()
+    {
+        return helper;
     }
 
     protected void saveState()

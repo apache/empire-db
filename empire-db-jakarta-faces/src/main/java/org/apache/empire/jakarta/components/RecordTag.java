@@ -23,10 +23,11 @@ import jakarta.faces.component.UIComponentBase;
 import org.apache.empire.commons.ObjectUtils;
 import org.apache.empire.data.Record;
 import org.apache.empire.data.RecordData;
+import org.apache.empire.jakarta.utils.TagEncodingHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class RecordTag extends UIComponentBase // implements NamingContainer
+public class RecordTag extends UIComponentBase
 {
     // Logger
     private static final Logger log = LoggerFactory.getLogger(RecordTag.class);
@@ -39,7 +40,7 @@ public class RecordTag extends UIComponentBase // implements NamingContainer
     @Override
     public String getFamily()
     {
-        return "jakarta.faces.NamingContainer";
+        return TagEncodingHelper.COMPONENT_FAMILY;
     }
 
     public Object getRecord()

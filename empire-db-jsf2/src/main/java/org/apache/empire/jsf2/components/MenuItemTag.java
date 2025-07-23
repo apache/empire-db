@@ -21,7 +21,6 @@ package org.apache.empire.jsf2.components;
 import java.io.IOException;
 
 import javax.faces.component.UIComponent;
-import javax.faces.component.UINamingContainer;
 import javax.faces.component.html.HtmlOutcomeTargetLink;
 import javax.faces.context.FacesContext;
 import javax.faces.context.ResponseWriter;
@@ -49,7 +48,7 @@ public class MenuItemTag extends LinkTag
     @Override
     public String getFamily()
     {
-        return UINamingContainer.COMPONENT_FAMILY; 
+        return TagEncodingHelper.COMPONENT_FAMILY; 
     }
     
     /* 

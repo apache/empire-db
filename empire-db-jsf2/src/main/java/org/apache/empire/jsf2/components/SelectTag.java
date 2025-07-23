@@ -47,6 +47,7 @@ import org.apache.empire.jsf2.controls.InputControl.InputInfo;
 import org.apache.empire.jsf2.controls.InputControlManager;
 import org.apache.empire.jsf2.controls.SelectInputControl;
 import org.apache.empire.jsf2.utils.StyleClass;
+import org.apache.empire.jsf2.utils.TagEncodingHelper;
 import org.apache.empire.jsf2.utils.TagStyleClass;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -201,7 +202,8 @@ public class SelectTag extends UIInput implements NamingContainer
     @Override
     public String getFamily()
     {
-        return "javax.faces.NamingContainer";
+        // return UINamingContainer.COMPONENT_FAMILY;
+        return TagEncodingHelper.COMPONENT_FAMILY;
     }
     
     /**

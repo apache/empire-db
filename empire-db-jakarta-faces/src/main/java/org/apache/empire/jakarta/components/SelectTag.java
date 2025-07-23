@@ -38,6 +38,7 @@ import org.apache.empire.jakarta.controls.InputControl.InputInfo;
 import org.apache.empire.jakarta.controls.InputControlManager;
 import org.apache.empire.jakarta.controls.SelectInputControl;
 import org.apache.empire.jakarta.utils.StyleClass;
+import org.apache.empire.jakarta.utils.TagEncodingHelper;
 import org.apache.empire.jakarta.utils.TagStyleClass;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -201,7 +202,8 @@ public class SelectTag extends UIInput implements NamingContainer
     @Override
     public String getFamily()
     {
-        return "jakarta.faces.NamingContainer";
+        // return UINamingContainer.COMPONENT_FAMILY;
+        return TagEncodingHelper.COMPONENT_FAMILY;
     }
     
     /**

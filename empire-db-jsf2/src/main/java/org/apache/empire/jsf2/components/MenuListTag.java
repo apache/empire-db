@@ -21,7 +21,6 @@ package org.apache.empire.jsf2.components;
 import java.io.IOException;
 
 import javax.faces.component.UIComponent;
-import javax.faces.component.UINamingContainer;
 import javax.faces.component.UIOutput;
 import javax.faces.context.FacesContext;
 import javax.faces.context.ResponseWriter;
@@ -30,9 +29,10 @@ import org.apache.empire.commons.StringUtils;
 import org.apache.empire.jsf2.controls.InputControl;
 import org.apache.empire.jsf2.utils.TagEncodingHelper;
 import org.apache.empire.jsf2.utils.TagEncodingHelperFactory;
+import org.apache.empire.jsf2.utils.TagEncodingHelperFactory.TagEncodingHolder;
 import org.apache.empire.jsf2.utils.TagStyleClass;
 
-public class MenuListTag extends UIOutput // implements NamingContainer
+public class MenuListTag extends UIOutput implements TagEncodingHolder
 {
     // Logger
     // private static final Logger log = LoggerFactory.getLogger(MenuListTag.class);
@@ -64,7 +64,13 @@ public class MenuListTag extends UIOutput // implements NamingContainer
     @Override
     public String getFamily()
     {
-        return UINamingContainer.COMPONENT_FAMILY; 
+        return TagEncodingHelper.COMPONENT_FAMILY;
+    }
+
+    @Override
+    public TagEncodingHelper getEncodingHelper()
+    {
+        return helper;
     }
         
     @Override
