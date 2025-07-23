@@ -27,8 +27,10 @@ import javax.el.ELResolver;
 import javax.faces.context.FacesContext;
 
 import org.apache.empire.commons.StringUtils;
+import org.apache.empire.data.ColumnExpr;
+import org.apache.empire.data.Entity;
+import org.apache.empire.data.EntityDomain;
 import org.apache.empire.data.RecordData;
-import org.apache.empire.db.DBColumnExpr;
 import org.apache.empire.db.DBDatabase;
 import org.apache.empire.db.DBRowSet;
 import org.apache.empire.exceptions.NotSupportedException;
@@ -50,7 +52,9 @@ public class DBELResolver extends ELResolver
     @Override
     public Class<?> getType(ELContext context, Object base, Object property)
     {
-        if ((base instanceof DBRowSet) ||
+        if ((base instanceof Entity) ||
+            (base instanceof EntityDomain) ||
+            (base instanceof RecordData) ||
             (base instanceof DBDatabase) ||
             (base==null && property.equals("db")))
             log.warn("DBELResolver:getType is not implemented!");
@@ -68,22 +72,41 @@ public class DBELResolver extends ELResolver
     public Object getValue(ELContext context, Object base, Object property)
     {
         // Resolve database, table/view or column
-        if (base instanceof DBRowSet)
+        if (base instanceof Entity)
         {   // Find matching column
             String name = StringUtils.toString(property);
-            DBColumnExpr column = ((DBRowSet)base).getColumn(name);
-            if (column==null)
-                column = findExpressionField(base, name); 
-            if (column!=null)
+            ColumnExpr column = ((Entity)base).getColumn(name);
+            if (column!=null) {
                 context.setPropertyResolved(true); 
-            else
-                log.error("ELResolver error: Column '{}' cannot be resolved for table/view '{}'.", name.toUpperCase(), ((DBRowSet)base).getName());
-            // done
-            return column;
+                return column;
+            }
+            // Find property value
+            Object propValue = getPropertyValue(base, name);
+            if (propValue==null)
+            {   // Not found
+                String entityName = (base instanceof DBRowSet) ? ((DBRowSet)base).getName() : base.getClass().getSimpleName();
+                log.error("ELResolver error: Column '{}' cannot be resolved for entity/table/view '{}'.", name.toUpperCase(), entityName);
+                return null;
+            }
+            // check for ColumnExpr
+            if (propValue instanceof ColumnExpr)
+            {   // found
+                context.setPropertyResolved(true); 
+                return propValue;
+            }
+            // check for ColumnExpr[]
+            if (propValue instanceof ColumnExpr[])
+            {   // found an array
+                context.setPropertyResolved(true); 
+                return propValue;
+            }
+            // Unknown Type
+            log.error("ELResolver error: Field '{}.{}' is not a ColumnExpr.", base.getClass().getSimpleName(), property);
+            return null;
         }
         else if (base instanceof DBDatabase)
         {   // Lookup RowSet
-            String   name = StringUtils.toString(property);
+            String name = StringUtils.toString(property);
             DBRowSet rset = ((DBDatabase)base).getRowSet(name);
             if (rset==null)
                 rset = ((DBDatabase)base).getRowSetByAlias(name); // 2nd chance
@@ -93,6 +116,17 @@ public class DBELResolver extends ELResolver
                 log.error("ELResolver error: Table/View '{}' cannot be resolved.", name.toUpperCase());
             // done
             return rset;
+        }
+        else if (base instanceof EntityDomain)
+        {   // Lookup EntityType
+            String name = StringUtils.toString(property);
+            Entity entity = ((EntityDomain)base).getEntity(name);
+            if (entity!=null)
+                context.setPropertyResolved(true);
+            else
+                log.error("ELResolver error: Entity '{}' cannot be resolved.", name.toUpperCase());
+            // done
+            return entity;
         }
         else if (base instanceof RecordData)
         {   // Lookup RowSet           
@@ -124,7 +158,10 @@ public class DBELResolver extends ELResolver
         return null;
     }
     
-    public static DBColumnExpr findExpressionField(Object rowset, String property)
+    /**
+     * Simply return the value of the field
+     */
+    protected Object getPropertyValue(Object rowset, String property)
     {
         Class<?> c = rowset.getClass();
         try
@@ -138,12 +175,7 @@ public class DBELResolver extends ELResolver
                 log.error("ELResolver error: Field '{}.{}' is null.", c.getSimpleName(), property);
                 return null;
             }    
-            if (!(v instanceof DBColumnExpr))
-            {   // invalid data type 
-                log.error("ELResolver error: Field '{}.{}' is not a DBColumnExpr.", c.getSimpleName(), property);
-                return null;
-            }    
-            return ((DBColumnExpr)v);
+            return v;
         }
         catch (SecurityException e)
         {
@@ -170,7 +202,8 @@ public class DBELResolver extends ELResolver
     public boolean isReadOnly(ELContext context, Object base, Object property)
     {
         // is it our's?
-        if ((base instanceof DBRowSet) ||
+        if ((base instanceof Entity) ||
+            (base instanceof EntityDomain) ||
             (base instanceof DBDatabase) ||
             (base==null && property.equals("db")))
         {   // read only

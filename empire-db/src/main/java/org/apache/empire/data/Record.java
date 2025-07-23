@@ -106,7 +106,7 @@ public interface Record extends RecordData
      * Returns the entity this Record belongs to 
      * @return the entity
      */
-    EntityType getEntityType();
+    Entity getEntity();
 
     /**
      * returns true if the field is visible to the client.

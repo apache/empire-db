@@ -26,7 +26,7 @@ import org.apache.empire.commons.ObjectUtils;
 import org.apache.empire.commons.Options;
 import org.apache.empire.data.Column;
 import org.apache.empire.data.DataType;
-import org.apache.empire.data.EntityType;
+import org.apache.empire.data.Entity;
 import org.apache.empire.db.exceptions.FieldNotNullException;
 
 /**
@@ -96,7 +96,7 @@ public class BeanProperty implements Column
     }
 
     @Override
-    public EntityType getEntityType()
+    public Entity getEntity()
     {
         return beanClass;
     }

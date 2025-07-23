@@ -22,6 +22,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import org.apache.empire.commons.StringUtils;
+import org.apache.empire.data.EntityDomain;
+
 /**
  * BeanDomain
  * This class defines Metadata for a domain of java classes.
@@ -30,7 +33,7 @@ import java.util.List;
  * A metadata definition consists primarily of the domain name and a list of classes.  
  * @author Rainer
  */
-public abstract class BeanDomain
+public abstract class BeanDomain implements EntityDomain
 {
     private final String name;
     private final List<BeanClass> classes = new ArrayList<BeanClass>();
@@ -39,7 +42,7 @@ public abstract class BeanDomain
     {
         this.name = name;
     }
-
+    
     protected void addClass(BeanClass beanClass)
     {
         classes.add(beanClass);
@@ -54,6 +57,16 @@ public abstract class BeanDomain
     public List<BeanClass> getClasses()
     {
         return Collections.unmodifiableList(this.classes);        
+    }
+    
+    @Override
+    public BeanClass getEntity(String name)
+    {
+        for (BeanClass bc : classes)
+            if (StringUtils.compareEqual(name, bc.getEntityName()))
+                return bc; // found
+        // not found
+        return null;
     }
     
 }

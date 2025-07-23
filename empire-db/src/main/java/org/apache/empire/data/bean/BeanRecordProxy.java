@@ -26,7 +26,7 @@ import org.apache.empire.commons.ObjectUtils;
 import org.apache.empire.commons.Options;
 import org.apache.empire.data.Column;
 import org.apache.empire.data.ColumnExpr;
-import org.apache.empire.data.EntityType;
+import org.apache.empire.data.Entity;
 import org.apache.empire.data.Record;
 import org.apache.empire.exceptions.InvalidArgumentException;
 import org.apache.empire.exceptions.ItemNotFoundException;
@@ -47,14 +47,14 @@ public class BeanRecordProxy<T> implements Record
 {
     protected static final Logger log = LoggerFactory.getLogger(BeanRecordProxy.class);
     
-    protected final EntityType entity;
+    protected final Entity entity;
     protected final List<Column> columns;
     protected final Column[] keyColumns;
 
     protected T data;
     protected boolean[] modified;
 
-    public BeanRecordProxy(T data, List<Column> columns, Column[] keyColumns, EntityType entity)
+    public BeanRecordProxy(T data, List<Column> columns, Column[] keyColumns, Entity entity)
     {
         this.data = data;
         this.columns = columns;
@@ -62,7 +62,7 @@ public class BeanRecordProxy<T> implements Record
         this.entity = entity;
     }
 
-    public BeanRecordProxy(List<Column> columns, Column[] keyColumns, EntityType entity)
+    public BeanRecordProxy(List<Column> columns, Column[] keyColumns, Entity entity)
     {
         this(null, columns, keyColumns, entity);
     }
@@ -203,7 +203,7 @@ public class BeanRecordProxy<T> implements Record
     }
     
     @Override
-    public EntityType getEntityType()
+    public Entity getEntity()
     {
         return this.entity;
     }

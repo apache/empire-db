@@ -35,7 +35,7 @@ import org.apache.empire.commons.StringUtils;
 import org.apache.empire.data.Column;
 import org.apache.empire.data.ColumnExpr;
 import org.apache.empire.data.DataType;
-import org.apache.empire.data.EntityType;
+import org.apache.empire.data.Entity;
 import org.apache.empire.data.Record;
 import org.apache.empire.db.DBRelation.DBCascadeAction;
 import org.apache.empire.db.DBRelation.DBReference;
@@ -74,7 +74,7 @@ import org.slf4j.LoggerFactory;
  * DBView and DBQuery classes this class contains all the columns of the
  * tables, views or queries
  */
-public abstract class DBRowSet extends DBExpr implements EntityType
+public abstract class DBRowSet extends DBExpr implements Entity
 {
     // *Deprecated* private static final long serialVersionUID = 1L;
 
@@ -436,6 +436,15 @@ public abstract class DBRowSet extends DBExpr implements EntityType
     {
         return db;
     }
+    
+    /**
+     * Returns the number of columns in this rowset
+     * @return the column count
+     */
+    public int getColumnCount()
+    {
+        return columns.size();
+    }
 
     /**
      * Returns a list of all columns of this rowset (e.g. for cmd.select()).
@@ -502,6 +511,7 @@ public abstract class DBRowSet extends DBExpr implements EntityType
      * @param name the name of the column to look for 
      * @return the column Expression at position
      */
+    @Override
     public DBColumn getColumn(String name)
     {
         for (int i = 0; i < columns.size(); i++)

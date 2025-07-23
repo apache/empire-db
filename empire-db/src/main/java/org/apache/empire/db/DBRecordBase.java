@@ -32,7 +32,7 @@ import org.apache.empire.commons.Options;
 import org.apache.empire.commons.StringUtils;
 import org.apache.empire.data.Column;
 import org.apache.empire.data.ColumnExpr;
-import org.apache.empire.data.EntityType;
+import org.apache.empire.data.Entity;
 import org.apache.empire.data.Record;
 import org.apache.empire.db.context.DBRollbackHandler;
 import org.apache.empire.db.exceptions.FieldReadOnlyException;
@@ -288,7 +288,7 @@ public abstract class DBRecordBase extends DBRecordData implements Record, Clone
      * @return true if this record is a new record
      */
     @Override
-    public EntityType getEntityType()
+    public Entity getEntity()
     {
         return getRowSet();
     }

@@ -56,7 +56,7 @@ public interface Column extends ColumnExpr
      * Returns the EntityType that this Column belongs to
      * @return the EntityType if any
      */
-    EntityType getEntityType();    
+    Entity getEntity();    
     
     /**
      * Returns the maximum size a value for this column is allowed to have.

@@ -30,7 +30,7 @@ import org.apache.empire.commons.BeanPropertyUtils;
 import org.apache.empire.commons.ObjectUtils;
 import org.apache.empire.data.Column;
 import org.apache.empire.data.ColumnExpr;
-import org.apache.empire.data.EntityType;
+import org.apache.empire.data.Entity;
 import org.apache.empire.data.RecordData;
 import org.apache.empire.db.DBRecordBase;
 import org.apache.empire.db.exceptions.NoPrimaryKeyException;
@@ -73,14 +73,14 @@ public class DataListEntry implements RecordData, Serializable
     
     /**
      * Returns the record key for a type of entity
-     * @param entityType the entity type or rowset for which to get key
+     * @param entity the entity type or rowset for which to get key
      * @return the record key
      */
-    public Object[] getRecordKey(EntityType entityType)
+    public Object[] getRecordKey(Entity entity)
     {
-        Column[] keyColumns = entityType.getKeyColumns();
+        Column[] keyColumns = entity.getKeyColumns();
         if (keyColumns==null || keyColumns.length==0)
-            throw new NoPrimaryKeyException(entityType);
+            throw new NoPrimaryKeyException(entity);
         // Collect key
         Object[] key = new Object[keyColumns.length];
         for (int i=0; i<key.length; i++)
@@ -90,15 +90,15 @@ public class DataListEntry implements RecordData, Serializable
 
     /**
      * Returns the record id for a type of entity which has a single numeric primary key
-     * @param entityType the entity type or rowset for which to get key
+     * @param entity the entity type or rowset for which to get key
      * @return the record id
      * @throws InvalidArgumentException if the entity has not a single numeric primary key
      */
-    public long getRecordId(EntityType entityType)
+    public long getRecordId(Entity entity)
     {
-        Column[] keyColumns = entityType.getKeyColumns();
+        Column[] keyColumns = entity.getKeyColumns();
         if (keyColumns==null || keyColumns.length!=1)
-            throw new InvalidArgumentException("entityType", entityType.getEntityName());
+            throw new InvalidArgumentException("entity", entity.getEntityName());
         // return id
         return ObjectUtils.getLong(get(keyColumns[0]));
     }

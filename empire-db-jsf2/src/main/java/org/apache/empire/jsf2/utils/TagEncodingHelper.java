@@ -51,7 +51,7 @@ import org.apache.empire.commons.Unwrappable;
 import org.apache.empire.data.Column;
 import org.apache.empire.data.ColumnExpr;
 import org.apache.empire.data.DataType;
-import org.apache.empire.data.EntityType;
+import org.apache.empire.data.Entity;
 import org.apache.empire.data.Record;
 import org.apache.empire.data.RecordData;
 import org.apache.empire.db.DBDatabase;
@@ -126,10 +126,10 @@ public class TagEncodingHelper implements NamingContainer
         }
         
         @Override
-        public EntityType getEntityType()
+        public Entity getEntity()
         {
             Column column = getUpdateColumn();
-            return (column!=null ? column.getEntityType() : null);
+            return (column!=null ? column.getEntity() : null);
         }
 
         @Override
@@ -695,7 +695,7 @@ public class TagEncodingHelper implements NamingContainer
         if (column==null)
             return StringUtils.NULL;
         // Find Entity
-        EntityType entity = column.getEntityType();
+        Entity entity = column.getEntity();
         if (entity!=null)
             return StringUtils.concat(entity.getEntityName(), "_", column.getName());
         // No Entity

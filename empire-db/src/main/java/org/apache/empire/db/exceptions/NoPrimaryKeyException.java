@@ -20,7 +20,7 @@ package org.apache.empire.db.exceptions;
 
 import org.apache.empire.commons.ErrorType;
 import org.apache.empire.commons.StringUtils;
-import org.apache.empire.data.EntityType;
+import org.apache.empire.data.Entity;
 import org.apache.empire.db.DBRowSet;
 import org.apache.empire.exceptions.EmpireException;
 
@@ -35,8 +35,8 @@ public class NoPrimaryKeyException extends EmpireException
         super(errorType, new String[] { StringUtils.coalesce(rowset.getName(), rowset.getAlias()) });
     }
     
-    public NoPrimaryKeyException(EntityType entityType)
+    public NoPrimaryKeyException(Entity entity)
     {
-        super(errorType, new String[] { entityType.getEntityName() });
+        super(errorType, new String[] { entity.getEntityName() });
     }
 }

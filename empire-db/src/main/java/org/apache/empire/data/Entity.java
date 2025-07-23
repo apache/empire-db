@@ -16,19 +16,23 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.empire.db.exceptions;
+package org.apache.empire.data;
 
-import org.apache.empire.commons.ErrorType;
-import org.apache.empire.db.DBRecordBase;
+import java.util.List;
 
-public class RecordReadOnlyException extends RecordException
+/**
+ * EntityType
+ * Defines an entity such as a table or view
+ */
+public interface Entity
 {
-    private static final long serialVersionUID = 1L;
+    String getEntityName(); 
+
+    List<? extends Column> getColumns();
+
+    Column getColumn(String name);
     
-    public static final ErrorType errorType = new ErrorType("error.db.recordIsReadOnly",    "The record {0} of {1} is read only.");
+    Column[] getKeyColumns();
     
-    public RecordReadOnlyException(DBRecordBase record)
-    {
-        super(record, errorType, new String[] { keyToString(getKey(record)), entityName(getEntity(record)) });
-    }
+    Class<?> getBeanType();
 }

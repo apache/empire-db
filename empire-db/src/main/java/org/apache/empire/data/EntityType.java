@@ -18,15 +18,13 @@
  */
 package org.apache.empire.data;
 
-import java.util.List;
-
-public interface EntityType
+/**
+ * EntityType has been renamed to just "Entity"
+ * Provided for backward compatibility only
+ * Will be removed in future versions!
+ */
+@Deprecated
+public interface EntityType extends Entity
 {
-    String getEntityName(); 
 
-    List<? extends Column> getColumns();
-    
-    Column[] getKeyColumns();
-    
-    Class<?> getBeanType();
 }
