@@ -47,6 +47,7 @@ import org.apache.empire.jakarta.impl.FacesImplementation;
 import org.apache.empire.jakarta.impl.ResourceTextResolver;
 import org.apache.empire.jakarta.pages.Page;
 import org.apache.empire.jakarta.pages.PageDefinition;
+import org.apache.empire.jakarta.utils.BeanScope;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -544,7 +545,108 @@ public abstract class WebApplication
         }
         return component;
     }
+    
+    /**
+     * Registers a ManagedBean for a particular scope
+     * @param beanClass the bean class to register
+     * @param scope the bean scope
+     */
+    public void registerManagedBean(Class<?> beanClass, BeanScope scope)
+    {
+        // check
+        if (beanClass==null || scope==null)
+            throw new InvalidArgumentException("beanClass|scope", null);
+        // detect name
+        String className = beanClass.getName();
+        int    nameIndex = className.lastIndexOf('.')+1; 
+        String beanName  = className.substring(nameIndex, nameIndex+1).toLowerCase() + className.substring(nameIndex+1); 
+        log.info("Registering Managed Bean \"{}\" on {} scope for class {}", beanName, scope, className);
+        getFacesImplementation().registerManagedBean(beanName, className, scope.name().toLowerCase());
+    }
 
+    /**
+     * Returns the bean for a particular scope
+     * @param context the FacesContext
+     * @param beanName the beanName
+     * @param scope the bean scope
+     * @return the bean instance
+     */
+    public Object getContextBean(FacesContext context, String beanName, BeanScope scope)
+    {
+        // check
+        if (context==null || beanName==null || scope==null)
+            throw new InvalidArgumentException("context|beanName|beanInstance|scope", null);
+        // scope 
+        ExternalContext ec = context.getExternalContext();
+        Map<String, Object> map;
+        switch(scope)
+        {
+            case Application: map = ec.getApplicationMap();break;
+            case Session:     map = ec.getSessionMap();break;
+            case View:        map = context.getViewRoot().getViewMap();break;
+            case Request:     map = ec.getRequestMap();break;
+            default:
+                throw new NotSupportedException(this, "setContextBean:"+scope.name());
+        }
+        return map.get(beanName);
+    }
+    
+    /**
+     * Sets a bean for a particular scope
+     * @param context the FacesContext
+     * @param beanName the beanName
+     * @param beanInstance the bean instance
+     * @param scope the bean scope
+     */
+    public void setContextBean(FacesContext context, String beanName, Object beanInstance, BeanScope scope)
+    {
+        // check
+        if (context==null || beanName==null || beanInstance==null || scope==null)
+            throw new InvalidArgumentException("context|beanName|beanInstance|scope", null);
+        // log
+        if (log.isInfoEnabled()) {
+            Class<?> beanClass = (beanInstance instanceof Class<?>) ? ((Class<?>)beanInstance) : beanInstance.getClass();
+            log.info("Adding Context Bean \"{}\" on {} scope of type {}", beanName, scope, beanClass.getName());
+        }
+        ExternalContext ec = context.getExternalContext();
+        Map<String, Object> map;
+        switch(scope)
+        {
+            case Application: map = ec.getApplicationMap();break;
+            case Session:     map = ec.getSessionMap();break;
+            case View:        map = context.getViewRoot().getViewMap();break;
+            case Request:     map = ec.getRequestMap();break;
+            default:
+                throw new NotSupportedException(this, "setContextBean:"+scope.name());
+        }
+        map.put(beanName, beanInstance);
+    }
+    
+    /**
+     * Sets a bean for a particular scope
+     * The beanName will be auto detected from the beanInstance
+     * @param context the FacesContext
+     * @param beanInstance the bean instance
+     * @param scope the bean scope
+     */
+    public void setContextBean(FacesContext context, Object beanInstance, BeanScope scope)
+    {
+        String className;
+        String beanName;
+        if (beanInstance instanceof Class<?>)
+        {   // class objects are taken literally
+            className = ((Class<?>)beanInstance).getName();
+            beanName  = className.substring(className.lastIndexOf('.')+1);
+        }
+        else
+        {   // detect beanname from class
+            className = beanInstance.getClass().getName();
+            int nameIndex = className.lastIndexOf('.')+1; 
+            beanName = className.substring(nameIndex, nameIndex+1).toLowerCase() + className.substring(nameIndex+1);
+        }
+        setContextBean(context, beanName, beanInstance, scope);
+    }
+    
     /**
      * returns the default input control type for a given data Type
      * @see org.apache.empire.jakarta.controls.InputControlManager
@@ -580,9 +682,15 @@ public abstract class WebApplication
         for (int i = 0; locales.hasNext(); i++)
         {
             Locale locale = locales.next();
-            textResolvers[i] = new ResourceTextResolver(ResourceBundle.getBundle(messageBundle, locale));
+            ResourceBundle bundle = ResourceBundle.getBundle(messageBundle, locale);
+            textResolvers[i] = createResourceTextResolver(bundle);
             log.info("added TextResolver for {} bundle='{}'", locale.getLanguage(), messageBundle);
         }
+    }
+    
+    protected ResourceTextResolver createResourceTextResolver(ResourceBundle bundle)
+    {
+        return new ResourceTextResolver(bundle);
     }
 
     /**
