@@ -36,6 +36,7 @@ import javax.faces.event.ActionListener;
 import org.apache.empire.commons.ObjectUtils;
 import org.apache.empire.commons.StringUtils;
 import org.apache.empire.exceptions.InvalidArgumentException;
+import org.apache.empire.exceptions.InvalidOperationException;
 import org.apache.empire.jsf2.app.FacesUtils;
 import org.apache.empire.jsf2.controls.InputControl;
 import org.apache.empire.jsf2.controls.InputControlManager;
@@ -52,6 +53,10 @@ public class TabViewTag extends UIOutput implements TagEncodingHolder
     // Logger
     private static final Logger       log                    = LoggerFactory.getLogger(TabViewTag.class);
 
+    protected static String           TAB_PAGE_ID            = "pageId";
+    
+    protected static String           TAB_ACTIVE_PAGE        = "activePage";
+    
     protected static String           TAB_ACTIVE_INDEX       = "activeIndex";
 
     protected static String           TABLINK_ID_PREFIX      = "tabLink";
@@ -189,6 +194,58 @@ public class TabViewTag extends UIOutput implements TagEncodingHolder
         }
     }
 
+    public String getActivePageId()
+    {
+        Object active = this.helper.getTagAttributeValue(TAB_ACTIVE_PAGE);
+        return ObjectUtils.getString(active);
+    }
+
+    public void setActivePageId(String pageId)
+    {
+        ValueExpression ve = this.getValueExpression(TAB_ACTIVE_PAGE);
+        if (ve != null)
+        {   // set active index
+            FacesContext fc = FacesUtils.getContext();
+            ve.setValue(fc.getELContext(), pageId);
+        }
+    }
+
+    public TabPageTag getActiveTabPage()
+    {
+        Iterator<UIComponent> ci = getFacetsAndChildren();
+        if (ci.hasNext() == false)
+        {   log.warn("Invalid TabPage definition!");
+            return null;
+        }
+        UIComponent panel = ci.next();
+        int index = 0;
+        int activeIndex = getActivePageIndex();
+        String activePageId = getActivePageId();
+        for (UIComponent c : panel.getChildren())
+        {   // Find Tab pages
+            if (!(c instanceof TabPageTag))
+            {
+                continue;
+            }
+            // check visibility
+            TabPageTag page = (TabPageTag) c;
+            if (!isPageVisible(page))
+                continue; // don't count hidden pages
+            // found a page
+            boolean active = (activePageId!=null ? activePageId.equals(page.getId()) : (index == activeIndex));
+            if (active)
+                return page;
+            // next
+            index++;
+        }
+        // not found
+        if (activePageId!=null)
+            log.warn("No visible tab-page with pageId {} has been found!", activePageId);
+        else
+            log.warn("No visible tab-page with index {} has been found!", activeIndex);
+        return null;
+    }
+
     public void setActiveTab(ActionEvent event)
     {
         log.debug("setActiveTab");
@@ -202,20 +259,21 @@ public class TabViewTag extends UIOutput implements TagEncodingHolder
             return;
         }
 
-        // set new Page
+        // set active index
         setActivePageIndex(pageIndex);
+        // set active pageId
+        String pageId = (String)comp.getAttributes().get(TAB_PAGE_ID);
+        setActivePageId(pageId);
 
         // TabChangeListener
         Object tcl = getAttributes().get("tabChangedListener");
         if (tcl != null)
-        {
+        {   // check Method expression
             if (!(tcl instanceof MethodExpression))
-            {
-                log.error("tabChangedListener is not a valid method expression!");
-                return;
-            }
+                throw new InvalidOperationException("tabChangedListener is not a valid method expression!");
+            // invoke
             FacesContext fc = FacesUtils.getContext();
-            MethodExpression methodExpression = (MethodExpression) tcl;
+            MethodExpression methodExpression = (MethodExpression)tcl;
             methodExpression.invoke(fc.getELContext(), new Object[] { pageIndex });
         }
     }
@@ -273,8 +331,11 @@ public class TabViewTag extends UIOutput implements TagEncodingHolder
             {   // Bar padding item
                 writer.startElement(mode.BAR_PAD_TAG, this);
                 writer.writeAttribute(InputControl.HTML_ATTR_CLASS, TagStyleClass.TAB_BAR_PADDING.get(), null);
+                encodeTabPadding(context, writer);
                 writer.endElement(mode.BAR_PAD_TAG);
             }
+            else
+                encodeTabPadding(context, writer);
             // finish
             if (mode.BAR_ROW_TAG!=null)
                 writer.endElement(mode.BAR_ROW_TAG);
@@ -363,6 +424,7 @@ public class TabViewTag extends UIOutput implements TagEncodingHolder
         UIComponent panel = ci.next();
         int index = 0;
         int activeIndex = getActivePageIndex();
+        String activePageId = getActivePageId();
         // Patch for MOJARRA: Remove HtmlCommandLinks
         List<UIComponent> chk = panel.getChildren();
         for (int i = chk.size() - 1; i >= 0; i--)
@@ -378,17 +440,21 @@ public class TabViewTag extends UIOutput implements TagEncodingHolder
                 continue;
             }
             // found
-            boolean active = (index == activeIndex);
             TabPageTag page = (TabPageTag) c;
-
             // render tab-page? default is true
             boolean visible = isPageVisible(page);
             if (!visible)
-            {
-                // dont render content
+            {   // don't render content
                 page.setRendered(false);
                 continue;
             }
+            // check active
+            boolean active = (activePageId!=null ? activePageId.equals(page.getId()) : (index == activeIndex));
+            if (active && (index!=activeIndex))
+            {   // set index
+                setActivePageIndex(index);
+            }
+            // write tabs
             if (writer!=null)
             {   // encode Tab
                 boolean disabled = isPageDisabled(page);
@@ -414,7 +480,7 @@ public class TabViewTag extends UIOutput implements TagEncodingHolder
             index++;
         }
     }
-
+    
     protected void encodeTabLink(FacesContext context, ResponseWriter writer, int index, TabPageTag pageTag, boolean disabled, String showTabBlindJs)
         throws IOException
     {
@@ -461,6 +527,7 @@ public class TabViewTag extends UIOutput implements TagEncodingHolder
             link.addActionListener(tpal);
         }
         // init linkComponent
+        link.getAttributes().put(TAB_PAGE_ID, pageTag.getId());
         link.setValue(pageTag.getTabLabel());
         link.setTitle(pageTag.getTabTitle());
         link.setDisabled(disabled);
@@ -492,6 +559,15 @@ public class TabViewTag extends UIOutput implements TagEncodingHolder
         else
         {   // default
             link.encodeAll(context);
+        }
+    }
+    
+    protected void encodeTabPadding(FacesContext context, ResponseWriter writer) throws IOException
+    {
+        UIComponent paddingFacet = getFacet("tabPadding");
+        if (paddingFacet!=null)
+        {   // custom rendering
+            paddingFacet.encodeAll(context);
         }
     }
 
