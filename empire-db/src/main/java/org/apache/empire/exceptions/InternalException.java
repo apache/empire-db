@@ -29,14 +29,12 @@ public class InternalException extends EmpireException
     // Logger
     private static final Logger log = LoggerFactory.getLogger(InternalException.class);
     
-    public static final ErrorType errorType = new ErrorType("error.exception", "An Exception of type {0} occurred.\n-->Message is: {1}\n-->at Position: {2}");
+    public static final ErrorType errorType = new ErrorType("error.exception", "An exception of type \"{0}\" occurred.\n-->The message is: {1}\n-->at Position: {2}");
 
     private static String[] paramsFromThrowable(final Throwable exptn)
     {
         // Exception
-        String type  = exptn.getClass().getName();
-        if (type.startsWith("java.lang."))
-            type = type.substring("java.lang.".length());
+        String type = exptn.getClass().getSimpleName();
         // The message
         String msg = exptn.getMessage();
         // Prepare stack trace
