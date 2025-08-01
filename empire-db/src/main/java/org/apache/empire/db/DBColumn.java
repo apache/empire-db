@@ -416,7 +416,7 @@ public abstract class DBColumn extends DBColumnExpr
     @SuppressWarnings("unchecked")
     public Class<Enum<?>> getEnumType()
     {
-        return (attributes!=null ? (Class<Enum<?>>)getAttribute(COLATTR_ENUMTYPE) : null);
+        return (Class<Enum<?>>)getAttribute(COLATTR_ENUMTYPE);
     }
     
     @Override

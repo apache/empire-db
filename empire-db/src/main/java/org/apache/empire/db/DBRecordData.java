@@ -109,7 +109,7 @@ public abstract class DBRecordData extends DBObject
     @Override
     public final Object get(ColumnExpr column)
     {
-        return getValue(getFieldIndex(column), Object.class);
+        return getValue(getFieldIndex(column), ObjectUtils.coalesce(column.getEnumType(), Object.class));
     }
     
     /**

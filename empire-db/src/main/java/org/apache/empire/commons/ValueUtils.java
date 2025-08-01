@@ -802,12 +802,12 @@ public class ValueUtils
             return (T)(value!=null ? toDecimal(value) : BigDecimal.ZERO); // required for compatibility
         if (vt==Boolean.class)
             return (T)(value!=null ? toBoolean(value, false) : Boolean.FALSE);
+        // null
+        if (value==null)
+            return null;
         // enum
         if (vt.isEnum())
-        {   // Null
-            if (value==null)
-                return null;
-            // convert
+        {   // convert
             Class<? extends Enum<?>> enumType = (Class<? extends Enum<?>>)vt;
             try {
                 // Convert to enum, depending on DataType

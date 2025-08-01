@@ -26,6 +26,7 @@ import javax.el.ELContext;
 import javax.el.ELResolver;
 import javax.faces.context.FacesContext;
 
+import org.apache.empire.commons.ObjectUtils;
 import org.apache.empire.commons.StringUtils;
 import org.apache.empire.data.ColumnExpr;
 import org.apache.empire.data.Entity;
@@ -142,9 +143,13 @@ public class DBELResolver extends ELResolver
                 // not resolved, continue search
                 return null; 
             }
+            // Detect valueType from column
+            ColumnExpr column = ((RecordData)base).getColumn(index);
+            Class<?> valueType = ObjectUtils.coalesce(column.getEnumType(), Object.class);
             // Found! Return field value.
+            Object value = ((RecordData)base).getValue(index, valueType);
             context.setPropertyResolved(true);
-            return ((RecordData)base).getValue(index);
+            return value;
         }
         else if (base==null)
         {   // LookupDatabase
