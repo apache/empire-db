@@ -22,6 +22,7 @@ import java.beans.FeatureDescriptor;
 import java.lang.reflect.Field;
 import java.util.Iterator;
 
+import org.apache.empire.commons.ObjectUtils;
 import org.apache.empire.commons.StringUtils;
 import org.apache.empire.data.ColumnExpr;
 import org.apache.empire.data.Entity;
@@ -29,6 +30,7 @@ import org.apache.empire.data.EntityDomain;
 import org.apache.empire.data.RecordData;
 import org.apache.empire.db.DBDatabase;
 import org.apache.empire.db.DBRowSet;
+import org.apache.empire.db.exceptions.FieldIllegalValueException;
 import org.apache.empire.exceptions.NotSupportedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -142,9 +144,19 @@ public class DBELResolver extends ELResolver
                 // not resolved, continue search
                 return null; 
             }
-            // Found! Return field value.
+            // Field found. Now get the value.
+            ColumnExpr column = ((RecordData)base).getColumn(index);
+            Object value;
+            try {
+                // Detect valueType from column
+                Class<?> valueType = ObjectUtils.coalesce(column.getEnumType(), Object.class);
+                value = ((RecordData)base).getValue(index, valueType);
+            } catch(FieldIllegalValueException e) {
+                value = ((RecordData)base).getValue(index); // Plain value
+                log.error("The value \"{}\" for column {} could not be resolved.", value, column.getName());
+            }
             context.setPropertyResolved(true);
-            return ((RecordData)base).getValue(index);
+            return value;
         }
         else if (base==null)
         {   // LookupDatabase

@@ -33,6 +33,7 @@ import org.apache.empire.data.ColumnExpr;
 import org.apache.empire.data.Entity;
 import org.apache.empire.data.RecordData;
 import org.apache.empire.db.DBRecordBase;
+import org.apache.empire.db.exceptions.FieldIllegalValueException;
 import org.apache.empire.db.exceptions.NoPrimaryKeyException;
 import org.apache.empire.exceptions.InvalidArgumentException;
 import org.apache.empire.exceptions.ItemNotFoundException;
@@ -256,9 +257,18 @@ public class DataListEntry implements RecordData, Serializable
      * @return the record value
      */
     @Override
-    public final Object get(ColumnExpr column)
+    public Object get(ColumnExpr column)
     {
-        return getValue(getFieldIndex(column), ObjectUtils.coalesce(column.getEnumType(), Object.class));
+        int index = getFieldIndex(column);
+        try {
+            // Detect valueType from column
+            return getValue(index, ObjectUtils.coalesce(column.getEnumType(), Object.class));
+        } catch(FieldIllegalValueException e) {
+            // Illegal field value. Return plain value
+            Object value = getValue(index);
+            log.error("The value \"{}\" for column {} could not be resolved.", value, column.getName());
+            return value;
+        }
     }
     
     /**

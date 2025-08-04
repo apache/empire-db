@@ -798,14 +798,23 @@ public abstract class InputControl
      */
     protected String formatValue(Object value, ValueInfo vi)
     {
-        // For Enums use toString() to retrieve Value
-        if ((value instanceof Enum<?>) && !hasFormatOption(vi, "nolookup"))
-        { // Handle enum
-            String text = ((Enum<?>) value).toString();
-            if (text != null)
-                return vi.getText(text);
-            // Error
-            InputControl.log.error("The enum '" + ((Enum<?>) value).name() + "' has no text!");
+        // For Enums use toString() to retrieve display text
+        if (value instanceof Enum<?>)
+        {   // Handle enum
+            Enum<?> enumValue = ((Enum<?>) value);
+            if (!hasFormatOption(vi, "nolookup"))
+            {   // lookup
+                String text = enumValue.toString();
+                if (text != null)
+                    return vi.getText(text);
+                // No text!
+                log.warn("The enum \"{}\" of type {} has no text!", enumValue.name(), enumValue.getClass().getName());
+            }
+            // nolookup
+            if (vi.getColumn().getDataType().isNumeric())
+                return String.valueOf(enumValue.ordinal());
+            else
+                return enumValue.name();
         }
         // Lookup and return text
         Options options = vi.getOptions();

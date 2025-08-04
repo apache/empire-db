@@ -30,6 +30,7 @@ import org.apache.empire.data.Column;
 import org.apache.empire.data.ColumnExpr;
 import org.apache.empire.data.RecordData;
 import org.apache.empire.db.context.DBContextAware;
+import org.apache.empire.db.exceptions.FieldIllegalValueException;
 import org.apache.empire.exceptions.InvalidArgumentException;
 import org.apache.empire.exceptions.ItemNotFoundException;
 import org.slf4j.Logger;
@@ -107,9 +108,18 @@ public abstract class DBRecordData extends DBObject
      * @return the record value
      */
     @Override
-    public final Object get(ColumnExpr column)
+    public Object get(ColumnExpr column)
     {
-        return getValue(getFieldIndex(column), ObjectUtils.coalesce(column.getEnumType(), Object.class));
+        int index = getFieldIndex(column);
+        try {
+            // Detect valueType from column
+            return getValue(index, ObjectUtils.coalesce(column.getEnumType(), Object.class));
+        } catch(FieldIllegalValueException e) {
+            // Illegal field value. Return plain value
+            Object value = getValue(index);
+            log.error("The value \"{}\" for column {} could not be resolved.", value, column.getName());
+            return value;
+        }
     }
     
     /**
