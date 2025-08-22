@@ -915,8 +915,7 @@ public class DBUtils implements DBContextAware
         {   // close reader
             r.close();
             // complete
-            if (list!=null)
-                factory.completeQuery(list);
+            factory.completeQuery(list);
         }
     }
 
