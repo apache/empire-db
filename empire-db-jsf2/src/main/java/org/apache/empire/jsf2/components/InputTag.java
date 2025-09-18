@@ -34,7 +34,6 @@ import javax.faces.view.AttachedObjectHandler;
 
 import org.apache.empire.data.Column;
 import org.apache.empire.jsf2.controls.InputControl;
-import org.apache.empire.jsf2.utils.ControlRenderInfo;
 import org.apache.empire.jsf2.utils.StyleClass;
 import org.apache.empire.jsf2.utils.TagEncodingHelper;
 import org.apache.empire.jsf2.utils.TagEncodingHelperFactory;
@@ -250,14 +249,11 @@ public class InputTag extends UIInput implements NamingContainer, TagEncodingHol
         // check whether already set
         if (helper.hasComponentId())
             return;
-        /*
-         * Attention: Only works if FormGrid is a direct parent of the Control.
-         * Does not work, if other components are between the Control and the FormGrid.
-         */
-        ControlRenderInfo renderInfo = helper.getControlRenderInfo();
-        if (renderInfo!=null && renderInfo.AUTO_CONTROL_ID!=null) {
+        // set autoId
+        String autoId = helper.getAutoControlId();
+        if (autoId!=null) {
             // Auto set component Id
-            setId(renderInfo.AUTO_CONTROL_ID.toString());
+            setId(autoId);
             log.debug("Auto-Setting compontent id for Input to {}", this.getId());
         }
     }

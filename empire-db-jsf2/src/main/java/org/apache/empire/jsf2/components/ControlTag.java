@@ -323,14 +323,11 @@ public class ControlTag extends UIInput implements NamingContainer, TagEncodingH
         // check whether already set
         if (helper.hasComponentId())
             return;
-        /*
-         * Attention: Only works if FormGrid is a direct parent of the Control.
-         * Does not work, if other components are between the Control and the FormGrid.
-         */
-        this.renderInfo = helper.getControlRenderInfo();
-        if (this.renderInfo!=null && this.renderInfo.AUTO_CONTROL_ID!=null) {
+        // set autoId
+        String autoId = helper.getAutoControlId();
+        if (autoId!=null) {
             // Auto set component Id
-            setId(this.renderInfo.AUTO_CONTROL_ID.toString());
+            setId(autoId);
             log.debug("Auto-Setting compontent id for Control to {}", this.getId());
         }
     }

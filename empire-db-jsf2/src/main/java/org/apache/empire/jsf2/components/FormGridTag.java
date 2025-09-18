@@ -205,7 +205,7 @@ public class FormGridTag extends UIOutput implements TagEncodingHolder
             this.mode = FormGridMode.detect(helper.getTagAttributeString("mode", FormGridMode.GRID.name())); 
         // autoControlId
         Character autoControlId = null;
-        Object autoId = helper.getTagAttributeString("autoControlId");
+        Object autoId = helper.getTagAttributeValue("autoControlId");
         if (autoId!=null)
         {   // check
             String id = autoId.toString();

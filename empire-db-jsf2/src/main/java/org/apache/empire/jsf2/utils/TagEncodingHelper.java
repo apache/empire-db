@@ -461,7 +461,7 @@ public class TagEncodingHelper implements NamingContainer
     protected TagEncodingHelper(UIOutput component, String cssStyleClass)
     {
         this.component = component;
-        this.cssStyleClass = cssStyleClass;        
+        this.cssStyleClass = cssStyleClass;
     }
 
     /**
@@ -1648,6 +1648,22 @@ public class TagEncodingHelper implements NamingContainer
     {
         FormGridTag formGrid = getFormGrid();
         return (formGrid!=null) ? formGrid.getControlRenderInfo() : null;  
+    }
+    
+    public String getAutoControlId()
+    {
+        /*
+         * Attention: renderInfo may only be valid if FormGrid is a direct parent of the Control.
+         * If another component is between the Control and the FormGrid, then the "autoControlId" attribute must be set directly on the parent
+         */
+        ControlRenderInfo renderInfo = getControlRenderInfo();
+        if (renderInfo==null)
+            return null;
+        // check AUTO_CONTROL_ID
+        if (renderInfo.AUTO_CONTROL_ID==null)
+            return null;
+        // use AUTO_CONTROL_ID placeholder (*,$,@) 
+        return renderInfo.AUTO_CONTROL_ID.toString();
     }
     
     public String getControlExtraLabelWrapperStyle()
