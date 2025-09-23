@@ -788,12 +788,26 @@ public class DBUtils implements DBContextAware
      * If the query does not return a result a QueryNoResultException is thrown
      * 
      * @param cmd the Command object that contains the select statement
+     * @param failOnNoResult if true a QueryNoResultException is thrown when no result otherwise null is returned 
+     * 
+     * @return the values of the first row 
+     */
+    public final Object[] querySingleRow(DBCommandExpr cmd, boolean failOnNoResult)
+    {
+        return querySingleRow(cmd.getSelect(), cmd.getParamValues(), failOnNoResult); 
+    }
+    
+    /**
+     * Returns all values of the first row of a sql-query as an array.
+     * If the query does not return a result a QueryNoResultException is thrown
+     * 
+     * @param cmd the Command object that contains the select statement
      * 
      * @return the values of the first row 
      */
     public final Object[] querySingleRow(DBCommandExpr cmd)
     {
-        return querySingleRow(cmd.getSelect(), cmd.getParamValues()); 
+        return querySingleRow(cmd, true); 
     }
     
     /**
