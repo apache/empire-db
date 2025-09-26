@@ -94,6 +94,12 @@ public interface DBMSHandler
     boolean isSupported(DBMSFeature type);
 
     /**
+     * Returns true if a name needs to be wrapped in quotes or false otherwise
+     * @param name the name of the object (table, view or column)
+     */
+    public boolean detectQuoteName(DBObject object, String name);
+    
+    /**
      * Appends a table, view or column name to an SQL phrase. 
      * 
      * @param sql the StringBuilder containing the SQL phrase.

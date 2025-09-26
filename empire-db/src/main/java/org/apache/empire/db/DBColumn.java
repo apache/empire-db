@@ -62,7 +62,7 @@ public abstract class DBColumn extends DBColumnExpr
     protected final String    name;
     protected String          comment;
 
-    private Boolean quoteName = null;
+    protected Boolean quoteName = null;
     
     /**
      * Constructs a DBColumn object and set the specified parameters to this object.
@@ -213,7 +213,27 @@ public abstract class DBColumn extends DBColumnExpr
      */
     @Override
     public abstract Element addXml(Element parent, long flags);
-
+    
+    /**
+     * Returns the normalized column for this column (if any)
+     * @return the normalized column or null
+     */
+    public final DBColumn getNormalizedColumn()
+    { 
+        return (DBColumn)getAttribute(Column.COLATTR_NORMCOLUMN);
+    }
+    
+    /**
+     * Sets a normalized column for this column
+     * @param <T> the column expression type
+     * @param normalizedColumn the normalized column
+     * @return returns self (this)
+     */
+    public final <T extends DBColumn> T setNormalizedColumn(DBColumn normalizedColumn)
+    { 
+        return setAttribute(Column.COLATTR_NORMCOLUMN, normalizedColumn);
+    }
+    
     /**
      * @return the current DBDatabase object
      */
@@ -254,6 +274,9 @@ public abstract class DBColumn extends DBColumnExpr
         if (dbms==null)
         	throw new DatabaseNotOpenException(getDatabase());
         // Append the name
+        if (quoteName==null)
+            quoteName=dbms.detectQuoteName(this, name);
+        // append
         dbms.appendObjectName(sql, name, quoteName);
     }
 

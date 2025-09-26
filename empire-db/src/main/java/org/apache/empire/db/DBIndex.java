@@ -18,6 +18,8 @@
  */
 package org.apache.empire.db;
 
+import org.apache.empire.commons.StringUtils;
+
 /**
  * This class handles the primary key for the tables.
  * The primary key contains one or more columns.
@@ -29,6 +31,7 @@ public class DBIndex extends DBObject
     public enum DBIndexType
     {
         STANDARD(false),
+        FULLTEXT(false), // non-unique optimized for text search (if supported)
         UNIQUE(true),
         UNIQUE_ALLOW_NULL(true),
         PRIMARY_KEY(true);
@@ -50,6 +53,7 @@ public class DBIndex extends DBObject
     private DBIndexType     type;
     private DBColumn[]      columns;
     private DBTable         table;
+    private String          options; // additional index type options
 
     /**
      * Constructs a DBIndex object set the specified parameters to this object.
@@ -168,7 +172,7 @@ public class DBIndex extends DBObject
     public String getFullName()
     {
         String  schema = getDatabase().getSchema();
-        return (schema!=null) ? schema+"."+name : name;
+        return (schema!=null) ? StringUtils.concat(schema, ".", name) : name;
     }
     
     /**
@@ -179,6 +183,25 @@ public class DBIndex extends DBObject
     public DBIndexType getType()
     {
         return type;
+    }
+
+    /**
+     * Returns additional database specific index options
+     * @return the index type options
+     */
+    public String getOptions()
+    {
+        return options;
+    }
+
+    /**
+     * Sets additional database specific index options
+     * @param using the index type options
+     */
+    public DBIndex setOptions(String options)
+    {
+        this.options = options;
+        return this;
     }
 
     /**

@@ -212,6 +212,7 @@ public class DBMSHandlerSQLite extends DBMSHandlerBase
             case SQL_FUNC_LTRIM:            return "ltrim(?)";
             case SQL_FUNC_RTRIM:            return "rtrim(?)";
             case SQL_FUNC_ESCAPE:           return "? escape {0:VARCHAR}";
+            case SQL_FUNC_CONTAINS:         return "MATCH(?) AGAINST({0})";
             // Numeric
             case SQL_FUNC_ABS:              return "abs(?)";
             case SQL_FUNC_ROUND:            return "round(?,{0})";

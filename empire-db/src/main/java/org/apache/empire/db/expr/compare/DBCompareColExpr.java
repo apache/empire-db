@@ -34,6 +34,7 @@ import org.apache.empire.db.DBExpr;
 import org.apache.empire.db.DBRowSet;
 import org.apache.empire.db.DBSQLBuilder;
 import org.apache.empire.db.expr.column.DBAliasExpr;
+import org.apache.empire.db.expr.column.DBFuncExpr;
 import org.apache.empire.dbms.DBSqlPhrase;
 
 
@@ -57,6 +58,7 @@ public class DBCompareColExpr extends DBCompareExpr
     protected final DBCmpType    cmpop;
     protected Object value;
     protected boolean parenthesis = false;
+    protected DBFuncExpr function;
     /**
      * Constructs a DBCompareColExpr object set the specified parameters to this object.
      * 
@@ -130,6 +132,7 @@ public class DBCompareColExpr extends DBCompareExpr
     public void setValue(Object value)
     {
         this.value = value;
+        this.function = null;
     }
 
     /**
@@ -297,28 +300,38 @@ public class DBCompareColExpr extends DBCompareExpr
     @Override
     public void addSQL(DBSQLBuilder sql, long context)
     {
-        // Name Only ?
         if ((context & CTX_VALUE) == 0)
-        {
+        {   // Name Only
             expr.addSQL(sql, context);
             return;
         }
-        // Value Only ?
         if ((context & CTX_NAME) == 0)
-        {   // add SQL
+        {   // Value Only
             sql.appendValue(expr.getDataType(), value, context, null);
             return;
         }
-        // begin
-        if (this.parenthesis)
-            sql.append("(");
-        // Add Compare Expression
-        expr.addSQL(sql, context);
-        // Add Comparison Value
-        addCompareExpr(sql, context);
-        // end
-        if (this.parenthesis)
-            sql.append(")");
+        // full constraint
+        if ((cmpop==DBCmpType.CONTAINS || cmpop==DBCmpType.NOTCONTAINS) && !ObjectUtils.isEmpty(value))
+        {   // contains
+            if (cmpop==DBCmpType.NOTCONTAINS)
+                sql.append("NOT ");
+            // function
+            if (this.function==null)
+                this.function = new DBFuncExpr(expr, DBSqlPhrase.SQL_FUNC_CONTAINS, new Object[] { value }, DataType.BOOL);
+            this.function.addSQL(sql, context);
+        }
+        else
+        {   // begin
+            if (this.parenthesis)
+                sql.append("(");
+            // Add Compare Expression
+            expr.addSQL(sql, context);
+            // Add Comparison Value
+            addCompareExpr(sql, context);
+            // end
+            if (this.parenthesis)
+                sql.append(")");
+        }
     }
     
     /**

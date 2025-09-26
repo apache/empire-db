@@ -72,6 +72,7 @@ public enum DBSqlPhrase
     SQL_FUNC_RTRIM          ("rtrim(?)"),
     SQL_FUNC_ESCAPE         ("? escape {0:VARCHAR}"),
     SQL_FUNC_CONCAT         ("concat(?)"),
+    SQL_FUNC_CONTAINS       ("contains(?, {0})"),
     
     // Numeric
     SQL_FUNC_ABS            ("abs(?)"),

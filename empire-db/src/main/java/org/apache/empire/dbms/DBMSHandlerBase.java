@@ -44,6 +44,7 @@ import org.apache.empire.db.DBCommand;
 import org.apache.empire.db.DBCommandExpr;
 import org.apache.empire.db.DBDDLGenerator.DDLActionType;
 import org.apache.empire.db.DBDatabase;
+import org.apache.empire.db.DBObject;
 import org.apache.empire.db.DBRelation;
 import org.apache.empire.db.DBRowSet;
 import org.apache.empire.db.DBSQLBuilder;
@@ -370,7 +371,8 @@ public abstract class DBMSHandlerBase implements DBMSHandler
      * @param name the name which to check
      * @return true if the name needs to be quoted or false otherwise
      */
-    public boolean detectQuoteName(String name)
+    @Override
+    public boolean detectQuoteName(DBObject object, String name)
     {
         // Check for reserved names
         if (reservedSQLKeywords.contains(name.toLowerCase()))
@@ -402,7 +404,7 @@ public abstract class DBMSHandlerBase implements DBMSHandler
     public void appendObjectName(DBSQLBuilder sql, String name, Boolean useQuotes)
     {
         if (useQuotes==null)
-            useQuotes = detectQuoteName(name);
+            useQuotes = detectQuoteName(null, name);
         // Check whether to use quotes or not
         if (useQuotes)
             sql.append(getSQLPhrase(DBSqlPhrase.SQL_QUOTES_OPEN));

@@ -28,6 +28,7 @@ import org.apache.empire.commons.ObjectUtils;
 import org.apache.empire.commons.OptionEntry;
 import org.apache.empire.commons.Options;
 import org.apache.empire.commons.StringUtils;
+import org.apache.empire.data.Column;
 import org.apache.empire.data.ColumnExpr;
 import org.apache.empire.data.DataType;
 import org.apache.empire.db.expr.column.DBAliasExpr;
@@ -60,10 +61,6 @@ public abstract class DBColumnExpr extends DBExpr
     implements ColumnExpr
 {
     // *Deprecated* private static final long serialVersionUID = 1L;
-  
-    // Predefined column expression attributes
-    public static final String DBCOLATTR_TITLE     = "title";
-    public static final String DBCOLATTR_TYPE      = "type";
 
     // Properties
     protected Attributes  attributes = null;
@@ -214,7 +211,7 @@ public abstract class DBColumnExpr extends DBExpr
     @Override
     public final String getTitle()
     { 
-        Object title = getAttribute(DBCOLATTR_TITLE);
+        Object title = getAttribute(Column.COLATTR_TITLE);
         return StringUtils.toString(title);
     }
 
@@ -226,7 +223,7 @@ public abstract class DBColumnExpr extends DBExpr
      */
     public <T extends DBColumnExpr> T setTitle(String title)
     { 
-        return setAttribute(DBCOLATTR_TITLE, title);
+        return setAttribute(Column.COLATTR_TITLE, title);
     }
 
     /**
@@ -239,7 +236,7 @@ public abstract class DBColumnExpr extends DBExpr
     @Override
     public final String getControlType()
     { 
-        Object type = getAttribute(DBCOLATTR_TYPE);
+        Object type = getAttribute(Column.COLATTR_TYPE);
         return StringUtils.toString(type);
     }
 
@@ -251,7 +248,7 @@ public abstract class DBColumnExpr extends DBExpr
      */
     public final <T extends DBColumnExpr> T setControlType(String controlType)
     { 
-        return setAttribute(DBCOLATTR_TYPE, controlType);
+        return setAttribute(Column.COLATTR_TYPE, controlType);
     }
     
     /**
@@ -389,6 +386,28 @@ public abstract class DBColumnExpr extends DBExpr
     public final DBCompareColExpr notLike(Object value)
     {
         return cmp(DBCmpType.NOTLIKE, value);
+    }
+
+    /**
+     * Creates and returns a new comparison object for the "contains(column, val)" comparator
+     *
+     * @param value the Object value
+     * @return the new DBCompareColExpr object
+     */
+    public final DBCompareColExpr contains(Object value)
+    {
+        return cmp(DBCmpType.CONTAINS, value);
+    }
+
+    /**
+     * Creates and returns a new comparison object for the "not contains(column, val)" comparator
+     *
+     * @param value the Object value
+     * @return the new DBCompareColExpr object
+     */
+    public final DBCompareColExpr notContains(Object value)
+    {
+        return cmp(DBCmpType.NOTCONTAINS, value);
     }
 
     /**

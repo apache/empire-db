@@ -39,7 +39,9 @@ public enum DBCmpType
     BETWEEN, //      = 10,
     NOTBETWEEN, //   = 11,
     IN, //           = 12,
-    NOTIN; //        = 13,
+    NOTIN, //        = 13,
+    CONTAINS, //     = 14,
+    NOTCONTAINS; //  = 15,
     
     public static DBCmpType getNullType(DBCmpType type)
     {
@@ -52,6 +54,7 @@ public enum DBCmpType
             case NOTNULL:
             case NOTBETWEEN:
             case NOTIN:
+            case NOTCONTAINS:
             // Compare with NOT null
                  return DBCmpType.NOTNULL;
             // Compare with null

@@ -28,6 +28,7 @@ import org.apache.empire.db.DBDatabase;
 import org.apache.empire.db.DBExpr;
 import org.apache.empire.db.DBIndex;
 import org.apache.empire.db.DBIndex.DBIndexType;
+import org.apache.empire.db.DBObject;
 import org.apache.empire.db.DBSQLBuilder;
 import org.apache.empire.db.DBSQLScript;
 import org.apache.empire.db.DBTableColumn;
@@ -132,10 +133,29 @@ public class MSSqlDDLGenerator extends DBDDLGenerator<DBMSHandlerMSSQL>
     }
     
     @Override
+    protected void appendIndexType(DBIndex index, DBSQLBuilder sql)
+    {
+        if (index.getType()==DBIndexType.FULLTEXT)
+        {
+            sql.append("FULLTEXT ");
+            return;
+        }
+        // default
+        super.appendIndexType(index, sql);
+        // add options
+        if (index.getOptions()!=null)
+        {
+            sql.append(index.getOptions());
+            sql.append(" ");
+        }
+    }
+    
+    @Override
     protected void addCreateIndexStmt(DBIndex index, DBSQLBuilder sql, DBSQLScript script)
     {
         // Check type
-        if (index.getType()==DBIndexType.UNIQUE_ALLOW_NULL)
+        DBIndexType indexType = index.getType();
+        if (indexType==DBIndexType.UNIQUE_ALLOW_NULL)
         {   // Add WHERE constraint for ALLOW_NULL
             boolean first = true;
             for (DBColumn col : index.getColumns())
@@ -148,6 +168,28 @@ public class MSSqlDDLGenerator extends DBDDLGenerator<DBMSHandlerMSSQL>
                 col.addSQL(sql, DBExpr.CTX_NAME);
                 sql.append(" IS NOT NULL");
                 first = false;
+            }
+        }
+        else if (indexType==DBIndexType.FULLTEXT)
+        {   // fulltext index
+            sql.replace(index.getName(), "");
+            // append options
+            String options = index.getOptions();
+            if (StringUtils.isNotEmpty(options))
+            {   // append options
+                sql.append(" ");
+                sql.append(options);
+            }
+            else 
+            {   // use primary key
+                DBIndex pkIndex = index.getTable().getPrimaryKey();
+                if (pkIndex!=null)
+                {   // append key index
+                    sql.append(" KEY INDEX ");
+                    sql.append(pkIndex.getName());
+                }
+                else
+                    log.warn("name of KEY INDEX not supplied for FULLTEXT index.");
             }
         }
         // done
@@ -163,4 +205,24 @@ public class MSSqlDDLGenerator extends DBDDLGenerator<DBMSHandlerMSSQL>
         script.addStmt(stmt);
     }
     
+    @Override
+    public void getDDLScript(DDLActionType type, DBObject dbo, DBSQLScript script)
+    {
+        if (type==DDLActionType.DROP && (dbo instanceof DBIndex) && ((DBIndex)dbo).getType()==DBIndexType.FULLTEXT)
+        {   // Drop fulltext index
+            // Create Drop Statement
+            DBSQLBuilder sql = dbms.createSQLBuilder();
+            sql.append("DROP FULLTEXT INDEX ON ");
+            String schema = dbo.getDatabase().getSchema();
+            if (StringUtils.isNotEmpty(schema))
+            {   // append schema
+                sql.append(schema);
+                sql.append(".");
+            }
+            appendElementName(sql, ((DBIndex)dbo).getTable().getName());
+            script.addStmt(sql);
+        }
+        else
+            super.getDDLScript(type, dbo, script);
+    }
 }

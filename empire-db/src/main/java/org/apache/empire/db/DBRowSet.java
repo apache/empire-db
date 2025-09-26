@@ -1096,7 +1096,7 @@ public abstract class DBRowSet extends DBExpr implements Entity
                        continue;
                     }
                     // get the auto-generated field value
-                    fields[i] = value = col.getRecordDefaultValue(conn);
+                    fields[i] = value = col.getRecordDefaultValue(record, conn);
                     empty = ObjectUtils.isEmpty(value);
                 }
                 // Add the value to the command

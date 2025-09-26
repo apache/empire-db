@@ -107,6 +107,13 @@ public abstract class DBSQLBuilder implements Appendable
         sql.setLength(pos);
     }
     
+    public void replace(String find, String replace)
+    {
+        int start = sql.indexOf(find);
+        if (start>=0)
+            sql.replace(start, start+find.length(), replace);
+    }
+    
     /*
      * appenders 
      */
