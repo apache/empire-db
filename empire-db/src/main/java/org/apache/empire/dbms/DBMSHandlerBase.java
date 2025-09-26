@@ -510,7 +510,7 @@ public abstract class DBMSHandlerBase implements DBMSHandler
             return ts;
         }
         // Other types
-        throw new NotSupportedException(this, "getColumnAutoValue() for "+type);
+        throw new NotSupportedException(this, "getColumnAutoValue for "+column.getFullName());
     }
     
     /**

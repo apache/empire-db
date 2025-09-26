@@ -900,7 +900,7 @@ public class DBTable extends DBRowSet implements Cloneable
             DBColumn column = columns.get(i);
             // getDefaultValue
             Object value = ((DBTableColumn)column).getRecordDefaultValue(record, conn);
-            if (ObjectUtils.isEmpty(value))
+            if (value!=ObjectUtils.NO_VALUE && ObjectUtils.isEmpty(value))
                 continue;
             // Initial value
             // Don't set to modified: record.modifyValue(i, value, false); 
