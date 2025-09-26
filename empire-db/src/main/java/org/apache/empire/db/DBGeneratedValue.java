@@ -28,6 +28,18 @@ import org.apache.empire.data.Record;
 public abstract class DBGeneratedValue extends DBExpr
 {
     protected final DBDatabase db;
+    
+    public DBGeneratedValue(DBDatabase db)
+    {
+        this.db = db;
+    }
+
+    /**
+     * Returns true if the value was modified and thus needs to be be updated in the record
+     * @param record the record for which to check
+     * @return true if the value was modified and needs to be be updated
+     */
+    public abstract boolean isModified(Record record);
 
     /**
      * Evaluates a record and returns the generated value
@@ -35,11 +47,6 @@ public abstract class DBGeneratedValue extends DBExpr
      * @return
      */
     public abstract Object eval(Record record);
-    
-    public DBGeneratedValue(DBDatabase db)
-    {
-        this.db = db;
-    }
 
     /**
      * @return the current DBDatabase object

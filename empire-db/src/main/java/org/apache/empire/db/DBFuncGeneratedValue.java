@@ -71,14 +71,28 @@ public class DBFuncGeneratedValue extends DBGeneratedValue
     
     /*
      * (non-Javadoc)
+     * @see org.apache.empire.db.DBGeneratedValue#isModified(org.apache.empire.data.Record)
+     */
+    @Override
+    public boolean isModified(Record record)
+    {
+        for (Object part : parts)
+        {   // check modified
+            if ((part instanceof Column) && record.wasModified((Column)part))
+                return true;
+        }
+        return false;
+    }
+    
+    /*
+     * (non-Javadoc)
      * @see org.apache.empire.db.DBGeneratedValue#eval(org.apache.empire.data.Record)
      */
     @Override
     public Object eval(Record record)
     {
-        // check null
         for (Object part : parts)
-        {
+        {   // check null
             if ((part instanceof Column) && record.isNull((Column)part))
                 return null;
         }
