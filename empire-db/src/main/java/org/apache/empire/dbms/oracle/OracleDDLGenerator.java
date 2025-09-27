@@ -119,7 +119,8 @@ public class OracleDDLGenerator extends DBDDLGenerator<DBMSHandlerOracle>
     {
         if (index.getType()==DBIndexType.FULLTEXT)
         {   // add indextype
-            sql.append(" INDEXTYPE IS CTXSYS.CONTEXT");
+            String indexType = StringUtils.coalesce(index.getOptions(), "CTXSYS.CONTEXT");
+            sql.append(" INDEXTYPE IS "+indexType);
         }
         super.addCreateIndexStmt(index, sql, script);
     }

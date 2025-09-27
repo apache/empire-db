@@ -47,9 +47,9 @@ public abstract class DBGeneratedValue extends DBExpr
      * @param triggerName then name of the trigger
      * @return the value generator
      */
-    public static DBGeneratedValue byTrigger(DBTable table, String triggerName)
+    public static DBGeneratedValue byTrigger(DBTable table, String triggerName, DBTableColumn...columns)
     {
-        return new DBTriggerGeneratedValue(table, triggerName);
+        return new DBTriggerGeneratedValue(table, triggerName, columns);
     }
 
     /**
@@ -71,24 +71,30 @@ public abstract class DBGeneratedValue extends DBExpr
     public static class DBTriggerGeneratedValue extends DBGeneratedValue
     {
         private final String triggerName;
+        private final DBTableColumn[] sourceColumns;
         
-        public DBTriggerGeneratedValue(DBRowSet table, String triggerName)
+        public DBTriggerGeneratedValue(DBRowSet table, String triggerName, DBTableColumn[] sourceColumns)
         {
             super(table.getDatabase());
+            // init
             this.triggerName = triggerName;
+            this.sourceColumns = sourceColumns;
         }
 
         @Override
         public boolean isModified(Record record)
         {
-            // Never
+            // check for modified source column
+            for (int i=0; i<sourceColumns.length; i++)
+                if (record.wasModified(sourceColumns[i]))
+                    return true;
             return false;
         }
 
         @Override
         public Object eval(Record record)
         {
-            // Nothing to do
+            // value unknown after change
             return ObjectUtils.NO_VALUE;
         }
 
