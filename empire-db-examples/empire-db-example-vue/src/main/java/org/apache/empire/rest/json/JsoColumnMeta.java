@@ -24,6 +24,7 @@ import org.apache.empire.commons.Attributes;
 import org.apache.empire.commons.OptionEntry;
 import org.apache.empire.commons.Options;
 import org.apache.empire.commons.StringUtils;
+import org.apache.empire.data.Column;
 import org.apache.empire.data.DataType;
 import org.apache.empire.db.DBColumn;
 import org.apache.empire.db.DBColumnExpr;
@@ -77,8 +78,8 @@ public class JsoColumnMeta extends LinkedHashMap<String, Object>
         for (Attributes.Attribute attr : column.getAttributes())
         {
             String name = attr.getName();
-            if (DBColumnExpr.DBCOLATTR_TITLE.equals(name) ||
-                DBColumnExpr.DBCOLATTR_TYPE.equals(name))
+            if (Column.COLATTR_TITLE.equals(name) ||
+                Column.COLATTR_TYPE.equals(name))
                 continue; // ignore
             // add attribute
             Object value = attr.getValue();
