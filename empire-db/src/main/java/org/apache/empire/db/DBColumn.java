@@ -22,6 +22,7 @@ import java.util.Collections;
 import java.util.Set;
 
 import org.apache.empire.commons.Attributes;
+import org.apache.empire.commons.ObjectUtils;
 import org.apache.empire.commons.Options;
 import org.apache.empire.commons.StringUtils;
 import org.apache.empire.data.Column;
@@ -232,6 +233,32 @@ public abstract class DBColumn extends DBColumnExpr
     public final <T extends DBColumn> T setNormalizedColumn(DBColumn normalizedColumn)
     { 
         return setAttribute(Column.COLATTR_NORMCOLUMN, normalizedColumn);
+    }
+
+    /**
+     * Returns whether or not a column is case sensitive
+     * If not explicitly set, the case sensitivity is true for all text fields (VARCHAR, CLOB) except if an EnumType is set.
+     * @return true if the column is case sensitive or false if not
+     */
+    @Override
+    public boolean isCaseSensitive()
+    {
+        Object value = getAttribute(Column.COLATTR_CASESENSITIVE);
+        if (value==null)
+        {   // default is true for VARCHAR and CLOB except if EnumType is set
+            return getDataType().isText() && (getEnumType()==null);
+        }
+        return ObjectUtils.getBoolean(value);
+    }
+    
+    /**
+     * Sets the case sensitivity of the column
+     * @param caseSensitiv may be true, false or null
+     * @return returns self (this)
+     */
+    public final <T extends DBColumn> T setCaseSensitive(Boolean caseSensitiv)
+    {
+        return setAttribute(Column.COLATTR_CASESENSITIVE, caseSensitiv);
     }
     
     /**

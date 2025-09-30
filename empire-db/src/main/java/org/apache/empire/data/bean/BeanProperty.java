@@ -245,6 +245,17 @@ public class BeanProperty implements Column
     }
 
     @Override
+    public boolean isCaseSensitive()
+    {
+        Object value = getAttribute(Column.COLATTR_CASESENSITIVE);
+        if (value==null)
+        {   // default is true for VARCHAR and CLOB except if EnumType is set
+            return getDataType().isText() && (getEnumType()==null);
+        }
+        return ObjectUtils.getBoolean(value);
+    }
+
+    @Override
     public boolean isRequired()
     {
         return this.required;

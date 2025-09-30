@@ -227,6 +227,12 @@ public class TagEncodingHelper implements NamingContainer
         }
 
         @Override
+        public boolean isCaseSensitive()
+        {
+            return (expr instanceof Column) ? ((Column)expr).isCaseSensitive() : false;
+        }
+
+        @Override
         public Object validateValue(Object value)
         {
             log.warn("validate not supported for {}", expr.getName());
