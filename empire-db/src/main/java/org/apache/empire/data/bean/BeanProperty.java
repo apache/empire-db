@@ -137,6 +137,25 @@ public class BeanProperty implements Column
     }
 
     /**
+     * Sets an attribute for this column
+     * @param name the attribute name
+     * @param value the attribute value
+     * @return the column itself
+     */
+    @Override
+    @SuppressWarnings("unchecked")
+    public synchronized <T extends Column> T setAttribute(String name, Object value)
+    {
+        if (attributes== null)
+            attributes = new Attributes();
+        if (value!=null)
+            attributes.set(name, value);
+        else
+            attributes.remove(name);
+        return (T)this;
+    }
+
+    /**
      * Returns all metadata attributes.
      * @return set of metadata attributes
      */
@@ -245,17 +264,6 @@ public class BeanProperty implements Column
     }
 
     @Override
-    public boolean isCaseSensitive()
-    {
-        Object value = getAttribute(Column.COLATTR_CASESENSITIVE);
-        if (value==null)
-        {   // default is true for VARCHAR and CLOB except if EnumType is set
-            return getDataType().isText() && (getEnumType()==null);
-        }
-        return ObjectUtils.getBoolean(value);
-    }
-
-    @Override
     public boolean isRequired()
     {
         return this.required;
@@ -296,13 +304,6 @@ public class BeanProperty implements Column
     public void setTitle(String title)
     {
         this.title = title;
-    }
-
-    public void setAttribute(String name, Object value)
-    {
-        if (attributes== null)
-            attributes = new Attributes();
-        attributes.set(name, value);
     }
 
 }

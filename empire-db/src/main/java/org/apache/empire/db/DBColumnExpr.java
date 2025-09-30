@@ -158,17 +158,21 @@ public abstract class DBColumnExpr extends DBExpr
 
     /**
      * Sets the value of a column attribute.
+     * Same as Column.setAttribute but with different name to avoid name clash 
      * @param <T> the column expression type
      * @param name the attribute name
      * @param value the value of the attribute
      * @return returns self (this)
      */
     @SuppressWarnings("unchecked")
-    public synchronized <T extends DBColumnExpr> T setAttribute(String name, Object value)
+    public synchronized <T extends DBColumnExpr> T addAttribute(String name, Object value)
     {
         if (attributes== null)
             attributes = new Attributes();
-        attributes.set(name, value);
+        if (value!=null)
+            attributes.set(name, value);
+        else
+            attributes.remove(name);
         return (T)this;
     }
 
@@ -223,7 +227,7 @@ public abstract class DBColumnExpr extends DBExpr
      */
     public <T extends DBColumnExpr> T setTitle(String title)
     { 
-        return setAttribute(Column.COLATTR_TITLE, title);
+        return addAttribute(Column.COLATTR_TITLE, title);
     }
 
     /**
@@ -248,7 +252,7 @@ public abstract class DBColumnExpr extends DBExpr
      */
     public final <T extends DBColumnExpr> T setControlType(String controlType)
     { 
-        return setAttribute(Column.COLATTR_TYPE, controlType);
+        return addAttribute(Column.COLATTR_TYPE, controlType);
     }
     
     /**

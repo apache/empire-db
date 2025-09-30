@@ -94,11 +94,13 @@ public interface Column extends ColumnExpr
     boolean isReadOnly();
 
     /**
-     * Returns whether or not a column is case sensitive
-     * If not explicitly set, the case sensitivity is true for all text fields (VARCHAR, CLOB) except if an EnumType is set.
-     * @return true if the column is case sensitive or false if not
+     * Sets the value of a column attribute.
+     * @param <T> the column expression type
+     * @param name the attribute name
+     * @param value the value of the attribute
+     * @return returns self (this)
      */
-    boolean isCaseSensitive();
+    <T extends Column> T setAttribute(String name, Object value);
     
     /**
      * Returns all metadata attributes.
