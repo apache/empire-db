@@ -130,10 +130,14 @@ public class ColumnUtils
      */
     public static boolean isCaseSensitive(ColumnExpr columnExpr)
     {
+        // only for text expressions
+        if (!isText(columnExpr))
+            return false;
+        // check attribute
         Object value = instance.getColumnAttribute(columnExpr, Column.COLATTR_CASESENSITIVE);
         if (value==null)
         {   // default is true for VARCHAR and CLOB except if EnumType is set
-            return isText(columnExpr) && (columnExpr.getEnumType()==null);
+            return (columnExpr.getEnumType()==null);
         }
         return ObjectUtils.getBoolean(value);
     }
