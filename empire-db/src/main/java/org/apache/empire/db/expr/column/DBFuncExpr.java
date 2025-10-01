@@ -21,6 +21,7 @@ package org.apache.empire.db.expr.column;
 import java.util.Set;
 
 import org.apache.empire.commons.StringUtils;
+import org.apache.empire.data.Column;
 // Java
 import org.apache.empire.data.DataType;
 import org.apache.empire.db.DBColumn;
@@ -107,6 +108,11 @@ public class DBFuncExpr extends DBAbstractFuncExpr
         this.phrase = null;
     }
     
+    public DBSqlPhrase getPhrase()
+    {
+        return phrase;
+    }
+
     @Override
     protected String getFunctionName()
     {
@@ -137,6 +143,17 @@ public class DBFuncExpr extends DBAbstractFuncExpr
             return expr.getEnumType();
         // Check SQL-Phrase
         return super.getEnumType();
+    }
+    
+    @Override
+    public Object getAttribute(String name)
+    {
+        // Special
+        if ((phrase==DBSqlPhrase.SQL_FUNC_UPPER || phrase==DBSqlPhrase.SQL_FUNC_LOWER) && Column.COLATTR_CASESENSITIVE.equals(name))
+        {   // UPPER and LOWER are not case sensitive
+            return false;
+        }
+        return super.getAttribute(name);
     }
 
     /**

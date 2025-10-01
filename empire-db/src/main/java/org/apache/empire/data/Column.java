@@ -55,6 +55,11 @@ public interface Column extends ColumnExpr
     public static final String COLATTR_CURRENCY_CODE   = "currencyCode";         // "ISO 4217 code of the currency"
     public static final String COLATTR_DATETIMEPATTERN = "dateTimePattern";      // default is yyyy-MM-dd HH:mm:ss
 
+    public static final String NUMTYPE_INTEGER   = DataType.INTEGER.name(); 
+    public static final String NUMTYPE_DECIMAL   = DataType.DECIMAL.name(); 
+    public static final String NUMTYPE_CURRENCY  = "CURRENCY"; 
+    public static final String NUMTYPE_PERCENT   = "PERCENT"; 
+    
     /**
      * Returns the EntityType that this Column belongs to
      * @return the EntityType if any

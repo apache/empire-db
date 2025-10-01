@@ -577,7 +577,7 @@ public class TextInputControl extends InputControl
             return NumberFormat.getNumberInstance(locale);
         // Column is supplied
         String type = StringUtils.valueOf(column.getAttribute(Column.COLATTR_NUMBER_TYPE));
-        boolean isInteger = "Integer".equalsIgnoreCase(type);
+        boolean isInteger = Column.NUMTYPE_INTEGER.equalsIgnoreCase(type);
         NumberFormat nf = (isInteger) ? NumberFormat.getIntegerInstance(locale)
                                       : NumberFormat.getNumberInstance(locale);
         // Groups Separator?
@@ -682,7 +682,7 @@ public class TextInputControl extends InputControl
             String numberType = StringUtils.toString(column.getAttribute(Column.COLATTR_NUMBER_TYPE));
             if (numberType != null)
             {
-                if (numberType.equalsIgnoreCase("Currency"))
+                if (Column.NUMTYPE_CURRENCY.equalsIgnoreCase(numberType))
                 {
                     String currencyCode = StringUtils.toString(column.getAttribute(Column.COLATTR_CURRENCY_CODE));
                     if (currencyCode != null)
@@ -697,7 +697,7 @@ public class TextInputControl extends InputControl
                         return currencyCode;
                     }
                 }
-                else if (numberType.equalsIgnoreCase("Percent"))
+                else if (Column.NUMTYPE_PERCENT.equalsIgnoreCase(numberType))
                 {
                     return "%";
                 }
