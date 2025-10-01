@@ -59,6 +59,15 @@ public interface ColumnExpr
     Object getAttribute(String name);
 
     /**
+     * Sets the value of a column attribute.
+     * @param <T> the column expression type
+     * @param name the attribute name
+     * @param value the value of the attribute
+     * @return returns self (this)
+     */
+    <T extends ColumnExpr> T setAttribute(String name, Object value);
+
+    /**
      * Returns the enum type for this column
      * <P>
      * @return the enum type

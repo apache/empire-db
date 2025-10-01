@@ -25,6 +25,7 @@ import org.apache.empire.commons.Attributes;
 import org.apache.empire.commons.ObjectUtils;
 import org.apache.empire.commons.Options;
 import org.apache.empire.data.Column;
+import org.apache.empire.data.ColumnExpr;
 import org.apache.empire.data.DataType;
 import org.apache.empire.data.Entity;
 import org.apache.empire.db.exceptions.FieldNotNullException;
@@ -142,9 +143,9 @@ public class BeanProperty implements Column
      * @param value the attribute value
      * @return the column itself
      */
-    @Override
     @SuppressWarnings("unchecked")
-    public synchronized <T extends Column> T setAttribute(String name, Object value)
+    @Override
+    public synchronized <T extends ColumnExpr> T setAttribute(String name, Object value)
     {
         if (attributes== null)
             attributes = new Attributes();

@@ -167,7 +167,7 @@ public class TagEncodingHelper implements NamingContainer
 
         @SuppressWarnings("unchecked")
         @Override
-        public <T extends Column> T setAttribute(String name, Object value)
+        public <T extends ColumnExpr> T setAttribute(String name, Object value)
         {
             if (expr instanceof Column)
                ((Column)expr).setAttribute(name, value);

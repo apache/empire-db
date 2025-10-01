@@ -164,8 +164,9 @@ public abstract class DBColumnExpr extends DBExpr
      * @param value the value of the attribute
      * @return returns self (this)
      */
+    @Override
     @SuppressWarnings("unchecked")
-    public synchronized <T extends DBColumnExpr> T addAttribute(String name, Object value)
+    public synchronized <T extends ColumnExpr> T setAttribute(String name, Object value)
     {
         if (attributes== null)
             attributes = new Attributes();
@@ -227,7 +228,7 @@ public abstract class DBColumnExpr extends DBExpr
      */
     public <T extends DBColumnExpr> T setTitle(String title)
     { 
-        return addAttribute(Column.COLATTR_TITLE, title);
+        return setAttribute(Column.COLATTR_TITLE, title);
     }
 
     /**
@@ -252,7 +253,7 @@ public abstract class DBColumnExpr extends DBExpr
      */
     public final <T extends DBColumnExpr> T setControlType(String controlType)
     { 
-        return addAttribute(Column.COLATTR_TYPE, controlType);
+        return setAttribute(Column.COLATTR_TYPE, controlType);
     }
     
     /**

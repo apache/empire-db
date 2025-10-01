@@ -92,15 +92,6 @@ public interface Column extends ColumnExpr
      * @return Returns true if the values for this column are generally read-only
      */
     boolean isReadOnly();
-
-    /**
-     * Sets the value of a column attribute.
-     * @param <T> the column expression type
-     * @param name the attribute name
-     * @param value the value of the attribute
-     * @return returns self (this)
-     */
-    <T extends Column> T setAttribute(String name, Object value);
     
     /**
      * Returns all metadata attributes.

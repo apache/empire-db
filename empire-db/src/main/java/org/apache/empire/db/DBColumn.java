@@ -380,20 +380,6 @@ public abstract class DBColumn extends DBColumnExpr
     }
 
     /**
-     * Sets an attribute for this column
-     * @param name the attribute name
-     * @param value the attribute value
-     * @return the column itself
-     */
-    @Override
-    @SuppressWarnings("unchecked")
-    public synchronized <T extends Column> T setAttribute(String name, Object value)
-    {
-        super.addAttribute(name, value);
-        return (T)this;
-    }
-
-    /**
      * Returns all metadata attributes.
      * @return set of metadata attributes
      */
