@@ -136,8 +136,8 @@ public class ColumnUtils
         // check attribute
         Object value = instance.getColumnAttribute(columnExpr, Column.COLATTR_CASESENSITIVE);
         if (value==null)
-        {   // default is true for VARCHAR and CLOB except if EnumType is set
-            return (columnExpr.getEnumType()==null);
+        {   // default is true for VARCHAR and CLOB except if Options or EnumType are set
+            return (columnExpr.getOptions()==null && columnExpr.getEnumType()==null);
         }
         return ObjectUtils.getBoolean(value);
     }
