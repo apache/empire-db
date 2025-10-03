@@ -147,15 +147,18 @@ public class DBCompareColExpr extends DBCompareExpr
 
     /*
      * (non-Javadoc)
-     * @see org.apache.empire.db.expr.column.DBPreparable#prepareCommand(org.apache.empire.db.DBCommand)
+     * @see org.apache.empire.db.expr.column.DBPreparable#prepareParams(org.apache.empire.db.DBCommand, org.apache.empire.db.DBExpr)
      */
     @Override
-    public void prepareCommand(DBCommand cmd) 
+    public void prepareParams(DBCommand cmd, DBExpr parent) 
     {
-        // forward?
+        // forward
+        if (expr instanceof DBPreparable) {
+            ((DBPreparable)expr).prepareParams(cmd, this);
+        }
         if (value instanceof DBPreparable) {
-            ((DBPreparable)value).prepareCommand(cmd);
-            return;
+            ((DBPreparable)value).prepareParams(cmd, this);
+            return; // we're done
         }
         // Cannot use DBExpr or DBSystemDate as parameter
         if (value==null || value instanceof DBCmdParam || value instanceof DBExpr || value instanceof DBDatabase.DBSystemDate)

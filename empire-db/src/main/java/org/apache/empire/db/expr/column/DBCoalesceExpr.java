@@ -99,15 +99,15 @@ public class DBCoalesceExpr extends DBAbstractFuncExpr
     
     /*
      * (non-Javadoc)
-     * @see org.apache.empire.db.expr.column.DBPreparable#prepareCommand(org.apache.empire.db.DBCommand)
+     * @see org.apache.empire.db.expr.column.DBPreparable#prepareParams(org.apache.empire.db.DBCommand, org.apache.empire.db.DBExpr)
      */
     @Override
-    public void prepareCommand(DBCommand cmd) 
+    public void prepareParams(DBCommand cmd, DBExpr parent) 
     {
-        super.prepareCommand(cmd);
+        super.prepareParams(cmd, parent);
         // forward?
         if (nullValue instanceof DBPreparable)
-            ((DBPreparable)nullValue).prepareCommand(cmd);
+            ((DBPreparable)nullValue).prepareParams(cmd, this);
     }
 
     /**

@@ -239,12 +239,13 @@ public class DBValueExpr extends DBColumnExpr
 
     /**
      * Set literal mode, i.e. the value will be placed in the sql statement
-     * Ohterwise it may be automatically replaced by a parameter ?
+     * Otherwise it may be automatically replaced by a parameter ?
      * @return self (this)
      */
-    public DBValueExpr literal()
+    public DBValueExpr literally()
     {
         this.literal = true;
+        // remove param
         if (this.value instanceof DBCmdParam)
             this.value = ((DBCmdParam)value).getValue();
         // return self
@@ -256,7 +257,7 @@ public class DBValueExpr extends DBColumnExpr
      * and referenced by a ? in the sql statement
      * @return self (this)
      */
-    public DBValueExpr parameter()
+    public DBValueExpr autoParam()
     {
         this.literal = false;
         return this;
@@ -264,15 +265,16 @@ public class DBValueExpr extends DBColumnExpr
 
     /*
      * (non-Javadoc)
-     * @see org.apache.empire.db.expr.column.DBPreparable#prepareCommand(org.apache.empire.db.DBCommand)
+     * @see org.apache.empire.db.expr.column.DBPreparable#prepareParams(org.apache.empire.db.DBCommand, org.apache.empire.db.DBExpr)
      */
     @Override
-    public void prepareCommand(DBCommand cmd) 
+    public void prepareParams(DBCommand cmd, DBExpr parent) 
     {
+        // literal mode
+        if (getDataType()==DataType.UNKNOWN || literal)
+            return;
         // Cannot use DBExpr or DBSystemDate as parameter
         if (value==null || value instanceof DBCmdParam || value instanceof DBExpr || value instanceof DBDatabase.DBSystemDate)
-            return;
-        if (getDataType()==DataType.UNKNOWN || literal)
             return;
         // Add command param
         this.value = cmd.addParam(getDataType(), value);

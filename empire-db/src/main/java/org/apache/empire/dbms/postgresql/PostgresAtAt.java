@@ -25,6 +25,7 @@ import org.apache.empire.db.DBColumn;
 import org.apache.empire.db.DBColumnExpr;
 import org.apache.empire.db.DBCommand;
 import org.apache.empire.db.DBDatabase;
+import org.apache.empire.db.DBExpr;
 import org.apache.empire.db.DBRowSet;
 import org.apache.empire.db.DBSQLBuilder;
 import org.apache.empire.db.expr.compare.DBCompareExpr;
@@ -52,7 +53,7 @@ public class PostgresAtAt extends DBCompareExpr
     }
 
     @Override
-    public void prepareCommand(DBCommand cmd)
+    public void prepareParams(DBCommand cmd, DBExpr parent)
     {
         /* nothing */
     }

@@ -23,6 +23,7 @@ import org.apache.empire.db.DBCommand;
 import org.apache.empire.db.DBExpr;
 import org.apache.empire.db.DBJoinType;
 import org.apache.empire.db.DBRowSet;
+import org.apache.empire.db.expr.column.DBPreparable;
 
 /**
  * This class is used for building a join expression of an SQL statement.
@@ -30,6 +31,7 @@ import org.apache.empire.db.DBRowSet;
  * There is no need to explicitly create instances of this class.
  */
 public abstract class DBJoinExpr extends DBExpr
+    implements DBPreparable
 {
     // *Deprecated* private static final long serialVersionUID = 1L;
   
@@ -102,12 +104,6 @@ public abstract class DBJoinExpr extends DBExpr
      * This function swaps the left and the right statements of the join expression.
      */
     public abstract void reverse();
-    
-    /**
-     * internally used for preapred statement generation
-     * @param cmd the command
-     */
-    public abstract void prepareCommand(DBCommand cmd); 
 
     /**
      * Copy Command

@@ -25,6 +25,7 @@ import java.util.Set;
 import org.apache.empire.data.DataType;
 import org.apache.empire.db.DBColumn;
 import org.apache.empire.db.DBColumnExpr;
+import org.apache.empire.db.DBCommand;
 import org.apache.empire.db.DBExpr;
 import org.apache.empire.db.DBSQLBuilder;
 import org.apache.empire.dbms.DBSqlPhrase;
@@ -44,7 +45,7 @@ public class DBDecodeExpr extends DBAbstractFuncExpr
     // *Deprecated* private static final long serialVersionUID = 1L;
   
     private final Map<?,?>  valueMap;
-    private final Object    elseExpr;
+    private Object elseExpr;
     
     /**
      * Constructs a DBDecodeExpr
@@ -80,6 +81,50 @@ public class DBDecodeExpr extends DBAbstractFuncExpr
         if (firstExpr!=null)
             return firstExpr.getEnumType();
         return super.getEnumType();
+    }
+    
+    /**
+     * Automatically converts all literal values into Value expressions 
+     * @return self (this)
+     */
+    public DBDecodeExpr autoParam()
+    {
+        // check map
+        for (Map.Entry<?,?> me : valueMap.entrySet())
+        {   // Check Value for Expressions
+            @SuppressWarnings("unchecked")
+            Map.Entry<Object,Object> e = (Map.Entry<Object,Object>)me; 
+            if (isLiteralValue(e.getKey()))
+                log.info("Unable to change Key");
+            if (isLiteralValue(e.getValue()))
+                e.setValue(getDatabase().getValueExpr(e.getValue(), getDataType()));
+        }
+        // forward?
+        if (isLiteralValue(elseExpr))
+            elseExpr=getDatabase().getValueExpr(elseExpr, getDataType());
+        // return self
+        return this;
+    }
+
+    /*
+     * (non-Javadoc)
+     * @see org.apache.empire.db.expr.column.DBPreparable#prepareParams(org.apache.empire.db.DBCommand, org.apache.empire.db.DBExpr)
+     */
+    @Override
+    public void prepareParams(DBCommand cmd, DBExpr parent) 
+    {
+        super.prepareParams(cmd, parent);
+        // check map
+        for (Map.Entry<?,?> e : valueMap.entrySet())
+        {   // Check Key of Value for Expressions
+            if (e.getKey() instanceof DBPreparable)
+                ((DBPreparable)e.getKey()).prepareParams(cmd, this);
+            if (e.getValue() instanceof DBPreparable)
+                ((DBPreparable)e.getValue()).prepareParams(cmd, this);
+        }
+        // forward?
+        if (elseExpr instanceof DBPreparable)
+            ((DBPreparable)elseExpr).prepareParams(cmd, this);
     }
     
     @Override

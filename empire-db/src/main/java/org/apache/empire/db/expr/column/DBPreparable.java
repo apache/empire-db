@@ -19,6 +19,7 @@
 package org.apache.empire.db.expr.column;
 
 import org.apache.empire.db.DBCommand;
+import org.apache.empire.db.DBExpr;
 
 /**
  * DBPreparable
@@ -30,8 +31,13 @@ public interface DBPreparable
     /**
      * Prepares an expression for a query
      * This function is called by DBCommand in order to add values as query parameters
-     * instead of being literally included in the sql statement 
+     * instead of being literally included in the sql statement
+     * 
+     * Please Note: This function is internally called.
+     * Do not call yourself!
+     *  
      * @param cmd the command to which to add the parameters
+     * @param parent the parent expression holding the value
      */
-    public abstract void prepareCommand(DBCommand cmd); 
+    public abstract void prepareParams(DBCommand cmd, DBExpr parent); 
 }

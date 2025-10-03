@@ -25,6 +25,7 @@ import org.apache.empire.db.DBColumn;
 import org.apache.empire.db.DBColumnExpr;
 import org.apache.empire.db.DBCommand;
 import org.apache.empire.db.DBDatabase;
+import org.apache.empire.db.DBExpr;
 import org.apache.empire.db.DBRowSet;
 import org.apache.empire.db.DBSQLBuilder;
 
@@ -84,12 +85,12 @@ public class DBCompareNotExpr extends DBCompareExpr
 
     /*
      * (non-Javadoc)
-     * @see org.apache.empire.db.expr.column.DBPreparable#prepareCommand(org.apache.empire.db.DBCommand)
+     * @see org.apache.empire.db.expr.column.DBPreparable#prepareParams(org.apache.empire.db.DBCommand, org.apache.empire.db.DBExpr)
      */
     @Override
-    public void prepareCommand(DBCommand cmd) 
+    public void prepareParams(DBCommand cmd, DBExpr parent) 
     {
-        expr.prepareCommand(cmd);
+        expr.prepareParams(cmd, parent);
     }
 
     /**

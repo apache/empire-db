@@ -756,7 +756,7 @@ public abstract class DBCommand extends DBCommandExpr
         // Check if prepared statements are enabled
         if (isPreparedStatementsEnabled())
         {   // use command params
-            join.prepareCommand(this);
+            join.prepareParams(this, null);
         }
         return this;
     }
@@ -1533,7 +1533,7 @@ public abstract class DBCommand extends DBCommandExpr
         // Check if prepared statements are enabled
         if (isPreparedStatementsEnabled())
         {   // use command params
-            expr.prepareCommand(this);
+            expr.prepareParams(this, this);
         }
         // adds a comparison to the where or having list
         for (int i = 0; i < list.size(); i++)

@@ -620,7 +620,7 @@ public abstract class DBDatabase extends DBObject
      * 
      * @return a DBValueExpr object
      */
-    public DBValueExpr getSystemDateExpr()
+    public final DBValueExpr getSystemDateExpr()
     {
         return getValueExpr(SYSDATE, DataType.DATETIME);
     }

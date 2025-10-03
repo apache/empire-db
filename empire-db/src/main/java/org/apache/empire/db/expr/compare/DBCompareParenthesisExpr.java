@@ -25,6 +25,7 @@ import org.apache.empire.db.DBColumn;
 import org.apache.empire.db.DBColumnExpr;
 import org.apache.empire.db.DBCommand;
 import org.apache.empire.db.DBDatabase;
+import org.apache.empire.db.DBExpr;
 import org.apache.empire.db.DBRowSet;
 import org.apache.empire.db.DBSQLBuilder;
 
@@ -73,9 +74,9 @@ public class DBCompareParenthesisExpr extends DBCompareExpr implements Unwrappab
     }
 
     @Override
-    public void prepareCommand(DBCommand cmd) 
+    public void prepareParams(DBCommand cmd, DBExpr parent) 
     {
-        wrapped.prepareCommand(cmd);
+        wrapped.prepareParams(cmd, parent);
     }
 
     @Override

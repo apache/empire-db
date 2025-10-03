@@ -20,6 +20,7 @@ package org.apache.empire.db.expr.join;
 
 import org.apache.empire.db.DBColumnExpr;
 import org.apache.empire.db.DBCommand;
+import org.apache.empire.db.DBExpr;
 import org.apache.empire.db.DBJoinType;
 import org.apache.empire.db.DBQuery;
 import org.apache.empire.db.DBRowSet;
@@ -87,13 +88,13 @@ public class DBCompareJoinExpr extends DBColumnJoinExpr
     
     /*
      * (non-Javadoc)
-     * @see org.apache.empire.db.expr.column.DBPreparable#prepareCommand(org.apache.empire.db.DBCommand)
+     * @see org.apache.empire.db.expr.column.DBPreparable#prepareParams(org.apache.empire.db.DBCommand, org.apache.empire.db.DBExpr)
      */
     @Override
-    public void prepareCommand(DBCommand cmd)
+    public void prepareParams(DBCommand cmd, DBExpr parent) 
     {
-        cmp.prepareCommand(cmd);
-        super.prepareCommand(cmd);
+        cmp.prepareParams(cmd, this);
+        super.prepareParams(cmd, this);
     }
     
     /**

@@ -353,7 +353,7 @@ public abstract class DBColumn extends DBColumnExpr
      * @return a qualified expression for this column
      */
     @Override
-    public DBColumnExpr qualified()
+    public DBAliasExpr qualified()
     {
         return this.as(getAlias());
     }
@@ -364,7 +364,7 @@ public abstract class DBColumn extends DBColumnExpr
      * @param nullValue the alternative value when this column is null
      * @return the coalesce and alias expression
      */
-    public DBColumnExpr coalesceColumn(Object nullValue)
+    public DBAliasExpr coalesceColumn(Object nullValue)
     {
         return coalesce(nullValue).as(this);
     }

@@ -24,6 +24,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 import org.apache.empire.commons.Attributes;
+import org.apache.empire.commons.ClassUtils;
 import org.apache.empire.commons.ObjectUtils;
 import org.apache.empire.commons.OptionEntry;
 import org.apache.empire.commons.Options;
@@ -132,7 +133,7 @@ public abstract class DBColumnExpr extends DBExpr
      * returns an expression that renames the column with its alias name
      * @return the rename expression
      */
-    public DBColumnExpr qualified()
+    public DBAliasExpr qualified()
     {
         return this.as(getName());
     }
@@ -285,23 +286,12 @@ public abstract class DBColumnExpr extends DBExpr
     }
 
     /**
-     * Creates a new DBConcatExpr object with the specified value.
-     *
-     * @param value an Object value
-     * @return the new DBConcatExpr object
-     */
-    public DBColumnExpr append(Object value)
-    {
-        return new DBConcatExpr(this, value);
-    }
-
-    /**
      * creates a new DBAliasExpr which renames the current expression to the supplied name. 
      * <P>
      * @param alias the alias name
      * @return the new DBAliasExpr object
      */
-    public DBColumnExpr as(String alias)
+    public DBAliasExpr as(String alias)
     {
         return new DBAliasExpr(this, alias);
     }
@@ -312,7 +302,7 @@ public abstract class DBColumnExpr extends DBExpr
      * @param column the column whose name serves as an alias for the current expression
      * @return the new DBAliasExpr object
      */
-    public final DBColumnExpr as(DBColumn column)
+    public final DBAliasExpr as(DBColumn column)
     {
         return as(column.getName());
     }
@@ -668,6 +658,17 @@ public abstract class DBColumnExpr extends DBExpr
         return (value >= 0) ? new DBCalcExpr(this, "-", new Integer(value)) : new DBCalcExpr(this, "+", new Integer(-value));
     }
 
+    /**
+     * Creates a new DBConcatExpr object with the specified value.
+     *
+     * @param value an Object value
+     * @return the new DBConcatExpr object
+     */
+    public DBConcatExpr append(Object value)
+    {
+        return new DBConcatExpr(this, value);
+    }
+
     // ----------------------------------------------------------
     // --------------------- DBFuncExpr -------------------------
     // ----------------------------------------------------------
@@ -681,12 +682,12 @@ public abstract class DBColumnExpr extends DBExpr
      * @param dataType the resulting data Type
      * @return the new DBCalcExpr object
      */
-    protected DBColumnExpr getExprFromPhrase(DBSqlPhrase phrase, Object[] params, DataType dataType)
+    protected DBFuncExpr getExprFromPhrase(DBSqlPhrase phrase, Object[] params, DataType dataType)
     {
         return new DBFuncExpr(this, phrase, params, dataType);
     }
 
-    protected DBColumnExpr getExprFromPhrase(DBSqlPhrase phrase, Object[] params)
+    protected final DBFuncExpr getExprFromPhrase(DBSqlPhrase phrase, Object[] params)
     {
         return getExprFromPhrase(phrase, params, getDataType());
     }
@@ -708,7 +709,7 @@ public abstract class DBColumnExpr extends DBExpr
      * @param nullValue the alternative value when this expression is null
      * @return the coalesce expression
      */
-    public DBColumnExpr coalesce(Object nullValue)
+    public DBCoalesceExpr coalesce(Object nullValue)
     {
         return new DBCoalesceExpr(this, nullValue);
     }
@@ -719,7 +720,7 @@ public abstract class DBColumnExpr extends DBExpr
      * @param divisor the Object value
      * @return the new DBFuncExpr object
      */
-    public DBColumnExpr modulo(Object divisor)
+    public final DBFuncExpr modulo(Object divisor)
     {
         return getExprFromPhrase(DBSqlPhrase.SQL_FUNC_MOD, new Object[] { divisor });
     }
@@ -745,7 +746,7 @@ public abstract class DBColumnExpr extends DBExpr
      * 
      * @return the new DBFuncExpr object
      */
-    public DBColumnExpr substring(DBExpr pos)
+    public final DBFuncExpr substring(DBExpr pos)
     {   // Get Expression
         return getExprFromPhrase(DBSqlPhrase.SQL_FUNC_SUBSTRING, new Object[] { pos });
     }
@@ -757,7 +758,7 @@ public abstract class DBColumnExpr extends DBExpr
      * 
      * @return the new DBFuncExpr object
      */
-    public DBColumnExpr substring(int pos)
+    public DBFuncExpr substring(int pos)
     {
         return substring(getDatabase().getValueExpr(pos, DataType.INTEGER));
     }
@@ -770,7 +771,7 @@ public abstract class DBColumnExpr extends DBExpr
      * 
      * @return the new DBFuncExpr object
      */
-    public DBColumnExpr substring(DBExpr pos, DBExpr count)
+    public final DBFuncExpr substring(DBExpr pos, DBExpr count)
     {   // Get Expression
         return getExprFromPhrase(DBSqlPhrase.SQL_FUNC_SUBSTRINGEX, new Object[] { pos, count });
     }
@@ -783,7 +784,7 @@ public abstract class DBColumnExpr extends DBExpr
      * 
      * @return the new DBFuncExpr object
      */
-    public DBColumnExpr substring(DBExpr pos, int count)
+    public DBFuncExpr substring(DBExpr pos, int count)
     {
         return substring(pos, getDatabase().getValueExpr(count, DataType.INTEGER));
     }
@@ -796,7 +797,7 @@ public abstract class DBColumnExpr extends DBExpr
      * 
      * @return the new DBFuncExpr object
      */
-    public DBColumnExpr substring(int pos, DBExpr count)
+    public DBFuncExpr substring(int pos, DBExpr count)
     {
         return substring(getDatabase().getValueExpr(pos, DataType.INTEGER), count);
     }
@@ -809,7 +810,7 @@ public abstract class DBColumnExpr extends DBExpr
      * 
      * @return the new DBFuncExpr object
      */
-    public DBColumnExpr substring(int pos, int count)
+    public DBFuncExpr substring(int pos, int count)
     {
         return substring(getDatabase().getValueExpr(pos, DataType.INTEGER), 
                          getDatabase().getValueExpr(count, DataType.INTEGER));
@@ -822,7 +823,7 @@ public abstract class DBColumnExpr extends DBExpr
      * @param replace string with replacement
      * @return the new DBFuncExpr object
      */
-    public DBColumnExpr replace(Object match, Object replace)
+    public final DBFuncExpr replace(Object match, Object replace)
     {
         return getExprFromPhrase(DBSqlPhrase.SQL_FUNC_REPLACE, new Object[] { match, replace });
     }
@@ -832,7 +833,7 @@ public abstract class DBColumnExpr extends DBExpr
      * 
      * @return the new DBFuncExpr object
      */
-    public DBColumnExpr reverse()
+    public final DBFuncExpr reverse()
     {
         return getExprFromPhrase(DBSqlPhrase.SQL_FUNC_REVERSE, null);
     }
@@ -842,7 +843,7 @@ public abstract class DBColumnExpr extends DBExpr
      * 
      * @return the new DBFuncExpr object
      */
-    public DBColumnExpr trim()
+    public final DBFuncExpr trim()
     {
         return getExprFromPhrase(DBSqlPhrase.SQL_FUNC_TRIM, null);
     }
@@ -852,7 +853,7 @@ public abstract class DBColumnExpr extends DBExpr
      * 
      * @return the new DBFuncExpr object
      */
-    public DBColumnExpr trimLeft()
+    public final DBFuncExpr trimLeft()
     {
         return getExprFromPhrase(DBSqlPhrase.SQL_FUNC_LTRIM, null);
     }
@@ -862,7 +863,7 @@ public abstract class DBColumnExpr extends DBExpr
      * 
      * @return the new DBFuncExpr object
      */
-    public DBColumnExpr trimRight()
+    public final DBFuncExpr trimRight()
     {
         return getExprFromPhrase(DBSqlPhrase.SQL_FUNC_RTRIM, null);
     }
@@ -873,7 +874,7 @@ public abstract class DBColumnExpr extends DBExpr
      *
      * @return the new DBFuncExpr object
      */
-    public DBColumnExpr upper()
+    public final DBFuncExpr upper()
     {
         return getExprFromPhrase(DBSqlPhrase.SQL_FUNC_UPPER, null);
     }
@@ -884,7 +885,7 @@ public abstract class DBColumnExpr extends DBExpr
      *
      * @return the new DBFuncExpr object
      */
-    public DBColumnExpr lower()
+    public final DBFuncExpr lower()
     {
         return getExprFromPhrase(DBSqlPhrase.SQL_FUNC_LOWER, null);
     }
@@ -896,7 +897,7 @@ public abstract class DBColumnExpr extends DBExpr
      * @param format the format string. Beware: This is passed to the database "as is" and hence may be database specific.
      * @return a string expression representing the formatted value
      */
-    public DBColumnExpr format(String format)
+    public final DBFuncExpr format(String format)
     {
         return getExprFromPhrase(DBSqlPhrase.SQL_FUNC_FORMAT, new Object[] { format }, DataType.VARCHAR);
     }
@@ -906,7 +907,7 @@ public abstract class DBColumnExpr extends DBExpr
 
      * @return the new DBFuncExpr object
      */
-    public DBColumnExpr length()
+    public final DBFuncExpr length()
     {
         return getExprFromPhrase(DBSqlPhrase.SQL_FUNC_LENGTH, null, DataType.INTEGER);
     }
@@ -918,7 +919,7 @@ public abstract class DBColumnExpr extends DBExpr
      *
      * @return the new DBFuncExpr object
      */
-    public DBColumnExpr indexOf(Object str)
+    public final DBFuncExpr indexOf(Object str)
     {
         return getExprFromPhrase(DBSqlPhrase.SQL_FUNC_STRINDEX, new Object[] { str }, DataType.INTEGER);
     }
@@ -931,7 +932,7 @@ public abstract class DBColumnExpr extends DBExpr
      *
      * @return the new DBFuncExpr object
      */
-    public DBColumnExpr indexOf(Object str, DBExpr fromPos)
+    public final DBFuncExpr indexOf(Object str, DBExpr fromPos)
     {
         return getExprFromPhrase(DBSqlPhrase.SQL_FUNC_STRINDEXFROM, new Object[] { str, fromPos }, DataType.INTEGER);
     }
@@ -944,7 +945,7 @@ public abstract class DBColumnExpr extends DBExpr
      * 
      * @return the new DBFuncExpr object
      */
-    public DBColumnExpr indexOf(Object str, int fromPos)
+    public final DBFuncExpr indexOf(Object str, int fromPos)
     {
         return indexOf(str, getDatabase().getValueExpr(fromPos, DataType.INTEGER));
     }
@@ -954,7 +955,7 @@ public abstract class DBColumnExpr extends DBExpr
      * @param concatExprs the expressions to concat
      * @return the concat expression
      */
-    public DBColumnExpr concat(DBColumnExpr... concatExprs)
+    public DBConcatFuncExpr concat(DBColumnExpr... concatExprs)
     {
         return new DBConcatFuncExpr(this, concatExprs);
     }
@@ -965,7 +966,7 @@ public abstract class DBColumnExpr extends DBExpr
      * @param concatExprs the expressions to concat
      * @return the concat expression
      */
-    public DBColumnExpr concat(String separator, DBColumnExpr... concatExprs)
+    public DBConcatFuncExpr concat(String separator, DBColumnExpr... concatExprs)
     {
         return new DBConcatFuncExpr(this, separator, concatExprs);
     }
@@ -975,7 +976,7 @@ public abstract class DBColumnExpr extends DBExpr
      * @param value the expressions to prepend
      * @return the combined value
      */
-    public DBColumnExpr prepend(Object value)
+    public DBFuncExpr prepend(Object value)
     {
         String opertor  = (getDataType()==DataType.UNKNOWN ? "" 
                         : (getDataType().isText() ? getDatabase().getDbms().getSQLPhrase(DBSqlPhrase.SQL_CONCAT_EXPR) 
@@ -993,7 +994,7 @@ public abstract class DBColumnExpr extends DBExpr
      * 
      * @return the new DBFuncExpr object
      */
-    public DBColumnExpr abs()
+    public final DBFuncExpr abs()
     {
         return getExprFromPhrase(DBSqlPhrase.SQL_FUNC_ABS, null);
     }
@@ -1003,7 +1004,7 @@ public abstract class DBColumnExpr extends DBExpr
      * 
      * @return the new DBFuncExpr object
      */
-    public DBColumnExpr floor()
+    public final DBFuncExpr floor()
     {
         return getExprFromPhrase(DBSqlPhrase.SQL_FUNC_FLOOR, null);
     }
@@ -1013,7 +1014,7 @@ public abstract class DBColumnExpr extends DBExpr
      * 
      * @return the new DBFuncExpr object
      */
-    public DBColumnExpr ceiling()
+    public final DBFuncExpr ceiling()
     {
         return getExprFromPhrase(DBSqlPhrase.SQL_FUNC_CEILING, null);
     }
@@ -1025,7 +1026,7 @@ public abstract class DBColumnExpr extends DBExpr
      * @param decimals the number of decimal to which to truncate the current value
      * @return the new DBFuncExpr object
      */
-    public DBColumnExpr round(int decimals)
+    public final DBFuncExpr round(int decimals)
     {
         return getExprFromPhrase(DBSqlPhrase.SQL_FUNC_ROUND, new Object[] { new Integer(decimals) });
     }
@@ -1037,7 +1038,7 @@ public abstract class DBColumnExpr extends DBExpr
      * @param decimals the number of decimal to which to truncate the current value
      * @return the new DBFuncExpr object
      */
-    public DBColumnExpr trunc(int decimals)
+    public final DBFuncExpr trunc(int decimals)
     {
         return getExprFromPhrase(DBSqlPhrase.SQL_FUNC_TRUNC, new Object[] { new Integer(decimals) });
     }
@@ -1048,7 +1049,7 @@ public abstract class DBColumnExpr extends DBExpr
      * 
      * @return the new DBColumnExpr object
      */
-    public DBColumnExpr year()
+    public final DBFuncExpr year()
     {
         return getExprFromPhrase(DBSqlPhrase.SQL_FUNC_YEAR, null);
     }
@@ -1059,7 +1060,7 @@ public abstract class DBColumnExpr extends DBExpr
      * 
      * @return the new DBColumnExpr object
      */
-    public DBColumnExpr month()
+    public final DBFuncExpr month()
     {
         return getExprFromPhrase(DBSqlPhrase.SQL_FUNC_MONTH, null);
     }
@@ -1070,7 +1071,7 @@ public abstract class DBColumnExpr extends DBExpr
      * 
      * @return the new DBColumnExpr object
      */
-    public DBColumnExpr day()
+    public final DBFuncExpr day()
     {
         return getExprFromPhrase(DBSqlPhrase.SQL_FUNC_DAY, null);
     }
@@ -1085,7 +1086,7 @@ public abstract class DBColumnExpr extends DBExpr
      *
      * @return the new DBFuncExpr object
      */
-    public DBColumnExpr sum()
+    public final DBFuncExpr sum()
     {
         return getExprFromPhrase(DBSqlPhrase.SQL_FUNC_SUM, null);
     }
@@ -1096,7 +1097,7 @@ public abstract class DBColumnExpr extends DBExpr
      *
      * @return the new DBFuncExpr object
      */
-    public DBColumnExpr min()
+    public final DBFuncExpr min()
     {
         return getExprFromPhrase(DBSqlPhrase.SQL_FUNC_MIN, null);
     }
@@ -1107,7 +1108,7 @@ public abstract class DBColumnExpr extends DBExpr
      *
      * @return the new DBFuncExpr object
      */
-    public DBColumnExpr max()
+    public final DBFuncExpr max()
     {
         return getExprFromPhrase(DBSqlPhrase.SQL_FUNC_MAX, null);
     }
@@ -1118,7 +1119,7 @@ public abstract class DBColumnExpr extends DBExpr
      *
      * @return the new DBFuncExpr object
      */
-    public DBColumnExpr avg()
+    public final DBFuncExpr avg()
     {
         return getExprFromPhrase(DBSqlPhrase.SQL_FUNC_AVG, null);
     }
@@ -1129,7 +1130,7 @@ public abstract class DBColumnExpr extends DBExpr
      * @param orderBy the order by expression
      * @return the new DBFuncExpr object
      */
-    public DBColumnExpr stringAgg(String separator, DBOrderByExpr orderBy)
+    public final DBFuncExpr stringAgg(String separator, DBOrderByExpr orderBy)
     {
         return getExprFromPhrase(DBSqlPhrase.SQL_FUNC_STRAGG, new Object[] { separator, orderBy });
     }
@@ -1139,7 +1140,7 @@ public abstract class DBColumnExpr extends DBExpr
      * @param separator the separator between string
      * @return the new DBFuncExpr object
      */
-    public DBColumnExpr stringAgg(String separator)
+    public final DBFuncExpr stringAgg(String separator)
     {
         return stringAgg(separator, this.asc());
     }
@@ -1150,7 +1151,7 @@ public abstract class DBColumnExpr extends DBExpr
      *
      * @return the new DBFuncExpr object
      */
-    public DBColumnExpr count()
+    public DBCountExpr count()
     {
         return new DBCountExpr(this, false);
     }
@@ -1161,7 +1162,7 @@ public abstract class DBColumnExpr extends DBExpr
      *
      * @return the new DBFuncExpr object
      */
-    public DBColumnExpr countDistinct()
+    public DBCountExpr countDistinct()
     {
         return new DBCountExpr(this, true);
     }
@@ -1177,7 +1178,7 @@ public abstract class DBColumnExpr extends DBExpr
      * @param otherwise the varchar value to take if no key matches the given expression
      * @return a DBDecodeExpr object
      */
-    public DBColumnExpr decodeEnum(Class<? extends Enum<?>> enumType, String otherwise)
+    public DBDecodeExpr decodeEnum(Class<? extends Enum<?>> enumType, String otherwise)
     {
         if (enumType==null || !enumType.isEnum())
             throw new InvalidArgumentException("enumType", enumType);
@@ -1203,7 +1204,7 @@ public abstract class DBColumnExpr extends DBExpr
      * @param defaultToEnd true if non matching values (e.g. NULL) should be assigned the highest number, otherwise they get the lowest number
      * @return a DBDecodeExpr object
      */
-    public DBColumnExpr decodeSort(Class<? extends Enum<?>> enumType, boolean defaultToEnd)
+    public DBDecodeExpr decodeSort(Class<? extends Enum<?>> enumType, boolean defaultToEnd)
     {
         if (enumType==null || !enumType.isEnum())
             throw new InvalidArgumentException("enumType", enumType);
@@ -1230,7 +1231,7 @@ public abstract class DBColumnExpr extends DBExpr
      * @param otherwise the value to take if no key matches the given expression
      * @return a DBDecodeExpr object
      */
-    public DBColumnExpr decode(Map<?,?> valueMap, Object otherwise)
+    public DBDecodeExpr decode(Map<?,?> valueMap, Object otherwise)
     {
         // Detect data type
         DataType dataType = DataType.UNKNOWN;
@@ -1251,14 +1252,14 @@ public abstract class DBColumnExpr extends DBExpr
         return new DBDecodeExpr(this, valueMap, otherwise, dataType);
     }
 
-    public final DBColumnExpr decode(Object key1, Object value1, Object otherwise)
+    public final DBDecodeExpr decode(Object key1, Object value1, Object otherwise)
     {
         Map<Object, Object> list = new HashMap<Object, Object>();
         list.put(key1, value1);
         return decode(list, otherwise);
     }
 
-    public final DBColumnExpr decode(Object key1, Object value1, Object key2, Object value2, Object otherwise)
+    public final DBDecodeExpr decode(Object key1, Object value1, Object key2, Object value2, Object otherwise)
     {
         Map<Object, Object> list = new HashMap<Object, Object>();
         list.put(key1, value1);
@@ -1266,7 +1267,7 @@ public abstract class DBColumnExpr extends DBExpr
         return decode(list, otherwise);
     }
 
-    public final DBColumnExpr decode(Object key1, Object value1, Object key2, Object value2, Object key3, Object value3,
+    public final DBDecodeExpr decode(Object key1, Object value1, Object key2, Object value2, Object key3, Object value3,
                                Object otherwise)
     {
         Map<Object, Object> list = new HashMap<Object, Object>();
@@ -1276,7 +1277,7 @@ public abstract class DBColumnExpr extends DBExpr
         return decode(list, otherwise);
     }
 
-    public final DBColumnExpr decode(Options options, Object otherwise)
+    public final DBDecodeExpr decode(Options options, Object otherwise)
     {
         int size = options.size() + (otherwise!=null ? 1 : 0);
         Map<Object, Object> list = new HashMap<Object, Object>(size);
@@ -1285,7 +1286,7 @@ public abstract class DBColumnExpr extends DBExpr
         return decode(list, otherwise);
     }
 
-    public final DBColumnExpr decode(Options options)
+    public final DBDecodeExpr decode(Options options)
     {
         return decode(options, null);
     }
@@ -1317,6 +1318,31 @@ public abstract class DBColumnExpr extends DBExpr
     /*
      * Type conversion functions
      */
+
+    /**
+     * Creates a new DBFuncExpr object that will convert
+     * the current column to the destination data type specified.
+     * 
+     * @param dataType the destination data type
+     * @param format optional destination format (usually a string)
+     * @return the new DBFuncExpr object
+     */
+    public DBConvertExpr convertTo(DataType dataType, Object format)
+    {
+        return new DBConvertExpr(this, dataType, format);
+    }
+
+    /**
+     * Creates and returns a new DBFuncExpr object that will
+     * convert the current column to the destination data type specified.
+     * 
+     * @param dataType Data type to which to convert the current expression to.
+     * @return the new DBFuncExpr object
+     */
+    public final DBConvertExpr convertTo(DataType dataType)
+    {
+        return convertTo(dataType, null);
+    }
     
     /**
      * Creates a new DBFuncExpr object (to_char SQL statement)
@@ -1324,7 +1350,7 @@ public abstract class DBColumnExpr extends DBExpr
      * 
      * @return the new DBFuncExpr object
      */
-    public DBColumnExpr toChar()
+    public final DBConvertExpr toChar()
     {
         return convertTo(DataType.VARCHAR);
     }
@@ -1337,34 +1363,9 @@ public abstract class DBColumnExpr extends DBExpr
      * @param format the string value
      * @return the new DBFuncExpr object
      */
-    public DBColumnExpr toChar(String format)
+    public final DBConvertExpr toChar(String format)
     {
         return convertTo(DataType.VARCHAR, format);
-    }
-
-    /**
-     * Creates a new DBFuncExpr object that will convert
-     * the current column to the destination data type specified.
-     * 
-     * @param dataType the destination data type
-     * @param format optional destination format (usually a string)
-     * @return the new DBFuncExpr object
-     */
-    public DBColumnExpr convertTo(DataType dataType, Object format)
-    {
-        return new DBConvertExpr(this, dataType, format);
-    }
-
-    /**
-     * Creates and returns a new DBFuncExpr object that will
-     * convert the current column to the destination data type specified.
-     * 
-     * @param dataType Data type to which to convert the current expression to.
-     * @return the new DBFuncExpr object
-     */
-    public final DBColumnExpr convertTo(DataType dataType)
-    {
-        return convertTo(dataType, null);
     }
 
     /*
@@ -1471,4 +1472,19 @@ public abstract class DBColumnExpr extends DBExpr
         // default
         return super.toString();
     }
+    
+    /**
+     * Checks if a value is a literal value
+     * @param value the value to check
+     * @return true if the value is a simple value like String, Number, Boolean etc.
+     */
+    protected boolean isLiteralValue(Object value)
+    {
+        // Cannot use DBExpr or DBSystemDate as parameter
+        if (value==null || value instanceof DBCmdParam || value instanceof DBExpr || value instanceof DBDatabase.DBSystemDate)
+            return false;
+        // check immutable
+        return ClassUtils.isImmutableClass(value.getClass());
+    }
+    
 }
