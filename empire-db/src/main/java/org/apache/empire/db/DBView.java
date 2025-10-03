@@ -73,14 +73,11 @@ public abstract class DBView extends DBRowSet implements Cloneable
             // Source Column
             this.updateColumn = expr.getUpdateColumn();
             // from update column
-            this.size = (updateColumn!=null ? updateColumn.getSize() : size);
+            this.size = (size==0.0d && updateColumn!=null ? updateColumn.getSize() : size);
             // Copy enumType
             Class<Enum<?>> enumType = expr.getEnumType();
             if (enumType!=null)
                 setAttribute(Column.COLATTR_ENUMTYPE, enumType);
-            // Add to view
-            if (view != null)
-                view.addViewColumn(this);
         }
 
         /**
@@ -100,9 +97,6 @@ public abstract class DBView extends DBRowSet implements Cloneable
             Class<Enum<?>> enumType = other.getEnumType();
             if (enumType!=null)
                 setAttribute(Column.COLATTR_ENUMTYPE, enumType);
-            // Add to view
-            if (view != null)
-                view.addViewColumn(this);
         }
         
         public DBColumnExpr getSourceColumnExpr()
@@ -346,6 +340,7 @@ public abstract class DBView extends DBRowSet implements Cloneable
     protected DBColumn cloneColumn(DBRowSet clone, DBColumn sourceColumn)
     {
         DBViewColumn newCol = new DBViewColumn((DBView)clone, (DBViewColumn)sourceColumn);
+        addViewColumn(newCol);
         return newCol;
     }
 
@@ -467,26 +462,17 @@ public abstract class DBView extends DBRowSet implements Cloneable
     /**
      * Adds a column to the view.
      * 
-     * @param columnName name of the column in the view
-     * @param dataType the data type of the column
-     * @param size the size of the column
-     * @return true if the column was successfully added or false otherwise
+     * @param columnName the column name
+     * @param sourceExpression the source column expression
+     * @param size the size
+     * @return the new column
      */
-    protected final DBViewColumn addColumn(String columnName, DataType dataType, double size)
-    {   // find column by name
-        return new DBViewColumn(this, columnName, db.getValueExpr(null, dataType), size);
-    }
-
-    /**
-     * Adds a column to the view.
-     * 
-     * @param columnName name of the column in the view
-     * @param dataType the data type of the column
-     * @return true if the column was successfully added or false otherwise
-     */
-    protected final DBViewColumn addColumn(String columnName, DataType dataType)
-    {   // find column by name
-        return new DBViewColumn(this, columnName, db.getValueExpr(null, dataType), 0.0d);
+    protected DBViewColumn createAndAppendColumn(String columnName, DBColumnExpr sourceExpression, double size)
+    {
+        DBViewColumn viewColumn = new DBViewColumn(this, columnName, sourceExpression, size);
+        // add now
+        addViewColumn(viewColumn);
+        return viewColumn;
     }
 
     /**
@@ -494,33 +480,58 @@ public abstract class DBView extends DBRowSet implements Cloneable
      * 
      * @param columnName name of the column in the view
      * @param columnExpr the column expression that builds the column
-     * @return true if the column was successfully added or false otherwise
+     * @return the new column
      */
     protected final DBViewColumn addColumn(String columnName, DBColumnExpr columnExpr)
     {   // find column by name
-        return new DBViewColumn(this, columnName, columnExpr, 0.0d);
+        return createAndAppendColumn(columnName, columnExpr, 0.0d);
+    }
+    
+    /**
+     * Adds a column to the view.
+     * 
+     * @param columnName name of the column in the view
+     * @param dataType the data type of the column
+     * @param size the size of the column
+     * @return the new column
+     */
+    protected final DBViewColumn addColumn(String columnName, DataType dataType, double size)
+    {   // find column by name
+        return createAndAppendColumn(columnName, db.getValueExpr(null, dataType), size);
+    }
+
+    /**
+     * Adds a column to the view.
+     * 
+     * @param columnName name of the column in the view
+     * @param dataType the data type of the column
+     * @return the new column
+     */
+    protected final DBViewColumn addColumn(String columnName, DataType dataType)
+    {   // find column by name
+        return createAndAppendColumn(columnName, db.getValueExpr(null, dataType), 0.0d);
     }
 
     /**
      * Adds a column to the view based on an existing column in another table.
      * 
      * @param sourceColumn existing column in another table  
-     * @return the view column object
+     * @return the new column
      */
     protected final DBViewColumn addColumn(DBTableColumn sourceColumn)
     {   // find column by name
-        return new DBViewColumn(this, sourceColumn.getName(), sourceColumn, sourceColumn.getSize());
+        return createAndAppendColumn(sourceColumn.getName(), sourceColumn, sourceColumn.getSize());
     }
 
     /**
      * Adds a column to the view based on an existing column in another view.
      * 
      * @param sourceColumn existing column in another view  
-     * @return the view column object
+     * @return the new column
      */
     protected final DBViewColumn addColumn(DBViewColumn sourceColumn)
     {   // find column by name
-        return new DBViewColumn(this, sourceColumn.getName(), sourceColumn, sourceColumn.getSize());
+        return createAndAppendColumn(sourceColumn.getName(), sourceColumn, sourceColumn.getSize());
     }
 
     /**

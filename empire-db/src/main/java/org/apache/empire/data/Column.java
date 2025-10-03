@@ -42,6 +42,7 @@ public interface Column extends ColumnExpr
     public static final String COLATTR_NORMCOLUMN      = "normColumn";           // normalized column
     public static final String COLATTR_REFCOLUMNS      = "refColumns";           // reference columns
     public static final String COLATTR_CASESENSITIVE   = "caseSensitive";        // true/false
+    public static final String COLATTR_SORTEXPRESSION  = "sortExpression";       // sort function template for DBFunc
 
     public static final String COLATTR_MINLENGTH       = "minLength";
     public static final String COLATTR_MINVALUE        = "minValue";
