@@ -25,6 +25,7 @@ import org.apache.empire.commons.StringUtils;
 import org.apache.empire.data.DataType;
 import org.apache.empire.db.DBColumn;
 import org.apache.empire.db.DBColumnExpr;
+import org.apache.empire.db.DBCommand;
 import org.apache.empire.db.DBDatabase;
 import org.apache.empire.db.DBRowSet;
 import org.apache.empire.db.DBSQLBuilder;
@@ -37,7 +38,7 @@ import org.w3c.dom.Element;
 /**
  * This class is used for declaring scalar functions in SQL (like e.g. random).
  */
-public class DBScalarExpr extends DBColumnExpr
+public class DBScalarExpr extends DBColumnExpr implements DBPreparable
 {
     // *Deprecated* private static final long serialVersionUID = 1L;
     protected static final Logger log = LoggerFactory.getLogger(DBScalarExpr.class);
@@ -140,24 +141,6 @@ public class DBScalarExpr extends DBColumnExpr
         return null;
     }
 
-    /** this helper function calls the DBColumnExpr.addXML(Element, long) method */
-    @Override
-    public Element addXml(Element parent, long flags)
-    {
-        Element elem;
-        // Add a column expression for this function
-        elem = XMLUtil.addElement(parent, "column");
-        String name = getName();
-        if (name!=null)
-            elem.setAttribute("name", getName());
-        // Add Other Attributes
-        if (attributes!=null)
-            attributes.addXml(elem, flags);
-        // Done
-        elem.setAttribute("function", template);
-        return elem;
-    }
-
     /**
      * Returns null.
      * @return null
@@ -210,6 +193,24 @@ public class DBScalarExpr extends DBColumnExpr
         return false;
     }
 
+    /*
+     * (non-Javadoc)
+     * @see org.apache.empire.db.expr.column.DBPreparable#prepareCommand(org.apache.empire.db.DBCommand)
+     */
+    @Override
+    public void prepareCommand(DBCommand cmd) 
+    {
+        if (params.length==0)
+            return;
+        // only first param
+        Object value = params[0];
+        // forward
+        if (value instanceof DBPreparable) {
+            ((DBPreparable)value).prepareCommand(cmd);
+            return;
+        }
+    }
+
     /**
      * @see org.apache.empire.db.DBExpr#addReferencedColumns(Set)
      */
@@ -229,5 +230,23 @@ public class DBScalarExpr extends DBColumnExpr
     public void addSQL(DBSQLBuilder sql, long context)
     {
         sql.appendTemplate(template, params, new DataType[] { dataType }, CTX_DEFAULT, ",");
+    }
+
+    /** this helper function calls the DBColumnExpr.addXML(Element, long) method */
+    @Override
+    public Element addXml(Element parent, long flags)
+    {
+        Element elem;
+        // Add a column expression for this function
+        elem = XMLUtil.addElement(parent, "column");
+        String name = getName();
+        if (name!=null)
+            elem.setAttribute("name", getName());
+        // Add Other Attributes
+        if (attributes!=null)
+            attributes.addXml(elem, flags);
+        // Done
+        elem.setAttribute("function", template);
+        return elem;
     }
 }

@@ -82,9 +82,9 @@ public class DBCompareNotExpr extends DBCompareExpr
         return expr.getRowSet();
     }
 
-    /**
-     * Prepare function
-     * @param cmd
+    /*
+     * (non-Javadoc)
+     * @see org.apache.empire.db.expr.column.DBPreparable#prepareCommand(org.apache.empire.db.DBCommand)
      */
     @Override
     public void prepareCommand(DBCommand cmd) 

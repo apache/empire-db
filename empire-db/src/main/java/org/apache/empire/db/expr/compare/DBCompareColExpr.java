@@ -34,6 +34,7 @@ import org.apache.empire.db.DBExpr;
 import org.apache.empire.db.DBRowSet;
 import org.apache.empire.db.DBSQLBuilder;
 import org.apache.empire.db.expr.column.DBAliasExpr;
+import org.apache.empire.db.expr.column.DBPreparable;
 import org.apache.empire.db.expr.column.DBFuncExpr;
 import org.apache.empire.dbms.DBSqlPhrase;
 
@@ -143,14 +144,19 @@ public class DBCompareColExpr extends DBCompareExpr
         this.parenthesis = true;
         return this;
     }
-    
-    /**
-     * Prepare function
-     * @param cmd
+
+    /*
+     * (non-Javadoc)
+     * @see org.apache.empire.db.expr.column.DBPreparable#prepareCommand(org.apache.empire.db.DBCommand)
      */
     @Override
     public void prepareCommand(DBCommand cmd) 
     {
+        // forward?
+        if (value instanceof DBPreparable) {
+            ((DBPreparable)value).prepareCommand(cmd);
+            return;
+        }
         // Cannot use DBExpr or DBSystemDate as parameter
         if (value==null || value instanceof DBCmdParam || value instanceof DBExpr || value instanceof DBDatabase.DBSystemDate)
             return;
@@ -165,7 +171,7 @@ public class DBCompareColExpr extends DBCompareExpr
             case LESSOREQUAL:
             case LIKE:
             case NOTLIKE:
-                // create command param
+                // Add command param
                 value = cmd.addParam(expr.getDataType(), value);
                 break;
             default:

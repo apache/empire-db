@@ -85,8 +85,9 @@ public class DBCompareJoinExpr extends DBColumnJoinExpr
         this.cmp = cmp;
     }
     
-    /**
-     * prepareCommand
+    /*
+     * (non-Javadoc)
+     * @see org.apache.empire.db.expr.column.DBPreparable#prepareCommand(org.apache.empire.db.DBCommand)
      */
     @Override
     public void prepareCommand(DBCommand cmd)

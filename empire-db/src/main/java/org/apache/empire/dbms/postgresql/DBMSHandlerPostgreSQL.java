@@ -308,7 +308,7 @@ public class DBMSHandlerPostgreSQL extends DBMSHandlerBase
         sql.append("nextval('");
         column.getDatabase().appendQualifiedName(sql, seqName, false);
         sql.append("')");
-        return new DBValueExpr(column.getDatabase(), sql.toString(), DataType.INTEGER);
+        return column.getDatabase().getValueExpr(sql.toString(), DataType.INTEGER);
     }
 
     /**

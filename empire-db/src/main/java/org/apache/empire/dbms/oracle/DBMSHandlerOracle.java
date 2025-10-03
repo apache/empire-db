@@ -393,7 +393,7 @@ public class DBMSHandlerOracle extends DBMSHandlerBase
         DBSQLBuilder sql = createSQLBuilder();
         column.getDatabase().appendQualifiedName(sql, seqName, null);
         sql.append(".NEXTVAL");
-        return new DBValueExpr(column.getDatabase(), sql.toString(), DataType.UNKNOWN);
+        return column.getDatabase().getValueExpr(sql.toString(), DataType.UNKNOWN);
     }
     
     /**

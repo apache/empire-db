@@ -179,8 +179,9 @@ public class DBColumnJoinExpr extends DBJoinExpr
         type = DBJoinType.reversed(type); // (type * -1);
     }
     
-    /**
-     * prepareCommand
+    /*
+     * (non-Javadoc)
+     * @see org.apache.empire.db.expr.column.DBPreparable#prepareCommand(org.apache.empire.db.DBCommand)
      */
     @Override
     public void prepareCommand(DBCommand cmd)

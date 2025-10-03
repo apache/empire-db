@@ -24,11 +24,13 @@ import org.apache.empire.commons.StringUtils;
 import org.apache.empire.commons.Unwrappable;
 import org.apache.empire.db.DBColumn;
 import org.apache.empire.db.DBColumnExpr;
+import org.apache.empire.db.DBCommand;
 import org.apache.empire.db.DBExpr;
 import org.apache.empire.db.DBSQLBuilder;
 import org.apache.empire.dbms.DBSqlPhrase;
 
-public class DBCoalesceExpr extends DBAbstractFuncExpr implements Unwrappable<DBColumnExpr>
+public class DBCoalesceExpr extends DBAbstractFuncExpr
+    implements Unwrappable<DBColumnExpr>
 {
     private final Object nullValue;
     
@@ -93,6 +95,19 @@ public class DBCoalesceExpr extends DBAbstractFuncExpr implements Unwrappable<DB
             return this.expr.equals(otherExpr);
         }
         return false;
+    }
+    
+    /*
+     * (non-Javadoc)
+     * @see org.apache.empire.db.expr.column.DBPreparable#prepareCommand(org.apache.empire.db.DBCommand)
+     */
+    @Override
+    public void prepareCommand(DBCommand cmd) 
+    {
+        super.prepareCommand(cmd);
+        // forward?
+        if (nullValue instanceof DBPreparable)
+            ((DBPreparable)nullValue).prepareCommand(cmd);
     }
 
     /**

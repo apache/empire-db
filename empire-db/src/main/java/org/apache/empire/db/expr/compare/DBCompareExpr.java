@@ -22,11 +22,12 @@ import org.apache.empire.db.DBColumnExpr;
 import org.apache.empire.db.DBCommand;
 import org.apache.empire.db.DBExpr;
 import org.apache.empire.db.DBRowSet;
+import org.apache.empire.db.expr.column.DBPreparable;
 
 /**
  * This class is a common base class for all SQL filter constraints classes<br>
  */
-public abstract class DBCompareExpr extends DBExpr
+public abstract class DBCompareExpr extends DBExpr implements DBPreparable
 {
   // *Deprecated* private static final long serialVersionUID = 1L;
   
@@ -73,12 +74,6 @@ public abstract class DBCompareExpr extends DBExpr
      * @return a column used for this expression
      */
     public abstract DBRowSet getRowSet();
-	
-	/**
-	 * internally used for preapred statement generation
-     * @param cmd the command
-	 */
-	public abstract void prepareCommand(DBCommand cmd); 
     
     /**
      * internally used for command cloning

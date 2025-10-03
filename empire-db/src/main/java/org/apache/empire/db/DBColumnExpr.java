@@ -350,7 +350,7 @@ public abstract class DBColumnExpr extends DBExpr
      */
     public DBCompareColExpr likeUpper(String value)
     { 
-        DBValueExpr expr = new DBValueExpr(getDatabase(), value, DataType.VARCHAR);
+        DBValueExpr expr = getDatabase().getValueExpr(value, DataType.VARCHAR);
         return new DBCompareColExpr(this.upper(), DBCmpType.LIKE, expr.upper());
     }
 
@@ -364,7 +364,7 @@ public abstract class DBColumnExpr extends DBExpr
      */
     public DBCompareColExpr likeLower(String value)
     { 
-        DBValueExpr expr = new DBValueExpr(getDatabase(), value, DataType.VARCHAR);
+        DBValueExpr expr = getDatabase().getValueExpr(value, DataType.VARCHAR);
         return new DBCompareColExpr(this.lower(), DBCmpType.LIKE, expr.lower());
     }
 
@@ -377,7 +377,7 @@ public abstract class DBColumnExpr extends DBExpr
      */
     public DBCompareColExpr like(String value, char escape)
     {
-        DBValueExpr  textExpr = new DBValueExpr(getDatabase(), value, DataType.VARCHAR);
+        DBValueExpr  textExpr = getDatabase().getValueExpr(value, DataType.VARCHAR);
         DBFuncExpr escapeExpr = new DBFuncExpr(textExpr, DBSqlPhrase.SQL_FUNC_ESCAPE, new Object[] { String.valueOf(escape) }, DataType.VARCHAR);
         return cmp(DBCmpType.LIKE, escapeExpr);
     }
@@ -759,7 +759,7 @@ public abstract class DBColumnExpr extends DBExpr
      */
     public DBColumnExpr substring(int pos)
     {
-        return substring(new DBValueExpr(getDatabase(), pos, DataType.INTEGER));
+        return substring(getDatabase().getValueExpr(pos, DataType.INTEGER));
     }
 
     /**
@@ -785,7 +785,7 @@ public abstract class DBColumnExpr extends DBExpr
      */
     public DBColumnExpr substring(DBExpr pos, int count)
     {
-        return substring(pos, new DBValueExpr(getDatabase(), count, DataType.INTEGER));
+        return substring(pos, getDatabase().getValueExpr(count, DataType.INTEGER));
     }
 
     /**
@@ -798,7 +798,7 @@ public abstract class DBColumnExpr extends DBExpr
      */
     public DBColumnExpr substring(int pos, DBExpr count)
     {
-        return substring(new DBValueExpr(getDatabase(), pos, DataType.INTEGER), count);
+        return substring(getDatabase().getValueExpr(pos, DataType.INTEGER), count);
     }
 
     /**
@@ -811,8 +811,8 @@ public abstract class DBColumnExpr extends DBExpr
      */
     public DBColumnExpr substring(int pos, int count)
     {
-        return substring(new DBValueExpr(getDatabase(), pos, DataType.INTEGER), 
-                         new DBValueExpr(getDatabase(), count, DataType.INTEGER));
+        return substring(getDatabase().getValueExpr(pos, DataType.INTEGER), 
+                         getDatabase().getValueExpr(count, DataType.INTEGER));
     }
     
     /**
@@ -946,7 +946,7 @@ public abstract class DBColumnExpr extends DBExpr
      */
     public DBColumnExpr indexOf(Object str, int fromPos)
     {
-        return indexOf(str, new DBValueExpr(getDatabase(), fromPos, DataType.INTEGER));
+        return indexOf(str, getDatabase().getValueExpr(fromPos, DataType.INTEGER));
     }
 
     /**
@@ -1308,7 +1308,7 @@ public abstract class DBColumnExpr extends DBExpr
         }
         else if (otherwise != null)
         {   // A constant value   
-            elseExpr = new DBValueExpr(getDatabase(), otherwise, getDataType());
+            elseExpr = getDatabase().getValueExpr(otherwise, getDataType());
         }
         // Create DBCaseExpr
         return new DBCaseWhenExpr(compExpr, this, elseExpr);

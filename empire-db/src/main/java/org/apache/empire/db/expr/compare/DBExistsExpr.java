@@ -85,9 +85,9 @@ public class DBExistsExpr extends DBCompareExpr
         return (compareExpr!=null ? compareExpr.getRowSet() : null);
     }
 
-    /**
-     * Prepare function
-     * @param cmd the command
+    /*
+     * (non-Javadoc)
+     * @see org.apache.empire.db.expr.column.DBPreparable#prepareCommand(org.apache.empire.db.DBCommand)
      */
     @Override
     public void prepareCommand(DBCommand cmd) 

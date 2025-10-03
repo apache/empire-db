@@ -596,6 +596,23 @@ public abstract class DBDatabase extends DBObject
                 return Object.class;
         }
     }
+
+    /**
+     * Creates and returns a value object for the given scalar value.
+     * 
+     * @param value the scalar value
+     * @param dataType the database systems data type used for this value
+     * @return the new DBValueExpr object
+     */
+    @SuppressWarnings("deprecation")
+    public DBValueExpr getValueExpr(Object value, DataType dataType)
+    {
+        if (value instanceof DBValueExpr)
+            return ((DBValueExpr)value); // No nesting
+        // Use deprecated constructor for now
+        // Later a public wrapper might be created for a protected constructor
+        return new DBValueExpr(this, value, dataType);
+    }
      
     /**
      * Creates and returns a value object for the database systems
@@ -605,7 +622,7 @@ public abstract class DBDatabase extends DBObject
      */
     public DBValueExpr getSystemDateExpr()
     {
-        return new DBValueExpr(this, SYSDATE, DataType.DATETIME);
+        return getValueExpr(SYSDATE, DataType.DATETIME);
     }
 
     /**
@@ -614,9 +631,9 @@ public abstract class DBDatabase extends DBObject
      * @param value the String value
      * @return the new DBValueExpr object
      */
-    public DBValueExpr getValueExpr(String value)
+    public final DBValueExpr getValueExpr(String value)
     {
-        return new DBValueExpr(this, value, DataType.VARCHAR);
+        return getValueExpr(value, DataType.VARCHAR);
     }
 
     /**
@@ -625,9 +642,9 @@ public abstract class DBDatabase extends DBObject
      * @param value the Boolean value
      * @return the new DBValueExpr object
      */
-    public DBValueExpr getValueExpr(boolean value)
+    public final DBValueExpr getValueExpr(boolean value)
     {
-        return new DBValueExpr(this, value, DataType.BOOL);
+        return getValueExpr(value, DataType.BOOL);
     }
 
     /**
@@ -636,9 +653,9 @@ public abstract class DBDatabase extends DBObject
      * @param value the int value
      * @return the new DBValueExpr object
      */
-    public DBValueExpr getValueExpr(int value)
+    public final DBValueExpr getValueExpr(int value)
     {
-        return new DBValueExpr(this, Integer.valueOf(value), DataType.INTEGER);
+        return getValueExpr(Integer.valueOf(value), DataType.INTEGER);
     }
 
     /**
@@ -647,9 +664,9 @@ public abstract class DBDatabase extends DBObject
      * @param value the long value
      * @return the new DBValueExpr object
      */
-    public DBValueExpr getValueExpr(long value)
+    public final DBValueExpr getValueExpr(long value)
     {
-        return new DBValueExpr(this, Long.valueOf(value), DataType.INTEGER);
+        return getValueExpr(Long.valueOf(value), DataType.INTEGER);
     }
 
     /**
@@ -658,23 +675,9 @@ public abstract class DBDatabase extends DBObject
      * @param value the String value
      * @return the new DBValueExpr object
      */
-    public DBValueExpr getValueExpr(BigDecimal value)
+    public final DBValueExpr getValueExpr(BigDecimal value)
     {
-        return new DBValueExpr(this, value, DataType.DECIMAL);
-    }
-
-    /**
-     * Creates and returns a value object for the given scalar value.
-     * 
-     * @param value the scalar value
-     * @param dataType the database systems data type used for this value
-     * @return the new DBValueExpr object
-     */
-    public DBValueExpr getValueExpr(Object value, DataType dataType)
-    {
-        if (value instanceof DBValueExpr)
-            return ((DBValueExpr)value); // No nesting
-        return new DBValueExpr(this, value, dataType);
+        return getValueExpr(value, DataType.DECIMAL);
     }
 
     /**
@@ -683,9 +686,9 @@ public abstract class DBDatabase extends DBObject
      * @param param the command parameter
      * @return the corresponding DBValueExpr object
      */
-    public DBValueExpr getParamExpr(DBCmdParam param)
+    public final DBValueExpr getParamExpr(DBCmdParam param)
     {
-        return new DBValueExpr(this, param, param.getDataType());
+        return getValueExpr(param, param.getDataType());
     }    
 
     /**
@@ -693,9 +696,9 @@ public abstract class DBDatabase extends DBObject
      * 
      * @return the corresponding DBValueExpr object
      */
-    public DBValueExpr getNullExpr()
+    public final DBValueExpr getNullExpr()
     {
-        return new DBValueExpr(this, null, DataType.UNKNOWN);
+        return getValueExpr(null, DataType.UNKNOWN);
     }    
     
     /**

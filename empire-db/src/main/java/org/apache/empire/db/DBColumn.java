@@ -29,7 +29,6 @@ import org.apache.empire.data.DataType;
 import org.apache.empire.data.Entity;
 import org.apache.empire.db.exceptions.DatabaseNotOpenException;
 import org.apache.empire.db.expr.column.DBAliasExpr;
-import org.apache.empire.db.expr.column.DBValueExpr;
 import org.apache.empire.db.expr.set.DBSetExpr;
 import org.apache.empire.dbms.DBMSHandler;
 import org.apache.empire.exceptions.ObjectNotValidException;
@@ -319,7 +318,7 @@ public abstract class DBColumn extends DBColumnExpr
      */
     public DBColumnExpr reference()
     {
-        return new DBValueExpr(getDatabase(), this, DataType.UNKNOWN);    
+        return getDatabase().getValueExpr(this, DataType.UNKNOWN);    
     }
 
     /**

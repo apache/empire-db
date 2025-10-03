@@ -20,15 +20,21 @@ package org.apache.empire.db.expr.column;
 
 import java.util.Set;
 
+import org.apache.empire.commons.ClassUtils;
 import org.apache.empire.commons.ObjectUtils;
 import org.apache.empire.commons.StringUtils;
 // Java
 import org.apache.empire.data.DataType;
+import org.apache.empire.db.DBCmdParam;
 import org.apache.empire.db.DBColumn;
 import org.apache.empire.db.DBColumnExpr;
+import org.apache.empire.db.DBCommand;
 import org.apache.empire.db.DBDatabase;
+import org.apache.empire.db.DBExpr;
 import org.apache.empire.db.DBRowSet;
 import org.apache.empire.db.DBSQLBuilder;
+import org.apache.empire.exceptions.InvalidArgumentException;
+import org.apache.empire.exceptions.PropertyReadOnlyException;
 import org.apache.empire.xml.XMLUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,24 +49,32 @@ import org.w3c.dom.Element;
  *
  */
 public class DBValueExpr extends DBColumnExpr
+    implements DBPreparable
 {
     // *Deprecated* private static final long serialVersionUID = 1L;
     private static final Logger log = LoggerFactory.getLogger(DBValueExpr.class);
   
-    public final DBDatabase   db;
-    public final DataType     type;
-    protected Object          value;
-    private String name;
+    public final DBDatabase     db;
+    public final DataType       type;
+    protected Object            value;
+    private String              name;
+    private boolean             literal = false;
 
     /**
      * Constructs a new DBValueExpr object.
+     * @deprecated please use DBDatabase.getValueExpr(...)
+     * The constructor will be made protected in future versions
      * 
      * @param db the database
      * @param value the value for this constant
      * @param type the data type for this constant
      */
+    @Deprecated
     public DBValueExpr(DBDatabase db, Object value, DataType type)
     {
+        if (value instanceof DBValueExpr)
+            throw new InvalidArgumentException("value", value);
+        // set properties
         this.db = db;
         this.type = type;
         this.value = value;
@@ -81,8 +95,23 @@ public class DBValueExpr extends DBColumnExpr
      */
     public void setValue(Object value)
     {
-        this.value = value;
-        this.name = null;
+        if (this.value instanceof DBCmdParam)
+        {   // update param
+            ((DBCmdParam) this.value).setValue(value);
+        }
+        else if (type == DataType.UNKNOWN)
+        {   // value of DataType.UNKNOWN cannot be changed
+            throw new PropertyReadOnlyException("value");
+        }
+        else if (value!=null && !ClassUtils.isImmutableClass(value.getClass()))
+        {   // Must be a simple value
+            throw new InvalidArgumentException("value", value);
+        }
+        else
+        {   // overwrite
+            this.value = ObjectUtils.convertValue(type, value);
+            this.name = null;
+        }
     }
 
     /**
@@ -159,26 +188,6 @@ public class DBValueExpr extends DBColumnExpr
         return name;
     }
 
-    /** this helper function calls the DBColumnExpr.addXML(Element, long) method */
-    @Override
-    public Element addXml(Element parent, long flags)
-    {
-        // Add a column expression for this function
-        Element elem = XMLUtil.addElement(parent, "column");
-        String name = getName();
-        if (name!=null)
-            elem.setAttribute("name", getName());
-        // Add Other Attributes
-        if (attributes!=null)
-            attributes.addXml(elem, flags);
-        // add All Options
-        if (options!=null)
-            options.addXml(elem, this.type);
-        // Done
-        elem.setAttribute("function", "value");
-        return elem;
-    }
-
     /**
      * Returns null.
      * @return null
@@ -229,6 +238,58 @@ public class DBValueExpr extends DBColumnExpr
     }
 
     /**
+     * Set literal mode, i.e. the value will be placed in the sql statement
+     * Ohterwise it may be automatically replaced by a parameter ?
+     * @return self (this)
+     */
+    public DBValueExpr literal()
+    {
+        this.literal = true;
+        if (this.value instanceof DBCmdParam)
+            this.value = ((DBCmdParam)value).getValue();
+        // return self
+        return this;
+    }
+    
+    /**
+     * Sets literal mode off, i.e. the value may passed as a parameter 
+     * and referenced by a ? in the sql statement
+     * @return self (this)
+     */
+    public DBValueExpr parameter()
+    {
+        this.literal = false;
+        return this;
+    }
+
+    /*
+     * (non-Javadoc)
+     * @see org.apache.empire.db.expr.column.DBPreparable#prepareCommand(org.apache.empire.db.DBCommand)
+     */
+    @Override
+    public void prepareCommand(DBCommand cmd) 
+    {
+        // Cannot use DBExpr or DBSystemDate as parameter
+        if (value==null || value instanceof DBCmdParam || value instanceof DBExpr || value instanceof DBDatabase.DBSystemDate)
+            return;
+        if (getDataType()==DataType.UNKNOWN || literal)
+            return;
+        // Add command param
+        this.value = cmd.addParam(getDataType(), value);
+        this.name  = "P_"+String.valueOf(cmd.getParams().size());
+    }
+
+    /**
+     * @see org.apache.empire.db.DBExpr#addReferencedColumns(Set)
+     */
+    @Override
+    public void addReferencedColumns(Set<DBColumn> list)
+    {
+        // nothing to do!
+        return;
+    }
+
+    /**
      * Creates the SQL-Command.
      * 
      * @param sql the SQL-Command
@@ -243,14 +304,24 @@ public class DBValueExpr extends DBColumnExpr
             log.warn("Cannot add SQL for DBValueExpr using context {}", context);
     }
 
-    /**
-     * @see org.apache.empire.db.DBExpr#addReferencedColumns(Set)
-     */
+    /** this helper function calls the DBColumnExpr.addXML(Element, long) method */
     @Override
-    public void addReferencedColumns(Set<DBColumn> list)
+    public Element addXml(Element parent, long flags)
     {
-        // nothing to do!
-        return;
+        // Add a column expression for this function
+        Element elem = XMLUtil.addElement(parent, "column");
+        String name = getName();
+        if (name!=null)
+            elem.setAttribute("name", getName());
+        // Add Other Attributes
+        if (attributes!=null)
+            attributes.addXml(elem, flags);
+        // add All Options
+        if (options!=null)
+            options.addXml(elem, this.type);
+        // Done
+        elem.setAttribute("function", "value");
+        return elem;
     }
 
 }

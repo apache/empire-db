@@ -429,7 +429,7 @@ public abstract class DBCommand extends DBCommandExpr
         {
             DBColumnExpr VAL = (DBColumnExpr)se.getValue();
             if (VAL==null)
-                VAL= new DBValueExpr(se.getDatabase(), null, DataType.UNKNOWN);
+                VAL= se.getDatabase().getValueExpr(null, DataType.UNKNOWN);
             select(VAL.as(se.getColumn()));
         }
         return this;
@@ -712,7 +712,12 @@ public abstract class DBCommand extends DBCommandExpr
      */
     public final DBCmdParam addParam(Object value)
     {
-        return addParam(DataType.UNKNOWN, value);
+        if (value instanceof DataType)
+            return addParam((DataType)value, null);
+        else if (value!=null)
+            return addParam(DataType.fromJavaType(value.getClass()), value);
+        else
+            return addParam(DataType.UNKNOWN, null);
     }
 
     /**

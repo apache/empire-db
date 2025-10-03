@@ -25,6 +25,7 @@ import org.apache.empire.commons.StringUtils;
 import org.apache.empire.data.DataType;
 import org.apache.empire.db.DBColumn;
 import org.apache.empire.db.DBColumnExpr;
+import org.apache.empire.db.DBCommand;
 import org.apache.empire.db.DBDatabase;
 import org.apache.empire.db.DBExpr;
 import org.apache.empire.db.DBRowSet;
@@ -42,6 +43,7 @@ import org.w3c.dom.Element;
  * This implements some basic functionality for SQL functions based on a column expression 
  */
 public abstract class DBAbstractFuncExpr extends DBColumnExpr
+    implements DBPreparable
 {
     // *Deprecated* private static final long serialVersionUID = 1L;
     protected static final Logger log = LoggerFactory.getLogger(DBAbstractFuncExpr.class);
@@ -195,6 +197,18 @@ public abstract class DBAbstractFuncExpr extends DBColumnExpr
             return StringUtils.compareEqual(tname, oname);
         }
         return false;
+    }
+
+    /*
+     * (non-Javadoc)
+     * @see org.apache.empire.db.expr.column.DBPreparable#prepareCommand(org.apache.empire.db.DBCommand)
+     */
+    @Override
+    public void prepareCommand(DBCommand cmd) 
+    {
+        // forward?
+        if (expr instanceof DBPreparable)
+            ((DBPreparable)expr).prepareCommand(cmd);
     }
 
     /**

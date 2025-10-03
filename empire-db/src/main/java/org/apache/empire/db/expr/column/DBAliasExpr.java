@@ -26,6 +26,7 @@ import org.apache.empire.commons.Unwrappable;
 import org.apache.empire.data.DataType;
 import org.apache.empire.db.DBColumn;
 import org.apache.empire.db.DBColumnExpr;
+import org.apache.empire.db.DBCommand;
 import org.apache.empire.db.DBDatabase;
 import org.apache.empire.db.DBRowSet;
 import org.apache.empire.db.DBSQLBuilder;
@@ -39,7 +40,8 @@ import org.w3c.dom.Element;
  * There is no need to explicitly create instances of this class.<BR>
  * Instead use {@link DBColumnExpr#as(String) }
  */
-public class DBAliasExpr extends DBColumnExpr implements Unwrappable<DBColumnExpr>
+public class DBAliasExpr extends DBColumnExpr
+    implements DBPreparable, Unwrappable<DBColumnExpr>
 {
     // *Deprecated* private static final long serialVersionUID = 1L;
   
@@ -181,6 +183,18 @@ public class DBAliasExpr extends DBColumnExpr implements Unwrappable<DBColumnExp
             return alias.equalsIgnoreCase(otherExpr.getName());
         }        
         return false;
+    }
+
+    /*
+     * (non-Javadoc)
+     * @see org.apache.empire.db.expr.column.DBPreparable#prepareCommand(org.apache.empire.db.DBCommand)
+     */
+    @Override
+    public void prepareCommand(DBCommand cmd) 
+    {
+        // forward?
+        if (expr instanceof DBPreparable)
+            ((DBPreparable)expr).prepareCommand(cmd);
     }
 
     /**

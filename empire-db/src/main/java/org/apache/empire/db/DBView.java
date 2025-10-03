@@ -24,7 +24,6 @@ import org.apache.empire.commons.Options;
 import org.apache.empire.commons.StringUtils;
 import org.apache.empire.data.Column;
 import org.apache.empire.data.DataType;
-import org.apache.empire.db.expr.column.DBValueExpr;
 import org.apache.empire.exceptions.InvalidArgumentException;
 import org.apache.empire.exceptions.ItemExistsException;
 import org.apache.empire.exceptions.NotSupportedException;
@@ -475,7 +474,7 @@ public abstract class DBView extends DBRowSet implements Cloneable
      */
     protected final DBViewColumn addColumn(String columnName, DataType dataType, double size)
     {   // find column by name
-        return new DBViewColumn(this, columnName, new DBValueExpr(db, null, dataType), size);
+        return new DBViewColumn(this, columnName, db.getValueExpr(null, dataType), size);
     }
 
     /**
@@ -487,7 +486,7 @@ public abstract class DBView extends DBRowSet implements Cloneable
      */
     protected final DBViewColumn addColumn(String columnName, DataType dataType)
     {   // find column by name
-        return new DBViewColumn(this, columnName, new DBValueExpr(db, null, dataType), 0.0d);
+        return new DBViewColumn(this, columnName, db.getValueExpr(null, dataType), 0.0d);
     }
 
     /**
