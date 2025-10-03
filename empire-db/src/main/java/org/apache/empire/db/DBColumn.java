@@ -20,8 +20,10 @@ package org.apache.empire.db;
 
 import java.util.Collections;
 import java.util.Set;
+import java.util.regex.Pattern;
 
 import org.apache.empire.commons.Attributes;
+import org.apache.empire.commons.ObjectUtils;
 import org.apache.empire.commons.Options;
 import org.apache.empire.commons.StringUtils;
 import org.apache.empire.data.Column;
@@ -29,8 +31,11 @@ import org.apache.empire.data.DataType;
 import org.apache.empire.data.Entity;
 import org.apache.empire.db.exceptions.DatabaseNotOpenException;
 import org.apache.empire.db.expr.column.DBAliasExpr;
+import org.apache.empire.db.expr.column.DBFuncExpr;
 import org.apache.empire.db.expr.set.DBSetExpr;
 import org.apache.empire.dbms.DBMSHandler;
+import org.apache.empire.exceptions.InvalidArgumentException;
+import org.apache.empire.exceptions.NotSupportedException;
 import org.apache.empire.exceptions.ObjectNotValidException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -390,8 +395,9 @@ public abstract class DBColumn extends DBColumnExpr
                                  : Collections.EMPTY_SET);
     }
 
-    /**
-     *  @see DBColumnExpr#getOptions()
+    /*
+     * (non-Javadoc)
+     * @see org.apache.empire.db.DBColumnExpr#getOptions()
      */
     @Override
     public Options getOptions()
@@ -401,17 +407,15 @@ public abstract class DBColumn extends DBColumnExpr
 
     /**
      * Returns true if an enum type has been set for this column
-     * <P>
      * @return true if an enum type has been set for this column or false otherwise
      */
     public final boolean isEnum()
     {
         return (getEnumType()!=null);
     }
-
+    
     /**
      * Returns the enum type for this column
-     * <P>
      * @return the enum type
      */
     @Override
@@ -421,6 +425,10 @@ public abstract class DBColumn extends DBColumnExpr
         return (Class<Enum<?>>)getAttribute(COLATTR_ENUMTYPE);
     }
     
+    /**
+     * Returns the java type for this column
+     * @return the java type
+     */
     @Override
     public Class<?> getJavaType()
     {
@@ -429,6 +437,131 @@ public abstract class DBColumn extends DBColumnExpr
             return enumType;
         // default
         return super.getJavaType();
+    }
+    
+    /**
+     * Returns whether or not a columnExpr is case sensitive
+     * If not explicitly set, the case sensitivity is true for all text fields (VARCHAR, CLOB) except if an EnumType is set.
+     * @return true if the columnExpr is case sensitive or false if not
+     */
+    public boolean isCaseSensitive()
+    {
+        // only for text expressions
+        if (!getDataType().isText())
+            return false;
+        // check attribute
+        Object value = getAttribute(Column.COLATTR_CASESENSITIVE);
+        if (value!=null)
+            return ObjectUtils.getBoolean(value);
+        // default is true for VARCHAR and CLOB except if Options or EnumType are set
+        return (getOptions()==null && getEnumType()==null);
+    }
+    
+    /**
+     * Sets the case sensitivity of the columnExpr
+     * @param caseSensitiv the character casing. This may be true, false or null (default)
+     * @return self (this)
+     */
+    @SuppressWarnings("unchecked")
+    public <T extends DBColumn> T setCaseSensitive(Boolean caseSensitiv)
+    {
+        if (!getDataType().isText())
+            throw new NotSupportedException(this, "setCaseInsensitive");
+        // set now
+        setAttribute(Column.COLATTR_CASESENSITIVE, caseSensitiv);
+        return (T)this;
+    }
+    
+    /**
+     * Sets the case sensitivity of the column to insensitive
+     * Text columns are case sensitive by default
+     * @return self (this)
+     */
+    public final <T extends DBColumn> T setCaseInsensitive()
+    {
+        return setCaseSensitive(false);
+    }
+
+    /**
+     * Returns the maximum allowed value 
+     * @return the minimum length 
+     */
+    public Pattern getRegExPattern()
+    {
+        return (Pattern)getAttribute(Column.COLATTR_REGEXP);
+    }
+    
+    /**
+     * Set the regular expression to validate the columnExpr value 
+     * @param regex the regular expression
+     * @return self (this)
+     */
+    @SuppressWarnings("unchecked")
+    public <T extends DBColumn> T setRegExPattern(String regex)
+    {
+        setAttribute(Column.COLATTR_REGEXP, Pattern.compile(regex));
+        return (T)this;
+    }
+    
+    /**
+     * Returns the normalized column for the columnExpr (if any)
+     * @return the normalized column or null
+     */
+    public DBColumnExpr getNormalizedColumn()
+    {   // return attribute
+        return (DBColumn)getAttribute(Column.COLATTR_NORMCOLUMN);
+    }
+    
+    /**
+     * Sets a normalized columnExpr for this columnExpr
+     * @param normalizedColumn the normalized columnExpr
+     * @return self (this)
+     */
+    @SuppressWarnings("unchecked")
+    public <T extends Column> T setNormalizedColumn(DBColumnExpr normalizedColumn)
+    { 
+        setAttribute(Column.COLATTR_NORMCOLUMN, normalizedColumn);
+        return (T)this;
+    }
+    
+    /**
+     * Returns the sort expression for a given column
+     * If no sort expression is explicitly set then the column itself is returned
+     * The returned expression should be assigned to an DBCommand.orderBy() function.
+     * 
+     * @return the sort expression or the column itself if not sort expression is set
+     */
+    public DBColumnExpr getSortExpr()
+    {
+        Object value = getAttribute(Column.COLATTR_SORTEXPRESSION);
+        // create a sort expression
+        if (value instanceof DBColumnExpr)
+        {   // return expression
+            return ((DBColumnExpr)value); 
+        }
+        else if ((value instanceof String) && ((String)value).indexOf('?')>=0)
+        {   // create a sort function expression
+            String sortFunctionTemplate = StringUtils.toString(value);
+            return new DBFuncExpr(this, sortFunctionTemplate, null, false, getDataType());
+        }
+        else if (value!=null)
+        {   // unknown value
+            log.warn("Invalid value for {}: {}", Column.COLATTR_SORTEXPRESSION, value);
+        }
+        // not changed
+        return this; 
+    }
+    
+    /**
+     * Sets a sort function expression for a given column
+     * @param sortExpression the expression which to use for sorting
+     * @return self (this)
+     */
+    @SuppressWarnings("unchecked")
+    public <T extends DBColumn> T setSortExpr(DBColumnExpr sortExpression)
+    {   // set sort expression
+        setAttribute(Column.COLATTR_SORTEXPRESSION, sortExpression);
+        return (T)this;
     }
 
     /**
@@ -454,6 +587,23 @@ public abstract class DBColumn extends DBColumnExpr
             return this;
         }
         return super.decodeSort(getEnumType(), defaultToEnd);
+    }
+    
+    /**
+     * Sets a sort function template for a given column
+     * @param column the column for which to set the sort expression
+     * @param sortFunctionTemplate the template which must contain a ? which will be replaced with the column name
+     * @return return the column 
+     */
+    @SuppressWarnings("unchecked")
+    public <T extends DBColumn> T setSortExpr(String sortFunctionTemplate)
+    {
+        // check param
+        if (sortFunctionTemplate!=null && sortFunctionTemplate.indexOf('?')<0)
+            throw new InvalidArgumentException("sortFunctionTemplate", sortFunctionTemplate);
+        // set sort expression
+        setAttribute(Column.COLATTR_SORTEXPRESSION, sortFunctionTemplate);
+        return (T)this;
     }
     
     /**

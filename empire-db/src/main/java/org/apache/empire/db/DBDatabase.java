@@ -35,6 +35,8 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.empire.commons.DateUtils;
 import org.apache.empire.commons.ObjectUtils;
@@ -1208,11 +1210,8 @@ public abstract class DBDatabase extends DBObject
                 // check enum
                 if (value instanceof Enum<?>)
                     break; // Convert later...
-                // check length
-                if (value.toString().length() > (int)column.getSize())
-                {
-                    throw new FieldValueTooLongException(column);
-                }
+                // validate
+                value = validateString(column, value.toString());
                 break;
                 
             default:
@@ -1264,6 +1263,24 @@ public abstract class DBDatabase extends DBObject
             }
         }
         return n;
+    }
+    
+    protected String validateString(DBTableColumn column, String value)
+    {
+        // check length
+        if (value.length() > (int)column.getSize())
+        {
+            throw new FieldValueTooLongException(column);
+        }
+        // check regex
+        Pattern pattern = column.getRegExPattern();
+        if (pattern!=null)
+        {
+            Matcher matcher = pattern.matcher(value);
+            if (!matcher.matches())
+                throw new FieldIllegalValueException(column, value);
+        }
+        return value;
     }
     
     /**

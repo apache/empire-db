@@ -21,18 +21,13 @@ package org.apache.empire.commons;
 import java.math.BigDecimal;
 import java.text.NumberFormat;
 import java.util.Locale;
-import java.util.regex.Pattern;
 
 import org.apache.empire.data.Column;
 import org.apache.empire.data.ColumnExpr;
 import org.apache.empire.data.DataType;
 import org.apache.empire.db.DBColumn;
 import org.apache.empire.db.DBColumnExpr;
-import org.apache.empire.db.expr.column.DBFuncExpr;
-import org.apache.empire.exceptions.InvalidArgumentException;
 import org.apache.empire.exceptions.NotSupportedException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * ColumnUtils
@@ -41,7 +36,7 @@ import org.slf4j.LoggerFactory;
  */
 public class ColumnUtils
 {
-    private static final Logger log = LoggerFactory.getLogger(ColumnUtils.class);
+    // private static final Logger log = LoggerFactory.getLogger(ColumnUtils.class);
     
     /**
      * The instance of ValueUtils to be used for value type conversion
@@ -138,30 +133,19 @@ public class ColumnUtils
      */
     public static boolean isCaseSensitive(ColumnExpr columnExpr)
     {
+        if (columnExpr instanceof DBColumn)
+        {   // ask the column
+            return ((DBColumn)columnExpr).isCaseSensitive();
+        }
         // only for text expressions
         if (!isText(columnExpr))
             return false;
         // check attribute
         Object value = instance.getColumnAttribute(columnExpr, Column.COLATTR_CASESENSITIVE);
-        if (value==null)
-        {   // default is true for VARCHAR and CLOB except if Options or EnumType are set
-            return (columnExpr.getOptions()==null && columnExpr.getEnumType()==null);
-        }
-        return ObjectUtils.getBoolean(value);
-    }
-    
-    /**
-     * Sets the case sensitivity of the columnExpr
-     * @param columnExpr the columnExpr
-     * @param caseSensitiv may be true, false or null
-     * @return return the columnExpr
-     */
-    public static <T extends ColumnExpr> T setCaseSensitive(T columnExpr, Boolean caseSensitiv)
-    {
-        if (!isText(columnExpr))
-            throw new NotSupportedException(columnExpr, "setCaseInsensitive");
-        // set now
-        return columnExpr.setAttribute(Column.COLATTR_CASESENSITIVE, caseSensitiv);
+        if (value!=null)
+            return ObjectUtils.getBoolean(value);
+        // default is true for VARCHAR and CLOB except if Options or EnumType are set
+        return (columnExpr.getOptions()==null && columnExpr.getEnumType()==null);
     }
     
     /**
@@ -181,60 +165,26 @@ public class ColumnUtils
     }
     
     /**
-     * Returns the sort expression for a given column
-     * If no sort expression is explicitly set then the column itself is returned
-     * The returned expression should be assigned to an DBCommand.orderBy() function.
+     * Returns the normalized column for the columnExpr (if any)
+     * The column expression must be a column otherwise null is returned
+     * @return the normalized column or null
+     */
+    public static DBColumnExpr getNormalizedColumn(DBColumnExpr columnExpr)
+    {
+        return ((columnExpr instanceof DBColumn) ? ((DBColumn)columnExpr).getNormalizedColumn() : null);
+    }
+        
+    /**
+     * Returns the sort expression for a given column expression
+     * This function checks if columnExpr is a column and callse column.getSortExpr().
+     * If columnExpr is not a colunn, the columnExpr itself is returned
      * 
-     * @param column the column for which to retrieve the sort expression
+     * @param columnExpr the columnExpr for which to retrieve the sort expression
      * @return the sort expression or the column itself if not sort expression is set
      */
-    public static DBColumnExpr getSortExpr(DBColumn column)
+    public static DBColumnExpr getSortExpr(DBColumnExpr columnExpr)
     {
-        Object value = instance.getColumnAttribute(column, Column.COLATTR_SORTEXPRESSION);
-        // create a sort expression
-        if (value instanceof DBColumnExpr)
-        {   // return expression
-            return ((DBColumnExpr)value); 
-        }
-        else if ((value instanceof String) && ((String)value).indexOf('?')>=0)
-        {   // create a sort function expression
-            String sortFunctionTemplate = StringUtils.toString(value);
-            return new DBFuncExpr(column, sortFunctionTemplate, null, false, column.getDataType());
-        }
-        else if (value!=null)
-        {   // unknown value
-            log.warn("Invalid value for {}: {}", Column.COLATTR_SORTEXPRESSION, value);
-        }
-        // not changed
-        return column; 
-    }
-    
-    /**
-     * Sets a sort function expression for a given column
-     * @param column the column for which to set the sort expression
-     * @param sortExpression the expression which to use for sorting
-     * @return return the column 
-     */
-    public static <T extends DBColumn> T setSortExpr(T column, DBColumnExpr sortExpression)
-    {   // set sort expression
-        column.setAttribute(Column.COLATTR_SORTEXPRESSION, sortExpression);
-        return column;
-    }
-    
-    /**
-     * Sets a sort function template for a given column
-     * @param column the column for which to set the sort expression
-     * @param sortFunctionTemplate the template which must contain a ? which will be replaced with the column name
-     * @return return the column 
-     */
-    public static <T extends DBColumn> T setSortExpr(T column, String sortFunctionTemplate)
-    {
-        // check param
-        if (sortFunctionTemplate!=null && sortFunctionTemplate.indexOf('?')<0)
-            throw new InvalidArgumentException("sortFunctionTemplate", sortFunctionTemplate);
-        // set sort expression
-        column.setAttribute(Column.COLATTR_SORTEXPRESSION, sortFunctionTemplate);
-        return column;
+        return ((columnExpr instanceof DBColumn) ? ((DBColumn)columnExpr).getSortExpr() : columnExpr);
     }
 
     /**
@@ -330,55 +280,6 @@ public class ColumnUtils
     {
         instance.setColumnNumberFormat(column, numberType, groupSeparator);
         return column;
-    }
-
-    /**
-     * Returns the maximum allowed value 
-     * @param columnExpr the columnExpr
-     * @return the minimum length 
-     */
-    public static Pattern getRegExPattern(ColumnExpr columnExpr)
-    {
-        Object value = instance.getColumnAttribute(columnExpr, Column.COLATTR_REGEXP);
-        return ((Pattern)value);
-    }
-    
-    /**
-     * Set the regular expression to validate the columnExpr value 
-     * @param columnExpr the columnExpr
-     * @param regex the regular expression
-     * @return the columnExpr
-     */
-    public static <T extends ColumnExpr> T setRegExPattern(T columnExpr, String regex)
-    {
-        columnExpr.setAttribute(Column.COLATTR_REGEXP, Pattern.compile(regex));
-        return columnExpr;
-    }
-    
-    /**
-     * Returns the normalized column for the columnExpr (if any)
-     * The column expression must be a column otherwise null is returned
-     * @return the normalized column or null
-     */
-    @SuppressWarnings("unchecked")
-    public static <T extends ColumnExpr> T getNormalizedColumn(ColumnExpr columnExpr)
-    {
-        // must be a column
-        if (!isColumn(columnExpr))
-            return null;
-        // return attribute
-        return (T)instance.getColumnAttribute(columnExpr, Column.COLATTR_NORMCOLUMN);
-    }
-    
-    /**
-     * Sets a normalized columnExpr for this columnExpr
-     * @param sourceColumn the column
-     * @param normalizedColumn the normalized columnExpr
-     * @return returns the sourceColumn
-     */
-    public static <T extends Column> T setNormalizedColumn(T sourceColumn, ColumnExpr normalizedColumn)
-    { 
-        return sourceColumn.setAttribute(Column.COLATTR_NORMCOLUMN, normalizedColumn);
     }
 
     /*
