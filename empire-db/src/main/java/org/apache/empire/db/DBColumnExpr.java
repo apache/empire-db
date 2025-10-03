@@ -1480,8 +1480,11 @@ public abstract class DBColumnExpr extends DBExpr
      */
     protected boolean isLiteralValue(Object value)
     {
+        // Already a DBCmdParam
+        if (value instanceof DBCmdParam)
+            return false;
         // Cannot use DBExpr or DBSystemDate as parameter
-        if (value==null || value instanceof DBCmdParam || value instanceof DBExpr || value instanceof DBDatabase.DBSystemDate)
+        if (value==null || value instanceof DBExpr || value instanceof DBDatabase.DBSystemDate)
             return false;
         // check immutable
         return ClassUtils.isImmutableClass(value.getClass());

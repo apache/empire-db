@@ -34,8 +34,8 @@ import org.apache.empire.db.DBExpr;
 import org.apache.empire.db.DBRowSet;
 import org.apache.empire.db.DBSQLBuilder;
 import org.apache.empire.db.expr.column.DBAliasExpr;
-import org.apache.empire.db.expr.column.DBPreparable;
 import org.apache.empire.db.expr.column.DBFuncExpr;
+import org.apache.empire.db.expr.column.DBPreparable;
 import org.apache.empire.dbms.DBSqlPhrase;
 
 
@@ -137,7 +137,7 @@ public class DBCompareColExpr extends DBCompareExpr
     }
 
     /**
-     * wraps the expression in parenthesises
+     * wraps the expression in Parenthesis
      */
     public DBCompareColExpr parenthesis()
     {
@@ -160,8 +160,17 @@ public class DBCompareColExpr extends DBCompareExpr
             ((DBPreparable)value).prepareParams(cmd, this);
             return; // we're done
         }
+        // value already a DBCmdParam
+        if (value instanceof DBCmdParam)
+        {   // check same command
+            if (cmd==((DBCmdParam)value).getCmd())
+                return; // already set
+            // value expression used in multiple command
+            log.warn("Unexpected behaviour: DBCompareExpr has alredy been used for a different command. Detaching from old command!");
+            value = ((DBCmdParam)value).getValue();
+        }
         // Cannot use DBExpr or DBSystemDate as parameter
-        if (value==null || value instanceof DBCmdParam || value instanceof DBExpr || value instanceof DBDatabase.DBSystemDate)
+        if (value==null || value instanceof DBExpr || value instanceof DBDatabase.DBSystemDate)
             return;
         // check operator
         switch(cmpop)

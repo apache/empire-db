@@ -26,8 +26,10 @@ import java.util.regex.Pattern;
 import org.apache.empire.data.Column;
 import org.apache.empire.data.ColumnExpr;
 import org.apache.empire.data.DataType;
+import org.apache.empire.db.DBColumn;
 import org.apache.empire.db.DBColumnExpr;
 import org.apache.empire.db.expr.column.DBFuncExpr;
+import org.apache.empire.exceptions.InvalidArgumentException;
 import org.apache.empire.exceptions.NotSupportedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -180,15 +182,15 @@ public class ColumnUtils
     
     /**
      * Returns the sort expression for a given column
-     * If no sort expression is explicitly set then the columnExpr itself is returned
+     * If no sort expression is explicitly set then the column itself is returned
      * The returned expression should be assigned to an DBCommand.orderBy() function.
      * 
-     * @param columnExpr the column for which to retrieve the sort expression
-     * @return the sort expression or the columnExp if not sort expression is set
+     * @param column the column for which to retrieve the sort expression
+     * @return the sort expression or the column itself if not sort expression is set
      */
-    public static DBColumnExpr getSortExpr(DBColumnExpr columnExpr)
+    public static DBColumnExpr getSortExpr(DBColumn column)
     {
-        Object value = instance.getColumnAttribute(columnExpr, Column.COLATTR_SORTEXPRESSION);
+        Object value = instance.getColumnAttribute(column, Column.COLATTR_SORTEXPRESSION);
         // create a sort expression
         if (value instanceof DBColumnExpr)
         {   // return expression
@@ -197,26 +199,42 @@ public class ColumnUtils
         else if ((value instanceof String) && ((String)value).indexOf('?')>=0)
         {   // create a sort function expression
             String sortFunctionTemplate = StringUtils.toString(value);
-            return new DBFuncExpr(columnExpr, sortFunctionTemplate, null, false, columnExpr.getDataType());
+            return new DBFuncExpr(column, sortFunctionTemplate, null, false, column.getDataType());
         }
         else if (value!=null)
         {   // unknown value
             log.warn("Invalid value for {}: {}", Column.COLATTR_SORTEXPRESSION, value);
         }
         // not changed
-        return columnExpr; 
+        return column; 
     }
     
     /**
-     * Sets a sort function template for a particular DBColumExpr
-     * @param columnExpr the column expression
-     * @param sortFunctionTemplate the template which must contain a ? which will be replaced by the sort expression
-     * @return return the columnExpr
+     * Sets a sort function expression for a given column
+     * @param column the column for which to set the sort expression
+     * @param sortExpression the expression which to use for sorting
+     * @return return the column 
      */
-    public static <T extends DBColumnExpr> T setSortExpr(T columnExpr, DBColumnExpr sortExpression)
+    public static <T extends DBColumn> T setSortExpr(T column, DBColumnExpr sortExpression)
     {   // set sort expression
-        columnExpr.setAttribute(Column.COLATTR_SORTEXPRESSION, sortExpression);
-        return columnExpr;
+        column.setAttribute(Column.COLATTR_SORTEXPRESSION, sortExpression);
+        return column;
+    }
+    
+    /**
+     * Sets a sort function template for a given column
+     * @param column the column for which to set the sort expression
+     * @param sortFunctionTemplate the template which must contain a ? which will be replaced with the column name
+     * @return return the column 
+     */
+    public static <T extends DBColumn> T setSortExpr(T column, String sortFunctionTemplate)
+    {
+        // check param
+        if (sortFunctionTemplate!=null && sortFunctionTemplate.indexOf('?')<0)
+            throw new InvalidArgumentException("sortFunctionTemplate", sortFunctionTemplate);
+        // set sort expression
+        column.setAttribute(Column.COLATTR_SORTEXPRESSION, sortFunctionTemplate);
+        return column;
     }
 
     /**

@@ -23,6 +23,8 @@ import org.apache.empire.db.DBCommand;
 import org.apache.empire.db.DBExpr;
 import org.apache.empire.db.DBRowSet;
 import org.apache.empire.db.expr.column.DBPreparable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * This class is a common base class for all SQL filter constraints classes<br>
@@ -30,6 +32,7 @@ import org.apache.empire.db.expr.column.DBPreparable;
 public abstract class DBCompareExpr extends DBExpr implements DBPreparable
 {
   // *Deprecated* private static final long serialVersionUID = 1L;
+    protected static final Logger log = LoggerFactory.getLogger(DBCompareExpr.class);
   
 	public abstract boolean isMutuallyExclusive(DBCompareExpr other);
 

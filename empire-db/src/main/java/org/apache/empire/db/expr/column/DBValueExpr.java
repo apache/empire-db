@@ -20,7 +20,6 @@ package org.apache.empire.db.expr.column;
 
 import java.util.Set;
 
-import org.apache.empire.commons.ClassUtils;
 import org.apache.empire.commons.ObjectUtils;
 import org.apache.empire.commons.StringUtils;
 // Java
@@ -103,7 +102,7 @@ public class DBValueExpr extends DBColumnExpr
         {   // value of DataType.UNKNOWN cannot be changed
             throw new PropertyReadOnlyException("value");
         }
-        else if (value!=null && !ClassUtils.isImmutableClass(value.getClass()))
+        else if (value!=null && !isLiteralValue(value))
         {   // Must be a simple value
             throw new InvalidArgumentException("value", value);
         }
@@ -242,12 +241,14 @@ public class DBValueExpr extends DBColumnExpr
      * Otherwise it may be automatically replaced by a parameter ?
      * @return self (this)
      */
-    public DBValueExpr literally()
+    public DBValueExpr literal()
     {
         this.literal = true;
         // remove param
-        if (this.value instanceof DBCmdParam)
+        if (this.value instanceof DBCmdParam) {
             this.value = ((DBCmdParam)value).getValue();
+            this.name = null;
+        }
         // return self
         return this;
     }
@@ -273,8 +274,18 @@ public class DBValueExpr extends DBColumnExpr
         // literal mode
         if (getDataType()==DataType.UNKNOWN || literal)
             return;
+        // value already a DBCmdParam
+        if (value instanceof DBCmdParam)
+        {   // check same command
+            if (cmd==((DBCmdParam)value).getCmd())
+                return; // already set
+            // value expression used in multiple command
+            log.warn("Unexpected behaviour: ValueExpr has alredy been used for a different command. Switching to literal mode!");
+            literal();
+            return;
+        }
         // Cannot use DBExpr or DBSystemDate as parameter
-        if (value==null || value instanceof DBCmdParam || value instanceof DBExpr || value instanceof DBDatabase.DBSystemDate)
+        if (value==null || value instanceof DBExpr || value instanceof DBDatabase.DBSystemDate)
             return;
         // Add command param
         this.value = cmd.addParam(getDataType(), value);
