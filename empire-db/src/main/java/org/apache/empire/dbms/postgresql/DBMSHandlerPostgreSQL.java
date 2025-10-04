@@ -37,7 +37,6 @@ import org.apache.empire.db.DBSQLBuilder;
 import org.apache.empire.db.DBSQLScript;
 import org.apache.empire.db.DBTable;
 import org.apache.empire.db.DBTableColumn;
-import org.apache.empire.db.expr.column.DBValueExpr;
 import org.apache.empire.dbms.DBMSFeature;
 import org.apache.empire.dbms.DBMSHandler;
 import org.apache.empire.dbms.DBMSHandlerBase;

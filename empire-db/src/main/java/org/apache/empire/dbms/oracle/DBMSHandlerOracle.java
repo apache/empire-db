@@ -47,7 +47,6 @@ import org.apache.empire.db.DBView;
 import org.apache.empire.db.context.DBContextStatic;
 import org.apache.empire.db.exceptions.EmpireSQLException;
 import org.apache.empire.db.exceptions.QueryNoResultException;
-import org.apache.empire.db.expr.column.DBValueExpr;
 import org.apache.empire.db.validation.DBModelChecker;
 import org.apache.empire.dbms.DBMSFeature;
 import org.apache.empire.dbms.DBMSHandler;
