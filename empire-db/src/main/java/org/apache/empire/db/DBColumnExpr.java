@@ -49,6 +49,7 @@ import org.apache.empire.db.expr.compare.DBCompareColExpr;
 import org.apache.empire.db.expr.compare.DBCompareExpr;
 import org.apache.empire.db.expr.join.DBColumnJoinExpr;
 import org.apache.empire.db.expr.order.DBOrderByExpr;
+import org.apache.empire.dbms.DBMSHandler;
 import org.apache.empire.dbms.DBSqlPhrase;
 import org.apache.empire.exceptions.InvalidArgumentException;
 import org.apache.empire.exceptions.NotSupportedException;
@@ -157,6 +158,19 @@ public abstract class DBColumnExpr extends DBExpr
         return column.getAttribute(name);
     }
 
+    /**
+     * Returns the value of a column attribute and converts it to the desired type
+     * 
+     * @param name the attribute name
+     * @param type the desired Java type 
+     * @return value of the attribute 
+     */
+    public <T> T getAttribute(String name, Class<T> type)
+    {
+        Object value = getAttribute(name);
+        return (value!=null ? ObjectUtils.convert(type, value) : null);
+    }
+    
     /**
      * Sets the value of a column attribute.
      * Same as Column.setAttribute but with different name to avoid name clash 
@@ -284,6 +298,88 @@ public abstract class DBColumnExpr extends DBExpr
         this.beanPropertyName = propertyName; 
         return (T)this;
     }
+    
+    /**
+     * Returns the default sort order
+     * FALSE is for ascending, TRUE for descending
+     * @return true if the default sort order is descending
+     */
+    public boolean getDefaultSortOrder()
+    {
+        Object value = getAttribute(Column.COLATTR_SORTDESCENDING);
+        return ObjectUtils.getBoolean(value);
+    }
+
+    /**
+     * Sets the default sort order
+     * @param descending true if the default sort order is ascending or false if descending
+     * @return returns self (this)
+     */
+    @SuppressWarnings("unchecked")
+    public <T extends DBColumnExpr> T setDefaultSortOrder(Boolean descending)
+    {
+        setAttribute(Column.COLATTR_SORTDESCENDING, descending);
+        return (T)this;
+    }
+    
+    /**
+     * Returns whether or not a columnExpr is case sensitive
+     * If not explicitly set, the case sensitivity is true for all text fields (VARCHAR, CLOB) except if an EnumType is set.
+     * @return true if the columnExpr is case sensitive or false if not
+     */
+    public boolean isCaseSensitive()
+    {
+        // only for text expressions
+        if (!getDataType().isText())
+            return false;
+        // check attribute
+        Object value = getAttribute(Column.COLATTR_CASESENSITIVE);
+        if (value!=null)
+            return ObjectUtils.getBoolean(value);
+        // default is true for VARCHAR and CLOB except if Options or EnumType are set
+        return (getOptions()==null && getEnumType()==null);
+    }
+    
+    /**
+     * Returns an expression which ignores the case
+     * Only for case sensitive columns!
+     * Default is upper(expr)
+     * @return the ignore case expression or the expression itself
+     */
+    public DBColumnExpr getIgnoreCaseExpr()
+    {
+        // only for text expressions
+        if (!isCaseSensitive())
+            return this;
+        // let handler decide
+        DBMSHandler dbms = getDatabase().getDbms();
+        return (dbms!=null ? dbms.getIgnoreCaseExpr(this) : upper());
+    }
+
+    /**
+     * Returns the number type assigned to this column expression
+     * @param columnExpr the columnExpr
+     * @return the number type
+     */
+    public String getNumberType(ColumnExpr columnExpr)
+    {
+        // only for text expressions
+        if (!getDataType().isNumeric())
+            return null;
+        // check attribute
+        Object value = getAttribute(Column.COLATTR_NUMBER_TYPE);
+        if (value==null)
+        {   // from data type
+            DataType dt = columnExpr.getDataType();
+            if (dt==DataType.INTEGER || dt==DataType.AUTOINC)
+                return DataType.INTEGER.name();
+            if (dt==DataType.DECIMAL || dt==DataType.FLOAT)
+                return DataType.DECIMAL.name();
+            // Not a number
+            return null;
+        }
+        return value.toString();
+    }
 
     /**
      * creates a new DBAliasExpr which renames the current expression to the supplied name. 
@@ -331,27 +427,32 @@ public abstract class DBColumnExpr extends DBExpr
     }
 
     /**
-     * Creates and returns a new comparison object for the SQL "like" operator.
-     * By converting column value and comparison value to upper case 
-     * the like is effectively case insensitive.   
+     * Creates and returns a new case insensitive comparison for the SQL "like" operator.
+     * Case insensitivity is achieved by calling getIgnoreCaseExpr()
+     * Hence the case insensitive operation is determined by the DBMSHandler
+     * Default is upper(value)
      *
      * @param value the Object value
      * @return the new DBCompareColExpr object
      */
     public DBCompareColExpr likeUpper(String value)
     { 
-        DBValueExpr expr = getDatabase().getValueExpr(value, DataType.VARCHAR);
-        return new DBCompareColExpr(this.upper(), DBCmpType.LIKE, expr.upper());
+        DBColumnExpr colExpr = getIgnoreCaseExpr();
+        DBColumnExpr valExpr = getDatabase().getValueExpr(value, DataType.VARCHAR);
+        valExpr = valExpr.getIgnoreCaseExpr();
+        return new DBCompareColExpr(colExpr, DBCmpType.LIKE, valExpr);
     }
 
     /**
      * Creates and returns a new comparison object for the SQL "like" operator.
-     * By converting column value and comparison value to lower case 
-     * the like is effectively case insensitive.   
+     * Converts the column value and comparison value to lower case
+     * 
+     * @deprecated Always user likeUpper() for case insensitive comparions
      *
      * @param value the Object value
      * @return the new DBCompareColExpr object
      */
+    @Deprecated
     public DBCompareColExpr likeLower(String value)
     { 
         DBValueExpr expr = getDatabase().getValueExpr(value, DataType.VARCHAR);

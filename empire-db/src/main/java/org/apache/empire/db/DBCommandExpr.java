@@ -559,29 +559,60 @@ public abstract class DBCommandExpr extends DBExpr
     }
 
     /**
+     * Adds an order by with ascending or descending order
+     * 
+     * @param expr the expression for ordering
+     * @param desc if true, the results from select statement will sort top down
+     * @return itself (this)
+     */
+    public DBCommandExpr orderBy(DBColumnExpr expr, boolean desc)
+    {
+        if (expr instanceof DBColumn)
+            expr = ((DBColumn)expr).getSortExpr();
+        // create order by now
+        return orderBy(new DBOrderByExpr(expr, desc));
+    }
+
+    /**
+     * Adds a column expression to the orderBy clause
+     * 
+     * @param expr the sort order expression
+     * @return itself (this)
+     */
+    public DBCommandExpr orderBy(DBColumnExpr expr)
+    {
+        return orderBy(expr, expr.getDefaultSortOrder());
+    }
+
+    /**
      * Adds a list of columns to the orderBy clause in ascending order
      * 
-     * @param exprs vararg of column expressions
+     * @param exprs vararg of order by expressions
      * @return itself (this)
      */
     public DBCommandExpr orderBy(DBColumnExpr... exprs)
     {
         for (DBColumnExpr expr : exprs)
         {
-            orderBy(new DBOrderByExpr(expr, false));
+            orderBy(expr, expr.getDefaultSortOrder());
         }
         return this;
     }
 
     /**
-     * Adds an order by with ascending or descending order
+     * Adds a case insensitive order by with ascending or descending order
      * 
-     * @param expr the DBColumnExpr object
+     * @param expr the expression for ordering
      * @param desc if true, the results from select statement will sort top down
      * @return itself (this)
      */
-    public DBCommandExpr orderBy(DBColumnExpr expr, boolean desc)
+    public DBCommandExpr orderByUpper(DBColumnExpr expr, boolean desc)
     {
+        if (expr instanceof DBColumn)
+            expr = ((DBColumn)expr).getSortExpr();
+        // make case insensitive
+        expr = expr.getIgnoreCaseExpr();
+        // create order by now
         return orderBy(new DBOrderByExpr(expr, desc));
     }
 

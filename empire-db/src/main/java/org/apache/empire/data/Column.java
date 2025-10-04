@@ -42,6 +42,7 @@ public interface Column extends ColumnExpr
     public static final String COLATTR_NORMCOLUMN      = "normColumn";           // normalized column
     public static final String COLATTR_REFCOLUMNS      = "refColumns";           // reference columns
     public static final String COLATTR_CASESENSITIVE   = "caseSensitive";        // true/false
+    public static final String COLATTR_SORTDESCENDING  = "sortDescending";       // default sort order (true for descending)
     public static final String COLATTR_SORTEXPRESSION  = "sortExpression";       // sort function template for DBFunc
 
     public static final String COLATTR_MINLENGTH       = "minLength";
@@ -54,8 +55,8 @@ public interface Column extends ColumnExpr
     public static final String COLATTR_FRACTION_DIGITS = "numberFractionDigits"; // integer
     public static final String COLATTR_INTEGER_DIGITS  = "numberIntegerDigits";  // integer
     public static final String COLATTR_CURRENCY_CODE   = "currencyCode";         // "ISO 4217 code of the currency"
-    public static final String COLATTR_DATETIMEPATTERN = "dateTimePattern";      // default is yyyy-MM-dd HH:mm:ss
-
+    // public static final String COLATTR_DATETIMEPATTERN = "dateTimePattern";   // unused, not needed
+    
     public static final String NUMTYPE_INTEGER   = DataType.INTEGER.name(); 
     public static final String NUMTYPE_DECIMAL   = DataType.DECIMAL.name(); 
     public static final String NUMTYPE_CURRENCY  = "CURRENCY"; 

@@ -153,6 +153,10 @@ public class DBFuncExpr extends DBAbstractFuncExpr
         {   // UPPER and LOWER are not case sensitive
             return false;
         }
+        else if (phrase==DBSqlPhrase.SQL_FUNC_TRUNC && Column.COLATTR_NUMBER_TYPE.equals(name) && getDataType().isNumeric())
+        {   // Truncate will produce an Integer
+            return DataType.INTEGER.name();
+        }
         return super.getAttribute(name);
     }
 

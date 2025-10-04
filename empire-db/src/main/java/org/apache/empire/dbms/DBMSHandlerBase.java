@@ -512,6 +512,23 @@ public abstract class DBMSHandlerBase implements DBMSHandler
         // Other types
         throw new NotSupportedException(this, "getColumnAutoValue for "+column.getFullName());
     }
+
+    /**
+     * Returns an expression that ignores the case of a column expression
+     * Only for text columns.
+     * Default is upper(expr)
+     * @param expr the expression for which to ignore the case
+     * @return the ignore case expression or the expression itself
+     */
+    @Override
+    public DBColumnExpr getIgnoreCaseExpr(DBColumnExpr expr)
+    {
+        if (expr==null || !expr.getDataType().isText())
+        {   // not a CHAR or VARCHAR
+            return expr; 
+        }
+        return expr.upper();
+    }
     
     /**
      * Reads a single column value from the given JDBC ResultSet and returns a value object of desired data type.<BR> 

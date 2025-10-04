@@ -24,6 +24,7 @@ import java.sql.SQLException;
 import java.sql.Timestamp;
 
 import org.apache.empire.data.DataType;
+import org.apache.empire.db.DBColumnExpr;
 import org.apache.empire.db.DBCommand;
 import org.apache.empire.db.DBCommandExpr;
 import org.apache.empire.db.DBDDLGenerator.DDLActionType;
@@ -144,6 +145,15 @@ public interface DBMSHandler
      * @return the auto-generated value
      */
     Object getColumnAutoValue(DBDatabase db, DBTableColumn column, Connection conn);
+
+    /**
+     * Returns an expression that ignores the case of a column expression
+     * Only for text columns.
+     * Default is upper(expr)
+     * @param expr the expression for which to ignore the case
+     * @return the ignore case expression
+     */
+    DBColumnExpr getIgnoreCaseExpr(DBColumnExpr expr);
     
     /**
      * Executes an select SQL-command that returns only one scalar value

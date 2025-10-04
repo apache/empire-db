@@ -111,7 +111,19 @@ public class OracleDDLGenerator extends DBDDLGenerator<DBMSHandlerOracle>
             sql.append(")");
         }
         else
+        {
             super.appendColumnDesc(c, alter, sql);
+        }
+        // more options
+        if (c.getDataType().isText())
+        {   // append collation
+            String collation = c.getAttribute("COLLATE", String.class);
+            if (collation!=null && collation.length()>0)
+            {   // append collation
+                sql.append(" COLLATE ");
+                sql.append(collation);
+            }
+        }
     }
 
     @Override

@@ -25,13 +25,11 @@ import java.util.Locale;
 import org.apache.empire.data.Column;
 import org.apache.empire.data.ColumnExpr;
 import org.apache.empire.data.DataType;
-import org.apache.empire.db.DBColumn;
-import org.apache.empire.db.DBColumnExpr;
 import org.apache.empire.exceptions.NotSupportedException;
 
 /**
  * ColumnUtils
- * This class contains a set of helper functions for Columns
+ * This class contains a set of generic functions for Columns
  * @author doebele
  */
 public class ColumnUtils
@@ -52,46 +50,6 @@ public class ColumnUtils
     {
         instance = columnUtils;
     }
-    
-    /**
-     * Returns true if the columnExpr is Column
-     * @param columnExpr the columnExpr expression
-     * @return true if the columnExpr is a Column
-     */
-    public static boolean isColumn(ColumnExpr columnExpr)
-    {
-        return (ObjectUtils.unwrap(columnExpr) instanceof Column); 
-    }
-    
-    /**
-     * Returns true if the columnExpr either is a Column or has an update column assigned
-     * @param columnExpr the columnExpr expression
-     * @return true if the columnExpr is a Column or has an update column
-     */
-    public static boolean hasColumn(ColumnExpr columnExpr)
-    {
-        return (columnExpr.getUpdateColumn()!=null); 
-    }
-    
-    /**
-     * Returns true if the columnExpr is a text columnExpr
-     * @param columnExpr the columnExpr
-     * @return true if the columnExpr is a text columnExpr
-     */
-    public static boolean isText(ColumnExpr columnExpr)
-    {
-        return columnExpr.getDataType().isText();
-    }
-    
-    /**
-     * Return the maximum character length of a columnExpr
-     * @param columnExpr the columnExpr 
-     * @return the max number or characters 
-     */
-    public static int getMaxLength(ColumnExpr columnExpr)
-    {
-        return instance.getColumnMaxLength(columnExpr);
-    }
 
     /**
      * Returns the minimum length, usually 0 
@@ -103,98 +61,15 @@ public class ColumnUtils
         Object value = instance.getColumnAttribute(columnExpr, Column.COLATTR_MINLENGTH);
         return ((value instanceof Number) ? ((Number)value).intValue() : 0);
     }
-
-    /**
-     * Returns the text to display if the field value is null 
-     * @param columnExpr the columnExpr
-     * @return the text for null 
-     */
-    public static String getNullText(ColumnExpr columnExpr)
-    {
-        Object value = instance.getColumnAttribute(columnExpr, Column.COLATTR_NULLTEXT);
-        return (value!=null ? value.toString() : StringUtils.EMPTY);
-    }
     
     /**
-     * Sets the text to display if the field value is null 
-     * @param columnExpr the columnExpr
-     * @param nullText the null text
-     * @return return the columnExpr
+     * Return the maximum character length of a columnExpr
+     * @param columnExpr the columnExpr 
+     * @return the max number or characters 
      */
-    public static <T extends ColumnExpr> T setNullText(T columnExpr, String nullText)
+    public static int getMaxLength(ColumnExpr columnExpr)
     {
-        return columnExpr.setAttribute(Column.COLATTR_NULLTEXT, nullText);
-    }
-    
-    /**
-     * Returns whether or not a columnExpr is case sensitive
-     * If not explicitly set, the case sensitivity is true for all text fields (VARCHAR, CLOB) except if an EnumType is set.
-     * @return true if the columnExpr is case sensitive or false if not
-     */
-    public static boolean isCaseSensitive(ColumnExpr columnExpr)
-    {
-        if (columnExpr instanceof DBColumn)
-        {   // ask the column
-            return ((DBColumn)columnExpr).isCaseSensitive();
-        }
-        // only for text expressions
-        if (!isText(columnExpr))
-            return false;
-        // check attribute
-        Object value = instance.getColumnAttribute(columnExpr, Column.COLATTR_CASESENSITIVE);
-        if (value!=null)
-            return ObjectUtils.getBoolean(value);
-        // default is true for VARCHAR and CLOB except if Options or EnumType are set
-        return (columnExpr.getOptions()==null && columnExpr.getEnumType()==null);
-    }
-    
-    /**
-     * Sets one or more columns to case insensitive
-     * @param columns the list of columns
-     */
-    public static void setCaseInsensitive(ColumnExpr... columns)
-    {
-        for (int i=0; i<columns.length; i++)
-        {
-            ColumnExpr columnExpr = columns[i];
-            if (columnExpr==null || !isText(columnExpr))
-                continue;
-            // set as insensitive
-            columnExpr.setAttribute(Column.COLATTR_CASESENSITIVE, false);
-        }
-    }
-    
-    /**
-     * Returns the normalized column for the columnExpr (if any)
-     * The column expression must be a column otherwise null is returned
-     * @return the normalized column or null
-     */
-    public static DBColumnExpr getNormalizedColumn(DBColumnExpr columnExpr)
-    {
-        return ((columnExpr instanceof DBColumn) ? ((DBColumn)columnExpr).getNormalizedColumn() : null);
-    }
-        
-    /**
-     * Returns the sort expression for a given column expression
-     * This function checks if columnExpr is a column and callse column.getSortExpr().
-     * If columnExpr is not a colunn, the columnExpr itself is returned
-     * 
-     * @param columnExpr the columnExpr for which to retrieve the sort expression
-     * @return the sort expression or the column itself if not sort expression is set
-     */
-    public static DBColumnExpr getSortExpr(DBColumnExpr columnExpr)
-    {
-        return ((columnExpr instanceof DBColumn) ? ((DBColumn)columnExpr).getSortExpr() : columnExpr);
-    }
-
-    /**
-     * Returns true if the columnExpr is a numeric columnExpr
-     * @param columnExpr the columnExpr to check
-     * @return true if the columnExpr is numeric
-     */
-    public static boolean isNumeric(ColumnExpr columnExpr)
-    {
-        return columnExpr.getDataType().isText();
+        return instance.getColumnMaxLength(columnExpr);
     }
     
     /**
@@ -202,8 +77,12 @@ public class ColumnUtils
      * @param columnExpr the columnExpr
      * @return the minimum value 
      */
-    public static BigDecimal getMinValue(ColumnExpr columnExpr)
+    public static Number getMinValue(ColumnExpr columnExpr)
     {
+        // check numeric
+        if (!columnExpr.getDataType().isNumeric())
+            return null;
+        // convert to decimal
         Object value = instance.getColumnAttribute(columnExpr, Column.COLATTR_MINVALUE);
         return ObjectUtils.getDecimal(value);
     }
@@ -213,11 +92,21 @@ public class ColumnUtils
      * @param columnExpr the columnExpr
      * @return the maximum value 
      */
-    public static BigDecimal getMaxValue(ColumnExpr columnExpr)
+    public static Number getMaxValue(ColumnExpr columnExpr)
     {
+        // check numeric
+        if (!columnExpr.getDataType().isNumeric())
+            return null;
+        if (columnExpr.getDataType()==DataType.AUTOINC)
+            return Long.MAX_VALUE;
+        // convert to decimal
         Object value = instance.getColumnAttribute(columnExpr, Column.COLATTR_MAXVALUE);
-        long maxVal = isNumeric(columnExpr) ? 10l^((long)instance.getColumnSize(columnExpr)) : 10^12;
-        return ObjectUtils.getDecimal(value, BigDecimal.valueOf(maxVal));
+        long digits = (long)instance.getColumnSize(columnExpr);
+        long maxVal = (digits!=0) ? 10l^digits : 10^12;
+        if (columnExpr.getDataType()==DataType.INTEGER)
+            return ObjectUtils.getLong(value, maxVal);
+        else
+            return ObjectUtils.getDecimal(value, BigDecimal.valueOf(maxVal));
     }
     
     /**
@@ -227,35 +116,14 @@ public class ColumnUtils
      * @param maxValue the max value
      * @return the columnExpr
      */
-    public static <T extends ColumnExpr> T setMinMaxValue(T columnExpr, BigDecimal minValue, BigDecimal maxValue)
+    public static <T extends ColumnExpr> T setMinMaxValue(T columnExpr, Number minValue, Number maxValue)
     {
-        if (!isNumeric(columnExpr))
+        if (!columnExpr.getDataType().isNumeric())
             throw new NotSupportedException(columnExpr, "setMinMaxValue");
         // set the min and max values
         columnExpr.setAttribute(Column.COLATTR_MINVALUE, minValue);
         columnExpr.setAttribute(Column.COLATTR_MAXVALUE, maxValue);
         return columnExpr;
-    }
-
-    /**
-     * Returns the number type assigned to this column expression
-     * @param columnExpr the columnExpr
-     * @return the number type
-     */
-    public static String getNumberType(ColumnExpr columnExpr)
-    {
-        Object value = instance.getColumnAttribute(columnExpr, Column.COLATTR_NUMBER_TYPE);
-        if (value==null)
-        {   // from data type
-            DataType dt = columnExpr.getDataType();
-            if (dt==DataType.INTEGER || dt==DataType.AUTOINC)
-                return DataType.INTEGER.name();
-            if (dt==DataType.DECIMAL || dt==DataType.FLOAT)
-                return DataType.DECIMAL.name();
-            // Not a number
-            return null;
-        }
-        return value.toString();
     }
     
     /**
@@ -276,10 +144,13 @@ public class ColumnUtils
      * @param true groupSeparator should be used 
      * @return the columnExpr
      */
-    public static <T extends Column> T setNumberFormat(T column, String numberType, boolean groupSeparator)
+    public static <T extends ColumnExpr> T setNumberFormat(T columnExpr, String numberType, boolean groupSeparator)
     {
-        instance.setColumnNumberFormat(column, numberType, groupSeparator);
-        return column;
+        if (!columnExpr.getDataType().isNumeric())
+            throw new NotSupportedException(columnExpr, "setNumberFormat");
+        // set format
+        instance.setColumnNumberFormat(columnExpr, numberType, groupSeparator);
+        return columnExpr;
     }
 
     /*
@@ -413,19 +284,21 @@ public class ColumnUtils
      * (non-Javadoc)
      * @see org.apache.empire.commons.ColumnUtils#setColumnNumberFormat(ColumnExpr, String, boolean)
      */
-    public void setColumnNumberFormat(Column column, String numberType, boolean groupSeparator)
+    public void setColumnNumberFormat(ColumnExpr columnExpr, String numberType, boolean groupSeparator)
     {
-        if (!isNumeric(column))
-            throw new NotSupportedException(column, "setNumberFormat");
         // Number type
-        column.setAttribute(Column.COLATTR_NUMBER_TYPE, numberType);
-        column.setAttribute(Column.COLATTR_NUMBER_GROUPSEP, groupSeparator);
-        if (column.getDataType()==DataType.DECIMAL || column.getDataType()==DataType.FLOAT)
+        columnExpr.setAttribute(Column.COLATTR_NUMBER_TYPE, numberType);
+        columnExpr.setAttribute(Column.COLATTR_NUMBER_GROUPSEP, groupSeparator);
+        if (columnExpr.getDataType()==DataType.DECIMAL || columnExpr.getDataType()==DataType.FLOAT)
         {   // set fraction digits
-            double size = column.getSize();
+            double size = getColumnSize(columnExpr);
             int intDigits = (int)size;
             int fracDigits = ((int)(size*10)-(intDigits*10));
-            column.setAttribute(Column.COLATTR_FRACTION_DIGITS, fracDigits);
+            columnExpr.setAttribute(Column.COLATTR_FRACTION_DIGITS, fracDigits);
+        }
+        else
+        {   // Integer
+            columnExpr.setAttribute(Column.COLATTR_FRACTION_DIGITS, 0);
         }
     }
     

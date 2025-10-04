@@ -23,7 +23,6 @@ import java.util.Set;
 import java.util.regex.Pattern;
 
 import org.apache.empire.commons.Attributes;
-import org.apache.empire.commons.ObjectUtils;
 import org.apache.empire.commons.Options;
 import org.apache.empire.commons.StringUtils;
 import org.apache.empire.data.Column;
@@ -440,24 +439,6 @@ public abstract class DBColumn extends DBColumnExpr
     }
     
     /**
-     * Returns whether or not a columnExpr is case sensitive
-     * If not explicitly set, the case sensitivity is true for all text fields (VARCHAR, CLOB) except if an EnumType is set.
-     * @return true if the columnExpr is case sensitive or false if not
-     */
-    public boolean isCaseSensitive()
-    {
-        // only for text expressions
-        if (!getDataType().isText())
-            return false;
-        // check attribute
-        Object value = getAttribute(Column.COLATTR_CASESENSITIVE);
-        if (value!=null)
-            return ObjectUtils.getBoolean(value);
-        // default is true for VARCHAR and CLOB except if Options or EnumType are set
-        return (getOptions()==null && getEnumType()==null);
-    }
-    
-    /**
      * Sets the case sensitivity of the columnExpr
      * @param caseSensitiv the character casing. This may be true, false or null (default)
      * @return self (this)
@@ -480,6 +461,22 @@ public abstract class DBColumn extends DBColumnExpr
     public final <T extends DBColumn> T setCaseInsensitive()
     {
         return setCaseSensitive(false);
+    }
+
+    /**
+     * Sets the number type to a given value
+     * @param numberType the number type. See Column.NUMTYPE_... constants
+     * @return self (this)
+     */
+    @SuppressWarnings("unchecked")
+    public final <T extends DBColumn> T setNumberType(String numberType)
+    {
+        // only for text expressions
+        if (!getDataType().isNumeric())
+            throw new NotSupportedException(this, "setNumberType");
+        // set now
+        setAttribute(Column.COLATTR_NUMBER_TYPE, numberType);
+        return (T)this;
     }
 
     /**
@@ -534,8 +531,11 @@ public abstract class DBColumn extends DBColumnExpr
     public DBColumnExpr getSortExpr()
     {
         Object value = getAttribute(Column.COLATTR_SORTEXPRESSION);
-        // create a sort expression
-        if (value instanceof DBColumnExpr)
+        if (value==null)
+        {   // not set
+            return this;
+        }
+        else if (value instanceof DBColumnExpr)
         {   // return expression
             return ((DBColumnExpr)value); 
         }
@@ -544,12 +544,11 @@ public abstract class DBColumn extends DBColumnExpr
             String sortFunctionTemplate = StringUtils.toString(value);
             return new DBFuncExpr(this, sortFunctionTemplate, null, false, getDataType());
         }
-        else if (value!=null)
+        else
         {   // unknown value
             log.warn("Invalid value for {}: {}", Column.COLATTR_SORTEXPRESSION, value);
+            return this; 
         }
-        // not changed
-        return this; 
     }
     
     /**

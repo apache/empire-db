@@ -1433,6 +1433,7 @@ public abstract class DBCommand extends DBCommandExpr
 
     /**
      * Overridden to change return type from DBCommandExpr to DBCommand
+     * @see org.apache.empire.db.DBCommandExpr#orderBy(org.apache.empire.db.expr.order.DBOrderByExpr...)
      */
     @Override
     public DBCommand orderBy(DBOrderByExpr... exprs)
@@ -1442,6 +1443,17 @@ public abstract class DBCommand extends DBCommandExpr
 
     /**
      * Overridden to change return type from DBCommandExpr to DBCommand
+     * @see org.apache.empire.db.DBCommandExpr#orderBy(org.apache.empire.db.DBColumnExpr)
+     */
+    @Override
+    public DBCommand orderBy(DBColumnExpr expr)
+    {
+        return (DBCommand)super.orderBy(expr);
+    }
+
+    /**
+     * Overridden to change return type from DBCommandExpr to DBCommand
+     * @see org.apache.empire.db.DBCommandExpr#orderBy(org.apache.empire.db.DBColumnExpr...)
      */
     @Override
     public DBCommand orderBy(DBColumnExpr... exprs)
@@ -1451,11 +1463,22 @@ public abstract class DBCommand extends DBCommandExpr
 
     /**
      * Overridden to change return type from DBCommandExpr to DBCommand
+     * @see org.apache.empire.db.DBCommandExpr#orderBy(org.apache.empire.db.DBColumnExpr, boolean)
      */
     @Override
     public DBCommand orderBy(DBColumnExpr expr, boolean desc)
     {
         return (DBCommand)super.orderBy(expr, desc);
+    }
+
+    /**
+     * Overridden to change return type from DBCommandExpr to DBCommand
+     * @see org.apache.empire.db.DBCommandExpr#orderByUpper(org.apache.empire.db.DBColumnExpr, boolean)
+     */
+    @Override
+    public DBCommand orderByUpper(DBColumnExpr expr, boolean desc)
+    {
+        return (DBCommand)super.orderByUpper(expr, desc);
     }
 
     /**
