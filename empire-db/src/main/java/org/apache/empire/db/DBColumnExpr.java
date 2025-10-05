@@ -447,7 +447,7 @@ public abstract class DBColumnExpr extends DBExpr
      * Creates and returns a new comparison object for the SQL "like" operator.
      * Converts the column value and comparison value to lower case
      * 
-     * @deprecated Always user likeUpper() for case insensitive comparions
+     * @deprecated Always user likeUpper() for case insensitive comparisons
      *
      * @param value the Object value
      * @return the new DBCompareColExpr object

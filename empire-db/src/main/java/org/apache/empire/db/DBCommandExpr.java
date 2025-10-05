@@ -574,17 +574,6 @@ public abstract class DBCommandExpr extends DBExpr
     }
 
     /**
-     * Adds a column expression to the orderBy clause
-     * 
-     * @param expr the sort order expression
-     * @return itself (this)
-     */
-    public DBCommandExpr orderBy(DBColumnExpr expr)
-    {
-        return orderBy(expr, expr.getDefaultSortOrder());
-    }
-
-    /**
      * Adds a list of columns to the orderBy clause in ascending order
      * 
      * @param exprs vararg of order by expressions
@@ -608,12 +597,28 @@ public abstract class DBCommandExpr extends DBExpr
      */
     public DBCommandExpr orderByUpper(DBColumnExpr expr, boolean desc)
     {
-        if (expr instanceof DBColumn)
-            expr = ((DBColumn)expr).getSortExpr();
-        // make case insensitive
-        expr = expr.getIgnoreCaseExpr();
+        // get sort expression
+        DBColumnExpr sortExpr = ((expr instanceof DBColumn) ? ((DBColumn)expr).getSortExpr() : expr);
+        // make case insensitive, if no sort expression is set
+        if (sortExpr==expr)
+            sortExpr = expr.getIgnoreCaseExpr();
         // create order by now
-        return orderBy(new DBOrderByExpr(expr, desc));
+        return orderBy(new DBOrderByExpr(sortExpr, desc));
+    }
+
+    /**
+     * Adds a list of columns to the orderBy clause in ascending order
+     * 
+     * @param exprs vararg of order by expressions
+     * @return itself (this)
+     */
+    public DBCommandExpr orderByUpper(DBColumnExpr... exprs)
+    {
+        for (DBColumnExpr expr : exprs)
+        {
+            orderByUpper(expr, expr.getDefaultSortOrder());
+        }
+        return this;
     }
 
     /**

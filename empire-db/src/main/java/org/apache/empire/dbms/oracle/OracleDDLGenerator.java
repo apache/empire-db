@@ -21,10 +21,12 @@ package org.apache.empire.dbms.oracle;
 import org.apache.empire.commons.StringUtils;
 import org.apache.empire.data.DataType;
 import org.apache.empire.db.DBColumn;
+import org.apache.empire.db.DBColumnExpr;
 import org.apache.empire.db.DBDDLGenerator;
 import org.apache.empire.db.DBDatabase;
 import org.apache.empire.db.DBExpr;
 import org.apache.empire.db.DBIndex;
+import org.apache.empire.db.DBIndex.DBIndexType;
 import org.apache.empire.db.DBMaterializedView;
 import org.apache.empire.db.DBObject;
 import org.apache.empire.db.DBSQLBuilder;
@@ -32,7 +34,6 @@ import org.apache.empire.db.DBSQLScript;
 import org.apache.empire.db.DBTable;
 import org.apache.empire.db.DBTableColumn;
 import org.apache.empire.db.DBView;
-import org.apache.empire.db.DBIndex.DBIndexType;
 import org.apache.empire.dbms.oracle.DBMSHandlerOracle.BooleanType;
 
 public class OracleDDLGenerator extends DBDDLGenerator<DBMSHandlerOracle>
@@ -83,7 +84,16 @@ public class OracleDDLGenerator extends DBDDLGenerator<DBMSHandlerOracle>
                 sql.append(String.valueOf(len));
                 // Check sign for char (unicode) or bytes (non-unicode) 
                 sql.append((c.isSingleByteChars()) ? " BYTE)" : " CHAR)");
+                // collation
+                if ((dbms.getCollationSupport() & 2)!=0)
+                    appendCollation(c, sql);
             }
+                break;
+            case CLOB:
+                // collation
+                super.appendColumnDataType(type, size, c, sql);
+                if ((dbms.getCollationSupport() & 2)!=0)
+                    appendCollation(c, sql);
                 break;
             case BOOL:
                 if ( dbms.getBooleanType() == BooleanType.CHAR )
@@ -111,18 +121,18 @@ public class OracleDDLGenerator extends DBDDLGenerator<DBMSHandlerOracle>
             sql.append(")");
         }
         else
-        {
             super.appendColumnDesc(c, alter, sql);
-        }
+    }
+    
+    @Override
+    protected void appendIndexColumn(DBIndex index, DBColumnExpr idxColumn, DBSQLBuilder sql)
+    {
+        super.appendIndexColumn(index, idxColumn, sql);
         // more options
-        if (c.getDataType().isText())
-        {   // append collation
-            String collation = c.getAttribute("COLLATE", String.class);
-            if (collation!=null && collation.length()>0)
-            {   // append collation
-                sql.append(" COLLATE ");
-                sql.append(collation);
-            }
+        if (idxColumn.getDataType().isText() && (dbms.getCollationSupport() & 1)!=0)
+        {   // if fulltext index, collation support bit 2 must be set!
+            if (index.getType()!=DBIndexType.FULLTEXT || (dbms.getCollationSupport() & 2)!=0)
+                appendCollation(idxColumn, sql);
         }
     }
 
@@ -249,4 +259,14 @@ public class OracleDDLGenerator extends DBDDLGenerator<DBMSHandlerOracle>
         script.addStmt(sql);
     }
     
+    private void appendCollation(DBColumnExpr column, DBSQLBuilder sql)
+    {
+        // append collation
+        String collation = column.getAttribute("COLLATE", String.class);
+        if (collation!=null && collation.length()>0)
+        {   // append collation
+            sql.append(" COLLATE ");
+            sql.append(collation);
+        }
+    }
 }

@@ -244,6 +244,15 @@ public abstract class DBDDLGenerator<T extends DBMSHandler>
     }
 
     /**
+     * Appends an column expression to an index
+     * @param indexColumnExpr the index column expression
+     */
+    protected void appendIndexColumn(DBIndex index, DBColumnExpr idxColumn, DBSQLBuilder sql)
+    {
+        idxColumn.addSQL(sql, DBExpr.CTX_NAME);
+    }
+    
+    /**
      * Appends the index type when creating an index
      * @param index the index
      * @param sql the sql builder object
@@ -481,11 +490,11 @@ public abstract class DBDDLGenerator<T extends DBMSHandler>
 
         // columns
         boolean addSeparator = false;
-        DBExpr[] idxColumns = index.getExpressions();
-        for (DBExpr idxColumn : idxColumns)
+        DBColumnExpr[] idxColumns = index.getExpressions();
+        for (DBColumnExpr idxColumn : idxColumns)
         {
             sql.append(addSeparator ? ", " : "");
-            idxColumn.addSQL(sql, DBExpr.CTX_NAME);
+            appendIndexColumn(index, idxColumn, sql);
             sql.append("");
             addSeparator = true;
         }

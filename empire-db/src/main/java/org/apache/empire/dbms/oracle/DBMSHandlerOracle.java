@@ -81,6 +81,8 @@ public class DBMSHandlerOracle extends DBMSHandlerBase
 
     private BooleanType booleanType = BooleanType.NUMBER;
     
+    private int collationSupport = 0;
+    
     private DBDDLGenerator<?> ddlGenerator = null; // lazy creation
     
     private String schemaName;
@@ -115,7 +117,31 @@ public class DBMSHandlerOracle extends DBMSHandlerBase
     public void setBooleanType(BooleanType booleanType)
     {
         this.booleanType = booleanType;
-        log.info("DBDatabaseDriverOracle Boolean Type set to " + booleanType);
+        log.info("DBDatabaseDriverOracle Boolean Type has een set to {}", booleanType);
+    }
+
+    /**
+     * Returns the support for collations
+     * @see setCollationSupport(int collationSupport)
+     * @return the column support
+     */
+    public int getCollationSupport()
+    {
+        return collationSupport;
+    }
+
+    /**
+     * Returns the support for collations
+     * 0 = none
+     * 1 = index column definition
+     * 2 = table column definition
+     * 3 = table and index column definition
+     * @return the column support
+     */
+    public void setCollationSupport(int collationSupport)
+    {
+        this.collationSupport = collationSupport;
+        log.info("DBDatabaseDriverOracle Collation Support has been set to {}", collationSupport);
     }
 
     public String getSchemaName()

@@ -159,7 +159,7 @@ public class DBIndex extends DBObject
      * 
      * @return the columnExpressions belonging to this index
      */
-    public DBExpr[] getExpressions()
+    public DBColumnExpr[] getExpressions()
     {
         return columns;
     }

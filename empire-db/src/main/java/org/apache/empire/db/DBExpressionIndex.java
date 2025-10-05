@@ -21,15 +21,13 @@ package org.apache.empire.db;
 import org.apache.empire.exceptions.InvalidArgumentException;
 
 /**
- * This class handles the primary key for the tables.
- * The primary key contains one or more columns.
- *
+ * This class allows to create an expression based index
  */
 public class DBExpressionIndex extends DBIndex
 {
     // *Deprecated* private static final long serialVersionUID = 1L;
     
-    private DBExpr[] columnExpressions;
+    private DBColumnExpr[] columnExpressions;
     
     /**
      * Constructs a DBExpresionIndex
@@ -38,7 +36,7 @@ public class DBExpressionIndex extends DBIndex
      * @param type the index type
      * @param columnExpressions an array of one or more column expressions of the index
      */
-    public DBExpressionIndex(String name, DBIndexType type, DBExpr... columnExpressions)
+    public DBExpressionIndex(String name, DBIndexType type, DBColumnExpr... columnExpressions)
     {
         super(name, type, null);
         // columnExpressions
@@ -55,7 +53,7 @@ public class DBExpressionIndex extends DBIndex
      * @param columnExpressions the index columns
      * Overload for convenience
      */
-    public DBExpressionIndex(String name, boolean unique, DBExpr... columnExpressions)
+    public DBExpressionIndex(String name, boolean unique, DBColumnExpr... columnExpressions)
     {
         this(name, (unique ? DBIndexType.UNIQUE : DBIndexType.STANDARD), columnExpressions);
     }
@@ -72,7 +70,7 @@ public class DBExpressionIndex extends DBIndex
      * @return the columnExpressions belonging to this index
      */
     @Override
-    public DBExpr[] getExpressions()
+    public DBColumnExpr[] getExpressions()
     {
         return columnExpressions;
     }
@@ -87,11 +85,9 @@ public class DBExpressionIndex extends DBIndex
     @Override
     public boolean contains(DBColumn col)
     {
-        for (DBExpr columnExpression : columnExpressions)
+        for (DBColumnExpr columnExpression : columnExpressions)
         {
-            if (!(columnExpression instanceof DBColumnExpr))
-                continue;
-            if (col.equals(((DBColumnExpr) columnExpression).getUpdateColumn()))
+            if (col.equals(columnExpression.getUpdateColumn()))
                 return true;
         }    
         return false;
