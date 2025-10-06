@@ -67,6 +67,9 @@ public class DBMSHandlerOracle extends DBMSHandlerBase
     // *Deprecated* private static final long serialVersionUID = 1L;
     private static final Logger log = LoggerFactory.getLogger(DBMSHandlerOracle.class);
 
+    public static final String COLATTR_COLLATION     = "COLLATION";
+    public static final String COLATTR_SQLEXPRESSION = "sqlExpression"; // used for creating virtual columns
+    
     // Implementation of boolean types
     public enum BooleanType
     {

@@ -439,7 +439,7 @@ public abstract class DBColumnExpr extends DBExpr
     { 
         DBColumnExpr colExpr = getIgnoreCaseExpr();
         DBColumnExpr valExpr = getDatabase().getValueExpr(value, DataType.VARCHAR);
-        valExpr = valExpr.getIgnoreCaseExpr();
+        valExpr = ((DBValueExpr)valExpr).getIgnoreCaseExpr(this);
         return new DBCompareColExpr(colExpr, DBCmpType.LIKE, valExpr);
     }
 

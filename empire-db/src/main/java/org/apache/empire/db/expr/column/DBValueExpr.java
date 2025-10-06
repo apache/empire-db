@@ -52,6 +52,8 @@ public class DBValueExpr extends DBColumnExpr
 {
     // *Deprecated* private static final long serialVersionUID = 1L;
     private static final Logger log = LoggerFactory.getLogger(DBValueExpr.class);
+    
+    public static String IGNORE_CASE_CONTEXT = "ignoreCaseContext";
   
     public final DBDatabase     db;
     public final DataType       type;
@@ -234,6 +236,24 @@ public class DBValueExpr extends DBColumnExpr
             return ObjectUtils.compareEqual(value, otherValue);
         }
         return false;
+    }
+    
+    /**
+     * Returns an expression which ignores the case
+     * Only for case sensitive columns!
+     * Default is upper(expr)
+     * @return the ignore case expression or the expression itself
+     */
+    public DBColumnExpr getIgnoreCaseExpr(DBColumnExpr context)
+    {
+        // value and context must be case sensitive
+        if (!type.isText())
+            return this;
+        // let handler decide
+        setAttribute(IGNORE_CASE_CONTEXT, context);
+        DBColumnExpr ignoreCaseExpr = super.getIgnoreCaseExpr();
+        setAttribute(IGNORE_CASE_CONTEXT, null); // remove
+        return ignoreCaseExpr;
     }
 
     /**

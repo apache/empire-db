@@ -38,7 +38,6 @@ import org.apache.empire.dbms.oracle.DBMSHandlerOracle.BooleanType;
 
 public class OracleDDLGenerator extends DBDDLGenerator<DBMSHandlerOracle>
 {
-    public static final String COLATTR_SQLEXPRESSION = "sqlExpression";
     
     public OracleDDLGenerator(DBMSHandlerOracle dmbsHandler)
     {
@@ -112,7 +111,7 @@ public class OracleDDLGenerator extends DBDDLGenerator<DBMSHandlerOracle>
     protected void appendColumnDesc(DBTableColumn c, boolean alter, DBSQLBuilder sql)
     {
         // virtual column
-        Object sqlExpr = c.getAttribute(COLATTR_SQLEXPRESSION);
+        Object sqlExpr = c.getAttribute(DBMSHandlerOracle.COLATTR_SQLEXPRESSION);
         if (sqlExpr!=null)
         {   // Append virtual column
             c.addSQL(sql, DBExpr.CTX_NAME);
@@ -262,7 +261,7 @@ public class OracleDDLGenerator extends DBDDLGenerator<DBMSHandlerOracle>
     private void appendCollation(DBColumnExpr column, DBSQLBuilder sql)
     {
         // append collation
-        String collation = column.getAttribute("COLLATE", String.class);
+        String collation = column.getAttribute(DBMSHandlerOracle.COLATTR_COLLATION, String.class);
         if (collation!=null && collation.length()>0)
         {   // append collation
             sql.append(" COLLATE ");
