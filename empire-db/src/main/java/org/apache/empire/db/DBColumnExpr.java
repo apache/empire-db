@@ -49,7 +49,6 @@ import org.apache.empire.db.expr.compare.DBCompareColExpr;
 import org.apache.empire.db.expr.compare.DBCompareExpr;
 import org.apache.empire.db.expr.join.DBColumnJoinExpr;
 import org.apache.empire.db.expr.order.DBOrderByExpr;
-import org.apache.empire.dbms.DBMSHandler;
 import org.apache.empire.dbms.DBSqlPhrase;
 import org.apache.empire.exceptions.InvalidArgumentException;
 import org.apache.empire.exceptions.NotSupportedException;
@@ -348,12 +347,11 @@ public abstract class DBColumnExpr extends DBExpr
      */
     public DBColumnExpr getIgnoreCaseExpr()
     {
-        // only for text expressions
+        // only for case sensitive expressions
         if (!isCaseSensitive())
             return this;
-        // let handler decide
-        DBMSHandler dbms = getDatabase().getDbms();
-        return (dbms!=null ? dbms.getIgnoreCaseExpr(this) : upper());
+        // let database handle this
+        return getDatabase().getIgnoreCaseExpr(this);
     }
 
     /**

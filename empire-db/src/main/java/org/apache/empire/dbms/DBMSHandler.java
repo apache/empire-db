@@ -148,12 +148,12 @@ public interface DBMSHandler
 
     /**
      * Returns an expression that ignores the case of a column expression
-     * Only for text columns.
+     * This is only called for case sensitive column expressions (expr.isCaseSensitive())
      * Default is upper(expr)
-     * @param expr the expression for which to ignore the case
+     * @param columnExpr the expression for which to ignore the case
      * @return the ignore case expression
      */
-    DBColumnExpr getIgnoreCaseExpr(DBColumnExpr expr);
+    DBColumnExpr getIgnoreCaseExpr(DBColumnExpr columnExpr);
     
     /**
      * Executes an select SQL-command that returns only one scalar value

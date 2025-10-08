@@ -598,6 +598,20 @@ public abstract class DBDatabase extends DBObject
                 return Object.class;
         }
     }
+    
+    /**
+     * Returns an expression that ignores the case of a column expression
+     * This is only called for case sensitive column expressions (expr.isCaseSensitive())
+     * Default is upper(expr)
+     * @param columnExpr the expression for which to ignore the case
+     * @return the ignore case expression
+     */
+    public DBColumnExpr getIgnoreCaseExpr(DBColumnExpr columnExpr)
+    {
+        // let handler decide
+        DBMSHandler dbms = getDatabase().getDbms();
+        return (dbms!=null ? dbms.getIgnoreCaseExpr(columnExpr) : columnExpr.upper());
+    }
 
     /**
      * Creates and returns a value object for the given scalar value.
