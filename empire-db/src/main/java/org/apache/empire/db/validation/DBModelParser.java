@@ -219,7 +219,7 @@ public class DBModelParser
                 String tableType = dbTables.getString("TABLE_TYPE");
                 if (isSystemTable(tableName, dbTables))
                 {   // ignore system table
-                    DBModelParser.log.info("Ignoring system table " + tableName);
+                    log.info("Ignoring system table " + tableName);
                     continue;
                 }
                 if ("VIEW".equalsIgnoreCase(tableType))
@@ -278,7 +278,7 @@ public class DBModelParser
                 String tableName = dbColumns.getString("TABLE_NAME");
                 DBRowSet t = getTable(tableName);
                 if (t == null)
-                {   log.error("Table not found: {}", tableName);
+                {   log.info("Table \"{}\" for column \"{}\" is not available!", tableName, dbColumns.getString("COLUMN_NAME"));
                     continue;
                 }
                 addColumn(t, dbColumns);
@@ -490,7 +490,7 @@ public class DBModelParser
         }
         else
         {   // Unknown type
-            log.error("Unknown Object Type {}", t.getClass().getName());
+            log.warn("Unknown Object Type {}", t.getClass().getName());
             col = null;
         }
         // done
@@ -513,12 +513,12 @@ public class DBModelParser
                 catch (Exception e)
                 {
                     String name = rs.getString("COLUMN_NAME");
-                    DBModelParser.log.error("Failed to parse decimal digits for column " + name);
+                    log.error("Failed to parse decimal digits for column " + name);
                 }
             }
             // make integer?
             if (colSize < 1.0d)
-            { // Turn into an integer
+            {   // Turn into an integer
                 empireType = DataType.INTEGER;
             }
         } 
@@ -617,9 +617,9 @@ public class DBModelParser
                 break;
             default:
                 empireType = DataType.UNKNOWN;
-                DBModelParser.log.warn("SQL column type " + sqlType + " not supported.");
+                log.warn("SQL column type " + sqlType + " not supported.");
         }
-        DBModelParser.log.debug("Mapping date type " + String.valueOf(sqlType) + " to " + empireType);
+        log.debug("Mapping date type " + String.valueOf(sqlType) + " to " + empireType);
         return empireType;
     }
 }
