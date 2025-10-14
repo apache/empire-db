@@ -52,7 +52,6 @@ import org.apache.empire.db.DBSQLScript;
 import org.apache.empire.db.DBTable;
 import org.apache.empire.db.DBTableColumn;
 import org.apache.empire.db.exceptions.EmpireSQLException;
-import org.apache.empire.db.exceptions.QueryFailedException;
 import org.apache.empire.db.validation.DBModelChecker;
 import org.apache.empire.db.validation.DBModelParser;
 import org.apache.empire.exceptions.InvalidArgumentException;
@@ -296,7 +295,7 @@ public abstract class DBMSHandlerBase implements DBMSHandler
         try {
             querySingleValue(sql.toString(), null, DataType.INTEGER, conn);
             return true;
-        } catch(QueryFailedException e) {
+        } catch(SQLException e) {
             // Database does not exist
             return false;
         }
@@ -758,6 +757,7 @@ public abstract class DBMSHandlerBase implements DBMSHandler
      */
     @Override
     public Object querySingleValue(String sqlCmd, Object[] sqlParams, DataType dataType, Connection conn)
+        throws SQLException
     {
         ResultSet rs = null;
         try
@@ -773,9 +773,6 @@ public abstract class DBMSHandlerBase implements DBMSHandler
             }
             // Read value
             return getResultValue(rs, 1, dataType);
-        } catch (SQLException sqle) 
-        {   // Error
-            throw new QueryFailedException(this, sqlCmd, sqle);
         } finally {
             // Cleanup
             closeResultSet(rs);

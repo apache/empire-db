@@ -175,7 +175,7 @@ public class DBUtils implements DBContextAware
         if (log.isDebugEnabled())
         {   // Log with or without parameters   
             if (sqlParams!=null && sqlParams.length>0)
-                log.debug("Executing DQL: {}{}{}Parameters: [{}]", LOG_NEW_LINE, sqlCmd, LOG_NEW_LINE, paramsToString(sqlParams));
+                log.debug("Executing DQL: {}{}{}with params: [{}]", LOG_NEW_LINE, sqlCmd, LOG_NEW_LINE, paramsToString(sqlParams));
             else
                 log.debug("Executing DQL: {}{}", LOG_NEW_LINE, sqlCmd);
         }
@@ -191,7 +191,7 @@ public class DBUtils implements DBContextAware
         if (log.isInfoEnabled())
         {   // Log with or without parameters   
             if (sqlParams!=null && sqlParams.length>0)
-                log.info("Executing DML: {}{}{}Parameters: [{}]", LOG_NEW_LINE, sqlCmd, LOG_NEW_LINE, paramsToString(sqlParams));
+                log.info("Executing DML: {}{}{}with params: [{}]", LOG_NEW_LINE, sqlCmd, LOG_NEW_LINE, paramsToString(sqlParams));
             else
                 log.info("Executing DML: {}{}", LOG_NEW_LINE, sqlCmd);
         }
@@ -266,7 +266,7 @@ public class DBUtils implements DBContextAware
     
         } catch (SQLException sqle) 
         {   // Error
-            throw new QueryFailedException(dbms, sqlCmd, sqle);
+            throw new QueryFailedException(dbms, sqlCmd, paramsToString(sqlParams), sqle);
         } 
     }
     
@@ -286,23 +286,28 @@ public class DBUtils implements DBContextAware
         // Debug
         logQueryStatement(sqlCmd, sqlParams);
         // Read value
-        long start = System.currentTimeMillis();
-        Object result = dbms.querySingleValue(sqlCmd, sqlParams, dataType, context.getConnection());
-        if (result==ObjectUtils.NO_VALUE)
-        {   // Query returned no result
-            if (failOnNoResult)
-                throw new QueryNoResultException(sqlCmd);
-            else
-                result = null;
-        }
-        // Debug
-        long queryTime = (System.currentTimeMillis() - start);
-        if (log.isDebugEnabled())
-            log.debug("querySingleValue successful in {} ms. Result value={}.", queryTime, result);
-        else if (queryTime>=longRunndingStmtThreshold)
-            log.warn("Long running query took {} seconds for statement {}.", queryTime / 1000, sqlCmd);
-        // done
-        return result;
+        try {
+            long start = System.currentTimeMillis();
+            Object result = dbms.querySingleValue(sqlCmd, sqlParams, dataType, context.getConnection());
+            if (result==ObjectUtils.NO_VALUE)
+            {   // Query returned no result
+                if (failOnNoResult)
+                    throw new QueryNoResultException(sqlCmd);
+                else
+                    result = null;
+            }
+            // Debug
+            long queryTime = (System.currentTimeMillis() - start);
+            if (log.isDebugEnabled())
+                log.debug("querySingleValue successful in {} ms. Result value={}.", queryTime, result);
+            else if (queryTime>=longRunndingStmtThreshold)
+                log.warn("Long running query took {} seconds for statement {}.", queryTime / 1000, sqlCmd);
+            // done
+            return result;
+        } catch (SQLException sqle) 
+        {   // Error
+            throw new QueryFailedException(dbms, sqlCmd, paramsToString(sqlParams), sqle);
+        } 
     }
     
     /**
@@ -545,7 +550,7 @@ public class DBUtils implements DBContextAware
             throw new InternalException(e);
         } catch (SQLException sqle) 
         {   // Error
-            throw new QueryFailedException(dbms, sqlCmd, sqle);
+            throw new QueryFailedException(dbms, sqlCmd, paramsToString(sqlParams), sqle);
         } finally
         { // Cleanup
             dbms.closeResultSet(rs);
@@ -643,7 +648,7 @@ public class DBUtils implements DBContextAware
             return count;
         } catch (SQLException sqle) 
         {   // Error
-            throw new QueryFailedException(dbms, sqlCmd, sqle);
+            throw new QueryFailedException(dbms, sqlCmd, paramsToString(sqlParams), sqle);
         } finally
         { // Cleanup
             dbms.closeResultSet(rs);
@@ -724,7 +729,7 @@ public class DBUtils implements DBContextAware
             return count;
         } catch (SQLException sqle) 
         {   // Error
-            throw new QueryFailedException(dbms, sqlCmd, sqle);
+            throw new QueryFailedException(dbms, sqlCmd, paramsToString(sqlParams), sqle);
         } finally
         { // Cleanup
             dbms.closeResultSet(rs);

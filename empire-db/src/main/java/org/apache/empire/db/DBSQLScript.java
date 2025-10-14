@@ -477,7 +477,7 @@ public class DBSQLScript implements DBContextAware, Iterable<String>
             log.debug("SQL Comment: {}{}", utils.LOG_NEW_LINE, sqlCmd);
         // Log with or without parameters
         else if (sqlParams!=null && sqlParams.length>0)
-            log.debug("Executing Stmt: {}{}{}Parameters: [{}]", utils.LOG_NEW_LINE, sqlCmd, utils.LOG_NEW_LINE, utils.paramsToString(sqlParams)); 
+            log.debug("Executing Stmt: {}{}{}with params: [{}]", utils.LOG_NEW_LINE, sqlCmd, utils.LOG_NEW_LINE, utils.paramsToString(sqlParams)); 
         else
             log.debug("Executing Stmt: {}{}", utils.LOG_NEW_LINE, sqlCmd);
     }

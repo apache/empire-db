@@ -165,7 +165,8 @@ public interface DBMSHandler
      * @param conn a valid connection to the database.
      * @return the scalar result value or ObjectUtils.NO_VALUE if no row are returned by the query
      */
-    public Object querySingleValue(String sqlCmd, Object[] sqlParams, DataType dataType, Connection conn);
+    public Object querySingleValue(String sqlCmd, Object[] sqlParams, DataType dataType, Connection conn)
+        throws SQLException;
     
     /**
      * This interface is used to set the auto generated keys when executing insert statements.

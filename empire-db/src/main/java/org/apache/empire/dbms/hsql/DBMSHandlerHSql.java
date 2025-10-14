@@ -19,6 +19,7 @@
 package org.apache.empire.dbms.hsql;
 
 import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.GregorianCalendar;
 
 import org.apache.empire.commons.ObjectUtils;
@@ -32,6 +33,7 @@ import org.apache.empire.db.DBObject;
 import org.apache.empire.db.DBSQLBuilder;
 import org.apache.empire.db.DBSQLScript;
 import org.apache.empire.db.DBTableColumn;
+import org.apache.empire.db.exceptions.QueryFailedException;
 import org.apache.empire.db.exceptions.QueryNoResultException;
 import org.apache.empire.db.validation.DBModelChecker;
 import org.apache.empire.dbms.DBMSFeature;
@@ -234,7 +236,7 @@ public class DBMSHandlerHSql extends DBMSHandlerBase
      */
     @Override
     public Object getNextSequenceValue(DBDatabase db, String seqName, int minValue, Connection conn)
-    { 	//Use Oracle Sequences
+    { 	//Use Sequence
         DBSQLBuilder sql = createSQLBuilder();
         sql.append("SELECT ");
         sql.append("NEXT VALUE FOR ");
@@ -244,14 +246,20 @@ public class DBMSHandlerHSql extends DBMSHandlerBase
         String sqlCmd = sql.toString();
         if (log.isDebugEnabled())
             log.debug("Executing: " + sqlCmd);
-        Object val = querySingleValue(sqlCmd, null, DataType.INTEGER, conn);
-        if (ObjectUtils.isEmpty(val))
-        {   // Error!
-            log.error("getNextSequenceValue: Invalid sequence value for sequence " + seqName);
-            throw new QueryNoResultException(sqlCmd);
-        }
-        // Done
-        return val;
+        // execute
+        try {
+            Object val = querySingleValue(sqlCmd, null, DataType.INTEGER, conn);
+            if (ObjectUtils.isEmpty(val))
+            {   // Error!
+                log.error("getNextSequenceValue: Invalid sequence value for sequence " + seqName);
+                throw new QueryNoResultException(sqlCmd);
+            }
+            // Done
+            return val;
+        } catch (SQLException sqle) 
+        {   // Error
+            throw new QueryFailedException(this, sqlCmd, null, sqle);
+        } 
     }
 
     /**

@@ -31,6 +31,7 @@ import org.apache.empire.db.DBColumn;
 import org.apache.empire.db.DBColumnExpr;
 import org.apache.empire.db.DBDDLGenerator;
 import org.apache.empire.db.DBDDLGenerator.DDLActionType;
+import org.apache.empire.db.exceptions.QueryFailedException;
 import org.apache.empire.db.DBDatabase;
 import org.apache.empire.db.DBObject;
 import org.apache.empire.db.DBSQLBuilder;
@@ -283,13 +284,17 @@ public class DBMSHandlerPostgreSQL extends DBMSHandlerBase
     { 
 		// Use PostgreSQL Sequences
 		String sqlCmd = "SELECT nextval(?)";
-		Object[] sqlParams = { seqName };
-		Object val = querySingleValue(sqlCmd, sqlParams, DataType.INTEGER, conn);
-		if (val == null)
-		{
-			log.error("getNextSequenceValue: Invalid sequence value for sequence " + seqName);
-		}
-		return val;
+		try {
+	        Object val = querySingleValue(sqlCmd, new Object[] { seqName }, DataType.INTEGER, conn);
+	        if (val == null)
+	        {
+	            log.error("getNextSequenceValue: Invalid sequence value for sequence " + seqName);
+	        }
+	        return val;
+        } catch (SQLException sqle) 
+        {   // Error
+            throw new QueryFailedException(this, sqlCmd, seqName, sqle);
+        } 
     }
 
     /**
@@ -399,11 +404,16 @@ public class DBMSHandlerPostgreSQL extends DBMSHandlerBase
 		// Use find PostgreSQL auto-generated sequence
 		String sqlCmd = "SELECT pg_get_serial_sequence(?, ?)";
 		Object[] sqlParams = { column.getRowSet().getName().toLowerCase(), column.getName().toLowerCase() };
-		String seqName = StringUtils.toString(querySingleValue(sqlCmd, sqlParams, DataType.VARCHAR, conn));
-		if (seqName == null) { // Error!
-			log.error("getNextSequenceName: Invalid sequence value for column " + column.getName());
-		}
-		return seqName;
+		try {
+	        String seqName = StringUtils.toString(querySingleValue(sqlCmd, sqlParams, DataType.VARCHAR, conn));
+	        if (seqName == null) { // Error!
+	            log.error("getNextSequenceName: Invalid sequence value for column " + column.getName());
+	        }
+	        return seqName;
+        } catch (SQLException sqle) 
+        {   // Error
+            throw new QueryFailedException(this, sqlCmd, StringUtils.arrayToString(sqlParams), sqle);
+        } 
 	}
     
 }

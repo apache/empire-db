@@ -46,6 +46,7 @@ import org.apache.empire.db.DBTableColumn;
 import org.apache.empire.db.DBView;
 import org.apache.empire.db.context.DBContextStatic;
 import org.apache.empire.db.exceptions.EmpireSQLException;
+import org.apache.empire.db.exceptions.QueryFailedException;
 import org.apache.empire.db.exceptions.QueryNoResultException;
 import org.apache.empire.db.validation.DBModelChecker;
 import org.apache.empire.dbms.DBMSFeature;
@@ -399,14 +400,20 @@ public class DBMSHandlerOracle extends DBMSHandlerBase
         String sqlCmd = sql.toString();
         if (log.isDebugEnabled())
             log.debug("Executing: " + sqlCmd);
-        Object val = querySingleValue(sqlCmd, null, DataType.UNKNOWN, conn);
-        if (ObjectUtils.isEmpty(val))
-        {   // Error!
-            log.error("getNextSequenceValue: Invalid sequence value for sequence " + seqName);
-            throw new QueryNoResultException(sqlCmd);
-        }
-        // Done
-        return val;
+        // execute
+        try {
+            Object val = querySingleValue(sqlCmd, null, DataType.UNKNOWN, conn);
+            if (ObjectUtils.isEmpty(val))
+            {   // Error!
+                log.error("getNextSequenceValue: Invalid sequence value for sequence " + seqName);
+                throw new QueryNoResultException(sqlCmd);
+            }
+            // Done
+            return val;
+        } catch (SQLException sqle) 
+        {   // Error
+            throw new QueryFailedException(this, sqlCmd, null, sqle);
+        } 
     }
 
     /**

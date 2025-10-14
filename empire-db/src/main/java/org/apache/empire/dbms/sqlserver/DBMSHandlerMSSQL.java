@@ -39,6 +39,7 @@ import org.apache.empire.db.DBSQLScript;
 import org.apache.empire.db.DBTable;
 import org.apache.empire.db.DBTableColumn;
 import org.apache.empire.db.exceptions.EmpireSQLException;
+import org.apache.empire.db.exceptions.QueryFailedException;
 import org.apache.empire.db.validation.DBModelChecker;
 import org.apache.empire.db.validation.DBModelParser;
 import org.apache.empire.dbms.DBMSFeature;
@@ -549,8 +550,13 @@ public class DBMSHandlerMSSQL extends DBMSHandlerBase
     {
         // Supports sequences?
         if (column.getDataType()==DataType.UNIQUEID)
-        {
-            return querySingleValue("select newid()", null, DataType.UNIQUEID, conn);
+        {   // create new unique-id
+            String sqlCmd = "select newid()";
+            try {
+                return querySingleValue(sqlCmd, null, DataType.UNIQUEID, conn);
+            } catch (SQLException sqle) {
+                throw new QueryFailedException(this, sqlCmd, null, sqle);
+            } 
         }
         return super.getColumnAutoValue(db, column, conn);
     }

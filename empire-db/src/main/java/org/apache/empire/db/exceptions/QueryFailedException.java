@@ -21,6 +21,7 @@ package org.apache.empire.db.exceptions;
 import java.sql.SQLException;
 
 import org.apache.empire.commons.ErrorType;
+import org.apache.empire.commons.StringUtils;
 import org.apache.empire.db.DBObject;
 import org.apache.empire.dbms.DBMSHandler;
 import org.slf4j.Logger;
@@ -33,16 +34,16 @@ public class QueryFailedException extends EmpireSQLException
     // Logger
     private static final Logger log = LoggerFactory.getLogger(QueryFailedException.class);
     
-    public static final ErrorType errorType = new ErrorType("error.db.queryFailed",  "Error executing query {0}.\r\nNative error is: {1}");
+    public static final ErrorType errorType = new ErrorType("error.db.queryFailed",  "Error executing query: {0} \nwith params [{2}]. \nNative error is: {1}");
     
-    public QueryFailedException(DBMSHandler dbms, String sqlCmd, SQLException cause)
+    public QueryFailedException(DBMSHandler dbms, String sqlCmd, String sqlParams, SQLException cause)
     {
-        super(QueryFailedException.errorType, new String[] { sqlCmd, messageFromSQLException(dbms, cause) }, 1, cause);
+        super(QueryFailedException.errorType, new String[] { sqlCmd, messageFromSQLException(dbms, cause), StringUtils.coalesce(sqlParams, StringUtils.EMPTY) }, 1, cause);
     }
     
-    public QueryFailedException(DBObject obj, String sqlCmd, SQLException cause)
+    public QueryFailedException(DBObject obj, String sqlCmd, String sqlParams, SQLException cause)
     {
-        this(handlerFromObject(obj), sqlCmd, cause);
+        this(handlerFromObject(obj), sqlCmd, sqlParams, cause);
     }
     
     /**
