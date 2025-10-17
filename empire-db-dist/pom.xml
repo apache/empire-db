@@ -19,7 +19,7 @@
 	<parent>
 		<artifactId>empire-db-parent</artifactId>
 		<groupId>org.apache.empire-db</groupId>
-		<version>3.3.1-SNAPSHOT</version>
+		<version>3.4.0</version>
 	</parent>
 	<artifactId>empire-db-dist</artifactId>
 	<name>Apache Empire-db Distribtion</name>
@@ -81,19 +81,19 @@
 		<dependency>
 			<groupId>org.apache.empire-db</groupId>
 			<artifactId>empire-db</artifactId>
-			<version>3.3.1-SNAPSHOT</version>
+			<version>3.4.0</version>
 			<classifier>javadoc</classifier>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.empire-db</groupId>
 			<artifactId>empire-db-jsf2</artifactId>
-			<version>3.3.1-SNAPSHOT</version>
+			<version>3.4.0</version>
 			<classifier>javadoc</classifier>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.empire-db</groupId>
 			<artifactId>empire-db-jakarta-faces</artifactId>
-			<version>3.3.1-SNAPSHOT</version>
+			<version>3.4.0</version>
 			<classifier>javadoc</classifier>
 		</dependency>
 	</dependencies>
