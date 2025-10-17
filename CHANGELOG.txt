@@ -5,6 +5,38 @@ For more Information about a particular issue please visit
 https://issues.apache.org/jira/browse/EMPIREDB
 
 --------------
+Release 3.4.0:
+--------------
+
+Summary: Release 3.4 has the following improvements and bugfixes:
+
+** Improvements / Features
+	EMPIREDB-479	Core:	Improve failed query logging
+	EMPIREDB-478	Core:	DBCommand: automatically create command params from value expressions
+	EMPIREDB-477	Core:	Add support for fulltext indexes and search	Improvement
+	EMPIREDB-474	JSF:	Allow getting and setting context beans for BeanScope
+	EMPIREDB-471	Core:	Remove time from values of type java.util.Date for DATE columns
+	EMPIREDB-470	Core:	Improve DATETIME and TIMESTAMP handling
+	EMPIREDB-469	Core:	Detect foreign key relations and check for existing foreign key records
+	EMPIREDB-467	Core:	Add support for Materialized Views in Oracle
+	EMPIREDB-466	JSF:	Improve CSS style class building
+	EMPIREDB-465	JSF:	InputControl: update input style class on each ajax request
+	EMPIREDB-464	Core:	Allow copying data from another record
+	EMPIREDB-463	JSF:	JSF Tag encoding: format tooltip values (title attribute)
+	EMPIREDB-462	JSF:	Sync Jsf and Jakarta extensions
+	EMPIREDB-460	Core:	Replace calls to Apache commons.beanutils with own implementation
+	EMPIREDB-459	Core:	DBRecordData and DataListEntry: sync value conversion getters
+	EMPIREDB-457	JSF:	LabelTag: styleClass should include the Columns "styleClass" attribute
+
+** Bugfixes
+	EMPIREDB-476	JSF:	ControlTag / InputTag: allow override of autoControlId
+	EMPIREDB-475	Core:	DBRecordData: get(column) should return enum instead of plain value
+	EMPIREDB-473	JSF:	DBELResolver allow resolving of ColumnExpr and ColumnExpr[]
+	EMPIREDB-468	Core:	DBMS handler getResultValue may not return a Date object for DataType.DATE
+	EMPIREDB-461	JSF:	JSF Value Tag: text not properly escaped
+	EMPIREDB-458	JSF:	ControlTag: wrong client-id rendered for UIInput inside <ui:repeat>
+
+--------------
 Release 3.3.0:
 --------------
 
