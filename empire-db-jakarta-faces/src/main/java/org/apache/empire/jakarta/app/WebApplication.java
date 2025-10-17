@@ -586,7 +586,7 @@ public abstract class WebApplication
             case View:        map = context.getViewRoot().getViewMap();break;
             case Request:     map = ec.getRequestMap();break;
             default:
-                throw new NotSupportedException(this, "setContextBean:"+scope.name());
+                throw new NotSupportedException(this, "getContextBean:"+scope.name());
         }
         return map.get(beanName);
     }
