@@ -27,7 +27,7 @@
 	<groupId>org.apache.empire-db</groupId>
 	<artifactId>empire-db-parent</artifactId>
 	<packaging>pom</packaging>
-	<version>3.4.0</version>
+	<version>3.4.1-SNAPSHOT</version>
 	<name>Apache Empire-db</name>
 	<description>Apache Empire-db is an Open Source relational data persistence component which allows database vendor independent dynamic query definition as well as safe and simple data retrieval and updating. Compared to most other solutions like e.g. Hibernate, TopLink, iBATIS or JPA implementations, Empire-db takes a considerably different approach, with a special focus on compile-time safety, reduced redundancies and improved developer productivity.</description>
 	<inceptionYear>2008</inceptionYear>
@@ -216,7 +216,7 @@
 		<connection>scm:git:https://gitbox.apache.org/repos/asf/empire-db.git</connection>
 		<developerConnection>scm:git:https://gitbox.apache.org/repos/asf/empire-db.git</developerConnection>
 		<url>https://gitbox.apache.org/repos/asf/empire-db.git</url>
-		<tag>empire-db-3.4.0-rc1</tag>
+		<tag>HEAD</tag>
 	</scm>
 
 	<mailingLists>

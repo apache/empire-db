@@ -20,7 +20,7 @@
 	<parent>
 		<artifactId>empire-db-parent</artifactId>
 		<groupId>org.apache.empire-db</groupId>
-		<version>3.4.0</version>
+		<version>3.4.1-SNAPSHOT</version>
 	</parent>
 	<artifactId>empire-db-jsf2</artifactId>
 	<packaging>jar</packaging>
