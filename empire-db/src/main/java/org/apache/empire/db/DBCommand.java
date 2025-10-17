@@ -416,7 +416,8 @@ public abstract class DBCommand extends DBCommandExpr
      * i.e. converts all calls like  
      *      cmd.set(COL.to(VALUE))
      * into a select of the form
-     *      cmd.select(VALUE.as(COL))  
+     *      cmd.select(VALUE.as(COL))
+     * @param setExprList the list of set expressions to select  
      * @return itself (this)
      */
     public final DBCommand selectSetExpressions(List<DBSetExpr> setExprList)

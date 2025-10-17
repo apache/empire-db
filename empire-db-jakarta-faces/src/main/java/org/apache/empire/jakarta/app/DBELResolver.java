@@ -172,6 +172,8 @@ public class DBELResolver extends ELResolver
     
     /**
      * Simply return the value of the field
+     * @param rowset the rowset or bean for which to get the property
+     * @param property the property name
      */
     protected Object getPropertyValue(Object rowset, String property)
     {

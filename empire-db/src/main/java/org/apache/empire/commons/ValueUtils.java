@@ -658,7 +658,7 @@ public class ValueUtils
      * formats a column value into a string
      * @param column the column
      * @param value the value to convert
-     * @param local the locale (optional)
+     * @param locale the locale (optional)
      * @return the corresponding string value
      */
     public String formatColumnValue(ColumnExpr column, Object value, Locale locale)

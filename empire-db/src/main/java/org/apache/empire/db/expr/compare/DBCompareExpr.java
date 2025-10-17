@@ -81,6 +81,7 @@ public abstract class DBCompareExpr extends DBExpr implements DBPreparable
     /**
      * internally used for command cloning
      * @param newCmd the new command object
+     * @return the cloned compare expression
      */
     public abstract DBCompareExpr copy(DBCommand newCmd); 
 

@@ -852,7 +852,8 @@ public class DBUtils implements DBContextAware
      * Crates a default DataListFactory for a DataListEntry class
      * The DataListEntry class must provide the following constructor
      *      DataListEntry(DataListFactory&lt;? extends DataListEntry&gt; head, int rownum, Object values[])
-     * @param entryClass the entryClass for which to create the list head 
+     * @param entryClass the entryClass for which to create the list head
+     * @param head the data list head 
      * @return the data list factory
      */
     protected <T extends DataListEntry> DataListFactory<T> createDefaultDataListFactory(Class<T> entryClass, DataListHead head) 
@@ -1057,7 +1058,8 @@ public class DBUtils implements DBContextAware
      * Crates a default DBRecordListFactory for a DBRecord class
      * The DBRecord class must provide the following constructor
      *      DBRecord(DBContext context, DBRowSet rowset)
-     * @param recordClass the recordClass for which to create the list head 
+     * @param recordClass the recordClass for which to create the list head
+     * @param rowset the underlying rowset for which to create the factory 
      * @return the record factory
      */
     protected <R extends DBRecordBase> DBRecordListFactory<R> createDefaultRecordListFactory(Class<R> recordClass, DBRowSet rowset) 

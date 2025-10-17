@@ -138,6 +138,7 @@ public class DBCompareColExpr extends DBCompareExpr
 
     /**
      * wraps the expression in Parenthesis
+     * @return the parenthesis expression
      */
     public DBCompareColExpr parenthesis()
     {

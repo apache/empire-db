@@ -140,7 +140,7 @@ public class DBMSHandlerOracle extends DBMSHandlerBase
      * 1 = index column definition
      * 2 = table column definition
      * 3 = table and index column definition
-     * @return the column support
+     * @param collationSupport the type of collation support 
      */
     public void setCollationSupport(int collationSupport)
     {

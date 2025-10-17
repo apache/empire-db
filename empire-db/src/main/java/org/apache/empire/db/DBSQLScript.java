@@ -466,6 +466,7 @@ public class DBSQLScript implements DBContextAware, Iterable<String>
      * @param utils the DBUils
      * @param sqlCmd the statement
      * @param sqlParams the params
+     * @param comment flag indicating whether the command is a comment or not
      */
     protected void logStmt(DBUtils utils, String sqlCmd, Object[] sqlParams, boolean comment)
     {

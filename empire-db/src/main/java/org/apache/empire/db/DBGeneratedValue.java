@@ -45,6 +45,7 @@ public abstract class DBGeneratedValue extends DBExpr
      * Returns a generated value for a trigger
      * @param table the table on which the trigger 
      * @param triggerName then name of the trigger
+     * @param columns the list of columns used by the trigger
      * @return the value generator
      */
     public static DBGeneratedValue byTrigger(DBTable table, String triggerName, DBTableColumn...columns)
@@ -56,6 +57,7 @@ public abstract class DBGeneratedValue extends DBExpr
      * Returns generator for a record value created from other record fields
      * The function template must contain the column names wrapped in square brackets
      * like e.g. "normalize([name])" or "[lastName]+', '+[firstName]"
+     * @param table the table for which the value is generated 
      * @return the value generator
      */
     public static DBGeneratedValue byFunction(DBTable table, String functionTemplate)
@@ -247,8 +249,8 @@ public abstract class DBGeneratedValue extends DBExpr
 
     /**
      * Evaluates a record and returns the generated value
-     * @param record
-     * @return
+     * @param record the record for which to evaluate
+     * @return the generated value
      */
     public abstract Object eval(Record record);
 

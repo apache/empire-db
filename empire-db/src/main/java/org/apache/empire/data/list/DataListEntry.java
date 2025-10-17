@@ -495,7 +495,8 @@ public class DataListEntry implements RecordData, Serializable
 
     /**
      * Returns the value as as a java.sql.Timestamp object
-     * @return the Timestamp
+     * @param index the column index
+     * @return the timestamp value
      */
     public final Timestamp getTimestamp(int index)
     {
@@ -505,7 +506,8 @@ public class DataListEntry implements RecordData, Serializable
 
     /**
      * Returns the value as as a java.sql.Timestamp object
-     * @return the Timestamp
+     * @param column the timestamp column
+     * @return the timestamp value
      */
     public final Timestamp getTimestamp(ColumnExpr column)
     {

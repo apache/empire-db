@@ -590,7 +590,6 @@ public abstract class DBColumn extends DBColumnExpr
     
     /**
      * Sets a sort function template for a given column
-     * @param column the column for which to set the sort expression
      * @param sortFunctionTemplate the template which must contain a ? which will be replaced with the column name
      * @return return the column 
      */

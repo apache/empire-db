@@ -67,6 +67,7 @@ public interface RecordData
     
     /**
      * returns the record value for a particular column 
+     * @param <V> the desired return type for the value
      * @param index the field index for which to return the value
      * @param valueType the desired value type
      * @return the record value for the given column

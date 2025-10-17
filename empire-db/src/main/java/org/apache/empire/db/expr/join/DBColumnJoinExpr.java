@@ -87,6 +87,7 @@ public class DBColumnJoinExpr extends DBJoinExpr
 
     /**
      * returns the left join expression
+     * @return the left column expression
      */
     public DBColumnExpr getLeft()
     {
@@ -95,6 +96,7 @@ public class DBColumnJoinExpr extends DBJoinExpr
 
     /**
      * returns the right join expression
+     * @return the right column expression
      */
     public DBColumnExpr getRight()
     {

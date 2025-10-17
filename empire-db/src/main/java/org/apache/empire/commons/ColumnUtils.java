@@ -139,9 +139,9 @@ public class ColumnUtils
     
     /**
      * Sets the number format options for a columnExpr 
-     * @param column the column
+     * @param columnExpr the column expression
      * @param numberType the number type 
-     * @param true groupSeparator should be used 
+     * @param groupSeparator should be used 
      * @return the columnExpr
      */
     public static <T extends ColumnExpr> T setNumberFormat(T columnExpr, String numberType, boolean groupSeparator)

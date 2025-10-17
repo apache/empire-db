@@ -196,7 +196,8 @@ public class DBIndex extends DBObject
 
     /**
      * Sets additional database specific index options
-     * @param using the index type options
+     * @param options the index type options
+     * @return the index itself (this)
      */
     public DBIndex setOptions(String options)
     {

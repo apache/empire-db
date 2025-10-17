@@ -137,7 +137,7 @@ public class DBTableColumn extends DBColumn
      * Returns the default column value. 
      * Unlike getDefaultValue this function is used when creating or adding records.
      * If the column value is DBDataType AUTOIN this function will return a new sequence value for this record
-     * 
+     * @param record the record 
      * @param conn a valid database connection
      * @return the default column value
      */

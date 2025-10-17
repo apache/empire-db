@@ -245,7 +245,9 @@ public abstract class DBDDLGenerator<T extends DBMSHandler>
 
     /**
      * Appends an column expression to an index
-     * @param indexColumnExpr the index column expression
+     * @param index the index for which to append the column
+     * @param idxColumn the index column
+     * @param sql the SQL builder 
      */
     protected void appendIndexColumn(DBIndex index, DBColumnExpr idxColumn, DBSQLBuilder sql)
     {

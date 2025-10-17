@@ -89,7 +89,6 @@ public final class BeanPropertyUtils
      * Return false if the property does not exist or if no setter method exists (read only) 
      * throws BeanPropertySetException if an error occurs in the setter method
      *
-     * @param column the column expression
      * @param bean the bean
      * @param property the property
      * @param value the value
@@ -117,7 +116,7 @@ public final class BeanPropertyUtils
      */
     public static class BeanPropertyUtilsImpl
     {
-        /**
+        /*
          * @see org.apache.empire.commons.BeanPropertyUtils#hasProperty(Object bean, String property, boolean writeAccess)
          */
         public int hasProperty(Object bean, String property, boolean writeAccess)
@@ -154,7 +153,7 @@ public final class BeanPropertyUtils
             }
         }
         
-        /**
+        /*
          * @see org.apache.empire.commons.BeanPropertyUtils#getProperty(Object bean, String property)
          */
         public Object getProperty(Object bean, String property)
@@ -176,7 +175,7 @@ public final class BeanPropertyUtils
             }
         }
 
-        /**
+        /*
          * @see org.apache.empire.commons.BeanPropertyUtils#setProperty(Object bean, String property, Object value)
          */
         public boolean setProperty(Object bean, String property, Object value)
@@ -229,7 +228,7 @@ public final class BeanPropertyUtils
             }
         }
         
-        /**
+        /*
          * @see org.apache.empire.commons.BeanPropertyUtils#convertPropertyValue(Object value, Class<?> type)
          */
         public Object convertPropertyValue(Object value, Class<?> type)

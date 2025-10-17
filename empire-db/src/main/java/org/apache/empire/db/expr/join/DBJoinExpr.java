@@ -81,12 +81,14 @@ public abstract class DBJoinExpr extends DBExpr
     
     /**
      * returns true if this join is using the given table or view or false otherwise
+     * @param rowset the rowset to check
      * @return true if the join is on the given rowset
      */
     public abstract boolean isJoinOn(DBRowSet rowset);
     
     /**
      * returns true if this join is using the given column or false otherwise
+     * @param column the column to check
      * @return true if the join is on the given column
      */
     public abstract boolean isJoinOn(DBColumn column);

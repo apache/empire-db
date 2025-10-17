@@ -456,7 +456,7 @@ public final class ObjectUtils
      * Returns a formatted column value 
      * @param column the column
      * @param value the value to convert
-     * @param local the locale (optional)
+     * @param locale the locale (optional)
      * @return the corresponding string value
      */
     public static String formatColumnValue(ColumnExpr column, Object value, Locale locale)

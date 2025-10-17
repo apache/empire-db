@@ -82,6 +82,7 @@ public class DBTable extends DBRowSet implements Cloneable
      * 
      * @param name the table name
      * @param db the valid database object
+     * @param alias the table alias
      */
     public DBTable(String name, DBDatabase db, String alias)
     { 
@@ -800,7 +801,7 @@ public class DBTable extends DBRowSet implements Cloneable
      * Determines whether a record is references by other records through a foreign-key relation or not
      * @param key the key the record to be deleted
      * @param context the db context
-     * @returns true if the record is references or false otherwise
+     * @return true if the record is references or false otherwise
      */
     public boolean hasExistingReferences(Object[] key, DBContext context)
     {
@@ -826,7 +827,7 @@ public class DBTable extends DBRowSet implements Cloneable
      * Returns a list of all tables that contain records which reference this record
      * @param key the key the record to be deleted
      * @param context the db context
-     * @returns this list of all tables that contain a refernce to this record
+     * @return this list of all tables that contain a refernce to this record
      */
     public List<DBTable> getExistingReferenceTables(Object[] key, DBContext context)
     {
@@ -869,6 +870,8 @@ public class DBTable extends DBRowSet implements Cloneable
 
     /**
      * validates a column value
+     * @param column the column
+     * @param value the value to validate
      * @return the validated (possibly converted) value
      */
     protected Object validateValue(DBTableColumn column, Object value)

@@ -242,6 +242,7 @@ public class DBValueExpr extends DBColumnExpr
      * Returns an expression which ignores the case
      * Only for case sensitive columns!
      * Default is upper(expr)
+     * @param context the column context
      * @return the ignore case expression or the expression itself
      */
     public DBColumnExpr getIgnoreCaseExpr(DBColumnExpr context)

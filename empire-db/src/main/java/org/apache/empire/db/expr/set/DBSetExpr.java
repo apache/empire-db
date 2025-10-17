@@ -115,6 +115,7 @@ public class DBSetExpr extends DBExpr
     /**
      * Copy Command
      * @param newCmd the new command object
+     * @return the cloned set expression
      */
     public DBSetExpr copy(DBCommand newCmd)
     {

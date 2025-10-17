@@ -440,10 +440,9 @@ public abstract class InputControl
     
     /**
      * adds style attributes related to the current value
+     * @param styleClass the style class
      * @param vi the value info
      * @param value the current value
-     * @param styleClass the style class
-     * @return the data value string
      */
     protected void addDataValueStyle(StyleClass styleClass, ValueInfo vi, Object value)
     {
@@ -737,10 +736,9 @@ public abstract class InputControl
         // input.addValidator(new ColumnValueValidator(ii.getColumn()));
     }
 
-    /**
+    /*
      * Do not use any more since CSS style is no longer set here
      * Hence param "additonalStyle" is obsolete
-     * @param additonalStyle this parameter is obsolete
      */
     @Deprecated
     protected final void copyAttributes(UIComponent parent, InputInfo ii, UIInput input, String additonalStyle)

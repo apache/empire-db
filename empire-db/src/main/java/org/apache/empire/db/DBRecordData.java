@@ -344,7 +344,7 @@ public abstract class DBRecordData extends DBObject
         return getDate(getFieldIndex(column));
     }
 
-    /**
+    /*
      * Deprecated: Use getDate(index) instead.
      */
     @Deprecated
@@ -353,7 +353,7 @@ public abstract class DBRecordData extends DBObject
         return getDate(index);
     }
     
-    /**
+    /*
      * Deprecated: Use getDate(column) instead.
      */
     @Deprecated
@@ -364,7 +364,8 @@ public abstract class DBRecordData extends DBObject
 
     /**
      * Returns the value as as a java.sql.Timestamp object
-     * @return the Timestamp
+     * @param index the column index
+     * @return the timestamp value
      */
     public final Timestamp getTimestamp(int index)
     {
@@ -374,7 +375,8 @@ public abstract class DBRecordData extends DBObject
 
     /**
      * Returns the value as as a java.sql.Timestamp object
-     * @return the Timestamp
+     * @param column the timestamp column
+     * @return the timestamp value
      */
     public final Timestamp getTimestamp(ColumnExpr column)
     {
