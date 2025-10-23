@@ -622,8 +622,13 @@ public class TextInputControl extends InputControl
         }
         else if (!isInteger && dataType==DataType.DECIMAL) 
         {   // Detect from column
-            int length = (int)column.getSize();
-            int maxFactionDigits = (int)(column.getSize()*10)-(length*10);
+        	double size = column.getSize();
+        	if (size == 0.0 && column.getUpdateColumn() != null)
+        	{ // Detect from update column
+        		size = column.getUpdateColumn().getSize();
+        	}
+            int length = (int) size;
+            int maxFactionDigits = (int) (size*10)-(length*10);
             nf.setMaximumFractionDigits(maxFactionDigits);
         }
         // IntegerDigits (left-padding)
