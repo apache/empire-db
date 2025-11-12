@@ -896,7 +896,7 @@ public class DBUtils implements DBContextAware
             DBMSHandler dbms = context.getDbms();
             if (pageSize>0 && pageSize<Integer.MAX_VALUE && dbms.isSupported(DBMSFeature.QUERY_LIMIT_ROWS))
             {   // let the database limit the rows
-                if (first>0 && dbms.isSupported(DBMSFeature.QUERY_SKIP_ROWS))
+                if (dbms.isSupported(DBMSFeature.QUERY_SKIP_ROWS))
                 {   // let the database skip the rows
                     cmd.skipRows(first);
                     // no need to skip rows ourself
