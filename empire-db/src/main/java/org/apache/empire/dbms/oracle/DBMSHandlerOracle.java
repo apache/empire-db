@@ -79,7 +79,7 @@ public class DBMSHandlerOracle extends DBMSHandlerBase
     }
     
     // Additional Oracle Keywords
-    protected static final String[] ORACLE_KEYWORDS = new String[] { "date", "number" };        
+    protected static final String[] ORACLE_KEYWORDS = new String[] { "date", "number", "level" };        
     
     private boolean oracle8Compatibilty = false;
 
