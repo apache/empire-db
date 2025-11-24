@@ -455,8 +455,9 @@ public class DBTable extends DBRowSet implements Cloneable
         if (keyDataType==DataType.AUTOINC)
             keyDataType =DataType.INTEGER;
         DBTableColumn referenceColumn = addColumn(name, keyDataType, keyCol.getSize(), required, options); 
-        // Adapter foreign key
-        String fkName = StringUtils.concat(getName(), "_", name.replace("_ID", "_FK"));
+        // Foreign key name
+        String fkName = (name.endsWith("_ID") ? StringUtils.concat(getName(), "_", name.replace("_ID", "_FK"))
+                                              : StringUtils.concat(getName(), "_", name, "_FK"));
         DBRelation relation = db.addRelation(fkName, referenceColumn.referenceOn(keyCol));
         if (cascadeAction!=null)
             relation.setOnDeleteAction(cascadeAction);
