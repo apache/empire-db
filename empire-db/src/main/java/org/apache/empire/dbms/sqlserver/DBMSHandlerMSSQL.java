@@ -46,6 +46,7 @@ import org.apache.empire.dbms.DBMSFeature;
 import org.apache.empire.dbms.DBMSHandler;
 import org.apache.empire.dbms.DBMSHandlerBase;
 import org.apache.empire.dbms.DBSqlPhrase;
+import org.apache.empire.exceptions.InvalidOperationException;
 import org.apache.empire.exceptions.InvalidPropertyException;
 import org.apache.empire.exceptions.NotSupportedException;
 import org.slf4j.Logger;
@@ -102,8 +103,11 @@ public class DBMSHandlerMSSQL extends DBMSHandlerBase
         {
             super.getSelect(sql, flags);
             // add skip rows
-            if (skipRows>=0 && not(flags, SF_SKIP_LIMIT)) {
-                // OFFSET 50 ROWS FETCH NEXT 25 ROWS ONLY
+            if (skipRows>0 && not(flags, SF_SKIP_LIMIT)) {
+                // Requires an ORDER BY clause! 
+                if (!hasOrderBy() || (flags & SF_SKIP_ORDER)!=0)
+                    throw new InvalidOperationException("Unable to skip rows. OFFSET requires an ORDER BY statement!");
+                // OFFSET xx ROWS FETCH NEXT yy ROWS ONLY
                 sql.append("\r\nOFFSET ");
                 sql.append(String.valueOf(this.skipRows));
                 sql.append(" ROWS");
@@ -124,7 +128,7 @@ public class DBMSHandlerMSSQL extends DBMSHandlerBase
             if (selectDistinct)
                 sql.append("DISTINCT ");
             // Add limit
-            if (limit>=0 && skipRows<0)
+            if (limit>=0 && skipRows<=0)
             {   // Limit
                 sql.append("TOP ");
                 sql.append(String.valueOf(limit));
