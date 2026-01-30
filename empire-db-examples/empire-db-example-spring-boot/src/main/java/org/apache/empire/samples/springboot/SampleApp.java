@@ -346,15 +346,16 @@ public class SampleApp implements ApplicationRunner {
     for (DataListEntry dle : list) {
       long empId = dle.getRecordId(EMP);
       // int depId = dle.getId(DEP);
-      String empName = StringUtils.concat(", ", dle.getString(EMP.LAST_NAME), dle.getString(EMP.FIRST_NAME));
+      // Put the comma between last and first name (Last, First)
+      String empName = StringUtils.concat(dle.getString(EMP.LAST_NAME), ", ", dle.getString(EMP.FIRST_NAME));
       String depName = dle.getString(DEP.NAME);
       boolean hasPayments = !dle.isNull(Q_EMP_TOTAL.column(EMP_TOTAL));
       if (hasPayments) {   // report
         BigDecimal empTotal = dle.getDecimal(Q_EMP_TOTAL.column(EMP_TOTAL));
         BigDecimal pctOfDep = dle.getDecimal(PCT_OF_DEP_COST).setScale(1, RoundingMode.HALF_UP);
-        LOGGER.info("Eployee[{}]: {}\tDepartment: {}\tPayments: {} ({}% of Department)", empId, empName, depName, empTotal, pctOfDep);
+        LOGGER.info("Employee[{}]: {}\tDepartment: {}\tPayments: {} ({}% of Department)", empId, empName, depName, empTotal, pctOfDep);
       } else {
-        LOGGER.info("Eployee[{}]: {}\tDepartment: {}\tPayments: [No data avaiable]", empId, empName, depName);
+        LOGGER.info("Employee[{}]: {}\tDepartment: {}\tPayments: [No data avaiable]", empId, empName, depName);
       }
     }
 
@@ -517,10 +518,10 @@ public class SampleApp implements ApplicationRunner {
     for (DBRecordBean record : list) {
       Object[] key = record.getKey();
       // print info
-      String empName = StringUtils.concat(", ", record.getString(EMP.LAST_NAME), record.getString(EMP.FIRST_NAME));
+      String empName = StringUtils.concat(record.getString(EMP.LAST_NAME), ", ", record.getString(EMP.FIRST_NAME));
       String phone = record.getString(EMP.PHONE_NUMBER);
       BigDecimal salary = record.getDecimal(EMP.SALARY);
-      LOGGER.info("Eployee[{}]: {}\tPhone: {}\tSalary: {}", StringUtils.toString(key), empName, phone, salary);
+      LOGGER.info("Employee[{}]: {}\tPhone: {}\tSalary: {}", StringUtils.toString(key), empName, phone, salary);
       // modify salary
       BigDecimal newSalary = new BigDecimal(2000 + ((Math.random() * 200) - 100.0));
       record.set(EMP.SALARY, newSalary);
