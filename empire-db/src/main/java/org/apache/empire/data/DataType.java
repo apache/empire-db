@@ -23,7 +23,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Date;
 
-import org.apache.commons.beanutils.MethodUtils;
+import org.apache.commons.beanutils2.MethodUtils;
 
 /**
  * DataType is an enumeration of data types that are supported
