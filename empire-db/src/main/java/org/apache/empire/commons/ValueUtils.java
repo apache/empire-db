@@ -31,7 +31,7 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.Locale;
 
-import org.apache.commons.beanutils.MethodUtils;
+import org.apache.commons.beanutils2.MethodUtils;
 import org.apache.empire.data.Column;
 import org.apache.empire.data.ColumnExpr;
 import org.apache.empire.data.DataType;

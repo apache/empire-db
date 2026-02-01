@@ -33,7 +33,7 @@ import java.net.URISyntaxException;
 import java.util.Collection;
 import java.util.Map;
 
-import org.apache.commons.beanutils.ConstructorUtils;
+import org.apache.commons.beanutils2.ConstructorUtils;
 import org.apache.empire.exceptions.BeanInstantiationException;
 import org.apache.empire.exceptions.BeanMethodInvokeException;
 import org.apache.empire.exceptions.InternalException;
