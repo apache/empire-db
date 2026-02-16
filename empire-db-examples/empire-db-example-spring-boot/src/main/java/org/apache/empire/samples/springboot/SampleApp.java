@@ -165,7 +165,7 @@ public class SampleApp implements ApplicationRunner {
       conn.setAutoCommit(false);
       LOGGER.info("AutoCommit has been set to " + conn.getAutoCommit());
     } catch (SQLException e) {
-//      LOGGER.error("Failed to connect directly to '" + config.getJdbcURL() + "' / User=" + config.getJdbcUser());
+      // LOGGER.error("Failed to connect directly to '" + config.getJdbcURL() + "' / User=" + config.getJdbcUser());
       LOGGER.error(e.toString());
       throw new RuntimeException(e);
     }
