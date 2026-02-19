@@ -3,7 +3,6 @@ package org.apache.empire.springboot;
 import jakarta.annotation.PreDestroy;
 import org.apache.empire.db.context.DBContextBase;
 import org.apache.empire.db.context.DBRollbackManager;
-import org.apache.empire.db.exceptions.EmpireSQLException;
 import org.apache.empire.dbms.DBMSHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -11,15 +10,12 @@ import org.springframework.jdbc.datasource.DataSourceUtils;
 
 import javax.sql.DataSource;
 import java.sql.Connection;
-import java.sql.SQLException;
 
 public class DBContextSpring extends DBContextBase implements AutoCloseable {
     private static final Logger LOGGER = LoggerFactory.getLogger(DBContextSpring.class);
 
     private final DataSource dataSource;
     private final DBMSHandler dbmsHandler;
-
-    private final ThreadLocal<Connection> connectionHolder = new ThreadLocal<>();
 
     public DBContextSpring(DataSource dataSource, DBMSHandler dbmsHandler) {
         this.dataSource = dataSource;
@@ -39,31 +35,12 @@ public class DBContextSpring extends DBContextBase implements AutoCloseable {
      * <p>
      * Summary: Spring Boot provided DataSources work with @Transactional as long as you use Spring’s access paths or DataSourceUtils and have the appropriate TransactionManager active.
      *
-     * @param readOnly if true, the connection will be set to read-only mode.
+     * @param readOnly if true, the connection will be set to read-only mode. (ignored)
      * @return a Connection object that is managed by Spring's transaction management.
      */
     @Override
     protected Connection getConnection(boolean readOnly) {
-        Connection conn = connectionHolder.get();
-        try {
-            if (conn == null || conn.isClosed()) {
-                conn = DataSourceUtils.getConnection(dataSource);
-                if (readOnly) {
-                    conn.setReadOnly(true);
-                }
-                connectionHolder.set(conn);
-                LOGGER.debug("Obtained Spring-managed connection {}", conn);
-            }
-            return conn;
-        } catch (SQLException e) {
-            throw new EmpireSQLException(dbmsHandler, e);
-        }
-    }
-
-    @Override
-    public Connection getConnection()
-    {
-        return getConnection(false);
+        return DataSourceUtils.getConnection(dataSource);
     }
 
     @Override
@@ -72,18 +49,13 @@ public class DBContextSpring extends DBContextBase implements AutoCloseable {
     }
 
     @Override
+    public Connection getConnection() {
+        return getConnection(false);
+    }
+
+    @Override
     public boolean isPreparedStatementsEnabled() {
         return true;
-    }
-
-    @Override
-    public DBMSHandler getDbms() {
-        return this.dbmsHandler;
-    }
-
-    @Override
-    public boolean isRollbackHandlingEnabled() {
-        return false;
     }
 
     @Override
@@ -98,11 +70,17 @@ public class DBContextSpring extends DBContextBase implements AutoCloseable {
 
     @Override
     protected void closeConnection() {
-        Connection conn = connectionHolder.get();
-        connectionHolder.remove();
-        if (conn != null) {
-            DataSourceUtils.releaseConnection(conn, dataSource);
-        }
+        // No-op: Let Spring's TransactionManager handle the connection lifecycle
+    }
+
+    @Override
+    public DBMSHandler getDbms() {
+        return this.dbmsHandler;
+    }
+
+    @Override
+    public boolean isRollbackHandlingEnabled() {
+        return false;
     }
 
     @PreDestroy
