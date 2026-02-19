@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.empire.samples.springboot;
+package org.apache.empire.springboot;
 
 import java.util.Map;
 import org.springframework.boot.context.properties.ConfigurationProperties;
