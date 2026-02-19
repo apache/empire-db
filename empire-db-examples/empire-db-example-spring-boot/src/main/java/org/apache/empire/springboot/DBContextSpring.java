@@ -4,16 +4,12 @@ import jakarta.annotation.PreDestroy;
 import org.apache.empire.db.context.DBContextBase;
 import org.apache.empire.db.context.DBRollbackManager;
 import org.apache.empire.dbms.DBMSHandler;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.datasource.DataSourceUtils;
 
 import javax.sql.DataSource;
 import java.sql.Connection;
 
 public class DBContextSpring extends DBContextBase implements AutoCloseable {
-    private static final Logger LOGGER = LoggerFactory.getLogger(DBContextSpring.class);
-
     private final DataSource dataSource;
     private final DBMSHandler dbmsHandler;
 

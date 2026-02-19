@@ -3,8 +3,6 @@ package org.apache.empire.springboot;
 import org.apache.empire.commons.StringUtils;
 import org.apache.empire.db.DBContext;
 import org.apache.empire.dbms.DBMSHandler;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -13,13 +11,12 @@ import org.springframework.jdbc.datasource.TransactionAwareDataSourceProxy;
 import org.springframework.transaction.PlatformTransactionManager;
 
 import javax.sql.DataSource;
+import java.lang.reflect.InvocationTargetException;
 
 
 @Configuration
 @EnableConfigurationProperties(EmpireDBConfigProperties.class)
 public class EmpireDBConfig {
-    private static final Logger LOGGER = LoggerFactory.getLogger(EmpireDBConfig.class);
-
     private final EmpireDBConfigProperties empireDBConfigProperties;
 
     public EmpireDBConfig(EmpireDBConfigProperties empireDBConfigProperties) {
@@ -33,9 +30,10 @@ public class EmpireDBConfig {
             if (StringUtils.isEmpty(dbmsHandlerClass)) {
                 throw new RuntimeException("Configuration error: Fully qualified DBMS handler class path not found under application property 'empiredb.dbmsHandlerClass'");
             }
-            DBMSHandler dbmsHandler = (DBMSHandler) Class.forName(dbmsHandlerClass).newInstance();
+            DBMSHandler dbmsHandler = (DBMSHandler) Class.forName(dbmsHandlerClass).getDeclaredConstructor().newInstance();
             return new DBContextSpring(new TransactionAwareDataSourceProxy(dataSource), dbmsHandler);
-        } catch (ClassNotFoundException | InstantiationException | IllegalAccessException e) {
+        } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | InvocationTargetException |
+                 NoSuchMethodException e) {
             throw new RuntimeException("Failed to create DBMS handler for Empire DB", e);
         }
     }

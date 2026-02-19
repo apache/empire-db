@@ -19,7 +19,6 @@
 package org.apache.empire.samples.springboot;
 
 import org.apache.empire.data.DataType;
-import org.apache.empire.db.DBColumn;
 import org.apache.empire.db.DBContext;
 import org.apache.empire.db.DBDatabase;
 import org.apache.empire.db.DBSQLScript;

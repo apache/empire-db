@@ -29,7 +29,7 @@ import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.util.List;
 
-@Transactional(readOnly = false)
+@Transactional
 @Service
 public class SampleService {
     private static final Logger LOGGER = LoggerFactory.getLogger(SampleService.class);
@@ -76,8 +76,8 @@ public class SampleService {
             long idEmp1 = insertEmployee(idDevDep, "Peter", "Sharp", Gender.M, 25000);
             long idEmp2 = insertEmployee(idDevDep, "Fred", "Bloggs", Gender.M, 0);
             long idEmp3 = insertEmployee(idSalDep, "Emma", "White", Gender.F, 19500);
-            long idEmp4 = insertEmployee(idSalDep, "John", "Doe", Gender.M, 18800);
-            long idEmp5 = insertEmployee(idDevDep, "Sarah", "Smith", Gender.F, 44000);
+            insertEmployee(idSalDep, "John", "Doe", Gender.M, 18800);
+            insertEmployee(idDevDep, "Sarah", "Smith", Gender.F, 44000);
 
             // commit
             context.commit();
@@ -244,7 +244,7 @@ public class SampleService {
         LOGGER.info("First payment amount is {}", first.getAmount());
 
         // Query all males
-        BeanResult<Employee> result = new BeanResult<Employee>(Employee.class, EMP);
+        BeanResult<Employee> result = new BeanResult<>(Employee.class, EMP);
         result.getCommand().where(EMP.GENDER.is(Gender.M));
         result.fetch(context);
 
@@ -419,8 +419,7 @@ public class SampleService {
         }
      */
         // Query Records and print output
-        DBReader reader = new DBReader(context);
-        try {
+        try (DBReader reader = new DBReader(context)) {
             // log select statement (but only once)
             if (queryType == QueryType.Reader) {
                 LOGGER.info("Running Query: {}", cmd.getSelect());
@@ -457,9 +456,6 @@ public class SampleService {
                     break;
             }
             System.out.println("---------------------------------");
-        } finally {
-            // Always close Reader!
-            reader.close();
         }
     }
 
@@ -475,26 +471,26 @@ public class SampleService {
         // query now
         List<DBRecordBean> list = context.getUtils().queryRecordList(cmd, EMP, DBRecordBean.class);
         LOGGER.info("RecordList query found {} employees in Development department", list.size());
-        for (DBRecordBean record : list) {
-            Object[] key = record.getKey();
+        for (DBRecordBean recordBean : list) {
+            Object[] key = recordBean.getKey();
             // print info
-            String empName = StringUtils.concat(record.getString(EMP.LAST_NAME), ", ", record.getString(EMP.FIRST_NAME));
-            String phone = record.getString(EMP.PHONE_NUMBER);
-            BigDecimal salary = record.getDecimal(EMP.SALARY);
+            String empName = StringUtils.concat(recordBean.getString(EMP.LAST_NAME), ", ", recordBean.getString(EMP.FIRST_NAME));
+            String phone = recordBean.getString(EMP.PHONE_NUMBER);
+            BigDecimal salary = recordBean.getDecimal(EMP.SALARY);
             LOGGER.info("Employee[{}]: {}\tPhone: {}\tSalary: {}", StringUtils.toString(key), empName, phone, salary);
             // modify salary
-            BigDecimal newSalary = new BigDecimal(2000 + ((Math.random() * 200) - 100.0));
-            record.set(EMP.SALARY, newSalary);
+            BigDecimal newSalary = BigDecimal.valueOf(2000 + ((Math.random() * 200) - 100.0));
+            recordBean.set(EMP.SALARY, newSalary);
             // check
-            if (record.wasModified(EMP.SALARY)) {   // Salary was modified
-                LOGGER.info("Salary was modified for {}. New salary is {}", empName, record.getDecimal(EMP.SALARY));
+            if (recordBean.wasModified(EMP.SALARY)) {   // Salary was modified
+                LOGGER.info("Salary was modified for {}. New salary is {}", empName, recordBean.getDecimal(EMP.SALARY));
             }
-            // udpate the record
-            record.update(context);
+            // udpate the recordBean
+            recordBean.update(context);
 
             // convert to bean
             Employee employee = new Employee();
-            record.setBeanProperties(employee);
+            recordBean.setBeanProperties(employee);
             System.out.println(employee);
         }
     }
