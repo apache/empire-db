@@ -24,8 +24,7 @@ Instead of `config.xml` all configuration can be found in `application.yml`.
 This example builds an executable JAR you can build and execute from this folder like this:
 
 ```sh
-$ mvn clean install
-$ java -jar target/empire-db-example-spring-boot-3.0.0-SNAPSHOT.jar
+$ mvn clean spring-boot:run
 ```
 
 An embedded hsqldb is used by default.
