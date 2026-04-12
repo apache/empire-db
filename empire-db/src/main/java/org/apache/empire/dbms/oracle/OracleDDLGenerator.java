@@ -136,6 +136,29 @@ public class OracleDDLGenerator extends DBDDLGenerator<DBMSHandlerOracle>
     }
 
     @Override
+    protected void addCreateTableStmt(DBTable table, DBSQLBuilder sql, DBSQLScript script)
+    {
+        // Check for al nullable primary key column
+        DBIndex pk = table.getPrimaryKey();
+        DBColumn[] pkColumns = (pk!=null ? pk.getColumns() : new DBColumn[] {});
+        boolean nullablePkColumn = false;
+        for (int i=0; i<pkColumns.length; i++)
+        {
+            if (!pkColumns[i].isRequired())
+            {   // found a nullable PK column
+                nullablePkColumn = true;
+                break;
+            }
+        }
+        if (nullablePkColumn) {
+            // cannot use a PRIMARY KEY. Using UNIQUE instead.
+            sql.replace("PRIMARY KEY (", "UNIQUE (");
+        }
+        // add now
+        super.addCreateTableStmt(table, sql, script);
+    }
+    
+    @Override
     protected void addCreateIndexStmt(DBIndex index, DBSQLBuilder sql, DBSQLScript script)
     {
         if (index.getType()==DBIndexType.FULLTEXT)
