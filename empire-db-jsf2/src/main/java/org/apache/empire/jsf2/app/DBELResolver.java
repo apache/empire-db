@@ -59,7 +59,7 @@ public class DBELResolver extends ELResolver
             (base instanceof RecordData) ||
             (base instanceof DBDatabase) ||
             (base==null && property.equals("db")))
-            log.warn("DBELResolver:getType is not implemented!");
+            log.debug("DBELResolver:getType is not implemented!");
         return null;
     }
 
