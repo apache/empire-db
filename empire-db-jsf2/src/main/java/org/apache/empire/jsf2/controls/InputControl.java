@@ -40,6 +40,7 @@ import org.apache.empire.commons.StringUtils;
 import org.apache.empire.data.Column;
 import org.apache.empire.data.DataType;
 import org.apache.empire.exceptions.InvalidArgumentException;
+import org.apache.empire.exceptions.InvalidOperationException;
 import org.apache.empire.exceptions.ItemNotFoundException;
 import org.apache.empire.exceptions.UnexpectedReturnValueException;
 import org.apache.empire.jsf2.app.TextResolver;
@@ -209,6 +210,11 @@ public abstract class InputControl
         return this.creatingComponents;
     }
     
+    protected int getInputCount(InputInfo ii)
+    {
+        return 1;
+    }
+    
     /* createInput */ 
     public void createInput(UIComponent comp, InputInfo ii, FacesContext context)
     {   // createInputComponents
@@ -354,23 +360,25 @@ public abstract class InputControl
     
     public void postUpdateModel(UIComponent comp, InputInfo ii, FacesContext fc)
     {
-        UIInput input = getInputComponent(comp);
-        if (input == null)
-            return; /* May want to override this */
-        // Clear submitted value
-        clearSubmittedValue(input);
-        // Clear local values
-        clearLocalValues(fc, input);
+        UIInput[] inputs = getInputComponents(comp, ii);
+        for (int i=0; i<inputs.length; i++)
+        {   // clear
+            UIInput input = inputs[i];
+            if (input == null)
+                continue;
+            // Clear submitted value
+            clearSubmittedValue(input);
+            // Clear local values
+            clearLocalValues(fc, input);
+        }
     }
     
-    public Object getInputValue(UIComponent comp, InputInfo ii, boolean submitted)
+    public Object getInputValue(UIComponent comp, InputInfo ii, UIInput input, boolean submitted)
     {
-        UIInput input = getInputComponent(comp);
         if (input == null)
         {   // throw new ObjectNotValidException(this);
             return null; // ignore
         }
-        
         // Get value from Input
         Object value;
         if (submitted)
@@ -404,7 +412,28 @@ public abstract class InputControl
         }
         return value;
     }
-
+    
+    public Object getInputValue(UIComponent comp, InputInfo ii, boolean submitted)
+    {
+        UIInput[] inputs = getInputComponents(comp, ii);
+        if (inputs.length>1)
+        {   // values
+            Object[] value = new Object[inputs.length];
+            for (int i=0; i<inputs.length; i++)
+            {   // Input value
+                if (inputs[i]!=null)
+                    value[i] = getInputValue(comp, ii, inputs[i], submitted);
+            }
+            return value;
+        }
+        else if (inputs.length==1 && inputs[0]!=null)
+        {   // only one
+            return getInputValue(comp, ii, inputs[0], submitted);
+        }
+        else
+            return null;
+    }
+    
     public Object getConvertedValue(UIComponent comp, InputInfo ii, Object submittedValue)
     {
         // Value supplied?
@@ -412,17 +441,30 @@ public abstract class InputControl
         {   // Save submitted value in request-map
             FacesContext fc = FacesContext.getCurrentInstance();
             Map<String, Object> reqMap = fc.getExternalContext().getRequestMap();
-            // Save submitted value
-            UIInput input = getInputComponent(comp);
-            String clientId = input.getClientId();
-            if (reqMap.containsKey(clientId))
-            {   Object oldValue =  reqMap.get(clientId);
-                if (ObjectUtils.compareEqual(oldValue, submittedValue)==false)
-                    InputControl.log.debug("Replacing submitted value from '{}' to '{}' for " + clientId, oldValue, submittedValue);
+            // Save submitted values
+            UIInput[] inputs = getInputComponents(comp, ii);
+            int valCount = (submittedValue instanceof Object[]) ? ((Object[])submittedValue).length : 1;
+            if (valCount!=inputs.length)
+                log.error("Input-count({}) does not match Value-count({})!", inputs.length, valCount);    
+            for (int i=0; i<valCount; i++)
+            {   // save now
+                UIInput input = inputs[i];
+                if (input==null)
+                    continue;
+                String clientId = input.getClientId();
+                if (reqMap.containsKey(clientId))
+                {   Object oldValue =  reqMap.get(clientId);
+                    if (ObjectUtils.compareEqual(oldValue, submittedValue)==false)
+                        log.debug("Replacing submitted value from '{}' to '{}' for " + clientId, oldValue, submittedValue);
+                }
+                reqMap.put(clientId, submittedValue);
             }
-            reqMap.put(clientId, submittedValue);
         }
         // Convert
+        if (submittedValue instanceof Object[])
+        {
+            return parseInputValue((Object[]) submittedValue, ii);
+        }
         if ((submittedValue instanceof String) && ((String) submittedValue).length() > 0)
         {   // debug
             if (log.isDebugEnabled())
@@ -472,46 +514,27 @@ public abstract class InputControl
             aoh.updateAttachedObjects(parent, context, ii.getColumn(), inputComponent);
     }
     
-    protected UIInput getFirstInput(List<UIComponent> compList)
-    {
-        for (int i=0; i<compList.size(); i++)
-        {
-            UIComponent child = compList.get(i);
-            if (child instanceof UIInput)
-                return ((UIInput)child);
-        }
-        throw new ItemNotFoundException("UIInput");
-    }
-    
     protected boolean isInputValueExpressionEnabled()
     {
         return InputControlManager.isInputValueExpressionEnabled();
     }
     
+    protected void setInputValue(UIInput input, InputInfo ii, Object value)
+    {
+        // restoreSubmittedValue
+        if (restoreSubmittedValue(input, ii))
+            return;
+        // Set the value
+        input.setValue(value);
+        // change the style
+        addRemoveValueNullStyle(input, ObjectUtils.isEmpty(value));
+    }
+    
     protected void setInputValue(UIInput input, InputInfo ii)
     {
-        // Restore submitted value
-        FacesContext fc = FacesContext.getCurrentInstance();
-        Map<String, Object> reqMap = fc.getExternalContext().getRequestMap();
-        String clientId = input.getClientId();
-        if (reqMap.containsKey(clientId))
-        { // Set the local value from the request map
-            Object value = reqMap.get(clientId);
-            if (input.isLocalValueSet() == false)
-                input.setSubmittedValue(value);
-            // change the style
-            addRemoveValueNullStyle(input, ObjectUtils.isEmpty(value));
+        // restoreSubmittedValue
+        if (restoreSubmittedValue(input, ii))
             return;
-        }
-        else if (input.getSubmittedValue() != null) //  && FacesUtils.isClearSubmittedValues(fc)
-        { // Clear submitted value   
-            if (InputControl.log.isDebugEnabled())
-                InputControl.log.debug("clearing submitted value for {}. value is {}.", ii.getColumn().getName(), input.getSubmittedValue());
-            input.setSubmittedValue(null);
-        }
-
-        /* -------------------------------------- */
-
         // Assign value
         boolean evalExpression = !isInputValueExpressionEnabled();
         Object value = ii.getValue(evalExpression);
@@ -537,6 +560,30 @@ public abstract class InputControl
         input.setValue(null);
         input.setLocalValueSet(false);
         input.setValueExpression("value", value);
+    }
+    
+    protected boolean restoreSubmittedValue(UIInput input, InputInfo ii)
+    {
+        // Restore submitted value
+        FacesContext fc = FacesContext.getCurrentInstance();
+        Map<String, Object> reqMap = fc.getExternalContext().getRequestMap();
+        String clientId = input.getClientId();
+        if (reqMap.containsKey(clientId))
+        { // Set the local value from the request map
+            Object value = reqMap.get(clientId);
+            if (input.isLocalValueSet() == false)
+                input.setSubmittedValue(value);
+            // change the style
+            addRemoveValueNullStyle(input, ObjectUtils.isEmpty(value));
+            return true;
+        }
+        else if (input.getSubmittedValue() != null) //  && FacesUtils.isClearSubmittedValues(fc)
+        { // Clear submitted value   
+            if (log.isDebugEnabled())
+                log.debug("clearing submitted value for {}. value is {}.", ii.getColumn().getName(), input.getSubmittedValue());
+            input.setSubmittedValue(null);
+        }
+        return false;
     }
 
     protected void clearSubmittedValue(UIInput input)
@@ -591,55 +638,46 @@ public abstract class InputControl
         return value;
     }
 
+    /**
+     * Parses a value for a single input component
+     * @param value the value to parse
+     * @param ii the input info
+     * @return the parsed and converted value
+     */
     protected Object parseInputValue(String value, InputInfo ii)
     {
         return value;
     }
 
-    /* validate 
-    public boolean validateValue(UIComponent comp, InputInfo ii, FacesContext context)
+    /**
+     * Parses a value for multiple input components
+     * All individual values must be combined to a single output value
+     * @param values the input values
+     * @param ii the input info
+     * @return the combined value
+     */
+    protected Object parseInputValue(Object[] values, InputInfo ii)
     {
-        UIInput input = getInputComponent(comp);
-        if (input==null)
-            throw new ObjectNotValidException(this);
-        
-        input.validate(context);
-        if (input.isValid()==false)
-            return false;
-        /-*
-        Object value = getInputValue(comp, ii, context, false);
-        try {
-            ii.getColumn().validate(value);
-            Object xxx = input.getLocalValue();
-            // Wert geändert?
-            Object previous = ii.getValue();
-            if (ObjectUtils.compareEqual(value, previous)==false)
-            {
-                comp.queueEvent(new ValueChangeEvent(comp, previous, value));
-                // Wert setzen
-                ii.setValue(value, true);
-            }
-            return true;
-            
-        } catch(Exception e) {
-            // Add Error Messgae
-            String text = e.getLocalizedMessage();
-            FacesMessage msg = new FacesMessage(FacesMessage.SEVERITY_ERROR, text, text);
-            context.addMessage(comp.getClientId(), msg);
-            // Invalid
-            ii.setValue(value, false);
-            return false;
-        }
-        *-/
-        return true;
+        return StringUtils.arrayToString(values, "|");
     }
-    */
 
     /* Input helpers */
     protected abstract void createInputComponents(UIComponent parent, InputInfo ii, FacesContext context, List<UIComponent> compList);
 
     protected abstract void updateInputState(List<UIComponent> compList, InputInfo ii, FacesContext context, PhaseId phaseId);
     
+    protected UIInput getFirstInput(List<UIComponent> compList)
+    {
+        for (int i=0; i<compList.size(); i++)
+        {
+            UIComponent child = compList.get(i);
+            if (child instanceof UIInput)
+                return ((UIInput)child);
+        }
+        throw new ItemNotFoundException("UIInput");
+    }
+
+    /*
     protected UIInput getInputComponent(UIComponent parent)
     {
         // default implementation
@@ -673,15 +711,58 @@ public abstract class InputControl
         // found one
         return inp;
     }
+    */
 
+    protected UIInput[] getInputComponents(UIComponent parent, InputInfo ii)
+    {
+        UIInput[] inputs = new UIInput[getInputCount(ii)];
+        // addInputComponents(parent, inputs, 0);
+        int count = parent.getChildCount();
+        if (count > 0)
+        {   // add input components
+            int index = 0;
+            for (UIComponent comp : parent.getChildren())
+            { // check UIInput 
+                if (comp instanceof UIInput)
+                {   // check bounds
+                    if (index>inputs.length)
+                        throw new InvalidOperationException("Index out of bounds");
+                    // add to list
+                    inputs[index++] = (UIInput) comp;
+                }
+                /*
+                else if (comp.getChildCount()>0)
+                {   // recurse
+                    log.warn("Recursive search for UIInput component is not supported.");
+                }
+                */
+            }
+        }
+        else
+            log.warn("component of type {} for column \"{}\" has no children!", getClass().getSimpleName(), ii.getColumn().getName());
+        // No UIInput found
+        if (count>0 && inputs[0]==null)
+        {   // Check whether inside a DataTable (javax.faces.component.UIData)
+            for (UIComponent p = parent.getParent(); p!=null; p=p.getParent())
+            {   // Check whether inside UIData
+                if (p instanceof UIData) {
+                    log.info("Ignore value component for id '{}' inside a DataTable (javax.faces.component.UIData)", parent.getClientId());
+                    return null;
+                }
+            }
+            // Should not happen!
+            throw new UnexpectedReturnValueException(null, "comp.getChildren().get()");
+        }
+        return inputs;
+    }
+    
     protected void setInputStyleClass(UIInput input, StyleClass styleClass)
     {
         input.getAttributes().put(InputControl.CSS_STYLE_CLASS, styleClass.build());
     }
 
-    protected void setInputStyleClass(UIInput input, InputInfo ii)
+    protected void setInputStyleClass(UIInput input, InputInfo ii, StyleClass styleClass)
     {
-        StyleClass styleClass = ii.getStyleClass();
         if (ii.isDisabled())
         {   // disabled
             styleClass.add(TagStyleClass.INPUT_DIS);
@@ -705,15 +786,19 @@ public abstract class InputControl
         // set style class
         setInputStyleClass(input, styleClass);
     }
-
-    protected void copyAttributes(UIComponent parent, InputInfo ii, UIInput input)
+    
+    protected void setInputStyleClass(UIInput input, InputInfo ii)
     {
-        String inputId = ii.getInputId();
+        setInputStyleClass(input, ii, ii.getStyleClass());
+    }
+
+    protected void copyAttributes(UIComponent parent, InputInfo ii, UIInput input, String inputId)
+    {
         if (StringUtils.isNotEmpty(inputId))
         {
             input.getAttributes().put("id", inputId);
         }
-
+        
         // copy standard attributes
         copyAttribute(ii, input, "style");
         copyAttribute(ii, input, "tabindex");
@@ -736,14 +821,9 @@ public abstract class InputControl
         // input.addValidator(new ColumnValueValidator(ii.getColumn()));
     }
 
-    /*
-     * Do not use any more since CSS style is no longer set here
-     * Hence param "additonalStyle" is obsolete
-     */
-    @Deprecated
-    protected final void copyAttributes(UIComponent parent, InputInfo ii, UIInput input, String additonalStyle)
+    protected void copyAttributes(UIComponent parent, InputInfo ii, UIInput input)
     {
-        copyAttributes(parent, ii, input);
+        copyAttributes(parent, ii, input, ii.getInputId());
     }
 
     protected void copyAttribute(InputInfo ii, UIInput input, String name)

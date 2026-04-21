@@ -165,6 +165,23 @@ public final class StyleClass
             }
         return this;
     }
+
+    public StyleClass replace(String replaceClass, String styleClass)
+    {
+        if (styleClass==null || styleClass.length()==0)
+            return this;
+        // sinlge item only
+        if (styleClass.indexOf(SPACE)>=0)
+            throw new InvalidArgumentException("styleClass", styleClass);
+        // find
+        for (int i=0; i<count; i++)
+            if (parts[i].equals(replaceClass))
+            {   // found: replace
+                parts[i] = styleClass;
+                break;
+            }
+        return this;
+    }
     
     public String build()
     {
@@ -251,7 +268,8 @@ public final class StyleClass
         count--;
         for (; index<count; index++)
             parts[index]=parts[index+1];
-        parts[count]=null; // the last one
+        // the last one
+        parts[count]=null; 
     }
     
     /*
