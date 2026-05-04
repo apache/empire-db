@@ -201,7 +201,7 @@ public abstract class Page // *Deprecated* implements Serializable
                 doInit();
                 // if not redirected, restore SessionMessage
                 if (!context.getResponseComplete())
-                    restoreSessionMessage();
+                    restoreSessionMessage(context);
             }
             catch (Exception e)
             {
@@ -231,7 +231,7 @@ public abstract class Page // *Deprecated* implements Serializable
                 return;
             }
             // OK, not redirected
-            restoreSessionMessage();
+            restoreSessionMessage(context);
         }
         catch (NoSuchMethodException e)
         {
@@ -254,15 +254,28 @@ public abstract class Page // *Deprecated* implements Serializable
         /* Throw exception if User has no Access */
     }
 
-    private void restoreSessionMessage()
+    protected void restoreSessionMessage(FacesContext fc)
     {
         // Restore Session Error Message
-        ExternalContext ec = FacesContext.getCurrentInstance().getExternalContext();
+        ExternalContext ec = fc.getExternalContext();
         Map<String, Object> map = ec.getSessionMap();
         if (map.containsKey(SESSION_MESSAGE))
-        {
-            FacesMessage errorMsg = (FacesMessage) map.get(SESSION_MESSAGE);
-            FacesContext.getCurrentInstance().addMessage(getPageName(), errorMsg);
+        {   // restore
+            Object message = map.get(SESSION_MESSAGE);
+            if (message instanceof List<?>)
+            {   // multiple Messages
+                @SuppressWarnings("unchecked")
+                List<FacesMessage> msgList = (List<FacesMessage>)message;
+                for (FacesMessage msg : msgList)
+                    FacesContext.getCurrentInstance().addMessage(getPageName(), msg);
+            }
+            else if (message instanceof FacesMessage)
+            {   // sinlge Message
+                FacesContext.getCurrentInstance().addMessage(getPageName(), (FacesMessage)message);
+            }
+            else
+                log.error("Unknown session message object: {}", message.getClass().getName());
+            // consume
             map.remove(SESSION_MESSAGE);
         }
     }
