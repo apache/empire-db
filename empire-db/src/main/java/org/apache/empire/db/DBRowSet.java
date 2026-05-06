@@ -1063,7 +1063,7 @@ public abstract class DBRowSet extends DBExpr implements Entity
         Connection conn = context.getConnection();
         // Get the new Timestamp
         String name = getName();
-        Timestamp timestamp = (timestampColumn!=null) ? context.getDbms().getUpdateTimestamp(conn) : null;
+        Timestamp timestamp = null;
         DBMSHandler.DBSetGenKeys setGenKey = null;
         // Get the fields and the flags
         Object[] fields = record.getFields();
@@ -1082,6 +1082,7 @@ public abstract class DBRowSet extends DBExpr implements Entity
                 DBTableColumn col = (DBTableColumn) columns.get(i);
                 if (timestampColumn == col)
                 {   // Make sure the update timestamp column is set
+                    timestamp = context.getDbms().getUpdateTimestamp(conn);
                     if (timestamp!=null)
                         cmd.set(col.to(timestamp));
                     continue;
@@ -1161,6 +1162,7 @@ public abstract class DBRowSet extends DBExpr implements Entity
                         cmd.where(col.is(value));
                 	}    
                 	// set new timestamp
+                    timestamp = context.getDbms().getUpdateTimestamp(conn);
                 	if (timestamp!=null)
                         cmd.set(col.to(timestamp)); 
                 } 
