@@ -339,7 +339,7 @@ public class StringUtils
         if (value==null || chars.length==0)
             return -1;
         // search
-        for (int i=value.length(); i>=0; i--) {
+        for (int i = value.length() - 1; i >= 0; i--) {
             char c = value.charAt(i);
             for (int j=0; j<chars.length; j++)
                 if (c==chars[j])

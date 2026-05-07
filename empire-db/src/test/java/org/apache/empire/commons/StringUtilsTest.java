@@ -318,5 +318,22 @@ public class StringUtilsTest
         assertEquals("ABC", StringUtils.toCamelCase(" _a_ _b_ _c_ ", true));
         assertEquals("aBC", StringUtils.toCamelCase(" _a_ _b_ _c_ ", false));
     }
+    
+    @Test
+    public void lastIndexOfAnyShouldReturnLastMatchingCharacterIndex() 
+    {
+        assertEquals(3, StringUtils.lastIndexOfAny("abca", 'a'));
+        assertEquals(2, StringUtils.lastIndexOfAny("abc", 'c'));
+        assertEquals(1, StringUtils.lastIndexOfAny("abc", 'b', 'x'));
+    }
+
+    @Test
+    public void lastIndexOfAnyShouldReturnMinusOneWhenNoCharacterMatches() 
+    {
+        assertEquals(-1, StringUtils.lastIndexOfAny("abc", 'x'));
+        assertEquals(-1, StringUtils.lastIndexOfAny("", 'x'));
+        assertEquals(-1, StringUtils.lastIndexOfAny(null, 'x'));
+    }
+
 
 }
