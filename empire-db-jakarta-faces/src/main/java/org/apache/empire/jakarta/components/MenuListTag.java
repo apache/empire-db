@@ -50,6 +50,7 @@ public class MenuListTag extends UIOutput implements TagEncodingHolder
         defaultItemClass;
     }
     
+    protected MenuListTag parentMenu = null;
     protected String currentId = null; 
     protected String currentClass = null; 
     protected String parentClass = null;
@@ -59,8 +60,8 @@ public class MenuListTag extends UIOutput implements TagEncodingHolder
     protected String defaultItemClass = null; // e.g. "level{}"
     protected int level = 0;
     
-    private MenuListTag parentMenu = null; 
-
+    private transient Boolean cachedIsRendered;
+    
     @Override
     public String getFamily()
     {
@@ -72,6 +73,19 @@ public class MenuListTag extends UIOutput implements TagEncodingHolder
     {
         return helper;
     }
+    
+    @Override
+    public boolean isRendered()
+    {
+        // call base for default
+        if (!super.isRendered())
+            return false;
+        // detect if not already detected
+        if (cachedIsRendered== null)
+            cachedIsRendered = isRenderList();
+        // render
+        return cachedIsRendered;
+    }
         
     @Override
     public void encodeBegin(FacesContext context)
@@ -80,7 +94,7 @@ public class MenuListTag extends UIOutput implements TagEncodingHolder
         // call base
         super.encodeBegin(context);
         
-        initMenuAttributes(context);
+        initMenuAttributes();
 
         // render components
         ResponseWriter writer = context.getResponseWriter();
@@ -119,51 +133,16 @@ public class MenuListTag extends UIOutput implements TagEncodingHolder
         writer.endElement("ul");
     }
     
-    protected void initMenuAttributes(FacesContext context)
-    {        
-        currentId        = helper.getTagAttributeString(MenuProperty.currentId.name()); 
-        currentClass     = helper.getTagAttributeString(MenuProperty.currentClass.name()); 
-        parentClass      = helper.getTagAttributeString(MenuProperty.parentClass.name());
-        disabledClass    = helper.getTagAttributeString(MenuProperty.disabledClass.name()); 
-        expandedClass    = helper.getTagAttributeString(MenuProperty.expandedClass.name());
-        itemWrapTag      = helper.getTagAttributeString(MenuProperty.itemWrapTag.name());
-        defaultItemClass = helper.getTagAttributeString(MenuProperty.defaultItemClass.name());
-
-        // find parent
+    public Object getAttribute(String attributeName)
+    {
+        return helper.getTagAttributeValue(attributeName);
+    }
+    
+    public final MenuListTag getParentMenu()
+    {
         if (parentMenu==null)
             parentMenu = findParentMenu();
-        if (parentMenu==null)
-        {   // the root menu
-            if (currentClass==null)
-                currentClass = "current";  
-            if (parentClass==null)
-                parentClass = "parent";
-            if (disabledClass==null)
-                disabledClass = "parent";
-            if (expandedClass==null)
-                expandedClass = "expanded";
-            // level
-            level = 0;
-        }
-        else
-        {   // copy from parent
-            if (currentId==null)
-                currentId = parentMenu.getCurrentItemId();
-            if (currentClass==null)
-                currentClass = parentMenu.getCurrentItemClass();  
-            if (parentClass==null)
-                parentClass = parentMenu.getParentItemClass();
-            if (disabledClass==null)
-                disabledClass = parentMenu.getItemDisabledClass();
-            if (expandedClass==null)
-                expandedClass = parentMenu.getItemExpandedClass();
-            if (itemWrapTag==null)
-                itemWrapTag = parentMenu.getItemWrapperTagName();
-            if (defaultItemClass==null)
-                defaultItemClass = parentMenu.defaultItemClass;
-            // increase level
-            level = parentMenu.level + 1;
-        }
+        return parentMenu;
     }
     
     public String getCurrentItemId()
@@ -219,100 +198,76 @@ public class MenuListTag extends UIOutput implements TagEncodingHolder
         return defaultItemClass;
     }
 
-    /* 
-     * Getters and setter with getStateHelper()
-     * Removed with EMPIREDB-441 on 2024-10-12
-     * 
-    
-    public String getCurrentItemId()
-    {
-        if (currentId==null)
-            currentId= StringUtils.toString(getStateHelper().get(MenuProperty.currentId));
-        return currentId;
-    }
-
-    public String getCurrentItemClass()
-    {
-        if (currentClass==null)
-            currentClass= StringUtils.toString(getStateHelper().get(MenuProperty.currentClass));
-        return currentClass;
-    }
-
-    public String getParentItemClass()
-    {
-        if (parentClass==null)
-            parentClass= StringUtils.toString(getStateHelper().get(MenuProperty.parentClass));
-        return parentClass;
-    }
-
-    public String getItemDisabledClass()
-    {
-        if (disabledClass==null)
-            disabledClass= StringUtils.toString(getStateHelper().get(MenuProperty.disabledClass));
-        return disabledClass;
-    }
-
-    public String getItemExpandedClass()
-    {
-        if (expandedClass==null)
-            expandedClass= StringUtils.toString(getStateHelper().get(MenuProperty.expandedClass));
-        return expandedClass;
-    }
-
-    public String getItemWrapperTagName()
-    {
-        if (itemWrapTag==null)
-            itemWrapTag= StringUtils.toString(getStateHelper().get(MenuProperty.itemWrapTag));
-        return itemWrapTag;
-    }
-    
-    public void setCurrentId(String currentId)
-    {
-        this.currentId = currentId;
-        // save
-        getStateHelper().put(MenuProperty.currentId, currentId);
-    }
-
-    public void setCurrentClass(String currentClass)
-    {
-        this.currentClass = currentClass;
-        // save
-        getStateHelper().put(MenuProperty.currentClass, currentClass);
-    }
-
-    public void setDisabledClass(String disabledClass)
-    {
-        this.disabledClass = disabledClass;
-        // save
-        getStateHelper().put(MenuProperty.disabledClass, disabledClass);
-    }
-
-    public void setParentClass(String parentClass)
-    {
-        this.parentClass = parentClass;
-        // save
-        getStateHelper().put(MenuProperty.parentClass, parentClass);
-    }
-
-    public void setExpandedClass(String expandedClass)
-    {
-        this.expandedClass = expandedClass;
-        // save
-        getStateHelper().put(MenuProperty.expandedClass, expandedClass);
-    }
-
-    public void setItemWrapTag(String itemWrapTag)
-    {
-        this.itemWrapTag = itemWrapTag;
-        // save
-        getStateHelper().put(MenuProperty.itemWrapTag, itemWrapTag);
-    }
-    
-    */
-
     /*
      * helpers
      */
+    
+    /**
+     * Returns whether or not the MenuList should be rendered
+     * Override this to implement custom logic
+     * @return true if the menu item should be rendered or false otherwise
+     */
+    protected boolean isRenderList()
+    {
+        /*
+         * Example implementation for derived classes
+         * 
+        // check whether to render the menu list
+        FacesContext fc = FacesContext.getCurrentInstance();
+        UIViewRoot vr = (fc!=null ? fc.getViewRoot() : null);
+        Map<String, Object> vm = (vr!=null ? vr.getViewMap(false) : null);
+        Page page = (Page) (vm!=null ?  vm.get("page") : null);
+        if (page!=null && !page.isRenderMenuList(this))
+            return false;
+         */    
+        // yes, render
+        return true;
+    }
+    
+    protected void initMenuAttributes()
+    {        
+        currentId        = helper.getTagAttributeString(MenuProperty.currentId.name()); 
+        currentClass     = helper.getTagAttributeString(MenuProperty.currentClass.name()); 
+        parentClass      = helper.getTagAttributeString(MenuProperty.parentClass.name());
+        disabledClass    = helper.getTagAttributeString(MenuProperty.disabledClass.name()); 
+        expandedClass    = helper.getTagAttributeString(MenuProperty.expandedClass.name());
+        itemWrapTag      = helper.getTagAttributeString(MenuProperty.itemWrapTag.name());
+        defaultItemClass = helper.getTagAttributeString(MenuProperty.defaultItemClass.name());
+
+        // find parent
+        if (getParentMenu()==null)
+        {   // the root menu
+            if (currentClass==null)
+                currentClass = "current";  
+            if (parentClass==null)
+                parentClass = "parent";
+            if (disabledClass==null)
+                disabledClass = "parent";
+            if (expandedClass==null)
+                expandedClass = "expanded";
+            // level
+            level = 0;
+        }
+        else
+        {   // copy from parent
+            if (currentId==null)
+                currentId = parentMenu.getCurrentItemId();
+            if (currentClass==null)
+                currentClass = parentMenu.getCurrentItemClass();  
+            if (parentClass==null)
+                parentClass = parentMenu.getParentItemClass();
+            if (disabledClass==null)
+                disabledClass = parentMenu.getItemDisabledClass();
+            if (expandedClass==null)
+                expandedClass = parentMenu.getItemExpandedClass();
+            if (itemWrapTag==null)
+                itemWrapTag = parentMenu.getItemWrapperTagName();
+            if (defaultItemClass==null)
+                defaultItemClass = parentMenu.defaultItemClass;
+            // increase level
+            level = parentMenu.level + 1;
+        }
+    }
 
     protected MenuListTag findParentMenu()
     {

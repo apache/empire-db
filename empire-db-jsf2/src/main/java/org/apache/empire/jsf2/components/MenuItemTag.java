@@ -28,6 +28,7 @@ import javax.faces.context.ResponseWriter;
 import org.apache.empire.commons.ObjectUtils;
 import org.apache.empire.commons.StringUtils;
 import org.apache.empire.jsf2.controls.InputControl;
+import org.apache.empire.jsf2.pages.PageDefinition;
 import org.apache.empire.jsf2.utils.TagEncodingHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,6 +40,9 @@ public class MenuItemTag extends LinkTag
     
     protected MenuListTag parentMenu;
     protected String menuId;
+    
+    private transient Boolean cachedIsRendered;
+    private transient Boolean cachedIsExpanded;
 
     public MenuItemTag()
     {
@@ -93,16 +97,58 @@ public class MenuItemTag extends LinkTag
     }
     
     @Override
+    public boolean isRendered()
+    {
+        // call base for default
+        if (!super.isRendered())
+            return false;
+        // detect if not already detected
+        if (cachedIsRendered== null)
+            cachedIsRendered = isRenderItem();
+        // render
+        return cachedIsRendered;
+    }
+    
+    public final String getMenuItemId()
+    {
+        if (menuId==null)
+            menuId = helper.getTagAttributeString("menuId");
+        return menuId;
+    }
+    
+    public final MenuListTag getParentMenu()
+    {
+        if (parentMenu==null)
+            parentMenu = findParentMenu();
+        return parentMenu;
+    }
+    
+    public final Object getAttribute(String attributeName)
+    {
+        return helper.getTagAttributeValue(attributeName);
+    }
+    
+    public final PageDefinition getPageDefinition()
+    {
+        // check page
+        Object pageDefinition = helper.getTagAttributeValue("page");
+        if (pageDefinition instanceof PageDefinition)
+            return (PageDefinition)pageDefinition;
+        else if (pageDefinition!=null)
+            log.warn("MenuItem attribute \"page\" is not a PageDefinition but a {}", pageDefinition.getClass().getName());
+        // not provided
+        return null;
+    }
+    
+    @Override
     public void encodeBegin(FacesContext context)
         throws IOException
     {
         // Detect Parent Menu
-        parentMenu = findParentMenu();
+        if (parentMenu==null)
+            getParentMenu();
         if (menuId==null)
-            menuId = helper.getTagAttributeString("menuId");         
-        
-        if(!isRendered())
-            return;
+            getMenuItemId();         
         
         // render components
         ResponseWriter writer = context.getResponseWriter();
@@ -141,7 +187,7 @@ public class MenuItemTag extends LinkTag
     public void encodeChildren(FacesContext context)
         throws IOException
     {
-        if (isExpanded())
+        if (isItemExpanded())
         {
             UIComponent c = getChildren().get(0);
             if (c instanceof HtmlOutcomeTargetLink)
@@ -164,7 +210,7 @@ public class MenuItemTag extends LinkTag
         if(!isRendered())
             return;
         // call base
-        if (isExpanded())
+        if (isItemExpanded())
         {
             super.encodeEnd(context);
         }
@@ -195,32 +241,72 @@ public class MenuItemTag extends LinkTag
         return null;
     }
     
-    protected boolean isCurrent()
+    public boolean isCurrent()
     {
-        if (menuId==null || parentMenu==null || parentMenu.getCurrentItemId()==null)
+        if (getMenuItemId()==null || getParentMenu()==null || parentMenu.getCurrentItemId()==null)
             return false;
         // All present
         return menuId.equals(parentMenu.getCurrentItemId());
     }
     
-    protected boolean isParent()
+    public boolean isParent()
     {
-        if (menuId==null || parentMenu==null || parentMenu.getCurrentItemId()==null)
+        if (getMenuItemId()==null || getParentMenu()==null || parentMenu.getCurrentItemId()==null)
             return false;
         // All present
         String  currentId = parentMenu.getCurrentItemId();
         return (currentId.length()>menuId.length() && currentId.startsWith(menuId));
     }
 
-    protected boolean isDisabled()
+    public boolean isItemDisabled()
     {
         Object value = helper.getTagAttributeValue("disabled");
         if (value!=null)
             return ObjectUtils.getBoolean(value);
         return false;
     }
+    
+    public final boolean isItemExpanded()
+    {
+        if (cachedIsExpanded==null)
+            cachedIsExpanded=detectItemExpanded();
+        return cachedIsExpanded;
+    }
+    
+    /**
+     * Returns whether or not the MenuItem should be rendered
+     * Override this to implement custom logic
+     * @return true if the menu item should be rendered or false otherwise
+     */
+    protected boolean isRenderItem()
+    {
+        /*
+         * Example implementation for derived classes
+         * 
+        // check page
+        Object pageDefinition = helper.getTagAttributeValue("page");
+        if (pageDefinition instanceof PageDefinition)
+        {   // check whether to render the item
+            FacesContext fc = FacesContext.getCurrentInstance();
+            UIViewRoot vr = (fc!=null ? fc.getViewRoot() : null);
+            Map<String, Object> vm = (vr!=null ? vr.getViewMap(false) : null);
+            Page page = (Page) (vm!=null ?  vm.get("page") : null);
+            if (page!=null && !page.isRenderMenuItem(this))
+                return false;
+                
+        }
+         */
+        // check currentOnly
+        Object currentOnly = helper.getTagAttributeValue("currentOnly");
+        if (currentOnly!=null && ObjectUtils.getBoolean(currentOnly))
+        {   // Check current and parent
+            return isCurrent() || isParent();
+        }
+        // yes, render
+        return true;
+    }
 
-    protected boolean isExpanded()
+    protected boolean detectItemExpanded()
     {
         Object value = helper.getTagAttributeValue("expanded");
         boolean auto = false;
@@ -234,28 +320,11 @@ public class MenuItemTag extends LinkTag
                 return true;
         }
         // Check parent
-        if (menuId==null || parentMenu==null || parentMenu.getCurrentItemId()==null)
+        if (getMenuItemId()==null || getParentMenu()==null || parentMenu.getCurrentItemId()==null)
             return auto;
         // All present
         String currentId = parentMenu.getCurrentItemId();
         return currentId.startsWith(menuId+".");
-    }
-    
-    @Override
-    public boolean isRendered()
-    {
-        Object value = helper.getTagAttributeValue("currentOnly");
-        boolean currentOnly = false;
-        if (value!=null)
-            currentOnly = ObjectUtils.getBoolean(value);
-        
-        // Check parent
-        if (currentOnly && menuId!=null && parentMenu!=null && parentMenu.getCurrentItemId()!=null)
-        {    
-            return isCurrent() || isParent();
-        }
-        
-        return super.isRendered();
     }
     
     protected String getStyleClass()
@@ -272,15 +341,15 @@ public class MenuItemTag extends LinkTag
             else if (isParent())
                 styleClass = appendStyleClass(styleClass, parentMenu.getParentItemClass());
             // expanded
-            if (isExpanded())
+            if (isItemExpanded())
                 styleClass = appendStyleClass(styleClass, parentMenu.getItemExpandedClass());            
             // Disabled / enabled
-            if (isDisabled())
+            if (isItemDisabled())
                 styleClass = appendStyleClass(styleClass, parentMenu.getItemDisabledClass());
         }
         else
         {   // disabled
-            if (isDisabled())
+            if (isItemDisabled())
                 styleClass = appendStyleClass(styleClass, "disabled");
         }
         // both supplied
@@ -299,7 +368,27 @@ public class MenuItemTag extends LinkTag
     {
         return false;
     }
-
+    
+    /**
+     * Returns the menu item label
+     * Override this to e.g. provide the label from the PageDefinition
+     * @return the menu item label
+     */
+    @Override
+    protected Object getLinkValue(boolean hasColumn)
+    {
+        Object label = super.getLinkValue(hasColumn);
+        /*
+         * Example implementation for derived classes
+         * 
+        if (label==null && getFacet("label")==null)
+        {   // Set title from PageDefinition
+            PageDefinition pageDef = getPageDefinition();
+            label = helper.getTextResolver(FacesContext.getCurrentInstance()).resolveKey("pageTitle."+pageDef.getPageBeanName());
+        }
+         */
+        return label; 
+    }
     
     /* 
      * Supports a "label" facet" e.g.
