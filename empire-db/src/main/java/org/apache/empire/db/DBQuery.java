@@ -308,10 +308,10 @@ public class DBQuery extends DBRowSet
     }
 
     /**
-     * Returns all expressions of the underlying query
-     * @return all expressions of the underlying query
+     * Returns the select expressions of the underlying query
+     * @return the select expressions of the underlying query
      */
-    public DBColumnExpr[] getQueryColumnsExprs()
+    public DBColumnExpr[] getQueryColumnExprs()
     {
         return queryColumns;
     }
