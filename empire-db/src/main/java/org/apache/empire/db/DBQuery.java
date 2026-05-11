@@ -335,16 +335,15 @@ public class DBQuery extends DBRowSet
      */
     public int getQueryColumnIndex(ColumnExpr columnExpr)
     {
+        // (changed 2026-05-11 EMPIREDB-491)
         // (changed 2024-07-18 EMPIREDB-434)
-        // 1st try: compare columns
-        for (int index=0; index<queryColumns.length; index++)
-        {   // check update column
-            if (ObjectUtils.compareEqual(queryColumns[index], columnExpr))
-                return index;
-        }
+        // 1st try: find best match
+        int index = ObjectUtils.indexOf(queryColumns, columnExpr);
+        if (index>=0)
+            return index;
         // 2nd try: Match update column
         if (columnExpr instanceof DBColumn)
-        {   for (int index=0; index<queryColumns.length; index++)
+        {   for (index=0; index<queryColumns.length; index++)
             {   // check update column
                 DBColumnExpr c = queryColumns[index];
                 if (columnExpr.equals(c.getUpdateColumn()))

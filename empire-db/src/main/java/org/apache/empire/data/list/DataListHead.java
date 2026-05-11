@@ -21,6 +21,7 @@ package org.apache.empire.data.list;
 import java.io.Serializable;
 
 import org.apache.empire.commons.ObjectUtils;
+import org.apache.empire.data.Column;
 import org.apache.empire.data.ColumnExpr;
 import org.apache.empire.db.DBDatabase;
 import org.apache.empire.db.DBObject;
@@ -50,10 +51,19 @@ public class DataListHead implements Serializable
 
     public int getColumnIndex(ColumnExpr column)
     {
-        // find
+        // 1st try: find best match
         int i = ObjectUtils.indexOf(columns, column);
         if (i>=0)
             return i;
+        // 2nd try: Match update column
+        if (column instanceof Column)
+        {   for (int index=0; index<columns.length; index++)
+            {   // check update column
+                ColumnExpr c = columns[index];
+                if (column.equals(c.getUpdateColumn()))
+                    return index;
+            }
+        }
         // Not found, try by name
         return getColumnIndex(column.getName());
     }

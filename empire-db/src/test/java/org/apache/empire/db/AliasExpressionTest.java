@@ -78,11 +78,12 @@ public class AliasExpressionTest
         cmd.select(ALIAS_2_NUM, ALIAS_2, ALIAS_2_NEW);    // only the last one
         cmd.select(AMOUNT, t.C_NUMBER); 
         cmd.select(db.getValueExpr(DateUtils.getDateNow(), DataType.DATE).as(t.C_DATE)); // date as constant
+        cmd.select(t.C_INTEGER.coalesce(67).as("ZAHL"));
         DBColumnExpr[] expr = cmd.getSelectExprList();
         // Hint: ALIAS_2_NEU is not a separate column
-        assertEquals(expr.length, 8);
+        assertEquals(expr.length, 9);
         String exprNames = StringUtils.arrayToString(expr, StringUtils.LIST_TEMPLATE);
-        assertEquals(exprNames, "[testtable_id|testtable.id|ALIAS_1|testtable.TEXT|ALIAS_2|AMOUNT|testtable.NUMBER|DATE]");
+        assertEquals(exprNames, "[testtable_id|testtable.id|ALIAS_1|testtable.TEXT|ALIAS_2|AMOUNT|testtable.NUMBER|DATE|ZAHL]");
         // where
         cmd.where(ALIAS_1.isNot("Foo1"));
         cmd.where(ALIAS_2.isNot("Foo2"));
@@ -105,6 +106,8 @@ public class AliasExpressionTest
         assertEquals(record.getFieldIndex(AMOUNT), 5);
         assertEquals(record.getFieldIndex(t.C_NUMBER), 6);
         assertEquals(record.getFieldIndex(t.C_DATE), 7);
+        assertEquals(record.getFieldIndex(t.C_INTEGER.coalesce(67)), 8);
+        assertEquals(record.getFieldIndex(t.C_INTEGER), 8);
 
         // Reader 
         DBReader reader = new MyReader(context);
@@ -119,6 +122,8 @@ public class AliasExpressionTest
         assertEquals(reader.getFieldIndex(AMOUNT), 5);
         assertEquals(reader.getFieldIndex(t.C_NUMBER), 6);
         assertEquals(reader.getFieldIndex(t.C_DATE), 7);
+        assertEquals(reader.getFieldIndex(t.C_INTEGER.coalesce(67)), 8);
+        assertEquals(reader.getFieldIndex(t.C_INTEGER), 8);
         reader.close();
         
         // DataListEntry
@@ -137,6 +142,8 @@ public class AliasExpressionTest
         assertEquals(dle.getFieldIndex(AMOUNT), 5);
         assertEquals(dle.getFieldIndex(t.C_NUMBER), 6);
         assertEquals(dle.getFieldIndex(t.C_DATE), 7);
+        assertEquals(dle.getFieldIndex(t.C_INTEGER.coalesce(67)), 8);
+        assertEquals(dle.getFieldIndex(t.C_INTEGER), 8);
 
         // done
     }
@@ -166,6 +173,7 @@ public class AliasExpressionTest
             public final DBTableColumn C_ID;
             public final DBTableColumn C_TEXT;
             public final DBTableColumn C_NUMBER;
+            public final DBTableColumn C_INTEGER;
             public final DBTableColumn C_DATE;
 
             TestTable(DBDatabase db)
@@ -174,6 +182,7 @@ public class AliasExpressionTest
                 this.C_ID = addColumn("id", DataType.INTEGER, 0, true);
                 this.C_TEXT = addColumn("TEXT", DataType.VARCHAR, 255, false);
                 this.C_NUMBER = addColumn("NUMBER", DataType.DECIMAL, 10.2, false);
+                this.C_INTEGER = addColumn("INTEGER", DataType.INTEGER, 0, false);
                 this.C_DATE = addColumn("DATE", DataType.DATE, 0, false);
                 setPrimaryKey(C_ID);
             }
