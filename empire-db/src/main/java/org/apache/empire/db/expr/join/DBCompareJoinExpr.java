@@ -67,10 +67,12 @@ public class DBCompareJoinExpr extends DBColumnJoinExpr
     
     private static DBColumnExpr firstRsetColumn(DBRowSet rset)
     {
+        /* 2026-05-11 obsolete
         if (rset instanceof DBQuery)
            return ((DBQuery)rset).getQueryColumns()[0];
-        else 
-           return rset.getColumn(0);
+        else
+        */ 
+        return rset.getColumn(0);
     }
     
     /**

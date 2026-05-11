@@ -46,8 +46,8 @@ import org.apache.empire.exceptions.NotSupportedException;
  * <UL>
  *  <LI>In oder to define subqueries simply define a command object with the subquery and wrap it inside a DBQuery.
  *    Then in a second command object you can reference this Query to join with your other tables and views.
- *    In order to join other columns with your query use findColumn(DBColumnExpr expr) to get the 
- *    query column object for a given column expression in the original select clause.</LI> 
+ *    In order to join other columns with your query use column(DBColumnExpr expr) to get the  query column object 
+ *    for a given column expression in the underlying select clause.</LI> 
  *  <LI>With a key supplied you can have an updateable query that will update several records at once.</LI>
  * </UL>
  *
@@ -67,51 +67,18 @@ public class DBQuery extends DBRowSet
         return prefix + String.valueOf(queryCount.incrementAndGet());
     }
 
-    /**
-     * DBQueryExprColumn 
-     * @author doebele
-     */
-    protected static class DBQueryExprColumn extends DBQueryColumn
-    {
-        // *Deprecated* private static final long serialVersionUID = 1L;
-        
-        protected DBQueryExprColumn(DBQuery q, String name, DBColumnExpr expr)
-        {
-            super(q, name, expr);
-        }
-        
-        @Override
-        public DBColumn getUpdateColumn()
-        {
-            return expr.getUpdateColumn();
-        }
-        
-        @Override
-        public boolean equals(Object other)
-        {
-            if (super.equals(other))
-                return true;
-            if (other instanceof DBQueryColumn)
-            {   // compare expressions
-                DBQueryColumn oc = (DBQueryColumn)other;
-                return (this.rowset.equals(oc.getRowSet()) && this.expr.equals(oc.getExpr()));
-            }
-            return false;
-        }
-    }
-
     protected final DBCommandExpr   cmdExpr;
+    protected final DBColumnExpr[]  queryColumns;   // the underlying query expressions
     protected final DBColumn[]      keyColumns;
-    protected final DBQueryColumn[] queryColumns;
     protected final String          alias;
     protected boolean               updateable;
-
+    
     /**
      * Constructor initializes the query object.
-     * Saves the columns and the primary key of this query.
+     * Saves the queryColumns and the primary key of this query.
      * 
      * @param cmd the SQL-Command
-     * @param keyColumns an array of the primary key columns
+     * @param keyColumns an array of the primary key queryColumns
      * @param alias the query alias
      */
     public DBQuery(DBCommandExpr cmd, DBColumn[] keyColumns, String alias)
@@ -124,21 +91,10 @@ public class DBQuery extends DBRowSet
         this.cmdExpr = cmd;
         this.alias = alias;
         // Set Query Columns
-        DBColumnExpr[] exprList = cmd.getSelectExprList();
-        this.queryColumns = new DBQueryColumn[exprList.length];
-        for (int i = 0; i < exprList.length; i++)
+        this.queryColumns = cmd.getSelectExprList();
+        for (int i = 0; i < queryColumns.length; i++)
         {   // Init Columns 
-            queryColumns[i] = createQueryColumn(exprList[i], i);
-            // add column
-            DBColumn column;
-            if (exprList[i] instanceof DBColumn)
-            {   // use directly
-                column = (DBColumn)exprList[i];
-            }
-            else
-            {   // create Wrapper
-                column = new DBQueryExprColumn(this, queryColumns[i].getName(), exprList[i]); 
-            }
+            DBQueryColumn column = createQueryColumn(queryColumns[i], i);
             columns.add(column);
         }
         // Set the key Column
@@ -148,10 +104,10 @@ public class DBQuery extends DBRowSet
 
     /**
      * Constructor initializes the query object.
-     * Saves the columns and the primary key of this query.
+     * Saves the queryColumns and the primary key of this query.
      * 
      * @param cmd the SQL-Command
-     * @param keyColumns an array of the primary key columns
+     * @param keyColumns an array of the primary key queryColumns
      */
     public DBQuery(DBCommandExpr cmd, DBColumn[] keyColumns)
     {   // Set the column expressions
@@ -160,7 +116,7 @@ public class DBQuery extends DBRowSet
     
     /**
      * Constructs a new DBQuery object initialize the query object.
-     * Save the columns and the primary key of this query.
+     * Save the queryColumns and the primary key of this query.
      * 
      * @param cmd the SQL-Command
      * @param keyColumn the primary key column
@@ -173,7 +129,7 @@ public class DBQuery extends DBRowSet
     
     /**
      * Constructs a new DBQuery object initialize the query object.
-     * Save the columns and the primary key of this query.
+     * Save the queryColumns and the primary key of this query.
      * 
      * @param cmd the SQL-Command
      * @param keyColumn the primary key column
@@ -260,109 +216,147 @@ public class DBQuery extends DBRowSet
      */
     public void setUpdateable(boolean updateable)
     {
-        if (updateable && getKeyColumns()==null)
+        if (updateable && keyColumns==null)
             throw new NotSupportedException(this, "setUpdateable");
         // set updateable
         this.updateable = updateable;
     }
 
     /**
-     * Gets the query column by Index
-     * @param iColumn the column index
-     * @return the query column of that index
-     */
-    public DBQueryColumn getQueryColumn(int iColumn)
-    {
-        if (iColumn < 0 || iColumn >= columns.size())
-            return null;
-        return queryColumns[iColumn];
-    }
-
-    /**
-     * Gets all columns of this rowset (e.g. for cmd.select()).
-     * 
-     * @return all columns of this rowset
-     */
-    public DBQueryColumn[] getQueryColumns()
-    {
-        return queryColumns;
-    }
-
-    /**
-     * This function provides the query column object for a particular query command expression 
-     * 
-     * @param expr the DBColumnExpr object
-     * @return the query column
-     */
-    public DBQueryColumn findColumn(DBColumnExpr expr)
-    {
-        for (int i = 0; i < queryColumns.length; i++)
-        {
-            if (ObjectUtils.compareEqual(queryColumns[i].getExpr(), expr))
-                return queryColumns[i];
-        }
-        // not found
-        return null;
-    }
-    
-    /**
-     * This function provides the query column object for a particular query command expression 
-     * 
-     * @param name the column name
-     * @return the query column
-     */
-    public DBQueryColumn findColumn(String name)
-    {
-        for (int i = 0; i < queryColumns.length; i++)
-        {
-            if (StringUtils.compareEqual(queryColumns[i].getName(), name, true))
-                return queryColumns[i];
-        }
-        // not found
-        return null;
-    }
-
-    /**
-     * This is a convenience shortcut for findQueryColumn
-     * 
+     * Returns the query column for a underlying column expression
+     * Use this function to map table columns to query columns
      * @param expr the DBColumnExpr object
      * @return the query column
      */
     public DBQueryColumn column(DBColumnExpr expr)
     {
-        DBQueryColumn col = findColumn(expr);
-        if (col==null)
+        int index = getQueryColumnIndex(expr);
+        if (index < 0)
             throw new ItemNotFoundException(expr);
-        return col;
+        // return the query column
+        return (DBQueryColumn)columns.get(index);
     }
     
     /**
-     * This is a convenience shortcut for findQueryColumn
-     * 
-     * @param name the column name
-     * @return the located column
+     * Returns the query column for a given column name in the underlying query
+     * @param columnName the column name in the underlying query
+     * @return the query column
      */
-    public DBQueryColumn column(String name)
-    {
-        DBQueryColumn col = findColumn(name);
-        if (col==null)
-            throw new ItemNotFoundException(name);
-        return col;
+    public DBQueryColumn column(String columnName)
+    {   // find query column by name
+        if (StringUtils.isEmpty(columnName))
+            throw new InvalidArgumentException("name", columnName);
+        // search
+        for (int i = 0; i < queryColumns.length; i++)
+        {
+            if (columnName.equalsIgnoreCase(queryColumns[i].getName()))
+                return (DBQueryColumn)columns.get(i); // found
+        }
+        throw new ItemNotFoundException(columnName);
     }
 
     /**
-     * This is a convenience shortcut for getQueryColumn
-     * 
-     * @param iColumn the index of the query column
+     * Returns the query column for a particular index
+     * Same as getColumn(columnIndex) but throws an exception if index is out of range 
+     * @param columnIndex the index of the query column
      * @return the located column
      */
-    public DBQueryColumn column(int iColumn)
+    public DBQueryColumn column(int columnIndex)
     {
-        return getQueryColumn(iColumn);
+        DBColumn column = getColumn(columnIndex);
+        if (!(column instanceof DBQueryColumn))
+            throw new InvalidArgumentException("columnIndex", columnIndex);
+        // return the query column
+        return (DBQueryColumn)column;
+    }
+
+    /**
+     * Returns the query column for a underlying column expression 
+     * @Deprecated use column(expr) instead
+     * @param expr the DBColumnExpr object
+     * @return the query column
+     */
+    @Deprecated
+    public DBQueryColumn findColumn(DBColumnExpr expr)
+    {
+        return column(expr);
     }
     
     /**
-     * return query key columns
+     * Returns the query column for a given column name 
+     * @Deprecated use column(name) instead
+     * @param name the column name
+     * @return the query column
+     */
+    @Deprecated
+    public DBQueryColumn findColumn(String name)
+    {
+        return column(name);
+    }
+
+    /**
+     * Gets all columns of this rowset (e.g. for cmd.select()).
+     * @Deprecated use getColumns() or getAllColumns() instead
+     * @return all columns of this rowset
+     */
+    @Deprecated
+    public DBQueryColumn[] getQueryColumns()
+    {
+        DBQueryColumn[] array = new DBQueryColumn[columns.size()];
+        columns.toArray(array);
+        return array;
+    }
+
+    /**
+     * Returns all expressions of the underlying query
+     * @return all expressions of the underlying query
+     */
+    public DBColumnExpr[] getQueryColumnsExprs()
+    {
+        return queryColumns;
+    }
+
+    /**
+     * Returns the query column expression at a given index
+     * @param columnIndex the column index
+     * @return the query column expression at that index
+     */
+    public DBColumnExpr getQueryColumnExpr(int columnIndex)
+    {
+        if (columnIndex < 0 || columnIndex >= queryColumns.length)
+            return null;
+        return queryColumns[columnIndex];
+    }
+
+    /**
+     * Returns the index of a column in the underlying query
+     * @param columnExpr the column to find
+     * @return the index of the column
+     */
+    public int getQueryColumnIndex(ColumnExpr columnExpr)
+    {
+        // (changed 2024-07-18 EMPIREDB-434)
+        // 1st try: compare columns
+        for (int index=0; index<queryColumns.length; index++)
+        {   // check update column
+            if (ObjectUtils.compareEqual(queryColumns[index], columnExpr))
+                return index;
+        }
+        // 2nd try: Match update column
+        if (columnExpr instanceof DBColumn)
+        {   for (int index=0; index<queryColumns.length; index++)
+            {   // check update column
+                DBColumnExpr c = queryColumns[index];
+                if (columnExpr.equals(c.getUpdateColumn()))
+                    return index;
+            }
+        }
+        // not found
+        return -1;
+    }
+    
+    /**
+     * @return the key columns
      */
     @Override
     public DBColumn[] getKeyColumns()
@@ -371,10 +365,10 @@ public class DBQuery extends DBRowSet
     }
     
     /**
-     * Returns a array of primary key columns by a specified DBRecord object.
+     * Returns the record key for a given record.
      * 
-     * @param record the DBRecord object, contains all fields and the field properties
-     * @return a array of primary key columns
+     * @param record a record for this DBQuery
+     * @return the record key
      */
     protected Object[] getRecordKey(DBRecordBase record)
     {
@@ -417,7 +411,7 @@ public class DBQuery extends DBRowSet
         // init
         super.initRecord(record, recData, newRecord);
         // set record key as rowset data (optional)
-        if (keyColumns!=null)
+        if (getKeyColumns()!=null)
         {   // check
             Object rowsetData = getRowsetData(record);
             if (rowsetData!=null && !(rowsetData instanceof Object[]) && ((Object[])rowsetData).length!=keyColumns.length)
@@ -484,7 +478,6 @@ public class DBQuery extends DBRowSet
         if (record.isModified() == false)
             return; // Nothing to update
         // Must have key Columns
-        DBColumn[] keyColumns = getKeyColumns();
         if (keyColumns==null)
             throw new NoPrimaryKeyException(this);
         // Get the fields and the flags
@@ -492,9 +485,9 @@ public class DBQuery extends DBRowSet
         // Get all Update Commands
         DBContext context = record.getContext();
         Map<DBRowSet, DBCommand> updCmds = new HashMap<DBRowSet, DBCommand>(3);
-        for (int i = 0; i < columns.size(); i++)
+        for (int i = 0; i < queryColumns.length; i++)
         { // get the table
-            DBColumn col = columns.get(i);
+            DBColumn col = queryColumns[i].getUpdateColumn();
             if (col == null)
                 continue;
             DBRowSet table = col.getRowSet();
@@ -545,10 +538,10 @@ public class DBQuery extends DBRowSet
                 DBColumn left  = join.getLeft() .getUpdateColumn();
                 DBColumn right = join.getRight().getUpdateColumn();
                 if (left.getRowSet()==table && table.isKeyColumn(left))
-                    if (!addJoinRestriction(upd, left, right, keyColumns, key, record))
+                    if (!addJoinRestriction(upd, left, right, key, record))
                         throw new ItemNotFoundException(left.getFullName());
                 if (right.getRowSet()==table && table.isKeyColumn(right))
-                    if (!addJoinRestriction(upd, right, left, keyColumns, key, record))
+                    if (!addJoinRestriction(upd, right, left, key, record))
                         throw new ItemNotFoundException(right.getFullName());
             }
             // Evaluate Existing restrictions
@@ -605,7 +598,7 @@ public class DBQuery extends DBRowSet
                     upd.set(tsColumn.to(timestampValue));
                 }
                 else
-                {   // Timestamp columns has not been provided with the record
+                {   // Timestamp column has not been provided with the record
                     upd.set(tsColumn.to(DBDatabase.SYSDATE));
                 }
             }
@@ -663,10 +656,10 @@ public class DBQuery extends DBRowSet
      * @param record the record
      * @return flag whether the join restriction could be added
      */
-    protected boolean addJoinRestriction(DBCommand cmd, DBColumn updCol, DBColumn joinCol, DBColumn[] keyColumns, Object[] key, DBRecordBase record)
+    protected boolean addJoinRestriction(DBCommand cmd, DBColumn updCol, DBColumn joinCol, Object[] key, DBRecordBase record)
     {   // Find key for foreign field
         for (int i = 0; key!=null && i < keyColumns.length; i++)
-            if (keyColumns[i]==joinCol)
+            if (ObjectUtils.compareEqual(keyColumns[i], joinCol))
             {   // Set Field from Key
                 cmd.where(updCol.is(key[i]));
                 return true;
@@ -726,51 +719,26 @@ public class DBQuery extends DBRowSet
         if (columnExpr instanceof DBColumn)
             return getColumnIndex((DBColumn)columnExpr);
         else
-            for (int i=0; i<queryColumns.length; i++)
-            {   // find expression in QueryColumns
-                DBColumnExpr expr = queryColumns[i].getExpr();
-                if (expr.equals(columnExpr))
-                    return i; // found
-            }
-        // try unwrap
-        ColumnExpr unwrapped = ObjectUtils.unwrap(columnExpr);
-        if (unwrapped!=columnExpr)
-            return getColumnIndex(unwrapped);
-        // not found
-        return -1;
+            return getQueryColumnIndex(columnExpr);
     }
-
+    
     @Override
     public int getColumnIndex(DBColumn column)
     {
-        // (changed 2024-07-18 EMPIREDB-434)
-        // 1st try: compare columns
-        int count = columns.size();
-        for (int index=0; index<count; index++)
-        {   // check update column
-            if (columns.get(index).equals(column))
-                return index;
-        }
-        // 2nd try: Match update column
-        for (int index=0; index<count; index++)
-        {   // check update column
-            DBColumn c = columns.get(index);
-            if ((c instanceof DBQueryExprColumn))
-            {   // Update columns match
-                if (column.equals(c.getUpdateColumn()))
-                    return index;
-            }
-        }
-        // not found
-        return -1;
+        if ((column instanceof DBQueryColumn) && ((DBQueryColumn)column).getRowSet()==this) 
+            return super.getColumnIndex(column);
+        else
+            return getQueryColumnIndex(column);
     }
-
+    
     @Override
     protected DBColumnExpr getColumnExprAt(int index)
     {
-        DBColumn column = columns.get(index);
+        DBColumnExpr column = queryColumns[index];
+        /* is this required?
         if (column instanceof DBQueryColumn)
-            return ((DBQueryExprColumn)column).expr;  // unwrap
+            return ((DBQueryColumn)column).expr;  // unwrap
+        */    
         // use column
         return column;
     }
