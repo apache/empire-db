@@ -64,8 +64,8 @@ public class DataListHead implements Serializable
                     return index;
             }
         }
-        // Not found, try by name
-        return getColumnIndex(column.getName());
+        // not found
+        return -1;
     }
     
     public int getColumnIndex(String columnName)
