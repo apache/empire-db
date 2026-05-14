@@ -944,16 +944,15 @@ public class DBReader extends DBRecordData implements Closeable
             return index;
         // Second chance: Try Update Column
         if (column instanceof DBColumn)
-        {
-            for (int i = 0; i < columns.length; i++)
-            {
+        {   for (int i = 0; i < columns.length; i++)
+            {   // check update column
                 DBColumn updColumn = columns[i].getUpdateColumn();                    
-                if (updColumn!=null && updColumn.equals(column))
+                if (column.equals(updColumn))
                     return i;
                  // Query Expression?
                 if (updColumn instanceof DBQueryColumn)
                 {   updColumn = ((DBQueryColumn)updColumn).getExpr().getUpdateColumn();
-                    if (updColumn!=null && updColumn.equals(column))
+                    if (column.equals(updColumn))
                         return i;
                 }
             }

@@ -67,7 +67,14 @@ public class AliasExpressionTest
         assertEquals(record.getFieldIndex(ALIAS_X), textIndex);
         int numberIndex = record.getFieldIndex(t.C_NUMBER);
         assertEquals(record.getFieldIndex(AMOUNT), numberIndex);
-        
+
+        DBCommand qcmd = context.createCommand();
+        DBColumnExpr Q_SUMME  = t.C_NUMBER.sum().as("SUMME"); 
+        DBColumnExpr Q_ANZAHL = t.count().as("ANZAHL"); 
+        qcmd.select(t.C_NUMBER.sum().as("SUMME"), Q_ANZAHL);
+        DBQuery qsub = new DBQuery(qcmd, "qsub");
+        DBColumn QSUB_SUMME  = qsub.column(Q_SUMME);
+        DBColumn QSUB_ANZAHL = qsub.column(Q_ANZAHL);
         /*
          * (updated 2024-07-18 EMPIREDB-434)
          */
@@ -79,16 +86,18 @@ public class AliasExpressionTest
         cmd.select(AMOUNT, t.C_NUMBER); 
         cmd.select(db.getValueExpr(DateUtils.getDateNow(), DataType.DATE).as(t.C_DATE)); // date as constant
         cmd.select(t.C_INTEGER.coalesce(67).as("ZAHL"));
+        cmd.select(QSUB_SUMME.as("QUERY_SUM"), QSUB_ANZAHL);
         DBColumnExpr[] expr = cmd.getSelectExprList();
         // Hint: ALIAS_2_NEU is not a separate column
-        assertEquals(expr.length, 9);
+        assertEquals(expr.length, 11);
         String exprNames = StringUtils.arrayToString(expr, StringUtils.LIST_TEMPLATE);
-        assertEquals(exprNames, "[testtable_id|testtable.id|ALIAS_1|testtable.TEXT|ALIAS_2|AMOUNT|testtable.NUMBER|DATE|ZAHL]");
+        assertEquals(exprNames, "[testtable_id|testtable.id|ALIAS_1|testtable.TEXT|ALIAS_2|AMOUNT|testtable.NUMBER|DATE|ZAHL|QUERY_SUM|qsub.ANZAHL]");
         // where
         cmd.where(ALIAS_1.isNot("Foo1"));
         cmd.where(ALIAS_2.isNot("Foo2"));
         cmd.where(ALIAS_2_NEW.isNot("Foo3"));
         cmd.where(ALIAS_X.isNot("Foo4"));
+        cmd.join(t, qsub);
         // System.out.println(cmd.getSelect());
         List<DBCompareExpr> list = cmd.getWhereConstraints();
         assertEquals(list.size(), 1);
@@ -108,7 +117,11 @@ public class AliasExpressionTest
         assertEquals(record.getFieldIndex(t.C_DATE), 7);
         assertEquals(record.getFieldIndex(t.C_INTEGER.coalesce(67)), 8);
         assertEquals(record.getFieldIndex(t.C_INTEGER), 8);
-
+        assertEquals(record.getFieldIndex(Q_SUMME), 9);
+        assertEquals(record.getFieldIndex(QSUB_SUMME), 9);
+        assertEquals(record.getFieldIndex(Q_ANZAHL), 10);
+        assertEquals(record.getFieldIndex(QSUB_ANZAHL), 10);
+        
         // Reader 
         DBReader reader = new MyReader(context);
         reader.open(cmd);
@@ -124,6 +137,11 @@ public class AliasExpressionTest
         assertEquals(reader.getFieldIndex(t.C_DATE), 7);
         assertEquals(reader.getFieldIndex(t.C_INTEGER.coalesce(67)), 8);
         assertEquals(reader.getFieldIndex(t.C_INTEGER), 8);
+        assertEquals(reader.getFieldIndex(Q_SUMME), 9);
+        assertEquals(reader.getFieldIndex(QSUB_SUMME), 9);
+        assertEquals(reader.getFieldIndex(Q_ANZAHL), 10);
+        assertEquals(reader.getFieldIndex(QSUB_ANZAHL), 10);
+        
         reader.close();
         
         // DataListEntry
@@ -144,6 +162,10 @@ public class AliasExpressionTest
         assertEquals(dle.getFieldIndex(t.C_DATE), 7);
         assertEquals(dle.getFieldIndex(t.C_INTEGER.coalesce(67)), 8);
         assertEquals(dle.getFieldIndex(t.C_INTEGER), 8);
+        assertEquals(dle.getFieldIndex(Q_SUMME), 9);
+        assertEquals(dle.getFieldIndex(QSUB_SUMME), 9);
+        assertEquals(dle.getFieldIndex(Q_ANZAHL), 10);
+        assertEquals(dle.getFieldIndex(QSUB_ANZAHL), 10);
 
         // done
     }
