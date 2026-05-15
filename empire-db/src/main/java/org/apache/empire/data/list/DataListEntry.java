@@ -28,6 +28,7 @@ import java.util.Date;
 
 import org.apache.empire.commons.BeanPropertyUtils;
 import org.apache.empire.commons.ObjectUtils;
+import org.apache.empire.commons.StringUtils;
 import org.apache.empire.data.Column;
 import org.apache.empire.data.ColumnExpr;
 import org.apache.empire.data.Entity;
@@ -643,6 +644,9 @@ public class DataListEntry implements RecordData, Serializable
     public String getText(ColumnExpr column)
     {
         int index = getFieldIndex(column);
+        if (index < 0)
+            throw new InvalidArgumentException("column", (column!=null ? column.getName() : StringUtils.NULL));
+        // return text for column value
         return head.getText(index, values[index]);
     }
 
@@ -650,12 +654,16 @@ public class DataListEntry implements RecordData, Serializable
      * Returns the value of a column as a formatted text
      * This converts the value to a string if necessary and performs an options lookup
      * To customize conversion please override convertToString()
-     * @param name the column for which to get the formatted value
+     * @param columnName the column for which to get the formatted value
      * @return the formatted value
      */
-    public final String getText(String name)
+    public String getText(String columnName)
     {
-        return getText(getColumn(getFieldIndex(name)));
+        int index = getFieldIndex(columnName);
+        if (index < 0)
+            throw new InvalidArgumentException("columnName", columnName);
+        // convert to column to and call getText(column) to allow overrides
+        return getText(getColumn(index));
     }
 
     /**
