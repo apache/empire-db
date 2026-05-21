@@ -37,6 +37,7 @@ import org.apache.empire.data.ColumnExpr;
 import org.apache.empire.data.DataType;
 import org.apache.empire.data.Entity;
 import org.apache.empire.data.Record;
+import org.apache.empire.data.RecordData;
 import org.apache.empire.db.DBRelation.DBCascadeAction;
 import org.apache.empire.db.DBRelation.DBReference;
 import org.apache.empire.db.context.DBContextBase;
@@ -747,7 +748,7 @@ public abstract class DBRowSet extends DBExpr implements Entity
      * @param recData the record data from which to initialized the record
      * @param newRecord true if the record is new or false if it is an existing record
      */
-    public void initRecord(DBRecordBase record, DBRecordData recData, boolean newRecord)
+    public void initRecord(DBRecordBase record, RecordData recData, boolean newRecord)
     {
         // check param
         checkParamRecord(record, false);
@@ -785,11 +786,11 @@ public abstract class DBRowSet extends DBExpr implements Entity
 
     /**
      * Initializes a DBRecord for this rowset for an existing record
-     * @see org.apache.empire.db.DBRowSet#initRecord(DBRecordBase, DBRecordData, boolean)
+     * @see org.apache.empire.db.DBRowSet#initRecord(DBRecordBase, RecordData, boolean)
      * @param record the record object
      * @param recData the record data from which to initialized the record
      */
-    public final void initRecord(DBRecordBase record, DBRecordData recData)
+    public final void initRecord(DBRecordBase record, RecordData recData)
     {
         initRecord(record, recData, false);
     }
