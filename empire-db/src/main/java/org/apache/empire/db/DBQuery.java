@@ -27,6 +27,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.empire.commons.ObjectUtils;
 import org.apache.empire.commons.StringUtils;
 import org.apache.empire.data.ColumnExpr;
+import org.apache.empire.data.RecordData;
 import org.apache.empire.db.exceptions.NoPrimaryKeyException;
 import org.apache.empire.db.exceptions.RecordUpdateAmbiguousException;
 import org.apache.empire.db.exceptions.RecordUpdateFailedException;
@@ -405,7 +406,7 @@ public class DBQuery extends DBRowSet
      * Add rowset data
      */
     @Override
-    public void initRecord(DBRecordBase record, DBRecordData recData, boolean newRecord)
+    public void initRecord(DBRecordBase record, RecordData recData, boolean newRecord)
     {
         // init
         super.initRecord(record, recData, newRecord);
