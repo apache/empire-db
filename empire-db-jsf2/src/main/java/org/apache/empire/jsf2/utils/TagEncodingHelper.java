@@ -1734,9 +1734,13 @@ public class TagEncodingHelper implements NamingContainer
                 label=column.getTitle();
             // translate
             label = getDisplayText(column, label);
-        }    
+        }
+        else if (label.endsWith(":"))
+        {   // already has a colon
+            colon = false;
+        }
         // handle empty string
-        if (StringUtils.isEmpty(label))
+        if (StringUtils.isEmpty(label) || label.equals("-"))
             return "";
         // getColon
         if (colon) 
@@ -1857,13 +1861,31 @@ public class TagEncodingHelper implements NamingContainer
         label.setStyleClass(completeLabelStyleClass(styleClass, required));
         // set mark
         boolean hasMark = (label.getChildCount()>0);
-        if (required==hasMark)
-            return;
-        // Add or remove the mark
-        if (required && InputControlManager.isShowLabelRequiredMark())
-            addRequiredMark(label);
-        else
-            label.getChildren().clear();
+        if (required!=hasMark)
+        {   // Add or remove the mark
+            if (required && InputControlManager.isShowLabelRequiredMark())
+                addRequiredMark(label);
+            else if(hasMark)
+                label.getChildren().clear();
+        }
+        // Update label if provided with component
+        String labelText = getTagAttributeString("label", null);
+        if (labelText!=null)
+        {   // Label has changed
+            if (!labelText.equals("-"))
+            {   // add a colon?
+                boolean colon = (!labelText.endsWith(":") ? ObjectUtils.getBoolean(getTagAttributeValue("colon"), true) : false);
+                if (colon)
+                    labelText = labelText.trim() + ":";
+                label.setValue(labelText);
+                // make visible
+                label.setRendered(true);
+            }
+            else
+            {   // hide label
+                label.setRendered(false);
+            }
+        }
     }
 
     protected String completeLabelStyleClass(String styleClasses, boolean required)
