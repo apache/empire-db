@@ -540,6 +540,8 @@ public class ValueUtils
             return DateUtils.toDate((LocalDate)v);
         if (v instanceof java.time.LocalDateTime)
             return DateUtils.toDate((LocalDateTime)v);
+        if (v instanceof DBDatabase.DBSystemDate)
+            return DateUtils.getTimeNow();
         if (v instanceof Number)
         {   // Get Date from a number
             long l = ((Number)v).longValue();
@@ -576,6 +578,8 @@ public class ValueUtils
             return ((java.sql.Date)v).toLocalDate();
         if (v instanceof java.util.Date)
             return DateUtils.toLocalDate((Date)v);
+        if (v instanceof DBDatabase.DBSystemDate)
+            return LocalDate.now();
         // Convert from String
         // DateTimeFormatter.ISO_LOCAL_DATE_TIME
         String str = v.toString();
@@ -603,6 +607,8 @@ public class ValueUtils
             return ((java.sql.Date)v).toLocalDate().atStartOfDay();
         if (v instanceof java.util.Date)
             return DateUtils.toLocalDateTime((Date)v);
+        if (v instanceof DBDatabase.DBSystemDate)
+            return LocalDateTime.now();
         // Convert from String
         // DateTimeFormatter.ISO_LOCAL_DATE_TIME
         String str = v.toString();
@@ -630,6 +636,8 @@ public class ValueUtils
             return Timestamp.valueOf(((java.sql.Date)v).toLocalDate().atStartOfDay());
         if (v instanceof java.util.Date)
             return Timestamp.valueOf(DateUtils.toLocalDateTime((Date)v));
+        if (v instanceof DBDatabase.DBSystemDate)
+            return DateUtils.getTimestamp();
         // Convert from String
         // DateTimeFormatter.ISO_LOCAL_DATE_TIME
         String str = v.toString();
