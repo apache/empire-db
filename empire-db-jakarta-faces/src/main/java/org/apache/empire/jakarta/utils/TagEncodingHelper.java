@@ -1735,9 +1735,14 @@ public class TagEncodingHelper implements NamingContainer
             // translate
             label = getDisplayText(column, label);
         }
-        else if (label.endsWith(":"))
-        {   // already has a colon
-            colon = false;
+        else 
+        {   // resolve
+            if (textResolver==null)
+                getTextResolver(FacesContext.getCurrentInstance());
+            label = textResolver.resolveText(label);
+            // already has a colon
+            if (label.endsWith(":"))
+                colon = false;
         }
         // handle empty string
         if (StringUtils.isEmpty(label) || label.equals("-"))
@@ -1873,7 +1878,11 @@ public class TagEncodingHelper implements NamingContainer
         if (labelText!=null)
         {   // Label has changed
             if (!labelText.equals("-"))
-            {   // add a colon?
+            {   // resolve
+                if (textResolver==null)
+                    getTextResolver(FacesContext.getCurrentInstance());
+                labelText = textResolver.resolveText(labelText);
+                // add a colon?
                 boolean colon = (!labelText.endsWith(":") ? ObjectUtils.getBoolean(getTagAttributeValue("colon"), true) : false);
                 if (colon)
                     labelText = labelText.trim() + ":";
