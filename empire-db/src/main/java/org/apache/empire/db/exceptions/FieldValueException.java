@@ -32,7 +32,7 @@ public abstract class FieldValueException extends UserLevelException
     {
         String title = column.getTitle();
         if (StringUtils.isEmpty(title))
-            title = "!["+((column instanceof DBColumn) ? ((DBColumn)column).getIdentifier() : column.getName()) + "]";
+            title = "["+((column instanceof DBColumn) ? ((DBColumn)column).getIdentifier() : column.getName()) + "]";
         return title;
     }
     
