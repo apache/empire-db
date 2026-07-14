@@ -5,6 +5,30 @@ For more Information about a particular issue please visit
 https://issues.apache.org/jira/browse/EMPIREDB
 
 --------------
+Release 3.5.0:
+--------------
+
+Summary: Release 3.5 has the following improvements and bugfixes:
+
+** Improvements / Features
+	EMPIREDB-493	ControlTag: allow label change with update rendering
+	EMPIREDB-492	DBRowSet: allow record initialization from RecordData instead of DBRecordData
+	EMPIREDB-491	DBQuery: swap collections for DBQueryColumns and original query columns
+	EMPIREDB-490	Improve MenuItemTag, MenuListTag to allow customization overrides
+	EMPIREDB-487	Allow to restore multiple session messages
+	EMPIREDB-486	InputControl: improve support for multiple input components
+	EMPIREDB-485	Oracle: Allow primary key with nullable column
+	EMPIREDB-484	CodeGen: exclude-Pattern for tables and views
+	EMPIREDB-483	Improve sql statement logging
+	EMPIREDB-480	TextInputControl: Improve decimal format for expressions
+
+** Bugfixes
+	EMPIREDB-494	ValueUtils: Handle date conversion for DBDatabase.DBSystemDate
+	EMPIREDB-489	StringUtils.lastIndexOfAny begins at wrong index
+	EMPIREDB-488	DBRowSet:updateRecord: don't modify Timestamp in record if field value is NO_VALUE
+	EMPIREDB-481	DBUtils - queryDataList the skipRows offset is not reset as expected
+
+--------------
 Release 3.4.0:
 --------------
 
