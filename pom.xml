@@ -408,6 +408,7 @@
 							<exclude>**/empire-db-example-vue/src/main/vue/.*</exclude>
 							<exclude>**/_eslintrc.js.bak</exclude>
 							<exclude>**/application.yml</exclude>
+							<exclude>**/logback-spring.xml</exclude>
 							<exclude>release.properties</exclude>
 							<!-- should the sample databases be created in target? -->
 							<exclude>**/hsqldb/sample.*</exclude>
