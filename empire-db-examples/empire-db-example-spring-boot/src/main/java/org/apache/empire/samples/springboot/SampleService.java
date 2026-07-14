@@ -61,9 +61,7 @@ public class SampleService {
     }
 
     /**
-     * <PRE>
      * Empties all Tables.
-     * </PRE>
      */
     public void clearDatabase() {
         DBCommand cmd = context.createCommand();
@@ -112,9 +110,7 @@ public class SampleService {
     }
 
     /**
-     * <PRE>
      * Insert a Department into the Departments table.
-     * </PRE>
      */
     private long insertDepartment(String departmentName, String businessUnit) {
         SampleDB.Departments DEP = db.DEPARTMENTS;
@@ -129,9 +125,7 @@ public class SampleService {
     }
 
     /**
-     * <PRE>
      * Inserts an Employee into the Employees table.
-     * </PRE>
      */
     private long insertEmployee(long departmentId, String firstName, String lastName, Gender gender, int salary) {
         SampleDB.Employees EMP = db.EMPLOYEES;
@@ -153,9 +147,7 @@ public class SampleService {
     }
 
     /**
-     * <PRE>
      * Inserts an Payments for a particular Employee
-     * </PRE>
      */
     private void insertPayments(DBRecord employee) {
         if (employee.isNull(db.EMPLOYEES.SALARY)) {
@@ -180,9 +172,7 @@ public class SampleService {
     }
 
     /**
-     * <PRE>
      * Updates an employee record by setting the phone number.
-     * </PRE>
      */
     private void updateEmployee(long idEmp, String phoneNumber, boolean useRecord) {
         // Update an Employee
@@ -204,9 +194,7 @@ public class SampleService {
     }
 
     /**
-     * <PRE>
      * Updates an employee record by setting the phone number.
-     * </PRE>
      */
     private void updateJoinedRecords(long idEmp, int salary) {
         // Shortcuts for convenience
@@ -229,9 +217,7 @@ public class SampleService {
     }
 
     /**
-     * <PRE>
      * Updates an employee record by setting the phone number.
-     * </PRE>
      */
     private void updatePartialRecord(long employeeId, String phoneNumber) {
         // Shortcut for convenience
@@ -349,7 +335,6 @@ public class SampleService {
     }
 
     /**
-     * <PRE>
      * Performs an SQL-Query and prints the result to System.out
      * <p>
      * First a DBCommand object is used to create the following SQL-Query (Oracle-Syntax):
@@ -373,7 +358,6 @@ public class SampleService {
      * QueryType.XmlDocument:
      * Obtains the query result as an XML-Document and prints the document.
      * Please note, that the XML not only contains the data but also the field metadata.
-     * </PRE>
      */
     public void queryExample(QueryType queryType) {
         int lastYear = LocalDate.now().getYear() - 1;

@@ -682,7 +682,8 @@ public class DBReader extends DBRecordData implements Closeable
      * initializes a DBRecord object with the values of the current row.
      * At least all primary key columns of the target rowset must be provided by this reader.
      * This function is equivalent to calling rowset.initRecord(rec, reader) 
-     * set also {@link DBRowSet#initRecord(DBRecordBase, DBRecordData)});
+     * set also {@link DBRowSet#initRecord(DBRecordBase, RecordData)});
+     * 
      * </PRE>
      * @param rec the record which to initialize
      */

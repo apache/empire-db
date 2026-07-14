@@ -41,12 +41,10 @@ public class SampleApp implements ApplicationRunner {
     private SampleService sampleService;
 
     /**
-     * <PRE>
      * This is the entry point of the Empire-DB Spring Boot Sample Application
      * Please check the application.yml configuration file for Database and Connection settings.
      * <p>
      * See run() method below for what is executed.
-     * </PRE>
      *
      * @param args arguments
      */

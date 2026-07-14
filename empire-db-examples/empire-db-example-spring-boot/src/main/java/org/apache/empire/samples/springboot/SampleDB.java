@@ -37,7 +37,6 @@ import org.slf4j.LoggerFactory;
 import java.sql.SQLException;
 
 /**
- * <PRE>
  * This file contains the definition of the data model in Java.
  * The SampleDB data model consists of three tables and two foreign key relations.
  * The tables are defined as nested classes here, but you may put them in separate files if you want to.
@@ -49,7 +48,6 @@ import java.sql.SQLException;
  * Since all tables, views and columns are declared as "final" constants we have all put them in upper case.
  * <p>
  * You may declare other database tables or views in the same way.
- * </PRE>
  */
 public class SampleDB extends DBDatabase {
     // Logger

@@ -273,7 +273,7 @@ public class DBQuery extends DBRowSet
 
     /**
      * Returns the query column for a underlying column expression 
-     * @Deprecated use column(expr) instead
+     * Deprecated: use column(expr) instead
      * @param expr the DBColumnExpr object
      * @return the query column
      */
@@ -285,7 +285,7 @@ public class DBQuery extends DBRowSet
     
     /**
      * Returns the query column for a given column name 
-     * @Deprecated use column(name) instead
+     * Deprecated: use column(name) instead
      * @param name the column name
      * @return the query column
      */
@@ -297,7 +297,7 @@ public class DBQuery extends DBRowSet
 
     /**
      * Gets all columns of this rowset (e.g. for cmd.select()).
-     * @Deprecated use getColumns() or getAllColumns() instead
+     * Deprecated: use getColumns() or getAllColumns() instead
      * @return all columns of this rowset
      */
     @Deprecated
@@ -651,7 +651,6 @@ public class DBQuery extends DBRowSet
      * @param cmd the command
      * @param updCol the update column
      * @param joinCol the join column
-     * @param keyColumns the key columns
      * @param key the record key
      * @param record the record
      * @return flag whether the join restriction could be added
