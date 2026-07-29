@@ -233,7 +233,7 @@ public abstract class Page // *Deprecated* implements Serializable
                 return;
             }
             // OK, not redirected
-            initPageElements();
+            initPageElements(false);
             restoreSessionMessage(context);
         }
         catch (NoSuchMethodException e)
@@ -551,7 +551,7 @@ public abstract class Page // *Deprecated* implements Serializable
      */
     public void doInit()
     {
-        initPageElements();
+        initPageElements(pageElementsInitialzed);
     }
 
     public void doRefresh()
@@ -562,9 +562,9 @@ public abstract class Page // *Deprecated* implements Serializable
     /**
      * Initialize all page elements
      */
-    protected void initPageElements()
+    protected void initPageElements(boolean reinitalize)
     {
-        if (pageElementsInitialzed) {
+        if (pageElementsInitialzed && !reinitalize) {
             log.warn("PageElements have already been initalized!");
             return;
         }
