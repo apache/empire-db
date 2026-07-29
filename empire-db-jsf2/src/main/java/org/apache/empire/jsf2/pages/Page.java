@@ -551,7 +551,7 @@ public abstract class Page // *Deprecated* implements Serializable
      */
     public void doInit()
     {
-        initPageElements(pageElementsInitialzed);
+        initPageElements(!pageElementsInitialzed);
     }
 
     public void doRefresh()
@@ -565,7 +565,7 @@ public abstract class Page // *Deprecated* implements Serializable
     protected void initPageElements(boolean reinitalize)
     {
         if (pageElementsInitialzed && !reinitalize) {
-            log.warn("PageElements have already been initalized!");
+            log.info("PageElements have already been initalized!");
             return;
         }
         // init
