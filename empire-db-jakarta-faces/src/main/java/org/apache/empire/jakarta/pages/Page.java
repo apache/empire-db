@@ -54,6 +54,8 @@ public abstract class Page // *Deprecated* implements Serializable
     private short                initialized     = -1;  // -1=not initialized; 0=pending; 1=initialized
     private PageDefinition       pageDefinition  = null;
     private List<PageElement<?>> pageElements    = null;
+    private boolean              pageElementsInitialzed = false;
+
 
     protected Page()
     {
@@ -231,6 +233,7 @@ public abstract class Page // *Deprecated* implements Serializable
                 return;
             }
             // OK, not redirected
+            initPageElements();
             restoreSessionMessage(context);
         }
         catch (NoSuchMethodException e)
@@ -404,6 +407,15 @@ public abstract class Page // *Deprecated* implements Serializable
     }
 
     /**
+     * Returns the list of page elements
+     * @return the list of page elements
+     */
+    protected final List<PageElement<?>> getPageElements()
+    {
+        return this.pageElements; 
+    }
+    
+    /**
      * adds a page element to this page
      * DO NOT CALL yourself, this method is called from the PageElement constructor!
      * 
@@ -412,7 +424,7 @@ public abstract class Page // *Deprecated* implements Serializable
     protected void registerPageElement(PageElement<?> element)
     {
         if (pageElements == null)
-            pageElements = new ArrayList<PageElement<?>>(1);
+            pageElements = new ArrayList<PageElement<?>>(4);
         // register now
         if (pageElements.contains(element) == false)
             pageElements.add(element);
@@ -534,17 +546,39 @@ public abstract class Page // *Deprecated* implements Serializable
         return prm.get(name);
     }
     
-    /* Default Init Method */
+    /**
+     * Init and refresh
+     */
     public void doInit()
     {
+        initPageElements();
+    }
+
+    public void doRefresh()
+    {
+        refreshPageElements();
+    }
+    
+    /**
+     * Initialize all page elements
+     */
+    protected void initPageElements()
+    {
+        if (pageElementsInitialzed) {
+            log.warn("PageElements have already been initalized!");
+            return;
+        }
+        // init
         if (pageElements != null)
         {   // Init Page Elements
             for (PageElement<?> pe : pageElements)
                 doInitElement(pe);
         }
+        // done
+        this.pageElementsInitialzed = true;
     }
 
-    public void doRefresh()
+    protected void refreshPageElements()
     {
         if (pageElements != null)
         {   // Refresh Page Elements
