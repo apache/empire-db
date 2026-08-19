@@ -225,35 +225,31 @@ public class DBQuery extends DBRowSet
 
     /**
      * Returns the query column for a underlying column expression
+     * if no column for the expression is found an ItemNotFoundException is thrown
      * Use this function to map table columns to query columns
      * @param expr the DBColumnExpr object
      * @return the query column
      */
     public DBQueryColumn column(DBColumnExpr expr)
-    {
-        int index = getQueryColumnIndex(expr);
-        if (index < 0)
+    {   // find query column by expr
+        DBQueryColumn column = findColumn(expr);
+        if (column==null)
             throw new ItemNotFoundException(expr);
-        // return the query column
-        return (DBQueryColumn)columns.get(index);
+        return column;
     }
     
     /**
      * Returns the query column for a given column name in the underlying query
+     * if no column of that name is found an ItemNotFoundException is thrown
      * @param columnName the column name in the underlying query
      * @return the query column
      */
     public DBQueryColumn column(String columnName)
     {   // find query column by name
-        if (StringUtils.isEmpty(columnName))
-            throw new InvalidArgumentException("name", columnName);
-        // search
-        for (int i = 0; i < queryColumns.length; i++)
-        {
-            if (columnName.equalsIgnoreCase(queryColumns[i].getName()))
-                return (DBQueryColumn)columns.get(i); // found
-        }
-        throw new ItemNotFoundException(columnName);
+        DBQueryColumn column = findColumn(columnName);
+        if (column==null)
+            throw new ItemNotFoundException(columnName);
+        return column;
     }
 
     /**
@@ -273,26 +269,37 @@ public class DBQuery extends DBRowSet
 
     /**
      * Returns the query column for a underlying column expression 
-     * Deprecated: use column(expr) instead
+     * similar to column(expr) but returns null if column was not found
      * @param expr the DBColumnExpr object
      * @return the query column
      */
-    @Deprecated
     public DBQueryColumn findColumn(DBColumnExpr expr)
     {
-        return column(expr);
+        int index = getQueryColumnIndex(expr);
+        if (index < 0)
+            return null; // not found
+        // return the query column
+        return (DBQueryColumn)columns.get(index);
     }
     
     /**
-     * Returns the query column for a given column name 
-     * Deprecated: use column(name) instead
+     * Returns the query column for a given column name or null if column is not found 
+     * similar to column(name) but returns null if column was not found
      * @param name the column name
      * @return the query column
      */
-    @Deprecated
-    public DBQueryColumn findColumn(String name)
-    {
-        return column(name);
+    public DBQueryColumn findColumn(String columnName)
+    {   // find query column by name
+        if (StringUtils.isEmpty(columnName))
+            throw new InvalidArgumentException("name", columnName);
+        // search
+        for (int i = 0; i < queryColumns.length; i++)
+        {
+            if (columnName.equalsIgnoreCase(queryColumns[i].getName()))
+                return (DBQueryColumn)columns.get(i); // found
+        }
+        // not found
+        return null;
     }
 
     /**
