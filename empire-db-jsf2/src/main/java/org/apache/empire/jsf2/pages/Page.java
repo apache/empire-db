@@ -232,6 +232,9 @@ public abstract class Page // *Deprecated* implements Serializable
                 context.renderResponse();
                 return;
             }
+            // check response
+            if (context.getResponseComplete())
+                return;
             // OK, not redirected
             if (!pageElementsInitialzed)
                 initPageElements();
