@@ -1073,7 +1073,6 @@ public abstract class DBRowSet extends DBExpr implements Entity
         String sql = null;
         int setCount = 0;
         // Perform action
-        DBColumn[] keyColumns = getKeyColumns();
         DBRecordBase.State recordState = record.getState(); 
         if (recordState==DBRecordBase.State.New)
         {	// Insert Record
@@ -1115,10 +1114,6 @@ public abstract class DBRowSet extends DBExpr implements Entity
                     cmd.set(col.to(value));
                     setCount++;
                 }
-                else if (ObjectUtils.contains(keyColumns, col))
-                {   // All primary key fields must be supplied
-                    throw new FieldNotNullException(col);
-                }
                 else if (col.isRequired())
                 {   // Error Column is required!
                     throw new FieldNotNullException(col);
@@ -1128,6 +1123,7 @@ public abstract class DBRowSet extends DBExpr implements Entity
         }
         else if (recordState==DBRecordBase.State.Modified)
         {	// Update Record
+            DBColumn[] keyColumns = getKeyColumns();
             if (keyColumns == null)
             { // Requires a primary key
                 log.error("updateRecord: {} no primary key defined!", name);
